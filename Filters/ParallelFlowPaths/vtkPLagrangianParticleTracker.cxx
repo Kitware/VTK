@@ -993,7 +993,7 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
     idTermination->Squeeze();
 
     // AllGather it
-    this->Controller->AllGatherV(idTermination.Get(), allIdTermination.Get());
+    this->Controller->AllGatherV(idTermination, allIdTermination);
 
     // Modify current terminations
     for (int i = 0; i < allIdTermination->GetNumberOfTuples(); i++)

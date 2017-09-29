@@ -495,7 +495,7 @@ int TestIntersectWithLine(int argc, char* argv[])
 
   renderWindowInteractor->Initialize();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

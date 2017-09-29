@@ -43,21 +43,21 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
   mapper->SetInputConnection( sphere->GetOutputPort() );
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper( mapper.Get() );
+  actor->SetMapper( mapper );
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor( actor.Get() );
+  renderer->AddActor( actor );
 
   {
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer.Get() );
+    renderWindow->AddRenderer( renderer );
 
     // 1) Try calling SupportsOpenGL to make sure that
     // doesn't crash
     renderWindow->SupportsOpenGL();
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow.Get() );
+    interactor->SetRenderWindow( renderWindow );
 
     interactor->Initialize();
 
@@ -72,10 +72,10 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
     // 3) try doing it again with a new window
     // but using existing old actor/rederer
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer.Get() );
+    renderWindow->AddRenderer( renderer );
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow.Get() );
+    interactor->SetRenderWindow( renderWindow );
 
     interactor->Initialize();
 
@@ -97,18 +97,18 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
   {
     // 5) try doing it again with a new everything
     vtkNew<vtkActor> actor2;
-    actor2->SetMapper( mapper.Get() );
+    actor2->SetMapper( mapper );
     actor2->GetProperty()->SetAmbient(1.0);
     actor2->GetProperty()->SetDiffuse(0.0);
 
     vtkNew<vtkRenderer> renderer2;
-    renderer2->AddActor( actor2.Get() );
+    renderer2->AddActor( actor2 );
 
     vtkNew<vtkRenderWindow> renderWindow;
-    renderWindow->AddRenderer( renderer2.Get() );
+    renderWindow->AddRenderer( renderer2 );
 
     vtkNew<vtkRenderWindowInteractor> interactor;
-    interactor->SetRenderWindow( renderWindow.Get() );
+    interactor->SetRenderWindow( renderWindow );
 
     interactor->Initialize();
 
@@ -118,7 +118,7 @@ int TestToggleOSWithInteractor(int argc, char* argv[])
     renderWindow->OffScreenRenderingOff();
     renderWindow->Render();
 
-    retVal = vtkRegressionTestImage( renderWindow.Get() );
+    retVal = vtkRegressionTestImage( renderWindow );
     if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       interactor->Start();

@@ -43,50 +43,50 @@ int TestDepthPeelingPassViewport(int, char*[])
   sphere->SetRadius(10);
 
   vtkNew<vtkRenderer> renderer;
-  InitRenderer(renderer.Get());
+  InitRenderer(renderer);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetAlphaBitPlanes(1);
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderer> renderer2;
-  InitRenderer(renderer2.Get());
+  InitRenderer(renderer2);
   renderer2->SetViewport(0.0, 0.1, 0.2, 0.3);
   renderer2->InteractiveOff();
-  renWin->AddRenderer(renderer2.Get());
+  renWin->AddRenderer(renderer2);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
 
   {
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.Get());
+    actor->SetMapper(mapper);
     actor->GetProperty()->SetOpacity(0.35);
     actor->SetPosition(0.0, 0.0, 1.0);
-    renderer->AddActor(actor.Get());
+    renderer->AddActor(actor);
   }
 
   {
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.Get());
+    actor->SetMapper(mapper);
     vtkProperty* prop = actor->GetProperty();
     prop->SetAmbientColor(1.0, 0.0, 0.0);
     prop->SetDiffuseColor(1.0, 0.8, 0.3);
     prop->SetSpecular(0.0);
     prop->SetDiffuse(0.5);
     prop->SetAmbient(0.3);
-    renderer2->AddActor(actor.Get());
+    renderer2->AddActor(actor);
   }
   {
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.Get());
+    actor->SetMapper(mapper);
     actor->GetProperty()->SetOpacity(0.35);
     actor->SetPosition(10.0, 0.0, 0.0);
-    renderer2->AddActor(actor.Get());
+    renderer2->AddActor(actor);
   }
 
   renderer->SetLayer(0);

@@ -404,7 +404,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
   {
     // Computes the Median
     vtkNew<vtkTable> medianTable;
-    this->ComputeMedian(inData, medianTable.GetPointer());
+    this->ComputeMedian(inData, medianTable);
     // Sets the median
     x = rv;
     for ( vtkIdType j = 0; j < m; ++ j, ++ x )
@@ -426,7 +426,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
       vtkNew<vtkDoubleArray> col;
       col->SetNumberOfTuples( nRow );
       col->SetName( nameStr.str().c_str() );
-      inDataMAD->AddColumn( col.GetPointer() );
+      inDataMAD->AddColumn( col );
       // Iterate over rows
       for ( i = 0; i < nRow; ++ i )
       {
@@ -438,7 +438,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     }
     // Computes the MAD matrix
     vtkNew<vtkTable> MADTable;
-    this->ComputeMedian( inDataMAD.GetPointer(), MADTable.GetPointer() );
+    this->ComputeMedian( inDataMAD, MADTable );
     // Sets the MAD
     x = rv + m;
     // Iterate over column pairs
@@ -756,7 +756,7 @@ void vtkMultiCorrelativeStatistics::ComputeMedian(vtkTable* inData, vtkTable* ou
   vtkOrderStatistics* orderStats = this->CreateOrderStatisticsInstance();
   vtkNew<vtkTable> inOrderStats;
   orderStats->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA,
-    inOrderStats.GetPointer() );
+    inOrderStats );
   for (vtkIdType i = 0; i < inData->GetNumberOfColumns(); ++i )
   {
     inOrderStats->AddColumn( inData->GetColumn(i) );

@@ -70,7 +70,7 @@ int TestDataArrayIterators(int, char *[])
   vtkIdType numTuples = numValues / numComps;
 
   vtkNew<vtkFloatArray> arrayContainer;
-  vtkFloatArray *array = arrayContainer.GetPointer();
+  vtkFloatArray *array = arrayContainer;
   array->SetNumberOfComponents(numComps);
   array->SetNumberOfTuples(numTuples);
   for (vtkIdType i = 0; i < numValues; ++i)
@@ -81,7 +81,7 @@ int TestDataArrayIterators(int, char *[])
 
   // Create the vtkTypedDataArray testing implementation:
   vtkNew<MyArray> tdaContainer;
-  MyArray *tda = tdaContainer.GetPointer();
+  MyArray *tda = tdaContainer;
   tda->Init(array);
 
   // should be vtkAOSDataArrayTemplate<float>::Iterator (float*):

@@ -273,12 +273,12 @@ RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkNew<vtkUnsignedCharArray> colors;
   vtkNew<vtkFloatArray> intensities;
-  output->SetPoints( newPts.GetPointer() );
+  output->SetPoints( newPts );
 
   vtkNew<vtkCellArray> newVerts;
   if (this->CreateCells)
   {
-    output->SetVerts( newVerts.GetPointer() );
+    output->SetVerts( newVerts );
   }
 
   bool wantIntensities = ((numValuesPerLine == 4) || (numValuesPerLine == 7));
@@ -287,7 +287,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
     colors->SetNumberOfComponents(3);
     colors->SetName("Color");
     colors->Allocate(targetNumPts*3);
-    output->GetPointData()->SetScalars( colors.GetPointer());
+    output->GetPointData()->SetScalars( colors);
     if (!this->IncludeColorAndLuminance)
     {
       wantIntensities = false;
@@ -299,7 +299,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
     intensities->SetName("Intensities");
     intensities->SetNumberOfComponents(1);
     intensities->Allocate(targetNumPts);
-    output->GetPointData()->AddArray( intensities.GetPointer());
+    output->GetPointData()->AddArray( intensities);
   }
 
   if (numPts == 0)

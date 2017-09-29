@@ -62,25 +62,25 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(4);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
   tcoords->SetNumberOfTuples(4);
-  polydata->GetPointData()->SetTCoords(tcoords.Get());
+  polydata->GetPointData()->SetTCoords(tcoords);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->PolyDataActor = vtkActor::New();
-  this->PolyDataActor->SetMapper(polyDataMapper.Get());
+  this->PolyDataActor->SetMapper(polyDataMapper);
   vtkNew<vtkTexture> texture;
   texture->RepeatOff();
-  this->PolyDataActor->SetTexture(texture.Get());
+  this->PolyDataActor->SetTexture(texture);
   }
 
   // setup the backing polygon mapper
@@ -88,17 +88,17 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(4);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackingPolyDataActor = vtkActor::New();
-  this->BackingPolyDataActor->SetMapper(polyDataMapper.Get());
+  this->BackingPolyDataActor->SetMapper(polyDataMapper);
   }
 
   // setup the background polygon mapper
@@ -106,17 +106,17 @@ vtkOpenGLImageSliceMapper::vtkOpenGLImageSliceMapper()
   vtkNew<vtkPolyData> polydata;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(10);
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkCellArray> tris;
-  polydata->SetPolys(tris.Get());
+  polydata->SetPolys(tris);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
   vtkNew<vtkOpenGLPolyDataMapper> polyDataMapper;
   polyDataMapper->SetInputConnection(prod->GetOutputPort());
   this->BackgroundPolyDataActor = vtkActor::New();
-  this->BackgroundPolyDataActor->SetMapper(polyDataMapper.Get());
+  this->BackgroundPolyDataActor->SetMapper(polyDataMapper);
   }
 
   this->FragmentShaderIndex = 0;

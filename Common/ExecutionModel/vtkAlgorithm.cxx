@@ -1476,7 +1476,7 @@ int vtkAlgorithm::Update(vtkInformation* requests)
 {
   vtkNew<vtkInformationVector> reqs;
   reqs->SetInformationObject(0, requests);
-  return this->Update(0, reqs.GetPointer());
+  return this->Update(0, reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1493,7 +1493,7 @@ int vtkAlgorithm::UpdatePiece(
   {
     reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
   }
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1503,7 +1503,7 @@ int vtkAlgorithm::UpdateExtent(const int extents[6])
 
   vtkNew<vtkInformation> reqs;
   reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------
@@ -1524,7 +1524,7 @@ int vtkAlgorithm::UpdateTimeStep(
   {
     reqs->Set(vtkSDDP::UPDATE_EXTENT(), extents, 6);
   }
-  return this->Update(reqs.GetPointer());
+  return this->Update(reqs);
 }
 
 //----------------------------------------------------------------------------

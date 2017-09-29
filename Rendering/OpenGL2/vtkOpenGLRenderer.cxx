@@ -478,7 +478,7 @@ void vtkOpenGLRenderer::Clear(void)
     points->SetPoint(1, size[0], 0, 0);
     points->SetPoint(2, size[0], size[1], 0);
     points->SetPoint(3, 0, size[1], 0);
-    polydata->SetPoints(points.Get());
+    polydata->SetPoints(points);
 
     vtkNew<vtkCellArray> tris;
     tris->InsertNextCell(3);
@@ -489,14 +489,14 @@ void vtkOpenGLRenderer::Clear(void)
     tris->InsertCellPoint(0);
     tris->InsertCellPoint(2);
     tris->InsertCellPoint(3);
-    polydata->SetPolys(tris.Get());
+    polydata->SetPolys(tris);
 
     vtkNew<vtkTrivialProducer> prod;
-    prod->SetOutput(polydata.Get());
+    prod->SetOutput(polydata);
 
     // Set some properties.
     mapper->SetInputConnection(prod->GetOutputPort());
-    actor->SetMapper(mapper.Get());
+    actor->SetMapper(mapper);
 
     if(this->TexturedBackground && this->BackgroundTexture)
     {
@@ -516,7 +516,7 @@ void vtkOpenGLRenderer::Clear(void)
       tcoords->SetTuple(2,tmp);
       tmp[0] = 0.0;
       tcoords->SetTuple(3,tmp);
-      polydata->GetPointData()->SetTCoords(tcoords.Get());
+      polydata->GetPointData()->SetTCoords(tcoords);
     }
     else // gradient
     {
@@ -535,7 +535,7 @@ void vtkOpenGLRenderer::Clear(void)
       tmp[2] = this->Background2[2]*255;
       colors->SetTuple(2,tmp);
       colors->SetTuple(3,tmp);
-      polydata->GetPointData()->SetScalars(colors.Get());
+      polydata->GetPointData()->SetScalars(colors);
     }
 
     glDisable(GL_DEPTH_TEST);

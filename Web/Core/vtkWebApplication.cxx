@@ -440,7 +440,7 @@ void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 {
-  return this->Internals->ObjectIdMap.GetPointer();
+  return this->Internals->ObjectIdMap;
 }
 
 //----------------------------------------------------------------------------

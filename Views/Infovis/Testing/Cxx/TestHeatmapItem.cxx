@@ -72,43 +72,43 @@ int TestHeatmapItem(int argc, char* argv[])
   m4->SetValue(1, "b");
   m4->SetValue(2, "c");
 
-  table->AddColumn(tableNames.GetPointer());
-  table->AddColumn(m1.GetPointer());
-  table->AddColumn(m2.GetPointer());
-  table->AddColumn(m3.GetPointer());
-  table->AddColumn(m4.GetPointer());
+  table->AddColumn(tableNames);
+  table->AddColumn(m1);
+  table->AddColumn(m2);
+  table->AddColumn(m3);
+  table->AddColumn(m4);
 
   vtkNew<vtkContextActor> actor;
 
   vtkNew<vtkHeatmapItem> heatmap;
-  heatmap->SetTable(table.GetPointer());
+  heatmap->SetTable(table);
   heatmap->SetPosition(20, 5);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(heatmap.GetPointer());
+  trans->AddItem(heatmap);
   trans->Scale(2, 2);
-  actor->GetScene()->AddItem(trans.GetPointer());
+  actor->GetScene()->AddItem(trans);
 
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 200);
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderer->AddActor(actor.GetPointer());
-  actor->GetScene()->SetRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
+  actor->GetScene()->SetRenderer(renderer);
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetInteractorStyle(interactorStyle.GetPointer());
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetInteractorStyle(interactorStyle);
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

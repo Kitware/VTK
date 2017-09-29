@@ -35,8 +35,8 @@ int TestOTDensityMap(int, char* [])
 
   // Create a two columns table
   vtkNew<vtkTable> table;
-  table->AddColumn(arrFirstVariable.GetPointer());
-  table->AddColumn(arrSecondVariable.GetPointer());
+  table->AddColumn(arrFirstVariable);
+  table->AddColumn(arrSecondVariable);
 
   const int numNotes = 20;
   table->SetNumberOfRows(numNotes);
@@ -60,12 +60,12 @@ int TestOTDensityMap(int, char* [])
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
   // First verify that absence of input does not cause trouble
-  density->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+  density->GetExecutive()->AddObserver(vtkCommand::ErrorEvent, errorObserver1);
   density->Update();
   errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkOTDensityMap");
 
   // Now set the real input table
-  density->SetInputData(table.GetPointer());
+  density->SetInputData(table);
   density->SetNumberOfContours(3);
   density->SetValue(0, 0.1);
   density->SetValue(1, 0.5);

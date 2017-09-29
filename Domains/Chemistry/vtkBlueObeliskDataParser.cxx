@@ -207,67 +207,67 @@ void vtkBlueObeliskDataParser::NewAtomFinished()
   vtkIdType index = static_cast<vtkIdType>(this->CurrentAtomicNumber);
 
   this->ResizeAndSetValue(this->CurrentSymbol,
-                          this->Target->Symbols.GetPointer(),
+                          this->Target->Symbols,
                           index);
   // this->ToLower will modify the input string, so this must follow
   // this->Symbol
   this->ResizeAndSetValue(this->ToLower(this->CurrentSymbol),
-                          this->Target->LowerSymbols.GetPointer(),
+                          this->Target->LowerSymbols,
                           index);
   this->ResizeAndSetValue(this->CurrentName,
-                          this->Target->Names.GetPointer(),
+                          this->Target->Names,
                           index);
   // this->ToLower will modify the input string, so this must follow
   // this->Name
   this->ResizeAndSetValue(this->ToLower(this->CurrentName),
-                          this->Target->LowerNames.GetPointer(),
+                          this->Target->LowerNames,
                           index);
   this->ResizeAndSetValue(this->CurrentPeriodicTableBlock,
-                          this->Target->PeriodicTableBlocks.GetPointer(),
+                          this->Target->PeriodicTableBlocks,
                           index);
   this->ResizeAndSetValue(this->CurrentElectronicConfiguration,
-                          this->Target->ElectronicConfigurations.GetPointer(),
+                          this->Target->ElectronicConfigurations,
                           index);
   this->ResizeAndSetValue(this->CurrentFamily,
-                          this->Target->Families.GetPointer(),
+                          this->Target->Families,
                           index);
   this->ResizeAndSetValue(this->CurrentMass,
-                          this->Target->Masses.GetPointer(),
+                          this->Target->Masses,
                           index);
   this->ResizeAndSetValue(this->CurrentExactMass,
-                          this->Target->ExactMasses.GetPointer(),
+                          this->Target->ExactMasses,
                           index);
   this->ResizeAndSetValue(this->CurrentIonizationEnergy,
-                          this->Target->IonizationEnergies.GetPointer(),
+                          this->Target->IonizationEnergies,
                           index);
   this->ResizeAndSetValue(this->CurrentElectronAffinity,
-                          this->Target->ElectronAffinities.GetPointer(),
+                          this->Target->ElectronAffinities,
                           index);
   this->ResizeAndSetValue
     (this->CurrentPaulingElectronegativity,
-     this->Target->PaulingElectronegativities.GetPointer(), index);
+     this->Target->PaulingElectronegativities, index);
   this->ResizeAndSetValue(this->CurrentCovalentRadius,
-                          this->Target->CovalentRadii.GetPointer(),
+                          this->Target->CovalentRadii,
                           index);
   this->ResizeAndSetValue(this->CurrentVDWRadius,
-                          this->Target->VDWRadii.GetPointer(),
+                          this->Target->VDWRadii,
                           index);
   // Tuple handled differently
-  this->ResizeArrayIfNeeded(this->Target->DefaultColors.GetPointer(),
+  this->ResizeArrayIfNeeded(this->Target->DefaultColors,
                             index);
   this->Target->DefaultColors->SetTypedTuple(index,
                                              this->CurrentDefaultColor);
   this->ResizeAndSetValue(this->CurrentBoilingPoint,
-                          this->Target->BoilingPoints.GetPointer(),
+                          this->Target->BoilingPoints,
                           index);
   this->ResizeAndSetValue(this->CurrentMeltingPoint,
-                          this->Target->MeltingPoints.GetPointer(),
+                          this->Target->MeltingPoints,
                           index);
   this->ResizeAndSetValue(this->CurrentPeriod,
-                          this->Target->Periods.GetPointer(),
+                          this->Target->Periods,
                           index);
   this->ResizeAndSetValue(this->CurrentGroup,
-                          this->Target->Groups.GetPointer(),
+                          this->Target->Groups,
                           index);
   this->IsProcessingAtom = false;
 }

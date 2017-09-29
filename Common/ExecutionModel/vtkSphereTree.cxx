@@ -404,7 +404,7 @@ namespace {
       {
         // Dummy call to GetCellPoints to enable its uses in the threaded code
         vtkNew<vtkIdList> dummy;
-        grid->GetCellPoints(0, dummy.Get());
+        grid->GetCellPoints(0, dummy);
 
         UnstructuredSpheres spheres(grid, s);
         vtkSMPTools::For(0, numCells, spheres);

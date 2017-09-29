@@ -139,9 +139,9 @@ bool vtkTooltipItem::Paint(vtkContext2D *painter)
   painter->DrawString(bounds[0].GetX()+5/scale[0], bounds[0].GetY()+3/scale[1], this->Text);
 
   // restore painter settings
-  painter->ApplyPen(previousPen.GetPointer());
-  painter->ApplyBrush(previousBrush.GetPointer());
-  painter->ApplyTextProp(previousTextProp.GetPointer());
+  painter->ApplyPen(previousPen);
+  painter->ApplyBrush(previousBrush);
+  painter->ApplyTextProp(previousTextProp);
 
   return true;
 }

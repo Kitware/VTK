@@ -972,7 +972,7 @@ vtkScalarsToColors *vtkPlotBar::GetLookupTable()
   {
     this->CreateDefaultLookupTable();
   }
-  return this->LookupTable.Get();
+  return this->LookupTable;
 }
 
 //-----------------------------------------------------------------------------

@@ -50,7 +50,7 @@ vtkContextInteractorStyle::~vtkContextInteractorStyle()
   this->SetScene(nullptr);
   if (this->TimerCallbackInitialized && this->Interactor)
   {
-    this->Interactor->RemoveObserver(this->InteractorCallbackCommand.Get());
+    this->Interactor->RemoveObserver(this->InteractorCallbackCommand);
     this->TimerCallbackInitialized = false;
   }
 }
@@ -75,7 +75,7 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
   }
   if (this->Scene)
   {
-    this->Scene->RemoveObserver(this->SceneCallbackCommand.GetPointer());
+    this->Scene->RemoveObserver(this->SceneCallbackCommand);
   }
 
   this->Scene = scene;
@@ -83,7 +83,7 @@ void vtkContextInteractorStyle::SetScene(vtkContextScene* scene)
   if (this->Scene)
   {
     this->Scene->AddObserver(vtkCommand::ModifiedEvent,
-                             this->SceneCallbackCommand.GetPointer(),
+                             this->SceneCallbackCommand,
                              this->Priority);
   }
   this->Modified();
@@ -161,7 +161,7 @@ void vtkContextInteractorStyle::OnSceneModified()
   if (!this->TimerCallbackInitialized && this->Interactor)
   {
     this->Interactor->AddObserver(vtkCommand::TimerEvent,
-                                  this->InteractorCallbackCommand.GetPointer(),
+                                  this->InteractorCallbackCommand,
                                   0.0);
     this->TimerCallbackInitialized = true;
   }

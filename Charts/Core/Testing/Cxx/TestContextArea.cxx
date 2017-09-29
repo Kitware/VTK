@@ -67,14 +67,14 @@ int TestContextArea(int argc, char *argv[])
   imageLUT->SetSaturationRange(1.0, 0.25);
   imageLUT->SetValueRange(0.5, 1.0);
 
-  imageMapper->SetLookupTable(imageLUT.GetPointer());
+  imageMapper->SetLookupTable(imageLUT);
   imageMapper->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> imageActor;
-  imageActor->SetMapper(imageMapper.GetPointer());
+  imageActor->SetMapper(imageMapper);
 
   vtkNew<vtkPropItem> imageItem;
-  imageItem->SetPropObject(imageActor.GetPointer());
+  imageItem->SetPropObject(imageActor);
 
   // Contours:
   double range[2];
@@ -96,14 +96,14 @@ int TestContextArea(int argc, char *argv[])
   contourLUT->SetSaturationRange(0.75, 1.0);
   contourLUT->SetValueRange(0.25, 0.75);
 
-  contourMapper->SetLookupTable(contourLUT.GetPointer());
+  contourMapper->SetLookupTable(contourLUT);
   contourMapper->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> contourActor;
-  contourActor->SetMapper(contourMapper.GetPointer());
+  contourActor->SetMapper(contourMapper);
 
   vtkNew<vtkPropItem> contourItem;
-  contourItem->SetPropObject(contourActor.GetPointer());
+  contourItem->SetPropObject(contourActor);
 
   //----------------------------------------------------------------------------
   // Context2D initialization:
@@ -133,10 +133,10 @@ int TestContextArea(int argc, char *argv[])
     axis->GetGridPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 128);
   }
 
-  area->GetDrawAreaItem()->AddItem(imageItem.GetPointer());
-  area->GetDrawAreaItem()->AddItem(contourItem.GetPointer());
+  area->GetDrawAreaItem()->AddItem(imageItem);
+  area->GetDrawAreaItem()->AddItem(contourItem);
 
-  view->GetScene()->AddItem(area.GetPointer());
+  view->GetScene()->AddItem(area);
 
   view->GetInteractor()->Start();
   return EXIT_SUCCESS;

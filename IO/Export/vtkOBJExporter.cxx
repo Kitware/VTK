@@ -200,7 +200,7 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   {
     vtkNew<vtkFloatArray> normals;
     normals->SetNumberOfComponents(3);
-    trans->TransformNormals(pntData->GetNormals(),normals.Get());
+    trans->TransformNormals(pntData->GetNormals(),normals);
     for (i = 0; i < normals->GetNumberOfTuples(); i++)
     {
       p = normals->GetTuple(i);

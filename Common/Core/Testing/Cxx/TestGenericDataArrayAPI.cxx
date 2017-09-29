@@ -461,7 +461,7 @@ int Test_LookupTypedValue_allSigs()
     // Now for the list overload:
     DataArrayAPIUpdateSignature(
           "void LookupTypedValue(ValueType value, vtkIdList* ids)");
-    array->LookupTypedValue(val, testIdList.GetPointer());
+    array->LookupTypedValue(val, testIdList);
     if (testIdList->GetNumberOfIds() != refIdList->GetNumberOfIds())
     {
       // NonFatal + break so we can clean up.

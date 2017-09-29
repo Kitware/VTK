@@ -415,7 +415,7 @@ public:
     float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
     if (this->InputArrays[0])
     {
-      vtkDataArray *array = this->InputArrays[0].GetPointer();
+      vtkDataArray *array = this->InputArrays[0];
       vtkIdType numValues = array->GetNumberOfTuples() *
                             array->GetNumberOfComponents();
 
@@ -445,8 +445,8 @@ public:
       worker2();
     }
 
-    vtkDataArray *array1 = this->InputArrays[1].GetPointer();
-    vtkDataArray *array2 = this->InputArrays[2].GetPointer();
+    vtkDataArray *array1 = this->InputArrays[1];
+    vtkDataArray *array2 = this->InputArrays[2];
     vtkIdType numValues1 = array1->GetNumberOfTuples() *
                            array1->GetNumberOfComponents();
     vtkIdType numValues2 = array2->GetNumberOfTuples() *

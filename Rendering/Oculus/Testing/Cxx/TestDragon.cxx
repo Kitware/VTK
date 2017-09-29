@@ -43,12 +43,12 @@ int TestDragon(int argc, char *argv[])
   vtkNew<vtkOculusRenderer> renderer;
   renderer->SetBackground(0.2, 0.3, 0.4);
   vtkNew<vtkOculusRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
-  renderer->AddActor(actor.Get());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
   vtkNew<vtkOculusRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
   vtkNew<vtkOculusCamera> cam;
-  renderer->SetActiveCamera(cam.Get());
+  renderer->SetActiveCamera(cam);
 
   // crazy frame rate requirement
   // need to look into that at some point
@@ -61,7 +61,7 @@ int TestDragon(int argc, char *argv[])
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
   light->SetPosition(0.0, 1.0, 0.3);
-  renderer->AddLight(light.Get());
+  renderer->AddLight(light);
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(
@@ -72,7 +72,7 @@ int TestDragon(int argc, char *argv[])
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
@@ -86,7 +86,7 @@ int TestDragon(int argc, char *argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

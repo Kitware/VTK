@@ -111,7 +111,7 @@ int vtkCellIterator::GetCellDimension()
       return 3;
     default:
       vtkNew<vtkGenericCell> cell;
-      this->GetCell(cell.GetPointer());
+      this->GetCell(cell);
       return cell->GetCellDimension();
   }
 }
@@ -143,9 +143,9 @@ vtkCellIterator::vtkCellIterator()
   : CellType(VTK_EMPTY_CELL),
     CacheFlags(UninitializedFlag)
 {
-  this->Points = this->PointsContainer.GetPointer();
-  this->PointIds = this->PointIdsContainer.GetPointer();
-  this->Faces = this->FacesContainer.GetPointer();
+  this->Points = this->PointsContainer;
+  this->PointIds = this->PointIdsContainer;
+  this->Faces = this->FacesContainer;
 }
 
 //------------------------------------------------------------------------------

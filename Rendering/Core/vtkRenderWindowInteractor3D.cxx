@@ -38,7 +38,7 @@ vtkRenderWindowInteractor3D::vtkRenderWindowInteractor3D()
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
   vtkNew<vtkInteractorStyle3D> style;
-  this->SetInteractorStyle(style.Get());
+  this->SetInteractorStyle(style);
   this->Done = false;
 }
 

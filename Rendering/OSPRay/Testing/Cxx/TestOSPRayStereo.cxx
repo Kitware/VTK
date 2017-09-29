@@ -135,7 +135,7 @@ int TestOSPRayStereo(int argc, char *argv[])
   vtkSmartPointer<vtkOSPRayPass> osprayPass = vtkSmartPointer<vtkOSPRayPass>::New();
   if (!useGL)
   {
-    renderer->SetPass(osprayPass.GetPointer());
+    renderer->SetPass(osprayPass);
   }
 
   VTK_CREATE(vtkRenderWindow, renwin);

@@ -215,7 +215,7 @@ vtkLabeledContourMapper::vtkLabeledContourMapper()
 
   this->TextProperties = vtkSmartPointer<vtkTextPropertyCollection>::New();
   vtkNew<vtkTextProperty> defaultTProp;
-  this->TextProperties->AddItem(defaultTProp.GetPointer());
+  this->TextProperties->AddItem(defaultTProp);
 
   this->Internal = new vtkLabeledContourMapper::Private();
   this->Internal->PrepareTime = 0.0;
@@ -588,7 +588,7 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
   LabelPropertyMapType labelMap;
 
   // Initialize with the user-requested mapping, if it exists.
-  if (this->TextPropertyMapping.GetPointer() != nullptr)
+  if (this->TextPropertyMapping != nullptr)
   {
     vtkDoubleArray::Iterator valIt = this->TextPropertyMapping->Begin();
     vtkDoubleArray::Iterator valItEnd = this->TextPropertyMapping->End();
@@ -1461,7 +1461,7 @@ bool vtkLabeledContourMapper::Private::BuildLabel(vtkTextActor3D *actor,
   xform->Concatenate(rot);
 
   xform->Translate(info.Position.GetData());
-  actor->SetUserTransform(xform.GetPointer());
+  actor->SetUserTransform(xform);
 
   return true;
 }

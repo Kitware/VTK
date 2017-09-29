@@ -50,7 +50,7 @@ bool vtkContext3D::Begin(vtkContextDevice3D *device)
 
 vtkContextDevice3D * vtkContext3D::GetDevice()
 {
-  return this->Device.GetPointer();
+  return this->Device;
 }
 
 bool vtkContext3D::End()

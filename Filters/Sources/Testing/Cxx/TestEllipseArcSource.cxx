@@ -36,15 +36,15 @@ int TestEllipseArcSource(int vtkNotUsed(argc), char * vtkNotUsed(argv)[])
   mapper->SetInputConnection(source->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->SetBackground(.3, .6, .3);
 
   renderWindow->SetMultiSamples(0);

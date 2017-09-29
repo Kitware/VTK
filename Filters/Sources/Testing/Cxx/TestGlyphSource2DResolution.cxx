@@ -43,9 +43,9 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   vtkNew<vtkFloatArray> vectors;
   vectors->SetNumberOfComponents(3);
 
-  pd->SetPoints(pts.GetPointer());
-  pd->GetPointData()->SetScalars(scalars.GetPointer());
-  pd->GetPointData()->SetVectors(vectors.GetPointer());
+  pd->SetPoints(pts);
+  pd->GetPointData()->SetScalars(scalars);
+  pd->GetPointData()->SetVectors(vectors);
 
   vtkNew<vtkMinimalStandardRandomSequence> randomSequence;
   randomSequence->SetSeed(1);
@@ -107,7 +107,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   gs4->CrossOff();
 
   vtkNew<vtkGlyph2D> glypher;
-  glypher->SetInputData(pd.GetPointer());
+  glypher->SetInputData(pd);
   glypher->SetSourceConnection(0, gs->GetOutputPort());
   glypher->SetSourceConnection(1, gs1->GetOutputPort());
   glypher->SetSourceConnection(2, gs2->GetOutputPort());
@@ -122,26 +122,26 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   mapper->SetScalarRange(0, 5);
 
   vtkNew<vtkActor2D> glyphActor;
-  glyphActor->SetMapper(mapper.GetPointer());
+  glyphActor->SetMapper(mapper);
 
   // Create the RenderWindow, Renderer
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor2D(glyphActor.GetPointer());
+  ren->AddActor2D(glyphActor);
   ren->SetBackground(0.3, 0.3, 0.3);
   ren->ResetCamera();
 
   renWin->SetSize(size+1, size-1); //NPOT size
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->Render();
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

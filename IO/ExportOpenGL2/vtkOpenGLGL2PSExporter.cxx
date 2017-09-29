@@ -83,13 +83,13 @@ void vtkOpenGLGL2PSExporter::WriteData()
 
   // Setup helper class:
   vtkNew<vtkOpenGLGL2PSHelper> gl2ps;
-  gl2ps->SetInstance(gl2ps.GetPointer());
+  gl2ps->SetInstance(gl2ps);
   gl2ps->SetTextAsPath(this->TextAsPath);
   gl2ps->SetRenderWindow(this->RenderWindow);
 
   // Grab the image background:
   vtkNew<vtkImageData> background;
-  if (!this->RasterizeBackground(background.GetPointer()))
+  if (!this->RasterizeBackground(background))
   {
     vtkErrorMacro("Error rasterizing background image. Exported image may be "
                   "incorrect.");

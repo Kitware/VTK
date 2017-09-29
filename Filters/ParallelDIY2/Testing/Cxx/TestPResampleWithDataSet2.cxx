@@ -64,7 +64,7 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
   cylinder->SetRadius(15);
   cylinder->SetAxis(0, 1, 0);
   vtkNew<vtkTableBasedClipDataSet> clipCyl;
-  clipCyl->SetClipFunction(cylinder.GetPointer());
+  clipCyl->SetClipFunction(cylinder);
   clipCyl->InsideOutOn();
 
   vtkNew<vtkSphere> sphere;
@@ -72,13 +72,13 @@ void CreateSourceDataSet(vtkMultiBlockDataSet* dataset, int rank, int numberOfPr
   sphere->SetRadius(12);
   vtkNew<vtkTableBasedClipDataSet> clipSphr;
   clipSphr->SetInputConnection(clipCyl->GetOutputPort());
-  clipSphr->SetClipFunction(sphere.GetPointer());
+  clipSphr->SetClipFunction(sphere);
 
   vtkNew<vtkTransform> transform;
   transform->RotateZ(45);
   vtkNew<vtkTransformFilter> transFilter;
   transFilter->SetInputConnection(clipSphr->GetOutputPort());
-  transFilter->SetTransform(transform.GetPointer());
+  transFilter->SetTransform(transform);
 
   for (int i = 0; i < blocksPerProc; ++i)
   {
@@ -125,7 +125,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, const double bounds[6],
     img->SetExtent(extent);
     img->SetOrigin(origin);
     img->SetSpacing(spacing, spacing, spacing);
-    dataset->SetBlock(i, img.GetPointer());
+    dataset->SetBlock(i, img);
   }
 }
 
@@ -170,20 +170,20 @@ int TestPResampleWithDataSet2(int argc, char *argv[])
 
   // create source and input datasets
   vtkNew<vtkMultiBlockDataSet> source;
-  CreateSourceDataSet(source.GetPointer(), rank, numProcs, 5);
+  CreateSourceDataSet(source, rank, numProcs, 5);
 
   // compute full bounds of source dataset
   double bounds[6];
-  ComputeGlobalBounds(source.GetPointer(), controller.GetPointer(), bounds);
+  ComputeGlobalBounds(source, controller, bounds);
 
   vtkNew<vtkMultiBlockDataSet> input;
-  CreateInputDataSet(input.GetPointer(), bounds, rank, numProcs, 3);
+  CreateInputDataSet(input, bounds, rank, numProcs, 3);
 
 
   vtkNew<vtkPResampleWithDataSet> resample;
-  resample->SetController(controller.GetPointer());
-  resample->SetInputData(input.GetPointer());
-  resample->SetSourceData(source.GetPointer());
+  resample->SetController(controller);
+  resample->SetInputData(input);
+  resample->SetSourceData(source);
   resample->Update();
 
   // Render
@@ -211,26 +211,26 @@ int TestPResampleWithDataSet2(int argc, char *argv[])
     vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
   renWin->DoubleBufferOn();
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  prm->SetRenderWindow(renWin.GetPointer());
-  prm->SetController(controller.GetPointer());
+  prm->SetRenderWindow(renWin);
+  prm->SetController(controller);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
-  renderer->AddActor(actor.GetPointer());
+  actor->SetMapper(mapper);
+  renderer->AddActor(actor);
 
   int retVal;
   if (rank == 0)
   {
     prm->ResetAllCameras();
     renWin->Render();
-    retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 20);
+    retVal = vtkRegressionTester::Test(argc, argv, renWin, 20);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       prm->StartInteractor();

@@ -535,10 +535,10 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
 /*
   if (this->VBO->GetCoordShiftAndScaleEnabled())
   {
-    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale.GetPointer());
+    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale);
     // Pre-multiply the inverse of the VBO's transform:
     vtkMatrix4x4::Multiply4x4(
-      this->VBOShiftScale.GetPointer(), tmpMat, tmpMat);
+      this->VBOShiftScale, tmpMat, tmpMat);
   }
 */
   program->SetUniformMatrix("WCVCMatrix", tmpMat);

@@ -200,7 +200,7 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
     pointId = points->InsertNextPoint(xyz);
     pointIdList->InsertNextId(pointId);
   }
-  outputData->GetLines()->InsertNextCell(polyLine.GetPointer());
+  outputData->GetLines()->InsertNextCell(polyLine);
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
   vtkStringArray *ids = vtkArrayDownCast<vtkStringArray>(array);

@@ -394,7 +394,7 @@ void vtkOpenVRModel::Render(
         (double *)(this->PoseMatrix->Element));
 
       this->ModelHelper.Program->SetUniformMatrix("matrix",
-        this->PoseMatrix.Get());
+        this->PoseMatrix);
     }
 
     glDrawElements(GL_TRIANGLES,
@@ -405,7 +405,7 @@ void vtkOpenVRModel::Render(
     //Draw ray
     if (this->Ray->GetShow())
     {
-      this->Ray->Render(win, this->PoseMatrix.Get());
+      this->Ray->Render(win, this->PoseMatrix);
     }
   }
 }

@@ -124,7 +124,7 @@ int vtkExtractPointCloudPiece::RequestData(
     outPD->CopyData(pd, 0, numPts, startIndex);
   }
 
-  output->SetPoints(newPoints.Get());
+  output->SetPoints(newPoints);
 
   return 1;
 }

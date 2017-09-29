@@ -39,13 +39,13 @@ vtkContextArea::vtkContextArea()
     FixedMargins(0),
     FillViewport(true)
 {
-  this->Axes[vtkAxis::TOP] = this->TopAxis.GetPointer();
-  this->Axes[vtkAxis::BOTTOM] = this->BottomAxis.GetPointer();
-  this->Axes[vtkAxis::LEFT] = this->LeftAxis.GetPointer();
-  this->Axes[vtkAxis::RIGHT] = this->RightAxis.GetPointer();
+  this->Axes[vtkAxis::TOP] = this->TopAxis;
+  this->Axes[vtkAxis::BOTTOM] = this->BottomAxis;
+  this->Axes[vtkAxis::LEFT] = this->LeftAxis;
+  this->Axes[vtkAxis::RIGHT] = this->RightAxis;
 
-  this->Grid->SetXAxis(this->BottomAxis.GetPointer());
-  this->Grid->SetYAxis(this->LeftAxis.GetPointer());
+  this->Grid->SetXAxis(this->BottomAxis);
+  this->Grid->SetYAxis(this->LeftAxis);
 
   this->Axes[vtkAxis::TOP]->SetPosition(vtkAxis::TOP);
   this->Axes[vtkAxis::BOTTOM]->SetPosition(vtkAxis::BOTTOM);
@@ -68,9 +68,9 @@ void vtkContextArea::InitializeDrawArea()
     this->AddItem(this->Axes[i]);
   }
 
-  this->Clip->AddItem(this->Transform.GetPointer());
-  this->Clip->AddItem(this->Grid.GetPointer());
-  this->AddItem(this->Clip.GetPointer());
+  this->Clip->AddItem(this->Transform);
+  this->Clip->AddItem(this->Grid);
+  this->AddItem(this->Clip);
 }
 
 //------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ vtkAxis *vtkContextArea::GetAxis(vtkAxis::Location location)
 //------------------------------------------------------------------------------
 vtkAbstractContextItem *vtkContextArea::GetDrawAreaItem()
 {
-  return this->Transform.GetPointer();
+  return this->Transform;
 }
 
 //------------------------------------------------------------------------------

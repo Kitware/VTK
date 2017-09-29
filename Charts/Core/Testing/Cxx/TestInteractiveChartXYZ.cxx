@@ -34,7 +34,7 @@ int TestInteractiveChartXYZ(int , char * [])
   vtkNew<vtkChartXYZ> chart;
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   chart->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
 
@@ -42,16 +42,16 @@ int TestInteractiveChartXYZ(int , char * [])
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arrColor;
   arrColor->SetName("Color");
-  table->AddColumn(arrColor.GetPointer());
+  table->AddColumn(arrColor);
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -66,8 +66,8 @@ int TestInteractiveChartXYZ(int , char * [])
 
   // Add the dimensions we are interested in visualizing.
   vtkNew<vtkPlotPoints3D> plot;
-  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine", "Color");
-  chart->AddPlot(plot.GetPointer());
+  plot->SetInputData(table, "X Axis", "Sine", "Cosine", "Color");
+  chart->AddPlot(plot);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
@@ -123,11 +123,11 @@ int TestInteractiveChartXYZ(int , char * [])
   chart->MouseMoveEvent(mouseEvent);
 
   // remove colors
-  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
+  plot->SetInputData(table, "X Axis", "Sine", "Cosine");
   view->GetRenderWindow()->Render();
 
   // add them back in
-  plot->SetColors(arrColor.GetPointer());
+  plot->SetColors(arrColor);
 
   view->GetInteractor()->Start();
 

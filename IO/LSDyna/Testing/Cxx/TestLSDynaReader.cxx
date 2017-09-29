@@ -55,24 +55,24 @@ int TestLSDynaReader( int argc, char *argv[] )
 
   // Create the actor.
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->SetBackground(0,0,0);
   renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

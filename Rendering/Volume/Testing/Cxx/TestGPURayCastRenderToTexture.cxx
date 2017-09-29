@@ -71,13 +71,13 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetColor(colorFunction.GetPointer());
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetColor(colorFunction);
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   // Setup volume actor
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   // Testing prefers image comparison with small images
   vtkNew<vtkRenderWindow> renWin;
@@ -85,12 +85,12 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
   renWin->SetSize(401, 399);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->GetActiveCamera()->Azimuth(90);
   ren->GetActiveCamera()->Roll(90);
   ren->GetActiveCamera()->Azimuth(-90);
@@ -101,13 +101,13 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
   vtkNew<vtkImageData> im;
 
   // Get color texture as image
-  volumeMapper->GetColorImage(im.GetPointer());
+  volumeMapper->GetColorImage(im);
 
-  ren->RemoveVolume(volume.GetPointer());
+  ren->RemoveVolume(volume);
 
   vtkNew<vtkImageActor> ia;
-  ia->GetMapper()->SetInputData(im.GetPointer());
-  ren->AddActor(ia.GetPointer());
+  ia->GetMapper()->SetInputData(im);
+  ren->AddActor(ia);
   ren->GetActiveCamera()->SetPosition(0, 0, -1);
   ren->GetActiveCamera()->SetFocalPoint(0, 0, 1);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
@@ -115,7 +115,7 @@ int TestGPURayCastRenderToTexture(int argc, char *argv[])
   renWin->Render();
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

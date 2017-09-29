@@ -2693,7 +2693,7 @@ std::string vtkMPASReader::GetDimensionName(int idx)
 vtkStringArray *vtkMPASReader::GetAllDimensions()
 {
   this->UpdateDimensions();
-  return this->Internals->extraDims.GetPointer();
+  return this->Internals->extraDims;
 }
 
 //----------------------------------------------------------------------------

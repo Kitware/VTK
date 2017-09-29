@@ -1552,10 +1552,10 @@ void vtkPolarAxesActor::BuildArcTicks()
   vtkNew<vtkCellArray> minorLines;
   vtkIdType ptIds[2];
   int numTickPts, numLines, i;
-  this->ArcTickPolyData->SetPoints(majorPts.Get());
-  this->ArcTickPolyData->SetLines(majorLines.Get());
-  this->ArcMinorTickPolyData->SetPoints(minorPts.Get());
-  this->ArcMinorTickPolyData->SetLines(minorLines.Get());
+  this->ArcTickPolyData->SetPoints(majorPts);
+  this->ArcTickPolyData->SetLines(majorLines);
+  this->ArcMinorTickPolyData->SetPoints(minorPts);
+  this->ArcMinorTickPolyData->SetLines(minorLines);
 
   if (this->ArcTickVisibility)
   {
@@ -1689,19 +1689,19 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
   // Principal Arc points
   vtkNew<vtkPoints> polarArcsPoints;
-  this->PolarArcs->SetPoints(polarArcsPoints.Get());
+  this->PolarArcs->SetPoints(polarArcsPoints);
 
   // Principal Arc lines
   vtkNew<vtkCellArray> polarArcsLines;
-  this->PolarArcs->SetLines(polarArcsLines.Get());
+  this->PolarArcs->SetLines(polarArcsLines);
 
   // Secondary Arc points
   vtkNew<vtkPoints> secondaryPolarArcsPoints;
-  this->SecondaryPolarArcs->SetPoints(secondaryPolarArcsPoints.Get());
+  this->SecondaryPolarArcs->SetPoints(secondaryPolarArcsPoints);
 
   // Secondary Arc lines
   vtkNew<vtkCellArray> secondaryPolarArcsLines;
-  this->SecondaryPolarArcs->SetLines(secondaryPolarArcsLines.Get());
+  this->SecondaryPolarArcs->SetLines(secondaryPolarArcsLines);
 
   vtkAxisActor* axis = this->PolarAxis;
 
@@ -1813,7 +1813,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
     std::string commonLbl = FindExponentAndAdjustValues(labelValList);
     axis->SetExponent(commonLbl.c_str());
 
-    this->GetSignificantPartFromValues(labels.Get(), labelValList);
+    this->GetSignificantPartFromValues(labels, labelValList);
   }
   else
   {
@@ -1832,7 +1832,7 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
   }
 
   // Store labels
-  axis->SetLabels(labels.Get());
+  axis->SetLabels(labels);
 }
 
 //-----------------------------------------------------------------------------
@@ -1853,19 +1853,19 @@ void vtkPolarAxesActor::BuildPolarArcsLog()
 
   // Principal Arc points
   vtkNew<vtkPoints> polarArcsPoints;
-  this->PolarArcs->SetPoints(polarArcsPoints.Get());
+  this->PolarArcs->SetPoints(polarArcsPoints);
 
   // Principal Arc lines
   vtkNew<vtkCellArray> polarArcsLines;
-  this->PolarArcs->SetLines(polarArcsLines.Get());
+  this->PolarArcs->SetLines(polarArcsLines);
 
   // Secondary Arc points
   vtkNew<vtkPoints> secondaryPolarArcsPoints;
-  this->SecondaryPolarArcs->SetPoints(secondaryPolarArcsPoints.Get());
+  this->SecondaryPolarArcs->SetPoints(secondaryPolarArcsPoints);
 
   // Secondary Arc lines
   vtkNew<vtkCellArray> secondaryPolarArcsLines;
-  this->SecondaryPolarArcs->SetLines(secondaryPolarArcsLines.Get());
+  this->SecondaryPolarArcs->SetLines(secondaryPolarArcsLines);
 
   //--- prepare significant values ----
   double miniAngleEllipseRad = ComputeEllipseAngle(this->MinimumAngle, this->Ratio);
@@ -2058,7 +2058,7 @@ void vtkPolarAxesActor::BuildLabelsLog()
     std::string commonLbl = FindExponentAndAdjustValues(labelValList);
     axis->SetExponent(commonLbl.c_str());
 
-    this->GetSignificantPartFromValues(labels.Get(), labelValList);
+    this->GetSignificantPartFromValues(labels, labelValList);
   }
   else
   {
@@ -2076,7 +2076,7 @@ void vtkPolarAxesActor::BuildLabelsLog()
   }
 
   // Store labels
-  axis->SetLabels(labels.Get());
+  axis->SetLabels(labels);
 }
 
 //-----------------------------------------------------------------------------

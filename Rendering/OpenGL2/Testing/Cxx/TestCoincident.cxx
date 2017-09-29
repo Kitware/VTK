@@ -36,9 +36,9 @@ int TestCoincident(int argc, char *argv[])
 {
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
@@ -56,30 +56,30 @@ int TestCoincident(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.3, 1.0);
   actor->GetProperty()->SetPointSize(4.0);
   actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(0.3, 0.3, 1.0);
   actor->GetProperty()->SetRepresentationToWireframe();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(1.0, 1.0, 0.3);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   renderWindow->Render();
@@ -87,7 +87,7 @@ int TestCoincident(int argc, char *argv[])
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

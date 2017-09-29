@@ -53,16 +53,16 @@ int TestFTStringToPath(int , char *[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(460, 100);
   vtkNew<StringToPathContextTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   vtkNew<vtkPath> path;
   vtkNew<vtkTextProperty> tprop;
 
   vtkFreeTypeTools::GetInstance()->StringToPath(
-        tprop.GetPointer(), vtkStdString("FreeType Path"),
-        view->GetRenderWindow()->GetDPI(), path.GetPointer());
+        tprop, vtkStdString("FreeType Path"),
+        view->GetRenderWindow()->GetDPI(), path);
 
-  test->SetPath(path.GetPointer());
+  test->SetPath(path);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

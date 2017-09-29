@@ -31,20 +31,20 @@ int TestPTSReader(int argc, char *argv[])
   mapper->SetInputConnection(reader->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   renderer->SetBackground(.3, .6, .3); // Background color green
 
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

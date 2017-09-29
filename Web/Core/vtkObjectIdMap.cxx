@@ -101,7 +101,7 @@ vtkObject* vtkObjectIdMap::GetActiveObject(const char* objectType)
 {
   if(objectType)
   {
-    return this->Internals->ActiveObjects[objectType].GetPointer();
+    return this->Internals->ActiveObjects[objectType];
   }
   return nullptr;
 }

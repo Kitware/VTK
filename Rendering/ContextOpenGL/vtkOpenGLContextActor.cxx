@@ -45,7 +45,7 @@ void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
     device->ReleaseGraphicsResources(window);
   }
 
-  if(this->Scene.GetPointer())
+  if(this->Scene)
   {
     this->Scene->ReleaseGraphicsResources();
   }

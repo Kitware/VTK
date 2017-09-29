@@ -30,7 +30,7 @@
 int TestAMRInterpolatedVelocityField(int, char*[])
 {
   vtkNew<vtkCompositeDataPipeline> cexec;
-  vtkAlgorithm::SetDefaultExecutivePrototype(cexec.GetPointer());
+  vtkAlgorithm::SetDefaultExecutivePrototype(cexec);
 
   char name[100] = "Gaussian-Pulse";
   vtkNew<vtkAMRGaussianPulseSource> imageSource;

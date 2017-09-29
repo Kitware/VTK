@@ -107,7 +107,7 @@ int TestMultiBlockPartialArrayPointData(int argc, char* argv[])
 
   win->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
+  int retVal = vtkRegressionTestImageThreshold( win,15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

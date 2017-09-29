@@ -625,12 +625,12 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyleTrackballCamera> irenStyle;
-  iren->SetRenderWindow(renWin.GetPointer());
-  iren->SetInteractorStyle(irenStyle.GetPointer());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(irenStyle);
 
   /*--------------------------------------------------------------------------*/
   // PICKING MANAGER
@@ -638,7 +638,7 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Callback to switch between the managed and non-managed mode of the
   // Picking Manager
   vtkNew<vtkPickingManagerCallback> callMode;
-  iren->AddObserver(vtkCommand::KeyPressEvent, callMode.GetPointer());
+  iren->AddObserver(vtkCommand::KeyPressEvent, callMode);
 
   /*--------------------------------------------------------------------------*/
   // SEEDS
@@ -651,12 +651,12 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   handle->GetProperty()->SetColor(1,1,1);
 
   vtkNew<vtkSeedRepresentation> seedRepresentation;
-  seedRepresentation->SetHandleRepresentation(handle.GetPointer());
+  seedRepresentation->SetHandleRepresentation(handle);
 
     // Settings
   vtkNew<vtkSeedWidget> seedWidget;
-  seedWidget->SetRepresentation(seedRepresentation.GetPointer());
-  seedWidget->SetInteractor(iren.GetPointer());
+  seedWidget->SetRepresentation(seedRepresentation);
+  seedWidget->SetInteractor(iren);
   seedWidget->EnabledOn();
 
   // Create a cube full of seeds
@@ -692,7 +692,7 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Callback to reorganize the cube when space is pressed
   vtkNew<vtkPMSCubeCallback> reorganizeCallback;
   reorganizeCallback->Seeds = seeds;
-  iren->AddObserver(vtkCommand::KeyPressEvent, reorganizeCallback.GetPointer());
+  iren->AddObserver(vtkCommand::KeyPressEvent, reorganizeCallback);
 
   /*--------------------------------------------------------------------------*/
   // Rendering
@@ -704,7 +704,7 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Record
   //iren->GetPickingManager()->EnabledOff();
   vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(iren.GetPointer());
+  recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
   recorder->SetInputString(eventLogTestPickingManagerSeedWidget);
 
@@ -717,7 +717,7 @@ int TestPickingManagerSeedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Performance Measurements
   // Callback to write the rendering running time given different configurations
   // vtkNew<vtkPMSRecordPerfCallback> writePerfsCallback;
-  // iren->AddObserver(vtkCommand::RenderEvent, writePerfsCallback.GetPointer());
+  // iren->AddObserver(vtkCommand::RenderEvent, writePerfsCallback);
   // writePerfsCallback->logTime->StartTimer();
 
   recorder->Play();

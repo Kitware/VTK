@@ -29,16 +29,16 @@ void vtkCPExodusIIElementBlockCellIterator::PrintSelf(ostream &os,
                                                       vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Storage: " << this->Storage.GetPointer() << endl;
+  os << indent << "Storage: " << this->Storage << endl;
   os << indent << "DataSetPoints: "
-     << this->DataSetPoints.GetPointer() << endl;
+     << this->DataSetPoints << endl;
   os << indent << "CellId: "  << this->CellId << endl;
 }
 
 //------------------------------------------------------------------------------
 bool vtkCPExodusIIElementBlockCellIterator::IsValid()
 {
-  return this->Storage.GetPointer()
+  return this->Storage
       && this->CellId < this->Storage->NumberOfCells;
 }
 

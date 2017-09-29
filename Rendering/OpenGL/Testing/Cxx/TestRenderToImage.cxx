@@ -27,20 +27,20 @@ int TestRenderToImage(int argc, char* argv[])
   mapper->SetInputConnection(sphereSource->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   renderWindow->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindow->Render();
 
   // Render to the image
   vtkOpenGLRenderWindow* glRenderWindow =
-    vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get());
+    vtkOpenGLRenderWindow::SafeDownCast(renderWindow);
 
   if (!glRenderWindow->SetUseOffScreenBuffers(true))
   {
@@ -66,7 +66,7 @@ int TestRenderToImage(int argc, char* argv[])
   glRenderWindow->SetUseOffScreenBuffers(false);
 
   // Now add the actor
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->ResetCamera();
   renderWindow->Render();
 
@@ -79,9 +79,9 @@ int TestRenderToImage(int argc, char* argv[])
 
   // Create a new image actor and remove the geometry one
   vtkNew<vtkImageActor> imageActor;
-  imageActor->GetMapper()->SetInputData(image.Get());
-  renderer->RemoveActor(actor.Get());
-  renderer->AddActor(imageActor.Get());
+  imageActor->GetMapper()->SetInputData(image);
+  renderer->RemoveActor(actor);
+  renderer->AddActor(imageActor);
 
   // Background color white to distinguish image boundary
   renderer->SetBackground(1, 1, 1);
@@ -89,7 +89,7 @@ int TestRenderToImage(int argc, char* argv[])
   renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

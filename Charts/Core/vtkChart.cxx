@@ -420,7 +420,7 @@ void vtkChart::SetBackgroundBrush(vtkBrush *brush)
 //-----------------------------------------------------------------------------
 vtkBrush* vtkChart::GetBackgroundBrush()
 {
-  return this->BackgroundBrush.GetPointer();
+  return this->BackgroundBrush;
 }
 
 //-----------------------------------------------------------------------------

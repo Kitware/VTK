@@ -78,7 +78,7 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   cylinder->SetAxis(0, 1, 0);
   vtkNew<vtkTableBasedClipDataSet> clipCyl;
   clipCyl->SetInputConnection(wavelet->GetOutputPort());
-  clipCyl->SetClipFunction(cylinder.GetPointer());
+  clipCyl->SetClipFunction(cylinder);
   clipCyl->InsideOutOn();
 
   vtkNew<vtkSphere> sphere;
@@ -86,13 +86,13 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   sphere->SetRadius(12);
   vtkNew<vtkTableBasedClipDataSet> clipSphr;
   clipSphr->SetInputConnection(clipCyl->GetOutputPort());
-  clipSphr->SetClipFunction(sphere.GetPointer());
+  clipSphr->SetClipFunction(sphere);
 
   vtkNew<vtkTransform> transform;
   transform->RotateZ(45);
   vtkNew<vtkTransformFilter> transFilter;
   transFilter->SetInputConnection(clipSphr->GetOutputPort());
-  transFilter->SetTransform(transform.GetPointer());
+  transFilter->SetTransform(transform);
 
   vtkNew<vtkRandomAttributeGenerator> cellDataAdder;
   cellDataAdder->SetInputConnection(transFilter->GetOutputPort());
@@ -130,7 +130,7 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   }
 
   vtkNew<vtkPolyData> polydata;
-  if (!Convert2DUnstructuredGridToPolyData(result, polydata.GetPointer()))
+  if (!Convert2DUnstructuredGridToPolyData(result, polydata))
   {
     std::cout << "Error converting result to polydata\n";
     return 1;
@@ -142,25 +142,25 @@ int TestVTKMExternalFaces(int argc, char* argv[])
   polydata->GetPointData()->GetArray("RTData")->GetRange(scalarRange);
 
   vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputData(polydata.GetPointer());
+  mapper->SetInputData(polydata);
   mapper->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   renderer->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   iren->Initialize();
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

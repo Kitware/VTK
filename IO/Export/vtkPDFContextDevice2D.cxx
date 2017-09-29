@@ -847,7 +847,7 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
   {
     vtkNew<vtkPath> path;
     int dpi = this->Renderer->GetRenderWindow()->GetDPI();
-    if (!tren->StringToPath(this->TextProp, string, path.Get(), dpi, backend))
+    if (!tren->StringToPath(this->TextProp, string, path, dpi, backend))
     {
       vtkErrorMacro("Error generating path for MathText string '"
                     << string << "'.");
@@ -855,7 +855,7 @@ void vtkPDFContextDevice2D::DrawString(float *point, const vtkStdString &string)
     }
 
     this->ApplyTextPropertyState();
-    this->DrawPath(path.Get(), point[0], point[1]);
+    this->DrawPath(path, point[0], point[1]);
     this->FillEvenOdd();
 
     float bbox[4];
@@ -1001,7 +1001,7 @@ void vtkPDFContextDevice2D::DrawPolyData(
 {
   // Do nothing if the supported cell types do not exist in the dataset:
   vtkNew<vtkCellTypes> types;
-  polyData->GetCellTypes(types.Get());
+  polyData->GetCellTypes(types);
   if (!types->IsType(VTK_LINE) &&
       !types->IsType(VTK_TRIANGLE) &&
       !types->IsType(VTK_QUAD) &&

@@ -217,7 +217,7 @@ int vtkQuadraticPolygonTest::TestGetPermutations()
 
   // computed permutation
   vtkNew<vtkIdList> permutationToPolygon;
-  vtkQuadraticPolygon::GetPermutationToPolygon(8, permutationToPolygon.GetPointer());
+  vtkQuadraticPolygon::GetPermutationToPolygon(8, permutationToPolygon);
 
   // reference permutation
   vtkIdType temp2[] = { 0, 4, 1, 5, 2, 6, 3, 7 };
@@ -231,7 +231,7 @@ int vtkQuadraticPolygonTest::TestGetPermutations()
   // computed permutation
   vtkNew<vtkIdList> permutationFromPolygon;
   vtkQuadraticPolygon::GetPermutationFromPolygon(8,
-    permutationFromPolygon.GetPointer());
+    permutationFromPolygon);
 
   for (vtkIdType i = 0; i < 8; i++)
   {

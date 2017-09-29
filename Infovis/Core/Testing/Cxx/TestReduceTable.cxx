@@ -62,13 +62,13 @@ int TestReduceTable(int, char*[])
   modeColumn->SetValue(4, "c");
   modeColumn->SetValue(5, "d");
 
-  table->AddColumn(indexColumn.GetPointer());
-  table->AddColumn(meanColumn.GetPointer());
-  table->AddColumn(medianColumn.GetPointer());
-  table->AddColumn(modeColumn.GetPointer());
+  table->AddColumn(indexColumn);
+  table->AddColumn(meanColumn);
+  table->AddColumn(medianColumn);
+  table->AddColumn(modeColumn);
 
   vtkNew<vtkReduceTable> filter;
-  filter->SetInputData(0, table.GetPointer());
+  filter->SetInputData(0, table);
   filter->SetIndexColumn(0);
   filter->SetReductionMethodForColumn(1, vtkReduceTable::MEAN);
   filter->SetReductionMethodForColumn(2, vtkReduceTable::MEDIAN);

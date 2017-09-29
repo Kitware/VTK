@@ -58,7 +58,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
@@ -67,12 +67,12 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   ren->SetBackground(0.2, 0.2, 0.5);
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -82,7 +82,7 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -91,8 +91,8 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 0.0, 0.8, 0.1);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   /// Rotate the volume for testing purposes
   volume->RotateY(45.0);
@@ -102,15 +102,15 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   volume->RotateX(90.0);
   outlineActor->RotateX(90.0);
 
-  ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddViewProp(volume);
+  ren->AddActor(outlineActor);
   renWin->Render();
   ren->ResetCamera();
 
   iren->Initialize();
   iren->SetDesiredUpdateRate(30.0);
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

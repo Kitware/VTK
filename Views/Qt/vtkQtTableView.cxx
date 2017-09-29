@@ -372,7 +372,7 @@ void vtkQtTableView::SetVTKSelection()
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
     s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
-  if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
+  if(!selection || selection->GetNumberOfNodes() == 0)
   {
     return;
   }

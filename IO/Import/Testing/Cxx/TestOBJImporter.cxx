@@ -62,9 +62,9 @@ int TestOBJImporter( int argc, char * argv [] )
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.Get());
-  iren->SetRenderWindow(renWin.Get());
-  importer->SetRenderWindow(renWin.Get());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
+  importer->SetRenderWindow(renWin);
   importer->Update();
 
   ren->ResetCamera();
@@ -77,7 +77,7 @@ int TestOBJImporter( int argc, char * argv [] )
 
   ren->GetActiveCamera()->SetPosition(10,10,-10);
   ren->ResetCamera();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     renWin->SetSize(800,600);

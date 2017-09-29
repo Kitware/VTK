@@ -163,7 +163,7 @@ bool TessellationTestWithTransform(const std::string& dataPath)
 
   vtkNew<vtkTransform> transform;
   vtkPoints* points = reader->GetOutput()->GetPoints();
-  GetTransform(transform.Get(), points);
+  GetTransform(transform, points);
 
   reader->SetFileName(boundaryFilePath.c_str());
   reader->Update();
@@ -176,7 +176,7 @@ bool TessellationTestWithTransform(const std::string& dataPath)
   del2D->SetAlpha(0.0);
   del2D->SetOffset(0);
   del2D->SetProjectionPlaneMode(VTK_SET_TRANSFORM_PLANE);
-  del2D->SetTransform(transform.Get());
+  del2D->SetTransform(transform);
   del2D->BoundingTriangulationOff();
   del2D->Update();
 

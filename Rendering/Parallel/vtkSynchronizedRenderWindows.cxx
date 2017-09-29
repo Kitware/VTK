@@ -77,10 +77,10 @@ namespace
     GlobalSynRenderWindowsMapType::iterator iter =
       GlobalSynRenderWindowsMap.find(id);
     if (iter != GlobalSynRenderWindowsMap.end() &&
-      iter->second.GetPointer() != nullptr &&
-      iter->second.GetPointer()->GetRenderWindow() != nullptr)
+      iter->second != nullptr &&
+      iter->second->GetRenderWindow() != nullptr)
     {
-      iter->second.GetPointer()->GetRenderWindow()->Render();
+      iter->second->GetRenderWindow()->Render();
     }
   }
 };

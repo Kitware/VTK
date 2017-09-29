@@ -30,16 +30,16 @@ int TestLinePlotDouble2(int, char *[])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkDoubleArray> arrX;
   arrX->SetName("X");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkDoubleArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   // Test charting some very small points.
   int numPoints = 69;
   float inc = 7.5 / (numPoints - 1);
@@ -51,7 +51,7 @@ int TestLinePlotDouble2(int, char *[])
     table->SetValue(i, 1, cos((x - 1.0) * 1.0e11));
   }
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
 
   // Render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

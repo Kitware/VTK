@@ -49,12 +49,12 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   // If the current system only supports the legacy peeler, skip this test:
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
-  renWin->AddRenderer(ren.GetPointer());
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  renWin->AddRenderer(ren);
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -92,7 +92,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -100,8 +100,8 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.9, 0.4, 0.9);
 
   vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   int dims[3];
   double spacing[3], center[3], origin[3];
@@ -125,7 +125,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   // sphere 2
   center[0] += 15.0;
@@ -141,7 +141,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereProperty->SetOpacity(0.3);
   vtkNew<vtkPolyDataMapper> sphereMapper2;
   sphereMapper2->SetInputConnection(sphereSource2->GetOutputPort());
-  sphereActor2->SetMapper(sphereMapper2.GetPointer());
+  sphereActor2->SetMapper(sphereMapper2);
 
   // sphere 3 (transparent)
   vtkNew<vtkActor> sphereActorTransp;
@@ -150,15 +150,15 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   sphereProperty3->SetOpacity(0.0);
   vtkNew<vtkPolyDataMapper> sphereMapperTransp;
   sphereMapperTransp->SetInputConnection(sphereSource->GetOutputPort());
-  sphereActorTransp->SetMapper(sphereMapperTransp.GetPointer());
+  sphereActorTransp->SetMapper(sphereMapperTransp);
 
   // Translucent spheres
   ren->SetBackground(1.0, 1.0, 1.0);
   ren->SetViewport(0.0, 0.0, 0.5, 1.0);
 
-  ren->AddVolume(volume.GetPointer());
-  ren->AddActor(sphereActor.GetPointer());
-  ren->AddActor(sphereActor2.GetPointer());
+  ren->AddVolume(volume);
+  ren->AddActor(sphereActor);
+  ren->AddActor(sphereActor2);
 
   ren->SetUseDepthPeeling(1);
   ren->SetOcclusionRatio(0.0);
@@ -171,17 +171,17 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
   ren2->SetViewport(0.5, 0.0, 1.0, 1.0);
   ren2->SetActiveCamera(ren->GetActiveCamera());
 
-  ren2->AddVolume(volume.GetPointer());
-  ren2->AddActor(sphereActorTransp.GetPointer());
+  ren2->AddVolume(volume);
+  ren2->AddActor(sphereActorTransp);
 
   ren2->SetUseDepthPeeling(1);
   ren2->SetOcclusionRatio(0.0);
   ren2->SetMaximumNumberOfPeels(17);
   ren2->SetUseDepthPeelingForVolumes(true);
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren2);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  renWin->GetInteractor()->SetInteractorStyle(style.GetPointer());
+  renWin->GetInteractor()->SetInteractorStyle(style);
 
   ren->ResetCamera();
   ren->GetActiveCamera()->Azimuth(-55);
@@ -191,7 +191,7 @@ int TestGPURayCastDepthPeelingTransVol(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

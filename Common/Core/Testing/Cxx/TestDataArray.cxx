@@ -267,28 +267,28 @@ void benchmark()
   // Deep copy, with/without conversions
   int1->Initialize();
   timer->StartTimer();
-  int1->DeepCopy(double1.GetPointer());
+  int1->DeepCopy(double1);
   timer->StopTimer();
   time = timer->GetElapsedTime();
   insertTimeLog("deep copy 10M double --> int", time);
 
   double1->Initialize();
   timer->StartTimer();
-  double1->DeepCopy(int1.GetPointer());
+  double1->DeepCopy(int1);
   timer->StopTimer();
   time = timer->GetElapsedTime();
   insertTimeLog("deep copy 10M int --> double", time);
 
   double2->Initialize();
   timer->StartTimer();
-  double2->DeepCopy(double1.GetPointer());
+  double2->DeepCopy(double1);
   timer->StopTimer();
   time = timer->GetElapsedTime();
   insertTimeLog("deep copy 10M double --> double", time);
 
   int2->Initialize();
   timer->StartTimer();
-  int2->DeepCopy(int1.GetPointer());
+  int2->DeepCopy(int1);
   timer->StopTimer();
   time = timer->GetElapsedTime();
   insertTimeLog("deep copy 10M int --> int", time);
@@ -298,7 +298,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < double1->GetNumberOfTuples(); ++i)
   {
-    double2->InsertTuple(i, i, double1.GetPointer());
+    double2->InsertTuple(i, i, double1);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -308,7 +308,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < int1->GetNumberOfTuples(); ++i)
   {
-    int2->InsertTuple(i, i, int1.GetPointer());
+    int2->InsertTuple(i, i, int1);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -319,7 +319,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < double1->GetNumberOfTuples(); ++i)
   {
-    double2->InsertNextTuple(i, double1.GetPointer());
+    double2->InsertNextTuple(i, double1);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -329,7 +329,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < int1->GetNumberOfTuples(); ++i)
   {
-    int2->InsertNextTuple(i, int1.GetPointer());
+    int2->InsertNextTuple(i, int1);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -352,7 +352,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < numInterps; ++i)
   {
-    double3->InterpolateTuple(i, ids.GetPointer(), double1.GetPointer(),
+    double3->InterpolateTuple(i, ids, double1,
                               weights);
   }
   timer->StopTimer();
@@ -363,7 +363,7 @@ void benchmark()
   timer->StartTimer();
   for (int i = 0; i < numInterps; ++i)
   {
-    int3->InterpolateTuple(i, ids.GetPointer(), int1.GetPointer(), weights);
+    int3->InterpolateTuple(i, ids, int1, weights);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -374,8 +374,8 @@ void benchmark()
   for (int i = 0; i < numInterps; ++i)
   {
     double3->InterpolateTuple(i,
-                              500, double1.GetPointer(),
-                              700, double2.GetPointer(), 0.25);
+                              500, double1,
+                              700, double2, 0.25);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -386,8 +386,8 @@ void benchmark()
   for (int i = 0; i < numInterps; ++i)
   {
     int3->InterpolateTuple(i,
-                           500, int1.GetPointer(),
-                           700, int2.GetPointer(), 0.25);
+                           500, int1,
+                           700, int2, 0.25);
   }
   timer->StopTimer();
   time = timer->GetElapsedTime();
@@ -403,7 +403,7 @@ void benchmark()
     double3->SetNumberOfComponents(double1->GetNumberOfComponents());
     double3->SetNumberOfTuples(ids->GetNumberOfIds());
     timer->StartTimer();
-    double1->GetTuples(ids.GetPointer(), double3.GetPointer());
+    double1->GetTuples(ids, double3);
     timer->StopTimer();
     time += timer->GetElapsedTime();
   }
@@ -416,7 +416,7 @@ void benchmark()
     int3->SetNumberOfComponents(int1->GetNumberOfComponents());
     int3->SetNumberOfTuples(ids->GetNumberOfIds());
     timer->StartTimer();
-    int1->GetTuples(ids.GetPointer(), int3.GetPointer());
+    int1->GetTuples(ids, int3);
     timer->StopTimer();
     time += timer->GetElapsedTime();
   }

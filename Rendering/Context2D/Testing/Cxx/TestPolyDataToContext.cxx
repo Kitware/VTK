@@ -198,7 +198,7 @@ int TestPolyDataToContext( int argc, char * argv [] )
 
   // Turn off the color buffer
   view->GetScene()->SetUseBufferId(false);
-  view->GetScene()->AddItem(area.GetPointer());
+  view->GetScene()->AddItem(area);
   view->Render();
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());

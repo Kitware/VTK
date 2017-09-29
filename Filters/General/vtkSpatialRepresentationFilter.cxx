@@ -92,17 +92,17 @@ int vtkSpatialRepresentationFilter::RequestData(
     if ( *it <= this->MaximumLevel )
     {
       vtkNew<vtkPolyData> level_representation;
-      output->SetBlock(*it, level_representation.GetPointer());
+      output->SetBlock(*it, level_representation);
       this->SpatialRepresentation->GenerateRepresentation(
-        *it, level_representation.GetPointer());
+        *it, level_representation);
     }
   }
   if (this->GenerateLeaves)
   {
     vtkNew<vtkPolyData> leaf_representation;
-    output->SetBlock(this->MaximumLevel + 1, leaf_representation.GetPointer());
+    output->SetBlock(this->MaximumLevel + 1, leaf_representation);
     this->SpatialRepresentation->GenerateRepresentation(
-      -1, leaf_representation.GetPointer());
+      -1, leaf_representation);
   }
 
   return 1;

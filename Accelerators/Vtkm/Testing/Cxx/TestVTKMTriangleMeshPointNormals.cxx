@@ -63,7 +63,7 @@ int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(normFilter->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   // glyphs
   vtkNew<vtkArrowSource> glyphsource;
@@ -77,31 +77,31 @@ int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
   vtkNew<vtkPolyDataMapper> glyphmapper;
   glyphmapper->SetInputConnection(glyph->GetOutputPort());
   vtkNew<vtkActor> glyphactor;
-  glyphactor->SetMapper(glyphmapper.GetPointer());
+  glyphactor->SetMapper(glyphmapper);
 
   // renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
-  renderer->AddActor(glyphactor.GetPointer());
+  renderer->AddActor(actor);
+  renderer->AddActor(glyphactor);
   renderer->SetBackground(0.0, 0.0, 0.0);
   renderer->ResetCamera();
 
   // renderwindow, interactor
   vtkNew<vtkRenderWindow> renWin ;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
   renWin->SetSize(300,300);
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     vtkNew<vtkInteractorStyleTrackballCamera> iStyle;
-    iren->SetInteractorStyle(iStyle.GetPointer());
+    iren->SetInteractorStyle(iStyle);
     renWin->SetSize(1000,1000);
     iren->Start();
   }

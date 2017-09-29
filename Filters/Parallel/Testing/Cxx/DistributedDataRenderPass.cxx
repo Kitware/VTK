@@ -229,7 +229,7 @@ void MyProcess::Execute()
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
   vtkCompositeRGBAPass *compositeRGBAPass=vtkCompositeRGBAPass::New();
   compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent,
-                                 errorObserver1.GetPointer());
+                                 errorObserver1);
   compositeRGBAPass->SetController(this->Controller);
   compositeRGBAPass->SetKdtree(dd->GetKdtree());
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();

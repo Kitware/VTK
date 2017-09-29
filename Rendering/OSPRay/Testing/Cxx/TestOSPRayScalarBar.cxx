@@ -45,7 +45,7 @@ int TestOSPRayScalarBar( int argc, char *argv[] )
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(elev->GetOutputPort(0));
   vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper.Get());
+  sphereActor->SetMapper(sphereMapper);
 
   // Create the RenderWindow, Renderer and all Actors
   vtkSmartPointer<vtkRenderer> ren1 =
@@ -83,7 +83,7 @@ int TestOSPRayScalarBar( int argc, char *argv[] )
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->AddActor( sphereActor.Get() );
+  ren1->AddActor( sphereActor );
   ren1->AddActor( scalarBar1 );
   ren1->GradientBackgroundOn();
   ren1->SetBackground( .5,.5,.5 );
@@ -98,7 +98,7 @@ int TestOSPRayScalarBar( int argc, char *argv[] )
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

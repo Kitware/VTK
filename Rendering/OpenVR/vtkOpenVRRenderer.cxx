@@ -41,7 +41,7 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
   this->FloorActor = vtkActor::New();
 
   vtkNew<vtkPolyDataMapper> pdm;
-  this->FloorActor->SetMapper(pdm.Get());
+  this->FloorActor->SetMapper(pdm);
   vtkNew<vtkPlaneSource> plane;
   pdm->SetInputConnection(plane->GetOutputPort());
   plane->SetOrigin(-5.0, 0.0,-5.0);
@@ -50,10 +50,10 @@ vtkOpenVRRenderer::vtkOpenVRRenderer()
 
   vtkNew<vtkTransform> tf;
   tf->Identity();
-  this->FloorActor->SetUserTransform(tf.Get());
+  this->FloorActor->SetUserTransform(tf);
 
   vtkNew<vtkTexture> texture;
-  this->FloorActor->SetTexture(texture.Get());
+  this->FloorActor->SetTexture(texture);
 
   // build a grid fading off in the distance
   vtkNew<vtkImageCanvasSource2D> grid;

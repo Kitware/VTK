@@ -73,7 +73,7 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   vtkNew<vtkOpenGLBufferObject> vbo;
   vbo->Upload(verts, numVerts*3, vtkOpenGLBufferObject::ArrayBuffer);
   vao->Bind();
-  if (!vao->AddAttributeArray(program, vbo.Get(), "vertexMC", 0,
+  if (!vao->AddAttributeArray(program, vbo, "vertexMC", 0,
       sizeof(float)*3, VTK_FLOAT, 3, false))
   {
     vtkGenericWarningMacro(<< "Error setting 'vertexMC' in shader VAO.");
@@ -83,7 +83,7 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
   if (tcoords)
   {
     tvbo->Upload(tcoords, numVerts*2, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!vao->AddAttributeArray(program, tvbo.Get(), "tcoordMC", 0,
+    if (!vao->AddAttributeArray(program, tvbo, "tcoordMC", 0,
         sizeof(float)*2, VTK_FLOAT, 2, false))
     {
       vtkGenericWarningMacro(<< "Error setting 'tcoordMC' in shader VAO.");

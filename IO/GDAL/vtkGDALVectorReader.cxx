@@ -109,8 +109,8 @@ public:
     {
       vtkNew<vtkIdTypeArray> featIds;
       featIds->SetName("_vtkPedigreeIds");
-      (*pd)->GetCellData()->SetPedigreeIds(featIds.GetPointer());
-      fields->push_back(featIds.GetPointer());
+      (*pd)->GetCellData()->SetPedigreeIds(featIds);
+      fields->push_back(featIds);
     }
 
     *lines = vtkCellArray::New();

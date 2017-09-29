@@ -49,7 +49,7 @@ int TestGL2PSMathTextScaling(int, char *[])
   view->GetRenderWindow()->SetSize(500, 500);
   view->GetRenderWindow()->SetDPI(120);
   vtkNew<GL2PSMathTextScalingTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
 

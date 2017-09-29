@@ -60,7 +60,7 @@ void vtkLabelSizeCalculator::PrintSelf( ostream& os, vtkIndent indent )
   itEnd = this->Implementation->FontProperties.end();
   for ( ; it != itEnd; ++it )
   {
-    os << indent << "  " << it->first << ": " << it->second.GetPointer() << endl;
+    os << indent << "  " << it->first << ": " << it->second << endl;
   }
   os << indent << "FontUtil: " << this->FontUtil << "\n";
 }

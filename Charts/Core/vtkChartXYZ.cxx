@@ -68,7 +68,7 @@ vtkChartXYZ::vtkChartXYZ() : Geometry(0, 0, 10, 10), IsX(false), Angle(0)
   for(unsigned int i = 0; i < 3; ++i)
   {
     vtkNew<vtkAxis> axis;
-    this->Axes[i] = axis.GetPointer();
+    this->Axes[i] = axis;
   }
 }
 
@@ -115,7 +115,7 @@ void vtkChartXYZ::SetAnnotationLink(vtkAnnotationLink *link)
 vtkAxis * vtkChartXYZ::GetAxis(int axis)
 {
   assert(axis >= 0 && axis < 3);
-  return this->Axes[axis].GetPointer();
+  return this->Axes[axis];
 }
 
 //-----------------------------------------------------------------------------
@@ -264,7 +264,7 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 
   // Draw plots
   context->PushMatrix();
-  context->AppendTransform(this->ContextTransform.GetPointer());
+  context->AppendTransform(this->ContextTransform);
   this->PaintChildren(painter);
 
   // Remove clipping planes
@@ -301,8 +301,8 @@ bool vtkChartXYZ::Paint(vtkContext2D *painter)
 void vtkChartXYZ::DrawAxes(vtkContext3D *context)
 {
   context->PushMatrix();
-  context->AppendTransform(this->Box.GetPointer());
-  context->ApplyPen(this->AxisPen.GetPointer());
+  context->AppendTransform(this->Box);
+  context->ApplyPen(this->AxisPen);
 
   vtkVector3f box[4];
   box[0] = vtkVector3f(0, 0, 0);
@@ -383,7 +383,7 @@ void vtkChartXYZ::DrawAxesLabels(vtkContext2D *painter)
   textProperties->SetColor(0.0, 0.0, 0.0);
   textProperties->SetFontFamilyToArial();
   textProperties->SetFontSize(14);
-  painter->ApplyTextProp(textProperties.GetPointer());
+  painter->ApplyTextProp(textProperties);
 
   // if we're looking directly down any dimension, we shouldn't draw the
   // corresponding label
@@ -538,7 +538,7 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
   float bounds[4];
 
   // draw points instead of lines
-  context->ApplyPen(this->Pen.GetPointer());
+  context->ApplyPen(this->Pen);
 
   // treat each axis separately
   for (int axis = 0; axis < 3; ++axis)
@@ -657,7 +657,7 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
     if (!tickPoints.empty())
     {
       context->PushMatrix();
-      context->AppendTransform(this->Box.GetPointer());
+      context->AppendTransform(this->Box);
       context->DrawPoints(tickPoints[0].GetData(),
                           static_cast<int>(tickPoints.size()));
       this->TickLabelOffset[axis][0] = labelOffset[0];
@@ -666,7 +666,7 @@ void vtkChartXYZ::DrawTickMarks(vtkContext2D *painter)
   }
 
   //revert from drawing points.
-  context->ApplyPen(this->AxisPen.GetPointer());
+  context->ApplyPen(this->AxisPen);
 }
 
 //-----------------------------------------------------------------------------
@@ -1151,10 +1151,10 @@ void vtkChartXYZ::CalculateTransforms()
   vtkVector3f mtranslation = -1.0 * translation;
 
   this->ContextTransform->Identity();
-  this->ContextTransform->Concatenate(this->Translation.GetPointer());
+  this->ContextTransform->Concatenate(this->Translation);
   this->ContextTransform->Translate(translation.GetData());
-  this->ContextTransform->Concatenate(this->Rotation.GetPointer());
-  this->ContextTransform->Concatenate(this->BoxScale.GetPointer());
+  this->ContextTransform->Concatenate(this->Rotation);
+  this->ContextTransform->Concatenate(this->BoxScale);
   if (this->AutoRotate)
   {
     if (this->IsX)
@@ -1166,13 +1166,13 @@ void vtkChartXYZ::CalculateTransforms()
       this->ContextTransform->RotateY(this->Angle);
     }
   }
-  this->ContextTransform->Concatenate(this->Scale.GetPointer());
+  this->ContextTransform->Concatenate(this->Scale);
   this->ContextTransform->Translate(mtranslation.GetData());
   this->ContextTransform->Translate(
     this->Axes[0]->GetPosition1()[0] - this->Geometry.GetX(),
     this->Axes[1]->GetPosition1()[1] - this->Geometry.GetY(),
     this->Axes[2]->GetPosition1()[1]);
-  this->ContextTransform->Concatenate(this->PlotTransform.GetPointer());
+  this->ContextTransform->Concatenate(this->PlotTransform);
 
   // Next construct the transform for the box axes.
   double scale[3] = { 300, 300, 300 };
@@ -1193,8 +1193,8 @@ void vtkChartXYZ::CalculateTransforms()
   this->Box->Identity();
   this->Box->PostMultiply();
   this->Box->Translate(-0.5, -0.5, -0.5);
-  this->Box->Concatenate(this->Rotation.GetPointer());
-  this->Box->Concatenate(this->BoxScale.GetPointer());
+  this->Box->Concatenate(this->Rotation);
+  this->Box->Concatenate(this->BoxScale);
   if (this->AutoRotate)
   {
     if (this->IsX)
@@ -1245,7 +1245,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm1);
   face1->SetNormal(norm1);
   face1->SetOrigin(transformedCube[3].GetData());
-  this->BoundingCube->AddItem(face1.GetPointer());
+  this->BoundingCube->AddItem(face1);
 
   vtkNew<vtkPlane> face2;
   vtkMath::Cross((transformedCube[5] - transformedCube[4]).GetData(),
@@ -1253,7 +1253,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm2);
   face2->SetNormal(norm2);
   face2->SetOrigin(transformedCube[7].GetData());
-  this->BoundingCube->AddItem(face2.GetPointer());
+  this->BoundingCube->AddItem(face2);
 
   //face 0,1,4,5 opposes face 2,3,6,7
   vtkNew<vtkPlane> face3;
@@ -1262,7 +1262,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm3);
   face3->SetNormal(norm3);
   face3->SetOrigin(transformedCube[5].GetData());
-  this->BoundingCube->AddItem(face3.GetPointer());
+  this->BoundingCube->AddItem(face3);
 
   vtkNew<vtkPlane> face4;
   vtkMath::Cross((transformedCube[6] - transformedCube[2]).GetData(),
@@ -1270,7 +1270,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm4);
   face4->SetNormal(norm4);
   face4->SetOrigin(transformedCube[7].GetData());
-  this->BoundingCube->AddItem(face4.GetPointer());
+  this->BoundingCube->AddItem(face4);
 
   //face 0,2,4,6 opposes face 1,3,5,7
   vtkNew<vtkPlane> face5;
@@ -1279,7 +1279,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm5);
   face5->SetNormal(norm5);
   face5->SetOrigin(transformedCube[6].GetData());
-  this->BoundingCube->AddItem(face5.GetPointer());
+  this->BoundingCube->AddItem(face5);
 
   vtkNew<vtkPlane> face6;
   vtkMath::Cross((transformedCube[3] - transformedCube[1]).GetData(),
@@ -1287,7 +1287,7 @@ void vtkChartXYZ::CalculateTransforms()
   vtkMath::Normalize(norm6);
   face6->SetNormal(norm6);
   face6->SetOrigin(transformedCube[7].GetData());
-  this->BoundingCube->AddItem(face6.GetPointer());
+  this->BoundingCube->AddItem(face6);
 }
 
 //-----------------------------------------------------------------------------
@@ -1396,13 +1396,13 @@ void vtkChartXYZ::InitializeFutureBox()
                  this->Axes[i]->GetPosition1()[1];
   }
 
-  this->FutureBoxScale->DeepCopy(this->BoxScale.GetPointer());
+  this->FutureBoxScale->DeepCopy(this->BoxScale);
 
   this->FutureBox->Identity();
   this->FutureBox->PostMultiply();
   this->FutureBox->Translate(-0.5, -0.5, -0.5);
-  this->FutureBox->Concatenate(this->Rotation.GetPointer());
-  this->FutureBox->Concatenate(this->FutureBoxScale.GetPointer());
+  this->FutureBox->Concatenate(this->Rotation);
+  this->FutureBox->Concatenate(this->FutureBoxScale);
   this->FutureBox->Translate(0.5, 0.5, 0.5);
   this->FutureBox->Scale(scale);
   this->FutureBox->Translate(this->Axes[0]->GetPosition1()[0],
@@ -1536,10 +1536,10 @@ double vtkChartXYZ::CalculateNiceMinMax(double &min, double &max,
 //-----------------------------------------------------------------------------
 void vtkChartXYZ::RecalculateTransform()
 {
-  this->CalculatePlotTransform(this->Axes[0].GetPointer(),
-                               this->Axes[1].GetPointer(),
-                               this->Axes[2].GetPointer(),
-                               this->PlotTransform.GetPointer());
+  this->CalculatePlotTransform(this->Axes[0],
+                               this->Axes[1],
+                               this->Axes[2],
+                               this->PlotTransform);
 }
 
 //-----------------------------------------------------------------------------

@@ -35,7 +35,7 @@ int TestPolyhedron4(int argc, char *argv[])
   p->SetOrigin(0, 0, 0);
   p->SetNormal(0, 1, 0);
 
-  cutter->SetCutFunction(p.GetPointer());
+  cutter->SetCutFunction(p);
   cutter->GenerateTrianglesOn();
   cutter->SetInputConnection(0, reader->GetOutputPort());
 

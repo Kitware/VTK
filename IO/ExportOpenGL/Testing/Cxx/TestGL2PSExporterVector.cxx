@@ -42,7 +42,7 @@ int TestGL2PSExporterVector( int, char *[] )
   vtkNew<vtkActor> coneActor;
   coneSource->SetResolution(25);
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
-  coneActor->SetMapper(coneMapper.GetPointer());
+  coneActor->SetMapper(coneMapper);
   coneActor->GetProperty()->SetColor(0.5, 0.5, 1.0);
 
   vtkNew<vtkCubeAxesActor2D> axes;
@@ -84,18 +84,18 @@ int TestGL2PSExporterVector( int, char *[] )
 
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
-  ren->AddActor(coneActor.GetPointer());
-  ren->AddActor(axes.GetPointer());
-  ren->AddActor(text1.GetPointer());
-  ren->AddActor(text2.GetPointer());
-  ren->AddActor(text3.GetPointer());
+  ren->AddActor(coneActor);
+  ren->AddActor(axes);
+  ren->AddActor(text1);
+  ren->AddActor(text2);
+  ren->AddActor(text3);
   ren->SetBackground(0.8, 0.8, 0.8);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkSmartPointer<vtkCamera> camera = ren->GetActiveCamera();
   ren->ResetCamera();
@@ -105,7 +105,7 @@ int TestGL2PSExporterVector( int, char *[] )
   renWin->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToBSP();

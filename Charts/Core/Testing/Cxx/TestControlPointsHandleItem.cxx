@@ -696,7 +696,7 @@ int TestControlPointsHandleItem(int, char * [])
     chart->GetAxis(i)->SetTitle("");
   }
 
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create transfer mapping scalar value to opacity.
   vtkNew<vtkPiecewiseFunction> opacityFunction;
@@ -715,18 +715,18 @@ int TestControlPointsHandleItem(int, char * [])
   colorTransferFunction->Build();
 
   vtkNew<vtkCompositeTransferFunctionItem> item;
-  item->SetColorTransferFunction(colorTransferFunction.GetPointer());
-  item->SetOpacityFunction(opacityFunction.GetPointer());
+  item->SetColorTransferFunction(colorTransferFunction);
+  item->SetOpacityFunction(opacityFunction);
   item->SetMaskAboveCurve(true);
-  chart->AddPlot(item.GetPointer());
+  chart->AddPlot(item);
 
   vtkNew<vtkCompositeControlPointsItem> controlPoints;
-  controlPoints->SetColorTransferFunction(colorTransferFunction.GetPointer());
-  controlPoints->SetOpacityFunction(opacityFunction.GetPointer());
+  controlPoints->SetColorTransferFunction(colorTransferFunction);
+  controlPoints->SetOpacityFunction(opacityFunction);
   controlPoints->SetEndPointsXMovable(false);
   controlPoints->SetUseOpacityPointHandles(true);
   controlPoints->SetEndPointsRemovable(false);
-  chart->AddPlot(controlPoints.GetPointer());
+  chart->AddPlot(controlPoints);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

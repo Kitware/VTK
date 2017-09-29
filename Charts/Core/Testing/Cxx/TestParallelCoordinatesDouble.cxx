@@ -31,22 +31,22 @@ int TestParallelCoordinatesDouble(int , char* [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(600, 400);
   vtkNew<vtkChartParallelCoordinates> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkDoubleArray> arrX;
   arrX->SetName("x");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkDoubleArray> arrC;
   arrC->SetName("cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkDoubleArray> arrS;
   arrS->SetName("sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkDoubleArray> arrS2;
   arrS2->SetName("tangent");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 200;
   float inc = 7.5 / (numPoints - 1);
@@ -59,7 +59,7 @@ int TestParallelCoordinatesDouble(int , char* [])
     table->SetValue(i, 3, tan(i * inc) + 0.5);
   }
 
-  chart->GetPlot(0)->SetInputData(table.GetPointer());
+  chart->GetPlot(0)->SetInputData(table);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

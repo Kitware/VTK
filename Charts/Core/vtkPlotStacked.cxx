@@ -678,8 +678,8 @@ bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
     vtkNew<vtkBrush> brush;
     pen->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
     brush->SetColor(pen->GetColor());
-    painter->ApplyPen(pen.GetPointer());
-    painter->ApplyBrush(brush.GetPointer());
+    painter->ApplyPen(pen);
+    painter->ApplyBrush(brush);
   }
   else
   {

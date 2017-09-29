@@ -179,7 +179,7 @@ void vtkPDFExporter::RenderContextActor(vtkContextActor *actor,
   vtkNew<vtkPDFContextDevice2D> device;
   device->SetHaruObjects(&this->Impl->Document, &this->Impl->Page);
   device->SetRenderer(ren);
-  actor->SetForceDevice(device.Get());
+  actor->SetForceDevice(device);
 
   actor->RenderOverlay(ren);
 

@@ -85,7 +85,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
 
   vtkIdType lid = 0;
   vtkNew<vtkIdList> linePts;
-  for (lines->InitTraversal(); lines->GetNextCell(linePts.GetPointer()); ++lid)
+  for (lines->InitTraversal(); lines->GetNextCell(linePts); ++lid)
   {
     vtkIdType npts = linePts->GetNumberOfIds();
     if (npts <= 0)
@@ -102,7 +102,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
     vtkIdType sNextId = 0;
     vtkVector3d sPrev, sNext;
 
-    sNextId = FindNextValidSegment(pts, linePts.GetPointer(), 0);
+    sNextId = FindNextValidSegment(pts, linePts, 0);
     if (sNextId != npts) // atleast one valid segment
     {
       vtkVector3d pt1, pt2;
@@ -129,7 +129,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
       // find the next valid, non-parallel segment
       while (++sNextId < npts)
       {
-        sNextId = FindNextValidSegment(pts, linePts.GetPointer(), sNextId);
+        sNextId = FindNextValidSegment(pts, linePts, sNextId);
         if (sNextId != npts)
         {
           vtkVector3d pt1, pt2;
@@ -173,7 +173,7 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
     vtkIdType lastNormalId = 0;
     while (++sNextId < npts)
     {
-      sNextId = FindNextValidSegment(pts, linePts.GetPointer(), sNextId);
+      sNextId = FindNextValidSegment(pts, linePts, sNextId);
       if (sNextId == npts)
       {
         break;

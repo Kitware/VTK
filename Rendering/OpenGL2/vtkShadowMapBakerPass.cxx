@@ -124,14 +124,14 @@ vtkShadowMapBakerPass::vtkShadowMapBakerPass()
   vtkNew<vtkSequencePass> seqP;
   vtkNew<vtkLightsPass> lightP;
   vtkNew<vtkOpaquePass> opaqueP;
-  camP->SetDelegatePass(seqP.Get());
+  camP->SetDelegatePass(seqP);
   vtkNew<vtkRenderPassCollection> rpc;
-  rpc->AddItem(lightP.Get());
-  rpc->AddItem(opaqueP.Get());
-  seqP->SetPasses(rpc.Get());
+  rpc->AddItem(lightP);
+  rpc->AddItem(opaqueP);
+  seqP->SetPasses(rpc);
 
   this->OpaqueSequence=nullptr;
-  this->SetOpaqueSequence(camP.Get());
+  this->SetOpaqueSequence(camP);
 
   this->CompositeZPass=nullptr;
 

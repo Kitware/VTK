@@ -57,7 +57,7 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   cylinder->SetRadius(10);
   cylinder->SetAxis(0, 1, 0);
   vtkNew<vtkTableBasedClipDataSet> clipCyl;
-  clipCyl->SetClipFunction(cylinder.GetPointer());
+  clipCyl->SetClipFunction(cylinder);
   clipCyl->InsideOutOn();
 
   vtkNew<vtkSphere> sphere;
@@ -65,13 +65,13 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   sphere->SetRadius(7);
   vtkNew<vtkTableBasedClipDataSet> clipSphr;
   clipSphr->SetInputConnection(clipCyl->GetOutputPort());
-  clipSphr->SetClipFunction(sphere.GetPointer());
+  clipSphr->SetClipFunction(sphere);
 
   vtkNew<vtkTransform> transform;
   transform->RotateZ(45);
   vtkNew<vtkTransformFilter> transFilter;
   transFilter->SetInputConnection(clipSphr->GetOutputPort());
-  transFilter->SetTransform(transform.GetPointer());
+  transFilter->SetTransform(transform);
 
   vtkNew<vtkRandomAttributeGenerator> randomAttrs;
   randomAttrs->SetInputConnection(transFilter->GetOutputPort());
@@ -139,14 +139,14 @@ int TestResampleWithDataSet3(int argc, char *argv[])
 {
   // create input dataset
   vtkNew<vtkMultiBlockDataSet> input;
-  CreateInputDataSet(input.GetPointer(), 3);
+  CreateInputDataSet(input, 3);
 
   vtkNew<vtkMultiBlockDataSet> source;
-  CreateSourceDataSet(source.GetPointer(), 4);
+  CreateSourceDataSet(source, 4);
 
   vtkNew<vtkResampleWithDataSet> resample;
-  resample->SetInputData(input.GetPointer());
-  resample->SetSourceData(source.GetPointer());
+  resample->SetInputData(input);
+  resample->SetSourceData(source);
 
 
   vtkMultiBlockDataSet *result;
@@ -186,22 +186,22 @@ int TestResampleWithDataSet3(int argc, char *argv[])
   mapper->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   renderer->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   iren->Initialize();
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

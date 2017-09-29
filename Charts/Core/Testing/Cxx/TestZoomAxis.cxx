@@ -33,9 +33,9 @@ int TestZoomAxis(int, char * [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
   vtkNew<vtkAnnotationLink> link;
-  chart->SetAnnotationLink(link.GetPointer());
+  chart->SetAnnotationLink(link);
   chart->SetActionToButton(vtkChart::ZOOM_AXIS,
                            vtkContextMouseEvent::LEFT_BUTTON);
   chart->SetSelectionMethod(vtkChart::SELECTION_PLOTS);
@@ -44,10 +44,10 @@ int TestZoomAxis(int, char * [])
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   // Test charting with a few more points...
   int numPoints = 100;
   float inc = 9.5f / (numPoints-1);
@@ -60,7 +60,7 @@ int TestZoomAxis(int, char * [])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *plot = chart->AddPlot(vtkChart::POINTS);
-  plot->SetInputData(table.GetPointer(), 0, 1);
+  plot->SetInputData(table, 0, 1);
   plot->SetColor(0, 255, 0, 255);
   plot->SetWidth(1.0);
 

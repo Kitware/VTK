@@ -48,9 +48,9 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   pts->SetPoint(1, 1, -1, 0);
   pts->SetPoint(2, 1, 1, 0);
   pts->SetPoint(3, -1, 1, 0);
-  poly->SetPoints(pts.Get());
+  poly->SetPoints(pts);
   vtkNew<vtkCellArray> polys;
-  poly->SetPolys(polys.Get());
+  poly->SetPolys(polys);
   polys->InsertNextCell(4);
   polys->InsertCellPoint(0);
   polys->InsertCellPoint(1);
@@ -58,8 +58,8 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   polys->InsertCellPoint(3);
 
   // this->CubeMapper->SetInputConnection(this->Cube->GetOutputPort(0));
-  this->CubeMapper->SetInputData(poly.Get());
-  this->SetMapper(this->CubeMapper.Get());
+  this->CubeMapper->SetInputData(poly);
+  this->SetMapper(this->CubeMapper);
   this->CubeMapper->AddShaderReplacement(
     vtkShader::Vertex,
     "//VTK::PositionVC::Dec", // replace

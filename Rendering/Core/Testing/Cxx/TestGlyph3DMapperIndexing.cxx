@@ -45,8 +45,8 @@ int TestGlyph3DMapperIndexing(int argc, char *argv[])
     }
   }
 
-  input->SetPoints(points.Get());
-  input->GetPointData()->AddArray(indexArray.Get());
+  input->SetPoints(points);
+  input->GetPointData()->AddArray(indexArray);
   indexArray->SetName("GlyphIndex");
 
   // The glyph sources:
@@ -55,7 +55,7 @@ int TestGlyph3DMapperIndexing(int argc, char *argv[])
   vtkNew<vtkSphereSource> s2;
 
   vtkNew<vtkGlyph3DMapper> mapper;
-  mapper->SetInputData(input.Get());
+  mapper->SetInputData(input);
   mapper->SetSourceConnection(0, s0->GetOutputPort());
   mapper->SetSourceConnection(1, s1->GetOutputPort());
   mapper->SetSourceConnection(2, s2->GetOutputPort());
@@ -64,25 +64,25 @@ int TestGlyph3DMapperIndexing(int argc, char *argv[])
   mapper->SetSourceIndexArray("GlyphIndex");
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1., 0., 0.);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->SetBackground(0., 0., 0.);
   renderer->ResetCamera();
   renderer->ResetCameraClippingRange();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.Get());
-  renWin->AddRenderer(renderer.Get());
+  iren->SetRenderWindow(renWin);
+  renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -43,7 +43,7 @@ int TestChartUnicode(int argc, char *argv[])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Exercise the support for extended characters using UTF8 encoded strings.
   chart->GetTitleProperties()->SetFontFamily(VTK_FONT_FILE);
@@ -64,10 +64,10 @@ int TestChartUnicode(int argc, char *argv[])
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   int numPoints = 69;
   float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
@@ -79,7 +79,7 @@ int TestChartUnicode(int argc, char *argv[])
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
-  line->SetInputData(table.GetPointer(), 0, 1);
+  line->SetInputData(table, 0, 1);
   line->SetColor(42, 55, 69, 255);
 
   // Render the scene and compare the image to a reference image

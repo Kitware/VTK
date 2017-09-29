@@ -242,7 +242,7 @@ void vtkOpenVRMenuRepresentation::BuildRepresentation()
       rot->SetElement(2,i,-this->PlacedDOP[i]);
     }
     rot->Transpose();
-    vtkTransform::GetOrientation(this->PlacedOrientation, rot.Get());
+    vtkTransform::GetOrientation(this->PlacedOrientation, rot);
 
     this->BuildTime.Modified();
   }

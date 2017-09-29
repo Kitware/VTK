@@ -338,7 +338,7 @@ int vtkStructuredGridAppend::RequestData(
           vtkNew<vtkPoints> points;
           points->SetDataType(inArray->GetDataType());
           points->SetNumberOfPoints(vtkStructuredData::GetNumberOfPoints(outExt));
-          output->SetPoints(points.GetPointer());
+          output->SetPoints(points);
         }
         outArray = output->GetPoints()->GetData();
         inPtr = inArray->GetVoidPointer(0);

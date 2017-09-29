@@ -87,7 +87,7 @@ bool TestRemoveItem(int index, bool removeIndex)
   for (int i = 0; i < 10; ++i)
   {
     vtkNew<vtkIntArray> object;
-    collection->AddItem(object.GetPointer());
+    collection->AddItem(object);
     objects.push_back(object.GetPointer());
   }
   if (removeIndex)
@@ -100,7 +100,7 @@ bool TestRemoveItem(int index, bool removeIndex)
     collection->RemoveItem(objectToRemove);
   }
   objects.erase(objects.begin() + index);
-  if (!IsEqual(collection.GetPointer(), objects))
+  if (!IsEqual(collection, objects))
   {
     std::cout << "TestRemoveItem failed:" << std::endl;
     collection->Print(std::cout);

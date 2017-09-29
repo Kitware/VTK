@@ -1621,7 +1621,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfNodeSets (numNodeSets);
     em->SetSumNodesPerNodeSet (sumNodes);
-    em->SetNodeSetNames (nodeSetNames.Get());
+    em->SetNodeSetNames (nodeSetNames);
 
     int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
     memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
@@ -1641,7 +1641,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfSideSets (numSideSets);
     em->SetSumSidesPerSideSet (sumSides);
-    em->SetSideSetNames (sideSetNames.Get());
+    em->SetSideSetNames (sideSetNames);
 
     int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
     memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));

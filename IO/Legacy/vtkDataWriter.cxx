@@ -1962,7 +1962,7 @@ int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
 
   *fp << "INFORMATION " << keys->GetNumberOfKeys() << "\n";
 
-  iter->SetInformationWeak(keys.Get());
+  iter->SetInformationWeak(keys);
   char buffer[1024];
   for (iter->InitTraversal(); (key = iter->GetCurrentKey());
        iter->GoToNextItem())

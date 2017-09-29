@@ -59,11 +59,11 @@ int TestExtractSelectedTree(int, char*[])
   names->SetValue(7,"c");
 
 
-  graph->GetEdgeData()->AddArray(weights.GetPointer());
-  graph->GetVertexData()->AddArray(names.GetPointer());
+  graph->GetEdgeData()->AddArray(weights);
+  graph->GetVertexData()->AddArray(names);
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   int SUCCESS = 0;
 
@@ -76,13 +76,13 @@ int TestExtractSelectedTree(int, char*[])
   selArr->InsertNextValue(c);
   selNode->SetContentType(vtkSelectionNode::INDICES);
   selNode->SetFieldType(vtkSelectionNode::VERTEX);
-  selNode->SetSelectionList(selArr.GetPointer());
+  selNode->SetSelectionList(selArr);
   selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 1);
-  sel->AddNode(selNode.GetPointer());
+  sel->AddNode(selNode);
 
   vtkNew<vtkExtractSelectedTree> filter1;
-  filter1->SetInputData(0,tree.GetPointer());
-  filter1->SetInputData(1,sel.GetPointer());
+  filter1->SetInputData(0,tree);
+  filter1->SetInputData(1,sel);
   vtkTree * resultTree1 = filter1->GetOutput();
   filter1->Update();
 
@@ -118,8 +118,8 @@ int TestExtractSelectedTree(int, char*[])
   //subtest 2
   vtkNew<vtkExtractSelectedTree> filter2;
   selNode->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
-  filter2->SetInputData(0,tree.GetPointer());
-  filter2->SetInputData(1,sel.GetPointer());
+  filter2->SetInputData(0,tree);
+  filter2->SetInputData(1,sel);
   vtkTree * resultTree2 = filter2->GetOutput();
   filter2->Update();
 
@@ -145,12 +145,12 @@ int TestExtractSelectedTree(int, char*[])
   selArrEdge->InsertNextValue(6);
   selEdge->SetContentType(vtkSelectionNode::INDICES);
   selEdge->SetFieldType(vtkSelectionNode::EDGE);
-  selEdge->SetSelectionList(selArrEdge.GetPointer());
+  selEdge->SetSelectionList(selArrEdge);
   selEdge->GetProperties()->Set(vtkSelectionNode::INVERSE(), 0);
-  sel3->AddNode(selEdge.GetPointer());
+  sel3->AddNode(selEdge);
 
-  filter3->SetInputData(0,tree.GetPointer());
-  filter3->SetInputData(1,sel3.GetPointer());
+  filter3->SetInputData(0,tree);
+  filter3->SetInputData(1,sel3);
   vtkTree * resultTree3 = filter3->GetOutput();
   filter3->Update();
 

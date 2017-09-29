@@ -192,7 +192,7 @@ virtual type Get##name##MaxValue () \
 //
 #define vtkSetObjectMacro(name,type)            \
 virtual void Set##name (type* _arg)             \
-{                                             \
+{                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
 }
 
@@ -210,7 +210,7 @@ virtual void Set##name (type* _arg)             \
 
 #define vtkCxxSetObjectMacro(class,name,type)   \
 void class::Set##name (type* _arg)              \
-{                                             \
+{                                               \
   vtkSetObjectBodyMacro(name,type,_arg);        \
 }
 
@@ -218,13 +218,13 @@ void class::Set##name (type* _arg)              \
 // Get pointer to object wrapped in vtkNew.  Creates member Get"name"
 // (e.g., GetPoints()).  This macro should be used in the header file.
 //
-#define vtkGetNewMacro(name,type)                                    \
+#define vtkGetNewMacro(name,type)                                       \
 virtual type *Get##name ()                                              \
-{                                                                     \
+{                                                                       \
   vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
                 << "): returning " #name " address "                    \
-                << this->name.GetPointer() );                           \
-  return this->name.GetPointer();                                       \
+                << this->name );                                        \
+  return this->name;                                                    \
 }
 
 //
@@ -233,7 +233,7 @@ virtual type *Get##name ()                                              \
 //
 #define vtkGetObjectMacro(name,type)                                    \
 virtual type *Get##name ()                                              \
-{                                                                     \
+{                                                                       \
   vtkDebugMacro(<< this->GetClassName() << " (" << this                 \
                 << "): returning " #name " address " << this->name );   \
   return this->name;                                                    \

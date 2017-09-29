@@ -47,7 +47,7 @@ public:
    * provide access to the underlying mappers
    */
   vtkOpenGLSphereMapper *GetFastAtomMapper() {
-      return this->FastAtomMapper.Get(); }
+      return this->FastAtomMapper; }
 
 protected:
   vtkOpenGLMoleculeMapper();

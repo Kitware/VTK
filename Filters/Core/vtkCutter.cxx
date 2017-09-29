@@ -860,14 +860,14 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
 
         if (needCell)
         {
-          cellIter->GetCell(cell.GetPointer());
+          cellIter->GetCell(cell);
           cellIds = cell->GetPointIds();
           cutScalars->GetTuples(cellIds,cellScalars);
           // Loop over all contour values.
           for (iter=0; iter < numContours && !abortExecute; iter++)
           {
             value = this->ContourValues->GetValue(iter);
-            helper.Contour(cell.GetPointer(), value, cellScalars,
+            helper.Contour(cell, value, cellScalars,
                            cellIter->GetCellId());
           }
         }
@@ -964,13 +964,13 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output)
         if (needCell)
         {
           // Fetch the full cell -- most expensive.
-          cellIter->GetCell(cell.GetPointer());
+          cellIter->GetCell(cell);
           cutScalars->GetTuples(pointIdList, cellScalars);
           // Loop over all contour values.
           for (contourIter = contourValues; contourIter != contourValuesEnd;
                ++contourIter)
           {
-            helper.Contour(cell.GetPointer(), *contourIter, cellScalars,
+            helper.Contour(cell, *contourIter, cellScalars,
                            cellIter->GetCellId());
           } // for all contour values
         } // if need cell

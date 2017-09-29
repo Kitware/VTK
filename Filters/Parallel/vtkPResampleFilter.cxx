@@ -167,7 +167,7 @@ int vtkPResampleFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkNew<vtkPProbeFilter> probeFilter;
   probeFilter->SetController(this->Controller);
   probeFilter->SetSourceData(input);
-  probeFilter->SetInputData(source.GetPointer());
+  probeFilter->SetInputData(source);
   probeFilter->Update();
   output->ShallowCopy(probeFilter->GetOutput());
 

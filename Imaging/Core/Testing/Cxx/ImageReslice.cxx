@@ -39,8 +39,8 @@ int ImageReslice(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyle> style;
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.Get());
-  iren->SetInteractorStyle(style.Get());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPNGReader> reader;
 
@@ -82,7 +82,7 @@ int ImageReslice(int argc, char *argv[])
     {
       // Images on the top, note that (by design) the ResliceTransform
       // is ignored by TransformInputSampling, unlike the ResliceAxes
-      reslice->SetResliceTransform(transform.Get());
+      reslice->SetResliceTransform(transform);
     }
 
     vtkNew<vtkImageSliceMapper> imageMapper;
@@ -90,18 +90,18 @@ int ImageReslice(int argc, char *argv[])
     imageMapper->BorderOn();
 
     vtkNew<vtkImageSlice> image;
-    image->SetMapper(imageMapper.Get());
+    image->SetMapper(imageMapper);
 
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
     image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
     image->GetProperty()->SetInterpolationTypeToNearest();
 
     vtkNew<vtkRenderer> renderer;
-    renderer->AddViewProp(image.Get());
+    renderer->AddViewProp(image);
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.25*(i&2),
                           0.5 + 0.5*(i&1), 0.5 + 0.25*(i&2));
-    renWin->AddRenderer(renderer.Get());
+    renWin->AddRenderer(renderer);
 
     // use center point to set camera
     const double *bounds = imageMapper->GetBounds();

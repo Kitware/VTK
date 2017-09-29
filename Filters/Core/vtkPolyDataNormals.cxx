@@ -147,7 +147,7 @@ int vtkPolyDataNormals::RequestData(
       {
         ids->SetId(i, i);
       }
-      outCD->CopyData(inCD, ids.GetPointer(), ids.GetPointer());
+      outCD->CopyData(inCD, ids, ids);
     }
     else
     {

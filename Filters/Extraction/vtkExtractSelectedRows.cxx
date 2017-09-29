@@ -181,7 +181,7 @@ int vtkExtractSelectedRows::RequestData(
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
     selection, input, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
-  if (!converted.GetPointer())
+  if (!converted)
   {
     vtkErrorMacro("Selection conversion to INDICES failed.");
     return 0;

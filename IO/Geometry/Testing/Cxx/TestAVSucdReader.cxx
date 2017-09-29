@@ -51,22 +51,22 @@ int TestAVSucdReader(int argc, char* argv[])
   mapper->SetScalarRange(grid->GetPointData()->GetScalars()->GetRange());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
   actor->GetProperty()->EdgeVisibilityOn();
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->SetBackground(0, 0, 0);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(300, 300);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  int r = vtkRegressionTestImage(renWin.GetPointer());
+  int r = vtkRegressionTestImage(renWin);
   if (r == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

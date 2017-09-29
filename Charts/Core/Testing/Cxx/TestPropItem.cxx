@@ -68,14 +68,14 @@ int TestPropItem(int argc, char *argv[])
   imageLUT->SetSaturationRange(1.0, 0.25);
   imageLUT->SetValueRange(0.5, 1.0);
 
-  imageMapper->SetLookupTable(imageLUT.GetPointer());
+  imageMapper->SetLookupTable(imageLUT);
   imageMapper->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> imageActor;
-  imageActor->SetMapper(imageMapper.GetPointer());
+  imageActor->SetMapper(imageMapper);
 
   vtkNew<vtkPropItem> imageItem;
-  imageItem->SetPropObject(imageActor.GetPointer());
+  imageItem->SetPropObject(imageActor);
 
   // Contours:
   double range[2];
@@ -96,21 +96,21 @@ int TestPropItem(int argc, char *argv[])
   tprop->SetBold(1);
   tprop->SetFontSize(12);
   tprop->SetColor(1., 1., 1.);
-  contourMapper->SetTextProperty(tprop.GetPointer());
+  contourMapper->SetTextProperty(tprop);
 
   vtkNew<vtkLookupTable> contourLUT;
   contourLUT->SetHueRange(0.6, 0);
   contourLUT->SetSaturationRange(0.75, 1.0);
   contourLUT->SetValueRange(0.25, 0.75);
 
-  contourMapper->GetPolyDataMapper()->SetLookupTable(contourLUT.GetPointer());
+  contourMapper->GetPolyDataMapper()->SetLookupTable(contourLUT);
   contourMapper->GetPolyDataMapper()->SetScalarRange(scalarRange);
 
   vtkNew<vtkActor> contourActor;
-  contourActor->SetMapper(contourMapper.GetPointer());
+  contourActor->SetMapper(contourMapper);
 
   vtkNew<vtkPropItem> contourItem;
-  contourItem->SetPropObject(contourActor.GetPointer());
+  contourItem->SetPropObject(contourActor);
 
   //----------------------------------------------------------------------------
   // Context2D initialization:
@@ -143,10 +143,10 @@ int TestPropItem(int argc, char *argv[])
     axis->GetGridPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 128);
   }
 
-  area->GetDrawAreaItem()->AddItem(imageItem.GetPointer());
-  area->GetDrawAreaItem()->AddItem(contourItem.GetPointer());
+  area->GetDrawAreaItem()->AddItem(imageItem);
+  area->GetDrawAreaItem()->AddItem(contourItem);
 
-  view->GetScene()->AddItem(area.GetPointer());
+  view->GetScene()->AddItem(area);
 
   view->GetInteractor()->Start();
   return EXIT_SUCCESS;

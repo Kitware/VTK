@@ -157,7 +157,7 @@ int TestPStreamAMR( int argc, char* argv[] )
 {
 
   vtkNew<vtkMPIController> c;
-  vtkMultiProcessController::SetGlobalController(c.GetPointer());
+  vtkMultiProcessController::SetGlobalController(c);
   c->Initialize(&argc,&argv);
   int numProcs = c->GetNumberOfProcesses();
   int Rank = c->GetLocalProcessId();
@@ -175,7 +175,7 @@ int TestPStreamAMR( int argc, char* argv[] )
   double stepSize(0.1);
 
   vtkNew<vtkAMREnzoReader> imageSource;
-  imageSource->SetController(c.GetPointer());
+  imageSource->SetController(c);
   imageSource->SetFileName(fname);
   imageSource->SetMaxLevel(8);
   imageSource->SetCellArrayStatus( "x-velocity",1);
@@ -205,8 +205,8 @@ int TestPStreamAMR( int argc, char* argv[] )
     seedPoints->InsertNextPoint(t,t,t);
   }
 
-  seeds->SetPoints(seedPoints.GetPointer());
-  tracer->SetInputData(1,seeds.GetPointer());
+  seeds->SetPoints(seedPoints);
+  tracer->SetInputData(1,seeds);
   tracer->SetMaximumPropagation(maximumPropagation);
 
   vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -224,9 +224,9 @@ int TestPStreamAMR( int argc, char* argv[] )
   double totalLength(0);
   int totalSize(0);
   lines->InitTraversal();
-  while(lines->GetNextCell(polyLine.GetPointer()))
+  while(lines->GetNextCell(polyLine))
   {
-    double d = ComputeLength(polyLine.GetPointer(),out->GetPoints());
+    double d = ComputeLength(polyLine,out->GetPoints());
     totalLength+=d;
     totalSize+=polyLine->GetNumberOfIds();
   }

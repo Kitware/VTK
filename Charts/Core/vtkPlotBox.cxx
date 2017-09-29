@@ -164,7 +164,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
 
   vtkNew<vtkBrush> brush;
   brush->SetColor(rgba);
-  painter->ApplyBrush(brush.GetPointer());
+  painter->ApplyBrush(brush);
 
   // Helper variables for x position
   double xpos = x + 0.5 * this->BoxWidth;
@@ -194,7 +194,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
     whitePen->SetWidth(this->Pen->GetWidth());
     whitePen->SetColor(128, 128, 128, 128);
     whitePen->SetOpacity(this->Pen->GetOpacity());
-    painter->ApplyPen(whitePen.GetPointer());
+    painter->ApplyPen(whitePen);
   }
 
   painter->DrawLine(xneg, q[2], xpos, q[2]);

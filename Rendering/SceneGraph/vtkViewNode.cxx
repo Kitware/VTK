@@ -77,7 +77,7 @@ void vtkViewNode::SetParent(vtkViewNode *p)
 //----------------------------------------------------------------------------
 vtkViewNode *vtkViewNode::GetParent()
 {
-  return this->Parent.GetPointer();
+  return this->Parent;
 }
 
 

@@ -130,7 +130,7 @@ int vtkOpenQubeMoleculeSource::RequestData(
   // Add ElectronicData
   vtkNew<vtkOpenQubeElectronicData> oqed;
   oqed->SetBasisSet(basisSet);
-  output->SetElectronicData(oqed.GetPointer());
+  output->SetElectronicData(oqed);
 
   return 1;
 }

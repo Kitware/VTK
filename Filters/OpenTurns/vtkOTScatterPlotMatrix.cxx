@@ -92,17 +92,17 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
     vtkOTDensityMap* density;
     if (it != this->DensityMapCache.end())
     {
-      density = it->second.GetPointer();
+      density = it->second;
     }
     else
     {
       vtkSmartPointer<vtkOTDensityMap> densityPt = vtkSmartPointer<vtkOTDensityMap>::New();
       this->DensityMapCache[std::make_pair(row, column)] = densityPt;
-      density = densityPt.GetPointer();
+      density = densityPt;
     }
 
     // Compute density map
-    density->SetInputData(this->Input.GetPointer());
+    density->SetInputData(this->Input);
     density->SetNumberOfContours(3);
     density->SetValue(0, 0.1);
     density->SetValue(1, 0.5);
@@ -130,7 +130,7 @@ void vtkOTScatterPlotMatrix::AddSupplementaryPlot(vtkChart* chart,
         densityPlot->SetInputData(densityLineTable, densityLineTable->GetColumnName(1), row);
         double densityVal = iter->GetCurrentMetaData()->Get(vtkOTDensityMap::DENSITY());
         vtkPen* plotPen = vtkPen::New();
-        plotPen->DeepCopy(this->DensityMapsSettings[plotType]->PlotPen.GetPointer());
+        plotPen->DeepCopy(this->DensityMapsSettings[plotType]->PlotPen);
         plotPen->SetColor(this->DensityMapsSettings[plotType]->DensityMapColorMap[densityVal]);
         densityPlot->SetPen(plotPen);
         plotPen->Delete();

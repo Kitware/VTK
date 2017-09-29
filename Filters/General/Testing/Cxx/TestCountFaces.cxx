@@ -34,7 +34,7 @@ int TestCountFaces(int, char*[])
   {
     points->InsertNextPoint(0., 0., 0.);
   }
-  data->SetPoints(points.Get());
+  data->SetPoints(points);
 
   // Insert the following cell types and verify the number of faces computed
   // by the filter:
@@ -50,37 +50,37 @@ int TestCountFaces(int, char*[])
   // VTK_HEXAGONAL_PRISM = 8
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_VERTEX, cell.Get());
+  data->InsertNextCell(VTK_VERTEX, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_LINE, cell.Get());
+  data->InsertNextCell(VTK_LINE, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_TRIANGLE, cell.Get());
+  data->InsertNextCell(VTK_TRIANGLE, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_TETRA, cell.Get());
+  data->InsertNextCell(VTK_TETRA, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_PYRAMID, cell.Get());
+  data->InsertNextCell(VTK_PYRAMID, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_WEDGE, cell.Get());
-
-  cell->InsertNextId(cell->GetNumberOfIds());
-  cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_VOXEL, cell.Get());
-  data->InsertNextCell(VTK_HEXAHEDRON, cell.Get());
+  data->InsertNextCell(VTK_WEDGE, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_PENTAGONAL_PRISM, cell.Get());
+  data->InsertNextCell(VTK_VOXEL, cell);
+  data->InsertNextCell(VTK_HEXAHEDRON, cell);
 
   cell->InsertNextId(cell->GetNumberOfIds());
   cell->InsertNextId(cell->GetNumberOfIds());
-  data->InsertNextCell(VTK_HEXAGONAL_PRISM, cell.Get());
+  data->InsertNextCell(VTK_PENTAGONAL_PRISM, cell);
 
-  filter->SetInputData(data.Get());
+  cell->InsertNextId(cell->GetNumberOfIds());
+  cell->InsertNextId(cell->GetNumberOfIds());
+  data->InsertNextCell(VTK_HEXAGONAL_PRISM, cell);
+
+  filter->SetInputData(data);
   filter->Update();
 
   vtkUnstructuredGrid *output =

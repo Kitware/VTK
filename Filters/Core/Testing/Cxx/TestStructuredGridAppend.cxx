@@ -40,7 +40,7 @@ namespace
     // create a point data array
     vtkNew<vtkDoubleArray> pointArray;
     pointArray->SetName(arrayName);
-    dataset->GetPointData()->AddArray(pointArray.GetPointer());
+    dataset->GetPointData()->AddArray(pointArray);
     for(int k=extent[4];k<=extent[5];k++)
     {
       for(int j=extent[2];j<=extent[3];j++)
@@ -58,7 +58,7 @@ namespace
     vtkNew<vtkIntArray> cellArray;
     cellArray->SetName(arrayName);
     cellArray->SetNumberOfComponents(3);
-    dataset->GetCellData()->AddArray(cellArray.GetPointer());
+    dataset->GetCellData()->AddArray(cellArray);
     int ijk[3];
     for(int k=extent[4];k<extent[5];k++)
     {

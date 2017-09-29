@@ -44,13 +44,13 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
   // Create render window;
   vtkNew<vtkRenderWindow> window;
-  window->AddRenderer( renderer.GetPointer() );
+  window->AddRenderer( renderer );
   window->SetSize( 500, 200 );
   window->SetMultiSamples( 0 );
 
   // Create interactor;
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow( window.GetPointer() );
+  interactor->SetRenderWindow( window );
 
   // Read from AVS UCD data in binary form;
   char* fileName = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/UCD2D/UCD_00005.inp");
@@ -77,7 +77,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   {
     norm->SetTuple3( i, normX->GetTuple1( i ), normY->GetTuple1( i ), 0. );
   }
-  cellData->SetVectors( norm.GetPointer() );
+  cellData->SetVectors( norm );
 
   // Extract submesh corresponding with cells containing material 2
   cellData->SetActiveScalars( "Material Id" );
@@ -117,14 +117,14 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
   // Create wireframe actor for entire mesh
   vtkNew<vtkActor> meshActor;
-  meshActor->SetMapper( meshMapper.GetPointer() );
+  meshActor->SetMapper( meshMapper );
   meshActor->GetProperty()->SetRepresentationToWireframe();
-  renderer->AddViewProp( meshActor.GetPointer() );
+  renderer->AddViewProp( meshActor );
 
   cellData->SetActiveScalars("frac_pres[1]");
   // Reconstruct Youngs material interface
   vtkNew<vtkYoungsMaterialInterface> youngs;
-  youngs->SetInputData( meshMB.GetPointer() );
+  youngs->SetInputData( meshMB );
   youngs->SetNumberOfMaterials( 2 );
   youngs->SetMaterialVolumeFractionArray( 0, "frac_pres[1]" );
   youngs->SetMaterialVolumeFractionArray( 1, "frac_pres[2]" );
@@ -165,10 +165,10 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
 
     // Create surface actor and add it to view
     vtkNew<vtkActor> interfaceActor;
-    interfaceActor->SetMapper( interfaceMapper.GetPointer() );
+    interfaceActor->SetMapper( interfaceMapper );
     interfaceActor->GetProperty()->SetColor( 0., 1 - bComp, bComp );
     interfaceActor->GetProperty()->SetRepresentationToSurface();
-    renderer->AddViewProp( interfaceActor.GetPointer() );
+    renderer->AddViewProp( interfaceActor );
   }
 
   // Render and test;

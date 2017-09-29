@@ -147,7 +147,7 @@ int vtkAbstractInterpolatedVelocityField::FunctionValues
     if (this->ForceSurfaceTangentVector)
     {
       vtkNew<vtkIdList> ptIds;
-      dataset->GetCellPoints(this->LastCellId, ptIds.Get());
+      dataset->GetCellPoints(this->LastCellId, ptIds);
       if (ptIds->GetNumberOfIds() < 3)
       {
         vtkErrorMacro(<<"Cannot compute normal on cells with less than 3 points");
@@ -297,7 +297,7 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         }
 
         vtkNew<vtkIdList> cellList;
-        dataset->GetPointCells(idPoint, cellList.Get());
+        dataset->GetPointCells(idPoint, cellList);
         double minDist2 = dataset->GetLength() * dataset->GetLength();
         vtkIdType minDistId = -1;
         for (vtkIdType idCell = 0; idCell < cellList->GetNumberOfIds(); idCell++)
@@ -332,8 +332,8 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(vtkDataSet* dataset
         bool closer;
         while (true)
         {
-            this->GenCell->CellBoundary(this->LastSubId, this->LastPCoords, boundaryPoints.Get());
-            dataset->GetCellNeighbors(this->LastCellId, boundaryPoints.Get(), neighCells.Get());
+            this->GenCell->CellBoundary(this->LastSubId, this->LastPCoords, boundaryPoints);
+            dataset->GetCellNeighbors(this->LastCellId, boundaryPoints, neighCells);
             if (neighCells->GetNumberOfIds() == 0)
             {
               edge = true;

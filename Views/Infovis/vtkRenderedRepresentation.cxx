@@ -95,7 +95,7 @@ vtkUnicodeString vtkRenderedRepresentation::GetHoverText(vtkView* view, vtkProp*
   cellSelect->AddNode(cellNode);
   vtkSelection* converted = this->ConvertSelection(view, cellSelect);
   vtkUnicodeString text = this->GetHoverTextInternal(converted);
-  if (converted != cellSelect.GetPointer())
+  if (converted != cellSelect)
   {
     converted->Delete();
   }

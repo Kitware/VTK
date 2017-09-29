@@ -45,7 +45,7 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
 {
   vtkNew<vtkCone> coneFunction;
   vtkNew<vtkSampleFunction> coneSample;
-  coneSample->SetImplicitFunction(coneFunction.GetPointer());
+  coneSample->SetImplicitFunction(coneFunction);
   coneSample->SetOutputScalarTypeToFloat();
   coneSample->SetSampleDimensions(127, 127, 127);
   coneSample->SetModelBounds(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
@@ -84,7 +84,7 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   opacity->AddPoint(90.0,  0.8);
   opacity->AddPoint(100.1, 0.0);
   opacity->AddPoint(255.0, 0.0);
-  volProp->SetScalarOpacity(opacity.GetPointer());
+  volProp->SetScalarOpacity(opacity);
 
   vtkNew<vtkColorTransferFunction> color;
   color->AddRGBPoint(0.0,   0.0, 0.0, 1.0);
@@ -92,11 +92,11 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   color->AddRGBPoint(40.0,  0.5, 0.0, 1.0);
   color->AddRGBPoint(80.0,  1.0, 0.2, 0.3);
   color->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
-  volProp->SetColor(color.GetPointer());
+  volProp->SetColor(color);
 
   vtkNew<vtkVolume> coneVolume;
-  coneVolume->SetMapper(coneMapper.GetPointer());
-  coneVolume->SetProperty(volProp.GetPointer());
+  coneVolume->SetMapper(coneMapper);
+  coneVolume->SetProperty(volProp);
 
   vtkNew<vtkCubeAxesActor2D> axes;
   axes->SetInputConnection(coneShift->GetOutputPort());
@@ -106,15 +106,15 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
 
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
-  ren->AddActor(coneVolume.GetPointer());
-  ren->AddActor(axes.GetPointer());
+  ren->AddActor(coneVolume);
+  ren->AddActor(axes);
   ren->SetBackground(0.2, 0.3, 0.5);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkSmartPointer<vtkCamera> camera = ren->GetActiveCamera();
   ren->ResetCamera();
@@ -124,7 +124,7 @@ int TestGL2PSExporterVolumeRaster( int, char *[] )
   renWin->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToBSP();

@@ -34,7 +34,7 @@ int vtkConstrainedPointHandleRepresentationTest1(int , char * [] )
     vtkSmartPointer<vtkPolyData>::New();
   node1->SetActiveCursorShape(pd3);
   vtkSmartPointer<vtkPolyData> pd4 = node1->GetActiveCursorShape();
-  if (pd4.GetPointer() != pd3.GetPointer())
+  if (pd4 != pd3)
   {
     std::cerr << "Error in Set/Get active cursor shape." << std::endl;
     return EXIT_FAILURE;

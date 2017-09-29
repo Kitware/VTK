@@ -1126,7 +1126,7 @@ vtkDoubleArray* vtkSLACReader::GetFrequencyScales()
           this->Internal->FrequencyScales.end(),
           this->Internal->FrequencyScalesArray->GetPointer(0));
   }
-  return this->Internal->FrequencyScalesArray.GetPointer();
+  return this->Internal->FrequencyScalesArray;
 }
 
 //-----------------------------------------------------------------------------
@@ -1162,7 +1162,7 @@ vtkDoubleArray* vtkSLACReader::GetPhaseShifts()
               this->Internal->PhaseShifts.end(),
               this->Internal->PhaseShiftsArray->GetPointer(0));
   }
-  return this->Internal->PhaseShiftsArray.GetPointer();
+  return this->Internal->PhaseShiftsArray;
 }
 
 //-----------------------------------------------------------------------------

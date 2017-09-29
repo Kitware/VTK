@@ -61,7 +61,7 @@ int TestSVGContextExport(int, char*[])
   view->GetRenderer()->GradientBackgroundOn();
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<ContextSVGTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
@@ -226,28 +226,28 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   transform->Scale(0.25, 0.25);
   transform->Rotate(-45.);
   painter->PushMatrix();
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(255, 0, 0);
   painter->GetPen()->SetWidth(6.0);
   painter->DrawPoly(points);
 
   transform->Identity();
   transform->Translate(0, 10);
-  painter->AppendTransform(transform.GetPointer());
+  painter->AppendTransform(transform);
   painter->GetPen()->SetColor(0, 0, 200);
   painter->GetPen()->SetWidth(2.0);
   painter->DrawPoints(points);
 
   transform->Identity();
   transform->Translate(0, -20);
-  painter->AppendTransform(transform.GetPointer());
+  painter->AppendTransform(transform);
   painter->GetPen()->SetColor(200, 0, 100);
   painter->GetPen()->SetWidth(5.0);
   painter->DrawPoints(points);
 
   transform->Identity();
   transform->Translate(20, 200);
-  painter->SetTransform(transform.Get());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(0, 0, 0);
   painter->GetPen()->SetWidth(1.0);
   painter->GetBrush()->SetColor(0, 0, 100, 69);
@@ -360,8 +360,8 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
       patternScalars->SetTypedComponent(i, (test % 2 == 0) ? 0 : 2, 255);
     }
   }
-  pattern->GetPointData()->SetScalars(patternScalars.Get());
-  painter->GetBrush()->SetTexture(pattern.Get());
+  pattern->GetPointData()->SetScalars(patternScalars);
+  painter->GetBrush()->SetTexture(pattern);
   painter->GetBrush()->SetOpacity(0);
 
   // Stretching:
@@ -389,18 +389,18 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   spriteScalars->SetNumberOfComponents(3);
   spriteScalars->SetNumberOfTuples(25*25);
   spriteScalars->FillValue(0);
-  sprite->GetPointData()->SetScalars(spriteScalars.Get());
+  sprite->GetPointData()->SetScalars(spriteScalars);
   std::vector<float> spritePoints;
   spritePoints.reserve(50);
   std::vector<unsigned char> spriteColors;
   spriteColors.reserve(100);
   for (int i = 0; i < 25; ++i)
   {
-    this->SetSpritePoint(i,  0,  sprite.Get());
-    this->SetSpritePoint(0,  i,  sprite.Get());
-    this->SetSpritePoint(i,  i,  sprite.Get());
-    this->SetSpritePoint(10, i,  sprite.Get());
-    this->SetSpritePoint(i,  10, sprite.Get());
+    this->SetSpritePoint(i,  0,  sprite);
+    this->SetSpritePoint(0,  i,  sprite);
+    this->SetSpritePoint(i,  i,  sprite);
+    this->SetSpritePoint(10, i,  sprite);
+    this->SetSpritePoint(i,  10, sprite);
     spritePoints.push_back(790.f); // x
     spritePoints.push_back(50.f + i * 20); // y
     spriteColors.push_back(static_cast<unsigned char>(127 + 128 / (i+1))); // r
@@ -410,10 +410,10 @@ bool ContextSVGTest::Paint(vtkContext2D *painter)
   }
   for (int i = 0; i < 10; ++i)
   {
-    this->SetSpritePoint(24 - i, i, sprite.Get());
+    this->SetSpritePoint(24 - i, i, sprite);
   }
   painter->GetPen()->SetWidth(18);
-  painter->DrawPointSprites(sprite.Get(), spritePoints.data(), 25,
+  painter->DrawPointSprites(sprite, spritePoints.data(), 25,
                             spriteColors.data(), 4);
 
   painter->GetPen()->SetColor(0, 255, 0, 64);

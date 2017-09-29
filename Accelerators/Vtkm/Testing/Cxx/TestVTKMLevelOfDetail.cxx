@@ -41,8 +41,8 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
 
   //---------------------------------------------------
   // Load file and make only triangles
@@ -80,10 +80,10 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
 
     mappers[i]->SetInputConnection(surfaces[i]->GetOutputPort());
 
-    actors[i]->SetMapper(mappers[i].GetPointer());
+    actors[i]->SetMapper(mappers[i]);
     actors[i]->SetPosition( i * 10, 0, 0);
 
-    ren->AddActor(actors[i].GetPointer());
+    ren->AddActor(actors[i]);
     }
 
   ren->SetBackground(0.1, 0.2, 0.4);
@@ -93,7 +93,7 @@ int TestVTKMLevelOfDetail(int argc, char *argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
   {
   iren->Start();

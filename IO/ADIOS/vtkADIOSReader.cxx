@@ -310,7 +310,7 @@ int vtkADIOSReader::RequestData(vtkInformation *vtkNotUsed(req),
   // Set up multi-piece for paraview
   vtkNew<vtkMultiPieceDataSet> outputPieces;
   output->SetNumberOfBlocks(1);
-  output->SetBlock(0, outputPieces.GetPointer());
+  output->SetBlock(0, outputPieces);
 
   // Make sure the multi-piece has the "global view"
   outputPieces->SetNumberOfPieces(

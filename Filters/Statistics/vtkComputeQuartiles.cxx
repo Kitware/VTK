@@ -162,7 +162,7 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
   // Fill table for descriptive statistics input.
   vtkNew<vtkTable> inDescStats;
   vtkNew<vtkOrderStatistics> os;
-  os->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inDescStats.GetPointer());
+  os->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inDescStats);
 
   for (int i = 0; i < field->GetNumberOfArrays(); i++)
   {
@@ -217,7 +217,7 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
     vtkNew<vtkDoubleArray> ncol;
     ncol->SetNumberOfComponents(1);
     ncol->SetNumberOfValues(5);
-    outputTable->AddColumn(ncol.GetPointer());
+    outputTable->AddColumn(ncol);
     if (blockId >= 0)
     {
       std::stringstream ss;

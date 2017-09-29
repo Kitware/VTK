@@ -31,17 +31,17 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   vtkNew<vtkDoubleArray> arrFirstVariable;
   const char *namev1 = "Math";
   arrFirstVariable->SetName(namev1);
-  table->AddColumn(arrFirstVariable.GetPointer());
+  table->AddColumn(arrFirstVariable);
 
   vtkNew<vtkDoubleArray> arrSecondVariable;
   const char *namev2 = "French";
   arrSecondVariable->SetName(namev2);
-  table->AddColumn(arrSecondVariable.GetPointer());
+  table->AddColumn(arrSecondVariable);
 
   vtkNew<vtkDoubleArray> arrThirdVariable;
   const char *namev3 = "MG";
   arrThirdVariable->SetName(namev3);
-  table->AddColumn(arrThirdVariable.GetPointer());
+  table->AddColumn(arrThirdVariable);
 
   int numPoints = 20;
   table->SetNumberOfRows(numPoints);
@@ -82,7 +82,7 @@ int TestHighestDensityRegionsStatistics(int , char * [])
   hdrs->Update();
   cout << "done.\n";
 
-  hdrs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table.GetPointer());
+  hdrs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table);
   // Select Column Pairs of Interest ( Learn Mode )
   // 1: a valid pair
   hdrs->AddColumnPair(namev1, namev2);

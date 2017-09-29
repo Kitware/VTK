@@ -48,12 +48,12 @@ int TestGL2PSTextOpacity(int , char * [])
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
 
-  ren->AddActor(ta.GetPointer());
-  renWin->AddRenderer(ren.GetPointer());
+  ren->AddActor(ta);
+  renWin->AddRenderer(ren);
 
 
   exporter->SetTextAsPath(1);
-  exporter->SetInput(renWin.GetPointer());
+  exporter->SetInput(renWin);
   exporter->SetFileFormatToPDF();
   exporter->SetFilePrefix("text");
   exporter->Write();

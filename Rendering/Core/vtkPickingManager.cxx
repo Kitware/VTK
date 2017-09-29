@@ -107,7 +107,7 @@ public:
     bool operator () (const vtkSmartPointer<vtkAbstractPicker>& first,
                       const vtkSmartPointer<vtkAbstractPicker>& second) const
     {
-      return first.GetPointer() < second.GetPointer();
+      return first < second;
     }
   };
 
@@ -132,7 +132,7 @@ public:
 
     bool operator () (const PickerObjectsPairType& pickerObjs) const
     {
-      return this->Picker == pickerObjs.first.GetPointer();
+      return this->Picker == pickerObjs.first;
     }
 
     vtkAbstractPicker* Picker;
@@ -544,7 +544,7 @@ void vtkPickingManager::PrintSelf(ostream& os, vtkIndent indent)
 
   for(; it != this->Internal->Pickers.end(); ++it)
   {
-    os << indent << indent << "Picker: " << it->first.GetPointer() << "\n";
+    os << indent << indent << "Picker: " << it->first << "\n";
     os << indent << indent << "NumberOfObjectsLinked: " << it->second.size()
        << "\n";
   }

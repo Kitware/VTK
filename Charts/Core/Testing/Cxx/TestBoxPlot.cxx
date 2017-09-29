@@ -37,7 +37,7 @@ int TestBoxPlot(int , char* [])
   view->GetRenderWindow()->SetMultiSamples(0);
 
   vtkNew<vtkChartBox> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Creates a vtkPlotBox input table
   // The vtkPlotBox object will display 4 (arbitrary) box plots
@@ -50,7 +50,7 @@ int TestBoxPlot(int , char* [])
     snprintf(num, sizeof(num), "P%d", i);
     vtkNew<vtkIntArray> arrIndex;
     arrIndex->SetName(num);
-    inputBoxPlotTable->AddColumn(arrIndex.GetPointer());
+    inputBoxPlotTable->AddColumn(arrIndex);
   }
 
   inputBoxPlotTable->SetNumberOfRows(5);
@@ -71,7 +71,7 @@ int TestBoxPlot(int , char* [])
   lookup->SetRange(0, 4);
   lookup->Build();
 
-  chart->GetPlot(0)->SetInputData(inputBoxPlotTable.GetPointer());
+  chart->GetPlot(0)->SetInputData(inputBoxPlotTable);
   chart->SetColumnVisibilityAll(true);
   chart->SetShowLegend(true);
 
@@ -86,7 +86,7 @@ int TestBoxPlot(int , char* [])
   labels->SetValue(2, "Param 2");
   labels->SetValue(3, "Param 3");
   labels->SetValue(4, "Param 4");
-  chart->GetPlot(0)->SetLabels(labels.GetPointer());
+  chart->GetPlot(0)->SetLabels(labels);
 
   // Manually change the color of one serie
   double rgb[3] = { 0.5, 0.5, 0.5 };

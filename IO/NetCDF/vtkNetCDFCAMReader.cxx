@@ -875,7 +875,7 @@ int vtkNetCDFCAMReader::RequestData(
         levelPointData->SetValue(j*numPointsPerLevel+i, levelData[j]);
       }
     }
-    output->GetPointData()->AddArray(levelPointData.GetPointer());
+    output->GetPointData()->AddArray(levelPointData);
   }
 
   this->SetProgress(.75);  // educated guess for progress

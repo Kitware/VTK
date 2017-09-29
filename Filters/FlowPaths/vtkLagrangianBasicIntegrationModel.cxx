@@ -753,11 +753,11 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     perforation = false;
     for (size_t iDs = 0; iDs < this->Surfaces->size(); iDs++)
     {
-      vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs].GetPointer();
+      vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs];
       vtkDataSet* tmpSurface = (*this->Surfaces)[iDs].second;
       vtkNew<vtkIdList> cellList;
       loc->FindCellsAlongLine(particle->GetPosition(), particle->GetNextPosition(),
-        this->Tolerance, cellList.Get());
+        this->Tolerance, cellList);
       for (vtkIdType i = 0; i < cellList->GetNumberOfIds(); i++)
       {
         double tmpFactor;
@@ -1173,7 +1173,7 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x,
   if (this->LastDataSet != nullptr)
   {
     cellId = this->FindInLocator(this->LastDataSet, this->LastLocator, x,
-      cell.Get(), weights);
+      cell, weights);
     if (cellId != -1)
     {
       dataset = this->LastDataSet;
@@ -1185,11 +1185,11 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x,
   // No cache or Cache miss, try other datasets
   for (size_t iDs = 0; iDs < this->DataSets->size(); iDs++)
   {
-    loc = (*this->Locators)[iDs].GetPointer();
+    loc = (*this->Locators)[iDs];
     dataset = (*this->DataSets)[iDs];
     if (dataset != this->LastDataSet)
     {
-      cellId = this->FindInLocator(dataset, loc, x, cell.Get(), weights);
+      cellId = this->FindInLocator(dataset, loc, x, cell, weights);
       if (cellId != -1)
       {
         return true;
@@ -1436,19 +1436,19 @@ int vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceDataFieldAssociation(int
 //---------------------------------------------------------------------------
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayNames()
 {
-  return this->SeedArrayNames.Get();
+  return this->SeedArrayNames;
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayComps()
 {
-  return this->SeedArrayComps.Get();
+  return this->SeedArrayComps;
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayTypes()
 {
-  return this->SeedArrayTypes.Get();
+  return this->SeedArrayTypes;
 }
 
 //---------------------------------------------------------------------------
@@ -1461,7 +1461,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
   {
     this->SurfaceArrayNames->InsertNextValue(it->first.c_str());
   }
-  return this->SurfaceArrayNames.Get();
+  return this->SurfaceArrayNames;
 }
 
 //---------------------------------------------------------------------------
@@ -1474,7 +1474,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayComps()
   {
     this->SurfaceArrayComps->InsertNextValue(it->second.nComp);
   }
-  return this->SurfaceArrayComps.Get();
+  return this->SurfaceArrayComps;
 }
 
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
@@ -1493,7 +1493,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
       this->SurfaceArrayEnumValues->InsertNextValue(it->second.enumValues[i].second.c_str());
     }
   }
-  return this->SurfaceArrayEnumValues.Get();
+  return this->SurfaceArrayEnumValues;
 }
 
 vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues()
@@ -1512,7 +1512,7 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
     }
     delete[] defaultValues;
   }
-  return this->SurfaceArrayDefaultValues.Get();
+  return this->SurfaceArrayDefaultValues;
 }
 
 //---------------------------------------------------------------------------
@@ -1525,7 +1525,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
   {
     this->SurfaceArrayTypes->InsertNextValue(it->second.type);
   }
-  return this->SurfaceArrayTypes.Get();
+  return this->SurfaceArrayTypes;
 }
 
 //---------------------------------------------------------------------------

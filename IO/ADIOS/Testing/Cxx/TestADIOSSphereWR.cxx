@@ -248,7 +248,7 @@ int TestADIOSSphereWR(int argc, char *argv[])
   {
     vtkNew<vtkMPIController> controller;
     controller->Initialize(&argc, &argv, 0);
-    vtkMultiProcessController::SetGlobalController(controller.GetPointer());
+    vtkMultiProcessController::SetGlobalController(controller);
 
 
       // Write out a sphere who's radius changes over time

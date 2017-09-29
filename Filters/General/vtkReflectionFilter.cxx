@@ -143,7 +143,7 @@ vtkIdType vtkReflectionFilter::ReflectNon3DCell(
   vtkIdType numInputPoints)
 {
   vtkNew<vtkIdList> cellPts;
-  input->GetCellPoints(cellId, cellPts.GetPointer());
+  input->GetCellPoints(cellId, cellPts);
   int numCellPts = cellPts->GetNumberOfIds();
   std::vector<vtkIdType> newCellPts(numCellPts);
   int cellType = input->GetCellType(cellId);
@@ -523,7 +523,7 @@ int vtkReflectionFilter::RequestDataInternal(
     {
     case VTK_TRIANGLE_STRIP:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       int numCellPts = cellPts->GetNumberOfIds();
       if (numCellPts % 2 != 0)
       {
@@ -534,7 +534,7 @@ int vtkReflectionFilter::RequestDataInternal(
         // Triangle strips with even number of triangles have
         // to be handled specially. A degenerate triangle is
         // introduce to flip all the triangles properly.
-        input->GetCellPoints(i, cellPts.GetPointer());
+        input->GetCellPoints(i, cellPts);
         numCellPts++;
         std::vector<vtkIdType> newCellPts(numCellPts);
         newCellPts[0] = cellPts->GetId(0);
@@ -555,7 +555,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_TETRA:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[4] = {
         cellPts->GetId(3), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(0)};
       if (this->CopyInput)
@@ -570,7 +570,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_HEXAHEDRON:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[8] = {
         cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3)};
@@ -586,7 +586,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_WEDGE:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[6] = {
         cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2)};
@@ -602,7 +602,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_PYRAMID:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[5];
       for (int j = 3; j >= 0; j--)
       {
@@ -622,7 +622,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_PENTAGONAL_PRISM:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[10] = {
         cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
         cellPts->GetId(8), cellPts->GetId(9),
@@ -640,7 +640,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_HEXAGONAL_PRISM:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[12] = {
         cellPts->GetId(6), cellPts->GetId(7), cellPts->GetId(8),
         cellPts->GetId(9), cellPts->GetId(10), cellPts->GetId(11),
@@ -658,7 +658,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_QUADRATIC_TETRA:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[10] = {
         cellPts->GetId(3), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(0),
         cellPts->GetId(8), cellPts->GetId(5), cellPts->GetId(9), cellPts->GetId(7),
@@ -675,7 +675,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_QUADRATIC_HEXAHEDRON:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[20] = {
         cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
@@ -694,7 +694,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_QUADRATIC_WEDGE:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[15] = {
         cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
@@ -713,7 +713,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_QUADRATIC_PYRAMID:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[113] = {
         cellPts->GetId(2), cellPts->GetId(1), cellPts->GetId(0),
         cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(6),
@@ -732,7 +732,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_TRIQUADRATIC_HEXAHEDRON:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[27] = {
         cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
@@ -753,7 +753,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_QUADRATIC_LINEAR_WEDGE:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[12] = {
         cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
@@ -771,7 +771,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[18] = {
         cellPts->GetId(3), cellPts->GetId(4), cellPts->GetId(5),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2),
@@ -791,7 +791,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
     {
-      input->GetCellPoints(i, cellPts.GetPointer());
+      input->GetCellPoints(i, cellPts);
       vtkIdType newCellPts[24] = {
         cellPts->GetId(4), cellPts->GetId(5), cellPts->GetId(6), cellPts->GetId(7),
         cellPts->GetId(0), cellPts->GetId(1), cellPts->GetId(2), cellPts->GetId(3),
@@ -811,7 +811,7 @@ int vtkReflectionFilter::RequestDataInternal(
     }
     case VTK_POLYHEDRON:
     {
-      vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, cellPts.GetPointer());
+      vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, cellPts);
       vtkIdType* idPtr = cellPts->GetPointer(0);
       int nfaces = static_cast<int>(*idPtr++);
       for (int j = 0; j < nfaces; j++)
@@ -832,7 +832,7 @@ int vtkReflectionFilter::RequestDataInternal(
         }
         idPtr += npts;
       }
-      outputCellId = output->InsertNextCell(cellType, cellPts.GetPointer());
+      outputCellId = output->InsertNextCell(cellType, cellPts);
       break;
     }
    default:

@@ -82,25 +82,25 @@ int TestVASPTessellationReader(int argc, char *argv[])
     polyData->ShallowCopy(geomFilter->GetOutput(0));
 
     // Rendering setup:
-    molMappers[i]->SetInputData(mol.Get());
+    molMappers[i]->SetInputData(mol);
     molMappers[i]->UseBallAndStickSettings();
     molMappers[i]->RenderLatticeOn();
-    molActors[i]->SetMapper(molMappers[i].Get());
-    rens[i]->AddActor(molActors[i].Get());
+    molActors[i]->SetMapper(molMappers[i]);
+    rens[i]->AddActor(molActors[i]);
 
-    tessMappers[i]->SetInputData(polyData.Get());
+    tessMappers[i]->SetInputData(polyData);
     tessMappers[i]->SelectColorArray("Atomic Numbers");
     tessMappers[i]->SetLookupTable(molMappers[i]->GetLookupTable());
-    tessActors[i]->SetMapper(tessMappers[i].Get());
+    tessActors[i]->SetMapper(tessMappers[i]);
     tessActors[i]->GetProperty()->SetOpacity(0.5);
-    rens[i]->AddActor(tessActors[i].Get());
+    rens[i]->AddActor(tessActors[i]);
 
     rens[i]->SetBackground(0.0, 0.0, 0.0);
-    win->AddRenderer(rens[i].Get());
+    win->AddRenderer(rens[i]);
   }
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   win->SetSize(450,450);
   win->Render();

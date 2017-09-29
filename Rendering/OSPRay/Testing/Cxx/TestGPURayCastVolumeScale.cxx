@@ -79,7 +79,7 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(changeInformation->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   // OsprayPolyDataMapperNode requires transfer function spec.
   vtkProperty* property = outlineActor->GetProperty();
@@ -90,12 +90,12 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(400, 400);
   ren->SetBackground(0.2, 0.2, 0.5);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(scalarRange[0], 0.0);
@@ -105,7 +105,7 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
   volumeProperty->ShadeOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -114,17 +114,17 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[1], 1.0, 1.0, 1.0);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
-  ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddViewProp(volume);
+  ren->AddActor(outlineActor);
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
-    ren->SetPass(osprayPass.GetPointer());
+    ren->SetPass(osprayPass);
   }
 
   renWin->Render();
@@ -132,7 +132,7 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

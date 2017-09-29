@@ -126,7 +126,7 @@ int TestNamedColorsIntegration(int argc, char* argv[])
     );
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

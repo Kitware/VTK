@@ -129,7 +129,7 @@ void StreaklineFilterInternal::Finalize()
       }
       if(ids->GetNumberOfIds()>1)
       {
-        outLines->InsertNextCell(ids.GetPointer());
+        outLines->InsertNextCell(ids);
       }
     }
   }

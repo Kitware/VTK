@@ -88,15 +88,15 @@ int main(int argc, char *argv[])
 
       controller->Send(&idata, 1, 1, 101011);
       controller->Send(&ddata, 1, 1, 101012);
-      controller->Send(dArray.GetPointer(), 1, 101013);
-      controller->Send(pData.GetPointer(), 1, 101014);
+      controller->Send(dArray, 1, 101013);
+      controller->Send(pData, 1, 101014);
     }
     else
     {
       controller->Receive(&idata, 1, 1, 101011);
       controller->Receive(&ddata, 1, 1, 101012);
-      controller->Receive(dArray.GetPointer(), 1, 101013);
-      controller->Receive(pData.GetPointer(), 1, 101014);
+      controller->Receive(dArray, 1, 101013);
+      controller->Receive(pData, 1, 101014);
       if (idata != 10 ||
         ddata != 10.0 ||
         dArray->GetNumberOfTuples() != 10 ||

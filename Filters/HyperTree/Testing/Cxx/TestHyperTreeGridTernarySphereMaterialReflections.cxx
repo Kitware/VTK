@@ -63,7 +63,7 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
                             0, 0., 0.,
                             0.0, 0., 0.,
                             -25. );
-  htGrid->SetQuadric( quadric.GetPointer() );
+  htGrid->SetQuadric( quadric );
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
@@ -201,31 +201,31 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
+  actor3->SetMapper( mapper3 );
   actor3->GetProperty()->SetColor( .8, .0, .0 );
   vtkNew<vtkActor> actor4;
-  actor4->SetMapper( mapper4.GetPointer() );
+  actor4->SetMapper( mapper4 );
   actor4->GetProperty()->SetColor( .0, .8, .0 );
   vtkNew<vtkActor> actor5;
-  actor5->SetMapper( mapper5.GetPointer() );
+  actor5->SetMapper( mapper5 );
   actor5->GetProperty()->SetColor( .0, .0, .8 );
   vtkNew<vtkActor> actor6;
-  actor6->SetMapper( mapper6.GetPointer() );
+  actor6->SetMapper( mapper6 );
   actor6->GetProperty()->SetColor( .8, .8, .0 );
   vtkNew<vtkActor> actor7;
-  actor7->SetMapper( mapper7.GetPointer() );
+  actor7->SetMapper( mapper7 );
   actor7->GetProperty()->SetColor( .0, .8, .8 );
   vtkNew<vtkActor> actor8;
-  actor8->SetMapper( mapper8.GetPointer() );
+  actor8->SetMapper( mapper8 );
   actor8->GetProperty()->SetColor( .8, .0, .8 );
   vtkNew<vtkActor> actor9;
-  actor9->SetMapper( mapper9.GetPointer() );
+  actor9->SetMapper( mapper9 );
   actor9->GetProperty()->SetRepresentationToWireframe();
   actor9->GetProperty()->SetColor( .4, .4, .4 );
 
@@ -236,32 +236,32 @@ int TestHyperTreeGridTernarySphereMaterialReflections( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
-  renderer->AddActor( actor4.GetPointer() );
-  renderer->AddActor( actor5.GetPointer() );
-  renderer->AddActor( actor6.GetPointer() );
-  renderer->AddActor( actor7.GetPointer() );
-  renderer->AddActor( actor8.GetPointer() );
-  renderer->AddActor( actor9.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
+  renderer->AddActor( actor3 );
+  renderer->AddActor( actor4 );
+  renderer->AddActor( actor5 );
+  renderer->AddActor( actor6 );
+  renderer->AddActor( actor7 );
+  renderer->AddActor( actor8 );
+  renderer->AddActor( actor9 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 110 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 110 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

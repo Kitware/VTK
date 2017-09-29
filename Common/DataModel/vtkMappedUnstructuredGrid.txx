@@ -74,8 +74,8 @@ template <class Implementation, class CellIterator>
 vtkCell* vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::GetCell(vtkIdType cellId)
 {
-  this->GetCell(cellId, this->TempCell.GetPointer());
-  return this->TempCell.GetPointer();
+  this->GetCell(cellId, this->TempCell);
+  return this->TempCell;
 }
 
 //------------------------------------------------------------------------------

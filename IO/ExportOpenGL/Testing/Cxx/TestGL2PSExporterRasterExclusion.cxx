@@ -43,7 +43,7 @@ int TestGL2PSExporterRasterExclusion( int, char *[] )
   vtkNew<vtkActor> coneActor;
   coneSource->SetResolution(25);
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
-  coneActor->SetMapper(coneMapper.GetPointer());
+  coneActor->SetMapper(coneMapper);
   coneActor->GetProperty()->SetColor(0.5, 0.5, 1.0);
 
   vtkNew<vtkTextActor> text1;
@@ -83,19 +83,19 @@ int TestGL2PSExporterRasterExclusion( int, char *[] )
 
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
-  ren->AddActor(coneActor.GetPointer());
-  ren->AddActor(axes.GetPointer());
-  ren->AddActor(text1.GetPointer());
-  ren->AddActor(text2.GetPointer());
-  ren->AddActor(text3.GetPointer());
+  ren->AddActor(coneActor);
+  ren->AddActor(axes);
+  ren->AddActor(text1);
+  ren->AddActor(text2);
+  ren->AddActor(text3);
   ren->SetBackground(0.8, 0.8, 0.8);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkSmartPointer<vtkCamera> camera = ren->GetActiveCamera();
   ren->ResetCamera();
@@ -105,16 +105,16 @@ int TestGL2PSExporterRasterExclusion( int, char *[] )
   renWin->Render();
 
   vtkNew<vtkProp3DCollection> exclusions;
-  exclusions->AddItem(axes.GetPointer());
+  exclusions->AddItem(axes);
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToBSP();
   exp->DrawBackgroundOn();
   exp->Write3DPropsAsRasterImageOn();
-  exp->SetRasterExclusions(exclusions.GetPointer());
+  exp->SetRasterExclusions(exclusions);
 
   std::string fileprefix = vtkTestingInteractor::TempDirectory +
       std::string("/TestGL2PSExporterRasterExclusion");

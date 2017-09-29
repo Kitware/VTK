@@ -41,37 +41,37 @@ bool TestUnMapped()
 {
   vtkNew<vtkRenderWindow> renderWindow;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.GetPointer());
+  iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkProp3DButtonRepresentation> representation1;
   vtkNew<vtkButtonWidget> buttonWidget1;
-  buttonWidget1->SetInteractor(iren.GetPointer());
-  buttonWidget1->SetRepresentation(representation1.GetPointer());
+  buttonWidget1->SetInteractor(iren);
+  buttonWidget1->SetRepresentation(representation1);
   buttonWidget1->SetEnabled(1);
 
   vtkNew<vtkRenderer> renderer;
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkProp3DButtonRepresentation> representation2;
   vtkNew<vtkButtonWidget> buttonWidget2;
-  buttonWidget2->SetInteractor(iren.GetPointer());
-  buttonWidget2->SetRepresentation(representation2.GetPointer());
+  buttonWidget2->SetInteractor(iren);
+  buttonWidget2->SetRepresentation(representation2);
   buttonWidget2->SetEnabled(1);
 
   iren->Initialize();
 
   vtkNew<vtkProp3DButtonRepresentation> representation3;
   vtkNew<vtkButtonWidget> buttonWidget3;
-  buttonWidget3->SetInteractor(iren.GetPointer());
-  buttonWidget3->SetRepresentation(representation3.GetPointer());
+  buttonWidget3->SetInteractor(iren);
+  buttonWidget3->SetRepresentation(representation3);
   buttonWidget3->SetEnabled(1);
 
   iren->Start();
 
   vtkNew<vtkProp3DButtonRepresentation> representation4;
   vtkNew<vtkButtonWidget> buttonWidget4;
-  buttonWidget4->SetInteractor(iren.GetPointer());
-  buttonWidget4->SetRepresentation(representation4.GetPointer());
+  buttonWidget4->SetInteractor(iren);
+  buttonWidget4->SetRepresentation(representation4);
   buttonWidget4->SetEnabled(1);
 
   return true;

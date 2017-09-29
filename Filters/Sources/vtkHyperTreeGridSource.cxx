@@ -400,19 +400,19 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       switch ( axis )
       {
         case 0:
-          output->SetXCoordinates( coords.GetPointer() );
-          output->SetYCoordinates( zeros.GetPointer() );
-          output->SetZCoordinates( zeros.GetPointer() );
+          output->SetXCoordinates( coords );
+          output->SetYCoordinates( zeros );
+          output->SetZCoordinates( zeros );
           break;
         case 1:
-          output->SetXCoordinates( zeros.GetPointer() );
-          output->SetYCoordinates( coords.GetPointer() );
-          output->SetZCoordinates( zeros.GetPointer() );
+          output->SetXCoordinates( zeros );
+          output->SetYCoordinates( coords );
+          output->SetZCoordinates( zeros );
           break;
         case 2:
-          output->SetXCoordinates( zeros.GetPointer() );
-          output->SetYCoordinates( zeros.GetPointer() );
-          output->SetZCoordinates( coords.GetPointer() );
+          output->SetXCoordinates( zeros );
+          output->SetYCoordinates( zeros );
+          output->SetZCoordinates( coords );
           break;
       } // switch ( axis )
       zeros->SetValue( 1, 0. );
@@ -456,19 +456,19 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       switch ( this->Orientation )
       {
         case 0:
-          output->SetXCoordinates( zeros.GetPointer() );
-          output->SetYCoordinates( coords1.GetPointer() );
-          output->SetZCoordinates( coords2.GetPointer() );
+          output->SetXCoordinates( zeros );
+          output->SetYCoordinates( coords1 );
+          output->SetZCoordinates( coords2 );
           break;
         case 1:
-          output->SetXCoordinates( coords2.GetPointer() );
-          output->SetYCoordinates( zeros.GetPointer() );
-          output->SetZCoordinates( coords1.GetPointer() );
+          output->SetXCoordinates( coords2 );
+          output->SetYCoordinates( zeros );
+          output->SetZCoordinates( coords1 );
           break;
         case 2:
-          output->SetXCoordinates( coords1.GetPointer() );
-          output->SetYCoordinates( coords2.GetPointer() );
-          output->SetZCoordinates( zeros.GetPointer() );
+          output->SetXCoordinates( coords1 );
+          output->SetYCoordinates( coords2 );
+          output->SetZCoordinates( zeros );
           break;
       } // switch ( this->Orientation )
     } // case 2
@@ -509,9 +509,9 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
       } // i
 
       // Assign coordinates
-      output->SetXCoordinates( coordsx.GetPointer() );
-      output->SetYCoordinates( coordsy.GetPointer() );
-      output->SetZCoordinates( coordsz.GetPointer() );
+      output->SetXCoordinates( coordsx );
+      output->SetYCoordinates( coordsy );
+      output->SetZCoordinates( coordsz );
       break;
     } // case 3
     default:
@@ -525,7 +525,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   vtkNew<vtkDoubleArray> depthArray;
   depthArray->SetName( "Depth" );
   depthArray->SetNumberOfComponents( 1 );
-  outData->SetScalars( depthArray.GetPointer() );
+  outData->SetScalars( depthArray );
 
   if ( this->GenerateVectorField )
   {
@@ -533,7 +533,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     vtkNew<vtkDoubleArray> vectorArray;
     vectorArray->SetName( "Vector" );
     vectorArray->SetNumberOfComponents( 3 );
-    outData->SetVectors( vectorArray.GetPointer() );
+    outData->SetVectors( vectorArray );
   }
 
   if ( ! this->UseDescriptor )
@@ -542,7 +542,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
     vtkNew<vtkDoubleArray> quadricArray;
     quadricArray->SetName( "Quadric" );
     quadricArray->SetNumberOfComponents( 1 );
-    outData->AddArray( quadricArray.GetPointer() );
+    outData->AddArray( quadricArray );
   }
 
   // Iterate over constituting hypertrees

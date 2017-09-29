@@ -56,11 +56,11 @@ int TestXMLWriterWithDataArrayFallback(int argc, char *argv[])
       data->SetValue(i,static_cast<int>(i));
     }
 
-    imageData->GetPointData()->AddArray(data.GetPointer());
+    imageData->GetPointData()->AddArray(data);
 
     vtkNew<vtkXMLImageDataWriter> writer;
     writer->SetFileName(filename.c_str());
-    writer->SetInputData(imageData.GetPointer());
+    writer->SetInputData(imageData);
     writer->Write();
   }
 

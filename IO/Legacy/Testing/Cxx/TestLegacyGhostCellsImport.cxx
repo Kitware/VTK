@@ -54,22 +54,22 @@ int TestLegacyGhostCellsImport(int argc, char *argv[])
   mapper->SetInputConnection(surfaces->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renwin;
-  renwin->AddRenderer(renderer.GetPointer());
+  renwin->AddRenderer(renderer);
   renwin->SetSize(300, 300);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renwin.GetPointer());
+  iren->SetRenderWindow(renwin);
   iren->Initialize();
 
   renwin->Render();
 
-  int retVal = vtkRegressionTestImage( renwin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renwin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

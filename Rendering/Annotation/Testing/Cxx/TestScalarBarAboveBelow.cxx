@@ -38,14 +38,14 @@ int TestScalarBarAboveBelow(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   }
 
   plane->Update(); // Force an update so we can set cell data
-  plane->GetOutput()->GetCellData()->SetScalars(cellData.Get());
+  plane->GetOutput()->GetCellData()->SetScalars(cellData);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(plane->GetOutputPort());
   mapper->SetScalarRange(1, 7);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkScalarsToColors* stc = mapper->GetLookupTable();
   vtkLookupTable* lut = vtkLookupTable::SafeDownCast(stc);
@@ -78,13 +78,13 @@ int TestScalarBarAboveBelow(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
-  renderer->AddActor(actor.Get());
-  renderer->AddActor(scalarBar.Get());
-  renderer->AddActor(scalarBar2.Get());
-  renderer->AddActor(scalarBar3.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+  renderer->AddActor(actor);
+  renderer->AddActor(scalarBar);
+  renderer->AddActor(scalarBar2);
+  renderer->AddActor(scalarBar3);
   renderer->SetBackground(.5, .5, .5);
 
   renderWindow->SetMultiSamples(0);

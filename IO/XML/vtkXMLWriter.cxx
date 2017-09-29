@@ -1945,7 +1945,7 @@ void writeScalarInfo(KeyType *key, vtkInformation *info, std::ostream &os,
                      vtkIndent indent)
 {
   vtkNew<vtkXMLDataElement> element;
-  prepElementForInfo(key, element.Get());
+  prepElementForInfo(key, element);
 
   std::ostringstream str;
   str.precision(11); // Same used for ASCII array data.
@@ -1964,7 +1964,7 @@ void writeVectorInfo(KeyType *key, vtkInformation *info, std::ostream &os,
                      vtkIndent indent)
 {
   vtkNew<vtkXMLDataElement> element;
-  prepElementForInfo(key, element.Get());
+  prepElementForInfo(key, element);
 
   std::ostringstream str;
   str.precision(11); // Same used for ASCII array data.
@@ -1986,7 +1986,7 @@ void writeVectorInfo(KeyType *key, vtkInformation *info, std::ostream &os,
     value->SetCharacterData(str.str().c_str(),
                             static_cast<int>(str.str().size()));
 
-    element->AddNestedElement(value.Get());
+    element->AddNestedElement(value);
   }
 
   element->PrintXML(os, indent);
@@ -2060,7 +2060,7 @@ bool vtkXMLWriter::WriteInformation(vtkInformation *info, vtkIndent indent)
     else if ((qdKey = QuadDictKey::SafeDownCast(key)))
     { // Special case:
       vtkNew<vtkXMLDataElement> element;
-      qdKey->SaveState(info, element.Get());
+      qdKey->SaveState(info, element);
       element->PrintXML(*this->Stream, nextIndent);
       result = true;
     }

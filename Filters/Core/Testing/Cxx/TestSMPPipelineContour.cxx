@@ -93,8 +93,8 @@ int TestSMPPipelineContour(int, char *[])
   vtkNew<vtkThreadedCompositeDataPipeline> executive;
 
   vtkNew<vtkSynchronizedTemplates3D> cf;
-  cf->SetExecutive(executive.GetPointer());
-  cf->SetInputData(mbds.GetPointer());
+  cf->SetExecutive(executive);
+  cf->SetInputData(mbds);
   cf->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
   cf->SetValue(0, 200);
   tl->StartTimer();

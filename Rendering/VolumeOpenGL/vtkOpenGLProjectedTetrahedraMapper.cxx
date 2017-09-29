@@ -780,7 +780,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     for (vtkIdType i = 0; i < num_cell_ids; i++)
     {
       vtkIdType cell = cell_ids[i];
-      input->GetCellPoints(cell, cellPointIds.GetPointer());
+      input->GetCellPoints(cell, cellPointIds);
       int j;
 
       // Get the data for the tetrahedra.

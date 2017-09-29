@@ -497,7 +497,7 @@ vtkXMLWriter* vtkXMLCompositeDataWriter::GetWriter(int index)
   int size = static_cast<int>(this->Internal->Writers.size());
   if (index >= 0 && index < size)
   {
-    return this->Internal->Writers[index].GetPointer();
+    return this->Internal->Writers[index];
   }
   return nullptr;
 }

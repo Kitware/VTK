@@ -186,7 +186,7 @@ void MyProcess::Execute()
   shadowsBaker->SetPolygonOffsetFactor(3.1f);
   shadowsBaker->SetPolygonOffsetUnits(10.0f);
   shadowsBaker->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver2.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver2);
 
   vtkCompositeZPass *compositeZPass=vtkCompositeZPass::New();
   compositeZPass->SetController(this->Controller);
@@ -197,7 +197,7 @@ void MyProcess::Execute()
   shadows->SetShadowMapBakerPass(shadowsBaker);
   shadows->SetOpaquePass(opaqueSequence);
   shadows->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver2.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver2);
 
   vtkSequencePass *seq=vtkSequencePass::New();
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();
@@ -236,7 +236,7 @@ void MyProcess::Execute()
   rectangleActor->SetVisibility(1);
   rectangleActor->GetProperty()->SetColor(1.0,1.0,1.0);
   rectangleActor->GetProperty()->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver1);
 
   vtkCubeSource *boxSource=vtkCubeSource::New();
   boxSource->SetXLength(2.0);
@@ -266,7 +266,7 @@ void MyProcess::Execute()
   boxActor->SetPosition(-2.0,2.0,0.0);
   boxActor->GetProperty()->SetColor(1.0,0.0,0.0);
   boxActor->GetProperty()->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver1);
 
   vtkConeSource *coneSource=vtkConeSource::New();
   coneSource->SetResolution(24);
@@ -288,7 +288,7 @@ void MyProcess::Execute()
   coneActor->SetPosition(0.0,1.0,1.0);
   coneActor->GetProperty()->SetColor(0.0,0.0,1.0);
   coneActor->GetProperty()->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver1);
 //  coneActor->GetProperty()->SetLighting(false);
 
   vtkSphereSource *sphereSource=vtkSphereSource::New();
@@ -311,7 +311,7 @@ void MyProcess::Execute()
   sphereActor->SetPosition(2.0,2.0,-1.0);
   sphereActor->GetProperty()->SetColor(1.0,1.0,0.0);
   sphereActor->GetProperty()->AddObserver(
-    vtkCommand::ErrorEvent, errorObserver1.GetPointer());
+    vtkCommand::ErrorEvent, errorObserver1);
 
   renderer->AddViewProp(rectangleActor);
   rectangleActor->Delete();

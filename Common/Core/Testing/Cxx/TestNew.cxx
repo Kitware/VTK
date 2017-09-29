@@ -43,7 +43,7 @@ int TestNew(int,char *[])
   if (wf == nullptr)
   {
     vtkNew<vtkFloatArray> f;
-    wf = f.GetPointer();
+    wf = f;
   }
   if (wf != nullptr)
   {
@@ -69,7 +69,7 @@ int TestNew(int,char *[])
   if (si == nullptr)
   {
     vtkNew<vtkIntArray> i;
-    si = i.Get();
+    si = i;
   }
   if (si->GetReferenceCount() != 1)
   {
@@ -113,6 +113,14 @@ int TestNew(int,char *[])
     cerr << "Error, vtkNew failed to keep the object it contained, "
          << "or the smart pointer failed to increment it. Reference count: "
          << points->GetReferenceCount() << endl;
+  }
+
+  vtkNew<vtkIntArray> intarray;
+  vtkIntArray* intarrayp = intarray.GetPointer();
+  if (intarrayp != intarray || intarray != intarrayp)
+  {
+    error = true;
+    cerr << "Error, comparison of vtkNew object to it's raw pointer fails\n";
   }
 
   return error ? 1 : 0;

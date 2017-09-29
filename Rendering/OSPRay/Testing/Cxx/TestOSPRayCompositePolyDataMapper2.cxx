@@ -66,7 +66,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+  mapper->SetCompositeDataDisplayAttributes(cdsa);
 
 #ifdef syntheticData
 
@@ -81,14 +81,13 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 //  int blocksPerLevel[3] = {1,64,256};
   int blocksPerLevel[3] = {1,16,32};
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
-  blocks.push_back(data.GetPointer());
+  blocks.push_back(data);
   unsigned levelStart = 0;
   unsigned levelEnd = 1;
   int numLevels = sizeof(blocksPerLevel) / sizeof(blocksPerLevel[0]);
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
-  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -104,7 +103,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? NULL : child);
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -120,14 +119,16 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
         else
         {
           vtkNew<vtkMultiBlockDataSet> child;
-          blocks[parent]->SetBlock(block, child.GetPointer());
-          blocks.push_back(child.GetPointer());
+          blocks[parent]->SetBlock(block, child);
+          blocks.push_back(child);
         }
       }
     }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
   }
+
+  mapper->SetInputData((vtkPolyData *)(data));
 
 #else
 
@@ -170,7 +171,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)ren.Get(), ospray, NULL);
+    SetPipelineControlPoints((vtkOpenGLRenderer*)ren, ospray, NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(ren);
 

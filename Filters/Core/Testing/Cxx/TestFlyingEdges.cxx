@@ -50,21 +50,21 @@ int TestFlyingEdges(int argc, char *argv[])
   mapper->SetInputConnection(flyingEdges->GetOutputPort());
   mapper->SetScalarRange(128,225);
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(399, 401);
   renWin->SetMultiSamples(0);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   ren->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

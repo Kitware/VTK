@@ -210,7 +210,7 @@ void vtkQtRichTextView::Update()
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
     s, table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
-  if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
+  if(!selection || selection->GetNumberOfNodes() == 0)
   {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");

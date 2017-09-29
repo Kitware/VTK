@@ -33,25 +33,25 @@ int TestScatterPlotMatrix(int, char * [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkScatterPlotMatrix> matrix;
-  view->GetScene()->AddItem(matrix.GetPointer());
+  view->GetScene()->AddItem(matrix);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("x");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("cos(x)");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("sin(x)");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("sin(x + 0.5)");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   vtkNew<vtkFloatArray> tangent;
   tangent->SetName("tan(x)");
-  table->AddColumn(tangent.GetPointer());
+  table->AddColumn(tangent);
   // Test the chart scatter plot matrix
   int numPoints = 100;
   float inc = 4.0 * vtkMath::Pi() / (numPoints-1);
@@ -66,7 +66,7 @@ int TestScatterPlotMatrix(int, char * [])
   }
 
   // Set the scatter plot matrix up to analyze all columns in the table.
-  matrix->SetInput(table.GetPointer());
+  matrix->SetInput(table);
 
   matrix->SetNumberOfBins(7);
 

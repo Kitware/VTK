@@ -48,7 +48,7 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter( int ar
   // Data set surface
   vtkNew<vtkAdaptiveDataSetSurfaceFilter> surface;
   vtkNew<vtkRenderer> renderer;
-  surface->SetRenderer( renderer.GetPointer() );
+  surface->SetRenderer( renderer );
   surface->SetInputConnection( htGrid->GetOutputPort() );
   surface->Update();
   vtkPolyData* pd = surface->GetOutput();
@@ -65,9 +65,9 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter( int ar
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
@@ -80,25 +80,25 @@ int TestHyperTreeGridTernary3DToUnstructuredAdaptiveDataSetSurfaceFilter( int ar
   camera->SetPosition( -.8 * bd[1], 2.1 * bd[3], -4.8 * bd[5] );
 
   // Renderer
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 90 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 90 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

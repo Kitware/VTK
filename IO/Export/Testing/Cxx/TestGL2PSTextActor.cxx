@@ -70,12 +70,12 @@ int TestGL2PSTextActor(int, char *[])
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
   vtkNew<vtkPoints> points;
-  anchors->SetPoints(points.GetPointer());
+  anchors->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  anchors->SetVerts(verts.GetPointer());
+  anchors->SetVerts(verts);
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
-  anchors->GetCellData()->SetScalars(colors.GetPointer());
+  anchors->GetCellData()->SetScalars(colors);
 
   for (size_t row = 0; row < 4; ++row)
   {
@@ -118,22 +118,22 @@ int TestGL2PSTextActor(int, char *[])
                                                    .8 - row * .2);
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row]);
-      setupTextActor(actor.GetPointer(), anchors.GetPointer());
-      ren->AddActor2D(actor.GetPointer());
+      setupTextActor(actor, anchors);
+      ren->AddActor2D(actor);
     }
   }
 
   vtkNew<vtkPolyDataMapper2D> anchorMapper;
-  anchorMapper->SetInputData(anchors.GetPointer());
+  anchorMapper->SetInputData(anchors);
   vtkNew<vtkActor2D> anchorActor;
-  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor2D(anchorActor.GetPointer());
+  ren->AddActor2D(anchorActor);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetPosition(0, 0, 400);
@@ -144,7 +144,7 @@ int TestGL2PSTextActor(int, char *[])
   win->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(win.GetPointer());
+  exp->SetRenderWindow(win);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToSimple();

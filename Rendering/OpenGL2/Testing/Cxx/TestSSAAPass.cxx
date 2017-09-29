@@ -46,17 +46,17 @@ int TestSSAAPass(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkActor> actor;
   vtkNew<vtkPolyDataMapper> mapper;
-  renderer->AddActor(actor.Get());
-  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor);
+  actor->SetMapper(mapper);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
@@ -65,11 +65,11 @@ int TestSSAAPass(int argc, char* argv[])
   // The blur delegates rendering the unblured image
   // to the basicPasses
   vtkNew<vtkSSAAPass> ssaa;
-  ssaa->SetDelegatePass(basicPasses.Get());
+  ssaa->SetDelegatePass(basicPasses);
 
   // tell the renderer to use our render pass pipeline
-  glrenderer->SetPass(ssaa.Get());
-//  glrenderer->SetPass(basicPasses.Get());
+  glrenderer->SetPass(ssaa);
+//  glrenderer->SetPass(basicPasses);
 
   renWin->SetSize(500,500);
 
@@ -117,7 +117,7 @@ int TestSSAAPass(int argc, char* argv[])
   renderer->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.Get() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

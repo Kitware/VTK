@@ -89,32 +89,32 @@ int TestOrientationMarkerWidget2(int argc, char *argv[])
   mapper->SetInputConnection(textSource->GetOutputPort());
 
   vtkNew<vtkActor> textActor;
-  textActor->SetMapper(mapper.GetPointer());
+  textActor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> smallViewRenderer;
   smallViewRenderer->SetViewport(0.5, 0.5, 0.75, 0.75);
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> backgroundRenderer;
-  renWin->AddRenderer(backgroundRenderer.GetPointer());
-  renWin->AddRenderer(smallViewRenderer.GetPointer());
+  renWin->AddRenderer(backgroundRenderer);
+  renWin->AddRenderer(smallViewRenderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleImage> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   // Create the widget
   vtkNew<vtkOrientationMarkerWidget> orientationWidget;
-  orientationWidget->SetInteractor(iren.GetPointer());
-  orientationWidget->SetDefaultRenderer(smallViewRenderer.GetPointer());
+  orientationWidget->SetInteractor(iren);
+  orientationWidget->SetDefaultRenderer(smallViewRenderer);
   orientationWidget->SetViewport(0, 0, 1, 1);
-  orientationWidget->SetOrientationMarker(textActor.GetPointer());
+  orientationWidget->SetOrientationMarker(textActor);
   orientationWidget->On();
 
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
-  recorder->SetInteractor(iren.GetPointer());
+  recorder->SetInteractor(iren);
   recorder->SetFileName("record.log");
   recorder->SetKeyPressActivationValue('b');
 
@@ -133,6 +133,6 @@ int TestOrientationMarkerWidget2(int argc, char *argv[])
 
   iren->Start();
 
-  int ret = vtkRegressionTestImage(renWin.GetPointer());
+  int ret = vtkRegressionTestImage(renWin);
   return ret == vtkTesting::PASSED ? EXIT_SUCCESS : EXIT_FAILURE;
 }

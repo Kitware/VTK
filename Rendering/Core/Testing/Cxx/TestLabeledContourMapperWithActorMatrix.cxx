@@ -63,39 +63,39 @@ int TestLabeledContourMapperWithActorMatrix(int argc, char *argv[])
   tprop1->SetBackgroundColor(0.5, 0.5, 0.5);
   tprop1->SetBackgroundOpacity(0.25);
   tprop1->SetColor(1., 1., 1.);
-  tprops->AddItem(tprop1.GetPointer());
+  tprops->AddItem(tprop1);
 
   vtkNew<vtkTextProperty> tprop2;
-  tprop2->ShallowCopy(tprop1.GetPointer());
+  tprop2->ShallowCopy(tprop1);
   tprop2->SetColor(.8, .2, .3);
-  tprops->AddItem(tprop2.GetPointer());
+  tprops->AddItem(tprop2);
 
   vtkNew<vtkTextProperty> tprop3;
-  tprop3->ShallowCopy(tprop1.GetPointer());
+  tprop3->ShallowCopy(tprop1);
   tprop3->SetColor(.3, .8, .2);
-  tprops->AddItem(tprop3.GetPointer());
+  tprops->AddItem(tprop3);
 
   vtkNew<vtkLabeledContourMapper> mapper;
   mapper->GetPolyDataMapper()->ScalarVisibilityOff();
-  mapper->SetTextProperties(tprops.GetPointer());
+  mapper->SetTextProperties(tprops);
   mapper->SetInputConnection(contourStripper->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkTransform> xform;
   xform->Identity();
   xform->Scale(0.5, 0.25, 10.);
   xform->RotateWXYZ(196, 0.0, 0.0, 1.0);
   xform->Translate(50, 50, 50);
-  actor->SetUserTransform(xform.GetPointer());
+  actor->SetUserTransform(xform);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   vtkNew<vtkRenderWindow> win;
   win->SetStencilCapable(1); // Needed for vtkLabeledContourMapper
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
 
   double bounds[6];
   contourStripper->GetOutput()->GetBounds(bounds);
@@ -116,9 +116,9 @@ int TestLabeledContourMapperWithActorMatrix(int argc, char *argv[])
   win->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  int retVal = vtkRegressionTestImage(win.GetPointer());
+  int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

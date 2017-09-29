@@ -1420,8 +1420,8 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
   for (Renderers->InitTraversal(); (ren = Renderers->GetNextItem());)
   {
     vtkNew<vtkPropCollection> props;
-    result->AddItem(props.GetPointer());
-    ren->SetGL2PSSpecialPropCollection(props.GetPointer());
+    result->AddItem(props);
+    ren->SetGL2PSSpecialPropCollection(props);
   }
 
   this->Render();

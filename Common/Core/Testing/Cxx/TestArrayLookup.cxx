@@ -334,7 +334,7 @@ int TestArrayLookupFloat(vtkIdType numVal)
   }
   {
     vtkNew<vtkIdList> NaNlist;
-    arr->LookupValue(std::numeric_limits<float>::quiet_NaN(), NaNlist.Get());
+    arr->LookupValue(std::numeric_limits<float>::quiet_NaN(), NaNlist);
     if (NaNlist->GetNumberOfIds() != 1)
     {
       cerr << "ERROR: lookup found " << list->GetNumberOfIds() << " values of NaN instead of " << 1 << endl;

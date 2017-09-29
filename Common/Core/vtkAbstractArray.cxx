@@ -764,7 +764,7 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
       {
         vtkNew<vtkInformationVector> infoVec;
         infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
-        this->GetInformation()->Set(PER_COMPONENT(), infoVec.GetPointer());
+        this->GetInformation()->Set(PER_COMPONENT(), infoVec);
         iv = this->GetInformation()->Get(PER_COMPONENT());
       }
       iv->GetInformationObject(c)->Set(

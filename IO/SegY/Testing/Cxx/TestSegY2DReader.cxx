@@ -37,9 +37,9 @@ int TestSegY2DReader(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(300, 300);
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Read file name.
   char* fname[5];
@@ -70,12 +70,12 @@ int TestSegY2DReader(int argc, char* argv[])
     delete[] fname[i];
 
     mapper[i]->SetInputConnection(reader[i]->GetOutputPort());
-    mapper[i]->SetLookupTable(lut.GetPointer());
+    mapper[i]->SetLookupTable(lut);
     mapper[i]->SetColorModeToMapScalars();
 
-    actor[i]->SetMapper(mapper[i].GetPointer());
+    actor[i]->SetMapper(mapper[i]);
 
-    ren->AddActor(actor[i].GetPointer());
+    ren->AddActor(actor[i]);
     ren->ResetCamera();
   }
 

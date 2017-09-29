@@ -38,7 +38,7 @@ int TestVTKMExtractVOI(int argc, char* argv[])
   sphereMapper->ImmediateModeRenderingOn();
 
   vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   vtkNew<vtkRTAnalyticSource> rt;
   rt->SetWholeExtent(-50, 50, -50, 50, 0, 0);
@@ -61,22 +61,22 @@ int TestVTKMExtractVOI(int argc, char* argv[])
   mapper->SetScalarRange(130, 280);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
-  renderer->AddActor(sphereActor.GetPointer());
+  renderer->AddActor(actor);
+  renderer->AddActor(sphereActor);
   renderer->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   iren->Initialize();
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

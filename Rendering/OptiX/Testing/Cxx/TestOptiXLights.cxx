@@ -205,7 +205,7 @@ int TestOptiXLights(int argc, char* argv[])
 
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), optix, NULL);
+  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

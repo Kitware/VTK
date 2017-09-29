@@ -229,7 +229,7 @@ bool vtkPlotFunctionalBag::Paint(vtkContext2D *painter)
     pen->GetColor(pcolor);
     this->Brush->SetColor(pcolor);
     painter->ApplyBrush(this->Brush);
-    painter->DrawQuadStrip(this->BagPoints.GetPointer());
+    painter->DrawQuadStrip(this->BagPoints);
     pen->SetWidth(pwidth);
   }
   else
@@ -250,7 +250,7 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D *painter,
     vtkNew<vtkPen> blackPen;
     blackPen->SetWidth(1.0);
     blackPen->SetColor(0, 0, 0, 255);
-    painter->ApplyPen(blackPen.GetPointer());
+    painter->ApplyPen(blackPen);
     painter->ApplyBrush(this->Brush);
     painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   }

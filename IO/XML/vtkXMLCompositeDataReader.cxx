@@ -171,7 +171,7 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     this->Internal->Readers.find(type);
   if (iter != this->Internal->Readers.end())
   {
-    return iter->second.GetPointer();
+    return iter->second;
   }
 
   vtkXMLReader* reader = nullptr;
@@ -216,7 +216,7 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     {
       vtkNew<vtkEventForwarderCommand> fwd;
       fwd->SetTarget(this);
-      reader->AddObserver("ErrorEvent", fwd.GetPointer());
+      reader->AddObserver("ErrorEvent", fwd);
     }
     this->Internal->Readers[type] = reader;
     reader->Delete();

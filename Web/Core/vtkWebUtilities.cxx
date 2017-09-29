@@ -55,10 +55,10 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   vtkNew<vtkJavaScriptDataWriter> writer;
@@ -91,10 +91,10 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   dsa = vtkTable::SafeDownCast(

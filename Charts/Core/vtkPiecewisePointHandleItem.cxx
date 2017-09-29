@@ -155,7 +155,7 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   translation->Translate(pointInScene[0], pointInScene[1]);
 
   painter->PushMatrix();
-  painter->SetTransform(translation.GetPointer());
+  painter->SetTransform(translation);
   painter->GetPen()->SetColor(0, 200, 0);
 
   float radius = this->HandleRadius;

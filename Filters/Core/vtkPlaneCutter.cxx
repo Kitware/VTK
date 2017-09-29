@@ -263,7 +263,7 @@ struct CuttingFunctor
   bool IsCellSlicedByPlane(vtkIdType cellId)
   {
     vtkNew<vtkIdList> ptIds;
-    this->Input->GetCellPoints(cellId, ptIds.Get());
+    this->Input->GetCellPoints(cellId, ptIds);
     vtkIdType npts = ptIds->GetNumberOfIds();
     vtkIdType* pts =  ptIds->GetPointer(0);
     return this->ArePointsAroundPlane(npts, pts);
@@ -1734,7 +1734,7 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   if (dsInput)
   {
     vtkNew<vtkMultiPieceDataSet> output;
-    mb->SetBlock(0, output.Get());
+    mb->SetBlock(0, output);
     vtkSphereTree* tree = nullptr;
     if (this->BuildTree)
     {
@@ -1742,9 +1742,9 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
       {
         this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
       }
-      tree = this->SphereTrees[0].GetPointer();
+      tree = this->SphereTrees[0];
     }
-    return this->ExecuteDataSet(dsInput, tree, output.Get());
+    return this->ExecuteDataSet(dsInput, tree, output);
   }
   else if(hdInput)
   {
@@ -1765,11 +1765,11 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
         {
           this->SphereTrees.push_back(vtkSmartPointer<vtkSphereTree>::New());
         }
-        tree = this->SphereTrees[treeIndex].GetPointer();
+        tree = this->SphereTrees[treeIndex];
         treeIndex++;
       }
-      ret += this->ExecuteDataSet(hdLeafInput, tree, output.Get());
-      mb->SetDataSet(iter, output.Get());
+      ret += this->ExecuteDataSet(hdLeafInput, tree, output);
+      mb->SetDataSet(iter, output);
     }
     return ret;
   }
@@ -1837,7 +1837,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkSphereTree* tree, vtkMu
     vtkNew<vtkPlane> xPlane;
     xPlane->SetOrigin(planeOrigin);
     xPlane->SetNormal(planeNormal);
-    flyingEdges->SetPlane(xPlane.GetPointer());
+    flyingEdges->SetPlane(xPlane);
     flyingEdges->SetComputeNormals(this->ComputeNormals);
     flyingEdges->SetInterpolateAttributes(this->InterpolateAttributes);
     flyingEdges->SetInputData(tmpInput);
@@ -1955,7 +1955,7 @@ void vtkPlaneCutter::AddNormalArray(double* planeNormal, vtkDataSet* ds)
   {
     newNormals->SetTuple(i, planeNormal);
   }
-  ds->GetPointData()->AddArray(newNormals.Get());
+  ds->GetPointData()->AddArray(newNormals);
 }
 
 //----------------------------------------------------------------------------
@@ -1968,7 +1968,7 @@ void vtkPlaneCutter::InitializeOutput(vtkMultiPieceDataSet* output)
   for(int i = 0; i < nThreads; i++)
   {
     vtkNew<vtkPolyData> filler;
-    output->SetPiece(i, filler.Get());
+    output->SetPiece(i, filler);
   }
 }
 

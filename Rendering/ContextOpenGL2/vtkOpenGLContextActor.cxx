@@ -44,7 +44,7 @@ void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
     device->ReleaseGraphicsResources(window);
   }
 
-  if(this->Scene.GetPointer())
+  if(this->Scene)
   {
     this->Scene->ReleaseGraphicsResources();
   }
@@ -56,7 +56,7 @@ int vtkOpenGLContextActor::RenderOverlay(vtkViewport* viewport)
 {
   vtkDebugMacro(<< "vtkContextActor::RenderOverlay");
 
-  if (!this->Context.GetPointer())
+  if (!this->Context)
   {
     vtkErrorMacro(<< "vtkContextActor::Render - No painter set");
     return 0;

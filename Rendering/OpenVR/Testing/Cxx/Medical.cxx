@@ -70,16 +70,16 @@ int Medical(int argc, char *argv[])
   renderWindow->SetMultiSamples(0);
 
   renderer->SetBackground(0.2, 0.3, 0.4);
-  renderWindow->AddRenderer(renderer.Get());
-  iren->SetRenderWindow(renderWindow.Get());
-  renderer->SetActiveCamera(cam.Get());
+  renderWindow->AddRenderer(renderer);
+  iren->SetRenderWindow(renderWindow);
+  renderer->SetActiveCamera(cam);
 
   renderer->RemoveCuller(renderer->GetCullers()->GetLastItem());
 
   vtkNew<vtkLight> light;
   light->SetLightTypeToSceneLight();
   light->SetPosition(0.0, 1.0, 0.0);
-  renderer->AddLight(light.Get());
+  renderer->AddLight(light);
 
   vtkNew<vtkDICOMImageReader> reader;
   //reader->SetDirectoryName("C:/Users/Kenny/Documents/vtk/CTLung");
@@ -126,10 +126,10 @@ int Medical(int argc, char *argv[])
   gf->AddPoint(50, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty1;
-  volumeProperty1->SetScalarOpacity(pwf.GetPointer());
-  volumeProperty1->SetColor(ctf.GetPointer());
+  volumeProperty1->SetScalarOpacity(pwf);
+  volumeProperty1->SetColor(ctf);
   //volumeProperty1->SetDisableGradientOpacity(1);
-  volumeProperty1->SetGradientOpacity(gf.Get());
+  volumeProperty1->SetGradientOpacity(gf);
   volumeProperty1->ShadeOn();
   volumeProperty1->SetAmbient(0.0);
   volumeProperty1->SetDiffuse(1.0);
@@ -137,9 +137,9 @@ int Medical(int argc, char *argv[])
   volumeProperty1->SetInterpolationTypeToLinear();
 
   vtkNew<vtkVolume> volume1;
-  volume1->SetMapper(mapper1.GetPointer());
-  volume1->SetProperty(volumeProperty1.GetPointer());
-  renderer->AddVolume(volume1.GetPointer());
+  volume1->SetMapper(mapper1);
+  volume1->SetProperty(volumeProperty1);
+  renderer->AddVolume(volume1);
 
   renderer->ResetCamera();
   //cam->SetViewAngle(110);
@@ -181,7 +181,7 @@ int Medical(int argc, char *argv[])
   cerr << "FPS: " << floor(100*numFrames/timer->GetElapsedTime())/100.0 << "\n";
 #endif
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

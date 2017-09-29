@@ -55,7 +55,7 @@ int TestPolygonBuilder2(int, char* [])
     builder.InsertTriangle(p);
   }
 
-  builder.GetPolygons(polys.GetPointer());
+  builder.GetPolygons(polys);
 
   if (polys->GetNumberOfItems()!=2) // expect abcd and efgh
   {

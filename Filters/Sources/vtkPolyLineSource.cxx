@@ -148,7 +148,7 @@ int vtkPolyLineSource::RequestData(
   }
 
   vtkSmartPointer<vtkCellArray> polyLine = vtkSmartPointer<vtkCellArray>::New();
-  polyLine->InsertNextCell(pointIds.GetPointer());
+  polyLine->InsertNextCell(pointIds);
 
   output->SetPoints(this->Points);
   output->SetLines(polyLine);

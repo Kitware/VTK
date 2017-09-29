@@ -136,7 +136,7 @@ int TestGPURayCastPerspectiveParallel(int argc,
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
-    ren1->SetPass(osprayPass.GetPointer());
+    ren1->SetPass(osprayPass);
   }
 
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);

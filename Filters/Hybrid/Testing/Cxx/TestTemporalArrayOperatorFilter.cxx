@@ -61,7 +61,7 @@ protected:
     vtkNew<vtkDoubleArray> timeArray;
     timeArray->SetName("timeData");
     timeArray->SetNumberOfValues(maxX * maxY * maxZ);
-    data->GetPointData()->SetScalars(timeArray.Get());
+    data->GetPointData()->SetScalars(timeArray);
 
     double t = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     vtkIdType cnt = 0;

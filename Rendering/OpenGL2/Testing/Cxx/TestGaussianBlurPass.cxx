@@ -60,7 +60,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkSmartPointer<vtkRenderStepsPass> basicPasses =

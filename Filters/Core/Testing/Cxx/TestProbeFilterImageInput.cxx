@@ -81,19 +81,19 @@ int TestProbeFilterImageInput(int argc, char* argv[])
   vtkNew<vtkFloatArray> fa;
   fa->SetName("scalars");
   fa->Allocate(dim * dim * dim);
-  outputData->GetPointData()->SetScalars(fa.GetPointer());
+  outputData->GetPointData()->SetScalars(fa);
 
   vtkNew<vtkProbeFilter> probe2;
   probe2->SetSourceConnection(probe1->GetOutputPort());
-  probe2->SetInputData(outputData.GetPointer());
+  probe2->SetInputData(outputData);
 
 
   // render using ray-cast volume rendering
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  renWin->AddRenderer(ren.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkSmartVolumeMapper> volumeMapper;
   volumeMapper->SetInputConnection(probe2->GetOutputPort());
@@ -110,8 +110,8 @@ int TestProbeFilterImageInput(int argc, char* argv[])
   volumeScalarOpacity->AddPoint(range[1], 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetColor(volumeColor.GetPointer());
-  volumeProperty->SetScalarOpacity(volumeScalarOpacity.GetPointer());
+  volumeProperty->SetColor(volumeColor);
+  volumeProperty->SetScalarOpacity(volumeScalarOpacity);
   volumeProperty->SetInterpolationTypeToLinear();
   volumeProperty->ShadeOn();
   volumeProperty->SetAmbient(0.5);
@@ -119,15 +119,15 @@ int TestProbeFilterImageInput(int argc, char* argv[])
   volumeProperty->SetSpecular(0.2);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
-  ren->AddViewProp(volume.GetPointer());
+  ren->AddViewProp(volume);
   ren->ResetCamera();
   renWin->SetSize(300, 300);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -2805,13 +2805,13 @@ void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], vtkImageData *input)
   {
     scalars->SetValue(i, vals[i] / 255.f);
   }
-  image->GetPointData()->SetScalars(scalars.GetPointer());
+  image->GetPointData()->SetScalars(scalars);
 
   double pos[3] = { static_cast<double>(p[0]), static_cast<double>(p[1]), 0. };
 
   // Instance always exists when this method is called:
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  gl2ps->DrawImage(image.GetPointer(), pos);
+  gl2ps->DrawImage(image, pos);
 }
 
 //------------------------------------------------------------------------------
@@ -2865,8 +2865,8 @@ void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
 
   vtkNew<vtkPath> path;
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, rX, rY, false);
-  this->TransformPath(path.GetPointer());
+  this->AddEllipseToPath(path, 0.f, 0.f, rX, rY, false);
+  this->TransformPath(path);
 
   double origin[3] = {x, y, 0.f};
 
@@ -2878,7 +2878,7 @@ void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
   label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
         << x << ", " << y << ", " << rX << ", " << rY << ") fill:";
 
-  gl2ps->DrawPath(path.GetPointer(), origin, origin, fillColor, nullptr, 0.0, -1.f,
+  gl2ps->DrawPath(path, origin, origin, fillColor, nullptr, 0.0, -1.f,
                   label.str().c_str());
 
   // and stroke
@@ -2890,7 +2890,7 @@ void vtkOpenGLContextDevice2D::DrawCircleGL2PS(float x, float y,
   label.clear();
   label << "vtkOpenGLContextDevice2D::DrawCircleGL2PS("
         << x << ", " << y << ", " << rX << ", " << rY << ") stroke:";
-  gl2ps->DrawPath(path.GetPointer(), origin, origin, strokeColor, nullptr, 0.0,
+  gl2ps->DrawPath(path, origin, origin, strokeColor, nullptr, 0.0,
                   strokeWidth, label.str().c_str());
 }
 
@@ -2904,8 +2904,8 @@ void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
   }
 
   vtkNew<vtkPath> path;
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
+  this->AddEllipseToPath(path, 0.f, 0.f, outRx, outRy, false);
+  this->AddEllipseToPath(path, 0.f, 0.f, inRx, inRy, true);
 
   std::stringstream label;
   label << "vtkOpenGLGL2PSContextDevice2D::DrawWedgeGL2PS("
@@ -2923,7 +2923,7 @@ void vtkOpenGLContextDevice2D::DrawWedgeGL2PS(
   // We know the helper exists and that we are capturing if this function has
   // been called.
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
-  gl2ps->DrawPath(path.GetPointer(), rasterPos, windowPos, color, nullptr, 0.0,
+  gl2ps->DrawPath(path, rasterPos, windowPos, color, nullptr, 0.0,
                   -1.f, label.str().c_str());
 }
 

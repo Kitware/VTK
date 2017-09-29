@@ -82,17 +82,17 @@ int TestHyperTreeGridTernary2DMaterial( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
+  actor3->SetMapper( mapper3 );
   actor3->GetProperty()->SetColor( .8, .4, .3 );
   actor3->GetProperty()->SetLineWidth( 3 );
   vtkNew<vtkActor> actor4;
-  actor4->SetMapper( mapper4.GetPointer() );
+  actor4->SetMapper( mapper4 );
   actor4->GetProperty()->SetRepresentationToWireframe();
   actor4->GetProperty()->SetColor( .0, .0, .0 );
 
@@ -106,27 +106,27 @@ int TestHyperTreeGridTernary2DMaterial( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
-  renderer->AddActor( actor4.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
+  renderer->AddActor( actor3 );
+  renderer->AddActor( actor4 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 70 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 70 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

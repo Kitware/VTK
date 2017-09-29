@@ -49,18 +49,18 @@ int TestContextScene( int argc, char * argv [] )
   child2->SetLabel("Child2");
 
   vtkNew<vtkContextTransform> transform;
-  transform->AddItem(parent.GetPointer());
+  transform->AddItem(parent);
   transform->Translate(50, -190);
 
   // Build up our multi-level scene
-  view->GetScene()->AddItem(test.GetPointer());   // scene
-  view->GetScene()->AddItem(test2.GetPointer());  // scene
-  view->GetScene()->AddItem(parent.GetPointer()); // scene
-  parent->AddItem(child.GetPointer());            // scene->parent
-  child->AddItem(child2.GetPointer());            // scene->parent->child
+  view->GetScene()->AddItem(test);   // scene
+  view->GetScene()->AddItem(test2);  // scene
+  view->GetScene()->AddItem(parent); // scene
+  parent->AddItem(child);            // scene->parent
+  child->AddItem(child2);            // scene->parent->child
 
   // Add our transformed item
-  view->GetScene()->AddItem(transform.GetPointer());
+  view->GetScene()->AddItem(transform);
 
   // Turn off the color buffer
   view->GetScene()->SetUseBufferId(false);

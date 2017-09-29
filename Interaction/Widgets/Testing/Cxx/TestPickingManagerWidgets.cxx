@@ -173,18 +173,18 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyleTrackballCamera> irenStyle;
-  iren->SetRenderWindow(renWin.GetPointer());
-  iren->SetInteractorStyle(irenStyle.GetPointer());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(irenStyle);
 
   // Instantiate a picker and link it to the ballonWidgetCallback
   vtkNew<vtkPropPicker> picker;
   vtkNew<vtkBalloonPickCallback> pcbk;
-  picker->AddObserver(vtkCommand::PickEvent,pcbk.GetPointer());
-  iren->SetPicker(picker.GetPointer());
+  picker->AddObserver(vtkCommand::PickEvent,pcbk);
+  iren->SetPicker(picker);
 
   /*--------------------------------------------------------------------------*/
   // PICKING MANAGER
@@ -192,7 +192,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Callback to switch between the managed and non-managed mode of the
   // Picking Manager
   vtkNew<vtkEnableManagerCallback> callMode;
-  iren->AddObserver(vtkCommand::KeyPressEvent, callMode.GetPointer());
+  iren->AddObserver(vtkCommand::KeyPressEvent, callMode);
 
   /*--------------------------------------------------------------------------*/
   // BALLOON WIDGET
@@ -202,20 +202,20 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(ss->GetOutputPort());
   vtkNew<vtkActor> sph;
-  sph->SetMapper(mapper.GetPointer());
+  sph->SetMapper(mapper);
 
   vtkNew<vtkCylinderSource> cs;
   vtkNew<vtkPolyDataMapper> csMapper;
   csMapper->SetInputConnection(cs->GetOutputPort());
   vtkNew<vtkActor> cyl;
-  cyl->SetMapper(csMapper.GetPointer());
+  cyl->SetMapper(csMapper);
   cyl->AddPosition(5,0,0);
 
   vtkNew<vtkConeSource> coneSource;
   vtkNew<vtkPolyDataMapper> coneMapper;
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
   vtkNew<vtkActor> cone;
-  cone->SetMapper(coneMapper.GetPointer());
+  cone->SetMapper(coneMapper);
   cone->AddPosition(0,5,0);
 
   // Create the widget
@@ -223,18 +223,18 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   rep->SetBalloonLayoutToImageRight();
 
   vtkNew<vtkBalloonWidget> widget;
-  widget->SetInteractor(iren.GetPointer());
-  widget->SetRepresentation(rep.GetPointer());
-  widget->AddBalloon(sph.GetPointer(),"This is a sphere",nullptr);
-  widget->AddBalloon(cyl.GetPointer(),"This is a\ncylinder",nullptr);
-  widget->AddBalloon(cone.GetPointer(),"This is a\ncone,\na really big.",nullptr);
-  pcbk->BalloonWidget = widget.GetPointer();
+  widget->SetInteractor(iren);
+  widget->SetRepresentation(rep);
+  widget->AddBalloon(sph,"This is a sphere",nullptr);
+  widget->AddBalloon(cyl,"This is a\ncylinder",nullptr);
+  widget->AddBalloon(cone,"This is a\ncone,\na really big.",nullptr);
+  pcbk->BalloonWidget = widget;
 
   /*--------------------------------------------------------------------------*/
   // BOX WIDGET
   /*--------------------------------------------------------------------------*/
   vtkNew<vtkBoxWidget> boxWidget;
-  boxWidget->SetInteractor(iren.GetPointer());
+  boxWidget->SetInteractor(iren);
   boxWidget->SetPlaceFactor(1.25);
 
   // Create the mass actor
@@ -259,7 +259,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   maceMapper->SetInputConnection(append->GetOutputPort());
 
   vtkNew<vtkActor> maceActor;
-  maceActor->SetMapper(maceMapper.GetPointer());
+  maceActor->SetMapper(maceMapper);
 
   /*--------------------------------------------------------------------------*/
   // Multiple ImplicitPlane Widgets
@@ -286,7 +286,7 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   maceMapperImpPlane->SetInputConnection(apdImpPlane->GetOutputPort());
 
   vtkNew<vtkActor> maceActorImpPlane;
-  maceActorImpPlane->SetMapper(maceMapperImpPlane.GetPointer());
+  maceActorImpPlane->SetMapper(maceMapperImpPlane);
   maceActorImpPlane->AddPosition(0,0,0);
   maceActorImpPlane->VisibilityOn();
 
@@ -295,14 +295,14 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkPlane> plane;
   vtkNew<vtkClipPolyData> clipper;
   clipper->SetInputConnection(apdImpPlane->GetOutputPort());
-  clipper->SetClipFunction(plane.GetPointer());
+  clipper->SetClipFunction(plane);
   clipper->InsideOutOn();
 
   vtkNew<vtkPolyDataMapper> selectMapper;
   selectMapper->SetInputConnection(clipper->GetOutputPort());
 
   vtkNew<vtkActor> selectActor;
-  selectActor->SetMapper(selectMapper.GetPointer());
+  selectActor->SetMapper(selectMapper);
   selectActor->GetProperty()->SetColor(0,1,0);
   selectActor->VisibilityOff();
   selectActor->AddPosition(0,0,0);
@@ -312,8 +312,8 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
   vtkNew<vtkTIPW2Callback> impPlaneCallback;
-  impPlaneCallback->Plane = plane.GetPointer();
-  impPlaneCallback->Actor = selectActor.GetPointer();
+  impPlaneCallback->Plane = plane;
+  impPlaneCallback->Actor = selectActor;
 
   // First ImplicitPlaneWidget (Green)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep;
@@ -325,14 +325,14 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   impPlaneRep->SetNormal(1,0,1);
 
   vtkNew<vtkImplicitPlaneWidget2> planeWidget;
-  planeWidget->SetInteractor(iren.GetPointer());
-  planeWidget->SetRepresentation(impPlaneRep.GetPointer());
+  planeWidget->SetInteractor(iren);
+  planeWidget->SetRepresentation(impPlaneRep);
   planeWidget->On();
 
   planeWidget->AddObserver(vtkCommand::InteractionEvent,
-                           impPlaneCallback.GetPointer());
+                           impPlaneCallback);
   planeWidget->AddObserver(vtkCommand::UpdateEvent,
-                           impPlaneCallback.GetPointer());
+                           impPlaneCallback);
 
   // Second ImplicitPlaneWidget (Red)
   vtkNew<vtkImplicitPlaneRepresentation> impPlaneRep2;
@@ -343,25 +343,25 @@ int TestPickingManagerWidgets(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   impPlaneRep2->SetEdgeColor(1.,0.,0.);
 
   vtkNew<vtkImplicitPlaneWidget2> planeWidget2;
-  planeWidget2->SetInteractor(iren.GetPointer());
-  planeWidget2->SetRepresentation(impPlaneRep2.GetPointer());
+  planeWidget2->SetInteractor(iren);
+  planeWidget2->SetRepresentation(impPlaneRep2);
   planeWidget2->On();
 
   /*--------------------------------------------------------------------------*/
   // Rendering
   /*--------------------------------------------------------------------------*/
   // Add the actors to the renderer, set the background and size
-  ren1->AddActor(sph.GetPointer());
-  ren1->AddActor(cyl.GetPointer());
-  ren1->AddActor(cone.GetPointer());
-  ren1->AddActor(maceActorImpPlane.GetPointer());
-  ren1->AddActor(selectActor.GetPointer());
-  ren1->AddActor(maceActor.GetPointer());
+  ren1->AddActor(sph);
+  ren1->AddActor(cyl);
+  ren1->AddActor(cone);
+  ren1->AddActor(maceActorImpPlane);
+  ren1->AddActor(selectActor);
+  ren1->AddActor(maceActor);
   ren1->SetBackground(0.1, 0.2, 0.4);
   renWin->SetSize(600, 600);
 
   // Configure the box widget
-  boxWidget->SetProp3D(maceActor.GetPointer());
+  boxWidget->SetProp3D(maceActor);
   boxWidget->PlaceWidget();
 
   // render the image

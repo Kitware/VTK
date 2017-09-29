@@ -108,7 +108,7 @@ void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
 //----------------------------------------------------------------------
 vtkAxisActor* vtkAxisFollower::GetAxis()
 {
-  return this->Axis.GetPointer();
+  return this->Axis;
 }
 
 //----------------------------------------------------------------------------

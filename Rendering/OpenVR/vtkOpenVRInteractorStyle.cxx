@@ -102,7 +102,7 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
   this->MenuCommand->SetClientData(this);
   this->MenuCommand->SetCallback(vtkOpenVRInteractorStyle::MenuCallback);
 
-  this->Menu->SetRepresentation(this->MenuRepresentation.Get());
+  this->Menu->SetRepresentation(this->MenuRepresentation);
   this->Menu->PushFrontMenuItem(
     "exit",
     "Exit",
@@ -125,7 +125,7 @@ vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
     this->MenuCommand);
 
   vtkNew<vtkPolyDataMapper> pdm;
-  this->PickActor->SetMapper(pdm.Get());
+  this->PickActor->SetMapper(pdm);
   this->PickActor->GetProperty()->SetLineWidth(4);
   this->PickActor->GetProperty()->RenderLinesAsTubesOn();
   this->PickActor->GetProperty()->SetRepresentationToWireframe();
@@ -956,7 +956,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
   }
   rot->Transpose();
   double orient[3];
-  vtkTransform::GetOrientation(orient, rot.Get());
+  vtkTransform::GetOrientation(orient, rot);
   vtkTextProperty *prop = this->TextActor3D->GetTextProperty();
   this->TextActor3D->SetOrientation(orient);
   this->TextActor3D->RotateX(-30.0);
@@ -975,7 +975,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
   scale *= tsize;
   this->TextActor3D->SetScale(scale, scale, scale);
   this->TextActor3D->SetInput(text.c_str());
-  this->CurrentRenderer->AddActor(this->TextActor3D.Get());
+  this->CurrentRenderer->AddActor(this->TextActor3D);
 
   prop->SetFrame(1);
   prop->SetFrameColor(1.0,1.0,1.0);
@@ -986,7 +986,7 @@ void vtkOpenVRInteractorStyle::ShowBillboard(const std::string &text)
 
 void vtkOpenVRInteractorStyle::HideBillboard()
 {
- this->CurrentRenderer->RemoveActor(this->TextActor3D.Get());
+ this->CurrentRenderer->RemoveActor(this->TextActor3D);
 }
 
 void vtkOpenVRInteractorStyle::ShowPickSphere(double *pos, double radius, vtkProp3D *prop)
@@ -1007,7 +1007,7 @@ void vtkOpenVRInteractorStyle::ShowPickSphere(double *pos, double radius, vtkPro
     this->PickActor->SetPosition(0.0, 0.0, 0.0);
     this->PickActor->SetScale(1.0, 1.0, 1.0);
   }
-  this->CurrentRenderer->AddActor(this->PickActor.Get());
+  this->CurrentRenderer->AddActor(this->PickActor);
 }
 
 void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
@@ -1032,8 +1032,8 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
       lines->InsertCellPoint(newpt);
     }
   }
-  pd->SetPoints(pdpts.Get());
-  pd->SetLines(lines.Get());
+  pd->SetPoints(pdpts);
+  pd->SetLines(lines);
 
   if (prop)
   {
@@ -1046,13 +1046,13 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
     this->PickActor->SetScale(1.0, 1.0, 1.0);
   }
   this->PickActor->SetOrientation(prop->GetOrientation());
-  static_cast<vtkPolyDataMapper *>(this->PickActor->GetMapper())->SetInputData(pd.Get());
-  this->CurrentRenderer->AddActor(this->PickActor.Get());
+  static_cast<vtkPolyDataMapper *>(this->PickActor->GetMapper())->SetInputData(pd);
+  this->CurrentRenderer->AddActor(this->PickActor);
 }
 
 void vtkOpenVRInteractorStyle::HidePickActor()
 {
-  this->CurrentRenderer->RemoveActor(this->PickActor.Get());
+  this->CurrentRenderer->RemoveActor(this->PickActor);
 }
 
 //----------------------------------------------------------------------------

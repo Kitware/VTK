@@ -68,7 +68,7 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
     vtkNew<vtkPlane> cplane;
     cplane->SetNormal(-0.5,0.5,0);
     cplane->SetOrigin(105,105,0);
-    imageMapper->AddClippingPlane(cplane.Get());
+    imageMapper->AddClippingPlane(cplane);
 
     const double *bounds = imageMapper->GetBounds();
     double point[3];

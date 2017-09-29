@@ -244,7 +244,7 @@ void vtkPlot::SetPen(vtkPen *pen)
 //-----------------------------------------------------------------------------
 vtkPen* vtkPlot::GetPen()
 {
-  return this->Pen.GetPointer();
+  return this->Pen;
 }
 
 //-----------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void vtkPlot::SetBrush(vtkBrush *brush)
 //-----------------------------------------------------------------------------
 vtkBrush* vtkPlot::GetBrush()
 {
-  return this->Brush.GetPointer();
+  return this->Brush;
 }
 
 //-----------------------------------------------------------------------------
@@ -276,7 +276,7 @@ void vtkPlot::SetSelectionPen(vtkPen *pen)
 //-----------------------------------------------------------------------------
 vtkPen* vtkPlot::GetSelectionPen()
 {
-  return this->SelectionPen.GetPointer();
+  return this->SelectionPen;
 }
 
 //-----------------------------------------------------------------------------
@@ -292,7 +292,7 @@ void vtkPlot::SetSelectionBrush(vtkBrush *brush)
 //-----------------------------------------------------------------------------
 vtkBrush* vtkPlot::GetSelectionBrush()
 {
-  return this->SelectionBrush.GetPointer();
+  return this->SelectionBrush;
 }
 
 //-----------------------------------------------------------------------------
@@ -300,7 +300,7 @@ void vtkPlot::SetLabel(const vtkStdString& label)
 {
   vtkNew<vtkStringArray> labels;
   labels->InsertNextValue(label);
-  this->SetLabels(labels.GetPointer());
+  this->SetLabels(labels);
 }
 
 //-----------------------------------------------------------------------------
@@ -383,13 +383,13 @@ void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
 //-----------------------------------------------------------------------------
 vtkStringArray * vtkPlot::GetIndexedLabels()
 {
-  return this->IndexedLabels.GetPointer();
+  return this->IndexedLabels;
 }
 
 //-----------------------------------------------------------------------------
 vtkContextMapper2D * vtkPlot::GetData()
 {
-  return this->Data.GetPointer();
+  return this->Data;
 }
 
 //-----------------------------------------------------------------------------

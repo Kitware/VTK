@@ -80,9 +80,9 @@ int TestGPURayCastCameraInsideTransformation(int argc, char* argv[])
   gf->AddPoint(100, 0.7);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->SetScalarOpacity(pf.GetPointer());
-  volumeProperty->SetGradientOpacity(gf.GetPointer());
-  volumeProperty->SetColor(ctf.GetPointer());
+  volumeProperty->SetScalarOpacity(pf);
+  volumeProperty->SetGradientOpacity(gf);
+  volumeProperty->SetColor(ctf);
   volumeProperty->ShadeOn();
 
   // Setup rendering context
@@ -91,16 +91,16 @@ int TestGPURayCastCameraInsideTransformation(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   ren->SetBackground(0.1, 0.1, 0.1);
 
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(resample->GetOutputPort());
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
-  ren->AddVolume(volume.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(volumeProperty);
+  ren->AddVolume(volume);
 
   // Set a vtkProp3D transformation
   volume->RotateX(180);
@@ -114,15 +114,15 @@ int TestGPURayCastCameraInsideTransformation(int argc, char* argv[])
 
   // Initialize interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render();
   iren->Initialize();
 
-  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren.GetPointer(),
+  int rv = vtkTesting::InteractorEventLoop(argc, argv, iren,
     TestGPURayCastCameraInsideTransformationLog);
   return rv;
 }

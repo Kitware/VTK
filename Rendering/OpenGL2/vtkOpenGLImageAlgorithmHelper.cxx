@@ -45,7 +45,7 @@ vtkOpenGLImageAlgorithmHelper::~vtkOpenGLImageAlgorithmHelper()
 
 void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow *renWin)
 {
-  if (renWin == this->RenderWindow.Get())
+  if (renWin == this->RenderWindow.GetPointer())
   {
     return;
   }
@@ -132,7 +132,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   fbo->SetContext(this->RenderWindow);
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
-  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex.Get());
+  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the

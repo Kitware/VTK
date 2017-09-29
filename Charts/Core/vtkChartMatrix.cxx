@@ -248,8 +248,8 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
     if (this->Private->Charts[index] == nullptr)
     {
       vtkNew<vtkChartXY> chart;
-      this->Private->Charts[index] = chart.GetPointer();
-      this->AddItem(chart.GetPointer());
+      this->Private->Charts[index] = chart;
+      this->AddItem(chart);
       chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     }
     return this->Private->Charts[index];

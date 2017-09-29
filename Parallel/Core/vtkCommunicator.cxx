@@ -643,7 +643,7 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
 
   vtkNew<vtkGenericDataObjectReader> reader;
   reader->ReadFromInputStringOn();
-  reader->SetInputArray(objectBuffer.Get());
+  reader->SetInputArray(objectBuffer);
   reader->Update();
 
   vtkSmartPointer<vtkDataObject> dobj = reader->GetOutputDataObject(0);
@@ -1003,7 +1003,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
   int destProcessId)
 {
   vtkNew<vtkCharArray> sendArray;
-  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray.Get()) == 0)
+  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
   {
     vtkErrorMacro("Marshalling failed! Cannot 'Gather' successfully!");
     sendArray->Initialize();
@@ -1020,7 +1020,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
     }
   }
 
-  if (this->GatherV(sendArray.Get(), fullRecvArray.Get(), &recvArrays[0], destProcessId))
+  if (this->GatherV(sendArray, fullRecvArray, &recvArrays[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
@@ -1046,7 +1046,7 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer,
   vtkNew<vtkIdTypeArray> offsets;
   int retValue = this->GatherV(
     sendBuffer, recvBuffer,
-    recvLengths.GetPointer(), offsets.GetPointer(), destProcessId);
+    recvLengths, offsets, destProcessId);
   if (destProcessId == this->LocalProcessId)
   {
     int numComponents = sendBuffer->GetNumberOfComponents();
@@ -1072,7 +1072,7 @@ int vtkCommunicator::GatherVElementalDataObject(
   std::vector<vtkSmartPointer<vtkDataArray> > recvBuffers(
     this->NumberOfProcesses);
 
-  vtkCommunicator::MarshalDataObject(sendData, sendBuffer.GetPointer());
+  vtkCommunicator::MarshalDataObject(sendData, sendBuffer);
   if (this->LocalProcessId == destProcessId)
   {
     for (int i = 0; i < this->NumberOfProcesses; ++i)
@@ -1080,15 +1080,14 @@ int vtkCommunicator::GatherVElementalDataObject(
       recvBuffers[i] = vtkSmartPointer<vtkCharArray>::New();
     }
   }
-  if (this->GatherV(sendBuffer.GetPointer(), recvBuffer.GetPointer(),
-                    &recvBuffers[0], destProcessId))
+  if (this->GatherV(sendBuffer, recvBuffer, &recvBuffers[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
       for (int i = 0; i < this->NumberOfProcesses; ++i)
       {
         if (! vtkCommunicator::UnMarshalDataObject(
-              vtkArrayDownCast<vtkCharArray>(recvBuffers[i].GetPointer()),
+              vtkArrayDownCast<vtkCharArray>(recvBuffers[i]),
               receiveData[i]))
         {
           return 0;
@@ -1193,8 +1192,8 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
 {
   vtkNew<vtkIdTypeArray> recvLengths;
   vtkNew<vtkIdTypeArray> offsets;
-  return this->GatherV(sendBuffer, recvBuffer, recvLengths.GetPointer(),
-                       offsets.GetPointer(), destProcessId);
+  return this->GatherV(sendBuffer, recvBuffer, recvLengths,
+                       offsets, destProcessId);
 }
 
 //-----------------------------------------------------------------------------

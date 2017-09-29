@@ -63,7 +63,7 @@ int TestPLYWriterAlpha(int argc, char* argv[])
   writer->EnableAlphaOn();
   writer->SetColorModeToDefault();
   writer->SetArrayName("Elevation");
-  writer->SetLookupTable(lut.Get());
+  writer->SetLookupTable(lut);
   writer->SetInputConnection(elevation->GetOutputPort());
   writer->Write();
 
@@ -77,23 +77,23 @@ int TestPLYWriterAlpha(int argc, char* argv[])
 
   // Create the actor.
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.Get());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
-  ren->AddActor(actor.Get());
+  ren->AddActor(actor);
   ren->SetBackground(0, 0, 0);
   renWin->SetSize(300, 300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

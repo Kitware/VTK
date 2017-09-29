@@ -56,15 +56,15 @@ int TestOpenSlideReader(int argc, char** argv)
   // Visualize
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> window;
-  window->AddRenderer(renderer.GetPointer());
+  window->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(window.GetPointer());
+  renderWindowInteractor->SetRenderWindow(window);
 
   vtkNew<vtkImageViewer2> imageViewer;
   imageViewer->SetInputConnection(reader->GetOutputPort());
   //imageViewer->SetExtent(1000,1500,1000,1500,0,0);
-  imageViewer->SetupInteractor(renderWindowInteractor.GetPointer());
+  imageViewer->SetupInteractor(renderWindowInteractor);
   //imageViewer->SetSlice(0);
   imageViewer->Render();
   imageViewer->GetRenderer()->ResetCamera();

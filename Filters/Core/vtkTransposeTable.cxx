@@ -137,7 +137,7 @@ bool vtkTransposeTableInternal::InsertColumn(int pos, vtkAbstractArray* col)
     updatedTable->AddColumn(col);
   }
 
-  this->OutTable->ShallowCopy(updatedTable.GetPointer());
+  this->OutTable->ShallowCopy(updatedTable);
 
   return true;
 }
@@ -268,7 +268,7 @@ bool vtkTransposeTableInternal::TransposeTable(vtkTable* inTable,
     {
       stringArray->SetValue(c - idColOffset, this->InTable->GetColumn(c)->GetName());
     }
-    this->InsertColumn(0, stringArray.GetPointer());
+    this->InsertColumn(0, stringArray);
   }
 
   return true;

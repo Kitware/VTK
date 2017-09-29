@@ -58,7 +58,7 @@ int TestScalarsToColorsPainterFieldData(int argc, char* argv[])
     newArray->SetTuple(i, &value);
   }
 
-  fd->AddArray(newArray.GetPointer());
+  fd->AddArray(newArray);
 
   // Set up lookup table
   vtkNew<vtkColorTransferFunction> lookupTable;
@@ -67,29 +67,29 @@ int TestScalarsToColorsPainterFieldData(int argc, char* argv[])
 
   vtkNew<vtkPainterPolyDataMapper> mapper;
   mapper->SetInputData(pd);
-  mapper->SetLookupTable(lookupTable.GetPointer());
+  mapper->SetLookupTable(lookupTable);
   mapper->SelectColorArray("floatArray");
   mapper->SetScalarModeToUseFieldData();
   mapper->SetFieldDataTupleId(tupleId);
   mapper->ScalarVisibilityOn();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   // Render image
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Compare image
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

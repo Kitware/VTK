@@ -189,13 +189,13 @@ int TestSMPWarp(int argc, char* argv[])
   func.pts = (float*)pts->GetVoidPointer(0);
   //func.pts = (vtkFloatArray*)pts->GetData();
 
-  sg->SetPoints(pts.GetPointer());
+  sg->SetPoints(pts);
 
   vtkNew<vtkFloatArray> disp;
   disp->SetNumberOfComponents(3);
   disp->SetNumberOfTuples(sg->GetNumberOfPoints());
   disp->SetName("Disp");
-  sg->GetPointData()->AddArray(disp.GetPointer());
+  sg->GetPointData()->AddArray(disp);
   func.disp = (float*)disp->GetVoidPointer(0);
 
   tl->StartTimer();
@@ -204,7 +204,7 @@ int TestSMPWarp(int argc, char* argv[])
   cout << "Initialize: " << tl->GetElapsedTime() << endl;
 
   vtkNew<vtkWarpVector> vw;
-  vw->SetInputData(sg.GetPointer());
+  vw->SetInputData(sg);
   vw->SetInputArrayToProcess(0, 0, 0,
                              vtkDataObject::FIELD_ASSOCIATION_POINTS,
                              "Disp");
@@ -241,7 +241,7 @@ int TestSMPWarp(int argc, char* argv[])
   vw->GetOutput()->Initialize();
 
   vtkNew<vtkSMPWarpVector> smpvw;
-  smpvw->SetInputData(sg.GetPointer());
+  smpvw->SetInputData(sg);
   smpvw->SetInputArrayToProcess(0, 0, 0,
                                 vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                 "Disp");

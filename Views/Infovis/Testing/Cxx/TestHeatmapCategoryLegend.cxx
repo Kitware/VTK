@@ -49,19 +49,19 @@ int TestHeatmapCategoryLegend(int argc, char* argv[])
   column->SetValue(2, "a");
   column->SetValue(3, "a");
 
-  table->AddColumn(tableNames.GetPointer());
-  table->AddColumn(column.GetPointer());
+  table->AddColumn(tableNames);
+  table->AddColumn(column);
 
   vtkNew<vtkHeatmapItem> heatmap;
-  heatmap->SetTable(table.GetPointer());
+  heatmap->SetTable(table);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(heatmap.GetPointer());
+  trans->AddItem(heatmap);
   trans->Translate(125, 125);
 
   vtkNew<vtkContextView> contextView;
-  contextView->GetScene()->AddItem(trans.GetPointer());
+  contextView->GetScene()->AddItem(trans);
 
   contextView->GetRenderWindow()->SetMultiSamples(0);
   contextView->GetRenderWindow()->Render();

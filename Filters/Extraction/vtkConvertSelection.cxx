@@ -906,7 +906,7 @@ int vtkConvertSelection::RequestData(
   if (!this->SelectionExtractor)
   {
     vtkNew<vtkExtractSelection> se;
-    this->SetSelectionExtractor(se.GetPointer());
+    this->SetSelectionExtractor(se);
   }
 
   vtkSmartPointer<vtkSelection> input = vtkSmartPointer<vtkSelection>::New();

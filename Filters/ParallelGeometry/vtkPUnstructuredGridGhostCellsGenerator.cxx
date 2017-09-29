@@ -374,7 +374,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::GetFirstGhostLayer(
   inputCopy->ShallowCopy(this->Internals->Input);
   inputCopy->AllocatePointGhostArray();
   inputCopy->AllocateCellGhostArray();
-  this->ReceiveAndMergeGhostCells(maxGhostLevel, inputCopy.Get(), output);
+  this->ReceiveAndMergeGhostCells(maxGhostLevel, inputCopy, output);
 
   this->UpdateProgress(3.0 / (3.0 * maxGhostLevel));
 }
@@ -440,7 +440,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePoints()
       surface->GetPoints()->GetBounds(bounds);
     }
     this->Internals->LocalPoints->InitPointInsertion(
-      surfacePoints.Get(), bounds);
+      surfacePoints, bounds);
     this->Internals->LocalPointsMap.reserve(nbSurfacePoints);
 
     // Browse surface cells and push point coordinates to the locator
@@ -524,7 +524,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
         // Current rank also has a copy of this global point
         cellIdsList->Reset();
         // Get the cells connected to this point
-        this->Internals->Input->GetPointCells(localPointId, cellIdsList.Get());
+        this->Internals->Input->GetPointCells(localPointId, cellIdsList);
         vtkIdType nbIds = cellIdsList->GetNumberOfIds();
         // Add those cells to the list of cells to send to this rank
         for (vtkIdType k = 0; k < nbIds; k++)
@@ -569,7 +569,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
     {
       cellIdsList->SetId(i, *sIter);
     }
-    extractCells->SetCellList(cellIdsList.Get());
+    extractCells->SetCellList(cellIdsList);
     extractCells->Update();
     vtkUnstructuredGrid *extractGrid = extractCells->GetOutput();
 
@@ -792,13 +792,13 @@ void vtkPUnstructuredGridGhostCellsGenerator::FindGhostCells()
       // iterate over each point in the cell
       vtkIdType cellid = *cellidIter;
       pointIdsList->Reset();
-      this->Internals->CurGrid->GetCellPoints(cellid, pointIdsList.Get());
+      this->Internals->CurGrid->GetCellPoints(cellid, pointIdsList);
       for (int p=0; p<pointIdsList->GetNumberOfIds(); p++)
       {
         // get all cells which use this point
         vtkIdType pointid = pointIdsList->GetId(p);
         cellIdsList->Reset();
-        this->Internals->CurGrid->GetPointCells(pointid, cellIdsList.Get());
+        this->Internals->CurGrid->GetPointCells(pointid, cellIdsList);
 
         // add cells to CellsToSend
         for (int i=0; i<cellIdsList->GetNumberOfIds(); i++)

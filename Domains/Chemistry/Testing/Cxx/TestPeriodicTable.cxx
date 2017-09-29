@@ -167,7 +167,7 @@ int TestPeriodicTable(int , char * [])
 
   // Obtain a lookup table for the elemental colors.
   vtkNew<vtkLookupTable> lookupTable;
-  pTab->GetDefaultLUT(lookupTable.GetPointer());
+  pTab->GetDefaultLUT(lookupTable);
   if (lookupTable->GetNumberOfColors() != 119)
   {
     cout << "Error, lookup table has " << lookupTable->GetNumberOfColors()

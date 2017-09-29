@@ -152,7 +152,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(4);
-  this->PlanePolyData->SetPoints(points.Get());
+  this->PlanePolyData->SetPoints(points);
   for (int i = 0; i < 4; i++)
   {
     points->SetPoint(i, this->Origin);
@@ -163,7 +163,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   cell->Allocate(5);
   vtkIdType pts[4] = { 0, 1, 2, 3 };
   cell->InsertNextCell(4, pts);
-  this->PlanePolyData->SetPolys(cell.Get());
+  this->PlanePolyData->SetPolys(cell);
   this->PlanePolyData->BuildCells();
 
   this->PlaneMapper = vtkPolyDataMapper::New();
@@ -1024,10 +1024,10 @@ void vtkFinitePlaneRepresentation::MovePoint1(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   vtkNew<vtkMatrix4x4> mat;
-  this->Transform->GetInverse(mat.Get());
+  this->Transform->GetInverse(mat);
 
   vtkNew<vtkTransform> t;
-  t->SetMatrix(mat.Get());
+  t->SetMatrix(mat);
   t->TransformVector(v, v);
 
   double *v1 = this->GetV1();
@@ -1050,10 +1050,10 @@ void vtkFinitePlaneRepresentation::MovePoint2(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   vtkNew<vtkMatrix4x4> mat;
-  this->Transform->GetInverse(mat.Get());
+  this->Transform->GetInverse(mat);
 
   vtkNew<vtkTransform> t;
-  t->SetMatrix(mat.Get());
+  t->SetMatrix(mat);
   t->TransformVector(v, v);
 
   double *v2 = this->GetV2();

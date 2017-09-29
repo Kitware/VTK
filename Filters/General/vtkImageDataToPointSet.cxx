@@ -102,7 +102,7 @@ int vtkImageDataToPointSet::CopyStructure(vtkStructuredGrid *outData,
     return 0;
   }
 
-  outData->SetPoints(points.GetPointer());
+  outData->SetPoints(points);
 
   return 1;
 }

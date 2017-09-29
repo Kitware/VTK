@@ -58,12 +58,12 @@ int TestChartXYZ(int , char * [])
   chart->SetDecorateAxes(false);
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(400, 300);
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
   vtkNew<vtkChartXYZ> chart2;
   chart2->SetAutoRotate(true);
   chart2->SetFitToScene(false);
   chart->SetDecorateAxes(false);
-  view->GetScene()->AddItem(chart2.GetPointer());
+  view->GetScene()->AddItem(chart2);
 
   chart->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
   chart2->SetGeometry(vtkRectf(75.0, 20.0, 250, 260));
@@ -72,13 +72,13 @@ int TestChartXYZ(int , char * [])
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("X Axis");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Cosine");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Sine");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   // Test charting with a few more points...
   int numPoints = 69;
   float inc = 7.5 / (numPoints-1);
@@ -93,8 +93,8 @@ int TestChartXYZ(int , char * [])
   //chart->SetAroundX(true);
   // Add the three dimensions we are interested in visualizing.
   vtkNew<vtkPlotPoints3D> plot;
-  plot->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
-  chart->AddPlot(plot.GetPointer());
+  plot->SetInputData(table, "X Axis", "Sine", "Cosine");
+  chart->AddPlot(plot);
   const vtkColor4ub axisColor(20, 200, 30);
   chart->SetAxisColor(axisColor);
   chart->GetAxis(0)->SetUnscaledRange(-0.1,7.6);
@@ -104,17 +104,17 @@ int TestChartXYZ(int , char * [])
 
   // We want a duplicate, that does not move.
   vtkNew<vtkPlotPoints3D> plot2;
-  plot2->SetInputData(table.GetPointer(), "X Axis", "Sine", "Cosine");
-  chart2->AddPlot(plot2.GetPointer());
+  plot2->SetInputData(table, "X Axis", "Sine", "Cosine");
+  chart2->AddPlot(plot2);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();
 
   // Set up the timer, and be sure to incrememt the angle.
   vtkNew<vtkCallbackCommand> callback;
-  callback->SetClientData(chart.GetPointer());
+  callback->SetClientData(chart);
   callback->SetCallback(::ProcessEvents);
-  view->GetInteractor()->AddObserver(vtkCommand::TimerEvent, callback.GetPointer(),
+  view->GetInteractor()->AddObserver(vtkCommand::TimerEvent, callback,
                                 0);
   view->GetInteractor()->CreateRepeatingTimer(1000 / 25);
 

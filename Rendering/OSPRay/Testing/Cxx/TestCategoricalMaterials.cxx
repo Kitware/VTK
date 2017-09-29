@@ -57,7 +57,7 @@ int TestCategoricalMaterials(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), ospray, NULL);
+  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, ospray, NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

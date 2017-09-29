@@ -77,10 +77,10 @@ static bool TestGlyph3D_WithoutSource()
   vtkNew<vtkPoints> points;
   points->InsertNextPoint(0, 0, 0);
   vtkNew<vtkPolyData> polydata;
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkGlyph3D> glyph3D;
-  glyph3D->SetInputData(polydata.Get());
+  glyph3D->SetInputData(polydata);
   glyph3D->Update();
 
   return true;
@@ -141,12 +141,12 @@ int TestGlyph3D(int argc, char* argv[])
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkSmartPointer<vtkRenderer> ren =
     vtkSmartPointer<vtkRenderer>::New();
   ren->SetBackground(0,0,0);
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.5);
 
@@ -155,13 +155,13 @@ int TestGlyph3D(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(300,300);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

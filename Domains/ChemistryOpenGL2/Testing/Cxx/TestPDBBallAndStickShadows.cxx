@@ -54,7 +54,7 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   molmapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
   actor->GetProperty()->SetAmbient(0.3);
   actor->GetProperty()->SetDiffuse(0.7);
   actor->GetProperty()->SetSpecular(0.4);
@@ -62,11 +62,11 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.7);
   ren->SetBackground(0.4, 0.5, 0.6);
@@ -81,22 +81,22 @@ int TestPDBBallAndStickShadows(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(plane->GetOutputPort());
   vtkNew<vtkActor> planeActor;
-  planeActor->SetMapper(planeMapper.Get());
-  ren->AddActor(planeActor.Get());
+  planeActor->SetMapper(planeMapper);
+  ren->AddActor(planeActor);
 
   vtkNew<vtkLight> light1;
   light1->SetFocalPoint(0,0,0);
   light1->SetPosition(0,1,0.2);
   light1->SetColor(0.95,0.97,1.0);
   light1->SetIntensity(0.8);
-  ren->AddLight(light1.Get());
+  ren->AddLight(light1);
 
   vtkNew<vtkLight> light2;
   light2->SetFocalPoint(0,0,0);
   light2->SetPosition(1.0,1.0,1.0);
   light2->SetColor(1.0,0.8,0.7);
   light2->SetIntensity(0.3);
-  ren->AddLight(light2.Get());
+  ren->AddLight(light2);
 
   ren->UseShadowsOn();
 

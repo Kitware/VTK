@@ -165,7 +165,7 @@ int TestXYPlotActor( int argc, char* argv[] )
   vtkSmartPointer<vtkRenderWindowInteractor> iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
   iren->SetRenderWindow( renWin );
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

@@ -452,7 +452,7 @@ void vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentSource->Update();
     vtkNew<vtkPolyDataMapper> pmap;
     pmap->SetInputConnection(this->CurrentSource->GetOutputPort());
-    this->CurrentActor->SetMapper(pmap.Get());
+    this->CurrentActor->SetMapper(pmap);
     if (this->CurrentProperty)
     {
       this->CurrentActor->SetProperty(this->CurrentProperty);
@@ -460,7 +460,7 @@ void vtkVRMLImporter::enterNode(const char *nodeType)
     if (this->Parser->creatingDEF)
     {
       *this->Parser->useList +=
-        new vtkVRMLUseStruct(this->Parser->curDEFName, pmap.Get());
+        new vtkVRMLUseStruct(this->Parser->curDEFName, pmap);
       this->Parser->creatingDEF = 0;
     }
   }
@@ -778,19 +778,19 @@ void vtkVRMLImporter::exitNode()
       }
 
       // use the new structures for the output
-      pd->SetPoints(newPoints.Get());
-      pd->SetPolys(newPolys.Get());
+      pd->SetPoints(newPoints);
+      pd->SetPolys(newPolys);
       if (this->CurrentTCoords)
       {
-        pd->GetPointData()->SetTCoords(newTCoords.Get());
+        pd->GetPointData()->SetTCoords(newTCoords);
       }
       if (this->CurrentNormals)
       {
-        pd->GetPointData()->SetNormals(newNormals.Get());
+        pd->GetPointData()->SetNormals(newNormals);
       }
       if (this->CurrentScalars)
       {
-        pd->GetPointData()->SetScalars(newScalars.Get());
+        pd->GetPointData()->SetScalars(newScalars);
       }
     }
 
@@ -1010,14 +1010,14 @@ void vtkVRMLImporter::exitField()
     }
     if (nodeTypeName == "IndexedFaceSet")
     {
-      pd->SetPolys(cells.Get());
+      pd->SetPolys(cells);
     }
     else
     {
-      pd->SetLines(cells.Get());
+      pd->SetLines(cells);
     }
 
-    this->CurrentMapper->SetInputData(pd.Get());
+    this->CurrentMapper->SetInputData(pd);
     this->Parser->yylval.mfint32->Reset();
     this->DeleteObject(this->Parser->yylval.mfint32);
   }
@@ -1084,8 +1084,8 @@ void vtkVRMLImporter::exitField()
         cells->InsertNextCell(1, &i);
       }
 
-      pd->SetVerts(cells.Get());
-      this->CurrentMapper->SetInputData(pd.Get());
+      pd->SetVerts(cells);
+      this->CurrentMapper->SetInputData(pd);
     }
   }
   // Handle color field
