@@ -195,7 +195,7 @@ int TestCompositePolyDataMapper2Pickability(int argc, char* argv[])
   mp->SetCompositeIdArrayName("vtkCompositeIndex");
 
   vtkNew<vtkHardwareSelector> hw;
-  hw->SetArea(0, 0, 400, 400);
+  hw->SetArea(130, 130, 270, 270);
   hw->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   hw->SetRenderer(rr);
   hw->SetProcessID(0);
