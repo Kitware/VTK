@@ -336,7 +336,7 @@ Previous examples:
 
 ## Announcing
 
-Sen and email to `vtk-developers@vtk.org`, `vtkusers@vtk.org`. Also inform
+Send an email to `vtk-developers@vtk.org`, `vtkusers@vtk.org`. Also inform
 `comm@kitware.com`.
 
 For the final release, a blog post, release notes, and a Source article should
