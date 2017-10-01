@@ -6,8 +6,8 @@
 
 # If the environement var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # September 27, 2017 Transitioning VTK/Examples
-  set(GIT_TAG b92b822472465a1b7793d3fae9e30a95f4bba033)
+  # September 30, 2017 New baselines
+  set(GIT_TAG 1d99830ee6983e5221f415f6ed296fa15d9f985e)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
