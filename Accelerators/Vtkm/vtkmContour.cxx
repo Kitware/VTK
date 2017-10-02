@@ -85,8 +85,15 @@ int vtkmContour::RequestData(vtkInformation* request,
   }
 
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input,
-                                           tovtkm::FieldsFlag::PointsAndCells);
+  vtkm::cont::DataSet in;
+  if (this->ComputeScalars)
+  {
+    in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+  }
+  else
+  {
+    in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+  }
 
   // we need to map the given property to the data set
   int association = this->GetInputArrayAssociation(0, inputVector);
