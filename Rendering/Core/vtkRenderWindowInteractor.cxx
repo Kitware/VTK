@@ -498,17 +498,19 @@ void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, double x, double y)
 //----------------------------------------------------------------------------
 vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
-  vtkRendererCollection *rc;
-  vtkRenderer *aren;
-  vtkRenderer *currentRenderer=nullptr, *interactiveren=nullptr, *viewportren=nullptr;
-  int numRens, i;
-
-  rc = this->RenderWindow->GetRenderers();
-  numRens = rc->GetNumberOfItems();
-
-  for (i = numRens -1; (i >= 0) && !currentRenderer; i--)
+  if (this->RenderWindow == nullptr)
   {
-    aren = static_cast<vtkRenderer *>(rc->GetItemAsObject(i));
+    return nullptr;
+  }
+
+  vtkRenderer *currentRenderer = nullptr, *interactiveren = nullptr, *viewportren = nullptr;
+
+  vtkRendererCollection* rc = this->RenderWindow->GetRenderers();
+  int numRens = rc->GetNumberOfItems();
+
+  for (int i = numRens -1; (i >= 0) && !currentRenderer; i--)
+  {
+    vtkRenderer *aren = static_cast<vtkRenderer *>(rc->GetItemAsObject(i));
     if (aren->IsInViewport(x,y) && aren->GetInteractive())
     {
       currentRenderer = aren;
@@ -530,7 +532,7 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
 
   // We must have a value.  If we found an interactive renderer before, that's
   // better than a non-interactive renderer.
-  if ( currentRenderer == nullptr )
+  if (currentRenderer == nullptr )
   {
     currentRenderer = interactiveren;
   }
@@ -538,16 +540,15 @@ vtkRenderer* vtkRenderWindowInteractor::FindPokedRenderer(int x,int y)
   // We must have a value.  If we found a renderer that is in the viewport,
   // that is better than any old viewport (but not as good as an interactive
   // one).
-  if ( currentRenderer == nullptr )
+  if (currentRenderer == nullptr )
   {
     currentRenderer = viewportren;
   }
 
   // We must have a value - take anything.
-  if ( currentRenderer == nullptr)
+  if (currentRenderer == nullptr)
   {
-    aren = rc->GetFirstRenderer();
-    currentRenderer = aren;
+    currentRenderer = rc->GetFirstRenderer();
   }
 
   return currentRenderer;
