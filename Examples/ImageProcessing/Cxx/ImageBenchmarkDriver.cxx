@@ -16,7 +16,6 @@
 // This program is a driver for the benchmarking tests.
 // It runs several benchmarks and writes them to the output directory.
 
-#include "vtkMultiThreader.h"
 #include "vtkThreadedImageAlgorithm.h"
 #include "vtkVersion.h"
 

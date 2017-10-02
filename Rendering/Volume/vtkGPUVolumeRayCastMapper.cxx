@@ -23,7 +23,6 @@
 #include <vtkGPUInfoList.h>
 #include <vtkImageData.h>
 #include <vtkImageResample.h>
-#include <vtkMultiThreader.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointData.h>
 #include <vtkRenderer.h>

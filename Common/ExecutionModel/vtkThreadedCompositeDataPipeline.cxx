@@ -27,7 +27,6 @@
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationVector.h"
 
-#include "vtkMultiThreader.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkTimerLog.h"

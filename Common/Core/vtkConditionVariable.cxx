@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkConditionVariable);
 #  define EAGAIN 35
 #endif
 
-#if ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
+#if ! defined(VTK_USE_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
 // Why is this encapsulated in a namespace?  Because you can get errors if
 // these symbols (particularly the typedef) are already defined.  We run
 // into this problem on a system that has pthread headers but no libraries
@@ -59,22 +59,15 @@ int pthread_cond_broadcast( vtkConditionType* cv )
 
 int pthread_cond_wait( vtkConditionType* cv, vtkMutexType* lock )
 {
-#ifdef VTK_USE_SPROC
-  release_lock( lock );
-#else // VTK_USE_SPROC
   *lock = 0;
-#endif // VTK_USE_SPROC
   while ( ! *cv );
-#ifdef VTK_USE_SPROC
-  spin_lock( lock );
-#else // VTK_USE_SPROC
   *lock = 1;
-#endif // VTK_USE_SPROC
+
   return 0;
 }
 
 }
-#endif // ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
+#endif // ! defined(VTK_USE_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
 
 #ifdef VTK_USE_WIN32_THREADS
 typedef int pthread_condattr_t;
@@ -374,9 +367,6 @@ void vtkConditionVariable::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "ThreadingModel: "
 #ifdef VTK_USE_PTHREADS
     << "pthreads "
-#endif
-#ifdef VTK_HP_PTHREADS
-    << "HP pthreads "
 #endif
 #ifdef VTK_USE_WIN32_THREADS
     << "win32 threads "

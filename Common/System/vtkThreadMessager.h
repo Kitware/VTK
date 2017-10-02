@@ -16,7 +16,7 @@
  * @class   vtkThreadMessager
  * @brief   A class for performing inter-thread messaging
  *
- * vtkMultithreader is a class that provides support for messaging between
+ * vtkThreadMessager is a class that provides support for messaging between
  * threads multithreaded using pthreads or Windows messaging.
 */
 
@@ -26,7 +26,7 @@
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
 
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for pthread types
 #endif
 
