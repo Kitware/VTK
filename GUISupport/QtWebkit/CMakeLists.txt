@@ -1,4 +1,3 @@
-if(NOT VTK_LEGACY_REMOVE)
 include(vtkQt)
 
 # Rich-text view requires Qt >= 4.5.0
@@ -49,5 +48,4 @@ if(${_FOUND})
   vtk_module_library(${vtk-module} ${LibSrcs} ${UI_FILES} ${LibMocSrcs})
 
   vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES})
-endif()
 endif()
