@@ -354,7 +354,7 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
   }
   this->CheckParameters();
   std::string testString(this->FileName);
-  int tempLength = testString.length();
+  size_t tempLength = testString.length();
   testString = testString.substr(0, (tempLength - 4));
   std::string choppedFileName = testString;
   if (this->InitWriters == true)

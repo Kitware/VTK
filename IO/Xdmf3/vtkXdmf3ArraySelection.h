@@ -33,6 +33,10 @@
 #include <map> //for superclass template
 #include <string> //for superclass's content type
 
+#ifdef _MSC_VER
+#pragma warning (push) //save
+#pragma warning (disable: 4251) //needs to have dll-interface to be used by clients of class
+#endif
 class VTKIOXDMF3_EXPORT vtkXdmf3ArraySelection
   : public std::map<std::string, bool>
 {
@@ -70,13 +74,14 @@ public:
    */
   const char* GetArrayName(int index);
 
-  //@{
   /**
    * get number of arrays in the set
    */
   int GetNumberOfArrays();
 };
-  //@}
+#ifdef _MSC_VER
+#pragma warning (pop) //restore
+#endif
 
 #endif //# vtkXdmf3ArraySelection_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h
