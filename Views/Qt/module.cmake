@@ -1,5 +1,4 @@
 vtk_module(vtkViewsQt
-  LEGACY 8.1 "The vtkViewsQt module is no longer supported."
   GROUPS
     Qt
   TEST_DEPENDS
@@ -17,4 +16,4 @@ vtk_module(vtkViewsQt
     vtkFiltersExtraction
     vtkFiltersGeneral
     vtkInfovisCore
-  )
+)
