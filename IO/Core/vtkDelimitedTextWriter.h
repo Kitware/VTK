@@ -38,7 +38,7 @@ class VTKIOCORE_EXPORT vtkDelimitedTextWriter : public vtkWriter
 public:
   static vtkDelimitedTextWriter* New();
   vtkTypeMacro(vtkDelimitedTextWriter, vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -97,19 +97,19 @@ public:
 
 protected:
   vtkDelimitedTextWriter();
-  ~vtkDelimitedTextWriter() VTK_OVERRIDE;
+  ~vtkDelimitedTextWriter() override;
 
   bool WriteToOutputString;
   char* OutputString;
 
   bool OpenStream();
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   virtual void WriteTable(vtkTable* rectilinearGrid);
 
   // see algorithm for more info.
   // This writer takes in vtkTable.
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char* FileName;
   char* FieldDelimiter;

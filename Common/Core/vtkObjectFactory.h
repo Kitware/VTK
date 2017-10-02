@@ -130,7 +130,7 @@ public:
   /**
    * Print ObjectFactory to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * All sub-classes of vtkObjectFactory should must return the version of
@@ -229,7 +229,7 @@ protected:
   virtual vtkObject* CreateObject(const char* vtkclassname );
 
   vtkObjectFactory();
-  ~vtkObjectFactory() VTK_OVERRIDE;
+  ~vtkObjectFactory() override;
 
   struct OverrideInformation
   {

@@ -50,28 +50,28 @@ public:
 
   static vtkOpenGLRenderTimerLog* New();
   vtkTypeMacro(vtkOpenGLRenderTimerLog, vtkRenderTimerLog)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  bool IsSupported() VTK_OVERRIDE;
+  bool IsSupported() override;
 
   /**
    * Overridden to do support check before returning.
    */
-  bool GetLoggingEnabled() VTK_OVERRIDE { return this->DoLogging(); }
+  bool GetLoggingEnabled() override { return this->DoLogging(); }
 
-  void MarkFrame() VTK_OVERRIDE;
+  void MarkFrame() override;
 
-  void MarkStartEvent(const std::string &name) VTK_OVERRIDE;
-  void MarkEndEvent() VTK_OVERRIDE;
+  void MarkStartEvent(const std::string &name) override;
+  void MarkEndEvent() override;
 
-  bool FrameReady() VTK_OVERRIDE;
+  bool FrameReady() override;
 
-  Frame PopFirstReadyFrame() VTK_OVERRIDE;
+  Frame PopFirstReadyFrame() override;
 
   /**
    * Releases any resources allocated on the graphics device.
    */
-  void ReleaseGraphicsResources() VTK_OVERRIDE;
+  void ReleaseGraphicsResources() override;
 
   /**
    * This implementations keeps a pool of vtkRenderTimers around, recycling them

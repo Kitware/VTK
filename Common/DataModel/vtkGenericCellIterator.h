@@ -46,7 +46,7 @@ public:
    * Standard VTK construction and type macros.
    */
   vtkTypeMacro(vtkGenericCellIterator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkGenericCellIterator();
-  ~vtkGenericCellIterator() VTK_OVERRIDE;
+  ~vtkGenericCellIterator() override;
 
 private:
   vtkGenericCellIterator(const vtkGenericCellIterator&) VTK_DELETE_FUNCTION;

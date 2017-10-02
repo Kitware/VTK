@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointsProjectedHull : public vtkPoints
     vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
 
 public:
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     static vtkPointsProjectedHull *New();
 
@@ -135,8 +135,8 @@ public:
 
     int GetSizeCCWHullZ();
 
-    void Initialize() VTK_OVERRIDE;
-    void Reset() VTK_OVERRIDE {this->Initialize();}
+    void Initialize() override;
+    void Reset() override {this->Initialize();}
 
     /**
      * Forces recalculation of convex hulls, use this if
@@ -148,7 +148,7 @@ public:
 protected:
 
     vtkPointsProjectedHull();
-    ~vtkPointsProjectedHull() VTK_OVERRIDE;
+    ~vtkPointsProjectedHull() override;
 
 private:
 

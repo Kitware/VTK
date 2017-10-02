@@ -39,7 +39,7 @@ class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 public:
   static vtkArrayIteratorTemplate<T>* New();
   vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the array this iterator will iterate over.
@@ -48,7 +48,7 @@ public:
    * (except using the iterator itself).
    * If the array is modified, the iterator must be re-initialized.
    */
-  void Initialize(vtkAbstractArray* array) VTK_OVERRIDE;
+  void Initialize(vtkAbstractArray* array) override;
 
   /**
    * Get the array.
@@ -95,7 +95,7 @@ public:
   /**
    * Get the data type from the underlying array.
    */
-  int GetDataType() VTK_OVERRIDE;
+  int GetDataType() override;
 
   /**
    * Get the data type size from the underlying array.
@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkArrayIteratorTemplate();
-  ~vtkArrayIteratorTemplate() VTK_OVERRIDE;
+  ~vtkArrayIteratorTemplate() override;
 
   T* Pointer;
 private:

@@ -29,7 +29,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverla
 public:
   static vtkOpenVRDefaultOverlay *New();
   vtkTypeMacro(vtkOpenVRDefaultOverlay, vtkOpenVROverlay);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the overlay, we set some opf the spots based on current settings

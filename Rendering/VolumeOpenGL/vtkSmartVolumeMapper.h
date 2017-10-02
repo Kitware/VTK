@@ -123,7 +123,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkSmartVolumeMapper : public vtkVolumeMap
 public:
   static vtkSmartVolumeMapper *New();
   vtkTypeMacro(vtkSmartVolumeMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -315,7 +315,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -323,11 +323,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkSmartVolumeMapper();
-  ~vtkSmartVolumeMapper() VTK_OVERRIDE;
+  ~vtkSmartVolumeMapper() override;
 
   /**
    * Connect input of the vtkSmartVolumeMapper to the input of the

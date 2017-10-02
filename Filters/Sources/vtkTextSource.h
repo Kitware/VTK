@@ -43,7 +43,7 @@ class VTKFILTERSSOURCES_EXPORT vtkTextSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTextSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with no string set and backing enabled.
@@ -95,9 +95,9 @@ public:
 
 protected:
   vtkTextSource();
-  ~vtkTextSource() VTK_OVERRIDE;
+  ~vtkTextSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   char *Text;
   int  Backing;
   double ForegroundColor[4];

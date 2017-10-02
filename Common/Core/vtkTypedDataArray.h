@@ -86,19 +86,19 @@ public:
   /**
    * Return the VTK data type held by this array.
    */
-  int GetDataType() VTK_OVERRIDE;
+  int GetDataType() override;
 
   /**
    * Return the size of the element type in bytes.
    */
-  int GetDataTypeSize() VTK_OVERRIDE;
+  int GetDataTypeSize() override;
 
   /**
    * Specify the number of values for this object to hold. Does an
    * allocation as well as setting the MaxId ivar. Used in conjunction with
    * SetValue() method for fast insertion.
    */
-  void SetNumberOfValues(vtkIdType num) VTK_OVERRIDE;
+  void SetNumberOfValues(vtkIdType num) override;
 
   /**
    * Set the tuple value at the ith location in the array.
@@ -153,17 +153,17 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::TypedDataArray; }
+  int GetArrayType() override { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays
   // would just use the vtkDataArray-level virtuals.
-  int Allocate(vtkIdType size, vtkIdType ext = 1000) VTK_OVERRIDE = 0;
-  int Resize(vtkIdType numTuples) VTK_OVERRIDE = 0;
+  int Allocate(vtkIdType size, vtkIdType ext = 1000) override = 0;
+  int Resize(vtkIdType numTuples) override = 0;
 
 protected:
   vtkTypedDataArray();
-  ~vtkTypedDataArray() VTK_OVERRIDE;
+  ~vtkTypedDataArray() override;
 
   /**
    * Needed for vtkGenericDataArray API, but just aborts. Override Allocate

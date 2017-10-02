@@ -158,7 +158,7 @@ public:
 
   static vtkRenderTimerLog* New();
   vtkTypeMacro(vtkRenderTimerLog, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Returns true if stream timings are implemented for the current graphics

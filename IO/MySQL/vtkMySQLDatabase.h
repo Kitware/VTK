@@ -105,7 +105,7 @@ public:
   /**
    * String representing database type (e.g. "mysql").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }

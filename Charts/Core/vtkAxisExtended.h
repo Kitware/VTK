@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
 public:
    vtkTypeMacro(vtkAxisExtended, vtkObject);
    static vtkAxisExtended *New();
-   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+   void PrintSelf(ostream& os, vtkIndent indent) override;
 
    /**
     * This method return a value to make step sizes corresponding to low q
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkAxisExtended();
-  ~vtkAxisExtended() VTK_OVERRIDE;
+  ~vtkAxisExtended() override;
 
   /**
    * This method implements an exhaustive search of the legibilty parameters.

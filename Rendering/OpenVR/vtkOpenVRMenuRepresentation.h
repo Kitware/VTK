@@ -53,36 +53,36 @@ public:
   * Standard methods for the class.
   */
   vtkTypeMacro(vtkOpenVRMenuRepresentation, vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
   /**
   * Methods to interface with the vtkOpenVRPanelWidget.
   */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   void StartComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   void ComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   void EndComplexInteraction(
     vtkRenderWindowInteractor *iren,
     vtkAbstractWidget *widget,
-    unsigned long event, void *calldata) VTK_OVERRIDE;
+    unsigned long event, void *calldata) override;
   //@}
 
   //@{
   /**
   * Methods supporting the rendering process.
   */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int HasTranslucentPolygonalGeometry() override;
+  int RenderOverlay(vtkViewport*) override;
   //@}
 
 
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkOpenVRMenuRepresentation();
-  ~vtkOpenVRMenuRepresentation() VTK_OVERRIDE;
+  ~vtkOpenVRMenuRepresentation() override;
 
   class InternalElement;
   std::deque<InternalElement *> Menus;

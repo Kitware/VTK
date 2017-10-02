@@ -67,7 +67,7 @@ public:
    */
   static vtkExtractPoints *New();
   vtkTypeMacro(vtkExtractPoints,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -92,18 +92,18 @@ public:
   /**
    * Return the MTime taking into account changes to the implicit function
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkExtractPoints();
-  ~vtkExtractPoints() VTK_OVERRIDE;
+  ~vtkExtractPoints() override;
 
   vtkImplicitFunction *ImplicitFunction;
   bool ExtractInside;
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
+  int FilterPoints(vtkPointSet *input) override;
 
 private:
   vtkExtractPoints(const vtkExtractPoints&) VTK_DELETE_FUNCTION;

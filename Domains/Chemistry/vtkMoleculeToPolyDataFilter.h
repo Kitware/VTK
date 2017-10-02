@@ -34,15 +34,15 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkMoleculeToPolyDataFilter
 {
 public:
   vtkTypeMacro(vtkMoleculeToPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkMolecule * GetInput();
 
 protected:
   vtkMoleculeToPolyDataFilter();
-  ~vtkMoleculeToPolyDataFilter() VTK_OVERRIDE;
+  ~vtkMoleculeToPolyDataFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
   vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;

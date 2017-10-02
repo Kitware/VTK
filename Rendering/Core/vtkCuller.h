@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkCuller : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCuller, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is called outside the render loop by vtkRenderer
@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkCuller();
-  ~vtkCuller() VTK_OVERRIDE;
+  ~vtkCuller() override;
 
 private:
   vtkCuller(const vtkCuller&) VTK_DELETE_FUNCTION;

@@ -40,7 +40,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLRayCastImageDisplayHelper
 public:
   static vtkOpenGLRayCastImageDisplayHelper *New();
   vtkTypeMacro(vtkOpenGLRayCastImageDisplayHelper,vtkRayCastImageDisplayHelper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -48,7 +48,7 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned char *image ) VTK_OVERRIDE;
+                      unsigned char *image ) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       int imageMemorySize[2],
@@ -56,15 +56,15 @@ public:
                       int imageInUseSize[2],
                       int imageOrigin[2],
                       float requestedDepth,
-                      unsigned short *image ) VTK_OVERRIDE;
+                      unsigned short *image ) override;
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                       vtkFixedPointRayCastImage *image,
-                      float requestedDepth ) VTK_OVERRIDE;
+                      float requestedDepth ) override;
 
 protected:
   vtkOpenGLRayCastImageDisplayHelper();
-  ~vtkOpenGLRayCastImageDisplayHelper() VTK_OVERRIDE;
+  ~vtkOpenGLRayCastImageDisplayHelper() override;
 
   void RenderTextureInternal( vtkVolume *vol, vtkRenderer *ren,
                               int imageMemorySize[2],

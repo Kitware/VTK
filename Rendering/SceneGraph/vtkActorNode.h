@@ -33,12 +33,12 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkActorNode :
 public:
   static vtkActorNode* New();
   vtkTypeMacro(vtkActorNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) VTK_OVERRIDE;
+  virtual void Build(bool prepass) override;
 
 protected:
   vtkActorNode();

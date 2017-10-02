@@ -91,13 +91,13 @@ protected:
       dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
     }
   }
-  ~TestTimeSource() VTK_OVERRIDE
+  ~TestTimeSource() override
   {
   }
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) VTK_OVERRIDE
+                     vtkInformationVector* outputVector) override
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -113,7 +113,7 @@ protected:
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
-int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
+int FillOutputPortInformation(int, vtkInformation *info) override
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;

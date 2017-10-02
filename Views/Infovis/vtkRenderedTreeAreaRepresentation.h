@@ -53,7 +53,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedTreeAreaRepresentation : public vtkRende
 public:
   static vtkRenderedTreeAreaRepresentation* New();
   vtkTypeMacro(vtkRenderedTreeAreaRepresentation, vtkRenderedRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the label render mode.
@@ -61,7 +61,7 @@ public:
    * and unicode support. Requires VTK_USE_QT to be on.
    * FREETYPE - Use standard freetype text rendering.
    */
-  void SetLabelRenderMode(int mode) VTK_OVERRIDE;
+  void SetLabelRenderMode(int mode) override;
 
   //@{
   /**
@@ -283,7 +283,7 @@ public:
   /**
    * Apply the theme to this view.
    */
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   //@{
   /**
@@ -295,32 +295,32 @@ public:
 
 protected:
   vtkRenderedTreeAreaRepresentation();
-  ~vtkRenderedTreeAreaRepresentation() VTK_OVERRIDE;
+  ~vtkRenderedTreeAreaRepresentation() override;
 
   //@{
   /**
    * Called by the view to add/remove this representation.
    */
-  bool AddToView(vtkView* view) VTK_OVERRIDE;
-  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
+  bool AddToView(vtkView* view) override;
+  bool RemoveFromView(vtkView* view) override;
   //@}
 
-  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) VTK_OVERRIDE;
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
-  void PrepareForRendering(vtkRenderView* view) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderView* view) override;
 
   bool ValidIndex(int idx);
 
   void UpdateHoverHighlight(vtkView* view, int x, int y);
 
-  vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) VTK_OVERRIDE;
+  vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) override;
 
   vtkSmartPointer<vtkWorldPointPicker>             Picker;
   vtkSmartPointer<vtkApplyColors>                  ApplyColors;

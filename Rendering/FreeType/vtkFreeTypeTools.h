@@ -86,7 +86,7 @@ public:
   };
 
   vtkTypeMacro(vtkFreeTypeTools, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the singleton instance with no reference counting.
@@ -378,7 +378,7 @@ protected:
   bool ScaleToPowerTwo;
 
   vtkFreeTypeTools();
-  ~vtkFreeTypeTools() VTK_OVERRIDE;
+  ~vtkFreeTypeTools() override;
 
   /**
    * Attempt to get the typeface of the specified font.

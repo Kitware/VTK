@@ -38,7 +38,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPAutoCorrelativeStatistics : public
 public:
   static vtkPAutoCorrelativeStatistics* New();
   vtkTypeMacro(vtkPAutoCorrelativeStatistics, vtkAutoCorrelativeStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -54,7 +54,7 @@ public:
    */
   void Learn( vtkTable* inData,
               vtkTable* inParameters,
-              vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* outMeta ) override;
 
   /**
    * Execute the calculations required by the Test option.
@@ -62,11 +62,11 @@ public:
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE;
+             vtkTable* ) override;
 
 protected:
   vtkPAutoCorrelativeStatistics();
-  ~vtkPAutoCorrelativeStatistics() VTK_OVERRIDE;
+  ~vtkPAutoCorrelativeStatistics() override;
 
   vtkMultiProcessController* Controller;
 private:

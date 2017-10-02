@@ -72,7 +72,7 @@ public:
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkStaticPointLocator,vtkAbstractPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -108,7 +108,7 @@ public:
    * values. These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
+  vtkIdType FindClosestPoint(const double x[3]) override;
 
   //@{
   /**
@@ -120,7 +120,7 @@ public:
    * function in which order the points are processed (i.e., indeterminate).
    */
   vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
+    double radius, const double x[3], double& dist2) override;
   virtual vtkIdType FindClosestPointWithinRadius(double radius, const double x[3],
                                                  double inputDataLength,
                                                  double& dist2);
@@ -134,7 +134,7 @@ public:
    * thread safe if BuildLocator() is directly or indirectly called from a
    * single thread first.
    */
-  void FindClosestNPoints(int N, const double x[3], vtkIdList *result) VTK_OVERRIDE;
+  void FindClosestNPoints(int N, const double x[3], vtkIdList *result) override;
 
   /**
    * Find all points within a specified radius R of position x.
@@ -143,16 +143,16 @@ public:
    * indirectly called from a single thread first.
    */
   void FindPointsWithinRadius(double R, const double x[3],
-                              vtkIdList *result) VTK_OVERRIDE;
+                              vtkIdList *result) override;
 
   //@{
   /**
    * See vtkLocator and vtkAbstractPointLocator interface documentation.
    * These methods are not thread safe.
    */
-  void Initialize() VTK_OVERRIDE;
-  void FreeSearchStructure() VTK_OVERRIDE;
-  void BuildLocator() VTK_OVERRIDE;
+  void Initialize() override;
+  void FreeSearchStructure() override;
+  void BuildLocator() override;
   //@}
 
   /**
@@ -160,7 +160,7 @@ public:
    * Note that the level parameter has no effect on this method as there is no
    * hierarchy built (i.e., uniform binning). Typically this is used for debugging.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
   /**
    * Given a bucket number bNum between 0 <= bNum < this->GetNumberOfBuckets(),
@@ -205,7 +205,7 @@ public:
 
 protected:
   vtkStaticPointLocator();
-  ~vtkStaticPointLocator() VTK_OVERRIDE;
+  ~vtkStaticPointLocator() override;
 
   int NumberOfPointsPerBucket; // Used with AutomaticOn to control subdivide
   int Divisions[3]; // Number of sub-divisions in x-y-z directions

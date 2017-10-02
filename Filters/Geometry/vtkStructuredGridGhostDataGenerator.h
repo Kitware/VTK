@@ -62,11 +62,11 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridGhostDataGenerator :
 public:
   static vtkStructuredGridGhostDataGenerator* New();
   vtkTypeMacro(vtkStructuredGridGhostDataGenerator,vtkDataSetGhostGenerator);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
 protected:
   vtkStructuredGridGhostDataGenerator();
-  ~vtkStructuredGridGhostDataGenerator() VTK_OVERRIDE;
+  ~vtkStructuredGridGhostDataGenerator() override;
 
   /**
    * Registers the grid associated with this instance of multi-block.
@@ -84,7 +84,7 @@ protected:
    * Generates ghost layers.
    */
   void GenerateGhostLayers(
-      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) VTK_OVERRIDE;
+      vtkMultiBlockDataSet *in, vtkMultiBlockDataSet *out) override;
 
   vtkStructuredGridConnectivity *GridConnectivity;
 private:

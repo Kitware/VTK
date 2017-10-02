@@ -33,19 +33,19 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLDisplayListPainter : public vtkDisplayL
 public:
   static vtkOpenGLDisplayListPainter* New();
   vtkTypeMacro(vtkOpenGLDisplayListPainter, vtkDisplayListPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release. In this case, releases the display lists.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
 
   vtkOpenGLDisplayListPainter();
-  ~vtkOpenGLDisplayListPainter() VTK_OVERRIDE;
+  ~vtkOpenGLDisplayListPainter() override;
 
   /**
    * If not using ImmediateModeRendering, this will build a display list,
@@ -53,7 +53,7 @@ protected:
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags,
-                              bool forceCompileOnly) VTK_OVERRIDE;
+                              bool forceCompileOnly) override;
 
 private:
   vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&) VTK_DELETE_FUNCTION;

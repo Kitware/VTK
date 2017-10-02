@@ -42,7 +42,7 @@ class VTKIOGEOMETRY_EXPORT vtkMoleculeReaderBase : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMoleculeReaderBase,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -67,15 +67,15 @@ public:
 
 protected:
   vtkMoleculeReaderBase();
-  ~vtkMoleculeReaderBase() VTK_OVERRIDE;
+  ~vtkMoleculeReaderBase() override;
 
   char *FileName;
   double BScale;
   double HBScale;
   int NumberOfAtoms;
 
-  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int ReadMolecule(FILE *fp, vtkPolyData *output);
   int MakeAtomType(const char *atype);

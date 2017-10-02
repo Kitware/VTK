@@ -57,7 +57,7 @@ class VTKRENDERINGCORE_EXPORT vtkPainterDeviceAdapter : public vtkObject
 public:
   static vtkPainterDeviceAdapter* New();
   vtkTypeMacro(vtkPainterDeviceAdapter, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Signals the start of sending a primitive to the graphics card.  The
@@ -190,7 +190,7 @@ public:
 
 protected:
   vtkPainterDeviceAdapter();
-  ~vtkPainterDeviceAdapter() VTK_OVERRIDE;
+  ~vtkPainterDeviceAdapter() override;
 
 private:
   vtkPainterDeviceAdapter(const vtkPainterDeviceAdapter &) VTK_DELETE_FUNCTION;

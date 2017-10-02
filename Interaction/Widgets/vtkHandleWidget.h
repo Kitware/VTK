@@ -83,7 +83,7 @@ public:
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkHandleWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -104,7 +104,7 @@ public:
    * Create the default widget representation if one is not set. By default
    * an instance of vtkPointHandleRepresenation3D is created.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkHandleWidget();
-  ~vtkHandleWidget() VTK_OVERRIDE;
+  ~vtkHandleWidget() override;
 
   // These are the callbacks for this widget
   static void GenericAction(vtkHandleWidget*);
@@ -161,7 +161,7 @@ protected:
   static void MoveAction3D(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state) VTK_OVERRIDE;
+  void SetCursor(int state) override;
 
   int WidgetState;
   int EnableAxisConstraint;

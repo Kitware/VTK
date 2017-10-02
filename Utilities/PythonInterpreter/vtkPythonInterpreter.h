@@ -66,7 +66,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonInterpreter : public vtkObject
 public:
   static vtkPythonInterpreter* New();
   vtkTypeMacro(vtkPythonInterpreter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Call this method to initialize Python. This has no effect if Python is
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkPythonInterpreter();
-  ~vtkPythonInterpreter() VTK_OVERRIDE;
+  ~vtkPythonInterpreter() override;
 
   friend struct vtkPythonStdStreamCaptureHelper;
 

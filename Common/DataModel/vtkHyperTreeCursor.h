@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeCursor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the HyperTree to which the cursor is pointing.
@@ -146,7 +146,7 @@ public:
 protected:
   // Constructor
   vtkHyperTreeCursor();
-  ~vtkHyperTreeCursor() VTK_OVERRIDE;
+  ~vtkHyperTreeCursor() override;
 
 private:
   vtkHyperTreeCursor(const vtkHyperTreeCursor&) VTK_DELETE_FUNCTION;

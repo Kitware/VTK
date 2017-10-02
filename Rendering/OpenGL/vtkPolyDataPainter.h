@@ -55,7 +55,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkPolyDataPainter : public vtkPainter
 {
 public:
   vtkTypeMacro(vtkPolyDataPainter, vtkPainter);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Get/set the poly data to render.
@@ -94,11 +94,11 @@ public:
    * since PolyDataPainter cannot paint without any polydata input.
    */
   void Render(vtkRenderer* renderer, vtkActor* actor,
-                      unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+                      unsigned long typeflags, bool forceCompileOnly) override;
 
 protected:
   vtkPolyDataPainter();
-  ~vtkPolyDataPainter() VTK_OVERRIDE;
+  ~vtkPolyDataPainter() override;
 
   int BuildNormals; // ivar synchornized with this->Information before
     // RenderInternal() is called. The ivar are purposefully protected,
@@ -110,7 +110,7 @@ protected:
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation*) override;
 
 private:
   vtkPolyDataPainter(const vtkPolyDataPainter &) VTK_DELETE_FUNCTION;

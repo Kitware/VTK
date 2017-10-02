@@ -61,22 +61,22 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkParticlePathFilter: public vtkParticleTracer
 {
 public:
   vtkTypeMacro(vtkParticlePathFilter,vtkParticleTracerBase)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkParticlePathFilter *New();
 
 protected:
   vtkParticlePathFilter();
-  ~vtkParticlePathFilter() VTK_OVERRIDE;
+  ~vtkParticlePathFilter() override;
   vtkParticlePathFilter(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
 
-  void ResetCache() VTK_OVERRIDE;
-  int OutputParticles(vtkPolyData* poly) VTK_OVERRIDE;
-  void InitializeExtraPointDataArrays(vtkPointData* outputPD) VTK_OVERRIDE;
-  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) VTK_OVERRIDE;
+  void ResetCache() override;
+  int OutputParticles(vtkPolyData* poly) override;
+  void InitializeExtraPointDataArrays(vtkPointData* outputPD) override;
+  void AppendToExtraPointDataArrays(vtkParticleTracerBaseNamespace::ParticleInformation &) override;
 
-  void Finalize() VTK_OVERRIDE;
+  void Finalize() override;
 
   ParticlePathFilterInternal It;
 

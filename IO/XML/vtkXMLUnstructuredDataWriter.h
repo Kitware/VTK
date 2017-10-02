@@ -37,7 +37,7 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredDataWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredDataWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -68,14 +68,14 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
 
 protected:
   vtkXMLUnstructuredDataWriter();
-  ~vtkXMLUnstructuredDataWriter() VTK_OVERRIDE;
+  ~vtkXMLUnstructuredDataWriter() override;
 
   vtkPointSet* GetInputAsPointSet();
-  const char* GetDataSetName() VTK_OVERRIDE =0;
+  const char* GetDataSetName() override =0;
   virtual void SetInputUpdateExtent(int piece, int numPieces,
                                     int ghostLevel);
 

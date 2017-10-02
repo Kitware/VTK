@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOctreePointLocatorNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOctreePointLocatorNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOctreePointLocatorNode *New();
 
@@ -252,7 +252,7 @@ public:
 
 protected:
   vtkOctreePointLocatorNode();
-  ~vtkOctreePointLocatorNode() VTK_OVERRIDE;
+  ~vtkOctreePointLocatorNode() override;
 
 private:
 

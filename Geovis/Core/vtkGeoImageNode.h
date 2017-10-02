@@ -45,7 +45,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoImageNode : public vtkGeoTreeNode
 public:
   static vtkGeoImageNode *New();
   vtkTypeMacro(vtkGeoImageNode, vtkGeoTreeNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -90,24 +90,24 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
-  void DeepCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkGeoTreeNode *src) override;
+  void DeepCopy(vtkGeoTreeNode *src) override;
   //@}
 
   // Returns whether this node has valid data associated
   // with it, or if it is an "empty" node.
-  bool HasData() VTK_OVERRIDE;
+  bool HasData() override;
 
   /**
    * Deletes the data associated with the node to make this
    * an "empty" node. This is performed when the node has
    * been unused for a certain amount of time.
    */
-  void DeleteData() VTK_OVERRIDE;
+  void DeleteData() override;
 
 protected:
   vtkGeoImageNode();
-  ~vtkGeoImageNode() VTK_OVERRIDE;
+  ~vtkGeoImageNode() override;
 
   int PowerOfTwo(int val);
 

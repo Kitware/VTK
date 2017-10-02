@@ -53,7 +53,7 @@ public:
    */
   static vtkGaussianKernel *New();
   vtkTypeMacro(vtkGaussianKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -61,7 +61,7 @@ public:
    * computational values.
    */
   void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) VTK_OVERRIDE;
+                          vtkPointData *pd) override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -81,7 +81,7 @@ public:
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkGaussianKernel();
-  ~vtkGaussianKernel() VTK_OVERRIDE;
+  ~vtkGaussianKernel() override;
 
   double Sharpness;
 

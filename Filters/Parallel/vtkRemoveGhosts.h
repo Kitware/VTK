@@ -35,22 +35,22 @@ class VTKFILTERSPARALLEL_EXPORT vtkRemoveGhosts : public vtkPassInputTypeAlgorit
 {
 public:
   vtkTypeMacro(vtkRemoveGhosts, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkRemoveGhosts *New();
 
 protected:
   vtkRemoveGhosts();
-  ~vtkRemoveGhosts() VTK_OVERRIDE;
+  ~vtkRemoveGhosts() override;
 
   int RequestUpdateExtent(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkRemoveGhosts(const vtkRemoveGhosts &) VTK_DELETE_FUNCTION;

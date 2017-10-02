@@ -78,7 +78,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObjectGroup : public vtkOb
 public:
   static vtkOpenGLVertexBufferObjectGroup *New();
   vtkTypeMacro(vtkOpenGLVertexBufferObjectGroup, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the number of components for this attribute
@@ -163,7 +163,7 @@ public:
   /**
    * Get the mtime of this groups VBOs
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkOpenGLVertexBufferObjectGroup();

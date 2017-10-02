@@ -67,7 +67,7 @@ class VTKIOPLY_EXPORT vtkPLYWriter : public vtkWriter
 public:
   static vtkPLYWriter *New();
   vtkTypeMacro(vtkPLYWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -214,9 +214,9 @@ public:
 
 protected:
   vtkPLYWriter();
-  ~vtkPLYWriter() VTK_OVERRIDE;
+  ~vtkPLYWriter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
   const float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
 
@@ -237,7 +237,7 @@ protected:
 
   vtkSmartPointer<vtkStringArray> HeaderComments;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
   vtkPLYWriter(const vtkPLYWriter&) VTK_DELETE_FUNCTION;

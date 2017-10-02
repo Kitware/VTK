@@ -51,21 +51,21 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridToUnstructuredGrid : public vtk
 public:
   static vtkHyperTreeGridToUnstructuredGrid* New();
   vtkTypeMacro( vtkHyperTreeGridToUnstructuredGrid, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
 protected:
   vtkHyperTreeGridToUnstructuredGrid();
-  ~vtkHyperTreeGridToUnstructuredGrid() VTK_OVERRIDE;
+  ~vtkHyperTreeGridToUnstructuredGrid() override;
 
   /**
    * For this algorithm the output is a vtkUnstructuredGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to convert the grid of tree into an unstructured grid
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

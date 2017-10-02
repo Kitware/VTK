@@ -47,7 +47,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public v
 public:
   static vtkStreamingDemandDrivenPipeline* New();
   vtkTypeMacro(vtkStreamingDemandDrivenPipeline,vtkDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Generalized interface for asking the executive to fulfill update
@@ -55,14 +55,14 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) VTK_OVERRIDE;
+                             vtkInformationVector* outInfo) override;
 
   //@{
   /**
    * Bring the outputs up-to-date.
    */
-  int Update() VTK_OVERRIDE;
-  int Update(int port) VTK_OVERRIDE;
+  int Update() override;
+  int Update(int port) override;
   virtual int UpdateWholeExtent();
   //@}
 
@@ -255,7 +255,7 @@ public:
 
 protected:
   vtkStreamingDemandDrivenPipeline();
-  ~vtkStreamingDemandDrivenPipeline() VTK_OVERRIDE;
+  ~vtkStreamingDemandDrivenPipeline() override;
 
   /**
    * Keep track of the update time request corresponding to the
@@ -278,12 +278,12 @@ protected:
   // executes information.
   int ExecuteInformation(vtkInformation* request,
                                  vtkInformationVector** inInfoVec,
-                                 vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                 vtkInformationVector* outInfoVec) override;
 
   // Copy information for the given request.
   void CopyDefaultInformation(vtkInformation* request, int direction,
                                       vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                      vtkInformationVector* outInfoVec) override;
 
   // Helper to check output information before propagating it to inputs.
   virtual int VerifyOutputInformation(int outputPort,
@@ -294,24 +294,24 @@ protected:
   // Override this check to account for update extent.
   int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector* outInfoVec) override;
 
   // Override these to handle the continue-executing option.
   void ExecuteDataStart(vtkInformation* request,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector* outInfoVec) override;
   void ExecuteDataEnd(vtkInformation* request,
                               vtkInformationVector** inInfoVec,
-                              vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                              vtkInformationVector* outInfoVec) override;
 
   // Override this to handle cropping and ghost levels.
   void MarkOutputsGenerated(vtkInformation* request,
                                     vtkInformationVector** inInfoVec,
-                                    vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                    vtkInformationVector* outInfoVec) override;
 
 
   // Remove update/whole extent when resetting pipeline information.
-  void ResetPipelineInformation(int port, vtkInformation*) VTK_OVERRIDE;
+  void ResetPipelineInformation(int port, vtkInformation*) override;
 
   // Flag for when an algorithm returns with CONTINUE_EXECUTING in the
   // request.

@@ -86,7 +86,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalStreamTracer : public vtkStreamTrace
 public:
 
     vtkTypeMacro(vtkTemporalStreamTracer,vtkStreamTracer);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct object using 2nd order Runge Kutta
@@ -238,19 +238,19 @@ public:
   protected:
 
      vtkTemporalStreamTracer();
-    ~vtkTemporalStreamTracer() VTK_OVERRIDE;
+    ~vtkTemporalStreamTracer() override;
 
     //
     // Make sure the pipeline knows what type we expect as input
     //
-    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillInputPortInformation(int port, vtkInformation* info) override;
 
     //
     // The usual suspects
     //
     int ProcessRequest(vtkInformation* request,
                                vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector) VTK_OVERRIDE;
+                               vtkInformationVector* outputVector) override;
 
     //
     // Store any information we need in the output and fetch what we can
@@ -258,21 +258,21 @@ public:
     //
     int RequestInformation(vtkInformation* request,
                                   vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                  vtkInformationVector* outputVector) override;
 
     //
     // Compute input time steps given the output step
     //
     int RequestUpdateExtent(vtkInformation* request,
                                     vtkInformationVector** inputVector,
-                                    vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                    vtkInformationVector* outputVector) override;
 
     //
     // what the pipeline calls for each time step
     //
     int RequestData(vtkInformation* request,
                             vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector) VTK_OVERRIDE;
+                            vtkInformationVector* outputVector) override;
 
     //
     // these routines are internally called to actually generate the output

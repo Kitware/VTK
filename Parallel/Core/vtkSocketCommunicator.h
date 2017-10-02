@@ -59,7 +59,7 @@ class VTKPARALLELCORE_EXPORT vtkSocketCommunicator : public vtkCommunicator
 public:
   static vtkSocketCommunicator *New();
   vtkTypeMacro(vtkSocketCommunicator,vtkCommunicator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -96,7 +96,7 @@ public:
   /**
    * Set the number of processes you will be using.
    */
-  void SetNumberOfProcesses(int num) VTK_OVERRIDE;
+  void SetNumberOfProcesses(int num) override;
 
   //------------------ Communication --------------------
 
@@ -106,16 +106,16 @@ public:
    * Send functions defined in the superclass.
    */
   int SendVoidArray(const void *data, vtkIdType length, int type,
-                            int remoteHandle, int tag) VTK_OVERRIDE;
+                            int remoteHandle, int tag) override;
   int ReceiveVoidArray(void *data, vtkIdType length, int type,
-                               int remoteHandle, int tag) VTK_OVERRIDE;
+                               int remoteHandle, int tag) override;
   //@}
 
   /**
    * This class foolishly breaks the conventions of the superclass, so this
    * overload fixes the method.
    */
-  void Barrier() VTK_OVERRIDE;
+  void Barrier() override;
 
   //@{
   /**
@@ -124,35 +124,35 @@ public:
    * errors instead.
    */
   int BroadcastVoidArray(void *data, vtkIdType length, int type,
-                                 int srcProcessId) VTK_OVERRIDE;
+                                 int srcProcessId) override;
   int GatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                              vtkIdType length, int type, int destProcessId) VTK_OVERRIDE;
+                              vtkIdType length, int type, int destProcessId) override;
   int GatherVVoidArray(const void *sendBuffer, void *recvBuffer,
                                vtkIdType sendLength, vtkIdType *recvLengths,
-                               vtkIdType *offsets, int type, int destProcessId) VTK_OVERRIDE;
+                               vtkIdType *offsets, int type, int destProcessId) override;
   int ScatterVoidArray(const void *sendBuffer, void *recvBuffer,
-                               vtkIdType length, int type, int srcProcessId) VTK_OVERRIDE;
+                               vtkIdType length, int type, int srcProcessId) override;
   int ScatterVVoidArray(const void *sendBuffer, void *recvBuffer,
                                 vtkIdType *sendLengths, vtkIdType *offsets,
                                 vtkIdType recvLength, int type,
-                                int srcProcessId) VTK_OVERRIDE;
+                                int srcProcessId) override;
   int AllGatherVoidArray(const void *sendBuffer, void *recvBuffer,
-                                 vtkIdType length, int type) VTK_OVERRIDE;
+                                 vtkIdType length, int type) override;
   int AllGatherVVoidArray(const void *sendBuffer, void *recvBuffer,
                                   vtkIdType sendLength, vtkIdType *recvLengths,
-                                  vtkIdType *offsets, int type) VTK_OVERRIDE;
+                                  vtkIdType *offsets, int type) override;
   int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
                               vtkIdType length, int type,
-                              int operation, int destProcessId) VTK_OVERRIDE;
+                              int operation, int destProcessId) override;
   int ReduceVoidArray(const void *sendBuffer, void *recvBuffer,
                               vtkIdType length, int type,
-                              Operation *operation, int destProcessId) VTK_OVERRIDE;
+                              Operation *operation, int destProcessId) override;
   int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
                                  vtkIdType length, int type,
-                                 int operation) VTK_OVERRIDE;
+                                 int operation) override;
   int AllReduceVoidArray(const void *sendBuffer, void *recvBuffer,
                                  vtkIdType length, int type,
-                                 Operation *operation) VTK_OVERRIDE;
+                                 Operation *operation) override;
   //@}
 
   //@{
@@ -266,7 +266,7 @@ protected:
   ostream* LogStream;
 
   vtkSocketCommunicator();
-  ~vtkSocketCommunicator() VTK_OVERRIDE;
+  ~vtkSocketCommunicator() override;
 
   // Wrappers around send/recv calls to implement loops.  Return 1 for
   // success, and 0 for failure.

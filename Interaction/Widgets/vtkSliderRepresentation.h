@@ -41,7 +41,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkSliderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkSliderRepresentation();
-  ~vtkSliderRepresentation() VTK_OVERRIDE;
+  ~vtkSliderRepresentation() override;
 
   // Values
   double Value;

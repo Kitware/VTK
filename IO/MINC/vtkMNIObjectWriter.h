@@ -82,7 +82,7 @@ public:
   vtkTypeMacro(vtkMNIObjectWriter,vtkWriter);
 
   static vtkMNIObjectWriter *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the entension for this file format.
@@ -152,7 +152,7 @@ public:
 
 protected:
   vtkMNIObjectWriter();
-  ~vtkMNIObjectWriter() VTK_OVERRIDE;
+  ~vtkMNIObjectWriter() override;
 
   vtkProperty *Property;
   vtkMapper *Mapper;
@@ -175,13 +175,13 @@ protected:
   int WritePolygonObject(vtkPolyData *output);
   int WriteLineObject(vtkPolyData *output);
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   char* FileName;
 
   int FileType;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   ostream *OpenFile();
   void CloseFile(ostream *fp);

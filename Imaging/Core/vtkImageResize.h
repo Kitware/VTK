@@ -41,7 +41,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageResize : public vtkThreadedImageAlgorithm
 public:
   static vtkImageResize *New();
   vtkTypeMacro(vtkImageResize, vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum
   {
@@ -153,25 +153,25 @@ public:
   /**
    * Get the modified time of the filter.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkImageResize();
-  ~vtkImageResize() VTK_OVERRIDE;
+  ~vtkImageResize() override;
 
   virtual vtkAbstractImageInterpolator *GetInternalInterpolator();
 
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
+                                   vtkImageData **outData, int ext[6], int id) override;
 
   int ResizeMethod;
   int OutputDimensions[3];

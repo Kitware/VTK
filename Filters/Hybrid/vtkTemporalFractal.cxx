@@ -52,7 +52,7 @@ public:
     this->DataSets.push_back(data);
     this->Levels.push_back(level);
   }
-  ~TemporalFractalOutputUtil() VTK_OVERRIDE
+  ~TemporalFractalOutputUtil() override
   {
     this->DataSets.clear();
     this->Levels.clear();

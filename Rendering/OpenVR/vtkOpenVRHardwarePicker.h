@@ -38,7 +38,7 @@ public:
 
   vtkTypeMacro(vtkOpenVRHardwarePicker, vtkOpenVRPropPicker);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
   * Perform a pick from the user-provided list of vtkProps.
@@ -51,9 +51,9 @@ public:
 
 protected:
   vtkOpenVRHardwarePicker();
-  ~vtkOpenVRHardwarePicker() VTK_OVERRIDE;
+  ~vtkOpenVRHardwarePicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
   vtkSelection *Selection;
 
 private:

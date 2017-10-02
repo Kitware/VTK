@@ -38,7 +38,7 @@ class VTKIOCORE_EXPORT vtkAbstractParticleWriter : public vtkWriter
 {
 public:
   vtkTypeMacro(vtkAbstractParticleWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,9 +86,9 @@ public:
 
 protected:
    vtkAbstractParticleWriter();
-  ~vtkAbstractParticleWriter() VTK_OVERRIDE;
+  ~vtkAbstractParticleWriter() override;
 
-  void WriteData() VTK_OVERRIDE = 0; //internal method subclasses must respond to
+  void WriteData() override = 0; //internal method subclasses must respond to
   int          CollectiveIO;
   int          TimeStep;
   double       TimeValue;

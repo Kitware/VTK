@@ -40,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkCharArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkCharArray();
-  ~vtkCharArray() VTK_OVERRIDE;
+  ~vtkCharArray() override;
 
 private:
 

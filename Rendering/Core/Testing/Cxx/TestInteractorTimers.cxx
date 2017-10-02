@@ -39,7 +39,7 @@ public:
   }
 
   void Execute(vtkObject *caller, unsigned long eventId,
-    void *callData) VTK_OVERRIDE
+    void *callData) override
   {
     if (vtkCommand::TimerEvent == eventId)
     {

@@ -745,16 +745,16 @@ public:
         return (this->X>=this->X2) && (this->X<=this->X0);
       }
   }
-  int GetX() VTK_OVERRIDE
+  int GetX() override
   {
       // assert("pre: valid_range" && ValidXRange() );
       return this->X;
   }
-  double GetInvW() VTK_OVERRIDE { return this->InvW; }
-  double *GetPValues() VTK_OVERRIDE { return this->PValues; }
-  double GetZview() VTK_OVERRIDE { return this->Zview; }
+  double GetInvW() override { return this->InvW; }
+  double *GetPValues() override { return this->PValues; }
+  double GetZview() override { return this->Zview; }
 
-  void NextLine(int y) VTK_OVERRIDE
+  void NextLine(int y) override
   {
       int i;
       switch(this->Case)
@@ -1114,7 +1114,7 @@ public:
   }
 
   void SkipLines(int deltaY,
-                 int y) VTK_OVERRIDE
+                 int y) override
   {
       if(deltaY==1)
       {
@@ -1517,23 +1517,23 @@ public:
       }
   }
 
-  int GetX() VTK_OVERRIDE { return this->Current->GetX(); }
-  double GetInvW() VTK_OVERRIDE { return this->Current->GetInvW(); }
-  double GetZview() VTK_OVERRIDE { return this->Current->GetZview(); }
-  double *GetPValues() VTK_OVERRIDE { return this->Current->GetPValues(); }
+  int GetX() override { return this->Current->GetX(); }
+  double GetInvW() override { return this->Current->GetInvW(); }
+  double GetZview() override { return this->Current->GetZview(); }
+  double *GetPValues() override { return this->Current->GetPValues(); }
 
-  void OnBottom(int skipped, int y) VTK_OVERRIDE
+  void OnBottom(int skipped, int y) override
   {
       this->Current=&this->Bottom;
       this->Current->OnBottom(skipped,y);
   }
 
-  void NextLine(int y) VTK_OVERRIDE
+  void NextLine(int y) override
   {
       this->Current->NextLine(y);
   }
   void SkipLines(int deltaY,
-                 int y) VTK_OVERRIDE
+                 int y) override
   {
       this->Current->SkipLines(deltaY,y);
   }

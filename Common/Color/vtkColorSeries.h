@@ -52,7 +52,7 @@ class VTKCOMMONCOLOR_EXPORT vtkColorSeries : public vtkObject
 {
 public:
   vtkTypeMacro(vtkColorSeries, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkColorSeries with the SPECTRUM color scheme.
@@ -313,7 +313,7 @@ enum LUTMode {
 
 protected:
   vtkColorSeries();
-  ~vtkColorSeries() VTK_OVERRIDE;
+  ~vtkColorSeries() override;
 
   /**
    * If the current scheme is a predefined (read-only) scheme,

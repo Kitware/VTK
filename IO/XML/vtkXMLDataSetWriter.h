@@ -42,10 +42,10 @@ public:
 
 protected:
   vtkXMLDataSetWriter();
-  ~vtkXMLDataSetWriter() VTK_OVERRIDE;
+  ~vtkXMLDataSetWriter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;

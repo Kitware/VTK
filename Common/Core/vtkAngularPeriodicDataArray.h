@@ -45,7 +45,7 @@ public:
                                vtkPeriodicDataArray<Scalar>)
   vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>)
   static vtkAngularPeriodicDataArray *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the mapped array with the original input data array.
@@ -81,12 +81,12 @@ public:
 
 protected:
   vtkAngularPeriodicDataArray();
-  ~vtkAngularPeriodicDataArray() VTK_OVERRIDE;
+  ~vtkAngularPeriodicDataArray() override;
 
   /**
    * Transform the provided tuple
    */
-  void Transform(Scalar* tuple) const VTK_OVERRIDE;
+  void Transform(Scalar* tuple) const override;
 
   /**
    * Update rotation matrix from Axis, Angle and Center

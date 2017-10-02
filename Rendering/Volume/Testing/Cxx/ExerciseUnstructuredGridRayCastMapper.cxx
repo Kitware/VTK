@@ -62,7 +62,7 @@ protected:
   ~vtkClassifyVolume();
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   virtual void Classify(vtkDataSetAttributes *in, vtkDataSetAttributes *out);
 

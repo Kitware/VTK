@@ -50,7 +50,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleAreaSelectHover : public vtkInter
 public:
   static vtkInteractorStyleAreaSelectHover* New();
   vtkTypeMacro(vtkInteractorStyleAreaSelectHover,vtkInteractorStyleRubberBand2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,12 +83,12 @@ public:
    * Overridden from vtkInteractorStyleImage to provide the desired
    * interaction behavior.
    */
-  void OnMouseMove() VTK_OVERRIDE;
+  void OnMouseMove() override;
 
   /**
    * Set the interactor that this interactor style works with.
    */
-  void SetInteractor(vtkRenderWindowInteractor *rwi) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor *rwi) override;
 
   /**
    * Set the color used to highlight the hovered vertex.
@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkInteractorStyleAreaSelectHover();
-  ~vtkInteractorStyleAreaSelectHover() VTK_OVERRIDE;
+  ~vtkInteractorStyleAreaSelectHover() override;
 
 private:
   vtkInteractorStyleAreaSelectHover(const vtkInteractorStyleAreaSelectHover&) VTK_DELETE_FUNCTION;

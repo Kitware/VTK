@@ -56,7 +56,7 @@ public:
   static vtkFieldData *New();
 
   vtkTypeMacro(vtkFieldData,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release all data but do not delete object.
@@ -279,7 +279,7 @@ public:
   /**
    * Check object's components for modified times.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Get a field from a list of ids. Supplied field f should have same
@@ -357,7 +357,7 @@ public:
 protected:
 
   vtkFieldData();
-  ~vtkFieldData() VTK_OVERRIDE;
+  ~vtkFieldData() override;
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
@@ -442,7 +442,7 @@ public:
 
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
-    ~Iterator() VTK_OVERRIDE;
+    ~Iterator() override;
     Iterator(vtkFieldData* dsa, const int* list=nullptr,
              unsigned int listSize=0);
 

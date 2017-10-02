@@ -104,7 +104,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightKit : public vtkObject
 public:
   static vtkLightKit *New();
   vtkTypeMacro(vtkLightKit, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum LightKitType {
     TKeyLight,
@@ -299,7 +299,7 @@ public:
 
   void DeepCopy(vtkLightKit *kit);
 
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
   void Update();
 
   /**
@@ -327,7 +327,7 @@ public:
 
 protected:
   vtkLightKit();
-  ~vtkLightKit() VTK_OVERRIDE;
+  ~vtkLightKit() override;
 
   void WarmthToRGBI(double w, double rgb[3], double& i);
   void WarmthToRGB(double w, double rgb[3]);

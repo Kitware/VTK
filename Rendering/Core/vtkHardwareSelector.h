@@ -100,7 +100,7 @@ public:
 public:
   static vtkHardwareSelector* New();
   vtkTypeMacro(vtkHardwareSelector, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -287,7 +287,7 @@ public:
 
 protected:
   vtkHardwareSelector();
-  ~vtkHardwareSelector() VTK_OVERRIDE;
+  ~vtkHardwareSelector() override;
 
   // Used to notify subclasses when a capture pass is occurring.
   virtual void PreCapturePass(int pass) { (void)pass; }

@@ -59,7 +59,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfWriter : public vtkDataObjectAlgorithm
 public:
   static vtkXdmfWriter *New();
   vtkTypeMacro(vtkXdmfWriter,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the input data set.
@@ -149,26 +149,26 @@ public:
 
 protected:
   vtkXdmfWriter();
-  ~vtkXdmfWriter() VTK_OVERRIDE;
+  ~vtkXdmfWriter() override;
 
   //Choose composite executive by default for time.
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   //Can take any one data object
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   //Overridden to ...
   int RequestInformation(vtkInformation*,
                          vtkInformationVector**,
-                         vtkInformationVector*) VTK_OVERRIDE;
+                         vtkInformationVector*) override;
   //Overridden to ...
   int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
   //Overridden to ...
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
   //These do the work: recursively parse down input's structure all the way to arrays,
   //use XDMF lib to dump everything to file.

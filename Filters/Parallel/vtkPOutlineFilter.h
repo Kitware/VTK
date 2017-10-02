@@ -34,7 +34,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPOutlineFilter : public vtkPolyDataAlgorithm
 public:
   static vtkPOutlineFilter *New();
   vtkTypeMacro(vtkPOutlineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,12 +46,12 @@ public:
 
 protected:
   vtkPOutlineFilter();
-  ~vtkPOutlineFilter() VTK_OVERRIDE;
+  ~vtkPOutlineFilter() override;
 
   vtkMultiProcessController* Controller;
   vtkOutlineSource *OutlineSource;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
   vtkPOutlineFilter(const vtkPOutlineFilter&) VTK_DELETE_FUNCTION;

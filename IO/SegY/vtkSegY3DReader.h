@@ -32,7 +32,7 @@ public:
   static vtkSegY3DReader* New();
 
   vtkTypeMacro(vtkSegY3DReader, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);

@@ -50,7 +50,7 @@ class vtkPoints;
 class VTKFILTERSSOURCES_EXPORT vtkEllipticalButtonSource : public vtkButtonSource
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkEllipticalButtonSource,vtkButtonSource);
 
   /**
@@ -134,9 +134,9 @@ public:
 
 protected:
   vtkEllipticalButtonSource();
-  ~vtkEllipticalButtonSource() VTK_OVERRIDE {}
+  ~vtkEllipticalButtonSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Width;
   double Height;

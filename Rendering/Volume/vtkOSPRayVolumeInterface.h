@@ -36,16 +36,16 @@ class VTKRENDERINGVOLUME_EXPORT vtkOSPRayVolumeInterface
 public:
   static vtkOSPRayVolumeInterface *New();
   vtkTypeMacro(vtkOSPRayVolumeInterface,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Overridden to warn about lack of OSPRay if not overridden.
    */
-  void Render(vtkRenderer *, vtkVolume *) VTK_OVERRIDE;
+  void Render(vtkRenderer *, vtkVolume *) override;
 
 protected:
   vtkOSPRayVolumeInterface();
-  ~vtkOSPRayVolumeInterface() VTK_OVERRIDE;
+  ~vtkOSPRayVolumeInterface() override;
 
 private:
   vtkOSPRayVolumeInterface

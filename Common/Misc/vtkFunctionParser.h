@@ -135,12 +135,12 @@ class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return parser's MTime
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -311,7 +311,7 @@ public:
 
 protected:
   vtkFunctionParser();
-  ~vtkFunctionParser() VTK_OVERRIDE;
+  ~vtkFunctionParser() override;
 
   int Parse();
 

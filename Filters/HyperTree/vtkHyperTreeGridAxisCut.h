@@ -50,7 +50,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridAxisCut : public vtkHyperTreeGr
 public:
   static vtkHyperTreeGridAxisCut* New();
   vtkTypeMacro( vtkHyperTreeGridAxisCut, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -70,15 +70,15 @@ public:
 
 protected:
   vtkHyperTreeGridAxisCut();
-  ~vtkHyperTreeGridAxisCut() VTK_OVERRIDE;
+  ~vtkHyperTreeGridAxisCut() override;
 
   // For this algorithm the output is a vtkHyperTreeGrid instance
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to generate hyper tree grid cut
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

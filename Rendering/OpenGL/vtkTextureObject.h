@@ -100,7 +100,7 @@ public:
 
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -609,7 +609,7 @@ public:
 
 protected:
   vtkTextureObject();
-  ~vtkTextureObject() VTK_OVERRIDE;
+  ~vtkTextureObject() override;
 
   /**
    * Load all necessary extensions.

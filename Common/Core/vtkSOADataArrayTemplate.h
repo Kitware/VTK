@@ -121,7 +121,7 @@ public:
   /**
    * Set component @a comp of all tuples to @a value.
    */
-  void FillTypedComponent(int compIdx, ValueType value) VTK_OVERRIDE;
+  void FillTypedComponent(int compIdx, ValueType value) override;
 
   /**
    * Use this API to pass externally allocated memory to this instance. Since
@@ -150,13 +150,13 @@ public:
    * Use of this method is discouraged, it creates a deep copy of the data into
    * a contiguous AoS-ordered buffer and prints a warning.
    */
-  void *GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE;
+  void *GetVoidPointer(vtkIdType valueIdx) override;
 
   /**
    * Export a copy of the data in AoS ordering to the preallocated memory
    * buffer.
    */
-  void ExportToVoidPointer(void *ptr) VTK_OVERRIDE;
+  void ExportToVoidPointer(void *ptr) override;
 
 #ifndef __VTK_WRAP__
   //@{
@@ -187,23 +187,23 @@ public:
   //@}
 #endif
 
-  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::SoADataArrayTemplate; }
-  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
-  void SetNumberOfComponents(int numComps) VTK_OVERRIDE;
-  void ShallowCopy(vtkDataArray *other) VTK_OVERRIDE;
+  int GetArrayType() override { return vtkAbstractArray::SoADataArrayTemplate; }
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() override;
+  void SetNumberOfComponents(int numComps) override;
+  void ShallowCopy(vtkDataArray *other) override;
 
   // Reimplemented for efficiency:
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) VTK_OVERRIDE;
+                    vtkAbstractArray* source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::InsertTuples;
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) VTK_OVERRIDE
+                    vtkAbstractArray *source) override
   { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:
   vtkSOADataArrayTemplate();
-  ~vtkSOADataArrayTemplate() VTK_OVERRIDE;
+  ~vtkSOADataArrayTemplate() override;
 
   /**
    * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,

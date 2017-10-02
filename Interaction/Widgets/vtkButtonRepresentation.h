@@ -50,7 +50,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkButtonRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -95,18 +95,18 @@ public:
    * a vtkCommand::HighlightEvent.
    */
   enum _HighlightState {HighlightNormal,HighlightHovering,HighlightSelecting};
-  void Highlight(int) VTK_OVERRIDE;
+  void Highlight(int) override;
   vtkGetMacro(HighlightState,int);
   //@}
 
   /**
    * Satisfy some of vtkProp's API.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
 protected:
   vtkButtonRepresentation();
-  ~vtkButtonRepresentation() VTK_OVERRIDE;
+  ~vtkButtonRepresentation() override;
 
   // Values
   int NumberOfStates;

@@ -60,7 +60,7 @@ public:
   static vtkPriorityQueue *New();
 
   vtkTypeMacro(vtkPriorityQueue,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate initial space for priority queue.
@@ -124,7 +124,7 @@ public:
 
 protected:
   vtkPriorityQueue();
-  ~vtkPriorityQueue() VTK_OVERRIDE;
+  ~vtkPriorityQueue() override;
 
   Item *Resize(const vtkIdType sz);
 

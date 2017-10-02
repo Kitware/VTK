@@ -37,7 +37,7 @@ public:
   static vtkTestTemporalCacheTemporalExecuteCallback *New()
   { return new vtkTestTemporalCacheTemporalExecuteCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     // count the number of timesteps requested
     vtkTemporalFractal *f = vtkTemporalFractal::SafeDownCast(caller);

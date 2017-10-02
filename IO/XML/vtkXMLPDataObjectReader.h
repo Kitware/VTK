@@ -30,7 +30,7 @@ class VTKIOXML_EXPORT vtkXMLPDataObjectReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLPDataObjectReader, vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the number of pieces from the summary file being read.
@@ -39,7 +39,7 @@ public:
 
 protected:
   vtkXMLPDataObjectReader();
-  ~vtkXMLPDataObjectReader() VTK_OVERRIDE;
+  ~vtkXMLPDataObjectReader() override;
 
   /**
    * Delete all piece readers and related information
@@ -49,7 +49,7 @@ protected:
   /**
    * Initialize the output data
    */
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupOutputData() override;
 
   /**
    * Setup the number of pieces to be read and allocate space accordingly
@@ -59,7 +59,7 @@ protected:
   /**
   * Pipeline execute information driver.  Called by vtkXMLReader.
   */
-  int ReadXMLInformation() VTK_OVERRIDE;
+  int ReadXMLInformation() override;
 
   /**
    * Whether or not the current reader can read the current piece

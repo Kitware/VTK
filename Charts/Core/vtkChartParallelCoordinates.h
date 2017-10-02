@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartParallelCoordinates : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartParallelCoordinates, vtkChart);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a parallel coordinates chart
@@ -49,12 +49,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Set the visibility of the specified column.
@@ -85,28 +85,28 @@ public:
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
+  vtkPlot* GetPlot(vtkIdType index) override;
 
   /**
    * Get the number of plots the chart contains.
    */
-  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPlots() override;
 
   /**
    * Get the axis specified by axisIndex.
    */
-  vtkAxis* GetAxis(int axisIndex) VTK_OVERRIDE;
+  vtkAxis* GetAxis(int axisIndex) override;
 
   /**
    * Get the number of axes in the current chart.
    */
-  vtkIdType GetNumberOfAxes() VTK_OVERRIDE;
+  vtkIdType GetNumberOfAxes() override;
 
   /**
    * Request that the chart recalculates the range of its axes. Especially
    * useful in applications after the parameters of plots have been modified.
    */
-  void RecalculateBounds() VTK_OVERRIDE;
+  void RecalculateBounds() override;
 
   /**
    * Set plot to use for the chart. Since this type of chart can
@@ -117,41 +117,41 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse enter event.
    */
-  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse leave event.
    */
-  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) VTK_OVERRIDE;
+  bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta) override;
 
 protected:
   vtkChartParallelCoordinates();
-  ~vtkChartParallelCoordinates() VTK_OVERRIDE;
+  ~vtkChartParallelCoordinates() override;
 
   //@{
   /**

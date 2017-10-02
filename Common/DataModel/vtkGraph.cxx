@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkGraphEdgePoints() { }
-  ~vtkGraphEdgePoints() VTK_OVERRIDE { }
+  ~vtkGraphEdgePoints() override { }
 
 private:
   vtkGraphEdgePoints(const vtkGraphEdgePoints&) VTK_DELETE_FUNCTION;

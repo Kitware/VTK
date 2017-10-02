@@ -143,13 +143,13 @@ public:
   static vtkInteractorStyle *New();
 
   vtkTypeMacro(vtkInteractorStyle,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set/Get the Interactor wrapper being controlled by this object.
    * (Satisfy superclass API.)
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
 
   /**
    * Turn on/off this interactor. Interactor styles operate a little
@@ -158,7 +158,7 @@ public:
    * themselves. This is a legacy requirement, and convenient for the
    * user.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   //@{
   /**
@@ -245,7 +245,7 @@ public:
    * OnChar is triggered when an ASCII key is pressed. Some basic key presses
    * are handled here ('q' for Quit, 'p' for Pick, etc)
    */
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
   // OnKeyDown is triggered by pressing any key (identical to OnKeyPress()).
   // An empty implementation is provided. The behavior of this function should
@@ -384,7 +384,7 @@ public:
 
 protected:
   vtkInteractorStyle();
-  ~vtkInteractorStyle() VTK_OVERRIDE;
+  ~vtkInteractorStyle() override;
 
   /**
    * Main process event method

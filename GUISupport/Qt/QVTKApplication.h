@@ -54,7 +54,7 @@ public:
 
   // Description:
   // Destructor.
-  ~QVTKApplication() VTK_OVERRIDE;
+  ~QVTKApplication() override;
 
 #if defined(VTK_USE_TDX) && defined(Q_WS_X11)
   // Description:

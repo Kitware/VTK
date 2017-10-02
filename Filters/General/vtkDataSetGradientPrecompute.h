@@ -38,15 +38,15 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetA
  public:
   static vtkDataSetGradientPrecompute* New();
   vtkTypeMacro(vtkDataSetGradientPrecompute,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static int GradientPrecompute(vtkDataSet* ds);
 
  protected:
   vtkDataSetGradientPrecompute ();
-  ~vtkDataSetGradientPrecompute () VTK_OVERRIDE;
+  ~vtkDataSetGradientPrecompute () override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
  private:
   vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&) VTK_DELETE_FUNCTION;

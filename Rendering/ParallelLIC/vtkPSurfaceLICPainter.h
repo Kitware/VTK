@@ -35,7 +35,7 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICPainter : public vtkSurfaceLI
 public:
   static vtkPSurfaceLICPainter* New();
   vtkTypeMacro(vtkPSurfaceLICPainter, vtkSurfaceLICPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Methods used for parallel benchmarks. Use cmake to define

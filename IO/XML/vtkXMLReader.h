@@ -44,7 +44,7 @@ class VTKIOXML_EXPORT vtkXMLReader : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLReader, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum FieldType
   {
@@ -159,7 +159,7 @@ public:
 
   int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) VTK_OVERRIDE;
+                             vtkInformationVector *outputVector) override;
 
   //@{
   /**
@@ -181,7 +181,7 @@ public:
 
 protected:
   vtkXMLReader();
-  ~vtkXMLReader() VTK_OVERRIDE;
+  ~vtkXMLReader() override;
 
   // Pipeline execution methods to be defined by subclass.  Called by
   // corresponding RequestData methods after appropriate setup has been

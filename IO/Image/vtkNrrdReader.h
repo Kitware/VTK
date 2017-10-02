@@ -46,21 +46,21 @@ class VTKIOIMAGE_EXPORT vtkNrrdReader : public vtkImageReader
 public:
   vtkTypeMacro(vtkNrrdReader, vtkImageReader);
   static vtkNrrdReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  int CanReadFile(const char *filename) VTK_OVERRIDE;
+  int CanReadFile(const char *filename) override;
 
 protected:
   vtkNrrdReader();
-  ~vtkNrrdReader() VTK_OVERRIDE;
+  ~vtkNrrdReader() override;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   int ReadHeaderInternal(vtkCharArray *headerBuffer);
   virtual int ReadHeader();

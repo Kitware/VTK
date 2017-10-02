@@ -41,16 +41,16 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastCompositeGOHelper : pu
 public:
   static vtkFixedPointVolumeRayCastCompositeGOHelper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastCompositeGOHelper,vtkFixedPointVolumeRayCastHelper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   void  GenerateImage( int threadID,
                                int threadCount,
                                vtkVolume *vol,
-                               vtkFixedPointVolumeRayCastMapper *mapper) VTK_OVERRIDE;
+                               vtkFixedPointVolumeRayCastMapper *mapper) override;
 
 protected:
   vtkFixedPointVolumeRayCastCompositeGOHelper();
-  ~vtkFixedPointVolumeRayCastCompositeGOHelper() VTK_OVERRIDE;
+  ~vtkFixedPointVolumeRayCastCompositeGOHelper() override;
 
 private:
   vtkFixedPointVolumeRayCastCompositeGOHelper(const vtkFixedPointVolumeRayCastCompositeGOHelper&) VTK_DELETE_FUNCTION;

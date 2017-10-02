@@ -40,7 +40,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeOutlineSource : public vtkPolyDataAlgor
 public:
   static vtkVolumeOutlineSource *New();
   vtkTypeMacro(vtkVolumeOutlineSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkVolumeOutlineSource();
-  ~vtkVolumeOutlineSource() VTK_OVERRIDE;
+  ~vtkVolumeOutlineSource() override;
 
   vtkVolumeMapper *VolumeMapper;
   int GenerateScalars;
@@ -166,15 +166,15 @@ protected:
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector,
                                    int requestFromOutputPort,
-                                   vtkMTimeType* mtime) VTK_OVERRIDE;
+                                   vtkMTimeType* mtime) override;
 
   int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
 private:
   vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;

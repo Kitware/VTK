@@ -912,7 +912,7 @@ public:
 
   vtkTypeMacro(vtkObjectCommandInternal, vtkCommand);
   void Execute(
-    vtkObject *caller, unsigned long eventId, void *callData) VTK_OVERRIDE
+    vtkObject *caller, unsigned long eventId, void *callData) override
   {
     if (this->Callable)
     {
@@ -936,7 +936,7 @@ protected:
   {
     this->Callable = nullptr;
   }
-  ~vtkObjectCommandInternal() VTK_OVERRIDE
+  ~vtkObjectCommandInternal() override
   {
     delete this->Callable;
   }

@@ -54,7 +54,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRResampleFilter : public vtkMultiBlockDataSetAlg
 public:
   static vtkAMRResampleFilter *New();
   vtkTypeMacro(vtkAMRResampleFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &oss, vtkIndent indent) override;
 
   //@{
   /**
@@ -141,23 +141,23 @@ public:
   int RequestInformation(
       vtkInformation *rqst,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector ) VTK_OVERRIDE;
+      vtkInformationVector *outputVector ) override;
 
   int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Performs upstream requests to the reader
    */
   int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
 
 protected:
   vtkAMRResampleFilter();
-  ~vtkAMRResampleFilter() VTK_OVERRIDE;
+  ~vtkAMRResampleFilter() override;
 
   vtkOverlappingAMR *AMRMetaData;
   vtkMultiBlockDataSet *ROI; // Pointer to the region of interest.

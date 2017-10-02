@@ -32,7 +32,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextItem : public vtkAbstractContextIte
 {
 public:
   vtkTypeMacro(vtkContextItem, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkContextItem();
-  ~vtkContextItem() VTK_OVERRIDE;
+  ~vtkContextItem() override;
 
   double Opacity;
 

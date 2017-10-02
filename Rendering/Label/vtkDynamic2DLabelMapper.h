@@ -66,7 +66,7 @@ public:
    */
   static vtkDynamic2DLabelMapper *New();
   vtkTypeMacro(vtkDynamic2DLabelMapper, vtkLabeledDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -109,13 +109,13 @@ public:
   /**
    * Draw non-overlapping labels to the screen.
    */
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) VTK_OVERRIDE;
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
+  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
   //@}
 
 protected:
   vtkDynamic2DLabelMapper();
-  ~vtkDynamic2DLabelMapper() VTK_OVERRIDE;
+  ~vtkDynamic2DLabelMapper() override;
 
   /**
    * Calculate the current zoom scale of the viewport.

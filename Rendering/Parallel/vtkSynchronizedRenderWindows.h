@@ -37,7 +37,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderWindows : public vtkObjec
 public:
   static vtkSynchronizedRenderWindows* New();
   vtkTypeMacro(vtkSynchronizedRenderWindows, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -114,7 +114,7 @@ public:
   };
 protected:
   vtkSynchronizedRenderWindows();
-  ~vtkSynchronizedRenderWindows() VTK_OVERRIDE;
+  ~vtkSynchronizedRenderWindows() override;
 
   struct RenderWindowInfo
   {

@@ -48,7 +48,7 @@ public:
   /**
    * Print ObjectFactor to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is a singleton pattern New.  There will only be ONE
@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkOutputWindow();
-  ~vtkOutputWindow() VTK_OVERRIDE;
+  ~vtkOutputWindow() override;
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;

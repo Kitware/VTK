@@ -114,7 +114,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkEvenlySpacedStreamlines2D : public vtkPolyDa
 {
 public:
   vtkTypeMacro(vtkEvenlySpacedStreamlines2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object to start from position (0,0,0), with forward
@@ -280,7 +280,7 @@ public:
 
 protected:
   vtkEvenlySpacedStreamlines2D();
-  ~vtkEvenlySpacedStreamlines2D() VTK_OVERRIDE;
+  ~vtkEvenlySpacedStreamlines2D() override;
 
   /**
    * Do we test for separating distance or a ratio of the separating distance.
@@ -297,8 +297,8 @@ protected:
   }
 
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                  vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   int SetupOutput(vtkInformation* inInfo, vtkInformation* outInfo);
   int CheckInputs(vtkAbstractInterpolatedVelocityField*& func,

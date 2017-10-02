@@ -54,7 +54,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkStrahlerMetric : public vtkTreeAlgorithm
 public:
   static vtkStrahlerMetric *New();
   vtkTypeMacro(vtkStrahlerMetric,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -85,9 +85,9 @@ public:
 
 protected:
   vtkStrahlerMetric();
-  ~vtkStrahlerMetric() VTK_OVERRIDE;
+  ~vtkStrahlerMetric() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int Normalize;
   float MaxStrahler;

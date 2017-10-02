@@ -38,7 +38,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeSampleFunction : public vtkHyperO
 {
 public:
   vtkTypeMacro(vtkHyperOctreeSampleFunction,vtkHyperOctreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperOctreeSampleFunction *New();
 
@@ -200,7 +200,7 @@ public:
   /**
    * Return the MTime also considering the implicit function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   //@{
@@ -211,15 +211,15 @@ protected:
    * Threshold is 0.1.
    */
   vtkHyperOctreeSampleFunction();
-  ~vtkHyperOctreeSampleFunction() VTK_OVERRIDE;
+  ~vtkHyperOctreeSampleFunction() override;
   //@}
 
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector ** vtkNotUsed( inputVector ),
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void Subdivide(vtkHyperOctreeCursor *cursor,
                  int level,

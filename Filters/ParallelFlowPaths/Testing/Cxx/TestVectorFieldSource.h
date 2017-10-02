@@ -16,10 +16,10 @@ protected:
   ~TestVectorFieldSource();
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputInfoVectors,
-                                 vtkInformationVector *outputInfoVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputInfoVector) override;
   void GetSpacing(double dx[3]);
   void GetSize(double dx[3]);
-  virtual void ExecuteDataWithInformation(vtkDataObject *outData,vtkInformation *outInfo) VTK_OVERRIDE;
+  virtual void ExecuteDataWithInformation(vtkDataObject *outData,vtkInformation *outInfo) override;
 private:
   int Extent[6];
   double BoundingBox[6];

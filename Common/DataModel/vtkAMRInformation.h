@@ -51,7 +51,7 @@ public:
   static vtkAMRInformation* New();
   vtkTypeMacro(vtkAMRInformation, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool operator==(const vtkAMRInformation& other);
 
@@ -251,7 +251,7 @@ public:
 
  private:
   vtkAMRInformation();
-  ~vtkAMRInformation() VTK_OVERRIDE;
+  ~vtkAMRInformation() override;
   vtkAMRInformation(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
 

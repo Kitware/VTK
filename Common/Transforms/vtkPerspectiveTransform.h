@@ -55,7 +55,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
  public:
   static vtkPerspectiveTransform *New();
   vtkTypeMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set this transformation to the identity transformation.  If
@@ -69,7 +69,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * the transformation will use the inverse of its Input, if an Input
    * has been set.
    */
-  void Inverse() VTK_OVERRIDE
+  void Inverse() override
     { this->Concatenation->Inverse(); this->Modified(); };
 
   /**
@@ -351,7 +351,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * Make a new transform of the same type -- you are responsible for
    * deleting the transform when you are done with it.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
   /**
    * Check for self-reference.  Will return true if concatenating
@@ -361,19 +361,19 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * and Concatenate(vtkXTransform *).  Avoid using this function,
    * it is experimental.
    */
-  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  int CircuitCheck(vtkAbstractTransform *transform) override;
 
   /**
    * Override GetMTime to account for input and concatenation.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkPerspectiveTransform();
-  ~vtkPerspectiveTransform() VTK_OVERRIDE;
+  ~vtkPerspectiveTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *t) override;
+  void InternalUpdate() override;
 
   vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;

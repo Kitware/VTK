@@ -47,7 +47,7 @@ class VTKIMAGINGCORE_EXPORT vtkAbstractImageInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractImageInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the interpolator with the data that you wish to interpolate.
@@ -262,7 +262,7 @@ public:
 
 protected:
   vtkAbstractImageInterpolator();
-  ~vtkAbstractImageInterpolator() VTK_OVERRIDE;
+  ~vtkAbstractImageInterpolator() override;
 
   /**
    * Subclass-specific updates.

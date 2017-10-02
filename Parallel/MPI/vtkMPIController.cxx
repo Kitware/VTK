@@ -38,7 +38,7 @@ class vtkMPIOutputWindow : public vtkOutputWindow
 public:
   vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
 
-  void DisplayText(const char* t) VTK_OVERRIDE
+  void DisplayText(const char* t) override
   {
       if (this->Controller && vtkMPIController::Initialized)
       {

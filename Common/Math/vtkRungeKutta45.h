@@ -42,7 +42,7 @@ class VTKCOMMONMATH_EXPORT vtkRungeKutta45 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeMacro(vtkRungeKutta45,vtkInitialValueProblemSolver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkRungeKutta45 with no initial FunctionSet.
@@ -74,7 +74,7 @@ public:
    */
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
@@ -84,7 +84,7 @@ public:
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
@@ -95,7 +95,7 @@ public:
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
@@ -103,14 +103,14 @@ public:
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE;
+                      double maxError, double& error) override;
   //@}
 
 protected:
   vtkRungeKutta45();
-  ~vtkRungeKutta45() VTK_OVERRIDE;
+  ~vtkRungeKutta45() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   // Cash-Karp parameters
   static double A[5];

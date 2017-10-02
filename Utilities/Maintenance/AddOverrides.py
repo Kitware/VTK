@@ -1,11 +1,11 @@
-# This Python script can be used to add VTK_OVERRIDE statements where they are
+# This Python script can be used to add override statements where they are
 # reported to be needed according to warnings produced by clang-700.1.76 on macOS
 # 10.11.6 with the -Winconsistent-missing-override option enabled. To run the
 # script, invoke
 
 # > python AddOverrides.py <overrides.txt>
 
-# Each line of the overrides.txt file has the form 
+# Each line of the overrides.txt file has the form
 
 # <source file>:<line number>:<position>: warning: 'RequestDataDescription' \
 #   overrides a member function but is not marked 'override' [-Winconsistent-missing-override]
@@ -43,7 +43,7 @@ for k, v in lines_map.items():
   sorted_line_numbers = sorted(v)
   lines_map[k] = sorted_line_numbers
 
-# Now open each file in the dictionary, append VTK_OVERRIDE to the end of each
+# Now open each file in the dictionary, append override to the end of each
 # line, and save out the modified file
 
 for file_name, line_numbers in lines_map.items():
@@ -59,28 +59,28 @@ for file_name, line_numbers in lines_map.items():
   in_multi_line = False
   for line in lines:
 
-    if line.find('VTK_OVERRIDE') >= 0:
+    if line.find('override') >= 0:
       in_multi_line = False
     else:
 
       if in_multi_line or (counter in line_numbers and re.match('^vtk.*Macro', line.lstrip()) is None):
         if line.endswith(');'):
-          line = line[0:-1] + ' VTK_OVERRIDE;'
+          line = line[0:-1] + ' override;'
           in_multi_line = False
           #print(65, file_name, line, counter)
         elif line.endswith('=0;'):
-          line = line[0:-3] + ' VTK_OVERRIDE = 0;'
+          line = line[0:-3] + ' override = 0;'
           in_multi_line = False
         elif line.endswith(' = 0;'):
-          line = line[0:-5] + ' VTK_OVERRIDE = 0;'
+          line = line[0:-5] + ' override = 0;'
           in_multi_line = False
         elif line.endswith(')'):
-          line = line + ' VTK_OVERRIDE'
+          line = line + ' override'
           in_multi_line = False
           #print(75, file_name, line, counter)
         elif line.find('{') >= 0:
           idx = line.find('{')
-          line = line[:idx].rstrip() + ' VTK_OVERRIDE ' + line[idx:].lstrip()
+          line = line[:idx].rstrip() + ' override ' + line[idx:].lstrip()
           in_multi_line = False
           print(65, file_name, line, counter)
         elif line.endswith(',') or line.endswith('('):

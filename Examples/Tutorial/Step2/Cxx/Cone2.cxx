@@ -39,7 +39,7 @@ class vtkMyCallback : public vtkCommand
 public:
   static vtkMyCallback *New()
     { return new vtkMyCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
       vtkRenderer *renderer = reinterpret_cast<vtkRenderer*>(caller);
       cout << renderer->GetActiveCamera()->GetPosition()[0] << " "

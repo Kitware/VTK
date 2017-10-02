@@ -45,7 +45,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkDefaultPass : public vtkRenderPass
 public:
   static vtkDefaultPass *New();
   vtkTypeMacro(vtkDefaultPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
@@ -53,7 +53,7 @@ public:
    * RenderVolumetricGeometry(), RenderOverlay()
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
  protected:
   /**
@@ -64,7 +64,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkDefaultPass() VTK_OVERRIDE;
+  ~vtkDefaultPass() override;
 
   /**
    * Opaque pass without key checking.

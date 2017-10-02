@@ -78,7 +78,7 @@ protected:
   {
   }
 
-  ~vtkBuffer() VTK_OVERRIDE
+  ~vtkBuffer() override
   {
     this->SetBuffer(nullptr, 0);
   }

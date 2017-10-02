@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkDebugLeaks(){}
-  ~vtkDebugLeaks() VTK_OVERRIDE{}
+  ~vtkDebugLeaks() override{}
 
   static int DisplayMessageBox(const char*);
 

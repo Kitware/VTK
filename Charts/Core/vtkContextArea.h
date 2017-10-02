@@ -56,7 +56,7 @@ class VTKCHARTSCORE_EXPORT vtkContextArea: public vtkAbstractContextItem
 public:
   typedef vtkTuple<int, 4> Margins;
   vtkTypeMacro(vtkContextArea, vtkAbstractContextItem)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkContextArea *New();
 
@@ -74,7 +74,7 @@ public:
   /**
    * Paint event for the item, called whenever the item needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -182,7 +182,7 @@ public:
 
 protected:
   vtkContextArea();
-  ~vtkContextArea() VTK_OVERRIDE;
+  ~vtkContextArea() override;
 
   /**
    * Sync the Axes locations with Geometry, and update the DrawAreaGeometry

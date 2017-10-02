@@ -48,13 +48,13 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastMIPFunction : public vtkVolumeRa
 public:
   static vtkVolumeRayCastMIPFunction *New();
   vtkTypeMacro(vtkVolumeRayCastMIPFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
 
   /**
    * Get the scalar value below which all scalar values have zero opacity.
    */
-  float GetZeroOpacityThreshold( vtkVolume *vol ) VTK_OVERRIDE;
+  float GetZeroOpacityThreshold( vtkVolume *vol ) override;
 
 
   //@{
@@ -72,18 +72,18 @@ public:
   //@}
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
-                vtkVolumeRayCastStaticInfo *staticInfo ) VTK_OVERRIDE;
+                vtkVolumeRayCastStaticInfo *staticInfo ) override;
 
 protected:
   vtkVolumeRayCastMIPFunction();
-  ~vtkVolumeRayCastMIPFunction() VTK_OVERRIDE;
+  ~vtkVolumeRayCastMIPFunction() override;
 
   int MaximizeMethod;
 
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
-                                   vtkVolumeRayCastMapper *mapper ) VTK_OVERRIDE;
+                                   vtkVolumeRayCastMapper *mapper ) override;
 
 private:
   vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;

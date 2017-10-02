@@ -46,7 +46,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarWidget : public vtkBorderWidget
 public:
   static vtkScalarBarWidget *New();
   vtkTypeMacro(vtkScalarBarWidget, vtkBorderWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -84,11 +84,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkScalarBarWidget();
-  ~vtkScalarBarWidget() VTK_OVERRIDE;
+  ~vtkScalarBarWidget() override;
 
   int Repositionable;
 
@@ -96,7 +96,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
   // set the cursor to the correct shape based on State argument
-  void SetCursor(int State) VTK_OVERRIDE;
+  void SetCursor(int State) override;
 
 private:
   vtkScalarBarWidget(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;

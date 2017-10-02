@@ -44,7 +44,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAngleRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -137,16 +137,16 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void StartWidgetInteraction(double e[2]) override;
   virtual void CenterWidgetInteraction(double e[2]);
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
+  void WidgetInteraction(double e[2]) override;
   //@}
 
 protected:
   vtkAngleRepresentation();
-  ~vtkAngleRepresentation() VTK_OVERRIDE;
+  ~vtkAngleRepresentation() override;
 
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *HandleRepresentation;

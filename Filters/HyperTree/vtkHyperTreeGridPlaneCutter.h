@@ -54,7 +54,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridPlaneCutter : public vtkHyperTr
 public:
   static vtkHyperTreeGridPlaneCutter* New();
   vtkTypeMacro( vtkHyperTreeGridPlaneCutter, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -76,17 +76,17 @@ public:
 
 protected:
   vtkHyperTreeGridPlaneCutter();
-  ~vtkHyperTreeGridPlaneCutter() VTK_OVERRIDE;
+  ~vtkHyperTreeGridPlaneCutter() override;
 
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Top-level routine to generate plane cut
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves, cutting primal cells

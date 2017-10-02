@@ -64,7 +64,7 @@ class VTKFILTERSCORE_EXPORT vtkCutter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCutter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; initial value of 0.0; and
@@ -132,7 +132,7 @@ public:
    * Override GetMTime because we delegate to vtkContourValues and refer to
    * vtkImplicitFunction.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -225,11 +225,11 @@ public:
 
 protected:
   vtkCutter(vtkImplicitFunction *cf=nullptr);
-  ~vtkCutter() VTK_OVERRIDE;
+  ~vtkCutter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   void UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output);
   void DataSetCutter(vtkDataSet *input, vtkPolyData *output);
   void StructuredPointsCutter(vtkDataSet *, vtkPolyData *,

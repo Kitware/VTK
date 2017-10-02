@@ -42,7 +42,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastIsosurfaceFunction : public vtkV
 {
 public:
   vtkTypeMacro(vtkVolumeRayCastIsosurfaceFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Construct a new vtkVolumeRayCastIsosurfaceFunction
@@ -52,7 +52,7 @@ public:
   /**
    * Get the scalar value below which all scalar values have 0 opacity
    */
-  float GetZeroOpacityThreshold( vtkVolume *vol ) VTK_OVERRIDE;
+  float GetZeroOpacityThreshold( vtkVolume *vol ) override;
 
   //@{
   /**
@@ -74,16 +74,16 @@ public:
   float       Color[3];
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
-                vtkVolumeRayCastStaticInfo *staticInfo) VTK_OVERRIDE;
+                vtkVolumeRayCastStaticInfo *staticInfo) override;
 
 protected:
   vtkVolumeRayCastIsosurfaceFunction();
-  ~vtkVolumeRayCastIsosurfaceFunction() VTK_OVERRIDE;
+  ~vtkVolumeRayCastIsosurfaceFunction() override;
 
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
-                                   vtkVolumeRayCastMapper *mapper ) VTK_OVERRIDE;
+                                   vtkVolumeRayCastMapper *mapper ) override;
 
 private:
   vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;

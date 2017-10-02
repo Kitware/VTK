@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkChooserPainter : public vtkPolyDataPainter
 public:
   static vtkChooserPainter *New();
   vtkTypeMacro(vtkChooserPainter, vtkPolyDataPainter);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void SetVertPainter(vtkPolyDataPainter*);
   void SetLinePainter(vtkPolyDataPainter*);
@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkChooserPainter();
-  ~vtkChooserPainter() VTK_OVERRIDE;
+  ~vtkChooserPainter() override;
 
   vtkPolyDataPainter *VertPainter;
   vtkPolyDataPainter *LinePainter;
@@ -69,7 +69,7 @@ protected:
    * but before RenderInternal().
    * Overridden to setup the the painters if needed.
    */
-  void PrepareForRendering(vtkRenderer*, vtkActor*) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderer*, vtkActor*) override;
 
   /**
    * Called to pick which painters to used based on the current state of
@@ -105,12 +105,12 @@ protected:
    * has been called.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+                              unsigned long typeflags, bool forceCompileOnly) override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   vtkRenderer *LastRenderer;
   vtkTimeStamp PaintersChoiceTime;

@@ -34,35 +34,35 @@ class VTKRENDERINGGL2PSOPENGL2_EXPORT vtkOpenGLGL2PSHelperImpl
 public:
   static vtkOpenGLGL2PSHelperImpl *New();
   vtkTypeMacro(vtkOpenGLGL2PSHelperImpl, vtkOpenGLGL2PSHelper)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
-                                        vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+                                        vtkRenderer *ren, vtkActor *act) override;
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        unsigned char col[4]) VTK_OVERRIDE;
+                                        unsigned char col[4]) override;
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        float col[4]) VTK_OVERRIDE;
+                                        float col[4]) override;
 
   void DrawString(const std::string &str, vtkTextProperty *tprop,
                           double pos[3], double backgroundDepth,
-                          vtkRenderer *ren) VTK_OVERRIDE;
+                          vtkRenderer *ren) override;
 
   void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
                         unsigned char rgba[4], double scale[2] = nullptr,
                         double rotateAngle = 0.0, float strokeWidth = -1,
-                        const char *label = nullptr) VTK_OVERRIDE;
+                        const char *label = nullptr) override;
 
   void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                           double rasterPos[3], unsigned char actorColor[4],
-                          vtkRenderer *ren, const char *label = nullptr) VTK_OVERRIDE;
+                          vtkRenderer *ren, const char *label = nullptr) override;
 
-  void DrawImage(vtkImageData *image, double pos[3]) VTK_OVERRIDE;
+  void DrawImage(vtkImageData *image, double pos[3]) override;
 
 protected:
   vtkOpenGLGL2PSHelperImpl();
-  ~vtkOpenGLGL2PSHelperImpl() VTK_OVERRIDE;
+  ~vtkOpenGLGL2PSHelperImpl() override;
 
   /**
    * Translate the tprop's fontname into a Postscript font name.

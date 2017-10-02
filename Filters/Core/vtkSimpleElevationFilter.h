@@ -47,7 +47,7 @@ class VTKFILTERSCORE_EXPORT vtkSimpleElevationFilter : public vtkDataSetAlgorith
 {
 public:
   vtkTypeMacro(vtkSimpleElevationFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Vector=(0,0,1).
@@ -64,9 +64,9 @@ public:
 
 protected:
   vtkSimpleElevationFilter();
-  ~vtkSimpleElevationFilter() VTK_OVERRIDE {}
+  ~vtkSimpleElevationFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Vector[3];
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) VTK_DELETE_FUNCTION;

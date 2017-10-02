@@ -37,7 +37,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
  public:
   static vtkVolumeCollection *New();
   vtkTypeMacro(vtkVolumeCollection, vtkPropCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a Volume to the bottom of the list.
@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
 
 protected:
   vtkVolumeCollection() {}
-  ~vtkVolumeCollection() VTK_OVERRIDE {}
+  ~vtkVolumeCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

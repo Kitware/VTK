@@ -57,7 +57,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCell,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize cell from outside with point ids and point
@@ -364,7 +364,7 @@ public:
 
 protected:
   vtkCell();
-  ~vtkCell() VTK_OVERRIDE;
+  ~vtkCell() override;
 
   double Bounds[6];
 

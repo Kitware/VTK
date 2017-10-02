@@ -48,7 +48,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridThreshold : public vtkHyperTree
 public:
   static vtkHyperTreeGridThreshold* New();
   vtkTypeMacro( vtkHyperTreeGridThreshold, vtkHyperTreeGridAlgorithm );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -73,17 +73,17 @@ public:
 
 protected:
   vtkHyperTreeGridThreshold();
-  ~vtkHyperTreeGridThreshold() VTK_OVERRIDE;
+  ~vtkHyperTreeGridThreshold() override;
 
   /**
    * For this algorithm the output is a vtkHyperTreeGrid instance
    */
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to extract cells based on thresholded value
    */
-  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) VTK_OVERRIDE;
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves

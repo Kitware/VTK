@@ -68,7 +68,7 @@ class VTKFILTERSMODELING_EXPORT vtkRuledSurfaceFilter : public vtkPolyDataAlgori
 {
 public:
   vtkTypeMacro(vtkRuledSurfaceFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with OnRatio=1, Offset=0. DistanceFactor=3.0,
@@ -171,10 +171,10 @@ public:
 
 protected:
   vtkRuledSurfaceFilter();
-  ~vtkRuledSurfaceFilter() VTK_OVERRIDE;
+  ~vtkRuledSurfaceFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double DistanceFactor;
   int   OnRatio;

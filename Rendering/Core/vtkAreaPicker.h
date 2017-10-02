@@ -61,7 +61,7 @@ class VTKRENDERINGCORE_EXPORT vtkAreaPicker : public vtkAbstractPropPicker
 public:
   static vtkAreaPicker *New();
   vtkTypeMacro(vtkAreaPicker, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the default screen rectangle to pick in.
@@ -90,7 +90,7 @@ public:
    * This makes a thin frustum around the selected pixel.
    * Note: this ignores Z in order to pick everying in a volume from z=0 to z=1.
    */
-  int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = nullptr) VTK_OVERRIDE
+  int Pick(double x0, double y0, double vtkNotUsed(z0), vtkRenderer *renderer = nullptr) override
     { return this->AreaPick(x0, y0, x0+1.0, y0+1.0, renderer); }
 
   //@{
@@ -133,9 +133,9 @@ public:
 
 protected:
   vtkAreaPicker();
-  ~vtkAreaPicker() VTK_OVERRIDE;
+  ~vtkAreaPicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
   void DefineFrustum(double x0, double y0, double x1, double y1, vtkRenderer *);
   virtual int PickProps(vtkRenderer *renderer);
   int TypeDecipher(vtkProp *, vtkAbstractMapper3D **);

@@ -35,7 +35,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
  public:
   static vtkTextPropertyCollection *New();
   vtkTypeMacro(vtkTextPropertyCollection, vtkCollection)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a vtkTextProperty to the bottom of the list.
@@ -65,7 +65,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
 
 protected:
   vtkTextPropertyCollection();
-  ~vtkTextPropertyCollection() VTK_OVERRIDE;
+  ~vtkTextPropertyCollection() override;
 
 private:
   // hide the standard AddItem from the user and the compiler.

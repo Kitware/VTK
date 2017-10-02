@@ -48,7 +48,7 @@ Q_OBJECT
 public:
   static vtkQtAnnotationView *New();
   vtkTypeMacro(vtkQtAnnotationView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -56,16 +56,16 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  QWidget* GetWidget() VTK_OVERRIDE;
+  QWidget* GetWidget() override;
 
   /**
    * Updates the view.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
 protected:
   vtkQtAnnotationView();
-  ~vtkQtAnnotationView() VTK_OVERRIDE;
+  ~vtkQtAnnotationView() override;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);

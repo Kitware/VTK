@@ -44,7 +44,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellSizeFilter : public vtkPassInputTypeAlgori
 {
 public:
   vtkTypeMacro(vtkCellSizeFilter, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCellSizeFilter* New();
 
   //@{
@@ -125,10 +125,10 @@ public:
 
 protected:
   vtkCellSizeFilter();
-  ~vtkCellSizeFilter() VTK_OVERRIDE;
+  ~vtkCellSizeFilter() override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
   bool ComputeDataSet(vtkDataSet* input, vtkDataSet* output, vtkDoubleArray* sum);
 
   void IntegrateImageData(vtkImageData* input, vtkImageData* output, vtkDoubleArray* sum);

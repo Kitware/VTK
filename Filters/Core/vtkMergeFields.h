@@ -55,7 +55,7 @@ class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkMergeFields.
@@ -126,9 +126,9 @@ protected:
   };
 
   vtkMergeFields();
-  ~vtkMergeFields() VTK_OVERRIDE;
+  ~vtkMergeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* FieldName;
   int FieldLocation;

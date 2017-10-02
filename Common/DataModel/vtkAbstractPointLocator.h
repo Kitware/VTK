@@ -43,7 +43,7 @@ public:
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkAbstractPointLocator,vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkAbstractPointLocator();
-  ~vtkAbstractPointLocator() VTK_OVERRIDE;
+  ~vtkAbstractPointLocator() override;
 
   double Bounds[6]; // bounds of points
   vtkIdType NumberOfBuckets; // total size of locator

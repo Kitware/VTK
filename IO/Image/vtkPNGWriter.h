@@ -37,12 +37,12 @@ class VTKIOIMAGE_EXPORT vtkPNGWriter : public vtkImageWriter
 public:
   static vtkPNGWriter *New();
   vtkTypeMacro(vtkPNGWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The main interface which triggers the writer to start.
    */
-  void Write() VTK_OVERRIDE;
+  void Write() override;
 
   //@{
   /**
@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkPNGWriter();
-  ~vtkPNGWriter() VTK_OVERRIDE;
+  ~vtkPNGWriter() override;
 
   void WriteSlice(vtkImageData *data, int* uExtent);
   int CompressionLevel;

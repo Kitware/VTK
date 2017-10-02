@@ -77,7 +77,7 @@ class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 public:
   vtkTypeMacro(vtkOpenGLGlyph3DMappervtkColorMapper, vtkMapper);
   static vtkOpenGLGlyph3DMappervtkColorMapper* New();
-  void Render(vtkRenderer *, vtkActor *) VTK_OVERRIDE {}
+  void Render(vtkRenderer *, vtkActor *) override {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 

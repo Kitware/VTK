@@ -40,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositeDataDisplayAttributesLegacy : public v
 public:
   static vtkCompositeDataDisplayAttributesLegacy* New();
   vtkTypeMacro(vtkCompositeDataDisplayAttributesLegacy, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns true if any block has any block visibility is set.
@@ -172,7 +172,7 @@ public:
 
 protected:
   vtkCompositeDataDisplayAttributesLegacy();
-  ~vtkCompositeDataDisplayAttributesLegacy() VTK_OVERRIDE;
+  ~vtkCompositeDataDisplayAttributesLegacy() override;
 
 private:
   vtkCompositeDataDisplayAttributesLegacy(const vtkCompositeDataDisplayAttributesLegacy&) VTK_DELETE_FUNCTION;

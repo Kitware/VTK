@@ -49,7 +49,7 @@ class VTKFILTERSAMR_EXPORT vtkAMRCutPlane : public vtkMultiBlockDataSetAlgorithm
 public:
   static vtkAMRCutPlane *New();
   vtkTypeMacro(vtkAMRCutPlane, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
   //@{
   /**
@@ -94,9 +94,9 @@ public:
   // Standard pipeline routines
 
   int RequestData(
-       vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+       vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
 
   /**
@@ -106,17 +106,17 @@ public:
   int RequestInformation(
       vtkInformation *rqst,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector ) VTK_OVERRIDE;
+      vtkInformationVector *outputVector ) override;
 
   /**
    * Performs upstream requests to the reader
    */
   int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
 protected:
   vtkAMRCutPlane();
-  ~vtkAMRCutPlane() VTK_OVERRIDE;
+  ~vtkAMRCutPlane() override;
 
   /**
    * Returns the cut-plane defined by a vtkCutPlane instance based on the

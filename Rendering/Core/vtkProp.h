@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * For some exporters and other other operations we must be
@@ -424,7 +424,7 @@ public:
 
 protected:
   vtkProp();
-  ~vtkProp() VTK_OVERRIDE;
+  ~vtkProp() override;
 
   int Visibility;
   int Pickable;

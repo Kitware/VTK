@@ -35,7 +35,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalArrayOperatorFilter :
 public:
   static vtkTemporalArrayOperatorFilter* New();
   vtkTypeMacro(vtkTemporalArrayOperatorFilter, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream &OS, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &OS, vtkIndent indent) override;
 
   enum OperatorType
   {
@@ -81,19 +81,19 @@ public:
 
 protected:
   vtkTemporalArrayOperatorFilter();
-  ~vtkTemporalArrayOperatorFilter() VTK_OVERRIDE;
+  ~vtkTemporalArrayOperatorFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   int RequestDataObject(vtkInformation*, vtkInformationVector**,
-                        vtkInformationVector*) VTK_OVERRIDE;
+                        vtkInformationVector*) override;
   int RequestInformation(vtkInformation*, vtkInformationVector**,
-                         vtkInformationVector*) VTK_OVERRIDE;
+                         vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
   int GetInputArrayAssociation();
   virtual vtkDataObject* Process(vtkDataObject*, vtkDataObject*);

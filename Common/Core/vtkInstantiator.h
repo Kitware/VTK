@@ -73,7 +73,7 @@ class VTKCOMMONCORE_EXPORT vtkInstantiator : public vtkObject
 public:
   static vtkInstantiator* New();
   vtkTypeMacro(vtkInstantiator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an instance of the class whose name is given.  If creation
@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkInstantiator();
-  ~vtkInstantiator() VTK_OVERRIDE;
+  ~vtkInstantiator() override;
 
   // Internal storage for registered creation functions.
   static vtkInstantiatorHashTable* CreatorTable;

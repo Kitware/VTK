@@ -149,19 +149,19 @@ public:
   // Return the id of the current leaf in order to
   // access to the data.
   // \pre is_leaf: CurrentIsLeaf()
-  int GetLeafId() VTK_OVERRIDE
+  int GetLeafId() override
   {
       assert("pre: is_leaf" && CurrentIsLeaf());
       return this->Cursor;
   }
 
   // Status
-  int CurrentIsLeaf() VTK_OVERRIDE
+  int CurrentIsLeaf() override
   {
       return this->IsLeaf;
   }
 
-  int CurrentIsRoot() VTK_OVERRIDE
+  int CurrentIsRoot() override
   {
       return (this->IsLeaf && this->Cursor==0 && this->Tree->GetLeafParentSize()==1) || (!this->IsLeaf && this->Cursor==1);
   }
@@ -170,7 +170,7 @@ public:
   // Description:
   // Return the level of the node pointed by the cursor.
   // \post positive_result: result>=0
-  int GetCurrentLevel() VTK_OVERRIDE
+  int GetCurrentLevel() override
   {
       int result=this->GetChildHistorySize();
       assert("post: positive_result" && result>=0);
@@ -182,7 +182,7 @@ public:
   // Return the child number of the current node relative to its parent.
   // \pre not_root: !CurrentIsRoot().
   // \post valid_range: result>=0 && result<GetNumberOfChildren()
-  int GetChildIndex() VTK_OVERRIDE
+  int GetChildIndex() override
   {
       assert("post: valid_range" && this->ChildIndex>=0 && this->ChildIndex<GetNumberOfChildren());
       return this->ChildIndex;
@@ -192,7 +192,7 @@ public:
   // Are the children of the current node all leaves?
   // This query can be called also on a leaf node.
   // \post compatible: result implies !CurrentIsLeaf()
-  int CurrentIsTerminalNode() VTK_OVERRIDE
+  int CurrentIsTerminalNode() override
   {
       int result=!this->IsLeaf;
       if(result)
@@ -209,7 +209,7 @@ public:
   // Cursor movement.
   // \pre can be root
   // \post is_root: CurrentIsRoot()
-  void ToRoot() VTK_OVERRIDE
+  void ToRoot() override
   {
       this->ChildHistory.clear();
       this->IsLeaf=this->Tree->GetLeafParentSize()==1;
@@ -232,7 +232,7 @@ public:
 
   //---------------------------------------------------------------------------
   // \pre not_root: !CurrentIsRoot()
-  void ToParent() VTK_OVERRIDE
+  void ToParent() override
   {
       assert("pre: not_root" && !CurrentIsRoot());
       if(this->IsLeaf)
@@ -258,7 +258,7 @@ public:
   //---------------------------------------------------------------------------
   // \pre not_leaf: !CurrentIsLeaf()
   // \pre valid_child: child>=0 && child<this->GetNumberOfChildren()
-  void ToChild(int child) VTK_OVERRIDE
+  void ToChild(int child) override
   {
       assert("pre: not_leaf" && !CurrentIsLeaf());
       assert("pre: valid_child" && child>=0 && child<this->GetNumberOfChildren());
@@ -286,7 +286,7 @@ public:
   // \pre other_exists: other!=0
   // \pre same_hyperoctree: this->SameTree(other)
   // \post equal: this->IsEqual(other)
-  void ToSameNode(vtkHyperOctreeCursor *other) VTK_OVERRIDE
+  void ToSameNode(vtkHyperOctreeCursor *other) override
   {
       assert("pre: other_exists" && other!=nullptr);
       assert("pre: same_hyperoctree" && this->SameTree(other));
@@ -310,7 +310,7 @@ public:
   // Is `this' equal to `other'?
   // \pre other_exists: other!=0
   // \pre same_hyperoctree: this->SameTree(other);
-  int IsEqual(vtkHyperOctreeCursor *other) VTK_OVERRIDE
+  int IsEqual(vtkHyperOctreeCursor *other) override
   {
       assert("pre: other_exists" && other!=nullptr);
       assert("pre: same_hyperoctree" && this->SameTree(other));
@@ -334,7 +334,7 @@ public:
   // Create a copy of `this'.
   // \post results_exists:result!=0
   // \post same_tree: result->SameTree(this)
-  vtkHyperOctreeCursor *Clone() VTK_OVERRIDE
+  vtkHyperOctreeCursor *Clone() override
   {
       vtkCompactHyperOctreeCursor<D> *result=this->NewInstance();
       assert("post: results_exists" && result!=nullptr);
@@ -347,7 +347,7 @@ public:
   // Description:
   // Are `this' and `other' pointing on the same hyperoctree?
   // \pre other_exists: other!=0
-  int SameTree(vtkHyperOctreeCursor *other) VTK_OVERRIDE
+  int SameTree(vtkHyperOctreeCursor *other) override
   {
       assert("pre: other_exists" && other!=nullptr);
       vtkCompactHyperOctreeCursor<D> *o=vtkCompactHyperOctreeCursor<D>::SafeDownCast(other);
@@ -365,7 +365,7 @@ public:
   // uniform grid of 1<<GetCurrentLevel() cells in each dimension.
   // \pre valid_range: d>=0 && d<GetDimension()
   // \post valid_result: result>=0 && result<(1<<GetCurrentLevel())
-  int GetIndex(int d) VTK_OVERRIDE
+  int GetIndex(int d) override
   {
       assert("pre: valid_range" &&  d>=0 && d<this->GetDimension());
 
@@ -379,7 +379,7 @@ public:
   // Description:
   // Return the number of children for each node of the tree.
   // \post positive_number: result>0
-  int GetNumberOfChildren() VTK_OVERRIDE
+  int GetNumberOfChildren() override
   {
       return 1<<D;
   }
@@ -388,7 +388,7 @@ public:
   // Description:
   // Return the dimension of the tree.
   // \post positive_result: result>=0
-  int GetDimension() VTK_OVERRIDE
+  int GetDimension() override
   {
       assert("post: positive_result " && D>0);
       assert("post: up_to_3 " && D<=3); // and then
@@ -406,7 +406,7 @@ public:
   // \pre valid_size: sizeof(indices)==GetDimension()
   // \pre valid_level: level>=0
   void MoveToNode(int *indices,
-                          int level) VTK_OVERRIDE
+                          int level) override
   {
       assert("pre: indices_exists" && indices!=nullptr);
       assert("pre: valid_level" && level>=0);
@@ -441,7 +441,7 @@ public:
   //---------------------------------------------------------------------------
   // Description
   // Did the last call to MoveToNode succeed?
-  int Found() VTK_OVERRIDE
+  int Found() override
   {
       return this->IsFound;
   }
@@ -659,7 +659,7 @@ public:
   // Description:
   // Restore the initial state: only one node and one leaf: the root.
   // Attributes is empty.
-  void Initialize() VTK_OVERRIDE
+  void Initialize() override
   {
       this->Nodes.resize(1);
       this->Nodes[0].SetParent(0);
@@ -679,7 +679,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperOctreeCursor *NewCursor() VTK_OVERRIDE
+  vtkHyperOctreeCursor *NewCursor() override
   {
       vtkCompactHyperOctreeCursor<D> *result =
         vtkCompactHyperOctreeCursor<D>::New();
@@ -688,7 +688,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  ~vtkCompactHyperOctree() VTK_OVERRIDE
+  ~vtkCompactHyperOctree() override
   {
       if (this->Attributes != nullptr)
       {
@@ -697,7 +697,7 @@ public:
   }
 
   //--------------------------------------------------------------------------
-  void DeepCopy(vtkHyperOctreeInternal *src) VTK_OVERRIDE
+  void DeepCopy(vtkHyperOctreeInternal *src) override
   {
     vtkCompactHyperOctree<D>* octree =
       vtkCompactHyperOctree<D>::SafeDownCast(src);
@@ -710,7 +710,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkIdType GetNumberOfLeaves() VTK_OVERRIDE
+  vtkIdType GetNumberOfLeaves() override
   {
       return static_cast<vtkIdType>(this->LeafParent.size());
   }
@@ -719,7 +719,7 @@ public:
   // Description:
   // Return the number of levels.
   // \post result_greater_or_equal_to_one: result>=1
-  vtkIdType GetNumberOfLevels() VTK_OVERRIDE
+  vtkIdType GetNumberOfLevels() override
   {
       assert("post: result_greater_or_equal_to_one" && this->NumberOfLevels>=1);
       return this->NumberOfLevels;
@@ -747,7 +747,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Public only for the vtkCompactHyperOctreeCursor.
-  int GetNumberOfNodes() VTK_OVERRIDE
+  int GetNumberOfNodes() override
   {
       assert("post: not_empty" && !this->Nodes.empty());
       return static_cast<int>(this->Nodes.size());
@@ -759,7 +759,7 @@ public:
   // At the end, cursor points on the node that used to be leaf.
   // \pre leaf_exists: leaf!=0
   // \pre is_a_leaf: leaf->CurrentIsLeaf()
-  void SubdivideLeaf(vtkHyperOctreeCursor *leaf) VTK_OVERRIDE
+  void SubdivideLeaf(vtkHyperOctreeCursor *leaf) override
   {
       assert("pre: leaf_exists" && leaf!=nullptr);
       assert("pre: is_a_leaf" && leaf->CurrentIsLeaf());
@@ -832,7 +832,7 @@ public:
   // \pre node_exists: node!=0
   // \pre node_is_node: !node->CurrentIsLeaf()
   // \pre children_are_leaves: node->CurrentIsTerminalNode()
-  void CollapseTerminalNode(vtkHyperOctreeCursor *node) VTK_OVERRIDE
+  void CollapseTerminalNode(vtkHyperOctreeCursor *node) override
   {
       assert("pre: node_exists" && node!=nullptr);
       assert("pre: node_is_node" && !node->CurrentIsLeaf());
@@ -852,7 +852,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream& os, vtkIndent indent) override
   {
       this->Superclass::PrintSelf(os,indent);
 
@@ -886,7 +886,7 @@ public:
   //---------------------------------------------------------------------------
   // Description:
   // Set the internal attributes.
-  void SetAttributes(vtkDataSetAttributes *attributes) VTK_OVERRIDE
+  void SetAttributes(vtkDataSetAttributes *attributes) override
   {
       assert("pre: attributes_exist" && attributes!=nullptr);
       if(this->Attributes!=attributes)
@@ -904,7 +904,7 @@ public:
   // Description:
   // Return memory used in kibibytes (1024 bytes).
   // Ignore the attribute array because its size is added by the data set.
-  unsigned int GetActualMemorySize() VTK_OVERRIDE
+  unsigned int GetActualMemorySize() override
   {
     size_t size;
     size = sizeof(int) * this->GetNumberOfLeaves();

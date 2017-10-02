@@ -85,7 +85,7 @@ public:
   vtkTypeMacro(vtkMINCImageWriter,vtkImageWriter);
 
   static vtkMINCImageWriter *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the entension for this file format.
@@ -102,7 +102,7 @@ public:
   /**
    * Set the file name.
    */
-  void SetFileName(const char *name) VTK_OVERRIDE;
+  void SetFileName(const char *name) override;
 
   /**
    * Write the data.  This will attempt to stream the data
@@ -110,7 +110,7 @@ public:
    * unless the whole extent of the input has already been
    * updated.
    */
-  void Write() VTK_OVERRIDE;
+  void Write() override;
 
   //@{
   /**
@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkMINCImageWriter();
-  ~vtkMINCImageWriter() VTK_OVERRIDE;
+  ~vtkMINCImageWriter() override;
 
   int MINCImageType;
   int MINCImageTypeSigned;
@@ -220,19 +220,19 @@ protected:
   virtual void FindRescale(double &rescaleSlope, double &rescaleIntercept);
   virtual void FindMINCValidRange(double range[2]);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestUpdateExtent(vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                  vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
 private:
   vtkMINCImageWriter(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;

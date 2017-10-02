@@ -31,13 +31,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBillboardTextActor3D :
 public:
   static vtkOpenGLBillboardTextActor3D* New();
   vtkTypeMacro(vtkOpenGLBillboardTextActor3D, vtkBillboardTextActor3D)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
 
 protected:
   vtkOpenGLBillboardTextActor3D();
-  ~vtkOpenGLBillboardTextActor3D() VTK_OVERRIDE;
+  ~vtkOpenGLBillboardTextActor3D() override;
 
   int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 

@@ -339,7 +339,7 @@ public:
   { return new vtkOrthoPlanesCallback; }
 
   void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
-                void *callData ) VTK_OVERRIDE
+                void *callData ) override
   {
     vtkImagePlaneWidget* self =
       reinterpret_cast< vtkImagePlaneWidget* >( caller );

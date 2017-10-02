@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCell3D : public vtkCell
 {
 public:
   vtkTypeMacro(vtkCell3D,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the pair of vertices that define an edge. The method returns the
@@ -64,7 +64,7 @@ public:
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId,
-               vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *outCd) override;
 
   /**
    * Cut (or clip) the cell based on the input cellScalars and the specified
@@ -82,12 +82,12 @@ public:
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
 
   /**
    * The topological dimension of the cell. (Satisfies vtkCell API.)
    */
-  int GetCellDimension() VTK_OVERRIDE {return 3;}
+  int GetCellDimension() override {return 3;}
 
   //@{
   /**
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkCell3D();
-  ~vtkCell3D() VTK_OVERRIDE;
+  ~vtkCell3D() override;
 
   vtkOrderedTriangulator *Triangulator;
   double                  MergeTolerance;

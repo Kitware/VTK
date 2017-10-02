@@ -62,7 +62,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSelectionNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSelectionNode,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelectionNode* New();
 
   /**
@@ -108,7 +108,7 @@ public:
   /**
    * Return the MTime taking into account changes to the properties
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   // vtkSelectionNode specific keys follow:
   /**
@@ -291,7 +291,7 @@ public:
 
 protected:
   vtkSelectionNode();
-  ~vtkSelectionNode() VTK_OVERRIDE;
+  ~vtkSelectionNode() override;
 
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;

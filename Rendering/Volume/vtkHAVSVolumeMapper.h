@@ -136,7 +136,7 @@ public:
   static vtkHAVSVolumeMapper *New();
   vtkTypeMacro(vtkHAVSVolumeMapper,
                        vtkUnstructuredGridVolumeMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkHAVSVolumeMapper();
-  ~vtkHAVSVolumeMapper() VTK_OVERRIDE;
+  ~vtkHAVSVolumeMapper() override;
 
   virtual void Initialize(vtkRenderer *ren, vtkVolume *vol) = 0;
   void InitializePrimitives(vtkVolume *vol);

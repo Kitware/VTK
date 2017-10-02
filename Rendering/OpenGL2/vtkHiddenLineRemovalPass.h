@@ -39,9 +39,9 @@ class VTKRENDERINGOPENGL2_EXPORT vtkHiddenLineRemovalPass :
 public:
   static vtkHiddenLineRemovalPass* New();
   vtkTypeMacro(vtkHiddenLineRemovalPass, vtkOpenGLRenderPass)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Returns true if any of the nProps in propArray are rendered as wireframe.
@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkHiddenLineRemovalPass();
-  ~vtkHiddenLineRemovalPass() VTK_OVERRIDE;
+  ~vtkHiddenLineRemovalPass() override;
 
   void SetRepresentation(std::vector<vtkProp*> &props, int repr);
   int RenderProps(std::vector<vtkProp*> &props, vtkViewport *vp);

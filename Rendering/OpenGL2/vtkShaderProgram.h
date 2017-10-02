@@ -46,7 +46,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
 public:
   static vtkShaderProgram *New();
   vtkTypeMacro(vtkShaderProgram, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -270,7 +270,7 @@ public:
 
 protected:
   vtkShaderProgram();
-  ~vtkShaderProgram() VTK_OVERRIDE;
+  ~vtkShaderProgram() override;
 
   /***************************************************************
    * The following functions are only for use by the shader cache

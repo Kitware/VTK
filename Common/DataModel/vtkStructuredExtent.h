@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredExtent : public vtkObject
 public:
   static vtkStructuredExtent* New();
   vtkTypeMacro(vtkStructuredExtent, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Clamps \c ext to fit in \c wholeExt.
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkStructuredExtent();
-  ~vtkStructuredExtent() VTK_OVERRIDE;
+  ~vtkStructuredExtent() override;
 
 private:
   vtkStructuredExtent(const vtkStructuredExtent&) VTK_DELETE_FUNCTION;

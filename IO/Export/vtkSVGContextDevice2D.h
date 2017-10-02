@@ -58,7 +58,7 @@ class VTKIOEXPORT_EXPORT vtkSVGContextDevice2D: public vtkContextDevice2D
 public:
   static vtkSVGContextDevice2D* New();
   vtkTypeMacro(vtkSVGContextDevice2D, vtkContextDevice2D)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /** The svg container element to draw into, and the global definitions
    *  element. */
@@ -125,59 +125,59 @@ public:
    */
   void GenerateDefinitions();
 
-  void Begin(vtkViewport*) VTK_OVERRIDE;
-  void End() VTK_OVERRIDE;
+  void Begin(vtkViewport*) override;
+  void End() override;
 
   void DrawPoly(float *points, int n, unsigned char *colors = nullptr,
-                int nc_comps = 0) VTK_OVERRIDE;
+                int nc_comps = 0) override;
   void DrawLines(float *f, int n, unsigned char *colors = nullptr,
-                 int nc_comps = 0) VTK_OVERRIDE;
+                 int nc_comps = 0) override;
   void DrawPoints(float *points, int n, unsigned char* colors = nullptr,
-                  int nc_comps = 0) VTK_OVERRIDE;
+                  int nc_comps = 0) override;
   void DrawPointSprites(vtkImageData *sprite, float *points, int n,
                         unsigned char *colors = nullptr,
-                        int nc_comps = 0) VTK_OVERRIDE;
+                        int nc_comps = 0) override;
   void DrawMarkers(int shape, bool highlight, float *points, int n,
-                   unsigned char *colors = nullptr, int nc_comps = 0) VTK_OVERRIDE;
-  void DrawQuad(float *, int) VTK_OVERRIDE;
-  void DrawQuadStrip(float *, int) VTK_OVERRIDE;
-  void DrawPolygon(float *, int) VTK_OVERRIDE;
+                   unsigned char *colors = nullptr, int nc_comps = 0) override;
+  void DrawQuad(float *, int) override;
+  void DrawQuadStrip(float *, int) override;
+  void DrawPolygon(float *, int) override;
   void DrawColoredPolygon(float *points, int numPoints,
                           unsigned char *colors = nullptr,
-                          int nc_comps = 0) VTK_OVERRIDE;
+                          int nc_comps = 0) override;
   void DrawEllipseWedge(float x, float y, float outRx, float outRy,
                         float inRx, float inRy, float startAngle,
-                        float stopAngle) VTK_OVERRIDE;
+                        float stopAngle) override;
   void DrawEllipticArc(float x, float y, float rX, float rY,
-                       float startAngle, float stopAngle) VTK_OVERRIDE;
-  void DrawString(float *point, const vtkStdString &string) VTK_OVERRIDE;
+                       float startAngle, float stopAngle) override;
+  void DrawString(float *point, const vtkStdString &string) override;
   void ComputeStringBounds(const vtkStdString &string,
-                           float bounds[4]) VTK_OVERRIDE;
-  void DrawString(float *point, const vtkUnicodeString &string) VTK_OVERRIDE;
+                           float bounds[4]) override;
+  void DrawString(float *point, const vtkUnicodeString &string) override;
   void ComputeStringBounds(const vtkUnicodeString &string,
-                           float bounds[4]) VTK_OVERRIDE;
+                           float bounds[4]) override;
   void ComputeJustifiedStringBounds(const char* string,
-                                    float bounds[4]) VTK_OVERRIDE;
-  void DrawMathTextString(float *point, const vtkStdString &str) VTK_OVERRIDE;
-  void DrawImage(float p[2], float scale, vtkImageData *image) VTK_OVERRIDE;
-  void DrawImage(const vtkRectf& pos, vtkImageData *image) VTK_OVERRIDE;
-  void SetColor4(unsigned char color[4]) VTK_OVERRIDE;
-  void SetTexture(vtkImageData* image, int properties) VTK_OVERRIDE;
-  void SetPointSize(float size) VTK_OVERRIDE;
-  void SetLineWidth(float width) VTK_OVERRIDE;
+                                    float bounds[4]) override;
+  void DrawMathTextString(float *point, const vtkStdString &str) override;
+  void DrawImage(float p[2], float scale, vtkImageData *image) override;
+  void DrawImage(const vtkRectf& pos, vtkImageData *image) override;
+  void SetColor4(unsigned char color[4]) override;
+  void SetTexture(vtkImageData* image, int properties) override;
+  void SetPointSize(float size) override;
+  void SetLineWidth(float width) override;
 
-  void SetLineType(int type) VTK_OVERRIDE;
-  void SetMatrix(vtkMatrix3x3 *m) VTK_OVERRIDE;
-  void GetMatrix(vtkMatrix3x3 *m) VTK_OVERRIDE;
-  void MultiplyMatrix(vtkMatrix3x3 *m) VTK_OVERRIDE;
-  void PushMatrix() VTK_OVERRIDE;
-  void PopMatrix() VTK_OVERRIDE;
-  void SetClipping(int *x) VTK_OVERRIDE;
-  void EnableClipping(bool enable) VTK_OVERRIDE;
+  void SetLineType(int type) override;
+  void SetMatrix(vtkMatrix3x3 *m) override;
+  void GetMatrix(vtkMatrix3x3 *m) override;
+  void MultiplyMatrix(vtkMatrix3x3 *m) override;
+  void PushMatrix() override;
+  void PopMatrix() override;
+  void SetClipping(int *x) override;
+  void EnableClipping(bool enable) override;
 
 protected:
   vtkSVGContextDevice2D();
-  ~vtkSVGContextDevice2D() VTK_OVERRIDE;
+  ~vtkSVGContextDevice2D() override;
 
   void SetViewport(vtkViewport*);
 

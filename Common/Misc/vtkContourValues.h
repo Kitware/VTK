@@ -41,7 +41,7 @@ public:
   static vtkContourValues *New();
 
   vtkTypeMacro(vtkContourValues,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the ith contour value.
@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkContourValues();
-  ~vtkContourValues() VTK_OVERRIDE;
+  ~vtkContourValues() override;
 
   vtkDoubleArray *Contours;
 

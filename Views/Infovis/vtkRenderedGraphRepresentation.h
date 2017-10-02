@@ -66,7 +66,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedGraphRepresentation : public vtkRendered
 public:
   static vtkRenderedGraphRepresentation* New();
   vtkTypeMacro(vtkRenderedGraphRepresentation, vtkRenderedRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // ------------------------------------------------------------------------
   // Vertex labels
@@ -341,7 +341,7 @@ public:
   /**
    * Apply a theme to this representation.
    */
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   //@{
   /**
@@ -403,21 +403,21 @@ public:
 
 protected:
   vtkRenderedGraphRepresentation();
-  ~vtkRenderedGraphRepresentation() VTK_OVERRIDE;
+  ~vtkRenderedGraphRepresentation() override;
 
   //@{
   /**
    * Called by the view to add/remove this representation.
    */
-  bool AddToView(vtkView* view) VTK_OVERRIDE;
-  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
+  bool AddToView(vtkView* view) override;
+  bool RemoveFromView(vtkView* view) override;
   //@}
 
-  void PrepareForRendering(vtkRenderView* view) VTK_OVERRIDE;
+  void PrepareForRendering(vtkRenderView* view) override;
 
-  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) VTK_OVERRIDE;
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) override;
 
-  vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) VTK_OVERRIDE;
+  vtkUnicodeString GetHoverTextInternal(vtkSelection* sel) override;
 
   /**
    * Connect inputs to internal pipeline.
@@ -425,7 +425,7 @@ protected:
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   //@{
   /**

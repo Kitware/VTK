@@ -47,7 +47,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHyperTreeGridAlgorithm : public vtkAlgor
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -87,7 +87,7 @@ public:
    */
   virtual int ProcessRequest( vtkInformation*,
                               vtkInformationVector**,
-                              vtkInformationVector*) VTK_OVERRIDE;
+                              vtkInformationVector*) override;
 
   //@{
   /**
@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkHyperTreeGridAlgorithm();
-  ~vtkHyperTreeGridAlgorithm() VTK_OVERRIDE;
+  ~vtkHyperTreeGridAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation( vtkInformation*,
@@ -145,8 +145,8 @@ protected:
   /**
    * Define default input and output port types
    */
-  int FillInputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int, vtkInformation* ) VTK_OVERRIDE;
+  int FillInputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
   //@}
 
   vtkDataSetAttributes* InData;

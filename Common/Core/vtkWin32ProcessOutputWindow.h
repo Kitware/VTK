@@ -33,7 +33,7 @@ class VTKCOMMONCORE_EXPORT vtkWin32ProcessOutputWindow : public vtkOutputWindow
 public:
   vtkTypeMacro(vtkWin32ProcessOutputWindow,vtkOutputWindow);
   static vtkWin32ProcessOutputWindow* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Send text to the output window process.

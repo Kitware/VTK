@@ -50,7 +50,7 @@ class vtkPickFollowerCallback : public vtkCommand
 public:
   static vtkPickFollowerCallback *New()
     { return new vtkPickFollowerCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
 //      vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkCellPicker *picker = reinterpret_cast<vtkCellPicker*>(caller);

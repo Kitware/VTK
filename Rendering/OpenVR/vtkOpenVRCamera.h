@@ -37,7 +37,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRCamera : public vtkOpenGLCamera
 public:
   static vtkOpenVRCamera *New();
   vtkTypeMacro(vtkOpenVRCamera, vtkOpenGLCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.

@@ -41,7 +41,7 @@ class VTKRENDERINGCORE_EXPORT vtkGlyph3DMapper : public vtkMapper
 public:
   static vtkGlyph3DMapper* New();
   vtkTypeMacro(vtkGlyph3DMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ArrayIndexes
   {
@@ -231,17 +231,17 @@ public:
   /**
    * Redefined to take into account the bounds of the scaled glyphs.
    */
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
 
   /**
    * Same as superclass. Appear again to stop warnings about hidden method.
    */
-  void GetBounds(double bounds[6]) VTK_OVERRIDE;
+  void GetBounds(double bounds[6]) override;
 
   /**
    * All the work is done is derived classes.
    */
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -415,18 +415,18 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() VTK_OVERRIDE
+  bool GetSupportsSelection() override
     { return true; }
 
 protected:
   vtkGlyph3DMapper();
-  ~vtkGlyph3DMapper() VTK_OVERRIDE;
+  ~vtkGlyph3DMapper() override;
 
   virtual int RequestUpdateExtent(vtkInformation *request,
     vtkInformationVector **inInfo,
     vtkInformationVector *outInfo);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkPolyData *GetSource(int idx, vtkInformationVector *sourceInfo);
   vtkPolyData *GetSourceTable(int idx, vtkInformationVector *sourceInfo);

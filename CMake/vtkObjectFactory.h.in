@@ -25,11 +25,11 @@ public:
   static @vtk-module@ObjectFactory * New();
   vtkTypeMacro(@vtk-module@ObjectFactory, vtkObjectFactory)
 
-  const char * GetDescription() VTK_OVERRIDE { return "@vtk-module@ factory overrides."; }
+  const char * GetDescription() override { return "@vtk-module@ factory overrides."; }
 
-  const char * GetVTKSourceVersion() VTK_OVERRIDE;
+  const char * GetVTKSourceVersion() override;
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
 protected:
   @vtk-module@ObjectFactory();

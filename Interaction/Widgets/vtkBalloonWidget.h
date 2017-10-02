@@ -95,14 +95,14 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkBalloonWidget,vtkHoverWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * The method for activating and deactivating this widget. This method
    * must be overridden because it performs special timer-related operations.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -121,7 +121,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -175,11 +175,11 @@ public:
 
 protected:
   vtkBalloonWidget();
-  ~vtkBalloonWidget() VTK_OVERRIDE;
+  ~vtkBalloonWidget() override;
 
   // This class implements the method called from its superclass.
-  int SubclassEndHoverAction() VTK_OVERRIDE;
-  int SubclassHoverAction() VTK_OVERRIDE;
+  int SubclassEndHoverAction() override;
+  int SubclassHoverAction() override;
 
   // Classes for managing balloons
   vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,vtkStdString)
@@ -188,7 +188,7 @@ protected:
   vtkAbstractPropPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // The vtkProp that is being hovered over (which may be NULL)
   vtkProp *CurrentProp;

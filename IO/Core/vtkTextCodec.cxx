@@ -53,12 +53,12 @@ namespace
   class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    vtkUnicodeStringOutputIterator& operator++(int) VTK_OVERRIDE;
-    vtkUnicodeStringOutputIterator& operator*() VTK_OVERRIDE;
-    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE;
+    vtkUnicodeStringOutputIterator& operator++(int) override;
+    vtkUnicodeStringOutputIterator& operator*() override;
+    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) override;
 
     vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
-    ~vtkUnicodeStringOutputIterator() VTK_OVERRIDE;
+    ~vtkUnicodeStringOutputIterator() override;
 
   private:
     vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) VTK_DELETE_FUNCTION;

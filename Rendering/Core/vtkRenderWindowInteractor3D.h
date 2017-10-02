@@ -43,7 +43,7 @@ public:
   static vtkRenderWindowInteractor3D *New();
 
   vtkTypeMacro(vtkRenderWindowInteractor3D,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,8 +55,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  void Enable() VTK_OVERRIDE;
-  void Disable() VTK_OVERRIDE;
+  void Enable() override;
+  void Disable() override;
   //@}
 
   /**
@@ -64,7 +64,7 @@ public:
    * calls PostQuitMessage(0) to terminate the application. An application can Specify
    * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
    */
-  void TerminateApp(void) VTK_OVERRIDE;
+  void TerminateApp(void) override;
 
   //@{
   /**
@@ -213,16 +213,16 @@ public:
   /**
    * Override to set pointers down
    */
-  void RightButtonPressEvent() VTK_OVERRIDE;
-  void RightButtonReleaseEvent() VTK_OVERRIDE;
+  void RightButtonPressEvent() override;
+  void RightButtonReleaseEvent() override;
   //@}
 
   //@{
   /**
    * Override to set pointers down
    */
-  void MiddleButtonPressEvent() VTK_OVERRIDE;
-  void MiddleButtonReleaseEvent() VTK_OVERRIDE;
+  void MiddleButtonPressEvent() override;
+  void MiddleButtonReleaseEvent() override;
   //@}
 
   //@{
@@ -260,7 +260,7 @@ public:
 
 protected:
   vtkRenderWindowInteractor3D();
-  ~vtkRenderWindowInteractor3D() VTK_OVERRIDE;
+  ~vtkRenderWindowInteractor3D() override;
 
   int     MouseInWindow;
   int     StartedMessageLoop;
@@ -277,7 +277,7 @@ protected:
   double   StartingPhysicalEventPositions[VTKI_MAX_POINTERS][3];
   double   WorldEventOrientations[VTKI_MAX_POINTERS][4];
   double   LastWorldEventOrientations[VTKI_MAX_POINTERS][4];
-  void RecognizeGesture(vtkCommand::EventIds) VTK_OVERRIDE;
+  void RecognizeGesture(vtkCommand::EventIds) override;
 
 private:
   vtkRenderWindowInteractor3D(const vtkRenderWindowInteractor3D&) VTK_DELETE_FUNCTION;  // Not implemented.

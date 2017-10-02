@@ -60,7 +60,7 @@ public:
    */
   static vtkStaticCellLocator *New();
   vtkTypeMacro(vtkStaticCellLocator,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -79,12 +79,12 @@ public:
    * or -1 if not.
    */
   vtkIdType FindCell(double pos[3], double vtkNotUsed, vtkGenericCell *cell,
-                     double pcoords[3], double* weights ) VTK_OVERRIDE;
+                     double pcoords[3], double* weights ) override;
 
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
-  vtkIdType FindCell(double x[3]) VTK_OVERRIDE
+  vtkIdType FindCell(double x[3]) override
     { return this->Superclass::FindCell(x); }
 
   /**
@@ -92,7 +92,7 @@ public:
    * user must provide the vtkIdList to populate. This method returns data
    * only after the locator has been built.
    */
-  void FindCellsWithinBounds(double *bbox, vtkIdList *cells) VTK_OVERRIDE;
+  void FindCellsWithinBounds(double *bbox, vtkIdList *cells) override;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
@@ -101,13 +101,13 @@ public:
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
                         int &subId, vtkIdType &cellId,
-                        vtkGenericCell *cell) VTK_OVERRIDE;
+                        vtkGenericCell *cell) override;
 
   /**
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
   int IntersectWithLine(double p1[3], double p2[3], double tol,
-                        double& t, double x[3], double pcoords[3], int &subId) VTK_OVERRIDE
+                        double& t, double x[3], double pcoords[3], int &subId) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId);
   }
@@ -117,7 +117,7 @@ public:
    */
   int IntersectWithLine(double p1[3], double p2[3], double tol,
                         double &t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId) VTK_OVERRIDE
+                        int &subId, vtkIdType &cellId) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, tol, t, x, pcoords, subId, cellId);
   }
@@ -126,7 +126,7 @@ public:
    * Reimplemented from vtkAbstractCellLocator to support bad compilers.
    */
   int IntersectWithLine(const double p1[3], const double p2[3],
-                        vtkPoints *points, vtkIdList *cellIds) VTK_OVERRIDE
+                        vtkPoints *points, vtkIdList *cellIds) override
   {
     return this->Superclass::IntersectWithLine(p1, p2, points, cellIds);
   }
@@ -135,9 +135,9 @@ public:
   /**
    * Satisfy vtkLocator abstract interface.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
-  void FreeSearchStructure() VTK_OVERRIDE;
-  void BuildLocator() VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
+  void FreeSearchStructure() override;
+  void BuildLocator() override;
   //@}
 
   //@{
@@ -170,7 +170,7 @@ public:
 
 protected:
   vtkStaticCellLocator();
-  ~vtkStaticCellLocator() VTK_OVERRIDE;
+  ~vtkStaticCellLocator() override;
 
   double Bounds[6]; // Bounding box of the whole dataset
   int Divisions[3]; // Number of sub-divisions in x-y-z directions

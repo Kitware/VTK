@@ -35,7 +35,7 @@ class vtkAngleWidgetCallback : public vtkCommand
 public:
   static vtkAngleWidgetCallback *New()
     { return new vtkAngleWidgetCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {

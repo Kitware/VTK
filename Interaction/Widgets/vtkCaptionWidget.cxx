@@ -33,7 +33,7 @@ class vtkCaptionAnchorCallback : public vtkCommand
 public:
   static vtkCaptionAnchorCallback *New()
     { return new vtkCaptionAnchorCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {

@@ -99,7 +99,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridConnectivity :
 public:
   static vtkPUnstructuredGridConnectivity* New();
   vtkTypeMacro(vtkPUnstructuredGridConnectivity,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**

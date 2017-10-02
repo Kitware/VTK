@@ -40,7 +40,7 @@ class VTKIOEXODUS_EXPORT vtkCPExodusIIElementBlockImpl : public vtkObject
 {
 public:
   static vtkCPExodusIIElementBlockImpl *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   vtkTypeMacro(vtkCPExodusIIElementBlockImpl, vtkObject)
 
   /**
@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkCPExodusIIElementBlockImpl();
-  ~vtkCPExodusIIElementBlockImpl() VTK_OVERRIDE;
+  ~vtkCPExodusIIElementBlockImpl() override;
 
 private:
   vtkCPExodusIIElementBlockImpl(const vtkCPExodusIIElementBlockImpl &) VTK_DELETE_FUNCTION;

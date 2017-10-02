@@ -55,7 +55,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkScalarTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarTree,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkScalarTree();
-  ~vtkScalarTree() VTK_OVERRIDE;
+  ~vtkScalarTree() override;
 
   vtkDataSet   *DataSet;    //the dataset over which the scalar tree is built
   vtkDataArray *Scalars;    //the scalars of the DataSet

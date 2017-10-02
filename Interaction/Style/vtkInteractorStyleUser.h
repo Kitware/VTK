@@ -44,7 +44,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUser : public vtkInteractorSt
 public:
   static vtkInteractorStyleUser *New();
   vtkTypeMacro(vtkInteractorStyleUser,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -101,42 +101,42 @@ public:
   /**
    * Generic event bindings
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnMouseWheelForward() VTK_OVERRIDE;
-  void OnMouseWheelBackward() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
+  void OnMouseWheelForward() override;
+  void OnMouseWheelBackward() override;
   //@}
 
   //@{
   /**
    * Keyboard functions
    */
-  void OnChar() VTK_OVERRIDE;
-  void OnKeyPress() VTK_OVERRIDE;
-  void OnKeyRelease() VTK_OVERRIDE;
+  void OnChar() override;
+  void OnKeyPress() override;
+  void OnKeyRelease() override;
   //@}
 
   //@{
   /**
    * These are more esoteric events, but are useful in some cases.
    */
-  void OnExpose() VTK_OVERRIDE;
-  void OnConfigure() VTK_OVERRIDE;
-  void OnEnter() VTK_OVERRIDE;
-  void OnLeave() VTK_OVERRIDE;
+  void OnExpose() override;
+  void OnConfigure() override;
+  void OnEnter() override;
+  void OnLeave() override;
   //@}
 
-  void OnTimer() VTK_OVERRIDE;
+  void OnTimer() override;
 
 protected:
 
   vtkInteractorStyleUser();
-  ~vtkInteractorStyleUser() VTK_OVERRIDE;
+  ~vtkInteractorStyleUser() override;
 
   int LastPos[2];
   int OldPos[2];

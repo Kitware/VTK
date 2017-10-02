@@ -46,18 +46,18 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLRenderer :
 public:
   static vtkExternalOpenGLRenderer *New();
   vtkTypeMacro(vtkExternalOpenGLRenderer, vtkOpenGLRenderer);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Synchronize camera and light parameters
    */
-  void Render(void) VTK_OVERRIDE;
+  void Render(void) override;
 
   /**
    * Create a new Camera sutible for use with this type of Renderer.
    * This function creates the vtkExternalOpenGLCamera.
    */
-  vtkCamera* MakeCamera() VTK_OVERRIDE;
+  vtkCamera* MakeCamera() override;
 
   /**
    * Add an external light to the list of external lights.
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkExternalOpenGLRenderer();
-  ~vtkExternalOpenGLRenderer() VTK_OVERRIDE;
+  ~vtkExternalOpenGLRenderer() override;
 
   vtkLightCollection *ExternalLights;
 

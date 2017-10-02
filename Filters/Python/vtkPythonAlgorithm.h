@@ -52,7 +52,7 @@ class VTKFILTERSPYTHON_EXPORT vtkPythonAlgorithm : public vtkAlgorithm
 public:
   static vtkPythonAlgorithm *New();
   vtkTypeMacro(vtkPythonAlgorithm, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the Python object to use to operate on the data. A reference will
@@ -67,13 +67,13 @@ public:
    * Set the number of input ports used by the algorithm.
    * This is made public so that it can be called from Python.
    */
-  void SetNumberOfInputPorts(int n) VTK_OVERRIDE;
+  void SetNumberOfInputPorts(int n) override;
 
   /**
    * Set the number of output ports provided by the algorithm.
    * This is made public so that it can be called from Python.
    */
-  void SetNumberOfOutputPorts(int n) VTK_OVERRIDE;
+  void SetNumberOfOutputPorts(int n) override;
 
 protected:
   vtkPythonAlgorithm();
@@ -81,9 +81,9 @@ protected:
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inInfo,
-                     vtkInformationVector* outInfo) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+                     vtkInformationVector* outInfo) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
   vtkPythonAlgorithm(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;

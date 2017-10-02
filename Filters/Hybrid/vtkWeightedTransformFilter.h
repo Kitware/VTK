@@ -81,12 +81,12 @@ class VTKFILTERSHYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlg
 public:
   static vtkWeightedTransformFilter *New();
   vtkTypeMacro(vtkWeightedTransformFilter,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the MTime also considering the filter's transforms.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -189,9 +189,9 @@ protected:
   char *TransformIndexArray;
 
   vtkWeightedTransformFilter();
-  ~vtkWeightedTransformFilter() VTK_OVERRIDE;
+  ~vtkWeightedTransformFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
   vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;

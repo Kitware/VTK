@@ -34,11 +34,11 @@ class VTKCOMMONCORE_EXPORT vtkInformationVariantVectorKey : public vtkInformatio
 {
 public:
   vtkTypeMacro(vtkInformationVariantVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationVariantVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationVariantVectorKey() VTK_OVERRIDE;
+  ~vtkInformationVariantVectorKey() override;
 
   /**
    * This method simply returns a new vtkInformationVariantVectorKey, given a
@@ -69,12 +69,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 protected:
   // The required length of the vector value (-1 is no restriction).

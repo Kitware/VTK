@@ -50,7 +50,7 @@ public:
   vtkTypeMacro(MouseInteractorStyle2, vtkInteractorStyleTrackballCamera);
 
 
-  virtual void OnLeftButtonDown() VTK_OVERRIDE
+  virtual void OnLeftButtonDown() override
   {
     int* clickPos = this->GetInteractor()->GetEventPosition();
 

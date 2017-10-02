@@ -39,7 +39,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkAssignCoordinatesLayoutStrategy : public vtkGra
 public:
   static vtkAssignCoordinatesLayoutStrategy *New();
   vtkTypeMacro(vtkAssignCoordinatesLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -68,11 +68,11 @@ public:
   /**
    * Perform the random layout.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
 protected:
   vtkAssignCoordinatesLayoutStrategy();
-  ~vtkAssignCoordinatesLayoutStrategy() VTK_OVERRIDE;
+  ~vtkAssignCoordinatesLayoutStrategy() override;
 
   vtkSmartPointer<vtkAssignCoordinates> AssignCoordinates;
 

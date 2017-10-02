@@ -56,7 +56,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkDendrogramItem : public vtkContextItem
 public:
   static vtkDendrogramItem *New();
   vtkTypeMacro(vtkDendrogramItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Set the tree that this item draws.  Note that this tree's vertex data
@@ -196,7 +196,7 @@ public:
   /**
    * Paints the input tree as a dendrogram.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -272,17 +272,17 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Collapse or expand a subtree when the user double clicks on an
    * internal node.
    */
-  bool MouseDoubleClickEvent( const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseDoubleClickEvent( const vtkContextMouseEvent &event) override;
 
 protected:
   vtkDendrogramItem();
-  ~vtkDendrogramItem() VTK_OVERRIDE;
+  ~vtkDendrogramItem() override;
 
   vtkVector2f PositionVector;
   float* Position;

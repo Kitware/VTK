@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkDynamicLoader() {}
-  ~vtkDynamicLoader() VTK_OVERRIDE {}
+  ~vtkDynamicLoader() override {}
 
 private:
   vtkDynamicLoader(const vtkDynamicLoader&) VTK_DELETE_FUNCTION;

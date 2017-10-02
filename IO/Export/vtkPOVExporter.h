@@ -93,7 +93,7 @@ class VTKIOEXPORT_EXPORT vtkPOVExporter : public vtkExporter
 public:
     static vtkPOVExporter *New();
     vtkTypeMacro(vtkPOVExporter, vtkExporter);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -105,9 +105,9 @@ public:
 
 protected:
     vtkPOVExporter();
-    ~vtkPOVExporter() VTK_OVERRIDE;
+    ~vtkPOVExporter() override;
 
-    void WriteData() VTK_OVERRIDE;
+    void WriteData() override;
     virtual void WriteHeader(vtkRenderer *renderer);
     void WriteCamera(vtkCamera *camera);
     void WriteLight(vtkLight *light);

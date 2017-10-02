@@ -50,7 +50,7 @@ class VTKFILTERSGENERAL_EXPORT vtkQuantizePolyDataPoints : public vtkCleanPolyDa
 public:
   static vtkQuantizePolyDataPoints *New();
   vtkTypeMacro(vtkQuantizePolyDataPoints,vtkCleanPolyData);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -63,16 +63,16 @@ public:
   /**
    * Perform quantization on a point
    */
-  void OperateOnPoint(double in[3], double out[3]) VTK_OVERRIDE;
+  void OperateOnPoint(double in[3], double out[3]) override;
 
   /**
    * Perform quantization on bounds
    */
-  void OperateOnBounds(double in[6], double out[6]) VTK_OVERRIDE;
+  void OperateOnBounds(double in[6], double out[6]) override;
 
 protected:
   vtkQuantizePolyDataPoints();
-  ~vtkQuantizePolyDataPoints() VTK_OVERRIDE {}
+  ~vtkQuantizePolyDataPoints() override {}
 
   double QFactor;
 private:

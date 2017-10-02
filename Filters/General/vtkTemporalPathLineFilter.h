@@ -59,7 +59,7 @@ public:
    */
   static vtkTemporalPathLineFilter *New();
   vtkTypeMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -143,13 +143,13 @@ public:
 
 protected:
    vtkTemporalPathLineFilter();
-  ~vtkTemporalPathLineFilter() VTK_OVERRIDE;
+  ~vtkTemporalPathLineFilter() override;
 
   //
   // Make sure the pipeline knows what type we expect as input
   //
-  int FillInputPortInformation (int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation (int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   //@{
   /**
@@ -157,11 +157,11 @@ protected:
    */
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   //
   int RequestData(vtkInformation *request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
   //@}
 
   TrailPointer GetTrail(vtkIdType i);

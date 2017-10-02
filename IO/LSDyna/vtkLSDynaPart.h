@@ -29,7 +29,7 @@ public:
   static vtkLSDynaPart *New();
 
   vtkTypeMacro(vtkLSDynaPart,vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //Description: Set the type of the part
   void SetPartType(int type);
@@ -137,7 +137,7 @@ public:
 
 protected:
   vtkLSDynaPart();
-  ~vtkLSDynaPart() VTK_OVERRIDE;
+  ~vtkLSDynaPart() override;
 
   vtkUnstructuredGrid* RemoveDeletedCells();
 

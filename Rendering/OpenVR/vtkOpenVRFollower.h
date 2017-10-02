@@ -29,15 +29,15 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRFollower : public vtkFollower
 public:
   static vtkOpenVRFollower *New();
   vtkTypeMacro(vtkOpenVRFollower, vtkFollower);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void Render(vtkRenderer *ren) VTK_OVERRIDE;
+  virtual void Render(vtkRenderer *ren) override;
 
   /**
    * Generate the matrix based on ivars. This method overloads its superclasses
    * ComputeMatrix() method due to the special vtkFollower matrix operations.
    */
-  void ComputeMatrix() VTK_OVERRIDE;
+  void ComputeMatrix() override;
 
 protected:
   vtkOpenVRFollower();

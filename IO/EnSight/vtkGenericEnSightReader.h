@@ -50,7 +50,7 @@ class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetA
 public:
   static vtkGenericEnSightReader *New();
   vtkTypeMacro(vtkGenericEnSightReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -277,15 +277,15 @@ vtkGenericEnSightReader* GetReader() { return this->Reader; }
 
 protected:
   vtkGenericEnSightReader();
-  ~vtkGenericEnSightReader() VTK_OVERRIDE;
+  ~vtkGenericEnSightReader() override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
   /**
    * Clear data structures such that setting a new case file name works.

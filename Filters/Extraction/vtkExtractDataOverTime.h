@@ -36,7 +36,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractDataOverTime : public vtkPointSetAlg
 public:
   static vtkExtractDataOverTime *New();
   vtkTypeMacro(vtkExtractDataOverTime,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,14 +55,14 @@ public:
 
 protected:
   vtkExtractDataOverTime();
-  ~vtkExtractDataOverTime()VTK_OVERRIDE {}
+  ~vtkExtractDataOverTime() override {}
 
   int RequestInformation( vtkInformation *request,
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
 
   int AllocateOutputData(vtkPointSet *input, vtkPointSet *output);
 

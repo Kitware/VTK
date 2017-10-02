@@ -68,7 +68,7 @@ class VTKFILTERSCORE_EXPORT vtkPolyDataNormals : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPolyDataNormals,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with feature angle=30, splitting and consistency turned on,
@@ -175,10 +175,10 @@ public:
 
 protected:
   vtkPolyDataNormals();
-  ~vtkPolyDataNormals() VTK_OVERRIDE {}
+  ~vtkPolyDataNormals() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double FeatureAngle;
   int Splitting;

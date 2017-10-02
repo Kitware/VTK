@@ -137,7 +137,7 @@ class vtkPlotBarSegment : public vtkObject {
       this->Colors = nullptr;
     }
 
-    ~vtkPlotBarSegment() VTK_OVERRIDE
+    ~vtkPlotBarSegment() override
     {
       delete this->Sorted;
     }

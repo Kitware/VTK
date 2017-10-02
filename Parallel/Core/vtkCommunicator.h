@@ -53,7 +53,7 @@ class VTKPARALLELCORE_EXPORT vtkCommunicator : public vtkObject
 public:
 
   vtkTypeMacro(vtkCommunicator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -1301,7 +1301,7 @@ protected:
   int ReadDataArray(vtkDataArray *object);
 
   vtkCommunicator();
-  ~vtkCommunicator() VTK_OVERRIDE;
+  ~vtkCommunicator() override;
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);

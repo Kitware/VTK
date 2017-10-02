@@ -34,7 +34,7 @@ class VTKIOINFOVIS_EXPORT vtkNewickTreeWriter : public vtkDataWriter
 public:
   static vtkNewickTreeWriter *New();
   vtkTypeMacro(vtkNewickTreeWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,9 +70,9 @@ public:
 
 protected:
   vtkNewickTreeWriter();
-  ~vtkNewickTreeWriter() VTK_OVERRIDE {}
+  ~vtkNewickTreeWriter() override {}
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   /**
    * Write one vertex.  This function calls itself recursively for
@@ -80,7 +80,7 @@ protected:
    */
   void WriteVertex(ostream *fp, vtkTree* const input, vtkIdType vertex);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkStdString EdgeWeightArrayName;
   vtkStdString NodeNameArrayName;

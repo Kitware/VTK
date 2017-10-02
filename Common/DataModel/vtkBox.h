@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkBox,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct box with center at (0,0,0) and each side of length 1.0.
@@ -50,12 +50,12 @@ public:
    * Evaluate box defined by the two points (pMin,pMax).
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
 
   /**
    * Evaluate the gradient of the box.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtkBox();
-  ~vtkBox() VTK_OVERRIDE;
+  ~vtkBox() override;
 
   vtkBoundingBox *BBox;
   double Bounds[6]; //supports the GetBounds() method

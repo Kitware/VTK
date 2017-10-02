@@ -45,13 +45,13 @@ class VTKFILTERSGENERAL_EXPORT vtkInterpolatingSubdivisionFilter : public vtkSub
 {
 public:
   vtkTypeMacro(vtkInterpolatingSubdivisionFilter, vtkSubdivisionFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkInterpolatingSubdivisionFilter();
-  ~vtkInterpolatingSubdivisionFilter() VTK_OVERRIDE {}
+  ~vtkInterpolatingSubdivisionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
   void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
   int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,

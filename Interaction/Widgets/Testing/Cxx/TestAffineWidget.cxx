@@ -43,12 +43,12 @@ class vtkAffineCallback : public vtkCommand
 public:
   static vtkAffineCallback *New()
   { return new vtkAffineCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE;
+  void Execute(vtkObject *caller, unsigned long, void*) override;
   vtkAffineCallback():ImageActor(nullptr),AffineRep(nullptr)
   {
     this->Transform = vtkTransform::New();
   }
-  ~vtkAffineCallback() VTK_OVERRIDE
+  ~vtkAffineCallback() override
   {
     this->Transform->Delete();
   }

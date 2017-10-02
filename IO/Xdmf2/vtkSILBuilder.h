@@ -39,7 +39,7 @@ class VTKIOXDMF2_EXPORT vtkSILBuilder : public vtkObject
 public:
   static vtkSILBuilder* New();
   vtkTypeMacro(vtkSILBuilder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkSILBuilder();
-  ~vtkSILBuilder() VTK_OVERRIDE;
+  ~vtkSILBuilder() override;
 
   vtkStringArray* NamesArray;
   vtkUnsignedCharArray* CrossEdgesArray;

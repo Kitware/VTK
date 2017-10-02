@@ -46,7 +46,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedThresholds : public vtkExtra
 {
 public:
   vtkTypeMacro(vtkExtractSelectedThresholds, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Constructor
@@ -101,12 +101,12 @@ public:
 
 protected:
   vtkExtractSelectedThresholds();
-  ~vtkExtractSelectedThresholds() VTK_OVERRIDE;
+  ~vtkExtractSelectedThresholds() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   int ExtractCells(vtkSelectionNode *sel, vtkDataSet *input,
                    vtkDataSet *output,

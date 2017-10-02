@@ -38,7 +38,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPDataObjectWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLPDataObjectWriter, vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -101,21 +101,21 @@ public:
    * executive.
    */
   int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
 protected:
   vtkXMLPDataObjectWriter();
-  ~vtkXMLPDataObjectWriter() VTK_OVERRIDE;
+  ~vtkXMLPDataObjectWriter() override;
 
   /**
   * Override writing method from superclass.
   */
-  int WriteInternal() VTK_OVERRIDE;
+  int WriteInternal() override;
 
   /**
    * Write data from the input dataset. Call WritePData(vtkIndent indent)
    */
-  int WriteData() VTK_OVERRIDE;
+  int WriteData() override;
 
   /**
    * Write Data associated with the input dataset. It needs to be overriden by subclass

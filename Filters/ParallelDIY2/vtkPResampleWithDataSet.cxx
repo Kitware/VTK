@@ -153,7 +153,7 @@ public:
 class RegularPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) override
   {
     // compute the bounds of the composite dataset
     size_t totalNumberOfPoints = 0;
@@ -260,7 +260,7 @@ public:
     }
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const override
   {
     if (this->Nodes.empty())
     {
@@ -352,7 +352,7 @@ private:
 class BalancedPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) override
   {
     // count total number of points
     vtkIdType totalNumberOfPoints = 0;
@@ -400,7 +400,7 @@ public:
                          &this->Splits[0], &this->Splits[splitsSize], 0);
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const override
   {
     int tag = 0;
     for (int i = 0; i < 3; ++i)

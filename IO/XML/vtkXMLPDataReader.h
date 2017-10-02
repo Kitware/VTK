@@ -38,17 +38,17 @@ class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLPDataObjectReader
 {
 public:
   vtkTypeMacro(vtkXMLPDataReader, vtkXMLPDataObjectReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
   * For the specified port, copy the information this reader sets up in
   * SetupOutputInformation to outInfo
   */
-  void CopyOutputInformation(vtkInformation* outInfo, int port) VTK_OVERRIDE;
+  void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
 protected:
   vtkXMLPDataReader();
-  ~vtkXMLPDataReader() VTK_OVERRIDE;
+  ~vtkXMLPDataReader() override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkXMLPDataObjectReader::ReadPiece;
@@ -56,7 +56,7 @@ protected:
   /**
    * Delete all piece readers and related information
    */
-  void DestroyPieces() VTK_OVERRIDE;
+  void DestroyPieces() override;
 
   virtual vtkIdType GetNumberOfPoints() = 0;
 
@@ -70,22 +70,22 @@ protected:
   /**
    * Initialize the output data
    */
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupOutputData() override;
 
   /**
   * Pipeline execute information driver.  Called by vtkXMLReader.
   */
-  void SetupOutputInformation(vtkInformation* outInfo) VTK_OVERRIDE;
+  void SetupOutputInformation(vtkInformation* outInfo) override;
 
   /**
    * Setup the number of pieces to be read and allocate space accordingly
    */
-  void SetupPieces(int numPieces) VTK_OVERRIDE;
+  void SetupPieces(int numPieces) override;
 
   /**
    * Whether or not the current reader can read the current piece
    */
-  int CanReadPiece(int index) VTK_OVERRIDE;
+  int CanReadPiece(int index) override;
 
   /**
    * Create a reader according to the data to read. It needs to be overridden by subclass.
@@ -95,7 +95,7 @@ protected:
   /**
    * Setup the current piece reader
    */
-  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
 
   /**
    * Actually read the piece at the given index data
@@ -110,7 +110,7 @@ protected:
   /**
    * Read the information relative to the dataset and allocate the needed structures according to it
    */
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   virtual void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
   virtual void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
@@ -118,7 +118,7 @@ protected:
   /**
   * Callback registered with the PieceProgressObserver.
   */
-  void PieceProgressCallback() VTK_OVERRIDE;
+  void PieceProgressCallback() override;
 
   /**
   * The ghost level available on each input piece.

@@ -54,7 +54,7 @@
 class VTKFILTERSSOURCES_EXPORT vtkPlaneSource : public vtkPolyDataAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPlaneSource,vtkPolyDataAlgorithm);
 
   /**
@@ -155,9 +155,9 @@ public:
 
 protected:
   vtkPlaneSource();
-  ~vtkPlaneSource() VTK_OVERRIDE {}
+  ~vtkPlaneSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int XResolution;
   int YResolution;

@@ -44,7 +44,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPTableWriter : public vtkXMLPDataObjectWrite
 public:
   static vtkXMLPTableWriter* New();
   vtkTypeMacro(vtkXMLPTableWriter, vtkXMLPDataObjectWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get/Set the writer's input.
@@ -54,21 +54,21 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPTableWriter();
-  ~vtkXMLPTableWriter() VTK_OVERRIDE;
+  ~vtkXMLPTableWriter() override;
 
   /**
   * see algorithm for more info
   */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Return the type of data being actually written
    */
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   /**
    * Create a writer for the piece at a given index
@@ -84,18 +84,18 @@ protected:
   /**
    * Write a piece of the dataset on disk. Called by WritePieceInternal()
    */
-  int WritePiece(int index) VTK_OVERRIDE;
+  int WritePiece(int index) override;
 
   /**
    * Method called by the superclass::WriteInternal(). Write a piece using
    * WritePiece(int index).
    */
-  int WritePieceInternal() VTK_OVERRIDE;
+  int WritePieceInternal() override;
 
   /**
    * Write Data associated with the input dataset
    */
-  void WritePData(vtkIndent indent) VTK_OVERRIDE;
+  void WritePData(vtkIndent indent) override;
 
   /**
    * Write RowData. Called by WritePData(vtkIndent indent)
@@ -109,7 +109,7 @@ private:
   /**
    * Initializes PieceFileNameExtension.
    */
-  void SetupPieceFileNameExtension() VTK_OVERRIDE;
+  void SetupPieceFileNameExtension() override;
 };
 
 #endif

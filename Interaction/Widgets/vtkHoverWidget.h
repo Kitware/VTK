@@ -87,7 +87,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkHoverWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -104,19 +104,19 @@ public:
    * The method for activating and deactivating this widget. This method
    * must be overridden because it performs special timer-related operations.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * A default representation, of which there is none, is created. Note
    * that the superclasses vtkAbstractWidget::GetRepresentation()
    * method returns NULL.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE
+  void CreateDefaultRepresentation() override
     {this->WidgetRep = nullptr;}
 
 protected:
   vtkHoverWidget();
-  ~vtkHoverWidget() VTK_OVERRIDE;
+  ~vtkHoverWidget() override;
 
   // The state of the widget
 

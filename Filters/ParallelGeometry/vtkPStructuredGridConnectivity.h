@@ -51,7 +51,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridConnectivity :
 public:
   static vtkPStructuredGridConnectivity* New();
   vtkTypeMacro(vtkPStructuredGridConnectivity,vtkStructuredGridConnectivity);
-  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
   /**
    * Sets the total number of domains distributed among processors
    */
-  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
+  void SetNumberOfGrids( const unsigned int N ) override;
 
   /**
    * See vtkStructuredGridConnectivity::RegisterGrid
@@ -74,7 +74,7 @@ public:
       vtkUnsignedCharArray* cellGhostArray,
       vtkPointData* pointData,
       vtkCellData* cellData,
-      vtkPoints* gridNodes ) VTK_OVERRIDE;
+      vtkPoints* gridNodes ) override;
 
   /**
    * Returns the number of local grids registers by the process that owns
@@ -113,13 +113,13 @@ public:
    * data-set.
    * See vtkStructuredGridConnectivity::ComputeNeighbors
    */
-  void ComputeNeighbors() VTK_OVERRIDE;
+  void ComputeNeighbors() override;
 
   /**
    * Creates ghost layers on the grids owned by this process using data from
    * both local and remote block neighbors.
    */
-  virtual void CreateGhostLayers( const int N=1 ) VTK_OVERRIDE;
+  virtual void CreateGhostLayers( const int N=1 ) override;
 
 protected:
   vtkPStructuredGridConnectivity();
@@ -208,7 +208,7 @@ protected:
    * extents from the neighboring grids of the grid corresponding to the given
    * gridID.
    */
-  virtual void TransferGhostDataFromNeighbors(const int gridID) VTK_OVERRIDE;
+  virtual void TransferGhostDataFromNeighbors(const int gridID) override;
 
   /**
    * Helper method to pack all the ghost data into send buffers.

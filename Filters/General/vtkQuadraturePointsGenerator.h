@@ -43,13 +43,13 @@ class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointsGenerator : public vtkPolyData
 {
 public:
   vtkTypeMacro(vtkQuadraturePointsGenerator,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkQuadraturePointsGenerator *New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) VTK_OVERRIDE;
+  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
 
   /**
    * Generate the point set .
@@ -64,7 +64,7 @@ protected:
                 vtkPolyData* pdOut);
 
   vtkQuadraturePointsGenerator();
-  ~vtkQuadraturePointsGenerator() VTK_OVERRIDE;
+  ~vtkQuadraturePointsGenerator() override;
 private:
   vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraturePointsGenerator &) VTK_DELETE_FUNCTION;

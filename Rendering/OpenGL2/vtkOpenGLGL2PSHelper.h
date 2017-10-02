@@ -44,7 +44,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGL2PSHelper: public vtkObject
 public:
   static vtkOpenGLGL2PSHelper* New();
   vtkAbstractTypeMacro(vtkOpenGLGL2PSHelper, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -170,7 +170,7 @@ protected:
   friend class vtkOpenGLGL2PSExporter;
 
   vtkOpenGLGL2PSHelper();
-  ~vtkOpenGLGL2PSHelper() VTK_OVERRIDE;
+  ~vtkOpenGLGL2PSHelper() override;
 
   vtkSetMacro(ActiveState, State)
   vtkSetMacro(TextAsPath, bool)

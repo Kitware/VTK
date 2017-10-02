@@ -41,7 +41,7 @@ public:
   static vtkBoxLayoutStrategy *New();
 
   vtkTypeMacro(vtkBoxLayoutStrategy,vtkTreeMapLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the layout of a tree and place the results as 4-tuples in
@@ -50,11 +50,11 @@ public:
   void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,
-      vtkDataArray* sizeArray) VTK_OVERRIDE;
+      vtkDataArray* sizeArray) override;
 
 protected:
   vtkBoxLayoutStrategy();
-  ~vtkBoxLayoutStrategy() VTK_OVERRIDE;
+  ~vtkBoxLayoutStrategy() override;
 
 private:
 

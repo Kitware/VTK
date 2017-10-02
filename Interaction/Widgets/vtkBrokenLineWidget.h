@@ -111,18 +111,18 @@ public:
   static vtkBrokenLineWidget *New();
 
   vtkTypeMacro(vtkBrokenLineWidget,vtk3DWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Methods that satisfy the superclass' API.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void PlaceWidget() VTK_OVERRIDE
+  void SetEnabled(int) override;
+  void PlaceWidget(double bounds[6]) override;
+  void PlaceWidget() override
     {this->Superclass::PlaceWidget();}
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) VTK_OVERRIDE
+                   double zmin, double zmax) override
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
   //@}
 
@@ -251,7 +251,7 @@ public:
 
 protected:
   vtkBrokenLineWidget();
-  ~vtkBrokenLineWidget() VTK_OVERRIDE;
+  ~vtkBrokenLineWidget() override;
 
   // Manage the state of the widget
   int State;
@@ -305,7 +305,7 @@ protected:
   vtkSphereSource   **HandleGeometry;
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
-  void SizeHandles() VTK_OVERRIDE;
+  void SizeHandles() override;
   void InsertHandleOnLine(double* pos);
   void EraseHandle(const int&);
 
@@ -316,7 +316,7 @@ protected:
   int CurrentHandleIndex;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Methods to manipulate the broken line.
   void MovePoint(double *p1, double *p2);

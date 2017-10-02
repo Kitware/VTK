@@ -41,7 +41,7 @@ public:
    */
   static vtkCellTypeSource *New();
   vtkTypeMacro(vtkCellTypeSource,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -92,10 +92,10 @@ public:
 
 protected:
   vtkCellTypeSource();
-  ~vtkCellTypeSource() VTK_OVERRIDE {}
+  ~vtkCellTypeSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void GenerateTriangles(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuads(vtkUnstructuredGrid*, int extent[6]);

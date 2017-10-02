@@ -58,24 +58,24 @@ public:
   /**
    * Print information about this object.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Valid extensions for this file type.
    */
-  const char* GetFileExtensions() VTK_OVERRIDE {
+  const char* GetFileExtensions() override {
     return ".nii .nii.gz .img .img.gz .hdr .hdr.gz"; }
 
   /**
    * Return a descriptive name that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE {
+  const char* GetDescriptiveName() override {
     return "NIfTI"; }
 
   /**
    * Return true if this reader can read the given file.
    */
-  int CanReadFile(const char* filename) VTK_OVERRIDE;
+  int CanReadFile(const char* filename) override;
 
   //@{
   /**
@@ -168,21 +168,21 @@ public:
 
 protected:
   vtkNIFTIImageReader();
-  ~vtkNIFTIImageReader() VTK_OVERRIDE;
+  ~vtkNIFTIImageReader() override;
 
   /**
    * Read the header information.
    */
   int RequestInformation(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Read the voxel data.
    */
   int RequestData(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Do a case-insensitive check for the given extension.

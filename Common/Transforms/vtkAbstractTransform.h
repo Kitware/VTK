@@ -52,7 +52,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
 public:
 
   vtkTypeMacro(vtkAbstractTransform,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a coordinate.  You can use the same
@@ -280,17 +280,17 @@ public:
   /**
    * Override GetMTime necessary because of inverse transforms.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Needs a special UnRegister() implementation to avoid
    * circular references.
    */
-  void UnRegister(vtkObjectBase *O) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *O) override;
 
 protected:
   vtkAbstractTransform();
-  ~vtkAbstractTransform() VTK_OVERRIDE;
+  ~vtkAbstractTransform() override;
 
   /**
    * Perform any subclass-specific Update.

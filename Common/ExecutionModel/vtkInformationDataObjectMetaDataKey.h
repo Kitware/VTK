@@ -32,10 +32,10 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationDataObjectMetaDataKey : publi
 {
 public:
   vtkTypeMacro(vtkInformationDataObjectMetaDataKey,vtkInformationDataObjectKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationDataObjectMetaDataKey(const char* name, const char* location);
-  ~vtkInformationDataObjectMetaDataKey() VTK_OVERRIDE;
+  ~vtkInformationDataObjectMetaDataKey() override;
 
   /**
    * This method simply returns a new vtkInformationDataObjectMetaDataKey, given a
@@ -54,7 +54,7 @@ public:
    */
   void CopyDefaultInformation(vtkInformation* request,
                                       vtkInformation* fromInfo,
-                                      vtkInformation* toInfo) VTK_OVERRIDE;
+                                      vtkInformation* toInfo) override;
 
 private:
   vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;

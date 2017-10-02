@@ -49,7 +49,7 @@ public:
   static ContextPDFTest *New();
   vtkTypeMacro(ContextPDFTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 };
 vtkStandardNewMacro(ContextPDFTest)
 } // end anon namespace

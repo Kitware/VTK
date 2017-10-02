@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkIdListCollection() {}
-  ~vtkIdListCollection() VTK_OVERRIDE {}
+  ~vtkIdListCollection() override {}
 
 
 private:

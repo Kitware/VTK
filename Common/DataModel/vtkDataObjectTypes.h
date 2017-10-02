@@ -38,7 +38,7 @@ public:
   static vtkDataObjectTypes *New();
 
   vtkTypeMacro(vtkDataObjectTypes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Given an int (as defined in vtkType.h) identifier for a class
@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkDataObjectTypes() {}
-  ~vtkDataObjectTypes() VTK_OVERRIDE {}
+  ~vtkDataObjectTypes() override {}
 
   /**
    * Method used to validate data object types, for testing purposes

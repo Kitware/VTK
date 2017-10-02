@@ -102,7 +102,7 @@ class vtkDataArray;
 class VTKFILTERSVERDICT_EXPORT vtkMeshQuality : public vtkDataSetAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkMeshQuality,vtkDataSetAlgorithm);
   static vtkMeshQuality* New();
 
@@ -927,9 +927,9 @@ public:
 
 protected:
   vtkMeshQuality();
-  ~vtkMeshQuality() VTK_OVERRIDE;
+  ~vtkMeshQuality() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * A function called by some VERDICT triangle quality functions to test for inverted triangles.

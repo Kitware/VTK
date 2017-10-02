@@ -74,7 +74,7 @@ public:
   static vtkWindowToImageFilter *New();
 
   vtkTypeMacro(vtkWindowToImageFilter,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Indicates what renderer to get the pixel data from. Initial value is 0.
@@ -178,11 +178,11 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkWindowToImageFilter();
-  ~vtkWindowToImageFilter() VTK_OVERRIDE;
+  ~vtkWindowToImageFilter() override;
 
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
@@ -201,7 +201,7 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Allows subclasses to customize how a request for render is handled.

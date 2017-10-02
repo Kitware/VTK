@@ -63,7 +63,7 @@ class vtkOBJPolyDataProcessor : public vtkPolyDataAlgorithm
 public:
   static vtkOBJPolyDataProcessor *New();
   vtkTypeMacro(vtkOBJPolyDataProcessor,vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Specify file name of Wavefront .obj file.
@@ -149,9 +149,9 @@ public:
   void ReadVertices(bool gotFirstUseMaterialTag, char *pLine, float xyz, int lineNr, const double v_scale, bool everything_ok, vtkPoints* points, const bool use_scale);
 protected:
   vtkOBJPolyDataProcessor();
-  ~vtkOBJPolyDataProcessor() VTK_OVERRIDE;
+  ~vtkOBJPolyDataProcessor() override;
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE /*override*/;
+                  vtkInformationVector **, vtkInformationVector *) override /*override*/;
 
   vtkSetMacro(SuccessParsingFiles,int)
 

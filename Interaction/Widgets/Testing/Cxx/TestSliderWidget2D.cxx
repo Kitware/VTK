@@ -506,7 +506,7 @@ class vtkSlider2DCallback : public vtkCommand
 public:
   static vtkSlider2DCallback *New()
   { return new vtkSlider2DCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSliderWidget *sliderWidget =
       reinterpret_cast<vtkSliderWidget*>(caller);

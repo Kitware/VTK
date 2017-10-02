@@ -29,17 +29,17 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLCompositePainter : public vtkCompositeP
 public:
   static vtkOpenGLCompositePainter* New();
   vtkTypeMacro(vtkOpenGLCompositePainter, vtkCompositePainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkOpenGLCompositePainter();
-  ~vtkOpenGLCompositePainter() VTK_OVERRIDE;
+  ~vtkOpenGLCompositePainter() override;
 
   /**
    * Overridden in vtkOpenGLCompositePainter to pass attributes to OpenGL.
    */
   void UpdateRenderingState(
-    vtkRenderWindow* window, vtkProperty* property, RenderBlockState& state) VTK_OVERRIDE;
+    vtkRenderWindow* window, vtkProperty* property, RenderBlockState& state) override;
 
 private:
   vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;

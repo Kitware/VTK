@@ -41,11 +41,11 @@ public:
 
 protected:
   vtkHyperOctreeDepth();
-  ~vtkHyperOctreeDepth() VTK_OVERRIDE;
+  ~vtkHyperOctreeDepth() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   vtkHyperOctree *Input;
   vtkHyperOctree *Output;

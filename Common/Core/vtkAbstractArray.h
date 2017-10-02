@@ -76,7 +76,7 @@ class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -592,7 +592,7 @@ public:
   /**
    * Removes out-of-date PER_COMPONENT() and PER_FINITE_COMPONENT() values.
    */
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
 
   /**
    * A key used to hold discrete values taken on either by the tuples of the
@@ -647,7 +647,7 @@ public:
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
-  ~vtkAbstractArray() VTK_OVERRIDE;
+  ~vtkAbstractArray() override;
 
   /**
    * Set an information object that can be used to annotate the array.

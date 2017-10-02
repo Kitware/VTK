@@ -44,7 +44,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractVectorComponents : public vtkDataSet
 public:
   static vtkExtractVectorComponents *New();
   vtkTypeMacro(vtkExtractVectorComponents,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the input data or filter.
@@ -89,9 +89,9 @@ public:
 
 protected:
   vtkExtractVectorComponents();
-  ~vtkExtractVectorComponents() VTK_OVERRIDE;
+  ~vtkExtractVectorComponents() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int ExtractToFieldData;
   int OutputsInitialized;
 private:

@@ -86,7 +86,7 @@ class VTKFILTERSCORE_EXPORT vtkTensorGlyph : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTensorGlyph,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scaling on and scale factor 1.0. Eigenvalues are
@@ -233,11 +233,11 @@ public:
 
 protected:
   vtkTensorGlyph();
-  ~vtkTensorGlyph() VTK_OVERRIDE;
+  ~vtkTensorGlyph() override;
 
-  int RequestUpdateExtent(vtkInformation *,  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,  vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry

@@ -48,7 +48,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextScene : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextScene, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
@@ -241,7 +241,7 @@ public:
 
 protected:
   vtkContextScene();
-  ~vtkContextScene() VTK_OVERRIDE;
+  ~vtkContextScene() override;
 
   /**
    * Process a rubber band selection event.

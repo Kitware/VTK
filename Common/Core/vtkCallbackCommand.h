@@ -57,7 +57,7 @@ public:
    */
   void Execute(vtkObject *caller,
                unsigned long eid,
-               void *callData) VTK_OVERRIDE;
+               void *callData) override;
 
   /**
    * Methods to set and get client and callback information, and the callback
@@ -96,7 +96,7 @@ protected:
   void *ClientData;
 
   vtkCallbackCommand();
-  ~vtkCallbackCommand() VTK_OVERRIDE;
+  ~vtkCallbackCommand() override;
 };
 
 #endif

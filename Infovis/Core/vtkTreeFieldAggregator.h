@@ -47,7 +47,7 @@ public:
   static vtkTreeFieldAggregator *New();
 
   vtkTypeMacro(vtkTreeFieldAggregator,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,9 +86,9 @@ public:
 
 protected:
   vtkTreeFieldAggregator();
-  ~vtkTreeFieldAggregator() VTK_OVERRIDE;
+  ~vtkTreeFieldAggregator() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   char* Field;

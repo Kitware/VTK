@@ -39,7 +39,7 @@ class VTKFILTERSGENERAL_EXPORT vtkRectilinearGridClip : public vtkRectilinearGri
 public:
   static vtkRectilinearGridClip *New();
   vtkTypeMacro(vtkRectilinearGridClip,vtkRectilinearGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkRectilinearGridClip();
-  ~vtkRectilinearGridClip() VTK_OVERRIDE {}
+  ~vtkRectilinearGridClip() override {}
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
@@ -78,13 +78,13 @@ protected:
 
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   void CopyData(vtkRectilinearGrid *inData, vtkRectilinearGrid *outData, int *ext);
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
 private:
   vtkRectilinearGridClip(const vtkRectilinearGridClip&) VTK_DELETE_FUNCTION;

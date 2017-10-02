@@ -37,7 +37,7 @@ class VTKIOAMR_EXPORT vtkAMRDataSetCache : public vtkObject
 public:
   static vtkAMRDataSetCache* New();
   vtkTypeMacro( vtkAMRDataSetCache, vtkObject );
-  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   /**
    * Inserts an AMR block to the cache
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkAMRDataSetCache();
-  ~vtkAMRDataSetCache() VTK_OVERRIDE;
+  ~vtkAMRDataSetCache() override;
 
   typedef std::map< int, vtkUniformGrid* > AMRCacheType;
   AMRCacheType Cache;

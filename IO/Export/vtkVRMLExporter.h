@@ -43,7 +43,7 @@ class VTKIOEXPORT_EXPORT vtkVRMLExporter : public vtkExporter
 public:
   static vtkVRMLExporter *New();
   vtkTypeMacro(vtkVRMLExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,9 +69,9 @@ public:
 
 protected:
   vtkVRMLExporter();
-  ~vtkVRMLExporter() VTK_OVERRIDE;
+  ~vtkVRMLExporter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkDataArray *normals,

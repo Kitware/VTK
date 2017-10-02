@@ -36,7 +36,7 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterWriter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkX3DExporterWriter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Opens the file specified with file
@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkX3DExporterWriter();
-  ~vtkX3DExporterWriter() VTK_OVERRIDE;
+  ~vtkX3DExporterWriter() override;
 
   char *OutputString;
   int OutputStringLength;

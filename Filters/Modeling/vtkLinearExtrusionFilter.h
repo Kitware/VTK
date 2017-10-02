@@ -64,7 +64,7 @@ class VTKFILTERSMODELING_EXPORT vtkLinearExtrusionFilter : public vtkPolyDataAlg
 {
 public:
   vtkTypeMacro(vtkLinearExtrusionFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with normal extrusion type, capping on, scale factor=1.0,
@@ -123,9 +123,9 @@ public:
 
 protected:
   vtkLinearExtrusionFilter();
-  ~vtkLinearExtrusionFilter() VTK_OVERRIDE {}
+  ~vtkLinearExtrusionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int ExtrusionType;
   int Capping;
   double ScaleFactor;

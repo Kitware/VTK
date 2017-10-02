@@ -47,7 +47,7 @@ public:
 
   // the execute
   void Execute(vtkObject *caller,
-                       unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
+                       unsigned long event, void* vtkNotUsed(v)) override
   {
       vtkProp *po = vtkProp::SafeDownCast(caller);
       if (event == vtkCommand::PickEvent && po)

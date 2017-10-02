@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkStringToImage : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStringToImage, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkStringToImage();
-  ~vtkStringToImage() VTK_OVERRIDE;
+  ~vtkStringToImage() override;
 
   bool Antialias;
   bool ScaleToPowerOfTwo;

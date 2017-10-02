@@ -73,7 +73,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICInterface : public vtkObject
 public:
   static vtkSurfaceLICInterface* New();
   vtkTypeMacro(vtkSurfaceLICInterface, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -528,7 +528,7 @@ public:
 
 protected:
   vtkSurfaceLICInterface();
-  ~vtkSurfaceLICInterface() VTK_OVERRIDE;
+  ~vtkSurfaceLICInterface() override;
 
   /**
    * Updates the noise texture, downsampling by the requested sample rate.

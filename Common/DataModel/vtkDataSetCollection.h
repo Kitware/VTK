@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkDataSetCollection() {}
-  ~vtkDataSetCollection() VTK_OVERRIDE {}
+  ~vtkDataSetCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

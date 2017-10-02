@@ -35,7 +35,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkHardwareSelectionPolyDataPainter :
 public:
   static vtkHardwareSelectionPolyDataPainter* New();
   vtkTypeMacro(vtkHardwareSelectionPolyDataPainter, vtkStandardPolyDataPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,14 +86,14 @@ public:
 
 protected:
   vtkHardwareSelectionPolyDataPainter();
-  ~vtkHardwareSelectionPolyDataPainter() VTK_OVERRIDE;
+  ~vtkHardwareSelectionPolyDataPainter() override;
 
   /**
    * Generates rendering primitives of appropriate type(s). Multiple types
    * of primitives can be requested by or-ring the primitive flags.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-    unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+    unsigned long typeflags, bool forceCompileOnly) override;
 
   void DrawCells(int mode, vtkCellArray *connectivity,
     vtkIdType startCellId, vtkRenderer *renderer);

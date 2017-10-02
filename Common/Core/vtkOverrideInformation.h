@@ -37,7 +37,7 @@ public:
   /**
    * Print ObjectFactor to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the name of the class being overridden.  For example,
@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkOverrideInformation();
-  ~vtkOverrideInformation() VTK_OVERRIDE;
+  ~vtkOverrideInformation() override;
   // allow the object factory to set the values in this
   // class, but only the object factory
 

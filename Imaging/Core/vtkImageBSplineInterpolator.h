@@ -51,7 +51,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageBSplineInterpolator :
 public:
   static vtkImageBSplineInterpolator *New();
   vtkTypeMacro(vtkImageBSplineInterpolator, vtkAbstractImageInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -71,13 +71,13 @@ public:
    * structured coordinate transformation between the output and the input.
    * Otherwise, pass nullptr as the matrix to retrieve the full kernel size.
    */
-  void ComputeSupportSize(const double matrix[16], int support[3]) VTK_OVERRIDE;
+  void ComputeSupportSize(const double matrix[16], int support[3]) override;
 
   /**
    * Returns true if the interpolator supports weight precomputation.
    * This will always return true for this interpolator.
    */
-  bool IsSeparable() VTK_OVERRIDE;
+  bool IsSeparable() override;
 
   //@{
   /**
@@ -92,30 +92,30 @@ public:
    */
   void PrecomputeWeightsForExtent(
     const double matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) VTK_OVERRIDE;
+    vtkInterpolationWeights *&weights) override;
   void PrecomputeWeightsForExtent(
     const float matrix[16], const int extent[6], int newExtent[6],
-    vtkInterpolationWeights *&weights) VTK_OVERRIDE;
+    vtkInterpolationWeights *&weights) override;
   //@}
 
   /**
    * Free the precomputed weights.  THIS METHOD IS THREAD SAFE.
    */
-  void FreePrecomputedWeights(vtkInterpolationWeights *&weights) VTK_OVERRIDE;
+  void FreePrecomputedWeights(vtkInterpolationWeights *&weights) override;
 
 protected:
   vtkImageBSplineInterpolator();
-  ~vtkImageBSplineInterpolator() VTK_OVERRIDE;
+  ~vtkImageBSplineInterpolator() override;
 
   /**
    * Update the interpolator.
    */
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalUpdate() override;
 
   /**
    * Copy the interpolator.
    */
-  void InternalDeepCopy(vtkAbstractImageInterpolator *obj) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractImageInterpolator *obj) override;
 
   //@{
   /**
@@ -123,10 +123,10 @@ protected:
    */
   void GetInterpolationFunc(
     void (**doublefunc)(
-      vtkInterpolationInfo *, const double [3], double *)) VTK_OVERRIDE;
+      vtkInterpolationInfo *, const double [3], double *)) override;
   void GetInterpolationFunc(
     void (**floatfunc)(
-      vtkInterpolationInfo *, const float [3], float *)) VTK_OVERRIDE;
+      vtkInterpolationInfo *, const float [3], float *)) override;
   //@}
 
   //@{
@@ -135,10 +135,10 @@ protected:
    */
   void GetRowInterpolationFunc(
     void (**doublefunc)(
-      vtkInterpolationWeights *, int, int, int, double *, int)) VTK_OVERRIDE;
+      vtkInterpolationWeights *, int, int, int, double *, int)) override;
   void GetRowInterpolationFunc(
     void (**floatfunc)(
-      vtkInterpolationWeights *, int, int, int, float *, int)) VTK_OVERRIDE;
+      vtkInterpolationWeights *, int, int, int, float *, int)) override;
   //@}
 
   /**

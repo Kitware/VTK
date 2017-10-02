@@ -37,7 +37,7 @@ class vtkContextScene;
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextActor : public vtkProp
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkContextActor,vtkProp);
 
   static vtkContextActor* New();
@@ -45,7 +45,7 @@ public:
   /**
    * We only render in the overlay for the context scene.
    */
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) override;
 
   //@{
   /**
@@ -78,11 +78,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkContextActor();
-  ~vtkContextActor() VTK_OVERRIDE;
+  ~vtkContextActor() override;
 
   /**
    * Initialize the actor - right now we just decide which device to initialize.

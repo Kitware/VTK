@@ -38,7 +38,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageMandelbrotSource : public vtkImageAlgorit
 public:
   static vtkImageMandelbrotSource *New();
   vtkTypeMacro(vtkImageMandelbrotSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkImageMandelbrotSource();
-  ~vtkImageMandelbrotSource() VTK_OVERRIDE;
+  ~vtkImageMandelbrotSource() override;
 
   int ProjectionAxes[3];
 
@@ -164,11 +164,11 @@ protected:
   // see vtkAlgorithm for details
   int RequestData(vtkInformation *request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   int RequestInformation (vtkInformation *,
                           vtkInformationVector**,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   double EvaluateSet(double p[4]);
 private:
   vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;

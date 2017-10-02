@@ -143,7 +143,7 @@ class vtkIPWCallback : public vtkCommand
 public:
   static vtkIPWCallback *New()
   { return new vtkIPWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImagePlaneWidget *planeWidget = reinterpret_cast<vtkImagePlaneWidget*>(caller);
     if(planeWidget->GetPlaneOrientation() == 3)
@@ -167,7 +167,7 @@ class vtkSWCallback : public vtkCommand
 public:
   static vtkSWCallback *New()
   { return new vtkSWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSplineWidget *spline = reinterpret_cast<vtkSplineWidget*>(caller);
     spline->GetPolyData(Poly);

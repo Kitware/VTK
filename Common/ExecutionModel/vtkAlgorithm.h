@@ -55,7 +55,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithm : public vtkObject
 public:
   static vtkAlgorithm *New();
   vtkTypeMacro(vtkAlgorithm,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Values used for setting the desired output precision for various
@@ -191,8 +191,8 @@ public:
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   //@{
@@ -719,7 +719,7 @@ public:
 
 protected:
   vtkAlgorithm();
-  ~vtkAlgorithm() VTK_OVERRIDE;
+  ~vtkAlgorithm() override;
 
   // Keys used to indicate that input/output port information has been
   // filled.
@@ -880,7 +880,7 @@ protected:
   char  *ProgressText;
 
   // Garbage collection support.
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // executive methods below
 

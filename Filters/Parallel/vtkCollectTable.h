@@ -38,7 +38,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkCollectTable : public vtkTableAlgorithm
 public:
   static vtkCollectTable *New();
   vtkTypeMacro(vtkCollectTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,13 +70,13 @@ public:
 
 protected:
   vtkCollectTable();
-  ~vtkCollectTable() VTK_OVERRIDE;
+  ~vtkCollectTable() override;
 
   int PassThrough;
 
   // Data generation method
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;

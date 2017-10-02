@@ -481,8 +481,8 @@ class vtkTableBasedClipperHexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperHexList();
-          ~vtkTableBasedClipperHexList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_HEXAHEDRON; }
+          ~vtkTableBasedClipperHexList() override;
+    int    GetVTKType() const override { return VTK_HEXAHEDRON; }
     void           AddHex( int, int, int, int, int, int, int, int, int );
 };
 
@@ -491,8 +491,8 @@ class vtkTableBasedClipperWedgeList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperWedgeList();
-          ~vtkTableBasedClipperWedgeList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_WEDGE; }
+          ~vtkTableBasedClipperWedgeList() override;
+    int    GetVTKType() const override { return VTK_WEDGE; }
     void           AddWedge( int, int, int, int, int, int, int );
 };
 
@@ -501,8 +501,8 @@ class vtkTableBasedClipperPyramidList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperPyramidList();
-          ~vtkTableBasedClipperPyramidList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_PYRAMID; }
+          ~vtkTableBasedClipperPyramidList() override;
+    int    GetVTKType() const override { return VTK_PYRAMID; }
     void           AddPyramid( int, int, int, int, int, int );
 };
 
@@ -511,8 +511,8 @@ class vtkTableBasedClipperTetList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTetList();
-          ~vtkTableBasedClipperTetList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_TETRA; }
+          ~vtkTableBasedClipperTetList() override;
+    int    GetVTKType() const override { return VTK_TETRA; }
     void           AddTet( int, int, int, int, int );
 };
 
@@ -521,8 +521,8 @@ class vtkTableBasedClipperQuadList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperQuadList();
-          ~vtkTableBasedClipperQuadList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_QUAD; }
+          ~vtkTableBasedClipperQuadList() override;
+    int    GetVTKType() const override { return VTK_QUAD; }
     void           AddQuad( int, int, int, int, int );
 };
 
@@ -531,8 +531,8 @@ class vtkTableBasedClipperTriList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTriList();
-          ~vtkTableBasedClipperTriList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_TRIANGLE; }
+          ~vtkTableBasedClipperTriList() override;
+    int    GetVTKType() const override { return VTK_TRIANGLE; }
     void           AddTri( int, int, int, int );
 };
 
@@ -541,8 +541,8 @@ class vtkTableBasedClipperLineList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperLineList();
-          ~vtkTableBasedClipperLineList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_LINE; }
+          ~vtkTableBasedClipperLineList() override;
+    int    GetVTKType() const override { return VTK_LINE; }
     void           AddLine( int, int, int );
 };
 
@@ -551,8 +551,8 @@ class vtkTableBasedClipperVertexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperVertexList();
-          ~vtkTableBasedClipperVertexList() VTK_OVERRIDE;
-    int    GetVTKType() const VTK_OVERRIDE { return VTK_VERTEX; }
+          ~vtkTableBasedClipperVertexList() override;
+    int    GetVTKType() const override { return VTK_VERTEX; }
     void           AddVertex( int, int );
 };
 
@@ -603,7 +603,7 @@ class  vtkTableBasedClipperVolumeFromVolume :
   public:
               vtkTableBasedClipperVolumeFromVolume
               ( int precision, int nPts, int ptSizeGuess );
-     ~vtkTableBasedClipperVolumeFromVolume() VTK_OVERRIDE { }
+     ~vtkTableBasedClipperVolumeFromVolume() override { }
 
     void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, double * );

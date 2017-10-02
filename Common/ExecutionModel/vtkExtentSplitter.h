@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentSplitter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExtentSplitter,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkExtentSplitter *New();
 
   //@{
@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkExtentSplitter();
-  ~vtkExtentSplitter() VTK_OVERRIDE;
+  ~vtkExtentSplitter() override;
 
   // Internal utility methods.
   void SplitExtent(int* extent, int* subextent);

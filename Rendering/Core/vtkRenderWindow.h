@@ -83,7 +83,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindow : public vtkWindow
 {
 public:
   vtkTypeMacro(vtkRenderWindow,vtkWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an instance of  vtkRenderWindow with its screen size
@@ -147,7 +147,7 @@ public:
    * Ask each renderer owned by this RenderWindow to render its image and
    * synchronize this process.
    */
-  void Render() VTK_OVERRIDE;
+  void Render() override;
 
   /**
    * Initialize the rendering process.
@@ -588,24 +588,24 @@ public:
    * This Method detects loops of RenderWindow<->Interactor,
    * so objects are freed properly.
    */
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) override;
 
   //@{
   /**
    * Dummy stubs for vtkWindow API.
    */
-  void SetDisplayId(void *) VTK_OVERRIDE = 0;
-  void SetWindowId(void *)  VTK_OVERRIDE = 0;
+  void SetDisplayId(void *) override = 0;
+  void SetWindowId(void *)  override  = 0;
   virtual void SetNextWindowId(void *) = 0;
-  void SetParentId(void *)  VTK_OVERRIDE = 0;
-  void *GetGenericDisplayId() VTK_OVERRIDE = 0;
-  void *GetGenericWindowId() VTK_OVERRIDE = 0;
-  void *GetGenericParentId() VTK_OVERRIDE = 0;
-  void *GetGenericContext() VTK_OVERRIDE = 0;
-  void *GetGenericDrawable() VTK_OVERRIDE = 0;
-  void SetWindowInfo(char *) VTK_OVERRIDE = 0;
+  void SetParentId(void *)  override  = 0;
+  void *GetGenericDisplayId() override = 0;
+  void *GetGenericWindowId() override = 0;
+  void *GetGenericParentId() override = 0;
+  void *GetGenericContext() override = 0;
+  void *GetGenericDrawable() override = 0;
+  void SetWindowInfo(char *) override = 0;
   virtual void SetNextWindowInfo(char *) = 0;
-  void SetParentInfo(char *) VTK_OVERRIDE = 0;
+  void SetParentInfo(char *) override = 0;
   //@}
 
   /**
@@ -618,7 +618,7 @@ public:
    * Attempt to make this window the current graphics context for the calling
    * thread.
    */
-  void MakeCurrent() VTK_OVERRIDE = 0;
+  void MakeCurrent() override = 0;
 
   /**
    * Tells if this window is the current graphics context for the calling
@@ -736,7 +736,7 @@ public:
 
 protected:
   vtkRenderWindow();
-  ~vtkRenderWindow() VTK_OVERRIDE;
+  ~vtkRenderWindow() override;
 
   virtual void DoStereoRender();
   virtual void DoFDRender();

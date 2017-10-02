@@ -53,7 +53,7 @@ public:
   virtual unsigned int GetFlatIndex() { return this->Index;}
 protected:
   AMRIndexIterator(): Level(0), Index(0) {}
-  ~AMRIndexIterator() VTK_OVERRIDE{};
+  ~AMRIndexIterator() override{};
   unsigned int Level;
   int Index;
   unsigned int NumLevels;
@@ -90,12 +90,12 @@ public:
     this->Next();
   }
 protected:
-  void AdvanceIndex() VTK_OVERRIDE
+  void AdvanceIndex() override
   {
     this->InternalIdx++;
     Superclass::Index = static_cast<size_t>(this->InternalIdx) < this->DataBlocks->size()? (*this->DataBlocks)[this->InternalIdx].Index : 0;
   }
-  bool IsDone() VTK_OVERRIDE { return static_cast<size_t>(this->InternalIdx) >=  this->DataBlocks->size();}
+  bool IsDone() override { return static_cast<size_t>(this->InternalIdx) >=  this->DataBlocks->size();}
   const vtkAMRDataInternals::BlockList* DataBlocks;
   int InternalIdx;
 private:

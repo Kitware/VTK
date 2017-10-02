@@ -52,7 +52,7 @@ public:
     return obs;
   }
 
-  void Execute(vtkObject *, unsigned long eventId, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long eventId, void *) override
   {
     if (this->Target && this->Target->GetAutomaticEventHandling())
     {

@@ -58,8 +58,8 @@ public:
   vtkTypeMacro(vtkPKdTree, vtkKdTree);
 
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
-  void PrintTiming(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintTiming(ostream& os, vtkIndent indent) override;
   void PrintTables(ostream& os, vtkIndent indent);
 
   static vtkPKdTree *New();
@@ -70,7 +70,7 @@ public:
    * tree.  It must be called by all processes in the parallel
    * application, or it will hang.
    */
-  void BuildLocator() VTK_OVERRIDE;
+  void BuildLocator() override;
 
   /**
    * Get the total number of cells distributed across the data
@@ -317,7 +317,7 @@ public:
 protected:
 
   vtkPKdTree();
-  ~vtkPKdTree() VTK_OVERRIDE;
+  ~vtkPKdTree() override;
 
   void SingleProcessBuildLocator();
   int MultiProcessBuildLocator(double *bounds);

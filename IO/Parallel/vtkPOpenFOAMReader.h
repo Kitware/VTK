@@ -45,7 +45,7 @@ public:
   static vtkPOpenFOAMReader *New();
   vtkTypeMacro(vtkPOpenFOAMReader, vtkOpenFOAMReader);
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -64,12 +64,12 @@ public:
 
 protected:
   vtkPOpenFOAMReader();
-  ~vtkPOpenFOAMReader() VTK_OVERRIDE;
+  ~vtkPOpenFOAMReader() override;
 
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
 private:
   vtkMultiProcessController *Controller;

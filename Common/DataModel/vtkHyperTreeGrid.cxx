@@ -78,7 +78,7 @@ public:
   static vtkGeometricCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE
+  void PrintSelf( ostream& os, vtkIndent indent ) override
   {
     this->Superclass::PrintSelf( os, indent );
 
@@ -98,7 +98,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  vtkHyperTreeGridCursor* Clone() override
   {
     // Call superclass
     vtkGeometricCursor<N>* clone
@@ -116,7 +116,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) VTK_OVERRIDE
+  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) override
   {
     // Call superclass
     this->Superclass::Initialize( grid, index );
@@ -142,7 +142,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToRoot() VTK_OVERRIDE
+  void ToRoot() override
   {
     // Call superclass
     this->Superclass::ToRoot();
@@ -162,7 +162,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToChild( int child ) VTK_OVERRIDE
+  void ToChild( int child ) override
   {
     // Call superclass
     this->Superclass::ToChild( child );
@@ -250,19 +250,19 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  double* GetOrigin() VTK_OVERRIDE
+  double* GetOrigin() override
   {
     return this->Origin;
   }
 
   //---------------------------------------------------------------------------
-  double* GetSize() VTK_OVERRIDE
+  double* GetSize() override
   {
     return this->Size;
   }
 
   //---------------------------------------------------------------------------
-  void GetBounds( double bnd[6] ) VTK_OVERRIDE
+  void GetBounds( double bnd[6] ) override
   {
     // Compute bounds
     bnd[0] = this->Origin[0];
@@ -274,7 +274,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void GetPoint( double pt[3] ) VTK_OVERRIDE
+  void GetPoint( double pt[3] ) override
   {
     // Compute center point coordinates
     pt[0] = this->Origin[0] + this->Size[0] / 2.;
@@ -333,7 +333,7 @@ public:
   vtkTemplateTypeMacro(vtkSuperCursor<N>,vtkGeometricCursor<N>);
 
   //---------------------------------------------------------------------------
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE
+  void PrintSelf( ostream& os, vtkIndent indent ) override
   {
     this->Superclass::PrintSelf( os, indent );
 
@@ -353,7 +353,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  vtkHyperTreeGridCursor* Clone() override
   {
     // Call superclass
     vtkSuperCursor<N>* clone
@@ -368,7 +368,7 @@ public:
   virtual void ResetSuperCursor() = 0;
 
   //---------------------------------------------------------------------------
-  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) VTK_OVERRIDE
+  void Initialize( vtkHyperTreeGrid* grid, vtkIdType index ) override
   {
     // Call superclass
     this->Superclass::Initialize( grid, index );
@@ -378,13 +378,13 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  unsigned int GetNumberOfCursors() VTK_OVERRIDE
+  unsigned int GetNumberOfCursors() override
   {
     return this->NumberOfCursors;
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* GetCursor( unsigned int i ) VTK_OVERRIDE
+  vtkHyperTreeGridCursor* GetCursor( unsigned int i ) override
   {
     return this->Cursors[i];
   }
@@ -396,7 +396,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ToChild( int child ) VTK_OVERRIDE
+  void ToChild( int child ) override
   {
     // Call superclass
     this->Superclass::ToChild( child );
@@ -643,7 +643,7 @@ public:
   static vtkVonNeumannSuperCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  ~vtkVonNeumannSuperCursor() VTK_OVERRIDE
+  ~vtkVonNeumannSuperCursor() override
   {
     if ( this->Cursors )
     {
@@ -662,7 +662,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  vtkHyperTreeGridCursor* Clone() override
   {
     // Call superclass
     vtkVonNeumannSuperCursor<N>* clone
@@ -681,7 +681,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ResetSuperCursor() VTK_OVERRIDE
+  void ResetSuperCursor() override
   {
     // Create hyper tree grid cursors for von Neumann neighborhood
     for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
@@ -1108,7 +1108,7 @@ public:
   static vtkMooreSuperCursor<N>* New();
 
   //---------------------------------------------------------------------------
-  ~vtkMooreSuperCursor() VTK_OVERRIDE
+  ~vtkMooreSuperCursor() override
   {
     if ( this->Cursors )
     {
@@ -1127,7 +1127,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  vtkHyperTreeGridCursor* Clone() VTK_OVERRIDE
+  vtkHyperTreeGridCursor* Clone() override
   {
     // Call superclass
     vtkMooreSuperCursor<N>* clone
@@ -1146,7 +1146,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  void ResetSuperCursor() VTK_OVERRIDE
+  void ResetSuperCursor() override
   {
 #define vtkInitializeAsGeometricCursorMacro( _N_, _c_, _g_, _r_ )  \
   {                                                                \
@@ -1287,7 +1287,7 @@ public:
   }
 
   //---------------------------------------------------------------------------
-  bool GetCornerCursors( unsigned int c, unsigned int l, vtkIdList* leaves ) VTK_OVERRIDE
+  bool GetCornerCursors( unsigned int c, unsigned int l, vtkIdList* leaves ) override
   {
     unsigned int cursorIdx = 0;
     unsigned int centerCursorIdx = 0;

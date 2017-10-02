@@ -66,7 +66,7 @@ class VTKFILTERSGENERAL_EXPORT vtkBoxClipDataSet : public vtkUnstructuredGridAlg
 {
 public:
   vtkTypeMacro(vtkBoxClipDataSet,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Constructor of the clipping box. The initial box is (0,1,0,1,0,1).
@@ -148,7 +148,7 @@ public:
   /**
    * Return the mtime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -252,10 +252,10 @@ public:
                              vtkIdType cellId, vtkCellData **outCD);
 protected:
   vtkBoxClipDataSet();
-  ~vtkBoxClipDataSet() VTK_OVERRIDE;
+  ~vtkBoxClipDataSet() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkIncrementalPointLocator *Locator;
   int GenerateClipScalars;

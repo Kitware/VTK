@@ -28,7 +28,7 @@ class VTKIOSEGY_EXPORT vtkSegY2DReader : public vtkStructuredGridAlgorithm
 public:
   static vtkSegY2DReader* New();
   vtkTypeMacro(vtkSegY2DReader, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSegY2DReader();
   ~vtkSegY2DReader();
@@ -76,7 +76,7 @@ public:
 protected:
   int RequestData(vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   int XYCoordMode;
 

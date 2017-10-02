@@ -72,14 +72,14 @@ class VTKRENDERINGLIC_EXPORT vtkSurfaceLICPainter : public vtkPainter
 public:
   static vtkSurfaceLICPainter* New();
   vtkTypeMacro(vtkSurfaceLICPainter, vtkPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release. In this case, releases the display lists.
    */
-  void ReleaseGraphicsResources(vtkWindow * win) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow * win) override;
 
   /**
    * Get the output data object from this painter.
@@ -87,7 +87,7 @@ public:
    * the deletage painters. This is required by the internal GLSL shader
    * programs used for generating LIC.
    */
-  vtkDataObject* GetOutput() VTK_OVERRIDE;
+  vtkDataObject* GetOutput() override;
 
   //@{
   /**
@@ -483,14 +483,14 @@ public:
 
 protected:
   vtkSurfaceLICPainter();
-  ~vtkSurfaceLICPainter() VTK_OVERRIDE;
+  ~vtkSurfaceLICPainter() override;
 
   /**
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called. We use this to detect
    * when LUT has changed.
    */
-  void ProcessInformation(vtkInformation* info) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation* info) override;
 
   /**
    * Get the min/max across all ranks. min/max are in/out.
@@ -530,7 +530,7 @@ protected:
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   /**
    * Updates the noise texture, downsampling by the requested sample rate.
@@ -548,7 +548,7 @@ protected:
         vtkRenderer* renderer,
         vtkActor* actor,
         unsigned long typeflags,
-        bool forceCompileOnly) VTK_OVERRIDE;
+        bool forceCompileOnly) override;
 
 
   /**

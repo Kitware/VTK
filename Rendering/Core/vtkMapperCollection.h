@@ -37,7 +37,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
  public:
   static vtkMapperCollection *New();
   vtkTypeMacro(vtkMapperCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an mapper to the bottom of the list.
@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 
 protected:
   vtkMapperCollection() {}
-  ~vtkMapperCollection() VTK_OVERRIDE {}
+  ~vtkMapperCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.

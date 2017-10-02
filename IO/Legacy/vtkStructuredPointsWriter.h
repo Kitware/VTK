@@ -35,7 +35,7 @@ class VTKIOLEGACY_EXPORT vtkStructuredPointsWriter : public vtkDataWriter
 public:
   static vtkStructuredPointsWriter *New();
   vtkTypeMacro(vtkStructuredPointsWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -60,11 +60,11 @@ public:
 
 protected:
   vtkStructuredPointsWriter() : WriteExtent(false) {}
-  ~vtkStructuredPointsWriter() VTK_OVERRIDE {}
+  ~vtkStructuredPointsWriter() override {}
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   bool WriteExtent;
 

@@ -103,7 +103,7 @@ public:
   };
 
   vtkTypeMacro(vtkVolumeTexture, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Set the parent volume mapper and initialize internals.
@@ -156,7 +156,7 @@ public:
 
 protected:
   vtkVolumeTexture();
-  ~vtkVolumeTexture() VTK_OVERRIDE;
+  ~vtkVolumeTexture() override;
 
 private:
   /**

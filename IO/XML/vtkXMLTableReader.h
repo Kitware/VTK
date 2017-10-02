@@ -36,7 +36,7 @@ class VTKIOXML_EXPORT vtkXMLTableReader : public vtkXMLReader
 {
 public:
   vtkTypeMacro(vtkXMLTableReader, vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLTableReader* New();
 
   //@{
@@ -69,7 +69,7 @@ public:
    * For the specified port, copy the information this reader sets up in
    * SetupOutputInformation to outInfo
    */
-  void CopyOutputInformation(vtkInformation* outInfo, int port) VTK_OVERRIDE;
+  void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
   /**
    * Get the number of columns arrays available in the input.
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkXMLTableReader();
-  ~vtkXMLTableReader() VTK_OVERRIDE;
+  ~vtkXMLTableReader() override;
 
   /**
   * Check whether the given array element is an enabled array.
@@ -111,7 +111,7 @@ protected:
   /**
   * Get the name of the data set being read.
   */
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   /**
    * Get the current piece index and the total number of piece in the dataset
@@ -126,7 +126,7 @@ protected:
   /**
    * Initialize current output
    */
-  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
 
   /**
    * Initialize the total number of rows to be read.
@@ -141,12 +141,12 @@ protected:
   /**
    * Initialize current output data: allocate arrays for RowData
    */
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupOutputData() override;
 
   /**
   * Setup the output's information.
   */
-  void SetupOutputInformation(vtkInformation* outInfo) VTK_OVERRIDE;
+  void SetupOutputInformation(vtkInformation* outInfo) override;
 
   /**
    * Setup the number of pieces to be read and allocate space accordingly
@@ -156,12 +156,12 @@ protected:
   /**
   * Pipeline execute data driver.  Called by vtkXMLReader.
   */
-  void ReadXMLData() VTK_OVERRIDE;
+  void ReadXMLData() override;
 
   /**
    * Pipeline execute data driver. Called by vtkXMLReader.
    */
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
   /**
    * Setup the piece reader at the given index.
@@ -178,7 +178,7 @@ protected:
    */
   int ReadPieceData(int);
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
   * The update request.

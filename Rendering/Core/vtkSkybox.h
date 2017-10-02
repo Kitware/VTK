@@ -30,18 +30,18 @@ class VTKRENDERINGCORE_EXPORT vtkSkybox: public vtkActor
 public:
   static vtkSkybox* New();
   vtkTypeMacro(vtkSkybox, vtkActor)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
 
 protected:
   vtkSkybox();
-  ~vtkSkybox() VTK_OVERRIDE;
+  ~vtkSkybox() override;
 
 private:
   vtkSkybox(const vtkSkybox&) VTK_DELETE_FUNCTION;

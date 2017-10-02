@@ -40,7 +40,7 @@ public:
   static vtkGeneralTransform *New();
 
   vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set this transformation to the identity transformation.  If
@@ -55,7 +55,7 @@ public:
    * the transformation will use the inverse of its Input, if an Input
    * has been set.
    */
-  void Inverse() VTK_OVERRIDE
+  void Inverse() override
     { this->Concatenation->Inverse(); this->Modified(); }
 
   //@{
@@ -224,8 +224,8 @@ public:
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   //@{
@@ -235,9 +235,9 @@ public:
    * classes.
    */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) VTK_OVERRIDE;
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) VTK_OVERRIDE;
+                                   double derivative[3][3]) override;
   //@}
 
   /**
@@ -248,24 +248,24 @@ public:
    * and Concatenate(vtkXTransform *).  Avoid using this function,
    * it is experimental.
    */
-  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  int CircuitCheck(vtkAbstractTransform *transform) override;
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
   /**
    * Override GetMTime to account for input and concatenation.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkGeneralTransform();
-  ~vtkGeneralTransform() VTK_OVERRIDE;
+  ~vtkGeneralTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *t) override;
+  void InternalUpdate() override;
 
   vtkAbstractTransform *Input;
   vtkTransformConcatenation *Concatenation;

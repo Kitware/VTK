@@ -50,17 +50,17 @@ class VTKRENDERINGOPENGL2_EXPORT vtkIOSRenderWindow : public vtkOpenGLRenderWind
 public:
   static vtkIOSRenderWindow *New();
   vtkTypeMacro(vtkIOSRenderWindow,vtkOpenGLRenderWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Begin the rendering process.
    */
-  void Start() VTK_OVERRIDE;
+  void Start() override;
 
   /**
    * Finish the rendering process.
    */
-  void Frame() VTK_OVERRIDE;
+  void Frame() override;
 
   /**
    * Specify various window parameters.
@@ -75,7 +75,7 @@ public:
   /**
    * Initialize the rendering window.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Change the window to fill the entire screen.  This is only partially
@@ -83,12 +83,12 @@ public:
    * before the window has been created, and it might not work on all
    * versions of OS X.
    */
-  void SetFullScreen(int) VTK_OVERRIDE;
+  void SetFullScreen(int) override;
 
   /**
    * Remap the window.  This is not implemented for the vtkIOSRenderWindow.
    */
-  void WindowRemap() VTK_OVERRIDE;
+  void WindowRemap() override;
 
   /**
    * Set the preferred window size to full screen.  This is not implemented
@@ -100,53 +100,53 @@ public:
   /**
    * Set the size of the window in pixels.
    */
-  void SetSize(int a[2]) VTK_OVERRIDE;
-  void SetSize(int,int) VTK_OVERRIDE;
+  void SetSize(int a[2]) override;
+  void SetSize(int,int) override;
   //@}
 
   /**
    * Get the current size of the window in pixels.
    */
-  int *GetSize() VTK_OVERRIDE;
+  int *GetSize() override;
 
   //@{
   /**
    * Set the position of the window.
    */
-  void SetPosition(int a[2]) VTK_OVERRIDE;
-  void SetPosition(int,int) VTK_OVERRIDE;
+  void SetPosition(int a[2]) override;
+  void SetPosition(int,int) override;
   //@}
 
   /**
    * Get the current size of the screen in pixels.
    */
-  int *GetScreenSize() VTK_OVERRIDE;
+  int *GetScreenSize() override;
 
   /**
    * Get the position in screen coordinates of the window.
    */
-  int *GetPosition() VTK_OVERRIDE;
+  int *GetPosition() override;
 
   /**
    * Set the name of the window. This appears at the top of the window
    * normally.
    */
-  void SetWindowName(const char *) VTK_OVERRIDE;
+  void SetWindowName(const char *) override;
 
-  void SetNextWindowInfo(char *) VTK_OVERRIDE
+  void SetNextWindowInfo(char *) override
   {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
   }
-  void* GetGenericDrawable() VTK_OVERRIDE
+  void* GetGenericDrawable() override
   {
       vtkWarningMacro("Method not implemented.");
       return 0;
   }
-  void SetDisplayId(void*) VTK_OVERRIDE
+  void SetDisplayId(void*) override
   {
       vtkWarningMacro("Method not implemented.");
   }
-  void *GetGenericDisplayId() VTK_OVERRIDE
+  void *GetGenericDisplayId() override
   {
       vtkWarningMacro("Method not implemented.");
       return 0;
@@ -157,16 +157,16 @@ public:
    * The paramater is an ASCII string of a decimal number representing
    * a pointer to the window.
    */
-  void SetWindowInfo(char*) VTK_OVERRIDE;
+  void SetWindowInfo(char*) override;
 
   /**
    * See the documenation for SetParentId().  This method allows the ParentId
    * to be set as an ASCII string of a decimal number that is the memory
    * address of the parent UIView.
    */
-  void SetParentInfo(char*) VTK_OVERRIDE;
+  void SetParentInfo(char*) override;
 
-  void SetNextWindowId(void*) VTK_OVERRIDE
+  void SetNextWindowId(void*) override
   {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
   }
@@ -175,7 +175,7 @@ public:
    * Initialize the render window from the information associated
    * with the currently activated OpenGL context.
    */
-  bool InitializeFromCurrentContext() VTK_OVERRIDE;
+  bool InitializeFromCurrentContext() override;
 
   /**
    * Prescribe that the window be created in a stereo-capable mode. This
@@ -183,17 +183,17 @@ public:
    * overrrides the superclass method since this class can actually check
    * whether the window has been realized yet.
    */
-  void SetStereoCapableWindow(int capable) VTK_OVERRIDE;
+  void SetStereoCapableWindow(int capable) override;
 
   /**
    * Make this windows OpenGL context the current context.
    */
-  void MakeCurrent() VTK_OVERRIDE;
+  void MakeCurrent() override;
 
   /**
    * Tells if this window is the current OpenGL context for the calling thread.
    */
-  bool IsCurrent() VTK_OVERRIDE;
+  bool IsCurrent() override;
 
   /**
    * Test if the window has a valid drawable. This is
@@ -201,7 +201,7 @@ public:
    * to an invalid drawable results in all OpenGL calls to fail
    * with "invalid framebuffer operation".
    */
-  bool IsDrawable() VTK_OVERRIDE;
+  bool IsDrawable() override;
 
   /**
    * Update this window's OpenGL context, e.g. when the window is resized.
@@ -211,30 +211,30 @@ public:
   /**
    * Get report of capabilities for the render window
    */
-  const char *ReportCapabilities() VTK_OVERRIDE;
+  const char *ReportCapabilities() override;
 
   /**
    * Does this render window support OpenGL? 0-false, 1-true
    */
-  int SupportsOpenGL() VTK_OVERRIDE;
+  int SupportsOpenGL() override;
 
   /**
    * Is this render window using hardware acceleration? 0-false, 1-true
    */
-  int IsDirect() VTK_OVERRIDE;
+  int IsDirect() override;
 
   /**
    * If called, allow MakeCurrent() to skip cache-check when called.
    * MakeCurrent() reverts to original behavior of cache-checking
    * on the next render.
    */
-  void SetForceMakeCurrent() VTK_OVERRIDE;
+  void SetForceMakeCurrent() override;
 
   /**
    * Check to see if an event is pending for this window.
    * This is a useful check to abort a long render.
    */
-   int GetEventPending() VTK_OVERRIDE;
+   int GetEventPending() override;
 
   //@{
   /**
@@ -248,12 +248,12 @@ public:
   /**
    * Clean up device contexts, rendering contexts, etc.
    */
-  void Finalize() VTK_OVERRIDE;
+  void Finalize() override;
 
   /**
    * Get the size of the depth buffer.
    */
-  int GetDepthBufferSize() VTK_OVERRIDE;
+  int GetDepthBufferSize() override;
 
   //@{
   /**
@@ -262,15 +262,15 @@ public:
    * Set cursor position in window (note that (0,0) is the lower left
    * corner).
    */
-  void HideCursor() VTK_OVERRIDE;
-  void ShowCursor() VTK_OVERRIDE;
-  void SetCursorPosition(int x, int y) VTK_OVERRIDE;
+  void HideCursor() override;
+  void ShowCursor() override;
+  void SetCursorPosition(int x, int y) override;
   //@}
 
   /**
    * Change the shape of the cursor.
    */
-  void SetCurrentCursor(int) VTK_OVERRIDE;
+  void SetCurrentCursor(int) override;
 
   /**
    * Get the WindowCreated flag. It is 1 if this object created an instance
@@ -284,7 +284,7 @@ public:
    */
   void SetContextId(void *);
   void *GetContextId();
-  void *GetGenericContext() VTK_OVERRIDE  {return this->GetContextId();}
+  void *GetGenericContext() override  {return this->GetContextId();}
   //@}
 
   /**
@@ -314,13 +314,13 @@ public:
    * and SetWindowId(), respectively, early on (before WindowInitialize()
    * is executed). In the case of Java, you should call only SetWindowId().
    */
-  void SetWindowId(void *) VTK_OVERRIDE;
+  void SetWindowId(void *) override;
 
   /**
    * Returns the UIView* associated with this vtkRenderWindow.
    */
   virtual void *GetWindowId();
-  void *GetGenericWindowId() VTK_OVERRIDE {return this->GetWindowId();}
+  void *GetGenericWindowId() override {return this->GetWindowId();}
 
   /**
    * Set the UIView* for the vtkRenderWindow to be parented within.  The
@@ -328,7 +328,7 @@ public:
    * UIView that the vtkRenderWindow will create within this parent.
    * If you set the WindowId, then this ParentId will be ignored.
    */
-  void SetParentId(void *UIView) VTK_OVERRIDE;
+  void SetParentId(void *UIView) override;
 
   /**
    * Get the parent UIView* for this vtkRenderWindow.  This method will
@@ -336,7 +336,7 @@ public:
    * SetParentInfo().
    */
   virtual void *GetParentId();
-  void *GetGenericParentId() VTK_OVERRIDE { return this->GetParentId(); }
+  void *GetGenericParentId() override { return this->GetParentId(); }
 
   //@{
   /**
@@ -348,12 +348,12 @@ public:
 
 protected:
   vtkIOSRenderWindow();
-  ~vtkIOSRenderWindow() VTK_OVERRIDE;
+  ~vtkIOSRenderWindow() override;
 
   void CreateGLContext();
 
-  void CreateAWindow() VTK_OVERRIDE;
-  void DestroyWindow() VTK_OVERRIDE;
+  void CreateAWindow() override;
+  void DestroyWindow() override;
   void DestroyOffScreenWindow();
 
   int OffScreenInitialized;
@@ -361,7 +361,7 @@ protected:
 
   // IOS seems to have issues with getting RGB data
   int ReadPixels(
-    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) VTK_OVERRIDE;
+    const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) override;
 
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;

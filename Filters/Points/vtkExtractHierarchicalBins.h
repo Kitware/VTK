@@ -57,7 +57,7 @@ public:
    */
   static vtkExtractHierarchicalBins *New();
   vtkTypeMacro(vtkExtractHierarchicalBins,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkExtractHierarchicalBins();
-  ~vtkExtractHierarchicalBins() VTK_OVERRIDE;
+  ~vtkExtractHierarchicalBins() override;
 
   // Users can extract points from a particular level or bin.
   int Level;
@@ -105,12 +105,12 @@ protected:
   vtkHierarchicalBinningFilter *BinningFilter;
 
   // for the binning filter
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
+  int FilterPoints(vtkPointSet *input) override;
 
 private:
   vtkExtractHierarchicalBins(const vtkExtractHierarchicalBins&) VTK_DELETE_FUNCTION;

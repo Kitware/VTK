@@ -61,7 +61,7 @@ public:
 
   static vtkPixelBufferObject* New();
   vtkTypeMacro(vtkPixelBufferObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -355,7 +355,7 @@ public:
 
 protected:
   vtkPixelBufferObject();
-  ~vtkPixelBufferObject() VTK_OVERRIDE;
+  ~vtkPixelBufferObject() override;
 
   /**
    * Loads all required OpenGL extensions. Must be called every time a new

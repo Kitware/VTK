@@ -93,7 +93,7 @@ public:
   static vtkMultiThreader *New();
 
   vtkTypeMacro(vtkMultiThreader,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is the structure that is passed to the thread that is
@@ -211,7 +211,7 @@ public:
 
 protected:
   vtkMultiThreader();
-  ~vtkMultiThreader() VTK_OVERRIDE;
+  ~vtkMultiThreader() override;
 
   // The number of threads to use
   int                        NumberOfThreads;

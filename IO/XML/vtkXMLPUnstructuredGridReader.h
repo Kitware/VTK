@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPUnstructuredGridReader : public vtkXMLPUnstructured
 {
 public:
   vtkTypeMacro(vtkXMLPUnstructuredGridReader,vtkXMLPUnstructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPUnstructuredGridReader *New();
 
   //@{
@@ -51,21 +51,21 @@ public:
 
 protected:
   vtkXMLPUnstructuredGridReader();
-  ~vtkXMLPUnstructuredGridReader() VTK_OVERRIDE;
+  ~vtkXMLPUnstructuredGridReader() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
-  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) VTK_OVERRIDE;
-  void SetupOutputTotals() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
+  void GetOutputUpdateExtent(int& piece, int& numberOfPieces, int& ghostLevel) override;
+  void SetupOutputTotals() override;
 
-  void SetupOutputData() VTK_OVERRIDE;
-  void SetupNextPiece() VTK_OVERRIDE;
-  int ReadPieceData() VTK_OVERRIDE;
+  void SetupOutputData() override;
+  void SetupNextPiece() override;
+  int ReadPieceData() override;
 
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) VTK_OVERRIDE;
-  vtkXMLDataReader* CreatePieceReader() VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  vtkXMLDataReader* CreatePieceReader() override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
-  void SqueezeOutputArrays(vtkDataObject*) VTK_OVERRIDE;
+  void SqueezeOutputArrays(vtkDataObject*) override;
 
   // The index of the cell in the output where the current piece
   // begins.

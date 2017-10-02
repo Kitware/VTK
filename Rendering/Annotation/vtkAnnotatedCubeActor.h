@@ -59,39 +59,39 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAnnotatedCubeActor : public vtkProp3D
 public:
   static vtkAnnotatedCubeActor *New();
   vtkTypeMacro(vtkAnnotatedCubeActor,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * For some exporters and other other operations we must be
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *) override;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Shallow copy of an axes actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -99,13 +99,13 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   void GetBounds(double bounds[6]);
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
   //@}
 
   /**
    * Get the actors mtime plus consider its properties and texture if set.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -199,7 +199,7 @@ public:
 
 protected:
   vtkAnnotatedCubeActor();
-  ~vtkAnnotatedCubeActor() VTK_OVERRIDE;
+  ~vtkAnnotatedCubeActor() override;
 
   vtkCubeSource      *CubeSource;
   vtkActor           *CubeActor;

@@ -282,7 +282,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGraph : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkGraph, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -295,12 +295,12 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_GRAPH;}
+  int GetDataObjectType() override {return VTK_GRAPH;}
 
   /**
    * Initialize to an empty graph.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
@@ -344,7 +344,7 @@ public:
   /**
    * The modified time of the graph.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Initializes the out edge iterator to iterate over
@@ -471,13 +471,13 @@ public:
    * Shallow copies the data object into this graph.
    * If it is an incompatible graph, reports an error.
    */
-  void ShallowCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *obj) override;
 
   /**
    * Deep copies the data object into this graph.
    * If it is an incompatible graph, reports an error.
    */
-  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *obj) override;
 
   /**
    * Does a shallow copy of the topological information,
@@ -610,12 +610,12 @@ public:
    * in addition to the case of FIELD, which will return the field data
    * for any vtkDataObject subclass.
    */
-  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
 
   /**
    * Get the number of elements for a specific attribute type (VERTEX, EDGE, etc.).
    */
-  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
+  vtkIdType GetNumberOfElements(int type) override;
 
   /**
    * Dump the contents of the graph to standard output.
@@ -645,7 +645,7 @@ public:
 protected:
 
   vtkGraph();
-  ~vtkGraph() VTK_OVERRIDE;
+  ~vtkGraph() override;
 
   /**
    * Protected method for adding vertices, optionally with properties,

@@ -34,12 +34,12 @@ public:
   static vtkPointData *New();
 
   vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   void NullPoint(vtkIdType ptId);
 
 protected:
   vtkPointData() {}
-  ~vtkPointData() VTK_OVERRIDE {}
+  ~vtkPointData() override {}
 
 private:
   vtkPointData(const vtkPointData&) VTK_DELETE_FUNCTION;

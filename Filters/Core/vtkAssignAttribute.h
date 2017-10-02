@@ -68,7 +68,7 @@ class VTKFILTERSCORE_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorith
 {
 public:
   vtkTypeMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkAssignAttribute.
@@ -111,11 +111,11 @@ protected:
   };
 
   vtkAssignAttribute();
-  ~vtkAssignAttribute() VTK_OVERRIDE;
+  ~vtkAssignAttribute() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   char* FieldName;
   int FieldTypeAssignment;

@@ -49,7 +49,7 @@ class VTKRENDERINGLIC_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 public:
   static vtkImageDataLIC2D* New();
   vtkTypeMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,10 +111,10 @@ public:
 
 protected:
   vtkImageDataLIC2D();
-  ~vtkImageDataLIC2D() VTK_OVERRIDE;
+  ~vtkImageDataLIC2D() override;
 
   int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -123,11 +123,11 @@ protected:
    * Redefined from the superclass.
    */
   int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+                                       vtkInformation *info) override;
 
   int RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
                            vtkInformationVector **inputVector,
-                           vtkInformationVector *vtkNotUsed( outputVector )) VTK_OVERRIDE;
+                           vtkInformationVector *vtkNotUsed( outputVector )) override;
 
   /**
    * This is called by the superclass.
@@ -135,7 +135,7 @@ protected:
    */
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   vtkWeakPointer<vtkRenderWindow> Context;
   bool OwnWindow;

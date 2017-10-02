@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkBase64Utilities() {}
-  ~vtkBase64Utilities() VTK_OVERRIDE {}
+  ~vtkBase64Utilities() override {}
 
 private:
   vtkBase64Utilities(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;

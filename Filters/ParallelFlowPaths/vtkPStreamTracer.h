@@ -43,7 +43,7 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTra
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -63,8 +63,8 @@ protected:
   vtkPStreamTracer();
   ~vtkPStreamTracer();
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkMultiProcessController* Controller;
 

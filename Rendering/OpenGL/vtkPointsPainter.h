@@ -35,18 +35,18 @@ class VTKRENDERINGOPENGL_EXPORT vtkPointsPainter : public vtkPrimitivePainter
 public:
   static vtkPointsPainter* New();
   vtkTypeMacro(vtkPointsPainter, vtkPrimitivePainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPointsPainter();
-  ~vtkPointsPainter() VTK_OVERRIDE;
+  ~vtkPointsPainter() override;
 
   /**
    * The actual rendering happens here. This method is called only when
    * SupportedPrimitive is present in typeflags when Render() is invoked.
    */
   int RenderPrimitive(unsigned long flags, vtkDataArray* n,
-    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) VTK_OVERRIDE;
+    vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
   vtkPointsPainter(const vtkPointsPainter&) VTK_DELETE_FUNCTION;

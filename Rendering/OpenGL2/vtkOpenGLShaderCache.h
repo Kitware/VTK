@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 public:
   static vtkOpenGLShaderCache *New();
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkOpenGLShaderCache();
-  ~vtkOpenGLShaderCache() VTK_OVERRIDE;
+  ~vtkOpenGLShaderCache() override;
 
   // perform System and Output replacments in place. Returns
   // the number of outputs

@@ -64,7 +64,7 @@ public:
    */
   static vtkVoxelGrid *New();
   vtkTypeMacro(vtkVoxelGrid,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -141,7 +141,7 @@ public:
 
 protected:
   vtkVoxelGrid();
-  ~vtkVoxelGrid() VTK_OVERRIDE;
+  ~vtkVoxelGrid() override;
 
   vtkStaticPointLocator *Locator;
   int ConfigurationStyle;
@@ -152,8 +152,8 @@ protected:
   vtkInterpolationKernel *Kernel;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
   vtkVoxelGrid(const vtkVoxelGrid&) VTK_DELETE_FUNCTION;

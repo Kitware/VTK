@@ -37,17 +37,17 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCompositePolyDataMapper2Node :
 public:
   static vtkOSPRayCompositePolyDataMapper2Node* New();
   vtkTypeMacro(vtkOSPRayCompositePolyDataMapper2Node, vtkOSPRayPolyDataMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass) VTK_OVERRIDE;
+  virtual void Invalidate(bool prepass) override;
 
 protected:
   vtkOSPRayCompositePolyDataMapper2Node();

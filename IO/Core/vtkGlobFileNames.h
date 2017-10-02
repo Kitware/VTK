@@ -59,7 +59,7 @@ public:
   /**
    * Print directory to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Reset the glob by clearing the list of output filenames.
@@ -122,7 +122,7 @@ protected:
   //@}
 
   vtkGlobFileNames();
-  ~vtkGlobFileNames() VTK_OVERRIDE;
+  ~vtkGlobFileNames() override;
 
 private:
   char* Directory;          // Directory for search.

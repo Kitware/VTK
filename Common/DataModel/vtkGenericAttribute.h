@@ -48,7 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
 {
  public:
   vtkTypeMacro(vtkGenericAttribute,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Name of the attribute. (e.g. "velocity")
@@ -216,7 +216,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
 
 protected:
   vtkGenericAttribute();
-  ~vtkGenericAttribute() VTK_OVERRIDE;
+  ~vtkGenericAttribute() override;
 
 private:
   vtkGenericAttribute(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;

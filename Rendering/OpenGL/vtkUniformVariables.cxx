@@ -119,7 +119,7 @@ public:
         ++i;
       }
   }
-  ~vtkUniformVectorInt() VTK_OVERRIDE
+  ~vtkUniformVectorInt() override
   {
       delete[] this->Values;
   }
@@ -144,7 +144,7 @@ public:
      return this->Values;
   }
 
-   void Send(int location) VTK_OVERRIDE
+   void Send(int location) override
    {
       switch(this->Size)
       {
@@ -166,7 +166,7 @@ public:
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*i");
    }
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream &os, vtkIndent indent) override
   {
       os << indent << this->Name << " (uniform" << this->Size << "i): ";
       int i=0;
@@ -182,7 +182,7 @@ public:
       os << endl;
   }
 
-  vtkUniform *Clone() const VTK_OVERRIDE
+  vtkUniform *Clone() const override
   {
       vtkUniformVectorInt *result=new vtkUniformVectorInt(this->Size,
                                                           this->Values);
@@ -212,7 +212,7 @@ public:
       }
   }
 
-  ~vtkUniformVectorFloat() VTK_OVERRIDE
+  ~vtkUniformVectorFloat() override
   {
       delete[] this->Values;
   }
@@ -237,7 +237,7 @@ public:
       return this->Values;
   }
 
-  void Send(int location) VTK_OVERRIDE
+  void Send(int location) override
   {
       switch(this->Size)
       {
@@ -259,7 +259,7 @@ public:
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*f");
   }
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream &os, vtkIndent indent) override
   {
       os << indent << this->Name << " (uniform" << this->Size << "f): ";
       int i=0;
@@ -275,7 +275,7 @@ public:
       os << endl;
   }
 
-  vtkUniform *Clone() const VTK_OVERRIDE
+  vtkUniform *Clone() const override
   {
       vtkUniformVectorFloat *result=new vtkUniformVectorFloat(this->Size,
                                                               this->Values);
@@ -325,7 +325,7 @@ public:
       }
   }
 
-  ~vtkUniformArrayInt() VTK_OVERRIDE
+  ~vtkUniformArrayInt() override
   {
       delete[] this->Values;
   }
@@ -355,7 +355,7 @@ public:
       return this->Values;
   }
 
-  void Send(int location) VTK_OVERRIDE
+  void Send(int location) override
   {
       switch(this->Size)
       {
@@ -375,7 +375,7 @@ public:
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*iv");
   }
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream &os, vtkIndent indent) override
   {
       os << indent << this->Name << " (uniform" << this->Size << "iv[" << this->ArraySize << "]): ";
       int j=0;
@@ -397,7 +397,7 @@ public:
       }
   }
 
-  vtkUniform *Clone() const VTK_OVERRIDE
+  vtkUniform *Clone() const override
   {
       vtkUniformArrayInt *result=new vtkUniformArrayInt(this->Size,
                                                         this->ArraySize,
@@ -431,7 +431,7 @@ public:
       }
   }
 
-  ~vtkUniformArrayFloat() VTK_OVERRIDE
+  ~vtkUniformArrayFloat() override
   {
       delete[] this->Values;
   }
@@ -461,7 +461,7 @@ public:
       return this->Values;
   }
 
-  void Send(int location) VTK_OVERRIDE
+  void Send(int location) override
   {
       switch(this->Size)
       {
@@ -481,7 +481,7 @@ public:
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*fv");
   }
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream &os, vtkIndent indent) override
   {
       os << indent << this->Name << " (uniform" << this->Size << "fv[" << this->ArraySize << "]): ";
       int j=0;
@@ -503,7 +503,7 @@ public:
       }
   }
 
-  vtkUniform *Clone() const VTK_OVERRIDE
+  vtkUniform *Clone() const override
   {
       vtkUniformArrayFloat *result=new vtkUniformArrayFloat(this->Size,
                                                             this->ArraySize,
@@ -544,7 +544,7 @@ public:
       }
   }
 
-  ~vtkUniformMatrix() VTK_OVERRIDE
+  ~vtkUniformMatrix() override
   {
       delete[] this->Values;
   }
@@ -580,7 +580,7 @@ public:
       return this->Values;
   }
 
-  void Send(int location) VTK_OVERRIDE
+  void Send(int location) override
   {
       switch(this->Rows)
       {
@@ -630,7 +630,7 @@ public:
       vtkOpenGLStaticCheckErrorMacro("failed at glUniformMatrix*fv");
   }
 
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream &os, vtkIndent indent) override
   {
       os << indent << this->Name << " (matrix " << this->Rows << "x"
          << this->Columns << "): ";
@@ -652,7 +652,7 @@ public:
       }
   }
 
-  vtkUniform *Clone() const VTK_OVERRIDE
+  vtkUniform *Clone() const override
   {
       vtkUniformMatrix *result=new vtkUniformMatrix(this->Rows,this->Columns,
                                                     this->Values);

@@ -34,7 +34,7 @@ class VTKFILTERSHYBRID_EXPORT vtkEarthSource : public vtkPolyDataAlgorithm
 public:
   static vtkEarthSource *New();
   vtkTypeMacro(vtkEarthSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -68,9 +68,9 @@ public:
 
 protected:
   vtkEarthSource();
-  ~vtkEarthSource() VTK_OVERRIDE {}
+  ~vtkEarthSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Radius;
   int OnRatio;

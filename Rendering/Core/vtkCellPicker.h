@@ -65,7 +65,7 @@ class VTKRENDERINGCORE_EXPORT vtkCellPicker : public vtkPicker
 public:
   static vtkCellPicker *New();
   vtkTypeMacro(vtkCellPicker, vtkPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform pick operation with selection point provided. Normally the
@@ -74,14 +74,14 @@ public:
    * something was successfully picked.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer) VTK_OVERRIDE;
+                   vtkRenderer *renderer) override;
 
   /**
    * Perform pick operation with selection point provided. The
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) VTK_OVERRIDE;
+  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer *ren) override;
 
   /**
    * Add a locator for one of the data sets that will be included in the
@@ -251,15 +251,15 @@ public:
 
 protected:
   vtkCellPicker();
-  ~vtkCellPicker() VTK_OVERRIDE;
+  ~vtkCellPicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   virtual void ResetPickInfo();
 
   double IntersectWithLine(double p1[3], double p2[3], double tol,
                                   vtkAssemblyPath *path, vtkProp3D *p,
-                                  vtkAbstractMapper3D *m) VTK_OVERRIDE;
+                                  vtkAbstractMapper3D *m) override;
 
   virtual double IntersectActorWithLine(const double p1[3], const double p2[3],
                                         double t1, double t2, double tol,

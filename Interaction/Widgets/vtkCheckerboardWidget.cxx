@@ -33,7 +33,7 @@ class vtkCWCallback : public vtkCommand
 public:
   static vtkCWCallback *New()
     { return new vtkCWCallback; }
-  void Execute(vtkObject *, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long eventId, void*) override
   {
       switch (eventId)
       {

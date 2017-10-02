@@ -39,16 +39,16 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMIPHelper : public vtk
 public:
   static vtkFixedPointVolumeRayCastMIPHelper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastMIPHelper,vtkFixedPointVolumeRayCastHelper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   void  GenerateImage( int threadID,
                                int threadCount,
                                vtkVolume *vol,
-                               vtkFixedPointVolumeRayCastMapper *mapper) VTK_OVERRIDE;
+                               vtkFixedPointVolumeRayCastMapper *mapper) override;
 
 protected:
   vtkFixedPointVolumeRayCastMIPHelper();
-  ~vtkFixedPointVolumeRayCastMIPHelper() VTK_OVERRIDE;
+  ~vtkFixedPointVolumeRayCastMIPHelper() override;
 
 private:
   vtkFixedPointVolumeRayCastMIPHelper(const vtkFixedPointVolumeRayCastMIPHelper&) VTK_DELETE_FUNCTION;

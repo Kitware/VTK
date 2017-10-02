@@ -46,18 +46,18 @@ class vtkXMLDataHeaderImpl: public vtkXMLDataHeader
   std::vector<T> Header;
 public:
   vtkXMLDataHeaderImpl(size_t n): Header(n, 0) {}
-  void Resize(size_t count) VTK_OVERRIDE
+  void Resize(size_t count) override
     { this->Header.resize(count, 0); }
-  vtkTypeUInt64 Get(size_t index) const VTK_OVERRIDE
+  vtkTypeUInt64 Get(size_t index) const override
     { return this->Header[index]; }
-  bool Set(size_t index, vtkTypeUInt64 value) VTK_OVERRIDE
+  bool Set(size_t index, vtkTypeUInt64 value) override
   {
     this->Header[index] = T(value);
     return vtkTypeUInt64(this->Header[index]) == value;
   }
-  size_t WordSize() const VTK_OVERRIDE { return sizeof(T); }
-  size_t WordCount() const VTK_OVERRIDE { return this->Header.size(); }
-  unsigned char* Data() VTK_OVERRIDE
+  size_t WordSize() const override { return sizeof(T); }
+  size_t WordCount() const override { return this->Header.size(); }
+  unsigned char* Data() override
     { return reinterpret_cast<unsigned char*>(&this->Header[0]); }
 };
 

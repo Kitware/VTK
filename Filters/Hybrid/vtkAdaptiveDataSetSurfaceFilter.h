@@ -46,7 +46,7 @@ class VTKFILTERSHYBRID_EXPORT vtkAdaptiveDataSetSurfaceFilter : public vtkDataSe
 public:
   static vtkAdaptiveDataSetSurfaceFilter* New();
   vtkTypeMacro( vtkAdaptiveDataSetSurfaceFilter, vtkDataSetSurfaceFilter );
-  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
+  void PrintSelf( ostream&, vtkIndent ) override;
 
   //@{
   /**
@@ -64,16 +64,16 @@ public:
   /**
    * Get the mtime of this object.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkAdaptiveDataSetSurfaceFilter();
-  ~vtkAdaptiveDataSetSurfaceFilter() VTK_OVERRIDE;
+  ~vtkAdaptiveDataSetSurfaceFilter() override;
 
   int RequestData( vtkInformation* vtkNotUsed(request),
                    vtkInformationVector** inputVector,
-                   vtkInformationVector* outputVector ) VTK_OVERRIDE;
-  int DataSetExecute( vtkDataSet* input, vtkPolyData* output ) VTK_OVERRIDE;
+                   vtkInformationVector* outputVector ) override;
+  int DataSetExecute( vtkDataSet* input, vtkPolyData* output ) override;
 
   /**
    * Main routine to generate external boundary

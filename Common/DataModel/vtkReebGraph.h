@@ -136,7 +136,7 @@ public:
   static vtkReebGraph *New();
 
   vtkTypeMacro(vtkReebGraph, vtkMutableDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintNodeData(ostream& os, vtkIndent indent);
 
   /**
@@ -145,7 +145,7 @@ public:
    * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
    * THIS METHOD IS THREAD SAFE
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_REEB_GRAPH;}
+  int GetDataObjectType() override {return VTK_REEB_GRAPH;}
 
 
   enum
@@ -306,7 +306,7 @@ public:
 
   // Descrition:
   // Implements deep copy
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) override;
 
   /**
    * Simplify the Reeb graph given a threshold 'simplificationThreshold'
@@ -361,7 +361,7 @@ public:
 protected:
 
   vtkReebGraph();
-  ~vtkReebGraph() VTK_OVERRIDE;
+  ~vtkReebGraph() override;
 
   class Implementation;
   Implementation* Storage;

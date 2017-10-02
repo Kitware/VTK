@@ -101,14 +101,14 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkAxesTransformWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Override superclasses' SetEnabled() method because the line
    * widget must enable its internal handle widgets.
    */
-  void SetEnabled(int enabling) VTK_OVERRIDE;
+  void SetEnabled(int enabling) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -127,17 +127,17 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) VTK_OVERRIDE;
+  void SetProcessEvents(int) override;
 
 protected:
   vtkAxesTransformWidget();
-  ~vtkAxesTransformWidget() VTK_OVERRIDE;
+  ~vtkAxesTransformWidget() override;
 
   int WidgetState;
   enum _WidgetState {Start=0,Active};

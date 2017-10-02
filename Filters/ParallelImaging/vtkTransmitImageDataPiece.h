@@ -39,11 +39,11 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkTransmitImageDataPiece : public vtkTra
 public:
   static vtkTransmitImageDataPiece *New();
   vtkTypeMacro(vtkTransmitImageDataPiece, vtkTransmitStructuredDataPiece);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkTransmitImageDataPiece();
-  ~vtkTransmitImageDataPiece() VTK_OVERRIDE;
+  ~vtkTransmitImageDataPiece() override;
 
 private:
   vtkTransmitImageDataPiece(const vtkTransmitImageDataPiece&) VTK_DELETE_FUNCTION;
