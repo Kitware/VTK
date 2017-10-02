@@ -32,6 +32,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSetZBuffer.cxx
   TestShadowMapBakerPass.cxx
   TestShadowMapPass.cxx
+  TestSimpleMotionBlur.cxx
   TestSobelGradientMagnitudePass.cxx
   TestSpherePoints.cxx
   TestSphereVertex.cxx
