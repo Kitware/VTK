@@ -1650,7 +1650,7 @@ int vtkPStreamTracer::RequestData(
   for (traceOutputsType::iterator it = traceOutputs.begin();
        it != traceOutputs.end(); ++it)
   {
-    vtkPolyData* inp = it-;
+    vtkPolyData* inp = it->GetPointer();
     if ( inp->GetNumberOfCells() > 0 )
     {
       append->AddInputData(inp);
