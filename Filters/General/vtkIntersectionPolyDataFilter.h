@@ -145,6 +145,16 @@ public:
   vtkSetMacro(Tolerance, double);
   //@}
 
+  //@{
+  /**
+   * When discretizing polygons, the minimum ratio of the smallest acceptable
+   * triangle area w.r.t. the area of the polygon
+   *
+   */
+  vtkGetMacro(RelativeSubtriangleArea, double);
+  vtkSetMacro(RelativeSubtriangleArea, double);
+  //@}
+
   /**
    * Given two triangles defined by points (p1, q1, r1) and (p2, q2,
    * r2), returns whether the two triangles intersect. If they do,
@@ -196,6 +206,7 @@ private:
   int CheckInput;
   int Status;
   double Tolerance;
+  double RelativeSubtriangleArea;
 
   class Impl;  //Implementation class
 };

@@ -27,6 +27,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx
   TestPolygon.cxx
+  TestPolygonBoundedTriangulate.cxx
   TestPolyhedron0.cxx
   TestPolyhedron1.cxx
   TestPolyhedron3.cxx
