@@ -901,7 +901,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
         PyObject_CallMethod(this->PathParser,
                             const_cast<char*>("get_text_path"),
                             const_cast<char*>("Osi"),
-                            pyFontProp,// prop
+                            pyFontProp.GetPointer(),// prop
                             const_cast<char*>(str), // texstring
                             1,                      // boolean, ismath
                             0));                    // boolean, usetex
