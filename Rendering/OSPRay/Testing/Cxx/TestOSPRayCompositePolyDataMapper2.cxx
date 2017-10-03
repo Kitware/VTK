@@ -37,11 +37,7 @@
 #include <vtkRegressionTestImage.h>
 
 #define syntheticData
-#ifdef syntheticData
 #include "vtkCylinderSource.h"
-#else
-#include "vtkXMLMultiBlockDataReader.h"
-#endif
 
 int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 {
@@ -68,8 +64,6 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa);
 
-#ifdef syntheticData
-
   int resolution = 18;
   vtkNew<vtkCylinderSource> cyl;
   cyl->CappingOn();
@@ -88,6 +82,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data);
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -103,7 +98,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child);
+            block, (block % 2) ? nullptr : child);
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -128,27 +123,6 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  mapper->SetInputData((vtkPolyData *)(data));
-
-#else
-
-  vtkNew<vtkXMLMultiBlockDataReader> reader;
-  reader->SetFileName("C:/Users/ken.martin/Documents/vtk/data/stargate.vtm");
-  mapper->SetInputConnection(reader->GetOutputPort(0));
-
-  // stargate seems to have cell scalars but all white cell scalars
-  // are slow slow slow so do not use the unless they add value
-  mapper->ScalarVisibilityOff();
-
-  // comment the following in/out for worst/best case
-  // for (int i = 0; i < 20000; ++i)
-  //   {
-  //   mapper->SetBlockColor(i,
-  //     vtkMath::HSVToRGB(0.8*(i%100)/100.0, 1.0, 1.0));
-  //   }
-
-#endif
-
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
@@ -171,7 +145,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)ren, ospray, NULL);
+    SetPipelineControlPoints(ren, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(ren);
 

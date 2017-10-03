@@ -60,7 +60,7 @@ int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, ospray, NULL);
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

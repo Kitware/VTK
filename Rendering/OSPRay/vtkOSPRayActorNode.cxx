@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkOSPRayActorNode);
 //----------------------------------------------------------------------------
 vtkOSPRayActorNode::vtkOSPRayActorNode()
 {
-  this->LastMapper = NULL;
+  this->LastMapper = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -170,8 +170,8 @@ vtkMTimeType vtkOSPRayActorNode::GetMTime()
       mtime = prop->GetInformation()->GetMTime();
     }
   }
-  vtkDataObject * dobj = NULL;
-  vtkPolyData *poly = NULL;
+  vtkDataObject * dobj = nullptr;
+  vtkPolyData *poly = nullptr;
   vtkMapper *mapper = act->GetMapper();
   if (mapper)
   {

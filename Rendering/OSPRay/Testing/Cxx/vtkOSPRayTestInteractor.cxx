@@ -78,7 +78,7 @@ vtkStandardNewMacro(vtkOSPRayTestInteractor);
 //----------------------------------------------------------------------------
 vtkOSPRayTestInteractor::vtkOSPRayTestInteractor()
 {
-  this->SetPipelineControlPoints(NULL,NULL,NULL);
+  this->SetPipelineControlPoints(nullptr,nullptr,nullptr);
   this->VisibleActor = -1;
   this->VisibleLight = -1;
   this->Looper = vtkOSPRayTestLooper::New();
@@ -92,7 +92,7 @@ vtkOSPRayTestInteractor::~vtkOSPRayTestInteractor()
 
 //----------------------------------------------------------------------------
 void vtkOSPRayTestInteractor::SetPipelineControlPoints
-  (vtkOpenGLRenderer *g,
+  (vtkRenderer *g,
    vtkRenderPass *_O,
    vtkRenderPass *_G)
 {
@@ -104,7 +104,7 @@ void vtkOSPRayTestInteractor::SetPipelineControlPoints
 //----------------------------------------------------------------------------
 void vtkOSPRayTestInteractor::OnKeyPress()
 {
-  if (this->GLRenderer == NULL)
+  if (this->GLRenderer == nullptr)
   {
     return;
   }
