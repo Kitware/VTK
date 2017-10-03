@@ -70,7 +70,7 @@ vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
 
   // Enable startup debugging output. This will be set to true when
   // VTK_MATPLOTLIB_DEBUG is defined in the process environment.
-  bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != NULL);
+  bool debug = (vtksys::SystemTools::GetEnv("VTK_MATPLOTLIB_DEBUG") != nullptr);
 
   // Initialize the python interpretor if needed
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
@@ -83,10 +83,10 @@ vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
     // this unnecessary?
 
     // Fetch the exception info. Note that value and traceback may still be
-    // NULL after the call to PyErr_Fetch().
-    PyObject *type = NULL;
-    PyObject *value = NULL;
-    PyObject *traceback = NULL;
+    // nullptr after the call to PyErr_Fetch().
+    PyObject *type = nullptr;
+    PyObject *value = nullptr;
+    PyObject *traceback = nullptr;
     PyErr_Fetch(&type, &value, &traceback);
     vtkSmartPyObject typeStr(PyObject_Str(type));
     vtkSmartPyObject valueStr(PyObject_Str(value));
@@ -94,20 +94,17 @@ vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
     vtkMplStartUpDebugMacro(
       "Error during matplotlib import:\n"
       << "\nStack:\n"
-      << (tracebackStr == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(tracebackStr)))
+      << (tracebackStr
+          ? const_cast<char*>(PyString_AsString(tracebackStr))
+          : "(none)")
       << "\nValue:\n"
-      << (valueStr == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(valueStr)))
+      << (valueStr
+          ? const_cast<char*>(PyString_AsString(valueStr))
+          : "(none)")
       << "\nType:\n"
-      << (typeStr == NULL
-        ? "(none)"
-        : const_cast<char*>(
-          PyString_AsString(typeStr))));
+      << (typeStr
+          ? const_cast<char*>(PyString_AsString(typeStr))
+          :  "(none)"));
     PyErr_Clear();
     vtkMatplotlibMathTextUtilities::MPLMathTextAvailable = UNAVAILABLE;
   }
@@ -128,7 +125,7 @@ bool vtkMatplotlibMathTextUtilities::IsAvailable()
 
 //----------------------------------------------------------------------------
 vtkMatplotlibMathTextUtilities::vtkMatplotlibMathTextUtilities()
-  : Superclass(), MaskParser(NULL), PathParser(NULL), FontPropertiesClass(NULL),
+  : Superclass(), MaskParser(nullptr), PathParser(nullptr), FontPropertiesClass(nullptr),
     ScaleToPowerOfTwo(true)
 {
   this->Interpreter = vtkPythonInterpreter::New();
@@ -153,9 +150,9 @@ void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
     Py_XDECREF(this->PathParser);
     Py_XDECREF(this->FontPropertiesClass);
 
-    this->MaskParser = NULL;
-    this->PathParser = NULL;
-    this->FontPropertiesClass = NULL;
+    this->MaskParser = nullptr;
+    this->PathParser = nullptr;
+    this->FontPropertiesClass = nullptr;
   }
 }
 
@@ -209,7 +206,7 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
     return false;
   }
 
-  this->PathParser = PyObject_CallFunction(textToPathClass, NULL);
+  this->PathParser = PyObject_CallFunction(textToPathClass, nullptr);
   if (this->CheckForError(this->PathParser))
   {
     Py_CLEAR(this->PathParser);
@@ -253,30 +250,27 @@ bool vtkMatplotlibMathTextUtilities::CheckForError()
     if (this->Debug)
     {
       // Fetch the exception info. Note that value and traceback may still be
-      // NULL after the call to PyErr_Fetch().
-      PyObject *type = NULL;
-      PyObject *value = NULL;
-      PyObject *traceback = NULL;
+      // nullptr after the call to PyErr_Fetch().
+      PyObject *type = nullptr;
+      PyObject *value = nullptr;
+      PyObject *traceback = nullptr;
       PyErr_Fetch(&type, &value, &traceback);
       vtkSmartPyObject typeStr(PyObject_Str(type));
       vtkSmartPyObject valueStr(PyObject_Str(value));
       vtkSmartPyObject tracebackStr(PyObject_Str(traceback));
       vtkWarningMacro(<< "Python exception raised:\n"
                       << "\nStack:\n"
-                      << (tracebackStr == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(tracebackStr)))
+                      << (tracebackStr
+                          ? const_cast<char*>(PyString_AsString(tracebackStr))
+                          : "(none)")
                       << "\nValue:\n"
-                      << (valueStr == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(valueStr)))
+                      << (valueStr
+                          ? const_cast<char*>(PyString_AsString(valueStr))
+                          : "(none)")
                       << "\nType:\n"
-                      << (typeStr == NULL
-                          ? "(none)"
-                          : const_cast<char*>(
-                            PyString_AsString(typeStr))));
+                      << (typeStr
+                          ? const_cast<char*>(PyString_AsString(typeStr))
+                          :  "(none)"));
     }
     PyErr_Clear();
     return true;
@@ -290,9 +284,9 @@ bool vtkMatplotlibMathTextUtilities::CheckForError(PyObject *object)
   // Print any exceptions
   bool result = this->CheckForError();
 
-  if (object == NULL)
+  if (object == nullptr)
   {
-    vtkDebugMacro(<< "Object is NULL!");
+    vtkDebugMacro(<< "Object is nullptr!");
     return true;
   }
   return result;
@@ -305,7 +299,7 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
   if (!this->IsAvailable())
   {
     vtkErrorMacro(<<"Matplotlib rendering is unavailable.");
-    return NULL;
+    return nullptr;
   }
 
   if (!this->FontPropertiesClass)
@@ -313,7 +307,7 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
     if (!this->InitializeFontPropertiesClass())
     {
       vtkErrorMacro(<<"FontPropertiesClass is not initialized!");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -953,8 +947,8 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     // pyVert is sometimes a numpy array, sometimes it's a tuple.
     // Initialize the following objects in the following conditional, then
     // convert to smart pointers afterwards.
-    PyObject *pyVertXObj = NULL;
-    PyObject *pyVertYObj = NULL;
+    PyObject *pyVertXObj = nullptr;
+    PyObject *pyVertYObj = nullptr;
     if (pyVert->ob_type == &PyTuple_Type)
     {
       pyVertXObj = PyTuple_GetItem(pyVert, 0);
@@ -974,7 +968,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     {
       vtkSmartPyObject pyVertList(PyObject_CallMethod(pyVert,
                                                    const_cast<char*>("tolist"),
-                                                   NULL));
+                                                   nullptr));
       if (this->CheckForError(pyVertList) ||
           PySequence_Size(pyVertList) < 2)
       {
