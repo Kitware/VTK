@@ -1,7 +1,7 @@
 # Make testing data from the legacy VTKData repository available.
 # DO NOT ADD NEW DATA HERE!!
 # TODO: Reference testing data from each module only as needed.
-set(data "DATA{${VTK_TEST_INPUT_DIR}/,REGEX:.*}")
+set(data "DATA{${VTK_TEST_INPUT_DIR}/,REGEX:[^.].*}")
 foreach(d
     FiberSurface
     Infovis
