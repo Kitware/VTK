@@ -90,7 +90,7 @@ void vtkTableToSparseArray::AddCoordinateColumn(const char* name)
 {
   if(!name)
   {
-    vtkErrorMacro(<< "cannot add coordinate column with NULL name");
+    vtkErrorMacro(<< "cannot add coordinate column with nullptr name");
     return;
   }
 
@@ -102,7 +102,7 @@ void vtkTableToSparseArray::SetValueColumn(const char* name)
 {
   if(!name)
   {
-    vtkErrorMacro(<< "cannot set value column with NULL name");
+    vtkErrorMacro(<< "cannot set value column with nullptr name");
     return;
   }
 

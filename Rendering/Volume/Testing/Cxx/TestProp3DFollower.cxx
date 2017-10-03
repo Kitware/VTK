@@ -50,7 +50,7 @@ public:
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
       vtkCellPicker *picker = reinterpret_cast<vtkCellPicker*>(caller);
-      if ( picker->GetViewProp() != NULL )
+      if ( picker->GetViewProp() != nullptr )
       {
         cout << "Picked\n";
       }

@@ -109,7 +109,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   }
 
   // We need the gradient magnitudes only if we are classifying opacity
-  // based on them. Otherwise we can just leave them NULL
+  // based on them. Otherwise we can just leave them nullptr
   if ( vol->GetGradientOpacityArray() &&
        vol->GetGradientOpacityConstant() == -1.0 )
   {

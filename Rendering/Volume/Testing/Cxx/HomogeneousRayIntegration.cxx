@@ -24,7 +24,7 @@ static vtkUnstructuredGridVolumeRayIntegrator *CreateHomogeneousRayIntegrator()
 
 int HomogeneousRayIntegration(int argc, char *argv[])
 {
-  return ExerciseUnstructuredGridRayCastMapper(argc, argv, NULL,
+  return ExerciseUnstructuredGridRayCastMapper(argc, argv, nullptr,
                                                CreateHomogeneousRayIntegrator,
                                                1);
 }

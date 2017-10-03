@@ -84,7 +84,7 @@ vtkWebGLExporter::vtkWebGLExporter()
   this->meshObjMaxSize = 65532/3;
   this->lineObjMaxSize = 65534/2;
   this->Internal = new vtkInternal();
-  this->TriangleFilter = NULL;
+  this->TriangleFilter = nullptr;
   this->GradientBackground = false;
   this->SetCenterOfRotation(0.0, 0.0, 0.0);
   this->renderersMetaData = "";
@@ -140,8 +140,8 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
   {
     vtkProp* prop = (vtkProp*)propCollection->GetItemAsObject(i);
     vtkWidgetRepresentation* trt = vtkWidgetRepresentation::SafeDownCast(prop);
-    if (trt!=NULL) this->hasWidget = true;
-    if ((onlyWidget==false || trt!=NULL) && prop->GetVisibility())
+    if (trt!=nullptr) this->hasWidget = true;
+    if ((onlyWidget==false || trt!=nullptr) && prop->GetVisibility())
     {
       vtkPropCollection* allactors = vtkPropCollection::New();
       prop->GetActors(allactors);
@@ -150,7 +150,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         vtkActor* actor = vtkActor::SafeDownCast(allactors->GetItemAsObject(j));
         vtkActor* key = actor;
         vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
       }
       allactors->Delete();
     }
@@ -163,7 +163,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
         vtkActor2D* key = actor;
         vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
-        this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
+        this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != nullptr);
       }
       all2dactors->Delete();
     }
@@ -255,7 +255,7 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
       }
 
       this->Internal->ActorTimestamp[key] = dataMTime;
-      vtkWebGLObject* obj = NULL;
+      vtkWebGLObject* obj = nullptr;
       std::stringstream ss;
       ss << (size_t)actor;
       for (size_t i=0; i<this->Internal->tempObj.size(); i++)
@@ -266,13 +266,13 @@ void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_
           this->Internal->tempObj.erase(this->Internal->tempObj.begin()+i);
         }
       }
-      if (obj == NULL) obj = vtkWebGLPolyData::New();
+      if (obj == nullptr) obj = vtkWebGLPolyData::New();
 
       if (polydata->GetOutput()->GetNumberOfPolys() != 0)
       {
         if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
         {
-          ((vtkWebGLPolyData*)obj)->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, NULL);
+          ((vtkWebGLPolyData*)obj)->GetLinesFromPolygon(mapper, actor, this->lineObjMaxSize, nullptr);
         }
         else
         {
@@ -430,7 +430,7 @@ void vtkWebGLExporter::parseScene(vtkRendererCollection* renderers, const char* 
   for(int i=0; i<renderers->GetNumberOfItems(); i++)
   {
     vtkRenderer* renderer = vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i));
-    if (renderer->GetDraw()) this->parseRenderer(renderer, viewId, onlyWidget, NULL);
+    if (renderer->GetDraw()) this->parseRenderer(renderer, viewId, onlyWidget, nullptr);
   }
   while(this->Internal->tempObj.size() != 0)
   {
@@ -456,7 +456,7 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
   for(int i=0; i<renderers->GetNumberOfItems(); i++) orderedList.push_back(vtkRenderer::SafeDownCast(renderers->GetItemAsObject(i)));
   std::sort(orderedList.begin(), orderedList.begin()+orderedList.size(), sortLayer);
 
-  int *fullSize = NULL;
+  int *fullSize = nullptr;
   for(size_t i=0; i<orderedList.size(); i++)
   {
     vtkRenderer* renderer = orderedList[i];
@@ -496,7 +496,7 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
 
 vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, vtkMTimeType& dataMTime)
 {
-  vtkDataSet* dataset = NULL;
+  vtkDataSet* dataset = nullptr;
   vtkSmartPointer<vtkDataSet> tempDS;
   vtkDataObject* dObj = mapper->GetInputDataObject(0, 0);
   vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);

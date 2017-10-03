@@ -59,7 +59,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
   vtkCollectionElement* indexElem;
   vtkCollectionElement* elem = new vtkCollectionElement;
 
-  // Check if the top item is NULL
+  // Check if the top item is nullptr
   if (this->Top == nullptr)
   {
     vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to top of the list");

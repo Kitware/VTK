@@ -138,7 +138,7 @@ public:
   //@{
   /**
    * Methods to retrieve the information associated with each vtkProp (i.e.,
-   * the information that makes up each balloon). A NULL will be returned if
+   * the information that makes up each balloon). A nullptr will be returned if
    * the vtkProp does not exist, or if a string or image have not been
    * associated with the specified vtkProp.
    */
@@ -157,7 +157,7 @@ public:
 
   /**
    * Return the current vtkProp that is being hovered over. Note that the
-   * value may be NULL (if hovering over nothing or the mouse is moving).
+   * value may be nullptr (if hovering over nothing or the mouse is moving).
    */
   virtual vtkProp *GetCurrentProp()
     {return this->CurrentProp;}
@@ -190,7 +190,7 @@ protected:
   // Register internal Pickers within PickingManager
   void RegisterPickers() override;
 
-  // The vtkProp that is being hovered over (which may be NULL)
+  // The vtkProp that is being hovered over (which may be nullptr)
   vtkProp *CurrentProp;
 
 private:

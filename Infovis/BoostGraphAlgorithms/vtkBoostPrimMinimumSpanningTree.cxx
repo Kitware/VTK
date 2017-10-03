@@ -161,7 +161,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
     vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->ArrayName);
 
     // Does the array exist at all?
-    if (abstract == NULL)
+    if (abstract == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->ArrayName);
       return 0;
@@ -179,7 +179,7 @@ int vtkBoostPrimMinimumSpanningTree::RequestData(
   vtkDataArray* edgeWeightArray = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
   // Does the edge-weight array exist at all?
-  if (edgeWeightArray == NULL)
+  if (edgeWeightArray == nullptr)
   {
     vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);

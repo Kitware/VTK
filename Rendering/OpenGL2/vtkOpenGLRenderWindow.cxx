@@ -2035,7 +2035,7 @@ int vtkOpenGLRenderWindow::CreateHardwareOffScreenBuffers(int width, int height,
                  0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
     glTexImage2D(target,0,GL_RGBA,width,height,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #endif
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            GL_COLOR_ATTACHMENT0+i,

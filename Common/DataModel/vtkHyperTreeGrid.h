@@ -449,7 +449,7 @@ public:
 
   /**
    * Return tree located at given index of hyper tree grid
-   * NB: This will return NULL if grid slot is empty.
+   * NB: This will return nullptr if grid slot is empty.
    */
   vtkHyperTree* GetTree( vtkIdType );
 

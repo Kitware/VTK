@@ -143,7 +143,7 @@ extern "C" int vtkTclEventProc(XtPointer clientData, XEvent *event)
 
   if (rw->GetWindowId() == (reinterpret_cast<XAnyEvent *>(event))->window)
   {
-    vtkXRenderWindowInteractorCallback(static_cast<Widget>(NULL), clientData,
+    vtkXRenderWindowInteractorCallback(static_cast<Widget>(nullptr), clientData,
                                        event, &ctd);
     ctd = 0;
   }
@@ -283,7 +283,7 @@ void vtkXRenderWindowTclInteractor::Start()
   // Let the compositing handle the event loop if it wants to.
   if (this->HasObserver(vtkCommand::StartEvent) && !this->HandleEventLoop)
   {
-    this->InvokeEvent(vtkCommand::StartEvent, NULL);
+    this->InvokeEvent(vtkCommand::StartEvent, nullptr);
     return;
   }
 

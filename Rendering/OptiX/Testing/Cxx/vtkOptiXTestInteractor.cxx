@@ -39,7 +39,7 @@ vtkStandardNewMacro(vtkOptiXTestInteractor);
 //------------------------------------------------------------------------------
 vtkOptiXTestInteractor::vtkOptiXTestInteractor()
 {
-  this->SetPipelineControlPoints(NULL,NULL,NULL);
+  this->SetPipelineControlPoints(nullptr,nullptr,nullptr);
   this->VisibleActor = -1;
   this->VisibleLight = -1;
 }
@@ -58,7 +58,7 @@ void vtkOptiXTestInteractor::SetPipelineControlPoints
 //------------------------------------------------------------------------------
 void vtkOptiXTestInteractor::OnKeyPress()
 {
-  if (this->GLRenderer == NULL)
+  if (this->GLRenderer == nullptr)
   {
     return;
   }

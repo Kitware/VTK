@@ -61,7 +61,7 @@ vtkViewNode *vtkViewNodeFactory::CreateNode(vtkObject *who)
 {
   if (!who)
   {
-    return NULL;
+    return nullptr;
   }
   const char *forwhom = who->GetClassName();
   vtkViewNode *vn = this->CreateNode(forwhom);
@@ -78,7 +78,7 @@ vtkViewNode *vtkViewNodeFactory::CreateNode(const char *forwhom)
   if (this->Internals->Overrides.find(forwhom) ==
       this->Internals->Overrides.end())
   {
-    return NULL;
+    return nullptr;
   }
   vtkViewNode *(*func)() = this->Internals->Overrides.find(forwhom)->second;
   vtkViewNode *vn = func();

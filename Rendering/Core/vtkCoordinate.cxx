@@ -130,7 +130,7 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     viewport = this->Viewport;
   }
 
-  // if viewport is NULL then we can only do minimal calculations
+  // if viewport is nullptr then we can only do minimal calculations
   if (!viewport)
   {
     if (this->CoordinateSystem == VTK_WORLD)
@@ -327,7 +327,7 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
     viewport = this->Viewport;
   }
 
-  // if viewport is NULL, there is very little we can do
+  // if viewport is nullptr, there is very little we can do
   if (viewport == nullptr)
   {
     // for DISPLAY and VIEWPORT just use the value

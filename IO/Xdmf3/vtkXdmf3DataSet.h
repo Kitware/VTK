@@ -304,7 +304,7 @@ public:
     shared_ptr <XdmfAttribute> xmfAttribute,
     vtkDataArray *array,
     XdmfGrid *grid,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 };
 
 #endif

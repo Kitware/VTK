@@ -274,7 +274,7 @@ vtkMultiProcessController *vtkMultiProcessController::CreateSubController(
 
   if (group->FindProcessId(this->GetLocalProcessId()) < 0)
   {
-    // The group does not contain this process.  Just return NULL.
+    // The group does not contain this process.  Just return nullptr.
     return nullptr;
   }
 

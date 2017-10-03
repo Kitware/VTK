@@ -63,7 +63,7 @@ std::string vtkOptiXPtxLoader::GetFullPathToFile(const char* file)
   const int MAX_PATH_LEN = 1024;
   char pathName[MAX_PATH_LEN];
 #ifdef _WIN32
-  int nameLen = GetModuleFileName(NULL, pathName, MAX_PATH_LEN);
+  int nameLen = GetModuleFileName(nullptr, pathName, MAX_PATH_LEN);
 #else
   int nameLen = readlink("/proc/self/exe", pathName, MAX_PATH_LEN);
 #endif

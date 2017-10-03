@@ -31,7 +31,7 @@ vtkXYPlotRepresentation::vtkXYPlotRepresentation()
 //    this->PositionCoordinate->SetValue( 0.0, 0.0 );
 //    this->Position2Coordinate->SetValue( 0.7, 0.65 );
 
-  this->XYPlotActor = NULL;
+  this->XYPlotActor = nullptr;
   vtkXYPlotActor *actor = vtkXYPlotActor::New();
   this->SetXYPlotActor( actor );
   actor->Delete();
@@ -43,7 +43,7 @@ vtkXYPlotRepresentation::vtkXYPlotRepresentation()
 //-----------------------------------------------------------------------------
 vtkXYPlotRepresentation::~vtkXYPlotRepresentation()
 {
-  this->SetXYPlotActor( NULL );
+  this->SetXYPlotActor( nullptr );
 }
 
 //-----------------------------------------------------------------------------

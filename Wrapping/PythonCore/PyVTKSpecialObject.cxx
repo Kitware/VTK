@@ -237,7 +237,7 @@ PyObject *PyVTKSpecialObject_CopyNew(const char *classname, const void *ptr)
 
 //--------------------------------------------------------------------
 // Add a special type, add methods and members to its type object.
-// A return value of NULL signifies that it was already added.
+// A return value of nullptr signifies that it was already added.
 PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
   PyMethodDef *methods, PyMethodDef *constructors,
   const char *docstring[], vtkcopyfunc copyfunc)

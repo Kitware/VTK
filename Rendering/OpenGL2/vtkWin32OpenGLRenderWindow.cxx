@@ -42,8 +42,8 @@ vtkStandardNewMacro(vtkWin32OpenGLRenderWindow);
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
-  this->ApplicationInstance =  NULL;
-  this->Palette = NULL;
+  this->ApplicationInstance =  nullptr;
+  this->Palette = nullptr;
   this->ContextId = 0;
   this->WindowId = 0;
   this->ParentId = 0;
@@ -66,7 +66,7 @@ vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 }
 
@@ -78,11 +78,11 @@ void vtkWin32OpenGLRenderWindow::Clean()
     this->MakeCurrent();
     this->CleanUpRenderers();
 
-    // Note: wglMakeCurrent(NULL,NULL) is valid according to the documentation
+    // Note: wglMakeCurrent(nullptr,nullptr) is valid according to the documentation
     // and works with nVidia and ATI but not with Intel. Passing an existing
     // device context works in any case.
     // see VTK Bug 7119.
-    if(wglMakeCurrent(this->DeviceContext,NULL)!=TRUE)
+    if(wglMakeCurrent(this->DeviceContext,nullptr)!=TRUE)
     {
       vtkErrorMacro("wglMakeCurrent failed in Clean(), error: " << GetLastError());
     }
@@ -91,13 +91,13 @@ void vtkWin32OpenGLRenderWindow::Clean()
       vtkErrorMacro("wglDeleteContext failed in Clean(), error: " << GetLastError());
     }
   }
-  this->ContextId = NULL;
+  this->ContextId = nullptr;
 
   if (this->Palette)
   {
     SelectPalette(this->DeviceContext, this->OldPalette, FALSE); // SVA delete the old palette
     DeleteObject(this->Palette);
-    this->Palette = NULL;
+    this->Palette = nullptr;
   }
 }
 
@@ -138,7 +138,7 @@ void vtkWin32OpenGLRenderWindow::SetWindowName( const char * _arg )
   if (this->WindowId)
   {
 #ifdef UNICODE
-    wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
+    wchar_t *wname = new wchar_t [mbstowcs(nullptr, this->WindowName, 32000)+1];
     mbstowcs(wname, this->WindowName, 32000);
     SetWindowText(this->WindowId, wname);
     delete [] wname;
@@ -173,7 +173,7 @@ int vtkWin32OpenGLRenderWindow::GetEventPending()
 bool vtkWin32OpenGLRenderWindow::InitializeFromCurrentContext()
 {
   HGLRC currentContext = wglGetCurrentContext();
-  if (currentContext != NULL)
+  if (currentContext != nullptr)
   {
     this->SetWindowId(WindowFromDC(wglGetCurrentDC()));
     this->SetDeviceContext(wglGetCurrentDC());
@@ -205,18 +205,18 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
           FORMAT_MESSAGE_ALLOCATE_BUFFER |
           FORMAT_MESSAGE_FROM_SYSTEM |
           FORMAT_MESSAGE_IGNORE_INSERTS,
-          NULL,
+          nullptr,
           GetLastError(),
           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
           (LPTSTR) &lpMsgBuf,
           0,
-          NULL
+          nullptr
           );
         if(lpMsgBuf)
         {
 #ifdef UNICODE
-          wchar_t *wmsg = new wchar_t [mbstowcs(NULL, (const char*)lpMsgBuf, 32000)+1];
-          wchar_t *wtemp = new wchar_t [mbstowcs(NULL, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
+          wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, (const char*)lpMsgBuf, 32000)+1];
+          wchar_t *wtemp = new wchar_t [mbstowcs(nullptr, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000)+1];
           mbstowcs(wmsg, (const char*)lpMsgBuf, 32000);
           mbstowcs(wtemp, "wglMakeCurrent failed in MakeCurrent(), error: ", 32000);
           vtkErrorMacro(<< wcscat(wtemp, wmsg));
@@ -320,8 +320,8 @@ void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 
         if (this->ParentId)
         {
-          SetWindowExtEx(this->DeviceContext, x, y, NULL);
-          SetViewportExtEx(this->DeviceContext, x, y, NULL);
+          SetWindowExtEx(this->DeviceContext, x, y, nullptr);
+          SetViewportExtEx(this->DeviceContext, x, y, nullptr);
           SetWindowPos(this->WindowId, HWND_TOP, 0, 0,
                        x, y, SWP_NOMOVE | SWP_NOZORDER);
         }
@@ -395,10 +395,10 @@ void vtkWin32OpenGLRenderWindow::VTKRegisterClass()
     wndClass.lpfnWndProc = vtkWin32OpenGLRenderWindow::WndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = this->ApplicationInstance;
-    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    wndClass.lpszMenuName = NULL;
+    wndClass.lpszMenuName = nullptr;
 #ifdef UNICODE
     wndClass.lpszClassName = L"vtkOpenGL";
 #else
@@ -714,7 +714,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
           else
           {
             wglDeleteContext(this->ContextId);
-            this->ContextId = NULL;
+            this->ContextId = nullptr;
           }
         }
       }
@@ -729,7 +729,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
     {
       this->ContextId = wglCreateContext(hDC);
     }
-    if (this->ContextId == NULL)
+    if (this->ContextId == nullptr)
     {
       vtkErrorMacro("wglCreateContext failed in CreateAWindow(), error: " << GetLastError());
     }
@@ -820,8 +820,8 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
       if (this->DeviceContext)
       {
         ReleaseDC(this->WindowId, this->DeviceContext);
-        this->DeviceContext = NULL;
-        this->WindowId = NULL;
+        this->DeviceContext = nullptr;
+        this->WindowId = nullptr;
       }
       return 0;
     case WM_SIZE:
@@ -897,7 +897,7 @@ void vtkWin32OpenGLRenderWindow::InitializeApplication()
     }
     else
     {
-      this->ApplicationInstance = GetModuleHandle(NULL); /*AfxGetInstanceHandle();*/
+      this->ApplicationInstance = GetModuleHandle(nullptr); /*AfxGetInstanceHandle();*/
     }
   }
 }
@@ -924,7 +924,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       delete [] windowName;
 
 #ifdef UNICODE
-      wchar_t *wname = new wchar_t [mbstowcs(NULL, this->WindowName, 32000)+1];
+      wchar_t *wname = new wchar_t [mbstowcs(nullptr, this->WindowName, 32000)+1];
       mbstowcs(wname, this->WindowName, 32000);
 #endif
       int x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
@@ -940,13 +940,13 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
           L"vtkOpenGL", wname,
           WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height,
-          this->ParentId, NULL, this->ApplicationInstance, NULL);
+          this->ParentId, nullptr, this->ApplicationInstance, nullptr);
 #else
         this->WindowId = CreateWindow(
           "vtkOpenGL", this->WindowName,
           WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height,
-          this->ParentId, NULL, this->ApplicationInstance, NULL);
+          this->ParentId, nullptr, this->ApplicationInstance, nullptr);
 #endif
       }
       else
@@ -966,12 +966,12 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
         this->WindowId = CreateWindow(
           L"vtkOpenGL", wname, style,
           x, y, r.right-r.left, r.bottom-r.top,
-          NULL, NULL, this->ApplicationInstance, NULL);
+          nullptr, nullptr, this->ApplicationInstance, nullptr);
 #else
         this->WindowId = CreateWindow(
           "vtkOpenGL", this->WindowName, style,
           x, y, r.right-r.left, r.bottom-r.top,
-          NULL, NULL, this->ApplicationInstance, NULL);
+          nullptr, nullptr, this->ApplicationInstance, nullptr);
 #endif
       }
 #ifdef UNICODE
@@ -1087,8 +1087,8 @@ void vtkWin32OpenGLRenderWindow::DestroyWindow()
       if (this->WindowId)
       {
         ReleaseDC(this->WindowId, this->DeviceContext);
-        // can't set WindowId=NULL, needed for DestroyWindow
-        this->DeviceContext = NULL;
+        // can't set WindowId=nullptr, needed for DestroyWindow
+        this->DeviceContext = nullptr;
 
         // clear the extra data before calling destroy
         vtkSetWindowLong(this->WindowId,sizeof(vtkLONG),(vtkLONG)0);
@@ -1130,14 +1130,14 @@ int *vtkWin32OpenGLRenderWindow::GetSize(void)
 // Get the size of the whole screen.
 int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
-  HDC hDC = ::GetDC(NULL);
+  HDC hDC = ::GetDC(nullptr);
   if (hDC)
   {
     // This technique yields the screen size of the primary monitor
     // only in a multi-monitor configuration...
     this->Size[0] = ::GetDeviceCaps(hDC, HORZRES);
     this->Size[1] = ::GetDeviceCaps(hDC, VERTRES);
-    ::ReleaseDC(NULL, hDC);
+    ::ReleaseDC(nullptr, hDC);
   }
   else
   {

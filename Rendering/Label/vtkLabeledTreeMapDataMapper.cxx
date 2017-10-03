@@ -77,7 +77,7 @@ vtkLabeledTreeMapDataMapper::vtkLabeledTreeMapDataMapper()
   // Take control of the TextMappers array.
   // The superclass just created new TextMapper instances
   // up to the currently allocated amount (default 50).
-  // Instead, we will store NULL values until we need them.
+  // Instead, we will store nullptr values until we need them.
   // This class will manage the maintenance and deletion of
   // this array.
   for (int i = 0; i < this->NumberOfLabelsAllocated; i++)

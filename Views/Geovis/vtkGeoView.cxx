@@ -77,7 +77,7 @@ vtkGeoView::vtkGeoView()
 //  this->LowResEarthMapper->SetResolveCoincidentTopologyPolygonOffsetParameters(1.0, 1000.0);
 
   this->LowResEarthActor        = vtkActor::New();
-  this->LowResEarthSource       = NULL; // BuildLowResEarth tests if the source is null.
+  this->LowResEarthSource       = nullptr; // BuildLowResEarth tests if the source is null.
   this->BuildLowResEarth( cam->GetOrigin() ); // call once the mapper is set!
   this->LowResEarthActor->SetMapper(this->LowResEarthMapper);
   this->Renderer->AddActor(this->LowResEarthActor);

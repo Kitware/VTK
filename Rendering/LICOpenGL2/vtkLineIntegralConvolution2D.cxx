@@ -1771,7 +1771,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
       bufs.Swap();
 
       #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-      bufs.WriteBuffers(rank,"lic2d_1ce.vtm", NULL, computeExtents1);
+      bufs.WriteBuffers(rank,"lic2d_1ce.vtm", nullptr, computeExtents1);
       #endif
 
       #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)
@@ -2006,7 +2006,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     }
 
     #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-    bufs.WriteBuffers(rank,"lic2d_aa.vtm", NULL, computeExtents1);
+    bufs.WriteBuffers(rank,"lic2d_aa.vtm", nullptr, computeExtents1);
     #endif
 
     #if defined(vtkLineIntegralConvolution2DTIME)
@@ -2073,7 +2073,7 @@ vtkTextureObject *vtkLineIntegralConvolution2D::Execute(
     bufs.Swap();
 
     #if (vtkLineIntegralConvolution2DDEBUG >= 1)
-    bufs.WriteBuffers(rank,"lic2d_2ce.vtm", NULL, computeExtents2);
+    bufs.WriteBuffers(rank,"lic2d_2ce.vtm", nullptr, computeExtents2);
     #endif
 
     #if defined(vtkLineIntegralConvolution2DTIME) || defined(vtkSurfaceLICPainterTIME)

@@ -46,7 +46,7 @@ vtkAdaptiveDataSetSurfaceFilter::vtkAdaptiveDataSetSurfaceFilter()
   // Default orientation is 0
   this->Orientation = 0;
 
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
 
   this->LevelMax = -1;
 

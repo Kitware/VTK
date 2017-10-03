@@ -83,7 +83,7 @@ void vtkTableToArray::AddColumn(const char* name)
 {
   if(!name)
   {
-    vtkErrorMacro(<< "cannot add column with NULL name");
+    vtkErrorMacro(<< "cannot add column with nullptr name");
     return;
   }
 

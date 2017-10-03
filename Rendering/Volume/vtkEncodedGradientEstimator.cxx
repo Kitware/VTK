@@ -25,7 +25,7 @@
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, InputData, vtkImageData );
 
-// Construct a vtkEncodedGradientEstimator with initial values of NULL for
+// Construct a vtkEncodedGradientEstimator with initial values of nullptr for
 // the Input, EncodedNormal, and GradientMagnitude. Also,
 // indicate that the IndexTable has not yet been initialized. The
 // GradientMagnitudeRange and the GradientMangitudeTable are
@@ -113,7 +113,7 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
     this->DirectionEncoder = nullptr;
   }
 
-  // If we are passing in a non-NULL encoder, register it
+  // If we are passing in a non-nullptr encoder, register it
   if ( direnc )
   {
     direnc->Register( this );

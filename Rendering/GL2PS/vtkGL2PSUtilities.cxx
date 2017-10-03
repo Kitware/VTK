@@ -37,7 +37,7 @@
 vtkStandardNewMacro(vtkGL2PSUtilities)
 
 // Initialize static members
-vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = NULL;
+vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = nullptr;
 bool vtkGL2PSUtilities::TextAsPath = false;
 float vtkGL2PSUtilities::PointSizeFactor = 5.f / 7.f;
 float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
@@ -140,7 +140,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
   }
 
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
-  if (tren == NULL)
+  if (tren == nullptr)
   {
     vtkNew<vtkGL2PSUtilities> dummy;
     vtkErrorWithObjectMacro(dummy,
@@ -525,7 +525,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   int *codeBegin = code;
 #endif
   int *codeEnd = code + codes->GetNumberOfTuples();
-  if (label != NULL && label[0] != '\0')
+  if (label != nullptr && label[0] != '\0')
   {
     out << "% " << label << endl;
   }
@@ -825,7 +825,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
   int *codeBegin = code;
 #endif
 
-  if (label != NULL && label[0] != '\0')
+  if (label != nullptr && label[0] != '\0')
   {
     out << "<!-- " << label << " -->" << endl;
   }

@@ -238,7 +238,7 @@ int main(int argc, char** argv)
   }
 
   // Test receiving null vtkDataArray
-  vtkDoubleArray *da2 = NULL;
+  vtkDoubleArray *da2 = nullptr;
   if (!comm->Send(da2, 1, 9))
   {
     cerr << "Client error: Error sending data." << endl;

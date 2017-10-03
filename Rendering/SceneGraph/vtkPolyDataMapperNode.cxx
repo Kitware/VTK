@@ -109,7 +109,7 @@ namespace {
                               std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -136,7 +136,7 @@ namespace {
                              std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -167,7 +167,7 @@ namespace {
                                      std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -197,7 +197,7 @@ namespace {
                                  std::vector<unsigned int> &reverseArray)
   {
     //TODO: restore the preallocate and append to offset features I omitted
-    vtkIdType* indices(NULL);
+    vtkIdType* indices(nullptr);
     vtkIdType npts(0);
     if (!cells->GetNumberOfCells())
     {
@@ -205,10 +205,10 @@ namespace {
     }
     unsigned int cell_id = 0;
     // the following are only used if we have to triangulate a polygon
-    // otherwise they just sit at NULL
-    vtkPolygon *polygon = NULL;
-    vtkIdList *tris = NULL;
-    vtkPoints *triPoints = NULL;
+    // otherwise they just sit at nullptr
+    vtkPolygon *polygon = nullptr;
+    vtkIdList *tris = nullptr;
+    vtkPoints *triPoints = nullptr;
 
     for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {

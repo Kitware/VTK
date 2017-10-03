@@ -282,7 +282,7 @@ int vtkApplyIcons::RequestData(
         }
       }
     } // if changeSelected
-  } // if current ann not NULL
+  } // if current ann not nullptr
 
   return 1;
 }

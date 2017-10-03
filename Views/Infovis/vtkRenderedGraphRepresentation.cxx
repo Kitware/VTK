@@ -703,7 +703,7 @@ void vtkRenderedGraphRepresentation::SetLayoutStrategy(vtkGraphLayoutStrategy* s
 {
   if (!s)
   {
-    vtkErrorMacro("Layout strategy must not be NULL.");
+    vtkErrorMacro("Layout strategy must not be nullptr.");
     return;
   }
   if (vtkRandomLayoutStrategy::SafeDownCast(s))
@@ -891,7 +891,7 @@ void vtkRenderedGraphRepresentation::SetEdgeLayoutStrategy(vtkEdgeLayoutStrategy
 {
   if (!s)
   {
-    vtkErrorMacro("Layout strategy must not be NULL.");
+    vtkErrorMacro("Layout strategy must not be nullptr.");
     return;
   }
   if (vtkArcParallelEdgeStrategy::SafeDownCast(s))

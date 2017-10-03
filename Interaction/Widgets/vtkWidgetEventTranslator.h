@@ -78,7 +78,7 @@ public:
   //@{
   /**
    * Translate a VTK event into a widget event. If no event mapping is found,
-   * then the methods return vtkWidgetEvent::NoEvent or a NULL string.
+   * then the methods return vtkWidgetEvent::NoEvent or a nullptr string.
    */
   unsigned long GetTranslation(unsigned long VTKEvent);
   const char *GetTranslation(const char *VTKEvent);

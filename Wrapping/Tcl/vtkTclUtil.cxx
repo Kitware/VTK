@@ -38,7 +38,7 @@ extern "C"
 
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 {
-  vtkTclInterpStruct *is = static_cast<vtkTclInterpStruct *>(Tcl_GetAssocData(interp,(char *)("vtk"),NULL));
+  vtkTclInterpStruct *is = static_cast<vtkTclInterpStruct *>(Tcl_GetAssocData(interp,(char *)("vtk"),nullptr));
   if (!is)
   {
     vtkGenericWarningMacro("unable to find interp struct");
@@ -166,7 +166,7 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
   if (!strcmp(argv[1],"DeleteAllObjects"))
   {
     for (entry = Tcl_FirstHashEntry(&is->PointerLookup,&search);
-         entry != NULL;
+         entry != nullptr;
          entry = Tcl_FirstHashEntry(&is->PointerLookup,&search))
     {
       tmp = strdup(static_cast<char *>(Tcl_GetHashValue(entry)));
@@ -184,11 +184,11 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
   if (!strcmp(argv[1],"ListAllInstances"))
   {
     for (entry = Tcl_FirstHashEntry(&is->InstanceLookup,&search);
-         entry != NULL; entry = Tcl_NextHashEntry(&search))
+         entry != nullptr; entry = Tcl_NextHashEntry(&search))
     {
       Tcl_AppendResult(interp,
-                       static_cast<char *>(Tcl_GetHashKey(&is->InstanceLookup,entry)),NULL);
-      Tcl_AppendResult(interp,"\n",NULL);
+                       static_cast<char *>(Tcl_GetHashKey(&is->InstanceLookup,entry)),nullptr);
+      Tcl_AppendResult(interp,"\n",nullptr);
     }
     return TCL_OK;
   }
@@ -214,24 +214,24 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
   }
   if (!strcmp("ListMethods",argv[1]))
   {
-    Tcl_AppendResult(interp,"Methods for vtkCommand:\n",NULL);
-    Tcl_AppendResult(interp,"  DebugOn\n",NULL);
-    Tcl_AppendResult(interp,"  DebugOff\n",NULL);
-    Tcl_AppendResult(interp,"  DeleteAllObjects\n",NULL);
-    Tcl_AppendResult(interp,"  ListAllInstances\n",NULL);
-    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOn\n",NULL);
-    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOff\n",NULL);
+    Tcl_AppendResult(interp,"Methods for vtkCommand:\n",nullptr);
+    Tcl_AppendResult(interp,"  DebugOn\n",nullptr);
+    Tcl_AppendResult(interp,"  DebugOff\n",nullptr);
+    Tcl_AppendResult(interp,"  DeleteAllObjects\n",nullptr);
+    Tcl_AppendResult(interp,"  ListAllInstances\n",nullptr);
+    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOn\n",nullptr);
+    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOff\n",nullptr);
     return TCL_OK;
   }
 
-  Tcl_AppendResult(interp,"invalid method for vtkCommand\n",NULL);
+  Tcl_AppendResult(interp,"invalid method for vtkCommand\n",nullptr);
   return TCL_ERROR;
 }
 
 VTKTCL_EXPORT void
 vtkTclUpdateCommand(Tcl_Interp *interp, char *name,  vtkObject *temp)
 {
-  Tcl_CmdProc *command = NULL;
+  Tcl_CmdProc *command = nullptr;
 
   // check to see if we can find the command function based on class name
   Tcl_CmdInfo cinf;
@@ -279,7 +279,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   Tcl_HashEntry *entry;
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
 
-  /* if it is NULL then return empty string */
+  /* if it is nullptr then return empty string */
   if (!temp)
   {
     Tcl_ResetResult(interp);
@@ -308,7 +308,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
     return;
   }
 
-  /* we must create a new name if it isn't NULL */
+  /* we must create a new name if it isn't nullptr */
   snprintf(name,sizeof(name),"vtkTemp%i",is->Number);
   is->Number++;
 
@@ -404,17 +404,17 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   char temps[256];
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
 
-  /* check for empty string, empty string is the same as passing NULL */
+  /* check for empty string, empty string is the same as passing nullptr */
   if (name[0] == '\0')
   {
-    return NULL;
+    return nullptr;
   }
 
   // object names cannot start with a number
   if ((name[0] >= '0')&&(name[0] <= '9'))
   {
     error = 1;
-    return NULL;
+    return nullptr;
   }
 
   if ((entry = Tcl_FindHashEntry(&is->InstanceLookup,name)))
@@ -424,9 +424,9 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   else
   {
     snprintf(temps,sizeof(temps),"vtk bad argument, could not find object named %s\n", name);
-    Tcl_AppendResult(interp,temps,NULL);
+    Tcl_AppendResult(interp,temps,nullptr);
     error = 1;
-    return NULL;
+    return nullptr;
   }
 
   /* now handle the typecasting, get the command proc */
@@ -438,19 +438,19 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
   else
   {
     snprintf(temps,sizeof(temps),"vtk bad argument, could not find command process for %s.\n", name);
-    Tcl_AppendResult(interp,temps,NULL);
+    Tcl_AppendResult(interp,temps,nullptr);
     error = 1;
-    return NULL;
+    return nullptr;
   }
 
   /* set up the args */
   args[0] = (char *)("DoTypecasting");
   args[1] = strdup(result_type);
-  args[2] = NULL;
+  args[2] = nullptr;
   vtkTclCommandArgStruct foo;
   foo.Pointer = temp;
   foo.Interp = interp;
-  if (command(static_cast<ClientData>(&foo),static_cast<Tcl_Interp *>(NULL),3,args) == TCL_OK)
+  if (command(static_cast<ClientData>(&foo),static_cast<Tcl_Interp *>(nullptr),3,args) == TCL_OK)
   {
     free (args[1]);
     return static_cast<void *>(args[2]);
@@ -463,14 +463,14 @@ VTKTCL_EXPORT void *vtkTclGetPointerFromObject(const char *name,
     args[0] = (char *)("Dummy");
     free (args[1]);
     args[1] = (char *)("GetClassName");
-    args[2] = NULL;
+    args[2] = nullptr;
     command(static_cast<ClientData>(&foo),i,2,args);
 
     snprintf(temps,sizeof(temps),"vtk bad argument, type conversion failed for object %s.\nCould not type convert %s which is of type %s, to type %s.\n", name, name, Tcl_GetStringResult(i), result_type);
-    Tcl_AppendResult(interp,temps,NULL);
+    Tcl_AppendResult(interp,temps,nullptr);
     error = 1;
     Tcl_DeleteInterp(i);
-    return NULL;
+    return nullptr;
   }
 
 }
@@ -541,12 +541,12 @@ VTKTCL_EXPORT void vtkTclListInstances(Tcl_Interp *interp, ClientData arg)
       if (first)
       {
         first = 0;
-        Tcl_AppendResult(interp,Tcl_GetHashKey(&is->CommandLookup,entry),NULL);
+        Tcl_AppendResult(interp,Tcl_GetHashKey(&is->CommandLookup,entry),nullptr);
       }
       else
       {
         Tcl_AppendResult(interp, " ", Tcl_GetHashKey(&is->CommandLookup,entry),
-                         NULL);
+                         nullptr);
       }
     }
     entry = Tcl_NextHashEntry(&srch);
@@ -575,7 +575,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   if ((argv[1][0] >= '0')&&(argv[1][0] <= '9'))
   {
     Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
-    Tcl_AppendResult(interp, ": vtk object cannot start with a numeric.", NULL);
+    Tcl_AppendResult(interp, ": vtk object cannot start with a numeric.", nullptr);
     return TCL_ERROR;
   }
 
@@ -590,7 +590,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
       Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
       Tcl_AppendResult(interp,
                        ": a vtk object with that name already exists.",
-                       NULL);
+                       nullptr);
       return TCL_ERROR;
     }
   }
@@ -601,7 +601,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
     Tcl_AppendResult(interp,
                      ": a tcl/tk command with that name already exists.",
-                     NULL);
+                     nullptr);
     return TCL_ERROR;
   }
 
@@ -626,7 +626,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     Tcl_SetResult(interp, argv[0], TCL_VOLATILE);
     Tcl_AppendResult(interp,
                      ": no implementation exists for this class.",
-                     NULL);
+                     nullptr);
     return TCL_ERROR;
   }
 
@@ -708,8 +708,8 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
 
 vtkTclCommand::vtkTclCommand()
 {
-  this->Interp = NULL;
-  this->StringCommand = NULL;
+  this->Interp = nullptr;
+  this->StringCommand = nullptr;
 }
 
 vtkTclCommand::~vtkTclCommand()

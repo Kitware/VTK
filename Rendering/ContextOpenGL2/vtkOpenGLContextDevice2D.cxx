@@ -2245,7 +2245,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
   result.Key = key;
   result.Value = this->GenerateMarker(shape, size, highlight);
 
-  // If there was an issue generating the marker, just return NULL.
+  // If there was an issue generating the marker, just return nullptr.
   if (!result.Value)
   {
     vtkErrorMacro(<<"Error generating marker: shape,size: "

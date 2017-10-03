@@ -164,11 +164,11 @@ int main(int argc, char **argv)
 #ifdef VTK_PY3K
   wchar_t *argv0;
 #if PY_VERSION_HEX >= 0x03050000
-  argv0 = Py_DecodeLocale(av0.c_str(), NULL);
+  argv0 = Py_DecodeLocale(av0.c_str(), nullptr);
 #elif defined(__APPLE__)
   argv0 = _Py_DecodeUTF8_surrogateescape(av0.data(), av0.length());
 #else
-  argv0 = _Py_char2wchar(av0.c_str(), NULL);
+  argv0 = _Py_char2wchar(av0.c_str(), nullptr);
 #endif
   if (argv0 == 0)
   {
@@ -223,11 +223,11 @@ int main(int argc, char **argv)
   for (int i = 0; i < argc; i++)
   {
 #if PY_VERSION_HEX >= 0x03050000
-    argvWide[i] = Py_DecodeLocale(argv[i], NULL);
+    argvWide[i] = Py_DecodeLocale(argv[i], nullptr);
 #elif defined(__APPLE__)
     argvWide[i] = _Py_DecodeUTF8_surrogateescape(argv[i], strlen(argv[i]));
 #else
-    argvWide[i] = _Py_char2wchar(argv[i], NULL);
+    argvWide[i] = _Py_char2wchar(argv[i], nullptr);
 #endif
     argvWide2[i] = argvWide[i];
     if (argvWide[i] == 0)

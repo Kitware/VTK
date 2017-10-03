@@ -153,7 +153,7 @@ vtkImageProperty *vtkImageStack::GetProperty()
     return image->GetProperty();
   }
 
-  // Return a dummy property, can't return NULL.
+  // Return a dummy property, can't return nullptr.
   if (this->Property == nullptr)
   {
     this->Property = vtkImageProperty::New();

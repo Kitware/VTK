@@ -15,7 +15,7 @@ int vtkPointHandleRepresentation2DTest1(int , char * [] )
   EXERCISE_BASIC_HANDLE_REPRESENTATION_METHODS(vtkPointHandleRepresentation2D, node1);
 
   std::cout << "Done exercise basic handl representation methods" << std::endl;
-  if (node1->GetBounds() == NULL)
+  if (node1->GetBounds() == nullptr)
   {
     std::cout << "Bounds are null." << std::endl;
   }

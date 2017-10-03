@@ -78,7 +78,7 @@ public:
 DICOMParser::DICOMParser() : ParserOutputFile()
 {
   this->Implementation = new DICOMParserImplementation();
-  this->DataFile = NULL;
+  this->DataFile = nullptr;
   this->ToggleByteSwapImageData = false;
   this->TransferSyntaxCB = new DICOMMemberCallback<DICOMParser>;
   this->InitTypeMap();
@@ -593,7 +593,7 @@ void DICOMParser::DumpTag(dicom_stream::ostream& out, doublebyte group, doubleby
     }
   else
     {
-    out << (tempdata ? reinterpret_cast<char*>(tempdata) : "NULL");
+    out << (tempdata ? reinterpret_cast<char*>(tempdata) : "nullptr");
     }
 
   out << dicom_stream::dec << dicom_stream::endl;

@@ -38,7 +38,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cmath>
 
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkHAVSVolumeMapper)
 
 //----------------------------------------------------------------------------
@@ -172,7 +172,7 @@ private:
 public:
   vtkHAVSScalarHistogram()
   {
-    this->ScalarTable = NULL;
+    this->ScalarTable = nullptr;
     this->NumberOfBuckets = 0;
   }
 
@@ -234,23 +234,23 @@ public:
 // return the correct type of UnstructuredGridVolumeMapper
 vtkHAVSVolumeMapper::vtkHAVSVolumeMapper()
 {
-  this->Vertices                   = NULL;
-  this->Scalars                    = NULL;
+  this->Vertices                   = nullptr;
+  this->Scalars                    = nullptr;
   this->ScalarRange[0]             = 0.0;
   this->ScalarRange[1]             = 1.0;
-  this->Triangles                  = NULL;
-  this->OrderedTriangles           = NULL;
-  this->SortedFaces                = NULL;
-  this->RadixTemp                  = NULL;
-  this->Centers                    = NULL;
+  this->Triangles                  = nullptr;
+  this->OrderedTriangles           = nullptr;
+  this->SortedFaces                = nullptr;
+  this->RadixTemp                  = nullptr;
+  this->Centers                    = nullptr;
   this->NumberOfVertices           = 0;
   this->NumberOfCells              = 0;
   this->NumberOfScalars            = 0;
   this->NumberOfTriangles          = 0;
   this->NumberOfBoundaryTriangles  = 0;
   this->NumberOfInternalTriangles  = 0;
-  this->BoundaryTriangles          = NULL;
-  this->InternalTriangles          = NULL;
+  this->BoundaryTriangles          = nullptr;
+  this->InternalTriangles          = nullptr;
   this->CurrentLevelOfDetail       = 100.0;
   this->LevelOfDetailTriangleCount = 0;
   this->LevelOfDetailTargetTime    = 0.1;
@@ -261,14 +261,14 @@ vtkHAVSVolumeMapper::vtkHAVSVolumeMapper()
   this->LevelOfDetailMaxEdgeLength = 1.0;
   this->UnitDistance               = 1.0;
   this->GPUDataStructures          = true;
-  this->TransferFunction           = NULL;
+  this->TransferFunction           = nullptr;
   this->TransferFunctionSize       = 128;
   this->Initialized                = 0;
   this->KBufferSize                = VTK_KBUFFER_SIZE_6;
   this->KBufferState               = VTK_KBUFFER_SIZE_6;
   this->FrameNumber                = 0;
   this->TotalRenderTime            = 0.0;
-  this->LastVolume                 = NULL;
+  this->LastVolume                 = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -473,7 +473,7 @@ void vtkHAVSVolumeMapper::InitializeScalars()
   vtkUnstructuredGridBase *ugrid = this->GetInput();
 
   if (this->Scalars) { delete [] this->Scalars; }
-  this->Scalars = NULL;
+  this->Scalars = nullptr;
 
   // Fill up scalars
   int UsingCellColor;

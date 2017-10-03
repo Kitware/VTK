@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper)
 
 //----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ double *vtkPolyDataMapper::GetBounds()
     this->ComputeBounds();
 
     // if the bounds indicate NAN and subpieces are being used then
-    // return NULL
+    // return nullptr
     if (!vtkMath::AreBoundsInitialized(this->Bounds)
         && this->NumberOfSubPieces > 1)
     {

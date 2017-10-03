@@ -411,7 +411,7 @@ void vtkViewport::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "NULL\n";
+    os << indent << "nullptr\n";
   }
 
 }

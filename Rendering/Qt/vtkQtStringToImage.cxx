@@ -222,7 +222,7 @@ int vtkQtStringToImage::RenderString(vtkTextProperty *property,
   data->DeepCopy(
         vtkImageData::SafeDownCast(this->QImageToImage->GetOutputDataObject(0)));
 
-  this->QImageToImage->SetQImage(NULL);
+  this->QImageToImage->SetQImage(nullptr);
   return 1;
 }
 

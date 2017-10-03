@@ -182,7 +182,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
 
   if (!data)
   {
-    vtkErrorMacro("TransformFeedback buffer is NULL.");
+    vtkErrorMacro("TransformFeedback buffer is nullptr.");
     return;
   }
 

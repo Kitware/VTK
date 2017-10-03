@@ -92,7 +92,7 @@ void vtkAxisFollower::SetAxis(vtkAxisActor *axis)
 {
   if(!axis)
   {
-    vtkErrorMacro("Invalid or NULL axis\n");
+    vtkErrorMacro("Invalid or nullptr axis\n");
     return;
   }
 
@@ -117,25 +117,25 @@ void vtkAxisFollower::CalculateOrthogonalVectors(double rX[3], double rY[3],
 {
   if(!rX || !rY || !rZ)
   {
-    vtkErrorMacro("Invalid or NULL direction vectors\n");
+    vtkErrorMacro("Invalid or nullptr direction vectors\n");
     return;
   }
 
   if(!axis)
   {
-    vtkErrorMacro("Invalid or NULL axis\n");
+    vtkErrorMacro("Invalid or nullptr axis\n");
     return;
   }
 
   if(!dop)
   {
-    vtkErrorMacro("Invalid or NULL direction of projection vector\n");
+    vtkErrorMacro("Invalid or nullptr direction of projection vector\n");
     return;
   }
 
   if(!ren)
   {
-    vtkErrorMacro("Invalid or NULL renderer\n");
+    vtkErrorMacro("Invalid or nullptr renderer\n");
     return;
   }
 
@@ -200,19 +200,19 @@ double vtkAxisFollower::AutoScale(vtkViewport *viewport, vtkCamera *camera,
 
   if(!viewport)
   {
-    std::cerr << "Invalid or NULL viewport \n";
+    std::cerr << "Invalid or nullptr viewport \n";
     return newScale;
   }
 
   if(!camera)
   {
-    std::cerr << "Invalid or NULL camera \n";
+    std::cerr << "Invalid or nullptr camera \n";
     return newScale;
   }
 
   if(!position)
   {
-    std::cerr << "Invalid or NULL position \n";
+    std::cerr << "Invalid or nullptr position \n";
     return newScale;
   }
 
@@ -390,7 +390,7 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
 {
   if(!translation)
   {
-    vtkErrorMacro("ERROR: Invalid or NULL translation\n");
+    vtkErrorMacro("ERROR: Invalid or nullptr translation\n");
     return;
   }
 
@@ -464,7 +464,7 @@ void vtkAxisFollower::ExecuteViewAngleVisibility(double normal[3])
 {
   if(!normal)
   {
-    vtkErrorMacro("ERROR: Invalid or NULL normal\n");
+    vtkErrorMacro("ERROR: Invalid or nullptr normal\n");
     return;
   }
 

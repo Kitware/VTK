@@ -82,7 +82,7 @@ struct TemplateCastRayWorker
 
   TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) VTK_DELETE_FUNCTION;
 
-  // Execute the algorithm with all arrays set to NULL.
+  // Execute the algorithm with all arrays set to nullptr.
   void operator()()
   {
     (*this)(static_cast<vtkAOSDataArrayTemplate<float>*>(nullptr),
@@ -299,7 +299,7 @@ struct TemplateCastRayWorker
         this->NumIntersections++;
 
         // The far triangle has one or two tetras in its referred list.
-        // If one, return -1 for next tetra and NULL for next triangle
+        // If one, return -1 for next tetra and nullptr for next triangle
         // since we are exiting. If two, return the one that isn't the
         // current one.
         if ( (nextTriangle)->ReferredByTetra[1] == -1 )
@@ -546,7 +546,7 @@ vtkUnstructuredGridBunykRayCastFunction::~vtkUnstructuredGridBunykRayCastFunctio
 }
 
 // Clear the intersection image. This does NOT release memory -
-// it just sets the link pointers to NULL. The memory is
+// it just sets the link pointers to nullptr. The memory is
 // contained in the IntersectionBuffer arrays.
 void vtkUnstructuredGridBunykRayCastFunction::ClearImage()
 {
@@ -585,7 +585,7 @@ void *vtkUnstructuredGridBunykRayCastFunction::NewIntersection()
     }
   }
 
-  // We have run out of space - return NULL
+  // We have run out of space - return nullptr
   if ( i == VTK_BUNYKRCF_MAX_ARRAYS )
   {
     vtkErrorMacro("Out of space for intersections!");

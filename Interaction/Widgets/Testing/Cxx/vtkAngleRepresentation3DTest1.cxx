@@ -36,7 +36,7 @@ int vtkAngleRepresentation3DTest1(int , char * [] )
   double *retScale = node1->GetTextActorScale();
   if (retScale == nullptr)
   {
-    std::cerr << "Error in setting text actor scale, used " << scale[0] << ", " << scale[1] << ", " << scale[2] << " but got back NULL" << std::endl;
+    std::cerr << "Error in setting text actor scale, used " << scale[0] << ", " << scale[1] << ", " << scale[2] << " but got back nullptr" << std::endl;
     return EXIT_FAILURE;
   }
   else if (retScale[0] != scale[0] ||

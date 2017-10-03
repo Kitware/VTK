@@ -99,7 +99,7 @@
  *        widget state is:
  *            Start: Do nothing.
  *            Define: Remove all points and line segments of the contour.
- *                 Essentially calls Initialize(NULL)
+ *                 Essentially calls Initialize(nullptr)
  *            Manipulate: Do nothing.
  * </pre>
  *

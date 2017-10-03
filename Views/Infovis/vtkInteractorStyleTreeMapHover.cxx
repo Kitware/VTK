@@ -334,7 +334,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
 
 #if 0
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return;
   }

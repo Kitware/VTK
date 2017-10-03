@@ -179,7 +179,7 @@ public:
   /**
    * Log messages to the given file.  The file is truncated unless the
    * second argument is non-zero (default is to truncate).  If the
-   * file name is empty or NULL, logging is disabled.  Returns 0 if
+   * file name is empty or nullptr, logging is disabled.  Returns 0 if
    * the file failed to open, and 1 otherwise.
    */
   virtual int LogToFile(const char* name);

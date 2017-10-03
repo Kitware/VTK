@@ -277,7 +277,7 @@ void vtkAbstractWidget::SetPriority( float f )
     // by prioirty. The sorting happens only during insertion of a command-
     // observer into the list. Yeah.. Look at the documentation of SetPriority
     // in vtkInteractorObserver. That documentation recommends setting the
-    // interactor to NULL and back again. We won't do that because it will
+    // interactor to nullptr and back again. We won't do that because it will
     // cause two unnecessary re-renders, (cause we'd have had to enable and
     // disable the widgets).
     if (this->Enabled)

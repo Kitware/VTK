@@ -147,7 +147,7 @@ void PyVTKAddFile_PyVTKExtras(PyObject *dict)
        meth++)
   {
     // Third argument would be the module object, but all we have is
-    // the module's dict, and it's safe to set it to NULL.
+    // the module's dict, and it's safe to set it to nullptr.
     o = PyCFunction_NewEx(meth, nullptr, nullptr);
     if (o && PyDict_SetItemString(dict, meth->ml_name, o) != 0)
     {

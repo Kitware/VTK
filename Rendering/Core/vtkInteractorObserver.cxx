@@ -84,14 +84,14 @@ void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
   }
 
   // WARNING: see .h, if the DefaultRenderer is set, whatever the value
-  // of _arg (except NULL), we are going to use DefaultRenderer
+  // of _arg (except nullptr), we are going to use DefaultRenderer
   // Normally when the widget is activated (SetEnabled(1) or when
   // keypress activation takes place), the renderer over which the mouse
   // pointer is positioned is used to call SetCurrentRenderer().
   // Alternatively, we may want to specify a user-defined renderer to bind the
   // interactor to when the interactor observer is activated.
   // The problem is that in many 3D widgets, when SetEnabled(0) is called,
-  // the CurrentRender is set to NULL. In that case, the next time
+  // the CurrentRender is set to nullptr. In that case, the next time
   // SetEnabled(1) is called, the widget will try to set CurrentRenderer
   // to the renderer over which the mouse pointer is positioned, and we
   // will use our user-defined renderer. To solve that, we introduced the

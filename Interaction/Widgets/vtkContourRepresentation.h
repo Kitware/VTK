@@ -537,7 +537,7 @@ protected:
   virtual void Initialize( vtkPolyData *, vtkIdList *);
 
   /**
-   * Overloaded initialize method, that is called when the vtkIdList is NULL
+   * Overloaded initialize method, that is called when the vtkIdList is nullptr
    * to mantain backwards compatibility.
    */
   virtual void Initialize( vtkPolyData *);

@@ -1315,7 +1315,7 @@ void vtkBoxWidget::SetTransform(vtkTransform* t)
 {
   if (!t)
   {
-    vtkErrorMacro(<<"vtkTransform t must be non-NULL");
+    vtkErrorMacro(<<"vtkTransform t must be non-nullptr");
     return;
   }
 

@@ -80,7 +80,7 @@ int TestQtLabelStrategy(int argc, char* argv[])
   VTK_CREATE(vtkStringArray, label);
   label->SetName("label");
 
-  srand( time(NULL) );
+  srand( time(nullptr) );
 
   for( int i = 0; i < n; i++ )
   {

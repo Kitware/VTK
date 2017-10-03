@@ -71,7 +71,7 @@ vtkGPUInfo *vtkGPUInfoList::GetGPUInfo(int i)
 
 // ----------------------------------------------------------------------------
 // Description:
-// Default constructor. Set Probed to false. Set Array to NULL.
+// Default constructor. Set Probed to false. Set Array to nullptr.
 vtkGPUInfoList::vtkGPUInfoList()
 {
   this->Probed=false;

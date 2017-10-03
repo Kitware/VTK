@@ -81,7 +81,7 @@ void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "KCoreLabelArrayName : NULL" << endl;
+    os << indent << "KCoreLabelArrayName : nullptr" << endl;
   }
 
   os << indent << "Polar               : " << this->Polar << endl;

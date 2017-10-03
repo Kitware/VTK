@@ -38,7 +38,7 @@ public:
   vtkTypeUInt32 GetGlobalId(vtkObject* obj);
 
   /**
-   * Retrieve a vtkObject based on its global id. If not found return NULL
+   * Retrieve a vtkObject based on its global id. If not found return nullptr
    */
   vtkObject* GetVTKObject(vtkTypeUInt32 globalId);
 

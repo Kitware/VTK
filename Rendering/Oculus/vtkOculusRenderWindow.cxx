@@ -58,7 +58,7 @@ vtkOculusRenderWindow::vtkOculusRenderWindow()
   this->Size[1] = 100;
   this->Position[0] = 100;
   this->Position[1] = 100;
-  this->Session = NULL;
+  this->Session = nullptr;
   this->HMDTransform = vtkTransform::New();
   this->ContextId = 0;
   this->WindowId = 0;
@@ -74,7 +74,7 @@ vtkOculusRenderWindow::~vtkOculusRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
   this->HMDTransform->Delete();
   this->HMDTransform = 0;
@@ -95,7 +95,7 @@ void vtkOculusRenderWindow::Clean()
     this->ReleaseGraphicsResources(this);
   }
 
-  this->ContextId = NULL;
+  this->ContextId = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -381,14 +381,14 @@ void vtkOculusRenderWindow::Initialize (void)
     this->Position[0], this->Position[1],
     this->Size[0], this->Size[1],
     unWindowFlags );
-  if (this->WindowId == NULL)
+  if (this->WindowId == nullptr)
   {
     vtkErrorMacro("Window could not be created! SDL Error: " <<  SDL_GetError());
     return;
   }
 
   this->ContextId = SDL_GL_CreateContext(this->WindowId);
-  if (this->ContextId == NULL)
+  if (this->ContextId == nullptr)
   {
     vtkErrorMacro("OpenGL context could not be created! SDL Error: " <<  SDL_GetError() );
     return;
@@ -437,7 +437,7 @@ void vtkOculusRenderWindow::Finalize (void)
   {
     ovr_Destroy(this->Session);
     ovr_Shutdown();
-    this->Session = NULL;
+    this->Session = nullptr;
   }
 
   if( this->ContextId )
@@ -447,7 +447,7 @@ void vtkOculusRenderWindow::Finalize (void)
   if( this->WindowId )
   {
     SDL_DestroyWindow( this->WindowId );
-    this->WindowId = NULL;
+    this->WindowId = nullptr;
   }
 
   SDL_Quit();

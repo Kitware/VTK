@@ -286,7 +286,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     state->Update();
     vtkIndent indent;

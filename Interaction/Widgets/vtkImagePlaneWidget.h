@@ -365,7 +365,7 @@ public:
    * Set the internal picker to one defined by the user.  In this way,
    * a set of three orthogonal planes can share the same picker so that
    * picking is performed correctly.  The default internal picker can be
-   * re-set/allocated by setting to 0 (NULL).
+   * re-set/allocated by setting to 0 (nullptr).
    */
   void SetPicker(vtkAbstractPropPicker*);
 
@@ -375,7 +375,7 @@ public:
    * alternatively, to the lut of another vtkImgePlaneWidget.  In this way,
    * a set of three orthogonal planes can share the same lut so that
    * window-levelling is performed uniformly among planes.  The default
-   * internal lut can be re- set/allocated by setting to 0 (NULL).
+   * internal lut can be re- set/allocated by setting to 0 (nullptr).
    */
   virtual void SetLookupTable(vtkLookupTable*);
   vtkGetObjectMacro(LookupTable,vtkLookupTable);

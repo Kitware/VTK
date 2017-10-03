@@ -134,12 +134,12 @@ void vtkBoostBetweennessClustering::PrintSelf(ostream &os, vtkIndent indent)
   (EdgeWeightArrayName) ?
     os << indent << "EdgeWeightArrayName: " << this->EdgeWeightArrayName
       << endl :
-    os << indent << "EdgeWeightArrayName: NULL" << endl;
+    os << indent << "EdgeWeightArrayName: nullptr" << endl;
 
   (EdgeCentralityArrayName) ?
     os << indent << "EdgeCentralityArrayName: " << this->EdgeCentralityArrayName
       << endl :
-    os << indent << "EdgeCentralityArrayName: NULL" << endl;
+    os << indent << "EdgeCentralityArrayName: nullptr" << endl;
 }
 
 //-----------------------------------------------------------------------------

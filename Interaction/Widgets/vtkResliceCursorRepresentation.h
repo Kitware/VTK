@@ -147,7 +147,7 @@ public:
    * alternatively, to the lut of another Reslice cusror widget.  In this way,
    * a set of three orthogonal planes can share the same lut so that
    * window-levelling is performed uniformly among planes.  The default
-   * internal lut can be re- set/allocated by setting to 0 (NULL).
+   * internal lut can be re- set/allocated by setting to 0 (nullptr).
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);

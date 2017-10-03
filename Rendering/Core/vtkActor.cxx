@@ -39,7 +39,7 @@ vtkCxxSetObjectMacro(vtkActor,BackfaceProperty,vtkProperty);
 vtkCxxSetObjectMacro(vtkActor,Property,vtkProperty);
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkActor)
 
 // Creates an actor with the following defaults: origin(0,0,0)

@@ -60,7 +60,7 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
   this->Renderer = 0;
   this->InRender = false;
   this->Storage = new vtkOpenGLContextDevice2D::Private;
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->MaximumMarkerCacheSize = 20;
 }
 
@@ -167,7 +167,7 @@ void vtkOpenGLContextDevice2D::End()
     glDisable(GL_POLYGON_SMOOTH);
   }
 
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->InRender = false;
 
   vtkOpenGLCheckErrorMacro("failed after End");
@@ -248,7 +248,7 @@ void vtkOpenGLContextDevice2D::BufferIdModeEnd()
 void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
                                         int nc)
 {
-  assert("f must be non-null" && f != NULL);
+  assert("f must be non-null" && f != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();
@@ -285,7 +285,7 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
 void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
                                          int nc)
 {
-  assert("f must be non-null" && f != NULL);
+  assert("f must be non-null" && f != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();
@@ -960,7 +960,7 @@ void vtkOpenGLContextDevice2D::SetColor(unsigned char *color)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
 {
-  if (image == NULL)
+  if (image == nullptr)
   {
     if (this->Storage->Texture)
     {
@@ -969,7 +969,7 @@ void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
     }
     return;
   }
-  if (this->Storage->Texture == NULL)
+  if (this->Storage->Texture == nullptr)
   {
     this->Storage->Texture = vtkTexture::New();
   }
@@ -1092,7 +1092,7 @@ void vtkOpenGLContextDevice2D::SetMatrix(vtkMatrix3x3 *m)
 //-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::GetMatrix(vtkMatrix3x3 *m)
 {
-  assert("pre: non_null" && m != NULL);
+  assert("pre: non_null" && m != nullptr);
   // We must construct a 4x4 matrix from the 3x3 matrix for OpenGL
   double *M = m->GetData();
   double matrix[16];
@@ -1295,12 +1295,12 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
   result.Key = key;
   result.Value = this->GenerateMarker(shape, size, highlight);
 
-  // If there was an issue generating the marker, just return NULL.
+  // If there was an issue generating the marker, just return nullptr.
   if (!result.Value)
   {
     vtkErrorMacro(<<"Error generating marker: shape,size: "
                   << shape << "," << size)
-    return NULL;
+    return nullptr;
   }
 
   // Check the current cache size.

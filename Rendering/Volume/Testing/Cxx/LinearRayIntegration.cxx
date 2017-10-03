@@ -24,6 +24,6 @@ static vtkUnstructuredGridVolumeRayIntegrator *CreateLinearRayIntegrator()
 
 int LinearRayIntegration(int argc, char *argv[])
 {
-  return ExerciseUnstructuredGridRayCastMapper(argc, argv, NULL,
+  return ExerciseUnstructuredGridRayCastMapper(argc, argv, nullptr,
                                                CreateLinearRayIntegrator);
 }

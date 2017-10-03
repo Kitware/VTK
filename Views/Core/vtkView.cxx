@@ -323,7 +323,7 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 }
 
 //----------------------------------------------------------------------------
-void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=NULL*/)
+void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=nullptr*/)
 {
   if (algorithm && this->Internal->RegisteredProgress.find(algorithm) != this->Internal->RegisteredProgress.end())
   {

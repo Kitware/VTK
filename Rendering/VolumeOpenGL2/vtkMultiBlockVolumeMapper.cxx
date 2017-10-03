@@ -205,7 +205,7 @@ void vtkMultiBlockVolumeMapper::LoadDataSet(vtkRenderer* ren, vtkVolume* vol)
       return;
     }
 
-    char const* name = dataObj ? dataObj->GetClassName() : "NULL";
+    char const* name = dataObj ? dataObj->GetClassName() : "nullptr";
     vtkErrorMacro("Cannot handle input of type: " << name);
     return;
   }

@@ -80,7 +80,7 @@ protected:
   MyProcess()
   {
     this->Argc = 0;
-    this->Argv = NULL;
+    this->Argv = nullptr;
   }
 
   int Argc;

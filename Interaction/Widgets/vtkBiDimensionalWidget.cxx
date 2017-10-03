@@ -281,7 +281,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
     // Done in this weird order to get everything right. The renderer is
     // set to null after we disable the sub-widgets. That should give the
     // renderer a chance to remove the representation props before being
-    // set to NULL.
+    // set to nullptr.
     this->Superclass::SetEnabled(enabling);
   }
 }

@@ -1413,7 +1413,7 @@ void vtkRenderWindow::CaptureGL2PSSpecialProps(vtkCollection *result)
 {
   if (result == nullptr)
   {
-    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a NULL pointer.");
+    vtkErrorMacro(<<"CaptureGL2PSSpecialProps was passed a nullptr pointer.");
     return;
   }
 

@@ -73,14 +73,14 @@ public:
 
   /**
    * Get a pointer to the self object, converted to its C++ type.
-   * Returns NULL and sets a TypeError if the type is wrong.
+   * Returns nullptr and sets a TypeError if the type is wrong.
    * If "self" is a class type, pull the object from the first arg.
    */
   static vtkObjectBase *GetSelfPointer(PyObject *self, PyObject *args);
 
   /**
    * Get a pointer to the self object, converted to its C++ type.
-   * Returns NULL and sets a TypeError if the type is wrong.
+   * Returns nullptr and sets a TypeError if the type is wrong.
    * If "self" is a type, pull the object from the first arg.
    */
   static void *GetSelfSpecialPointer(PyObject *self, PyObject *args);

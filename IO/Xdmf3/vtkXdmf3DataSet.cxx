@@ -2968,7 +2968,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject *dObject,
   // Copy prepared structure to the dataset
   dataSet->CopyStructure(dataSet_finite_element);
 
-  vtkFieldData *fieldData = NULL;
+  vtkFieldData *fieldData = nullptr;
 
   // Insert values array to Cell/Point data
   if (xmfAttribute->getElementDegree() == 0)

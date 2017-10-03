@@ -153,7 +153,7 @@ double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol,
   }
   else if (mapper != nullptr)
   {
-    // a mapper mapping composite dataset input returns a NULL vtkDataSet.
+    // a mapper mapping composite dataset input returns a nullptr vtkDataSet.
     // Iterate over all leaf datasets and find the closest point in any of
     // the leaf data sets
     vtkCompositeDataSet* composite =

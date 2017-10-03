@@ -733,70 +733,70 @@ void vtkSurfaceLICInterface::Set##_name (_type val)           \
 vtkSetMonitoredParameterMacro(
       GenerateNoiseTexture,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       NoiseType,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       NoiseTextureSize,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       NoiseGrainSize,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       MinNoiseValue,
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       MaxNoiseValue,
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       NumberOfNoiseLevels,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       ImpulseNoiseProbability,
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       ImpulseNoiseBackgroundValue,
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 vtkSetMonitoredParameterMacro(
       NoiseGeneratorSeed,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;)
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;)
 
 // compositor
 vtkSetMonitoredParameterMacro(

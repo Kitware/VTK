@@ -526,7 +526,7 @@ void vtkProp3D::ShallowCopy(vtkProp *prop)
 // Backdoor allows temporary replacement of matrix in vtkProp3D
 void vtkProp3D::PokeMatrix(vtkMatrix4x4 *matrix)
 {
-  // If non-NULL matrix is provided, then we set ourselves up to
+  // If non-nullptr matrix is provided, then we set ourselves up to
   // have a state consistent with the provided matrix. (The idea
   // is to make sure the GetMatrix() call works properly.)
   if ( matrix != nullptr ) //set a new transformation

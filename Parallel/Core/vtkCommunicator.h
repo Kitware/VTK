@@ -1290,8 +1290,8 @@ public:
   /**
    * Same as UnMarshalDataObject(vtkCharArray*, vtkDataObject*) except that this
    * method doesn't need to know the type of the data object a priori. It can
-   * deduce that from the contents of the \c buffer. May return NULL data object
-   * if \c buffer is NULL or empty.
+   * deduce that from the contents of the \c buffer. May return nullptr data object
+   * if \c buffer is nullptr or empty.
    */
   static vtkSmartPointer<vtkDataObject> UnMarshalDataObject(vtkCharArray* buffer);
 

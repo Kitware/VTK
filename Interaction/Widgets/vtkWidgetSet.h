@@ -51,7 +51,7 @@
  * interaction such as:
  * \code
  * this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
- *                         vtkEvent::NoModifier, 0, 0, NULL,
+ *                         vtkEvent::NoModifier, 0, 0, nullptr,
  *                         vtkPaintbrushWidget::BeginDrawStrokeEvent,
  *                         this, vtkPaintbrushWidget::BeginDrawCallback);
  * \endcode

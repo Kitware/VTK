@@ -57,7 +57,7 @@ PyVTKClass::PyVTKClass(
 
 //--------------------------------------------------------------------
 // Add a class, add methods and members to its type object.  A return
-// value of NULL signifies that the class was already added.
+// value of nullptr signifies that the class was already added.
 PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods,
   const char *classname, const char *docstring[],
@@ -197,7 +197,7 @@ PyObject *PyVTKObject_New(PyTypeObject *tp, PyObject *args, PyObject *kwds)
     }
   }
 
-  // if PyVTKObject_FromPointer gets NULL, it creates a new object.
+  // if PyVTKObject_FromPointer gets nullptr, it creates a new object.
   return PyVTKObject_FromPointer(tp, nullptr, nullptr);
 }
 

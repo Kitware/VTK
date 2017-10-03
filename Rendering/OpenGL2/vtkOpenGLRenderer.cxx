@@ -564,7 +564,7 @@ void vtkOpenGLRenderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
   glGenTextures(1, &this->PickInfo->PickingTexture);
   glBindTexture(GL_TEXTURE_2D, this->PickInfo->PickingTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32UI, size[0], size[1],
-              0, GL_RGB_INTEGER, GL_UNSIGNED_INT, NULL);
+              0, GL_RGB_INTEGER, GL_UNSIGNED_INT, nullptr);
   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
               this->PickInfo->PickingTexture, 0);
 
@@ -572,7 +572,7 @@ void vtkOpenGLRenderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
   glGenTextures(1, &this->PickInfo->DepthTexture);
   glBindTexture(GL_TEXTURE_2D, this->PickInfo->DepthTexture);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size[0], size[1],
-              0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+              0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
   glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
               this->PickInfo->DepthTexture, 0);
 

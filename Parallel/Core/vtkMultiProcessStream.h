@@ -96,9 +96,9 @@ public:
   //@{
   /**
    * Remove-array-to-stream methods. Removes from the head of the stream.
-   * Note: If the input array is NULL, the array will be allocated internally
+   * Note: If the input array is nullptr, the array will be allocated internally
    * and the calling application is responsible for properly de-allocating it.
-   * If the input array is not NULL, it is expected to match the size of the
+   * If the input array is not nullptr, it is expected to match the size of the
    * data internally, and this method would just fill in the data.
    */
   void Pop(double*& array, unsigned int& size);

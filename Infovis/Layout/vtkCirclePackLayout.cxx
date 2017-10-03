@@ -249,7 +249,7 @@ void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, double *cinfo)
 
     if(!cinfo)
     {
-      vtkErrorMacro(<< "cinfo is NULL");
+      vtkErrorMacro(<< "cinfo is nullptr");
       return;
     }
 

@@ -427,7 +427,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_vectors.vtk",
-              vectorTex, NULL, NULL);
+              vectorTex, nullptr, nullptr);
   #endif
 
   // magnify vectors
@@ -500,7 +500,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_magvectors.vtk",
-              magVectorTex, NULL, NULL);
+              magVectorTex, nullptr, nullptr);
   #endif
 
   // send noise data to a texture
@@ -543,7 +543,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_noise.vtk",
-          noiseTex, NULL, NULL);
+          noiseTex, nullptr, nullptr);
   #endif
 
   // step size conversion to normalize image space
@@ -619,7 +619,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_lic.vtk",
-          licTex, NULL, NULL);
+          licTex, nullptr, nullptr);
   #endif
 
   // transfer lic from texture to vtk array
