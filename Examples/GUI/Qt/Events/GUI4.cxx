@@ -33,17 +33,18 @@
 
 #include <QMenu>
 
+#include "vtkActor.h"
+#include "vtkCommand.h"
+#include "vtkConeSource.h"
+#include "vtkEventQtSlotConnect.h"
+#include "vtkInteractorStyle.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-#include "vtkCommand.h"
-#include "vtkEventQtSlotConnect.h"
-#include "vtkConeSource.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor.h"
-#include "vtkInteractorStyle.h"
 #include "vtkTDxInteractorStyleCamera.h"
 #include "vtkTDxInteractorStyleSettings.h"
+
 #include "QVTKInteractor.h"
 
 GUI4::GUI4()
