@@ -265,6 +265,27 @@ bool vtkWin32OpenGLRenderWindow::IsCurrent()
   return this->ContextId!=0 && this->ContextId==wglGetCurrentContext();
 }
 
+bool vtkWin32OpenGLRenderWindow::SetSwapControl(int i)
+{
+  if (!wglewIsSupported("WGL_EXT_swap_control"))
+  {
+    return false;
+  }
+
+  if (i < 0)
+  {
+    if (wglewIsSupported("WGL_EXT_swap_control_tear"))
+    {
+      wglSwapIntervalEXT(i);
+      return true;
+    }
+    return false;
+  }
+
+  wglSwapIntervalEXT(i);
+  return true;
+}
+
 // ----------------------------------------------------------------------------
 void AdjustWindowRectForBorders(HWND hwnd, DWORD style, const int x, const int y,
                                 const int width, const int height, RECT &r)
