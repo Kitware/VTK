@@ -100,7 +100,7 @@ int TestPathTracerShadows(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, ospray,
+  style->SetPipelineControlPoints(renderer, ospray,
                                   NULL);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);

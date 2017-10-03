@@ -34,7 +34,7 @@
 #include <string>
 
 class vtkCommand;
-class vtkOpenGLRenderer;
+class vtkRenderer;
 class vtkRenderPass;
 class vtkRenderWindow;
 
@@ -42,7 +42,7 @@ class vtkRenderWindow;
 class vtkOSPRayTestInteractor : public vtkInteractorStyleTrackballCamera
 {
 private:
-  vtkOpenGLRenderer *GLRenderer;
+  vtkRenderer *GLRenderer;
   vtkRenderPass *O;
   vtkRenderPass *G;
   int VisibleActor;
@@ -54,7 +54,7 @@ public:
   vtkTypeMacro(vtkOSPRayTestInteractor, vtkInteractorStyleTrackballCamera);
   vtkOSPRayTestInteractor();
   ~vtkOSPRayTestInteractor();
-  void SetPipelineControlPoints(vtkOpenGLRenderer *g,
+  void SetPipelineControlPoints(vtkRenderer *g,
                                 vtkRenderPass *_O,
                                 vtkRenderPass *_G);
   virtual void OnKeyPress() override;

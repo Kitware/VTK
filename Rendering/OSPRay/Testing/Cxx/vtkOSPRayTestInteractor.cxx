@@ -92,7 +92,7 @@ vtkOSPRayTestInteractor::~vtkOSPRayTestInteractor()
 
 //----------------------------------------------------------------------------
 void vtkOSPRayTestInteractor::SetPipelineControlPoints
-  (vtkOpenGLRenderer *g,
+  (vtkRenderer *g,
    vtkRenderPass *_O,
    vtkRenderPass *_G)
 {
