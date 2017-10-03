@@ -539,7 +539,7 @@ bool vtkShaderProgram::DisableAttributeArray(const char *name)
   return true;
 }
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
                                       size_t stride, int elementType,

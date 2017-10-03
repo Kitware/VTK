@@ -46,7 +46,7 @@
 #include "vtkTextureObjectFS.h"
 #include "vtkTextureObjectVS.h"  // a pass through shader
 
-#define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //----------------------------------------------------------------------------

@@ -60,7 +60,7 @@
 #include <algorithm>
 #include <sstream>
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 namespace
 {
