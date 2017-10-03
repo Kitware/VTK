@@ -90,7 +90,14 @@ set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h" @ONLY)
 
-#mark all the helper classes as being excluded from wrappers
+# ====================
+# Important for wrapping and install rules for vtkmlib
+#  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
+#    to the vtkmlib directory and not the root include directory as vtk
+#    normally does
+#  - WRAP_EXCLUDE* are enabled as we don't want any vtkmlib private classes
+#    being used as public api
+# ====================
 set_source_files_properties(
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter
@@ -101,6 +108,18 @@ set_source_files_properties(
   vtkmlib/Storage
   vtkmlib/Portals
   vtkmlib/ImplicitFunctionConverter
+  PROPERTIES
+    SKIP_HEADER_INSTALL 1
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
+
+# ====================
+# Important for wrapping and install rules for vtkmlib
+#  - WRAP_EXCLUDE* are enabled as we don't want any vtkm private classes
+#    being used as public api
+# ====================
+set_source_files_properties(
   vtkmCellSetExplicit
   vtkmCellSetSingleType
   vtkmConnectivityExec
@@ -108,6 +127,7 @@ set_source_files_properties(
     WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
+
 
 set(${vtk-module}_HDRS
   vtkmTags.h
@@ -231,5 +251,8 @@ if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkmlib
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development)
+    COMPONENT Development
+    FILES_MATCHING PATTERN "*.h*"
+
+    )
 endif()
