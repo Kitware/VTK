@@ -22,10 +22,17 @@
  * Other cell types are individually done analytically where possible
  * and breaking into triangles or tets when not possible. When cells are
  * broken into triangles or tets the accuracy may be diminished. By default
- * all sizes are computed but point, length, area and volumetric cells
- * can each be optionally ignored. For dimensions of cells that do not
- * have their size computed, a value of 0 will be given. For cells that
- * should have their size computed but can't, the filter will return -1.
+ * all sizes are computed but vertex count, length, area and volumetric cells
+ * can each be optionally ignored. Individual arrays are used for each
+ * requested size (e.g. if length and volume are requested there will be
+ * two arrays outputted from this filter). The 4 arrays can be individually
+ * named with defaults of VertexCount, Length, Area and Volme. For dimensions
+ * of cells that do not have their size computed, a value of 0 will be given.
+ * For cells that should have their size computed but can't, the filter will return -1.
+ * The ComputeSum option will sum the cell sizes (excluding ghost cells)
+ * and put the value into vtkFieldData arrays named with the corresponding cell
+ * data array name. For composite datasets the total sum over all blocks will
+ * also be added to the top-level block's field data for the summation.
 */
 
 #ifndef vtkCellSizeFilter_h
@@ -53,9 +60,9 @@ public:
    * cells. The computed value is the number of points in the cell.
    * This option is enabled by default.
    */
-  vtkSetMacro(ComputePoint, bool);
-  vtkGetMacro(ComputePoint, bool);
-  vtkBooleanMacro(ComputePoint, bool);
+  vtkSetMacro(ComputeVertexCount, bool);
+  vtkGetMacro(ComputeVertexCount, bool);
+  vtkBooleanMacro(ComputeVertexCount, bool);
   //@}
 
   //@{
@@ -93,20 +100,6 @@ public:
 
   //@{
   /**
-   * Specify to compute sizes only for highest dimension cells in
-   * a vtkDataSet. If the input dataset is a composite dataset the
-   * highest cell dimension is computed individually for each leaf.
-   * If this option is enabled then the ComputePoint, ComputeLength,
-   * ComputeArea and ComputeVolume options are ignored. This option
-   * is disabled by default.
-   */
-  vtkSetMacro(ComputeHighestDimension, bool);
-  vtkGetMacro(ComputeHighestDimension, bool);
-  vtkBooleanMacro(ComputeHighestDimension, bool);
-  //@}
-
-  //@{
-  /**
    * Specify whether to sum the computed sizes and put the result in
    * a field data array. This option is disabled by default.
    */
@@ -117,10 +110,17 @@ public:
 
   //@{
   /**
-   * Set/Get the name of the computed array. Default name is "size".
+   * Set/Get the name of the computed arrays. Default names are VertexCount,
+   * Length, Area and Volume.
    */
-  vtkSetStringMacro(ArrayName);
-  vtkGetStringMacro(ArrayName);
+  vtkSetStringMacro(VertexCountArrayName);
+  vtkGetStringMacro(VertexCountArrayName);
+  vtkSetStringMacro(LengthArrayName);
+  vtkGetStringMacro(LengthArrayName);
+  vtkSetStringMacro(AreaArrayName);
+  vtkGetStringMacro(AreaArrayName);
+  vtkSetStringMacro(VolumeArrayName);
+  vtkGetStringMacro(VolumeArrayName);
   //@}
 
 protected:
@@ -129,10 +129,10 @@ protected:
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
-  bool ComputeDataSet(vtkDataSet* input, vtkDataSet* output, vtkDoubleArray* sum);
+  bool ComputeDataSet(vtkDataSet* input, vtkDataSet* output, double sum[4]);
 
-  void IntegrateImageData(vtkImageData* input, vtkImageData* output, vtkDoubleArray* sum);
-  void ExecuteBlock(vtkDataSet* input, vtkDataSet* output, vtkDoubleArray* sum);
+  void IntegrateImageData(vtkImageData* input, vtkImageData* output, double sum[4]);
+  void ExecuteBlock(vtkDataSet* input, vtkDataSet* output, double sum[4]);
 
   //@{
   /**
@@ -151,23 +151,32 @@ protected:
 
   //@{
   /**
+   * Method to add the computed sum to the field data of the data object.
+   */
+  void AddSumFieldData(vtkDataObject*, double sum[4]);
+  //@}
+
+  //@{
+  /**
    * Method to compute the global sum information. For serial operation this is a no-op.
    */
-  virtual void ComputeGlobalSum(vtkDoubleArray*) {};
+  virtual void ComputeGlobalSum(double sum[4]) {(void)sum;};
   //@}
 
 private:
   vtkCellSizeFilter(const vtkCellSizeFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellSizeFilter&) VTK_DELETE_FUNCTION;
 
-  bool ComputePoint;
+  bool ComputeVertexCount;
   bool ComputeLength;
   bool ComputeArea;
   bool ComputeVolume;
-  bool ComputeHighestDimension;
   bool ComputeSum;
 
-  char* ArrayName;
+  char* VertexCountArrayName;
+  char* LengthArrayName;
+  char* AreaArrayName;
+  char* VolumeArrayName;
 };
 
 #endif

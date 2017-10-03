@@ -18,23 +18,35 @@ int CellSizeFilter( int argc, char* argv[] )
   filter->ComputeSumOn();
   filter->Update();
 
-  vtkDoubleArray* sizes = vtkDoubleArray::SafeDownCast(
-    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("size"));
+  vtkDoubleArray* vertexCount = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("VertexCount"));
+  vtkDoubleArray* length = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("Length"));
+  vtkDoubleArray* area = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("Area"));
+  vtkDoubleArray* volume = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("Volume"));
+  vtkDoubleArray *arrays[4] = {vertexCount, length, area, volume};
 
-  if (!sizes)
-  {
-    vtkGenericWarningMacro("Cannot find expected array output ('size') from vtkCellSizeFilter");
-    return EXIT_FAILURE;
-  }
   // types are hex, hex, tet, tet, polygon, triangle-strip, quad, triangle,
   // triangle, line, line, vertex
   double correctValues[12] = {1, 1, .16667, .16667, 2, 2, 1, .5, .5, 1, 1, 1};
-  for (vtkIdType i=0;i<sizes->GetNumberOfTuples();i++)
+  int dimensions[12] = {3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 0};
+  for (int i=0;i<4;i++)
   {
-    if (fabs(sizes->GetValue(i)-correctValues[i]) > .0001)
+    if (!arrays[i])
     {
-      vtkGenericWarningMacro("Wrong size for cell " << i);
+      vtkGenericWarningMacro("Cannot find expected array output for dimension "
+                             << i << " from vtkCellSizeFilter");
       return EXIT_FAILURE;
+    }
+    for (vtkIdType j=0;j<arrays[i]->GetNumberOfTuples();j++)
+    {
+      if (dimensions[j] == i && fabs(arrays[i]->GetValue(j)-correctValues[j]) > .0001)
+      {
+        vtkGenericWarningMacro("Wrong size for cell " << j);
+        return EXIT_FAILURE;
+      }
     }
   }
   double correctSumValues[4] = {
@@ -42,68 +54,33 @@ int CellSizeFilter( int argc, char* argv[] )
     correctValues[8]+correctValues[7]+correctValues[6]+correctValues[5]+correctValues[4],
     correctValues[3]+correctValues[2]+correctValues[1]+correctValues[0] };
 
-  sizes = vtkDoubleArray::SafeDownCast(
-    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("size"));
-  for (vtkIdType i=0;i<sizes->GetNumberOfTuples();i++)
+  vertexCount = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("VertexCount"));
+  if (fabs(vertexCount->GetValue(0) - correctSumValues[0]) > .0001)
   {
-    if (fabs(sizes->GetValue(i)-correctSumValues[i]) > .0001)
-    {
-      vtkGenericWarningMacro("Wrong size sum for dimension " << i);
-      return EXIT_FAILURE;
-    }
-  }
-
-  // only compute for the highest dimension cells (e.g. 3D cells)
-  filter->ComputeSumOff();
-  filter->ComputeHighestDimensionOn();
-  filter->Update();
-  sizes = vtkDoubleArray::SafeDownCast(
-    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray("size"));
-
-  for (int i=4;i<12;i++)
-  {
-    correctValues[i] = 0.;
-  }
-  for (vtkIdType i=0;i<sizes->GetNumberOfTuples();i++)
-  {
-    if (fabs(sizes->GetValue(i)-correctValues[i]) > .0001)
-    {
-      if (i<4)
-      {
-      vtkGenericWarningMacro("Wrong size for volumetric cell " << i);
-      }
-      else
-      {
-        vtkGenericWarningMacro("Should be skipping size computation for non-3D cell "
-                               << i << " but did not");
-      }
-      return EXIT_FAILURE;
-    }
-  }
-  if (vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("size"))
-  {
-    vtkGenericWarningMacro("Should not be computing sum of sizes but it is being done");
+    vtkGenericWarningMacro("Wrong size sum for dimension 0");
     return EXIT_FAILURE;
   }
-
-  const char name[] = "mysize";
-  filter->SetArrayName(name);
-  filter->ComputeHighestDimensionOff();
-  filter->ComputePointOff();
-  filter->ComputeLengthOff();
-  filter->ComputeAreaOff();
-  filter->ComputeVolumeOff();
-  filter->Update();
-  sizes = vtkDoubleArray::SafeDownCast(
-    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetCellData()->GetArray(name));
-
-  for (vtkIdType i=0;i<sizes->GetNumberOfTuples();i++)
+  length = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Length"));
+  if (fabs(length->GetValue(0) - correctSumValues[1]) > .0001)
   {
-    if (sizes->GetValue(i) )
-    {
-      vtkGenericWarningMacro("Should be skipping size computation for cell "<<i<<" but did not");
-      return EXIT_FAILURE;
-    }
+    vtkGenericWarningMacro("Wrong size sum for dimension 1");
+    return EXIT_FAILURE;
+  }
+  area = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Area"));
+  if (fabs(area->GetValue(0) - correctSumValues[2]) > .0001)
+  {
+    vtkGenericWarningMacro("Wrong size sum for dimension 2");
+    return EXIT_FAILURE;
+  }
+  volume = vtkDoubleArray::SafeDownCast(
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput())->GetFieldData()->GetArray("Volume"));
+  if (fabs(volume->GetValue(0) - correctSumValues[3]) > .0001)
+  {
+    vtkGenericWarningMacro("Wrong size sum for dimension 3");
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

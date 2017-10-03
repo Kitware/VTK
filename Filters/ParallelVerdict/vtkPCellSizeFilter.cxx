@@ -15,8 +15,8 @@
 #include "vtkPCellSizeFilter.h"
 
 #include "vtkCommunicator.h"
-#include "vtkDoubleArray.h"
 #include "vtkMultiProcessController.h"
+#include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkPCellSizeFilter);
 
@@ -31,21 +31,16 @@ vtkPCellSizeFilter::~vtkPCellSizeFilter()
 }
 
 //-----------------------------------------------------------------------------
-void vtkPCellSizeFilter::ComputeGlobalSum(vtkDoubleArray* sum)
+void vtkPCellSizeFilter::ComputeGlobalSum(double sum[4])
 {
   vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
   if (controller->GetNumberOfProcesses() > 1)
   {
-    double localSum[4];
-    for (int i=0;i<4;i++)
-    {
-      localSum[i] = sum->GetValue(i);
-    }
     double globalSum[4];
-    controller->AllReduce(localSum, globalSum, 4, vtkCommunicator::SUM_OP);
+    controller->AllReduce(sum, globalSum, 4, vtkCommunicator::SUM_OP);
     for (int i=0;i<4;i++)
     {
-      sum->SetValue(i, globalSum[i]);
+      sum[i] = globalSum[i];
     }
   }
 }
