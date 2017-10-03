@@ -539,6 +539,23 @@ static const double extraQuadQuadParams[1][3] =
   { 0.5, 0.5, 0.0 }
 };
 
+static const double extraLagrangeTriParams[3][3] =
+{
+  { 0.5, 0.0, 0.0 },
+  { 0.5, 0.5, 0.0 },
+  { 0.0, 0.5, 0.0 },
+};
+
+static const double extraLagrangeTetraParams[6][3] =
+{
+  { 0.5, 0.0, 0.0 },
+  { 0.5, 0.5, 0.0 },
+  { 0.0, 0.5, 0.0 },
+  { 0.0, 0.0, 0.5 },
+  { 0.5, 0.0, 0.5 },
+  { 0.0, 0.5, 0.5 },
+};
+
 static vtkIdType linEdgeEdges[][2] =
 {
   {0,1}
@@ -1085,6 +1102,10 @@ static vtkIdType quadVoxEdges[][2] =
 static int vtkNotSupportedErrorPrinted = 0;
 static int vtkTessellatorHasPolys = 0;
 
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+static const int VTK_MAXIMUM_NUMBER_OF_POINTS=216;
+
 // ========================================
 // the meat of the class: execution!
 int vtkTessellatorFilter::RequestData(
@@ -1092,7 +1113,7 @@ int vtkTessellatorFilter::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  static double weights[27];
+  static double weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   int dummySubId=-1;
   int p;
 
@@ -1168,7 +1189,8 @@ int vtkTessellatorFilter::RequestData(
       }
       double* gcoord;
       vtkDataArray* field;
-      for ( p = 0; p < cp->GetNumberOfPoints(); ++p )
+      for ( p = 0; p < (cp->GetNumberOfPoints() < 27 ?
+                        cp->GetNumberOfPoints() : 27); ++p )
       {
         gcoord = cp->Points->GetPoint( p );
         for ( c = 0; c < 3; ++c, ++gcoord, ++pcoord )
@@ -1279,6 +1301,7 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(linPyrEdges)/sizeof(linPyrEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_CURVE:
       case VTK_QUADRATIC_EDGE:
         dim = 1;
         outconn = &quadEdgeEdges[0][0];
@@ -1289,6 +1312,18 @@ int vtkTessellatorFilter::RequestData(
         outconn = &cubicLinEdges[0][0];
         nprim = sizeof(cubicLinEdges)/sizeof(cubicLinEdges[0]);
         break;
+      case VTK_LAGRANGE_TRIANGLE:
+        for ( p = 3; p < 6; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLagrangeTriParams[p-3][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_TRIANGLE:
         if ( dim > 1 )
         {
@@ -1315,6 +1350,7 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(biQuadTriEdges)/sizeof(biQuadTriEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_QUADRILATERAL:
       case VTK_BIQUADRATIC_QUAD:
       case VTK_QUADRATIC_QUAD:
         for ( c = 0; c < 3; ++c )
@@ -1335,6 +1371,18 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(quadQuadEdges)/sizeof(quadQuadEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_TETRAHEDRON:
+        for ( p = 4; p < 10; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLagrangeTetraParams[p-4][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_TETRA:
         if ( dim == 3 )
         {
@@ -1365,6 +1413,7 @@ int vtkTessellatorFilter::RequestData(
           this->Subdivider->EvaluateFields( pts[p], weights, 6 );
         }
         VTK_FALLTHROUGH;
+      case VTK_LAGRANGE_HEXAHEDRON:
       case VTK_QUADRATIC_HEXAHEDRON:
         for ( p = 20; p < 27; ++p )
         {

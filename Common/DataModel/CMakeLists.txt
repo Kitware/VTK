@@ -95,6 +95,13 @@ set(Module_SRCS
   vtkKdNode.cxx
   vtkKdTree.cxx
   vtkKdTreePointLocator.cxx
+  vtkLagrangeCurve.cxx
+  vtkLagrangeHexahedron.cxx
+  vtkLagrangeInterpolation.cxx
+  vtkLagrangeQuadrilateral.cxx
+  vtkLagrangeTetra.cxx
+  vtkLagrangeTriangle.cxx
+  vtkLagrangeWedge.cxx
   vtkLine.cxx
   vtkLocator.cxx
   vtkMappedUnstructuredGrid.txx
@@ -293,6 +300,11 @@ set_source_files_properties(
 set_source_files_properties(
   vtkDispatcher_Private
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
-  )
+)
+
+set_source_files_properties(
+  vtkLagrangeInterpolation.cxx
+  PROPERTIES WRAP_EXCLUDE 1
+)
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

@@ -28,6 +28,10 @@
 #include "vtkPolygon.h"
 #include "vtkTetra.h"
 #include "vtkHexahedron.h"
+#include "vtkLagrangeCurve.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeWedge.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
@@ -51,6 +55,8 @@
 #include "vtkBiQuadraticTriangle.h"
 #include "vtkBiQuadraticQuadraticWedge.h"
 #include "vtkBiQuadraticQuadraticHexahedron.h"
+#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeTetra.h"
 #include "vtkIncrementalPointLocator.h"
 
 vtkStandardNewMacro(vtkGenericCell);
@@ -349,6 +355,24 @@ vtkCell *vtkGenericCell::InstantiateCell(int cellType)
   case VTK_POLYHEDRON:
     cell = vtkPolyhedron::New();
     break;
+  case VTK_LAGRANGE_TRIANGLE:
+    cell = vtkLagrangeTriangle::New();
+    break;
+  case VTK_LAGRANGE_TETRAHEDRON:
+    cell = vtkLagrangeTetra::New();
+    break;
+  case VTK_LAGRANGE_CURVE:
+    cell = vtkLagrangeCurve::New();
+    break;
+  case VTK_LAGRANGE_QUADRILATERAL:
+    cell = vtkLagrangeQuadrilateral::New();
+    break;
+  case VTK_LAGRANGE_HEXAHEDRON:
+    cell = vtkLagrangeHexahedron::New();
+    break;
+  case VTK_LAGRANGE_WEDGE:
+    cell = vtkLagrangeWedge::New();
+    break;
   }
   return cell;
 }
@@ -430,4 +454,3 @@ void vtkGenericCell::SetPointIds(vtkIdList *pointIds)
     this->Cell->PointIds->Register(this);
   }
 }
-
