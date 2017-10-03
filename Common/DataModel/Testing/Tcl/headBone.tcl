@@ -40,7 +40,6 @@ vtkDataSetMapper isoMapper
     isoMapper SetInputConnection [gradient GetOutputPort]
     isoMapper ScalarVisibilityOn
     isoMapper SetScalarRange 0 1200
-    isoMapper ImmediateModeRenderingOn
 
 vtkActor isoActor
     isoActor SetMapper isoMapper

@@ -39,7 +39,6 @@ iso.SetInputMemoryLimit(1000)
 isoMapper = vtk.vtkPolyDataMapper()
 isoMapper.SetInputConnection(iso.GetOutputPort())
 isoMapper.ScalarVisibilityOff()
-isoMapper.ImmediateModeRenderingOn()
 
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)

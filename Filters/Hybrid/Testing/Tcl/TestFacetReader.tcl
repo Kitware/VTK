@@ -13,7 +13,6 @@ vtkFacetReader facet0
 
 vtkPolyDataMapper Mapper5
   Mapper5 SetInputConnection [facet0 GetOutputPort]
-  Mapper5 SetImmediateModeRendering 1
   Mapper5 UseLookupTableScalarRangeOff
   Mapper5 SetScalarVisibility 1
   Mapper5 SetScalarModeToDefault

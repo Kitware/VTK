@@ -34,14 +34,6 @@
  * setting of the ColorMode flag. See the documentation for the appropriate
  * methods for an explanation.
  *
- * Another important feature of this class is whether to use immediate mode
- * rendering (ImmediateModeRenderingOn) or display list rendering
- * (ImmediateModeRenderingOff). If display lists are used, a data structure
- * is constructed (generally in the rendering library) which can then be
- * rapidly traversed and rendered by the rendering library. The disadvantage
- * of display lists is that they require additionally memory which may affect
- * the performance of the system.
- *
  * Another important feature of the mapper is the ability to shift the
  * z-buffer to resolve coincident topology. For example, if you'd like to
  * draw a mesh with some edges a different color, and the edges lie on the
@@ -220,9 +212,10 @@ public:
    * having problems rendering a large dataset you might
    * want to consider using immediate more rendering.
    */
-  vtkSetMacro(ImmediateModeRendering, int);
-  vtkGetMacro(ImmediateModeRendering, int);
-  vtkBooleanMacro(ImmediateModeRendering, int);
+  VTK_LEGACY(void SetImmediateModeRendering(int));
+  VTK_LEGACY(int GetImmediateModeRendering());
+  VTK_LEGACY(void ImmediateModeRenderingOn());
+  VTK_LEGACY(void ImmediateModeRenderingOff());
   //@}
 
   //@{
@@ -234,12 +227,10 @@ public:
    * having problems rendering a large dataset you might
    * want to consider using immediate more rendering.
    */
-  static void SetGlobalImmediateModeRendering(int val);
-  static void GlobalImmediateModeRenderingOn()
-    { vtkMapper::SetGlobalImmediateModeRendering(1); }
-  static void GlobalImmediateModeRenderingOff()
-    { vtkMapper::SetGlobalImmediateModeRendering(0); }
-  static int  GetGlobalImmediateModeRendering();
+  VTK_LEGACY(static void SetGlobalImmediateModeRendering(int val));
+  VTK_LEGACY(static void GlobalImmediateModeRenderingOn());
+  VTK_LEGACY(static void GlobalImmediateModeRenderingOff());
+  VTK_LEGACY(static int  GetGlobalImmediateModeRendering());
   //@}
 
   //@{
@@ -252,8 +243,8 @@ public:
    * (call of display lists can be nested but not their creation.)
    * There is no good reason to expose it to wrappers.
    */
-  vtkGetMacro(ForceCompileOnly, int);
-  void SetForceCompileOnly(int value);
+  VTK_LEGACY(int GetForceCompileOnly());
+  VTK_LEGACY(void SetForceCompileOnly(int value));
   //@}
 
   /**
@@ -603,7 +594,12 @@ protected:
   vtkTimeStamp BuildTime;
   double ScalarRange[2];
   int UseLookupTableScalarRange;
+
+#ifndef VTK_LEGACY_REMOVE
   int ImmediateModeRendering;
+  int ForceCompileOnly;
+#endif
+
   int ColorMode;
   int ScalarMode;
 
@@ -620,8 +616,6 @@ protected:
   vtkIdType FieldDataTupleId;
 
   int Static;
-
-  int ForceCompileOnly;
 
   double CoincidentPolygonFactor;
   double CoincidentPolygonOffset;

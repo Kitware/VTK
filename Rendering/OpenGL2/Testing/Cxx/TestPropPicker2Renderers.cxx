@@ -161,7 +161,6 @@ int TestPropPicker2Renderers(int, char *[])
     norm->Update();
 
     vtkNew<vtkPolyDataMapper> mapper;
-    mapper->ImmediateModeRenderingOn();
     mapper->ScalarVisibilityOff();
     mapper->SetResolveCoincidentTopologyToPolygonOffset();
     mapper->SetInputConnection(norm->GetOutputPort());

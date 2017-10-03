@@ -120,7 +120,6 @@ vtkContourFilter popSurface
 vtkPolyDataMapper popMapper
     popMapper SetInputConnection [popSurface GetOutputPort]
     popMapper ScalarVisibilityOff
-    popMapper ImmediateModeRenderingOn
 vtkActor popActor
     popActor SetMapper popMapper
     [popActor GetProperty] SetOpacity 0.3

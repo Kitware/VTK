@@ -35,7 +35,7 @@
 
 #define ID_OFFSET 1
 
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL1
 #include "vtkPainterDeviceAdapter.h"
 #endif
 
@@ -379,7 +379,7 @@ void vtkHardwareSelector::BeginRenderProp()
 
   //cout << "In BeginRenderProp" << endl;
   //glFinish();
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL1
   if (this->CurrentPass == ACTOR_PASS)
   {
     int propid = this->PropID;
@@ -441,7 +441,7 @@ void vtkHardwareSelector::RenderCompositeIndex(unsigned int index)
     return;
   }
 
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL1
   index += ID_OFFSET;
 
   //glFinish();
@@ -474,7 +474,7 @@ void vtkHardwareSelector::RenderAttributeId(vtkIdType attribid)
     return;
   }
 
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL1
   // 0 is reserved.
   attribid += ID_OFFSET;
 
@@ -505,7 +505,7 @@ void vtkHardwareSelector::RenderProcessId(unsigned int processid)
       return;
     }
 
-#ifndef VTK_OPENGL2
+#ifdef VTK_OPENGL1
     float color[3];
     vtkHardwareSelector::Convert(
       static_cast<int>(processid + 1), color);

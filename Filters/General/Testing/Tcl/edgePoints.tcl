@@ -20,7 +20,6 @@ vtkEdgePoints edgePoints
 #
 vtkDataSetMapper mapper
   mapper SetInputConnection [edgePoints GetOutputPort]
-  mapper ImmediateModeRenderingOn
   mapper ScalarVisibilityOff
 
 vtkActor head

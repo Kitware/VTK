@@ -44,7 +44,6 @@ int TestPOVExporter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSphereSource *sphere = vtkSphereSource::New();
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
-  sphereMapper->GlobalImmediateModeRenderingOn();
   vtkActor *sphereActor = vtkLODActor::New();
   sphereActor->SetMapper(sphereMapper);
   sphereActor->GetProperty()->SetDiffuseColor(0.8900, 0.8100, 0.3400);

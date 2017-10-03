@@ -138,7 +138,6 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
 
   vtkNew<vtkPolyDataMapper> outlineMapper;
   outlineMapper->SetInputConnection(outline->GetOutputPort());
-  outlineMapper->SetImmediateModeRendering(1);
   outlineMapper->UseLookupTableScalarRangeOn();
   outlineMapper->SetScalarVisibility(0);
   outlineMapper->SetScalarModeToDefault();

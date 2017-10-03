@@ -153,7 +153,6 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   // as it is a class static on the mapper
   this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
-  this->Mapper->ImmediateModeRenderingOn();
   // Put this on top of other objects
   this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1, -1);
   this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1, -1);
@@ -162,7 +161,6 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->ActiveMapper = vtkPolyDataMapper::New();
   this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   this->ActiveMapper->ScalarVisibilityOff();
-  this->ActiveMapper->ImmediateModeRenderingOn();
   this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1, -1);
   this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1, -1);
   this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
@@ -1031,7 +1029,6 @@ void vtkOrientedGlyphContourRepresentation::CreateSelectedNodesRepresentation()
   this->SelectedNodesMapper->SetInputData(this->SelectedNodesGlypher->GetOutput());
   this->SelectedNodesMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->SelectedNodesMapper->ScalarVisibilityOff();
-  this->SelectedNodesMapper->ImmediateModeRenderingOn();
 
   vtkProperty *selProperty = vtkProperty::New();
   selProperty->SetColor(0.0, 1.0, 0.0);

@@ -41,7 +41,6 @@ vtkLookupTable pvTemp104
   pvTemp104 Build
 vtkCompositePolyDataMapper pvTemp87
   pvTemp87 SetInputConnection [pvTemp79 GetOutputPort]
-  pvTemp87 SetImmediateModeRendering 1
   pvTemp87 SetScalarRange 0 1
   pvTemp87 UseLookupTableScalarRangeOn
   pvTemp87 SetScalarVisibility 1

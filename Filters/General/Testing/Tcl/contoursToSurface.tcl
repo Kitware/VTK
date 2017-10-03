@@ -135,7 +135,6 @@ f SetMemoryLimitInBytes 100000
 vtkPolyDataMapper m
 m SetInputConnection [f GetOutputPort]
 m ScalarVisibilityOff
-m ImmediateModeRenderingOn
 
 vtkActor a
 a SetMapper m

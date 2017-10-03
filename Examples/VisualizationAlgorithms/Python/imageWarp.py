@@ -29,7 +29,6 @@ merge.SetScalarsConnection(reader.GetOutputPort())
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(merge.GetOutputPort())
 mapper.SetScalarRange(0, 255)
-mapper.ImmediateModeRenderingOff()
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 

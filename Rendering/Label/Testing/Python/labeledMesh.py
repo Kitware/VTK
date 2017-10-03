@@ -50,7 +50,6 @@ sphere = vtk.vtkSphereSource()
 
 sphereMapper = vtk.vtkPolyDataMapper()
 sphereMapper.SetInputConnection(sphere.GetOutputPort())
-sphereMapper.GlobalImmediateModeRenderingOn()
 
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)

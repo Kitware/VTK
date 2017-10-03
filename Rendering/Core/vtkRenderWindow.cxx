@@ -30,10 +30,12 @@
 
 #include <cmath>
 
+#ifndef VTK_LEGACY_REMOVE
 #ifdef VTK_OPENGL2
 class vtkPainterDeviceAdapter : public vtkObject {};
 #else
 #include "vtkPainterDeviceAdapter.h"
+#endif
 #endif
 
 //----------------------------------------------------------------------------
@@ -84,7 +86,11 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorSaturation = 0.65f;
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
+
+#ifndef VTK_LEGACY_REMOVE
   this->PainterDeviceAdapter = nullptr;
+#endif
+
   this->AbortCheckTime = 0.0;
   this->CapturingGL2PSSpecialProps = 0;
   this->MultiSamples = 0;
@@ -130,10 +136,12 @@ vtkRenderWindow::~vtkRenderWindow()
     this->Renderers->Delete();
   }
 
+#ifndef VTK_LEGACY_REMOVE
   if (this->PainterDeviceAdapter)
   {
     this->PainterDeviceAdapter->Delete();
   }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -915,6 +923,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
      << this->AnaglyphColorMask[0] << " , "
      << this->AnaglyphColorMask[1] << "\n";
 
+#ifndef VTK_LEGACY_REMOVE
   os << indent << "PainterDeviceAdapter: ";
   if (this->PainterDeviceAdapter)
   {
@@ -925,6 +934,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "(none)" << endl;
   }
+#endif
 
   os << indent << "MultiSamples: " << this->MultiSamples << "\n";
   os << indent << "StencilCapable: " <<
@@ -1465,6 +1475,12 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
 
 //----------------------------------------------------------------------------
 #if !defined(VTK_LEGACY_REMOVE)
+vtkPainterDeviceAdapter *vtkRenderWindow::GetPainterDeviceAdapter()
+{
+  VTK_LEGACY_BODY(vtkRenderWindow::GetPainterDeviceAdapter, "VTK 8.1");
+  return this->PainterDeviceAdapter;
+}
+
 int vtkRenderWindow::GetAAFrames()
 {
   VTK_LEGACY_BODY(vtkRenderWindow::GetAAFrames, "VTK 8.1");

@@ -79,7 +79,6 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 vtkPlaneSource aPlane
 vtkPolyDataMapper aPlaneMapper
   aPlaneMapper SetInputConnection [aPlane GetOutputPort]
-  aPlaneMapper ImmediateModeRenderingOn
 
 vtkActor screen
   screen SetMapper aPlaneMapper

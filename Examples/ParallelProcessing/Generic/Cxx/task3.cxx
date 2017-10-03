@@ -77,7 +77,6 @@ void task3(double data)
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(append->GetOutputPort());
   mapper->SetScalarRange(50, 180);
-  mapper->ImmediateModeRenderingOn();
 
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);

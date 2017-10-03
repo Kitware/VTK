@@ -151,7 +151,14 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     vtkPointGaussianMapper
     ABSTRACT
     )
-else() # Add painter device adapter when not OpenGL2
+endif()
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  # needed as we do not have vtkRenderingOpenGLConfigure.h here
+  set_source_files_properties(
+    vtkRenderWindow.cxx  # dummy out painterdevice adapter
+    vtkHardwareSelector.cxx # dummy out painter device adapter
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL1)
   list(APPEND Module_SRCS
     vtkPainterDeviceAdapter.cxx
     )

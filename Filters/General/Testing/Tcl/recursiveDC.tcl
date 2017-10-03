@@ -23,7 +23,6 @@ vtkRecursiveDividingCubes iso
 vtkPolyDataMapper isoMapper
     isoMapper SetInputConnection [iso GetOutputPort]
     isoMapper ScalarVisibilityOff
-    isoMapper ImmediateModeRenderingOn
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor $bisque

@@ -73,7 +73,6 @@ mapper.SetInputConnection(streamer.GetOutputPort())
 mapper.ScalarVisibilityOff()
 mapper.SetPiece(0)
 mapper.SetNumberOfPieces(2)
-mapper.ImmediateModeRenderingOn()
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)

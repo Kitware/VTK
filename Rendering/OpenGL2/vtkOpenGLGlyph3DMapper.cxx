@@ -203,7 +203,6 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
   // ResolveCoincidentTopologyPolygonOffsetParameters is static
   mapper->SetResolveCoincidentTopologyPolygonOffsetFaces(
     this->GetResolveCoincidentTopologyPolygonOffsetFaces());
-  mapper->SetImmediateModeRendering(this->ImmediateModeRendering);
 }
 
 void vtkOpenGLGlyph3DMapper::SetupColorMapper()

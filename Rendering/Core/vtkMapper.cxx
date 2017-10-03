@@ -58,7 +58,10 @@ vtkMapper::vtkMapper()
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
   this->UseLookupTableScalarRange = 0;
 
+#ifndef VTK_LEGACY_REMOVE
   this->ImmediateModeRendering = 0;
+  this->ForceCompileOnly=0;
+#endif
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
@@ -79,7 +82,6 @@ vtkMapper::vtkMapper()
   this->ColorCoordinates = nullptr;
   this->ColorTextureMap = nullptr;
 
-  this->ForceCompileOnly=0;
 
   this->CoincidentPolygonFactor = 0.0;
   this->CoincidentPolygonOffset = 0.0;
@@ -139,8 +141,10 @@ vtkDataSet *vtkMapper::GetInput()
     this->GetExecutive()->GetInputData(0, 0));
 }
 
+#ifndef VTK_LEGACY_REMOVE
 void vtkMapper::SetForceCompileOnly(int value)
 {
+  VTK_LEGACY_BODY(vtkMapper::SetForceCompileOnly, "VTK 8.1");
   if(this->ForceCompileOnly!=value)
   {
       this->ForceCompileOnly=value;
@@ -149,8 +153,54 @@ void vtkMapper::SetForceCompileOnly(int value)
   }
 }
 
+int vtkMapper::GetForceCompileOnly()
+{
+  VTK_LEGACY_BODY(vtkMapper::GetForceCompileOnly, "VTK 8.1");
+  return this->ForceCompileOnly;
+}
+
+void vtkMapper::SetImmediateModeRendering(int val)
+{
+  VTK_LEGACY_BODY(vtkMapper::SetImmediateModeRendering, "VTK 8.1");
+  if (val == this->ImmediateModeRendering)
+  {
+    return;
+  }
+  this->ImmediateModeRendering = val;
+  this->Modified();
+}
+
+void vtkMapper::ImmediateModeRenderingOn()
+{
+  VTK_LEGACY_BODY(vtkMapper::ImmediateModeRenderingOn, "VTK 8.1");
+  if (this->ImmediateModeRendering == 1)
+  {
+    return;
+  }
+  this->ImmediateModeRendering = 1;
+  this->Modified();
+}
+
+void vtkMapper::ImmediateModeRenderingOff()
+{
+  VTK_LEGACY_BODY(vtkMapper::ImmediateModeRenderingOff, "VTK 8.1");
+  if (this->ImmediateModeRendering == 0)
+  {
+    return;
+  }
+  this->ImmediateModeRendering = 0;
+  this->Modified();
+}
+
+int vtkMapper::GetImmediateModeRendering()
+{
+  VTK_LEGACY_BODY(vtkMapper::GetImmediateModeRendering, "VTK 8.1");
+  return this->ImmediateModeRendering;
+}
+
 void vtkMapper::SetGlobalImmediateModeRendering(int val)
 {
+  VTK_LEGACY_BODY(vtkMapper::SetImmediateModeRendering, "VTK 8.1");
   if (val == vtkMapperGlobalImmediateModeRendering)
   {
     return;
@@ -158,10 +208,32 @@ void vtkMapper::SetGlobalImmediateModeRendering(int val)
   vtkMapperGlobalImmediateModeRendering = val;
 }
 
+void vtkMapper::GlobalImmediateModeRenderingOn()
+{
+  VTK_LEGACY_BODY(vtkMapper::GlobalImmediateModeRenderingOn, "VTK 8.1");
+  if (vtkMapperGlobalImmediateModeRendering == 1)
+  {
+    return;
+  }
+  vtkMapperGlobalImmediateModeRendering = 1;
+}
+
+void vtkMapper::GlobalImmediateModeRenderingOff()
+{
+  VTK_LEGACY_BODY(vtkMapper::GlobalImmediateModeRenderingOff, "VTK 8.1");
+  if (vtkMapperGlobalImmediateModeRendering == 0)
+  {
+    return;
+  }
+  vtkMapperGlobalImmediateModeRendering = 0;
+}
+
 int vtkMapper::GetGlobalImmediateModeRendering()
 {
+  VTK_LEGACY_BODY(vtkMapper::GetGlobalImmediateModeRendering, "VTK 8.1");
   return vtkMapperGlobalImmediateModeRendering;
 }
+#endif
 
 void vtkMapper::SetResolveCoincidentTopology(int val)
 {
@@ -365,7 +437,11 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarRange(m->GetScalarRange());
     this->SetColorMode(m->GetColorMode());
     this->SetScalarMode(m->GetScalarMode());
+
+#ifdef VTK_LEGACY_SILENT
     this->SetImmediateModeRendering(m->GetImmediateModeRendering());
+#endif
+
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
     this->SetInterpolateScalarsBeforeMapping(
       m->GetInterpolateScalarsBeforeMapping());
@@ -1047,11 +1123,12 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Lookup Table: (none)\n";
   }
 
+#ifdef VTK_LEGACY_SILENT
   os << indent << "Immediate Mode Rendering: "
     << (this->ImmediateModeRendering ? "On\n" : "Off\n");
-
    os << indent << "Force compile only for display lists: "
     << (this->ForceCompileOnly ? "On\n" : "Off\n");
+#endif
 
   os << indent << "Global Immediate Mode Rendering: " <<
     (vtkMapperGlobalImmediateModeRendering ? "On\n" : "Off\n");
