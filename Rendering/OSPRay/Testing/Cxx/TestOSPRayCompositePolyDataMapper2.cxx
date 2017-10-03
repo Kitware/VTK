@@ -98,7 +98,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child);
+            block, (block % 2) ? nullptr : child);
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -145,7 +145,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->
-    SetPipelineControlPoints(ren, ospray, NULL);
+    SetPipelineControlPoints(ren, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(ren);
 

@@ -461,7 +461,7 @@ int TestOSPRayRenderMesh(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
   style->
-    SetPipelineControlPoints(renderer, ospray, NULL);
+    SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

@@ -311,7 +311,7 @@ public:
       if (ren->GetTexturedBackground() && text)
       {
         vtkImageData *vColorTextureMap = text->GetInput();
-        //todo, fallback to gradient when either of above return NULL
+        //todo, fallback to gradient when either of above return nullptr
         //otherwise can't load texture in PV when in OSP::PT mode
         //todo: this code is duplicated from vtkOSPRayPolyDataMapperNode
         jsize = vColorTextureMap->GetExtent()[1];
@@ -420,10 +420,10 @@ vtkStandardNewMacro(vtkOSPRayRendererNode);
 //----------------------------------------------------------------------------
 vtkOSPRayRendererNode::vtkOSPRayRendererNode()
 {
-  this->Buffer = NULL;
-  this->ZBuffer = NULL;
-  this->OModel = NULL;
-  this->ORenderer = NULL;
+  this->Buffer = nullptr;
+  this->ZBuffer = nullptr;
+  this->OModel = nullptr;
+  this->ORenderer = nullptr;
   this->NumActors = 0;
   this->ComputeDepth = true;
   this->OFrameBuffer = nullptr;
@@ -742,11 +742,11 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 
   bool bgreused = this->Internal->SetupPathTraceBackground(oRenderer);
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
-    (this->Lights.size()?&this->Lights[0]:NULL), 0);
+    (this->Lights.size()?&this->Lights[0]:nullptr), 0);
   ospSetData(oRenderer, "lights", lightArray);
 
   //actors
-  OSPModel oModel=NULL;
+  OSPModel oModel=nullptr;
   it->InitTraversal();
   //since we have to spatially sort everything
   //let's see if we can avoid that in the common case when
@@ -855,7 +855,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
   if (prepass)
   {
-    OSPRenderer oRenderer = NULL;
+    OSPRenderer oRenderer = nullptr;
     static std::string previousType;
     std::string type = this->GetRendererType(static_cast<vtkRenderer*>(this->Renderable));
     if (!this->ORenderer || previousType != type)
@@ -1085,7 +1085,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL)
     {
-      OSPTexture2D glDepthTex=NULL;
+      OSPTexture2D glDepthTex=nullptr;
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       int viewportX, viewportY;

@@ -35,7 +35,7 @@ vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
   if (this->InternalRenderer)
   {
-    this->InternalRenderer->SetPass(NULL);
+    this->InternalRenderer->SetPass(nullptr);
     this->InternalRenderer->Delete();
   }
   if (this->InternalOSPRayPass)

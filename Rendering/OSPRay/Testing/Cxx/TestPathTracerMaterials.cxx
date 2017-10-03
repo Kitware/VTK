@@ -856,7 +856,7 @@ int TestPathTracerMaterials(int argc, char* argv[])
   renWin->Render();
 
   //hook up ability to focus on each object as RenderMesh test does
-  style->SetPipelineControlPoints(renderer, ospray, NULL);
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
 
   //set up progressive rendering
   vtkCommand *looper = style->GetLooper(renWin);

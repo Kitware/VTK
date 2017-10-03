@@ -104,7 +104,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
     unsigned int flat_index = 0;
     vtkCompositePolyDataMapper2 *cpdm =
       vtkCompositePolyDataMapper2::SafeDownCast(act->GetMapper());
-    vtkDataObject * dobj = NULL;
+    vtkDataObject * dobj = nullptr;
     if (cpdm)
     {
       dobj = cpdm->GetInputDataObject(0, 0);
@@ -181,9 +181,9 @@ void vtkOSPRayCompositePolyDataMapper2Node::RenderBlock(
     for (unsigned int cc=0 ; cc < numChildren; cc++)
     {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == NULL)
+      if (child == nullptr)
       {
-        // speeds things up when dealing with NULL blocks (which is common with
+        // speeds things up when dealing with null blocks (which is common with
         // AMRs).
         flat_index++;
         continue;

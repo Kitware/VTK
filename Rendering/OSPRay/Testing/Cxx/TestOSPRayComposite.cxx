@@ -76,7 +76,7 @@ public:
   }
 
 protected:
-  MyProcess() { this->Argc = 0; this->Argv = NULL; }
+  MyProcess() { this->Argc = 0; this->Argv = nullptr; }
 
   int Argc;
   char **Argv;

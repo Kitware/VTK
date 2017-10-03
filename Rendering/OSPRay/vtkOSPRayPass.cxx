@@ -1,6 +1,6 @@
 /*=========================================================================
 
-  Program:   Visualization Toolkit
+  Prograxq:   Visualization Toolkit
   Module:    vtkOSPRayPass.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
@@ -66,7 +66,7 @@ vtkStandardNewMacro(vtkOSPRayPass);
 // ----------------------------------------------------------------------------
 vtkOSPRayPass::vtkOSPRayPass()
 {
-  this->SceneGraph = NULL;
+  this->SceneGraph = nullptr;
 
   int ac = 1;
   const char* envArgs = getenv("VTKOSPRAY_ARGS");
@@ -133,7 +133,7 @@ vtkOSPRayPass::vtkOSPRayPass()
 // ----------------------------------------------------------------------------
 vtkOSPRayPass::~vtkOSPRayPass()
 {
-  this->SetSceneGraph(NULL);
+  this->SetSceneGraph(nullptr);
   this->Internal->Delete();
   this->Internal = 0;
   if (this->CameraPass)
