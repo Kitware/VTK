@@ -138,9 +138,9 @@ int TestGPURayCastUserShader(int argc, char* argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   ren->AddVolume(volume.GetPointer());
+  ren->GetActiveCamera()->Elevation(-60.0);
   ren->ResetCamera();
-  ren->GetActiveCamera()->Elevation(-90.0);
-  ren->GetActiveCamera()->Zoom(1.4);
+  ren->GetActiveCamera()->Zoom(1.3);
 
   renWin->Render();
 
