@@ -362,6 +362,33 @@ public:
    */
   virtual void GetReductionRatio(double ratio[3])=0;
 
+  enum TFRangeType
+  {
+    SCALAR = 0, // default
+    NATIVE
+  };
+
+  //@{
+  /**
+   * Set whether to use the scalar range or the native transfer function range
+   * when looking up transfer functions for color and opacity values. When the
+   * range is set to TransferFunctionRange::SCALAR, the function is distributed
+   * over the entire scalar range. If it is set to
+   * TransferFunctionRange::NATIVE, the scalar values outside the native
+   * transfer function range will be truncated to native range. By
+   * default, the volume scalar range is used.
+   *
+   * \note The native range of the transfer function is the range returned by
+   * vtkColorTransferFunction::GetRange() or vtkPiecewiseFunction::GetRange().
+   */
+  vtkSetMacro(ColorRangeType, int);
+  vtkGetMacro(ColorRangeType, int);
+  vtkSetMacro(ScalarOpacityRangeType, int);
+  vtkGetMacro(ScalarOpacityRangeType, int);
+  vtkSetMacro(GradientOpacityRangeType, int);
+  vtkGetMacro(GradientOpacityRangeType, int);
+  //@}
+
 protected:
   vtkGPUVolumeRayCastMapper();
   ~vtkGPUVolumeRayCastMapper() override;
@@ -450,6 +477,11 @@ protected:
 
   int AMRMode;
 
+  // Transfer function range type
+  int ColorRangeType;
+  int ScalarOpacityRangeType;
+  int GradientOpacityRangeType;
+
   // Point data or cell data (or field data, not handled) ?
   int CellFlag;
 
@@ -491,4 +523,3 @@ private:
 };
 
 #endif
-

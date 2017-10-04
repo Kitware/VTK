@@ -66,6 +66,10 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MaskType
     = vtkGPUVolumeRayCastMapper::LabelMapMaskType;
 
+  this->ColorRangeType = TFRangeType::SCALAR;
+  this->ScalarOpacityRangeType = TFRangeType::SCALAR;
+  this->GradientOpacityRangeType = TFRangeType::SCALAR;
+
   this->AMRMode = 0;
   this->CellFlag = 0;
 

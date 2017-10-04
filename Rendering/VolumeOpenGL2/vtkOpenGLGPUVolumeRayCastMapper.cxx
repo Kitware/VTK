@@ -1101,9 +1101,18 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateColorTransferFunction(
     volumeProperty->GetRGBTransferFunction(component);
 
   double componentRange[2];
-  for (int i = 0; i < 2; ++i)
+  if ((colorTransferFunction->GetSize() < 1) ||
+      (this->Parent->GetColorRangeType() == vtkGPUVolumeRayCastMapper::SCALAR))
   {
-    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+    for (int i = 0; i < 2; ++i)
+    {
+      componentRange[i] =
+        this->Parent->VolumeTexture->ScalarRange[component][i];
+    }
+  }
+  else
+  {
+    colorTransferFunction->GetRange(componentRange);
   }
 
   // Add points only if its not being added before
@@ -1164,9 +1173,19 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateOpacityTransferFunction(
     volumeProperty->GetScalarOpacity(lookupTableIndex);
 
   double componentRange[2];
-  for (int i = 0; i < 2; ++i)
+  if ((scalarOpacity->GetSize() < 1) ||
+      (this->Parent->GetScalarOpacityRangeType() ==
+       vtkGPUVolumeRayCastMapper::SCALAR))
   {
-    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+    for (int i = 0; i < 2; ++i)
+    {
+      componentRange[i] =
+        this->Parent->VolumeTexture->ScalarRange[component][i];
+    }
+  }
+  else
+  {
+    scalarOpacity->GetRange(componentRange);
   }
 
   if (scalarOpacity->GetSize() < 1)
@@ -1250,9 +1269,19 @@ int vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::
     volumeProperty->GetGradientOpacity(lookupTableIndex);
 
   double componentRange[2];
-  for (int i = 0; i < 2; ++i)
+  if ((gradientOpacity->GetSize() < 1) ||
+      this->Parent->GetGradientOpacityRangeType() ==
+        vtkGPUVolumeRayCastMapper::SCALAR)
   {
-    componentRange[i] = this->Parent->VolumeTexture->ScalarRange[component][i];
+    for (int i = 0; i < 2; ++i)
+    {
+      componentRange[i] =
+        this->Parent->VolumeTexture->ScalarRange[component][i];
+    }
+  }
+  else
+  {
+    gradientOpacity->GetRange(componentRange);
   }
 
   if (gradientOpacity->GetSize() < 1)
