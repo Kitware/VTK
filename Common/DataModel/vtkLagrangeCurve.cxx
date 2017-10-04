@@ -34,6 +34,7 @@ vtkLagrangeCurve::vtkLagrangeCurve()
 {
   this->Approx = nullptr;
   this->Order[0] = 1;
+  this->Order[1] = 2;
   this->Points->SetNumberOfPoints(2);
   this->PointIds->SetNumberOfIds(2);
   for (int i = 0; i < 2; i++)
