@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkLagrangeQuadrilateral();
-  ~vtkLagrangeQuadrilateral();
+  ~vtkLagrangeQuadrilateral() override;
 
   vtkQuad* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
@@ -117,8 +117,8 @@ protected:
   vtkNew<vtkLagrangeCurve> EdgeCell;
 
 private:
-  vtkLagrangeQuadrilateral(const vtkLagrangeQuadrilateral&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeQuadrilateral&) VTK_DELETE_FUNCTION;
+  vtkLagrangeQuadrilateral(const vtkLagrangeQuadrilateral&) = delete;
+  void operator=(const vtkLagrangeQuadrilateral&) = delete;
 };
 
 inline int vtkLagrangeQuadrilateral::GetParametricCenter(double center[3])

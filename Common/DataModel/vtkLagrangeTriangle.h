@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkLagrangeTriangle();
-  ~vtkLagrangeTriangle();
+  ~vtkLagrangeTriangle() override;
 
   vtkIdType GetNumberOfSubtriangles() const {return this->NumberOfSubtriangles;}
   vtkIdType ComputeNumberOfSubtriangles();
@@ -129,8 +129,8 @@ protected:
   vtkIdType SubtriangleIndexMap[9*MAX_SUBTRIANGLES];
 
 private:
-  vtkLagrangeTriangle(const vtkLagrangeTriangle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeTriangle&) VTK_DELETE_FUNCTION;
+  vtkLagrangeTriangle(const vtkLagrangeTriangle&) = delete;
+  void operator=(const vtkLagrangeTriangle&) = delete;
 };
 
 #undef MAX_POINTS

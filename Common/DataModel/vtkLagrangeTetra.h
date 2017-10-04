@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkLagrangeTetra();
-  ~vtkLagrangeTetra();
+  ~vtkLagrangeTetra() override;
 
   vtkIdType GetNumberOfSubtetras() const { return this->NumberOfSubtetras; }
   vtkIdType ComputeNumberOfSubtetras();
@@ -138,8 +138,8 @@ protected:
   vtkIdType SubtetraIndexMap[16*MAX_SUBTETRAHEDRA];
 
 private:
-  vtkLagrangeTetra(const vtkLagrangeTetra&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeTetra&) VTK_DELETE_FUNCTION;
+  vtkLagrangeTetra(const vtkLagrangeTetra&) = delete;
+  void operator=(const vtkLagrangeTetra&) = delete;
 };
 
 #undef MAX_POINTS

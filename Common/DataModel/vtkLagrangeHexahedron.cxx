@@ -649,7 +649,11 @@ vtkHexahedron* vtkLagrangeHexahedron::GetApproximateHex(
     scalarsOut->SetNumberOfTuples(8);
     }
   int i, j, k;
-  this->SubCellCoordinatesFromId(i, j, k, subId);
+  if (!this->SubCellCoordinatesFromId(i, j, k, subId))
+  {
+    vtkErrorMacro("Invalid subId " << subId);
+    return nullptr;
+  }
   // Get the point coordinates (and optionally scalars) for each of the 8 corners
   // in the approximating hexahedron spanned by (i, i+1) x (j, j+1) x (k, k+1):
   for (int ic = 0; ic < 8; ++ic)

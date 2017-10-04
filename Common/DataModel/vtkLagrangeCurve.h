@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkLagrangeCurve();
-  ~vtkLagrangeCurve();
+  ~vtkLagrangeCurve() override;
 
   vtkLine* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);
@@ -115,8 +115,8 @@ protected:
   vtkNew<vtkIdList> TmpIds;
 
 private:
-  vtkLagrangeCurve(const vtkLagrangeCurve&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeCurve&) VTK_DELETE_FUNCTION;
+  vtkLagrangeCurve(const vtkLagrangeCurve&) = delete;
+  void operator=(const vtkLagrangeCurve&) = delete;
 };
 
 inline int vtkLagrangeCurve::GetParametricCenter(double center[3])
