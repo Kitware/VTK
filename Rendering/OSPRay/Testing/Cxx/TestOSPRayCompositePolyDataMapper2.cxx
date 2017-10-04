@@ -98,7 +98,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? nullptr : child);
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
