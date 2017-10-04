@@ -69,8 +69,9 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   // Prepare 1D Transfer Functions
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddRGBPoint(depthRange[0], 1.0, 0.0, 0.0);
-  ctf->AddRGBPoint(0.5*(depthRange[0]+depthRange[1]), 0.0, 1.0, 0.5);
-  ctf->AddRGBPoint(depthRange[1], 0.0, 0.0, 1.0);
+  ctf->AddRGBPoint(0.5*(depthRange[0]+depthRange[1]), 0.5, 0.5, 0.5);
+  ctf->AddRGBPoint(0.8*(depthRange[0]+depthRange[1]), 0.5, 0.4, 0.6);
+  ctf->AddRGBPoint(depthRange[1], 0.0, 1.0, 1.0);
 
   vtkNew<vtkPiecewiseFunction> pf;
   pf->AddPoint(0, 0.00);
@@ -80,11 +81,13 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
 
   volumeProperty->SetScalarOpacity(pf.GetPointer());
   volumeProperty->SetColor(ctf.GetPointer());
-  volumeProperty->SetShade(1);
 
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SetUseJittering(0);
+  // Tell the mapper to use the min and max of the color function nodes as the
+  // lookup table range instead of the volume scalar range.
+  mapper->SetColorRangeType(vtkGPUVolumeRayCastMapper::NATIVE);
 
   // Modify the shader to color based on the depth of the translucent voxel
   mapper->SetFragmentShaderCode(TestGPURayCastUserShader2_FS);
@@ -104,8 +107,10 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   iren->SetRenderWindow(renWin.GetPointer());
 
   ren->AddVolume(volume.GetPointer());
+  ren->GetActiveCamera()->Elevation(-50.0);
+  ren->GetActiveCamera()->Yaw(-30.0);
+  ren->GetActiveCamera()->Roll(-10.0);
   ren->ResetCamera();
-  ren->GetActiveCamera()->Elevation(-90.0);
   ren->GetActiveCamera()->Zoom(1.4);
 
   renWin->Render();

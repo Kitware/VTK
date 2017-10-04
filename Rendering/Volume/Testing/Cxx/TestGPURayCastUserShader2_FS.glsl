@@ -161,54 +161,9 @@ vec4 computeGradient(int c)
   return vec4((g1 - g2), -1.0);
 }
 
-vec4 computeLighting(vec4 color, int component)
-{
-  vec4 finalColor = vec4(0.0); // Compute gradient function only once
-  vec4 gradient = computeGradient(component);
 
-  vec3 diffuse = vec3(0.0);
-  vec3 specular = vec3(0.0);
-  vec3 normal = gradient.xyz / in_cellSpacing;
-  float normalLength = length(normal);
-  if (normalLength > 0.0)
-  {
-    normal = normalize(normal);
-  }
-  else
-  {
-    normal = vec3(0.0, 0.0, 0.0);
-  }
-  float nDotL = dot(normal, g_ldir);
-  float nDotH = dot(normal, g_h);
-  if (nDotL < 0.0 && in_twoSidedLighting)
-  {
-    nDotL = -nDotL;
-  }
-  if (nDotH < 0.0 && in_twoSidedLighting)
-  {
-    nDotH = -nDotH;
-  }
-  if (nDotL > 0.0)
-  {
-    diffuse =
-      nDotL * in_diffuse[component] * in_lightDiffuseColor[0] * color.rgb;
-  }
-  specular = pow(nDotH, in_shininess[component]) * in_specular[component] *
-    in_lightSpecularColor[0];
-  // For the headlight, ignore the light's ambient color
-  // for now as it is causing the old mapper tests to fail
-  finalColor.xyz = in_ambient[component] * color.rgb + diffuse + specular;
-  finalColor.a = color.a;
-  return finalColor;
-}
 
 uniform sampler2D in_colorTransferFunc;
-vec4 computeColor(vec4 scalar, float opacity)
-{
-  return computeLighting(
-    vec4(texture2D(in_colorTransferFunc, vec2(scalar.w, 0.0)).xyz, opacity), 0);
-}
-
 vec3 computeRayDirection()
 {
   return normalize(ip_vertexPos.xyz - g_eyePosObj.xyz);
@@ -430,22 +385,6 @@ vec4 castRay(const float zStart, const float zEnd)
       g_scalar = scalar;
       g_srcColor = vec4(0.0);
       g_srcColor.a = computeOpacity(scalar);
-      if (g_srcColor.a > 0.0)
-      {
-        g_srcColor = computeColor(scalar, g_srcColor.a);
-        // Opacity calculation using compositing:
-        // Here we use front to back compositing scheme whereby
-        // the current sample value is multiplied to the
-        // currently accumulated alpha and then this product
-        // is subtracted from the sample value to get the
-        // alpha from the previous steps. Next, this alpha is
-        // multiplied with the current sample colour
-        // and accumulated to the composited colour. The alpha
-        // value from the previous steps is then accumulated
-        // to the composited colour alpha.
-        g_srcColor.rgb *= g_srcColor.a;
-        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;
-      }
     }
 
     //VTK::RenderToImage::Impl
@@ -484,46 +423,15 @@ void finalizeRayCast()
 
   //VTK::Picking::Exit
 
-  g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
-  g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
-  g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
-  fragOutput0 = g_fragColor;
-
   //VTK::RenderToImage::Exit
   if (l_opaqueFragPos == vec3(0.0))
   {
-    fragOutput0 = vec4(0.0);
+    gl_FragData[0] = vec4(0.0);
   }
   else
   {
-    /*vec4 depthValue = in_projectionMatrix * in_modelViewMatrix **/
-      /*in_volumeMatrix * in_textureDatasetMatrix * vec4(l_opaqueFragPos, 1.0);*/
-    vec4 depthValue = /*in_projectionMatrix * in_modelViewMatrix **/
-      in_volumeMatrix * in_textureDatasetMatrix * vec4(l_opaqueFragPos, 1.0);
-    /*depthValue /= depthValue.w;*/
-//    fragOutput0 = vec4(vec3(0.5 * (gl_DepthRange.far - gl_DepthRange.near) *
-//                            depthValue.z + 0.5 * (gl_DepthRange.far + gl_DepthRange.near)), 1.0);
-
-    float depth_gl = 0.5*(gl_DepthRange.far - gl_DepthRange.near) * depthValue.z +
-      0.5 * (gl_DepthRange.far + gl_DepthRange.near);
-
-    /*vec4 linearDepth = vec4( 0.5 * (l_opaqueFragPos.z + 1) );*/
-    vec4 mipcolor = computeColor(vec4(l_opaqueFragPos.z) ,1.0);
-    vec4 color = texture2D(in_colorTransferFunc, vec2(l_opaqueFragPos.y, 0.0)).xyzw;
-    fragOutput0 = color;
-    /*fragOutput0 = vec4(vec3(l_opaqueFragPos.z), 1.0); //vec4(g_scalar.rgb, 1.0); /vec4(vec3(l_opa.z), 1.0);// * (1 - 0.15) + 2*0.15*(1-depth_gl);*/
-    //fragOp = computeOpacity(depthValue);
-    //vec4 src_color = computeColor(depthValue, 1.0);
-    //g_fragColor.rgb = src_color.rgb * fragOp;
-    //g_fragColor.a = fragOp;
-    //g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
-    //g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
-    //g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
-    //fragOutput0 = g_fragColor;
-
-    //  vec4(vec3(0.5 * (gl_DepthRange.far - gl_DepthRange.near) * depthValue.z +
-    //         0.5 * (gl_DepthRange.far + gl_DepthRange.near)),
-    //    1.0);
+    gl_FragData[0] =
+      texture2D(in_colorTransferFunc, vec2(l_opaqueFragPos.z, 0.0)).xyzw;
   }
 
   //VTK::DepthPass::Exit
