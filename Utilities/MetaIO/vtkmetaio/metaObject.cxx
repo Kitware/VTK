@@ -1202,7 +1202,7 @@ M_SetupReadFields(void)
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
-  MET_InitReadField(mF, "CompressedDataSize", MET_FLOAT, false);
+  MET_InitReadField(mF, "CompressedDataSize", MET_ULONG_LONG, false);
   m_Fields.push_back(mF);
 
   mF = new MET_FieldRecordType;
@@ -1403,7 +1403,7 @@ M_SetupWriteFields(void)
       if(m_WriteCompressedDataSize && m_CompressedDataSize>0)
         {
         mF = new MET_FieldRecordType;
-        MET_InitWriteField(mF, "CompressedDataSize", MET_UINT,
+        MET_InitWriteField(mF, "CompressedDataSize", MET_ULONG_LONG,
                            static_cast<double>(m_CompressedDataSize));
         m_Fields.push_back(mF);
         }
@@ -1577,7 +1577,7 @@ M_Read(void)
   mF = MET_GetFieldRecord("CompressedDataSize",  &m_Fields);
   if(mF && mF->defined)
     {
-    m_CompressedDataSize = (unsigned int)mF->value[0];
+    m_CompressedDataSize = (unsigned long long)mF->value[0];
     }
 
   mF = MET_GetFieldRecord("BinaryData",  &m_Fields);

@@ -97,13 +97,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
               int _elementNumberOfChannels=1,
               void *_elementData=NULL);
 
-    ~MetaImage(void);
+    ~MetaImage(void) MET_OVERRIDE;
 
-    virtual void PrintInfo(void) const;
+    void PrintInfo(void) const MET_OVERRIDE;
 
-    virtual void CopyInfo(const MetaObject * _object);
+    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
 
-    virtual void Clear(void);
+    void Clear(void) MET_OVERRIDE;
 
     bool InitializeEssential(int _nDims,
                                      const int * _dimSize,
@@ -281,7 +281,7 @@ class METAIO_EXPORT MetaImage : public MetaObject
                              const void * _constElementData=NULL);
 
 
-    bool Append(const char *_headName=NULL);
+    bool Append(const char *_headName=NULL) MET_OVERRIDE;
 
 
     typedef METAIO_STL::pair<long,long> CompressionOffsetType;
@@ -327,13 +327,13 @@ class METAIO_EXPORT MetaImage : public MetaObject
     char               m_ElementDataFileName[255];
 
 
-    virtual void  M_Destroy(void);
+    void  M_Destroy(void) MET_OVERRIDE;
 
-    virtual void  M_SetupReadFields(void);
+    void  M_SetupReadFields(void) MET_OVERRIDE;
 
-    virtual void  M_SetupWriteFields(void);
+    void  M_SetupWriteFields(void) MET_OVERRIDE;
 
-    virtual bool  M_Read(void);
+    bool  M_Read(void) MET_OVERRIDE;
 
     // _dataQuantity is expressed in number of pixels. Internally it will be
     // scaled by the number of components and number of bytes per component.
