@@ -276,7 +276,7 @@ protected:
    */
   int CreateCubicOctants;
 
-  vtkOctreePointLocator(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
+  vtkOctreePointLocator(const vtkOctreePointLocator&) = delete;
+  void operator=(const vtkOctreePointLocator&) = delete;
 };
 #endif

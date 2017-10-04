@@ -55,8 +55,8 @@ protected:
   ~vtkPlotLine3D() override;
 
 private:
-  vtkPlotLine3D(const vtkPlotLine3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotLine3D &) VTK_DELETE_FUNCTION;
+  vtkPlotLine3D(const vtkPlotLine3D &) = delete;
+  void operator=(const vtkPlotLine3D &) = delete;
 
 };
 

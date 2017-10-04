@@ -65,8 +65,8 @@ public:
   double Depth;
 
  private:
-  vtkClearZPass(const vtkClearZPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClearZPass&) VTK_DELETE_FUNCTION;
+  vtkClearZPass(const vtkClearZPass&) = delete;
+  void operator=(const vtkClearZPass&) = delete;
 };
 
 #endif

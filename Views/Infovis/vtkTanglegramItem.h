@@ -225,8 +225,8 @@ private:
   int LabelSizeDifference;
   float CorrespondenceLineWidth;
 
-  vtkTanglegramItem(const vtkTanglegramItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTanglegramItem&) VTK_DELETE_FUNCTION;
+  vtkTanglegramItem(const vtkTanglegramItem&) = delete;
+  void operator=(const vtkTanglegramItem&) = delete;
 
 };
 

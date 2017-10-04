@@ -174,8 +174,8 @@ protected:
   int RotationEnabled;
   int MoveFacesEnabled;
 private:
-  vtkBoxWidget2(const vtkBoxWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoxWidget2&) VTK_DELETE_FUNCTION;
+  vtkBoxWidget2(const vtkBoxWidget2&) = delete;
+  void operator=(const vtkBoxWidget2&) = delete;
 };
 
 #endif

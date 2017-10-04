@@ -93,8 +93,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome :
     double C;
 
   private:
-    vtkParametricBohemianDome(const vtkParametricBohemianDome&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricBohemianDome&) VTK_DELETE_FUNCTION;
+    vtkParametricBohemianDome(const vtkParametricBohemianDome&) = delete;
+    void operator=(const vtkParametricBohemianDome&) = delete;
 };
 
 #endif

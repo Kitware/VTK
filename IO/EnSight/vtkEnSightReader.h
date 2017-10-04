@@ -351,8 +351,8 @@ protected:
   double ActualTimeValue;
 
 private:
-  vtkEnSightReader(const vtkEnSightReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightReader(const vtkEnSightReader&) = delete;
+  void operator=(const vtkEnSightReader&) = delete;
 };
 
 #endif

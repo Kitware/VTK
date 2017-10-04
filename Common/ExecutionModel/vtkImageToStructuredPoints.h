@@ -68,8 +68,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
+  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&) = delete;
+  void operator=(const vtkImageToStructuredPoints&) = delete;
 };
 
 

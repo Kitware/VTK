@@ -240,8 +240,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPLYWriter(const vtkPLYWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPLYWriter&) VTK_DELETE_FUNCTION;
+  vtkPLYWriter(const vtkPLYWriter&) = delete;
+  void operator=(const vtkPLYWriter&) = delete;
 };
 
 #endif

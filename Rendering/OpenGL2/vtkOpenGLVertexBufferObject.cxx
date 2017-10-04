@@ -172,7 +172,7 @@ public:
   template<typename DataArray>
   void operator()(DataArray *array);
 
-  vtkAppendVBOWorker<destType>& operator=(const vtkAppendVBOWorker&) VTK_DELETE_FUNCTION;
+  vtkAppendVBOWorker<destType>& operator=(const vtkAppendVBOWorker&) = delete;
 };
 
 template <typename destType>

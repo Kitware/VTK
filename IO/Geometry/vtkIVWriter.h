@@ -73,8 +73,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkIVWriter(const vtkIVWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIVWriter&) VTK_DELETE_FUNCTION;
+  vtkIVWriter(const vtkIVWriter&) = delete;
+  void operator=(const vtkIVWriter&) = delete;
 };
 
 #endif

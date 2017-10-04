@@ -63,8 +63,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPBivariateLinearTableThreshold(const vtkPBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  vtkPBivariateLinearTableThreshold(const vtkPBivariateLinearTableThreshold&) = delete;
+  void operator=(const vtkPBivariateLinearTableThreshold&) = delete;
 };
 
 #endif

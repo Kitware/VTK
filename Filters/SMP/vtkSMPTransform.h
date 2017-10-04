@@ -72,8 +72,8 @@ protected:
   ~vtkSMPTransform () override {}
 
 private:
-  vtkSMPTransform (const vtkSMPTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPTransform&) VTK_DELETE_FUNCTION;
+  vtkSMPTransform (const vtkSMPTransform&) = delete;
+  void operator=(const vtkSMPTransform&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

@@ -42,8 +42,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkTrivialConsumer(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
+  vtkTrivialConsumer(const vtkTrivialConsumer&) = delete;
+  void operator=(const vtkTrivialConsumer&) = delete;
 };
 
 #endif

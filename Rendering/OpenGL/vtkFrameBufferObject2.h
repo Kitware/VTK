@@ -342,8 +342,8 @@ protected:
   unsigned int PreviousReadBuffer;
 
 private:
-  vtkFrameBufferObject2(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
+  vtkFrameBufferObject2(const vtkFrameBufferObject2&) = delete;
+  void operator=(const vtkFrameBufferObject2&) = delete;
 
   friend class vtkRenderbuffer; // needs access to LoadRequiredExtentsions
 

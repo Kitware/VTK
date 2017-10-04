@@ -154,8 +154,8 @@ protected:
   int ActiveHandle;
 
 private:
-  vtkSeedRepresentation(const vtkSeedRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSeedRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSeedRepresentation(const vtkSeedRepresentation&) = delete;
+  void operator=(const vtkSeedRepresentation&) = delete;
 };
 
 #endif

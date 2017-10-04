@@ -105,8 +105,8 @@ public:
   size_t RawRGBABufferSize;
 
  private:
-  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeRGBAPass&) VTK_DELETE_FUNCTION;
+  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&) = delete;
+  void operator=(const vtkCompositeRGBAPass&) = delete;
 };
 
 #endif

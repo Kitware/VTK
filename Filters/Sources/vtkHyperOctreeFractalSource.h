@@ -162,8 +162,8 @@ protected:
   double SpanThreshold;
 
 private:
-  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) = delete;
+  void operator=(const vtkHyperOctreeFractalSource&) = delete;
 };
 
 #endif

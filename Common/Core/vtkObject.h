@@ -264,8 +264,8 @@ protected:
   //@}
 
 private:
-  vtkObject(const vtkObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
+  vtkObject(const vtkObject&) = delete;
+  void operator=(const vtkObject&) = delete;
 
   /**
    * Following classes (vtkClassMemberCallbackBase,

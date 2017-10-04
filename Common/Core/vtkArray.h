@@ -243,8 +243,8 @@ protected:
   ~vtkArray() override;
 
 private:
-  vtkArray(const vtkArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArray&) VTK_DELETE_FUNCTION;
+  vtkArray(const vtkArray&) = delete;
+  void operator=(const vtkArray&) = delete;
 
   /**
    * Stores the array name.

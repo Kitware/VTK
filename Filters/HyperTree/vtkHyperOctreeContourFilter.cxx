@@ -150,8 +150,8 @@ protected:
   vtkIdType LastPtId;
   vtkHyperOctreeIdSet *IdSet;
 private:
-  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) = delete;
+  void operator=(const vtkHyperOctreeContourPointsGrabber&) = delete;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);

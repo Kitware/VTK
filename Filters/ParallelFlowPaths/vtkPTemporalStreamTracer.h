@@ -125,8 +125,8 @@ public:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
+  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) = delete;
+  void operator=(const vtkPTemporalStreamTracer&) = delete;
 };
 
 #endif

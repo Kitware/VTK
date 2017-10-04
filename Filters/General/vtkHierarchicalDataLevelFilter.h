@@ -45,8 +45,8 @@ protected:
   ~vtkHierarchicalDataLevelFilter() override;
 
 private:
-  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&) = delete;
+  void operator=(const vtkHierarchicalDataLevelFilter&) = delete;
 };
 
 #endif

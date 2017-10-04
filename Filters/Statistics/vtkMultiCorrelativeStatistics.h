@@ -162,8 +162,8 @@ protected:
   bool MedianAbsoluteDeviation;
 
 private:
-  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
+  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) = delete;
+  void operator = ( const vtkMultiCorrelativeStatistics& ) = delete;
 };
 
 #endif

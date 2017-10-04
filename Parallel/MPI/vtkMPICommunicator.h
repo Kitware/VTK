@@ -351,8 +351,8 @@ protected:
   static int CheckForMPIError(int err);
 
 private:
-  vtkMPICommunicator(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
+  vtkMPICommunicator(const vtkMPICommunicator&) = delete;
+  void operator=(const vtkMPICommunicator&) = delete;
 };
 
 #endif

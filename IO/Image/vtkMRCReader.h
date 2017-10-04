@@ -56,8 +56,8 @@ protected:
   char* FileName;
 
 private:
-  vtkMRCReader(const vtkMRCReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMRCReader&) VTK_DELETE_FUNCTION;
+  vtkMRCReader(const vtkMRCReader&) = delete;
+  void operator=(const vtkMRCReader&) = delete;
   class vtkInternal;
   vtkInternal* Internals;
 

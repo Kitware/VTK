@@ -49,8 +49,8 @@ protected :
                   vtkInformationVector *) override;
 
 private :
-  vtkSMPWarpVector(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
+  vtkSMPWarpVector(const vtkSMPWarpVector&) = delete;
+  void operator=(const vtkSMPWarpVector&) = delete;
 
 };
 

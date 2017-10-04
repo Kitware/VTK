@@ -48,8 +48,8 @@ protected:
   ~vtkType@VTK_TYPE_NAME@Array() override;
 
 private:
-  vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;
+  vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&) = delete;
+  void operator=(const vtkType@VTK_TYPE_NAME@Array&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

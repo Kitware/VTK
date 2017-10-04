@@ -76,8 +76,8 @@ private:
   QPointer<QTableView> View;
   vtkQtAnnotationLayersModelAdapter* Adapter;
 
-  vtkQtAnnotationView(const vtkQtAnnotationView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtAnnotationView&) VTK_DELETE_FUNCTION;
+  vtkQtAnnotationView(const vtkQtAnnotationView&) = delete;
+  void operator=(const vtkQtAnnotationView&) = delete;
 
 };
 

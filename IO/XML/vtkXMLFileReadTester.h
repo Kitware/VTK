@@ -76,8 +76,8 @@ protected:
   vtkSetStringMacro(FileVersion);
 
 private:
-  vtkXMLFileReadTester(const vtkXMLFileReadTester&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLFileReadTester&) VTK_DELETE_FUNCTION;
+  vtkXMLFileReadTester(const vtkXMLFileReadTester&) = delete;
+  void operator=(const vtkXMLFileReadTester&) = delete;
 };
 
 #endif

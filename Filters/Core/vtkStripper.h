@@ -139,8 +139,8 @@ protected:
   int JoinContiguousSegments;
 
 private:
-  vtkStripper(const vtkStripper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStripper&) VTK_DELETE_FUNCTION;
+  vtkStripper(const vtkStripper&) = delete;
+  void operator=(const vtkStripper&) = delete;
 };
 
 #endif

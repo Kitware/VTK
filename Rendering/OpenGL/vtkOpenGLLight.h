@@ -45,8 +45,8 @@ protected:
   ~vtkOpenGLLight() override {}
 
 private:
-  vtkOpenGLLight(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
+  vtkOpenGLLight(const vtkOpenGLLight&) = delete;
+  void operator=(const vtkOpenGLLight&) = delete;
 };
 
 #endif

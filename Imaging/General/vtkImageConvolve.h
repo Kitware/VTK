@@ -109,8 +109,8 @@ protected:
   int KernelSize[3];
   double Kernel[343];
 private:
-  vtkImageConvolve(const vtkImageConvolve&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageConvolve&) VTK_DELETE_FUNCTION;
+  vtkImageConvolve(const vtkImageConvolve&) = delete;
+  void operator=(const vtkImageConvolve&) = delete;
 };
 
 #endif

@@ -53,7 +53,7 @@ protected:
   ~vtkOSPRayVolumeNode();
 
 private:
-  vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayVolumeNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&) = delete;
+  void operator=(const vtkOSPRayVolumeNode&) = delete;
 };
 #endif

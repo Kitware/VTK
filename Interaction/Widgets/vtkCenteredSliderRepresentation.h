@@ -199,8 +199,8 @@ private:
   double TubeSize;
 
   vtkCenteredSliderRepresentation
-    (const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
+    (const vtkCenteredSliderRepresentation&) = delete;
+  void operator=(const vtkCenteredSliderRepresentation&) = delete;
 };
 
 #endif

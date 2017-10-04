@@ -213,8 +213,8 @@ protected:
                           vtkInformationVector *) override;
 
 private:
-  vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageThresholdConnectivity&) VTK_DELETE_FUNCTION;
+  vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&) = delete;
+  void operator=(const vtkImageThresholdConnectivity&) = delete;
 };
 
 #endif

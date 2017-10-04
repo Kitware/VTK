@@ -71,8 +71,8 @@ protected:
   int FieldType;
 
 private:
-  vtkDataObjectToTable(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
+  vtkDataObjectToTable(const vtkDataObjectToTable&) = delete;
+  void operator=(const vtkDataObjectToTable&) = delete;
 };
 
 #endif

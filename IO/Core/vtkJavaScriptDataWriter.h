@@ -101,8 +101,8 @@ protected:
   bool IncludeFieldNames;
   ostream* OutputStream;
 private:
-  vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJavaScriptDataWriter&) VTK_DELETE_FUNCTION;
+  vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) = delete;
+  void operator=(const vtkJavaScriptDataWriter&) = delete;
 
 };
 

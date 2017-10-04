@@ -115,8 +115,8 @@ protected:
 
   void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
 private:
-  vtkImageReader(const vtkImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader&) VTK_DELETE_FUNCTION;
+  vtkImageReader(const vtkImageReader&) = delete;
+  void operator=(const vtkImageReader&) = delete;
 };
 
 #endif

@@ -76,8 +76,8 @@ protected:
   double HoleSize;
 
 private:
-  vtkFillHolesFilter(const vtkFillHolesFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFillHolesFilter&) VTK_DELETE_FUNCTION;
+  vtkFillHolesFilter(const vtkFillHolesFilter&) = delete;
+  void operator=(const vtkFillHolesFilter&) = delete;
 };
 
 #endif

@@ -296,8 +296,8 @@ protected:
   // which eigenvector to use as integration vector field
   int IntegrationEigenvector;
 private:
-  vtkHyperStreamline(const vtkHyperStreamline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperStreamline&) VTK_DELETE_FUNCTION;
+  vtkHyperStreamline(const vtkHyperStreamline&) = delete;
+  void operator=(const vtkHyperStreamline&) = delete;
 };
 
 #endif

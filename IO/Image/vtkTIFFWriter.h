@@ -81,8 +81,8 @@ protected:
   double YResolution;
 
 private:
-  vtkTIFFWriter(const vtkTIFFWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTIFFWriter&) VTK_DELETE_FUNCTION;
+  vtkTIFFWriter(const vtkTIFFWriter&) = delete;
+  void operator=(const vtkTIFFWriter&) = delete;
 
   template<typename T> void WriteVolume(T *buffer);
 };

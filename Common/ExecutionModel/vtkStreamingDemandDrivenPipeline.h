@@ -323,8 +323,8 @@ protected:
   int LastPropogateUpdateExtentShortCircuited;
 
 private:
-  vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&) = delete;
+  void operator=(const vtkStreamingDemandDrivenPipeline&) = delete;
 };
 
 #endif

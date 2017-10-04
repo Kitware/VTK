@@ -123,8 +123,8 @@ protected:
   int ComputeScalars;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkMarchingCubes(const vtkMarchingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMarchingCubes&) VTK_DELETE_FUNCTION;
+  vtkMarchingCubes(const vtkMarchingCubes&) = delete;
+  void operator=(const vtkMarchingCubes&) = delete;
 };
 
 /**

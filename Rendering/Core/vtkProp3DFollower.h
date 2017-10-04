@@ -131,8 +131,8 @@ protected:
   vtkMatrix4x4 *InternalMatrix;
 
 private:
-  vtkProp3DFollower(const vtkProp3DFollower&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp3DFollower&) VTK_DELETE_FUNCTION;
+  vtkProp3DFollower(const vtkProp3DFollower&) = delete;
+  void operator=(const vtkProp3DFollower&) = delete;
 };
 
 #endif

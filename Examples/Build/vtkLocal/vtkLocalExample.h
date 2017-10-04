@@ -28,8 +28,8 @@ protected:
   ~vtkLocalExample() override;
 
 private:
-  vtkLocalExample(const vtkLocalExample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLocalExample&) VTK_DELETE_FUNCTION;
+  vtkLocalExample(const vtkLocalExample&) = delete;
+  void operator=(const vtkLocalExample&) = delete;
 };
 
 #endif

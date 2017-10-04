@@ -198,8 +198,8 @@ protected:
   vtkSmartPointer<vtkIdTypeArray> Selection;
 
 private:
-  vtkPlot3D(const vtkPlot3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlot3D &) VTK_DELETE_FUNCTION;
+  vtkPlot3D(const vtkPlot3D &) = delete;
+  void operator=(const vtkPlot3D &) = delete;
 
 };
 

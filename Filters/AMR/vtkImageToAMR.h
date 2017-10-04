@@ -86,8 +86,8 @@ protected:
 
 
 private:
-  vtkImageToAMR(const vtkImageToAMR&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToAMR&) VTK_DELETE_FUNCTION;
+  vtkImageToAMR(const vtkImageToAMR&) = delete;
+  void operator=(const vtkImageToAMR&) = delete;
 
 };
 

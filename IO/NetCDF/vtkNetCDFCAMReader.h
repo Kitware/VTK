@@ -144,8 +144,8 @@ protected:
 
 
 private:
-  vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
+  vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) = delete;
+  void operator=(const vtkNetCDFCAMReader&) = delete;
 
   //@{
   /**

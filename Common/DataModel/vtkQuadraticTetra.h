@@ -158,8 +158,8 @@ protected:
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkQuadraticTetra(const vtkQuadraticTetra&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticTetra&) VTK_DELETE_FUNCTION;
+  vtkQuadraticTetra(const vtkQuadraticTetra&) = delete;
+  void operator=(const vtkQuadraticTetra&) = delete;
 };
 
 #endif

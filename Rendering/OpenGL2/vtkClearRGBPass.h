@@ -65,8 +65,8 @@ public:
   double Background[3];
 
  private:
-  vtkClearRGBPass(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
+  vtkClearRGBPass(const vtkClearRGBPass&) = delete;
+  void operator=(const vtkClearRGBPass&) = delete;
 };
 
 #endif

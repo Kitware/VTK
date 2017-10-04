@@ -81,8 +81,8 @@ protected:
   bool UpdateLayout(vtkContext2D *painter) override;
 
 private:
-  vtkChartHistogram2D(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
+  vtkChartHistogram2D(const vtkChartHistogram2D &) = delete;
+  void operator=(const vtkChartHistogram2D &) = delete;
 };
 
 #endif //vtkChartHistogram2D_h

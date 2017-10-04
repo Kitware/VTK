@@ -152,8 +152,8 @@ protected:
   void ReportReferences(vtkGarbageCollector *collector) override;
 
 private:
-  vtkVisibilitySort(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
+  vtkVisibilitySort(const vtkVisibilitySort &) = delete;
+  void operator=(const vtkVisibilitySort &) = delete;
 };
 
 #endif //vtkVisibilitySort_h

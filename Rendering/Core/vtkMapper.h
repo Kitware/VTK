@@ -624,8 +624,8 @@ protected:
   double CoincidentPointOffset;
 
 private:
-  vtkMapper(const vtkMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapper&) VTK_DELETE_FUNCTION;
+  vtkMapper(const vtkMapper&) = delete;
+  void operator=(const vtkMapper&) = delete;
 };
 
 #endif

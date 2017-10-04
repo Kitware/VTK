@@ -391,8 +391,8 @@ protected:
   double HandleSizeFactor;
 
 private:
-  vtkPlaneWidget(const vtkPlaneWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlaneWidget&) VTK_DELETE_FUNCTION;
+  vtkPlaneWidget(const vtkPlaneWidget&) = delete;
+  void operator=(const vtkPlaneWidget&) = delete;
 };
 
 #endif

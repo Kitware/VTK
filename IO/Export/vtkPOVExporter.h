@@ -121,8 +121,8 @@ protected:
     FILE *FilePtr;
 
 private:
-    vtkPOVExporter(const vtkPOVExporter&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkPOVExporter&) VTK_DELETE_FUNCTION;
+    vtkPOVExporter(const vtkPOVExporter&) = delete;
+    void operator=(const vtkPOVExporter&) = delete;
 
     vtkPOVInternals *Internals;
 };

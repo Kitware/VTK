@@ -84,8 +84,8 @@ protected:
   int OutputField; // which output field
 
 private:
-  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeDataObjectFilter&) VTK_DELETE_FUNCTION;
+  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&) = delete;
+  void operator=(const vtkMergeDataObjectFilter&) = delete;
 };
 
 #endif

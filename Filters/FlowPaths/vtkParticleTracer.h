@@ -41,8 +41,8 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer: public vtkParticleTracerBase
  protected:
   vtkParticleTracer();
   ~vtkParticleTracer() override{}
-  vtkParticleTracer(const vtkParticleTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParticleTracer&) VTK_DELETE_FUNCTION;
+  vtkParticleTracer(const vtkParticleTracer&) = delete;
+  void operator=(const vtkParticleTracer&) = delete;
   int OutputParticles(vtkPolyData* poly) override;
 };
 

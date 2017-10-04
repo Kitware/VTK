@@ -54,8 +54,8 @@ protected:
   //@}
 
 private:
-  vtkXGPUInfoList(const vtkXGPUInfoList&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXGPUInfoList&) VTK_DELETE_FUNCTION;
+  vtkXGPUInfoList(const vtkXGPUInfoList&) = delete;
+  void operator=(const vtkXGPUInfoList&) = delete;
 };
 
 #endif

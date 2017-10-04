@@ -59,8 +59,8 @@ public:
   ~vtkLightsPass() override;
 
  private:
-  vtkLightsPass(const vtkLightsPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightsPass&) VTK_DELETE_FUNCTION;
+  vtkLightsPass(const vtkLightsPass&) = delete;
+  void operator=(const vtkLightsPass&) = delete;
 };
 
 #endif

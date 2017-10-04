@@ -48,8 +48,8 @@ protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() override {}
 private:
-  vtkStructuredPoints(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
+  vtkStructuredPoints(const vtkStructuredPoints&) = delete;
+  void operator=(const vtkStructuredPoints&) = delete;
 };
 
 #endif

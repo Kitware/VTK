@@ -303,8 +303,8 @@ protected:
   bool LogY;
 
 private:
-  vtkPlotBar(const vtkPlotBar &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotBar &) VTK_DELETE_FUNCTION;
+  vtkPlotBar(const vtkPlotBar &) = delete;
+  void operator=(const vtkPlotBar &) = delete;
 
   vtkPlotBarPrivate *Private;
 

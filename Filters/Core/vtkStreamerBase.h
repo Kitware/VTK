@@ -89,8 +89,8 @@ protected:
   unsigned int CurrentIndex;
 
 private:
-  vtkStreamerBase(const vtkStreamerBase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamerBase &) VTK_DELETE_FUNCTION;
+  vtkStreamerBase(const vtkStreamerBase &) = delete;
+  void operator=(const vtkStreamerBase &) = delete;
 
 };
 

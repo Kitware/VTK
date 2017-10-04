@@ -144,8 +144,8 @@ private:
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
 
-  vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostPrimMinimumSpanningTree&) VTK_DELETE_FUNCTION;
+  vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&) = delete;
+  void operator=(const vtkBoostPrimMinimumSpanningTree&) = delete;
 };
 
 #endif

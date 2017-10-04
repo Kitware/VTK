@@ -95,8 +95,8 @@ protected:
   vtkRenderLargeImage2DHelperClass *StoredData;
 
 private:
-  vtkRenderLargeImage(const vtkRenderLargeImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderLargeImage&) VTK_DELETE_FUNCTION;
+  vtkRenderLargeImage(const vtkRenderLargeImage&) = delete;
+  void operator=(const vtkRenderLargeImage&) = delete;
 };
 
 #endif

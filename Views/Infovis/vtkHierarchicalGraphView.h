@@ -142,8 +142,8 @@ protected:
   //@}
 
 private:
-  vtkHierarchicalGraphView(const vtkHierarchicalGraphView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalGraphView&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalGraphView(const vtkHierarchicalGraphView&) = delete;
+  void operator=(const vtkHierarchicalGraphView&) = delete;
 };
 
 #endif

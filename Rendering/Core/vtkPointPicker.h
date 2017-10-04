@@ -82,8 +82,8 @@ protected:
                           double ray[3], double rayFactor, double tol,
                           double& tMin, double& distMin);
 private:
-  vtkPointPicker(const vtkPointPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointPicker&) VTK_DELETE_FUNCTION;
+  vtkPointPicker(const vtkPointPicker&) = delete;
+  void operator=(const vtkPointPicker&) = delete;
 };
 
 #endif

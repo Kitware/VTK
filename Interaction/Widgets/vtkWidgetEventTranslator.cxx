@@ -62,7 +62,7 @@ struct EventItem {
   }
 
 private:
-  EventItem() VTK_DELETE_FUNCTION;
+  EventItem() = delete;
 };
 
 // A list of events

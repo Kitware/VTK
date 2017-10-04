@@ -63,8 +63,8 @@ protected:
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
+  vtkCompositeRenderManager(const vtkCompositeRenderManager &) = delete;
+  void operator=(const vtkCompositeRenderManager &) = delete;
 };
 
 #endif //vtkCompositeRenderManager_h

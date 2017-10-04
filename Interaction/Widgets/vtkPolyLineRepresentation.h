@@ -93,8 +93,8 @@ protected:
   void InsertHandleOnLine(double* pos) override;
 
 private:
-  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) = delete;
+  void operator=(const vtkPolyLineRepresentation&) = delete;
 
 };
 

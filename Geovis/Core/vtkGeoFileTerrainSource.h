@@ -71,8 +71,8 @@ protected:
   bool ReadModel(int level, int id, vtkGeoTerrainNode* node);
 
 private:
-  vtkGeoFileTerrainSource(const vtkGeoFileTerrainSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoFileTerrainSource&) VTK_DELETE_FUNCTION;
+  vtkGeoFileTerrainSource(const vtkGeoFileTerrainSource&) = delete;
+  void operator=(const vtkGeoFileTerrainSource&) = delete;
 
   char* Path;
 };

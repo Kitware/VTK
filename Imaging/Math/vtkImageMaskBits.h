@@ -72,8 +72,8 @@ protected:
   unsigned int Masks[4];
   int Operation;
 private:
-  vtkImageMaskBits(const vtkImageMaskBits&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMaskBits&) VTK_DELETE_FUNCTION;
+  vtkImageMaskBits(const vtkImageMaskBits&) = delete;
+  void operator=(const vtkImageMaskBits&) = delete;
 };
 
 #endif

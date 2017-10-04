@@ -118,8 +118,8 @@ protected:
   vtkRandomSequence* RandomSequence;
 
 private:
-  vtkPointSource(const vtkPointSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSource&) VTK_DELETE_FUNCTION;
+  vtkPointSource(const vtkPointSource&) = delete;
+  void operator=(const vtkPointSource&) = delete;
 };
 
 #endif

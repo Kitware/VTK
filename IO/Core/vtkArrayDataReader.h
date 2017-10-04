@@ -99,8 +99,8 @@ protected:
   bool ReadFromInputString;
 
 private:
-  vtkArrayDataReader(const vtkArrayDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayDataReader&) VTK_DELETE_FUNCTION;
+  vtkArrayDataReader(const vtkArrayDataReader&) = delete;
+  void operator=(const vtkArrayDataReader&) = delete;
 };
 
 #endif

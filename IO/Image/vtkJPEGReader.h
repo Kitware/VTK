@@ -67,8 +67,8 @@ protected:
   void ExecuteInformation() override;
   void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 private:
-  vtkJPEGReader(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
+  vtkJPEGReader(const vtkJPEGReader&) = delete;
+  void operator=(const vtkJPEGReader&) = delete;
 };
 #endif
 

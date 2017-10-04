@@ -275,8 +275,8 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
+  vtkObjectFactory(const vtkObjectFactory&) = delete;
+  void operator=(const vtkObjectFactory&) = delete;
 };
 
 // Implementation detail for Schwartz counter idiom.
@@ -287,8 +287,8 @@ public:
   ~vtkObjectFactoryRegistryCleanup();
 
 private:
-  vtkObjectFactoryRegistryCleanup(const vtkObjectFactoryRegistryCleanup& other) VTK_DELETE_FUNCTION;
-  vtkObjectFactoryRegistryCleanup& operator=(const vtkObjectFactoryRegistryCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkObjectFactoryRegistryCleanup(const vtkObjectFactoryRegistryCleanup& other) = delete;
+  vtkObjectFactoryRegistryCleanup& operator=(const vtkObjectFactoryRegistryCleanup& rhs) = delete;
 };
 static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 

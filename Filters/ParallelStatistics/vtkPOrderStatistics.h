@@ -100,8 +100,8 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
 
   vtkMultiProcessController* Controller;
  private:
-  vtkPOrderStatistics(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
+  vtkPOrderStatistics(const vtkPOrderStatistics&) = delete;
+  void operator=(const vtkPOrderStatistics&) = delete;
 };
 
 #endif

@@ -129,8 +129,8 @@ protected:
   bool ReducePeriodNumbers;
 
 private:
-  vtkPeriodicFilter(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
+  vtkPeriodicFilter(const vtkPeriodicFilter&) = delete;
+  void operator=(const vtkPeriodicFilter&) = delete;
 
   int IterationMode;
   int NumberOfPeriods;      // User provided number of periods

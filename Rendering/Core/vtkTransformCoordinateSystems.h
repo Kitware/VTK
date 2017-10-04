@@ -111,8 +111,8 @@ protected:
   vtkCoordinate* TransformCoordinate;
 
 private:
-  vtkTransformCoordinateSystems(const vtkTransformCoordinateSystems&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformCoordinateSystems&) VTK_DELETE_FUNCTION;
+  vtkTransformCoordinateSystems(const vtkTransformCoordinateSystems&) = delete;
+  void operator=(const vtkTransformCoordinateSystems&) = delete;
 };
 
 #endif

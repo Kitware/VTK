@@ -166,8 +166,8 @@ protected:
   vtkIdType MaximumHistogramSize;
 
 private:
-  vtkOrderStatistics(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
+  vtkOrderStatistics(const vtkOrderStatistics&) = delete;
+  void operator=(const vtkOrderStatistics&) = delete;
 };
 
 #endif

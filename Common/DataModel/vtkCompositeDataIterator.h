@@ -123,8 +123,8 @@ protected:
   vtkCompositeDataSet* DataSet;
 
 private:
-  vtkCompositeDataIterator(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataIterator(const vtkCompositeDataIterator&) = delete;
+  void operator=(const vtkCompositeDataIterator&) = delete;
 
 };
 

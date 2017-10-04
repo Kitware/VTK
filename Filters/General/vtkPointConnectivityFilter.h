@@ -52,8 +52,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkPointConnectivityFilter(const vtkPointConnectivityFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointConnectivityFilter&) VTK_DELETE_FUNCTION;
+  vtkPointConnectivityFilter(const vtkPointConnectivityFilter&) = delete;
+  void operator=(const vtkPointConnectivityFilter&) = delete;
 };
 
 #endif

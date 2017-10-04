@@ -171,8 +171,8 @@ protected:
   int AllowHandleResize;
 
 private:
-  vtkHandleWidget(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
+  vtkHandleWidget(const vtkHandleWidget&) = delete;
+  void operator=(const vtkHandleWidget&) = delete;
 };
 
 #endif

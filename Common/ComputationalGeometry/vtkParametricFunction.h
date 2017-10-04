@@ -262,8 +262,8 @@ protected:
   int DerivativesAvailable;
 
 private:
-  vtkParametricFunction(const vtkParametricFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParametricFunction&) VTK_DELETE_FUNCTION;
+  vtkParametricFunction(const vtkParametricFunction&) = delete;
+  void operator=(const vtkParametricFunction&) = delete;
 
 };
 

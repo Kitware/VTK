@@ -160,8 +160,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRTAnalyticSource(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
+  vtkRTAnalyticSource(const vtkRTAnalyticSource&) = delete;
+  void operator=(const vtkRTAnalyticSource&) = delete;
 };
 
 

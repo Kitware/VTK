@@ -175,8 +175,8 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   std::map<vtkIdType,double> PerBlockAngles;
 
  private:
-  vtkQuadRotationalExtrusionFilter(const vtkQuadRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
+  vtkQuadRotationalExtrusionFilter(const vtkQuadRotationalExtrusionFilter&) = delete;
+  void operator=(const vtkQuadRotationalExtrusionFilter&) = delete;
 };
 
 #endif

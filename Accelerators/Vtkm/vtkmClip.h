@@ -80,8 +80,8 @@ protected:
   tovtkm::ImplicitFunctionConverter ClipFunctionConverter;
 
 private:
-  vtkmClip(const vtkmClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmClip&) VTK_DELETE_FUNCTION;
+  vtkmClip(const vtkmClip&) = delete;
+  void operator=(const vtkmClip&) = delete;
 };
 
 #endif // vtkmClip_h

@@ -61,8 +61,8 @@ namespace
     ~vtkUnicodeStringOutputIterator() override;
 
   private:
-    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) VTK_DELETE_FUNCTION;
-    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) VTK_DELETE_FUNCTION;
+    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) = delete;
+    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) = delete;
 
     vtkUnicodeString& OutputString;
     unsigned int StringPosition;

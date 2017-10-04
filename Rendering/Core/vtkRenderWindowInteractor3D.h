@@ -280,8 +280,8 @@ protected:
   void RecognizeGesture(vtkCommand::EventIds) override;
 
 private:
-  vtkRenderWindowInteractor3D(const vtkRenderWindowInteractor3D&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkRenderWindowInteractor3D&) VTK_DELETE_FUNCTION;  // Not implemented.
+  vtkRenderWindowInteractor3D(const vtkRenderWindowInteractor3D&) = delete;  // Not implemented.
+  void operator=(const vtkRenderWindowInteractor3D&) = delete;  // Not implemented.
 };
 
 #endif

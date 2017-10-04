@@ -900,8 +900,8 @@ protected:
   vtkCommand::EventIds CurrentGesture;
 
 private:
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) = delete;
+  void operator=(const vtkRenderWindowInteractor&) = delete;
 };
 
 #endif

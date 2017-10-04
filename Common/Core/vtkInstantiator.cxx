@@ -64,8 +64,8 @@ protected:
   unsigned long ClassNamesSize;
 
 private:
-  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
+  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&) = delete;
+  void operator=(const vtkInstantiatorHashTable&) = delete;
 };
 
 //----------------------------------------------------------------------------

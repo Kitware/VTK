@@ -114,8 +114,8 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkUGFacetReader(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
+  vtkUGFacetReader(const vtkUGFacetReader&) = delete;
+  void operator=(const vtkUGFacetReader&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

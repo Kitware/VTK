@@ -313,8 +313,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkTableBasedClipDataSet( const vtkTableBasedClipDataSet &) VTK_DELETE_FUNCTION;
-  void operator= ( const vtkTableBasedClipDataSet & ) VTK_DELETE_FUNCTION;
+  vtkTableBasedClipDataSet( const vtkTableBasedClipDataSet &) = delete;
+  void operator= ( const vtkTableBasedClipDataSet & ) = delete;
 };
 
 #endif

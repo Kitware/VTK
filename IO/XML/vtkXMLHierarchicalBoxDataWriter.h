@@ -45,8 +45,8 @@ protected:
   ~vtkXMLHierarchicalBoxDataWriter() override;
 
 private:
-  vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&) = delete;
+  void operator=(const vtkXMLHierarchicalBoxDataWriter&) = delete;
 
 };
 

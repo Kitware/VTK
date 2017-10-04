@@ -159,8 +159,8 @@ protected:
   bool HaveApplePrimitiveIdBugChecked;
 
 private:
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderer&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&) = delete;
+  void operator=(const vtkOpenGLRenderer&) = delete;
 };
 
 #endif

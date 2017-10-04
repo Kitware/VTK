@@ -106,8 +106,8 @@ protected:
   vtkSmartPointer<vtkGeoTreeNode> Oldest;
 
 private:
-  vtkGeoTreeNodeCache(const vtkGeoTreeNodeCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTreeNodeCache&) VTK_DELETE_FUNCTION;
+  vtkGeoTreeNodeCache(const vtkGeoTreeNodeCache&) = delete;
+  void operator=(const vtkGeoTreeNodeCache&) = delete;
 };
 
 #endif

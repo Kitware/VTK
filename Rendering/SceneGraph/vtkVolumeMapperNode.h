@@ -46,8 +46,8 @@ protected:
   ~vtkVolumeMapperNode();
 
  private:
-  vtkVolumeMapperNode(const vtkVolumeMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeMapperNode&) VTK_DELETE_FUNCTION;
+  vtkVolumeMapperNode(const vtkVolumeMapperNode&) = delete;
+  void operator=(const vtkVolumeMapperNode&) = delete;
 };
 
 #endif

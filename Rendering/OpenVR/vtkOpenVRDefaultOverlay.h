@@ -43,8 +43,8 @@ protected:
   virtual void SetupSpots();
 
 private:
-  vtkOpenVRDefaultOverlay(const vtkOpenVRDefaultOverlay&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRDefaultOverlay&) VTK_DELETE_FUNCTION;
+  vtkOpenVRDefaultOverlay(const vtkOpenVRDefaultOverlay&) = delete;
+  void operator=(const vtkOpenVRDefaultOverlay&) = delete;
 };
 
 #endif

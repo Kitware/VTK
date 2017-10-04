@@ -180,8 +180,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkSQLGraphReader(const vtkSQLGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLGraphReader&) VTK_DELETE_FUNCTION;
+  vtkSQLGraphReader(const vtkSQLGraphReader&) = delete;
+  void operator=(const vtkSQLGraphReader&) = delete;
 };
 
 #endif

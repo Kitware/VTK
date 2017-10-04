@@ -75,8 +75,8 @@ protected:
                           vtkInformationVector* outputVector) override;
 
 private:
-  vtkJSONImageWriter(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
+  vtkJSONImageWriter(const vtkJSONImageWriter&) = delete;
+  void operator=(const vtkJSONImageWriter&) = delete;
 };
 
 #endif

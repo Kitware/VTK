@@ -408,8 +408,8 @@ protected:
   int OutCellCount;
 
 private:
-  vtkQuadricClustering(const vtkQuadricClustering&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadricClustering&) VTK_DELETE_FUNCTION;
+  vtkQuadricClustering(const vtkQuadricClustering&) = delete;
+  void operator=(const vtkQuadricClustering&) = delete;
 };
 
 #endif

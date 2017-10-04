@@ -50,8 +50,8 @@ protected:
                        int ext[6], int id) override;
 
 private:
-  vtkImageDivergence(const vtkImageDivergence&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDivergence&) VTK_DELETE_FUNCTION;
+  vtkImageDivergence(const vtkImageDivergence&) = delete;
+  void operator=(const vtkImageDivergence&) = delete;
 };
 
 #endif

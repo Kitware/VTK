@@ -187,8 +187,8 @@ protected:
   ~vtkLine() override {}
 
 private:
-  vtkLine(const vtkLine&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLine&) VTK_DELETE_FUNCTION;
+  vtkLine(const vtkLine&) = delete;
+  void operator=(const vtkLine&) = delete;
 };
 
 //----------------------------------------------------------------------------

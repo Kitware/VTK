@@ -226,8 +226,8 @@ protected:
   virtual vtkTable* GetOutlierData();
 
 private:
-  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) = delete;
+  void operator=(const vtkParallelCoordinatesHistogramRepresentation&) = delete;
 };
 
 #endif

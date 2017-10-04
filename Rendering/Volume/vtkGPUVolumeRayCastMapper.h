@@ -486,8 +486,8 @@ protected:
   vtkImageData* LastInput;
 
 private:
-  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) = delete;
+  void operator=(const vtkGPUVolumeRayCastMapper&) = delete;
 };
 
 #endif

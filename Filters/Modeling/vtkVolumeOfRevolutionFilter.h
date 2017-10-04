@@ -110,8 +110,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkVolumeOfRevolutionFilter(const vtkVolumeOfRevolutionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeOfRevolutionFilter&) VTK_DELETE_FUNCTION;
+  vtkVolumeOfRevolutionFilter(const vtkVolumeOfRevolutionFilter&) = delete;
+  void operator=(const vtkVolumeOfRevolutionFilter&) = delete;
 };
 
 #endif

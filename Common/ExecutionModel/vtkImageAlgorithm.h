@@ -180,8 +180,8 @@ protected:
   //@}
 
 private:
-  vtkImageAlgorithm(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkImageAlgorithm(const vtkImageAlgorithm&) = delete;
+  void operator=(const vtkImageAlgorithm&) = delete;
 };
 
 #endif

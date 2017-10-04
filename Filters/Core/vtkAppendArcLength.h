@@ -52,8 +52,8 @@ protected:
     vtkInformationVector* outputVector) override;
 
 private:
-  vtkAppendArcLength(const vtkAppendArcLength&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendArcLength&) VTK_DELETE_FUNCTION;
+  vtkAppendArcLength(const vtkAppendArcLength&) = delete;
+  void operator=(const vtkAppendArcLength&) = delete;
   //@}
 };
 

@@ -317,8 +317,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphMapper(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
+  vtkGraphMapper(const vtkGraphMapper&) = delete;
+  void operator=(const vtkGraphMapper&) = delete;
 
   // Helper function
   vtkPolyData* CreateCircle(bool filled);

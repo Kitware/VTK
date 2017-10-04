@@ -323,8 +323,8 @@ protected:
   vtkTextureUnitManager *TextureUnitManager;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;
+  void operator=(const vtkOpenGLRenderWindow&) = delete;
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);
   void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);

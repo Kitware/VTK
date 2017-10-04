@@ -607,8 +607,8 @@ private:
   double* GetTupleN(vtkIdType i, int n);
 
 private:
-  vtkDataArray(const vtkDataArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataArray&) VTK_DELETE_FUNCTION;
+  vtkDataArray(const vtkDataArray&) = delete;
+  void operator=(const vtkDataArray&) = delete;
 };
 
 //------------------------------------------------------------------------------

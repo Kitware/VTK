@@ -205,8 +205,8 @@ protected:
                                 vtkInformationVector* outputVector) override;
 
 private:
-  vtkRandomGraphSource(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;
+  vtkRandomGraphSource(const vtkRandomGraphSource&) = delete;
+  void operator=(const vtkRandomGraphSource&) = delete;
 };
 
 #endif

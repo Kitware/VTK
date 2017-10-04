@@ -134,8 +134,8 @@ protected:
   int Adaptive;
 
 private:
-  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInitialValueProblemSolver&) VTK_DELETE_FUNCTION;
+  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) = delete;
+  void operator=(const vtkInitialValueProblemSolver&) = delete;
 };
 
 #endif

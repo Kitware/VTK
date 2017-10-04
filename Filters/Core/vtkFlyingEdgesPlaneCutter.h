@@ -127,8 +127,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
+  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) = delete;
+  void operator=(const vtkFlyingEdgesPlaneCutter&) = delete;
 };
 
 #endif

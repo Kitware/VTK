@@ -178,8 +178,8 @@ protected:
   virtual bool ReallocateTuples(vtkIdType numTuples);
 
 private:
-  vtkTypedDataArray(const vtkTypedDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTypedDataArray &) VTK_DELETE_FUNCTION;
+  vtkTypedDataArray(const vtkTypedDataArray &) = delete;
+  void operator=(const vtkTypedDataArray &) = delete;
 
   friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };

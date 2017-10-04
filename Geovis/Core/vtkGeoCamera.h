@@ -241,8 +241,8 @@ protected:
   double Position[3];
 
 private:
-  vtkGeoCamera(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
+  vtkGeoCamera(const vtkGeoCamera&) = delete;
+  void operator=(const vtkGeoCamera&) = delete;
 };
 
 #endif

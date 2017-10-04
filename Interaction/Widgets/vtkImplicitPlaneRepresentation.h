@@ -523,8 +523,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPlaneRepresentation&) VTK_DELETE_FUNCTION;
+  vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&) = delete;
+  void operator=(const vtkImplicitPlaneRepresentation&) = delete;
 };
 
 #endif

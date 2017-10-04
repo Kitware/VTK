@@ -74,8 +74,8 @@ protected:
 
   int PassAttributeData;
 private:
-  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAttributeDataToFieldDataFilter&) VTK_DELETE_FUNCTION;
+  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&) = delete;
+  void operator=(const vtkAttributeDataToFieldDataFilter&) = delete;
 };
 
 #endif

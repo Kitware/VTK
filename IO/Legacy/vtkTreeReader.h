@@ -67,8 +67,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkTreeReader(const vtkTreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeReader&) VTK_DELETE_FUNCTION;
+  vtkTreeReader(const vtkTreeReader&) = delete;
+  void operator=(const vtkTreeReader&) = delete;
 };
 
 #endif

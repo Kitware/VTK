@@ -234,8 +234,8 @@ protected:
   vtkLine *Line;
 
 private:
-  vtkTriangle(const vtkTriangle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangle&) VTK_DELETE_FUNCTION;
+  vtkTriangle(const vtkTriangle&) = delete;
+  void operator=(const vtkTriangle&) = delete;
 };
 
 //----------------------------------------------------------------------------

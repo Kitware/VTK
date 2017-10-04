@@ -77,8 +77,8 @@ protected:
   vtkFloatArray *ZBuffer;
 
 private:
-  vtkWindowNode(const vtkWindowNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindowNode&) VTK_DELETE_FUNCTION;
+  vtkWindowNode(const vtkWindowNode&) = delete;
+  void operator=(const vtkWindowNode&) = delete;
 };
 
 #endif

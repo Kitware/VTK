@@ -208,8 +208,8 @@ protected:
   bool UseArraysForVolume; //if both mass and density arrays are present
 
 private:
-  vtkSPHKernel(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
+  vtkSPHKernel(const vtkSPHKernel&) = delete;
+  void operator=(const vtkSPHKernel&) = delete;
 };
 
 #endif

@@ -57,8 +57,8 @@ protected:
   vtkSelection *Selection;
 
 private:
-  vtkOpenVRHardwarePicker(const vtkOpenVRHardwarePicker&) VTK_DELETE_FUNCTION;// Not implemented.
-  void operator=(const vtkOpenVRHardwarePicker&) VTK_DELETE_FUNCTION;// Not implemented.
+  vtkOpenVRHardwarePicker(const vtkOpenVRHardwarePicker&) = delete;// Not implemented.
+  void operator=(const vtkOpenVRHardwarePicker&) = delete;// Not implemented.
 };
 
 #endif

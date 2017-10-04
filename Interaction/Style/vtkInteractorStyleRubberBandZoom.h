@@ -97,8 +97,8 @@ protected:
   bool UseDollyForPerspectiveProjection;
   vtkUnsignedCharArray *PixelArray;
 private:
-  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) = delete;
+  void operator=(const vtkInteractorStyleRubberBandZoom&) = delete;
 
   /**
    * Adjust the box based on this->LockAspectToViewport and

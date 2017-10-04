@@ -117,8 +117,8 @@ protected:
 
 private:
 
-    vtkCirclePackLayout(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
+    vtkCirclePackLayout(const vtkCirclePackLayout&) = delete;
+    void operator=(const vtkCirclePackLayout&) = delete;
     void prepareSizeArray(vtkDoubleArray* mySizeArray,
                           vtkTree* tree);
 };

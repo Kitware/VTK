@@ -384,8 +384,8 @@ protected:
   int RestrictFlag;
 
 private:
-  vtkLineRepresentation(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkLineRepresentation(const vtkLineRepresentation&) = delete;
+  void operator=(const vtkLineRepresentation&) = delete;
 };
 
 #endif

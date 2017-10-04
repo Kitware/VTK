@@ -63,8 +63,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&) = delete;
+  void operator=(const vtkXMLPImageDataWriter&) = delete;
 };
 
 #endif

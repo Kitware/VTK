@@ -131,8 +131,8 @@ private:
   vtkStringArray *FileNames;    // VTK array of files
 
 private:
-  vtkGlobFileNames(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
+  vtkGlobFileNames(const vtkGlobFileNames&) = delete;
+  void operator=(const vtkGlobFileNames&) = delete;
 };
 
 #endif

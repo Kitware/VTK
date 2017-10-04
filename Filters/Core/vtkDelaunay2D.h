@@ -291,8 +291,8 @@ private:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkDelaunay2D(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;
+  vtkDelaunay2D(const vtkDelaunay2D&) = delete;
+  void operator=(const vtkDelaunay2D&) = delete;
 };
 
 #endif

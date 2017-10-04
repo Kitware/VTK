@@ -70,8 +70,8 @@ private:
   double Color2[3];
 
 private:
- vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) VTK_DELETE_FUNCTION;
- void operator=(const vtkBackgroundColorMonitor&) VTK_DELETE_FUNCTION;
+ vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) = delete;
+ void operator=(const vtkBackgroundColorMonitor&) = delete;
 };
 
 #endif

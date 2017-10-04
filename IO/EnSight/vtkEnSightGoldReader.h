@@ -172,8 +172,8 @@ protected:
   FileOffsetMapInternal *FileOffsets;
 
 private:
-  vtkEnSightGoldReader(const vtkEnSightGoldReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightGoldReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightGoldReader(const vtkEnSightGoldReader&) = delete;
+  void operator=(const vtkEnSightGoldReader&) = delete;
 };
 
 #endif

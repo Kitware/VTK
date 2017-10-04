@@ -124,8 +124,8 @@ protected:
   vtkGDALRasterReaderInternal* Implementation;
 
 private:
-  vtkGDALRasterReader(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
+  vtkGDALRasterReader(const vtkGDALRasterReader&) = delete;
+  void operator=(const vtkGDALRasterReader&) = delete;
 };
 
 #endif // vtkGDALRasterReader_h

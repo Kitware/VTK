@@ -63,8 +63,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImageReader2Collection(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
+  vtkImageReader2Collection(const vtkImageReader2Collection&) = delete;
+  void operator=(const vtkImageReader2Collection&) = delete;
 };
 
 #endif

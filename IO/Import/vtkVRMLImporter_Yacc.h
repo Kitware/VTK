@@ -123,8 +123,8 @@ public:
   typedef unsigned char YY_CHAR;
   typedef int yy_state_type;
 private:
-  vtkVRMLYaccData(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
-  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
+  vtkVRMLYaccData(const vtkVRMLYaccData&) = delete;
+  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) = delete;
 public:
   // Parser variables and functions:
   // Currently-being-define proto.  Prototypes may be nested, so a stack

@@ -60,8 +60,8 @@ protected:
   vtkNew<vtkOpenGLPolyDataMapper> CubeMapper;
 
 private:
-  vtkOpenGLSkybox(const vtkOpenGLSkybox&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLSkybox&) VTK_DELETE_FUNCTION;
+  vtkOpenGLSkybox(const vtkOpenGLSkybox&) = delete;
+  void operator=(const vtkOpenGLSkybox&) = delete;
 };
 
 #endif

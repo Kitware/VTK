@@ -171,8 +171,8 @@ protected:
                           vtkInformationVector *) override;
   double EvaluateSet(double p[4]);
 private:
-  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
+  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) = delete;
+  void operator=(const vtkImageMandelbrotSource&) = delete;
 };
 
 

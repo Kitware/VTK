@@ -69,8 +69,8 @@ protected:
   ~vtkProgressBarWidget() override;
 
 private:
-  vtkProgressBarWidget(const vtkProgressBarWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgressBarWidget&) VTK_DELETE_FUNCTION;
+  vtkProgressBarWidget(const vtkProgressBarWidget&) = delete;
+  void operator=(const vtkProgressBarWidget&) = delete;
 };
 
 #endif

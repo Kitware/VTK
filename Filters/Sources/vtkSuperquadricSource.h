@@ -190,8 +190,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkSuperquadricSource(const vtkSuperquadricSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSuperquadricSource&) VTK_DELETE_FUNCTION;
+  vtkSuperquadricSource(const vtkSuperquadricSource&) = delete;
+  void operator=(const vtkSuperquadricSource&) = delete;
 };
 
 #endif

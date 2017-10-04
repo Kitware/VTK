@@ -220,8 +220,8 @@ private:
   vtkIdList *PointIds;
   vtkIdList *CellIds;
 private:
-  vtkConnectivityFilter(const vtkConnectivityFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConnectivityFilter&) VTK_DELETE_FUNCTION;
+  vtkConnectivityFilter(const vtkConnectivityFilter&) = delete;
+  void operator=(const vtkConnectivityFilter&) = delete;
 };
 
 //@{

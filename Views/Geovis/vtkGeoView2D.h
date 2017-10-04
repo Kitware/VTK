@@ -85,8 +85,8 @@ protected:
   void PrepareForRendering() override;
 
 private:
-  vtkGeoView2D(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
+  vtkGeoView2D(const vtkGeoView2D&) = delete;
+  void operator=(const vtkGeoView2D&) = delete;
 };
 
 #endif

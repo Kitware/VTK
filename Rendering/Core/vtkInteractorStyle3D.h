@@ -127,8 +127,8 @@ protected:
   double DollyMotionFactor;
 
 private:
-  vtkInteractorStyle3D(const vtkInteractorStyle3D&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkInteractorStyle3D&) VTK_DELETE_FUNCTION;  // Not implemented.
+  vtkInteractorStyle3D(const vtkInteractorStyle3D&) = delete;  // Not implemented.
+  void operator=(const vtkInteractorStyle3D&) = delete;  // Not implemented.
 };
 
 #endif

@@ -133,8 +133,8 @@ protected:
   int InterpolationMode;
 
 private:
-  vtkImageInterpolator(const vtkImageInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageInterpolator&) VTK_DELETE_FUNCTION;
+  vtkImageInterpolator(const vtkImageInterpolator&) = delete;
+  void operator=(const vtkImageInterpolator&) = delete;
 };
 
 #endif

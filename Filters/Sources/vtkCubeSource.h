@@ -97,8 +97,8 @@ protected:
   double Center[3];
   int OutputPointsPrecision;
 private:
-  vtkCubeSource(const vtkCubeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCubeSource&) VTK_DELETE_FUNCTION;
+  vtkCubeSource(const vtkCubeSource&) = delete;
+  void operator=(const vtkCubeSource&) = delete;
 };
 
 #endif

@@ -92,8 +92,8 @@ protected:
   ~vtkTextCodecFactory() override;
 
 private:
-  vtkTextCodecFactory(const vtkTextCodecFactory &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextCodecFactory &) VTK_DELETE_FUNCTION;
+  vtkTextCodecFactory(const vtkTextCodecFactory &) = delete;
+  void operator=(const vtkTextCodecFactory &) = delete;
 
   //@{
   /**

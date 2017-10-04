@@ -203,7 +203,7 @@ private:
 
   int ComputeIntersectionsUsingDataBounds;
 
-  vtkBSPIntersections(const vtkBSPIntersections&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBSPIntersections&) VTK_DELETE_FUNCTION;
+  vtkBSPIntersections(const vtkBSPIntersections&) = delete;
+  void operator=(const vtkBSPIntersections&) = delete;
 };
 #endif

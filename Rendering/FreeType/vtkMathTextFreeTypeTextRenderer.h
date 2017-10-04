@@ -93,8 +93,8 @@ protected:
   //@}
 
 private:
-  vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;
+  vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &) = delete;
+  void operator=(const vtkMathTextFreeTypeTextRenderer &) = delete;
 
   vtkFreeTypeTools *FreeTypeTools;
   vtkMathTextUtilities *MathTextUtilities;

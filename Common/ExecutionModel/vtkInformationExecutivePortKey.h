@@ -79,8 +79,8 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
 private:
-  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
+  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) = delete;
+  void operator=(const vtkInformationExecutivePortKey&) = delete;
 };
 
 #endif

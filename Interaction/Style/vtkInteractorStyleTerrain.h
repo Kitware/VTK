@@ -119,8 +119,8 @@ protected:
   double MotionFactor;
 
 private:
-  vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTerrain&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&) = delete;
+  void operator=(const vtkInteractorStyleTerrain&) = delete;
 
 };
 

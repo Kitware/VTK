@@ -113,8 +113,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkAppendFilter(const vtkAppendFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendFilter&) VTK_DELETE_FUNCTION;
+  vtkAppendFilter(const vtkAppendFilter&) = delete;
+  void operator=(const vtkAppendFilter&) = delete;
 
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.

@@ -103,8 +103,8 @@ protected:
                                    vtkMolecule *mol);
 
 private:
-  vtkOpenQubeMoleculeSource(const vtkOpenQubeMoleculeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenQubeMoleculeSource&) VTK_DELETE_FUNCTION;
+  vtkOpenQubeMoleculeSource(const vtkOpenQubeMoleculeSource&) = delete;
+  void operator=(const vtkOpenQubeMoleculeSource&) = delete;
 };
 
 #endif

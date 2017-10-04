@@ -115,7 +115,7 @@ they are system headers.  Do NOT add any #undef lines here.  */
 // RAII class to manage Python threading using GIL (Global Interpreter Lock).
 // GIL is locked at object creation and unlocked at destruction.
 // Note: behaviour of this class depends on VTK_PYTHON_FULL_THREADSAFE.
-class vtkPythonScopeGilEnsurer 
+class vtkPythonScopeGilEnsurer
 {
 public:
   // Description:
@@ -123,7 +123,7 @@ public:
   // If force is FALSE, lock/unlock is only performed if VTK_PYTHON_FULL_THREADSAFE is
   // defined.
   // If noRelease is TRUE, unlock will not be called at object destruction. This is used
-  // for specific python function calls like PyFinalize which already take 
+  // for specific python function calls like PyFinalize which already take
   // care of releasing the GIL.
   vtkPythonScopeGilEnsurer(bool force = false, bool noRelease = false)
     : State(PyGILState_UNLOCKED)
@@ -139,7 +139,7 @@ public:
       this->State = PyGILState_Ensure();
       }
   }
- 
+
   ~vtkPythonScopeGilEnsurer()
   {
     if (this->Force && !this->NoRelease)
@@ -153,8 +153,8 @@ private:
   bool Force;
   bool NoRelease;
 
-  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
+  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&) = delete;
+  void operator=(const vtkPythonScopeGilEnsurer&) = delete;
 };
 
 

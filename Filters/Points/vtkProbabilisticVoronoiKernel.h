@@ -80,8 +80,8 @@ protected:
   ~vtkProbabilisticVoronoiKernel() override;
 
 private:
-  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProbabilisticVoronoiKernel&) VTK_DELETE_FUNCTION;
+  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&) = delete;
+  void operator=(const vtkProbabilisticVoronoiKernel&) = delete;
 };
 
 #endif

@@ -92,8 +92,8 @@ protected:
   int FillInputPortInformation(int i, vtkInformation* info) override;
 
 private:
-  vtkImageWeightedSum(const vtkImageWeightedSum&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageWeightedSum&) VTK_DELETE_FUNCTION;
+  vtkImageWeightedSum(const vtkImageWeightedSum&) = delete;
+  void operator=(const vtkImageWeightedSum&) = delete;
 };
 
 #endif

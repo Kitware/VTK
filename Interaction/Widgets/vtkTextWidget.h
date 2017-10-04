@@ -83,8 +83,8 @@ protected:
   ~vtkTextWidget() override;
 
 private:
-  vtkTextWidget(const vtkTextWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextWidget&) VTK_DELETE_FUNCTION;
+  vtkTextWidget(const vtkTextWidget&) = delete;
+  void operator=(const vtkTextWidget&) = delete;
 };
 
 #endif

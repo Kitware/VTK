@@ -74,8 +74,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id) override;
 private:
-  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
+  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) = delete;
+  void operator=(const vtkImageGradientMagnitude&) = delete;
 };
 
 #endif

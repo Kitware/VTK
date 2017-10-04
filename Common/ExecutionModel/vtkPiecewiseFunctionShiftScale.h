@@ -57,8 +57,8 @@ protected:
   double ValueScale;
 
 private:
-  vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPiecewiseFunctionShiftScale&) VTK_DELETE_FUNCTION;
+  vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&) = delete;
+  void operator=(const vtkPiecewiseFunctionShiftScale&) = delete;
 };
 
 #endif

@@ -71,8 +71,8 @@ protected:
   vtkXMLDataElement* PCoordinatesElement;
 
 private:
-  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) = delete;
+  void operator=(const vtkXMLPRectilinearGridReader&) = delete;
 };
 
 #endif

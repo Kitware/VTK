@@ -57,8 +57,8 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 private:
-  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) = delete;
+  void operator=(const vtkExtractSelectedBlock&) = delete;
 
 };
 

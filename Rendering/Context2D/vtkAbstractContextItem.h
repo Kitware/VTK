@@ -320,8 +320,8 @@ protected:
   bool Interactive;
 
 private:
-  vtkAbstractContextItem(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
+  vtkAbstractContextItem(const vtkAbstractContextItem &) = delete;
+  void operator=(const vtkAbstractContextItem &) = delete;
 
 };
 

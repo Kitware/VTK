@@ -46,8 +46,8 @@ protected:
   ~vtkInteractorStyleSwitchBase() override;
 
 private:
-  vtkInteractorStyleSwitchBase(const vtkInteractorStyleSwitchBase&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleSwitchBase&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleSwitchBase(const vtkInteractorStyleSwitchBase&) = delete;
+  void operator=(const vtkInteractorStyleSwitchBase&) = delete;
 };
 
 #endif

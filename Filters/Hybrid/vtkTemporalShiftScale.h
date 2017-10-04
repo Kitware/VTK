@@ -163,8 +163,8 @@ protected:
   double BackwardConvert(double T1);
 
 private:
-  vtkTemporalShiftScale(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
+  vtkTemporalShiftScale(const vtkTemporalShiftScale&) = delete;
+  void operator=(const vtkTemporalShiftScale&) = delete;
 };
 
 

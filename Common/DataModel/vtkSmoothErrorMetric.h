@@ -112,8 +112,8 @@ protected:
   double CosTolerance;
 
 private:
-  vtkSmoothErrorMetric(const vtkSmoothErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmoothErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkSmoothErrorMetric(const vtkSmoothErrorMetric&) = delete;
+  void operator=(const vtkSmoothErrorMetric&) = delete;
 };
 
 #endif

@@ -138,8 +138,8 @@ protected:
   double StartTime;
 
 private:
-  vtkCompassWidget(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
+  vtkCompassWidget(const vtkCompassWidget&) = delete;
+  void operator=(const vtkCompassWidget&) = delete;
 };
 
 #endif

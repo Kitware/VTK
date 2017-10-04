@@ -238,8 +238,8 @@ private:
   int BuildPlot(vtkViewport*);
 
 private:
-  vtkBarChartActor(const vtkBarChartActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBarChartActor&) VTK_DELETE_FUNCTION;
+  vtkBarChartActor(const vtkBarChartActor&) = delete;
+  void operator=(const vtkBarChartActor&) = delete;
 };
 
 

@@ -162,8 +162,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkSplitField(const vtkSplitField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplitField&) VTK_DELETE_FUNCTION;
+  vtkSplitField(const vtkSplitField&) = delete;
+  void operator=(const vtkSplitField&) = delete;
 };
 
 #endif

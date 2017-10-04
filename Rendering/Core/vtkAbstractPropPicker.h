@@ -152,8 +152,8 @@ protected:
 
   vtkAssemblyPath *Path; //this is what is picked, and includes the prop
 private:
-  vtkAbstractPropPicker(const vtkAbstractPropPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractPropPicker&) VTK_DELETE_FUNCTION;
+  vtkAbstractPropPicker(const vtkAbstractPropPicker&) = delete;
+  void operator=(const vtkAbstractPropPicker&) = delete;
 };
 
 #endif

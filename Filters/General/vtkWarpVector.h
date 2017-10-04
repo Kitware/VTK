@@ -59,8 +59,8 @@ protected:
   double ScaleFactor;
 
 private:
-  vtkWarpVector(const vtkWarpVector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWarpVector&) VTK_DELETE_FUNCTION;
+  vtkWarpVector(const vtkWarpVector&) = delete;
+  void operator=(const vtkWarpVector&) = delete;
 };
 
 #endif

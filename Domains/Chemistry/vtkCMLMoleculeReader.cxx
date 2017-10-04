@@ -55,8 +55,8 @@ protected:
   vtkNew<vtkPeriodicTable> pTab;
 
 private:
-  vtkCMLParser(const vtkCMLParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCMLParser&) VTK_DELETE_FUNCTION;
+  vtkCMLParser(const vtkCMLParser&) = delete;
+  void operator=(const vtkCMLParser&) = delete;
 };
 
 vtkStandardNewMacro(vtkCMLMoleculeReader);

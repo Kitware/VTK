@@ -156,8 +156,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkMergeFields(const vtkMergeFields&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeFields&) VTK_DELETE_FUNCTION;
+  vtkMergeFields(const vtkMergeFields&) = delete;
+  void operator=(const vtkMergeFields&) = delete;
 };
 
 #endif

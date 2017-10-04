@@ -179,7 +179,7 @@ protected:
   vtkHyperOctreeCursor();
   ~vtkHyperOctreeCursor() override;
 private:
-  vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) = delete;
+  void operator=(const vtkHyperOctreeCursor&) = delete;
 };
 #endif

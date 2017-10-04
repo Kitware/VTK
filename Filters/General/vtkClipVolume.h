@@ -238,8 +238,8 @@ private:
   vtkIdTypeArray        *ClippedLocations;
 
 private:
-  vtkClipVolume(const vtkClipVolume&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClipVolume&) VTK_DELETE_FUNCTION;
+  vtkClipVolume(const vtkClipVolume&) = delete;
+  void operator=(const vtkClipVolume&) = delete;
 };
 
 #endif

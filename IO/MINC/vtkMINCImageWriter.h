@@ -235,8 +235,8 @@ protected:
                           vtkInformationVector* outputVector) override;
 
 private:
-  vtkMINCImageWriter(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
+  vtkMINCImageWriter(const vtkMINCImageWriter&) = delete;
+  void operator=(const vtkMINCImageWriter&) = delete;
 
 };
 

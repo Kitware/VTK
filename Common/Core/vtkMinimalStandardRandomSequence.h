@@ -113,8 +113,8 @@ protected:
   ~vtkMinimalStandardRandomSequence() override;
   int Seed;
 private:
-  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
+  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) = delete;
+  void operator=(const vtkMinimalStandardRandomSequence&) = delete;
 };
 
 #endif // #ifndef vtkMinimalStandardRandomSequence_h

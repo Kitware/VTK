@@ -47,8 +47,8 @@ protected:
   vtkLookupTable* LookupTable;
 
 private:
-  vtkLookupTableItem(const vtkLookupTableItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLookupTableItem &) VTK_DELETE_FUNCTION;
+  vtkLookupTableItem(const vtkLookupTableItem &) = delete;
+  void operator=(const vtkLookupTableItem &) = delete;
 };
 
 #endif

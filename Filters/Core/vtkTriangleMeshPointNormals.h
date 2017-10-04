@@ -85,8 +85,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangleMeshPointNormals&) VTK_DELETE_FUNCTION;
+  vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) = delete;
+  void operator=(const vtkTriangleMeshPointNormals&) = delete;
 };
 
 #endif

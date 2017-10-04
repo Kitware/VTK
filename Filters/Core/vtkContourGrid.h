@@ -204,8 +204,8 @@ protected:
   vtkEdgeTable *EdgeTable;
 
 private:
-  vtkContourGrid(const vtkContourGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourGrid&) VTK_DELETE_FUNCTION;
+  vtkContourGrid(const vtkContourGrid&) = delete;
+  void operator=(const vtkContourGrid&) = delete;
 };
 
 /**

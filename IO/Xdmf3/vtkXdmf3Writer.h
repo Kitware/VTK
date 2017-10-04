@@ -124,8 +124,8 @@ protected:
   bool InitWriters;
 
 private:
-  vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
+  vtkXdmf3Writer(const vtkXdmf3Writer&) = delete;
+  void operator=(const vtkXdmf3Writer&) = delete;
 
   class Internals;
   Internals *Internal;

@@ -101,8 +101,8 @@ protected:
   vtkGeoProjection* DestinationProjection;
 
 private:
-  vtkGeoTransform( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
+  vtkGeoTransform( const vtkGeoTransform& ) = delete;
+  void operator = ( const vtkGeoTransform& ) = delete;
 };
 
 #endif // vtkGeoTransform_h

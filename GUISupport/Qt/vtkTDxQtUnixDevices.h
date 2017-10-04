@@ -60,8 +60,8 @@ protected:
   vtkTDxQtUnixDevicesPrivate *Private;
 
 private:
-  vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxQtUnixDevices&) VTK_DELETE_FUNCTION;
+  vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&) = delete;
+  void operator=(const vtkTDxQtUnixDevices&) = delete;
 };
 
 #endif

@@ -149,8 +149,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkRectangularButtonSource(const vtkRectangularButtonSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectangularButtonSource&) VTK_DELETE_FUNCTION;
+  vtkRectangularButtonSource(const vtkRectangularButtonSource&) = delete;
+  void operator=(const vtkRectangularButtonSource&) = delete;
 };
 
 #endif

@@ -99,8 +99,8 @@ protected:
   void SetCursor(int State) override;
 
 private:
-  vtkScalarBarWidget(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;
+  vtkScalarBarWidget(const vtkScalarBarWidget&) = delete;
+  void operator=(const vtkScalarBarWidget&) = delete;
 };
 
 #endif

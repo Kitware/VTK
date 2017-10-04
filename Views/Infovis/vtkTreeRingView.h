@@ -94,8 +94,8 @@ protected:
   ~vtkTreeRingView() override;
 
 private:
-  vtkTreeRingView(const vtkTreeRingView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeRingView&) VTK_DELETE_FUNCTION;
+  vtkTreeRingView(const vtkTreeRingView&) = delete;
+  void operator=(const vtkTreeRingView&) = delete;
 };
 
 #endif

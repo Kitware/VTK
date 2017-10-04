@@ -130,8 +130,8 @@ protected:
   int FillInputPortInformation( int port, vtkInformation* info ) override;
 
 private:
-  vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;
+  vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ) = delete;
+  void operator = ( const vtkLabelHierarchyAlgorithm& ) = delete;
 };
 
 #endif

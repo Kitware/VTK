@@ -120,8 +120,8 @@ protected:
   vtkStdString ValidPointMaskName;
 
 private:
-  vtkPlotArea(const vtkPlotArea&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotArea&) VTK_DELETE_FUNCTION;
+  vtkPlotArea(const vtkPlotArea&) = delete;
+  void operator=(const vtkPlotArea&) = delete;
 
   class vtkTableCache;
   vtkTableCache* TableCache;

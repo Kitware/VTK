@@ -108,8 +108,8 @@ protected:
   int OffsetFaces;
 
 private:
-  vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
+  vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&) = delete;
+  void operator=(const vtkCoincidentTopologyResolutionPainter&) = delete;
 };
 
 

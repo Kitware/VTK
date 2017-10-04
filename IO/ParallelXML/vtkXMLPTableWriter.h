@@ -103,8 +103,8 @@ protected:
   void WritePRowData(vtkDataSetAttributes* ds, vtkIndent indent);
 
 private:
-  vtkXMLPTableWriter(const vtkXMLPTableWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPTableWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPTableWriter(const vtkXMLPTableWriter&) = delete;
+  void operator=(const vtkXMLPTableWriter&) = delete;
 
   /**
    * Initializes PieceFileNameExtension.

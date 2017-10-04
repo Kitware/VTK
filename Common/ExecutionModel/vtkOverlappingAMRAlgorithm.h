@@ -58,8 +58,8 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkOverlappingAMRAlgorithm :
     //@}
 
   private:
-    vtkOverlappingAMRAlgorithm(const vtkOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
+    vtkOverlappingAMRAlgorithm(const vtkOverlappingAMRAlgorithm&) = delete;
+    void operator=(const vtkOverlappingAMRAlgorithm&) = delete;
 };
 
 #endif /* VTKOVERLAPPINGAMRALGORITHM_H_ */

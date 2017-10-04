@@ -77,8 +77,8 @@ protected:
                                   double derivative[3][3]) override;
 
 private:
-  vtkCylindricalTransform(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
+  vtkCylindricalTransform(const vtkCylindricalTransform&) = delete;
+  void operator=(const vtkCylindricalTransform&) = delete;
 };
 
 #endif

@@ -218,8 +218,8 @@ private:
   friend VTKRENDERINGPARALLELLIC_EXPORT
   ostream &operator<<(ostream &os, vtkPSurfaceLICComposite &ss);
 
-  vtkPSurfaceLICComposite(const vtkPSurfaceLICComposite&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSurfaceLICComposite&) VTK_DELETE_FUNCTION;
+  vtkPSurfaceLICComposite(const vtkPSurfaceLICComposite&) = delete;
+  void operator=(const vtkPSurfaceLICComposite&) = delete;
 };
 
 VTKRENDERINGPARALLELLIC_EXPORT

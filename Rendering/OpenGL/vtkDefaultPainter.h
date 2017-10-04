@@ -170,8 +170,8 @@ protected:
   void  SetDefaultPainterDelegate(vtkPainter*);
 
 private:
-  vtkDefaultPainter(const vtkDefaultPainter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDefaultPainter &) VTK_DELETE_FUNCTION;
+  vtkDefaultPainter(const vtkDefaultPainter &) = delete;
+  void operator=(const vtkDefaultPainter &) = delete;
 };
 
 #endif //_vtkDefaultPainter_h

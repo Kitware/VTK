@@ -548,8 +548,8 @@ protected:
     { return 1; }
 
 private:
-  vtkDataReader(const vtkDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataReader&) VTK_DELETE_FUNCTION;
+  vtkDataReader(const vtkDataReader&) = delete;
+  void operator=(const vtkDataReader&) = delete;
 
   void ConvertGhostLevelsToGhostType(
     FieldType fieldType, vtkAbstractArray *data) const;

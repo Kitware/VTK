@@ -275,8 +275,8 @@ protected:
   }
 
 private:
-  vtkStructuredData(const vtkStructuredData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredData&) VTK_DELETE_FUNCTION;
+  vtkStructuredData(const vtkStructuredData&) = delete;
+  void operator=(const vtkStructuredData&) = delete;
 };
 
 //------------------------------------------------------------------------------

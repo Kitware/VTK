@@ -111,8 +111,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphAlgorithm(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkGraphAlgorithm(const vtkGraphAlgorithm&) = delete;
+  void operator=(const vtkGraphAlgorithm&) = delete;
 };
 
 #endif

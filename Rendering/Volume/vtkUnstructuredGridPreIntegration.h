@@ -157,8 +157,8 @@ protected:
   virtual void BuildPreIntegrationTables(vtkDataArray *scalars);
 
 private:
-  vtkUnstructuredGridPreIntegration(const vtkUnstructuredGridPreIntegration&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridPreIntegration&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridPreIntegration(const vtkUnstructuredGridPreIntegration&) = delete;
+  void operator=(const vtkUnstructuredGridPreIntegration&) = delete;
 };
 
 inline float *vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(

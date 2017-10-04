@@ -215,8 +215,8 @@ protected:
   void BuildLines() override;
 
 private:
-  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&) = delete;
+  void operator=(const vtkOrientedGlyphContourRepresentation&) = delete;
 };
 
 #endif

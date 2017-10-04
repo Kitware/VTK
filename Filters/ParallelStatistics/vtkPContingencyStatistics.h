@@ -97,8 +97,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPContingencyStatistics(const vtkPContingencyStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPContingencyStatistics&) VTK_DELETE_FUNCTION;
+  vtkPContingencyStatistics(const vtkPContingencyStatistics&) = delete;
+  void operator=(const vtkPContingencyStatistics&) = delete;
 };
 
 #endif

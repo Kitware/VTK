@@ -345,8 +345,8 @@ protected:
   vtkStatisticsAlgorithmPrivate* Internals;
 
 private:
-  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) = delete;
+  void operator=(const vtkStatisticsAlgorithm&) = delete;
 };
 
 #endif

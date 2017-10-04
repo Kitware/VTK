@@ -610,8 +610,8 @@ protected:
   int DualGridFlag;
 
 private:
-  vtkHyperOctree(const vtkHyperOctree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctree&) VTK_DELETE_FUNCTION;
+  vtkHyperOctree(const vtkHyperOctree&) = delete;
+  void operator=(const vtkHyperOctree&) = delete;
 };
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor

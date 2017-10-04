@@ -71,8 +71,8 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&) = delete;
+  void operator=(const vtkImageStencilAlgorithm&) = delete;
 };
 
 #endif

@@ -235,8 +235,8 @@ protected:
 
   vtkSmoothPoints *SmoothPoints;
 private:
-  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmoothPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) = delete;
+  void operator=(const vtkSmoothPolyDataFilter&) = delete;
 };
 
 #endif

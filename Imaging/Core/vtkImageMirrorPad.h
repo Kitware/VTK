@@ -44,8 +44,8 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id) override;
 private:
-  vtkImageMirrorPad(const vtkImageMirrorPad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMirrorPad&) VTK_DELETE_FUNCTION;
+  vtkImageMirrorPad(const vtkImageMirrorPad&) = delete;
+  void operator=(const vtkImageMirrorPad&) = delete;
 };
 
 #endif

@@ -80,8 +80,8 @@ protected:
   vtkInformationKeySetStringMacro(RequiredClass);
 
 private:
-  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
+  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&) = delete;
+  void operator=(const vtkInformationObjectBaseKey&) = delete;
 };
 
 #endif

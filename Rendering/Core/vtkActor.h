@@ -220,8 +220,8 @@ protected:
   vtkTimeStamp BoundsMTime;
 
 private:
-  vtkActor(const vtkActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActor&) VTK_DELETE_FUNCTION;
+  vtkActor(const vtkActor&) = delete;
+  void operator=(const vtkActor&) = delete;
 };
 
 #endif

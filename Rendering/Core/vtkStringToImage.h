@@ -93,8 +93,8 @@ protected:
   bool ScaleToPowerOfTwo;
 
 private:
-  vtkStringToImage(const vtkStringToImage &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToImage &) VTK_DELETE_FUNCTION;
+  vtkStringToImage(const vtkStringToImage &) = delete;
+  void operator=(const vtkStringToImage &) = delete;
 };
 
 #endif //vtkStringToImage_h

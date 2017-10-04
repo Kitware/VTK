@@ -46,8 +46,8 @@ protected:
                           vtkInformationVector*) override;
 
 private:
-  vtkmAverageToCells(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
+  vtkmAverageToCells(const vtkmAverageToCells&) = delete;
+  void operator=(const vtkmAverageToCells&) = delete;
 };
 
 #endif // vtkmAverageToCells_h

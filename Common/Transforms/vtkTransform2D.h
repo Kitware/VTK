@@ -204,8 +204,8 @@ protected:
   vtkMatrix3x3 *InverseMatrix;
 
 private:
-  vtkTransform2D (const vtkTransform2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransform2D&) VTK_DELETE_FUNCTION;
+  vtkTransform2D (const vtkTransform2D&) = delete;
+  void operator=(const vtkTransform2D&) = delete;
 };
 
 #endif

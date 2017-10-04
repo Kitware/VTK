@@ -111,8 +111,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricTorus : public
     double CrossSectionRadius;
 
   private:
-    vtkParametricTorus(const vtkParametricTorus&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricTorus&) VTK_DELETE_FUNCTION;
+    vtkParametricTorus(const vtkParametricTorus&) = delete;
+    void operator=(const vtkParametricTorus&) = delete;
 };
 
 #endif

@@ -170,8 +170,8 @@ private:
   vtkInformationObjectBaseVectorValue *GetObjectBaseVector(vtkInformation *info);
 
   //
-  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) = delete;
+  void operator=(const vtkInformationObjectBaseVectorKey&) = delete;
 };
 
 #endif

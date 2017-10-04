@@ -166,8 +166,8 @@ protected:
   bool LogX, LogY;
 
 private:
-  vtkPlotFunctionalBag(const vtkPlotFunctionalBag &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotFunctionalBag &) VTK_DELETE_FUNCTION;
+  vtkPlotFunctionalBag(const vtkPlotFunctionalBag &) = delete;
+  void operator=(const vtkPlotFunctionalBag &) = delete;
 };
 
 #endif //vtkPlotFunctionalBag_h

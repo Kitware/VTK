@@ -94,8 +94,8 @@ protected:
 
   int TexturePattern;
 private:
-  vtkTriangularTexture(const vtkTriangularTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangularTexture&) VTK_DELETE_FUNCTION;
+  vtkTriangularTexture(const vtkTriangularTexture&) = delete;
+  void operator=(const vtkTriangularTexture&) = delete;
 };
 
 #endif

@@ -213,8 +213,8 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericClip(const vtkGenericClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericClip&) VTK_DELETE_FUNCTION;
+  vtkGenericClip(const vtkGenericClip&) = delete;
+  void operator=(const vtkGenericClip&) = delete;
 };
 
 #endif

@@ -153,8 +153,8 @@ protected:
   vtkDataSetAttributes* OutData;
 
 private:
-  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) = delete;
+  void operator=(const vtkHyperTreeGridAlgorithm&) = delete;
 };
 
 #endif

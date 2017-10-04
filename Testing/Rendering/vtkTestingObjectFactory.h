@@ -66,7 +66,7 @@ protected:
   vtkTestingObjectFactory();
 
 private:
-  vtkTestingObjectFactory(const vtkTestingObjectFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTestingObjectFactory&) VTK_DELETE_FUNCTION;
+  vtkTestingObjectFactory(const vtkTestingObjectFactory&) = delete;
+  void operator=(const vtkTestingObjectFactory&) = delete;
 };
 #endif

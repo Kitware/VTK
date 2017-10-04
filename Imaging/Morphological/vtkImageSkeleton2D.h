@@ -71,8 +71,8 @@ protected:
     int outExt[6],
     int id) override;
 private:
-  vtkImageSkeleton2D(const vtkImageSkeleton2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSkeleton2D&) VTK_DELETE_FUNCTION;
+  vtkImageSkeleton2D(const vtkImageSkeleton2D&) = delete;
+  void operator=(const vtkImageSkeleton2D&) = delete;
 };
 
 #endif

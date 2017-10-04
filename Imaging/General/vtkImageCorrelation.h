@@ -78,8 +78,8 @@ protected:
                                    int extent[6], int threadId) override;
 
 private:
-  vtkImageCorrelation(const vtkImageCorrelation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCorrelation&) VTK_DELETE_FUNCTION;
+  vtkImageCorrelation(const vtkImageCorrelation&) = delete;
+  void operator=(const vtkImageCorrelation&) = delete;
 };
 
 #endif

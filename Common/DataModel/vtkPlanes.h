@@ -132,8 +132,8 @@ private:
   double Bounds[6];
 
 private:
-  vtkPlanes(const vtkPlanes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlanes&) VTK_DELETE_FUNCTION;
+  vtkPlanes(const vtkPlanes&) = delete;
+  void operator=(const vtkPlanes&) = delete;
 };
 
 #endif

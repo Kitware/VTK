@@ -86,8 +86,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPythonAlgorithm(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPythonAlgorithm(const vtkPythonAlgorithm&) = delete;
+  void operator=(const vtkPythonAlgorithm&) = delete;
 
   int CheckResult(const char* method, const vtkSmartPyObject& res);
 

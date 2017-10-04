@@ -43,8 +43,8 @@ protected:
   ~vtkOptiXWindowNode();
 
 private:
-  vtkOptiXWindowNode(const vtkOptiXWindowNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXWindowNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXWindowNode(const vtkOptiXWindowNode&) = delete;
+  void operator=(const vtkOptiXWindowNode&) = delete;
 };
 
 #endif

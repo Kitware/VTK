@@ -100,8 +100,8 @@ protected:
   vtkMatrix4x4 *InternalMatrix;
 
 private:
-  vtkFollower(const vtkFollower&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFollower&) VTK_DELETE_FUNCTION;
+  vtkFollower(const vtkFollower&) = delete;
+  void operator=(const vtkFollower&) = delete;
 
   // hide the two parameter Render() method from the user and the compiler.
   void Render(vtkRenderer *, vtkMapper *) override {}

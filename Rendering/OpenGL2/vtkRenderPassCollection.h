@@ -69,8 +69,8 @@ private:
   void AddItem(vtkObject *o);
 
 private:
-  vtkRenderPassCollection(const vtkRenderPassCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderPassCollection&) VTK_DELETE_FUNCTION;
+  vtkRenderPassCollection(const vtkRenderPassCollection&) = delete;
+  void operator=(const vtkRenderPassCollection&) = delete;
 };
 
 #endif

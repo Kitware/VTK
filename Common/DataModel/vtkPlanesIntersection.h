@@ -133,8 +133,8 @@ private:
   //    the ccw hull of that region projected in 3 orthog. directions
   vtkPointsProjectedHull *RegionPts;
 
-  vtkPlanesIntersection(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
+  vtkPlanesIntersection(const vtkPlanesIntersection&) = delete;
+  void operator=(const vtkPlanesIntersection&) = delete;
 };
 #endif
 

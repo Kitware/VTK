@@ -172,8 +172,8 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkSQLiteQuery(const vtkSQLiteQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLiteQuery &) VTK_DELETE_FUNCTION;
+  vtkSQLiteQuery(const vtkSQLiteQuery &) = delete;
+  void operator=(const vtkSQLiteQuery &) = delete;
 
   vtk_sqlite3_stmt *Statement;
   bool InitialFetch;

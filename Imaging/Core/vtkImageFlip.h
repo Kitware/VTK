@@ -97,8 +97,8 @@ protected:
   int PreserveImageExtent;
 
 private:
-  vtkImageFlip(const vtkImageFlip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageFlip&) VTK_DELETE_FUNCTION;
+  vtkImageFlip(const vtkImageFlip&) = delete;
+  void operator=(const vtkImageFlip&) = delete;
 };
 
 #endif

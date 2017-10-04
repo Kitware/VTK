@@ -190,8 +190,8 @@ protected:
   vtkGeoTreeNode* Newer;
 
 private:
-  vtkGeoTreeNode(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
+  vtkGeoTreeNode(const vtkGeoTreeNode&) = delete;
+  void operator=(const vtkGeoTreeNode&) = delete;
 };
 
 #endif

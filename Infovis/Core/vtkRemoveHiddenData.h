@@ -65,8 +65,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRemoveHiddenData(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;
+  vtkRemoveHiddenData(const vtkRemoveHiddenData&) = delete;
+  void operator=(const vtkRemoveHiddenData&) = delete;
 
   vtkSmartPointer<vtkExtractSelectedGraph> ExtractGraph;
   vtkSmartPointer<vtkExtractSelectedRows> ExtractTable;

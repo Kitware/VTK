@@ -194,8 +194,8 @@ protected:
   static void InitializeOutput(vtkMultiPieceDataSet* output);
 
 private:
-  vtkPlaneCutter(const vtkPlaneCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlaneCutter&) VTK_DELETE_FUNCTION;
+  vtkPlaneCutter(const vtkPlaneCutter&) = delete;
+  void operator=(const vtkPlaneCutter&) = delete;
 };
 
 #endif

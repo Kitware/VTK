@@ -116,7 +116,7 @@ protected:
   RankFlagManager* RFlagManager;
 
 private:
-  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) VTK_DELETE_FUNCTION;  // Not implemented.
-  void operator=(const vtkPLagrangianParticleTracker&) VTK_DELETE_FUNCTION;  // Not implemented.
+  vtkPLagrangianParticleTracker(const vtkPLagrangianParticleTracker&) = delete;  // Not implemented.
+  void operator=(const vtkPLagrangianParticleTracker&) = delete;  // Not implemented.
 };
 #endif

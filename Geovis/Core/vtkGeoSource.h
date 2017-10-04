@@ -124,8 +124,8 @@ protected:
   implementation* Implementation;
 
 private:
-  vtkGeoSource(const vtkGeoSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoSource&) VTK_DELETE_FUNCTION;
+  vtkGeoSource(const vtkGeoSource&) = delete;
+  void operator=(const vtkGeoSource&) = delete;
 };
 
 #endif // vtkGeoSource_h

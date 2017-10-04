@@ -140,8 +140,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkConeSource(const vtkConeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConeSource&) VTK_DELETE_FUNCTION;
+  vtkConeSource(const vtkConeSource&) = delete;
+  void operator=(const vtkConeSource&) = delete;
 };
 
 #endif

@@ -129,8 +129,8 @@ protected:
   vtkTextProperty* DefaultTextProperty;
 
 private:
-  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&) = delete;
+  void operator=(const vtkLabelRenderStrategy&) = delete;
 };
 
 #endif

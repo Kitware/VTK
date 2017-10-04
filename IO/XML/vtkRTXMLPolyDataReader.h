@@ -93,8 +93,8 @@ protected:
   //@}
 
 private:
-  vtkRTXMLPolyDataReader(const vtkRTXMLPolyDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRTXMLPolyDataReader&) VTK_DELETE_FUNCTION;
+  vtkRTXMLPolyDataReader(const vtkRTXMLPolyDataReader&) = delete;
+  void operator=(const vtkRTXMLPolyDataReader&) = delete;
 };
 
 #endif

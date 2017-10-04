@@ -137,8 +137,8 @@ protected:
   bool UseFragmentProgram;
 
 private:
-  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) = delete;
+  void operator=(const vtkOpenGLImageSliceMapper&) = delete;
 };
 
 #endif

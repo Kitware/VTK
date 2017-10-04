@@ -164,8 +164,8 @@ protected:
   vtkSmartPointer<vtkTransform> Transform;    // Current transform
 
 private:
-  vtkContext3D(const vtkContext3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContext3D &) VTK_DELETE_FUNCTION;
+  vtkContext3D(const vtkContext3D &) = delete;
+  void operator=(const vtkContext3D &) = delete;
 };
 
 #endif // VTKCONTEXT3D_H

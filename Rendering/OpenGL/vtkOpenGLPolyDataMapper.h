@@ -112,8 +112,8 @@ protected:
   vtkOpenGLTexture* InternalColorTexture;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;
+  void operator=(const vtkOpenGLPolyDataMapper&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

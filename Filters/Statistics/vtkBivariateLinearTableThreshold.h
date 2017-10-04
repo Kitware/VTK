@@ -235,8 +235,8 @@ protected:
   //@}
 
 private:
-  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) = delete;
+  void operator=(const vtkBivariateLinearTableThreshold&) = delete;
 };
 
 #endif

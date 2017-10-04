@@ -98,8 +98,8 @@ protected:
   void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) override;
 
 private:
-  vtkOpenGLStickMapper(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLStickMapper(const vtkOpenGLStickMapper&) = delete;
+  void operator=(const vtkOpenGLStickMapper&) = delete;
 };
 
 #endif

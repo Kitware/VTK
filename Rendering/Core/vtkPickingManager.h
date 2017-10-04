@@ -198,8 +198,8 @@ protected:
   bool OptimizeOnInteractorEvents;
 
 private:
-  vtkPickingManager(const vtkPickingManager&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPickingManager&) VTK_DELETE_FUNCTION;
+  vtkPickingManager(const vtkPickingManager&) = delete;
+  void operator=(const vtkPickingManager&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

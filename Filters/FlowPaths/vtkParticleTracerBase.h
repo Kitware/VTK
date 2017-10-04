@@ -567,8 +567,8 @@ public:
   vtkSmartPointer<vtkDataSet>       DataReferenceT[2];
   vtkSmartPointer<vtkCellArray>     ParticleCells;
 
-  vtkParticleTracerBase(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
+  vtkParticleTracerBase(const vtkParticleTracerBase&) = delete;
+  void operator=(const vtkParticleTracerBase&) = delete;
   vtkTimeStamp ExecuteTime;
 
   unsigned int NumberOfParticles();

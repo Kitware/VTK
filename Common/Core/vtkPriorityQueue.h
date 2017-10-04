@@ -134,8 +134,8 @@ protected:
   vtkIdType MaxId;
   vtkIdType Extend;
 private:
-  vtkPriorityQueue(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
+  vtkPriorityQueue(const vtkPriorityQueue&) = delete;
+  void operator=(const vtkPriorityQueue&) = delete;
 };
 
 inline double vtkPriorityQueue::DeleteId(vtkIdType id)

@@ -76,8 +76,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
+  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) = delete;
+  void operator=(const vtkDIMACSGraphWriter&) = delete;
 };
 
 #endif

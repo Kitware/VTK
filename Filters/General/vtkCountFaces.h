@@ -56,8 +56,8 @@ protected:
   char *OutputArrayName;
 
 private:
-  vtkCountFaces(const vtkCountFaces&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCountFaces&) VTK_DELETE_FUNCTION;
+  vtkCountFaces(const vtkCountFaces&) = delete;
+  void operator=(const vtkCountFaces&) = delete;
 };
 
 #endif // vtkCountFaces_h

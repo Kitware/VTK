@@ -164,8 +164,8 @@ private:
   vtkPolyDataMapper* CurrentMapper;
 
 private:
-  vtkVRMLImporter(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
+  vtkVRMLImporter(const vtkVRMLImporter&) = delete;
+  void operator=(const vtkVRMLImporter&) = delete;
 };
 
 #endif

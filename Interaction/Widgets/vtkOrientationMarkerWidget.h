@@ -231,8 +231,8 @@ protected:
   void UpdateInternalViewport();
 
 private:
-  vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrientationMarkerWidget&) VTK_DELETE_FUNCTION;
+  vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&) = delete;
+  void operator=(const vtkOrientationMarkerWidget&) = delete;
 };
 
 #endif

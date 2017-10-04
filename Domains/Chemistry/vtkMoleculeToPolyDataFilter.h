@@ -45,8 +45,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&) = delete;
+  void operator=(const vtkMoleculeToPolyDataFilter&) = delete;
 };
 
 #endif

@@ -70,8 +70,8 @@ protected:
   bool WriteExtent;
 
 private:
-  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) = delete;
+  void operator=(const vtkRectilinearGridWriter&) = delete;
 };
 
 #endif

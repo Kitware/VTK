@@ -184,8 +184,8 @@ private:
    */
   vtkSmartVolumeMapper* CreateMapper();
 
-  vtkMultiBlockVolumeMapper(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockVolumeMapper(const vtkMultiBlockVolumeMapper&) = delete;
+  void operator=(const vtkMultiBlockVolumeMapper&) = delete;
 
   /////////////////////////////////////////////////////////////////////////////
 

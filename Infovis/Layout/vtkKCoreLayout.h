@@ -178,8 +178,8 @@ protected:
   float UnitRadius;
 
 private:
-  vtkKCoreLayout(const vtkKCoreLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKCoreLayout&) VTK_DELETE_FUNCTION;
+  vtkKCoreLayout(const vtkKCoreLayout&) = delete;
+  void operator=(const vtkKCoreLayout&) = delete;
 };
 
 #endif

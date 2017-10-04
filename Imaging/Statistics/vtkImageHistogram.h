@@ -241,8 +241,8 @@ protected:
   vtkImageHistogramSMPThreadLocal *SMPThreadData;
 
 private:
-  vtkImageHistogram(const vtkImageHistogram&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHistogram&) VTK_DELETE_FUNCTION;
+  vtkImageHistogram(const vtkImageHistogram&) = delete;
+  void operator=(const vtkImageHistogram&) = delete;
 
   friend class vtkImageHistogramFunctor;
 };

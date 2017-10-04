@@ -168,8 +168,8 @@ protected:
  vtkDataArray* InScalars;
 
 private:
-  vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridContour&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridContour(const vtkHyperTreeGridContour&) = delete;
+  void operator=(const vtkHyperTreeGridContour&) = delete;
 };
 
 /**

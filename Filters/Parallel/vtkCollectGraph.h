@@ -103,8 +103,8 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectGraph(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
+  vtkCollectGraph(const vtkCollectGraph&) = delete;
+  void operator=(const vtkCollectGraph&) = delete;
 };
 
 #endif

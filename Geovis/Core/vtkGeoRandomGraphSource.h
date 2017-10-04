@@ -60,8 +60,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkGeoRandomGraphSource(const vtkGeoRandomGraphSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoRandomGraphSource&) VTK_DELETE_FUNCTION;
+  vtkGeoRandomGraphSource(const vtkGeoRandomGraphSource&) = delete;
+  void operator=(const vtkGeoRandomGraphSource&) = delete;
 };
 
 #endif

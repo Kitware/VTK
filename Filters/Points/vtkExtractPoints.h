@@ -106,8 +106,8 @@ protected:
   int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkExtractPoints(const vtkExtractPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPoints&) VTK_DELETE_FUNCTION;
+  vtkExtractPoints(const vtkExtractPoints&) = delete;
+  void operator=(const vtkExtractPoints&) = delete;
 
 };
 

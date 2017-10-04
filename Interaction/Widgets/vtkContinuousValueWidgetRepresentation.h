@@ -79,8 +79,8 @@ protected:
 
 private:
   vtkContinuousValueWidgetRepresentation
-  (const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
+  (const vtkContinuousValueWidgetRepresentation&) = delete;
+  void operator=(const vtkContinuousValueWidgetRepresentation&) = delete;
 };
 
 #endif

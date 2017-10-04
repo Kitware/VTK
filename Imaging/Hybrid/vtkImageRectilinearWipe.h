@@ -142,8 +142,8 @@ protected:
   int Axis[2];
 
 private:
-  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
+  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&) = delete;
+  void operator=(const vtkImageRectilinearWipe&) = delete;
 };
 
 #endif

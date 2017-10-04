@@ -436,8 +436,8 @@ protected:
   TranslationTableType *TranslationTable;
 
 private:
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&) = delete;
+  void operator=(const vtkGenericEnSightReader&) = delete;
 };
 
 #endif

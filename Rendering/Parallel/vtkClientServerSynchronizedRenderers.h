@@ -41,8 +41,8 @@ protected:
   void SlaveEndRender() override;
 
 private:
-  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) = delete;
+  void operator=(const vtkClientServerSynchronizedRenderers&) = delete;
 
 };
 

@@ -160,8 +160,8 @@ protected:
   vtkPoints* RepelVertices;
 
 private:
-  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) = delete;
+  void operator=(const vtkDijkstraGraphGeodesicPath&) = delete;
 
 };
 

@@ -837,7 +837,7 @@ private:
   int AllVariablesDefinedInAllBlocks;
 
 private:
-  vtkModelMetadata(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
+  vtkModelMetadata(const vtkModelMetadata&) = delete;
+  void operator=(const vtkModelMetadata&) = delete;
 };
 #endif

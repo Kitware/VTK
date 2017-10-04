@@ -195,8 +195,8 @@ protected:
   ~vtkWidgetSet() override;
 
 private:
-  vtkWidgetSet(const vtkWidgetSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetSet&) VTK_DELETE_FUNCTION;
+  vtkWidgetSet(const vtkWidgetSet&) = delete;
+  void operator=(const vtkWidgetSet&) = delete;
 };
 
 #endif

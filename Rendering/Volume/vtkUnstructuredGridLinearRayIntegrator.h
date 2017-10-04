@@ -99,8 +99,8 @@ protected:
   int NumIndependentComponents;
 
 private:
-  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&) = delete;
+  void operator=(const vtkUnstructuredGridLinearRayIntegrator&) = delete;
 };
 
 #endif //vtkUnstructuredGridLinearRayIntegrator_h

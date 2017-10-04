@@ -59,8 +59,8 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
-  vtkLinesPainter(const vtkLinesPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinesPainter&) VTK_DELETE_FUNCTION;
+  vtkLinesPainter(const vtkLinesPainter&) = delete;
+  void operator=(const vtkLinesPainter&) = delete;
 };
 
 

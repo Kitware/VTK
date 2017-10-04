@@ -62,8 +62,8 @@ protected:
   };
 
 private:
-  vtkTreeBFSIterator(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;
+  vtkTreeBFSIterator(const vtkTreeBFSIterator &) = delete;
+  void operator=(const vtkTreeBFSIterator &) = delete;
 };
 
 #endif

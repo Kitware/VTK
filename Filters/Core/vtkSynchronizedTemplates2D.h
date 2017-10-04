@@ -132,8 +132,8 @@ protected:
   int ArrayComponent;
 
 private:
-  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedTemplates2D&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&) = delete;
+  void operator=(const vtkSynchronizedTemplates2D&) = delete;
 };
 
 

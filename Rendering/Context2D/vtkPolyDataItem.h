@@ -83,8 +83,8 @@ protected:
   int ScalarMode;
 
 private:
-  vtkPolyDataItem(const vtkPolyDataItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataItem&) VTK_DELETE_FUNCTION;
+  vtkPolyDataItem(const vtkPolyDataItem&) = delete;
+  void operator=(const vtkPolyDataItem&) = delete;
 };
 
 #endif

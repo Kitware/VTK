@@ -263,8 +263,8 @@ protected:
                               //  into a file for a certain variable.
 
 private:
-  vtkMFIXReader(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
+  vtkMFIXReader(const vtkMFIXReader&) = delete;
+  void operator=(const vtkMFIXReader&) = delete;
 
   void MakeMesh(vtkUnstructuredGrid *output);
   void SwapDouble(double &value);

@@ -52,8 +52,8 @@ protected:
   bool CheckRequirements(vtkGraph* const graph) const override;
 
 private:
-  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) = delete;
+  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) = delete;
 };
 
 #endif

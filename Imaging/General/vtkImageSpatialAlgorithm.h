@@ -67,8 +67,8 @@ protected:
   void InternalRequestUpdateExtent(int *extent, int *inExtent, int *wholeExtent);
 
 private:
-  vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSpatialAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&) = delete;
+  void operator=(const vtkImageSpatialAlgorithm&) = delete;
 };
 
 #endif

@@ -97,8 +97,8 @@ protected:
   vtkIdType CurrentId;
 
 private:
-  vtkHyperTreeGridDepthLimiter(const vtkHyperTreeGridDepthLimiter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridDepthLimiter&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridDepthLimiter(const vtkHyperTreeGridDepthLimiter&) = delete;
+  void operator=(const vtkHyperTreeGridDepthLimiter&) = delete;
 };
 
 #endif /* vtkHyperTreeGridDepthLimiter_h */

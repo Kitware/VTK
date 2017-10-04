@@ -92,8 +92,8 @@ protected:
   vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
 
 private:
-  vtkOBJImporter(const vtkOBJImporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBJImporter&) VTK_DELETE_FUNCTION;
+  vtkOBJImporter(const vtkOBJImporter&) = delete;
+  void operator=(const vtkOBJImporter&) = delete;
 };
 
 

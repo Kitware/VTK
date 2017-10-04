@@ -88,8 +88,8 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
 private:
-  vtkActorCollection(const vtkActorCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActorCollection&) VTK_DELETE_FUNCTION;
+  vtkActorCollection(const vtkActorCollection&) = delete;
+  void operator=(const vtkActorCollection&) = delete;
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a)

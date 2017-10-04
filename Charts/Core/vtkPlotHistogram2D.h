@@ -134,8 +134,8 @@ protected:
   vtkRectf Position;
 
 private:
-  vtkPlotHistogram2D(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
+  vtkPlotHistogram2D(const vtkPlotHistogram2D &) = delete;
+  void operator=(const vtkPlotHistogram2D &) = delete;
 
 };
 

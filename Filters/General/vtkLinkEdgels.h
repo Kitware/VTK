@@ -107,8 +107,8 @@ protected:
   double PhiThreshold;
   double LinkThreshold;
 private:
-  vtkLinkEdgels(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
+  vtkLinkEdgels(const vtkLinkEdgels&) = delete;
+  void operator=(const vtkLinkEdgels&) = delete;
 };
 
 #endif

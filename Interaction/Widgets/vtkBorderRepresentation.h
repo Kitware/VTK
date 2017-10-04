@@ -277,8 +277,8 @@ protected:
   int MaximumSize[2];
 
 private:
-  vtkBorderRepresentation(const vtkBorderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBorderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkBorderRepresentation(const vtkBorderRepresentation&) = delete;
+  void operator=(const vtkBorderRepresentation&) = delete;
 };
 
 #endif

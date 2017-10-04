@@ -117,8 +117,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&) = delete;
+  void operator=(const vtkPolyDataAlgorithm&) = delete;
 };
 
 #endif

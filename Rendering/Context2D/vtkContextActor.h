@@ -96,8 +96,8 @@ protected:
   bool Initialized;
 
 private:
-  vtkContextActor(const vtkContextActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextActor&) VTK_DELETE_FUNCTION;
+  vtkContextActor(const vtkContextActor&) = delete;
+  void operator=(const vtkContextActor&) = delete;
 };
 
 #endif

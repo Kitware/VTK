@@ -141,8 +141,8 @@ protected:
   vtkPen* LinePen;
 
 private:
-  vtkPlotBag(const vtkPlotBag &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotBag &) VTK_DELETE_FUNCTION;
+  vtkPlotBag(const vtkPlotBag &) = delete;
+  void operator=(const vtkPlotBag &) = delete;
 };
 
 #endif //vtkPlotBag_h

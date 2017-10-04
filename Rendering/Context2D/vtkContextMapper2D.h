@@ -74,8 +74,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkContextMapper2D(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
+  vtkContextMapper2D(const vtkContextMapper2D &) = delete;
+  void operator=(const vtkContextMapper2D &) = delete;
 
 };
 

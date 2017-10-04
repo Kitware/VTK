@@ -130,8 +130,8 @@ protected:
   int AutomaticPlaneGeneration;
 
 private:
-  vtkTextureMapToPlane(const vtkTextureMapToPlane&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureMapToPlane&) VTK_DELETE_FUNCTION;
+  vtkTextureMapToPlane(const vtkTextureMapToPlane&) = delete;
+  void operator=(const vtkTextureMapToPlane&) = delete;
 };
 
 #endif

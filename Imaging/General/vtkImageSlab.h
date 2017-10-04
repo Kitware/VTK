@@ -145,8 +145,8 @@ protected:
   int TrapezoidIntegration;
 
 private:
-  vtkImageSlab(const vtkImageSlab&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSlab&) VTK_DELETE_FUNCTION;
+  vtkImageSlab(const vtkImageSlab&) = delete;
+  void operator=(const vtkImageSlab&) = delete;
 };
 
 #endif

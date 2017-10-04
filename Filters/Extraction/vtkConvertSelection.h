@@ -249,8 +249,8 @@ protected:
   vtkExtractSelection* SelectionExtractor;
 
 private:
-  vtkConvertSelection(const vtkConvertSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConvertSelection&) VTK_DELETE_FUNCTION;
+  vtkConvertSelection(const vtkConvertSelection&) = delete;
+  void operator=(const vtkConvertSelection&) = delete;
 };
 
 #endif

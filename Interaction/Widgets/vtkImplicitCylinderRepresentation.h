@@ -495,8 +495,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) = delete;
+  void operator=(const vtkImplicitCylinderRepresentation&) = delete;
 };
 
 #endif

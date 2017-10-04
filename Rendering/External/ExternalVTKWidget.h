@@ -54,8 +54,8 @@ protected:
   vtkExternalOpenGLRenderWindow* RenderWindow;
 
 private:
-  ExternalVTKWidget(const ExternalVTKWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const ExternalVTKWidget&) VTK_DELETE_FUNCTION;
+  ExternalVTKWidget(const ExternalVTKWidget&) = delete;
+  void operator=(const ExternalVTKWidget&) = delete;
 };
 
 #endif //__ExternalVTKWidget_h

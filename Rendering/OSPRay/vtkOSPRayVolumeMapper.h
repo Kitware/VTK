@@ -64,8 +64,8 @@ protected:
   bool Initialized;
 
 private:
-  vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&) = delete;
+  void operator=(const vtkOSPRayVolumeMapper&) = delete;
 };
 
 #endif

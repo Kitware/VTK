@@ -136,8 +136,8 @@ protected:
   friend class vtkPostgreSQLDatabase;
 
 private:
-  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPostgreSQLQuery& ) VTK_DELETE_FUNCTION;
+  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ) = delete;
+  void operator = ( const vtkPostgreSQLQuery& ) = delete;
 };
 
 #endif // vtkPostgreSQLQuery_h

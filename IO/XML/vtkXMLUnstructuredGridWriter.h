@@ -80,8 +80,8 @@ protected:
   OffsetsManagerArray *CellsOM; //one per piece
 
 private:
-  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) = delete;
+  void operator=(const vtkXMLUnstructuredGridWriter&) = delete;
 };
 
 #endif

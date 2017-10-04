@@ -70,8 +70,8 @@ protected:
   ~vtkOpenGLHardwareSupport() override;
 
 private:
-  vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLHardwareSupport&) VTK_DELETE_FUNCTION;
+  vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&) = delete;
+  void operator=(const vtkOpenGLHardwareSupport&) = delete;
 
   bool ExtensionManagerSet();
 

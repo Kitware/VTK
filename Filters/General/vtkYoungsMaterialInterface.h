@@ -229,8 +229,8 @@ protected:
   vtkYoungsMaterialInterfaceInternals* Internals;
 
 private:
-  vtkYoungsMaterialInterface(const vtkYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
+  vtkYoungsMaterialInterface(const vtkYoungsMaterialInterface&) = delete;
+  void operator=(const vtkYoungsMaterialInterface&) = delete;
 };
 
 #endif /* VTK_YOUNGS_MATERIAL_INTERFACE_H */

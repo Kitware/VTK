@@ -50,8 +50,8 @@ public:
 
 private:
 
-  qObserver(const qObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const qObserver&) VTK_DELETE_FUNCTION;
+  qObserver(const qObserver&) = delete;
+  void operator=(const qObserver&) = delete;
 };
 
 

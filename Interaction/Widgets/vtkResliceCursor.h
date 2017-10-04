@@ -190,8 +190,8 @@ protected:
   vtkTimeStamp  PolyDataBuildTime;
 
 private:
-  vtkResliceCursor(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
+  vtkResliceCursor(const vtkResliceCursor&) = delete;
+  void operator=(const vtkResliceCursor&) = delete;
 };
 
 #endif

@@ -96,8 +96,8 @@ protected:
   float PixelScale;
 
 private:
-  vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
+  vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&) = delete;
+  void operator=(const vtkRayCastImageDisplayHelper&) = delete;
 };
 
 #endif

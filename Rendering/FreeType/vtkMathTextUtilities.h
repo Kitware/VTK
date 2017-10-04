@@ -44,8 +44,8 @@ public:
   ~vtkMathTextUtilitiesCleanup();
 
 private:
-  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other) VTK_DELETE_FUNCTION;
-  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other) = delete;
+  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs) = delete;
 };
 
 class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilities : public vtkObject
@@ -137,8 +137,8 @@ protected:
   ~vtkMathTextUtilities() override;
 
 private:
-  vtkMathTextUtilities(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
+  vtkMathTextUtilities(const vtkMathTextUtilities&) = delete;
+  void operator=(const vtkMathTextUtilities&) = delete;
 
   //@{
   /**

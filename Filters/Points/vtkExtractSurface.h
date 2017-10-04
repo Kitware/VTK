@@ -183,8 +183,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkExtractSurface(const vtkExtractSurface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSurface&) VTK_DELETE_FUNCTION;
+  vtkExtractSurface(const vtkExtractSurface&) = delete;
+  void operator=(const vtkExtractSurface&) = delete;
 };
 
 #endif

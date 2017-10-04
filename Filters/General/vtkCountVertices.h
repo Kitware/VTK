@@ -57,8 +57,8 @@ protected:
   char *OutputArrayName;
 
 private:
-  vtkCountVertices(const vtkCountVertices&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCountVertices&) VTK_DELETE_FUNCTION;
+  vtkCountVertices(const vtkCountVertices&) = delete;
+  void operator=(const vtkCountVertices&) = delete;
 };
 
 #endif // vtkCountVertices_h

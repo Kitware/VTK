@@ -51,8 +51,8 @@ protected:
   void ComputeTexture() override;
   vtkColorTransferFunction* ColorTransferFunction;
 private:
-  vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorTransferFunctionItem&) VTK_DELETE_FUNCTION;
+  vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&) = delete;
+  void operator=(const vtkColorTransferFunctionItem&) = delete;
 };
 
 #endif

@@ -72,8 +72,8 @@ protected:
   vtkIdType StartCell;
 
 private:
-  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&) = delete;
+  void operator=(const vtkXMLPUnstructuredGridReader&) = delete;
 };
 
 #endif

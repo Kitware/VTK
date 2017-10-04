@@ -183,8 +183,8 @@ protected:
   virtual void UpdatePaths(); //apply transformations and properties recursively
 
 private:
-  vtkAssembly(const vtkAssembly&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssembly&) VTK_DELETE_FUNCTION;
+  vtkAssembly(const vtkAssembly&) = delete;
+  void operator=(const vtkAssembly&) = delete;
 };
 
 #endif

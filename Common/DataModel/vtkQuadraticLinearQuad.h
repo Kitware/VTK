@@ -139,8 +139,8 @@ protected:
   vtkDoubleArray *Scalars;
 
 private:
-  vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &) VTK_DELETE_FUNCTION;
-  void operator = (const vtkQuadraticLinearQuad &) VTK_DELETE_FUNCTION;
+  vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &) = delete;
+  void operator = (const vtkQuadraticLinearQuad &) = delete;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticLinearQuad::GetParametricCenter(double pcoords[3])

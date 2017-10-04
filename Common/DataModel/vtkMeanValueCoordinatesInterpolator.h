@@ -105,8 +105,8 @@ protected:
 
 
 private:
-  vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMeanValueCoordinatesInterpolator&) VTK_DELETE_FUNCTION;
+  vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&) = delete;
+  void operator=(const vtkMeanValueCoordinatesInterpolator&) = delete;
 };
 
 #endif

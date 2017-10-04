@@ -389,8 +389,8 @@ protected:
   vtkPolyDataCollection* Streamlines;
 private:
   vtkEvenlySpacedStreamlines2D(
-    const vtkEvenlySpacedStreamlines2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEvenlySpacedStreamlines2D&) VTK_DELETE_FUNCTION;
+    const vtkEvenlySpacedStreamlines2D&) = delete;
+  void operator=(const vtkEvenlySpacedStreamlines2D&) = delete;
 };
 
 

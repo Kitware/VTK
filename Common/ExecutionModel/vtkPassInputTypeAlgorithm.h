@@ -208,8 +208,8 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&) = delete;
+  void operator=(const vtkPassInputTypeAlgorithm&) = delete;
 };
 
 #endif

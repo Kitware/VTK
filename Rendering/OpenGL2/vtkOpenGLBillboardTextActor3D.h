@@ -42,8 +42,8 @@ protected:
   int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLBillboardTextActor3D(const vtkOpenGLBillboardTextActor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLBillboardTextActor3D&) VTK_DELETE_FUNCTION;
+  vtkOpenGLBillboardTextActor3D(const vtkOpenGLBillboardTextActor3D&) = delete;
+  void operator=(const vtkOpenGLBillboardTextActor3D&) = delete;
 };
 
 #endif // vtkOpenGLBillboardTextActor3D_h

@@ -105,8 +105,8 @@ protected:
   vtkCellArray* Cells;
 
 private:
-  vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGridGeometry&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;
+  void operator=(const vtkHyperTreeGridGeometry&) = delete;
 };
 
 #endif /* vtkHyperTreeGridGeometry_h */

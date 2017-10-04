@@ -132,8 +132,8 @@ protected:
   void SetFunctionNames(Json::Value* val);
 
 private:
-  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
+  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) = delete;
+  void operator=(const vtkPlot3DMetaReader&) = delete;
 
   vtkMultiBlockPLOT3DReader* Reader;
   vtkPlot3DMetaReaderInternals* Internal;

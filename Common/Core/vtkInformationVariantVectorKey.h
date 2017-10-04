@@ -81,8 +81,8 @@ protected:
   int RequiredLength;
 
 private:
-  vtkInformationVariantVectorKey(const vtkInformationVariantVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationVariantVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationVariantVectorKey(const vtkInformationVariantVectorKey&) = delete;
+  void operator=(const vtkInformationVariantVectorKey&) = delete;
 };
 
 #endif

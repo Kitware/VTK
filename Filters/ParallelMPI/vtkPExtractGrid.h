@@ -59,8 +59,8 @@ protected:
     vtkMPIController* Controller;
 
 private:
-    vtkPExtractGrid(const vtkPExtractGrid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkPExtractGrid&) VTK_DELETE_FUNCTION;
+    vtkPExtractGrid(const vtkPExtractGrid&) = delete;
+    void operator=(const vtkPExtractGrid&) = delete;
 };
 
 #endif

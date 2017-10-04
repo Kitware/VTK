@@ -120,8 +120,8 @@ class vtkCellPointTraversal
     unsigned int    m_stack[CELLTREE_MAX_DEPTH];
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
-    vtkCellPointTraversal(const vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
-    void operator=(vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
+    vtkCellPointTraversal(const vtkCellPointTraversal&) = delete;
+    void operator=(vtkCellPointTraversal&) = delete;
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;

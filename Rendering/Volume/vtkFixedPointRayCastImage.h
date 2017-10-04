@@ -225,8 +225,8 @@ protected:
 
 
 private:
-  vtkFixedPointRayCastImage(const vtkFixedPointRayCastImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointRayCastImage&) VTK_DELETE_FUNCTION;
+  vtkFixedPointRayCastImage(const vtkFixedPointRayCastImage&) = delete;
+  void operator=(const vtkFixedPointRayCastImage&) = delete;
 };
 
 #endif

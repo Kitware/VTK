@@ -117,8 +117,8 @@ protected:
 
 
 private:
-  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
+  vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&) = delete;
+  void operator=(const vtkWidgetCallbackMapper&) = delete;
 
 };
 

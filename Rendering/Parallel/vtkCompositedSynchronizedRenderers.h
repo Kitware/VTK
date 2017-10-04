@@ -53,8 +53,8 @@ protected:
 
   vtkCompositer* Compositer;
 private:
-  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&) = delete;
+  void operator=(const vtkCompositedSynchronizedRenderers&) = delete;
 
 };
 

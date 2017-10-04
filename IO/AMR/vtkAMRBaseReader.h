@@ -308,8 +308,8 @@ protected:
     std::vector<int> BlockMap;
 
 private:
-  vtkAMRBaseReader( const vtkAMRBaseReader& ) VTK_DELETE_FUNCTION;
-  void operator=( const vtkAMRBaseReader& ) VTK_DELETE_FUNCTION;
+  vtkAMRBaseReader( const vtkAMRBaseReader& ) = delete;
+  void operator=( const vtkAMRBaseReader& ) = delete;
 };
 
 #endif /* vtkAMRBaseReader_h */

@@ -103,8 +103,8 @@ protected:
 
 
 private:
-  vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGlyph3DHelper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) = delete;
+  void operator=(const vtkOpenGLGlyph3DHelper&) = delete;
 };
 
 #endif

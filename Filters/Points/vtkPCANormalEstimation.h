@@ -170,8 +170,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPCANormalEstimation(const vtkPCANormalEstimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCANormalEstimation&) VTK_DELETE_FUNCTION;
+  vtkPCANormalEstimation(const vtkPCANormalEstimation&) = delete;
+  void operator=(const vtkPCANormalEstimation&) = delete;
 
 };
 

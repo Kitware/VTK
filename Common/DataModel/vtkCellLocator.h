@@ -215,8 +215,8 @@ protected:
   }
 
 private:
-  vtkCellLocator(const vtkCellLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellLocator&) VTK_DELETE_FUNCTION;
+  vtkCellLocator(const vtkCellLocator&) = delete;
+  void operator=(const vtkCellLocator&) = delete;
 };
 
 #endif

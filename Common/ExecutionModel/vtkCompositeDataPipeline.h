@@ -225,8 +225,8 @@ protected:
   static vtkInformationIntegerVectorKey* DATA_COMPOSITE_INDICES();
 
 private:
-  vtkCompositeDataPipeline(const vtkCompositeDataPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataPipeline&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataPipeline(const vtkCompositeDataPipeline&) = delete;
+  void operator=(const vtkCompositeDataPipeline&) = delete;
 };
 
 #endif

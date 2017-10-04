@@ -191,8 +191,8 @@ protected:
   char *NormalArrayName;
 
 private:
-  vtkSampleFunction(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
+  vtkSampleFunction(const vtkSampleFunction&) = delete;
+  void operator=(const vtkSampleFunction&) = delete;
 };
 
 #endif

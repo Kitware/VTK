@@ -303,8 +303,8 @@ protected:
   double                              AbsoluteMinimumThickness;
 
 private:
-  vtkParallelopipedRepresentation(const vtkParallelopipedRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelopipedRepresentation&) VTK_DELETE_FUNCTION;
+  vtkParallelopipedRepresentation(const vtkParallelopipedRepresentation&) = delete;
+  void operator=(const vtkParallelopipedRepresentation&) = delete;
 };
 
 #endif

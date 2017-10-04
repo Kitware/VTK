@@ -146,8 +146,8 @@ protected:
   int SplitLen;
 
 private:
-  vtkExtentTranslator(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
+  vtkExtentTranslator(const vtkExtentTranslator&) = delete;
+  void operator=(const vtkExtentTranslator&) = delete;
 };
 
 #endif

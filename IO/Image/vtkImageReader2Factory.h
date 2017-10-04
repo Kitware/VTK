@@ -78,8 +78,8 @@ protected:
 
 private:
   static vtkImageReader2Collection* AvailableReaders;
-  vtkImageReader2Factory(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
+  vtkImageReader2Factory(const vtkImageReader2Factory&) = delete;
+  void operator=(const vtkImageReader2Factory&) = delete;
 
   friend class vtkImageReader2FactoryCleanup;
 

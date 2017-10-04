@@ -80,8 +80,8 @@ protected:
   vtkGPUInfoListArray *Array;
 
 private:
-  vtkGPUInfoList(const vtkGPUInfoList&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGPUInfoList&) VTK_DELETE_FUNCTION;
+  vtkGPUInfoList(const vtkGPUInfoList&) = delete;
+  void operator=(const vtkGPUInfoList&) = delete;
 };
 
 #endif

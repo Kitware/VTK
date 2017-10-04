@@ -42,8 +42,8 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
-  vtkTStripsPainter(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
+  vtkTStripsPainter(const vtkTStripsPainter&) = delete;
+  void operator=(const vtkTStripsPainter&) = delete;
 };
 
 #endif

@@ -54,8 +54,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkDataSetCellIterator(const vtkDataSetCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetCellIterator &) VTK_DELETE_FUNCTION;
+  vtkDataSetCellIterator(const vtkDataSetCellIterator &) = delete;
+  void operator=(const vtkDataSetCellIterator &) = delete;
 };
 
 #endif //vtkDataSetCellIterator_h

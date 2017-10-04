@@ -114,8 +114,8 @@ protected:
   vtkIdTypeArray *OriginalCellIds;
 
 private:
-  vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&) = delete;
+  void operator=(const vtkHyperOctreeSurfaceFilter&) = delete;
 };
 
 #endif

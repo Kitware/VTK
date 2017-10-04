@@ -126,8 +126,8 @@ protected:
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
-  vtkAssignAttribute(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
+  vtkAssignAttribute(const vtkAssignAttribute&) = delete;
+  void operator=(const vtkAssignAttribute&) = delete;
 };
 
 #endif

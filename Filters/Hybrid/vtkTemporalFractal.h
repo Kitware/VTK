@@ -250,8 +250,8 @@ protected:
   vtkSmartPointer<TemporalFractalOutputUtil> OutputUtil;
 
 private:
-  vtkTemporalFractal(const vtkTemporalFractal&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalFractal&) VTK_DELETE_FUNCTION;
+  vtkTemporalFractal(const vtkTemporalFractal&) = delete;
+  void operator=(const vtkTemporalFractal&) = delete;
 };
 
 

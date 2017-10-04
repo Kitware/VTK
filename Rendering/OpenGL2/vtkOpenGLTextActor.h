@@ -42,8 +42,8 @@ protected:
   int RenderGL2PS(vtkViewport *viewport, vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLTextActor(const vtkOpenGLTextActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLTextActor&) VTK_DELETE_FUNCTION;
+  vtkOpenGLTextActor(const vtkOpenGLTextActor&) = delete;
+  void operator=(const vtkOpenGLTextActor&) = delete;
 };
 
 #endif // vtkOpenGLTextActor_h

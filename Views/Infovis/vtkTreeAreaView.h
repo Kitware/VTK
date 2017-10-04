@@ -257,8 +257,8 @@ protected:
   //@}
 
 private:
-  vtkTreeAreaView(const vtkTreeAreaView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeAreaView&) VTK_DELETE_FUNCTION;
+  vtkTreeAreaView(const vtkTreeAreaView&) = delete;
+  void operator=(const vtkTreeAreaView&) = delete;
 };
 
 #endif

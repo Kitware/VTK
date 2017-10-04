@@ -183,8 +183,8 @@ private:
   class Internals;
   Internals* Implementation;
 
-  vtkAttributeClustering2DLayoutStrategy(const vtkAttributeClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAttributeClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkAttributeClustering2DLayoutStrategy(const vtkAttributeClustering2DLayoutStrategy&) = delete;
+  void operator=(const vtkAttributeClustering2DLayoutStrategy&) = delete;
 };
 
 #endif

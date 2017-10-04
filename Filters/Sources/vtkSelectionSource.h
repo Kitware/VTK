@@ -199,8 +199,8 @@ protected:
   char *QueryString;
 
 private:
-  vtkSelectionSource(const vtkSelectionSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectionSource&) VTK_DELETE_FUNCTION;
+  vtkSelectionSource(const vtkSelectionSource&) = delete;
+  void operator=(const vtkSelectionSource&) = delete;
 };
 
 #endif

@@ -156,8 +156,8 @@ protected:
   vtkIdType *GetLocatorPointer(int cellX, int cellY, int edge);
 
 private:
-  vtkImageMarchingCubes(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
+  vtkImageMarchingCubes(const vtkImageMarchingCubes&) = delete;
+  void operator=(const vtkImageMarchingCubes&) = delete;
 };
 
 /**

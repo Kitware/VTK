@@ -462,8 +462,8 @@ protected:
   unsigned int SelectionColorId;
 
 private:
-  vtkGlyph3DMapper(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  vtkGlyph3DMapper(const vtkGlyph3DMapper&) = delete;
+  void operator=(const vtkGlyph3DMapper&) = delete;
 
   /**
    * Returns true when valid bounds are returned.

@@ -231,8 +231,8 @@ public:
   bool NeedUpdate;
 
 private:
-  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
+  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) = delete;
+  void operator=(const vtkShadowMapBakerPass&) = delete;
 };
 
 #endif

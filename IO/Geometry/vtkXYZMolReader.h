@@ -84,8 +84,8 @@ protected:
   int MaxTimeStep;
 
 private:
-  vtkXYZMolReader(const vtkXYZMolReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYZMolReader&) VTK_DELETE_FUNCTION;
+  vtkXYZMolReader(const vtkXYZMolReader&) = delete;
+  void operator=(const vtkXYZMolReader&) = delete;
 };
 
 #endif

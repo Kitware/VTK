@@ -305,8 +305,8 @@ private: //members added for performance
   vtkIdList *CheckedTetras; //used by InsertPoint
 
 private:
-  vtkDelaunay3D(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
+  vtkDelaunay3D(const vtkDelaunay3D&) = delete;
+  void operator=(const vtkDelaunay3D&) = delete;
 };
 
 #endif

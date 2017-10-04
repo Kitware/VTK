@@ -162,8 +162,8 @@ protected:
       float parentStartAng, float parentEndAng);
 
 private:
-  vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStackedTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&) = delete;
+  void operator=(const vtkStackedTreeLayoutStrategy&) = delete;
 };
 
 #endif

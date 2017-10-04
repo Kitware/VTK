@@ -128,8 +128,8 @@ protected:
   int PointMode;
 
 private:
-  vtkExtentSplitter(const vtkExtentSplitter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtentSplitter&) VTK_DELETE_FUNCTION;
+  vtkExtentSplitter(const vtkExtentSplitter&) = delete;
+  void operator=(const vtkExtentSplitter&) = delete;
 };
 
 #endif

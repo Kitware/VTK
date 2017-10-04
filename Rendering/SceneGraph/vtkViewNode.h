@@ -171,8 +171,8 @@ protected:
   friend class vtkViewNodeFactory;
 
 private:
-  vtkViewNode(const vtkViewNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewNode&) VTK_DELETE_FUNCTION;
+  vtkViewNode(const vtkViewNode&) = delete;
+  void operator=(const vtkViewNode&) = delete;
 };
 
 #endif

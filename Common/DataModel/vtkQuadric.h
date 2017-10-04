@@ -68,8 +68,8 @@ protected:
   double Coefficients[10];
 
 private:
-  vtkQuadric(const vtkQuadric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadric&) VTK_DELETE_FUNCTION;
+  vtkQuadric(const vtkQuadric&) = delete;
+  void operator=(const vtkQuadric&) = delete;
 };
 
 #endif

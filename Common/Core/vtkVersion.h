@@ -55,8 +55,8 @@ protected:
   vtkVersion() {} //insure constructor/destructor protected
   ~vtkVersion() override {}
 private:
-  vtkVersion(const vtkVersion&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVersion&) VTK_DELETE_FUNCTION;
+  vtkVersion(const vtkVersion&) = delete;
+  void operator=(const vtkVersion&) = delete;
 };
 
 #endif

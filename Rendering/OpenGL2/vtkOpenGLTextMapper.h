@@ -43,8 +43,8 @@ protected:
                    vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLTextMapper(const vtkOpenGLTextMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLTextMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLTextMapper(const vtkOpenGLTextMapper&) = delete;
+  void operator=(const vtkOpenGLTextMapper&) = delete;
 };
 
 #endif // vtkOpenGLTextMapper_h

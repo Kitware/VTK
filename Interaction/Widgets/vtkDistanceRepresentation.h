@@ -208,8 +208,8 @@ protected:
   int NumberOfRulerTicks;
 
 private:
-  vtkDistanceRepresentation(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
+  vtkDistanceRepresentation(const vtkDistanceRepresentation&) = delete;
+  void operator=(const vtkDistanceRepresentation&) = delete;
 };
 
 #endif

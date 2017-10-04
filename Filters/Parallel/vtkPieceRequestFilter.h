@@ -97,8 +97,8 @@ protected:
   int Piece;
 
 private:
-  vtkPieceRequestFilter(const vtkPieceRequestFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPieceRequestFilter&) VTK_DELETE_FUNCTION;
+  vtkPieceRequestFilter(const vtkPieceRequestFilter&) = delete;
+  void operator=(const vtkPieceRequestFilter&) = delete;
 };
 
 #endif

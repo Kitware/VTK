@@ -178,8 +178,8 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   void PrintSelfIfExists(const char *, vtkObject *, ostream&, vtkIndent);
 
  private:
-  vtkBlueObeliskData(const vtkBlueObeliskData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlueObeliskData&) VTK_DELETE_FUNCTION;
+  vtkBlueObeliskData(const vtkBlueObeliskData&) = delete;
+  void operator=(const vtkBlueObeliskData&) = delete;
 };
 
 #endif

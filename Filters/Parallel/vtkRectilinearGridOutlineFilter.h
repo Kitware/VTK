@@ -43,8 +43,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&) = delete;
+  void operator=(const vtkRectilinearGridOutlineFilter&) = delete;
 };
 
 #endif

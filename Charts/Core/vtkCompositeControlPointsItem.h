@@ -148,8 +148,8 @@ protected:
   bool UseOpacityPointHandles;
 
 private:
-  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
+  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) = delete;
+  void operator=(const vtkCompositeControlPointsItem &) = delete;
 };
 
 #endif

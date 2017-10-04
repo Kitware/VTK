@@ -94,8 +94,8 @@ protected:
   void UpdateRotationMatrix();
 
 private:
-  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
+  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &) = delete;
+  void operator=(const vtkAngularPeriodicDataArray &) = delete;
 
   double Angle;            // Rotation angle in degrees
   double AngleInRadians;   // Rotation angle in radians

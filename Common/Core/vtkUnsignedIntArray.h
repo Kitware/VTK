@@ -79,8 +79,8 @@ private:
 
   typedef vtkAOSDataArrayTemplate<unsigned int> RealSuperclass;
 
-  vtkUnsignedIntArray(const vtkUnsignedIntArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnsignedIntArray&) VTK_DELETE_FUNCTION;
+  vtkUnsignedIntArray(const vtkUnsignedIntArray&) = delete;
+  void operator=(const vtkUnsignedIntArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

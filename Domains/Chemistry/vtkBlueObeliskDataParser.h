@@ -141,8 +141,8 @@ protected:
   unsigned int CurrentGroup;
 
 private:
-  vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlueObeliskDataParser&) VTK_DELETE_FUNCTION;
+  vtkBlueObeliskDataParser(const vtkBlueObeliskDataParser&) = delete;
+  void operator=(const vtkBlueObeliskDataParser&) = delete;
 
   //@{
   /**

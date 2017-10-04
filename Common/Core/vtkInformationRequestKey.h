@@ -70,8 +70,8 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
 private:
-  vtkInformationRequestKey(const vtkInformationRequestKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationRequestKey&) VTK_DELETE_FUNCTION;
+  vtkInformationRequestKey(const vtkInformationRequestKey&) = delete;
+  void operator=(const vtkInformationRequestKey&) = delete;
 };
 
 #endif

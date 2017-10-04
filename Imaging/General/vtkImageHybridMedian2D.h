@@ -47,8 +47,8 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id) override;
 private:
-  vtkImageHybridMedian2D(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;
+  vtkImageHybridMedian2D(const vtkImageHybridMedian2D&) = delete;
+  void operator=(const vtkImageHybridMedian2D&) = delete;
 };
 
 #endif

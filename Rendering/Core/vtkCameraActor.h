@@ -110,8 +110,8 @@ protected:
   vtkActor *FrustumActor;
 
 private:
-  vtkCameraActor(const vtkCameraActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraActor&) VTK_DELETE_FUNCTION;
+  vtkCameraActor(const vtkCameraActor&) = delete;
+  void operator=(const vtkCameraActor&) = delete;
 };
 
 #endif

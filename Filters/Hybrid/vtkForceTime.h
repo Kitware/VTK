@@ -53,8 +53,8 @@ protected:
                           vtkInformationVector*) override;
 
 private:
-  vtkForceTime(const vtkForceTime&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkForceTime&) VTK_DELETE_FUNCTION;
+  vtkForceTime(const vtkForceTime&) = delete;
+  void operator=(const vtkForceTime&) = delete;
 
   double ForcedTime;
   bool IgnorePipelineTime;

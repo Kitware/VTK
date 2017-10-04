@@ -134,8 +134,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkEllipseArcSource(const vtkEllipseArcSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEllipseArcSource&) VTK_DELETE_FUNCTION;
+  vtkEllipseArcSource(const vtkEllipseArcSource&) = delete;
+  void operator=(const vtkEllipseArcSource&) = delete;
 };
 
 #endif

@@ -76,8 +76,8 @@ protected:
   ~vtkTreeCompositer() override;
 
 private:
-  vtkTreeCompositer(const vtkTreeCompositer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeCompositer&) VTK_DELETE_FUNCTION;
+  vtkTreeCompositer(const vtkTreeCompositer&) = delete;
+  void operator=(const vtkTreeCompositer&) = delete;
 };
 
 #endif

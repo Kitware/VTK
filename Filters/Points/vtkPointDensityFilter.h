@@ -262,8 +262,8 @@ protected:
                           vtkInformation *outInfo);
 
 private:
-  vtkPointDensityFilter(const vtkPointDensityFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointDensityFilter&) VTK_DELETE_FUNCTION;
+  vtkPointDensityFilter(const vtkPointDensityFilter&) = delete;
+  void operator=(const vtkPointDensityFilter&) = delete;
 };
 
 #endif

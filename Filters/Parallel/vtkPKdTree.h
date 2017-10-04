@@ -476,8 +476,8 @@ private:
 
   static int FindNextLocalArrayIndex(const char *n, const char * const *names, int len, int start=0);
 
-  vtkPKdTree(const vtkPKdTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPKdTree&) VTK_DELETE_FUNCTION;
+  vtkPKdTree(const vtkPKdTree&) = delete;
+  void operator=(const vtkPKdTree&) = delete;
 };
 
 #endif

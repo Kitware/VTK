@@ -204,8 +204,8 @@ protected:
   virtual void RemoveWrittenFiles(const char* SubDirectory);
 
 private:
-  vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLCompositeDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&) = delete;
+  void operator=(const vtkXMLCompositeDataWriter&) = delete;
 };
 
 #endif

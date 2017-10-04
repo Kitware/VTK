@@ -177,8 +177,8 @@ protected:
                           vtkInformationVector* outputVector) override;
 
 private:
-  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
+  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) = delete;
+  void operator=(const vtkVolumeOutlineSource&) = delete;
 };
 
 #endif

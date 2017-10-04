@@ -213,8 +213,8 @@ protected:
   int    TileScale[2];
 
 private:
-  vtkWindow(const vtkWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindow&) VTK_DELETE_FUNCTION;
+  vtkWindow(const vtkWindow&) = delete;
+  void operator=(const vtkWindow&) = delete;
 };
 
 #endif

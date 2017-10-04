@@ -163,8 +163,8 @@ protected:
   bool MarkBlankPointsAndCells;
 
 private:
-  vtkResampleWithDataSet(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;
+  vtkResampleWithDataSet(const vtkResampleWithDataSet&) = delete;
+  void operator=(const vtkResampleWithDataSet&) = delete;
 };
 
 #endif // vtkResampleWithDataSet_h

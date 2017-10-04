@@ -279,8 +279,8 @@ protected:
   double *TempData;
 
 private:
-  vtkQuadricDecimation(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
+  vtkQuadricDecimation(const vtkQuadricDecimation&) = delete;
+  void operator=(const vtkQuadricDecimation&) = delete;
 };
 
 #endif

@@ -78,8 +78,8 @@ protected:
   virtual void Dolly(double factor);
 
 private:
-  vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleJoystickCamera&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&) = delete;
+  void operator=(const vtkInteractorStyleJoystickCamera&) = delete;
 };
 
 #endif

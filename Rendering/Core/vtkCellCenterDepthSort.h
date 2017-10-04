@@ -74,8 +74,8 @@ protected:
 private:
   vtkCellCenterDepthSortStack *ToSort;
 
-  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellCenterDepthSort &) VTK_DELETE_FUNCTION;
+  vtkCellCenterDepthSort(const vtkCellCenterDepthSort &) = delete;
+  void operator=(const vtkCellCenterDepthSort &) = delete;
 };
 
 #endif

@@ -70,8 +70,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double ShrinkFactor;
 private:
-  vtkShrinkPolyData(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
+  vtkShrinkPolyData(const vtkShrinkPolyData&) = delete;
+  void operator=(const vtkShrinkPolyData&) = delete;
 };
 
 #endif

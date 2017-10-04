@@ -106,8 +106,8 @@ protected:
                     vtkFloatArray* scalars=nullptr);
   int GetSTLFileType(const char *filename);
 private:
-  vtkSTLReader(const vtkSTLReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSTLReader&) VTK_DELETE_FUNCTION;
+  vtkSTLReader(const vtkSTLReader&) = delete;
+  void operator=(const vtkSTLReader&) = delete;
 };
 
 #endif

@@ -126,8 +126,8 @@ protected:
   int FieldData;
 
 private:
-  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
+  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) = delete;
+  void operator=(const vtkDataSetToDataObjectFilter&) = delete;
 };
 
 #endif

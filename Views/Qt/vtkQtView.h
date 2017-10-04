@@ -69,8 +69,8 @@ protected:
   ~vtkQtView() override;
 
 private:
-  vtkQtView(const vtkQtView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtView&) VTK_DELETE_FUNCTION;
+  vtkQtView(const vtkQtView&) = delete;
+  void operator=(const vtkQtView&) = delete;
 
 };
 

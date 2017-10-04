@@ -56,8 +56,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&) = delete;
+  void operator=(const vtkUnstructuredGridWriter&) = delete;
 };
 
 #endif

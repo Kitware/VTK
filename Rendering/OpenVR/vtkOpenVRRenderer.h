@@ -91,8 +91,8 @@ protected:
   bool ShowFloor;
 
 private:
-  vtkOpenVRRenderer(const vtkOpenVRRenderer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRRenderer&) VTK_DELETE_FUNCTION;
+  vtkOpenVRRenderer(const vtkOpenVRRenderer&) = delete;
+  void operator=(const vtkOpenVRRenderer&) = delete;
 };
 
 

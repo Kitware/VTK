@@ -219,8 +219,8 @@ private:
   int NoiseTextureSize[2];
 
   vtkOpenGLGPUVolumeRayCastMapper(
-    const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
+  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
 };
 
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

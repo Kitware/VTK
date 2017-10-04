@@ -100,8 +100,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphSurfaceSkeletonFilter(const vtkReebGraphSurfaceSkeletonFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraphSurfaceSkeletonFilter&) VTK_DELETE_FUNCTION;
+  vtkReebGraphSurfaceSkeletonFilter(const vtkReebGraphSurfaceSkeletonFilter&) = delete;
+  void operator=(const vtkReebGraphSurfaceSkeletonFilter&) = delete;
 };
 
 #endif

@@ -42,8 +42,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPostgreSQLToTableReader&) VTK_DELETE_FUNCTION;
+  vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&) = delete;
+  void operator=(const vtkPostgreSQLToTableReader&) = delete;
 };
 
 #endif

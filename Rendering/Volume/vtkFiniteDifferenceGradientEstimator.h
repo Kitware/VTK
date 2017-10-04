@@ -76,8 +76,8 @@ protected:
   void UpdateNormals( void ) override;
 
 private:
-  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFiniteDifferenceGradientEstimator&) VTK_DELETE_FUNCTION;
+  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) = delete;
+  void operator=(const vtkFiniteDifferenceGradientEstimator&) = delete;
 };
 
 

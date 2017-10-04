@@ -282,7 +282,7 @@ protected:
   vtkVolume *LastVolume;
 
 private:
-  vtkHAVSVolumeMapper(const vtkHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkHAVSVolumeMapper(const vtkHAVSVolumeMapper&) = delete;
+  void operator=(const vtkHAVSVolumeMapper&) = delete;
 };
 #endif

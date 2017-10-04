@@ -144,8 +144,8 @@ protected:
   vtkStdString LastError;
 
 private:
-  vtkTecplotTableReader(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
+  vtkTecplotTableReader(const vtkTecplotTableReader&) = delete;
+  void operator=(const vtkTecplotTableReader&) = delete;
 
 };
 

@@ -78,8 +78,8 @@ protected:
                                   double derivative[3][3]) override;
 
 private:
-  vtkSphericalTransform(const vtkSphericalTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphericalTransform&) VTK_DELETE_FUNCTION;
+  vtkSphericalTransform(const vtkSphericalTransform&) = delete;
+  void operator=(const vtkSphericalTransform&) = delete;
 };
 
 #endif

@@ -57,8 +57,8 @@ protected:
   int InName;
 
 private:
-  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLSDynaSummaryParser& ) VTK_DELETE_FUNCTION;
+  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ) = delete;
+  void operator = ( const vtkLSDynaSummaryParser& ) = delete;
 };
 
 #endif //vtkLSDynaReader_h

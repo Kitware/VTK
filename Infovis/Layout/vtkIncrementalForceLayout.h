@@ -155,7 +155,7 @@ protected:
   float Friction;
 
 private:
-  vtkIncrementalForceLayout(const vtkIncrementalForceLayout &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIncrementalForceLayout &) VTK_DELETE_FUNCTION;
+  vtkIncrementalForceLayout(const vtkIncrementalForceLayout &) = delete;
+  void operator=(const vtkIncrementalForceLayout &) = delete;
 };
 #endif

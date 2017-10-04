@@ -73,8 +73,8 @@ protected:
 
   int EmptyData;
 private:
-  vtkPStreamTracer(const vtkPStreamTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPStreamTracer&) VTK_DELETE_FUNCTION;
+  vtkPStreamTracer(const vtkPStreamTracer&) = delete;
+  void operator=(const vtkPStreamTracer&) = delete;
 
   void Trace( vtkDataSet *input,
               int vecType,

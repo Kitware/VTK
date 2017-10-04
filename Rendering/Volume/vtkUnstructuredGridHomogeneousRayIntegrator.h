@@ -87,8 +87,8 @@ protected:
   virtual void GetTransferFunctionTables(vtkDataArray *scalars);
 
 private:
-  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
+  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) = delete;
 };
 
 #endif //vtkUnstructuredGridHomogeneousRayIntegrator_h

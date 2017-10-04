@@ -142,8 +142,8 @@ protected:
   bool IsReady;
 
 private:
-  vtkAMREnzoReader( const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
+  vtkAMREnzoReader( const vtkAMREnzoReader& ) = delete;
+  void operator=(const vtkAMREnzoReader& ) = delete;
 
   vtkEnzoReaderInternal *Internal;
 

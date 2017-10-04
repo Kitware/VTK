@@ -105,8 +105,8 @@ protected:
   double CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 private:
-  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphLayoutFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&) = delete;
+  void operator=(const vtkGraphLayoutFilter&) = delete;
 };
 
 #endif

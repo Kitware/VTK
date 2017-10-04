@@ -54,8 +54,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
   ~vtkNonOverlappingAMR() override;
 
  private:
-  vtkNonOverlappingAMR(const vtkNonOverlappingAMR&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNonOverlappingAMR&) VTK_DELETE_FUNCTION;
+  vtkNonOverlappingAMR(const vtkNonOverlappingAMR&) = delete;
+  void operator=(const vtkNonOverlappingAMR&) = delete;
 };
 
 #endif /* vtkNonOverlappingAMR_h */

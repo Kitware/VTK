@@ -105,8 +105,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&) = delete;
+  void operator=(const vtkPiecewiseFunctionAlgorithm&) = delete;
 };
 
 #endif

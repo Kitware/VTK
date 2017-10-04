@@ -101,8 +101,8 @@ protected:
   double    LowerBound, UpperBound;
 
 private:
-  vtkReebGraphSimplificationMetric(const vtkReebGraphSimplificationMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraphSimplificationMetric&) VTK_DELETE_FUNCTION;
+  vtkReebGraphSimplificationMetric(const vtkReebGraphSimplificationMetric&) = delete;
+  void operator=(const vtkReebGraphSimplificationMetric&) = delete;
 };
 
 #endif

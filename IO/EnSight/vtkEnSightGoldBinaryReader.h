@@ -241,8 +241,8 @@ protected:
 
 private:
   int SizeOfInt;
-  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) = delete;
+  void operator=(const vtkEnSightGoldBinaryReader&) = delete;
 };
 
 #endif

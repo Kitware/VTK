@@ -113,8 +113,8 @@ protected:
   vtkAtomicIdType AtomicInsertionId;
 
 private:
-  vtkSMPMergePoints(const vtkSMPMergePoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPMergePoints&) VTK_DELETE_FUNCTION;
+  vtkSMPMergePoints(const vtkSMPMergePoints&) = delete;
+  void operator=(const vtkSMPMergePoints&) = delete;
 };
 
 #endif // vtkSMPMergePoints_h

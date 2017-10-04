@@ -253,9 +253,9 @@ protected:
 
 private:
   vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&)
-    VTK_DELETE_FUNCTION;
+    = delete;
   vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&)
-    VTK_DELETE_FUNCTION;
+    = delete;
 };
 
 vtkStandardNewMacro(vtkOpenGLVolumeOpacityTable);
@@ -318,11 +318,11 @@ public:
 private:
   std::vector<vtkOpenGLVolumeOpacityTable*> Tables;
 
-  vtkOpenGLVolumeOpacityTables() VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeOpacityTables() = delete;
 
-  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other) = delete;
 
-  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other) = delete;
 };
 
 #endif // vtkOpenGLVolumeOpacityTable_h

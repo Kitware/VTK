@@ -148,8 +148,8 @@ protected:
   bool TextAsPath;
 
 private:
-  vtkSVGExporter(const vtkSVGExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSVGExporter&) VTK_DELETE_FUNCTION;
+  vtkSVGExporter(const vtkSVGExporter&) = delete;
+  void operator=(const vtkSVGExporter&) = delete;
 };
 
 #endif // vtkSVGExporter_h

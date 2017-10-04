@@ -101,8 +101,8 @@ protected:
                                   unsigned char* uncompressedData,
                                   size_t uncompressedSize)=0;
 private:
-  vtkDataCompressor(const vtkDataCompressor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataCompressor&) VTK_DELETE_FUNCTION;
+  vtkDataCompressor(const vtkDataCompressor&) = delete;
+  void operator=(const vtkDataCompressor&) = delete;
 };
 
 #endif

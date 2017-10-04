@@ -110,8 +110,8 @@ protected:
     vtkRenderer *ren, vtkActor *act) override;
 
 private:
-  vtkCompositeLICHelper(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
+  vtkCompositeLICHelper(const vtkCompositeLICHelper&) = delete;
+  void operator=(const vtkCompositeLICHelper&) = delete;
 };
 
 //----------------------------------------------------------------------------

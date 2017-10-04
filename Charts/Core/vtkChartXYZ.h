@@ -495,8 +495,8 @@ protected:
   double DataBounds[4];
 
 private:
-  vtkChartXYZ(const vtkChartXYZ &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartXYZ &) VTK_DELETE_FUNCTION;
+  vtkChartXYZ(const vtkChartXYZ &) = delete;
+  void operator=(const vtkChartXYZ &) = delete;
 };
 
 #endif

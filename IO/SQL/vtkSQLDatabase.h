@@ -251,8 +251,8 @@ protected:
   virtual bool ParseURL( const char* url ) = 0;
 
 private:
-  vtkSQLDatabase(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkSQLDatabase(const vtkSQLDatabase &) = delete;
+  void operator=(const vtkSQLDatabase &) = delete;
 
   //@{
   /**

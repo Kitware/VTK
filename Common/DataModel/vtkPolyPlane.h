@@ -86,8 +86,8 @@ protected:
   vtkIdType        ClosestPlaneIdx;
 
 private:
-  vtkPolyPlane(const vtkPolyPlane&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyPlane&) VTK_DELETE_FUNCTION;
+  vtkPolyPlane(const vtkPolyPlane&) = delete;
+  void operator=(const vtkPolyPlane&) = delete;
 };
 
 #endif

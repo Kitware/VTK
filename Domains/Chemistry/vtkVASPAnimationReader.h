@@ -85,8 +85,8 @@ protected:
   vtksys::RegularExpression *AtomParser;
 
 private:
-  vtkVASPAnimationReader(const vtkVASPAnimationReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVASPAnimationReader&) VTK_DELETE_FUNCTION;
+  vtkVASPAnimationReader(const vtkVASPAnimationReader&) = delete;
+  void operator=(const vtkVASPAnimationReader&) = delete;
 };
 
 #endif // vtkVASPAnimationReader_h

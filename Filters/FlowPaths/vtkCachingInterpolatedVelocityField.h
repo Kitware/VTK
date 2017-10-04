@@ -171,8 +171,8 @@ protected:
   //@}
 
 private:
-  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) = delete;
+  void operator=(const vtkCachingInterpolatedVelocityField&) = delete;
 };
 
 //---------------------------------------------------------------------------

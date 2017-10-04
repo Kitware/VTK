@@ -189,8 +189,8 @@ protected:
   bool NormalizeWeights;
 
 private:
-  vtkGeneralizedKernel(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
+  vtkGeneralizedKernel(const vtkGeneralizedKernel&) = delete;
+  void operator=(const vtkGeneralizedKernel&) = delete;
 };
 
 #endif

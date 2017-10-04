@@ -320,8 +320,8 @@ protected:
   vtkProperty *SelectedNormalProperty;
 
 private:
-  vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFinitePlaneRepresentation&) VTK_DELETE_FUNCTION;
+  vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&) = delete;
+  void operator=(const vtkFinitePlaneRepresentation&) = delete;
 };
 
 #endif

@@ -85,8 +85,8 @@ protected:
   FILE *FilePointer;
   double Speed;
 private:
-  vtkVRMLExporter(const vtkVRMLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVRMLExporter&) VTK_DELETE_FUNCTION;
+  vtkVRMLExporter(const vtkVRMLExporter&) = delete;
+  void operator=(const vtkVRMLExporter&) = delete;
 };
 
 #endif

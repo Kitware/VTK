@@ -86,8 +86,8 @@ protected:
 
 private:
 
-  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&) = delete;
+  void operator=(const vtkTreeOrbitLayoutStrategy&) = delete;
 };
 
 #endif

@@ -447,8 +447,8 @@ protected:
   vtkInformation *PropertyKeys;
 
 private:
-  vtkProp(const vtkProp&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp&) VTK_DELETE_FUNCTION;
+  vtkProp(const vtkProp&) = delete;
+  void operator=(const vtkProp&) = delete;
 };
 
 #endif

@@ -180,8 +180,8 @@ protected:
   int ActiveLayer;
 
 private:
-  vtkImageStack(const vtkImageStack&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStack&) VTK_DELETE_FUNCTION;
+  vtkImageStack(const vtkImageStack&) = delete;
+  void operator=(const vtkImageStack&) = delete;
 };
 
 #endif

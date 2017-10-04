@@ -64,8 +64,8 @@ protected:
 private:
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  vtkDensifyPolyData(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
+  vtkDensifyPolyData(const vtkDensifyPolyData&) = delete;
+  void operator=(const vtkDensifyPolyData&) = delete;
 };
 
 #endif

@@ -317,8 +317,8 @@ protected:
   int ReplacementValueOption;
 
 private:
-  vtkGradientFilter(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
+  vtkGradientFilter(const vtkGradientFilter &) = delete;
+  void operator=(const vtkGradientFilter &) = delete;
 };
 
 #endif //_vtkGradientFilter_h

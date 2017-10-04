@@ -405,8 +405,8 @@ protected:
   void GeneratePlane();
 
 private:
-  vtkImplicitPlaneWidget(const vtkImplicitPlaneWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPlaneWidget&) VTK_DELETE_FUNCTION;
+  vtkImplicitPlaneWidget(const vtkImplicitPlaneWidget&) = delete;
+  void operator=(const vtkImplicitPlaneWidget&) = delete;
 };
 
 #endif

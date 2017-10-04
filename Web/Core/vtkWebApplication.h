@@ -134,8 +134,8 @@ protected:
   vtkMTimeType LastStillRenderToMTime;
 
 private:
-  vtkWebApplication(const vtkWebApplication&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebApplication&) VTK_DELETE_FUNCTION;
+  vtkWebApplication(const vtkWebApplication&) = delete;
+  void operator=(const vtkWebApplication&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

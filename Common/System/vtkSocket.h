@@ -130,8 +130,8 @@ protected:
   int GetPort(int socketdescriptor);
 
 private:
-  vtkSocket(const vtkSocket&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSocket&) VTK_DELETE_FUNCTION;
+  vtkSocket(const vtkSocket&) = delete;
+  void operator=(const vtkSocket&) = delete;
 };
 
 

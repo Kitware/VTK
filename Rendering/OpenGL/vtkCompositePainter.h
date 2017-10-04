@@ -119,8 +119,8 @@ protected:
   vtkDataObject* OutputData;
   vtkCompositeDataDisplayAttributesLegacy *CompositeDataDisplayAttributes;
 private:
-  vtkCompositePainter(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
+  vtkCompositePainter(const vtkCompositePainter&) = delete;
+  void operator=(const vtkCompositePainter&) = delete;
 
 };
 

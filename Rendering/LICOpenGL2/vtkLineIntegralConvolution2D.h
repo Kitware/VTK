@@ -438,8 +438,8 @@ protected:
   double  MaxNoiseValue;
 
 private:
-  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
-  void operator = (const vtkLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
+  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &) = delete;
+  void operator = (const vtkLineIntegralConvolution2D &) = delete;
 };
 
 #endif

@@ -108,8 +108,8 @@ protected:
   vtkLine *Line;
 
 private:
-  vtkPixel(const vtkPixel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPixel&) VTK_DELETE_FUNCTION;
+  vtkPixel(const vtkPixel&) = delete;
+  void operator=(const vtkPixel&) = delete;
 };
 
 //----------------------------------------------------------------------------

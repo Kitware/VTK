@@ -114,8 +114,8 @@ protected:
   bool Compress;
 
 private:
-  vtkMetaImageWriter(const vtkMetaImageWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMetaImageWriter&) VTK_DELETE_FUNCTION;
+  vtkMetaImageWriter(const vtkMetaImageWriter&) = delete;
+  void operator=(const vtkMetaImageWriter&) = delete;
 
   vtkmetaio::MetaImage * MetaImagePtr;
 

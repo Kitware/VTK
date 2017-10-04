@@ -108,8 +108,8 @@ public:
   int    ExtraPixels; // w(h) = width(height) + 2*extrapixels
 
  private:
-  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
+  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) = delete;
+  void operator=(const vtkDepthImageProcessingPass&) = delete;
 };
 
 #endif

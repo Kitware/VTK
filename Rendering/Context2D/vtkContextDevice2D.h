@@ -432,8 +432,8 @@ protected:
   vtkTextProperty *TextProp;  // Text property
 
 private:
-  vtkContextDevice2D(const vtkContextDevice2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextDevice2D &) VTK_DELETE_FUNCTION;
+  vtkContextDevice2D(const vtkContextDevice2D &) = delete;
+  void operator=(const vtkContextDevice2D &) = delete;
 
 };
 

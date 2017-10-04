@@ -268,7 +268,7 @@ protected:
 private:
   WindBladeReaderInternal * Internal;
 
-  vtkWindBladeReader(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
+  vtkWindBladeReader(const vtkWindBladeReader&) = delete;
+  void operator=(const vtkWindBladeReader&) = delete;
 };
 #endif

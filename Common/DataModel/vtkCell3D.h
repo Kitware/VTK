@@ -111,8 +111,8 @@ protected:
   vtkDoubleArray         *ClipScalars;
 
 private:
-  vtkCell3D(const vtkCell3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCell3D&) VTK_DELETE_FUNCTION;
+  vtkCell3D(const vtkCell3D&) = delete;
+  void operator=(const vtkCell3D&) = delete;
 };
 
 #endif

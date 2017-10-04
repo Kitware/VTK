@@ -36,8 +36,8 @@ public:
   ~vtkOutputWindowCleanup();
 
 private:
-  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) VTK_DELETE_FUNCTION;
-  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
+  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
@@ -97,8 +97,8 @@ protected:
 private:
   static vtkOutputWindow* Instance;
 private:
-  vtkOutputWindow(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkOutputWindow(const vtkOutputWindow&) = delete;
+  void operator=(const vtkOutputWindow&) = delete;
 };
 
 // Uses schwartz counter idiom for singleton management

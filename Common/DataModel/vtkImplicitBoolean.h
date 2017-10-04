@@ -118,8 +118,8 @@ protected:
   int OperationType;
 
 private:
-  vtkImplicitBoolean(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
+  vtkImplicitBoolean(const vtkImplicitBoolean&) = delete;
+  void operator=(const vtkImplicitBoolean&) = delete;
 };
 
 //@{

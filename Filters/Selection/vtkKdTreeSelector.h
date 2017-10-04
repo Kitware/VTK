@@ -133,8 +133,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkKdTreeSelector(const vtkKdTreeSelector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKdTreeSelector&) VTK_DELETE_FUNCTION;
+  vtkKdTreeSelector(const vtkKdTreeSelector&) = delete;
+  void operator=(const vtkKdTreeSelector&) = delete;
 };
 
 #endif

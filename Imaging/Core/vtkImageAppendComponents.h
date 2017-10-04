@@ -88,8 +88,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageAppendComponents(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
+  vtkImageAppendComponents(const vtkImageAppendComponents&) = delete;
+  void operator=(const vtkImageAppendComponents&) = delete;
 };
 
 #endif

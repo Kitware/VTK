@@ -100,8 +100,8 @@ protected:
   vtkPlane *PlaneFunction;
 
 private:
-  vtkCutMaterial(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
+  vtkCutMaterial(const vtkCutMaterial&) = delete;
+  void operator=(const vtkCutMaterial&) = delete;
 };
 
 #endif

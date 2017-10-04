@@ -212,8 +212,8 @@ protected:
   double LastEventPosition[3];
 
 private:
-  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
+  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&) = delete;
+  void operator=(const vtkAxesTransformRepresentation&) = delete;
 };
 
 #endif

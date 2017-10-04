@@ -54,8 +54,8 @@ protected:
 
 private:
   vtkOpenGLCoincidentTopologyResolutionPainter(
-    const vtkOpenGLCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLCoincidentTopologyResolutionPainter&) = delete;
+  void operator=(const vtkOpenGLCoincidentTopologyResolutionPainter&) = delete;
 };
 
 #endif

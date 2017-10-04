@@ -71,8 +71,8 @@ protected:
   bool ReadImage(int level, int id, vtkGeoImageNode* node);
 
 private:
-  vtkGeoFileImageSource(const vtkGeoFileImageSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoFileImageSource&) VTK_DELETE_FUNCTION;
+  vtkGeoFileImageSource(const vtkGeoFileImageSource&) = delete;
+  void operator=(const vtkGeoFileImageSource&) = delete;
 
   char* Path;
 };

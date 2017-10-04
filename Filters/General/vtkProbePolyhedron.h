@@ -126,8 +126,8 @@ protected:
     vtkInformationVector *) override;
 
 private:
-  vtkProbePolyhedron(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
+  vtkProbePolyhedron(const vtkProbePolyhedron&) = delete;
+  void operator=(const vtkProbePolyhedron&) = delete;
 
 };
 

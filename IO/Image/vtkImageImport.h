@@ -355,8 +355,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo) override;
 
 private:
-  vtkImageImport(const vtkImageImport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageImport&) VTK_DELETE_FUNCTION;
+  vtkImageImport(const vtkImageImport&) = delete;
+  void operator=(const vtkImageImport&) = delete;
 };
 
 #endif

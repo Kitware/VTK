@@ -176,8 +176,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkAdaptiveSubdivisionFilter(const vtkAdaptiveSubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAdaptiveSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkAdaptiveSubdivisionFilter(const vtkAdaptiveSubdivisionFilter&) = delete;
+  void operator=(const vtkAdaptiveSubdivisionFilter&) = delete;
 };
 
 #endif

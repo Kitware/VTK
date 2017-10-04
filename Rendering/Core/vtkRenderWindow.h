@@ -794,8 +794,8 @@ protected:
   double AbortCheckTime;
 
 private:
-  vtkRenderWindow(const vtkRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkRenderWindow(const vtkRenderWindow&) = delete;
+  void operator=(const vtkRenderWindow&) = delete;
 };
 
 #endif

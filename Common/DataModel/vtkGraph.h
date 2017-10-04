@@ -809,8 +809,8 @@ protected:
   //@}
 
 private:
-  vtkGraph(const vtkGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraph&) VTK_DELETE_FUNCTION;
+  vtkGraph(const vtkGraph&) = delete;
+  void operator=(const vtkGraph&) = delete;
 };
 
 bool VTKCOMMONDATAMODEL_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);

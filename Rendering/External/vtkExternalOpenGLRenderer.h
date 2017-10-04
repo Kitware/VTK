@@ -82,8 +82,8 @@ protected:
   vtkLightCollection *ExternalLights;
 
 private:
-  vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalOpenGLRenderer&) VTK_DELETE_FUNCTION;
+  vtkExternalOpenGLRenderer(const vtkExternalOpenGLRenderer&) = delete;
+  void operator=(const vtkExternalOpenGLRenderer&) = delete;
 };
 
 #endif //vtkExternalOpenGLRenderer_h

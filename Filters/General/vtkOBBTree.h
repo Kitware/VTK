@@ -76,8 +76,8 @@ public:
                        int *maxCells );
 
 private:
-  vtkOBBNode(const vtkOBBNode& other) VTK_DELETE_FUNCTION;
-  vtkOBBNode& operator=(const vtkOBBNode& rhs) VTK_DELETE_FUNCTION;
+  vtkOBBNode(const vtkOBBNode& other) = delete;
+  vtkOBBNode& operator=(const vtkOBBNode& rhs) = delete;
 };
 
 //
@@ -214,8 +214,8 @@ protected:
                         vtkPoints* pts, vtkCellArray *polys);
 
 private:
-  vtkOBBTree(const vtkOBBTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBBTree&) VTK_DELETE_FUNCTION;
+  vtkOBBTree(const vtkOBBTree&) = delete;
+  void operator=(const vtkOBBTree&) = delete;
 };
 
 #endif

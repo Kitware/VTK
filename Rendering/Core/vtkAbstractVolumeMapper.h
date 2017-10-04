@@ -148,8 +148,8 @@ protected:
   int         ArrayAccessMode;
 
 private:
-  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) = delete;
+  void operator=(const vtkAbstractVolumeMapper&) = delete;
 };
 
 

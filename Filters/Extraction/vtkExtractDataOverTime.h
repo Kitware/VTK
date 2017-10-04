@@ -71,8 +71,8 @@ protected:
   int            NumberOfTimeSteps;
 
 private:
-  vtkExtractDataOverTime(const vtkExtractDataOverTime&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractDataOverTime&) VTK_DELETE_FUNCTION;
+  vtkExtractDataOverTime(const vtkExtractDataOverTime&) = delete;
+  void operator=(const vtkExtractDataOverTime&) = delete;
 };
 
 #endif

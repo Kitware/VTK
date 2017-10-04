@@ -60,8 +60,8 @@ protected:
                   vtkInformationVector*) override;
 
 private:
-  vtkmPolyDataNormals(const vtkmPolyDataNormals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmPolyDataNormals&) VTK_DELETE_FUNCTION;
+  vtkmPolyDataNormals(const vtkmPolyDataNormals&) = delete;
+  void operator=(const vtkmPolyDataNormals&) = delete;
 };
 
 #endif // vtkmPolyDataNormals_h

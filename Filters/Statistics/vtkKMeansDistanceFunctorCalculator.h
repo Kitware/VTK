@@ -68,8 +68,8 @@ protected:
   vtkFunctionParser* FunctionParser;
 
 private:
-  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
+  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ) = delete;
+  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) = delete;
 };
 
 #endif // vtkKMeansDistanceFunctorCalculator_h

@@ -52,8 +52,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id) override;
 private:
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) = delete;
+  void operator=(const vtkImageLogarithmicScale&) = delete;
 };
 
 #endif

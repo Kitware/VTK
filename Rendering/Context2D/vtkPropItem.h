@@ -60,8 +60,8 @@ protected:
 private:
   vtkProp *PropObject;
 
-  vtkPropItem(const vtkPropItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPropItem &) VTK_DELETE_FUNCTION;
+  vtkPropItem(const vtkPropItem &) = delete;
+  void operator=(const vtkPropItem &) = delete;
 };
 
 #endif //vtkPropItem_h

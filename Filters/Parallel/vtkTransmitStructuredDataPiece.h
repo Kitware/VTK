@@ -73,8 +73,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkTransmitStructuredDataPiece(const vtkTransmitStructuredDataPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransmitStructuredDataPiece&) VTK_DELETE_FUNCTION;
+  vtkTransmitStructuredDataPiece(const vtkTransmitStructuredDataPiece&) = delete;
+  void operator=(const vtkTransmitStructuredDataPiece&) = delete;
 };
 
 #endif

@@ -216,8 +216,8 @@ protected:
   virtual void SetupPieceFileNameExtension();
 
 private:
-  vtkXMLPDataObjectWriter(const vtkXMLPDataObjectWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPDataObjectWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPDataObjectWriter(const vtkXMLPDataObjectWriter&) = delete;
+  void operator=(const vtkXMLPDataObjectWriter&) = delete;
 
   /**
   * Indicates the piece currently being written.

@@ -95,8 +95,8 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
+  vtkWebGLExporter(const vtkWebGLExporter&) = delete;
+  void operator=(const vtkWebGLExporter&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

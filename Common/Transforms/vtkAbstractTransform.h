@@ -326,8 +326,8 @@ private:
   int InUnRegister;
 
 private:
-  vtkAbstractTransform(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
+  vtkAbstractTransform(const vtkAbstractTransform&) = delete;
+  void operator=(const vtkAbstractTransform&) = delete;
 };
 
 //-------------------------------------------------------------------------
@@ -453,8 +453,8 @@ protected:
 
 private:
   vtkTransformConcatenation(const vtkTransformConcatenation&)
-    VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformConcatenation&) VTK_DELETE_FUNCTION;
+    = delete;
+  void operator=(const vtkTransformConcatenation&) = delete;
 };
 
 // .NAME vtkTransformConcatenationStack - Store a stack of concatenations.
@@ -497,8 +497,8 @@ protected:
 
 private:
   vtkTransformConcatenationStack(const vtkTransformConcatenationStack&)
-    VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformConcatenationStack&) VTK_DELETE_FUNCTION;
+    = delete;
+  void operator=(const vtkTransformConcatenationStack&) = delete;
 };
 
 #endif

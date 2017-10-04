@@ -54,7 +54,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPOutlineFilter(const vtkPOutlineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPOutlineFilter&) VTK_DELETE_FUNCTION;
+  vtkPOutlineFilter(const vtkPOutlineFilter&) = delete;
+  void operator=(const vtkPOutlineFilter&) = delete;
 };
 #endif

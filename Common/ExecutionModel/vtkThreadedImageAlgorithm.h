@@ -181,8 +181,8 @@ protected:
                                 vtkImageData **outDataObjects=nullptr);
 
 private:
-  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) = delete;
+  void operator=(const vtkThreadedImageAlgorithm&) = delete;
 
   friend class vtkThreadedImageAlgorithmFunctor;
 };

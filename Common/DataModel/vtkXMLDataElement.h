@@ -341,8 +341,8 @@ protected:
   friend class vtkXMLMaterialParser;
 
 private:
-  vtkXMLDataElement(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
+  vtkXMLDataElement(const vtkXMLDataElement&) = delete;
+  void operator=(const vtkXMLDataElement&) = delete;
 };
 
 //----------------------------------------------------------------------------

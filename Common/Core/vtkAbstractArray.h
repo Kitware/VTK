@@ -686,8 +686,8 @@ protected:
   vtkInternalComponentNames* ComponentNames; //names for each component
 
 private:
-  vtkAbstractArray(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
+  vtkAbstractArray(const vtkAbstractArray&) = delete;
+  void operator=(const vtkAbstractArray&) = delete;
 };
 
 //@{

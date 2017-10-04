@@ -91,8 +91,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap :
     ~vtkParametricCrossCap() override;
 
   private:
-    vtkParametricCrossCap(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
+    vtkParametricCrossCap(const vtkParametricCrossCap&) = delete;
+    void operator=(const vtkParametricCrossCap&) = delete;
 };
 
 #endif

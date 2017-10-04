@@ -150,8 +150,8 @@ protected:
 
 
 private:
-  vtkImageDataLIC2D(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
+  vtkImageDataLIC2D(const vtkImageDataLIC2D&) = delete;
+  void operator=(const vtkImageDataLIC2D&) = delete;
 
 };
 

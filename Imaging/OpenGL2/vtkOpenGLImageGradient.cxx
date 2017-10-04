@@ -87,8 +87,8 @@ public:
   vtkOpenGLGradientCB() {};
   virtual ~vtkOpenGLGradientCB() {};
 private:
-  vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGradientCB&) VTK_DELETE_FUNCTION;
+  vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) = delete;
+  void operator=(const vtkOpenGLGradientCB&) = delete;
 };
 
 //-----------------------------------------------------------------------------

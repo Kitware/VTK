@@ -196,8 +196,8 @@ protected:
   vtkResliceImageViewerScrollCallback * ScrollCallback;
 
 private:
-  vtkResliceImageViewer(const vtkResliceImageViewer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceImageViewer&) VTK_DELETE_FUNCTION;
+  vtkResliceImageViewer(const vtkResliceImageViewer&) = delete;
+  void operator=(const vtkResliceImageViewer&) = delete;
 };
 
 #endif

@@ -163,8 +163,8 @@ protected:
   int NumActors;
 
 private:
-  vtkOptiXRendererNode(const vtkOptiXRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXRendererNode&) VTK_DELETE_FUNCTION;
+  vtkOptiXRendererNode(const vtkOptiXRendererNode&) = delete;
+  void operator=(const vtkOptiXRendererNode&) = delete;
 
   int ImageX, ImageY;
 

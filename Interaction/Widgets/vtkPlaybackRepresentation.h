@@ -106,8 +106,8 @@ protected:
   vtkActor2D                 *Actor;
 
 private:
-  vtkPlaybackRepresentation(const vtkPlaybackRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlaybackRepresentation&) VTK_DELETE_FUNCTION;
+  vtkPlaybackRepresentation(const vtkPlaybackRepresentation&) = delete;
+  void operator=(const vtkPlaybackRepresentation&) = delete;
 };
 
 #endif

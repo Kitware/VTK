@@ -87,8 +87,8 @@ protected:
                           vtkInformationVector *) override;
 
 private:
-  vtkImageClip(const vtkImageClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageClip&) VTK_DELETE_FUNCTION;
+  vtkImageClip(const vtkImageClip&) = delete;
+  void operator=(const vtkImageClip&) = delete;
 };
 
 

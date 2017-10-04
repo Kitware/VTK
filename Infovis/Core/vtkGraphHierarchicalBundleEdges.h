@@ -107,8 +107,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphHierarchicalBundleEdges&) VTK_DELETE_FUNCTION;
+  vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&) = delete;
+  void operator=(const vtkGraphHierarchicalBundleEdges&) = delete;
 };
 
 #endif

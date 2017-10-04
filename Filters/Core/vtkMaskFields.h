@@ -172,8 +172,8 @@ protected:
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][10];
 
 private:
-  vtkMaskFields(const vtkMaskFields&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMaskFields&) VTK_DELETE_FUNCTION;
+  vtkMaskFields(const vtkMaskFields&) = delete;
+  void operator=(const vtkMaskFields&) = delete;
 };
 
 #endif

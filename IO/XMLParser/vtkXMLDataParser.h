@@ -262,8 +262,8 @@ protected:
   int AttributesEncoding;
 
 private:
-  vtkXMLDataParser(const vtkXMLDataParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataParser&) VTK_DELETE_FUNCTION;
+  vtkXMLDataParser(const vtkXMLDataParser&) = delete;
+  void operator=(const vtkXMLDataParser&) = delete;
 };
 
 //----------------------------------------------------------------------------

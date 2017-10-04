@@ -169,7 +169,7 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericContourFilter(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
+  vtkGenericContourFilter(const vtkGenericContourFilter&) = delete;
+  void operator=(const vtkGenericContourFilter&) = delete;
 };
 #endif

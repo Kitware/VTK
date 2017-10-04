@@ -235,8 +235,8 @@ protected:
   vtkCameraList *CameraList;
 
 private:
-  vtkCameraInterpolator(const vtkCameraInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraInterpolator&) VTK_DELETE_FUNCTION;
+  vtkCameraInterpolator(const vtkCameraInterpolator&) = delete;
+  void operator=(const vtkCameraInterpolator&) = delete;
 };
 
 #endif

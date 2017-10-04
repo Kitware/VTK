@@ -94,8 +94,8 @@ protected:
   int Dimension;
 
 private:
-  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) = delete;
+  void operator=(const vtkHyperOctreePointsGrabber&) = delete;
 };
 
 #endif

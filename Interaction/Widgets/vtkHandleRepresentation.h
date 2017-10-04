@@ -191,8 +191,8 @@ protected:
   vtkPointPlacer * PointPlacer;
 
 private:
-  vtkHandleRepresentation(const vtkHandleRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHandleRepresentation&) VTK_DELETE_FUNCTION;
+  vtkHandleRepresentation(const vtkHandleRepresentation&) = delete;
+  void operator=(const vtkHandleRepresentation&) = delete;
 };
 
 #endif

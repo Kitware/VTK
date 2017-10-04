@@ -123,8 +123,8 @@ protected:
   int UpdateCursorShape( int interactionState );
 
 private:
-  vtkFinitePlaneWidget(const vtkFinitePlaneWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFinitePlaneWidget&) VTK_DELETE_FUNCTION;
+  vtkFinitePlaneWidget(const vtkFinitePlaneWidget&) = delete;
+  void operator=(const vtkFinitePlaneWidget&) = delete;
 };
 
 #endif

@@ -190,8 +190,8 @@ private:
                                     const char*);
 
 private:
-  vtkGarbageCollector(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
+  vtkGarbageCollector(const vtkGarbageCollector&) = delete;
+  void operator=(const vtkGarbageCollector&) = delete;
 };
 
 class vtkSmartPointerBase;

@@ -355,8 +355,8 @@ protected:
   void ConstructOrigin(vtkDataObject *input);
 
 private:
-  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
+  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) = delete;
+  void operator=(const vtkDataObjectToDataSetFilter&) = delete;
 };
 
 #endif

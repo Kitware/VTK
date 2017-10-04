@@ -79,8 +79,8 @@ protected:
   int ReturnValue;
 
 private:
-  vtkProcess(const vtkProcess&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProcess&) VTK_DELETE_FUNCTION;
+  vtkProcess(const vtkProcess&) = delete;
+  void operator=(const vtkProcess&) = delete;
 };
 
 #endif

@@ -190,8 +190,8 @@ protected:
   int GenerateContourEdges;
 
 private:
-  vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBandedPolyDataContourFilter&) VTK_DELETE_FUNCTION;
+  vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&) = delete;
+  void operator=(const vtkBandedPolyDataContourFilter&) = delete;
 };
 
 /**

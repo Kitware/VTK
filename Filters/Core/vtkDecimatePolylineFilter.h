@@ -97,8 +97,8 @@ protected:
   int                                   OutputPointsPrecision;
 
 private:
-  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
+  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) = delete;
+  void operator=(const vtkDecimatePolylineFilter&) = delete;
 };
 
 #endif

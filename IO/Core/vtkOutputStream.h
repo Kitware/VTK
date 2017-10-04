@@ -74,8 +74,8 @@ protected:
   int WriteStream(const char* data, size_t length);
 
 private:
-  vtkOutputStream(const vtkOutputStream&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutputStream&) VTK_DELETE_FUNCTION;
+  vtkOutputStream(const vtkOutputStream&) = delete;
+  void operator=(const vtkOutputStream&) = delete;
 };
 
 #endif

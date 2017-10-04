@@ -403,8 +403,8 @@ protected:
 
 
 private:
-  vtkAMRResampleFilter(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
+  vtkAMRResampleFilter(const vtkAMRResampleFilter&) = delete;
+  void operator=(const vtkAMRResampleFilter&) = delete;
 
 };
 

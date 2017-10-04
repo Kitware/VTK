@@ -130,8 +130,8 @@ private:
   int numEdges;
   vtkStdString dimacsProblemStr;
 
-  vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDIMACSGraphReader&) VTK_DELETE_FUNCTION;
+  vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) = delete;
+  void operator=(const vtkDIMACSGraphReader&) = delete;
 };
 
 #endif // vtkDIMACSGraphReader_h

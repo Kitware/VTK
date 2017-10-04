@@ -156,8 +156,8 @@ protected:
   //@}
 
 private:
-  vtkQuadraticPolygon(const vtkQuadraticPolygon&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticPolygon&) VTK_DELETE_FUNCTION;
+  vtkQuadraticPolygon(const vtkQuadraticPolygon&) = delete;
+  void operator=(const vtkQuadraticPolygon&) = delete;
 };
 
 #endif

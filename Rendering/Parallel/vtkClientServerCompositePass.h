@@ -116,8 +116,8 @@ protected:
   bool ProcessIsServer;
   bool ServerSideRendering;
 private:
-  vtkClientServerCompositePass(const vtkClientServerCompositePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClientServerCompositePass&) VTK_DELETE_FUNCTION;
+  vtkClientServerCompositePass(const vtkClientServerCompositePass&) = delete;
+  void operator=(const vtkClientServerCompositePass&) = delete;
 
 };
 

@@ -237,8 +237,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageMathematics(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
+  vtkImageMathematics(const vtkImageMathematics&) = delete;
+  void operator=(const vtkImageMathematics&) = delete;
 };
 
 #endif

@@ -196,8 +196,8 @@ protected:
   virtual ~vtkParallelTimer();
 
 private:
-  vtkParallelTimer(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
+  vtkParallelTimer(const vtkParallelTimer&) = delete;
+  void operator=(const vtkParallelTimer&) = delete;
 
   /**
    * A class responsible for delete'ing the global instance of the log.

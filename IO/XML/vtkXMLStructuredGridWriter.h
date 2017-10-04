@@ -73,8 +73,8 @@ protected:
   void DeletePositionArrays() override;
 
 private:
-  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) = delete;
+  void operator=(const vtkXMLStructuredGridWriter&) = delete;
 };
 
 #endif

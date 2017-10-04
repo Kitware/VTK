@@ -48,8 +48,8 @@ protected:
   vtkSmartPointer<vtkImageData> image;
 
 private:
-  vtkSegY3DReader(const vtkSegY3DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSegY3DReader&) VTK_DELETE_FUNCTION;
+  vtkSegY3DReader(const vtkSegY3DReader&) = delete;
+  void operator=(const vtkSegY3DReader&) = delete;
 };
 
 #endif // vtkSegY3DReader_h

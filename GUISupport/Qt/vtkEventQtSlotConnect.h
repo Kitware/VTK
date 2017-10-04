@@ -100,8 +100,8 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     ~vtkEventQtSlotConnect() override;
 
   private:
-    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkEventQtSlotConnect&) VTK_DELETE_FUNCTION;
+    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&) = delete;
+    void operator=(const vtkEventQtSlotConnect&) = delete;
 };
 
 #endif

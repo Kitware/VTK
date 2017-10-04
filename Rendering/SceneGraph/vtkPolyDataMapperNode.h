@@ -76,8 +76,8 @@ protected:
                                vtkPDConnectivity &conn);
 
  private:
-  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) = delete;
+  void operator=(const vtkPolyDataMapperNode&) = delete;
 };
 
 #endif

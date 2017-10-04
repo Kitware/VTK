@@ -125,8 +125,8 @@ protected:
   int RequestedDataType;
 
 private:
-  vtkProgrammableSource(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
+  vtkProgrammableSource(const vtkProgrammableSource&) = delete;
+  void operator=(const vtkProgrammableSource&) = delete;
 };
 
 #endif

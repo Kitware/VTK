@@ -62,8 +62,8 @@ protected:
   ~vtkMarkerUtilities() override;
 
 private:
-  vtkMarkerUtilities(const vtkMarkerUtilities &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMarkerUtilities &) VTK_DELETE_FUNCTION;
+  vtkMarkerUtilities(const vtkMarkerUtilities &) = delete;
+  void operator=(const vtkMarkerUtilities &) = delete;
 
 };
 

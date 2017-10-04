@@ -58,8 +58,8 @@ public:
   vtkDataSet* Ptr;
   vtkFieldNode* Next;
 private:
-  vtkFieldNode(const vtkFieldNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFieldNode&) VTK_DELETE_FUNCTION;
+  vtkFieldNode(const vtkFieldNode&) = delete;
+  void operator=(const vtkFieldNode&) = delete;
   char* Name;
 };
 

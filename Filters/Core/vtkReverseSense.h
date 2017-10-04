@@ -75,8 +75,8 @@ protected:
   int ReverseCells;
   int ReverseNormals;
 private:
-  vtkReverseSense(const vtkReverseSense&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReverseSense&) VTK_DELETE_FUNCTION;
+  vtkReverseSense(const vtkReverseSense&) = delete;
+  void operator=(const vtkReverseSense&) = delete;
 };
 
 #endif

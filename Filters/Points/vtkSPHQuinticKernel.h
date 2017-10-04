@@ -98,8 +98,8 @@ protected:
   ~vtkSPHQuinticKernel() override;
 
 private:
-  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
+  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&) = delete;
+  void operator=(const vtkSPHQuinticKernel&) = delete;
 };
 
 #endif

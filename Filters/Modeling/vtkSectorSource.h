@@ -107,8 +107,8 @@ protected:
   double EndAngle;
 
 private:
-  vtkSectorSource(const vtkSectorSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSectorSource&) VTK_DELETE_FUNCTION;
+  vtkSectorSource(const vtkSectorSource&) = delete;
+  void operator=(const vtkSectorSource&) = delete;
 };
 
 #endif

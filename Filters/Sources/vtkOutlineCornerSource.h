@@ -54,8 +54,8 @@ protected:
 
   double CornerFactor;
 private:
-  vtkOutlineCornerSource(const vtkOutlineCornerSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutlineCornerSource&) VTK_DELETE_FUNCTION;
+  vtkOutlineCornerSource(const vtkOutlineCornerSource&) = delete;
+  void operator=(const vtkOutlineCornerSource&) = delete;
 };
 
 #endif

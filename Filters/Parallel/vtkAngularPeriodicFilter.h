@@ -178,8 +178,8 @@ protected:
                                  vtkIdType outputId);
 
 private:
-  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
+  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) = delete;
+  void operator=(const vtkAngularPeriodicFilter&) = delete;
 
   bool ComputeRotationsOnTheFly;
 

@@ -88,8 +88,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPSurfaceLICInterface(const vtkPSurfaceLICInterface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSurfaceLICInterface&) VTK_DELETE_FUNCTION;
+  vtkPSurfaceLICInterface(const vtkPSurfaceLICInterface&) = delete;
+  void operator=(const vtkPSurfaceLICInterface&) = delete;
 };
 
 #endif

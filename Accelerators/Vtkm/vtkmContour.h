@@ -51,8 +51,8 @@ protected:
                           vtkInformationVector*) override;
 
 private:
-  vtkmContour(const vtkmContour&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmContour&) VTK_DELETE_FUNCTION;
+  vtkmContour(const vtkmContour&) = delete;
+  void operator=(const vtkmContour&) = delete;
 };
 
 #endif // vtkmContour_h

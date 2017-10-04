@@ -71,8 +71,8 @@ public:
   void DeepCopy(vtkInformation* from, vtkInformation* to) override;
 
 private:
-  vtkInformationInformationKey(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
+  vtkInformationInformationKey(const vtkInformationInformationKey&) = delete;
+  void operator=(const vtkInformationInformationKey&) = delete;
 };
 
 #endif

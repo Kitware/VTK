@@ -93,8 +93,8 @@ public:
   ~vtkContourLineInterpolator() override;
 
 private:
-  vtkContourLineInterpolator(const vtkContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkContourLineInterpolator(const vtkContourLineInterpolator&) = delete;
+  void operator=(const vtkContourLineInterpolator&) = delete;
 };
 
 #endif

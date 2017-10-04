@@ -147,8 +147,8 @@ protected:
   vtkOpenGLBufferObject *VBO;
 
 private:
-  vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLFXAAFilter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) = delete;
+  void operator=(const vtkOpenGLFXAAFilter&) = delete;
 };
 
 #endif // vtkOpenGLFXAAFilter_h

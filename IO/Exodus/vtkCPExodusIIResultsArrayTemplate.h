@@ -119,8 +119,8 @@ protected:
   std::vector<Scalar *> Arrays;
 
 private:
-  vtkCPExodusIIResultsArrayTemplate(const vtkCPExodusIIResultsArrayTemplate &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCPExodusIIResultsArrayTemplate &) VTK_DELETE_FUNCTION;
+  vtkCPExodusIIResultsArrayTemplate(const vtkCPExodusIIResultsArrayTemplate &) = delete;
+  void operator=(const vtkCPExodusIIResultsArrayTemplate &) = delete;
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;

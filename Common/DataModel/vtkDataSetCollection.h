@@ -78,8 +78,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkDataSetCollection(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
+  vtkDataSetCollection(const vtkDataSetCollection&) = delete;
+  void operator=(const vtkDataSetCollection&) = delete;
 };
 
 

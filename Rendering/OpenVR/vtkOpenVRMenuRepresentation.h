@@ -108,8 +108,8 @@ protected:
   double PlacedOrientation[3];
 
 private:
-  vtkOpenVRMenuRepresentation(const vtkOpenVRMenuRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRMenuRepresentation&) VTK_DELETE_FUNCTION;
+  vtkOpenVRMenuRepresentation(const vtkOpenVRMenuRepresentation&) = delete;
+  void operator=(const vtkOpenVRMenuRepresentation&) = delete;
 };
 
 #endif

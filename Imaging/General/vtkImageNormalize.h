@@ -43,8 +43,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id) override;
 private:
-  vtkImageNormalize(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
+  vtkImageNormalize(const vtkImageNormalize&) = delete;
+  void operator=(const vtkImageNormalize&) = delete;
 };
 
 #endif

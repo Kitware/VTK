@@ -458,8 +458,8 @@ protected:
   bool DragPointAlongY;
 
 private:
-  vtkChartXY(const vtkChartXY&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartXY&) VTK_DELETE_FUNCTION;
+  vtkChartXY(const vtkChartXY&) = delete;
+  void operator=(const vtkChartXY&) = delete;
 
   vtkChartXYPrivate* ChartPrivate; // Private class where I hide my STL containers
 

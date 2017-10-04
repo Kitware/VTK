@@ -144,8 +144,8 @@ protected:
   bool ReusableEnded;
 
 private:
-  vtkOpenGLRenderTimer(const vtkOpenGLRenderTimer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderTimer&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderTimer(const vtkOpenGLRenderTimer&) = delete;
+  void operator=(const vtkOpenGLRenderTimer&) = delete;
 };
 
 #endif // vtkOpenGLRenderTimer_h

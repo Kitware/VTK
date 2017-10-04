@@ -219,8 +219,8 @@ protected:
   ~vtkGenericAttribute() override;
 
 private:
-  vtkGenericAttribute(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;
+  vtkGenericAttribute(const vtkGenericAttribute&) = delete;
+  void operator=(const vtkGenericAttribute&) = delete;
 };
 
 #endif

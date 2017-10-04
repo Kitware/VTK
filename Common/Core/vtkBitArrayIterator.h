@@ -102,8 +102,8 @@ protected:
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
 private:
-  vtkBitArrayIterator(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
+  vtkBitArrayIterator(const vtkBitArrayIterator&) = delete;
+  void operator=(const vtkBitArrayIterator&) = delete;
 };
 
 #endif

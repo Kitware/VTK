@@ -371,8 +371,8 @@ protected:
   bool CenterCursor;
 
 private:
-  vtkSphereRepresentation(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSphereRepresentation(const vtkSphereRepresentation&) = delete;
+  void operator=(const vtkSphereRepresentation&) = delete;
 };
 
 #endif

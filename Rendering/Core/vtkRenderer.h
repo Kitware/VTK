@@ -961,8 +961,8 @@ protected:
   vtkInformation* Information;
 
 private:
-  vtkRenderer(const vtkRenderer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderer&) VTK_DELETE_FUNCTION;
+  vtkRenderer(const vtkRenderer&) = delete;
+  void operator=(const vtkRenderer&) = delete;
 
 };
 

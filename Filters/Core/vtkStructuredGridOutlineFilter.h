@@ -41,8 +41,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridOutlineFilter&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&) = delete;
+  void operator=(const vtkStructuredGridOutlineFilter&) = delete;
 };
 
 #endif

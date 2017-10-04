@@ -293,8 +293,8 @@ protected:
   vtkBuffer<ValueType> *Buffer;
 
 private:
-  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
+  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&) = delete;
+  void operator=(const vtkAOSDataArrayTemplate&) = delete;
 
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;

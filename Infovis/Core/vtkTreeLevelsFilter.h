@@ -52,8 +52,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;
+  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) = delete;
+  void operator=(const vtkTreeLevelsFilter&) = delete;
 };
 
 #endif

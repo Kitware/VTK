@@ -158,8 +158,8 @@ protected:
 
 private:
 
-  vtkPLSDynaReader( const vtkPLSDynaReader& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPLSDynaReader& ) VTK_DELETE_FUNCTION;
+  vtkPLSDynaReader( const vtkPLSDynaReader& ) = delete;
+  void operator = ( const vtkPLSDynaReader& ) = delete;
 
   void GetPartRanges(vtkIdType* mins,vtkIdType* maxs);
 

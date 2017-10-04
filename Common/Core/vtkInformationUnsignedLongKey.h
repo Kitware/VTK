@@ -77,8 +77,8 @@ protected:
   unsigned long* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationUnsignedLongKey(const vtkInformationUnsignedLongKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationUnsignedLongKey&) VTK_DELETE_FUNCTION;
+  vtkInformationUnsignedLongKey(const vtkInformationUnsignedLongKey&) = delete;
+  void operator=(const vtkInformationUnsignedLongKey&) = delete;
 };
 
 #endif

@@ -60,8 +60,8 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx) override;
 
 private:
-  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) = delete;
+  void operator=(const vtkXMLUniformGridAMRWriter&) = delete;
 
 };
 

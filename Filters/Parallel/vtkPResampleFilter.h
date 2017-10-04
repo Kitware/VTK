@@ -88,8 +88,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkPResampleFilter(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
+  vtkPResampleFilter(const vtkPResampleFilter&) = delete;
+  void operator=(const vtkPResampleFilter&) = delete;
 
 };
 

@@ -177,8 +177,8 @@ protected:
 
 
 private:
-  vtkVPICReader(const vtkVPICReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVPICReader&) VTK_DELETE_FUNCTION;
+  vtkVPICReader(const vtkVPICReader&) = delete;
+  void operator=(const vtkVPICReader&) = delete;
 };
 
 #endif

@@ -67,8 +67,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) = delete;
+  void operator=(const vtkUnstructuredGridReader&) = delete;
 };
 
 #endif

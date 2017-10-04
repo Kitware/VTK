@@ -308,8 +308,8 @@ private:
    */
   int MinID;
 
-  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
+  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&) = delete;
+  void operator=(const vtkOctreePointLocatorNode&) = delete;
 };
 
 #endif

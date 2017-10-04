@@ -153,8 +153,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectVisiblePoints&) VTK_DELETE_FUNCTION;
+  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&) = delete;
+  void operator=(const vtkSelectVisiblePoints&) = delete;
 };
 
 #endif

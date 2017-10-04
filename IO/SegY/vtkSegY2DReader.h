@@ -89,8 +89,8 @@ private:
   vtkSegYReader* Reader;
 
 private:
-  vtkSegY2DReader(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSegY2DReader&) VTK_DELETE_FUNCTION;
+  vtkSegY2DReader(const vtkSegY2DReader&) = delete;
+  void operator=(const vtkSegY2DReader&) = delete;
 };
 
 #endif // vtkSegY2DReader_h

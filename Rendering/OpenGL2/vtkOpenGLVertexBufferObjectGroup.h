@@ -173,8 +173,8 @@ protected:
   std::map<std::string, std::vector<vtkDataArray*> > UsedDataArrays;
 
 private:
-  vtkOpenGLVertexBufferObjectGroup(const vtkOpenGLVertexBufferObjectGroup&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObjectGroup&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObjectGroup(const vtkOpenGLVertexBufferObjectGroup&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObjectGroup&) = delete;
 
 };
 

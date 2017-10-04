@@ -227,8 +227,8 @@ int FillOutputPortInformation(int, vtkInformation *info) override
 
 
 private:
-  TestTimeSource(const TestTimeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const TestTimeSource&) VTK_DELETE_FUNCTION;
+  TestTimeSource(const TestTimeSource&) = delete;
+  void operator=(const TestTimeSource&) = delete;
 
   vector<double> TimeSteps;
   int Extent[6];

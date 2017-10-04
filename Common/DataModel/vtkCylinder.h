@@ -99,8 +99,8 @@ protected:
   double Axis[3];
 
 private:
-  vtkCylinder(const vtkCylinder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCylinder&) VTK_DELETE_FUNCTION;
+  vtkCylinder(const vtkCylinder&) = delete;
+  void operator=(const vtkCylinder&) = delete;
 };
 
 #endif

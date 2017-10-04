@@ -64,8 +64,8 @@ protected:
   vtkIdType EndVertex;
 
 private:
-  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&) = delete;
+  void operator=(const vtkGraphGeodesicPath&) = delete;
 
 };
 

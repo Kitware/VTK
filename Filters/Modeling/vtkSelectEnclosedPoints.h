@@ -160,8 +160,8 @@ protected:
   void ReportReferences(vtkGarbageCollector*) override;
 
 private:
-  vtkSelectEnclosedPoints(const vtkSelectEnclosedPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectEnclosedPoints&) VTK_DELETE_FUNCTION;
+  vtkSelectEnclosedPoints(const vtkSelectEnclosedPoints&) = delete;
+  void operator=(const vtkSelectEnclosedPoints&) = delete;
 };
 
 #endif

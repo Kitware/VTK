@@ -103,8 +103,8 @@ protected:
   unsigned int NumberOfCacheEntries;
 
 private:
-  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) = delete;
+  void operator=(const vtkMultiTimeStepAlgorithm&) = delete;
 
 
   vtkSmartPointer<vtkMultiBlockDataSet> MDataSet; //stores all the temporal data sets

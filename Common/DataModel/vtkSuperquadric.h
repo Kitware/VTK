@@ -136,8 +136,8 @@ protected:
   double Center[3];
   double Scale[3];
 private:
-  vtkSuperquadric(const vtkSuperquadric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSuperquadric&) VTK_DELETE_FUNCTION;
+  vtkSuperquadric(const vtkSuperquadric&) = delete;
+  void operator=(const vtkSuperquadric&) = delete;
 };
 
 #endif

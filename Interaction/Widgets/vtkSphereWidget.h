@@ -311,8 +311,8 @@ protected:
   void SizeHandles() override;
 
 private:
-  vtkSphereWidget(const vtkSphereWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereWidget&) VTK_DELETE_FUNCTION;
+  vtkSphereWidget(const vtkSphereWidget&) = delete;
+  void operator=(const vtkSphereWidget&) = delete;
 };
 
 #endif

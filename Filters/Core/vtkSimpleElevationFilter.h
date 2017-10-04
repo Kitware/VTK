@@ -69,8 +69,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Vector[3];
 private:
-  vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleElevationFilter&) VTK_DELETE_FUNCTION;
+  vtkSimpleElevationFilter(const vtkSimpleElevationFilter&) = delete;
+  void operator=(const vtkSimpleElevationFilter&) = delete;
 };
 
 #endif

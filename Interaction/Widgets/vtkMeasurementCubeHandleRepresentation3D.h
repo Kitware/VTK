@@ -303,9 +303,9 @@ protected:
 
 private:
   vtkMeasurementCubeHandleRepresentation3D(
-    const vtkMeasurementCubeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+    const vtkMeasurementCubeHandleRepresentation3D&) = delete;
   void operator=(
-    const vtkMeasurementCubeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+    const vtkMeasurementCubeHandleRepresentation3D&) = delete;
 };
 
 #endif

@@ -63,8 +63,8 @@ protected:
   vtkAbstractRenderDevice *RenderDevice;
 
 private:
-  vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractInteractionDevice&) VTK_DELETE_FUNCTION;
+  vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) = delete;
+  void operator=(const vtkAbstractInteractionDevice&) = delete;
 };
 
 #endif

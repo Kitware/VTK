@@ -87,8 +87,8 @@ protected:
   double ScalarRange[2];
 
 private:
-  vtkElevationFilter(const vtkElevationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkElevationFilter&) VTK_DELETE_FUNCTION;
+  vtkElevationFilter(const vtkElevationFilter&) = delete;
+  void operator=(const vtkElevationFilter&) = delete;
 };
 
 #endif

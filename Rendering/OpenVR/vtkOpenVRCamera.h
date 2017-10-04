@@ -84,8 +84,8 @@ protected:
   vtkNew<vtkTransform> PoseTransform;
 
 private:
-  vtkOpenVRCamera(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRCamera&) VTK_DELETE_FUNCTION;
+  vtkOpenVRCamera(const vtkOpenVRCamera&) = delete;
+  void operator=(const vtkOpenVRCamera&) = delete;
 };
 
 #endif

@@ -54,8 +54,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkGlyph2D(const vtkGlyph2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlyph2D&) VTK_DELETE_FUNCTION;
+  vtkGlyph2D(const vtkGlyph2D&) = delete;
+  void operator=(const vtkGlyph2D&) = delete;
 };
 
 #endif

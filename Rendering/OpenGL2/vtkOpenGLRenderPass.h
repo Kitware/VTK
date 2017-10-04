@@ -108,8 +108,8 @@ protected:
   unsigned int ActiveDrawBuffers = 0;
 
 private:
-  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) = delete;
+  void operator=(const vtkOpenGLRenderPass&) = delete;
 };
 
 #endif // vtkOpenGLRenderPass_h

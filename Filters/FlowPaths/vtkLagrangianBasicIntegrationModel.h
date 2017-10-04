@@ -524,8 +524,8 @@ protected:
   vtkWeakPointer<vtkLagrangianParticleTracker> Tracker;
 
 private:
-  vtkLagrangianBasicIntegrationModel(const vtkLagrangianBasicIntegrationModel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianBasicIntegrationModel&) VTK_DELETE_FUNCTION;
+  vtkLagrangianBasicIntegrationModel(const vtkLagrangianBasicIntegrationModel&) = delete;
+  void operator=(const vtkLagrangianBasicIntegrationModel&) = delete;
 };
 
 #endif

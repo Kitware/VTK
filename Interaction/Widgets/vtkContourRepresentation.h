@@ -566,8 +566,8 @@ protected:
 
 
 private:
-  vtkContourRepresentation(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkContourRepresentation(const vtkContourRepresentation&) = delete;
+  void operator=(const vtkContourRepresentation&) = delete;
 };
 
 #endif

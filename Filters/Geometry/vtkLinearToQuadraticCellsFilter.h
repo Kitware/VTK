@@ -82,8 +82,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkLinearToQuadraticCellsFilter(const vtkLinearToQuadraticCellsFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearToQuadraticCellsFilter&) VTK_DELETE_FUNCTION;
+  vtkLinearToQuadraticCellsFilter(const vtkLinearToQuadraticCellsFilter&) = delete;
+  void operator=(const vtkLinearToQuadraticCellsFilter&) = delete;
 
 };
 

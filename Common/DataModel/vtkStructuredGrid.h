@@ -272,8 +272,8 @@ private:
   static unsigned char MASKED_CELL_VALUE;
 
 private:
-  vtkStructuredGrid(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
+  vtkStructuredGrid(const vtkStructuredGrid&) = delete;
+  void operator=(const vtkStructuredGrid&) = delete;
 };
 
 

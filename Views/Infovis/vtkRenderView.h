@@ -307,8 +307,8 @@ protected:
   vtkSmartPointer<vtkHardwareSelector>         Selector;
 
 private:
-  vtkRenderView(const vtkRenderView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderView&) VTK_DELETE_FUNCTION;
+  vtkRenderView(const vtkRenderView&) = delete;
+  void operator=(const vtkRenderView&) = delete;
 };
 
 #endif

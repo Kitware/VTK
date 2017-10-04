@@ -105,8 +105,8 @@ protected:
   unsigned long MemorySize;
 
 private:
-  vtkDuplicatePolyData(const vtkDuplicatePolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDuplicatePolyData&) VTK_DELETE_FUNCTION;
+  vtkDuplicatePolyData(const vtkDuplicatePolyData&) = delete;
+  void operator=(const vtkDuplicatePolyData&) = delete;
 };
 
 #endif

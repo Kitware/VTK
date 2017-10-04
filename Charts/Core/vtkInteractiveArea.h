@@ -77,8 +77,8 @@ private:
   class MouseActions;
   MouseActions* Actions;
 
-  vtkInteractiveArea(const vtkInteractiveArea &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractiveArea &) VTK_DELETE_FUNCTION;
+  vtkInteractiveArea(const vtkInteractiveArea &) = delete;
+  void operator=(const vtkInteractiveArea &) = delete;
 };
 
 #endif //vtkInteractiveArea_h

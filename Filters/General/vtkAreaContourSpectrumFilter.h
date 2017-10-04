@@ -100,8 +100,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
 
 private:
-  vtkAreaContourSpectrumFilter(const vtkAreaContourSpectrumFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAreaContourSpectrumFilter&) VTK_DELETE_FUNCTION;
+  vtkAreaContourSpectrumFilter(const vtkAreaContourSpectrumFilter&) = delete;
+  void operator=(const vtkAreaContourSpectrumFilter&) = delete;
 };
 
 #endif

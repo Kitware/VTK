@@ -148,8 +148,8 @@ protected:
   vtkTimeStamp PathTime;
   void UpdatePaths(); //apply transformations and properties recursively
 private:
-  vtkPropAssembly(const vtkPropAssembly&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPropAssembly&) VTK_DELETE_FUNCTION;
+  vtkPropAssembly(const vtkPropAssembly&) = delete;
+  void operator=(const vtkPropAssembly&) = delete;
 };
 
 #endif

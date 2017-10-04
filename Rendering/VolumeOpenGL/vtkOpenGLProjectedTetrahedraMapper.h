@@ -112,8 +112,8 @@ protected:
                           float linear_depth_correction);
 
 private:
-  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

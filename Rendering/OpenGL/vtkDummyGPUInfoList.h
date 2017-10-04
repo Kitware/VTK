@@ -52,8 +52,8 @@ protected:
   //@}
 
 private:
-  vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDummyGPUInfoList&) VTK_DELETE_FUNCTION;
+  vtkDummyGPUInfoList(const vtkDummyGPUInfoList&) = delete;
+  void operator=(const vtkDummyGPUInfoList&) = delete;
 };
 
 #endif

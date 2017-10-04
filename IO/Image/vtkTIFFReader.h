@@ -109,8 +109,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 
 private:
-  vtkTIFFReader(const vtkTIFFReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTIFFReader&) VTK_DELETE_FUNCTION;
+  vtkTIFFReader(const vtkTIFFReader&) = delete;
+  void operator=(const vtkTIFFReader&) = delete;
 
   /**
    * Evaluates the image at a single pixel location.

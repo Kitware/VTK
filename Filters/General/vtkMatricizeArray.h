@@ -70,8 +70,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkMatricizeArray(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
+  vtkMatricizeArray(const vtkMatricizeArray&) = delete;
+  void operator=(const vtkMatricizeArray&) = delete;
 
   class Generator;
 

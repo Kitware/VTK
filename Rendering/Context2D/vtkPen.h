@@ -176,8 +176,8 @@ protected:
   int LineType;
 
 private:
-  vtkPen(const vtkPen &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPen &) VTK_DELETE_FUNCTION;
+  vtkPen(const vtkPen &) = delete;
+  void operator=(const vtkPen &) = delete;
 
 };
 

@@ -72,8 +72,8 @@ protected:
                           vtkInformationVector* outputVector) override;
 
 private:
-  vtkImageCursor3D(const vtkImageCursor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCursor3D&) VTK_DELETE_FUNCTION;
+  vtkImageCursor3D(const vtkImageCursor3D&) = delete;
+  void operator=(const vtkImageCursor3D&) = delete;
 };
 
 

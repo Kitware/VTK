@@ -74,8 +74,8 @@ private:
     float minX, float maxX,
     float minY, float maxY);
 
-  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&) = delete;
+  void operator=(const vtkSquarifyLayoutStrategy&) = delete;
 };
 
 #endif

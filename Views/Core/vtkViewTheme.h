@@ -323,8 +323,8 @@ protected:
   vtkTextProperty* CellTextProperty;
 
 private:
-  vtkViewTheme(const vtkViewTheme&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewTheme&) VTK_DELETE_FUNCTION;
+  vtkViewTheme(const vtkViewTheme&) = delete;
+  void operator=(const vtkViewTheme&) = delete;
 };
 
 #endif

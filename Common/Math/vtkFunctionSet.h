@@ -70,8 +70,8 @@ protected:
   int NumIndepVars;
 
 private:
-  vtkFunctionSet(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
+  vtkFunctionSet(const vtkFunctionSet&) = delete;
+  void operator=(const vtkFunctionSet&) = delete;
 };
 
 #endif

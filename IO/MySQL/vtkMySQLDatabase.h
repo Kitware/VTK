@@ -245,8 +245,8 @@ private:
 
   vtkMySQLDatabasePrivate* const Private;
 
-  vtkMySQLDatabase(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkMySQLDatabase(const vtkMySQLDatabase &) = delete;
+  void operator=(const vtkMySQLDatabase &) = delete;
 };
 
 #endif // vtkMySQLDatabase_h

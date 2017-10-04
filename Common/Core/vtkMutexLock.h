@@ -77,8 +77,8 @@ protected:
   vtkMutexType   MutexLock;
 
 private:
-  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) VTK_DELETE_FUNCTION;
-  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) VTK_DELETE_FUNCTION;
+  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) = delete;
+  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
@@ -106,8 +106,8 @@ protected:
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {}
 private:
-  vtkMutexLock(const vtkMutexLock&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutexLock&) VTK_DELETE_FUNCTION;
+  vtkMutexLock(const vtkMutexLock&) = delete;
+  void operator=(const vtkMutexLock&) = delete;
 };
 
 

@@ -106,8 +106,8 @@ protected:
   int    OutputTriangles;
 
 private:
-  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) = delete;
+  void operator=(const vtkImageDataGeometryFilter&) = delete;
 };
 
 #endif

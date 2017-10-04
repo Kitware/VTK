@@ -92,8 +92,8 @@ protected:
   void HandleEvents(vtkObject* caller, unsigned long eventid, void* calldata);
 
 private:
-  vtkPythonInteractiveInterpreter(const vtkPythonInteractiveInterpreter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonInteractiveInterpreter&) VTK_DELETE_FUNCTION;
+  vtkPythonInteractiveInterpreter(const vtkPythonInteractiveInterpreter&) = delete;
+  void operator=(const vtkPythonInteractiveInterpreter&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

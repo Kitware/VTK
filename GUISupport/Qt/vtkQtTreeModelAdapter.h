@@ -128,8 +128,8 @@ protected:
   QHash<QModelIndex, QVariant> IndexToDecoration;
 
 private:
-  vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTreeModelAdapter&) VTK_DELETE_FUNCTION;
+  vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &) = delete;
+  void operator=(const vtkQtTreeModelAdapter&) = delete;
 };
 
 #endif

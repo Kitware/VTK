@@ -194,8 +194,8 @@ private:
   int       EndComp;
 
 private:
-  vtkArcPlotter(const vtkArcPlotter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArcPlotter&) VTK_DELETE_FUNCTION;
+  vtkArcPlotter(const vtkArcPlotter&) = delete;
+  void operator=(const vtkArcPlotter&) = delete;
 };
 
 #endif

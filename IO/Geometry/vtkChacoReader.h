@@ -233,8 +233,8 @@ protected:
     vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkChacoReader(const vtkChacoReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChacoReader&) VTK_DELETE_FUNCTION;
+  vtkChacoReader(const vtkChacoReader&) = delete;
+  void operator=(const vtkChacoReader&) = delete;
 
   double ReadVal(FILE *infile, int *end_flag);
   vtkIdType ReadInt(FILE *infile, int *end_flag);

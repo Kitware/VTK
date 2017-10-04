@@ -62,8 +62,8 @@ protected:
   void UpdateHandle() override;
 
 private:
-  vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrientedPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&) = delete;
+  void operator=(const vtkOrientedPolygonalHandleRepresentation3D&) = delete;
 };
 
 #endif

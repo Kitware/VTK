@@ -70,8 +70,8 @@ protected:
   int CellScalarsFlag;
   int RandomMode;
 private:
-  vtkPieceScalars(const vtkPieceScalars&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPieceScalars&) VTK_DELETE_FUNCTION;
+  vtkPieceScalars(const vtkPieceScalars&) = delete;
+  void operator=(const vtkPieceScalars&) = delete;
 };
 
 #endif

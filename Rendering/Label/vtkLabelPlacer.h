@@ -219,8 +219,8 @@ protected:
   int OutputCoordinateSystem;
 
 private:
-  vtkLabelPlacer( const vtkLabelPlacer& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLabelPlacer& ) VTK_DELETE_FUNCTION;
+  vtkLabelPlacer( const vtkLabelPlacer& ) = delete;
+  void operator = ( const vtkLabelPlacer& ) = delete;
 };
 
 #endif // vtkLabelPlacer_h

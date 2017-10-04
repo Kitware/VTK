@@ -54,8 +54,8 @@ protected:
                   vtkInformationVector*) override;
 
 private:
-  vtkmExtractVOI(const vtkmExtractVOI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmExtractVOI&) VTK_DELETE_FUNCTION;
+  vtkmExtractVOI(const vtkmExtractVOI&) = delete;
+  void operator=(const vtkmExtractVOI&) = delete;
 };
 
 #endif // vtkmExtractVOI_h

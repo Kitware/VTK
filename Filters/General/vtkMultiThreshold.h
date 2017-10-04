@@ -434,8 +434,8 @@ protected:
    */
   void PrintGraph( ostream& os );
 
-  vtkMultiThreshold( const vtkMultiThreshold& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkMultiThreshold& ) VTK_DELETE_FUNCTION;
+  vtkMultiThreshold( const vtkMultiThreshold& ) = delete;
+  void operator = ( const vtkMultiThreshold& ) = delete;
 };
 
 inline int vtkMultiThreshold::AddLowpassIntervalSet( double xmax, int assoc, const char* arrayName, int component, int allScalars )

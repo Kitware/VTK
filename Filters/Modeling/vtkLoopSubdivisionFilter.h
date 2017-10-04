@@ -80,8 +80,8 @@ protected:
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLoopSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&) = delete;
+  void operator=(const vtkLoopSubdivisionFilter&) = delete;
 };
 
 #endif

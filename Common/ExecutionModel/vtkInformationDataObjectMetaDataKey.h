@@ -57,8 +57,8 @@ public:
                                       vtkInformation* toInfo) override;
 
 private:
-  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
+  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) = delete;
+  void operator=(const vtkInformationDataObjectMetaDataKey&) = delete;
 };
 
 #endif

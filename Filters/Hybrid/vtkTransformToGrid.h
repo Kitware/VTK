@@ -146,8 +146,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkTransformToGrid(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
+  vtkTransformToGrid(const vtkTransformToGrid&) = delete;
+  void operator=(const vtkTransformToGrid&) = delete;
 };
 
 #endif

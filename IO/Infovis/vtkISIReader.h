@@ -86,8 +86,8 @@ public:
   int MaxRecords;
 
 private:
-  vtkISIReader(const vtkISIReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkISIReader&) VTK_DELETE_FUNCTION;
+  vtkISIReader(const vtkISIReader&) = delete;
+  void operator=(const vtkISIReader&) = delete;
 };
 
 #endif

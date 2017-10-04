@@ -137,8 +137,8 @@ protected:
   int Mode;
 
 private:
-  vtkThresholdTable(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
+  vtkThresholdTable(const vtkThresholdTable&) = delete;
+  void operator=(const vtkThresholdTable&) = delete;
 };
 
 #endif

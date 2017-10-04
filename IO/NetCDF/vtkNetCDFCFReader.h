@@ -316,8 +316,8 @@ protected:
 
 
 private:
-  vtkNetCDFCFReader(const vtkNetCDFCFReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNetCDFCFReader &) VTK_DELETE_FUNCTION;
+  vtkNetCDFCFReader(const vtkNetCDFCFReader &) = delete;
+  void operator=(const vtkNetCDFCFReader &) = delete;
 };
 
 #endif //vtkNetCDFCFReader_h

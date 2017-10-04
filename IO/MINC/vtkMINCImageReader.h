@@ -204,8 +204,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 
 private:
-  vtkMINCImageReader(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;
+  vtkMINCImageReader(const vtkMINCImageReader&) = delete;
+  void operator=(const vtkMINCImageReader&) = delete;
 
 };
 

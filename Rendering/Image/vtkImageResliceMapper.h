@@ -280,8 +280,8 @@ protected:
   vtkTimeStamp UpdateTime;
 
 private:
-  vtkImageResliceMapper(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
+  vtkImageResliceMapper(const vtkImageResliceMapper&) = delete;
+  void operator=(const vtkImageResliceMapper&) = delete;
 };
 
 #endif

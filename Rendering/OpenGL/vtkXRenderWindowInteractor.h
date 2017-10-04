@@ -220,8 +220,8 @@ protected:
   static int BreakLoopFlag;
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) = delete;
+  void operator=(const vtkXRenderWindowInteractor&) = delete;
 
   vtkXRenderWindowInteractorInternals* Internal;
 };

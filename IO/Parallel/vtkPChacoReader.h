@@ -61,8 +61,8 @@ protected:
     vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkPChacoReader(const vtkPChacoReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPChacoReader&) VTK_DELETE_FUNCTION;
+  vtkPChacoReader(const vtkPChacoReader&) = delete;
+  void operator=(const vtkPChacoReader&) = delete;
 
   void SetUpEmptyGrid(vtkUnstructuredGrid *output);
   int DivideCells(vtkMultiProcessController *contr, vtkUnstructuredGrid *output,

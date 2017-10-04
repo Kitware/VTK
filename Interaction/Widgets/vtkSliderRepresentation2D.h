@@ -201,8 +201,8 @@ protected:
   double X;
 
 private:
-  vtkSliderRepresentation2D(const vtkSliderRepresentation2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSliderRepresentation2D&) VTK_DELETE_FUNCTION;
+  vtkSliderRepresentation2D(const vtkSliderRepresentation2D&) = delete;
+  void operator=(const vtkSliderRepresentation2D&) = delete;
 };
 
 #endif

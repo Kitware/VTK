@@ -84,8 +84,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
+  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) = delete;
+  void operator=(const vtkTemporalDataSetCache&) = delete;
 };
 
 

@@ -75,8 +75,8 @@ protected:
 
   double CornerFactor;
 private:
-  vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPOutlineCornerFilter&) VTK_DELETE_FUNCTION;
+  vtkPOutlineCornerFilter(const vtkPOutlineCornerFilter&) = delete;
+  void operator=(const vtkPOutlineCornerFilter&) = delete;
 
   vtkPOutlineFilterInternals* Internals;
 };

@@ -203,8 +203,8 @@ protected:
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
 
 private:
-  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&) = delete;
+  void operator=(const vtkOpenGLHAVSVolumeMapper&) = delete;
 };
 
 #endif

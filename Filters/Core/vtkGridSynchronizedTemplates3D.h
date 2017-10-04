@@ -188,8 +188,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGridSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&) = delete;
+  void operator=(const vtkGridSynchronizedTemplates3D&) = delete;
 };
 
 

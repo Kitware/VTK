@@ -115,8 +115,8 @@ private:
   void Cores(vtkGraph* g,
              vtkIntArray* KCoreNumbers);
 
-  vtkKCoreDecomposition(const vtkKCoreDecomposition&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKCoreDecomposition&) VTK_DELETE_FUNCTION;
+  vtkKCoreDecomposition(const vtkKCoreDecomposition&) = delete;
+  void operator=(const vtkKCoreDecomposition&) = delete;
 };
 
 #endif

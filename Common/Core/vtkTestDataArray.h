@@ -83,8 +83,8 @@ protected:
 private:
   ArrayType* Array;
 
-  vtkTestDataArray(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
+  vtkTestDataArray(const vtkTestDataArray &) = delete;
+  void operator=(const vtkTestDataArray &) = delete;
 };
 
 #endif

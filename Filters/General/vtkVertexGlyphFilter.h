@@ -53,8 +53,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation *) override;
 
 private:
-  vtkVertexGlyphFilter(const vtkVertexGlyphFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVertexGlyphFilter &) VTK_DELETE_FUNCTION;
+  vtkVertexGlyphFilter(const vtkVertexGlyphFilter &) = delete;
+  void operator=(const vtkVertexGlyphFilter &) = delete;
 };
 
 #endif //_vtkVertexGlyphFilter_h

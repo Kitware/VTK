@@ -144,8 +144,8 @@ protected:
                            int extent[6], int id) override;
 
 private:
-  vtkImageThreshold(const vtkImageThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageThreshold&) VTK_DELETE_FUNCTION;
+  vtkImageThreshold(const vtkImageThreshold&) = delete;
+  void operator=(const vtkImageThreshold&) = delete;
 };
 
 #endif

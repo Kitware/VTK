@@ -273,8 +273,8 @@ protected:
   }
 
 private:
-  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&) = delete;
+  void operator=(const vtkVolumeTextureMapper3D&) = delete;
 };
 
 #endif // VTK_LEGACY_REMOVE

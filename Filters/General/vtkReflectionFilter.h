@@ -142,8 +142,8 @@ protected:
   bool FlipAllInputArrays;
 
 private:
-  vtkReflectionFilter(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
+  vtkReflectionFilter(const vtkReflectionFilter&) = delete;
+  void operator=(const vtkReflectionFilter&) = delete;
 };
 
 #endif

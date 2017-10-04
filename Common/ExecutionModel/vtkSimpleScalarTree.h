@@ -168,8 +168,8 @@ private:
   vtkIdType  NumCandidates;
 
 private:
-  vtkSimpleScalarTree(const vtkSimpleScalarTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleScalarTree&) VTK_DELETE_FUNCTION;
+  vtkSimpleScalarTree(const vtkSimpleScalarTree&) = delete;
+  void operator=(const vtkSimpleScalarTree&) = delete;
 };
 
 #endif

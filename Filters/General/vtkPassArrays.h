@@ -169,8 +169,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkPassArrays(const vtkPassArrays&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassArrays&) VTK_DELETE_FUNCTION;
+  vtkPassArrays(const vtkPassArrays&) = delete;
+  void operator=(const vtkPassArrays&) = delete;
 };
 
 #endif

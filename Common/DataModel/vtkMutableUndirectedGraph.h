@@ -331,8 +331,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&) = delete;
+  void operator=(const vtkMutableUndirectedGraph&) = delete;
 };
 
 #endif

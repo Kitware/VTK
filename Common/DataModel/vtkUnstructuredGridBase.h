@@ -116,8 +116,8 @@ protected:
   ~vtkUnstructuredGridBase() override;
 
 private:
-  vtkUnstructuredGridBase(const vtkUnstructuredGridBase&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBase&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBase(const vtkUnstructuredGridBase&) = delete;
+  void operator=(const vtkUnstructuredGridBase&) = delete;
 };
 
 #endif

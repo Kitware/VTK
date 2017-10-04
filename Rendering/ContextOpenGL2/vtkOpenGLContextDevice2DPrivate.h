@@ -603,8 +603,8 @@ public:
   };
 
 private:
-  CellArrayHelper(const CellArrayHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const CellArrayHelper&) VTK_DELETE_FUNCTION;
+  CellArrayHelper(const CellArrayHelper&) = delete;
+  void operator=(const CellArrayHelper&) = delete;
 
   /**
    * Cache points and colors of the current cell in arrays.

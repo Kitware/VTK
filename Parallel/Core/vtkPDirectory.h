@@ -97,8 +97,8 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
   // Path to Open'ed directory
   std::string Path;
 
-  vtkPDirectory(const vtkPDirectory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDirectory&) VTK_DELETE_FUNCTION;
+  vtkPDirectory(const vtkPDirectory&) = delete;
+  void operator=(const vtkPDirectory&) = delete;
 }; // End Class: vtkPDirectory
 
 #endif

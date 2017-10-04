@@ -72,8 +72,8 @@ protected:
   ~vtkLinearKernel() override;
 
 private:
-  vtkLinearKernel(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
+  vtkLinearKernel(const vtkLinearKernel&) = delete;
+  void operator=(const vtkLinearKernel&) = delete;
 };
 
 #endif

@@ -175,8 +175,8 @@ protected:
 #endif
 
 private:
-  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWin32RenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) = delete;
+  void operator=(const vtkWin32RenderWindowInteractor&) = delete;
 };
 
 #endif

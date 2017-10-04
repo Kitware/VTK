@@ -254,8 +254,8 @@ protected:
   int Symmetric; // Boolean controls drawing a "mirror" of each glyph
   double Length; // Distance, in x, from the origin to the end of the glyph
 private:
-  vtkTensorGlyph(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
+  vtkTensorGlyph(const vtkTensorGlyph&) = delete;
+  void operator=(const vtkTensorGlyph&) = delete;
 };
 
 #endif

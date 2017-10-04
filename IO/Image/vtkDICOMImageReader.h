@@ -243,8 +243,8 @@ protected:
   int GetNumberOfDICOMFileNames();
   const char* GetDICOMFileName(int index);
 private:
-  vtkDICOMImageReader(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
+  vtkDICOMImageReader(const vtkDICOMImageReader&) = delete;
+  void operator=(const vtkDICOMImageReader&) = delete;
 
 };
 

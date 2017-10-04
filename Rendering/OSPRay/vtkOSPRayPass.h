@@ -94,8 +94,8 @@ public:
   vtkRenderPassCollection *RenderPassCollection;
 
  private:
-  vtkOSPRayPass(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
+  vtkOSPRayPass(const vtkOSPRayPass&) = delete;
+  void operator=(const vtkOSPRayPass&) = delete;
 
   vtkOSPRayPassInternals *Internal;
 };

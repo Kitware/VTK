@@ -172,8 +172,8 @@ protected:
   bool InMaterialAssignments;
 
 private:
-  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
+  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&) = delete;
+  void operator=(const vtkExodusIIReaderParser&) = delete;
 
 };
 

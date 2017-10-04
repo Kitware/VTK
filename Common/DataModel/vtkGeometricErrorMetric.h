@@ -139,8 +139,8 @@ protected:
   int Relative; // Control the type of output of GetError()
 
 private:
-  vtkGeometricErrorMetric(const vtkGeometricErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeometricErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkGeometricErrorMetric(const vtkGeometricErrorMetric&) = delete;
+  void operator=(const vtkGeometricErrorMetric&) = delete;
 };
 
 #endif

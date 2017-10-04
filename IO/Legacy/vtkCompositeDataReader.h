@@ -87,8 +87,8 @@ protected:
   vtkDataObject* ReadChild();
 
 private:
-  vtkCompositeDataReader(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataReader(const vtkCompositeDataReader&) = delete;
+  void operator=(const vtkCompositeDataReader&) = delete;
 
 };
 

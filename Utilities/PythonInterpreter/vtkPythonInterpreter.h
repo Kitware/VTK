@@ -149,8 +149,8 @@ protected:
   //@}
 
 private:
-  vtkPythonInterpreter(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
+  vtkPythonInterpreter(const vtkPythonInterpreter&) = delete;
+  void operator=(const vtkPythonInterpreter&) = delete;
 
   static bool InitializedOnce;
   static bool CaptureStdin;

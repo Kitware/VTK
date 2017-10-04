@@ -257,8 +257,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLeaderActor2D(const vtkLeaderActor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLeaderActor2D&) VTK_DELETE_FUNCTION;
+  vtkLeaderActor2D(const vtkLeaderActor2D&) = delete;
+  void operator=(const vtkLeaderActor2D&) = delete;
 };
 
 

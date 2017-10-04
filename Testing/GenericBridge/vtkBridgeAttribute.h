@@ -245,8 +245,8 @@ protected:
   int InternalTupleCapacity;
 
 private:
-  vtkBridgeAttribute(const vtkBridgeAttribute&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBridgeAttribute&) VTK_DELETE_FUNCTION;
+  vtkBridgeAttribute(const vtkBridgeAttribute&) = delete;
+  void operator=(const vtkBridgeAttribute&) = delete;
 };
 
 #endif

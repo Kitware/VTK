@@ -75,8 +75,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricHenneberg :
     ~vtkParametricHenneberg() override;
 
   private:
-    vtkParametricHenneberg(const vtkParametricHenneberg&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricHenneberg&) VTK_DELETE_FUNCTION;
+    vtkParametricHenneberg(const vtkParametricHenneberg&) = delete;
+    void operator=(const vtkParametricHenneberg&) = delete;
 };
 
 #endif

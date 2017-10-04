@@ -99,8 +99,8 @@ protected:
   const vtkAMRDataInternals::BlockList* DataBlocks;
   int InternalIdx;
 private:
-  AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const AMRLoadedDataIndexIterator&) VTK_DELETE_FUNCTION;
+  AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&) = delete;
+  void operator=(const AMRLoadedDataIndexIterator&) = delete;
 };
 vtkStandardNewMacro(AMRLoadedDataIndexIterator);
 

@@ -133,8 +133,8 @@ protected:
   ~vtkIncrementalPointLocator() override;
 
 private:
-  vtkIncrementalPointLocator( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;
+  vtkIncrementalPointLocator( const vtkIncrementalPointLocator & ) = delete;
+  void operator = ( const vtkIncrementalPointLocator & ) = delete;
 };
 
 #endif

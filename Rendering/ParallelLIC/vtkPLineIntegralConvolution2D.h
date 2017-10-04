@@ -90,8 +90,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
+  vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D &) = delete;
+  void operator=(const vtkPLineIntegralConvolution2D &) = delete;
 };
 
 #endif

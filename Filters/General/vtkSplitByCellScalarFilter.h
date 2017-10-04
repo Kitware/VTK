@@ -70,8 +70,8 @@ protected:
   bool PassAllPoints;
 
 private:
-  vtkSplitByCellScalarFilter(const vtkSplitByCellScalarFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplitByCellScalarFilter&) VTK_DELETE_FUNCTION;
+  vtkSplitByCellScalarFilter(const vtkSplitByCellScalarFilter&) = delete;
+  void operator=(const vtkSplitByCellScalarFilter&) = delete;
 };
 
 #endif

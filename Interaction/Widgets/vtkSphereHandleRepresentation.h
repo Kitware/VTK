@@ -180,8 +180,8 @@ protected:
   int TranslationMode;
 
 private:
-  vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereHandleRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&) = delete;
+  void operator=(const vtkSphereHandleRepresentation&) = delete;
 };
 
 #endif

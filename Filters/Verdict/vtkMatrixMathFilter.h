@@ -90,8 +90,8 @@ protected:
   int Operation;
 
 private:
-  vtkMatrixMathFilter(const vtkMatrixMathFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatrixMathFilter&) VTK_DELETE_FUNCTION;
+  vtkMatrixMathFilter(const vtkMatrixMathFilter&) = delete;
+  void operator=(const vtkMatrixMathFilter&) = delete;
 };
 
 #endif // vtkMatrixMathFilter_h

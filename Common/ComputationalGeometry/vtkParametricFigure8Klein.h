@@ -109,8 +109,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFigure8Klein :
     double Radius;
 
   private:
-    vtkParametricFigure8Klein(const vtkParametricFigure8Klein&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricFigure8Klein&) VTK_DELETE_FUNCTION;
+    vtkParametricFigure8Klein(const vtkParametricFigure8Klein&) = delete;
+    void operator=(const vtkParametricFigure8Klein&) = delete;
 
 };
 

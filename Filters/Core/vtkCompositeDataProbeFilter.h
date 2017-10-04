@@ -100,8 +100,8 @@ protected:
 
   bool PassPartialArrays;
 private:
-  vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataProbeFilter&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) = delete;
+  void operator=(const vtkCompositeDataProbeFilter&) = delete;
 
 };
 

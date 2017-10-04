@@ -42,8 +42,8 @@ protected:
   ~vtkPointData() override {}
 
 private:
-  vtkPointData(const vtkPointData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointData&) VTK_DELETE_FUNCTION;
+  vtkPointData(const vtkPointData&) = delete;
+  void operator=(const vtkPointData&) = delete;
 };
 
 #endif

@@ -51,8 +51,8 @@ protected:
     vtkInformationVector* outputVector) override;
 
 private:
-  vtkDummyImageFilter(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
+  vtkDummyImageFilter(const vtkDummyImageFilter&) = delete;
+  void operator=(const vtkDummyImageFilter&) = delete;
 };
 
 vtkStandardNewMacro(vtkDummyImageFilter);

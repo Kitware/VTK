@@ -151,8 +151,8 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticHexahedron(const vtkQuadraticHexahedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticHexahedron&) VTK_DELETE_FUNCTION;
+  vtkQuadraticHexahedron(const vtkQuadraticHexahedron&) = delete;
+  void operator=(const vtkQuadraticHexahedron&) = delete;
 };
 
 #endif

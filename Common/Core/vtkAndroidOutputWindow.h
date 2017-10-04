@@ -61,8 +61,8 @@ protected:
   virtual ~vtkAndroidOutputWindow();
 
 private:
-  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) = delete;
+  void operator=(const vtkAndroidOutputWindow&) = delete;
 };
 
 

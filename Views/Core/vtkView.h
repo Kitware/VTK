@@ -243,8 +243,8 @@ protected:
   //@}
 
 private:
-  vtkView(const vtkView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkView&) VTK_DELETE_FUNCTION;
+  vtkView(const vtkView&) = delete;
+  void operator=(const vtkView&) = delete;
 
   class vtkImplementation;
   vtkImplementation* Implementation;

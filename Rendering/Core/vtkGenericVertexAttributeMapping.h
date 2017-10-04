@@ -101,8 +101,8 @@ protected:
   ~vtkGenericVertexAttributeMapping() override;
 
 private:
-  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
+  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&) = delete;
+  void operator=(const vtkGenericVertexAttributeMapping&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

@@ -42,8 +42,8 @@ protected:
   ~vtkCellData() override {}
 
 private:
-  vtkCellData(const vtkCellData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellData&) VTK_DELETE_FUNCTION;
+  vtkCellData(const vtkCellData&) = delete;
+  void operator=(const vtkCellData&) = delete;
 };
 
 #endif

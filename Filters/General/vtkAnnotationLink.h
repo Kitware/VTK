@@ -141,8 +141,8 @@ protected:
 
 
 private:
-  vtkAnnotationLink(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLink(const vtkAnnotationLink&) = delete;
+  void operator=(const vtkAnnotationLink&) = delete;
 
   class Command;
   friend class Command;

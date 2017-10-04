@@ -44,8 +44,8 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPParticleTracer: public vtkPParticl
   ~vtkPParticleTracer(){}
   virtual int OutputParticles(vtkPolyData* poly) override;
 private:
-  vtkPParticleTracer(const vtkPParticleTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPParticleTracer&) VTK_DELETE_FUNCTION;
+  vtkPParticleTracer(const vtkPParticleTracer&) = delete;
+  void operator=(const vtkPParticleTracer&) = delete;
 };
 
 

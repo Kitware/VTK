@@ -193,8 +193,8 @@ protected:
   void RegisterPickers() override;
 
 private:
-  vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;
+  vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&) = delete;
+  void operator=(const vtkTexturedButtonRepresentation&) = delete;
 };
 
 #endif

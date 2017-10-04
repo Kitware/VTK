@@ -109,8 +109,8 @@ class PickingManagerClient : public vtkObject
     vtkPickingManager *PickingManager;
     vtkPicker *Picker;
 
-    PickingManagerClient(const PickingManagerClient&) VTK_DELETE_FUNCTION;
-    void operator=(const PickingManagerClient&) VTK_DELETE_FUNCTION;
+    PickingManagerClient(const PickingManagerClient&) = delete;
+    void operator=(const PickingManagerClient&) = delete;
 };
 
 vtkStandardNewMacro(PickingManagerClient);

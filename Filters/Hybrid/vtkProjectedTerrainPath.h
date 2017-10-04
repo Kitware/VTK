@@ -200,8 +200,8 @@ protected:
   vtkEdgeList *EdgeList;
 
 private:
-  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
+  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&) = delete;
+  void operator=(const vtkProjectedTerrainPath&) = delete;
 
 };
 

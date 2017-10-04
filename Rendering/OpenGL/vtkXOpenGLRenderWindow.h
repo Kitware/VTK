@@ -331,8 +331,8 @@ protected:
 
 
 private:
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) = delete;
+  void operator=(const vtkXOpenGLRenderWindow&) = delete;
 };
 
 

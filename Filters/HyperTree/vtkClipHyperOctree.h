@@ -228,8 +228,8 @@ protected:
   vtkHyperOctreeClipCutPointsGrabber *Grabber;
 
 private:
-  vtkClipHyperOctree(const vtkClipHyperOctree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClipHyperOctree&) VTK_DELETE_FUNCTION;
+  vtkClipHyperOctree(const vtkClipHyperOctree&) = delete;
+  void operator=(const vtkClipHyperOctree&) = delete;
 };
 
 #endif

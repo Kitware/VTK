@@ -108,8 +108,8 @@ private:
   vtkPlane     * Plane;
 
 private:
-  vtkResliceCursorPicker(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
+  vtkResliceCursorPicker(const vtkResliceCursorPicker&) = delete;
+  void operator=(const vtkResliceCursorPicker&) = delete;
 };
 
 #endif

@@ -402,8 +402,8 @@ private:
   vtkColorStringParser* Parser;
   //@}
 
-  vtkNamedColors(const vtkNamedColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNamedColors&) VTK_DELETE_FUNCTION;
+  vtkNamedColors(const vtkNamedColors&) = delete;
+  void operator=(const vtkNamedColors&) = delete;
 };
 
 #endif /* vtkNamedColors_h */

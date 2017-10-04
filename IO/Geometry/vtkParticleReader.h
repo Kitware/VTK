@@ -214,8 +214,8 @@ protected:
   size_t NumberOfPoints;
 
 private:
-  vtkParticleReader(const vtkParticleReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParticleReader&) VTK_DELETE_FUNCTION;
+  vtkParticleReader(const vtkParticleReader&) = delete;
+  void operator=(const vtkParticleReader&) = delete;
 };
 
 #endif

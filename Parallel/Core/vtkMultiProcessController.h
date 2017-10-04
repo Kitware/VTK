@@ -1474,8 +1474,8 @@ protected:
   vtkCommunicator* RMICommunicator;
 
 private:
-  vtkMultiProcessController(const vtkMultiProcessController&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiProcessController&) VTK_DELETE_FUNCTION;
+  vtkMultiProcessController(const vtkMultiProcessController&) = delete;
+  void operator=(const vtkMultiProcessController&) = delete;
 
   unsigned long RMICount;
 

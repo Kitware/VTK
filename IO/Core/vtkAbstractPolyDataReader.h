@@ -53,8 +53,8 @@ protected:
 
   char *FileName;
 private:
-  vtkAbstractPolyDataReader(const vtkAbstractPolyDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractPolyDataReader&) VTK_DELETE_FUNCTION;
+  vtkAbstractPolyDataReader(const vtkAbstractPolyDataReader&) = delete;
+  void operator=(const vtkAbstractPolyDataReader&) = delete;
 };
 
 #endif

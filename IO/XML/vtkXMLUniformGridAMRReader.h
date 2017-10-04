@@ -119,8 +119,8 @@ protected:
   unsigned int MaximumLevelsToReadByDefault;
 
 private:
-  vtkXMLUniformGridAMRReader(const vtkXMLUniformGridAMRReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUniformGridAMRReader&) VTK_DELETE_FUNCTION;
+  vtkXMLUniformGridAMRReader(const vtkXMLUniformGridAMRReader&) = delete;
+  void operator=(const vtkXMLUniformGridAMRReader&) = delete;
 
   char* OutputDataType;
   vtkSetStringMacro(OutputDataType);

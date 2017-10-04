@@ -219,8 +219,8 @@ protected:
   int MaxErrorsCapacity;
 
 private:
-  vtkGenericCellTessellator(const vtkGenericCellTessellator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericCellTessellator&) VTK_DELETE_FUNCTION;
+  vtkGenericCellTessellator(const vtkGenericCellTessellator&) = delete;
+  void operator=(const vtkGenericCellTessellator&) = delete;
 };
 
 #endif

@@ -196,8 +196,8 @@ private:
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
   void ResolveCoincidentVertices();
 
-  vtkConstrained2DLayoutStrategy(const vtkConstrained2DLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConstrained2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkConstrained2DLayoutStrategy(const vtkConstrained2DLayoutStrategy&) = delete;
+  void operator=(const vtkConstrained2DLayoutStrategy&) = delete;
 };
 
 #endif

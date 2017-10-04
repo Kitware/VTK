@@ -191,8 +191,8 @@ protected:
   int    NumberOfLevels;
 
 private:
-  vtkAMRGaussianPulseSource(const vtkAMRGaussianPulseSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRGaussianPulseSource&) VTK_DELETE_FUNCTION;
+  vtkAMRGaussianPulseSource(const vtkAMRGaussianPulseSource&) = delete;
+  void operator=(const vtkAMRGaussianPulseSource&) = delete;
 };
 
 #endif /* vtkAMRGaussianPulseSource_h */

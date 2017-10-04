@@ -42,8 +42,8 @@ protected:
   void WriteFileHeader(
     ofstream *, vtkImageData *, int wExt[6]) override;
 private:
-  vtkPNMWriter(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
+  vtkPNMWriter(const vtkPNMWriter&) = delete;
+  void operator=(const vtkPNMWriter&) = delete;
 };
 
 #endif

@@ -132,8 +132,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*)  override;
 
 private:
-  vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLoopBooleanPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkLoopBooleanPolyDataFilter(const vtkLoopBooleanPolyDataFilter&) = delete;
+  void operator=(const vtkLoopBooleanPolyDataFilter&) = delete;
 
   //@{
   /**

@@ -153,8 +153,8 @@ protected:
 
 
 private:
-  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesView&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&) = delete;
+  void operator=(const vtkParallelCoordinatesView&) = delete;
 
 };
 

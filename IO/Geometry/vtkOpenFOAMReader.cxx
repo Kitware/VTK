@@ -370,8 +370,8 @@ private:
   vtkOpenFOAMReaderPrivate();
   ~vtkOpenFOAMReaderPrivate() override;
 
-  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
+  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) = delete;
+  void operator=(const vtkOpenFOAMReaderPrivate &) = delete;
 
   // clear mesh construction
   void ClearInternalMeshes();
@@ -2305,9 +2305,9 @@ private:
   void ReadHeader(); // defined later
 
   // Disallow default bitwise copy/assignment constructor
-  vtkFoamIOobject(const vtkFoamIOobject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFoamIOobject&) VTK_DELETE_FUNCTION;
-  vtkFoamIOobject() VTK_DELETE_FUNCTION;
+  vtkFoamIOobject(const vtkFoamIOobject&) = delete;
+  void operator=(const vtkFoamIOobject&) = delete;
+  vtkFoamIOobject() = delete;
 
 public:
   vtkFoamIOobject(const vtkStdString& casePath, vtkOpenFOAMReader *reader) :

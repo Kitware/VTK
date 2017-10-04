@@ -72,8 +72,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkPruneTreeFilter(const vtkPruneTreeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPruneTreeFilter&) VTK_DELETE_FUNCTION;
+  vtkPruneTreeFilter(const vtkPruneTreeFilter&) = delete;
+  void operator=(const vtkPruneTreeFilter&) = delete;
 };
 
 #endif

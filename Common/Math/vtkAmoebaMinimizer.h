@@ -234,8 +234,8 @@ private:
   int PerformAmoeba();
   int CheckParameterTolerance();
 
-  vtkAmoebaMinimizer(const vtkAmoebaMinimizer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAmoebaMinimizer&) VTK_DELETE_FUNCTION;
+  vtkAmoebaMinimizer(const vtkAmoebaMinimizer&) = delete;
+  void operator=(const vtkAmoebaMinimizer&) = delete;
 };
 
 #endif

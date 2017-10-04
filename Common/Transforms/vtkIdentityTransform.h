@@ -122,8 +122,8 @@ protected:
   void InternalDeepCopy(vtkAbstractTransform *t) override;
 
 private:
-  vtkIdentityTransform(const vtkIdentityTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdentityTransform&) VTK_DELETE_FUNCTION;
+  vtkIdentityTransform(const vtkIdentityTransform&) = delete;
+  void operator=(const vtkIdentityTransform&) = delete;
 };
 
 #endif

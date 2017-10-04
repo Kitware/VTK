@@ -136,8 +136,8 @@ protected:
   vtkCellLocator *Locator;
 
 private:
-  vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPolyDataDistance&) VTK_DELETE_FUNCTION;
+  vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&) = delete;
+  void operator=(const vtkImplicitPolyDataDistance&) = delete;
 };
 
 #endif

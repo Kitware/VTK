@@ -59,8 +59,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //insures compatibility; satisfies abstract api in vtkFilter
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkCastToConcrete(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
+  vtkCastToConcrete(const vtkCastToConcrete&) = delete;
+  void operator=(const vtkCastToConcrete&) = delete;
 };
 
 #endif

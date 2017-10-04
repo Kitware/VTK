@@ -141,8 +141,8 @@ protected:
   double Value;
 
 private:
-  vtkCenteredSliderWidget(const vtkCenteredSliderWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCenteredSliderWidget&) VTK_DELETE_FUNCTION;
+  vtkCenteredSliderWidget(const vtkCenteredSliderWidget&) = delete;
+  void operator=(const vtkCenteredSliderWidget&) = delete;
 };
 
 #endif

@@ -64,8 +64,8 @@ protected:
   void WritePData(vtkIndent indent) override;
 
 private:
-  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&) = delete;
+  void operator=(const vtkXMLPRectilinearGridWriter&) = delete;
 };
 
 #endif

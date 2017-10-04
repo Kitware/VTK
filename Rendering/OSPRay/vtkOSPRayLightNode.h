@@ -87,8 +87,8 @@ protected:
   ~vtkOSPRayLightNode();
 
 private:
-  vtkOSPRayLightNode(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayLightNode(const vtkOSPRayLightNode&) = delete;
+  void operator=(const vtkOSPRayLightNode&) = delete;
 
   static double LightScale;
 };

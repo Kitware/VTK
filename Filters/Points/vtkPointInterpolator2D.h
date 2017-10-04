@@ -113,8 +113,8 @@ protected:
   void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output) override;
 
 private:
-  vtkPointInterpolator2D(const vtkPointInterpolator2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointInterpolator2D&) VTK_DELETE_FUNCTION;
+  vtkPointInterpolator2D(const vtkPointInterpolator2D&) = delete;
+  void operator=(const vtkPointInterpolator2D&) = delete;
 
 };
 

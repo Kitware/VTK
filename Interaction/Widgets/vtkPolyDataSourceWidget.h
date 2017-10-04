@@ -97,8 +97,8 @@ private:
   // implemented so that any "accidental" invocation of a copy (pass by value)
   // or assignment will trigger linker errors; the class is not meant to
   // be used in these ways.  I couldn't resist adding this explanation. :)
-  vtkPolyDataSourceWidget(const vtkPolyDataSourceWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataSourceWidget&) VTK_DELETE_FUNCTION;
+  vtkPolyDataSourceWidget(const vtkPolyDataSourceWidget&) = delete;
+  void operator=(const vtkPolyDataSourceWidget&) = delete;
 };
 
 #endif

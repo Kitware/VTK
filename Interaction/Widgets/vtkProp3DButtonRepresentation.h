@@ -138,8 +138,8 @@ protected:
   void RegisterPickers() override;
 
 private:
-  vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;
+  vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) = delete;
+  void operator=(const vtkProp3DButtonRepresentation&) = delete;
 };
 
 #endif

@@ -108,8 +108,8 @@ protected:
   bool MultiTouch;
 
 private:
-  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleSwitch&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&) = delete;
+  void operator=(const vtkInteractorStyleSwitch&) = delete;
 };
 
 #endif

@@ -135,6 +135,6 @@ protected:
   bool IsAxisVertical;
 
 private:
-  vtkAxisExtended(const vtkAxisExtended&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxisExtended&) VTK_DELETE_FUNCTION;
+  vtkAxisExtended(const vtkAxisExtended&) = delete;
+  void operator=(const vtkAxisExtended&) = delete;
 };

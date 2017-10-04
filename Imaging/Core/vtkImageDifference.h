@@ -147,8 +147,8 @@ protected:
   vtkImageDifferenceSMPThreadLocal *SMPThreadData;
 
 private:
-  vtkImageDifference(const vtkImageDifference&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDifference&) VTK_DELETE_FUNCTION;
+  vtkImageDifference(const vtkImageDifference&) = delete;
+  void operator=(const vtkImageDifference&) = delete;
 
   friend class vtkImageDifferenceSMPFunctor;
 };

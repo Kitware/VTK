@@ -109,8 +109,8 @@ protected:
   int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkRadiusOutlierRemoval(const vtkRadiusOutlierRemoval&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRadiusOutlierRemoval&) VTK_DELETE_FUNCTION;
+  vtkRadiusOutlierRemoval(const vtkRadiusOutlierRemoval&) = delete;
+  void operator=(const vtkRadiusOutlierRemoval&) = delete;
 
 };
 

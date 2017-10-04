@@ -187,8 +187,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkStringToNumeric(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
+  vtkStringToNumeric(const vtkStringToNumeric&) = delete;
+  void operator=(const vtkStringToNumeric&) = delete;
 };
 
 #endif

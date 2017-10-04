@@ -170,8 +170,8 @@ protected:
   double Tfrac;
 
 private:
-  vtkTemporalInterpolator(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
+  vtkTemporalInterpolator(const vtkTemporalInterpolator&) = delete;
+  void operator=(const vtkTemporalInterpolator&) = delete;
 };
 
 

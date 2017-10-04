@@ -544,8 +544,8 @@ protected:
   vtkInformation* Information;
 
 private:
-  vtkProperty(const vtkProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProperty&) VTK_DELETE_FUNCTION;
+  vtkProperty(const vtkProperty&) = delete;
+  void operator=(const vtkProperty&) = delete;
 
   vtkPropertyInternals* Internals;
 };

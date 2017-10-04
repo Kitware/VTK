@@ -358,8 +358,8 @@ private:
   int FindAttributeArray(const char *name);
   int FindUniform(const char *name);
 
-  vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+  vtkShaderProgram(const vtkShaderProgram&) = delete;
+  void operator=(const vtkShaderProgram&) = delete;
 
   char* FileNamePrefixForDebugging;
 };

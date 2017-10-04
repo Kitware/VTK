@@ -117,8 +117,8 @@ protected:
   char* CellColorArrayNameInternal;
 
 private:
-  vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderedSurfaceRepresentation&) VTK_DELETE_FUNCTION;
+  vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&) = delete;
+  void operator=(const vtkRenderedSurfaceRepresentation&) = delete;
 };
 
 #endif

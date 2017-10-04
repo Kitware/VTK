@@ -131,8 +131,8 @@ protected:
   vtkQuad *Quad;
 
 private:
-  vtkWedge(const vtkWedge&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWedge&) VTK_DELETE_FUNCTION;
+  vtkWedge(const vtkWedge&) = delete;
+  void operator=(const vtkWedge&) = delete;
 };
 
 inline int vtkWedge::GetParametricCenter(double pcoords[3])

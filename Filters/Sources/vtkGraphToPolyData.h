@@ -91,8 +91,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphToPolyData(const vtkGraphToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphToPolyData&) VTK_DELETE_FUNCTION;
+  vtkGraphToPolyData(const vtkGraphToPolyData&) = delete;
+  void operator=(const vtkGraphToPolyData&) = delete;
 };
 
 #endif

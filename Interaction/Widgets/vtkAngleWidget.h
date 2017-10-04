@@ -193,8 +193,8 @@ protected:
   friend class vtkAngleWidgetCallback;
 
 private:
-  vtkAngleWidget(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
+  vtkAngleWidget(const vtkAngleWidget&) = delete;
+  void operator=(const vtkAngleWidget&) = delete;
 };
 
 #endif

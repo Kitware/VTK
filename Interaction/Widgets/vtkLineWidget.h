@@ -294,8 +294,8 @@ protected:
   int ForwardEvent(unsigned long event);
 
 private:
-  vtkLineWidget(const vtkLineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineWidget&) VTK_DELETE_FUNCTION;
+  vtkLineWidget(const vtkLineWidget&) = delete;
+  void operator=(const vtkLineWidget&) = delete;
 };
 
 #endif

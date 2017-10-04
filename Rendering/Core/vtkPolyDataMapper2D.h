@@ -239,8 +239,8 @@ protected:
   int ArrayComponent;
   int ArrayAccessMode;
 private:
-  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapper2D&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&) = delete;
+  void operator=(const vtkPolyDataMapper2D&) = delete;
 };
 
 

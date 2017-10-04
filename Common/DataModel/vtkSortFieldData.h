@@ -110,8 +110,8 @@ protected:
   ~vtkSortFieldData() override;
 
 private:
-  vtkSortFieldData(const vtkSortFieldData &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSortFieldData &) VTK_DELETE_FUNCTION;
+  vtkSortFieldData(const vtkSortFieldData &) = delete;
+  void operator=(const vtkSortFieldData &) = delete;
 };
 
 #endif //vtkSortFieldData_h

@@ -129,8 +129,8 @@ protected:
                                           vtkInformation *outInfo) override;
 
 private:
-  vtkMPIImageReader(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
+  vtkMPIImageReader(const vtkMPIImageReader &) = delete;
+  void operator=(const vtkMPIImageReader &) = delete;
 };
 
 #endif //vtkMPIImageReader_h

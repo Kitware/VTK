@@ -155,8 +155,8 @@ protected:
   vtkTextRepresentationObserver *Observer;
 
 private:
-  vtkTextRepresentation(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
+  vtkTextRepresentation(const vtkTextRepresentation&) = delete;
+  void operator=(const vtkTextRepresentation&) = delete;
 };
 
 #endif

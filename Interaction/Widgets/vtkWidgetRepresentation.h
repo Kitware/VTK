@@ -313,8 +313,8 @@ protected:
   vtkNew<vtkMatrix4x4> TempMatrix;
 
 private:
-  vtkWidgetRepresentation(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
+  vtkWidgetRepresentation(const vtkWidgetRepresentation&) = delete;
+  void operator=(const vtkWidgetRepresentation&) = delete;
 };
 
 #endif

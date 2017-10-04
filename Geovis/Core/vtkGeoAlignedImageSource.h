@@ -110,8 +110,8 @@ protected:
   vtkProgressObserver* ProgressObserver;
 
 private:
-  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
+  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&) = delete;
+  void operator=(const vtkGeoAlignedImageSource&) = delete;
 };
 
 #endif

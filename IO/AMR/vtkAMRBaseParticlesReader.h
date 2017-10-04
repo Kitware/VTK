@@ -233,8 +233,8 @@ protected:
   char *FileName;
 
 private:
-  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
+  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ) = delete;
+  void operator=(const vtkAMRBaseParticlesReader& ) = delete;
 };
 
 #endif /* vtkAMRBaseParticlesReader_h */

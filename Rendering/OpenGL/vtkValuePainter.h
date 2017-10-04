@@ -112,8 +112,8 @@ protected:
     vtkIdType startCellId, vtkRenderer *renderer);
 
 private:
-  vtkValuePainter(const vtkValuePainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkValuePainter&) VTK_DELETE_FUNCTION;
+  vtkValuePainter(const vtkValuePainter&) = delete;
+  void operator=(const vtkValuePainter&) = delete;
 
   class vtkInternals;
   vtkInternals *Internals;

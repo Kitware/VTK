@@ -69,8 +69,8 @@ protected:
   vtkXMLDataElement** CoordinateElements;
 
 private:
-  vtkXMLRectilinearGridReader(const vtkXMLRectilinearGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLRectilinearGridReader(const vtkXMLRectilinearGridReader&) = delete;
+  void operator=(const vtkXMLRectilinearGridReader&) = delete;
 };
 
 #endif

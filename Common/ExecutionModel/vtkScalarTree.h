@@ -148,8 +148,8 @@ protected:
   vtkTimeStamp BuildTime; //time at which tree was built
 
 private:
-  vtkScalarTree(const vtkScalarTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarTree&) VTK_DELETE_FUNCTION;
+  vtkScalarTree(const vtkScalarTree&) = delete;
+  void operator=(const vtkScalarTree&) = delete;
 };
 
 #endif

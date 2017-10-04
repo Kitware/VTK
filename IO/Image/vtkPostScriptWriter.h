@@ -44,8 +44,8 @@ protected:
   void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) override;
   void WriteFileTrailer(ofstream *, vtkImageData *) override;
 private:
-  vtkPostScriptWriter(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
+  vtkPostScriptWriter(const vtkPostScriptWriter&) = delete;
+  void operator=(const vtkPostScriptWriter&) = delete;
 };
 
 #endif

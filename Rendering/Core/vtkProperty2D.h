@@ -142,8 +142,8 @@ protected:
   int   DisplayLocation;
 
 private:
-  vtkProperty2D(const vtkProperty2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProperty2D&) VTK_DELETE_FUNCTION;
+  vtkProperty2D(const vtkProperty2D&) = delete;
+  void operator=(const vtkProperty2D&) = delete;
 };
 
 #endif

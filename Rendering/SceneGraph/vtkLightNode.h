@@ -38,8 +38,8 @@ protected:
   ~vtkLightNode();
 
 private:
-  vtkLightNode(const vtkLightNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightNode&) VTK_DELETE_FUNCTION;
+  vtkLightNode(const vtkLightNode&) = delete;
+  void operator=(const vtkLightNode&) = delete;
 };
 
 #endif

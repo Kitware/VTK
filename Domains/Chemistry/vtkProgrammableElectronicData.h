@@ -107,8 +107,8 @@ protected:
   //@}
 
 private:
-  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
+  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) = delete;
+  void operator=(const vtkProgrammableElectronicData&) = delete;
 };
 
 #endif

@@ -41,8 +41,8 @@ protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
   ~vtkLogLookupTable() override {}
 private:
-  vtkLogLookupTable(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
+  vtkLogLookupTable(const vtkLogLookupTable&) = delete;
+  void operator=(const vtkLogLookupTable&) = delete;
 };
 
 #endif

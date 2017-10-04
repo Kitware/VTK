@@ -93,8 +93,8 @@ protected:
   bool RemoveIsolatedVertices;
 
 private:
-  vtkExtractSelectedGraph(const vtkExtractSelectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedGraph&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedGraph(const vtkExtractSelectedGraph&) = delete;
+  void operator=(const vtkExtractSelectedGraph&) = delete;
 };
 
 #endif

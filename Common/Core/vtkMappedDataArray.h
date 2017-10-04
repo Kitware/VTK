@@ -132,8 +132,8 @@ protected:
   }
 
 private:
-  vtkMappedDataArray(const vtkMappedDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMappedDataArray &) VTK_DELETE_FUNCTION;
+  vtkMappedDataArray(const vtkMappedDataArray &) = delete;
+  void operator=(const vtkMappedDataArray &) = delete;
 
   //@{
   /**

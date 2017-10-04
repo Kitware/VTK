@@ -89,8 +89,8 @@ protected:
   vtkAbstractArray *NodeNameArray;
 
 private:
-  vtkNewickTreeWriter(const vtkNewickTreeWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNewickTreeWriter&) VTK_DELETE_FUNCTION;
+  vtkNewickTreeWriter(const vtkNewickTreeWriter&) = delete;
+  void operator=(const vtkNewickTreeWriter&) = delete;
 };
 
 #endif

@@ -55,8 +55,8 @@ protected:
   int FilteredAxes[3];
 
 private:
-  vtkImagePermute(const vtkImagePermute&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImagePermute&) VTK_DELETE_FUNCTION;
+  vtkImagePermute(const vtkImagePermute&) = delete;
+  void operator=(const vtkImagePermute&) = delete;
 };
 
 #endif

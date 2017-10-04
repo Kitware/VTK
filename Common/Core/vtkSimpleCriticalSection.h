@@ -99,8 +99,8 @@ protected:
   vtkCritSecType   CritSec;
 
 private:
-  vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other) VTK_DELETE_FUNCTION;
-  vtkSimpleCriticalSection& operator=(const vtkSimpleCriticalSection& rhs) VTK_DELETE_FUNCTION;
+  vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other) = delete;
+  vtkSimpleCriticalSection& operator=(const vtkSimpleCriticalSection& rhs) = delete;
 };
 
 #endif

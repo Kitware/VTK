@@ -193,8 +193,8 @@ protected:
   vtkIdList *Faces;
 
 private:
-  vtkCellIterator(const vtkCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellIterator &) VTK_DELETE_FUNCTION;
+  vtkCellIterator(const vtkCellIterator &) = delete;
+  void operator=(const vtkCellIterator &) = delete;
 
   enum
   {

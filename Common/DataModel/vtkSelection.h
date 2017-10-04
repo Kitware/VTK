@@ -140,8 +140,8 @@ protected:
   ~vtkSelection() override;
 
 private:
-  vtkSelection(const vtkSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelection&) VTK_DELETE_FUNCTION;
+  vtkSelection(const vtkSelection&) = delete;
+  void operator=(const vtkSelection&) = delete;
 
   vtkSelectionInternals* Internal;
 

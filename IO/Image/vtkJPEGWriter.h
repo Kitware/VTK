@@ -93,8 +93,8 @@ private:
   FILE *TempFP;
 
 private:
-  vtkJPEGWriter(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
+  vtkJPEGWriter(const vtkJPEGWriter&) = delete;
+  void operator=(const vtkJPEGWriter&) = delete;
 };
 
 #endif

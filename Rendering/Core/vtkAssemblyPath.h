@@ -119,8 +119,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkAssemblyPath(const vtkAssemblyPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssemblyPath&) VTK_DELETE_FUNCTION;
+  vtkAssemblyPath(const vtkAssemblyPath&) = delete;
+  void operator=(const vtkAssemblyPath&) = delete;
 };
 
 #endif

@@ -397,8 +397,8 @@ protected:
   int HandleRightMouseButton;
 
 private:
-  vtkImageTracerWidget(const vtkImageTracerWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageTracerWidget&) VTK_DELETE_FUNCTION;
+  vtkImageTracerWidget(const vtkImageTracerWidget&) = delete;
+  void operator=(const vtkImageTracerWidget&) = delete;
 };
 
 #endif

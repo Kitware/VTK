@@ -120,8 +120,8 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkPlotPie(const vtkPlotPie &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotPie &) VTK_DELETE_FUNCTION;
+  vtkPlotPie(const vtkPlotPie &) = delete;
+  void operator=(const vtkPlotPie &) = delete;
 
   vtkPlotPiePrivate *Private;
 

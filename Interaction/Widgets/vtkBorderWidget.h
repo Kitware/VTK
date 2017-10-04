@@ -175,8 +175,8 @@ protected:
   enum _WidgetState{Start=0,Define,Manipulate,Selected};
 
 private:
-  vtkBorderWidget(const vtkBorderWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBorderWidget&) VTK_DELETE_FUNCTION;
+  vtkBorderWidget(const vtkBorderWidget&) = delete;
+  void operator=(const vtkBorderWidget&) = delete;
 };
 
 #endif

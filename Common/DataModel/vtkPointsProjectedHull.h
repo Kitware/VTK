@@ -187,8 +187,8 @@ private:
   int HullSize[3];
   vtkTimeStamp HullTime[3];
 
-  vtkPointsProjectedHull(const vtkPointsProjectedHull&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointsProjectedHull&) VTK_DELETE_FUNCTION;
+  vtkPointsProjectedHull(const vtkPointsProjectedHull&) = delete;
+  void operator=(const vtkPointsProjectedHull&) = delete;
 };
 #endif
 

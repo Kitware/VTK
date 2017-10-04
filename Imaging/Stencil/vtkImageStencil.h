@@ -107,8 +107,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageStencil(const vtkImageStencil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStencil&) VTK_DELETE_FUNCTION;
+  vtkImageStencil(const vtkImageStencil&) = delete;
+  void operator=(const vtkImageStencil&) = delete;
 };
 
 #endif

@@ -70,8 +70,8 @@ protected:
   FT_Error CreateFTCManager();
 
 private:
-  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFontConfigFreeTypeTools &) VTK_DELETE_FUNCTION;
+  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &) = delete;
+  void operator=(const vtkFontConfigFreeTypeTools &) = delete;
 };
 
 #endif //vtkFontConfigFreeTypeTools_h

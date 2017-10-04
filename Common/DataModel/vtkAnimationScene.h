@@ -149,8 +149,8 @@ protected:
   vtkTimerLog* AnimationTimer;
 
 private:
-  vtkAnimationScene(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
+  vtkAnimationScene(const vtkAnimationScene&) = delete;
+  void operator=(const vtkAnimationScene&) = delete;
 };
 
 #endif

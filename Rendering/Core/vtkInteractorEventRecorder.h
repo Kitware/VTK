@@ -141,8 +141,8 @@ protected:
   static float StreamVersion;
 
 private:
-  vtkInteractorEventRecorder(const vtkInteractorEventRecorder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorEventRecorder&) VTK_DELETE_FUNCTION;
+  vtkInteractorEventRecorder(const vtkInteractorEventRecorder&) = delete;
+  void operator=(const vtkInteractorEventRecorder&) = delete;
 
 };
 

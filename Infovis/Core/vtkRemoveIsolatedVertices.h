@@ -50,8 +50,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkRemoveIsolatedVertices(const vtkRemoveIsolatedVertices&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRemoveIsolatedVertices&) VTK_DELETE_FUNCTION;
+  vtkRemoveIsolatedVertices(const vtkRemoveIsolatedVertices&) = delete;
+  void operator=(const vtkRemoveIsolatedVertices&) = delete;
 };
 
 #endif

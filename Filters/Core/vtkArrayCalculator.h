@@ -340,8 +340,8 @@ protected:
 
   int     ResultArrayType;
 private:
-  vtkArrayCalculator(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
+  vtkArrayCalculator(const vtkArrayCalculator&) = delete;
+  void operator=(const vtkArrayCalculator&) = delete;
 };
 
 #endif

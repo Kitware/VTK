@@ -145,8 +145,8 @@ public:
   }
 
 private:
-  FrameBufferHelper(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const FrameBufferHelper&) VTK_DELETE_FUNCTION;
+  FrameBufferHelper(const FrameBufferHelper&) = delete;
+  void operator=(const FrameBufferHelper&) = delete;
 
   EType Type;
   GLuint LastFrameBuffer;

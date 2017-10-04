@@ -410,8 +410,8 @@ protected:
   //@}
 
 private:
-  vtkGraphLayoutView(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
+  vtkGraphLayoutView(const vtkGraphLayoutView&) = delete;
+  void operator=(const vtkGraphLayoutView&) = delete;
   bool VertexLabelsRequested;
   bool EdgeLabelsRequested;
 };

@@ -117,7 +117,7 @@ private:
   bool ReadVrtFile(vtkUnstructuredGrid *output, idMapping& pointMapping);
   bool ReadCelFile(vtkUnstructuredGrid *output, const idMapping& pointMapping);
 
-  vtkProStarReader(const vtkProStarReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProStarReader&) VTK_DELETE_FUNCTION;
+  vtkProStarReader(const vtkProStarReader&) = delete;
+  void operator=(const vtkProStarReader&) = delete;
 };
 #endif

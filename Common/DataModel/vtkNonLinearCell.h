@@ -51,8 +51,8 @@ protected:
   ~vtkNonLinearCell() override {}
 
 private:
-  vtkNonLinearCell(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
+  vtkNonLinearCell(const vtkNonLinearCell&) = delete;
+  void operator=(const vtkNonLinearCell&) = delete;
 };
 
 #endif

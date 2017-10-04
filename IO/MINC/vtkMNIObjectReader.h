@@ -151,8 +151,8 @@ protected:
                           vtkInformationVector* outInfo) override;
 
 private:
-  vtkMNIObjectReader(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
+  vtkMNIObjectReader(const vtkMNIObjectReader&) = delete;
+  void operator=(const vtkMNIObjectReader&) = delete;
 
 };
 

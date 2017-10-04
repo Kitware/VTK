@@ -120,8 +120,8 @@ protected:
   ~vtkTypedArray() override {}
 
 private:
-  vtkTypedArray(const vtkTypedArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTypedArray&) VTK_DELETE_FUNCTION;
+  vtkTypedArray(const vtkTypedArray&) = delete;
+  void operator=(const vtkTypedArray&) = delete;
 };
 
 #include "vtkTypedArray.txx"

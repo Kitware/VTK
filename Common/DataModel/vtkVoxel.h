@@ -119,8 +119,8 @@ protected:
   ~vtkVoxel() override;
 
 private:
-  vtkVoxel(const vtkVoxel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoxel&) VTK_DELETE_FUNCTION;
+  vtkVoxel(const vtkVoxel&) = delete;
+  void operator=(const vtkVoxel&) = delete;
 
   vtkLine *Line;
   vtkPixel *Pixel;

@@ -273,8 +273,8 @@ protected:
   void AddNode();
 
 private:
-  vtkContourWidget(const vtkContourWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourWidget&) VTK_DELETE_FUNCTION;
+  vtkContourWidget(const vtkContourWidget&) = delete;
+  void operator=(const vtkContourWidget&) = delete;
 };
 
 #endif

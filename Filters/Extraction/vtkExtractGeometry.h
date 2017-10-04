@@ -106,8 +106,8 @@ protected:
   int ExtractOnlyBoundaryCells;
 
 private:
-  vtkExtractGeometry(const vtkExtractGeometry&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractGeometry&) VTK_DELETE_FUNCTION;
+  vtkExtractGeometry(const vtkExtractGeometry&) = delete;
+  void operator=(const vtkExtractGeometry&) = delete;
 };
 
 #endif

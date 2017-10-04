@@ -75,8 +75,8 @@ protected:
   vtkTable* Output;
 
 private:
-  void operator=(const vtkOTFilter&) VTK_DELETE_FUNCTION;
-  vtkOTFilter(const vtkOTFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOTFilter&) = delete;
+  vtkOTFilter(const vtkOTFilter&) = delete;
 };
 
 #endif

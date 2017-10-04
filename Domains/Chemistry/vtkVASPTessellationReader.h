@@ -89,8 +89,8 @@ protected:
   vtksys::RegularExpression *ParenExtract;
 
 private:
-  vtkVASPTessellationReader(const vtkVASPTessellationReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVASPTessellationReader&) VTK_DELETE_FUNCTION;
+  vtkVASPTessellationReader(const vtkVASPTessellationReader&) = delete;
+  void operator=(const vtkVASPTessellationReader&) = delete;
 };
 
 #endif // vtkVASPTessellationReader_h

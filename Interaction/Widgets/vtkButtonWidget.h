@@ -124,8 +124,8 @@ protected:
   };
 
 private:
-  vtkButtonWidget(const vtkButtonWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkButtonWidget&) VTK_DELETE_FUNCTION;
+  vtkButtonWidget(const vtkButtonWidget&) = delete;
+  void operator=(const vtkButtonWidget&) = delete;
 };
 
 #endif

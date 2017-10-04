@@ -77,8 +77,8 @@ protected:
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
   int Error;
 private:
-  vtkSLCReader(const vtkSLCReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLCReader&) VTK_DELETE_FUNCTION;
+  vtkSLCReader(const vtkSLCReader&) = delete;
+  void operator=(const vtkSLCReader&) = delete;
 };
 
 #endif

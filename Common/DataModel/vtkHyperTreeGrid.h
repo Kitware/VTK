@@ -843,8 +843,8 @@ protected:
   //@}
 
 private:
-  vtkHyperTreeGrid(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
+  vtkHyperTreeGrid(const vtkHyperTreeGrid&) = delete;
+  void operator=(const vtkHyperTreeGrid&) = delete;
 
   void GetCellImplementation( vtkIdType, vtkCell* );
 };

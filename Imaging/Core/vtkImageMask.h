@@ -114,8 +114,8 @@ protected:
                                    int extent[6], int threadId) override;
 
 private:
-  vtkImageMask(const vtkImageMask&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMask&) VTK_DELETE_FUNCTION;
+  vtkImageMask(const vtkImageMask&) = delete;
+  void operator=(const vtkImageMask&) = delete;
 };
 
 #endif

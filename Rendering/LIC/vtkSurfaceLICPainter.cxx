@@ -274,8 +274,8 @@ public:
   }
 
 private:
-  void operator=(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
-  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  void operator=(const RandomNumberGeneratorInterface &) = delete;
+  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) = delete;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;

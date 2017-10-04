@@ -75,7 +75,7 @@ protected:
 private:
   openslide_t *openslide_handle;
 
-  vtkOpenSlideReader(const vtkOpenSlideReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenSlideReader&) VTK_DELETE_FUNCTION;
+  vtkOpenSlideReader(const vtkOpenSlideReader&) = delete;
+  void operator=(const vtkOpenSlideReader&) = delete;
 };
 #endif

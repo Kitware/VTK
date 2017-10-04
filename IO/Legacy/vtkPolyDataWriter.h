@@ -54,8 +54,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPolyDataWriter(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
+  vtkPolyDataWriter(const vtkPolyDataWriter&) = delete;
+  void operator=(const vtkPolyDataWriter&) = delete;
 };
 
 #endif

@@ -455,8 +455,8 @@ protected:
   vtkGenericInterpolatedVelocityField* InterpolatorPrototype;
 
 private:
-  vtkGenericStreamTracer(const vtkGenericStreamTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericStreamTracer&) VTK_DELETE_FUNCTION;
+  vtkGenericStreamTracer(const vtkGenericStreamTracer&) = delete;
+  void operator=(const vtkGenericStreamTracer&) = delete;
 };
 
 #endif

@@ -72,8 +72,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkMergeColumns(const vtkMergeColumns&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeColumns&) VTK_DELETE_FUNCTION;
+  vtkMergeColumns(const vtkMergeColumns&) = delete;
+  void operator=(const vtkMergeColumns&) = delete;
 };
 
 #endif

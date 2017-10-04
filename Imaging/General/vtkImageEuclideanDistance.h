@@ -128,8 +128,8 @@ protected:
                                            vtkInformation* out) override;
 
 private:
-  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
+  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) = delete;
+  void operator=(const vtkImageEuclideanDistance&) = delete;
 };
 
 #endif

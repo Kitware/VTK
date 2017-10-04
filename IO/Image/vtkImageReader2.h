@@ -339,8 +339,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
   virtual void ComputeDataIncrements();
 private:
-  vtkImageReader2(const vtkImageReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2&) VTK_DELETE_FUNCTION;
+  vtkImageReader2(const vtkImageReader2&) = delete;
+  void operator=(const vtkImageReader2&) = delete;
 };
 
 #endif

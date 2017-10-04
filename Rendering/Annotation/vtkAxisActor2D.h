@@ -442,8 +442,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkAxisActor2D(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
+  vtkAxisActor2D(const vtkAxisActor2D&) = delete;
+  void operator=(const vtkAxisActor2D&) = delete;
 };
 
 

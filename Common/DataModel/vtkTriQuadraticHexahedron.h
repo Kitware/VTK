@@ -180,8 +180,8 @@ protected:
   vtkDoubleArray *Scalars;
 
 private:
-  vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &) VTK_DELETE_FUNCTION;
-  void operator = (const vtkTriQuadraticHexahedron &) VTK_DELETE_FUNCTION;
+  vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &) = delete;
+  void operator = (const vtkTriQuadraticHexahedron &) = delete;
 };
 
 #endif

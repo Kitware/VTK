@@ -61,8 +61,8 @@ protected:
   int GlobalContinueExecuting(int localContinue) override;
 
 private:
-  vtkPXdmf3Writer (const vtkPXdmf3Writer&) VTK_DELETE_FUNCTION;
-  void operator= (const vtkPXdmf3Writer&) VTK_DELETE_FUNCTION;
+  vtkPXdmf3Writer (const vtkPXdmf3Writer&) = delete;
+  void operator= (const vtkPXdmf3Writer&) = delete;
 };
 
 #endif /* vtkPXdmf3Writer_h */

@@ -88,8 +88,8 @@ protected:
                                  vtkInformationVector *) override;
 
 private:
-  vtkImageResample(const vtkImageResample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageResample&) VTK_DELETE_FUNCTION;
+  vtkImageResample(const vtkImageResample&) = delete;
+  void operator=(const vtkImageResample&) = delete;
 };
 
 #endif

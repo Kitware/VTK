@@ -94,9 +94,9 @@ protected:
 
 private:
   vtkDijkstraImageContourLineInterpolator(
-    const vtkDijkstraImageContourLineInterpolator&) VTK_DELETE_FUNCTION;
+    const vtkDijkstraImageContourLineInterpolator&) = delete;
   void operator=(const
-    vtkDijkstraImageContourLineInterpolator&) VTK_DELETE_FUNCTION;
+    vtkDijkstraImageContourLineInterpolator&) = delete;
 };
 
 #endif

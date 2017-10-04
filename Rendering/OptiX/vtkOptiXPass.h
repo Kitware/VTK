@@ -76,8 +76,8 @@ public:
   vtkRenderPassCollection *RenderPassCollection;
 
  private:
-  vtkOptiXPass(const vtkOptiXPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOptiXPass&) VTK_DELETE_FUNCTION;
+  vtkOptiXPass(const vtkOptiXPass&) = delete;
+  void operator=(const vtkOptiXPass&) = delete;
 
   vtkOptiXPassInternals *Internals;
 };

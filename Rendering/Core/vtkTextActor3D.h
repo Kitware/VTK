@@ -146,8 +146,8 @@ protected:
   virtual int UpdateImageActor();
 
 private:
-  vtkTextActor3D(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
+  vtkTextActor3D(const vtkTextActor3D&) = delete;
+  void operator=(const vtkTextActor3D&) = delete;
 };
 
 

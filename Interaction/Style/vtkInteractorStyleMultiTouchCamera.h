@@ -53,8 +53,8 @@ protected:
   ~vtkInteractorStyleMultiTouchCamera() override;
 
 private:
-  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&) = delete;
+  void operator=(const vtkInteractorStyleMultiTouchCamera&) = delete;
 };
 
 #endif

@@ -334,8 +334,8 @@ protected:
   int WriteInformation(ostream *fp, vtkInformation *info);
 
 private:
-  vtkDataWriter(const vtkDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataWriter&) VTK_DELETE_FUNCTION;
+  vtkDataWriter(const vtkDataWriter&) = delete;
+  void operator=(const vtkDataWriter&) = delete;
 };
 
 #endif

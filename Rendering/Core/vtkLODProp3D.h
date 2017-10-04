@@ -339,8 +339,8 @@ protected:
   vtkLODProp3DCallback *PickCallback;
 
 private:
-  vtkLODProp3D(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
+  vtkLODProp3D(const vtkLODProp3D&) = delete;
+  void operator=(const vtkLODProp3D&) = delete;
 };
 
 #endif

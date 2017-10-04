@@ -70,8 +70,8 @@ protected:
   int CurrentPiece;
 
 private:
-  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightMasterServerReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&) = delete;
+  void operator=(const vtkEnSightMasterServerReader&) = delete;
 };
 
 #endif

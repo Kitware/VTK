@@ -929,8 +929,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkAlgorithm(const vtkAlgorithm&) = delete;
+  void operator=(const vtkAlgorithm&) = delete;
 };
 
 #endif

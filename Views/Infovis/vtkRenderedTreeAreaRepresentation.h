@@ -363,8 +363,8 @@ protected:
   bool UseRectangularCoordinates;
 
 private:
-  vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
+  vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&) = delete;
+  void operator=(const vtkRenderedTreeAreaRepresentation&) = delete;
 
   class Internals;
   Internals* Implementation;

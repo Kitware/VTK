@@ -138,8 +138,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkContourLoopExtraction(const vtkContourLoopExtraction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourLoopExtraction&) VTK_DELETE_FUNCTION;
+  vtkContourLoopExtraction(const vtkContourLoopExtraction&) = delete;
+  void operator=(const vtkContourLoopExtraction&) = delete;
 };
 
 

@@ -193,8 +193,8 @@ protected:
                           vtkInformationVector* outInfo) override;
 
 private:
-  vtkMNITagPointReader(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
+  vtkMNITagPointReader(const vtkMNITagPointReader&) = delete;
+  void operator=(const vtkMNITagPointReader&) = delete;
 
 };
 

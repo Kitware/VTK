@@ -121,8 +121,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
+  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) = delete;
+  void operator=(const vtkPCAAnalysisFilter&) = delete;
 
   // Eigenvalues
   vtkFloatArray *Evals;

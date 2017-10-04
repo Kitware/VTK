@@ -105,8 +105,8 @@ protected:
   float Radius;
 
 private:
-  vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&) = delete;
+  void operator=(const vtkOpenGLSphereMapper&) = delete;
 };
 
 #endif

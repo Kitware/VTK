@@ -160,8 +160,8 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticWedge(const vtkQuadraticWedge&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraticWedge&) VTK_DELETE_FUNCTION;
+  vtkQuadraticWedge(const vtkQuadraticWedge&) = delete;
+  void operator=(const vtkQuadraticWedge&) = delete;
 };
 //----------------------------------------------------------------------------
 // Return the center of the quadratic wedge in parametric coordinates.

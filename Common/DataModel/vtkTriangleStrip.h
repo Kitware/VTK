@@ -95,8 +95,8 @@ protected:
   vtkTriangle *Triangle;
 
 private:
-  vtkTriangleStrip(const vtkTriangleStrip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangleStrip&) VTK_DELETE_FUNCTION;
+  vtkTriangleStrip(const vtkTriangleStrip&) = delete;
+  void operator=(const vtkTriangleStrip&) = delete;
 };
 
 #endif

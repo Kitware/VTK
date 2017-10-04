@@ -68,8 +68,8 @@ protected:
   VBOMap MappedVBOs;
 
 private:
-  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObjectCache&) = delete;
 
 };
 

@@ -76,8 +76,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
     ~vtkParametricCatalanMinimal() override;
 
   private:
-    vtkParametricCatalanMinimal(const vtkParametricCatalanMinimal&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricCatalanMinimal&) VTK_DELETE_FUNCTION;
+    vtkParametricCatalanMinimal(const vtkParametricCatalanMinimal&) = delete;
+    void operator=(const vtkParametricCatalanMinimal&) = delete;
 };
 
 #endif

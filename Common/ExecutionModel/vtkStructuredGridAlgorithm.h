@@ -122,8 +122,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&) = delete;
+  void operator=(const vtkStructuredGridAlgorithm&) = delete;
 };
 
 #endif

@@ -146,8 +146,8 @@ protected:
   double SRange[2];
   double TRange[2];
 private:
-  vtkProjectedTexture(const vtkProjectedTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectedTexture&) VTK_DELETE_FUNCTION;
+  vtkProjectedTexture(const vtkProjectedTexture&) = delete;
+  void operator=(const vtkProjectedTexture&) = delete;
 };
 
 #endif

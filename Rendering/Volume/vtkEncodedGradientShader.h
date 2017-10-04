@@ -138,8 +138,8 @@ protected:
   float    ZeroNormalDiffuseIntensity;
   float    ZeroNormalSpecularIntensity;
 private:
-  vtkEncodedGradientShader(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
+  vtkEncodedGradientShader(const vtkEncodedGradientShader&) = delete;
+  void operator=(const vtkEncodedGradientShader&) = delete;
 };
 
 

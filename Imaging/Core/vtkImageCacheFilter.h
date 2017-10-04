@@ -56,8 +56,8 @@ protected:
   void ExecuteData(vtkDataObject *) override;
 
 private:
-  vtkImageCacheFilter(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
+  vtkImageCacheFilter(const vtkImageCacheFilter&) = delete;
+  void operator=(const vtkImageCacheFilter&) = delete;
 };
 
 

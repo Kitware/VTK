@@ -188,8 +188,8 @@ protected:
   friend class vtkDistanceWidgetCallback;
 
 private:
-  vtkDistanceWidget(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
+  vtkDistanceWidget(const vtkDistanceWidget&) = delete;
+  void operator=(const vtkDistanceWidget&) = delete;
 };
 
 #endif

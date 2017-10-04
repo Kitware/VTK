@@ -112,8 +112,8 @@ protected:
   void ReportReferences(vtkGarbageCollector*) override;
   int FillInputPortInformation(int, vtkInformation*) override;
 private:
-  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpatialRepresentationFilter&) VTK_DELETE_FUNCTION;
+  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&) = delete;
+  void operator=(const vtkSpatialRepresentationFilter&) = delete;
 
   vtkSpatialRepresentationFilterInternal* Internal;
 };

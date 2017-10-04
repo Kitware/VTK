@@ -69,8 +69,8 @@ protected:
 
   int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkRectilinearGridReader(const vtkRectilinearGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridReader(const vtkRectilinearGridReader&) = delete;
+  void operator=(const vtkRectilinearGridReader&) = delete;
 };
 
 #endif

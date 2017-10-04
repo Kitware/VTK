@@ -40,8 +40,8 @@ protected:
   vtkImageMapToRGBA() {}
   ~vtkImageMapToRGBA() override {}
 private:
-  vtkImageMapToRGBA(const vtkImageMapToRGBA&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMapToRGBA&) VTK_DELETE_FUNCTION;
+  vtkImageMapToRGBA(const vtkImageMapToRGBA&) = delete;
+  void operator=(const vtkImageMapToRGBA&) = delete;
 };
 
 #endif

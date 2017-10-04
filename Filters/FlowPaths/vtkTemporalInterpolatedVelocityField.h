@@ -185,8 +185,8 @@ private:
   virtual void AddDataSet(vtkDataSet*) {}
 
 private:
-  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) = delete;
+  void operator=(const vtkTemporalInterpolatedVelocityField&) = delete;
 };
 
 #endif

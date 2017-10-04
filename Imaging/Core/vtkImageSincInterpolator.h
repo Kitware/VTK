@@ -268,8 +268,8 @@ protected:
   int UseWindowParameter;
 
 private:
-  vtkImageSincInterpolator(const vtkImageSincInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSincInterpolator&) VTK_DELETE_FUNCTION;
+  vtkImageSincInterpolator(const vtkImageSincInterpolator&) = delete;
+  void operator=(const vtkImageSincInterpolator&) = delete;
 };
 
 #endif

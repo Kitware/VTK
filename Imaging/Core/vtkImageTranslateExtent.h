@@ -53,8 +53,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageTranslateExtent(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
+  vtkImageTranslateExtent(const vtkImageTranslateExtent&) = delete;
+  void operator=(const vtkImageTranslateExtent&) = delete;
 };
 
 #endif

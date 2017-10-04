@@ -150,8 +150,8 @@ protected:
   ~vtkGL2PSUtilities() override {}
 
 private:
-  vtkGL2PSUtilities(const vtkGL2PSUtilities &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGL2PSUtilities&) VTK_DELETE_FUNCTION;
+  vtkGL2PSUtilities(const vtkGL2PSUtilities &) = delete;
+  void operator=(const vtkGL2PSUtilities&) = delete;
 
   static vtkRenderWindow *RenderWindow;
   static bool TextAsPath;

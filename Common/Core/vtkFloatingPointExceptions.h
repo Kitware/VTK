@@ -43,9 +43,9 @@ public:
   static void Disable();
 
 private:
-  vtkFloatingPointExceptions() VTK_DELETE_FUNCTION;
-  vtkFloatingPointExceptions(const vtkFloatingPointExceptions&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFloatingPointExceptions&) VTK_DELETE_FUNCTION;
+  vtkFloatingPointExceptions() = delete;
+  vtkFloatingPointExceptions(const vtkFloatingPointExceptions&) = delete;
+  void operator=(const vtkFloatingPointExceptions&) = delete;
 };
 
 #endif

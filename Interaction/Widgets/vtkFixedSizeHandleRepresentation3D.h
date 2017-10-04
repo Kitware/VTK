@@ -111,8 +111,8 @@ protected:
   double                                      HandleSizeToleranceInPixels;
 
 private:
-  vtkFixedSizeHandleRepresentation3D(const vtkFixedSizeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedSizeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkFixedSizeHandleRepresentation3D(const vtkFixedSizeHandleRepresentation3D&) = delete;
+  void operator=(const vtkFixedSizeHandleRepresentation3D&) = delete;
 };
 
 #endif

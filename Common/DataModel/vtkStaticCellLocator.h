@@ -188,8 +188,8 @@ protected:
   unsigned char QueryNumber;
 
 private:
-  vtkStaticCellLocator(const vtkStaticCellLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStaticCellLocator&) VTK_DELETE_FUNCTION;
+  vtkStaticCellLocator(const vtkStaticCellLocator&) = delete;
+  void operator=(const vtkStaticCellLocator&) = delete;
 };
 
 #endif

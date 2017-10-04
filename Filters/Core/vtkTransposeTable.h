@@ -84,8 +84,8 @@ protected:
   char* IdColumnName;
 
 private:
-  vtkTransposeTable(const vtkTransposeTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransposeTable&) VTK_DELETE_FUNCTION;
+  vtkTransposeTable(const vtkTransposeTable&) = delete;
+  void operator=(const vtkTransposeTable&) = delete;
 };
 
 #endif

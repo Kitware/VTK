@@ -320,8 +320,8 @@ protected:
   void ConstructFieldData(int num, vtkDataSetAttributes *attr);
 
 private:
-  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFieldDataToAttributeDataFilter&) VTK_DELETE_FUNCTION;
+  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&) = delete;
+  void operator=(const vtkFieldDataToAttributeDataFilter&) = delete;
 };
 
 #endif

@@ -56,8 +56,8 @@ protected:
   ~vtkWebUtilities() override;
 
 private:
-  vtkWebUtilities(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
+  vtkWebUtilities(const vtkWebUtilities&) = delete;
+  void operator=(const vtkWebUtilities&) = delete;
 
 };
 

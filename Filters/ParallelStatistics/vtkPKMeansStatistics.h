@@ -89,8 +89,8 @@ protected:
 
 
 private:
-  vtkPKMeansStatistics(const vtkPKMeansStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPKMeansStatistics&) VTK_DELETE_FUNCTION;
+  vtkPKMeansStatistics(const vtkPKMeansStatistics&) = delete;
+  void operator=(const vtkPKMeansStatistics&) = delete;
 };
 
 #endif

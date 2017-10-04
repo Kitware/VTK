@@ -54,8 +54,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id) override;
 private:
-  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageEuclideanToPolar&) VTK_DELETE_FUNCTION;
+  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&) = delete;
+  void operator=(const vtkImageEuclideanToPolar&) = delete;
 };
 
 #endif

@@ -40,8 +40,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkSubdivideTetra(const vtkSubdivideTetra&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSubdivideTetra&) VTK_DELETE_FUNCTION;
+  vtkSubdivideTetra(const vtkSubdivideTetra&) = delete;
+  void operator=(const vtkSubdivideTetra&) = delete;
 };
 
 #endif

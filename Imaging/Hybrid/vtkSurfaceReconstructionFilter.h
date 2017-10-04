@@ -81,8 +81,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;
+  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) = delete;
+  void operator=(const vtkSurfaceReconstructionFilter&) = delete;
 };
 
 #endif

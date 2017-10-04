@@ -47,8 +47,8 @@ protected:
   int DecimalPrecision;
 
 private:
-  vtkSimplePointsWriter(const vtkSimplePointsWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimplePointsWriter&) VTK_DELETE_FUNCTION;
+  vtkSimplePointsWriter(const vtkSimplePointsWriter&) = delete;
+  void operator=(const vtkSimplePointsWriter&) = delete;
 };
 
 #endif

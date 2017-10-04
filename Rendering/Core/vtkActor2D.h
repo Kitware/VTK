@@ -177,8 +177,8 @@ protected:
   vtkCoordinate *Position2Coordinate;
 
 private:
-  vtkActor2D(const vtkActor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActor2D&) VTK_DELETE_FUNCTION;
+  vtkActor2D(const vtkActor2D&) = delete;
+  void operator=(const vtkActor2D&) = delete;
 };
 
 #endif

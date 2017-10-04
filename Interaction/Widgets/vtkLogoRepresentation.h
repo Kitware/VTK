@@ -108,8 +108,8 @@ protected:
   virtual void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);
 
 private:
-  vtkLogoRepresentation(const vtkLogoRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLogoRepresentation&) VTK_DELETE_FUNCTION;
+  vtkLogoRepresentation(const vtkLogoRepresentation&) = delete;
+  void operator=(const vtkLogoRepresentation&) = delete;
 };
 
 #endif

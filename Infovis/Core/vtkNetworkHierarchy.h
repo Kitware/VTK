@@ -67,8 +67,8 @@ protected:
     int vtkNotUsed(port), vtkInformation* info) override;
 
 private:
-  vtkNetworkHierarchy(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
+  vtkNetworkHierarchy(const vtkNetworkHierarchy&) = delete;
+  void operator=(const vtkNetworkHierarchy&) = delete;
 
   // Internal helper functions
   unsigned int ITON(const vtkStdString& ip);

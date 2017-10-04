@@ -79,8 +79,8 @@ private:
   }
 
 private:
-  vtkProp3DCollection(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
+  vtkProp3DCollection(const vtkProp3DCollection&) = delete;
+  void operator=(const vtkProp3DCollection&) = delete;
 };
 
 inline void vtkProp3DCollection::AddItem(vtkProp3D *a)

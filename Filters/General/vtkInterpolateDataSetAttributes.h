@@ -71,8 +71,8 @@ protected:
   double T; // interpolation parameter
 
 private:
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) = delete;
+  void operator=(const vtkInterpolateDataSetAttributes&) = delete;
 };
 
 #endif

@@ -145,8 +145,8 @@ protected:
   int ManageWindowLevel;
 
 private:
-  vtkResliceCursorWidget(const vtkResliceCursorWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursorWidget&) VTK_DELETE_FUNCTION;
+  vtkResliceCursorWidget(const vtkResliceCursorWidget&) = delete;
+  void operator=(const vtkResliceCursorWidget&) = delete;
 };
 
 #endif

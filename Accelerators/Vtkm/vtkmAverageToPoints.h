@@ -46,8 +46,8 @@ protected:
                           vtkInformationVector *) override;
 
 private:
-  vtkmAverageToPoints(const vtkmAverageToPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmAverageToPoints&) VTK_DELETE_FUNCTION;
+  vtkmAverageToPoints(const vtkmAverageToPoints&) = delete;
+  void operator=(const vtkmAverageToPoints&) = delete;
 };
 
 #endif // vtkmAverageToPoints_h

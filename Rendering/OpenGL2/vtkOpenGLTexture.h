@@ -118,8 +118,8 @@ protected:
 
 
 private:
-  vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
+  vtkOpenGLTexture(const vtkOpenGLTexture&) = delete;
+  void operator=(const vtkOpenGLTexture&) = delete;
 };
 
 #endif

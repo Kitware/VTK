@@ -129,8 +129,8 @@ protected:
     vtkInformationVector *) override;
 
 private:
-  vtkDeformPointSet(const vtkDeformPointSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDeformPointSet&) VTK_DELETE_FUNCTION;
+  vtkDeformPointSet(const vtkDeformPointSet&) = delete;
+  void operator=(const vtkDeformPointSet&) = delete;
 
 };
 

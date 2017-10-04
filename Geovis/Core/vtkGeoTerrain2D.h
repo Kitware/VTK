@@ -102,8 +102,8 @@ protected:
   double PixelSize;
 
 private:
-  vtkGeoTerrain2D(const vtkGeoTerrain2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTerrain2D&) VTK_DELETE_FUNCTION;
+  vtkGeoTerrain2D(const vtkGeoTerrain2D&) = delete;
+  void operator=(const vtkGeoTerrain2D&) = delete;
 };
 
 #endif

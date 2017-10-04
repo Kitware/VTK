@@ -182,8 +182,8 @@ protected:
   ~vtkTransformFeedback() override;
 
 private:
-  vtkTransformFeedback(const vtkTransformFeedback &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformFeedback &) VTK_DELETE_FUNCTION;
+  vtkTransformFeedback(const vtkTransformFeedback &) = delete;
+  void operator=(const vtkTransformFeedback &) = delete;
 
   bool VaryingsBound;
 

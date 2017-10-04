@@ -166,8 +166,8 @@ protected:
   //@}
 
 private:
-  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
+  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &) = delete;
+  void operator=(const vtkPlotParallelCoordinates &) = delete;
 
 };
 

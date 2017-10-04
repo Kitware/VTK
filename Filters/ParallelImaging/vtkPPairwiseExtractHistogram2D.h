@@ -72,8 +72,8 @@ protected:
   vtkExtractHistogram2D* NewHistogramFilter() override;
 
 private:
-  vtkPPairwiseExtractHistogram2D(const vtkPPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
+  vtkPPairwiseExtractHistogram2D(const vtkPPairwiseExtractHistogram2D&) = delete;
+  void operator=(const vtkPPairwiseExtractHistogram2D&) = delete;
 };
 
 #endif

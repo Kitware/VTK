@@ -59,8 +59,8 @@ protected:
                       unsigned long typeflags,bool forceCompileOnly) override;
 
 private:
-  vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&) = delete;
+  void operator=(const vtkOpenGLRepresentationPainter&) = delete;
 };
 
 #endif

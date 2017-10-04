@@ -412,8 +412,8 @@ protected:
   int PointIdsCapacity;
 
 private:
-  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
+  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&) = delete;
+  void operator=(const vtkSimpleCellTessellator&) = delete;
 
   friend class vtkTetraTile;
   friend class vtkTriangleTile;

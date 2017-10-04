@@ -172,8 +172,8 @@ protected:
                                vtkInformation *info) override;
 
 private:
-  vtkSphereTreeFilter(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;
+  vtkSphereTreeFilter(const vtkSphereTreeFilter&) = delete;
+  void operator=(const vtkSphereTreeFilter&) = delete;
 
 };
 

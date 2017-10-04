@@ -52,8 +52,8 @@ protected:
   int Size[2];
 
 private:
-  vtkRendererNode(const vtkRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRendererNode&) VTK_DELETE_FUNCTION;
+  vtkRendererNode(const vtkRendererNode&) = delete;
+  void operator=(const vtkRendererNode&) = delete;
 };
 
 #endif

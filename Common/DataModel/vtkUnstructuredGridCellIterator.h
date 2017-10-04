@@ -74,8 +74,8 @@ protected:
   vtkSmartPointer<vtkPoints> UnstructuredGridPoints;
 
 private:
-  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &) = delete;
+  void operator=(const vtkUnstructuredGridCellIterator &) = delete;
 };
 
 #endif //vtkUnstructuredGridCellIterator_h

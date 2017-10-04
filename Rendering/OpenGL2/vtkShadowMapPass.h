@@ -183,8 +183,8 @@ public:
   std::vector<float> ShadowAttenuation;
 
 private:
-  vtkShadowMapPass(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
+  vtkShadowMapPass(const vtkShadowMapPass&) = delete;
+  void operator=(const vtkShadowMapPass&) = delete;
 };
 
 #endif

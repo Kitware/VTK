@@ -83,8 +83,8 @@ protected:
                                            vtkInformation* out) override;
 
 private:
-  vtkImageSeparableConvolution(const vtkImageSeparableConvolution&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSeparableConvolution&) VTK_DELETE_FUNCTION;
+  vtkImageSeparableConvolution(const vtkImageSeparableConvolution&) = delete;
+  void operator=(const vtkImageSeparableConvolution&) = delete;
 };
 
 #endif

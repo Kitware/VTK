@@ -298,8 +298,8 @@ protected:
   double         GetZBufferValue( int x, int y );
 
 private:
-  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) = delete;
+  void operator=(const vtkVolumeRayCastMapper&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

@@ -163,8 +163,8 @@ protected:
   double       WorldTolerance;
 
 private:
-  vtkPointPlacer(const vtkPointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointPlacer&) VTK_DELETE_FUNCTION;
+  vtkPointPlacer(const vtkPointPlacer&) = delete;
+  void operator=(const vtkPointPlacer&) = delete;
 };
 
 #endif

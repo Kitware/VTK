@@ -43,8 +43,8 @@ protected:
   ~vtkInteractorStyleTrackball() override;
 
 private:
-  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTrackball&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&) = delete;
+  void operator=(const vtkInteractorStyleTrackball&) = delete;
 };
 
 #endif

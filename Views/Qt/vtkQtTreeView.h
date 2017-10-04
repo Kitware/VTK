@@ -220,8 +220,8 @@ private:
 
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtTreeView(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
+  vtkQtTreeView(const vtkQtTreeView&) = delete;
+  void operator=(const vtkQtTreeView&) = delete;
 
 };
 

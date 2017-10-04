@@ -93,8 +93,8 @@ protected:
   vtkNew<vtkOpenVRRay> Ray;
 
 private:
-  vtkOpenVRModel(const vtkOpenVRModel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRModel&) VTK_DELETE_FUNCTION;
+  vtkOpenVRModel(const vtkOpenVRModel&) = delete;
+  void operator=(const vtkOpenVRModel&) = delete;
 };
 
 #endif

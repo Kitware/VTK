@@ -111,8 +111,8 @@ protected:
   ~vtkOSPRayActorNode();
 
 private:
-  vtkOSPRayActorNode(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayActorNode(const vtkOSPRayActorNode&) = delete;
+  void operator=(const vtkOSPRayActorNode&) = delete;
 
   vtkWeakPointer<vtkMapper> LastMapper;
   vtkTimeStamp MapperChangedTime;

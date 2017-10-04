@@ -72,8 +72,8 @@ protected:
   ~vtkArrayIterator() override;
 
 private:
-  vtkArrayIterator(const vtkArrayIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayIterator&) VTK_DELETE_FUNCTION;
+  vtkArrayIterator(const vtkArrayIterator&) = delete;
+  void operator=(const vtkArrayIterator&) = delete;
 };
 
 

@@ -80,8 +80,8 @@ protected:
   ~vtkStructuredExtent() override;
 
 private:
-  vtkStructuredExtent(const vtkStructuredExtent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredExtent&) VTK_DELETE_FUNCTION;
+  vtkStructuredExtent(const vtkStructuredExtent&) = delete;
+  void operator=(const vtkStructuredExtent&) = delete;
 
 };
 

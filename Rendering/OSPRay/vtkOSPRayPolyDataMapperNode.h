@@ -62,7 +62,7 @@ protected:
   void AddMeshesToModel(void *arg);
 
 private:
-  vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayPolyDataMapperNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayPolyDataMapperNode(const vtkOSPRayPolyDataMapperNode&) = delete;
+  void operator=(const vtkOSPRayPolyDataMapperNode&) = delete;
 };
 #endif

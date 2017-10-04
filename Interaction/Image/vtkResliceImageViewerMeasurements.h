@@ -142,8 +142,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
+  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&) = delete;
+  void operator=(const vtkResliceImageViewerMeasurements&) = delete;
 };
 
 #endif

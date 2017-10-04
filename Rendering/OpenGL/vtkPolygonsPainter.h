@@ -45,8 +45,8 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren) override;
 
 private:
-  vtkPolygonsPainter(const vtkPolygonsPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygonsPainter&) VTK_DELETE_FUNCTION;
+  vtkPolygonsPainter(const vtkPolygonsPainter&) = delete;
+  void operator=(const vtkPolygonsPainter&) = delete;
 
 };
 

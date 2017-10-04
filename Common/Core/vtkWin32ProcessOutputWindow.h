@@ -56,8 +56,8 @@ protected:
   // Count the number of times a new child has been initialized.
   unsigned int Count;
 private:
-  vtkWin32ProcessOutputWindow(const vtkWin32ProcessOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWin32ProcessOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkWin32ProcessOutputWindow(const vtkWin32ProcessOutputWindow&) = delete;
+  void operator=(const vtkWin32ProcessOutputWindow&) = delete;
 };
 
 #endif

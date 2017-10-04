@@ -459,8 +459,8 @@ protected:
   void ResizeTableForSpecialColors();
 
 private:
-  vtkLookupTable(const vtkLookupTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLookupTable&) VTK_DELETE_FUNCTION;
+  vtkLookupTable(const vtkLookupTable&) = delete;
+  void operator=(const vtkLookupTable&) = delete;
 };
 
 //----------------------------------------------------------------------------

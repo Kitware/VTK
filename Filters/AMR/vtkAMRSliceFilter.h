@@ -190,8 +190,8 @@ protected:
   std::vector< int > BlocksToLoad;
 
 private:
-  vtkAMRSliceFilter( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
-  void operator=( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
+  vtkAMRSliceFilter( const vtkAMRSliceFilter& ) = delete;
+  void operator=( const vtkAMRSliceFilter& ) = delete;
 };
 
 #endif /* vtkAMRSliceFilter_h */

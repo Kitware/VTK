@@ -311,8 +311,8 @@ protected:
   Private* Storage;
 
 private:
-  vtkChartLegend(const vtkChartLegend &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartLegend &) VTK_DELETE_FUNCTION;
+  vtkChartLegend(const vtkChartLegend &) = delete;
+  void operator=(const vtkChartLegend &) = delete;
 };
 
 #endif //vtkChartLegend_h

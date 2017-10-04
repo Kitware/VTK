@@ -189,8 +189,8 @@ protected:
   int GenerateTriangles;
 
 private:
-  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) = delete;
+  void operator=(const vtkSynchronizedTemplates3D&) = delete;
 };
 
 

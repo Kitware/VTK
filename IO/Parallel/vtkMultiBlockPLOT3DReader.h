@@ -490,8 +490,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) = delete;
+  void operator=(const vtkMultiBlockPLOT3DReader&) = delete;
 
   // Key used to flag intermediate results.
   static vtkInformationIntegerKey* INTERMEDIATE_RESULT();

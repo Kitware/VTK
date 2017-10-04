@@ -219,8 +219,8 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      std::vector<int> PartitionExtents;
 
   private:
-    vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& ) VTK_DELETE_FUNCTION;
-    void operator=( const vtkExtentRCBPartitioner& ) VTK_DELETE_FUNCTION;
+    vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& ) = delete;
+    void operator=( const vtkExtentRCBPartitioner& ) = delete;
 };
 
 #endif /* VTKEXTENTRCBPARTITIONER_H_ */

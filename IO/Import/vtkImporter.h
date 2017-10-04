@@ -106,8 +106,8 @@ protected:
   virtual void ReadData();
 
 private:
-  vtkImporter(const vtkImporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImporter&) VTK_DELETE_FUNCTION;
+  vtkImporter(const vtkImporter&) = delete;
+  void operator=(const vtkImporter&) = delete;
 };
 
 #endif

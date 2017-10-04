@@ -247,8 +247,8 @@ protected:
     friend class vtkCellTreeBuilder;
 
 private:
-  vtkCellTreeLocator(const vtkCellTreeLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellTreeLocator&) VTK_DELETE_FUNCTION;
+  vtkCellTreeLocator(const vtkCellTreeLocator&) = delete;
+  void operator=(const vtkCellTreeLocator&) = delete;
 };
 
 #endif

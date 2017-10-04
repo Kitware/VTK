@@ -219,8 +219,8 @@ protected:
   double LabelPosition;
 
 private:
-  vtkDistanceRepresentation3D(const vtkDistanceRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkDistanceRepresentation3D(const vtkDistanceRepresentation3D&) = delete;
+  void operator=(const vtkDistanceRepresentation3D&) = delete;
 
   // Internal method to update the position of the label.
   void UpdateLabelPosition();

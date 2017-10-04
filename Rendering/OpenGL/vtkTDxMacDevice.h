@@ -108,8 +108,8 @@ protected:
   UInt16 LastButtonState;
 
 private:
-  vtkTDxMacDevice(const vtkTDxMacDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxMacDevice&) VTK_DELETE_FUNCTION;
+  vtkTDxMacDevice(const vtkTDxMacDevice&) = delete;
+  void operator=(const vtkTDxMacDevice&) = delete;
 };
 
 #endif

@@ -73,8 +73,8 @@ protected:
   bool GetInternalIndex(unsigned int compositeIndex, unsigned int& internalIndex);
 
 private:
-  vtkAMRDataInternals(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
+  vtkAMRDataInternals(const vtkAMRDataInternals&) = delete;
+  void operator=(const vtkAMRDataInternals&) = delete;
 };
 
 #endif

@@ -101,8 +101,8 @@ private:
 
   char* LastErrorText;
 
-  vtkQtSQLQuery(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
+  vtkQtSQLQuery(const vtkQtSQLQuery &) = delete;
+  void operator=(const vtkQtSQLQuery &) = delete;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

@@ -298,8 +298,8 @@ protected:
   void ComputePerformanceFactors();
 
 private:
-  vtkPointLocator(const vtkPointLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointLocator&) VTK_DELETE_FUNCTION;
+  vtkPointLocator(const vtkPointLocator&) = delete;
+  void operator=(const vtkPointLocator&) = delete;
 };
 
 #endif

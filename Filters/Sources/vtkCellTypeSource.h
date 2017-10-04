@@ -144,8 +144,8 @@ protected:
   vtkMergePoints* Locator; // Only valid during RequestData.
 
 private:
-  vtkCellTypeSource(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;
+  vtkCellTypeSource(const vtkCellTypeSource&) = delete;
+  void operator=(const vtkCellTypeSource&) = delete;
 };
 
 #endif

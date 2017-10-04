@@ -74,8 +74,8 @@ protected:
   vtkSetStringMacro(FilePath);
 
 private:
-  vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&) VTK_DELETE_FUNCTION;
+  vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&) = delete;
+  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&) = delete;
 
 };
 

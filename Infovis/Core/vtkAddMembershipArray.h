@@ -94,8 +94,8 @@ protected:
   vtkAbstractArray* InputValues;
 
 private:
-  vtkAddMembershipArray(const vtkAddMembershipArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAddMembershipArray&) VTK_DELETE_FUNCTION;
+  vtkAddMembershipArray(const vtkAddMembershipArray&) = delete;
+  void operator=(const vtkAddMembershipArray&) = delete;
 };
 
 #endif

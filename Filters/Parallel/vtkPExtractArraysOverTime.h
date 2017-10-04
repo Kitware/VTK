@@ -75,8 +75,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
+  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&) = delete;
+  void operator=(const vtkPExtractArraysOverTime&) = delete;
 };
 
 #endif

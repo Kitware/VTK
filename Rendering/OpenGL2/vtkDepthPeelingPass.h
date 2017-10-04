@@ -203,8 +203,8 @@ public:
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) = delete;
+  void operator=(const vtkDepthPeelingPass&) = delete;
 };
 
 #endif

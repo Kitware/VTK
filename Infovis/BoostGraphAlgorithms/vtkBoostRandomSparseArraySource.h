@@ -103,8 +103,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostRandomSparseArraySource&) VTK_DELETE_FUNCTION;
+  vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&) = delete;
+  void operator=(const vtkBoostRandomSparseArraySource&) = delete;
 
   vtkArrayExtents Extents;
 

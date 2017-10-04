@@ -377,8 +377,8 @@ private:
   double GetDistance2ToBoundary( const double point[3], double closest[3],
     int innerOnly, vtkIncrementalOctreeNode* rootNode, int checkData = 0 );
 
-  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
+  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & ) = delete;
+  void operator = ( const vtkIncrementalOctreeNode & ) = delete;
 
 };
 

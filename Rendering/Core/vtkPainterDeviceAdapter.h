@@ -193,8 +193,8 @@ protected:
   ~vtkPainterDeviceAdapter() override;
 
 private:
-  vtkPainterDeviceAdapter(const vtkPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
+  vtkPainterDeviceAdapter(const vtkPainterDeviceAdapter &) = delete;
+  void operator=(const vtkPainterDeviceAdapter &) = delete;
 };
 
 inline void vtkPainterDeviceAdapter::SetAttributePointer(int index,

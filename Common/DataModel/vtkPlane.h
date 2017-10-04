@@ -146,8 +146,8 @@ protected:
   double Origin[3];
 
 private:
-  vtkPlane(const vtkPlane&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlane&) VTK_DELETE_FUNCTION;
+  vtkPlane(const vtkPlane&) = delete;
+  void operator=(const vtkPlane&) = delete;
 };
 
 // Generally the normal should be normalized

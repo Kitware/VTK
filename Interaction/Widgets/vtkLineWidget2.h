@@ -162,8 +162,8 @@ protected:
   static void ProcessKeyEvents(vtkObject *, unsigned long, void *, void *);
 
 private:
-  vtkLineWidget2(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
+  vtkLineWidget2(const vtkLineWidget2&) = delete;
+  void operator=(const vtkLineWidget2&) = delete;
 };
 
 #endif

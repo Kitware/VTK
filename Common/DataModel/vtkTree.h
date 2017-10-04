@@ -143,8 +143,8 @@ protected:
   vtkIdType Root;
 
 private:
-  vtkTree(const vtkTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTree&) VTK_DELETE_FUNCTION;
+  vtkTree(const vtkTree&) = delete;
+  void operator=(const vtkTree&) = delete;
 };
 
 #endif

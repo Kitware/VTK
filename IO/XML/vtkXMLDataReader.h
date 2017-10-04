@@ -120,8 +120,8 @@ protected:
   int CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
 
 private:
-  vtkXMLDataReader(const vtkXMLDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLDataReader(const vtkXMLDataReader&) = delete;
+  void operator=(const vtkXMLDataReader&) = delete;
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,

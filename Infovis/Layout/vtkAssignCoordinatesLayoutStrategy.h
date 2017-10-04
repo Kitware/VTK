@@ -77,8 +77,8 @@ protected:
   vtkSmartPointer<vtkAssignCoordinates> AssignCoordinates;
 
 private:
-  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssignCoordinatesLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&) = delete;
+  void operator=(const vtkAssignCoordinatesLayoutStrategy&) = delete;
 };
 
 #endif

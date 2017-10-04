@@ -187,8 +187,8 @@ protected:
   bool ForceOpaque;
 
 private:
-  vtkImageActor(const vtkImageActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageActor&) VTK_DELETE_FUNCTION;
+  vtkImageActor(const vtkImageActor&) = delete;
+  void operator=(const vtkImageActor&) = delete;
 };
 
 #endif

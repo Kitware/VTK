@@ -291,8 +291,8 @@ protected:
   int CheckForErrorInternal(int id);
   bool BufferMessage;
 private:
-  vtkSocketCommunicator(const vtkSocketCommunicator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSocketCommunicator&) VTK_DELETE_FUNCTION;
+  vtkSocketCommunicator(const vtkSocketCommunicator&) = delete;
+  void operator=(const vtkSocketCommunicator&) = delete;
 
   int SelectSocket(int socket, unsigned long msec);
 

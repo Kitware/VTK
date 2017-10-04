@@ -49,8 +49,8 @@ protected:
                   vtkInformationVector *) override;
 
 private:
-  vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedPolyDataIds&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&) = delete;
+  void operator=(const vtkExtractSelectedPolyDataIds&) = delete;
 };
 
 #endif

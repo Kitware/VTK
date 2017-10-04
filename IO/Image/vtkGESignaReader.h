@@ -71,8 +71,8 @@ protected:
   void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo) override;
 
 private:
-  vtkGESignaReader(const vtkGESignaReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGESignaReader&) VTK_DELETE_FUNCTION;
+  vtkGESignaReader(const vtkGESignaReader&) = delete;
+  void operator=(const vtkGESignaReader&) = delete;
 };
 #endif
 

@@ -71,8 +71,8 @@ protected:
   bool MergePieces;
 
 private:
-  vtkSMPContourGrid(const vtkSMPContourGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPContourGrid&) VTK_DELETE_FUNCTION;
+  vtkSMPContourGrid(const vtkSMPContourGrid&) = delete;
+  void operator=(const vtkSMPContourGrid&) = delete;
 };
 
 #endif

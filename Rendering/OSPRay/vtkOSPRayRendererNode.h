@@ -234,8 +234,8 @@ protected:
   vtkOSPRayRendererNodeInternals *Internal;
 
 private:
-  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) = delete;
+  void operator=(const vtkOSPRayRendererNode&) = delete;
 };
 
 #endif

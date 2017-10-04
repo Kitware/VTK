@@ -116,8 +116,8 @@ protected:
   vtkIncrementalPointLocator *Locator;
 
 private:
-  vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataSetTessellator&) VTK_DELETE_FUNCTION;
+  vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&) = delete;
+  void operator=(const vtkGenericDataSetTessellator&) = delete;
 };
 
 #endif

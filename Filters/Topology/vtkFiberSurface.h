@@ -394,7 +394,7 @@ protected:
   char* Fields[2];
 
 private:
-  vtkFiberSurface(const vtkFiberSurface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFiberSurface&) VTK_DELETE_FUNCTION;
+  vtkFiberSurface(const vtkFiberSurface&) = delete;
+  void operator=(const vtkFiberSurface&) = delete;
 };
 #endif

@@ -49,8 +49,8 @@ protected:
 
 private:
   vtkOSPRayVolumeInterface
-    (const vtkOSPRayVolumeInterface&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayVolumeInterface&) VTK_DELETE_FUNCTION;
+    (const vtkOSPRayVolumeInterface&) = delete;
+  void operator=(const vtkOSPRayVolumeInterface&) = delete;
 };
 
 #endif

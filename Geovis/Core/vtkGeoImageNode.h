@@ -115,8 +115,8 @@ protected:
   vtkSmartPointer<vtkTexture> Texture;
 
 private:
-  vtkGeoImageNode(const vtkGeoImageNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoImageNode&) VTK_DELETE_FUNCTION;
+  vtkGeoImageNode(const vtkGeoImageNode&) = delete;
+  void operator=(const vtkGeoImageNode&) = delete;
 };
 
 #endif

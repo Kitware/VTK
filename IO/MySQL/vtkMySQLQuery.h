@@ -172,8 +172,8 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkMySQLQuery(const vtkMySQLQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMySQLQuery &) VTK_DELETE_FUNCTION;
+  vtkMySQLQuery(const vtkMySQLQuery &) = delete;
+  void operator=(const vtkMySQLQuery &) = delete;
 
   vtkMySQLQueryInternals *Internals;
   bool InitialFetch;

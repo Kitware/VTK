@@ -61,8 +61,8 @@ protected:
   void FetchPoints() override;
 
 private:
-  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMappedUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
+  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) = delete;
+  void operator=(const vtkMappedUnstructuredGridCellIterator &) = delete;
 
   vtkSmartPointer<ImplementationType> Impl;
   vtkSmartPointer<vtkPoints> GridPoints;

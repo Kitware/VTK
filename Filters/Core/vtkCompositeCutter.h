@@ -44,8 +44,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkCompositeCutter(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
+  vtkCompositeCutter(const vtkCompositeCutter&) = delete;
+  void operator=(const vtkCompositeCutter&) = delete;
 };
 
 

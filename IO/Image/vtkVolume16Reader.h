@@ -165,8 +165,8 @@ protected:
                      int skip, int swapBytes);
 
 private:
-  vtkVolume16Reader(const vtkVolume16Reader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolume16Reader&) VTK_DELETE_FUNCTION;
+  vtkVolume16Reader(const vtkVolume16Reader&) = delete;
+  void operator=(const vtkVolume16Reader&) = delete;
 };
 
 #endif

@@ -324,8 +324,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImplicitModeller(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;
+  vtkImplicitModeller(const vtkImplicitModeller&) = delete;
+  void operator=(const vtkImplicitModeller&) = delete;
 };
 
 #endif

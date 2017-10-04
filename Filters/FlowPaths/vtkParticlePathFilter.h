@@ -68,8 +68,8 @@ public:
 protected:
   vtkParticlePathFilter();
   ~vtkParticlePathFilter() override;
-  vtkParticlePathFilter(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
+  vtkParticlePathFilter(const vtkParticlePathFilter&) = delete;
+  void operator=(const vtkParticlePathFilter&) = delete;
 
   void ResetCache() override;
   int OutputParticles(vtkPolyData* poly) override;

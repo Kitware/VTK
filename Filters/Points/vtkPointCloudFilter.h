@@ -140,8 +140,8 @@ protected:
   void GenerateVerticesIfRequested(vtkPolyData *output);
 
 private:
-  vtkPointCloudFilter(const vtkPointCloudFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointCloudFilter&) VTK_DELETE_FUNCTION;
+  vtkPointCloudFilter(const vtkPointCloudFilter&) = delete;
+  void operator=(const vtkPointCloudFilter&) = delete;
 
 };
 

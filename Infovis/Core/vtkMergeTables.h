@@ -105,8 +105,8 @@ protected:
     vtkInformationVector*) override;
 
 private:
-  vtkMergeTables(const vtkMergeTables&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeTables&) VTK_DELETE_FUNCTION;
+  vtkMergeTables(const vtkMergeTables&) = delete;
+  void operator=(const vtkMergeTables&) = delete;
 };
 
 #endif

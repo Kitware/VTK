@@ -364,8 +364,8 @@ protected:
     const vtkRecti& rect, int front, int glFormat, int glType, void* data, int right=0) override;
 
 private:
-  vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkIOSRenderWindow(const vtkIOSRenderWindow&) = delete;
+  void operator=(const vtkIOSRenderWindow&) = delete;
 
 private:
   int      WindowCreated;

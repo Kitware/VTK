@@ -123,8 +123,8 @@ protected:
                                     AssessFunctor*& dfunc );
 
 private:
-  vtkContingencyStatistics(const vtkContingencyStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContingencyStatistics&) VTK_DELETE_FUNCTION;
+  vtkContingencyStatistics(const vtkContingencyStatistics&) = delete;
+  void operator=(const vtkContingencyStatistics&) = delete;
 };
 
 #endif

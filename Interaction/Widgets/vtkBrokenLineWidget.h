@@ -344,8 +344,8 @@ protected:
   double HandleSizeFactor;
 
 private:
-  vtkBrokenLineWidget(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
+  vtkBrokenLineWidget(const vtkBrokenLineWidget&) = delete;
+  void operator=(const vtkBrokenLineWidget&) = delete;
 };
 
 #endif

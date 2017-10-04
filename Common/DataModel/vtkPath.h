@@ -130,8 +130,8 @@ protected:
   ~vtkPath() override;
 
 private:
-  vtkPath(const vtkPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPath&) VTK_DELETE_FUNCTION;
+  vtkPath(const vtkPath&) = delete;
+  void operator=(const vtkPath&) = delete;
 };
 
 #endif

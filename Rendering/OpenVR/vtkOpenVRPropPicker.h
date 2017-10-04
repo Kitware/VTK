@@ -65,8 +65,8 @@ protected:
 
 
 private:
-  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) VTK_DELETE_FUNCTION;// Not implemented.
-  void operator=(const vtkOpenVRPropPicker&) VTK_DELETE_FUNCTION;// Not implemented.
+  vtkOpenVRPropPicker(const vtkOpenVRPropPicker&) = delete;// Not implemented.
+  void operator=(const vtkOpenVRPropPicker&) = delete;// Not implemented.
 };
 
 #endif

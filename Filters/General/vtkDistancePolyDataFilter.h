@@ -93,8 +93,8 @@ protected:
   void GetPolyDataDistance(vtkPolyData*, vtkPolyData*);
 
 private:
-  vtkDistancePolyDataFilter(const vtkDistancePolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistancePolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkDistancePolyDataFilter(const vtkDistancePolyDataFilter&) = delete;
+  void operator=(const vtkDistancePolyDataFilter&) = delete;
 
   int SignedDistance;
   int NegateDistance;

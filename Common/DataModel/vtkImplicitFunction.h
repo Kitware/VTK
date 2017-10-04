@@ -131,8 +131,8 @@ protected:
   vtkAbstractTransform *Transform;
   double ReturnValue[3];
 private:
-  vtkImplicitFunction(const vtkImplicitFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitFunction&) VTK_DELETE_FUNCTION;
+  vtkImplicitFunction(const vtkImplicitFunction&) = delete;
+  void operator=(const vtkImplicitFunction&) = delete;
 };
 
 #endif

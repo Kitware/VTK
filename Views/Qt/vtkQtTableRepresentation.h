@@ -140,8 +140,8 @@ public:
   virtual void SetModelType() { };
 
 private:
-  vtkQtTableRepresentation(const vtkQtTableRepresentation &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTableRepresentation &) VTK_DELETE_FUNCTION;
+  vtkQtTableRepresentation(const vtkQtTableRepresentation &) = delete;
+  void operator=(const vtkQtTableRepresentation &) = delete;
 
 };
 

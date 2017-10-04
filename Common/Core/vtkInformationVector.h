@@ -99,8 +99,8 @@ protected:
   // Garbage collection support.
   void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkInformationVector(const vtkInformationVector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationVector&) VTK_DELETE_FUNCTION;
+  vtkInformationVector(const vtkInformationVector&) = delete;
+  void operator=(const vtkInformationVector&) = delete;
 };
 
 #endif

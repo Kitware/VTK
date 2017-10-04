@@ -61,8 +61,8 @@ protected:
   ~vtkGeoMath() override;
 
 private:
-  vtkGeoMath(const vtkGeoMath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoMath&) VTK_DELETE_FUNCTION;
+  vtkGeoMath(const vtkGeoMath&) = delete;
+  void operator=(const vtkGeoMath&) = delete;
 };
 
 #endif

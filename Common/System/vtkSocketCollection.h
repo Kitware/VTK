@@ -73,8 +73,8 @@ private:
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
 
 private:
-  vtkSocketCollection(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
+  vtkSocketCollection(const vtkSocketCollection&) = delete;
+  void operator=(const vtkSocketCollection&) = delete;
 };
 
 #endif

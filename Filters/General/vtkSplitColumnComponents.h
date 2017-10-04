@@ -102,8 +102,8 @@ protected:
 
   int NamingMode;
 private:
-  vtkSplitColumnComponents(const vtkSplitColumnComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplitColumnComponents&) VTK_DELETE_FUNCTION;
+  vtkSplitColumnComponents(const vtkSplitColumnComponents&) = delete;
+  void operator=(const vtkSplitColumnComponents&) = delete;
 };
 
 #endif

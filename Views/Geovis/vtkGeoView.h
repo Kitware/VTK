@@ -125,8 +125,8 @@ protected:
   int                UsingMesaDrivers;
 
 private:
-  vtkGeoView(const vtkGeoView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoView&) VTK_DELETE_FUNCTION;
+  vtkGeoView(const vtkGeoView&) = delete;
+  void operator=(const vtkGeoView&) = delete;
 };
 
 #endif

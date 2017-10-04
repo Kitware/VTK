@@ -115,8 +115,8 @@ protected:
   vtkBrush* Brush;
 
 private:
-  vtkTooltipItem(const vtkTooltipItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTooltipItem &) VTK_DELETE_FUNCTION;
+  vtkTooltipItem(const vtkTooltipItem &) = delete;
+  void operator=(const vtkTooltipItem &) = delete;
 
 };
 

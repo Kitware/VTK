@@ -50,8 +50,8 @@ protected:
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
+  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) = delete;
+  void operator=(const vtkOverlappingAMRLevelIdScalars&) = delete;
 
 };
 

@@ -93,8 +93,8 @@ public:
   vtkRenderPass *DelegatePass;
 
  private:
-  vtkImageProcessingPass(const vtkImageProcessingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageProcessingPass&) VTK_DELETE_FUNCTION;
+  vtkImageProcessingPass(const vtkImageProcessingPass&) = delete;
+  void operator=(const vtkImageProcessingPass&) = delete;
 };
 
 #endif

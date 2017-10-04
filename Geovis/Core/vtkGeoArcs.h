@@ -82,8 +82,8 @@ protected:
   int NumberOfSubdivisions;
 
 private:
-  vtkGeoArcs(const vtkGeoArcs&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoArcs&) VTK_DELETE_FUNCTION;
+  vtkGeoArcs(const vtkGeoArcs&) = delete;
+  void operator=(const vtkGeoArcs&) = delete;
 };
 
 #endif

@@ -127,8 +127,8 @@ protected:
   bool RenderOnMouseMove;
 
 private:
-  vtkInteractorStyleRubberBand3D(const vtkInteractorStyleRubberBand3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleRubberBand3D&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleRubberBand3D(const vtkInteractorStyleRubberBand3D&) = delete;
+  void operator=(const vtkInteractorStyleRubberBand3D&) = delete;
 };
 
 #endif

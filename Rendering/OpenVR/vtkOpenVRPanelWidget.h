@@ -89,8 +89,7 @@ protected:
   static void MoveAction3D(vtkAbstractWidget*);
 
 private:
-  vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRPanelWidget&) VTK_DELETE_FUNCTION;
-
+  vtkOpenVRPanelWidget(const vtkOpenVRPanelWidget&) = delete;
+  void operator=(const vtkOpenVRPanelWidget&) = delete;
 };
 #endif

@@ -117,8 +117,8 @@ protected:
   vtkXMLReader *Reader; // actual reader
 
 private:
-  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&) = delete;
+  void operator=(const vtkXMLGenericDataObjectReader&) = delete;
 };
 
 #endif

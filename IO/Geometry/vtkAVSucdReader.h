@@ -226,8 +226,8 @@ private:
                              const idMapping& nodeMap,
                              idMapping& cellMap);
 
-  vtkAVSucdReader(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
+  vtkAVSucdReader(const vtkAVSucdReader&) = delete;
+  void operator=(const vtkAVSucdReader&) = delete;
 };
 
 #endif

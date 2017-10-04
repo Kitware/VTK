@@ -83,8 +83,8 @@ protected:
 
   int FillOutputPortInformation(int port, vtkInformation* info) override;
 private:
-  vtkThreadedSynchronizedTemplatesCutter3D(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
+  vtkThreadedSynchronizedTemplatesCutter3D(const vtkThreadedSynchronizedTemplatesCutter3D&) = delete;
+  void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

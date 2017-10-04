@@ -505,8 +505,8 @@ private:
    */
   void SetupVectorMode(vtkVolume* vol);
 
-  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) = delete;
+  void operator=(const vtkSmartVolumeMapper&) = delete;
 
   vtkOSPRayVolumeInterface *OSPRayMapper;
 };

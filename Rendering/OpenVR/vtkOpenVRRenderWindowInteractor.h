@@ -143,8 +143,8 @@ protected:
   void RecognizeComplexGesture(vtkEventDataDevice3D* edata);
 
 private:
-  vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkOpenVRRenderWindowInteractor(const vtkOpenVRRenderWindowInteractor&) = delete;
+  void operator=(const vtkOpenVRRenderWindowInteractor&) = delete;
 };
 
 #endif

@@ -465,8 +465,8 @@ protected:
   int GeometryVerticesOut;
 
 private:
-  vtkShaderProgram2(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
+  vtkShaderProgram2(const vtkShaderProgram2&) = delete;
+  void operator=(const vtkShaderProgram2&) = delete;
 };
 
 // ----------------------------------------------------------------------------

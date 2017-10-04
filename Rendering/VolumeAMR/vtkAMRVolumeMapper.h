@@ -340,8 +340,8 @@ protected:
   bool UseDefaultThreading;
 
 private:
-  vtkAMRVolumeMapper(const vtkAMRVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkAMRVolumeMapper(const vtkAMRVolumeMapper&) = delete;
+  void operator=(const vtkAMRVolumeMapper&) = delete;
 };
 
 

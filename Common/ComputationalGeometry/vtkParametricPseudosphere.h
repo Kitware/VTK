@@ -77,8 +77,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPseudosphere :
     ~vtkParametricPseudosphere() override;
 
   private:
-    vtkParametricPseudosphere(const vtkParametricPseudosphere&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricPseudosphere&) VTK_DELETE_FUNCTION;
+    vtkParametricPseudosphere(const vtkParametricPseudosphere&) = delete;
+    void operator=(const vtkParametricPseudosphere&) = delete;
 };
 
 #endif

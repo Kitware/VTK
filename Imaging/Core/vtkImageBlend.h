@@ -204,8 +204,8 @@ protected:
   int DataWasPassed;
 
 private:
-  vtkImageBlend(const vtkImageBlend&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageBlend&) VTK_DELETE_FUNCTION;
+  vtkImageBlend(const vtkImageBlend&) = delete;
+  void operator=(const vtkImageBlend&) = delete;
 };
 
 //@{

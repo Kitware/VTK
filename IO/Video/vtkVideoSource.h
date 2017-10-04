@@ -366,8 +366,8 @@ protected:
   //@}
 
 private:
-  vtkVideoSource(const vtkVideoSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVideoSource&) VTK_DELETE_FUNCTION;
+  vtkVideoSource(const vtkVideoSource&) = delete;
+  void operator=(const vtkVideoSource&) = delete;
 };
 
 #endif

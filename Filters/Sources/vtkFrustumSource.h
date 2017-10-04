@@ -116,8 +116,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkFrustumSource(const vtkFrustumSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrustumSource&) VTK_DELETE_FUNCTION;
+  vtkFrustumSource(const vtkFrustumSource&) = delete;
+  void operator=(const vtkFrustumSource&) = delete;
 };
 
 #endif

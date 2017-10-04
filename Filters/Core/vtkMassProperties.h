@@ -125,8 +125,8 @@ protected:
   double  NormalizedShapeIndex;
 
 private:
-  vtkMassProperties(const vtkMassProperties&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMassProperties&) VTK_DELETE_FUNCTION;
+  vtkMassProperties(const vtkMassProperties&) = delete;
+  void operator=(const vtkMassProperties&) = delete;
 };
 
 #endif

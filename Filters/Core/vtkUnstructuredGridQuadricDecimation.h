@@ -180,8 +180,8 @@ protected:
   char *ScalarsName;
 
 private:
-  vtkUnstructuredGridQuadricDecimation(const vtkUnstructuredGridQuadricDecimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridQuadricDecimation&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridQuadricDecimation(const vtkUnstructuredGridQuadricDecimation&) = delete;
+  void operator=(const vtkUnstructuredGridQuadricDecimation&) = delete;
 
 };
 

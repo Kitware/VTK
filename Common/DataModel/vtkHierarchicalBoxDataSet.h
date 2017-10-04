@@ -62,8 +62,8 @@ protected:
   ~vtkHierarchicalBoxDataSet() override;
 
 private:
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSet&) = delete;
 };
 
 #endif

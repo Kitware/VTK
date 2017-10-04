@@ -125,8 +125,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPNrrdReader(const vtkPNrrdReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNrrdReader &) VTK_DELETE_FUNCTION;
+  vtkPNrrdReader(const vtkPNrrdReader &) = delete;
+  void operator=(const vtkPNrrdReader &) = delete;
 };
 
 #endif //vtkPNrrdReader_h

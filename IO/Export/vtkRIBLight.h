@@ -51,8 +51,8 @@ protected:
   vtkLight *Light;
   int Shadows;
 private:
-  vtkRIBLight(const vtkRIBLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRIBLight&) VTK_DELETE_FUNCTION;
+  vtkRIBLight(const vtkRIBLight&) = delete;
+  void operator=(const vtkRIBLight&) = delete;
 };
 
 #endif

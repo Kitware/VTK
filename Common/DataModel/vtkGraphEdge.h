@@ -76,8 +76,8 @@ protected:
   vtkIdType Id;
 
 private:
-  vtkGraphEdge(const vtkGraphEdge&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphEdge&) VTK_DELETE_FUNCTION;
+  vtkGraphEdge(const vtkGraphEdge&) = delete;
+  void operator=(const vtkGraphEdge&) = delete;
 };
 
 #endif

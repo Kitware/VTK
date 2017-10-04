@@ -136,8 +136,8 @@ protected:
   virtual int FillOutlierIds(vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray* rowIds, vtkTable* outTable);
 
 private:
-  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
+  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) = delete;
+  void operator=(const vtkComputeHistogram2DOutliers&) = delete;
 };
 
 #endif

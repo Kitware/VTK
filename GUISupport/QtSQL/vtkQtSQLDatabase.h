@@ -206,8 +206,8 @@ private:
   // Used to assign unique identifiers for database instances
   static int id;
 
-  vtkQtSQLDatabase(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkQtSQLDatabase(const vtkQtSQLDatabase &) = delete;
+  void operator=(const vtkQtSQLDatabase &) = delete;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

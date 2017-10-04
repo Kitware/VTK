@@ -74,8 +74,8 @@ protected:
   void SelectRegion(double eventPos[2]) override;
 
 private:
-  vtkPlaybackWidget(const vtkPlaybackWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlaybackWidget&) VTK_DELETE_FUNCTION;
+  vtkPlaybackWidget(const vtkPlaybackWidget&) = delete;
+  void operator=(const vtkPlaybackWidget&) = delete;
 };
 
 #endif
