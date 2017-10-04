@@ -79,14 +79,14 @@ public:
    * Overloaded terminate app, which does nothing in Qt.
    * Use qApp->exit() instead.
    */
-  void TerminateApp() VTK_OVERRIDE;
+  void TerminateApp() override;
 
   /**
    * Overloaded start method does nothing.
    * Use qApp->exec() instead.
    */
-  void Start() VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
+  void Start() override;
+  void Initialize() override;
 
   /**
    * Start listening events on 3DConnexion device.

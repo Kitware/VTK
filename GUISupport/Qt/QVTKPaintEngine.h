@@ -30,7 +30,7 @@ class QVTKPaintEngine : public QPaintEngine
 {
 public:
   VTK_LEGACY(QVTKPaintEngine());
-  ~QVTKPaintEngine() VTK_OVERRIDE;
+  ~QVTKPaintEngine() override;
 
   // Description:
   // begin painting on device (QVTKWidget)
