@@ -73,9 +73,11 @@
 
 class vtkDataArray;
 class vtkImageData;
+class vtkMatrix4x4;
 class vtkOpenGLGPUVolumeRayCastMapper;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkWindow;
 
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkVolumeTexture : public vtkObject
 {
@@ -144,6 +146,15 @@ public:
    * Clean-up acquired graphics resources.
    */
   void ReleaseGraphicsResources(vtkWindow* win);
+
+  /**
+   * Get the scale and bias values given a VTK scalar type and a finite range.
+   * The scale and bias values computed using this method can be useful for
+   * custom shader code. For example, when looking up color values through the
+   * transfer function texture, the scalar value must be scaled and offset.
+   */
+  static void GetScaleAndBias(const int scalarType, double * scalarRange,
+                              float& scale, float& bias);
 
   //----------------------------------------------------------------------------
 

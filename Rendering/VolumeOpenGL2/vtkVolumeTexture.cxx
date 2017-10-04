@@ -444,8 +444,58 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const & part)
 }
 
 //-----------------------------------------------------------------------------
+void vtkVolumeTexture::GetScaleAndBias(const int scalarType,
+                                       double* scalarRange,
+                                       float& scale,
+                                       float& bias)
+{
+  scale = 1.0f;
+  bias = 0.0f;
+  double glScale = 1.0;
+  double glBias = 0.0;
+
+  switch (scalarType)
+  {
+    case VTK_UNSIGNED_CHAR:
+      glScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      glBias = 0.0;
+      break;
+    case VTK_SIGNED_CHAR:
+      glScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      glBias = -1.0 - VTK_SIGNED_CHAR_MIN * glScale;
+      break;
+    case VTK_SHORT:
+      glScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      glBias = -1.0 - VTK_SHORT_MIN * glScale;
+      break;
+    case VTK_UNSIGNED_SHORT:
+      glScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      glBias = 0.0;
+      break;
+    case VTK_CHAR:
+    case VTK_BIT:
+    case VTK_ID_TYPE:
+    case VTK_STRING:
+      // not supported
+      assert("check: impossible case" && 0);
+      break;
+  }
+
+  double glRange[2];
+  for (int i = 0; i < 2; ++i)
+  {
+    glRange[i] = scalarRange[i] * glScale + glBias;
+  }
+  scale = static_cast<float>(1.0 / (glRange[1] - glRange[0]));
+  bias = static_cast<float>(0.0 - glRange[0] * scale);
+}
+
+//-----------------------------------------------------------------------------
 void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
-  unsigned int& internalFormat, int& type, int const scalarType, int const noOfComponents)
+                                           unsigned int& internalFormat,
+                                           int& type,
+                                           int const scalarType,
+                                           int const noOfComponents)
 {
   bool supportsFloat = false;
 #if GL_ES_VERSION_2_0 != 1
@@ -459,10 +509,6 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
 #endif
 
   this->HandleLargeDataTypes = false;
-
-  // Pixel Transfer Data Value To NI (Normalized Integer [0, 1] or [-1, 1])
-  double OglScale = 1.0;
-  double OglBias = 0.0;
 
   switch(scalarType)
   {
@@ -513,24 +559,10 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
       }
       break;
     case VTK_UNSIGNED_CHAR:
-      OglScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      OglBias = 0.0;
-      break;
     case VTK_SIGNED_CHAR:
-      OglScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
-      OglBias = -1.0 - VTK_SIGNED_CHAR_MIN * OglScale;
-      break;
-    case VTK_CHAR:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_BIT:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_ID_TYPE:
-      // not supported
-      assert("check: impossible case" && 0);
+    case VTK_SHORT:
+    case VTK_UNSIGNED_SHORT:
+      // Nothing to be done
       break;
     case VTK_INT:
     case VTK_DOUBLE:
@@ -572,18 +604,10 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
           break;
       }
       break;
-    case VTK_SHORT:
-      OglScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      OglBias = -1.0 - VTK_SHORT_MIN * OglScale;
-      break;
+    case VTK_CHAR:
+    case VTK_BIT:
+    case VTK_ID_TYPE:
     case VTK_STRING:
-      // not supported
-      assert("check: impossible case" && 0);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      OglScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
-      OglBias = 0.0;
-      break;
     default:
       assert("check: impossible case" && 0);
       break;
@@ -606,17 +630,19 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // scale = (d - c) / (b - a)
   // bias = c - a * scale
   // For unsigned/float types c is zero.
-  double const oglScale = OglScale;
-  double const oglBias = OglBias;
+  //double const oglScale = OglScale;
+  //double const oglBias = OglBias;
   int const components = vtkMath::Min(noOfComponents, 4);
   this->Scale[0] = this->Scale[1] = this->Scale[2] = this->Scale[3] = 1.0;
   this->Bias[0] = Bias[1] = Bias[2] = Bias[3] = 0.0;
   for (int n = 0; n < components; n++)
   {
-    double const oglA = ScalarRange[n][0] * oglScale + oglBias;
-    double const oglB = ScalarRange[n][1] * oglScale + oglBias;
-    this->Scale[n] =  1.0/ (oglB - oglA);
-    this->Bias[n] = 0.0 - oglA * this->Scale[n];
+  this->GetScaleAndBias(scalarType, this->ScalarRange[n],
+                        this->Scale[n], this->Bias[n]);
+    //double const oglA = ScalarRange[n][0] * oglScale + oglBias;
+    //double const oglB = ScalarRange[n][1] * oglScale + oglBias;
+    //this->Scale[n] =  1.0/ (oglB - oglA);
+    //this->Bias[n] = 0.0 - oglA * this->Scale[n];
   }
 }
 
