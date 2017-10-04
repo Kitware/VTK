@@ -99,21 +99,14 @@ public:
   //@}
 
   //@{
-  /**
-   * Enable FXAA antialiasing. FXAA is applied after all rendering results are
-   * composited into the final image.
-   */
-  vtkSetMacro(UseFXAA, bool)
-  vtkGetMacro(UseFXAA, bool)
-  vtkBooleanMacro(UseFXAA, bool)
-  //@}
-
-  //@{
-  /**
-   * The configuration options for FXAA antialiasing.
-   */
-  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
-  virtual void SetFXAAOptions(vtkFXAAOptions*);
+  // @deprecated in VTK 8.1. FXAA state and options are now directly obtained
+  // from the renderer.
+  VTK_LEGACY(void SetUseFXAA(bool));
+  VTK_LEGACY(bool GetUseFXAA());
+  VTK_LEGACY(void UseFXAAOn());
+  VTK_LEGACY(void UseFXAAOff());
+  VTK_LEGACY(vtkFXAAOptions* GetFXAAOptions());
+  VTK_LEGACY(void SetFXAAOptions(vtkFXAAOptions*));
   //@}
 
   //@{
@@ -248,10 +241,6 @@ protected:
     void CopyTo(vtkRenderer*);
   };
 
-  bool UseFXAA;
-  vtkFXAAOptions *FXAAOptions;
-  vtkOpenGLFXAAFilter *FXAAFilter;
-
   // These methods are called on all processes as a consequence of corresponding
   // events being called on the renderer.
   virtual void HandleStartRender();
@@ -300,6 +289,9 @@ private:
   class vtkObserver;
   vtkObserver* Observer;
   friend class vtkObserver;
+
+  bool UseFXAA;
+  vtkOpenGLFXAAFilter* FXAAFilter;
 
   double LastViewport[4];
 };
