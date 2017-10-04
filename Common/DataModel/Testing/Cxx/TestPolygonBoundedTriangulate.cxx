@@ -48,7 +48,7 @@ bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
   // Check that all of the edges of the polygon are represented
   std::vector<bool> edges(polygon->GetNumberOfPoints(), false);
 
-  for (int i=0;i<=polygon->GetNumberOfPoints();i++)
+  for (int i=0; i<polygon->GetNumberOfPoints(); i++)
   {
     vtkIdType edge[2] = { polygon->GetPointId(i),
                           polygon->GetPointId((i+1)%polygon->GetNumberOfPoints()) };
@@ -74,7 +74,7 @@ bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
       break;
   }
 
-  for (std::size_t i=0;i<edges.size();i++)
+  for (std::size_t i=0; i<edges.size(); i++)
   {
     if (!edges[i])
     {
