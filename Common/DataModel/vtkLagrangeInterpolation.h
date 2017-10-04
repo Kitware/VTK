@@ -7,6 +7,9 @@
 
 #include <vector> // For scratch storage.
 
+// Define this to include support for a "complete" (21- vs 18-point) wedge.
+#define VTK_21_POINT_WEDGE true
+
 class vtkPoints;
 class vtkVector2i;
 class vtkVector3d;
@@ -34,8 +37,29 @@ public:
   static int Tensor3ShapeFunctions(const int order[3], const double* pcoords, double* shape);
   static int Tensor3ShapeDerivatives(const int order[3], const double* pcoords, double* derivs);
 
-  static void WedgeShapeFunctions(const int order[3], const double* pcoords, double* shape);
-  static void WedgeShapeDerivatives(const int order[3], const double* pcoords, double* derivs);
+  void Tensor3EvaluateDerivative(
+    const int order[4],
+    const double* pcoords,
+    double* fieldVals,
+    int fieldDim,
+    double* fieldDerivs);
+
+  static void WedgeShapeFunctions(const int order[4], const double* pcoords, double* shape);
+  static void WedgeShapeDerivatives(const int order[4], const double* pcoords, double* derivs);
+
+  void WedgeEvaluate(
+    const int order[4],
+    const double* pcoords,
+    double* fieldVals,
+    int fieldDim,
+    double* fieldAtPCoords);
+
+  void WedgeEvaluateDerivative(
+    const int order[4],
+    const double* pcoords,
+    double* fieldVals,
+    int fieldDim,
+    double* fieldDerivs);
 
   static vtkVector3d GetParametricHexCoordinates(int vertexId);
   static vtkVector2i GetPointIndicesBoundingHexEdge(int edgeId);
@@ -68,7 +92,7 @@ protected:
   vtkLagrangeInterpolation();
   ~vtkLagrangeInterpolation() override;
 
-  void PrepareForOrder(const int o[3]);
+  void PrepareForOrder(const int o[4]);
 
   std::vector<double> ShapeSpace;
   std::vector<double> DerivSpace;

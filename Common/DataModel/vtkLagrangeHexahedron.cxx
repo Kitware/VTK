@@ -104,12 +104,12 @@ vtkCell* vtkLagrangeHexahedron::GetEdge(int edgeId)
 vtkCell* vtkLagrangeHexahedron::GetFace(int faceId)
 {
   if (faceId < 0 || faceId >= 6)
-    {
+  {
     return nullptr;
-    }
+  }
 
   // Do we need to flip the face to get an outward-pointing normal?
-  bool flipFace = (faceId % 2 == 0 ? true : false);
+  bool flipFace = (faceId % 2 == ((faceId / 2) % 2) ? true : false);
 
   vtkLagrangeQuadrilateral* result = this->FaceCell.GetPointer();
   const int* order = this->GetOrder();
@@ -122,112 +122,123 @@ vtkCell* vtkLagrangeHexahedron::GetFace(int faceId)
   // Add vertex DOFs to result
   int sn = 0;
   if (!flipFace)
-    {
+  {
     for (int ii = 0; ii < 4; ++ii, ++sn)
-      {
+    {
       result->Points->SetPoint(sn, this->Points->GetPoint(corners[ii]));
       result->PointIds->SetId(sn, this->PointIds->GetId(corners[ii]));
-      }
     }
+  }
   else
-    {
+  {
     for (int ii = 0; ii < 4; ++ii, ++sn)
-      {
+    {
       result->Points->SetPoint((5 - sn) % 4, this->Points->GetPoint(corners[ii]));
       result->PointIds->SetId((5 - sn) % 4, this->PointIds->GetId(corners[ii]));
-      }
     }
+  }
 
   // Add edge DOFs to result
   int offset;
   const int* faceEdges = vtkLagrangeInterpolation::GetEdgeIndicesBoundingHexFace(faceId);
   for (int ii = 0; ii < 4; ++ii)
-    {
+  {
     offset = 8;
     if (!flipFace)
-      {
+    {
       int pp = vtkLagrangeInterpolation::GetVaryingParameterOfHexEdge(faceEdges[ii]);
       if (pp == 2)
-        {
+      {
         offset += 4 * (order[0] - 1 + order[1] - 1);
         offset += (faceEdges[ii] - 8) * (order[2] - 1);
-        }
+      }
       else
-        {
+      {
         for (int ee = 0; ee < faceEdges[ii]; ++ee)
-          {
-          offset += order[ee % 2 == 0 ? 0 : 1] - 1;
-          }
-        }
-      for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
         {
-        result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
-        result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+          offset += order[ee % 2 == 0 ? 0 : 1] - 1;
         }
       }
-    else
+      for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
       {
+        result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
+        result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
+      }
+    }
+    else
+    {
       // Flip both the edge position among edges (ii => (4 - ii) % 4)
       // and the edge's node order (jj => order[pp] - jj - 1).
       int pp = vtkLagrangeInterpolation::GetVaryingParameterOfHexEdge(faceEdges[(4 - ii) % 4]);
       if (pp == 2)
-        {
+      {
         offset += 4 * (order[0] - 1 + order[1] - 1);
         offset += (faceEdges[(4 - ii) % 4] - 8) * (order[2] - 1);
-        }
+      }
       else
-        {
+      {
         for (int ee = 0; ee < faceEdges[(4 - ii) % 4]; ++ee)
-          {
-          offset += order[ee % 2 == 0 ? 0 : 1] - 1;
-          }
-        }
-      for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
         {
-        result->Points->SetPoint(sn, this->Points->GetPoint(offset + order[pp] - jj - 2));
-        result->PointIds->SetId(sn, this->PointIds->GetId(offset + order[pp] - jj - 2));
+          offset += order[ee % 2 == 0 ? 0 : 1] - 1;
+        }
+      }
+      if (ii % 2 == 0)
+      {
+        for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
+        {
+          result->Points->SetPoint(sn, this->Points->GetPoint(offset + order[pp] - jj - 2));
+          result->PointIds->SetId(sn, this->PointIds->GetId(offset + order[pp] - jj - 2));
+        }
+      }
+      else
+      {
+        for (int jj = 0; jj < order[pp] - 1; ++jj, ++sn)
+        {
+          result->Points->SetPoint(sn, this->Points->GetPoint(offset + jj));
+          result->PointIds->SetId(sn, this->PointIds->GetId(offset + jj));
         }
       }
     }
+  }
 
   // Now add face DOF
   offset = 8 + 4 * (order[0] - 1 + order[1] - 1 + order[2] - 1);
   // skip DOF for other faces of hex before this one
   for (int ff = 0; ff < faceId; ++ff)
-    {
+  {
     vtkVector2i tmp = vtkLagrangeInterpolation::GetVaryingParametersOfHexFace(ff);
     offset += (order[tmp[0]] - 1) * (order[tmp[1]] - 1);
-    }
+  }
   if (!flipFace)
-    {
+  {
     int nfdof = (order[faceParams[0]] - 1) * (order[faceParams[1]] - 1);
     for (int ii = 0; ii < nfdof; ++ii, ++sn)
-      {
+    {
       result->Points->SetPoint(sn, this->Points->GetPoint(offset + ii));
       result->PointIds->SetId(sn, this->PointIds->GetId(offset + ii));
-      }
     }
+  }
   else
-    {
+  {
     int delta = order[faceParams[0]] - 1;
     for (int jj = 0; jj < (order[faceParams[1]] - 1); ++jj)
-      {
+    {
       for (int ii = delta - 1; ii >= 0; --ii, ++sn)
-        {
+      {
         result->Points->SetPoint(sn, this->Points->GetPoint(offset + ii + jj * delta));
         result->PointIds->SetId(sn, this->PointIds->GetId(offset + ii + jj * delta));
-        }
       }
     }
+  }
   /*
   std::cout << "Hex Face " << faceId << "\n";
   for (int yy = 0; yy < npts; ++yy)
-    {
-    vtkVector3d xx;
-    result->Points->GetPoint(yy, xx.GetData());
-    std::cout << "  " << yy << "  " << result->PointIds->GetId(yy) << " " << xx << "\n";
-    }
-    */
+  {
+  vtkVector3d xx;
+  result->Points->GetPoint(yy, xx.GetData());
+  std::cout << "  " << yy << "  " << result->PointIds->GetId(yy) << " " << xx << "\n";
+  }
+  */
   return result;
 }
 
@@ -449,27 +460,28 @@ int vtkLagrangeHexahedron::IntersectWithLine(
   int tmpId;
   this->GetOrder(); // Ensure Order is up to date.
   for (int ff = 0; ff < this->GetNumberOfFaces(); ++ff)
-    {
+  {
     vtkCell* bdy = this->GetFace(ff);
     if (bdy->IntersectWithLine(p1, p2, tol, t, tmpX.GetData(), tmpP.GetData(), tmpId))
-      {
+    {
       intersection = true;
       if (t < tFirst)
-        {
+      {
         tFirst = t;
+        subId = ff;
         for (int ii = 0; ii < 3; ++ii)
-          {
+        {
           x[ii] = tmpX[ii];
           pcoords[ii] = tmpP[ii]; // Translate this after we're sure it's the closest hit.
-          subId = ff;
-          }
         }
       }
     }
+  }
   if (intersection)
-    {
-    this->TransformFaceToCellParams(subId, pcoords);
-    }
+  {
+    intersection &= this->TransformFaceToCellParams(subId, pcoords);
+    t = tFirst;
+  }
   return intersection ? 1 : 0;
 }
 
@@ -512,13 +524,12 @@ int vtkLagrangeHexahedron::Triangulate(
 
 void vtkLagrangeHexahedron::Derivatives(
   int vtkNotUsed(subId),
-  double vtkNotUsed(pcoords)[3],
-  double* vtkNotUsed(values),
-  int vtkNotUsed(dim),
-  double* vtkNotUsed(derivs))
+  double pcoords[3],
+  double* values,
+  int dim,
+  double* derivs)
 {
-  // TODO: Fill me in?
-  return;
+  this->Interp->Tensor3EvaluateDerivative(this->Order, pcoords, values, dim, derivs);
 }
 
 double* vtkLagrangeHexahedron::GetParametricCoords()
@@ -820,7 +831,7 @@ bool vtkLagrangeHexahedron::TransformFaceToCellParams(int bdyFace, double* pcoor
     {
     pcoords[faceParams[pp]] = tmp[pp];
     }
-  if (bdyFace % 2 == 0)
+  if (bdyFace % 2 == ((bdyFace / 2) % 2))
     {
     // Flip first parametric axis of "positive" faces to compensate for GetFace,
     // which flips odd faces to obtain inward-pointing normals for each boundary.

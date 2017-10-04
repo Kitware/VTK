@@ -279,29 +279,30 @@ int vtkLagrangeQuadrilateral::IntersectWithLine(
   vtkVector3d tmpP;
   int tmpId;
   for (int i = 0; i < nquad; ++i)
-    {
+  {
     vtkQuad* approx = this->GetApproximateQuad(i);
     if (approx->IntersectWithLine(p1, p2, tol, t, tmpX.GetData(), tmpP.GetData(), tmpId))
-      {
+    {
       // Record the point closest to p1 in the direction of p2 unless there is no other intersection,
       // in which case we will report a point "before" p1 (further from p2 than p1).
       if (!intersection || (t >= 0 && (t < tFirst || tFirst < 0)))
-        {
+      {
         tFirst = t;
+        subId = i;
         for (int ii = 0; ii < 3; ++ii)
-          {
+        {
           x[ii] = tmpX[ii];
           pcoords[ii] = tmpP[ii]; // Translate this after we're sure it's the closest hit.
-          subId = i;
-          }
         }
-      intersection = true;
       }
+      intersection = true;
     }
+  }
   if (intersection)
-    {
-    this->TransformApproxToCellParams(subId, pcoords);
-    }
+  {
+    intersection &= this->TransformApproxToCellParams(subId, pcoords);
+    t = tFirst;
+  }
   return intersection ? 1 : 0;
 }
 

@@ -490,23 +490,25 @@ int vtkLagrangeTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
 #ifdef SEVEN_POINT_TRIANGLE
   if (this->Points->GetNumberOfPoints() == 7)
-    {
+  {
+    static const int edgeOrder[7] = { 0, 3, 1, 4, 2, 5, 0 };
     pts->SetNumberOfPoints(18);
     ptIds->SetNumberOfIds(18);
     vtkIdType pointId = 0;
     for (vtkIdType i=0;i<6;i++)
-      {
-      ptIds->SetId(pointId,this->PointIds->GetId(i));
-      pts->SetPoint(pointId,this->Points->GetPoint(i));
+    {
+      ptIds->SetId(pointId,this->PointIds->GetId(edgeOrder[i]));
+      pts->SetPoint(pointId,this->Points->GetPoint(edgeOrder[i]));
       pointId++;
-      ptIds->SetId(pointId,this->PointIds->GetId((i+1)%6));
-      pts->SetPoint(pointId,this->Points->GetPoint((i+1)%6));
+      ptIds->SetId(pointId,this->PointIds->GetId(edgeOrder[i+1]));
+      pts->SetPoint(pointId,this->Points->GetPoint(edgeOrder[i+1]));
       pointId++;
       ptIds->SetId(pointId,this->PointIds->GetId(6));
       pts->SetPoint(pointId,this->Points->GetPoint(6));
-      }
-    return 1;
+      pointId++;
     }
+    return 1;
+  }
 #endif
 
   vtkIdType bindices[3][3];

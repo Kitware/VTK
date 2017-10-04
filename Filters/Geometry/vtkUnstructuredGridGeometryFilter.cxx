@@ -317,10 +317,10 @@ protected:
   unsigned int ChunkSize;
 };
 
-// The 2D cell with the maximum number of points is VTK_LAGRANGE_TRIANGLE.
-// We support up to 6th order triangles. The VTK_LAGRANGE_QUADRILATERAL
-// may also have a large number of points (up to 25 for a 4th order quad).
-const int VTK_MAXIMUM_NUMBER_OF_POINTS=28;
+// The 2D cell with the maximum number of points is VTK_LAGRANGE_QUADRILATERAL.
+// We support up to 10th order quads. The VTK_LAGRANGE_TRIANGLE
+// may also have a large number of points (up to 121 for a 10th order quad).
+const int VTK_MAXIMUM_NUMBER_OF_POINTS=128;
 
 //-----------------------------------------------------------------------------
 // Surface element: face of a 3D cell.

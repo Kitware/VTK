@@ -30,6 +30,7 @@ class vtkDoubleArray;
 class vtkHexahedron;
 class vtkIdList;
 class vtkLagrangeCurve;
+class vtkLagrangeInterpolation;
 class vtkLagrangeQuadrilateral;
 class vtkPointData;
 class vtkPoints;
@@ -118,6 +119,7 @@ protected:
   vtkNew<vtkIdList> TmpIds;
   vtkNew<vtkLagrangeQuadrilateral> FaceCell;
   vtkNew<vtkLagrangeCurve> EdgeCell;
+  vtkNew<vtkLagrangeInterpolation> Interp;
 
 private:
   vtkLagrangeHexahedron(const vtkLagrangeHexahedron&) = delete;

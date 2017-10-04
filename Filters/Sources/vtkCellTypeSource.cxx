@@ -23,6 +23,7 @@
 #include "vtkLagrangeHexahedron.h"
 #include "vtkLagrangeQuadrilateral.h"
 #include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeTetra.h"
 #include "vtkLagrangeWedge.h"
 #include "vtkMath.h"
 #include "vtkMergePoints.h"
@@ -62,8 +63,8 @@ namespace
 
 // ----------------------------------------------------------------------------
 vtkCellTypeSource::vtkCellTypeSource() :
-  CellType(VTK_HEXAHEDRON), CellOrder(3), OutputPrecision(SINGLE_PRECISION),
-  PolynomialFieldOrder(1)
+  CellType(VTK_HEXAHEDRON), CellOrder(3), CompleteQuadraticSimplicialElements(false),
+  OutputPrecision(SINGLE_PRECISION), PolynomialFieldOrder(1)
 {
   for(int i=0;i<3;i++)
   {
@@ -1213,13 +1214,14 @@ void vtkCellTypeSource::GenerateLagrangeCurves(
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int extent[6])
 {
-  vtkPoints* points = output->GetPoints();
   // cell dimensions
   const int xDim = extent[1]-extent[0];
   const int yDim = extent[3]-extent[2];
   const int numCells = (xDim - 1) * (yDim - 1) * 2; // 2 tris per quad
   const int order = this->CellOrder;
-  const int numPtsPerCell = (order + 1) * (order + 2) / 2;
+  const int numPtsPerCell =
+    ((order + 1) * (order + 2) / 2) +
+    ((order == 2 && this->CompleteQuadraticSimplicialElements) ? 1 : 0);
   vtkIdType bary[3]; // barycentric indices
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> cta;
@@ -1257,7 +1259,8 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
           pm =
             (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
             r *         (p2 * s + p1 * (1.0 - s));
-          vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+          vtkIdType innerPointId;
+          this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
 
           if (m + n <= order)
           {
@@ -1276,6 +1279,23 @@ void vtkCellTypeSource::GenerateLagrangeTris(vtkUnstructuredGrid* output, int ex
             ctb[ctbidx] = innerPointId;
           }
         }
+      }
+      // Add mid-face point if serendipity elements were requested:
+      if (order == 2 && this->CompleteQuadraticSimplicialElements)
+      {
+        double r, s;
+        r = 1. / 3.;
+        s = 1. / 3.;
+        pm =
+          (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
+          r *         (p2 * s + p1 * (1.0 - s));
+        this->Locator->InsertUniquePoint(pm.GetData(), cta[numPtsPerCell - 1]);
+        r = 2. / 3.;
+        s = 2. / 3.;
+        pm =
+          (1.0 - r) * (p3 * s + p0 * (1.0 - s)) +
+          r *         (p2 * s + p1 * (1.0 - s));
+        this->Locator->InsertUniquePoint(pm.GetData(), ctb[numPtsPerCell - 1]);
       }
       output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, &cta[0]);
       output->InsertNextCell(VTK_LAGRANGE_TRIANGLE, numPtsPerCell, &ctb[0]);
@@ -1336,15 +1356,112 @@ void vtkCellTypeSource::GenerateLagrangeQuads(vtkUnstructuredGrid* output, int e
 }
 
 //----------------------------------------------------------------------------
-void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid*, int extent[6])
+void vtkCellTypeSource::GenerateLagrangeTets(vtkUnstructuredGrid* output, int extent[6])
 {
-  (void)extent;
+  // cell dimensions
+  const int xDim = extent[1]-extent[0];
+  const int yDim = extent[3]-extent[2];
+  const int zDim = extent[5]-extent[4];
+  const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1);
+  const int numPtsPerCell =
+    (this->CellOrder == 2 && this->CompleteQuadraticSimplicialElements) ? 15 :
+    (this->CellOrder + 1) * (this->CellOrder + 2) * (this->CellOrder + 3) / 6;
+
+  // Allocate numCells * (numPtsPerCell + 1) because connectivity array doesn't
+  // hold number of pts per cell, but output cell array does:
+  output->Allocate(numCells * (numPtsPerCell + 1));
+  vtkIdType corners[8];
+  std::vector<vtkIdType> conn;
+  conn.resize(numPtsPerCell);
+  int cc = 0;
+  const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
+  for (int k = 0; k < zDim; ++k)
+  {
+    for (int j = 0; j < yDim; ++j)
+    {
+      for (int i = 0; i < xDim; ++i, ++cc)
+      {
+        corners[0] = i +     ( j      +  k      * (yDim + 1)) * (xDim + 1);
+        corners[1] = i + 1 + ( j      +  k      * (yDim + 1)) * (xDim + 1);
+        corners[2] = i + 1 + ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
+        corners[3] = i +     ((j + 1) +  k      * (yDim + 1)) * (xDim + 1);
+        corners[4] = i +     ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[5] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[6] = i + 1 + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+        corners[7] = i +     ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1);
+
+        vtkVector3d pt[8], pm;
+        output->GetPoint(corners[0], pt[0].GetData());
+        output->GetPoint(corners[1], pt[1].GetData());
+        output->GetPoint(corners[2], pt[2].GetData());
+        output->GetPoint(corners[3], pt[3].GetData());
+        output->GetPoint(corners[4], pt[4].GetData());
+        output->GetPoint(corners[5], pt[5].GetData());
+        output->GetPoint(corners[6], pt[6].GetData());
+        output->GetPoint(corners[7], pt[7].GetData());
+
+        static int tetsOfHex[5][4] = {
+          { 0, 1, 3, 4 },
+          { 1, 2, 3, 6 },
+          { 4, 7, 6, 3 },
+          { 4, 6, 5, 1 },
+          { 1, 4, 6, 3 }
+        };
+        for (int te = 0; te < 5; ++te)
+        {
+          vtkVector3d tpts[4];
+          vtkIdType innerPointId;
+          // Get corners
+          for (int ii = 0; ii < 4; ++ii)
+          {
+            conn[ii] = corners[tetsOfHex[te][ii]];
+            tpts[ii] = pt[tetsOfHex[te][ii]];
+          }
+          for (int kk = 0; kk <= order[2]; ++kk)
+          {
+            double tt = static_cast<double>(kk) / order[2];
+            for (int jj = 0; jj <= order[1] - kk; ++jj)
+            {
+              double ss = static_cast<double>(jj) / order[1];
+              for (int ii = 0; ii <= order[0] - jj - kk; ++ii)
+              {
+                double rr = static_cast<double>(ii) / order[0];
+                pm = rr * tpts[1] + ss * tpts[2] + tt * tpts[3] + (1. - rr - ss - tt) * tpts[0];
+                vtkIdType ijkl[4] = { ii, jj, kk, order[0] - ii - jj - kk };
+                vtkIdType connidx = vtkLagrangeTetra::Index(ijkl, order[0]);
+                this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+                conn[connidx] = innerPointId;
+              }
+            }
+          }
+          if (this->CompleteQuadraticSimplicialElements && order[0] == 2)
+          { // Add 5 new mid-face+mid-body points
+            static const int facePts[4][3] = {
+              { 0, 1, 2 },
+              { 0, 1, 3 },
+              { 1, 2, 3 },
+              { 0, 2, 3 }
+            };
+            for (int extra = 0; extra < 4; ++extra)
+            {
+              pm = (tpts[facePts[extra][0]] + tpts[facePts[extra][1]] + tpts[facePts[extra][2]]) * (1.0 / 3.0);
+              this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+              conn[10 + extra] = innerPointId;
+            }
+            pm = (tpts[0] + tpts[1] + tpts[2] + tpts[3]) * 0.25;
+            this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
+            conn[14] = innerPointId;
+          }
+          output->InsertNextCell(VTK_LAGRANGE_TETRAHEDRON, numPtsPerCell, &conn[0]);
+        }
+      }
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int extent[6])
 {
-  vtkPoints* points = output->GetPoints();
   // cell dimensions
   const int xDim = extent[1]-extent[0];
   const int yDim = extent[3]-extent[2];
@@ -1403,7 +1520,8 @@ void vtkCellTypeSource::GenerateLagrangeHexes(vtkUnstructuredGrid* output, int e
               pm =
                 (1.0 - r) * ((p3 * (1.0 - t) + p7 * t) * s + (p0 * (1.0 - t) + p4 * t) * (1.0 - s)) +
                 r *         ((p2 * (1.0 - t) + p6 * t) * s + (p1 * (1.0 - t) + p5 * t) * (1.0 - s));
-              vtkIdType innerPointId = points->InsertNextPoint(pm.GetData());
+              vtkIdType innerPointId;
+              this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
               conn[connidx] = innerPointId;
             }
           }
@@ -1423,7 +1541,9 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
   const int zDim = extent[5]-extent[4];
   const int numCells = (xDim - 1) * (yDim - 1) * (zDim - 1) * 2; // 2 wedges per hex
   const int order[3] = { this->CellOrder, this->CellOrder, this->CellOrder };
-  const int numPtsPerCell = (order[2] + 1) * (order[0] + 1) * (order[0] + 2) / 2;
+  const int numPtsPerCell =
+    (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2) ? 21 :
+    (order[2] + 1) * (order[0] + 1) * (order[0] + 2) / 2;
   output->Allocate(numCells * (numPtsPerCell + 1));
   std::vector<vtkIdType> cta;
   std::vector<vtkIdType> ctb;
@@ -1452,15 +1572,15 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
         ctb[4] = i     + ((j + 1) + (k + 1) * (yDim + 1)) * (xDim + 1); // 3
         ctb[5] = i + 1 + ( j      + (k + 1) * (yDim + 1)) * (xDim + 1); // 1
 
-        vtkVector3d p0, p1, p2, p3, p4, p5, p6, p7, pm;
-        output->GetPoint(cta[0], p0.GetData());
-        output->GetPoint(cta[1], p1.GetData());
-        output->GetPoint(ctb[0], p2.GetData());
-        output->GetPoint(ctb[1], p3.GetData());
-        output->GetPoint(cta[3], p4.GetData());
-        output->GetPoint(cta[4], p5.GetData());
-        output->GetPoint(ctb[3], p6.GetData());
-        output->GetPoint(ctb[4], p7.GetData());
+        vtkVector3d pt[8], pm;
+        output->GetPoint(cta[0], pt[0].GetData());
+        output->GetPoint(cta[1], pt[1].GetData());
+        output->GetPoint(ctb[0], pt[2].GetData());
+        output->GetPoint(ctb[1], pt[3].GetData());
+        output->GetPoint(cta[3], pt[4].GetData());
+        output->GetPoint(cta[4], pt[5].GetData());
+        output->GetPoint(ctb[3], pt[6].GetData());
+        output->GetPoint(ctb[4], pt[7].GetData());
 
         for (int p = 0; p <= order[2]; ++p)
         {
@@ -1479,40 +1599,58 @@ void vtkCellTypeSource::GenerateLagrangeWedges(vtkUnstructuredGrid* output, int 
               double s = static_cast<double>(n) / order[0];
               double t = static_cast<double>(p) / order[2];
               pm =
-                (1.0 - r) * ((p3 * (1.0 - t) + p7 * t) * s + (p0 * (1.0 - t) + p4 * t) * (1.0 - s)) +
-                r *         ((p2 * (1.0 - t) + p6 * t) * s + (p1 * (1.0 - t) + p5 * t) * (1.0 - s));
-              vtkIdType innerPointId; // = points->InsertNextPoint(pm.GetData());
+                (1.0 - r) * ((pt[3] * (1.0 - t) + pt[7] * t) * s + (pt[0] * (1.0 - t) + pt[4] * t) * (1.0 - s)) +
+                r *         ((pt[2] * (1.0 - t) + pt[6] * t) * s + (pt[1] * (1.0 - t) + pt[5] * t) * (1.0 - s));
+              vtkIdType innerPointId;
               this->Locator->InsertUniquePoint(pm.GetData(), innerPointId);
 
-              /*
-              std::cout
-                << "Cell " << cc
-                << " ijk " << i << " " << j << " " << k
-                << " mnp " << m << " " << n << " " << p
-                << " rst " << std::fixed << std::setprecision(2) << r << " " << std::fixed << std::setprecision(2) << s << " " << std::fixed << std::setprecision(2) << t
-                << " xyz " << pm
-                << " iid " << innerPointId
-                ;
-                */
               if (m + n <= order[0])
               {
                 int ctaidx = vtkLagrangeWedge::PointIndexFromIJK(m, n, p, order);
                 cta[ctaidx] = innerPointId;
-                //std::cout << " A " << std::setw(2) << ctaidx;
-              }
-              else
-              {
-                //std::cout << "     ";
               }
               if (m + n >= order[0])
               {
                 int ctbidx = vtkLagrangeWedge::PointIndexFromIJK(order[0] - m, order[0] - n, p, order);
                 ctb[ctbidx] = innerPointId;
-                //std::cout << " B " << ctbidx;
               }
-              //std::cout << "\n";
             }
           }
+        }
+        if (this->CompleteQuadraticSimplicialElements && this->CellOrder == 2)
+        {
+          // When present, triangle mid-face nodes should appear before
+          // the quadrilateral mid-face nodes. So, shift the 3 quad-face
+          // nodes by 2 entries in the connectivity array:
+          for (int ii = 0; ii < 3; ++ii)
+          {
+            cta[19 - ii] = cta[17 - ii];
+            ctb[19 - ii] = ctb[17 - ii];
+          }
+          // Now fill in the "holes" at ct{a,b}[15,16] with tri-face nodes:
+          static const int facePts[2][2][3] = {
+            { { 0, 1, 3 }, { 4, 5, 7 } }, // cta
+            { { 1, 2, 3 }, { 5, 6, 7 } }  // ctb
+          };
+          vtkVector3d bodyA(0., 0., 0.);
+          vtkVector3d bodyB(0., 0., 0.);
+          vtkIdType innerA, innerB;
+          for (int ii = 0; ii < 2; ++ii)
+          {
+            vtkVector3d pA = (pt[facePts[0][ii][0]] + pt[facePts[0][ii][1]] + pt[facePts[0][ii][2]]) * (1. / 3.);
+            vtkVector3d pB = (pt[facePts[1][ii][0]] + pt[facePts[1][ii][1]] + pt[facePts[1][ii][2]]) * (1. / 3.);
+            bodyA = bodyA + 0.5 * pA;
+            bodyB = bodyB + 0.5 * pB;
+            this->Locator->InsertUniquePoint(pA.GetData(), innerA);
+            this->Locator->InsertUniquePoint(pB.GetData(), innerB);
+            cta[15 + ii] = innerA;
+            ctb[15 + ii] = innerB;
+          }
+          // Finally, add a body-centered node to cta and ctb:
+          this->Locator->InsertUniquePoint(bodyA.GetData(), innerA);
+          this->Locator->InsertUniquePoint(bodyB.GetData(), innerB);
+          cta[20] = innerA;
+          ctb[20] = innerB;
         }
         output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &cta[0]);
         output->InsertNextCell(VTK_LAGRANGE_WEDGE, numPtsPerCell, &ctb[0]);
@@ -1586,6 +1724,9 @@ void vtkCellTypeSource::PrintSelf(ostream& os, vtkIndent indent)
      << this->BlocksDimensions[1] << ", "
      << this->BlocksDimensions[2] << " )\n";
   os << indent << "CellType: " << this->CellType << "\n";
+  os << indent << "CellOrder: " << this->CellOrder << "\n";
+  os << indent << "CompleteQuadraticSimplicialElements: " <<
+    (this->CompleteQuadraticSimplicialElements ? "TRUE" : "FALSE") << "\n";
   os << indent << "OutputPrecision: " << this->OutputPrecision << "\n";
   os << indent << "PolynomialFieldOrder: " << this->PolynomialFieldOrder << "\n";
 }

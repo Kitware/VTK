@@ -31,6 +31,74 @@
 #include "vtkVector.h"
 #include "vtkVectorOperators.h"
 
+// VTK_21_POINT_WEDGE is defined (or not) in vtkLagrangeInterpolation.h
+#ifdef VTK_21_POINT_WEDGE
+static double vtkLagrangeWedge21ParametricCoords[21*3] = {
+  0.0,  0.0,  0.0,
+  1.0,  0.0,  0.0,
+  0.0,  1.0,  0.0,
+  0.0,  0.0,  1.0,
+  1.0,  0.0,  1.0,
+  0.0,  1.0,  1.0,
+  0.5,  0.0,  0.0,
+  0.5,  0.5,  0.0,
+  0.0,  0.5,  0.0,
+  0.5,  0.0,  1.0,
+  0.5,  0.5,  1.0,
+  0.0,  0.5,  1.0,
+  0.0,  0.0,  0.5,
+  1.0,  0.0,  0.5,
+  0.0,  1.0,  0.5,
+  1/3., 1/3., 0.0,
+  1/3., 1/3., 1.0,
+  0.5,  0.0,  0.5,
+  0.5,  0.5,  0.5,
+  0.0,  0.5,  0.5,
+  1/3., 1/3., 0.5
+};
+// Traversal order of subcells in 1st k-layer above:
+static const int vtkLagrangeWedge21EdgePoints[] = { 0, 6, 1, 7, 2, 8, 0 };
+// Index of face-center point in 1st k-layer above:
+static const int vtkLagrangeWedge21InteriorPt = 15;
+// Subcell connectivity:
+static const int vtkLagrangeWedge21ApproxCorners[12][6] = {
+  {  0,  6, 15, 12, 17, 20 },
+  {  6,  1, 15, 17, 13, 20 },
+  {  1,  7, 15, 13, 18, 20 },
+  {  7,  2, 15, 18, 14, 20 },
+  {  2,  8, 15, 14, 19, 20 },
+  {  8,  0, 15, 19, 12, 20 },
+
+  {  12, 17, 20,  3,  9, 16 },
+  {  17, 13, 20,  9,  4, 16 },
+  {  13, 18, 20,  4, 10, 16 },
+  {  18, 14, 20, 10,  5, 16 },
+  {  14, 19, 20,  5, 11, 16 },
+  {  19, 12, 20, 11,  3, 16 },
+};
+static const int vtkLagrangeWedge21TriFace[2][7] = {
+  {  0,  2,  1,  8,  7,  6, 15 },
+  {  3,  4,  5,  9, 10, 11, 16 }
+};
+static const int vtkLagrangeWedge21QuadFace[3][9] = {
+  {  0,  1,  4,  3,  6, 13,  9, 12, 17 },
+  {  1,  2,  5,  4,  7, 14, 10, 13, 18 },
+  {  2,  0,  3,  5,  8, 12, 11, 14, 19 },
+};
+static const int vtkLagrangeWedge21Edge[9][3] = {
+  {  0,  1,  6 },
+  {  1,  2,  7 },
+  {  2,  0,  8 },
+  {  3,  4,  9 },
+  {  4,  5, 10 },
+  {  5,  3, 11 },
+  {  0,  3, 12 },
+  {  1,  4, 13 },
+  {  2,  5, 14 }
+};
+#endif
+
+
 // Return the offset into the array of face-DOFs of triangle barycentric integer coordinates (i,j) for the given order.
 // Note that (i,j) are indices into the triangle (order >= i + j), not into the subtriangle composed solely of face DOFs.
 // Example:
@@ -136,6 +204,24 @@ vtkCell* vtkLagrangeWedge::GetEdge(int edgeId)
 {
   vtkLagrangeCurve* result = this->BdyEdge.GetPointer();
   const int* order = this->GetOrder();
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
+  {
+    if (edgeId < 0 || edgeId >= 9)
+    {
+      vtkErrorMacro("Asked for invalid edge " << edgeId << " of 21-point wedge");
+      return nullptr;
+    }
+    result->Points->SetNumberOfPoints(3);
+    result->PointIds->SetNumberOfIds(3);
+    for (int ii = 0; ii < 3; ++ii)
+    {
+      result->Points->SetPoint(ii, this->Points->GetPoint(vtkLagrangeWedge21Edge[edgeId][ii]));
+      result->PointIds->SetId(ii, this->PointIds->GetId(vtkLagrangeWedge21Edge[edgeId][ii]));
+    }
+    return result;
+  }
+#endif
   int oi = vtkLagrangeInterpolation::GetVaryingParameterOfWedgeEdge(edgeId);
   vtkVector2i eidx = vtkLagrangeInterpolation::GetPointIndicesBoundingWedgeEdge(edgeId);
   vtkIdType npts = order[oi >= 0 ? oi : 0] + 1;
@@ -477,7 +563,6 @@ int vtkLagrangeWedge::Triangulate(
   vtkVector3i ijk;
   for (int i = 0; i < nwedge; ++i)
   {
-    // FIXME!!! URHERE. This is unmodified code from the Lagrange hexahedron.
     vtkWedge* approx = this->GetApproximateWedge(i);
     this->SubCellCoordinatesFromId(ijk, i);
     if (approx->Triangulate(
@@ -505,17 +590,24 @@ int vtkLagrangeWedge::Triangulate(
 
 void vtkLagrangeWedge::Derivatives(
   int vtkNotUsed(subId),
-  double vtkNotUsed(pcoords)[3],
-  double* vtkNotUsed(values),
-  int vtkNotUsed(dim),
-  double* vtkNotUsed(derivs))
+  double pcoords[3],
+  double* values,
+  int dim,
+  double* derivs)
 {
-  // TODO: Fill me in?
+  this->Interp->WedgeEvaluateDerivative(this->Order, pcoords, values, dim, derivs);
   return;
 }
 
 double* vtkLagrangeWedge::GetParametricCoords()
 {
+  const int* order = this->GetOrder();
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
+  {
+    return vtkLagrangeWedge21ParametricCoords;
+  }
+#endif
   if (!this->PointParametricCoordinates)
     {
     this->PointParametricCoordinates = vtkSmartPointer<vtkPoints>::New();
@@ -523,7 +615,7 @@ double* vtkLagrangeWedge::GetParametricCoords()
     }
 
   // Ensure Order is up-to-date and check that current point size matches:
-  if (static_cast<int>(this->PointParametricCoordinates->GetNumberOfPoints()) != this->GetOrder(3))
+  if (static_cast<int>(this->PointParametricCoordinates->GetNumberOfPoints()) != order[3])
     {
     this->PointParametricCoordinates->Initialize();
     vtkLagrangeInterpolation::AppendWedgeCollocationPoints(
@@ -572,6 +664,13 @@ const int* vtkLagrangeWedge::GetOrder()
     double order = term + ninth / term - 4 * third;
 
     double proximity = fabs(order - round(order));
+#ifdef VTK_21_POINT_WEDGE
+    if (npts == 21)
+    {
+      proximity = 0.0;
+      order = 2.0;
+    }
+#endif
     if (proximity > 1e-12)
       {
       vtkErrorMacro(
@@ -612,10 +711,13 @@ bool vtkLagrangeWedge::SubCellCoordinatesFromId(vtkVector3i& ijk, int subId)
   return this->SubCellCoordinatesFromId(ijk[0], ijk[1], ijk[2], subId);
 }
 
-/**\brief Given an integer specifying an approximating linear hex, compute its IJK coordinate-position in this cell.
+/**\brief Given an integer specifying an approximating linear wedge, compute its IJK coordinate-position in this cell.
  *
- * The \a subId specifies the lower-, left-, front-most vertex of the approximating hex.
+ * The \a subId specifies the lower-, left-, front-most vertex of the approximating wedge.
  * This sets the ijk coordinates of that point.
+ *
+ * For serendipity (21-node) wedges, the returned (i,j,k) coordinate specifies the first
+ * node along the first edge of the approximating linear wedge.
  *
  * You must have called this->GetOrder() **before** invoking this method so that the order will be up to date.
  */
@@ -625,6 +727,29 @@ bool vtkLagrangeWedge::SubCellCoordinatesFromId(int& i, int& j, int& k, int subI
     {
     return false;
     }
+
+#ifdef VTK_21_POINT_WEDGE
+  static const int serendipitySubCell[6][2] = {
+    { 0, 0 },
+    { 1, 0 },
+    { 2, 0 },
+    { 1, 1 },
+    { 0, 2 },
+    { 0, 1 }
+  };
+  if (this->Order[3] == 21)
+  {
+    if (subId < 12)
+    {
+      int m = subId % 6;
+      i = serendipitySubCell[m][0];
+      j = serendipitySubCell[m][1];
+      k = subId / 6;
+      return true;
+    }
+    return false;
+  }
+#endif
 
   int layerSize = this->Order[0] * this->Order[1];
   i = subId % this->Order[0];
@@ -638,6 +763,8 @@ bool vtkLagrangeWedge::SubCellCoordinatesFromId(int& i, int& j, int& k, int subI
   * Ensure that you have called GetOrder() before calling this method
   * so that this->Order is up to date. This method does no checking
   * before using it to map connectivity-array offsets.
+  *
+  * This call is invalid for serendipity (21-node) wedge elements.
   */
 int vtkLagrangeWedge::PointIndexFromIJK(int i, int j, int k)
 {
@@ -651,6 +778,8 @@ int vtkLagrangeWedge::PointIndexFromIJK(int i, int j, int k)
   * For wedges, it is assumed that order[0] == order[1] (i.e., the triangular faces have
   * the same order for each direction).
   * The third value specifies the order of the vertical axis of the quadrilateral faces.
+  *
+  * This call is invalid for serendipity (21-node) wedge elements.
   */
 int vtkLagrangeWedge::PointIndexFromIJK(int i, int j, int k, const int* order)
 {
@@ -666,7 +795,7 @@ int vtkLagrangeWedge::PointIndexFromIJK(int i, int j, int k, const int* order)
   int nbdy = (ibdy ? 1 : 0) + (jbdy ? 1 : 0) + (ijbdy ? 1 : 0) + (kbdy ? 1 : 0);
 
   // Return an invalid index given invalid coordinates
-  if (i < 0 || i > rsOrder || j < 0 || j > rsOrder || i + j > rsOrder || k < 0 || k > tOrder)
+  if (i < 0 || i > rsOrder || j < 0 || j > rsOrder || i + j > rsOrder || k < 0 || k > tOrder || order[3] == 21)
   {
     return -1;
   }
@@ -762,6 +891,22 @@ bool vtkLagrangeWedge::TransformApproxToCellParams(int subCell, double* pcoords)
   int tOrder = order[2];
   vtkVector3i ijk;
   bool orientation;
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
+  {
+    int triIdx = subCell % 6;
+    vtkVector3d triPt0 = vtkVector3d(&vtkLagrangeWedge21ParametricCoords[3 * vtkLagrangeWedge21EdgePoints[triIdx]]);
+    vtkVector3d triPt1 = vtkVector3d(&vtkLagrangeWedge21ParametricCoords[3 * vtkLagrangeWedge21EdgePoints[triIdx + 1]]);
+    vtkVector3d triPt2 = vtkVector3d(&vtkLagrangeWedge21ParametricCoords[3 * vtkLagrangeWedge21InteriorPt]);
+    vtkVector3d rst(pcoords);
+    vtkVector3d rDir = triPt1 - triPt0;
+    vtkVector3d sDir = triPt2 - triPt0;
+    pcoords[0] = triPt0[0] + rst[0] * rDir[0] + rst[1] * sDir[0];
+    pcoords[1] = triPt0[1] + rst[0] * rDir[1] + rst[1] * sDir[1];
+    pcoords[2] = (subCell / 6 ? 0.0 : 0.5) + 0.5 * rst[2];
+    return true;
+  }
+#endif
   if (!linearWedgeLocationFromSubId(
       subCell, rsOrder, tOrder,
       ijk[0], ijk[1], ijk[2], orientation))
@@ -838,7 +983,17 @@ bool vtkLagrangeWedge::TransformFaceToCellParams(int bdyFace, double* pcoords)
   return false;
 }
 
-/// Return the number of linear wedges we use to approximate this nonlinear wedge.
+/**\brief Return the number of linear wedges we use to approximate this nonlinear wedge.
+  *
+  * Note that \a order must be a pointer to an array of **four** integers.
+  * The first 3 values specify the order along the r, s, and t parametric axes
+  * of the wedge, respectively.
+  * The first 2 values must be identical.
+  *
+  * The final (fourth) value must be the number of points in the wedge's connectivity;
+  * it is used to handle the special case of 21-point wedges constructed from 7-point
+  * triangles (a serendipity element).
+  */
 int vtkLagrangeWedge::GetNumberOfApproximatingWedges(const int* order)
 {
   if (!order)
@@ -852,6 +1007,12 @@ int vtkLagrangeWedge::GetNumberOfApproximatingWedges(const int* order)
       "first 2 dimensions, but had orders "
       << order[0] << " and " << order[1] << " instead.");
   }
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
+  {
+    return 12;
+  }
+#endif
   return order[0] * order[0] * order[2];
 }
 
@@ -913,6 +1074,37 @@ vtkWedge* vtkLagrangeWedge::GetApproximateWedge(
   int i, j, k;
   bool orientation;
   const int* order = this->GetOrder();
+
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21)
+  {
+    if (subId < 0 || subId >= 12)
+    {
+      vtkWarningMacro("Bad subId " << subId << " for 21-point wedge.");
+      return nullptr;
+    }
+    for (int ic = 0; ic < 6; ++ic)
+    {
+      int corner = vtkLagrangeWedge21ApproxCorners[subId][ic];
+      vtkVector3d cp;
+      this->Points->GetPoint(corner, cp.GetData());
+      //std::cout << "    corner " << ic << " @ " << corner << ": " << cp << "\n";
+      //aconn[ic] = this->PointIds->GetId(corner);
+      // aconn[ic] = corner;
+      approx->PointIds->SetId(ic, doScalars ? corner : this->PointIds->GetId(corner));
+      approx->Points->SetPoint(ic, cp.GetData()); // this->Points->GetPoint(corner));
+      if (doScalars)
+      {
+        //std::cout << "    corner " << ic << " @ " << corner << ": " << scalarsIn->GetTuple(corner)[0] << "\n";
+        scalarsOut->SetTuple(ic,
+          scalarsIn->GetTuple(
+            corner));
+      }
+    }
+    return approx;
+  }
+#endif
+
   if (!linearWedgeLocationFromSubId(subId, order[0], order[2], i, j, k, orientation))
   {
     vtkWarningMacro(
@@ -954,9 +1146,27 @@ vtkWedge* vtkLagrangeWedge::GetApproximateWedge(
 
 vtkLagrangeTriangle* vtkLagrangeWedge::GetTriangularFace(int iAxis, int kk)
 {
+#ifdef VTK_21_POINT_WEDGE
+  const int nptsActual = this->Order[3];
+#endif
   const int rsOrder = this->Order[0];
 
   vtkLagrangeTriangle* result = this->BdyTri.GetPointer();
+#ifdef VTK_21_POINT_WEDGE
+  if (nptsActual == 21)
+  {
+    result->Points->SetNumberOfPoints(7);
+    result->PointIds->SetNumberOfIds(7);
+    result->Initialize();
+    for (int ii = 0; ii < 7; ++ii)
+    {
+      vtkIdType srcId = vtkLagrangeWedge21TriFace[kk == 0 ? 0 : 1][ii];
+      result->Points->SetPoint(ii, this->Points->GetPoint(srcId));
+      result->PointIds->SetId(ii, this->PointIds->GetId(srcId));
+    }
+    return result;
+  }
+#endif
   vtkIdType npts = (rsOrder + 1) * (rsOrder + 2) / 2;
   result->Points->SetNumberOfPoints(npts);
   result->PointIds->SetNumberOfIds(npts);
@@ -990,10 +1200,27 @@ vtkLagrangeTriangle* vtkLagrangeWedge::GetTriangularFace(int iAxis, int kk)
 
 vtkLagrangeQuadrilateral* vtkLagrangeWedge::GetQuadrilateralFace(int di, int dj)
 {
+  vtkLagrangeQuadrilateral* result = this->BdyQuad.GetPointer();
+#ifdef VTK_21_POINT_WEDGE
+  const int nptsActual = this->Order[3];
+  if (nptsActual == 21)
+  {
+    result->Points->SetNumberOfPoints(9);
+    result->PointIds->SetNumberOfIds(9);
+    result->Initialize();
+    int quadFace = (di == -dj ? 1 : (dj == 0 ? 0 : 2));
+    for (int ii = 0; ii < 9; ++ii)
+    {
+      vtkIdType srcId = vtkLagrangeWedge21QuadFace[quadFace][ii];
+      result->Points->SetPoint(ii, this->Points->GetPoint(srcId));
+      result->PointIds->SetId(ii, this->PointIds->GetId(srcId));
+    }
+    return result;
+  }
+#endif
   const int rsOrder = this->Order[0];
   const int tOrder = this->Order[2];
 
-  vtkLagrangeQuadrilateral* result = this->BdyQuad.GetPointer();
   vtkIdType npts = (rsOrder + 1) * (tOrder + 1);
   result->Points->SetNumberOfPoints(npts);
   result->PointIds->SetNumberOfIds(npts);
