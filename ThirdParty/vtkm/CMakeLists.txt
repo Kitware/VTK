@@ -4,13 +4,14 @@ if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vtk-m/CMakeLists.txt")
 endif()
 
 set(vtk_using_tbb OFF)
-set(vtkm_components_to_find Serial)
 if (VTK_SMP_IMPLEMENTATION_TYPE STREQUAL "TBB")
   set(vtk_using_tbb ON)
-  list(APPEND vtkm_components_to_find TBB)
 endif()
 
-set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
+if(NOT VTKm_ENABLE_TBB)
+  set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
+endif()
+
 set(VTKm_ENABLE_TESTING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
@@ -31,12 +32,17 @@ set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
 set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
 
 set(vtkm_LIBRARIES vtkm vtkm_cont)
+
+# These need to be explicitly set as the wrapping code doesn't properly handle
+# grabbing include directories from dependent interface libraries
+set(vtkm_INCLUDE_DIRS
+    ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/vtk-m
+    )
 vtk_module_export_info()
 add_subdirectory(vtk-m)
 
 vtk_target_export(vtkm)
 vtk_target_export(vtkm_cont)
-
-set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
 
 set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
