@@ -499,12 +499,12 @@ def volume (dataset) :
 
     filter = vtk.vtkCellSizeFilter()
     filter.SetInputData(ds)
-    filter.ComputePointOff()
+    filter.ComputeVertexCountOff()
     filter.ComputeLengthOff()
     filter.ComputeAreaOff()
     filter.Update()
 
-    varray = filter.GetOutput().GetCellData().GetArray("size")
+    varray = filter.GetOutput().GetCellData().GetArray("Volume")
     varray.SetName("CellQuality")
     ans = dsa.vtkDataArrayToVTKArray(varray, dataset)
 
