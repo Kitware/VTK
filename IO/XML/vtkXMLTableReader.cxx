@@ -36,9 +36,6 @@ vtkXMLTableReader::vtkXMLTableReader()
 
   this->RowDataTimeStep = nullptr;
   this->RowDataOffset = nullptr;
-
-  this->ColumnSelection = vtkDataArraySelection::New();
-  this->ColumnSelection->AddObserver(vtkCommand::ModifiedEvent, this->SelectionObserver);
 }
 
 //----------------------------------------------------------------------------
@@ -51,9 +48,6 @@ vtkXMLTableReader::~vtkXMLTableReader()
 
   delete[] this->RowDataTimeStep;
   delete[] this->RowDataOffset;
-
-  this->ColumnSelection->RemoveObserver(this->SelectionObserver);
-  this->ColumnSelection->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -263,38 +257,7 @@ vtkIdType vtkXMLTableReader::GetNumberOfPieces()
 int vtkXMLTableReader::ColumnIsEnabled(vtkXMLDataElement* eRowData)
 {
   const char* name = eRowData->GetAttribute("Name");
-  return (name && this->ColumnSelection->ArrayIsEnabled(name));
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLTableReader::GetNumberOfColumnArrays()
-{
-  return this->ColumnSelection->GetNumberOfArrays();
-}
-
-//----------------------------------------------------------------------------
-const char* vtkXMLTableReader::GetColumnArrayName(int index)
-{
-  return this->ColumnSelection->GetArrayName(index);
-}
-
-//----------------------------------------------------------------------------
-int vtkXMLTableReader::GetColumnArrayStatus(const char* name)
-{
-  return this->ColumnSelection->ArrayIsEnabled(name);
-}
-
-//----------------------------------------------------------------------------
-void vtkXMLTableReader::SetColumnArrayStatus(const char* name, int status)
-{
-  if (status)
-  {
-    this->ColumnSelection->EnableArray(name);
-  }
-  else
-  {
-    this->ColumnSelection->DisableArray(name);
-  }
+  return (name && this->ColumnArraySelection->ArrayIsEnabled(name));
 }
 
 //----------------------------------------------------------------------------
@@ -309,7 +272,7 @@ void vtkXMLTableReader::SetupOutputInformation(vtkInformation* outInfo)
   }
 
   // Initialize DataArraySelections to enable all that are present
-  this->SetDataArraySelections(this->RowDataElements[0], this->ColumnSelection);
+  this->SetDataArraySelections(this->RowDataElements[0], this->ColumnArraySelection);
 
   // Setup the Field Information for RowData.  We only need the
   // information from one piece because all pieces have the same set of arrays.
@@ -426,7 +389,7 @@ void vtkXMLTableReader::SetupOutputData()
     }
   }
 
-  if (this->NumberOfColumns != this->ColumnSelection->GetNumberOfArraysEnabled())
+  if (this->NumberOfColumns != this->ColumnArraySelection->GetNumberOfArraysEnabled())
   {
     vtkErrorMacro("Number of arrays has changed.");
     return;
@@ -587,7 +550,7 @@ int vtkXMLTableReader::RowDataNeedToReadTimeStep(vtkXMLDataElement* eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->ColumnSelection->GetEnabledArrayIndex(name);
+  int idx = this->ColumnArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps =

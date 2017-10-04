@@ -71,32 +71,6 @@ public:
    */
   void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
-  /**
-   * Get the number of columns arrays available in the input.
-   */
-  int GetNumberOfColumnArrays();
-
-  /**
-   * Get the name of the column with the given index in
-   * the input.
-   */
-  const char* GetColumnArrayName(int index);
-
-  //@{
-  /**
-   * Get/Set whether the column array with the given name is to
-   * be read.
-   */
-  int GetColumnArrayStatus(const char* name);
-  void SetColumnArrayStatus(const char* name, int status);
-  //@}
-
-  /**
-   * Get the data array selection tables used to configure which data
-   * arrays are loaded by the reader.
-   */
-  vtkGetObjectMacro(ColumnSelection, vtkDataArraySelection);
-
 protected:
   vtkXMLTableReader();
   ~vtkXMLTableReader() override;
@@ -213,11 +187,6 @@ protected:
   * The RowData element representations for each piece.
   */
   vtkXMLDataElement** RowDataElements;
-
-  /**
-  * The array selections.
-  */
-  vtkDataArraySelection* ColumnSelection;
 
   /**
   * The number of columns arrays in the output. Valid after

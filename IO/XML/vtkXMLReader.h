@@ -96,34 +96,39 @@ public:
    */
   vtkGetObjectMacro(PointDataArraySelection, vtkDataArraySelection);
   vtkGetObjectMacro(CellDataArraySelection, vtkDataArraySelection);
+  vtkGetObjectMacro(ColumnArraySelection, vtkDataArraySelection);
   //@}
 
   //@{
   /**
-   * Get the number of point or cell arrays available in the input.
+   * Get the number of point, cell or column arrays available in the input.
    */
   int GetNumberOfPointArrays();
   int GetNumberOfCellArrays();
+  int GetNumberOfColumnArrays();
   //@}
 
   //@{
   /**
-   * Get the name of the point or cell array with the given index in
+   * Get the name of the point, cell or column array with the given index in
    * the input.
    */
   const char* GetPointArrayName(int index);
   const char* GetCellArrayName(int index);
+  const char* GetColumnArrayName(int index);
   //@}
 
   //@{
   /**
-   * Get/Set whether the point or cell array with the given name is to
+   * Get/Set whether the point, cell or column array with the given name is to
    * be read.
    */
   int GetPointArrayStatus(const char* name);
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
+  int GetColumnArrayStatus(const char* name);
+  void SetColumnArrayStatus(const char* name, int status);
   //@}
 
   // For the specified port, copy the information this reader sets up in
@@ -313,6 +318,7 @@ protected:
   // The array selections.
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
+  vtkDataArraySelection* ColumnArraySelection;
 
   // The observer to modify this object when the array selections are
   // modified.
