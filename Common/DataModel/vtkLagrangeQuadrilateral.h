@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkLagrangeQuadrilateral();
-  ~vtkLagrangeQuadrilateral();
+  ~vtkLagrangeQuadrilateral() override;
 
   vtkQuad* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);

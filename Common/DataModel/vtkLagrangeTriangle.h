@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkLagrangeTriangle();
-  ~vtkLagrangeTriangle();
+  ~vtkLagrangeTriangle() override;
 
   vtkIdType GetNumberOfSubtriangles() const {return this->NumberOfSubtriangles;}
   vtkIdType ComputeNumberOfSubtriangles();

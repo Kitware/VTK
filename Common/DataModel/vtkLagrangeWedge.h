@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkLagrangeWedge();
-  ~vtkLagrangeWedge();
+  ~vtkLagrangeWedge() override;
 
   vtkWedge* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);

@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkLagrangeCurve();
-  ~vtkLagrangeCurve();
+  ~vtkLagrangeCurve() override;
 
   vtkLine* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);

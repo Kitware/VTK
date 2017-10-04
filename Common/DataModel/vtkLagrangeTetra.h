@@ -108,7 +108,7 @@ public:
 
 protected:
   vtkLagrangeTetra();
-  ~vtkLagrangeTetra();
+  ~vtkLagrangeTetra() override;
 
   vtkIdType GetNumberOfSubtetras() const { return this->NumberOfSubtetras; }
   vtkIdType ComputeNumberOfSubtetras();

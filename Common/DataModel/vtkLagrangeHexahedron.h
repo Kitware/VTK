@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkLagrangeHexahedron();
-  ~vtkLagrangeHexahedron();
+  ~vtkLagrangeHexahedron() override;
 
   vtkHexahedron* GetApprox();
   void PrepareApproxData(vtkPointData* pd, vtkCellData* cd, vtkIdType cellId, vtkDataArray* cellScalars);

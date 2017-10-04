@@ -66,7 +66,7 @@ public:
   static int NumberOfIntervals(const int order[N]);
 protected:
   vtkLagrangeInterpolation();
-  virtual ~vtkLagrangeInterpolation();
+  ~vtkLagrangeInterpolation() override;
 
   void PrepareForOrder(const int o[3]);
 
