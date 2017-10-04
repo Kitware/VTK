@@ -486,7 +486,11 @@ vtkQuad* vtkLagrangeQuadrilateral::GetApproximateQuad(
     scalarsOut->SetNumberOfTuples(4);
     }
   int i, j, k;
-  this->SubCellCoordinatesFromId(i, j, k, subId);
+  if (!this->SubCellCoordinatesFromId(i, j, k, subId))
+  {
+    vtkErrorMacro("Invalid subId " << subId);
+    return nullptr;
+  }
   // Get the point ids (and optionally scalars) for each of the 4 corners
   // in the approximating quadrilateral spanned by (i, i+1) x (j, j+1):
   for (int ic = 0; ic < 4; ++ic)

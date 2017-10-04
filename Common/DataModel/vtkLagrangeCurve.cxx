@@ -415,7 +415,11 @@ vtkLine* vtkLagrangeCurve::GetApproximateLine(
     scalarsOut->SetNumberOfTuples(2);
     }
   int i;
-  this->SubCellCoordinatesFromId(i, subId);
+  if (!this->SubCellCoordinatesFromId(i, subId))
+  {
+    vtkErrorMacro("Invalid subId " << subId);
+    return nullptr;
+  }
   // Get the point ids (and optionally scalars) for each of the 2 corners
   // in the approximating line spanned by (i, i+1):
   for (int ic = 0; ic < 2; ++ic)
