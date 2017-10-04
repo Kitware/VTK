@@ -354,7 +354,7 @@ int vtkThreadedImageAlgorithm::SplitExtent(int splitExt[6],
 // The old way to thread an image filter, before vtkSMPTools existed:
 // this mess is really a simple function. All it does is call
 // the ThreadedExecute method after setting the correct
-// extent for this thread. Its just a pain to calculate
+// extent for this thread. It's just a pain to calculate
 // the correct extent.
 static VTK_THREAD_RETURN_TYPE vtkThreadedImageAlgorithmThreadedExecute( void *arg )
 {

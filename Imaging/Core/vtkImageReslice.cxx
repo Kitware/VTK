@@ -1648,7 +1648,7 @@ void vtkGetCompositeFunc(
 
 //--------------------------------------------------------------------------
 // Check pointer memory alignment with 4-byte words
-inline int vtkImageReslicePointerAlignment(void *ptr, int n)
+inline bool vtkImageReslicePointerAlignment(void *ptr, int n)
 {
   return ((reinterpret_cast<uintptr_t>(ptr) % n) == 0);
 }
@@ -1979,13 +1979,13 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   }
 
   // extra scalar info for nearest-neighbor optimization
-  void *inPtr = scalars->GetVoidPointer(0);
+  const void *inPtr = scalars->GetVoidPointer(0);
   int inputScalarSize = scalars->GetDataTypeSize();
   int inputScalarType = scalars->GetDataType();
   int inComponents = interpolator->GetNumberOfComponents();
   int componentOffset = interpolator->GetComponentOffset();
   int borderMode = interpolator->GetBorderMode();
-  int *inExt = interpolator->GetExtent();
+  const int *inExt = interpolator->GetExtent();
   vtkIdType inInc[3];
   inInc[0] = scalars->GetNumberOfComponents();
   inInc[1] = inInc[0]*(inExt[1] - inExt[0] + 1);
@@ -1995,7 +1995,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   fullSize *= (inExt[5] - inExt[4] + 1);
   if (componentOffset > 0 && componentOffset + inComponents < inInc[0])
   {
-    inPtr = static_cast<char *>(inPtr) + inputScalarSize*componentOffset;
+    inPtr = static_cast<const char *>(inPtr) + inputScalarSize*componentOffset;
   }
 
   int interpolationMode = VTK_INT_MAX;
@@ -2108,7 +2108,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
         idY = outExt[2] - 1;
       }
 
-      // if Y index increased, then advance position along Z axis
+      // if Y index increased, then advance position along Y axis
       if (outIndex[1] > idY)
       {
         idY = outIndex[1];
@@ -2372,23 +2372,23 @@ struct vtkImageResliceRowInterpolate
 {
   static void Nearest(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    vtkInterpolationWeights *weights);
+    const vtkInterpolationWeights *weights);
 
   static void Nearest1(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    vtkInterpolationWeights *weights);
+    const vtkInterpolationWeights *weights);
 
   static void Nearest2(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    vtkInterpolationWeights *weights);
+    const vtkInterpolationWeights *weights);
 
   static void Nearest3(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    vtkInterpolationWeights *weights);
+    const vtkInterpolationWeights *weights);
 
   static void Nearest4(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    vtkInterpolationWeights *weights);
+    const vtkInterpolationWeights *weights);
 };
 
 //----------------------------------------------------------------------------
@@ -2396,7 +2396,7 @@ struct vtkImageResliceRowInterpolate
 template<class T>
 void vtkImageResliceRowInterpolate<T>::Nearest(
   void *&outPtr0, int idX, int idY, int idZ, int numscalars, int n,
-  vtkInterpolationWeights *weights)
+  const vtkInterpolationWeights *weights)
 {
   const vtkIdType *iX = weights->Positions[0] + idX;
   const vtkIdType *iY = weights->Positions[1] + idY;
@@ -2425,7 +2425,7 @@ void vtkImageResliceRowInterpolate<T>::Nearest(
 template<class T>
 void vtkImageResliceRowInterpolate<T>::Nearest1(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  vtkInterpolationWeights *weights)
+  const vtkInterpolationWeights *weights)
 {
   const vtkIdType *iX = weights->Positions[0] + idX;
   const vtkIdType *iY = weights->Positions[1] + idY;
@@ -2449,7 +2449,7 @@ void vtkImageResliceRowInterpolate<T>::Nearest1(
 template<class T>
 void vtkImageResliceRowInterpolate<T>::Nearest2(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  vtkInterpolationWeights *weights)
+  const vtkInterpolationWeights *weights)
 {
   const vtkIdType *iX = weights->Positions[0] + idX;
   const vtkIdType *iY = weights->Positions[1] + idY;
@@ -2475,7 +2475,7 @@ void vtkImageResliceRowInterpolate<T>::Nearest2(
 template<class T>
 void vtkImageResliceRowInterpolate<T>::Nearest3(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  vtkInterpolationWeights *weights)
+  const vtkInterpolationWeights *weights)
 {
   const vtkIdType *iX = weights->Positions[0] + idX;
   const vtkIdType *iY = weights->Positions[1] + idY;
@@ -2502,7 +2502,7 @@ void vtkImageResliceRowInterpolate<T>::Nearest3(
 template<class T>
 void vtkImageResliceRowInterpolate<T>::Nearest4(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  vtkInterpolationWeights *weights)
+  const vtkInterpolationWeights *weights)
 {
   const vtkIdType *iX = weights->Positions[0] + idX;
   const vtkIdType *iY = weights->Positions[1] + idY;
@@ -2530,7 +2530,7 @@ void vtkImageResliceRowInterpolate<T>::Nearest4(
 // and different scalar types
 void vtkGetSummationFunc(
   void (**summation)(void *&outPtr, int idX, int idY, int idZ, int numscalars,
-                     int n, vtkInterpolationWeights *weights),
+                     int n, const vtkInterpolationWeights *weights),
   int scalarType, int numScalars)
 {
   *summation = nullptr;
@@ -2854,7 +2854,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   // get type-specific functions
   void (*summation)(void *&out, int idX, int idY, int idZ, int numscalars,
-                    int n, vtkInterpolationWeights *weights) = nullptr;
+                    int n, const vtkInterpolationWeights *weights) = nullptr;
   void (*conversion)(void *&out, const F *in, int numscalars, int n) = nullptr;
   void (*setpixels)(void *&out, const void *in, int numscalars, int n) = nullptr;
   vtkGetSummationFunc(&summation, scalarType, outComponents);
