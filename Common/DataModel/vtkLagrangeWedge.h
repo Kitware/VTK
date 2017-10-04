@@ -129,8 +129,8 @@ protected:
   vtkNew<vtkLagrangeCurve> BdyEdge;
 
 private:
-  vtkLagrangeWedge(const vtkLagrangeWedge&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeWedge&) VTK_DELETE_FUNCTION;
+  vtkLagrangeWedge(const vtkLagrangeWedge&) = delete;
+  void operator=(const vtkLagrangeWedge&) = delete;
 };
 
 inline int vtkLagrangeWedge::GetParametricCenter(double center[3])

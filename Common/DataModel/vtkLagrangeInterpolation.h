@@ -74,8 +74,8 @@ protected:
   std::vector<double> DerivSpace;
 
 private:
-  vtkLagrangeInterpolation(const vtkLagrangeInterpolation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeInterpolation&) VTK_DELETE_FUNCTION;
+  vtkLagrangeInterpolation(const vtkLagrangeInterpolation&) = delete;
+  void operator=(const vtkLagrangeInterpolation&) = delete;
 };
 
 template<int N>

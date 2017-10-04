@@ -117,8 +117,8 @@ protected:
   vtkNew<vtkLagrangeCurve> EdgeCell;
 
 private:
-  vtkLagrangeQuadrilateral(const vtkLagrangeQuadrilateral&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeQuadrilateral&) VTK_DELETE_FUNCTION;
+  vtkLagrangeQuadrilateral(const vtkLagrangeQuadrilateral&) = delete;
+  void operator=(const vtkLagrangeQuadrilateral&) = delete;
 };
 
 inline int vtkLagrangeQuadrilateral::GetParametricCenter(double center[3])

@@ -120,8 +120,8 @@ protected:
   vtkNew<vtkLagrangeCurve> EdgeCell;
 
 private:
-  vtkLagrangeHexahedron(const vtkLagrangeHexahedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangeHexahedron&) VTK_DELETE_FUNCTION;
+  vtkLagrangeHexahedron(const vtkLagrangeHexahedron&) = delete;
+  void operator=(const vtkLagrangeHexahedron&) = delete;
 };
 
 inline int vtkLagrangeHexahedron::GetParametricCenter(double center[3])
