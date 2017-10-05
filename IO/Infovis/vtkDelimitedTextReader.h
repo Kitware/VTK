@@ -300,6 +300,17 @@ public:
   vtkBooleanMacro(OutputPedigreeIds, bool);
   //@}
 
+  //@{
+  /**
+   * If on, also add in the tab (i.e. '\t') character as a field delimiter.
+   * We add this specially since applications may have a more
+   * difficult time doing this. Defaults to off.
+   */
+  vtkSetMacro(AddTabFieldDelimiter, bool);
+  vtkGetMacro(AddTabFieldDelimiter, bool);
+  vtkBooleanMacro(AddTabFieldDelimiter, bool);
+  //@}
+
   /**
    * Returns a human-readable description of the most recent error, if any.
    * Otherwise, returns an empty string.  Note that the result is only valid
@@ -351,6 +362,7 @@ protected:
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
   bool OutputPedigreeIds;
+  bool AddTabFieldDelimiter;
   vtkStdString LastError;
   vtkTypeUInt32 ReplacementCharacter;
 
@@ -361,4 +373,3 @@ private:
 };
 
 #endif
-

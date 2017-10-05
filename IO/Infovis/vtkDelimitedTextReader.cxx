@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
+#include <string>
 #include <set>
 #include <vector>
 
@@ -384,6 +385,7 @@ vtkDelimitedTextReader::vtkDelimitedTextReader() :
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = true;
   this->OutputPedigreeIds = false;
+  this->AddTabFieldDelimiter = false;
   this->UnicodeOutputArrays = false;
   this->FieldDelimiterCharacters = nullptr;
   this->SetFieldDelimiterCharacters(",");
@@ -456,7 +458,9 @@ void vtkDelimitedTextReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PedigreeIdArrayName: "
     << this->PedigreeIdArrayName << endl;
   os << indent << "OutputPedigreeIds: "
-    << (this->OutputPedigreeIds? "true" : "false") << endl;
+    << (this->OutputPedigreeIds ? "true" : "false") << endl;
+  os << indent << "AddTabFieldDelimiter: "
+    << (this->AddTabFieldDelimiter ? "true" : "false") << endl;
 }
 
 void vtkDelimitedTextReader::SetInputString(const char *in)
@@ -589,7 +593,9 @@ int vtkDelimitedTextReader::RequestData(
     }
 
     if (!this->PedigreeIdArrayName)
+    {
       throw std::runtime_error("You must specify a pedigree id array name");
+    }
 
     istream* input_stream_pt = nullptr;
     ifstream file_stream;
@@ -638,8 +644,13 @@ int vtkDelimitedTextReader::RequestData(
       tstring[0] = this->StringDelimiter;
       // don't use Set* methods since they change the MTime in
       // RequestData() !!!!!
+      std::string fieldDelimiterCharacters = this->FieldDelimiterCharacters;
+      if (this->AddTabFieldDelimiter)
+      {
+        fieldDelimiterCharacters.push_back('\t');
+      }
       this->UnicodeFieldDelimiters =
-            vtkUnicodeString::from_utf8(this->FieldDelimiterCharacters);
+            vtkUnicodeString::from_utf8(fieldDelimiterCharacters);
       this->UnicodeStringDelimiters =
         vtkUnicodeString::from_utf8(tstring);
       this->UnicodeOutputArrays = false;
