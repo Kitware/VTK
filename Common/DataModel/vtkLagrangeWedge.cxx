@@ -933,7 +933,7 @@ vtkWedge* vtkLagrangeWedge::GetApproximateWedge(
     int corner = this->PointIndexFromIJK(
       i + deltas[orientation ? 0 : 1][ic % 3][0],
       j + deltas[orientation ? 0 : 1][ic % 3][1],
-      k + (ic / 3 ? 1 : 0));
+      k + ((ic / 3) ? 1 : 0));
     vtkVector3d cp;
     this->Points->GetPoint(corner, cp.GetData());
     //std::cout << "    corner " << ic << " @ " << corner << ": " << cp << "\n";

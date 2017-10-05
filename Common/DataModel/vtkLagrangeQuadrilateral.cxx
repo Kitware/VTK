@@ -496,8 +496,8 @@ vtkQuad* vtkLagrangeQuadrilateral::GetApproximateQuad(
   for (int ic = 0; ic < 4; ++ic)
     {
     int corner = this->PointIndexFromIJK(
-      i + (((ic + 1) / 2) % 2 ? 1 : 0),
-      j + ((ic / 2) % 2 ? 1 : 0),
+      i + ((((ic + 1) / 2) % 2) ? 1 : 0),
+      j + (((ic / 2) % 2) ? 1 : 0),
       0);
     vtkVector3d cp;
     this->Points->GetPoint(corner, cp.GetData());
