@@ -17,6 +17,17 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
+vtk_module_dep_includes(vtkm)
+list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
+
+if(VTKm_ENABLE_TBB)
+  vtkm_configure_component_TBB()
+endif()
+
+if(VTKm_ENABLE_CUDA)
+  vtkm_configure_component_CUDA()
+endif()
+
 set(lib_srcs
   vtkmlib/PolyDataConverter.cxx
   vtkmlib/UnstructuredGridConverter.cxx
@@ -136,7 +147,7 @@ set(${vtk-module}_HDRS
   )
 
 #we are building with CUDA support
-if(VTKm_CUDA_FOUND)
+if(VTKm_ENABLE_CUDA)
 
   #need to find cudadevrt
   find_library(CUDA_cudadevrt_LIBRARY cudadevrt
@@ -222,13 +233,8 @@ else()
                      )
 endif()
 
-#We need to system up VTK-m as a system include dir so that modules
-#such as wrapping that depend on vtkAcceleratorsVTKm properly find
-#the headers
-target_include_directories(vtkAcceleratorsVTKm PUBLIC ${VTKm_INCLUDE_DIRS})
-
-vtk_module_link_libraries(vtkAcceleratorsVTKm LINK_PRIVATE ${VTKm_LIBRARIES})
-target_compile_options(vtkAcceleratorsVTKm PRIVATE ${VTKm_COMPILE_OPTIONS})
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})
+target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
 
 if (MSVC)
   # MSVC has limits on obj size that are exceeded by this module so we need
