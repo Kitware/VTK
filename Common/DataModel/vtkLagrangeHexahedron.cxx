@@ -659,9 +659,9 @@ vtkHexahedron* vtkLagrangeHexahedron::GetApproximateHex(
   for (int ic = 0; ic < 8; ++ic)
     {
     int corner = this->PointIndexFromIJK(
-      i + (((ic + 1) / 2) % 2 ? 1 : 0),
-      j + ((ic / 2) % 2 ? 1 : 0),
-      k + (ic / 4 ? 1 : 0));
+      i + ((((ic + 1) / 2) % 2) ? 1 : 0),
+      j + (((ic / 2) % 2) ? 1 : 0),
+      k + ((ic / 4) ? 1 : 0));
     vtkVector3d cp;
     this->Points->GetPoint(corner, cp.GetData());
     approx->Points->SetPoint(ic, cp.GetData());
