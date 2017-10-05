@@ -315,7 +315,7 @@ void vtkChartXY::Update()
     for (int i = 0; i < static_cast<int>(this->ChartPrivate->PlotCorners.size()); ++i)
     {
       int visible = 0;
-      for (unsigned int j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
+      for (vtkIdType j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
       {
         if (vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j))->GetVisible())
         {
@@ -573,7 +573,7 @@ void vtkChartXY::RecalculatePlotTransforms()
       // their input data when necessary.
       vtkRectd shiftScale(
         xAxis->GetShift(), yAxis->GetShift(), xAxis->GetScalingFactor(), yAxis->GetScalingFactor());
-      for (unsigned int j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
+      for (vtkIdType j = 0; j < this->ChartPrivate->PlotCorners[i]->GetNumberOfItems(); ++j)
       {
         vtkPlot* plot = vtkPlot::SafeDownCast(this->ChartPrivate->PlotCorners[i]->GetItem(j));
         if (plot)

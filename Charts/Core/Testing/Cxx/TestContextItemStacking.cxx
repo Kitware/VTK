@@ -70,14 +70,14 @@ int TestContextItemStacking(int ,char * [] )
   test5->SetLabel("5");
 
   // Build up our multi-level scene
-  unsigned int index1 = rootItem->AddItem(test1);
-  unsigned int index2 = rootItem->AddItem(test2);
-  unsigned int index3 = rootItem->AddItem(test3);
-  unsigned int index4 = rootItem->AddItem(test4);
-  unsigned int index41 = test4->AddItem(test41);
-  unsigned int index411 = test41->AddItem(test411);
-  unsigned int index42 = test4->AddItem(test42);
-  unsigned int index5 = rootItem->AddItem(test5);
+  vtkIdType index1 = rootItem->AddItem(test1);
+  vtkIdType index2 = rootItem->AddItem(test2);
+  vtkIdType index3 = rootItem->AddItem(test3);
+  vtkIdType index4 = rootItem->AddItem(test4);
+  vtkIdType index41 = test4->AddItem(test41);
+  vtkIdType index411 = test41->AddItem(test411);
+  vtkIdType index42 = test4->AddItem(test42);
+  vtkIdType index5 = rootItem->AddItem(test5);
   view->GetScene()->AddItem(rootItem);
 
   // Check indexes
