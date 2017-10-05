@@ -47,18 +47,18 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
   unsigned char    *tptr;
   T                *dptr;
   unsigned short   *nptr;
-  unsigned char    *gptr = NULL;
+  unsigned char    *gptr = nullptr;
   float            *v, *t;
   unsigned char    *rgbaArray = me->GetRGBAArray();
   float            *gradientOpacityArray;
   unsigned char    *gradientMagnitudes;
-  unsigned short   *encodedNormals = NULL;
-  float            *redDiffuseShadingTable = NULL;
-  float            *greenDiffuseShadingTable = NULL;
-  float            *blueDiffuseShadingTable = NULL;
-  float            *redSpecularShadingTable = NULL;
-  float            *greenSpecularShadingTable = NULL;
-  float            *blueSpecularShadingTable = NULL;
+  unsigned short   *encodedNormals = nullptr;
+  float            *redDiffuseShadingTable = nullptr;
+  float            *greenDiffuseShadingTable = nullptr;
+  float            *blueDiffuseShadingTable = nullptr;
+  float            *redSpecularShadingTable = nullptr;
+  float            *greenSpecularShadingTable = nullptr;
+  float            *blueSpecularShadingTable = nullptr;
   int              shade;
   float            tmpval;
   int              cropping, croppingFlags;
@@ -465,7 +465,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkVolumeTextureMapper2D)
 //----------------------------------------------------------------------------
 
@@ -475,7 +475,7 @@ vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D()
   this->TargetTextureSize[1]  = 512;
   this->MaximumNumberOfPlanes =   0;
   this->MaximumStorageSize    =   0;
-  this->Texture               = NULL;
+  this->Texture               = nullptr;
   this->TextureSize           = 0;
 
   VTK_LEGACY_BODY(vtkVolumeTextureMapper2D::vtkVolumeTextureMapper2D,"VTK 7.0");
@@ -752,7 +752,7 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads( vtkRenderer *ren,
   // Otherwise, we need to generate textures. We can throw away any
   // saved textures
   delete [] this->Texture;
-  this->Texture = NULL;
+  this->Texture = nullptr;
   this->TextureSize = 0;
 
   // Will all the textures fit in the allotted storage?

@@ -64,7 +64,7 @@
 // workaround to get it to work.
 //
 // In practical terms, this means if a method in this file calls add_children,
-// it should set vtkLabelHierarchy::Implementation::Current to a non-NULL
+// it should set vtkLabelHierarchy::Implementation::Current to a non-nullptr
 // vtkLabelHierarchy prior to calling add_children.
 //
 // Be warned: there is some global/static state here that may bite somebody

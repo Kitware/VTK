@@ -444,7 +444,7 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << " (NULL)\n";
+    os << " (nullptr)\n";
   }
 
 }
@@ -620,15 +620,11 @@ bool vtkLabeledContourMapper::PrepareRender(vtkRenderer *ren, vtkActor *act)
     // Beware future maintainers: The following line of code has been carefully
     // crafted to reach a zen-like harmony of compatibility between various
     // compilers that have differing syntactic requirements for creating a
-    // pair containing a NULL:
+    // pair containing a nullptr:
     // - Pedantically strict C++11 compilers (e.g. MSVC 2012) will not compile:
-    //     std::make_pair<double, X*>(someDouble, NULL);
+    //     std::make_pair<double, X*>(someDouble, nullptr);
     //   or any make_pair call with explicit template args and value arguments,
     //   as the signature expects an rvalue.
-    // - MSVC 2010 compilers also reject:
-    //     std::pair<double, X*>(someDouble, NULL);
-    //   unless the NULL is cast explicitly to X* (as we do below) due to known
-    //   issues with pointer casting.
 
     // The value will be replaced in the next loop:
     labelMap.insert(std::pair<double, vtkTextProperty*>(

@@ -61,7 +61,7 @@ int getNumberOfChildren(vtkDataObjectTree *tree)
 }
 }
 
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper);
 vtkCxxSetObjectMacro(vtkGlyph3DMapper, BlockAttributes, vtkCompositeDataDisplayAttributes);
 

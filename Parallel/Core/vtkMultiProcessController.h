@@ -162,7 +162,7 @@ public:
 
   /**
    * This convenience method returns the controller associated with the
-   * local process.  It returns NULL until the processes are spawned.
+   * local process.  It returns nullptr until the processes are spawned.
    * It is better if you hang on to the controller passed as an argument to the
    * SingleMethod or MultipleMethod functions.
    */
@@ -183,7 +183,7 @@ public:
    * this controller.  This operation is collective across all processes
    * defined in the group.  It is undefined what will happen if the group is not
    * the same on all processes.  This method must be called by all processes in
-   * the controller regardless of whether they are in the group.  NULL is
+   * the controller regardless of whether they are in the group.  nullptr is
    * returned on all process not in the group.
    */
   virtual vtkMultiProcessController *CreateSubController(

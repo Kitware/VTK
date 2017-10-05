@@ -94,7 +94,7 @@ public:
   //@{
   /**
    * Set the array to be used for sizing nodes.
-   * If this is set to an empty string or NULL (the default),
+   * If this is set to an empty string or nullptr (the default),
    * then all leaf nodes (or all nodes, when SizeLeafNodesOnly is false)
    * will be assigned a unit size.
    */
@@ -136,8 +136,8 @@ protected:
    * Create an array to hold radii, named appropriately (depends on \a NodeSizeArrayName)
    * and initialized to either (a) -1.0 for each node or (b) a deep copy of an existing array.
    * @param numVertices  The number of vertices on the tree.
-   * @param initialValue The starting value of each node's radius. Only used when \a inputRadii is NULL.
-   * @param inputRadii   Either NULL or the address of another array to be copied into the output array
+   * @param initialValue The starting value of each node's radius. Only used when \a inputRadii is nullptr.
+   * @param inputRadii   Either nullptr or the address of another array to be copied into the output array
    * @retval             The array of node radii to be set on the output
    */
   vtkDoubleArray* CreateRadii( vtkIdType numVertices, double initialValue, vtkDataArray* inputRadii );

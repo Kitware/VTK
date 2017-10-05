@@ -170,7 +170,7 @@ void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
 {
   double bds[4];
   // If we have a viewport, use it. Otherwise, GetBoundingBox() calls
-  // UpdateRectange(NULL) which builds a (probably-too-low-resolution) image
+  // UpdateRectange(nullptr) which builds a (probably-too-low-resolution) image
   // to determine its size.
   this->UpdateRectangle(vport);
   this->GetBoundingBox(vport, bds);

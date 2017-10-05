@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkOptiXActorNode);
 
 //------------------------------------------------------------------------------
 vtkOptiXActorNode::vtkOptiXActorNode()
-  : LastUsedMapper(NULL)
+  : LastUsedMapper(nullptr)
 {
 }
 
@@ -134,8 +134,8 @@ vtkMTimeType vtkOptiXActorNode::GetMTime()
   {
     mtime = act->GetMTime();
   }
-  vtkDataObject * dobj = NULL;
-  vtkPolyData *poly = NULL;
+  vtkDataObject * dobj = nullptr;
+  vtkPolyData *poly = nullptr;
   if (mapper)
   {
     //if (act->GetRedrawMTime() > mtime)

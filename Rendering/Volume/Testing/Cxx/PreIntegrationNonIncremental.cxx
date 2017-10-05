@@ -34,6 +34,6 @@ static vtkUnstructuredGridVolumeRayIntegrator *CreatePreIntegration()
 
 int PreIntegrationNonIncremental(int argc, char *argv[])
 {
-  return ExerciseUnstructuredGridRayCastMapper(argc, argv, NULL,
+  return ExerciseUnstructuredGridRayCastMapper(argc, argv, nullptr,
                                                CreatePreIntegration, 0, 0);
 }

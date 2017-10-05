@@ -61,7 +61,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, i
     return 0;
   }
 
-  array = env->GetDoubleArrayElements(ret,NULL);
+  array = env->GetDoubleArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -86,7 +86,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int
     return 0;
   }
 
-  array = env->GetDoubleArrayElements(ret,NULL);
+  array = env->GetDoubleArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -111,7 +111,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -136,7 +136,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *ptr, i
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -161,7 +161,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr,
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -186,7 +186,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -211,7 +211,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env, float *ptr, int 
     return 0;
   }
 
-  array = env->GetFloatArrayElements(ret,NULL);
+  array = env->GetFloatArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -236,7 +236,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *ptr, int 
     return 0;
   }
 
-  array = env->GetShortArrayElements(ret,NULL);
+  array = env->GetShortArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -261,7 +261,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned c
     return 0;
   }
 
-  array = env->GetByteArrayElements(ret,NULL);
+  array = env->GetByteArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -287,7 +287,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *ptr, int siz
     return 0;
   }
 
-  array = env->GetLongArrayElements(ret,NULL);
+  array = env->GetLongArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -313,7 +313,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env,uns
     return 0;
   }
 
-  array = env->GetLongArrayElements(ret,NULL);
+  array = env->GetLongArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -339,7 +339,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,u
     return 0;
   }
 
-  array = env->GetShortArrayElements(ret,NULL);
+  array = env->GetShortArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -365,7 +365,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env,uns
     return 0;
   }
 
-  array = env->GetByteArrayElements(ret,NULL);
+  array = env->GetByteArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -391,7 +391,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env,unsig
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -417,7 +417,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *ptr, int siz
     return 0;
   }
 
-  array = env->GetCharArrayElements(ret,NULL);
+  array = env->GetCharArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -443,7 +443,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
     return 0;
   }
 
-  array = env->GetIntArrayElements(ret,NULL);
+  array = env->GetIntArrayElements(ret,nullptr);
 
   // copy the data
   for (i = 0; i < size; i++)
@@ -459,8 +459,8 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
 static void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
 {
   jclass cls = env->FindClass(name);
-  /* if cls is NULL, an exception has already been thrown */
-  if (cls != NULL) {
+  /* if cls is nullptr, an exception has already been thrown */
+  if (cls != nullptr) {
     env->ThrowNew(cls, msg);
   }
   /* free the local ref */
@@ -469,8 +469,8 @@ static void JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
 
 static char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
 {
-  if (jstr == NULL) {
-    return NULL;
+  if (jstr == nullptr) {
+    return nullptr;
   }
   jbyteArray bytes = 0;
   jthrowable exc;
@@ -496,7 +496,7 @@ static char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr)
     }
     env->GetByteArrayRegion(bytes, 0, len,
       (jbyte *)result);
-    result[len] = 0; /* NULL-terminate */
+    result[len] = 0; /* nullptr-terminate */
   } else {
     env->DeleteLocalRef(exc);
   }
@@ -544,11 +544,11 @@ JNIEXPORT void vtkJavaVoidFunc(void* f)
     JNIEnv *e;
     // it should already be atached
 #ifdef JNI_VERSION_1_2
-    iprm->vm->AttachCurrentThread((void **)(&e),NULL);
+    iprm->vm->AttachCurrentThread((void **)(&e),nullptr);
 #else
-    iprm->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+    iprm->vm->AttachCurrentThread((JNIEnv_**)(&e),nullptr);
 #endif
-    e->CallVoidMethod(iprm->uobj,iprm->mid,NULL);
+    e->CallVoidMethod(iprm->uobj,iprm->mid,nullptr);
   }
 }
 
@@ -561,9 +561,9 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
   JNIEnv *e;
   // it should already be atached
 #ifdef JNI_VERSION_1_2
-  arg2->vm->AttachCurrentThread((void **)(&e),NULL);
+  arg2->vm->AttachCurrentThread((void **)(&e),nullptr);
 #else
-  arg2->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+  arg2->vm->AttachCurrentThread((JNIEnv_**)(&e),nullptr);
 #endif
   // free the structure
   e->DeleteGlobalRef(arg2->uobj);
@@ -572,7 +572,7 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 
 vtkJavaCommand::vtkJavaCommand()
 {
-  this->vm = NULL;
+  this->vm = nullptr;
 }
 
 vtkJavaCommand::~vtkJavaCommand()
@@ -580,9 +580,9 @@ vtkJavaCommand::~vtkJavaCommand()
   JNIEnv *e;
   // it should already be atached
 #ifdef JNI_VERSION_1_2
-  this->vm->AttachCurrentThread((void **)(&e),NULL);
+  this->vm->AttachCurrentThread((void **)(&e),nullptr);
 #else
-  this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+  this->vm->AttachCurrentThread((JNIEnv_**)(&e),nullptr);
 #endif
   // free the structure
   e->DeleteGlobalRef(this->uobj);
@@ -596,10 +596,10 @@ void vtkJavaCommand::Execute(vtkObject *, unsigned long, void *)
     JNIEnv *e;
     // it should already be atached
 #ifdef JNI_VERSION_1_2
-    this->vm->AttachCurrentThread((void **)(&e),NULL);
+    this->vm->AttachCurrentThread((void **)(&e),nullptr);
 #else
-    this->vm->AttachCurrentThread((JNIEnv_**)(&e),NULL);
+    this->vm->AttachCurrentThread((JNIEnv_**)(&e),nullptr);
 #endif
-    e->CallVoidMethod(this->uobj,this->mid,NULL);
+    e->CallVoidMethod(this->uobj,this->mid,nullptr);
   }
 }

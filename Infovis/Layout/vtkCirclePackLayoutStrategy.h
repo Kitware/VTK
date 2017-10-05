@@ -57,7 +57,7 @@ public:
      * bounds of each vertex as a tuple in a data array.
      * (Xcenter, Ycenter, Radius).
 
-     * The sizeArray may be NULL, or may contain the desired
+     * The sizeArray may be nullptr, or may contain the desired
      * size of each vertex in the tree.
      */
     virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,

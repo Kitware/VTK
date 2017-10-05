@@ -274,7 +274,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   return this->ReadyShaderProgram(shader, cap);
 }
 
-// return NULL if there is an issue
+// return nullptr if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   const char *vertexCode, const char *fragmentCode, const char *geometryCode,
   vtkTransformFeedback *cap)
@@ -295,7 +295,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   return this->ReadyShaderProgram(shader, cap);
 }
 
-// return NULL if there is an issue
+// return nullptr if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
     vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {

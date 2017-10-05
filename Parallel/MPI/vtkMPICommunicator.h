@@ -202,8 +202,8 @@ public:
    * or ANY_SOURCE; tag -- the tag value.  Outputs are:
    * flag -- True if a message matches; actualSource -- the rank
    * sending the message (useful if ANY_SOURCE is used) if flag is True
-   * and actualSource isn't NULL; size -- the length of the message in
-   * bytes if flag is true (only set if size isn't NULL). The return
+   * and actualSource isn't nullptr; size -- the length of the message in
+   * bytes if flag is true (only set if size isn't nullptr). The return
    * value is 1 for success and 0 otherwise.
    */
   int Iprobe(int source, int tag, int* flag, int* actualSource);

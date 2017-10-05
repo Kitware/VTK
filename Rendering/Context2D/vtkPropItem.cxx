@@ -95,6 +95,6 @@ void vtkPropItem::PrintSelf(std::ostream &os, vtkIndent indent)
   }
   else
   {
-    os << "(NULL)\n";
+    os << "(nullptr)\n";
   }
 }

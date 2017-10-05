@@ -33,9 +33,9 @@
 
 vtkStandardNewMacro(vtkOculusRenderWindowInteractor);
 
-void (*vtkOculusRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
-void *vtkOculusRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
+void (*vtkOculusRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))nullptr;
+void *vtkOculusRenderWindowInteractor::ClassExitMethodArg = (void *)nullptr;
+void (*vtkOculusRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
@@ -206,7 +206,7 @@ void vtkOculusRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
+    this->InvokeEvent(vtkCommand::ExitEvent,nullptr);
   }
   else if (this->ClassExitMethod)
   {

@@ -103,7 +103,7 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child);
+            block, (block % 2) ? nullptr : child);
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -171,7 +171,7 @@ int TestOptiXCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)ren, optix, NULL);
+    SetPipelineControlPoints((vtkOpenGLRenderer*)ren, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(ren);
 

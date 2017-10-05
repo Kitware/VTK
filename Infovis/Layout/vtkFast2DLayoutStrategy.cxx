@@ -268,7 +268,7 @@ void vtkFast2DLayoutStrategy::Layout()
   // Do I have a graph to layout
   if (this->Graph == nullptr)
   {
-    vtkErrorMacro("Graph Layout called with Graph==NULL, call SetGraph(g) first");
+    vtkErrorMacro("Graph Layout called with Graph==nullptr, call SetGraph(g) first");
     this->LayoutComplete = 1;
     return;
   }

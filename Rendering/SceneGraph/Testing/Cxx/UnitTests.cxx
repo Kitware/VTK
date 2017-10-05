@@ -187,10 +187,10 @@ int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   wvn->Delete();
   vnc->Delete();
 
-  vtkViewNode *vn = NULL;
+  vtkViewNode *vn = nullptr;
   vtkViewNodeFactory *vnf = vtkViewNodeFactory::New();
   cerr << "CREATE pre override" << endl;
-  vnc = NULL;
+  vnc = nullptr;
   vn = vnf->CreateNode(vnc);
   if (vn)
   {

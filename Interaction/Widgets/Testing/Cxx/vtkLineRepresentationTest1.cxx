@@ -135,34 +135,34 @@ int vtkLineRepresentationTest1(int , char * [] )
   vtkSmartPointer<vtkProperty> prop = node1->GetEndPointProperty();
   if (prop == nullptr)
   {
-    std::cout << "End Point Property is NULL." << std::endl;
+    std::cout << "End Point Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedEndPointProperty();
   if (prop == nullptr)
   {
-    std::cout << "Selected End Point Property is NULL." << std::endl;
+    std::cout << "Selected End Point Property is nullptr." << std::endl;
   }
 
   prop = node1->GetEndPoint2Property();
   if (prop == nullptr)
   {
-    std::cout << "End Point2 Property is NULL." << std::endl;
+    std::cout << "End Point2 Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedEndPoint2Property();
   if (prop == nullptr)
   {
-    std::cout << "Selected End Point2 Property is NULL." << std::endl;
+    std::cout << "Selected End Point2 Property is nullptr." << std::endl;
   }
 
   prop = node1->GetLineProperty();
   if (prop == nullptr)
   {
-    std::cout << "Line Property is NULL." << std::endl;
+    std::cout << "Line Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedLineProperty();
   if (prop == nullptr)
   {
-    std::cout << "Selected Line Property is NULL." << std::endl;
+    std::cout << "Selected Line Property is nullptr." << std::endl;
   }
 
   TEST_SET_GET_INT_RANGE(node1, Tolerance, 2, 99);

@@ -185,7 +185,7 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
-  vtkRTTestResult *bestTestResult = NULL;
+  vtkRTTestResult *bestTestResult = nullptr;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
   for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)

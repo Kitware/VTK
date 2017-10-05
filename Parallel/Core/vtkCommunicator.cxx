@@ -179,7 +179,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
   switch(data_type)
   {
   case -1:
-    // NULL data.
+    // nullptr data.
     return 1;
 
     //error on types we can't send
@@ -324,7 +324,7 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
   this->Receive(&data_type, 1, remoteHandle, tag);
   if (data_type < 0)
   {
-    // NULL data object.
+    // nullptr data object.
     return nullptr;
   }
   //manufacture a data object of the proper type to fill
@@ -451,7 +451,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
   }
 
   if (type == -1)
-  { // This indicates a NULL object was sent. Do nothing.
+  { // This indicates a nullptr object was sent. Do nothing.
     return 1;
   }
 

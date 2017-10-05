@@ -281,7 +281,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
     cout << "after readpixel." << endl;
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
     cout << "after pbodownload." << endl;
@@ -483,7 +483,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
 

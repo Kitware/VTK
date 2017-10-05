@@ -178,7 +178,7 @@ bool vtkMultiProcessStream::Empty()
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(double array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::double_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int ) );
@@ -189,7 +189,7 @@ void vtkMultiProcessStream::Push(double array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(float array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::float_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -200,7 +200,7 @@ void vtkMultiProcessStream::Push(float array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(int array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::int32_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -211,7 +211,7 @@ void vtkMultiProcessStream::Push(int array[], unsigned int size)
 //----------------------------------------------------------------------------
 void vtkMultiProcessStream::Push(char array[], unsigned int size)
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::char_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -223,7 +223,7 @@ void vtkMultiProcessStream::Push(char array[], unsigned int size)
 void vtkMultiProcessStream::Push(
     unsigned int array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uint32_value );
   this->Internals->Push(
        reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -235,7 +235,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     unsigned char array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uchar_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -246,7 +246,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     vtkTypeInt64 array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::int64_value );
   this->Internals->Push(
       reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );
@@ -258,7 +258,7 @@ void vtkMultiProcessStream::Push(
 void vtkMultiProcessStream::Push(
     vtkTypeUInt64 array[], unsigned int size )
 {
-  assert( "pre: array is NULL!" && (array != nullptr) );
+  assert( "pre: array is nullptr!" && (array != nullptr) );
   this->Internals->Data.push_back( vtkInternals::uint64_value );
   this->Internals->Push(
      reinterpret_cast<unsigned char*>( &size ), sizeof(unsigned int) );

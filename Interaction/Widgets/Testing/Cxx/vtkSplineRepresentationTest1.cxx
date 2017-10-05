@@ -45,23 +45,23 @@ int vtkSplineRepresentationTest1(int , char * [] )
   vtkSmartPointer<vtkProperty> prop = node1->GetHandleProperty();
   if (prop == nullptr)
   {
-    std::cout << "Handle Property is NULL." << std::endl;
+    std::cout << "Handle Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedHandleProperty();
   if (prop == nullptr)
   {
-    std::cout << "Selected Handle Property is NULL." << std::endl;
+    std::cout << "Selected Handle Property is nullptr." << std::endl;
   }
 
   prop = node1->GetLineProperty();
   if (prop == nullptr)
   {
-    std::cout << "Line Property is NULL." << std::endl;
+    std::cout << "Line Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedLineProperty();
   if (prop == nullptr)
   {
-    std::cout << "Selected Line Property is NULL." << std::endl;
+    std::cout << "Selected Line Property is nullptr." << std::endl;
   }
 
   node1->SetNumberOfHandles(10);

@@ -602,7 +602,7 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
     }
 
     // Get the various functions for this index. There is no chance of
-    // these being NULL since the property will create them if they were
+    // these being nullptr since the property will create them if they were
     // not defined
     sotf          = this->Property->GetScalarOpacity(c);
     gotf          = this->Property->GetGradientOpacity(c);

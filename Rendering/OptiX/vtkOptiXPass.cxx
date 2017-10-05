@@ -62,7 +62,7 @@ vtkStandardNewMacro(vtkOptiXPass);
 //------------------------------------------------------------------------------
 vtkOptiXPass::vtkOptiXPass()
 {
-  this->SceneGraph = NULL;
+  this->SceneGraph = nullptr;
 
   vtkOptiXViewNodeFactory *vnf = vtkOptiXViewNodeFactory::New();
   this->Internals = vtkOptiXPassInternals::New();
@@ -90,7 +90,7 @@ vtkOptiXPass::vtkOptiXPass()
 //------------------------------------------------------------------------------
 vtkOptiXPass::~vtkOptiXPass()
 {
-  this->SetSceneGraph(NULL);
+  this->SetSceneGraph(nullptr);
   this->Internals->Delete();
   this->Internals = 0;
   if (this->CameraPass)

@@ -1056,7 +1056,7 @@ void vtkInteractorStyle::ProcessEvents(vtkObject* vtkNotUsed(object),
     case vtkCommand::TimerEvent:
     {
       // The calldata should be a timer id, but because of legacy we check
-      // and make sure that it is non-NULL.
+      // and make sure that it is non-nullptr.
       int timerId = (calldata ? *(reinterpret_cast<int*>(calldata)) : 1);
       if (self->HandleObservers &&
           self->HasObserver(vtkCommand::TimerEvent))

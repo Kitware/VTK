@@ -97,7 +97,7 @@ protected:
   /**
    * Convert the selection to a type appropriate for sharing with other
    * representations through vtkAnnotationLink.
-   * If the selection cannot be applied to this representation, returns NULL.
+   * If the selection cannot be applied to this representation, returns nullptr.
    */
   vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
 

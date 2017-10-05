@@ -25,7 +25,7 @@
 #include "vtkWindow.h"
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkImageMapper)
 
 //----------------------------------------------------------------------------

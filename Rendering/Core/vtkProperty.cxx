@@ -43,7 +43,7 @@ public:
 vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkProperty)
 
 // Construct object with object color, ambient color, diffuse color,

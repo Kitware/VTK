@@ -137,7 +137,7 @@ vtkGraphLayout::IsLayoutComplete()
   }
 
   // This is an error condition
-  vtkErrorMacro("IsLayoutComplete called with layout strategy==NULL");
+  vtkErrorMacro("IsLayoutComplete called with layout strategy==nullptr");
   return 0;
 }
 
@@ -212,7 +212,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     this->LastInputMTime = input->GetMTime();
 
     // Give the layout strategy a pointer to the input.  We set it to
-    // NULL first to force the layout algorithm to re-initialize
+    // nullptr first to force the layout algorithm to re-initialize
     // itself.  This is necessary in case the input is the same data
     // object with a newer mtime.
     this->LayoutStrategy->SetGraph(nullptr);

@@ -33,9 +33,9 @@
 
 vtkStandardNewMacro(vtkAndroidRenderWindowInteractor);
 
-void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))NULL;
-void *vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
-void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
+void (*vtkAndroidRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void *))nullptr;
+void *vtkAndroidRenderWindowInteractor::ClassExitMethodArg = (void *)nullptr;
+void (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))nullptr;
 
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
@@ -273,7 +273,7 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
     int events;
     struct android_poll_source* source;
 
-    ident = ALooper_pollAll(500, NULL, &events, (void**)&source);
+    ident = ALooper_pollAll(500, nullptr, &events, (void**)&source);
     if (ident == ALOOPER_POLL_TIMEOUT)
     {
       // just watch for resize events
@@ -302,7 +302,7 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
     {
       LOGW("Processing Event");
       // Process this event.
-      if (source != NULL)
+      if (source != nullptr)
       {
         source->process(this->AndroidApplication, source);
       }
@@ -332,7 +332,7 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
   {
     case APP_CMD_INIT_WINDOW:
       // The window is being shown, get it ready.
-      if (this->RenderWindow != NULL)
+      if (this->RenderWindow != nullptr)
       {
         LOGW("Creating Window");
         this->RenderWindow->SetWindowId(this->AndroidApplication->window);
@@ -394,7 +394,7 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
                                  nChar, nRepCnt,
                                  keysym);
     this->SetAltKey(metaState & AMETA_ALT_ON);
-    this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+    this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
     return;
   }
 
@@ -403,14 +403,14 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
                                nChar, nRepCnt,
                                keysym);
   this->SetAltKey(metaState & AMETA_ALT_ON);
-  this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+  this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
   if (keysym && strlen(keysym) == 1)
   {
     this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
                                  metaState & AMETA_SHIFT_ON,
                                  keysym[0],
                                  nRepCnt);
-    this->InvokeEvent(vtkCommand::CharEvent, NULL);
+    this->InvokeEvent(vtkCommand::CharEvent, nullptr);
   }
 }
 
@@ -569,10 +569,10 @@ void vtkAndroidRenderWindowInteractor::Initialize()
       int events;
       struct android_poll_source* source;
 
-      if ((ident = ALooper_pollAll(-1, NULL, &events, (void**)&source)) >= 0)
+      if ((ident = ALooper_pollAll(-1, nullptr, &events, (void**)&source)) >= 0)
       {
         // Process this event.
-        if (source != NULL)
+        if (source != nullptr)
         {
           source->process(this->AndroidApplication, source);
         }
@@ -696,7 +696,7 @@ void vtkAndroidRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
   {
-    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
+    this->InvokeEvent(vtkCommand::ExitEvent,nullptr);
   }
   else if (this->ClassExitMethod)
   {

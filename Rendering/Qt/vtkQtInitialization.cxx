@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkQtInitialization);
 
 vtkQtInitialization::vtkQtInitialization()
 {
-  this->Application = NULL;
+  this->Application = nullptr;
   if(!QApplication::instance())
   {
     int argc = 0;

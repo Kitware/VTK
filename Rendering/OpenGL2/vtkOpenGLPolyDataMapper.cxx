@@ -2419,7 +2419,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           static_cast<GLuint>(numVerts - 1),
                           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
                           GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
+                          nullptr);
       this->Primitives[i].IBO->Release();
 
       int stride = (mode == GL_POINTS ? 1 : (mode == GL_LINES ? 2 : 3));

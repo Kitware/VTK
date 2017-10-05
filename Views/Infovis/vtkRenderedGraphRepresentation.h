@@ -292,7 +292,7 @@ public:
 
   /**
    * Set the layout strategy to a cosmic tree layout. nodeSizeArrayName is
-   * the array used to size the circles (default is NULL, which makes leaf
+   * the array used to size the circles (default is nullptr, which makes leaf
    * nodes the same size). sizeLeafNodesOnly only uses the leaf node sizes,
    * and computes the parent size as the sum of the child sizes (default true).
    * layoutDepth stops layout at a certain depth (default is 0, which does the

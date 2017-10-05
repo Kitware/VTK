@@ -96,7 +96,7 @@ int vtkBoostKruskalMinimumSpanningTree::RequestData(
   vtkDataArray* edgeWeightArray = input->GetEdgeData()->GetArray(this->EdgeWeightArrayName);
 
   // Does the edge-weight array exist at all?
-  if (edgeWeightArray == NULL)
+  if (edgeWeightArray == nullptr)
   {
     vtkErrorMacro("Could not find edge-weight array named "
                   << this->EdgeWeightArrayName);

@@ -657,7 +657,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   renderWindow2->Render();
   renderWindow1->MakeCurrent();
 //  interactor1->SetKeyEventInformation(0, 0, 0, 0, "9");
-//  interactor1->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+//  interactor1->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
 //  int retval = vtkTesting::Test(argc, argv, renderWindow1, 15);
 //  if (retval == vtkRegressionTester::DO_INTERACTOR)
 //    {

@@ -172,7 +172,7 @@ void vtkWebGLObject::GetBinaryData(int part, vtkUnsignedCharArray* buffer)
 {
   if (!buffer)
   {
-    vtkErrorMacro("Buffer must not be NULL.");
+    vtkErrorMacro("Buffer must not be nullptr.");
     return;
   }
 

@@ -338,11 +338,11 @@ int TestSplineWidget( int argc, char *argv[] )
 //  renWin->Render();
 //  iren->SetEventPosition(200,200);
 //  iren->SetKeyCode('r');
-//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
 //  ren1->ResetCameraClippingRange();
 //  renWin->Render();
 //  iren->SetKeyCode('t');
-//  iren->InvokeEvent(vtkCommand::CharEvent,NULL);
+//  iren->InvokeEvent(vtkCommand::CharEvent,nullptr);
 
   // Playback recorded events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =

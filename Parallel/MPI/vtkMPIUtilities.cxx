@@ -30,8 +30,8 @@ namespace vtkMPIUtilities
 void Printf(vtkMPIController* comm, const char* format, ...)
 {
   // Sanity checks
-  assert("pre: MPI controller is NULL!" && (comm != nullptr) );
-  assert("pre: format argument is NULL!" && (format != nullptr) );
+  assert("pre: MPI controller is nullptr!" && (comm != nullptr) );
+  assert("pre: format argument is nullptr!" && (format != nullptr) );
 
   if( comm->GetLocalProcessId() == 0 )
   {
@@ -49,8 +49,8 @@ void Printf(vtkMPIController* comm, const char* format, ...)
 void SynchronizedPrintf(vtkMPIController* comm, const char* format, ...)
 {
   // Sanity checks
-  assert("pre: MPI controller is NULL!" && (comm != nullptr) );
-  assert("pre: format argument is NULL!" && (format != nullptr) );
+  assert("pre: MPI controller is nullptr!" && (comm != nullptr) );
+  assert("pre: format argument is nullptr!" && (format != nullptr) );
 
   int rank     = comm->GetLocalProcessId();
   int numRanks = comm->GetNumberOfProcesses();

@@ -150,7 +150,7 @@ int vtkDistanceToCamera::RequestData(
 
   if (!this->Renderer)
   {
-    vtkErrorMacro("Renderer must be non-NULL");
+    vtkErrorMacro("Renderer must be non-nullptr");
     return 0;
   }
 

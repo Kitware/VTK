@@ -1571,7 +1571,7 @@ void vtkCompositePolyDataMapper2::BuildRenderValues(
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
       if (child == nullptr)
       {
-        // speeds things up when dealing with NULL blocks (which is common with
+        // speeds things up when dealing with nullptr blocks (which is common with
         // AMRs).
         flat_index++;
         continue;

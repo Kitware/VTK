@@ -283,7 +283,7 @@ protected:
   //@{
   /**
    * Place line primitives into a vtkPolyData from the input data.  idsToPlot
-   * is a list of which rows/samples should be plotted.  If NULL, all
+   * is a list of which rows/samples should be plotted.  If nullptr, all
    * rows/samples are plotted.
    */
   virtual int PlaceLines(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);

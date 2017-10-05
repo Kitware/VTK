@@ -109,7 +109,7 @@ public:
   /**
    * A default representation, of which there is none, is created. Note
    * that the superclasses vtkAbstractWidget::GetRepresentation()
-   * method returns NULL.
+   * method returns nullptr.
    */
   void CreateDefaultRepresentation() override
     {this->WidgetRep = nullptr;}

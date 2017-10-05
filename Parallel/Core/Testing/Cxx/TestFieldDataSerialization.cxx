@@ -149,8 +149,8 @@ vtkPointData* GetSamplePointData(const int numTuples)
 //------------------------------------------------------------------------------
 bool AreArraysEqual(vtkDataArray *A1, vtkDataArray *A2)
 {
-  assert( "pre: array 1 is NULL!" && (A1 != nullptr) );
-  assert( "pre: array 2 is NULL!" && (A2 != nullptr) );
+  assert( "pre: array 1 is nullptr!" && (A1 != nullptr) );
+  assert( "pre: array 2 is nullptr!" && (A2 != nullptr) );
 
   if( A1->GetDataType() != A2->GetDataType() )
   {
@@ -253,8 +253,8 @@ bool AreArraysEqual(vtkDataArray *A1, vtkDataArray *A2)
 //------------------------------------------------------------------------------
 bool AreFieldsEqual(vtkFieldData *F1, vtkFieldData *F2)
 {
-  assert("pre: field 1 is NULL!" && (F1 !=nullptr) );
-  assert("pre: field 2 is NULL!" && (F2 !=nullptr) );
+  assert("pre: field 1 is nullptr!" && (F1 !=nullptr) );
+  assert("pre: field 2 is nullptr!" && (F2 !=nullptr) );
 
   if( F1->GetNumberOfArrays() != F2->GetNumberOfArrays() )
   {
@@ -290,7 +290,7 @@ int TestFieldDataMetaData()
 
   // STEP 0: Construct the field data
   vtkPointData *field = GetSamplePointData(5);
-  assert("pre: field is NULL!" && (field != nullptr) );
+  assert("pre: field is nullptr!" && (field != nullptr) );
 
   // STEP 1: Serialize the field data in a bytestream
   vtkMultiProcessStream bytestream;
@@ -317,9 +317,9 @@ int TestFieldDataMetaData()
     cerr << "ERROR: NumberOfArrays=" << NumberOfArrays
          << " expected val=" << field->GetNumberOfArrays() << "\n";
   }
-  assert("pre: names arrays is NULL" && (names != nullptr) );
-  assert("pre: datatypes is NULL" && (datatypes != nullptr) );
-  assert("pre: dimensions is NULL" && (dimensions != nullptr) );
+  assert("pre: names arrays is nullptr" && (names != nullptr) );
+  assert("pre: datatypes is nullptr" && (datatypes != nullptr) );
+  assert("pre: dimensions is nullptr" && (dimensions != nullptr) );
 
   for( int i=0; i < NumberOfArrays; ++i )
   {
@@ -361,7 +361,7 @@ int TestFieldData()
   int rc = 0;
 
   vtkPointData *field = GetSamplePointData(5);
-  assert("pre: field is NULL!" && (field != nullptr) );
+  assert("pre: field is nullptr!" && (field != nullptr) );
 
   vtkMultiProcessStream bytestream;
   vtkFieldDataSerializer::Serialize( field, bytestream );

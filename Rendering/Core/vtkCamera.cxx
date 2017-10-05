@@ -1758,7 +1758,7 @@ void vtkCamera::SetEyePosition(double eyePosition[3])
 {
   if(!eyePosition)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr eye position\n");
     return;
   }
 
@@ -1774,7 +1774,7 @@ void vtkCamera::GetEyePosition(double eyePosition[3])
 {
   if(!eyePosition)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL eye position\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr eye position\n");
     return;
   }
 
@@ -1788,7 +1788,7 @@ void vtkCamera::GetEyePlaneNormal(double normal[3])
 {
   if(!normal)
   {
-    vtkErrorMacro(<< "ERROR: Invalid or NULL normal\n");
+    vtkErrorMacro(<< "ERROR: Invalid or nullptr normal\n");
     return;
   }
 

@@ -204,7 +204,7 @@ void vtkBillboardTextActor3D::PrintSelf(std::ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Input: " << (this->Input ? this->Input : "(NULL)") << "\n"
+  os << indent << "Input: " << (this->Input ? this->Input : "(nullptr)") << "\n"
      << indent << "TextProperty: " << this->TextProperty << "\n"
      << indent << "RenderedDPI: " << this->RenderedDPI << "\n"
      << indent << "InputMTime: " << this->InputMTime << "\n"

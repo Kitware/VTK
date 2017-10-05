@@ -145,7 +145,7 @@ int vtkEdgeLayout::RequestData(vtkInformation *vtkNotUsed(request),
   this->InternalGraph->DeepCopyEdgePoints(input);
 
   // Give the layout strategy a pointer to the input.  We set it to
-  // NULL first to force the layout algorithm to re-initialize
+  // nullptr first to force the layout algorithm to re-initialize
   // itself.  This is necessary in case the input is the same data
   // object with a newer mtime.
   this->LayoutStrategy->SetGraph(nullptr);

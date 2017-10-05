@@ -29,15 +29,15 @@
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
-  this->GradientOpacityArray    = NULL;
-  this->RGBAArray               = NULL;
+  this->GradientOpacityArray    = nullptr;
+  this->RGBAArray               = nullptr;
   this->ArraySize               = -1;
   this->SampleDistance          = 1.0;
   this->GradientEstimator       = vtkFiniteDifferenceGradientEstimator::New();
   this->GradientShader          = vtkEncodedGradientShader::New();
   this->NumberOfComponents      = 1;
 
-  this->RenderWindow            = NULL;
+  this->RenderWindow            = nullptr;
   this->DataOrigin[0]           = 0.0;
   this->DataOrigin[1]           = 0.0;
   this->DataOrigin[2]           = 0.0;
@@ -48,7 +48,7 @@ vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 
 vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
 {
-  this->SetGradientEstimator( NULL );
+  this->SetGradientEstimator( nullptr );
   this->GradientShader->Delete();
 
   delete [] this->RGBAArray;
@@ -69,10 +69,10 @@ void vtkVolumeTextureMapper::SetGradientEstimator(
   if ( this->GradientEstimator )
   {
     this->GradientEstimator->UnRegister(this);
-    this->GradientEstimator = NULL;
+    this->GradientEstimator = nullptr;
   }
 
-  // If we are passing in a non-NULL estimator, register it
+  // If we are passing in a non-nullptr estimator, register it
   if ( gradest )
   {
     gradest->Register( this );
@@ -221,13 +221,13 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   }
   else
   {
-    this->EncodedNormals = NULL;
-    this->RedDiffuseShadingTable = NULL;
-    this->GreenDiffuseShadingTable = NULL;
-    this->BlueDiffuseShadingTable = NULL;
-    this->RedSpecularShadingTable = NULL;
-    this->GreenSpecularShadingTable = NULL;
-    this->BlueSpecularShadingTable = NULL;
+    this->EncodedNormals = nullptr;
+    this->RedDiffuseShadingTable = nullptr;
+    this->GreenDiffuseShadingTable = nullptr;
+    this->BlueDiffuseShadingTable = nullptr;
+    this->RedSpecularShadingTable = nullptr;
+    this->GreenSpecularShadingTable = nullptr;
+    this->BlueSpecularShadingTable = nullptr;
   }
 
   // If we have non-constant opacity on the gradient magnitudes,
@@ -239,7 +239,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
   }
   else
   {
-    this->GradientMagnitudes = NULL;
+    this->GradientMagnitudes = nullptr;
   }
 
   this->GetInput()->GetOrigin( this->DataOrigin );

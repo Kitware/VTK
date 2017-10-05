@@ -519,7 +519,7 @@ void vtkOpenGLStickMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                         static_cast<GLuint>(numVerts - 1),
                         static_cast<GLsizei>(this->Primitives[PrimitiveTris].IBO->IndexCount),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        nullptr);
     this->Primitives[PrimitiveTris].IBO->Release();
   }
 }

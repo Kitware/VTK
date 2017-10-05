@@ -63,14 +63,14 @@ vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty)
 
 vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 {
-  this->Input = NULL;
-  this->Renderer = NULL;
+  this->Input = nullptr;
+  this->Renderer = nullptr;
 
   this->VCoord = vtkCoordinate::New();
 
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
-  this->FieldDataName = NULL;
+  this->FieldDataName = nullptr;
 
   this->TextRotationArrayName = 0;
   this->SetTextRotationArrayName("TextRotation");
@@ -116,10 +116,10 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 
 vtkQtTreeRingLabelMapper::~vtkQtTreeRingLabelMapper()
 {
-  this->SetRenderer(NULL);
+  this->SetRenderer(nullptr);
 
-  this->SetLabelTextProperty(NULL);
-  this->SetFieldDataName(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetFieldDataName(nullptr);
 
   this->SetTextRotationArrayName( 0 );
 
@@ -207,10 +207,10 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
     // figure out what to label, and if we can label it
-    abstractData = NULL;
-    numericData = NULL;
-    stringData = NULL;
-    uStringData = NULL;
+    abstractData = nullptr;
+    numericData = nullptr;
+    stringData = nullptr;
+    uStringData = nullptr;
     switch (this->LabelMode)
     {
       case VTK_LABEL_SCALARS:
@@ -246,7 +246,7 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_FIELD_DATA:
       {
       int arrayNum;
-      if (this->FieldDataName != NULL)
+      if (this->FieldDataName != nullptr)
       {
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
       }
@@ -543,7 +543,7 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
   newDim[1] = height;
 
   // We are done with the coordinate, so release the viewport
-  this->VCoord->SetViewport(NULL);
+  this->VCoord->SetViewport(nullptr);
 
   return return_value;
 }

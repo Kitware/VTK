@@ -142,7 +142,7 @@ vtkBoostBreadthFirstSearchTree::vtkBoostBreadthFirstSearchTree()
 
 vtkBoostBreadthFirstSearchTree::~vtkBoostBreadthFirstSearchTree()
 {
-  this->SetArrayName(NULL);
+  this->SetArrayName(nullptr);
 }
 
 // Description:
@@ -232,7 +232,7 @@ int vtkBoostBreadthFirstSearchTree::RequestData(
     vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->ArrayName);
 
     // Does the array exist at all?
-    if (abstract == NULL)
+    if (abstract == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->ArrayName);
       return 0;

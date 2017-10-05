@@ -59,7 +59,7 @@ public:
    * For rectangular layout, this is
    * (xmin, xmax, ymin, ymax).
 
-   * The sizeArray may be NULL, or may contain the desired
+   * The sizeArray may be nullptr, or may contain the desired
    * size of each vertex in the tree.
    */
   virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,

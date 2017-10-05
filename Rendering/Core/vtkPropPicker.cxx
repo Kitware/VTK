@@ -129,7 +129,7 @@ int vtkPropPicker::PickProp3DPoint(
 {
   this->PickFromProps = pickfrom;
   int ret = this->PickProp3DPoint(pos, renderer);
-  this->PickFromProps = NULL;
+  this->PickFromProps = nullptr;
   return ret;
 }
 

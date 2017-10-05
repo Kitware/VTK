@@ -122,7 +122,7 @@ void vtkBoostBreadthFirstSearch::SetOriginSelection(vtkSelection* s)
 void vtkBoostBreadthFirstSearch::SetOriginVertex(vtkIdType index)
 {
   this->OriginVertexIndex = index;
-  this->InputArrayName = NULL; // Reset any origin set by another method
+  this->InputArrayName = nullptr; // Reset any origin set by another method
   this->Modified();
 }
 
@@ -211,7 +211,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
   if (this->OriginFromSelection)
   {
     vtkSelection* selection = vtkSelection::GetData(inputVector[1], 0);
-    if (selection == NULL)
+    if (selection == nullptr)
     {
       vtkErrorMacro("OriginFromSelection set but selection input undefined.");
       return 0;
@@ -235,7 +235,7 @@ int vtkBoostBreadthFirstSearch::RequestData(
       vtkAbstractArray* abstract = input->GetVertexData()->GetAbstractArray(this->InputArrayName);
 
       // Does the array exist at all?
-      if (abstract == NULL)
+      if (abstract == nullptr)
       {
         vtkErrorMacro("Could not find array named " << this->InputArrayName);
         return 0;

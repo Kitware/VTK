@@ -33,9 +33,9 @@ vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkTextRenderer);
 vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 {
   this->Implementation = new Internals;
-  // Always defined but user may set to NULL.
+  // Always defined but user may set to nullptr.
   this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
-  this->FontUtil = vtkTextRenderer::New(); // Never a NULL moment.
+  this->FontUtil = vtkTextRenderer::New(); // Never a nullptr moment.
   this->LabelSizeArrayName = nullptr;
   this->SetLabelSizeArrayName( "LabelSize" );
   this->DPI = 72;
@@ -121,13 +121,13 @@ int vtkLabelSizeCalculator::RequestData(
 
   if ( ! this->Implementation->FontProperties[0] )
   {
-    vtkErrorMacro( "NULL default font property, so I cannot compute label sizes." );
+    vtkErrorMacro( "nullptr default font property, so I cannot compute label sizes." );
     return 0;
   }
 
   if ( ! this->LabelSizeArrayName )
   {
-    vtkErrorMacro( "NULL value for LabelSizeArrayName." );
+    vtkErrorMacro( "nullptr value for LabelSizeArrayName." );
     return 0;
   }
 

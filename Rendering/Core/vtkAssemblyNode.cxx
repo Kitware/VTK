@@ -52,7 +52,7 @@ void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
     this->Matrix->Delete();
     this->Matrix = nullptr;
   }
-  // return if NULL matrix specified
+  // return if nullptr matrix specified
   if (!matrix)
   {
     return;

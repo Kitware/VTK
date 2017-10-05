@@ -2887,7 +2887,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
 
   this->ReplaceShaderRenderPass(vertexShader, fragmentShader, vol, true);
 
-  // Every volume should have a property (cannot be NULL);
+  // Every volume should have a property (cannot be nullptr);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
   int independentComponents = volumeProperty->GetIndependentComponents();
 

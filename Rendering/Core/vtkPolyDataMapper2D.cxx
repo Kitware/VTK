@@ -26,7 +26,7 @@
 #include "vtkVariantArray.h"
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper2D)
 //----------------------------------------------------------------------------
 

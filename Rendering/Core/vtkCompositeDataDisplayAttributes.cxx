@@ -289,7 +289,7 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
       if (child == nullptr)
       {
-        // Speeds things up when dealing with NULL blocks (which is common with AMRs).
+        // Speeds things up when dealing with nullptr blocks (which is common with AMRs).
         continue;
       }
       vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(

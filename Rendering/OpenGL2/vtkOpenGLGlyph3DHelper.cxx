@@ -369,7 +369,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
                             static_cast<GLuint>(numVerts - 1),
                             static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
                             GL_UNSIGNED_INT,
-                            reinterpret_cast<const GLvoid *>(NULL));
+                            nullptr);
       }
       this->Primitives[i].IBO->Release();
     }
@@ -478,7 +478,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       glDrawElementsInstanced(mode,
         static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
         GL_UNSIGNED_INT,
-        reinterpret_cast<const GLvoid *>(NULL),
+        nullptr,
         numPts);
 #else
       if (GLEW_ARB_instanced_arrays)
@@ -486,7 +486,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
         glDrawElementsInstancedARB(mode,
           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
           GL_UNSIGNED_INT,
-          reinterpret_cast<const GLvoid *>(NULL),
+          nullptr,
           numPts);
       }
 #endif

@@ -79,12 +79,12 @@ vtkStandardNewMacro(vtkClassifyVolume);
 
 vtkClassifyVolume::vtkClassifyVolume()
 {
-  this->TransferFunction = NULL;
+  this->TransferFunction = nullptr;
 }
 
 vtkClassifyVolume::~vtkClassifyVolume()
 {
-  this->SetTransferFunction(NULL);
+  this->SetTransferFunction(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -178,8 +178,8 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
   outputPort = trifilter->GetOutputPort(0);
 
   // Make multiple scalars if necessary.
-  vtkArrayCalculator *calc = NULL;
-  vtkAssignAttribute *assign = NULL;
+  vtkArrayCalculator *calc = nullptr;
+  vtkAssignAttribute *assign = nullptr;
   if (UseMultipleTransferFunctions)
   {
     calc = vtkArrayCalculator::New();
@@ -197,7 +197,7 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
   }
 
   // Convert to cell centered data if requested.
-  vtkPointDataToCellData *celldata = NULL;
+  vtkPointDataToCellData *celldata = nullptr;
   if (UseCellData)
   {
     celldata = vtkPointDataToCellData::New();
@@ -207,7 +207,7 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
   }
 
   // Classify the data if testing dependent components.
-  vtkClassifyVolume *classify = NULL;
+  vtkClassifyVolume *classify = nullptr;
   if (UseDependentComponents)
   {
     classify = vtkClassifyVolume::New();

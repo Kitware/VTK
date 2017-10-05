@@ -88,7 +88,7 @@ public:
   // Create a new list of associated observers
   void CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object);
 
-  // vtkCollection doesn't allow NULL values. Instead we use a vector
+  // vtkCollection doesn't allow nullptr values. Instead we use a vector
   // containing vtkObject to allow using 0 as a valid value because it is
   // allowed the return a picker event if he is not associated to a specific
   // object.

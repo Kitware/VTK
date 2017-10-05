@@ -339,7 +339,7 @@ bool PickingManagerTest::TestObjectOwnership()
   client = nullptr;
 
   res = VTK_VERIFY(this->CheckState(0, nullptr, 0),
-                   "Error after setting client object to NULL:") && res;
+                   "Error after setting client object to nullptr:") && res;
 
   return res;
 }

@@ -37,7 +37,7 @@ void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   }
   else
   {
-    os << indent << "FreeTypeTools: (NULL)" << endl;
+    os << indent << "FreeTypeTools: (nullptr)" << endl;
   }
 
   if (this->MathTextUtilities)
@@ -47,7 +47,7 @@ void vtkMathTextFreeTypeTextRenderer::PrintSelf(ostream &os, vtkIndent indent)
   }
   else
   {
-    os << indent << "MathTextUtilities: (NULL)" << endl;
+    os << indent << "MathTextUtilities: (nullptr)" << endl;
   }
 }
 

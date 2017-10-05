@@ -101,7 +101,7 @@ void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
 
 // Get the next format char and, if char is 'O', the classname.
 // The classname is terminated with space, not with null.
-// If there is no classname for an arg, classname will be set to NULL.
+// If there is no classname for an arg, classname will be set to nullptr.
 bool vtkPythonOverloadHelper::next(
   const char **format, const char **classname)
 {

@@ -78,14 +78,14 @@ int TestOptiXPass(int argc, char* argv[])
     else
     {
       cerr << "Render via GL" << endl;
-      renderer->SetPass(NULL);
+      renderer->SetPass(nullptr);
     }
     renWin->Render();
   }
 
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, NULL);
+  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

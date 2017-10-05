@@ -53,7 +53,7 @@ vtkTexturedButtonRepresentation2D::vtkTexturedButtonRepresentation2D()
   this->TextureArray = new vtkTextureArray;
 
   // Anchor point assuming that the button is anchored in 3D
-  // If NULL, then the placement occurs in display space
+  // If nullptr, then the placement occurs in display space
   this->Anchor = nullptr;
 
 }

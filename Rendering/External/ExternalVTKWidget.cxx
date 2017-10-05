@@ -28,7 +28,7 @@ ExternalVTKWidget::ExternalVTKWidget()
 //----------------------------------------------------------------------------
 ExternalVTKWidget::~ExternalVTKWidget()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 }
 
 //----------------------------------------------------------------------------

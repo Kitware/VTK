@@ -1086,7 +1086,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
                         static_cast<GLuint>(numPts - 1),
                         static_cast<GLsizei>(this->Tris.IBO->IndexCount),
                         GL_UNSIGNED_INT,
-                        reinterpret_cast<const GLvoid *>(NULL));
+                        nullptr);
     this->Tris.IBO->Release();
     this->Tris.VAO->Release();
     this->VBO->Release();

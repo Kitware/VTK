@@ -378,7 +378,7 @@ void vtkLODActor::DeleteOwnLODs()
   }
 
   // delete the filters used to create the LODs ...
-  // The NULL check should not be necessary, but for sanity ...
+  // The nullptr check should not be necessary, but for sanity ...
   this->SetLowResFilter(nullptr);
   this->SetMediumResFilter(nullptr);
 }
@@ -386,7 +386,7 @@ void vtkLODActor::DeleteOwnLODs()
 //----------------------------------------------------------------------------
 void vtkLODActor::Modified()
 {
-  if (this->Device) // Will be NULL only during destruction of this class.
+  if (this->Device) // Will be nullptr only during destruction of this class.
   {
     this->Device->Modified();
   }

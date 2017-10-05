@@ -57,7 +57,7 @@ public:
 
   /**
    * Give access to the controller that launched the process.
-   * Initial value is NULL.
+   * Initial value is nullptr.
    */
   vtkMultiProcessController *GetController();
 

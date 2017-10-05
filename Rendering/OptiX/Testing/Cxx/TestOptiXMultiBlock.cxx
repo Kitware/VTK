@@ -70,7 +70,7 @@ int TestOptiXMultiBlock(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, NULL);
+    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

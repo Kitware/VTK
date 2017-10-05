@@ -35,7 +35,7 @@
 
 #include <cassert>
 
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper)
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
@@ -257,7 +257,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   if(goodSoFar && input==nullptr)
   {
-    vtkErrorMacro("Input is NULL but is required");
+    vtkErrorMacro("Input is nullptr but is required");
     goodSoFar = 0;
   }
 
