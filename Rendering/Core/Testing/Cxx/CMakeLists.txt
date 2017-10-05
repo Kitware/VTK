@@ -54,6 +54,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestDirectScalarsToColors.cxx
   TestDiscretizableColorTransferFunction.cxx,NO_VALID
   TestDiscretizableColorTransferFunctionStringArray.cxx,NO_VALID
+  TestDiscretizableColorTransferFunctionOpacity.cxx,NO_VALID
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx

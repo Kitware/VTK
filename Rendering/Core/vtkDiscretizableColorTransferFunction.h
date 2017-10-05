@@ -34,6 +34,10 @@
  * of annotations. If a scalar value is not present in \a AnnotatedValues,
  * then \a NanColor will be used.
  *
+ * One can set a scalar opacity function to map scalars to color types handling
+ * transparency (VTK_RGBA, VTK_LUMINANCE_ALPHA). Opacity mapping is off by
+ * default. Call EnableOpacityMappingOn() to handle mapping of alpha values.
+ *
  * NOTE: One must call Build() after making any changes to the points
  * in the ColorTransferFunction to ensure that the discrete and non-discrete
  * versions match up.
@@ -153,27 +157,14 @@ public:
    */
   double GetOpacity(double v) override;
 
-  //@{
   /**
-   * Internal methods that map a data array into a 4-component, unsigned char
-   * RGBA array. The color mode determines the behavior of mapping. If
-   * VTK_COLOR_MODE_DEFAULT is set, then unsigned char data arrays are
-   * treated as colors (and converted to RGBA if necessary); otherwise,
-   * the data is mapped through this instance of ScalarsToColors. The offset
-   * is used for data arrays with more than one component; it indicates
-   * which component to use to do the blending.
-   * When the component argument is -1, then the this object uses its
-   * own selected technique to change a vector into a scalar to map.
-
-   * When \a IndexedLookup (inherited from vtkScalarsToColors) is true,
-   * the scalar opacity function is not used regardless of
-   * \a EnableOpacityMapping.
+   * Map a set of scalars through the lookup table.
+   * Overridden to map the opacity value. This internal method is inherited
+   * from vtkScalarsToColors and should never be called directly.
    */
-  vtkUnsignedCharArray *MapScalars(vtkDataArray *scalars, int colorMode,
-                                           int component) override;
-  vtkUnsignedCharArray *MapScalars(vtkAbstractArray *scalars, int colorMode,
-                                           int component) override;
-  //@}
+  void MapScalarsThroughTable2(void *input, unsigned char *output,
+    int inputDataType, int numberOfValues,
+    int inputIncrement, int outputFormat) VTK_OVERRIDE;
 
   /**
    * Returns the (x, r, g, b) values as an array.

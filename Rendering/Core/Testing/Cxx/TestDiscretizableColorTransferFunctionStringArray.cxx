@@ -52,6 +52,8 @@ int TestDiscretizableColorTransferFunctionStringArray(int vtkNotUsed(argc), char
   tfer->SetAnnotation(category2, "Annotation2");
   tfer->SetAnnotation(category3, "Annotation3");
 
+  tfer->Build();
+
   vtkUnsignedCharArray* colors = tfer->MapScalars(sArray, VTK_RGBA, -1);
 
   unsigned char expectedColors[numStrings][4] = {
