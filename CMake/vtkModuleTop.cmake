@@ -439,6 +439,12 @@ foreach(vtk-module ${VTK_MODULES_ENABLED})
   endif()
 endforeach()
 
+# construct if this build of VTK has VTK-m enabled
+set(VTK_HAS_VTKM false)
+if(TARGET vtkm)
+  set(VTK_HAS_VTKM true)
+endif()
+
 # Generate VTKConfig.cmake for the build tree.
 set(VTK_CONFIG_CODE "
 set(VTK_MODULES_DIR \"${VTK_MODULES_DIR}\")")

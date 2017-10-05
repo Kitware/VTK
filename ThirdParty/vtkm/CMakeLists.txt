@@ -15,13 +15,20 @@ set(VTKm_ENABLE_TESTING OFF CACHE BOOL "Disabled when building as part of VTK" F
 set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
 
+set(lib_suffix "-vtk${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
+if(VTK_CUSTOM_LIBRARY_SUFFIX)
+  set(lib_suffix "${VTK_CUSTOM_LIBRARY_SUFFIX}")
+endif()
+
 if (WIN32)
   # Force the dlls to be in the bin folder with VTK's so that running tests
   # don't need to set path on Windows
   set(VTKm_EXECUTABLE_OUTPUT_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" CACHE PATH "Set to match VTK" FORCE)
 endif()
-set(VTKm_INSTALL_INCLUDE_DIR "include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-set(VTKm_INSTALL_CMAKE_MODULE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}/vtkm")
+set(VTKm_INSTALL_INCLUDE_DIR "${VTK_INSTALL_INCLUDE_DIR}")
+set(VTKm_INSTALL_CMAKE_MODULE_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
+set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
+set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
 
 set(vtkm_LIBRARIES vtkm vtkm_cont)
 vtk_module_export_info()
@@ -31,7 +38,5 @@ vtk_target_export(vtkm)
 vtk_target_export(vtkm_cont)
 
 set(vtkm_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include)
-
-
 
 set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
