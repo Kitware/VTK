@@ -1,5 +1,3 @@
-
-
 /*=========================================================================
   Copyright 2004 Sandia Corporation.
   Under the terms of Contract DE-AC04-94AL85000, there is a non-exclusive
@@ -27,44 +25,40 @@
 
 #include <QApplication>
 
+#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkPNGReader.h"
 #include "vtkTestUtilities.h"
 
-#include "QVTKWidget.h"
+#include "QVTKOpenGLWidget.h"
 
 int main(int argc, char** argv)
 {
+  // set surface format before application initialization
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
   QApplication app(argc, argv);
-
-  QVTKWidget widget;
+  QVTKOpenGLWidget widget;
   widget.resize(256,256);
+  vtkNew<vtkGenericOpenGLRenderWindow> renWin;
+  widget.SetRenderWindow(renWin);
 
-  vtkPNGReader* reader = vtkPNGReader::New();
+  vtkNew<vtkPNGReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
   reader->SetFileName(fname);
   delete [] fname;
 
-  vtkImageViewer* image_view = vtkImageViewer::New();
+  vtkNew<vtkImageViewer> image_view;
+  // use our render window with image_view
+  image_view->SetRenderWindow(renWin);
   image_view->SetInputConnection(reader->GetOutputPort());
-
-  widget.SetRenderWindow(image_view->GetRenderWindow());
-  image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());
-
+  image_view->SetupInteractor(renWin->GetInteractor());
   image_view->SetColorLevel(138.5);
   image_view->SetColorWindow(233);
 
   widget.show();
 
   app.exec();
-
-
-  image_view->Delete();
-  reader->Delete();
-
   return 0;
 }
-
-

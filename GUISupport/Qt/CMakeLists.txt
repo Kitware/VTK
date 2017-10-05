@@ -6,9 +6,6 @@ set(QVTKLibSrcs
   QVTKApplication.cxx
   QVTKInteractorAdapter.cxx
   QVTKInteractor.cxx
-  QVTKPaintEngine.cxx
-  QVTKPaintEngine.h
-  QVTKWidget.cxx
   vtkEventQtSlotConnect.cxx
   vtkQtAbstractModelAdapter.cxx
   vtkQtAnnotationLayersModelAdapter.cxx
@@ -24,7 +21,6 @@ set(QVTKMocHeaders
   QVTKApplication.h
   QVTKInteractorAdapter.h
   QVTKInteractorInternal.h
-  QVTKWidget.h
   vtkQtAbstractModelAdapter.h
   vtkQtAnnotationLayersModelAdapter.h
   vtkQtConnection.h
@@ -40,13 +36,20 @@ if(VTK_QT_VERSION VERSION_GREATER "4" AND
   list(APPEND QVTKMocHeaders QVTKOpenGLWidget.h)
 endif()
 
+set(add_qvtkwidget FALSE)
+if(NOT VTK_LEGACY_REMOVE)
+  # QVTKWidget and related classes can only be added on Linux when
+  # X11 support is enabled since it depends on X11.
+  if(WIN32 OR APPLE OR VTK_USE_X)
+    list(APPEND QVTKMocHeaders QVTKWidget.h)
+    list(APPEND QVTKLibSrcs QVTKPaintEngine.cxx QVTKPaintEngine.h QVTKWidget.cxx)
+    set(add_qvtkwidget TRUE)
+  endif()
+endif()
+
 if(VTK_USE_X AND VTK_USE_TDX)
-  set(QVTKMocHeaders ${QVTKMocHeaders}
-    vtkTDxQtUnixDevices.h
-    )
-  set(QVTKLibSrcs ${QVTKLibSrcs}
-    vtkTDxQtUnixDevices.cxx
-    )
+  list(APPEND QVTKMocHeaders vtkTDxQtUnixDevices.h)
+  list(APPEND QVTKLibSrcs vtkTDxQtUnixDevices.cxx)
 endif()
 
 if(VTK_USE_X)
@@ -126,10 +129,10 @@ endif()
 # This build plugin logic should just get migrated into a module I think.
 cmake_dependent_option(VTK_BUILD_QT_DESIGNER_PLUGIN
   "Build the VTK Qt plugin for the Qt Designer." ON
-  BUILD_SHARED_LIBS OFF)
+  "BUILD_SHARED_LIBS;NOT VTK_LEGACY_REMOVE;add_qvtkwidget" OFF)
 mark_as_advanced(VTK_BUILD_QT_DESIGNER_PLUGIN)
 
-if(BUILD_SHARED_LIBS AND VTK_BUILD_QT_DESIGNER_PLUGIN)
+if(VTK_BUILD_QT_DESIGNER_PLUGIN AND add_qvtkwidget)
   set(PluginLibSrcs Q4VTKWidgetPlugin.cxx)
 
   set(PluginMocHeaders Q4VTKWidgetPlugin.h)

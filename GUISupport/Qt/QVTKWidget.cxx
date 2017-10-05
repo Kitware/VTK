@@ -80,6 +80,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
     mDeferRenderInPaintEvent(false),
     renderEventCallbackObserverId(0)
 {
+  VTK_LEGACY_BODY(QVTKWidget, "VTK 8.1");
   this->UseTDx=false;
   // no background
   this->setAttribute(Qt::WA_NoBackground);

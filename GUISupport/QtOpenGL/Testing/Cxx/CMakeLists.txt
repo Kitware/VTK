@@ -1,3 +1,4 @@
+if(NOT VTK_LEGACY_REMOVE)
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestQVTKWidget2.cxx,NO_DATA
   )
@@ -18,3 +19,4 @@ target_link_libraries(${vtk-module}CxxTests LINK_PRIVATE
   ${QT_QTGUI_LIBRARY}
   ${QT_QTOPENGL_LIBRARY}
   ${QT_QTWIDGETS_LIBRARY})
+endif()

@@ -31,13 +31,14 @@
 #include "QVTKInteractorAdapter.h"
 #include "QVTKInteractor.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"
 #endif
 
 QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
   : Superclass(p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -48,6 +49,7 @@ QVTKWidget2::QVTKWidget2(QWidget* p, const QGLWidget* shareWidget, Qt::WindowFla
 QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
   : QGLWidget(QVTKWidget2::GetDefaultVTKFormat(w), p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -60,6 +62,7 @@ QVTKWidget2::QVTKWidget2(vtkGenericOpenGLRenderWindow* w, QWidget* p, const QGLW
 QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
   : Superclass(ctx, p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -70,6 +73,7 @@ QVTKWidget2::QVTKWidget2(QGLContext* ctx, QWidget* p, const QGLWidget* shareWidg
 QVTKWidget2::QVTKWidget2(const QGLFormat& fmt, QWidget* p, const QGLWidget* shareWidget, Qt::WindowFlags f)
   : Superclass(fmt, p, shareWidget, f), mRenWin(nullptr)
 {
+  VTK_LEGACY_BODY(QVTKWidget2, "VTK 8.1");
   this->UseTDx=false;
   mIrenAdapter = new QVTKInteractorAdapter(this);
   mConnect = vtkSmartPointer<vtkEventQtSlotConnect>::New();
@@ -93,9 +97,9 @@ void QVTKWidget2::SetUseTDx(bool useTDx)
     this->UseTDx=useTDx;
     if(this->UseTDx)
     {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
-       QByteArray theSignal=
-         QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
+#if defined(VTK_USE_TDX) && defined(Q_OS_LINUX)
+      QByteArray theSignal =
+          QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
       if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
       {
         QObject::connect(QApplication::instance(),
@@ -439,7 +443,7 @@ bool QVTKWidget2::focusNextPrevChild(bool)
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget2::setDevice(vtkTDxDevice *device)
 {
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
   if(this->GetInteractor()->GetDevice()!=device)
   {
     this->GetInteractor()->SetDevice(device);

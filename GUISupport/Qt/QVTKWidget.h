@@ -24,14 +24,13 @@
 
 =========================================================================*/
 
-/*========================================================================
- For general information about using VTK and Qt, see:
- http://www.trolltech.com/products/3rdparty/vtksupport.html
-=========================================================================*/
-
-// .NAME QVTKWidget - Display a vtkRenderWindow in a Qt's QWidget.
-// .SECTION Description
-// QVTKWidget provides a way to display VTK data in a Qt widget.
+/**
+ * @class QVTKWidget
+ * @brief - display a vtkRenderWindow in a Qt's QWidget.
+ *
+ * QVTKWidget provides a way to display VTK data in a Qt widget.
+ * @deprecated Please use QVTKOpenGLWidget instead.
+ */
 
 #ifndef Q_VTK_WIDGET_H
 #define Q_VTK_WIDGET_H
@@ -64,7 +63,6 @@ class vtkTDxDevice;
 
 #include "QVTKWin32Header.h"
 
-//! QVTKWidget displays a VTK window in a Qt window.
 class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
 {
   Q_OBJECT
@@ -81,7 +79,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
 
 public:
   //! constructor
-  QVTKWidget(QWidget* parent = nullptr, Qt::WindowFlags f = 0);
+  VTK_LEGACY(QVTKWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0));
   //! destructor
   ~QVTKWidget() override;
 

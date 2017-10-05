@@ -279,3 +279,10 @@ vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
 {
   return this->ImageMapper->GetInputAlgorithm();
 }
+
+//----------------------------------------------------------------------------
+void vtkImageViewer::SetRenderWindow(vtkRenderWindow* renWin)
+{
+  vtkSetObjectBodyMacro(RenderWindow,vtkRenderWindow,renWin);
+  renWin->AddRenderer(this->GetRenderer());
+}

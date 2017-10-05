@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    QVTKWidget.cxx
+  Module:    QVTKInteractor.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -43,7 +43,7 @@
 # include "vtkTDxMacDevice.h"
 #endif
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"
 #endif
 
@@ -88,7 +88,7 @@ QVTKInteractor::QVTKInteractor()
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
   this->Device=vtkTDxMacDevice::New();
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   this->Device=0;
 #endif
 }
@@ -122,7 +122,7 @@ void QVTKInteractor::Initialize()
   this->Enable();
 }
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 // ----------------------------------------------------------------------------
 vtkTDxUnixDevice *QVTKInteractor::GetDevice()
 {
@@ -170,7 +170,7 @@ void QVTKInteractor::StartListening()
     this->Device->Initialize();
   }
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   if(this->UseTDx && this->Device!=0)
   {
     this->Device->SetInteractor(this);
@@ -193,7 +193,7 @@ void QVTKInteractor::StopListening()
     this->Device->Close();
   }
 #endif
-#if defined(VTK_USE_TDX) &&  defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   if(this->UseTDx && this->Device!=0)
   {
     // this assumes that a outfocus event is emitted prior
@@ -231,7 +231,7 @@ QVTKInteractor::~QVTKInteractor()
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
   this->Device->Delete();
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   this->Device=0;
 #endif
 }

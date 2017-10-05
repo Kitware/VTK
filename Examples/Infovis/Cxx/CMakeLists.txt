@@ -50,8 +50,10 @@ endif()
 
 # If Qt is enabled include the QT based examples
 if(vtkGUISupportQt_LOADED AND vtkViewsQt_LOADED)
-  add_subdirectory(EasyView)
-  add_subdirectory(CustomLinkView)
+  if(VTK_QT_VERSION VERSION_GREATER "4")
+    add_subdirectory(EasyView)
+    add_subdirectory(CustomLinkView)
+  endif()
   if(vtkIOSQL_LOADED)
     add_subdirectory(StatsView)
   endif()

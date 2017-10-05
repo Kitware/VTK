@@ -29,6 +29,10 @@
  * @par Thanks:
  * Thanks to Bob Kerr from Sandia National Laboratories for implementing
  * this class
+ *
+ * @deprecated This no replacement for this class currently. Since Qt's WebKit
+ * components changed considerably with Qt 5, we are no longer supporting this
+ * class.
 */
 
 #ifndef vtkQtRichTextView_h

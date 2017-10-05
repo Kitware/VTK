@@ -22,6 +22,7 @@ QVTKPaintEngine::QVTKPaintEngine()
     : QPaintEngine(QPaintEngine::PaintOutsidePaintEvent |
                    QPaintEngine::AlphaBlend)
 {
+  VTK_LEGACY_BODY(QVTKPaintEngine, "VTK 8.1");
   this->Internal = new QVTKPaintEngineInternal;
 }
 
