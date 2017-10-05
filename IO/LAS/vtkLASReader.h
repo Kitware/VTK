@@ -18,6 +18,10 @@
  *
  * vtkLASReader is a source object that reads LIDAR data saved using
  * the LAS file format. This reader uses the libLAS library.
+ * It produces a vtkPolyData with point data arrays:
+ * "intensity": vtkUnsignedShortArray
+ * "classification": vtkUnsignedCharArray (optional)
+ * "color": vtkUnsignedShortArray (optional)
  *
  *
  * @sa
@@ -47,34 +51,10 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
-   * All the Classification Types according to LAS spec are listed here
-   */
-  enum ClassificationType {
-    Created_NotClassified = 0,
-    Unclassified,     // 1
-    Ground,           // 2
-    LowVegetation,    // 3
-    MediumVegetation, // 4
-    HighVegetation,   // 5
-    Building,         // 6
-    LowPoint,         // 7
-    ModelKeyPoint,    // 8
-    Water             // 9
-  };
-
-  /**
    * Accessor for name of the file that will be opened
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-
-
-  /**
-   * Set User specified color values in the Classification Color Map instead of the default values
-   */
-  void SetClassificationColor(ClassificationType type, unsigned char color[3]);
-  void SetClassificationColor(ClassificationType type, unsigned char red, unsigned char green, unsigned char blue);
-
 
 protected:
   vtkLASReader();
@@ -90,11 +70,6 @@ protected:
    * Read point record data i.e. position and visualisation data
    */
   void ReadPointRecordData(liblas::Reader &reader, vtkPolyData* pointsPolyData);
-
-  /**
-   * Map from Class Number to Corresponding Color
-   */
-  unsigned char ClassificationColorMap[10][3];
 
   char* FileName;
 };

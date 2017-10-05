@@ -23,6 +23,7 @@
 #include <vtkPoints.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
+#include <vtkUnsignedShortArray.h>
 #include <vtkVertexGlyphFilter.h>
 
 #include <liblas/liblas.hpp>
@@ -35,20 +36,7 @@ vtkStandardNewMacro(vtkLASReader)
 
 
 //----------------------------------------------------------------------------
-vtkLASReader::vtkLASReader() :
-  ClassificationColorMap{
-    //{Red,  Green,   Blue}
-    {  0,      0,      0},    //0     Created, Never Classified   Black
-    {255,      0,      0},    //1     Unclassified                Red
-    {145,    100,     45},    //2     Ground                      Brown
-    {  0,    255,      0},    //3     Low Vegetation              Light Green
-    {  0,    160,      0},    //4     Medium Vegetation           Medium Green
-    {  0,     90,    255},    //5     High Vegetation             Dark Green
-    {255,    255,      0},    //6     Building                    Yellow
-    {255,    140,      0},    //7     Low Point                   Orange
-    {255,      0,    255},    //8     Model Key-Point             Purple
-    {  0,    255,    255}     //9     Water                       Blue
-  }
+vtkLASReader::vtkLASReader()
 {
   this->FileName = NULL;
 
@@ -102,34 +90,20 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-void vtkLASReader::SetClassificationColor(ClassificationType type,
-                                          unsigned char red,
-                                          unsigned char green,
-                                          unsigned char blue)
-{
-  if(type <= 0 || type > Water)
-  {
-  vtkErrorMacro (<< "Invalid type of Class Specified!");
-  return;
-  }
-
-  this->ClassificationColorMap[type][0] = red;
-  this->ClassificationColorMap[type][1] = green;
-  this->ClassificationColorMap[type][2] = blue;
-}
-
-//----------------------------------------------------------------------------
-void vtkLASReader::SetClassificationColor(ClassificationType type, unsigned char color[])
-{
-  this->SetClassificationColor(type, color[0], color[1], color[2]);
-}
-
-//----------------------------------------------------------------------------
 void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
-  vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetNumberOfComponents(3);
+  // scalars associated with points
+  vtkNew<vtkUnsignedShortArray> color;
+  color->SetName("color");
+  color->SetNumberOfComponents(3);
+  vtkNew<vtkUnsignedShortArray> classification;
+  classification->SetName("classification");
+  classification->SetNumberOfComponents(1);
+  vtkNew<vtkUnsignedShortArray> intensity;
+  intensity->SetName("intensity");
+  intensity->SetNumberOfComponents(1);
+
   liblas::Header header = liblas::Header(reader.GetHeader());
   std::valarray<double> scale = {
     header.GetScaleX(), header.GetScaleY(), header.GetScaleZ()
@@ -139,48 +113,64 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
   };
   liblas::PointFormatName pointFormat = header.GetDataFormatId();
   int pointRecordsCount = header.GetPointRecordsCount();
-  std::cout << "PointFormat: " << pointFormat << std::endl;
 
   for ( int i= 0; i < pointRecordsCount && reader.ReadNextPoint(); i++)
   {
-  liblas::Point const& p = reader.GetPoint();
-  std::valarray<double> lasPoint = {
-    p.GetX(), p.GetY(), p.GetZ()
-  };
-  std::valarray<double> point = lasPoint * scale + offset;
-  points->InsertNextPoint(&lasPoint[0]);
-
-  unsigned char* color;
-  switch(pointFormat)
+    liblas::Point const& p = reader.GetPoint();
+    std::valarray<double> lasPoint = {
+      p.GetX(), p.GetY(), p.GetZ()
+    };
+    points->InsertNextPoint(&lasPoint[0]);
+    //std::valarray<double> point = lasPoint * scale + offset;
+    // We have seen a file where the scaled points were much smaller than the offset
+    // So, all points ended up in the same place.
+    std::valarray<double> point = lasPoint * scale;
+    switch(pointFormat)
     {
     case liblas::ePointFormat2:
     case liblas::ePointFormat3:
     case liblas::ePointFormat5:
       {
-      unsigned char color[3];
-      color[0] = p.GetColor().GetRed() / 256;
-      color[1] = p.GetColor().GetGreen() / 256;
-      color[2] = p.GetColor().GetBlue() / 256;
-      colors->InsertNextTypedTuple(color);
+        unsigned short c[3];
+        c[0] = p.GetColor().GetRed();
+        c[1] = p.GetColor().GetGreen();
+        c[2] = p.GetColor().GetBlue();
+        color->InsertNextTypedTuple(c);
+        intensity->InsertNextValue(p.GetIntensity());
       }
       break;
 
     case liblas::ePointFormat0:
     case liblas::ePointFormat1:
-      colors->InsertNextTypedTuple( this->ClassificationColorMap[p.GetClassification().GetClass()] );
+      classification->InsertNextValue(p.GetClassification().GetClass());
+      intensity->InsertNextValue(p.GetIntensity());
       break;
 
     case liblas::ePointFormatUnknown:
     default:
+      intensity->InsertNextValue(p.GetIntensity());
       break;
     }
   }
 
   pointsPolyData->SetPoints(points);
-
-  if (pointFormat != liblas::ePointFormatUnknown)
+  pointsPolyData->GetPointData()->AddArray(intensity);
+  switch(pointFormat)
   {
-  pointsPolyData->GetPointData()->SetScalars(colors);
+  case liblas::ePointFormat2:
+  case liblas::ePointFormat3:
+  case liblas::ePointFormat5:
+    pointsPolyData->GetPointData()->AddArray(color);
+    break;
+
+  case liblas::ePointFormat0:
+  case liblas::ePointFormat1:
+    pointsPolyData->GetPointData()->AddArray(classification);
+    break;
+
+  case liblas::ePointFormatUnknown:
+  default:
+    break;
   }
 }
 
