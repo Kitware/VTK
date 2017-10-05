@@ -34,12 +34,13 @@ int TestLASReader(int argc, char **argv)
 {
   //const char* fileName = "Data/tp_manual_20160907131754_flt.las";
   const char* fileName = "Data/test_buildings.las";
+  //const char* fileName = "Data/test_1.las";
+  //const char* fileName = "Data/test_3.las";
   const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
   vtkNew<vtkLASReader> reader;
 
   //Select source file
   reader->SetFileName(path);
-  reader->SetVisualizationType(vtkLASReader::Classification);
 
   //Read the output
   reader->Update();

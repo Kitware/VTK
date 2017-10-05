@@ -47,15 +47,6 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
-   * All the Visualization Types have been listed here
-   */
-  enum VisualizationTypeConstants {
-    None = 0,
-    Color,
-    Classification
-  };
-
-  /**
    * All the Classification Types according to LAS spec are listed here
    */
   enum ClassificationType {
@@ -77,11 +68,6 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-  /**
-   * Accessor for Visualization Type
-   */
-  vtkSetMacro(VisualizationType, VisualizationTypeConstants);
-  vtkGetMacro(VisualizationType, VisualizationTypeConstants);
 
   /**
    * Accessor for the LAS Header file
@@ -116,7 +102,6 @@ protected:
   unsigned char ClassificationColorMap[10][3];
 
   int PointRecordsCount;
-  VisualizationTypeConstants VisualizationType;
   liblas::Header* Header;
   char* FileName;
 };

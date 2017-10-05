@@ -29,6 +29,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <valarray>
 
 vtkStandardNewMacro(vtkLASReader)
 
@@ -51,7 +52,6 @@ vtkLASReader::vtkLASReader() :
 {
   this->FileName = NULL;
   this->PointRecordsCount = 0;
-  this->VisualizationType = None;
   this->Header = NULL;
 
   this->SetNumberOfInputPorts(0);
@@ -136,20 +136,30 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
   vtkNew<vtkPoints> points;
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(3);
+  std::valarray<double> scale = {
+    this->Header->GetScaleX(), this->Header->GetScaleY(), this->Header->GetScaleZ()
+  };
+  std::valarray<double> offset = {
+    this->Header->GetOffsetX(), this->Header->GetOffsetY(), this->Header->GetOffsetZ()
+  };
+  liblas::PointFormatName pointFormat = this->Header->GetDataFormatId();
+  std::cout << "PointFormat: " << pointFormat << std::endl;
 
   for ( int i= 0; i < this->PointRecordsCount && reader.ReadNextPoint(); i++)
   {
   liblas::Point const& p = reader.GetPoint();
-  points->InsertNextPoint(p.GetX() * this->Header->GetScaleX() * 2 + this->Header->GetOffsetX(),
-                          p.GetY() * this->Header->GetScaleY() * 2 + this->Header->GetOffsetY(),
-                          p.GetZ() * this->Header->GetScaleZ() * 2 + this->Header->GetOffsetZ());
+  std::valarray<double> lasPoint = {
+    p.GetX(), p.GetY(), p.GetZ()
+  };
+  std::valarray<double> point = lasPoint * scale + offset;
+  points->InsertNextPoint(&lasPoint[0]);
 
   unsigned char* color;
-  switch(this->VisualizationType)
+  switch(pointFormat)
     {
-    case None:
-      break;
-    case Color:
+    case liblas::ePointFormat2:
+    case liblas::ePointFormat3:
+    case liblas::ePointFormat5:
       {
       unsigned char color[3];
       color[0] = p.GetColor().GetRed() / 256;
@@ -158,9 +168,13 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
       colors->InsertNextTypedTuple(color);
       }
       break;
-    case Classification:
+
+    case liblas::ePointFormat0:
+    case liblas::ePointFormat1:
       colors->InsertNextTypedTuple( this->ClassificationColorMap[p.GetClassification().GetClass()] );
       break;
+
+    case liblas::ePointFormatUnknown:
     default:
       break;
     }
@@ -168,7 +182,7 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
 
   pointsPolyData->SetPoints(points);
 
-  if (this->VisualizationType)
+  if (pointFormat != liblas::ePointFormatUnknown)
   {
   pointsPolyData->GetPointData()->SetScalars(colors);
   }
