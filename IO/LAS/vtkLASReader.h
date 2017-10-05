@@ -43,13 +43,13 @@ public:
   vtkLASReader(const vtkLASReader&) = delete;
   void operator=(const vtkLASReader&) = delete;
   static vtkLASReader* New();
-  vtkTypeMacro(vtkLASReader,vtkPolyDataAlgorithm)
-    virtual void PrintSelf(ostream &os, vtkIndent indent);
+  vtkTypeMacro(vtkLASReader,vtkPolyDataAlgorithm);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
-   * All the Visualisation Types have been listed here
+   * All the Visualization Types have been listed here
    */
-  enum VisualisationTypeConstants {
+  enum VisualizationTypeConstants {
     None = 0,
     Color,
     Classification
@@ -74,28 +74,28 @@ public:
   /**
    * Accessor for name of the file that will be opened
    */
-  vtkSetStringMacro(FileName)
-    vtkGetStringMacro(FileName)
+  vtkSetStringMacro(FileName);
+  vtkGetStringMacro(FileName);
 
-    /**
-     * Accessor for Visualisation Type
-     */
-    vtkSetMacro(VisualisationType, VisualisationTypeConstants)
-    vtkGetMacro(VisualisationType, VisualisationTypeConstants)
+  /**
+   * Accessor for Visualization Type
+   */
+  vtkSetMacro(VisualizationType, VisualizationTypeConstants);
+  vtkGetMacro(VisualizationType, VisualizationTypeConstants);
 
-    /**
-     * Accessor for the LAS Header file
-     */
-    vtkGetMacro(Header, liblas::Header *)
+  /**
+   * Accessor for the LAS Header file
+   */
+  vtkGetMacro(Header, liblas::Header *);
 
-    /**
-     * Set User specified color values in the Classification Color Map instead of the default values
-     */
-    void SetClassificationColor(ClassificationType type, unsigned char color[3]);
+  /**
+   * Set User specified color values in the Classification Color Map instead of the default values
+   */
+  void SetClassificationColor(ClassificationType type, unsigned char color[3]);
   void SetClassificationColor(ClassificationType type, unsigned char red, unsigned char green, unsigned char blue);
 
 
- protected:
+protected:
   vtkLASReader();
   virtual ~vtkLASReader();
 
@@ -113,10 +113,10 @@ public:
   /**
    * Map from Class Number to Corresponding Color
    */
-  static unsigned char ClassificationColorMap[10][3];
+  unsigned char ClassificationColorMap[10][3];
 
-  int pointRecordsCount;
-  VisualisationTypeConstants VisualisationType;
+  int PointRecordsCount;
+  VisualizationTypeConstants VisualizationType;
   liblas::Header* Header;
   char* FileName;
 };

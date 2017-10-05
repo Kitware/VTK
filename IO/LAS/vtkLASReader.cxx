@@ -32,9 +32,11 @@
 
 vtkStandardNewMacro(vtkLASReader)
 
+
 //----------------------------------------------------------------------------
-unsigned char vtkLASReader::ClassificationColorMap[][3] = {
-  //{Red,  Green,   Blue}
+vtkLASReader::vtkLASReader() :
+  ClassificationColorMap{
+    //{Red,  Green,   Blue}
     {  0,      0,      0},    //0     Created, Never Classified   Black
     {255,      0,      0},    //1     Unclassified                Red
     {145,    100,     45},    //2     Ground                      Brown
@@ -44,15 +46,12 @@ unsigned char vtkLASReader::ClassificationColorMap[][3] = {
     {255,    255,      0},    //6     Building                    Yellow
     {255,    140,      0},    //7     Low Point                   Orange
     {255,      0,    255},    //8     Model Key-Point             Purple
-    {  0,    255,    255},    //9     Water                       Blue
-};
-
-//----------------------------------------------------------------------------
-vtkLASReader::vtkLASReader()
+    {  0,    255,    255}     //9     Water                       Blue
+  }
 {
   this->FileName = NULL;
-  this->pointRecordsCount = 0;
-  this->VisualisationType = None;
+  this->PointRecordsCount = 0;
+  this->VisualizationType = None;
   this->Header = NULL;
 
   this->SetNumberOfInputPorts(0);
@@ -62,11 +61,11 @@ vtkLASReader::vtkLASReader()
 //----------------------------------------------------------------------------
 vtkLASReader::~vtkLASReader()
 {
-  if ( ! FileName )
-    delete[] FileName;
+  if ( ! this->FileName )
+    delete[] this->FileName;
 
-  if ( ! Header )
-    delete Header;
+  if ( ! this->Header )
+    delete this->Header;
 }
 
 //----------------------------------------------------------------------------
@@ -82,22 +81,22 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Open LAS File for reading
   std::ifstream ifs;
-  ifs.open(FileName, std::ios_base::binary | std::ios_base::in);
+  ifs.open(this->FileName, std::ios_base::binary | std::ios_base::in);
 
   if ( ! ifs.is_open() )
   {
-    vtkErrorMacro (<< "Unable to open file for reading: " << FileName );
+    vtkErrorMacro (<< "Unable to open file for reading: " << this->FileName );
     return VTK_ERROR;
   }
 
   // Read header data
   liblas::ReaderFactory readerFactory;
   liblas::Reader reader = readerFactory.CreateWithStream(ifs);
-  Header = new liblas::Header(reader.GetHeader());
-  pointRecordsCount = Header->GetPointRecordsCount();
+  this->Header = new liblas::Header(reader.GetHeader());
+  this->PointRecordsCount = this->Header->GetPointRecordsCount();
 
   vtkNew<vtkPolyData> pointsPolyData;
-  ReadPointRecordData(reader, pointsPolyData);
+  this->ReadPointRecordData(reader, pointsPolyData);
 
   // Convert points to verts in output polydata
   vtkNew<vtkVertexGlyphFilter> vertexFilter;
@@ -138,15 +137,15 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(3);
 
-  for ( int i= 0; i < pointRecordsCount && reader.ReadNextPoint(); i++)
+  for ( int i= 0; i < this->PointRecordsCount && reader.ReadNextPoint(); i++)
   {
   liblas::Point const& p = reader.GetPoint();
-  points->InsertNextPoint(p.GetX() * Header->GetScaleX() * 2 + Header->GetOffsetX(),
-                        p.GetY() * Header->GetScaleY() * 2 + Header->GetOffsetY(),
-                        p.GetZ() * Header->GetScaleZ() * 2 + Header->GetOffsetZ());
+  points->InsertNextPoint(p.GetX() * this->Header->GetScaleX() * 2 + this->Header->GetOffsetX(),
+                          p.GetY() * this->Header->GetScaleY() * 2 + this->Header->GetOffsetY(),
+                          p.GetZ() * this->Header->GetScaleZ() * 2 + this->Header->GetOffsetZ());
 
   unsigned char* color;
-  switch(VisualisationType)
+  switch(this->VisualizationType)
     {
     case None:
       break;
@@ -160,7 +159,7 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
       }
       break;
     case Classification:
-      colors->InsertNextTypedTuple( vtkLASReader::ClassificationColorMap[ p.GetClassification().GetClass() ] );
+      colors->InsertNextTypedTuple( this->ClassificationColorMap[p.GetClassification().GetClass()] );
       break;
     default:
       break;
@@ -169,7 +168,7 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
 
   pointsPolyData->SetPoints(points);
 
-  if (VisualisationType)
+  if (this->VisualizationType)
   {
   pointsPolyData->GetPointData()->SetScalars(colors);
   }
