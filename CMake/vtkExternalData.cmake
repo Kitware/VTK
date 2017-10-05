@@ -1,5 +1,4 @@
-get_filename_component(_VTKExternalData_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include(${_VTKExternalData_DIR}/ExternalData.cmake)
+include(ExternalData)
 
 if(NOT VTK_DATA_STORE)
   # Select a default from the following.
