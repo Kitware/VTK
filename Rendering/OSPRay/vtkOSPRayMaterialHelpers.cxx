@@ -60,6 +60,11 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
    std::map<std::string, OSPMaterial> &mats)
 {
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
+  if (!ml)
+  {
+    cout << "No material Library in this renderer." << endl;
+    return;
+  }
   std::set<std::string > nicknames = ml->GetMaterialNames();
   std::set<std::string >::iterator it = nicknames.begin();
   while (it != nicknames.end())
@@ -105,11 +110,17 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   (vtkOSPRayRendererNode *orn,
   OSPRenderer oRenderer, std::string nickname)
 {
+  OSPMaterial oMaterial;
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
+  if (!ml)
+    {
+    cout << "No material Library in this renderer. Using OBJMaterial by default." << endl;
+    oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
+    return oMaterial;
+    }
   //todo: add a level of indirection and/or versioning so we aren't stuck with
   //these names forever
   std::string implname = ml->LookupImplName(nickname);
-  OSPMaterial oMaterial;
   if (implname == "Glass")
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
@@ -188,8 +199,9 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   }
   else
   {
-    cerr << "Warning: unrecognized material \"" << implname.c_str()
-         << "\" using OBJMaterial instead. " << endl;
+    cout <<
+      "Warning: unrecognized material \"" << implname.c_str() <<
+      "\" using OBJMaterial instead. " << endl;
     oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
   }
   return oMaterial;
