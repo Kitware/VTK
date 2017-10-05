@@ -144,7 +144,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Function to test whether caller is the main thread.
-static int vtkGarbageCollectorIsMainThread()
+static vtkTypeBool vtkGarbageCollectorIsMainThread()
 {
   return
     vtkMultiThreader::ThreadsEqual(vtkGarbageCollectorMainThread,

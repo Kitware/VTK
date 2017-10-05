@@ -39,12 +39,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-#ifdef VTK_USE_SPROC
-#include <abi_mutex.h> // Needed for sproc implementation of mutex
-typedef abilock_t vtkCritSecType;
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for pthreads implementation of mutex
 typedef pthread_mutex_t vtkCritSecType;
 #endif
@@ -54,11 +49,9 @@ typedef pthread_mutex_t vtkCritSecType;
 typedef CRITICAL_SECTION vtkCritSecType;
 #endif
 
-#ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
 #ifndef VTK_USE_WIN32_THREADS
 typedef int vtkCritSecType;
-#endif
 #endif
 #endif
 

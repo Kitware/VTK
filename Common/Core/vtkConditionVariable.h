@@ -35,7 +35,7 @@
 
 #include "vtkMutexLock.h" // Need for friend access to vtkSimpleMutexLock
 
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #  include <pthread.h> // Need POSIX thread implementation of mutex (even win32 provides mutexes)
 typedef pthread_cond_t vtkConditionType;
 #endif
@@ -98,10 +98,8 @@ typedef pthread_cond_t vtkConditionType;
 #endif // VTK_USE_WIN32_THREADS
 
 #ifndef VTK_USE_PTHREADS
-#ifndef VTK_HP_PTHREADS
 #ifndef VTK_USE_WIN32_THREADS
 typedef int vtkConditionType;
-#endif
 #endif
 #endif
 

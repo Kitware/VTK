@@ -17,8 +17,8 @@
  * @brief   A class for performing multithreaded execution
  *
  * vtkMultithreader is a class that provides support for multithreaded
- * execution using sproc() on an SGI, or pthread_create on any platform
- * supporting POSIX threads.  This class can be used to execute a single
+ * execution using pthreads on POSIX systems, or Win32 threads on
+ * Windows.  This class can be used to execute a single
  * method on multiple threads, or to specify a method per thread.
 */
 
@@ -28,21 +28,14 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#ifdef VTK_USE_SPROC
-#include <sys/types.h> // Needed for unix implementation of sproc
-#include <unistd.h> // Needed for unix implementation of sproc
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
 #include <unistd.h> // Needed for unix implementation of pthreads
 #endif
 
-// If VTK_USE_SPROC is defined, then sproc() will be used to create
-// multiple threads on an SGI. If VTK_USE_PTHREADS is defined, then
-// pthread_create() will be used to create multiple threads (on
-// a sun, for example)
+// If VTK_USE_PTHREADS is defined, then pthread_create() will be
+// used to create multiple threads
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_MAX_THREADS
@@ -50,12 +43,6 @@
 // If VTK_USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
-// and SPROC
-
-#ifdef VTK_USE_SPROC
-typedef int vtkThreadProcessIDType;
-typedef int vtkMultiThreaderIDType;
-#endif
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_THREAD_RETURN_VALUE
@@ -196,7 +183,7 @@ public:
   /**
    * Determine if a thread is still active
    */
-  int IsThreadActive( int threadID );
+  vtkTypeBool IsThreadActive( int threadID );
 
   /**
    * Get the thread identifier of the calling thread.
@@ -206,8 +193,8 @@ public:
   /**
    * Check whether two thread identifiers refer to the same thread.
    */
-  static int ThreadsEqual(vtkMultiThreaderIDType t1,
-                          vtkMultiThreaderIDType t2);
+  static vtkTypeBool ThreadsEqual(vtkMultiThreaderIDType t1,
+                                  vtkMultiThreaderIDType t2);
 
 protected:
   vtkMultiThreader();
@@ -242,8 +229,4 @@ private:
 };
 
 #endif
-
-
-
-
 
