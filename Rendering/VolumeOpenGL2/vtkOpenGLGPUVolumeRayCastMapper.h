@@ -23,7 +23,7 @@
 #include "vtkShader.h"                       // For methods
 
 // STL includes
-#include <map>
+#include <map>                               // For shader replacements
 
 // Forward declarations
 class vtkGenericOpenGLResourceFreeCallback;

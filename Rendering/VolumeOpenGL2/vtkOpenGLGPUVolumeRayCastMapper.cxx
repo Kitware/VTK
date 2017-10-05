@@ -3215,7 +3215,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
   vtkVolume* vol,
   int numComps)
 {
-  vtkShader* vertexShader = shaders[vtkShader::Vertex];
   vtkShader* fragmentShader = shaders[vtkShader::Fragment];
 
   // Every volume should have a property (cannot be NULL);
@@ -3484,7 +3483,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
 {
   // Every volume should have a property (cannot be NULL);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
-  int independentComponents = volumeProperty->GetIndependentComponents();
 
   if (volumeProperty->GetShade())
   {
