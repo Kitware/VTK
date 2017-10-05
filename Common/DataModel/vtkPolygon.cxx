@@ -1019,8 +1019,20 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList *outTris)
 int vtkPolygon::BoundedTriangulate(vtkIdList *outTris, double tolerance)
 {
   int i, j, k, success = 0, numPts = this->PointIds->GetNumberOfIds();
-  double totalArea, area[VTK_CELL_SIZE];
+  double totalArea, area_static[VTK_CELL_SIZE], *area;
   double p[3][3];
+
+  // For most polygons, there should be fewer than VTK_CELL_SIZE points. In
+  // the event that we have a huge polygon, dynamically allocate an
+  // appropriately sized array.
+  if (numPts - 2 <= VTK_CELL_SIZE)
+  {
+    area = &area_static[0];
+  }
+  else
+  {
+    area = new double[numPts - 2];
+  }
 
   for (i = 0; i < numPts; i++)
   {
@@ -1060,6 +1072,13 @@ int vtkPolygon::BoundedTriangulate(vtkIdList *outTris, double tolerance)
   }
 
   outTris->DeepCopy(this->Tris);
+
+  // If we dynamically allocated our area array, delete it here.
+  if (numPts - 2 > VTK_CELL_SIZE)
+  {
+    delete [] area;
+  }
+
   return success;
 }
 
