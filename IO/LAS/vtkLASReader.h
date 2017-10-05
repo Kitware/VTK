@@ -70,11 +70,6 @@ public:
 
 
   /**
-   * Accessor for the LAS Header file
-   */
-  vtkGetMacro(Header, liblas::Header *);
-
-  /**
    * Set User specified color values in the Classification Color Map instead of the default values
    */
   void SetClassificationColor(ClassificationType type, unsigned char color[3]);
@@ -101,8 +96,6 @@ protected:
    */
   unsigned char ClassificationColorMap[10][3];
 
-  int PointRecordsCount;
-  liblas::Header* Header;
   char* FileName;
 };
 

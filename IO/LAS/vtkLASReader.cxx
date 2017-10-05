@@ -51,8 +51,6 @@ vtkLASReader::vtkLASReader() :
   }
 {
   this->FileName = NULL;
-  this->PointRecordsCount = 0;
-  this->Header = NULL;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -63,9 +61,6 @@ vtkLASReader::~vtkLASReader()
 {
   if ( ! this->FileName )
     delete[] this->FileName;
-
-  if ( ! this->Header )
-    delete this->Header;
 }
 
 //----------------------------------------------------------------------------
@@ -92,11 +87,10 @@ int vtkLASReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Read header data
   liblas::ReaderFactory readerFactory;
   liblas::Reader reader = readerFactory.CreateWithStream(ifs);
-  this->Header = new liblas::Header(reader.GetHeader());
-  this->PointRecordsCount = this->Header->GetPointRecordsCount();
 
   vtkNew<vtkPolyData> pointsPolyData;
   this->ReadPointRecordData(reader, pointsPolyData);
+  ifs.close();
 
   // Convert points to verts in output polydata
   vtkNew<vtkVertexGlyphFilter> vertexFilter;
@@ -136,16 +130,18 @@ void vtkLASReader::ReadPointRecordData(liblas::Reader &reader, vtkPolyData* poin
   vtkNew<vtkPoints> points;
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(3);
+  liblas::Header header = liblas::Header(reader.GetHeader());
   std::valarray<double> scale = {
-    this->Header->GetScaleX(), this->Header->GetScaleY(), this->Header->GetScaleZ()
+    header.GetScaleX(), header.GetScaleY(), header.GetScaleZ()
   };
   std::valarray<double> offset = {
-    this->Header->GetOffsetX(), this->Header->GetOffsetY(), this->Header->GetOffsetZ()
+    header.GetOffsetX(), header.GetOffsetY(), header.GetOffsetZ()
   };
-  liblas::PointFormatName pointFormat = this->Header->GetDataFormatId();
+  liblas::PointFormatName pointFormat = header.GetDataFormatId();
+  int pointRecordsCount = header.GetPointRecordsCount();
   std::cout << "PointFormat: " << pointFormat << std::endl;
 
-  for ( int i= 0; i < this->PointRecordsCount && reader.ReadNextPoint(); i++)
+  for ( int i= 0; i < pointRecordsCount && reader.ReadNextPoint(); i++)
   {
   liblas::Point const& p = reader.GetPoint();
   std::valarray<double> lasPoint = {
