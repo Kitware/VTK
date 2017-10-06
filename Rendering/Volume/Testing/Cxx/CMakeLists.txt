@@ -117,8 +117,7 @@ foreach(file ${test_shader_files})
     DEPENDS ${src} vtkEncodeString
     COMMAND vtkEncodeString
     ARGS ${res} ${src} ${file_we}
-      --build-header VTKRENDERINGVOLUMEOPENGL2_EXPORT
-      vtkRenderingVolumeOpenGL2Module.h
+      --build-header
     )
 endforeach()
 
