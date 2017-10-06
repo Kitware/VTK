@@ -178,7 +178,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
       //
       // Send Volumetric data to OSPRay
-
       //
       ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
       double origin[3];
