@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkGraphItem();
-  ~vtkGraphItem();
+  ~vtkGraphItem() override;
 
   float LastPosition[2];
 
