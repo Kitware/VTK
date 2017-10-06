@@ -31,7 +31,7 @@
 #include "vtkUnsignedShortArray.h"
 
 
-#include "vtkXMLPolyDataWriter.h"
+//#include "vtkXMLPolyDataWriter.h"
 
 #include "vtkLASReader.h"
 
@@ -52,10 +52,13 @@ int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
   vtkSmartPointer<vtkPolyData> outputData = reader->GetOutput();
 
   bool useClassification = false;
+  bool useColor = false;
   vtkUnsignedShortArray* classification =
     vtkUnsignedShortArray::SafeDownCast(outputData->GetPointData()->GetArray("classification"));
   vtkUnsignedShortArray* intensity =
     vtkUnsignedShortArray::SafeDownCast(outputData->GetPointData()->GetArray("intensity"));
+  vtkUnsignedShortArray* color =
+    vtkUnsignedShortArray::SafeDownCast(outputData->GetPointData()->GetArray("color"));
   double range[2];
   if (classification)
   {
@@ -66,6 +69,19 @@ int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
       useClassification = true;
       outputData->GetPointData()->SetActiveScalars("classification");
     }
+  }
+  if (! useClassification)
+  {
+    if (color)
+    {
+      color->GetRange(range, 0);
+      if (range[0] != range[1])
+      {
+        std::cout << "Color by color scalar\n";
+        useColor = true;
+        outputData->GetPointData()->SetActiveScalars("color");
+      }
+    }
     else
     {
       std::cout << "Color by intensity\n";
@@ -73,19 +89,24 @@ int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
       outputData->GetPointData()->SetActiveScalars("intensity");
     }
   }
-  vtkNew<vtkXMLPolyDataWriter> writer;
-  writer->SetFileName("/home/danlipsa/tmp/test.vtp");
-  writer->SetInputData(outputData);
-  writer->Write();
+
+
+  // vtkNew<vtkXMLPolyDataWriter> writer;
+  // writer->SetFileName("test.vtp");
+  // writer->SetInputData(outputData);
+  // writer->Write();
 
   //Visualise in a render window
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputData(outputData);
-  mapper->ScalarVisibilityOn();
-  mapper->SetScalarModeToUsePointData();
-  mapper->SetColorModeToDefault();
-  mapper->SelectColorArray(useClassification ? "classification" : "intensity");
-  mapper->SetScalarRange(range);
+  if (useColor)
+  {
+    mapper->SetColorModeToDirectScalars();
+  }
+  else
+  {
+    mapper->SetScalarRange(range);
+  }
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
