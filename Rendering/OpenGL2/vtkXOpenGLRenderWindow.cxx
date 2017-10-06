@@ -67,6 +67,7 @@ typedef ptrdiff_t GLsizeiptr;
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+typedef void ( * glXSwapIntervalEXTProc) (Display* dpy, GLXDrawable drawable, int interval);
 
 class vtkXOpenGLRenderWindow;
 class vtkRenderWindow;
@@ -994,6 +995,31 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 
     this->Modified();
   }
+}
+
+bool vtkXOpenGLRenderWindow::SetSwapControl(int i)
+{
+  glXSwapIntervalEXTProc glXSwapIntervalEXT =
+   (glXSwapIntervalEXTProc)
+    glXGetProcAddressARB( (const GLubyte *) "glXSwapIntervalEXT" );
+
+  if (!glXSwapIntervalEXT)
+  {
+    return false;
+  }
+
+  // if (i < 0)
+  // {
+  //   if (glxewIsSupported("GLX_EXT_swap_control_tear"))
+  //   {
+  //     glXSwapIntervalEXT(i);
+  //     return true;
+  //   }
+  //   return false;
+  // }
+
+  glXSwapIntervalEXT(this->DisplayId, this->WindowId, i);
+  return true;
 }
 
 
