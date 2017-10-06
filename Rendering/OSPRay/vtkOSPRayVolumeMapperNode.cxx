@@ -229,6 +229,14 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
                         this->NumColors,
                         &this->TFVals[0]);
 
+      float scalarOpacityUnitDistance = volProperty->GetScalarOpacityUnitDistance();
+      if (scalarOpacityUnitDistance < 1e-29)
+      {
+        scalarOpacityUnitDistance = 1e-29;
+      }
+      for(int i=0; i < this->NumColors; i++)
+        this->TFOVals[i] = this->TFOVals[i]/scalarOpacityUnitDistance;
+
       OSPData colorData = ospNewData(this->NumColors,
                                      OSP_FLOAT3,
                                      &this->TFVals[0]);
@@ -249,7 +257,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     ospSet1f(OSPRayVolume, "adaptiveMaxSamplingRate", 1.2f);
     ospSet1f(OSPRayVolume, "adaptiveBacktrack", 0.01f);
-    ospSet1i(OSPRayVolume, "adaptiveSampling", 1); //turn off preIntegration
+    ospSet1i(OSPRayVolume, "adaptiveSampling", 1);
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
@@ -259,7 +267,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       {
         float s = (100.0f - minBound)/100.0f;
         ospSet1f(this->OSPRayVolume, "samplingRate", s*6.f + 1.f);
-        ospSet1i(OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
+        ospSet1i(this->OSPRayVolume, "adaptiveSampling", 0); //turn off preIntegration
       }
       else if (minBound < 1000)
       {
@@ -277,12 +285,12 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
-    ospSet1f(OSPRayVolume, "adaptiveScalar", 15.f);
-    float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
-    float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
-    float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
-    ospSet3f(OSPRayVolume, "specular", rs,gs,bs);
-    ospSet1i(OSPRayVolume, "preIntegration", 0); //turn off preIntegration
+    ospSet1f(this->OSPRayVolume, "adaptiveScalar", 15.f);
+    float rs = static_cast<float>(volProperty->GetSpecular(0));
+    float gs = static_cast<float>(volProperty->GetSpecular(1));
+    float bs = static_cast<float>(volProperty->GetSpecular(2));
+    ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
+    ospSet1i(this->OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();
@@ -295,7 +303,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     {
       sca->Delete();
     }
-    //ospCommit(OSPRayModel);
   }
 }
 
