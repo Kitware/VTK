@@ -35,11 +35,11 @@
 
 #include "vtkLASReader.h"
 
-int TestLASReader(int argc, char **argv)
+int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
 {
   //const char* fileName = "Data/tp_manual_20160907131754_flt.las";
   //const char* fileName = "Data/test_buildings.las";
-  const char* fileName = "Data/test_1.las";
+  const char* fileName = "Data/@VTK_LAS_READER_TEST_INPUT@";
   //const char* fileName = "Data/test_3.las";
   const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
   vtkNew<vtkLASReader> reader;
@@ -100,7 +100,7 @@ int TestLASReader(int argc, char **argv)
   renderer->ResetCamera();
 
   vtkCamera *camera=renderer->GetActiveCamera();
-  camera->Elevation(-90.0);
+  camera->Elevation(@VTK_LAS_READER_ELEVATION@);
 
   int retVal = vtkRegressionTestImage (renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
