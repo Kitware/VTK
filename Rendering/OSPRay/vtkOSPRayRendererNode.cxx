@@ -809,6 +809,8 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   else
   {
     oModel = (OSPModel)this->OModel;
+    ospSetObject(oRenderer,"model", oModel);
+    ospCommit(oRenderer);
   }
   it->Delete();
 
