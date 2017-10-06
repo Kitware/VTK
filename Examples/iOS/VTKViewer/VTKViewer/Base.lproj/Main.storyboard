@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="15G1510" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="k1K-U8-c72">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--VTK View Controller-->
+        <scene sceneID="Gik-ib-Klh">
+            <objects>
+                <viewController id="e5K-88-RHN" userLabel="VTK View Controller" customClass="VTKViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="cgm-0q-x7R"/>
+                        <viewControllerLayoutGuide type="bottom" id="JOC-In-Jga"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="sEU-y6-Vwp" userLabel="VTK View" customClass="VTKView">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="3D Scene" image="Landscape" id="0Ah-m3-NW4"/>
+                    <connections>
+                        <outlet property="vtkView" destination="sEU-y6-Vwp" id="sVQ-Hz-Yoc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OMY-8p-Fdf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-567" y="591"/>
+        </scene>
+        <!--Documents-->
+        <scene sceneID="vLs-9Z-8gy">
+            <objects>
+                <viewController id="QBP-F0-lhT" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="D2K-CH-2Jw"/>
+                        <viewControllerLayoutGuide type="bottom" id="9ZG-vg-0PS"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="80D-MW-kFZ">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Documents" image="Cabinet" selectedImage="Cabinet" id="gNA-RG-J7S"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="92Q-jj-BAY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-567" y="-62"/>
+        </scene>
+        <!--Tab Bar Controller-->
+        <scene sceneID="Vx6-FX-SJZ">
+            <objects>
+                <tabBarController id="k1K-U8-c72" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="17V-aN-3bc">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
+                    <connections>
+                        <segue destination="QBP-F0-lhT" kind="relationship" relationship="viewControllers" id="wNM-mr-LCS"/>
+                        <segue destination="e5K-88-RHN" kind="relationship" relationship="viewControllers" id="qih-1A-7ai"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Pqw-df-pGp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1553" y="256"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="Cabinet" width="20" height="26"/>
+        <image name="Landscape" width="24" height="18"/>
+    </resources>
+</document>
