@@ -38,7 +38,7 @@ class vtkOpenVRMenuWidget::InternalElement
     vtkCommand *Command;
     std::string Name;
     std::string Text;
-  vtkOpenVRMenuRepresentation::InternalElement() {
+  InternalElement() {
   }
 };
 
