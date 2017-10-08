@@ -10,7 +10,7 @@ set(Module_SRCS
   vtkOpenVRHardwarePicker.cxx
   vtkOpenVRInteractorStyle.cxx
   vtkOpenVRMenuRepresentation.cxx
-  vtkOpenVRmenuWidget.cxx
+  vtkOpenVRMenuWidget.cxx
   vtkOpenVRModel.cxx
   vtkOpenVROverlay.cxx
   vtkOpenVRPanelRepresentation.cxx

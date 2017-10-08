@@ -50,7 +50,7 @@ class vtkOpenVRMenuRepresentation::InternalElement
     vtkCommand *Command;
     std::string Name;
 
-  vtkOpenVRMenuRepresentation::InternalElement() {
+  InternalElement() {
     vtkTextProperty *prop = this->TextActor->GetTextProperty();
     this->TextActor->ForceOpaqueOn();
 
