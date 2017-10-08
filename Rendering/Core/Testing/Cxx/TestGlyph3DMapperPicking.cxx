@@ -175,7 +175,6 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   squad->SetThetaResolution(25);
 
   vtkGlyph3DMapper *glypher=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher->SetInputConnection(colors->GetOutputPort());
   colors->Delete();
   glypher->SetScaleFactor(0.1);
@@ -211,7 +210,6 @@ int TestGlyph3DMapperPicking(int argc, char* argv[])
   selectionMask->Delete();
 
   vtkGlyph3DMapper *glypher2=vtkGlyph3DMapper::New();
-  //  glypher->SetNestedDisplayLists(0);
   glypher2->SetMasking(1);
   glypher2->SetMaskArray("mask");
 

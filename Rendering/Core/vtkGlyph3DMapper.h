@@ -251,10 +251,13 @@ public:
    * in a parent display list.
    * Not relevant if immediate mode is on.
    * For debugging/profiling purpose. Initial value is true.
+   * @deprecated in 8.1. Only applicable for legacy OpenGL rendering
+   * backend which is also deprecated.
    */
-  vtkSetMacro(NestedDisplayLists, bool);
-  vtkGetMacro(NestedDisplayLists, bool);
-  vtkBooleanMacro(NestedDisplayLists, bool);
+  VTK_LEGACY(void SetNestedDisplayLists(bool));
+  VTK_LEGACY(bool GetNestedDisplayLists());
+  VTK_LEGACY(void NestedDisplayListsOn());
+  VTK_LEGACY(void NestedDisplayListsOff());
   //@}
 
   //@{
@@ -455,7 +458,9 @@ protected:
   bool UseSelectionIds; // Enable/disable custom pick ids
   bool Masking; // Enable/disable masking.
   int OrientationMode;
+#if !defined(VTK_LEGACY_REMOVE)
   bool NestedDisplayLists; // boolean
+#endif
 
   bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 
