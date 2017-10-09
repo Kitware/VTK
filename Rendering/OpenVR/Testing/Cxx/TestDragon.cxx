@@ -118,5 +118,5 @@ int TestDragon(int argc, char *argv[])
     }
     return !retVal;
   }
-  return VTK_SUCCESS;
+  return 0;
 }
