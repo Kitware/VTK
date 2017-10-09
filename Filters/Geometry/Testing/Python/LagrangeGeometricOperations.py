@@ -379,6 +379,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         cam.SetPosition(14.9792978813, -9.28884906174, 13.1673942646)
         cam.SetFocalPoint(3.76340069188, 2.13047224356, 1.73084897464)
         cam.SetViewUp(-0.0714929546473, 0.669898141926, 0.739002866625)
+        self.rr.ResetCameraClippingRange()
 
         for color in ['R', 'S', 'T']:
           mi.SelectColorArray(color)
