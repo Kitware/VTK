@@ -227,7 +227,7 @@ protected:
   virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
 
   /**
-   * Subroutine to initalize the cluster centers using those provided by the user
+   * Subroutine to initialize the cluster centers using those provided by the user
    * in input port LEARN_PARAMETERS.  If no cluster centers are provided, the subroutine uses the
    * first DefaultNumberOfClusters input data points as initial cluster centers.
    * Called from within Learn.

@@ -1436,7 +1436,7 @@ void vtkPStructuredGridConnectivity::SerializeGridExtents(
     int *&sndbuffer, vtkIdType &N )
 {
   assert( "pre: Instance has not been initialized!" && this->Initialized );
-  assert( "pre: send buffer is expected ot be nullptr" && sndbuffer == nullptr );
+  assert( "pre: send buffer is expected to be nullptr" && sndbuffer == nullptr );
 
   //Each local extent is serialized with 7 ints:ID imin imax jmin jmax kmin kmax
   N         = this->GetNumberOfLocalGrids()*7;

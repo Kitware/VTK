@@ -354,7 +354,7 @@ public:
 
   /**
    * Enable model post process on output
-   * Return true if sucessful, false otherwise
+   * Return true if successful, false otherwise
    * Empty and Always return true with basic model
    */
   virtual bool FinalizeOutputs(vtkPolyData* vtkNotUsed(particlePathsOutput),
