@@ -164,7 +164,7 @@ void vtkMPIImageReader::PartitionController(const int extent[6])
 
   if ((this->GetFileDimensionality() == 3) || (numZ == 1))
   {
-    // Everyone reads from the same single file.  No need to partion controller.
+    // Everyone reads from the same single file.  No need to partition controller.
     this->SetGroupedController(this->Controller);
     return;
   }
@@ -435,7 +435,7 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
     this->Transform = newTransform;
   }
 
-  // Get information on data partion requested.
+  // Get information on data partition requested.
   int inExtent[6];
   vtkIdType inIncrements[3];
   data->GetExtent(inExtent);

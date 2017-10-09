@@ -40,7 +40,7 @@
  * <pre>
  * If the handle or sphere are selected:
  *   LeftButtonPressEvent - select the handle or sphere
- *   LeftButtonReleaseEvent - release the handle ot sphere
+ *   LeftButtonReleaseEvent - release the handle to sphere
  *   MouseMoveEvent - move the handle or translate the sphere
  * In all the cases, independent of what is picked, the widget responds to the
  * following VTK events:

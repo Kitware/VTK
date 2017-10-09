@@ -41,7 +41,7 @@
  * \par
  * So why maintain the display position? Consider drawing a contour on a
  * volume widget. You might want the contour to be located at a certain world
- * position in the volume or you might want to be overlayed over the window
+ * position in the volume or you might want to be overlaid over the window
  * like an Actor2D. The default behaviour of this class is to provide the
  * former behaviour.
  *

@@ -3869,7 +3869,7 @@ int vtkExodusIIReaderPrivate::OpenFile( const char* filename )
   this->Exoid = ex_open( filename, EX_READ,
     &this->AppWordSize, &this->DiskWordSize, &this->ExodusVersion );
   // figure out the longest string name we have and then set that to be the
-  // maximum length for the variable names. This is called everytime that the reader
+  // maximum length for the variable names. This is called every time that the reader
   // is updated so we don't have to worry about setting the global max_name_length variable.
   // this is because in our current version of the ExodusII libraries the exo Id isn't used
   // in the ex_set_max_name_length() function.

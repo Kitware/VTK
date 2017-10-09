@@ -28,7 +28,7 @@
  *  event, it's start and end times, and its ellapsed time.
  *  EndEventSynch includes a barrier before the measurement.
  *
- *  The log class implements the singleton patern so that it
+ *  The log class implements the singleton pattern so that it
  *  may be shared across class boundaries. If the log instance
  *  doesn't exist then one is created. It will be automatically
  *  destroyed at exit by the signleton destructor. It can be
@@ -160,7 +160,7 @@ public:
   int Write();
 
   /**
-   * The log class implements the singleton patern so that it
+   * The log class implements the singleton pattern so that it
    * may be shared across class boundaries. If the log instance
    * doesn't exist then one is created. It will be automatically
    * destroyed at exit by the signleton destructor. It can be

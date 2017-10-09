@@ -20,7 +20,7 @@
  *
  * The contour will stay on the focal plane irrespective of camera
  * position/orientation changes. The class was written in order to be able to
- * draw contours on a volume widget and have the contours overlayed on the
+ * draw contours on a volume widget and have the contours overlaid on the
  * focal plane in order to do contour segmentation. The superclass,
  * vtkContourRepresentation handles contours that are drawn in actual world
  * position co-ordinates, so they would rotate with the camera position/
