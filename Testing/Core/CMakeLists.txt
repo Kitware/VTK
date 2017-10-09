@@ -1,5 +1,6 @@
 vtk_module_export_info()
 set(Module_HDRS
+  vtkTestConditionals.txx
   vtkTestDriver.h
   vtkTestErrorObserver.h
   vtkTestingColors.h
