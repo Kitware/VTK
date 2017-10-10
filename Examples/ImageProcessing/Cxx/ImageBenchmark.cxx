@@ -75,7 +75,7 @@ const char *HelpText =
 "  --runs N                      The number of runs to perform\n"
 "  --threads N (or N-M or N,M,O) Request a certain number of threads\n"
 "  --split-mode slab|beam|block  Use the specified splitting mode\n"
-"  --enable-smp on|off           Use vtkSMPTools vs. vtkMultiThreader\n"
+"  --enable-smp on|off           Use vtkSMPTools (on) vs. vtkMultiThreader (off)\n"
 "  --clear-cache MBytes          Attempt to clear CPU cache between runs\n"
 "  --bytes-per-piece N           Ask for N bytes per piece [65536]\n"
 "  --min-piece-size XxYxZ        Minimum dimensions per piece [16x1x1]\n"

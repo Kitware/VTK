@@ -347,8 +347,3 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
-
-
-
-
-

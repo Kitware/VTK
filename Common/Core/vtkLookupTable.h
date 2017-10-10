@@ -73,6 +73,7 @@ public:
    * Constants for offsets of special colors (e.g., NanColor, BelowRangeColor,
    * AboveRangeColor) from the maximum index in the lookup table.
    */
+  static const vtkIdType REPEATED_LAST_COLOR_INDEX;
   static const vtkIdType BELOW_RANGE_COLOR_INDEX;
   static const vtkIdType ABOVE_RANGE_COLOR_INDEX;
   static const vtkIdType NAN_COLOR_INDEX;
@@ -249,7 +250,7 @@ public:
 
   //@{
   /**
-   * Set whether the below range color should be used.
+   * Set whether the above range color should be used.
    */
   vtkSetMacro(UseAboveRangeColor, int);
   vtkGetMacro(UseAboveRangeColor, int);
