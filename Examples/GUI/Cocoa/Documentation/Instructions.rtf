@@ -1,11 +1,12 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf830
 \cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
 \margl1440\margr1440\vieww21440\viewh21120\viewkind0
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
 
-\f0\fs38 \cf0 SimpleCocoaVTK 3.0\
-2016-09-12\
+\f0\fs38 \cf0 SimpleCocoaVTK 3.1\
+2017-10-16\
 by: Sean McBride and Mike Jackson\
 
 \fs34 \
@@ -21,7 +22,7 @@ by: Sean McBride and Mike Jackson\
 \ulnone \
 This simple example is intended to show how to use VTK in a Mac-only Xcode-based Cocoa application.  VTK's vtkCocoaGLView is a subclass of NSView and you can use it like pretty much any other NSView!\
 \
-This example is an NSDocument-based application with a single window controller. The window has two independent vtkCocoaGLViews in the XIB.  One shows a cone, and one shows a cylinder.\
+This example is an NSDocument-based application with a single window controller. The window has two independent vtkCocoaGLViews in the XIB.  One shows a cone, and one shows a cylinder. On a Retina display, the left view uses setWantsBestResolutionOpenGLSurface:YES, the right one setWantsBestResolutionOpenGLSurface:NO.\
 \
 See the screenshot (in the same folder as this file) to see what the app looks like.\
 \
@@ -36,7 +37,7 @@ It is recommended to also use these options, and you should synchronize your cho
 	CMAKE_OSX_SYSROOT						(as desired)\
 	CMAKE_OSX_DEPLOYMENT_TARGET		(as desired)\
 \
-The other settings are not so relevant or their defaults are fine.  If you've never built VTK before, please see Ryan Glover's excellent document here: <{\field{\*\fldinst{HYPERLINK "http://www.vtk.org/Wiki/Cocoa_VTK"}}{\fldrslt http://www.vtk.org/Wiki/Cocoa_VTK}}>.  Make sure you both build and install VTK!\
+The other settings are not so relevant or their defaults are fine.  If you've never built VTK before, please see Ryan Glover's excellent (though dated now) document here: <{\field{\*\fldinst{HYPERLINK "http://www.vtk.org/Wiki/Cocoa_VTK"}}{\fldrslt http://www.vtk.org/Wiki/Cocoa_VTK}}>.  Make sure you both build and install VTK!\
 \
 Next, you have to create two Source Trees in Xcode, named "vtk-debug-include" and "vtk-debug-lib".  Do this from Preferences > Locations > Source Trees.  Both should point to subfolders of where your installed VTK is.  If you install into the default /usr/local/, set them like so:\
 \
@@ -45,17 +46,25 @@ Next, you have to create two Source Trees in Xcode, named "vtk-debug-include" an
 \
 Note that the path changes depending on your version of VTK.  Basically, you want the source trees to match your CMAKE_INSTALL_PREFIX setting.\
 \
-All the vtk files in the Xcode project are referenced relative to the source tree.  This allows you to have your vtk files anywhere without changing the project itself. If they appear in red in Xcode, it's probably because your source trees are missing or wrong.\
+All the VTK files in the Xcode project are referenced relative to the source tree.  This allows you to have your VTK files anywhere without changing the project itself. If they appear in red in Xcode, it's probably because your source trees are missing or wrong.\
 \
 Now you should be able to build the project!\
 \
 The code has many comments, and hopefully they will answer any questions you may have.\
 \
 If you have any problems, please post to the vtkusers mailing list.\
-<{\field{\*\fldinst{HYPERLINK "http://public.kitware.com/mailman/listinfo/vtkusers"}}{\fldrslt http://public.kitware.com/mailman/listinfo/vtkusers}}>\
+<{\field{\*\fldinst{HYPERLINK "https://public.kitware.com/mailman/listinfo/vtkusers"}}{\fldrslt https://public.kitware.com/mailman/listinfo/vtkusers}}>\
 \
 \ul \ulc0 Version History:\
 \ulnone \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
+
+\i \cf0 Changes in 3.1 (since 3.0)\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
+
+\i0 \cf0 - Now demonstrate using setWantsBestResolutionOpenGLSurface:YES/NO on Retina displays.\
+- Now demonstrate getting the macOS system font to render non-ASCII text with.\
+\
 \pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\tx7380\tx7940\tx8520\pardirnatural\partightenfactor0
 
 \i \cf0 Changes in 3.0 (since 2.0)\
