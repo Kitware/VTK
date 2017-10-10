@@ -2006,8 +2006,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::EndPicking(vtkRenderer* ren)
     if (this->CurrentSelectionPass >= vtkHardwareSelector::ID_LOW24)
     {
       // tell the selector the maximum number of cells that the mapper could render
-      unsigned int const numVoxels = (this->Extents[1] - this->Extents[0]) *
-        (this->Extents[3] - this->Extents[2]) * (this->Extents[5] - this->Extents[4]);
+      unsigned int const numVoxels =
+        (this->Extents[1] - this->Extents[0] + 1) *
+        (this->Extents[3] - this->Extents[2] + 1) *
+        (this->Extents[5] - this->Extents[4] + 1);
       selector->RenderAttributeId(numVoxels);
     }
     selector->EndRenderProp();
