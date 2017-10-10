@@ -49,6 +49,7 @@ WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "vtkPLY.h"
 #include "vtkHeap.h"
 #include "vtkByteSwap.h"
+#include "vtkMath.h"
 
 #include <cstddef>
 #include <cstring>
@@ -2274,9 +2275,11 @@ void vtkPLY::get_binary_item(
         fclose (plyfile->fp);
         return;
       }
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_UCHAR:
@@ -2290,9 +2293,11 @@ void vtkPLY::get_binary_item(
         fclose (plyfile->fp);
         return;
       }
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_SHORT:
@@ -2308,9 +2313,11 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_USHORT:
@@ -2326,9 +2333,11 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_INT:
@@ -2345,9 +2354,11 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_UINT:
@@ -2363,9 +2374,11 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
-      *int_val = value;
-      *uint_val = value;
-      *double_val = value;
+
+      // Here value can always fit in int, unsigned int, and double.
+      *int_val = static_cast<int>(value);
+      *uint_val = static_cast<unsigned int>(value);
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_FLOAT:
@@ -2382,9 +2395,13 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
-      *int_val = static_cast<int>(value);
-      *uint_val = static_cast<unsigned int>(value);
-      *double_val = value;
+
+      // INT32_MIN (-2^31) is a power of 2 and thus exactly representable as float.
+      // INT32_MAX (2^31 - 1) is not exactly representable as float; closest smaller integer is 2^31 - 128.
+      // UINT32_MAX (2^32 - 1) is not exactly representable as float; closest smaller integer is 2^32 - 256.
+      *int_val = static_cast<int>(vtkMath::ClampValue(value, (float)VTK_INT_MIN, 2147483520.0f));
+      *uint_val = static_cast<unsigned int>(vtkMath::ClampValue(value, 0.0f, 4294967040.0f));
+      *double_val = static_cast<double>(value);
     }
       break;
     case PLY_DOUBLE:
@@ -2400,8 +2417,10 @@ void vtkPLY::get_binary_item(
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&value) :
         vtkByteSwap::Swap8LE(&value);
-      *int_val = static_cast<int>(value);
-      *uint_val = static_cast<unsigned int>(value);
+
+      // Here we can just clamp and cast, all int32s can be exactly represented as doubles.
+      *int_val = static_cast<int>(vtkMath::ClampValue(value, (double)VTK_INT_MIN, (double)VTK_INT_MAX));
+      *uint_val = static_cast<unsigned int>(vtkMath::ClampValue(value, 0.0, (double)VTK_UNSIGNED_INT_MAX));
       *double_val = value;
     }
       break;
