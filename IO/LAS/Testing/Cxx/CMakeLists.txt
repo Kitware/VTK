@@ -10,8 +10,6 @@ endfunction()
 
 add_vtk_las_reader_test(test_1.las 0)
 add_vtk_las_reader_test(test_2.las -90)
-#add_vtk_las_reader_test(test_3.las 0)
-# add_vtk_las_reader_test(tp_manual_20160907131754_flt.las -90)
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${VTK_LAS_READER_TESTS}
