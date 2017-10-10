@@ -6,8 +6,8 @@
 
 # If the environement var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # October 4, 2017 VTKBookExamples alpha
-  set(GIT_TAG 72a9a460cd7fee374afafb445216240d156b5991)
+  # October 9, 2017 New alternative baselines
+  set(GIT_TAG 194f240206f46d08accf2bfdd1f3084f25f50179)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
