@@ -1647,15 +1647,8 @@ void vtkGetCompositeFunc(
 //----------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
-// Check pointer memory alignment with 4-byte words
-inline bool vtkImageReslicePointerAlignment(void *ptr, int n)
-{
-  return ((reinterpret_cast<uintptr_t>(ptr) % n) == 0);
-}
-
-//--------------------------------------------------------------------------
 // pixel copy function, templated for different scalar types
-template <class T>
+template <class T, int N=1>
 struct vtkImageResliceSetPixels
 {
 static void Set(void *&outPtrV, const void *inPtrV, int numscalars, int n)
@@ -1689,50 +1682,16 @@ static void Set1(void *&outPtrV, const void *inPtrV,
   outPtrV = outPtr;
 }
 
-// optimized for 2 scalar components
-static void Set2(void *&outPtrV, const void *inPtrV,
+// optimized for N scalar components
+static void SetN(void *&outPtrV, const void *inPtrV,
                  int vtkNotUsed(numscalars), int n)
 {
   const T* inPtr = static_cast<const T*>(inPtrV);
   T* outPtr = static_cast<T*>(outPtrV);
   for (; n > 0; --n)
   {
-    outPtr[0] = inPtr[0];
-    outPtr[1] = inPtr[1];
-    outPtr += 2;
-  }
-  outPtrV = outPtr;
-}
-
-// optimized for 3 scalar components
-static void Set3(void *&outPtrV, const void *inPtrV,
-                 int vtkNotUsed(numscalars), int n)
-{
-  const T* inPtr = static_cast<const T*>(inPtrV);
-  T* outPtr = static_cast<T*>(outPtrV);
-  for (; n > 0; --n)
-  {
-    outPtr[0] = inPtr[0];
-    outPtr[1] = inPtr[1];
-    outPtr[2] = inPtr[2];
-    outPtr += 3;
-  }
-  outPtrV = outPtr;
-}
-
-// optimized for 4 scalar components
-static void Set4(void *&outPtrV, const void *inPtrV,
-                 int vtkNotUsed(numscalars), int n)
-{
-  const T* inPtr = static_cast<const T*>(inPtrV);
-  T* outPtr = static_cast<T*>(outPtrV);
-  for (; n > 0; --n)
-  {
-    outPtr[0] = inPtr[0];
-    outPtr[1] = inPtr[1];
-    outPtr[2] = inPtr[2];
-    outPtr[3] = inPtr[3];
-    outPtr += 4;
+    memcpy(outPtr, inPtr, N*sizeof(T));
+    outPtr += N;
   }
   outPtrV = outPtr;
 }
@@ -1742,34 +1701,8 @@ static void Set4(void *&outPtrV, const void *inPtrV,
 // get a pixel copy function that is appropriate for the data type
 void vtkGetSetPixelsFunc(
   void (**setpixels)(void *&out, const void *in, int numscalars, int n),
-  int dataType, int dataSize, int numscalars, void *dataPtr)
+  int dataType, int numscalars)
 {
-  // If memory is 4-byte aligned, copy in 4-byte chunks
-  if (vtkImageReslicePointerAlignment(dataPtr, 4) &&
-      ((dataSize*numscalars) & 0x03) == 0 &&
-      dataSize < 4 && dataSize*numscalars <= 16)
-  {
-    switch ((dataSize*numscalars) >> 2)
-    {
-      case 1:
-        *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set1;
-        break;
-      case 2:
-        *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set2;
-        break;
-      case 3:
-        *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set3;
-        break;
-      case 4:
-        *setpixels = &vtkImageResliceSetPixels<vtkTypeInt32>::Set4;
-        break;
-      default:
-        *setpixels = nullptr;
-        break;
-    }
-    return;
-  }
-
   switch (numscalars)
   {
     case 1:
@@ -1786,7 +1719,7 @@ void vtkGetSetPixelsFunc(
       switch (dataType)
       {
         vtkTemplateAliasMacro(
-          *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set2
+          *setpixels = &(vtkImageResliceSetPixels<VTK_TT,2>::SetN)
           );
         default:
           *setpixels = nullptr;
@@ -1796,7 +1729,7 @@ void vtkGetSetPixelsFunc(
       switch (dataType)
       {
         vtkTemplateAliasMacro(
-          *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set3
+          *setpixels = &(vtkImageResliceSetPixels<VTK_TT,3>::SetN)
           );
         default:
           *setpixels = nullptr;
@@ -1806,7 +1739,7 @@ void vtkGetSetPixelsFunc(
       switch (dataType)
       {
         vtkTemplateAliasMacro(
-          *setpixels = &vtkImageResliceSetPixels<VTK_TT>::Set4
+          *setpixels = &(vtkImageResliceSetPixels<VTK_TT,4>::SetN)
           );
         default:
           *setpixels = nullptr;
@@ -1825,7 +1758,7 @@ void vtkGetSetPixelsFunc(
 }
 
 //----------------------------------------------------------------------------
-// Convert background color from float to appropriate type
+// Convert background color from double to appropriate type
 template <class T>
 void vtkCopyBackgroundColor(
   double dcolor[4], T *background, int numComponents)
@@ -1907,8 +1840,7 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
   vtkAllocBackgroundPixel(&background,
      self->GetBackgroundColor(), scalarType, scalarSize, numscalars);
   // get the appropriate function for pixel copying
-  vtkGetSetPixelsFunc(&setpixels,
-    scalarType, scalarSize, numscalars, outPtr);
+  vtkGetSetPixelsFunc(&setpixels, scalarType, numscalars);
 
   vtkImagePointDataIterator iter(outData, outExt, nullptr, self, threadId);
   for (; !iter.IsAtEnd(); iter.NextSpan())
@@ -2067,8 +1999,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
     (nsamples > 1 && self->GetSlabMode() == VTK_IMAGE_SLAB_SUM));
   vtkGetConversionFunc(&convertpixels,
     inputScalarType, scalarType, scalarShift, scalarScale, forceClamping);
-  vtkGetSetPixelsFunc(&setpixels,
-    scalarType, scalarSize, outComponents, outPtr);
+  vtkGetSetPixelsFunc(&setpixels, scalarType, outComponents);
   vtkGetCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
 
@@ -2285,37 +2216,31 @@ void vtkImageResliceExecute(vtkImageReslice *self,
             const char *inPtrTmp = inPtrTmp0 +
               inIdX*inIncX + inIdY*inIncY + inIdZ*inIncZ;
 
-            // manual loop unrolling significantly boosts performance,
-            // and is much less bloat than templating over the type
+            // when memcpy is used with a constant size, the compiler will
+            // optimize away the function call and use the minimum number
+            // of instructions necessary to perform the copy
             switch (bytesPerPixel)
             {
               case 1:
                 outPtrTmp[0] = inPtrTmp[0];
                 break;
               case 2:
-                outPtrTmp[0] = inPtrTmp[0];
-                outPtrTmp[1] = inPtrTmp[1];
+                memcpy(outPtrTmp, inPtrTmp, 2);
                 break;
               case 3:
-                outPtrTmp[0] = inPtrTmp[0];
-                outPtrTmp[1] = inPtrTmp[1];
-                outPtrTmp[2] = inPtrTmp[2];
+                memcpy(outPtrTmp, inPtrTmp, 3);
                 break;
               case 4:
-                outPtrTmp[0] = inPtrTmp[0];
-                outPtrTmp[1] = inPtrTmp[1];
-                outPtrTmp[2] = inPtrTmp[2];
-                outPtrTmp[3] = inPtrTmp[3];
+                memcpy(outPtrTmp, inPtrTmp, 4);
                 break;
               case 8:
-                outPtrTmp[0] = inPtrTmp[0];
-                outPtrTmp[1] = inPtrTmp[1];
-                outPtrTmp[2] = inPtrTmp[2];
-                outPtrTmp[3] = inPtrTmp[3];
-                outPtrTmp[4] = inPtrTmp[4];
-                outPtrTmp[5] = inPtrTmp[5];
-                outPtrTmp[6] = inPtrTmp[6];
-                outPtrTmp[7] = inPtrTmp[7];
+                memcpy(outPtrTmp, inPtrTmp, 8);
+                break;
+              case 12:
+                memcpy(outPtrTmp, inPtrTmp, 12);
+                break;
+              case 16:
+                memcpy(outPtrTmp, inPtrTmp, 16);
                 break;
               default:
                 int oc = 0;
@@ -2367,7 +2292,7 @@ namespace {
 //----------------------------------------------------------------------------
 // Optimized routines for nearest-neighbor interpolation
 
-template <class T>
+template <class T, int N=1>
 struct vtkImageResliceRowInterpolate
 {
   static void Nearest(
@@ -2378,23 +2303,15 @@ struct vtkImageResliceRowInterpolate
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
     const vtkInterpolationWeights *weights);
 
-  static void Nearest2(
-    void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    const vtkInterpolationWeights *weights);
-
-  static void Nearest3(
-    void *&outPtr0, int idX, int idY, int idZ, int, int n,
-    const vtkInterpolationWeights *weights);
-
-  static void Nearest4(
+  static void NearestN(
     void *&outPtr0, int idX, int idY, int idZ, int, int n,
     const vtkInterpolationWeights *weights);
 };
 
 //----------------------------------------------------------------------------
 // helper function for nearest neighbor interpolation
-template<class T>
-void vtkImageResliceRowInterpolate<T>::Nearest(
+template<class T, int N>
+void vtkImageResliceRowInterpolate<T,N>::Nearest(
   void *&outPtr0, int idX, int idY, int idZ, int numscalars, int n,
   const vtkInterpolationWeights *weights)
 {
@@ -2422,8 +2339,8 @@ void vtkImageResliceRowInterpolate<T>::Nearest(
 
 //----------------------------------------------------------------------------
 // specifically for 1 scalar component
-template<class T>
-void vtkImageResliceRowInterpolate<T>::Nearest1(
+template<class T, int N>
+void vtkImageResliceRowInterpolate<T,N>::Nearest1(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
   const vtkInterpolationWeights *weights)
 {
@@ -2445,9 +2362,9 @@ void vtkImageResliceRowInterpolate<T>::Nearest1(
 }
 
 //----------------------------------------------------------------------------
-// specifically for 2 scalar components
-template<class T>
-void vtkImageResliceRowInterpolate<T>::Nearest2(
+// specifically for N scalar components
+template<class T, int N>
+void vtkImageResliceRowInterpolate<T,N>::NearestN(
   void *&outPtr0, int idX, int idY, int idZ, int, int n,
   const vtkInterpolationWeights *weights)
 {
@@ -2463,64 +2380,8 @@ void vtkImageResliceRowInterpolate<T>::Nearest2(
   {
     const T *tmpPtr = &inPtr0[iX[0]];
     iX++;
-    outPtr[0] = tmpPtr[0];
-    outPtr[1] = tmpPtr[1];
-    outPtr += 2;
-  }
-  outPtr0 = outPtr;
-}
-
-//----------------------------------------------------------------------------
-// specifically for 3 scalar components
-template<class T>
-void vtkImageResliceRowInterpolate<T>::Nearest3(
-  void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  const vtkInterpolationWeights *weights)
-{
-  const vtkIdType *iX = weights->Positions[0] + idX;
-  const vtkIdType *iY = weights->Positions[1] + idY;
-  const vtkIdType *iZ = weights->Positions[2] + idZ;
-  const T *inPtr0 = static_cast<const T *>(weights->Pointer) + iY[0] + iZ[0];
-  T *outPtr = static_cast<T *>(outPtr0);
-
-  // This is a hot loop.
-  // Be very careful changing it, as it affects performance greatly.
-  for (int i = n; i > 0; --i)
-  {
-    const T *tmpPtr = &inPtr0[iX[0]];
-    iX++;
-    outPtr[0] = tmpPtr[0];
-    outPtr[1] = tmpPtr[1];
-    outPtr[2] = tmpPtr[2];
-    outPtr += 3;
-  }
-  outPtr0 = outPtr;
-}
-
-//----------------------------------------------------------------------------
-// specifically for 4 scalar components
-template<class T>
-void vtkImageResliceRowInterpolate<T>::Nearest4(
-  void *&outPtr0, int idX, int idY, int idZ, int, int n,
-  const vtkInterpolationWeights *weights)
-{
-  const vtkIdType *iX = weights->Positions[0] + idX;
-  const vtkIdType *iY = weights->Positions[1] + idY;
-  const vtkIdType *iZ = weights->Positions[2] + idZ;
-  const T *inPtr0 = static_cast<const T *>(weights->Pointer) + iY[0] + iZ[0];
-  T *outPtr = static_cast<T *>(outPtr0);
-
-  // This is a hot loop.
-  // Be very careful changing it, as it affects performance greatly.
-  for (int i = n; i > 0; --i)
-  {
-    const T *tmpPtr = &inPtr0[iX[0]];
-    iX++;
-    outPtr[0] = tmpPtr[0];
-    outPtr[1] = tmpPtr[1];
-    outPtr[2] = tmpPtr[2];
-    outPtr[3] = tmpPtr[3];
-    outPtr += 4;
+    memcpy(outPtr, tmpPtr, N*sizeof(T));
+    outPtr += N;
   }
   outPtr0 = outPtr;
 }
@@ -2551,7 +2412,7 @@ void vtkGetSummationFunc(
     switch (scalarType)
     {
       vtkTemplateAliasMacro(
-        *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest2)
+        *summation = &(vtkImageResliceRowInterpolate<VTK_TT,2>::NearestN)
         );
       default:
         *summation = nullptr;
@@ -2562,7 +2423,7 @@ void vtkGetSummationFunc(
     switch (scalarType)
     {
       vtkTemplateAliasMacro(
-        *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest3)
+        *summation = &(vtkImageResliceRowInterpolate<VTK_TT,3>::NearestN)
         );
       default:
         *summation = nullptr;
@@ -2573,7 +2434,7 @@ void vtkGetSummationFunc(
     switch (scalarType)
     {
       vtkTemplateAliasMacro(
-        *summation = &(vtkImageResliceRowInterpolate<VTK_TT>::Nearest4)
+        *summation = &(vtkImageResliceRowInterpolate<VTK_TT,4>::NearestN)
         );
       default:
         *summation = nullptr;
@@ -2862,8 +2723,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     (nsamples > 1 && self->GetSlabMode() == VTK_IMAGE_SLAB_SUM));
   vtkGetConversionFunc(&conversion,
     inputScalarType, scalarType, scalarShift, scalarScale, forceClamping);
-  vtkGetSetPixelsFunc(&setpixels,
-    scalarType, scalarSize, outComponents, outPtr);
+  vtkGetSetPixelsFunc(&setpixels, scalarType, outComponents);
 
   // get the slab compositing function
   void (*composite)(F *op, const F *ip, int nc, int count, int i, int n) = nullptr;
