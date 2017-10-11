@@ -4,7 +4,6 @@ mark_as_advanced(libLAS_INCLUDE_DIR libLAS_LIBRARY)
 set(LASReader_SRCS vtkLASReader.cxx)
 
 include_directories(${libLAS_INCLUDE_DIRS})
-set_source_files_properties(vtkLASReader WRAP_EXCLUDE)
 
 vtk_module_library(vtkIOLAS ${LASReader_SRCS})
 vtk_module_link_libraries(vtkIOLAS LINK_PRIVATE ${libLAS_LIBRARIES})
