@@ -113,10 +113,11 @@ static const int wedgeFaceEdges[5][5] = {
 
 vtkLagrangeInterpolation::vtkLagrangeInterpolation()
 {
-  int maxOrder[3] = {
+  int maxOrder[4] = {
     MaxDegree,
     MaxDegree,
-    MaxDegree
+    MaxDegree,
+    0 // Used for number of points
   };
   vtkLagrangeInterpolation::PrepareForOrder(maxOrder);
 }
