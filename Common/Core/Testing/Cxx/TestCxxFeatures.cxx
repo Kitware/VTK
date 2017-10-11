@@ -89,19 +89,6 @@ NestedTestOuter::~NestedTestOuter()
 
 //----------------------------------------------------------------------------
 
-/* Test inclusion of some stl headers.  */
-#ifdef _MSC_VER
-#pragma warning (push, 2)
-#endif
-
-#include <vector>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-//----------------------------------------------------------------------------
-
 /* Test full template specialization of functions.  */
 template <class T>
 int FullySpecializedFunction(T*)

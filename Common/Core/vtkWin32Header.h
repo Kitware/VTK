@@ -93,7 +93,8 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #if defined(_MSC_VER) // Visual studio
 #pragma warning ( disable : 4311 )
 #pragma warning ( disable : 4312 )
-#endif //
+#endif
+
 #define vtkGetWindowLong GetWindowLongPtr
 #define vtkSetWindowLong SetWindowLongPtr
 #define vtkLONG LONG_PTR

@@ -38,13 +38,7 @@
 #endif
 
 #include <cstdlib>
-
-// for uintptr_t
-#ifdef _MSC_VER
-#include <stddef.h>
-#else
-#include <stdint.h>
-#endif
+#include <cstdint>
 
 // Silence warning like
 // "dereferencing type-punned pointer will break strict-aliasing rules"

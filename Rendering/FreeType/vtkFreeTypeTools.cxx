@@ -31,10 +31,7 @@
 // The embedded fonts
 #include "fonts/vtkEmbeddedFonts.h"
 
-#ifndef _MSC_VER
-# include <cstdint>
-#endif
-
+#include <cstdint>
 #include <limits>
 #include <cassert>
 #include <algorithm>

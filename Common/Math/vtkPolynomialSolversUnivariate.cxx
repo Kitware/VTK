@@ -27,12 +27,7 @@
 #include "vtkDataArray.h"
 #include "vtkMath.h"
 
-#if defined(_MSC_VER) || \
-    (defined(__BORLANDC__) && (__BORLANDC__ < 0x660)) || \
-    defined (__SUNPRO_C) || \
-    defined(__SUNPRO_CC)
-# define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
-#endif
+#include <cmath>
 
 #define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 
