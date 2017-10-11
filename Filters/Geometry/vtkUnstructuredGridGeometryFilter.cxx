@@ -554,17 +554,8 @@ public:
                   }
                   break;
                 case VTK_LAGRANGE_TRIANGLE:
-                  // the mid-edge points
-                  i=0;
-                  while(found && i<3)
-                    {
-                    // we add numberOfPoints before modulo. Modulo does not work
-                    // with negative values.
-                    // -1: start at the end in reverse order.
-                    found=current->Points[numberOfCornerPoints+((current->SmallestIdx-i+3-1)%3)]
-                      ==points[numberOfCornerPoints+((smallestIdx+i)%3)];
-                    ++i;
-                    }
+                  found &= (current->NumberOfPoints == numberOfPoints);
+                  // TODO: Compare all higher order points.
                   break;
                 case VTK_QUADRATIC_QUAD:
                   // the mid-edge points
@@ -594,39 +585,8 @@ public:
                   }
                   break;
                 case VTK_LAGRANGE_QUADRILATERAL:
-                  // Check that order is the same:
-                  /*
-                  found = found && current->NumberOfPoints == numberOfPoints;
-                  std::cout << "Testing quads\n  " << current->SmallestIdx << "_ ";
-                  for (int qq = 0; qq < numberOfPoints; ++qq)
-                    {
-                    std::cout << " " << current->Points[(current->SmallestIdx + qq) % numberOfPoints];
-                    }
-                  std::cout << "  vs.\n  " << smallestIdx << "_ ";
-                  for (int qq = 0; qq < numberOfPoints; ++qq)
-                    {
-                    std::cout << " " << points[(smallestIdx + qq) % numberOfPoints];
-                    }
-                  */
-                  // If order matches, check that all other points match:
-                  /*
-                  for (i = 4; found && i < numberOfPoints; ++i)
-                    {
-                    found =
-                      current->Points[(current->SmallestIdx - i + numberOfPoints) % numberOfPoints] ==
-                      points[(smallestIdx + i + numberOfPoints) % numberOfPoints];
-                    }
-                   */
-                  //std::cout << " => " << (found ? "Same" : "Diff") << "\n";
-                  /*
-                  while (found && i < numberOfPoints)
-                    {
-                    found =
-                      current->Points[(current->SmallestIdx - i + numberOfPoints - 1) % numberOfPoints] ==
-                      points[(smallestIdx + i) % numberOfPoints];
-                    ++i;
-                    }
-                    */
+                  found &= (current->NumberOfPoints == numberOfPoints);
+                  // TODO: Compare all higher order points.
                   break;
                 default: // other faces are linear: we are done.
                   break;
