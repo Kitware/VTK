@@ -796,7 +796,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         }
         if ( ! this->LegendActor->GetEntryString( i ) )
         {
-          static char legendString[12];
+          char legendString[18];
           snprintf( legendString, sizeof(legendString), "%s%d", "Curve ", i );
           this->LegendActor->SetEntryString( i,legendString );
         }

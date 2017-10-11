@@ -100,7 +100,7 @@ vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
 
     if ( number > 0 )
     {
-      char n[4];
+      char n[12];
       snprintf(n, sizeof(n), "%02d", number);
       blorb += n;
     }
