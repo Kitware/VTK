@@ -1159,7 +1159,7 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
   ctf->AddRGBPoint(276.829, 0.7, 0.015, 0.15);
 
   vtkNew<vtkPiecewiseFunction> pwf;
-  pwf->AddPoint(37.3531, 0.0);
+  pwf->AddPoint(37.3531, 1.0);
   pwf->AddPoint(276.829, 1.0);
 
   volumeProperty->SetColor(ctf.GetPointer());
@@ -1178,10 +1178,10 @@ int TestGPURayCastVolumePlane(int argc, char* argv[])
   renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkPlaneSource> plane;
-  plane->SetCenter(0,0,0.5);
-  plane->SetOrigin(-70, -70, 0.5);
-  plane->SetPoint1(70, -70, 0.5);
-  plane->SetPoint2(-70, 70, 0.5);
+  plane->SetCenter(0,0,5.0);
+  plane->SetOrigin(-70, -70, 5.0);
+  plane->SetPoint1(70, -70, 5.0);
+  plane->SetPoint2(-70, 70, 5.0);
 
   vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(plane->GetOutputPort());
