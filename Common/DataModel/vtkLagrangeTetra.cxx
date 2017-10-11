@@ -49,8 +49,8 @@ namespace
   // triangle system. These are the relevent indices within the four-component
   // system for each face (e.g. face 0 varies across the barycentric tetra
   // coordinates 0, 2 and 3).
-  static const vtkIdType FaceBCoords[4][3] = {{0,2,3}, {0,1,2},
-                                              {1,2,3}, {0,1,3}};
+  static const vtkIdType FaceBCoords[4][3] = {{0,2,3}, {2,0,1},
+                                              {2,1,3}, {1,0,3}};
 
   // When describing a linearized tetra face, there is a mapping between the
   // four-component barycentric tetra system and the three-component barycentric
@@ -477,9 +477,9 @@ int vtkLagrangeTetra::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   }
 
   const int closestFaceByAxis[4][3] = {
-    { 0, 2, 3 },
+    { 0, 3, 2 },
     { 0, 1, 3 },
-    { 0, 1, 2 },
+    { 0, 2, 1 },
     { 1, 2, 3 }
   };
 
