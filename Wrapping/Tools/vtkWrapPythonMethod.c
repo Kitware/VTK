@@ -1175,7 +1175,7 @@ void vtkWrapPython_GenerateOneMethod(
   int is_vtkobject, int do_constructors)
 {
   FunctionInfo *theFunc;
-  char occSuffix[8];
+  char occSuffix[16];
   FunctionInfo *theOccurrence;
   int occ, numberOfOccurrences;
   int occCounter;

@@ -453,7 +453,7 @@ void vtkWrapPython_OverloadMethodDef(
   FunctionInfo **wrappedFunctions, int numberOfWrappedFunctions,
   int fnum, int numberOfOccurrences, int all_legacy)
 {
-  char occSuffix[8];
+  char occSuffix[16];
   int occ, occCounter;
   FunctionInfo *theOccurrence;
   FunctionInfo *theFunc;
