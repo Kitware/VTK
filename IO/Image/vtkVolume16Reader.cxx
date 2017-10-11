@@ -344,7 +344,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
   for (fileNumber = first; fileNumber <= last; fileNumber++)
   {
     // build the file name. if there is no prefix, just use the slice number
-    if (this->FilePattern)
+    if (this->FilePrefix)
     {
       snprintf (filename, sizeof(filename), this->FilePattern, this->FilePrefix, fileNumber);
     }

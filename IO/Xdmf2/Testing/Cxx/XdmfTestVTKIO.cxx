@@ -74,8 +74,14 @@ bool DoFilesExist(const char*xdmffile, const char*hdf5file, bool deleteIfSo)
   bool theyDo = xexists && xlenOK && hexists && hlenOK;
   if (theyDo && deleteIfSo && CleanUpGood)
   {
-    unlink(xdmffile);
-    unlink(hdf5file);
+    if (xdmffile)
+    {
+      unlink(xdmffile);
+    }
+    if (hdf5file)
+    {
+      unlink(hdf5file);
+    }
   }
 
   return theyDo;
