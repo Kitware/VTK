@@ -1,0 +1,15 @@
+vtk_module(vtkIOLAS
+  TEST_DEPENDS
+    vtkTestingCore
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkTestingRendering
+    vtkInteractionStyle
+  KIT
+    vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkFiltersGeneral
+    vtkCommonExecutionModel
+   PRIVATE_DEPENDS
+    vtkCommonDataModel
+)
