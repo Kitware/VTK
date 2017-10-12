@@ -70,6 +70,31 @@ public:
 
   //@{
   /**
+   * Set/Get whether quadratic cells with simplicial shapes should be "completed".
+   *
+   * By default, quadratic Lagrange cells with simplicial shapes
+   * do not completely span the basis of all polynomial of the maximal
+   * degree. This can be corrected by adding mid-face and body-centered
+   * nodes. Setting this option to true will generate cells with these
+   * additional nodes.
+   *
+   * This is only used when
+   * (1) the cell type is a Lagrange triangle, tetrahedron, or wedge;
+   * and (2) \a CellOrder is set to 2 (quadratic elements).
+   * The default is false.
+   *
+   * When true, generated
+   * (1) triangles will have 7 nodes instead of 6;
+   * (2) tetrahedra will have 15 nodes instead of 10;
+   * (3) wedges will have 21 nodes instead of 18.
+   */
+  vtkSetMacro(CompleteQuadraticSimplicialElements, bool);
+  vtkGetMacro(CompleteQuadraticSimplicialElements, bool);
+  vtkBooleanMacro(CompleteQuadraticSimplicialElements, bool);
+  //@}
+
+  //@{
+  /**
    * Set/Get the polynomial order of the "Polynomial" point field.
    * The default is 1.
    */
@@ -139,6 +164,7 @@ protected:
   int BlocksDimensions[3];
   int CellType;
   int CellOrder;
+  bool CompleteQuadraticSimplicialElements;
   int OutputPrecision;
   int PolynomialFieldOrder;
   vtkMergePoints* Locator; // Only valid during RequestData.

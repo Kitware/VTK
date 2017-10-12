@@ -229,11 +229,11 @@ int vtkLagrangeCurve::IntersectWithLine(
       if (!intersection || (t >= 0 && (t < tFirst || tFirst < 0)))
         {
         tFirst = t;
+        subId = i;
         for (int ii = 0; ii < 3; ++ii)
           {
           x[ii] = tmpX[ii];
           pcoords[ii] = tmpP[ii]; // Translate this after we're sure it's the closest hit.
-          subId = i;
           }
         }
       intersection = true;
@@ -241,7 +241,8 @@ int vtkLagrangeCurve::IntersectWithLine(
     }
   if (intersection)
     {
-    this->TransformApproxToCellParams(subId, pcoords);
+    intersection &= this->TransformApproxToCellParams(subId, pcoords);
+    t = tFirst;
     }
   return intersection ? 1 : 0;
 }

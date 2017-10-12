@@ -113,10 +113,11 @@ static const int wedgeFaceEdges[5][5] = {
 
 vtkLagrangeInterpolation::vtkLagrangeInterpolation()
 {
-  int maxOrder[3] = {
+  int maxOrder[4] = {
     MaxDegree,
     MaxDegree,
-    MaxDegree
+    MaxDegree,
+    0 // Used for number of points
   };
   vtkLagrangeInterpolation::PrepareForOrder(maxOrder);
 }
@@ -608,6 +609,35 @@ int vtkLagrangeInterpolation::Tensor3ShapeDerivatives(const int order[2], const 
   return sn;
 }
 
+void vtkLagrangeInterpolation::Tensor3EvaluateDerivative(
+  const int order[4],
+  const double* pcoords,
+  double* fieldVals,
+  int fieldDim,
+  double* fieldDerivs)
+{
+  this->PrepareForOrder(order);
+  this->Tensor3ShapeDerivatives(order, pcoords, &this->DerivSpace[0]);
+  // Loop over variables we differentiate with respect to:
+  for (int vv = 0; vv < 3; ++vv)
+  {
+    // Loop over components of the field:
+    for (int cc = 0; cc < fieldDim; ++cc)
+    {
+      // Loop over shape functions (per-DOF values of the cell):
+      fieldDerivs[3 * cc + vv] = 0.;
+      for (int pp = 0; pp < order[3]; ++pp)
+      {
+        // Note the subtle difference between the indexing of this->DerivSpace here and in WedgeEvaluateDerivative.
+        // TODO: Choose the better approach and be consistent.
+        fieldDerivs[3 * cc + vv] += this->DerivSpace[order[3] * pp + vv] * fieldVals[fieldDim * pp + cc];
+      }
+    }
+  }
+  // ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy), (d(vy)/dz), (d(vz)/dx),(d(vz)/dy),(d(vz)/dz))
+}
+
+
 /// Wedge shape function computation
 void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const double pcoords[3], double* shape)
 {
@@ -631,6 +661,42 @@ void vtkLagrangeInterpolation::WedgeShapeFunctions(const int order[3], const dou
       << order[0] << ", " << order[1] << ", " << order[2]);
     return;
     }
+
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21 && order[0] == 2)
+  {
+    const double r = pcoords[0];
+    const double s = pcoords[1];
+    const double t = 2 * pcoords[2] - 1.;
+    const double rsm = 1. - r - s;
+    const double rs = r * s;
+    const double tp = 1. + t;
+    const double tm = 1. - t;
+
+    shape[ 0] = -0.5 * t * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[ 1] = -0.5 * t * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[ 2] = -0.5 * t * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[ 3] =  0.5 * t * tp * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[ 4] =  0.5 * t * tp * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[ 5] =  0.5 * t * tp * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[ 6] = -0.5 * t * tm * rsm * (4.0 * r - 12.0 * rs);
+    shape[ 7] = -0.5 * t * tm * (4.0 * rs - 12.0 * rsm * rs);
+    shape[ 8] = -0.5 * t * tm * rsm * (4.0 * s - 12.0 * rs);
+    shape[ 9] =  0.5 * t * tp * rsm * (4.0 * r - 12.0 * rs);
+    shape[10] =  0.5 * t * tp * (4.0 * rs - 12.0 * rsm * rs);
+    shape[11] =  0.5 * t * tp * rsm * (4.0 * s - 12.0 * rs);
+    shape[12] =  tp * tm * rsm * (1.0 - 2.0 * (r + s) + 3.0 * rs);
+    shape[13] =  tp * tm * (r - 2.0 * (rsm * r + rs) + 3.0 * rsm * rs);
+    shape[14] =  tp * tm * (s - 2.0 * (rsm * s + rs) + 3.0 * rsm * rs);
+    shape[15] = -0.5 * 27.0 * t * tm * rsm * rs;
+    shape[16] =  0.5 * 27.0 * t * tp * rsm * rs;
+    shape[17] =  tp * tm * rsm * (4.0 * r - 12.0 * rs);
+    shape[18] =  tp * tm * (4.0 * rs - 12.0 * rsm * rs);
+    shape[19] =  tp * tm * rsm * (4.0 * s - 12.0 * rs);
+    shape[20] =  27.0 * tp * tm * rsm * rs;
+    return;
+  }
+#endif
 
   // FIXME: Eventually needs to be varying length.
   double ll[vtkLagrangeInterpolation::MaxDegree + 1];
@@ -709,6 +775,89 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[2], const d
 
   int sn;
   int numPts = numtripts * (tOrder + 1);
+#ifdef VTK_21_POINT_WEDGE
+  if (order[3] == 21 && order[0] == 2)
+  {
+    const double r = pcoords[0];
+    const double s = pcoords[1];
+    const double t = 2 * pcoords[2] - 1.;
+    const double tm = t - 1.;
+    const double tp = t + 1.;
+    const double rsm = 1. - r - s;
+    const double rs = r * s;
+
+    // dN/dr
+    derivs[ 0] = 0.5*t*tm*(-3.0*rs + 2.0*r + 2.0*s + (3.0*s - 2.0)*rsm - 1.0);
+    derivs[ 1] = -0.5*t*tm*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
+    derivs[ 2] = -1.5*s*t*tm*(2*r + s - 1);
+    derivs[ 3] = 0.5*t*tp*(-3.0*rs + 2.0*r + 2.0*s + (3.0*s - 2.0)*rsm - 1.0);
+    derivs[ 4] = -0.5*t*tp*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
+    derivs[ 5] = -1.5*s*t*tp*(2*r + s - 1);
+    derivs[ 6] = 0.5*t*(12.0*s - 4.0)*tm*(2*r + s - 1);
+    derivs[ 7] = 0.5*s*t*tm*(24.0*r + 12.0*s - 8.0);
+    derivs[ 8] = s*t*tm*(12.0*r + 6.0*s - 8.0);
+    derivs[ 9] = 0.5*t*(12.0*s - 4.0)*tp*(2*r + s - 1);
+    derivs[10] = 0.5*s*t*tp*(24.0*r + 12.0*s - 8.0);
+    derivs[11] = s*t*tp*(12.0*r + 6.0*s - 8.0);
+    derivs[12] = tm*tp*(3.0*rs - 2.0*r - 2.0*s - (3.0*s - 2.0)*rsm + 1.0);
+    derivs[13] = tm*tp*(3.0*rs - 4.0*r - 3.0*s*rsm + 1.0);
+    derivs[14] = 3.0*s*tm*tp*(2*r + s - 1);
+    derivs[15] = 13.5*s*t*tm*(-2*r - s + 1);
+    derivs[16] = 13.5*s*t*tp*(-2*r - s + 1);
+    derivs[17] = (12.0*s - 4.0)*tm*tp*(-2*r - s + 1);
+    derivs[18] = -s*tm*tp*(24.0*r + 12.0*s - 8.0);
+    derivs[19] = s*tm*tp*(-24.0*r - 12.0*s + 16.0);
+    derivs[20] = 27.0*s*tm*tp*(2*r + s - 1);
+
+    // dN/ds
+    derivs[21] = 0.5*t*tm*(-3.0*rs + 2.0*r + 2.0*s + (3.0*r - 2.0)*rsm - 1.0);
+    derivs[22] =  -1.5*r*t*tm*(r + 2*s - 1);
+    derivs[23] =  -0.5*t*tm*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
+    derivs[24] =  0.5*t*tp*(-3.0*rs + 2.0*r + 2.0*s + (3.0*r - 2.0)*rsm - 1.0);
+    derivs[25] =  -1.5*r*t*tp*(r + 2*s - 1);
+    derivs[26] =  -0.5*t*tp*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
+    derivs[27] =  r*t*tm*(6.0*r + 12.0*s - 8.0);
+    derivs[28] =  0.5*r*t*tm*(12.0*r + 24.0*s - 8.0);
+    derivs[29] =  0.5*t*(12.0*r - 4.0)*tm*(r + 2*s - 1);
+    derivs[30] =  r*t*tp*(6.0*r + 12.0*s - 8.0);
+    derivs[31] =  0.5*r*t*tp*(12.0*r + 24.0*s - 8.0);
+    derivs[32] =  0.5*t*(12.0*r - 4.0)*tp*(r + 2*s - 1);
+    derivs[33] =  tm*tp*(3.0*rs - 2.0*r - 2.0*s - (3.0*r - 2.0)*rsm + 1.0);
+    derivs[34] =  3.0*r*tm*tp*(r + 2*s - 1);
+    derivs[35] =  tm*tp*(3.0*rs - 3.0*r*rsm - 4.0*s + 1.0);
+    derivs[36] =  13.5*r*t*tm*(-r - 2*s + 1);
+    derivs[37] =  13.5*r*t*tp*(-r - 2*s + 1);
+    derivs[38] =  r*tm*tp*(-12.0*r - 24.0*s + 16.0);
+    derivs[39] =  -r*tm*tp*(12.0*r + 24.0*s - 8.0);
+    derivs[40] =  (12.0*r - 4.0)*tm*tp*(-r - 2*s + 1);
+    derivs[41] =  27.0*r*tm*tp*(r + 2*s - 1);
+
+    // dN/dt
+    derivs[42] = -0.5*(-2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[43] =  0.5*r*(-2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
+    derivs[44] =  0.5*s*(-2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[45] =  0.5*(2*t + 1)*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[46] =  -0.5*r*(2*t + 1)*(-2.0*r - 3.0*s*rsm + 1.0);
+    derivs[47] =  -0.5*s*(2*t + 1)*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[48] =  -0.5*r*(12.0*s - 4.0)*(2*t - 1)*rsm;
+    derivs[49] =  0.5*rs*(2*t - 1)*(12.0*r + 12.0*s - 8.0);
+    derivs[50] =  -0.5*s*(12.0*r - 4.0)*(2*t - 1)*rsm;
+    derivs[51] =  -0.5*r*(12.0*s - 4.0)*(2*t + 1)*rsm;
+    derivs[52] =  0.5*rs*(2*t + 1)*(12.0*r + 12.0*s - 8.0);
+    derivs[53] =  0.5*s*(12.0*r - 4.0)*(2*t + 1)*rsm;
+    derivs[54] =  -2*t*rsm*(3.0*rs - 2.0*r - 2.0*s + 1.0);
+    derivs[55] =  2*r*t*(-2.0*r + 3.0*s*rsm + 1.0);
+    derivs[56] =  2*s*t*(-3.0*r*rsm - 2.0*s + 1.0);
+    derivs[57] =  -13.5*rs*(-2*t + 1)*rsm;
+    derivs[58] =  13.5*rs*(2*t + 1)*rsm;
+    derivs[59] =  2*r*t*(12.0*s - 4.0)*rsm;
+    derivs[60] =  rs*t*(-24.0*r - 24.0*s + 16.0);
+    derivs[61] =  2*s*t*(12.0*r - 4.0)*rsm;
+    derivs[62] =  -54.0*rs*t*rsm;
+
+    return;
+  }
+#endif
   vtkIdType ijk[3];
   for (int kk = 0; kk <= tOrder; ++kk)
   {
@@ -730,6 +879,55 @@ void vtkLagrangeInterpolation::WedgeShapeDerivatives(const int order[2], const d
       }
     }
   }
+}
+
+void vtkLagrangeInterpolation::WedgeEvaluate(
+  const int order[4],
+  const double* pcoords,
+  double* fieldVals,
+  int fieldDim,
+  double* fieldAtPCoords)
+{
+  this->PrepareForOrder(order);
+  this->WedgeShapeFunctions(order, pcoords, &this->ShapeSpace[0]);
+  // Loop over components of the field:
+  for (int cc = 0; cc < fieldDim; ++cc)
+  {
+    fieldAtPCoords[cc] = 0.;
+    // Loop over shape functions (per-DOF values of the cell):
+    for (int pp = 0; pp < order[3]; ++pp)
+    {
+      fieldAtPCoords[cc] += this->ShapeSpace[pp] * fieldVals[fieldDim * pp + cc];
+    }
+  }
+}
+
+void vtkLagrangeInterpolation::WedgeEvaluateDerivative(
+  const int order[4],
+  const double* pcoords,
+  double* fieldVals,
+  int fieldDim,
+  double* fieldDerivs)
+{
+  this->PrepareForOrder(order);
+  this->WedgeShapeDerivatives(order, pcoords, &this->DerivSpace[0]);
+  // Loop over variables we differentiate with respect to:
+  for (int vv = 0; vv < 3; ++vv)
+  {
+    // Loop over components of the field:
+    for (int cc = 0; cc < fieldDim; ++cc)
+    {
+      // Loop over shape functions (per-DOF values of the cell):
+      fieldDerivs[3 * cc + vv] = 0.;
+      for (int pp = 0; pp < order[3]; ++pp)
+      {
+        // Note the subtle difference between the indexing of this->DerivSpace here and in Tensor3EvaluateDerivative.
+        // TODO: Choose the better approach and be consistent.
+        fieldDerivs[3 * cc + vv] += this->DerivSpace[order[3] * vv + pp] * fieldVals[fieldDim * pp + cc];
+      }
+    }
+  }
+  // ((d(vx)/dx),(d(vx)/dy),(d(vx)/dz), (d(vy)/dx),(d(vy)/dy), (d(vy)/dz), (d(vz)/dx),(d(vz)/dy),(d(vz)/dz))
 }
 
 vtkVector3d vtkLagrangeInterpolation::GetParametricHexCoordinates(int vertexId)
@@ -1060,17 +1258,17 @@ void vtkLagrangeInterpolation::AppendWedgeCollocationPoints(vtkPoints* pts, int 
 }
 #endif // 0
 
-void vtkLagrangeInterpolation::PrepareForOrder(const int order[3])
+void vtkLagrangeInterpolation::PrepareForOrder(const int order[4])
 {
   // Ensure some scratch space is allocated for templated evaluation methods.
-  std::size_t maxShape = (order[0] + 1) * (order[1] + 1) * (order[2] + 1);
+  std::size_t maxShape = order[3] > 0 ? order[3] : ((order[0] + 1) * (order[1] + 1) * (order[2] + 1));
   std::size_t maxDeriv = maxShape * 3;
   if (this->ShapeSpace.size() < maxShape)
-    {
+  {
     this->ShapeSpace.resize(maxShape);
-    }
+  }
   if (this->DerivSpace.size() < maxDeriv)
-    {
+  {
     this->DerivSpace.resize(maxDeriv);
-    }
+  }
 }

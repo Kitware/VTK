@@ -34,6 +34,7 @@ class vtkPoints;
 class vtkVector3d;
 class vtkVector3i;
 class vtkLagrangeCurve;
+class vtkLagrangeInterpolation;
 class vtkLagrangeQuadrilateral;
 class vtkLagrangeTriangle;
 
@@ -127,6 +128,7 @@ protected:
   vtkNew<vtkLagrangeQuadrilateral> BdyQuad;
   vtkNew<vtkLagrangeTriangle> BdyTri;
   vtkNew<vtkLagrangeCurve> BdyEdge;
+  vtkNew<vtkLagrangeInterpolation> Interp;
 
 private:
   vtkLagrangeWedge(const vtkLagrangeWedge&) = delete;
