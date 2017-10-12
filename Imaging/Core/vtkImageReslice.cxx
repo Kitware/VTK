@@ -40,13 +40,7 @@
 #include <climits>
 #include <cfloat>
 #include <cmath>
-
-// for uintptr_t
-#ifdef _MSC_VER
-# include <stddef.h>
-#else
-# include <cstdint>
-#endif
+#include <cstdint>
 
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);

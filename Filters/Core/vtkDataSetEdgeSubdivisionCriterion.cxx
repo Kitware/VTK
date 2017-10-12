@@ -19,10 +19,6 @@
 #include "vtkCell.h"
 #include "vtkDataSet.h"
 
-#if defined(_MSC_VER)
-# pragma warning (disable: 4996) /* 'std::_Copy_opt' was declared deprecated */
-#endif
-
 vtkStandardNewMacro(vtkDataSetEdgeSubdivisionCriterion);
 
 vtkDataSetEdgeSubdivisionCriterion::vtkDataSetEdgeSubdivisionCriterion()

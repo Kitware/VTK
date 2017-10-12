@@ -1827,11 +1827,6 @@ static void ComputeVisiblePropBoundsRMI(void *arg,
 
 
 //----------------------------------------------------------------------------
-// the variables such as winInfo are initialzed prior to use
-#if defined(_MSC_VER) && !defined(VTK_DISPLAY_WIN32_WARNINGS)
-#pragma warning ( disable : 4701 )
-#endif
-
 void vtkParallelRenderManager::SatelliteStartRender()
 {
   vtkParallelRenderManager::RenderWindowInfo winInfo;

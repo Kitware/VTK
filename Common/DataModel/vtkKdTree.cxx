@@ -42,10 +42,6 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkCallbackCommand.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable : 4100 )
-#endif
-
 #include <algorithm>
 #include <list>
 #include <map>
@@ -63,8 +59,10 @@ static char dots[MSGSIZE] = "...................................................
 static char msg[MSGSIZE];
 
 //-----------------------------------------------------------------------------
-static void LastInputDeletedCallback(vtkObject *, unsigned long,
-                                     void *_self, void *)
+static void LastInputDeletedCallback(vtkObject * vtkNotUsed(caller),
+                                     unsigned long vtkNotUsed(eid),
+                                     void * _self,
+                                     void * vtkNotUsed(calldata))
 {
   vtkKdTree *self = reinterpret_cast<vtkKdTree *>(_self);
 
