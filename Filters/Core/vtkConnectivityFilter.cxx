@@ -17,6 +17,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
+#include "vtkDemandDrivenPipeline.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -26,6 +27,7 @@
 #include "vtkPointData.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkIdTypeArray.h"
 
@@ -68,6 +70,48 @@ vtkConnectivityFilter::~vtkConnectivityFilter()
   this->SpecifiedRegionIds->Delete();
 }
 
+int vtkConnectivityFilter::RequestDataObject(vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+  {
+      return 0;
+  }
+
+  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  if (input)
+  {
+    // for each output
+    for (int i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+    {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
+
+      if (!output || !output->IsA(input->GetClassName()))
+      {
+        vtkDataObject* newOutput = nullptr;
+        if (input->IsA("vtkPolyData"))
+        {
+          newOutput = input->NewInstance();
+        }
+        else
+        {
+          newOutput = vtkUnstructuredGrid::New();
+        }
+
+        info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
+        newOutput->Delete();
+        this->GetOutputPortInformation(0)->Set(
+          vtkDataObject::DATA_EXTENT_TYPE(), newOutput->GetExtentType());
+      }
+    }
+    return 1;
+  }
+
+  return 0;
+}
+
 int vtkConnectivityFilter::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
@@ -80,8 +124,11 @@ int vtkConnectivityFilter::RequestData(
   // get the input and output
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  vtkPolyData* pdOutput = vtkPolyData::SafeDownCast(output);
+  vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output);
 
   vtkIdType numPts, numCells, cellId, newCellId, i, j, pt;
   vtkPoints *newPts;
@@ -101,7 +148,15 @@ int vtkConnectivityFilter::RequestData(
     vtkDebugMacro(<<"No data to connect!");
     return 1;
   }
-  output->Allocate(numCells,numCells);
+
+  if (pdOutput)
+  {
+    pdOutput->Allocate(numCells, numCells);
+  }
+  if (ugOutput)
+  {
+    ugOutput->Allocate(numCells, numCells);
+  }
 
   // See whether to consider scalar connectivity
   //
@@ -335,8 +390,17 @@ int vtkConnectivityFilter::RequestData(
             this->PointIds->InsertId(i,id);
           }
         }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),
-                                           this->PointIds);
+        if (pdOutput)
+        {
+          newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
+                                               this->PointIds);
+        }
+        else if (ugOutput)
+        {
+          newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
+                                               this->PointIds);
+        }
+
         outputCD->CopyData(cd,cellId,newCellId);
       }
     }
@@ -376,8 +440,16 @@ int vtkConnectivityFilter::RequestData(
               this->PointIds->InsertId(i,id);
             }
           }
-          newCellId = output->InsertNextCell(input->GetCellType(cellId),
-                                             this->PointIds);
+          if (pdOutput)
+          {
+            newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
+                                                 this->PointIds);
+          }
+          else if (ugOutput)
+          {
+            newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
+                                                 this->PointIds);
+          }
           outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -407,8 +479,16 @@ int vtkConnectivityFilter::RequestData(
             this->PointIds->InsertId(i,id);
           }
         }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),
-                                           this->PointIds);
+        if (pdOutput)
+        {
+          newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
+                                               this->PointIds);
+        }
+        else if (ugOutput)
+        {
+          newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
+                                               this->PointIds);
+        }
         outputCD->CopyData(cd,cellId,newCellId);
       }
     }
@@ -528,6 +608,18 @@ int vtkConnectivityFilter::GetNumberOfExtractedRegions()
   return this->RegionSizes->GetMaxId() + 1;
 }
 
+int vtkConnectivityFilter::ProcessRequest(vtkInformation* request,
+  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+{
+  if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+  {
+    return this->RequestDataObject(request, inputVector, outputVector);
+  }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+
 // Initialize list of point ids/cell ids used to seed regions.
 void vtkConnectivityFilter::InitializeSeedList()
 {
@@ -573,6 +665,12 @@ void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 int vtkConnectivityFilter::FillInputPortInformation(int, vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
+
+int vtkConnectivityFilter::FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkDataSet");
   return 1;
 }
 

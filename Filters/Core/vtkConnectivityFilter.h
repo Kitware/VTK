@@ -181,13 +181,18 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter() override;
 
   // Usual data generation method
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
