@@ -634,6 +634,7 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet,
       break;
     }
   }
+
   if (locator)
   {
     double t = tMin;
@@ -644,11 +645,10 @@ bool vtkCellPicker::IntersectDataSetWithLine(vtkDataSet* dataSet,
     if (locator->IntersectWithLine(q1, q2, tol, t, xyz, pcoords,
                                    subId, cellId, this->Cell))
     {
-
-      // Stretch tMin out to the original range
+      // Stretch t out to the original range
       if (t1 != 0.0 || t2 != 1.0)
       {
-        t = t1*(1.0 - tMin) + t2*t;
+        t = t1*(1.0 - t) + t2*t;
       }
 
       // If cell is a strip, then replace cell with a sub-cell
