@@ -52,9 +52,9 @@ public:
     this->CurrentTimeIndex = 0;
 
     this->Domain = XdmfDomain::New();
-    this->Writer = shared_ptr<XdmfWriter>();
-    this->AggregateDomain = shared_ptr<XdmfDomain>();
-    this->AggregateWriter = shared_ptr<XdmfWriter>();
+    this->Writer = boost::shared_ptr<XdmfWriter>();
+    this->AggregateDomain = boost::shared_ptr<XdmfDomain>();
+    this->AggregateWriter = boost::shared_ptr<XdmfWriter>();
     this->DestinationGroups.push(this->Domain);
     this->Destination = this->DestinationGroups.top();
   }
@@ -151,12 +151,12 @@ public:
     //this->Domain->accept(this->Writer);
   }
 
-  shared_ptr<XdmfDomain> Domain;
-  shared_ptr<XdmfDomain> Destination;
-  shared_ptr<XdmfWriter> Writer;
-  shared_ptr<XdmfDomain> AggregateDomain;
-  shared_ptr<XdmfWriter> AggregateWriter;
-  std::stack<shared_ptr<XdmfDomain> > DestinationGroups;
+  boost::shared_ptr<XdmfDomain> Domain;
+  boost::shared_ptr<XdmfDomain> Destination;
+  boost::shared_ptr<XdmfWriter> Writer;
+  boost::shared_ptr<XdmfDomain> AggregateDomain;
+  boost::shared_ptr<XdmfWriter> AggregateWriter;
+  std::stack<boost::shared_ptr<XdmfDomain> > DestinationGroups;
 
   int NumberOfTimeSteps;
   int CurrentTimeIndex;
