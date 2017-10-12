@@ -64,6 +64,11 @@ XdmfPlaceholder::XdmfPlaceholder(const std::string & filePath,
 {
 }
 
+XdmfPlaceholder::XdmfPlaceholder(const XdmfPlaceholder & refController):
+  XdmfHeavyDataController(refController)
+{
+}
+
 XdmfPlaceholder::~XdmfPlaceholder()
 {
 }
@@ -124,52 +129,92 @@ XDMFPLACEHOLDER * XdmfPlaceholderNew(char * hdf5FilePath,
                                      int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  std::vector<unsigned int> startVector(start, start + numDims);
-  std::vector<unsigned int> strideVector(stride, stride + numDims);
-  std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
-  std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
-  shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
-  switch (type) {
-  case XDMF_ARRAY_TYPE_UINT8:
-    buildType = XdmfArrayType::UInt8();
-    break;
-  case XDMF_ARRAY_TYPE_UINT16:
-    buildType = XdmfArrayType::UInt16();
-    break;
-  case XDMF_ARRAY_TYPE_UINT32:
-    buildType = XdmfArrayType::UInt32();
-    break;
-  case XDMF_ARRAY_TYPE_INT8:
-    buildType = XdmfArrayType::Int8();
-    break;
-  case XDMF_ARRAY_TYPE_INT16:
-    buildType = XdmfArrayType::Int16();
-    break;
-  case XDMF_ARRAY_TYPE_INT32:
-    buildType = XdmfArrayType::Int32();
-    break;
-  case XDMF_ARRAY_TYPE_INT64:
-    buildType = XdmfArrayType::Int64();
-    break;
-  case XDMF_ARRAY_TYPE_FLOAT32:
-    buildType = XdmfArrayType::Float32();
-    break;
-  case XDMF_ARRAY_TYPE_FLOAT64:
-    buildType = XdmfArrayType::Float64();
-    break;
-  default:
-    XdmfError::message(XdmfError::FATAL,
-		       "Error: Invalid ArrayType.");
-    break;
+  try
+  {
+    std::vector<unsigned int> startVector(start, start + numDims);
+    std::vector<unsigned int> strideVector(stride, stride + numDims);
+    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+    switch (type) {
+      case XDMF_ARRAY_TYPE_UINT8:
+        buildType = XdmfArrayType::UInt8();
+        break;
+      case XDMF_ARRAY_TYPE_UINT16:
+        buildType = XdmfArrayType::UInt16();
+        break;
+      case XDMF_ARRAY_TYPE_UINT32:
+        buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_INT8:
+        buildType = XdmfArrayType::Int8();
+        break;
+      case XDMF_ARRAY_TYPE_INT16:
+        buildType = XdmfArrayType::Int16();
+        break;
+      case XDMF_ARRAY_TYPE_INT32:
+        buildType = XdmfArrayType::Int32();
+        break;
+      case XDMF_ARRAY_TYPE_INT64:
+        buildType = XdmfArrayType::Int64();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT32:
+        buildType = XdmfArrayType::Float32();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT64:
+        buildType = XdmfArrayType::Float64();
+        break;
+      default:
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: Invalid ArrayType.");
+        break;
+    }
+    shared_ptr<XdmfPlaceholder> generatedController = XdmfPlaceholder::New(std::string(hdf5FilePath), buildType, startVector, strideVector, dimVector, dataspaceVector);
+    return (XDMFPLACEHOLDER *)((void *)(new XdmfPlaceholder(*generatedController.get())));
   }
-  shared_ptr<XdmfPlaceholder> * generatedController = 
-    new shared_ptr<XdmfPlaceholder>(XdmfPlaceholder::New(hdf5FilePath, 
-							 buildType, 
-							 startVector, 
-							 strideVector, 
-							 dimVector, 
-							 dataspaceVector));
-  return (XDMFPLACEHOLDER *) generatedController;
+  catch (...)
+  {
+    std::vector<unsigned int> startVector(start, start + numDims);
+    std::vector<unsigned int> strideVector(stride, stride + numDims);
+    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+    switch (type) {
+      case XDMF_ARRAY_TYPE_UINT8:
+        buildType = XdmfArrayType::UInt8();
+        break;
+      case XDMF_ARRAY_TYPE_UINT16:
+        buildType = XdmfArrayType::UInt16();
+        break;
+      case XDMF_ARRAY_TYPE_UINT32:
+        buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_INT8:
+        buildType = XdmfArrayType::Int8();
+        break;
+      case XDMF_ARRAY_TYPE_INT16:
+        buildType = XdmfArrayType::Int16();
+        break;
+      case XDMF_ARRAY_TYPE_INT32:
+        buildType = XdmfArrayType::Int32();
+        break;
+      case XDMF_ARRAY_TYPE_INT64:
+        buildType = XdmfArrayType::Int64();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT32:
+        buildType = XdmfArrayType::Float32();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT64:
+        buildType = XdmfArrayType::Float64();
+        break;
+      default:
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: Invalid ArrayType.");
+        break;
+    }
+    shared_ptr<XdmfPlaceholder> generatedController = XdmfPlaceholder::New(std::string(hdf5FilePath), buildType, startVector, strideVector, dimVector, dataspaceVector);
+    return (XDMFPLACEHOLDER *)((void *)(new XdmfPlaceholder(*generatedController.get())));
+  }
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }

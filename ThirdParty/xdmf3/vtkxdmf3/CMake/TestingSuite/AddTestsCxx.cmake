@@ -87,7 +87,8 @@ MACRO(ADD_TEST_CXX executable)
     SET_CORE("${cxx_binary_dir}")
     ADD_TEST(Cxx${is_core}_${executable}${dup} ${CMAKE_COMMAND}
             -D "EXECUTABLE=${executable}${dup}"
-            -D "ARGUMENTS=${arguments}"           
+            -D "ARGUMENTS=${arguments}"
+            -D "LDPATH=${cxx_ldpath}"
             -D "PATH=${cxx_path}"
             -D "SEPARATOR=${sep}"
             -P "${cxx_binary_dir}/TestDriverCxx.cmake"

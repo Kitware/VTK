@@ -22,8 +22,6 @@
 /*****************************************************************************/
 
 #include <fstream>
-#define vtk_libxml2_reference reference // Reversing VTK name mangling
-#include <libxml/tree.h>
 #include <sstream>
 #include <utility>
 #include "XdmfArray.hpp"
@@ -56,23 +54,19 @@ public:
     mLightDataLimit(100),
     mMode(Default),
     mStream(stream),
-    mVersionString(XdmfVersion.getShort()),
     mWriteXPaths(true),
+    mXPathParse(true),
     mXMLCurrentNode(NULL),
     mXMLDocument(NULL),
     mXMLFilePath(XdmfSystemUtils::getRealPath(xmlFilePath)),
     mXPathCount(0),
-    mXPathParse(true),
-    mXPathString("")
+    mXPathString(""),
+    mVersionString(XdmfVersion.getShort())
   {
   };
 
   ~XdmfWriterImpl()
   {
-    for(std::map<XdmfItem *, xmlNodePtr>::const_iterator iter =
-	  mXMLArchive.begin(); iter != mXMLArchive.end(); ++iter) {
-      xmlFreeNode(iter->second);
-    }
   };
 
   void
@@ -103,7 +97,7 @@ public:
       mStream = NULL;
     }
     
-    xmlFreeDoc(mXMLDocument);
+//    xmlFreeDoc(mXMLDocument);
     xmlCleanupParser();
 
     if(mHeavyDataWriter->getMode() == XdmfHeavyDataWriter::Default) {
@@ -113,45 +107,6 @@ public:
     }
   };
 
-  bool
-  getHasXMLArchive(XdmfItem * item)
-  {
-    std::map<XdmfItem *, xmlNodePtr>::iterator node =
-      mXMLArchive.find(item);
-    if (node != mXMLArchive.end()) {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  xmlNodePtr
-  getXMLNode(XdmfItem * item, xmlNodePtr parentNode)
-  {
-    std::map<XdmfItem *, xmlNodePtr>::iterator node =
-      mXMLArchive.find(item);
-    if (node != mXMLArchive.end()) {
-      xmlAddChild(parentNode, xmlCopyNode(mXMLArchive[item], 1));
-      return mXMLArchive[item];
-    }
-    else {
-      return xmlNewNode(NULL, (xmlChar*)"NULL");
-    }
-  }
-
-  void
-  setXMLNode(XdmfItem * item, xmlNodePtr & newNode)
-  {
-    xmlNodePtr nodeCopy = xmlCopyNode(newNode, 1);
-    std::pair<std::map<XdmfItem *, xmlNodePtr>::iterator, bool> insertResult =
-      mXMLArchive.insert(std::make_pair(item, nodeCopy));
-    if(!insertResult.second){
-      xmlFreeNode(insertResult.first->second);
-      insertResult.first->second = nodeCopy;
-    }
-  }
-  
   void
   openFile()
   {
@@ -177,16 +132,15 @@ public:
   unsigned int mLightDataLimit;
   Mode mMode;
   std::ostream * mStream;
-  std::string mVersionString;
   bool mWriteXPaths;
+  bool mXPathParse;
   xmlNodePtr mXMLCurrentNode;
   xmlDocPtr mXMLDocument;
   std::string mXMLFilePath;
   std::map<const XdmfItem * const, std::string> mXPath;
   unsigned int mXPathCount;
-  bool mXPathParse;
   std::string mXPathString;
-  std::map<XdmfItem *, xmlNodePtr> mXMLArchive;
+  std::string mVersionString;
 
 };
 
@@ -236,15 +190,25 @@ XdmfWriter::XdmfWriter(const std::string & xmlFilePath,
 {
 }
 
+XdmfWriter::XdmfWriter(const XdmfWriter & writerRef) :
+  mRebuildAlreadyVisited(writerRef.mRebuildAlreadyVisited)
+{
+  char * transferPath = strdup(writerRef.getFilePath().c_str());
+  char * heavyTransferPath = strdup(writerRef.getHeavyDataWriter()->getFilePath().c_str());
+  mImpl = new XdmfWriterImpl(transferPath, XdmfHDF5Writer::New(heavyTransferPath), NULL);
+}
+
 XdmfWriter::~XdmfWriter()
 {
+  mXMLArchive.clear();
+  xmlFreeDoc(mImpl->mXMLDocument);
   delete mImpl;
 }
 
 shared_ptr<XdmfHeavyDataWriter>
 XdmfWriter::getHeavyDataWriter()
 {
-  return const_pointer_cast<XdmfHeavyDataWriter>
+  return boost::const_pointer_cast<XdmfHeavyDataWriter>
     (static_cast<const XdmfWriter &>(*this).getHeavyDataWriter());
 }
 
@@ -276,6 +240,37 @@ bool
 XdmfWriter::getRebuildXML()
 {
   return mRebuildAlreadyVisited;
+}
+
+xmlNodePtr
+XdmfWriter::getXMLNode(XdmfItem * item, xmlDocPtr parentDoc, xmlNodePtr parentNode)
+{
+  std::map<XdmfItem *, xmlNodePtr>::iterator node =
+    mXMLArchive.find(item);
+  if (node != mXMLArchive.end())
+  {
+    xmlAddChild(parentNode, mXMLArchive[item]);
+    return mXMLArchive[item];
+  }
+  else
+  {
+    return xmlNewNode(NULL, (xmlChar*)"NULL");
+  }
+}
+
+bool
+XdmfWriter::getHasXMLArchive(XdmfItem * item)
+{
+  std::map<XdmfItem *, xmlNodePtr>::iterator node =
+    mXMLArchive.find(item);
+  if (node != mXMLArchive.end())
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 bool
@@ -324,6 +319,12 @@ void
 XdmfWriter::setVersionString(std::string version)
 {
   mImpl->mVersionString = version;
+}
+
+void
+XdmfWriter::setXMLNode(XdmfItem * item, xmlNodePtr & newNode)
+{
+    mXMLArchive[item] = xmlCopyNode(newNode, 1);
 }
 
 void
@@ -498,9 +499,11 @@ XdmfWriter::visit(XdmfItem & item,
   }
   mImpl->mDepth++;
 
-  if (mRebuildAlreadyVisited || // If Rebuild Enabled (Default)
-      item.getItemTag().compare("Grid") != 0 || // If not a grid
-      (item.getItemTag().compare("Grid") == 0 && (item.getIsChanged() || !mImpl->getHasXMLArchive(&item)))) { // If a grid, but it has changed or the grid doesn't have an XML Archive
+  if ((item.getItemTag().compare("Grid") != 0) || // If not a grid
+      (item.getItemTag().compare("Grid") == 0 && item.getIsChanged()) || // If a Grid that is changed
+      (item.getItemTag().compare("Grid") == 0 && !getHasXMLArchive(&item)) || // If the grid doesn't have an XML Archive
+      mRebuildAlreadyVisited) // If Rebuild
+  {
     std::string tag = item.getItemTag();
     if (tag.length() == 0) {
       item.traverse(visitor);
@@ -658,9 +661,11 @@ XdmfWriter::visit(XdmfItem & item,
         mImpl->mLastXPathed = false;
       }
 
-      if (!mRebuildAlreadyVisited) {
-        if (item.getItemTag().compare("Grid") == 0) {
-          mImpl->setXMLNode(&item, mImpl->mXMLCurrentNode);
+      if (!mRebuildAlreadyVisited)
+      {
+        if (item.getItemTag().compare("Grid") == 0)
+        {
+          setXMLNode(&item, mImpl->mXMLCurrentNode);
         }
         item.setIsChanged(false);
       }
@@ -684,7 +689,7 @@ XdmfWriter::visit(XdmfItem & item,
       mImpl->mXMLCurrentNode = mImpl->mXMLCurrentNode->parent;
     }
     else {
-      mImpl->getXMLNode(&item, mImpl->mXMLCurrentNode);
+      this->getXMLNode(&item, mImpl->mXMLDocument, mImpl->mXMLCurrentNode);
     }
   }
 
@@ -699,21 +704,36 @@ XdmfWriter::visit(XdmfItem & item,
 
 XDMFWRITER * XdmfWriterNew(char * fileName)
 {
-  shared_ptr<XdmfWriter> * p = new shared_ptr<XdmfWriter>(XdmfWriter::New(fileName));
-  return (XDMFWRITER*) p;
+  try
+  {
+    shared_ptr<XdmfWriter> generatedWriter = XdmfWriter::New(std::string(fileName));
+    return (XDMFWRITER *)((void *)(new XdmfWriter(*generatedWriter.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfWriter> generatedWriter = XdmfWriter::New(std::string(fileName));
+    return (XDMFWRITER *)((void *)(new XdmfWriter(*generatedWriter.get())));
+  }
 }
 
 XDMFWRITER * XdmfWriterNewSpecifyHeavyDataWriter(char * fileName, XDMFHEAVYDATAWRITER * heavyDataWriter)
 {
-  shared_ptr<XdmfHeavyDataWriter> & refHeavyDataWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(heavyDataWriter);
-  shared_ptr<XdmfWriter> * p = new shared_ptr<XdmfWriter>(XdmfWriter::New(fileName, refHeavyDataWriter));
-  return (XDMFWRITER*) p;
+  try
+  {
+    shared_ptr<XdmfWriter> generatedWriter = XdmfWriter::New(std::string(fileName), shared_ptr<XdmfHeavyDataWriter>((XdmfHeavyDataWriter *) heavyDataWriter));
+    return (XDMFWRITER *)((void *)(new XdmfWriter(*generatedWriter.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfWriter> generatedWriter = XdmfWriter::New(std::string(fileName), shared_ptr<XdmfHeavyDataWriter>((XdmfHeavyDataWriter *) heavyDataWriter));
+    return (XDMFWRITER *)((void *)(new XdmfWriter(*generatedWriter.get())));
+  }
 }
 
 void XdmfWriterFree(XDMFWRITER * item)
 {
   if (item != NULL) {
-    delete (shared_ptr<XdmfWriter> *)item;
+    delete ((XdmfWriter *)item);
     item = NULL;
   }
 }
@@ -721,8 +741,7 @@ void XdmfWriterFree(XDMFWRITER * item)
 char * XdmfWriterGetFilePath(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  char * returnPointer = strdup(refWriter->getFilePath().c_str());
+  char * returnPointer = strdup(((XdmfWriter *)writer)->getFilePath().c_str());
   return returnPointer;
   XDMF_ERROR_WRAP_END(status)
   return NULL;
@@ -731,9 +750,7 @@ char * XdmfWriterGetFilePath(XDMFWRITER * writer, int * status)
 XDMFHEAVYDATAWRITER * XdmfWriterGetHeavyDataWriter(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  shared_ptr<XdmfHeavyDataWriter> * p = new shared_ptr<XdmfHeavyDataWriter>(refWriter->getHeavyDataWriter());
-  return (XDMFHEAVYDATAWRITER *) p;
+  return (XDMFHEAVYDATAWRITER *)((void *)(((XdmfWriter *)writer)->getHeavyDataWriter().get()));
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -741,8 +758,7 @@ XDMFHEAVYDATAWRITER * XdmfWriterGetHeavyDataWriter(XDMFWRITER * writer, int * st
 unsigned int XdmfWriterGetLightDataLimit(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  return refWriter->getLightDataLimit();
+  return ((XdmfWriter *)writer)->getLightDataLimit();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -750,8 +766,7 @@ unsigned int XdmfWriterGetLightDataLimit(XDMFWRITER * writer, int * status)
 int XdmfWriterGetMode(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  XdmfWriter::Mode testMode = refWriter->getMode();
+  XdmfWriter::Mode testMode = ((XdmfWriter *)writer)->getMode();
   if (testMode == XdmfWriter::Default) {
     return XDMF_WRITER_MODE_DEFAULT;
   }
@@ -768,8 +783,7 @@ int XdmfWriterGetMode(XDMFWRITER * writer, int * status)
 int XdmfWriterGetWriteXPaths(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  return refWriter->getWriteXPaths();
+  return ((XdmfWriter *)writer)->getWriteXPaths();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -777,8 +791,7 @@ int XdmfWriterGetWriteXPaths(XDMFWRITER * writer, int * status)
 int XdmfWriterGetXPathParse(XDMFWRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  return refWriter->getXPathParse();
+  return ((XdmfWriter *)writer)->getXPathParse();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -786,30 +799,31 @@ int XdmfWriterGetXPathParse(XDMFWRITER * writer, int * status)
 void XdmfWriterSetHeavyDataWriter(XDMFWRITER * writer, XDMFHEAVYDATAWRITER * heavyDataWriter, int transferOwnership, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  shared_ptr<XdmfHeavyDataWriter> & refHeavyDataWriter = *(shared_ptr<XdmfHeavyDataWriter> *)(heavyDataWriter);
-  refWriter->setHeavyDataWriter(refHeavyDataWriter);
+  if (transferOwnership) {
+    ((XdmfWriter *)writer)->setHeavyDataWriter(shared_ptr<XdmfHeavyDataWriter>((XdmfHeavyDataWriter *) heavyDataWriter));
+  }
+  else {
+    ((XdmfWriter *)writer)->setHeavyDataWriter(shared_ptr<XdmfHeavyDataWriter>((XdmfHeavyDataWriter *) heavyDataWriter, XdmfNullDeleter()));
+  }
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfWriterSetLightDataLimit(XDMFWRITER * writer, unsigned int numValues, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  refWriter->setLightDataLimit(numValues);
+  ((XdmfWriter *)writer)->setLightDataLimit(numValues);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfWriterSetMode(XDMFWRITER * writer, int mode, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
   switch (mode) {
     case XDMF_WRITER_MODE_DEFAULT:
-      refWriter->setMode(XdmfWriter::Default);
+      ((XdmfWriter *)writer)->setMode(XdmfWriter::Default);
       break;
     case XDMF_WRITER_MODE_DISTRIBUTED_HEAVY_DATA:
-      refWriter->setMode(XdmfWriter::DistributedHeavyData);
+      ((XdmfWriter *)writer)->setMode(XdmfWriter::DistributedHeavyData);
       break;
     default:
       XdmfError::message(XdmfError::FATAL,
@@ -821,15 +835,13 @@ void XdmfWriterSetMode(XDMFWRITER * writer, int mode, int * status)
 void XdmfWriterSetWriteXPaths(XDMFWRITER * writer, int writeXPaths, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  refWriter->setWriteXPaths(writeXPaths);
+  ((XdmfWriter *)writer)->setWriteXPaths(writeXPaths);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfWriterSetXPathParse(XDMFWRITER * writer, int xPathParse, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfWriter> & refWriter = *(shared_ptr<XdmfWriter> *)(writer);
-  refWriter->setXPathParse(xPathParse);
+  ((XdmfWriter *)writer)->setXPathParse(xPathParse);
   XDMF_ERROR_WRAP_END(status)
 }

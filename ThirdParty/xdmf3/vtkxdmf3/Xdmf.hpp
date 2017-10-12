@@ -137,11 +137,9 @@
 # define XDMFCORE_EXPORT
 # define XDMFDSM_EXPORT
 # define XDMF_EXPORT
-# define XDMFUTILS_EXPORT
 # define XDMFCORE_TEMPLATE
 # define XDMFDSM_TEMPLATE
 # define XDMF_TEMPLATE
-# define XDMFUTILS_TEMPLATE
 #else
 /* Used to export/import from the dlls */
 # undef XDMFCORE_EXPORT
@@ -166,9 +164,7 @@
 # define XDMF_EXPORT __declspec(dllimport)
 # define XDMF_TEMPLATE extern
 # endif /* XDMF_EXPORTS */
-
-
-#endif
+#endif /* XDMFSTATIC */
 
 /* Compiler Warnings */
 #ifndef XDMF_DEBUG
@@ -185,16 +181,15 @@
 #pragma warning( disable : 4297 ) /* __declspec(nothrow), throw(), noexcept(true), or noexcept was specified in the function */
 #pragma warning( disable : 4800 ) /* 'int': forcing value to bool 'true' or 'false' (performance warning) */
 #pragma warning( disable : 4250 ) /* inherits insert via dominance */
+#pragma warning( disable : 4521 ) /* multiple copy constructors */
 
 #else /* _WIN32 */
 /* We don't need to export/import since there are no dlls */
 #define XDMFCORE_EXPORT
 #define XDMFDSM_EXPORT
 #define XDMF_EXPORT
-#define XDMFUTILS_EXPORT
 #define XDMFCORE_TEMPLATE
 #define XDMFDSM_TEMPLATE
 #define XDMF_TEMPLATE
-#define XDMFUTILS_TEMPLATE
 #endif /* _WIN32 */
 #endif /* _XDMF_HPP */

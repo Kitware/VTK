@@ -180,6 +180,8 @@ public:
 
   virtual void read(XdmfArray * const array);
 
+  XdmfBinaryController(const XdmfBinaryController &);
+
 protected:
 
   XdmfBinaryController(const std::string & filePath,
@@ -193,7 +195,6 @@ protected:
 
 private:
 
-  XdmfBinaryController(const XdmfBinaryController &);  // Not implemented.
   void operator=(const XdmfBinaryController &);  // Not implemented.
 
   const Endian mEndian;

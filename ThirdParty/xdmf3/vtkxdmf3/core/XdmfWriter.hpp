@@ -47,8 +47,8 @@ class XdmfHeavyDataWriter;
  * written to disk. Heavy data is written to a heavy data format using
  * an XdmfHeavyDataWriter and light data is written to XML.
  *
- * An infinite loop is possible if an XdmfItem somehow ends up as its
- * own child, either directly or by way of another Xdmf Item.
+ * An infinite loop is possible if an XdmfItem somehow ends up as its own child,
+ * either directly or by way of another Xdmf Item.
  *
  * By default, the XdmfWriter writes all heavy data to a single heavy
  * data file specified by the XdmfHeavyDataWriter. If a dataset is
@@ -428,14 +428,7 @@ public:
   void setMode(const Mode mode);
 
   /**
-   * Sets whether XML will be rebuilt with each write. This
-   * functionality is mostly broken, so use at your own peril. It
-   * seems to work when additional grids are added to a existing
-   * domain during repeated rewrites (such as during
-   * timestepping). The XML description of the unmodified grids is
-   * correctly saved and reused. However, beware if making changes to
-   * old grids as the functionality to mark changes to the grids is
-   * not fully implemented.
+   * Sets whether XML will be rebuilt with each write.
    *
    * Example of use:
    *
@@ -555,16 +548,24 @@ public:
   virtual void visit(XdmfItem & item,
                      const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfWriter(const XdmfWriter &);
+
 protected:
 
   XdmfWriter(const std::string & xmlFilePath,
              shared_ptr<XdmfHeavyDataWriter> heavyDataWriter,
              std::ostream * stream = NULL);
 
+  xmlNodePtr getXMLNode(XdmfItem * item, xmlDocPtr parentDoc, xmlNodePtr parentNode);
+  bool getHasXMLArchive(XdmfItem * item);
+  void setXMLNode(XdmfItem * item, xmlNodePtr & newNode);
+
   void setDocumentTitle(std::string title);
   void setVersionString(std::string version);
 
   bool mRebuildAlreadyVisited;
+
+  std::map<XdmfItem *, xmlNodePtr> mXMLArchive;
 
 private:
 
@@ -573,7 +574,6 @@ private:
    */
   class XdmfWriterImpl;
 
-  XdmfWriter(const XdmfWriter &);  // Not implemented.
   void operator=(const XdmfWriter &);  // Not implemented.
 
   XdmfWriterImpl * mImpl;

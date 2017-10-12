@@ -24,7 +24,6 @@
 #include <utility>
 #include "XdmfSetType.hpp"
 #include "XdmfError.hpp"
-#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfSetType>(*)()> XdmfSetType::mSetDefinitions;
 
@@ -98,7 +97,7 @@ XdmfSetType::New(const std::map<std::string, std::string> & itemProperties)
                        "Neither 'Type' nor 'SetType' found in itemProperties "
                        "in XdmfSetType::New");
   }
-  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
+  const std::string & typeVal = ConvertToUpper(type->second);
 
   std::map<std::string, shared_ptr<const XdmfSetType>(*)()>::const_iterator returnType
     = mSetDefinitions.find(typeVal);

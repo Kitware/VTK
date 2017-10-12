@@ -196,6 +196,8 @@ public:
    */
   static void setMaxOpenedFiles(unsigned int newMax);
 
+  XdmfHDF5Controller(const XdmfHDF5Controller &);
+
 protected:
 
   XdmfHDF5Controller(const std::string & hdf5FilePath,
@@ -213,7 +215,6 @@ protected:
 
 private:
 
-  XdmfHDF5Controller(const XdmfHDF5Controller &);  // Not implemented.
   void operator=(const XdmfHDF5Controller &);  // Not implemented.
 
   const std::string mDataSetPath;
