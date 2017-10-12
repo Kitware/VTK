@@ -52,4 +52,4 @@ def hashDataArray(dataArray):
     return '%s_%d%s' % (md5sum, dataArray.GetSize(), typeCode)
 
 def getJSArrayType(dataArray):
-	return javascriptMapping[arrayTypesMapping[dataArray.GetDataType()]]
+    return javascriptMapping[arrayTypesMapping[dataArray.GetDataType()]]

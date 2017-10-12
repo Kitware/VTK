@@ -2243,12 +2243,12 @@ int Test_void_CreateDefaultLookupTable()
   DataArrayAPIFinish();
 }
 
-//  double 	GetTuple1 (vtkIdType i)
-//  double * 	GetTuple2 (vtkIdType i)
-//  double * 	GetTuple3 (vtkIdType i)
-//  double * 	GetTuple4 (vtkIdType i)
-//  double * 	GetTuple6 (vtkIdType i)
-//  double * 	GetTuple9 (vtkIdType i)
+//  double   GetTuple1 (vtkIdType i)
+//  double * GetTuple2 (vtkIdType i)
+//  double * GetTuple3 (vtkIdType i)
+//  double * GetTuple4 (vtkIdType i)
+//  double * GetTuple6 (vtkIdType i)
+//  double * GetTuple9 (vtkIdType i)
 // Returns the ith tuple.
 template <typename ScalarT, typename ArrayT, int N>
 int Test_doubleptr_GetTupleN_i()

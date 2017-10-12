@@ -350,7 +350,7 @@ double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node
     currentPos = predecessors[currentIdx];
   }
 
-  // Force the first and the last node’s color to be exact
+  // Force the first and the last node's color to be exact
   path.front().rgb[0] = rgb1[0];
   path.front().rgb[1] = rgb1[1];
   path.front().rgb[2] = rgb1[2];
