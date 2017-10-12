@@ -166,8 +166,7 @@ DisplayToWorld(const double dc[4], double wc[4]) const
   // Just the inverse of WorldToDisplay....
 
   // Make a copy of the input so we can modify it in place before the matrix mul
-  double t[4];
-  std::copy(dc, dc + 4, t);
+  double t[4] = {dc[0], dc[1], dc[2], dc[3]};
   t[0] -= this->DisplayOffset[0];
   t[1] -= this->DisplayOffset[1];
 
