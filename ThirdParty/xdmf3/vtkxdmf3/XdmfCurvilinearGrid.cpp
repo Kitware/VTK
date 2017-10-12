@@ -24,15 +24,15 @@
 #include <cmath>
 #include "XdmfArray.hpp"
 #include "XdmfCurvilinearGrid.hpp"
-#include "XdmfError.hpp"
 #include "XdmfGeometry.hpp"
 #include "XdmfTopology.hpp"
 #include "XdmfTopologyType.hpp"
+#include "XdmfError.hpp"
 
 /**
  * PIMPL
  */
-class XdmfCurvilinearGrid::XdmfCurvilinearGridImpl {
+class XdmfCurvilinearGrid::XdmfCurvilinearGridImpl : public XdmfGridImpl {
 
 public:
 
@@ -194,10 +194,15 @@ public:
   XdmfCurvilinearGridImpl(const shared_ptr<XdmfArray> numPoints) :
     mDimensions(numPoints)
   {
+     mGridType ="Curvilinear";
+  }
+
+  XdmfGridImpl * duplicate()
+  {
+    return new XdmfCurvilinearGridImpl(mDimensions);
   }
 
   shared_ptr<XdmfArray> mDimensions;
-
 };
 
 shared_ptr<XdmfCurvilinearGrid>
@@ -235,9 +240,15 @@ XdmfCurvilinearGrid::New(const shared_ptr<XdmfArray> numPoints)
 
 XdmfCurvilinearGrid::XdmfCurvilinearGrid(const shared_ptr<XdmfArray> numPoints) :
   XdmfGrid(XdmfGeometry::New(),
-           XdmfCurvilinearGridImpl::XdmfTopologyCurvilinear::New(this)),
-  mImpl(new XdmfCurvilinearGridImpl(numPoints))
+           XdmfCurvilinearGridImpl::XdmfTopologyCurvilinear::New(this))
 {
+  mImpl = new XdmfCurvilinearGridImpl(numPoints);
+}
+
+XdmfCurvilinearGrid::XdmfCurvilinearGrid(XdmfCurvilinearGrid & refGrid) :
+  XdmfGrid(refGrid)
+{
+  mTopology = XdmfCurvilinearGridImpl::XdmfTopologyCurvilinear::New(this);
 }
 
 XdmfCurvilinearGrid::~XdmfCurvilinearGrid()
@@ -254,8 +265,7 @@ void
 XdmfCurvilinearGrid::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
 {
   XdmfGrid::copyGrid(sourceGrid);
-  if (shared_ptr<XdmfCurvilinearGrid> classedGrid = 
-      shared_dynamic_cast<XdmfCurvilinearGrid>(sourceGrid))
+  if (shared_ptr<XdmfCurvilinearGrid> classedGrid = shared_dynamic_cast<XdmfCurvilinearGrid>(sourceGrid))
   {
     // Copy stucture from read grid to this grid
     this->setGeometry(classedGrid->getGeometry());
@@ -266,20 +276,20 @@ XdmfCurvilinearGrid::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
 shared_ptr<XdmfArray>
 XdmfCurvilinearGrid::getDimensions()
 {
-  return const_pointer_cast<XdmfArray>
+  return boost::const_pointer_cast<XdmfArray>
     (static_cast<const XdmfCurvilinearGrid &>(*this).getDimensions());
 }
 
 shared_ptr<const XdmfArray>
 XdmfCurvilinearGrid::getDimensions() const
 {
-  return mImpl->mDimensions;
+  return ((XdmfCurvilinearGridImpl *)mImpl)->mDimensions;
 }
 
 shared_ptr<XdmfGeometry>
 XdmfCurvilinearGrid::getGeometry()
 {
-  return const_pointer_cast<XdmfGeometry>
+  return boost::const_pointer_cast<XdmfGeometry>
     (static_cast<const XdmfGrid &>(*this).getGeometry());
 }
 
@@ -306,16 +316,17 @@ XdmfCurvilinearGrid::read()
 {
   if (mGridController)
   {
-    if (shared_ptr<XdmfCurvilinearGrid> grid = 
-	shared_dynamic_cast<XdmfCurvilinearGrid>(mGridController->read())) { 
+    if (shared_ptr<XdmfCurvilinearGrid> grid = shared_dynamic_cast<XdmfCurvilinearGrid>(mGridController->read()))
+    { 
       // Copy stucture from read grid to this grid
       copyGrid(grid);
     }
-    else if (shared_ptr<XdmfGrid> grid = 
-	     shared_dynamic_cast<XdmfGrid>(mGridController->read())) {
+    else if (shared_ptr<XdmfGrid> grid = shared_dynamic_cast<XdmfGrid>(mGridController->read()))
+    {
       XdmfError::message(XdmfError::FATAL, "Error: Grid Type Mismatch");
     }
-    else {
+    else
+    {
       XdmfError::message(XdmfError::FATAL, "Error: Invalid Grid Reference");
     }
   }
@@ -332,7 +343,7 @@ XdmfCurvilinearGrid::release()
 void
 XdmfCurvilinearGrid::setDimensions(const shared_ptr<XdmfArray> dimensions)
 {
-  mImpl->mDimensions = dimensions;
+  ((XdmfCurvilinearGridImpl *)mImpl)->mDimensions = dimensions;
   this->setIsChanged(true);
 }
 
@@ -348,30 +359,49 @@ XdmfCurvilinearGrid::setGeometry(const shared_ptr<XdmfGeometry> geometry)
 XDMFCURVILINEARGRID * XdmfCurvilinearGridNew2D(unsigned int xNumPoints,
                                                unsigned int yNumPoints)
 {
-  shared_ptr<XdmfCurvilinearGrid> * p = 
-    new shared_ptr<XdmfCurvilinearGrid>(XdmfCurvilinearGrid::New(xNumPoints,
-								 yNumPoints));
-  return (XDMFCURVILINEARGRID *) p;
+  try
+  {
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(xNumPoints, yNumPoints);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(xNumPoints, yNumPoints);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
 }
 
 XDMFCURVILINEARGRID * XdmfCurvilinearGridNew3D(unsigned int xNumPoints,
                                                unsigned int yNumPoints,
                                                unsigned int zNumPoints)
 {
-  shared_ptr<XdmfCurvilinearGrid> * p = 
-    new shared_ptr<XdmfCurvilinearGrid>(XdmfCurvilinearGrid::New(xNumPoints,
-								 yNumPoints,
-								 zNumPoints));
-  return (XDMFCURVILINEARGRID *) p;
+  try
+  {
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(xNumPoints, yNumPoints, zNumPoints);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(xNumPoints, yNumPoints, zNumPoints);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
 }
 
 XDMFCURVILINEARGRID * XdmfCurvilinearGridNew(XDMFARRAY * numPoints, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfArray> & refNumPoints = *(shared_ptr<XdmfArray> *)(numPoints);
-  shared_ptr<XdmfCurvilinearGrid> * p = 
-    new shared_ptr<XdmfCurvilinearGrid>(XdmfCurvilinearGrid::New(refNumPoints));
-  return (XDMFCURVILINEARGRID *) p;
+  try
+  {
+    shared_ptr<XdmfArray> tempArray = shared_ptr<XdmfArray>((XdmfArray *)numPoints, XdmfNullDeleter());
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(tempArray);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfArray> tempArray = shared_ptr<XdmfArray>((XdmfArray *)numPoints, XdmfNullDeleter());
+    shared_ptr<XdmfCurvilinearGrid> generatedGrid = XdmfCurvilinearGrid::New(tempArray);
+    return (XDMFCURVILINEARGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*generatedGrid.get()))));
+  }
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -379,34 +409,56 @@ XDMFCURVILINEARGRID * XdmfCurvilinearGridNew(XDMFARRAY * numPoints, int * status
 XDMFARRAY * XdmfCurvilinearGridGetDimensions(XDMFCURVILINEARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfCurvilinearGrid> & refGrid = *(shared_ptr<XdmfCurvilinearGrid> *)(grid);
-  shared_ptr<XdmfArray> * dim = new shared_ptr<XdmfArray>(refGrid->getDimensions());
-  return (XDMFARRAY *) dim;
+  try
+  {
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfCurvilinearGrid * gridPointer = dynamic_cast<XdmfCurvilinearGrid *>(classedPointer);
+    shared_ptr<XdmfArray> generatedArray = gridPointer->getDimensions();
+    return (XDMFARRAY *)((void *)generatedArray.get());
+  }
+  catch (...)
+  {
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfCurvilinearGrid * gridPointer = dynamic_cast<XdmfCurvilinearGrid *>(classedPointer);
+    shared_ptr<XdmfArray> generatedArray = gridPointer->getDimensions();
+    return (XDMFARRAY *)((void *)generatedArray.get());
+  }
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
 
 XDMFGEOMETRY * XdmfCurvilinearGridGetGeometry(XDMFCURVILINEARGRID * grid)
 {
-  shared_ptr<XdmfCurvilinearGrid> & refGrid = *(shared_ptr<XdmfCurvilinearGrid> *)(grid);
-  shared_ptr<XdmfGeometry> * geometry = new shared_ptr<XdmfGeometry>(refGrid->getGeometry());
-  return (XDMFGEOMETRY *) geometry;
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfCurvilinearGrid * gridPointer = dynamic_cast<XdmfCurvilinearGrid *>(classedPointer);
+  shared_ptr<XdmfGeometry> generatedGeometry = gridPointer->getGeometry();
+  return (XDMFGEOMETRY *)((void *)generatedGeometry.get());
 }
 
 void XdmfCurvilinearGridSetDimensions(XDMFCURVILINEARGRID * grid, XDMFARRAY * dimensions, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfCurvilinearGrid> & refGrid = *(shared_ptr<XdmfCurvilinearGrid> *)(grid);
-  shared_ptr<XdmfArray> & refDimensions = *(shared_ptr<XdmfArray> *)(dimensions);
-  refGrid->setDimensions(refDimensions);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfCurvilinearGrid * gridPointer = dynamic_cast<XdmfCurvilinearGrid *>(classedPointer);
+  if (passControl) {
+    gridPointer->setDimensions(shared_ptr<XdmfArray>((XdmfArray *)dimensions));
+  }
+  else {
+    gridPointer->setDimensions(shared_ptr<XdmfArray>((XdmfArray *)dimensions, XdmfNullDeleter()));
+  }
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfCurvilinearGridSetGeometry(XDMFCURVILINEARGRID * grid, XDMFGEOMETRY * geometry, int passControl)
 {
-  shared_ptr<XdmfCurvilinearGrid> & refGrid = *(shared_ptr<XdmfCurvilinearGrid> *)(grid);
-  shared_ptr<XdmfGeometry> & refGeometry = *(shared_ptr<XdmfGeometry> *)(geometry);
-  refGrid->setGeometry(refGeometry);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfCurvilinearGrid * gridPointer = dynamic_cast<XdmfCurvilinearGrid *>(classedPointer);
+  if (passControl) {
+    gridPointer->setGeometry(shared_ptr<XdmfGeometry>((XdmfGeometry *)geometry));
+  }
+  else {
+    gridPointer->setGeometry(shared_ptr<XdmfGeometry>((XdmfGeometry *)geometry, XdmfNullDeleter()));
+  }
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfCurvilinearGrid, XDMFCURVILINEARGRID)

@@ -38,6 +38,12 @@ XdmfTime::XdmfTime(const double & value) :
 {
 }
 
+XdmfTime::XdmfTime(XdmfTime & refTime) :
+  XdmfItem(refTime),
+  mValue(refTime.getValue())
+{
+}
+
 XdmfTime::~XdmfTime()
 {
 }
@@ -95,20 +101,24 @@ XdmfTime::setValue(const double & value)
 
 XDMFTIME * XdmfTimeNew(double value)
 {
-  shared_ptr<XdmfTime> * p = new shared_ptr<XdmfTime>(XdmfTime::New(value));
-  return (XDMFTIME *) p;
+  try
+  {
+    return (XDMFTIME *)((void *)(new XdmfTime(*(XdmfTime::New(value).get()))));
+  }
+  catch (...)
+  {
+    return (XDMFTIME *)((void *)(new XdmfTime(*(XdmfTime::New(value).get()))));
+  }
 }
 
 double XdmfTimeGetValue(XDMFTIME * timePointer)
 {
-  shared_ptr<XdmfTime> & refTime = *(shared_ptr<XdmfTime> *)(timePointer);
-  return refTime->getValue();
+  return ((XdmfTime *)timePointer)->getValue();
 }
 
 void XdmfTimeSetValue(XDMFTIME * timePointer, double time)
 {
-  shared_ptr<XdmfTime> & refTime = *(shared_ptr<XdmfTime> *)(timePointer);
-  refTime->setValue(time);
+  ((XdmfTime *)timePointer)->setValue(time);
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfTime, XDMFTIME)

@@ -61,6 +61,8 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfHeavyDataDescription(XdmfHeavyDataDescription &);
+
 protected:
 
   XdmfHeavyDataDescription();

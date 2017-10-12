@@ -93,7 +93,7 @@ XdmfHDF5Writer::XdmfHDF5WriterImpl::openFile(const std::string & filePath,
       hsize_t numObjects;
       /*herr_t status = */H5Gget_num_objs(mHDF5Handle,
                                           &numObjects);
-      toReturn = static_cast<int>(numObjects);
+      toReturn = numObjects;
     }
     else {
       toReturn = mDataSetId;
@@ -126,6 +126,15 @@ XdmfHDF5Writer::New(const std::string & filePath,
 //Set mUseDeflate(true), and mDeflateFactor(6) for default compression
 XdmfHDF5Writer::XdmfHDF5Writer(const std::string & filePath) :
   XdmfHeavyDataWriter(filePath, 1, 800),
+  mImpl(new XdmfHDF5WriterImpl()),
+  mUseDeflate(false),
+  mDeflateFactor(0)
+{
+}
+
+//Set mUseDeflate(true), and mDeflateFactor(6) for default compression
+XdmfHDF5Writer::XdmfHDF5Writer(const XdmfHDF5Writer & writerRef) :
+  XdmfHeavyDataWriter(writerRef.getFilePath(), 1, 800),
   mImpl(new XdmfHDF5WriterImpl()),
   mUseDeflate(false),
   mDeflateFactor(0)
@@ -338,7 +347,7 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
         }
         else {
           // If the array has been split
-          int dimensionIndex = static_cast<int>(previousDimensions.size()) - 1;
+          int dimensionIndex = previousDimensions.size() - 1;
           // Loop previous dimensions in
           int j = 0;
           for (j = 0; j < dimensionIndex; ++j) {
@@ -443,8 +452,8 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
                       XdmfError::message(XdmfError::FATAL,
                                          "Error: Invalid Dimension in HDF5 Write.\n");
                     }
-                    blockSizeSubtotal += static_cast<unsigned int>(
-                      array.getValue<std::string>(amountAlreadyWritten + k).size());
+                    blockSizeSubtotal +=
+                      array.getValue<std::string>(amountAlreadyWritten + k).size();
                   }
                   dimensionIndex++;
                 }
@@ -557,8 +566,8 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
                     XdmfError::message(XdmfError::FATAL,
                                        "Error: Invalid Dimension in HDF5 Write.\n");
                   }
-                  blockSizeSubtotal += static_cast<unsigned int>(
-                    array.getValue<std::string>(amountAlreadyWritten + k).size());
+                  blockSizeSubtotal +=
+                    array.getValue<std::string>(amountAlreadyWritten + k).size();
                 }
                 dimensionIndex++;
               }
@@ -764,7 +773,7 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
           }
           else if (previousDimensions.size() < partialDimensions.size()) {
             unsigned int overflowDimensions = 1;
-            for (size_t j = previousDimensions.size() - 1;
+            for (unsigned int j = previousDimensions.size() - 1;
                  j < partialDimensions.size();
                  ++j) {
               overflowDimensions *= partialDimensions[j];
@@ -773,7 +782,7 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
           }
           else if (previousDimensions.size() > partialDimensions.size()) {
             unsigned int overflowDimensions = 1;
-            for (size_t j = partialDimensions.size() - 1;
+            for (unsigned int j = partialDimensions.size() - 1;
                  j < previousDimensions.size();
                  ++j) {
               overflowDimensions *= previousDimensions[j];
@@ -789,7 +798,7 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
           }
           else if (previousDataSizes.size() < partialDataSizes.size()) {
             unsigned int overflowDataSizes = 1;
-            for (size_t j = previousDataSizes.size() - 1;
+            for (unsigned int j = previousDataSizes.size() - 1;
                  j < partialDataSizes.size();
                  ++j) {
               overflowDataSizes *= partialDataSizes[j];
@@ -798,7 +807,7 @@ XdmfHDF5Writer::controllerSplitting(XdmfArray & array,
           }
           else if (previousDataSizes.size() > partialDataSizes.size()) {
             unsigned int overflowDataSizes = 1;
-            for (size_t j = partialDataSizes.size() - 1;
+            for (unsigned int j = partialDataSizes.size() - 1;
                  j < previousDataSizes.size();
                  ++j) {
               overflowDataSizes *= previousDataSizes[j];
@@ -981,16 +990,13 @@ XdmfHDF5Writer::getDataSetSize(const std::string & fileName, const std::string &
   checkspace = H5Dget_space(checkset);
   hssize_t checksize = H5Sget_simple_extent_npoints(checkspace);
   herr_t status = H5Dclose(checkset);
-  if(status < 0) {
-    XdmfError::message(XdmfError::FATAL, "Error in H5Dclose");
-  }
   if(checkspace != H5S_ALL) {
     status = H5Sclose(checkspace);
   }
   if (handle != mImpl->mHDF5Handle) {
     H5Fclose(handle);
   }
-  return static_cast<int>(checksize);
+  return checksize;
 }
 
 int
@@ -1387,7 +1393,7 @@ XdmfHDF5Writer::write(XdmfArray & array)
 
           std::vector<hsize_t> maximum_dims(curDimensions.size(), H5S_UNLIMITED);
           // Create a new dataspace
-          dataspace = H5Screate_simple(static_cast<int>(current_dims.size()),
+          dataspace = H5Screate_simple(current_dims.size(),
                                        &current_dims[0],
                                        &maximum_dims[0]);
           hid_t property = H5Pcreate(H5P_DATASET_CREATE);
@@ -1421,7 +1427,7 @@ XdmfHDF5Writer::write(XdmfArray & array)
             status = H5Pset_deflate(property, mDeflateFactor);
           }
 
-          status = H5Pset_chunk(property, static_cast<int>(current_dims.size()), &chunk_size[0]);
+          status = H5Pset_chunk(property, current_dims.size(), &chunk_size[0]);
           // Use that dataspace to create a new dataset
           dataset = H5Dcreate(mImpl->mHDF5Handle,
                               dataSetPath.str().c_str(),
@@ -1515,7 +1521,7 @@ XdmfHDF5Writer::write(XdmfArray & array)
           std::vector<hsize_t> currStart(curStart.begin(),
                                          curStart.end());
 
-          memspace = H5Screate_simple(static_cast<int>(count.size()),
+          memspace = H5Screate_simple(count.size(),
                                       &(count[0]),
                                       NULL);
           status = H5Sselect_hyperslab(dataspace,
@@ -1577,7 +1583,7 @@ XdmfHDF5Writer::write(XdmfArray & array)
                                    H5P_DEFAULT);
           hid_t checkspace = H5S_ALL;
           checkspace = H5Dget_space(checkset);
-          newSize = static_cast<unsigned int>(H5Sget_simple_extent_npoints(checkspace));
+          newSize = H5Sget_simple_extent_npoints(checkspace);
           status = H5Dclose(checkset);
 	  if(checkspace != H5S_ALL) {
 	    status = H5Sclose(checkspace);
@@ -1651,23 +1657,29 @@ XdmfHDF5Writer::write(XdmfArray & array)
 
 XDMFHDF5WRITER * XdmfHDF5WriterNew(char * fileName, int clobberFile)
 {
-  shared_ptr<XdmfHDF5Writer> * p = new shared_ptr<XdmfHDF5Writer>(XdmfHDF5Writer::New(fileName, clobberFile));
-  return (XDMFHDF5WRITER *) p;
+  try
+  {
+    shared_ptr<XdmfHDF5Writer> generatedWriter = XdmfHDF5Writer::New(std::string(fileName), clobberFile);
+    return (XDMFHDF5WRITER *)((void *)(new XdmfHDF5Writer(*generatedWriter.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfHDF5Writer> generatedWriter = XdmfHDF5Writer::New(std::string(fileName), clobberFile);
+    return (XDMFHDF5WRITER *)((void *)(new XdmfHDF5Writer(*generatedWriter.get())));
+  }
 }
 
 void XdmfHDF5WriterCloseFile(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
-  refWriter->closeFile();
+  ((XdmfHDF5Writer *)writer)->closeFile();
   XDMF_ERROR_WRAP_END(status)
 }
 
 unsigned int XdmfHDF5WriterGetChunkSize(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
-  return refWriter->getChunkSize();
+  return ((XdmfHDF5Writer *)writer)->getChunkSize();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -1675,16 +1687,14 @@ unsigned int XdmfHDF5WriterGetChunkSize(XDMFHDF5WRITER * writer, int * status)
 void XdmfHDF5WriterOpenFile(XDMFHDF5WRITER * writer, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
-  refWriter->openFile();
+  ((XdmfHDF5Writer *)writer)->openFile();
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfHDF5WriterSetChunkSize(XDMFHDF5WRITER * writer, unsigned int chunkSize, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfHDF5Writer> & refWriter = *(shared_ptr<XdmfHDF5Writer> *)(writer);
-  refWriter->setChunkSize(chunkSize);
+  ((XdmfHDF5Writer *)writer)->setChunkSize(chunkSize);
   XDMF_ERROR_WRAP_END(status)
 }
 

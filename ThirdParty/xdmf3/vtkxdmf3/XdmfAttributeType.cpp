@@ -24,7 +24,6 @@
 #include <utility>
 #include "XdmfAttributeType.hpp"
 #include "XdmfError.hpp"
-#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfAttributeType>(*)()> XdmfAttributeType::mAttributeDefinitions;
 
@@ -121,7 +120,7 @@ XdmfAttributeType::New(const std::map<std::string, std::string> & itemProperties
   }
 
 
-  const std::string & typeVal = XdmfStringUtils::toUpper(type->second);
+  const std::string & typeVal = ConvertToUpper(type->second);
 
   std::map<std::string, shared_ptr<const XdmfAttributeType>(*)()>::const_iterator returnType = mAttributeDefinitions.find(typeVal);
 

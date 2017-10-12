@@ -301,6 +301,8 @@ public:
    */
   void setElementCell(std::string cell);
 
+  XdmfAttribute(XdmfAttribute &);
+
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
 protected:

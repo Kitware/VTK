@@ -207,6 +207,8 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfInformation(XdmfInformation &);
+
 protected:
 
   XdmfInformation(const std::string & key = "",

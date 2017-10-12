@@ -179,6 +179,8 @@ public:
    */
   void setType(const shared_ptr<const XdmfTopologyType> type);
 
+  XdmfTopology(XdmfTopology &);
+
 protected:
 
   XdmfTopology();

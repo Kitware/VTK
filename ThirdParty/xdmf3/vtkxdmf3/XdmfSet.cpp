@@ -43,6 +43,13 @@ XdmfSet::XdmfSet() :
 {
 }
 
+XdmfSet::XdmfSet(XdmfSet & refSet) :
+  XdmfArray(refSet),
+  mName(refSet.mName),
+  mType(refSet.mType)
+{
+}
+
 XdmfSet::~XdmfSet()
 {
 }
@@ -140,35 +147,36 @@ XdmfSet::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFSET * XdmfSetNew()
 {
-  shared_ptr<XdmfSet> * p = 
-    new shared_ptr<XdmfSet>(XdmfSet::New());
-  return (XDMFSET *) p;
+  try
+  {
+    shared_ptr<XdmfSet> generatedSet = XdmfSet::New();
+    return (XDMFSET*)((void *)(new XdmfSet(*generatedSet.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfSet> generatedSet = XdmfSet::New();
+    return (XDMFSET*)((void *)(new XdmfSet(*generatedSet.get())));
+  }
 }
 
 XDMFATTRIBUTE * XdmfSetGetAttribute(XDMFSET * set, unsigned int index)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  shared_ptr<XdmfAttribute> * p = new shared_ptr<XdmfAttribute>(refSet->getAttribute(index));
-  return (XDMFATTRIBUTE *) p;
+  return (XDMFATTRIBUTE *)((void *)(((XdmfSet *)(set))->getAttribute(index).get()));
 }
 
 XDMFATTRIBUTE * XdmfSetGetAttributeByName(XDMFSET * set, char * Name)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  shared_ptr<XdmfAttribute> * p = new shared_ptr<XdmfAttribute>(refSet->getAttribute(Name));
-  return (XDMFATTRIBUTE *) p;
+  return (XDMFATTRIBUTE *)((void *)(((XdmfSet *)(set))->getAttribute(Name).get()));
 }
 
 unsigned int XdmfSetGetNumberAttributes(XDMFSET * set)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  return refSet->getNumberAttributes();
+  return ((XdmfSet *)(set))->getNumberAttributes();
 }
 
 int XdmfSetGetType(XDMFSET * set)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  shared_ptr<const XdmfSetType> checkType = refSet->getType();
+  shared_ptr<const XdmfSetType> checkType = ((XdmfSet *)set)->getType();
 
   if (checkType == XdmfSetType::NoSetType()) {
     return XDMF_SET_TYPE_NO_SET_TYPE;
@@ -192,27 +200,27 @@ int XdmfSetGetType(XDMFSET * set)
 
 void XdmfSetInsertAttribute(XDMFSET * set, XDMFATTRIBUTE * Attribute, int passControl)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(Attribute);
-  refSet->insert(refAttribute);
+  if (passControl) {
+    ((XdmfSet *)(set))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute));
+  }
+  else {
+    ((XdmfSet *)(set))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute, XdmfNullDeleter()));
+  }
 }
 
 void XdmfSetRemoveAttribute(XDMFSET * set, unsigned int index)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  refSet->removeAttribute(index);
+  ((XdmfSet *)(set))->removeAttribute(index);
 }
 
 void XdmfSetRemoveAttributeByName(XDMFSET * set, char * Name)
 {
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
-  refSet->removeAttribute(Name);
+  ((XdmfSet *)(set))->removeAttribute(Name);
 }
 
 void XdmfSetSetType(XDMFSET * set, int type, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-    shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(set);
   shared_ptr<const XdmfSetType> newType = shared_ptr<const XdmfSetType>();
   switch (type) {
     case XDMF_SET_TYPE_NO_SET_TYPE:
@@ -235,7 +243,7 @@ void XdmfSetSetType(XDMFSET * set, int type, int * status)
                          "Error: Invalid Set Type: Code " + type);
       break;
   }
-  refSet->setType(newType);
+  ((XdmfSet *)set)->setType(newType);
   XDMF_ERROR_WRAP_END(status)
 }
 

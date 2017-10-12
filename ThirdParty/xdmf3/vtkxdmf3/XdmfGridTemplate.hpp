@@ -183,6 +183,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfGridTemplate(XdmfGridTemplate &);
+
 protected:
 
   XdmfGridTemplate();

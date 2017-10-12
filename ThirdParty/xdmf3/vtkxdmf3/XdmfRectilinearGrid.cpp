@@ -33,7 +33,7 @@
 /**
  * PIMPL
  */
-class XdmfRectilinearGrid::XdmfRectilinearGridImpl {
+class XdmfRectilinearGrid::XdmfRectilinearGridImpl : public XdmfGridImpl {
 
 public:
 
@@ -251,10 +251,15 @@ public:
   XdmfRectilinearGridImpl(const std::vector<shared_ptr<XdmfArray> > & coordinates) :
     mCoordinates(coordinates.begin(), coordinates.end())
   {
+    mGridType = "Rectilinear";
+  }
+
+  XdmfGridImpl * duplicate()
+  {
+    return new XdmfRectilinearGridImpl(mCoordinates);
   }
 
   std::vector<shared_ptr<XdmfArray> > mCoordinates;
-
 };
 
 shared_ptr<XdmfRectilinearGrid>
@@ -297,6 +302,13 @@ XdmfRectilinearGrid::XdmfRectilinearGrid(const std::vector<shared_ptr<XdmfArray>
   mImpl = new XdmfRectilinearGridImpl(axesCoordinates);
 }
 
+XdmfRectilinearGrid::XdmfRectilinearGrid(XdmfRectilinearGrid & refGrid):
+  XdmfGrid(refGrid)
+{
+  mTopology = XdmfRectilinearGridImpl::XdmfTopologyRectilinear::New(this);
+  mGeometry = XdmfRectilinearGridImpl::XdmfGeometryRectilinear::New(this);
+}
+
 XdmfRectilinearGrid::~XdmfRectilinearGrid()
 {
   if (mImpl) {
@@ -321,15 +333,16 @@ XdmfRectilinearGrid::copyGrid(shared_ptr<XdmfGrid> sourceGrid)
 shared_ptr<XdmfArray>
 XdmfRectilinearGrid::getCoordinates(const unsigned int axisIndex)
 {
-  return const_pointer_cast<XdmfArray>(static_cast<const XdmfRectilinearGrid &>
-				       (*this).getCoordinates(axisIndex));
+  return boost::const_pointer_cast<XdmfArray>
+    (static_cast<const XdmfRectilinearGrid &>
+     (*this).getCoordinates(axisIndex));
 }
 
 shared_ptr<const XdmfArray>
 XdmfRectilinearGrid::getCoordinates(const unsigned int axisIndex) const
 {
-  if(axisIndex < mImpl->mCoordinates.size()) {
-    return mImpl->mCoordinates[axisIndex];
+  if(axisIndex < ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates.size()) {
+    return ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates[axisIndex];
   }
   return shared_ptr<XdmfArray>();
 }
@@ -343,13 +356,13 @@ XdmfRectilinearGrid::getCoordinates()
 const std::vector<shared_ptr<XdmfArray> >
 XdmfRectilinearGrid::getCoordinates() const
 {
-  return mImpl->mCoordinates;
+  return ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates;
 }
 
 shared_ptr<XdmfArray>
 XdmfRectilinearGrid::getDimensions()
 {
-  return const_pointer_cast<XdmfArray>
+  return boost::const_pointer_cast<XdmfArray>
     (static_cast<const XdmfRectilinearGrid &>(*this).getDimensions());
 }
 
@@ -359,7 +372,7 @@ XdmfRectilinearGrid::getDimensions() const
   shared_ptr<XdmfArray> dimensions = XdmfArray::New();
   std::vector<shared_ptr<XdmfArray> > heldCoordinates =
     ((XdmfRectilinearGridImpl*)mImpl)->mCoordinates;
-  dimensions->reserve(static_cast<unsigned int>(heldCoordinates.size()));
+  dimensions->reserve(heldCoordinates.size());
   for (unsigned int i = 0; i < heldCoordinates.size(); ++i)
   {
     dimensions->pushBack(heldCoordinates[i]->getSize());
@@ -420,22 +433,22 @@ void
 XdmfRectilinearGrid::setCoordinates(const unsigned int axisIndex,
                                     const shared_ptr<XdmfArray> axisCoordinates)
 {
-  if(mImpl->mCoordinates.size() <= axisIndex) {
-    mImpl->mCoordinates.reserve(axisIndex + 1);
+  if(((XdmfRectilinearGridImpl *)mImpl)->mCoordinates.size() <= axisIndex) {
+    ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates.reserve(axisIndex + 1);
     unsigned int numArraysToInsert =
-      axisIndex - static_cast<unsigned int>(mImpl->mCoordinates.size()) + 1;
+      axisIndex - ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates.size() + 1;
     for(unsigned int i=0; i<numArraysToInsert; ++i) {
-      mImpl->mCoordinates.push_back(XdmfArray::New());
+      ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates.push_back(XdmfArray::New());
     }
   }
-  mImpl->mCoordinates[axisIndex] = axisCoordinates;
+  ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates[axisIndex] = axisCoordinates;
   this->setIsChanged(true);
 }
 
 void
 XdmfRectilinearGrid::setCoordinates(const std::vector<shared_ptr<XdmfArray> > axesCoordinates)
 {
-  mImpl->mCoordinates = axesCoordinates;
+  ((XdmfRectilinearGridImpl *)mImpl)->mCoordinates = axesCoordinates;
   this->setIsChanged(true);
 }
 
@@ -443,44 +456,106 @@ XdmfRectilinearGrid::setCoordinates(const std::vector<shared_ptr<XdmfArray> > ax
 
 XDMFRECTILINEARGRID * XdmfRectilinearGridNew(XDMFARRAY ** axesCoordinates, unsigned int numCoordinates, int passControl)
 {
-  std::vector<shared_ptr<XdmfArray> > holderVector;
-  for (unsigned int i = 0; i < numCoordinates; ++i) {
-    shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(axesCoordinates[i]);
-    holderVector.push_back(refArray);
+  try
+  {
+    std::vector<shared_ptr<XdmfArray> > holderVector;
+    for (unsigned int i = 0; i < numCoordinates; ++i) {
+      if (passControl) {
+        holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i]));
+      }
+      else {
+        holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i], XdmfNullDeleter()));
+      }
+    }
+    shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(holderVector);
+    return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
   }
-  shared_ptr<XdmfRectilinearGrid> * generatedGrid = 
-    new shared_ptr<XdmfRectilinearGrid>(XdmfRectilinearGrid::New(holderVector));
-  return (XDMFRECTILINEARGRID *) generatedGrid;
+  catch (...)
+  {
+    std::vector<shared_ptr<XdmfArray> > holderVector;
+    for (unsigned int i = 0; i < numCoordinates; ++i) {
+      if (passControl) {
+        holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i]));
+      }
+      else {
+        holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i], XdmfNullDeleter()));
+      }
+    }
+    shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(holderVector);
+    return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+  }
 }
 
 XDMFRECTILINEARGRID * XdmfRectilinearGridNew2D(XDMFARRAY * xCoordinates, XDMFARRAY * yCoordinates, int passControl)
 {
-   shared_ptr<XdmfArray> & refXCoordinates = *(shared_ptr<XdmfArray> *)(xCoordinates);
-   shared_ptr<XdmfArray> & refYCoordinates = *(shared_ptr<XdmfArray> *)(yCoordinates);
-   shared_ptr<XdmfRectilinearGrid> * generatedGrid = 
-     new shared_ptr<XdmfRectilinearGrid>(XdmfRectilinearGrid::New(refXCoordinates,
-								  refYCoordinates));
-   return (XDMFRECTILINEARGRID *) generatedGrid;
+  try
+  {
+    if (passControl) {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+    else {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates, XdmfNullDeleter()));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+  }
+  catch (...)
+  {
+    if (passControl) {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+    else {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates, XdmfNullDeleter()));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+  }
 }
 
 XDMFRECTILINEARGRID * XdmfRectilinearGridNew3D(XDMFARRAY * xCoordinates, XDMFARRAY * yCoordinates, XDMFARRAY * zCoordinates, int passControl)
 {
-   shared_ptr<XdmfArray> & refXCoordinates = *(shared_ptr<XdmfArray> *)(xCoordinates);
-   shared_ptr<XdmfArray> & refYCoordinates = *(shared_ptr<XdmfArray> *)(yCoordinates);
-   shared_ptr<XdmfArray> & refZCoordinates = *(shared_ptr<XdmfArray> *)(zCoordinates);
-   shared_ptr<XdmfRectilinearGrid> * generatedGrid = 
-     new shared_ptr<XdmfRectilinearGrid>(XdmfRectilinearGrid::New(refXCoordinates,
-								  refYCoordinates,
-								  refZCoordinates));
-   return (XDMFRECTILINEARGRID *) generatedGrid;
+  try
+  {
+    if (passControl) {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)zCoordinates));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+    else {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)zCoordinates, XdmfNullDeleter()));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+  }
+  catch (...)
+  {
+    if (passControl) {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)zCoordinates));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+    else {
+      shared_ptr<XdmfRectilinearGrid> generatedGrid = XdmfRectilinearGrid::New(shared_ptr<XdmfArray>((XdmfArray *)xCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)yCoordinates, XdmfNullDeleter()),
+                                                                               shared_ptr<XdmfArray>((XdmfArray *)zCoordinates, XdmfNullDeleter()));
+      return (XDMFRECTILINEARGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*generatedGrid.get()))));
+    }
+  }
 }
 
 XDMFARRAY * XdmfRectilinearGridGetCoordinatesByIndex(XDMFRECTILINEARGRID * grid, unsigned int axisIndex, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
-  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refGrid->getCoordinates(axisIndex));
-  return (XDMFARRAY *) p;
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
+  return (XDMFARRAY *)((void *)(gridPointer->getCoordinates(axisIndex).get()));
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -488,16 +563,32 @@ XDMFARRAY * XdmfRectilinearGridGetCoordinatesByIndex(XDMFRECTILINEARGRID * grid,
 XDMFARRAY ** XdmfRectilinearGridGetCoordinates(XDMFRECTILINEARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
-  XDMFARRAY ** returnPointer;
-  std::vector<shared_ptr<XdmfArray> > heldCoordinates = refGrid->getCoordinates();
-  returnPointer = (XDMFARRAY **)malloc(sizeof(XDMFARRAY*) * (heldCoordinates.size() + 1));
-  for (unsigned int i = 0; i < heldCoordinates.size(); ++i) {
-    shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(heldCoordinates[i]);
-    returnPointer[i] = (XDMFARRAY*) p;
+  try
+  {
+    XDMFARRAY ** returnPointer;
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
+    std::vector<shared_ptr<XdmfArray> > heldCoordinates = gridPointer->getCoordinates();
+    returnPointer = new XDMFARRAY *[heldCoordinates.size()]();
+    for (unsigned int i = 0; i < heldCoordinates.size(); ++i) {
+      XDMFARRAY * insertArray = (XDMFARRAY *)((void *)(new XdmfArray(*(heldCoordinates[i].get()))));
+      returnPointer[i] = insertArray;
+    }
+    return returnPointer;
   }
-  returnPointer[heldCoordinates.size()] = NULL;
-  return returnPointer;
+  catch (...)
+  {
+    XDMFARRAY ** returnPointer;
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
+    std::vector<shared_ptr<XdmfArray> > heldCoordinates = gridPointer->getCoordinates();
+    returnPointer = new XDMFARRAY *[heldCoordinates.size()]();
+    for (unsigned int i = 0; i < heldCoordinates.size(); ++i) {
+      XDMFARRAY * insertArray = (XDMFARRAY *)((void *)(new XdmfArray(*(heldCoordinates[i].get()))));
+      returnPointer[i] = insertArray;
+    }
+    return returnPointer;
+  }
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -505,9 +596,10 @@ XDMFARRAY ** XdmfRectilinearGridGetCoordinates(XDMFRECTILINEARGRID * grid, int *
 int XdmfRectilinearGridGetNumberCoordinates(XDMFRECTILINEARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
-  std::vector<shared_ptr<XdmfArray> > heldCoordinates = refGrid->getCoordinates();
-  return static_cast<int>(heldCoordinates.size());
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
+  std::vector<shared_ptr<XdmfArray> > heldCoordinates = gridPointer->getCoordinates();
+  return heldCoordinates.size();
   XDMF_ERROR_WRAP_END(status)
   return 0;
 }
@@ -515,9 +607,36 @@ int XdmfRectilinearGridGetNumberCoordinates(XDMFRECTILINEARGRID * grid, int * st
 XDMFARRAY * XdmfRectilinearGridGetDimensions(XDMFRECTILINEARGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
-  shared_ptr<XdmfArray> * p = new shared_ptr<XdmfArray>(refGrid->getDimensions());
-  return (XDMFARRAY *) p;
+  try
+  {
+    XdmfArray * copyArray;
+    shared_ptr<XdmfArray> returnDimensions;
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfGrid * classedGrid = dynamic_cast<XdmfGrid *>(classedPointer);
+    XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedGrid);
+    XDMFARRAY * returnArray;
+    returnDimensions = gridPointer->getDimensions();
+    copyArray = new XdmfArray(*(returnDimensions.get()));
+    void * copyVoid = (void *)copyArray;
+    returnArray = (XDMFARRAY *) copyVoid;
+    returnDimensions.reset();
+    return returnArray;
+  }
+  catch (...)
+  {
+    XdmfArray * copyArray;
+    shared_ptr<XdmfArray> returnDimensions;
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfGrid * classedGrid = dynamic_cast<XdmfGrid *>(classedPointer);
+    XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedGrid);
+    XDMFARRAY * returnArray;
+    returnDimensions = gridPointer->getDimensions();
+    copyArray = new XdmfArray(*(returnDimensions.get()));
+    void * copyVoid = (void *)copyArray;
+    returnArray = (XDMFARRAY *) copyVoid;
+    returnDimensions.reset();
+    return returnArray;
+  }
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }
@@ -525,22 +644,32 @@ XDMFARRAY * XdmfRectilinearGridGetDimensions(XDMFRECTILINEARGRID * grid, int * s
 void XdmfRectilinearGridSetCoordinates(XDMFRECTILINEARGRID * grid, XDMFARRAY ** axesCoordinates, unsigned int numCoordinates, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
   std::vector<shared_ptr<XdmfArray> > holderVector;
   for (unsigned int i = 0; i < numCoordinates; ++i) {
-    shared_ptr<XdmfArray> & refArray = *(shared_ptr<XdmfArray> *)(axesCoordinates[i]);
-    holderVector.push_back(refArray);
+    if (passControl) {
+      holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i]));
+    }
+    else {
+      holderVector.push_back(shared_ptr<XdmfArray>((XdmfArray *)axesCoordinates[i], XdmfNullDeleter()));
+    }
   }
-  refGrid->setCoordinates(holderVector);
+  gridPointer->setCoordinates(holderVector);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfRectilinearGridSetCoordinatesByIndex(XDMFRECTILINEARGRID * grid, unsigned int index, XDMFARRAY * coordinates, int passControl, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfRectilinearGrid> & refGrid = *(shared_ptr<XdmfRectilinearGrid> *)(grid);
-  shared_ptr<XdmfArray> & refCoordinates = *(shared_ptr<XdmfArray> *)(coordinates);
-  refGrid->setCoordinates(index, refCoordinates);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfRectilinearGrid * gridPointer = dynamic_cast<XdmfRectilinearGrid *>(classedPointer);
+  if (passControl) {
+    gridPointer->setCoordinates(index, shared_ptr<XdmfArray>((XdmfArray *)coordinates));
+  }
+  else {
+    gridPointer->setCoordinates(index, shared_ptr<XdmfArray>((XdmfArray *)coordinates, XdmfNullDeleter()));
+  }
   XDMF_ERROR_WRAP_END(status)
 }
 

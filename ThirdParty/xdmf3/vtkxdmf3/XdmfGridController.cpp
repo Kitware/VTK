@@ -49,6 +49,12 @@ XdmfGridController::XdmfGridController(const std::string & filePath,
 {
 }
 
+XdmfGridController::XdmfGridController(const XdmfGridController& refController):
+  mFilePath(refController.getFilePath()),
+  mXMLPath(refController.getXMLPath())
+{
+}
+
 XdmfGridController::~XdmfGridController()
 {
 }
@@ -94,34 +100,96 @@ XdmfGridController::read()
 XDMFGRIDCONTROLLER *
 XdmfGridControllerNew(char * filePath, char * xmlPath)
 {
-  shared_ptr<XdmfGridController> * p = 
-    new shared_ptr<XdmfGridController>(XdmfGridController::New(filePath,
-							       xmlPath));
-  return (XDMFGRIDCONTROLLER *) p;
+  try
+  {
+    XDMFGRIDCONTROLLER * returnController = NULL;
+    shared_ptr<XdmfGridController> generatedController = XdmfGridController::New(std::string(filePath), std::string(xmlPath));
+    returnController = (XDMFGRIDCONTROLLER *)((void *)((XdmfItem *)(new XdmfGridController(*generatedController.get()))));
+    generatedController.reset();
+    return returnController;
+  }
+  catch (...)
+  {
+    XDMFGRIDCONTROLLER * returnController = NULL;
+    shared_ptr<XdmfGridController> generatedController = XdmfGridController::New(std::string(filePath), std::string(xmlPath));
+    returnController = (XDMFGRIDCONTROLLER *)((void *)((XdmfItem *)(new XdmfGridController(*generatedController.get()))));
+    generatedController.reset();
+    return returnController;
+  }
 }
 
 char *
 XdmfGridControllerGetFilePath(XDMFGRIDCONTROLLER * controller)
 {
-  shared_ptr<XdmfGridController> & refGridController = *(shared_ptr<XdmfGridController> *)(controller);
-  char * returnPointer = strdup(refGridController->getFilePath().c_str());
-  return returnPointer;
+  try
+  {
+    XdmfGridController referenceController = *(XdmfGridController *)(controller);
+    char * returnPointer = strdup(referenceController.getFilePath().c_str());
+    return returnPointer;
+  }
+  catch (...)
+  {
+    XdmfGridController referenceController = *(XdmfGridController *)(controller);
+    char * returnPointer = strdup(referenceController.getFilePath().c_str());
+    return returnPointer;
+  }
 }
 
 char *
 XdmfGridControllerGetXMLPath(XDMFGRIDCONTROLLER * controller)
 {
-  shared_ptr<XdmfGridController> & refGridController = *(shared_ptr<XdmfGridController> *)(controller);
-  char * returnPointer = strdup(refGridController->getXMLPath().c_str());
-  return returnPointer;
+  try
+  {
+    XdmfGridController referenceController = *(XdmfGridController *)(controller);
+    char * returnPointer = strdup(referenceController.getXMLPath().c_str());
+    return returnPointer;
+  }
+  catch (...)
+  {
+    XdmfGridController referenceController = *(XdmfGridController *)(controller);
+    char * returnPointer = strdup(referenceController.getXMLPath().c_str());
+    return returnPointer;
+  }
 }
 
 XDMFGRID *
 XdmfGridControllerRead(XDMFGRIDCONTROLLER * controller)
 {
-  shared_ptr<XdmfGridController> & refGridController = *(shared_ptr<XdmfGridController> *)(controller);
-  shared_ptr<XdmfGrid> * returnGrid = new shared_ptr<XdmfGrid>(refGridController->read());
-  return (XDMFGRID *) returnGrid;
+  try
+  {
+    XdmfGridController referenceController = *(XdmfGridController *)(controller);
+    shared_ptr<XdmfGrid> returnGrid = referenceController.read();
+    XDMFGRID * returnPointer;
+    if (shared_ptr<XdmfCurvilinearGrid> curvilinearGrid =
+        shared_dynamic_cast<XdmfCurvilinearGrid>(returnGrid))
+    {
+      returnPointer = (XDMFGRID *)((void *)((XdmfItem *)(new XdmfCurvilinearGrid(*curvilinearGrid.get()))));
+    }
+    else if (shared_ptr<XdmfRectilinearGrid> rectilinearGrid =
+             shared_dynamic_cast<XdmfRectilinearGrid>(returnGrid))
+    {
+      returnPointer = (XDMFGRID *)((void *)((XdmfItem *)(new XdmfRectilinearGrid(*rectilinearGrid.get()))));
+    }
+    else if (shared_ptr<XdmfRegularGrid> regularGrid =
+        shared_dynamic_cast<XdmfRegularGrid>(returnGrid))
+    {
+      returnPointer = (XDMFGRID *)((void *)((XdmfItem *)(new XdmfRegularGrid(*regularGrid.get()))));
+    }
+    else if (shared_ptr<XdmfGridCollection> collectionGrid =
+        shared_dynamic_cast<XdmfGridCollection>(returnGrid))
+    {
+      returnPointer = (XDMFGRID *)((void *)((XdmfItem *)(new XdmfGridCollection(*collectionGrid.get()))));
+    }
+    else if (shared_ptr<XdmfUnstructuredGrid> unstructuredGrid =
+        shared_dynamic_cast<XdmfUnstructuredGrid>(returnGrid))
+    {
+      returnPointer = (XDMFGRID *)((void *)((XdmfItem *)(new XdmfUnstructuredGrid(*unstructuredGrid.get()))));
+    }
+    return returnPointer;
+  }
+  catch (...)
+  {
+  }
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfGridController, XDMFGRIDCONTROLLER)

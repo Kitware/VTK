@@ -26,17 +26,19 @@
 #include <climits>
 #include <set>
 #include "XdmfArray.hpp"
-#include "XdmfBinaryController.hpp"
-#include "XdmfError.hpp"
 #include "XdmfHDF5Controller.hpp"
+#include "XdmfBinaryController.hpp"
 #include "XdmfItem.hpp"
 #include "XdmfItemFactory.hpp"
 #include "XdmfReader.hpp"
 #include "XdmfTemplate.hpp"
-#include "XdmfStringUtils.hpp"
-#include "XdmfSystemUtils.hpp"
+#include "XdmfError.hpp"
 #include "XdmfVisitor.hpp"
 #include "XdmfWriter.hpp"
+
+#include "XdmfSystemUtils.hpp"
+
+#include <boost/tokenizer.hpp>
 
 #include <stdio.h>
 
@@ -442,6 +444,15 @@ XdmfTemplate::XdmfTemplate() :
 {
 }
 
+XdmfTemplate::XdmfTemplate(XdmfTemplate & refTemplate) :
+  XdmfItem(refTemplate),
+  mBase(refTemplate.mBase),
+  mCurrentStep(refTemplate.mCurrentStep),
+  mNumSteps(refTemplate.mNumSteps),
+  mItemFactory(refTemplate.mItemFactory)
+{
+}
+
 XdmfTemplate::~XdmfTemplate()
 {
 }
@@ -661,7 +672,7 @@ XdmfTemplate::getNumberSteps() const
 unsigned int
 XdmfTemplate::getNumberTrackedArrays() const
 {
-  return static_cast<unsigned int>(mTrackedArrays.size());
+  return mTrackedArrays.size();
 }
 
 XdmfArray *
@@ -691,7 +702,7 @@ XdmfTemplate::populateItem(const std::map<std::string, std::string> & itemProper
         ++iter) {
       if(shared_ptr<XdmfArray> array = shared_dynamic_cast<XdmfArray>(*iter)) {
         // Pull hdf5 reference data from the first provided array
-        if (array->getNumberHeavyDataControllers() > 0 && !mHeavyWriter) {
+        if (array->getNumberHeavyDataControllers() > 0 & !mHeavyWriter) {
           mHeavyWriter = reader->generateHeavyDataWriter(array->getHeavyDataController(0)->getName(), array->getHeavyDataController(0)->getFilePath());
         }
         if (array->getName().compare("Data Description") == 0) {
@@ -820,7 +831,7 @@ XdmfTemplate::populateItem(const std::map<std::string, std::string> & itemProper
 //    mNumSteps = controllerTotal / mTrackedArrays[0]->getSize();
   }
   else {
-    mNumSteps = static_cast<unsigned int>(mDataControllers.size() / mTrackedArrays.size());
+    mNumSteps = mDataControllers.size() / mTrackedArrays.size();
   }
   this->setStep(0);
 }
@@ -834,7 +845,7 @@ XdmfTemplate::preallocateSteps(unsigned int numSteps)
   // Set to Default mode so that the new allocations are in new locations
   mHeavyWriter->setMode(XdmfHeavyDataWriter::Default);
   int preallocatedSize = 0;
-  unsigned int numberSetsPreallocated = 0;
+  int numberSetsPreallocated = 0;
   std::stringstream datastream;
   for (unsigned int i = 0; i < mTrackedArrays.size(); ++i) {
     preallocatedSize = mTrackedArrays[i]->getSize() * numSteps;
@@ -1042,11 +1053,11 @@ XdmfTemplate::setStep(unsigned int stepId)
               arrayIndex = i;
             }
             else {
-              arrayIndex = i+(stepId*static_cast<unsigned int>(mTrackedArrays.size()));
+              arrayIndex = i+(stepId*mTrackedArrays.size());
             }
           }
           else {
-            arrayIndex = i+(stepId*static_cast<unsigned int>(mTrackedArrays.size()));
+            arrayIndex = i+(stepId*mTrackedArrays.size());
         }
         if (mDataControllers[arrayIndex].size() > 0) {
           if(mHeavyWriter) {
@@ -1100,26 +1111,33 @@ XdmfTemplate::setStep(unsigned int stepId)
             // Data is contained in the content
             std::string content = mDataDescriptions[i+(stepId*mTrackedArrays.size())];
 
-            mTrackedArrays[i]->initialize(mTrackedArrayTypes[i], 
-					  mTrackedArrayDims[i]);
+            mTrackedArrays[i]->initialize(mTrackedArrayTypes[i], mTrackedArrayDims[i]);
 
+            unsigned int index = 0;
+            boost::char_separator<char> sep(" \t\n");
+            boost::tokenizer<boost::char_separator<char> > valtokens(content, sep);
             if(mTrackedArrayTypes[i] == XdmfArrayType::String()) {
-	      std::vector<std::string> tokens;
-	      XdmfStringUtils::split(content, tokens);
-	      mTrackedArrays[i]->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
-	    }
+              for(boost::tokenizer<boost::char_separator<char> >::const_iterator
+                    iter = valtokens.begin();
+                  iter != valtokens.end();
+                  ++iter, ++index) {
+                mTrackedArrays[i]->insert(index, *iter);
+              }
+            }
             else {
-	      std::vector<double> tokens;
-	      XdmfStringUtils::split(content, tokens);
-	      mTrackedArrays[i]->insert(0, &(tokens[0]), static_cast<unsigned int>(tokens.size()));
+              for(boost::tokenizer<boost::char_separator<char> >::const_iterator
+                    iter = valtokens.begin();
+                  iter != valtokens.end();
+                  ++iter, ++index) {
+                mTrackedArrays[i]->insert(index, atof((*iter).c_str()));
+              }
             }
           }
         }
       }
     }
     else {
-      XdmfError::message(XdmfError::FATAL, 
-			 "Error: Template attempting to load invalid step");
+      XdmfError::message(XdmfError::FATAL, "Error: Template attempting to load invalid step");
     }
     mCurrentStep = stepId;
   }
@@ -1210,7 +1228,7 @@ XdmfTemplate::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
     arrayInfo << "\"" << mDataTypes[i] << "\"" << mDataDescriptions[i];
     ++i;
   }
-  dataInfoArray->insert(0, arrayInfo.str().c_str(), static_cast<unsigned int>(arrayInfo.str().length()));
+  dataInfoArray->insert(0, arrayInfo.str().c_str(), arrayInfo.str().length());
   dataInfoArray->insert(dataInfoArray->getSize(), 0);
 
   dataInfoArray->accept(visitor);

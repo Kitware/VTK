@@ -166,6 +166,8 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfTemplate(XdmfTemplate &);
+
 protected:
 
   XdmfTemplate();
@@ -184,7 +186,7 @@ protected:
   std::vector<std::vector<shared_ptr<XdmfHeavyDataController> > > mDataControllers;
   std::vector<shared_ptr<const XdmfArrayType> > mTrackedArrayTypes;
   std::vector<std::vector<unsigned int> > mTrackedArrayDims;
-  unsigned int mCurrentStep;
+  int mCurrentStep;
   unsigned int mNumSteps;
   shared_ptr<XdmfItemFactory> mItemFactory;
 

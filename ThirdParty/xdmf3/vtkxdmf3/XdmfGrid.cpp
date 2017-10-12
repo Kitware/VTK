@@ -46,6 +46,21 @@ XdmfGrid::XdmfGrid(const shared_ptr<XdmfGeometry> geometry,
 {
 }
 
+XdmfGrid::XdmfGrid(XdmfGrid &refGrid):
+  XdmfItem(refGrid),
+  mAttributes(refGrid.mAttributes),
+  mSets(refGrid.mSets),
+  mMaps(refGrid.mMaps),
+  mGeometry(refGrid.mGeometry),
+  mTopology(refGrid.mTopology),
+  mName(refGrid.mName),
+  mTime(refGrid.mTime)
+{
+  XdmfGridImpl * holder = refGrid.mImpl;
+  XdmfGridImpl * duplicateImpl = holder->duplicate();
+  mImpl = duplicateImpl;
+}
+
 XdmfGrid::~XdmfGrid()
 {
 }
@@ -126,7 +141,7 @@ XdmfGrid::getName() const
 shared_ptr<XdmfTime>
 XdmfGrid::getTime()
 {
-  return const_pointer_cast<XdmfTime>
+  return boost::const_pointer_cast<XdmfTime>
     (static_cast<const XdmfGrid &>(*this).getTime());
 }
 
@@ -275,148 +290,163 @@ XdmfGrid::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 XDMFATTRIBUTE * XdmfGridGetAttribute(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfAttribute> * attribute = 
-    new shared_ptr<XdmfAttribute>(refGrid->getAttribute(index));
-  return (XDMFATTRIBUTE *) attribute;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFATTRIBUTE *)((void *)(gridPointer->getAttribute(index).get()));
 }
 
 XDMFATTRIBUTE * XdmfGridGetAttributeByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfAttribute> * attribute = 
-    new shared_ptr<XdmfAttribute>(refGrid->getAttribute(Name));
-  return (XDMFATTRIBUTE *) attribute;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFATTRIBUTE *)((void *)(gridPointer->getAttribute(Name).get()));
 }
 
 unsigned int XdmfGridGetNumberAttributes(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  return refGrid->getNumberAttributes();
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return gridPointer->getNumberAttributes();
 }
 
 void XdmfGridInsertAttribute(XDMFGRID * grid, XDMFATTRIBUTE * Attribute, int passControl)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfAttribute> & refAttribute = *(shared_ptr<XdmfAttribute> *)(Attribute);
-  refGrid->insert(refAttribute);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  if (passControl) {
+    gridPointer->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute));
+  }
+  else {
+    gridPointer->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute, XdmfNullDeleter()));
+  }
 }
 
 void XdmfGridRemoveAttribute(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeAttribute(index);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeAttribute(index);
 }
 
 void XdmfGridRemoveAttributeByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeAttribute(Name);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeAttribute(Name);
 }
 
 XDMFSET * XdmfGridGetSet(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfSet> * set = 
-    new shared_ptr<XdmfSet>(refGrid->getSet(index));
-  return (XDMFSET *) set;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFSET *)((void *)(gridPointer->getSet(index).get()));
 }
 
 XDMFSET * XdmfGridGetSetByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfSet> * set = 
-    new shared_ptr<XdmfSet>(refGrid->getSet(Name));
-  return (XDMFSET *) set;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFSET *)((void *)(gridPointer->getSet(Name).get()));
 }
 
 unsigned int XdmfGridGetNumberSets(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  return refGrid->getNumberSets();
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return gridPointer->getNumberSets();
 }
 
 void XdmfGridInsertSet(XDMFGRID * grid, XDMFSET * Set, int passControl)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfSet> & refSet = *(shared_ptr<XdmfSet> *)(Set);
-  refGrid->insert(refSet);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  if (passControl) {
+    gridPointer->insert(shared_ptr<XdmfSet>((XdmfSet *)Set));
+  }
+  else {
+    gridPointer->insert(shared_ptr<XdmfSet>((XdmfSet *)Set, XdmfNullDeleter()));
+  }
 }
 
 void XdmfGridRemoveSet(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeSet(index);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeSet(index);
 }
 
 void XdmfGridRemoveSetByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeSet(Name);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeSet(Name);
 }
 
 XDMFMAP * XdmfGridGetMap(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfMap> * map = 
-    new shared_ptr<XdmfMap>(refGrid->getMap(index));
-  return (XDMFMAP *) map;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFMAP *)((void *)(gridPointer->getMap(index).get()));
 }
 
 XDMFMAP * XdmfGridGetMapByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfMap> * map = 
-    new shared_ptr<XdmfMap>(refGrid->getMap(Name));
-  return (XDMFMAP *) map;
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return (XDMFMAP *)((void *)(gridPointer->getMap(Name).get()));
 }
 
 unsigned int XdmfGridGetNumberMaps(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  return refGrid->getNumberMaps();
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return gridPointer->getNumberMaps();
 }
 
 void XdmfGridInsertMap(XDMFGRID * grid, XDMFMAP * Map, int passControl)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfMap> & refMap = *(shared_ptr<XdmfMap> *)(Map);
-  refGrid->insert(refMap);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  if (passControl) {
+    gridPointer->insert(shared_ptr<XdmfMap>((XdmfMap *)Map));
+  }
+  else {
+    gridPointer->insert(shared_ptr<XdmfMap>((XdmfMap *)Map, XdmfNullDeleter()));
+  }
 }
 
 void XdmfGridRemoveMap(XDMFGRID * grid, unsigned int index)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeMap(index);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeMap(index);
 }
 
 void XdmfGridRemoveMapByName(XDMFGRID * grid, char * Name)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->removeMap(Name);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->removeMap(Name);
 }
 
 XDMFGRIDCONTROLLER * XdmfGridGetGridController(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfGridController> * gridController =
-    new shared_ptr<XdmfGridController>(refGrid->getGridController());
-  return (XDMFGRIDCONTROLLER *) gridController;
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+  shared_ptr<XdmfGridController> generatedController = gridPointer->getGridController();
+  return (XDMFGRIDCONTROLLER *)((void *)(generatedController.get()));
+
 }
 
 char * XdmfGridGetName(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  return strdup(refGrid->getName().c_str());
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  return strdup(gridPointer->getName().c_str());
 }
 
 XDMFTIME * XdmfGridGetTime(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfTime> * time =
-    new shared_ptr<XdmfTime>(refGrid->getTime());
-  return (XDMFTIME *) time;
-
   XdmfItem * classedPointer = (XdmfItem *)grid;
   XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
   shared_ptr<XdmfTime> generatedTime = gridPointer->getTime();
@@ -427,38 +457,62 @@ void
 XdmfGridRead(XDMFGRID * grid, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->read();
+  try
+  {
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+    gridPointer->read();
+  }
+  catch (...)
+  {
+    XdmfItem * classedPointer = (XdmfItem *)grid;
+    XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+    gridPointer->read();
+  }
   XDMF_ERROR_WRAP_END(status)
 }
 
 void
 XdmfGridRelease(XDMFGRID * grid)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->release();
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+  gridPointer->release();
 }
 
 void XdmfGridSetGridController(XDMFGRID * grid, XDMFGRIDCONTROLLER * controller, int passControl)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfGridController> & refGridController = *(shared_ptr<XdmfGridController> *)(controller);
-  refGrid->setGridController(refGridController);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+  XdmfItem * controllerPointer = (XdmfItem *) controller;
+  XdmfGridController * classedController = dynamic_cast<XdmfGridController *>(controllerPointer);
+  if (passControl) {
+    gridPointer->setGridController(shared_ptr<XdmfGridController>(classedController));
+  }
+  else {
+    gridPointer->setGridController(shared_ptr<XdmfGridController>(classedController, XdmfNullDeleter()));
+  }
 }
 
 void XdmfGridSetName(XDMFGRID * grid, char * name, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  refGrid->setName(name);
+  XdmfItem * tempPointer = (XdmfItem *)(grid);
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(tempPointer);
+  gridPointer->setName(name);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfGridSetTime(XDMFGRID * grid, XDMFTIME * time, int passControl)
 {
-  shared_ptr<XdmfGrid> & refGrid = *(shared_ptr<XdmfGrid> *)(grid);
-  shared_ptr<XdmfTime> & refTime = *(shared_ptr<XdmfTime> *)(time);
-  refGrid->setTime(refTime);
+  XdmfItem * classedPointer = (XdmfItem *)grid;
+  XdmfGrid * gridPointer = dynamic_cast<XdmfGrid *>(classedPointer);
+  if (passControl) {
+    gridPointer->setTime(shared_ptr<XdmfTime>((XdmfTime *)time));
+  }
+  else {
+    gridPointer->setTime(shared_ptr<XdmfTime>((XdmfTime *)time, XdmfNullDeleter()));
+  }
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfGrid, XDMFGRID)

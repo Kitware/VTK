@@ -200,7 +200,9 @@ public:
    * @param     type    The XdmfGeometryType to set.
    */
   void setType(const shared_ptr<const XdmfGeometryType> type);
-  
+
+  XdmfGeometry(XdmfGeometry &);
+
 protected:
 
   XdmfGeometry();
