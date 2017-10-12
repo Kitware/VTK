@@ -212,6 +212,8 @@ public:
    */
   void setTopology(const shared_ptr<XdmfTopology> topology);
 
+  XdmfUnstructuredGrid(XdmfUnstructuredGrid &);
+
 protected:
 
   XdmfUnstructuredGrid();

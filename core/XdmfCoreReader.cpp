@@ -21,10 +21,8 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#define vtk_libxml2_reference reference // Reversing VTK name mangling
-#include <libxml/uri.h>
-#include <libxml/xpointer.h>
-#include <libxml/xmlreader.h>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/tokenizer.hpp>
 #include <cstring>
 #include <map>
 #include <sstream>
@@ -34,6 +32,8 @@
 #include "XdmfCoreItemFactory.hpp"
 #include "XdmfCoreReader.hpp"
 #include "XdmfError.hpp"
+#include "XdmfFunction.hpp"
+#include "XdmfSubset.hpp"
 #include "XdmfItem.hpp"
 #include "XdmfSystemUtils.hpp"
 
@@ -168,7 +168,7 @@ public:
         else {
           document = iter->second;
         }
-	xmlFree(filePath);
+        
         mXPathContext = xmlXPtrNewContext(document, NULL, NULL);           
       }
       
@@ -227,21 +227,8 @@ public:
                 }
               }
               if(!whitespace) {
-		std::string contentString(content);
-                // find first nonwhitespace
-                unsigned int start = 0;
-                int check = static_cast<int>(contentString.find_first_not_of(" \t\n\r\f\v"));
-                if (check >= 0)
-                {
-                  start = check;
-                }
-                unsigned int end = static_cast<unsigned int>(contentString.size());
-                check = static_cast<int>(contentString.find_last_not_of(" \t\n\r\f\v"));
-                if (check >= 0)
-                {
-                  end = check;
-                }
-                contentString = contentString.substr(start, end - start + 1);
+                std::string contentString(content);
+                boost::algorithm::trim(contentString);
                 itemProperties.insert(std::make_pair("Content", contentString));
                 itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
@@ -316,6 +303,15 @@ XdmfCoreReader::XdmfCoreReader(const shared_ptr<const XdmfCoreItemFactory> itemF
 XdmfCoreReader::~XdmfCoreReader()
 {
   delete mImpl;
+}
+
+XdmfItem *
+XdmfCoreReader::DuplicatePointer(shared_ptr<XdmfItem> original) const
+{
+  if (mImpl == NULL) {
+    XdmfError::message(XdmfError::FATAL, "Error: Reader Internal Object is NULL");
+  }
+  return mImpl->mItemFactory->DuplicatePointer(original);
 }
 
 std::vector<shared_ptr<XdmfHeavyDataController> >
@@ -399,9 +395,8 @@ XDMFITEM *
 XdmfCoreReaderRead(XDMFCOREREADER * reader, char * filePath, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfCoreReader> & refReader = *(shared_ptr<XdmfCoreReader> *)(reader);
-  shared_ptr<XdmfItem> * p = new shared_ptr<XdmfItem>(refReader->read(filePath));
-  return (XDMFITEM *) p;
+  shared_ptr<XdmfItem> returnItem = ((XdmfCoreReader *)reader)->read(filePath);
+  return (XDMFITEM *)((void *)((XdmfItem *)((XdmfCoreReader *)reader)->DuplicatePointer(returnItem)));
   XDMF_ERROR_WRAP_END(status)
   return NULL;
 }

@@ -163,6 +163,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfGridCollection(XdmfGridCollection &);
+
 protected:
 
   XdmfGridCollection();
@@ -176,11 +178,15 @@ protected:
 
 private:
 
+  /**
+   * PIMPL
+   */
+  class XdmfGridCollectionImpl;
+
   XdmfGridCollection(const XdmfGridCollection &);  // Not implemented.
   void operator=(const XdmfGridCollection &);  // Not implemented.
 
   shared_ptr<const XdmfGridCollectionType> mType;
-
 };
 
 #endif

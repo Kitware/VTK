@@ -38,6 +38,11 @@ XdmfHeavyDataDescription::XdmfHeavyDataDescription()
 {
 }
 
+XdmfHeavyDataDescription::XdmfHeavyDataDescription(XdmfHeavyDataDescription & refDescription) :
+  XdmfItem(refDescription)
+{
+}
+
 XdmfHeavyDataDescription::~XdmfHeavyDataDescription()
 {
 }
@@ -76,9 +81,10 @@ XdmfHeavyDataDescription::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 XDMFHEAVYDATADESCRIPTION *
 XdmfHeavyDataDescriptionNew(char * key, char * value)
 {
-  shared_ptr<XdmfHeavyDataDescription> * p = 
-    new shared_ptr<XdmfHeavyDataDescription>(XdmfHeavyDataDescription::New());
-  return (XDMFHEAVYDATADESCRIPTION *) p;
+  std::string createKey(key);
+  std::string createValue(value);
+  shared_ptr<XdmfHeavyDataDescription> generatedDesc = XdmfHeavyDataDescription::New();
+  return (XDMFHEAVYDATADESCRIPTION *)((void *)(new XdmfHeavyDataDescription(*generatedDesc.get())));
 }
 
 XDMF_ITEM_C_CHILD_WRAPPER(XdmfHeavyDataDescription, XDMFHEAVYDATADESCRIPTION)

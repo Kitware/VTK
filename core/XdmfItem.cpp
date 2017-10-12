@@ -34,6 +34,12 @@ XdmfItem::XdmfItem() :
 {
 }
 
+XdmfItem::XdmfItem(const XdmfItem &refItem) :
+  mInformations(refItem.mInformations),
+  mIsChanged(true)
+{
+}
+
 XdmfItem::~XdmfItem()
 {
 }
@@ -48,13 +54,16 @@ void
 XdmfItem::setIsChanged(bool status)
 {
   // No change if status is the same
-  if (mIsChanged != status) {
+  if (mIsChanged != status)
+  {
     mIsChanged = status;
     // If it was changed all parents should be alerted
-    if (status) {
+    if (status)
+    {
       for (std::set<XdmfItem *>::iterator iter = mParents.begin();
            iter != mParents.end();
-           ++iter) {
+           ++iter)
+      {
         (*iter)->setIsChanged(status);
       }
     }
@@ -91,62 +100,56 @@ XdmfItem::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 void XdmfItemAccept(XDMFITEM * item, XDMFVISITOR * visitor, int * status)
 {
   XDMF_ERROR_WRAP_START(status)
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  shared_ptr<XdmfVisitor> & refVisitor = *(shared_ptr<XdmfVisitor> *)(visitor);
-  refItem->accept(refVisitor);
+  shared_ptr<XdmfVisitor> visitPointer((XdmfVisitor *)visitor, XdmfNullDeleter());
+  ((XdmfItem *)(item))->accept(visitPointer);
   XDMF_ERROR_WRAP_END(status)
 }
 
 void XdmfItemFree(void * item)
 {
   if (item != NULL) {
-    delete ((shared_ptr<XdmfItem> *)item);
+    delete ((XdmfItem *)item);
     item = NULL;
   }
 }
 
 XDMFINFORMATION * XdmfItemGetInformation(XDMFITEM * item, unsigned int index)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  shared_ptr<XdmfInformation> * information = new shared_ptr<XdmfInformation>(refItem->getInformation(index));
-  return (XDMFINFORMATION *)information;
+  return (XDMFINFORMATION *)((void *)(((XdmfItem *)(item))->getInformation(index).get()));
 }
 
 XDMFINFORMATION * XdmfItemGetInformationByKey(XDMFITEM * item, char * key)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  shared_ptr<XdmfInformation> * information = new shared_ptr<XdmfInformation>(refItem->getInformation(key));
-  return (XDMFINFORMATION *)information;
+  return (XDMFINFORMATION *)((void *)(((XdmfItem *)(item))->getInformation(key).get()));
 }
 
 unsigned int XdmfItemGetNumberInformations(XDMFITEM * item)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  return refItem->getNumberInformations();
+  return ((XdmfItem *)(item))->getNumberInformations();
 }
 
 void XdmfItemInsertInformation(XDMFITEM * item, XDMFINFORMATION * information, int passControl)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  shared_ptr<XdmfInformation> & refInformation = *(shared_ptr<XdmfInformation> *)(information);
-  refItem->insert(refInformation);
+  if (passControl == 0) {
+    ((XdmfItem *)(item))->insert(shared_ptr<XdmfInformation>((XdmfInformation *)information, XdmfNullDeleter()));
+  }
+  else {
+    ((XdmfItem *)(item))->insert(shared_ptr<XdmfInformation>((XdmfInformation *)information));
+  }
 }
 
 void XdmfItemRemoveInformation(XDMFITEM * item, unsigned int index)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  refItem->removeInformation(index);
+  ((XdmfItem *)(item))->removeInformation(index);
 }
 
 void XdmfItemRemoveInformationByKey(XDMFITEM * item, char * key)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  refItem->removeInformation(key);
+  ((XdmfItem *)(item))->removeInformation(std::string(key));
 }
 
 char * XdmfItemGetItemTag(XDMFITEM * item)
 {
-  shared_ptr<XdmfItem> & refItem = *(shared_ptr<XdmfItem> *)(item);
-  char * returnPointer = strdup(refItem->getItemTag().c_str());
+  char * returnPointer = strdup(((XdmfItem *)(item))->getItemTag().c_str());
   return returnPointer;
 }

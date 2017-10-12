@@ -37,6 +37,12 @@ class XdmfVisitor;
 
 // Includes
 #include <loki/Visitor.h>
+#define vtk_libxml2_reference reference // Reversing VTK name mangling
+#include <libxml/xmlexports.h>
+#include <libxml/tree.h>
+#include <libxml/uri.h>
+#include <libxml/xpointer.h>
+#include <libxml/xmlreader.h>
 #include <map>
 #include <set>
 #include <string>
@@ -204,7 +210,7 @@ public :
   shared_ptr<ChildClass>                                                      \
   ParentClass::get##ChildName(const unsigned int index)                       \
   {                                                                           \
-    return const_pointer_cast<ChildClass>                                     \
+    return boost::const_pointer_cast<ChildClass>                              \
       (static_cast<const ParentClass &>(*this).get##ChildName(index));        \
   }                                                                           \
                                                                               \
@@ -220,7 +226,7 @@ public :
   shared_ptr<ChildClass>                                                      \
   ParentClass::get##ChildName(const std::string & SearchName)                 \
   {                                                                           \
-    return const_pointer_cast<ChildClass>                                     \
+    return boost::const_pointer_cast<ChildClass>                              \
       (static_cast<const ParentClass &>(*this).get##ChildName(SearchName));   \
   }                                                                           \
                                                                               \
@@ -241,7 +247,7 @@ public :
   unsigned int                                                                \
   ParentClass::getNumber##ChildName##s() const                                \
   {                                                                           \
-    return static_cast<unsigned int>(m##ChildName##s.size());                 \
+    return m##ChildName##s.size();                                            \
   }                                                                           \
                                                                               \
   void                                                                        \
@@ -373,6 +379,8 @@ public:
    */
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfItem(const XdmfItem &);
+
 protected:
 
   XdmfItem();
@@ -405,7 +413,7 @@ protected:
 
 private:
 
-  XdmfItem(const XdmfItem &);  // Not implemented.
+//  XdmfItem(const XdmfItem &);  // It is implemented for C wrappers.
   void operator=(const XdmfItem &);  // Not implemented.
 
 };
@@ -462,63 +470,47 @@ Level##_EXPORT char * ClassName##GetItemTag( CClassName * item);
 #define XDMF_ITEM_C_CHILD_WRAPPER(ClassName, CClassName)                                                    \
 void ClassName##Accept( CClassName * item, XDMFVISITOR * visitor, int * status)                             \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  XdmfItemAccept(((XDMFITEM *)&baseItem), visitor, status);                                                 \
-}                                                                                                           \
-                                                                                                            \
-CClassName * ClassName##Cast(XDMFITEM * item)                                                               \
-{                                                                                                           \
-  shared_ptr< XdmfItem > & refItem = *(shared_ptr< XdmfItem > *) item;                                      \
-  shared_ptr< ClassName > * p = new shared_ptr< ClassName >(shared_dynamic_cast< ClassName >(refItem));     \
-  return (CClassName *) p;                                                                                  \
+  XdmfItemAccept(((XDMFITEM *)item), visitor, status);                                                      \
 }                                                                                                           \
                                                                                                             \
 void ClassName##Free(void * item)                                                                           \
 {                                                                                                           \
-  shared_ptr< ClassName > * p = (shared_ptr< ClassName > *) item;	                                    \
-  delete p;                                                                                                 \
+  XdmfItemFree(item);                                                                                       \
 }                                                                                                           \
                                                                                                             \
 XDMFINFORMATION * ClassName##GetInformation( CClassName * item, unsigned int index)                         \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  return XdmfItemGetInformation(((XDMFITEM *)&baseItem), index);                                                 \
+  return XdmfItemGetInformation(((XDMFITEM *)item), index);                                                 \
 }                                                                                                           \
                                                                                                             \
 XDMFINFORMATION * ClassName##GetInformationByKey( CClassName * item, char * key)                            \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  return XdmfItemGetInformationByKey(((XDMFITEM *)&baseItem), key);                                              \
+  return XdmfItemGetInformationByKey(((XDMFITEM *)item), key);                                              \
 }                                                                                                           \
                                                                                                             \
 unsigned int ClassName##GetNumberInformations( CClassName * item)                                           \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  return XdmfItemGetNumberInformations(((XDMFITEM *)&baseItem));                                                 \
+  return XdmfItemGetNumberInformations(((XDMFITEM *)item));                                                 \
 }                                                                                                           \
                                                                                                             \
 void ClassName##InsertInformation( CClassName * item, XDMFINFORMATION * information, int passControl)       \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  XdmfItemInsertInformation(((XDMFITEM *)&baseItem), information, passControl);                                  \
+  XdmfItemInsertInformation(((XDMFITEM *)item), information, passControl);                                  \
 }                                                                                                           \
                                                                                                             \
 void ClassName##RemoveInformation( CClassName * item, unsigned int index)                                   \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  XdmfItemRemoveInformation(((XDMFITEM *)&baseItem), index);                                                     \
+  XdmfItemRemoveInformation(((XDMFITEM *)item), index);                                                     \
 }                                                                                                           \
                                                                                                             \
 void ClassName##RemoveInformationByKey( CClassName * item, char * key)                                      \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  XdmfItemRemoveInformationByKey(((XDMFITEM *)&baseItem), key);                                                  \
+  XdmfItemRemoveInformationByKey(((XDMFITEM *)item), key);                                                  \
 }                                                                                                           \
                                                                                                             \
 char * ClassName##GetItemTag( CClassName * item)                                                            \
 {                                                                                                           \
-  shared_ptr< XdmfItem > baseItem = *(shared_ptr< ClassName > *) item;                                      \
-  return XdmfItemGetItemTag(((XDMFITEM *)&baseItem));                                                            \
+  return XdmfItemGetItemTag(((XDMFITEM *)item));                                                            \
 } 
 
 #ifdef __cplusplus

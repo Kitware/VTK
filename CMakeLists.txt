@@ -1,8 +1,5 @@
 project(Xdmf)
-cmake_minimum_required(VERSION 3.1)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+cmake_minimum_required(VERSION 2.8.5)
 
 #Needed to build DSM because relative paths are used to add its libraries
 if (POLICY CMP0015)

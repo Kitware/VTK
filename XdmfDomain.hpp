@@ -89,6 +89,8 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfDomain(XdmfDomain &);
+
 protected:
 
   XdmfDomain();
@@ -117,9 +119,7 @@ typedef struct XDMFDOMAIN XDMFDOMAIN;
 
 #ifndef XDMFGRIDCOLLECTIONCDEFINE
 #define XDMFGRIDCOLLECTIONCDEFINE
-
 struct XDMFGRIDCOLLECTION; // Simply as a typedef to ensure correct typing
-
 typedef struct XDMFGRIDCOLLECTION XDMFGRIDCOLLECTION;
 #endif
 
@@ -197,7 +197,6 @@ XDMF_EXPORT void XdmfDomainRemoveUnstructuredGrid(XDMFDOMAIN * domain, unsigned 
 
 XDMF_EXPORT void XdmfDomainRemoveUnstructuredGridByName(XDMFDOMAIN * domain, char * Name);
 
-
 XDMF_ITEM_C_CHILD_DECLARE(XdmfDomain, XDMFDOMAIN, XDMF)
 
 #define XDMF_DOMAIN_C_CHILD_DECLARE(ClassName, CClassName, Level)                                                                     \
@@ -244,218 +243,182 @@ Level##_EXPORT void ClassName##RemoveUnstructuredGridByName(CClassName * domain,
                                                                                                                                       \
 XDMFGRIDCOLLECTION * ClassName##GetGridCollection(CClassName * domain, unsigned int index)                                            \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetGridCollection((XDMFDOMAIN *)((void *)&baseDomain), index);                                                     \
+  return XdmfDomainGetGridCollection((XDMFDOMAIN *)((void *)domain), index);                                                          \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFGRIDCOLLECTION * ClassName##GetGridCollectionByName(CClassName * domain, char * Name)                                             \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetGridCollectionByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                \
+  return XdmfDomainGetGridCollectionByName((XDMFDOMAIN *)((void *)domain), Name);                                                     \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberGridCollections(CClassName * domain)                                                                 \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberGridCollections((XDMFDOMAIN *)((void *)&baseDomain));                                                      \
+  return XdmfDomainGetNumberGridCollections((XDMFDOMAIN *)((void *)domain));                                                          \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertGridCollection(CClassName * domain, XDMFGRIDCOLLECTION * GridCollection, int passControl)                       \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertGridCollection((XDMFDOMAIN *)((void *)&baseDomain), GridCollection, passControl);                                        \
+  XdmfDomainInsertGridCollection((XDMFDOMAIN *)((void *)domain), GridCollection, passControl);                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveGridCollection(CClassName * domain, unsigned int index)                                                         \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveGridCollection((XDMFDOMAIN *)((void *)&baseDomain), index);                                                              \
+  XdmfDomainRemoveGridCollection((XDMFDOMAIN *)((void *)domain), index);                                                              \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveGridCollectionByName(CClassName * domain, char * Name)                                                          \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveGridCollectionByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                         \
+  XdmfDomainRemoveGridCollectionByName((XDMFDOMAIN *)((void *)domain), Name);                                                         \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFGRAPH * ClassName##GetGraph(CClassName * domain, unsigned int index)                                                              \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetGraph((XDMFDOMAIN *)((void *)&baseDomain), index);                                                                   \
+  return XdmfDomainGetGraph((XDMFDOMAIN *)((void *)domain), index);                                                                   \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFGRAPH * ClassName##GetGraphByName(CClassName * domain, char * Name)                                                               \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetGraphByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                              \
+  return XdmfDomainGetGraphByName((XDMFDOMAIN *)((void *)domain), Name);                                                              \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberGraphs(CClassName * domain)                                                                          \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberGraphs((XDMFDOMAIN *)((void *)&baseDomain));                                                                   \
+  return XdmfDomainGetNumberGraphs((XDMFDOMAIN *)((void *)domain));                                                                   \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertGraph(CClassName * domain, XDMFGRAPH * Graph, int passControl)                                                  \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertGraph((XDMFDOMAIN *)((void *)&baseDomain), Graph, passControl);                                                          \
+  XdmfDomainInsertGraph((XDMFDOMAIN *)((void *)domain), Graph, passControl);                                                          \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveGraph(CClassName * domain, unsigned int index)                                                                  \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveGraph((XDMFDOMAIN *)((void *)&baseDomain), index);                                                                       \
+  XdmfDomainRemoveGraph((XDMFDOMAIN *)((void *)domain), index);                                                                       \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveGraphByName(CClassName * domain, char * Name)                                                                   \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveGraphByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                                  \
+  XdmfDomainRemoveGraphByName((XDMFDOMAIN *)((void *)domain), Name);                                                                  \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFCURVILINEARGRID * ClassName##GetCurvilinearGrid(CClassName * domain, unsigned int index)                                          \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetCurvilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                         \
+  return XdmfDomainGetCurvilinearGrid((XDMFDOMAIN *)((void *)domain), index);                                                         \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFCURVILINEARGRID * ClassName##GetCurvilinearGridByName(CClassName * domain, char * Name)                                           \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetCurvilinearGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                    \
+  return XdmfDomainGetCurvilinearGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                    \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberCurvilinearGrids(CClassName * domain)                                                                \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberCurvilinearGrids((XDMFDOMAIN *)((void *)&baseDomain));                                                         \
+  return XdmfDomainGetNumberCurvilinearGrids((XDMFDOMAIN *)((void *)domain));                                                         \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertCurvilinearGrid(CClassName * domain, XDMFCURVILINEARGRID * CurvilinearGrid, int passControl)                    \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertCurvilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), CurvilinearGrid, passControl);                                      \
+  XdmfDomainInsertCurvilinearGrid((XDMFDOMAIN *)((void *)domain), CurvilinearGrid, passControl);                                      \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveCurvilinearGrid(CClassName * domain, unsigned int index)                                                        \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveCurvilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                             \
+  XdmfDomainRemoveCurvilinearGrid((XDMFDOMAIN *)((void *)domain), index);                                                             \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveCurvilinearGridByName(CClassName * domain, char * Name)                                                         \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveCurvilinearGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                        \
+  XdmfDomainRemoveCurvilinearGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFRECTILINEARGRID * ClassName##GetRectilinearGrid(CClassName * domain, unsigned int index)                                          \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetRectilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                         \
+  return XdmfDomainGetRectilinearGrid((XDMFDOMAIN *)((void *)domain), index);                                                         \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFRECTILINEARGRID * ClassName##GetRectilinearGridByName(CClassName * domain, char * Name)                                           \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetRectilinearGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                    \
+  return XdmfDomainGetRectilinearGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                    \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberRectilinearGrids(CClassName * domain)                                                                \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberRectilinearGrids((XDMFDOMAIN *)((void *)&baseDomain));                                                         \
+  return XdmfDomainGetNumberRectilinearGrids((XDMFDOMAIN *)((void *)domain));                                                         \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertRectilinearGrid(CClassName * domain, XDMFRECTILINEARGRID * RectilinearGrid, int passControl)                    \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertRectilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), RectilinearGrid, passControl); \
+  XdmfDomainInsertRectilinearGrid((XDMFDOMAIN *)((void *)domain), RectilinearGrid, passControl);                                      \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveRectilinearGrid(CClassName * domain, unsigned int index)                                                        \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveRectilinearGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                             \
+  XdmfDomainRemoveRectilinearGrid((XDMFDOMAIN *)((void *)domain), index);                                                             \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveRectilinearGridByName(CClassName * domain, char * Name)                                                         \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveRectilinearGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                        \
+  XdmfDomainRemoveRectilinearGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFREGULARGRID * ClassName##GetRegularGrid(CClassName * domain, unsigned int index)                                                  \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetRegularGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                             \
+  return XdmfDomainGetRegularGrid((XDMFDOMAIN *)((void *)domain), index);                                                             \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFREGULARGRID * ClassName##GetRegularGridByName(CClassName * domain, char * Name)                                                   \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetRegularGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                        \
+  return XdmfDomainGetRegularGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberRegularGrids(CClassName * domain)                                                                    \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberRegularGrids((XDMFDOMAIN *)((void *)&baseDomain));                                                        \
+  return XdmfDomainGetNumberRegularGrids((XDMFDOMAIN *)((void *)domain));                                                             \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertRegularGrid(CClassName * domain, XDMFREGULARGRID * RegularGrid, int passControl)                                \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertRegularGrid((XDMFDOMAIN *)((void *)&baseDomain), RegularGrid, passControl);                                         \
+  XdmfDomainInsertRegularGrid((XDMFDOMAIN *)((void *)domain), RegularGrid, passControl);                                              \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveRegularGrid(CClassName * domain, unsigned int index)                                                            \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveRegularGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                            \
+  XdmfDomainRemoveRegularGrid((XDMFDOMAIN *)((void *)domain), index);                                                                 \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveRegularGridByName(CClassName * domain, char * Name)                                                             \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveRegularGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                       \
+  XdmfDomainRemoveRegularGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                            \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFUNSTRUCTUREDGRID * ClassName##GetUnstructuredGrid(CClassName * domain, unsigned int index)                                        \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetUnstructuredGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                   \
+  return XdmfDomainGetUnstructuredGrid((XDMFDOMAIN *)((void *)domain), index);                                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 XDMFUNSTRUCTUREDGRID * ClassName##GetUnstructuredGridByName(CClassName * domain, char * Name)                                         \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetUnstructuredGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                              \
+  return XdmfDomainGetUnstructuredGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                   \
 }                                                                                                                                     \
                                                                                                                                       \
 unsigned int ClassName##GetNumberUnstructuredGrids(CClassName * domain)                                                               \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  return XdmfDomainGetNumberUnstructuredGrids((XDMFDOMAIN *)((void *)&baseDomain));                                                   \
+  return XdmfDomainGetNumberUnstructuredGrids((XDMFDOMAIN *)((void *)domain));                                                        \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##InsertUnstructuredGrid(CClassName * domain, XDMFUNSTRUCTUREDGRID * UnstructuredGrid, int passControl)                 \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainInsertUnstructuredGrid((XDMFDOMAIN *)((void *)&baseDomain), UnstructuredGrid, passControl);                               \
+  XdmfDomainInsertUnstructuredGrid((XDMFDOMAIN *)((void *)domain), UnstructuredGrid, passControl);                                    \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveUnstructuredGrid(CClassName * domain, unsigned int index)                                                       \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveUnstructuredGrid((XDMFDOMAIN *)((void *)&baseDomain), index);                                                       \
+  XdmfDomainRemoveUnstructuredGrid((XDMFDOMAIN *)((void *)domain), index);                                                            \
 }                                                                                                                                     \
                                                                                                                                       \
 void ClassName##RemoveUnstructuredGridByName(CClassName * domain, char * Name)                                                        \
 {                                                                                                                                     \
-  shared_ptr< XdmfDomain > baseDomain = *(shared_ptr< ClassName > *) domain;                                                          \
-  XdmfDomainRemoveUnstructuredGridByName((XDMFDOMAIN *)((void *)&baseDomain), Name);                                                  \
+  XdmfDomainRemoveUnstructuredGridByName((XDMFDOMAIN *)((void *)domain), Name);                                                       \
 }
 
 #ifdef __cplusplus

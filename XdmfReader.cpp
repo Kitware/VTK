@@ -37,8 +37,19 @@ XdmfReader::XdmfReader() :
 {
 }
 
+XdmfReader::XdmfReader(const XdmfReader &) :
+  XdmfCoreReader(XdmfItemFactory::New())
+{
+}
+
 XdmfReader::~XdmfReader()
 {
+}
+
+XdmfItem *
+XdmfReader::DuplicatePointer(shared_ptr<XdmfItem> original) const
+{
+  return XdmfCoreReader::DuplicatePointer(original);
 }
 
 // Implemented to make SWIG wrapping work correctly
@@ -60,14 +71,13 @@ XdmfReader::read(const std::string & filePath,
 
 XDMFREADER * XdmfReaderNew()
 {
-  shared_ptr<XdmfReader> * returnReader = 
-    new shared_ptr<XdmfReader>(XdmfReader::New());
-  return (XDMFREADER *) returnReader;
+  shared_ptr<XdmfReader> returnReader = XdmfReader::New();
+  return (XDMFREADER *)((void *)(new XdmfReader(*returnReader.get())));
 }
 
 void XdmfReaderFree(XDMFREADER * item)
 {
-  delete (shared_ptr<XdmfReader> *)item;
+  delete ((XdmfReader *)item);
 }
 
 XDMF_CORE_READER_C_CHILD_WRAPPER(XdmfReader, XDMFREADER)

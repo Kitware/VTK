@@ -21,11 +21,9 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <string.h>
 #include <utility>
 #include "XdmfAttributeCenter.hpp"
 #include "XdmfError.hpp"
-#include "XdmfStringUtils.hpp"
 
 std::map<std::string, shared_ptr<const XdmfAttributeCenter>(*)()> XdmfAttributeCenter::mAttributeCenterDefinitions;
 
@@ -110,7 +108,7 @@ XdmfAttributeCenter::New(const std::map<std::string, std::string> & itemProperti
                        "XdmfAttributeCenter::New");
   }
 
-  const std::string centerVal = XdmfStringUtils::toUpper(center->second);
+  const std::string & centerVal = ConvertToUpper(center->second);
 
   std::map<std::string, shared_ptr<const XdmfAttributeCenter>(*)()>::const_iterator returnType = mAttributeCenterDefinitions.find(centerVal);
 

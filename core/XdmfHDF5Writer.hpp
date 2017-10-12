@@ -257,6 +257,8 @@ public:
   virtual void visit(XdmfItem & item,
                      const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfHDF5Writer(const XdmfHDF5Writer &);
+
 protected:
 
   XdmfHDF5Writer(const std::string & filePath);

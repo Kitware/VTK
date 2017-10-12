@@ -21,11 +21,10 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <string.h>
 #include <utility>
 #include "XdmfGeometryType.hpp"
 #include "XdmfError.hpp"
-#include "XdmfStringUtils.hpp"
+#include "string.h"
 
 std::map<std::string, shared_ptr<const XdmfGeometryType>(*)()> XdmfGeometryType::mGeometryDefinitions;
 
@@ -102,7 +101,7 @@ XdmfGeometryType::New(const std::map<std::string, std::string> & itemProperties)
                        "in XdmfGeometryType::New");
   }
 
-  const std::string typeVal = XdmfStringUtils::toUpper(type->second);
+  const std::string & typeVal = ConvertToUpper(type->second);
 
   std::map<std::string, shared_ptr<const XdmfGeometryType>(*)()>::const_iterator returnType 
     = mGeometryDefinitions.find(typeVal);

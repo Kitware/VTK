@@ -121,6 +121,7 @@ MACRO(ADD_TEST_PYTHON executable)
             -D "EXECUTABLE=${executable}"
             -D "ARGUMENTS=${arguments}"
             -D "PYTHONPATH=${python_pythonpath}"
+            -D "LDPATH=${python_ldpath}"
             -D "PATH=${python_path}"
             -D "SEPARATOR=${sep}"
             -P "${python_binary_dir}/TestDriverPython.cmake"

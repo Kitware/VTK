@@ -410,6 +410,8 @@ public:
 
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfSparseMatrix(XdmfSparseMatrix &);
+
 protected:
 
   XdmfSparseMatrix(const unsigned int numberRows,

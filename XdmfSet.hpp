@@ -198,6 +198,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfSet(XdmfSet &);
+
 protected:
 
   XdmfSet();
