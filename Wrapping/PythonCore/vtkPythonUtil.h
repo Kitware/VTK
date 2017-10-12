@@ -27,6 +27,11 @@
 #include "PyVTKObject.h"
 #include "PyVTKSpecialObject.h"
 
+#if defined(_MSC_VER) // Visual Studio
+// some docstrings trigger "decimal digit terminates octal escape sequence"
+#pragma warning ( disable : 4125 )
+#endif
+
 class vtkPythonClassMap;
 class vtkPythonCommand;
 class vtkPythonCommandList;
