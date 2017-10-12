@@ -27,9 +27,8 @@
  * region).
  *
  * vtkConnectivityFilter is generalized to handle any type of input dataset.
- * It generates output data of type vtkUnstructuredGrid. If you know that
- * your input type is vtkPolyData, you may wish to use
- * vtkPolyDataConnectivityFilter.
+ * If the input to this filter is a vtkPolyData, the output will be a vtkPolyData.
+ * For all other input types, it generates output data of type vtkUnstructuredGrid.
  *
  * The behavior of vtkConnectivityFilter can be modified by turning on the
  * boolean ivar ScalarConnectivity. If this flag is on, the connectivity
