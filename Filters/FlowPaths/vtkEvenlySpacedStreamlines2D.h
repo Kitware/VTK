@@ -23,7 +23,7 @@
  * the algorithm described in:
  * Jobard, Bruno, and Wilfrid Lefer. "Creating evenly-spaced
  * streamlines of arbitrary density." Visualization in Scientific
- * Computing’97. Springer Vienna, 1997. 43-55.
+ * Computing '97. Springer Vienna, 1997. 43-55.
  * The loop detection is described in:
  * Liu, Zhanping, Robert Moorhead, and Joe Groner.
  * "An advanced evenly-spaced streamline placement algorithm."

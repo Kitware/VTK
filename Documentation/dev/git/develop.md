@@ -274,7 +274,7 @@ A well written merge request will motivate your reviewers, and bring them up
 to speed faster. Future software developers will be able to understand the
 reasons why something was done, and possibly avoid chasing down dead ends,
 Although it may take you a little more time to write a good merge request,
-you’ll likely see payback in faster reviews and better understood and
+you'll likely see payback in faster reviews and better understood and
 maintainable software.
 
 

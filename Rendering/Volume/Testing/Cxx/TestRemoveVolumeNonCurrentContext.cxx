@@ -646,7 +646,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   // Create callback so we can trigger the problem
   vtkNew<TestRemoveVolumeNonCurrentContextCallback> callback;
   callback->renderer1 = renderer1;
-  callback->renderer2	= renderer2;
+  callback->renderer2 = renderer2;
   callback->renderWindow1 = renderWindow1;
   callback->renderWindow2 = renderWindow2;
   interactor1->AddObserver("KeyPressEvent", callback);
