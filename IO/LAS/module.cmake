@@ -4,6 +4,7 @@ vtk_module(vtkIOLAS
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
+  EXCLUDE_FROM_ALL
   KIT
     vtkIO
   DEPENDS
