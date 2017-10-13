@@ -90,7 +90,7 @@ int FilterUnstructuredGridConnectivity(int dataType, int outputPointsPrecision)
 
   connectivityFilter->Update();
 
-  vtkSmartPointer<vtkUnstructuredGrid> outputUnstructuredGrid = connectivityFilter->GetOutput();
+  vtkSmartPointer<vtkPointSet> outputUnstructuredGrid = connectivityFilter->GetOutput();
   vtkSmartPointer<vtkPoints> points = outputUnstructuredGrid->GetPoints();
 
   return points->GetDataType();
