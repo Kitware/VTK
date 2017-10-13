@@ -696,6 +696,7 @@ public:
     unsigned int n[3];
     this->Grid->GetGridSize( n );
     switch ( N )
+    {
       case 2:
       case 3:
       {
@@ -716,6 +717,7 @@ public:
           this->Cursors[2]->Initialize( this->Grid, r );
         }
         return;
+      }
       case 4:
       case 9:
         // dimension == 2

@@ -800,8 +800,8 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
       }
       // Find the closest cluster center to the observation across all centers in the runID-th run.
       vtkIdType j = runStartIdx;
-      double minDistance;
-      double curDistance;
+      double minDistance = 0.0;
+      double curDistance = 0.0;
       (*dfunc)( minDistance, curClusterElements->GetRow( j ), dataElements->GetRow( observation ) );
       vtkIdType localMemberID = 0;
       for( /* no init */; j < runEndIdx; ++ j )

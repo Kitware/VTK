@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.80.
+// at least on macOS with cppcheck 1.81.
 
 // To run:
 // cd /path/to/VTK/
@@ -85,6 +85,8 @@ unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
+knownConditionTrueFalse:IO/Exodus/vtkExodusIIReader.cxx
+knownConditionTrueFalse:IO/Geometry/Testing/Cxx/TestIncrementalOctreePointLocator.cxx
 
 // false positive: <http://trac.cppcheck.net/ticket/7889>
 knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
@@ -96,12 +98,16 @@ unassignedVariable:Rendering/Core/vtkCamera.cxx
 
 // Not worth fixing, but not actually false positives.
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
+knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
-knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
-passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 knownConditionTrueFalse:IO/XML/Testing/Cxx/TestHyperOctreeIO.cxx
+knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
+knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
+knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLShaderCache.cxx
+knownConditionTrueFalse:Filters/Parallel/Testing/Cxx/UnitTestPMaskPoints.cxx
 knownConditionTrueFalse:Rendering/OSPRay/vtkOSPRayRendererNode.cxx
 nullPointer:Wrapping/Tools/lex.yy.c
+passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 // 16 warnings

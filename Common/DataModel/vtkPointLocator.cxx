@@ -304,7 +304,6 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
     return closest;
   }
   vtkDataArray *pointData = points->GetData();
-  int flag = 1;
 
   //
   //  Find bucket point is in.
@@ -320,14 +319,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
     for (j=0; j < nids; j++)
     {
       ptId = ptIds->GetId(j);
-      if (flag)
-      {
-        pointData->GetTuple(ptId, pt);
-      }
-      else
-      {
-        this->DataSet->GetPoint(ptId, pt);
-      }
+      pointData->GetTuple(ptId, pt);
       if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
       {
         closest = ptId;
@@ -412,14 +404,7 @@ vtkIdType vtkPointLocator::FindClosestPointWithinRadius(double radius,
         for (j=0; j < nids; j++)
         {
           ptId = ptIds->GetId(j);
-          if (flag)
-          {
-            pointData->GetTuple(ptId, pt);
-          }
-          else
-          {
-            this->DataSet->GetPoint(ptId, pt);
-          }
+          pointData->GetTuple(ptId, pt);
           if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
           {
             closest = ptId;
