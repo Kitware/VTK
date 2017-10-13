@@ -759,9 +759,10 @@ void vtkWrapPython_GenerateSpecialType(
     "  nullptr, // tp_setattro\n"
     "  nullptr, // tp_as_buffer\n"
     "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
-    "  nullptr, // tp_doc\n"
+    "  Py%s_Doc, // tp_doc\n"
     "  nullptr, // tp_traverse\n"
-    "  nullptr, // tp_clear\n");
+    "  nullptr, // tp_clear\n",
+    classname);
 
   if (info.has_compare)
   {
@@ -867,11 +868,11 @@ void vtkWrapPython_GenerateSpecialType(
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
-    "    Py%s_Doc(), &Py%s_CCopy);\n"
+    "    &Py%s_CCopy);\n"
     "\n",
     classname, classname,
     classname, (int)n, (int)n, constructor,
-    classname, classname);
+    classname);
   }
   else if (constructor)
   {
@@ -880,11 +881,10 @@ void vtkWrapPython_GenerateSpecialType(
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
-    "    Py%s_Doc(), nullptr);\n"
+    "    nullptr);\n"
     "\n",
     classname, classname,
-    classname, (int)n, (int)n, constructor,
-    classname);
+    classname, (int)n, (int)n, constructor);
   }
   else
   {
@@ -893,9 +893,9 @@ void vtkWrapPython_GenerateSpecialType(
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    nullptr,\n"
-    "    Py%s_Doc(), nullptr);\n"
+    "    nullptr);\n"
     "\n",
-    classname, classname, classname);
+    classname, classname);
   }
 
   fprintf(fp,

@@ -249,59 +249,6 @@ void vtkPythonUtil::UnRegisterPythonCommand(vtkPythonCommand* cmd)
   }
 }
 
-
-//--------------------------------------------------------------------
-// Concatenate an array of strings into a single python string object.
-// The array of strings must be null-terminated,
-// e.g. static char *strings[] = {"string1", "string2", nullptr};
-PyObject *vtkPythonUtil::BuildDocString(const char *docstring[])
-{
-  PyObject *result;
-
-  // count the number of segments for the docstring
-  int n;
-  for (n = 0; docstring[n] != nullptr; n++)
-  {
-    ;
-  }
-
-  if (n == 0)
-  {
-    result = PyString_FromString("");
-  }
-  else if (n == 1)
-  {
-    result = PyString_FromString(docstring[0]);
-  }
-  else
-  {
-    Py_ssize_t *m = new Py_ssize_t[n];
-
-    Py_ssize_t l = 0;
-    for (int i = 0; i < n; i++)
-    {
-      m[i] = (Py_ssize_t)strlen(docstring[i]);
-      l += m[i];
-    }
-
-    char *data = new char[l + 1];
-
-    size_t j = 0;
-    for (int i = 0; i < n; i++)
-    {
-      strcpy(&data[j], docstring[i]);
-      j += m[i];
-    }
-
-    result = PyString_FromStringAndSize(data, l);
-
-    delete [] data;
-    delete [] m;
-  }
-
-  return result;
-}
-
 //--------------------------------------------------------------------
 PyVTKSpecialType *vtkPythonUtil::AddSpecialTypeToMap(
   PyTypeObject *pytype, PyMethodDef *methods, PyMethodDef *constructors,

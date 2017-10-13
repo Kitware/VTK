@@ -70,7 +70,7 @@ extern "C"
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyVTKClass *PyVTKClass_Add(
   PyTypeObject *pytype, PyMethodDef *methods, const char *classname,
-  const char *docstring[], vtknewfunc constructor);
+  vtknewfunc constructor);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 int PyVTKObject_Check(PyObject *obj);

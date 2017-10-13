@@ -365,26 +365,23 @@ int vtkWrapPython_WrapTemplatedClass(
 
     /* the docstring for the templated class */
     fprintf(fp,
-            "static const char *Py%s_Doc[] = {\n",
+            "static const char *Py%s_Doc =\n",
             data->Name);
 
     vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
 
     fprintf(fp,
-            "    \"\\nProvided Types:\\n\\n\",\n");
+            "\n  \"\\nProvided Types:\\n\\n\"");
 
     for (k = 0; k < ninstantiations; k++)
     {
       vtkWrapPython_PyTemplateName(instantiations[k], classname);
       fprintf(fp,
-             "    \"  %s => %s\\n\",\n",
+             "\n  \"  %s => %s\\n\"\n",
              classname, instantiations[k]);
     }
 
-    fprintf(fp,
-            "    nullptr\n"
-            "};\n"
-            "\n");
+    fprintf(fp, ";\n\n");
 
     fprintf(fp,
             "PyObject *Py%s_TemplateNew()\n"

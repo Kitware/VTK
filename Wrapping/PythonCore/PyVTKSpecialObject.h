@@ -65,8 +65,7 @@ extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyVTKSpecialType *PyVTKSpecialType_Add(PyTypeObject *pytype,
-  PyMethodDef *methods, PyMethodDef *constructors,
-  const char *docstring[], vtkcopyfunc copyfunc);
+  PyMethodDef *methods, PyMethodDef *constructors, vtkcopyfunc copyfunc);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 PyObject *PyVTKSpecialObject_New(const char *classname, void *ptr);

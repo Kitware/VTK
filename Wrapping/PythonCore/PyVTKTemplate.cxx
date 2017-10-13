@@ -774,7 +774,7 @@ PyObject *PyVTKTemplate_KeyFromName(PyObject *self, PyObject *o)
 // C API
 
 //--------------------------------------------------------------------
-PyObject *PyVTKTemplate_New(const char *name, const char *docstring[])
+PyObject *PyVTKTemplate_New(const char *name, const char *docstring)
 {
   // make sure python has readied the type object
   PyType_Ready(&PyVTKTemplate_Type);
@@ -783,7 +783,7 @@ PyObject *PyVTKTemplate_New(const char *name, const char *docstring[])
   // call the superclass init function
   PyObject *args = PyTuple_New(2);
   PyTuple_SET_ITEM(args, 0, PyString_FromString(name));
-  PyTuple_SET_ITEM(args, 1, vtkPythonUtil::BuildDocString(docstring));
+  PyTuple_SET_ITEM(args, 1, PyString_FromString(docstring));
   PyVTKTemplate_Type.tp_base->tp_init(self, args, nullptr);
   Py_DECREF(args);
 

@@ -35,8 +35,7 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT PyTypeObject PyVTKTemplate_Type;
 extern "C"
 {
 VTKWRAPPINGPYTHONCORE_EXPORT
-PyObject *PyVTKTemplate_New(const char *name,
-                            const char *docstring[]);
+PyObject *PyVTKTemplate_New(const char *name, const char *docstring);
 
 VTKWRAPPINGPYTHONCORE_EXPORT
 int PyVTKTemplate_AddItem(PyObject *self, PyObject *val);
