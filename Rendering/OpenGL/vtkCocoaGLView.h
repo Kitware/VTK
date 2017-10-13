@@ -34,6 +34,9 @@
  * but starting with VTK 5.0 is now a subclass of NSView.
  * - starting with VTK 6.3 this class overrides the more modern
  * updateTrackingAreas instead of resetCursorRects.
+ * - starting with VTK 8.1 this class properly supports Retina
+ * displays and implements viewWillMoveToWindow: and
+ * viewDidChangeBackingProperties to do so.
  *
  * @sa
  * vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
