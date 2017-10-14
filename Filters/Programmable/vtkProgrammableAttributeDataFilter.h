@@ -87,7 +87,7 @@ class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableAttributeDataFilter : public 
 public:
   static vtkProgrammableAttributeDataFilter *New();
   vtkTypeMacro(vtkProgrammableAttributeDataFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a dataset to the list of data to process.
@@ -128,15 +128,15 @@ public:
 
 protected:
   vtkProgrammableAttributeDataFilter();
-  ~vtkProgrammableAttributeDataFilter() VTK_OVERRIDE;
+  ~vtkProgrammableAttributeDataFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   vtkDataSetCollection *InputList; //list of datasets to process
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
 private:
   // hide the superclass' AddInput() from the user and the compiler
@@ -144,8 +144,8 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
 
 private:
-  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableAttributeDataFilter&) VTK_DELETE_FUNCTION;
+  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) = delete;
+  void operator=(const vtkProgrammableAttributeDataFilter&) = delete;
 };
 
 #endif

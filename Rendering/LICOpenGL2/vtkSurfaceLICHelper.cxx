@@ -48,7 +48,7 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
   // initiate download
   fbo->ActivateReadBuffer(1U);
   vtkStaticCheckFrameBufferStatusMacro(GL_FRAMEBUFFER);
-  std::vector<vtkPixelBufferObject*> pbos(nBlocks, NULL);
+  std::vector<vtkPixelBufferObject*> pbos(nBlocks, nullptr);
   for (size_t e=0; e<nBlocks; ++e)
   {
     pbos[e] = fbo->Download(
@@ -80,7 +80,7 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
     }
     pbo->UnmapPackedBuffer();
     pbo->Delete();
-    pbo = NULL;
+    pbo = nullptr;
   }
   #if vtkSurfaceLICMapperDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
@@ -100,16 +100,16 @@ vtkSurfaceLICHelper::vtkSurfaceLICHelper()
 
   this->HasVectors = false;
 
-  this->ColorPass = NULL;
-  this->ColorEnhancePass = NULL;
-  this->CopyPass = NULL;
+  this->ColorPass = nullptr;
+  this->ColorEnhancePass = nullptr;
+  this->CopyPass = nullptr;
 }
 
 // Description:
 // Destructor
 vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
 {
-  this->ReleaseGraphicsResources(NULL);
+  this->ReleaseGraphicsResources(nullptr);
 
   if (this->ColorPass)
   {
@@ -123,9 +123,9 @@ vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
   {
     delete this->CopyPass;
   }
-  this->ColorPass = NULL;
-  this->ColorEnhancePass = NULL;
-  this->CopyPass = NULL;
+  this->ColorPass = nullptr;
+  this->ColorEnhancePass = nullptr;
+  this->CopyPass = nullptr;
 
   delete this->Communicator;
 }
@@ -134,7 +134,7 @@ vtkSurfaceLICHelper::~vtkSurfaceLICHelper()
 // Check for OpenGL support
 bool vtkSurfaceLICHelper::IsSupported(vtkOpenGLRenderWindow *context)
 {
-  if (context == NULL)
+  if (context == nullptr)
   {
     vtkGenericWarningMacro("OpenGL render window required");
     return false;
@@ -178,25 +178,25 @@ void vtkSurfaceLICHelper::ReleaseGraphicsResources(vtkWindow *win)
 
   this->ClearTextures();
 
-  this->Compositor = NULL;
-  this->LICer = NULL;
-  this->FBO = NULL;
+  this->Compositor = nullptr;
+  this->LICer = nullptr;
+  this->FBO = nullptr;
 }
 
 // Description:
 // Free textures we're holding a reference to.
 void vtkSurfaceLICHelper::ClearTextures()
 {
-  this->DepthImage = NULL;
-  this->GeometryImage = NULL;
-  this->VectorImage = NULL;
-  this->MaskVectorImage = NULL;
-  this->CompositeVectorImage = NULL;
-  this->CompositeMaskVectorImage = NULL;
-  this->NoiseImage = NULL;
-  this->LICImage = NULL;
-  this->RGBColorImage = NULL;
-  this->HSLColorImage = NULL;
+  this->DepthImage = nullptr;
+  this->GeometryImage = nullptr;
+  this->VectorImage = nullptr;
+  this->MaskVectorImage = nullptr;
+  this->CompositeVectorImage = nullptr;
+  this->CompositeMaskVectorImage = nullptr;
+  this->NoiseImage = nullptr;
+  this->LICImage = nullptr;
+  this->RGBColorImage = nullptr;
+  this->HSLColorImage = nullptr;
 }
 
 // Description:
@@ -495,7 +495,7 @@ int vtkSurfaceLICHelper::ProjectBounds(
     vtkMatrix4x4 *mcwc;
     vtkMatrix3x3 *anorms;
     ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcdc, tmpMatrix.GetPointer());
+    vtkMatrix4x4::Multiply4x4(mcwc, wcdc, tmpMatrix);
   }
   else
   {

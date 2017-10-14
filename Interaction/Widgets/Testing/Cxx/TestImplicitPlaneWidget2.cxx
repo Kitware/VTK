@@ -421,7 +421,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -430,7 +430,7 @@ public:
     rep->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
-  vtkTIPW2Callback():Plane(0),Actor(0) {}
+  vtkTIPW2Callback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 

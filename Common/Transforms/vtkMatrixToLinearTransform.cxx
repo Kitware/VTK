@@ -23,14 +23,14 @@ vtkCxxSetObjectMacro(vtkMatrixToLinearTransform,Input,vtkMatrix4x4);
 //----------------------------------------------------------------------------
 vtkMatrixToLinearTransform::vtkMatrixToLinearTransform()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
   this->InverseFlag = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMatrixToLinearTransform::~vtkMatrixToLinearTransform()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 }
 
 //----------------------------------------------------------------------------

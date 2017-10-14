@@ -46,13 +46,13 @@ vtkExtractHierarchicalBins::vtkExtractHierarchicalBins()
 {
   this->Level = 0;
   this->Bin = -1;
-  this->BinningFilter = NULL;
+  this->BinningFilter = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkExtractHierarchicalBins::~vtkExtractHierarchicalBins()
 {
-  this->SetBinningFilter(NULL);
+  this->SetBinningFilter(nullptr);
 }
 
  void vtkExtractHierarchicalBins::ReportReferences(vtkGarbageCollector* collector)

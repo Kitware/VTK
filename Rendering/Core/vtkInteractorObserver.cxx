@@ -31,7 +31,7 @@ vtkInteractorObserver::vtkInteractorObserver()
 {
   this->Enabled = 0;
 
-  this->Interactor = NULL;
+  this->Interactor = nullptr;
 
   this->EventCallbackCommand = vtkCallbackCommand::New();
   this->EventCallbackCommand->SetClientData(this);
@@ -42,8 +42,8 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->KeyPressCallbackCommand->SetClientData(this);
   this->KeyPressCallbackCommand->SetCallback(vtkInteractorObserver::ProcessEvents);
 
-  this->CurrentRenderer = NULL;
-  this->DefaultRenderer = NULL;
+  this->CurrentRenderer = nullptr;
+  this->DefaultRenderer = nullptr;
 
   this->Priority = 0.0f;
   this->PickingManaged = true;
@@ -54,7 +54,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->CharObserverTag = 0;
   this->DeleteObserverTag = 0;
 
-  this->ObserverMediator = 0;
+  this->ObserverMediator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -63,11 +63,11 @@ vtkInteractorObserver::~vtkInteractorObserver()
   this->UnRegisterPickers();
 
   this->SetEnabled(0);
-  this->SetCurrentRenderer(NULL);
-  this->SetDefaultRenderer(NULL);
+  this->SetCurrentRenderer(nullptr);
+  this->SetDefaultRenderer(nullptr);
   this->EventCallbackCommand->Delete();
   this->KeyPressCallbackCommand->Delete();
-  this->SetInteractor(0);
+  this->SetInteractor(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -78,20 +78,20 @@ void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
     return;
   }
 
-  if (this->CurrentRenderer != NULL)
+  if (this->CurrentRenderer != nullptr)
   {
     this->CurrentRenderer->UnRegister(this);
   }
 
   // WARNING: see .h, if the DefaultRenderer is set, whatever the value
-  // of _arg (except NULL), we are going to use DefaultRenderer
+  // of _arg (except nullptr), we are going to use DefaultRenderer
   // Normally when the widget is activated (SetEnabled(1) or when
   // keypress activation takes place), the renderer over which the mouse
   // pointer is positioned is used to call SetCurrentRenderer().
   // Alternatively, we may want to specify a user-defined renderer to bind the
   // interactor to when the interactor observer is activated.
   // The problem is that in many 3D widgets, when SetEnabled(0) is called,
-  // the CurrentRender is set to NULL. In that case, the next time
+  // the CurrentRender is set to nullptr. In that case, the next time
   // SetEnabled(1) is called, the widget will try to set CurrentRenderer
   // to the renderer over which the mouse pointer is positioned, and we
   // will use our user-defined renderer. To solve that, we introduced the
@@ -107,7 +107,7 @@ void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
 
   this->CurrentRenderer = _arg;
 
-  if (this->CurrentRenderer != NULL)
+  if (this->CurrentRenderer != nullptr)
   {
     this->CurrentRenderer->Register(this);
   }
@@ -132,7 +132,7 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   if (this->ObserverMediator)
   {
     this->ObserverMediator->RemoveAllCursorShapeRequests(this);
-    this->ObserverMediator = 0;
+    this->ObserverMediator = nullptr;
   }
 
   // if we already have an Interactor then stop observing it
@@ -195,7 +195,7 @@ void vtkInteractorObserver::PickersModified()
 //----------------------------------------------------------------------------
 vtkPickingManager* vtkInteractorObserver::GetPickingManager()
 {
-  return this->Interactor ? this->Interactor->GetPickingManager() : 0;
+  return this->Interactor ? this->Interactor->GetPickingManager() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
       }
       else // delete event
       {
-        self->SetInteractor(0);
+        self->SetInteractor(nullptr);
       }
     }
     else
@@ -382,7 +382,7 @@ int vtkInteractorObserver::RequestCursorShape(int requestedShape)
   int status = this->ObserverMediator->RequestCursorShape(this,requestedShape);
   if ( status )
   {
-    this->InvokeEvent(vtkCommand::CursorChangedEvent,NULL);
+    this->InvokeEvent(vtkCommand::CursorChangedEvent,nullptr);
   }
   return status;
 }

@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 public:
   // Standard Routines
   vtkTypeMacro(vtkAMRUtilities,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method detects and strips partially overlapping cells from a
@@ -70,7 +70,7 @@ public:
 
 protected:
   vtkAMRUtilities() {}
-  ~vtkAMRUtilities() VTK_OVERRIDE {}
+  ~vtkAMRUtilities() override {}
 
   /**
    * Given the real-extent w.r.t. the ghosted grid, this method copies the
@@ -102,8 +102,8 @@ protected:
                           std::vector<std::vector<unsigned int> >& children,
                           const std::vector<int>& processMap);
 private:
-  vtkAMRUtilities(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
+  vtkAMRUtilities(const vtkAMRUtilities&) = delete;
+  void operator=(const vtkAMRUtilities&) = delete;
 };
 
 #endif /* vtkAMRUtilities_h */

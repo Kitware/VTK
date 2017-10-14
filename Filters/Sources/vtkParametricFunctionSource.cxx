@@ -36,7 +36,7 @@ vtkCxxSetObjectMacro(vtkParametricFunctionSource, ParametricFunction,
 
 //----------------------------------------------------------------------------
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
-  ParametricFunction(NULL)
+  ParametricFunction(nullptr)
   , UResolution(50)
   , VResolution(50)
   , WResolution(50)
@@ -52,7 +52,7 @@ vtkParametricFunctionSource::vtkParametricFunctionSource() :
 //----------------------------------------------------------------------------
 vtkParametricFunctionSource::~vtkParametricFunctionSource()
 {
-  this->SetParametricFunction(NULL);
+  this->SetParametricFunction(nullptr);
 }
 
 namespace
@@ -577,7 +577,7 @@ vtkMTimeType vtkParametricFunctionSource::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType funcMTime;
 
-  if (this->ParametricFunction != NULL)
+  if (this->ParametricFunction != nullptr)
   {
     funcMTime = this->ParametricFunction->GetMTime();
     mTime = (funcMTime > mTime ? funcMTime : mTime);

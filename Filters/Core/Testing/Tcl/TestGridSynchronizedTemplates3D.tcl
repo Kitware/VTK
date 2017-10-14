@@ -22,7 +22,6 @@ vtkContourFilter cf
 	#cf ComputeNormalsOff
 
 vtkPolyDataMapper cfMapper
-	cfMapper ImmediateModeRenderingOn
     cfMapper SetInputConnection [cf GetOutputPort]
     eval cfMapper SetScalarRange \
       [[[$pl3d_output GetPointData] GetScalars] GetRange]

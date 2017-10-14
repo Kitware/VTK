@@ -136,7 +136,7 @@ public:
   static vtkReebGraph *New();
 
   vtkTypeMacro(vtkReebGraph, vtkMutableDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   void PrintNodeData(ostream& os, vtkIndent indent);
 
   /**
@@ -145,7 +145,7 @@ public:
    * VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
    * THIS METHOD IS THREAD SAFE
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_REEB_GRAPH;}
+  int GetDataObjectType() override {return VTK_REEB_GRAPH;}
 
 
   enum
@@ -306,7 +306,7 @@ public:
 
   // Descrition:
   // Implements deep copy
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) override;
 
   /**
    * Simplify the Reeb graph given a threshold 'simplificationThreshold'
@@ -325,7 +325,7 @@ public:
 
    * 'simplificationMetric' is an object in charge of evaluating the importance
    * of a Reeb graph arc at each step of the simplification process.
-   * if 'simplificationMetric' is NULL, the default strategy (persitence of the
+   * if 'simplificationMetric' is nullptr, the default strategy (persitence of the
    * scalar field) is used.
    * Customized simplification metric evaluation algorithm can be designed (see
    * vtkReebGraphSimplificationMetric), enabling the user to control the
@@ -361,14 +361,14 @@ public:
 protected:
 
   vtkReebGraph();
-  ~vtkReebGraph() VTK_OVERRIDE;
+  ~vtkReebGraph() override;
 
   class Implementation;
   Implementation* Storage;
 
 private:
-  vtkReebGraph(const vtkReebGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraph&) VTK_DELETE_FUNCTION;
+  vtkReebGraph(const vtkReebGraph&) = delete;
+  void operator=(const vtkReebGraph&) = delete;
 
 };
 

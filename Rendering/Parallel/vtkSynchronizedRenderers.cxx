@@ -39,8 +39,6 @@
 
 #include <cassert>
 
-vtkCxxSetObjectMacro(vtkSynchronizedRenderers, FXAAOptions, vtkFXAAOptions)
-
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
 {
@@ -48,11 +46,11 @@ public:
   static vtkObserver* New()
   {
     vtkObserver* obs = new vtkObserver();
-    obs->Target = NULL;
+    obs->Target = nullptr;
     return obs;
   }
 
-  virtual void Execute(vtkObject *, unsigned long eventId, void *)
+  void Execute(vtkObject *, unsigned long eventId, void *) override
   {
     if (this->Target && this->Target->GetAutomaticEventHandling())
     {
@@ -88,45 +86,38 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->Observer->Target = this;
 
   this->UseFXAA = false;
-  this->FXAAOptions = vtkFXAAOptions::New();
-  this->FXAAFilter = NULL;
+  this->FXAAFilter = nullptr;
 
-  this->Renderer = 0;
-  this->ParallelController = 0;
+  this->Renderer = nullptr;
+  this->ParallelController = nullptr;
   this->ParallelRendering = true;
   this->ImageReductionFactor = 1;
 
   this->WriteBackImages = true;
   this->RootProcessId = 0;
 
-  this->CaptureDelegate = NULL;
+  this->CaptureDelegate = nullptr;
   this->AutomaticEventHandling = true;
 }
 
 //----------------------------------------------------------------------------
 vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
 {
-  this->SetCaptureDelegate(0);
+  this->SetCaptureDelegate(nullptr);
 
-  this->Observer->Target = 0;
+  this->Observer->Target = nullptr;
 
-  this->SetRenderer(0);
-  this->SetParallelController(0);
+  this->SetRenderer(nullptr);
+  this->SetParallelController(nullptr);
   this->Observer->Delete();
-  this->Observer = 0;
-
-  if (this->FXAAOptions)
-  {
-    this->FXAAOptions->Delete();
-    this->FXAAOptions = NULL;
-  }
+  this->Observer = nullptr;
 
   // vtkOpenGLFXAAFilter is only available on opengl2:
 #ifdef VTK_OPENGL2
   if (this->FXAAFilter)
   {
     this->FXAAFilter->Delete();
-    this->FXAAFilter = NULL;
+    this->FXAAFilter = nullptr;
   }
 #endif // VTK_OPENGL2
 }
@@ -176,6 +167,11 @@ void vtkSynchronizedRenderers::HandleStartRender()
 
   this->ReducedImage.MarkInValid();
   this->FullImage.MarkInValid();
+
+  // disable FXAA when parallel rendering. We'll do the FXAA pass after the
+  // compositing stage. This avoid any seam artifacts from creeping in.
+  this->UseFXAA = this->Renderer->GetUseFXAA();
+  this->Renderer->SetUseFXAA(false);
 
   if (this->ParallelController->GetLocalProcessId() == this->RootProcessId)
   {
@@ -261,7 +257,12 @@ void vtkSynchronizedRenderers::HandleEndRender()
     this->PushImageToScreen();
   }
 
+  // restore viewport
   this->Renderer->SetViewport(this->LastViewport);
+
+  // restore FXAA state.
+  this->Renderer->SetUseFXAA(this->UseFXAA);
+  this->UseFXAA = false;
 }
 
 //----------------------------------------------------------------------------
@@ -318,10 +319,7 @@ void vtkSynchronizedRenderers::PushImageToScreen()
     {
       this->FXAAFilter = vtkOpenGLFXAAFilter::New();
     }
-    if (this->FXAAOptions)
-    {
-      this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
-    }
+    this->FXAAFilter->UpdateConfiguration(this->Renderer->GetFXAAOptions());
     this->FXAAFilter->Execute(this->Renderer);
   }
 #endif // VTK_OPENGL2
@@ -411,7 +409,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AutomaticEventHandling: "
     << this->AutomaticEventHandling << endl;
   os << indent << "CaptureDelegate: ";
-  if(this->CaptureDelegate==0)
+  if(this->CaptureDelegate==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -421,7 +419,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Renderer: ";
-  if(this->Renderer==0)
+  if(this->Renderer==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -431,7 +429,7 @@ void vtkSynchronizedRenderers::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "ParallelController: ";
-  if(this->ParallelController==0)
+  if(this->ParallelController==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -857,3 +855,37 @@ vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of " << this->Renderer );
   return this->Renderer;
 }
+
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkSynchronizedRenderers::SetUseFXAA(bool)
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::SetUseFXAA, "VTK 8.1");
+}
+
+bool vtkSynchronizedRenderers::GetUseFXAA()
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::GetUseFXAA, "VTK 8.1");
+  return false;
+}
+
+void vtkSynchronizedRenderers::UseFXAAOn()
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::UseFXAAOn, "VTK 8.1");
+}
+
+void vtkSynchronizedRenderers::UseFXAAOff()
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::UseFXAAOff, "VTK 8.1");
+}
+
+vtkFXAAOptions* vtkSynchronizedRenderers::GetFXAAOptions()
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::GetFXAAOptions, "VTK 8.1");
+  return nullptr;
+}
+
+void vtkSynchronizedRenderers::SetFXAAOptions(vtkFXAAOptions*)
+{
+  VTK_LEGACY_BODY(vtkSynchronizedRenderers::SetFXAAOptions, "VTK 8.1");
+}
+#endif

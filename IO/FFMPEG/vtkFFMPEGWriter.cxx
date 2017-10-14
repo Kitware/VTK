@@ -97,17 +97,17 @@ vtkFFMPEGWriterInternal::vtkFFMPEGWriterInternal(vtkFFMPEGWriter *creator)
   this->Dim[0] = 0;
   this->Dim[1] = 0;
 
-  this->avFormatContext = NULL;
+  this->avFormatContext = nullptr;
 
-  this->avOutputFormat = NULL;
+  this->avOutputFormat = nullptr;
 
-  this->avStream = NULL;
+  this->avStream = nullptr;
 
 #if LIBAVFORMAT_VERSION_MAJOR < 54
-  this->codecBuf = NULL;
+  this->codecBuf = nullptr;
 #endif
-  this->rgbInput = NULL;
-  this->yuvOutput = NULL;
+  this->rgbInput = nullptr;
+  this->yuvOutput = nullptr;
 
   this->openedFile = 0;
   this->closedFile = 1;
@@ -146,9 +146,9 @@ int vtkFFMPEGWriterInternal::Start()
 
   //choose avi media file format
 #ifdef VTK_FFMPEG_HAS_OLD_HEADER
-  this->avOutputFormat = guess_format("avi", NULL, NULL);
+  this->avOutputFormat = guess_format("avi", nullptr, nullptr);
 #else
-  this->avOutputFormat = av_guess_format("avi", NULL, NULL);
+  this->avOutputFormat = av_guess_format("avi", nullptr, nullptr);
 #endif
   if (!this->avOutputFormat)
   {
@@ -245,7 +245,7 @@ int vtkFFMPEGWriterInternal::Start()
 
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   //apply the chosen parameters
-  if (av_set_parameters(this->avFormatContext, NULL) < 0)
+  if (av_set_parameters(this->avFormatContext, nullptr) < 0)
   {
     vtkGenericWarningMacro (<< "Invalid output format parameters." );
     return 0;
@@ -262,7 +262,7 @@ int vtkFFMPEGWriterInternal::Start()
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   if (avcodec_open(c, codec) < 0)
 #else
-  if (avcodec_open2(c, codec, NULL) < 0)
+  if (avcodec_open2(c, codec, nullptr) < 0)
 #endif
   {
     vtkGenericWarningMacro (<< "Could not open codec.");
@@ -332,7 +332,7 @@ int vtkFFMPEGWriterInternal::Start()
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   av_write_header(this->avFormatContext);
 #else
-  if (avformat_write_header(this->avFormatContext, NULL) < 0)
+  if (avformat_write_header(this->avFormatContext, nullptr) < 0)
   {
     vtkGenericWarningMacro (<< "Could not allocate avcodec private data.");
     return 0;
@@ -369,9 +369,9 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   SwsContext* convert_ctx = sws_getContext(
     cc->width, cc->height, AV_PIX_FMT_RGB24,
     cc->width, cc->height, cc->pix_fmt,
-    SWS_BICUBIC, NULL, NULL, NULL);
+    SWS_BICUBIC, nullptr, nullptr, nullptr);
 
-  if(convert_ctx == NULL)
+  if(convert_ctx == nullptr)
   {
     vtkGenericWarningMacro(<< "swscale context initialization failed");
     return 0;
@@ -395,7 +395,7 @@ int vtkFFMPEGWriterInternal::Write(vtkImageData *id)
   //run the encoder
   AVPacket pkt;
   av_init_packet(&pkt);
-  pkt.data = NULL;
+  pkt.data = nullptr;
   pkt.size = 0;
 
 #if LIBAVFORMAT_VERSION_MAJOR < 54
@@ -461,14 +461,14 @@ void vtkFFMPEGWriterInternal::End()
   {
     av_free(this->yuvOutput->data[0]);
     av_free(this->yuvOutput);
-    this->yuvOutput = NULL;
+    this->yuvOutput = nullptr;
   }
 
   if (this->rgbInput)
   {
     av_free(this->rgbInput->data[0]);
     av_free(this->rgbInput);
-    this->rgbInput = NULL;
+    this->rgbInput = nullptr;
   }
 
 
@@ -476,7 +476,7 @@ void vtkFFMPEGWriterInternal::End()
   if (this->codecBuf)
   {
     av_free(this->codecBuf);
-    this->codecBuf = NULL;
+    this->codecBuf = nullptr;
   }
 #endif
 
@@ -500,7 +500,7 @@ void vtkFFMPEGWriterInternal::End()
   if (this->avStream)
   {
     av_free(this->avStream);
-    this->avStream = NULL;
+    this->avStream = nullptr;
   }
 
   if (this->avOutputFormat)
@@ -546,7 +546,7 @@ void vtkFFMPEGWriter::Start()
     this->SetErrorCode(vtkGenericMovieWriter::InitError);
     return;
   }
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro("Please specify an input.");
     this->SetErrorCode(vtkGenericMovieWriter::NoInputError);

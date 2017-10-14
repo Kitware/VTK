@@ -88,7 +88,7 @@ int vtkExtractSelectedIds::RequestData(
   }
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkSelectionNode *node = 0;
+  vtkSelectionNode *node = nullptr;
   if (sel->GetNumberOfNodes() == 1)
   {
     node = sel->GetNode(0);
@@ -310,8 +310,8 @@ namespace
     vtkIdType numCells = input->GetNumberOfCells();
     vtkIdType numPts = input->GetNumberOfPoints();
     vtkIdList *idList = vtkIdList::New();
-    vtkIdList *ptIds = NULL;
-    char* cellCounter = NULL;
+    vtkIdList *ptIds = nullptr;
+    char* cellCounter = nullptr;
     if (invert)
     {
       ptIds = vtkIdList::New();
@@ -462,8 +462,8 @@ namespace
     signed char flag = invert ? 1 : -1;
     flag = -flag;
 
-    vtkIdList *ptCells = 0;
-    vtkIdList *cellPts = 0;
+    vtkIdList *ptCells = nullptr;
+    vtkIdList *cellPts = nullptr;
     if (containingCells)
     {
       ptCells = vtkIdList::New();
@@ -640,7 +640,7 @@ int vtkExtractSelectedIds::ExtractCells(
   }
 
   //decide what the IDS mean
-  vtkAbstractArray *labelArray = NULL;
+  vtkAbstractArray *labelArray = nullptr;
   int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
   if (selType == vtkSelectionNode::GLOBALIDS)
   {
@@ -659,7 +659,7 @@ int vtkExtractSelectedIds::ExtractCells(
         sel->GetSelectionList()->GetName());
   }
 
-  if (labelArray == NULL && selType != vtkSelectionNode::INDICES)
+  if (labelArray == nullptr && selType != vtkSelectionNode::INDICES)
   {
     return 1;
   }
@@ -695,7 +695,7 @@ int vtkExtractSelectedIds::ExtractCells(
   {
     //no global array, so just use the input cell index
     labelArray = idxArray;
-    labelArray->Register(NULL);
+    labelArray->Register(nullptr);
   }
 
   vtkIdType numIds = 0;
@@ -710,7 +710,7 @@ int vtkExtractSelectedIds::ExtractCells(
     idArray = sortedArray;
   }
 
-  if (idArray == NULL)
+  if (idArray == nullptr)
   {
     labelArray->Delete();
     idxArray->Delete();
@@ -719,7 +719,7 @@ int vtkExtractSelectedIds::ExtractCells(
 
   // Array types must match if they are string arrays.
   if (vtkArrayDownCast<vtkStringArray>(labelArray) &&
-    vtkArrayDownCast<vtkStringArray>(idArray) == NULL)
+    vtkArrayDownCast<vtkStringArray>(idArray) == nullptr)
   {
     labelArray->Delete();
     idxArray->Delete();
@@ -843,7 +843,7 @@ int vtkExtractSelectedIds::ExtractPoints(
  }
 
   //decide what the IDS mean
-  vtkAbstractArray *labelArray = NULL;
+  vtkAbstractArray *labelArray = nullptr;
   int selType = sel->GetProperties()->Get(vtkSelectionNode::CONTENT_TYPE());
   if (selType == vtkSelectionNode::GLOBALIDS)
   {
@@ -861,7 +861,7 @@ int vtkExtractSelectedIds::ExtractPoints(
     labelArray = input->GetPointData()->GetAbstractArray(
       sel->GetSelectionList()->GetName());
   }
-  if (labelArray == NULL && selType != vtkSelectionNode::INDICES)
+  if (labelArray == nullptr && selType != vtkSelectionNode::INDICES)
   {
     return 1;
   }
@@ -897,12 +897,12 @@ int vtkExtractSelectedIds::ExtractPoints(
   {
     //no global array, so just use the input cell index
     labelArray = idxArray;
-    labelArray->Register(NULL);
+    labelArray->Register(nullptr);
   }
 
   vtkIdType numIds = 0;
   vtkAbstractArray* idArray = sel->GetSelectionList();
-  if (idArray == NULL)
+  if (idArray == nullptr)
   {
     labelArray->Delete();
     idxArray->Delete();
@@ -911,7 +911,7 @@ int vtkExtractSelectedIds::ExtractPoints(
 
   // Array types must match if they are string arrays.
   if (vtkArrayDownCast<vtkStringArray>(labelArray) &&
-    vtkArrayDownCast<vtkStringArray>(idArray) == NULL)
+    vtkArrayDownCast<vtkStringArray>(idArray) == nullptr)
   {
     vtkWarningMacro(
       "Array types don't match. They must match for vtkStringArray.");

@@ -282,18 +282,18 @@ bool compareVtkImages( vtkImageData* leftImg, vtkImageData* rightImg)
   if ( leftImg == rightImg )
   {
     std::cerr << "Got same pointers." << std::endl;
-    return true;  // This also implies NULL == NULL is ok.
+    return true;  // This also implies nullptr == nullptr is ok.
   }
 
   if (!leftImg)
   {
-    std::cerr << "Left image is NULL" << std::endl;
+    std::cerr << "Left image is nullptr" << std::endl;
     return false;
   }
 
   if (!rightImg)
   {
-    std::cerr << "Right image is NULL" << std::endl;
+    std::cerr << "Right image is nullptr" << std::endl;
     return false;
   }
 

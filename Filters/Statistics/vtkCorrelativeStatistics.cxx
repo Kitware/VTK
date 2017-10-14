@@ -201,8 +201,6 @@ void vtkCorrelativeStatistics::Aggregate( vtkDataObjectCollection* inMetaColl,
 
   // Clean up
   aggregatedTab->Delete();
-
-  return;
 }
 
 // ----------------------------------------------------------------------
@@ -819,9 +817,9 @@ public:
     this->InterYX = interYX;
     this->InterXY = interXY;
   }
-  ~BivariateRegressionDeviationsFunctor() VTK_OVERRIDE { }
+  ~BivariateRegressionDeviationsFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     // First retrieve 2-d observation
     double x = this->DataX->GetTuple1( id );
@@ -854,7 +852,7 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  dfunc = 0;
+  dfunc = nullptr;
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta
        || inMeta->GetNumberOfBlocks() < 2 )

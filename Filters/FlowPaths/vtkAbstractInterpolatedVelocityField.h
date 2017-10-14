@@ -85,7 +85,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkAbstractInterpolatedVelocityField : public v
 {
 public:
   vtkTypeMacro( vtkAbstractInterpolatedVelocityField, vtkFunctionSet );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -125,7 +125,7 @@ public:
 
   //@{
   /**
-   * Get/Set the name of a spcified vector array. By default it is NULL, with
+   * Get/Set the name of a spcified vector array. By default it is nullptr, with
    * the active vector array for use.
    */
   vtkGetStringMacro( VectorsSelection );
@@ -188,7 +188,7 @@ public:
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
-  int FunctionValues( double * x, double * f ) VTK_OVERRIDE = 0;
+  int FunctionValues( double * x, double * f ) override = 0;
 
   /**
    * Set the last cell id to -1 to incur a global cell search for the next point.
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkAbstractInterpolatedVelocityField();
-  ~vtkAbstractInterpolatedVelocityField() VTK_OVERRIDE;
+  ~vtkAbstractInterpolatedVelocityField() override;
 
   static const double TOLERANCE_SCALE;
   static const double SURFACE_TOLERANCE_SCALE;
@@ -274,13 +274,13 @@ protected:
   void FastCompute( vtkDataArray * vectors, double f[3] );
   bool InterpolatePoint( vtkPointData * outPD, vtkIdType outIndex );
   vtkGenericCell * GetLastCell()
-    { return ( this->LastCellId != -1 ) ? this->GenCell : NULL; }
+    { return ( this->LastCellId != -1 ) ? this->GenCell : nullptr; }
   //@}
 
 private:
   vtkAbstractInterpolatedVelocityField
-    ( const vtkAbstractInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkAbstractInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+    ( const vtkAbstractInterpolatedVelocityField & ) = delete;
+  void operator = ( const vtkAbstractInterpolatedVelocityField & ) = delete;
 };
 
 

@@ -37,7 +37,7 @@ public:
   static vtkExtentTranslator *New();
 
   vtkTypeMacro(vtkExtentTranslator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkExtentTranslator();
-  ~vtkExtentTranslator() VTK_OVERRIDE;
+  ~vtkExtentTranslator() override;
 
   static vtkInformationIntegerKey* DATA_SPLIT_MODE();
 
@@ -146,8 +146,8 @@ protected:
   int SplitLen;
 
 private:
-  vtkExtentTranslator(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
+  vtkExtentTranslator(const vtkExtentTranslator&) = delete;
+  void operator=(const vtkExtentTranslator&) = delete;
 };
 
 #endif

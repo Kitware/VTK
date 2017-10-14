@@ -31,15 +31,15 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkCameraNode :
 public:
   static vtkCameraNode* New();
   vtkTypeMacro(vtkCameraNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkCameraNode();
   ~vtkCameraNode();
 
 private:
-  vtkCameraNode(const vtkCameraNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraNode&) VTK_DELETE_FUNCTION;
+  vtkCameraNode(const vtkCameraNode&) = delete;
+  void operator=(const vtkCameraNode&) = delete;
 };
 
 #endif

@@ -31,15 +31,15 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkLightNode :
 public:
   static vtkLightNode* New();
   vtkTypeMacro(vtkLightNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkLightNode();
   ~vtkLightNode();
 
 private:
-  vtkLightNode(const vtkLightNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightNode&) VTK_DELETE_FUNCTION;
+  vtkLightNode(const vtkLightNode&) = delete;
+  void operator=(const vtkLightNode&) = delete;
 };
 
 #endif

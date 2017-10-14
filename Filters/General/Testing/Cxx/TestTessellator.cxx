@@ -78,8 +78,8 @@ static int otriCtr = 0;
 static int vtkOTetCtr = 0;
 static int vtkITetCtr = 0;
 static int vtkTstCode = 0;
-static double* vtkITetPtr = 0;
-static double* vtkOTetPtr = 0;
+static double* vtkITetPtr = nullptr;
+static double* vtkOTetPtr = nullptr;
 
 static struct {
   const char* Name;
@@ -2505,9 +2505,9 @@ class vtkTestTessellatorSubdivision
   public:
     vtkTypeMacro(vtkTestTessellatorSubdivision,vtkEdgeSubdivisionCriterion);
     static vtkTestTessellatorSubdivision* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
-    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) VTK_OVERRIDE;
+    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
 
     static double*  TestPoints;
     static double*  TestPointsCanAmbig;
@@ -2542,7 +2542,7 @@ class vtkTestTessellatorSubdivision
 
  protected:
     vtkTestTessellatorSubdivision();
-    ~vtkTestTessellatorSubdivision() VTK_OVERRIDE;
+    ~vtkTestTessellatorSubdivision() override;
 
     int AmbiguousTests;
     int CurrentTest;
@@ -2552,8 +2552,8 @@ class vtkTestTessellatorSubdivision
     static int* TestListCanAmbig;
 
   private:
-    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
+    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) = delete;
+    void operator = ( const vtkTestTessellatorSubdivision& ) = delete;
 
 };
 
@@ -3116,10 +3116,10 @@ class vtkTessellatorScreenShot : public vtkCommand
 public:
   static vtkTessellatorScreenShot* New()
     { return new vtkTessellatorScreenShot; }
-  vtkTessellatorScreenShot() { this->RenderWindow = 0; this->FileName = 0; }
+  vtkTessellatorScreenShot() { this->RenderWindow = nullptr; this->FileName = nullptr; }
   vtkRenderWindow* RenderWindow;
   char* FileName;
-  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) VTK_OVERRIDE
+  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) override
   {
     if ( (! this->RenderWindow) || (! this->FileName) )
       return;
@@ -3192,29 +3192,29 @@ int TestTessellator( int argc, char* argv[] )
   vtkTestTessellatorSubdivision* tt = vtkTestTessellatorSubdivision::New();
   at->ResetCounts();
 
-  vtkShrinkFilter* sf = 0;
-  vtkActor* a = 0;
-  vtkDataSetMapper* m = 0;
-  vtkRenderer* r = 0;
-  vtkRenderWindow* rw = 0;
-  vtkRenderWindowInteractor* ri = 0;
+  vtkShrinkFilter* sf = nullptr;
+  vtkActor* a = nullptr;
+  vtkDataSetMapper* m = nullptr;
+  vtkRenderer* r = nullptr;
+  vtkRenderWindow* rw = nullptr;
+  vtkRenderWindowInteractor* ri = nullptr;
 
-  vtkUnstructuredGrid* startTet = 0;
-  vtkPoints* startTetPts = 0;
+  vtkUnstructuredGrid* startTet = nullptr;
+  vtkPoints* startTetPts = nullptr;
   vtkIdType startTetConn[4];
   char annotation[512];
   char screenshotfile[512];
-  vtkTextActor* annotationActor = 0;
-  vtkIdTypeArray* pids = 0;
-  vtkTessellatorScreenShot* ss = 0;
-  vtkDataSetMapper* startTetWireMapper = 0;
-  vtkActor* startTetWireActor = 0;
-  vtkLabeledDataMapper* startTetLabelMapper = 0;
-  vtkActor2D* startTetLabelActor = 0;
-  vtkSphereSource* sphere = 0;
-  vtkGlyph3D* vertMarkers = 0;
-  vtkPolyDataMapper* vertMarkerMapper = 0;
-  vtkActor* vertMarkerActor = 0;
+  vtkTextActor* annotationActor = nullptr;
+  vtkIdTypeArray* pids = nullptr;
+  vtkTessellatorScreenShot* ss = nullptr;
+  vtkDataSetMapper* startTetWireMapper = nullptr;
+  vtkActor* startTetWireActor = nullptr;
+  vtkLabeledDataMapper* startTetLabelMapper = nullptr;
+  vtkActor2D* startTetLabelActor = nullptr;
+  vtkSphereSource* sphere = nullptr;
+  vtkGlyph3D* vertMarkers = nullptr;
+  vtkPolyDataMapper* vertMarkerMapper = nullptr;
+  vtkActor* vertMarkerActor = nullptr;
 
   if ( vtkTessellatorIsInteractive )
   {
@@ -3296,7 +3296,7 @@ int TestTessellator( int argc, char* argv[] )
     vertMarkers->SetScaleFactor(0.125);
     r->AddActor( vertMarkerActor );
 
-    sprintf( screenshotfile, "somethingIsWrong.png" );
+    snprintf( screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png" );
     ss = vtkTessellatorScreenShot::New();
     ss->RenderWindow = rw;
     ss->FileName = screenshotfile;
@@ -3312,7 +3312,7 @@ int TestTessellator( int argc, char* argv[] )
   at->SetMaximumNumberOfSubdivisions( 1 );
   at->SetFieldSize( -1, 0 );
 
-  double* tetPoints = 0;
+  double* tetPoints = nullptr;
 
   if ( ! skip )
   {
@@ -3355,7 +3355,7 @@ int TestTessellator( int argc, char* argv[] )
       {
         lastTestId = tt->GetCurrentTestId();
         edgeCode = tt->GetCurrentTest();
-        sprintf( screenshotfile, "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
+        snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId, edgeCode );
 
         if ( vtkTessellatorIsInteractive )
         {
@@ -3387,7 +3387,7 @@ int TestTessellator( int argc, char* argv[] )
           }
           k++;
         }
-        sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d",
+        snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
           edgeCode,
           (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
           ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),
@@ -3463,7 +3463,7 @@ int TestTessellator( int argc, char* argv[] )
     if ( tet < 0 )
       continue;
 
-    sprintf( screenshotfile, "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
+    snprintf( screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png", tt->GetCurrentTestId(), tt->GetCurrentTest() );
 
     tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24*tet;
 #ifdef VTK_GENERATE_BASELINE
@@ -3538,7 +3538,7 @@ int TestTessellator( int argc, char* argv[] )
         }
       }
     }
-    sprintf( annotation, "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
+    snprintf( annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*",
       edgeCode,
       (edgeCode & 1),      ((edgeCode >> 1)&1), ((edgeCode >> 2)&1),
       ((edgeCode >> 3)&1), ((edgeCode >> 4)&1), ((edgeCode >> 5)&1),

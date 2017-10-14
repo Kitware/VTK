@@ -77,7 +77,7 @@ public:
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkAffineWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -97,18 +97,18 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Methods for activating this widget. This implementation extends the
    * superclasses' in order to resize the widget handles due to a render
    * start event.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
 protected:
   vtkAffineWidget();
-  ~vtkAffineWidget() VTK_OVERRIDE;
+  ~vtkAffineWidget() override;
 
   // These are the callbacks for this widget
   static void SelectAction(vtkAbstractWidget*);
@@ -117,7 +117,7 @@ protected:
   static void ModifyEventAction(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state) VTK_OVERRIDE;
+  void SetCursor(int state) override;
 
   // Manage the state of the widget
   int WidgetState;
@@ -131,8 +131,8 @@ protected:
   int ModifierActive;
 
 private:
-  vtkAffineWidget(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
+  vtkAffineWidget(const vtkAffineWidget&) = delete;
+  void operator=(const vtkAffineWidget&) = delete;
 };
 
 #endif

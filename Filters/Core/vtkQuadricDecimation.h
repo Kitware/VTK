@@ -69,7 +69,7 @@ class VTKFILTERSCORE_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkQuadricDecimation *New();
 
   //@{
@@ -158,9 +158,9 @@ public:
 
 protected:
   vtkQuadricDecimation();
-  ~vtkQuadricDecimation() VTK_OVERRIDE;
+  ~vtkQuadricDecimation() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Do the dirty work of eliminating the edge; return the number of
@@ -279,8 +279,8 @@ protected:
   double *TempData;
 
 private:
-  vtkQuadricDecimation(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
+  vtkQuadricDecimation(const vtkQuadricDecimation&) = delete;
+  void operator=(const vtkQuadricDecimation&) = delete;
 };
 
 #endif

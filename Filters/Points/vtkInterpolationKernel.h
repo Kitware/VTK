@@ -69,7 +69,7 @@ public:
    * Standard method for type and printing.
    */
   vtkAbstractTypeMacro(vtkInterpolationKernel, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkInterpolationKernel();
-  ~vtkInterpolationKernel() VTK_OVERRIDE;
+  ~vtkInterpolationKernel() override;
 
   bool RequiresInitialization;
   vtkAbstractPointLocator *Locator;
@@ -133,8 +133,8 @@ protected:
   virtual void FreeStructures();
 
 private:
-  vtkInterpolationKernel(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
+  vtkInterpolationKernel(const vtkInterpolationKernel&) = delete;
+  void operator=(const vtkInterpolationKernel&) = delete;
 };
 
 #endif

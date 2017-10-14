@@ -19,7 +19,7 @@ vtkStandardNewMacro(vtkCellTypes);
 
 // This list should contain the cell class names in
 // the same order as the enums in vtkCellType.h. Make sure
-// this list is NULL terminated.
+// this list is nullptr terminated.
 static const char* vtkCellTypesStrings[] = {
   "vtkEmptyCell",
   "vtkVertex",
@@ -89,7 +89,7 @@ static const char* vtkCellTypesStrings[] = {
   "vtkHigherOrderWedge",
   "vtkHigherOrderPyramid",
   "vtkHigherOrderHexahedron",
-  NULL
+  nullptr
 };
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ const char* vtkCellTypes::GetClassNameFromTypeId(int type)
   // find length of table
   if (numClasses == 0)
   {
-    while (vtkCellTypesStrings[numClasses] != NULL)
+    while (vtkCellTypesStrings[numClasses] != nullptr)
     {
       numClasses++;
     }
@@ -125,7 +125,7 @@ int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
     return -1;
   }
 
-  for(int idx=0; vtkCellTypesStrings[idx] != NULL; idx++)
+  for(int idx=0; vtkCellTypesStrings[idx] != nullptr; idx++)
   {
     if (strcmp(vtkCellTypesStrings[idx], classname) == 0)
     {
@@ -205,7 +205,6 @@ void vtkCellTypes::InsertCell(int cellId, unsigned char type, int loc)
   {
     this->MaxId = cellId;
   }
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -282,7 +281,7 @@ void vtkCellTypes::DeepCopy(vtkCellTypes *src)
   if (this->TypeArray)
   {
       this->TypeArray->UnRegister(this);
-      this->TypeArray = NULL;
+      this->TypeArray = nullptr;
   }
   if (src->TypeArray)
   {
@@ -295,7 +294,7 @@ void vtkCellTypes::DeepCopy(vtkCellTypes *src)
   if (this->LocationArray)
   {
       this->LocationArray->UnRegister(this);
-      this->LocationArray = NULL;
+      this->LocationArray = nullptr;
   }
   if (src->LocationArray)
   {

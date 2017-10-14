@@ -42,7 +42,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap :
   public:
 
     vtkTypeMacro(vtkParametricCrossCap, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct a cross-cap with the following parameters:
@@ -58,7 +58,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap :
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     /**
      * A cross-cap.
@@ -68,7 +68,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap :
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -84,15 +84,15 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap :
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricCrossCap();
-    ~vtkParametricCrossCap() VTK_OVERRIDE;
+    ~vtkParametricCrossCap() override;
 
   private:
-    vtkParametricCrossCap(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
+    vtkParametricCrossCap(const vtkParametricCrossCap&) = delete;
+    void operator=(const vtkParametricCrossCap&) = delete;
 };
 
 #endif

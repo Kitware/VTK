@@ -19,7 +19,7 @@
 //----------------------------------------------------------------
 vtkEventForwarderCommand::vtkEventForwarderCommand()
 {
-  this->Target = NULL;
+  this->Target = nullptr;
 }
 
 //----------------------------------------------------------------

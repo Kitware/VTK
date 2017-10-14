@@ -20,13 +20,15 @@
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkCompositeDataGeometryFilter.h"
 #include "vtkGeometryFilter.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -84,18 +86,18 @@ vtkStandardNewMacro(vtkX3DExporter);
 vtkX3DExporter::vtkX3DExporter()
 {
   this->Speed = 4.0;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Binary = 0;
   this->Fastest = 0;
   this->WriteToOutputString = 0;
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkX3DExporter::~vtkX3DExporter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   delete [] this->OutputString;
 }
 
@@ -113,7 +115,7 @@ void vtkX3DExporter::WriteData()
   vtkCamera *cam;
 
   // make sure the user specified a FileName or FilePointer
-  if (this->FileName == NULL && (!this->WriteToOutputString))
+  if (this->FileName == nullptr && (!this->WriteToOutputString))
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -323,6 +325,8 @@ void vtkX3DExporter::WriteData()
   }
   /////////////////////////////////////////////////
 
+  this->WriteAdditionalNodes(writer);
+
   writer->EndNode(); // Scene
   writer->EndNode(); // X3D
   writer->Flush();
@@ -386,57 +390,87 @@ void vtkX3DExporter::WriteALight(vtkLight *aLight,
 void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkX3DExporterWriter* writer, int index)
 {
-  vtkSmartPointer<vtkDataSet> ds;
-  vtkPolyData *pd;
+  // see if the actor has a mapper. it could be an assembly
+  vtkMapper* mapper = anActor->GetMapper();
+  if (mapper == nullptr)
+  {
+    return;
+  }
+
+  // validate mapper input dataset.
+  vtkDataObject* dObj = mapper->GetInputDataObject(0, 0);
+  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
+  vtkPolyData* pd = vtkPolyData::SafeDownCast(dObj);
+  if (cd == nullptr && pd == nullptr)
+  {
+    // we don't support the input dataset or is empty.
+    return;
+  }
+
+  // first stuff out the transform
+  vtkSmartPointer<vtkTransform> trans = vtkSmartPointer<vtkTransform>::New();
+  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
+
+  writer->StartNode(Transform);
+  writer->SetField(translation, SFVEC3F, trans->GetPosition());
+  writer->SetField(rotation, SFROTATION, trans->GetOrientationWXYZ());
+  writer->SetField(scale, SFVEC3F, trans->GetScale());
+
+  if (cd)
+  {
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(cd->NewIterator());
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+    {
+      if (vtkPolyData* currentPD = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject()))
+      {
+        writer->StartNode(Group);
+        if (iter->HasCurrentMetaData() && iter->GetCurrentMetaData()->Has(vtkCompositeDataSet::NAME()))
+        {
+          if (const char* aname = iter->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME()))
+          {
+            std::string mfname = "\"" + std::string(aname) + "\"";
+            writer->StartNode(MetadataString);
+            writer->SetField(name, "name", false);
+            writer->SetField(value, mfname.c_str(), true);
+            writer->EndNode();
+          }
+        }
+        this->WriteAPiece(currentPD, anActor, writer, index);
+        writer->EndNode(); // close the Group.
+      }
+    }
+  }
+  else
+  {
+    assert(pd != nullptr);
+    this->WriteAPiece(pd, anActor, writer, index);
+  }
+  writer->EndNode();
+}
+
+//----------------------------------------------------------------------------
+void vtkX3DExporter::WriteAPiece(
+  vtkPolyData* pd, vtkActor *anActor, vtkX3DExporterWriter* writer, int index)
+{
   vtkPointData *pntData;
   vtkCellData *cellData;
   vtkPoints *points;
-  vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
+  vtkDataArray *normals = nullptr;
+  vtkDataArray *tcoords = nullptr;
   vtkProperty *prop;
   vtkUnsignedCharArray *colors;
   vtkSmartPointer<vtkTransform> trans;
 
   // see if the actor has a mapper. it could be an assembly
-  if (anActor->GetMapper() == NULL)
+  if (anActor->GetMapper() == nullptr)
   {
     return;
   }
 
-  vtkDataObject* dObj = anActor->GetMapper()->GetInputDataObject(0, 0);
-
-  // get the mappers input and matrix
-  vtkCompositeDataSet* cd = vtkCompositeDataSet::SafeDownCast(dObj);
-  if (cd)
-  {
-    vtkCompositeDataGeometryFilter* gf = vtkCompositeDataGeometryFilter::New();
-    gf->SetInputConnection(anActor->GetMapper()->GetInputConnection(0, 0));
-    gf->Update();
-    ds = gf->GetOutput();
-    gf->Delete();
-  }
-  else
-  {
-    anActor->GetMapper()->Update();
-    ds = anActor->GetMapper()->GetInput();
-  }
-
-  if (!ds)
+  if (pd == nullptr)
   {
     return;
-  }
-
-  // we really want polydata
-  if ( ds->GetDataObjectType() != VTK_POLY_DATA )
-  {
-    vtkSmartPointer<vtkGeometryFilter> gf = vtkSmartPointer<vtkGeometryFilter>::New();
-    gf->SetInputData(ds);
-    gf->Update();
-    pd = gf->GetOutput();
-  }
-  else
-  {
-    pd = static_cast<vtkPolyData *>(ds.GetPointer());
   }
 
   // Create a temporary poly-data mapper that we use.
@@ -450,7 +484,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   mapper->SetScalarMode(anActor->GetMapper()->GetScalarMode());
 
   // Essential to turn of interpolate scalars otherwise GetScalars() may return
-  // NULL. We restore value before returning.
+  // nullptr. We restore value before returning.
   mapper->SetInterpolateScalarsBeforeMapping(0);
   if ( mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
     mapper->GetScalarMode() == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
@@ -466,15 +500,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
         anActor->GetMapper()->GetArrayComponent());
     }
   }
-
-  // first stuff out the transform
-  trans = vtkSmartPointer<vtkTransform>::New();
-  trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
-
-  writer->StartNode(Transform);
-  writer->SetField(translation, SFVEC3F, trans->GetPosition());
-  writer->SetField(rotation, SFROTATION, trans->GetOrientationWXYZ());
-  writer->SetField(scale, SFVEC3F, trans->GetScale());
 
   prop = anActor->GetProperty();
   points = pd->GetPoints();
@@ -590,9 +615,7 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
         colors, cell_normals, writer);
       writer->EndNode();  // close the  Shape
     }
-
   }
-  writer->EndNode(); // close the original transform
 }
 
 //----------------------------------------------------------------------------
@@ -641,7 +664,7 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
   tp = ta->GetTextProperty();
   ds = ta->GetInput();
 
-  if (ds==NULL)
+  if (ds==nullptr)
   {
     return;
   }
@@ -780,7 +803,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
 
 
   // make sure it is updated and then get some info
-  if (aTexture->GetInput() == NULL)
+  if (aTexture->GetInput() == nullptr)
   {
     vtkErrorMacro(<< "texture has no input!\n");
     return;
@@ -797,7 +820,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
   }
 
   // make sure using unsigned char data of color scalars type
-  if (aTexture->GetMapColorScalarsThroughLookupTable () ||
+  if (aTexture->GetColorMode() == VTK_COLOR_MODE_MAP_SCALARS ||
     (scalars->GetDataType() != VTK_UNSIGNED_CHAR) )
   {
     mappedScalars = aTexture->GetMappedScalars ();
@@ -864,6 +887,7 @@ void vtkX3DExporter::WriteATexture(vtkActor *anActor,
   }
   writer->EndNode();
 }
+
 //----------------------------------------------------------------------------
 int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
 {
@@ -871,7 +895,7 @@ int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
   // if we don't then use a headlight
   vtkLightCollection* lc = ren->GetLights();
   vtkCollectionSimpleIterator lsit;
-  vtkLight* aLight=0;
+  vtkLight* aLight=nullptr;
   for (lc->InitTraversal(lsit); (aLight = lc->GetNextLight(lsit)); )
   {
     if (aLight->LightTypeIsHeadlight())
@@ -912,7 +936,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   std::vector<int> cellIndexVector;
 
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   if (cellType == VTK_POLYGON || cellType == VTK_POLY_LINE)
   {
@@ -980,8 +1004,8 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   else
   {
     // don't save normals/tcoords when saving wireframes.
-    normals = 0;
-    tcoords = 0;
+    normals = nullptr;
+    tcoords = nullptr;
 
     writer->StartNode(IndexedLineSet);
     writer->SetField(colorPerVertex, !cell_colors);
@@ -1006,7 +1030,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(
   }
   else
   {
-    vtkX3DExporterUseData((normals != NULL), (tcoords != NULL), (colors!= NULL), index, writer);
+    vtkX3DExporterUseData((normals != nullptr), (tcoords != nullptr), (colors!= nullptr), index, writer);
   }
 
   writer->EndNode(); // end IndexedFaceSet or IndexedLineSet
@@ -1119,7 +1143,7 @@ static bool vtkX3DExporterWriterRenderVerts(
   {
     vtkIdType cellId = 0;
     vtkIdType npts = 0;
-    vtkIdType *indx = 0;
+    vtkIdType *indx = nullptr;
     for (cells->InitTraversal(); cells->GetNextCell(npts,indx); cellId++)
     {
       for (vtkIdType cc=0; cc < npts; cc++)
@@ -1173,7 +1197,7 @@ static bool vtkX3DExporterWriterRenderPoints(
   // We render as cells so that even when coloring with cell data, the points
   // are assigned colors correctly.
 
-  if ( (colors !=0) && cell_colors)
+  if ( (colors !=nullptr) && cell_colors)
   {
     // Cell colors are used, however PointSet element can only have point
     // colors, hence we use this method. Although here we end up with duplicate
@@ -1249,7 +1273,7 @@ char *vtkX3DExporter::RegisterAndGetOutputString()
 {
   char *tmp = this->OutputString;
 
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 
   return tmp;

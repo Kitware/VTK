@@ -62,11 +62,11 @@ bool vtkParallelRenderManager::DefaultRenderEventPropagation = true;
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
-  this->RenderWindow = NULL;
+  this->RenderWindow = nullptr;
   this->ObservingRenderWindow = 0;
   this->ObservingAbort = 0;
 
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->RootProcessId = 0;
 
@@ -123,14 +123,14 @@ vtkParallelRenderManager::vtkParallelRenderManager()
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::~vtkParallelRenderManager()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
   if (this->Controller && this->AddedRMIs)
   {
     this->Controller->RemoveRMI(this->RenderRMIId);
     this->Controller->RemoveRMI(this->BoundsRMIId);
     this->AddedRMIs = 0;
   }
-  this->SetController(NULL);
+  this->SetController(nullptr);
   if (this->FullImage) this->FullImage->Delete();
   if (this->ReducedImage) this->ReducedImage->Delete();
   if (this->Viewports) this->Viewports->Delete();
@@ -333,7 +333,7 @@ void vtkParallelRenderManager::InitializePieces()
   vtkPolyDataMapper *pdMapper;
   int piece, numPieces;
 
-  if ((this->RenderWindow == NULL) || (this->Controller == NULL))
+  if ((this->RenderWindow == nullptr) || (this->Controller == nullptr))
   {
     vtkWarningMacro("Called InitializePieces before setting RenderWindow or Controller");
     return;
@@ -367,7 +367,7 @@ void vtkParallelRenderManager::InitializeOffScreen()
 {
   vtkDebugMacro("InitializeOffScreen");
 
-  if ((this->RenderWindow == NULL) || (this->Controller == NULL))
+  if ((this->RenderWindow == nullptr) || (this->Controller == nullptr))
   {
     vtkWarningMacro("Called InitializeOffScreen before setting RenderWindow or Controller");
     return;
@@ -389,7 +389,7 @@ void vtkParallelRenderManager::StartInteractor()
 {
   vtkDebugMacro("StartInteractor");
 
-  if ((this->Controller == NULL) || (this->RenderWindow == NULL))
+  if ((this->Controller == nullptr) || (this->RenderWindow == nullptr))
   {
     vtkErrorMacro("Must set Controller and RenderWindow before starting interactor.");
     return;
@@ -500,7 +500,7 @@ void vtkParallelRenderManager::StartRender()
 
   vtkDebugMacro("StartRender");
 
-  if ((this->Controller == NULL) || (this->Lock))
+  if ((this->Controller == nullptr) || (this->Lock))
   {
     return;
   }
@@ -523,7 +523,7 @@ void vtkParallelRenderManager::StartRender()
     return;
   }
 
-  this->InvokeEvent(vtkCommand::StartEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
 
   this->ImageProcessingTime = 0;
 
@@ -599,7 +599,7 @@ void vtkParallelRenderManager::StartRender()
   int i;
 
   for (rens->InitTraversal(cookie), i = 0;
-       (ren = rens->GetNextRenderer(cookie)) != NULL; i++)
+       (ren = rens->GetNextRenderer(cookie)) != nullptr; i++)
   {
     ren->GetViewport(renInfo.Viewport);
 
@@ -666,7 +666,7 @@ void vtkParallelRenderManager::StartRender()
   // Backwards compatibility stuff.
   this->SendWindowInformation();
   rens->InitTraversal(cookie);
-  while ((ren = rens->GetNextRenderer(cookie)) != NULL)
+  while ((ren = rens->GetNextRenderer(cookie)) != nullptr)
   {
     this->SendRendererInformation(ren);
   }
@@ -709,7 +709,7 @@ void vtkParallelRenderManager::EndRender()
     vtkRenderer *ren;
     int i;
     for (rens->InitTraversal(cookie), i = 0;
-         (ren = rens->GetNextRenderer(cookie)) != NULL; i++)
+         (ren = rens->GetNextRenderer(cookie)) != nullptr; i++)
     {
       ren->SetViewport(this->Viewports->GetPointer(4*i));
     }
@@ -717,7 +717,7 @@ void vtkParallelRenderManager::EndRender()
 
   this->WriteFullImage();
 
-  this->InvokeEvent(vtkCommand::EndEvent, NULL);
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   this->Lock = 0;
 }
@@ -747,7 +747,7 @@ void vtkParallelRenderManager::SatelliteEndRender()
 
   this->WriteFullImage();
 
-  this->InvokeEvent(vtkCommand::EndEvent, NULL);
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -822,7 +822,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI(int renderId)
   int i;
 
   vtkRendererCollection *rens = this->GetRenderers();
-  vtkRenderer *ren = NULL;
+  vtkRenderer *ren = nullptr;
   vtkCollectionSimpleIterator rsit;
   rens->InitTraversal(rsit);
   for (i = 0; i <= renderId; i++)
@@ -830,7 +830,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI(int renderId)
     ren = rens->GetNextRenderer(rsit);
   }
 
-  if (ren == NULL)
+  if (ren == nullptr)
   {
     vtkWarningMacro("Client requested invalid renderer in "
             "ComputeVisiblePropBoundsRMI\n"
@@ -880,7 +880,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
     while (1)
     {
       vtkRenderer *myren = rens->GetNextRenderer(rsit);
-      if (myren == NULL)
+      if (myren == nullptr)
       {
         vtkWarningMacro("ComputeVisiblePropBounds called with unregistered renderer " << ren << "\nDefaulting to first renderer.");
         renderId = 0;
@@ -956,7 +956,7 @@ void vtkParallelRenderManager::InitializeRMIs()
 {
   vtkDebugMacro("InitializeRMIs");
 
-  if (this->Controller == NULL)
+  if (this->Controller == nullptr)
   {
     vtkErrorMacro("InitializeRMIs requires a controller.");
     return;
@@ -1254,7 +1254,7 @@ void vtkParallelRenderManager::MagnifyImageNearest(
     int destlinesize = fullImageSize[0];
     int srclinesize = reducedImageSize[0];
     int xmemsize = 4*destWidth;
-    unsigned int *lastsrcline = NULL;
+    unsigned int *lastsrcline = nullptr;
     unsigned int *destline = (unsigned int*)fullImage->GetPointer(
                                                     4*(  destBottom*destlinesize
                                                        + destLeft));
@@ -1289,7 +1289,7 @@ void vtkParallelRenderManager::MagnifyImageNearest(
     // Inflate image.
     double xstep = (double)srcWidth/destWidth;
     double ystep = (double)srcHeight/destHeight;
-    unsigned char *lastsrcline = NULL;
+    unsigned char *lastsrcline = nullptr;
     for (int y = 0; y < destHeight; y++)
     {
       unsigned char *destline =
@@ -1857,7 +1857,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
 //  return;
 //  }
 
-  this->InvokeEvent(vtkCommand::StartEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
   vtkMultiProcessStream stream;
   if (!this->Controller->Broadcast(stream, this->RootProcessId))
   {
@@ -1906,10 +1906,10 @@ void vtkParallelRenderManager::SatelliteStartRender()
   rens->InitTraversal(rsit);
   for (i = 0; i < winInfo.NumberOfRenderers; i++)
   {
-    vtkLightCollection *lc = NULL;
+    vtkLightCollection *lc = nullptr;
     vtkCollectionSimpleIterator lsit;
     vtkRenderer *ren = rens->GetNextRenderer(rsit);
-    if (ren == NULL)
+    if (ren == nullptr)
     {
       vtkErrorMacro("Not enough renderers");
     }
@@ -1957,10 +1957,10 @@ void vtkParallelRenderManager::SatelliteStartRender()
 
     for (j = 0; j < renInfo.NumberOfLights; j++)
     {
-      if (ren != NULL && lc != NULL)
+      if (ren != nullptr && lc != nullptr)
       {
         vtkLight *light = lc->GetNextLight(lsit);
-        if (light == NULL)
+        if (light == nullptr)
         {
           // Not enough lights?  Just create them.
           vtkDebugMacro("Adding light");
@@ -1980,7 +1980,7 @@ void vtkParallelRenderManager::SatelliteStartRender()
       }
     }
 
-    if (ren != NULL)
+    if (ren != nullptr)
     {
       vtkLight *light;
       while ((light = lc->GetNextLight(lsit)))

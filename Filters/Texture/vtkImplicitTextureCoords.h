@@ -58,7 +58,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkImplicitTextureCoords : public vtkDataSetAlgor
 {
 public:
   vtkTypeMacro(vtkImplicitTextureCoords,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with texture dimension=2 and no r-s-t implicit functions
@@ -102,17 +102,17 @@ public:
 
 protected:
   vtkImplicitTextureCoords();
-  ~vtkImplicitTextureCoords() VTK_OVERRIDE;
+  ~vtkImplicitTextureCoords() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkImplicitFunction *RFunction;
   vtkImplicitFunction *SFunction;
   vtkImplicitFunction *TFunction;
   int FlipTexture;
 private:
-  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitTextureCoords&) VTK_DELETE_FUNCTION;
+  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&) = delete;
+  void operator=(const vtkImplicitTextureCoords&) = delete;
 };
 
 #endif

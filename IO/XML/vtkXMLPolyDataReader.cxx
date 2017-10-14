@@ -29,10 +29,10 @@ vtkStandardNewMacro(vtkXMLPolyDataReader);
 //----------------------------------------------------------------------------
 vtkXMLPolyDataReader::vtkXMLPolyDataReader()
 {
-  this->VertElements = 0;
-  this->LineElements = 0;
-  this->StripElements = 0;
-  this->PolyElements = 0;
+  this->VertElements = nullptr;
+  this->LineElements = nullptr;
+  this->StripElements = nullptr;
+  this->PolyElements = nullptr;
   this->TotalNumberOfVerts = 0;
   this->TotalNumberOfLines = 0;
   this->TotalNumberOfStrips = 0;
@@ -163,10 +163,10 @@ void vtkXMLPolyDataReader::SetupPieces(int numPieces)
   this->PolyElements = new vtkXMLDataElement*[numPieces];
   for (int i = 0; i < numPieces; ++i)
   {
-    this->VertElements[i] = 0;
-    this->LineElements[i] = 0;
-    this->StripElements[i] = 0;
-    this->PolyElements[i] = 0;
+    this->VertElements[i] = nullptr;
+    this->LineElements[i] = nullptr;
+    this->StripElements[i] = nullptr;
+    this->PolyElements[i] = nullptr;
   }
 }
 

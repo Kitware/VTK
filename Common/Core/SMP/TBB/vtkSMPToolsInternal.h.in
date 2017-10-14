@@ -12,7 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMultiThreader.h"
 #include "vtkNew.h"
 
 #include <tbb/blocked_range.h>
@@ -32,7 +31,7 @@ class FuncCall
 {
   T& o;
 
-  void operator=(const FuncCall&) VTK_DELETE_FUNCTION;
+  void operator=(const FuncCall&) = delete;
 
 public:
   void operator() (const tbb::blocked_range<vtkIdType>& r) const
@@ -47,7 +46,7 @@ public:
 
 //--------------------------------------------------------------------------------
 template <typename FunctorInternal>
-static void vtkSMPTools_Impl_For(
+void vtkSMPTools_Impl_For(
   vtkIdType first, vtkIdType last, vtkIdType grain,
   FunctorInternal& fi)
 {
@@ -68,7 +67,7 @@ static void vtkSMPTools_Impl_For(
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end)
 {
   tbb::parallel_sort(begin, end);
@@ -76,7 +75,7 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
 
 //--------------------------------------------------------------------------------
 template<typename RandomAccessIterator, typename Compare>
-static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
+void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
                                   RandomAccessIterator end,
                                   Compare comp)
 {

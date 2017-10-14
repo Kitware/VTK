@@ -107,18 +107,18 @@ int vtkExtractDataSets::RequestData(
 {
   // STEP 0: Get input
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  assert( "pre: input information object is NULL!" && (inInfo != NULL) );
+  assert( "pre: input information object is nullptr!" && (inInfo != nullptr) );
   vtkUniformGridAMR *input =
     vtkUniformGridAMR::SafeDownCast(
         inInfo->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: input dataset is NULL!" && (input != NULL) );
+  assert( "pre: input dataset is nullptr!" && (input != nullptr) );
 
   // STEP 1: Get output
   vtkInformation* info = outputVector->GetInformationObject(0);
-  assert( "pre: output information object is NULL!" && (info != NULL) );
+  assert( "pre: output information object is nullptr!" && (info != nullptr) );
   vtkMultiBlockDataSet *output =
    vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-  assert( "pre: output dataset is NULL!" && (output != NULL) );
+  assert( "pre: output dataset is nullptr!" && (output != nullptr) );
 
   // STEP 2: Initialize structure
   output->SetNumberOfBlocks( input->GetNumberOfLevels() );
@@ -140,7 +140,7 @@ int vtkExtractDataSets::RequestData(
     {
       vtkMultiPieceDataSet *mpds =
        vtkMultiPieceDataSet::SafeDownCast( output->GetBlock(iter->Level) );
-      assert( "pre: mpds is NULL!" && (mpds!=NULL) );
+      assert( "pre: mpds is nullptr!" && (mpds!=nullptr) );
 
       unsigned int out_index = mpds->GetNumberOfPieces();
       vtkUniformGrid* clone = inUG->NewInstance();

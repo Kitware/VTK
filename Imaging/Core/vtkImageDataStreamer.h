@@ -34,7 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageDataStreamer : public vtkImageAlgorithm
 public:
   static vtkImageDataStreamer *New();
   vtkTypeMacro(vtkImageDataStreamer,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -57,18 +57,18 @@ public:
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
 
 protected:
   vtkImageDataStreamer();
-  ~vtkImageDataStreamer() VTK_OVERRIDE;
+  ~vtkImageDataStreamer() override;
 
   vtkExtentTranslator *ExtentTranslator;
   int            NumberOfStreamDivisions;
   int            CurrentDivision;
 private:
-  vtkImageDataStreamer(const vtkImageDataStreamer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataStreamer&) VTK_DELETE_FUNCTION;
+  vtkImageDataStreamer(const vtkImageDataStreamer&) = delete;
+  void operator=(const vtkImageDataStreamer&) = delete;
 };
 
 #endif

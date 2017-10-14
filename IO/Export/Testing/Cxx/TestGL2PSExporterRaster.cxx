@@ -44,7 +44,7 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   vtkNew<vtkActor> coneActor;
   coneSource->SetResolution(25);
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
-  coneActor->SetMapper(coneMapper.GetPointer());
+  coneActor->SetMapper(coneMapper);
   coneActor->GetProperty()->SetColor(0.5, 0.5, 1.0);
 
   vtkNew<vtkCubeAxesActor2D> axes;
@@ -110,13 +110,13 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
 
   vtkNew<vtkRenderer> ren;
   axes->SetCamera(ren->GetActiveCamera());
-  ren->AddActor(coneActor.GetPointer());
-  ren->AddActor(axes.GetPointer());
-  ren->AddActor(text1.GetPointer());
-  ren->AddActor(text2.GetPointer());
-  ren->AddActor(text3.GetPointer());
-  ren->AddActor(text4.GetPointer());
-  ren->AddActor(text5.GetPointer());
+  ren->AddActor(coneActor);
+  ren->AddActor(axes);
+  ren->AddActor(text1);
+  ren->AddActor(text2);
+  ren->AddActor(text3);
+  ren->AddActor(text4);
+  ren->AddActor(text5);
   ren->SetBackground(0.8, 0.8, 0.8);
 
   // logo
@@ -134,16 +134,16 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   logo->SetPosition(0.8, 0.0);
   logo->SetPosition2(0.1, 0.1);
   logo->GetImageProperty()->SetOpacity(0.8);
-  logo->SetRenderer(ren.GetPointer());
-  ren->AddActor(logo.GetPointer());
+  logo->SetRenderer(ren);
+  ren->AddActor(logo);
 
 
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkSmartPointer<vtkCamera> camera = ren->GetActiveCamera();
   ren->ResetCamera();
@@ -153,7 +153,7 @@ int TestGL2PSExporterRaster(int argc, char * argv[])
   renWin->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToBSP();

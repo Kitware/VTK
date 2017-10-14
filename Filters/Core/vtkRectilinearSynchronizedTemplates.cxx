@@ -287,9 +287,9 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   // Use to be arguments
-  vtkFloatArray *newScalars = NULL;
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
+  vtkFloatArray *newScalars = nullptr;
+  vtkFloatArray *newNormals = nullptr;
+  vtkFloatArray *newGradients = nullptr;
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   ptr += self->GetArrayComponent();
@@ -636,7 +636,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
           inPtrX += xInc;
           isect2Ptr += 3;
           isect1Ptr += 3;
-          // To keep track of ids for copying cell attributes..
+          // To keep track of ids for copying cell attributes.
           ++inCellId;
         }
         inPtrY += yInc;
@@ -656,19 +656,19 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    newScalars = NULL;
+    newScalars = nullptr;
   }
   if (newGradients)
   {
     output->GetPointData()->SetVectors(newGradients);
     newGradients->Delete();
-    newGradients = NULL;
+    newGradients = nullptr;
   }
   if (newNormals)
   {
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
-    newNormals = NULL;
+    newNormals = nullptr;
   }
 }
 
@@ -700,7 +700,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   // Check data type and execute appropriate function
   //
   inScalars = this->GetInputArrayToProcess(0,inputVector);
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkErrorMacro("No scalars for contouring.");
     return 1;
@@ -770,7 +770,7 @@ void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
 {
   if ( ! array )
   {
-    return NULL;
+    return nullptr;
   }
 
   int increments[3], iExt[6], idx;
@@ -783,7 +783,7 @@ void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
         extent[idx*2] > iExt[idx*2+1])
     {
       vtkErrorMacro("requested extent not in input's extent");
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -798,7 +798,7 @@ void* vtkRectilinearSynchronizedTemplates::GetScalarsForExtent(
   if (idx < 0 || idx > array->GetMaxId())
   {
     vtkErrorMacro("computed coordinate outside of array bounds");
-    return NULL;
+    return nullptr;
   }
 
   return array->GetVoidPointer(idx);

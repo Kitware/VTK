@@ -43,12 +43,12 @@ vtkProp::vtkProp()
   this->EstimatedRenderTime = 0.0;
   this->RenderTimeMultiplier = 1.0;
 
-  this->Paths = NULL;
+  this->Paths = nullptr;
 
   this->NumberOfConsumers = 0;
-  this->Consumers = 0;
+  this->Consumers = nullptr;
 
-  this->PropertyKeys=0;
+  this->PropertyKeys=nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ vtkProp::~vtkProp()
 
   delete [] this->Consumers;
 
-  if(this->PropertyKeys!=0)
+  if(this->PropertyKeys!=nullptr)
   {
     this->PropertyKeys->Delete();
   }
@@ -71,7 +71,7 @@ vtkProp::~vtkProp()
 // This method is invoked if the prop is picked.
 void vtkProp::Pick()
 {
-  this->InvokeEvent(vtkCommand::PickEvent,NULL);
+  this->InvokeEvent(vtkCommand::PickEvent,nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -86,11 +86,11 @@ void vtkProp::ShallowCopy(vtkProp *prop)
 //----------------------------------------------------------------------------
 void vtkProp::InitPathTraversal()
 {
-  if ( this->Paths == NULL )
+  if ( this->Paths == nullptr )
   {
     this->Paths = vtkAssemblyPaths::New();
     vtkAssemblyPath *path = vtkAssemblyPath::New();
-    path->AddNode(this,NULL);
+    path->AddNode(this,nullptr);
     this->BuildPaths(this->Paths,path);
     path->Delete();
   }
@@ -102,7 +102,7 @@ vtkAssemblyPath *vtkProp::GetNextPath()
 {
   if ( ! this->Paths)
   {
-    return NULL;
+    return nullptr;
   }
   return this->Paths->GetNextItem();
 }
@@ -141,7 +141,7 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");
 
   os << indent << "PropertyKeys: ";
-  if(this->PropertyKeys!=0)
+  if(this->PropertyKeys!=nullptr)
   {
     this->PropertyKeys->PrintSelf(os,indent);
     os << endl;
@@ -221,7 +221,7 @@ vtkObject *vtkProp::GetConsumer(int i)
 {
   if (i >= this->NumberOfConsumers)
   {
-    return 0;
+    return nullptr;
   }
   return this->Consumers[i];
 }
@@ -232,7 +232,7 @@ vtkObject *vtkProp::GetConsumer(int i)
 // \pre keys_can_be_null: requiredKeys==0 || requiredKeys!=0
 bool vtkProp::HasKeys(vtkInformation *requiredKeys)
 {
-  bool result=requiredKeys==0;
+  bool result=requiredKeys==nullptr;
   if(!result)
   {
     vtkInformationIterator *it=vtkInformationIterator::New();
@@ -242,7 +242,7 @@ bool vtkProp::HasKeys(vtkInformation *requiredKeys)
     while(result && !it->IsDoneWithTraversal())
     {
       vtkInformationKey *k=it->GetCurrentKey();
-      result=this->PropertyKeys!=0 && this->PropertyKeys->Has(k);
+      result=this->PropertyKeys!=nullptr && this->PropertyKeys->Has(k);
       it->GoToNextItem();
     }
     it->Delete();
@@ -262,7 +262,7 @@ bool vtkProp::HasKeys(vtkInformation *requiredKeys)
 bool vtkProp::RenderFilteredOpaqueGeometry(vtkViewport *v,
                                            vtkInformation *requiredKeys)
 {
-  assert("pre: v_exists" && v!=0);
+  assert("pre: v_exists" && v!=nullptr);
   bool result;
   if(this->HasKeys(requiredKeys))
   {
@@ -289,7 +289,7 @@ bool vtkProp::RenderFilteredTranslucentPolygonalGeometry(
   vtkViewport *v,
   vtkInformation *requiredKeys)
 {
-  assert("pre: v_exists" && v!=0);
+  assert("pre: v_exists" && v!=nullptr);
   bool result;
   if(this->HasKeys(requiredKeys))
   {
@@ -315,7 +315,7 @@ bool vtkProp::RenderFilteredTranslucentPolygonalGeometry(
 bool vtkProp::RenderFilteredVolumetricGeometry(vtkViewport *v,
                                                vtkInformation *requiredKeys)
 {
-  assert("pre: v_exists" && v!=0);
+  assert("pre: v_exists" && v!=nullptr);
   bool result;
   if(this->HasKeys(requiredKeys))
   {
@@ -341,7 +341,7 @@ bool vtkProp::RenderFilteredVolumetricGeometry(vtkViewport *v,
 bool vtkProp::RenderFilteredOverlay(vtkViewport *v,
                                     vtkInformation *requiredKeys)
 {
-  assert("pre: v_exists" && v!=0);
+  assert("pre: v_exists" && v!=nullptr);
   bool result;
   if(this->HasKeys(requiredKeys))
   {

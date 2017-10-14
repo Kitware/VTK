@@ -38,18 +38,18 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSelection : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkSelection,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelection* New();
 
   /**
    * Restore data object to initial state,
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Returns VTK_SELECTION enumeration value.
    */
-  int GetDataObjectType() VTK_OVERRIDE  {return VTK_SELECTION;}
+  int GetDataObjectType() override  {return VTK_SELECTION;}
 
   /**
    * Returns the number of nodes in this selection.
@@ -80,14 +80,14 @@ public:
   /**
    * Copy selection nodes of the input.
    */
-  void DeepCopy(vtkDataObject* src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject* src) override;
 
   /**
    * Copy selection nodes of the input.
    * This is a shallow copy: selection lists and pointers in the
    * properties are passed by reference.
    */
-  void ShallowCopy(vtkDataObject* src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject* src) override;
 
   /**
    * Union this selection with the specified selection.
@@ -118,7 +118,7 @@ public:
   /**
    * Return the MTime taking into account changes to the properties
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Dumps the contents of the selection, giving basic information only.
@@ -137,11 +137,11 @@ public:
 
 protected:
   vtkSelection();
-  ~vtkSelection() VTK_OVERRIDE;
+  ~vtkSelection() override;
 
 private:
-  vtkSelection(const vtkSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelection&) VTK_DELETE_FUNCTION;
+  vtkSelection(const vtkSelection&) = delete;
+  void operator=(const vtkSelection&) = delete;
 
   vtkSelectionInternals* Internal;
 

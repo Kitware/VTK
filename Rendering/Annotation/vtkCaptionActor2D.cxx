@@ -92,9 +92,9 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   // What is actually drawn
   this->TextActor = vtkTextActor::New();
   this->TextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   this->TextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->TextActor->SetTextScaleModeToProp();
   this->TextActor->SetTextProperty(this->CaptionTextProperty);
 
@@ -185,7 +185,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->TextActor->Delete();
 
   this->LeaderGlyphConnectionHolder->Delete();
-  this->LeaderGlyphConnectionHolder = 0;
+  this->LeaderGlyphConnectionHolder = nullptr;
 
   this->BorderPolyData->Delete();
   this->BorderMapper->Delete();
@@ -204,7 +204,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->LeaderMapper3D->Delete();
   this->LeaderActor3D->Delete();
 
-  this->SetCaptionTextProperty(NULL);
+  this->SetCaptionTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -565,7 +565,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkCaptionActor2D *a = vtkCaptionActor2D::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetCaption(a->GetCaption());
     this->SetAttachmentPoint(a->GetAttachmentPoint());

@@ -62,7 +62,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSelectionNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSelectionNode,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSelectionNode* New();
 
   /**
@@ -108,39 +108,35 @@ public:
   /**
    * Return the MTime taking into account changes to the properties
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   // vtkSelectionNode specific keys follow:
   /**
    * Get the (primary) property that describes the content of a selection
-   * node's data. Other auxiliary description properties follow.
-   * GLOBALIDS means that the selection list contains values from the
-   * vtkDataSetAttribute array of the same name.
-   * PEDIGREEIDS means that the selection list contains values from the
-   * vtkDataSetAttribute array of the same name.
-   * VALUES means the the selection list contains values from an
-   * arbitrary attribute array (ignores any globalids attribute)
-   * INDICES means that the selection list contains indexes into the
-   * cell or point arrays.
-   * FRUSTUM means the set of points and cells inside a frustum
-   * LOCATIONS means the set of points and cells near a set of positions
-   * THRESHOLDS means the points and cells with values within a set of ranges
+   * node's data. This key takes on values from the SelectionContent enum.
    * GetContentType() returns -1 if the content type is not set.
+   *
+   * \sa vtkSelectionNode::SelectionContent
    */
   static vtkInformationIntegerKey* CONTENT_TYPE();
 
+  /**
+   * Indicate the means by which data is selected.
+   * In some cases this implies the type of data selected.
+   */
   enum SelectionContent
   {
-    SELECTIONS,  // Deprecated.
-    GLOBALIDS,
-    PEDIGREEIDS,
-    VALUES,
-    INDICES,
-    FRUSTUM,
-    LOCATIONS,
-    THRESHOLDS,
-    BLOCKS,       // used to select blocks within a composite dataset.
-    QUERY
+    SELECTIONS,   //!< Deprecated.
+    GLOBALIDS,    //!< Select entities called out by their globally-unique IDs.
+    PEDIGREEIDS,  //!< Select entities that have some identifiable pedigree.
+    VALUES,       //!< Select entities that take on specific array values.
+    INDICES,      //!< Select entities by their offsets into the dataset.
+    FRUSTUM,      //!< Select entities contained within a viewing frustum.
+    LOCATIONS,    //!< Select entities near the supplied world coordinates.
+    THRESHOLDS,   //!< Select entities whose array values fall within a given threshold.
+    BLOCKS,       //!< Select blocks within a composite dataset by their flat index.
+    QUERY,        //!< Select entities with a text query.
+    USER          //!< Select entities with user-supplied, application-specific logic.
   };
 
   //@{
@@ -160,14 +156,15 @@ public:
    */
   static vtkInformationIntegerKey* FIELD_TYPE();
 
+  /// Indicate the types of entities to which the selection-data applies.
   enum SelectionField
   {
-    CELL,
-    POINT,
-    FIELD,
-    VERTEX,
-    EDGE,
-    ROW
+    CELL,   //!< The selection data provided is cell-data.
+    POINT,  //!< The selection data provided is point-data.
+    FIELD,  //!< The selection data provided is field-data.
+    VERTEX, //!< The selection data provided is graph vertex-data.
+    EDGE,   //!< The selection data provided is graph edge-data.
+    ROW     //!< The selection data provided is table row-data.
   };
 
   //@{
@@ -294,15 +291,15 @@ public:
 
 protected:
   vtkSelectionNode();
-  ~vtkSelectionNode() VTK_OVERRIDE;
+  ~vtkSelectionNode() override;
 
   vtkInformation* Properties;
   vtkDataSetAttributes* SelectionData;
   char* QueryString;
 
 private:
-  vtkSelectionNode(const vtkSelectionNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectionNode&) VTK_DELETE_FUNCTION;
+  vtkSelectionNode(const vtkSelectionNode&) = delete;
+  void operator=(const vtkSelectionNode&) = delete;
 
 };
 

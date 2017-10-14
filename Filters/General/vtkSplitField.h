@@ -65,7 +65,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitField : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplitField,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkSplitField.
@@ -110,7 +110,7 @@ public:
     void SetName(const char* name)
     {
         delete[] this->FieldName;
-        this->FieldName = 0;
+        this->FieldName = nullptr;
         if (name)
         {
           size_t len = strlen(name)+1;
@@ -118,7 +118,7 @@ public:
           strncpy(this->FieldName, name, len);
         }
     }
-    Component() { FieldName = 0; }
+    Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
 
@@ -131,9 +131,9 @@ protected:
   };
 
   vtkSplitField();
-  ~vtkSplitField() VTK_OVERRIDE;
+  ~vtkSplitField() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* FieldName;
   int FieldType;
@@ -162,8 +162,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkSplitField(const vtkSplitField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplitField&) VTK_DELETE_FUNCTION;
+  vtkSplitField(const vtkSplitField&) = delete;
+  void operator=(const vtkSplitField&) = delete;
 };
 
 #endif

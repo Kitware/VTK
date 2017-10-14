@@ -1,4 +1,5 @@
-if(NOT VTK_OPENGL_HAS_OSMESA AND NOT VTK_USE_OFFSCREEN_EGL)
+include(vtkOpenGL)
+if(VTK_CAN_DO_ONSCREEN AND NOT VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   vtk_add_test_python(
     TestImagePlaneWidget.py
     TestBoxWidget.py,NO_RT

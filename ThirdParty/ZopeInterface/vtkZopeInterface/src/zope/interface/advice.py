@@ -28,11 +28,11 @@ Visit the PEAK home page at http://peak.telecommunity.com for more information.
 from types import FunctionType
 try:
     from types import ClassType
-except ImportError:  #pragma NO COVER Python > 3.x
+except ImportError:
     __python3 = True
-else: #pragma NO COVER Python < 3.x
+else:
     __python3 = False
-    
+
 import sys
 
 def getFrameInfo(frame):
@@ -96,7 +96,7 @@ def addClassAdvisor(callback, depth=2):
     declare any '__metaclass__' *first*, to ensure all callbacks are run."""
     # This entire approach is invalid under Py3K.  Don't even try to fix
     # the coverage for this block there. :(
-    if __python3: #pragma NO COVER
+    if __python3: # pragma: no cover
         raise TypeError('Class advice impossible in Python3')
 
     frame = sys._getframe(depth)
@@ -172,7 +172,7 @@ def determineMetaclass(bases, explicit_mc=None):
 
     candidates = minimalBases(meta) # minimal set of metaclasses
 
-    if not candidates: #pragma NO COVER
+    if not candidates: # pragma: no cover
         # they're all "classic" classes
         assert(not __python3) # This should not happen under Python 3
         return ClassType
@@ -188,7 +188,7 @@ def determineMetaclass(bases, explicit_mc=None):
 def minimalBases(classes):
     """Reduce a list of base classes to its ordered minimum equivalent"""
 
-    if not __python3: #pragma NO COVER
+    if not __python3: # pragma: no cover
         classes = [c for c in classes if c is not ClassType]
     candidates = []
 
@@ -203,4 +203,3 @@ def minimalBases(classes):
             candidates.append(m)
 
     return candidates
-

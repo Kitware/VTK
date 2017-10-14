@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtk3DWidgetConnection);
 vtk3DWidget::vtk3DWidget()
 {
   this->Placed = 0;
-  this->Prop3D = NULL;
+  this->Prop3D = nullptr;
   this->ConnectionHolder = vtk3DWidgetConnection::New();
   this->PlaceFactor = 0.5;
 
@@ -58,12 +58,12 @@ vtk3DWidget::vtk3DWidget()
 vtk3DWidget::~vtk3DWidget()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 
   if ( this->Prop3D )
   {
     this->Prop3D->Delete();
-    this->Prop3D = NULL;
+    this->Prop3D = nullptr;
   }
 }
 
@@ -120,7 +120,7 @@ void vtk3DWidget::PlaceWidget(double xmin, double xmax,
   bounds[5] = zmax;
 
   this->PlaceWidget(bounds);
-  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,NULL);
+  this->InvokeEvent(vtkCommand::PlaceWidgetEvent,nullptr);
   this->Placed = 1;
 }
 

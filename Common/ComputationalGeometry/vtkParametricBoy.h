@@ -42,7 +42,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public
   public:
 
     vtkTypeMacro(vtkParametricBoy, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct Boy's surface with the following parameters:
@@ -59,7 +59,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -78,7 +78,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -94,18 +94,18 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricBoy();
-    ~vtkParametricBoy() VTK_OVERRIDE;
+    ~vtkParametricBoy() override;
 
     // Variables
     double ZScale;
 
   private:
-    vtkParametricBoy(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
+    vtkParametricBoy(const vtkParametricBoy&) = delete;
+    void operator=(const vtkParametricBoy&) = delete;
 };
 
 #endif

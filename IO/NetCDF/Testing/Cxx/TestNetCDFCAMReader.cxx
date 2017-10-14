@@ -43,9 +43,9 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
   reader->SetFileName(pointsFileName);
   reader->SetConnectivityFileName(connectivityFileName);
   delete []pointsFileName;
-  pointsFileName = NULL;
+  pointsFileName = nullptr;
   delete []connectivityFileName;
-  connectivityFileName = NULL;
+  connectivityFileName = nullptr;
   reader->Update();
 
   // Convert to PolyData.
@@ -63,27 +63,27 @@ int TestNetCDFCAMReader( int argc, char *argv[] )
 
   // Create the actor.
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkCamera> camera;
   ren->ResetCamera(reader->GetOutput()->GetBounds());
   camera->Zoom(8);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->SetBackground(0,0,0);
   renWin->SetSize(300,300);
 
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

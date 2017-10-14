@@ -128,12 +128,6 @@ class VTKObjectWrapper(object):
         "Forwards unknown attribute requests to VTK object."
         return getattr(self.VTKObject, name)
 
-def _MakeObserver(numpy_array):
-    "Internal function used to attach a numpy array to a vtk array"
-    def Closure(caller, event):
-        foo = numpy_array
-    return Closure
-
 def vtkDataArrayToVTKArray(array, dataset=None):
     "Given a vtkDataArray and a dataset owning it, returns a VTKArray."
     narray = numpy_support.vtk_to_numpy(array)
@@ -152,8 +146,6 @@ def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     the numpy array is released only when the vtkDataArray is destroyed."""
     vtkarray = numpy_support.numpy_to_vtk(array, array_type=array_type)
     vtkarray.SetName(name)
-    # This makes the VTK array carry a reference to the numpy array.
-    vtkarray.AddObserver('DeleteEvent', _MakeObserver(array))
     return vtkarray
 
 def _make_tensor_array_contiguous(array):
@@ -593,7 +585,8 @@ class VTKCompositeDataArray(object):
                     res.append(op(l[0], l[1]))
                 else:
                     res.append(NoneArray)
-        return VTKCompositeDataArray(res, dataset=self.DataSet)
+        return VTKCompositeDataArray(
+            res, dataset=self.DataSet, association=self.Association)
 
     def _reverse_numeric_op(self, other, op):
         """Used to implement numpy-style numerical operations such as __add__,
@@ -614,7 +607,8 @@ class VTKCompositeDataArray(object):
                     res.append(op(l[0], l[1]))
                 else:
                     res.append(NoneArray)
-        return VTKCompositeDataArray(res, dataset=self.DataSet)
+        return VTKCompositeDataArray(
+            res, dataset=self.DataSet, association = self.Association)
 
     def __str__(self):
         return self.Arrays.__str__()
@@ -628,7 +622,8 @@ class VTKCompositeDataArray(object):
                     res.append(NoneArray)
                 else:
                     res.append(a.astype(dtype))
-        return VTKCompositeDataArray(res, dataset = self.DataSet)
+        return VTKCompositeDataArray(
+            res, dataset = self.DataSet, association = self.Association)
 
 
 class DataSetAttributes(VTKObjectWrapper):
@@ -705,12 +700,16 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # Fixup input array length:
         if not isinstance(narray, numpy.ndarray) or numpy.ndim(narray) == 0: # Scalar input
-            narray = narray * numpy.ones(arrLength)
+            tmparray = numpy.empty(arrLength)
+            tmparray.fill(narray)
+            narray = tmparray
         elif narray.shape[0] != arrLength: # Vector input
             components = 1
             for l in narray.shape:
                 components *= l
-            narray = narray.flatten() * numpy.ones((arrLength, components))
+            tmparray = numpy.empty((arrLength, components))
+            tmparray[:] = narray.flatten()
+            narray = tmparray
 
         shape = narray.shape
 

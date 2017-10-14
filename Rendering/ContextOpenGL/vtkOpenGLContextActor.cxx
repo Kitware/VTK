@@ -45,7 +45,7 @@ void vtkOpenGLContextActor::ReleaseGraphicsResources(vtkWindow *window)
     device->ReleaseGraphicsResources(window);
   }
 
-  if(this->Scene.GetPointer())
+  if(this->Scene)
   {
     this->Scene->ReleaseGraphicsResources();
   }
@@ -58,7 +58,7 @@ void vtkOpenGLContextActor::Initialize(vtkViewport* viewport)
   this->Context3D->Begin(dev);
   dev->Delete();
 
-  vtkContextDevice2D *device = NULL;
+  vtkContextDevice2D *device = nullptr;
   if (vtkOpenGL2ContextDevice2D::IsSupported(viewport))
   {
     vtkDebugMacro("Using OpenGL 2 for 2D rendering.")

@@ -70,7 +70,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSimpleCellTessellator : public vtkGenericCell
 public:
   static vtkSimpleCellTessellator *New();
   vtkTypeMacro(vtkSimpleCellTessellator,vtkGenericCellTessellator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -97,7 +97,7 @@ public:
                       vtkIdType index,
                       vtkDoubleArray *points,
                       vtkCellArray *cellArray,
-                      vtkPointData *internalPd) VTK_OVERRIDE;
+                      vtkPointData *internalPd) override;
 
   /**
    * Tessellate a 3D `cell'. The result is a set of smaller linear
@@ -113,7 +113,7 @@ public:
                   vtkGenericAttributeCollection *att,
                   vtkDoubleArray *points,
                   vtkCellArray *cellArray,
-                  vtkPointData *internalPd ) VTK_OVERRIDE;
+                  vtkPointData *internalPd ) override;
 
   /**
    * Triangulate a 2D `cell'. The result is a set of smaller linear triangles
@@ -129,7 +129,7 @@ public:
                    vtkGenericAttributeCollection *att,
                    vtkDoubleArray *points,
                    vtkCellArray *cellArray,
-                   vtkPointData *internalPd) VTK_OVERRIDE;
+                   vtkPointData *internalPd) override;
 
   /**
    * Reset the output for repeated use of this class.
@@ -140,7 +140,7 @@ public:
   /**
    * Initialize the tessellator with a data set `ds'.
    */
-  void Initialize(vtkGenericDataSet *ds) VTK_OVERRIDE;
+  void Initialize(vtkGenericDataSet *ds) override;
 
   /**
    * Return the number of fixed subdivisions. It is used to prevent from
@@ -204,7 +204,7 @@ public:
 
 protected:
   vtkSimpleCellTessellator();
-  ~vtkSimpleCellTessellator() VTK_OVERRIDE;
+  ~vtkSimpleCellTessellator() override;
 
   /**
    * Extract point `pointId' from the edge table to the output point and output
@@ -373,11 +373,6 @@ protected:
                     int face[3]);
 
   /**
-   * Dataset to be tessellated.
-   */
-  vtkGenericDataSet *DataSet;
-
-  /**
    * Number of points in the dataset to be tessellated.
    */
   vtkIdType NumberOfPoints;
@@ -417,8 +412,8 @@ protected:
   int PointIdsCapacity;
 
 private:
-  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
+  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&) = delete;
+  void operator=(const vtkSimpleCellTessellator&) = delete;
 
   friend class vtkTetraTile;
   friend class vtkTriangleTile;

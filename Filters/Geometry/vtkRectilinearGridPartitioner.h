@@ -43,7 +43,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridPartitioner :
 public:
   static vtkRectilinearGridPartitioner *New();
   vtkTypeMacro(vtkRectilinearGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &oss, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkRectilinearGridPartitioner();
-  ~vtkRectilinearGridPartitioner() VTK_OVERRIDE;
+  ~vtkRectilinearGridPartitioner() override;
 
   /**
    * Extracts the coordinates
@@ -82,17 +82,17 @@ protected:
 
   // Standard Pipeline methods
   int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
   int DuplicateNodes;
 
 private:
-  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridPartitioner &) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &) = delete;
+  void operator=(const vtkRectilinearGridPartitioner &) = delete;
 };
 
 #endif /* vtkRectilinearGridPartitioner_h */

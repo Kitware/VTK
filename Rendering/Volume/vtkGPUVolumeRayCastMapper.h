@@ -39,7 +39,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapp
 public:
   static vtkGPUVolumeRayCastMapper *New();
   vtkTypeMacro(vtkGPUVolumeRayCastMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -332,7 +332,7 @@ public:
    * Initialize rendering for this volume.
    * \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   /**
    * Handled in the subclass - the actual render method
@@ -346,7 +346,7 @@ public:
    * resources to release.
    * \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) override {}
 
   /**
    * Return how much the dataset has to be reduced in each dimension to
@@ -364,7 +364,7 @@ public:
 
 protected:
   vtkGPUVolumeRayCastMapper();
-  ~vtkGPUVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkGPUVolumeRayCastMapper() override;
 
   // Check to see that the render will be OK
   int ValidateRender( vtkRenderer *, vtkVolume * );
@@ -486,8 +486,8 @@ protected:
   vtkImageData* LastInput;
 
 private:
-  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) = delete;
+  void operator=(const vtkGPUVolumeRayCastMapper&) = delete;
 };
 
 #endif

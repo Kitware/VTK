@@ -107,7 +107,7 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
     self->WidgetRep->Highlight(1);
     // start the interaction
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     self->Render();
     return;
   }
@@ -115,14 +115,14 @@ void vtkCenteredSliderWidget::SelectAction(vtkAbstractWidget *w)
   if ( interactionState == vtkSliderRepresentation::LeftCap )
   {
     self->Value = slider->GetMinimumValue();
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->Render();
     return;
   }
   if ( interactionState == vtkSliderRepresentation::RightCap )
   {
     self->Value = slider->GetMaximumValue();
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->Render();
     return;
   }
@@ -178,7 +178,7 @@ void vtkCenteredSliderWidget::EndSelectAction(vtkAbstractWidget *w)
   // Complete interaction
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   self->Render();
 }
 
@@ -199,7 +199,7 @@ void vtkCenteredSliderWidget::TimerAction(vtkAbstractWidget *w)
       (slider->GetMinimumValue() + slider->GetMaximumValue())/2.0;
     self->Value = avg + (slider->GetValue() -  avg)*self->Value;
     self->StartTime = vtkTimerLog::GetUniversalTime();
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
     self->Render();
   }

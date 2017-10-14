@@ -32,15 +32,15 @@ vtkStandardNewMacro(vtkBSPCuts);
 //----------------------------------------------------------------------------
 vtkBSPCuts::vtkBSPCuts()
 {
-  this->Top = NULL;
+  this->Top = nullptr;
   this->NumberOfCuts = 0;
-  this->Dim = NULL;
-  this->Coord = NULL;
-  this->Lower = NULL;
-  this->Upper = NULL;
-  this->LowerDataCoord = NULL;
-  this->UpperDataCoord = NULL;
-  this->Npoints = NULL;
+  this->Dim = nullptr;
+  this->Coord = nullptr;
+  this->Lower = nullptr;
+  this->Upper = nullptr;
+  this->LowerDataCoord = nullptr;
+  this->UpperDataCoord = nullptr;
+  this->Npoints = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void vtkBSPCuts::Initialize()
   {
     vtkBSPCuts::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
   this->ResetArrays();
   this->Superclass::Initialize();
@@ -72,25 +72,25 @@ void vtkBSPCuts::Initialize()
 void vtkBSPCuts::ResetArrays()
 {
   delete [] this->Dim;
-  this->Dim = NULL;
+  this->Dim = nullptr;
 
   delete [] this->Coord;
-  this->Coord = NULL;
+  this->Coord = nullptr;
 
   delete [] this->Lower;
-  this->Lower = NULL;
+  this->Lower = nullptr;
 
   delete [] this->Upper;
-  this->Upper = NULL;
+  this->Upper = nullptr;
 
   delete [] this->LowerDataCoord;
-  this->LowerDataCoord = NULL;
+  this->LowerDataCoord = nullptr;
 
   delete [] this->UpperDataCoord;
-  this->UpperDataCoord = NULL;
+  this->UpperDataCoord = nullptr;
 
   delete [] this->Npoints;
-  this->Npoints = NULL;
+  this->Npoints = nullptr;
 
   this->NumberOfCuts = 0;
 }
@@ -141,7 +141,7 @@ void vtkBSPCuts::ShallowCopy(vtkDataObject* src)
   {
     vtkBSPCuts::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
 
   if (srcCuts)
@@ -162,7 +162,7 @@ void vtkBSPCuts::DeepCopy(vtkDataObject* src)
   {
     vtkBSPCuts::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
 
   vtkBSPCuts* srcCuts = vtkBSPCuts::SafeDownCast(src);
@@ -201,7 +201,7 @@ void vtkBSPCuts::CreateCuts(vtkKdNode *kd)
   {
     vtkBSPCuts::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
 
   this->Top = vtkKdTree::CopyTree(kd);
@@ -291,7 +291,7 @@ void vtkBSPCuts::CreateCuts(double *bnds, int ncuts, int *dim, double *coord,
   else
   {
     delete [] this->LowerDataCoord;
-    this->LowerDataCoord = NULL;
+    this->LowerDataCoord = nullptr;
   }
 
   if (upperDataCoord)
@@ -301,7 +301,7 @@ void vtkBSPCuts::CreateCuts(double *bnds, int ncuts, int *dim, double *coord,
   else
   {
     delete [] this->UpperDataCoord;
-    this->UpperDataCoord = NULL;
+    this->UpperDataCoord = nullptr;
   }
 
   if (npoints)
@@ -311,7 +311,7 @@ void vtkBSPCuts::CreateCuts(double *bnds, int ncuts, int *dim, double *coord,
   else
   {
     delete [] this->Npoints;
-    this->Npoints = NULL;
+    this->Npoints = nullptr;
   }
 
   // Now build tree from arrays
@@ -320,7 +320,7 @@ void vtkBSPCuts::CreateCuts(double *bnds, int ncuts, int *dim, double *coord,
   {
     vtkBSPCuts::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
 
   this->Top = vtkKdNode::New();
@@ -552,7 +552,7 @@ void vtkBSPCuts::PrintArrays()
 //----------------------------------------------------------------------------
 void vtkBSPCuts::PrintTree()
 {
-  if (this->Top == NULL)
+  if (this->Top == nullptr)
   {
     return;
   }

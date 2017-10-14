@@ -54,7 +54,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkPolygonalSurfaceContourLineInterpolator, vtkPolyDataContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   static vtkPolygonalSurfaceContourLineInterpolator *New();
@@ -66,7 +66,7 @@ public:
    */
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE;
+                               int idx1, int idx2 ) override;
 
   /**
    * The interpolator is given a chance to update the node.
@@ -77,7 +77,7 @@ public:
    */
   int UpdateNode( vtkRenderer *,
                           vtkContourRepresentation *,
-                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) VTK_OVERRIDE;
+                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) override;
 
   //@{
   /**
@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkPolygonalSurfaceContourLineInterpolator();
-  ~vtkPolygonalSurfaceContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkPolygonalSurfaceContourLineInterpolator() override;
 
   /**
    * Draw the polyline at a certain height (in the direction of the vertex
@@ -107,8 +107,8 @@ protected:
   double         DistanceOffset;
 
 private:
-  vtkPolygonalSurfaceContourLineInterpolator(const vtkPolygonalSurfaceContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygonalSurfaceContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkPolygonalSurfaceContourLineInterpolator(const vtkPolygonalSurfaceContourLineInterpolator&) = delete;
+  void operator=(const vtkPolygonalSurfaceContourLineInterpolator&) = delete;
 
   // Cache the last used vertex id's (start and end).
   // If they are the same, don't recompute.

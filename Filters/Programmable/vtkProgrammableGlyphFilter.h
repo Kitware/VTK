@@ -73,10 +73,10 @@ class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableGlyphFilter : public vtkPolyD
 {
 public:
   vtkTypeMacro(vtkProgrammableGlyphFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Construct object with NULL GlyphMethod() and no source object. The ColorMode
+   * Construct object with nullptr GlyphMethod() and no source object. The ColorMode
    * is set to color by the input.
    */
   static vtkProgrammableGlyphFilter *New();
@@ -159,10 +159,10 @@ public:
 
 protected:
   vtkProgrammableGlyphFilter();
-  ~vtkProgrammableGlyphFilter() VTK_OVERRIDE;
+  ~vtkProgrammableGlyphFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   double Point[3]; // Coordinates of point
   vtkIdType PointId; // Current point id during processing
@@ -174,8 +174,8 @@ protected:
   void *GlyphMethodArg;
 
 private:
-  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableGlyphFilter&) VTK_DELETE_FUNCTION;
+  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&) = delete;
+  void operator=(const vtkProgrammableGlyphFilter&) = delete;
 };
 
 #endif

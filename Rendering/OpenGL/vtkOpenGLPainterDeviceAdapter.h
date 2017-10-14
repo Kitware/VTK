@@ -59,85 +59,85 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPainterDeviceAdapter :
 public:
   vtkTypeMacro(vtkOpenGLPainterDeviceAdapter, vtkPainterDeviceAdapter);
   static vtkOpenGLPainterDeviceAdapter *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Converts mode from VTK_* to GL_* and calls glBegin.
    */
-  void BeginPrimitive(int mode) VTK_OVERRIDE;
+  void BeginPrimitive(int mode) override;
 
   /**
    * Calls glEnd.
    */
-  void EndPrimitive() VTK_OVERRIDE;
+  void EndPrimitive() override;
 
   /**
    * Returns if the given attribute type is supported by the device.
    * Returns 1 is supported, 0 otherwise.
    */
-  int IsAttributesSupported(int attribute) VTK_OVERRIDE;
+  int IsAttributesSupported(int attribute) override;
 
   /**
    * Calls one of glVertex*, glNormal*, glColor*, or glTexCoord*.
    */
   void SendAttribute(int index, int components, int type,
-                             const void *attribute, vtkIdType offset=0) VTK_OVERRIDE;
+                             const void *attribute, vtkIdType offset=0) override;
 
   /**
    * Calls glMultiTex
    */
   void SendMultiTextureCoords(int numcomp, int type, const void *attribute,
-                                      int idx, vtkIdType offset) VTK_OVERRIDE;
+                                      int idx, vtkIdType offset) override;
 
   /**
    * Calls one of glVertexPointer, glNormalPointer, glColorPointer, or
    * glTexCoordPointer.
    */
   void SetAttributePointer(int index, int numcomponents, int type,
-                                   int stride, const void *pointer) VTK_OVERRIDE;
+                                   int stride, const void *pointer) override;
 
   //@{
   /**
    * Calls glEnableClientState or glDisableClientState.
    */
-  void EnableAttributeArray(int index) VTK_OVERRIDE;
-  void DisableAttributeArray(int index) VTK_OVERRIDE;
+  void EnableAttributeArray(int index) override;
+  void DisableAttributeArray(int index) override;
   //@}
 
   /**
    * Calls glDrawArrays.  Mode is converted from VTK_* to GL_*.
    */
-  void DrawArrays(int mode, vtkIdType first, vtkIdType count) VTK_OVERRIDE;
+  void DrawArrays(int mode, vtkIdType first, vtkIdType count) override;
 
   /**
    * Calls glDrawElements.  Mode and type are converted from VTK_* to GL_*.
    */
-  void DrawElements(int mode, vtkIdType count, int type, void *indices) VTK_OVERRIDE;
+  void DrawElements(int mode, vtkIdType count, int type, void *indices) override;
 
   /**
    * Returns true if renderer is a vtkOpenGLRenderer.
    */
-  int Compatible(vtkRenderer *renderer) VTK_OVERRIDE;
+  int Compatible(vtkRenderer *renderer) override;
 
   /**
    * Turns emphasis of vertices on or off for vertex selection.
    * When emphasized verts are drawn nearer to the camera and are drawn
    * larger than normal to make selection of them more reliable.
    */
-  void MakeVertexEmphasis(bool mode) VTK_OVERRIDE;
+  void MakeVertexEmphasis(bool mode) override;
 
   //@{
   /**
    * Control use of the stencil buffer (for vertex selection).
    */
-  void Stencil(int on) VTK_OVERRIDE;
-  void WriteStencil(vtkIdType value) VTK_OVERRIDE;
-  void TestStencil(vtkIdType value) VTK_OVERRIDE;
+  void Stencil(int on) override;
+  void WriteStencil(vtkIdType value) override;
+  void TestStencil(vtkIdType value) override;
   //@}
 
 protected:
   vtkOpenGLPainterDeviceAdapter();
-  ~vtkOpenGLPainterDeviceAdapter() VTK_OVERRIDE;
+  ~vtkOpenGLPainterDeviceAdapter() override;
 
   double PointSize;
   double RangeNear;
@@ -145,8 +145,8 @@ protected:
   int MaxStencil;
   bool Initialized;
 private:
-  vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
+  vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &) = delete;
+  void operator=(const vtkOpenGLPainterDeviceAdapter &) = delete;
 };
 
 #if defined(_MSC_VER)

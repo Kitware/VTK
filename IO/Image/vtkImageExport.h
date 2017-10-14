@@ -40,7 +40,7 @@ class VTKIOIMAGE_EXPORT vtkImageExport : public vtkImageAlgorithm
 public:
   static vtkImageExport *New();
   vtkTypeMacro(vtkImageExport,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the number of bytes required for the output C array.
@@ -175,12 +175,12 @@ public:
 
 protected:
   vtkImageExport();
-  ~vtkImageExport() VTK_OVERRIDE;
+  ~vtkImageExport() override;
 
   // This is called by the superclass.
   int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   virtual void UpdateInformationCallback();
   virtual int PipelineModifiedCallback();
@@ -201,8 +201,8 @@ protected:
   vtkMTimeType LastPipelineMTime;
 
 private:
-  vtkImageExport(const vtkImageExport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageExport&) VTK_DELETE_FUNCTION;
+  vtkImageExport(const vtkImageExport&) = delete;
+  void operator=(const vtkImageExport&) = delete;
 
   static void UpdateInformationCallbackFunction(void*);
   static int PipelineModifiedCallbackFunction(void*);

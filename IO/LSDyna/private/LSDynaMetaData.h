@@ -40,9 +40,9 @@ class LSDynaMetaData
 public:
   LSDynaMetaData();
 
-  bool AddPointArray( std::string name, int numComponents, int status );
+  bool AddPointArray( const std::string& name, int numComponents, int status );
 
-  bool AddCellArray( int cellType, std::string name, int numComponents, int status );
+  bool AddCellArray( int cellType, const std::string& name, int numComponents, int status );
 
   int GetTotalMaterialCount();
 
@@ -68,7 +68,7 @@ public:
 
   // If this is 0, the rest of the members have undefined
   // values (although "derived-value" arrays will be
-  // initialized to NULL)
+  // initialized to nullptr)
   int FileIsValid;
   int FileSizeFactor; // scale factor used to compute MaxFileLength
   vtkIdType MaxFileLength; // Maximum size of any file (data too big is split into multiple files)

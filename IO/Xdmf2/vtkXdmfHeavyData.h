@@ -110,8 +110,8 @@ private:
   // vtkStructuredGrid. If non-null, then the only the points for the sub-grid
   // are read.
   vtkPoints* ReadPoints(xdmf2::XdmfGeometry* xmfGeometry,
-    int *update_extents=NULL,
-    int *whole_extents=NULL);
+    int *update_extents=nullptr,
+    int *whole_extents=nullptr);
 
   // Description:
   // Read attributes.

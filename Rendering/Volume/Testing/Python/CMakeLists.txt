@@ -5,7 +5,6 @@ set (GenericVolumePythonTests
      TestFixedPointRayCasterNearestCropped.py,NO_RT
      TestFixedPointRayCasterNearest.py,NO_RT
      cursor3D.py
-     gaussian.py
      VolumePicker.py,NO_RT
      VolumePickerCrop.py
     )
@@ -37,6 +36,7 @@ endif()
 
 # These tests are only built when the rendering backend is OpenGL2
 set (VolumeOpenGL2PythonTests
+     gaussian.py
      TestGPURayCastIndependentComponent.py,NO_RT
      TestGPURayCastIndependentComponentMIP.py,NO_RT
      TestGPURayCastIndependentComponentMinIP.py,NO_RT)

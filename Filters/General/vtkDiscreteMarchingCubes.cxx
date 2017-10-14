@@ -79,8 +79,8 @@ void vtkDiscreteMarchingCubesComputeGradient(
   vtkIdType jOffset, kOffset, idx;
   vtkIdType ptIds[3];
   int extent[6];
-  int ComputeScalars = newCellScalars != NULL;
-  int ComputeAdjacentScalars = newPointScalars != NULL;
+  int ComputeScalars = newCellScalars != nullptr;
+  int ComputeAdjacentScalars = newPointScalars != nullptr;
   double t, *x1, *x2, x[3], min, max;
   double pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
@@ -290,13 +290,13 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   // initialize and check input
   pd=input->GetPointData();
-  if (pd ==NULL)
+  if (pd ==nullptr)
   {
-    vtkErrorMacro(<<"PointData is NULL");
+    vtkErrorMacro(<<"PointData is nullptr");
     return 1;
   }
   inScalars=pd->GetScalars();
-  if ( inScalars == NULL )
+  if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
@@ -334,7 +334,7 @@ int vtkDiscreteMarchingCubes::RequestData(
     bounds[2*i] = origin[i] + extent[2*i] * spacing[i];
     bounds[2*i+1] = origin[i] + extent[2*i+1] * spacing[i];
   }
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -350,7 +350,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   }
   else
   {
-    newCellScalars = NULL;
+    newCellScalars = nullptr;
   }
 
   if (this->ComputeAdjacentScalars)
@@ -360,7 +360,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   }
   else
   {
-    newPointScalars = NULL;
+    newPointScalars = nullptr;
   }
 
   if (inScalars->GetNumberOfComponents() == 1 )

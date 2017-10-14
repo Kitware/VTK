@@ -40,7 +40,7 @@ public:
   static vtkArrowSource *New();
 
   vtkTypeMacro(vtkArrowSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -92,10 +92,10 @@ public:
 
 protected:
   vtkArrowSource();
-  ~vtkArrowSource() VTK_OVERRIDE {}
+  ~vtkArrowSource() override {}
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int TipResolution;
   double TipLength;
@@ -107,8 +107,8 @@ protected:
 
 
 private:
-  vtkArrowSource(const vtkArrowSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrowSource&) VTK_DELETE_FUNCTION;
+  vtkArrowSource(const vtkArrowSource&) = delete;
+  void operator=(const vtkArrowSource&) = delete;
 };
 
 #endif

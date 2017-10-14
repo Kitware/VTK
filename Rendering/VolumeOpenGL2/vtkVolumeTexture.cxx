@@ -18,10 +18,10 @@
 vtkVolumeTexture::vtkVolumeTexture()
 : HandleLargeDataTypes(false)
 , InterpolationType(vtkTextureObject::Linear)
-, Texture(NULL)
+, Texture(nullptr)
 , CurrentBlockIdx(0)
 , StreamBlocks(false)
-, Scalars(NULL)
+, Scalars(nullptr)
 {
   this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
 
@@ -48,7 +48,7 @@ vtkStandardNewMacro(vtkVolumeTexture);
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::SetMapper(vtkOpenGLGPUVolumeRayCastMapper* mapper)
 {
-  if (mapper == NULL)
+  if (mapper == nullptr)
   {
     vtkErrorMacro("Invalid mapper!");
     return;
@@ -137,7 +137,7 @@ vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
   if (this->SortedVolumeBlocks.size() <= this->CurrentBlockIdx)
   {
     this->CurrentBlockIdx = 0;
-    return NULL;
+    return nullptr;
   }
 
   VolumeBlock* block = this->SortedVolumeBlocks.at(this->CurrentBlockIdx);
@@ -292,12 +292,12 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     if (this->StreamBlocks)
     {
       success = texture->Create3DFromRaw(blockSize[0], blockSize[1],
-        blockSize[2], noOfComponents, scalarType, NULL);
+        blockSize[2], noOfComponents, scalarType, nullptr);
     }
     else
     {
       success = SafeLoadTexture(texture, blockSize[0], blockSize[1],
-        blockSize[2], noOfComponents, scalarType, NULL);
+        blockSize[2], noOfComponents, scalarType, nullptr);
     }
     texture->Activate();
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
@@ -369,14 +369,14 @@ void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
   {
     this->Texture->ReleaseGraphicsResources(win);
     this->Texture->Delete();
-    this->Texture = NULL;
+    this->Texture = nullptr;
   }
 }
 
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::ClearBlocks()
 {
-  if (this->ImageDataBlocks.size() == 0)
+  if (this->ImageDataBlocks.empty())
   {
     return;
   }
@@ -638,8 +638,6 @@ void vtkVolumeTexture::UpdateInterpolationType(int const interpolation)
   {
     std::cerr << "Interpolation type not supported in this mapper." << std::endl;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -680,6 +678,14 @@ void vtkVolumeTexture::SetPartitions(int const x, int const y, int const z)
     this->StreamBlocks = false;
     this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
   }
+
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+const vtkVolumeTexture::Size3& vtkVolumeTexture::GetPartitions()
+{
+  return this->Partitions;
 }
 
 //-----------------------------------------------------------------------------

@@ -33,17 +33,17 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkRendererNode :
 public:
   static vtkRendererNode* New();
   vtkTypeMacro(vtkRendererNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) VTK_OVERRIDE;
+  virtual void Build(bool prepass) override;
 
   /**
    * Synchronize our state
    */
-  virtual void Synchronize(bool prepass) VTK_OVERRIDE;
+  virtual void Synchronize(bool prepass) override;
 
 protected:
   vtkRendererNode();
@@ -52,8 +52,8 @@ protected:
   int Size[2];
 
 private:
-  vtkRendererNode(const vtkRendererNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRendererNode&) VTK_DELETE_FUNCTION;
+  vtkRendererNode(const vtkRendererNode&) = delete;
+  void operator=(const vtkRendererNode&) = delete;
 };
 
 #endif

@@ -30,7 +30,7 @@
 vtkStandardNewMacro(vtkArrayDataReader);
 
 vtkArrayDataReader::vtkArrayDataReader() :
-  FileName(0)
+  FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->ReadFromInputString = false;
@@ -38,7 +38,7 @@ vtkArrayDataReader::vtkArrayDataReader() :
 
 vtkArrayDataReader::~vtkArrayDataReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkArrayDataReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -69,7 +69,7 @@ int vtkArrayDataReader::RequestData(
 {
   try
   {
-    vtkArrayData* array_data = NULL;
+    vtkArrayData* array_data = nullptr;
     if(this->ReadFromInputString)
     {
       array_data = this->Read(this->InputString);
@@ -100,7 +100,7 @@ int vtkArrayDataReader::RequestData(
   return 0;
 }
 
-vtkArrayData* vtkArrayDataReader::Read(vtkStdString str)
+vtkArrayData* vtkArrayDataReader::Read(const vtkStdString& str)
 {
   std::istringstream iss(str);
   return vtkArrayDataReader::Read(iss);
@@ -141,5 +141,5 @@ vtkArrayData* vtkArrayDataReader::Read(istream& stream)
     vtkGenericWarningMacro(<< e.what());
   }
 
-  return 0;
+  return nullptr;
 }

@@ -56,12 +56,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTree : public vtkDirectedAcyclicGraph
 public:
   static vtkTree *New();
   vtkTypeMacro(vtkTree, vtkDirectedAcyclicGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_TREE;}
+  int GetDataObjectType() override {return VTK_TREE;}
 
   //@{
   /**
@@ -129,13 +129,13 @@ public:
 
 protected:
   vtkTree();
-  ~vtkTree() VTK_OVERRIDE;
+  ~vtkTree() override;
 
   /**
    * Check the storage, and accept it if it is a valid
    * tree.
    */
-  bool IsStructureValid(vtkGraph *g) VTK_OVERRIDE;
+  bool IsStructureValid(vtkGraph *g) override;
 
   /**
    * The root of the tree.
@@ -143,8 +143,8 @@ protected:
   vtkIdType Root;
 
 private:
-  vtkTree(const vtkTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTree&) VTK_DELETE_FUNCTION;
+  vtkTree(const vtkTree&) = delete;
+  void operator=(const vtkTree&) = delete;
 };
 
 #endif

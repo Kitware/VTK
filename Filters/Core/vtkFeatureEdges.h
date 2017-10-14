@@ -47,7 +47,7 @@ class VTKFILTERSCORE_EXPORT vtkFeatureEdges : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkFeatureEdges,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with feature angle = 30; all types of edges extracted
@@ -125,7 +125,7 @@ public:
   /**
    * Return MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -139,11 +139,11 @@ public:
 
 protected:
   vtkFeatureEdges();
-  ~vtkFeatureEdges() VTK_OVERRIDE;
+  ~vtkFeatureEdges() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double FeatureAngle;
   int BoundaryEdges;
@@ -154,8 +154,8 @@ protected:
   int OutputPointsPrecision;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkFeatureEdges(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
+  vtkFeatureEdges(const vtkFeatureEdges&) = delete;
+  void operator=(const vtkFeatureEdges&) = delete;
 };
 
 #endif

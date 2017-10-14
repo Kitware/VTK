@@ -50,7 +50,7 @@ class VTKCOMMONCORE_EXPORT vtkArrayIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArrayIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the array this iterator will iterate over.
@@ -69,11 +69,11 @@ public:
 
 protected:
   vtkArrayIterator();
-  ~vtkArrayIterator() VTK_OVERRIDE;
+  ~vtkArrayIterator() override;
 
 private:
-  vtkArrayIterator(const vtkArrayIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayIterator&) VTK_DELETE_FUNCTION;
+  vtkArrayIterator(const vtkArrayIterator&) = delete;
+  void operator=(const vtkArrayIterator&) = delete;
 };
 
 

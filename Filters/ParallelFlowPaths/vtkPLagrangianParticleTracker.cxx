@@ -136,7 +136,7 @@ public:
 
     // Initialize Streams
     this->ReceiveStream = new MessageStream(this->StreamSize);
-    this->SendStream = NULL;
+    this->SendStream = nullptr;
   }
 
   ~ParticleStreamManager()
@@ -313,12 +313,12 @@ public:
 
     this->NRank = this->Controller->GetNumberOfProcesses() - 1;
     this->RankStates = new int[this->NRank];
-    this->SentFlag = NULL;
+    this->SentFlag = nullptr;
     this->SendRequests = new vtkMPICommunicator::Request*[this->NRank];
     for (int i = 0; i < this->NRank; i++)
     {
       this->RankStates[i] = VTK_PLAGRANGIAN_WORKING_FLAG;
-      this->SendRequests[i] = NULL;
+      this->SendRequests[i] = nullptr;
     }
   }
 
@@ -341,7 +341,7 @@ public:
     *this->SentFlag = flag;
     for (int i = 0; i < this->NRank; i++)
     {
-      if (this->SendRequests[i] != NULL)
+      if (this->SendRequests[i] != nullptr)
       {
         this->SendRequests[i]->Wait();
         delete this->SendRequests[i];
@@ -413,8 +413,8 @@ public:
 
     // Initialize flags
     this->LastFlag = VTK_PLAGRANGIAN_WORKING_FLAG;
-    this->SentFlag = NULL;
-    this->SendRequest = NULL;
+    this->SentFlag = nullptr;
+    this->SendRequest = nullptr;
   }
 
   ~RankFlagManager()
@@ -429,7 +429,7 @@ public:
     delete this->SentFlag;
     this->SentFlag = new int;
     *this->SentFlag = flag;
-    if (this->SendRequest != NULL)
+    if (this->SendRequest != nullptr)
     {
       this->SendRequest->Wait();
       delete this->SendRequest;
@@ -442,7 +442,7 @@ public:
   int UpdateAndGetFlag()
   {
     int probe;
-    while (this->Controller->Iprobe(0, LAGRANGIAN_RANG_FLAG_TAG, &probe, NULL) && probe)
+    while (this->Controller->Iprobe(0, LAGRANGIAN_RANG_FLAG_TAG, &probe, nullptr) && probe)
     {
       this->Controller->Receive(&this->LastFlag, 1, 0, LAGRANGIAN_RANG_FLAG_TAG);
     }
@@ -463,9 +463,9 @@ vtkPLagrangianParticleTracker::vtkPLagrangianParticleTracker()
 {
   this->Controller = vtkMPIController::SafeDownCast(
     vtkMultiProcessController::GetGlobalController());
-  this->StreamManager = NULL;
-  this->MFlagManager = NULL;
-  this->RFlagManager = NULL;
+  this->StreamManager = nullptr;
+  this->MFlagManager = nullptr;
+  this->RFlagManager = nullptr;
   this->TmpSurfaceInput = vtkSmartPointer<vtkUnstructuredGrid>::New();
   this->TmpSurfaceInputMB = vtkSmartPointer<vtkMultiBlockDataSet>::New();
 }
@@ -598,11 +598,9 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           stream >> name[l];
         }
         array->SetName(&name[0]);
-        std::cout<<"nComponents:"<<nComponents<<std::endl;
         for (int idComp = 0; idComp < nComponents; idComp++)
         {
           stream >> compNameLen;
-          std::cout<<compNameLen<<std::endl;
           std::vector<char> compName(compNameLen + 1, 0);
           name[compNameLen] = '\0';
           for (int compLength = 0; compLength < compNameLen; compLength++)
@@ -660,7 +658,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
           {
             const char * compName = array->GetComponentName(idComp);
             int compNameLen = 0;
-            if (compName != NULL)
+            if (compName != nullptr)
             {
               compNameLen = static_cast<int>(strlen(compName));
               stream << compNameLen;
@@ -995,7 +993,7 @@ bool vtkPLagrangianParticleTracker::FinalizeOutputs(
     idTermination->Squeeze();
 
     // AllGather it
-    this->Controller->AllGatherV(idTermination.Get(), allIdTermination.Get());
+    this->Controller->AllGatherV(idTermination, allIdTermination);
 
     // Modify current terminations
     for (int i = 0; i < allIdTermination->GetNumberOfTuples(); i++)
@@ -1038,11 +1036,31 @@ bool vtkPLagrangianParticleTracker::CheckParticlePathsRenderingThreshold(
 }
 
 //---------------------------------------------------------------------------
-void vtkPLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
+bool vtkPLagrangianParticleTracker::UpdateSurfaceCacheIfNeeded(vtkDataObject*& surfaces)
 {
   if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
   {
-    // In Parallel, reduce surface on rank 0, which then broadcast them to all ranks.
+    // Update local cache and reduce cache status
+    int localCacheUpdated = this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
+    int maxLocalCacheUpdated;
+    this->Controller->AllReduce(&localCacheUpdated, &maxLocalCacheUpdated, 1, vtkCommunicator::MAX_OP);
+
+    if(!maxLocalCacheUpdated)
+    {
+      // Cache is still valid, use already reduced surface
+      if (vtkDataSet::SafeDownCast(surfaces))
+      {
+        surfaces = this->TmpSurfaceInput;
+      }
+      else // if (vtkCompositeDataSet::SafeDownCast(surfaces))
+      {
+        surfaces = this->TmpSurfaceInputMB;
+      }
+      return false;
+    }
+
+    // Local cache has been updated, update temporary reduced surface
+    // In Parallel, reduce surfaces on rank 0, which then broadcast them to all ranks.
 
     // Recover all surfaces on rank 0
     std::vector<vtkSmartPointer<vtkDataObject> > allSurfaces;
@@ -1108,8 +1126,12 @@ void vtkPLagrangianParticleTracker::InitializeSurface(vtkDataObject*& surfaces)
     {
       vtkErrorMacro("Unrecognized surface.");
     }
+    return true;
   }
-  this->Superclass::InitializeSurface(surfaces);
+  else
+  {
+    return this->Superclass::UpdateSurfaceCacheIfNeeded(surfaces);
+  }
 }
 
 //---------------------------------------------------------------------------

@@ -64,7 +64,7 @@ class VTKFILTERSCORE_EXPORT vtkStripper : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStripper,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with MaximumLength set to 1000.
@@ -127,10 +127,10 @@ public:
 
 protected:
   vtkStripper();
-  ~vtkStripper() VTK_OVERRIDE {}
+  ~vtkStripper() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int MaximumLength;
   int PassCellDataAsFieldData;
@@ -139,8 +139,8 @@ protected:
   int JoinContiguousSegments;
 
 private:
-  vtkStripper(const vtkStripper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStripper&) VTK_DELETE_FUNCTION;
+  vtkStripper(const vtkStripper&) = delete;
+  void operator=(const vtkStripper&) = delete;
 };
 
 #endif

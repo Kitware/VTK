@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAdjacentVertexIterator : public vtkObject
 public:
   static vtkAdjacentVertexIterator *New();
   vtkTypeMacro(vtkAdjacentVertexIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the iterator with a graph and vertex.
@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkAdjacentVertexIterator();
-  ~vtkAdjacentVertexIterator() VTK_OVERRIDE;
+  ~vtkAdjacentVertexIterator() override;
 
   /**
    * Protected method for setting the graph used
@@ -97,8 +97,8 @@ protected:
   vtkIdType             Vertex;
 
 private:
-  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
+  vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&) = delete;
+  void operator=(const vtkAdjacentVertexIterator&) = delete;
 };
 
 #endif

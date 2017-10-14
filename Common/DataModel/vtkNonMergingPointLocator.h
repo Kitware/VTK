@@ -45,16 +45,16 @@ public:
   static vtkNonMergingPointLocator * New();
 
   vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   /**
    * Determine whether a given point x has been inserted into the points list.
    * Return the id of the already inserted point if it is true, or -1 else.
    * Note this function always returns -1 since any point is always inserted.
    */
-  vtkIdType IsInsertedPoint( const double [3] ) VTK_OVERRIDE
+  vtkIdType IsInsertedPoint( const double [3] ) override
     { return -1; }
-  vtkIdType IsInsertedPoint( double, double, double ) VTK_OVERRIDE
+  vtkIdType IsInsertedPoint( double, double, double ) override
     { return -1; }
 
   /**
@@ -63,15 +63,15 @@ public:
    * this function always returns 1 since any point is always inserted. The
    * index of the point is returned via ptId.
    */
-  int InsertUniquePoint( const double x[3], vtkIdType & ptId ) VTK_OVERRIDE;
+  int InsertUniquePoint( const double x[3], vtkIdType & ptId ) override;
 
 protected:
   vtkNonMergingPointLocator() { };
-  ~vtkNonMergingPointLocator() VTK_OVERRIDE { };
+  ~vtkNonMergingPointLocator() override { };
 
 private:
-  vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkNonMergingPointLocator & ) VTK_DELETE_FUNCTION;
+  vtkNonMergingPointLocator( const vtkNonMergingPointLocator & ) = delete;
+  void operator = ( const vtkNonMergingPointLocator & ) = delete;
 };
 
 #endif

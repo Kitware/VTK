@@ -38,7 +38,7 @@ class vtkHandle2Callback : public vtkCommand
 public:
   static vtkHandle2Callback *New()
   { return new vtkHandle2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkHandleWidget *handleWidget =
       reinterpret_cast<vtkHandleWidget*>(caller);
@@ -46,7 +46,7 @@ public:
     static_cast<vtkHandleRepresentation *>(handleWidget->GetRepresentation())->GetDisplayPosition(pos);
     this->Actor->SetPosition(pos[0],pos[1]);
   }
-  vtkHandle2Callback():Actor(0) {}
+  vtkHandle2Callback():Actor(nullptr) {}
   vtkActor2D *Actor;
 };
 

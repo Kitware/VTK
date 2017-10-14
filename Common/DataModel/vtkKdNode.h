@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkKdNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkKdNode *New();
 
@@ -229,7 +229,7 @@ public:
    * if useDataBounds is non-zero.
    */
   int IntersectsCell(vtkCell *cell, int useDataBounds,
-                     int cellRegion=-1, double *cellBounds=NULL);
+                     int cellRegion=-1, double *cellBounds=nullptr);
 
   /**
    * Return 1 if this spatial region entirely contains a box specified
@@ -280,7 +280,7 @@ public:
 protected:
 
   vtkKdNode();
-  ~vtkKdNode() VTK_OVERRIDE;
+  ~vtkKdNode() override;
 
 private:
 
@@ -306,8 +306,8 @@ private:
   int MinID;
   int MaxID;
 
-  vtkKdNode(const vtkKdNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKdNode&) VTK_DELETE_FUNCTION;
+  vtkKdNode(const vtkKdNode&) = delete;
+  void operator=(const vtkKdNode&) = delete;
 };
 
 #endif

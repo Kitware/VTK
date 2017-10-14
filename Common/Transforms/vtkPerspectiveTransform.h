@@ -55,7 +55,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
  public:
   static vtkPerspectiveTransform *New();
   vtkTypeMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set this transformation to the identity transformation.  If
@@ -69,7 +69,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * the transformation will use the inverse of its Input, if an Input
    * has been set.
    */
-  void Inverse() VTK_OVERRIDE
+  void Inverse() override
     { this->Concatenation->Inverse(); this->Modified(); };
 
   /**
@@ -267,7 +267,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == NULL ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); };
 
   //@{
   /**
@@ -280,7 +280,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   vtkHomogeneousTransform *GetConcatenatedTransform(int i)
   {
       vtkAbstractTransform *t;
-      if (this->Input == NULL)
+      if (this->Input == nullptr)
       {
         t=this->Concatenation->GetTransform(i);
       }
@@ -331,7 +331,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   /**
    * Pushes the current transformation onto the transformation stack.
    */
-  void Push() { if (this->Stack == NULL) {
+  void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
@@ -342,7 +342,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
    */
-  void Pop() { if (this->Stack == NULL) { return; }
+  void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
   //@}
@@ -351,7 +351,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * Make a new transform of the same type -- you are responsible for
    * deleting the transform when you are done with it.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
   /**
    * Check for self-reference.  Will return true if concatenating
@@ -361,27 +361,27 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
    * and Concatenate(vtkXTransform *).  Avoid using this function,
    * it is experimental.
    */
-  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  int CircuitCheck(vtkAbstractTransform *transform) override;
 
   /**
    * Override GetMTime to account for input and concatenation.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkPerspectiveTransform();
-  ~vtkPerspectiveTransform() VTK_OVERRIDE;
+  ~vtkPerspectiveTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *t) override;
+  void InternalUpdate() override;
 
   vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
 
 private:
-  vtkPerspectiveTransform(const vtkPerspectiveTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPerspectiveTransform&) VTK_DELETE_FUNCTION;
+  vtkPerspectiveTransform(const vtkPerspectiveTransform&) = delete;
+  void operator=(const vtkPerspectiveTransform&) = delete;
 };
 
 

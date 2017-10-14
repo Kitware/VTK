@@ -82,8 +82,8 @@ vtkChartLegend::vtkChartLegend()
 vtkChartLegend::~vtkChartLegend()
 {
   delete this->Storage;
-  this->Storage = NULL;
-  this->Point = NULL;
+  this->Storage = nullptr;
+  this->Point = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   // This is where everything should be drawn, or dispatched to other methods.
   vtkDebugMacro(<< "Paint event called in vtkChartLegend.");
 
-  if (!this->Visible || this->Storage->ActivePlots.size() == 0)
+  if (!this->Visible || this->Storage->ActivePlots.empty())
   {
     return true;
   }
@@ -123,12 +123,12 @@ bool vtkChartLegend::Paint(vtkContext2D *painter)
   this->GetBoundingRect(painter);
 
   // Now draw a box for the legend.
-  painter->ApplyPen(this->Pen.GetPointer());
-  painter->ApplyBrush(this->Brush.GetPointer());
+  painter->ApplyPen(this->Pen);
+  painter->ApplyBrush(this->Brush);
   painter->DrawRect(this->Rect.GetX(), this->Rect.GetY(),
                     this->Rect.GetWidth(), this->Rect.GetHeight());
 
-  painter->ApplyTextProp(this->LabelProperties.GetPointer());
+  painter->ApplyTextProp(this->LabelProperties);
 
   vtkVector2f stringBounds[2];
   painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
@@ -183,7 +183,7 @@ vtkRectf vtkChartLegend::GetBoundingRect(vtkContext2D *painter)
     return this->Rect;
   }
 
-  painter->ApplyTextProp(this->LabelProperties.GetPointer());
+  painter->ApplyTextProp(this->LabelProperties);
 
   vtkVector2f stringBounds[2];
   painter->ComputeStringBounds("Tgyf", stringBounds->GetData());
@@ -261,19 +261,19 @@ int vtkChartLegend::GetLabelSize()
 //-----------------------------------------------------------------------------
 vtkPen * vtkChartLegend::GetPen()
 {
-  return this->Pen.GetPointer();
+  return this->Pen;
 }
 
 //-----------------------------------------------------------------------------
 vtkBrush * vtkChartLegend::GetBrush()
 {
-  return this->Brush.GetPointer();
+  return this->Brush;
 }
 
 //-----------------------------------------------------------------------------
 vtkTextProperty * vtkChartLegend::GetLabelProperties()
 {
-  return this->LabelProperties.GetPointer();
+  return this->LabelProperties;
 }
 
 //-----------------------------------------------------------------------------

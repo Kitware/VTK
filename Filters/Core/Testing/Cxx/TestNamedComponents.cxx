@@ -134,7 +134,7 @@ int TestNamedComponents(int , char *[])
 
   vtkSmartPointer<vtkUnstructuredGrid> out = thresh->GetOutput();
 
-  if (out == NULL)
+  if (out == nullptr)
   {
     vtkGenericWarningMacro("threshold failed.");
     return 1;
@@ -163,7 +163,7 @@ int TestNamedComponents(int , char *[])
   //Test component names with the calculator
   vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();
   calc->SetInputData( poly );
-  calc->SetAttributeModeToUsePointData();
+  calc->SetAttributeTypeToPointData();
   // Add coordinate scalar and vector variables
   calc->AddCoordinateScalarVariable( "coordsX", 0 );
   calc->AddScalarVariable("point coords_YLOC","point coords",1 );

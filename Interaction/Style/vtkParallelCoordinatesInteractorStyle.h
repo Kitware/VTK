@@ -55,7 +55,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkParallelCoordinatesInteractorStyle : public 
 public:
   static vtkParallelCoordinatesInteractorStyle *New();
   vtkTypeMacro(vtkParallelCoordinatesInteractorStyle, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum {
     INTERACT_HOVER=0,
@@ -87,14 +87,14 @@ public:
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnLeave() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
+  void OnLeave() override;
   //@}
 
   //@{
@@ -104,33 +104,33 @@ public:
   //@}
 
   //@{
-  void StartZoom() VTK_OVERRIDE;
-  void Zoom() VTK_OVERRIDE;
-  void EndZoom() VTK_OVERRIDE;
+  void StartZoom() override;
+  void Zoom() override;
+  void EndZoom() override;
   //@}
 
   //@{
-  void StartPan() VTK_OVERRIDE;
-  void Pan() VTK_OVERRIDE;
-  void EndPan() VTK_OVERRIDE;
+  void StartPan() override;
+  void Pan() override;
+  void EndPan() override;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
 protected:
   vtkParallelCoordinatesInteractorStyle();
-  ~vtkParallelCoordinatesInteractorStyle() VTK_OVERRIDE;
+  ~vtkParallelCoordinatesInteractorStyle() override;
 
   int CursorStartPosition[2];
   int CursorCurrentPosition[2];
   int CursorLastPosition[2];
 
 private:
-  vtkParallelCoordinatesInteractorStyle(const vtkParallelCoordinatesInteractorStyle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesInteractorStyle&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesInteractorStyle(const vtkParallelCoordinatesInteractorStyle&) = delete;
+  void operator=(const vtkParallelCoordinatesInteractorStyle&) = delete;
 };
 
 #endif

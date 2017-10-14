@@ -36,7 +36,7 @@ class VTKFILTERSPARALLELDIY2_EXPORT vtkPResampleToImage : public vtkResampleToIm
 {
 public:
   vtkTypeMacro(vtkPResampleToImage, vtkResampleToImage);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPResampleToImage *New();
 
@@ -54,13 +54,13 @@ protected:
   ~vtkPResampleToImage();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPResampleToImage(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
+  vtkPResampleToImage(const vtkPResampleToImage&) = delete;
+  void operator=(const vtkPResampleToImage&) = delete;
 };
 
 #endif

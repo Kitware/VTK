@@ -54,7 +54,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   weights->SetValue(graph->GetEdgeId(internalOne, c), 3.0f);
 
   weights->SetName("weight");
-  graph->GetEdgeData()->AddArray(weights.GetPointer());
+  graph->GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkStringArray> names;
   names->SetNumberOfTuples(6);
@@ -63,7 +63,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   names->SetValue(c, "c");
 
   names->SetName("node name");
-  graph->GetVertexData()->AddArray(names.GetPointer());
+  graph->GetVertexData()->AddArray(names);
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(6);
@@ -74,7 +74,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   nodeWeights->SetValue(b, 4.0f);
   nodeWeights->SetValue(c, 4.0f);
   nodeWeights->SetName("node weight");
-  graph->GetVertexData()->AddArray(nodeWeights.GetPointer());
+  graph->GetVertexData()->AddArray(nodeWeights);
 
   vtkNew<vtkTable> table;
   vtkNew<vtkStringArray> tableNames;
@@ -108,51 +108,51 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   m3->SetValue(1, 1.0f);
   m3->SetValue(2, 3.0f);
 
-  table->AddColumn(tableNames.GetPointer());
-  table->AddColumn(m1.GetPointer());
-  table->AddColumn(m2.GetPointer());
-  table->AddColumn(m3.GetPointer());
+  table->AddColumn(tableNames);
+  table->AddColumn(m1);
+  table->AddColumn(m2);
+  table->AddColumn(m3);
 
   vtkNew<vtkContextActor> actor;
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   vtkNew<vtkTreeHeatmapItem> treeItem;
-  treeItem->SetTree(tree.GetPointer());
-  treeItem->SetTable(table.GetPointer());
+  treeItem->SetTree(tree);
+  treeItem->SetTable(table);
   treeItem->SetTreeColorArray("node weight");
   treeItem->SetTreeLineWidth(2.0);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(treeItem.GetPointer());
+  trans->AddItem(treeItem);
   // center the item within the render window
   trans->Translate(40, 30);
   trans->Scale(2, 2);
-  actor->GetScene()->AddItem(trans.GetPointer());
+  actor->GetScene()->AddItem(trans);
 
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 200);
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderer->AddActor(actor.GetPointer());
-  actor->GetScene()->SetRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
+  actor->GetScene()->SetRenderer(renderer);
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetInteractorStyle(interactorStyle.GetPointer());
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetInteractorStyle(interactorStyle);
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
   // collapse and expand a subtree
   vtkContextMouseEvent mouseEvent;
-  mouseEvent.SetInteractor(interactor.GetPointer());
+  mouseEvent.SetInteractor(interactor);
   vtkVector2f pos;
   mouseEvent.SetButton(vtkContextMouseEvent::LEFT_BUTTON);
   pos.Set(78, 50);
@@ -163,7 +163,7 @@ int TestTreeHeatmapItem(int argc, char* argv[])
   mouseEvent.SetPos(pos);
   treeItem->MouseDoubleClickEvent(mouseEvent);
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

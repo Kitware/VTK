@@ -82,7 +82,7 @@ int vtkRectangularButtonSource::RequestData(
   int numCells = 9;
   if ( this->TwoSided )
   {
-    numPts *= 2;
+    numPts = 28;
     numCells *= 2;
   }
 

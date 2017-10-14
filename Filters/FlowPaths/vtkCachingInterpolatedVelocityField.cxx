@@ -33,19 +33,19 @@ const double IVFDataSetInfo::TOLERANCE_SCALE = 1.0E-8;
 //---------------------------------------------------------------------------
 IVFDataSetInfo::IVFDataSetInfo()
 {
-  this->VelocityFloat  = NULL;
-  this->VelocityDouble = NULL;
-  this->DataSet        = NULL;
-  this->Cell           = NULL;
-  this->BSPTree        = NULL;
+  this->VelocityFloat  = nullptr;
+  this->VelocityDouble = nullptr;
+  this->DataSet        = nullptr;
+  this->Cell           = nullptr;
+  this->BSPTree        = nullptr;
   this->Tolerance      = 0.0;
   this->StaticDataSet  = false;
 }
 //---------------------------------------------------------------------------
 void IVFDataSetInfo::SetDataSet(vtkDataSet *data, char *velocity, bool staticdataset, vtkAbstractCellLocator *locator)
 {
-  this->VelocityFloat  = NULL;
-  this->VelocityDouble = NULL;
+  this->VelocityFloat  = nullptr;
+  this->VelocityDouble = nullptr;
   this->DataSet        = data;
   this->Cell           = vtkSmartPointer<vtkGenericCell>::New();
   this->StaticDataSet  = staticdataset;
@@ -117,13 +117,13 @@ vtkCachingInterpolatedVelocityField::vtkCachingInterpolatedVelocityField()
 {
   this->NumFuncs         = 3; // u, v, w
   this->NumIndepVars     = 4; // x, y, z, t
-  this->VectorsSelection = NULL;
+  this->VectorsSelection = nullptr;
   this->TempCell         = vtkGenericCell::New();
   this->CellCacheHit     = 0;
   this->DataSetCacheHit  = 0;
   this->CacheMiss        = 0;
   this->LastCacheIndex   = 0;
-  this->Cache            = NULL;
+  this->Cache            = nullptr;
   this->LastCellId       = -1;
 }
 //---------------------------------------------------------------------------
@@ -132,7 +132,7 @@ vtkCachingInterpolatedVelocityField::~vtkCachingInterpolatedVelocityField()
   this->NumFuncs     = 0;
   this->NumIndepVars = 0;
   this->TempCell->Delete();
-  this->SetVectorsSelection(0);
+  this->SetVectorsSelection(nullptr);
 }
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::SetDataSet(int I, vtkDataSet* dataset, bool staticdataset, vtkAbstractCellLocator *locator)
@@ -165,7 +165,7 @@ void vtkCachingInterpolatedVelocityField::SetLastCellInfo(vtkIdType c, int datas
 //---------------------------------------------------------------------------
 void vtkCachingInterpolatedVelocityField::ClearLastCellInfo()
 {
-  this->Cache      = NULL;
+  this->Cache      = nullptr;
   this->LastCellId = -1;
 }
 //---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ vtkGenericCell *vtkCachingInterpolatedVelocityField::GetLastCell()
   {
     return this->Cache->Cell;
   }
-  return NULL;
+  return nullptr;
 }
 //---------------------------------------------------------------------------
 // Evaluate {u,v,w} at {x,y,z,t}
@@ -227,7 +227,7 @@ int vtkCachingInterpolatedVelocityField::InsideTest(double* x)
     // check the last cell
     int subId;
     if (this->LastCellId!=-1 && this->Cache->Cell->EvaluatePosition(
-          x, 0, subId, this->Cache->PCoords,
+          x, nullptr, subId, this->Cache->PCoords,
           this->Cache->Tolerance, &this->Weights[0])==1)
     {
       return 1;
@@ -288,7 +288,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(
       inbox = false;
     }
     if (inbox && data->Cell->EvaluatePosition(
-          x, 0, subId, data->PCoords, dist2, &this->Weights[0])==1)
+          x, nullptr, subId, data->PCoords, dist2, &this->Weights[0])==1)
     {
       this->FastCompute(data, f);
       this->CellCacheHit++;
@@ -305,7 +305,7 @@ int vtkCachingInterpolatedVelocityField::FunctionValues(
   }
   else
   {
-    vtkGenericCell* tmpCell = 0;
+    vtkGenericCell* tmpCell = nullptr;
     if (this->LastCellId >= 0)
     {
       data->DataSet->GetCell(this->LastCellId, this->TempCell);
@@ -432,7 +432,7 @@ void vtkCachingInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent inden
 {
   this->Superclass::PrintSelf(os, indent);
 
-  if (Weights.size()>0)
+  if (!Weights.empty())
   {
     os << indent << "Weights: " << &this->Weights[0] << endl;
   }

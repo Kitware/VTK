@@ -60,14 +60,14 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderView : public vtkRenderViewBase
 public:
   static vtkRenderView* New();
   vtkTypeMacro(vtkRenderView, vtkRenderViewBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The render window interactor. Note that this requires special
    * handling in order to do correctly - see the notes in the detailed
    * description of vtkRenderViewBase.
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
 
   /**
    * The interactor style associated with the render view.
@@ -84,7 +84,7 @@ public:
    * handling in order to do correctly - see the notes in the detailed
    * description of vtkRenderViewBase.
    */
-  void SetRenderWindow(vtkRenderWindow *win) VTK_OVERRIDE;
+  void SetRenderWindow(vtkRenderWindow *win) override;
 
   enum
   {
@@ -110,12 +110,12 @@ public:
    * Updates the representations, then calls Render() on the render window
    * associated with this view.
    */
-  void Render() VTK_OVERRIDE;
+  void Render() override;
 
   /**
    * Applies a view theme to this view.
    */
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   //@{
   /**
@@ -245,7 +245,7 @@ public:
 
 protected:
   vtkRenderView();
-  ~vtkRenderView() VTK_OVERRIDE;
+  ~vtkRenderView() override;
 
   /**
    * Called to process events.
@@ -253,7 +253,7 @@ protected:
    * This may be overridden by subclasses to process additional events.
    */
   void ProcessEvents(vtkObject* caller, unsigned long eventId,
-    void* callData) VTK_OVERRIDE;
+    void* callData) override;
 
   /**
    * Generates the selection based on the view event and the selection mode.
@@ -264,7 +264,7 @@ protected:
   /**
    * Called by the view when the renderer is about to render.
    */
-  void PrepareForRendering() VTK_OVERRIDE;
+  void PrepareForRendering() override;
 
   /**
    * Called in PrepareForRendering to update the hover text.
@@ -307,8 +307,8 @@ protected:
   vtkSmartPointer<vtkHardwareSelector>         Selector;
 
 private:
-  vtkRenderView(const vtkRenderView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderView&) VTK_DELETE_FUNCTION;
+  vtkRenderView(const vtkRenderView&) = delete;
+  void operator=(const vtkRenderView&) = delete;
 };
 
 #endif

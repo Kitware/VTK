@@ -47,7 +47,7 @@ public:
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkProgressBarRepresentation, vtkBorderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -99,8 +99,8 @@ public:
   /**
    * Satisfy the superclasses' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void GetSize(double size[2]) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  void GetSize(double size[2]) override;
   //@}
 
   //@{
@@ -108,17 +108,17 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  void GetActors2D(vtkPropCollection*) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkProgressBarRepresentation();
-  ~vtkProgressBarRepresentation() VTK_OVERRIDE;
+  ~vtkProgressBarRepresentation() override;
 
   double ProgressRate;
   double ProgressBarColor[3];
@@ -132,8 +132,8 @@ protected:
   vtkActor2D     *BackgroundActor;
 
 private:
-  vtkProgressBarRepresentation(const vtkProgressBarRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgressBarRepresentation&) VTK_DELETE_FUNCTION;
+  vtkProgressBarRepresentation(const vtkProgressBarRepresentation&) = delete;
+  void operator=(const vtkProgressBarRepresentation&) = delete;
 };
 
 #endif

@@ -30,8 +30,8 @@
 #include "vtkImageProperty.h"
 #include "vtkSmartPointer.h"
 
-#include <string.h>
-#include <math.h>
+#include <cstring>
+#include <cmath>
 
 // this contour used to cause trouble
 static double contour[262][2] = {

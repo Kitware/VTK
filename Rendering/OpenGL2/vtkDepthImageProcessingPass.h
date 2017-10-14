@@ -63,7 +63,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDepthImageProcessingPass : public vtkImagePr
 {
 public:
   vtkTypeMacro(vtkDepthImageProcessingPass, vtkImageProcessingPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
  protected:
   /**
@@ -74,7 +74,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkDepthImageProcessingPass() VTK_OVERRIDE;
+  ~vtkDepthImageProcessingPass() override;
 
   /**
    * Render delegate with a image of different dimensions than the
@@ -108,8 +108,8 @@ public:
   int    ExtraPixels; // w(h) = width(height) + 2*extrapixels
 
  private:
-  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthImageProcessingPass&) VTK_DELETE_FUNCTION;
+  vtkDepthImageProcessingPass(const vtkDepthImageProcessingPass&) = delete;
+  void operator=(const vtkDepthImageProcessingPass&) = delete;
 };
 
 #endif

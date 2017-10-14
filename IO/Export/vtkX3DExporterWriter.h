@@ -36,7 +36,7 @@ class VTKIOEXPORT_EXPORT vtkX3DExporterWriter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkX3DExporterWriter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Opens the file specified with file
@@ -73,7 +73,7 @@ public:
   //@}
 
   /**
-   * This convenience method returns the string, sets the IVAR to NULL,
+   * This convenience method returns the string, sets the IVAR to nullptr,
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
@@ -189,15 +189,15 @@ public:
 
 protected:
   vtkX3DExporterWriter();
-  ~vtkX3DExporterWriter() VTK_OVERRIDE;
+  ~vtkX3DExporterWriter() override;
 
   char *OutputString;
   int OutputStringLength;
   int WriteToOutputString;
 
 private:
-  vtkX3DExporterWriter(const vtkX3DExporterWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporterWriter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporterWriter(const vtkX3DExporterWriter&) = delete;
+  void operator=(const vtkX3DExporterWriter&) = delete;
 };
 #endif
 

@@ -42,7 +42,7 @@ public:
   static vtkPropPicker *New();
 
   vtkTypeMacro(vtkPropPicker, vtkAbstractPropPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the pick and set the PickedProp ivar. If something is picked, a
@@ -63,24 +63,46 @@ public:
    * override superclasses' Pick() method.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-           vtkRenderer *renderer) VTK_OVERRIDE;
+           vtkRenderer *renderer) override;
   int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0],
                          selectionPt[1], selectionPt[2], renderer); }
 
+  /**
+   * Perform pick operation with selection point provided. The
+   * selectionPt is in world coordinates.
+   * Return non-zero if something was successfully picked.
+   */
+  int Pick3DPoint(double selectionPt[3], vtkRenderer *ren) override;
+
+  /**
+   * Perform the pick and set the PickedProp ivar. If something is picked, a
+   * 1 is returned, otherwise 0 is returned.  Use the GetViewProp() method
+   * to get the instance of vtkProp that was picked.  Props are picked from
+   * the renderers list of pickable Props.
+   */
+  int PickProp3DPoint(double pos[3], vtkRenderer *renderer);
+
+  /**
+   * Perform a pick from the user-provided list of vtkProps and not from the
+   * list of vtkProps that the render maintains.
+   */
+  int PickProp3DPoint(double pos[3], vtkRenderer *renderer,
+               vtkPropCollection* pickfrom);
+
 protected:
   vtkPropPicker();
-  ~vtkPropPicker() VTK_OVERRIDE;
+  ~vtkPropPicker() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   vtkPropCollection* PickFromProps;
 
   // Used to get x-y-z pick position
   vtkWorldPointPicker *WorldPointPicker;
 private:
-  vtkPropPicker(const vtkPropPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPropPicker&) VTK_DELETE_FUNCTION;
+  vtkPropPicker(const vtkPropPicker&) = delete;
+  void operator=(const vtkPropPicker&) = delete;
 };
 
 #endif

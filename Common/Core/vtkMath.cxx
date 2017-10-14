@@ -56,7 +56,7 @@ public:
   std::vector<vtkTypeInt64> MemoizeFactorial;
 private:
   vtkMathInternal();
-  ~vtkMathInternal() VTK_OVERRIDE;
+  ~vtkMathInternal() override;
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -246,7 +246,7 @@ int* vtkMath::BeginCombination( int m, int n )
 {
   if ( m < n )
   {
-    return 0;
+    return nullptr;
   }
 
   int* r = new int[ n ];
@@ -646,6 +646,7 @@ void vtkMath::LUSolveLinearSystem(double **A, int *index,
 // output eigenvalues in w; and output eigenvectors in v. Resulting
 // eigenvalues/vectors are sorted in decreasing order; eigenvectors are
 // normalized.
+// It assumes a is symmetric and uses only its upper right triangular part.
 template<class T>
 int vtkJacobiN(T **a, int n, T *w, T **v)
 {
@@ -1027,7 +1028,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
   int someHomogeneous = 0;
   int allHomogeneous = 1;
-  double **hmt = NULL;
+  double **hmt = nullptr;
   int homogRC = 0;
   int *homogenFlags = new int[yOrder];
   int successFlag;

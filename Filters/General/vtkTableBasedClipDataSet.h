@@ -104,7 +104,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTableBasedClipDataSet : public vtkUnstructured
 {
 public:
   vtkTypeMacro( vtkTableBasedClipDataSet, vtkUnstructuredGridAlgorithm );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   /**
    * Create an instance with a user-specified implicit function, turning off
@@ -115,7 +115,7 @@ public:
   /**
    * Get the MTime for which the point locator and clip function are considered.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -229,12 +229,12 @@ public:
   //@}
 
 protected:
-  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = NULL );
-  ~vtkTableBasedClipDataSet() VTK_OVERRIDE;
+  vtkTableBasedClipDataSet( vtkImplicitFunction * cf = nullptr );
+  ~vtkTableBasedClipDataSet() override;
 
   int RequestData( vtkInformation *,
-                   vtkInformationVector **, vtkInformationVector * ) VTK_OVERRIDE;
-  int FillInputPortInformation( int port, vtkInformation * info ) VTK_OVERRIDE;
+                   vtkInformationVector **, vtkInformationVector * ) override;
+  int FillInputPortInformation( int port, vtkInformation * info ) override;
 
   /**
    * This function resorts to the sibling class vtkClipDataSet to handle
@@ -313,8 +313,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkTableBasedClipDataSet( const vtkTableBasedClipDataSet &) VTK_DELETE_FUNCTION;
-  void operator= ( const vtkTableBasedClipDataSet & ) VTK_DELETE_FUNCTION;
+  vtkTableBasedClipDataSet( const vtkTableBasedClipDataSet &) = delete;
+  void operator= ( const vtkTableBasedClipDataSet & ) = delete;
 };
 
 #endif

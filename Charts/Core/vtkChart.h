@@ -45,7 +45,7 @@ class VTKCHARTSCORE_EXPORT vtkChart : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkChart, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Enum of the available chart types
@@ -68,6 +68,7 @@ public:
    * SELECT_RECTANGLE - selects points within a rectangle
    * SELECT_POLYGON - selects points within a polygon
    * SELECT - alias for SELECT_RECTANGLE
+   * CLICKANDDRAG - move one point selected by a click
    * NOTIFY - Post vtkCommand::InteractionEvent on selection of a point
    */
   enum {
@@ -77,6 +78,7 @@ public:
     SELECT,
     SELECT_RECTANGLE = SELECT,
     SELECT_POLYGON,
+    CLICK_AND_DRAG,
     NOTIFY
   };
 
@@ -90,7 +92,7 @@ public:
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE = 0;
+  bool Paint(vtkContext2D *painter) override = 0;
 
   /**
    * Add a plot to the chart, defaults to using the name of the y column
@@ -218,7 +220,7 @@ public:
   //@}
 
   /**
-   * Get the legend for the chart, if available. Can return NULL if there is no
+   * Get the legend for the chart, if available. Can return null if there is no
    * legend.
    */
   virtual vtkChartLegend * GetLegend();
@@ -365,7 +367,7 @@ public:
 
 protected:
   vtkChart();
-  ~vtkChart() VTK_OVERRIDE;
+  ~vtkChart() override;
 
   /**
    * Given the x and y vtkAxis, and a transform, calculate the transform that
@@ -449,12 +451,13 @@ protected:
   {
   public:
     MouseActions();
-    enum { MaxAction = 5 };
+    enum { MaxAction = 6 };
     short& Pan() { return Data[0]; }
     short& Zoom() { return Data[1]; }
     short& ZoomAxis() { return Data[2]; }
     short& Select() { return Data[3]; }
     short& SelectPolygon() { return Data[4]; }
+    short& ClickAndDrag() { return Data[5]; }
     short& operator[](int index) { return Data[index]; }
     short Data[MaxAction];
   };
@@ -473,8 +476,8 @@ protected:
   MouseClickActions ActionsClick;
 
 private:
-  vtkChart(const vtkChart &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChart &) VTK_DELETE_FUNCTION;
+  vtkChart(const vtkChart &) = delete;
+  void operator=(const vtkChart &) = delete;
 };
 
 #endif //vtkChart_h

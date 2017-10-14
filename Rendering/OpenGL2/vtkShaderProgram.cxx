@@ -80,7 +80,7 @@ vtkShaderProgram::vtkShaderProgram()
   this->GeometryShader = vtkShader::New();
   this->GeometryShader->SetType(vtkShader::Geometry);
 
-  this->TransformFeedback = NULL;
+  this->TransformFeedback = nullptr;
 
   this->Compiled = false;
   this->NumberOfOutputs = 0;
@@ -91,7 +91,7 @@ vtkShaderProgram::vtkShaderProgram()
   this->Linked = false;
   this->Bound = false;
 
-  this->FileNamePrefixForDebugging = NULL;
+  this->FileNamePrefixForDebugging = nullptr;
 }
 
 vtkShaderProgram::~vtkShaderProgram()
@@ -100,24 +100,24 @@ vtkShaderProgram::~vtkShaderProgram()
   if (this->VertexShader)
   {
     this->VertexShader->Delete();
-    this->VertexShader = NULL;
+    this->VertexShader = nullptr;
   }
   if (this->FragmentShader)
   {
     this->FragmentShader->Delete();
-    this->FragmentShader = NULL;
+    this->FragmentShader = nullptr;
   }
   if (this->GeometryShader)
   {
     this->GeometryShader->Delete();
-    this->GeometryShader = NULL;
+    this->GeometryShader = nullptr;
   }
   if (this->TransformFeedback)
   {
     this->TransformFeedback->Delete();
-    this->TransformFeedback = NULL;
+    this->TransformFeedback = nullptr;
   }
-  this->SetFileNamePrefixForDebugging(NULL);
+  this->SetFileNamePrefixForDebugging(nullptr);
 }
 
 // Process the string, and return a version with replacements.
@@ -346,7 +346,7 @@ bool vtkShaderProgram::Link()
     if (length > 1)
     {
       char *logMessage = new char[length];
-      glGetProgramInfoLog(static_cast<GLuint>(this->Handle), length, NULL, logMessage);
+      glGetProgramInfoLog(static_cast<GLuint>(this->Handle), length, nullptr, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
     }
@@ -358,7 +358,7 @@ bool vtkShaderProgram::Link()
 
 bool vtkShaderProgram::Bind()
 {
-  if (this->FileNamePrefixForDebugging != NULL && this->FileNamePrefixForDebugging[0] != 0)
+  if (this->FileNamePrefixForDebugging != nullptr && this->FileNamePrefixForDebugging[0] != 0)
   {
     const char* exts[3] = { "VS.glsl", "FS.glsl", "GS.glsl" };
     vtkShader* shaders[3] = { this->VertexShader, this->FragmentShader, this->GeometryShader };
@@ -425,7 +425,7 @@ int vtkShaderProgram::CompileShader()
     return 0;
   }
 #ifdef GL_GEOMETRY_SHADER
-  if (this->GetGeometryShader()->GetSource().size() > 0 &&
+  if (!this->GetGeometryShader()->GetSource().empty() &&
       !this->GetGeometryShader()->Compile())
   {
     int lineNum = 1;
@@ -441,7 +441,7 @@ int vtkShaderProgram::CompileShader()
     vtkErrorMacro(<< this->GetGeometryShader()->GetError());
     return 0;
   }
-  if (this->GetGeometryShader()->GetSource().size() > 0 &&
+  if (!this->GetGeometryShader()->GetSource().empty() &&
       !this->AttachShader(this->GetGeometryShader()))
   {
     vtkErrorMacro(<< this->GetError());
@@ -539,7 +539,7 @@ bool vtkShaderProgram::DisableAttributeArray(const char *name)
   return true;
 }
 
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
                                       size_t stride, int elementType,
@@ -755,6 +755,26 @@ bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
   return true;
 }
 
+bool vtkShaderProgram::SetUniform3f(const char *name, const double v[3])
+{
+  GLint location = static_cast<GLint>(this->FindUniform(name));
+  if (location == -1)
+  {
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
+    return false;
+  }
+
+  float tmp[3] = {
+    static_cast<float>(v[0]),
+    static_cast<float>(v[1]),
+    static_cast<float>(v[2])
+  };
+
+  glUniform3fv(location, 1, tmp);
+  return true;
+}
+
 bool vtkShaderProgram::SetUniform4f(const char *name, const float v[4])
 {
   GLint location = static_cast<GLint>(this->FindUniform(name));
@@ -836,7 +856,7 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
 
 inline int vtkShaderProgram::FindAttributeArray(const char *cname)
 {
-  if (cname == NULL || !this->Linked)
+  if (cname == nullptr || !this->Linked)
   {
     return -1;
   }
@@ -860,7 +880,7 @@ inline int vtkShaderProgram::FindAttributeArray(const char *cname)
 
 inline int vtkShaderProgram::FindUniform(const char *cname)
 {
-  if (cname == NULL || !this->Linked)
+  if (cname == nullptr || !this->Linked)
   {
     return -1;
   }

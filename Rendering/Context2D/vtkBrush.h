@@ -38,7 +38,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkBrush : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBrush, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkBrush *New();
 
@@ -174,7 +174,7 @@ public:
 
 protected:
   vtkBrush();
-  ~vtkBrush() VTK_OVERRIDE;
+  ~vtkBrush() override;
 
   // Storage of the color in RGBA format (0-255 per channel).
   unsigned char* Color;
@@ -183,8 +183,8 @@ protected:
   int            TextureProperties;
 
 private:
-  vtkBrush(const vtkBrush &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBrush &) VTK_DELETE_FUNCTION;
+  vtkBrush(const vtkBrush &) = delete;
+  void operator=(const vtkBrush &) = delete;
 
 };
 

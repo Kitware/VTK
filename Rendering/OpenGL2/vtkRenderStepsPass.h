@@ -44,20 +44,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderStepsPass : public vtkRenderPass
 public:
   static vtkRenderStepsPass *New();
   vtkTypeMacro(vtkRenderStepsPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   //@{
   /**
@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkRenderStepsPass();
-  ~vtkRenderStepsPass() VTK_OVERRIDE;
+  ~vtkRenderStepsPass() override;
 
   vtkCameraPass *CameraPass;
   vtkRenderPass *LightsPass;
@@ -129,8 +129,8 @@ protected:
   vtkSequencePass *SequencePass;
 
 private:
-  vtkRenderStepsPass(const vtkRenderStepsPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderStepsPass&) VTK_DELETE_FUNCTION;
+  vtkRenderStepsPass(const vtkRenderStepsPass&) = delete;
+  void operator=(const vtkRenderStepsPass&) = delete;
 };
 
 #endif

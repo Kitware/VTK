@@ -51,11 +51,11 @@ vtkInteractorStyleTreeMapHover::vtkInteractorStyleTreeMapHover()
   this->Balloon->SetBalloonText("");
   this->Balloon->SetOffset(1, 1);
   //this->Balloon->SetNeedToRender(true);
-  this->Layout = NULL;
-  this->LabelField = 0;
+  this->Layout = nullptr;
+  this->LabelField = nullptr;
   this->CurrentSelectedId = -1;
-  this->TreeMapToPolyData = NULL;
-  this->Layout = NULL;
+  this->TreeMapToPolyData = nullptr;
+  this->Layout = nullptr;
 
   //Setup up pipelines for highlighting and selecting vertices
   this->SelectionPoints = vtkPoints::New();
@@ -111,17 +111,17 @@ vtkInteractorStyleTreeMapHover::~vtkInteractorStyleTreeMapHover()
   this->HighlightActor->Delete();
   this->Picker->Delete();
   this->Balloon->Delete();
-  if (this->Layout != NULL)
+  if (this->Layout != nullptr)
   {
     this->Layout->Delete();
-    this->Layout = NULL;
+    this->Layout = nullptr;
   }
-  if (this->TreeMapToPolyData != NULL)
+  if (this->TreeMapToPolyData != nullptr)
   {
     this->TreeMapToPolyData->Delete();
-    this->TreeMapToPolyData = NULL;
+    this->TreeMapToPolyData = nullptr;
   }
-  this->SetLabelField(0);
+  this->SetLabelField(nullptr);
 }
 
 vtkCxxSetObjectMacro(vtkInteractorStyleTreeMapHover, Layout, vtkTreeMapLayout);
@@ -182,7 +182,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
   vtkIdType id=-1;
 
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return id;
   }
@@ -192,7 +192,7 @@ vtkIdType vtkInteractorStyleTreeMapHover::GetTreeMapIdAtPos(int x, int y)
   double pos[3];
   this->Picker->GetPickPosition(pos);
 
-  if (this->Layout != NULL)
+  if (this->Layout != nullptr)
   {
     float posFloat[3];
     for (int i = 0; i < 3; i++)
@@ -219,7 +219,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return;
   }
@@ -243,11 +243,11 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
                    static_cast<double>(y)};
   this->Balloon->EndWidgetInteraction(loc);
 
-  if ((this->Layout!=NULL) && (this->Layout->GetOutput()!=NULL))
+  if ((this->Layout!=nullptr) && (this->Layout->GetOutput()!=nullptr))
   {
 
     vtkAbstractArray* absArray = this->Layout->GetOutput()->GetVertexData()->GetAbstractArray(this->LabelField);
-    if (absArray != NULL && id > -1)
+    if (absArray != nullptr && id > -1)
     {
       vtkStdString str;
       if (vtkArrayDownCast<vtkStringArray>(absArray))
@@ -261,7 +261,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
       this->Balloon->SetBalloonText(str);
       vtkTree* tree = this->Layout->GetOutput();
       double z;
-      if (this->TreeMapToPolyData != NULL)
+      if (this->TreeMapToPolyData != nullptr)
       {
         z = this->TreeMapToPolyData->GetLevelDeltaZ()
           * (tree->GetLevel(id) + 1);
@@ -286,7 +286,7 @@ void vtkInteractorStyleTreeMapHover::OnMouseMove()
 
     this->Balloon->StartWidgetInteraction(loc);
 
-    this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
     this->Superclass::OnMouseMove();
     this->GetInteractor()->Render();
   }
@@ -334,7 +334,7 @@ void vtkInteractorStyleTreeMapHover::OnLeftButtonUp()
 
 #if 0
   vtkRenderer* r = this->CurrentRenderer;
-  if (r == NULL)
+  if (r == nullptr)
   {
     return;
   }
@@ -386,7 +386,7 @@ void vtkInteractorStyleTreeMapHover::HighLightCurrentSelectedItem()
     this->GetBoundingBoxForTreeMapItem(this->CurrentSelectedId,binfo);
     vtkTree* tree = this->Layout->GetOutput();
     double z;
-    if (this->TreeMapToPolyData != NULL)
+    if (this->TreeMapToPolyData != nullptr)
     {
       z = this->TreeMapToPolyData->GetLevelDeltaZ()
         * (tree->GetLevel(this->CurrentSelectedId) + 1);

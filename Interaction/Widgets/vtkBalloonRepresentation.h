@@ -86,7 +86,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkBalloonRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -187,28 +187,28 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void StartWidgetInteraction(double e[2]) override;
+  void EndWidgetInteraction(double e[2]) override;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOverlay(vtkViewport *viewport) override;
   //@}
 
   /**
-   * State is either outside, or inside (on the text portion ot the image).
+   * State is either outside, or inside (on the text portion of the image).
    */
   enum _InteractionState {Outside=0, OnText, OnImage};
 
 protected:
   vtkBalloonRepresentation();
-  ~vtkBalloonRepresentation() VTK_OVERRIDE;
+  ~vtkBalloonRepresentation() override;
 
   // The balloon text and image
   char         *BalloonText;
@@ -252,8 +252,8 @@ protected:
   void ScaleImage(double imageSize[2],double scale);
 
 private:
-  vtkBalloonRepresentation(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
+  vtkBalloonRepresentation(const vtkBalloonRepresentation&) = delete;
+  void operator=(const vtkBalloonRepresentation&) = delete;
 };
 
 #endif

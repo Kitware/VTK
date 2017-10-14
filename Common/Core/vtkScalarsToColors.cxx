@@ -48,8 +48,8 @@ vtkScalarsToColors::vtkScalarsToColors()
 
   // Annotated values, their annotations, and whether colors
   // should be indexed by annotated value.
-  this->AnnotatedValues = 0;
-  this->Annotations = 0;
+  this->AnnotatedValues = nullptr;
+  this->Annotations = nullptr;
   this->AnnotatedValueMap = new vtkInternalAnnotatedValueMap;
   this->IndexedLookup = 0;
 
@@ -155,7 +155,7 @@ void vtkScalarsToColors::DeepCopy(vtkScalarsToColors *obj)
     }
     else
     {
-      this->SetAnnotations(0, 0);
+      this->SetAnnotations(nullptr, nullptr);
     }
   }
 }
@@ -238,7 +238,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
 
   // map scalars through lookup table only if needed
   if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != NULL) ||
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != nullptr) ||
       (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
   {
     newColors = this->
@@ -1090,7 +1090,7 @@ void vtkScalarsToColors::MapColorsToColors(
     return;
   }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
   {
     newPtr = vtkScalarsToColorsUnpackBits(
@@ -1372,7 +1372,7 @@ void vtkScalarsToColors::MapVectorsToMagnitude(
     return;
   }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
   {
     newPtr = vtkScalarsToColorsUnpackBits(
@@ -1414,7 +1414,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
     return;
   }
 
-  unsigned char *newPtr = 0;
+  unsigned char *newPtr = nullptr;
   if (inputDataType == VTK_BIT)
   {
     newPtr = vtkScalarsToColorsUnpackBits(
@@ -1542,14 +1542,14 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
   vtkDataArray *colors, int numComp, int numTuples)
 {
-  if (vtkArrayDownCast<vtkCharArray>(colors) != NULL)
+  if (vtkArrayDownCast<vtkCharArray>(colors) != nullptr)
   {
     vtkErrorMacro(<<"char type does not have enough values to hold a color");
-    return NULL;
+    return nullptr;
   }
 
   if (numComp == 4 && this->Alpha >= 1.0 &&
-      vtkArrayDownCast<vtkUnsignedCharArray>(colors) != NULL)
+      vtkArrayDownCast<vtkUnsignedCharArray>(colors) != nullptr)
   {
     vtkUnsignedCharArray* c = vtkArrayDownCast<vtkUnsignedCharArray>(colors);
     c->Register(this);
@@ -1601,7 +1601,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
 
     default:
       vtkErrorMacro(<<"Cannot convert colors");
-      return NULL;
+      return nullptr;
   }
 
   return newColors;
@@ -1663,7 +1663,7 @@ void vtkScalarsToColors::SetAnnotations(
   if (this->AnnotatedValues && !values)
   {
     this->AnnotatedValues->Delete();
-    this->AnnotatedValues = 0;
+    this->AnnotatedValues = nullptr;
   }
   else if (values)
   { // Ensure arrays are of the same type before copying.
@@ -1672,7 +1672,7 @@ void vtkScalarsToColors::SetAnnotations(
       if (this->AnnotatedValues->GetDataType() != values->GetDataType())
       {
         this->AnnotatedValues->Delete();
-        this->AnnotatedValues = 0;
+        this->AnnotatedValues = nullptr;
       }
     }
     if (!this->AnnotatedValues)
@@ -1691,7 +1691,7 @@ void vtkScalarsToColors::SetAnnotations(
   if (this->Annotations && !annotations)
   {
     this->Annotations->Delete();
-    this->Annotations = 0;
+    this->Annotations = nullptr;
   }
   else if (!this->Annotations && annotations)
   {

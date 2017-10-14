@@ -64,23 +64,23 @@ static vtkQtSQLDatabaseInitializer vtkQtSQLDatabaseInitializerGlobal;
 vtkQtSQLDatabase::vtkQtSQLDatabase()
 {
   vtkQtSQLDatabaseInitializerGlobal.Use();
-  this->DatabaseType = NULL;
-  this->HostName = NULL;
-  this->UserName = NULL;
-  this->DatabaseName = NULL;
+  this->DatabaseType = nullptr;
+  this->HostName = nullptr;
+  this->UserName = nullptr;
+  this->DatabaseName = nullptr;
   this->Port = -1;
-  this->ConnectOptions = NULL;
+  this->ConnectOptions = nullptr;
   this->myTables = vtkStringArray::New();
   this->currentRecord = vtkStringArray::New();
 }
 
 vtkQtSQLDatabase::~vtkQtSQLDatabase()
 {
-  this->SetDatabaseType(NULL);
-  this->SetHostName(NULL);
-  this->SetUserName(NULL);
-  this->SetDatabaseName(NULL);
-  this->SetConnectOptions(NULL);
+  this->SetDatabaseType(nullptr);
+  this->SetHostName(nullptr);
+  this->SetUserName(nullptr);
+  this->SetDatabaseName(nullptr);
+  this->SetConnectOptions(nullptr);
   this->myTables->Delete();
   this->currentRecord->Delete();
 }
@@ -93,7 +93,7 @@ bool vtkQtSQLDatabase::Open(const char* password)
     return false;
   }
 
-  if (this->DatabaseType == NULL)
+  if (this->DatabaseType == nullptr)
   {
     vtkErrorMacro("Qt database type must be non-null.");
     return false;
@@ -104,15 +104,15 @@ bool vtkQtSQLDatabase::Open(const char* password)
   const QString connection_name = QString::number(this->id++);
   this->QtDatabase = QSqlDatabase::addDatabase(this->DatabaseType, connection_name);
 
-  if (this->HostName != NULL)
+  if (this->HostName != nullptr)
   {
     this->QtDatabase.setHostName(this->HostName);
   }
-  if (this->DatabaseName != NULL)
+  if (this->DatabaseName != nullptr)
   {
     this->QtDatabase.setDatabaseName(this->DatabaseName);
   }
-  if (this->ConnectOptions != NULL)
+  if (this->ConnectOptions != nullptr)
   {
     this->QtDatabase.setConnectOptions(this->ConnectOptions);
   }
@@ -254,12 +254,12 @@ bool vtkQtSQLDatabase::IsSupported(int feature)
 void vtkQtSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
-  os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
-  os << indent << "UserName: " << (this->UserName ? this->UserName : "NULL") << endl;
-  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
+  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
+  os << indent << "HostName: " << (this->HostName ? this->HostName : "nullptr") << endl;
+  os << indent << "UserName: " << (this->UserName ? this->UserName : "nullptr") << endl;
+  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "nullptr") << endl;
   os << indent << "Port: " << this->Port << endl;
-  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
+  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "nullptr") << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -317,7 +317,7 @@ vtkSQLDatabase* vtkQtSQLDatabase::CreateFromURL( const char* URL )
     return qt_db;
   }
   qt_db->Delete();
-  return NULL;
+  return nullptr;
 }
 
 // ----------------------------------------------------------------------

@@ -168,7 +168,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
   void *in1Ptr, *in2Ptr;
   void *outPtr;
 
-  if (inData[0][0] == NULL)
+  if (inData[0][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
@@ -182,7 +182,7 @@ void vtkImageCheckerboard::ThreadedRequestData(
 
   outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
-  if (inData[1][0] == NULL)
+  if (inData[1][0] == nullptr)
   {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;

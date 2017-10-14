@@ -39,17 +39,17 @@ class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
   vtkBaseTypeMacro(vtkInformationKey,vtkObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Prevent normal vtkObject reference counting behavior.
    */
-  void Register(vtkObjectBase*) VTK_OVERRIDE;
+  void Register(vtkObjectBase*) override;
 
   /**
    * Prevent normal vtkObject reference counting behavior.
    */
-  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase*) override;
 
   /**
    * Get the name of the key.  This is not the type of the key, but
@@ -72,7 +72,7 @@ public:
    * literals because the strings are not copied.
    */
   vtkInformationKey(const char* name, const char* location);
-  ~vtkInformationKey() VTK_OVERRIDE;
+  ~vtkInformationKey() override;
   //@}
 
   /**
@@ -163,7 +163,7 @@ protected:
 #define vtkInformationKeySetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
 { \
-  if ( this->name == NULL && _arg == NULL) { return;} \
+  if ( this->name == nullptr && _arg == nullptr) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   delete [] this->name; \
   if (_arg) \
@@ -176,7 +176,7 @@ virtual void Set##name (const char* _arg) \
   } \
    else \
    { \
-    this->name = NULL; \
+    this->name = nullptr; \
    } \
 }
 
@@ -198,8 +198,8 @@ virtual void Set##name (const char* _arg) \
   void ConstructClass(const char*);
 
 private:
-  vtkInformationKey(const vtkInformationKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationKey&) VTK_DELETE_FUNCTION;
+  vtkInformationKey(const vtkInformationKey&) = delete;
+  void operator=(const vtkInformationKey&) = delete;
 };
 
 // Macros to define an information key instance in a C++ source file.

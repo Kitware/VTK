@@ -31,11 +31,12 @@
 
 class vtkPolyData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPContourGridManyPieces : public vtkContourGrid
 {
 public:
   vtkTypeMacro(vtkSMPContourGridManyPieces,vtkContourGrid);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Constructor.
@@ -44,15 +45,15 @@ public:
 
 protected:
   vtkSMPContourGridManyPieces();
-  ~vtkSMPContourGridManyPieces() VTK_OVERRIDE;
+  ~vtkSMPContourGridManyPieces() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
+  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) = delete;
+  void operator=(const vtkSMPContourGridManyPieces&) = delete;
 };
-
+#endif //VTK_LEGACY_REMOVE
 #endif

@@ -52,7 +52,7 @@ class VTKIOMPIIMAGE_EXPORT vtkPNrrdReader : public vtkNrrdReader
 public:
   vtkTypeMacro(vtkPNrrdReader, vtkNrrdReader);
   static vtkPNrrdReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,8 +67,8 @@ protected:
   vtkPNrrdReader();
   ~vtkPNrrdReader();
 
-  virtual int ReadHeader() VTK_OVERRIDE;
-  virtual int ReadHeader(vtkCharArray *headerBuffer) VTK_OVERRIDE;
+  virtual int ReadHeader() override;
+  virtual int ReadHeader(vtkCharArray *headerBuffer) override;
 
   /**
    * Returns the size, in bytes of the scalar data type (GetDataScalarType).
@@ -120,13 +120,13 @@ protected:
   //@}
 
   virtual void ExecuteDataWithInformation(vtkDataObject *data,
-                                          vtkInformation *outInfo) VTK_OVERRIDE;
+                                          vtkInformation *outInfo) override;
 
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPNrrdReader(const vtkPNrrdReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNrrdReader &) VTK_DELETE_FUNCTION;
+  vtkPNrrdReader(const vtkPNrrdReader &) = delete;
+  void operator=(const vtkPNrrdReader &) = delete;
 };
 
 #endif //vtkPNrrdReader_h

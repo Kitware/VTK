@@ -63,7 +63,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
 
   vtkDebugMacro( << "PDB File (" << this->HBScale
     << ", " << this->BScale << ")");
-  while(fgets(linebuf, sizeof linebuf, fp) != NULL &&
+  while(fgets(linebuf, sizeof linebuf, fp) != nullptr &&
     strncmp("END", linebuf, 3))
   {
     char elem[3] = { 0 };

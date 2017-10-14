@@ -166,8 +166,8 @@ int vtkCompositeDataProbeFilter::BuildFieldList(vtkCompositeDataSet* source)
 {
   delete this->PointList;
   delete this->CellList;
-  this->PointList = 0;
-  this->CellList = 0;
+  this->PointList = nullptr;
+  this->CellList = nullptr;
 
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(source->NewIterator());

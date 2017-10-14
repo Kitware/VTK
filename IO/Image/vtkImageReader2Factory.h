@@ -48,7 +48,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2Factory : public vtkObject
 public:
   static vtkImageReader2Factory *New();
   vtkTypeMacro(vtkImageReader2Factory,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * registered readers will be queried in CreateImageReader2 to
@@ -72,14 +72,14 @@ public:
 
 protected:
   vtkImageReader2Factory();
-  ~vtkImageReader2Factory() VTK_OVERRIDE;
+  ~vtkImageReader2Factory() override;
 
   static void InitializeReaders();
 
 private:
   static vtkImageReader2Collection* AvailableReaders;
-  vtkImageReader2Factory(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
+  vtkImageReader2Factory(const vtkImageReader2Factory&) = delete;
+  void operator=(const vtkImageReader2Factory&) = delete;
 
   friend class vtkImageReader2FactoryCleanup;
 

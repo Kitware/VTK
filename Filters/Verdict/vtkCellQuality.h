@@ -80,7 +80,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
   };
 
 public:
-  void PrintSelf (ostream&, vtkIndent) VTK_OVERRIDE;
+  void PrintSelf (ostream&, vtkIndent) override;
   vtkTypeMacro(vtkCellQuality, vtkDataSetAlgorithm);
   static vtkCellQuality* New ();
 
@@ -243,7 +243,7 @@ public:
   double PolygonArea (vtkCell*);
 
 protected:
- ~vtkCellQuality () VTK_OVERRIDE;
+ ~vtkCellQuality () override;
   vtkCellQuality ();
 
   /**
@@ -357,7 +357,7 @@ protected:
   double ComputePixelQuality (vtkCell*);
 
   int RequestData
-    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+    (vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   //@{
   /**
@@ -384,8 +384,8 @@ private:
   vtkIdList* PointIds;
   vtkPoints* Points;
 
-  vtkCellQuality(const vtkCellQuality&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellQuality&) VTK_DELETE_FUNCTION;
+  vtkCellQuality(const vtkCellQuality&) = delete;
+  void operator=(const vtkCellQuality&) = delete;
 };
 
 #endif // vtkCellQuality_h

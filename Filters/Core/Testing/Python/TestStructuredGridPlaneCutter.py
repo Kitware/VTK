@@ -6,14 +6,15 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # Control debugging parameters
 res = 50
 
-# Create the RenderWindow, Renderer
-#
+# Create the RenderWindow, Renderers
 ren0 = vtk.vtkRenderer()
 ren1 = vtk.vtkRenderer()
+ren2 = vtk.vtkRenderer()
 renWin = vtk.vtkRenderWindow()
 renWin.SetMultiSamples(0)
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
+renWin.AddRenderer(ren2)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
@@ -43,6 +44,7 @@ plane.SetNormal(1,1,1)
 cutter = vtk.vtkCutter()
 cutter.SetInputData(input)
 cutter.SetCutFunction(plane)
+cutter.GeneratePolygons = 0
 
 cutterMapper = vtk.vtkPolyDataMapper()
 cutterMapper.SetInputConnection(cutter.GetOutputPort())
@@ -75,6 +77,20 @@ sCutterActor = vtk.vtkActor()
 sCutterActor.SetMapper(sCutterMapper)
 sCutterActor.GetProperty().SetColor(1,1,1)
 
+# Now create the accelerated version.
+snCutter = vtk.vtkPlaneCutter()
+snCutter.SetInputData(input)
+snCutter.SetPlane(plane)
+snCutter.BuildTreeOff()
+
+snCutterMapper = vtk.vtkCompositePolyDataMapper()
+snCutterMapper.SetInputConnection(sCutter.GetOutputPort())
+snCutterMapper.ScalarVisibilityOff()
+
+snCutterActor = vtk.vtkActor()
+snCutterActor.SetMapper(sCutterMapper)
+snCutterActor.GetProperty().SetColor(1,1,1)
+
 outlineT = vtk.vtkOutlineFilter()
 outlineT.SetInputData(input)
 
@@ -106,21 +122,25 @@ SC = sCutter_timer.GetElapsedWallClockTime()
 print ("vtkPlaneCutter:", SC)
 
 # Add the actors to the renderer, set the background and size
-#
 ren0.AddActor(outlineActor)
 ren0.AddActor(cutterActor)
 ren1.AddActor(outlineActorT)
 ren1.AddActor(sCutterActor)
+ren2.AddActor(outlineActorT)
+ren2.AddActor(snCutterActor)
 
 ren0.SetBackground(0,0,0)
 ren1.SetBackground(0,0,0)
-ren0.SetViewport(0,0,0.5,1);
-ren1.SetViewport(0.5,0,1,1);
-renWin.SetSize(600,300)
+ren2.SetBackground(0,0,0)
+ren0.SetViewport(0,0,0.33,1);
+ren1.SetViewport(0.33,0,0.66,1);
+ren2.SetViewport(0.66,0,1,1);
+renWin.SetSize(900,300)
 ren0.ResetCamera()
 ren1.ResetCamera()
+ren2.ResetCamera()
 iren.Initialize()
 
 renWin.Render()
-#iren.Start()
+iren.Start()
 # --- end of script --

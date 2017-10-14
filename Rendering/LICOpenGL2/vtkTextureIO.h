@@ -41,8 +41,8 @@ public:
   static void Write(
           const char *filename,
           vtkTextureObject *texture,
-          const unsigned int *subset=NULL,
-          const double *origin=NULL);
+          const unsigned int *subset=nullptr,
+          const double *origin=nullptr);
 
   /**
    * Write to disk as image data with subset(optional) at dataset origin(optional)
@@ -50,8 +50,8 @@ public:
   static void Write(
           std::string filename,
           vtkTextureObject *texture,
-          const unsigned int *subset=NULL,
-          const double *origin=NULL)
+          const unsigned int *subset=nullptr,
+          const double *origin=nullptr)
   {
       Write(filename.c_str(), texture, subset, origin);
   }
@@ -63,7 +63,7 @@ public:
           std::string filename,
           vtkTextureObject *texture,
           const vtkPixelExtent &subset,
-          const double *origin=NULL)
+          const double *origin=nullptr)
   {
       Write(filename.c_str(), texture, subset.GetDataU(), origin);
   }
@@ -75,7 +75,7 @@ public:
           const char *filename,
           vtkTextureObject *texture,
           const std::deque<vtkPixelExtent> &exts,
-          const double *origin=NULL);
+          const double *origin=nullptr);
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
           std::string filename,
           vtkTextureObject *texture,
           const std::deque<vtkPixelExtent> &exts,
-          const double *origin=NULL)
+          const double *origin=nullptr)
   {
       Write(filename.c_str(),texture,exts,origin);
   }

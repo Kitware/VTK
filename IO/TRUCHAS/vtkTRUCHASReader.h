@@ -34,7 +34,7 @@ class VTKIOTRUCHAS_EXPORT vtkTRUCHASReader
 public:
   static vtkTRUCHASReader *New();
   vtkTypeMacro(vtkTRUCHASReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,7 +69,7 @@ public:
   int GetNumberOfPointArrays();
 
   /**
-   * Returns the name of point array at the give index. Returns NULL if index is
+   * Returns the name of point array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetPointArrayName(int index);
@@ -90,7 +90,7 @@ public:
   int GetNumberOfCellArrays();
 
   /**
-   * Returns the name of cell array at the give index. Returns NULL if index is
+   * Returns the name of cell array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetCellArrayName(int index);
@@ -105,18 +105,18 @@ public:
 
 protected:
   vtkTRUCHASReader();
-  ~vtkTRUCHASReader();
+  ~vtkTRUCHASReader() override;
 
   /**
    * Overridden to announce timesteps we can produce
    */
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+                         vtkInformationVector *) override;
   /**
    * Overridden to read the file and parse into an output
    */
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) override;
 
   char *FileName;
 
@@ -129,8 +129,8 @@ protected:
   vtkDataArraySelection* CellArrayChoices;
 
 private:
-  vtkTRUCHASReader(const vtkTRUCHASReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTRUCHASReader&) VTK_DELETE_FUNCTION;
+  vtkTRUCHASReader(const vtkTRUCHASReader&) = delete;
+  void operator=(const vtkTRUCHASReader&) = delete;
 
 };
 

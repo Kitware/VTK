@@ -185,7 +185,7 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
     outObservations->SetNumberOfComponents(1);
     outObservations->SetNumberOfTuples(inObservations->GetNumberOfTuples());
 
-    this->ComputeHDR(inObservations.GetPointer(), outObservations);
+    this->ComputeHDR(inObservations, outObservations);
     std::stringstream ss;
     ss <<"HDR (" << inputColX->GetName() << "," << inputColY->GetName() << ")";
     outObservations->SetName(ss.str().c_str());
@@ -200,7 +200,7 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
   } // End requests iteration.
 
   outMeta->SetNumberOfBlocks(1);
-  outMeta->SetBlock(0, outputColumns.GetPointer());
+  outMeta->SetBlock(0, outputColumns);
   vtkInformation* info =
     outMeta->GetMetaData(static_cast<unsigned int>(0));
   info->Set(vtkCompositeDataSet::NAME(), "Estimator of density Data");

@@ -33,15 +33,15 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayViewNodeFactory :
 public:
   static vtkOSPRayViewNodeFactory* New();
   vtkTypeMacro(vtkOSPRayViewNodeFactory, vtkViewNodeFactory);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkOSPRayViewNodeFactory();
   ~vtkOSPRayViewNodeFactory();
 
 private:
-  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
+  vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&) = delete;
+  void operator=(const vtkOSPRayViewNodeFactory&) = delete;
 };
 
 #endif

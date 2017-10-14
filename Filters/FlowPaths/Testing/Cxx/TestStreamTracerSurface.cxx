@@ -45,7 +45,7 @@ int TestStreamTracerSurface(int argc, char* argv[])
   calc->Update();
 
   vtkNew<vtkPoints> points;
-  vtkDataSet* calcData = calc->GetOutput();
+  vtkDataSet* calcData = vtkDataSet::SafeDownCast(calc->GetOutput());
   vtkIdType nLine = static_cast<vtkIdType>(sqrt(static_cast<double>(calcData->GetNumberOfPoints())));
   for (vtkIdType i = 0; i < nLine; i += 10)
   {
@@ -53,14 +53,14 @@ int TestStreamTracerSurface(int argc, char* argv[])
   }
 
   vtkNew<vtkPolyData> pointsPolydata;
-  pointsPolydata->SetPoints(points.Get());
+  pointsPolydata->SetPoints(points);
 
   vtkNew<vtkStreamTracer> stream;
   stream->SurfaceStreamlinesOn();
   stream->SetMaximumPropagation(210);
   stream->SetIntegrationDirection(vtkStreamTracer::BOTH);
   stream->SetInputConnection(calc->GetOutputPort());
-  stream->SetSourceData(pointsPolydata.Get());
+  stream->SetSourceData(pointsPolydata);
 
   vtkNew<vtkDataSetMapper> streamMapper;
   streamMapper->SetInputConnection(stream->GetOutputPort());
@@ -70,30 +70,30 @@ int TestStreamTracerSurface(int argc, char* argv[])
   surfaceMapper->SetInputConnection(calc->GetOutputPort());
 
   vtkNew<vtkActor> streamActor;
-  streamActor->SetMapper(streamMapper.Get());
+  streamActor->SetMapper(streamMapper);
   streamActor->GetProperty()->SetColor(1, 1, 1);
   streamActor->GetProperty()->SetLineWidth(4.);
   streamActor->SetPosition(0, 0, 1);
 
   vtkNew<vtkActor> surfaceActor;
-  surfaceActor->SetMapper(surfaceMapper.Get());
+  surfaceActor->SetMapper(surfaceMapper);
   surfaceActor->GetProperty()->SetRepresentationToSurface();
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(surfaceActor.GetPointer());
-  renderer->AddActor(streamActor.GetPointer());
+  renderer->AddActor(surfaceActor);
+  renderer->AddActor(streamActor);
   renderer->ResetCamera();
   renderer->SetBackground(1., 1., 1.);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

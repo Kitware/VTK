@@ -45,13 +45,13 @@ class VTKFILTERSGENERAL_EXPORT vtkInterpolatingSubdivisionFilter : public vtkSub
 {
 public:
   vtkTypeMacro(vtkInterpolatingSubdivisionFilter, vtkSubdivisionFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkInterpolatingSubdivisionFilter();
-  ~vtkInterpolatingSubdivisionFilter() VTK_OVERRIDE {}
+  ~vtkInterpolatingSubdivisionFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   virtual int GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD) = 0;
   void GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD);
   int FindEdge (vtkPolyData *mesh, vtkIdType cellId, vtkIdType p1,
@@ -59,8 +59,8 @@ protected:
   vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
                                  vtkIdList *stencil, double *weights);
 private:
-  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInterpolatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&) = delete;
+  void operator=(const vtkInterpolatingSubdivisionFilter&) = delete;
 };
 
 #endif

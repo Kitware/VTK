@@ -34,7 +34,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkHierarchicalBoxDataSetAlgorithm : public
 public:
   static vtkHierarchicalBoxDataSetAlgorithm* New();
   vtkTypeMacro(vtkHierarchicalBoxDataSetAlgorithm, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -59,11 +59,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkHierarchicalBoxDataSetAlgorithm();
-  ~vtkHierarchicalBoxDataSetAlgorithm() VTK_OVERRIDE;
+  ~vtkHierarchicalBoxDataSetAlgorithm() override;
 
   /**
    * This is called by the superclass.
@@ -103,17 +103,17 @@ protected:
   //@}
 
   // Create a default executive.
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) = delete;
 
 };
 

@@ -38,7 +38,7 @@ LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message,
     }
       break;
     case WM_DESTROY:
-      vtkWin32OutputWindowOutputWindow = NULL;
+      vtkWin32OutputWindowOutputWindow = nullptr;
       vtkObject::GlobalWarningDisplayOff();
       break;
     case WM_CREATE:
@@ -140,7 +140,7 @@ void vtkWin32OutputWindow::AddText(const char* someText)
   // move to the end of the text area
   SendMessageW( vtkWin32OutputWindowOutputWindow, EM_SETSEL,
                (WPARAM)-1, (LPARAM)-1 );
-  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, someText, 32000)+1];
+  wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, someText, 32000)+1];
   mbstowcs(wmsg, someText, 32000);
   // Append the text to the control
   SendMessageW( vtkWin32OutputWindowOutputWindow, EM_REPLACESEL,
@@ -173,21 +173,21 @@ int vtkWin32OutputWindow::Initialize()
   WNDCLASS wndClass;
   // has the class been registered ?
 #ifdef UNICODE
-  if (!GetClassInfo(GetModuleHandle(NULL),L"vtkOutputWindow",&wndClass))
+  if (!GetClassInfo(GetModuleHandle(nullptr),L"vtkOutputWindow",&wndClass))
 #else
-  if (!GetClassInfo(GetModuleHandle(NULL),"vtkOutputWindow",&wndClass))
+  if (!GetClassInfo(GetModuleHandle(nullptr),"vtkOutputWindow",&wndClass))
 #endif
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW;
     wndClass.lpfnWndProc = vtkWin32OutputWindowWndProc;
     wndClass.cbClsExtra = 0;
-    wndClass.hInstance = GetModuleHandle(NULL);
+    wndClass.hInstance = GetModuleHandle(nullptr);
 #ifndef _WIN32_WCE
-    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
 #endif
-    wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    wndClass.lpszMenuName = NULL;
+    wndClass.lpszMenuName = nullptr;
 #ifdef UNICODE
     wndClass.lpszClassName = L"vtkOutputWindow";
 #else
@@ -207,25 +207,25 @@ int vtkWin32OutputWindow::Initialize()
     L"vtkOutputWindow", L"vtkOutputWindow",
     WS_OVERLAPPED | WS_CLIPCHILDREN,
     0, 0, 800, 512,
-    NULL, NULL, GetModuleHandle(NULL), NULL);
+    nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #elif UNICODE
   HWND win = CreateWindow(
     L"vtkOutputWindow", L"vtkOutputWindow",
     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
     0, 0, 900, 700,
-    NULL, NULL, GetModuleHandle(NULL), NULL);
+    nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #else
   HWND win = CreateWindow(
     "vtkOutputWindow", "vtkOutputWindow",
     WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
     0, 0, 900, 700,
-    NULL, NULL, GetModuleHandle(NULL), NULL);
+    nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 #endif
 
   // Now create child window with text display box
   CREATESTRUCT lpParam;
-  lpParam.hInstance = GetModuleHandle(NULL);
-  lpParam.hMenu = NULL;
+  lpParam.hInstance = GetModuleHandle(nullptr);
+  lpParam.hMenu = nullptr;
   lpParam.hwndParent = win;
   lpParam.cx = 900;
   lpParam.cy = 700;
@@ -261,7 +261,7 @@ int vtkWin32OutputWindow::Initialize()
     lpParam.cx,           // window width
     lpParam.cy,          // window height
     lpParam.hwndParent,      // handle to parent or owner window
-    NULL,          // handle to menu or child-window identifier
+    nullptr,          // handle to menu or child-window identifier
     lpParam.hInstance,     // handle to application instance
     &lpParam        // pointer to window-creation data
     );
@@ -275,7 +275,7 @@ int vtkWin32OutputWindow::Initialize()
     lpParam.cx,           // window width
     lpParam.cy,          // window height
     lpParam.hwndParent,      // handle to parent or owner window
-    NULL,          // handle to menu or child-window identifier
+    nullptr,          // handle to menu or child-window identifier
     lpParam.hInstance,     // handle to application instance
     &lpParam        // pointer to window-creation data
     );
@@ -300,20 +300,21 @@ int vtkWin32OutputWindow::Initialize()
 //----------------------------------------------------------------------------
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
-  char *vtkmsg = new char [strlen(someText) + 100];
-  sprintf(vtkmsg,"%s\nPress Cancel to suppress any further messages.",
+  size_t vtkmsgsize = strlen(someText) + 100;
+  char *vtkmsg = new char [vtkmsgsize];
+  snprintf(vtkmsg,vtkmsgsize,"%s\nPress Cancel to suppress any further messages.",
           someText);
 #ifdef UNICODE
-  wchar_t *wmsg = new wchar_t [mbstowcs(NULL, vtkmsg, 32000)+1];
+  wchar_t *wmsg = new wchar_t [mbstowcs(nullptr, vtkmsg, 32000)+1];
   mbstowcs(wmsg, vtkmsg, 32000);
-  if (MessageBox(NULL, wmsg, L"Error",
+  if (MessageBox(nullptr, wmsg, L"Error",
                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
   {
     vtkObject::GlobalWarningDisplayOff();
   }
   delete [] wmsg;
 #else
-  if (MessageBox(NULL, vtkmsg, "Error",
+  if (MessageBox(nullptr, vtkmsg, "Error",
                  MB_ICONERROR | MB_OKCANCEL) == IDCANCEL)
   {
     vtkObject::GlobalWarningDisplayOff();

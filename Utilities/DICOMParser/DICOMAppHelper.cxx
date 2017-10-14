@@ -103,7 +103,7 @@ DICOMAppHelper::DICOMAppHelper()
   this->TransferSyntaxUID = new dicom_stl::string();
   this->RescaleOffset = 0.0;
   this->RescaleSlope = 1.0;
-  this->ImageData = NULL;
+  this->ImageData = nullptr;
   this->ImageDataLengthInBytes = 0;
   this->PatientName = new dicom_stl::string();
   this->StudyUID = new dicom_stl::string();
@@ -893,7 +893,7 @@ void DICOMAppHelper::PixelDataCallback( DICOMParser *,
   unsigned char* ucharInputData = data;
   short* shortInputData = reinterpret_cast<short*> (data);
 
-  float* floatOutputData; // = NULL;
+  float* floatOutputData; // = nullptr;
 
   bool isFloat = this->RescaledImageDataIsFloat();
 

@@ -26,8 +26,6 @@ viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 [viewer GetActor2D] SetDisplayPosition 150 150
+viewer SetSize 256 270
 
 viewer Render
-
-
-

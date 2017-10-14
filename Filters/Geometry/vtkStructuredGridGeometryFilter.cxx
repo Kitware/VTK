@@ -55,10 +55,10 @@ int vtkStructuredGridGeometryFilter::RequestData(
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6], *inExt;
   vtkIdType ptIds[4], idx, startIdx, startCellIdx, cellId;
-  vtkPoints *newPts=0;
-  vtkCellArray *newVerts=0;
-  vtkCellArray *newLines=0;
-  vtkCellArray *newPolys=0;
+  vtkPoints *newPts=nullptr;
+  vtkCellArray *newVerts=nullptr;
+  vtkCellArray *newLines=nullptr;
+  vtkCellArray *newPolys=nullptr;
   vtkIdType totPoints, pos, cellPos;
   int offset[3], cellOffset[3], numPolys;
   double x[3];
@@ -67,7 +67,7 @@ int vtkStructuredGridGeometryFilter::RequestData(
 
   vtkDebugMacro(<< "Extracting structured points geometry");
 
-  if ( input->GetPoints() == NULL)
+  if ( input->GetPoints() == nullptr)
   {
     vtkDebugMacro(<<"No data to extract");
     return 1;

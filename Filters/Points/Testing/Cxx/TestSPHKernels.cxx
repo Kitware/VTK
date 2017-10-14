@@ -49,7 +49,7 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
   // Test 2D
   kernel->SetDimension(2);
   kernel->SetSpatialStep(smoothingLen);
-  kernel->Initialize(NULL,NULL,NULL);
+  kernel->Initialize(nullptr,nullptr,nullptr);
   normFactor = kernel->GetNormFactor();
   cutoff = kernel->GetCutoffFactor();
   inc = 2.0*cutoff / static_cast<double>(res);
@@ -75,7 +75,7 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
   // Test 3D
   kernel->SetDimension(3);
   kernel->SetSpatialStep(smoothingLen);
-  kernel->Initialize(NULL,NULL,NULL);
+  kernel->Initialize(nullptr,nullptr,nullptr);
   normFactor = kernel->GetNormFactor();
   cutoff = kernel->GetCutoffFactor();
   inc = 2.0*cutoff / static_cast<double>(res);

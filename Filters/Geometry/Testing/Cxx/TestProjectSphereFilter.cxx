@@ -75,7 +75,7 @@ int TestProjectSphereFilter(int vtkNotUsed(argc), char* [])
   calculator->SetInputConnection(sphere->GetOutputPort());
   calculator->SetResultArrayName("result");
   calculator->SetFunction("-coordsY*iHat/sqrt(coordsY^2+coordsX^2)+coordsX*jHat/sqrt(coordsY^2+coordsX^2)");
-  calculator->SetAttributeModeToUsePointData();
+  calculator->SetAttributeTypeToPointData();
   calculator->AddCoordinateScalarVariable("coordsX", 0);
   calculator->AddCoordinateScalarVariable("coordsY", 1);
 

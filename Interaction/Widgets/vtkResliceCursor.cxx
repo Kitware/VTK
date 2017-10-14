@@ -59,7 +59,7 @@ vtkResliceCursor::vtkResliceCursor()
 
   this->ThickMode               = 1;
 
-  this->Image                   = NULL;
+  this->Image                   = nullptr;
 
   this->PolyData                = vtkPolyData::New();
   vtkSmartPointer< vtkPoints > points
@@ -103,7 +103,7 @@ vtkResliceCursor::vtkResliceCursor()
 //----------------------------------------------------------------------------
 vtkResliceCursor::~vtkResliceCursor()
 {
-  this->SetImage(NULL);
+  this->SetImage(nullptr);
   this->PolyData->Delete();
   this->ReslicePlanes->Delete();
 

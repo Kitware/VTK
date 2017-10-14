@@ -275,7 +275,7 @@ int vtkContourLoopExtraction::RequestData(
 
   vtkPointData *inPD = input->GetPointData();
 
-  vtkDataArray *scalars = NULL;
+  vtkDataArray *scalars = nullptr;
   if ( this->ScalarThresholding )
   {
     scalars = inPD->GetScalars();

@@ -44,7 +44,7 @@ public:
 protected:
   vtkRTAnalyticSource2() {}
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) VTK_OVERRIDE
+  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) override
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 
@@ -64,7 +64,7 @@ protected:
     vtkNew<vtkIdTypeArray> ids;
     ids->SetName("GlobalNodeIds");
     ids->SetNumberOfValues(maxX * maxY * maxZ);
-    data->GetPointData()->SetGlobalIds(ids.Get());
+    data->GetPointData()->SetGlobalIds(ids);
 
     vtkIdType cnt = 0;
     for (int idxZ = 0; idxZ < maxZ; idxZ++)
@@ -81,8 +81,8 @@ protected:
   }
 
 private:
-  vtkRTAnalyticSource2(const vtkRTAnalyticSource2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRTAnalyticSource2&) VTK_DELETE_FUNCTION;
+  vtkRTAnalyticSource2(const vtkRTAnalyticSource2&) = delete;
+  void operator=(const vtkRTAnalyticSource2&) = delete;
 };
 
 vtkStandardNewMacro(vtkRTAnalyticSource2);
@@ -96,7 +96,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   // Initialize the MPI controller
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv, 0);
-  vtkMultiProcessController::SetGlobalController(controller.Get());
+  vtkMultiProcessController::SetGlobalController(controller);
   int rankId = controller->GetLocalProcessId();
   int nbRanks = controller->GetNumberOfProcesses();
 
@@ -113,16 +113,16 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   // Prepare the ghost cells generator
   vtkNew<vtkPUnstructuredGridGhostCellsGenerator> ghostGenerator;
   ghostGenerator->SetInputData(initialGrid);
-  ghostGenerator->SetController(controller.Get());
+  ghostGenerator->SetController(controller);
   ghostGenerator->UseGlobalPointIdsOn();
 
   // Check BuildIfRequired option
   ghostGenerator->BuildIfRequiredOff();
   ghostGenerator->UpdatePiece(rankId, nbRanks, 0);
 
-  if (ghostGenerator->GetOutput()->GetCellGhostArray() == NULL)
+  if (ghostGenerator->GetOutput()->GetCellGhostArray() == nullptr)
   {
-    vtkMPIUtilities::Printf(controller.Get(),
+    vtkMPIUtilities::Printf(controller,
       "Ghost were not generated but were explicitely requested!\n");
     ret = EXIT_FAILURE;
   }
@@ -132,14 +132,14 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
   if (ghostGenerator->GetOutput()->GetCellGhostArray())
   {
-    vtkMPIUtilities::Printf(controller.Get(),
+    vtkMPIUtilities::Printf(controller,
       "Ghost were generated but were not requested!\n");
     ret = EXIT_FAILURE;
   }
 
   // Check if algorithm works with empty input on all nodes except first one
   vtkNew<vtkUnstructuredGrid> emptyGrid;
-  ghostGenerator->SetInputData(rankId == 0 ? initialGrid : emptyGrid.Get());
+  ghostGenerator->SetInputData(rankId == 0 ? initialGrid : emptyGrid);
   ghostGenerator->UpdatePiece(rankId, nbRanks, 1);
   ghostGenerator->SetInputData(initialGrid);
   ghostGenerator->Modified();
@@ -161,7 +161,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
       // Save the grid for further analysis
       outGrids[step] = ghostGenerator->GetOutput();
-      outGrids[step]->Register(0);
+      outGrids[step]->Register(nullptr);
 
       double elapsed = timer->GetElapsedTime();
 
@@ -173,7 +173,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       controller->Reduce(&elapsed, &maxGhostUpdateTime, 1, vtkCommunicator::MAX_OP, 0);
       controller->Reduce(&elapsed, &avgGhostUpdateTime, 1, vtkCommunicator::SUM_OP, 0);
       avgGhostUpdateTime /= static_cast<double>(nbRanks);
-      vtkMPIUtilities::Printf(controller.Get(),
+      vtkMPIUtilities::Printf(controller,
         "-- Ghost Level: %i Elapsed Time: min=%f, avg=%f, max=%f\n",
         ghostLevel, minGhostUpdateTime, avgGhostUpdateTime, maxGhostUpdateTime);
     }
@@ -181,7 +181,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
     vtkIdType initialNbOfCells = initialGrid->GetNumberOfCells();
     if (outGrids[0]->GetNumberOfCells() != outGrids[1]->GetNumberOfCells())
     {
-      vtkMPIUtilities::Printf(controller.Get(),
+      vtkMPIUtilities::Printf(controller,
         "Grids obtained with and without global ids for ghost level %i do not have the same number of cells!\n",
         ghostLevel);
       ret = EXIT_FAILURE;
@@ -193,14 +193,14 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         outGrids[step]->GetCellGhostArray());
       if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
       {
-        vtkMPIUtilities::Printf(controller.Get(),
+        vtkMPIUtilities::Printf(controller,
           "Obtained grids for ghost level %i has less or as many cells as the input grid!\n",
           ghostLevel);
         ret = EXIT_FAILURE;
       }
       if (!ghosts)
       {
-        vtkMPIUtilities::Printf(controller.Get(),
+        vtkMPIUtilities::Printf(controller,
           "Ghost cells array not found at ghost level %i, step %d!\n",
           ghostLevel, step);
         ret = EXIT_FAILURE;
@@ -212,7 +212,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         unsigned char val = ghosts->GetValue(i);
         if (i < initialNbOfCells && val != 0)
         {
-          vtkMPIUtilities::Printf(controller.Get(),
+          vtkMPIUtilities::Printf(controller,
             "Ghost Level %i Cell %d is not supposed to be a ghost cell but it is!\n",
             ghostLevel, i);
           ret = EXIT_FAILURE;
@@ -220,7 +220,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         }
         if (i >= initialNbOfCells && val != 1)
         {
-          vtkMPIUtilities::Printf(controller.Get(),
+          vtkMPIUtilities::Printf(controller,
             "Ghost Level %i Cell %d is supposed to be a ghost cell but it's not!\n",
             ghostLevel, i);
           ret = EXIT_FAILURE;

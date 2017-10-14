@@ -55,7 +55,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkScalarTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarTree,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -100,7 +100,7 @@ public:
 
   /**
    * Return the next cell that may contain scalar value specified to
-   * initialize traversal. The value NULL is returned if the list is
+   * initialize traversal. The value nullptr is returned if the list is
    * exhausted. Make sure that InitTraversal() has been invoked first or
    * you'll get erratic behavior.
    */
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkScalarTree();
-  ~vtkScalarTree() VTK_OVERRIDE;
+  ~vtkScalarTree() override;
 
   vtkDataSet   *DataSet;    //the dataset over which the scalar tree is built
   vtkDataArray *Scalars;    //the scalars of the DataSet
@@ -148,8 +148,8 @@ protected:
   vtkTimeStamp BuildTime; //time at which tree was built
 
 private:
-  vtkScalarTree(const vtkScalarTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarTree&) VTK_DELETE_FUNCTION;
+  vtkScalarTree(const vtkScalarTree&) = delete;
+  void operator=(const vtkScalarTree&) = delete;
 };
 
 #endif

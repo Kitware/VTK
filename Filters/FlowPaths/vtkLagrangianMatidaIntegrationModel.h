@@ -44,7 +44,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianMatidaIntegrationModel :
 {
 public:
   vtkTypeMacro(vtkLagrangianMatidaIntegrationModel, vtkLagrangianBasicIntegrationModel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLagrangianMatidaIntegrationModel* New();
 
   // Needed for multiple signatures polymorphism
@@ -55,11 +55,11 @@ public:
    * f at position x, using data from cell in dataSet with index cellId
    */
   int FunctionValues(vtkDataSet* dataSet, vtkIdType cellId,
-    double* weights, double* x, double* f) VTK_OVERRIDE;
+    double* weights, double* x, double* f) override;
 
 protected:
   vtkLagrangianMatidaIntegrationModel();
-  ~vtkLagrangianMatidaIntegrationModel() VTK_OVERRIDE;
+  ~vtkLagrangianMatidaIntegrationModel() override;
 
   static double GetRelaxationTime(double dynVisc, double diameter, double density);
 
@@ -69,8 +69,8 @@ protected:
     double flowDensity);
 
 private:
-  vtkLagrangianMatidaIntegrationModel(const vtkLagrangianMatidaIntegrationModel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianMatidaIntegrationModel&) VTK_DELETE_FUNCTION;
+  vtkLagrangianMatidaIntegrationModel(const vtkLagrangianMatidaIntegrationModel&) = delete;
+  void operator=(const vtkLagrangianMatidaIntegrationModel&) = delete;
 };
 
 #endif

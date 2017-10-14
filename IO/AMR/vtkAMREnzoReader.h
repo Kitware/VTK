@@ -37,7 +37,7 @@ class VTKIOAMR_EXPORT vtkAMREnzoReader : public vtkAMRBaseReader
 public:
   static vtkAMREnzoReader* New();
   vtkTypeMacro(vtkAMREnzoReader,vtkAMRBaseReader);
-  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -51,21 +51,21 @@ public:
   /**
    * See vtkAMRBaseReader::GetNumberOfBlocks
    */
-  int GetNumberOfBlocks() VTK_OVERRIDE;
+  int GetNumberOfBlocks() override;
 
   /**
    * See vtkAMRBaseReader::GetNumberOfLevels
    */
-  int GetNumberOfLevels() VTK_OVERRIDE;
+  int GetNumberOfLevels() override;
 
   /**
    * See vtkAMRBaseReader::SetFileName
    */
-  void SetFileName( const char* fileName ) VTK_OVERRIDE;
+  void SetFileName( const char* fileName ) override;
 
 protected:
   vtkAMREnzoReader();
-  ~vtkAMREnzoReader() VTK_OVERRIDE;
+  ~vtkAMREnzoReader() override;
 
   /**
    * Parses the parameters file and extracts the
@@ -102,48 +102,48 @@ protected:
   /**
    * See vtkAMRBaseReader::ReadMetaData
    */
-  void ReadMetaData() VTK_OVERRIDE;
+  void ReadMetaData() override;
 
   /**
    * See vtkAMRBaseReader::GetBlockLevel
    */
-  int GetBlockLevel( const int blockIdx ) VTK_OVERRIDE;
+  int GetBlockLevel( const int blockIdx ) override;
 
   void ComputeStats(vtkEnzoReaderInternal* internal, std::vector<int>& blocksPerLevel, double min[3]);
 
   /**
    * See vtkAMRBaseReader::FillMetaData
    */
-  int FillMetaData( ) VTK_OVERRIDE;
+  int FillMetaData( ) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGrid
    */
-  vtkUniformGrid* GetAMRGrid( const int blockIdx ) VTK_OVERRIDE;
+  vtkUniformGrid* GetAMRGrid( const int blockIdx ) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridData(
-      const int blockIdx, vtkUniformGrid *block, const char *field) VTK_OVERRIDE;
+      const int blockIdx, vtkUniformGrid *block, const char *field) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridPointData(
-      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) VTK_OVERRIDE {;};
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) override {;};
 
   /**
    * See vtkAMRBaseReader::SetUpDataArraySelections
    */
-  void SetUpDataArraySelections() VTK_OVERRIDE;
+  void SetUpDataArraySelections() override;
 
   int ConvertToCGS;
   bool IsReady;
 
 private:
-  vtkAMREnzoReader( const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
+  vtkAMREnzoReader( const vtkAMREnzoReader& ) = delete;
+  void operator=(const vtkAMREnzoReader& ) = delete;
 
   vtkEnzoReaderInternal *Internal;
 

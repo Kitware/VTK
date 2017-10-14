@@ -42,7 +42,7 @@ class VTKRENDERINGCORE_EXPORT vtkBackgroundColorMonitor : public vtkObject
 public:
   static vtkBackgroundColorMonitor* New();
   vtkTypeMacro(vtkBackgroundColorMonitor, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Fetches the current background color state and
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkBackgroundColorMonitor();
-  ~vtkBackgroundColorMonitor() VTK_OVERRIDE{}
+  ~vtkBackgroundColorMonitor() override{}
 
 private:
   unsigned int UpTime;
@@ -70,8 +70,8 @@ private:
   double Color2[3];
 
 private:
- vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) VTK_DELETE_FUNCTION;
- void operator=(const vtkBackgroundColorMonitor&) VTK_DELETE_FUNCTION;
+ vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&) = delete;
+ void operator=(const vtkBackgroundColorMonitor&) = delete;
 };
 
 #endif

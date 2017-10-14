@@ -22,7 +22,7 @@
 // pick methods and picking is performed from the renderer's actors.
 vtkAbstractPicker::vtkAbstractPicker()
 {
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
 
   this->SelectionPoint[0] = 0.0;
   this->SelectionPoint[1] = 0.0;
@@ -44,7 +44,7 @@ vtkAbstractPicker::~vtkAbstractPicker()
 // Initialize the picking process.
 void vtkAbstractPicker::Initialize()
 {
-  this->Renderer = NULL;
+  this->Renderer = nullptr;
 
   this->SelectionPoint[0] = 0.0;
   this->SelectionPoint[1] = 0.0;

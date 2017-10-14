@@ -37,7 +37,7 @@ class VTKIOIMAGE_EXPORT vtkDEMReader : public vtkImageAlgorithm
 public:
   static vtkDEMReader *New();
   vtkTypeMacro(vtkDEMReader,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -176,11 +176,11 @@ public:
    * to 1 and the output scalar type is VTK_FLOAT.
    */
   int RequestInformation (vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
 protected:
   vtkDEMReader();
-  ~vtkDEMReader() VTK_OVERRIDE;
+  ~vtkDEMReader() override;
 
   vtkTimeStamp ReadHeaderTime;
   int NumberOfColumns;
@@ -212,11 +212,11 @@ protected:
   int ReadProfiles (vtkImageData *data);
   int RequestData(  vtkInformation* request,
                             vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector) VTK_OVERRIDE;
+                            vtkInformationVector* outputVector) override;
 
 private:
-  vtkDEMReader(const vtkDEMReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDEMReader&) VTK_DELETE_FUNCTION;
+  vtkDEMReader(const vtkDEMReader&) = delete;
+  void operator=(const vtkDEMReader&) = delete;
 };
 
 #endif

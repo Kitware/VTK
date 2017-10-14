@@ -35,7 +35,7 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextBufferId : public vtkAbs
 {
 public:
   vtkTypeMacro(vtkOpenGLContextBufferId, vtkAbstractContextBufferId);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
@@ -45,21 +45,21 @@ public:
   /**
    * Release any graphics resources that are being consumed by this object.
    */
-  void ReleaseGraphicsResources() VTK_OVERRIDE;
+  void ReleaseGraphicsResources() override;
 
   //@{
   /**
    * Set/Get the OpenGL context owning the texture object resource.
    */
-  void SetContext(vtkRenderWindow *context) VTK_OVERRIDE;
-  vtkRenderWindow *GetContext() VTK_OVERRIDE;
+  void SetContext(vtkRenderWindow *context) override;
+  vtkRenderWindow *GetContext() override;
   //@}
 
   /**
    * Returns if the context supports the required extensions.
    * \pre context_is_set: this->GetContext()!=0
    */
-  bool IsSupported() VTK_OVERRIDE;
+  bool IsSupported() override;
 
   /**
    * Allocate the memory for at least Width*Height elements.
@@ -67,12 +67,12 @@ public:
    * \pre positive_height: GetHeight()>0
    * \pre context_is_set: this->GetContext()!=0
    */
-  void Allocate() VTK_OVERRIDE;
+  void Allocate() override;
 
   /**
    * Tell if the buffer has been allocated.
    */
-  bool IsAllocated() const VTK_OVERRIDE;
+  bool IsAllocated() const override;
 
   /**
    * Copy the contents of the current read buffer to the internal texture
@@ -80,7 +80,7 @@ public:
    * \pre is_allocated: this->IsAllocated()
    */
   void SetValues(int srcXmin,
-                         int srcYmin) VTK_OVERRIDE;
+                         int srcYmin) override;
 
   /**
    * Return item under abscissa x and ordinate y.
@@ -90,18 +90,18 @@ public:
    * \pre is_allocated: IsAllocated()
    * \post valid_result: result>=-1
    */
-  vtkIdType GetPickedItem(int x, int y) VTK_OVERRIDE;
+  vtkIdType GetPickedItem(int x, int y) override;
 
 protected:
   vtkOpenGLContextBufferId();
-  ~vtkOpenGLContextBufferId() VTK_OVERRIDE;
+  ~vtkOpenGLContextBufferId() override;
 
   vtkOpenGLRenderWindow *Context;
   vtkTextureObject *Texture;
 
 private:
-  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLContextBufferId &) VTK_DELETE_FUNCTION;
+  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &) = delete;
+  void operator=(const vtkOpenGLContextBufferId &) = delete;
 };
 
 #endif // #ifndef vtkOpenGLContextBufferId_h

@@ -36,7 +36,7 @@ class VTKIOINFOVIS_EXPORT vtkBiomTableReader : public vtkTableReader
 public:
   static vtkBiomTableReader *New();
   vtkTypeMacro(vtkBiomTableReader,vtkTableReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -49,18 +49,18 @@ public:
 
 protected:
   vtkBiomTableReader();
-  ~vtkBiomTableReader() VTK_OVERRIDE;
+  ~vtkBiomTableReader() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
   void ParseShape();
   void ParseDataType();
   void ParseSparseness();
@@ -68,7 +68,7 @@ protected:
   void FillData(vtkVariant v);
   void ParseSparseData();
   void ParseDenseData();
-  void InsertValue(int row, int col, std::string value);
+  void InsertValue(int row, int col, const std::string& value);
   void ParseId();
   void ParseColumns();
   void ParseRows();
@@ -79,8 +79,8 @@ private:
   int NumberOfColumns;
   int DataType;
   bool Sparse;
-  vtkBiomTableReader(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
+  vtkBiomTableReader(const vtkBiomTableReader&) = delete;
+  void operator=(const vtkBiomTableReader&) = delete;
 };
 
 #endif

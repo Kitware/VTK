@@ -56,7 +56,7 @@ int TestPolyhedron3(int argc, char *argv[])
 
   vtkNew<vtkClipDataSet> clip;
   clip->SetInputConnection(reader->GetOutputPort());
-  clip->SetClipFunction(plane.Get());
+  clip->SetClipFunction(plane);
   clip->Update();
 
   vtkUnstructuredGrid* result = clip->GetOutput(0);

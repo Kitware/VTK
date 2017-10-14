@@ -51,7 +51,7 @@ public:
   /**
    * Print the vtkEncodedGradientShader
    */
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkEncodedGradientShader();
-  ~vtkEncodedGradientShader() VTK_OVERRIDE;
+  ~vtkEncodedGradientShader() override;
 
   /**
    * Build a shading table for a light with the specified direction,
@@ -138,8 +138,8 @@ protected:
   float    ZeroNormalDiffuseIntensity;
   float    ZeroNormalSpecularIntensity;
 private:
-  vtkEncodedGradientShader(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
+  vtkEncodedGradientShader(const vtkEncodedGradientShader&) = delete;
+  void operator=(const vtkEncodedGradientShader&) = delete;
 };
 
 

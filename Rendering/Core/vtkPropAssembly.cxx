@@ -43,7 +43,7 @@ vtkPropAssembly::~vtkPropAssembly()
   }
 
   this->Parts->Delete();
-  this->Parts = NULL;
+  this->Parts = nullptr;
 }
 
 // Add a part to the list of Parts.
@@ -100,7 +100,7 @@ int vtkPropAssembly::RenderTranslucentPolygonalGeometry(vtkViewport *ren)
       prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderTranslucentPolygonalGeometry(ren);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -157,7 +157,7 @@ int vtkPropAssembly::RenderVolumetricGeometry(vtkViewport *ren)
       prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderVolumetricGeometry(ren);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -189,7 +189,7 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
       prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderOpaqueGeometry(ren);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -220,7 +220,7 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
       prop->SetAllocatedRenderTime(fraction, ren);
       prop->PokeMatrix(path->GetLastNode()->GetMatrix());
       renderedSomething += prop->RenderOverlay(ren);
-      prop->PokeMatrix(NULL);
+      prop->PokeMatrix(nullptr);
     }
   }
 
@@ -260,7 +260,7 @@ double *vtkPropAssembly::GetBounds()
     {
       const double *bounds = part->GetBounds();
 
-      if ( bounds != NULL )
+      if ( bounds != nullptr )
       {
         //  For the purposes of GetBounds, an object is visisble only if
         //  its visibility is on and it has visible parts.
@@ -302,7 +302,7 @@ double *vtkPropAssembly::GetBounds()
 
   if ( ! partVisible )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -331,7 +331,7 @@ vtkMTimeType vtkPropAssembly::GetMTime()
 void vtkPropAssembly::ShallowCopy(vtkProp *prop)
 {
   vtkPropAssembly *propAssembly = vtkPropAssembly::SafeDownCast(prop);
-  if ( propAssembly != NULL && propAssembly != this )
+  if ( propAssembly != nullptr && propAssembly != this )
   {
     vtkCollectionSimpleIterator pit;
     vtkProp *part;
@@ -363,7 +363,7 @@ vtkAssemblyPath *vtkPropAssembly::GetNextPath()
   {
     return this->Paths->GetNextItem();
   }
-  return NULL;
+  return nullptr;
 }
 
 int vtkPropAssembly::GetNumberOfPaths()
@@ -378,10 +378,10 @@ void vtkPropAssembly::UpdatePaths()
 {
   if ( this->GetMTime() > this->PathTime )
   {
-    if ( this->Paths != NULL )
+    if ( this->Paths != nullptr )
     {
       this->Paths->Delete();
-      this->Paths = NULL;
+      this->Paths = nullptr;
     }
 
     // Create the list to hold all the paths
@@ -389,7 +389,7 @@ void vtkPropAssembly::UpdatePaths()
     vtkAssemblyPath *path = vtkAssemblyPath::New();
 
     //add ourselves to the path to start things off
-    path->AddNode(this,NULL);
+    path->AddNode(this,nullptr);
 
     vtkProp *prop;
     // Add nodes as we proceed down the hierarchy
@@ -422,7 +422,7 @@ void vtkPropAssembly::BuildPaths(vtkAssemblyPaths *paths,
   for ( this->Parts->InitTraversal(pit);
         (prop = this->Parts->GetNextProp(pit)); )
   {
-    path->AddNode(prop,NULL);
+    path->AddNode(prop,nullptr);
 
     // dive into the hierarchy
     prop->BuildPaths(paths,path);

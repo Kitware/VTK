@@ -48,7 +48,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
  public:
   static vtkDataObjectGenerator *New();
   vtkTypeMacro(vtkDataObjectGenerator,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -60,20 +60,20 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator
 
 protected:
   vtkDataObjectGenerator();
-  ~vtkDataObjectGenerator() VTK_OVERRIDE;
+  ~vtkDataObjectGenerator() override;
 
   int RequestData(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV) VTK_OVERRIDE;
+                  vtkInformationVector *outV) override;
   int RequestDataObject(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV) VTK_OVERRIDE;
+                  vtkInformationVector *outV) override;
   int RequestInformation(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV) VTK_OVERRIDE;
+                  vtkInformationVector *outV) override;
   int RequestUpdateExtent(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV) VTK_OVERRIDE;
+                  vtkInformationVector *outV) override;
 
   //the string to parse to create a structure
   char *Program;
@@ -119,8 +119,8 @@ protected:
   void MakeValues(vtkDataSet *ds);
 
 private:
-  vtkDataObjectGenerator(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
+  vtkDataObjectGenerator(const vtkDataObjectGenerator&) = delete;
+  void operator=(const vtkDataObjectGenerator&) = delete;
 };
 
 #endif

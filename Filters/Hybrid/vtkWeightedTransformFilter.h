@@ -81,12 +81,12 @@ class VTKFILTERSHYBRID_EXPORT vtkWeightedTransformFilter : public vtkPointSetAlg
 public:
   static vtkWeightedTransformFilter *New();
   vtkTypeMacro(vtkWeightedTransformFilter,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the MTime also considering the filter's transforms.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -148,7 +148,7 @@ public:
   /**
    * Set or Get one of the filter's transforms. The transform number must
    * be less than the number of transforms allocated for the object.  Setting
-   * a transform slot to NULL is equivalent to assigning an overriding weight
+   * a transform slot to nullptr is equivalent to assigning an overriding weight
    * of zero to that filter slot.
    */
   virtual void SetTransform(vtkAbstractTransform *transform, int num);
@@ -189,12 +189,12 @@ protected:
   char *TransformIndexArray;
 
   vtkWeightedTransformFilter();
-  ~vtkWeightedTransformFilter() VTK_OVERRIDE;
+  ~vtkWeightedTransformFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
+  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) = delete;
+  void operator=(const vtkWeightedTransformFilter&) = delete;
 };
 
 #endif

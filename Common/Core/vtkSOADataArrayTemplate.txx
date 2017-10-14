@@ -34,7 +34,7 @@ vtkSOADataArrayTemplate<ValueType>::New()
 //-----------------------------------------------------------------------------
 template<class ValueType>
 vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
-  : AoSCopy(NULL),
+  : AoSCopy(nullptr),
     NumberOfComponentsReciprocal(1.0)
 {
 }
@@ -51,7 +51,7 @@ vtkSOADataArrayTemplate<ValueType>::~vtkSOADataArrayTemplate()
   if (this->AoSCopy)
   {
     this->AoSCopy->Delete();
-    this->AoSCopy = NULL;
+    this->AoSCopy = nullptr;
   }
 }
 
@@ -104,7 +104,7 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray *other)
       {
         thisBuffer->Delete();
         this->Data[cc] = otherBuffer;
-        otherBuffer->Register(NULL);
+        otherBuffer->Register(nullptr);
       }
     }
     this->DataChanged();
@@ -236,7 +236,7 @@ vtkSOADataArrayTemplate<ValueType>::GetComponentArrayPointer(int comp)
   if (comp >= numComps || comp < 0)
   {
     vtkErrorMacro("Invalid component number '" << comp << "' specified.");
-    return NULL;
+    return nullptr;
   }
 
   return this->Data[comp]->GetBuffer();
@@ -298,7 +298,7 @@ void *vtkSOADataArrayTemplate<ValueType>::GetVoidPointer(vtkIdType valueIdx)
   {
     vtkErrorMacro(<<"Error allocating a buffer of " << numValues << " '"
                   << this->GetDataTypeAsString() << "' elements.");
-    return NULL;
+    return nullptr;
   }
 
   this->ExportToVoidPointer(static_cast<void*>(this->AoSCopy->GetBuffer()));
@@ -319,7 +319,7 @@ void vtkSOADataArrayTemplate<ValueType>::ExportToVoidPointer(void *voidPtr)
 
   if (!voidPtr)
   {
-    vtkErrorMacro(<< "Buffer is NULL.");
+    vtkErrorMacro(<< "Buffer is nullptr.");
     return;
   }
 

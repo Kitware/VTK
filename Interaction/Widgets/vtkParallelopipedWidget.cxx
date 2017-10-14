@@ -57,19 +57,19 @@ vtkParallelopipedWidget::vtkParallelopipedWidget()
   // Define widget events
   this->CallbackMapper->SetCallbackMethod(
             vtkCommand::LeftButtonPressEvent,
-            vtkEvent::NoModifier, 0, 1, NULL,
+            vtkEvent::NoModifier, 0, 1, nullptr,
             vtkParallelopipedWidget::RequestResizeEvent,
             this, vtkParallelopipedWidget::RequestResizeAlongAnAxisCallback);
 // Commented out by Will because it is unstable code
 //            this, vtkParallelopipedWidget::RequestResizeCallback);
   this->CallbackMapper->SetCallbackMethod(
             vtkCommand::LeftButtonPressEvent,
-            vtkEvent::ShiftModifier, 0, 1, NULL,
+            vtkEvent::ShiftModifier, 0, 1, nullptr,
             vtkParallelopipedWidget::RequestResizeAlongAnAxisEvent,
             this, vtkParallelopipedWidget::RequestResizeAlongAnAxisCallback);
   this->CallbackMapper->SetCallbackMethod(
             vtkCommand::LeftButtonPressEvent,
-            vtkEvent::ControlModifier, 0, 1, NULL,
+            vtkEvent::ControlModifier, 0, 1, nullptr,
             vtkParallelopipedWidget::RequestChairModeEvent,
             this, vtkParallelopipedWidget::RequestChairModeCallback);
   this->CallbackMapper->SetCallbackMethod(
@@ -81,7 +81,7 @@ vtkParallelopipedWidget::vtkParallelopipedWidget()
             vtkWidgetEvent::Move,
             this, vtkParallelopipedWidget::OnMouseMoveCallback);
 
-  this->WidgetSet = NULL;
+  this->WidgetSet = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -129,7 +129,7 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
     {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
 
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -178,7 +178,7 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling------------------
@@ -213,8 +213,8 @@ void vtkParallelopipedWidget::SetEnabled(int enabling)
 
     this->CurrentRenderer->RemoveViewProp(this->WidgetRep);
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   // Should only render if there is no parent
@@ -250,7 +250,7 @@ void vtkParallelopipedWidget::RequestResizeCallback(vtkAbstractWidget *w)
   {
     self->EventCallbackCommand->SetAbortFlag(1);
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     self->Interactor->Render();
   }
 }
@@ -291,7 +291,7 @@ void vtkParallelopipedWidget
   {
     self->EventCallbackCommand->SetAbortFlag(1);
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     self->Interactor->Render();
   }
 }
@@ -330,7 +330,7 @@ void vtkParallelopipedWidget::RequestChairModeCallback(vtkAbstractWidget *w)
 
     self->EventCallbackCommand->SetAbortFlag(1);
     self->StartInteraction();
-    self->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     self->Interactor->Render();
   }
 }
@@ -374,7 +374,7 @@ void vtkParallelopipedWidget
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   this->Interactor->Render();
 }
 
@@ -414,7 +414,7 @@ void vtkParallelopipedWidget::OnLeftButtonUpCallback(vtkAbstractWidget *w)
   {
     self->Interactor->Render();
     self->SetCursor(newInteractionState);
-    self->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
   }
 }
 
@@ -463,7 +463,7 @@ void vtkParallelopipedWidget::OnMouseMoveCallback(vtkAbstractWidget *w)
   {
     self->Interactor->Render();
     self->SetCursor(newInteractionState);
-    self->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   }
 }
 

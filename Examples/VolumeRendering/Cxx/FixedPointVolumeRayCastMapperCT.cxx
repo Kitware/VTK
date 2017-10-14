@@ -108,22 +108,25 @@ int main(int argc, char *argv[])
     }
     else if ( !strcmp( argv[count], "-DICOM" ) )
     {
-      dirname = new char[strlen(argv[count+1])+1];
-      sprintf( dirname, "%s", argv[count+1] );
+      size_t size = strlen(argv[count+1])+1;
+      dirname = new char[size];
+      snprintf( dirname, size, "%s", argv[count+1] );
       count += 2;
     }
     else if ( !strcmp( argv[count], "-VTI" ) )
     {
-      fileName = new char[strlen(argv[count+1])+1];
+      size_t size = strlen(argv[count+1])+1;
+      fileName = new char[size];
       fileType = VTI_FILETYPE;
-      sprintf( fileName, "%s", argv[count+1] );
+      snprintf( fileName, size, "%s", argv[count+1] );
       count += 2;
     }
     else if ( !strcmp( argv[count], "-MHA" ) )
     {
-      fileName = new char[strlen(argv[count+1])+1];
+      size_t size = strlen(argv[count+1])+1;
+      fileName = new char[size];
       fileType = MHA_FILETYPE;
-      sprintf( fileName, "%s", argv[count+1] );
+      snprintf( fileName, size, "%s", argv[count+1] );
       count += 2;
     }
     else if ( !strcmp( argv[count], "-Clip") )

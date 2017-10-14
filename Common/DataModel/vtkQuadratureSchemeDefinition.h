@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
 public:
   // vtk stuff
   vtkTypeMacro(vtkQuadratureSchemeDefinition,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkInformationQuadratureSchemeDefinitionVectorKey* DICTIONARY();
   static vtkInformationStringKey* QUADRATURE_OFFSET_ARRAY_NAME();
 
@@ -134,7 +134,7 @@ public:
 
 protected:
   vtkQuadratureSchemeDefinition();
-  ~vtkQuadratureSchemeDefinition() VTK_OVERRIDE;
+  ~vtkQuadratureSchemeDefinition() override;
 private:
   /**
    * Allocate/De-allocate resources that will be used by the definition.
@@ -158,8 +158,8 @@ private:
   void SetQuadratureWeights(const double *W);
 
   //
-  vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadratureSchemeDefinition &) VTK_DELETE_FUNCTION;
+  vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &) = delete;
+  void operator=(const vtkQuadratureSchemeDefinition &) = delete;
   friend ostream &operator<<(ostream &s, const vtkQuadratureSchemeDefinition &d);
   friend istream &operator>>(istream &s, vtkQuadratureSchemeDefinition &d);
   //

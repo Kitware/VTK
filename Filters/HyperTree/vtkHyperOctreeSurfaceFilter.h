@@ -38,7 +38,7 @@ class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeSurfaceFilter : public vtkPolyDat
 public:
   static vtkHyperOctreeSurfaceFilter *New();
   vtkTypeMacro(vtkHyperOctreeSurfaceFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -63,7 +63,7 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -79,10 +79,10 @@ public:
 
 protected:
   vtkHyperOctreeSurfaceFilter();
-  ~vtkHyperOctreeSurfaceFilter() VTK_OVERRIDE;
+  ~vtkHyperOctreeSurfaceFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   void GenerateLines(double bounds[2],
                      vtkIdType ptIds[2]);
@@ -114,8 +114,8 @@ protected:
   vtkIdTypeArray *OriginalCellIds;
 
 private:
-  vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&) = delete;
+  void operator=(const vtkHyperOctreeSurfaceFilter&) = delete;
 };
 
 #endif

@@ -99,7 +99,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridConnectivity :
 public:
   static vtkPUnstructuredGridConnectivity* New();
   vtkTypeMacro(vtkPUnstructuredGridConnectivity,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -326,8 +326,8 @@ protected:
   void ExtractBoundaryGrid();
 
 private:
-  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
+  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&) = delete;
+  void operator=(const vtkPUnstructuredGridConnectivity&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

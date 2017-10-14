@@ -37,13 +37,13 @@ class VTKRENDERINGOPENGL_EXPORT vtkShader2Collection : public vtkCollection
  public:
   static vtkShader2Collection *New();
   vtkTypeMacro(vtkShader2Collection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Modified GetMTime because the collection time depends on the
    * content of the shaders.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Add a shader to the bottom of the list.
@@ -120,7 +120,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkShader2Collection : public vtkCollection
 
 protected:
   vtkShader2Collection();
-  ~vtkShader2Collection() VTK_OVERRIDE;
+  ~vtkShader2Collection() override;
 
   bool HasShadersOfType(int);
 
@@ -128,8 +128,8 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o);
 
-  vtkShader2Collection(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
+  vtkShader2Collection(const vtkShader2Collection&) = delete;
+  void operator=(const vtkShader2Collection&) = delete;
 };
 
 #endif

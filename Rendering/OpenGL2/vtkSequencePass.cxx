@@ -24,7 +24,7 @@ vtkCxxSetObjectMacro(vtkSequencePass,Passes,vtkRenderPassCollection);
 // ----------------------------------------------------------------------------
 vtkSequencePass::vtkSequencePass()
 {
-  this->Passes = 0;
+  this->Passes = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Passes:";
-  if (this->Passes != 0)
+  if (this->Passes != nullptr)
   {
     this->Passes->PrintSelf(os, indent);
   }
@@ -58,7 +58,7 @@ void vtkSequencePass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkSequencePass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s != 0);
+  assert("pre: s_exists" && s != nullptr);
 
   this->NumberOfRenderedProps = 0;
   if (this->Passes)
@@ -81,7 +81,7 @@ void vtkSequencePass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkSequencePass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w != 0);
+  assert("pre: w_exists" && w != nullptr);
 
   if (this->Passes)
   {

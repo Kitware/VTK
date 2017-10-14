@@ -72,8 +72,8 @@ void vtkPDFExporter::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkPDFExporter::vtkPDFExporter()
-  : Title(NULL),
-    FileName(NULL),
+  : Title(nullptr),
+    FileName(nullptr),
     Impl(new Details)
 {
   this->SetTitle("VTK Exported Scene");
@@ -82,8 +82,8 @@ vtkPDFExporter::vtkPDFExporter()
 //------------------------------------------------------------------------------
 vtkPDFExporter::~vtkPDFExporter()
 {
-  this->SetTitle(NULL);
-  this->SetFileName(NULL);
+  this->SetTitle(nullptr);
+  this->SetFileName(nullptr);
   delete this->Impl;
 }
 
@@ -96,7 +96,7 @@ void vtkPDFExporter::WriteData()
     return;
   }
 
-  this->Impl->Document = HPDF_New(handle_libharu_error, NULL);
+  this->Impl->Document = HPDF_New(handle_libharu_error, nullptr);
 
   if (!this->Impl->Document)
   {
@@ -138,7 +138,6 @@ void vtkPDFExporter::PrepareDocument()
   this->Impl->Page = HPDF_AddPage(this->Impl->Document);
   HPDF_Page_SetWidth(this->Impl->Page, this->RenderWindow->GetSize()[0]);
   HPDF_Page_SetHeight(this->Impl->Page, this->RenderWindow->GetSize()[1]);
-
 }
 
 //------------------------------------------------------------------------------
@@ -175,17 +174,14 @@ void vtkPDFExporter::RenderContextActors()
 void vtkPDFExporter::RenderContextActor(vtkContextActor *actor,
                                         vtkRenderer *ren)
 {
-  vtkNew<vtkContext2D> context;
-  vtkNew<vtkPDFContextDevice2D> device;
+  vtkContextDevice2D *oldForceDevice = actor->GetForceDevice();
 
+  vtkNew<vtkPDFContextDevice2D> device;
   device->SetHaruObjects(&this->Impl->Document, &this->Impl->Page);
   device->SetRenderer(ren);
-  device->Begin(ren);
-  context->Begin(device.Get());
+  actor->SetForceDevice(device);
 
-  actor->GetScene()->SetGeometry(ren->GetSize());
-  actor->GetScene()->Paint(context.Get());
+  actor->RenderOverlay(ren);
 
-  context->End();
-  device->End();
+  actor->SetForceDevice(oldForceDevice);
 }

@@ -50,7 +50,7 @@ extern int Vtkgeovistcl_Init(Tcl_Interp *interp);
 extern int Vtkinfovistcl_Init(Tcl_Interp *interp);
 #endif
 
-#ifdef VTK_USE_VIEWS
+#ifdef vtkViewsInfovis_LOADED
 extern int Vtkviewstcl_Init(Tcl_Interp *interp);
 #endif
 
@@ -121,7 +121,7 @@ int Vtktcl_Init(Tcl_Interp *interp)
   }
 #endif
 
-#ifdef VTK_USE_VIEWS
+#ifdef vtkViewsInfovis_LOADED
   if (Vtkviewstcl_Init(interp) == TCL_ERROR)
   {
     return TCL_ERROR;

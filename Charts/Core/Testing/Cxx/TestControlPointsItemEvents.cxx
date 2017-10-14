@@ -45,7 +45,7 @@ public:
   }
 
   void Execute( vtkObject *caller, unsigned long event,
-                void *vtkNotUsed(callData) ) VTK_OVERRIDE
+                void *vtkNotUsed(callData) ) override
   {
   vtkColorTransferFunction* self =
     reinterpret_cast< vtkColorTransferFunction* >( caller );
@@ -72,30 +72,30 @@ int TestControlPointsItemEvents(int, char*[])
   transferFunction->AddHSVSegment(170.,0.6666,1.,1.,200.,0.,1.,1.);
 
   vtkNew<vtkTFCallback> cbk;
-  transferFunction->AddObserver( vtkCommand::StartEvent, cbk.GetPointer() );
-  transferFunction->AddObserver( vtkCommand::ModifiedEvent, cbk.GetPointer() );
-  transferFunction->AddObserver( vtkCommand::EndEvent, cbk.GetPointer() );
-  transferFunction->AddObserver( vtkCommand::StartInteractionEvent, cbk.GetPointer() );
-  transferFunction->AddObserver( vtkCommand::InteractionEvent, cbk.GetPointer() );
-  transferFunction->AddObserver( vtkCommand::EndInteractionEvent, cbk.GetPointer() );
+  transferFunction->AddObserver( vtkCommand::StartEvent, cbk );
+  transferFunction->AddObserver( vtkCommand::ModifiedEvent, cbk );
+  transferFunction->AddObserver( vtkCommand::EndEvent, cbk );
+  transferFunction->AddObserver( vtkCommand::StartInteractionEvent, cbk );
+  transferFunction->AddObserver( vtkCommand::InteractionEvent, cbk );
+  transferFunction->AddObserver( vtkCommand::EndInteractionEvent, cbk );
 
   vtkNew<vtkColorTransferControlPointsItem> controlPoints;
-  controlPoints->SetColorTransferFunction(transferFunction.GetPointer());
+  controlPoints->SetColorTransferFunction(transferFunction);
 
 //  vtkNew<vtkChartXY> chart;
-//  chart->AddPlot(controlPoints.GetPointer());
+//  chart->AddPlot(controlPoints);
 
   vtkNew<vtkContextScene> scene;
-  scene->AddItem(controlPoints.GetPointer());
+  scene->AddItem(controlPoints);
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
-  interactorStyle->SetScene(scene.GetPointer());
+  interactorStyle->SetScene(scene);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetInteractorStyle(interactorStyle.GetPointer());
+  iren->SetInteractorStyle(interactorStyle);
 
   vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(iren.GetPointer());
+  recorder->SetInteractor(iren);
   recorder->ReadFromInputStringOn();
 
   // Add a point at (60, 0.5) and move it to (62, 0.5)

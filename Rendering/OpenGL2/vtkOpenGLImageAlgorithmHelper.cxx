@@ -34,23 +34,23 @@ vtkStandardNewMacro(vtkOpenGLImageAlgorithmHelper);
 // ----------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::vtkOpenGLImageAlgorithmHelper()
 {
-  this->RenderWindow = 0;
+  this->RenderWindow = nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkOpenGLImageAlgorithmHelper::~vtkOpenGLImageAlgorithmHelper()
 {
-  this->SetRenderWindow(0);
+  this->SetRenderWindow(nullptr);
 }
 
 void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow *renWin)
 {
-  if (renWin == this->RenderWindow.Get())
+  if (renWin == this->RenderWindow.GetPointer())
   {
     return;
   }
 
-  vtkOpenGLRenderWindow *orw  = NULL;
+  vtkOpenGLRenderWindow *orw  = nullptr;
   if (renWin)
   {
     orw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
@@ -132,7 +132,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   fbo->SetContext(this->RenderWindow);
 
   outputTex->Create2D(outDims[0], outDims[1], 4, VTK_FLOAT, false);
-  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex.Get());
+  fbo->AddColorAttachment(fbo->GetDrawMode(), 0, outputTex);
 
   // because the same FBO can be used in another pass but with several color
   // buffers, force this pass to use 1, to avoid side effects from the
@@ -198,7 +198,7 @@ void vtkOpenGLImageAlgorithmHelper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "RenderWindow:";
-  if(this->RenderWindow != 0)
+  if(this->RenderWindow != nullptr)
   {
     this->RenderWindow->PrintSelf(os,indent);
   }

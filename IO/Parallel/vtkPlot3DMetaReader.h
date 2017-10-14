@@ -92,7 +92,7 @@ class VTKIOPARALLEL_EXPORT vtkPlot3DMetaReader : public vtkMultiBlockDataSetAlgo
 public:
   static vtkPlot3DMetaReader* New();
   vtkTypeMacro(vtkPlot3DMetaReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -105,14 +105,14 @@ public:
 
 protected:
   vtkPlot3DMetaReader();
-  ~vtkPlot3DMetaReader() VTK_OVERRIDE;
+  ~vtkPlot3DMetaReader() override;
 
   int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 
   char* FileName;
@@ -132,8 +132,8 @@ protected:
   void SetFunctionNames(Json::Value* val);
 
 private:
-  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
+  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) = delete;
+  void operator=(const vtkPlot3DMetaReader&) = delete;
 
   vtkMultiBlockPLOT3DReader* Reader;
   vtkPlot3DMetaReaderInternals* Internal;

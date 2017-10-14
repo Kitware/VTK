@@ -75,7 +75,7 @@ vtkGeoImageNode* vtkGeoImageNode::GetChild(int idx)
   if (idx < 0 || idx > 3)
   {
     vtkErrorMacro("Index out of range.");
-    return 0;
+    return nullptr;
   }
   return vtkGeoImageNode::SafeDownCast(this->Children[idx]);
 }
@@ -155,7 +155,7 @@ void vtkGeoImageNode::CropImageForTile(
     ext[2] = wholeExt[2];
   }
 
-  if (this->Image == 0)
+  if (this->Image == nullptr)
   {
     this->Image = vtkSmartPointer<vtkImageData>::New();
   }
@@ -232,7 +232,7 @@ void vtkGeoImageNode::ShallowCopy(vtkGeoTreeNode *src)
 {
   vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
 
-  if(imageNode != NULL)
+  if(imageNode != nullptr)
   {
     this->Image = imageNode->Image;
     this->Texture = imageNode->Texture;
@@ -245,13 +245,13 @@ void vtkGeoImageNode::DeepCopy(vtkGeoTreeNode *src)
 {
   vtkGeoImageNode *imageNode = vtkGeoImageNode::SafeDownCast(src);
 
-  if(imageNode != NULL)
+  if(imageNode != nullptr)
   {
     vtkImageData * image = vtkImageData::New();
     image->DeepCopy(imageNode->Image);
     this->SetImage(image);
     image->Delete();
-    image = NULL;
+    image = nullptr;
 
     this->Texture = imageNode->Texture;
   }
@@ -261,12 +261,12 @@ void vtkGeoImageNode::DeepCopy(vtkGeoTreeNode *src)
 //-----------------------------------------------------------------------------
 bool vtkGeoImageNode::HasData()
 {
-  return (this->Image != 0);
+  return (this->Image != nullptr);
 }
 
 //-----------------------------------------------------------------------------
 void vtkGeoImageNode::DeleteData()
 {
-  this->Image = 0;
-  this->Texture = 0;
+  this->Image = nullptr;
+  this->Texture = nullptr;
 }

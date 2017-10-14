@@ -37,7 +37,7 @@ public:
   static vtkImageConstantPad *New();
   vtkTypeMacro(vtkImageConstantPad,vtkImagePadFilter);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkImageConstantPad();
-  ~vtkImageConstantPad() VTK_OVERRIDE {}
+  ~vtkImageConstantPad() override {}
 
   double Constant;
 
@@ -58,10 +58,10 @@ protected:
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) VTK_OVERRIDE;
+                            int ext[6], int id) override;
 private:
-  vtkImageConstantPad(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
+  vtkImageConstantPad(const vtkImageConstantPad&) = delete;
+  void operator=(const vtkImageConstantPad&) = delete;
 };
 
 #endif

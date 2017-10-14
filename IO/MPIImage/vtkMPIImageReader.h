@@ -35,7 +35,7 @@
  *
  * Despite the name of this class, vtkMPIImageReader will work even if MPI is
  * not available.  If MPI is not available or MPIIO is not available or the
- * given Controller is not a vtkMPIController (or NULL), then this class will
+ * given Controller is not a vtkMPIController (or nullptr), then this class will
  * silently work exactly like its superclass.  The point is that you can safely
  * use this class in applications that may or may not be compiled with MPI (or
  * may or may not actually be run with MPI).
@@ -59,7 +59,7 @@ class VTKIOMPIIMAGE_EXPORT vtkMPIImageReader : public vtkImageReader
 public:
   vtkTypeMacro(vtkMPIImageReader, vtkImageReader);
   static vtkMPIImageReader *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -126,11 +126,11 @@ protected:
   //@}
 
   virtual void ExecuteDataWithInformation(vtkDataObject *data,
-                                          vtkInformation *outInfo) VTK_OVERRIDE;
+                                          vtkInformation *outInfo) override;
 
 private:
-  vtkMPIImageReader(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
+  vtkMPIImageReader(const vtkMPIImageReader &) = delete;
+  void operator=(const vtkMPIImageReader &) = delete;
 };
 
 #endif //vtkMPIImageReader_h

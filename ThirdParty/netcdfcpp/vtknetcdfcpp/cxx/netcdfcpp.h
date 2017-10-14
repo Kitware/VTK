@@ -69,7 +69,7 @@ class VTKNETCDFCPP_EXPORT NcFile
     NcVar* get_var( int ) const;           // n-th variable
     NcAtt* get_att( int ) const;           // n-th global attribute
     NcDim* rec_dim( void ) const;          // unlimited dimension, if any
-    
+
     // Add new dimensions, variables, global attributes.
     // These put the file in "define" mode, so could be expensive.
     virtual NcDim* add_dim( NcToken dimname, long dimsize );
@@ -113,7 +113,7 @@ class VTKNETCDFCPP_EXPORT NcFile
     NcBool sync( void );                   // synchronize to disk
     NcBool close( void );                  // to close earlier than dtr
     NcBool abort( void );                  // back out of bad defines
-    
+
     // Needed by other Nc classes, but users will not need them
     NcBool define_mode( void ); // leaves in define mode, if possible
     NcBool data_mode( void );   // leaves in data mode, if possible
@@ -163,7 +163,7 @@ class VTKNETCDFCPP_EXPORT NcDim
     NcDim(NcFile*, int num);	// existing dimension
     NcDim(NcFile*, NcToken name, long sz); // defines a new dim
     virtual ~NcDim( void );
-    
+
     // to construct dimensions, since constructor is private
     friend class NcFile;
 };
@@ -183,7 +183,7 @@ class VTKNETCDFCPP_EXPORT NcTypedComponent
     virtual NcToken name( void ) const = 0;
     virtual NcType type( void ) const = 0;
     virtual NcBool is_valid( void ) const = 0;
-    virtual long num_vals( void ) const = 0; 
+    virtual long num_vals( void ) const = 0;
     virtual NcBool rename( NcToken newname ) = 0;
     virtual NcValues* values( void ) const = 0; // block of all values
 
@@ -217,19 +217,19 @@ class VTKNETCDFCPP_EXPORT NcTypedComponent
 class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
 {
   public:
-    virtual ~NcVar( void );
-    NcToken name( void ) const;
-    NcType type( void ) const;
-    NcBool is_valid( void ) const;
+    virtual ~NcVar( void ) override;
+    NcToken name( void ) const override;
+    NcType type( void ) const override;
+    NcBool is_valid( void ) const override;
     int num_dims( void ) const;         // dimensionality of variable
     NcDim* get_dim( int ) const;        // n-th dimension
     size_t* edges( void ) const;          // dimension sizes
     int num_atts( void ) const;         // number of attributes
     NcAtt* get_att( NcToken ) const;    // attribute by name
     NcAtt* get_att( int ) const;        // n-th attribute
-    long num_vals( void ) const;        // product of dimension sizes
-    NcValues* values( void ) const;     // all values
-    
+    long num_vals( void ) const override;     // product of dimension sizes
+    NcValues* values( void ) const override;  // all values
+
     // Put scalar or 1, ..., 5 dimensional arrays by providing enough
     // arguments.  Arguments are edge lengths, and their number must not
     // exceed variable's dimensionality.  Start corner is [0,0,..., 0] by
@@ -277,7 +277,7 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
     NcBool get( float* vals, long c0=0, long c1=0,
                 long c2=0, long c3=0, long c4=0 ) const;
     NcBool get( double* vals, long c0=0, long c1=0,
-                long c2=0, long c3=0, long c4=0 ) const; 
+                long c2=0, long c3=0, long c4=0 ) const;
 
     // Get n-dimensional arrays, starting at [0, 0, ..., 0] by default,
     // may be reset with set_cur().
@@ -310,7 +310,7 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
     NcBool add_att( NcToken, int, const float* );
     NcBool add_att( NcToken, int, const double* );
 
-    NcBool rename( NcToken newname );
+    NcBool rename( NcToken newname ) override;
 
     long rec_size ( void );             // number of values per record
     long rec_size ( NcDim* );           // number of values per dimension slice
@@ -385,7 +385,7 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
 
     int id( void ) const;               // rarely needed, C interface id
     NcBool sync( void );
-    
+
   private:
     int dim_to_index(NcDim* rdim);
     int the_id;
@@ -414,14 +414,14 @@ class VTKNETCDFCPP_EXPORT NcVar : public NcTypedComponent
  */
 class VTKNETCDFCPP_EXPORT NcAtt : public NcTypedComponent
 {
-  public:          
-    virtual ~NcAtt( void );
-    NcToken name( void ) const;
-    NcType type( void ) const;
-    NcBool is_valid( void ) const;
-    long num_vals( void ) const; 
-    NcValues* values( void ) const;
-    NcBool rename( NcToken newname );
+  public:
+    virtual ~NcAtt( void ) override;
+    NcToken name( void ) const override;
+    NcType type( void ) const override;
+    NcBool is_valid( void ) const override;
+    long num_vals( void ) const override;
+    NcValues* values( void ) const override;
+    NcBool rename( NcToken newname ) override;
     NcBool remove( void );
 
   private:
@@ -431,7 +431,7 @@ class VTKNETCDFCPP_EXPORT NcAtt : public NcTypedComponent
     // attributes
     NcAtt( NcFile*, const NcVar*, NcToken);
     NcAtt( NcFile*, NcToken); // global attribute
-    
+
     // To make attributes, since constructor is private
   friend class NcFile;
   friend NcAtt* NcVar::get_att( NcToken ) const;
@@ -451,7 +451,7 @@ class VTKNETCDFCPP_EXPORT NcError {
         silent_nonfatal = 0,
         silent_fatal = 1,
         verbose_nonfatal = 2,
-        verbose_fatal = 3   
+        verbose_fatal = 3
       };
 
     // constructor saves previous error state, sets new state

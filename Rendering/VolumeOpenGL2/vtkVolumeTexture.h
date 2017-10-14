@@ -103,7 +103,7 @@ public:
   };
 
   vtkTypeMacro(vtkVolumeTexture, vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Set the parent volume mapper and initialize internals.
@@ -114,6 +114,7 @@ public:
    *  Set a number of blocks per axis.
    */
   void SetPartitions(int const x, int const y, int const z);
+  const Size3& GetPartitions();
 
   /**
    * Loads the data array into the texture in the case only a single block is
@@ -155,7 +156,7 @@ public:
 
 protected:
   vtkVolumeTexture();
-  ~vtkVolumeTexture() VTK_OVERRIDE;
+  ~vtkVolumeTexture() override;
 
 private:
   /**
@@ -192,8 +193,8 @@ private:
    */
   void ClearBlocks();
 
-  vtkVolumeTexture(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTexture&) VTK_DELETE_FUNCTION;
+  vtkVolumeTexture(const vtkVolumeTexture&) = delete;
+  void operator=(const vtkVolumeTexture&) = delete;
 
   //@{
   /**

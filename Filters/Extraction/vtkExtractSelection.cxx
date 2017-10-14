@@ -138,7 +138,7 @@ int vtkExtractSelection::RequestData(
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
       iter->GoToNextItem())
     {
-      vtkDataObject* subOutput = 0;
+      vtkDataObject* subOutput = nullptr;
       if (hbIter)
       {
         subOutput = this->RequestDataInternal(
@@ -172,7 +172,7 @@ int vtkExtractSelection::RequestData(
   }
   else
   {
-    vtkSelectionNode* node = 0;
+    vtkSelectionNode* node = nullptr;
     if (sel->GetNumberOfNodes() > 0)
     {
       node = sel->GetNode(0);
@@ -234,12 +234,12 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
   {
     vtkErrorMacro(
       "RequestDataInternal cannot be called with a composite data input.");
-    return NULL;
+    return nullptr;
   }
 
   if (!non_composite_input || !sel)
   {
-    return NULL;
+    return nullptr;
   }
 
   for (unsigned int n = 0; n < sel->GetNumberOfNodes(); ++n)
@@ -260,7 +260,7 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
       return this->RequestDataFromBlock(non_composite_input, node, outInfo);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -275,7 +275,7 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
   {
     vtkErrorMacro(
       "RequestDataInternal cannot be called with a composite data input.");
-    return NULL;
+    return nullptr;
   }
 
 
@@ -284,7 +284,7 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
 
   if (!non_composite_input || !sel)
   {
-    return NULL;
+    return nullptr;
   }
 
   for (unsigned int n = 0; n < sel->GetNumberOfNodes(); n++)
@@ -317,14 +317,14 @@ vtkDataObject* vtkExtractSelection::RequestDataInternal(
       return this->RequestDataFromBlock(non_composite_input, node, outInfo);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   vtkDataObject* input, vtkSelectionNode* sel, vtkInformation* outInfo)
 {
-  vtkAlgorithm *subFilter = NULL;
+  vtkAlgorithm *subFilter = nullptr;
   int seltype = sel->GetContentType();
   switch (seltype)
   {
@@ -361,9 +361,13 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
     subFilter = this->BlockFilter;
     break;
 
+  case vtkSelectionNode::USER:
+      vtkErrorMacro("User-supplied, application-specific selections are not supported.");
+      return nullptr;
+
   default:
       vtkErrorMacro("Unrecognized CONTENT_TYPE: " << seltype);
-      return NULL;
+      return nullptr;
   }
 
   if (vtkExtractSelectionBase* esb =
@@ -399,7 +403,7 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   //pass all required information to the helper filter
   int piece = 0;
   int npieces = 1;
-  int *uExtent=0;
+  int *uExtent=nullptr;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
   {
@@ -425,8 +429,8 @@ vtkDataObject* vtkExtractSelection::RequestDataFromBlock(
   inputCopy->Delete();
   ecOutput->Initialize();
 
-  subFilter->SetInputConnection(0, NULL);
-  subFilter->SetInputConnection(1, NULL);
+  subFilter->SetInputConnection(0, nullptr);
+  subFilter->SetInputConnection(1, nullptr);
   return output;
 }
 

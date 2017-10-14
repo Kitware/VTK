@@ -63,7 +63,7 @@ vtkDataObject *vtkImageAppendComponents::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
@@ -161,7 +161,7 @@ void vtkImageAppendComponents::ThreadedRequestData (
   outComp = 0;
   for (idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
-    if (inData[0][idx1] != NULL)
+    if (inData[0][idx1] != nullptr)
     {
       // this filter expects that input is the same type as output.
       if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
@@ -178,7 +178,7 @@ void vtkImageAppendComponents::ThreadedRequestData (
           vtkImageAppendComponentsExecute ( this,
                                             inData[0][idx1], outData[0],
                                             outComp, outExt, id,
-                                            static_cast<VTK_TT *>(0)) );
+                                            static_cast<VTK_TT *>(nullptr)) );
        default:
          vtkErrorMacro(<< "Execute: Unknown ScalarType");
          return;

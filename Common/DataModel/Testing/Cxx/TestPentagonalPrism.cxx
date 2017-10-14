@@ -196,7 +196,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
 
   std::cout << "  Testing GetParametricCoords...";
   double *parametricCoords = aCell->GetParametricCoords();
-  if (aCell->IsPrimaryCell() && parametricCoords == NULL)
+  if (aCell->IsPrimaryCell() && parametricCoords == nullptr)
   {
     ++status;
     std::cout << "...FAILED" << std::endl;

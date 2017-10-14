@@ -65,7 +65,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkRectilinearWipeRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -108,10 +108,10 @@ public:
    * are the methods that the widget and its representation use to
    * communicate with each other.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double eventPos[2]) override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
   //@}
 
   // Enums define the state of the prop relative to the mouse pointer
@@ -129,17 +129,17 @@ public:
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  void GetActors2D(vtkPropCollection *) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkRectilinearWipeRepresentation();
-  ~vtkRectilinearWipeRepresentation() VTK_OVERRIDE;
+  ~vtkRectilinearWipeRepresentation() override;
 
   // Instances that this class manipulates
   vtkImageRectilinearWipe *RectilinearWipe;
@@ -176,8 +176,8 @@ protected:
   int J;
 
 private:
-  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearWipeRepresentation&) VTK_DELETE_FUNCTION;
+  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&) = delete;
+  void operator=(const vtkRectilinearWipeRepresentation&) = delete;
 };
 
 #endif

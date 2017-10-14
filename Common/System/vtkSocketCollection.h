@@ -33,7 +33,7 @@ class VTKCOMMONSYSTEM_EXPORT vtkSocketCollection : public vtkCollection
 public:
   static vtkSocketCollection* New();
   vtkTypeMacro(vtkSocketCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Add Socket to the collection.
   void AddItem(vtkSocket* soc);
@@ -48,7 +48,7 @@ public:
 
   /**
    * Returns the socket selected during the last SelectSockets(), if any.
-   * NULL otherwise.
+   * nullptr otherwise.
    */
   vtkSocket* GetLastSelectedSocket()
     {return this->SelectedSocket; }
@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkSocketCollection();
-  ~vtkSocketCollection() VTK_OVERRIDE;
+  ~vtkSocketCollection() override;
 
   vtkSocket* SelectedSocket;
 private:
@@ -73,8 +73,8 @@ private:
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
 
 private:
-  vtkSocketCollection(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
+  vtkSocketCollection(const vtkSocketCollection&) = delete;
+  void operator=(const vtkSocketCollection&) = delete;
 };
 
 #endif

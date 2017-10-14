@@ -38,17 +38,17 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTreeIterator : public vtkCompositeD
 public:
   static vtkDataObjectTreeIterator* New();
   vtkTypeMacro(vtkDataObjectTreeIterator, vtkCompositeDataIterator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Move the iterator to the beginning of the collection.
    */
-  void GoToFirstItem() VTK_OVERRIDE;
+  void GoToFirstItem() override;
 
   /**
    * Move the iterator to the next item in the collection.
    */
-  void GoToNextItem() VTK_OVERRIDE;
+  void GoToNextItem() override;
 
   /**
    * Test whether the iterator is finished with the traversal.
@@ -56,12 +56,12 @@ public:
    * It is safe to call any of the GetCurrent...() methods only when
    * IsDoneWithTraversal() returns 0.
    */
-  int IsDoneWithTraversal() VTK_OVERRIDE;
+  int IsDoneWithTraversal() override;
 
   /**
    * Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
    */
-  vtkDataObject* GetCurrentDataObject() VTK_OVERRIDE;
+  vtkDataObject* GetCurrentDataObject() override;
 
   /**
    * Returns the meta-data associated with the current item.
@@ -69,20 +69,20 @@ public:
    * is not necessarily stored on the current object. So modifying the information
    * is forbidden.
    */
-  vtkInformation* GetCurrentMetaData() VTK_OVERRIDE;
+  vtkInformation* GetCurrentMetaData() override;
 
   /**
    * Returns if the a meta-data information object is present for the current
    * item. Return 1 on success, 0 otherwise.
    */
-  int HasCurrentMetaData() VTK_OVERRIDE;
+  int HasCurrentMetaData() override;
 
   /**
    * Flat index is an index obtained by traversing the tree in preorder.
    * This can be used to uniquely identify nodes in the tree.
    * Not valid if IsDoneWithTraversal() returns true.
    */
-  unsigned int GetCurrentFlatIndex() VTK_OVERRIDE;
+  unsigned int GetCurrentFlatIndex() override;
 
   //@{
   /**
@@ -113,7 +113,7 @@ public:
 
 protected:
   vtkDataObjectTreeIterator();
-  ~vtkDataObjectTreeIterator() VTK_OVERRIDE;
+  ~vtkDataObjectTreeIterator() override;
 
   // Takes the current location to the next dataset. This traverses the tree in
   // preorder fashion.
@@ -135,8 +135,8 @@ protected:
   unsigned int CurrentFlatIndex;
 
 private:
-  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
+  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&) = delete;
+  void operator=(const vtkDataObjectTreeIterator&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

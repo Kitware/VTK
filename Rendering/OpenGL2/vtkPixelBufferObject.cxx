@@ -116,7 +116,7 @@ vtkStandardNewMacro(vtkPixelBufferObject);
 vtkPixelBufferObject::vtkPixelBufferObject()
 {
   this->Handle = 0;
-  this->Context = NULL;
+  this->Context = nullptr;
   this->BufferTarget = 0;
   this->Components = 0;
   this->Size = 0;
@@ -152,7 +152,7 @@ void vtkPixelBufferObject::SetContext(vtkRenderWindow* renWin)
   }
   // free resource allocations
   this->DestroyBuffer();
-  this->Context = NULL;
+  this->Context = nullptr;
   this->Modified();
   // all done if assigned null
   if (!renWin)
@@ -270,7 +270,7 @@ public:
       T* fIoMem = static_cast<T*>(pboPtr);
 
       int numComp;
-      int *permutation=0;
+      int *permutation=nullptr;
       if(components==0)
       {
         numComp=numComponents;
@@ -335,7 +335,7 @@ public:
       float* fIoMem = static_cast<float*>(pboPtr);
 
       int numComp;
-      int *permutation=0;
+      int *permutation=nullptr;
       if(components==0)
       {
         numComp=numComponents;
@@ -409,7 +409,7 @@ void *vtkPixelBufferObject::MapBuffer(
   glBindBuffer(target, ioBuf);
   vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 
-  glBufferData(target, size, NULL, usage);
+  glBufferData(target, size, nullptr, usage);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
 
 #if GL_ES_VERSION_3_0 == 1
@@ -448,7 +448,7 @@ void *vtkPixelBufferObject::MapBuffer(BufferType mode)
   if (!ioBuf)
   {
     vtkErrorMacro("Uninitialized object");
-    return NULL;
+    return nullptr;
   }
   GLenum target = OpenGLBufferObjectTarget[mode];
   GLenum access = OpenGLBufferObjectAccess[mode];
@@ -524,7 +524,7 @@ bool vtkPixelBufferObject::Upload3D(
 
   this->Components = numComponents;
 
-  if(data!=0)
+  if(data!=nullptr)
   {
     this->Usage=StreamDraw;
   }
@@ -535,7 +535,7 @@ bool vtkPixelBufferObject::Upload3D(
 
   glBufferData(this->BufferTarget,
                     size*static_cast<unsigned int>(::vtkGetSize(type)),
-                    NULL,OpenGLBufferObjectUsage[this->Usage]);
+                    nullptr,OpenGLBufferObjectUsage[this->Usage]);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
   this->Type = type;
   if (this->Type == VTK_DOUBLE)
@@ -620,7 +620,7 @@ void vtkPixelBufferObject::Allocate(
   glBindBuffer(target, ioBuf);
   vtkOpenGLCheckErrorMacro("failed at glBindBuffer");
 
-  glBufferData(target, size, NULL, usage);
+  glBufferData(target, size, nullptr, usage);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
 
   glBindBuffer(target, 0);
@@ -634,7 +634,7 @@ void vtkPixelBufferObject::ReleaseMemory()
   assert(this->Handle);
 
   this->Bind(vtkPixelBufferObject::PACKED_BUFFER);
-  glBufferData(this->BufferTarget, 0, NULL, GL_STREAM_DRAW);
+  glBufferData(this->BufferTarget, 0, nullptr, GL_STREAM_DRAW);
   vtkOpenGLCheckErrorMacro("failed at glBufferData");
   this->Size = 0;
 }

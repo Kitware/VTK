@@ -49,7 +49,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkSplineRepresentation : public vtkCurveRepr
 public:
   static vtkSplineRepresentation* New();
   vtkTypeMacro(vtkSplineRepresentation, vtkCurveRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Grab the polydata (including points) that defines the spline.  The
@@ -58,12 +58,12 @@ public:
    * either the InteractionEvent or  EndInteraction events are invoked. The
    * user provides the vtkPolyData and the points and polyline are added to it.
    */
-  void GetPolyData(vtkPolyData *pd) VTK_OVERRIDE;
+  void GetPolyData(vtkPolyData *pd) override;
 
   /**
    * Set the number of handles for this widget.
    */
-  void SetNumberOfHandles(int npts) VTK_OVERRIDE;
+  void SetNumberOfHandles(int npts) override;
 
   //@{
   /**
@@ -90,14 +90,14 @@ public:
   /**
    * Get the position of the spline handles.
    */
-  vtkDoubleArray* GetHandlePositions() VTK_OVERRIDE;
+  vtkDoubleArray* GetHandlePositions() override;
 
   /**
    * Get the approximate vs. the true arc length of the spline. Calculated as
    * the summed lengths of the individual straight line segments. Use
    * SetResolution to control the accuracy.
    */
-  double GetSummedLength() VTK_OVERRIDE;
+  double GetSummedLength() override;
 
   /**
    * Convenience method to allocate and set the handles from a vtkPoints
@@ -105,18 +105,18 @@ public:
    * Closed to the on InteractionState and disregards the last point, otherwise Closed
    * remains unchanged.
    */
-  void InitializeHandles(vtkPoints* points) VTK_OVERRIDE;
+  void InitializeHandles(vtkPoints* points) override;
 
  /**
   * These are methods that satisfy vtkWidgetRepresentation's API. Note that a
   * version of place widget is available where the center and handle position
   * are specified.
   */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
 protected:
   vtkSplineRepresentation();
-  ~vtkSplineRepresentation() VTK_OVERRIDE;
+  ~vtkSplineRepresentation() override;
 
   // The spline
   vtkParametricSpline *ParametricSpline;
@@ -126,11 +126,11 @@ protected:
   int Resolution;
 
   // Specialized method to insert a handle on the poly line.
-  void InsertHandleOnLine(double* pos) VTK_OVERRIDE;
+  void InsertHandleOnLine(double* pos) override;
 
 private:
-  vtkSplineRepresentation(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSplineRepresentation(const vtkSplineRepresentation&) = delete;
+  void operator=(const vtkSplineRepresentation&) = delete;
 
 };
 

@@ -54,8 +54,8 @@
 #define YCELLS 3
 #define ZCELLS 3
 
-static vtkRenderer *renderer = NULL;
-static vtkImageData *sampleData = NULL;
+static vtkRenderer *renderer = nullptr;
+static vtkImageData *sampleData = nullptr;
 static int DrawSampleData = 0;
 
 enum {COLORBYCELL, COLORBYPOINT};
@@ -326,7 +326,7 @@ int TestExtraction(int argc, char *argv[])
 
   //-------------------------------------------------------------------------
   //Test extract GLOBALIDS filter on cells
-  vtkIdTypeArray *cellIds = NULL;
+  vtkIdTypeArray *cellIds = nullptr;
 
   sel->Initialize();
   sel->GetProperties()->Set(
@@ -378,7 +378,7 @@ int TestExtraction(int argc, char *argv[])
 
   //-------------------------------------------------------------------------
   //Test extract GLOBALIDS filter on points
-  vtkIdTypeArray *pointIds = NULL;
+  vtkIdTypeArray *pointIds = nullptr;
 
   sel->Initialize();
   ext->PreserveTopologyOff();

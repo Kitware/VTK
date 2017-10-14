@@ -65,8 +65,7 @@
 // Motion flags
 
 #define VTKIS_WINDOW_LEVEL 1024
-#define VTKIS_PICK         1025
-#define VTKIS_SLICE        1026
+#define VTKIS_SLICE        1025
 
 // Style flags
 
@@ -81,7 +80,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleImage : public vtkInteractorS
 public:
   static vtkInteractorStyleImage *New();
   vtkTypeMacro(vtkInteractorStyleImage, vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -96,19 +95,19 @@ public:
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
@@ -191,14 +190,14 @@ public:
    * Get the current image property, which is set when StartWindowLevel
    * is called immediately before StartWindowLevelEvent is generated.
    * This is the image property of the topmost vtkImageSlice in the
-   * renderer or NULL if no image actors are present.
+   * renderer or nullptr if no image actors are present.
    */
   vtkImageProperty *GetCurrentImageProperty() {
     return this->CurrentImageProperty; }
 
 protected:
   vtkInteractorStyleImage();
-  ~vtkInteractorStyleImage() VTK_OVERRIDE;
+  ~vtkInteractorStyleImage() override;
 
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
@@ -215,8 +214,8 @@ protected:
   double ZViewUpVector[3];
 
 private:
-  vtkInteractorStyleImage(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleImage(const vtkInteractorStyleImage&) = delete;
+  void operator=(const vtkInteractorStyleImage&) = delete;
 };
 
 #endif

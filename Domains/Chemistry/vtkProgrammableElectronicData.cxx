@@ -34,7 +34,7 @@ vtkCxxSetObjectMacro(vtkProgrammableElectronicData, ElectronDensity, vtkImageDat
 //----------------------------------------------------------------------------
 vtkProgrammableElectronicData::vtkProgrammableElectronicData()
   : NumberOfElectrons(0), MOs(new StdVectorOfImageDataPointers),
-    ElectronDensity(NULL)
+    ElectronDensity(nullptr)
 {
 }
 
@@ -42,9 +42,9 @@ vtkProgrammableElectronicData::vtkProgrammableElectronicData()
 vtkProgrammableElectronicData::~vtkProgrammableElectronicData()
 {
   delete this->MOs;
-  this->MOs = NULL;
+  this->MOs = nullptr;
 
-  this->SetElectronDensity(NULL);
+  this->SetElectronDensity(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void vtkProgrammableElectronicData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent.GetNextIndent() << "size: " << this->MOs->size() << "\n";
   for (size_t i = 0; i < this->MOs->size(); ++i)
   {
-    vtkImageData *current = this->MOs->at(i).GetPointer();
+    vtkImageData *current = this->MOs->at(i);
     os << indent.GetNextIndent() << "MO #" << i+1 << " @" << current << "\n";
     if (current)
       current->PrintSelf(os, indent.GetNextIndent().GetNextIndent());
@@ -91,8 +91,6 @@ void vtkProgrammableElectronicData::SetNumberOfMOs(vtkIdType size)
   this->MOs->resize(size);
 
   this->Modified();
-
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -101,17 +99,17 @@ vtkImageData * vtkProgrammableElectronicData::GetMO(vtkIdType orbitalNumber)
   if (orbitalNumber <= 0)
   {
     vtkWarningMacro(<< "Request for invalid orbital number "<<orbitalNumber);
-    return NULL;
+    return nullptr;
   }
   if (orbitalNumber > static_cast<vtkIdType>(this->MOs->size()))
   {
     vtkWarningMacro(<< "Request for orbital number " << orbitalNumber
                     << ", which exceeds the number of MOs ("
                     << this->MOs->size() << ")");
-    return NULL;
+    return nullptr;
   }
 
-  vtkImageData *result = this->MOs->at(orbitalNumber - 1).GetPointer();
+  vtkImageData *result = this->MOs->at(orbitalNumber - 1);
 
   vtkDebugMacro(<< "Returning '" << result << "' for MO '"
                 << orbitalNumber << "'");
@@ -132,7 +130,7 @@ void vtkProgrammableElectronicData::SetMO(vtkIdType orbitalNumber,
     this->SetNumberOfMOs(orbitalNumber);
   }
 
-  vtkImageData *previous = this->MOs->at(orbitalNumber - 1).GetPointer();
+  vtkImageData *previous = this->MOs->at(orbitalNumber - 1);
   if (data == previous)
     return;
 
@@ -166,12 +164,12 @@ void vtkProgrammableElectronicData::DeepCopy(vtkDataObject *obj)
 
   for (size_t i = 0; i < source->MOs->size(); ++i)
   {
-    vtkImageData *current = source->MOs->at(i).GetPointer();
+    vtkImageData *current = source->MOs->at(i);
     if (current)
     {
       vtkNew<vtkImageData> newImage;
       newImage->DeepCopy(current);
-      this->SetMO(static_cast<vtkIdType>(i), newImage.GetPointer());
+      this->SetMO(static_cast<vtkIdType>(i), newImage);
     }
   }
 
@@ -179,7 +177,7 @@ void vtkProgrammableElectronicData::DeepCopy(vtkDataObject *obj)
   {
     vtkNew<vtkImageData> newImage;
     newImage->DeepCopy(source->ElectronDensity);
-    this->SetElectronDensity(newImage.GetPointer());
+    this->SetElectronDensity(newImage);
   }
 
 }

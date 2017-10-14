@@ -45,16 +45,16 @@ int TestMPASReader( int argc, char *argv[] )
   // Basic visualisation.
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Read file names.
   char* fName = vtkTestUtilities::ExpandDataFileName(
     argc, argv,"Data/NetCDF/MPASReader.nc");
   std::string fileName(fName);
   delete []fName;
-  fName = NULL;
+  fName = nullptr;
 
   // make 2 loops for 2 actors since the reader can read in the file
   // as an sphere or as a plane
@@ -112,13 +112,13 @@ int TestMPASReader( int argc, char *argv[] )
 
     // Create the actor.
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
     if(i == 1)
     {
       actor->SetScale(30000);
       actor->AddPosition(4370000, 0, 0);
     }
-    ren->AddActor(actor.GetPointer());
+    ren->AddActor(actor);
   }
 
   vtkNew<vtkCamera> camera;
@@ -131,7 +131,7 @@ int TestMPASReader( int argc, char *argv[] )
   // interact with data
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

@@ -116,7 +116,7 @@ void vtkParallelAMRUtilities::StripGhostLayers(
 {
   vtkAMRUtilities::StripGhostLayers(ghostedAMRData, strippedAMRData);
 
-  if( controller != NULL )
+  if( controller != nullptr )
   {
     controller->Barrier();
   }

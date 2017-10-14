@@ -38,8 +38,8 @@ int TestVBOPointsLines(int, char *[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
-  renderWindow->AddRenderer(renderer.Get());
-  renderer->AddActor(actor.Get());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
 
   // Basic polydata lines, triangles, points...
   vtkNew<vtkPolyData> polydata;
@@ -84,20 +84,20 @@ int TestVBOPointsLines(int, char *[])
   tris->InsertCellPoint(2);
   tris->InsertCellPoint(3);
 
-  polydata->SetPoints(points.Get());
-  polydata->SetVerts(verts.Get());
-  polydata->SetLines(lines.Get());
-  polydata->SetPolys(tris.Get());
+  polydata->SetPoints(points);
+  polydata->SetVerts(verts);
+  polydata->SetLines(lines);
+  polydata->SetPolys(tris);
 
   vtkNew<vtkTrivialProducer> prod;
-  prod->SetOutput(polydata.Get());
+  prod->SetOutput(polydata);
 
   // Set some properties.
   mapper->SetInputConnection(prod->GetOutputPort());
   actor->GetProperty()->SetPointSize(5);
   actor->GetProperty()->SetLineWidth(2);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.0, 0.0);
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
@@ -109,7 +109,7 @@ int TestVBOPointsLines(int, char *[])
 
   // Start.
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.Get());
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   interactor->Initialize();
 

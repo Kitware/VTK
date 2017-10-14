@@ -737,7 +737,6 @@ demMapper = vtk.vtkPolyDataMapper()
 demMapper.SetInputConnection(normals.GetOutputPort())
 demMapper.SetScalarRange(lo, hi)
 demMapper.SetLookupTable(lut)
-demMapper.ImmediateModeRenderingOn()
 
 demActor = vtk.vtkActor()
 demActor.SetMapper(demMapper)

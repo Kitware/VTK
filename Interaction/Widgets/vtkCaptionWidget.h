@@ -61,14 +61,14 @@ public:
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkCaptionWidget,vtkBorderWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Override superclasses' SetEnabled() method because the caption leader
    * has its own dedicated widget.
    */
-  void SetEnabled(int enabling) VTK_OVERRIDE;
+  void SetEnabled(int enabling) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -91,11 +91,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkCaptionWidget();
-  ~vtkCaptionWidget() VTK_OVERRIDE;
+  ~vtkCaptionWidget() override;
 
   // Handles callbacks from the anchor point
   vtkCaptionAnchorCallback *AnchorCallback;
@@ -111,8 +111,8 @@ protected:
   friend class vtkCaptionAnchorCallback;
 
 private:
-  vtkCaptionWidget(const vtkCaptionWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCaptionWidget&) VTK_DELETE_FUNCTION;
+  vtkCaptionWidget(const vtkCaptionWidget&) = delete;
+  void operator=(const vtkCaptionWidget&) = delete;
 };
 
 #endif

@@ -32,10 +32,10 @@ vtkStandardNewMacro(vtkCutMaterial);
 // Instantiate object with no input and no defined output.
 vtkCutMaterial::vtkCutMaterial()
 {
-  this->MaterialArrayName = NULL;
+  this->MaterialArrayName = nullptr;
   this->SetMaterialArrayName("material");
   this->Material = 0;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
 
   this->UpVector[0] = 0.0;
   this->UpVector[1] = 0.0;
@@ -59,10 +59,10 @@ vtkCutMaterial::vtkCutMaterial()
 vtkCutMaterial::~vtkCutMaterial()
 {
   this->PlaneFunction->Delete();
-  this->PlaneFunction = NULL;
+  this->PlaneFunction = nullptr;
 
-  this->SetMaterialArrayName(NULL);
-  this->SetArrayName(NULL);
+  this->SetMaterialArrayName(nullptr);
+  this->SetArrayName(nullptr);
 }
 
 int vtkCutMaterial::RequestData(
@@ -84,18 +84,18 @@ int vtkCutMaterial::RequestData(
   vtkCutter *cutter;
 
   // Check to see if we have the required field arrays.
-  if (this->MaterialArrayName == NULL || this->ArrayName == NULL)
+  if (this->MaterialArrayName == nullptr || this->ArrayName == nullptr)
   {
     vtkErrorMacro("Material and Array names must be set.");
     return 0;
   }
 
-  if (input->GetCellData()->GetArray(this->MaterialArrayName) == NULL)
+  if (input->GetCellData()->GetArray(this->MaterialArrayName) == nullptr)
   {
     vtkErrorMacro("Could not find cell array " << this->MaterialArrayName);
     return 0;
   }
-  if (input->GetCellData()->GetArray(this->ArrayName) == NULL)
+  if (input->GetCellData()->GetArray(this->ArrayName) == nullptr)
   {
     vtkErrorMacro("Could not find cell array " << this->ArrayName);
     return 0;
@@ -174,7 +174,7 @@ void vtkCutMaterial::ComputeMaximumPoint(vtkDataSet *input)
 
   // Find the maximum value.
   data = input->GetCellData()->GetArray(this->ArrayName);
-  if (data == NULL)
+  if (data == nullptr)
   {
     vtkErrorMacro("What happened to the array " << this->ArrayName);
     return;

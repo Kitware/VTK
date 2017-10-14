@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
 {
 public:
   vtkTypeMacro(vtkChartMatrix, vtkAbstractContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a new object.
@@ -49,12 +49,12 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the chart matrix.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Set the width and height of the chart matrix. This will cause an immediate
@@ -122,7 +122,7 @@ public:
   virtual bool SetChart(const vtkVector2i& position, vtkChart* chart);
 
   /**
-   * Get the specified chart element, if the element does not exist NULL will be
+   * Get the specified chart element, if the element does not exist nullptr will be
    * returned. If the chart element has not yet been allocated it will be at
    * this point.
    */
@@ -149,10 +149,7 @@ public:
 
 protected:
   vtkChartMatrix();
-  ~vtkChartMatrix() VTK_OVERRIDE;
-
-  class PIMPL;
-  PIMPL *Private;
+  ~vtkChartMatrix() override;
 
   // The number of charts in x and y.
   vtkVector2i Size;
@@ -164,8 +161,11 @@ protected:
   bool LayoutIsDirty;
 
 private:
-  vtkChartMatrix(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
+  vtkChartMatrix(const vtkChartMatrix &) = delete;
+  void operator=(const vtkChartMatrix &) = delete;
+
+  class PIMPL;
+  PIMPL *Private;
 };
 
 #endif //vtkChartMatrix_h

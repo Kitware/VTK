@@ -16,10 +16,10 @@ int TestDataArrayComponentNames(int,char *[])
     return 1;
   }
 
-  if ( array->GetComponentName(-1) != NULL || array->GetComponentName(3) != NULL )
+  if ( array->GetComponentName(-1) != nullptr || array->GetComponentName(3) != nullptr )
   {
     cerr
-      << " Unable to return NULL when asking for a component name outside the the valid range";
+      << " Unable to return nullptr when asking for a component name outside the the valid range";
     array->Delete();
     return 1;
   }
@@ -103,7 +103,7 @@ int TestDataArrayComponentNames(int,char *[])
     downcast->Delete();
     return 1;
   }
-  if ( deepCopy->GetComponentName(3) != NULL )
+  if ( deepCopy->GetComponentName(3) != nullptr )
   {
     cerr
       << "Deep Copy failed to return null for a invalid component name";
@@ -127,14 +127,14 @@ int TestDataArrayComponentNames(int,char *[])
 
   deepCopy->Delete();
 
-  //DeepCopy test 2 with NULL values
+  //DeepCopy test 2 with nullptr values
   farray = vtkDoubleArray::New();
   farray->SetNumberOfComponents(20);
 
   deepCopy = vtkDoubleArray::New();
   deepCopy->DeepCopy( farray );
 
-  if ( deepCopy->GetComponentName(0) != NULL )
+  if ( deepCopy->GetComponentName(0) != nullptr )
   {
     cerr
       << "Failed to deep copy with no names on the components";

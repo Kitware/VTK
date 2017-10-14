@@ -85,20 +85,24 @@
 
 #include "vtkInitialValueProblemSolver.h" // Needed for constants
 
+class vtkAbstractInterpolatedVelocityField;
 class vtkCompositeDataSet;
 class vtkDataArray;
+class vtkDataSetAttributes;
 class vtkDoubleArray;
 class vtkExecutive;
 class vtkGenericCell;
 class vtkIdList;
 class vtkIntArray;
-class vtkAbstractInterpolatedVelocityField;
+class vtkPoints;
+
+#include <vector>
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreamTracer : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamTracer,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object to start from position (0,0,0), with forward
@@ -167,7 +171,8 @@ public:
     UNEXPECTED_VALUE = vtkInitialValueProblemSolver::UNEXPECTED_VALUE,
     OUT_OF_LENGTH = 4,
     OUT_OF_STEPS = 5,
-    STAGNATION = 6
+    STAGNATION = 6,
+    FIXED_REASONS_FOR_TERMINATION_COUNT
   };
 
   //@{
@@ -353,20 +358,44 @@ public:
    */
   void SetInterpolatorType( int interpType );
 
+  /**
+   * Asks the user if the current streamline should be terminated.
+   * clientdata is set by the client when setting up the callback.
+   * points is the array of points integrated so far
+   * velocity velocity vector integrated to produce the streamline
+   * integrationDirection FORWARD of BACKWARD
+   * The function returns true if the streamline should be terminated
+   * and false otherwise.
+   */
+  typedef bool (*CustomTerminationCallbackType)(void * clientdata,
+                                                vtkPoints* points,
+                                                vtkDataArray* velocity,
+                                                int integrationDirection);
+  /**
+   * Adds a custom termination callback.
+   * calback is a function provided by the user that says if the streamline
+   *         should be terminated.
+   * clientdata user specific data passed to the callback
+   * reasonForTermination this value will be set in the ReasonForTermination cell
+   *          array if the streamline is terminated by this callback.
+   */
+  void AddCustomTerminationCallback(
+    CustomTerminationCallbackType callback, void* clientdata, int reasonForTermination);
+
 protected:
 
   vtkStreamTracer();
-  ~vtkStreamTracer() VTK_OVERRIDE;
+  ~vtkStreamTracer() override;
 
   // Create a default executive.
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   // hide the superclass' AddInput() from the user and the compiler
   void AddInput(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   void CalculateVorticity( vtkGenericCell* cell, double pcoords[3],
                            vtkDoubleArray* cellVectors, double vorticity[3] );
@@ -443,13 +472,17 @@ protected:
 
   vtkCompositeDataSet* InputData;
   bool HasMatchingPointAttributes; //does the point data in the multiblocks have the same attributes?
+  std::vector<CustomTerminationCallbackType> CustomTerminationCallback;
+  std::vector<void*> CustomTerminationClientData;
+  std::vector<int> CustomReasonForTermination;
 
   friend class PStreamTracerUtils;
 
 private:
-  vtkStreamTracer(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
+  vtkStreamTracer(const vtkStreamTracer&) = delete;
+  void operator=(const vtkStreamTracer&) = delete;
 };
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkStreamTracer.h

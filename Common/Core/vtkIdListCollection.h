@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkIdListCollection() {}
-  ~vtkIdListCollection() VTK_OVERRIDE {}
+  ~vtkIdListCollection() override {}
 
 
 private:
@@ -71,8 +71,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkIdListCollection(const vtkIdListCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdListCollection&) VTK_DELETE_FUNCTION;
+  vtkIdListCollection(const vtkIdListCollection&) = delete;
+  void operator=(const vtkIdListCollection&) = delete;
 };
 
 

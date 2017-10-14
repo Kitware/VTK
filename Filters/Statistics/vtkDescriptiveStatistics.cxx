@@ -459,7 +459,7 @@ void vtkDescriptiveStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   // Finally set second block of output meta port to derived statistics table
   inMeta->SetNumberOfBlocks( 2 );
-  inMeta->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
+  inMeta->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Derived Statistics" );
   inMeta->SetBlock( 1, derivedTab );
 
   // Clean up
@@ -622,9 +622,9 @@ public:
     this->Data = vals;
     this->Nominal = nominal;
   }
-  ~ZedDeviationDeviantFunctor() VTK_OVERRIDE { }
+  ~ZedDeviationDeviantFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) == this->Nominal ) ? 0. : 1. );
@@ -642,9 +642,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  ~SignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  ~SignedTableColumnDeviantFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
@@ -662,9 +662,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  ~UnsignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  ~UnsignedTableColumnDeviantFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, fabs ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
@@ -677,7 +677,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  dfunc = 0;
+  dfunc = nullptr;
   vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast( inMetaDO );
   if ( ! inMeta )
   {

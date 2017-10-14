@@ -28,7 +28,7 @@ class vtkImageDifferenceThreadData
 {
 public:
   vtkImageDifferenceThreadData()
-    : ErrorMessage(0), Error(0.0), ThresholdedError(0.0) {}
+    : ErrorMessage(nullptr), Error(0.0), ThresholdedError(0.0) {}
 
   const char *ErrorMessage;
   double Error;
@@ -50,12 +50,12 @@ vtkImageDifference::vtkImageDifference()
   this->AllowShift = 1;
   this->Averaging = 1;
 
-  this->ErrorMessage = 0;
+  this->ErrorMessage = nullptr;
   this->Error = 0.0;
   this->ThresholdedError = 0.0;
 
-  this->ThreadData = NULL;
-  this->SMPThreadData = NULL;
+  this->ThreadData = nullptr;
+  this->SMPThreadData = nullptr;
 
   this->SetNumberOfInputPorts(2);
 }
@@ -145,7 +145,7 @@ private:
 void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
 {
   this->Algorithm->SMPRequestData(
-    0, 0, 0, this->Inputs, this->Outputs,
+    nullptr, nullptr, nullptr, this->Inputs, this->Outputs,
     begin, end, this->NumberOfPieces, this->Extent);
 }
 
@@ -153,7 +153,7 @@ void vtkImageDifferenceSMPFunctor::operator()(vtkIdType begin, vtkIdType end)
 // Used with vtkSMPTools to compute the error
 void vtkImageDifferenceSMPFunctor::Reduce()
 {
-  const char *errorMessage = 0;
+  const char *errorMessage = nullptr;
   double error = 0.0;
   double thresholdedError = 0.0;
 
@@ -266,7 +266,7 @@ void vtkImageDifference::ThreadedRequestData(
   unsigned long target;
   double error = 0.0;
   double thresholdedError = 0.0;
-  vtkImageDifferenceThreadData *threadData = NULL;
+  vtkImageDifferenceThreadData *threadData = nullptr;
 
   if (this->EnableSMP)
   {
@@ -283,7 +283,7 @@ void vtkImageDifference::ThreadedRequestData(
     return;
   }
 
-  if (inData[0] == NULL || inData[1] == NULL || outData == NULL)
+  if (inData[0] == nullptr || inData[1] == nullptr || outData == nullptr)
   {
     threadData->ErrorMessage = "Missing data";
     return;
@@ -469,7 +469,7 @@ int vtkImageDifference::RequestData(
     outData[0]->GetExtent(extent);
 
     // Do a dummy execution of SplitExtent to compute the number of pieces
-    vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);
+    vtkIdType pieces = this->SplitExtent(nullptr, extent, 0, this->NumberOfThreads);
 
     // Use vtkSMPTools to multithread the functor
     vtkImageDifferenceSMPThreadLocal threadData;
@@ -480,7 +480,7 @@ int vtkImageDifference::RequestData(
     this->Debug = false;
     vtkSMPTools::For(0, pieces, functor);
     this->Debug = debug;
-    this->SMPThreadData = NULL;
+    this->SMPThreadData = nullptr;
   }
   else
   {
@@ -506,14 +506,14 @@ int vtkImageDifference::RequestData(
     }
 
     delete [] this->ThreadData;
-    this->ThreadData = NULL;
+    this->ThreadData = nullptr;
   }
 
   if (this->ErrorMessage)
   {
     // Report errors here, do not report errors while multithreading!
     vtkErrorMacro("RequestData: " << this->ErrorMessage);
-    this->ErrorMessage = NULL;
+    this->ErrorMessage = nullptr;
     this->Error = 1000.0;
     this->ThresholdedError = 1000.0;
     r = 0;
@@ -581,7 +581,7 @@ vtkImageData *vtkImageDifference::GetImage()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));

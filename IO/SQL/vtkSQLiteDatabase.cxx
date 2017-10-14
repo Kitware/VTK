@@ -36,16 +36,16 @@ vtkStandardNewMacro(vtkSQLiteDatabase);
 // ----------------------------------------------------------------------
 vtkSQLiteDatabase::vtkSQLiteDatabase()
 {
-  this->SQLiteInstance = NULL;
+  this->SQLiteInstance = nullptr;
 
   this->Tables = vtkStringArray::New();
   this->Tables->Register(this);
   this->Tables->Delete();
 
   // Initialize instance variables
-  this->DatabaseType = 0;
+  this->DatabaseType = nullptr;
   this->SetDatabaseType("sqlite");
-  this->DatabaseFileName = 0;
+  this->DatabaseFileName = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -57,11 +57,11 @@ vtkSQLiteDatabase::~vtkSQLiteDatabase()
   }
   if ( this->DatabaseType )
   {
-    this->SetDatabaseType(0);
+    this->SetDatabaseType(nullptr);
   }
   if ( this->DatabaseFileName )
   {
-    this->SetDatabaseFileName(0);
+    this->SetDatabaseFileName(nullptr);
   }
   this->Tables->UnRegister(this);
 }
@@ -80,9 +80,9 @@ void vtkSQLiteDatabase::PrintSelf(ostream &os, vtkIndent indent)
     os << "(null)" << "\n";
   }
   os << indent << "DatabaseType: "
-    << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
+    << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
   os << indent << "DatabaseFileName: "
-    << (this->DatabaseFileName ? this->DatabaseFileName : "NULL") << endl;
+    << (this->DatabaseFileName ? this->DatabaseFileName : "nullptr") << endl;
 }
 
 // ----------------------------------------------------------------------
@@ -135,7 +135,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
       colTypeStr = "TIMESTAMP";
   }
 
-  if ( colTypeStr.size() )
+  if ( !colTypeStr.empty() )
   {
     queryStr << " " << colTypeStr;
   }
@@ -208,7 +208,7 @@ vtkStdString vtkSQLiteDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sc
   }
 
   vtkStdString attStr = schema->GetColumnAttributesFromHandle( tblHandle, colHandle );
-  if ( attStr.size() )
+  if ( !attStr.empty() )
   {
     queryStr << " " << attStr;
   }
@@ -328,7 +328,7 @@ bool vtkSQLiteDatabase::Open(const char* password, int mode)
 // ----------------------------------------------------------------------
 void vtkSQLiteDatabase::Close()
 {
-  if (this->SQLiteInstance == NULL)
+  if (this->SQLiteInstance == nullptr)
   {
     vtkDebugMacro(<<"Close(): Database is already closed.");
   }
@@ -339,14 +339,14 @@ void vtkSQLiteDatabase::Close()
     {
       vtkWarningMacro(<< "Close(): SQLite returned result code " << result);
     }
-    this->SQLiteInstance = NULL;
+    this->SQLiteInstance = nullptr;
   }
 }
 
 // ----------------------------------------------------------------------
 bool vtkSQLiteDatabase::IsOpen()
 {
-  return (this->SQLiteInstance != NULL);
+  return (this->SQLiteInstance != nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -361,7 +361,7 @@ vtkSQLQuery * vtkSQLiteDatabase::GetQueryInstance()
 vtkStringArray * vtkSQLiteDatabase::GetTables()
 {
   this->Tables->Resize(0);
-  if (this->SQLiteInstance == NULL)
+  if (this->SQLiteInstance == nullptr)
   {
     vtkErrorMacro(<<"GetTables(): Database is not open!");
     return this->Tables;
@@ -405,7 +405,7 @@ vtkStringArray * vtkSQLiteDatabase::GetRecord(const char *table)
     vtkErrorMacro(<< "GetRecord(" << table << "): Database returned error: "
                   << vtk_sqlite3_errmsg(this->SQLiteInstance) );
     query->Delete();
-    return NULL;
+    return nullptr;
   }
   else
   {

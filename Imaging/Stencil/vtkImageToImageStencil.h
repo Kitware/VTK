@@ -37,7 +37,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkImageToImageStencil : public vtkImageStencilAl
 public:
   static vtkImageToImageStencil *New();
   vtkTypeMacro(vtkImageToImageStencil, vtkImageStencilAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,19 +74,19 @@ public:
 
 protected:
   vtkImageToImageStencil();
-  ~vtkImageToImageStencil() VTK_OVERRIDE;
+  ~vtkImageToImageStencil() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   double UpperThreshold;
   double LowerThreshold;
   double Threshold;
 private:
-  vtkImageToImageStencil(const vtkImageToImageStencil&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToImageStencil&) VTK_DELETE_FUNCTION;
+  vtkImageToImageStencil(const vtkImageToImageStencil&) = delete;
+  void operator=(const vtkImageToImageStencil&) = delete;
 };
 
 #endif

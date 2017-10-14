@@ -32,7 +32,7 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
  public:
   static vtkStructuredGridAppend *New();
   vtkTypeMacro(vtkStructuredGridAppend,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Replace one of the input connections with a new input.  You can
@@ -71,26 +71,26 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
 
  protected:
   vtkStructuredGridAppend();
-  ~vtkStructuredGridAppend() VTK_OVERRIDE;
+  ~vtkStructuredGridAppend() override;
 
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int RequestUpdateExtent(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   // see vtkAlgorithm for docs.
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
  private:
-  vtkStructuredGridAppend(const vtkStructuredGridAppend&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridAppend&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridAppend(const vtkStructuredGridAppend&) = delete;
+  void operator=(const vtkStructuredGridAppend&) = delete;
 };
 
 #endif

@@ -39,12 +39,12 @@ public:
   static vtkPoints2D *New();
 
   vtkTypeMacro(vtkPoints2D, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate initial memory size. ext is no longer used.
    */
-  virtual int Allocate(const vtkIdType sz, const vtkIdType ext = 1000);
+  virtual int Allocate(vtkIdType sz, vtkIdType ext = 1000);
 
   /**
    * Return object to instantiated state.
@@ -206,15 +206,15 @@ public:
 
 protected:
   vtkPoints2D(int dataType = VTK_FLOAT);
-  ~vtkPoints2D() VTK_OVERRIDE;
+  ~vtkPoints2D() override;
 
   double Bounds[4];
   vtkTimeStamp ComputeTime; // Time at which bounds computed
   vtkDataArray *Data;  // Array which represents data
 
 private:
-  vtkPoints2D(const vtkPoints2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPoints2D&) VTK_DELETE_FUNCTION;
+  vtkPoints2D(const vtkPoints2D&) = delete;
+  void operator=(const vtkPoints2D&) = delete;
 };
 
 inline void vtkPoints2D::Reset()

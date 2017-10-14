@@ -48,7 +48,7 @@ class VTKINFOVISCORE_EXPORT vtkExtractSelectedGraph : public vtkGraphAlgorithm
 public:
   static vtkExtractSelectedGraph* New();
   vtkTypeMacro(vtkExtractSelectedGraph,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * A convenience method for setting the second input (i.e. the selection).
@@ -74,27 +74,27 @@ public:
   /**
    * Specify the first vtkGraph input and the second vtkSelection input.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   vtkExtractSelectedGraph();
-  ~vtkExtractSelectedGraph() VTK_OVERRIDE;
+  ~vtkExtractSelectedGraph() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   int RequestDataObject(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   bool RemoveIsolatedVertices;
 
 private:
-  vtkExtractSelectedGraph(const vtkExtractSelectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedGraph&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedGraph(const vtkExtractSelectedGraph&) = delete;
+  void operator=(const vtkExtractSelectedGraph&) = delete;
 };
 
 #endif

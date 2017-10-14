@@ -63,7 +63,7 @@ int TestFindCellsAlongLine()
   vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
     vtkSmartPointer<vtkTransformPolyDataFilter>::New();
   transformer->SetInputConnection(clean->GetOutputPort());
-  transformer->SetTransform(trans.GetPointer());
+  transformer->SetTransform(trans);
 
   vtkSmartPointer<vtkTriangleFilter> triangulator =
     vtkSmartPointer<vtkTriangleFilter>::New();
@@ -82,7 +82,7 @@ int TestFindCellsAlongLine()
   // Create the standard locator
   vtkSmartPointer<vtkCellLocator> cellLocator =
     vtkSmartPointer<vtkCellLocator>::New();
-  cellLocator->SetDataSet(surface.GetPointer());
+  cellLocator->SetDataSet(surface);
   cellLocator->BuildLocator();
 
   // This line (p1,p2) together with the surface mesh
@@ -91,7 +91,7 @@ int TestFindCellsAlongLine()
   double p2[] = {0.342117, 0.492077, 0.423446};
   vtkSmartPointer<vtkIdList> cellIds =
     vtkSmartPointer<vtkIdList>::New();
-  cellLocator->FindCellsAlongLine(p1, p2, 0.0, cellIds.GetPointer());
+  cellLocator->FindCellsAlongLine(p1, p2, 0.0, cellIds);
 
   if(cellIds->GetNumberOfIds() != 4)
   {
@@ -208,7 +208,7 @@ int TestCellLocator( int argc, char *argv[] )
               << sphere1->GetOutput()->GetNumberOfPoints()
               << " ray-sphere intersections detected." << std::endl;
   }
-  sphereNormals = NULL;
+  sphereNormals = nullptr;
 
   // below: the initial tests
 

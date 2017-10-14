@@ -41,7 +41,7 @@
  * \par
  * So why maintain the display position? Consider drawing a contour on a
  * volume widget. You might want the contour to be located at a certain world
- * position in the volume or you might want to be overlayed over the window
+ * position in the volume or you might want to be overlaid over the window
  * like an Actor2D. The default behaviour of this class is to provide the
  * former behaviour.
  *
@@ -123,7 +123,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkContourRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -412,21 +412,21 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void BuildRepresentation() VTK_OVERRIDE =0;
-  int ComputeInteractionState(int X, int Y, int modified=0) VTK_OVERRIDE =0;
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE =0;
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE =0;
+  void BuildRepresentation() override =0;
+  int ComputeInteractionState(int X, int Y, int modified=0) override =0;
+  void StartWidgetInteraction(double e[2]) override =0;
+  void WidgetInteraction(double e[2]) override =0;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE =0;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE =0;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE =0;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE =0;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE =0;
+  void ReleaseGraphicsResources(vtkWindow *w) override =0;
+  int RenderOverlay(vtkViewport *viewport) override =0;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override =0;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override =0;
+  int HasTranslucentPolygonalGeometry() override =0;
   //@}
 
   //@{
@@ -464,7 +464,7 @@ public:
 
 protected:
   vtkContourRepresentation();
-  ~vtkContourRepresentation() VTK_OVERRIDE;
+  ~vtkContourRepresentation() override;
 
   // Selection tolerance for the handles
   int    PixelTolerance;
@@ -537,7 +537,7 @@ protected:
   virtual void Initialize( vtkPolyData *, vtkIdList *);
 
   /**
-   * Overloaded initialize method, that is called when the vtkIdList is NULL
+   * Overloaded initialize method, that is called when the vtkIdList is nullptr
    * to mantain backwards compatibility.
    */
   virtual void Initialize( vtkPolyData *);
@@ -566,8 +566,8 @@ protected:
 
 
 private:
-  vtkContourRepresentation(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkContourRepresentation(const vtkContourRepresentation&) = delete;
+  void operator=(const vtkContourRepresentation&) = delete;
 };
 
 #endif

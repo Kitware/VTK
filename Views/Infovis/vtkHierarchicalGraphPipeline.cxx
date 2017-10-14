@@ -58,9 +58,9 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
   this->LabelMapper = vtkDynamic2DLabelMapper::New();
   this->LabelActor = vtkActor2D::New();
 
-  this->ColorArrayNameInternal = 0;
-  this->LabelArrayNameInternal = 0;
-  this->HoverArrayName = 0;
+  this->ColorArrayNameInternal = nullptr;
+  this->LabelArrayNameInternal = nullptr;
+  this->HoverArrayName = nullptr;
 
   /*
   <graphviz>
@@ -101,9 +101,9 @@ vtkHierarchicalGraphPipeline::vtkHierarchicalGraphPipeline()
 
 vtkHierarchicalGraphPipeline::~vtkHierarchicalGraphPipeline()
 {
-  this->SetColorArrayNameInternal(0);
-  this->SetLabelArrayNameInternal(0);
-  this->SetHoverArrayName(0);
+  this->SetColorArrayNameInternal(nullptr);
+  this->SetLabelArrayNameInternal(nullptr);
+  this->SetHoverArrayName(nullptr);
   this->ApplyColors->Delete();
   this->Bundle->Delete();
   this->GraphToPoly->Delete();

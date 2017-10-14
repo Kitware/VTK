@@ -109,7 +109,7 @@ vtkRadiusOutlierRemoval::vtkRadiusOutlierRemoval()
 //----------------------------------------------------------------------------
 vtkRadiusOutlierRemoval::~vtkRadiusOutlierRemoval()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------

@@ -302,8 +302,8 @@ int vtkUnstructuredGridPartialPreIntegration::PsiTableBuilt = 0;
 
 vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegration()
 {
-  this->Property = NULL;
-  this->TransferFunctions = NULL;
+  this->Property = nullptr;
+  this->TransferFunctions = nullptr;
   this->NumIndependentComponents = 0;
 }
 

@@ -49,30 +49,30 @@ vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 // ----------------------------------------------------------------------------
 vtkSobelGradientMagnitudePass::vtkSobelGradientMagnitudePass()
 {
-  this->FrameBufferObject=0;
-  this->Pass1=0;
-  this->Gx1=0;
-  this->Gy1=0;
-  this->Program1 =0;
-  this->Program2 =0;
+  this->FrameBufferObject=nullptr;
+  this->Pass1=nullptr;
+  this->Gx1=nullptr;
+  this->Gy1=nullptr;
+  this->Program1 =nullptr;
+  this->Program2 =nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkSobelGradientMagnitudePass::~vtkSobelGradientMagnitudePass()
 {
-  if(this->FrameBufferObject!=0)
+  if(this->FrameBufferObject!=nullptr)
   {
     vtkErrorMacro(<<"FrameBufferObject should have been deleted in ReleaseGraphicsResources().");
   }
-   if(this->Pass1!=0)
+   if(this->Pass1!=nullptr)
    {
     vtkErrorMacro(<<"Pass1 should have been deleted in ReleaseGraphicsResources().");
    }
-   if(this->Gx1!=0)
+   if(this->Gx1!=nullptr)
    {
     vtkErrorMacro(<<"Gx1 should have been deleted in ReleaseGraphicsResources().");
    }
-   if(this->Gy1!=0)
+   if(this->Gy1!=nullptr)
    {
      vtkErrorMacro(<<"Gx1 should have been deleted in ReleaseGraphicsResources().");
    }
@@ -90,11 +90,11 @@ void vtkSobelGradientMagnitudePass::PrintSelf(ostream& os, vtkIndent indent)
 // \pre s_exists: s!=0
 void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
   this->NumberOfRenderedProps=0;
 
-  if(this->DelegatePass!=0)
+  if(this->DelegatePass!=nullptr)
   {
     vtkRenderer *renderer = s->GetRenderer();
 
@@ -136,13 +136,13 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
     int w=width+2*extraPixels;
     int h=height+2*extraPixels;
 
-    if(this->Pass1==0)
+    if(this->Pass1==nullptr)
     {
       this->Pass1=vtkTextureObject::New();
       this->Pass1->SetContext(context);
     }
 
-    if(this->FrameBufferObject==0)
+    if(this->FrameBufferObject==nullptr)
     {
       this->FrameBufferObject=vtkOpenGLFramebufferObject::New();
       this->FrameBufferObject->SetContext(context);
@@ -195,7 +195,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 
     // 3. Same FBO, but two color attachments (new TOs gx1 and gy1).
 
-    if(this->Gx1==0)
+    if(this->Gx1==nullptr)
     {
       this->Gx1=vtkTextureObject::New();
       this->Gx1->SetContext(this->FrameBufferObject->GetContext());
@@ -207,7 +207,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
       this->Gx1->Create2D(w,h,4,VTK_UNSIGNED_CHAR,false);
     }
 
-    if(this->Gy1==0)
+    if(this->Gy1==nullptr)
     {
       this->Gy1=vtkTextureObject::New();
       this->Gy1->SetContext(this->FrameBufferObject->GetContext());
@@ -481,44 +481,44 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkSobelGradientMagnitudePass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w!=nullptr);
 
   this->Superclass::ReleaseGraphicsResources(w);
 
-  if (this->Program1!=0)
+  if (this->Program1!=nullptr)
   {
     this->Program1->ReleaseGraphicsResources(w);
     delete this->Program1;
-    this->Program1 = 0;
+    this->Program1 = nullptr;
   }
-  if (this->Program2!=0)
+  if (this->Program2!=nullptr)
   {
     this->Program2->ReleaseGraphicsResources(w);
     delete this->Program2;
-    this->Program2 = 0;
+    this->Program2 = nullptr;
   }
 
-  if(this->FrameBufferObject!=0)
+  if(this->FrameBufferObject!=nullptr)
   {
     this->FrameBufferObject->Delete();
-    this->FrameBufferObject=0;
+    this->FrameBufferObject=nullptr;
   }
 
-  if(this->Pass1!=0)
+  if(this->Pass1!=nullptr)
   {
     this->Pass1->Delete();
-    this->Pass1=0;
+    this->Pass1=nullptr;
   }
 
-  if(this->Gx1!=0)
+  if(this->Gx1!=nullptr)
   {
     this->Gx1->Delete();
-    this->Gx1=0;
+    this->Gx1=nullptr;
   }
 
-  if(this->Gy1!=0)
+  if(this->Gy1!=nullptr)
   {
     this->Gy1->Delete();
-    this->Gy1=0;
+    this->Gy1=nullptr;
   }
 }

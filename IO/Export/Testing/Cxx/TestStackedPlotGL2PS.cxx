@@ -49,7 +49,7 @@ int TestStackedPlotGL2PS(int , char * [])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -62,27 +62,27 @@ int TestStackedPlotGL2PS(int , char * [])
 
   vtkNew<vtkIntArray> arrMonth;
   arrMonth->SetName("Month");
-  table->AddColumn(arrMonth.GetPointer());
+  table->AddColumn(arrMonth);
 
   vtkNew<vtkIntArray> arrBook;
   arrBook->SetName("Books");
-  table->AddColumn(arrBook.GetPointer());
+  table->AddColumn(arrBook);
 
   vtkNew<vtkIntArray> arrNewPopularBook;
   arrNewPopularBook->SetName("New / Popular");
-  table->AddColumn(arrNewPopularBook.GetPointer());
+  table->AddColumn(arrNewPopularBook);
 
   vtkNew<vtkIntArray> arrPeriodical;
   arrPeriodical->SetName("Periodical");
-  table->AddColumn(arrPeriodical.GetPointer());
+  table->AddColumn(arrPeriodical);
 
   vtkNew<vtkIntArray> arrAudiobook;
   arrAudiobook->SetName("Audiobook");
-  table->AddColumn(arrAudiobook.GetPointer());
+  table->AddColumn(arrAudiobook);
 
   vtkNew<vtkIntArray> arrVideo;
   arrVideo->SetName("Video");
-  table->AddColumn(arrVideo.GetPointer());
+  table->AddColumn(arrVideo);
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
@@ -98,18 +98,18 @@ int TestStackedPlotGL2PS(int , char * [])
   }
 
   // Set the Month Labels
-  chart->GetAxis(1)->SetCustomTickPositions(arrXTickPositions.GetPointer(),
-                                            arrMonthLabel.GetPointer());
+  chart->GetAxis(1)->SetCustomTickPositions(arrXTickPositions,
+                                            arrMonthLabel);
   chart->GetAxis(1)->SetRange(0, 11);
   chart->GetAxis(1)->SetBehavior(vtkAxis::FIXED);
 
   // Add multiple line plots, setting the colors etc
-  vtkPlotStacked *stack = 0;
+  vtkPlotStacked *stack = nullptr;
 
   // Books
   stack = vtkPlotStacked::SafeDownCast(chart->AddPlot(vtkChart::STACKED));
   stack->SetUseIndexForXSeries(true);
-  stack->SetInputData(table.GetPointer());
+  stack->SetInputData(table);
   stack->SetInputArray(1,"Books");
   stack->SetInputArray(2,"New / Popular");
   stack->SetInputArray(3,"Periodical");
@@ -118,7 +118,7 @@ int TestStackedPlotGL2PS(int , char * [])
 
   vtkNew<vtkColorSeries>colorSeries;
   colorSeries->SetColorScheme(vtkColorSeries::COOL);
-  stack->SetColorSeries(colorSeries.GetPointer());
+  stack->SetColorSeries(colorSeries);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->Render();

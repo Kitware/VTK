@@ -99,7 +99,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     vtkSmartPointer<vtkUnicodeStringArray> array3 =
       vtkSmartPointer<vtkUnicodeStringArray>::New();
     void * ptr1 = array3->GetVoidPointer(0);
-    test_expression(ptr1 == NULL);
+    test_expression(ptr1 == nullptr);
 
     array3->InsertTuple(0, 1, array);
     test_expression(array3->GetValue(0) == array->GetValue(1));
@@ -134,7 +134,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     array3->LookupValue(vtkUnicodeString::from_utf8("foobar"), lookupIds);
     test_expression(lookupIds->GetNumberOfIds() == 3);
 
-    array3->DeepCopy(NULL); // noop
+    array3->DeepCopy(nullptr); // noop
     array3->DeepCopy(array3); // noop
     array3->DeepCopy(array);
     test_expression(array3->GetActualMemorySize() == array->GetActualMemorySize());
@@ -155,7 +155,7 @@ int TestUnicodeStringArrayAPI(int, char*[])
     vtkSmartPointer<vtkIdList> interpIds =
       vtkSmartPointer<vtkIdList>::New();
 
-    array3->InterpolateTuple(5, interpIds, array4, NULL); // noop
+    array3->InterpolateTuple(5, interpIds, array4, nullptr); // noop
 
     interpIds->InsertId(0, 0);
     interpIds->InsertId(1, 1);
@@ -215,7 +215,7 @@ int TestErrorsAndWarnings()
   array->AddObserver(vtkCommand::WarningEvent, errorObserver);
 
   // ERROR: Not implmented
-  array->SetVoidArray(0, 1, 1);
+  array->SetVoidArray(nullptr, 1, 1);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "
@@ -335,7 +335,7 @@ int TestErrorsAndWarnings()
   errorObserver->Clear();
 
   // ERROR: Cannot CopyValue from array of type
-  array->InterpolateTuple(0, id1, doubleArray, NULL);
+  array->InterpolateTuple(0, id1, doubleArray, nullptr);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected warning: "

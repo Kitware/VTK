@@ -40,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkSignedCharArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -69,14 +69,14 @@ public:
 
 protected:
   vtkSignedCharArray();
-  ~vtkSignedCharArray() VTK_OVERRIDE;
+  ~vtkSignedCharArray() override;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
 
-  vtkSignedCharArray(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
+  vtkSignedCharArray(const vtkSignedCharArray&) = delete;
+  void operator=(const vtkSignedCharArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

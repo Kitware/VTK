@@ -83,7 +83,7 @@ public:
   }
 
 protected:
-  MyProcess() { this->Argc = 0; this->Argv = NULL; }
+  MyProcess() { this->Argc = 0; this->Argv = nullptr; }
 
   int Argc;
   char **Argv;
@@ -194,6 +194,6 @@ int TestParallelRendering(int argc, char *argv[])
   p->Delete();
   contr->Finalize();
   contr->Delete();
-  vtkMultiProcessController::SetGlobalController(0);
+  vtkMultiProcessController::SetGlobalController(nullptr);
   return !retVal;
 }

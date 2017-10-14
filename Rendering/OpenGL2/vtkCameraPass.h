@@ -40,20 +40,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkCameraPass : public vtkRenderPass
 public:
   static vtkCameraPass *New();
   vtkTypeMacro(vtkCameraPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkCameraPass() VTK_OVERRIDE;
+  ~vtkCameraPass() override;
   virtual void GetTiledSizeAndOrigin(
     const vtkRenderState* render_state,
     int* width, int* height, int *originX,
@@ -96,8 +96,8 @@ public:
 
   double AspectRatioOverride;
  private:
-  vtkCameraPass(const vtkCameraPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraPass&) VTK_DELETE_FUNCTION;
+  vtkCameraPass(const vtkCameraPass&) = delete;
+  void operator=(const vtkCameraPass&) = delete;
 };
 
 #endif

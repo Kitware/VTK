@@ -54,7 +54,7 @@ vtkStandardNewMacro(vtkResliceImageViewerMeasurements);
 //----------------------------------------------------------------------------
 vtkResliceImageViewerMeasurements::vtkResliceImageViewerMeasurements()
 {
-  this->ResliceImageViewer = NULL;
+  this->ResliceImageViewer = nullptr;
   this->WidgetCollection = vtkCollection::New();
 
   // Setup event processing

@@ -52,7 +52,7 @@ class VTKFILTERSCORE_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
 public:
   static vtkMarchingSquares *New();
   vtkTypeMacro(vtkMarchingSquares,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -84,7 +84,7 @@ public:
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);
@@ -97,18 +97,18 @@ public:
 
 protected:
   vtkMarchingSquares();
-  ~vtkMarchingSquares() VTK_OVERRIDE;
+  ~vtkMarchingSquares() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
   int ImageRange[6];
   vtkIncrementalPointLocator *Locator;
 
 private:
-  vtkMarchingSquares(const vtkMarchingSquares&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMarchingSquares&) VTK_DELETE_FUNCTION;
+  vtkMarchingSquares(const vtkMarchingSquares&) = delete;
+  void operator=(const vtkMarchingSquares&) = delete;
 };
 
 /**

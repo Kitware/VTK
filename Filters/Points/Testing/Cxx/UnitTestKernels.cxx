@@ -320,7 +320,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     }
     else
     {
-      kernel->ComputeWeights(point, ptIds, NULL, weights);
+      kernel->ComputeWeights(point, ptIds, nullptr, weights);
     }
     double scalar;
     randomSphere->GetOutput()->GetPointData()->GetArray("Distances")->GetTuple(id, &scalar);
@@ -370,7 +370,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
     kernel->ComputeBasis(point, ptIds);
     vtkSmartPointer<vtkDoubleArray> weights =
       vtkSmartPointer<vtkDoubleArray>::New();
-    kernel->ComputeWeights(point, ptIds, NULL, weights);
+    kernel->ComputeWeights(point, ptIds, nullptr, weights);
 
     double probe = 0.0;
     for (vtkIdType p = 0; p < ptIds->GetNumberOfIds(); ++p)

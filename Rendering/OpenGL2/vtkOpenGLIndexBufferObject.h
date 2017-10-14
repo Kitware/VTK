@@ -31,7 +31,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLIndexBufferObject :
 public:
   static vtkOpenGLIndexBufferObject *New();
   vtkTypeMacro(vtkOpenGLIndexBufferObject, vtkOpenGLBufferObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Sizes/offsets are all in bytes as OpenGL API expects them.
   size_t IndexCount; // Number of indices in the VBO
@@ -129,11 +129,11 @@ public:
 
 protected:
   vtkOpenGLIndexBufferObject();
-  ~vtkOpenGLIndexBufferObject() VTK_OVERRIDE;
+  ~vtkOpenGLIndexBufferObject() override;
 
 private:
-  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) = delete;
+  void operator=(const vtkOpenGLIndexBufferObject&) = delete;
 };
 
 #endif

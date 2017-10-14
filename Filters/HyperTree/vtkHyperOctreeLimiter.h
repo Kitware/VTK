@@ -52,11 +52,11 @@ public:
 
 protected:
   vtkHyperOctreeLimiter();
-  ~vtkHyperOctreeLimiter() VTK_OVERRIDE;
+  ~vtkHyperOctreeLimiter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   vtkHyperOctree *Input;
   vtkHyperOctree *Output;
@@ -76,8 +76,8 @@ protected:
   int AccumSize;
 
 private:
-  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&) = delete;
+  void operator=(const vtkHyperOctreeLimiter&) = delete;
 };
 
 #endif

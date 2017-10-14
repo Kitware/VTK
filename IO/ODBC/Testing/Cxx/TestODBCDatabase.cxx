@@ -39,7 +39,7 @@ int TestODBCDatabase( int, char ** const )
 {
   vtkODBCDatabase* db = vtkODBCDatabase::New();
   db->SetDataSourceName( VTK_ODBC_TEST_DSN );
-  bool status = db->Open(NULL);
+  bool status = db->Open(nullptr);
 
   if ( ! status )
   {

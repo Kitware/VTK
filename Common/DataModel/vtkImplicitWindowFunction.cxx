@@ -23,7 +23,7 @@ vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunct
 // Construct object with window range (0,1) and window values (0,1).
 vtkImplicitWindowFunction::vtkImplicitWindowFunction()
 {
-  this->ImplicitFunction = NULL;
+  this->ImplicitFunction = nullptr;
 
   this->WindowRange[0] = 0.0;
   this->WindowRange[1] = 1.0;
@@ -34,7 +34,7 @@ vtkImplicitWindowFunction::vtkImplicitWindowFunction()
 
 vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 {
-  this->SetImplicitFunction(NULL);
+  this->SetImplicitFunction(nullptr);
 }
 
 // Evaluate window function.

@@ -119,10 +119,10 @@ class vtkPlotStackedSegment : public vtkObject {
 
     vtkPlotStackedSegment()
     {
-      this->Stacked = 0;
-      this->Points = 0;
-      this->BadPoints = 0;
-      this->Previous = 0;
+      this->Stacked = nullptr;
+      this->Points = nullptr;
+      this->BadPoints = nullptr;
+      this->Previous = nullptr;
       this->Sorted = false;
     }
 
@@ -145,7 +145,7 @@ class vtkPlotStackedSegment : public vtkObject {
         switch (x_array->GetDataType())
         {
             vtkTemplateMacro(
-              CopyToPointsSwitch(this->Points,this->Previous ? this->Previous->Points : 0,
+              CopyToPointsSwitch(this->Points,this->Previous ? this->Previous->Points : nullptr,
                                  static_cast<VTK_TT*>(x_array->GetVoidPointer(0)),
                                  y_array,x_array->GetNumberOfTuples(), bds));
         }
@@ -155,7 +155,7 @@ class vtkPlotStackedSegment : public vtkObject {
         switch (y_array->GetDataType())
         {
           vtkTemplateMacro(
-            CopyToPoints(this->Points, this->Previous ? this->Previous->Points : 0,
+            CopyToPoints(this->Points, this->Previous ? this->Previous->Points : nullptr,
                          static_cast<VTK_TT*>(y_array->GetVoidPointer(0)),
                          y_array->GetNumberOfTuples(), bds));
         }
@@ -231,7 +231,7 @@ class vtkPlotStackedSegment : public vtkObject {
 
       if (this->BadPoints->GetNumberOfTuples() == 0)
       {
-        this->BadPoints = 0;
+        this->BadPoints = nullptr;
       }
     }
 
@@ -339,7 +339,7 @@ class vtkPlotStackedSegment : public vtkObject {
       painter->ApplyBrush(brush);
       int n = this->Points->GetNumberOfPoints();
       float *data_extent = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData())->GetPointer(0);
-      float *data_base = 0;
+      float *data_base = nullptr;
       if (this->Previous)
         data_base = vtkArrayDownCast<vtkFloatArray>(this->Previous->Points->GetData())->GetPointer(0);
 
@@ -470,7 +470,7 @@ class vtkPlotStackedPrivate {
       this->UnscaledInputBounds[1] = this->UnscaledInputBounds[3] = -vtkMath::Inf();
     }
 
-    vtkPlotStackedSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, vtkPlotStackedSegment *prev=0)
+    vtkPlotStackedSegment *AddSegment(vtkDataArray *x_array, vtkDataArray *y_array, vtkPlotStackedSegment *prev=nullptr)
     {
       vtkSmartPointer<vtkPlotStackedSegment> segment = vtkSmartPointer<vtkPlotStackedSegment>::New();
       segment->Configure(this->Stacked,x_array,y_array,prev,this->UnscaledInputBounds);
@@ -565,9 +565,9 @@ vtkStandardNewMacro(vtkPlotStacked);
 vtkPlotStacked::vtkPlotStacked()
 {
   this->Private = new vtkPlotStackedPrivate(this);
-  this->BaseBadPoints = NULL;
-  this->ExtentBadPoints = NULL;
-  this->AutoLabels = NULL;
+  this->BaseBadPoints = nullptr;
+  this->ExtentBadPoints = nullptr;
+  this->AutoLabels = nullptr;
   this->Pen->SetColor(0,0,0,0);
   this->LogX = false;
   this->LogY = false;
@@ -579,12 +579,12 @@ vtkPlotStacked::~vtkPlotStacked()
   if (this->BaseBadPoints)
   {
     this->BaseBadPoints->Delete();
-    this->BaseBadPoints = NULL;
+    this->BaseBadPoints = nullptr;
   }
   if (this->ExtentBadPoints)
   {
     this->ExtentBadPoints->Delete();
-    this->ExtentBadPoints = NULL;
+    this->ExtentBadPoints = nullptr;
   }
 
   delete this->Private;
@@ -678,8 +678,8 @@ bool vtkPlotStacked::PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
     vtkNew<vtkBrush> brush;
     pen->SetColor(this->ColorSeries->GetColorRepeating(legendIndex).GetData());
     brush->SetColor(pen->GetColor());
-    painter->ApplyPen(pen.GetPointer());
-    painter->ApplyBrush(brush.GetPointer());
+    painter->ApplyPen(pen);
+    painter->ApplyBrush(brush);
   }
   else
   {
@@ -754,7 +754,7 @@ vtkStringArray *vtkPlotStacked::GetLabels()
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -763,7 +763,7 @@ bool vtkPlotStacked::UpdateTableCache(vtkTable *table)
 {
   // Get the x and ybase and yextent arrays (index 0 1 2 respectively)
   vtkDataArray* x = this->UseIndexForXSeries ?
-                    0 : this->Data->GetInputArrayToProcess(0, table);
+                    nullptr : this->Data->GetInputArrayToProcess(0, table);
   vtkDataArray* y = this->Data->GetInputArrayToProcess(1, table);
 
   if (!x && !this->UseIndexForXSeries)
@@ -826,7 +826,7 @@ void vtkPlotStacked::SetInputArray(int index, const vtkStdString &name)
   {
     this->Private->AdditionalSeries[index] = name;
   }
-  this->AutoLabels = 0; // No longer valid
+  this->AutoLabels = nullptr; // No longer valid
 }
 
 //-----------------------------------------------------------------------------

@@ -102,7 +102,7 @@ class VTKFILTERSCORE_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorith
 {
 public:
   vtkTypeMacro(vtkSmoothPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with number of iterations 20; relaxation factor .01;
@@ -217,10 +217,10 @@ public:
 
 protected:
   vtkSmoothPolyDataFilter();
-  ~vtkSmoothPolyDataFilter() VTK_OVERRIDE {}
+  ~vtkSmoothPolyDataFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   double Convergence;
   int NumberOfIterations;
@@ -235,8 +235,8 @@ protected:
 
   vtkSmoothPoints *SmoothPoints;
 private:
-  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmoothPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&) = delete;
+  void operator=(const vtkSmoothPolyDataFilter&) = delete;
 };
 
 #endif

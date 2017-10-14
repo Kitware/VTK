@@ -59,7 +59,7 @@ class VTKFILTERSGENERAL_EXPORT vtkAnnotationLink : public vtkAnnotationLayersAlg
 public:
   static vtkAnnotationLink *New();
   vtkTypeMacro(vtkAnnotationLink, vtkAnnotationLayersAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -91,11 +91,11 @@ public:
   /**
    * Get the mtime of this object.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkAnnotationLink();
-  ~vtkAnnotationLink() VTK_OVERRIDE;
+  ~vtkAnnotationLink() override;
 
   /**
    * Called to process modified events from its vtkAnnotationLayers.
@@ -106,12 +106,12 @@ protected:
   /**
    * Set up input ports.
    */
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   /**
    * Set up output ports.
    */
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Copy the data to the output objects.
@@ -127,7 +127,7 @@ protected:
   int RequestData(
     vtkInformation *info,
     vtkInformationVector **inVector,
-    vtkInformationVector *outVector) VTK_OVERRIDE;
+    vtkInformationVector *outVector) override;
 
   /**
    * The shared selection.
@@ -141,8 +141,8 @@ protected:
 
 
 private:
-  vtkAnnotationLink(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLink(const vtkAnnotationLink&) = delete;
+  void operator=(const vtkAnnotationLink&) = delete;
 
   class Command;
   friend class Command;

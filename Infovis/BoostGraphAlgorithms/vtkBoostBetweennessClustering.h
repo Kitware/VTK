@@ -100,8 +100,8 @@ private:
   char*   EdgeWeightArrayName;
   char*   EdgeCentralityArrayName;
 
-  vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostBetweennessClustering&) VTK_DELETE_FUNCTION;
+  vtkBoostBetweennessClustering(const vtkBoostBetweennessClustering&) = delete;
+  void operator=(const vtkBoostBetweennessClustering&) = delete;
 };
 
 #endif // vtkBoostBetweennessClustering_h

@@ -55,7 +55,7 @@ int TestColumnTree(int argc, char* argv[])
   weights->SetValue(graph->GetEdgeId(internalOne, c), 3.0f);
 
   weights->SetName("weight");
-  graph->GetEdgeData()->AddArray(weights.GetPointer());
+  graph->GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkStringArray> names;
   names->SetNumberOfTuples(6);
@@ -64,7 +64,7 @@ int TestColumnTree(int argc, char* argv[])
   names->SetValue(c, "c");
 
   names->SetName("node name");
-  graph->GetVertexData()->AddArray(names.GetPointer());
+  graph->GetVertexData()->AddArray(names);
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(6);
@@ -75,13 +75,13 @@ int TestColumnTree(int argc, char* argv[])
   nodeWeights->SetValue(b, 4.0f);
   nodeWeights->SetValue(c, 4.0f);
   nodeWeights->SetName("node weight");
-  graph->GetVertexData()->AddArray(nodeWeights.GetPointer());
+  graph->GetVertexData()->AddArray(nodeWeights);
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   vtkNew<vtkTree> tree2;
-  tree2->DeepCopy(tree.GetPointer());
+  tree2->DeepCopy(tree);
 
   // Construct a table
   vtkNew<vtkTable> table;
@@ -116,19 +116,19 @@ int TestColumnTree(int argc, char* argv[])
   m3->SetValue(1, 1.0f);
   m3->SetValue(2, 3.0f);
 
-  table->AddColumn(tableNames.GetPointer());
-  table->AddColumn(m1.GetPointer());
-  table->AddColumn(m2.GetPointer());
-  table->AddColumn(m3.GetPointer());
+  table->AddColumn(tableNames);
+  table->AddColumn(m1);
+  table->AddColumn(m2);
+  table->AddColumn(m3);
 
   vtkNew<vtkTreeHeatmapItem> treeItem;
-  treeItem->SetTree(tree.GetPointer());
-  treeItem->SetColumnTree(tree2.GetPointer());
-  treeItem->SetTable(table.GetPointer());
+  treeItem->SetTree(tree);
+  treeItem->SetColumnTree(tree2);
+  treeItem->SetTable(table);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(treeItem.GetPointer());
+  trans->AddItem(treeItem);
 
   // center the item within the render window
   trans->Translate(80, 25);
@@ -137,7 +137,7 @@ int TestColumnTree(int argc, char* argv[])
   vtkSmartPointer<vtkContextView> view = vtkSmartPointer<vtkContextView>::New();
   view->GetRenderWindow()->SetSize(400, 200);
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetScene()->AddItem(trans.GetPointer());
+  view->GetScene()->AddItem(trans);
 
   //Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(0);

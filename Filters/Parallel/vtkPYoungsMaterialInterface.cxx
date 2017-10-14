@@ -31,7 +31,7 @@ vtkCxxSetObjectMacro(vtkPYoungsMaterialInterface, Controller, vtkMultiProcessCon
 //-----------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
 {
-  this->Controller = 0 ;
+  this->Controller = nullptr ;
   this->SetController( vtkMultiProcessController::GetGlobalController() );
 
   vtkDebugMacro(<<"vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface() ok\n");
@@ -40,7 +40,7 @@ vtkPYoungsMaterialInterface::vtkPYoungsMaterialInterface()
 //-----------------------------------------------------------------------------
 vtkPYoungsMaterialInterface::~vtkPYoungsMaterialInterface()
 {
-  this->SetController( 0 );
+  this->SetController( nullptr );
 }
 
 //-----------------------------------------------------------------------------

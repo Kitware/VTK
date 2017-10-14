@@ -53,7 +53,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPeriodicFilter : public vtkMultiBlockDataSetA
 {
 public:
   vtkTypeMacro(vtkPeriodicFilter, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -102,14 +102,14 @@ public:
 
 protected:
   vtkPeriodicFilter();
-  ~vtkPeriodicFilter() VTK_OVERRIDE;
+  ~vtkPeriodicFilter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   /**
    * Create a periodic data, leaf of the tree
@@ -129,8 +129,8 @@ protected:
   bool ReducePeriodNumbers;
 
 private:
-  vtkPeriodicFilter(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
+  vtkPeriodicFilter(const vtkPeriodicFilter&) = delete;
+  void operator=(const vtkPeriodicFilter&) = delete;
 
   int IterationMode;
   int NumberOfPeriods;      // User provided number of periods

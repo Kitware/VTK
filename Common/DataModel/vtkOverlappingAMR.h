@@ -45,15 +45,15 @@ public:
   /**
    * Return class name of data type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_OVERLAPPING_AMR;}
+  int GetDataObjectType() override {return VTK_OVERLAPPING_AMR;}
 
   vtkTypeMacro(vtkOverlappingAMR,vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by the user).
    */
-  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
   //@{
   /**
@@ -143,14 +143,14 @@ public:
   /**
    * Return a pointer to Parents of a block.  The first entry is the number
    * of parents the block has followed by its parent ids in level-1.
-   * If none exits it returns NULL.
+   * If none exits it returns nullptr.
    */
   unsigned int *GetParents(unsigned int level, unsigned int index,  unsigned int& numParents);
 
   /**
    * Return a pointer to Children of a block.  The first entry is the number
    * of children the block has followed by its childern ids in level+1.
-   * If none exits it returns NULL.
+   * If none exits it returns nullptr.
    */
   unsigned int *GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
@@ -170,9 +170,9 @@ public:
   /**
    * Get/Set the internal representation of amr meta meta data
    */
-  vtkAMRInformation* GetAMRInfo() VTK_OVERRIDE
+  vtkAMRInformation* GetAMRInfo() override
     { return Superclass::GetAMRInfo();}
-  void SetAMRInfo(vtkAMRInformation* info) VTK_OVERRIDE
+  void SetAMRInfo(vtkAMRInformation* info) override
     { return Superclass::SetAMRInfo(info);}
 
   //@{
@@ -184,12 +184,12 @@ public:
   void Audit();
  protected:
   vtkOverlappingAMR();
-  ~vtkOverlappingAMR() VTK_OVERRIDE;
+  ~vtkOverlappingAMR() override;
   //@}
 
 private:
-  vtkOverlappingAMR(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
+  vtkOverlappingAMR(const vtkOverlappingAMR&) = delete;
+  void operator=(const vtkOverlappingAMR&) = delete;
 };
 
 #endif

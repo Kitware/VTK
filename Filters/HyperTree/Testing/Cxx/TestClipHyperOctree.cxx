@@ -102,7 +102,7 @@ int TestClipHyperOctree(int argc, char* argv[])
   surface3d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface3d updated"<<endl;
 
-  assert(surface3d->GetOutput()!=0);
+  assert(surface3d->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut3d = vtkLookupTable::New();
@@ -112,9 +112,9 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper3d->SetInputConnection(0,surface3d->GetOutputPort(0));
   mapper3d->SetLookupTable(lut3d);
 
-  if(surface3d->GetOutput()->GetCellData()!=0)
+  if(surface3d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(surface3d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(surface3d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper3d->SetScalarRange( surface3d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
@@ -181,7 +181,7 @@ int TestClipHyperOctree(int argc, char* argv[])
   surface2d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface2d updated"<<endl;
 
-  assert(surface2d->GetOutput()!=0);
+  assert(surface2d->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut2d = vtkLookupTable::New();
@@ -191,9 +191,9 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper2d->SetInputConnection(0,surface2d->GetOutputPort(0));
   mapper2d->SetLookupTable(lut2d);
 
-  if(surface2d->GetOutput()->GetCellData()!=0)
+  if(surface2d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(surface2d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(surface2d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper2d->SetScalarRange( surface2d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
@@ -261,7 +261,7 @@ int TestClipHyperOctree(int argc, char* argv[])
   surface1d->Update(); //So that we can call GetRange() on the scalars
   cout<<"surface1d updated"<<endl;
 
-  assert(surface1d->GetOutput()!=0);
+  assert(surface1d->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut1d = vtkLookupTable::New();
@@ -271,9 +271,9 @@ int TestClipHyperOctree(int argc, char* argv[])
   mapper1d->SetInputConnection(0,surface1d->GetOutputPort(0));
   mapper1d->SetLookupTable(lut1d);
 
-  if(surface1d->GetOutput()->GetCellData()!=0)
+  if(surface1d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(surface1d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(surface1d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper1d->SetScalarRange( surface1d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());

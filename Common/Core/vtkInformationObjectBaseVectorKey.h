@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationObjectBaseVectorKey : public vtkInforma
 {
 public:
   vtkTypeMacro(vtkInformationObjectBaseVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@{
   /**
    * The name of the static instance and the class in which
@@ -47,9 +47,9 @@ public:
    */
   vtkInformationObjectBaseVectorKey(const char* name,
                                     const char* location,
-                                    const char* requiredClass=0);
+                                    const char* requiredClass=nullptr);
   //
-  ~vtkInformationObjectBaseVectorKey() VTK_OVERRIDE;
+  ~vtkInformationObjectBaseVectorKey() override;
   //@}
 
   /**
@@ -59,7 +59,7 @@ public:
    * for wrappers. Use the constructor directly from C++ instead.
    */
   static vtkInformationObjectBaseVectorKey* MakeKey(const char* name, const char* location,
-                                             const char* requiredClass=0)
+                                             const char* requiredClass=nullptr)
   {
     return new vtkInformationObjectBaseVectorKey(name, location, requiredClass);
   }
@@ -140,12 +140,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 protected:
   // The type required of all objects stored with this key.
@@ -170,8 +170,8 @@ private:
   vtkInformationObjectBaseVectorValue *GetObjectBaseVector(vtkInformation *info);
 
   //
-  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) = delete;
+  void operator=(const vtkInformationObjectBaseVectorKey&) = delete;
 };
 
 #endif

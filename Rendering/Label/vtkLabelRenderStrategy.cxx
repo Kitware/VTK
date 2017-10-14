@@ -23,15 +23,15 @@ vtkCxxSetObjectMacro(vtkLabelRenderStrategy, DefaultTextProperty, vtkTextPropert
 //----------------------------------------------------------------------------
 vtkLabelRenderStrategy::vtkLabelRenderStrategy()
 {
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->DefaultTextProperty = vtkTextProperty::New();
 }
 
 //----------------------------------------------------------------------------
 vtkLabelRenderStrategy::~vtkLabelRenderStrategy()
 {
-  this->SetRenderer(0);
-  this->SetDefaultTextProperty(0);
+  this->SetRenderer(nullptr);
+  this->SetDefaultTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------

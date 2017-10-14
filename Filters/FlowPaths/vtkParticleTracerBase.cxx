@@ -80,7 +80,7 @@ namespace
   //return the interval i, such that a belongs to the interval (A[i],A[i+1]]
   inline int FindInterval(double a, const std::vector<double>& A)
   {
-    if(A.size() == 0 || a < A[0])
+    if(A.empty() || a < A[0])
     {
       return -1;
     }
@@ -113,11 +113,11 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->StaticSeeds                 = 0;
   this->ComputeVorticity            = 1;
   this->IgnorePipelineTime          = 1;
-  this->ParticleWriter              = NULL;
-  this->ParticleFileName            = NULL;
+  this->ParticleWriter              = nullptr;
+  this->ParticleFileName            = nullptr;
   this->EnableParticleWriting       = false;
   this->UniqueIdCounter             = 0;
-  this->Integrator                  = NULL;
+  this->Integrator                  = nullptr;
 
   this->StartTime = 0.0;
   this->TerminationTime       = 0.0;
@@ -151,14 +151,14 @@ vtkParticleTracerBase::vtkParticleTracerBase()
 //---------------------------------------------------------------------------
 vtkParticleTracerBase::~vtkParticleTracerBase()
 {
-  this->SetParticleWriter(NULL);
-  this->SetParticleFileName(NULL);
+  this->SetParticleWriter(nullptr);
+  this->SetParticleFileName(nullptr);
 
-  this->CachedData[0] = NULL;
-  this->CachedData[1] = NULL;
+  this->CachedData[0] = nullptr;
+  this->CachedData[1] = nullptr;
 
-  this->SetIntegrator(0);
-  this->SetInterpolatorPrototype(0);
+  this->SetIntegrator(nullptr);
+  this->SetInterpolatorPrototype(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -190,7 +190,7 @@ void vtkParticleTracerBase::AddSourceConnection(vtkAlgorithmOutput* input)
 //----------------------------------------------------------------------------
 void vtkParticleTracerBase::RemoveAllSources()
 {
-  this->SetInputConnection(1, 0);
+  this->SetInputConnection(1, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -378,7 +378,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
   vtkSmartPointer<vtkCompositeDataIterator> iterP;
   iterP.TakeReference(this->CachedData[0]->NewIterator());
   iterP->GoToFirstItem();
-  char *vecname = NULL;
+  char *vecname = nullptr;
   while (!iterP->IsDoneWithTraversal())
   {
     vtkDataArray *vectors = this->GetInputArrayToProcess(
@@ -403,7 +403,7 @@ int vtkParticleTracerBase::InitializeInterpolator()
 
   int numValidInputBlocks[2] = {0, 0};
   int numTotalInputBlocks[2] = {0, 0};
-  this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
+  this->DataReferenceT[0] = this->DataReferenceT[1] = nullptr;
   for (int T=0; T<2; T++)
   {
     this->CachedBounds[T].clear();
@@ -521,7 +521,7 @@ int vtkParticleTracerBase::UpdateDataCache(vtkDataObject *data)
   {
     i = 1;
     this->CachedData[0] = this->CachedData[1];
-    this->CachedData[1] = NULL;
+    this->CachedData[1] = nullptr;
   }
 
 
@@ -748,11 +748,11 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   {
     if (this->CachedData[0])
     {
-      this->CachedData[0] = NULL;
+      this->CachedData[0] = nullptr;
     }
     if (this->CachedData[1])
     {
-      this->CachedData[1] = NULL;
+      this->CachedData[1] = nullptr;
     }
     vtkErrorMacro(<<"InitializeInterpolator failed");
     return output;
@@ -764,7 +764,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->ParticleSourceIds   = vtkSmartPointer<vtkCharArray>::New();
   this->InjectedPointIds    = vtkSmartPointer<vtkIntArray>::New();
   this->InjectedStepIds     = vtkSmartPointer<vtkIntArray>::New();
-  this->ErrorCode           = vtkSmartPointer<vtkIntArray>::New();
+  this->ErrorCodeArray      = vtkSmartPointer<vtkIntArray>::New();
   this->ParticleVorticity   = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleRotation    = vtkSmartPointer<vtkFloatArray>::New();
   this->ParticleAngularVel  = vtkSmartPointer<vtkFloatArray>::New();
@@ -781,7 +781,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->ParticleSourceIds->SetName("ParticleSourceId");
   this->InjectedPointIds->SetName("InjectedPointId");
   this->InjectedStepIds->SetName("InjectionStepId");
-  this->ErrorCode->SetName("ErrorCode");
+  this->ErrorCodeArray->SetName("ErrorCode");
 
   if (this->ComputeVorticity)
   {
@@ -816,7 +816,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   {
     Assert(!this->HasCache); //shouldn't have cache if restarting
     int seedPointId=0;
-    if (!(this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.size()==0))
+    if (!(this->StaticSeeds && this->AllFixedGeometry && this->LocalSeeds.empty()))
     {
       // wipe the list and reclassify for each injection
       this->LocalSeeds.clear();
@@ -880,7 +880,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
       // Particles might have been deleted during the first pass as they move
       // out of domain or age. Before adding any new particles that are sent
       // to us, we must know the starting point ready for the next pass
-      bool list_valid = (this->ParticleHistories.size()>0);
+      bool list_valid = (!this->ParticleHistories.empty());
       if (list_valid)
       {
         // point to one before the end
@@ -950,7 +950,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   this->OutputPointData->AddArray(this->ParticleSourceIds);
   this->OutputPointData->AddArray(this->InjectedPointIds);
   this->OutputPointData->AddArray(this->InjectedStepIds);
-  this->OutputPointData->AddArray(this->ErrorCode);
+  this->OutputPointData->AddArray(this->ErrorCodeArray);
   this->OutputPointData->AddArray(this->ParticleAge);
   if (this->ComputeVorticity)
   {
@@ -974,7 +974,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   // To do:  verify here that the particles in ParticleHistories are consistent with CurrentTime
 
   // These hold reference to the inputs. Release them.
-  this->DataReferenceT[0] = this->DataReferenceT[1] = 0;
+  this->DataReferenceT[0] = this->DataReferenceT[1] = nullptr;
   return output;
 }
 
@@ -1280,7 +1280,7 @@ bool vtkParticleTracerBase::ComputeDomainExitLocation(
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::SetIntegratorType(int type)
 {
-  vtkInitialValueProblemSolver* ivp=0;
+  vtkInitialValueProblemSolver* ivp=nullptr;
   switch (type)
   {
     case RUNGE_KUTTA2:
@@ -1372,10 +1372,10 @@ void vtkParticleTracerBase::ResetCache()
     this->ReinjectionCounter = 0;
     this->UniqueIdCounter    = 0; ///check
 
-    this->CachedData[0] = NULL;
-    this->CachedData[1] = NULL;
+    this->CachedData[0] = nullptr;
+    this->CachedData[1] = nullptr;
 
-    this->Output = NULL;
+    this->Output = nullptr;
     this->HasCache = false;
   }
 }
@@ -1422,8 +1422,8 @@ void vtkParticleTracerBase::SetTerminationTime(double t)
 //---------------------------------------------------------------------------
 void vtkParticleTracerBase::CreateProtoPD(vtkDataObject* input)
 {
-  this->ProtoPD = NULL;
-  vtkDataSet* inputData(NULL);
+  this->ProtoPD = nullptr;
+  vtkDataSet* inputData(nullptr);
 
   if(vtkCompositeDataSet::SafeDownCast(input))
   {
@@ -1520,7 +1520,7 @@ void vtkParticleTracerBase::AddParticle(
   this->ParticleSourceIds->InsertNextValue(info.SourceID);
   this->InjectedPointIds->InsertNextValue(info.InjectedPointId);
   this->InjectedStepIds->InsertNextValue(info.InjectedStepId);
-  this->ErrorCode->InsertNextValue(info.ErrorCode);
+  this->ErrorCodeArray->InsertNextValue(info.ErrorCode);
   this->ParticleAge->InsertNextValue(info.age);
   this->AppendToExtraPointDataArrays(info);
   info.PointId = tempId;
@@ -1546,7 +1546,7 @@ void vtkParticleTracerBase::AddParticle(
   //
   if (this->ComputeVorticity)
   {
-    vtkGenericCell *cell(NULL);
+    vtkGenericCell *cell(nullptr);
     double pcoords[3], vorticity[3], weights[256];
     double rotation, omega;
     // have to use T0 if particle is out at T1, otherwise use T1
@@ -1632,7 +1632,7 @@ bool vtkParticleTracerBase::IsPointDataValid(vtkCompositeDataSet* input,
 void vtkParticleTracerBase::GetPointDataArrayNames(
   vtkDataSet* input, std::vector<std::string>& names)
 {
-  if(input == NULL)
+  if(input == nullptr)
   {
     names.clear();
     return;

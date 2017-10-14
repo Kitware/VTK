@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLStructuredGridReader : public vtkXMLStructuredDataRe
 {
 public:
   vtkTypeMacro(vtkXMLStructuredGridReader,vtkXMLStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLStructuredGridReader *New();
 
   //@{
@@ -51,25 +51,25 @@ public:
 
 protected:
   vtkXMLStructuredGridReader();
-  ~vtkXMLStructuredGridReader() VTK_OVERRIDE;
+  ~vtkXMLStructuredGridReader() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
-  void SetOutputExtent(int* extent) VTK_OVERRIDE;
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
 
-  void SetupPieces(int numPieces) VTK_OVERRIDE;
-  void DestroyPieces() VTK_OVERRIDE;
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
+  void SetupOutputData() override;
 
-  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
-  int ReadPieceData() VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The elements representing the points for each piece.
   vtkXMLDataElement** PointElements;
 
 private:
-  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLStructuredGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLStructuredGridReader(const vtkXMLStructuredGridReader&) = delete;
+  void operator=(const vtkXMLStructuredGridReader&) = delete;
 };
 
 #endif

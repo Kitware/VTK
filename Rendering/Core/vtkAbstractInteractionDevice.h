@@ -24,7 +24,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractInteractionDevice : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractInteractionDevice, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * @brief Make a new device, this class is abstract and one of its derived
@@ -56,15 +56,15 @@ public:
 
 protected:
   vtkAbstractInteractionDevice();
-  ~vtkAbstractInteractionDevice() VTK_OVERRIDE;
+  ~vtkAbstractInteractionDevice() override;
 
   bool Initialized;
   vtkRenderWidget *RenderWidget;
   vtkAbstractRenderDevice *RenderDevice;
 
 private:
-  vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractInteractionDevice&) VTK_DELETE_FUNCTION;
+  vtkAbstractInteractionDevice(const vtkAbstractInteractionDevice&) = delete;
+  void operator=(const vtkAbstractInteractionDevice&) = delete;
 };
 
 #endif

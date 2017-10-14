@@ -14,8 +14,10 @@ set(Module_SRCS
   vtkCamera.cxx
   vtkCameraInterpolator.cxx
   vtkCellCenterDepthSort.cxx
+  vtkCIEDE2000.cxx
   vtkColorTransferFunction.cxx
   vtkCompositeDataDisplayAttributes.cxx
+  vtkCompositeDataDisplayAttributesLegacy.cxx
   vtkCompositePolyDataMapper.cxx
   vtkCoordinate.cxx
   vtkCullerCollection.cxx
@@ -64,7 +66,6 @@ set(Module_SRCS
   vtkProp3DFollower.cxx
   vtkPropAssembly.cxx
   vtkPropCollection.cxx
-  vtkPropPicker3D.cxx
   vtkProp.cxx
   vtkProperty2D.cxx
   vtkProperty.cxx
@@ -74,12 +75,14 @@ set(Module_SRCS
   vtkRendererSource.cxx
   vtkRenderPass.cxx
   vtkRenderState.cxx
+  vtkRenderTimerLog.cxx
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
   vtkRenderWindowInteractor3D.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
+  vtkSkybox.cxx
   vtkTextActor.cxx
   vtkTextActor3D.cxx
   vtkTexture.cxx
@@ -148,7 +151,14 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     vtkPointGaussianMapper
     ABSTRACT
     )
-else() # Add painter device adapter when not OpenGL2
+endif()
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  # needed as we do not have vtkRenderingOpenGLConfigure.h here
+  set_source_files_properties(
+    vtkRenderWindow.cxx  # dummy out painterdevice adapter
+    vtkHardwareSelector.cxx # dummy out painter device adapter
+    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL1)
   list(APPEND Module_SRCS
     vtkPainterDeviceAdapter.cxx
     )
@@ -199,6 +209,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkAbstractInteractionDevice
   vtkAbstractRenderDevice
+  vtkCIEDE2000
   vtkRenderState
   vtkRenderWidget
   WRAP_EXCLUDE
@@ -214,6 +225,6 @@ endif()
 
 vtk_module_library(vtkRenderingCore ${Module_SRCS})
 
-if (VTK_USE_OFFSCREEN)
-  target_compile_definitions(vtkRenderingCore PRIVATE -DVTK_USE_OFFSCREEN)
+if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
+  target_compile_definitions(vtkRenderingCore PRIVATE -DVTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()

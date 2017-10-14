@@ -13,7 +13,6 @@ vtk_add_test_tcl(
   rotations.tcl
 
   assembly.tcl
-  CamBlur.tcl
   ImageActorStressed.tcl
   ScalarBar.tcl
   TestLeaderActor2D.tcl

@@ -43,7 +43,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkCompositePolyDataMapper2 : public vtkOpenGLP
 public:
   static vtkCompositePolyDataMapper2* New();
   vtkTypeMacro(vtkCompositePolyDataMapper2, vtkOpenGLPolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -55,7 +55,7 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  bool GetIsOpaque() VTK_OVERRIDE;
+  bool GetIsOpaque() override;
 
   //@{
   /**
@@ -70,9 +70,11 @@ public:
    * Set/get the visibility for a block given its flat index.
    */
   void SetBlockVisibility(unsigned int index, bool visible);
-  bool GetBlockVisibility(unsigned int index) const;
+  bool GetBlockVisibility(unsigned int index);
   void RemoveBlockVisibility(unsigned int index);
-  void RemoveBlockVisibilites();
+  void RemoveBlockVisibilities();
+  // This method is deprecated and will be removed in VTK 8.2. It is misspelled.
+  VTK_LEGACY(void RemoveBlockVisibilites());
   //@}
 
   //@{
@@ -116,12 +118,12 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
    */
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
   /**
    * Accessor to the ordered list of PolyData that we end last drew.
@@ -133,24 +135,24 @@ public:
 
 protected:
   vtkCompositePolyDataMapper2();
-  ~vtkCompositePolyDataMapper2() VTK_OVERRIDE;
+  ~vtkCompositePolyDataMapper2() override;
 
   /**
    * We need to override this method because the standard streaming
    * demand driven pipeline is not what we want - we are expecting
    * hierarchical data as input
    */
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   /**
    * Need to define the type of data handled by this mapper.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Need to loop over the hierarchy to compute bounds
    */
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   /**
    * Time stamp for computation of bounds.
@@ -172,6 +174,7 @@ protected:
   {
     public:
       std::stack<bool> Visibility;
+      std::stack<bool> Pickability;
       std::stack<double> Opacity;
       std::stack<vtkColor3d> AmbientColor;
       std::stack<vtkColor3d> DiffuseColor;
@@ -210,8 +213,8 @@ private:
   bool LastOpaqueCheckValue;
   double ColorResult[3];
 
-  vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+  vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&) = delete;
+  void operator=(const vtkCompositePolyDataMapper2&) = delete;
 
 };
 

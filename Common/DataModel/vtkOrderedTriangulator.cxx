@@ -153,9 +153,9 @@ struct OTTetra
   OTTetra() : Radius2(0.0L), CurrentPointId(-1), Type(OutsideCavity)
   {
     this->Center[0] = this->Center[1] = this->Center[2] = 0.0L;
-    this->Points[0] = this->Points[1] = this->Points[2] = this->Points[3] = 0;
+    this->Points[0] = this->Points[1] = this->Points[2] = this->Points[3] = nullptr;
     this->Neighbors[0] = this->Neighbors[1] =
-      this->Neighbors[2] = this->Neighbors[3] = 0;
+      this->Neighbors[2] = this->Neighbors[3] = nullptr;
     this->DeleteMe = 0;
   }
 
@@ -422,37 +422,37 @@ void vtkOrderedTriangulator::Initialize()
   tetras[0]->Points[1] = this->Mesh->Points.GetPointer(numPts + 2);
   tetras[0]->Points[2] = this->Mesh->Points.GetPointer(numPts + 4);
   tetras[0]->Points[3] = this->Mesh->Points.GetPointer(numPts + 5);
-  tetras[0]->Neighbors[0] = 0; //outside
+  tetras[0]->Neighbors[0] = nullptr; //outside
   tetras[0]->Neighbors[1] = tetras[1];
   tetras[0]->Neighbors[2] = tetras[3];
-  tetras[0]->Neighbors[3] = 0;
+  tetras[0]->Neighbors[3] = nullptr;
 
   tetras[1]->Points[0] = this->Mesh->Points.GetPointer(numPts + 2);
   tetras[1]->Points[1] = this->Mesh->Points.GetPointer(numPts + 1);
   tetras[1]->Points[2] = this->Mesh->Points.GetPointer(numPts + 4);
   tetras[1]->Points[3] = this->Mesh->Points.GetPointer(numPts + 5);
-  tetras[1]->Neighbors[0] = 0;
+  tetras[1]->Neighbors[0] = nullptr;
   tetras[1]->Neighbors[1] = tetras[2];
   tetras[1]->Neighbors[2] = tetras[0];
-  tetras[1]->Neighbors[3] = 0;
+  tetras[1]->Neighbors[3] = nullptr;
 
   tetras[2]->Points[0] = this->Mesh->Points.GetPointer(numPts + 1);
   tetras[2]->Points[1] = this->Mesh->Points.GetPointer(numPts + 3);
   tetras[2]->Points[2] = this->Mesh->Points.GetPointer(numPts + 4);
   tetras[2]->Points[3] = this->Mesh->Points.GetPointer(numPts + 5);
-  tetras[2]->Neighbors[0] = 0;
+  tetras[2]->Neighbors[0] = nullptr;
   tetras[2]->Neighbors[1] = tetras[3];
   tetras[2]->Neighbors[2] = tetras[1];
-  tetras[2]->Neighbors[3] = 0;
+  tetras[2]->Neighbors[3] = nullptr;
 
   tetras[3]->Points[0] = this->Mesh->Points.GetPointer(numPts + 3);
   tetras[3]->Points[1] = this->Mesh->Points.GetPointer(numPts + 0);
   tetras[3]->Points[2] = this->Mesh->Points.GetPointer(numPts + 4);
   tetras[3]->Points[3] = this->Mesh->Points.GetPointer(numPts + 5);
-  tetras[3]->Neighbors[0] = 0;
+  tetras[3]->Neighbors[0] = nullptr;
   tetras[3]->Neighbors[1] = tetras[0];
   tetras[3]->Neighbors[2] = tetras[2];
-  tetras[3]->Neighbors[3] = 0;
+  tetras[3]->Neighbors[3] = nullptr;
 }
 
 
@@ -624,17 +624,20 @@ extern "C" {
   static int vtkSortOnIds(const void *val1, const void *val2)
 #endif
   {
-    if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
+    vtkIdType sortId1 = static_cast<const OTPoint *>(val1)->SortId;
+    vtkIdType sortId2 = static_cast<const OTPoint *>(val2)->SortId;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
     else
     {
-      return (0);
+      return 0;
     }
   }
 }
@@ -646,26 +649,32 @@ extern "C" {
   static int vtkSortOnTwoIds(const void *val1, const void *val2)
 #endif
   {
-    if (((OTPoint *)val1)->SortId2 < ((OTPoint *)val2)->SortId2)
+    vtkIdType sortId1 = static_cast<const OTPoint *>(val1)->SortId2;
+    vtkIdType sortId2 = static_cast<const OTPoint *>(val2)->SortId2;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId2 > ((OTPoint *)val2)->SortId2)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
 
-    if (((OTPoint *)val1)->SortId < ((OTPoint *)val2)->SortId)
+    sortId1 = static_cast<const OTPoint *>(val1)->SortId;
+    sortId2 = static_cast<const OTPoint *>(val2)->SortId;
+
+    if (sortId1 < sortId2)
     {
-      return (-1);
+      return -1;
     }
-    else if (((OTPoint *)val1)->SortId > ((OTPoint *)val2)->SortId)
+    else if (sortId1 > sortId2)
     {
-      return (1);
+      return 1;
     }
     else
     {
-      return (0);
+      return 0;
     }
   }
 }
@@ -858,11 +867,11 @@ int vtkOTMesh::CreateInsertionCavity(OTPoint* p, OTTetra *initialTet,
       nei = tetra->Neighbors[i];
       // If a mesh boundary face, the face is added to the
       // list of insertion cavity faces
-      if ( nei == 0 )
+      if ( nei == nullptr )
       {
         OTFace *face = new(this->Heap) OTFace;
         tetra->GetFacePoints(i,face);
-        face->Neighbor = 0;
+        face->Neighbor = nullptr;
         this->CavityFaces.push_back(face);
         valid = face->IsValidCavityFace(p->P,this->Tolerance2);
       }
@@ -1049,7 +1058,7 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
   // prevent aimless wandering and death by recursion
   if ( depth > 200 )
   {
-    return 0;
+    return nullptr;
   }
 
   vtkTetra::BarycentricCoords(x, tetra->Points[0]->P, tetra->Points[1]->P,
@@ -1098,7 +1107,7 @@ vtkOTMesh::WalkToTetra(OTTetra *tetra, double x[3], int depth, double bc[4])
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -1147,7 +1156,7 @@ void vtkOrderedTriangulator::Triangulate()
     OTTetra *tetra =
       this->Mesh->WalkToTetra(*(this->Mesh->Tetras.begin()),p->P,0,bc);
 
-    if ( tetra == 0 || !this->Mesh->CreateInsertionCavity(p, tetra, bc) )
+    if ( tetra == nullptr || !this->Mesh->CreateInsertionCavity(p, tetra, bc) )
     {
       vtkDebugMacro(<<"Point not in tetrahedron");
       continue;
@@ -1327,12 +1336,12 @@ vtkIdType vtkOrderedTriangulator::AddTetras(int classification,
                                             vtkIdType cellId,
                                             vtkCellData *outCD)
 {
-  assert("pre: locator_exists" && locator!=0);
-  assert("pre: outConnectivity" && outConnectivity!=0);
-  assert("inPD_exists" && inPD!=0);
-  assert("pre: outPD_exists" && outPD!=0);
-  assert("inCD_exists" && inCD!=0);
-  assert("pre: outCD_exists" && outCD!=0);
+  assert("pre: locator_exists" && locator!=nullptr);
+  assert("pre: outConnectivity" && outConnectivity!=nullptr);
+  assert("inPD_exists" && inPD!=nullptr);
+  assert("pre: outPD_exists" && outPD!=nullptr);
+  assert("inCD_exists" && inCD!=nullptr);
+  assert("pre: outCD_exists" && outCD!=nullptr);
 
   TetraListIterator t;
   OTTetra *tetra;

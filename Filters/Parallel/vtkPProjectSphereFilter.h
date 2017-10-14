@@ -31,30 +31,30 @@ class VTKFILTERSPARALLEL_EXPORT vtkPProjectSphereFilter :
 {
 public:
   vtkTypeMacro(vtkPProjectSphereFilter, vtkProjectSphereFilter);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkPProjectSphereFilter *New();
 
 protected:
   vtkPProjectSphereFilter();
-  ~vtkPProjectSphereFilter() VTK_OVERRIDE;
+  ~vtkPProjectSphereFilter() override;
 
   /**
    * Parallel part of the algorithm to figure out the closest point
    * to the centerline (i.e. line connecting -90 latitude to 90 latitude)
    * if we don't build cells using points at the poles.
    */
-  void ComputePointsClosestToCenterLine(double, vtkIdList*) VTK_OVERRIDE;
+  void ComputePointsClosestToCenterLine(double, vtkIdList*) override;
 
   /**
    * If TranslateZ is true then this is the method that computes
    * the amount to translate.
    */
-  double GetZTranslation(vtkPointSet* input) VTK_OVERRIDE;
+  double GetZTranslation(vtkPointSet* input) override;
 
 private:
-  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
+  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) = delete;
+  void operator=(const vtkPProjectSphereFilter &) = delete;
 };
 
 #endif // vtkPProjectSphereFilter_h

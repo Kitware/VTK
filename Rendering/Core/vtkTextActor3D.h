@@ -35,6 +35,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkProp3D.h"
+#include <string> // for ivar
 
 class vtkImageActor;
 class vtkImageData;
@@ -45,7 +46,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextActor3D : public vtkProp3D
 public:
   static vtkTextActor3D *New();
   vtkTypeMacro(vtkTextActor3D,vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -75,12 +76,12 @@ public:
    * Shallow copy of this text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
   void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
 
   /**
@@ -97,7 +98,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Force the actor to render during the opaque or translucent pass.
@@ -119,19 +120,19 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the text actor to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
 protected:
    vtkTextActor3D();
-  ~vtkTextActor3D() VTK_OVERRIDE;
+  ~vtkTextActor3D() override;
 
   char            *Input;
 
@@ -140,12 +141,13 @@ protected:
   vtkTextProperty *TextProperty;
 
   vtkTimeStamp    BuildTime;
+  std::string LastInputString;
 
   virtual int UpdateImageActor();
 
 private:
-  vtkTextActor3D(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
+  vtkTextActor3D(const vtkTextActor3D&) = delete;
+  void operator=(const vtkTextActor3D&) = delete;
 };
 
 

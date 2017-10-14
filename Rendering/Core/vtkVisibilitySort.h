@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkVisibilitySort : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVisibilitySort, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -130,13 +130,13 @@ public:
   /**
    * Overwritten to enable garbage collection.
    */
-  void Register(vtkObjectBase *o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void Register(vtkObjectBase *o) override;
+  void UnRegister(vtkObjectBase *o) override;
   //@}
 
 protected:
   vtkVisibilitySort();
-  ~vtkVisibilitySort() VTK_OVERRIDE;
+  ~vtkVisibilitySort() override;
 
   vtkTimeStamp LastSortTime;
 
@@ -149,11 +149,11 @@ protected:
 
   int Direction;
 
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
 private:
-  vtkVisibilitySort(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
+  vtkVisibilitySort(const vtkVisibilitySort &) = delete;
+  void operator=(const vtkVisibilitySort &) = delete;
 };
 
 #endif //vtkVisibilitySort_h

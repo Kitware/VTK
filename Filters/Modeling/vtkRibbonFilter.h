@@ -55,7 +55,7 @@ class VTKFILTERSMODELING_EXPORT vtkRibbonFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkRibbonFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct ribbon so that width is 0.1, the width does
@@ -151,9 +151,9 @@ public:
 
 protected:
   vtkRibbonFilter();
-  ~vtkRibbonFilter() VTK_OVERRIDE;
+  ~vtkRibbonFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Width;
   double Angle;
   int VaryWidth; //controls whether width varies with scalar data
@@ -181,8 +181,8 @@ protected:
   double Theta;
 
 private:
-  vtkRibbonFilter(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
+  vtkRibbonFilter(const vtkRibbonFilter&) = delete;
+  void operator=(const vtkRibbonFilter&) = delete;
 };
 
 #endif

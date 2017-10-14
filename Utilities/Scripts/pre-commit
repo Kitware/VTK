@@ -37,7 +37,7 @@ ExternalData_stage_linked_content() {
   obj=$(git rev-parse --verify -q "$ref") || obj=""
   if test -z "$obj" -a -f "$staged"; then
     # Content is staged by the ExternalData module.  Store it in Git.
-    obj=$(git hash-object -w -- "$staged") ||
+    obj=$(git hash-object --no-filters -w -- "$staged") ||
     die "$file: git hash-object failed to load $staged"
     git update-ref "$ref" "$obj" "" ||
     die "$file: git update-ref failed to create $ref = $obj"

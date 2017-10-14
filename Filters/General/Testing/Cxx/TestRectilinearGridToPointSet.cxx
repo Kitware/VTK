@@ -23,7 +23,7 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
-#include <time.h>
+#include <ctime>
 
 static vtkSmartPointer<vtkDataArray> MonotonicValues(vtkIdType numValues)
 {
@@ -72,7 +72,7 @@ static vtkSmartPointer<vtkRectilinearGrid> MakeRectilinearGrid()
 
 int TestRectilinearGridToPointSet(int, char*[])
 {
-  int seed = time(NULL);
+  int seed = time(nullptr);
   std::cout << "Seed: " << seed << std::endl;
   vtkMath::RandomSeed(seed);
 

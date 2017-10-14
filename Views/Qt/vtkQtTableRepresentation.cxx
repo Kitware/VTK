@@ -57,9 +57,9 @@ vtkQtTableRepresentation::vtkQtTableRepresentation()
   this->SeriesColors->Register(this);
   this->SeriesColors->Delete();
 
-  this->KeyColumnInternal = NULL;
-  this->FirstDataColumn = NULL;
-  this->LastDataColumn = NULL;
+  this->KeyColumnInternal = nullptr;
+  this->FirstDataColumn = nullptr;
+  this->LastDataColumn = nullptr;
 }
 
 // ----------------------------------------------------------------------
@@ -69,9 +69,9 @@ vtkQtTableRepresentation::~vtkQtTableRepresentation()
   delete this->ModelAdapter;
   this->ColorTable->UnRegister(this);
   this->SeriesColors->UnRegister(this);
-  this->SetKeyColumnInternal(NULL);
-  this->SetFirstDataColumn(NULL);
-  this->SetLastDataColumn(NULL);
+  this->SetKeyColumnInternal(nullptr);
+  this->SetFirstDataColumn(nullptr);
+  this->SetLastDataColumn(nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -149,7 +149,7 @@ void vtkQtTableRepresentation::UpdateTable()
   //int keyColumnIndex = -1;
   int firstDataColumnIndex = -1;
   int lastDataColumnIndex = -1;
-  //if (this->KeyColumnInternal != NULL)
+  //if (this->KeyColumnInternal != nullptr)
   //  {
   //  table->GetRowData()->GetAbstractArray(this->KeyColumnInternal, keyColumnIndex);
   //  if (keyColumnIndex >= 0)
@@ -161,17 +161,17 @@ void vtkQtTableRepresentation::UpdateTable()
   //    // Either the user didn't specify a key column or else it wasn't
   //    // found.  We'll do the best we can.
   //    vtkWarningMacro(<<"vtkQtTableRepresentation: Key column "
-  //                    << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
+  //                    << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)")
   //                    << " not found.  Defaulting to column 0.");
   //    this->ModelAdapter->SetKeyColumn(0);
   //    }
   //  }
-  if (firstDataColumn != NULL)
+  if (firstDataColumn != nullptr)
   {
     table->GetRowData()->GetAbstractArray(firstDataColumn,
                                           firstDataColumnIndex);
   }
-  if (lastDataColumn != NULL)
+  if (lastDataColumn != nullptr)
   {
     table->GetRowData()->GetAbstractArray(lastDataColumn,
                                           lastDataColumnIndex);
@@ -183,7 +183,7 @@ void vtkQtTableRepresentation::UpdateTable()
   // here.
 
   this->ModelAdapter->SetVTKDataObject(table);
-  if (this->KeyColumnInternal != NULL)
+  if (this->KeyColumnInternal != nullptr)
   {
     this->ModelAdapter->SetKeyColumnName(this->KeyColumnInternal);
   }
@@ -202,7 +202,7 @@ vtkQtTableRepresentation::ResetModel()
     // Need to alert the model of potential changes to the vtkTable
     // in different way than disconnecting/reconnecting the vtkTable from
     // the model adapter
-    //this->ModelAdapter->SetVTKDataObject(NULL);
+    //this->ModelAdapter->SetVTKDataObject(nullptr);
   }
   this->SeriesColors->Reset();
   this->SeriesColors->SetNumberOfComponents(4);
@@ -257,15 +257,15 @@ vtkQtTableRepresentation::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "First data column: "
-     << (this->FirstDataColumn ? this->FirstDataColumn : "(NULL)")
+     << (this->FirstDataColumn ? this->FirstDataColumn : "(nullptr)")
      << "\n";
 
   os << indent << "Last data column: "
-     << (this->LastDataColumn ? this->LastDataColumn : "(NULL)")
+     << (this->LastDataColumn ? this->LastDataColumn : "(nullptr)")
      << "\n";
 
   os << indent << "Key column: "
-     << (this->KeyColumnInternal ? this->KeyColumnInternal : "(NULL)")
+     << (this->KeyColumnInternal ? this->KeyColumnInternal : "(nullptr)")
      << "\n";
 
   os << indent << "Model adapter: Qt object " << this->ModelAdapter

@@ -80,7 +80,7 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
   if(newNumber > oldNumber)
   {
     // Create new information objects.
-    this->Internal->Vector.resize(newNumber, 0);
+    this->Internal->Vector.resize(newNumber, nullptr);
     for(int i=oldNumber; i < newNumber; ++i)
     {
       this->Internal->Vector[i] = vtkInformation::New();
@@ -94,10 +94,10 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
     {
       if(vtkInformation* info = this->Internal->Vector[i])
       {
-        // Set the pointer to NULL first to avoid reporting of the
+        // Set the pointer to nullptr first to avoid reporting of the
         // entry if deleting the information object causes a garbage
         // collection reference walk.
-        this->Internal->Vector[i] = 0;
+        this->Internal->Vector[i] = nullptr;
         info->Delete();
       }
     }
@@ -137,7 +137,7 @@ void vtkInformationVector::SetInformationObject(int index,
   else if(!newInfo && index >= 0 &&
           index < this->NumberOfInformationObjects-1)
   {
-    // We do not allow NULL information objects.  Create an empty one
+    // We do not allow nullptr information objects.  Create an empty one
     // to fill in the hole.
     vtkInformation* oldInfo = this->Internal->Vector[index];
     this->Internal->Vector[index] = vtkInformation::New();
@@ -158,7 +158,7 @@ vtkInformation* vtkInformationVector::GetInformationObject(int index)
   {
     return this->Internal->Vector[index];
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

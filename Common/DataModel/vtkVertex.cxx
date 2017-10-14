@@ -125,7 +125,10 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
       outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
     }
     newCellId = verts->InsertNextCell(1,pts);
-    outCd->CopyData(inCd,cellId,newCellId);
+    if (outCd)
+    {
+      outCd->CopyData(inCd, cellId, newCellId);
+    }
   }
 }
 

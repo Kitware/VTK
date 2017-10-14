@@ -85,16 +85,16 @@ vtkCxxSetObjectMacro(vtkMNIObjectWriter, LookupTable, vtkLookupTable);
 //-------------------------------------------------------------------------
 vtkMNIObjectWriter::vtkMNIObjectWriter()
 {
-  this->Property = 0;
-  this->Mapper = 0;
-  this->LookupTable = 0;
+  this->Property = nullptr;
+  this->Mapper = nullptr;
+  this->LookupTable = nullptr;
 
-  this->FileName = 0;
+  this->FileName = nullptr;
 
   // Whether file is binary or ASCII
   this->FileType = VTK_ASCII;
 
-  this->OutputStream = 0;
+  this->OutputStream = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -398,7 +398,7 @@ int vtkMNIObjectWriter::WritePoints(vtkPolyData *data)
 int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
 {
   vtkDataArray *normals = data->GetPointData()->GetNormals();
-  vtkFloatArray *newNormals = 0;
+  vtkFloatArray *newNormals = nullptr;
 
   // Calculate normals if necessary
   if (!normals)
@@ -542,11 +542,11 @@ int vtkMNIObjectWriter::WriteNormals(vtkPolyData *data)
 int vtkMNIObjectWriter::WriteColors(
   vtkProperty *property, vtkMapper *mapper, vtkPolyData *data)
 {
-  vtkUnsignedCharArray *newScalars = 0;
+  vtkUnsignedCharArray *newScalars = nullptr;
   vtkDataArray *scalars = data->GetPointData()->GetScalars();
   vtkIdType colorType = 2;
 
-  if (scalars == 0)
+  if (scalars == nullptr)
   {
     scalars = data->GetCellData()->GetScalars();
     colorType = 1;
@@ -555,7 +555,7 @@ int vtkMNIObjectWriter::WriteColors(
   if (this->Mapper)
   {
     int cellFlag = 0;
-    scalars = 0;
+    scalars = nullptr;
 
     // Get color scalars according to Mapper rules
     if (mapper->GetScalarVisibility())
@@ -576,7 +576,7 @@ int vtkMNIObjectWriter::WriteColors(
     if (cellFlag == 1 && data->GetStrips() &&
         data->GetStrips()->GetNumberOfCells() != 0)
     {
-      scalars = 0;
+      scalars = nullptr;
     }
 
     if (scalars)
@@ -588,7 +588,7 @@ int vtkMNIObjectWriter::WriteColors(
       }
 
       vtkScalarsToColors *lookupTable = scalars->GetLookupTable();
-      if (lookupTable == 0)
+      if (lookupTable == nullptr)
       {
         lookupTable = mapper->GetLookupTable();
         lookupTable->Build();
@@ -604,7 +604,7 @@ int vtkMNIObjectWriter::WriteColors(
       scalars = newScalars;
     }
   }
-  else if (scalars != 0)
+  else if (scalars != nullptr)
   {
     if (this->LookupTable)
     {
@@ -614,11 +614,11 @@ int vtkMNIObjectWriter::WriteColors(
     }
     else if (scalars->GetDataType() != VTK_UNSIGNED_CHAR)
     {
-      scalars = 0;
+      scalars = nullptr;
     }
   }
 
-  if (scalars == 0)
+  if (scalars == nullptr)
   {
     colorType = 0;
 
@@ -669,7 +669,7 @@ int vtkMNIObjectWriter::WriteColors(
 //-------------------------------------------------------------------------
 int vtkMNIObjectWriter::WriteCells(vtkPolyData *data, int cellType)
 {
-  vtkCellArray *cellArray = 0;
+  vtkCellArray *cellArray = nullptr;
   if (cellType == VTK_POLYGON)
   {
     cellArray = data->GetPolys();
@@ -1030,7 +1030,7 @@ ostream *vtkMNIObjectWriter::OpenFile()
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return NULL;
+    return nullptr;
   }
 
   vtkDebugMacro(<<"Opening file for writing...");
@@ -1053,7 +1053,7 @@ ostream *vtkMNIObjectWriter::OpenFile()
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
-    return NULL;
+    return nullptr;
   }
 
   return fptr;

@@ -49,7 +49,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnnotation : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAnnotation, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnnotation* New();
 
   //@{
@@ -109,34 +109,34 @@ public:
   /**
    * Initialize the annotation to an empty state.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Make this annotation have the same properties and have
    * the same selection of another annotation.
    */
-  void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject* other) override;
 
   /**
    * Make this annotation have the same properties and have
    * a copy of the selection of another annotation.
    */
-  void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject* other) override;
 
   /**
    * Get the modified time of this object.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkAnnotation();
-  ~vtkAnnotation() VTK_OVERRIDE;
+  ~vtkAnnotation() override;
 
   vtkSelection* Selection;
 
 private:
-  vtkAnnotation(const vtkAnnotation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotation&) VTK_DELETE_FUNCTION;
+  vtkAnnotation(const vtkAnnotation&) = delete;
+  void operator=(const vtkAnnotation&) = delete;
 
 };
 

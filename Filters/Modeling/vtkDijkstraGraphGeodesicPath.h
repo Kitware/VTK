@@ -59,7 +59,7 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkDijkstraGraphGeodesicPath,vtkGraphGeodesicPath);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -112,10 +112,10 @@ public:
 
 protected:
   vtkDijkstraGraphGeodesicPath();
-  ~vtkDijkstraGraphGeodesicPath() VTK_OVERRIDE;
+  ~vtkDijkstraGraphGeodesicPath() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Build a graph description of the input.
   virtual void BuildAdjacency( vtkDataSet *inData );
@@ -160,8 +160,8 @@ protected:
   vtkPoints* RepelVertices;
 
 private:
-  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) = delete;
+  void operator=(const vtkDijkstraGraphGeodesicPath&) = delete;
 
 };
 

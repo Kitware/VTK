@@ -21,7 +21,7 @@
 
 #include "vtkCriticalSection.h"
 
-#include "stdlib.h"
+#include <cstdlib>
 
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 static vtkSimpleCriticalSection vtkOffScreenOnlyModeCriticalSection;
@@ -57,14 +57,14 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
              strcmp("Win32OpenGL",temp))
     {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
-      temp = NULL;
+      temp = nullptr;
     }
   }
 
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
   {
-#if defined(VTK_DISPLAY_X11_OGL) || defined(VTK_USE_OSMESA)
+#if defined(VTK_DISPLAY_X11_OGL) || defined(VTK_OPENGL_HAS_OSMESA)
     temp = "OpenGL";
 #endif
 #ifdef VTK_DISPLAY_WIN32_OGL
@@ -86,7 +86,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   {
     return ret;
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

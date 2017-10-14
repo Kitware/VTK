@@ -38,7 +38,7 @@ class VTKFILTERSCORE_EXPORT vtkResampleToImage : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkResampleToImage, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkResampleToImage *New();
 
@@ -76,19 +76,19 @@ public:
 
 protected:
   vtkResampleToImage();
-  ~vtkResampleToImage() VTK_OVERRIDE;
+  ~vtkResampleToImage() override;
 
   // Usual data generation method
   int ProcessRequest(vtkInformation*, vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
                                  vtkInformationVector *);
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation *) override;
 
   /**
    * Get the name of the valid-points mask array.
@@ -121,8 +121,8 @@ protected:
   vtkNew<vtkCompositeDataProbeFilter> Prober;
 
 private:
-  vtkResampleToImage(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
+  vtkResampleToImage(const vtkResampleToImage&) = delete;
+  void operator=(const vtkResampleToImage&) = delete;
 };
 
 #endif

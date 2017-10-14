@@ -34,69 +34,69 @@ class VTKIOAMR_EXPORT vtkAMRFlashReader : public vtkAMRBaseReader
 public:
   static vtkAMRFlashReader* New();
   vtkTypeMacro( vtkAMRFlashReader, vtkAMRBaseReader );
-  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   /**
    * See vtkAMRBaseReader::GetNumberOfBlocks
    */
-  int GetNumberOfBlocks() VTK_OVERRIDE;
+  int GetNumberOfBlocks() override;
 
   /**
    * See vtkAMRBaseReader::GetNumberOfLevels
    */
-  int GetNumberOfLevels() VTK_OVERRIDE;
+  int GetNumberOfLevels() override;
 
   /**
    * See vtkAMRBaseReader::SetFileName
    */
-  void SetFileName( const char* fileName ) VTK_OVERRIDE;
+  void SetFileName( const char* fileName ) override;
 
 protected:
   vtkAMRFlashReader();
-  ~vtkAMRFlashReader() VTK_OVERRIDE;
+  ~vtkAMRFlashReader() override;
 
   /**
    * See vtkAMRBaseReader::ReadMetaData
    */
-  void ReadMetaData() VTK_OVERRIDE;
+  void ReadMetaData() override;
 
   /**
    * See vtkAMRBaseReader::GetBlockLevel
    */
-  int GetBlockLevel( const int blockIdx ) VTK_OVERRIDE;
+  int GetBlockLevel( const int blockIdx ) override;
 
   /**
    * See vtkAMRBaseReader::FillMetaData
    */
-  int FillMetaData( ) VTK_OVERRIDE;
+  int FillMetaData( ) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGrid
    */
-  vtkUniformGrid* GetAMRGrid( const int blockIdx ) VTK_OVERRIDE;
+  vtkUniformGrid* GetAMRGrid( const int blockIdx ) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridData(
-      const int blockIdx, vtkUniformGrid *block, const char *field) VTK_OVERRIDE;
+      const int blockIdx, vtkUniformGrid *block, const char *field) override;
 
   /**
    * See vtkAMRBaseReader::GetAMRGridData
    */
   void GetAMRGridPointData(
-      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) VTK_OVERRIDE {;}
+      const int vtkNotUsed(blockIdx), vtkUniformGrid *vtkNotUsed(block), const char *vtkNotUsed(field)) override {;}
 
   /**
    * See vtkAMRBaseReader::SetUpDataArraySelections
    */
-  void SetUpDataArraySelections() VTK_OVERRIDE;
+  void SetUpDataArraySelections() override;
 
   bool IsReady;
 
 private:
-  vtkAMRFlashReader( const vtkAMRFlashReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRFlashReader& ) VTK_DELETE_FUNCTION;
+  vtkAMRFlashReader( const vtkAMRFlashReader& ) = delete;
+  void operator=(const vtkAMRFlashReader& ) = delete;
 
   void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
   vtkFlashReaderInternal *Internal;

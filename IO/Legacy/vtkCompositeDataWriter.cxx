@@ -268,7 +268,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(
   }
   *fp << "AMRBOXES "
       << idata->GetNumberOfTuples() << " " << idata->GetNumberOfComponents() << "\n";
-  this->WriteArray(fp, idata->GetDataType(), idata.GetPointer(),
+  this->WriteArray(fp, idata->GetDataType(), idata,
     "", idata->GetNumberOfTuples(), idata->GetNumberOfComponents());
 
   // now dump the real data, if any.
@@ -286,7 +286,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(
         // write it.
         vtkNew<vtkImageData> image;
         image->ShallowCopy(dataset);
-        if (!this->WriteBlock(fp, image.GetPointer()))
+        if (!this->WriteBlock(fp, image))
         {
           return false;
         }

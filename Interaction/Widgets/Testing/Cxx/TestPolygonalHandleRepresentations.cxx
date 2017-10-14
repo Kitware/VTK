@@ -54,16 +54,16 @@ CreateWidget( vtkRenderWindowInteractor * iren,
               double                      y,
               double                      z,
               bool                        cameraFacing = false,
-              const char *                label = NULL,
-              vtkActor       *            demActor = NULL,
-              vtkPolyData    *            demPolys = NULL,
+              const char *                label = nullptr,
+              vtkActor       *            demActor = nullptr,
+              vtkPolyData    *            demPolys = nullptr,
               bool                        constrainedToSurface = false,
               double                      heightOffsetAboveSurface = 0.0
               )
 {
   VTK_CREATE( vtkHandleWidget, widget );
 
-  vtkHandleRepresentation *rep = NULL;
+  vtkHandleRepresentation *rep = nullptr;
 
   if (cameraFacing && shape <= 12)
   {

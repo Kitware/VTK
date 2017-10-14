@@ -114,11 +114,28 @@ class TestNumpySupport(Testing.vtkTest):
         vtk_arr.InsertNextValue(0)
         vtk_arr.InsertNextValue(1)
         self.assertRaises(AssertionError, vtk_to_numpy, vtk_arr)
-        # Test if non-contiguous arrays are not supported.
-        a = numpy.linspace(0, 1, 100)
-        a.shape = (10, 10)
-        x = a[::2,::2]
-        self.assertRaises(AssertionError, numpy_to_vtk, x)
+
+    def testNonContiguousArray(self):
+        "Test if the non contiguous array are supported"
+        a = numpy.array(range(1, 19), 'd')
+        a.shape = (3, 6)
+        x = a[::2, ::2]
+        vtk_array = numpy_to_vtk(x)
+        self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
+        self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
+
+    def testNumpyReferenceWhenDelete(self):
+        "Test if the vtk array keeps the numpy reference in memory"
+        np_array = numpy.array([[1., 3., 5.], [13., 15., 17.]], 'd')
+        vtk_array = numpy_to_vtk(np_array)
+        del np_array
+        np_array = numpy.array([])
+
+        import gc
+        gc.collect()
+
+        self.assertEqual(vtk_array.GetTuple3(0), (1., 3., 5.))
+        self.assertEqual(vtk_array.GetTuple3(1), (13., 15., 17.))
 
     def testNumpyReduce(self):
         "Test that reducing methods return scalars."

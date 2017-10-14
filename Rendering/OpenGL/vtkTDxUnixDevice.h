@@ -150,8 +150,8 @@ protected:
   double RotationScale;
 
 private:
-  vtkTDxUnixDevice(const vtkTDxUnixDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxUnixDevice&) VTK_DELETE_FUNCTION;
+  vtkTDxUnixDevice(const vtkTDxUnixDevice&) = delete;
+  void operator=(const vtkTDxUnixDevice&) = delete;
 };
 
 #endif

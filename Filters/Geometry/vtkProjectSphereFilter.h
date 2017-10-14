@@ -38,7 +38,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkProjectSphereFilter :
 {
 public:
   vtkTypeMacro(vtkProjectSphereFilter, vtkPointSetAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkProjectSphereFilter *New();
 
@@ -73,12 +73,12 @@ public:
 
 protected:
   vtkProjectSphereFilter();
-  ~vtkProjectSphereFilter() VTK_OVERRIDE;
+  ~vtkProjectSphereFilter() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   void TransformPointInformation(vtkPointSet* input, vtkPointSet* output, vtkIdList*);
   void TransformCellInformation(vtkPointSet* input, vtkPointSet* output, vtkIdList*);
@@ -110,8 +110,8 @@ protected:
     vtkUnstructuredGrid* output, vtkCell* cell, vtkIdType numberOfNewCells);
 
 private:
-  vtkProjectSphereFilter(const vtkProjectSphereFilter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectSphereFilter &) VTK_DELETE_FUNCTION;
+  vtkProjectSphereFilter(const vtkProjectSphereFilter &) = delete;
+  void operator=(const vtkProjectSphereFilter &) = delete;
 
   double Center[3];
   const double SplitLongitude;

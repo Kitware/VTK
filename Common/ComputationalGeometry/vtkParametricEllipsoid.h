@@ -44,7 +44,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
 {
   public:
     vtkTypeMacro(vtkParametricEllipsoid, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct an ellipsoid with the following parameters:
@@ -62,7 +62,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -96,7 +96,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -112,11 +112,11 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricEllipsoid();
-    ~vtkParametricEllipsoid() VTK_OVERRIDE;
+    ~vtkParametricEllipsoid() override;
 
     // Variables
     double XRadius;
@@ -126,8 +126,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid :
     double N2;
 
   private:
-    vtkParametricEllipsoid(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
+    vtkParametricEllipsoid(const vtkParametricEllipsoid&) = delete;
+    void operator=(const vtkParametricEllipsoid&) = delete;
 
 };
 

@@ -57,10 +57,10 @@ int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
     }
   }
 
-  input->SetPoints(points.Get());
-  input->GetPointData()->AddArray(indexArray.Get());
+  input->SetPoints(points);
+  input->GetPointData()->AddArray(indexArray);
   indexArray->SetName("GlyphIndex");
-  input->GetPointData()->AddArray(colors.Get());
+  input->GetPointData()->AddArray(colors);
   colors->SetName("Colors");
 
 
@@ -79,11 +79,11 @@ int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
   transform->Translate(.5, .5, .5);
 
   s0b->SetInputConnection(s0a->GetOutputPort());
-  s0b->SetTransform(transform.Get());
+  s0b->SetTransform(transform);
   s1b->SetInputConnection(s1a->GetOutputPort());
-  s1b->SetTransform(transform.Get());
+  s1b->SetTransform(transform);
   s2b->SetInputConnection(s2a->GetOutputPort());
-  s2b->SetTransform(transform.Get());
+  s2b->SetTransform(transform);
 
   s0a->Update();
   s0b->Update();
@@ -110,13 +110,13 @@ int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
   // Combine the glyph sources into a single dataset:
   vtkNew<vtkMultiBlockDataSet> glyphTree;
   glyphTree->SetNumberOfBlocks(3);
-  glyphTree->SetBlock(0, s0.Get());
-  glyphTree->SetBlock(1, s1.Get());
-  glyphTree->SetBlock(2, s2.Get());
+  glyphTree->SetBlock(0, s0);
+  glyphTree->SetBlock(1, s1);
+  glyphTree->SetBlock(2, s2);
 
   vtkNew<vtkGlyph3DMapper> mapper;
-  mapper->SetInputData(input.Get());
-  mapper->SetSourceTableTree(glyphTree.Get());
+  mapper->SetInputData(input);
+  mapper->SetSourceTableTree(glyphTree);
   mapper->SetRange(0, 2);
   mapper->SetUseSourceTableTree(true);
   mapper->SetSourceIndexing(true);
@@ -125,25 +125,25 @@ int TestGlyph3DMapperTreeIndexingCompositeGlyphs(int argc, char *argv[])
   mapper->SelectColorArray("Colors");
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1., 0., 0.);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->SetBackground(0., 0., 0.);
   renderer->ResetCamera();
   renderer->ResetCameraClippingRange();
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.Get());
-  renWin->AddRenderer(renderer.Get());
+  iren->SetRenderWindow(renWin);
+  renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
   renWin->SetSize(300, 300);
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

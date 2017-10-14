@@ -184,7 +184,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFramebufferObject : public vtkFrameBuf
 public:
   static vtkOpenGLFramebufferObject* New();
   vtkTypeMacro(vtkOpenGLFramebufferObject, vtkFrameBufferObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -371,18 +371,18 @@ public:
   /**
    * Dimensions in pixels of the framebuffer.
    */
-  int *GetLastSize() VTK_OVERRIDE
+  int *GetLastSize() override
   {
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning LastSize pointer " << this->LastSize);
     return this->LastSize;
   }
-  void GetLastSize(int &_arg1, int &_arg2) VTK_OVERRIDE
+  void GetLastSize(int &_arg1, int &_arg2) override
   {
       _arg1 = this->LastSize[0];
       _arg2 = this->LastSize[1];
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning LastSize (" << _arg1 << "," << _arg2 << ")");
   }
-  void GetLastSize (int _arg[2]) VTK_OVERRIDE
+  void GetLastSize (int _arg[2]) override
   {
     this->GetLastSize (_arg[0], _arg[1]);
   }
@@ -577,7 +577,7 @@ protected:
   int GetOpenGLType(int vtkType);
 
   vtkOpenGLFramebufferObject();
-  ~vtkOpenGLFramebufferObject() VTK_OVERRIDE;
+  ~vtkOpenGLFramebufferObject() override;
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
 
@@ -601,8 +601,8 @@ protected:
   std::map<unsigned int, vtkFOInfo *> ReadColorBuffers;
 
 private:
-  vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLFramebufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLFramebufferObject(const vtkOpenGLFramebufferObject&) = delete;
+  void operator=(const vtkOpenGLFramebufferObject&) = delete;
 };
 
 #endif

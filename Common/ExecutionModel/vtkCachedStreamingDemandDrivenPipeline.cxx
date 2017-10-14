@@ -33,8 +33,8 @@ vtkCachedStreamingDemandDrivenPipeline
 ::vtkCachedStreamingDemandDrivenPipeline()
 {
   this->CacheSize = 0;
-  this->Data = NULL;
-  this->Times = NULL;
+  this->Data = nullptr;
+  this->Times = nullptr;
 
   this->SetCacheSize(10);
 }
@@ -64,13 +64,13 @@ void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
     if (this->Data[idx])
     {
       this->Data[idx]->Delete();
-      this->Data[idx] = NULL;
+      this->Data[idx] = nullptr;
     }
   }
   delete [] this->Data;
-  this->Data = NULL;
+  this->Data = nullptr;
   delete [] this->Times;
-  this->Times = NULL;
+  this->Times = nullptr;
 
   this->CacheSize = size;
   if (size == 0)
@@ -83,7 +83,7 @@ void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
 
   for (idx = 0; idx < size; ++idx)
   {
-    this->Data[idx] = NULL;
+    this->Data[idx] = nullptr;
     this->Times[idx] = 0;
   }
 }
@@ -132,7 +132,7 @@ int vtkCachedStreamingDemandDrivenPipeline
     if (this->Data[i] && this->Times[i] < pmt)
     {
       this->Data[i]->Delete();
-      this->Data[i] = NULL;
+      this->Data[i] = nullptr;
       this->Times[i] = 0;
     }
   }
@@ -249,7 +249,7 @@ int vtkCachedStreamingDemandDrivenPipeline
   // Find a spot to put the data.
   for (int i = 0; i < this->CacheSize; ++i)
   {
-    if (this->Data[i] == NULL)
+    if (this->Data[i] == nullptr)
     {
       bestIdx = i;
       break;
@@ -263,7 +263,7 @@ int vtkCachedStreamingDemandDrivenPipeline
 
   vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  if (this->Data[bestIdx] == NULL)
+  if (this->Data[bestIdx] == nullptr)
   {
     this->Data[bestIdx] = dataObject->NewInstance();
   }

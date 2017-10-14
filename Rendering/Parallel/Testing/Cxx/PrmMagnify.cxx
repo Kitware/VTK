@@ -58,16 +58,16 @@ protected:
   vtkTestMagnifyRenderManager();
   ~vtkTestMagnifyRenderManager();
 
-  virtual void PreRenderProcessing() VTK_OVERRIDE;
-  virtual void PostRenderProcessing() VTK_OVERRIDE;
+  virtual void PreRenderProcessing() override;
+  virtual void PostRenderProcessing() override;
 
-  virtual void ReadReducedImage() VTK_OVERRIDE;
+  virtual void ReadReducedImage() override;
 
   vtkImageMandelbrotSource *Mandelbrot;
 
 private:
-  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
+  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &) = delete;
+  void operator=(const vtkTestMagnifyRenderManager &) = delete;
 };
 
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);

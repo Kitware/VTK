@@ -45,7 +45,6 @@ vtkActor2D rectActor
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInputConnection [sphere GetOutputPort]
-    sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 

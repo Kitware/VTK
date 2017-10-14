@@ -30,10 +30,10 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
   renderer->UseHiddenLineRemovalOn();
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   const char* fileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
@@ -48,10 +48,10 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
   mapper->SetInputConnection(geomFilter->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(1., 0., 0.);
   actor->GetProperty()->SetRepresentationToWireframe();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   // Workaround a rendering bug. See gitlab issue #16816.
   actor->GetProperty()->LightingOff();
@@ -68,7 +68,7 @@ int TestHiddenLineRemovalPass(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

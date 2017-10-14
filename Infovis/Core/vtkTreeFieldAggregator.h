@@ -47,7 +47,7 @@ public:
   static vtkTreeFieldAggregator *New();
 
   vtkTypeMacro(vtkTreeFieldAggregator,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,17 +86,17 @@ public:
 
 protected:
   vtkTreeFieldAggregator();
-  ~vtkTreeFieldAggregator() VTK_OVERRIDE;
+  ~vtkTreeFieldAggregator() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   char* Field;
   bool LeafVertexUnitSize;
   bool LogScale;
   double MinValue;
-  vtkTreeFieldAggregator(const vtkTreeFieldAggregator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeFieldAggregator&) VTK_DELETE_FUNCTION;
+  vtkTreeFieldAggregator(const vtkTreeFieldAggregator&) = delete;
+  void operator=(const vtkTreeFieldAggregator&) = delete;
   double GetDoubleValue(vtkAbstractArray* arr, vtkIdType id);
   static void SetDoubleValue(vtkAbstractArray* arr, vtkIdType id, double value);
 };

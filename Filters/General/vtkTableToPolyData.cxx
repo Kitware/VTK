@@ -27,9 +27,9 @@ vtkStandardNewMacro(vtkTableToPolyData);
 //----------------------------------------------------------------------------
 vtkTableToPolyData::vtkTableToPolyData()
 {
-  this->XColumn = 0;
-  this->YColumn = 0;
-  this->ZColumn = 0;
+  this->XColumn = nullptr;
+  this->YColumn = nullptr;
+  this->ZColumn = nullptr;
   this->XColumnIndex = -1;
   this->YColumnIndex = -1;
   this->ZColumnIndex = -1;
@@ -43,9 +43,9 @@ vtkTableToPolyData::vtkTableToPolyData()
 //----------------------------------------------------------------------------
 vtkTableToPolyData::~vtkTableToPolyData()
 {
-  this->SetXColumn(0);
-  this->SetYColumn(0);
-  this->SetZColumn(0);
+  this->SetXColumn(nullptr);
+  this->SetYColumn(nullptr);
+  this->SetZColumn(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -69,9 +69,9 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  vtkDataArray* xarray = NULL;
-  vtkDataArray* yarray = NULL;
-  vtkDataArray* zarray = NULL;
+  vtkDataArray* xarray = nullptr;
+  vtkDataArray* yarray = nullptr;
+  vtkDataArray* zarray = nullptr;
 
 
   if(this->XColumn && this->YColumn)

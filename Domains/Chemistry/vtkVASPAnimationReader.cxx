@@ -62,7 +62,7 @@ void vtkVASPAnimationReader::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkVASPAnimationReader::vtkVASPAnimationReader()
-  : FileName(NULL),
+  : FileName(nullptr),
     TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
     LatticeParser(new RegEx("^ *([0-9EeDd.+-]+) +" // Set of 3 floats
                             "([0-9EeDd.+-]+) +"
@@ -83,7 +83,7 @@ vtkVASPAnimationReader::vtkVASPAnimationReader()
 //------------------------------------------------------------------------------
 vtkVASPAnimationReader::~vtkVASPAnimationReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->TimeParser;
   delete this->LatticeParser;
   delete this->AtomCountParser;
@@ -359,8 +359,8 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
   }
 
   vtkDataSetAttributes *atomData = molecule->GetVertexData();
-  atomData->AddArray(radii.Get());
-  atomData->AddArray(kineticEnergies.Get());
+  atomData->AddArray(radii);
+  atomData->AddArray(kineticEnergies);
 
   return true;
 }

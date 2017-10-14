@@ -42,7 +42,7 @@ public:
   static vtkGenericCell *New();
 
   vtkTypeMacro(vtkGenericCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the points object to use for this cell. This updates the internal cell
@@ -60,46 +60,46 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  void ShallowCopy(vtkCell *c) VTK_OVERRIDE;
-  void DeepCopy(vtkCell *c) VTK_OVERRIDE;
-  int GetCellType() VTK_OVERRIDE;
-  int GetCellDimension() VTK_OVERRIDE;
-  int IsLinear() VTK_OVERRIDE;
-  int RequiresInitialization() VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
-  int RequiresExplicitFaceRepresentation() VTK_OVERRIDE;
-  void SetFaces(vtkIdType *faces) VTK_OVERRIDE;
-  vtkIdType *GetFaces() VTK_OVERRIDE;
-  int GetNumberOfEdges() VTK_OVERRIDE;
-  int GetNumberOfFaces() VTK_OVERRIDE;
-  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
-  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  void ShallowCopy(vtkCell *c) override;
+  void DeepCopy(vtkCell *c) override;
+  int GetCellType() override;
+  int GetCellDimension() override;
+  int IsLinear() override;
+  int RequiresInitialization() override;
+  void Initialize() override;
+  int RequiresExplicitFaceRepresentation() override;
+  void SetFaces(vtkIdType *faces) override;
+  vtkIdType *GetFaces() override;
+  int GetNumberOfEdges() override;
+  int GetNumberOfFaces() override;
+  vtkCell *GetEdge(int edgeId) override;
+  vtkCell *GetFace(int faceId) override;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3],
-                        double x[3], double *weights) VTK_OVERRIDE;
+                        double x[3], double *weights) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
                vtkCellData *inCd, vtkIdType cellId,
-               vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
                         double x[3], double pcoords[3],
-                        int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
-  double *GetParametricCoords() VTK_OVERRIDE;
-  int IsPrimaryCell() VTK_OVERRIDE;
+                   int dim, double *derivs) override;
+  int GetParametricCenter(double pcoords[3]) override;
+  double *GetParametricCoords() override;
+  int IsPrimaryCell() override;
   //@}
 
   //@{
@@ -107,8 +107,8 @@ public:
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double *weights) VTK_OVERRIDE;
-  void InterpolateDerivs(double pcoords[3], double *derivs) VTK_OVERRIDE;
+  void InterpolateFunctions(double pcoords[3], double *weights) override;
+  void InterpolateDerivs(double pcoords[3], double *derivs) override;
   //@}
 
   /**
@@ -157,6 +157,18 @@ public:
     this->SetCellType(VTK_TRIQUADRATIC_HEXAHEDRON);}
   void SetCellTypeToBiQuadraticQuadraticHexahedron() {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
+  void SetCellTypeToLagrangeTriangle() {
+    this->SetCellType(VTK_LAGRANGE_TRIANGLE);}
+  void SetCellTypeToLagrangeTetra() {
+    this->SetCellType(VTK_LAGRANGE_TETRAHEDRON);}
+  void SetCellTypeToLagrangeCurve() {
+    this->SetCellType(VTK_LAGRANGE_CURVE);}
+  void SetCellTypeToLagrangeQuadrilateral() {
+    this->SetCellType(VTK_LAGRANGE_QUADRILATERAL);}
+  void SetCellTypeToLagrangeHexahedron() {
+    this->SetCellType(VTK_LAGRANGE_HEXAHEDRON);}
+  void SetCellTypeToLagrangeWedge() {
+    this->SetCellType(VTK_LAGRANGE_WEDGE);}
 
   /**
    * Instantiate a new vtkCell based on it's cell type value
@@ -167,13 +179,13 @@ public:
 
 protected:
   vtkGenericCell();
-  ~vtkGenericCell() VTK_OVERRIDE;
+  ~vtkGenericCell() override;
 
   vtkCell *Cell;
 
 private:
-  vtkGenericCell(const vtkGenericCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericCell&) VTK_DELETE_FUNCTION;
+  vtkGenericCell(const vtkGenericCell&) = delete;
+  void operator=(const vtkGenericCell&) = delete;
 };
 
 #endif

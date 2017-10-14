@@ -35,10 +35,10 @@ vtkStandardNewMacro(vtkBYUWriter);
 // (if data is available).
 vtkBYUWriter::vtkBYUWriter()
 {
-  this->GeometryFileName = NULL;
-  this->DisplacementFileName = NULL;
-  this->ScalarFileName = NULL;
-  this->TextureFileName = NULL;
+  this->GeometryFileName = nullptr;
+  this->DisplacementFileName = nullptr;
+  this->ScalarFileName = nullptr;
+  this->TextureFileName = nullptr;
 
   this->WriteDisplacement = 1;
   this->WriteScalar = 1;
@@ -74,7 +74,7 @@ void vtkBYUWriter::WriteData()
     return;
   }
 
-  if ((geomFp = fopen(this->GeometryFileName, "w")) == NULL)
+  if ((geomFp = fopen(this->GeometryFileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open geometry file: " << this->GeometryFileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -161,7 +161,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   int i;
   double *x;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkPoints *inPts;
   vtkCellArray *inPolys;
   vtkPolyData *input= this->GetInput();
@@ -169,7 +169,7 @@ void vtkBYUWriter::WriteGeometryFile(FILE *geomFile, int numPts)
   // Check input
   //
   inPolys=input->GetPolys();
-  if ( (inPts=input->GetPoints()) == NULL || inPolys == NULL )
+  if ( (inPts=input->GetPoints()) == nullptr || inPolys == nullptr )
   {
     vtkErrorMacro(<<"No data to write!");
     return;
@@ -256,7 +256,7 @@ void vtkBYUWriter::WriteDisplacementFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteDisplacement && this->DisplacementFileName &&
-  (inVectors = input->GetPointData()->GetVectors()) != NULL )
+  (inVectors = input->GetPointData()->GetVectors()) != nullptr )
   {
     if ( !(dispFp = fopen(this->DisplacementFileName, "w")) )
     {
@@ -305,7 +305,7 @@ void vtkBYUWriter::WriteScalarFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteScalar && this->ScalarFileName &&
-  (inScalars = input->GetPointData()->GetScalars()) != NULL )
+  (inScalars = input->GetPointData()->GetScalars()) != nullptr )
   {
     if ( !(scalarFp = fopen(this->ScalarFileName, "w")) )
     {
@@ -354,7 +354,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
   vtkPolyData *input= this->GetInput();
 
   if ( this->WriteTexture && this->TextureFileName &&
-  (inTCoords = input->GetPointData()->GetTCoords()) != NULL )
+  (inTCoords = input->GetPointData()->GetTCoords()) != nullptr )
   {
     if ( !(textureFp = fopen(this->TextureFileName, "w")) )
     {

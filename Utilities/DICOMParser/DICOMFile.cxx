@@ -271,7 +271,7 @@ char* DICOMFile::ReadAsciiCharArray(int len)
 {
   if (len <= 0)
     {
-    return NULL;
+    return nullptr;
     }
   char* val = new char[len + 1];
   this->Read(val, len);

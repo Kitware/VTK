@@ -152,7 +152,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(4);
-  this->PlanePolyData->SetPoints(points.Get());
+  this->PlanePolyData->SetPoints(points);
   for (int i = 0; i < 4; i++)
   {
     points->SetPoint(i, this->Origin);
@@ -163,7 +163,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   cell->Allocate(5);
   vtkIdType pts[4] = { 0, 1, 2, 3 };
   cell->InsertNextCell(4, pts);
-  this->PlanePolyData->SetPolys(cell.Get());
+  this->PlanePolyData->SetPolys(cell);
   this->PlanePolyData->BuildCells();
 
   this->PlaneMapper = vtkPolyDataMapper::New();
@@ -183,7 +183,7 @@ vtkFinitePlaneRepresentation::vtkFinitePlaneRepresentation()
   this->EdgesActor->SetMapper(this->EdgesMapper);
   this->Tubing = true; //control whether tubing is on
   this->DrawPlane = true; //control whether draw plane is on
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
   // Initial creation of the widget, serves to initialize it
   double bounds[6] = { -0.5, 0.5, -0.5, 0.5, -0.5, 0.5 };
@@ -484,12 +484,12 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 
   this->SetHighlightNormal(0);
   this->SetHighlightPlane(0);
-  this->SetHighlightHandle(NULL);
+  this->SetHighlightHandle(nullptr);
 
   // See if anything has been selected
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if (path == NULL) // Not picking this widget
+  if (path == nullptr) // Not picking this widget
   {
     this->SetRepresentationState(vtkFinitePlaneRepresentation::Outside);
     this->InteractionState = vtkFinitePlaneRepresentation::Outside;
@@ -506,7 +506,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
     this->InteractionState = vtkFinitePlaneRepresentation::Pushing;
     this->SetHighlightNormal(0);
     this->SetHighlightPlane(1);
-    this->SetHighlightHandle(NULL);
+    this->SetHighlightHandle(nullptr);
   }
   else if ((prop == this->ConeActor) || (prop == this->ConeActor2) ||
     (prop == this->LineActor) || (prop == this->LineActor2))
@@ -516,7 +516,7 @@ int vtkFinitePlaneRepresentation::ComputeInteractionState(int X, int Y,
 
     this->SetHighlightNormal(1);
     this->SetHighlightPlane(1);
-    this->SetHighlightHandle(NULL);
+    this->SetHighlightHandle(nullptr);
   }
   else if (prop == this->OriginActor)
   {
@@ -645,6 +645,7 @@ void vtkFinitePlaneRepresentation::BuildRepresentation()
     origin[0] + vector1[0] - vector2[0],
     origin[1] + vector1[1] - vector2[1],
     origin[2] + vector1[2] - vector2[2]);
+  points->Modified();
 
   this->PlanePolyData->Modified();
 
@@ -1023,10 +1024,10 @@ void vtkFinitePlaneRepresentation::MovePoint1(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   vtkNew<vtkMatrix4x4> mat;
-  this->Transform->GetInverse(mat.Get());
+  this->Transform->GetInverse(mat);
 
   vtkNew<vtkTransform> t;
-  t->SetMatrix(mat.Get());
+  t->SetMatrix(mat);
   t->TransformVector(v, v);
 
   double *v1 = this->GetV1();
@@ -1049,10 +1050,10 @@ void vtkFinitePlaneRepresentation::MovePoint2(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   vtkNew<vtkMatrix4x4> mat;
-  this->Transform->GetInverse(mat.Get());
+  this->Transform->GetInverse(mat);
 
   vtkNew<vtkTransform> t;
-  t->SetMatrix(mat.Get());
+  t->SetMatrix(mat);
   t->TransformVector(v, v);
 
   double *v2 = this->GetV2();

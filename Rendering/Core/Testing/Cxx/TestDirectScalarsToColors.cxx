@@ -35,7 +35,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace {
 template<typename T>
@@ -69,7 +69,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     int posX = ((ncomp - 1) & 1);
     int posY = ((ncomp - 1) >> 1);
     inputs[ncomp-1] = vtkSmartPointer<T>::New();
-    T *arr = inputs[ncomp-1].GetPointer();
+    T *arr = inputs[ncomp-1];
 
     arr->SetNumberOfComponents(ncomp);
     arr->SetNumberOfTuples(6400);
@@ -114,7 +114,7 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     image->SetDimensions(80, 80, 1);
     vtkUnsignedCharArray *colors =
       map->MapScalars(arr, VTK_COLOR_MODE_DIRECT_SCALARS, -1);
-    if (colors == NULL)
+    if (colors == nullptr)
     {
     continue;
     }
@@ -128,17 +128,17 @@ void addViews (vtkRenderWindow* renWin, int typeIndex)
     vtkNew<vtkImageMapper> mapper;
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInputData(image.GetPointer());
+    mapper->SetInputData(image);
 
     vtkNew<vtkActor2D> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
 
     vtkNew<vtkRenderer> ren;
-    ren->AddViewProp(actor.GetPointer());
+    ren->AddViewProp(actor);
     ren->SetViewport(pos[0]/640.0, pos[1]/640.0,
                      (pos[0] + 80)/640.0, (pos[1] + 80)/640.0);
 
-    renWin->AddRenderer(ren.GetPointer());
+    renWin->AddRenderer(ren);
   }
 }
 
@@ -151,22 +151,22 @@ int TestDirectScalarsToColors(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->SetSize(640, 640);
 
   int i = -1;
-  addViews<vtkUnsignedCharArray, unsigned char> (renWin.GetPointer(), ++i);
+  addViews<vtkUnsignedCharArray, unsigned char> (renWin, ++i);
   // This line generates an expected ERROR message.
-  // addViews<vtkCharArray, char>(renWin.GetPointer(), ++i);
-  addViews<vtkUnsignedShortArray, unsigned short> (renWin.GetPointer(), ++i);
-  addViews<vtkShortArray, short>(renWin.GetPointer(), ++i);
-  addViews<vtkUnsignedIntArray, unsigned int> (renWin.GetPointer(), ++i);
-  addViews<vtkIntArray, int>(renWin.GetPointer(), ++i);
-  addViews<vtkUnsignedLongArray, unsigned long> (renWin.GetPointer(), ++i);
-  addViews<vtkLongArray, long>(renWin.GetPointer(), ++i);
-  addViews<vtkFloatArray, float> (renWin.GetPointer(), ++i);
-  addViews<vtkDoubleArray, double>(renWin.GetPointer(), ++i);
+  // addViews<vtkCharArray, char>(renWin, ++i);
+  addViews<vtkUnsignedShortArray, unsigned short> (renWin, ++i);
+  addViews<vtkShortArray, short>(renWin, ++i);
+  addViews<vtkUnsignedIntArray, unsigned int> (renWin, ++i);
+  addViews<vtkIntArray, int>(renWin, ++i);
+  addViews<vtkUnsignedLongArray, unsigned long> (renWin, ++i);
+  addViews<vtkLongArray, long>(renWin, ++i);
+  addViews<vtkFloatArray, float> (renWin, ++i);
+  addViews<vtkDoubleArray, double>(renWin, ++i);
   // Mac-Lion-64-gcc-4.2.1 (kamino) does not clear the render window
   // unless we create renderers for the whole window.
   for (++i; i < 16; ++i)
@@ -177,12 +177,12 @@ int TestDirectScalarsToColors(int argc, char *argv[])
   vtkNew<vtkRenderer> ren;
   ren->SetViewport(pos[0]/640.0, pos[1]/640.0,
                    (pos[0] + 160)/640.0, (pos[1] + 160)/640.0);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   }
 
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

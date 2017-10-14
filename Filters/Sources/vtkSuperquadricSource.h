@@ -69,7 +69,7 @@ public:
   static vtkSuperquadricSource *New();
 
   vtkTypeMacro(vtkSuperquadricSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -174,7 +174,7 @@ public:
 
 protected:
   vtkSuperquadricSource(int res=16);
-  ~vtkSuperquadricSource() VTK_OVERRIDE {}
+  ~vtkSuperquadricSource() override {}
 
   int Toroidal;
   int AxisOfSymmetry;
@@ -182,7 +182,7 @@ protected:
   double Size;
   double PhiRoundness;
   double ThetaRoundness;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Center[3];
   double Scale[3];
   int ThetaResolution;
@@ -190,8 +190,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkSuperquadricSource(const vtkSuperquadricSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSuperquadricSource&) VTK_DELETE_FUNCTION;
+  vtkSuperquadricSource(const vtkSuperquadricSource&) = delete;
+  void operator=(const vtkSuperquadricSource&) = delete;
 };
 
 #endif

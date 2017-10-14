@@ -376,8 +376,8 @@ VertOffsets[8][3] = {{0,0,0}, {1,0,0}, {0,1,0}, {1,1,0},
 // marching cubes case table. Some of this code is borrowed shamelessly from
 // vtkVoxel::Contour() method.
 template <class T> vtkFlyingEdgesPlaneCutterAlgorithm<T>::
-vtkFlyingEdgesPlaneCutterAlgorithm():XCases(NULL),EdgeMetaData(NULL),NewScalars(NULL),
-                                     NewTris(NULL),NewPoints(NULL),NewNormals(NULL)
+vtkFlyingEdgesPlaneCutterAlgorithm():XCases(nullptr),EdgeMetaData(nullptr),NewScalars(nullptr),
+                                     NewTris(nullptr),NewPoints(nullptr),NewNormals(nullptr)
 {
   int i, j, k, l, ii, eCase, index, numTris;
   static int vertMap[8] = {0,1,3,2,4,5,7,6};
@@ -1148,7 +1148,7 @@ vtkFlyingEdgesPlaneCutter::vtkFlyingEdgesPlaneCutter()
 //----------------------------------------------------------------------------
 vtkFlyingEdgesPlaneCutter::~vtkFlyingEdgesPlaneCutter()
 {
-  this->SetPlane(NULL);
+  this->SetPlane(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -1157,7 +1157,7 @@ vtkFlyingEdgesPlaneCutter::~vtkFlyingEdgesPlaneCutter()
 vtkMTimeType vtkFlyingEdgesPlaneCutter::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
-  if ( this->Plane != NULL )
+  if ( this->Plane != nullptr )
   {
     vtkMTimeType mTime2=this->Plane->GetMTime();
     return ( mTime2 > mTime ? mTime2 : mTime );
@@ -1220,7 +1220,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
     return 0;
   }
 
-  if ( this->Plane == NULL )
+  if ( this->Plane == nullptr )
   {
     vtkDebugMacro(<<"Cutting requires vtkPlane");
     return 0;
@@ -1228,7 +1228,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
 
   // Check data type and execute appropriate function
   //
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkDebugMacro("No scalars for cutting.");
     return 0;
@@ -1247,7 +1247,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   vtkCellArray *newTris = vtkCellArray::New();
   vtkPoints *newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
-  vtkFloatArray *newNormals = NULL;
+  vtkFloatArray *newNormals = nullptr;
 
   // We are interpolating scalars across the plane
   vtkDataArray *newScalars = inScalars->NewInstance();

@@ -35,10 +35,10 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortKey : public vtk
 {
 public:
   vtkTypeMacro(vtkInformationExecutivePortKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationExecutivePortKey(const char* name, const char* location);
-  ~vtkInformationExecutivePortKey() VTK_OVERRIDE;
+  ~vtkInformationExecutivePortKey() override;
 
   /**
    * This method simply returns a new vtkInformationExecutivePortKey, given a
@@ -66,21 +66,21 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Report a reference this key has in the given information object.
    */
-  void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
+  void Report(vtkInformation* info, vtkGarbageCollector* collector) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 private:
-  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
+  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) = delete;
+  void operator=(const vtkInformationExecutivePortKey&) = delete;
 };
 
 #endif

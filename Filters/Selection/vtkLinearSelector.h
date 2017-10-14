@@ -44,7 +44,7 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
 {
  public:
   vtkTypeMacro(vtkLinearSelector,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkLinearSelector* New();
 
@@ -99,13 +99,13 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
 
  protected:
   vtkLinearSelector();
-  ~vtkLinearSelector() VTK_OVERRIDE;
+  ~vtkLinearSelector() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * The main routine that iterates over cells and looks for those that
@@ -114,8 +114,8 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
   void SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
-  vtkLinearSelector(const vtkLinearSelector&) VTK_DELETE_FUNCTION;
-  void operator =(const vtkLinearSelector&) VTK_DELETE_FUNCTION;
+  vtkLinearSelector(const vtkLinearSelector&) = delete;
+  void operator =(const vtkLinearSelector&) = delete;
 
   //@{
   /**

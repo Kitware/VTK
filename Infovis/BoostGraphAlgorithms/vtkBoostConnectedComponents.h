@@ -52,8 +52,8 @@ protected:
 
 private:
 
-  vtkBoostConnectedComponents(const vtkBoostConnectedComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostConnectedComponents&) VTK_DELETE_FUNCTION;
+  vtkBoostConnectedComponents(const vtkBoostConnectedComponents&) = delete;
+  void operator=(const vtkBoostConnectedComponents&) = delete;
 };
 
 #endif

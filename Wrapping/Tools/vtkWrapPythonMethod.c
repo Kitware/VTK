@@ -32,6 +32,14 @@
 static void vtkWrapPython_GetAllParameters(
   FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
+/* Write code for execution after the method parameters are evaluated */
+static void vtkWrapPython_SubstituteCode(
+  FILE *fp, ClassInfo *data, FunctionInfo *func, const char *code);
+
+/* Check any "expects" preconditions prior to calling the function */
+static void vtkWrapPython_CheckPreconds(
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
+
 /* save the contents of all arrays prior to calling the function */
 static void vtkWrapPython_SaveArrayArgs(
   FILE *fp, FunctionInfo *currentFunction);
@@ -43,7 +51,7 @@ static void vtkWrapPython_GenerateMethodCall(
 
 /* Write back to all the reference arguments and array arguments */
 static void vtkWrapPython_WriteBackToArgs(
-  FILE *fp, FunctionInfo *currentFunction);
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
 
 /* Free any arrays, object, or buffers that were allocated */
 static void vtkWrapPython_FreeTemporaries(
@@ -77,7 +85,7 @@ void vtkWrapPython_DeclareVariables(
     if (vtkWrap_IsFunction(arg))
     {
       fprintf(fp,
-              "  PyObject *temp%d = NULL;\n",
+              "  PyObject *temp%d = nullptr;\n",
               i);
       /* ignore further arguments */
       break;
@@ -112,27 +120,28 @@ void vtkWrapPython_DeclareVariables(
               i, i,
               vtkWrap_GetTypeName(arg), i, mtwo, i,
               vtkWrap_GetTypeName(arg), i, i);
-        if (!vtkWrap_IsConst(arg))
+        if (!vtkWrap_IsConst(arg) &&
+            !vtkWrap_IsRef(arg))
         {
           fprintf(fp,
-              "  %s *save%d = (size%d == 0 ? NULL : temp%d + size%d);\n",
+              "  %s *save%d = (size%d == 0 ? nullptr : temp%d + size%d);\n",
               vtkWrap_GetTypeName(arg), i, i, i, i);
         }
       }
       else if (vtkWrap_IsArray(arg) && arg->Value)
       {
-        /* prepare for "T a[n] = NULL" arg (array whose default is NULL) */
+        /* prepare for "T a[n] = nullptr" arg (array with default of NULL) */
         fprintf(fp,
               "  int size%d = 0;\n"
               "  %s store%d[%s%d];\n"
-              "  %s *temp%d = NULL;\n",
+              "  %s *temp%d = nullptr;\n",
               i,
               vtkWrap_GetTypeName(arg), i, mtwo, arg->Count,
               vtkWrap_GetTypeName(arg), i);
         if (!vtkWrap_IsConst(arg))
         {
           fprintf(fp,
-              "  %s *save%d = NULL;\n",
+              "  %s *save%d = nullptr;\n",
               vtkWrap_GetTypeName(arg), i);
         }
         fprintf(fp,
@@ -173,7 +182,8 @@ void vtkWrapPython_DeclareVariables(
     }
 
     /* temps for buffer objects */
-    if (vtkWrap_IsVoidPointer(arg))
+    if (vtkWrap_IsVoidPointer(arg) ||
+        vtkWrap_IsZeroCopyPointer(arg))
     {
       fprintf(fp,
               "  Py_buffer pbuf%d = VTK_PYBUFFER_INITIALIZER;\n",
@@ -186,7 +196,7 @@ void vtkWrapPython_DeclareVariables(
         !vtkWrap_IsNonConstRef(arg))
     {
       fprintf(fp,
-              "  PyObject *pobj%d = NULL;\n",
+              "  PyObject *pobj%d = nullptr;\n",
               i);
     }
   }
@@ -205,7 +215,7 @@ void vtkWrapPython_DeclareVariables(
 
   /* temp variable for the Python return value */
   fprintf(fp,
-          "  PyObject *result = NULL;\n"
+          "  PyObject *result = nullptr;\n"
           "\n");
 }
 
@@ -299,7 +309,8 @@ void vtkWrapPython_GetSingleArgument(
     fprintf(fp, "%sGetFunction(%stemp%d)",
             prefix, argname, i);
   }
-  else if (vtkWrap_IsVoidPointer(arg))
+  else if (vtkWrap_IsVoidPointer(arg) ||
+           vtkWrap_IsZeroCopyPointer(arg))
   {
     fprintf(fp, "%sGetBuffer(%stemp%d, &pbuf%d)",
             prefix, argname, i, i);
@@ -389,17 +400,181 @@ static void vtkWrapPython_GetAllParameters(
   {
     arg = currentFunction->Parameters[i];
 
-    if (arg->CountHint)
+    if (arg->CountHint && !vtkWrap_IsRef(arg))
     {
       fprintf(fp, " &&\n"
-              "      ap.CheckSizeHint(%d, size%d, op->%s)",
-              i, i, arg->CountHint);
+              "      ap.CheckSizeHint(%d, size%d, ",
+              i, i);
+
+      /* write out the code that gives the size */
+      vtkWrapPython_SubstituteCode(fp, data, currentFunction,
+                                   arg->CountHint);
+
+      fprintf(fp, ")");
     }
 
     if (vtkWrap_IsFunction(arg))
     {
       break;
     }
+  }
+}
+
+
+/* -------------------------------------------------------------------- */
+/* Write code for execution after the method parameters are evaluated */
+static void vtkWrapPython_SubstituteCode(
+  FILE *fp, ClassInfo *data, FunctionInfo *func, const char *code)
+{
+  StringTokenizer t;
+  int qualified = 0;
+  int matched;
+  int j;
+
+  /* tokenize the code according to C/C++ rules */
+  vtkParse_InitTokenizer(&t, code, WS_DEFAULT);
+  do
+  {
+    /* check whether we have found an unqualified identifier */
+    matched = 0;
+    if ((t.tok == TOK_ID || t.tok == '#') && !qualified)
+    {
+      /* check for "this" */
+      if (t.len == 4 && strncmp(t.text, "this", 4) == 0)
+      {
+        fprintf(fp, "op");
+        matched = 1;
+      }
+
+      if (!matched) /* check for parameters */
+      {
+        ValueInfo *arg = NULL;
+
+        /* check for positional parameter "#n" */
+        if (t.tok == '#' && vtkParse_NextToken(&t) && t.tok == TOK_NUMBER)
+        {
+          j = (int)atol(t.text);
+          arg = func->Parameters[j];
+        }
+        else
+        {
+          for (j = 0; j < func->NumberOfParameters; j++)
+          {
+            const char *name;
+            arg = func->Parameters[j];
+            name = arg->Name;
+            if (name && strlen(name) == t.len &&
+                strncmp(name, t.text, t.len) == 0)
+            {
+              break;
+            }
+            arg = NULL;
+          }
+        }
+
+        if (arg)
+        {
+          matched = 1;
+          if (vtkWrap_IsSpecialObject(arg) && !vtkWrap_IsPointer(arg))
+          {
+            fprintf(fp, "(*temp%d)", j);
+          }
+          else
+          {
+            fprintf(fp, "temp%d", j);
+          }
+        }
+      }
+
+      if (!matched) /* check for class members */
+      {
+        for (j = 0; j < data->NumberOfItems; j++)
+        {
+          ItemInfo *item = &data->Items[j];
+          const char *name = NULL;
+          int is_static = 0;
+
+          if (item->Type == VTK_FUNCTION_INFO)
+          {
+            /* methods */
+            name = data->Functions[item->Index]->Name;
+            is_static = data->Functions[item->Index]->IsStatic;
+          }
+          else if (item->Type == VTK_VARIABLE_INFO)
+          {
+            /* member variables */
+            name = data->Variables[item->Index]->Name;
+            is_static = data->Variables[item->Index]->IsStatic;
+          }
+          else if (item->Type == VTK_CONSTANT_INFO)
+          {
+            /* enum values and other constants */
+            name = data->Constants[item->Index]->Name;
+            is_static = 1;
+          }
+
+          if (name && strlen(name) == t.len &&
+              strncmp(name, t.text, t.len) == 0)
+          {
+            if (is_static)
+            {
+              fprintf(fp, "%s::%s", data->Name, name);
+            }
+            else
+            {
+              fprintf(fp, "op->%s", name);
+            }
+            matched = 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!matched)
+    {
+      fprintf(fp, "%*.*s", (int)t.len, (int)t.len, t.text);
+    }
+
+    /* if next character is whitespace, add a space */
+    if (vtkParse_CharType(t.text[t.len], CPRE_WHITE))
+    {
+      fprintf(fp, " ");
+    }
+
+    /* check whether the next identifier is qualified */
+    qualified = (t.tok == TOK_SCOPE ||
+                 t.tok == TOK_ARROW ||
+                 t.tok == '.');
+  }
+  while (vtkParse_NextToken(&t));
+}
+
+
+/* -------------------------------------------------------------------- */
+/* Check "expects" preconditions prior to calling the function */
+static void vtkWrapPython_CheckPreconds(
+  FILE *fp, ClassInfo *data, FunctionInfo *func)
+{
+  int i;
+
+  /* parse the preconditions */
+  for (i = 0; i < func->NumberOfPreconds; i++)
+  {
+    const char *precond = func->Preconds[i];
+
+    /* write out the start of the check for the precondition */
+    fprintf(fp, " &&\n"
+            "      ap.CheckPrecond((");
+
+    /* write out the code that checks the condition */
+    vtkWrapPython_SubstituteCode(fp, data, func, precond);
+
+    /* write out the end of the check for the precondition */
+    fprintf(fp,
+            "),%s\"%s\")",
+            (strlen(precond) < 24 ? " " : "\n                      "),
+            vtkWrapText_QuoteString(precond, 200));
   }
 }
 
@@ -418,7 +593,7 @@ void vtkWrapPython_ReturnValue(
     prefix = "vtkPythonArgs::";
 
     fprintf(fp,
-            "    if (PyErr_Occurred() == NULL)\n"
+            "    if (PyErr_Occurred() == nullptr)\n"
             "    {\n");
   }
   else
@@ -441,9 +616,10 @@ void vtkWrapPython_ReturnValue(
   }
   else if (vtkWrap_IsEnumMember(data, val))
   {
+    vtkWrapText_PythonName(data->Name, pythonname);
     fprintf(fp,
             "      result = Py%s_%s_FromEnum(tempr);\n",
-            data->Name, val->Class);
+            pythonname, val->Class);
   }
   else if (vtkWrap_IsPythonObject(val))
   {
@@ -612,7 +788,8 @@ void vtkWrapPython_SaveArrayArgs(FILE *fp, FunctionInfo *currentFunction)
 
     if ((vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
          vtkWrap_IsPODPointer(arg)) &&
-        (arg->Type & VTK_PARSE_CONST) == 0)
+        (arg->Type & VTK_PARSE_CONST) == 0 &&
+        !vtkWrap_IsRef(arg))
     {
       noneDone = 0;
 
@@ -756,8 +933,8 @@ static void vtkWrapPython_GenerateMethodCall(
       if (vtkWrap_IsFunction(arg))
       {
         fprintf(fp,"\n"
-                "        (temp%d == Py_None ? NULL : vtkPythonVoidFunc),\n"
-                "        (temp%d == Py_None ? NULL : temp%d));\n",
+                "        (temp%d == Py_None ? nullptr : vtkPythonVoidFunc),\n"
+                "        (temp%d == Py_None ? nullptr : temp%d));\n",
                 i, i, i);
         fprintf(fp,
                 "      if (temp%d != Py_None)\n"
@@ -765,7 +942,7 @@ static void vtkWrapPython_GenerateMethodCall(
                 "        Py_INCREF(temp%d);\n"
                 "      }\n"
                 "      %sArgDelete(\n"
-                "        (temp%d == Py_None ? NULL : vtkPythonVoidFuncArgDelete)",
+                "        (temp%d == Py_None ? nullptr : vtkPythonVoidFuncArgDelete)",
                 i, i, methodname, i);
         break;
       }
@@ -840,7 +1017,7 @@ static void vtkWrapPython_GenerateMethodCall(
  * were passed, but only write to arrays if the array has changed and
  * the array arg was non-const */
 static void vtkWrapPython_WriteBackToArgs(
-  FILE *fp, FunctionInfo *currentFunction)
+  FILE *fp, ClassInfo *data, FunctionInfo *currentFunction)
 {
   const char *asterisks = "**********";
   ValueInfo *arg;
@@ -869,12 +1046,34 @@ static void vtkWrapPython_WriteBackToArgs(
     {
       fprintf(fp,
               "    if (!ap.ErrorOccurred())\n"
-              "    {\n"
-              "      ap.SetArgValue(%d, temp%d);\n"
-              "    }\n",
-              i, i);
-    }
+              "    {\n");
 
+      if (vtkWrap_IsArray(arg) ||
+          vtkWrap_IsPODPointer(arg))
+      {
+        fprintf(fp,
+              "      ap.SetArgValue(%d, temp%d, ",
+              i, i);
+        if (arg->CountHint)
+        {
+          vtkWrapPython_SubstituteCode(fp, data, currentFunction,
+                                       arg->CountHint);
+        }
+        else
+        {
+          fprintf(fp, "size%d", i);
+        }
+        fprintf(fp, ");\n");
+      }
+      else
+      {
+        fprintf(fp,
+              "      ap.SetArgValue(%d, temp%d);\n",
+              i, i);
+      }
+      fprintf(fp,
+              "    }\n");
+    }
     else if ((vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
               vtkWrap_IsPODPointer(arg)) &&
              !vtkWrap_IsConst(arg) &&
@@ -936,7 +1135,8 @@ static void vtkWrapPython_FreeTemporaries(
   {
     arg = currentFunction->Parameters[i];
 
-    if (vtkWrap_IsVoidPointer(arg))
+    if (vtkWrap_IsVoidPointer(arg) ||
+        vtkWrap_IsZeroCopyPointer(arg))
     {
       /* release Py_buffer objects */
       fprintf(fp,
@@ -975,7 +1175,7 @@ void vtkWrapPython_GenerateOneMethod(
   int is_vtkobject, int do_constructors)
 {
   FunctionInfo *theFunc;
-  char occSuffix[8];
+  char occSuffix[16];
   FunctionInfo *theOccurrence;
   int occ, numberOfOccurrences;
   int occCounter;
@@ -1078,6 +1278,12 @@ void vtkWrapPython_GenerateOneMethod(
       /* get all the arguments */
       vtkWrapPython_GetAllParameters(fp, data, theOccurrence);
 
+      /* check preconditions */
+      if (theOccurrence->NumberOfPreconds > 0)
+      {
+        vtkWrapPython_CheckPreconds(fp, data, theOccurrence);
+      }
+
       /* finished getting all the arguments */
       fprintf(fp, ")\n"
               "  {\n");
@@ -1086,8 +1292,10 @@ void vtkWrapPython_GenerateOneMethod(
       if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
       {
         fprintf(fp,
-            "    int sizer = op->%s;\n",
-            theOccurrence->ReturnValue->CountHint);
+            "    int sizer = ");
+        vtkWrapPython_SubstituteCode(fp, data, theOccurrence,
+                                     theOccurrence->ReturnValue->CountHint);
+        fprintf(fp, ";\n");
       }
 
       /* save a copy of all non-const array arguments */
@@ -1098,7 +1306,7 @@ void vtkWrapPython_GenerateOneMethod(
                                        is_vtkobject);
 
       /* write back to all array args */
-      vtkWrapPython_WriteBackToArgs(fp, theOccurrence);
+      vtkWrapPython_WriteBackToArgs(fp, data, theOccurrence);
 
       /* generate the code that builds the return value */
       if (do_constructors && !is_vtkobject)

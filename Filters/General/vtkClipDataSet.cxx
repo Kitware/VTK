@@ -50,7 +50,7 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->Value = 0.0;
   this->UseValueAsOffset = true;
   this->GenerateClipScalars = 0;
@@ -81,9 +81,9 @@ vtkClipDataSet::~vtkClipDataSet()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetClipFunction(NULL);
+  this->SetClipFunction(nullptr);
   this->InternalProgressObserver->Delete();
 }
 
@@ -117,12 +117,12 @@ vtkMTimeType vtkClipDataSet::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ClipFunction != NULL )
+  if ( this->ClipFunction != nullptr )
   {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -136,7 +136,7 @@ vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
@@ -195,13 +195,13 @@ int vtkClipDataSet::RequestData(
   int j;
   vtkIdType estimatedSize;
   vtkUnsignedCharArray *types[2];
-  types[0] = types[1] = 0;
+  types[0] = types[1] = nullptr;
   vtkIdTypeArray *locs[2];
-  locs[0] = locs[1] = 0;
+  locs[0] = locs[1] = nullptr;
   int numOutputs = 1;
 
-  outCD[0] = 0;
-  outCD[1] = 0;
+  outCD[0] = nullptr;
+  outCD[1] = nullptr;
 
   vtkDebugMacro(<< "Clipping dataset");
 
@@ -256,7 +256,7 @@ int vtkClipDataSet::RequestData(
   cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   vtkCellArray *conn[2];
-  conn[0] = conn[1] = 0;
+  conn[0] = conn[1] = nullptr;
   conn[0] = vtkCellArray::New();
   conn[0]->Allocate(estimatedSize,estimatedSize/2);
   conn[0]->InitTraversal();
@@ -302,7 +302,7 @@ int vtkClipDataSet::RequestData(
   newPoints->Allocate(numPts,numPts/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -606,7 +606,7 @@ void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -621,7 +621,7 @@ void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
 //----------------------------------------------------------------------------
 void vtkClipDataSet::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

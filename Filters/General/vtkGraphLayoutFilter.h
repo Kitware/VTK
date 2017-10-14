@@ -43,7 +43,7 @@ public:
   static vtkGraphLayoutFilter *New();
 
   vtkTypeMacro(vtkGraphLayoutFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,9 +95,9 @@ public:
 
 protected:
   vtkGraphLayoutFilter();
-  ~vtkGraphLayoutFilter() VTK_OVERRIDE {}
+  ~vtkGraphLayoutFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double GraphBounds[6];
   int   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.
@@ -105,8 +105,8 @@ protected:
   double CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 private:
-  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphLayoutFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&) = delete;
+  void operator=(const vtkGraphLayoutFilter&) = delete;
 };
 
 #endif

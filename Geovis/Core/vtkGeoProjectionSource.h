@@ -43,17 +43,17 @@ class VTKGEOVISCORE_EXPORT vtkGeoProjectionSource : public vtkGeoSource
 public:
   static vtkGeoProjectionSource *New();
   vtkTypeMacro(vtkGeoProjectionSource,vtkGeoSource);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   vtkGeoProjectionSource();
-  ~vtkGeoProjectionSource() VTK_OVERRIDE;
+  ~vtkGeoProjectionSource() override;
 
   //@{
   /**
    * Blocking methods for sources with low latency.
    */
-  bool FetchRoot(vtkGeoTreeNode* root) VTK_OVERRIDE;
-  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) VTK_OVERRIDE;
+  bool FetchRoot(vtkGeoTreeNode* root) override;
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) override;
   //@}
 
   //@{
@@ -75,7 +75,7 @@ public:
   /**
    * Return the projection transformation used by this 2D terrain.
    */
-  vtkAbstractTransform* GetTransform() VTK_OVERRIDE;
+  vtkAbstractTransform* GetTransform() override;
 
 protected:
   void RefineAndComputeError(vtkGeoTerrainNode* node);
@@ -87,8 +87,8 @@ protected:
   vtkAbstractTransform* Transform;
 
 private:
-  vtkGeoProjectionSource(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
+  vtkGeoProjectionSource(const vtkGeoProjectionSource&) = delete;
+  void operator=(const vtkGeoProjectionSource&) = delete;
 };
 
 #endif

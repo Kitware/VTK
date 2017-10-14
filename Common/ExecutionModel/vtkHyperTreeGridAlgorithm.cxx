@@ -14,174 +14,241 @@
 =========================================================================*/
 #include "vtkHyperTreeGridAlgorithm.h"
 
+#include "vtkBitArray.h"
 #include "vtkCommand.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkHyperTreeGrid.h"
+#include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkUnstructuredGrid.h"
 
 //----------------------------------------------------------------------------
 vtkHyperTreeGridAlgorithm::vtkHyperTreeGridAlgorithm()
 {
-  // by default assume filters have one input and one output
-  // subclasses that deviate should modify this setting
-  this->SetNumberOfInputPorts(1);
-  this->SetNumberOfOutputPorts(1);
+  // By default, only one input and one output ports
+  this->SetNumberOfInputPorts( 1 );
+  this->SetNumberOfOutputPorts( 1 );
+
+  // Keep references to input and output data
+  this->InData = nullptr; //todo: should be a safer pointer type
+  this->OutData = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkHyperTreeGridAlgorithm::~vtkHyperTreeGridAlgorithm()
 {
+  this->InData = nullptr;
+  this->OutData = nullptr;
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
+void vtkHyperTreeGridAlgorithm::PrintSelf( ostream& os, vtkIndent indent )
 {
-  this->Superclass::PrintSelf(os, indent);
-}
+  this->Superclass::PrintSelf( os, indent );
 
-//----------------------------------------------------------------------------
-vtkHyperTreeGrid* vtkHyperTreeGridAlgorithm::GetOutput()
-{
-  return this->GetOutput(0);
-}
-
-//----------------------------------------------------------------------------
-vtkHyperTreeGrid* vtkHyperTreeGridAlgorithm::GetOutput(int port)
-{
-  return vtkHyperTreeGrid::SafeDownCast(this->GetOutputDataObject(port));
-}
-
-//----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::SetOutput(vtkDataObject* d)
-{
-  this->GetExecutive()->SetOutputData(0, d);
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject* vtkHyperTreeGridAlgorithm::GetInput()
-{
-  return this->GetInput(0);
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject* vtkHyperTreeGridAlgorithm::GetInput(int port)
-{
-  if (this->GetNumberOfInputConnections(port) < 1)
+  if( this->InData )
   {
-    return 0;
+    os << indent << "InData:\n";
+    this->InData->PrintSelf( os, indent.GetNextIndent() );
   }
-  return this->GetExecutive()->GetInputData(port, 0);
+  else
+  {
+    os << indent << "InData: ( none )\n";
+  }
+
+  os << indent << "OutData: ";
+  if ( this->OutData )
+  {
+    this->OutData->PrintSelf( os, indent );
+  }
+  else
+  {
+    os << "(none)" << endl;
+  }
 }
 
 //----------------------------------------------------------------------------
-vtkHyperTreeGrid* vtkHyperTreeGridAlgorithm::GetHyperTreeGridInput(int port)
+vtkDataObject* vtkHyperTreeGridAlgorithm::GetOutput()
 {
-  return vtkHyperTreeGrid::SafeDownCast(this->GetInput(port));
+  return this->GetOutput( 0 );
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+vtkDataObject* vtkHyperTreeGridAlgorithm::GetOutput( int port )
+{
+  return this->GetOutputDataObject( port );
+}
+
+//----------------------------------------------------------------------------
+vtkHyperTreeGrid* vtkHyperTreeGridAlgorithm::GetHyperTreeGridOutput()
+{
+  return this->GetHyperTreeGridOutput( 0 );
+}
+
+//----------------------------------------------------------------------------
+vtkHyperTreeGrid* vtkHyperTreeGridAlgorithm::GetHyperTreeGridOutput( int port )
+{
+  return vtkHyperTreeGrid::SafeDownCast( this->GetOutputDataObject( port ) );
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkHyperTreeGridAlgorithm::GetPolyDataOutput()
+{
+  return this->GetPolyDataOutput( 0 );
+}
+
+//----------------------------------------------------------------------------
+vtkPolyData* vtkHyperTreeGridAlgorithm::GetPolyDataOutput( int port )
+{
+  return vtkPolyData::SafeDownCast( this->GetOutputDataObject( port ) );
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkHyperTreeGridAlgorithm::GetUnstructuredGridOutput()
+{
+  return this->GetUnstructuredGridOutput( 0 );
+}
+
+//----------------------------------------------------------------------------
+vtkUnstructuredGrid* vtkHyperTreeGridAlgorithm::GetUnstructuredGridOutput( int port )
+{
+  return vtkUnstructuredGrid::SafeDownCast( this->GetOutputDataObject( port ) );
+}
+
+//----------------------------------------------------------------------------
+void vtkHyperTreeGridAlgorithm::SetOutput( vtkDataObject* d )
+{
+  this->GetExecutive()->SetOutputData( 0, d );
+}
+
+//----------------------------------------------------------------------------
+int vtkHyperTreeGridAlgorithm::ProcessRequest( vtkInformation* request,
+                                               vtkInformationVector** inputVector,
+                                               vtkInformationVector* outputVector )
 {
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if( request->Has(vtkDemandDrivenPipeline::REQUEST_DATA() ) )
   {
-    return this->RequestData(request, inputVector, outputVector);
+    return this->RequestData( request, inputVector, outputVector );
   }
 
-  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if( request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT() ) )
   {
-    return this->RequestUpdateExtent(request, inputVector, outputVector);
+    return this->RequestUpdateExtent( request, inputVector, outputVector );
   }
 
   // execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+  if( request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION() ) )
   {
-    return this->RequestInformation(request, inputVector, outputVector);
+    return this->RequestInformation( request, inputVector, outputVector );
   }
 
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+  return this->Superclass::ProcessRequest( request, inputVector, outputVector );
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::FillOutputPortInformation( int vtkNotUsed(port),
-                                                          vtkInformation* info )
+int vtkHyperTreeGridAlgorithm::FillInputPortInformation( int, vtkInformation* info)
 {
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkHyperTreeGrid");
+  info->Set( vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid" );
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::FillInputPortInformation( int vtkNotUsed(port),
-                                                         vtkInformation* info)
+int vtkHyperTreeGridAlgorithm::FillOutputPortInformation( int, vtkInformation* info )
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
+  info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkDataObject" );
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkHyperTreeGridAlgorithm::RequestInformation( vtkInformation*,
+                                                   vtkInformationVector**,
+                                                   vtkInformationVector* )
 {
-  // do nothing let subclasses handle it
+  // Do nothing and let subclasses handle it if needed
   return 1;
 }
 
 //----------------------------------------------------------------------------
-int vtkHyperTreeGridAlgorithm::RequestUpdateExtent(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector,
-  vtkInformationVector* vtkNotUsed(outputVector))
+int vtkHyperTreeGridAlgorithm::RequestUpdateExtent( vtkInformation*,
+                                                    vtkInformationVector** inputVector,
+                                                    vtkInformationVector* )
 {
   int numInputPorts = this->GetNumberOfInputPorts();
-  for (int i = 0; i < numInputPorts; i++)
+  for ( int i = 0; i < numInputPorts; ++ i )
   {
-    int numInputConnections = this->GetNumberOfInputConnections(i);
-    for (int j = 0; j<numInputConnections; j++)
+    int numInputConnections = this->GetNumberOfInputConnections( i );
+    for (int j = 0; j < numInputConnections; ++ j )
     {
-      vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
-      inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+      vtkInformation* inputInfo = inputVector[i]->GetInformationObject( j );
+      inputInfo->Set( vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1 );
     }
   }
   return 1;
 }
 
 //----------------------------------------------------------------------------
-// This is the superclasses style of Execute method.  Convert it into
-// an imaging style Execute method.
-int vtkHyperTreeGridAlgorithm::RequestData(
-  vtkInformation* vtkNotUsed( request ),
-  vtkInformationVector** vtkNotUsed( inputVector ),
-  vtkInformationVector* vtkNotUsed( outputVector ) )
+int vtkHyperTreeGridAlgorithm::RequestData( vtkInformation* vtkNotUsed(request),
+                                            vtkInformationVector** inputVector,
+                                            vtkInformationVector* outputVector )
 {
-  return 0;
+  // Update progress
+  this->UpdateProgress( 0. );
+
+  // Retrieve input and output
+  vtkHyperTreeGrid* input = vtkHyperTreeGrid::GetData( inputVector[0], 0 );
+  if ( ! input )
+  {
+    vtkErrorMacro( "No input available. Cannot proceed with hyper tree grid algorithm." );
+    return 0;
+  }
+  vtkDataObject* outputDO = vtkDataObject::GetData( outputVector, 0 );
+  if ( ! outputDO )
+  {
+    vtkErrorMacro( "No output available. Cannot proceed with hyper tree grid algorithm." );
+    return 0;
+  }
+
+  // Process all trees in input grid and generate input data object
+  if ( ! this->ProcessTrees( input, outputDO ) )
+  {
+    return 0;
+  }
+
+  // Squeeze output data if present
+  if ( this->OutData )
+  {
+    this->OutData->Squeeze();
+  }
+
+  // Update progress and return
+  this->UpdateProgress( 1. );
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::SetInputData(vtkDataObject* input)
+void vtkHyperTreeGridAlgorithm::SetInputData( vtkDataObject* input )
 {
-  this->SetInputData(0, input);
+  this->SetInputData( 0, input );
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::SetInputData(int index, vtkDataObject* input)
+void vtkHyperTreeGridAlgorithm::SetInputData( int index, vtkDataObject* input )
 {
-  this->SetInputDataInternal(index, input);
+  this->SetInputDataInternal( index, input );
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::AddInputData(vtkDataObject* input)
+void vtkHyperTreeGridAlgorithm::AddInputData( vtkDataObject* input )
 {
-  this->AddInputData(0, input);
+  this->AddInputData( 0, input );
 }
 
 //----------------------------------------------------------------------------
-void vtkHyperTreeGridAlgorithm::AddInputData(int index, vtkDataObject* input)
+void vtkHyperTreeGridAlgorithm::AddInputData( int index, vtkDataObject* input )
 {
-  this->AddInputDataInternal(index, input);
+  this->AddInputDataInternal( index, input );
 }

@@ -79,13 +79,13 @@ public:
   std::map<vtkOrderedEdge,vtkTwoNormals> edges;
   bool * edgeFlag;
   vtkCellArray* lines;
-  inline vtkPolyDataEdges() : edgeFlag(0), lines(0) { vec[0]=vec[1]=vec[2]=0.0; }
+  inline vtkPolyDataEdges() : edgeFlag(nullptr), lines(nullptr) { vec[0]=vec[1]=vec[2]=0.0; }
 };
 
 vtkPolyDataSilhouette::vtkPolyDataSilhouette()
 {
-  this->Camera = NULL;
-  this->Prop3D = NULL;
+  this->Camera = nullptr;
+  this->Prop3D = nullptr;
   this->Direction = VTK_DIRECTION_CAMERA_ORIGIN;
   this->Vector[0] = this->Vector[1] = this->Vector[2] = 0.0;
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
@@ -146,7 +146,7 @@ int vtkPolyDataSilhouette::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(input==0 || output==0)
+  if(input==nullptr || output==nullptr)
   {
     vtkErrorMacro(<<"Need correct connections");
     return 0;
@@ -181,7 +181,7 @@ int vtkPolyDataSilhouette::RequestData(
       VTK_FALLTHROUGH;
 
     case VTK_DIRECTION_CAMERA_VECTOR :
-      if ( this->Camera == NULL)
+      if ( this->Camera == nullptr)
       {
         vtkErrorMacro(<<"Need a camera when direction is set to VTK_DIRECTION_CAMERA_*");
         return 0;
@@ -242,7 +242,7 @@ int vtkPolyDataSilhouette::RequestData(
       polys += np;
     }
 
-    if( this->PreComp->edgeFlag != 0 ) delete [] this->PreComp->edgeFlag;
+    delete [] this->PreComp->edgeFlag;
     this->PreComp->edgeFlag = new bool[ this->PreComp->edges.size() ];
   }
 
@@ -328,7 +328,7 @@ int vtkPolyDataSilhouette::RequestData(
       ++i;
     }
 
-    if( this->PreComp->lines == 0 )
+    if( this->PreComp->lines == nullptr )
     {
       this->PreComp->lines = vtkCellArray::New();
     }
@@ -393,13 +393,13 @@ vtkMTimeType vtkPolyDataSilhouette::GetMTime()
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
   {
     vtkMTimeType time;
-    if ( this->Camera != NULL )
+    if ( this->Camera != nullptr )
     {
       time = this->Camera->GetMTime();
       mTime = ( time > mTime ? time : mTime );
     }
 
-    if ( this->Prop3D != NULL )
+    if ( this->Prop3D != nullptr )
     {
       time = this->Prop3D->GetMTime();
       mTime = ( time > mTime ? time : mTime );

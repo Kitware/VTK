@@ -44,7 +44,7 @@ class VTKIOTECPLOTTABLE_EXPORT vtkTecplotTableReader : public vtkTableAlgorithm
 public:
   static vtkTecplotTableReader* New();
   vtkTypeMacro(vtkTecplotTableReader, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -126,12 +126,12 @@ public:
 
 protected:
   vtkTecplotTableReader();
-  ~vtkTecplotTableReader() VTK_OVERRIDE;
+  ~vtkTecplotTableReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   vtkIdType MaxRecords;
@@ -144,8 +144,8 @@ protected:
   vtkStdString LastError;
 
 private:
-  vtkTecplotTableReader(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
+  vtkTecplotTableReader(const vtkTecplotTableReader&) = delete;
+  void operator=(const vtkTecplotTableReader&) = delete;
 
 };
 

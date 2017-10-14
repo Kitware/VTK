@@ -46,7 +46,7 @@ vtkQtRecordView::vtkQtRecordView()
   this->DataObjectToTable = vtkSmartPointer<vtkDataObjectToTable>::New();
   this->DataObjectToTable->SetFieldType(vtkDataObjectToTable::VERTEX_DATA);
   this->FieldType = vtkQtRecordView::VERTEX_DATA;
-  this->Text = NULL;
+  this->Text = nullptr;
   this->CurrentSelectionMTime = 0;
   this->LastInputMTime = 0;
   this->LastMTime = 0;

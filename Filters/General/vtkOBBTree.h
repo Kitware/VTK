@@ -69,15 +69,15 @@ public:
 
   double Corner[3]; //center point of this node
   double Axes[3][3]; //the axes defining the OBB - ordered from long->short
-  vtkOBBNode *Parent; //parent node; NULL if root
-  vtkOBBNode **Kids; //two children of this node; NULL if leaf
+  vtkOBBNode *Parent; //parent node; nullptr if root
+  vtkOBBNode **Kids; //two children of this node; nullptr if leaf
   vtkIdList *Cells; //list of cells in node
   void DebugPrintTree( int level, double *leaf_vol, int *minCells,
                        int *maxCells );
 
 private:
-  vtkOBBNode(const vtkOBBNode& other) VTK_DELETE_FUNCTION;
-  vtkOBBNode& operator=(const vtkOBBNode& rhs) VTK_DELETE_FUNCTION;
+  vtkOBBNode(const vtkOBBNode& other) = delete;
+  vtkOBBNode& operator=(const vtkOBBNode& rhs) = delete;
 };
 
 //
@@ -86,7 +86,7 @@ class VTKFILTERSGENERAL_EXPORT vtkOBBTree : public vtkAbstractCellLocator
 {
 public:
   vtkTypeMacro(vtkOBBTree,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with automatic computation of divisions, averaging
@@ -105,11 +105,11 @@ public:
    * The return value of the function is 0 if no intersections were found,
    * -1 if point 'a0' lies inside the closed surface, or +1 if point 'a0'
    * lies outside the closed surface.
-   * Either 'points' or 'cellIds' can be set to NULL if you don't want
+   * Either 'points' or 'cellIds' can be set to nullptr if you don't want
    * to receive that information.
    */
   int IntersectWithLine(const double a0[3], const double a1[3],
-                        vtkPoints *points, vtkIdList *cellIds) VTK_OVERRIDE;
+                        vtkPoints *points, vtkIdList *cellIds) override;
 
   /**
    * Return the first intersection of the specified line segment with
@@ -118,7 +118,7 @@ public:
    */
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
-                        int &subId, vtkIdType &cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+                        int &subId, vtkIdType &cellId, vtkGenericCell *cell) override;
 
   /**
    * Compute an OBB from the list of points given. Return the corner point
@@ -154,7 +154,7 @@ public:
   /**
    * Returns true if line intersects node.
    */
-  int LineIntersectsNode( vtkOBBNode *pA, double b0[3], double b1[3] );
+  int LineIntersectsNode( vtkOBBNode *pA, const double b0[3], const double b1[3] );
 
   /**
    * Returns true if triangle (optionally transformed) intersects node.
@@ -178,8 +178,8 @@ public:
   /**
    * Satisfy locator's abstract interface, see vtkLocator.
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
-  void BuildLocator() VTK_OVERRIDE;
+  void FreeSearchStructure() override;
+  void BuildLocator() override;
   //@}
 
   /**
@@ -191,11 +191,11 @@ public:
    * represented either as two crossed polygons, or as a line, depending on
    * the relative diameter of the OBB compared to the diameter (d).
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
 protected:
   vtkOBBTree();
-  ~vtkOBBTree() VTK_OVERRIDE;
+  ~vtkOBBTree() override;
 
   // Compute an OBB from the list of cells given.  This used to be
   // public but should not have been.  A public call has been added
@@ -214,8 +214,8 @@ protected:
                         vtkPoints* pts, vtkCellArray *polys);
 
 private:
-  vtkOBBTree(const vtkOBBTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBBTree&) VTK_DELETE_FUNCTION;
+  vtkOBBTree(const vtkOBBTree&) = delete;
+  void operator=(const vtkOBBTree&) = delete;
 };
 
 #endif

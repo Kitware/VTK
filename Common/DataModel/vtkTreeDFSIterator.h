@@ -49,7 +49,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeDFSIterator : public vtkTreeIterator
 public:
   static vtkTreeDFSIterator* New();
   vtkTypeMacro(vtkTreeDFSIterator, vtkTreeIterator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ModeType
   {
@@ -72,10 +72,10 @@ public:
 
 protected:
   vtkTreeDFSIterator();
-  ~vtkTreeDFSIterator() VTK_OVERRIDE;
+  ~vtkTreeDFSIterator() override;
 
-  void Initialize() VTK_OVERRIDE;
-  vtkIdType NextInternal() VTK_OVERRIDE;
+  void Initialize() override;
+  vtkIdType NextInternal() override;
 
   int Mode;
   vtkIdType CurRoot;
@@ -90,8 +90,8 @@ protected:
   };
 
 private:
-  vtkTreeDFSIterator(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
+  vtkTreeDFSIterator(const vtkTreeDFSIterator &) = delete;
+  void operator=(const vtkTreeDFSIterator &) = delete;
 };
 
 

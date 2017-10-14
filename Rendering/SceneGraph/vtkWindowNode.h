@@ -34,17 +34,17 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkWindowNode :
 public:
   static vtkWindowNode* New();
   vtkTypeMacro(vtkWindowNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass) VTK_OVERRIDE;
+  virtual void Build(bool prepass) override;
 
   /**
    * Get state of my renderable.
    */
-  virtual void Synchronize(bool prepass) VTK_OVERRIDE;
+  virtual void Synchronize(bool prepass) override;
 
   /**
    * Return the size of the last rendered image
@@ -77,8 +77,8 @@ protected:
   vtkFloatArray *ZBuffer;
 
 private:
-  vtkWindowNode(const vtkWindowNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindowNode&) VTK_DELETE_FUNCTION;
+  vtkWindowNode(const vtkWindowNode&) = delete;
+  void operator=(const vtkWindowNode&) = delete;
 };
 
 #endif

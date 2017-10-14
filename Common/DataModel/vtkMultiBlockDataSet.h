@@ -47,13 +47,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMultiBlockDataSet : public vtkDataObjectTree
 public:
   static vtkMultiBlockDataSet* New();
   vtkTypeMacro(vtkMultiBlockDataSet, vtkDataObjectTree);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_MULTIBLOCK_DATA_SET;}
+  int GetDataObjectType() override {return VTK_MULTIBLOCK_DATA_SET;}
 
   /**
    * Set the number of blocks. This will cause allocation if the new number of
@@ -109,22 +109,22 @@ public:
   /**
    * Unhiding superclass method.
    */
-  vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
+  vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) override
     { return this->Superclass::GetMetaData(iter); }
 
   /**
    * Unhiding superclass method.
    */
-  int HasMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
+  int HasMetaData(vtkCompositeDataIterator* iter) override
     { return this->Superclass::HasMetaData(iter); }
 
 protected:
   vtkMultiBlockDataSet();
-  ~vtkMultiBlockDataSet() VTK_OVERRIDE;
+  ~vtkMultiBlockDataSet() override;
 
 private:
-  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) = delete;
+  void operator=(const vtkMultiBlockDataSet&) = delete;
 
 };
 

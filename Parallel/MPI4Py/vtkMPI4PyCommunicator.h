@@ -38,7 +38,7 @@ class VTKPARALLELMPI4PY_EXPORT vtkMPI4PyCommunicator : public vtkObject
 public:
 
   vtkTypeMacro(vtkMPI4PyCommunicator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMPI4PyCommunicator* New();
   vtkMPI4PyCommunicator();
@@ -54,8 +54,8 @@ public:
   static vtkMPICommunicator* ConvertToVTK(PyObject* comm);
 
 private:
-  vtkMPI4PyCommunicator(const vtkMPI4PyCommunicator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPI4PyCommunicator&) VTK_DELETE_FUNCTION;
+  vtkMPI4PyCommunicator(const vtkMPI4PyCommunicator&) = delete;
+  void operator=(const vtkMPI4PyCommunicator&) = delete;
 };
 
 #endif

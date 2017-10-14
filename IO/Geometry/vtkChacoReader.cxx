@@ -37,16 +37,16 @@ vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
 // Description:
-// Instantiate object with NULL filename.
+// Instantiate object with nullptr filename.
 vtkChacoReader::vtkChacoReader()
 {
-  this->BaseName = NULL;
+  this->BaseName = nullptr;
   this->GenerateGlobalElementIdArray = 1;
   this->GenerateGlobalNodeIdArray = 1;
   this->GenerateVertexWeightArrays = 0;
   this->GenerateEdgeWeightArrays = 0;
-  this->EarrayName = NULL;
-  this->VarrayName = NULL;
+  this->EarrayName = nullptr;
+  this->VarrayName = nullptr;
   this->Dimensionality = -1;
   this->NumberOfVertices = 0;
   this->NumberOfEdges = 0;
@@ -57,9 +57,9 @@ vtkChacoReader::vtkChacoReader()
   this->NumberOfPointWeightArrays = 0;
   this->NumberOfCellWeightArrays = 0;
 
-  this->CurrentGeometryFP = NULL;
-  this->CurrentGraphFP = NULL;
-  this->CurrentBaseName = NULL;
+  this->CurrentGeometryFP = nullptr;
+  this->CurrentGraphFP = nullptr;
+  this->CurrentBaseName = nullptr;
 
   this->DataCache = vtkUnstructuredGrid::New();
   this->RemakeDataCacheFlag = 1;
@@ -76,13 +76,13 @@ vtkChacoReader::vtkChacoReader()
 //----------------------------------------------------------------------------
 vtkChacoReader::~vtkChacoReader()
 {
-  this->SetBaseName(NULL);
-  this->SetCurrentBaseName(NULL);
+  this->SetBaseName(nullptr);
+  this->SetCurrentBaseName(nullptr);
 
   this->ClearWeightArrayNames();
 
   this->DataCache->Delete();
-  this->DataCache = NULL;
+  this->DataCache = nullptr;
 
   delete [] this->Line;
 }
@@ -98,7 +98,7 @@ void vtkChacoReader::ClearWeightArrayNames()
       delete [] this->VarrayName[i];
     }
     delete [] this->VarrayName;
-    this->VarrayName = NULL;
+    this->VarrayName = nullptr;
   }
 
   if (this->EarrayName)
@@ -108,7 +108,7 @@ void vtkChacoReader::ClearWeightArrayNames()
       delete [] this->EarrayName[i];
     }
     delete [] this->EarrayName;
-    this->EarrayName = NULL;
+    this->EarrayName = nullptr;
   }
 }
 
@@ -146,7 +146,7 @@ const char *vtkChacoReader::GetVertexWeightArrayName(int weight)
     return this->VarrayName[weight-1];
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -159,7 +159,7 @@ const char *vtkChacoReader::GetEdgeWeightArrayName(int weight)
     return this->EarrayName[weight-1];
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -177,7 +177,7 @@ int vtkChacoReader::RequestInformation(
   }
 
   int newFile =
-    ((this->CurrentBaseName == NULL) ||
+    ((this->CurrentBaseName == nullptr) ||
      strcmp(this->CurrentBaseName, this->BaseName));
 
   if ( !newFile )
@@ -261,7 +261,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
     vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(
         this->DataCache->GetPointData()->GetArray(this->VarrayName[0]));
 
-    haveVertexWeightArrays = (da != NULL);
+    haveVertexWeightArrays = (da != nullptr);
   }
 
   if (ncells && (this->NumberOfEdgeWeights > 0))
@@ -269,7 +269,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
     vtkDoubleArray *da = vtkArrayDownCast<vtkDoubleArray>(
         this->DataCache->GetCellData()->GetArray(this->EarrayName[0]));
 
-    haveEdgeWeightArrays = (da != NULL);
+    haveEdgeWeightArrays = (da != nullptr);
   }
 
   if (!this->RemakeDataCacheFlag  &&
@@ -397,8 +397,8 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   int memoryOK = 1;
 
   double *x = new double [this->NumberOfVertices];
-  double *y = NULL;
-  double *z = NULL;
+  double *y = nullptr;
+  double *z = nullptr;
 
   if (!x)
   {
@@ -487,13 +487,13 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   int retVal = 1;
 
-  vtkIdType *idx = NULL;
-  vtkIdType *nbors = NULL;
-  double *vweights = NULL;
-  double *eweights = NULL;
+  vtkIdType *idx = nullptr;
+  vtkIdType *nbors = nullptr;
+  double *vweights = nullptr;
+  double *eweights = nullptr;
 
-  double **vw = NULL;
-  double **ew = NULL;
+  double **vw = nullptr;
+  double **ew = nullptr;
 
   if (this->GetGenerateVertexWeightArrays() && (this->NumberOfVertexWeights > 0))
   {
@@ -514,10 +514,10 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     return 0;
   }
 
-  vtkDoubleArray **varrays = NULL;
-  vtkDoubleArray **earrays = NULL;
-  double *vwgt = NULL;
-  double *ewgt = NULL;
+  vtkDoubleArray **varrays = nullptr;
+  vtkDoubleArray **earrays = nullptr;
+  double *vwgt = nullptr;
+  double *ewgt = nullptr;
 
   if (vw)
   {
@@ -545,7 +545,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   vtkIdTypeArray *ca = vtkIdTypeArray::New();
 
-  if (idx == NULL)
+  if (idx == nullptr)
   {
     // Special case: there are no edges in this graph.  Every
     // vertex will be a cell.
@@ -816,8 +816,8 @@ void vtkChacoReader::CloseCurrentFile()
   {
     fclose(this->CurrentGeometryFP);
     fclose(this->CurrentGraphFP);
-    this->CurrentGeometryFP = NULL;
-    this->CurrentGraphFP = NULL;
+    this->CurrentGeometryFP = nullptr;
+    this->CurrentGraphFP = nullptr;
   }
 }
 
@@ -826,7 +826,7 @@ int vtkChacoReader::OpenCurrentFile()
 {
   int result = 0;
 
-  if ( this->CurrentGeometryFP == NULL)
+  if ( this->CurrentGeometryFP == nullptr)
   {
     int len = static_cast<int>(strlen(this->BaseName));
     char *buf = new char [len+64];
@@ -834,10 +834,10 @@ int vtkChacoReader::OpenCurrentFile()
 
     this->CurrentGeometryFP = fopen(buf, "r");
 
-    if (this->CurrentGeometryFP == NULL)
+    if (this->CurrentGeometryFP == nullptr)
     {
       vtkErrorMacro(<< "Problem opening " << buf);
-      this->SetCurrentBaseName( NULL );
+      this->SetCurrentBaseName( nullptr );
     }
     else
     {
@@ -845,12 +845,12 @@ int vtkChacoReader::OpenCurrentFile()
 
       this->CurrentGraphFP = fopen(buf, "r");
 
-      if (this->CurrentGraphFP == NULL)
+      if (this->CurrentGraphFP == nullptr)
       {
         vtkErrorMacro(<< "Problem opening " <<  buf);
-        this->SetCurrentBaseName( NULL );
+        this->SetCurrentBaseName( nullptr );
         fclose(this->CurrentGeometryFP);
-        this->CurrentGeometryFP = NULL;
+        this->CurrentGeometryFP = nullptr;
       }
       else {
         this->SetCurrentBaseName( this->GetBaseName() );
@@ -1043,8 +1043,8 @@ int vtkChacoReader::InputGraph1()
 int vtkChacoReader::InputGraph2(
       vtkIdType **start,     // start[i]: location of vertex i in adjacency array
       vtkIdType **adjacency, // by vertex by vertex neighbor
-      double **vweights,  // by vertex by weight (or NULL if no weights wanted)
-      double **eweights ) // edge weights in order in file (or NULL)
+      double **vweights,  // by vertex by weight (or nullptr if no weights wanted)
+      double **eweights ) // edge weights in order in file (or nullptr)
 {
   vtkIdType *adjptr;
   double    *ewptr;
@@ -1065,24 +1065,24 @@ int vtkChacoReader::InputGraph2(
     return 0;
   }
 
-  if (start == NULL)
+  if (start == nullptr)
   {
     vtkErrorMacro(<< "vtkChacoReader::InputGraph2, parameter list");
     return 0;
   }
 
-  *start = NULL;
+  *start = nullptr;
   if (adjacency)
   {
-    *adjacency = NULL;
+    *adjacency = nullptr;
   }
   if (vweights)
   {
-    *vweights = NULL;
+    *vweights = nullptr;
   }
   if (eweights)
   {
-    *eweights = NULL;
+    *eweights = nullptr;
   }
 
   int line_num = 0;
@@ -1120,8 +1120,8 @@ int vtkChacoReader::InputGraph2(
     *eweights = new double [(2 * narcs + 1) * ewgt_dim];  // why +1 ?
   }
 
-  adjptr = (adjacency ? *adjacency : NULL);
-  ewptr = (eweights ? *eweights : NULL);
+  adjptr = (adjacency ? *adjacency : nullptr);
+  ewptr = (eweights ? *eweights : nullptr);
 
   sum_edges = 0;
   (*start)[0] = 0;
@@ -1247,16 +1247,16 @@ done:
   {
     /* Graph was empty */
     delete [] *start;
-    *start = NULL;
+    *start = nullptr;
 
     delete [] *adjacency;
-    *adjacency = NULL;
+    *adjacency = nullptr;
 
     delete [] *vweights;
-    *vweights = NULL;
+    *vweights = nullptr;
 
     delete [] *eweights;
-    *eweights = NULL;
+    *eweights = nullptr;
   }
 
   return retVal;
@@ -1297,7 +1297,7 @@ double vtkChacoReader::ReadVal( FILE *infile, int *end_flag )
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char *) NULL)
+    if (ptr2 == (char *) nullptr)
     {
       *end_flag = -1;
       return((double) 0.0);
@@ -1405,7 +1405,7 @@ int    *end_flag
     /* Now read next line, or next segment of current one. */
     ptr2 = fgets(&Line[length_left], length, infile);
 
-    if (ptr2 == (char *) NULL)
+    if (ptr2 == (char *) nullptr)
     {
       *end_flag = -1;
       return(0);

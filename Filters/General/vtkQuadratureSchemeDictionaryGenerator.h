@@ -42,19 +42,19 @@ class VTKFILTERSGENERAL_EXPORT vtkQuadratureSchemeDictionaryGenerator : public v
 {
 public:
   vtkTypeMacro(vtkQuadratureSchemeDictionaryGenerator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkQuadratureSchemeDictionaryGenerator *New();
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
   vtkQuadratureSchemeDictionaryGenerator();
-  ~vtkQuadratureSchemeDictionaryGenerator() VTK_OVERRIDE;
+  ~vtkQuadratureSchemeDictionaryGenerator() override;
 
 private:
-  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
+  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
+  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) = delete;
 
   //@{
   /**

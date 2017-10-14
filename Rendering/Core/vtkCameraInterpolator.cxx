@@ -96,12 +96,12 @@ vtkCameraInterpolator::~vtkCameraInterpolator()
 {
   delete this->CameraList;
 
-  this->SetPositionInterpolator(NULL);
-  this->SetFocalPointInterpolator(NULL);
-  this->SetViewUpInterpolator(NULL);
-  this->SetViewAngleInterpolator(NULL);
-  this->SetParallelScaleInterpolator(NULL);
-  this->SetClippingRangeInterpolator(NULL);
+  this->SetPositionInterpolator(nullptr);
+  this->SetFocalPointInterpolator(nullptr);
+  this->SetViewUpInterpolator(nullptr);
+  this->SetViewAngleInterpolator(nullptr);
+  this->SetParallelScaleInterpolator(nullptr);
+  this->SetClippingRangeInterpolator(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -251,12 +251,12 @@ void vtkCameraInterpolator::SetPositionInterpolator(vtkTupleInterpolator *pi)
 {
   if ( this->PositionInterpolator != pi )
   {
-    if ( this->PositionInterpolator != NULL )
+    if ( this->PositionInterpolator != nullptr )
     {
       this->PositionInterpolator->Delete();
     }
     this->PositionInterpolator = pi;
-    if ( this->PositionInterpolator != NULL )
+    if ( this->PositionInterpolator != nullptr )
     {
       this->PositionInterpolator->Register(this);
     }
@@ -269,12 +269,12 @@ void vtkCameraInterpolator::SetFocalPointInterpolator(vtkTupleInterpolator *fpi)
 {
   if ( this->FocalPointInterpolator != fpi )
   {
-    if ( this->FocalPointInterpolator != NULL )
+    if ( this->FocalPointInterpolator != nullptr )
     {
       this->FocalPointInterpolator->Delete();
     }
     this->FocalPointInterpolator = fpi;
-    if ( this->FocalPointInterpolator != NULL )
+    if ( this->FocalPointInterpolator != nullptr )
     {
       this->FocalPointInterpolator->Register(this);
     }
@@ -287,12 +287,12 @@ void vtkCameraInterpolator::SetViewUpInterpolator(vtkTupleInterpolator *vupi)
 {
   if ( this->ViewUpInterpolator != vupi )
   {
-    if ( this->ViewUpInterpolator != NULL )
+    if ( this->ViewUpInterpolator != nullptr )
     {
       this->ViewUpInterpolator->Delete();
     }
     this->ViewUpInterpolator = vupi;
-    if ( this->ViewUpInterpolator != NULL )
+    if ( this->ViewUpInterpolator != nullptr )
     {
       this->ViewUpInterpolator->Register(this);
     }
@@ -305,12 +305,12 @@ void vtkCameraInterpolator::SetClippingRangeInterpolator(vtkTupleInterpolator *c
 {
   if ( this->ClippingRangeInterpolator != cri )
   {
-    if ( this->ClippingRangeInterpolator != NULL )
+    if ( this->ClippingRangeInterpolator != nullptr )
     {
       this->ClippingRangeInterpolator->Delete();
     }
     this->ClippingRangeInterpolator = cri;
-    if ( this->ClippingRangeInterpolator != NULL )
+    if ( this->ClippingRangeInterpolator != nullptr )
     {
       this->ClippingRangeInterpolator->Register(this);
     }
@@ -323,12 +323,12 @@ void vtkCameraInterpolator::SetParallelScaleInterpolator(vtkTupleInterpolator *p
 {
   if ( this->ParallelScaleInterpolator != psi )
   {
-    if ( this->ParallelScaleInterpolator != NULL )
+    if ( this->ParallelScaleInterpolator != nullptr )
     {
       this->ParallelScaleInterpolator->Delete();
     }
     this->ParallelScaleInterpolator = psi;
-    if ( this->ParallelScaleInterpolator != NULL )
+    if ( this->ParallelScaleInterpolator != nullptr )
     {
       this->ParallelScaleInterpolator->Register(this);
     }
@@ -341,12 +341,12 @@ void vtkCameraInterpolator::SetViewAngleInterpolator(vtkTupleInterpolator *vai)
 {
   if ( this->ViewAngleInterpolator != vai )
   {
-    if ( this->ViewAngleInterpolator != NULL )
+    if ( this->ViewAngleInterpolator != nullptr )
     {
       this->ViewAngleInterpolator->Delete();
     }
     this->ViewAngleInterpolator = vai;
-    if ( this->ViewAngleInterpolator != NULL )
+    if ( this->ViewAngleInterpolator != nullptr )
     {
       this->ViewAngleInterpolator->Register(this);
     }

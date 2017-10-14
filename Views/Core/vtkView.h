@@ -56,7 +56,7 @@ class VTKVIEWSCORE_EXPORT vtkView : public vtkObject
 public:
   static vtkView *New();
   vtkTypeMacro(vtkView, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Adds the representation to the view.
@@ -172,7 +172,7 @@ public:
     }
     ~ViewProgressEventCallData()
     {
-      this->Message = 0;
+      this->Message = nullptr;
     }
 
     /**
@@ -197,7 +197,7 @@ public:
    * the progress amount. If message is not provided, then the class name for
    * the algorithm is used.
    */
-  void RegisterProgress(vtkObject* algorithm, const char* message=NULL);
+  void RegisterProgress(vtkObject* algorithm, const char* message=nullptr);
 
   /**
    * Unregister objects previously registered with RegisterProgress.
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkView();
-  ~vtkView() VTK_OVERRIDE;
+  ~vtkView() override;
 
   /**
    * Called to process events.
@@ -243,8 +243,8 @@ protected:
   //@}
 
 private:
-  vtkView(const vtkView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkView&) VTK_DELETE_FUNCTION;
+  vtkView(const vtkView&) = delete;
+  void operator=(const vtkView&) = delete;
 
   class vtkImplementation;
   vtkImplementation* Implementation;

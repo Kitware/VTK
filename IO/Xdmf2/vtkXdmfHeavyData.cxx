@@ -273,7 +273,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadTemporalCollection(
   if (child_data_objects.size() == 1)
   {
     vtkDataObject* dataObject = child_data_objects[0];
-    dataObject->Register(NULL);
+    dataObject->Register(nullptr);
     return dataObject;
   }
   else if (child_data_objects.size() > 1)
@@ -320,7 +320,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
   if (topoNodeDataItem && caching)
   {
     filePtr = topoNodeDataItem->children->content;
-    if (filePtr != NULL)
+    if (filePtr != nullptr)
     {
       topoFilename = reinterpret_cast<char*>(filePtr);
     }
@@ -342,7 +342,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
   if (geomNodeDataItem && caching)
   {
     filePtr =  geomNodeDataItem->children->content;
-    if (filePtr != NULL)
+    if (filePtr != nullptr)
     {
       geomFilename = reinterpret_cast<char*>(filePtr);
     }
@@ -374,10 +374,10 @@ vtkDataObject* vtkXdmfHeavyData::ReadUniformData(XdmfGrid* xmfGrid, int blockId)
   {
     cachedData.topologyPath = topoFilename;
     cachedData.geometryPath = geomFilename;
-    if (cache[blockId].dataset != NULL)
+    if (cache[blockId].dataset != nullptr)
     {
       cache[blockId].dataset->Delete();
-      cache[blockId].dataset = NULL;
+      cache[blockId].dataset = nullptr;
     }
   }
 
@@ -539,7 +539,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     this->Domain->GetVTKDataType() == VTK_UNSTRUCTURED_GRID &&
     this->Domain->GetSetsSelection()->GetNumberOfArrays() == 0)
   {
-    ugData->Register(NULL);
+    ugData->Register(nullptr);
     return ugData;
   }
 
@@ -552,7 +552,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
   if (vtk_cell_type == VTK_EMPTY_CELL)
   {
     // invalid topology.
-    return NULL;
+    return nullptr;
   }
 
   if (vtk_cell_type != VTK_NUMBER_OF_CELL_TYPES)
@@ -631,7 +631,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
         cells->Delete();
         delete [] cell_types;
         delete [] xmfConnections;
-        return NULL;
+        return nullptr;
       }
 
       if (numPointsPerCell==0)
@@ -662,7 +662,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
   if (!points)
   {
     // failed to read points.
-    return NULL;
+    return nullptr;
   }
   ugData->SetPoints(points);
   points->Delete();
@@ -679,7 +679,7 @@ vtkDataObject* vtkXdmfHeavyData::ReadUnstructuredGrid(XdmfGrid* xmfGrid)
     return sets;
   }
 
-  ugData->Register(NULL);
+  ugData->Register(nullptr);
   return ugData;
 }
 
@@ -805,11 +805,11 @@ vtkRectilinearGrid* vtkXdmfHeavyData::RequestRectilinearGrid(XdmfGrid* xmfGrid)
       "Geometry type : "
       << xmfGeometry->GetGeometryTypeAsString() << " is not supported for "
       << xmfGrid->GetTopology()->GetTopologyTypeAsString());
-    return NULL;
+    return nullptr;
   }
 
   this->ReadAttributes(rg, xmfGrid, update_extents);
-  rg->Register(NULL);
+  rg->Register(nullptr);
   return rg;
 }
 
@@ -882,7 +882,7 @@ vtkImageData* vtkXdmfHeavyData::RequestImageData(XdmfGrid* xmfGrid,
       xmfGrid->GetGeometry()->GetGeometryTypeAsString());
     // release image data.
     imageData->Delete();
-    return NULL;
+    return nullptr;
   }
   imageData->SetOrigin(origin);
   imageData->SetSpacing(
@@ -895,21 +895,21 @@ vtkImageData* vtkXdmfHeavyData::RequestImageData(XdmfGrid* xmfGrid,
 
 //-----------------------------------------------------------------------------
 vtkPoints* vtkXdmfHeavyData::ReadPoints(XdmfGeometry* xmfGeometry,
-  int *update_extents /*=NULL*/, int *whole_extents /*=NULL*/)
+  int *update_extents /*=nullptr*/, int *whole_extents /*=nullptr*/)
 {
   XdmfInt32 geomType = xmfGeometry->GetGeometryType();
 
   if (geomType != XDMF_GEOMETRY_X_Y_Z && geomType != XDMF_GEOMETRY_XYZ &&
     geomType != XDMF_GEOMETRY_X_Y && geomType != XDMF_GEOMETRY_XY)
   {
-    return NULL;
+    return nullptr;
   }
 
   XdmfArray* xmfPoints = xmfGeometry->GetPoints();
   if (!xmfPoints)
   {
     XdmfErrorMessage("No Points to Set");
-    return NULL;
+    return nullptr;
   }
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -960,7 +960,7 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(XdmfGeometry* xmfGeometry,
       break;
 
     default:
-      return NULL;
+      return nullptr;
     }
   }
   else
@@ -1075,14 +1075,14 @@ bool vtkXdmfHeavyData::ReadAttributes(
         switch (xmfAttribute->GetAttributeType())
         {
         case XDMF_ATTRIBUTE_TYPE_SCALAR:
-          if (is_active || attributes->GetScalars() == NULL)
+          if (is_active || attributes->GetScalars() == nullptr)
           {
             attributes->SetActiveScalars(attrName);
           }
           break;
 
         case XDMF_ATTRIBUTE_TYPE_VECTOR:
-          if (is_active || attributes->GetVectors() == NULL)
+          if (is_active || attributes->GetVectors() == nullptr)
           {
             attributes->SetActiveVectors(attrName);
           }
@@ -1090,14 +1090,14 @@ bool vtkXdmfHeavyData::ReadAttributes(
 
         case XDMF_ATTRIBUTE_TYPE_TENSOR:
         case XDMF_ATTRIBUTE_TYPE_TENSOR6:
-          if (is_active || attributes->GetTensors() == NULL)
+          if (is_active || attributes->GetTensors() == nullptr)
           {
             attributes->SetActiveTensors(attrName);
           }
           break;
 
         case XDMF_ATTRIBUTE_TYPE_GLOBALID:
-          if (is_active || attributes->GetGlobalIds() == NULL)
+          if (is_active || attributes->GetGlobalIds() == nullptr)
           {
             attributes->SetActiveGlobalIds(attrName);
           }
@@ -1135,7 +1135,7 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(XdmfAttribute* xmfAttribute,
 {
   if (!xmfAttribute)
   {
-    return NULL;
+    return nullptr;
   }
 
   int attrType = xmfAttribute->GetAttributeType();
@@ -1175,13 +1175,13 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(XdmfAttribute* xmfAttribute,
     {
       vtkErrorWithObjectMacro(this->Reader,
         "Unsupported attribute rank: " << data_rank);
-      return NULL;
+      return nullptr;
     }
     if (data_rank > (data_dimensionality + 1))
     {
       vtkErrorWithObjectMacro(this->Reader,
         "The data_dimensionality and topology dimensionality mismatch");
-      return NULL;
+      return nullptr;
     }
     XdmfInt64 start[4] = { update_extents[4], update_extents[2], update_extents[0], 0 };
     XdmfInt64 stride[4] = {this->Stride[2], this->Stride[1], this->Stride[0], 1};
@@ -1345,7 +1345,7 @@ vtkMultiBlockDataSet* vtkXdmfHeavyData::ReadSets(
   }
   if (number_of_sets == 0)
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
@@ -1445,7 +1445,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet,
     outputPoints->SetPoint(kk, point_location);
   }
   delete []ids;
-  ids = NULL;
+  ids = nullptr;
 
   // Read node-centered attributes that may be defined on this set.
   int numAttributes = xmfSet->GetNumberOfAttributes();
@@ -1459,7 +1459,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet,
       continue;
     }
     vtkDataArray* array = this->ReadAttribute(xmfAttribute,
-      1, NULL);
+      1, nullptr);
     if (array)
     {
       array->SetName(attrName);
@@ -1475,7 +1475,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractPoints(XdmfSet* xmfSet,
   }
   output->InsertNextCell(VTK_POLY_VERTEX, numIds, vtk_cell_ids);
   delete []vtk_cell_ids;
-  vtk_cell_ids = NULL;
+  vtk_cell_ids = nullptr;
 
   return output;
 }
@@ -1537,7 +1537,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractCells(XdmfSet* xmfSet,
     {
       continue;
     }
-    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, NULL);
+    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, nullptr);
     if (array)
     {
       array->SetName(attrName);
@@ -1626,7 +1626,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractFaces(XdmfSet* xmfSet, vtkDataSet* dataSet)
     {
       continue;
     }
-    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, NULL);
+    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, nullptr);
     if (array)
     {
       array->SetName(attrName);
@@ -1726,7 +1726,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractEdges(XdmfSet* xmfSet, vtkDataSet* dataSet)
     {
       continue;
     }
-    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, NULL);
+    vtkDataArray* array = this->ReadAttribute(xmfAttribute, 1, nullptr);
     if (array)
     {
       array->SetName(attrName);

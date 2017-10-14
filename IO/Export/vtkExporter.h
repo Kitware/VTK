@@ -47,7 +47,7 @@ class VTKIOEXPORT_EXPORT vtkExporter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExporter,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Write data to output. Method executes subclasses WriteData() method, as
@@ -102,11 +102,11 @@ public:
   /**
    * Returns the MTime also considering the RenderWindow.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkExporter();
-  ~vtkExporter() VTK_OVERRIDE;
+  ~vtkExporter() override;
 
   vtkRenderWindow *RenderWindow;
   virtual void WriteData() = 0;
@@ -118,8 +118,8 @@ protected:
   void (*EndWriteArgDelete)(void *);
   void *EndWriteArg;
 private:
-  vtkExporter(const vtkExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExporter&) VTK_DELETE_FUNCTION;
+  vtkExporter(const vtkExporter&) = delete;
+  void operator=(const vtkExporter&) = delete;
 };
 
 #endif

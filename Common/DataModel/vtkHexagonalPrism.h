@@ -47,45 +47,45 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHexagonalPrism : public vtkCell3D
 public:
   static vtkHexagonalPrism *New();
   vtkTypeMacro(vtkHexagonalPrism,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
-  void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  void GetEdgePoints(int edgeId, int* &pts) override;
+  void GetFacePoints(int faceId, int* &pts) override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_HEXAGONAL_PRISM;};
-  int GetCellDimension() VTK_OVERRIDE {return 3;};
-  int GetNumberOfEdges() VTK_OVERRIDE {return 18;};
-  int GetNumberOfFaces() VTK_OVERRIDE {return 8;};
-  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
-  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int GetCellType() override {return VTK_HEXAGONAL_PRISM;};
+  int GetCellDimension() override {return 3;};
+  int GetNumberOfEdges() override {return 18;};
+  int GetNumberOfFaces() override {return 8;};
+  vtkCell *GetEdge(int edgeId) override;
+  vtkCell *GetFace(int faceId) override;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
   //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
-  double *GetParametricCoords() VTK_OVERRIDE;
+                   int dim, double *derivs) override;
+  double *GetParametricCoords() override;
 
   /**
    * Return the center of the wedge in parametric coordinates.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
   /**
    * @deprecated Replaced by vtkHexagonalPrism::InterpolateFunctions as of VTK 5.2
@@ -100,11 +100,11 @@ public:
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double weights[12]) VTK_OVERRIDE
+  void InterpolateFunctions(double pcoords[3], double weights[12]) override
   {
     vtkHexagonalPrism::InterpolationFunctions(pcoords,weights);
   }
-  void InterpolateDerivs(double pcoords[3], double derivs[36]) VTK_OVERRIDE
+  void InterpolateDerivs(double pcoords[3], double derivs[36]) override
   {
     vtkHexagonalPrism::InterpolationDerivs(pcoords,derivs);
   }
@@ -128,15 +128,15 @@ public:
 
 protected:
   vtkHexagonalPrism();
-  ~vtkHexagonalPrism() VTK_OVERRIDE;
+  ~vtkHexagonalPrism() override;
 
   vtkLine          *Line;
   vtkQuad          *Quad;
   vtkPolygon       *Polygon;
 
 private:
-  vtkHexagonalPrism(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
+  vtkHexagonalPrism(const vtkHexagonalPrism&) = delete;
+  void operator=(const vtkHexagonalPrism&) = delete;
 };
 
 //----------------------------------------------------------------------------

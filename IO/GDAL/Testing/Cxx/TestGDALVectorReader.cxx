@@ -74,7 +74,7 @@ int TestGDALVectorReader(int argc, char* argv[])
   if (mbds && mbds->GetNumberOfBlocks() > 0)
   {
     vtkPolyData* pd = vtkPolyData::SafeDownCast(mbds->GetBlock(0));
-    vtkCellData* cd = pd ? pd->GetCellData() : NULL;
+    vtkCellData* cd = pd ? pd->GetCellData() : nullptr;
     if (cd)
     {
       if (!cd->GetPedigreeIds())
@@ -103,17 +103,17 @@ int TestGDALVectorReader(int argc, char* argv[])
   mapper->SetScalarModeToUseCellFieldData();
   mapper->SetScalarVisibility(1);
   mapper->UseLookupTableScalarRangeOn();
-  mapper->SetLookupTable(lut.GetPointer());
+  mapper->SetLookupTable(lut);
   mapper->SetColorModeToMapScalars();
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetLineWidth(1.4f);
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   // Create a render window, and an interactor
   vtkNew<vtkRenderWindow> renderWindow;
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
   //Add the actor to the scene
   renderer->SetBackground(1.0, 1.0, 1.0);
@@ -122,7 +122,7 @@ int TestGDALVectorReader(int argc, char* argv[])
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

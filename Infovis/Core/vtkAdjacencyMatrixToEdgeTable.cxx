@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkAdjacencyMatrixToEdgeTable);
 
 vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable() :
   SourceDimension(0),
-  ValueArrayName(0),
+  ValueArrayName(nullptr),
   MinimumCount(0),
   MinimumThreshold(0.5)
 {
@@ -57,7 +57,7 @@ vtkAdjacencyMatrixToEdgeTable::vtkAdjacencyMatrixToEdgeTable() :
 
 vtkAdjacencyMatrixToEdgeTable::~vtkAdjacencyMatrixToEdgeTable()
 {
-  this->SetValueArrayName(0);
+  this->SetValueArrayName(nullptr);
 }
 
 // ----------------------------------------------------------------------

@@ -67,7 +67,7 @@ public:
 //----------------------------------------------------------------------------
 vtkRenderLargeImage::vtkRenderLargeImage()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
   this->Magnification = 3;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -79,7 +79,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
   if (this->Input)
   {
     this->Input->UnRegister(this);
-    this->Input = NULL;
+    this->Input = nullptr;
   }
   delete this->StoredData;
 }
@@ -142,7 +142,7 @@ void vtkRenderLargeImage::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  if (this->Input == NULL )
+  if (this->Input == nullptr )
   {
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
@@ -412,8 +412,8 @@ void vtkRenderLargeImage::Rescale2DActors()
           // Make sure they have no dodgy offsets
           n1->SetCoordinateSystemToDisplay();
           n2->SetCoordinateSystemToDisplay();
-          n1->SetReferenceCoordinate(NULL);
-          n2->SetReferenceCoordinate(NULL);
+          n1->SetReferenceCoordinate(nullptr);
+          n2->SetReferenceCoordinate(nullptr);
           n1->SetValue(d1[0], d1[1]);
           n2->SetValue(d2[0], d2[1]);
           //

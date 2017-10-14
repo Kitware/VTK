@@ -42,7 +42,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
 {
   if (!p->HasData())
   {
-    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    return std::make_pair(static_cast<vtkGeoImageNode*>(nullptr), 0.0);
   }
   double lb[3];
   double ub[3];
@@ -58,10 +58,10 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
       ub[1] >= bounds[3])
   {
     nodeList->SendToFront(p);
-    std::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(NULL), VTK_DOUBLE_MAX);
+    std::pair<vtkGeoImageNode*, double> minDist(static_cast<vtkGeoImageNode *>(nullptr), VTK_DOUBLE_MAX);
 
     vtkGeoImageNode* child = p->GetChild(0);
-    vtkCollection* coll = NULL;
+    vtkCollection* coll = nullptr;
 
     if (!child || !child->HasData() || p->GetStatus() == vtkGeoTreeNode::PROCESSING)
     {
@@ -125,7 +125,7 @@ vtkGeoAlignedImageRepresentationFind(vtkGeoSource* source, vtkGeoImageNode* p, d
   }
   else
   {
-    return std::make_pair(static_cast<vtkGeoImageNode*>(0), 0.0);
+    return std::make_pair(static_cast<vtkGeoImageNode*>(nullptr), 0.0);
   }
 }
 
@@ -134,7 +134,7 @@ vtkCxxSetObjectMacro(vtkGeoAlignedImageRepresentation, GeoSource, vtkGeoSource);
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
 {
-  this->GeoSource = 0;
+  this->GeoSource = nullptr;
   this->Root = vtkGeoImageNode::New();
   this->Cache = vtkGeoTreeNodeCache::New();
   this->SetNumberOfInputPorts(0);
@@ -143,7 +143,7 @@ vtkGeoAlignedImageRepresentation::vtkGeoAlignedImageRepresentation()
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageRepresentation::~vtkGeoAlignedImageRepresentation()
 {
-  this->SetGeoSource(0);
+  this->SetGeoSource(nullptr);
   if (this->Root)
   {
     this->Root->Delete();

@@ -60,7 +60,7 @@ class VTKFILTERSGENERAL_EXPORT vtkLinkEdgels : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkLinkEdgels,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct instance of vtkLinkEdgels with GradientThreshold set to
@@ -94,10 +94,10 @@ public:
 
 protected:
   vtkLinkEdgels();
-  ~vtkLinkEdgels() VTK_OVERRIDE {}
+  ~vtkLinkEdgels() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   void LinkEdgels(int xdim, int ydim,double *image, vtkDataArray *inVectors,
                   vtkCellArray *newLines, vtkPoints *newPts,
@@ -107,8 +107,8 @@ protected:
   double PhiThreshold;
   double LinkThreshold;
 private:
-  vtkLinkEdgels(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
+  vtkLinkEdgels(const vtkLinkEdgels&) = delete;
+  void operator=(const vtkLinkEdgels&) = delete;
 };
 
 #endif

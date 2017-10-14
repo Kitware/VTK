@@ -42,7 +42,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkPassInputTyp
 public:
   static vtkTemporalSnapToTimeStep *New();
   vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum {
     VTK_SNAP_NEAREST=0,
@@ -58,34 +58,34 @@ public:
 
 protected:
   vtkTemporalSnapToTimeStep();
-  ~vtkTemporalSnapToTimeStep() VTK_OVERRIDE;
+  ~vtkTemporalSnapToTimeStep() override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) VTK_OVERRIDE;
+                     vtkInformationVector* outputVector) override;
 
   int RequestUpdateExtent(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   int RequestInformation(vtkInformation* request,
                          vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) VTK_OVERRIDE;
+                         vtkInformationVector* outputVector) override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   std::vector<double> InputTimeValues;
   int HasDiscrete;
   int SnapMode;
 
 private:
-  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
+  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&) = delete;
+  void operator=(const vtkTemporalSnapToTimeStep&) = delete;
 };
 
 #endif

@@ -90,7 +90,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkDistanceWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -98,7 +98,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -118,13 +118,13 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) VTK_OVERRIDE;
+  void SetProcessEvents(int) override;
 
   /**
    * Description:
@@ -158,7 +158,7 @@ public:
 
 protected:
   vtkDistanceWidget();
-  ~vtkDistanceWidget() VTK_OVERRIDE;
+  ~vtkDistanceWidget() override;
 
   // The state of the widget
   int WidgetState;
@@ -169,6 +169,9 @@ protected:
   static void AddPointAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
+  static void AddPointAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
 
   // The positioning handle widgets
   vtkHandleWidget *Point1Widget;
@@ -185,8 +188,8 @@ protected:
   friend class vtkDistanceWidgetCallback;
 
 private:
-  vtkDistanceWidget(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
+  vtkDistanceWidget(const vtkDistanceWidget&) = delete;
+  void operator=(const vtkDistanceWidget&) = delete;
 };
 
 #endif

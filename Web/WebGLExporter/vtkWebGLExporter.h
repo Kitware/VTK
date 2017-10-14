@@ -49,7 +49,7 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 public:
   static vtkWebGLExporter* New();
   vtkTypeMacro(vtkWebGLExporter, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -71,7 +71,7 @@ public:
   static void ComputeMD5(const unsigned char* content, int size, std::string &hash);
 protected:
   vtkWebGLExporter();
-  ~vtkWebGLExporter();
+  ~vtkWebGLExporter() override;
 
   void parseRenderer(vtkRenderer* render, const char* viewId, bool onlyWidget, void* mapTime);
   void generateRendererData(vtkRendererCollection* renderers, const char* viewId);
@@ -95,8 +95,8 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
+  vtkWebGLExporter(const vtkWebGLExporter&) = delete;
+  void operator=(const vtkWebGLExporter&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

@@ -95,7 +95,7 @@ int vtkGraphLayoutFilter::RequestData(
   double diff[3], len;  //The difference vector.
   int i, j, l;  //Iteration variables.
   vtkIdType npts = 0;
-  vtkIdType *cellPts = 0;
+  vtkIdType *cellPts = nullptr;
   double fa, fr, minimum;
 
   vtkDebugMacro(<<"Drawing graph");

@@ -31,14 +31,14 @@ public:
 vtkRTXMLPolyDataReader::vtkRTXMLPolyDataReader():vtkXMLPolyDataReader()
 {
   this->Internal = new vtkRTXMLPolyDataReaderInternals;
-  this->DataLocation = NULL;
+  this->DataLocation = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkRTXMLPolyDataReader::~vtkRTXMLPolyDataReader()
 {
   delete this->Internal;
-  this->SetDataLocation(0);
+  this->SetDataLocation(nullptr);
 }
 
 
@@ -52,7 +52,7 @@ void vtkRTXMLPolyDataReader::SetLocation(const char* dataLocation)
 //----------------------------------------------------------------------------
 void vtkRTXMLPolyDataReader::UpdateToNextFile()
 {
-  if (this->Internal->AvailableDataFileList.size() > 0)
+  if (!this->Internal->AvailableDataFileList.empty())
   {
     // set the Reader to read the new available data file
     char* fullname = const_cast<char*> (
@@ -73,13 +73,13 @@ void vtkRTXMLPolyDataReader::UpdateToNextFile()
 //----------------------------------------------------------------------------
 const char* vtkRTXMLPolyDataReader::GetNextFileName()
 {
-  if (this->Internal->AvailableDataFileList.size() > 0)
+  if (!this->Internal->AvailableDataFileList.empty())
   {
     return this->Internal->AvailableDataFileList[0].c_str();
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -100,7 +100,7 @@ int vtkRTXMLPolyDataReader::NewDataAvailable()
   }
 
   // now the reader should be initialized already
-  if (this->Internal->AvailableDataFileList.size() > 0)
+  if (!this->Internal->AvailableDataFileList.empty())
   {
     return VTK_OK;
   }

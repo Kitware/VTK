@@ -70,7 +70,6 @@ for lod in lods:
       eval("normals" + lod).GetOutputPort())
     eval("demMapper" + lod).SetScalarRange(lo, hi)
     eval("demMapper" + lod).SetLookupTable(lut)
-    eval("demMapper" + lod).ImmediateModeRenderingOn()
     eval("demMapper" + lod).Update()
 
     demActor.AddLODMapper(eval("demMapper" + lod))

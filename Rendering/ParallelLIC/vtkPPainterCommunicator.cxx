@@ -217,7 +217,7 @@ int vtkPPainterCommunicator::GetWorldSize()
 // ----------------------------------------------------------------------------
 vtkMPICommunicatorOpaqueComm *vtkPPainterCommunicator::GetGlobalCommunicator()
 {
-  static vtkMPICommunicatorOpaqueComm *globalComm = NULL;
+  static vtkMPICommunicatorOpaqueComm *globalComm = nullptr;
   if (!globalComm)
   {
     if (vtkPPainterCommunicator::MPIInitialized())

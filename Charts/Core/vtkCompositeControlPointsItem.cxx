@@ -40,9 +40,9 @@ vtkStandardNewMacro(vtkCompositeControlPointsItem);
 vtkCompositeControlPointsItem::vtkCompositeControlPointsItem()
 {
   this->PointsFunction = ColorAndOpacityPointsFunction;
-  this->OpacityFunction = 0;
+  this->OpacityFunction = nullptr;
   this->ColorFill = true;
-  this->OpacityPointHandle = NULL;
+  this->OpacityPointHandle = nullptr;
   this->UseOpacityPointHandles = false;
 }
 
@@ -53,12 +53,12 @@ vtkCompositeControlPointsItem::~vtkCompositeControlPointsItem()
   {
     this->OpacityFunction->RemoveObserver(this->Callback);
     this->OpacityFunction->Delete();
-    this->OpacityFunction = 0;
+    this->OpacityFunction = nullptr;
   }
   if (this->OpacityPointHandle)
   {
     this->OpacityPointHandle->Delete();
-    this->OpacityPointHandle = 0;
+    this->OpacityPointHandle = nullptr;
   }
 }
 

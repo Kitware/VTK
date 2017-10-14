@@ -70,7 +70,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -92,8 +92,8 @@ void MyProcess::Execute()
 
   // READER
 
-  vtkStructuredPointsReader *spr = NULL;
-  vtkStructuredPoints *sp = NULL;
+  vtkStructuredPointsReader *spr = nullptr;
+  vtkStructuredPoints *sp = nullptr;
 
   if (me == 0)
   {
@@ -106,7 +106,7 @@ void MyProcess::Execute()
     spr->SetFileName(fname);
 
     sp = spr->GetOutput();
-    sp->Register(0);
+    sp->Register(nullptr);
 
     spr->Update();
 
@@ -114,7 +114,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
+    if ((sp == nullptr) || (sp->GetNumberOfCells() == 0))
     {
       if (sp)
       {

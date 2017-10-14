@@ -37,26 +37,26 @@ class VTKVIEWSCORE_EXPORT vtkEmptyRepresentation : public vtkDataRepresentation
 public:
   static vtkEmptyRepresentation* New();
   vtkTypeMacro(vtkEmptyRepresentation, vtkDataRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Since this representation has no inputs, override superclass
    * implementation with one that ignores "port" and "conn" and still allows it
    * to have an annotation output.
    */
-  vtkAlgorithmOutput* GetInternalAnnotationOutputPort() VTK_OVERRIDE
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort() override
     { return this->GetInternalAnnotationOutputPort(0); }
-  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port) VTK_OVERRIDE
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port) override
     { return this->GetInternalAnnotationOutputPort(port, 0); }
-  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn) VTK_OVERRIDE;
+  vtkAlgorithmOutput* GetInternalAnnotationOutputPort(int port, int conn) override;
 
 protected:
   vtkEmptyRepresentation();
-  ~vtkEmptyRepresentation() VTK_OVERRIDE;
+  ~vtkEmptyRepresentation() override;
 
 private:
-  vtkEmptyRepresentation(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
+  vtkEmptyRepresentation(const vtkEmptyRepresentation&) = delete;
+  void operator=(const vtkEmptyRepresentation&) = delete;
 
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
 

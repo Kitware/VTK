@@ -57,7 +57,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorit
 public:
   static vtkImageMathematics *New();
   vtkTypeMacro(vtkImageMathematics,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkImageMathematics();
-  ~vtkImageMathematics() VTK_OVERRIDE {}
+  ~vtkImageMathematics() override {}
 
   int Operation;
   double ConstantK;
@@ -225,20 +225,20 @@ protected:
 
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId) VTK_OVERRIDE;
+                                   int extent[6], int threadId) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageMathematics(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
+  vtkImageMathematics(const vtkImageMathematics&) = delete;
+  void operator=(const vtkImageMathematics&) = delete;
 };
 
 #endif

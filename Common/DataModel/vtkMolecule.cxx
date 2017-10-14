@@ -34,8 +34,8 @@ vtkStandardNewMacro(vtkMolecule);
 
 //----------------------------------------------------------------------------
 vtkMolecule::vtkMolecule()
-  : ElectronicData(NULL),
-    Lattice(NULL),
+  : ElectronicData(nullptr),
+    Lattice(nullptr),
     LatticeOrigin(0., 0., 0.)
 {
   this->Initialize();
@@ -55,7 +55,7 @@ void vtkMolecule::Initialize()
   vtkNew<vtkUnsignedShortArray> atomicNums;
   atomicNums->SetNumberOfComponents(1);
   atomicNums->SetName("Atomic Numbers");
-  vertData->SetScalars(atomicNums.GetPointer());
+  vertData->SetScalars(atomicNums);
 
   // Nuclear coordinates
   vtkPoints *points = vtkPoints::New();
@@ -69,12 +69,12 @@ void vtkMolecule::Initialize()
   vtkNew<vtkUnsignedShortArray> bondOrders;
   bondOrders->SetNumberOfComponents(1);
   bondOrders->SetName("Bond Orders");
-  edgeData->SetScalars(bondOrders.GetPointer());
+  edgeData->SetScalars(bondOrders);
 
   this->UpdateBondList();
 
   // Electronic data
-  this->SetElectronicData(NULL);
+  this->SetElectronicData(nullptr);
 
   this->Modified();
 }
@@ -82,7 +82,7 @@ void vtkMolecule::Initialize()
 //----------------------------------------------------------------------------
 vtkMolecule::~vtkMolecule()
 {
-  this->SetElectronicData(NULL);
+  this->SetElectronicData(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
   assert(atomicNums);
 
   vtkIdType id;
-  this->AddVertexInternal(0, &id);
+  this->AddVertexInternal(nullptr, &id);
 
   atomicNums->InsertValue(id, atomicNumber);
   vtkIdType coordID = this->Points->InsertNextPoint(pos.GetData());
@@ -207,7 +207,7 @@ vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
   vtkFloatArray *positions = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData());
-  assert(positions != NULL);
+  assert(positions != nullptr);
   float *data = static_cast<float *>(positions->GetVoidPointer(id * 3));
   return vtkVector3f(data);
 }
@@ -236,7 +236,7 @@ vtkBond vtkMolecule::AppendBond(const vtkIdType atom1, const vtkIdType atom2,
   assert(bondOrders);
 
   vtkEdgeType edgeType;
-  this->AddEdgeInternal(atom1, atom2, false, 0, &edgeType);
+  this->AddEdgeInternal(atom1, atom2, false, nullptr, &edgeType);
   this->SetBondListDirty();
 
   vtkIdType id = edgeType.Id;
@@ -415,7 +415,7 @@ void vtkMolecule::CopyStructureInternal(vtkMolecule *m, bool deep)
     {
       vtkNew<vtkMatrix3x3> newLattice;
       newLattice->DeepCopy(m->Lattice);
-      this->SetLattice(newLattice.Get());
+      this->SetLattice(newLattice);
     }
     else
     {
@@ -452,13 +452,13 @@ void vtkMolecule::UpdateBondList()
 vtkIdTypeArray *vtkMolecule::GetBondList()
 {
   // Create the edge list if it doesn't exist, or is marked as dirty.
-  vtkIdTypeArray *edgeList = this->BondListIsDirty ? NULL : this->GetEdgeList();
+  vtkIdTypeArray *edgeList = this->BondListIsDirty ? nullptr : this->GetEdgeList();
   if (!edgeList)
   {
     this->UpdateBondList();
     edgeList = this->GetEdgeList();
   }
-  assert(edgeList != NULL);
+  assert(edgeList != nullptr);
   return edgeList;
 }
 
@@ -475,7 +475,7 @@ bool vtkMolecule::GetPlaneFromBond(const vtkBond &bond,
 bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
                                    const vtkVector3f &normal, vtkPlane *plane)
 {
-  if (plane == NULL)
+  if (plane == nullptr)
   {
     return false;
   }
@@ -512,13 +512,13 @@ bool vtkMolecule::GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
 //------------------------------------------------------------------------------
 bool vtkMolecule::HasLattice()
 {
-  return this->Lattice.Get() != NULL;
+  return this->Lattice != nullptr;
 }
 
 //------------------------------------------------------------------------------
 void vtkMolecule::ClearLattice()
 {
-  this->SetLattice(NULL);
+  this->SetLattice(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -530,7 +530,7 @@ void vtkMolecule::SetLattice(vtkMatrix3x3 *matrix)
     {
       // If we're clearing a matrix, zero out the origin:
       this->LatticeOrigin = vtkVector3d(0., 0., 0.);
-      this->Lattice = NULL;
+      this->Lattice = nullptr;
       this->Modified();
     }
   }
@@ -545,7 +545,7 @@ void vtkMolecule::SetLattice(vtkMatrix3x3 *matrix)
 void vtkMolecule::SetLattice(const vtkVector3d &a, const vtkVector3d &b,
                              const vtkVector3d &c)
 {
-  if (this->Lattice.Get() == NULL)
+  if (this->Lattice == nullptr)
   {
     this->Lattice.TakeReference(vtkMatrix3x3::New());
     this->Modified();
@@ -572,7 +572,7 @@ void vtkMolecule::SetLattice(const vtkVector3d &a, const vtkVector3d &b,
 //------------------------------------------------------------------------------
 vtkMatrix3x3 *vtkMolecule::GetLattice()
 {
-  return this->Lattice.Get();
+  return this->Lattice;
 }
 
 //------------------------------------------------------------------------------

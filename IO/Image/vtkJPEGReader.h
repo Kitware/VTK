@@ -36,19 +36,19 @@ class VTKIOIMAGE_EXPORT vtkJPEGReader : public vtkImageReader2
 public:
   static vtkJPEGReader *New();
   vtkTypeMacro(vtkJPEGReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Is the given file a JPEG file?
    */
-  int CanReadFile(const char* fname) VTK_OVERRIDE;
+  int CanReadFile(const char* fname) override;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  const char* GetFileExtensions() VTK_OVERRIDE
+  const char* GetFileExtensions() override
   {
       return ".jpeg .jpg";
   }
@@ -56,19 +56,19 @@ public:
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE
+  const char* GetDescriptiveName() override
   {
       return "JPEG";
   }
 protected:
   vtkJPEGReader() {}
-  ~vtkJPEGReader() VTK_OVERRIDE {}
+  ~vtkJPEGReader() override {}
 
-  void ExecuteInformation() VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 private:
-  vtkJPEGReader(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
+  vtkJPEGReader(const vtkJPEGReader&) = delete;
+  void operator=(const vtkJPEGReader&) = delete;
 };
 #endif
 

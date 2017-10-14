@@ -17,6 +17,7 @@
 #include "vtkActor.h"
 #include "vtkBitArray.h"
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataDisplayAttributes.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
@@ -60,8 +61,9 @@ int getNumberOfChildren(vtkDataObjectTree *tree)
 }
 }
 
-// Return NULL if no override is supplied.
-vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper)
+// Return nullptr if no override is supplied.
+vtkAbstractObjectFactoryNewMacro(vtkGlyph3DMapper);
+vtkCxxSetObjectMacro(vtkGlyph3DMapper, BlockAttributes, vtkCompositeDataDisplayAttributes);
 
 // ---------------------------------------------------------------------------
 // Construct object with scaling on, scaling mode is by scalar value,
@@ -72,6 +74,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
 {
   this->SetNumberOfInputPorts(2);
 
+  this->BlockAttributes = nullptr;
   this->Scaling = true;
   this->ScaleMode = SCALE_BY_MAGNITUDE;
   this->ScaleFactor = 1.0;
@@ -90,7 +93,9 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
   this->SetOrientationArray(vtkDataSetAttributes::VECTORS);
   this->SetSelectionIdArray(vtkDataSetAttributes::SCALARS);
 
+#if !defined(VTK_LEGACY_REMOVE)
   this->NestedDisplayLists = true;
+#endif
 
   this->Masking = false;
   this->SelectionColorId=1;
@@ -99,6 +104,7 @@ vtkGlyph3DMapper::vtkGlyph3DMapper()
 // ---------------------------------------------------------------------------
 vtkGlyph3DMapper::~vtkGlyph3DMapper()
 {
+  this->SetBlockAttributes(nullptr);
 }
 
 // ---------------------------------------------------------------------------
@@ -124,7 +130,7 @@ vtkDataArray* vtkGlyph3DMapper::GetMaskArray(vtkDataSet* input)
     return this->GetInputArrayToProcess(vtkGlyph3DMapper::MASK,
       input, association);
   }
-  return 0;
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -150,7 +156,7 @@ vtkDataArray* vtkGlyph3DMapper::GetOrientationArray(vtkDataSet* input)
     return this->GetInputArrayToProcess(vtkGlyph3DMapper::ORIENTATION,
       input, association);
   }
-  return NULL;
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -177,7 +183,7 @@ vtkDataArray* vtkGlyph3DMapper::GetScaleArray(vtkDataSet* input)
       input, association);
     return arr;
   }
-  return 0;
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -203,7 +209,7 @@ vtkDataArray* vtkGlyph3DMapper::GetSourceIndexArray(vtkDataSet* input)
     return this->GetInputArrayToProcess(
       vtkGlyph3DMapper::SOURCE_INDEX, input, association);
   }
-  return 0;
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -230,7 +236,7 @@ vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
           vtkGlyph3DMapper::SELECTIONID, input, association);
     return arr;
   }
-  return NULL;
+  return nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -280,7 +286,7 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
     return;
   }
 
-  vtkTrivialProducer* tp = 0;
+  vtkTrivialProducer* tp = nullptr;
   if (pd)
   {
     tp = vtkTrivialProducer::New();
@@ -295,7 +301,7 @@ void vtkGlyph3DMapper::SetSourceData(int idx, vtkPolyData *pd)
     }
     else
     {
-      this->SetNthInputConnection(1, idx, 0);
+      this->SetNthInputConnection(1, idx, nullptr);
     }
   }
   else if (idx == numConnections && tp)
@@ -330,7 +336,7 @@ vtkPolyData *vtkGlyph3DMapper::GetSource(int idx)
 {
   if ( idx < 0 || idx >= this->GetNumberOfInputConnections(1) )
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(
@@ -343,7 +349,7 @@ vtkDataObjectTree *vtkGlyph3DMapper::GetSourceTableTree()
   return this->UseSourceTableTree
       ? vtkDataObjectTree::SafeDownCast(
           this->GetExecutive()->GetInputData(1, 0))
-      : NULL;
+      : nullptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -353,7 +359,7 @@ vtkPolyData *vtkGlyph3DMapper::GetSource(int idx,
   vtkInformation *info = sourceInfo->GetInformationObject(idx);
   if (!info)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }
@@ -380,7 +386,7 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     if ( this->GetNumberOfInputConnections(1) < 2 )
     {
-      if ( this->GetSource(0) != NULL )
+      if ( this->GetSource(0) != nullptr )
       {
         os << indent << "Source: (" << this->GetSource(0) << ")\n";
       }
@@ -416,8 +422,15 @@ void vtkGlyph3DMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UseSelectionIds: "
      << (this->UseSelectionIds? "On" : "Off") << endl;
   os << indent << "SelectionColorId: " << this->SelectionColorId << endl;
-  os << "Masking: " << (this->Masking? "On" : "Off") << endl;
+  os << indent << "Masking: " << (this->Masking? "On" : "Off") << endl;
+  os << indent << "BlockAttributes: (" << this->BlockAttributes << ")" << endl;
+  if (this->BlockAttributes)
+  {
+    this->BlockAttributes->PrintSelf(os, indent.GetNextIndent());
+  }
+#if !defined(VTK_LEGACY_REMOVE)
   os << "NestedDisplayLists: " << (this->NestedDisplayLists? "On" : "Off") << endl;
+#endif
 }
 
 // ---------------------------------------------------------------------------
@@ -485,7 +498,7 @@ const char *vtkGlyph3DMapper::GetScaleModeAsString(void)
 //-------------------------------------------------------------------------
 bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
 {
-  if (ds == NULL)
+  if (ds == nullptr)
   {
     return false;
   }
@@ -516,7 +529,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     den=1.0;
   }
 
-  if(!this->UseSourceTableTree && this->GetSource(0)==0)
+  if(!this->UseSourceTableTree && this->GetSource(0)==nullptr)
   {
     vtkPolyData *defaultSource = vtkPolyData::New();
     defaultSource->Allocate();
@@ -530,9 +543,9 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
     defaultSource->Delete();
-    defaultSource = NULL;
+    defaultSource = nullptr;
     defaultPoints->Delete();
-    defaultPoints = NULL;
+    defaultPoints = nullptr;
   }
 
   // FB
@@ -632,7 +645,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         // The source table tree may have composite nodes:
         vtkCompositeDataSet *sourceCDS =
             vtkCompositeDataSet::SafeDownCast(sourceDObj);
-        vtkCompositeDataIterator *sourceIter = NULL;
+        vtkCompositeDataIterator *sourceIter = nullptr;
         if (sourceCDS)
         {
           sourceIter = sourceCDS->NewIterator();
@@ -680,7 +693,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
         if (sourceIter)
         {
           sourceIter->Delete();
-          sourceIter = NULL;
+          sourceIter = nullptr;
         }
 
         // Move to the next node in the source table tree.
@@ -697,7 +710,7 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     {
       vtkPolyData *source = this->GetSource(index);
       // Make sure we're not indexing into empty glyph
-      if(source!=0)
+      if(source!=nullptr)
       {
         double bounds[6];
         source->GetBounds(bounds);// can be invalid/uninitialized
@@ -830,3 +843,42 @@ void vtkGlyph3DMapper::SetInputData(vtkDataObject* input)
 {
   this->SetInputDataInternal(0, input);
 }
+
+#if !defined(VTK_LEGACY_REMOVE)
+//---------------------------------------------------------------------------
+void vtkGlyph3DMapper::SetNestedDisplayLists(bool val)
+{
+  VTK_LEGACY_BODY(vtkGlyph3DMapper::SetNestedDisplayLists, "VTK 8.1");
+  if (this->NestedDisplayLists != val)
+  {
+    this->NestedDisplayLists = val;
+    this->Modified();
+  }
+}
+
+bool vtkGlyph3DMapper::GetNestedDisplayLists()
+{
+  VTK_LEGACY_BODY(vtkGlyph3DMapper::GetNestedDisplayLists, "VTK 8.1");
+  return this->NestedDisplayLists;
+}
+
+void vtkGlyph3DMapper::NestedDisplayListsOn()
+{
+  VTK_LEGACY_BODY(vtkGlyph3DMapper::NestedDisplayListsOn, "VTK 8.1.");
+  if (this->NestedDisplayLists != true)
+  {
+    this->NestedDisplayLists = true;
+    this->Modified();
+  }
+}
+
+void vtkGlyph3DMapper::NestedDisplayListsOff()
+{
+  VTK_LEGACY_BODY(vtkGlyph3DMapper::NestedDisplayListsOn, "VTK 8.1.");
+  if (this->NestedDisplayLists != false)
+  {
+    this->NestedDisplayLists = false;
+    this->Modified();
+  }
+}
+#endif

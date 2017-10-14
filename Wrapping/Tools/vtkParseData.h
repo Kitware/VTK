@@ -179,6 +179,8 @@ struct _FunctionInfo
   int            NumberOfParameters;
   ValueInfo    **Parameters;
   ValueInfo     *ReturnValue; /* NULL for constructors and destructors */
+  int            NumberOfPreconds;
+  const char   **Preconds;    /* preconditions */
   const char    *Macro;       /* the macro that defined this function */
   const char    *SizeHint;    /* hint the size e.g. for operator[] */
   int            IsOperator;

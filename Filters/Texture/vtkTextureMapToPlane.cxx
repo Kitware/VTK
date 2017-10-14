@@ -309,8 +309,6 @@ void vtkTextureMapToPlane::ComputeNormal(vtkDataSet *output)
   this->Normal[0] = vtkMath::Determinant3x3 (v,c2,c3) / det;
   this->Normal[1] = vtkMath::Determinant3x3 (c1,v,c3) / det;
   this->Normal[2] = -1.0; // because of the formulation
-
-  return;
 }
 
 void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)

@@ -129,7 +129,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIICache : public vtkObject
 public:
   static vtkExodusIICache* New();
   vtkTypeMacro(vtkExodusIICache,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /// Empty the cache
   void Clear();
@@ -152,16 +152,16 @@ public:
   /// Insert an entry into the cache (this can remove other cache entries to make space).
   void Insert( vtkExodusIICacheKey& key, vtkDataArray* value );
 
-  /** Determine whether a cache entry exists. If it does, return it -- otherwise return NULL.
+  /** Determine whether a cache entry exists. If it does, return it -- otherwise return nullptr.
     * If a cache entry exists, it is marked as most recently used.
     */
-  vtkDataArray*& Find( vtkExodusIICacheKey );
+  vtkDataArray*& Find( const vtkExodusIICacheKey& );
 
   /** Invalidate a cache entry (drop it from the cache) if the key exists.
     * This does nothing if the cache entry does not exist.
     * Returns 1 if the cache entry existed prior to this call and 0 otherwise.
     */
-  int Invalidate( vtkExodusIICacheKey key );
+  int Invalidate( const vtkExodusIICacheKey& key );
 
   /** Invalidate all cache entries matching a specified pattern, dropping all matches from the cache.
     * Any nonzero entry in the \a pattern forces a comparison between the corresponding value of \a key.
@@ -172,14 +172,14 @@ public:
     * Returns the number of cache entries dropped.
     * It is not an error to specify an empty range -- 0 will be returned if one is given.
     */
-  int Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey pattern );
+  int Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern );
 
 protected:
   /// Default constructor
   vtkExodusIICache();
 
   /// Destructor.
-  ~vtkExodusIICache() VTK_OVERRIDE;
+  ~vtkExodusIICache() override;
 
 
   /// Avoid (some) FP problems
@@ -203,7 +203,7 @@ protected:
   vtkExodusIICacheLRU LRU;
 
 private:
-  vtkExodusIICache( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
+  vtkExodusIICache( const vtkExodusIICache& ) = delete;
+  void operator = ( const vtkExodusIICache& ) = delete;
 };
 #endif // vtkExodusIICache_h

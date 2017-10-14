@@ -49,9 +49,9 @@ vtkStandardNewMacro(vtkOBBTree);
 
 vtkOBBNode::vtkOBBNode()
 {
-  this->Cells = NULL;
-  this->Parent = NULL;
-  this->Kids = NULL;
+  this->Cells = nullptr;
+  this->Parent = nullptr;
+  this->Kids = nullptr;
 }
 
 vtkOBBNode::~vtkOBBNode()
@@ -67,14 +67,14 @@ vtkOBBNode::~vtkOBBNode()
 // 25 cells per octant.
 vtkOBBTree::vtkOBBTree()
 {
-  this->DataSet = NULL;
+  this->DataSet = nullptr;
   this->Level = 4;
   this->MaxLevel = 12;
   this->Automatic = 1;
   this->Tolerance = 0.01;
-  this->Tree = NULL;
-  this->PointsList = NULL;
-  this->InsertedPoints = NULL;
+  this->Tree = nullptr;
+  this->PointsList = nullptr;
+  this->InsertedPoints = nullptr;
   this->OBBCount = this->Level = 0;
 }
 
@@ -89,13 +89,13 @@ void vtkOBBTree::FreeSearchStructure()
   {
     this->DeleteTree(this->Tree);
     delete this->Tree;
-    this->Tree = NULL;
+    this->Tree = nullptr;
   }
 }
 
 void vtkOBBTree::DeleteTree(vtkOBBNode *OBBptr)
 {
-  if ( OBBptr->Kids != NULL )
+  if ( OBBptr->Kids != nullptr )
   {
     this->DeleteTree(OBBptr->Kids[0]);
     this->DeleteTree(OBBptr->Kids[1]);
@@ -222,7 +222,7 @@ void vtkOBBTree::ComputeOBB(vtkDataSet *input, double corner[3], double max[3],
 
   vtkDebugMacro(<<"Computing OBB");
 
-  if ( input == NULL || (numPts = input->GetNumberOfPoints()) < 1 ||
+  if ( input == nullptr || (numPts = input->GetNumberOfPoints()) < 1 ||
       (input->GetNumberOfCells()) < 1 )
   {
     vtkErrorMacro(<<"Can't compute OBB - no data available!");
@@ -269,7 +269,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
   vtkIdType numCells, i, j, cellId, ptId, pId, qId, rId;
   int k, type;
   vtkIdType numPts = 0;
-  vtkIdType *ptIds = 0;
+  vtkIdType *ptIds = nullptr;
   double p[3], q[3], r[3], mean[3], xp[3], *v[3], v0[3], v1[3], v2[3];
   double *a[3], a0[3], a1[3], a2[3];
   double tMin[3], tMax[3], closest[3], t;
@@ -441,7 +441,7 @@ void vtkOBBTree::ComputeOBB(vtkIdList *cells, double corner[3], double max[3],
 // The function return value is 1 if an intersection was found.
 
 static inline
-int vtkOBBTreeLineIntersectsTriangle(double p1[3], double p2[3],
+int vtkOBBTreeLineIntersectsTriangle(const double p1[3], const double p2[3],
                                      double pt1[3], double pt2[3], double pt3[3],
                                      double tolerance, double point[3],
                                      double &t, int &sense)
@@ -642,7 +642,7 @@ int vtkOBBTree::InsideOrOutside(const double point[3])
       }
       if (dotProd >= this->Tolerance + 1e-6)
       {
-        return this->IntersectWithLine(point, x, NULL, NULL);
+        return this->IntersectWithLine(point, x, nullptr, nullptr);
       }
       // otherwise go on to next triangle
     }
@@ -661,7 +661,7 @@ int vtkOBBTree::InsideOrOutside(const double point[3])
 int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
                                   vtkPoints *points, vtkIdList *cellIds)
 {
-  if (this->DataSet == NULL)
+  if (this->DataSet == nullptr)
   {
     if (points)
     {
@@ -710,9 +710,9 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
     vtkOBBNode *node = OBBstack[--depth];
 
     // check for intersection with node
-    if (this->LineIntersectsNode(node, (double *)p1, (double *)p2))
+    if (this->LineIntersectsNode(node, p1, p2))
     {
-      if (node->Kids == NULL)
+      if (node->Kids == nullptr)
       { // then this is a leaf node...get Cells
         cells = node->Cells;
         vtkIdType numCells = cells->GetNumberOfIds();
@@ -741,7 +741,7 @@ int vtkOBBTree::IntersectWithLine(const double p1[3], const double p2[3],
             this->DataSet->GetPoint(pt2Id, pt2);
             this->DataSet->GetPoint(pt3Id, pt3);
 
-            if (vtkOBBTreeLineIntersectsTriangle((double *)p1, (double *)p2,
+            if (vtkOBBTreeLineIntersectsTriangle(p1, p2,
                                                  pt1, pt2, pt3,
                                                  this->Tolerance, point,
                                                  distance, sense) <= 0)
@@ -919,7 +919,7 @@ int vtkOBBTree::IntersectWithLine(double a0[3], double a1[3], double tol,
     node = OBBstack[depth];
     if ( this->LineIntersectsNode( node, a0, a1 ) )
     {
-      if ( node->Kids == NULL )
+      if ( node->Kids == nullptr )
       { // then this is a leaf node...get Cells
         cells = node->Cells;
         for ( ii=0; ii<cells->GetNumberOfIds(); ii++ )
@@ -981,7 +981,7 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
   int i;
   vtkIdType nCells;
 
-  if ( this->Cells != NULL )
+  if ( this->Cells != nullptr )
   {
     nCells = this->Cells->GetNumberOfIds();
   }
@@ -1027,7 +1027,7 @@ void vtkOBBNode::DebugPrintTree( int level, double *leaf_vol,
       *maxCells = nCells;
     }
   }
-  if ( this->Kids != NULL )
+  if ( this->Kids != nullptr )
   {
     this->Kids[0]->DebugPrintTree( level+1, leaf_vol, minCells, maxCells );
     this->Kids[1]->DebugPrintTree( level+1, leaf_vol, minCells, maxCells );
@@ -1045,7 +1045,7 @@ void vtkOBBTree::BuildLocator()
   vtkIdList *cellList;
 
   vtkDebugMacro(<<"Building OBB tree");
-  if ( (this->Tree != NULL) && (this->BuildTime > this->MTime)
+  if ( (this->Tree != nullptr) && (this->BuildTime > this->MTime)
        && (this->BuildTime > this->DataSet->GetMTime()) )
   {
     return;
@@ -1053,7 +1053,7 @@ void vtkOBBTree::BuildLocator()
 
   numPts = this->DataSet->GetNumberOfPoints();
   numCells = this->DataSet->GetNumberOfCells();
-  if ( this->DataSet == NULL || numPts < 1 || numCells < 1 )
+  if ( this->DataSet == nullptr || numPts < 1 || numCells < 1 )
   {
     vtkErrorMacro(<<"Can't build OBB tree - no data available!");
     return;
@@ -1252,7 +1252,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       LHnode->Parent = OBBptr;
       RHnode->Parent = OBBptr;
 
-      cells->Delete(); cells = NULL; //don't need to keep anymore
+      cells->Delete(); cells = nullptr; //don't need to keep anymore
       this->BuildTree(LHlist, LHnode, level+1);
       this->BuildTree(RHlist, RHnode, level+1);
     }
@@ -1289,7 +1289,7 @@ void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
   vtkPoints *pts;
   vtkCellArray *polys;
 
-  if ( this->Tree == NULL )
+  if ( this->Tree == nullptr )
   {
     vtkErrorMacro(<<"No tree to generate representation from");
     return;
@@ -1312,7 +1312,7 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
                                   vtkPoints *pts, vtkCellArray *polys)
 
 {
-  if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == NULL) )
+  if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == nullptr) )
   {
     double x[3];
     vtkIdType cubeIds[8];
@@ -1386,7 +1386,7 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
     polys->InsertNextCell(4,ptIds);
   }
 
-  else if ( (level < repLevel || repLevel < 0) && OBBptr->Kids != NULL )
+  else if ( (level < repLevel || repLevel < 0) && OBBptr->Kids != nullptr )
   {
     this->GeneratePolygons(OBBptr->Kids[0],level+1,repLevel,pts,polys);
     this->GeneratePolygons(OBBptr->Kids[1],level+1,repLevel,pts,polys);
@@ -1406,7 +1406,7 @@ int vtkOBBTree::DisjointOBBNodes( vtkOBBNode *nodeA,
 
   eps = this->Tolerance;
   pA = nodeA;
-  if ( XformBtoA != NULL )
+  if ( XformBtoA != nullptr )
   { // Here we assume that XformBtoA is an orthogonal matrix
     pB = &nodeBxformed;
     in[0] = nodeB->Corner[0]; in[1] = nodeB->Corner[1] ;
@@ -1596,7 +1596,7 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
 
   eps = this->Tolerance;
   pA = nodeA;
-  if ( XformBtoA != NULL )
+  if ( XformBtoA != nullptr )
   { // Here we assume that XformBtoA is an orthogonal matrix
     pB[0] = p0Xformed; pB[1] = p1Xformed; pB[2] = p2Xformed;
     for ( ii=0; ii<3; ii++ )
@@ -1735,7 +1735,7 @@ int vtkOBBTree::TriangleIntersectsNode( vtkOBBNode *nodeA,
 // pass all the way through the node, but at least some portion of the line
 // must lie within the node.
 int vtkOBBTree::LineIntersectsNode( vtkOBBNode *pA,
-                                    double b0[3], double b1[3] )
+                                    const double b0[3], const double b1[3] )
 {
   double rangeAmin, rangeAmax, rangeBmin, rangeBmax, dotB;
   double eps;
@@ -1812,9 +1812,9 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
     nodeB = OBBstackB[depth];
     if ( !this->DisjointOBBNodes( nodeA, nodeB, XformBtoA ) )
     {
-      if ( nodeA->Kids == NULL )
+      if ( nodeA->Kids == nullptr )
       {
-        if ( nodeB->Kids == NULL )
+        if ( nodeB->Kids == nullptr )
         { // then this is a pair of intersecting leaf nodes to process
           returnValue = (*function)( nodeA, nodeB, XformBtoA, data_arg );
           if ( returnValue >= 0 )
@@ -1837,7 +1837,7 @@ int vtkOBBTree::IntersectWithOBBTree( vtkOBBTree *OBBTreeB,
       }
       else
       {
-        if ( nodeB->Kids == NULL )
+        if ( nodeB->Kids == nullptr )
         { // B is a leaf, but A goes deeper.
           OBBstackB[depth] = nodeB;
           OBBstackA[depth] = nodeA->Kids[0];

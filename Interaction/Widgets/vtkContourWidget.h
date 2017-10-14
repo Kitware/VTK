@@ -99,7 +99,7 @@
  *        widget state is:
  *            Start: Do nothing.
  *            Define: Remove all points and line segments of the contour.
- *                 Essentially calls Initialize(NULL)
+ *                 Essentially calls Initialize(nullptr)
  *            Manipulate: Do nothing.
  * </pre>
  *
@@ -143,7 +143,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkContourWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -151,7 +151,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -170,7 +170,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Convenient method to close the contour loop.
@@ -238,9 +238,9 @@ public:
    * set to manipulate.
    * State: Define = 0, Manipulate = 1.
    */
-  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = NULL );
+  virtual void Initialize( vtkPolyData * poly, int state = 1, vtkIdList *idList = nullptr );
   virtual void Initialize()
-    {this->Initialize(NULL);}
+    {this->Initialize(nullptr);}
 
   // The state of the widget
 
@@ -248,7 +248,7 @@ public:
 
 protected:
   vtkContourWidget();
-  ~vtkContourWidget() VTK_OVERRIDE;
+  ~vtkContourWidget() override;
 
   int WidgetState;
   int CurrentHandle;
@@ -273,8 +273,8 @@ protected:
   void AddNode();
 
 private:
-  vtkContourWidget(const vtkContourWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourWidget&) VTK_DELETE_FUNCTION;
+  vtkContourWidget(const vtkContourWidget&) = delete;
+  void operator=(const vtkContourWidget&) = delete;
 };
 
 #endif

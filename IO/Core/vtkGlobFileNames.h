@@ -59,7 +59,7 @@ public:
   /**
    * Print directory to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Reset the glob by clearing the list of output filenames.
@@ -122,7 +122,7 @@ protected:
   //@}
 
   vtkGlobFileNames();
-  ~vtkGlobFileNames() VTK_OVERRIDE;
+  ~vtkGlobFileNames() override;
 
 private:
   char* Directory;          // Directory for search.
@@ -131,8 +131,8 @@ private:
   vtkStringArray *FileNames;    // VTK array of files
 
 private:
-  vtkGlobFileNames(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
+  vtkGlobFileNames(const vtkGlobFileNames&) = delete;
+  void operator=(const vtkGlobFileNames&) = delete;
 };
 
 #endif

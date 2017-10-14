@@ -26,7 +26,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include <math.h>
+#include <cmath>
 
 int TestMapVectorsToColors(int argc, char *argv[])
 {
@@ -43,7 +43,7 @@ int TestMapVectorsToColors(int argc, char *argv[])
   for (int ncomp = 1; ncomp <= 4; ncomp++)
   {
     inputs[ncomp-1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    vtkUnsignedCharArray *arr = inputs[ncomp-1].GetPointer();
+    vtkUnsignedCharArray *arr = inputs[ncomp-1];
 
     arr->SetNumberOfComponents(ncomp);
     arr->SetNumberOfTuples(6400);
@@ -75,7 +75,7 @@ int TestMapVectorsToColors(int argc, char *argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->SetSize(640, 640);
 
@@ -137,21 +137,21 @@ int TestMapVectorsToColors(int argc, char *argv[])
     vtkNew<vtkImageMapper> mapper;
     mapper->SetColorWindow(255.0);
     mapper->SetColorLevel(127.5);
-    mapper->SetInputData(image.GetPointer());
+    mapper->SetInputData(image);
 
     vtkNew<vtkActor2D> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
 
     vtkNew<vtkRenderer> ren;
-    ren->AddViewProp(actor.GetPointer());
+    ren->AddViewProp(actor);
     ren->SetViewport(pos[0]/640.0, pos[1]/640.0,
                     (pos[0] + 80)/640.0, (pos[1] + 80)/640.0);
 
-    renWin->AddRenderer(ren.GetPointer());
+    renWin->AddRenderer(ren);
   }
 
   renWin->Render();
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

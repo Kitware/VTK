@@ -54,7 +54,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkTreeHeatmapItem : public vtkContextItem
 public:
   static vtkTreeHeatmapItem *New();
   vtkTypeMacro(vtkTreeHeatmapItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Set the tree that this item draws.  Note that this tree's vertex data
@@ -190,22 +190,22 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Propagate any double click onto the dendrogram to check if any
    * subtrees should be collapsed or expanded.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
 
 protected:
   vtkTreeHeatmapItem();
-  ~vtkTreeHeatmapItem() VTK_OVERRIDE;
+  ~vtkTreeHeatmapItem() override;
 
   /**
    * Paints the tree & associated table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Mark heatmap rows as hidden when a subtree is collapsed.
@@ -223,8 +223,8 @@ protected:
   int Orientation;
 
 private:
-  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
+  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) = delete;
+  void operator=(const vtkTreeHeatmapItem&) = delete;
 
   vtkMTimeType TreeHeatmapBuildTime;
 };

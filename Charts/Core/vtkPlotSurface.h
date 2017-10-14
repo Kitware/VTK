@@ -37,18 +37,18 @@ class VTKCHARTSCORE_EXPORT vtkPlotSurface : public vtkPlot3D
 {
 public:
   vtkTypeMacro(vtkPlotSurface, vtkPlot3D);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkPlotSurface * New();
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Set the input to the surface plot.
    */
-  void SetInputData(vtkTable *input) VTK_OVERRIDE;
+  void SetInputData(vtkTable *input) override;
 
   //@{
   /**
@@ -58,13 +58,13 @@ public:
    */
   void SetInputData(vtkTable *input, const vtkStdString &xName,
                             const vtkStdString &yName,
-                            const vtkStdString &zName) VTK_OVERRIDE;
+                            const vtkStdString &zName) override;
   void SetInputData(vtkTable *input, const vtkStdString &xName,
                             const vtkStdString &yName,
                             const vtkStdString &zName,
-                            const vtkStdString &colorName) VTK_OVERRIDE;
+                            const vtkStdString &colorName) override;
   void SetInputData(vtkTable *input, vtkIdType xColumn,
-                            vtkIdType yColumn, vtkIdType zColumn) VTK_OVERRIDE;
+                            vtkIdType yColumn, vtkIdType zColumn) override;
   //@}
 
   /**
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkPlotSurface();
-  ~vtkPlotSurface() VTK_OVERRIDE;
+  ~vtkPlotSurface() override;
 
   /**
    * Generate a surface (for OpenGL) from our list of points.
@@ -164,8 +164,8 @@ protected:
   bool DataHasBeenRescaled;
 
 private:
-  vtkPlotSurface(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
+  vtkPlotSurface(const vtkPlotSurface &) = delete;
+  void operator=(const vtkPlotSurface &) = delete;
 
 };
 

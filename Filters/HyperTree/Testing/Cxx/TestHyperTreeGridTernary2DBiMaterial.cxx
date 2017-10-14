@@ -14,7 +14,8 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -23,6 +24,7 @@
 #include "vtkCellData.h"
 #include "vtkDataSetMapper.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -40,6 +42,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid1->SetGridSize( 2, 1, 1 );
   htGrid1->SetGridScale( 1., 1., 1. );
   htGrid1->SetDimension( 2 );
+  htGrid1->SetOrientation( 2 ); // in xy plane
   htGrid1->SetBranchFactor( 3 );
   htGrid1->UseMaterialMaskOn();
   htGrid1->SetDescriptor( ".R|.R..R..R.|......... ......... ........." );
@@ -50,6 +53,7 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
   htGrid2->SetGridSize( 2, 1, 1 );
   htGrid2->SetGridScale( 1., 1., 1. );
   htGrid2->SetDimension( 2 );
+  htGrid2->SetOrientation( 2 ); // in xy plane
   htGrid2->SetBranchFactor( 3 );
   htGrid2->UseMaterialMaskOn();
   htGrid2->SetDescriptor( "R.|.R..R..R.|......... ......... ........." );
@@ -68,9 +72,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 
   // Mappers
   geometry1->Update();
-  vtkPolyData* pd1 = geometry1->GetOutput();
+  vtkPolyData* pd1 = geometry1->GetPolyDataOutput();
   geometry2->Update();
-  vtkPolyData* pd2 = geometry2->GetOutput();
+  vtkPolyData* pd2 = geometry2->GetPolyDataOutput();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
@@ -81,9 +85,9 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( 0., 0., 0. );
   actor2->GetProperty()->SetLineWidth( 2 );
@@ -109,25 +113,25 @@ int TestHyperTreeGridTernary2DBiMaterial( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 600, 200 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 20 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 20 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

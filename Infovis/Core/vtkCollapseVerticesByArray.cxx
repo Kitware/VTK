@@ -49,11 +49,11 @@ public:
 vtkCollapseVerticesByArray::vtkCollapseVerticesByArray() :
   vtkGraphAlgorithm(),
   AllowSelfLoops(false),
-  VertexArray(0),
+  VertexArray(nullptr),
   CountEdgesCollapsed(0),
-  EdgesCollapsedArray(0),
+  EdgesCollapsedArray(nullptr),
   CountVerticesCollapsed(0),
-  VerticesCollapsedArray(0)
+  VerticesCollapsedArray(nullptr)
 {
   // Setting default names.
   this->SetVerticesCollapsedArray("VerticesCollapsedCountArray");
@@ -79,15 +79,15 @@ void vtkCollapseVerticesByArray::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "AllowSelfLoops: "  << this->AllowSelfLoops << endl;
   os << indent << "VertexArray: "     <<
-    (this->VertexArray ? this->VertexArray : "NULL") << endl;
+    (this->VertexArray ? this->VertexArray : "nullptr") << endl;
 
   os << indent << "CountEdgesCollapsed: "  << this->CountEdgesCollapsed << endl;
   os << indent << "EdgesCollapsedArray: "
-    << (this->EdgesCollapsedArray ? this->EdgesCollapsedArray : "NULL") << endl;
+    << (this->EdgesCollapsedArray ? this->EdgesCollapsedArray : "nullptr") << endl;
 
   os << indent << "CountVerticesCollapsed: "  << this->CountVerticesCollapsed << endl;
   os << indent << "VerticesCollapsedArray: "
-    << (this->VerticesCollapsedArray ? this->VerticesCollapsedArray : "NULL") << endl;
+    << (this->VerticesCollapsedArray ? this->VerticesCollapsedArray : "nullptr") << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
 
   if(!inInfo)
   {
-    vtkErrorMacro("Error: NULL input vtkInformation");
+    vtkErrorMacro("Error: nullptr input vtkInformation");
     return 0;
   }
 
@@ -120,21 +120,21 @@ int vtkCollapseVerticesByArray::RequestData(vtkInformation* vtkNotUsed(request),
 
   if(!inObj)
   {
-    vtkErrorMacro(<< "Error: NULL vtkDataObject");
+    vtkErrorMacro(<< "Error: nullptr vtkDataObject");
     return 0;
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(!outInfo)
   {
-    vtkErrorMacro("Error: NULL output vtkInformation");
+    vtkErrorMacro("Error: nullptr output vtkInformation");
     return 0;
   }
 
   vtkDataObject* outObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!outObj)
   {
-    vtkErrorMacro("Error: NULL output vtkDataObject");
+    vtkErrorMacro("Error: nullptr output vtkDataObject");
     return 0;
   }
 
@@ -166,12 +166,12 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 {
   if(!inGraph)
   {
-    return 0;
+    return nullptr;
   }
 
   if(!this->VertexArray)
   {
-    return 0;
+    return nullptr;
   }
 
   typedef vtkSmartPointer<vtkMutableDirectedGraph>
@@ -201,7 +201,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   if(!inVtxDsAttrs)
   {
     vtkErrorMacro("Error: No vertex data found on the graph.")
-    return 0;
+    return nullptr;
   }
 
   // Find the vertex array of interest.
@@ -212,11 +212,11 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   if(!inVertexAOI)
   {
     vtkErrorMacro("Error: Could not find the key vertex array.")
-    return 0;
+    return nullptr;
   }
 
   // Optional.
-  vtkIntArrayRefPtr countEdgesCollapsedArray(0);
+  vtkIntArrayRefPtr countEdgesCollapsedArray(nullptr);
   if(this->CountEdgesCollapsed)
   {
     countEdgesCollapsedArray = vtkIntArrayRefPtr::New();
@@ -226,7 +226,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   }
 
   // Optional.
-  vtkIntArrayRefPtr countVerticesCollapsedArray(0);
+  vtkIntArrayRefPtr countVerticesCollapsedArray(nullptr);
   if(this->CountVerticesCollapsed)
   {
     countVerticesCollapsedArray = vtkIntArrayRefPtr::New();
@@ -265,8 +265,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
   {
     if(!inVertexDataArraysAO[i]->GetName())
     {
-      vtkErrorMacro("Error: Name on the array is NULL or not set.")
-      return 0;
+      vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+      return nullptr;
     }
 
     outVertexDataArraysAO.push_back(outGraph->GetVertexData()
@@ -324,8 +324,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     {
       if(!inEdgeDataArraysOI[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is NULL or not set.")
-        return 0;
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        return nullptr;
       }
 
       vtkDataArray* outDataArray = vtkArrayDownCast<vtkDataArray>(
@@ -345,8 +345,8 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
     {
       if(!inEdgeDataArraysAO[i]->GetName())
       {
-        vtkErrorMacro("Error: Name on the array is NULL or not set.")
-        return 0;
+        vtkErrorMacro("Error: Name on the array is nullptr or not set.")
+        return nullptr;
       }
 
       vtkAbstractArray* outAbsArray = outGraph->GetEdgeData()->GetAbstractArray(
@@ -512,7 +512,7 @@ vtkGraph* vtkCollapseVerticesByArray::Create(vtkGraph* inGraph)
 
   } // while(elItr->HasNext())
 
-  outGraph->Register(0);
+  outGraph->Register(nullptr);
   return outGraph;
 }
 

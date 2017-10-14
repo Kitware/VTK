@@ -45,10 +45,10 @@ public:
 
   //@{
   /**
-   * Standar VTK class methods.
+   * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoWidget,vtkBorderWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -62,15 +62,15 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkLogoWidget();
-  ~vtkLogoWidget() VTK_OVERRIDE;
+  ~vtkLogoWidget() override;
 
 private:
-  vtkLogoWidget(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
+  vtkLogoWidget(const vtkLogoWidget&) = delete;
+  void operator=(const vtkLogoWidget&) = delete;
 };
 
 #endif

@@ -33,7 +33,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
   vtkTypeMacro(vtkScaledTextActor,vtkTextActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
@@ -44,8 +44,8 @@ public:
 protected:
    vtkScaledTextActor();
 private:
-  vtkScaledTextActor(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
+  vtkScaledTextActor(const vtkScaledTextActor&) = delete;
+  void operator=(const vtkScaledTextActor&) = delete;
 };
 
 

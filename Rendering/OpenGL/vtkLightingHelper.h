@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkLightingHelper : public vtkObject
 public:
   static vtkLightingHelper* New();
   vtkTypeMacro(vtkLightingHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum {
     VTK_MAX_LIGHTS=8
@@ -65,14 +65,14 @@ public:
 
 protected:
   vtkLightingHelper();
-  ~vtkLightingHelper() VTK_OVERRIDE;
+  ~vtkLightingHelper() override;
 
   void SetShader(vtkShaderProgram2 *shader);
   vtkShaderProgram2 *Shader;
 
 private:
-  vtkLightingHelper(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
+  vtkLightingHelper(const vtkLightingHelper&) = delete;
+  void operator=(const vtkLightingHelper&) = delete;
 
 };
 

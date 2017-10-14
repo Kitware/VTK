@@ -50,13 +50,13 @@ vtkCxxSetObjectMacro(vtkCollectGraph,SocketController, vtkSocketController);
 vtkCollectGraph::vtkCollectGraph()
 {
   this->PassThrough = 0;
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
 
   // Default vertex id array.
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_VERTICES, "id");
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->OutputType = USE_INPUT_TYPE;
@@ -65,8 +65,8 @@ vtkCollectGraph::vtkCollectGraph()
 //----------------------------------------------------------------------------
 vtkCollectGraph::~vtkCollectGraph()
 {
-  this->SetController(0);
-  this->SetSocketController(0);
+  this->SetController(nullptr);
+  this->SetSocketController(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -100,7 +100,7 @@ int vtkCollectGraph::RequestDataObject(
     return Superclass::RequestDataObject(request, inputVector, outputVector);
   }
 
-  vtkGraph *output = 0;
+  vtkGraph *output = nullptr;
   if (this->OutputType == DIRECTED_OUTPUT)
   {
     output = vtkDirectedGraph::New();
@@ -140,13 +140,13 @@ int vtkCollectGraph::RequestData(
   int numProcs, myId;
   int idx;
 
-  if (this->Controller == NULL && this->SocketController == NULL)
+  if (this->Controller == nullptr && this->SocketController == nullptr)
   { // Running as a single process.
     output->ShallowCopy(input);
     return 1;
   }
 
-  if (this->Controller == NULL && this->SocketController != NULL)
+  if (this->Controller == nullptr && this->SocketController != nullptr)
   { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
     {
@@ -156,7 +156,7 @@ int vtkCollectGraph::RequestData(
         vtkErrorMacro(<<"OutputType must be set to DIRECTED_OUTPUT or UNDIRECTED_OUTPUT on the client.");
         return 0;
       }
-      vtkGraph *g = 0;
+      vtkGraph *g = nullptr;
       if (this->OutputType == DIRECTED_OUTPUT)
       {
         g = vtkDirectedGraph::New();
@@ -168,7 +168,7 @@ int vtkCollectGraph::RequestData(
       this->SocketController->Receive(g, 1, 121767);
       output->ShallowCopy(g);
       g->Delete();
-      g = NULL;
+      g = nullptr;
       return 1;
     }
     // If not collected, output will be empty from initialization.
@@ -193,9 +193,9 @@ int vtkCollectGraph::RequestData(
     vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
       vtkSmartPointer<vtkMutableUndirectedGraph>::New();
 
-    bool directed = (vtkDirectedGraph::SafeDownCast(input) != 0);
+    bool directed = (vtkDirectedGraph::SafeDownCast(input) != nullptr);
 
-    vtkGraph *builder = 0;
+    vtkGraph *builder = nullptr;
     if (directed)
     {
       builder = dirBuilder;
@@ -212,7 +212,7 @@ int vtkCollectGraph::RequestData(
     // Get the name of the ID array.
     vtkAbstractArray* ids = this->GetInputAbstractArrayToProcess(0, inputVector);
 
-    if (ids == NULL)
+    if (ids == nullptr)
     {
       vtkErrorMacro("The ID array is undefined.");
       return 0;
@@ -346,7 +346,7 @@ int vtkCollectGraph::RequestData(
       while (edges->HasNext())
       {
         vtkEdgeType e = edges->Next();
-        if (edgeGhostLevelsArr == NULL || edgeGhostLevelsArr->GetValue(e.Id) == 0)
+        if (edgeGhostLevelsArr == nullptr || edgeGhostLevelsArr->GetValue(e.Id) == 0)
         {
           if (directed)
           {

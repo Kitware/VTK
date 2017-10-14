@@ -56,7 +56,7 @@ vtkImageOrthoPlanes::vtkImageOrthoPlanes()
 
   for (int j = 0; j < this->NumberOfPlanes; j++)
   {
-    this->Planes[j] = 0;
+    this->Planes[j] = nullptr;
     this->ObserverTags[j] = 0;
   }
 
@@ -620,7 +620,7 @@ void vtkImageOrthoPlanes::SetTransformMatrix(
     {
       vtkImagePlaneWidget *planeWidget = this->Planes[j];
 
-      if (planeWidget != 0 && planeWidget != currentImagePlane)
+      if (planeWidget != nullptr && planeWidget != currentImagePlane)
       {
         planeWidget->SetOrigin(origin);
         planeWidget->SetPoint1(point1);
@@ -651,7 +651,7 @@ void vtkImageOrthoPlanes::SetPlane(
     }
     for (k = this->NumberOfPlanes; k < n; k++)
     {
-      widgets[k] = 0;
+      widgets[k] = nullptr;
       tags[k] = 0;
     }
 
@@ -673,7 +673,7 @@ void vtkImageOrthoPlanes::SetPlane(
 
     this->Planes[j] = currentImagePlane;
 
-    if (currentImagePlane == 0)
+    if (currentImagePlane == nullptr)
     {
       return;
     }
@@ -718,7 +718,7 @@ vtkImagePlaneWidget* vtkImageOrthoPlanes::GetPlane(int i)
   if (i < 0 || i >= this->NumberOfPlanes)
   {
      vtkErrorMacro("requested invalid plane index");
-     return 0;
+     return nullptr;
   }
   else
   {

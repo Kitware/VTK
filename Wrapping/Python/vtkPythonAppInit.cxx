@@ -44,7 +44,7 @@ class vtkMPICleanup {
 public:
   vtkMPICleanup()
   {
-      this->Controller = 0;
+      this->Controller = nullptr;
   }
   void Initialize(int* argc, char ***argv)
   {
@@ -59,8 +59,8 @@ public:
     {
       this->Controller->Finalize();
       this->Controller->Delete();
-      this->Controller = NULL;
-      vtkMultiProcessController::SetGlobalController(NULL);
+      this->Controller = nullptr;
+      vtkMultiProcessController::SetGlobalController(nullptr);
     }
   }
   ~vtkMPICleanup()
@@ -164,11 +164,11 @@ int main(int argc, char **argv)
 #ifdef VTK_PY3K
   wchar_t *argv0;
 #if PY_VERSION_HEX >= 0x03050000
-  argv0 = Py_DecodeLocale(av0.c_str(), NULL);
+  argv0 = Py_DecodeLocale(av0.c_str(), nullptr);
 #elif defined(__APPLE__)
   argv0 = _Py_DecodeUTF8_surrogateescape(av0.data(), av0.length());
 #else
-  argv0 = _Py_char2wchar(av0.c_str(), NULL);
+  argv0 = _Py_char2wchar(av0.c_str(), nullptr);
 #endif
   if (argv0 == 0)
   {
@@ -223,11 +223,11 @@ int main(int argc, char **argv)
   for (int i = 0; i < argc; i++)
   {
 #if PY_VERSION_HEX >= 0x03050000
-    argvWide[i] = Py_DecodeLocale(argv[i], NULL);
+    argvWide[i] = Py_DecodeLocale(argv[i], nullptr);
 #elif defined(__APPLE__)
     argvWide[i] = _Py_DecodeUTF8_surrogateescape(argv[i], strlen(argv[i]));
 #else
-    argvWide[i] = _Py_char2wchar(argv[i], NULL);
+    argvWide[i] = _Py_char2wchar(argv[i], nullptr);
 #endif
     argvWide2[i] = argvWide[i];
     if (argvWide[i] == 0)
@@ -313,7 +313,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
   const char* build_dirs[] = {
     "/../Wrapping/Python",
     "/../VTK/Wrapping/Python",
-    0
+    nullptr
   };
 
   int found_vtk = 0;
@@ -354,7 +354,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
       "/lib/python/vtk", // UNIX --home
       "/Lib/site-packages/vtk", "/Lib/vtk", // Windows
       "/site-packages/vtk", "/vtk", // Windows
-      0
+      nullptr
     };
     std::string prefix = vtksys::SystemTools::GetFilenamePath(self_dir);
     for(const char** dir = inst_dirs; *dir; ++dir)
@@ -403,7 +403,7 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
   // Try to put the VTK python module location in sys.path.
   const char* site_build_dirs[] = {
     "/../lib/site-packages",
-    0
+    nullptr
   };
 
   int found_site = 0;

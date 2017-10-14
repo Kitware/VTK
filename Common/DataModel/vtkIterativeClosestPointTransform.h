@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkIterativeClosestPointTransform : public vtkLi
 public:
   static vtkIterativeClosestPointTransform *New();
   vtkTypeMacro(vtkIterativeClosestPointTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -167,12 +167,12 @@ public:
    * Invert the transformation.  This is done by switching the
    * source and target.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
 
@@ -197,17 +197,17 @@ protected:
   /**
    * Get the MTime of this object also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   vtkIterativeClosestPointTransform();
-  ~vtkIterativeClosestPointTransform() VTK_OVERRIDE;
+  ~vtkIterativeClosestPointTransform() override;
 
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalUpdate() override;
 
   /**
    * This method does no type checking, use DeepCopy instead.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   vtkDataSet* Source;
   vtkDataSet* Target;
@@ -223,8 +223,8 @@ protected:
   double MeanDistance;
   vtkLandmarkTransform *LandmarkTransform;
 private:
-  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIterativeClosestPointTransform&) VTK_DELETE_FUNCTION;
+  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&) = delete;
+  void operator=(const vtkIterativeClosestPointTransform&) = delete;
 };
 
 #endif

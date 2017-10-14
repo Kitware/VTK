@@ -123,13 +123,13 @@ public:
   typedef unsigned char YY_CHAR;
   typedef int yy_state_type;
 private:
-  vtkVRMLYaccData(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
-  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
+  vtkVRMLYaccData(const vtkVRMLYaccData&) = delete;
+  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) = delete;
 public:
   // Parser variables and functions:
   // Currently-being-define proto.  Prototypes may be nested, so a stack
   // is needed:
-  vtkVRMLVectorType<VrmlNodeType*> *CurrentProtoStack;// = NULL;
+  vtkVRMLVectorType<VrmlNodeType*> *CurrentProtoStack;// = nullptr;
 
   // Some helper routines defined below:
   void beginProto(const char *);
@@ -330,7 +330,7 @@ public:
   void pushNameSpace();
   void popNameSpace();
 
-  // Find a node type, given its name.  Returns NULL if type is not defined.
+  // Find a node type, given its name.  Returns nullptr if type is not defined.
   const VrmlNodeType *find(const char *nm);
 
 };
@@ -342,7 +342,7 @@ public:
 
 VrmlNodeType::VrmlNodeType(const char *nm)
 {
-  assert(nm != NULL);
+  assert(nm != nullptr);
   name = static_cast<char*>(
     vtkVRMLAllocator::AllocateMemory((strlen(nm)+1)*sizeof(char)));
   strcpy(name, nm);
@@ -455,13 +455,13 @@ VrmlNodeType::has(const vtkVRMLVectorType<NameTypeRec*> &recs, const char *nodeN
 //----------------------------------------------------------------------------
 vtkVRMLYaccData::vtkVRMLYaccData()
 {
-  yy_current_buffer = NULL;
-  yy_c_buf_p = NULL;
+  yy_current_buffer = nullptr;
+  yy_c_buf_p = nullptr;
   yy_init = 1;
   yy_start = 0;
   yy_flex_debug = 1;
-  yyin = NULL;
-  yyout = NULL;
+  yyin = nullptr;
+  yyout = nullptr;
   currentLineNumber = 1;
   expectToken = 0;
   parsing_mf = 0;
@@ -470,11 +470,11 @@ vtkVRMLYaccData::vtkVRMLYaccData()
   memyyInput_i = 0;
   memyyInput_j = 0;
   creatingDEF = 0;
-  theyyInput = NULL;
+  theyyInput = nullptr;
 
-  typeList = NULL;
-  useList = NULL;
-  currentField = NULL;
+  typeList = nullptr;
+  useList = nullptr;
+  currentField = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -483,14 +483,14 @@ vtkVRMLYaccData::~vtkVRMLYaccData()
   if (yy_current_buffer)
   {
     yy_delete_buffer(yy_current_buffer);
-    yy_current_buffer = NULL;
+    yy_current_buffer = nullptr;
   }
 }
 
 
 void vtkVRMLYaccData::addToNameSpace(VrmlNodeType *_type)
 {
-  if (find(_type->getName()) != NULL)
+  if (find(_type->getName()) != nullptr)
   {
     cerr << "PROTO " << _type->getName() << " already defined\n";
     return;
@@ -500,22 +500,22 @@ void vtkVRMLYaccData::addToNameSpace(VrmlNodeType *_type)
 
 //
 // One list is used to store all the node types.  Nested namespaces are
-// separated by NULL elements.
+// separated by nullptr elements.
 // This isn't terribly efficient, but it is nice and simple.
 //
 void vtkVRMLYaccData::pushNameSpace()
 {
-  *typeList += (VrmlNodeType *) NULL;
+  *typeList += (VrmlNodeType *) nullptr;
 }
 
 void vtkVRMLYaccData::popNameSpace()
 {
-  // Remove everything up to and including the next NULL marker:
+  // Remove everything up to and including the next nullptr marker:
   for (int i = 0;i < typeList->Count(); i++)
   {
     VrmlNodeType *nodeType = typeList->Pop();
 
-    if (nodeType == NULL)
+    if (nodeType == nullptr)
     {
       break;
     }
@@ -536,12 +536,12 @@ const VrmlNodeType* vtkVRMLYaccData::find(const char *_name)
   for (int i = 0;i < typeList->Count(); i++)
   {
     const VrmlNodeType *nt = (*typeList)[i];
-    if (nt != NULL && strcmp(nt->getName(),_name) == 0)
+    if (nt != nullptr && strcmp(nt->getName(),_name) == 0)
     {
       return nt;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 
@@ -1681,7 +1681,7 @@ int vtkVRMLYaccData::fieldType(const char *type)
 void vtkVRMLYaccData::inScript()
 {
   VrmlNodeType::FieldRec *fr = currentField->Top();
-  if (fr->nodeType == NULL ||
+  if (fr->nodeType == nullptr ||
       strcmp(fr->nodeType->getName(), "Script") != 0)
   {
     yyerror("interface declaration outside of Script or prototype");
@@ -4482,7 +4482,7 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           // .. add to array...
           float num[2];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
           // equivalent to: sscanf(yytext, "%f %f", &num[0], &num[1]);
           yylval.vec2f->InsertNextTuple(num);
         }
@@ -4499,8 +4499,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           float num[3];
           yylval.vec3f = self->PointsNew();
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFVEC3F; }
@@ -4509,8 +4509,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertNextPoint(num);
           //return MFVEC3F;
@@ -4538,8 +4538,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
           float num[3];
           yylval.vec3f = self->PointsNew();
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           //sscanf(yytext, "%f %f %f", &num[0], &num[1], &num[2]);
           yylval.vec3f->InsertPoint(0, num);
           return SFCOLOR; }
@@ -4548,8 +4548,8 @@ int vtkVRMLYaccData::yylex ( vtkVRMLImporter* self )
         { if (parsing_mf) { /*  .. add to array... */
           float num[3];
           num[0] = atof(strtok(yytext, " "));
-          num[1] = atof(strtok(NULL, " "));
-          num[2] = atof(strtok(NULL, " "));
+          num[1] = atof(strtok(nullptr, " "));
+          num[2] = atof(strtok(nullptr, " "));
           yylval.vec3f->InsertNextPoint(num);
           }
           else {
@@ -5058,7 +5058,7 @@ vtkVRMLYaccData::YY_BUFFER_STATE vtkVRMLYaccData::yy_create_buffer( FILE *file, 
 void vtkVRMLYaccData::yy_delete_buffer( YY_BUFFER_STATE b )
 {
   if ( b == yy_current_buffer )
-    yy_current_buffer = (YY_BUFFER_STATE) 0;
+    yy_current_buffer = (YY_BUFFER_STATE) nullptr;
 
   yy_flex_free( (void *) b->yy_ch_buf );
   yy_flex_free( (void *) b );

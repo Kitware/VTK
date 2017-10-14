@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
   public:
     static vtkNonOverlappingAMRAlgorithm* New();
     vtkTypeMacro(vtkNonOverlappingAMRAlgorithm,vtkUniformGridAMRAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -47,19 +47,19 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
 
   protected:
     vtkNonOverlappingAMRAlgorithm();
-    ~vtkNonOverlappingAMRAlgorithm() VTK_OVERRIDE;
+    ~vtkNonOverlappingAMRAlgorithm() override;
 
     //@{
     /**
      * See algorithm for more info.
      */
-    int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillOutputPortInformation(int port, vtkInformation* info) override;
+    int FillInputPortInformation(int port, vtkInformation* info) override;
     //@}
 
   private:
-    vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkNonOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
+    vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) = delete;
+    void operator=(const vtkNonOverlappingAMRAlgorithm&) = delete;
 };
 
 #endif /* VTKNONOVERLAPPINGAMRALGORITHM_H_ */

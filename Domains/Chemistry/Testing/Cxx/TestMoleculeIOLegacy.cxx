@@ -73,7 +73,7 @@ int TestMoleculeIOLegacy(int, char *[])
 
   // Test passing the molecule through the IO reader/writer:
   vtkNew<vtkGenericDataObjectWriter> writer;
-  writer->SetInputData(mol.Get());
+  writer->SetInputData(mol);
   writer->WriteToOutputStringOn();
   writer->Write();
 
@@ -87,9 +87,9 @@ int TestMoleculeIOLegacy(int, char *[])
   molmapper->UseBallAndStickSettings();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
   actor->GetProperty()->SetAmbient(0.0);
-  actor->GetProperty()->SetDiffuse(0.0);
+  actor->GetProperty()->SetDiffuse(1.0);
   actor->GetProperty()->SetSpecular(0.0);
   actor->GetProperty()->SetSpecularPower(40);
 
@@ -99,11 +99,11 @@ int TestMoleculeIOLegacy(int, char *[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);

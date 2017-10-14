@@ -89,40 +89,22 @@ public:
     NumberOfMinificationModes
   };
 
-  // Internal depth format
+  // depth/color format
   enum
   {
     Native=0, // will try to match with the depth buffer format.
+    Fixed8,
     Fixed16,
     Fixed24,
     Fixed32,
+    Float16,
     Float32,
     NumberOfDepthFormats
   };
 
-  // Internal alpha format
-  enum
-  {
-    alpha=0,
-    alpha8,
-    alpha16,
-    alpha16f,
-    alpha32f,
-    NumberOfAlphaFormats
-  };
-
-  // Depth mode formats
-  enum
-  {
-    DepthAlpha=0,
-    DepthLuminance,
-    DepthIntensity,
-    NumberOfDepthModeFormats
-  };
-
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -178,12 +160,11 @@ public:
 
   //@{
   /**
-   * Bind UnBind The texture must have been created using Create().
+   * Bind the texture, must have been created using Create().
    * A side affect is that tex parameters are sent.
    * RenderWindow must be set before calling this.
    */
   void Bind();
-  void UnBind();
   //@}
 
   /**
@@ -271,14 +252,6 @@ public:
    */
   bool Create1DFromRaw(unsigned int width, int numComps,
                        int dataType, void *data);
-  /**
-   * Create a 1D alpha texture using a raw pointer.
-   * This is a blocking call. If you can, use PBO instead.
-   */
-  bool CreateAlphaFromRaw(unsigned int width,
-                          int internalFormat,
-                          int rawType,
-                          void *raw);
 #endif
 
   /**
@@ -757,9 +730,22 @@ public:
   // data values are lost
   void Resize(unsigned int width, unsigned int height);
 
+  //@{
+  /**
+   * Is this texture using the sRGB color space. If you are using a
+   * sRGB framebuffer or window then you probably also want to be
+   * using sRGB color textures for proper handling of gamma and
+   * associated color mixing.
+   */
+  vtkGetMacro(UseSRGBColorSpace, bool);
+  vtkSetMacro(UseSRGBColorSpace, bool);
+  vtkBooleanMacro(UseSRGBColorSpace, bool);
+  //@}
+
+
 protected:
   vtkTextureObject();
-  ~vtkTextureObject() VTK_OVERRIDE;
+  ~vtkTextureObject() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
@@ -783,6 +769,7 @@ protected:
   unsigned int Height;
   unsigned int Depth;
   unsigned int Samples;
+  bool UseSRGBColorSpace;
 
   unsigned int Target; // GLenum
   unsigned int Format; // GLenum
@@ -826,8 +813,8 @@ protected:
   vtkOpenGLBufferObject *BufferObject;
 
 private:
-  vtkTextureObject(const vtkTextureObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureObject&) VTK_DELETE_FUNCTION;
+  vtkTextureObject(const vtkTextureObject&) = delete;
+  void operator=(const vtkTextureObject&) = delete;
 };
 
 #endif

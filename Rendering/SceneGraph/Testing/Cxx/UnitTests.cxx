@@ -41,7 +41,7 @@ class vtkMyActorNode : public vtkActorNode
 public:
   static vtkMyActorNode* New();
   vtkTypeMacro(vtkMyActorNode, vtkActorNode);
-  virtual void Render(bool prepass) {
+  virtual void Render(bool prepass) override {
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
@@ -60,7 +60,7 @@ class vtkMyCameraNode : public vtkCameraNode
 public:
   static vtkMyCameraNode* New();
   vtkTypeMacro(vtkMyCameraNode, vtkCameraNode);
-  virtual void Render(bool prepass) {
+  virtual void Render(bool prepass) override {
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
@@ -79,7 +79,7 @@ class vtkMyLightNode : public vtkLightNode
 public:
   static vtkMyLightNode* New();
   vtkTypeMacro(vtkMyLightNode, vtkLightNode);
-  virtual void Render( bool prepass) {
+  virtual void Render( bool prepass) override {
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
@@ -98,7 +98,7 @@ class vtkMyRendererNode : public vtkRendererNode
 public:
   static vtkMyRendererNode* New();
   vtkTypeMacro(vtkMyRendererNode, vtkRendererNode);
-  virtual void Render(bool prepass) {
+  virtual void Render(bool prepass) override {
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
@@ -117,7 +117,7 @@ class vtkMyWindowNode : public vtkWindowNode
 public:
   static vtkMyWindowNode* New();
   vtkTypeMacro(vtkMyWindowNode, vtkWindowNode);
-  virtual void Render(bool prepass) {
+  virtual void Render(bool prepass) override {
     if (prepass)
     {
       cerr << "Render " << this << " " << this->GetClassName() << endl;
@@ -187,10 +187,10 @@ int UnitTests( int vtkNotUsed(argc), char *vtkNotUsed(argv)[] )
   wvn->Delete();
   vnc->Delete();
 
-  vtkViewNode *vn = NULL;
+  vtkViewNode *vn = nullptr;
   vtkViewNodeFactory *vnf = vtkViewNodeFactory::New();
   cerr << "CREATE pre override" << endl;
-  vnc = NULL;
+  vnc = nullptr;
   vn = vnf->CreateNode(vnc);
   if (vn)
   {

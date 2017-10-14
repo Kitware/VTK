@@ -271,7 +271,7 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
     {
       // Calling AddArray will replace the old array since the names match.
       // Are they all ints, and did I test anything?
-      if (!this->ForceDouble && allInteger && (numTuples*numComps))
+      if (!this->ForceDouble && allInteger && numTuples && numComps)
       {
         fieldData->AddArray(intArray);
       }

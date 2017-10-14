@@ -34,7 +34,7 @@ public:
   static vtkCachedStreamingDemandDrivenPipeline* New();
   vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline,
                        vtkStreamingDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -47,14 +47,14 @@ public:
 
 protected:
   vtkCachedStreamingDemandDrivenPipeline();
-  ~vtkCachedStreamingDemandDrivenPipeline() VTK_OVERRIDE;
+  ~vtkCachedStreamingDemandDrivenPipeline() override;
 
   int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector* outInfoVec) override;
   int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                          vtkInformationVector* outInfoVec) override;
 
   int CacheSize;
 
@@ -62,8 +62,8 @@ protected:
   vtkMTimeType *Times;
 
 private:
-  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) = delete;
+  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) = delete;
 };
 
 #endif

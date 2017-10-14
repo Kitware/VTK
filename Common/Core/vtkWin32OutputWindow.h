@@ -37,7 +37,7 @@ class VTKCOMMONCORE_EXPORT vtkWin32OutputWindow : public vtkOutputWindow
 public:
 // Methods from vtkObject
   vtkTypeMacro(vtkWin32OutputWindow,vtkOutputWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a vtkWin32OutputWindow.
@@ -70,8 +70,8 @@ protected:
 private:
   bool SendToStdErr;
 
-  vtkWin32OutputWindow(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
+  vtkWin32OutputWindow(const vtkWin32OutputWindow&) = delete;
+  void operator=(const vtkWin32OutputWindow&) = delete;
 };
 
 

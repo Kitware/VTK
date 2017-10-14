@@ -45,10 +45,10 @@ vtkCxxSetObjectMacro(vtkSTLReader, Locator, vtkIncrementalPointLocator);
 // Construct object with merging set to true.
 vtkSTLReader::vtkSTLReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Merging = 1;
   this->ScalarTags = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -56,8 +56,8 @@ vtkSTLReader::vtkSTLReader()
 //------------------------------------------------------------------------------
 vtkSTLReader::~vtkSTLReader()
 {
-  this->SetFileName(0);
-  this->SetLocator(0);
+  this->SetFileName(nullptr);
+  this->SetLocator(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ int vtkSTLReader::RequestData(
 
   // Initialize
   FILE *fp = fopen(this->FileName, "r");
-  if (fp == NULL)
+  if (fp == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -110,7 +110,7 @@ int vtkSTLReader::RequestData(
 
   vtkPoints *newPts = vtkPoints::New();
   vtkCellArray *newPolys = vtkCellArray::New();
-  vtkFloatArray *newScalars = 0;
+  vtkFloatArray *newScalars = nullptr;
 
   // Depending upon file type, read differently
   if (this->GetSTLFileType(this->FileName) == VTK_ASCII)
@@ -133,7 +133,7 @@ int vtkSTLReader::RequestData(
     // Close file and reopen in binary mode.
     fclose(fp);
     fp = fopen(this->FileName, "rb");
-    if (fp == NULL)
+    if (fp == nullptr)
     {
       vtkErrorMacro(<< "File " << this->FileName << " not found");
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
@@ -170,14 +170,14 @@ int vtkSTLReader::RequestData(
     }
 
     vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
-    if (this->Locator == NULL)
+    if (this->Locator == nullptr)
     {
       locator.TakeReference(this->NewDefaultLocator());
     }
     locator->InitPointInsertion(mergedPts, newPts->GetBounds());
 
     int nextCell = 0;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     vtkIdType npts;
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);)
     {

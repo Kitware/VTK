@@ -46,16 +46,16 @@
 // the uses to set their own ImageViewer window.
 static Tk_ConfigSpec vtkTkImageViewerWidgetConfigSpecs[] = {
     {TK_CONFIG_PIXELS, (char *) "-height", (char *) "height", (char *) "Height",
-     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, NULL},
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Height), 0, nullptr},
 
     {TK_CONFIG_PIXELS, (char *) "-width", (char *) "width", (char *) "Width",
-     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, NULL},
+     (char *) "400", Tk_Offset(struct vtkTkImageViewerWidget, Width), 0, nullptr},
 
     {TK_CONFIG_STRING, (char *) "-iv", (char *) "iv", (char *) "IV",
-     (char *) "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, NULL},
+     (char *) "", Tk_Offset(struct vtkTkImageViewerWidget, IV), 0, nullptr},
 
-    {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
-     (char *) NULL, 0, 0, NULL}
+    {TK_CONFIG_END, (char *) nullptr, (char *) nullptr, (char *) nullptr,
+     (char *) nullptr, 0, 0, nullptr}
 };
 
 
@@ -128,7 +128,7 @@ extern "C"
     if (argc < 2)
     {
       Tcl_AppendResult(interp, "wrong # args: should be \"",
-                       argv[0], " ?options?\"", NULL);
+                       argv[0], " ?options?\"", nullptr);
       return TCL_ERROR;
     }
 
@@ -141,7 +141,7 @@ extern "C"
         strncmp(argv[1], "Render", VTK_MAX(1, strlen(argv[1]))) == 0)
     {
       // make sure we have a window
-      if (self->ImageViewer == NULL)
+      if (self->ImageViewer == nullptr)
       {
         vtkTkImageViewerWidget_MakeImageViewer(self);
       }
@@ -155,7 +155,7 @@ extern "C"
         /* Return list of all configuration parameters */
         result = Tk_ConfigureInfo(interp, self->TkWin,
                                   vtkTkImageViewerWidgetConfigSpecs,
-                                  (char *)self, (char *)NULL, 0);
+                                  (char *)self, (char *)nullptr, 0);
       }
       else if (argc == 3)
       {
@@ -192,7 +192,7 @@ extern "C"
     {
       // Unknown method name.
       Tcl_AppendResult(interp, "vtkTkImageViewerWidget: Unknown option: ", argv[1],
-                       "\n", "Try: configure or GetImageViewer\n", NULL);
+                       "\n", "Try: configure or GetImageViewer\n", nullptr);
       result = TCL_ERROR;
     }
 
@@ -235,15 +235,15 @@ extern "C"
       Tcl_ResetResult(interp);
       Tcl_AppendResult(interp,
                        "wrong # args: should be \"pathName read filename\"",
-                       NULL);
+                       nullptr);
       return(TCL_ERROR);
     }
 
     // Create the window.
     name = argv[1];
     // Possibly X dependent
-    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) NULL);
-    if (tkwin == NULL)
+    tkwin = Tk_CreateWindowFromPath(interp, main, name, (char *) nullptr);
+    if (tkwin == nullptr)
     {
       return TCL_ERROR;
     }
@@ -259,13 +259,13 @@ extern "C"
     self->Interp = interp;
     self->Width = 0;
     self->Height = 0;
-    self->ImageViewer = NULL;
-    self->IV = NULL;
+    self->ImageViewer = nullptr;
+    self->IV = nullptr;
 
     // ...
     // Create command event handler
     Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkImageViewerWidget_Widget,
-                      (ClientData)self, (void (*)(ClientData)) NULL);
+                      (ClientData)self, (void (*)(ClientData)) nullptr);
     Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
                           vtkTkImageViewerWidget_EventProc, (ClientData)self);
 
@@ -288,7 +288,7 @@ extern "C"
       return TCL_ERROR;
     }
 
-    Tcl_AppendResult(interp, Tk_PathName(tkwin), NULL);
+    Tcl_AppendResult(interp, Tk_PathName(tkwin), nullptr);
     return TCL_OK;
   }
 }
@@ -333,9 +333,9 @@ extern "C"
         return;
       }
       // Squash the ImageViewer's WindowID
-      self->ImageViewer->SetWindowId ( (void*)NULL );
-      self->ImageViewer->UnRegister(NULL);
-      self->ImageViewer = NULL;
+      self->ImageViewer->SetWindowId ( (void*)nullptr );
+      self->ImageViewer->UnRegister(nullptr);
+      self->ImageViewer = nullptr;
       ckfree (self->IV);
     }
     ckfree((char *) memPtr);
@@ -379,7 +379,7 @@ extern "C"
             {
               // On Cocoa, compute coordinates relative to toplevel
               for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
-                   (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+                   (nullptr != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
                    curPtr = curPtr->parentPtr)
               {
                 x += Tk_X(curPtr);
@@ -404,7 +404,7 @@ extern "C"
         int x = Tk_X(self->TkWin);
         int y = Tk_Y(self->TkWin);
         for (TkWindow *curPtr = ((TkWindow *)self->TkWin)->parentPtr;
-             (NULL != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
+             (nullptr != curPtr) && !(curPtr->flags & TK_TOP_LEVEL);
              curPtr = curPtr->parentPtr)
         {
           x += Tk_X(curPtr);
@@ -458,7 +458,7 @@ int Vtktkimageviewerwidget_Init(Tcl_Interp *interp)
   {
     // Register the commands for this package.
     Tcl_CreateCommand(interp, (char*)"vtkTkImageViewerWidget",
-                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
+                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), nullptr);
 
     // Report that the package is provided.
     return Tcl_PkgProvide(interp, (char*)"Vtktkimageviewerwidget",
@@ -511,7 +511,7 @@ LRESULT APIENTRY vtkTkImageViewerWidgetProc(HWND hWnd, UINT message,
             WINDOWPOS *pos = (WINDOWPOS *) lParam;
             TkWindow *winPtr = (TkWindow *) Tk_HWNDToWindow(pos->hwnd);
 
-            if (winPtr == NULL) {
+            if (winPtr == nullptr) {
               return 0;
             }
 
@@ -630,14 +630,14 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
     }
     if (imgViewer != self->ImageViewer)
     {
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->UnRegister(NULL);
+        self->ImageViewer->UnRegister(nullptr);
       }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->Register(NULL);
+        self->ImageViewer->Register(nullptr);
       }
     }
   }
@@ -647,7 +647,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
 
   // Set the parent correctly
   // Possibly X dependent
-  if ((winPtr->parentPtr != NULL) && !(winPtr->flags & TK_TOP_LEVEL))
+  if ((winPtr->parentPtr != nullptr) && !(winPtr->flags & TK_TOP_LEVEL))
   {
     if (winPtr->parentPtr->window == None)
     {
@@ -694,7 +694,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
   winPtr->dirtyAtts = 0;
   winPtr->dirtyChanges = 0;
 #ifdef TK_USE_INPUT_METHODS
-  winPtr->inputContext = NULL;
+  winPtr->inputContext = nullptr;
 #endif // TK_USE_INPUT_METHODS
 
   if (!(winPtr->flags & TK_TOP_LEVEL))
@@ -703,7 +703,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget 
      * If this window has a different colormap than its parent, add
      * the window to the WM_COLORMAP_WINDOWS property for its top-level.
      */
-    if ((winPtr->parentPtr != NULL) &&
+    if ((winPtr->parentPtr != nullptr) &&
               (winPtr->atts.colormap != winPtr->parentPtr->atts.colormap))
     {
       TkWmAddToColormapWindows(winPtr);
@@ -758,7 +758,7 @@ static int
 vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 {
   Display *dpy;
-  vtkImageViewer *imgViewer = NULL;
+  vtkImageViewer *imgViewer = nullptr;
 
   if (self->ImageViewer)
   {
@@ -800,14 +800,14 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     }
     if (imgViewer != self->ImageViewer)
     {
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->UnRegister(NULL);
+        self->ImageViewer->UnRegister(nullptr);
       }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->Register(NULL);
+        self->ImageViewer->Register(nullptr);
       }
     }
   }
@@ -886,14 +886,14 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
     }
     if (imgViewer != self->ImageViewer)
     {
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->UnRegister(NULL);
+        self->ImageViewer->UnRegister(nullptr);
       }
       self->ImageViewer = (vtkImageViewer *)(imgViewer);
-      if (self->ImageViewer != NULL)
+      if (self->ImageViewer != nullptr)
       {
-        self->ImageViewer->Register(NULL);
+        self->ImageViewer->Register(nullptr);
       }
     }
   }
@@ -902,7 +902,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   // get the window
   imgWindow = static_cast<vtkXOpenGLRenderWindow *>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( imgWindow->GetWindowId() != (Window)NULL )
+  if ( imgWindow->GetWindowId() != (Window)nullptr )
   {
     return TCL_ERROR;
   }
@@ -923,7 +923,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
 
   // Set the parent correctly
   // Possibly X dependent
-  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin)))
+  if ((Tk_Parent(self->TkWin) == nullptr) || (Tk_IsTopLevel(self->TkWin)))
   {
     imgWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
   }

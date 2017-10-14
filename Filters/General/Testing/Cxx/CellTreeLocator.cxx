@@ -74,7 +74,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     destinPnt[2] = sourcePnt[2] - rayLen * normalVec[2];
 
     if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
-                                    intersect, paraCoord, sub_id, cell_id, cell.GetPointer()) )
+                                    intersect, paraCoord, sub_id, cell_id, cell) )
     {
       numIntersected ++;
     }
@@ -93,7 +93,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
     std::cout << "Passed: a total of 9802 ray-sphere intersections detected." << std::endl;
   }
 
-  sphereNormals = NULL;
+  sphereNormals = nullptr;
 
   return EXIT_SUCCESS;
 }

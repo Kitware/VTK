@@ -58,19 +58,11 @@ public:
    * first factory returns the object no other factories are asked.
    * isAbstract is no longer used. This method calls
    * vtkObjectBase::InitializeObjectBase() on the instance when the
-   * return value is non-NULL.
+   * return value is non-nullptr.
    */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname,
                                    bool isAbstract = false);
-
-  /**
-   * No longer used. Call vtkObjectBase::InitializeObjectBase() from the
-   * New() implementation instead.
-   * @deprecated because this method relies on taking an arbitrary string,
-   * which may not match the GetClassName() string (especially for templates).
-   */
-  VTK_LEGACY(static void ConstructInstance(const char* vtkclassname));
 
   /**
    * Create all possible instances of the named vtk object.
@@ -138,7 +130,7 @@ public:
   /**
    * Print ObjectFactory to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * All sub-classes of vtkObjectFactory should must return the version of
@@ -237,7 +229,7 @@ protected:
   virtual vtkObject* CreateObject(const char* vtkclassname );
 
   vtkObjectFactory();
-  ~vtkObjectFactory() VTK_OVERRIDE;
+  ~vtkObjectFactory() override;
 
   struct OverrideInformation
   {
@@ -283,8 +275,8 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
+  vtkObjectFactory(const vtkObjectFactory&) = delete;
+  void operator=(const vtkObjectFactory&) = delete;
 };
 
 // Implementation detail for Schwartz counter idiom.
@@ -295,8 +287,8 @@ public:
   ~vtkObjectFactoryRegistryCleanup();
 
 private:
-  vtkObjectFactoryRegistryCleanup(const vtkObjectFactoryRegistryCleanup& other) VTK_DELETE_FUNCTION;
-  vtkObjectFactoryRegistryCleanup& operator=(const vtkObjectFactoryRegistryCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkObjectFactoryRegistryCleanup(const vtkObjectFactoryRegistryCleanup& other) = delete;
+  vtkObjectFactoryRegistryCleanup& operator=(const vtkObjectFactoryRegistryCleanup& rhs) = delete;
 };
 static vtkObjectFactoryRegistryCleanup vtkObjectFactoryRegistryCleanupInstance;
 
@@ -358,7 +350,7 @@ vtkObjectFactory* vtkLoad()                     \
     return static_cast<thisClass*>(ret); \
   } \
   vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
-  return NULL;
+  return nullptr;
 
 // Macro to implement the body of the standard form of the New() method.
 #if defined(VTK_ALL_NEW_OBJECT_FACTORY)

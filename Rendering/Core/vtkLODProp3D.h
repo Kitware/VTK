@@ -63,12 +63,12 @@ public:
   static vtkLODProp3D *New();
 
   vtkTypeMacro(vtkLODProp3D, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds( bounds ); }
 
@@ -243,8 +243,8 @@ public:
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
-  void GetVolumes(vtkPropCollection *) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *) override;
+  void GetVolumes(vtkPropCollection *) override;
   //@}
 
   //@{
@@ -270,35 +270,35 @@ public:
   /**
    * Shallow copy of this vtkLODProp3D.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry( vtkViewport *ren) VTK_OVERRIDE;
-  int RenderVolumetricGeometry( vtkViewport *ren) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry( vtkViewport *ren) override;
+  int RenderVolumetricGeometry( vtkViewport *ren) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Used by the culler / renderer to set the allocated render time for this
    * prop. This is based on the desired update rate, and possibly some other
    * properties such as potential screen coverage of this prop.
    */
-  void SetAllocatedRenderTime( double t, vtkViewport *vp ) VTK_OVERRIDE;
+  void SetAllocatedRenderTime( double t, vtkViewport *vp ) override;
 
   /**
    * Used when the render process is aborted to restore the previous
@@ -306,17 +306,17 @@ public:
    * particular LOD to be restored - otherwise the time for the last rendered
    * LOD will be copied into the currently selected LOD.
    */
-  void RestoreEstimatedRenderTime( ) VTK_OVERRIDE;
+  void RestoreEstimatedRenderTime( ) override;
 
   /**
    * Override method from vtkProp in order to push this call down to the
    * selected LOD as well.
    */
-  void AddEstimatedRenderTime( double t, vtkViewport *vp ) VTK_OVERRIDE;
+  void AddEstimatedRenderTime( double t, vtkViewport *vp ) override;
 
 protected:
   vtkLODProp3D();
-  ~vtkLODProp3D() VTK_OVERRIDE;
+  ~vtkLODProp3D() override;
 
   int GetAutomaticPickPropIndex(void);
 
@@ -339,8 +339,8 @@ protected:
   vtkLODProp3DCallback *PickCallback;
 
 private:
-  vtkLODProp3D(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
+  vtkLODProp3D(const vtkLODProp3D&) = delete;
+  void operator=(const vtkLODProp3D&) = delete;
 };
 
 #endif

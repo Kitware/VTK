@@ -49,7 +49,7 @@ class VTKFILTERSCORE_EXPORT vtkVectorNorm : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkVectorNorm,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with normalize flag off.
@@ -86,16 +86,16 @@ public:
 
 protected:
   vtkVectorNorm();
-  ~vtkVectorNorm() VTK_OVERRIDE {}
+  ~vtkVectorNorm() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both
 
 private:
-  vtkVectorNorm(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
+  vtkVectorNorm(const vtkVectorNorm&) = delete;
+  void operator=(const vtkVectorNorm&) = delete;
 
   // Helper function
   void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);

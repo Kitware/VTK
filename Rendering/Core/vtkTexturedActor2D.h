@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkTexturedActor2D : public vtkActor2D
 {
 public:
   static vtkTexturedActor2D* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkTexturedActor2D, vtkActor2D);
 
   //@{
@@ -57,36 +57,36 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow* win) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow* win) override;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
   //@}
 
   /**
    * Return this object's modified time.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.
    */
-  void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp* prop) override;
 
 protected:
   vtkTexturedActor2D();
-  ~vtkTexturedActor2D() VTK_OVERRIDE;
+  ~vtkTexturedActor2D() override;
 
   vtkTexture* Texture;
 
 private:
-  vtkTexturedActor2D(const vtkTexturedActor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexturedActor2D&) VTK_DELETE_FUNCTION;
+  vtkTexturedActor2D(const vtkTexturedActor2D&) = delete;
+  void operator=(const vtkTexturedActor2D&) = delete;
 };
 
 #endif

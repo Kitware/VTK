@@ -49,8 +49,8 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   // Initialize state
   this->InteractionState = vtkContourRepresentation::Outside;
 
-  this->CursorShape = NULL;
-  this->ActiveCursorShape = NULL;
+  this->CursorShape = nullptr;
+  this->ActiveCursorShape = nullptr;
 
   this->HandleSize = 0.01;
 
@@ -153,7 +153,6 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   // as it is a class static on the mapper
   this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
-  this->Mapper->ImmediateModeRenderingOn();
   // Put this on top of other objects
   this->Mapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1, -1);
   this->Mapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1, -1);
@@ -162,7 +161,6 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
   this->ActiveMapper = vtkPolyDataMapper::New();
   this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   this->ActiveMapper->ScalarVisibilityOff();
-  this->ActiveMapper->ImmediateModeRenderingOn();
   this->ActiveMapper->SetRelativeCoincidentTopologyLineOffsetParameters(-1, -1);
   this->ActiveMapper->SetRelativeCoincidentTopologyPolygonOffsetParameters(-1, -1);
   this->ActiveMapper->SetRelativeCoincidentTopologyPointOffsetParameter(-1);
@@ -195,12 +193,12 @@ vtkOrientedGlyphContourRepresentation::vtkOrientedGlyphContourRepresentation()
 
   this->AlwaysOnTop = 0;
 
-  this->SelectedNodesPoints = NULL;
-  this->SelectedNodesData = NULL;
-  this->SelectedNodesCursorShape = NULL;
-  this->SelectedNodesGlypher = NULL;
-  this->SelectedNodesMapper = NULL;
-  this->SelectedNodesActor = NULL;
+  this->SelectedNodesPoints = nullptr;
+  this->SelectedNodesData = nullptr;
+  this->SelectedNodesCursorShape = nullptr;
+  this->SelectedNodesGlypher = nullptr;
+  this->SelectedNodesMapper = nullptr;
+  this->SelectedNodesActor = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -212,8 +210,8 @@ vtkOrientedGlyphContourRepresentation::~vtkOrientedGlyphContourRepresentation()
   this->ActiveFocalPoint->Delete();
   this->ActiveFocalData->Delete();
 
-  this->SetCursorShape(NULL);
-  this->SetActiveCursorShape(NULL);
+  this->SetCursorShape(nullptr);
+  this->SetActiveCursorShape(nullptr);
 
   this->Glypher->Delete();
   this->Mapper->Delete();
@@ -986,7 +984,7 @@ void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(int flag)
 double *vtkOrientedGlyphContourRepresentation::GetBounds()
 {
   return this->Lines->GetPoints() ?
-         this->Lines->GetPoints()->GetBounds() : NULL;
+         this->Lines->GetPoints()->GetBounds() : nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -1031,7 +1029,6 @@ void vtkOrientedGlyphContourRepresentation::CreateSelectedNodesRepresentation()
   this->SelectedNodesMapper->SetInputData(this->SelectedNodesGlypher->GetOutput());
   this->SelectedNodesMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->SelectedNodesMapper->ScalarVisibilityOff();
-  this->SelectedNodesMapper->ImmediateModeRenderingOn();
 
   vtkProperty *selProperty = vtkProperty::New();
   selProperty->SetColor(0.0, 1.0, 0.0);

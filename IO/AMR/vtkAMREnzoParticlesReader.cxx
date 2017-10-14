@@ -86,10 +86,10 @@ static void GetDoubleArrayByName(
     const hid_t rootIdx, const char* name, std::vector<double> &array)
 {
   // turn off warnings
-  void       * pContext = NULL;
+  void       * pContext = nullptr;
   H5E_auto_t   erorFunc;
   H5Eget_auto( &erorFunc, &pContext );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   hid_t arrayIdx = H5Dopen( rootIdx, name );
   if( arrayIdx < 0 )
@@ -100,12 +100,12 @@ static void GetDoubleArrayByName(
 
   // turn warnings back on
   H5Eset_auto( erorFunc, pContext );
-  pContext = NULL;
+  pContext = nullptr;
 
   // get the number of particles
   hsize_t      dimValus[3];
   hid_t        spaceIdx = H5Dget_space( arrayIdx );
-  H5Sget_simple_extent_dims( spaceIdx, dimValus, NULL );
+  H5Sget_simple_extent_dims( spaceIdx, dimValus, nullptr );
   int          numbPnts = dimValus[0];
 
   array.resize( numbPnts );
@@ -133,7 +133,7 @@ vtkAMREnzoParticlesReader::vtkAMREnzoParticlesReader()
 vtkAMREnzoParticlesReader::~vtkAMREnzoParticlesReader()
 {
   delete this->Internal;
-  this->Internal = NULL;
+  this->Internal = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ vtkDataArray* vtkAMREnzoParticlesReader::GetParticlesTypeArray(
 bool vtkAMREnzoParticlesReader::CheckParticleType(
     const int idx, vtkIntArray *ptypes )
 {
-  assert( "pre: particles type array should not be NULL" && (ptypes != NULL) );
+  assert( "pre: particles type array should not be nullptr" && (ptypes != nullptr) );
 
   if( ptypes->GetNumberOfTuples() > 0 &&
       this->ParticleDataArraySelection->ArrayExists( "particle_type" ) )
@@ -250,14 +250,14 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
   if( fileIndx < 0 )
   {
     vtkErrorMacro( "Failed opening particles file!" );
-    return NULL;
+    return nullptr;
   }
 
   hid_t rootIndx;
   if( ! FindBlockIndex( fileIndx, blockIdx+1,rootIndx ) )
   {
     vtkErrorMacro( "Could not locate target block!" );
-    return NULL;
+    return nullptr;
   }
 
   //
@@ -372,7 +372,7 @@ vtkPolyData* vtkAMREnzoParticlesReader::GetParticles(
 //------------------------------------------------------------------------------
 void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 {
-  assert( "pre: Intenal reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Intenal reader is nullptr" && (this->Internal != nullptr) );
 
   unsigned int N =
     static_cast<unsigned int>( this->Internal->ParticleAttributeNames.size() );
@@ -395,7 +395,7 @@ void vtkAMREnzoParticlesReader::SetupParticleDataSelections()
 //------------------------------------------------------------------------------
 int vtkAMREnzoParticlesReader::GetTotalNumberOfParticles( )
 {
-  assert( "Internal reader is null" && (this->Internal!=NULL) );
+  assert( "Internal reader is null" && (this->Internal!=nullptr) );
   int numParticles = 0;
   for( int blockIdx=0; blockIdx < this->NumberOfBlocks; ++blockIdx )
   {
@@ -414,15 +414,15 @@ vtkPolyData* vtkAMREnzoParticlesReader::ReadParticles(const int blkidx)
   if( NumParticles <= 0 )
   {
     vtkPolyData* emptyParticles = vtkPolyData::New();
-    assert( "Cannot create particles dataset" && ( emptyParticles != NULL ) );
+    assert( "Cannot create particles dataset" && ( emptyParticles != nullptr ) );
     return( emptyParticles );
   }
 
   std::string pfile = this->Internal->Blocks[iBlockIdx].ParticleFileName;
-  if( pfile == "" )
+  if( pfile.empty() )
   {
     vtkErrorMacro( "No particles file found, string is empty!" );
-    return NULL;
+    return nullptr;
   }
 
   vtkPolyData* particles = this->GetParticles(pfile.c_str(), blkidx  );

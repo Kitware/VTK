@@ -72,7 +72,7 @@ vtkInformationObjectBaseVectorValue *
 
   // If we don't already have a vector then associated,
   // we will create it here.
-  if(base==NULL)
+  if(base==nullptr)
   {
     base=new vtkInformationObjectBaseVectorValue;
     base->InitializeObjectBase();
@@ -90,8 +90,8 @@ bool vtkInformationObjectBaseVectorKey::ValidateDerivedType(
 {
   // verify that type of aValue is compatible with
   // this conatiner.
-  if(aValue!=NULL
-     && this->RequiredClass!=NULL
+  if(aValue!=nullptr
+     && this->RequiredClass!=nullptr
      && !aValue->IsA(this->RequiredClass))
   {
     vtkErrorWithObjectMacro(
@@ -117,7 +117,7 @@ void vtkInformationObjectBaseVectorKey::Append(
   //
   vtkInformationObjectBaseVectorValue* base=this->GetObjectBaseVector(info);
   //
-  if (aValue!=NULL)
+  if (aValue!=nullptr)
   {
     aValue->Register(base);
   }
@@ -222,7 +222,7 @@ void vtkInformationObjectBaseVectorKey::SetRange(
 //     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 //
 //   return
-//     (base!=NULL && !base->GetVector().empty())?(&base->GetVector()[0]):0;
+//     (base!=nullptr && !base->GetVector().empty())?(&base->GetVector()[0]):0;
 // }
 
 
@@ -238,7 +238,7 @@ void vtkInformationObjectBaseVectorKey::GetRange(
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 
   // Source vector exists?
-  if (base==NULL)
+  if (base==nullptr)
   {
     vtkErrorWithObjectMacro(
       info,"Copy of empty vector has been requested.");
@@ -277,13 +277,13 @@ vtkObjectBase *vtkInformationObjectBaseVectorKey::Get(
   vtkInformationObjectBaseVectorValue* base =
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 
-  if (base==NULL
+  if (base==nullptr
       || idx>=static_cast<int>(base->GetVector().size()))
   {
     vtkErrorWithObjectMacro(info,
       "Information does not contain " << idx
       << " elements. Cannot return information value.");
-    return NULL;
+    return nullptr;
   }
 
   return base->GetVector()[idx];
@@ -295,7 +295,7 @@ int vtkInformationObjectBaseVectorKey::Size(vtkInformation* info)
   vtkInformationObjectBaseVectorValue* base =
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
 
-  return (base==NULL ? 0 : static_cast<int>(base->GetVector().size()));
+  return (base==nullptr ? 0 : static_cast<int>(base->GetVector().size()));
 }
 
 //----------------------------------------------------------------------------
@@ -320,9 +320,9 @@ void vtkInformationObjectBaseVectorKey::ShallowCopy(
   vtkInformationObjectBaseVectorValue* sourceBase =
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(source));
 
-  if (sourceBase==0)
+  if (sourceBase==nullptr)
   {
-    this->SetAsObjectBase(dest,0);
+    this->SetAsObjectBase(dest,nullptr);
     return;
   }
 
@@ -341,7 +341,7 @@ void vtkInformationObjectBaseVectorKey::Print(ostream& os, vtkInformation* info)
   vtkInformationObjectBaseVectorValue *base =
     static_cast<vtkInformationObjectBaseVectorValue *>(this->GetAsObjectBase(info));
   // Print each valid item.
-  if (base!=NULL)
+  if (base!=nullptr)
   {
     int n=static_cast<int>(base->GetVector().size());
     if (n>0)
@@ -355,13 +355,13 @@ void vtkInformationObjectBaseVectorKey::Print(ostream& os, vtkInformation* info)
     {
       os << indent << "item " << i << "=";
       vtkObjectBase *itemBase=base->GetVector()[i];
-      if (itemBase!=NULL)
+      if (itemBase!=nullptr)
       {
         itemBase->PrintSelf(os,indent);
       }
       else
       {
-        os << "NULL;";
+        os << "nullptr;";
       }
       os << endl;
     }

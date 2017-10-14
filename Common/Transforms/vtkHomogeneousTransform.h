@@ -36,13 +36,13 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkHomogeneousTransform : public vtkAbstractTra
 public:
 
   vtkTypeMacro(vtkHomogeneousTransform,vtkAbstractTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) override;
 
   /**
    * Apply the transformation to a combination of points, normals
@@ -53,7 +53,7 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) VTK_OVERRIDE;
+                                     vtkDataArray *outVrs) override;
 
   /**
    * Get a copy of the internal transformation matrix.  The
@@ -84,8 +84,8 @@ public:
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   //@{
@@ -95,22 +95,22 @@ public:
    * classes.
    */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) VTK_OVERRIDE;
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) VTK_OVERRIDE;
+                                   double derivative[3][3]) override;
   //@}
 
 protected:
   vtkHomogeneousTransform();
-  ~vtkHomogeneousTransform() VTK_OVERRIDE;
+  ~vtkHomogeneousTransform() override;
 
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   vtkMatrix4x4 *Matrix;
 
 private:
-  vtkHomogeneousTransform(const vtkHomogeneousTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHomogeneousTransform&) VTK_DELETE_FUNCTION;
+  vtkHomogeneousTransform(const vtkHomogeneousTransform&) = delete;
+  void operator=(const vtkHomogeneousTransform&) = delete;
 };
 
 #endif

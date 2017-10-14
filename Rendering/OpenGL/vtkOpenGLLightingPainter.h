@@ -35,7 +35,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLightingPainter : public vtkLightingPai
 public:
   static vtkOpenGLLightingPainter* New();
   vtkTypeMacro(vtkOpenGLLightingPainter, vtkLightingPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This painter overrides GetTimeToDraw() to never pass the request to the
@@ -44,12 +44,12 @@ public:
    * responsibility is borne by the painter causing the multiple rendering
    * requests i.e. this painter itself.
    */
-  double GetTimeToDraw() VTK_OVERRIDE
+  double GetTimeToDraw() override
     { return this->TimeToDraw; }
 
 protected:
   vtkOpenGLLightingPainter();
-  ~vtkOpenGLLightingPainter() VTK_OVERRIDE;
+  ~vtkOpenGLLightingPainter() override;
 
   /**
    * Setups lighting state before calling render on delegate
@@ -58,11 +58,11 @@ protected:
   void RenderInternal(vtkRenderer *renderer,
                               vtkActor *actor,
                               unsigned long typeflags,
-                              bool forceCompileOnly) VTK_OVERRIDE;
+                              bool forceCompileOnly) override;
 
 private:
-  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) = delete;
+  void operator=(const vtkOpenGLLightingPainter&) = delete;
 };
 
 #endif

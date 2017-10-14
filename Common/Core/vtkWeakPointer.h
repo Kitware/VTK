@@ -19,7 +19,7 @@
  * A weak reference to a vtkObject, which means that assigning
  * a vtkObject to the vtkWeakPointer does not affect the reference count of the
  * vtkObject. However, when the vtkObject is destroyed, the vtkWeakPointer gets
- * initialized to NULL, thus avoiding any dangling references.
+ * initialized to nullptr, thus avoiding any dangling references.
  *
  * \code
  * vtkTable *table = vtkTable::New();
@@ -50,7 +50,7 @@ class vtkWeakPointer: public vtkWeakPointerBase
 {
 public:
   /**
-   * Initialize smart pointer to NULL.
+   * Initialize smart pointer to nullptr.
    */
   vtkWeakPointer() {}
 
@@ -152,8 +152,8 @@ protected:
 private:
   // These are purposely not implemented to prevent callers from
   // trying to take references from other smart pointers.
-  void TakeReference(const vtkWeakPointerBase&) VTK_DELETE_FUNCTION;
-  static void Take(const vtkWeakPointerBase&) VTK_DELETE_FUNCTION;
+  void TakeReference(const vtkWeakPointerBase&) = delete;
+  static void Take(const vtkWeakPointerBase&) = delete;
 };
 
 #define VTK_WEAK_POINTER_DEFINE_OPERATOR(op) \

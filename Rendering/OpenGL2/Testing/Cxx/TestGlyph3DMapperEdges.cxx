@@ -50,7 +50,7 @@ int TestGlyph3DMapperEdges(int argc, char* argv[])
   glypher->SetSourceConnection(squad->GetOutputPort());
 
   vtkNew<vtkActor> glyphActor1;
-  glyphActor1->SetMapper(glypher.Get());
+  glyphActor1->SetMapper(glypher);
   glyphActor1->GetProperty()->SetEdgeVisibility(1);
   glyphActor1->GetProperty()->SetEdgeColor(1.0,0.5,0.5);
   // glyphActor1->GetProperty()->SetRenderLinesAsTubes(1);
@@ -59,16 +59,16 @@ int TestGlyph3DMapperEdges(int argc, char* argv[])
   // Standard rendering classes
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
   //set up the view
   renderer->SetBackground(0.2,0.2,0.2);
   renWin->SetSize(300,300);
 
-  renderer->AddActor(glyphActor1.Get());
+  renderer->AddActor(glyphActor1);
 
   ////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ int TestGlyph3DMapperEdges(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.Get() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

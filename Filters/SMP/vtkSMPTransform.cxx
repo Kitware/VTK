@@ -26,6 +26,13 @@
 
 vtkStandardNewMacro(vtkSMPTransform);
 
+vtkSMPTransform::vtkSMPTransform()
+{
+  VTK_LEGACY_BODY(
+    vtkSMPTransform::vtkSMPTransform,
+    "VTK 8.1");
+}
+
 //----------------------------------------------------------------------------
 void vtkSMPTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -100,7 +107,7 @@ inline void vtkSMPTransformNormal(T1 mat[4][4],
 
 //----------------------------------------------------------------------------
 // Transform the normals and vectors using the derivative of the
-// transformation.  Either inNms or inVrs can be set to NULL.
+// transformation.  Either inNms or inVrs can be set to nullptr.
 // Normals are multiplied by the inverse transpose of the transform
 // derivative, while vectors are simply multiplied by the derivative.
 // Note that the derivative of the inverse transform is simply the

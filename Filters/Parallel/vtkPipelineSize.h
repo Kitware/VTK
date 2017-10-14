@@ -30,7 +30,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPipelineSize : public vtkObject
 public:
   static vtkPipelineSize* New();
   vtkTypeMacro(vtkPipelineSize,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Compute an estimate of how much memory a pipline will require in
@@ -67,8 +67,8 @@ protected:
 
 
 private:
-  vtkPipelineSize(const vtkPipelineSize&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPipelineSize&) VTK_DELETE_FUNCTION;
+  vtkPipelineSize(const vtkPipelineSize&) = delete;
+  void operator=(const vtkPipelineSize&) = delete;
 };
 
 #endif

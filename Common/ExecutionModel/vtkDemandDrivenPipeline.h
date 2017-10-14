@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDemandDrivenPipeline : public vtkExecuti
 public:
   static vtkDemandDrivenPipeline* New();
   vtkTypeMacro(vtkDemandDrivenPipeline,vtkExecutive);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Generalized interface for asking the executive to fulfill update
@@ -58,7 +58,7 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) VTK_OVERRIDE;
+                             vtkInformationVector* outInfo) override;
 
   /**
    * Implement the pipeline modified time request.
@@ -68,15 +68,15 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       vtkMTimeType* mtime) VTK_OVERRIDE;
+                       vtkMTimeType* mtime) override;
 
   //@{
   /**
    * Bring the algorithm's outputs up-to-date.  Returns 1 for success
    * and 0 for failure.
    */
-  int Update() VTK_OVERRIDE;
-  int Update(int port) VTK_OVERRIDE;
+  int Update() override;
+  int Update(int port) override;
   //@}
 
   //@{
@@ -107,12 +107,12 @@ public:
    * not actually produce data, but does create the data object that
    * will store data produced during the UpdateData step.
    */
-  int UpdateDataObject() VTK_OVERRIDE;
+  int UpdateDataObject() override;
 
   /**
    * Bring the output information up to date.
    */
-  int UpdateInformation() VTK_OVERRIDE;
+  int UpdateInformation() override;
 
   /**
    * Bring the output data up to date.  This should be called only
@@ -170,7 +170,7 @@ public:
 
 protected:
   vtkDemandDrivenPipeline();
-  ~vtkDemandDrivenPipeline() VTK_OVERRIDE;
+  ~vtkDemandDrivenPipeline() override;
 
   // Helper methods to send requests to the algorithm.
   virtual int ExecuteDataObject(vtkInformation* request,
@@ -185,7 +185,7 @@ protected:
 
 
   // Reset the pipeline update values in the given output information object.
-  void ResetPipelineInformation(int, vtkInformation*) VTK_OVERRIDE;
+  void ResetPipelineInformation(int, vtkInformation*) override;
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
@@ -243,8 +243,8 @@ protected:
   vtkInformation *DataRequest;
 
 private:
-  vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&) = delete;
+  void operator=(const vtkDemandDrivenPipeline&) = delete;
 };
 
 #endif

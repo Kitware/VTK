@@ -21,7 +21,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   QVTKWidget *leftVTKWidget = new QVTKWidget(leftPanel);
   vtkSmartPointer<vtkRenderer> leftRenderer = vtkSmartPointer<vtkRenderer>::New();
   leftRenderer->SetBackground(1, 0, 0);
-  leftVTKWidget->GetRenderWindow()->AddRenderer(leftRenderer.Get());
+  leftVTKWidget->GetRenderWindow()->AddRenderer(leftRenderer);
   leftLayout->addWidget(leftVTKWidget);
 
   QWidget *rightPanel = new QWidget(&frame);

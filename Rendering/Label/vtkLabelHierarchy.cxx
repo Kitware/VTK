@@ -64,7 +64,7 @@
 // workaround to get it to work.
 //
 // In practical terms, this means if a method in this file calls add_children,
-// it should set vtkLabelHierarchy::Implementation::Current to a non-NULL
+// it should set vtkLabelHierarchy::Implementation::Current to a non-nullptr
 // vtkLabelHierarchy prior to calling add_children.
 //
 // Be warned: there is some global/static state here that may bite somebody
@@ -86,15 +86,15 @@ public:
   vtkTypeMacro(vtkLabelHierarchyFrustumIterator,vtkLabelHierarchyIterator);
   static vtkLabelHierarchyFrustumIterator* New();
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24] );
-  void Begin( vtkIdTypeArray* lastPlaced ) VTK_OVERRIDE;
+  void Begin( vtkIdTypeArray* lastPlaced ) override;
   virtual void BeginOctreeTraversal();
-  void Next() VTK_OVERRIDE;
-  bool IsAtEnd() VTK_OVERRIDE;
-  vtkIdType GetLabelId() VTK_OVERRIDE;
-  void GetNodeGeometry( double center[3], double& sz ) VTK_OVERRIDE;
+  void Next() override;
+  bool IsAtEnd() override;
+  vtkIdType GetLabelId() override;
+  void GetNodeGeometry( double center[3], double& sz ) override;
 protected:
   vtkLabelHierarchyFrustumIterator();
-  ~vtkLabelHierarchyFrustumIterator() VTK_OVERRIDE;
+  ~vtkLabelHierarchyFrustumIterator() override;
 
   bool IsCursorInFrustum();
   virtual void SetCamera( vtkCamera* camera );
@@ -128,7 +128,7 @@ vtkLabelHierarchyFrustumIterator::vtkLabelHierarchyFrustumIterator()
 {
   this->Projector = vtkCoordinate::New();
   this->Projector->SetCoordinateSystemToWorld();
-  this->Camera = 0;
+  this->Camera = nullptr;
   this->Level = 0;
   this->QuadrupleId = 0;
   this->Permutation = 0;
@@ -504,11 +504,11 @@ public:
 
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam,
       double frustumPlanes[24], bool positionsAsNormals );
-  void Begin( vtkIdTypeArray* lastPlaced ) VTK_OVERRIDE;
-  void Next() VTK_OVERRIDE;
-  bool IsAtEnd() VTK_OVERRIDE;
-  vtkIdType GetLabelId() VTK_OVERRIDE;
-  void GetNodeGeometry( double center[3], double& sz ) VTK_OVERRIDE;
+  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Next() override;
+  bool IsAtEnd() override;
+  vtkIdType GetLabelId() override;
+  void GetNodeGeometry( double center[3], double& sz ) override;
 
   // Give internal class access to this protected type.
   typedef vtkLabelHierarchy::Implementation::HierarchyType3::octree_node_pointer NodePointer;
@@ -537,7 +537,7 @@ public:
 
 protected:
   vtkLabelHierarchyFullSortIterator();
-  ~vtkLabelHierarchyFullSortIterator() VTK_OVERRIDE;
+  ~vtkLabelHierarchyFullSortIterator() override;
 
   std::set<vtkHierarchyNode, vtkHierarchyNodeSorter> NodeSet;
   std::set<vtkHierarchyNode, vtkHierarchyNodeSorter>::iterator NodeIterator;
@@ -731,7 +731,7 @@ void vtkLabelHierarchyFullSortIterator::GetNodeGeometry( double center[3], doubl
 
 vtkLabelHierarchyFullSortIterator::vtkLabelHierarchyFullSortIterator()
 {
-  this->Camera = 0;
+  this->Camera = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
 }
 
@@ -775,11 +775,11 @@ public:
   typedef vtkLabelHierarchy::Implementation::HierarchyType2::octree_node_pointer NodePointer;
 
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) VTK_OVERRIDE;
-  void Next() VTK_OVERRIDE;
-  bool IsAtEnd() VTK_OVERRIDE;
-  vtkIdType GetLabelId() VTK_OVERRIDE;
-  void GetNodeGeometry( double center[3], double& sz ) VTK_OVERRIDE;
+  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Next() override;
+  bool IsAtEnd() override;
+  vtkIdType GetLabelId() override;
+  void GetNodeGeometry( double center[3], double& sz ) override;
   bool IsNodeInFrustum( NodePointer node );
   vtkGetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Renderer,vtkRenderer);
@@ -790,7 +790,7 @@ public:
 
 protected:
   vtkLabelHierarchyQuadtreeIterator();
-  ~vtkLabelHierarchyQuadtreeIterator() VTK_OVERRIDE;
+  ~vtkLabelHierarchyQuadtreeIterator() override;
 
   virtual void SetCamera( vtkCamera* camera );
   virtual void SetRenderer( vtkRenderer* renderer );
@@ -816,8 +816,8 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyQuadtreeIterator,Renderer,vtkRenderer);
 vtkLabelHierarchyQuadtreeIterator::vtkLabelHierarchyQuadtreeIterator()
 {
   this->AtEnd = true;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
   this->NodesQueued = 0;
@@ -948,7 +948,7 @@ void vtkLabelHierarchyQuadtreeIterator::Next()
   if ( this->LabelIterator == this->Node->value().end() )
   {
     this->BoxNode();
-    while ( this->Queue.size() )
+    while ( !this->Queue.empty() )
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();
@@ -1100,11 +1100,11 @@ public:
   typedef vtkLabelHierarchy::Implementation::HierarchyType3::octree_node_pointer NodePointer;
 
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) VTK_OVERRIDE;
-  void Next() VTK_OVERRIDE;
-  bool IsAtEnd() VTK_OVERRIDE;
-  vtkIdType GetLabelId() VTK_OVERRIDE;
-  void GetNodeGeometry( double center[3], double& sz ) VTK_OVERRIDE;
+  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Next() override;
+  bool IsAtEnd() override;
+  vtkIdType GetLabelId() override;
+  void GetNodeGeometry( double center[3], double& sz ) override;
   bool IsNodeInFrustum( NodePointer node );
   vtkGetObjectMacro(Camera,vtkCamera);
   vtkGetObjectMacro(Renderer,vtkRenderer);
@@ -1115,7 +1115,7 @@ public:
 
 protected:
   vtkLabelHierarchyOctreeQueueIterator();
-  ~vtkLabelHierarchyOctreeQueueIterator() VTK_OVERRIDE;
+  ~vtkLabelHierarchyOctreeQueueIterator() override;
 
   virtual void SetCamera( vtkCamera* camera );
   virtual void SetRenderer( vtkRenderer* renderer );
@@ -1143,8 +1143,8 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyOctreeQueueIterator,Renderer,vtkRenderer);
 vtkLabelHierarchyOctreeQueueIterator::vtkLabelHierarchyOctreeQueueIterator()
 {
   this->AtEnd = true;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
   this->NodesQueued = 0;
@@ -1322,7 +1322,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Next()
   if ( this->LabelIterator == this->Node->value().end() )
   {
     this->BoxNode();
-    while ( this->Queue.size() )
+    while ( !this->Queue.empty() )
     {
       this->Node = this->Queue.front();
       this->Queue.pop_front();
@@ -1479,11 +1479,11 @@ public:
   static vtkLabelHierarchy3DepthFirstIterator* New();
 
   void Prepare( vtkLabelHierarchy* hier, vtkCamera* cam, double frustumPlanes[24], vtkRenderer* ren, float bucketSize[2] );
-  void Begin( vtkIdTypeArray* lastPlaced ) VTK_OVERRIDE;
-  void Next() VTK_OVERRIDE;
-  bool IsAtEnd() VTK_OVERRIDE;
-  vtkIdType GetLabelId() VTK_OVERRIDE;
-  void GetNodeGeometry( double center[3], double& sz ) VTK_OVERRIDE;
+  void Begin( vtkIdTypeArray* lastPlaced ) override;
+  void Next() override;
+  bool IsAtEnd() override;
+  vtkIdType GetLabelId() override;
+  void GetNodeGeometry( double center[3], double& sz ) override;
   bool IsNodeInFrustum();
   void ReorderChildrenForView( int order[8] );
   vtkGetObjectMacro(Camera,vtkCamera);
@@ -1491,7 +1491,7 @@ public:
 
 protected:
   vtkLabelHierarchy3DepthFirstIterator();
-  ~vtkLabelHierarchy3DepthFirstIterator() VTK_OVERRIDE;
+  ~vtkLabelHierarchy3DepthFirstIterator() override;
 
   virtual void SetCamera( vtkCamera* camera );
   virtual void SetRenderer( vtkRenderer* renderer );
@@ -1519,8 +1519,8 @@ vtkLabelHierarchy3DepthFirstIterator::vtkLabelHierarchy3DepthFirstIterator()
 {
   this->AtEnd = true;
   this->DidRoot = 0;
-  this->Camera = 0;
-  this->Renderer = 0;
+  this->Camera = nullptr;
+  this->Renderer = nullptr;
   this->FrustumExtractor = vtkExtractSelectedFrustum::New();
   this->SizeLimit = 0.;
 }
@@ -1822,12 +1822,12 @@ vtkLabelHierarchy::vtkLabelHierarchy()
 {
   this->Impl = new Implementation();
   this->Impl->Husk = this;
-  this->Priorities = 0;
-  this->Labels = 0;
-  this->IconIndices = 0;
-  this->Orientations = 0;
-  this->Sizes = 0;
-  this->BoundedSizes = 0;
+  this->Priorities = nullptr;
+  this->Labels = nullptr;
+  this->IconIndices = nullptr;
+  this->Orientations = nullptr;
+  this->Sizes = nullptr;
+  this->BoundedSizes = nullptr;
   this->TargetLabelCount = 16;
   this->MaximumDepth = 5;
   this->TextProperty = vtkTextProperty::New();
@@ -1985,12 +1985,12 @@ void vtkLabelHierarchy::ComputeHierarchy()
     this->Impl->Hierarchy2 =
       new Implementation::HierarchyType2( center, maxDim, allAnchors /* currently empty */ );
     this->Impl->Hierarchy2->root()->value().SetGeometry( center, maxDim );
-    this->Impl->Hierarchy3 = 0;
+    this->Impl->Hierarchy3 = nullptr;
     this->Impl->Z2 = center[2]; // remember z coordinate for later
   }
   else
   {
-    this->Impl->Hierarchy2 = 0;
+    this->Impl->Hierarchy2 = nullptr;
     this->Impl->Hierarchy3 =
       new Implementation::HierarchyType3( center, maxDim, allAnchors /* currently empty */ );
     this->Impl->Hierarchy3->root()->value().SetGeometry( center, maxDim );
@@ -2030,7 +2030,7 @@ void vtkLabelHierarchy::ComputeHierarchy()
   this->CoincidentPoints->InitTraversal();
   vtkIdList* coincidentPoints = this->CoincidentPoints->GetNextCoincidentPointIds();
   vtkIdType Id = 0;
-  while ( coincidentPoints != NULL )
+  while ( coincidentPoints != nullptr )
   {
     // Iterate over all coincident point ids and perturb them
     numCoincidentPoints = coincidentPoints->GetNumberOfIds();
@@ -2106,7 +2106,7 @@ vtkLabelHierarchyIterator* vtkLabelHierarchy::NewIterator(
   bool positionsAsNormals,
   float bucketSize[2] )
 {
-  vtkLabelHierarchyIterator* iter = 0;
+  vtkLabelHierarchyIterator* iter = nullptr;
   if ( this->Impl->Hierarchy3 )
   {
     if ( type == FULL_SORT )
@@ -2196,7 +2196,7 @@ vtkIdType vtkLabelHierarchy::GetNumberOfCells()
 
 vtkCell* vtkLabelHierarchy::GetCell( vtkIdType )
 {
-  return 0;
+  return nullptr;
 }
 
 void vtkLabelHierarchy::GetCell( vtkIdType, vtkGenericCell* )

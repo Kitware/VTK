@@ -48,7 +48,7 @@ class VTKIOCORE_EXPORT vtkArrayReader :
 public:
   static vtkArrayReader* New();
   vtkTypeMacro(vtkArrayReader, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,24 +86,24 @@ public:
   /**
    * Read an arbitrary array from a string.
    */
-  static vtkArray* Read(vtkStdString str);
+  static vtkArray* Read(const vtkStdString& str);
 
 protected:
   vtkArrayReader();
-  ~vtkArrayReader() VTK_OVERRIDE;
+  ~vtkArrayReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   vtkStdString InputString;
   bool ReadFromInputString;
 
 private:
-  vtkArrayReader(const vtkArrayReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayReader&) VTK_DELETE_FUNCTION;
+  vtkArrayReader(const vtkArrayReader&) = delete;
+  void operator=(const vtkArrayReader&) = delete;
 };
 
 #endif

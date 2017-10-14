@@ -46,7 +46,7 @@ vtkExtractTemporalFieldData::vtkExtractTemporalFieldData()
 vtkExtractTemporalFieldData::~vtkExtractTemporalFieldData()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -81,18 +81,18 @@ int vtkExtractTemporalFieldData::RequestDataObject(
   if (vtkCompositeDataSet::SafeDownCast(input) &&
     this->HandleCompositeDataBlocksIndividually)
   {
-    if (vtkMultiBlockDataSet::GetData(outputVector, 0) == NULL)
+    if (vtkMultiBlockDataSet::GetData(outputVector, 0) == nullptr)
     {
       vtkNew<vtkMultiBlockDataSet> mb;
       outputVector->GetInformationObject(0)->Set(
-        vtkDataObject::DATA_OBJECT(), mb.Get());
+        vtkDataObject::DATA_OBJECT(), mb);
     }
   }
-  else if (vtkTable::GetData(outputVector, 0) == NULL)
+  else if (vtkTable::GetData(outputVector, 0) == nullptr)
   {
     vtkNew<vtkTable> table;
     outputVector->GetInformationObject(0)->Set(
-      vtkDataObject::DATA_OBJECT(), table.Get());
+      vtkDataObject::DATA_OBJECT(), table);
   }
   return 1;
 }
@@ -155,8 +155,8 @@ int vtkExtractTemporalFieldData::RequestData(
         if (vtkDataSet* inputDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
         {
           vtkNew<vtkTable> outputBlock;
-          this->CopyDataToOutput(inputDS, outputBlock.Get());
-          output->SetDataSet(iter, outputBlock.Get());
+          this->CopyDataToOutput(inputDS, outputBlock);
+          output->SetDataSet(iter, outputBlock);
         }
       }
     }
@@ -234,6 +234,6 @@ bool vtkExtractTemporalFieldData::CopyDataToOutput(vtkDataSet *input, vtkTable *
   }
   std::copy(this->Internals->TimeSteps.begin(), this->Internals->TimeSteps.end(),
     timeArray->GetPointer(0));
-  outRowData->AddArray(timeArray.Get());
+  outRowData->AddArray(timeArray);
   return true;
 }

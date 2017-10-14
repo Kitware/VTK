@@ -56,12 +56,12 @@ void vtkPointsProjectedHull::InitFlags()
 {
   int i;
 
-  this->Pts = NULL;
+  this->Pts = nullptr;
   this->Npts = 0;
 
   for (i=0; i<3; i++)
   {
-    this->CCWHull[i] = NULL;
+    this->CCWHull[i] = nullptr;
     this->HullSize[i]     = 0;
     for (int j=0; j<4; j++)
     {
@@ -76,10 +76,10 @@ void vtkPointsProjectedHull::ClearAllocations()
   for (i=0; i<3; i++)
   {
     delete [] this->CCWHull[i];
-    this->CCWHull[i] = NULL;
+    this->CCWHull[i] = nullptr;
   }
   delete [] this->Pts;
-  this->Pts = NULL;
+  this->Pts = nullptr;
 }
 #define VTK_GETCCWHULL(which, dim) \
 int vtkPointsProjectedHull::GetCCWHull##which(float *pts, int len)\
@@ -680,8 +680,6 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
 int vtkPointsProjectedHull::RectangleOutside1DPolygon(double hmin, double hmax,
                                   double vmin, double vmax, int dir)
 {
-  int i;
-
   double *p0 = this->CCWHull[dir];
   double *p1 = this->CCWHull[dir] + 2;
 
@@ -695,7 +693,7 @@ int vtkPointsProjectedHull::RectangleOutside1DPolygon(double hmin, double hmax,
   double side;
   double reference=0.0;
 
-  for (i=0; i<4; i++)
+  for (int i=0; i<4; i++)
   {
     side = VTK_ISLEFT(p0, p1,pts[i]);
 
@@ -724,10 +722,8 @@ extern "C"
 {
   int vtkPointsProjectedHullIncrVertAxis(const void *p1, const void *p2)
   {
-    double *a, *b;
-
-    a = (double *)p1;
-    b = (double *)p2;
+    const double *a = static_cast<const double*>(p1);
+    const double *b = static_cast<const double*>(p2);
 
     if (a[1] < b[1])
     {
@@ -745,15 +741,12 @@ extern "C"
 
   int vtkPointsProjectedHullCCW(const void *p1, const void *p2)
   {
-    double *a, *b;
-    double val;
-
-    a = (double *)p1;
-    b = (double *)p2;
+    const double *a = static_cast<const double*>(p1);
+    const double *b = static_cast<const double*>(p2);
 
     // sort in counter clockwise order from first point
 
-    val = VTK_ISLEFT(firstPt, a, b);
+    double val = VTK_ISLEFT(firstPt, a, b);
 
     if (val < 0)
     {

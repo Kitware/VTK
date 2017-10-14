@@ -50,21 +50,21 @@ public:
   vtkTypeMacro(vtkOpenGLProjectedAAHexahedraMapper,
                vtkProjectedAAHexahedraMapper);
   static vtkOpenGLProjectedAAHexahedraMapper *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Check if the required OpenGL extensions are supported by the OpenGL
    * context attached to the render window `w'.
    */
-  bool IsRenderSupported(vtkRenderWindow *w) VTK_OVERRIDE;
+  bool IsRenderSupported(vtkRenderWindow *w) override;
 
-  void Render(vtkRenderer *renderer, vtkVolume *volume) VTK_OVERRIDE;
+  void Render(vtkRenderer *renderer, vtkVolume *volume) override;
 
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkOpenGLProjectedAAHexahedraMapper();
-  ~vtkOpenGLProjectedAAHexahedraMapper() VTK_OVERRIDE;
+  ~vtkOpenGLProjectedAAHexahedraMapper() override;
 
   /**
    * Convert the input scalar values to floats.
@@ -150,8 +150,8 @@ protected:
   vtkFloatArray *ConvertedScalars;
 
 private:
-  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &) = delete;
+  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) = delete;
 };
 
 #endif

@@ -32,21 +32,21 @@ class VTKFILTERSGENERAL_EXPORT vtkBlockIdScalars : public vtkMultiBlockDataSetAl
 public:
   static vtkBlockIdScalars* New();
   vtkTypeMacro(vtkBlockIdScalars, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBlockIdScalars();
-  ~vtkBlockIdScalars() VTK_OVERRIDE;
+  ~vtkBlockIdScalars() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   vtkDataObject* ColorBlock(vtkDataObject* input, int group);
 
 private:
-  vtkBlockIdScalars(const vtkBlockIdScalars&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlockIdScalars&) VTK_DELETE_FUNCTION;
+  vtkBlockIdScalars(const vtkBlockIdScalars&) = delete;
+  void operator=(const vtkBlockIdScalars&) = delete;
 
 };
 

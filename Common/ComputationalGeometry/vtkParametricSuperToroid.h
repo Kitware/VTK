@@ -52,7 +52,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid :
 {
   public:
     vtkTypeMacro(vtkParametricSuperToroid, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct a supertoroid with the following parameters:
@@ -71,7 +71,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid :
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -139,7 +139,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid :
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -155,11 +155,11 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid :
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricSuperToroid();
-    ~vtkParametricSuperToroid() VTK_OVERRIDE;
+    ~vtkParametricSuperToroid() override;
 
     // Variables
     double RingRadius;
@@ -171,8 +171,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid :
     double N2;
 
   private:
-    vtkParametricSuperToroid(const vtkParametricSuperToroid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricSuperToroid&) VTK_DELETE_FUNCTION;
+    vtkParametricSuperToroid(const vtkParametricSuperToroid&) = delete;
+    void operator=(const vtkParametricSuperToroid&) = delete;
 
 };
 

@@ -35,7 +35,7 @@ int TestGetAssociationTypeFromString()
   assert(vtkDataObject::GetAssociationTypeFromString("vtkDataObject::EDGE") == vtkDataObject::EDGE);
   assert(vtkDataObject::GetAssociationTypeFromString("vtkDataObject::ROW") == vtkDataObject::ROW);
 
-  assert(vtkDataObject::GetAssociationTypeFromString(NULL) == -1);
+  assert(vtkDataObject::GetAssociationTypeFromString(nullptr) == -1);
   assert(vtkDataObject::GetAssociationTypeFromString("") == -1);
   assert(vtkDataObject::GetAssociationTypeFromString("INVALID") == -1);
 

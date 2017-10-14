@@ -34,7 +34,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiBlockDataSetAlgorithm : public vtkA
 public:
   static vtkMultiBlockDataSetAlgorithm *New();
   vtkTypeMacro(vtkMultiBlockDataSetAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -59,11 +59,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkMultiBlockDataSetAlgorithm();
-  ~vtkMultiBlockDataSetAlgorithm() VTK_OVERRIDE {}
+  ~vtkMultiBlockDataSetAlgorithm() override {}
 
   /**
    * This is called by the superclass.
@@ -103,17 +103,17 @@ protected:
   //@}
 
   // Create a default executive.
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkMultiBlockDataSetAlgorithm(const vtkMultiBlockDataSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockDataSetAlgorithm(const vtkMultiBlockDataSetAlgorithm&) = delete;
+  void operator=(const vtkMultiBlockDataSetAlgorithm&) = delete;
 };
 
 #endif

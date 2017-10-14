@@ -120,7 +120,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
-    if(this->UpdateTimeSteps.size()==0)
+    if(this->UpdateTimeSteps.empty())
     {
       vtkErrorMacro("No temporal data has been requested. ");
       return 0;
@@ -152,7 +152,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
       {
         if (this->IsInCache(this->UpdateTimeSteps[i], idx))
         {
-          this->MDataSet->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data.GetPointer());
+          this->MDataSet->SetBlock(static_cast<unsigned int>(i), this->Cache[idx].Data);
         }
         else
         {
@@ -171,7 +171,7 @@ int vtkMultiTimeStepAlgorithm::ProcessRequest(
 
       this->UpdateTimeSteps.clear();
       this->RequestUpdateIndex = 0;
-      this->MDataSet = NULL;
+      this->MDataSet = nullptr;
       if (!this->CacheData)
       {
         // No caching, remove all

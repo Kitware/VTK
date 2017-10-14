@@ -58,6 +58,13 @@ struct DeepCopyWorker
     std::copy(src->Begin(), src->End(), dst->Begin());
   }
 
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-template"
+  #endif
+#endif
+
   // SoA --> SoA same-type specialization:
   template <typename ValueType>
   void operator()(vtkSOADataArrayTemplate<ValueType> *src,
@@ -74,10 +81,22 @@ struct DeepCopyWorker
     }
   }
 
-  // Generic implementation:
-  template <typename Array1T, typename Array2T>
-  void operator()(Array1T *src, Array2T *dst)
+// Undo warning suppression.
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic pop
+  #endif
+#endif
+
+  // Generic implementations:
+  template <typename Array1DerivedT, typename Array1ValueT,
+            typename Array2DerivedT, typename Array2ValueT>
+  void operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT> *src,
+                  vtkGenericDataArray<Array2DerivedT, Array2ValueT> *dst)
   {
+    using Array1T = vtkGenericDataArray<Array1DerivedT, Array1ValueT>;
+    using Array2T = vtkGenericDataArray<Array2DerivedT, Array2ValueT>;
+
     vtkDataArrayAccessor<Array1T> s(src);
     vtkDataArrayAccessor<Array2T> d(dst);
 
@@ -91,6 +110,20 @@ struct DeepCopyWorker
       for (int c = 0; c < comps; ++c)
       {
         d.Set(t, c, static_cast<DestType>(s.Get(t, c)));
+      }
+    }
+  }
+
+  void operator()(vtkDataArray *src, vtkDataArray *dst)
+  {
+    vtkIdType tuples = src->GetNumberOfTuples();
+    int comps = src->GetNumberOfComponents();
+
+    for (vtkIdType t = 0; t < tuples; ++t)
+    {
+      for (int c = 0; c < comps; ++c)
+      {
+        dst->SetComponent(t, c, src->GetComponent(t, c));;
       }
     }
   }
@@ -368,7 +401,7 @@ vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray()
 {
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->Range[0] = 0;
   this->Range[1] = 0;
   this->FiniteRange[0] = 0;
@@ -382,19 +415,19 @@ vtkDataArray::~vtkDataArray()
   {
     this->LookupTable->Delete();
   }
-  this->SetName(0);
+  this->SetName(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkDataArray::DeepCopy(vtkAbstractArray* aa)
 {
-  if ( aa == NULL )
+  if ( aa == nullptr )
   {
     return;
   }
 
   vtkDataArray *da = vtkDataArray::FastDownCast(aa);
-  if (da == NULL)
+  if (da == nullptr)
   {
     vtkErrorMacro(<< "Input array is not a vtkDataArray ("
                   << aa->GetClassName() << ")");
@@ -411,7 +444,7 @@ void vtkDataArray::DeepCopy(vtkAbstractArray* aa)
 void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
   // Match the behavior of the old AttributeData
-  if ( da == NULL )
+  if ( da == nullptr )
   {
     return;
   }
@@ -426,14 +459,17 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     this->SetNumberOfComponents(numComps);
     this->SetNumberOfTuples(numTuples);
 
-    DeepCopyWorker worker;
-    if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
+    if (numTuples != 0)
     {
-      // If dispatch fails, use fallback:
-      worker(da, this);
+      DeepCopyWorker worker;
+      if (!vtkArrayDispatch::Dispatch2::Execute(da, this, worker))
+      {
+        // If dispatch fails, use fallback:
+        worker(da, this);
+      }
     }
 
-    this->SetLookupTable(0);
+    this->SetLookupTable(nullptr);
     if (da->LookupTable)
     {
       this->LookupTable = da->LookupTable->NewInstance();
@@ -1618,7 +1654,7 @@ struct ScalarRangeDispatchWrapper
   void operator()(ArrayT *array)
   {
     this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array,
-                                                              this->Range);
+                                                              this->Range, vtkDataArrayPrivate::AllValues());
   }
 
 };
@@ -1634,7 +1670,7 @@ struct VectorRangeDispatchWrapper
   void operator()(ArrayT *array)
   {
     this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array,
-                                                              this->Range);
+                                                              this->Range, vtkDataArrayPrivate::AllValues());
   }
 
 };
@@ -1649,8 +1685,7 @@ struct FiniteScalarRangeDispatchWrapper {
   template <typename ArrayT>
   void operator()(ArrayT *array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeScalarFiniteRange(array,
-                                                              this->Range);
+    this->Success = vtkDataArrayPrivate::DoComputeScalarRange(array, this->Range, vtkDataArrayPrivate::FiniteValues());
   }
 };
 
@@ -1662,8 +1697,7 @@ struct FiniteVectorRangeDispatchWrapper {
 
   template <typename ArrayT> void operator()(ArrayT *array)
   {
-    this->Success = vtkDataArrayPrivate::DoComputeVectorFiniteRange(array,
-                                                              this->Range);
+    this->Success = vtkDataArrayPrivate::DoComputeVectorRange(array, this->Range, vtkDataArrayPrivate::FiniteValues());
   }
 };
 

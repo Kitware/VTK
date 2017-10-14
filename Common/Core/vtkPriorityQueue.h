@@ -60,12 +60,12 @@ public:
   static vtkPriorityQueue *New();
 
   vtkTypeMacro(vtkPriorityQueue,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate initial space for priority queue.
    */
-  void Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  void Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Insert id with priority specified. The id is generally an
@@ -124,7 +124,7 @@ public:
 
 protected:
   vtkPriorityQueue();
-  ~vtkPriorityQueue() VTK_OVERRIDE;
+  ~vtkPriorityQueue() override;
 
   Item *Resize(const vtkIdType sz);
 
@@ -134,8 +134,8 @@ protected:
   vtkIdType MaxId;
   vtkIdType Extend;
 private:
-  vtkPriorityQueue(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
+  vtkPriorityQueue(const vtkPriorityQueue&) = delete;
+  void operator=(const vtkPriorityQueue&) = delete;
 };
 
 inline double vtkPriorityQueue::DeleteId(vtkIdType id)

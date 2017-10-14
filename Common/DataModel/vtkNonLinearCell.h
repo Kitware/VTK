@@ -37,22 +37,22 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonLinearCell : public vtkCell
 {
 public:
   vtkTypeMacro(vtkNonLinearCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Non-linear cells require special treatment (tessellation) when
    * converting to graphics primitives (during mapping). The vtkCell
    * API IsLinear() is modified to indicate this requirement.
    */
-  int IsLinear() VTK_OVERRIDE {return 0;}
+  int IsLinear() override {return 0;}
 
 protected:
   vtkNonLinearCell();
-  ~vtkNonLinearCell() VTK_OVERRIDE {}
+  ~vtkNonLinearCell() override {}
 
 private:
-  vtkNonLinearCell(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
+  vtkNonLinearCell(const vtkNonLinearCell&) = delete;
+  void operator=(const vtkNonLinearCell&) = delete;
 };
 
 #endif

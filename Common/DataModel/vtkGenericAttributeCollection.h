@@ -43,7 +43,7 @@ public:
    * Standard type definition and print methods for a VTK class.
    */
   vtkTypeMacro(vtkGenericAttributeCollection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -163,7 +163,7 @@ public:
    * vtkAttributeCollection is a composite object and needs to check each
    * member of its collection for modified time.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   // *** ALL THE FOLLOWING METHODS SHOULD BE REMOVED WHEN when the
   // new pipeline update mechanism is checked in.
@@ -246,7 +246,7 @@ protected:
   /**
    * Destructor.
    */
-  ~vtkGenericAttributeCollection() VTK_OVERRIDE;
+  ~vtkGenericAttributeCollection() override;
 
   /**
    * STL vector for storing attributes
@@ -275,7 +275,7 @@ protected:
   void ComputeNumbers();
 
 private:
-  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
+  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) = delete;
+  void operator=(const vtkGenericAttributeCollection &) = delete;
 };
 #endif

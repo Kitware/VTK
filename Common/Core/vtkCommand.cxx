@@ -80,7 +80,14 @@ unsigned long vtkCommand::GetEventIdFromString(const char *event)
   return vtkCommand::NoEvent;
 }
 
-
-
-
-
+bool vtkCommand::EventHasData(unsigned long event)
+{
+  switch (event)
+  {
+    case vtkCommand::Button3DEvent:
+    case vtkCommand::Move3DEvent:
+      return true;
+    default:
+      return false;
+  }
+}

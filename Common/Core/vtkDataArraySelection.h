@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDataArraySelection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArraySelection* New();
 
   /**
@@ -155,14 +155,14 @@ public:
 
 protected:
   vtkDataArraySelection();
-  ~vtkDataArraySelection() VTK_OVERRIDE;
+  ~vtkDataArraySelection() override;
 
   // Internal implementation details.
   vtkDataArraySelectionInternals* Internal;
 
 private:
-  vtkDataArraySelection(const vtkDataArraySelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataArraySelection&) VTK_DELETE_FUNCTION;
+  vtkDataArraySelection(const vtkDataArraySelection&) = delete;
+  void operator=(const vtkDataArraySelection&) = delete;
 };
 
 #endif

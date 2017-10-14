@@ -69,7 +69,7 @@ public:
    */
   static vtkProbePolyhedron *New();
   vtkTypeMacro(vtkProbePolyhedron,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -113,21 +113,21 @@ public:
 
 protected:
   vtkProbePolyhedron();
-  ~vtkProbePolyhedron() VTK_OVERRIDE;
+  ~vtkProbePolyhedron() override;
 
   int ProbePointData;
   int ProbeCellData;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
 private:
-  vtkProbePolyhedron(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
+  vtkProbePolyhedron(const vtkProbePolyhedron&) = delete;
+  void operator=(const vtkProbePolyhedron&) = delete;
 
 };
 

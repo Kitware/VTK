@@ -55,20 +55,20 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkMultiBlockVolumeMapper :
 public:
   static vtkMultiBlockVolumeMapper *New();
   vtkTypeMacro(vtkMultiBlockVolumeMapper,vtkVolumeMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    *  \brief API Superclass
    *  \sa vtkAbstractVolumeMapper
    */
-  double* GetBounds() VTK_OVERRIDE;
+  double* GetBounds() override;
   using vtkAbstractVolumeMapper::GetBounds;
 
-  void SelectScalarArray(int arrayNum) VTK_OVERRIDE;
-  void SelectScalarArray(char const* arrayName) VTK_OVERRIDE;
-  void SetScalarMode(int ScalarMode) VTK_OVERRIDE;
-  void SetArrayAccessMode(int accessMode) VTK_OVERRIDE;
+  void SelectScalarArray(int arrayNum) override;
+  void SelectScalarArray(char const* arrayName) override;
+  void SetScalarMode(int ScalarMode) override;
+  void SetArrayAccessMode(int accessMode) override;
 
   /**
    * Render the current dataset.
@@ -76,13 +76,13 @@ public:
    * \warning Internal method - not intended for general use, do
    * NOT use this method outside of the rendering process.
    */
-  void Render(vtkRenderer* ren, vtkVolume* vol) VTK_OVERRIDE;
+  void Render(vtkRenderer* ren, vtkVolume* vol) override;
 
   /**
    * \warning Internal method - not intended for general use, do
    * NOT use this method outside of the rendering process.
    */
-  void ReleaseGraphicsResources(vtkWindow* window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow* window) override;
   //@}
 
   //@{
@@ -109,7 +109,7 @@ public:
    * Blending mode API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetBlendMode
    */
-  void SetBlendMode(int mode) VTK_OVERRIDE;
+  void SetBlendMode(int mode) override;
   //@}
 
   //@{
@@ -117,24 +117,24 @@ public:
    * Cropping API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetCropping
    */
-  void SetCropping(int mode) VTK_OVERRIDE;
+  void SetCropping(int mode) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionPlanes
    */
   void SetCroppingRegionPlanes(double arg1, double arg2, double arg3,
-    double arg4, double arg5, double arg6) VTK_OVERRIDE;
-  void SetCroppingRegionPlanes(double *planes) VTK_OVERRIDE;
+    double arg4, double arg5, double arg6) override;
+  void SetCroppingRegionPlanes(double *planes) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionFlags
    */
-  void SetCroppingRegionFlags(int mode) VTK_OVERRIDE;
+  void SetCroppingRegionFlags(int mode) override;
   //@}
 
 protected:
   vtkMultiBlockVolumeMapper();
-  ~vtkMultiBlockVolumeMapper();
+  ~vtkMultiBlockVolumeMapper() override;
 
   /**
    * Specify the type of data this mapper can handle. This mapper requires
@@ -143,7 +143,7 @@ protected:
    *
    * \sa vtkAlgorithm::FillInputPortInformation
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
   /**
@@ -184,8 +184,8 @@ private:
    */
   vtkSmartVolumeMapper* CreateMapper();
 
-  vtkMultiBlockVolumeMapper(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockVolumeMapper(const vtkMultiBlockVolumeMapper&) = delete;
+  void operator=(const vtkMultiBlockVolumeMapper&) = delete;
 
   /////////////////////////////////////////////////////////////////////////////
 

@@ -72,7 +72,7 @@ public:
    */
   static vtkPCANormalEstimation *New();
   vtkTypeMacro(vtkPCANormalEstimation,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -151,7 +151,7 @@ public:
 
 protected:
   vtkPCANormalEstimation();
-  ~vtkPCANormalEstimation() VTK_OVERRIDE;
+  ~vtkPCANormalEstimation() override;
 
   // IVars
   int SampleSize;
@@ -166,12 +166,12 @@ protected:
 
   // Pipeline management
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+    vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkPCANormalEstimation(const vtkPCANormalEstimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCANormalEstimation&) VTK_DELETE_FUNCTION;
+  vtkPCANormalEstimation(const vtkPCANormalEstimation&) = delete;
+  void operator=(const vtkPCANormalEstimation&) = delete;
 
 };
 

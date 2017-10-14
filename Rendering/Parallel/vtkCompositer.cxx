@@ -38,7 +38,7 @@ vtkCompositer::vtkCompositer()
 //-------------------------------------------------------------------------
 vtkCompositer::~vtkCompositer()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 
@@ -86,7 +86,7 @@ void vtkCompositer::ResizeFloatArray(vtkFloatArray* fa, int numComp,
     {
       MPI_Free_mem(ptr);
     }
-    MPI_Alloc_mem(size*numComp*sizeof(float), NULL, &ptr);
+    MPI_Alloc_mem(size*numComp*sizeof(float), nullptr, &ptr);
     fa->SetArray(ptr, size*numComp, 1);
   }
   else
@@ -112,7 +112,7 @@ void vtkCompositer::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca,
     {
       MPI_Free_mem(ptr);
     }
-    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), NULL, &ptr);
+    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), nullptr, &ptr);
     uca->SetArray(ptr, size*numComp, 1);
   }
   else

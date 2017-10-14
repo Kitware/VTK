@@ -42,20 +42,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkPointFillPass : public vtkDepthImageProcessi
 public:
   static vtkPointFillPass *New();
   vtkTypeMacro(vtkPointFillPass,vtkDepthImageProcessingPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   //@{
   /**
@@ -88,7 +88,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkPointFillPass() VTK_OVERRIDE;
+  ~vtkPointFillPass() override;
 
   /**
    * Graphics resources.
@@ -104,8 +104,8 @@ public:
   float MinimumCandidateAngle;
 
  private:
-  vtkPointFillPass(const vtkPointFillPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointFillPass&) VTK_DELETE_FUNCTION;
+  vtkPointFillPass(const vtkPointFillPass&) = delete;
+  void operator=(const vtkPointFillPass&) = delete;
 };
 
 #endif

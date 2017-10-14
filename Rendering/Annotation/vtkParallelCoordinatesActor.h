@@ -79,7 +79,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkParallelCoordinatesActor : public vtkActo
 {
 public:
   vtkTypeMacro(vtkParallelCoordinatesActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with autorange computation;
@@ -149,15 +149,15 @@ public:
   /**
    * Draw the parallel coordinates plot.
    */
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) override {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Set the input to the parallel coordinates actor. Creates
@@ -181,11 +181,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkParallelCoordinatesActor();
-  ~vtkParallelCoordinatesActor() VTK_OVERRIDE;
+  ~vtkParallelCoordinatesActor() override;
 
 private:
 
@@ -222,8 +222,8 @@ private:
   int PlaceAxes(vtkViewport *viewport, int *size);
 
 private:
-  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesActor&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&) = delete;
+  void operator=(const vtkParallelCoordinatesActor&) = delete;
 };
 
 

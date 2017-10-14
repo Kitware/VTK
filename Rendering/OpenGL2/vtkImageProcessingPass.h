@@ -39,14 +39,14 @@ class VTKRENDERINGOPENGL2_EXPORT vtkImageProcessingPass : public vtkRenderPass
 {
 public:
   vtkTypeMacro(vtkImageProcessingPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkImageProcessingPass() VTK_OVERRIDE;
+  ~vtkImageProcessingPass() override;
 
   /**
    * Render delegate with a image of different dimensions than the
@@ -91,8 +91,8 @@ public:
   vtkRenderPass *DelegatePass;
 
  private:
-  vtkImageProcessingPass(const vtkImageProcessingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageProcessingPass&) VTK_DELETE_FUNCTION;
+  vtkImageProcessingPass(const vtkImageProcessingPass&) = delete;
+  void operator=(const vtkImageProcessingPass&) = delete;
 };
 
 #endif

@@ -27,7 +27,7 @@
 vtkAbstractCellLocator::vtkAbstractCellLocator()
 {
   this->CacheCellBounds            = 0;
-  this->CellBounds                 = NULL;
+  this->CellBounds                 = nullptr;
   this->MaxLevel                   = 8;
   this->Level                      = 0;
   this->RetainCellLists            = 1;
@@ -59,7 +59,7 @@ bool vtkAbstractCellLocator::StoreCellBounds()
 void vtkAbstractCellLocator::FreeCellBounds()
 {
   delete [] this->CellBounds;
-  this->CellBounds = NULL;
+  this->CellBounds = nullptr;
 }
 //----------------------------------------------------------------------------
 int vtkAbstractCellLocator::IntersectWithLine(
@@ -197,7 +197,7 @@ vtkIdType vtkAbstractCellLocator::FindCell(
   if (this->DataSet)
   {
     returnVal = this->DataSet->FindCell(
-      x, NULL, GenCell, 0, tol2, subId, pcoords, weights);
+      x, nullptr, GenCell, 0, tol2, subId, pcoords, weights);
   }
   return returnVal;
 }

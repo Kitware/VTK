@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkPolyDataMapperNode :
 public:
   static vtkPolyDataMapperNode* New();
   vtkTypeMacro(vtkPolyDataMapperNode, vtkMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef struct {
     std::vector<unsigned int> vertex_index;
@@ -76,8 +76,8 @@ protected:
                                vtkPDConnectivity &conn);
 
  private:
-  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) = delete;
+  void operator=(const vtkPolyDataMapperNode&) = delete;
 };
 
 #endif

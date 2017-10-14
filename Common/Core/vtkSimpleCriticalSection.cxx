@@ -16,21 +16,13 @@
 
 void vtkSimpleCriticalSection::Init()
 {
-#ifdef VTK_USE_SPROC
-  init_lock( &this->CritSec );
-#endif
-
 #ifdef VTK_USE_WIN32_THREADS
-  //this->MutexLock = CreateMutex( NULL, FALSE, NULL );
+  //this->MutexLock = CreateMutex( nullptr, FALSE, nullptr );
   InitializeCriticalSection(&this->CritSec);
 #endif
 
 #ifdef VTK_USE_PTHREADS
-#ifdef VTK_HP_PTHREADS
-  pthread_mutex_init(&(this->CritSec), pthread_mutexattr_default);
-#else
-  pthread_mutex_init(&(this->CritSec), NULL);
-#endif
+  pthread_mutex_init(&(this->CritSec), nullptr);
 #endif
 }
 
@@ -51,10 +43,6 @@ vtkSimpleCriticalSection::~vtkSimpleCriticalSection()
 // Lock the vtkCriticalSection
 void vtkSimpleCriticalSection::Lock()
 {
-#ifdef VTK_USE_SPROC
-  spin_lock( &this->CritSec );
-#endif
-
 #ifdef VTK_USE_WIN32_THREADS
   //WaitForSingleObject( this->MutexLock, INFINITE );
   EnterCriticalSection(&this->CritSec);
@@ -68,10 +56,6 @@ void vtkSimpleCriticalSection::Lock()
 // Unlock the vtkCriticalSection
 void vtkSimpleCriticalSection::Unlock()
 {
-#ifdef VTK_USE_SPROC
-  release_lock( &this->CritSec );
-#endif
-
 #ifdef VTK_USE_WIN32_THREADS
   //ReleaseMutex( this->MutexLock );
   LeaveCriticalSection(&this->CritSec);

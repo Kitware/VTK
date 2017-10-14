@@ -68,10 +68,10 @@ vtkImagePointDataIterator::vtkImagePointDataIterator()
   this->SpanSliceEndIncrement = 0;
   this->SpanSliceIncrement = 0;
   this->SpanIndex = 0;
-  this->SpanCountPointer = 0;
-  this->SpanListPointer = 0;
+  this->SpanCountPointer = nullptr;
+  this->SpanListPointer = nullptr;
 
-  this->Algorithm = 0;
+  this->Algorithm = nullptr;
   this->Count = 0;
   this->Target = 0;
   this->ThreadId = 0;
@@ -83,7 +83,7 @@ void vtkImagePointDataIterator::Initialize(
   vtkAlgorithm *algorithm, int threadId)
 {
   const int *dataExtent = image->GetExtent();
-  if (extent == 0)
+  if (extent == nullptr)
   {
     extent = dataExtent;
   }
@@ -250,8 +250,8 @@ void vtkImagePointDataIterator::Initialize(
     }
     else
     {
-      this->SpanCountPointer = 0;
-      this->SpanListPointer = 0;
+      this->SpanCountPointer = nullptr;
+      this->SpanListPointer = nullptr;
       this->InStencil = false;
     }
   }
@@ -262,8 +262,8 @@ void vtkImagePointDataIterator::Initialize(
     this->SpanSliceEndIncrement = 0;
     this->SpanSliceIncrement = 0;
     this->SpanIndex = 0;
-    this->SpanCountPointer = 0;
-    this->SpanListPointer = 0;
+    this->SpanCountPointer = nullptr;
+    this->SpanListPointer = nullptr;
   }
 
   if (algorithm)
@@ -277,7 +277,7 @@ void vtkImagePointDataIterator::Initialize(
   }
   else
   {
-    this->Algorithm = 0;
+    this->Algorithm = nullptr;
     this->Target = 0;
     this->Count = 0;
     this->ThreadId = 0;

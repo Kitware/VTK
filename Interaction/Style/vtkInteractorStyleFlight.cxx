@@ -127,7 +127,7 @@ vtkInteractorStyleFlight::~vtkInteractorStyleFlight()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::ForwardFly()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -226,7 +226,7 @@ void vtkInteractorStyleFlight::OnMouseMove()
     case VTKIS_FORWARDFLY:
     case VTKIS_REVERSEFLY:
       this->UpdateMouseSteering(cam);
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
 }
@@ -237,7 +237,7 @@ void vtkInteractorStyleFlight::OnLeftButtonDown()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -290,7 +290,7 @@ void vtkInteractorStyleFlight::OnRightButtonDown()
   int x = this->Interactor->GetEventPosition()[0];
   int y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(x, y);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -445,7 +445,7 @@ void vtkInteractorStyleFlight::OnChar()
 //---------------------------------------------------------------------------
 void vtkInteractorStyleFlight::JumpTo(double campos[3], double focpos[3])
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }

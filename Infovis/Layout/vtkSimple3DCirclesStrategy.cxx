@@ -117,7 +117,7 @@ void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   os << indent << "Minimum degree for autoheight : " << this->MinimumRadian << " rad [" << vtkMath::DegreesFromRadians( this->MinimumRadian ) << " deg]" << endl;
 
   os << indent << "Registered MarkedStartPoints :";
-  if ( this->MarkedStartVertices == 0 )
+  if ( this->MarkedStartVertices == nullptr )
     os << " (none)" << endl;
   else
   {
@@ -126,7 +126,7 @@ void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   }
 
   os << indent << "Registered HierarchicalLayers :";
-  if ( this->HierarchicalLayers == 0 )
+  if ( this->HierarchicalLayers == nullptr )
     os << " (none)" << endl;
   else
   {
@@ -135,7 +135,7 @@ void vtkSimple3DCirclesStrategy::PrintSelf( ostream &os, vtkIndent indent )
   }
 
   os << indent << "Registered HierarchicalOrder :";
-  if ( this->HierarchicalOrder == 0 )
+  if ( this->HierarchicalOrder == nullptr )
     os << " (none)" << endl;
   else
   {
@@ -289,7 +289,7 @@ vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalLayers,vtkIntArray);
 vtkCxxSetObjectMacro(vtkSimple3DCirclesStrategy,HierarchicalOrder,vtkIdTypeArray);
 
 vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
-: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(0), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::Pi()/6.0), HierarchicalLayers(0), HierarchicalOrder(0)
+: Radius(1), Height(1), Method(FixedRadiusMethod), MarkedStartVertices(nullptr), ForceToUseUniversalStartPointsFinder(0), AutoHeight(0), MinimumRadian(vtkMath::Pi()/6.0), HierarchicalLayers(nullptr), HierarchicalOrder(nullptr)
 {
   this->Direction[0] = this->Direction[1] = 0.0; this->Direction[2] = 1.0;
   this->T[0][1] = this->T[0][2] = this->T[1][2] = 0.0;
@@ -300,14 +300,14 @@ vtkSimple3DCirclesStrategy::vtkSimple3DCirclesStrategy( void )
 
 vtkSimple3DCirclesStrategy::~vtkSimple3DCirclesStrategy( void )
 {
-  this->SetMarkedStartVertices(0);
-  this->SetHierarchicalLayers(0);
-  this->SetHierarchicalOrder(0);
+  this->SetMarkedStartVertices(nullptr);
+  this->SetHierarchicalLayers(nullptr);
+  this->SetHierarchicalOrder(nullptr);
 }
 
 void vtkSimple3DCirclesStrategy::Layout( void )
 {
-  if ( this->Graph == 0 )
+  if ( this->Graph == nullptr )
   {
     vtkErrorMacro( << "Graph is null!" );
     return;
@@ -328,18 +328,18 @@ void vtkSimple3DCirclesStrategy::Layout( void )
   vtkSimple3DCirclesStrategyInternal start_points, order_points, stand_alones;
 
   // Layers begin
-  vtkSmartPointer<vtkIntArray> layers = 0;
-  if ( this->HierarchicalLayers != 0 )
+  vtkSmartPointer<vtkIntArray> layers = nullptr;
+  if ( this->HierarchicalLayers != nullptr )
   {
     if ( ( this->HierarchicalLayers->GetMaxId() + 1 ) == target->GetNumberOfVertices() )
     {
         layers = this->HierarchicalLayers;
     }
   }
-  if ( layers == 0 )
+  if ( layers == nullptr )
   {
     layers = vtkSmartPointer<vtkIntArray>::New();
-    if ( this->HierarchicalLayers != 0 )
+    if ( this->HierarchicalLayers != nullptr )
       this->HierarchicalLayers->UnRegister(this);
     this->HierarchicalLayers = layers;
     this->HierarchicalLayers->Register(this);
@@ -369,8 +369,8 @@ void vtkSimple3DCirclesStrategy::Layout( void )
   // Layers end
 
   // Order begin
-  vtkSmartPointer<vtkIdTypeArray> order = 0;
-  if ( this->HierarchicalOrder != 0 )
+  vtkSmartPointer<vtkIdTypeArray> order = nullptr;
+  if ( this->HierarchicalOrder != nullptr )
   {
     if ( ( this->HierarchicalOrder->GetMaxId() + 1 ) == target->GetNumberOfVertices() )
     {
@@ -378,10 +378,10 @@ void vtkSimple3DCirclesStrategy::Layout( void )
     }
   }
 
-  if ( order == 0 )
+  if ( order == nullptr )
   {
     order = vtkSmartPointer<vtkIdTypeArray>::New();
-    if ( this->HierarchicalOrder != 0 )
+    if ( this->HierarchicalOrder != nullptr )
       this->HierarchicalOrder->UnRegister(this);
     this->HierarchicalOrder = order;
     this->HierarchicalOrder->Register(this);
@@ -468,8 +468,6 @@ void vtkSimple3DCirclesStrategy::Layout( void )
 
   this->Graph->SetPoints( points );
   vtkDebugMacro( << "vtkPoints is added to the graph. Vertex layout is ready." );
-
-  return;
 }
 
 void vtkSimple3DCirclesStrategy::SetGraph( vtkGraph * graph )
@@ -477,22 +475,22 @@ void vtkSimple3DCirclesStrategy::SetGraph( vtkGraph * graph )
   if ( this->Graph != graph )
   {
     this->Superclass::SetGraph( graph );
-    if ( this->HierarchicalLayers != 0 )
+    if ( this->HierarchicalLayers != nullptr )
     {
       this->HierarchicalLayers->UnRegister(this);
-      this->HierarchicalLayers = 0;
+      this->HierarchicalLayers = nullptr;
     }
-    if ( this->HierarchicalOrder != 0 )
+    if ( this->HierarchicalOrder != nullptr )
     {
       this->HierarchicalOrder->UnRegister(this);
-      this->HierarchicalOrder = 0;
+      this->HierarchicalOrder = nullptr;
     }
   }
 }
 
 int vtkSimple3DCirclesStrategy::UniversalStartPoints( vtkDirectedGraph * input, vtkSimple3DCirclesStrategyInternal *target, vtkSimple3DCirclesStrategyInternal *StandAlones, vtkIntArray * layers )
 {
-  if ( ( this->MarkedStartVertices != 0 ) && ( this->ForceToUseUniversalStartPointsFinder == 0 ) )
+  if ( ( this->MarkedStartVertices != nullptr ) && ( this->ForceToUseUniversalStartPointsFinder == 0 ) )
   {
     if ( this->MarkedStartVertices->GetMaxId() == layers->GetMaxId() )
     {

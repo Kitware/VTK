@@ -48,7 +48,7 @@ class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 public:
   static vtkVPICReader *New();
   vtkTypeMacro(vtkVPICReader,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkVPICReader();
-  ~vtkVPICReader();
+  ~vtkVPICReader() override;
 
   char *FileName;                       // First field part file giving path
 
@@ -159,9 +159,9 @@ protected:
   vtkCallbackCommand* SelectionObserver;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **inVector,
-                         vtkInformationVector *) VTK_OVERRIDE;
+                         vtkInformationVector *) override;
 
   void LoadVariableData(int var, int timeStep);
   void LoadComponent(
@@ -177,8 +177,8 @@ protected:
 
 
 private:
-  vtkVPICReader(const vtkVPICReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVPICReader&) VTK_DELETE_FUNCTION;
+  vtkVPICReader(const vtkVPICReader&) = delete;
+  void operator=(const vtkVPICReader&) = delete;
 };
 
 #endif

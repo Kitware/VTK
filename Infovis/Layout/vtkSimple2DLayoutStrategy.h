@@ -46,7 +46,7 @@ public:
   static vtkSimple2DLayoutStrategy *New();
 
   vtkTypeMacro(vtkSimple2DLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
    * This strategy sets up some data structures
    * for faster processing of each Layout() call
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * This is the layout method where the graph that was
@@ -141,17 +141,17 @@ public:
    * graph. If you have an iterative layout please implement
    * the IsLayoutComplete() method.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
   /**
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() VTK_OVERRIDE {return this->LayoutComplete;}
+  int IsLayoutComplete() override {return this->LayoutComplete;}
 
 protected:
   vtkSimple2DLayoutStrategy();
-  ~vtkSimple2DLayoutStrategy() VTK_OVERRIDE;
+  ~vtkSimple2DLayoutStrategy() override;
 
   int    MaxNumberOfIterations;  //Maximum number of iterations.
   float  InitialTemperature;
@@ -181,8 +181,8 @@ private:
   float RestDistance;
   bool Jitter;
 
-  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&) = delete;
+  void operator=(const vtkSimple2DLayoutStrategy&) = delete;
 };
 
 #endif

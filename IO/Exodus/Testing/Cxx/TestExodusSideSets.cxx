@@ -46,7 +46,7 @@ int TestExodusSideSets(int argc, char* argv[])
   vtkCellData* cd = vtkDataSet::SafeDownCast(
     vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(4))->GetBlock(0))->GetCellData();
 
-  if(cd == NULL)
+  if(cd == nullptr)
   {
     cerr << "Can't find proper data set\n";
     return 1;

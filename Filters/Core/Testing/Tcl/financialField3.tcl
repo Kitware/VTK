@@ -115,7 +115,7 @@ vtkRearrangeFields rf
 
 vtkArrayCalculator calc
     calc SetInputConnection [rf GetOutputPort]
-    calc SetAttributeModeToUsePointData
+    calc SetAttributeTypeToPointData
     calc SetFunction "s / $max"
     calc AddScalarVariable s $scalar 0
     calc SetResultArrayName resArray
@@ -141,7 +141,6 @@ vtkContourFilter popSurface
 vtkPolyDataMapper popMapper
     popMapper SetInputConnection [popSurface GetOutputPort]
     popMapper ScalarVisibilityOff
-    popMapper ImmediateModeRenderingOn
 vtkActor popActor
     popActor SetMapper popMapper
     [popActor GetProperty] SetOpacity 0.3

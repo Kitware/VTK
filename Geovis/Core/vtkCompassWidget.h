@@ -84,7 +84,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkCompassWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -99,7 +99,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkCompassWidget();
-  ~vtkCompassWidget() VTK_OVERRIDE {}
+  ~vtkCompassWidget() override {}
 
   // These are the events that are handled
   static void SelectAction(vtkAbstractWidget*);
@@ -138,8 +138,8 @@ protected:
   double StartTime;
 
 private:
-  vtkCompassWidget(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
+  vtkCompassWidget(const vtkCompassWidget&) = delete;
+  void operator=(const vtkCompassWidget&) = delete;
 };
 
 #endif

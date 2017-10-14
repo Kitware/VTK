@@ -89,12 +89,12 @@ vtkAMREnzoReader::vtkAMREnzoReader()
 vtkAMREnzoReader::~vtkAMREnzoReader()
 {
   delete this->Internal;
-  this->Internal=NULL;
+  this->Internal=nullptr;
 
   this->BlockMap.clear();
 
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void vtkAMREnzoReader::ParseCFactor(
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::ParseConversionFactors( )
 {
-  assert( "pre: FileName should not be NULL" && (this->FileName != NULL) );
+  assert( "pre: FileName should not be nullptr" && (this->FileName != nullptr) );
 
   // STEP 0: Extract the parameters file from the user-supplied filename
   std::string baseDir =
@@ -222,10 +222,10 @@ void vtkAMREnzoReader::ParseConversionFactors( )
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::SetFileName( const char* fileName )
 {
-  assert("pre: Internal Enzo AMR Reader is NULL" && (this->Internal != NULL ));
+  assert("pre: Internal Enzo AMR Reader is nullptr" && (this->Internal != nullptr ));
 
   if( fileName && strcmp( fileName, "" ) &&
-    ( (this->FileName==NULL) || (strcmp(fileName,this->FileName ) ) ) )
+    ( (this->FileName==nullptr) || (strcmp(fileName,this->FileName ) ) ) )
   {
     std::string  tempName( fileName );
     std::string  bExtName( ".boundary" );
@@ -265,11 +265,11 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
     this->Internal->NumberOfBlocks = 0;
     this->LoadedMetaData = false;
 
-    if ( this->FileName != NULL)
+    if ( this->FileName != nullptr)
     {
     delete [] this->FileName;
-    this->FileName = NULL;
-    this->Internal->SetFileName( NULL );
+    this->FileName = nullptr;
+    this->Internal->SetFileName( nullptr );
     }
     this->FileName = new char[  strlen( fileName ) + 1  ];
     strcpy( this->FileName, fileName );
@@ -284,13 +284,12 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 
 
   this->Modified();
-  return;
 }
 
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::ReadMetaData()
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
 
   if( !this->IsReady )
   {
@@ -304,7 +303,7 @@ void vtkAMREnzoReader::ReadMetaData()
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
 
   if( !this->IsReady )
   {
@@ -324,7 +323,7 @@ int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::GetNumberOfBlocks()
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
   {
     return 0;
@@ -337,7 +336,7 @@ int vtkAMREnzoReader::GetNumberOfBlocks()
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::GetNumberOfLevels()
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
   if( !this->IsReady )
   {
     return 0;
@@ -350,8 +349,8 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 //-----------------------------------------------------------------------------
 int vtkAMREnzoReader::FillMetaData( )
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
-  assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
+  assert( "pre: metadata object is nullptr" && (this->Metadata != nullptr) );
   if( !this->IsReady )
   {
     return 0;
@@ -399,11 +398,11 @@ int vtkAMREnzoReader::FillMetaData( )
 //-----------------------------------------------------------------------------
 vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
 
   if( !this->IsReady )
   {
-    return NULL;
+    return nullptr;
   }
 
   this->Internal->ReadMetaData();
@@ -433,7 +432,7 @@ vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
 void vtkAMREnzoReader::GetAMRGridData(
     const int blockIdx, vtkUniformGrid *block, const char *field)
 {
-  assert( "pre: AMR block is NULL" && (block != NULL));
+  assert( "pre: AMR block is nullptr" && (block != nullptr));
 
   this->Internal->GetBlockAttribute( field, blockIdx, block );
   if( this->ConvertToCGS == 1 )
@@ -442,7 +441,7 @@ void vtkAMREnzoReader::GetAMRGridData(
     if( conversionFactor != 1.0 )
     {
       vtkDataArray *data = block->GetCellData()->GetArray( field );
-      assert( "pre: data array is NULL!" && (data != NULL) );
+      assert( "pre: data array is nullptr!" && (data != nullptr) );
 
       vtkIdType numTuples = data->GetNumberOfTuples();
       for( vtkIdType t=0; t < numTuples; ++t )
@@ -462,7 +461,7 @@ void vtkAMREnzoReader::GetAMRGridData(
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::SetUpDataArraySelections()
 {
-  assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal Enzo Reader is nullptr" && (this->Internal != nullptr) );
   this->Internal->ReadMetaData();
   this->Internal->GetAttributeNames();
 

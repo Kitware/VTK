@@ -37,7 +37,7 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
   this->NumberOfScalarComponents = 0;
   for (i=0; i < 4; i++)
   {
-    this->ScalarArrays[i] = NULL;
+    this->ScalarArrays[i] = nullptr;
     this->ScalarArrayComponents[i] = -1; //uninitialized
     this->ScalarComponentRange[i][0] = this->ScalarComponentRange[i][1] = -1;
     this->ScalarNormalize[i] = 1; //yes, normalize
@@ -45,7 +45,7 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
 
   for (i=0; i < 3; i++)
   {
-    this->VectorArrays[i] = NULL;
+    this->VectorArrays[i] = nullptr;
     this->VectorArrayComponents[i] = -1; //uninitialized
     this->VectorComponentRange[i][0] = this->VectorComponentRange[i][1] = -1;
     this->VectorNormalize[i] = 1; //yes, normalize
@@ -53,7 +53,7 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
 
   for (i=0; i < 3; i++)
   {
-    this->NormalArrays[i] = NULL;
+    this->NormalArrays[i] = nullptr;
     this->NormalArrayComponents[i] = -1; //uninitialized
     this->NormalComponentRange[i][0] = this->NormalComponentRange[i][1] = -1;
     this->NormalNormalize[i] = 1; //yes, normalize
@@ -62,7 +62,7 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
   this->NumberOfTCoordComponents = 0;
   for (i=0; i < 3; i++)
   {
-    this->TCoordArrays[i] = NULL;
+    this->TCoordArrays[i] = nullptr;
     this->TCoordArrayComponents[i] = -1; //uninitialized
     this->TCoordComponentRange[i][0] = this->TCoordComponentRange[i][1] = -1;
     this->TCoordNormalize[i] = 1; //yes, normalize
@@ -70,7 +70,7 @@ vtkFieldDataToAttributeDataFilter::vtkFieldDataToAttributeDataFilter()
 
   for (i=0; i < 9; i++)
   {
-    this->TensorArrays[i] = NULL;
+    this->TensorArrays[i] = nullptr;
     this->TensorArrayComponents[i] = -1; //uninitialized
     this->TensorComponentRange[i][0] = this->TensorComponentRange[i][1] = -1;
     this->TensorNormalize[i] = 1; //yes, normalize
@@ -153,7 +153,7 @@ int vtkFieldDataToAttributeDataFilter::RequestData(
     return 1;
   }
 
-  fd = NULL;
+  fd = nullptr;
   if ( this->InputField == VTK_DATA_OBJECT_FIELD )
   {
     fd = input->GetFieldData();
@@ -166,7 +166,7 @@ int vtkFieldDataToAttributeDataFilter::RequestData(
   {
     fd = input->GetCellData();
   }
-  if ( fd == NULL )
+  if ( fd == nullptr )
   {
     vtkErrorMacro(<<"No field data available");
     return 1;
@@ -308,7 +308,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   }
   for (i=0; i<numComp; i++)
   {
-    if ( arrays[i] == NULL )
+    if ( arrays[i] == nullptr )
     {
       return;
     }
@@ -318,7 +318,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array/component requested");
       return;
@@ -350,7 +350,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
   {
     newScalars = fieldArray[0];
-    newScalars->Register(0);
+    newScalars->Register(nullptr);
   }
   else //have to copy data into created array
   {
@@ -456,7 +456,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
 
   for (i=0; i<3; i++)
   {
-    if ( arrays[i] == NULL )
+    if ( arrays[i] == nullptr )
     {
       return;
     }
@@ -466,7 +466,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested");
       return;
@@ -492,7 +492,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
        !normalize[0] && !normalize[1] && !normalize[2] )
   {
     newVectors = fieldArray[0];
-    newVectors->Register(0);
+    newVectors->Register(nullptr);
   }
   else //have to copy data into created array
   {
@@ -599,7 +599,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
 
   for (i=0; i<3; i++)
   {
-    if ( arrays[i] == NULL )
+    if ( arrays[i] == nullptr )
     {
       return;
     }
@@ -609,7 +609,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested");
       return;
@@ -635,7 +635,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
        !normalize[0] && !normalize[1] && !normalize[2] )
   {
     newNormals = fieldArray[0];
-    newNormals->Register(0);
+    newNormals->Register(nullptr);
   }
   else //have to copy data into created array
   {
@@ -749,7 +749,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   }
   for (i=0; i<numComp; i++)
   {
-    if ( arrays[i] == NULL )
+    if ( arrays[i] == nullptr )
     {
       return;
     }
@@ -759,7 +759,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array/component requested");
       return;
@@ -791,7 +791,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
   {
     newTCoords = fieldArray[0];
-    newTCoords->Register(0);
+    newTCoords->Register(nullptr);
   }
   else //have to copy data into created array
   {
@@ -897,14 +897,14 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   vtkDataArray *fieldArray[9];
 
   // Check for symmetric tensor input
-  if (arrayComp[6] == -1 || arrays[6] == NULL)
+  if (arrayComp[6] == -1 || arrays[6] == nullptr)
   {
     numComp = 6;
   }
 
   for (i = 0; i < numComp; i++)
   {
-    if ( arrays[i] == NULL )
+    if ( arrays[i] == nullptr )
     {
       return;
     }
@@ -914,7 +914,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
   {
     fieldArray[i] = this->GetFieldArray(fd, arrays[i], arrayComp[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested");
       return;
@@ -946,7 +946,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
        fieldArray[0]->GetNumberOfTuples() == num && !normalizeAny )
   {
     newTensors = fieldArray[0];
-    newTensors->Register(0);
+    newTensors->Register(nullptr);
   }
   else //have to copy data into created array
   {
@@ -1056,11 +1056,11 @@ int vtkFieldDataToAttributeDataFilter::GetComponentsType(int numComp, vtkDataArr
 vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
                                                                char *name, int comp)
 {
-  vtkDataArray *da = NULL;
+  vtkDataArray *da = nullptr;
   int numComp;
   bool found = false;
 
-  if ( name != NULL )
+  if ( name != nullptr )
   {
     vtkDataSetAttributes* dsa;
     if ((dsa=vtkDataSetAttributes::SafeDownCast(fd)))
@@ -1096,14 +1096,14 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
       da = fd->GetArray(name);
     }
 
-    if ( da == NULL )
+    if ( da == nullptr )
     {
-      return NULL;
+      return nullptr;
     }
     numComp = da->GetNumberOfComponents();
     if ( comp < 0 || comp >= numComp )
     {
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -1111,7 +1111,7 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &name, const char *newName)
@@ -1128,7 +1128,7 @@ void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &nam
   }
    else
    {
-    name = NULL;
+    name = nullptr;
    }
   self->Modified();
 }

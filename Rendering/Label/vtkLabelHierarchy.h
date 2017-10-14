@@ -80,12 +80,12 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchy : public vtkPointSet
 public:
   static vtkLabelHierarchy* New();
   vtkTypeMacro(vtkLabelHierarchy,vtkPointSet);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Override SetPoints so we can reset the hierarchy when the points change.
    */
-  void SetPoints( vtkPoints* ) VTK_OVERRIDE;
+  void SetPoints( vtkPoints* ) override;
 
   /**
    * Fill the hierarchy with the input labels.
@@ -217,16 +217,16 @@ public:
   /**
    * Inherited members (from vtkDataSet)
    */
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
-  vtkCell* GetCell(vtkIdType) VTK_OVERRIDE;
-  void GetCell(vtkIdType, vtkGenericCell*) VTK_OVERRIDE;
-  int GetCellType(vtkIdType) VTK_OVERRIDE;
-  void GetCellPoints(vtkIdType, vtkIdList*) VTK_OVERRIDE;
-  void GetPointCells(vtkIdType, vtkIdList*) VTK_OVERRIDE;
-  vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*) VTK_OVERRIDE;
-  vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*) VTK_OVERRIDE;
-  int GetMaxCellSize() VTK_OVERRIDE;
+  vtkCell* GetCell(vtkIdType) override;
+  void GetCell(vtkIdType, vtkGenericCell*) override;
+  int GetCellType(vtkIdType) override;
+  void GetCellPoints(vtkIdType, vtkIdList*) override;
+  void GetPointCells(vtkIdType, vtkIdList*) override;
+  vtkIdType FindCell(double*, vtkCell*, vtkIdType, double, int&, double*, double*) override;
+  vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*) override;
+  int GetMaxCellSize() override;
   //@}
 
   class Implementation;
@@ -250,7 +250,7 @@ public:
 
 protected:
   vtkLabelHierarchy();
-  ~vtkLabelHierarchy() VTK_OVERRIDE;
+  ~vtkLabelHierarchy() override;
 
   int TargetLabelCount;
   int MaximumDepth;
@@ -271,8 +271,8 @@ protected:
   friend class implementation;
 
 private:
-  vtkLabelHierarchy( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
+  vtkLabelHierarchy( const vtkLabelHierarchy& ) = delete;
+  void operator = ( const vtkLabelHierarchy& ) = delete;
 };
 
 #endif // vtkLabelHierarchy_h

@@ -23,11 +23,6 @@
 
 #include "vtksys/SystemTools.hxx"
 
-//=============================================================================
-// When changing this file, change the corresponding file in
-// StatisticsGnuR/Testing/Cxx as well.
-//=============================================================================
-
 // Perform a fuzzy compare of floats/doubles
 template<class A>
 bool fuzzyCompare(A a, A b) {
@@ -107,15 +102,15 @@ int TestPCARobust2()
   }
 
   vtkNew<vtkTable> datasetTable;
-  datasetTable->AddColumn( dataset1Arr.GetPointer() );
-  datasetTable->AddColumn( dataset2Arr.GetPointer() );
+  datasetTable->AddColumn( dataset1Arr );
+  datasetTable->AddColumn( dataset2Arr );
 
   // Set PCA statistics algorithm and its input data port
   vtkNew<vtkPCAStatistics> pcas;
 
   // Prepare first test with data
   pcas->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA,
-    datasetTable.GetPointer() );
+    datasetTable );
   pcas->MedianAbsoluteDeviationOn();
 
   // -- Select Column Pairs of Interest ( Learn Mode ) --

@@ -42,7 +42,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public 
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set up the integrator with the given properties and scalars.
@@ -66,11 +66,11 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayIntegrator();
-  ~vtkUnstructuredGridVolumeRayIntegrator() VTK_OVERRIDE;
+  ~vtkUnstructuredGridVolumeRayIntegrator() override;
 
 private:
-  vtkUnstructuredGridVolumeRayIntegrator(const vtkUnstructuredGridVolumeRayIntegrator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridVolumeRayIntegrator&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridVolumeRayIntegrator(const vtkUnstructuredGridVolumeRayIntegrator&) = delete;
+  void operator=(const vtkUnstructuredGridVolumeRayIntegrator&) = delete;
 };
 
 #endif

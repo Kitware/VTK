@@ -53,7 +53,7 @@ public:
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -111,14 +111,14 @@ public:
 
 protected:
   vtkGenericSubdivisionErrorMetric();
-  ~vtkGenericSubdivisionErrorMetric() VTK_OVERRIDE;
+  ~vtkGenericSubdivisionErrorMetric() override;
 
   vtkGenericAdaptorCell *GenericCell;
   vtkGenericDataSet *DataSet;
 
 private:
-  vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericSubdivisionErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&) = delete;
+  void operator=(const vtkGenericSubdivisionErrorMetric&) = delete;
 };
 
 #endif

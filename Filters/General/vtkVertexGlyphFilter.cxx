@@ -76,7 +76,7 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkPolyData *output = vtkPolyData::SafeDownCast(
                                     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *points = 0;
+  vtkPoints *points = nullptr;
   if (psInput)
   {
     points = psInput->GetPoints();
@@ -87,7 +87,7 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // If no points, then nothing to do.
-  if (points == NULL)
+  if (points == nullptr)
   {
     return 1;
   }

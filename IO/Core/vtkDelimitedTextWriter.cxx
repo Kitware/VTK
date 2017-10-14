@@ -37,23 +37,23 @@ vtkStandardNewMacro(vtkDelimitedTextWriter);
 //-----------------------------------------------------------------------------
 vtkDelimitedTextWriter::vtkDelimitedTextWriter()
 {
-  this->StringDelimiter = 0;
-  this->FieldDelimiter = 0;
+  this->StringDelimiter = nullptr;
+  this->FieldDelimiter = nullptr;
   this->UseStringDelimiter = true;
   this->SetStringDelimiter("\"");
   this->SetFieldDelimiter(",");
-  this->Stream = 0;
-  this->FileName = 0;
+  this->Stream = nullptr;
+  this->FileName = nullptr;
   this->WriteToOutputString = false;
-  this->OutputString = 0;
+  this->OutputString = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkDelimitedTextWriter::~vtkDelimitedTextWriter()
 {
-  this->SetStringDelimiter(0);
-  this->SetFieldDelimiter(0);
-  this->SetFileName(0);
+  this->SetStringDelimiter(nullptr);
+  this->SetFieldDelimiter(nullptr);
+  this->SetFileName(nullptr);
   delete this->Stream;
   delete[] this->OutputString;
 }
@@ -260,14 +260,14 @@ void vtkDelimitedTextWriter::WriteTable(vtkTable* table)
     memcpy(this->OutputString, ostr->str().c_str(), strLen+1);
   }
   delete this->Stream;
-  this->Stream = 0;
+  this->Stream = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 char *vtkDelimitedTextWriter::RegisterAndGetOutputString()
 {
   char *tmp = this->OutputString;
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
 
   return tmp;
 }

@@ -75,11 +75,11 @@ vtkStandardNewMacro(vtkMNITransformReader);
 //-------------------------------------------------------------------------
 vtkMNITransformReader::vtkMNITransformReader()
 {
-  this->FileName = 0;
-  this->Transform = 0;
+  this->FileName = nullptr;
+  this->Transform = nullptr;
   this->Transforms = vtkCollection::New();
   this->LineNumber = 0;
-  this->Comments = 0;
+  this->Comments = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -736,7 +736,7 @@ int vtkMNITransformReader::ReadGridTransform(
   vtksys::SystemTools::SplitPath(filename, mincpath);
 
   // Join minc filename to this->FileName if filename is relative
-  if (mincpath[0] == "")
+  if (mincpath[0].empty())
   {
     xfmpath.pop_back();
     xfmpath.insert(xfmpath.end(), mincpath.begin()+1, mincpath.end());
@@ -833,7 +833,7 @@ int vtkMNITransformReader::ReadNextTransform(istream &infile, char linetext[256]
 int vtkMNITransformReader::ReadFile()
 {
   this->Transforms->RemoveAllItems();
-  this->SetTransform(0);
+  this->SetTransform(nullptr);
 
   // Check that the file name has been set.
   if (!this->FileName)
@@ -1003,7 +1003,7 @@ vtkAbstractTransform *vtkMNITransformReader::GetNthTransform(int i)
 
   if (i < 0 || i >= this->Transforms->GetNumberOfItems())
   {
-    return 0;
+    return nullptr;
   }
 
   return (vtkAbstractTransform *)this->Transforms->GetItemAsObject(i);

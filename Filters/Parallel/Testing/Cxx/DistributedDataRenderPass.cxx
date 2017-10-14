@@ -87,7 +87,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -109,7 +109,7 @@ void MyProcess::Execute()
 //  vtkParallelRenderManager *prm = vtkParallelRenderManager::New();
   vtkImageRenderManager *prm = vtkImageRenderManager::New();
 
-  vtkRenderWindowInteractor *iren=0;
+  vtkRenderWindowInteractor *iren=nullptr;
 
   if(me==0)
   {
@@ -121,7 +121,7 @@ void MyProcess::Execute()
   vtkDataSetReader *dsr = vtkDataSetReader::New();
   vtkUnstructuredGrid *ug = vtkUnstructuredGrid::New();
 
-  vtkDataSet *ds = NULL;
+  vtkDataSet *ds = nullptr;
 
   if (me == 0)
   {
@@ -139,7 +139,7 @@ void MyProcess::Execute()
 
     go = 1;
 
-    if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
+    if ((ds == nullptr) || (ds->GetNumberOfCells() == 0))
     {
       if (ds)
       {
@@ -229,7 +229,7 @@ void MyProcess::Execute()
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
   vtkCompositeRGBAPass *compositeRGBAPass=vtkCompositeRGBAPass::New();
   compositeRGBAPass->AddObserver(vtkCommand::ErrorEvent,
-                                 errorObserver1.GetPointer());
+                                 errorObserver1);
   compositeRGBAPass->SetController(this->Controller);
   compositeRGBAPass->SetKdtree(dd->GetKdtree());
   vtkRenderPassCollection *passes=vtkRenderPassCollection::New();

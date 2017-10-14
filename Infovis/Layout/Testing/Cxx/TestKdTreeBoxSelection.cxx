@@ -63,7 +63,7 @@ void BuildTree(vtkIdType parent, vtkKdNode *parentVertex, vtkMutableDirectedGrap
   double bounds[6];
   parentVertex->GetBounds(bounds);
   rectArray->InsertTuple(parent, bounds);
-  if (parentVertex->GetLeft() != NULL)
+  if (parentVertex->GetLeft() != nullptr)
   {
     vtkIdType curIndex = tree->AddChild(parent);
     BuildTree(curIndex, parentVertex->GetLeft(), tree, rectArray);

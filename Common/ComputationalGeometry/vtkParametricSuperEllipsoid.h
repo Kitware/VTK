@@ -48,7 +48,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
 {
   public:
     vtkTypeMacro(vtkParametricSuperEllipsoid, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct a superellipsoid with the following parameters:
@@ -66,7 +66,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -116,7 +116,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -132,11 +132,11 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricSuperEllipsoid();
-    ~vtkParametricSuperEllipsoid() VTK_OVERRIDE;
+    ~vtkParametricSuperEllipsoid() override;
 
     // Variables
     double XRadius;
@@ -146,8 +146,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT
     double N2;
 
   private:
-    vtkParametricSuperEllipsoid(const vtkParametricSuperEllipsoid&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricSuperEllipsoid&) VTK_DELETE_FUNCTION;
+    vtkParametricSuperEllipsoid(const vtkParametricSuperEllipsoid&) = delete;
+    void operator=(const vtkParametricSuperEllipsoid&) = delete;
 
 };
 

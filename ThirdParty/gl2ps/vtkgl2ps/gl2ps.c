@@ -167,7 +167,7 @@ typedef struct {
   GLshort type, numverts;
   GLushort pattern;
   char boundary, offset, culled;
-  GLint factor;
+  GLint factor, linecap, linejoin;
   GLint sortid; /* Used to stabilize qsort sorting */
   GLfloat width, ofactor, ounits;
   GL2PSvertex *verts;
@@ -2218,7 +2218,8 @@ GL2PSDLL_API void gl2psAddPolyPrimitive(GLshort type, GLshort numverts,
                                         GL2PSvertex *verts, GLint offset,
                                         GLfloat ofactor, GLfloat ounits,
                                         GLushort pattern, GLint factor,
-                                        GLfloat width, char boundary)
+                                        GLfloat width, GLint linecap,
+                                        GLint linejoin,char boundary)
 {
   GL2PSprimitive *prim;
 
@@ -2234,6 +2235,8 @@ GL2PSDLL_API void gl2psAddPolyPrimitive(GLshort type, GLshort numverts,
   prim->pattern = pattern;
   prim->factor = factor;
   prim->width = width;
+  prim->linecap = linecap;
+  prim->linejoin = linejoin;
   prim->culled = 0;
 
   /* FIXME: here we should have an option to split stretched
@@ -2294,7 +2297,7 @@ static void gl2psParseFeedbackBuffer(GLint used)
       current += i;
       used    -= i;
       gl2psAddPolyPrimitive(GL2PS_POINT, 1, vertices, 0, 0.0, 0.0,
-                            pattern, factor, psize, 0);
+                            pattern, factor, psize, 0, 0, 0);
       break;
     case GL_LINE_TOKEN :
     case GL_LINE_RESET_TOKEN :
@@ -2307,7 +2310,7 @@ static void gl2psParseFeedbackBuffer(GLint used)
       current += i;
       used    -= i;
       gl2psAddPolyPrimitive(GL2PS_LINE, 2, vertices, 0, 0.0, 0.0,
-                            pattern, factor, lwidth, 0);
+                            pattern, factor, lwidth, 0, 0, 0);
       break;
     case GL_POLYGON_TOKEN :
       count = (GLint)current[1];
@@ -2331,7 +2334,7 @@ static void gl2psParseFeedbackBuffer(GLint used)
           else
             flag = 0;
           gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, vertices, offset, ofactor,
-                                ounits, pattern, factor, 1, flag);
+                                ounits, pattern, factor, 1, 0, 0, flag);
           vertices[1] = vertices[2];
         }
         else
@@ -6096,7 +6099,12 @@ GL2PSDLL_API GLint gl2psText(const char *str, const char *fontname, GLshort font
                       NULL, GL_FALSE, 0, 0);
 }
 
-GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str, GL2PSrgba rgba)
+GL2PSDLL_API GLint gl2psSpecial(GLint format, const char *str)
+{
+  return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, NULL, GL_FALSE, 0, 0);
+}
+
+GL2PSDLL_API GLint gl2psSpecialColor(GLint format, const char *str, GL2PSrgba rgba)
 {
   return gl2psAddText(GL2PS_SPECIAL, str, "", 0, format, 0.0F, rgba, GL_FALSE, 0, 0);
 }

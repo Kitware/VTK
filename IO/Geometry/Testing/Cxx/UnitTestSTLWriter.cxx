@@ -74,6 +74,19 @@ int UnitTestSTLWriter(int argc,char *argv[])
   writer1->SetFileName(fileName.c_str());
   writer1->Update();
 
+  vtkSmartPointer<vtkPlaneSource> plane =
+    vtkSmartPointer<vtkPlaneSource>::New();
+  writer1->SetFileTypeToASCII();
+  fileName = testDirectory + std::string("/") + std::string("ASCIIQuad.stl");
+  writer1->SetFileName(fileName.c_str());
+  writer1->SetInputConnection(plane->GetOutputPort());
+  writer1->Update();
+  writer1->SetFileTypeToBinary();
+  fileName = testDirectory + std::string("/") + std::string("BinaryQuad.stl");
+  writer1->SetFileName(fileName.c_str());
+  writer1->SetInputConnection(plane->GetOutputPort());
+  writer1->Update();
+
   // Check error conditions
   //
   vtkSmartPointer<vtkTest::ErrorObserver>  errorObserver =
@@ -103,7 +116,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     ++status;
   }
 
-  writer2->SetFileName(NULL);
+  writer2->SetFileName(nullptr);
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToASCII();
   writer2->Update();
@@ -113,7 +126,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
     ++status;
   }
 
-  writer2->SetFileName(NULL);
+  writer2->SetFileName(nullptr);
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
   writer2->Update();
@@ -180,27 +193,8 @@ int UnitTestSTLWriter(int argc,char *argv[])
       ++status;
     }
   }
-  vtkSmartPointer<vtkPlaneSource> plane =
-    vtkSmartPointer<vtkPlaneSource>::New();
+
   writer2->SetFileName("foo.stl");
-  writer2->SetInputConnection(plane->GetOutputPort());
-
-  writer2->SetFileTypeToASCII();
-  writer2->Update();
-  status1 = errorObserver->CheckErrorMessage("STL file only supports triangles");
-  if (status1)
-  {
-    ++status;
-  }
-
-  writer2->SetFileTypeToBinary();
-  writer2->Update();
-  status1 = errorObserver->CheckErrorMessage("STL file only supports triangles");
-  if (status1)
-  {
-    ++status;
-  }
-
   writer2->SetInputConnection(sphere->GetOutputPort());
   writer2->SetFileTypeToBinary();
   writer2->SetHeader("solid");
@@ -210,6 +204,7 @@ int UnitTestSTLWriter(int argc,char *argv[])
   {
     ++status;
   }
+
 
   return status;
 }

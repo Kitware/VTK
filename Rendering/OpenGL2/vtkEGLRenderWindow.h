@@ -222,8 +222,8 @@ protected:
   void SetDeviceAsDisplay(int deviceIndex);
 
 private:
-  vtkEGLRenderWindow(const vtkEGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkEGLRenderWindow(const vtkEGLRenderWindow&) = delete;
+  void operator=(const vtkEGLRenderWindow&) = delete;
 
   bool DeviceExtensionsPresent;
 };

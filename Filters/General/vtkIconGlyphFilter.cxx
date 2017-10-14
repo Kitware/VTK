@@ -104,7 +104,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // Optional scaling may be going on
-  vtkDataArray *scalingArray = NULL;
+  vtkDataArray *scalingArray = nullptr;
   if ( this->IconScaling == VTK_ICON_SCALING_USE_SCALING_ARRAY )
   {
     scalingArray = input->GetPointData()->GetArray("IconScale");

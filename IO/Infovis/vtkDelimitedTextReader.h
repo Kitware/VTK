@@ -74,7 +74,7 @@ class VTKIOINFOVIS_EXPORT vtkDelimitedTextReader : public vtkTableAlgorithm
 public:
   static vtkDelimitedTextReader* New();
   vtkTypeMacro(vtkDelimitedTextReader, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -300,6 +300,17 @@ public:
   vtkBooleanMacro(OutputPedigreeIds, bool);
   //@}
 
+  //@{
+  /**
+   * If on, also add in the tab (i.e. '\t') character as a field delimiter.
+   * We add this specially since applications may have a more
+   * difficult time doing this. Defaults to off.
+   */
+  vtkSetMacro(AddTabFieldDelimiter, bool);
+  vtkGetMacro(AddTabFieldDelimiter, bool);
+  vtkBooleanMacro(AddTabFieldDelimiter, bool);
+  //@}
+
   /**
    * Returns a human-readable description of the most recent error, if any.
    * Otherwise, returns an empty string.  Note that the result is only valid
@@ -319,12 +330,12 @@ public:
 
 protected:
   vtkDelimitedTextReader();
-  ~vtkDelimitedTextReader() VTK_OVERRIDE;
+  ~vtkDelimitedTextReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   int ReadFromInputString;
@@ -351,14 +362,14 @@ protected:
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
   bool OutputPedigreeIds;
+  bool AddTabFieldDelimiter;
   vtkStdString LastError;
   vtkTypeUInt32 ReplacementCharacter;
 
 private:
-  vtkDelimitedTextReader(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
+  vtkDelimitedTextReader(const vtkDelimitedTextReader&) = delete;
+  void operator=(const vtkDelimitedTextReader&) = delete;
 
 };
 
 #endif
-

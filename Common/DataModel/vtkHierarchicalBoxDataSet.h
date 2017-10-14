@@ -37,17 +37,17 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
 public:
   static vtkHierarchicalBoxDataSet *New();
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by user).
    */
-  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
   /**
    * Return class name of data type (see vtkType.h for definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  int GetDataObjectType() override {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
   //@{
   /**
@@ -59,11 +59,11 @@ public:
 
 protected:
   vtkHierarchicalBoxDataSet();
-  ~vtkHierarchicalBoxDataSet() VTK_OVERRIDE;
+  ~vtkHierarchicalBoxDataSet() override;
 
 private:
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) = delete;
+  void operator=(const vtkHierarchicalBoxDataSet&) = delete;
 };
 
 #endif

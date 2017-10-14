@@ -86,7 +86,7 @@ const double origin[3] = {0.0,0.0,0.0};
 //------------------------------------------------------------------------------
 void WriteGrid(vtkUniformGrid *grid, const std::string &prefix)
 {
-  assert("pre: grid is NULL" && (grid != NULL) );
+  assert("pre: grid is nullptr" && (grid != nullptr) );
 
   vtkXMLImageDataWriter *writer = vtkXMLImageDataWriter::New();
 
@@ -158,10 +158,10 @@ void WriteAMR(vtkOverlappingAMR *amr, const std::string &prefix)
     {
       oss.str("");
       oss << prefix << "-L" << levelIdx << "-G" << dataIdx;
-      if( amr->GetDataSet(levelIdx,dataIdx) != NULL )
+      if( amr->GetDataSet(levelIdx,dataIdx) != nullptr )
       {
         WriteGrid(amr->GetDataSet(levelIdx,dataIdx), oss.str() );
-      } // END if grid is not NULL
+      } // END if grid is not nullptr
     } // END for all data
   } // END for all levels
 #else
@@ -174,11 +174,11 @@ void WriteAMR(vtkOverlappingAMR *amr, const std::string &prefix)
 //------------------------------------------------------------------------------
 void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
 {
-  assert( "pre: grd should not be NULL" && (grd != NULL)  );
+  assert( "pre: grd should not be nullptr" && (grd != nullptr)  );
 
   // Get the grid's point-data and cell-data data-structures
   vtkCellData  *CD = grd->GetCellData();
-  assert( "pre: Cell data is NULL" && (CD != NULL) );
+  assert( "pre: Cell data is nullptr" && (CD != nullptr) );
 
   std::ostringstream oss;
 
@@ -203,7 +203,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
   for( vtkIdType cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
   {
     vtkCell *c = grd->GetCell( cellIdx );
-    assert( "pre: cell is not NULL" && (c != NULL) );
+    assert( "pre: cell is not nullptr" && (c != nullptr) );
 
     double centroid[3];
     double xsum = 0.0;
@@ -266,7 +266,7 @@ vtkUniformGrid* GetGrid(
 vtkUniformGrid* RefinePatch(
     vtkUniformGrid* vgrid,int level, int dim, int patchExtent[6], int ratio)
 {
-  assert("pre: parent is NULL" && (vgrid != NULL) );
+  assert("pre: parent is nullptr" && (vgrid != nullptr) );
 
   int ext[6];
   vgrid->GetExtent(ext);
@@ -340,8 +340,8 @@ vtkUniformGrid* RefinePatch(
 //------------------------------------------------------------------------------
 void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
 {
-  assert("pre: input AMR Data is NULL" && (amrData != NULL) );
-  assert("pre: input AMR Data is NULL" && (ratio >= 2) );
+  assert("pre: input AMR Data is nullptr" && (amrData != nullptr) );
+  assert("pre: input AMR Data is nullptr" && (ratio >= 2) );
 
   amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
 
@@ -350,20 +350,20 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   int vdim[3]  = {NDIM,NDIM,NDIM};
   vtkUniformGrid *vgrid = GetGrid(
       const_cast<double*>(origin), const_cast<double*>(h), vdim);
-  assert("pre: virtual grid is NULL" && (vgrid != NULL) );
+  assert("pre: virtual grid is nullptr" && (vgrid != nullptr) );
 
-  vtkUniformGrid *refinedPatch = NULL;
+  vtkUniformGrid *refinedPatch = nullptr;
   int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
   {
     int patchLevel = Patches[patchIdx][0];
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,2,patch,ratio);
-    assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
+    assert("pre: refined grid is nullptr" && (refinedPatch != nullptr) );
     amrData->SetDataSet(patchLevel,idxAtLevel[patchLevel],refinedPatch);
     idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
-    refinedPatch = NULL;
+    refinedPatch = nullptr;
   }
   vgrid->Delete();
 }
@@ -371,8 +371,8 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
 //------------------------------------------------------------------------------
 void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
 {
-  assert("pre: input AMR Data is NULL" && (amrData != NULL) );
-  assert("pre: input AMR Data is NULL" && (ratio >= 2) );
+  assert("pre: input AMR Data is nullptr" && (amrData != nullptr) );
+  assert("pre: input AMR Data is nullptr" && (ratio >= 2) );
 
   amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
 
@@ -381,20 +381,20 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   int vdim[3]  = {NDIM,NDIM,NDIM};
   vtkUniformGrid *vgrid = GetGrid(
       const_cast<double*>(origin), const_cast<double*>(h), vdim);
-  assert("pre: virtual grid is NULL" && (vgrid != NULL) );
+  assert("pre: virtual grid is nullptr" && (vgrid != nullptr) );
 
-  vtkUniformGrid *refinedPatch = NULL;
+  vtkUniformGrid *refinedPatch = nullptr;
   int idxAtLevel[NumLevels] = {0,0};
   for( int patchIdx=0; patchIdx < NumPatches; ++patchIdx )
   {
     int patchLevel = Patches[patchIdx][0];
     int *patch     = &Patches[patchIdx][1];
     refinedPatch   = RefinePatch(vgrid,patchLevel,3,patch,ratio);
-    assert("pre: refined grid is NULL" && (refinedPatch != NULL) );
+    assert("pre: refined grid is nullptr" && (refinedPatch != nullptr) );
     amrData->SetDataSet(patchLevel,idxAtLevel[patchLevel],refinedPatch);
     idxAtLevel[patchLevel]++;
     refinedPatch->Delete();
-    refinedPatch = NULL;
+    refinedPatch = nullptr;
   }
   vgrid->Delete();
 }
@@ -405,9 +405,9 @@ void RegisterGrids(
     int dim, int ratio,
     vtkStructuredAMRGridConnectivity *gridConnectivity)
 {
-  assert( "pre: input AMR data should not be NULL" && (amr != NULL) );
-  assert( "pre: gridConnectivity object should not be NULL" &&
-          (gridConnectivity != NULL) );
+  assert( "pre: input AMR data should not be nullptr" && (amr != nullptr) );
+  assert( "pre: gridConnectivity object should not be nullptr" &&
+          (gridConnectivity != nullptr) );
   assert( "pre: dimension should be 2 or 3" && (dim >= 2) && (dim <= 3)  );
   assert( "pre: refinement ratio should be >= 2" && (ratio >= 2) );
 
@@ -425,7 +425,7 @@ void RegisterGrids(
     {
       int idx = amr->GetCompositeIndex(levelIdx,dataIdx);
       vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
-      if( grid != NULL )
+      if( grid != nullptr )
       {
         GetGridExtent(idx,dim,ratio,ext);
         gridConnectivity->RegisterGrid(
@@ -434,7 +434,7 @@ void RegisterGrids(
             grid->GetCellGhostArray(),
             grid->GetPointData(),
             grid->GetCellData(),
-            NULL);
+            nullptr);
       }
 
     } // END for all data
@@ -447,9 +447,9 @@ void GetGhostedAMRData(
     vtkStructuredAMRGridConnectivity *amrConnectivity,
     vtkOverlappingAMR *ghostedAMR)
 {
-  assert("pre: AMR is NULL" && (amr != NULL) );
-  assert("pre: AMR grid connectivity is NULL" && (amrConnectivity != NULL) );
-  assert("pre: Ghosted AMR is NULL" && (ghostedAMR != NULL) );
+  assert("pre: AMR is nullptr" && (amr != nullptr) );
+  assert("pre: AMR grid connectivity is nullptr" && (amrConnectivity != nullptr) );
+  assert("pre: Ghosted AMR is nullptr" && (ghostedAMR != nullptr) );
   std::vector<int> blocksPerLevel;
   for(unsigned int i=0; i<amr->GetNumberOfLevels();i++)
   {
@@ -467,7 +467,7 @@ void GetGhostedAMRData(
       int linearIdx        = amr->GetCompositeIndex(levelIdx,dataIdx);
       vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
 
-      if( grid != NULL )
+      if( grid != nullptr )
       {
         int ghostedExtent[6];
         amrConnectivity->GetGhostedExtent(linearIdx,ghostedExtent);
@@ -493,7 +493,7 @@ void GetGhostedAMRData(
       } // END if grid is not null
       else
       {
-        ghostedAMR->SetDataSet(levelIdx,dataIdx,NULL);
+        ghostedAMR->SetDataSet(levelIdx,dataIdx,nullptr);
       } // END else
 
     } // END for all data

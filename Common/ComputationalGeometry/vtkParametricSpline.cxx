@@ -27,7 +27,7 @@ vtkParametricSpline::vtkParametricSpline()
   this->MaximumU = 1.0;
   this->JoinU = 0;
 
-  this->Points = NULL;
+  this->Points = nullptr;
 
   this->XSpline = vtkCardinalSpline::New();
   this->YSpline = vtkCardinalSpline::New();
@@ -93,12 +93,12 @@ void vtkParametricSpline::SetPoints(vtkPoints *pts)
 {
   if ( pts != this->Points )
   {
-    if ( this->Points != NULL )
+    if ( this->Points != nullptr )
     {
       this->Points->Delete();
     }
     this->Points = pts;
-    if ( this->Points != NULL )
+    if ( this->Points != nullptr )
     {
       this->Points->Register(this);
     }
@@ -111,12 +111,12 @@ void vtkParametricSpline::SetXSpline(vtkSpline *s)
 {
   if ( s != this->XSpline )
   {
-    if ( this->XSpline != NULL )
+    if ( this->XSpline != nullptr )
     {
       this->XSpline->Delete();
     }
     this->XSpline = s;
-    if ( this->XSpline != NULL )
+    if ( this->XSpline != nullptr )
     {
       this->XSpline->Register(this);
     }
@@ -129,12 +129,12 @@ void vtkParametricSpline::SetYSpline(vtkSpline *s)
 {
   if ( s != this->YSpline )
   {
-    if ( this->YSpline != NULL )
+    if ( this->YSpline != nullptr )
     {
       this->YSpline->Delete();
     }
     this->YSpline = s;
-    if ( this->YSpline != NULL )
+    if ( this->YSpline != nullptr )
     {
       this->YSpline->Register(this);
     }
@@ -147,12 +147,12 @@ void vtkParametricSpline::SetZSpline(vtkSpline *s)
 {
   if ( s != this->ZSpline )
   {
-    if ( this->ZSpline != NULL )
+    if ( this->ZSpline != nullptr )
     {
       this->ZSpline->Delete();
     }
     this->ZSpline = s;
-    if ( this->ZSpline != NULL )
+    if ( this->ZSpline != nullptr )
     {
       this->ZSpline->Register(this);
     }

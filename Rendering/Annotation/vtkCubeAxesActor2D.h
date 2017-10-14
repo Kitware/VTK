@@ -60,7 +60,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor2D,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with bold, italic, and shadow enabled; font family
@@ -73,15 +73,15 @@ public:
   /**
    * Draw the axes as per the vtkProp superclass' API.
    */
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
+  int RenderOverlay(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) override {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   //@{
   /**
@@ -112,7 +112,7 @@ public:
    * sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Bounds,double);
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
   void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
                  double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
@@ -305,7 +305,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -329,7 +329,7 @@ public:
 
 protected:
   vtkCubeAxesActor2D();
-  ~vtkCubeAxesActor2D() VTK_OVERRIDE;
+  ~vtkCubeAxesActor2D() override;
 
   vtkCubeAxesActor2DConnection* ConnectionHolder;
 
@@ -391,10 +391,10 @@ protected:
 
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy(vtkProp *prop) override { this->vtkProp::ShallowCopy( prop ); };
 private:
-  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
+  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) = delete;
+  void operator=(const vtkCubeAxesActor2D&) = delete;
 };
 
 

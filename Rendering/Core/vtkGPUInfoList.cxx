@@ -65,23 +65,23 @@ vtkGPUInfo *vtkGPUInfoList::GetGPUInfo(int i)
   assert("pre: valid_index" && i>=0 && i<this->GetNumberOfGPUs());
 
   vtkGPUInfo *result=this->Array->v[static_cast<size_t>(i)];
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
 // ----------------------------------------------------------------------------
 // Description:
-// Default constructor. Set Probed to false. Set Array to NULL.
+// Default constructor. Set Probed to false. Set Array to nullptr.
 vtkGPUInfoList::vtkGPUInfoList()
 {
   this->Probed=false;
-  this->Array=0;
+  this->Array=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkGPUInfoList::~vtkGPUInfoList()
 {
-  if(this->Array!=0)
+  if(this->Array!=nullptr)
   {
     size_t c=this->Array->v.size();
     size_t i=0;

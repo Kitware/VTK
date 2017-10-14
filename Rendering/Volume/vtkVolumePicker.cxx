@@ -68,7 +68,7 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3],
   vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
   vtkVolumeMapper *vmapper = vtkVolumeMapper::SafeDownCast(mapper);
 
-  if (data == 0)
+  if (data == nullptr)
   {
     // This picker only works with image inputs
     return VTK_DOUBLE_MAX;
@@ -306,7 +306,7 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(
   for (;;)
   {
     if (!vtkBox::IntersectWithLine(blockBounds, x1, x2,
-                                   s1, s2, 0, 0, plane1, plane2))
+                                   s1, s2, nullptr, nullptr, plane1, plane2))
     {
       // This should never happen, but if it does, stop here
       break;

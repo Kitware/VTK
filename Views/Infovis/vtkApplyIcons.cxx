@@ -54,7 +54,7 @@ vtkApplyIcons::vtkApplyIcons()
     vtkDataObject::FIELD_ASSOCIATION_VERTICES,
     vtkDataSetAttributes::SCALARS);
   this->UseLookupTable = false;
-  this->IconOutputArrayName = 0;
+  this->IconOutputArrayName = nullptr;
   this->SetIconOutputArrayName("vtkApplyIcons icon");
   this->SelectionMode = IGNORE_SELECTION;
   this->AttributeType = vtkDataObject::VERTEX;
@@ -63,7 +63,7 @@ vtkApplyIcons::vtkApplyIcons()
 vtkApplyIcons::~vtkApplyIcons()
 {
   delete Implementation;
-  this->SetIconOutputArrayName(0);
+  this->SetIconOutputArrayName(nullptr);
 }
 
 void vtkApplyIcons::SetIconType(vtkVariant v, int icon)
@@ -111,7 +111,7 @@ int vtkApplyIcons::RequestData(
 
   // Get the input and output.
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkAnnotationLayers* layers = 0;
+  vtkAnnotationLayers* layers = nullptr;
   if (layersInfo)
   {
     layers = vtkAnnotationLayers::SafeDownCast(
@@ -282,7 +282,7 @@ int vtkApplyIcons::RequestData(
         }
       }
     } // if changeSelected
-  } // if current ann not NULL
+  } // if current ann not nullptr
 
   return 1;
 }

@@ -45,7 +45,7 @@ public:
   static vtkImageHistogram *New();
   vtkTypeMacro(vtkImageHistogram,vtkThreadedImageAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Scale types for the histogram image.
@@ -193,24 +193,24 @@ public:
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
-                                   vtkImageData **outData, int ext[6], int id) VTK_OVERRIDE;
+                                   vtkImageData **outData, int ext[6], int id) override;
 
 protected:
   vtkImageHistogram();
-  ~vtkImageHistogram() VTK_OVERRIDE;
+  ~vtkImageHistogram() override;
 
   int RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo)) VTK_OVERRIDE;
+                                 vtkInformationVector *vtkNotUsed(outInfo)) override;
   int RequestInformation(vtkInformation *vtkNotUsed(request),
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *vtkNotUsed(outInfo)) VTK_OVERRIDE;
+                                 vtkInformationVector *vtkNotUsed(outInfo)) override;
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   /**
    * Compute the range of the data.  The GetScalarRange() function of
@@ -241,8 +241,8 @@ protected:
   vtkImageHistogramSMPThreadLocal *SMPThreadData;
 
 private:
-  vtkImageHistogram(const vtkImageHistogram&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHistogram&) VTK_DELETE_FUNCTION;
+  vtkImageHistogram(const vtkImageHistogram&) = delete;
+  void operator=(const vtkImageHistogram&) = delete;
 
   friend class vtkImageHistogramFunctor;
 };

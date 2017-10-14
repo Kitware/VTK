@@ -98,7 +98,7 @@ public:
     Whitespace.insert('\t');
   }
 
-  ~DelimitedTextIterator() VTK_OVERRIDE
+  ~DelimitedTextIterator() override
   {
     // Ensure that all table columns have the same length ...
     for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
@@ -112,12 +112,12 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator++(int) VTK_OVERRIDE
+  DelimitedTextIterator& operator++(int) override
   {
     return *this;
   }
 
-  DelimitedTextIterator& operator*() VTK_OVERRIDE
+  DelimitedTextIterator& operator*() override
   {
     return *this;
   }
@@ -137,7 +137,7 @@ public:
     }
   }
 
-  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE
+  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) override
   {
     // If we've already read our maximum number of records, we're done ...
     if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
@@ -353,7 +353,7 @@ private:
 vtkStandardNewMacro(vtkTecplotTableReader);
 
 vtkTecplotTableReader::vtkTecplotTableReader() :
-  FileName(0),
+  FileName(nullptr),
   MaxRecords(0),
   HeaderLines(2),
   ColumnNamesOnLine(1),
@@ -361,7 +361,7 @@ vtkTecplotTableReader::vtkTecplotTableReader() :
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->PedigreeIdArrayName = NULL;
+  this->PedigreeIdArrayName = nullptr;
   this->SetPedigreeIdArrayName("id");
   this->GeneratePedigreeIds = false;
   this->OutputPedigreeIds = false;
@@ -369,8 +369,8 @@ vtkTecplotTableReader::vtkTecplotTableReader() :
 
 vtkTecplotTableReader::~vtkTecplotTableReader()
 {
-  this->SetPedigreeIdArrayName(0);
-  this->SetFileName(0);
+  this->SetPedigreeIdArrayName(nullptr);
+  this->SetFileName(nullptr);
 }
 
 void vtkTecplotTableReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -418,7 +418,7 @@ int vtkTecplotTableReader::RequestData(
       return 0;
     }
 
-    istream* input_stream_pt = NULL;
+    istream* input_stream_pt = nullptr;
     ifstream file_stream;
 
     // If the filename hasn't been specified, we're done ...
@@ -440,7 +440,7 @@ int vtkTecplotTableReader::RequestData(
     input_stream_pt = dynamic_cast<istream*>(&file_stream);
     vtkTextCodec* transCodec = vtkTextCodecFactory::CodecToHandle(*input_stream_pt);
 
-    if (NULL == transCodec)
+    if (nullptr == transCodec)
     {
       // should this use the locale instead??
       return 1;

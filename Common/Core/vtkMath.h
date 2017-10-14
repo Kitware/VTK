@@ -86,7 +86,7 @@ class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 public:
   static vtkMath *New();
   vtkTypeMacro(vtkMath,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * A mathematical constant. This version is atan(1.0) * 4.0
@@ -448,7 +448,7 @@ public:
    * v1 cross v2 = v3 (i.e. the vectors are perpendicular to each other).
    * There is an infinite number of such vectors, specify an angle theta
    * to choose one set.  If you want only one perpendicular vector,
-   * specify NULL for v3.
+   * specify nullptr for v3.
    */
   static void Perpendiculars(const double v1[3], double v2[3], double v3[3],
                              double theta);
@@ -1104,7 +1104,7 @@ public:
   //@}
 
   /**
-   * Clamp a value against a range and then normalized it between 0 and 1.
+   * Clamp a value against a range and then normalize it between 0 and 1.
    * If range[0]==range[1], the result is 0.
    * \pre valid_range: range[0]<=range[1]
    * \post valid_result: result>=0.0 && result<=1.0
@@ -1224,12 +1224,12 @@ public:
   static bool IsFinite(double x);
 protected:
   vtkMath() {}
-  ~vtkMath() VTK_OVERRIDE {}
+  ~vtkMath() override {}
 
   static vtkSmartPointer<vtkMathInternal> Internal;
 private:
-  vtkMath(const vtkMath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMath&) VTK_DELETE_FUNCTION;
+  vtkMath(const vtkMath&) = delete;
+  void operator=(const vtkMath&) = delete;
 };
 
 //----------------------------------------------------------------------------

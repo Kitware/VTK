@@ -87,7 +87,7 @@ class DICOMMemberCallback : public DICOMCallback
                doublebyte element,
                DICOMParser::VRTypes type,
                unsigned char* val,
-               quadbyte len)
+               quadbyte len) override
   {
     if (MemberFunction)
       {

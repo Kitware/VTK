@@ -23,9 +23,9 @@
 //----------------------------------------------------------------
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()
 {
-  this->ClientData = NULL;
-  this->Callback = NULL;
-  this->ClientDataDeleteCallback = NULL;
+  this->ClientData = nullptr;
+  this->Callback = nullptr;
+  this->ClientDataDeleteCallback = nullptr;
 }
 
 vtkOldStyleCallbackCommand::~vtkOldStyleCallbackCommand()

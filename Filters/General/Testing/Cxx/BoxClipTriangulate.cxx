@@ -42,7 +42,7 @@
 #define VTK_CREATE(type, var) \
   vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-#include <time.h>
+#include <ctime>
 
 #include <vector>
 
@@ -326,7 +326,7 @@ static void Check3DPrimitive(int type, vtkIdType numcells,
 
 int BoxClipTriangulate(int, char *[])
 {
-  long seed = time(NULL);
+  long seed = time(nullptr);
   std::cout << "Random seed = " << seed << std::endl;
   vtkMath::RandomSeed(seed);
   vtkMath::Random();

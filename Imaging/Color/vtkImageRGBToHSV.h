@@ -33,7 +33,7 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToHSV : public vtkThreadedImageAlgorithm
 public:
   static vtkImageRGBToHSV *New();
   vtkTypeMacro(vtkImageRGBToHSV,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
   // Hue is an angle. Maximum specifies when it maps back to 0.  HueMaximum
@@ -44,15 +44,15 @@ public:
 
 protected:
   vtkImageRGBToHSV();
-  ~vtkImageRGBToHSV() VTK_OVERRIDE {}
+  ~vtkImageRGBToHSV() override {}
 
   double Maximum;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 private:
-  vtkImageRGBToHSV(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
+  vtkImageRGBToHSV(const vtkImageRGBToHSV&) = delete;
+  void operator=(const vtkImageRGBToHSV&) = delete;
 };
 
 #endif

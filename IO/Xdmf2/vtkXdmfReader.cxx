@@ -59,7 +59,7 @@ public:
       }
       return 0;
   }
-  void StartElement(const char* name, const char**) VTK_OVERRIDE
+  void StartElement(const char* name, const char**) override
   {
       this->Done = 1;
       if(strcmp(name, "Xdmf") == 0)
@@ -76,17 +76,17 @@ protected:
   }
 
 private:
-  void ReportStrayAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
-  void ReportMissingAttribute(const char*, const char*) VTK_OVERRIDE {}
-  void ReportBadAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
-  void ReportUnknownElement(const char*) VTK_OVERRIDE {}
-  void ReportXmlParseError() VTK_OVERRIDE {}
+  void ReportStrayAttribute(const char*, const char*, const char*) override {}
+  void ReportMissingAttribute(const char*, const char*) override {}
+  void ReportBadAttribute(const char*, const char*, const char*) override {}
+  void ReportUnknownElement(const char*) override {}
+  void ReportXmlParseError() override {}
 
-  int ParsingComplete() VTK_OVERRIDE { return this->Done; }
+  int ParsingComplete() override { return this->Done; }
   int Valid;
   int Done;
-  vtkXdmfReaderTester(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;
+  vtkXdmfReaderTester(const vtkXdmfReaderTester&) = delete;
+  void operator=(const vtkXdmfReaderTester&) = delete;
 };
 vtkStandardNewMacro(vtkXdmfReaderTester);
 
@@ -634,7 +634,7 @@ void vtkXdmfReader::ClearDataSetCache()
   XdmfReaderCachedData::iterator it = this->DataSetCache.begin();
   while (it != this->DataSetCache.end())
   {
-    if (it->second.dataset != NULL)
+    if (it->second.dataset != nullptr)
     {
       it->second.dataset->Delete();
     }

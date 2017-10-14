@@ -57,7 +57,7 @@ public:
   vtkTypeMacro(vtkGenericContourFilter,
                        vtkPolyDataAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with initial range (0,1) and single contour value
@@ -84,7 +84,7 @@ public:
   /**
    * Modified GetMTime Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -140,7 +140,7 @@ public:
   /**
    * If you want to contour by an arbitrary scalar attribute, then set its
    * name here.
-   * By default this in NULL and the filter will use the active scalar array.
+   * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   virtual void SelectInputScalars(const char *fieldName);
@@ -148,11 +148,11 @@ public:
 
 protected:
   vtkGenericContourFilter();
-  ~vtkGenericContourFilter() VTK_OVERRIDE;
+  ~vtkGenericContourFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   vtkContourValues *ContourValues;
   int ComputeNormals;
@@ -169,7 +169,7 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericContourFilter(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
+  vtkGenericContourFilter(const vtkGenericContourFilter&) = delete;
+  void operator=(const vtkGenericContourFilter&) = delete;
 };
 #endif

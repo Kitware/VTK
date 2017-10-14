@@ -40,14 +40,12 @@ vtkContourFilter cf2
 
 vtkPolyDataMapper mapper1
 mapper1 SetInputConnection [cf1 GetOutputPort]
-mapper1 SetImmediateModeRendering 1
 mapper1 SetScalarRange 0 1
 mapper1 SetScalarVisibility 0
 mapper1 Update
 
 vtkPolyDataMapper mapper2
 mapper2 SetInputConnection [cf2 GetOutputPort]
-mapper2 SetImmediateModeRendering 1
 mapper2 SetScalarRange 0 1
 mapper2 SetScalarVisibility 0
 

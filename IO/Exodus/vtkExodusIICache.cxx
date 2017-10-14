@@ -34,14 +34,14 @@ static void printCache( vtkExodusIICacheSet& cache, vtkExodusIICacheLRU& lru )
 // ============================================================================
 vtkExodusIICacheEntry::vtkExodusIICacheEntry()
 {
-  this->Value = 0;
+  this->Value = nullptr;
 }
 
 vtkExodusIICacheEntry::vtkExodusIICacheEntry( vtkDataArray* arr )
 {
   this->Value = arr;
   if ( arr )
-    this->Value->Register( 0 );
+    this->Value->Register( nullptr );
 }
 vtkExodusIICacheEntry::~vtkExodusIICacheEntry()
 {
@@ -53,7 +53,7 @@ vtkExodusIICacheEntry::vtkExodusIICacheEntry( const vtkExodusIICacheEntry& other
 {
   this->Value = other.Value;
   if ( this->Value )
-    this->Value->Register( 0 );
+    this->Value->Register( nullptr );
 }
 
 #if 0
@@ -123,7 +123,7 @@ int vtkExodusIICache::ReduceToSize( double newSize )
 #endif // VTK_EXO_DBG_CACHE
       if ( this->Size <= 0 )
       {
-        if ( this->Cache.size() == 0 )
+        if ( this->Cache.empty() )
           this->Size = 0.;
         else
           this->RecomputeSize(); // oops, FP roundoff
@@ -141,7 +141,7 @@ int vtkExodusIICache::ReduceToSize( double newSize )
     this->LRU.pop_back();
   }
 
-  if ( this->Cache.size() == 0 )
+  if ( this->Cache.empty() )
   {
     this->Size = 0;
   }
@@ -168,7 +168,7 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
     this->ReduceToSize( this->Capacity - vsize );
     it->second->Value->Delete();
     it->second->Value = value;
-    it->second->Value->Register( 0 ); // Since we re-use the cache entry, the constructor's Register won't get called.
+    it->second->Value->Register( nullptr ); // Since we re-use the cache entry, the constructor's Register won't get called.
     this->Size += vsize;
 #ifdef VTK_EXO_DBG_CACHE
     cout << "Replacing " << VTK_EXO_PRT_KEY( it->first ) << VTK_EXO_PRT_ARR( value ) << "\n";
@@ -190,9 +190,9 @@ void vtkExodusIICache::Insert( vtkExodusIICacheKey& key, vtkDataArray* value )
   //printCache( this->Cache, this->LRU );
 }
 
-vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
+vtkDataArray*& vtkExodusIICache::Find( const vtkExodusIICacheKey& key )
 {
-  static vtkDataArray* dummy = 0;
+  static vtkDataArray* dummy = nullptr;
 
   vtkExodusIICacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
@@ -202,11 +202,11 @@ vtkDataArray*& vtkExodusIICache::Find( vtkExodusIICacheKey key )
     return it->second->Value;
   }
 
-  dummy = 0;
+  dummy = nullptr;
   return dummy;
 }
 
-int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
+int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key )
 {
   vtkExodusIICacheRef it = this->Cache.find( key );
   if ( it != this->Cache.end() )
@@ -224,7 +224,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
 
     if ( this->Size <= 0 )
     {
-      if ( this->Cache.size() == 0 )
+      if ( this->Cache.empty() )
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff
@@ -235,7 +235,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key )
   return 0;
 }
 
-int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey pattern )
+int vtkExodusIICache::Invalidate( const vtkExodusIICacheKey& key, const vtkExodusIICacheKey& pattern )
 {
   vtkExodusIICacheRef it;
   int nDropped = 0;
@@ -262,7 +262,7 @@ int vtkExodusIICache::Invalidate( vtkExodusIICacheKey key, vtkExodusIICacheKey p
 
     if ( this->Size <= 0 )
     {
-      if ( this->Cache.size() == 0 )
+      if ( this->Cache.empty() )
         this->Size = 0.;
       else
         this->RecomputeSize(); // oops, FP roundoff

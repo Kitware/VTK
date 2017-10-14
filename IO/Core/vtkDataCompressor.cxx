@@ -78,7 +78,7 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
   if(!compressedSize)
   {
     outputArray->Delete();
-    return 0;
+    return nullptr;
   }
 
   // Store the actual size.
@@ -108,7 +108,7 @@ vtkDataCompressor::Uncompress(unsigned char const* compressedData,
   if(!decSize)
   {
     outputArray->Delete();
-    return 0;
+    return nullptr;
   }
 
   // Store the actual size.

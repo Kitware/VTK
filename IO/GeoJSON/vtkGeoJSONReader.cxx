@@ -88,13 +88,13 @@ GeoJSONReaderInternal::ParseRoot(
   // Initialize geometry containers
   vtkNew<vtkPoints> points;
   points->SetDataTypeToDouble();
-  output->SetPoints(points.GetPointer());
+  output->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  output->SetVerts(verts.GetPointer());
+  output->SetVerts(verts);
   vtkNew<vtkCellArray> lines;
-  output->SetLines(lines.GetPointer());
+  output->SetLines(lines);
   vtkNew<vtkCellArray> polys;
-  output->SetPolys(polys.GetPointer());
+  output->SetPolys(polys);
 
   // Initialize feature-id array
   vtkStringArray *featureIdArray = vtkStringArray::New();
@@ -116,7 +116,7 @@ GeoJSONReaderInternal::ParseRoot(
     this->PropertySpecs.begin();
   for (; iter != this->PropertySpecs.end(); ++iter)
   {
-    array = NULL;
+    array = nullptr;
     switch (iter->Value.GetType())
     {
       case VTK_BIT:
@@ -374,12 +374,12 @@ GeoJSONReaderInternal::InsertFeatureProperties(vtkPolyData *polyData,
 //----------------------------------------------------------------------------
 vtkGeoJSONReader::vtkGeoJSONReader()
 {
-  this->FileName = NULL;
-  this->StringInput = NULL;
+  this->FileName = nullptr;
+  this->StringInput = nullptr;
   this->StringInputMode = false;
   this->TriangulatePolygons = false;
   this->OutlinePolygons = false;
-  this->SerializedPropertiesArrayName = NULL;
+  this->SerializedPropertiesArrayName = nullptr;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->Internal = new GeoJSONReaderInternal;

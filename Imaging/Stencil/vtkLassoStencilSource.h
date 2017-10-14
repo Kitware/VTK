@@ -42,7 +42,7 @@ class VTKIMAGINGSTENCIL_EXPORT vtkLassoStencilSource : public vtkImageStencilSou
 public:
   static vtkLassoStencilSource *New();
   vtkTypeMacro(vtkLassoStencilSource, vtkImageStencilSource);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum {
     POLYGON = 0,
@@ -84,7 +84,7 @@ public:
   /**
    * The points for a particular slice.  This will override the
    * points that were set by calling SetPoints() for the slice.
-   * To clear the setting, call SetSlicePoints(slice, NULL).
+   * To clear the setting, call SetSlicePoints(slice, nullptr).
    */
   virtual void SetSlicePoints(int i, vtkPoints *points);
   virtual vtkPoints *GetSlicePoints(int i);
@@ -98,14 +98,14 @@ public:
   /**
    * Overload GetMTime() to include the timestamp on the points.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkLassoStencilSource();
-  ~vtkLassoStencilSource() VTK_OVERRIDE;
+  ~vtkLassoStencilSource() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int Shape;
   int SliceOrientation;
@@ -115,8 +115,8 @@ protected:
   vtkLSSPointMap *PointMap;
 
 private:
-  vtkLassoStencilSource(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
+  vtkLassoStencilSource(const vtkLassoStencilSource&) = delete;
+  void operator=(const vtkLassoStencilSource&) = delete;
 };
 
 #endif

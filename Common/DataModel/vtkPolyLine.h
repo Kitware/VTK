@@ -38,7 +38,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyLine : public vtkCell
 public:
   static vtkPolyLine *New();
   vtkTypeMacro(vtkPolyLine,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,7 +46,7 @@ public:
    * normals, they are "orientation" normals used by classes like vtkTubeFilter
    * that control the rotation around the line. The normals try to stay pointing
    * in the same direction as much as possible (i.e., minimal rotation) w.r.t the
-   * firstNormal (computed if NULL). Always returns 1 (success).
+   * firstNormal (computed if nullptr). Always returns 1 (success).
    */
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
@@ -57,50 +57,50 @@ public:
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_POLY_LINE;};
-  int GetCellDimension() VTK_OVERRIDE {return 1;};
-  int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
-  int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int vtkNotUsed(edgeId)) VTK_OVERRIDE {return 0;};
-  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return 0;};
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int GetCellType() override {return VTK_POLY_LINE;};
+  int GetCellDimension() override {return 1;};
+  int GetNumberOfEdges() override {return 0;};
+  int GetNumberOfFaces() override {return 0;};
+  vtkCell *GetEdge(int vtkNotUsed(edgeId)) override {return nullptr;};
+  vtkCell *GetFace(int vtkNotUsed(faceId)) override {return nullptr;};
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *lines,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
-  int IsPrimaryCell() VTK_OVERRIDE {return 0;}
+                   int dim, double *derivs) override;
+  int IsPrimaryCell() override {return 0;}
   //@}
 
   /**
    * Return the center of the point cloud in parametric coordinates.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
 protected:
   vtkPolyLine();
-  ~vtkPolyLine() VTK_OVERRIDE;
+  ~vtkPolyLine() override;
 
   vtkLine *Line;
 
 private:
-  vtkPolyLine(const vtkPolyLine&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyLine&) VTK_DELETE_FUNCTION;
+  vtkPolyLine(const vtkPolyLine&) = delete;
+  void operator=(const vtkPolyLine&) = delete;
 };
 
 #endif

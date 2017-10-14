@@ -29,7 +29,7 @@ void vtkIVWriter::WriteData()
   FILE *fp;
 
   // make sure the user specified a FileName
-  if ( this->FileName == NULL)
+  if ( this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to use");
     return;
@@ -64,8 +64,8 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   vtkIdType i;
   vtkCellArray *cells;
   vtkIdType npts = 0;
-  vtkIdType *indx = 0;
-  vtkUnsignedCharArray *colors=NULL;
+  vtkIdType *indx = nullptr;
+  vtkUnsignedCharArray *colors=nullptr;
 
   points = pd->GetPoints();
 
@@ -75,7 +75,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   if ( scalars )
   {
     vtkLookupTable *lut;
-    if ( (lut=scalars->GetLookupTable()) == NULL )
+    if ( (lut=scalars->GetLookupTable()) == nullptr )
     {
       lut = vtkLookupTable::New();
       lut->Build();

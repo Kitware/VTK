@@ -92,7 +92,7 @@ class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkSmartVolumeMapper : public vtkVolumeMa
 public:
   static vtkSmartVolumeMapper *New();
   vtkTypeMacro(vtkSmartVolumeMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -309,7 +309,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -317,7 +317,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -343,7 +343,7 @@ public:
 
 protected:
   vtkSmartVolumeMapper();
-  ~vtkSmartVolumeMapper() VTK_OVERRIDE;
+  ~vtkSmartVolumeMapper() override;
 
   /**
    * Connect input of the vtkSmartVolumeMapper to the input of the
@@ -505,8 +505,8 @@ private:
    */
   void SetupVectorMode(vtkVolume* vol);
 
-  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) = delete;
+  void operator=(const vtkSmartVolumeMapper&) = delete;
 
   vtkOSPRayVolumeInterface *OSPRayMapper;
 };

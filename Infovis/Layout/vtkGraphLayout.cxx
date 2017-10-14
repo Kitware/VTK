@@ -42,13 +42,13 @@ vtkCxxSetObjectMacro(vtkGraphLayout, Transform, vtkAbstractTransform);
 
 vtkGraphLayout::vtkGraphLayout()
 {
-  this->LayoutStrategy = 0;
+  this->LayoutStrategy = nullptr;
   this->StrategyChanged = false;
-  this->LastInput = NULL;
+  this->LastInput = nullptr;
   this->LastInputMTime = 0;
-  this->InternalGraph = 0;
+  this->InternalGraph = nullptr;
   this->ZRange = 0.0;
-  this->Transform = 0;
+  this->Transform = nullptr;
   this->UseTransform = false;
 
   this->EventForwarder = vtkEventForwarderCommand::New();
@@ -90,7 +90,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
       tmp->RemoveObserver(this->EventForwarder);
     }
     this->LayoutStrategy = strategy;
-    if (this->LayoutStrategy != NULL)
+    if (this->LayoutStrategy != nullptr)
     {
       this->StrategyChanged = true;
       this->LayoutStrategy->Register(this);
@@ -102,7 +102,7 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
         this->LayoutStrategy->SetGraph(this->InternalGraph);
       }
     }
-    if (tmp != NULL)
+    if (tmp != nullptr)
     {
       tmp->UnRegister(this);
     }
@@ -118,7 +118,7 @@ vtkGraphLayout::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if (this->LayoutStrategy != NULL)
+  if (this->LayoutStrategy != nullptr)
   {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);
@@ -137,7 +137,7 @@ vtkGraphLayout::IsLayoutComplete()
   }
 
   // This is an error condition
-  vtkErrorMacro("IsLayoutComplete called with layout strategy==NULL");
+  vtkErrorMacro("IsLayoutComplete called with layout strategy==nullptr");
   return 0;
 }
 
@@ -148,7 +148,7 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
                             vtkInformationVector **inputVector,
                             vtkInformationVector *outputVector)
 {
-  if (this->LayoutStrategy == NULL)
+  if (this->LayoutStrategy == nullptr)
   {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
@@ -212,10 +212,10 @@ vtkGraphLayout::RequestData(vtkInformation *vtkNotUsed(request),
     this->LastInputMTime = input->GetMTime();
 
     // Give the layout strategy a pointer to the input.  We set it to
-    // NULL first to force the layout algorithm to re-initialize
+    // nullptr first to force the layout algorithm to re-initialize
     // itself.  This is necessary in case the input is the same data
     // object with a newer mtime.
-    this->LayoutStrategy->SetGraph(NULL);
+    this->LayoutStrategy->SetGraph(nullptr);
     this->LayoutStrategy->SetGraph(this->InternalGraph);
   } // Done handling a new or changed filter input.
 

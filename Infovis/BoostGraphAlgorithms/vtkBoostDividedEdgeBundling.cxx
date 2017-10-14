@@ -172,7 +172,7 @@ void vtkBundlingMetadata::CalculateNodeDistances()
   {
     weightMap->SetValue(e, 1.0f);
   }
-  boost::vtkGraphEdgePropertyMapHelper<vtkFloatArray*> weightProp(weightMap.GetPointer());
+  boost::vtkGraphEdgePropertyMapHelper<vtkFloatArray*> weightProp(weightMap);
   boost::johnson_all_pairs_shortest_paths(
     this->Graph, this->NodeDistances,
     boost::weight_map(weightProp));

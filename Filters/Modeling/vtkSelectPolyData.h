@@ -100,7 +100,7 @@ public:
   static vtkSelectPolyData *New();
 
   vtkTypeMacro(vtkSelectPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -180,13 +180,13 @@ public:
   vtkPolyData *GetSelectionEdges();
 
   // Overload GetMTime() because we depend on Loop
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkSelectPolyData();
-  ~vtkSelectPolyData() VTK_OVERRIDE;
+  ~vtkSelectPolyData() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int GenerateSelectionScalars;
   int InsideOut;
@@ -199,8 +199,8 @@ private:
   vtkPolyData *Mesh;
   void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);
 private:
-  vtkSelectPolyData(const vtkSelectPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectPolyData&) VTK_DELETE_FUNCTION;
+  vtkSelectPolyData(const vtkSelectPolyData&) = delete;
+  void operator=(const vtkSelectPolyData&) = delete;
 };
 
 //@{

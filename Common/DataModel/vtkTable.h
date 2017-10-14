@@ -64,7 +64,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTable : public vtkDataObject
 public:
   static vtkTable* New();
   vtkTypeMacro(vtkTable, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Dump table contents.  If rowLimit is -1 then the full table
@@ -77,7 +77,7 @@ public:
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_TABLE;}
+  int GetDataObjectType() override {return VTK_TABLE;}
 
   /**
    * Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -86,7 +86,7 @@ public:
    * memory required to represent the data (e.g., extra space in
    * arrays, etc. are not included in the return value).
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
@@ -210,7 +210,7 @@ public:
   /**
    * Initialize to an empty table.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
@@ -224,8 +224,8 @@ public:
   /**
    * Shallow/deep copy the data from src into this object.
    */
-  void ShallowCopy(vtkDataObject* src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject* src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject* src) override;
+  void DeepCopy(vtkDataObject* src) override;
   //@}
 
   /**
@@ -234,16 +234,16 @@ public:
    * in addition to the case of FIELD, which will return the field data
    * for any vtkDataObject subclass.
    */
-  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
+  vtkFieldData* GetAttributesAsFieldData(int type) override;
 
   /**
    * Get the number of elements for a specific attribute type (ROW, etc.).
    */
-  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
+  vtkIdType GetNumberOfElements(int type) override;
 
 protected:
   vtkTable();
-  ~vtkTable() VTK_OVERRIDE;
+  ~vtkTable() override;
 
   /**
    * Holds the column data of the table.
@@ -256,8 +256,8 @@ protected:
   vtkVariantArray* RowArray;
 
 private:
-  vtkTable(const vtkTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTable&) VTK_DELETE_FUNCTION;
+  vtkTable(const vtkTable&) = delete;
+  void operator=(const vtkTable&) = delete;
 };
 
 #endif

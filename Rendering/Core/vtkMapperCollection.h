@@ -37,7 +37,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
  public:
   static vtkMapperCollection *New();
   vtkTypeMacro(vtkMapperCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an mapper to the bottom of the list.
@@ -55,7 +55,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
    * Get the last mapper in the list.
    */
   vtkMapper *GetLastItem()
-    { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : 0; }
+    { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : nullptr; }
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -66,7 +66,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
 
 protected:
   vtkMapperCollection() {}
-  ~vtkMapperCollection() VTK_OVERRIDE {}
+  ~vtkMapperCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -74,8 +74,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkMapperCollection(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
+  vtkMapperCollection(const vtkMapperCollection&) = delete;
+  void operator=(const vtkMapperCollection&) = delete;
 };
 
 #endif

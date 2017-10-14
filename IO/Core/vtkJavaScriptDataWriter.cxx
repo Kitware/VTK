@@ -38,18 +38,18 @@ vtkStandardNewMacro(vtkJavaScriptDataWriter);
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::vtkJavaScriptDataWriter()
 {
-  this->VariableName = 0;
-  this->FileName = 0;
+  this->VariableName = nullptr;
+  this->FileName = nullptr;
   this->IncludeFieldNames = true; // Default is to include field names
-  this->OutputStream = 0;
+  this->OutputStream = nullptr;
   this->SetVariableName( "data" ); // prepare the default.
 }
 
 //-----------------------------------------------------------------------------
 vtkJavaScriptDataWriter::~vtkJavaScriptDataWriter()
 {
-  this->SetFileName( 0 );
-  this->SetVariableName( 0 );
+  this->SetFileName( nullptr );
+  this->SetVariableName( nullptr );
 }
 
 //-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ ofstream* vtkJavaScriptDataWriter::OpenFile()
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return 0;
+    return nullptr;
   }
 
   vtkDebugMacro(<<"Opening file for writing...");
@@ -91,7 +91,7 @@ ofstream* vtkJavaScriptDataWriter::OpenFile()
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
-    return 0;
+    return nullptr;
   }
 
   return fptr;

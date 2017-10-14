@@ -48,7 +48,7 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
 public:
   static vtkImageResliceMapper *New();
   vtkTypeMacro(vtkImageResliceMapper,vtkImageMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the slice that will be used to cut through the image.
@@ -168,27 +168,27 @@ public:
   /**
    * This should only be called by the renderer.
    */
-  void Render(vtkRenderer *renderer, vtkImageSlice *prop) VTK_OVERRIDE;
+  void Render(vtkRenderer *renderer, vtkImageSlice *prop) override;
 
   /**
    * Release any graphics resources that are being consumed by
    * this mapper.  The parameter window is used to determine
    * which graphic resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Get the mtime for the mapper.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
    * The bounding box (array of six doubles) of the data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
@@ -197,11 +197,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inInfo,
-                     vtkInformationVector* outInfo) VTK_OVERRIDE;
+                     vtkInformationVector* outInfo) override;
 
 protected:
   vtkImageResliceMapper();
-  ~vtkImageResliceMapper() VTK_OVERRIDE;
+  ~vtkImageResliceMapper() override;
 
   /**
    * Do a checkerboard pattern to the alpha of an RGBA image
@@ -250,16 +250,16 @@ protected:
   /**
    * Override Update to handle some tricky details.
    */
-  void Update(int port) VTK_OVERRIDE;
-  void Update() VTK_OVERRIDE;
-  int Update(int port, vtkInformationVector* requests) VTK_OVERRIDE;
-  int Update(vtkInformation* requests) VTK_OVERRIDE;
+  void Update(int port) override;
+  void Update() override;
+  int Update(int port, vtkInformationVector* requests) override;
+  int Update(vtkInformation* requests) override;
   //@}
 
   /**
    * Garbage collection for reference loops.
    */
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 
@@ -280,8 +280,8 @@ protected:
   vtkTimeStamp UpdateTime;
 
 private:
-  vtkImageResliceMapper(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
+  vtkImageResliceMapper(const vtkImageResliceMapper&) = delete;
+  void operator=(const vtkImageResliceMapper&) = delete;
 };
 
 #endif

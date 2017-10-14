@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMutableDirectedGraph : public vtkDirectedGrap
 public:
   static vtkMutableDirectedGraph *New();
   vtkTypeMacro(vtkMutableDirectedGraph, vtkDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocates space for the specified number of vertices in the graph's
@@ -58,7 +58,7 @@ public:
    * guaranteeing these match.
    * Also, this call is not implemented for distributed-memory graphs since
    * the semantics are unclear; calling this function on a graph with a
-   * non-NULL DistributedGraphHelper will generate an error message and
+   * non-nullptr DistributedGraphHelper will generate an error message and
    * no allocation will be performed.
    */
   virtual vtkIdType SetNumberOfVertices( vtkIdType numVerts );
@@ -150,7 +150,7 @@ public:
    * \p Target vertex index, and edge index \p Id.
    */
   vtkEdgeType AddEdge(const vtkVariant& u, vtkIdType v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -165,7 +165,7 @@ public:
    * \p Target vertex index, and edge index \p Id.
    */
   vtkEdgeType AddEdge(vtkIdType u, const vtkVariant& v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -181,7 +181,7 @@ public:
    */
   vtkEdgeType AddEdge(const vtkVariant& u,
                       const vtkVariant& v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a vertex to the graph.
@@ -231,7 +231,7 @@ public:
    * whose DistributedHelper is non-null) the next time Synchronize is
    * called on the helper.
    */
-  void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr = 0);
+  void LazyAddEdge(vtkIdType u, vtkIdType v, vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -246,7 +246,7 @@ public:
    * called on the helper.
    */
   void LazyAddEdge(const vtkVariant& u, vtkIdType v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -261,7 +261,7 @@ public:
    * called on the helper.
    */
   void LazyAddEdge(vtkIdType u, const vtkVariant& v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -277,7 +277,7 @@ public:
    */
   void LazyAddEdge(const vtkVariant& u,
                    const vtkVariant& v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Variant of AddEdge() that returns a heavyweight \p vtkGraphEdge object.
@@ -304,7 +304,7 @@ public:
   vtkIdType AddChild(vtkIdType parent,
                      vtkVariantArray *propertyArr);
   vtkIdType AddChild(vtkIdType parent)
-    { return this->AddChild(parent, 0); }
+    { return this->AddChild(parent, nullptr); }
 
   /**
    * Removes the vertex from the graph along with any connected edges.
@@ -330,7 +330,7 @@ public:
 
 protected:
   vtkMutableDirectedGraph();
-  ~vtkMutableDirectedGraph() VTK_OVERRIDE;
+  ~vtkMutableDirectedGraph() override;
 
   /**
    * Graph edge that is reused of \p AddGraphEdge calls.
@@ -338,8 +338,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) = delete;
+  void operator=(const vtkMutableDirectedGraph&) = delete;
 };
 
 #endif

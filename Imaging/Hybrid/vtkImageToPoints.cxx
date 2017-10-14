@@ -205,7 +205,7 @@ int vtkImageToPoints::RequestData(
     info->Get(vtkDataObject::DATA_OBJECT()));
 
   // use a stencil, if a stencil is connected
-  vtkImageStencilData* stencil = 0;
+  vtkImageStencilData* stencil = nullptr;
   if (stencilInfo)
   {
     stencil = static_cast<vtkImageStencilData *>(

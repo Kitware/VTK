@@ -32,7 +32,6 @@ vtkGlyph3D Glyph0
 
 vtkPolyDataMapper Mapper5
   Mapper5 SetInputConnection [Glyph0 GetOutputPort]
-  Mapper5 SetImmediateModeRendering 1
   Mapper5 UseLookupTableScalarRangeOff
   Mapper5 SetScalarVisibility 1
   Mapper5 SetScalarModeToDefault
@@ -59,7 +58,6 @@ vtkTubeFilter Tuber0
   Tuber0 SetRadiusFactor 10
 vtkPolyDataMapper Mapper7
   Mapper7 SetInputConnection [Tuber0 GetOutputPort]
-  Mapper7 SetImmediateModeRendering 1
   Mapper7 UseLookupTableScalarRangeOff
   Mapper7 SetScalarVisibility 1
   Mapper7 SetScalarModeToDefault

@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkRayCastImageDisplayHelper : public vtkObject
 public:
   static vtkRayCastImageDisplayHelper *New();
   vtkTypeMacro(vtkRayCastImageDisplayHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
                               int imageMemorySize[2],
@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkRayCastImageDisplayHelper();
-  ~vtkRayCastImageDisplayHelper() VTK_OVERRIDE;
+  ~vtkRayCastImageDisplayHelper() override;
 
   /**
    * Have the colors already been multiplied by alpha?
@@ -96,8 +96,8 @@ protected:
   float PixelScale;
 
 private:
-  vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
+  vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&) = delete;
+  void operator=(const vtkRayCastImageDisplayHelper&) = delete;
 };
 
 #endif

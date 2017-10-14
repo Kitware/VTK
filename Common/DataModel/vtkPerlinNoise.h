@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkPerlinNoise,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate the class.
@@ -51,14 +51,14 @@ public:
    * Evaluate PerlinNoise function.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate PerlinNoise gradient.  Currently, the method returns a 0
    * gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -94,15 +94,15 @@ public:
 
 protected:
   vtkPerlinNoise();
-  ~vtkPerlinNoise() VTK_OVERRIDE {}
+  ~vtkPerlinNoise() override {}
 
   double Frequency[3];
   double Phase[3];
   double Amplitude;
 
 private:
-  vtkPerlinNoise(const vtkPerlinNoise&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPerlinNoise&) VTK_DELETE_FUNCTION;
+  vtkPerlinNoise(const vtkPerlinNoise&) = delete;
+  void operator=(const vtkPerlinNoise&) = delete;
 };
 
 #endif

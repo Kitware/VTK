@@ -60,7 +60,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridConnectivity :
 public:
   static vtkStructuredGridConnectivity* New();
   vtkTypeMacro( vtkStructuredGridConnectivity, vtkAbstractGridConnectivity );
-  void PrintSelf(ostream& os, vtkIndent  indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent  indent ) override;
 
   //@{
   /**
@@ -80,7 +80,7 @@ public:
   /**
    * Set/Get the total number of domains distributed among processors
    */
-  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
+  void SetNumberOfGrids( const unsigned int N ) override;
 
   /**
    * Registers the current grid corresponding to the grid ID by its global
@@ -112,7 +112,7 @@ public:
   /**
    * Computes neighboring information
    */
-  void ComputeNeighbors() VTK_OVERRIDE;
+  void ComputeNeighbors() override;
 
   /**
    * Returns the number of neighbors for the grid corresponding to the given
@@ -144,16 +144,16 @@ public:
   void FillGhostArrays(
      const int gridID,
      vtkUnsignedCharArray *nodesArray,
-     vtkUnsignedCharArray *cellsArray ) VTK_OVERRIDE;
+     vtkUnsignedCharArray *cellsArray ) override;
 
   /**
    * Creates ghost layers.
    */
-  void CreateGhostLayers( const int N=1 ) VTK_OVERRIDE;
+  void CreateGhostLayers( const int N=1 ) override;
 
 protected:
   vtkStructuredGridConnectivity();
-  ~vtkStructuredGridConnectivity() VTK_OVERRIDE;
+  ~vtkStructuredGridConnectivity() override;
 
   /**
    * Returns true iff Lo <= idx <= Hi, otherwise false.
@@ -626,8 +626,8 @@ protected:
   std::map< std::pair< int,int >, int > NeighborPair2NeighborListIndex;
 
 private:
-  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
+  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ) = delete;
+  void operator=(const vtkStructuredGridConnectivity& ) = delete;
 };
 
 //=============================================================================
@@ -659,7 +659,7 @@ inline void vtkStructuredGridConnectivity::GetGhostedExtent(
     const int minIdx, const int maxIdx, const int N )
 {
   assert( "pre: Number of ghost layers must be N >= 1" && (N >= 1) );
-  assert( "pre: ghosted extent pointer is NULL" && ghostedExtent != NULL);
+  assert( "pre: ghosted extent pointer is nullptr" && ghostedExtent != nullptr);
 
   ghostedExtent[minIdx] = GridExtent[minIdx]-N;
   ghostedExtent[maxIdx] = GridExtent[maxIdx]+N;

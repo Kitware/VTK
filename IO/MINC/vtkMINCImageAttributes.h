@@ -86,7 +86,7 @@ public:
   vtkTypeMacro(vtkMINCImageAttributes,vtkObject);
 
   static vtkMINCImageAttributes *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Reset all the attributes in preparation for loading
@@ -293,7 +293,7 @@ public:
 
 protected:
   vtkMINCImageAttributes();
-  ~vtkMINCImageAttributes() VTK_OVERRIDE;
+  ~vtkMINCImageAttributes() override;
 
   const char *ConvertDataArrayToString(vtkDataArray *array);
 
@@ -340,8 +340,8 @@ protected:
   int ValidateAttributes;
 
 private:
-  vtkMINCImageAttributes(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
+  vtkMINCImageAttributes(const vtkMINCImageAttributes&) = delete;
+  void operator=(const vtkMINCImageAttributes&) = delete;
 
 };
 

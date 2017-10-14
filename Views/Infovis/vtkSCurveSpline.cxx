@@ -230,7 +230,7 @@ void vtkSCurveSpline::DeepCopy(vtkSpline *s)
 {
   vtkSCurveSpline *spline = vtkSCurveSpline::SafeDownCast(s);
 
-  if ( spline != NULL )
+  if ( spline != nullptr )
   {
     //nothing to do
   }

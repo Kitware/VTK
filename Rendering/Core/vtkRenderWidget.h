@@ -27,7 +27,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWidget : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRenderWidget ,vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkRenderWidget* New();
 
   /**
@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkRenderWidget();
-  ~vtkRenderWidget() VTK_OVERRIDE;
+  ~vtkRenderWidget() override;
 
   vtkVector2i Position; // Position of the widget in screen coordinates.
   vtkVector2i Size; // Position of the widget in screen coordinates.
@@ -94,8 +94,8 @@ protected:
   vtkNew<vtkAbstractRenderDevice> RenderDevice; // Render device target.
 
 private:
-  vtkRenderWidget(const vtkRenderWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderWidget&) VTK_DELETE_FUNCTION;
+  vtkRenderWidget(const vtkRenderWidget&) = delete;
+  void operator=(const vtkRenderWidget&) = delete;
 };
 
 #endif

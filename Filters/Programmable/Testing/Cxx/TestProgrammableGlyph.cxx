@@ -57,12 +57,12 @@ void CalcGlyph(void *arg)
   }
   else if(glyphFilter->GetPointId() == 1)
   {
-    // NULL SourceConnection, valid SourceData: should produce cube
+    // nullptr SourceConnection, valid SourceData: should produce cube
     vtkSmartPointer<vtkCubeSource> cubeSource =
       vtkSmartPointer<vtkCubeSource>::New();
     cubeSource->SetCenter(pointCoords);
     cubeSource->Update();
-    glyphFilter->SetSourceConnection(NULL);
+    glyphFilter->SetSourceConnection(nullptr);
     glyphFilter->SetSourceData(cubeSource->GetOutput());
   }
   else if(glyphFilter->GetPointId() == 2)
@@ -75,9 +75,9 @@ void CalcGlyph(void *arg)
   }
   else
   {
-    // NULL SourceConnection and NULL SourceData: should produce nothing
-    glyphFilter->SetSourceConnection(NULL);
-    glyphFilter->SetSourceData(NULL);
+    // nullptr SourceConnection and nullptr SourceData: should produce nothing
+    glyphFilter->SetSourceConnection(nullptr);
+    glyphFilter->SetSourceData(nullptr);
   }
 }
 

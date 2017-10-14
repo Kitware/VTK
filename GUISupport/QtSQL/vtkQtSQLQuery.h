@@ -43,49 +43,49 @@ class VTKGUISUPPORTQTSQL_EXPORT vtkQtSQLQuery : public vtkSQLQuery
 public:
   static vtkQtSQLQuery* New();
   vtkTypeMacro(vtkQtSQLQuery, vtkSQLQuery);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Execute the query.  This must be performed
    * before any field name or data access functions
    * are used.
    */
-  bool Execute() VTK_OVERRIDE;
+  bool Execute() override;
 
   /**
    * The number of fields in the query result.
    */
-  int GetNumberOfFields() VTK_OVERRIDE;
+  int GetNumberOfFields() override;
 
   /**
    * Return the name of the specified query field.
    */
-  const char* GetFieldName(int col) VTK_OVERRIDE;
+  const char* GetFieldName(int col) override;
 
   /**
    * Return the type of the specified query field, as defined in vtkType.h.
    */
-  int GetFieldType(int col) VTK_OVERRIDE;
+  int GetFieldType(int col) override;
 
   /**
    * Advance row, return false if past end.
    */
-  bool NextRow() VTK_OVERRIDE;
+  bool NextRow() override;
 
   /**
    * Return data in current row, field c
    */
-  vtkVariant DataValue(vtkIdType c) VTK_OVERRIDE;
+  vtkVariant DataValue(vtkIdType c) override;
 
   /**
    * Returns true if an error is set, otherwise false.
    */
-  bool HasError() VTK_OVERRIDE;
+  bool HasError() override;
 
   /**
    * Get the last error text from the query
    */
-  const char* GetLastErrorText() VTK_OVERRIDE;
+  const char* GetLastErrorText() override;
 
 protected:
   vtkQtSQLQuery();
@@ -101,8 +101,8 @@ private:
 
   char* LastErrorText;
 
-  vtkQtSQLQuery(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
+  vtkQtSQLQuery(const vtkQtSQLQuery &) = delete;
+  void operator=(const vtkQtSQLQuery &) = delete;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

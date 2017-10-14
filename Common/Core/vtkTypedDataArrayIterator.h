@@ -48,7 +48,7 @@ public:
   typedef Scalar* pointer;
 
   vtkTypedDataArrayIterator()
-    : Data(NULL), Index(0) {}
+    : Data(nullptr), Index(0) {}
 
   explicit vtkTypedDataArrayIterator(vtkTypedDataArray<Scalar> *arr,
                                      const vtkIdType index = 0)

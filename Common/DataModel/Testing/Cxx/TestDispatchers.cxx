@@ -34,7 +34,7 @@
 namespace
 {
 
-void test_expression(bool valid, std::string msg)
+void test_expression(bool valid, const std::string& msg)
 {
   if(!valid)
   {
@@ -317,7 +317,7 @@ bool TestReturnVtkObject()
   //make sure the result isn't copied anywhere
   vtkPoints* result = dispatcher.Go(as<vtkDataArray>(doubleArray.GetPointer()));
 
-  test_expression(result != NULL, "Returned points not valid");
+  test_expression(result != nullptr, "Returned points not valid");
   test_expression(result->GetData() == doubleArray.GetPointer(),
                   "Returned points not equal to the passed in double array");
   result->Delete();
@@ -326,7 +326,7 @@ bool TestReturnVtkObject()
   vtkNew<vtkIntArray> intArray;
   result = dispatcher.Go(as<vtkDataArray>( intArray.GetPointer() ));
 
-  test_expression(result != NULL, "Returned points not valid");
+  test_expression(result != nullptr, "Returned points not valid");
   result->Delete();
 
   return true;

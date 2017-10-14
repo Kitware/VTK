@@ -60,12 +60,12 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 
   this->ConnectionHolder = vtkParallelCoordinatesActorConnection::New();
 
-  this->Axes = NULL;
-  this->Mins = NULL;
-  this->Maxs = NULL;
-  this->Xs = NULL;
+  this->Axes = nullptr;
+  this->Mins = nullptr;
+  this->Maxs = nullptr;
+  this->Xs = nullptr;
 
-  this->Title = NULL;
+  this->Title = nullptr;
 
   this->TitleMapper = vtkTextMapper::New();
 
@@ -105,12 +105,12 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 {
   this->TitleMapper->Delete();
-  this->TitleMapper = NULL;
+  this->TitleMapper = nullptr;
   this->TitleActor->Delete();
-  this->TitleActor = NULL;
+  this->TitleActor = nullptr;
 
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 
   this->Initialize();
 
@@ -119,13 +119,13 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
   this->PlotActor->Delete();
 
   delete [] this->Title;
-  this->Title = NULL;
+  this->Title = nullptr;
 
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 
-  this->SetLabelTextProperty(NULL);
-  this->SetTitleTextProperty(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetTitleTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -139,13 +139,13 @@ void vtkParallelCoordinatesActor::Initialize()
       this->Axes[i]->Delete();
     }
     delete [] this->Axes;
-    this->Axes = NULL;
+    this->Axes = nullptr;
     delete [] this->Mins;
-    this->Mins = NULL;
+    this->Mins = nullptr;
     delete [] this->Maxs;
-    this->Maxs = NULL;
+    this->Maxs = nullptr;
     delete [] this->Xs;
-    this->Xs = NULL;
+    this->Xs = nullptr;
   }
   this->N = 0;
 }
@@ -178,13 +178,13 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething=0;
 
   // Make sure input is up to date.
-  if ( this->GetInput() == NULL || this->N <= 0 )
+  if ( this->GetInput() == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
   }
 
-  if ( this->Title != NULL )
+  if ( this->Title != nullptr )
   {
     renderedSomething += this->TitleActor->RenderOverlay(viewport);
   }
@@ -301,7 +301,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   } // If need to rebuild the plot
 
-  if ( this->Title != NULL )
+  if ( this->Title != nullptr )
   {
     renderedSomething += this->TitleActor->RenderOpaqueGeometry(viewport);
   }

@@ -44,7 +44,7 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
 
   vtkFieldData* fieldData = surfacer->GetOutput()->GetFieldData();
   const char* className = ds->GetClassName();
-  if (fieldData == NULL || fieldData->GetNumberOfArrays() == 0)
+  if (fieldData == nullptr || fieldData->GetNumberOfArrays() == 0)
   {
     std::cerr << "No field data was associated with data set type " << className << "\n";
     return EXIT_FAILURE;
@@ -94,7 +94,7 @@ void AddFieldData(vtkDataSet* ds, int id)
   array->SetNumberOfTuples(1);
   array->SetTypedTuple(0, &id);
 
-  ds->GetFieldData()->AddArray(array.GetPointer());
+  ds->GetFieldData()->AddArray(array);
 }
 
 //----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ int TestImageData()
   imageData->SetDimensions(10, 10, 10);
 
   int id = 1;
-  AddFieldData(imageData.GetPointer(), id);
+  AddFieldData(imageData, id);
 
   // Add point data
   vtkNew<vtkFloatArray> pa;
@@ -116,9 +116,9 @@ int TestImageData()
   pa->SetNumberOfComponents(1);
   pa->SetNumberOfTuples(10 * 10 * 10);
 
-  imageData->GetPointData()->AddArray(pa.GetPointer());
+  imageData->GetPointData()->AddArray(pa);
 
-  return TestDataSet(imageData.GetPointer(), id);
+  return TestDataSet(imageData, id);
 }
 
 //----------------------------------------------------------------------------
@@ -129,9 +129,9 @@ int TestPolyData()
   polyData->Initialize();
 
   int id = 2;
-  AddFieldData(polyData.GetPointer(), id);
+  AddFieldData(polyData, id);
 
-  return TestDataSet(polyData.GetPointer(), id);
+  return TestDataSet(polyData, id);
 }
 
 //----------------------------------------------------------------------------
@@ -142,9 +142,9 @@ int TestStructuredGrid()
   structuredGrid->Initialize();
 
   int id = 3;
-  AddFieldData(structuredGrid.GetPointer(), id);
+  AddFieldData(structuredGrid, id);
 
-  return TestDataSet(structuredGrid.GetPointer(), id);
+  return TestDataSet(structuredGrid, id);
 }
 
 //----------------------------------------------------------------------------
@@ -155,9 +155,9 @@ int TestUnstructuredGrid()
   unstructuredGrid->Initialize();
 
   int id = 4;
-  AddFieldData(unstructuredGrid.GetPointer(), id);
+  AddFieldData(unstructuredGrid, id);
 
-  return TestDataSet(unstructuredGrid.GetPointer(), id);
+  return TestDataSet(unstructuredGrid, id);
 }
 
 } // end anonymous namespace

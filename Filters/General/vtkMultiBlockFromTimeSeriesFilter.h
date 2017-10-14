@@ -37,29 +37,29 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiBlockFromTimeSeriesFilter : public vtkMul
 {
 public:
   vtkTypeMacro(vtkMultiBlockFromTimeSeriesFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMultiBlockFromTimeSeriesFilter *New();
 
 protected:
   vtkMultiBlockFromTimeSeriesFilter();
-  ~vtkMultiBlockFromTimeSeriesFilter() VTK_OVERRIDE;
+  ~vtkMultiBlockFromTimeSeriesFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   int RequestInformation(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
 private:
-  vtkMultiBlockFromTimeSeriesFilter(const vtkMultiBlockFromTimeSeriesFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockFromTimeSeriesFilter&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockFromTimeSeriesFilter(const vtkMultiBlockFromTimeSeriesFilter&) = delete;
+  void operator=(const vtkMultiBlockFromTimeSeriesFilter&) = delete;
 
   int UpdateTimeIndex;
   std::vector<double> TimeSteps;

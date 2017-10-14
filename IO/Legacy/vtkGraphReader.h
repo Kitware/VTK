@@ -41,7 +41,7 @@ class VTKIOLEGACY_EXPORT vtkGraphReader : public vtkDataReader
 public:
   static vtkGraphReader *New();
   vtkTypeMacro(vtkGraphReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -54,7 +54,7 @@ public:
 
 protected:
   vtkGraphReader();
-  ~vtkGraphReader() VTK_OVERRIDE;
+  ~vtkGraphReader() override;
 
   enum GraphType
   {
@@ -65,17 +65,17 @@ protected:
   };
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Override ProcessRequest to handle request data object event
   int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) VTK_OVERRIDE;
+                             vtkInformationVector *) override;
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   // Create output (a directed or undirected graph).
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
@@ -85,10 +85,10 @@ protected:
   virtual int ReadGraphType(GraphType &type);
 
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkGraphReader(const vtkGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphReader&) VTK_DELETE_FUNCTION;
+  vtkGraphReader(const vtkGraphReader&) = delete;
+  void operator=(const vtkGraphReader&) = delete;
 };
 
 #endif

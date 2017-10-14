@@ -56,7 +56,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
  public:
   static vtkTransform *New();
   vtkTypeMacro(vtkTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the transformation to the identity transformation.  If
@@ -70,7 +70,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * the transformation will use the inverse of its Input, if an Input
    * has been set.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   //@{
   /**
@@ -180,7 +180,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    */
   int GetNumberOfConcatenatedTransforms() {
     return this->Concatenation->GetNumberOfTransforms() +
-      (this->Input == NULL ? 0 : 1); };
+      (this->Input == nullptr ? 0 : 1); };
 
   //@{
   /**
@@ -193,7 +193,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   vtkLinearTransform *GetConcatenatedTransform(int i)
   {
       vtkAbstractTransform *t;
-      if (this->Input == NULL)
+      if (this->Input == nullptr)
       {
         t=this->Concatenation->GetTransform(i);
       }
@@ -327,7 +327,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   /**
    * Pushes the current transformation onto the transformation stack.
    */
-  void Push() { if (this->Stack == NULL) {
+  void Push() { if (this->Stack == nullptr) {
                     this->Stack = vtkTransformConcatenationStack::New(); }
                 this->Stack->Push(&this->Concatenation);
                 this->Modified(); };
@@ -338,7 +338,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * Deletes the transformation on the top of the stack and sets the top
    * to the next transformation on the stack.
    */
-  void Pop() { if (this->Stack == NULL) { return; }
+  void Pop() { if (this->Stack == nullptr) { return; }
                this->Stack->Pop(&this->Concatenation);
                this->Modified(); };
   //@}
@@ -351,7 +351,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * and Concatenate(vtkXTransform *).  Avoid using this function,
    * it is experimental.
    */
-  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  int CircuitCheck(vtkAbstractTransform *transform) override;
 
   // Return an inverse transform which will always update itself
   // to match this transform.
@@ -361,12 +361,12 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   /**
    * Make a new transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
   /**
    * Override GetMTime to account for input and concatenation.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -382,11 +382,11 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
 
 protected:
   vtkTransform ();
-  ~vtkTransform () VTK_OVERRIDE;
+  ~vtkTransform () override;
 
-  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *t) override;
 
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalUpdate() override;
 
   vtkLinearTransform *Input;
   vtkTransformConcatenation *Concatenation;
@@ -400,8 +400,8 @@ protected:
   double DoublePoint[4];
   double ReturnValue[4];
 private:
-  vtkTransform (const vtkTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransform&) VTK_DELETE_FUNCTION;
+  vtkTransform (const vtkTransform&) = delete;
+  void operator=(const vtkTransform&) = delete;
 };
 
 #endif

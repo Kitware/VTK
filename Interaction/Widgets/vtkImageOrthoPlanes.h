@@ -40,7 +40,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkImageOrthoPlanes : public vtkObject
 public:
   static vtkImageOrthoPlanes *New();
   vtkTypeMacro(vtkImageOrthoPlanes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -67,7 +67,7 @@ public:
 
 protected:
   vtkImageOrthoPlanes();
-  ~vtkImageOrthoPlanes() VTK_OVERRIDE;
+  ~vtkImageOrthoPlanes() override;
 
   void HandlePlaneRotation(vtkImagePlaneWidget *imagePlaneWidget,
                            int indexOfModifiedPlane);
@@ -103,8 +103,8 @@ protected:
   long *ObserverTags;
 
 private:
-  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
+  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) = delete;
+  void operator=(const vtkImageOrthoPlanes&) = delete;
 };
 
 #endif

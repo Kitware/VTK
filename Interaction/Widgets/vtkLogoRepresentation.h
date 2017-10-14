@@ -55,7 +55,7 @@ public:
    * Standard VTK class methods.
    */
   vtkTypeMacro(vtkLogoRepresentation,vtkBorderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -77,21 +77,21 @@ public:
   /**
    * Satisfy the superclasses' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   //@{
   /**
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  void GetActors2D(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOverlay(vtkViewport*) override;
   //@}
 
 protected:
   vtkLogoRepresentation();
-  ~vtkLogoRepresentation() VTK_OVERRIDE;
+  ~vtkLogoRepresentation() override;
 
   // data members
   vtkImageData  *Image;
@@ -108,8 +108,8 @@ protected:
   virtual void AdjustImageSize(double o[2], double borderSize[2], double imageSize[2]);
 
 private:
-  vtkLogoRepresentation(const vtkLogoRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLogoRepresentation&) VTK_DELETE_FUNCTION;
+  vtkLogoRepresentation(const vtkLogoRepresentation&) = delete;
+  void operator=(const vtkLogoRepresentation&) = delete;
 };
 
 #endif

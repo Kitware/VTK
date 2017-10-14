@@ -32,7 +32,7 @@ public:
     return new vtkScenePickerSelectionRenderCommand;
   }
 
-  void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*) override
   {
     if (event == vtkCommand::StartInteractionEvent)
     {
@@ -55,7 +55,7 @@ public:
 protected:
   vtkScenePickerSelectionRenderCommand()
                                       : InteractiveRender(false) {}
-  ~vtkScenePickerSelectionRenderCommand() VTK_OVERRIDE {}
+  ~vtkScenePickerSelectionRenderCommand() override {}
   bool InteractiveRender;
 };
 
@@ -65,13 +65,13 @@ vtkStandardNewMacro(vtkScenePicker);
 vtkScenePicker::vtkScenePicker()
 {
   this->EnableVertexPicking  = 1;
-  this->Renderer             = NULL;
-  this->Interactor           = NULL;
+  this->Renderer             = nullptr;
+  this->Interactor           = nullptr;
   this->Selector  = vtkHardwareSelector::New();
   this->NeedToUpdate         = false;
   this->VertId               = -1;
   this->CellId               = -1;
-  this->Prop                 = NULL;
+  this->Prop                 = nullptr;
   this->SelectionRenderCommand
     = vtkScenePickerSelectionRenderCommand::New();
   this->SelectionRenderCommand->m_Picker = this;
@@ -80,7 +80,7 @@ vtkScenePicker::vtkScenePicker()
 //----------------------------------------------------------------------------
 vtkScenePicker::~vtkScenePicker()
 {
-  this->SetRenderer(NULL);
+  this->SetRenderer(nullptr);
   this->Selector->Delete();
   this->SelectionRenderCommand->Delete();
 }
@@ -88,7 +88,7 @@ vtkScenePicker::~vtkScenePicker()
 //----------------------------------------------------------------------------
 void vtkScenePicker::SetRenderer( vtkRenderer * r )
 {
-  vtkRenderWindowInteractor *rwi = NULL;
+  vtkRenderWindowInteractor *rwi = nullptr;
   if (r && r->GetRenderWindow())
   {
     rwi = r->GetRenderWindow()->GetInteractor();
@@ -250,7 +250,7 @@ void vtkScenePicker::Update( int displayPos[2] )
       this->LastQueriedDisplayPos[0] != displayPos[0] ||
       this->LastQueriedDisplayPos[1] != displayPos[1])
   {
-    this->Prop = 0;
+    this->Prop = nullptr;
     unsigned int dpos[2] = {0, 0};
     if (displayPos[0] >= 0 && displayPos[1] >= 0)
     {

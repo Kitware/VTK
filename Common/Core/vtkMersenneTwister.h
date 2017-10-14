@@ -74,7 +74,7 @@ public:
   typedef vtkTypeUInt32 SequenceId;
 
   vtkTypeMacro(vtkMersenneTwister,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMersenneTwister* New();
 
@@ -105,7 +105,7 @@ public:
    * Current value
    * \post unit_range: result>=0.0 && result<=1.0
    */
-  double GetValue() VTK_OVERRIDE { return this->GetValue(0); }
+  double GetValue() override { return this->GetValue(0); }
 
   /**
    * Move to the next number in random sequence <id>. If no sequence is
@@ -119,17 +119,17 @@ public:
    * associated with this id, a warning is given and a sequence is generated
    * with default values.
    */
-  void Next() VTK_OVERRIDE { return this->Next(0); }
+  void Next() override { return this->Next(0); }
 
 protected:
   vtkMersenneTwister();
-  ~vtkMersenneTwister() VTK_OVERRIDE;
+  ~vtkMersenneTwister() override;
 
   vtkMersenneTwisterInternals* Internal;
 
 private:
-  vtkMersenneTwister(const vtkMersenneTwister&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMersenneTwister&) VTK_DELETE_FUNCTION;
+  vtkMersenneTwister(const vtkMersenneTwister&) = delete;
+  void operator=(const vtkMersenneTwister&) = delete;
 };
 
 #endif // #ifndef vtkMersenneTwister_h

@@ -26,14 +26,14 @@ vtkCxxSetObjectMacro(vtkPropItem, PropObject, vtkProp)
 
 //------------------------------------------------------------------------------
 vtkPropItem::vtkPropItem()
-  : PropObject(NULL)
+  : PropObject(nullptr)
 {
 }
 
 //------------------------------------------------------------------------------
 vtkPropItem::~vtkPropItem()
 {
-  this->SetPropObject(NULL);
+  this->SetPropObject(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -95,6 +95,6 @@ void vtkPropItem::PrintSelf(std::ostream &os, vtkIndent indent)
   }
   else
   {
-    os << "(NULL)\n";
+    os << "(nullptr)\n";
   }
 }

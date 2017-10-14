@@ -40,7 +40,7 @@ public:
    */
   static vtkImageContinuousErode3D *New();
   vtkTypeMacro(vtkImageContinuousErode3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkImageContinuousErode3D();
-  ~vtkImageContinuousErode3D() VTK_OVERRIDE;
+  ~vtkImageContinuousErode3D() override;
 
   vtkImageEllipsoidSource *Ellipse;
 
@@ -59,14 +59,14 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) VTK_OVERRIDE;
+                           int extent[6], int id) override;
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageContinuousErode3D&) VTK_DELETE_FUNCTION;
+  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&) = delete;
+  void operator=(const vtkImageContinuousErode3D&) = delete;
 };
 
 #endif

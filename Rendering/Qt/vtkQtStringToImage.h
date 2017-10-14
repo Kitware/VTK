@@ -34,7 +34,7 @@ class VTKRENDERINGQT_EXPORT vtkQtStringToImage : public vtkStringToImage
 {
 public:
   vtkTypeMacro(vtkQtStringToImage, vtkStringToImage);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkQtStringToImage *New();
 
@@ -53,9 +53,9 @@ public:
    * was empty).
    */
   vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkUnicodeString& string, int dpi) VTK_OVERRIDE;
+                                const vtkUnicodeString& string, int dpi) override;
   vtkVector2i GetBounds(vtkTextProperty *property,
-                                const vtkStdString& string, int dpi) VTK_OVERRIDE;
+                                const vtkStdString& string, int dpi) override;
   //@}
 
   //@{
@@ -67,11 +67,11 @@ public:
   int RenderString(vtkTextProperty *property,
                            const vtkUnicodeString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = NULL) override;
   int RenderString(vtkTextProperty *property,
                            const vtkStdString& string, int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = NULL) override;
   //@}
 
   /**
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkQtStringToImage();
-  ~vtkQtStringToImage() VTK_OVERRIDE;
+  ~vtkQtStringToImage() override;
 
   class Internals;
   Internals* Implementation;
@@ -89,8 +89,8 @@ protected:
   vtkSmartPointer<vtkQImageToImageSource> QImageToImage;
 
 private:
-  vtkQtStringToImage(const vtkQtStringToImage &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtStringToImage &) VTK_DELETE_FUNCTION;
+  vtkQtStringToImage(const vtkQtStringToImage &) = delete;
+  void operator=(const vtkQtStringToImage &) = delete;
 };
 
 #endif //vtkQtStringToImage_h

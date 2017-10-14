@@ -30,7 +30,7 @@ vtkCxxSetObjectMacro(vtkTransmitStructuredDataPiece,Controller,
 //----------------------------------------------------------------------------
 vtkTransmitStructuredDataPiece::vtkTransmitStructuredDataPiece()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->CreateGhostCells = 1;
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());
@@ -39,7 +39,7 @@ vtkTransmitStructuredDataPiece::vtkTransmitStructuredDataPiece()
 //----------------------------------------------------------------------------
 vtkTransmitStructuredDataPiece::~vtkTransmitStructuredDataPiece()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ int vtkTransmitStructuredDataPiece::RequestData(
 
   int procId;
 
-  if (this->Controller == NULL)
+  if (this->Controller == nullptr)
   {
     vtkErrorMacro("Could not find Controller.");
     return 1;

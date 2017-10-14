@@ -96,8 +96,8 @@ int vtkUnstructuredGridReader::RequestData(
   char line[256];
   vtkIdType npts, size = 0, ncells=0;
   int piece, numPieces, skip1, read2, skip3, tmp;
-  vtkCellArray *cells=NULL;
-  int *types=NULL;
+  vtkCellArray *cells=nullptr;
+  int *types=nullptr;
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;

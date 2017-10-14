@@ -74,8 +74,14 @@ bool DoFilesExist(const char*xdmffile, const char*hdf5file, bool deleteIfSo)
   bool theyDo = xexists && xlenOK && hexists && hlenOK;
   if (theyDo && deleteIfSo && CleanUpGood)
   {
-    unlink(xdmffile);
-    unlink(hdf5file);
+    if (xdmffile)
+    {
+      unlink(xdmffile);
+    }
+    if (hdf5file)
+    {
+      unlink(hdf5file);
+    }
   }
 
   return theyDo;
@@ -163,7 +169,7 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
     dsw->Delete();
   }
 
-  if (!DoFilesExist(xdmffile, NULL, false))
+  if (!DoFilesExist(xdmffile, nullptr, false))
   {
     cerr << "Writer did not create " << xdmffile << endl;
     return true;
@@ -238,7 +244,7 @@ int XdmfTestVTKIO (int ac, char *av[])
   xwriter->Delete();
   tsrc->Delete();
 
-  fail = !DoFilesExist("xdmfIOtest_temporal_1.xmf", NULL, true);
+  fail = !DoFilesExist("xdmfIOtest_temporal_1.xmf", nullptr, true);
   if (fail)
   {
     cerr << "Failed Temporal Test 1" << endl;
@@ -256,7 +262,7 @@ int XdmfTestVTKIO (int ac, char *av[])
   char* fname =
    vtkTestUtilities::ExpandDataFileName(
     ac, av, "Data/RectGrid2.vtk");
-  if (DoFilesExist(fname, NULL, false))
+  if (DoFilesExist(fname, nullptr, false))
   {
     vtkDataSetReader *dsr = vtkDataSetReader::New();
     dsr->SetFileName(fname);

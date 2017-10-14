@@ -42,7 +42,7 @@ class VTKFILTERSCORE_EXPORT vtkExecutionTimer : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutionTimer, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a new timer with no attached filter.  Use SetFilter()
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkExecutionTimer();
-  ~vtkExecutionTimer() VTK_OVERRIDE;
+  ~vtkExecutionTimer() override;
 
   // This is the observer that will catch StartEvent and hand off to
   // EventRelay
@@ -124,8 +124,8 @@ protected:
   static void EventRelay(vtkObject* caller, unsigned long eventId, void* clientData, void* callData);
 
 private:
-  vtkExecutionTimer(const vtkExecutionTimer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExecutionTimer&) VTK_DELETE_FUNCTION;
+  vtkExecutionTimer(const vtkExecutionTimer&) = delete;
+  void operator=(const vtkExecutionTimer&) = delete;
 
 };
 

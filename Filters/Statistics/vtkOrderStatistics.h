@@ -55,7 +55,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkOrderStatistics : public vtkStatisticsAlgor
 {
 public:
   vtkTypeMacro(vtkOrderStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkOrderStatistics* New();
 
   /**
@@ -112,44 +112,44 @@ public:
    */
   bool SetParameter( const char* parameter,
                      int index,
-                     vtkVariant value ) VTK_OVERRIDE;
+                     vtkVariant value ) override;
 
   /**
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
   void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) VTK_OVERRIDE { return; };
+                          vtkMultiBlockDataSet* ) override { return; };
 
 protected:
   vtkOrderStatistics();
-  ~vtkOrderStatistics() VTK_OVERRIDE;
+  ~vtkOrderStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE;
+             vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable* inData,
                vtkMultiBlockDataSet* inMeta,
-               vtkTable* outData ) VTK_OVERRIDE
+               vtkTable* outData ) override
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
   /**
@@ -158,7 +158,7 @@ protected:
   void SelectAssessFunctor( vtkTable* outData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
@@ -166,8 +166,8 @@ protected:
   vtkIdType MaximumHistogramSize;
 
 private:
-  vtkOrderStatistics(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
+  vtkOrderStatistics(const vtkOrderStatistics&) = delete;
+  void operator=(const vtkOrderStatistics&) = delete;
 };
 
 #endif

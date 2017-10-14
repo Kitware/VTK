@@ -167,7 +167,7 @@ def ParseModuleFile(fileName, renderingBackend='OpenGL'):
             lines.append(l)
     languages = ['PYTHON', 'TCL', 'JAVA']
     keywords = ['BACKEND', 'COMPILE_DEPENDS', 'DEPENDS', 'EXCLUDE_FROM_ALL',
-                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT',
+                'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT', 'LEGACY',
                 'PRIVATE_DEPENDS', 'TEST_DEPENDS',
                 'IMPLEMENTATION_REQUIRED_BY_BACKEND', 'OPTIONAL_PYTHON_LINK'] + \
                map(lambda l: 'EXCLUDE_FROM_%s_WRAPPING' % l, languages)

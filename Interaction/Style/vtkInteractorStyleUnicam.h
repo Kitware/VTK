@@ -111,7 +111,7 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleUnicam : public vtkInteractor
 public:
   static vtkInteractorStyleUnicam *New();
   vtkTypeMacro(vtkInteractorStyleUnicam,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetWorldUpVector(double a[3]) {this->SetWorldUpVector(a[0],a[1],a[2]);}
   void SetWorldUpVector(double x, double y, double z);
@@ -121,9 +121,9 @@ public:
   /**
    * Concrete implementation of event bindings
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
   virtual void OnLeftButtonMove();
   //@}
 
@@ -131,11 +131,11 @@ public:
    * OnTimer calls RotateCamera, RotateActor etc which should be overridden by
    * style subclasses.
    */
-  void OnTimer() VTK_OVERRIDE;
+  void OnTimer() override;
 
 protected:
   vtkInteractorStyleUnicam();
-  ~vtkInteractorStyleUnicam() VTK_OVERRIDE;
+  ~vtkInteractorStyleUnicam() override;
 
   vtkWorldPointPicker *InteractionPicker;
 
@@ -181,8 +181,8 @@ protected:
   // return the aspect ratio of the current window
   double WindowAspect();
 private:
-  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&) = delete;
+  void operator=(const vtkInteractorStyleUnicam&) = delete;
 };
 
 #endif  // vtkInteractorStyleUnicam_h

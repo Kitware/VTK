@@ -33,21 +33,21 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLCamera : public vtkCamera
 public:
   static vtkOpenGLCamera *New();
   vtkTypeMacro(vtkOpenGLCamera, vtkCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  void Render(vtkRenderer *ren) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren) override;
 
-  void UpdateViewport(vtkRenderer *ren) VTK_OVERRIDE;
+  void UpdateViewport(vtkRenderer *ren) override;
 
 protected:
   vtkOpenGLCamera() {}
-  ~vtkOpenGLCamera() VTK_OVERRIDE {}
+  ~vtkOpenGLCamera() override {}
 private:
-  vtkOpenGLCamera(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
+  vtkOpenGLCamera(const vtkOpenGLCamera&) = delete;
+  void operator=(const vtkOpenGLCamera&) = delete;
 };
 
 #endif

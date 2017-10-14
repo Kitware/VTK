@@ -76,7 +76,7 @@ class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -95,9 +95,9 @@ public:
 
   /**
    * Return the underlying data type. An integer indicating data type is
-   * returned as specified in vtkSetGet.h.
+   * returned as specified in vtkType.h.
    */
-  virtual int GetDataType() =0;
+  virtual int GetDataType() = 0;
 
   //@{
   /**
@@ -435,19 +435,22 @@ public:
   /**
    * Retrieve value from the array as a variant.
    */
-  virtual vtkVariant GetVariantValue(vtkIdType valueIdx);
+  virtual vtkVariant GetVariantValue(vtkIdType valueIdx)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues());
 
   /**
    * Insert a value into the array from a variant.  This method does
    * bounds checking.
    */
-  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
+  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value)
+    VTK_EXPECTS(0 <= valueIdx) = 0;
 
   /**
    * Set a value in the array from a variant.  This method does NOT do
    * bounds checking.
    */
-  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
+  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues()) = 0;
 
   /**
    * Tell the array explicitly that the data has changed.
@@ -537,7 +540,7 @@ public:
    * Inquire if this array has an instance of vtkInformation
    * already associated with it.
    */
-  bool HasInformation(){ return this->Information!=0; }
+  bool HasInformation(){ return this->Information!=nullptr; }
 
   /**
    * Copy information instance. Arrays use information objects
@@ -589,7 +592,7 @@ public:
   /**
    * Removes out-of-date PER_COMPONENT() and PER_FINITE_COMPONENT() values.
    */
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
 
   /**
    * A key used to hold discrete values taken on either by the tuples of the
@@ -644,7 +647,7 @@ public:
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
-  ~vtkAbstractArray() VTK_OVERRIDE;
+  ~vtkAbstractArray() override;
 
   /**
    * Set an information object that can be used to annotate the array.
@@ -683,8 +686,8 @@ protected:
   vtkInternalComponentNames* ComponentNames; //names for each component
 
 private:
-  vtkAbstractArray(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
+  vtkAbstractArray(const vtkAbstractArray&) = delete;
+  void operator=(const vtkAbstractArray&) = delete;
 };
 
 //@{

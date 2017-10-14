@@ -69,7 +69,7 @@ class VTKIOSQL_EXPORT vtkSQLQuery : public vtkRowQuery
 {
 public:
   vtkTypeMacro(vtkSQLQuery, vtkRowQuery);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,14 +86,14 @@ public:
    * and results are ready to be fetched).  Returns false on error or
    * inactive query.
    */
-  bool IsActive() VTK_OVERRIDE { return this->Active; }
+  bool IsActive() override { return this->Active; }
 
   /**
    * Execute the query.  This must be performed
    * before any field name or data access functions
    * are used.
    */
-  bool Execute() VTK_OVERRIDE = 0;
+  bool Execute() override = 0;
 
   /**
    * Begin, commit, or roll back a transaction.  If the underlying
@@ -177,7 +177,7 @@ public:
    */
   virtual bool BindParameter(int index, const void *data, size_t length);
   /**
-   * Reset all parameter bindings to NULL.
+   * Reset all parameter bindings to nullptr.
    */
   virtual bool ClearParameterBindings();
 
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkSQLQuery();
-  ~vtkSQLQuery() VTK_OVERRIDE;
+  ~vtkSQLQuery() override;
 
   /**
    * Set the database associated with the query.
@@ -221,8 +221,8 @@ protected:
   bool Active;
 
 private:
-  vtkSQLQuery(const vtkSQLQuery &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLQuery &) VTK_DELETE_FUNCTION;
+  vtkSQLQuery(const vtkSQLQuery &) = delete;
+  void operator=(const vtkSQLQuery &) = delete;
 };
 
 #endif // vtkSQLQuery_h

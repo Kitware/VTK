@@ -82,20 +82,20 @@ vtkCxxSetObjectMacro(vtkMNITagPointWriter, PatientIds, vtkIntArray);
 //-------------------------------------------------------------------------
 vtkMNITagPointWriter::vtkMNITagPointWriter()
 {
-  this->Points[0] = 0;
-  this->Points[1] = 0;
+  this->Points[0] = nullptr;
+  this->Points[1] = nullptr;
 
-  this->LabelText = 0;
-  this->Weights = 0;
-  this->StructureIds = 0;
-  this->PatientIds = 0;
+  this->LabelText = nullptr;
+  this->Weights = nullptr;
+  this->StructureIds = nullptr;
+  this->PatientIds = nullptr;
 
-  this->Comments = 0;
+  this->Comments = nullptr;
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(0);
 
-  this->FileName = 0;
+  this->FileName = nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -203,7 +203,7 @@ vtkPoints *vtkMNITagPointWriter::GetPoints(int port)
 {
   if (port < 0 || port > 1)
   {
-    return 0;
+    return nullptr;
   }
   return this->Points[port];
 }
@@ -219,11 +219,11 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
   vtkPoints *points[2];
 
-  vtkStringArray *labels = 0;
+  vtkStringArray *labels = nullptr;
   vtkDataArray *darray[3];
-  darray[0] = 0;
-  darray[1] = 0;
-  darray[2] = 0;
+  darray[0] = nullptr;
+  darray[1] = nullptr;
+  darray[2] = nullptr;
 
   vtkDataArray *ivarArrays[3];
   ivarArrays[0] = this->Weights;
@@ -232,7 +232,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
 
   for (int ii = 1; ii >= 0; --ii)
   {
-    points[ii] = 0;
+    points[ii] = nullptr;
     if (inputs[ii])
     {
       points[ii] = inputs[ii]->GetPoints();
@@ -274,7 +274,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
     }
   }
 
-  if (points[0] == 0)
+  if (points[0] == nullptr)
   {
     vtkErrorMacro("No input points have been provided");
     return;
@@ -303,7 +303,7 @@ void vtkMNITagPointWriter::WriteData(vtkPointSet *inputs[2])
   }
 
   // dataArrays is null if there are no data arrays
-  vtkDataArray **dataArrays = 0;
+  vtkDataArray **dataArrays = nullptr;
   for (int jj = 0; jj < 3; jj++)
   {
     if (darray[jj])
@@ -490,8 +490,8 @@ int vtkMNITagPointWriter::RequestData(
   inInfo[1] = inputVector[1]->GetInformationObject(0);
 
   vtkPointSet *input[2];
-  input[0] = 0;
-  input[1] = 0;
+  input[0] = nullptr;
+  input[1] = nullptr;
 
   vtkMTimeType lastUpdateTime = 0;
   for (int idx = 0; idx < 2; ++idx)
@@ -517,9 +517,9 @@ int vtkMNITagPointWriter::RequestData(
     return 1;
   }
 
-  this->InvokeEvent(vtkCommand::StartEvent, NULL);
+  this->InvokeEvent(vtkCommand::StartEvent, nullptr);
   this->WriteData(input);
-  this->InvokeEvent(vtkCommand::EndEvent, NULL);
+  this->InvokeEvent(vtkCommand::EndEvent, nullptr);
 
   this->WriteTime.Modified();
 
@@ -535,7 +535,7 @@ ostream *vtkMNITagPointWriter::OpenFile()
   {
     vtkErrorMacro(<< "No FileName specified! Can't write!");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
-    return NULL;
+    return nullptr;
   }
 
   vtkDebugMacro(<<"Opening file for writing...");
@@ -547,7 +547,7 @@ ostream *vtkMNITagPointWriter::OpenFile()
     vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     delete fptr;
-    return NULL;
+    return nullptr;
   }
 
   return fptr;

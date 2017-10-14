@@ -37,7 +37,7 @@ class VTKRENDERINGCORE_EXPORT vtkImageProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImageProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a property with no lookup table.
@@ -190,11 +190,11 @@ public:
    * Get the MTime for this property.  If the lookup table is set,
    * the mtime will include the mtime of the lookup table.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkImageProperty();
-  ~vtkImageProperty() VTK_OVERRIDE;
+  ~vtkImageProperty() override;
 
   vtkScalarsToColors *LookupTable;
   double ColorWindow;
@@ -212,8 +212,8 @@ protected:
   double BackingColor[3];
 
 private:
-  vtkImageProperty(const vtkImageProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageProperty&) VTK_DELETE_FUNCTION;
+  vtkImageProperty(const vtkImageProperty&) = delete;
+  void operator=(const vtkImageProperty&) = delete;
 };
 
 #endif

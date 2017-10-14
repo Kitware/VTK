@@ -412,7 +412,7 @@ int vtkSynchronizedTemplates2D::RequestData(
   vtkPoints     *newPts;
   vtkCellArray  *newLines;
   vtkDataArray  *inScalars;
-  vtkDataArray  *newScalars = NULL;
+  vtkDataArray  *newScalars = nullptr;
   int           *ext;
   int           dims[3];
   int           dataSize, estimatedSize;
@@ -423,7 +423,7 @@ int vtkSynchronizedTemplates2D::RequestData(
   ext =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   inScalars = this->GetInputArrayToProcess(0,inputVector);
-  if ( inScalars == NULL )
+  if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;

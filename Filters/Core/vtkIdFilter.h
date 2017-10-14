@@ -37,7 +37,7 @@ class VTKFILTERSCORE_EXPORT vtkIdFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkIdFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
@@ -85,9 +85,9 @@ public:
 
 protected:
   vtkIdFilter();
-  ~vtkIdFilter() VTK_OVERRIDE;
+  ~vtkIdFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int PointIds;
   int CellIds;
@@ -95,8 +95,8 @@ protected:
   char *IdsArrayName;
 
 private:
-  vtkIdFilter(const vtkIdFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdFilter&) VTK_DELETE_FUNCTION;
+  vtkIdFilter(const vtkIdFilter&) = delete;
+  void operator=(const vtkIdFilter&) = delete;
 };
 
 #endif

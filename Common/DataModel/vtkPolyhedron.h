@@ -63,36 +63,36 @@ public:
    */
   static vtkPolyhedron *New();
   vtkTypeMacro(vtkPolyhedron,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) VTK_OVERRIDE {}
-  void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) VTK_OVERRIDE {}
-  double *GetParametricCoords() VTK_OVERRIDE;
+  void GetEdgePoints(int vtkNotUsed(edgeId), int* &vtkNotUsed(pts)) override {}
+  void GetFacePoints(int vtkNotUsed(faceId), int* &vtkNotUsed(pts)) override {}
+  double *GetParametricCoords() override;
 
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_POLYHEDRON;}
+  int GetCellType() override {return VTK_POLYHEDRON;}
 
   /**
    * This cell requires that it be initialized prior to access.
    */
-  int RequiresInitialization() VTK_OVERRIDE {return 1;}
-  void Initialize() VTK_OVERRIDE;
+  int RequiresInitialization() override {return 1;}
+  void Initialize() override;
 
   //@{
   /**
    * A polyhedron is represented internally by a set of polygonal faces.
    * These faces can be processed to explicitly determine edges.
    */
-  int GetNumberOfEdges() VTK_OVERRIDE;
-  vtkCell *GetEdge(int) VTK_OVERRIDE;
-  int GetNumberOfFaces() VTK_OVERRIDE;
-  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
+  int GetNumberOfEdges() override;
+  vtkCell *GetEdge(int) override;
+  int GetNumberOfFaces() override;
+  vtkCell *GetFace(int faceId) override;
   //@}
 
   /**
@@ -104,7 +104,7 @@ public:
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
 
   /**
    * Satisfy the vtkCell API. This method clips the input polyhedron and outputs
@@ -119,7 +119,7 @@ public:
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
 
   /**
    * Satisfy the vtkCell API. The subId is ignored and zero is always
@@ -130,14 +130,14 @@ public:
    */
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
 
   /**
    * The inverse of EvaluatePosition. Note the weights should be the MVC
    * weights.
    */
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
 
   /**
    * Intersect the line (p1,p2) with a given tolerance tol to determine a
@@ -146,7 +146,7 @@ public:
    * ignored). Returns the number of intersection points.
    */
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
 
   /**
    * Use vtkOrderedTriangulator to tetrahedralize the polyhedron mesh. This
@@ -163,7 +163,7 @@ public:
    * tetrahedrons. The points stored in pts are ordered the same as they are
    * listed in ptIds.
    */
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
 
   /**
    * Computes derivatives at the point specified by the parameter coordinate.
@@ -173,24 +173,24 @@ public:
    * derivatives on the local tetrahedron.
    */
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
+                   int dim, double *derivs) override;
 
   /**
    * Find the boundary face closest to the point defined by the pcoords[3]
    * and subId of the cell (subId can be ignored).
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Return the center of the cell in parametric coordinates. In this cell,
    * the center of the bounding box is returned.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
   /**
    * A polyhedron is a full-fledged primary cell.
    */
-  int IsPrimaryCell() VTK_OVERRIDE {return 1;}
+  int IsPrimaryCell() override {return 1;}
 
   //@{
   /**
@@ -198,8 +198,8 @@ public:
    * (aka shape functions/derivatives). Here we use the MVC calculation
    * process to compute the interpolation functions.
    */
-  void InterpolateFunctions(double x[3], double *sf) VTK_OVERRIDE;
-  void InterpolateDerivs(double x[3], double *derivs) VTK_OVERRIDE;
+  void InterpolateFunctions(double x[3], double *sf) override;
+  void InterpolateDerivs(double x[3], double *derivs) override;
   //@}
 
   //@{
@@ -211,9 +211,9 @@ public:
    * begins with a leading count indicating the total number of faces in
    * the list.
    */
-  int RequiresExplicitFaceRepresentation() VTK_OVERRIDE {return 1;}
-  void SetFaces(vtkIdType *faces) VTK_OVERRIDE;
-  vtkIdType *GetFaces() VTK_OVERRIDE;
+  int RequiresExplicitFaceRepresentation() override {return 1;}
+  void SetFaces(vtkIdType *faces) override;
+  vtkIdType *GetFaces() override;
   //@}
 
   /**
@@ -239,7 +239,7 @@ public:
 
 protected:
   vtkPolyhedron();
-  ~vtkPolyhedron() VTK_OVERRIDE;
+  ~vtkPolyhedron() override;
 
   // Internal classes for supporting operations on this cell
   vtkLine        *Line;
@@ -314,8 +314,8 @@ protected:
                            vtkDataArray *inScalars);
 
 private:
-  vtkPolyhedron(const vtkPolyhedron&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyhedron&) VTK_DELETE_FUNCTION;
+  vtkPolyhedron(const vtkPolyhedron&) = delete;
+  void operator=(const vtkPolyhedron&) = delete;
 
   class vtkInternal;
   vtkInternal * Internal;

@@ -163,8 +163,8 @@ private:
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
 
-  vtkBoostBreadthFirstSearch(const vtkBoostBreadthFirstSearch&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostBreadthFirstSearch&) VTK_DELETE_FUNCTION;
+  vtkBoostBreadthFirstSearch(const vtkBoostBreadthFirstSearch&) = delete;
+  void operator=(const vtkBoostBreadthFirstSearch&) = delete;
 };
 
 #endif

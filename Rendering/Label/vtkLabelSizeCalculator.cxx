@@ -33,10 +33,10 @@ vtkCxxSetObjectMacro(vtkLabelSizeCalculator,FontUtil,vtkTextRenderer);
 vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 {
   this->Implementation = new Internals;
-  // Always defined but user may set to NULL.
+  // Always defined but user may set to nullptr.
   this->Implementation->FontProperties[0] = vtkSmartPointer<vtkTextProperty>::New();
-  this->FontUtil = vtkTextRenderer::New(); // Never a NULL moment.
-  this->LabelSizeArrayName = NULL;
+  this->FontUtil = vtkTextRenderer::New(); // Never a nullptr moment.
+  this->LabelSizeArrayName = nullptr;
   this->SetLabelSizeArrayName( "LabelSize" );
   this->DPI = 72;
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "LabelText");
@@ -45,8 +45,8 @@ vtkLabelSizeCalculator::vtkLabelSizeCalculator()
 
 vtkLabelSizeCalculator::~vtkLabelSizeCalculator()
 {
-  this->SetFontUtil( 0 );
-  this->SetLabelSizeArrayName( NULL );
+  this->SetFontUtil( nullptr );
+  this->SetLabelSizeArrayName( nullptr );
   delete this->Implementation;
 }
 
@@ -60,7 +60,7 @@ void vtkLabelSizeCalculator::PrintSelf( ostream& os, vtkIndent indent )
   itEnd = this->Implementation->FontProperties.end();
   for ( ; it != itEnd; ++it )
   {
-    os << indent << "  " << it->first << ": " << it->second.GetPointer() << endl;
+    os << indent << "  " << it->first << ": " << it->second << endl;
   }
   os << indent << "FontUtil: " << this->FontUtil << "\n";
 }
@@ -85,7 +85,7 @@ vtkTextProperty* vtkLabelSizeCalculator::GetFontProperty(int type)
   {
     return this->Implementation->FontProperties[type];
   }
-  return 0;
+  return nullptr;
 }
 
 int vtkLabelSizeCalculator::RequestData(
@@ -101,8 +101,8 @@ int vtkLabelSizeCalculator::RequestData(
   vtkDataObject* input = inInfo->Get( vtkDataObject::DATA_OBJECT() );
   vtkDataObject* output = outInfo->Get( vtkDataObject::DATA_OBJECT() );
 
-  vtkFieldData* inFD = 0;
-  vtkFieldData* outFD = 0;
+  vtkFieldData* inFD = nullptr;
+  vtkFieldData* outFD = nullptr;
 
   vtkDataSet* dsInput = vtkDataSet::SafeDownCast( input );
   vtkDataSet* dsOutput = vtkDataSet::SafeDownCast( output );
@@ -121,13 +121,13 @@ int vtkLabelSizeCalculator::RequestData(
 
   if ( ! this->Implementation->FontProperties[0] )
   {
-    vtkErrorMacro( "NULL default font property, so I cannot compute label sizes." );
+    vtkErrorMacro( "nullptr default font property, so I cannot compute label sizes." );
     return 0;
   }
 
   if ( ! this->LabelSizeArrayName )
   {
-    vtkErrorMacro( "NULL value for LabelSizeArrayName." );
+    vtkErrorMacro( "nullptr value for LabelSizeArrayName." );
     return 0;
   }
 

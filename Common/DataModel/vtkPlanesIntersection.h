@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanesIntersection : public vtkPlanes
   vtkTypeMacro(vtkPlanesIntersection, vtkPlanes);
 
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPlanesIntersection *New();
 
@@ -109,7 +109,7 @@ protected:
   static int Invert3x3(double M[3][3]);
 
   vtkPlanesIntersection();
-  ~vtkPlanesIntersection() VTK_OVERRIDE;
+  ~vtkPlanesIntersection() override;
 
 private:
 
@@ -133,8 +133,8 @@ private:
   //    the ccw hull of that region projected in 3 orthog. directions
   vtkPointsProjectedHull *RegionPts;
 
-  vtkPlanesIntersection(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
+  vtkPlanesIntersection(const vtkPlanesIntersection&) = delete;
+  void operator=(const vtkPlanesIntersection&) = delete;
 };
 #endif
 

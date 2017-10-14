@@ -32,7 +32,7 @@ public:
   {
     this->Target = t;
   }
-  void Execute(vtkObject* o, unsigned long event, void *p) VTK_OVERRIDE
+  void Execute(vtkObject* o, unsigned long event, void *p) override
   {
     if (this->Target)
     {
@@ -47,7 +47,7 @@ public:
     }
   }
 protected:
-  vtkTextRepresentationObserver() { this->Target = 0; }
+  vtkTextRepresentationObserver() { this->Target = nullptr; }
   vtkTextRepresentation* Target;
 
 };
@@ -71,8 +71,8 @@ vtkTextRepresentation::vtkTextRepresentation()
 //-------------------------------------------------------------------------
 vtkTextRepresentation::~vtkTextRepresentation()
 {
-  this->SetTextActor(0);
-  this->Observer->SetTarget(0);
+  this->SetTextActor(nullptr);
+  this->Observer->SetTarget(nullptr);
   this->Observer->Delete();
 
 }
@@ -120,7 +120,7 @@ const char* vtkTextRepresentation::GetText()
     return this->TextActor->GetInput();
   }
   vtkErrorMacro("No text actor present. No showing any text.");
-  return 0;
+  return nullptr;
 }
 
 //-------------------------------------------------------------------------
@@ -200,7 +200,7 @@ void vtkTextRepresentation::InitializeTextActor()
     this->TextActor->SetMaximumLineHeight(1.0);
     this->TextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
     this->TextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-    this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(0);
+    this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
     this->TextActor->GetTextProperty()->SetJustificationToCentered();
     this->TextActor->GetTextProperty()->SetVerticalJustificationToCentered();
 

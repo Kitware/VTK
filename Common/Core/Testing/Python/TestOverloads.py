@@ -34,7 +34,7 @@ class TestOverloads(Testing.vtkTest):
         fd.AddArray(ia)
         a = fd.GetArray("Real")
         self.assertEqual(id(a), id(fa))
-        i = vtk.mutable(0)
+        i = vtk.reference(0)
         a = fd.GetArray("Integer", i)
         self.assertEqual(id(a), id(ia))
         self.assertEqual(i, 1)

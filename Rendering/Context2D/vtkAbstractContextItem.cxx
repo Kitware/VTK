@@ -24,8 +24,8 @@
 //-----------------------------------------------------------------------------
 vtkAbstractContextItem::vtkAbstractContextItem()
 {
-  this->Scene = NULL;
-  this->Parent = NULL;
+  this->Scene = nullptr;
+  this->Parent = nullptr;
   this->Children = new vtkContextScenePrivate(this);
   this->Visible = true;
   this->Interactive = true;
@@ -57,7 +57,7 @@ void vtkAbstractContextItem::Update()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
+vtkIdType vtkAbstractContextItem::AddItem(vtkAbstractContextItem* item)
 {
   return this->Children->AddItem(item);
 }
@@ -69,40 +69,47 @@ bool vtkAbstractContextItem::RemoveItem(vtkAbstractContextItem* item)
 }
 
 //-----------------------------------------------------------------------------
-bool vtkAbstractContextItem::RemoveItem(unsigned int index)
+bool vtkAbstractContextItem::RemoveItem(vtkIdType index)
 {
-  return this->Children->RemoveItem(index);
+  if (index >= 0 && index < static_cast<vtkIdType>(this->Children->size()))
+  {
+    return this->Children->RemoveItem(index);
+  }
+  else
+  {
+    return false;
+  }
 }
 
 //-----------------------------------------------------------------------------
-vtkAbstractContextItem* vtkAbstractContextItem::GetItem(unsigned int index)
+vtkAbstractContextItem* vtkAbstractContextItem::GetItem(vtkIdType index)
 {
-  if (index < this->Children->size())
+  if (index >= 0 && index < static_cast<vtkIdType>(this->Children->size()))
   {
     return this->Children->at(index);
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
+vtkIdType vtkAbstractContextItem::GetItemIndex(vtkAbstractContextItem* item)
 {
   vtkContextScenePrivate::const_iterator it =
     std::find(this->Children->begin(), this->Children->end(), item);
   if (it == this->Children->end())
   {
-    return static_cast<unsigned int>(-1);
+    return -1;
   }
   return it - this->Children->begin();
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::GetNumberOfItems()
+vtkIdType vtkAbstractContextItem::GetNumberOfItems()
 {
-  return static_cast<unsigned int>(this->Children->size());
+  return static_cast<vtkIdType>(this->Children->size());
 }
 
 //-----------------------------------------------------------------------------
@@ -112,24 +119,24 @@ void vtkAbstractContextItem::ClearItems()
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::Raise(unsigned int index)
+vtkIdType vtkAbstractContextItem::Raise(vtkIdType index)
 {
   return this->StackAbove(index, this->GetNumberOfItems() - 1);
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
-                                                unsigned int under)
+vtkIdType vtkAbstractContextItem::StackAbove(vtkIdType index,
+                                             vtkIdType under)
 {
-  unsigned int res = index;
-  if (index == under)
+  vtkIdType res = index;
+  if (index == under || index < 0)
   {
     return res;
   }
-  unsigned int start = 0;
-  unsigned int middle = 0;
-  unsigned int end = 0;
-  if (under == static_cast<unsigned int>(-1))
+  vtkIdType start = 0;
+  vtkIdType middle = 0;
+  vtkIdType end = 0;
+  if (under == -1)
   {
     start = 0;
     middle = index;
@@ -157,14 +164,14 @@ unsigned int vtkAbstractContextItem::StackAbove(unsigned int index,
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::Lower(unsigned int index)
+vtkIdType vtkAbstractContextItem::Lower(vtkIdType index)
 {
   return this->StackUnder(index, 0);
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkAbstractContextItem::StackUnder(unsigned int child,
-                                                unsigned int above)
+vtkIdType vtkAbstractContextItem::StackUnder(vtkIdType child,
+                                             vtkIdType above)
 {
   return this->StackAbove(child, above - 1);
 }
@@ -245,7 +252,7 @@ vtkAbstractContextItem* vtkAbstractContextItem::GetPickedItem(
       return item;
     }
   }
-  return this->Hit(mouse) ? this : NULL;
+  return this->Hit(mouse) ? this : nullptr;
 }
 
 // ----------------------------------------------------------------------------

@@ -30,57 +30,26 @@
 #define vtkXMLDataSetWriter_h
 
 #include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLWriter.h"
+#include "vtkXMLDataObjectWriter.h"
 
 class vtkCallbackCommand;
 
-class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLWriter
+class VTKIOXML_EXPORT vtkXMLDataSetWriter : public vtkXMLDataObjectWriter
 {
 public:
-  vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  vtkTypeMacro(vtkXMLDataSetWriter,vtkXMLDataObjectWriter);
   static vtkXMLDataSetWriter* New();
-
-  /**
-   * Get/Set the writer's input.
-   */
-  vtkDataSet* GetInput();
-
-  /**
-   * Creates a writer for the given dataset type. May return NULL for
-   * unsupported/unrecognized dataset types. Returns a new instance. The caller
-   * is responsible of calling vtkObject::Delete() or vtkObject::UnRegister() on
-   * it when done.
-   */
-  static vtkXMLWriter* NewWriter(int dataset_type);
 
 protected:
   vtkXMLDataSetWriter();
-  ~vtkXMLDataSetWriter() VTK_OVERRIDE;
+  ~vtkXMLDataSetWriter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-
-  // Override writing method from superclass.
-  int WriteInternal() VTK_OVERRIDE;
-
-  // Dummies to satisfy pure virtuals from superclass.
-  const char* GetDataSetName() VTK_OVERRIDE;
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
-
-  // Callback registered with the ProgressObserver.
-  static void ProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                       void*);
-  // Progress callback from internal writer.
-  virtual void ProgressCallback(vtkAlgorithm* w);
-
-  // The observer to report progress from the internal writer.
-  vtkCallbackCommand* ProgressObserver;
-
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataSetWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLDataSetWriter(const vtkXMLDataSetWriter&) = delete;
+  void operator=(const vtkXMLDataSetWriter&) = delete;
 };
 
 #endif

@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkProperty2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProperty2D,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a vtkProperty2D with the following default values:
@@ -89,7 +89,7 @@ public:
   /**
    * Set/Get the stippling pattern of a Line, as a 16-bit binary pattern
    * (1 = pixel on, 0 = pixel off).
-   * This is only implemented for OpenGL. The default is 0xFFFF.
+   * This is only implemented for OpenGL, not OpenGL2. The default is 0xFFFF.
    */
   vtkSetMacro(LineStipplePattern,int);
   vtkGetMacro(LineStipplePattern,int);
@@ -99,7 +99,7 @@ public:
   /**
    * Set/Get the stippling repeat factor of a Line, which specifies how
    * many times each bit in the pattern is to be repeated.
-   * This is only implemented for OpenGL. The default is 1.
+   * This is only implemented for OpenGL, not OpenGL2. The default is 1.
    */
   vtkSetClampMacro(LineStippleRepeatFactor,int,1,VTK_INT_MAX);
   vtkGetMacro(LineStippleRepeatFactor,int);
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkProperty2D();
-  ~vtkProperty2D() VTK_OVERRIDE;
+  ~vtkProperty2D() override;
 
   double Color[3];
   double Opacity;
@@ -142,8 +142,8 @@ protected:
   int   DisplayLocation;
 
 private:
-  vtkProperty2D(const vtkProperty2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProperty2D&) VTK_DELETE_FUNCTION;
+  vtkProperty2D(const vtkProperty2D&) = delete;
+  void operator=(const vtkProperty2D&) = delete;
 };
 
 #endif

@@ -132,11 +132,11 @@ vtkOctreePointLocator::vtkOctreePointLocator()
   this->MaxLevel  = 20;
   this->MaximumPointsPerRegion = 100;
   this->Level    = 0;
-  this->Top      = NULL;
+  this->Top      = nullptr;
   this->NumberOfLocatorPoints = 0;
-  this->LocatorPoints = NULL;
-  this->LocatorIds = NULL;
-  this->LeafNodeList = NULL;
+  this->LocatorPoints = nullptr;
+  this->LocatorIds = nullptr;
+  this->LeafNodeList = nullptr;
   this->CreateCubicOctants = 1;
   this->NumberOfLeafNodes = 0;
 }
@@ -162,13 +162,13 @@ vtkOctreePointLocator::~vtkOctreePointLocator()
   this->FreeSearchStructure();
 
   delete []this->LocatorPoints;
-  this->LocatorPoints = 0;
+  this->LocatorPoints = nullptr;
 
   delete []this->LocatorIds;
-  this->LocatorIds = 0;
+  this->LocatorIds = nullptr;
 
   delete []this->LeafNodeList;
-  this->LeafNodeList = 0;
+  this->LeafNodeList = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -793,7 +793,7 @@ void vtkOctreePointLocator::FindPointsWithinRadius(
   }
 
   // partial intersection of sphere & BB
-  if (node->GetChild(0) == NULL)
+  if (node->GetChild(0) == nullptr)
   {
     //int regionID = node->GetID();
     int regionLoc = node->GetMinID();
@@ -845,7 +845,7 @@ void vtkOctreePointLocator::FindClosestNPoints(int N, const double x[3],
   // but not many more -- hopefully the region contains X as well but we
   // can't depend on that
   vtkOctreePointLocatorNode* node = this->Top;
-  vtkOctreePointLocatorNode* startingNode = 0;
+  vtkOctreePointLocatorNode* startingNode = nullptr;
   if(!node->ContainsPoint(x[0], x[1], x[2], 0))
   {
     // point is not in the region
@@ -958,7 +958,7 @@ void vtkOctreePointLocator::FindClosestNPoints(int N, const double x[3],
         child->GetDataBounds(bounds);
         double delta[3] = {0,0,0};
         if(vtkMath::PointIsWithinBounds(const_cast<double*>(x), bounds, delta) == 1 ||
-           child->GetDistance2ToBoundary(x[0], x[1], x[2], 0, 1) < largestDist2)
+           child->GetDistance2ToBoundary(x[0], x[1], x[2], nullptr, 1) < largestDist2)
         {
           nodesToBeSearched.push(child);
         }
@@ -988,14 +988,14 @@ vtkIdTypeArray *vtkOctreePointLocator::GetPointsInRegion(int leafNodeId)
   if ( (leafNodeId < 0) || (leafNodeId >= this->NumberOfLeafNodes))
   {
     vtkErrorMacro("vtkOctreePointLocator::GetPointsInRegion invalid leaf node ID");
-    return NULL;
+    return nullptr;
   }
 
   if (!this->LocatorIds)
   {
     // don't build locator since leafNodeId is probably garbage anyways
     vtkErrorMacro("vtkOctreePointLocator::GetPointsInRegion build locator first");
-    return NULL;
+    return nullptr;
   }
 
   int numPoints = this->LeafNodeList[leafNodeId]->GetNumberOfPoints();
@@ -1021,18 +1021,18 @@ void vtkOctreePointLocator::FreeSearchStructure()
   {
     vtkOctreePointLocator::DeleteAllDescendants(this->Top);
     this->Top->Delete();
-    this->Top = NULL;
+    this->Top = nullptr;
   }
   delete [] this->LeafNodeList;
-  this->LeafNodeList = NULL;
+  this->LeafNodeList = nullptr;
 
   this->NumberOfLeafNodes = 0;
 
   delete [] this->LocatorPoints;
-  this->LocatorPoints = NULL;
+  this->LocatorPoints = nullptr;
 
   delete [] this->LocatorIds;
-  this->LocatorIds = NULL;
+  this->LocatorIds = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1041,7 +1041,7 @@ void vtkOctreePointLocator::FreeSearchStructure()
 void vtkOctreePointLocator::GenerateRepresentation(int level,
                                                    vtkPolyData *pd)
 {
-  if ( this->Top == NULL )
+  if ( this->Top == nullptr )
   {
     vtkErrorMacro("vtkOctreePointLocator::GenerateRepresentation no tree");
     return;
@@ -1161,7 +1161,7 @@ int vtkOctreePointLocator::FindRegion(vtkOctreePointLocatorNode *node, double x,
     return -1; // no region is found
   }
 
-  if (node->GetChild(0) == NULL)
+  if (node->GetChild(0) == nullptr)
   {
     return node->GetID();
   }
@@ -1227,7 +1227,7 @@ void vtkOctreePointLocator::FindPointsInArea(
   }
   else // intersects
   {
-    if (node->GetChild(0) == NULL)
+    if (node->GetChild(0) == nullptr)
     {
       //int regionID = node->GetID();
       int regionLoc = node->GetMinID();

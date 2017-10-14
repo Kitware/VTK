@@ -34,10 +34,10 @@ vtkOutlineFilter::vtkOutlineFilter ()
 //----------------------------------------------------------------------------
 vtkOutlineFilter::~vtkOutlineFilter ()
 {
-  if (this->OutlineSource != NULL)
+  if (this->OutlineSource != nullptr)
   {
     this->OutlineSource->Delete ();
-    this->OutlineSource = NULL;
+    this->OutlineSource = nullptr;
   }
 }
 

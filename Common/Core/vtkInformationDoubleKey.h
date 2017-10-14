@@ -32,10 +32,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationDoubleKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationDoubleKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationDoubleKey(const char* name, const char* location);
-  ~vtkInformationDoubleKey() VTK_OVERRIDE;
+  ~vtkInformationDoubleKey() override;
 
   /**
    * This method simply returns a new vtkInformationDoubleKey, given a
@@ -61,12 +61,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 protected:
   /**
@@ -77,8 +77,8 @@ protected:
   double* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationDoubleKey(const vtkInformationDoubleKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationDoubleKey&) VTK_DELETE_FUNCTION;
+  vtkInformationDoubleKey(const vtkInformationDoubleKey&) = delete;
+  void operator=(const vtkInformationDoubleKey&) = delete;
 };
 
 #endif

@@ -59,30 +59,42 @@ int TestCellDataToPointData (int, char*[])
 
   vsp(CellDataToPointData, uc2p);
     uc2p->SetInputConnection(c2g->GetOutputPort());
-    uc2p->Update();
 
   vtkDataArray* const x = sc2p->GetOutput()->GetPointData()->GetArray(name);
-  vtkDataArray* const y = uc2p->GetOutput()->GetPointData()->GetArray(name);
 
-  vtkIdType const nvalues = x->GetNumberOfTuples() * x->GetNumberOfComponents();
-  double mean = 0, variance = 0;
-
-  // mean
-  for (vtkIdType i = 0; i < nvalues; ++i)
+  // iterate through the options for which cells contribute to the result
+  // for the cell data to point data filter. since all cells are 3D the
+  // result should be the same.
+  for (int opt=0;opt<3;opt++)
   {
-    mean += x->GetTuple1(i) - y->GetTuple1(i);
-  }
-  mean /= nvalues;
+    uc2p->SetContributingCellOption(opt);
+    uc2p->Update();
 
-  // variance
-  for (vtkIdType i = 0; i < nvalues; ++i)
-  {
-    double z = x->GetTuple1(i) - y->GetTuple1(i);
-    variance += z * z;
-  }
-  variance /= nvalues;
+    vtkDataArray* const y = uc2p->GetOutput()->GetPointData()->GetArray(name);
 
-  bool const ok = fabs(mean) < 1e-4 && fabs(variance) < 1e-4;
-  return !ok; // zero indicates test succeed
+    vtkIdType const nvalues = x->GetNumberOfTuples() * x->GetNumberOfComponents();
+    double mean = 0, variance = 0;
+
+    // mean
+    for (vtkIdType i = 0; i < nvalues; ++i)
+    {
+      mean += x->GetTuple1(i) - y->GetTuple1(i);
+    }
+    mean /= nvalues;
+
+    // variance
+    for (vtkIdType i = 0; i < nvalues; ++i)
+    {
+      double z = x->GetTuple1(i) - y->GetTuple1(i);
+      variance += z * z;
+    }
+    variance /= nvalues;
+
+    if ( !(fabs(mean) < 1e-4 && fabs(variance) < 1e-4) )
+    {
+      cerr << "Failure on option " << opt << endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
 }
-

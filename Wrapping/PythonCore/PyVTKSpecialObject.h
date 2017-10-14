@@ -37,7 +37,7 @@ class VTKWRAPPINGPYTHONCORE_EXPORT PyVTKSpecialType
 {
 public:
   PyVTKSpecialType() :
-    py_type(0), vtk_methods(0), vtk_constructors(0), vtk_copy(0) {}
+    py_type(nullptr), vtk_methods(nullptr), vtk_constructors(nullptr), vtk_copy(nullptr) {}
 
   PyVTKSpecialType(
     PyTypeObject *typeobj, PyMethodDef *cmethods, PyMethodDef *ccons,

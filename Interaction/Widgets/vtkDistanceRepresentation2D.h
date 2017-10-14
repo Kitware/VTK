@@ -51,13 +51,13 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkDistanceRepresentation2D,vtkDistanceRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Satisfy the superclasses API.
    */
-  double GetDistance() VTK_OVERRIDE
+  double GetDistance() override
     {return this->Distance;}
 
   //@{
@@ -66,18 +66,18 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  double* GetPoint1WorldPosition() VTK_OVERRIDE;
-  double* GetPoint2WorldPosition() VTK_OVERRIDE;
-  void GetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
+  double* GetPoint1WorldPosition() override;
+  double* GetPoint2WorldPosition() override;
+  void GetPoint1WorldPosition(double pos[3]) override;
+  void GetPoint2WorldPosition(double pos[3]) override;
+  void SetPoint1WorldPosition(double pos[3]) override;
+  void SetPoint2WorldPosition(double pos[3]) override;
   //@}
 
-  void SetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void SetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint1DisplayPosition(double pos[3]) override;
+  void SetPoint2DisplayPosition(double pos[3]) override;
+  void GetPoint1DisplayPosition(double pos[3]) override;
+  void GetPoint2DisplayPosition(double pos[3]) override;
 
   //@{
   /**
@@ -92,20 +92,20 @@ public:
   /**
    * Method to satisfy superclasses' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
   //@}
 
 protected:
   vtkDistanceRepresentation2D();
-  ~vtkDistanceRepresentation2D() VTK_OVERRIDE;
+  ~vtkDistanceRepresentation2D() override;
 
   // Add a line to the mix
   vtkAxisActor2D *AxisActor;
@@ -115,8 +115,8 @@ protected:
   double Distance;
 
 private:
-  vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceRepresentation2D&) VTK_DELETE_FUNCTION;
+  vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&) = delete;
+  void operator=(const vtkDistanceRepresentation2D&) = delete;
 };
 
 #endif

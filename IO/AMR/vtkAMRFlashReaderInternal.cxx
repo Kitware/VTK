@@ -21,17 +21,17 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  // this function must be called by GetBlock( ... )
  this->ReadMetaData();
 
- if ( atribute == NULL || blockIdx < 0  ||
-      pDataSet == NULL || blockIdx >= this->NumberOfBlocks )
+ if ( atribute == nullptr || blockIdx < 0  ||
+      pDataSet == nullptr || blockIdx >= this->NumberOfBlocks )
  {
-//   vtkDebugMacro( "Data attribute name or vtkDataSet NULL, or " <<
+//   vtkDebugMacro( "Data attribute name or vtkDataSet nullptr, or " <<
 //                  "invalid block index." << endl );
    return;
  }
  // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
  // the actual attribute name
  std::string  tempName = atribute;
- size_t          slashPos = tempName.find( "/" );
+ size_t          slashPos = tempName.find( '/' );
  std::string  attrName = tempName.substr ( slashPos + 1 );
  hid_t           dataIndx = H5Dopen
                             ( this->FileIndex, attrName.c_str() );
@@ -44,7 +44,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
 
  hid_t    spaceIdx = H5Dget_space( dataIndx );
  hsize_t  dataDims[4]; // dataDims[0] == number of blocks
- hsize_t  numbDims = H5Sget_simple_extent_dims( spaceIdx, dataDims, NULL );
+ hsize_t  numbDims = H5Sget_simple_extent_dims( spaceIdx, dataDims, nullptr );
 
  if ( numbDims != 4 )
  {
@@ -73,9 +73,9 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  countVec[3] = dataDims[3];
 
  // file space index
- hid_t      filSpace = H5Screate_simple( 4, dataDims, NULL );
+ hid_t      filSpace = H5Screate_simple( 4, dataDims, nullptr );
  H5Sselect_hyperslab ( filSpace, H5S_SELECT_SET, startVec,
-                       stridVec, countVec,       NULL );
+                       stridVec, countVec,       nullptr );
 
  startVec[0] = 0;
  startVec[1] = 0;
@@ -92,9 +92,9 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  countVec[2] = dataDims[2];
  countVec[3] = dataDims[3];
 
- hid_t      memSpace = H5Screate_simple( 4, dataDims, NULL );
+ hid_t      memSpace = H5Screate_simple( 4, dataDims, nullptr );
  H5Sselect_hyperslab ( memSpace, H5S_SELECT_SET, startVec,
-                       stridVec, countVec,       NULL );
+                       stridVec, countVec,       nullptr );
 
  vtkDoubleArray   * dataAray = vtkDoubleArray::New();
  dataAray->SetName( atribute );
@@ -122,7 +122,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
      arrayPtr[i] = dataFlts[i];
    }
    delete [] dataFlts;
-   dataFlts = NULL;
+   dataFlts = nullptr;
  }
  else
  if (  H5Tequal( dataType, H5T_NATIVE_INT )  )
@@ -135,7 +135,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
      arrayPtr[i] = dataInts[i];
    }
    delete[] dataInts;
-   dataInts = NULL;
+   dataInts = nullptr;
  }
  else
  if (  H5Tequal( dataType, H5T_NATIVE_UINT )  )
@@ -148,7 +148,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
      arrayPtr[i] = unsgnInt[i];
    }
    delete[] unsgnInt;
-   unsgnInt = NULL;
+   unsgnInt = nullptr;
  }
  else
  {
@@ -165,15 +165,15 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  pDataSet->GetCellData()->AddArray ( dataAray );
 
  dataAray->Delete();
- dataAray = NULL;
- arrayPtr = NULL;
+ dataAray = nullptr;
+ arrayPtr = nullptr;
 
 }
 
 //-----------------------------------------------------------------------------
 void vtkFlashReaderInternal::Init()
 {
-  this->FileName  = NULL;
+  this->FileName  = nullptr;
   this->FileIndex = -1;
   this->MinBounds[0] =
   this->MinBounds[1] =
@@ -320,7 +320,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
   char           namefromfile[17];
   for ( objIndex = 0; objIndex < numbObjs; objIndex ++ )
   {
-    ssize_t objsize = H5Gget_objname_by_idx( rootIndx, objIndex, NULL, 0 );
+    ssize_t objsize = H5Gget_objname_by_idx( rootIndx, objIndex, nullptr, 0 );
     if ( objsize == 16 )
     {
       H5Gget_objname_by_idx( rootIndx, objIndex, namefromfile, 17 );
@@ -346,7 +346,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
 
     hsize_t procnum_dims[1];
     hsize_t procnum_ndims = H5Sget_simple_extent_dims
-                            ( procnumSpaceId, procnum_dims, NULL );
+                            ( procnumSpaceId, procnum_dims, nullptr );
 
     if (  static_cast<int> ( procnum_ndims   ) != 1 ||
           static_cast<int> ( procnum_dims[0] ) != this->NumberOfBlocks  )
@@ -381,7 +381,7 @@ void vtkFlashReaderInternal::ReadProcessorIds()
     H5Dclose( procnumId );
 
     delete[] procnum_array;
-    procnum_array = NULL;
+    procnum_array = nullptr;
   }
   else
   {
@@ -422,7 +422,7 @@ void vtkFlashReaderInternal::ReadDoubleScalars( hid_t fileIndx )
   }
 
   hsize_t scalarDims[10];
-  H5Sget_simple_extent_dims( spaceId, scalarDims, NULL );
+  H5Sget_simple_extent_dims( spaceId, scalarDims, nullptr );
 
   int nScalars = scalarDims[0];
 
@@ -449,7 +449,7 @@ void vtkFlashReaderInternal::ReadDoubleScalars( hid_t fileIndx )
   }
 
   delete [] rs;
-  rs = NULL;
+  rs = nullptr;
 
   H5Tclose( string20 );
   H5Tclose( datatype );
@@ -485,7 +485,7 @@ void vtkFlashReaderInternal::ReadIntegerScalars( hid_t fileIndx )
   }
 
   hsize_t  scalarDims[1];
-  H5Sget_simple_extent_dims( spaceId, scalarDims, NULL );
+  H5Sget_simple_extent_dims( spaceId, scalarDims, nullptr );
   int   nScalars = scalarDims[0];
 
   hid_t datatype = H5Tcreate
@@ -531,7 +531,7 @@ void vtkFlashReaderInternal::ReadIntegerScalars( hid_t fileIndx )
   }
 
   delete [] is;
-  is = NULL;
+  is = nullptr;
 
   H5Tclose( string20 );
   H5Tclose( datatype );
@@ -544,9 +544,9 @@ void vtkFlashReaderInternal::ReadVersionInformation( hid_t fileIndx )
 {
   // temporarily disable error reporting
   H5E_auto_t   old_errorfunc;
-  void       * old_clientdata = NULL;
+  void       * old_clientdata = nullptr;
   H5Eget_auto( &old_errorfunc, &old_clientdata );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   // If this is a FLASH3 Particles file, or a FLASH3 file with particles,
   // then it will have the "particle names" field.  If, in addition, it's a
@@ -633,7 +633,7 @@ void vtkFlashReaderInternal::ReadVersionInformation( hid_t fileIndx )
 
     // turn back on error reporting
     H5Eset_auto( old_errorfunc, old_clientdata );
-    old_clientdata = NULL;
+    old_clientdata = nullptr;
     return;
   }
 
@@ -652,7 +652,7 @@ void vtkFlashReaderInternal::ReadVersionInformation( hid_t fileIndx )
 
   // turn back on error reporting
   H5Eset_auto( old_errorfunc, old_clientdata );
-  old_clientdata = NULL;
+  old_clientdata = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -809,7 +809,7 @@ void vtkFlashReaderInternal::ReadBlockTypes()
 
   hsize_t nodetype_dims[1];
   hsize_t nodetype_ndims = H5Sget_simple_extent_dims
-                           ( nodetypeSpaceId, nodetype_dims, NULL );
+                           ( nodetypeSpaceId, nodetype_dims, nullptr );
 
   if (  static_cast<int> ( nodetype_ndims   ) != 1 ||
         static_cast<int> ( nodetype_dims[0] ) != this->NumberOfBlocks  )
@@ -839,7 +839,7 @@ void vtkFlashReaderInternal::ReadBlockTypes()
   }
 
   delete [] nodetype_array;
-  nodetype_array = NULL;
+  nodetype_array = nullptr;
 
   H5Tclose( nodetype_data_type );
   H5Tclose( nodetype_raw_data_type );
@@ -861,7 +861,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
   hid_t  bboxSpaceId = H5Dget_space( bboxId );
   hsize_t bbox_dims[3];
   hsize_t bbox_ndims = H5Sget_simple_extent_dims
-                       ( bboxSpaceId, bbox_dims, NULL );
+                       ( bboxSpaceId, bbox_dims, nullptr );
 
   if ( this->FileFormatVersion <= FLASH_READER_FLASH3_FFV8 )
   {
@@ -934,11 +934,11 @@ void vtkFlashReaderInternal::ReadBlockBounds()
         }
       }
 
-      bbox_line = NULL;
+      bbox_line = nullptr;
     }
 
     delete[] bbox_array;
-    bbox_array = NULL;
+    bbox_array = nullptr;
   }
   else
   if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
@@ -1004,11 +1004,11 @@ void vtkFlashReaderInternal::ReadBlockBounds()
         }
       }
 
-      bbox_line = NULL;
+      bbox_line = nullptr;
     }
 
     delete[] bbox_array;
-    bbox_array = NULL;
+    bbox_array = nullptr;
   }
 
   H5Sclose(bboxSpaceId);
@@ -1030,7 +1030,7 @@ void vtkFlashReaderInternal::ReadBlockCenters()
 
   hsize_t coordinates_dims[2];
   hsize_t coordinates_ndims = H5Sget_simple_extent_dims
-                              ( coordinatesSpaceId, coordinates_dims, NULL );
+                              ( coordinatesSpaceId, coordinates_dims, nullptr );
 
   if ( this->FileFormatVersion <= FLASH_READER_FLASH3_FFV8 )
   {
@@ -1073,11 +1073,11 @@ void vtkFlashReaderInternal::ReadBlockCenters()
         this->Blocks[b].Center[2] = coords[2];
       }
 
-      coords = NULL;
+      coords = nullptr;
     }
 
     delete [] coordinates_array;
-    coordinates_array = NULL;
+    coordinates_array = nullptr;
   }
   else
   if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
@@ -1101,11 +1101,11 @@ void vtkFlashReaderInternal::ReadBlockCenters()
       this->Blocks[b].Center[0] = coords[0];
       this->Blocks[b].Center[1] = coords[1];
       this->Blocks[b].Center[2] = coords[2];
-      coords = NULL;
+      coords = nullptr;
     }
 
     delete [] coordinates_array;
-    coordinates_array = NULL;
+    coordinates_array = nullptr;
   }
 
   H5Sclose( coordinatesSpaceId );
@@ -1117,9 +1117,9 @@ void vtkFlashReaderInternal::ReadBlockStructures()
 {
   // temporarily disable error reporting
   H5E_auto_t  old_errorfunc;
-  void      * old_clientdata = NULL;
+  void      * old_clientdata = nullptr;
   H5Eget_auto( &old_errorfunc, &old_clientdata );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   // Read the "gid" block connectivity description
   hid_t gidId = H5Dopen( this->FileIndex, "gid" );
@@ -1130,14 +1130,14 @@ void vtkFlashReaderInternal::ReadBlockStructures()
   if ( gidId < 0 )
   {
     this->NumberOfBlocks = 0;
-    old_clientdata = NULL;
+    old_clientdata = nullptr;
     return;
   }
 
   hid_t gidSpaceId = H5Dget_space( gidId );
 
   hsize_t gid_dims[2];
-  hsize_t gid_ndims =  H5Sget_simple_extent_dims( gidSpaceId, gid_dims, NULL );
+  hsize_t gid_ndims =  H5Sget_simple_extent_dims( gidSpaceId, gid_dims, nullptr );
   if ( gid_ndims != 2 )
   {
     vtkGenericWarningMacro( "Error with reading block connectivity." << endl );
@@ -1209,11 +1209,11 @@ void vtkFlashReaderInternal::ReadBlockStructures()
       this->Blocks[b].ChildrenIds[n] = gid_line[ pos ++ ];
     }
 
-    gid_line = NULL;
+    gid_line = nullptr;
   }
 
   delete[] gid_array;
-  gid_array = NULL;
+  gid_array = nullptr;
 
   H5Tclose( gid_data_type );
   H5Tclose( gid_raw_data_type );
@@ -1236,7 +1236,7 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
 
   hsize_t refinement_dims[1];
   hsize_t refinement_ndims = H5Sget_simple_extent_dims
-                             ( refinementSpaceId, refinement_dims, NULL );
+                             ( refinementSpaceId, refinement_dims, nullptr );
 
   if (  static_cast<int> ( refinement_ndims   ) != 1 ||
         static_cast<int> ( refinement_dims[0] ) != this->NumberOfBlocks  )
@@ -1264,7 +1264,7 @@ void vtkFlashReaderInternal::ReadRefinementLevels()
   }
 
   delete[] refinement_array;
-  refinement_array = NULL;
+  refinement_array = nullptr;
 
   H5Tclose( refinement_data_type );
   H5Tclose( refinement_raw_data_type );
@@ -1285,7 +1285,7 @@ void vtkFlashReaderInternal::ReadDataAttributeNames()
   hid_t unkSpaceId = H5Dget_space( unknownsId );
 
   hsize_t unk_dims[2];
-  hsize_t unk_ndims =  H5Sget_simple_extent_dims( unkSpaceId, unk_dims, NULL );
+  hsize_t unk_ndims =  H5Sget_simple_extent_dims( unkSpaceId, unk_dims, nullptr );
   if ( unk_ndims != 2 || unk_dims[1] != 1 )
   {
     vtkGenericWarningMacro( "Error with reading data attributes." << endl );
@@ -1316,8 +1316,8 @@ void vtkFlashReaderInternal::ReadDataAttributeNames()
 
   delete [] unk_array;
   delete [] tmpstring;
-  unk_array = NULL;
-  tmpstring = NULL;
+  unk_array = nullptr;
+  tmpstring = nullptr;
 
   H5Tclose( unk_raw_data_type );
   H5Sclose( unkSpaceId );
@@ -1337,13 +1337,13 @@ void vtkFlashReaderInternal::ReadParticlesComponent
 
   hsize_t    spaceIdx = H5Dget_space( dataIndx ); // data space index
   hsize_t    thisSize = this->NumberOfParticles;
-  hsize_t    spaceMem = H5Screate_simple( 1, &thisSize, NULL );
+  hsize_t    spaceMem = H5Screate_simple( 1, &thisSize, nullptr );
   int        attrIndx = this->ParticleAttributeNamesToIds[ compName ];
 
   hsize_t    theShift[2] = {0,static_cast<hsize_t>(attrIndx)};
   hsize_t    numReads[2] = {static_cast<hsize_t>(this->NumberOfParticles),1};
   H5Sselect_hyperslab ( spaceIdx, H5S_SELECT_SET, theShift,
-                        NULL,     numReads,       NULL );
+                        nullptr,     numReads,       nullptr );
   H5Dread( dataIndx, H5T_NATIVE_DOUBLE, spaceMem,
            spaceIdx, H5P_DEFAULT,       dataBuff );
 
@@ -1356,9 +1356,9 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
 {
   // temporarily disable error reporting
   H5E_auto_t  old_errorfunc;
-  void      * old_clientdata = NULL;
+  void      * old_clientdata = nullptr;
   H5Eget_auto( &old_errorfunc, &old_clientdata );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   // find the particle variable (if it exists)
   hid_t pointId;
@@ -1376,14 +1376,14 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
   if ( pointId < 0 )
   {
     this->NumberOfParticles = 0;
-    old_clientdata = NULL;
+    old_clientdata = nullptr;
     return;
   }
 
   hid_t pointSpaceId = H5Dget_space( pointId );
 
   hsize_t p_dims[100];
-  hsize_t p_ndims =  H5Sget_simple_extent_dims( pointSpaceId, p_dims, NULL );
+  hsize_t p_ndims =  H5Sget_simple_extent_dims( pointSpaceId, p_dims, nullptr );
   if ( p_ndims != 1 )
   {
     vtkGenericWarningMacro( "Error with number of data attributes." << endl );
@@ -1448,7 +1448,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
       this->NumberOfDimensions = 3;
     }
 
-    member_name = NULL;
+    member_name = nullptr;
 
     H5Tclose( member_type );
     H5Tclose( member_raw_type );
@@ -1470,9 +1470,9 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
 
   // temporarily disable error reporting
   H5E_auto_t  old_errorfunc;
-  void      * old_clientdata = NULL;
+  void      * old_clientdata = nullptr;
   H5Eget_auto( &old_errorfunc, &old_clientdata );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   hid_t pnameId = H5Dopen( this->FileIndex, "particle names" );
 
@@ -1482,13 +1482,13 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   if ( pnameId < 0 )
   {
     this->NumberOfParticles = 0;
-    old_clientdata = NULL;
+    old_clientdata = nullptr;
     return;
   }
 
   hid_t pnamespace = H5Dget_space( pnameId );
   hsize_t dims[10];
-  hsize_t ndims =  H5Sget_simple_extent_dims( pnamespace, dims, NULL );
+  hsize_t ndims =  H5Sget_simple_extent_dims( pnamespace, dims, nullptr );
 
   // particle names ndims should be 2, and if the second dim isn't 1,
   // need to come up with a way to handle it!
@@ -1517,7 +1517,7 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   // Convert the single string to individual variable names.
   std::string  snames( cnames );
   delete[] cnames;
-  cnames = NULL;
+  cnames = nullptr;
 
   for ( int i = 0; i < numNames; i ++ )
   {
@@ -1569,7 +1569,7 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
 
   // temporarily disable error reporting
   H5Eget_auto( &old_errorfunc, &old_clientdata );
-  H5Eset_auto( NULL, NULL );
+  H5Eset_auto( nullptr, nullptr );
 
   // find the particle variable (if it exists)
   hid_t pointId;
@@ -1589,14 +1589,14 @@ void vtkFlashReaderInternal::ReadParticleAttributesFLASH3()
   {
     vtkGenericWarningMacro( "FLASH3 no tracer particles" << endl );
     this->NumberOfParticles = 0;
-    old_clientdata = NULL;
+    old_clientdata = nullptr;
     return;
   }
 
   hid_t pointSpaceId = H5Dget_space( pointId );
 
   hsize_t p_dims[10];
-  hsize_t p_ndims =  H5Sget_simple_extent_dims( pointSpaceId, p_dims, NULL );
+  hsize_t p_ndims =  H5Sget_simple_extent_dims( pointSpaceId, p_dims, nullptr );
   if ( p_ndims != 2 )
   {
     vtkGenericWarningMacro( "FLASH3, expecting particle tracer ndims of 2, got"

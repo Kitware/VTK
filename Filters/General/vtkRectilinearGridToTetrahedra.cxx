@@ -235,7 +235,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // If they want, we can add Scalar Data
   // to the Tets indicating the Voxel Id the tet
   // came from.
-  vtkIntArray *TetOriginalVoxel = NULL;
+  vtkIntArray *TetOriginalVoxel = nullptr;
   if (rememberVoxelId) {
     TetOriginalVoxel = vtkIntArray::New();
     TetOriginalVoxel->Allocate(12*numRec);
@@ -540,7 +540,7 @@ int vtkRectilinearGridToTetrahedra::RequestData(
   if (this->TetraPerCell == VTK_VOXEL_TO_5_AND_12_TET)
   {
     vtkDataArray *TempVoxelSubdivisionType = RectGrid->GetCellData()->GetScalars();
-    if(TempVoxelSubdivisionType == NULL)
+    if(TempVoxelSubdivisionType == nullptr)
     {
       vtkErrorMacro(<< "Scalars to input Should be set!");
       return 1;

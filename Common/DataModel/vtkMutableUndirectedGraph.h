@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMutableUndirectedGraph : public vtkUndirected
 public:
   static vtkMutableUndirectedGraph *New();
   vtkTypeMacro(vtkMutableUndirectedGraph, vtkUndirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocates space for the specified number of vertices in the graph's
@@ -58,7 +58,7 @@ public:
    * guaranteeing these match.
    * Also, this call is not implemented for distributed-memory graphs since
    * the semantics are unclear; calling this function on a graph with a
-   * non-NULL DistributedGraphHelper will generate an error message,
+   * non-nullptr DistributedGraphHelper will generate an error message,
    * no allocation will be performed, and a value of -1 will be returned.
    */
   virtual vtkIdType SetNumberOfVertices( vtkIdType numVerts );
@@ -150,7 +150,7 @@ public:
    * \p Target vertex index, and edge index \p Id.
    */
   vtkEdgeType AddEdge(const vtkVariant& u, vtkIdType v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -165,7 +165,7 @@ public:
    * \p Target vertex index, and edge index \p Id.
    */
   vtkEdgeType AddEdge(vtkIdType u, const vtkVariant& v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a directed edge from \p u to \p v,
@@ -181,7 +181,7 @@ public:
    */
   vtkEdgeType AddEdge(const vtkVariant& u,
                       const vtkVariant& v,
-                      vtkVariantArray *propertyArr = 0);
+                      vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds a vertex to the graph.
@@ -256,7 +256,7 @@ public:
    * called on the helper.
    */
   void LazyAddEdge(const vtkVariant& u, vtkIdType v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds an undirected edge from \p u to \p v,
@@ -271,7 +271,7 @@ public:
    * called on the helper.
    */
   void LazyAddEdge(vtkIdType u, const vtkVariant& v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Adds an undirected edge from \p u to \p v,
@@ -287,7 +287,7 @@ public:
    */
   void LazyAddEdge(const vtkVariant& u,
                    const vtkVariant& v,
-                   vtkVariantArray *propertyArr = 0);
+                   vtkVariantArray *propertyArr = nullptr);
 
   /**
    * Variant of AddEdge() that returns a heavyweight \p vtkGraphEdge object.
@@ -323,7 +323,7 @@ public:
 
 protected:
   vtkMutableUndirectedGraph();
-  ~vtkMutableUndirectedGraph() VTK_OVERRIDE;
+  ~vtkMutableUndirectedGraph() override;
 
   /**
    * Graph edge that is reused of AddGraphEdge calls.
@@ -331,8 +331,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&) = delete;
+  void operator=(const vtkMutableUndirectedGraph&) = delete;
 };
 
 #endif

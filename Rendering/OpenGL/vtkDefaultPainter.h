@@ -49,7 +49,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkDefaultPainter : public vtkPainter
 public:
   static vtkDefaultPainter *New();
   vtkTypeMacro(vtkDefaultPainter, vtkPainter);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -114,8 +114,8 @@ public:
    * These methods are overridden so that the delegate is set
    * to the end of the Painter Chain.
    */
-  void SetDelegatePainter(vtkPainter*) VTK_OVERRIDE;
-  vtkPainter* GetDelegatePainter() VTK_OVERRIDE { return this->DefaultPainterDelegate; }
+  void SetDelegatePainter(vtkPainter*) override;
+  vtkPainter* GetDelegatePainter() override { return this->DefaultPainterDelegate; }
 
   /**
    * Overridden to setup the chain of painter depending on the
@@ -126,7 +126,7 @@ public:
    * hence it does not check if the input has changed at all.
    */
   void Render(vtkRenderer* renderer, vtkActor* actor,
-                      unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+                      unsigned long typeflags, bool forceCompileOnly) override;
 
   /**
    * Release any graphics resources that are being consumed by this painter.
@@ -134,18 +134,18 @@ public:
    * resources to release.
    * The call is propagated to the delegate painter, if any.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Expand or shrink the estimated bounds based on the geometric
    * transformations applied in the painter. The bounds are left unchanged
    * if the painter does not change the geometry.
    */
-  void UpdateBounds(double bounds[6]) VTK_OVERRIDE;
+  void UpdateBounds(double bounds[6]) override;
 
 protected:
   vtkDefaultPainter();
-  ~vtkDefaultPainter() VTK_OVERRIDE;
+  ~vtkDefaultPainter() override;
 
   /**
    * Setups the the painter chain.
@@ -155,7 +155,7 @@ protected:
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   vtkScalarsToColorsPainter* ScalarsToColorsPainter;
   vtkClipPlanesPainter* ClipPlanesPainter;
@@ -170,8 +170,8 @@ protected:
   void  SetDefaultPainterDelegate(vtkPainter*);
 
 private:
-  vtkDefaultPainter(const vtkDefaultPainter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDefaultPainter &) VTK_DELETE_FUNCTION;
+  vtkDefaultPainter(const vtkDefaultPainter &) = delete;
+  void operator=(const vtkDefaultPainter &) = delete;
 };
 
 #endif //_vtkDefaultPainter_h

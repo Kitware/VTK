@@ -55,7 +55,7 @@ class vtkTIPW3Callback : public vtkCommand
 public:
   static vtkTIPW3Callback *New()
     { return new vtkTIPW3Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
       vtkImplicitPlaneWidget2 *planeWidget =
         reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -65,8 +65,8 @@ public:
       this->Actor->VisibilityOn();
   }
 
-  vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
-  ~vtkTIPW3Callback() VTK_OVERRIDE { this->Plane->Delete(); }
+  vtkTIPW3Callback() : Actor(nullptr) { this->Plane = vtkPlane::New(); }
+  ~vtkTIPW3Callback() override { this->Plane->Delete(); }
 
   vtkPlane *Plane;
   vtkActor *Actor;

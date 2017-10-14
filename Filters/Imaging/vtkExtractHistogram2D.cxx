@@ -88,7 +88,7 @@ vtkExtractHistogram2D::vtkExtractHistogram2D()
 
   this->SwapColumns = 0;
 
-  this->RowMask = 0;
+  this->RowMask = nullptr;
 }
 //------------------------------------------------------------------------------
 vtkExtractHistogram2D::~vtkExtractHistogram2D()
@@ -128,7 +128,7 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   vtkImageData* outImage = vtkImageData::SafeDownCast(
     this->GetOutputDataObject(vtkExtractHistogram2D::HISTOGRAM_IMAGE));
 
-  vtkDataArray* col1=NULL, *col2=NULL;
+  vtkDataArray* col1=nullptr, *col2=nullptr;
   if (! this->GetInputArrays(col1,col2))
   {
     return;
@@ -250,7 +250,7 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
     return 0;
   }
 
-  if (this->Internals->Requests.size() > 0)
+  if (!this->Internals->Requests.empty())
   {
     vtkStdString colName;
 
@@ -333,7 +333,7 @@ int vtkExtractHistogram2D::RequestInformation(vtkInformation *vtkNotUsed(request
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(vtkExtractHistogram2D::HISTOGRAM_IMAGE);
 
-  vtkDataArray* col1=NULL, *col2=NULL;
+  vtkDataArray* col1=nullptr, *col2=nullptr;
   if (! this->GetInputArrays(col1,col2))
   {
     return 0;

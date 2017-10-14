@@ -321,13 +321,13 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     *(args->retVal) = 0;
   }
   rdata.clear();
-  if (!comm->Gather(NULL, rdata, 0))
+  if (!comm->Gather(nullptr, rdata, 0))
   {
     cerr << "Client error: Error gathering data." << endl;
     *(args->retVal) = 0;
   }
   if (rdata.size() == 2
-    && rdata[0] == NULL
+    && rdata[0] == nullptr
     && vtkPolyData::SafeDownCast(rdata[1]))
   {
   }
@@ -369,7 +369,7 @@ int GenericCommunicator(int argc, char* argv[])
   // ----------------------------------------------
 
   contr->SetMultipleMethod(0, Process1, &args);
-  contr->SetMultipleMethod(1, Process2, 0);
+  contr->SetMultipleMethod(1, Process2, nullptr);
   contr->MultipleMethodExecute();
 
   contr->Finalize();

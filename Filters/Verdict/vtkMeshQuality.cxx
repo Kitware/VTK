@@ -135,8 +135,8 @@ int vtkMeshQuality::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   CellQualityType TriangleQuality,QuadQuality,TetQuality,HexQuality;
-  vtkDoubleArray* quality = 0;
-  vtkDoubleArray* volume = 0;
+  vtkDoubleArray* quality = nullptr;
+  vtkDoubleArray* volume = nullptr;
   vtkIdType N = in->GetNumberOfCells();
   double qtrim,qtriM,Eqtri,Eqtri2;
   double qquam,qquaM,Eqqua,Eqqua2;
@@ -157,7 +157,7 @@ int vtkMeshQuality::RequestData(
   if ( this->CellNormals  )
     v_set_tri_normal_func(reinterpret_cast<ComputeNormal>(vtkMeshQuality::GetCurrentTriangleNormal));
   else
-    v_set_tri_normal_func( 0 );
+    v_set_tri_normal_func( nullptr );
 
   // Initialize the min and max values, std deviations, etc.
   qtriM = qquaM = qtetM = qhexM = VTK_DOUBLE_MIN;

@@ -87,15 +87,15 @@ public:
 
 protected:
   vtkDiscreteMarchingCubes();
-  ~vtkDiscreteMarchingCubes() VTK_OVERRIDE;
+  ~vtkDiscreteMarchingCubes() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int ComputeAdjacentScalars;
 
 private:
-  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
+  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) = delete;
+  void operator=(const vtkDiscreteMarchingCubes&) = delete;
 
 };
 

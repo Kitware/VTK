@@ -46,14 +46,14 @@ vtkPolyDataNormals::vtkPolyDataNormals()
   // some internal data
   this->NumFlips = 0;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
-  this->Wave = 0;
-  this->Wave2 = 0;
-  this->CellIds = 0;
-  this->Map = 0;
-  this->OldMesh = 0;
-  this->NewMesh = 0;
-  this->Visited = 0;
-  this->PolyNormals = 0;
+  this->Wave = nullptr;
+  this->Wave2 = nullptr;
+  this->CellIds = nullptr;
+  this->Map = nullptr;
+  this->OldMesh = nullptr;
+  this->NewMesh = nullptr;
+  this->Visited = nullptr;
+  this->PolyNormals = nullptr;
   this->CosAngle = 0.0;
 }
 
@@ -77,7 +77,7 @@ int vtkPolyDataNormals::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType numNewPts;
   double flipDirection=1.0;
   vtkIdType numPolys, numStrips;
@@ -85,7 +85,7 @@ int vtkPolyDataNormals::RequestData(
   vtkIdType numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
-  vtkPoints *newPts = NULL;
+  vtkPoints *newPts = nullptr;
   vtkFloatArray *newNormals;
   vtkPointData *pd, *outPD;
   vtkDataSetAttributes* outCD = output->GetCellData();
@@ -147,7 +147,7 @@ int vtkPolyDataNormals::RequestData(
       {
         ids->SetId(i, i);
       }
-      outCD->CopyData(inCD, ids.GetPointer(), ids.GetPointer());
+      outCD->CopyData(inCD, ids, ids);
     }
     else
     {
@@ -199,7 +199,7 @@ int vtkPolyDataNormals::RequestData(
   }
   else
   {
-    this->Visited = NULL;
+    this->Visited = nullptr;
   }
 
   //  Traverse all polygons insuring proper direction of ordering.  This
@@ -593,8 +593,6 @@ void vtkPolyDataNormals::TraverseAndOrder (void)
     this->Wave2 = tmpWave;
     this->Wave2->Reset();
   } //while wave still propagating
-
-  return;
 }
 
 //
@@ -754,8 +752,6 @@ void vtkPolyDataNormals::MarkAndSplit (vtkIdType ptId)
       }//replace ptId with split point
     }//if not in first regions and requiring splitting
   }//for all cells connected to ptId
-
-  return;
 }
 
 void vtkPolyDataNormals::PrintSelf(ostream& os, vtkIndent indent)

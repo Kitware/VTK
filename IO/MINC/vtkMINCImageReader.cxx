@@ -116,12 +116,12 @@ vtkMINCImageReader::~vtkMINCImageReader()
   if (this->DirectionCosines)
   {
     this->DirectionCosines->Delete();
-    this->DirectionCosines = 0;
+    this->DirectionCosines = nullptr;
   }
   if (this->ImageAttributes)
   {
     this->ImageAttributes->Delete();
-    this->ImageAttributes = 0;
+    this->ImageAttributes = nullptr;
   }
 }
 
@@ -157,7 +157,7 @@ void vtkMINCImageReader::SetFileName(const char *name)
   // Set FileNameHasChanged even if the file name hasn't changed,
   // because it is possible that the user is re-reading a file after
   // changing it.
-  if (!(name == 0 && this->GetFileName() == 0))
+  if (!(name == nullptr && this->GetFileName() == nullptr))
   {
     this->FileNameHasChanged = 1;
   }
@@ -291,7 +291,7 @@ int vtkMINCImageReader::OpenNetCDFFile(const char *filename, int& ncid)
 {
   int status = 0;
 
-  if (filename == 0)
+  if (filename == nullptr)
   {
     vtkErrorMacro("No filename was set");
     return 0;
@@ -461,7 +461,7 @@ int vtkMINCImageReader::ReadMINCFileAttributes()
       }
 
       // Get the attribute values as a vtkDataArray.
-      vtkDataArray *dataArray = 0;
+      vtkDataArray *dataArray = nullptr;
       switch (atttype)
       {
         case NC_BYTE:
@@ -1258,7 +1258,7 @@ void vtkMINCImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   // Create a buffer for intermediate results.
   int fileType = this->ImageAttributes->GetDataType();
-  void *buffer = 0;
+  void *buffer = nullptr;
   switch (fileType)
   {
     vtkMINCImageReaderTemplateMacro(buffer=(void *)(new VTK_TT[chunkSize]));

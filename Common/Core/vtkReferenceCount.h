@@ -33,15 +33,15 @@ public:
   static vtkReferenceCount *New();
 
   vtkTypeMacro(vtkReferenceCount,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkReferenceCount();
-  ~vtkReferenceCount() VTK_OVERRIDE;
+  ~vtkReferenceCount() override;
 
 private:
-  vtkReferenceCount(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
+  vtkReferenceCount(const vtkReferenceCount&) = delete;
+  void operator=(const vtkReferenceCount&) = delete;
 };
 
 

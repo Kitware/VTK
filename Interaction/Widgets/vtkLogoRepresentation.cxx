@@ -41,7 +41,7 @@ vtkCxxSetObjectMacro(vtkLogoRepresentation, ImageProperty, vtkProperty2D);
 vtkLogoRepresentation::vtkLogoRepresentation()
 {
   // Initialize the data members
-  this->Image = NULL;
+  this->Image = nullptr;
   this->ImageProperty = vtkProperty2D::New();
 
   // Setup the pipeline

@@ -56,7 +56,7 @@ bool TestDoubleRGB(vtkStdString const & name);
 bool TestUCharToDouble(vtkStdString const & name);
 
 //  A test to see if adding a color works.
-bool TestAddingAColor(vtkStdString name, const double dcolor[4],
+bool TestAddingAColor(const vtkStdString& name, const double dcolor[4],
                       const unsigned char ucolor[4]);
 
 // Parse the color names returning a std::vector<std::string>
@@ -403,7 +403,7 @@ bool TestUCharToDouble(vtkStdString const & name)
 }
 
 //-----------------------------------------------------------------------------
-bool TestAddingAColor(vtkStdString name, const double dcolor[4],
+bool TestAddingAColor(const vtkStdString& name, const double dcolor[4],
                       const unsigned char ucolor[4])
 {
   vtkSmartPointer<vtkNamedColors> nc = vtkSmartPointer<vtkNamedColors>::New();

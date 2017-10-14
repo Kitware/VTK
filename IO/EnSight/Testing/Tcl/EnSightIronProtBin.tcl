@@ -33,7 +33,6 @@ Contour0 SetComputeScalars 1
 
 vtkHierarchicalPolyDataMapper mapper
 mapper SetInputConnection [Contour0 GetOutputPort]
-mapper SetImmediateModeRendering 1
 mapper SetScalarRange 0 1
 mapper SetScalarVisibility 1
 

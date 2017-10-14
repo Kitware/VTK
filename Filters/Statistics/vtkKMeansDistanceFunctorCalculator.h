@@ -32,13 +32,13 @@ class VTKFILTERSSTATISTICS_EXPORT vtkKMeansDistanceFunctorCalculator : public vt
 public:
   static vtkKMeansDistanceFunctorCalculator* New();
   vtkTypeMacro(vtkKMeansDistanceFunctorCalculator,vtkKMeansDistanceFunctor);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Compute the distance from one observation to another, returning the distance
    * in the first argument.
    */
-  void operator() ( double&, vtkVariantArray*, vtkVariantArray * ) VTK_OVERRIDE;
+  void operator() ( double&, vtkVariantArray*, vtkVariantArray * ) override;
 
   //@{
   /**
@@ -61,15 +61,15 @@ public:
 
 protected:
   vtkKMeansDistanceFunctorCalculator();
-  ~vtkKMeansDistanceFunctorCalculator() VTK_OVERRIDE;
+  ~vtkKMeansDistanceFunctorCalculator() override;
 
   char* DistanceExpression;
   int TupleSize;
   vtkFunctionParser* FunctionParser;
 
 private:
-  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
+  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ) = delete;
+  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) = delete;
 };
 
 #endif // vtkKMeansDistanceFunctorCalculator_h

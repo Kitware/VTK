@@ -59,10 +59,10 @@ public:
   {
     this->Tessellator = tf;
   }
-  ~vtkProgressCommand() VTK_OVERRIDE
+  ~vtkProgressCommand() override
   {
   }
-  void Execute( vtkObject*, unsigned long, void* callData ) VTK_OVERRIDE
+  void Execute( vtkObject*, unsigned long, void* callData ) override
   {
     double subprogress = *( static_cast<double*>( callData ) );
     cout << "  ++ <" << ( (subprogress / 2. + 0.5) * 100. ) << ">\n";
@@ -242,7 +242,7 @@ void vtkTessellatorFilter::OutputPoint( const double* a )
 
 // constructor/boilerplate members
 vtkTessellatorFilter::vtkTessellatorFilter()
-  : Tessellator( 0 ), Subdivider( 0 )
+  : Tessellator( nullptr ), Subdivider( nullptr )
 {
   this->OutputDimension = 3; // Tesselate elements directly, not boundaries
   this->SetTessellator( vtkStreamingTessellator::New() );
@@ -258,10 +258,10 @@ vtkTessellatorFilter::vtkTessellatorFilter()
 
 vtkTessellatorFilter::~vtkTessellatorFilter()
 {
-  this->SetSubdivider( 0 );
-  this->SetTessellator( 0 );
+  this->SetSubdivider( nullptr );
+  this->SetTessellator( nullptr );
   this->Locator->Delete();
-  this->Locator = 0;
+  this->Locator = nullptr;
 }
 
 void vtkTessellatorFilter::PrintSelf( ostream& os, vtkIndent indent )
@@ -497,16 +497,44 @@ void vtkTessellatorFilter::MergeOutputPoints( vtkUnstructuredGrid* input, vtkUns
 
 void vtkTessellatorFilter::Teardown()
 {
-  this->OutputMesh = 0;
-  this->OutputPoints = 0;
+  this->OutputMesh = nullptr;
+  this->OutputPoints = nullptr;
   delete [] this->OutputAttributes;
   delete [] this->OutputAttributeIndices;
   this->Subdivider->ResetFieldList();
-  this->Subdivider->SetMesh(0);
+  this->Subdivider->SetMesh(nullptr);
 }
 
 // ========================================
 // output element topology
+
+static const double extraLagrangeCurveParams[3] =
+{ 0.5, 0.0, 0.0 };
+
+static const double extraWedgeParams[][3] =
+{
+  // mid-edge points, bottom
+  { 0.5, 0.0, 0.0 },
+  { 0.5, 0.5, 0.0 },
+  { 0.0, 0.5, 0.0 },
+  // mid-edge points, top
+  { 0.5, 0.0, 1.0 },
+  { 0.5, 0.5, 1.0 },
+  { 0.0, 0.5, 1.0 },
+  // mid-edge points, vertical
+  { 0.0, 0.0, 0.5 },
+  { 1.0, 0.0, 0.5 },
+  { 0.0, 1.0, 0.5 },
+  // mid-face points
+  { 1/3.,1/3.,0.0 },
+  { 1/3.,1/3.,1.0 },
+  { 0.5, 0.0, 0.5 },
+  { 0.5, 0.5, 0.5 },
+  { 0.0, 0.5, 0.5 },
+  // body point
+  { 1/3.,1/3.,1/3.}
+};
+
 static const double extraLinHexParams[12][3] =
 {
   { 0.5, 0.0, 0.0 },
@@ -534,9 +562,34 @@ static const double extraQuadHexParams[7][3] =
   { 0.5, 0.5, 0.5 }
 };
 
+static const double extraLagrangeQuadParams[4][3] =
+{
+  { 0.5, 0.0, 0.0 },
+  { 1.0, 0.5, 0.0 },
+  { 0.5, 1.0, 0.0 },
+  { 0.0, 0.5, 0.0 }
+};
+
 static const double extraQuadQuadParams[1][3] =
 {
   { 0.5, 0.5, 0.0 }
+};
+
+static const double extraLagrangeTriParams[3][3] =
+{
+  { 0.5, 0.0, 0.0 },
+  { 0.5, 0.5, 0.0 },
+  { 0.0, 0.5, 0.0 },
+};
+
+static const double extraLagrangeTetraParams[6][3] =
+{
+  { 0.5, 0.0, 0.0 },
+  { 0.5, 0.5, 0.0 },
+  { 0.0, 0.5, 0.0 },
+  { 0.0, 0.0, 0.5 },
+  { 0.5, 0.0, 0.5 },
+  { 0.0, 0.5, 0.5 },
 };
 
 static vtkIdType linEdgeEdges[][2] =
@@ -645,38 +698,114 @@ static vtkIdType quadQuadEdges[][2] =
   {7,0}
 };
 
-static vtkIdType linWedgeTetrahedra[][4] =
+static vtkIdType quadWedgeTetrahedra[][4] =
 {
-  {3,2,1,0},
-  {1,2,3,4},
-  {2,3,4,5}
+  { 20, 15,  0,  8 },
+  { 20, 15,  8,  2 },
+  { 20, 15,  2,  7 },
+  { 20, 15,  7,  1 },
+  { 20, 15,  1,  6 },
+  { 20, 15,  6,  0 },
+
+  { 20, 16,  3,  9 },
+  { 20, 16,  9,  4 },
+  { 20, 16,  4, 10 },
+  { 20, 16, 10,  5 },
+  { 20, 16,  5, 11 },
+  { 20, 16, 11,  3 },
+
+  { 20, 17,  0,  6 },
+  { 20, 17,  6,  1 },
+  { 20, 17,  1, 13 },
+  { 20, 17, 13,  4 },
+  { 20, 17,  4,  9 },
+  { 20, 17,  9,  3 },
+  { 20, 17,  3, 12 },
+  { 20, 17, 12,  0 },
+
+  { 20, 18,  1,  7 },
+  { 20, 18,  7,  2 },
+  { 20, 18,  2, 14 },
+  { 20, 18, 14,  5 },
+  { 20, 18,  5, 10 },
+  { 20, 18, 10,  4 },
+  { 20, 18,  4, 13 },
+  { 20, 18, 13,  1 },
+
+  { 20, 19,  0, 12 },
+  { 20, 19, 12,  3 },
+  { 20, 19,  3, 11 },
+  { 20, 19, 11,  5 },
+  { 20, 19,  5, 14 },
+  { 20, 19, 14,  2 },
+  { 20, 19,  2,  8 },
+  { 20, 19,  8,  0 }
 };
 
-static vtkIdType linWedgeTris[][3] =
+static vtkIdType quadWedgeTris[][3] =
 {
-  {0,2,1},
-  {3,4,5},
-  {3,4,5},
-  {3,4,5},
-  {0,1,3},
-  {3,1,4},
-  {1,2,4},
-  {4,2,5},
-  {2,0,5},
-  {5,0,3}
+  { 15,  0,  8 },
+  { 15,  8,  2 },
+  { 15,  2,  7 },
+  { 15,  7,  1 },
+  { 15,  1,  6 },
+  { 15,  6,  0 },
+
+  { 16,  3,  9 },
+  { 16,  9,  4 },
+  { 16,  4, 10 },
+  { 16, 10,  5 },
+  { 16,  5, 11 },
+  { 16, 11,  3 },
+
+  { 17,  0,  6 },
+  { 17,  6,  1 },
+  { 17,  1, 13 },
+  { 17, 13,  4 },
+  { 17,  4,  9 },
+  { 17,  9,  3 },
+  { 17,  3, 12 },
+  { 17, 12,  0 },
+
+  { 18,  1,  7 },
+  { 18,  7,  2 },
+  { 18,  2, 14 },
+  { 18, 14,  5 },
+  { 18,  5, 10 },
+  { 18, 10,  4 },
+  { 18,  4, 13 },
+  { 18, 13,  1 },
+
+  { 19,  0, 12 },
+  { 19, 12,  3 },
+  { 19,  3, 11 },
+  { 19, 11,  5 },
+  { 19,  5, 14 },
+  { 19, 14,  2 },
+  { 19,  2,  8 },
+  { 19,  8,  0 }
 };
 
-static vtkIdType linWedgeEdges[][2] =
+static vtkIdType quadWedgeEdges[][2] =
 {
-  {0,1},
-  {1,2},
-  {2,0},
-  {3,4},
-  {4,5},
-  {5,3},
-  {0,3},
-  {1,4},
-  {2,5}
+  {0,6},
+  {6,1},
+  {1,7},
+  {7,2},
+  {2,8},
+  {8,0},
+  {3,9},
+  {9,4},
+  {4,10},
+  {10,5},
+  {5,11},
+  {11,3},
+  {0,12},
+  {12,3},
+  {1,13},
+  {13,4},
+  {2,14},
+  {14,5}
 };
 
 static vtkIdType linPyrTetrahedra[][4] =
@@ -1085,6 +1214,10 @@ static vtkIdType quadVoxEdges[][2] =
 static int vtkNotSupportedErrorPrinted = 0;
 static int vtkTessellatorHasPolys = 0;
 
+// The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
+// We support up to 6th order hexahedra.
+static const int VTK_MAXIMUM_NUMBER_OF_POINTS=216;
+
 // ========================================
 // the meat of the class: execution!
 int vtkTessellatorFilter::RequestData(
@@ -1092,7 +1225,7 @@ int vtkTessellatorFilter::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  static double weights[27];
+  static double weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   int dummySubId=-1;
   int p;
 
@@ -1128,7 +1261,7 @@ int vtkTessellatorFilter::RequestData(
 
   vtkIdType cell = 0;
   int nprim = 0;
-  vtkIdType* outconn = 0;
+  vtkIdType* outconn = nullptr;
   double pts[27][11 + vtkStreamingTessellator::MaxFieldSize];
   int c;
   vtkIdType numCells = mesh->GetNumberOfCells();
@@ -1168,7 +1301,8 @@ int vtkTessellatorFilter::RequestData(
       }
       double* gcoord;
       vtkDataArray* field;
-      for ( p = 0; p < cp->GetNumberOfPoints(); ++p )
+      for ( p = 0; p < (cp->GetNumberOfPoints() < 27 ?
+                        cp->GetNumberOfPoints() : 27); ++p )
       {
         gcoord = cp->Points->GetPoint( p );
         for ( c = 0; c < 3; ++c, ++gcoord, ++pcoord )
@@ -1194,7 +1328,7 @@ int vtkTessellatorFilter::RequestData(
       {
       case VTK_VERTEX:
         dim = 0;
-        outconn = 0;
+        outconn = nullptr;
         nprim = 1;
         break;
       case VTK_LINE:
@@ -1246,20 +1380,33 @@ int vtkTessellatorFilter::RequestData(
         }
         break;
       case VTK_WEDGE:
+      case VTK_LAGRANGE_WEDGE:
+        // We sample additional points to get compatible triangulations
+        // with neighboring hexes, tets, etc.
+        for ( p = 6; p < 21; ++p )
+        {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+          {
+            pts[p][y+3] = extraWedgeParams[p-6][y];
+          }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+        }
         if ( dim == 3 )
         {
-          outconn = &linWedgeTetrahedra[0][0];
-          nprim = sizeof(linWedgeTetrahedra)/sizeof(linWedgeTetrahedra[0]);
+          outconn = &quadWedgeTetrahedra[0][0];
+          nprim = sizeof(quadWedgeTetrahedra)/sizeof(quadWedgeTetrahedra[0]);
         }
-        else if ( dim ==2 )
+        else if ( dim == 2 )
         {
-          outconn = &linWedgeTris[0][0];
-          nprim = sizeof(linWedgeTris)/sizeof(linWedgeTris[0]);
+          outconn = &quadWedgeTris[0][0];
+          nprim = sizeof(quadWedgeTris)/sizeof(quadWedgeTris[0]);
         }
         else
         {
-          outconn = &linWedgeEdges[0][0];
-          nprim = sizeof(linWedgeEdges)/sizeof(linWedgeEdges[0]);
+          outconn = &quadWedgeEdges[0][0];
+          nprim = sizeof(quadWedgeEdges)/sizeof(quadWedgeEdges[0]);
         }
         break;
       case VTK_PYRAMID:
@@ -1279,6 +1426,19 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(linPyrEdges)/sizeof(linPyrEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_CURVE:
+        // Lagrange curves may bound other elements which we
+        // normally only divide in 2 along an axis, so only
+        // start by dividing the curve in 2 instead of adding
+        // each interior point to the approximation:
+        dummySubId = -1;
+        for (int y = 0; y < 3; ++y)
+        {
+          pts[2][y + 3] = extraLagrangeCurveParams[y];
+        }
+        cp->EvaluateLocation(dummySubId, pts[2] + 3, pts[2], weights);
+        this->Subdivider->EvaluateFields(pts[2], weights, 6);
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_EDGE:
         dim = 1;
         outconn = &quadEdgeEdges[0][0];
@@ -1289,6 +1449,18 @@ int vtkTessellatorFilter::RequestData(
         outconn = &cubicLinEdges[0][0];
         nprim = sizeof(cubicLinEdges)/sizeof(cubicLinEdges[0]);
         break;
+      case VTK_LAGRANGE_TRIANGLE:
+        for ( p = 3; p < 6; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLagrangeTriParams[p-3][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_TRIANGLE:
         if ( dim > 1 )
         {
@@ -1315,6 +1487,24 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(biQuadTriEdges)/sizeof(biQuadTriEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_QUADRILATERAL:
+        // Arbitrary-order Lagrange elements may not have mid-edge nodes
+        // (they may be more finely divided), so evaluate to match fixed
+        // connectivity of our starting output.
+        {
+          int mm = static_cast<int>(
+            sizeof(extraLagrangeQuadParams)/sizeof(extraLagrangeQuadParams[0]));
+          for (int nn = 0; nn < mm; ++nn)
+          {
+            for ( c = 0; c < 3; ++c )
+            {
+              pts[4 + nn][c+3] = extraLagrangeQuadParams[nn][c];
+            }
+            cp->EvaluateLocation(dummySubId, pts[4 + nn] + 3, pts[4 + nn], weights);
+            this->Subdivider->EvaluateFields(pts[4 + nn], weights, 6);
+          }
+        }
+        VTK_FALLTHROUGH;
       case VTK_BIQUADRATIC_QUAD:
       case VTK_QUADRATIC_QUAD:
         for ( c = 0; c < 3; ++c )
@@ -1335,6 +1525,18 @@ int vtkTessellatorFilter::RequestData(
           nprim = sizeof(quadQuadEdges)/sizeof(quadQuadEdges[0]);
         }
         break;
+      case VTK_LAGRANGE_TETRAHEDRON:
+        for ( p = 4; p < 10; ++p )
+          {
+          dummySubId=-1;
+          for ( int y = 0; y < 3; ++y )
+            {
+            pts[p][y+3] = extraLagrangeTetraParams[p-4][y];
+            }
+          cp->EvaluateLocation( dummySubId, pts[p] + 3, pts[p], weights );
+          this->Subdivider->EvaluateFields( pts[p], weights, 6 );
+          }
+        VTK_FALLTHROUGH;
       case VTK_QUADRATIC_TETRA:
         if ( dim == 3 )
         {
@@ -1353,6 +1555,7 @@ int vtkTessellatorFilter::RequestData(
         }
         break;
       case VTK_HEXAHEDRON:
+      case VTK_LAGRANGE_HEXAHEDRON:
         // we sample 19 extra points to guarantee a compatible tetrahedralization
         for ( p = 8; p < 20; ++p )
         {

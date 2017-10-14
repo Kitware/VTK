@@ -51,7 +51,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
 public:
   static vtkHeatmapItem *New();
   vtkTypeMacro(vtkHeatmapItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Set the table that this item draws.  The first column of the table
@@ -141,12 +141,12 @@ public:
    * Mark a row as blank, meaning that no cells will be drawn for it.
    * Used by vtkTreeHeatmapItem to represent missing data.
    */
-  void MarkRowAsBlank(std::string rowName);
+  void MarkRowAsBlank(const std::string& rowName);
 
   /**
    * Paints the table as a heatmap.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -171,21 +171,21 @@ public:
   /**
    * Returns true if the transform is interactive, false otherwise.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Display a tooltip when the user mouses over a cell in the heatmap.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &event) override;
 
   /**
    * Display a legend for a column of data.
    */
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &event) override;
 
 protected:
   vtkHeatmapItem();
-  ~vtkHeatmapItem() VTK_OVERRIDE;
+  ~vtkHeatmapItem() override;
 
   vtkVector2f PositionVector;
   float* Position;
@@ -279,8 +279,8 @@ protected:
   vtkStdString NameColumn;
 
 private:
-  vtkHeatmapItem(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
+  vtkHeatmapItem(const vtkHeatmapItem&) = delete;
+  void operator=(const vtkHeatmapItem&) = delete;
 
   unsigned long HeatmapBuildTime;
   vtkNew<vtkCategoryLegend> CategoryLegend;

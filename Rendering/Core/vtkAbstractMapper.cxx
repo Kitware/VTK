@@ -32,8 +32,8 @@ vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 vtkAbstractMapper::vtkAbstractMapper()
 {
   this->TimeToDraw = 0.0;
-  this->LastWindow = NULL;
-  this->ClippingPlanes = NULL;
+  this->LastWindow = nullptr;
+  this->ClippingPlanes = nullptr;
   this->Timer = vtkTimerLog::New();
   this->SetNumberOfOutputPorts(0);
   this->SetNumberOfInputPorts(1);
@@ -55,7 +55,7 @@ vtkMTimeType vtkAbstractMapper::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType clipMTime;
 
-  if ( this->ClippingPlanes != NULL )
+  if ( this->ClippingPlanes != nullptr )
   {
     clipMTime = this->ClippingPlanes->GetMTime();
     mTime = ( clipMTime > mTime ? clipMTime : mTime );
@@ -66,7 +66,7 @@ vtkMTimeType vtkAbstractMapper::GetMTime()
 
 void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
 {
-  if (this->ClippingPlanes == NULL)
+  if (this->ClippingPlanes == nullptr)
   {
     this->ClippingPlanes = vtkPlaneCollection::New();
     this->ClippingPlanes->Register(this);
@@ -79,7 +79,7 @@ void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
 
 void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
 {
-  if (this->ClippingPlanes == NULL)
+  if (this->ClippingPlanes == nullptr)
   {
     vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
     return;
@@ -136,7 +136,7 @@ vtkAbstractArray* vtkAbstractMapper::GetAbstractScalars(vtkDataSet *input,
                                                         const char *arrayName,
                                                         int& cellFlag)
 {
-  vtkAbstractArray *scalars=NULL;
+  vtkAbstractArray *scalars=nullptr;
   vtkPointData *pd;
   vtkCellData *cd;
   vtkFieldData *fd;
@@ -144,7 +144,7 @@ vtkAbstractArray* vtkAbstractMapper::GetAbstractScalars(vtkDataSet *input,
   // make sure we have an input
   if ( !input )
   {
-    return NULL;
+    return nullptr;
   }
 
   // get and scalar data according to scalar mode
@@ -235,4 +235,14 @@ void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
   }
 }
 
+int vtkAbstractMapper::GetNumberOfClippingPlanes()
+{
+  int n = 0;
 
+  if ( this->ClippingPlanes )
+  {
+    n = this->ClippingPlanes->GetNumberOfItems();
+  }
+
+  return n;
+}

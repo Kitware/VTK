@@ -56,20 +56,20 @@ static int my_getline(std::istream& stream, vtkStdString &output, char delim='\n
 
 vtkFixedWidthTextReader::vtkFixedWidthTextReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->StripWhiteSpace = false;
   this->HaveHeaders = false;
   this->FieldWidth = 10;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->TableErrorObserver = NULL;
+  this->TableErrorObserver = nullptr;
 }
 
 // ----------------------------------------------------------------------
 
 vtkFixedWidthTextReader::~vtkFixedWidthTextReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   if (this->TableErrorObserver)
   {
     this->TableErrorObserver->Delete();
@@ -235,7 +235,7 @@ splitString(const vtkStdString& input,
             std::vector<vtkStdString>& results,
             bool includeEmpties)
 {
-  if (input.size() == 0)
+  if (input.empty())
   {
     return 0;
   }
@@ -278,7 +278,7 @@ splitString(const vtkStdString& input,
       parsedField = thisFieldText;
     }
     ++ thisField;
-    if (parsedField.size() > 0 || includeEmpties)
+    if (!parsedField.empty() || includeEmpties)
     {
       results.push_back(parsedField);
     }

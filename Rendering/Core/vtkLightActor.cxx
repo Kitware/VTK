@@ -31,15 +31,15 @@ vtkCxxSetObjectMacro(vtkLightActor, Light, vtkLight);
 // ----------------------------------------------------------------------------
 vtkLightActor::vtkLightActor()
 {
-  this->Light=0;
+  this->Light=nullptr;
   this->ClippingRange[0]=0.5;
   this->ClippingRange[1]=10.0;
 
-  this->ConeSource=0;
-  this->ConeMapper=0;
-  this->ConeActor=0;
-  this->CameraLight=0;
-  this->FrustumActor=0;
+  this->ConeSource=nullptr;
+  this->ConeMapper=nullptr;
+  this->ConeActor=nullptr;
+  this->CameraLight=nullptr;
+  this->FrustumActor=nullptr;
 
   this->BoundingBox=new vtkBoundingBox;
 }
@@ -47,26 +47,26 @@ vtkLightActor::vtkLightActor()
 // ----------------------------------------------------------------------------
 vtkLightActor::~vtkLightActor()
 {
-  this->SetLight(0);
-  if(this->ConeActor!=0)
+  this->SetLight(nullptr);
+  if(this->ConeActor!=nullptr)
   {
     this->ConeActor->Delete();
   }
 
-   if(this->ConeMapper!=0)
+   if(this->ConeMapper!=nullptr)
    {
     this->ConeMapper->Delete();
    }
 
-  if(this->FrustumActor!=0)
+  if(this->FrustumActor!=nullptr)
   {
     this->FrustumActor->Delete();
   }
-  if(this->ConeSource!=0)
+  if(this->ConeSource!=nullptr)
   {
     this->ConeSource->Delete();
   }
-  if(this->CameraLight!=0)
+  if(this->CameraLight!=nullptr)
   {
     this->CameraLight->Delete();
   }
@@ -100,7 +100,7 @@ int vtkLightActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   int result=0;
 
-  if(this->ConeActor!=0 && this->ConeActor->GetMapper()!=0)
+  if(this->ConeActor!=nullptr && this->ConeActor->GetMapper()!=nullptr)
   {
     result=this->ConeActor->RenderOpaqueGeometry(viewport);
     result+=this->FrustumActor->RenderOpaqueGeometry(viewport);
@@ -121,7 +121,7 @@ int vtkLightActor::HasTranslucentPolygonalGeometry()
 //-----------------------------------------------------------------------------
 void vtkLightActor::ReleaseGraphicsResources(vtkWindow *window)
 {
-  if(this->ConeActor!=0)
+  if(this->ConeActor!=nullptr)
   {
     this->ConeActor->ReleaseGraphicsResources(window);
     this->FrustumActor->ReleaseGraphicsResources(window);
@@ -139,7 +139,7 @@ double *vtkLightActor::GetBounds()
 
   this->BoundingBox->Reset();
 
-  if(this->ConeActor!=0)
+  if(this->ConeActor!=nullptr)
   {
     if(this->ConeActor->GetUseBounds())
     {
@@ -175,7 +175,7 @@ double *vtkLightActor::GetBounds()
 vtkMTimeType vtkLightActor::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
-   if(this->Light!=0)
+   if(this->Light!=nullptr)
    {
     vtkMTimeType time;
     time = this->Light->GetMTime();
@@ -190,7 +190,7 @@ vtkMTimeType vtkLightActor::GetMTime()
 // ----------------------------------------------------------------------------
 void vtkLightActor::UpdateViewProps()
 {
-  if(this->Light==0)
+  if(this->Light==nullptr)
   {
     vtkDebugMacro(<< "no light.");
     return;
@@ -199,7 +199,7 @@ void vtkLightActor::UpdateViewProps()
 
   if(this->Light->GetPositional() && angle<180.0)
   {
-    if(this->ConeSource==0)
+    if(this->ConeSource==nullptr)
     {
       this->ConeSource=vtkConeSource::New();
     }
@@ -232,14 +232,14 @@ void vtkLightActor::UpdateViewProps()
     this->ConeSource->SetHeight(height);
     this->ConeSource->SetAngle(angle);
 
-    if(this->ConeMapper==0)
+    if(this->ConeMapper==nullptr)
     {
       this->ConeMapper=vtkPolyDataMapper::New();
       this->ConeMapper->SetInputConnection(this->ConeSource->GetOutputPort());
       this->ConeMapper->SetScalarVisibility(0);
     }
 
-    if(this->ConeActor==0)
+    if(this->ConeActor==nullptr)
     {
       this->ConeActor=vtkActor::New();
       this->ConeActor->SetMapper(this->ConeMapper);
@@ -252,7 +252,7 @@ void vtkLightActor::UpdateViewProps()
     p->SetColor(this->Light->GetDiffuseColor());
     p->SetRepresentationToWireframe();
 
-    if(this->CameraLight==0)
+    if(this->CameraLight==nullptr)
     {
       this->CameraLight=vtkCamera::New();
     }
@@ -266,7 +266,7 @@ void vtkLightActor::UpdateViewProps()
     // initial clip=(0.1,1000). near>0, far>near);
     this->CameraLight->SetClippingRange(this->ClippingRange);
 
-    if(this->FrustumActor==0)
+    if(this->FrustumActor==nullptr)
     {
       this->FrustumActor=vtkCameraActor::New();
     }
@@ -278,11 +278,11 @@ void vtkLightActor::UpdateViewProps()
   {
     if(this->ConeActor)
     {
-      this->ConeActor->SetMapper(0);
+      this->ConeActor->SetMapper(nullptr);
     }
     if(this->FrustumActor)
     {
-      this->FrustumActor->SetCamera(0);
+      this->FrustumActor->SetCamera(nullptr);
     }
     vtkErrorMacro(<< "not a spotlight.");
     return;
@@ -295,7 +295,7 @@ void vtkLightActor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Light: ";
-  if(this->Light==0)
+  if(this->Light==nullptr)
   {
     os << "(none)" << endl;
   }

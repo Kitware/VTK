@@ -53,7 +53,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkFastSplatter : public vtkImageAlgorithm
 public:
   vtkTypeMacro(vtkFastSplatter, vtkImageAlgorithm);
   static vtkFastSplatter *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkFastSplatter();
-  ~vtkFastSplatter() VTK_OVERRIDE;
+  ~vtkFastSplatter() override;
 
   double ModelBounds[6];
   int OutputDimensions[3];
@@ -130,16 +130,16 @@ protected:
 
   vtkImageData *Buckets;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Used internally for converting points in world space to indices in
   // the output image.
@@ -156,8 +156,8 @@ protected:
   double LastDataMaxValue;
 
 private:
-  vtkFastSplatter(const vtkFastSplatter &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFastSplatter &) VTK_DELETE_FUNCTION;
+  vtkFastSplatter(const vtkFastSplatter &) = delete;
+  void operator=(const vtkFastSplatter &) = delete;
 };
 
 //-----------------------------------------------------------------------------

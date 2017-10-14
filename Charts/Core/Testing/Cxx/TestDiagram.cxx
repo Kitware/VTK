@@ -37,7 +37,7 @@ public:
   static APIDiagram *New();
   vtkTypeMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
@@ -46,16 +46,16 @@ int TestDiagram(int, char * [])
   // Set up a 2D chart actor, APIDiagram object andn add them to the renderer
   vtkNew<vtkContextActor> actor;
   vtkNew<APIDiagram> diagram;
-  actor->GetScene()->AddItem(diagram.GetPointer());
+  actor->GetScene()->AddItem(diagram);
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(800, 600);
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderer->AddActor(actor.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   interactor->Initialize();
   interactor->Start();

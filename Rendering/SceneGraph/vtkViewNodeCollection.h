@@ -33,7 +33,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNodeCollection :
 public:
   static vtkViewNodeCollection* New();
   vtkTypeMacro(vtkViewNodeCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a ViewNode to the list.
@@ -66,8 +66,8 @@ private:
   void AddItem(vtkObject *o)
     { this->vtkCollection::AddItem(o); }
 
-  vtkViewNodeCollection(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
+  vtkViewNodeCollection(const vtkViewNodeCollection&) = delete;
+  void operator=(const vtkViewNodeCollection&) = delete;
 };
 
 #endif

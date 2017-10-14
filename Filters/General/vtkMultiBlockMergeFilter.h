@@ -35,7 +35,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiBlockMergeFilter
 {
 public:
   vtkTypeMacro(vtkMultiBlockMergeFilter,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
@@ -55,13 +55,13 @@ public:
 
 protected:
   vtkMultiBlockMergeFilter();
-  ~vtkMultiBlockMergeFilter() VTK_OVERRIDE;
+  ~vtkMultiBlockMergeFilter() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int IsMultiPiece(vtkMultiBlockDataSet*);
 
@@ -69,8 +69,8 @@ protected:
     vtkMultiBlockDataSet* output,
     vtkMultiBlockDataSet* input);
 private:
-  vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiBlockMergeFilter&) VTK_DELETE_FUNCTION;
+  vtkMultiBlockMergeFilter(const vtkMultiBlockMergeFilter&) = delete;
+  void operator=(const vtkMultiBlockMergeFilter&) = delete;
 };
 
 #endif

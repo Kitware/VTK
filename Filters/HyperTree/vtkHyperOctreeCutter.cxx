@@ -56,7 +56,7 @@ vtkHyperOctreeCutter::vtkHyperOctreeCutter(vtkImplicitFunction *cf)
   this->SortBy = VTK_SORT_BY_VALUE;
 
   this->CutFunction = cf;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->GenerateCutScalars = 0;
 
   this->SetNumberOfOutputPorts(1);
@@ -65,28 +65,28 @@ vtkHyperOctreeCutter::vtkHyperOctreeCutter(vtkImplicitFunction *cf)
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->Input=0;
-  this->Output=0;
+  this->Input=nullptr;
+  this->Output=nullptr;
 
-  this->NewVerts=0;
-  this->NewLines=0;
-  this->NewPolys=0;
+  this->NewVerts=nullptr;
+  this->NewLines=nullptr;
+  this->NewPolys=nullptr;
 
-  this->InCD=0;
-  this->OutCD=0;
-  this->OutPD=0;
-  this->Triangulator=0;
-  this->Sibling=0;
+  this->InCD=nullptr;
+  this->OutCD=nullptr;
+  this->OutPD=nullptr;
+  this->Triangulator=nullptr;
+  this->Sibling=nullptr;
 
-  this->Tetra=0;
-  this->Polygon=0;
-  this->TetScalars=0;
-  this->CellScalars=0;
-  this->Pts=0;
+  this->Tetra=nullptr;
+  this->Polygon=nullptr;
+  this->TetScalars=nullptr;
+  this->CellScalars=nullptr;
+  this->Pts=nullptr;
 
-  this->AllLess=0;
-  this->AllGreater=0;
-  this->Grabber=0;
+  this->AllLess=nullptr;
+  this->AllGreater=nullptr;
+  this->Grabber=nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -96,9 +96,9 @@ vtkHyperOctreeCutter::~vtkHyperOctreeCutter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -112,12 +112,12 @@ vtkMTimeType vtkHyperOctreeCutter::GetMTime()
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->CutFunction != NULL )
+  if ( this->CutFunction != nullptr )
   {
     time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -173,7 +173,7 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -255,9 +255,9 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
       this->AllGreater=new int[numContours];
       this->CutNode(cursor,0,bounds);
       delete[] this->AllLess;
-      this->AllLess=0;
+      this->AllLess=nullptr;
       delete[] this->AllGreater;
-      this->AllGreater=0;
+      this->AllGreater=nullptr;
     }
   }
 
@@ -277,34 +277,34 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
   {
     case 3:
       this->Tetra->UnRegister(this);
-      this->Tetra=0;
+      this->Tetra=nullptr;
       this->TetScalars->UnRegister(this);
-      this->TetScalars=0;
+      this->TetScalars=nullptr;
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
-      this->Triangulator=0;
+      this->Grabber=nullptr;
+      this->Triangulator=nullptr;
       break;
     case 2:
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
-      this->Polygon=0;
+      this->Grabber=nullptr;
+      this->Polygon=nullptr;
       break;
     default:
       break;
   }
 
   this->CellScalars->UnRegister(this);
-  this->CellScalars=0;
+  this->CellScalars=nullptr;
   this->Pts->UnRegister(this);
-  this->Pts=0;
+  this->Pts=nullptr;
 
   cursor->UnRegister(this);
   this->Sibling->UnRegister(this);
-  this->Sibling=0;
+  this->Sibling=nullptr;
 
-  this->OutPD=0;
-  this->Input=0;
-  this->InCD=0;
+  this->OutPD=nullptr;
+  this->Input=nullptr;
+  this->InCD=nullptr;
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
 
@@ -313,33 +313,33 @@ int vtkHyperOctreeCutter::RequestData(vtkInformation *vtkNotUsed(request),
     this->Output->SetVerts(this->NewVerts);
   }
   this->NewVerts->Delete();
-  this->NewVerts=0;
+  this->NewVerts=nullptr;
 
   if (this->NewLines->GetNumberOfCells()>0)
   {
     this->Output->SetLines(this->NewLines);
   }
   this->NewLines->Delete();
-  this->NewLines=0;
+  this->NewLines=nullptr;
 
   if (this->NewPolys->GetNumberOfCells()>0)
   {
     this->Output->SetPolys(this->NewPolys);
   }
   this->NewPolys->Delete();
-  this->NewPolys=0;
+  this->NewPolys=nullptr;
 
-  this->OutCD=0;
+  this->OutCD=nullptr;
 
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
-  this->Output=0;
+  this->Output=nullptr;
 
-  assert("post: input_is_null" && this->Input==0);
-  assert("post: output_is_null" && this->Output==0);
-  assert("post: incd_is_null" && this->InCD==0);
-  assert("post: outpd_is_null" && this->OutPD==0);
-  assert("post: outcd_is_null" && this->OutCD==0);
+  assert("post: input_is_null" && this->Input==nullptr);
+  assert("post: output_is_null" && this->Output==nullptr);
+  assert("post: incd_is_null" && this->InCD==nullptr);
+  assert("post: outpd_is_null" && this->OutPD==nullptr);
+  assert("post: outcd_is_null" && this->OutCD==nullptr);
 
   return 1;
 }
@@ -349,7 +349,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
                                    int level,
                                    double bounds[6])
 {
-  assert("pre: cursor_exists" && cursor!=0);
+  assert("pre: cursor_exists" && cursor!=nullptr);
   assert("pre: positive_level" && level>=0);
 
   if(cursor->CurrentIsLeaf())
@@ -359,7 +359,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       // no parent=>no sibling=>no sibling which are not leaves=>easy
       // just create a voxel/pixel/line and cut it.
 
-      vtkCell *cell=0;
+      vtkCell *cell=nullptr;
       vtkIdType cellId=cursor->GetLeafId(); // only one cell.
 
       vtkDoubleArray *cellScalars;
@@ -432,11 +432,11 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
           break;
       }
 
-      vtkDataArray *cutScalars=0;
+      vtkDataArray *cutScalars=nullptr;
 
       vtkPointData *inPD=this->Input->GetPointData();
 
-      if(this->CutFunction!=0)
+      if(this->CutFunction!=nullptr)
       {
         vtkDoubleArray *tmpScalars = vtkDoubleArray::New();
         tmpScalars->SetNumberOfTuples(numPts);
@@ -1421,7 +1421,7 @@ void vtkHyperOctreeCutter::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -1436,7 +1436,7 @@ void vtkHyperOctreeCutter::SetLocator(vtkIncrementalPointLocator *locator)
 //----------------------------------------------------------------------------
 void vtkHyperOctreeCutter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

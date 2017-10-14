@@ -1,12 +1,13 @@
 from __future__ import absolute_import, division, print_function
 
-import json, base64, time, re
+import json, time, re
 
 from vtk.vtkFiltersGeometry import vtkCompositeDataGeometryFilter
 from vtk.vtkCommonCore import vtkTypeUInt32Array
 from vtk.vtkWebCore import vtkWebApplication
 
 from vtk.web import hashDataArray, getJSArrayType
+from vtk.web import buffer, base64Encode
 
 # -----------------------------------------------------------------------------
 # Convenience class for caching data arrays, storing computed sha sums, keeping
@@ -46,7 +47,7 @@ class SynchronizationContext():
     else:
       pBuffer = buffer(array)
 
-    return base64.b64encode(pBuffer)
+    return base64Encode(pBuffer)
 
   def checkForArraysToRelease(self, timeWindow = 20):
     cutOffTime = time.time() - timeWindow
@@ -305,7 +306,7 @@ def genericActorSerializer(parent, actor, actorId, context, depth):
         dependencies.append(propertyInstance)
         calls.append(['setProperty', [ wrapId(propId) ]])
 
-  if mapperInstance and propertyInstance:
+  if actorVisibility == 0 or (mapperInstance and propertyInstance):
     return {
       'parent': getReferenceId(parent),
       'id': actorId,

@@ -54,7 +54,7 @@ public:
   static vtkTreeMapLayout *New();
 
   vtkTypeMacro(vtkTreeMapLayout,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,7 +83,7 @@ public:
   /**
    * Returns the vertex id that contains pnt (or -1 if no one contains it)
    */
-  vtkIdType FindVertex(float pnt[2], float *binfo=0);
+  vtkIdType FindVertex(float pnt[2], float *binfo=nullptr);
 
   /**
    * Return the min and max 2D points of the
@@ -94,21 +94,21 @@ public:
   /**
    * Get the modification time of the layout algorithm.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkTreeMapLayout();
-  ~vtkTreeMapLayout() VTK_OVERRIDE;
+  ~vtkTreeMapLayout() override;
 
   char * RectanglesFieldName;
   vtkTreeMapLayoutStrategy* LayoutStrategy;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 
-  vtkTreeMapLayout(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
+  vtkTreeMapLayout(const vtkTreeMapLayout&) = delete;
+  void operator=(const vtkTreeMapLayout&) = delete;
 };
 
 #endif

@@ -52,14 +52,14 @@ int TestScalarsToColorsPainter(int argc, char* argv[])
   // Set display to wireframe
   vtkNew<vtkPainterPolyDataMapper> mapper;
   mapper->SetInputConnection(edges->GetOutputPort());
-  mapper->SetLookupTable(lookupTable.GetPointer());
+  mapper->SetLookupTable(lookupTable);
   mapper->SelectColorArray("TCoords");
   mapper->SetScalarModeToUsePointFieldData();
   mapper->ScalarVisibilityOn();
   mapper->InterpolateScalarsBeforeMappingOn();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   // Set the wireframe color to something non-white
   vtkProperty* property = actor->GetProperty();
@@ -71,18 +71,18 @@ int TestScalarsToColorsPainter(int argc, char* argv[])
 
   // Render image
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // Compare image
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

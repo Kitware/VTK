@@ -140,8 +140,8 @@ public:
 //============================================================================
 vtkPOVExporter::vtkPOVExporter()
 {
-  this->FileName = NULL;
-  this->FilePtr = NULL;
+  this->FileName = nullptr;
+  this->FilePtr = nullptr;
   this->Internals = new vtkPOVInternals;
 }
 
@@ -154,7 +154,7 @@ vtkPOVExporter::~vtkPOVExporter()
 void vtkPOVExporter::WriteData()
 {
   // make sure user specified a filename
-  if (this->FileName == NULL)
+  if (this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify file name to create");
     return;
@@ -172,7 +172,7 @@ void vtkPOVExporter::WriteData()
 
   // try opening the file
   this->FilePtr = fopen(this->FileName, "w");
-  if (this->FilePtr == NULL)
+  if (this->FilePtr == nullptr)
   {
     vtkErrorMacro (<< "Cannot open " << this->FileName);
     return;
@@ -189,7 +189,7 @@ void vtkPOVExporter::WriteData()
   vtkLightCollection *lc = renderer->GetLights();
   vtkCollectionSimpleIterator sit;
   lc->InitTraversal(sit);
-  if (lc->GetNextLight(sit) == NULL)
+  if (lc->GetNextLight(sit) == nullptr)
   {
     vtkWarningMacro(<< "No light defined, creating one at camera position");
     renderer->CreateLight();
@@ -308,7 +308,7 @@ void vtkPOVExporter::WriteLight(vtkLight *light)
 
 void vtkPOVExporter::WriteActor(vtkActor *actor)
 {
-  if (actor->GetMapper() == NULL)
+  if (actor->GetMapper() == nullptr)
   {
     return;
   }
@@ -318,7 +318,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   }
 
   // write geometry, first ask the pipeline to update data
-  vtkDataSet *dataset = NULL;
+  vtkDataSet *dataset = nullptr;
   vtkSmartPointer<vtkDataSet> tempDS;
 
   vtkDataObject* dObj = actor->GetMapper()->GetInputDataObject(0, 0);
@@ -338,15 +338,15 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     dataset = actor->GetMapper()->GetInput();
   }
 
-  if (dataset == NULL)
+  if (dataset == nullptr)
   {
     return;
   }
   actor->GetMapper()->GetInputAlgorithm()->Update();
 
   // convert non polygon data to polygon data if needed
-  vtkGeometryFilter *geometryFilter = NULL;
-  vtkPolyData *polys = NULL;;
+  vtkGeometryFilter *geometryFilter = nullptr;
+  vtkPolyData *polys = nullptr;;
   if (dataset->GetDataObjectType() != VTK_POLY_DATA)
   {
     geometryFilter = vtkGeometryFilter::New();
@@ -406,7 +406,7 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
   if (actor->GetMapper()->GetScalarVisibility())
   {
     vtkUnsignedCharArray *color_array = actor->GetMapper()->MapScalars(1.0);
-    if (color_array != NULL)
+    if (color_array != nullptr)
     {
       scalar_visible = true;
       fprintf(this->FilePtr, "\ttexture_list {\n");
@@ -473,7 +473,7 @@ void vtkPOVExporter::WritePolygons(vtkPolyData *polys, bool scalar_visible)
   // assuming polygon are simple and can be triangulated into "fans"
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetPolys();
-  vtkIdType npts = 0, *pts = 0;
+  vtkIdType npts = 0, *pts = nullptr;
 
   // first pass,
   // calculate how many triangles there will be after triangulation
@@ -566,7 +566,7 @@ void vtkPOVExporter::WriteTriangleStrips(
   // convert triangle strips into triangles
   vtkIdType numtriangles = 0;
   vtkCellArray *cells = polys->GetStrips();
-  vtkIdType npts = 0, *pts = 0;
+  vtkIdType npts = 0, *pts = nullptr;
 
   // first pass, calculate how many triangles there will be after conversion
   for (cells->InitTraversal(); cells->GetNextCell(npts, pts);)

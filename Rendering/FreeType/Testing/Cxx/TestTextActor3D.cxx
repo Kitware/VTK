@@ -67,12 +67,12 @@ int TestTextActor3D(int, char *[])
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
   vtkNew<vtkPoints> points;
-  anchors->SetPoints(points.GetPointer());
+  anchors->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  anchors->SetVerts(verts.GetPointer());
+  anchors->SetVerts(verts);
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
-  anchors->GetCellData()->SetScalars(colors.GetPointer());
+  anchors->GetCellData()->SetScalars(colors);
 
   for (size_t row = 0; row < 3; ++row)
   {
@@ -111,43 +111,43 @@ int TestTextActor3D(int, char *[])
                                                    1. - row * .26);
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
       actor->SetPosition(x[col], y[row], 0.);
-      setupTextActor3D(actor.GetPointer(), anchors.GetPointer());
-      ren->AddActor(actor.GetPointer());
+      setupTextActor3D(actor, anchors);
+      ren->AddActor(actor);
     }
   }
 
   vtkNew<vtkPolyDataMapper> anchorMapper;
-  anchorMapper->SetInputData(anchors.GetPointer());
+  anchorMapper->SetInputData(anchors);
   vtkNew<vtkActor> anchorActor;
-  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor(anchorActor.GetPointer());
+  ren->AddActor(anchorActor);
 
   // Add some various 'empty' actors to make sure there are no surprises:
   vtkNew<vtkTextActor3D> nullInputActor;
-  nullInputActor->SetInput(NULL);
-  ren->AddActor(nullInputActor.GetPointer());
+  nullInputActor->SetInput(nullptr);
+  ren->AddActor(nullInputActor);
 
   vtkNew<vtkTextActor3D> emptyInputActor;
   emptyInputActor->SetInput("");
-  ren->AddActor(emptyInputActor.GetPointer());
+  ren->AddActor(emptyInputActor);
 
   vtkNew<vtkTextActor3D> spaceActor;
   spaceActor->SetInput(" ");
-  ren->AddActor(spaceActor.GetPointer());
+  ren->AddActor(spaceActor);
 
   vtkNew<vtkTextActor3D> tabActor;
   tabActor->SetInput("\t");
-  ren->AddActor(tabActor.GetPointer());
+  ren->AddActor(tabActor);
 
   vtkNew<vtkTextActor3D> newlineActor;
   newlineActor->SetInput("\n");
-  ren->AddActor(newlineActor.GetPointer());
+  ren->AddActor(newlineActor);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);

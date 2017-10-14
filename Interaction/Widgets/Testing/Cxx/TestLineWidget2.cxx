@@ -46,7 +46,7 @@ class vtkLW2Callback : public vtkCommand
 public:
   static vtkLW2Callback *New()
   { return new vtkLW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkLineWidget2 *lineWidget = reinterpret_cast<vtkLineWidget2*>(caller);
     vtkLineRepresentation *rep =
@@ -54,7 +54,7 @@ public:
     rep->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkLW2Callback():PolyData(0),Actor(0) {}
+  vtkLW2Callback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

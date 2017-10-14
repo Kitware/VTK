@@ -68,13 +68,13 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   mapper->SetScalarModeToUsePointFieldData();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkCompositeRenderManager> prm;
 
   vtkSmartPointer<vtkRenderer> renderer;
   renderer.TakeReference(prm->MakeRenderer());
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
 
   vtkSmartPointer<vtkRenderWindow> renwin;
   renwin.TakeReference(prm->MakeRenderWindow());
@@ -82,7 +82,7 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   renwin->SetPosition(0, 200*controller->GetLocalProcessId());
   renwin->AddRenderer(renderer);
 
-  prm->SetRenderWindow(renwin.GetPointer());
+  prm->SetRenderWindow(renwin);
   prm->SetController(controller);
   prm->InitializePieces();
   prm->InitializeOffScreen();           // Mesa GL only
@@ -92,11 +92,11 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
     renwin->Render();
 
     // Do the test comparison.
-    int retval = vtkRegressionTestImage(renwin.GetPointer());
+    int retval = vtkRegressionTestImage(renwin);
     if (retval == vtkRegressionTester::DO_INTERACTOR)
     {
       vtkNew<vtkRenderWindowInteractor> iren;
-      iren->SetRenderWindow(renwin.GetPointer());
+      iren->SetRenderWindow(renwin);
       iren->Initialize();
       iren->Start();
       retval = vtkRegressionTester::PASSED;
@@ -122,7 +122,7 @@ int PLSDynaReader(int argc, char *argv[])
   vtkNew<vtkMPIController> controller;
   controller->Initialize(&argc, &argv);
 
-  vtkMultiProcessController::SetGlobalController(controller.GetPointer());
+  vtkMultiProcessController::SetGlobalController(controller);
 
   TestArgs args;
   args.retval = &retval;

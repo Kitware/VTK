@@ -68,10 +68,10 @@ typedef vtkObserverMap::iterator ObserverMapIterator;
 //----------------------------------------------------------------------------
 vtkObserverMediator::vtkObserverMediator()
 {
-  this->Interactor = NULL;
+  this->Interactor = nullptr;
   this->ObserverMap = new vtkObserverMap;
 
-  this->CurrentObserver = NULL;
+  this->CurrentObserver = nullptr;
   this->CurrentCursorShape = VTK_CURSOR_DEFAULT;
 }
 

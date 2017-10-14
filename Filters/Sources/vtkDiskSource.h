@@ -35,7 +35,7 @@ class VTKFILTERSSOURCES_EXPORT vtkDiskSource : public vtkPolyDataAlgorithm
 public:
   static vtkDiskSource *New();
   vtkTypeMacro(vtkDiskSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -81,9 +81,9 @@ public:
 
 protected:
   vtkDiskSource();
-  ~vtkDiskSource() VTK_OVERRIDE {}
+  ~vtkDiskSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double InnerRadius;
   double OuterRadius;
   int RadialResolution;
@@ -91,8 +91,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkDiskSource(const vtkDiskSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDiskSource&) VTK_DELETE_FUNCTION;
+  vtkDiskSource(const vtkDiskSource&) = delete;
+  void operator=(const vtkDiskSource&) = delete;
 };
 
 #endif

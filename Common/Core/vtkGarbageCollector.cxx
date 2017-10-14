@@ -119,14 +119,14 @@ public:
     // Call vtkObjectBase::RegisterInternal directly to make sure the
     // object does not try to report the call back to the garbage
     // collector and no debugging output is shown.
-    obj->vtkObjectBase::RegisterInternal(0, 0);
+    obj->vtkObjectBase::RegisterInternal(nullptr, 0);
   }
   static void UnRegisterBase(vtkObjectBase* obj)
   {
     // Call vtkObjectBase::UnRegisterInternal directly to make sure
     // the object does not try to report the call back to the garbage
     // collector and no debugging output is shown.
-    obj->vtkObjectBase::UnRegisterInternal(0, 0);
+    obj->vtkObjectBase::UnRegisterInternal(nullptr, 0);
   }
   static void Register(vtkObjectBase* obj, vtkObjectBase* from)
   {
@@ -144,7 +144,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Function to test whether caller is the main thread.
-static int vtkGarbageCollectorIsMainThread()
+static vtkTypeBool vtkGarbageCollectorIsMainThread()
 {
   return
     vtkMultiThreader::ThreadsEqual(vtkGarbageCollectorMainThread,
@@ -197,15 +197,15 @@ public:
   vtkTypeMacro(vtkGarbageCollectorImpl, vtkGarbageCollector);
 
   vtkGarbageCollectorImpl();
-  ~vtkGarbageCollectorImpl() VTK_OVERRIDE;
+  ~vtkGarbageCollectorImpl() override;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  void Register(vtkObjectBase*) VTK_OVERRIDE;
+  void Register(vtkObjectBase*) override;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase*) override;
 
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
@@ -236,7 +236,7 @@ public:
   // Store garbage collection entries keyed by object.
   struct Entry
   {
-    Entry(vtkObjectBase* obj): Object(obj), Root(0), Component(0),
+    Entry(vtkObjectBase* obj): Object(obj), Root(nullptr), Component(nullptr),
                                VisitOrder(0), Count(0), GarbageCount(0),
                                References() {}
     ~Entry() { assert(this->GarbageCount == 0); }
@@ -293,7 +293,7 @@ public:
     typedef ComponentBase::iterator iterator;
     ComponentType(): NetCount(0), Identifier(0) {}
     ~ComponentType()
-      { for(iterator i = begin(), iend = end(); i != iend; ++i) { (*i)->Component = 0; } }
+      { for(iterator i = begin(), iend = end(); i != iend; ++i) { (*i)->Component = nullptr; } }
 
     // The net reference count of the component.
     int NetCount;
@@ -359,7 +359,7 @@ public:
 
   // Callback from objects to report references.
   void Report(vtkObjectBase* obj, void* ptr);
-  void Report(vtkObjectBase* obj, void* ptr, const char* desc) VTK_OVERRIDE;
+  void Report(vtkObjectBase* obj, void* ptr, const char* desc) override;
 
   // Collect the objects of the given leaked component.
   void CollectComponent(ComponentType* c);
@@ -386,8 +386,8 @@ public:
   void FlushEntryReferences(Entry* e);
 
 private:
-  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
+  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) = delete;
+  void operator=(const vtkGarbageCollectorImpl&) = delete;
 };
 
 //----------------------------------------------------------------------------
@@ -403,12 +403,12 @@ vtkGarbageCollectorImpl::vtkGarbageCollectorImpl()
   }
   else
   {
-    this->Singleton = 0;
+    this->Singleton = nullptr;
   }
 
   // Initialize reference graph walk implementation.
   this->VisitCount = 0;
-  this->Current = 0;
+  this->Current = nullptr;
   this->NumberOfComponents = 0;
 }
 
@@ -416,7 +416,7 @@ vtkGarbageCollectorImpl::vtkGarbageCollectorImpl()
 vtkGarbageCollectorImpl::~vtkGarbageCollectorImpl()
 {
   // The collector implementation should have left these empty.
-  assert(this->Current == 0);
+  assert(this->Current == nullptr);
   assert(this->Stack.empty());
   assert(this->LeakedComponents.empty());
 
@@ -513,7 +513,7 @@ vtkGarbageCollectorImpl::Entry*
 vtkGarbageCollectorImpl::MaybeVisit(vtkObjectBase* obj)
 {
   // Check for an existing entry.
-  assert(obj != 0);
+  assert(obj != nullptr);
   Entry e(obj);
   VisitedType::iterator i = this->Visited.find(&e);
   if(i == this->Visited.end())
@@ -535,7 +535,7 @@ vtkGarbageCollectorImpl::VisitTarjan(vtkObjectBase* obj)
 
   // Initialize the entry and push it onto the stack of graph nodes.
   v->Root = v;
-  v->Component = 0;
+  v->Component = nullptr;
   v->VisitOrder = ++this->VisitCount;
   this->PassReferencesToEntry(v);
   this->Stack.push(v);
@@ -605,7 +605,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr,
                                      const char* desc)
 {
   // All calls should be given the pointer.
-  assert(ptr != 0);
+  assert(ptr != nullptr);
 
   if(obj)
   {
@@ -676,10 +676,10 @@ void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
       // Get a pointer to the pointer holding the reference.
       void** ptr = static_cast<void**>(entry->References[i].Pointer);
 
-      // Set the pointer holding the reference to NULL.  The
+      // Set the pointer holding the reference to nullptr.  The
       // destructor of the object that reported this reference must
       // deal with this.
-      *ptr = 0;
+      *ptr = nullptr;
 
       // Remove the reference to the object referenced without
       // recursively collecting.  We already know about the object.
@@ -780,7 +780,7 @@ void vtkGarbageCollectorImpl::SubtractExternalReferences(ComponentType* c)
 void vtkGarbageCollectorImpl::SubtractReference(Entry* e)
 {
   // The component should not be leaked before we get here.
-  assert(e->Component != 0);
+  assert(e->Component != nullptr);
   assert(e->Component->NetCount > 0);
 
   vtkDebugMacro("Subtracting reference to object "
@@ -864,7 +864,7 @@ void vtkGarbageCollector::ClassFinalize()
   // vtkGarbageCollectorManager.h so that this singleton stays around
   // longer.
   delete vtkGarbageCollectorSingletonInstance;
-  vtkGarbageCollectorSingletonInstance = 0;
+  vtkGarbageCollectorSingletonInstance = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -936,7 +936,7 @@ void vtkGarbageCollector::DeferredCollectionPop()
 int vtkGarbageCollector::GiveReference(vtkObjectBase* obj)
 {
   // We must have an object.
-  assert(obj != 0);
+  assert(obj != nullptr);
 
   // See if the singleton will accept a reference.
   if(vtkGarbageCollectorIsMainThread() &&
@@ -953,7 +953,7 @@ int vtkGarbageCollector::GiveReference(vtkObjectBase* obj)
 int vtkGarbageCollector::TakeReference(vtkObjectBase* obj)
 {
   // We must have an object.
-  assert(obj != 0);
+  assert(obj != nullptr);
 
   // See if the singleton has a reference.
   if(vtkGarbageCollectorIsMainThread() &&

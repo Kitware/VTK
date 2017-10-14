@@ -52,11 +52,11 @@ vtkPointSet* vtkXMLPUnstructuredDataReader::GetPieceInputAsPointSet(int piece)
   vtkXMLDataReader* reader = this->PieceReaders[piece];
   if (!reader)
   {
-    return 0;
+    return nullptr;
   }
   if (reader->GetNumberOfOutputPorts() < 1)
   {
-    return 0;
+    return nullptr;
   }
   return static_cast<vtkPointSet*>(reader->GetExecutive()->GetOutputData(0));
 }
@@ -235,7 +235,7 @@ int vtkXMLPUnstructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePri)
   if(!this->Superclass::ReadPrimaryElement(ePri)) { return 0; }
 
   // Find the PPoints element.
-  this->PPointsElement = 0;
+  this->PPointsElement = nullptr;
   int numNested = ePri->GetNumberOfNestedElements();
   for (int i = 0;i < numNested; ++i)
   {

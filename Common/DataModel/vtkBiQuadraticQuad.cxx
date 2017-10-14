@@ -136,7 +136,7 @@ int vtkBiQuadraticQuad::EvaluatePosition (double *x,
       pcoords[1] = 0.5 + (pcoords[1] / 2.0);
     }
     pcoords[2] = 0.0;
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
     {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
@@ -435,18 +435,6 @@ void vtkBiQuadraticQuad::InterpolationFunctionsPrivate (double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkBiQuadraticQuad::InterpolationFunctions (double pcoords[3],
-                                                 double weights[9])
-{
-  VTK_LEGACY_REPLACED_BODY(InterpolationFunctions, "VTK 5.2",
-                           InterpolateFunctions);
-
-  vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords, weights);
-}
-#endif
-
-//----------------------------------------------------------------------------
 // Derivatives in parametric space.
 void vtkBiQuadraticQuad::InterpolationDerivsPrivate (double pcoords[3],
                                                      double derivs[18])
@@ -484,18 +472,6 @@ void vtkBiQuadraticQuad::InterpolationDerivsPrivate (double pcoords[3],
   derivs[17]=16.0 *       (x) * (1.0 - x) * (1.0 - 2.0 * y);
 
 }
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkBiQuadraticQuad::InterpolationDerivs (double pcoords[3],
-                                              double derivs[18])
-{
-  VTK_LEGACY_REPLACED_BODY(InterpolationDerivs, "VTK 5.2",
-                           InterpolateDerivs);
-
-  vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords, derivs);
-}
-#endif
 
 //----------------------------------------------------------------------------
 static double vtkQQuadCellPCoords[27] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0,

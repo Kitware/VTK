@@ -85,7 +85,7 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         array.TakeReference(vtkArray::CreateArray(*storage_type, value_types[value_type]));
         test_expression(array);
 
-        test_expression(array->GetName() == "");
+        test_expression(array->GetName().empty());
         array->SetName("foo");
         test_expression(array->GetName() == "foo");
 

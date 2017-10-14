@@ -86,22 +86,28 @@ class VTKIOPARALLELEXODUS_EXPORT vtkPExodusIIWriter : public vtkExodusIIWriter
 public:
   static vtkPExodusIIWriter *New ();
   vtkTypeMacro(vtkPExodusIIWriter,vtkExodusIIWriter);
-  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf (ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPExodusIIWriter ();
-  ~vtkPExodusIIWriter ();
-  virtual int CheckParameters () VTK_OVERRIDE;
-  virtual void CheckBlockInfoMap() VTK_OVERRIDE;
+  ~vtkPExodusIIWriter () override;
+  int CheckParameters () override;
+  void CheckBlockInfoMap() override;
 
-  virtual int RequestUpdateExtent (vtkInformation* request,
-                                   vtkInformationVector** inputVector,
-                                   vtkInformationVector* outputVector) VTK_OVERRIDE;
-  virtual int GlobalContinueExecuting(int localContinue) VTK_OVERRIDE;
+  int RequestUpdateExtent (vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector) override;
+  int GlobalContinueExecuting(int localContinue) override;
+
+  /**
+   * Get the maximum length name in the input data set. If it is smaller
+   * than 32 characters long we just return the ExodusII default of 32.
+   */
+  virtual unsigned int GetMaxNameLength() override;
 
 private:
-  vtkPExodusIIWriter (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
-  void operator= (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
+  vtkPExodusIIWriter (const vtkPExodusIIWriter&) = delete;
+  void operator= (const vtkPExodusIIWriter&) = delete;
 };
 
 #endif

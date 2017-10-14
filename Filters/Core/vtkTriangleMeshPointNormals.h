@@ -73,20 +73,20 @@ class VTKFILTERSCORE_EXPORT vtkTriangleMeshPointNormals : public vtkPolyDataAlgo
 {
 public:
   vtkTypeMacro(vtkTriangleMeshPointNormals,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkTriangleMeshPointNormals *New();
 
 protected:
   vtkTriangleMeshPointNormals() {}
-  ~vtkTriangleMeshPointNormals() VTK_OVERRIDE {}
+  ~vtkTriangleMeshPointNormals() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangleMeshPointNormals&) VTK_DELETE_FUNCTION;
+  vtkTriangleMeshPointNormals(const vtkTriangleMeshPointNormals&) = delete;
+  void operator=(const vtkTriangleMeshPointNormals&) = delete;
 };
 
 #endif

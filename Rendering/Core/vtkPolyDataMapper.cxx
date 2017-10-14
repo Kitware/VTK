@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkPolyDataMapper)
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   }
 
   vtkInformation *inInfo = this->GetInputInformation();
-  if (inInfo == NULL)
+  if (inInfo == nullptr)
   {
     vtkErrorMacro("Mapper has no input.");
     return;
@@ -132,11 +132,11 @@ double *vtkPolyDataMapper::GetBounds()
     this->ComputeBounds();
 
     // if the bounds indicate NAN and subpieces are being used then
-    // return NULL
+    // return nullptr
     if (!vtkMath::AreBoundsInitialized(this->Bounds)
         && this->NumberOfSubPieces > 1)
     {
-      return NULL;
+      return nullptr;
     }
     return this->Bounds;
   }
@@ -160,7 +160,7 @@ void vtkPolyDataMapper::ComputeBounds()
 void vtkPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 {
   vtkPolyDataMapper *m = vtkPolyDataMapper::SafeDownCast(mapper);
-  if (m != NULL)
+  if (m != nullptr)
   {
     this->SetInputConnection(m->GetInputConnection(0, 0));
     this->SetGhostLevel(m->GetGhostLevel());

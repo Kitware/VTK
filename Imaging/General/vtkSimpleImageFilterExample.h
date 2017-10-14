@@ -38,12 +38,12 @@ public:
 protected:
 
   vtkSimpleImageFilterExample() {}
-  ~vtkSimpleImageFilterExample()VTK_OVERRIDE {}
+  ~vtkSimpleImageFilterExample() override {}
 
-  void SimpleExecute(vtkImageData* input, vtkImageData* output) VTK_OVERRIDE;
+  void SimpleExecute(vtkImageData* input, vtkImageData* output) override;
 private:
-  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleImageFilterExample&) VTK_DELETE_FUNCTION;
+  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&) = delete;
+  void operator=(const vtkSimpleImageFilterExample&) = delete;
 };
 
 #endif

@@ -139,7 +139,7 @@ protected:
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) VTK_OVERRIDE
+                     vtkInformationVector* outputVector) override
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -155,7 +155,7 @@ protected:
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
-  int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
+  int FillOutputPortInformation(int, vtkInformation *info) override
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;
@@ -273,8 +273,8 @@ protected:
     return 1;
   }
 private:
-  TestTimeSource(const TestTimeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const TestTimeSource&) VTK_DELETE_FUNCTION;
+  TestTimeSource(const TestTimeSource&) = delete;
+  void operator=(const TestTimeSource&) = delete;
 
   vector<double> TimeSteps;
   int Extent[6];
@@ -297,13 +297,13 @@ int TestPParticleTracer(vtkMPIController* c, int staticOption)
   // points->InsertNextPoint(0.99,0,0.99);
 
   vtkNew<vtkPolyData> ps;
-  ps->SetPoints(points.GetPointer());
+  ps->SetPoints(points);
 
   vtkNew<vtkPParticleTracer> filter;
   filter->SetStaticMesh(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,ps.GetPointer());
+  filter->SetInputData(1,ps);
   filter->SetStartTime(0.0);
 
   vector<double> times;
@@ -359,13 +359,13 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
   points->InsertNextPoint(0.5,0,0.001);
 
   vtkNew<vtkPolyData> ps;
-  ps->SetPoints(points.GetPointer());
+  ps->SetPoints(points);
 
   vtkNew<vtkParticlePathFilter> filter;
   filter->SetStaticMesh(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,ps.GetPointer());
+  filter->SetInputData(1,ps);
 //  filter->SetForceReinjectionEveryNSteps(1);
 
   filter->SetStartTime(0.0);
@@ -390,7 +390,7 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
     EXPECT(2, lines->GetNumberOfCells(),"PParticlePath: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
-    lines->GetNextCell(trace.GetPointer());
+    lines->GetNextCell(trace);
     int tail;
     tail = trace->GetId(trace->GetNumberOfIds()-1);
     EXPECT(4, pd->GetArray("Test")->GetTuple1(tail), "PParticlePath: wrong tuple value.", staticOption);
@@ -401,7 +401,7 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
 
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
-    lines->GetNextCell(trace.GetPointer());
+    lines->GetNextCell(trace);
     int head, tail;
     head = trace->GetId(0);
     tail = trace->GetId(trace->GetNumberOfIds()-1);
@@ -426,13 +426,13 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
   // points->InsertNextPoint(0.99,0,0.99);
 
   vtkNew<vtkPolyData> ps;
-  ps->SetPoints(points.GetPointer());
+  ps->SetPoints(points);
 
   vtkNew<vtkPStreaklineFilter> filter;
   filter->SetStaticMesh(staticOption);
   filter->SetStaticSeeds(staticOption);
   filter->SetInputConnection(0,imageSource->GetOutputPort());
-  filter->SetInputData(1,ps.GetPointer());
+  filter->SetInputData(1,ps);
 
   filter->SetStartTime(0.0);
   filter->SetTerminationTime(11.5);
@@ -451,9 +451,9 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
     EXPECT(2, lines->GetNumberOfCells(),"PStreakline: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
-    lines->GetNextCell(trace.GetPointer());
+    lines->GetNextCell(trace);
     EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
-    lines->GetNextCell(trace.GetPointer());
+    lines->GetNextCell(trace);
     EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
   }
   else

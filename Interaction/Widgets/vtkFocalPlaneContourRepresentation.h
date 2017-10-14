@@ -20,7 +20,7 @@
  *
  * The contour will stay on the focal plane irrespective of camera
  * position/orientation changes. The class was written in order to be able to
- * draw contours on a volume widget and have the contours overlayed on the
+ * draw contours on a volume widget and have the contours overlaid on the
  * focal plane in order to do contour segmentation. The superclass,
  * vtkContourRepresentation handles contours that are drawn in actual world
  * position co-ordinates, so they would rotate with the camera position/
@@ -46,7 +46,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkFocalPlaneContourRepresentation,vtkContourRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -56,7 +56,7 @@ public:
    * 1 on success or 0 if n or idx are out of range.
    */
   int GetIntermediatePointWorldPosition( int n,
-                                                 int idx, double point[3] ) VTK_OVERRIDE;
+                                                 int idx, double point[3] ) override;
 
   /**
    * Get the world position of the intermediate point at
@@ -72,14 +72,14 @@ public:
    * 1 on success, or 0 if there are not at least
    * (n+1) nodes (0 based counting).
    */
-  int GetNthNodeDisplayPosition( int n, double pos[2] ) VTK_OVERRIDE;
+  int GetNthNodeDisplayPosition( int n, double pos[2] ) override;
 
   /**
    * Get the nth node's world position. Will return
    * 1 on success, or 0 if there are not at least
    * (n+1) nodes (0 based counting).
    */
-  int GetNthNodeWorldPosition( int n, double pos[3] ) VTK_OVERRIDE;
+  int GetNthNodeWorldPosition( int n, double pos[3] ) override;
 
   /**
    * The class maintains its true contour locations based on display co-ords
@@ -91,17 +91,17 @@ public:
    * The method must be called whenever the contour needs to be updated, usually
    * from RenderOpaqueGeometry()
    */
-  int UpdateContour() VTK_OVERRIDE;
+  int UpdateContour() override;
 
-  void UpdateLines( int index ) VTK_OVERRIDE;
+  void UpdateLines( int index ) override;
 
 protected:
   vtkFocalPlaneContourRepresentation();
-  ~vtkFocalPlaneContourRepresentation() VTK_OVERRIDE;
+  ~vtkFocalPlaneContourRepresentation() override;
 
 private:
-  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
+  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) = delete;
+  void operator=(const vtkFocalPlaneContourRepresentation&) = delete;
 };
 
 #endif

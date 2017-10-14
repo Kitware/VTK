@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkTextureUnitManager : public vtkObject
 public:
   vtkTypeMacro(vtkTextureUnitManager,vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkTextureUnitManager *New();
 
@@ -104,7 +104,7 @@ protected:
   /**
    * Destructor.
    */
-  ~vtkTextureUnitManager() VTK_OVERRIDE;
+  ~vtkTextureUnitManager() override;
 
   /**
    * Delete the allocation table and check if it is not called before
@@ -118,8 +118,8 @@ protected:
   bool *TextureUnits;
 
 private:
-  vtkTextureUnitManager(const vtkTextureUnitManager&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextureUnitManager&) VTK_DELETE_FUNCTION;
+  vtkTextureUnitManager(const vtkTextureUnitManager&) = delete;
+  void operator=(const vtkTextureUnitManager&) = delete;
 };
 
 #endif

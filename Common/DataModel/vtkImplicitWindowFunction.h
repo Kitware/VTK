@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitWindowFunction : public vtkImplicitFu
 {
 public:
   vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with window range (0,1) and window values (0,1).
@@ -52,13 +52,13 @@ public:
    * Evaluate window function.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate window function gradient. Just return implicit function gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -90,29 +90,29 @@ public:
   /**
    * Override modified time retrieval because of object dependencies.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
 protected:
   vtkImplicitWindowFunction();
-  ~vtkImplicitWindowFunction() VTK_OVERRIDE;
+  ~vtkImplicitWindowFunction() override;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   vtkImplicitFunction *ImplicitFunction;
   double WindowRange[2];
   double WindowValues[2];
 
 private:
-  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
+  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&) = delete;
+  void operator=(const vtkImplicitWindowFunction&) = delete;
 };
 
 #endif

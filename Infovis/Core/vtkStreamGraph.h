@@ -51,7 +51,7 @@ class VTKINFOVISCORE_EXPORT vtkStreamGraph : public vtkGraphAlgorithm
 public:
   static vtkStreamGraph* New();
   vtkTypeMacro(vtkStreamGraph,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -84,12 +84,12 @@ public:
 
 protected:
   vtkStreamGraph();
-  ~vtkStreamGraph() VTK_OVERRIDE;
+  ~vtkStreamGraph() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   vtkMutableGraphHelper* CurrentGraph;
   vtkMergeGraphs* MergeGraphs;
@@ -98,8 +98,8 @@ protected:
   char* EdgeWindowArrayName;
 
 private:
-  vtkStreamGraph(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
+  vtkStreamGraph(const vtkStreamGraph&) = delete;
+  void operator=(const vtkStreamGraph&) = delete;
 };
 
 #endif

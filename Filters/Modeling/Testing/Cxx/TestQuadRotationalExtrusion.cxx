@@ -46,7 +46,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create actor for line segment
   vtkNew<vtkActor> lineActor;
-  lineActor->SetMapper( lineMapper.GetPointer() );
+  lineActor->SetMapper( lineMapper );
   lineActor->GetProperty()->SetLineWidth( 5 );
   lineActor->GetProperty()->SetColor( 0., .749, 1. ); // deep sky blue
 
@@ -59,7 +59,7 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   // Create 3/4 of a cylinder by rotational extrusion
   vtkNew<vtkQuadRotationalExtrusionFilter> lineSweeper;
   lineSweeper->SetResolution( 20 );
-  lineSweeper->SetInputData( lineMB.GetPointer() );
+  lineSweeper->SetInputData( lineMB );
   lineSweeper->SetDefaultAngle( 270 );
   lineSweeper->Update();
 
@@ -83,14 +83,14 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create actor for surface representation
   vtkNew<vtkActor> cylActor;
-  cylActor->SetMapper( cylMapper.GetPointer() );
+  cylActor->SetMapper( cylMapper );
   cylActor->GetProperty()->SetRepresentationToSurface();
   cylActor->GetProperty()->SetInterpolationToGouraud();
   cylActor->GetProperty()->SetColor( 1., 0.3882, .2784 ); // tomato
 
   // Create actor for wireframe representation
   vtkNew<vtkActor> cylActorW;
-  cylActorW->SetMapper( cylMapperW.GetPointer() );
+  cylActorW->SetMapper( cylMapperW );
   cylActorW->GetProperty()->SetRepresentationToWireframe();
   cylActorW->GetProperty()->SetColor( 0., 0., 0.);
   cylActorW->GetProperty()->SetAmbient( 1. );
@@ -99,14 +99,14 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> ren1;
-  ren1->AddActor( lineActor.GetPointer() );
-  ren1->AddActor( cylActor.GetPointer() );
-  ren1->AddActor( cylActorW.GetPointer() );
+  ren1->AddActor( lineActor );
+  ren1->AddActor( cylActor );
+  ren1->AddActor( cylActorW );
   ren1->SetBackground( 1., 1., 1. );
 
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( ren1.GetPointer() );
+  renWin->AddRenderer( ren1 );
   renWin->SetSize( 300, 300 );
   renWin->SetMultiSamples( 0 );
 
@@ -116,16 +116,16 @@ int TestQuadRotationalExtrusion( int argc, char * argv [] )
   camera->SetFocalPoint( 0.0463079, -0.0356571, 1.01993 );
   camera->SetPosition( -2.47044, 2.39516, -3.56066 );
   camera->SetViewUp( 0.607296, -0.513537, -0.606195 );
-  ren1->SetActiveCamera( camera.GetPointer() );
+  ren1->SetActiveCamera( camera );
 
   // Create interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

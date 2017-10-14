@@ -1,6 +1,6 @@
 import sys, re, hashlib, base64
 
-py3 = sys.version_info.major > 2
+py3 = sys.version_info >= (3,0)
 
 arrayTypesMapping = [
   ' ', # VTK_VOID            0
@@ -34,11 +34,14 @@ javascriptMapping = {
 if py3:
     def iteritems(d, **kwargs):
         return iter(d.items(**kwargs))
-    buffer = memoryview
-    base64Encode = lambda x: base64.b64encode(x).decode('utf-8')
 else:
     def iteritems(d, **kwargs):
         return d.iteritems(**kwargs)
+
+if sys.version_info >= (2,7):
+    buffer = memoryview
+    base64Encode = lambda x: base64.b64encode(x).decode('utf-8')
+else:
     buffer = buffer
     base64Encode = lambda x: x.encode('base64')
 
@@ -49,4 +52,4 @@ def hashDataArray(dataArray):
     return '%s_%d%s' % (md5sum, dataArray.GetSize(), typeCode)
 
 def getJSArrayType(dataArray):
-	return javascriptMapping[arrayTypesMapping[dataArray.GetDataType()]]
+    return javascriptMapping[arrayTypesMapping[dataArray.GetDataType()]]

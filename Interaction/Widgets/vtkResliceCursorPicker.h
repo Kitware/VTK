@@ -44,7 +44,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPicker : public vtkPicker
 public:
   static vtkResliceCursorPicker *New();
   vtkTypeMacro(vtkResliceCursorPicker, vtkPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform pick operation with selection point provided. Normally the
@@ -53,7 +53,7 @@ public:
    * something was successfully picked.
    */
   int Pick(double selectionX, double selectionY, double selectionZ,
-                   vtkRenderer *renderer) VTK_OVERRIDE;
+                   vtkRenderer *renderer) override;
 
   //@{
   /**
@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkResliceCursorPicker();
-  ~vtkResliceCursorPicker() VTK_OVERRIDE;
+  ~vtkResliceCursorPicker() override;
 
   virtual int IntersectPolyDataWithLine(
       double p1[3], double p2[3], vtkPolyData *, double tol );
@@ -108,8 +108,8 @@ private:
   vtkPlane     * Plane;
 
 private:
-  vtkResliceCursorPicker(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
+  vtkResliceCursorPicker(const vtkResliceCursorPicker&) = delete;
+  void operator=(const vtkResliceCursorPicker&) = delete;
 };
 
 #endif

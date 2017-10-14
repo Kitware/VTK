@@ -37,8 +37,8 @@ int ImageHistogram(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkInteractorStyle> style;
   vtkNew<vtkRenderWindow> renWin;
-  iren->SetRenderWindow(renWin.GetPointer());
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetRenderWindow(renWin);
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkPNGReader> reader;
 
@@ -68,7 +68,7 @@ int ImageHistogram(int argc, char *argv[])
     renderer->SetBackground(0.0,0.0,0.0);
     renderer->SetViewport(0.5*(i&1), 0.0,
                           0.5 + 0.5*(i&1), 1.0);
-    renWin->AddRenderer(renderer.GetPointer());
+    renWin->AddRenderer(renderer);
 
     vtkNew<vtkImageSliceMapper> imageMapper;
     if ((i & 1) == 0)
@@ -95,9 +95,9 @@ int ImageHistogram(int argc, char *argv[])
     camera->SetParallelScale(128);
 
     vtkNew<vtkImageSlice> image;
-    image->SetMapper(imageMapper.GetPointer());
+    image->SetMapper(imageMapper);
 
-    renderer->AddViewProp(image.GetPointer());
+    renderer->AddViewProp(image);
 
     if ((i & 1) == 0)
     {

@@ -19,7 +19,6 @@
 #include "vtkExternalLight.h"
 #include "vtkExternalOpenGLCamera.h"
 #include "vtkLightCollection.h"
-#include "vtkLightCollection.h"
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -47,7 +46,7 @@ vtkExternalOpenGLRenderer::vtkExternalOpenGLRenderer()
 vtkExternalOpenGLRenderer::~vtkExternalOpenGLRenderer()
 {
   this->ExternalLights->Delete();
-  this->ExternalLights = NULL;
+  this->ExternalLights = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -145,7 +144,7 @@ void vtkExternalOpenGLRenderer::Render(void)
     // light index.
     vtkCollectionSimpleIterator sit;
     vtkExternalLight* eLight;
-    vtkExternalLight* curExtLight = NULL;
+    vtkExternalLight* curExtLight = nullptr;
     for (this->ExternalLights->InitTraversal(sit);
          (eLight = vtkExternalLight::SafeDownCast(
           this->ExternalLights->GetNextLight(sit))); )

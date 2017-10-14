@@ -108,7 +108,7 @@ class VTKFILTERSCORE_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkDelaunay3D,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with Alpha = 0.0; Tolerance = 0.001; Offset = 2.5;
@@ -251,7 +251,7 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -265,9 +265,9 @@ public:
 
 protected:
   vtkDelaunay3D();
-  ~vtkDelaunay3D() VTK_OVERRIDE;
+  ~vtkDelaunay3D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Alpha;
   int AlphaTets;
@@ -298,15 +298,15 @@ protected:
                                vtkIdList *tetras, vtkIdList *faces,
                                vtkIncrementalPointLocator *Locator);
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
   vtkIdList *Faces;  //used in InsertPoint
   vtkIdList *CheckedTetras; //used by InsertPoint
 
 private:
-  vtkDelaunay3D(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
+  vtkDelaunay3D(const vtkDelaunay3D&) = delete;
+  void operator=(const vtkDelaunay3D&) = delete;
 };
 
 #endif

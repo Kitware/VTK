@@ -31,8 +31,6 @@
 #include <vtkRenderWindowInteractor.h>
 #include "vtkRegressionTestImage.h"
 
-//#include <iostream>
-
 // Create a cone, contour it using the banded contour filter and
 // color it with the primary additive and subtractive colors.
 int TestNamedColorsIntegration(int argc, char* argv[])
@@ -128,7 +126,7 @@ int TestNamedColorsIntegration(int argc, char* argv[])
     );
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

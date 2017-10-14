@@ -16,7 +16,7 @@
 import sys
 import types
 
-if sys.version_info[0] < 3: #pragma NO COVER
+if sys.version_info[0] < 3:
 
     def _normalize_name(name):
         if isinstance(name, basestring):
@@ -31,7 +31,7 @@ if sys.version_info[0] < 3: #pragma NO COVER
     PYTHON3 = False
     PYTHON2 = True
 
-else: #pragma NO COVER
+else:
 
     def _normalize_name(name):
         if isinstance(name, bytes):
@@ -48,16 +48,11 @@ else: #pragma NO COVER
     PYTHON3 = True
     PYTHON2 = False
 
-def _skip_under_py3k(test_method): #pragma NO COVER
-    if sys.version_info[0] < 3:
-        return test_method
-    def _dummy(*args):
-        pass
-    return _dummy
+def _skip_under_py3k(test_method):
+    import unittest
+    return unittest.skipIf(sys.version_info[0] >= 3, "Only on Python 2")(test_method)
 
-def _skip_under_py2(test_method): #pragma NO COVER
-    if sys.version_info[0] > 2:
-        return test_method
-    def _dummy(*args):
-        pass
-    return _dummy
+
+def _skip_under_py2(test_method):
+    import unittest
+    return unittest.skipIf(sys.version_info[0] < 3, "Only on Python 3")(test_method)

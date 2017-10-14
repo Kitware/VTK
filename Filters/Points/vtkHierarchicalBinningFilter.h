@@ -87,7 +87,7 @@ public:
    */
   static vtkHierarchicalBinningFilter *New();
   vtkTypeMacro(vtkHierarchicalBinningFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkHierarchicalBinningFilter();
-  ~vtkHierarchicalBinningFilter() VTK_OVERRIDE;
+  ~vtkHierarchicalBinningFilter() override;
 
   // IVars
   int NumberOfLevels;
@@ -202,12 +202,12 @@ protected:
   vtkBinTree *Tree;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+    vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalBinningFilter&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalBinningFilter(const vtkHierarchicalBinningFilter&) = delete;
+  void operator=(const vtkHierarchicalBinningFilter&) = delete;
 
 };
 

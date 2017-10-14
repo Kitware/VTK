@@ -33,9 +33,9 @@ vtkStandardNewMacro(vtkAssignCoordinates);
 
 vtkAssignCoordinates::vtkAssignCoordinates()
 {
-  this->XCoordArrayName = 0;
-  this->YCoordArrayName = 0;
-  this->ZCoordArrayName = 0;
+  this->XCoordArrayName = nullptr;
+  this->YCoordArrayName = nullptr;
+  this->ZCoordArrayName = nullptr;
 
   this->Jitter = false;
 }
@@ -64,7 +64,7 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   output->ShallowCopy(input);
 
   // Create new points on the output
-  vtkDataSetAttributes *data = 0;
+  vtkDataSetAttributes *data = nullptr;
   vtkPoints* pts = vtkPoints::New();
   if (vtkPointSet::SafeDownCast(input))
   {
@@ -100,20 +100,20 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataArray* XArray = data->GetArray(this->XCoordArrayName);
 
   // Does the array exist at all?
-  if (XArray == NULL)
+  if (XArray == nullptr)
   {
     vtkErrorMacro("Could not find array named " << this->XCoordArrayName);
     return 0;
   }
 
   // Y coordinate array
-  vtkDataArray* YArray = 0;
+  vtkDataArray* YArray = nullptr;
   if (this->YCoordArrayName && strlen(YCoordArrayName) > 0)
   {
     YArray = data->GetArray(this->YCoordArrayName);
 
     // Does the array exist at all?
-    if (YArray == NULL)
+    if (YArray == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->YCoordArrayName);
       return 0;
@@ -121,13 +121,13 @@ int vtkAssignCoordinates::RequestData(vtkInformation *vtkNotUsed(request),
   }
 
   // Z coordinate array
-  vtkDataArray* ZArray = 0;
+  vtkDataArray* ZArray = nullptr;
   if (this->ZCoordArrayName && strlen(ZCoordArrayName) > 0)
   {
     ZArray = data->GetArray(this->ZCoordArrayName);
 
     // Does the array exist at all?
-    if (ZArray == NULL)
+    if (ZArray == nullptr)
     {
       vtkErrorMacro("Could not find array named " << this->ZCoordArrayName);
       return 0;

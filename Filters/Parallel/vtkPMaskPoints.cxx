@@ -24,7 +24,7 @@ vtkStandardNewMacro(vtkPMaskPoints);
 //----------------------------------------------------------------------------
 vtkPMaskPoints::vtkPMaskPoints()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
 
   vtkSmartPointer<vtkMultiProcessController> controller =
     vtkMultiProcessController::GetGlobalController();
@@ -32,12 +32,12 @@ vtkPMaskPoints::vtkPMaskPoints()
   {
     controller = vtkSmartPointer<vtkDummyController>::New();
   }
-  this->SetController(controller.GetPointer());
+  this->SetController(controller);
 }
 
 vtkPMaskPoints::~vtkPMaskPoints()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -64,13 +64,13 @@ void vtkPMaskPoints::SetController(vtkMultiProcessController *c)
 
   this->Modified();
 
-  if(this->Controller != 0)
+  if(this->Controller != nullptr)
   {
     this->Controller->UnRegister(this);
-    this->Controller = 0;
+    this->Controller = nullptr;
   }
 
-  if(c == 0)
+  if(c == nullptr)
   {
     return;
   }

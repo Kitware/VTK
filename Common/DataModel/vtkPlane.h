@@ -37,21 +37,21 @@ public:
   static vtkPlane *New();
 
   vtkTypeMacro(vtkPlane,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Evaluate plane equation for point x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
-  void EvaluateFunction(vtkDataArray* input, vtkDataArray* output) VTK_OVERRIDE;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  void EvaluateFunction(vtkDataArray* input, vtkDataArray* output) override;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate function gradient at point x[3].
    */
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   //@{
   /**
@@ -140,14 +140,14 @@ public:
 
 protected:
   vtkPlane();
-  ~vtkPlane() VTK_OVERRIDE {}
+  ~vtkPlane() override {}
 
   double Normal[3];
   double Origin[3];
 
 private:
-  vtkPlane(const vtkPlane&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlane&) VTK_DELETE_FUNCTION;
+  vtkPlane(const vtkPlane&) = delete;
+  void operator=(const vtkPlane&) = delete;
 };
 
 // Generally the normal should be normalized

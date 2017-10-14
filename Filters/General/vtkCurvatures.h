@@ -75,7 +75,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCurvatures : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCurvatures,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with curvature type set to Gauss
@@ -116,7 +116,7 @@ protected:
   vtkCurvatures();
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * discrete Gauss curvature (K) computation,
@@ -144,8 +144,8 @@ protected:
   int InvertMeanCurvature;
 
 private:
-  vtkCurvatures(const vtkCurvatures&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCurvatures&) VTK_DELETE_FUNCTION;
+  vtkCurvatures(const vtkCurvatures&) = delete;
+  void operator=(const vtkCurvatures&) = delete;
 
 };
 

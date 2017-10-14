@@ -58,24 +58,24 @@ public:
   /**
    * Print information about this object.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Valid extensions for this file type.
    */
-  const char* GetFileExtensions() VTK_OVERRIDE {
+  const char* GetFileExtensions() override {
     return ".nii .nii.gz .img .img.gz .hdr .hdr.gz"; }
 
   /**
    * Return a descriptive name that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE {
+  const char* GetDescriptiveName() override {
     return "NIfTI"; }
 
   /**
    * Return true if this reader can read the given file.
    */
-  int CanReadFile(const char* filename) VTK_OVERRIDE;
+  int CanReadFile(const char* filename) override;
 
   //@{
   /**
@@ -133,7 +133,7 @@ public:
 
   /**
    * Get a matrix that gives the "qform" orientation and offset for the data.
-   * If no qform matrix was stored in the file, the return value is NULL.
+   * If no qform matrix was stored in the file, the return value is nullptr.
    * This matrix will transform VTK data coordinates into the NIFTI oriented
    * data coordinates, where +X points right, +Y points anterior (toward the
    * front), and +Z points superior (toward the head). The qform matrix will
@@ -147,7 +147,7 @@ public:
 
   /**
    * Get a matrix that gives the "sform" orientation and offset for the data.
-   * If no sform matrix was stored in the file, the return value is NULL.
+   * If no sform matrix was stored in the file, the return value is nullptr.
    * Like the qform matrix, this matrix will transform VTK data coordinates
    * into a NIFTI coordinate system.  Unlike the qform matrix, the sform
    * matrix can contain scaling information and can even (rarely) have
@@ -168,21 +168,21 @@ public:
 
 protected:
   vtkNIFTIImageReader();
-  ~vtkNIFTIImageReader() VTK_OVERRIDE;
+  ~vtkNIFTIImageReader() override;
 
   /**
    * Read the header information.
    */
   int RequestInformation(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Read the voxel data.
    */
   int RequestData(
     vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   /**
    * Do a case-insensitive check for the given extension.
@@ -197,7 +197,7 @@ protected:
    * long, and must be lower case.  This method also verifies that
    * the file exists, and adds or subtracts a ".gz" as necessary
    * If the file exists, a new string is returned that must be
-   * deleted by the caller.  Otherwise, the return value is NULL.
+   * deleted by the caller.  Otherwise, the return value is nullptr.
    */
   static char *ReplaceExtension(
     const char *fname, const char *ext1, const char *ext2);
@@ -259,8 +259,8 @@ protected:
   bool PlanarRGB;
 
 private:
-  vtkNIFTIImageReader(const vtkNIFTIImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNIFTIImageReader&) VTK_DELETE_FUNCTION;
+  vtkNIFTIImageReader(const vtkNIFTIImageReader&) = delete;
+  void operator=(const vtkNIFTIImageReader&) = delete;
 };
 
 #endif // vtkNIFTIImageReader_h

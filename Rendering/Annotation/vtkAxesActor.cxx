@@ -41,9 +41,9 @@ vtkAxesActor::vtkAxesActor()
 {
   this->AxisLabels = 1;
 
-  this->XAxisLabelText = NULL;
-  this->YAxisLabelText = NULL;
-  this->ZAxisLabelText = NULL;
+  this->XAxisLabelText = nullptr;
+  this->YAxisLabelText = nullptr;
+  this->ZAxisLabelText = nullptr;
 
   this->SetXAxisLabelText("X");
   this->SetYAxisLabelText("Y");
@@ -119,8 +119,8 @@ vtkAxesActor::vtkAxesActor()
   this->ShaftType = vtkAxesActor::LINE_SHAFT;
   this->TipType   = vtkAxesActor::CONE_TIP;
 
-  this->UserDefinedTip = NULL;
-  this->UserDefinedShaft = NULL;
+  this->UserDefinedTip = nullptr;
+  this->UserDefinedShaft = nullptr;
 
   this->XAxisLabel = vtkCaptionActor2D::New();
   this->YAxisLabel = vtkCaptionActor2D::New();
@@ -160,12 +160,12 @@ vtkAxesActor::~vtkAxesActor()
   this->YAxisTip->Delete();
   this->ZAxisTip->Delete();
 
-  this->SetUserDefinedTip( NULL );
-  this->SetUserDefinedShaft( NULL );
+  this->SetUserDefinedTip( nullptr );
+  this->SetUserDefinedShaft( nullptr );
 
-  this->SetXAxisLabelText( NULL );
-  this->SetYAxisLabelText( NULL );
-  this->SetZAxisLabelText( NULL );
+  this->SetXAxisLabelText( nullptr );
+  this->SetYAxisLabelText( nullptr );
+  this->SetZAxisLabelText( nullptr );
 
   this->XAxisLabel->Delete();
   this->YAxisLabel->Delete();
@@ -177,7 +177,7 @@ vtkAxesActor::~vtkAxesActor()
 void vtkAxesActor::ShallowCopy(vtkProp *prop)
 {
   vtkAxesActor *a = vtkAxesActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetAxisLabels( a->GetAxisLabels() );
     this->SetXAxisLabelText( a->GetXAxisLabelText() );
@@ -523,7 +523,7 @@ void vtkAxesActor::SetShaftType( int type )
     }
 
     if ( type == vtkAxesActor::USER_DEFINED_SHAFT && \
-         this->UserDefinedShaft == NULL)
+         this->UserDefinedShaft == nullptr)
     {
       vtkErrorMacro( "Set the user defined shaft before changing the type." );
       return;
@@ -550,7 +550,7 @@ void vtkAxesActor::SetTipType( int type )
     }
 
     if ( type == vtkAxesActor::USER_DEFINED_TIP && \
-         this->UserDefinedTip == NULL)
+         this->UserDefinedTip == nullptr)
     {
       vtkErrorMacro( "Set the user defined tip before changing the type." );
       return;
@@ -614,12 +614,12 @@ void vtkAxesActor::UpdateProps()
 
   if ( this->GetUserTransform() )
   {
-    this->XAxisShaft->SetUserTransform( NULL );
-    this->YAxisShaft->SetUserTransform( NULL );
-    this->ZAxisShaft->SetUserTransform( NULL );
-    this->XAxisTip->SetUserTransform( NULL );
-    this->YAxisTip->SetUserTransform( NULL );
-    this->ZAxisTip->SetUserTransform( NULL );
+    this->XAxisShaft->SetUserTransform( nullptr );
+    this->YAxisShaft->SetUserTransform( nullptr );
+    this->ZAxisShaft->SetUserTransform( nullptr );
+    this->XAxisTip->SetUserTransform( nullptr );
+    this->YAxisTip->SetUserTransform( nullptr );
+    this->ZAxisTip->SetUserTransform( nullptr );
   }
 
   double scale[3];

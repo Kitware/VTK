@@ -60,7 +60,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkCellLocatorInterpolatedVelocityField : publi
 public:
   vtkTypeMacro( vtkCellLocatorInterpolatedVelocityField,
                         vtkCompositeInterpolatedVelocityField );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   /**
    * Construct a vtkCellLocatorInterpolatedVelocityField without an initial
@@ -92,7 +92,7 @@ public:
   /**
    * Import parameters. Sub-classes can add more after chaining.
    */
-  void CopyParameters( vtkAbstractInterpolatedVelocityField * from ) VTK_OVERRIDE;
+  void CopyParameters( vtkAbstractInterpolatedVelocityField * from ) override;
   /**
    * Add a dataset coupled with a cell locator (of type vtkAbstractCellLocator)
    * for vector function evaluation. Note the use of a vtkAbstractCellLocator
@@ -100,27 +100,27 @@ public:
    * evaluation point is searched in all until a match is found. THIS FUNCTION
    * DOES NOT CHANGE THE REFERENCE COUNT OF dataset FOR THREAD SAFETY REASONS.
    */
-  void AddDataSet( vtkDataSet * dataset ) VTK_OVERRIDE;
+  void AddDataSet( vtkDataSet * dataset ) override;
 
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
-  int FunctionValues( double * x, double * f ) VTK_OVERRIDE;
+  int FunctionValues( double * x, double * f ) override;
 
   /**
    * Set the cell id cached by the last evaluation within a specified dataset.
    */
-  void SetLastCellId( vtkIdType c, int dataindex ) VTK_OVERRIDE;
+  void SetLastCellId( vtkIdType c, int dataindex ) override;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  void SetLastCellId( vtkIdType c ) VTK_OVERRIDE
+  void SetLastCellId( vtkIdType c ) override
     { this->Superclass::SetLastCellId( c ); }
 
 protected:
   vtkCellLocatorInterpolatedVelocityField();
-  ~vtkCellLocatorInterpolatedVelocityField() VTK_OVERRIDE;
+  ~vtkCellLocatorInterpolatedVelocityField() override;
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -136,7 +136,7 @@ protected:
    * (of type vtkImageData or vtkRectilinearGrid only) by invoking FindCell()
    * to locate the next cell if the given point is outside the current cell.
    */
-  int FunctionValues( vtkDataSet * ds, double * x, double * f ) VTK_OVERRIDE
+  int FunctionValues( vtkDataSet * ds, double * x, double * f ) override
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:
@@ -145,8 +145,8 @@ private:
   vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType * CellLocators;
 
   vtkCellLocatorInterpolatedVelocityField
-    ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+    ( const vtkCellLocatorInterpolatedVelocityField & ) = delete;
+  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) = delete;
 };
 
 #endif

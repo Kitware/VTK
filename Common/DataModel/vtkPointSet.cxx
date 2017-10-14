@@ -33,8 +33,8 @@ vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
 vtkPointSet::vtkPointSet ()
 {
-  this->Points = NULL;
-  this->Locator = NULL;
+  this->Points = nullptr;
+  this->Locator = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ vtkPointSet::~vtkPointSet ()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -71,7 +71,7 @@ void vtkPointSet::Cleanup()
   if ( this->Points )
   {
     this->Points->UnRegister(this);
-    this->Points = NULL;
+    this->Points = nullptr;
   }
 }
 
@@ -203,7 +203,7 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3], vtkCell *cell,
     if (neighbors->GetNumberOfIds() < 1) break;
     // Set the next cell as the current one and iterate.
     cellId = neighbors->GetId(0);
-    cell = NULL;
+    cell = nullptr;
   }
 
   // Could not find a cell.
@@ -221,7 +221,7 @@ static vtkIdType FindCellWalk(vtkPointSet *self, double x[3],
   for (vtkIdType i = 0; i < cellIds->GetNumberOfIds(); i++)
   {
     vtkIdType cellId = cellIds->GetId(i);
-    vtkIdType foundCell = FindCellWalk(self, x, NULL, gencell, cellId,
+    vtkIdType foundCell = FindCellWalk(self, x, nullptr, gencell, cellId,
                                        tol2, subId, pcoords, weights,
                                        visitedCells, ptIds, neighbors);
     if (foundCell >= 0) return foundCell;
@@ -338,7 +338,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
                                 double *weights)
 {
   return
-    this->FindCell( x, cell, NULL, cellId, tol2, subId, pcoords, weights );
+    this->FindCell( x, cell, nullptr, cellId, tol2, subId, pcoords, weights );
 }
 
 #undef VTK_MAX_WALK
@@ -377,7 +377,7 @@ void vtkPointSet::ShallowCopy(vtkDataObject *dataObject)
 {
   vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
 
-  if ( pointSet != NULL )
+  if ( pointSet != nullptr )
   {
     this->SetPoints(pointSet->GetPoints());
   }
@@ -391,7 +391,7 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
 {
   vtkPointSet *pointSet = vtkPointSet::SafeDownCast(dataObject);
 
-  if ( pointSet != NULL )
+  if ( pointSet != nullptr )
   {
     vtkPoints* newPoints;
     vtkPoints* pointsToCopy = pointSet->GetPoints();
@@ -416,7 +416,7 @@ void vtkPointSet::DeepCopy(vtkDataObject *dataObject)
 //----------------------------------------------------------------------------
 vtkPointSet* vtkPointSet::GetData(vtkInformation* info)
 {
-  return info? vtkPointSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkPointSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

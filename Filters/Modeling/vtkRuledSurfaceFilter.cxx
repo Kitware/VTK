@@ -60,11 +60,11 @@ int vtkRuledSurfaceFilter::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkPoints *inPts, *newPts = NULL;
+  vtkPoints *inPts, *newPts = nullptr;
   vtkIdType i, numPts, numLines;
   vtkCellArray *inLines, *newPolys, *newStrips;
-  vtkIdType *pts = 0;
-  vtkIdType *pts2 = 0;
+  vtkIdType *pts = nullptr;
+  vtkIdType *pts2 = nullptr;
   vtkIdType npts = 0;
   vtkIdType npts2 = 0;
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();

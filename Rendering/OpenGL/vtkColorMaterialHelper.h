@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkColorMaterialHelper : public vtkObject
 public:
   static vtkColorMaterialHelper* New();
   vtkTypeMacro(vtkColorMaterialHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Initialize(vtkShaderProgram2*);
   vtkGetObjectMacro(Shader, vtkShaderProgram2);
@@ -66,7 +66,7 @@ public:
 
 protected:
   vtkColorMaterialHelper();
-  ~vtkColorMaterialHelper() VTK_OVERRIDE;
+  ~vtkColorMaterialHelper() override;
 
   void SetShader(vtkShaderProgram2*);
   vtkShaderProgram2 * Shader;
@@ -83,8 +83,8 @@ protected:
   eMaterialParamater Mode;
 
 private:
-  vtkColorMaterialHelper(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
+  vtkColorMaterialHelper(const vtkColorMaterialHelper&) = delete;
+  void operator=(const vtkColorMaterialHelper&) = delete;
 
 };
 

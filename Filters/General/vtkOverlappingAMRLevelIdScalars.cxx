@@ -40,8 +40,8 @@ vtkOverlappingAMRLevelIdScalars::~vtkOverlappingAMRLevelIdScalars()
 void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
     vtkUniformGridAMR *input, vtkUniformGridAMR *output)
 {
-  assert( "pre: input should not be NULL" && (input != NULL) );
-  assert( "pre: output should not be NULL" && (output != NULL)  );
+  assert( "pre: input should not be nullptr" && (input != nullptr) );
+  assert( "pre: output should not be nullptr" && (output != nullptr)  );
 
   unsigned int numLevels = input->GetNumberOfLevels();
   output->CopyStructure(input);
@@ -51,7 +51,7 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
     for (unsigned int cc=0; cc < numDS; cc++)
     {
       vtkUniformGrid* ds = input->GetDataSet(levelIdx,cc);
-      if(ds != NULL)
+      if(ds != nullptr)
       {
         vtkUniformGrid* copy = this->ColorLevel(ds, levelIdx);
         output->SetDataSet(levelIdx,cc,copy);
@@ -93,8 +93,7 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(
 vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(
   vtkUniformGrid* input, int group)
 {
-  vtkUniformGrid* output = 0;
-  output = input->NewInstance();
+  vtkUniformGrid* output = input->NewInstance();
   output->ShallowCopy(input);
   vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
   vtkIdType numCells = dsOutput->GetNumberOfCells();

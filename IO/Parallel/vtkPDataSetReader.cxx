@@ -39,13 +39,13 @@ vtkStandardNewMacro(vtkPDataSetReader);
 //----------------------------------------------------------------------------
 vtkPDataSetReader::vtkPDataSetReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->VTKFileFlag = 0;
   this->StructuredFlag = 0;
   this->NumberOfPieces = 0;
   this->DataType = -1;
-  this->PieceFileNames = NULL;
-  this->PieceExtents = NULL;
+  this->PieceFileNames = nullptr;
+  this->PieceExtents = nullptr;
   this->SetNumberOfOutputPorts(1);
   this->SetNumberOfInputPorts(0);
 }
@@ -72,17 +72,17 @@ void vtkPDataSetReader::SetNumberOfPieces(int num)
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
     delete [] this->PieceFileNames[i];
-    this->PieceFileNames[i] = NULL;
+    this->PieceFileNames[i] = nullptr;
     if (this->PieceExtents && this->PieceExtents[i])
     {
       delete [] this->PieceExtents[i];
-      this->PieceExtents[i] = NULL;
+      this->PieceExtents[i] = nullptr;
     }
   }
   delete [] this->PieceFileNames;
-  this->PieceFileNames = NULL;
+  this->PieceFileNames = nullptr;
   delete [] this->PieceExtents;
-  this->PieceExtents = NULL;
+  this->PieceExtents = nullptr;
   this->NumberOfPieces = 0;
 
 
@@ -124,7 +124,7 @@ int vtkPDataSetReader::RequestDataObject(
 
   // Start reading the meta-data pvtk file.
   file = this->OpenFile(this->FileName);
-  if (file == NULL)
+  if (file == nullptr)
   {
     return 0;
   }
@@ -157,7 +157,7 @@ int vtkPDataSetReader::RequestDataObject(
     return 1;
   }
 
-  vtkDataSet* newOutput=0;
+  vtkDataSet* newOutput=nullptr;
   switch (this->DataType)
   {
     case VTK_POLY_DATA:
@@ -200,7 +200,7 @@ int vtkPDataSetReader::RequestDataObject(
 // Returns 1 for start block,
 // Returns 2 for parameter-value pair (occurs after 1 but before 3).
 // Returns 3 for termination of start block.
-// Returns 4 for string inside block.  Puts string in retVal. (param = NULL)
+// Returns 4 for string inside block.  Puts string in retVal. (param = nullptr)
 // Returns 5 for end block.
 // =======
 // The statics should be instance variables ...
@@ -208,7 +208,7 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
                                char **retBlock, char **retParam, char **retVal)
 {
   static char str[1024];
-  static char* ptr = NULL;
+  static char* ptr = nullptr;
   static char block[256];
   static char param[256];
   static char value[512];
@@ -217,23 +217,23 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
   char *tmp;
 
   // Initialize the strings.
-  if (ptr == NULL)
+  if (ptr == nullptr)
   {
     block[0] = param[0] = value[0] = '\0';
   }
 
   // Skip white space
   // We could do this with a get char ...
-  while (ptr == NULL || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\0')
+  while (ptr == nullptr || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\0')
   {
-    if (ptr == NULL || *ptr == '\0')
+    if (ptr == nullptr || *ptr == '\0')
     { // At the end of a line.  Read another.
       file->getline(str, 1024);
       if (file->fail())
       {
-        *retBlock = NULL;
-        *retParam = NULL;
-        *retVal = NULL;
+        *retBlock = nullptr;
+        *retParam = nullptr;
+        *retVal = nullptr;
         return 0;
       }
       str[1023] = '\0';
@@ -263,8 +263,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
       *tmp++ = *ptr++;
     }
     *retBlock = block;
-    *retParam = NULL;
-    *retVal = NULL;
+    *retParam = nullptr;
+    *retVal = nullptr;
     if (*ptr == '\0')
     {
       vtkErrorMacro("Newline in end block.");
@@ -286,8 +286,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     *tmp = '\0';
     inStartBlock = 1;
     *retBlock = block;
-    *retParam = NULL;
-    *retVal = NULL;
+    *retParam = nullptr;
+    *retVal = nullptr;
     return 1;
   }
 
@@ -297,8 +297,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     ++ptr;
     inStartBlock = 0;
     *retBlock = block;
-    *retParam = NULL;
-    *retVal = NULL;
+    *retParam = nullptr;
+    *retVal = nullptr;
     return 3;
   }
 
@@ -314,8 +314,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
       ptr += 2;
       inStartBlock = 0;
       *retBlock = block;
-      *retParam = NULL;
-      *retVal = NULL;
+      *retParam = nullptr;
+      *retVal = nullptr;
       return 5;
     }
     // First pass: inStartBlock == 1.  Return Terminate start block.
@@ -323,8 +323,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     // Do not skip over the '/>' characters.
     inStartBlock = 2;
     *retBlock = block;
-    *retParam = NULL;
-    *retVal = NULL;
+    *retParam = nullptr;
+    *retVal = nullptr;
     return 3;
   }
 
@@ -340,8 +340,8 @@ int vtkPDataSetReader::ReadXML(ifstream *file,
     *tmp = '\0';
     // We do not return the block because we do not have a block stack,
     // so cannot be sure what the block is.
-    *retBlock = NULL;
-    *retParam = NULL;
+    *retBlock = nullptr;
+    *retParam = nullptr;
     *retVal = value;
     return 4;
   }
@@ -403,7 +403,7 @@ int vtkPDataSetReader::CanReadFile(const char* filename)
 
   // Start reading the meta-data pvtk file.
   file = this->OpenFile(filename);
-  if (file == NULL)
+  if (file == nullptr)
   {
     return 0;
   }
@@ -500,7 +500,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
       return;
     }
     if (type != 2)
-    { // There should be no other possibility. Param will not be NULL.
+    { // There should be no other possibility. Param will not be nullptr.
       vtkErrorMacro("Expecting a parameter.");
       return;
     }
@@ -596,7 +596,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
     while ( (type = this->ReadXML(file, &block, &param, &val)) != 3)
     {
       if (type != 2)
-      { // There should be no other possibility. Param will not be NULL.
+      { // There should be no other possibility. Param will not be nullptr.
         vtkErrorMacro("Expecting a parameter.");
         return;
       }
@@ -607,7 +607,7 @@ void vtkPDataSetReader::ReadPVTKFileInformation(
         // Copy filename (relative path?)
         if (val[0] != '/' && val[1] != ':' && dirLength > 0)
         { // Must be a relative path.
-          sprintf(this->PieceFileNames[i], "%s%s", dir, val);
+          snprintf(this->PieceFileNames[i], 512, "%s%s", dir, val);
         }
         else
         {
@@ -846,7 +846,7 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
   if (!filename || filename[0] == '\0')
   {
     vtkDebugMacro(<<"A FileName must be specified.");
-    return NULL;
+    return nullptr;
   }
 
   // Open the new file
@@ -856,7 +856,7 @@ ifstream *vtkPDataSetReader::OpenFile(const char* filename)
   {
     delete file;
     vtkErrorMacro(<< "Initialize: Could not open file " << filename);
-    return NULL;
+    return nullptr;
   }
 
   return file;
@@ -900,7 +900,7 @@ int vtkPDataSetReader::RequestData(vtkInformation* request,
       reader->Update();
       vtkDataSet *data = reader->GetOutput();
 
-      if (data == NULL)
+      if (data == nullptr)
       {
         vtkErrorMacro("Could not read file: " << this->FileName);
         return 0;
@@ -1252,7 +1252,7 @@ int vtkPDataSetReader::StructuredGridExecute(
   {
     if (pieceMask[i])
     {
-      reader->SetOutput(0);
+      reader->SetOutput(nullptr);
       reader->SetFileName(this->PieceFileNames[i]);
       reader->Update();
       tmp = reader->GetOutput();
@@ -1365,7 +1365,7 @@ int vtkPDataSetReader::StructuredGridExecute(
   for (i = 0; i < count; ++i)
   {
     pieces[i]->Delete();
-    pieces[i] = NULL;
+    pieces[i] = nullptr;
   }
   delete [] pieces;
   delete [] pieceMask;
@@ -1499,7 +1499,7 @@ void vtkPDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "FileName: NULL\n";
+    os << indent << "FileName: nullptr\n";
   }
   os << indent << "DataType: " << this->DataType << endl;
 }

@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdTreePointLocator : public vtkAbstractPointL
 public:
   vtkTypeMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
   static vtkKdTreePointLocator* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Given a position x, return the id of the point closest to it. Alternative
@@ -45,7 +45,7 @@ public:
    * These methods are thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */
-  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
+  vtkIdType FindClosestPoint(const double x[3]) override;
 
   /**
    * Given a position x and a radius r, return the id of the point
@@ -53,7 +53,7 @@ public:
    * dist2 returns the squared distance to the point.
    */
   vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
+    double radius, const double x[3], double& dist2) override;
 
   /**
    * Find the closest N points to a position. This returns the closest
@@ -64,7 +64,7 @@ public:
    * indirectly called from a single thread first.
    */
   void FindClosestNPoints(
-    int N, const double x[3], vtkIdList *result) VTK_OVERRIDE;
+    int N, const double x[3], vtkIdList *result) override;
 
   /**
    * Find all points within a specified radius R of position x.
@@ -73,27 +73,27 @@ public:
    * indirectly called from a single thread first.
    */
   void FindPointsWithinRadius(double R, const double x[3],
-                              vtkIdList *result) VTK_OVERRIDE;
+                              vtkIdList *result) override;
 
   //@{
   /**
    * See vtkLocator interface documentation.
    * These methods are not thread safe.
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
-  void BuildLocator() VTK_OVERRIDE;
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void FreeSearchStructure() override;
+  void BuildLocator() override;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
   //@}
 
 protected:
   vtkKdTreePointLocator();
-  ~vtkKdTreePointLocator() VTK_OVERRIDE;
+  ~vtkKdTreePointLocator() override;
 
   vtkKdTree* KdTree;
 
 private:
-  vtkKdTreePointLocator(const vtkKdTreePointLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKdTreePointLocator&) VTK_DELETE_FUNCTION;
+  vtkKdTreePointLocator(const vtkKdTreePointLocator&) = delete;
+  void operator=(const vtkKdTreePointLocator&) = delete;
 };
 
 #endif

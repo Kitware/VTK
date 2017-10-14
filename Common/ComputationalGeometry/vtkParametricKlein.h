@@ -48,7 +48,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public
 {
   public:
     vtkTypeMacro(vtkParametricKlein, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct a Klein Bottle with the following parameters:
@@ -65,7 +65,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     /**
      * A Klein bottle.
@@ -75,7 +75,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -91,15 +91,15 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricKlein();
-    ~vtkParametricKlein() VTK_OVERRIDE;
+    ~vtkParametricKlein() override;
 
   private:
-    vtkParametricKlein(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
+    vtkParametricKlein(const vtkParametricKlein&) = delete;
+    void operator=(const vtkParametricKlein&) = delete;
 };
 
 #endif

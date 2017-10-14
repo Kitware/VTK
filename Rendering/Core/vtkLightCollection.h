@@ -37,7 +37,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
  public:
   static vtkLightCollection *New();
   vtkTypeMacro(vtkLightCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a light to the bottom of the list.
@@ -58,7 +58,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
 
 protected:
   vtkLightCollection() {}
-  ~vtkLightCollection() VTK_OVERRIDE {}
+  ~vtkLightCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -66,8 +66,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkLightCollection(const vtkLightCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightCollection&) VTK_DELETE_FUNCTION;
+  vtkLightCollection(const vtkLightCollection&) = delete;
+  void operator=(const vtkLightCollection&) = delete;
 };
 
 #endif

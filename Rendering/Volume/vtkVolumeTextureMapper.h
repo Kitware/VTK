@@ -40,7 +40,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper : public vtkVolumeMapper
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,18 +83,18 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE =0;
+  void Render(vtkRenderer *ren, vtkVolume *vol) override =0;
 
   //@{
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Values needed by the volume
    */
-  float GetGradientMagnitudeScale() VTK_OVERRIDE;
-  float GetGradientMagnitudeBias() VTK_OVERRIDE;
-  float GetGradientMagnitudeScale(int) VTK_OVERRIDE
+  float GetGradientMagnitudeScale() override;
+  float GetGradientMagnitudeBias() override;
+  float GetGradientMagnitudeScale(int) override
     { return this->GetGradientMagnitudeScale(); };
-  float GetGradientMagnitudeBias(int) VTK_OVERRIDE
+  float GetGradientMagnitudeBias(int) override
     { return this->GetGradientMagnitudeBias(); };
   //@}
 
@@ -103,15 +103,15 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkVolumeTextureMapper();
-  ~vtkVolumeTextureMapper() VTK_OVERRIDE;
+  ~vtkVolumeTextureMapper() override;
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // Objects / variables  needed for shading / gradient magnitude opacity
   vtkEncodedGradientEstimator  *GradientEstimator;
@@ -140,8 +140,8 @@ protected:
 
   vtkRenderWindow *RenderWindow;
 private:
-  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) = delete;
+  void operator=(const vtkVolumeTextureMapper&) = delete;
 };
 
 

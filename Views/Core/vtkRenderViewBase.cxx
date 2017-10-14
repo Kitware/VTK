@@ -57,7 +57,7 @@ void vtkRenderViewBase::SetRenderer(vtkRenderer* newren)
   {
     if (ren->GetLayer()<2)
     {
-      ren->SetRenderWindow(NULL);
+      ren->SetRenderWindow(nullptr);
       this->RenderWindow->RemoveRenderer(ren);
     }
   }
@@ -85,13 +85,13 @@ void vtkRenderViewBase::SetRenderWindow(vtkRenderWindow* win)
   while(rens->GetNumberOfItems())
   {
     vtkRenderer* ren = rens->GetFirstRenderer();
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
     win->AddRenderer(ren);
     this->RenderWindow->RemoveRenderer(ren);
   }
 
   vtkSmartPointer<vtkInteractorObserver> style = this->GetInteractor()?
-        this->GetInteractor()->GetInteractorStyle() : NULL;
+        this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow = win;
   if (this->GetInteractor())
   {
@@ -120,7 +120,7 @@ void vtkRenderViewBase::SetInteractor(vtkRenderWindowInteractor* interactor)
   }
 
   vtkSmartPointer<vtkInteractorObserver> style = this->GetInteractor() ?
-        this->GetInteractor()->GetInteractorStyle() : NULL;
+        this->GetInteractor()->GetInteractorStyle() : nullptr;
   this->RenderWindow->SetInteractor(interactor);
 
   if (this->GetInteractor())

@@ -23,7 +23,7 @@ vtkRungeKutta4::vtkRungeKutta4()
 {
   for(int i=0; i<3; i++)
   {
-    this->NextDerivs[i] = 0;
+    this->NextDerivs[i] = nullptr;
   }
 }
 
@@ -32,7 +32,7 @@ vtkRungeKutta4::~vtkRungeKutta4()
   for(int i=0; i<3; i++)
   {
     delete[] this->NextDerivs[i];
-    this->NextDerivs[i] = 0;
+    this->NextDerivs[i] = nullptr;
   }
 }
 

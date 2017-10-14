@@ -53,8 +53,8 @@ public:
     {
       Vertices[idx].index = idx;
       Vertices[idx].id = vertexOrdering[idx];
-      Vertices[idx].prev = (idx > 0 ? &Vertices[idx-1] : NULL);
-      Vertices[idx].next = (idx < size-1 ? &Vertices[idx+1] : NULL);
+      Vertices[idx].prev = (idx > 0 ? &Vertices[idx-1] : nullptr);
+      Vertices[idx].next = (idx < size-1 ? &Vertices[idx+1] : nullptr);
       Vertices[idx].removable = true;
     }
     Vertices[0].removable = Vertices[size-1].removable = false;
@@ -65,7 +65,7 @@ public:
     if (Vertices)
     {
       delete [] Vertices;
-      Vertices = NULL;
+      Vertices = nullptr;
     }
   }
 
@@ -241,7 +241,7 @@ int vtkDecimatePolylineFilter::RequestData(
     std::map<vtkIdType,vtkIdType>::iterator it;
 
     Polyline::Vertex* vertex = &(polyline->Vertices[0]);
-    while (vertex != NULL)
+    while (vertex != nullptr)
     {
       // points that are repeated within a single polyline are represented by
       // only one point instance

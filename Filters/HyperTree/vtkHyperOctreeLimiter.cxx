@@ -90,7 +90,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   {
     vtkDataArray *ida = ipd->GetArray(a);
     vtkDataArray *oda = opd->GetArray(ida->GetName());
-    if (oda == NULL)
+    if (oda == nullptr)
     {
       oda = ida->NewInstance();
       oda->SetName(ida->GetName());
@@ -119,7 +119,7 @@ int vtkHyperOctreeLimiter::RequestData(vtkInformation *vtkNotUsed(request),
   {
     vtkDataArray *ida = icd->GetArray(a);
     vtkDataArray *oda = ocd->GetArray(ida->GetName());
-    if (oda == NULL)
+    if (oda == nullptr)
     {
       oda = ida->NewInstance();
       oda->SetName(ida->GetName());

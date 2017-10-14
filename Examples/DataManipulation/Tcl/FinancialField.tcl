@@ -127,7 +127,7 @@ set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 vtkArrayCalculator calc
 calc SetInputConnection [rf GetOutputPort]
 # Working on point data
-calc SetAttributeModeToUsePointData
+calc SetAttributeTypeToPointData
 # Map $scalar to s. When setting function, we can use s to
 # represent the array $scalar (TIME_LATE)
 calc AddScalarVariable s $scalar 0

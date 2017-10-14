@@ -38,10 +38,6 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "# StreamVersion 1\n"
 "EnterEvent 396 237 0 0 0 0 0\n"
 "MouseMoveEvent 396 237 0 0 0 0 0\n"
-"MouseMoveEvent 342 244 0 0 0 0 0\n"
-"MouseMoveEvent 301 244 0 0 0 0 0\n"
-"MouseMoveEvent 246 247 0 0 0 0 0\n"
-"MouseMoveEvent 232 251 0 0 0 0 0\n"
 "MouseMoveEvent 223 255 0 0 0 0 0\n"
 "LeftButtonPressEvent 223 255 0 0 0 0 0\n"
 "StartInteractionEvent 223 255 0 0 0 0 0\n"
@@ -67,58 +63,48 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "RenderEvent 249 142 0 0 0 0 0\n"
 "LeftButtonReleaseEvent 249 142 0 0 0 0 0\n"
 "EndInteractionEvent 249 142 0 0 0 0 0\n"
-"RenderEvent 249 142 0 0 0 0 0\n"
+
 "MouseMoveEvent 248 141 0 0 0 0 0\n"
-"MouseMoveEvent 246 139 0 0 0 0 0\n"
 "MouseMoveEvent 245 138 0 0 0 0 0\n"
 "LeftButtonPressEvent 245 138 0 0 0 0 0\n"
 "StartInteractionEvent 245 138 0 0 0 0 0\n"
 "TimerEvent 245 138 0 0 0 0 0\n"
-"RenderEvent 245 138 0 0 0 0 0\n"
+
 "MouseMoveEvent 244 138 0 0 0 0 0\n"
 "MouseMoveEvent 243 138 0 0 0 0 0\n"
 "TimerEvent 211 125 0 0 0 0 0\n"
 "RenderEvent 211 125 0 0 0 0 0\n"
 "MouseMoveEvent 210 124 0 0 0 0 0\n"
 "TimerEvent 198 115 0 0 0 0 0\n"
-"RenderEvent 198 115 0 0 0 0 0\n"
+
 "MouseMoveEvent 198 113 0 0 0 0 0\n"
 "MouseMoveEvent 198 112 0 0 0 0 0\n"
 "TimerEvent 197 101 0 0 0 0 0\n"
-"RenderEvent 197 101 0 0 0 0 0\n"
+
 "MouseMoveEvent 197 99 0 0 0 0 0\n"
 "LeftButtonReleaseEvent 197 100 0 0 0 0 0\n"
 "EndInteractionEvent 197 100 0 0 0 0 0\n"
 "RenderEvent 197 100 0 0 0 0 0\n"
 "MouseMoveEvent 197 96 0 0 0 0 0\n"
-"MouseMoveEvent 197 92 0 0 0 0 0\n"
-"MouseMoveEvent 197 91 0 0 0 0 0\n"
-"MouseMoveEvent 197 90 0 0 0 0 0\n"
-"MouseMoveEvent 198 89 0 0 0 0 0\n"
 "MouseMoveEvent 198 88 0 0 0 0 0\n"
 "LeftButtonPressEvent 198 88 0 0 0 0 0\n"
 "StartInteractionEvent 198 88 0 0 0 0 0\n"
 "MouseMoveEvent 199 87 0 0 0 0 0\n"
 "TimerEvent 199 87 0 0 0 0 0\n"
-"RenderEvent 199 87 0 0 0 0 0\n"
+
 "MouseMoveEvent 199 86 0 0 0 0 0\n"
 "TimerEvent 200 77 0 0 0 0 0\n"
-"RenderEvent 200 77 0 0 0 0 0\n"
+
 "MouseMoveEvent 200 76 0 0 0 0 0\n"
-"MouseMoveEvent 200 75 0 0 0 0 0\n"
 "MouseMoveEvent 200 74 0 0 0 0 0\n"
 "TimerEvent 200 67 0 0 0 0 0\n"
 "RenderEvent 200 67 0 0 0 0 0\n"
 "TimerEvent 200 67 0 0 0 0 0\n"
-"RenderEvent 200 67 0 0 0 0 0\n"
+
 "LeftButtonReleaseEvent 200 67 0 0 0 0 0\n"
 "EndInteractionEvent 200 67 0 0 0 0 0\n"
-"RenderEvent 200 67 0 0 0 0 0\n"
+
 "MouseMoveEvent 201 66 0 0 0 0 0\n"
-"MouseMoveEvent 206 71 0 0 0 0 0\n"
-"MouseMoveEvent 213 92 0 0 0 0 0\n"
-"MouseMoveEvent 216 112 0 0 0 0 0\n"
-"MouseMoveEvent 218 122 0 0 0 0 0\n"
 "MouseMoveEvent 222 131 0 0 0 0 0\n"
 "LeftButtonPressEvent 222 131 0 0 0 0 0\n"
 "StartInteractionEvent 222 131 0 0 0 0 0\n"
@@ -126,101 +112,92 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "RenderEvent 222 131 0 0 0 0 0\n"
 "MouseMoveEvent 224 132 0 0 0 0 0\n"
 "TimerEvent 230 145 0 0 0 0 0\n"
-"RenderEvent 230 145 0 0 0 0 0\n"
+
 "MouseMoveEvent 233 151 0 0 0 0 0\n"
 "MouseMoveEvent 233 152 0 0 0 0 0\n"
 "TimerEvent 245 177 0 0 0 0 0\n"
-"RenderEvent 245 177 0 0 0 0 0\n"
+
 "MouseMoveEvent 247 183 0 0 0 0 0\n"
 "MouseMoveEvent 247 185 0 0 0 0 0\n"
 "TimerEvent 216 247 0 0 0 0 0\n"
-"RenderEvent 216 247 0 0 0 0 0\n"
+
 "MouseMoveEvent 212 251 0 0 0 0 0\n"
 "TimerEvent 208 234 0 0 0 0 0\n"
 "RenderEvent 208 234 0 0 0 0 0\n"
 "MouseMoveEvent 210 229 0 0 0 0 0\n"
 "MouseMoveEvent 210 227 0 0 0 0 0\n"
 "TimerEvent 218 202 0 0 0 0 0\n"
-"RenderEvent 218 202 0 0 0 0 0\n"
+
 "MouseMoveEvent 220 198 0 0 0 0 0\n"
 "MouseMoveEvent 221 196 0 0 0 0 0\n"
 "TimerEvent 226 183 0 0 0 0 0\n"
-"RenderEvent 226 183 0 0 0 0 0\n"
+
 "MouseMoveEvent 228 179 0 0 0 0 0\n"
 "MouseMoveEvent 229 178 0 0 0 0 0\n"
 "MouseMoveEvent 229 177 0 0 0 0 0\n"
 "TimerEvent 229 177 0 0 0 0 0\n"
-"RenderEvent 229 177 0 0 0 0 0\n"
+
 "MouseMoveEvent 230 175 0 0 0 0 0\n"
 "MouseMoveEvent 230 174 0 0 0 0 0\n"
 "TimerEvent 226 152 0 0 0 0 0\n"
 "RenderEvent 226 152 0 0 0 0 0\n"
 "MouseMoveEvent 225 151 0 0 0 0 0\n"
 "TimerEvent 225 151 0 0 0 0 0\n"
-"RenderEvent 225 151 0 0 0 0 0\n"
+
 "LeftButtonReleaseEvent 225 151 0 0 0 0 0\n"
 "EndInteractionEvent 225 151 0 0 0 0 0\n"
-"RenderEvent 225 151 0 0 0 0 0\n"
+
 "MouseMoveEvent 224 151 0 0 0 0 0\n"
-"MouseMoveEvent 217 151 0 0 0 0 0\n"
-"MouseMoveEvent 215 151 0 0 0 0 0\n"
 "MouseMoveEvent 214 151 0 0 0 0 0\n"
 "LeftButtonPressEvent 214 151 0 0 0 0 0\n"
 "StartInteractionEvent 214 151 0 0 0 0 0\n"
 "TimerEvent 214 151 0 0 0 0 0\n"
-"RenderEvent 214 151 0 0 0 0 0\n"
+
 "MouseMoveEvent 206 146 0 0 0 0 0\n"
 "TimerEvent 206 146 0 0 0 0 0\n"
-"RenderEvent 206 146 0 0 0 0 0\n"
+
 "MouseMoveEvent 199 143 0 0 0 0 0\n"
 "MouseMoveEvent 198 143 0 0 0 0 0\n"
 "TimerEvent 185 135 0 0 0 0 0\n"
 "RenderEvent 185 135 0 0 0 0 0\n"
 "MouseMoveEvent 184 135 0 0 0 0 0\n"
 "TimerEvent 180 136 0 0 0 0 0\n"
-"RenderEvent 180 136 0 0 0 0 0\n"
+
 "LeftButtonReleaseEvent 180 136 0 0 0 0 0\n"
 "EndInteractionEvent 180 136 0 0 0 0 0\n"
-"RenderEvent 180 136 0 0 0 0 0\n"
+
 "MouseMoveEvent 179 138 0 0 0 0 0\n"
-"MouseMoveEvent 174 152 0 0 0 0 0\n"
-"MouseMoveEvent 171 162 0 0 0 0 0\n"
-"MouseMoveEvent 164 178 0 0 0 0 0\n"
-"MouseMoveEvent 161 182 0 0 0 0 0\n"
-"MouseMoveEvent 160 183 0 0 0 0 0\n"
 "MouseMoveEvent 159 184 0 0 0 0 0\n"
 "LeftButtonPressEvent 159 184 0 0 0 0 0\n"
 "StartInteractionEvent 159 184 0 0 0 0 0\n"
 "MouseMoveEvent 158 185 0 0 0 0 0\n"
 "TimerEvent 158 185 0 0 0 0 0\n"
-"RenderEvent 158 185 0 0 0 0 0\n"
+
 "MouseMoveEvent 150 192 0 0 0 0 0\n"
-"MouseMoveEvent 149 193 0 0 0 0 0\n"
 "MouseMoveEvent 147 195 0 0 0 0 0\n"
 "TimerEvent 132 213 0 0 0 0 0\n"
-"RenderEvent 132 213 0 0 0 0 0\n"
+
 "MouseMoveEvent 131 215 0 0 0 0 0\n"
 "TimerEvent 130 220 0 0 0 0 0\n"
 "RenderEvent 130 220 0 0 0 0 0\n"
 "MouseMoveEvent 130 221 0 0 0 0 0\n"
 "MouseMoveEvent 130 222 0 0 0 0 0\n"
 "TimerEvent 131 225 0 0 0 0 0\n"
-"RenderEvent 131 225 0 0 0 0 0\n"
+
 "MouseMoveEvent 132 226 0 0 0 0 0\n"
 "TimerEvent 144 233 0 0 0 0 0\n"
-"RenderEvent 144 233 0 0 0 0 0\n"
+
 "MouseMoveEvent 148 235 0 0 0 0 0\n"
 "TimerEvent 176 253 0 0 0 0 0\n"
-"RenderEvent 176 253 0 0 0 0 0\n"
+
 "MouseMoveEvent 176 257 0 0 0 0 0\n"
 "MouseMoveEvent 176 258 0 0 0 0 0\n"
 "TimerEvent 173 272 0 0 0 0 0\n"
-"RenderEvent 173 272 0 0 0 0 0\n"
+
 "MouseMoveEvent 173 275 0 0 0 0 0\n"
-"MouseMoveEvent 173 276 0 0 0 0 0\n"
 "MouseMoveEvent 173 277 0 0 0 0 0\n"
 "TimerEvent 174 294 0 0 0 0 0\n"
-"RenderEvent 174 294 0 0 0 0 0\n"
+
 "MouseMoveEvent 174 299 0 0 0 0 0\n"
 "MouseMoveEvent 174 300 0 0 0 0 0\n"
 "TimerEvent 156 323 0 0 0 0 0\n"
@@ -228,22 +205,19 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "MouseMoveEvent 150 323 0 0 0 0 0\n"
 "MouseMoveEvent 148 323 0 0 0 0 0\n"
 "TimerEvent 127 327 0 0 0 0 0\n"
-"RenderEvent 127 327 0 0 0 0 0\n"
+
 "MouseMoveEvent 126 329 0 0 0 0 0\n"
 "TimerEvent 126 330 0 0 0 0 0\n"
-"RenderEvent 126 330 0 0 0 0 0\n"
+
 "LeftButtonReleaseEvent 126 330 0 0 0 0 0\n"
 "EndInteractionEvent 126 330 0 0 0 0 0\n"
-"RenderEvent 126 330 0 0 0 0 0\n"
+
 "MouseMoveEvent 128 328 0 0 0 0 0\n"
-"MouseMoveEvent 163 266 0 0 0 0 0\n"
-"MouseMoveEvent 172 244 0 0 0 0 0\n"
-"MouseMoveEvent 172 243 0 0 0 0 0\n"
 "MouseMoveEvent 173 242 0 0 0 0 0\n"
 "LeftButtonPressEvent 173 242 0 0 0 0 0\n"
 "StartInteractionEvent 173 242 0 0 0 0 0\n"
 "TimerEvent 173 242 0 0 0 0 0\n"
-"RenderEvent 173 242 0 0 0 0 0\n"
+
 "MouseMoveEvent 174 242 0 0 0 0 0\n"
 "MouseMoveEvent 175 242 0 0 0 0 0\n"
 "TimerEvent 182 263 0 0 0 0 0\n"
@@ -251,94 +225,75 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "MouseMoveEvent 182 269 0 0 0 0 0\n"
 "MouseMoveEvent 182 270 0 0 0 0 0\n"
 "TimerEvent 182 270 0 0 0 0 0\n"
-"RenderEvent 182 270 0 0 0 0 0\n"
+
 "MouseMoveEvent 182 274 0 0 0 0 0\n"
 "TimerEvent 187 281 0 0 0 0 0\n"
-"RenderEvent 187 281 0 0 0 0 0\n"
+
 "MouseMoveEvent 192 284 0 0 0 0 0\n"
-"MouseMoveEvent 193 285 0 0 0 0 0\n"
 "MouseMoveEvent 195 286 0 0 0 0 0\n"
 "TimerEvent 201 288 0 0 0 0 0\n"
-"RenderEvent 201 288 0 0 0 0 0\n"
+
 "MouseMoveEvent 207 288 0 0 0 0 0\n"
 "MouseMoveEvent 208 288 0 0 0 0 0\n"
 "TimerEvent 226 288 0 0 0 0 0\n"
-"RenderEvent 226 288 0 0 0 0 0\n"
+
 "MouseMoveEvent 228 288 0 0 0 0 0\n"
 "LeftButtonReleaseEvent 228 288 0 0 0 0 0\n"
 "EndInteractionEvent 228 288 0 0 0 0 0\n"
 "RenderEvent 228 288 0 0 0 0 0\n"
 "MouseMoveEvent 230 288 0 0 0 0 0\n"
-"MouseMoveEvent 229 287 0 0 0 0 0\n"
-"MouseMoveEvent 224 279 0 0 0 0 0\n"
-"MouseMoveEvent 221 278 0 0 0 0 0\n"
-"MouseMoveEvent 220 278 0 0 0 0 0\n"
 "MouseMoveEvent 219 278 0 0 0 0 0\n"
 "LeftButtonPressEvent 219 278 0 0 0 0 0\n"
 "StartInteractionEvent 219 278 0 0 0 0 0\n"
 "MouseMoveEvent 218 278 0 0 0 0 0\n"
 "TimerEvent 218 278 0 0 0 0 0\n"
-"RenderEvent 218 278 0 0 0 0 0\n"
+
 "MouseMoveEvent 213 278 0 0 0 0 0\n"
 "MouseMoveEvent 212 278 0 0 0 0 0\n"
 "TimerEvent 206 279 0 0 0 0 0\n"
-"RenderEvent 206 279 0 0 0 0 0\n"
+
 "MouseMoveEvent 196 281 0 0 0 0 0\n"
 "MouseMoveEvent 193 281 0 0 0 0 0\n"
 "TimerEvent 169 289 0 0 0 0 0\n"
-"RenderEvent 169 289 0 0 0 0 0\n"
+
 "MouseMoveEvent 159 294 0 0 0 0 0\n"
 "TimerEvent 151 297 0 0 0 0 0\n"
-"RenderEvent 151 297 0 0 0 0 0\n"
+
 "MouseMoveEvent 147 298 0 0 0 0 0\n"
 "TimerEvent 142 298 0 0 0 0 0\n"
 "RenderEvent 142 298 0 0 0 0 0\n"
 "MouseMoveEvent 141 299 0 0 0 0 0\n"
 "TimerEvent 141 299 0 0 0 0 0\n"
-"RenderEvent 141 299 0 0 0 0 0\n"
+
 "LeftButtonReleaseEvent 141 299 0 0 0 0 0\n"
 "EndInteractionEvent 141 299 0 0 0 0 0\n"
-"RenderEvent 141 299 0 0 0 0 0\n"
+
 "MouseMoveEvent 141 298 0 0 0 0 0\n"
-"MouseMoveEvent 141 297 0 0 0 0 0\n"
-"MouseMoveEvent 141 296 0 0 0 0 0\n"
-"MouseMoveEvent 141 295 0 0 0 0 0\n"
-"MouseMoveEvent 142 293 0 0 0 0 0\n"
-"MouseMoveEvent 143 291 0 0 0 0 0\n"
-"MouseMoveEvent 152 275 0 0 0 0 0\n"
-"MouseMoveEvent 153 274 0 0 0 0 0\n"
-"MouseMoveEvent 167 266 0 0 0 0 0\n"
-"MouseMoveEvent 186 251 0 0 0 0 0\n"
-"MouseMoveEvent 190 246 0 0 0 0 0\n"
 "MouseMoveEvent 191 245 0 0 0 0 0\n"
 "LeftButtonPressEvent 191 245 0 0 0 0 0\n"
 "StartInteractionEvent 191 245 0 0 0 0 0\n"
 "TimerEvent 191 245 0 0 0 0 0\n"
-"RenderEvent 191 245 0 0 0 0 0\n"
+
 "MouseMoveEvent 191 247 0 0 0 0 0\n"
 "TimerEvent 192 248 0 0 0 0 0\n"
-"RenderEvent 192 248 0 0 0 0 0\n"
+
 "MouseMoveEvent 195 251 0 0 0 0 0\n"
 "TimerEvent 197 252 0 0 0 0 0\n"
 "RenderEvent 197 252 0 0 0 0 0\n"
 "TimerEvent 197 252 0 0 0 0 0\n"
-"RenderEvent 197 252 0 0 0 0 0\n"
+
 "MouseMoveEvent 201 252 0 0 0 0 0\n"
-"MouseMoveEvent 202 252 0 0 0 0 0\n"
 "MouseMoveEvent 203 252 0 0 0 0 0\n"
 "TimerEvent 214 251 0 0 0 0 0\n"
-"RenderEvent 214 251 0 0 0 0 0\n"
+
 "MouseMoveEvent 216 251 0 0 0 0 0\n"
 "TimerEvent 216 251 0 0 0 0 0\n"
 "RenderEvent 216 251 0 0 0 0 0\n"
 "MouseMoveEvent 218 250 0 0 0 0 0\n"
 "LeftButtonReleaseEvent 218 250 0 0 0 0 0\n"
 "EndInteractionEvent 218 250 0 0 0 0 0\n"
-"RenderEvent 218 250 0 0 0 0 0\n"
+
 "MouseMoveEvent 219 250 0 0 0 0 0\n"
-"MouseMoveEvent 223 241 0 0 0 0 0\n"
-"MouseMoveEvent 220 230 0 0 0 0 0\n"
-"MouseMoveEvent 218 221 0 0 0 0 0\n"
 "MouseMoveEvent 218 220 0 0 0 0 0\n"
 "LeftButtonPressEvent 218 220 0 0 0 0 0\n"
 "StartInteractionEvent 218 220 0 0 0 0 0\n"
@@ -348,7 +303,7 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "MouseMoveEvent 218 210 0 0 0 0 0\n"
 "MouseMoveEvent 218 209 0 0 0 0 0\n"
 "TimerEvent 218 202 0 0 0 0 0\n"
-"RenderEvent 218 202 0 0 0 0 0\n"
+
 "MouseMoveEvent 219 199 0 0 0 0 0\n"
 "MouseMoveEvent 219 198 0 0 0 0 0\n"
 "TimerEvent 220 196 0 0 0 0 0\n"
@@ -366,14 +321,6 @@ static const char * TestGPURayCastVolumeUpdateLog =
 "EndInteractionEvent 221 185 0 0 0 0 0\n"
 "RenderEvent 221 185 0 0 0 0 0\n"
 "MouseMoveEvent 221 184 0 0 0 0 0\n"
-"MouseMoveEvent 220 182 0 0 0 0 0\n"
-"MouseMoveEvent 220 181 0 0 0 0 0\n"
-"MouseMoveEvent 219 180 0 0 0 0 0\n"
-"MouseMoveEvent 236 181 0 0 0 0 0\n"
-"MouseMoveEvent 249 188 0 0 0 0 0\n"
-"MouseMoveEvent 295 273 0 0 0 0 0\n"
-"MouseMoveEvent 300 364 0 0 0 0 0\n"
-"MouseMoveEvent 304 397 0 0 0 0 0\n"
 "MouseMoveEvent 305 399 0 0 0 0 0\n"
 ;
 
@@ -399,7 +346,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
-  outlineActor->SetMapper(outlineMapper.GetPointer());
+  outlineActor->SetMapper(outlineMapper);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetSampleDistance(0.1);
@@ -411,15 +358,15 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   renWin->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> ren;
   ren->SetBackground(0.2, 0.2, 0.5);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -428,16 +375,16 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
   colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
-  volumeProperty->SetColor(colorTransferFunction.GetPointer());
+  volumeProperty->SetColor(colorTransferFunction);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   /// Add sphere in the center of volume
   int dims[3];
@@ -452,12 +399,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   center[1] = origin[1] + spacing[1]*dims[1]/2.0;
   center[2] = origin[2] + spacing[2]*dims[2]/2.0;
 
-  ren->AddVolume(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddVolume(volume);
+  ren->AddActor(outlineActor);
   ren->ResetCamera();
 
-  int valid = volumeMapper->IsRenderSupported(renWin.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = volumeMapper->IsRenderSupported(renWin,
+                                              volumeProperty);
 
   int retVal;
   if (valid)
@@ -476,7 +423,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
 
     iren->Initialize();
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
-                                                iren.GetPointer(),
+                                                iren,
                                                 TestGPURayCastVolumeUpdateLog));
   }
   else

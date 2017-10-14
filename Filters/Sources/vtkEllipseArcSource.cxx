@@ -177,9 +177,9 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
     newLines->InsertCellPoint(k);
   }
 
-  output->SetPoints(newPoints.Get());
-  output->GetPointData()->SetTCoords(newTCoords.Get());
-  output->SetLines(newLines.Get());
+  output->SetPoints(newPoints);
+  output->GetPointData()->SetTCoords(newTCoords);
+  output->SetLines(newLines);
   return 1;
 }
 

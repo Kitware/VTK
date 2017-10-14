@@ -49,7 +49,7 @@ public:
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkViewDependentErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -104,7 +104,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
-                              double alpha) VTK_OVERRIDE;
+                              double alpha) override;
 
   /**
    * Return the error at the mid-point. The type of error depends on the state
@@ -120,11 +120,11 @@ public:
    * \post positive_result: result>=0
    */
   double GetError(double *leftPoint, double *midPoint,
-                  double *rightPoint, double alpha) VTK_OVERRIDE;
+                  double *rightPoint, double alpha) override;
 
 protected:
   vtkViewDependentErrorMetric();
-  ~vtkViewDependentErrorMetric() VTK_OVERRIDE;
+  ~vtkViewDependentErrorMetric() override;
 
   /**
    * Square distance between a straight line (defined by points x and y)
@@ -141,8 +141,8 @@ protected:
   vtkCoordinate *Coordinate;
 
 private:
-  vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewDependentErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&) = delete;
+  void operator=(const vtkViewDependentErrorMetric&) = delete;
 };
 
 #endif

@@ -175,7 +175,7 @@ if(WIN32)
   if(DirectX_FOUND)
     set(VTK_USE_DIRECTX 1)
   endif()
-elseif(APPLE AND NOT VTK_USE_OSMESA)
+elseif(APPLE AND NOT VTK_OPENGL_HAS_OSMESA)
   set(VTK_USE_APPLE_LOADER 1)
   set(VTK_USE_CORE_GRAPHICS 1)
 else()
@@ -228,7 +228,7 @@ else()
     if(NVCtrlLib_FOUND)
       set(VTK_USE_NVCONTROL 1)
     endif()
-  elseif (VTK_USE_OSMESA)
+  elseif (VTK_OPENGL_HAS_OSMESA)
     # we'll use OSMesa to load extensions.
   else()
     set(VTK_NO_EXTENSION_LOADING 1)
@@ -329,7 +329,7 @@ if(VTK_USE_X)
     vtkXRenderWindowInteractor.cxx
     vtkXOpenGLRenderWindow.cxx
     )
-elseif(VTK_USE_OSMESA)
+elseif(VTK_OPENGL_HAS_OSMESA)
   list(APPEND vtk_module_overrides "vtkRenderWindow")
   set(vtk_module_vtkRenderWindow_override "vtkOSOpenGLRenderWindow")
   list(APPEND Module_SRCS vtkOSOpenGLRenderWindow.cxx)
@@ -411,7 +411,7 @@ set(${vtk-module}_EXPORT_CODE "#include \"vtkRenderingOpenGLConfigure.h\"")
 # Since several headers in this module include vtkOpenGL.h which needed GL.h,
 # need to ensure that any dependent modules inherit the include directory
 # automatically.
-if(VTK_USE_OSMESA)
+if(VTK_OPENGL_HAS_OSMESA)
   set(${vtk-module}_SYSTEM_INCLUDE_DIRS
     ${OSMESA_INCLUDE_DIR})
 else()

@@ -40,7 +40,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkIncrementalForceLayout : public vtkObject
 {
 public:
   vtkTypeMacro(vtkIncrementalForceLayout, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkIncrementalForceLayout* New();
 
   //@{
@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkIncrementalForceLayout();
-  ~vtkIncrementalForceLayout() VTK_OVERRIDE;
+  ~vtkIncrementalForceLayout() override;
 
   vtkGraph* Graph;
   class Implementation;
@@ -155,7 +155,7 @@ protected:
   float Friction;
 
 private:
-  vtkIncrementalForceLayout(const vtkIncrementalForceLayout &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIncrementalForceLayout &) VTK_DELETE_FUNCTION;
+  vtkIncrementalForceLayout(const vtkIncrementalForceLayout &) = delete;
+  void operator=(const vtkIncrementalForceLayout &) = delete;
 };
 #endif

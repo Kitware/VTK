@@ -50,7 +50,7 @@ class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetA
 public:
   static vtkGenericEnSightReader *New();
   vtkTypeMacro(vtkGenericEnSightReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -113,7 +113,7 @@ public:
   const char* GetComplexDescription(int n);
 
   /**
-   * Get the nth description of a particular variable type.  Returns NULL if no
+   * Get the nth description of a particular variable type.  Returns nullptr if no
    * variable of this type exists in this data set.
    * SCALAR_PER_NODE = 0; VECTOR_PER_NODE = 1;
    * TENSOR_SYMM_PER_NODE = 2; SCALAR_PER_ELEMENT = 3;
@@ -277,15 +277,15 @@ vtkGenericEnSightReader* GetReader() { return this->Reader; }
 
 protected:
   vtkGenericEnSightReader();
-  ~vtkGenericEnSightReader() VTK_OVERRIDE;
+  ~vtkGenericEnSightReader() override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
   /**
    * Clear data structures such that setting a new case file name works.
@@ -436,8 +436,8 @@ protected:
   TranslationTableType *TranslationTable;
 
 private:
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&) = delete;
+  void operator=(const vtkGenericEnSightReader&) = delete;
 };
 
 #endif

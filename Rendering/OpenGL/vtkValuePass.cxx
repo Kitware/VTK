@@ -38,7 +38,7 @@ public:
 
   vtkInternals()
   {
-    this->CompositePainter->SetDelegatePainter(this->ValuePainter.GetPointer());
+    this->CompositePainter->SetDelegatePainter(this->ValuePainter);
   }
 
   ~vtkInternals()
@@ -117,7 +117,7 @@ void vtkValuePass::Render(const vtkRenderState *s)
         }
 
         //swap in
-        mapper->SetPainter(this->Internals->CompositePainter.GetPointer());
+        mapper->SetPainter(this->Internals->CompositePainter);
         vtkInformation *iv = this->Internals->CompositePainter->GetInformation();
         vtkInformation *akeys = actor->GetPropertyKeys();
         if (iv && akeys)

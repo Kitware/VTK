@@ -55,7 +55,7 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = NULL;
+  const char *data_root = nullptr;
   for (i = 0; i < argc-1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)

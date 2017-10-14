@@ -73,8 +73,8 @@ vtkOSOpenGLRenderWindowInternal::vtkOSOpenGLRenderWindowInternal(
   this->ScreenDoubleBuffer = rw->GetDoubleBuffer();
 
   // OpenGL specific
-  this->OffScreenContextId = NULL;
-  this->OffScreenWindow = NULL;
+  this->OffScreenContextId = nullptr;
+  this->OffScreenWindow = nullptr;
 }
 
 
@@ -93,7 +93,7 @@ void *vtkOSMesaCreateWindow(int width, int height)
 
 vtkOSOpenGLRenderWindow::vtkOSOpenGLRenderWindow()
 {
-//   this->ParentId = (Window)NULL;
+//   this->ParentId = (Window)nullptr;
   this->ScreenSize[0] = 1280;
   this->ScreenSize[1] = 1024;
   this->OwnDisplay = 0;
@@ -115,7 +115,7 @@ vtkOSOpenGLRenderWindow::~vtkOSOpenGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 
   delete this->Internal;
@@ -190,15 +190,15 @@ void vtkOSOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
        (OSMesaCreateContextAttribs_func)
        OSMesaGetProcAddress("OSMesaCreateContextAttribs");
 
-    if (OSMesaCreateContextAttribs != NULL)
+    if (OSMesaCreateContextAttribs != nullptr)
     {
-      this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, NULL);
+      this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, nullptr);
     }
 #endif
     // if we still have no context fall back to the generic signature
     if (!this->Internal->OffScreenContextId)
     {
-      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, nullptr);
     }
   }
   this->MakeCurrent();
@@ -226,7 +226,7 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
   // Release graphic resources.
 
   // First release graphics resources on the window itself
-  // since call to Renderer's SetRenderWindow(NULL), just
+  // since call to Renderer's SetRenderWindow(nullptr), just
   // calls ReleaseGraphicsResources on vtkProps. And also
   // this call invokes Renderer's ReleaseGraphicsResources
   // method which only invokes ReleaseGraphicsResources on
@@ -236,9 +236,9 @@ void vtkOSOpenGLRenderWindow::DestroyOffScreenWindow()
   if (this->Internal->OffScreenContextId)
   {
     OSMesaDestroyContext(this->Internal->OffScreenContextId);
-    this->Internal->OffScreenContextId = NULL;
+    this->Internal->OffScreenContextId = nullptr;
     vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
-    this->Internal->OffScreenWindow = NULL;
+    this->Internal->OffScreenWindow = nullptr;
   }
 }
 
@@ -309,7 +309,7 @@ void vtkOSOpenGLRenderWindow::WindowRemap()
 
   // set the default windowid
 //   this->WindowId = this->NextWindowId;
-//   this->NextWindowId = (Window)NULL;
+//   this->NextWindowId = (Window)nullptr;
 
   // set everything up again
   this->Initialize();

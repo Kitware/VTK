@@ -29,8 +29,8 @@
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
 {
-  this->PointElements = 0;
-  this->NumberOfPoints = 0;
+  this->PointElements = nullptr;
+  this->NumberOfPoints = nullptr;
   this->TotalNumberOfPoints = 0;
   this->TotalNumberOfCells = 0;
 
@@ -89,7 +89,7 @@ vtkXMLUnstructuredDataReader
       }
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
       vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
                     << " to vtkIdTypeArray.");
       ida->Delete();
-      ida = 0;
+      ida = nullptr;
   }
   a->Delete();
   return ida;
@@ -163,7 +163,7 @@ vtkXMLUnstructuredDataReader::ConvertToUnsignedCharArray(vtkDataArray* a)
       vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
                     << " to vtkUnsignedCharArray.");
       uca->Delete();
-      uca = 0;
+      uca = nullptr;
   }
   a->Delete();
   return uca;
@@ -312,7 +312,7 @@ void vtkXMLUnstructuredDataReader::SetupPieces(int numPieces)
   this->PointElements = new vtkXMLDataElement*[numPieces];
   for(int i=0;i < numPieces; ++i)
   {
-    this->PointElements[i] = 0;
+    this->PointElements[i] = nullptr;
     this->NumberOfPoints[i] = 0;
   }
 }
@@ -322,8 +322,8 @@ void vtkXMLUnstructuredDataReader::DestroyPieces()
 {
   delete [] this->PointElements;
   delete [] this->NumberOfPoints;
-  this->PointElements = 0;
-  this->NumberOfPoints = 0;
+  this->PointElements = nullptr;
+  this->NumberOfPoints = nullptr;
   this->Superclass::DestroyPieces();
 }
 
@@ -427,7 +427,7 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 
   // Find the Points element in the piece.
   int i;
-  this->PointElements[this->Piece] = 0;
+  this->PointElements[this->Piece] = nullptr;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
   {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);

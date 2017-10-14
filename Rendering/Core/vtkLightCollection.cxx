@@ -27,7 +27,7 @@ void vtkLightCollection::AddItem(vtkLight *a)
   this->vtkCollection::AddItem(a);
 }
 
-// Get the next light in the list. NULL is returned when the collection is
+// Get the next light in the list. nullptr is returned when the collection is
 // exhausted.
 vtkLight *vtkLightCollection::GetNextItem()
 {

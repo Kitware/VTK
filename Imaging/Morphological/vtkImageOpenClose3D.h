@@ -48,27 +48,27 @@ public:
    */
   static vtkImageOpenClose3D *New();
   vtkTypeMacro(vtkImageOpenClose3D,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * This method considers the sub filters MTimes when computing this objects
    * modified time.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
    * Turn debugging output on. (in sub filters also)
    */
-  void DebugOn() VTK_OVERRIDE;
-  void DebugOff() VTK_OVERRIDE;
+  void DebugOn() override;
+  void DebugOff() override;
   //@}
 
   /**
    * Pass modified message to sub filters.
    */
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
 
   // Forward Source messages to filter1
 
@@ -108,7 +108,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Override to send the request to internal pipeline.
@@ -118,19 +118,19 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       vtkMTimeType* mtime) VTK_OVERRIDE;
+                       vtkMTimeType* mtime) override;
 
 protected:
   vtkImageOpenClose3D();
-  ~vtkImageOpenClose3D() VTK_OVERRIDE;
+  ~vtkImageOpenClose3D() override;
 
   vtkImageDilateErode3D *Filter0;
   vtkImageDilateErode3D *Filter1;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkImageOpenClose3D(const vtkImageOpenClose3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageOpenClose3D&) VTK_DELETE_FUNCTION;
+  vtkImageOpenClose3D(const vtkImageOpenClose3D&) = delete;
+  void operator=(const vtkImageOpenClose3D&) = delete;
 };
 
 #endif

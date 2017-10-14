@@ -28,7 +28,7 @@ class VTKRENDERINGCORE_EXPORT vtkGraphicsFactory : public vtkObject
 public:
   static vtkGraphicsFactory *New();
   vtkTypeMacro(vtkGraphicsFactory, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create and return an instance of the named vtk object.
@@ -68,8 +68,8 @@ protected:
   static int OffScreenOnlyMode;
 
 private:
-  vtkGraphicsFactory(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
+  vtkGraphicsFactory(const vtkGraphicsFactory&) = delete;
+  void operator=(const vtkGraphicsFactory&) = delete;
 };
 
 #endif

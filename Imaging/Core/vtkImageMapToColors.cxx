@@ -34,7 +34,7 @@ vtkImageMapToColors::vtkImageMapToColors()
   this->OutputFormat = 4;
   this->ActiveComponent = 0;
   this->PassAlphaToOutput = 0;
-  this->LookupTable = NULL;
+  this->LookupTable = nullptr;
   this->DataWasPassed = 0;
 
   // Black color
@@ -49,7 +49,7 @@ vtkImageMapToColors::vtkImageMapToColors()
 //----------------------------------------------------------------------------
 vtkImageMapToColors::~vtkImageMapToColors()
 {
-  if (this->LookupTable != NULL)
+  if (this->LookupTable != nullptr)
   {
     this->LookupTable->UnRegister(this);
   }
@@ -87,7 +87,7 @@ int vtkImageMapToColors::RequestData(vtkInformation *request,
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // If LookupTable is null, just pass the data
-  if (this->LookupTable == NULL)
+  if (this->LookupTable == nullptr)
   {
     vtkDebugMacro("RequestData: LookupTable not set, "\
                   "passing input to output.");
@@ -102,7 +102,7 @@ int vtkImageMapToColors::RequestData(vtkInformation *request,
 
     if (this->DataWasPassed)
     {
-      outData->GetPointData()->SetScalars(NULL);
+      outData->GetPointData()->SetScalars(nullptr);
       this->DataWasPassed = 0;
     }
 
@@ -143,7 +143,7 @@ int vtkImageMapToColors::RequestInformation (
       break;
   }
 
-  if (this->LookupTable == NULL)
+  if (this->LookupTable == nullptr)
   {
     vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo,
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
@@ -195,7 +195,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 
   int coordinate[3] = { outExt[0], outExt[2], outExt[4] };
   void *inPtr = inData->GetArrayPointer(inArray, coordinate);
-  char *inMask = maskArray ? static_cast<char*>(inData->GetArrayPointer(maskArray, coordinate)) : NULL;
+  char *inMask = maskArray ? static_cast<char*>(inData->GetArrayPointer(maskArray, coordinate)) : nullptr;
 
   int numberOfComponents,numberOfOutputComponents,outputFormat;
   int rowLength;
@@ -249,7 +249,7 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
                                            dataType,extX,numberOfComponents,
                                            outputFormat);
       // Handle NaN color when mask
-      if(inMask != NULL)
+      if(inMask != nullptr)
       {
         unsigned char *outPtr2 = outPtr1;
         for(vtkIdType idx = 0; idx < extX; ++idx, outPtr2 += outputFormat)
@@ -291,13 +291,13 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
       inPtr1 = static_cast<void *>(
         static_cast<char *>(inPtr1) + inIncY + rowLength);
 
-      // Just move pointer if not NULL
+      // Just move pointer if not nullptr
       inMask += inMask ? inMaskIncY + extX : 0;
     }
     outPtr1 += outIncZ;
     inPtr1 = static_cast<void *>(static_cast<char *>(inPtr1) + inIncZ);
 
-    // Just move pointer if not NULL
+    // Just move pointer if not nullptr
     inMask += inMask ? inMaskIncZ : 0;
   }
 }
@@ -347,8 +347,3 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 }
-
-
-
-
-

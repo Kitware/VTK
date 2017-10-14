@@ -34,7 +34,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkAggregateDataSetFilter : public vtkPassInputT
 public:
   static vtkAggregateDataSetFilter* New();
   vtkTypeMacro(vtkAggregateDataSetFilter, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -53,17 +53,17 @@ public:
 
 protected:
   vtkAggregateDataSetFilter();
-  ~vtkAggregateDataSetFilter() VTK_OVERRIDE;
+  ~vtkAggregateDataSetFilter() override;
 
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int NumberOfTargetProcesses;
 
 private:
-  vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAggregateDataSetFilter&) VTK_DELETE_FUNCTION;
+  vtkAggregateDataSetFilter(const vtkAggregateDataSetFilter&) = delete;
+  void operator=(const vtkAggregateDataSetFilter&) = delete;
 };
 
 #endif

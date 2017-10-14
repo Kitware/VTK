@@ -167,7 +167,7 @@ vtkGenericAttribute *vtkGenericAttributeCollection::GetAttribute(int i)
   assert("pre: not_empty" && !IsEmpty());
   assert("pre: valid_i" && (i>=0)&&(i<this->GetNumberOfAttributes()));
   vtkGenericAttribute *result=this->AttributeInternalVector->Vector[i];
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -176,7 +176,7 @@ vtkGenericAttribute *vtkGenericAttributeCollection::GetAttribute(int i)
 // Return the index of attribute `name', if found. Return -1 otherwise.
 int vtkGenericAttributeCollection::FindAttribute(const char *name)
 {
-  assert("pre: name_exists:" && name!=0);
+  assert("pre: name_exists:" && name!=nullptr);
 
   int result=-1;
 
@@ -187,7 +187,7 @@ int vtkGenericAttributeCollection::FindAttribute(const char *name)
   while((i<numAtt)&&(result==-1))
   {
     attributeName=this->GetAttribute(i)->GetName();
-    if(attributeName!=0)
+    if(attributeName!=nullptr)
     {
       if(strcmp( attributeName, name ) == 0)
       {
@@ -222,7 +222,7 @@ int vtkGenericAttributeCollection::GetAttributeIndex(int i)
 // Add attribute `a' at the end.
 void vtkGenericAttributeCollection::InsertNextAttribute(vtkGenericAttribute *a)
 {
-  assert("pre: a_exists" && a!=0);
+  assert("pre: a_exists" && a!=nullptr);
 #ifndef NDEBUG
   int oldnumber=this->GetNumberOfAttributes();
 #endif
@@ -242,14 +242,14 @@ void vtkGenericAttributeCollection::InsertNextAttribute(vtkGenericAttribute *a)
 void vtkGenericAttributeCollection::InsertAttribute(int i, vtkGenericAttribute *a)
 {
   assert("pre: not_empty" && !this->IsEmpty());
-  assert("pre: a_exists" && a!=0);
+  assert("pre: a_exists" && a!=nullptr);
   assert("pre: valid_i" && (i>=0)&&(i<this->GetNumberOfAttributes()));
 
 #ifndef NDEBUG
   int oldnumber = this->GetNumberOfAttributes();
 #endif
 
-  if(this->AttributeInternalVector->Vector[i]!=0)
+  if(this->AttributeInternalVector->Vector[i]!=nullptr)
   {
     this->AttributeInternalVector->Vector[i]->Delete();
   }
@@ -306,7 +306,7 @@ void vtkGenericAttributeCollection::Reset()
 // Recursive duplication of `other' in `this'.
 void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *other)
 {
-  assert("pre: other_exists" && other!=0);
+  assert("pre: other_exists" && other!=nullptr);
   assert("pre: not_self" && other!=this);
 
   this->AttributeInternalVector->Vector.resize(
@@ -318,7 +318,7 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
   int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for(int i=0; i<c; i++)
   {
-    if(this->AttributeInternalVector->Vector[i] == 0)
+    if(this->AttributeInternalVector->Vector[i] == nullptr)
     {
       this->AttributeInternalVector->Vector[i] =
         other->AttributeInternalVector->Vector[i]->NewInstance();
@@ -338,7 +338,7 @@ void vtkGenericAttributeCollection::DeepCopy(vtkGenericAttributeCollection *othe
 // Update `this' using fields of `other'.
 void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *other)
 {
-  assert("pre: other_exists" && other!=0);
+  assert("pre: other_exists" && other!=nullptr);
   assert("pre: not_self" && other!=this);
 
   this->AttributeInternalVector->Vector =
@@ -347,7 +347,7 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
   int c = static_cast<int>(this->AttributeInternalVector->Vector.size());
   for (int i=0; i<c; ++i)
   {
-    if (this->AttributeInternalVector->Vector[i] != 0)
+    if (this->AttributeInternalVector->Vector[i] != nullptr)
     {
       this->AttributeInternalVector->Vector[i]->Register( this );
     }
@@ -464,7 +464,7 @@ int vtkGenericAttributeCollection::HasAttribute(int size,
                                                 int attribute)
 {
   assert("pre: positive_size" && size>=0);
-  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=0))); // size>0 => attributes!=0 (A=>B: !A||B )
+  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=nullptr))); // size>0 => attributes!=0 (A=>B: !A||B )
 
   int result = 0; // false
   int i;
@@ -489,8 +489,8 @@ void vtkGenericAttributeCollection::SetAttributesToInterpolate(int size,
   assert("pre: not_empty" && !this->IsEmpty());
   assert("pre: positive_size" && size>=0);
   assert("pre: magic_number" && size<=10);
-  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=0)));  // size>0 => attributes!=0 (A=>B: !A||B )
-  assert("pre: valid_attributes_contents" && (!(attributes!=0) || !(!this->HasAttribute(size,attributes,this->GetActiveAttribute())))); // attributes!=0 => !this->HasAttribute(size,attributes,this->GetActiveAttribute()) (A=>B: !A||B )
+  assert("pre: valid_attributes" && ((!(size>0))||(attributes!=nullptr)));  // size>0 => attributes!=0 (A=>B: !A||B )
+  assert("pre: valid_attributes_contents" && (!(attributes!=nullptr) || !(!this->HasAttribute(size,attributes,this->GetActiveAttribute())))); // attributes!=0 => !this->HasAttribute(size,attributes,this->GetActiveAttribute()) (A=>B: !A||B )
 
   this->NumberOfAttributesToInterpolate = size;
   for(int i=0; i<size; ++i)

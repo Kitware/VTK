@@ -78,7 +78,7 @@ public:
   void StopLogging();
   //@}
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
 
@@ -90,8 +90,8 @@ protected:
   int BeginId;
   int EndId;
 private:
-  vtkMPIEventLog(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
+  vtkMPIEventLog(const vtkMPIEventLog&) = delete;
+  void operator=(const vtkMPIEventLog&) = delete;
 };
 
 #endif

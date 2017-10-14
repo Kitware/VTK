@@ -46,10 +46,10 @@ public:
    * Type and printing information.
    */
   vtkTypeMacro(vtkTestingInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
-  void Start() VTK_OVERRIDE;
+  void Start() override;
 
   static int         TestReturnStatus;  // Return status of the test
   static double      ErrorThreshold;    // Error Threshold
@@ -61,8 +61,8 @@ protected:
   vtkTestingInteractor() {}
 
 private:
-  vtkTestingInteractor(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
+  vtkTestingInteractor(const vtkTestingInteractor&) = delete;
+  void operator=(const vtkTestingInteractor&) = delete;
 
 };
 

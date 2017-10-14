@@ -73,23 +73,23 @@ public:
 
 protected:
   vtkImageAppendComponents() {}
-  ~vtkImageAppendComponents() VTK_OVERRIDE {}
+  ~vtkImageAppendComponents() override {}
 
   int RequestInformation (vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) VTK_OVERRIDE;
+                            int ext[6], int id) override;
 
   // Implement methods required by vtkAlgorithm.
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageAppendComponents(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
+  vtkImageAppendComponents(const vtkImageAppendComponents&) = delete;
+  void operator=(const vtkImageAppendComponents&) = delete;
 };
 
 #endif

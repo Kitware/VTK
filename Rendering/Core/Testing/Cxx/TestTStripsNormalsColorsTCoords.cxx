@@ -78,7 +78,7 @@ int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
   colors->SetTuple(3,yellow);
 
   vtkPolyData *polyData = stripper->GetOutput();
-  polyData->Register(NULL);
+  polyData->Register(nullptr);
   stripper->Delete();
   polyData->GetPointData()->SetScalars(colors);
   colors->Delete();

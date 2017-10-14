@@ -34,6 +34,10 @@
 
 class XdmfArray;
 
+#ifdef _MSC_VER
+#pragma warning (push) //save
+#pragma warning (disable: 4251) //needs to have dll-interface to be used by clients of class
+#endif
 class VTKIOXDMF3_EXPORT vtkXdmf3ArrayKeeper
   : public std::map<XdmfArray *, unsigned int>
 {
@@ -67,6 +71,9 @@ public:
 private:
   unsigned int generation;
 };
+#ifdef _MSC_VER
+#pragma warning (pop) //restore
+#endif
 
 #endif //vtkXdmf3ArrayKeeper_h
 // VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h

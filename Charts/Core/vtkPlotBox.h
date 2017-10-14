@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotBox : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBox, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a box plot.
@@ -51,12 +51,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -65,15 +65,15 @@ public:
    * and 3). The plot can choose how to fill the space supplied.
    */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) VTK_OVERRIDE;
+                           int legendIndex) override;
 
   //@{
   /**
    * This is a convenience function to set the input table.
    */
-  void SetInputData(vtkTable *table) VTK_OVERRIDE;
+  void SetInputData(vtkTable *table) override;
   void SetInputData(vtkTable *table, const vtkStdString&,
-                            const vtkStdString&) VTK_OVERRIDE
+                            const vtkStdString&) override
   {
     this->SetInputData(table);
   }
@@ -83,7 +83,7 @@ public:
    * Get the plot labels. If this array has a length greater than 1 the index
    * refers to the stacked objects in the plot.
    */
-  vtkStringArray *GetLabels() VTK_OVERRIDE;
+  vtkStringArray *GetLabels() override;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -92,7 +92,7 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkPlotBox();
-  ~vtkPlotBox() VTK_OVERRIDE;
+  ~vtkPlotBox() override;
 
   void DrawBoxPlot(int, unsigned char*, double, vtkContext2D*);
 
@@ -168,8 +168,8 @@ protected:
   vtkTextProperty* TitleProperties;
 
 private:
-  vtkPlotBox(const vtkPlotBox &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotBox &) VTK_DELETE_FUNCTION;
+  vtkPlotBox(const vtkPlotBox &) = delete;
+  void operator=(const vtkPlotBox &) = delete;
 
 };
 

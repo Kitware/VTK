@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkPlaneCollection() {}
-  ~vtkPlaneCollection() VTK_OVERRIDE {}
+  ~vtkPlaneCollection() override {}
 
 
 private:
@@ -68,8 +68,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPlaneCollection(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
+  vtkPlaneCollection(const vtkPlaneCollection&) = delete;
+  void operator=(const vtkPlaneCollection&) = delete;
 };
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f)

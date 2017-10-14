@@ -50,14 +50,14 @@ class VTKINFOVISLAYOUT_EXPORT vtkCirclePackLayoutStrategy : public vtkObject
 {
 public:
     vtkTypeMacro(vtkCirclePackLayoutStrategy,vtkObject);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Perform the layout of the input tree, and store the circle
      * bounds of each vertex as a tuple in a data array.
      * (Xcenter, Ycenter, Radius).
 
-     * The sizeArray may be NULL, or may contain the desired
+     * The sizeArray may be nullptr, or may contain the desired
      * size of each vertex in the tree.
      */
     virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
@@ -65,11 +65,11 @@ public:
 
 protected:
     vtkCirclePackLayoutStrategy();
-    ~vtkCirclePackLayoutStrategy() VTK_OVERRIDE;
+    ~vtkCirclePackLayoutStrategy() override;
 
 private:
-    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkCirclePackLayoutStrategy&) VTK_DELETE_FUNCTION;
+    vtkCirclePackLayoutStrategy(const vtkCirclePackLayoutStrategy&) = delete;
+    void operator=(const vtkCirclePackLayoutStrategy&) = delete;
 };
 
 #endif

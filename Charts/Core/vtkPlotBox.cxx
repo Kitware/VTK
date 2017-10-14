@@ -60,7 +60,7 @@ vtkPlotBox::vtkPlotBox()
   this->Storage = new vtkPlotBox::Private();
   this->Pen->SetColor(0, 0, 0);
   this->BoxWidth = 20.;
-  this->LookupTable = 0;
+  this->LookupTable = nullptr;
   this->TooltipDefaultLabelFormat = "%y";
 
   this->TitleProperties = vtkTextProperty::New();
@@ -164,7 +164,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
 
   vtkNew<vtkBrush> brush;
   brush->SetColor(rgba);
-  painter->ApplyBrush(brush.GetPointer());
+  painter->ApplyBrush(brush);
 
   // Helper variables for x position
   double xpos = x + 0.5 * this->BoxWidth;
@@ -194,7 +194,7 @@ void vtkPlotBox::DrawBoxPlot(int i, unsigned char *rgba, double x,
     whitePen->SetWidth(this->Pen->GetWidth());
     whitePen->SetColor(128, 128, 128, 128);
     whitePen->SetOpacity(this->Pen->GetOpacity());
-    painter->ApplyPen(whitePen.GetPointer());
+    painter->ApplyPen(whitePen);
   }
 
   painter->DrawLine(xneg, q[2], xpos, q[2]);
@@ -207,7 +207,7 @@ vtkStringArray* vtkPlotBox::GetLabels()
   {
     return this->Labels;
   }
-  return 0;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -381,7 +381,7 @@ void vtkPlotBox::SetLookupTable(vtkScalarsToColors *lut)
 //-----------------------------------------------------------------------------
 vtkScalarsToColors *vtkPlotBox::GetLookupTable()
 {
-  if (this->LookupTable == 0)
+  if (this->LookupTable == nullptr)
   {
     this->CreateDefaultLookupTable();
   }
@@ -391,7 +391,7 @@ vtkScalarsToColors *vtkPlotBox::GetLookupTable()
 //-----------------------------------------------------------------------------
 void vtkPlotBox::SetColumnColor(const vtkStdString& colName, double *rgb)
 {
-  if (this->LookupTable == 0)
+  if (this->LookupTable == nullptr)
   {
     this->CreateDefaultLookupTable();
   }

@@ -23,14 +23,14 @@
 #define RETURNONFALSE(b)\
   if(!(b)) \
   {\
-    vtkAlgorithm::SetDefaultExecutivePrototype(NULL);\
+    vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);\
     return EXIT_FAILURE;\
   }
 
 int TestAMRInterpolatedVelocityField(int, char*[])
 {
   vtkNew<vtkCompositeDataPipeline> cexec;
-  vtkAlgorithm::SetDefaultExecutivePrototype(cexec.GetPointer());
+  vtkAlgorithm::SetDefaultExecutivePrototype(cexec);
 
   char name[100] = "Gaussian-Pulse";
   vtkNew<vtkAMRGaussianPulseSource> imageSource;
@@ -86,6 +86,6 @@ int TestAMRInterpolatedVelocityField(int, char*[])
   func->GetLastDataSetLocation(level,id);
   RETURNONFALSE(level==1)
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   return EXIT_SUCCESS;
 }

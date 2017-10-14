@@ -54,7 +54,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkBivariateLinearTableThreshold : public vtkT
 public:
   static vtkBivariateLinearTableThreshold* New();
   vtkTypeMacro(vtkBivariateLinearTableThreshold, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -186,7 +186,7 @@ public:
 
 protected:
   vtkBivariateLinearTableThreshold();
-  ~vtkBivariateLinearTableThreshold() VTK_OVERRIDE;
+  ~vtkBivariateLinearTableThreshold() override;
 
   double ColumnRanges[2];
   double DistanceThreshold;
@@ -202,10 +202,10 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillOutputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * Apply the current threshold to a vtkTable.  Fills acceptedIds on success.
@@ -235,8 +235,8 @@ protected:
   //@}
 
 private:
-  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) = delete;
+  void operator=(const vtkBivariateLinearTableThreshold&) = delete;
 };
 
 #endif

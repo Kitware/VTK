@@ -53,7 +53,7 @@ public:
   std::vector<vtkExecutive*> Executives;
   std::vector<int> Ports;
 
-  ~vtkInformationExecutivePortVectorValue() VTK_OVERRIDE;
+  ~vtkInformationExecutivePortVectorValue() override;
   void UnRegisterAllExecutives();
 };
 
@@ -129,7 +129,7 @@ void vtkInformationExecutivePortVectorKey::Remove(vtkInformation* info,
     // If the last entry was removed, remove the entire value.
     if(v->Executives.empty())
     {
-      this->SetAsObjectBase(info, 0);
+      this->SetAsObjectBase(info, nullptr);
     }
   }
 }
@@ -180,7 +180,7 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
   }
   else
   {
-    this->SetAsObjectBase(info, 0);
+    this->SetAsObjectBase(info, nullptr);
   }
 }
 
@@ -191,7 +191,7 @@ vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformation* info)
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue *>
     (this->GetAsObjectBase(info));
-  return (v && !v->Executives.empty())?(&v->Executives[0]):0;
+  return (v && !v->Executives.empty())?(&v->Executives[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -200,7 +200,7 @@ int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue *>
     (this->GetAsObjectBase(info));
-  return (v && !v->Ports.empty())?(&v->Ports[0]):0;
+  return (v && !v->Ports.empty())?(&v->Ports[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void vtkInformationExecutivePortVectorKey::Print(ostream& os,
       }
       else
       {
-        os << sep << "(NULL) port " << ports[i];
+        os << sep << "(nullptr) port " << ports[i];
       }
       sep = ", ";
     }
@@ -298,7 +298,7 @@ vtkInformationExecutivePortVectorKey
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>
     (this->GetAsObjectBase(info));
-  return (v && !v->Executives.empty())?(&v->Executives[0]):0;
+  return (v && !v->Executives.empty())?(&v->Executives[0]):nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -309,5 +309,5 @@ vtkInformationExecutivePortVectorKey
   vtkInformationExecutivePortVectorValue* v =
     static_cast<vtkInformationExecutivePortVectorValue*>
     (this->GetAsObjectBase(info));
-  return (v && !v->Ports.empty())?(&v->Ports[0]):0;
+  return (v && !v->Ports.empty())?(&v->Ports[0]):nullptr;
 }

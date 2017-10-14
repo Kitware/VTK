@@ -66,7 +66,7 @@ public:
   bool OriginalBlending;
 
   vtkInternals() :
-    Context(NULL),
+    Context(nullptr),
     MultisampleSupport(false),
     OriginalMultisample(false),
     OriginalBlending(false)

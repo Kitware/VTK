@@ -50,7 +50,7 @@ static void vtkLSTrimWhitespace( std::string& line )
 
 //-----------------------------------------------------------------------------
 vtkLSDynaSummaryParser::vtkLSDynaSummaryParser()
-  :MetaData(NULL),
+  :MetaData(nullptr),
   PartId(-1),
   PartStatus(0),
   PartMaterial(0),
@@ -78,7 +78,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
       this->PartId = -1;
       this->PartStatus = 1;
       this->PartMaterial = -1;
-      for ( i = 0; atts[i] != 0; i += 2 )
+      for ( i = 0; atts[i] != nullptr; i += 2 )
       {
         if ( ! strcmp( atts[i], "id" ) )
         {
@@ -131,9 +131,9 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
     }
     else
     {
-      const char* dbpath = 0;
-      const char* dbname = 0;
-      for ( i = 0; atts[i] != 0; i += 2 )
+      const char* dbpath = nullptr;
+      const char* dbname = nullptr;
+      for ( i = 0; atts[i] != nullptr; i += 2 )
       {
         if ( ! strcmp( atts[i], "path" ) )
         {

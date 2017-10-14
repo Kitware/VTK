@@ -563,7 +563,7 @@ class vtkHandleCallback : public vtkCommand
 public:
   static vtkHandleCallback *New()
     { return new vtkHandleCallback; }
-  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eid, void*) override
   {
     if ( eid == vtkCommand::InteractionEvent )
     {
@@ -576,7 +576,7 @@ public:
     }
   }
   vtkFixedSizeHandleRepresentation3D *Rep;
-  vtkHandleCallback():Rep(0) {}
+  vtkHandleCallback():Rep(nullptr) {}
 };
 
 

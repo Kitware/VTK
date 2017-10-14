@@ -291,7 +291,7 @@ void _get_tempering_parameter_hard_dc(mt_struct *mts)
         eq.gcur_maxlengs[i] = -1;
 
     mn0.b = mn0.c = mn0.leng = 0;
-    mn0.next = NULL;
+    mn0.next = nullptr;
 
     cur = &mn0;
     for (i=0; i<LIMIT_V_BEST_OPT; i++) {
@@ -380,9 +380,9 @@ static MaskNode *optimize_v_hard(eqdeg_t *eq, int v, MaskNode *prev_masks)
     uint32_t bbb[8], ccc[8];
     MaskNode *cur_masks;
 
-    cur_masks = NULL;
+    cur_masks = nullptr;
 
-    while (prev_masks != NULL) {
+    while (prev_masks != nullptr) {
 
         ll = push_stack(eq, prev_masks->b,prev_masks->c,v,bbb,ccc);
 
@@ -565,13 +565,13 @@ static Vector *new_Vector(int nnn)
     Vector *v;
 
     v = (Vector *)malloc( sizeof( Vector ) );
-    if( v == NULL ){
+    if( v == nullptr ){
         printf("malloc error in \"new_Vector()\"\n");
         exit(1);
     }
 
     v->cf = (uint32_t *)calloc( nnn, sizeof( uint32_t ) );
-    if( v->cf == NULL ){
+    if( v->cf == nullptr ){
         printf("calloc error in \"new_Vector()\"\n");
         exit(1);
     }
@@ -587,8 +587,8 @@ static Vector *new_Vector(int nnn)
 /************************************************/
 static void free_Vector( Vector *v )
 {
-    if( NULL != v->cf ) free( v->cf );
-    if( NULL != v ) free( v );
+    if( nullptr != v->cf ) free( v->cf );
+    if( nullptr != v ) free( v );
 }
 
 static void free_lattice( Vector **lattice, int v)
@@ -623,7 +623,7 @@ static Vector **make_lattice(eqdeg_t *eq, int v)
     Vector **lattice, *bottom;
 
     lattice = (Vector **)malloc( (v+1) * sizeof( Vector *) );
-    if( NULL == lattice ){
+    if( nullptr == lattice ){
         printf("malloc error in \"make_lattice\"\n");
         exit(1);
     }
@@ -680,7 +680,7 @@ static MaskNode *cons_MaskNode(MaskNode *head, uint32_t b, uint32_t c, int leng)
     MaskNode *t;
 
     t = (MaskNode*)malloc(sizeof(MaskNode));
-    if (t == NULL) {
+    if (t == nullptr) {
         printf("malloc error in \"cons_MaskNode\"\n");
         exit(1);
     }
@@ -697,7 +697,7 @@ static void delete_MaskNodes(MaskNode *head)
 {
     MaskNode *t;
 
-    while(head != NULL) {
+    while(head != nullptr) {
         t = head->next;
         free(head);
         head = t;
@@ -710,8 +710,8 @@ static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l)
 
     s = head;
     for(;;) { /* heading */
-        if (s == NULL)
-            return NULL;
+        if (s == nullptr)
+            return nullptr;
         if (s->leng >= l)
             break;
         t = s->next;
@@ -721,7 +721,7 @@ static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l)
 
     head = tail = s;
 
-    while (head != NULL) {
+    while (head != nullptr) {
         t = head->next;
         if (head->leng < l) {
             free(head);
@@ -733,7 +733,7 @@ static MaskNode *delete_lower_MaskNodes(MaskNode *head, int l)
         head = t;
     }
 
-    tail->next = NULL;
+    tail->next = nullptr;
     return s;
 }
 
@@ -913,27 +913,27 @@ static mt_struct *init_mt_search(check32_t *ck, prescr_t *pre, int w, int p)
 
     if ( (w>32) || (w<31) ) {
         printf ("Sorry, currently only w = 32 or 31 is allowded.\n");
-        return NULL;
+        return nullptr;
     }
 
     if ( !proper_mersenne_exponent(p) ) {
         if (p<521) {
             printf ("\"p\" is too small.\n");
-            return NULL;
+            return nullptr;
         }
         else if (p>44497){
             printf ("\"p\" is too large.\n");
-            return NULL;
+            return nullptr;
         }
         else {
             printf ("\"p\" is not a Mersenne exponent.\n");
-            return NULL;
+            return nullptr;
         }
     }
 
     n = p/w + 1; /* since p is Mersenne Exponent, w never divids p */
     mts = alloc_mt_struct(n);
-    if (NULL == mts) return NULL;
+    if (nullptr == mts) return nullptr;
 
     m = n/2;
     if (m < 2) m = n-1;
@@ -970,11 +970,11 @@ mt_struct *get_mt_parameter_st(int w, int p, uint32_t seed)
 
     _sgenrand_dc(&org, seed);
     mts = init_mt_search(&ck, &pre, w, p);
-    if (mts == NULL) return NULL;
+    if (mts == nullptr) return nullptr;
 
     if ( NOT_FOUND == get_irred_param(&ck, &pre, &org, mts,0,0) ) {
         free_mt_struct(mts);
-        return NULL;
+        return nullptr;
     }
     _get_tempering_parameter_hard_dc(mts);
     end_mt_search(&pre);
@@ -993,11 +993,11 @@ mt_struct *get_mt_parameter(int w, int p)
     check32_t ck;
 
     mts = init_mt_search(&ck, &pre, w, p);
-    if (mts == NULL) return NULL;
+    if (mts == nullptr) return nullptr;
 
     if ( NOT_FOUND == get_irred_param(&ck, &pre, &global_mt19937, mts,0,0) ) {
         free_mt_struct(mts);
-        return NULL;
+        return nullptr;
     }
     _get_tempering_parameter_hard_dc(mts);
     end_mt_search(&pre);
@@ -1019,11 +1019,11 @@ mt_struct *get_mt_parameter_opt_temper(int w, int p, uint32_t seed)
 
     _sgenrand_dc(&org, seed);
     mts = init_mt_search(&ck, &pre, w, p);
-    if (mts == NULL) return NULL;
+    if (mts == nullptr) return nullptr;
 
     if ( NOT_FOUND == get_irred_param(&ck, &pre, &org, mts,0,0) ) {
         free_mt_struct(mts);
-        return NULL;
+        return nullptr;
     }
     _get_tempering_parameter_hard_dc(mts);
     end_mt_search(&pre);
@@ -1047,20 +1047,20 @@ mt_struct *get_mt_parameter_id_st(int w, int p, int id, uint32_t seed)
     _sgenrand_dc(&org, seed);
     if (id > 0xffff) {
         printf("\"id\" must be less than 65536\n");
-        return NULL;
+        return nullptr;
     }
     if (id < 0) {
         printf("\"id\" must be positive\n");
-        return NULL;
+        return nullptr;
     }
 
     mts = init_mt_search(&ck, &pre, w, p);
-    if (mts == NULL) return NULL;
+    if (mts == nullptr) return nullptr;
 
     if ( NOT_FOUND == get_irred_param(&ck, &pre, &org,
                                       mts, id, DEFAULT_ID_SIZE) ) {
         free_mt_struct(mts);
-        return NULL;
+        return nullptr;
     }
     _get_tempering_parameter_hard_dc(mts);
     end_mt_search(&pre);
@@ -1076,20 +1076,20 @@ mt_struct *get_mt_parameter_id(int w, int p, int id)
 
     if (id > 0xffff) {
         printf("\"id\" must be less than 65536\n");
-        return NULL;
+        return nullptr;
     }
     if (id < 0) {
         printf("\"id\" must be positive\n");
-        return NULL;
+        return nullptr;
     }
 
     mts = init_mt_search(&ck, &pre, w, p);
-    if (mts == NULL) return NULL;
+    if (mts == nullptr) return nullptr;
 
     if ( NOT_FOUND == get_irred_param(&ck, &pre, &global_mt19937,
                                       mts, id, DEFAULT_ID_SIZE) ) {
         free_mt_struct(mts);
-        return NULL;
+        return nullptr;
     }
     _get_tempering_parameter_hard_dc(mts);
     end_mt_search(&pre);
@@ -1108,22 +1108,22 @@ mt_struct **get_mt_parameters_st(int w, int p, int start_id,
 
     if ((start_id > max_id) || (max_id > 0xffff) || (start_id < 0)) {
         printf("\"id\" error\n");
-        return NULL;
+        return nullptr;
     }
 
     _sgenrand_dc(&org, seed);
     mtss = (mt_struct**)malloc(sizeof(mt_struct*)*(max_id-start_id+1));
-    if (NULL == mtss) return NULL;
+    if (nullptr == mtss) return nullptr;
 
     template_mts = init_mt_search(&ck, &pre, w, p);
-    if (template_mts == NULL) {
+    if (template_mts == nullptr) {
         free(mtss);
-        return NULL;
+        return nullptr;
     }
     *count = 0;
     for (i=0; i<=max_id-start_id; i++) {
         mtss[i] = alloc_mt_struct(template_mts->nn);
-        if (NULL == mtss[i]) {
+        if (nullptr == mtss[i]) {
             break;
         }
 
@@ -1144,7 +1144,7 @@ mt_struct **get_mt_parameters_st(int w, int p, int start_id,
         return mtss;
     } else {
         free(mtss);
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1158,21 +1158,21 @@ mt_struct **get_mt_parameters(int w, int p, int max_id, int *count)
 
     if ((start_id > max_id) || (max_id > 0xffff) || (start_id < 0)) {
         printf("\"id\" error\n");
-        return NULL;
+        return nullptr;
     }
 
     mtss = (mt_struct**)malloc(sizeof(mt_struct*)*(max_id-start_id+1));
-    if (NULL == mtss) return NULL;
+    if (nullptr == mtss) return nullptr;
 
     template_mts = init_mt_search(&ck, &pre, w, p);
-    if (template_mts == NULL) {
+    if (template_mts == nullptr) {
         free(mtss);
-        return NULL;
+        return nullptr;
     }
     *count = 0;
     for (i=0; i<=max_id-start_id; i++) {
         mtss[i] = alloc_mt_struct(template_mts->nn);
-        if (NULL == mtss[i]) {
+        if (nullptr == mtss[i]) {
             break;
         }
 
@@ -1193,7 +1193,7 @@ mt_struct **get_mt_parameters(int w, int p, int max_id, int *count)
         return mtss;
     } else {
         free(mtss);
-        return NULL;
+        return nullptr;
     }
 }
 
@@ -1203,11 +1203,11 @@ static mt_struct *alloc_mt_struct(int n)
     mt_struct *mts;
 
     mts = (mt_struct*)malloc(sizeof(mt_struct));
-    if (NULL == mts) return NULL;
+    if (nullptr == mts) return nullptr;
     mts->state = (uint32_t*)malloc(n*sizeof(uint32_t));
-    if (NULL == mts->state) {
+    if (nullptr == mts->state) {
         free(mts);
-        return NULL;
+        return nullptr;
     }
 
     return mts;
@@ -1223,7 +1223,7 @@ void free_mt_struct_array(mt_struct **mtss, int count)
 {
     int i;
 
-    if (mtss == NULL) {
+    if (mtss == nullptr) {
         return;
     }
     for (i=0; i < count; i++) {
@@ -1356,21 +1356,21 @@ void _InitPrescreening_dc(prescr_t *pre, int m, int n, int r, int w)
 
     pre->preModPolys = (Polynomial **)malloc(
         (pre->sizeofA+1)*(sizeof(Polynomial*)));
-    if (NULL == pre->preModPolys) {
+    if (nullptr == pre->preModPolys) {
         printf ("malloc error in \"InitPrescreening\"\n");
         exit(1);
     }
     MakepreModPolys(pre, m,n,r,w);
 
     pre->modlist = (uint32_t**)malloc(NIRREDPOLY * sizeof(uint32_t*));
-    if (NULL == pre->modlist) {
+    if (nullptr == pre->modlist) {
         printf ("malloc error in \"InitPrescreening()\"\n");
         exit(1);
     }
     for (i=0; i<NIRREDPOLY; i++) {
         pre->modlist[i]
             = (uint32_t*)malloc( (pre->sizeofA + 1) * (sizeof(uint32_t)) );
-        if (NULL == pre->modlist[i]) {
+        if (nullptr == pre->modlist[i]) {
             printf ("malloc error in \"InitPrescreening()\"\n");
             exit(1);
         }
@@ -1473,19 +1473,19 @@ static Polynomial *NewPoly(int degree)
     Polynomial *p;
 
     p = (Polynomial *)calloc( 1, sizeof(Polynomial));
-    if( p==NULL ){
+    if( p==nullptr ){
         printf("calloc error in \"NewPoly()\"\n");
         exit(1);
     }
     p->deg = degree;
 
     if (degree < 0) {
-        p->x = NULL;
+        p->x = nullptr;
         return p;
     }
 
     p->x = (int *)calloc( degree + 1, sizeof(int));
-    if( p->x == NULL ){
+    if( p->x == nullptr ){
         printf("calloc error\n");
         exit(1);
     }
@@ -1495,7 +1495,7 @@ static Polynomial *NewPoly(int degree)
 
 static void FreePoly( Polynomial *p)
 {
-    if (p->x != NULL)
+    if (p->x != nullptr)
         free( p->x );
     free( p );
 }
@@ -1702,13 +1702,13 @@ int _CheckPeriod_dc(check32_t *ck, _org_state *st,
 
     p = n*w-r;
     x = (uint32_t*) malloc (2*p*sizeof(uint32_t));
-    if (NULL==x) {
+    if (nullptr==x) {
         printf("malloc error in \"_CheckPeriod_dc()\"\n");
         exit(1);
     }
 
     init = (uint32_t*) malloc (n*sizeof(uint32_t));
-    if (NULL==init) {
+    if (nullptr==init) {
         printf("malloc error \"_CheckPeriod_dc()\"\n");
         free(x);
         exit(1);

@@ -209,7 +209,7 @@ void* vtkUnicodeStringArray::GetVoidPointer(vtkIdType id)
 {
   // Err.. not totally sure what to do here
   if (this->Internal->Storage.empty())
-    return 0;
+    return nullptr;
   else
     return &this->Internal->Storage[id];
 }
@@ -291,7 +291,7 @@ void vtkUnicodeStringArray::InterpolateTuple(vtkIdType i,
 
 void vtkUnicodeStringArray::Squeeze()
 {
-  Implementation::StorageT(this->Internal->Storage).swap(this->Internal->Storage);
+  this->Internal->Storage.shrink_to_fit();
   this->DataChanged();
 }
 
@@ -331,7 +331,7 @@ int vtkUnicodeStringArray::IsNumeric()
 vtkArrayIterator* vtkUnicodeStringArray::NewIterator()
 {
   vtkErrorMacro("Not implemented.");
-  return 0;
+  return nullptr;
 }
 
 vtkVariant vtkUnicodeStringArray::GetVariantValue(vtkIdType idx)

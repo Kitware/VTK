@@ -142,7 +142,7 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
 
   TEST_SET_GET_INT_RANGE(node1, ID, 1, 10000);
 
-  std::cout << "LabelText = " << (node1->GetLabelText() ==  NULL ? "NULL" : node1->GetLabelText()) << std::endl;
+  std::cout << "LabelText = " << (node1->GetLabelText() ==  nullptr ? "nullptr" : node1->GetLabelText()) << std::endl;
   double *labelPos = node1->GetLabelPosition();
   if (labelPos)
   {

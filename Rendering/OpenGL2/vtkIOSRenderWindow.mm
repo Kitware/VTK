@@ -104,16 +104,18 @@ void vtkIOSRenderWindow::DestroyWindow()
 }
 
 int vtkIOSRenderWindow::ReadPixels(
-  const vtkRecti& rect, int front, int glFormat, int glType, void* data)
+  const vtkRecti& rect, int front, int glFormat, int glType, void* data,
+  int right)
 {
   if (glFormat != GL_RGB || glType != GL_UNSIGNED_BYTE)
   {
-    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data);
+    return this->Superclass::ReadPixels(rect, front, glFormat, glType, data,
+                                        right);
   }
 
   // iOS has issues with getting RGB so we get RGBA
   unsigned char* uc4data = new unsigned char[rect.GetWidth() * rect.GetHeight() * 4];
-  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data);
+  int retVal = this->Superclass::ReadPixels(rect, front, GL_RGBA, GL_UNSIGNED_BYTE, uc4data, right);
 
   unsigned char* dPtr = reinterpret_cast<unsigned char*>(data);
   const unsigned char* lPtr = uc4data;
@@ -308,67 +310,6 @@ void vtkIOSRenderWindow::Frame()
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
 //    [(NSOpenGLContext*)this->GetContextId() flushBuffer];
-  }
-}
-
-//----------------------------------------------------------------------------
-// Update system if needed due to stereo rendering.
-void vtkIOSRenderWindow::StereoUpdate()
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 1;
-        break;
-    }
-  }
-  else if ((!this->StereoRender) && this->StereoStatus)
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 0;
-        break;
-    }
   }
 }
 
@@ -603,7 +544,7 @@ void *vtkIOSRenderWindow::GetPixelFormat()
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetWindowInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
@@ -617,7 +558,7 @@ void vtkIOSRenderWindow::SetWindowInfo(char *info)
 //----------------------------------------------------------------------------
 void vtkIOSRenderWindow::SetParentInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)

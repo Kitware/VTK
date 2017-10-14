@@ -4,5 +4,5 @@ vtk_add_test_python(
 
 vtk_add_test_python(
   NO_DATA NO_VALID NO_OUTPUT
-  TestObjectId.py
+  TestObjectIdMap.py
   )

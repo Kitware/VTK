@@ -48,7 +48,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTreeNode : public vtkObject
 public:
   static vtkGeoTreeNode *New();
   vtkTypeMacro(vtkGeoTreeNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkGeoTreeNode();
-  ~vtkGeoTreeNode() VTK_OVERRIDE;
+  ~vtkGeoTreeNode() override;
 
   int Level;
   unsigned long Id;
@@ -190,8 +190,8 @@ protected:
   vtkGeoTreeNode* Newer;
 
 private:
-  vtkGeoTreeNode(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
+  vtkGeoTreeNode(const vtkGeoTreeNode&) = delete;
+  void operator=(const vtkGeoTreeNode&) = delete;
 };
 
 #endif

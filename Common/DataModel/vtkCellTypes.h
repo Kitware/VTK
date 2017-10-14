@@ -48,7 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 public:
   static vtkCellTypes *New();
   vtkTypeMacro(vtkCellTypes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -76,7 +76,7 @@ public:
   vtkIdType GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
 
   /**
-   * Delete cell by setting to NULL cell type.
+   * Delete cell by setting to nullptr cell type.
    */
   void DeleteCell(vtkIdType cellId) { this->TypeArray->SetValue(cellId, VTK_EMPTY_CELL);};
 
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkCellTypes();
-  ~vtkCellTypes() VTK_OVERRIDE;
+  ~vtkCellTypes() override;
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets
@@ -157,8 +157,8 @@ protected:
   vtkIdType Extend;          // grow array by this point
 
 private:
-  vtkCellTypes(const vtkCellTypes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellTypes&) VTK_DELETE_FUNCTION;
+  vtkCellTypes(const vtkCellTypes&) = delete;
+  void operator=(const vtkCellTypes&) = delete;
 };
 
 

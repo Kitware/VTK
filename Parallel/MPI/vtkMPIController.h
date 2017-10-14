@@ -59,7 +59,7 @@ public:
 
   static vtkMPIController *New();
   vtkTypeMacro(vtkMPIController,vtkMultiProcessController);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method is for setting up the processes.
@@ -72,11 +72,11 @@ public:
    * usually MPI implementations add their own arguments during
    * startup).
    */
-  virtual void Initialize(int* argc, char*** argv) VTK_OVERRIDE
+  virtual void Initialize(int* argc, char*** argv) override
     { this->Initialize(argc, argv, 0); }
 
   virtual void Initialize(int* vtkNotUsed(argc), char*** vtkNotUsed(argv),
-                          int initializedExternally) VTK_OVERRIDE;
+                          int initializedExternally) override;
 
   /**
    * Same as Initialize(0, 0, 1). Mainly for calling from wrapped languages.
@@ -88,29 +88,29 @@ public:
    * the end of the program if MPI was initialized with
    * Initialize()
    */
-  virtual void Finalize() VTK_OVERRIDE { this->Finalize(0); }
+  virtual void Finalize() override { this->Finalize(0); }
 
-  virtual void Finalize(int finalizedExternally) VTK_OVERRIDE;
+  virtual void Finalize(int finalizedExternally) override;
 
   /**
    * Execute the SingleMethod (as define by SetSingleMethod) using
    * this->NumberOfProcesses processes.
    */
-  virtual void SingleMethodExecute() VTK_OVERRIDE;
+  virtual void SingleMethodExecute() override;
 
   /**
    * Execute the MultipleMethods (as define by calling SetMultipleMethod
    * for each of the required this->NumberOfProcesses methods) using
    * this->NumberOfProcesses processes.
    */
-  virtual void MultipleMethodExecute() VTK_OVERRIDE;
+  virtual void MultipleMethodExecute() override;
 
   /**
    * This method can be used to tell the controller to create
    * a special output window in which all messages are preceded
    * by the process id.
    */
-  virtual void CreateOutputWindow() VTK_OVERRIDE;
+  virtual void CreateOutputWindow() override;
 
   /**
    * Given an MPI error code, return a string which contains
@@ -130,9 +130,9 @@ public:
    */
   void SetCommunicator(vtkMPICommunicator* comm);
 
-  virtual vtkMPIController *CreateSubController(vtkProcessGroup *group) VTK_OVERRIDE;
+  virtual vtkMPIController *CreateSubController(vtkProcessGroup *group) override;
 
-  virtual vtkMPIController *PartitionController(int localColor, int localKey) VTK_OVERRIDE;
+  virtual vtkMPIController *PartitionController(int localColor, int localKey) override;
 
   /**
    * This method sends data to another process (non-blocking).
@@ -219,8 +219,8 @@ public:
    * or ANY_SOURCE; tag -- the tag value.  Outputs are:
    * flag -- True if a message matches; actualSource -- the rank
    * sending the message (useful if ANY_SOURCE is used) if flag is True
-   * and actualSource isn't NULL; size -- the length of the message in
-   * bytes if flag is true (only set if size isn't NULL). The return
+   * and actualSource isn't nullptr; size -- the length of the message in
+   * bytes if flag is true (only set if size isn't nullptr). The return
    * value is 1 for success and 0 otherwise.
    * Note: These methods delegate to the communicator
    */
@@ -321,7 +321,7 @@ protected:
    * instead of Send.
    */
   virtual void TriggerRMIInternal(int remoteProcessId,
-    void* arg, int argLength, int rmiTag, bool propagate) VTK_OVERRIDE;
+    void* arg, int argLength, int rmiTag, bool propagate) override;
 
   // MPI communicator created when Initialize() called.
   // This is a copy of MPI_COMM_WORLD but uses a new
@@ -343,8 +343,8 @@ protected:
   static int UseSsendForRMI;
 
 private:
-  vtkMPIController(const vtkMPIController&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
+  vtkMPIController(const vtkMPIController&) = delete;
+  void operator=(const vtkMPIController&) = delete;
 
 };
 

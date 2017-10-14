@@ -30,13 +30,13 @@ vtkWebGLDataSet::vtkWebGLDataSet()
   this->NumberOfVertices = 0;
   this->NumberOfPoints = 0;
   this->NumberOfIndexes = 0;
-  this->vertices = NULL;
-  this->normals = NULL;
-  this->indexes = NULL;
-  this->points = NULL;
-  this->tcoords = NULL;
-  this->colors = NULL;
-  this->binary = NULL;
+  this->vertices = nullptr;
+  this->normals = nullptr;
+  this->indexes = nullptr;
+  this->points = nullptr;
+  this->tcoords = nullptr;
+  this->colors = nullptr;
+  this->binary = nullptr;
   this->binarySize = 0;
   this->hasChanged = false;
 }
@@ -199,7 +199,7 @@ void vtkWebGLDataSet::GenerateBinaryData()
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
   }
-  vtkWebGLExporter::ComputeMD5((unsigned char*)this->binary, this->binarySize, this->MD5);
+  vtkWebGLExporter::ComputeMD5((const unsigned char*)this->binary, this->binarySize, this->MD5);
   this->hasChanged = true;
 }
 

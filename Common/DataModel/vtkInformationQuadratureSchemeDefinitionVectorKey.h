@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKe
 {
 public:
   vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@{
   /**
    * The name of the static instance and the class in which
@@ -47,7 +47,7 @@ public:
           const char* name,
           const char* location);
   //
-  ~vtkInformationQuadratureSchemeDefinitionVectorKey() VTK_OVERRIDE;
+  ~vtkInformationQuadratureSchemeDefinitionVectorKey() override;
   //@}
 
   /**
@@ -112,14 +112,14 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
-  void DeepCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
+  void DeepCopy(vtkInformation* from, vtkInformation* to) override;
   //@}
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
   // note: I had wanted to make the following interface in vtkInformationKey
   // with a defualt implementation that did nothing. but we decided that
@@ -152,8 +152,8 @@ private:
   vtkInformationQuadratureSchemeDefinitionVectorValue *GetQuadratureSchemeDefinitionVector(vtkInformation *info);
 
   //
-  vtkInformationQuadratureSchemeDefinitionVectorKey(const vtkInformationQuadratureSchemeDefinitionVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationQuadratureSchemeDefinitionVectorKey(const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
+  void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&) = delete;
 };
 
 #endif

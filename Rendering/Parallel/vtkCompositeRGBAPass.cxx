@@ -63,35 +63,35 @@ vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Kdtree,vtkPKdTree);
 // ----------------------------------------------------------------------------
 vtkCompositeRGBAPass::vtkCompositeRGBAPass()
 {
-  this->Controller=0;
-  this->Kdtree=0;
-  this->PBO=0;
-  this->RGBATexture=0;
-  this->RootTexture=0;
-  this->RawRGBABuffer=0;
+  this->Controller=nullptr;
+  this->Kdtree=nullptr;
+  this->PBO=nullptr;
+  this->RGBATexture=nullptr;
+  this->RootTexture=nullptr;
+  this->RawRGBABuffer=nullptr;
   this->RawRGBABufferSize=0;
 }
 
 // ----------------------------------------------------------------------------
 vtkCompositeRGBAPass::~vtkCompositeRGBAPass()
 {
-  if(this->Controller!=0)
+  if(this->Controller!=nullptr)
   {
       this->Controller->Delete();
   }
-  if(this->Kdtree!=0)
+  if(this->Kdtree!=nullptr)
   {
       this->Kdtree->Delete();
   }
-  if(this->PBO!=0)
+  if(this->PBO!=nullptr)
   {
     vtkErrorMacro(<<"PixelBufferObject should have been deleted in ReleaseGraphicsResources().");
   }
-   if(this->RGBATexture!=0)
+   if(this->RGBATexture!=nullptr)
    {
     vtkErrorMacro(<<"RGBATexture should have been deleted in ReleaseGraphicsResources().");
    }
-   if(this->RootTexture!=0)
+   if(this->RootTexture!=nullptr)
    {
      vtkErrorMacro(<<"RootTexture should have been deleted in ReleaseGraphicsResources().");
    }
@@ -104,7 +104,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Controller:";
-  if(this->Controller!=0)
+  if(this->Controller!=nullptr)
   {
     this->Controller->PrintSelf(os,indent);
   }
@@ -113,7 +113,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)" <<endl;
   }
   os << indent << "Kdtree:";
-  if(this->Kdtree!=0)
+  if(this->Kdtree!=nullptr)
   {
     this->Kdtree->PrintSelf(os,indent);
   }
@@ -127,7 +127,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
 #ifdef VTK_OPENGL2
-  return (context != 0);
+  return (context != nullptr);
 #else
   vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
 
@@ -146,9 +146,9 @@ bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 // \pre s_exists: s!=0
 void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
-  if(this->Controller==0)
+  if(this->Controller==nullptr)
   {
     vtkErrorMacro(<<" no controller.");
     return;
@@ -161,7 +161,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     return; // nothing to do.
   }
 
-  if(this->Kdtree==0)
+  if(this->Kdtree==nullptr)
   {
     vtkErrorMacro(<<" no Kdtree.");
     return;
@@ -193,7 +193,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   int h=0;
 
   vtkFrameBufferObjectBase *fbo = s->GetFrameBuffer();
-  if(fbo==0)
+  if(fbo==nullptr)
   {
     r->GetTiledSize(&w,&h);
   }
@@ -219,13 +219,13 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   continuousInc[2]=0;
 
 
-  if(this->RawRGBABuffer!=0 &&
+  if(this->RawRGBABuffer!=nullptr &&
      this->RawRGBABufferSize<static_cast<size_t>(w*h*4))
   {
     delete[] this->RawRGBABuffer;
-    this->RawRGBABuffer=0;
+    this->RawRGBABuffer=nullptr;
   }
-  if(this->RawRGBABuffer==0)
+  if(this->RawRGBABuffer==nullptr)
   {
     this->RawRGBABufferSize=static_cast<size_t>(w*h*4);
     this->RawRGBABuffer=new float[this->RawRGBABufferSize];
@@ -233,12 +233,12 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   //size_t byteSize = this->RawRGBABufferSize*sizeof(unsigned char);
 
-  if(this->PBO==0)
+  if(this->PBO==nullptr)
   {
     this->PBO=vtkPixelBufferObject::New();
     this->PBO->SetContext(context);
   }
-  if(this->RGBATexture==0)
+  if(this->RGBATexture==nullptr)
   {
     this->RGBATexture=vtkTextureObject::New();
     this->RGBATexture->SetContext(context);
@@ -281,7 +281,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
     cout << "after readpixel." << endl;
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
     cout << "after pbodownload." << endl;
@@ -404,7 +404,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     bool rootIsFarest=frontToBackList->GetValue(numProcs-1)==0;
     if(!rootIsFarest)
     {
-      if(this->RootTexture==0)
+      if(this->RootTexture==nullptr)
       {
         this->RootTexture=vtkTextureObject::New();
         this->RootTexture->SetContext(context);
@@ -452,7 +452,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
       }
 #ifdef VTK_OPENGL2
       to->Activate();
-      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, NULL, NULL);
+      to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, nullptr, nullptr);
       to->Deactivate();
       --procIndex;
     }
@@ -483,7 +483,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     this->PBO->Download2D(VTK_FLOAT,this->RawRGBABuffer,dims,4,continuousInc);
 
@@ -546,7 +546,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_RGBA,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     // PBO to client
     glPixelStorei(GL_PACK_ALIGNMENT,1);// server to client
@@ -615,23 +615,23 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 // \pre w_exists: w!=0
 void vtkCompositeRGBAPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w!=nullptr);
 
   (void)w;
 
-  if(this->PBO!=0)
+  if(this->PBO!=nullptr)
   {
     this->PBO->Delete();
-    this->PBO=0;
+    this->PBO=nullptr;
   }
-  if(this->RGBATexture!=0)
+  if(this->RGBATexture!=nullptr)
   {
     this->RGBATexture->Delete();
-    this->RGBATexture=0;
+    this->RGBATexture=nullptr;
   }
-  if(this->RootTexture!=0)
+  if(this->RootTexture!=nullptr)
   {
     this->RootTexture->Delete();
-    this->RootTexture=0;
+    this->RootTexture=nullptr;
   }
 }

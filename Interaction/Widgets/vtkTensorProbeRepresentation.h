@@ -45,15 +45,15 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkTensorProbeRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
   /**
    * See vtkWidgetRepresentation for details.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int RenderOpaqueGeometry(vtkViewport *) override;
   //@}
 
   //@{
@@ -93,13 +93,13 @@ public:
   /**
    * See vtkProp for details.
    */
-  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
   //@}
 
 protected:
   vtkTensorProbeRepresentation();
-  ~vtkTensorProbeRepresentation() VTK_OVERRIDE;
+  ~vtkTensorProbeRepresentation() override;
 
   void FindClosestPointOnPolyline(
     double displayPos[2], double closestWorldPos[3], vtkIdType &cellId,
@@ -113,8 +113,8 @@ protected:
 
 private:
   vtkTensorProbeRepresentation(
-      const vtkTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
+      const vtkTensorProbeRepresentation&) = delete;
+  void operator=(const vtkTensorProbeRepresentation&) = delete;
 
 };
 

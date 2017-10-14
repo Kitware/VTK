@@ -46,7 +46,7 @@ public:
   static vtkEdgeTable *New();
 
   vtkTypeMacro(vtkEdgeTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Free memory and return to the initially instantiated state.
@@ -112,7 +112,7 @@ public:
 
   /**
    * Similar to above, but returns a void* pointer is InitEdgeInsertion()
-   * has been called with storeAttributes==2. A NULL pointer value
+   * has been called with storeAttributes==2. A nullptr pointer value
    * is returned if the edge does not exist.
    */
   void IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr);
@@ -153,7 +153,7 @@ public:
 
   /**
    * Similar to above, but fills a void* pointer if InitEdgeInsertion()
-   * has been called with storeAttributes==2. A NULL pointer value
+   * has been called with storeAttributes==2. A nullptr pointer value
    * is filled otherwise.  Returns 0 if list is exhausted.
    */
   int GetNextEdge(vtkIdType &p1, vtkIdType &p2, void* &ptr);
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkEdgeTable();
-  ~vtkEdgeTable() VTK_OVERRIDE;
+  ~vtkEdgeTable() override;
 
   vtkIdList **Table;
   vtkIdType TableMaxId; //maximum point id inserted
@@ -183,8 +183,8 @@ protected:
   vtkIdList **Resize(vtkIdType size);
 
 private:
-  vtkEdgeTable(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
+  vtkEdgeTable(const vtkEdgeTable&) = delete;
+  void operator=(const vtkEdgeTable&) = delete;
 };
 
 #endif

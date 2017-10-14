@@ -59,6 +59,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 // The vtkDebugLeaks singleton must be initialized before and
 // destroyed after the vtkInstantiator singleton.
 #include "vtkDebugLeaksManager.h" // Needed for proper singleton initialization
@@ -71,11 +73,11 @@ class VTKCOMMONCORE_EXPORT vtkInstantiator : public vtkObject
 public:
   static vtkInstantiator* New();
   vtkTypeMacro(vtkInstantiator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an instance of the class whose name is given.  If creation
-   * fails, a NULL pointer is returned.
+   * fails, a nullptr pointer is returned.
    */
   VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* className);
@@ -101,7 +103,7 @@ public:
 
 protected:
   vtkInstantiator();
-  ~vtkInstantiator() VTK_OVERRIDE;
+  ~vtkInstantiator() override;
 
   // Internal storage for registered creation functions.
   static vtkInstantiatorHashTable* CreatorTable;
@@ -112,8 +114,8 @@ protected:
   friend class vtkInstantiatorInitialize;
 
 private:
-  vtkInstantiator(const vtkInstantiator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInstantiator&) VTK_DELETE_FUNCTION;
+  vtkInstantiator(const vtkInstantiator&) = delete;
+  void operator=(const vtkInstantiator&) = delete;
 };
 
 // Utility class to make sure vtkInstantiator is initialized before it
@@ -126,8 +128,8 @@ public:
 private:
   static unsigned int Count;
 private:
-  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other) VTK_DELETE_FUNCTION;
-  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs) VTK_DELETE_FUNCTION;
+  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other) = delete;
+  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs) = delete;
 };
 
 // This instance will show up in any translation unit that uses
@@ -135,4 +137,5 @@ private:
 // before it is used.
 static vtkInstantiatorInitialize vtkInstantiatorInitializer;
 
+#endif
 #endif

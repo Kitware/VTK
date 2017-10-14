@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
 //----------------------------------------------------------------------------
 vtkTransformToGrid::vtkTransformToGrid()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
 
   this->GridScalarType = VTK_FLOAT;
 
@@ -49,7 +49,7 @@ vtkTransformToGrid::vtkTransformToGrid()
 //----------------------------------------------------------------------------
 vtkTransformToGrid::~vtkTransformToGrid()
 {
-  this->SetInput(static_cast<vtkAbstractTransform*>(0));
+  this->SetInput(static_cast<vtkAbstractTransform*>(nullptr));
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ void vtkTransformToGrid::RequestInformation (
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
 
-  if (this->GetInput() == NULL)
+  if (this->GetInput() == nullptr)
   {
     vtkErrorMacro("Missing input");
     return;
@@ -289,7 +289,7 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
 {
   vtkAbstractTransform *transform = self->GetInput();
   int isIdentity = 0;
-  if (transform == 0)
+  if (transform == nullptr)
   {
     transform = vtkIdentityTransform::New();
     isIdentity = 1;

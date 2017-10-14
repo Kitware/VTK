@@ -65,7 +65,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkConvexHull2D: public vtkPolyDataAlgorithm
 public:
   static vtkConvexHull2D *New();
   vtkTypeMacro(vtkConvexHull2D, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -127,7 +127,7 @@ public:
   /**
    * The modified time of this filter.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -141,17 +141,17 @@ public:
 
 protected:
   vtkConvexHull2D();
-  ~vtkConvexHull2D() VTK_OVERRIDE;
+  ~vtkConvexHull2D() override;
 
   /**
    * This is called by the superclass. This is the method you should override.
    */
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
 private:
-  vtkConvexHull2D(const vtkConvexHull2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConvexHull2D&) VTK_DELETE_FUNCTION;
+  vtkConvexHull2D(const vtkConvexHull2D&) = delete;
+  void operator=(const vtkConvexHull2D&) = delete;
 
   void ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData);
 

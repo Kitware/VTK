@@ -36,7 +36,7 @@ class VTKCOMMONMATH_EXPORT vtkRungeKutta4 : public vtkInitialValueProblemSolver
 {
 public:
   vtkTypeMacro(vtkRungeKutta4,vtkInitialValueProblemSolver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkRungeKutta4 with no initial FunctionSet.
@@ -60,17 +60,17 @@ public:
    */
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
       double delTActual;
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
       double minStep = delT;
       double maxStep = delT;
@@ -81,27 +81,27 @@ public:
   int ComputeNextStep(double* xprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE
+                      double maxError, double& error) override
   {
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
                       double t, double& delT, double& delTActual,
                       double minStep, double maxStep,
-                      double maxError, double& error) VTK_OVERRIDE;
+                      double maxError, double& error) override;
   //@}
 
 protected:
   vtkRungeKutta4();
-  ~vtkRungeKutta4() VTK_OVERRIDE;
+  ~vtkRungeKutta4() override;
 
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   double* NextDerivs[3];
 private:
-  vtkRungeKutta4(const vtkRungeKutta4&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRungeKutta4&) VTK_DELETE_FUNCTION;
+  vtkRungeKutta4(const vtkRungeKutta4&) = delete;
+  void operator=(const vtkRungeKutta4&) = delete;
 };
 
 #endif

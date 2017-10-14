@@ -35,7 +35,7 @@ void vtkCastRay_NN_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicIn
                           vtkVolumeRayCastStaticInfo *staticInfo )
 {
   int             value=0;
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -256,7 +256,7 @@ void vtkCastRay_NN_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo
                            vtkVolumeRayCastStaticInfo *staticInfo )
 {
   int             value;
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
   float           accum_blue_intensity;
@@ -543,7 +543,7 @@ template <class T>
 void vtkCastRay_TrilinSample_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                        vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   unsigned char   *gmptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -894,7 +894,7 @@ template <class T>
 void vtkCastRay_TrilinSample_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                      vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   unsigned char   *gmptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -1351,7 +1351,7 @@ template <class T>
 void vtkCastRay_TrilinVertices_Unshaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                          vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   unsigned char   *goptr;
   float           accum_red_intensity;
   float           accum_green_intensity;
@@ -1807,7 +1807,7 @@ template <class T>
 void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo *dynamicInfo,
                                        vtkVolumeRayCastStaticInfo *staticInfo )
 {
-  unsigned char   *grad_mag_ptr = NULL;
+  unsigned char   *grad_mag_ptr = nullptr;
   unsigned char   *goptr;
   float           accum_red_intensity;
   float           accum_green_intensity;

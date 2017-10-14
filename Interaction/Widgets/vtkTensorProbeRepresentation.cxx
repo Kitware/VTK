@@ -30,7 +30,7 @@
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
 {
-  this->Trajectory = NULL;
+  this->Trajectory = nullptr;
   this->TrajectoryMapper = vtkPolyDataMapper::New();
   this->TrajectoryActor = vtkActor::New();
   this->TrajectoryActor->SetMapper(this->TrajectoryMapper);
@@ -43,7 +43,7 @@ vtkTensorProbeRepresentation::vtkTensorProbeRepresentation()
 //----------------------------------------------------------------------
 vtkTensorProbeRepresentation::~vtkTensorProbeRepresentation()
 {
-  this->SetTrajectory(NULL);
+  this->SetTrajectory(nullptr);
   this->TrajectoryMapper->Delete();
   this->TrajectoryActor->Delete();
 }
@@ -55,11 +55,11 @@ void vtkTensorProbeRepresentation::SetTrajectory( vtkPolyData * args )
   {
     vtkPolyData * tempSGMacroVar = this->Trajectory;
     this->Trajectory = args;
-    if (this->Trajectory != NULL)
+    if (this->Trajectory != nullptr)
     {
       this->Trajectory->Register(this);
     }
-    if (tempSGMacroVar != NULL)
+    if (tempSGMacroVar != nullptr)
     {
       tempSGMacroVar->UnRegister(this);
     }
@@ -108,7 +108,7 @@ void vtkTensorProbeRepresentation
     double displayPos[2], double closestWorldPos[3], vtkIdType &cellId,
     int maxSpeed )
 {
-  vtkIdType npts=0, *ptIds=0;
+  vtkIdType npts=0, *ptIds=nullptr;
 
   this->Trajectory->GetLines()->GetCell( 0, npts, ptIds );
   vtkPoints *points = this->Trajectory->GetPoints();

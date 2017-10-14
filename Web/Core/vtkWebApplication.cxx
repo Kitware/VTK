@@ -53,7 +53,7 @@ public:
     bool HasImagesBeingProcessed;
     vtkObject* ViewPointer;
     unsigned long ObserverId;
-    ImageCacheValueType() : NeedsRender(true), HasImagesBeingProcessed(false), ViewPointer(NULL), ObserverId(0) { }
+    ImageCacheValueType() : NeedsRender(true), HasImagesBeingProcessed(false), ViewPointer(nullptr), ObserverId(0) { }
 
     void SetListener(vtkObject* view)
     {
@@ -80,7 +80,7 @@ public:
       {
         this->ViewPointer->RemoveObserver(this->ObserverId);
         this->ObserverId = 0;
-        this->ViewPointer = NULL;
+        this->ViewPointer = nullptr;
       }
     }
 
@@ -126,7 +126,7 @@ vtkWebApplication::vtkWebApplication():
 vtkWebApplication::~vtkWebApplication()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -155,14 +155,14 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   if (!view)
   {
     vtkErrorMacro("No view specified.");
-    return NULL;
+    return nullptr;
   }
 
   vtkInternals::ImageCacheValueType& value = this->Internals->ImageCache[view];
   value.SetListener(view);
 
   if (value.NeedsRender == false &&
-    value.Data != NULL /* FIXME SEB &&
+    value.Data != nullptr /* FIXME SEB &&
     view->HasDirtyRepresentation() == false */)
   {
     //cout <<  "Reusing cache" << endl;
@@ -183,7 +183,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   // then alone do a new rendering otherwise use the cached image.
   vtkNew<vtkWindowToImageFilter> w2i;
   w2i->SetInput(view);
-  w2i->SetMagnification(1);
+  w2i->SetScale(1);
   w2i->ReadFrontBufferOff();
   w2i->ShouldRerenderOff();
   w2i->FixBoundaryOn();
@@ -198,9 +198,9 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   //vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
 
   this->Internals->Encoder->PushAndTakeReference(this->Internals->ObjectIdMap->GetGlobalId(view), image, quality);
-  assert(image == NULL);
+  assert(image == nullptr);
 
-  if (value.Data == NULL)
+  if (value.Data == nullptr)
   {
     // we need to wait till output is processed.
     //cout << "Flushing" << endl;
@@ -220,18 +220,18 @@ const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, vtkMTi
   vtkUnsignedCharArray* array = this->StillRender(view, quality);
   if (array && array->GetMTime() != time)
   {
-    this->LastStillRenderToStringMTime = array->GetMTime();
+    this->LastStillRenderToMTime = array->GetMTime();
     //cout << "Image size: " << array->GetNumberOfTuples() << endl;
     return reinterpret_cast<char*>(array->GetPointer(0));
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
 bool vtkWebApplication::HandleInteractionEvent(
   vtkRenderWindow* view, vtkWebInteractionEvent* event)
 {
-  vtkRenderWindowInteractor *iren = NULL;
+  vtkRenderWindowInteractor *iren = nullptr;
 
   if (view)
   {
@@ -329,7 +329,7 @@ const char* vtkWebApplication::GetWebGLSceneMetaData(vtkRenderWindow* view)
   if (!view)
   {
     vtkErrorMacro("No view specified.");
-    return NULL;
+    return nullptr;
   }
 
   // We use the camera focal point to be the center of rotation
@@ -381,23 +381,23 @@ const char* vtkWebApplication::GetWebGLBinaryData(
   if (!view)
   {
     vtkErrorMacro("No view specified.");
-    return NULL;
+    return nullptr;
   }
   if(this->Internals->ViewWebGLMap.find(view) ==
     this->Internals->ViewWebGLMap.end())
   {
-    if(this->GetWebGLSceneMetaData(view) == NULL)
+    if(this->GetWebGLSceneMetaData(view) == nullptr)
     {
       vtkErrorMacro("Failed to generate WebGL MetaData for: " << view);
-      return NULL;
+      return nullptr;
     }
   }
 
   vtkWebGLExporter* webglExporter = this->Internals->ViewWebGLMap[view];
-  if(webglExporter == NULL)
+  if(webglExporter == nullptr)
   {
     vtkErrorMacro("There is no cached WebGL Exporter for: " << view);
-    return NULL;
+    return nullptr;
   }
 
   if(this->Internals->WebGLExporterObjIdMap[webglExporter].size() > 0 &&
@@ -426,7 +426,7 @@ const char* vtkWebApplication::GetWebGLBinaryData(
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -440,7 +440,7 @@ void vtkWebApplication::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkObjectIdMap* vtkWebApplication::GetObjectIdMap()
 {
-  return this->Internals->ObjectIdMap.GetPointer();
+  return this->Internals->ObjectIdMap;
 }
 
 //----------------------------------------------------------------------------

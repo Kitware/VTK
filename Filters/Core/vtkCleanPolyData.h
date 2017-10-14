@@ -74,7 +74,7 @@ class VTKFILTERSCORE_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCleanPolyData *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkCleanPolyData,vtkPolyDataAlgorithm);
 
   //@{
@@ -156,17 +156,17 @@ public:
   /**
    * Create default locator. Used to create one when none is specified.
    */
-  void CreateDefaultLocator(vtkPolyData *input = 0);
+  void CreateDefaultLocator(vtkPolyData *input = nullptr);
 
   /**
    * Release locator
    */
-  void ReleaseLocator() { this->SetLocator(NULL); }
+  void ReleaseLocator() { this->SetLocator(nullptr); }
 
   /**
    * Get the MTime of this object also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Perform operation on a point
@@ -199,11 +199,11 @@ public:
 
 protected:
   vtkCleanPolyData();
- ~vtkCleanPolyData() VTK_OVERRIDE;
+ ~vtkCleanPolyData() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int   PointMerging;
   double Tolerance;
@@ -217,8 +217,8 @@ protected:
   int PieceInvariant;
   int OutputPointsPrecision;
 private:
-  vtkCleanPolyData(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
+  vtkCleanPolyData(const vtkCleanPolyData&) = delete;
+  void operator=(const vtkCleanPolyData&) = delete;
 };
 
 #endif

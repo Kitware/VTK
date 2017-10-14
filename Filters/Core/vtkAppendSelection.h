@@ -40,7 +40,7 @@ public:
   static vtkAppendSelection *New();
 
   vtkTypeMacro(vtkAppendSelection,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,7 +62,7 @@ public:
 
   /**
    * Remove a dataset from the list of data to append. Should not be
-   * used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
+   * used when UserManagedInputs is true, use SetInputByNumber (nullptr) instead.
    */
   void RemoveInputData(vtkSelection *);
 
@@ -99,12 +99,12 @@ public:
 
 protected:
   vtkAppendSelection();
-  ~vtkAppendSelection() VTK_OVERRIDE;
+  ~vtkAppendSelection() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                  vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
  private:
   // hide the superclass' AddInput() from the user and the compiler
@@ -114,8 +114,8 @@ protected:
   int UserManagedInputs;
   int AppendByUnion;
 private:
-  vtkAppendSelection(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
+  vtkAppendSelection(const vtkAppendSelection&) = delete;
+  void operator=(const vtkAppendSelection&) = delete;
 };
 
 #endif

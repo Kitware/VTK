@@ -53,7 +53,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkCheckerboardRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -115,18 +115,18 @@ public:
   /**
    * Methods required by superclass.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  void GetActors(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOverlay(vtkViewport *viewport) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkCheckerboardRepresentation();
-  ~vtkCheckerboardRepresentation() VTK_OVERRIDE;
+  ~vtkCheckerboardRepresentation() override;
 
   // Instances that this class manipulates
   vtkImageCheckerboard *Checkerboard;
@@ -145,8 +145,8 @@ protected:
   int OrthoAxis;
 
 private:
-  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
+  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) = delete;
+  void operator=(const vtkCheckerboardRepresentation&) = delete;
 };
 
 #endif

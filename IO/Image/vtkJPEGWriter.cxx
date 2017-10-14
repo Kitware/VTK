@@ -24,7 +24,7 @@
 
 extern "C" {
 #include "vtk_jpeg.h"
-#include <setjmp.h>
+#include <csetjmp>
 }
 
 vtkStandardNewMacro(vtkJPEGWriter);
@@ -38,8 +38,8 @@ vtkJPEGWriter::vtkJPEGWriter()
 
   this->Quality = 95;
   this->Progressive = 1;
-  this->Result = 0;
-  this->TempFP = 0;
+  this->Result = nullptr;
+  this->TempFP = nullptr;
 }
 
 vtkJPEGWriter::~vtkJPEGWriter()
@@ -47,7 +47,7 @@ vtkJPEGWriter::~vtkJPEGWriter()
   if (this->Result)
   {
     this->Result->Delete();
-    this->Result = 0;
+    this->Result = nullptr;
   }
 }
 
@@ -58,7 +58,7 @@ void vtkJPEGWriter::Write()
   this->SetErrorCode(vtkErrorCode::NoError);
 
   // Error checking
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
@@ -71,9 +71,9 @@ void vtkJPEGWriter::Write()
   }
 
   // Make sure the file name is allocated
-  size_t InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
-    (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
-    (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
+  this->InternalFileNameSize = (this->FileName ? strlen(this->FileName) : 1) +
+                               (this->FilePrefix ? strlen(this->FilePrefix) : 1) +
+                               (this->FilePattern ? strlen(this->FilePattern) : 1) + 10;
   this->InternalFileName = new char[InternalFileNameSize];
 
   // Fill in image information.
@@ -97,19 +97,27 @@ void vtkJPEGWriter::Write()
     // determine the name
     if (this->FileName)
     {
-      sprintf(this->InternalFileName,"%s",this->FileName);
+      snprintf(this->InternalFileName,
+               this->InternalFileNameSize,
+               "%s",
+               this->FileName);
     }
     else
     {
       if (this->FilePrefix)
       {
-        sprintf(this->InternalFileName, this->FilePattern,
-                this->FilePrefix, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FilePrefix,
+                 this->FileNumber);
       }
       else
       {
-        snprintf(this->InternalFileName, InternalFileNameSize,
-          this->FilePattern, this->FileNumber);
+        snprintf(this->InternalFileName,
+                 this->InternalFileNameSize,
+                 this->FilePattern,
+                 this->FileNumber);
       }
     }
     this->GetInputAlgorithm()->UpdateExtent(uExtent);
@@ -124,7 +132,7 @@ void vtkJPEGWriter::Write()
                          (wExtent[5] - wExtent[4] + 1.0));
   }
   delete [] this->InternalFileName;
-  this->InternalFileName = NULL;
+  this->InternalFileName = nullptr;
 }
 
 // these three routines are for writing into memory
@@ -246,7 +254,7 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data, int* uExtent)
   // Create the jpeg compression object and error handler
   struct jpeg_compress_struct cinfo;
   struct VTK_JPEG_ERROR_MANAGER jerr;
-  this->TempFP = 0;
+  this->TempFP = nullptr;
   if (!this->WriteToMemory)
   {
     this->TempFP = fopen(this->InternalFileName, "wb");

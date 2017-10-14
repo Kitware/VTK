@@ -40,7 +40,7 @@ class VTKRENDERINGGL2PS_EXPORT vtkGL2PSUtilities : public vtkObject
 public:
   static vtkGL2PSUtilities *New();
   vtkTypeMacro(vtkGL2PSUtilities, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE
+  void PrintSelf(ostream& os, vtkIndent indent) override
   {
     this->Superclass::PrintSelf(os, indent);
   }
@@ -147,11 +147,11 @@ protected:
                           float strokeWidth = -1, const char *label = NULL);
 
   vtkGL2PSUtilities() {}
-  ~vtkGL2PSUtilities() VTK_OVERRIDE {}
+  ~vtkGL2PSUtilities() override {}
 
 private:
-  vtkGL2PSUtilities(const vtkGL2PSUtilities &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGL2PSUtilities&) VTK_DELETE_FUNCTION;
+  vtkGL2PSUtilities(const vtkGL2PSUtilities &) = delete;
+  void operator=(const vtkGL2PSUtilities&) = delete;
 
   static vtkRenderWindow *RenderWindow;
   static bool TextAsPath;

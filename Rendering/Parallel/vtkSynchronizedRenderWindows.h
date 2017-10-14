@@ -37,7 +37,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderWindows : public vtkObjec
 public:
   static vtkSynchronizedRenderWindows* New();
   vtkTypeMacro(vtkSynchronizedRenderWindows, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -114,7 +114,7 @@ public:
   };
 protected:
   vtkSynchronizedRenderWindows();
-  ~vtkSynchronizedRenderWindows();
+  ~vtkSynchronizedRenderWindows() override;
 
   struct RenderWindowInfo
   {
@@ -148,8 +148,8 @@ protected:
   vtkMultiProcessController* ParallelController;
 
 private:
-  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&) = delete;
+  void operator=(const vtkSynchronizedRenderWindows&) = delete;
 
   class vtkObserver;
   vtkObserver* Observer;

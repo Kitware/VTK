@@ -50,7 +50,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkThinPlateSplineTransform : public vtkWarpTra
 {
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkThinPlateSplineTransform *New();
 
   //@{
@@ -114,34 +114,34 @@ public:
   /**
    * Get the MTime.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
   vtkThinPlateSplineTransform();
-  ~vtkThinPlateSplineTransform() VTK_OVERRIDE;
+  ~vtkThinPlateSplineTransform() override;
 
   /**
    * Prepare the transformation for application.
    */
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalUpdate() override;
 
   /**
    * This method does no type checking, use DeepCopy instead.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
-  void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void ForwardTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void ForwardTransformPoint(const float in[3], float out[3]) override;
+  void ForwardTransformPoint(const double in[3], double out[3]) override;
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) VTK_OVERRIDE;
+                                  float derivative[3][3]) override;
   void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) VTK_OVERRIDE;
+                                  double derivative[3][3]) override;
 
   double Sigma;
   vtkPoints *SourceLandmarks;
@@ -156,8 +156,8 @@ protected:
   int NumberOfPoints;
   double **MatrixW;
 private:
-  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThinPlateSplineTransform&) VTK_DELETE_FUNCTION;
+  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) = delete;
+  void operator=(const vtkThinPlateSplineTransform&) = delete;
 };
 
 #endif

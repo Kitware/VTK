@@ -81,7 +81,7 @@ public:
   vtkTypeMacro(vtkMNITagPointReader,vtkPolyDataAlgorithm);
 
   static vtkMNITagPointReader *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -119,7 +119,7 @@ public:
   /**
    * Get the points.  These are also provided in the first and
    * second output ports of the reader.  This method will return
-   * NULL if there is no data.
+   * nullptr if there is no data.
    */
   virtual vtkPoints *GetPoints(int port);
   virtual vtkPoints *GetPoints() { return this->GetPoints(0); }
@@ -127,28 +127,28 @@ public:
   /**
    * Get the labels.  These same labels are provided in the output
    * point sets, as the PointData data array named "LabelText".
-   * This will return NULL if there were no labels in the file.
+   * This will return nullptr if there were no labels in the file.
    */
   virtual vtkStringArray *GetLabelText();
 
   /**
    * Get the weights.  These are also provided in the output
    * point sets, as the PointData data array named "Weights".
-   * This will return NULL if there were no weights in the file.
+   * This will return nullptr if there were no weights in the file.
    */
   virtual vtkDoubleArray *GetWeights();
 
   /**
    * Get the structure ids.  These are also provided in the output
    * point sets, as the PointData data array named "StructureIds".
-   * This will return NULL if there were no ids in the file.
+   * This will return nullptr if there were no ids in the file.
    */
   virtual vtkIntArray *GetStructureIds();
 
   /**
    * Get the patient ids.  These are also provided in the output
    * point sets, as the PointData data array named "PatientIds".
-   * This will return NULL if there were no ids in the file.
+   * This will return nullptr if there were no ids in the file.
    */
   virtual vtkIntArray *GetPatientIds();
 
@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkMNITagPointReader();
-  ~vtkMNITagPointReader() VTK_OVERRIDE;
+  ~vtkMNITagPointReader() override;
 
   char *FileName;
   int NumberOfVolumes;
@@ -190,11 +190,11 @@ protected:
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inInfo,
-                          vtkInformationVector* outInfo) VTK_OVERRIDE;
+                          vtkInformationVector* outInfo) override;
 
 private:
-  vtkMNITagPointReader(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
+  vtkMNITagPointReader(const vtkMNITagPointReader&) = delete;
+  void operator=(const vtkMNITagPointReader&) = delete;
 
 };
 

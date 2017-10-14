@@ -101,7 +101,7 @@ vtkTextActor::vtkTextActor()
 
   this->FontScaleExponent = 1;
 
-  this->Input = 0;
+  this->Input = nullptr;
   this->InputRendered = false;
 
   this->FormerOrientation = 0.0;
@@ -119,15 +119,15 @@ vtkTextActor::~vtkTextActor()
 {
   this->ImageData->Delete();
   this->Transform->Delete();
-  this->SetTextProperty(NULL);
+  this->SetTextProperty(nullptr);
   this->ScaledTextProperty->Delete();
-  this->ScaledTextProperty = NULL;
+  this->ScaledTextProperty = nullptr;
   delete [] this->Input;
   this->Rectangle->Delete();
-  this->Rectangle = 0;
+  this->Rectangle = nullptr;
   this->RectanglePoints->Delete();
-  this->RectanglePoints = 0;
-  this->SetTexture(0);
+  this->RectanglePoints = nullptr;
+  this->SetTexture(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ void vtkTextActor::GetSize(vtkViewport* vport, double size[2])
 {
   double bds[4];
   // If we have a viewport, use it. Otherwise, GetBoundingBox() calls
-  // UpdateRectange(NULL) which builds a (probably-too-low-resolution) image
+  // UpdateRectange(nullptr) which builds a (probably-too-low-resolution) image
   // to determine its size.
   this->UpdateRectangle(vport);
   this->GetBoundingBox(vport, bds);
@@ -355,7 +355,7 @@ bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *vp)
   }
 
   return this->TextRenderer->RenderString(tprop, text, this->ImageData,
-                                          NULL, win->GetDPI());
+                                          nullptr, win->GetDPI());
 }
 
 // ----------------------------------------------------------------------------
@@ -414,7 +414,7 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
   if ( this->TextProperty )
   {
     this->TextProperty->UnRegister( this );
-    this->TextProperty = NULL;
+    this->TextProperty = nullptr;
   }
   this->TextProperty = p;
   if (this->TextProperty)
@@ -429,7 +429,7 @@ void vtkTextActor::SetTextProperty(vtkTextProperty *p)
 void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor *a = vtkTextActor::SafeDownCast(prop);
-  if ( a != NULL )
+  if ( a != nullptr )
   {
     this->SetPosition2(a->GetPosition2());
     this->SetMinimumSize(a->GetMinimumSize());
@@ -564,7 +564,7 @@ int vtkTextActor::GetAlignmentPoint()
 // ----------------------------------------------------------------------------
 void vtkTextActor::SetAlignmentPoint(int val)
 {
-  vtkWarningMacro(<< "Alignment point is being depricated.  You should use "
+  vtkWarningMacro(<< "Alignment point is being deprecated.  You should use "
                   << "SetJustification and SetVerticalJustification in the text property.");
 
   switch (val)
@@ -819,6 +819,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
     tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
+    tc->Modified();
   }
 
   double xo = 0.0, yo = 0.0;

@@ -51,11 +51,11 @@ class VTKIOENSIGHT_EXPORT vtkEnSightGoldBinaryReader : public vtkEnSightReader
 public:
   static vtkEnSightGoldBinaryReader *New();
   vtkTypeMacro(vtkEnSightGoldBinaryReader, vtkEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkEnSightGoldBinaryReader();
-  ~vtkEnSightGoldBinaryReader() VTK_OVERRIDE;
+  ~vtkEnSightGoldBinaryReader() override;
 
   // Returns 1 if successful.  Sets file size as a side action.
   int OpenFile(const char* filename);
@@ -69,14 +69,14 @@ protected:
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
   int ReadGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    vtkMultiBlockDataSet *output) override;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
   int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    vtkMultiBlockDataSet *output) override;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
@@ -87,7 +87,7 @@ protected:
     int timeStep, vtkMultiBlockDataSet *output,
     int measured = 0,
     int numberOfComponents = 1,
-    int component = 0) VTK_OVERRIDE;
+    int component = 0) override;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
@@ -95,14 +95,14 @@ protected:
    */
   int ReadVectorsPerNode(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
-    int measured = 0) VTK_OVERRIDE;
+    int measured = 0) override;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadTensorsPerNode(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
@@ -112,21 +112,21 @@ protected:
   int ReadScalarsPerElement(const char* fileName, const char* description,
     int timeStep, vtkMultiBlockDataSet *output,
     int numberOfComponents = 1,
-    int component = 0) VTK_OVERRIDE;
+    int component = 0) override;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadVectorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadTensorsPerElement(const char* fileName, const char* description,
-    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
@@ -136,7 +136,7 @@ protected:
   int CreateUnstructuredGridOutput(int partId,
     char line[80],
     const char* name,
-    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    vtkMultiBlockDataSet *output) override;
 
   /**
    * Read a structured part from the geometry file and create a
@@ -145,7 +145,7 @@ protected:
   int CreateStructuredGridOutput(int partId,
     char line[256],
     const char* name,
-    vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+    vtkMultiBlockDataSet *output) override;
 
   /**
    * Read a structured part from the geometry file and create a
@@ -232,7 +232,7 @@ protected:
   int ElementIdsListed;
   int Fortran;
 
-  ifstream *IFile;
+  ifstream *GoldIFile;
   // The size of the file could be used to choose byte order.
   vtkTypeUInt64 FileSize;
 
@@ -241,8 +241,8 @@ protected:
 
 private:
   int SizeOfInt;
-  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) = delete;
+  void operator=(const vtkEnSightGoldBinaryReader&) = delete;
 };
 
 #endif

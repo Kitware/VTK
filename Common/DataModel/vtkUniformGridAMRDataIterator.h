@@ -38,7 +38,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMRDataIterator :
 public:
   static vtkUniformGridAMRDataIterator* New();
   vtkTypeMacro(vtkUniformGridAMRDataIterator, vtkCompositeDataIterator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the meta-data associated with the current item.
@@ -46,21 +46,21 @@ public:
    * allocated by the iterator and will be changed as soon as GoToNextItem is
    * called.
    */
-  vtkInformation* GetCurrentMetaData() VTK_OVERRIDE;
+  vtkInformation* GetCurrentMetaData() override;
 
-  int HasCurrentMetaData() VTK_OVERRIDE { return 1;}
+  int HasCurrentMetaData() override { return 1;}
 
   /**
    * Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
    */
-  vtkDataObject* GetCurrentDataObject() VTK_OVERRIDE;
+  vtkDataObject* GetCurrentDataObject() override;
 
   /**
    * Flat index is an index obtained by traversing the tree in preorder.
    * This can be used to uniquely identify nodes in the tree.
    * Not valid if IsDoneWithTraversal() returns true.
    */
-  unsigned int GetCurrentFlatIndex() VTK_OVERRIDE;
+  unsigned int GetCurrentFlatIndex() override;
 
   /**
    * Returns the level for the current dataset.
@@ -76,12 +76,12 @@ public:
   /**
    * Move the iterator to the beginning of the collection.
    */
-  void GoToFirstItem() VTK_OVERRIDE;
+  void GoToFirstItem() override;
 
   /**
    * Move the iterator to the next item in the collection.
    */
-  void GoToNextItem() VTK_OVERRIDE;
+  void GoToNextItem() override;
 
   /**
    * Test whether the iterator is finished with the traversal.
@@ -89,15 +89,15 @@ public:
    * It is safe to call any of the GetCurrent...() methods only when
    * IsDoneWithTraversal() returns 0.
    */
-  int IsDoneWithTraversal() VTK_OVERRIDE;
+  int IsDoneWithTraversal() override;
 
 protected:
   vtkUniformGridAMRDataIterator();
-  ~vtkUniformGridAMRDataIterator() VTK_OVERRIDE;
+  ~vtkUniformGridAMRDataIterator() override;
   vtkSmartPointer<AMRIndexIterator> Iter;
 private:
-  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
+  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&) = delete;
+  void operator=(const vtkUniformGridAMRDataIterator&) = delete;
 
   vtkSmartPointer<vtkInformation> Information;
   vtkSmartPointer<vtkUniformGridAMR> AMR;

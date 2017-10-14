@@ -148,14 +148,14 @@ vtkStandardNewMacro(vtkXMLUniformGridAMRReader);
 //----------------------------------------------------------------------------
 vtkXMLUniformGridAMRReader::vtkXMLUniformGridAMRReader()
 {
-  this->OutputDataType = NULL;
+  this->OutputDataType = nullptr;
   this->MaximumLevelsToReadByDefault = 1;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLUniformGridAMRReader::~vtkXMLUniformGridAMRReader()
 {
-  this->SetOutputDataType(NULL);
+  this->SetOutputDataType(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -196,7 +196,7 @@ int vtkXMLUniformGridAMRReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 
   // NOTE: eVTKFile maybe totally invalid, so proceed with caution.
   const char* type = eVTKFile->GetAttribute("type");
-  if (type == NULL ||
+  if (type == nullptr ||
     (strcmp(type, "vtkHierarchicalBoxDataSet") != 0 &&
      strcmp(type, "vtkOverlappingAMR") != 0 &&
      strcmp(type, "vtkNonOverlappingAMR") != 0))
@@ -222,7 +222,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   {
     // for old files, we don't support providing meta-data for
     // RequestInformation() pass.
-    this->Metadata = NULL;
+    this->Metadata = nullptr;
     return 1;
   }
 
@@ -230,7 +230,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   {
     // this is a non-overlapping AMR. We don't have meta-data for
     // non-overlapping AMRs.
-    this->Metadata = NULL;
+    this->Metadata = nullptr;
     return 1;
   }
 
@@ -243,7 +243,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   std::vector<std::vector<vtkAMRBox> > amr_boxes;
   vtkReadMetaData(ePrimary, blocks_per_level, level_spacing, amr_boxes);
 
-  if (blocks_per_level.size() > 0)
+  if (!blocks_per_level.empty())
   {
     // initialize vtkAMRInformation.
     this->Metadata->Initialize(
@@ -374,7 +374,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
 
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(amr);
   vtkNonOverlappingAMR* noamr = vtkNonOverlappingAMR::SafeDownCast(amr);
-  assert(oamr != NULL || noamr != NULL);
+  assert(oamr != nullptr || noamr != nullptr);
 
   if (oamr)
   {
@@ -450,7 +450,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
           {
             amr->SetDataSet(
               static_cast<unsigned int>(level), static_cast<unsigned int>(index),
-              vtkUniformGrid::SafeDownCast(ds.GetPointer()));
+              vtkUniformGrid::SafeDownCast(ds));
           }
         }
       }
@@ -458,7 +458,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
     }
   }
 
-  if( (oamr != NULL) && !has_block_requests )
+  if( (oamr != nullptr) && !has_block_requests )
   {
     vtkAMRUtilities::BlankCells(oamr);
   }

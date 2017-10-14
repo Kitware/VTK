@@ -37,7 +37,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositeRenderManager : public vtkParallel
 public:
   vtkTypeMacro(vtkCompositeRenderManager, vtkParallelRenderManager);
   static vtkCompositeRenderManager *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -49,12 +49,12 @@ public:
 
 protected:
   vtkCompositeRenderManager();
-  ~vtkCompositeRenderManager();
+  ~vtkCompositeRenderManager() override;
 
   vtkCompositer *Compositer;
 
-  virtual void PreRenderProcessing() VTK_OVERRIDE;
-  virtual void PostRenderProcessing() VTK_OVERRIDE;
+  void PreRenderProcessing() override;
+  void PostRenderProcessing() override;
 
   vtkFloatArray *DepthData;
   vtkUnsignedCharArray *TmpPixelData;
@@ -63,8 +63,8 @@ protected:
   int SavedMultiSamplesSetting;
 
 private:
-  vtkCompositeRenderManager(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
+  vtkCompositeRenderManager(const vtkCompositeRenderManager &) = delete;
+  void operator=(const vtkCompositeRenderManager &) = delete;
 };
 
 #endif //vtkCompositeRenderManager_h

@@ -42,10 +42,10 @@ int TestSQLiteDatabase( int /*argc*/, char* /*argv*/[])
 
   cerr << ">>>>> Testing bad input." << endl;
 
-  vtkSQLDatabase* db0 = vtkSQLDatabase::CreateFromURL( 0 );
+  vtkSQLDatabase* db0 = vtkSQLDatabase::CreateFromURL( nullptr );
   if ( db0 )
   {
-    cerr << "ERROR: Created a database from a NULL URL! How?" << endl;
+    cerr << "ERROR: Created a database from a nullptr URL! How?" << endl;
     db0->Delete();
     return 1;
   }

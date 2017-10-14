@@ -146,7 +146,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
   vtkPolyData *pd = this->DijkstraGraphGeodesicPath->GetOutput();
 
   // We assume there's only one cell of course
-  vtkIdType npts = 0, *pts = NULL;
+  vtkIdType npts = 0, *pts = nullptr;
   pd->GetLines()->InitTraversal();
   pd->GetLines()->GetNextCell( npts, pts );
 
@@ -155,7 +155,7 @@ int vtkPolygonalSurfaceContourLineInterpolator::InterpolateLine(
 
   vtkIdList *vertexIds = this->DijkstraGraphGeodesicPath->GetIdList();
   double vertexNormal[3];
-  vtkDataArray *vertexNormals = NULL;
+  vtkDataArray *vertexNormals = nullptr;
   if (this->DistanceOffset != 0.0)
   {
     vertexNormals = nodeBegin->PolyData->GetPointData()->GetNormals();

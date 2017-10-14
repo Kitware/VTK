@@ -43,7 +43,7 @@ struct vtkVRMLAllocator
 {
   static void Initialize()
   {
-    if (Heap == NULL)
+    if (Heap == nullptr)
     {
       Heap = vtkHeap::New();
     }
@@ -59,7 +59,7 @@ struct vtkVRMLAllocator
     if (Heap)
     {
       Heap->Delete();
-      Heap = NULL;
+      Heap = nullptr;
     }
   }
 

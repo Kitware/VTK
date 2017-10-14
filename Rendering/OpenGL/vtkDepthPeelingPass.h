@@ -52,20 +52,20 @@ class VTKRENDERINGOPENGL_EXPORT vtkDepthPeelingPass : public vtkRenderPass
 public:
   static vtkDepthPeelingPass *New();
   vtkTypeMacro(vtkDepthPeelingPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Release graphics resources and ask components to release their own
    * resources.
    * \pre w_exists: w!=0
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
 
   //@{
   /**
@@ -127,7 +127,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkDepthPeelingPass() VTK_OVERRIDE;
+  ~vtkDepthPeelingPass() override;
 
   /**
    * Check if depth peeling is supported by the current OpenGL context.
@@ -213,8 +213,8 @@ public:
   int OpaqueShadowTexUnit; // texture unit allocated for the opaque shadow tex.
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) = delete;
+  void operator=(const vtkDepthPeelingPass&) = delete;
 };
 
 #endif

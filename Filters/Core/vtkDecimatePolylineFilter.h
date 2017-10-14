@@ -53,7 +53,7 @@ public:
    * Standard methods for type information and printing.
    */
   vtkTypeMacro(vtkDecimatePolylineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -83,9 +83,9 @@ public:
 
 protected:
   vtkDecimatePolylineFilter();
-  ~vtkDecimatePolylineFilter() VTK_OVERRIDE;
+  ~vtkDecimatePolylineFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   class Polyline;
   double ComputeError( vtkPolyData* input,
@@ -97,8 +97,8 @@ protected:
   int                                   OutputPointsPrecision;
 
 private:
-  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
+  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) = delete;
+  void operator=(const vtkDecimatePolylineFilter&) = delete;
 };
 
 #endif

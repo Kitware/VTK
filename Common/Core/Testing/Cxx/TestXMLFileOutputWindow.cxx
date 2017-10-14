@@ -40,13 +40,13 @@ int TestXMLFileOutputWindow(int argc,char *argv[])
   ofw->DisplayGenericWarningText(sample.c_str());
   ofw->DisplayDebugText(sample.c_str());
 
-  // Check NULL strings
-  ofw->DisplayTag(NULL);
-  ofw->DisplayText(NULL);
-  ofw->DisplayErrorText(NULL);
-  ofw->DisplayWarningText(NULL);
-  ofw->DisplayGenericWarningText(NULL);
-  ofw->DisplayDebugText(NULL);
+  // Check nullptr strings
+  ofw->DisplayTag(nullptr);
+  ofw->DisplayText(nullptr);
+  ofw->DisplayErrorText(nullptr);
+  ofw->DisplayWarningText(nullptr);
+  ofw->DisplayGenericWarningText(nullptr);
+  ofw->DisplayDebugText(nullptr);
   }
 
   // Append to default

@@ -52,7 +52,7 @@ int vtkImageMapToWindowLevelColors::RequestData(
 
   // If LookupTable is null and window / level produces no change,
   // then just pass the data
-  if (this->LookupTable == NULL &&
+  if (this->LookupTable == nullptr &&
       (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
        this->Window == 255 && this->Level == 127.5))
   {
@@ -72,7 +72,7 @@ int vtkImageMapToWindowLevelColors::RequestData(
   {
     if (this->DataWasPassed)
     {
-      outData->GetPointData()->SetScalars(NULL);
+      outData->GetPointData()->SetScalars(nullptr);
       this->DataWasPassed = 0;
     }
 
@@ -103,7 +103,7 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
 
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
-  if ( this->LookupTable == NULL &&
+  if ( this->LookupTable == nullptr &&
        (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) ==
         VTK_UNSIGNED_CHAR &&
         this->Window == 255 && this->Level == 127.5) )

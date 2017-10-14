@@ -43,7 +43,7 @@ public:
     { return new vtkProgressObserver(); }
 
   void Execute(vtkObject *, unsigned long eventId,
-    void *callData) VTK_OVERRIDE
+    void *callData) override
   {
     if (eventId == vtkCommand::ProgressEvent)
     {
@@ -67,7 +67,7 @@ public:
 private:
   vtkProgressObserver()
   {
-    this->Target = 0;
+    this->Target = nullptr;
     this->Offset = 0.0;
     this->Scale = 1.0;
   }
@@ -77,7 +77,7 @@ private:
 //----------------------------------------------------------------------------
 vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
 {
-  this->Image = 0;
+  this->Image = nullptr;
   this->LevelImages = vtkMultiBlockDataSet::New();
   this->LatitudeRange[0] = -90;
   this->LatitudeRange[1] = 90;
@@ -92,12 +92,12 @@ vtkGeoAlignedImageSource::vtkGeoAlignedImageSource()
 //-----------------------------------------------------------------------------
 vtkGeoAlignedImageSource::~vtkGeoAlignedImageSource()
 {
-  this->SetImage(0);
+  this->SetImage(nullptr);
   this->LevelImages->Delete();
 
-  this->ProgressObserver->SetTarget(0);
+  this->ProgressObserver->SetTarget(nullptr);
   this->ProgressObserver->Delete();
-  this->ProgressObserver = 0;
+  this->ProgressObserver = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ void vtkGeoAlignedImageSource::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
 {
-  vtkGeoImageNode* root = 0;
+  vtkGeoImageNode* root = nullptr;
   if (!(root = vtkGeoImageNode::SafeDownCast(r)))
   {
     vtkErrorMacro(<< "Node must be an image node for this source.");
@@ -174,7 +174,7 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
     shrink->SetInputData(image);
     shrink->Update();
     image->ShallowCopy(shrink->GetOutput());
-    shrink->SetInputData(0);
+    shrink->SetInputData(nullptr);
     image->GetDimensions(imageDims);
 
     // Store the image for the level.
@@ -215,13 +215,13 @@ bool vtkGeoAlignedImageSource::FetchRoot(vtkGeoTreeNode* r)
 //------------------------------------------------------------------------------
 bool vtkGeoAlignedImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode* c)
 {
-  vtkGeoImageNode* parent = 0;
+  vtkGeoImageNode* parent = nullptr;
   if (!(parent = vtkGeoImageNode::SafeDownCast(p)))
   {
     vtkErrorMacro(<< "Node must be an image node for this source.");
     return false;
   }
-  vtkGeoImageNode* child = 0;
+  vtkGeoImageNode* child = nullptr;
   if (!(child = vtkGeoImageNode::SafeDownCast(c)))
   {
     vtkErrorMacro(<< "Node must be an image node for this source.");

@@ -38,16 +38,16 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
   public:
     static vtkImageToStructuredGrid* New();
     vtkTypeMacro(vtkImageToStructuredGrid,vtkStructuredGridAlgorithm);
-    void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
   protected:
     vtkImageToStructuredGrid();
-    ~vtkImageToStructuredGrid() VTK_OVERRIDE;
+    ~vtkImageToStructuredGrid() override;
 
     int RequestData(
         vtkInformation* request,
         vtkInformationVector** inputVector,
-        vtkInformationVector* outputVector ) VTK_OVERRIDE;
+        vtkInformationVector* outputVector ) override;
 
     //@{
     /**
@@ -57,13 +57,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
     void CopyCellData( vtkImageData*, vtkStructuredGrid*  );
     //@}
 
-    int FillInputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
-    int FillOutputPortInformation(int, vtkInformation* info ) VTK_OVERRIDE;
+    int FillInputPortInformation(int, vtkInformation* info) override;
+    int FillOutputPortInformation(int, vtkInformation* info ) override;
 
   private:
     vtkImageToStructuredGrid(
-        const vtkImageToStructuredGrid& ) VTK_DELETE_FUNCTION;
-    void operator=(const vtkImageToStructuredGrid&) VTK_DELETE_FUNCTION;
+        const vtkImageToStructuredGrid& ) = delete;
+    void operator=(const vtkImageToStructuredGrid&) = delete;
 
 
 };

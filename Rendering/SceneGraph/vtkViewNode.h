@@ -39,7 +39,7 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkViewNode :
 {
 public:
   vtkTypeMacro(vtkViewNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -171,8 +171,8 @@ protected:
   friend class vtkViewNodeFactory;
 
 private:
-  vtkViewNode(const vtkViewNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewNode&) VTK_DELETE_FUNCTION;
+  vtkViewNode(const vtkViewNode&) = delete;
+  void operator=(const vtkViewNode&) = delete;
 };
 
 #endif

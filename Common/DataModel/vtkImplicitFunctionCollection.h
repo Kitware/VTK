@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkImplicitFunctionCollection() {}
-  ~vtkImplicitFunctionCollection() VTK_OVERRIDE {}
+  ~vtkImplicitFunctionCollection() override {}
 
 
 private:
@@ -69,8 +69,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitFunctionCollection&) VTK_DELETE_FUNCTION;
+  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) = delete;
+  void operator=(const vtkImplicitFunctionCollection&) = delete;
 };
 
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f)

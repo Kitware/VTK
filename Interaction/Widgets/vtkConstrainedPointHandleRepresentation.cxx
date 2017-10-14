@@ -54,11 +54,11 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->InteractionState = vtkHandleRepresentation::Outside;
 
   this->ProjectionPosition = 0;
-  this->ObliquePlane = NULL;
+  this->ObliquePlane = nullptr;
   this->ProjectionNormal = vtkConstrainedPointHandleRepresentation::ZAxis;
 
-  this->CursorShape = NULL;
-  this->ActiveCursorShape = NULL;
+  this->CursorShape = nullptr;
+  this->ActiveCursorShape = nullptr;
 
   // Represent the position of the cursor
   this->FocalPoint = vtkPoints::New();
@@ -137,7 +137,7 @@ vtkConstrainedPointHandleRepresentation::vtkConstrainedPointHandleRepresentation
   this->InteractionOffset[0] = 0.0;
   this->InteractionOffset[1] = 0.0;
 
-  this->BoundingPlanes = NULL;
+  this->BoundingPlanes = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -146,8 +146,8 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
   this->FocalPoint->Delete();
   this->FocalData->Delete();
 
-  this->SetCursorShape( NULL );
-  this->SetActiveCursorShape( NULL );
+  this->SetCursorShape( nullptr );
+  this->SetActiveCursorShape( nullptr );
 
   this->RemoveAllBoundingPlanes();
 
@@ -162,7 +162,7 @@ vtkConstrainedPointHandleRepresentation::~vtkConstrainedPointHandleRepresentatio
   if ( this->ObliquePlane )
   {
     this->ObliquePlane->UnRegister(this);
-    this->ObliquePlane = NULL;
+    this->ObliquePlane = nullptr;
   }
 
   if (this->BoundingPlanes)
@@ -242,7 +242,7 @@ vtkPolyData *vtkConstrainedPointHandleRepresentation::GetActiveCursorShape()
 //----------------------------------------------------------------------
 void vtkConstrainedPointHandleRepresentation::AddBoundingPlane(vtkPlane *plane)
 {
-  if (this->BoundingPlanes == NULL)
+  if (this->BoundingPlanes == nullptr)
   {
     this->BoundingPlanes = vtkPlaneCollection::New();
     this->BoundingPlanes->Register(this);
@@ -268,7 +268,7 @@ void vtkConstrainedPointHandleRepresentation::RemoveAllBoundingPlanes()
   {
     this->BoundingPlanes->RemoveAllItems();
     this->BoundingPlanes->Delete();
-    this->BoundingPlanes = NULL;
+    this->BoundingPlanes = nullptr;
   }
 }
 //----------------------------------------------------------------------
@@ -480,7 +480,7 @@ GetIntersectionPosition(double eventPos[2],double worldPos[3],double tolerance,
   tmp[0] = eventPos[0] + this->InteractionOffset[0];
   tmp[1] = eventPos[1] + this->InteractionOffset[1];
   tmp[2] = 0.0;  // near plane
-  if(renderer == 0)
+  if(renderer == nullptr)
   {
     renderer = this->Renderer;
   }
@@ -507,7 +507,7 @@ GetIntersectionPosition(double eventPos[2],double worldPos[3],double tolerance,
 
   vtkAssemblyPath *path = picker->GetPath();
 
-  if(path == 0)
+  if(path == nullptr)
   {
    return 0;
   }

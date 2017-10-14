@@ -45,7 +45,7 @@ public:
   static vtkPainterPolyDataMapperObserver* New()
     { return new vtkPainterPolyDataMapperObserver; }
 
-  void Execute(vtkObject* caller, unsigned long event, void*) VTK_OVERRIDE
+  void Execute(vtkObject* caller, unsigned long event, void*) override
   {
     vtkPainter* p = vtkPainter::SafeDownCast(caller);
     if (this->Target && p && event == vtkCommand::ProgressEvent)
@@ -255,8 +255,6 @@ void vtkPainterPolyDataMapper::UpdatePainterInformation()
   info->Set(vtkScalarsToColorsPainter::ARRAY_NAME(), this->ArrayName);
   info->Set(vtkScalarsToColorsPainter::ARRAY_COMPONENT(), this->ArrayComponent);
   info->Set(vtkScalarsToColorsPainter::FIELD_DATA_TUPLE_ID(), this->FieldDataTupleId);
-  info->Set(vtkScalarsToColorsPainter::SCALAR_MATERIAL_MODE(),
-    this->GetScalarMaterialMode());
 
   info->Set(vtkClipPlanesPainter::CLIPPING_PLANES(), this->ClippingPlanes);
 

@@ -43,7 +43,7 @@ vtkRenderWindowInteractor* vtkInteractorStyleSwitchBase::GetInteractor()
       "Warning: Link to vtkInteractionStyle for default style selection.");
     warned = true;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

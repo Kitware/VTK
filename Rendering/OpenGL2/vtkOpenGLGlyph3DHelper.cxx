@@ -29,6 +29,7 @@
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
@@ -57,11 +58,11 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
 {
   this->NormalMatrixBuffer->Delete();
-  this->NormalMatrixBuffer = 0;
+  this->NormalMatrixBuffer = nullptr;
   this->MatrixBuffer->Delete();
-  this->MatrixBuffer = 0;
+  this->MatrixBuffer = nullptr;
   this->ColorBuffer->Delete();
-  this->ColorBuffer = 0;
+  this->ColorBuffer = nullptr;
 }
 
 
@@ -156,32 +157,11 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderColor(
   // now handle scalar coloring
   if(!this->DrawingEdgesOrVertices)
   {
-    if (this->ScalarMaterialMode == VTK_MATERIALMODE_AMBIENT ||
-        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-          actor->GetProperty()->GetAmbient() > actor->GetProperty()->GetDiffuse()))
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  ambientColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;", false);
-    }
-    else if (this->ScalarMaterialMode == VTK_MATERIALMODE_DIFFUSE ||
-        (this->ScalarMaterialMode == VTK_MATERIALMODE_DEFAULT &&
-          actor->GetProperty()->GetAmbient() <= actor->GetProperty()->GetDiffuse()))
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  diffuseColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;");
-    }
-    else
-    {
-      vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
-        "//VTK::Color::Impl\n"
-        "  diffuseColor = vertexColorVSOutput.rgb;\n"
-        "  ambientColor = vertexColorVSOutput.rgb;\n"
-        "  opacity = opacity*vertexColorVSOutput.a;");
-    }
+    vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
+      "//VTK::Color::Impl\n"
+      "  diffuseColor = diffuseIntensity * vertexColorVSOutput.rgb;\n"
+      "  ambientColor = ambientIntensity * vertexColorVSOutput.rgb;\n"
+      "  opacity = opacity * vertexColorVSOutput.a;");
   }
 
   if (this->UsingInstancing)
@@ -303,6 +283,9 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   std::vector<vtkIdType> &pickIds,
   vtkMTimeType pointMTime)
 {
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
+
   // we always tell our triangle VAO to emulate unless we
   // have opengl 3.2 to be safe
   // this is because it seems that GLEW_ARB_vertex_array_object
@@ -386,7 +369,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
                             static_cast<GLuint>(numVerts - 1),
                             static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
                             GL_UNSIGNED_INT,
-                            reinterpret_cast<const GLvoid *>(NULL));
+                            nullptr);
       }
       this->Primitives[i].IBO->Release();
     }
@@ -495,7 +478,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
       glDrawElementsInstanced(mode,
         static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
         GL_UNSIGNED_INT,
-        reinterpret_cast<const GLvoid *>(NULL),
+        nullptr,
         numPts);
 #else
       if (GLEW_ARB_instanced_arrays)
@@ -503,7 +486,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
         glDrawElementsInstancedARB(mode,
           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
           GL_UNSIGNED_INT,
-          reinterpret_cast<const GLvoid *>(NULL),
+          nullptr,
           numPts);
       }
 #endif

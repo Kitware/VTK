@@ -146,7 +146,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLExtensionManager : public vtkObject
 public:
   vtkTypeMacro(vtkOpenGLExtensionManager, vtkObject);
   static vtkOpenGLExtensionManager *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -379,7 +379,7 @@ public:
 
 protected:
   vtkOpenGLExtensionManager();
-  ~vtkOpenGLExtensionManager() VTK_OVERRIDE;
+  ~vtkOpenGLExtensionManager() override;
 
   int OwnRenderWindow;
   char *ExtensionsString;
@@ -421,8 +421,8 @@ protected:
   virtual int SafeLoadExtension(const char *name);
 
 private:
-  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
+  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&) = delete;
+  void operator=(const vtkOpenGLExtensionManager&) = delete;
 
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
 

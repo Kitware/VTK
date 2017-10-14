@@ -41,7 +41,7 @@ public:
   vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
   typedef typename Superclass::ValueType ValueType;
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the mapped array with the original input data array.
@@ -51,68 +51,68 @@ public:
   /**
    * Initialize array with zero values
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Copy tuples values, selected by ptIds into provided array
    */
-  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) VTK_OVERRIDE;
+  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) override;
 
   /**
    * Copy tuples from id p1 to id p2 included into provided array
    */
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) VTK_OVERRIDE;
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) override;
 
   /**
    * No effect
    */
-  void Squeeze() VTK_OVERRIDE;
+  void Squeeze() override;
 
   /**
    * Not implemented
    */
-  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() override;
 
   /**
    * Not implemented
    */
-  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
+  vtkIdType LookupValue(vtkVariant value) override;
 
   /**
    * Not implemented
    */
-  void LookupValue(vtkVariant value, vtkIdList *ids) VTK_OVERRIDE;
+  void LookupValue(vtkVariant value, vtkIdList *ids) override;
 
   /**
    * Not implemented
    */
-  vtkVariant GetVariantValue(vtkIdType idx) VTK_OVERRIDE;
+  vtkVariant GetVariantValue(vtkIdType idx) override;
 
   /**
    * Not implemented
    */
-  void ClearLookup() VTK_OVERRIDE;
+  void ClearLookup() override;
 
   /**
    * Return tuple at location i.
    * Pointer valid until next call to this object
    */
-  double* GetTuple(vtkIdType i) VTK_OVERRIDE;
+  double* GetTuple(vtkIdType i) override;
 
   /**
    * Copy tuple at location i into user provided array
    */
-  void GetTuple(vtkIdType i, double *tuple) VTK_OVERRIDE;
+  void GetTuple(vtkIdType i, double *tuple) override;
 
   /**
    * Not implemented
    */
-  vtkIdType LookupTypedValue(Scalar value) VTK_OVERRIDE;
+  vtkIdType LookupTypedValue(Scalar value) override;
 
   /**
    * Not implemented
    */
-  void LookupTypedValue(Scalar value, vtkIdList *ids) VTK_OVERRIDE;
+  void LookupTypedValue(Scalar value, vtkIdList *ids) override;
 
   /**
    * Get value at index idx.
@@ -143,126 +143,126 @@ public:
   /**
    * Return the memory in kilobytes consumed by this data array.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   /**
    * Read only container, not supported.
    */
-  int Allocate(vtkIdType sz, vtkIdType ext) VTK_OVERRIDE;
+  int Allocate(vtkIdType sz, vtkIdType ext) override;
 
   /**
    * Read only container, not supported.
    */
-  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
+  int Resize(vtkIdType numTuples) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
+  void SetNumberOfTuples(vtkIdType number) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, const float *source) VTK_OVERRIDE;
+  void SetTuple(vtkIdType i, const float *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetTuple(vtkIdType i, const double *source) VTK_OVERRIDE;
+  void SetTuple(vtkIdType i, const double *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, const float *source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType i, const float *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertTuple(vtkIdType i, const double *source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType i, const double *source) override;
 
   /**
    * Read only container, not supported.
    */
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) VTK_OVERRIDE;
+                    vtkAbstractArray *source) override;
 
   /**
    * Read only container, not supported.
    */
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) VTK_OVERRIDE;
+                    vtkAbstractArray* source) override;
 
   /**
    * Read only container, error.
    */
-  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source) override;
 
   /**
    * Read only container, not supported.
    */
-  vtkIdType InsertNextTuple(const float *source) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(const float *source) override;
 
   /**
    * Read only container, not supported.
    */
-  vtkIdType InsertNextTuple(const double *source) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(const double *source) override;
 
   /**
    * Read only container, not supported.
    */
-  void DeepCopy(vtkAbstractArray *aa) VTK_OVERRIDE;
+  void DeepCopy(vtkAbstractArray *aa) override;
 
   /**
    * Read only container, not supported.
    */
-  void DeepCopy(vtkDataArray *da) VTK_OVERRIDE;
+  void DeepCopy(vtkDataArray *da) override;
 
   /**
    * Read only container, not supported.
    */
   void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-                        vtkAbstractArray* source, double* weights) VTK_OVERRIDE;
+                        vtkAbstractArray* source, double* weights) override;
 
   /**
    * Read only container, not supported.
    */
   void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray *source1,
-                        vtkIdType id2, vtkAbstractArray *source2, double t) VTK_OVERRIDE;
+                        vtkIdType id2, vtkAbstractArray *source2, double t) override;
 
   /**
    * Read only container, not supported.
    */
-  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
+  void SetVariantValue(vtkIdType idx, vtkVariant value) override;
 
   /**
    * Read only container, not supported.
    */
-  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) override;
 
   /**
    * Read only container, not supported.
    */
-  void RemoveTuple(vtkIdType id) VTK_OVERRIDE;
+  void RemoveTuple(vtkIdType id) override;
 
   /**
    * Read only container, not supported.
    */
-  void RemoveFirstTuple() VTK_OVERRIDE;
+  void RemoveFirstTuple() override;
 
   /**
    * Read only container, not supported.
    */
-  void RemoveLastTuple() VTK_OVERRIDE;
+  void RemoveLastTuple() override;
 
   /**
    * Read only container, not supported.
@@ -309,7 +309,7 @@ public:
 
 protected:
   vtkPeriodicDataArray();
-  ~vtkPeriodicDataArray() VTK_OVERRIDE;
+  ~vtkPeriodicDataArray() override;
 
   //@{
   /**
@@ -327,12 +327,12 @@ protected:
   /**
    * Get the transformed range by components
    */
-  bool ComputeScalarRange(double* range) VTK_OVERRIDE;
+  bool ComputeScalarRange(double* range) override;
 
   /**
    * Get the transformed range on all components
    */
-  bool ComputeVectorRange(double range[2]) VTK_OVERRIDE;
+  bool ComputeVectorRange(double range[2]) override;
 
   /**
    * Update the transformed periodic range
@@ -347,8 +347,8 @@ protected:
   bool Normalize; // If transformed vector must be normalized
 
 private:
-  vtkPeriodicDataArray(const vtkPeriodicDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPeriodicDataArray &) VTK_DELETE_FUNCTION;
+  vtkPeriodicDataArray(const vtkPeriodicDataArray &) = delete;
+  void operator=(const vtkPeriodicDataArray &) = delete;
 
   friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
 

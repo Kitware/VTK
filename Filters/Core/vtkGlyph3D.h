@@ -106,7 +106,7 @@ class VTKFILTERSCORE_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyph3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
@@ -306,15 +306,25 @@ public:
   /**
    * Overridden to include SourceTransform's MTime.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
+
+  //@{
+  /**
+   * Set/get the desired precision for the output types. See the documentation
+   * for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
+   * the available precision settings.
+   */
+  vtkSetMacro(OutputPointsPrecision,int);
+  vtkGetMacro(OutputPointsPrecision,int);
+  //@}
 
 protected:
   vtkGlyph3D();
-  ~vtkGlyph3D() VTK_OVERRIDE;
+  ~vtkGlyph3D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   vtkPolyData* GetSource(int idx, vtkInformationVector *sourceInfo);
 
@@ -348,10 +358,11 @@ protected:
   int FillCellData; // whether to fill output cell data
   char *PointIdsName;
   vtkTransform* SourceTransform;
+  int OutputPointsPrecision;
 
 private:
-  vtkGlyph3D(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
+  vtkGlyph3D(const vtkGlyph3D&) = delete;
+  void operator=(const vtkGlyph3D&) = delete;
 };
 
 //@{

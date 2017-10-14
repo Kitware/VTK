@@ -50,17 +50,17 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleRubberBand2D : public vtkInte
 public:
   static vtkInteractorStyleRubberBand2D *New();
   vtkTypeMacro(vtkInteractorStyleRubberBand2D, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnMouseWheelForward() VTK_OVERRIDE;
-  void OnMouseWheelBackward() VTK_OVERRIDE;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
+  void OnMouseMove() override;
+  void OnMouseWheelForward() override;
+  void OnMouseWheelBackward() override;
 
   //@{
   /**
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkInteractorStyleRubberBand2D();
-  ~vtkInteractorStyleRubberBand2D() VTK_OVERRIDE;
+  ~vtkInteractorStyleRubberBand2D() override;
 
   // The interaction mode
   int Interaction;
@@ -115,10 +115,10 @@ protected:
   // Draws the selection rubber band
   void RedrawRubberBand();
 
-  // The end position of the selection
+  // The start position of the selection
   int StartPosition[2];
 
-  // The start position of the selection
+  // The end position of the selection
   int EndPosition[2];
 
   // The pixel array for the rubber band
@@ -128,8 +128,8 @@ protected:
   bool RenderOnMouseMove;
 
 private:
-  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&) = delete;
+  void operator=(const vtkInteractorStyleRubberBand2D&) = delete;
 };
 
 #endif

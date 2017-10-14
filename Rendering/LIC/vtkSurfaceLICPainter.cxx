@@ -172,7 +172,7 @@ void StreamingFindMinMax(
   // initiate download
   fbo->ActivateReadBuffer(1U);
   vtkStaticCheckFrameBufferStatusMacro(vtkgl::FRAMEBUFFER_EXT);
-  vector<vtkPixelBufferObject*> pbos(nBlocks, NULL);
+  vector<vtkPixelBufferObject*> pbos(nBlocks, nullptr);
   for (size_t e=0; e<nBlocks; ++e)
   {
     pbos[e] = fbo->Download(
@@ -204,7 +204,7 @@ void StreamingFindMinMax(
     }
     pbo->UnmapPackedBuffer();
     pbo->Delete();
-    pbo = NULL;
+    pbo = nullptr;
   }
   #if vtkSurfaceLICPainterDEBUG >= 1
   cerr << "min=" << min << " max=" << max << endl;
@@ -274,8 +274,8 @@ public:
   }
 
 private:
-  void operator=(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
-  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  void operator=(const RandomNumberGeneratorInterface &) = delete;
+  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) = delete;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;
@@ -467,7 +467,7 @@ float *RandomNoise2D::Generate(
             impulseBgNoiseVal,
             seed);
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -922,13 +922,13 @@ public:
     const int nLights = vtkLightingHelper::VTK_MAX_LIGHTS;
     for (int i=0; i<nLights; ++i)
     {
-      this->LightMonitor[i] = NULL;
+      this->LightMonitor[i] = nullptr;
     }
-    this->ViewMonitor = NULL;
-    this->BGMonitor = NULL;
+    this->ViewMonitor = nullptr;
+    this->BGMonitor = nullptr;
 
-    this->LightingHelper = NULL;
-    this->ColorMaterialHelper = NULL;
+    this->LightingHelper = nullptr;
+    this->ColorMaterialHelper = nullptr;
 
     delete this->Communicator;
   }
@@ -937,7 +937,7 @@ public:
   // Check for OpenGL support
   static bool IsSupported(vtkOpenGLRenderWindow *context)
   {
-    if (context == NULL)
+    if (context == nullptr)
     {
       vtkGenericWarningMacro("OpenGL render window required");
       return false;
@@ -978,14 +978,14 @@ public:
   {
     this->ClearTextures();
 
-    this->RenderGeometryPass = NULL;
-    this->ColorPass = NULL;
-    this->ColorEnhancePass = NULL;
-    this->CopyPass = NULL;
+    this->RenderGeometryPass = nullptr;
+    this->ColorPass = nullptr;
+    this->ColorEnhancePass = nullptr;
+    this->CopyPass = nullptr;
 
-    this->Compositor = NULL;
-    this->LICer = NULL;
-    this->FBO = NULL;
+    this->Compositor = nullptr;
+    this->LICer = nullptr;
+    this->FBO = nullptr;
 
     this->LightingHelper->Initialize(0, VTK_SHADER_TYPE_VERTEX);
     this->ColorMaterialHelper->Initialize(0);
@@ -995,16 +995,16 @@ public:
   // Free textures we're holding a reference to.
   void ClearTextures()
   {
-    this->DepthImage = NULL;
-    this->GeometryImage = NULL;
-    this->VectorImage = NULL;
-    this->MaskVectorImage = NULL;
-    this->CompositeVectorImage = NULL;
-    this->CompositeMaskVectorImage = NULL;
-    this->NoiseImage = NULL;
-    this->LICImage = NULL;
-    this->RGBColorImage = NULL;
-    this->HSLColorImage = NULL;
+    this->DepthImage = nullptr;
+    this->GeometryImage = nullptr;
+    this->VectorImage = nullptr;
+    this->MaskVectorImage = nullptr;
+    this->CompositeVectorImage = nullptr;
+    this->CompositeMaskVectorImage = nullptr;
+    this->NoiseImage = nullptr;
+    this->LICImage = nullptr;
+    this->RGBColorImage = nullptr;
+    this->HSLColorImage = nullptr;
   }
 
   // Description:
@@ -1608,11 +1608,11 @@ void vtkSurfaceLICPainter::SetInputArrayToProcess(
 void vtkSurfaceLICPainter::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->Internals->ClearGraphicsResources();
-  this->Internals->Context = NULL;
+  this->Internals->Context = nullptr;
   if (this->Output)
   {
     this->Output->Delete();
-    this->Output = NULL;
+    this->Output = nullptr;
   }
   this->Superclass::ReleaseGraphicsResources(win);
 }
@@ -1638,29 +1638,29 @@ vtkSetMonitoredParameterMacro(
 vtkSetMonitoredParameterMacro(
       GenerateNoiseTexture,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
       NoiseType,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
       NoiseTextureSize,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
       NoiseGrainSize,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
@@ -1668,8 +1668,8 @@ vtkSetMonitoredParameterMacro(
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
@@ -1677,15 +1677,15 @@ vtkSetMonitoredParameterMacro(
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
       NumberOfNoiseLevels,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
@@ -1693,8 +1693,8 @@ vtkSetMonitoredParameterMacro(
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
@@ -1702,15 +1702,15 @@ vtkSetMonitoredParameterMacro(
       double,
       val = val < 0.0 ? 0.0 : val;
       val = val > 1.0 ? 1.0 : val;
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 vtkSetMonitoredParameterMacro(
       NoiseGeneratorSeed,
       int,
-      this->Internals->Noise = NULL;
-      this->Internals->NoiseImage = NULL;
+      this->Internals->Noise = nullptr;
+      this->Internals->NoiseImage = nullptr;
       this->Internals->LICNeedsUpdate = true;)
 
 // compositor
@@ -1926,16 +1926,16 @@ void vtkSurfaceLICPainter::SetNoiseDataSet(vtkImageData *data)
     return;
   }
   this->Internals->Noise = data;
-  this->Internals->NoiseImage = NULL;
+  this->Internals->NoiseImage = nullptr;
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
 {
-  if (this->Internals->Noise == NULL)
+  if (this->Internals->Noise == nullptr)
   {
-    vtkImageData *noise = NULL;
+    vtkImageData *noise = nullptr;
     if ( this->GenerateNoiseTexture )
     {
       // report potential issues
@@ -1972,7 +1972,7 @@ vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
             this->ImpulseNoiseProbability,
             static_cast<float>(this->ImpulseNoiseBackgroundValue),
             this->NoiseGeneratorSeed);
-      if ( noiseValues == NULL )
+      if ( noiseValues == nullptr )
       {
         vtkErrorMacro("Failed to generate noise.");
       }
@@ -1998,9 +1998,9 @@ vtkImageData *vtkSurfaceLICPainter::GetNoiseDataSet()
     }
 
     this->Internals->Noise = noise;
-    this->Internals->NoiseImage = NULL;
+    this->Internals->NoiseImage = nullptr;
     noise->Delete();
-    noise = NULL;
+    noise = nullptr;
   }
 
   return this->Internals->Noise;
@@ -2931,7 +2931,7 @@ void vtkSurfaceLICPainter::RenderInternal(
 
       vtkPixelBufferObject *licPBO = this->Internals->LICImage->Download();
       void *pLicPBO = licPBO->MapPackedBuffer();
-      vtkTextureObject *newLicImage = NULL;
+      vtkTextureObject *newLicImage = nullptr;
       int iErr = this->Internals->Compositor->Scatter(pLicPBO, VTK_FLOAT, 4, newLicImage);
       if (iErr)
       {
@@ -2939,7 +2939,7 @@ void vtkSurfaceLICPainter::RenderInternal(
       }
       licPBO->UnmapPackedBuffer();
       licPBO->Delete();
-      this->Internals->LICImage = NULL;
+      this->Internals->LICImage = nullptr;
       this->Internals->LICImage = newLicImage;
       newLicImage->Delete();
 
@@ -3217,12 +3217,12 @@ vtkDataObject* vtkSurfaceLICPainter::GetOutput()
 bool vtkSurfaceLICPainter::PrepareOutput()
 {
   vtkDataObject* input = this->GetInput();
-  if ((input == NULL) || !this->Enable)
+  if ((input == nullptr) || !this->Enable)
   {
     if (this->Output)
     {
       this->Output->Delete();
-      this->Output = NULL;
+      this->Output = nullptr;
       this->Internals->HasVectors = false;
     }
     return false;
@@ -3233,7 +3233,7 @@ bool vtkSurfaceLICPainter::PrepareOutput()
     if (this->Output)
     {
       this->Output->Delete();
-      this->Output = NULL;
+      this->Output = nullptr;
     }
 
     this->Output = input->NewInstance();
@@ -3291,7 +3291,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataObject *dataObj)
 bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
 {
   // don't use SafeDownCast here for rendering performance
-  vtkDataArray *vectors = NULL;
+  vtkDataArray *vectors = nullptr;
   bool hasCellVectors = false;
 
   if (this->Internals->FieldNameSet)
@@ -3315,12 +3315,12 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
             &hasCellVectors));
   }
 
-  if ( vectors == NULL )
+  if ( vectors == nullptr )
   {
     return false;
   }
 
-  vtkDataSetAttributes *atts = NULL;
+  vtkDataSetAttributes *atts = nullptr;
   if ( hasCellVectors )
   {
     atts = data->GetCellData();

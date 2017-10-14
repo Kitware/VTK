@@ -37,9 +37,9 @@ vtkStandardNewMacro(vtkBridgePointIteratorOnCell);
 // Default constructor.
 vtkBridgePointIteratorOnCell::vtkBridgePointIteratorOnCell()
 {
-  this->DataSet=0;
+  this->DataSet=nullptr;
   this->Cursor=0;
-  this->PtIds=0;
+  this->PtIds=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkBridgePointIteratorOnCell::PrintSelf(ostream& os, vtkIndent indent)
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIteratorOnCell::Begin()
 {
-  if(this->PtIds!=0)
+  if(this->PtIds!=nullptr)
   {
     this->Cursor=0;
   }
@@ -72,7 +72,7 @@ void vtkBridgePointIteratorOnCell::Begin()
 // Is there no point at iterator position? (exit condition).
 int vtkBridgePointIteratorOnCell::IsAtEnd()
 {
-  return (this->PtIds==0)||(this->Cursor>=this->PtIds->GetNumberOfIds());
+  return (this->PtIds==nullptr)||(this->Cursor>=this->PtIds->GetNumberOfIds());
 }
 
 //-----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ double *vtkBridgePointIteratorOnCell::GetPosition()
 
   double *result=this->DataSet->Implementation->GetPoint(this->PtIds->GetId(this->Cursor));
 
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -108,7 +108,7 @@ double *vtkBridgePointIteratorOnCell::GetPosition()
 void vtkBridgePointIteratorOnCell::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
-  assert("pre: x_exists" && x!=0);
+  assert("pre: x_exists" && x!=nullptr);
   this->DataSet->Implementation->GetPoint(this->PtIds->GetId(this->Cursor),x);
 }
 
@@ -129,7 +129,7 @@ vtkIdType vtkBridgePointIteratorOnCell::GetId()
 // \pre cell_exists: cell!=0
 void vtkBridgePointIteratorOnCell::InitWithCell(vtkBridgeCell *cell)
 {
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
 
   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,cell->DataSet);
   this->PtIds = cell->Cell->GetPointIds();

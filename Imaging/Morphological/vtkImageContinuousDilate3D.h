@@ -41,7 +41,7 @@ public:
    */
   static vtkImageContinuousDilate3D *New();
   vtkTypeMacro(vtkImageContinuousDilate3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkImageContinuousDilate3D();
-  ~vtkImageContinuousDilate3D() VTK_OVERRIDE;
+  ~vtkImageContinuousDilate3D() override;
 
   vtkImageEllipsoidSource *Ellipse;
 
@@ -60,14 +60,14 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) VTK_OVERRIDE;
+                           int extent[6], int id) override;
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) = delete;
+  void operator=(const vtkImageContinuousDilate3D&) = delete;
 };
 
 #endif

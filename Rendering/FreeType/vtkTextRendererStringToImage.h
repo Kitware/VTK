@@ -30,7 +30,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkTextRendererStringToImage :
 {
 public:
   vtkTypeMacro(vtkTextRendererStringToImage, vtkStringToImage);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkTextRendererStringToImage *New();
 
@@ -50,10 +50,10 @@ public:
    */
   vtkVector2i GetBounds(vtkTextProperty *property,
                                 const vtkUnicodeString& string,
-                                int dpi) VTK_OVERRIDE;
+                                int dpi) override;
   vtkVector2i GetBounds(vtkTextProperty *property,
                                 const vtkStdString& string,
-                                int dpi) VTK_OVERRIDE;
+                                int dpi) override;
   //@}
 
   //@{
@@ -68,19 +68,19 @@ public:
                            const vtkUnicodeString& string,
                            int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = nullptr) override;
   int RenderString(vtkTextProperty *property,
                            const vtkStdString& string,
                            int dpi,
                            vtkImageData *data,
-                           int textDims[2] = NULL) VTK_OVERRIDE;
+                           int textDims[2] = nullptr) override;
   //@}
 
   /**
    * Should we produce images at powers of 2, makes rendering on old OpenGL
    * hardware easier. Default is false.
    */
-  void SetScaleToPowerOfTwo(bool scale) VTK_OVERRIDE;
+  void SetScaleToPowerOfTwo(bool scale) override;
 
   /**
    * Make a deep copy of the supplied utility class.
@@ -89,14 +89,14 @@ public:
 
 protected:
   vtkTextRendererStringToImage();
-  ~vtkTextRendererStringToImage() VTK_OVERRIDE;
+  ~vtkTextRendererStringToImage() override;
 
   class Internals;
   Internals* Implementation;
 
 private:
-  vtkTextRendererStringToImage(const vtkTextRendererStringToImage &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextRendererStringToImage &) VTK_DELETE_FUNCTION;
+  vtkTextRendererStringToImage(const vtkTextRendererStringToImage &) = delete;
+  void operator=(const vtkTextRendererStringToImage &) = delete;
 };
 
 #endif //vtkTextRendererStringToImage_h

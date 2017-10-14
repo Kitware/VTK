@@ -39,15 +39,15 @@ vtkStandardNewMacro(vtkCirclePackLayout);
 
 vtkCirclePackLayout::vtkCirclePackLayout()
 {
-    this->CirclesFieldName = 0;
-    this->LayoutStrategy = 0;
+    this->CirclesFieldName = nullptr;
+    this->LayoutStrategy = nullptr;
     this->SetCirclesFieldName("circles");
     this->SetSizeArrayName("size");
 }
 
 vtkCirclePackLayout::~vtkCirclePackLayout()
 {
-    this->SetCirclesFieldName(0);
+    this->SetCirclesFieldName(nullptr);
     if (this->LayoutStrategy)
     {
         this->LayoutStrategy->Delete();
@@ -93,12 +93,12 @@ int vtkCirclePackLayout::RequestData(
                                   vtkInformationVector **inputVector,
                                   vtkInformationVector *outputVector)
 {
-    if (this->LayoutStrategy == NULL)
+    if (this->LayoutStrategy == nullptr)
     {
         vtkErrorMacro(<< "Layout strategy must be non-null.");
         return 0;
     }
-    if (this->CirclesFieldName == NULL)
+    if (this->CirclesFieldName == nullptr)
     {
         vtkErrorMacro(<< "Circles field name must be non-null.");
         return 0;
@@ -249,7 +249,7 @@ void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, double *cinfo)
 
     if(!cinfo)
     {
-      vtkErrorMacro(<< "cinfo is NULL");
+      vtkErrorMacro(<< "cinfo is nullptr");
       return;
     }
 
@@ -271,7 +271,7 @@ vtkMTimeType vtkCirclePackLayout::GetMTime()
     vtkMTimeType mTime = this->Superclass::GetMTime();
     vtkMTimeType time;
 
-    if (this->LayoutStrategy != NULL)
+    if (this->LayoutStrategy != nullptr)
     {
         time = this->LayoutStrategy->GetMTime();
         mTime = (time > mTime ? time : mTime);

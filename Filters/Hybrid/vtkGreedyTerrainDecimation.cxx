@@ -80,7 +80,7 @@ vtkGreedyTerrainDecimation::vtkGreedyTerrainDecimation()
   this->BoundaryVertexDeletion = 1;
 
   this->ComputeNormals = 0;
-  this->Normals = 0;
+  this->Normals = nullptr;
 }
 
 //----------------------------------------------------------------------
@@ -155,7 +155,6 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
 
   numPts = numTris/2 + 1;
   numPts = (numPts < 4 ? 4 : numPts); //insure enough storage for initial four corner points
-  return;
 }
 
 //----------------------------------------------------------------------
@@ -713,7 +712,7 @@ int vtkGreedyTerrainDecimation::RequestData(
     vtkWarningMacro(<<"This class treats 2D height fields only");
     return 1;
   }
-  if ( (this->Heights = this->InputPD->GetScalars()) == NULL )
+  if ( (this->Heights = this->InputPD->GetScalars()) == nullptr )
   {
     vtkWarningMacro(<<"This class requires height scalars");
     return 1;
@@ -876,7 +875,7 @@ int vtkGreedyTerrainDecimation::RequestData(
   {
     this->OutputPD->SetNormals(this->Normals);
     this->Normals->Delete();
-    this->Normals = 0;
+    this->Normals = nullptr;
   }
 
   vtkDebugMacro(<<"Output TIN contains: " << this->Mesh->GetNumberOfPoints() << " points"

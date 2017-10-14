@@ -38,11 +38,11 @@ public:
 
 protected:
   vtkStructuredPointsGeometryFilter();
-  ~vtkStructuredPointsGeometryFilter() VTK_OVERRIDE {}
+  ~vtkStructuredPointsGeometryFilter() override {}
 
 private:
-  vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredPointsGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&) = delete;
+  void operator=(const vtkStructuredPointsGeometryFilter&) = delete;
 };
 
 #endif

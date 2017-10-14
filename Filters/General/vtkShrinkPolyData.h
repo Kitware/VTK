@@ -47,7 +47,7 @@ class VTKFILTERSGENERAL_EXPORT vtkShrinkPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkShrinkPolyData *New();
   vtkTypeMacro(vtkShrinkPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -65,13 +65,13 @@ public:
 
 protected:
   vtkShrinkPolyData(double sf=0.5);
-  ~vtkShrinkPolyData() VTK_OVERRIDE {}
+  ~vtkShrinkPolyData() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double ShrinkFactor;
 private:
-  vtkShrinkPolyData(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
+  vtkShrinkPolyData(const vtkShrinkPolyData&) = delete;
+  void operator=(const vtkShrinkPolyData&) = delete;
 };
 
 #endif

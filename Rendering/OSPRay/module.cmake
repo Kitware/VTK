@@ -10,14 +10,13 @@ vtk_module(vtkRenderingOSPRay
     vtkInteractionStyle
     vtkIOGeometry
     vtkIOPLY
-    vtkIOXML
     vtkRenderingAnnotation
     vtkTestingCore
     vtkTestingRendering
     ${optional_test_depends}
     # Dependencies for volume rendering tests
     vtkRenderingVolume
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingVolumeOpenGL2
     vtkFiltersCore
     vtkFiltersHybrid
     vtkFiltersModeling
@@ -30,11 +29,14 @@ vtk_module(vtkRenderingOSPRay
   EXCLUDE_FROM_ALL
   DEPENDS
     vtkCommonDataModel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingCore
     vtkRenderingSceneGraph
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkIOImage
     vtkIOLegacy
+    vtkIOXML
+    vtkjsoncpp
+    vtksys
   )

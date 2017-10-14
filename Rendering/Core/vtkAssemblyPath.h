@@ -42,7 +42,7 @@ class VTKRENDERINGCORE_EXPORT vtkAssemblyPath : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkAssemblyPath, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate empty path with identify matrix.
@@ -96,7 +96,7 @@ public:
    * Override the standard GetMTime() to check for the modified times
    * of the nodes in this path.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkAssemblyPath();
-  ~vtkAssemblyPath() VTK_OVERRIDE;
+  ~vtkAssemblyPath() override;
 
   void AddNode(vtkAssemblyNode *n); //Internal method adds assembly node
   vtkTransform *Transform; //Used to perform matrix concatentation
@@ -119,8 +119,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkAssemblyPath(const vtkAssemblyPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssemblyPath&) VTK_DELETE_FUNCTION;
+  vtkAssemblyPath(const vtkAssemblyPath&) = delete;
+  void operator=(const vtkAssemblyPath&) = delete;
 };
 
 #endif

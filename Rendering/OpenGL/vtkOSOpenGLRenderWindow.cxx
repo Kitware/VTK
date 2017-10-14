@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <GL/gl.h>
 #include "vtkgl.h"
 
-#ifdef VTK_USE_OSMESA
+#ifdef VTK_OPENGL_HAS_OSMESA
 
 # ifndef GLAPI
 #  define GLAPI extern
@@ -37,7 +37,7 @@ PURPOSE.  See the above copyright notice for more information.
 # endif
 
 # include <GL/osmesa.h>
-#endif // VTK_USE_OSMESA
+#endif // VTK_OPENGL_HAS_OSMESA
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"

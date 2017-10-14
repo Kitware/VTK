@@ -38,18 +38,18 @@ class vtkXRenderWindowTclInteractor : public vtkXRenderWindowInteractor
 public:
   static vtkXRenderWindowTclInteractor *New();
   vtkTypeMacro(vtkXRenderWindowTclInteractor,vtkXRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initializes a Tcl/Tk specific event handler.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Overridden only to eliminate the "virtual function hidden" warning.
    * Implementation delegates directly to the Superclass.
    */
-  void Initialize(XtAppContext app) VTK_OVERRIDE;
+  void Initialize(XtAppContext app) override;
 
   //@{
   /**
@@ -61,8 +61,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  void Enable() VTK_OVERRIDE;
-  void Disable() VTK_OVERRIDE;
+  void Enable() override;
+  void Disable() override;
   //@}
 
   /**
@@ -70,26 +70,26 @@ public:
    * presses the 'q' or 'e' key or when some other event observer calls
    * our ExitCallback method.
    */
-  void Start() VTK_OVERRIDE;
+  void Start() override;
 
 protected:
   vtkXRenderWindowTclInteractor();
-  ~vtkXRenderWindowTclInteractor() VTK_OVERRIDE;
+  ~vtkXRenderWindowTclInteractor() override;
 
   //@{
   /**
    * Tcl/Tk specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
-  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
   //@}
 
 private:
   vtkXRenderWindowTclInteractorInternals* TclInternal;
 
-  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXRenderWindowTclInteractor&) VTK_DELETE_FUNCTION;
+  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&) = delete;
+  void operator=(const vtkXRenderWindowTclInteractor&) = delete;
 };
 
 #endif

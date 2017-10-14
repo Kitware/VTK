@@ -85,19 +85,19 @@ vtkTexturedButtonRepresentation::~vtkTexturedButtonRepresentation()
   if ( this->Property )
   {
     this->Property->Delete();
-    this->Property = NULL;
+    this->Property = nullptr;
   }
 
   if ( this->HoveringProperty )
   {
     this->HoveringProperty->Delete();
-    this->HoveringProperty = NULL;
+    this->HoveringProperty = nullptr;
   }
 
   if ( this->SelectingProperty )
   {
     this->SelectingProperty->Delete();
-    this->SelectingProperty = NULL;
+    this->SelectingProperty = nullptr;
   }
 
   delete this->TextureArray;
@@ -165,7 +165,7 @@ GetButtonTexture(int i)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -267,7 +267,7 @@ int vtkTexturedButtonRepresentation
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkButtonRepresentation::Inside;
   }
@@ -354,7 +354,7 @@ void vtkTexturedButtonRepresentation::BuildRepresentation()
     }
     else
     {
-      this->Texture->SetInputData(NULL);
+      this->Texture->SetInputData(nullptr);
     }
 
     this->BuildTime.Modified();

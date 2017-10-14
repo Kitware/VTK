@@ -3,10 +3,6 @@ project(vtknetcdfcpp CXX)
 vtk_add_library(vtknetcdfcpp
   cxx/netcdf.cpp
   cxx/ncvalues.cpp)
-set_target_properties(vtknetcdfcpp
-  PROPERTIES
-    VERSION     4.2.0
-    OUTPUT_NAME vtknetcdf_c++)
 vtk_module_load(vtknetcdf)
 target_link_libraries(vtknetcdfcpp
   PUBLIC

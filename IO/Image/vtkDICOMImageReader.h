@@ -58,19 +58,19 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   /**
    * Prints the ivars.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Set the filename for the file to read. If this method is used,
    * the reader will only read a single file.
    */
-  void SetFileName(const char* fn) VTK_OVERRIDE
+  void SetFileName(const char* fn) override
   {
     delete [] this->DirectoryName;
     delete [] this->FileName;
-    this->DirectoryName = NULL;
-    this->FileName = NULL;
+    this->DirectoryName = nullptr;
+    this->FileName = nullptr;
     this->vtkImageReader2::SetFileName(fn);
   }
   //@}
@@ -181,12 +181,12 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   //
   // Can I read the file?
   //
-  int CanReadFile(const char* fname) VTK_OVERRIDE;
+  int CanReadFile(const char* fname) override;
 
   //
   // What file extensions are supported?
   //
-  const char* GetFileExtensions() VTK_OVERRIDE
+  const char* GetFileExtensions() override
   {
     return ".dcm";
   }
@@ -194,7 +194,7 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE
+  const char* GetDescriptiveName() override
   {
     return "DICOM";
   }
@@ -205,8 +205,8 @@ protected:
   //
   void SetupOutputInformation(int num_slices);
 
-  void ExecuteInformation() VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 
   //
   // Constructor
@@ -216,7 +216,7 @@ protected:
   //
   // Destructor
   //
-  ~vtkDICOMImageReader() VTK_OVERRIDE;
+  ~vtkDICOMImageReader() override;
 
   //
   // Instance of the parser used to parse the file.
@@ -243,8 +243,8 @@ protected:
   int GetNumberOfDICOMFileNames();
   const char* GetDICOMFileName(int index);
 private:
-  vtkDICOMImageReader(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
+  vtkDICOMImageReader(const vtkDICOMImageReader&) = delete;
+  void operator=(const vtkDICOMImageReader&) = delete;
 
 };
 

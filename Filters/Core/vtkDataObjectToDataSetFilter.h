@@ -83,7 +83,7 @@ class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgo
 public:
   static vtkDataObjectToDataSetFilter *New();
   vtkTypeMacro(vtkDataObjectToDataSetFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the input to the filter.
@@ -113,7 +113,7 @@ public:
    * Get the output in different forms. The particular method invoked
    * should be consistent with the SetDataSetType() method. (Note:
    * GetOutput() will always return a type consistent with
-   * SetDataSetType(). Also, GetOutput() will return NULL if the filter
+   * SetDataSetType(). Also, GetOutput() will return nullptr if the filter
    * aborted due to inconsistent data.)
    */
   vtkDataSet *GetOutput();
@@ -275,14 +275,14 @@ public:
 
 protected:
   vtkDataObjectToDataSetFilter();
-  ~vtkDataObjectToDataSetFilter() VTK_OVERRIDE;
+  ~vtkDataObjectToDataSetFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //generate output data
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   int RequestDataObject(vtkInformation *, vtkInformationVector **,
-                                vtkInformationVector *) VTK_OVERRIDE;
+                                vtkInformationVector *) override;
 
   char Updating;
 
@@ -355,8 +355,8 @@ protected:
   void ConstructOrigin(vtkDataObject *input);
 
 private:
-  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
+  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) = delete;
+  void operator=(const vtkDataObjectToDataSetFilter&) = delete;
 };
 
 #endif

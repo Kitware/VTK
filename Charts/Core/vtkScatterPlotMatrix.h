@@ -53,7 +53,7 @@ public:
   };
 
   vtkTypeMacro(vtkScatterPlotMatrix, vtkChartMatrix);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a new object.
@@ -63,14 +63,14 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the chart matrix.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
-  void SetScene(vtkContextScene *scene) VTK_OVERRIDE;
+  void SetScene(vtkContextScene *scene) override;
 
   /**
    * Set the active plot, the one that will be displayed in the top-right.
@@ -82,7 +82,7 @@ public:
   /**
    * Reset ActivePlotSet flag and call superclass method
    */
-  virtual void SetSize(const vtkVector2i& size) VTK_OVERRIDE;
+  void SetSize(const vtkVector2i& size) override;
 
   /**
    * Get the position of the active plot.
@@ -163,22 +163,22 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
   //@{
   /**
@@ -408,7 +408,7 @@ public:
 
 protected:
   vtkScatterPlotMatrix();
-  ~vtkScatterPlotMatrix() VTK_OVERRIDE;
+  ~vtkScatterPlotMatrix() override;
 
   /**
    * Internal helper to do the layout of the charts in the scatter plot matrix.
@@ -453,6 +453,13 @@ protected:
   static void ProcessEvents(vtkObject *caller, unsigned long event,
                             void *clientData, void *callerData);
 
+  /**
+   * Called when drawing a chart, does nothing at this level.
+   */
+  virtual void AddSupplementaryPlot(vtkChart* vtkNotUsed(chart), int vtkNotUsed(plotType),
+                                    vtkStdString vtkNotUsed(row), vtkStdString vtkNotUsed(column),
+                                    int vtkNotUsed(plotCorner) = 0){}
+
   // The position of the active plot (defaults to 0, 1).
   vtkVector2i ActivePlot;
 
@@ -478,9 +485,12 @@ protected:
   // How many frames should animations consist of, 0 means no transitions.
   int NumberOfFrames;
 
+  // A flag to know if we are animating the scatter plot along an animation path
+  bool Animating;
+
 private:
-  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
+  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) = delete;
+  void operator=(const vtkScatterPlotMatrix &) = delete;
 
   class PIMPL;
   PIMPL *Private;

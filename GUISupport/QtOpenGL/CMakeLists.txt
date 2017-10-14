@@ -2,12 +2,15 @@ include(vtkQt)
 
 set(MocHeaders ${QVTKMocHeaders}
   QVTKGraphicsItem.h
-  QVTKWidget2.h
   )
 set(LibSrcs ${QVTKLibSrcs}
   QVTKGraphicsItem.cxx
-  QVTKWidget2.cxx
   )
+
+if(NOT VTK_LEGACY_REMOVE)
+  list(APPEND MocHeaders QVTKWidget2.h)
+  list(APPEND LibSrcs QVTKWidget2.cxx)
+endif()
 
 if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   add_definitions(-DVTK_OPENGL2)

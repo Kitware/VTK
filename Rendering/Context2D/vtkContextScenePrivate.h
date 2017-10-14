@@ -44,7 +44,7 @@ public:
    * Default constructor.
    */
   vtkContextScenePrivate(vtkAbstractContextItem* item)
-    : std::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
+    : std::vector<vtkAbstractContextItem*>(), Scene(nullptr), Item(item)
   {
   }
 
@@ -116,8 +116,8 @@ public:
     {
       if (item == *it)
       {
-        item->SetParent(NULL);
-        item->SetScene(NULL);
+        item->SetParent(nullptr);
+        item->SetScene(nullptr);
         (*it)->Delete();
         this->erase(it);
         return true;
@@ -149,8 +149,8 @@ public:
   {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
     {
-      (*it)->SetParent(NULL);
-      (*it)->SetScene(NULL);
+      (*it)->SetParent(nullptr);
+      (*it)->SetScene(nullptr);
       (*it)->Delete();
     }
     this->clear();

@@ -49,7 +49,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapArrayValues : public vtkPassInputTypeAlgorit
 {
 public:
   vtkTypeMacro(vtkMapArrayValues,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMapArrayValues *New();
 
@@ -145,10 +145,10 @@ public:
 protected:
 
   vtkMapArrayValues();
-  ~vtkMapArrayValues() VTK_OVERRIDE;
+  ~vtkMapArrayValues() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   char* InputArrayName;
   char* OutputArrayName;
@@ -162,8 +162,8 @@ protected:
   vtkMapType *Map;
 
 private:
-  vtkMapArrayValues(const vtkMapArrayValues&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapArrayValues&) VTK_DELETE_FUNCTION;
+  vtkMapArrayValues(const vtkMapArrayValues&) = delete;
+  void operator=(const vtkMapArrayValues&) = delete;
 };
 
 #endif

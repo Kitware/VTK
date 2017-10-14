@@ -69,7 +69,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTessellatorFilter : public vtkUnstructuredGrid
 {
 public:
   vtkTypeMacro(vtkTessellatorFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   static vtkTessellatorFilter* New();
 
@@ -79,7 +79,7 @@ public:
   virtual void SetSubdivider( vtkDataSetEdgeSubdivisionCriterion* );
   vtkGetObjectMacro(Subdivider, vtkDataSetEdgeSubdivisionCriterion);
 
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -130,9 +130,9 @@ public:
 
 protected:
   vtkTessellatorFilter();
-  ~vtkTessellatorFilter() VTK_OVERRIDE;
+  ~vtkTessellatorFilter() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Called by RequestData to set up a multitude of member variables used by
@@ -156,7 +156,7 @@ protected:
    */
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;
@@ -206,8 +206,8 @@ protected:
                           const double* );
 
 private:
-  vtkTessellatorFilter( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
+  vtkTessellatorFilter( const vtkTessellatorFilter& ) = delete;
+  void operator = ( const vtkTessellatorFilter& ) = delete;
 };
 
 inline int vtkTessellatorFilter::GetOutputDimension() const

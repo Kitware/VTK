@@ -111,7 +111,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkLineIntegralConvolution2D : public vtkObj
 public:
   static vtkLineIntegralConvolution2D *New();
   vtkTypeMacro(vtkLineIntegralConvolution2D, vtkObject);
-  void PrintSelf(ostream & os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream & os, vtkIndent indent) override;
 
   /**
    * Returns if the context supports the required extensions.
@@ -371,7 +371,7 @@ public:
 
 protected:
   vtkLineIntegralConvolution2D();
-  virtual ~vtkLineIntegralConvolution2D();
+  ~vtkLineIntegralConvolution2D() override;
 
   vtkPainterCommunicator *Comm;
 
@@ -438,8 +438,8 @@ protected:
   double  MaxNoiseValue;
 
 private:
-  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
-  void operator = (const vtkLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
+  vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &) = delete;
+  void operator = (const vtkLineIntegralConvolution2D &) = delete;
 };
 
 #endif

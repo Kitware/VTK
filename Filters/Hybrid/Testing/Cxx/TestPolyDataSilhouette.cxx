@@ -15,7 +15,7 @@
 int TestPolyDataSilhouette(int argc, char *argv[])
 {
   vtkSmartPointer<vtkPolyData> polyData;
-  char* fname(NULL);
+  char* fname(nullptr);
   if (argc < 2)
   {
     vtkSmartPointer<vtkSphereSource> sphereSource =

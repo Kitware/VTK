@@ -135,8 +135,8 @@ protected:
   int         Sort;
 
 private:
-  vtkCGMWriter(const vtkCGMWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCGMWriter&) VTK_DELETE_FUNCTION;
+  vtkCGMWriter(const vtkCGMWriter&) = delete;
+  void operator=(const vtkCGMWriter&) = delete;
 };
 
 #endif

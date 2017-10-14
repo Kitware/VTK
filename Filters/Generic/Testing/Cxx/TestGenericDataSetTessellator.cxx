@@ -87,7 +87,7 @@ public:
       this->RenWin=aRenWin;
   }
 
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
       {
@@ -160,7 +160,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   tessellator->Update(); //So that we can call GetRange() on the scalars
 
-  assert(tessellator->GetOutput()!=0);
+  assert(tessellator->GetOutput()!=nullptr);
 
   // for debugging clipping on the hexa
 #if 0
@@ -201,9 +201,9 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   mapper->SetInputConnection( tessellator->GetOutputPort() );
 #endif
   mapper->SetLookupTable(lut);
-  if(tessellator->GetOutput()->GetPointData()!=0)
+  if(tessellator->GetOutput()->GetPointData()!=nullptr)
   {
-    if(tessellator->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(tessellator->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( tessellator->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

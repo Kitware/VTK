@@ -32,7 +32,7 @@ vtkVertexListIterator::vtkVertexListIterator()
 {
   this->Current = 0;
   this->End = 0;
-  this->Graph = 0;
+  this->Graph = nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -41,11 +41,11 @@ vtkDICOMImageReader::vtkDICOMImageReader()
 {
   this->Parser = new DICOMParser();
   this->AppHelper = new DICOMAppHelper();
-  this->DirectoryName = NULL;
-  this->PatientName = NULL;
-  this->StudyUID = NULL;
-  this->StudyID = NULL;
-  this->TransferSyntaxUID = NULL;
+  this->DirectoryName = nullptr;
+  this->PatientName = nullptr;
+  this->StudyUID = nullptr;
+  this->StudyID = nullptr;
+  this->TransferSyntaxUID = nullptr;
   this->DICOMFileNames = new vtkDICOMImageReaderVector();
 }
 
@@ -73,7 +73,7 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "DirectoryName : (NULL)" << "\n";
+    os << "DirectoryName : (nullptr)" << "\n";
   }
   if (this->FileName)
   {
@@ -81,7 +81,7 @@ void vtkDICOMImageReader::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << "FileName : (NULL)" << "\n";
+    os << "FileName : (nullptr)" << "\n";
   }
 
 }
@@ -110,7 +110,7 @@ int vtkDICOMImageReader::CanReadFile(const char* fname)
 //----------------------------------------------------------------------------
 void vtkDICOMImageReader::ExecuteInformation()
 {
-  if (this->FileName == NULL && this->DirectoryName == NULL)
+  if (this->FileName == nullptr && this->DirectoryName == nullptr)
   {
     return;
   }
@@ -210,7 +210,7 @@ void vtkDICOMImageReader::ExecuteInformation()
 
     //this->AppHelper->OutputSeries();
 
-    if (sortedFiles.size() > 0)
+    if (!sortedFiles.empty())
     {
       this->DICOMFileNames->clear();
       std::vector<std::pair<float, std::string> >::iterator siter;
@@ -238,7 +238,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (!this->FileName && this->DICOMFileNames->size() == 0)
+  if (!this->FileName && this->DICOMFileNames->empty())
   {
     vtkErrorMacro( << "Either a filename was not specified or the specified directory does not contain any DICOM images.");
     this->SetErrorCode( vtkErrorCode::NoFileNameError );
@@ -260,7 +260,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
 
     this->Parser->ReadHeader();
 
-    void* imgData = NULL;
+    void* imgData = nullptr;
     DICOMParser::VRTypes dataType;
     unsigned long imageDataLength;
 
@@ -273,7 +273,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
     }
 
     void* buffer = data->GetScalarPointer();
-    if (buffer == NULL)
+    if (buffer == nullptr)
     {
       vtkErrorMacro(<< "No memory allocated for image data!");
       return;
@@ -293,7 +293,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
       iData -= rowLength;
     }
   }
-  else if (this->DICOMFileNames->size() > 0)
+  else if (!this->DICOMFileNames->empty())
   {
     vtkDebugMacro( << "Multiple files (" << static_cast<int>(this->DICOMFileNames->size()) << ")");
     this->Parser->ClearAllDICOMTagCallbacks();
@@ -302,7 +302,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
     this->AppHelper->RegisterPixelDataCallback(this->Parser);
 
     void* buffer = data->GetScalarPointer();
-    if (buffer == NULL)
+    if (buffer == nullptr)
     {
       vtkErrorMacro(<< "No memory allocated for image data!");
       return;
@@ -323,7 +323,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject *output,
       this->Parser->OpenFile( file );
       this->Parser->ReadHeader();
 
-      void* imgData = NULL;
+      void* imgData = nullptr;
       DICOMParser::VRTypes dataType;
       unsigned long imageDataLengthInBytes;
 
@@ -411,12 +411,12 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this <<
                 "): setting DirectoryName to " << (dn ? dn : "(null)") );
-  if ( this->DirectoryName == NULL && dn == NULL)
+  if ( this->DirectoryName == nullptr && dn == nullptr)
   {
     return;
   }
   delete [] this->FileName;
-  this->FileName = NULL;
+  this->FileName = nullptr;
   if ( this->DirectoryName && dn && (!strcmp(this->DirectoryName,dn)))
   {
     return;
@@ -429,7 +429,7 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
   }
    else
    {
-    this->DirectoryName = NULL;
+    this->DirectoryName = nullptr;
    }
   this->Modified();
 }
@@ -584,6 +584,6 @@ const char* vtkDICOMImageReader::GetDICOMFileName(int index)
   {
     return (*this->DICOMFileNames)[index].c_str();
   }
-  return 0;
+  return nullptr;
 }
 

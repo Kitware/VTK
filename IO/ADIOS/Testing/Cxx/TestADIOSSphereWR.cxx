@@ -248,7 +248,7 @@ int TestADIOSSphereWR(int argc, char *argv[])
   {
     vtkNew<vtkMPIController> controller;
     controller->Initialize(&argc, &argv, 0);
-    vtkMultiProcessController::SetGlobalController(controller.GetPointer());
+    vtkMultiProcessController::SetGlobalController(controller);
 
 
       // Write out a sphere who's radius changes over time
@@ -292,7 +292,7 @@ int TestADIOSSphereWR(int argc, char *argv[])
       }
       std::cout << "End vtkADIOSReader test" << std::endl;
 
-    vtkMultiProcessController::SetGlobalController(NULL);
+    vtkMultiProcessController::SetGlobalController(nullptr);
     controller->Finalize();
   }
   return Success ? 0 : 1;

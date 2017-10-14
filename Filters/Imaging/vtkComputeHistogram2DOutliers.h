@@ -64,7 +64,7 @@ class VTKFILTERSIMAGING_EXPORT vtkComputeHistogram2DOutliers : public vtkSelecti
 public:
   static vtkComputeHistogram2DOutliers* New();
   vtkTypeMacro(vtkComputeHistogram2DOutliers, vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetMacro(PreferredNumberOfOutliers,int);
   vtkGetMacro(PreferredNumberOfOutliers,int);
@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkComputeHistogram2DOutliers();
-  ~vtkComputeHistogram2DOutliers() VTK_OVERRIDE;
+  ~vtkComputeHistogram2DOutliers() override;
 
   int PreferredNumberOfOutliers;
   vtkTimeStamp BuildTime;
@@ -113,10 +113,10 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillOutputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * Compute the thresholds (essentially bin extents) that contain outliers for
@@ -136,8 +136,8 @@ protected:
   virtual int FillOutlierIds(vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray* rowIds, vtkTable* outTable);
 
 private:
-  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
+  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) = delete;
+  void operator=(const vtkComputeHistogram2DOutliers&) = delete;
 };
 
 #endif

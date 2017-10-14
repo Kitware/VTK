@@ -95,7 +95,7 @@ int TestColorSeries( int argc, char* argv[] )
   pix->FillComponent( 1, 255 );
   pix->FillComponent( 2, 255 );
   img->SetExtent( 0, mps * 5 - 1, 0, np * 5 - 1, 0, 0 );
-  img->GetPointData()->SetScalars( pix.GetPointer() );
+  img->GetPointData()->SetScalars( pix );
   for ( int p = 0; p < np; ++ p )
   {
     palettes->SetColorScheme( p );
@@ -134,7 +134,7 @@ int TestColorSeries( int argc, char* argv[] )
   wri->Write();
   */
 
-  int imgResult = t->RegressionTest( exec.GetPointer(), 0.);
+  int imgResult = t->RegressionTest( exec, 0.);
 
   palettes->SetColorScheme( vtkColorSeries::BREWER_SEQUENTIAL_BLUE_GREEN_9 );
   // Adding a color now should create a copy of the palette. Verify the name changed.
@@ -221,7 +221,7 @@ int TestColorSeries( int argc, char* argv[] )
     vtkGenericWarningMacro( "Failure: DeepCopy did not preserve current scheme" );
     valResult = vtkTesting::FAILED;
   }
-  other->DeepCopy(NULL);
+  other->DeepCopy(nullptr);
 
   // Test SetColor
   other->SetColorScheme( pid );

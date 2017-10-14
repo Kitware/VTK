@@ -79,7 +79,7 @@ class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 public:
   static vtkTesting *New();
   vtkTypeMacro(vtkTesting,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ReturnValue {
     FAILED = 0,
@@ -147,7 +147,7 @@ public:
    */
   static int InteractorEventLoop(int argc, char *argv[],
                                  vtkRenderWindowInteractor *iren,
-                                 const char *stream = NULL);
+                                 const char *stream = nullptr);
 
   //@{
   /**
@@ -312,7 +312,7 @@ public:
 
 protected:
   vtkTesting();
-  ~vtkTesting() VTK_OVERRIDE;
+  ~vtkTesting() override;
 
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
@@ -332,8 +332,8 @@ protected:
   double StartCPUTime;
 
 private:
-  vtkTesting(const vtkTesting&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTesting&) VTK_DELETE_FUNCTION;
+  vtkTesting(const vtkTesting&) = delete;
+  void operator=(const vtkTesting&) = delete;
 };
 
 #endif

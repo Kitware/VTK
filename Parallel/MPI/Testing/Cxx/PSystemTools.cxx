@@ -76,7 +76,7 @@ int PSystemTools(int argc, char* argv[])
   }
 
 
-  controller->SetGlobalController(NULL);
+  controller->SetGlobalController(nullptr);
   controller->Finalize();
 
   return retVal;

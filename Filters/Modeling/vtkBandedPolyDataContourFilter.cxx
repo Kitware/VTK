@@ -152,17 +152,20 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 extern "C" {
 static int vtkCompareClipValues(const void *val1, const void *val2)
 {
-  if ( *((double*)val1) < *((double*)val2) )
+  double v1 = *static_cast<const double*>(val1);
+  double v2 = *static_cast<const double*>(val2);
+
+  if ( v1 < v2 )
   {
-    return (-1);
+    return -1;
   }
-  else if ( *((double*)val1) > *((double*)val2) )
+  else if ( v1 > v2 )
   {
-    return (1);
+    return 1;
   }
   else
   {
-    return (0);
+    return 0;
   }
 }
 }
@@ -262,7 +265,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   int i, j, idx = 0;
   vtkIdType npts = 0;
   vtkIdType cellId=0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   int numEdgePts, maxCellSize;
   vtkIdType v, vR, *intPts;
   int intsIdx;
@@ -515,10 +518,10 @@ int vtkBandedPolyDataContourFilter::RequestData(
     intList->Reset();
 
     vtkCellArray *polys = input->GetPolys();
-    vtkCellArray *tmpPolys = NULL;
+    vtkCellArray *tmpPolys = nullptr;
 
     // If contour edges requested, set things up.
-    vtkCellArray *contourEdges=0;
+    vtkCellArray *contourEdges=nullptr;
     if ( this->GenerateContourEdges )
     {
       contourEdges = vtkCellArray::New();
@@ -835,7 +838,7 @@ vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(

@@ -306,6 +306,7 @@ void vtkParse_ExpandTypedef(
   unsigned int pointers;
   unsigned int refbit;
   unsigned int qualifiers;
+  unsigned int attributes;
   unsigned int tmp1, tmp2;
   int i;
 
@@ -314,6 +315,7 @@ void vtkParse_ExpandTypedef(
   pointers = (typedefinfo->Type & VTK_PARSE_POINTER_MASK);
   refbit = (valinfo->Type & VTK_PARSE_REF);
   qualifiers = (typedefinfo->Type & VTK_PARSE_CONST);
+  attributes = (valinfo->Type & VTK_PARSE_ATTRIBUTES);
 
   /* handle const */
   if ((valinfo->Type & VTK_PARSE_CONST) != 0)
@@ -377,7 +379,7 @@ void vtkParse_ExpandTypedef(
   }
 
   /* put everything together */
-  valinfo->Type = (baseType | pointers | refbit | qualifiers);
+  valinfo->Type = (baseType | pointers | refbit | qualifiers | attributes);
   valinfo->Class = classname;
   valinfo->Function = typedefinfo->Function;
   valinfo->Count *= typedefinfo->Count;
@@ -1308,6 +1310,22 @@ size_t vtkParse_FunctionInfoToString(
   return k;
 }
 
+/* compare two types to see if they are equivalent */
+static int override_compatible(unsigned int t1, unsigned int t2)
+{
+  /* const and virtual qualifiers are part of the type for the
+     sake of method resolution, but only if the type is a pointer
+     or reference */
+  unsigned int typebits = (VTK_PARSE_UNQUALIFIED_TYPE |
+                           VTK_PARSE_CONST |
+                           VTK_PARSE_VOLATILE |
+                           VTK_PARSE_RVALUE);
+  unsigned int diff = (t1 ^ t2) & typebits;
+  return (diff == 0 ||
+          ((t1 & VTK_PARSE_INDIRECT) == 0 &&
+           (diff & VTK_PARSE_UNQUALIFIED_TYPE) == 0));
+}
+
 /* Compare two functions */
 int vtkParse_CompareFunctionSignature(
   const FunctionInfo *func1, const FunctionInfo *func2)
@@ -1331,7 +1349,8 @@ int vtkParse_CompareFunctionSignature(
     {
       p1 = func1->Parameters[k];
       p2 = func2->Parameters[k];
-      if (p2->Type != p1->Type || strcmp(p2->Class, p1->Class) != 0)
+      if (!override_compatible(p2->Type, p1->Type) ||
+          strcmp(p2->Class, p1->Class) != 0)
       {
         break;
       }
@@ -1368,7 +1387,8 @@ int vtkParse_CompareFunctionSignature(
   {
     p1 = func1->ReturnValue;
     p2 = func2->ReturnValue;
-    if (p2->Type == p1->Type && strcmp(p2->Class, p1->Class) == 0)
+    if (override_compatible(p2->Type, p1->Type) &&
+        strcmp(p2->Class, p1->Class) == 0)
     {
       if (p1->Function && p2->Function)
       {

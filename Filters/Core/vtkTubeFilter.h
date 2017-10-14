@@ -78,7 +78,7 @@ class VTKFILTERSCORE_EXPORT vtkTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTubeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with radius 0.5, radius variation turned off, the
@@ -231,10 +231,10 @@ public:
 
 protected:
   vtkTubeFilter();
-  ~vtkTubeFilter() VTK_OVERRIDE {}
+  ~vtkTubeFilter() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Radius; //minimum radius of tube
   int VaryRadius; //controls radius variation
@@ -269,8 +269,8 @@ protected:
   double Theta;
 
 private:
-  vtkTubeFilter(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
+  vtkTubeFilter(const vtkTubeFilter&) = delete;
+  void operator=(const vtkTubeFilter&) = delete;
 };
 
 #endif

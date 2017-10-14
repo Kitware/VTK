@@ -26,8 +26,8 @@ vtkStandardNewMacro(vtkMCubesWriter);
 // Create object.
 vtkMCubesWriter::vtkMCubesWriter()
 {
-  this->FileName = 0;
-  this->LimitsFileName = NULL;
+  this->FileName = nullptr;
+  this->LimitsFileName = nullptr;
 }
 
 vtkMCubesWriter::~vtkMCubesWriter()
@@ -46,20 +46,20 @@ void vtkMCubesWriter::WriteData()
 
   polys = input->GetPolys();
   pts = input->GetPoints();
-  if (pts == NULL || polys == NULL )
+  if (pts == nullptr || polys == nullptr )
   {
     vtkErrorMacro(<<"No data to write!");
     return;
   }
 
   normals = input->GetPointData()->GetNormals();
-  if (normals == NULL )
+  if (normals == nullptr )
   {
     vtkErrorMacro(<<"No normals to write!: use vtkPolyDataNormals to generate them");
     return;
   }
 
-  if ( this->FileName == NULL)
+  if ( this->FileName == nullptr)
   {
     vtkErrorMacro(<< "Please specify FileName to write");
     return;
@@ -67,7 +67,7 @@ void vtkMCubesWriter::WriteData()
 
   vtkDebugMacro("Writing MCubes tri file");
   FILE *fp;
-  if ((fp = fopen(this->FileName, "w")) == NULL)
+  if ((fp = fopen(this->FileName, "w")) == nullptr)
   {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
@@ -78,7 +78,7 @@ void vtkMCubesWriter::WriteData()
   if (this->LimitsFileName)
   {
     vtkDebugMacro("Writing MCubes limits file");
-    if ((fp = fopen(this->LimitsFileName, "w")) == NULL)
+    if ((fp = fopen(this->LimitsFileName, "w")) == nullptr)
     {
       vtkErrorMacro(<< "Couldn't open file: " << this->LimitsFileName);
       return;
@@ -96,7 +96,7 @@ void vtkMCubesWriter::WriteMCubes(FILE *fp, vtkPoints *pts,
   pointType point;
   int i;
   vtkIdType npts;
-  vtkIdType *indx = 0;
+  vtkIdType *indx = nullptr;
 
   //  Write out triangle polygons.  In not a triangle polygon, create
   //  triangles.

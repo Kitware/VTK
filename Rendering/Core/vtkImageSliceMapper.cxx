@@ -31,7 +31,7 @@
 vtkCxxSetObjectMacro(vtkImageSliceMapper, Points, vtkPoints);
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkImageSliceMapper)
 
 //----------------------------------------------------------------------------
@@ -52,7 +52,7 @@ vtkImageSliceMapper::vtkImageSliceMapper()
   this->CroppingRegion[4] = 0;
   this->CroppingRegion[5] = 0;
 
-  this->Points = NULL;
+  this->Points = nullptr;
   this->ExactPixelMatch = false;
   this->PassColorData = false;
 

@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
   //@{
   /**
-   * If SkipEmptyNodes is true, then NULL datasets will be skipped. Default is
+   * If SkipEmptyNodes is true, then nullptr datasets will be skipped. Default is
    * true.
    */
   vtkSetMacro(SkipEmptyNodes, int);
@@ -117,14 +117,14 @@ public:
 
 protected:
   vtkCompositeDataIterator();
-  ~vtkCompositeDataIterator() VTK_OVERRIDE;
+  ~vtkCompositeDataIterator() override;
   int SkipEmptyNodes;
   int Reverse;
   vtkCompositeDataSet* DataSet;
 
 private:
-  vtkCompositeDataIterator(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataIterator(const vtkCompositeDataIterator&) = delete;
+  void operator=(const vtkCompositeDataIterator&) = delete;
 
 };
 

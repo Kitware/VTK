@@ -81,13 +81,13 @@ public:
 
   vtkTypeMacro(vtkHyperOctreeContourPointsGrabber,vtkHyperOctreePointsGrabber);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Set the dimension of the hyperoctree.
   // \pre valid_dim: (dim==2 || dim==3)
   // \post is_set: GetDimension()==dim
-  void SetDimension(int dim) VTK_OVERRIDE;
+  void SetDimension(int dim) override;
 
   // Description:
   // Initialize the points insertion scheme.
@@ -96,7 +96,7 @@ public:
   // It is used by clip,cut and contour filters to build the points
   // that lie on an hyperoctant.
   // \pre only_in_3d: GetDimension()==3
-  void InitPointInsertion() VTK_OVERRIDE;
+  void InitPointInsertion() override;
 
   // Description:
   // Insert a point, assuming the point is unique and does not require a
@@ -105,19 +105,19 @@ public:
   void InsertPoint(vtkIdType ptId,
                            double pt[3],
                            double pcoords[3],
-                           int ijk[3]) VTK_OVERRIDE;
+                           int ijk[3]) override;
 
   // Description:
   // Insert a point using a locator.
   void InsertPointWithMerge(vtkIdType ptId,
                                     double pt[3],
                                     double pcoords[3],
-                                    int ijk[3]) VTK_OVERRIDE;
+                                    int ijk[3]) override;
 
   // Description:
   // Insert a point in the quadtree case.
   void InsertPoint2D(double pt[3],
-                             int ijk[3]) VTK_OVERRIDE;
+                             int ijk[3]) override;
 
   // Description:
   // Return the ordered triangulator.
@@ -141,7 +141,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreeContourPointsGrabber();
-  ~vtkHyperOctreeContourPointsGrabber() VTK_OVERRIDE;
+  ~vtkHyperOctreeContourPointsGrabber() override;
 
   vtkHyperOctreeContourFilter *Filter;
   vtkOrderedTriangulator *Triangulator;
@@ -150,8 +150,8 @@ protected:
   vtkIdType LastPtId;
   vtkHyperOctreeIdSet *IdSet;
 private:
-  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) = delete;
+  void operator=(const vtkHyperOctreeContourPointsGrabber&) = delete;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
@@ -163,7 +163,7 @@ vtkHyperOctreeContourFilter::vtkHyperOctreeContourFilter()
 {
   this->ContourValues = vtkContourValues::New();
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->SetNumberOfOutputPorts(1);
 
@@ -172,33 +172,33 @@ vtkHyperOctreeContourFilter::vtkHyperOctreeContourFilter()
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::SCALARS);
 
-  this->Input=0;
-  this->Output=0;
+  this->Input=nullptr;
+  this->Output=nullptr;
 
-  this->NewVerts=0;
-  this->NewLines=0;
-  this->NewPolys=0;
+  this->NewVerts=nullptr;
+  this->NewLines=nullptr;
+  this->NewPolys=nullptr;
 
-  this->InCD=0;
-  this->OutCD=0;
-  this->OutPD=0;
-  this->Triangulator=0;
+  this->InCD=nullptr;
+  this->OutCD=nullptr;
+  this->OutPD=nullptr;
+  this->Triangulator=nullptr;
 
-  this->Tetra=0;
-  this->TetScalars=0;
-  this->PointScalars=0;
-  this->CellScalars=0;
+  this->Tetra=nullptr;
+  this->TetScalars=nullptr;
+  this->PointScalars=nullptr;
+  this->CellScalars=nullptr;
 
-  this->Cursor=0;
-  this->NeighborCursor=0;
-  this->Sibling=0;
+  this->Cursor=nullptr;
+  this->NeighborCursor=nullptr;
+  this->Sibling=nullptr;
 
-  this->InScalars=0;
-  this->Grabber=0;
-  this->Polygon=0;
+  this->InScalars=nullptr;
+  this->Grabber=nullptr;
+  this->Polygon=nullptr;
   this->SortBy=VTK_SORT_BY_VALUE;
 
-  this->Line=0;
+  this->Line=nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -208,7 +208,7 @@ vtkHyperOctreeContourFilter::~vtkHyperOctreeContourFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -223,7 +223,7 @@ vtkMTimeType vtkHyperOctreeContourFilter::GetMTime()
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -254,15 +254,15 @@ int vtkHyperOctreeContourFilter::RequestData(
   {
     // just the root. There is absolutely no chance
     // to get an isosurface here.
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
   this->InScalars=this->GetInputArrayToProcess(0,inputVector);
-  if(this->InScalars==0)
+  if(this->InScalars==nullptr)
   {
     vtkDebugMacro(<<"No data to contour");
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -270,7 +270,7 @@ int vtkHyperOctreeContourFilter::RequestData(
   if(numContours==0)
   {
     vtkDebugMacro(<<"No contour");
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -291,7 +291,7 @@ int vtkHyperOctreeContourFilter::RequestData(
   if(allOut)
   {
     // empty output
-    this->Input=0;
+    this->Input=nullptr;
     return 1;
   }
 
@@ -322,7 +322,7 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->NewPolys->Allocate(estimatedSize,estimatedSize/2);
 
   // locator used to merge potentially duplicate points
-  if(this->Locator == NULL)
+  if(this->Locator == nullptr)
   {
     this->CreateDefaultLocator();
   }
@@ -344,7 +344,7 @@ int vtkHyperOctreeContourFilter::RequestData(
 
   static double bounds[6]={0,1,0,1,0,1};
 
-  vtkPoints *originalPoints=0;
+  vtkPoints *originalPoints=nullptr;
 
   switch(this->Input->GetDimension())
   {
@@ -423,19 +423,19 @@ int vtkHyperOctreeContourFilter::RequestData(
   }
 
   this->CellScalars->UnRegister(this);
-  this->CellScalars=0;
+  this->CellScalars=nullptr;
 
   this->PointScalars->UnRegister(this);
-  this->PointScalars=0;
+  this->PointScalars=nullptr;
 
-  this->InCD=0;
+  this->InCD=nullptr;
 
   this->Cursor->UnRegister(this);
-  this->Cursor=0;
+  this->Cursor=nullptr;
   this->NeighborCursor->UnRegister(this);
-  this->NeighborCursor=0;
+  this->NeighborCursor=nullptr;
   this->Sibling->UnRegister(this);
-  this->Sibling=0;
+  this->Sibling=nullptr;
 
 //  cout<<"ClipHyperOctree: "<<this->TemplateCounter<<" templates over "<<this->TotalCounter<<" octants, ratio="<<(this->TemplateCounter/static_cast<double>(this->TotalCounter))<<endl;
 
@@ -453,31 +453,31 @@ int vtkHyperOctreeContourFilter::RequestData(
   {
     case 3:
       this->Tetra->UnRegister(this);
-      this->Tetra=0;
+      this->Tetra=nullptr;
       this->TetScalars->UnRegister(this);
-      this->TetScalars=0;
-      this->Triangulator=0;
+      this->TetScalars=nullptr;
+      this->Triangulator=nullptr;
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
+      this->Grabber=nullptr;
       originalPoints->UnRegister(this);
       break;
     case 2:
-      this->Polygon=0;
+      this->Polygon=nullptr;
       this->Grabber->UnRegister(this);
-      this->Grabber=0;
+      this->Grabber=nullptr;
       originalPoints->UnRegister(this);
       break;
     case 1:
       this->Line->UnRegister(this);
-      this->Line=0;
+      this->Line=nullptr;
       break;
     default:
       assert("check: impossible case" && 0);
       break;
   }
 
-  this->OutPD=0;
-  this->Input=0;
+  this->OutPD=nullptr;
+  this->Input=nullptr;
 
   this->Output->SetPoints(newPoints);
   newPoints->Delete();
@@ -487,35 +487,35 @@ int vtkHyperOctreeContourFilter::RequestData(
     this->Output->SetVerts(this->NewVerts);
   }
   this->NewVerts->Delete();
-  this->NewVerts=0;
+  this->NewVerts=nullptr;
 
   if (this->NewLines->GetNumberOfCells()>0)
   {
     this->Output->SetLines(this->NewLines);
   }
   this->NewLines->Delete();
-  this->NewLines=0;
+  this->NewLines=nullptr;
 
   if (this->NewPolys->GetNumberOfCells()>0)
   {
     this->Output->SetPolys(this->NewPolys);
   }
   this->NewPolys->Delete();
-  this->NewPolys=0;
+  this->NewPolys=nullptr;
 
-  this->OutCD=0;
+  this->OutCD=nullptr;
   this->InPD->Delete();
-  this->InPD = 0;
+  this->InPD = nullptr;
 
   this->Locator->Initialize();//release any extra memory
   this->Output->Squeeze();
-  this->Output=0;
+  this->Output=nullptr;
 
-  assert("post: input_is_null" && this->Input==0);
-  assert("post: output_is_null" && this->Output==0);
-  assert("post: incd_is_null" && this->InCD==0);
-  assert("post: outpd_is_null" && this->OutPD==0);
-  assert("post: outcd_is_null" && this->OutCD==0);
+  assert("post: input_is_null" && this->Input==nullptr);
+  assert("post: output_is_null" && this->Output==nullptr);
+  assert("post: incd_is_null" && this->InCD==nullptr);
+  assert("post: outpd_is_null" && this->OutPD==nullptr);
+  assert("post: outcd_is_null" && this->OutCD==nullptr);
 
   return 1;
 }
@@ -1244,7 +1244,7 @@ void vtkHyperOctreeContourFilter::SetLocator(vtkIncrementalPointLocator *locator
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -1259,7 +1259,7 @@ void vtkHyperOctreeContourFilter::SetLocator(vtkIncrementalPointLocator *locator
 //----------------------------------------------------------------------------
 void vtkHyperOctreeContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
@@ -1296,10 +1296,10 @@ vtkHyperOctreeContourPointsGrabber::vtkHyperOctreeContourPointsGrabber()
 {
   this->Triangulator=vtkOrderedTriangulator::New();
   this->Locator=vtkMergePoints::New();
-  this->Polygon=0;
+  this->Polygon=nullptr;
   this->Dimension=3;
   this->IdSet=new vtkHyperOctreeIdSet;
-  this->Filter=0;
+  this->Filter=nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -1307,12 +1307,12 @@ vtkHyperOctreeContourPointsGrabber::vtkHyperOctreeContourPointsGrabber()
 // Destructor.
 vtkHyperOctreeContourPointsGrabber::~vtkHyperOctreeContourPointsGrabber()
 {
-  if(this->Triangulator!=0)
+  if(this->Triangulator!=nullptr)
   {
     this->Triangulator->UnRegister(this);
     delete this->IdSet;
   }
-  if(this->Polygon!=0)
+  if(this->Polygon!=nullptr)
   {
     this->Polygon->UnRegister(this);
   }
@@ -1332,14 +1332,14 @@ void vtkHyperOctreeContourPointsGrabber::SetDimension(int dim)
     if(dim==3)
     {
       this->Polygon->UnRegister(this);
-      this->Polygon=0;
+      this->Polygon=nullptr;
       this->Triangulator=vtkOrderedTriangulator::New();
       this->IdSet=new vtkHyperOctreeIdSet;
     }
     else
     {
        this->Triangulator->UnRegister(this);
-       this->Triangulator=0;
+       this->Triangulator=nullptr;
        delete this->IdSet;
        this->Polygon=vtkPolygon::New();
     }

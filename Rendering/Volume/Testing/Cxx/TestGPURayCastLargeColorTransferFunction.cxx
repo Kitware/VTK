@@ -422,7 +422,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   reader->SetFileName(filename);
   reader->Update();
   delete [] filename;
-  filename = NULL;
+  filename = nullptr;
 
 #ifdef GPU_MAPPER
   vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =
@@ -485,7 +485,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   {
     iren->Initialize();
 
-    retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+    retVal = vtkRegressionTestImage(renderWindow);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       iren->Start();

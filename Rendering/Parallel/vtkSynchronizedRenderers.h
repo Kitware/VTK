@@ -47,7 +47,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
 public:
   static vtkSynchronizedRenderers* New();
   vtkTypeMacro(vtkSynchronizedRenderers, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -99,21 +99,14 @@ public:
   //@}
 
   //@{
-  /**
-   * Enable FXAA antialiasing. FXAA is applied after all rendering results are
-   * composited into the final image.
-   */
-  vtkSetMacro(UseFXAA, bool)
-  vtkGetMacro(UseFXAA, bool)
-  vtkBooleanMacro(UseFXAA, bool)
-  //@}
-
-  //@{
-  /**
-   * The configuration options for FXAA antialiasing.
-   */
-  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
-  virtual void SetFXAAOptions(vtkFXAAOptions*);
+  // @deprecated in VTK 8.1. FXAA state and options are now directly obtained
+  // from the renderer.
+  VTK_LEGACY(void SetUseFXAA(bool));
+  VTK_LEGACY(bool GetUseFXAA());
+  VTK_LEGACY(void UseFXAAOn());
+  VTK_LEGACY(void UseFXAAOff());
+  VTK_LEGACY(vtkFXAAOptions* GetFXAAOptions());
+  VTK_LEGACY(void SetFXAAOptions(vtkFXAAOptions*));
   //@}
 
   //@{
@@ -202,7 +195,7 @@ public:
     // This is a raw version of PushToViewport() that assumes that the
     // glViewport() has already been setup externally.
     // the argument is optional for backwards compat with old OpenGL
-    bool PushToFrameBuffer(vtkRenderer *ren = NULL);
+    bool PushToFrameBuffer(vtkRenderer *ren = nullptr);
 
     // Captures the image from the viewport.
     // This doesn't trigger a render, just captures what's currently there in
@@ -222,7 +215,7 @@ public:
 
 protected:
   vtkSynchronizedRenderers();
-  ~vtkSynchronizedRenderers();
+  ~vtkSynchronizedRenderers() override;
 
   struct RendererInfo
   {
@@ -247,10 +240,6 @@ protected:
     void CopyFrom(vtkRenderer*);
     void CopyTo(vtkRenderer*);
   };
-
-  bool UseFXAA;
-  vtkFXAAOptions *FXAAOptions;
-  vtkOpenGLFXAAFilter *FXAAFilter;
 
   // These methods are called on all processes as a consequence of corresponding
   // events being called on the renderer.
@@ -294,12 +283,15 @@ protected:
   bool AutomaticEventHandling;
 
 private:
-  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&) = delete;
+  void operator=(const vtkSynchronizedRenderers&) = delete;
 
   class vtkObserver;
   vtkObserver* Observer;
   friend class vtkObserver;
+
+  bool UseFXAA;
+  vtkOpenGLFXAAFilter* FXAAFilter;
 
   double LastViewport[4];
 };

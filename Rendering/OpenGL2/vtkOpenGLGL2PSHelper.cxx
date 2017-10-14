@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 
 // Static allocation:
-vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::Instance = NULL;
+vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::Instance = nullptr;
 
 //------------------------------------------------------------------------------
 vtkAbstractObjectFactoryNewMacro(vtkOpenGLGL2PSHelper)
@@ -50,7 +50,7 @@ void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
 
   if (obj)
   {
-    obj->Register(NULL);
+    obj->Register(nullptr);
   }
 
   vtkOpenGLGL2PSHelper::Instance = obj;
@@ -58,7 +58,7 @@ void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
 
 //------------------------------------------------------------------------------
 vtkOpenGLGL2PSHelper::vtkOpenGLGL2PSHelper()
-  : RenderWindow(NULL),
+  : RenderWindow(nullptr),
     ActiveState(Inactive),
     TextAsPath(false),
     PointSize(1.f),

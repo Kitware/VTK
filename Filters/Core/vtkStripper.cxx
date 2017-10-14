@@ -55,8 +55,8 @@ int vtkStripper::RequestData(
   vtkIdType cellId, numCells, i;
   int longestStrip, longestLine, j, numPts;
   vtkIdType numLines, numStrips, nei;
-  vtkCellArray *newStrips=NULL, *inStrips, *newLines=NULL, *inLines, *inPolys;
-  vtkCellArray *newPolys=0;
+  vtkCellArray *newStrips=nullptr, *inStrips, *newLines=nullptr, *inLines, *inPolys;
+  vtkCellArray *newPolys=nullptr;
   vtkIdType numLinePts = 0;
   vtkIdList *cellIds;
   int foundOne;
@@ -64,8 +64,8 @@ int vtkStripper::RequestData(
   vtkPolyData *mesh;
   char *visited;
   vtkIdType numStripPts = 0;
-  vtkIdType *stripPts = 0;
-  vtkIdType *linePts = 0;
+  vtkIdType *stripPts = nullptr;
+  vtkIdType *linePts = nullptr;
   vtkIdType *triPts;
   vtkIdType numTriPts;
   vtkPointData *pd=input->GetPointData();
@@ -74,10 +74,10 @@ int vtkStripper::RequestData(
   // The field data, needs to be ordered properly for rendering
   // to work.Hence cell data for each type of cell is collected
   // separately and appended later.
-  vtkFieldData* newfd = 0;
-  vtkFieldData* newfdPolys = 0;
-  vtkFieldData* newfdLines = 0;
-  vtkFieldData* newfdStrips = 0;
+  vtkFieldData* newfd = nullptr;
+  vtkFieldData* newfdPolys = nullptr;
+  vtkFieldData* newfdLines = nullptr;
+  vtkFieldData* newfdStrips = nullptr;
 
   vtkDebugMacro(<<"Executing triangle strip / poly-line filter");
 
@@ -133,10 +133,10 @@ int vtkStripper::RequestData(
     newfdStrips->Allocate(3*inNumPolys + 3);
   }
 
-  vtkIdTypeArray* OriginalCellIds = NULL;
-  vtkIdTypeArray* origPolyIds = NULL;
-  vtkIdTypeArray* origLineIds = NULL;
-  vtkIdTypeArray* origStripIds = NULL;
+  vtkIdTypeArray* OriginalCellIds = nullptr;
+  vtkIdTypeArray* origPolyIds = nullptr;
+  vtkIdTypeArray* origLineIds = nullptr;
+  vtkIdTypeArray* origStripIds = nullptr;
   if (this->PassThroughCellIds)
   {
     OriginalCellIds = vtkIdTypeArray::New();

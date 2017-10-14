@@ -233,13 +233,13 @@ class vtkLWCallback : public vtkCommand
 public:
   static vtkLWCallback *New()
   { return new vtkLWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkLineWidget *lineWidget = reinterpret_cast<vtkLineWidget*>(caller);
     lineWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkLWCallback():PolyData(0),Actor(0) {}
+  vtkLWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

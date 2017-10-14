@@ -40,19 +40,19 @@ vtkStandardNewMacro(vtkGeoFileImageSource);
 //----------------------------------------------------------------------------
 vtkGeoFileImageSource::vtkGeoFileImageSource()
 {
-  this->Path = 0;
+  this->Path = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkGeoFileImageSource::~vtkGeoFileImageSource()
 {
-  this->SetPath(0);
+  this->SetPath(nullptr);
 }
 
 //----------------------------------------------------------------------------
 bool vtkGeoFileImageSource::FetchRoot(vtkGeoTreeNode* r)
 {
-  vtkGeoImageNode* root = 0;
+  vtkGeoImageNode* root = nullptr;
   if (!(root = vtkGeoImageNode::SafeDownCast(r)))
   {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");
@@ -68,13 +68,13 @@ bool vtkGeoFileImageSource::FetchRoot(vtkGeoTreeNode* r)
 //----------------------------------------------------------------------------
 bool vtkGeoFileImageSource::FetchChild(vtkGeoTreeNode* p, int index, vtkGeoTreeNode* c)
 {
-  vtkGeoImageNode* parent = 0;
+  vtkGeoImageNode* parent = nullptr;
   if (!(parent = vtkGeoImageNode::SafeDownCast(p)))
   {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");
     return false;
   }
-  vtkGeoImageNode* child = 0;
+  vtkGeoImageNode* child = nullptr;
   if (!(child = vtkGeoImageNode::SafeDownCast(c)))
   {
     vtkErrorMacro(<< "Can only fetch image nodes from this source.");

@@ -41,7 +41,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContext3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContext3D, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 3D context object.
@@ -158,14 +158,14 @@ public:
 
 protected:
   vtkContext3D();
-  ~vtkContext3D() VTK_OVERRIDE;
+  ~vtkContext3D() override;
 
   vtkSmartPointer<vtkContextDevice3D> Device; // The underlying device
   vtkSmartPointer<vtkTransform> Transform;    // Current transform
 
 private:
-  vtkContext3D(const vtkContext3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContext3D &) VTK_DELETE_FUNCTION;
+  vtkContext3D(const vtkContext3D &) = delete;
+  void operator=(const vtkContext3D &) = delete;
 };
 
 #endif // VTKCONTEXT3D_H

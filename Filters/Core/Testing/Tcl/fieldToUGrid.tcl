@@ -105,7 +105,7 @@ ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 2
 ren1 ResetCameraClippingRange
 ren1 SetBackground 1 1 1
-renWin SetSize 375 200
+renWin SetSize 380 200
 renWin SetMultiSamples 0
 
 iren Initialize

@@ -49,8 +49,8 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   // Initialize state
   this->InteractionState = vtkContourRepresentation::Outside;
 
-  this->CursorShape = NULL;
-  this->ActiveCursorShape = NULL;
+  this->CursorShape = nullptr;
+  this->ActiveCursorShape = nullptr;
 
   this->HandleSize = 0.01;
 
@@ -149,13 +149,11 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::vtkOrientedGlyphFocalPlaneConto
   this->Mapper->SetInputConnection(this->Glypher->GetOutputPort());
   //this->Mapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->Mapper->ScalarVisibilityOff();
-  //this->Mapper->ImmediateModeRenderingOn();
 
   this->ActiveMapper = vtkPolyDataMapper2D::New();
   this->ActiveMapper->SetInputConnection(this->ActiveGlypher->GetOutputPort());
   //this->ActiveMapper->SetResolveCoincidentTopologyToPolygonOffset();
   this->ActiveMapper->ScalarVisibilityOff();
-  //this->ActiveMapper->ImmediateModeRenderingOn();
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -192,8 +190,8 @@ vtkOrientedGlyphFocalPlaneContourRepresentation::~vtkOrientedGlyphFocalPlaneCont
   this->ActiveFocalPoint->Delete();
   this->ActiveFocalData->Delete();
 
-  this->SetCursorShape( NULL );
-  this->SetActiveCursorShape( NULL );
+  this->SetCursorShape( nullptr );
+  this->SetActiveCursorShape( nullptr );
 
   this->Glypher->Delete();
   this->Mapper->Delete();
@@ -660,7 +658,7 @@ vtkMatrix4x4 * vtkOrientedGlyphFocalPlaneContourRepresentation
 
 //----------------------------------------------------------------------
 // Returns the contour representation as polydata in world co-ordinates
-// For this class, the contour is overlayed on the focal plane.
+// For this class, the contour is overlaid on the focal plane.
 //
 vtkPolyData * vtkOrientedGlyphFocalPlaneContourRepresentation
 ::GetContourRepresentationAsPolyData()

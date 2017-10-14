@@ -45,7 +45,7 @@ class VTKWEBCORE_EXPORT vtkDataEncoder : public vtkObject
 public:
   static vtkDataEncoder* New();
   vtkTypeMacro(vtkDataEncoder, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Re-initializes the encoder. This will abort any on going encoding threads
@@ -60,8 +60,9 @@ public:
    * the caller code will simply release reference to the data and stop using
    * it. vtkDataEncoder takes over the reference for the image and will call
    * vtkObject::UnRegister() on it when it's done.
+   * encoding can be set to 0 to skip encoding.
    */
-  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality);
+  void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding = 1);
 
   /**
    * Get access to the most-recent fully encoded result corresponding to the
@@ -92,11 +93,11 @@ public:
 
 protected:
   vtkDataEncoder();
-  ~vtkDataEncoder();
+  ~vtkDataEncoder() override;
 
 private:
-  vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
+  vtkDataEncoder(const vtkDataEncoder&) = delete;
+  void operator=(const vtkDataEncoder&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

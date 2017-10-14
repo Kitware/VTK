@@ -247,12 +247,12 @@ void vtkTransformInterpolator::SetPositionInterpolator(vtkTupleInterpolator *pi)
 {
   if ( this->PositionInterpolator != pi )
   {
-    if ( this->PositionInterpolator != NULL )
+    if ( this->PositionInterpolator != nullptr )
     {
       this->PositionInterpolator->Delete();
     }
     this->PositionInterpolator = pi;
-    if ( this->PositionInterpolator != NULL )
+    if ( this->PositionInterpolator != nullptr )
     {
       this->PositionInterpolator->Register(this);
     }
@@ -265,12 +265,12 @@ void vtkTransformInterpolator::SetScaleInterpolator(vtkTupleInterpolator *si)
 {
   if ( this->ScaleInterpolator != si )
   {
-    if ( this->ScaleInterpolator != NULL )
+    if ( this->ScaleInterpolator != nullptr )
     {
       this->ScaleInterpolator->Delete();
     }
     this->ScaleInterpolator = si;
-    if ( this->ScaleInterpolator != NULL )
+    if ( this->ScaleInterpolator != nullptr )
     {
       this->ScaleInterpolator->Register(this);
     }
@@ -283,12 +283,12 @@ void vtkTransformInterpolator::SetRotationInterpolator(vtkQuaternionInterpolator
 {
   if ( this->RotationInterpolator != ri )
   {
-    if ( this->RotationInterpolator != NULL )
+    if ( this->RotationInterpolator != nullptr )
     {
       this->RotationInterpolator->Delete();
     }
     this->RotationInterpolator = ri;
-    if ( this->RotationInterpolator != NULL )
+    if ( this->RotationInterpolator != nullptr )
     {
       this->RotationInterpolator->Register(this);
     }

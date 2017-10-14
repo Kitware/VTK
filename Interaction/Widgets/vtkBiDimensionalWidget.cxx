@@ -38,7 +38,7 @@ class vtkBiDimensionalWidgetCallback : public vtkCommand
 public:
   static vtkBiDimensionalWidgetCallback *New()
     { return new vtkBiDimensionalWidgetCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {
@@ -281,7 +281,7 @@ void vtkBiDimensionalWidget::SetEnabled(int enabling)
     // Done in this weird order to get everything right. The renderer is
     // set to null after we disable the sub-widgets. That should give the
     // renderer a chance to remove the representation props before being
-    // set to NULL.
+    // set to nullptr.
     this->Superclass::SetEnabled(enabling);
   }
 }
@@ -316,7 +316,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
   {
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkBiDimensionalWidget::Define;
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->StartWidgetDefinition(e);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
@@ -346,7 +346,7 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
       self->WidgetState = vtkBiDimensionalWidget::Manipulate;
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
     }
   }
 
@@ -373,13 +373,13 @@ void vtkBiDimensionalWidget::AddPointAction(vtkAbstractWidget *w)
          state == vtkBiDimensionalRepresentation::NearP2 )
     {
       self->HandleLine1Selected = 1;
-      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
     }
     else if ( state == vtkBiDimensionalRepresentation::NearP3 ||
               state == vtkBiDimensionalRepresentation::NearP4 )
     {
       self->HandleLine2Selected = 1;
-      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+      self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
     }
     else if ( state == vtkBiDimensionalRepresentation::OnL1Inner)
     {
@@ -448,7 +448,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
       vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
         Point3WidgetInteraction(e);
     }
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
   }
 
@@ -458,7 +458,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     self->RequestCursorShape(VTK_CURSOR_HAND);
     vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( self->Line1InnerSelected )
@@ -483,7 +483,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 
     reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( self->Line2InnerSelected )
@@ -508,7 +508,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 
     reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( self->HandleLine1Selected )
@@ -533,7 +533,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 
     reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( self->HandleLine2Selected )
@@ -558,7 +558,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
 
     reinterpret_cast<vtkBiDimensionalRepresentation*>(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else if ( self->CenterSelected )
@@ -566,7 +566,7 @@ void vtkBiDimensionalWidget::MoveAction(vtkAbstractWidget *w)
     self->RequestCursorShape(VTK_CURSOR_SIZEALL);
     vtkBiDimensionalRepresentation::SafeDownCast(self->WidgetRep)->
       WidgetInteraction(e);
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   else // just moving around, nothing yet selected
@@ -705,7 +705,7 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
        state == vtkBiDimensionalRepresentation::NearP3 ||
        state == vtkBiDimensionalRepresentation::NearP4 )
   {
-    self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+    self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
   }
   else
   {
@@ -721,14 +721,14 @@ void vtkBiDimensionalWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkBiDimensionalWidget::StartBiDimensionalInteraction()
 {
   this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkBiDimensionalWidget::EndBiDimensionalInteraction()
 {
   this->Superclass::EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------

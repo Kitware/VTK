@@ -45,12 +45,12 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkBezierContourLineInterpolator, vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE;
+                               int idx1, int idx2 ) override;
 
   //@{
   /**
@@ -86,11 +86,11 @@ public:
    * this interpolator will be a 2-tuple with a span of 4.
    */
   void GetSpan(int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep) VTK_OVERRIDE;
+                        vtkContourRepresentation *rep) override;
 
 protected:
   vtkBezierContourLineInterpolator();
-  ~vtkBezierContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkBezierContourLineInterpolator() override;
 
   void ComputeMidpoint(double p1[3], double p2[3], double mid[3])
   {
@@ -103,8 +103,8 @@ protected:
   int    MaximumCurveLineSegments;
 
 private:
-  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) = delete;
+  void operator=(const vtkBezierContourLineInterpolator&) = delete;
 };
 
 #endif

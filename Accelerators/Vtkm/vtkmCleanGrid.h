@@ -37,7 +37,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmCleanGrid : public vtkUnstructuredGridAlgor
 public:
   vtkTypeMacro(vtkmCleanGrid, vtkUnstructuredGridAlgorithm)
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmCleanGrid* New();
 
   //@{
@@ -55,15 +55,15 @@ protected:
   vtkmCleanGrid();
   ~vtkmCleanGrid();
 
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   bool CompactPoints;
 
 private:
-  vtkmCleanGrid(const vtkmCleanGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmCleanGrid&) VTK_DELETE_FUNCTION;
+  vtkmCleanGrid(const vtkmCleanGrid&) = delete;
+  void operator=(const vtkmCleanGrid&) = delete;
 };
 
 #endif // vtkmCleanGrid_h

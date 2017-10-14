@@ -51,7 +51,7 @@ class VTKINFOVISCORE_EXPORT vtkCollapseGraph : public vtkGraphAlgorithm
 public:
   static vtkCollapseGraph* New();
   vtkTypeMacro(vtkCollapseGraph,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /// Convenience function provided for setting the graph input.
   void SetGraphConnection(vtkAlgorithmOutput*);
@@ -60,18 +60,18 @@ public:
 
 protected:
   vtkCollapseGraph();
-  ~vtkCollapseGraph() VTK_OVERRIDE;
+  ~vtkCollapseGraph() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkCollapseGraph(const vtkCollapseGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollapseGraph&) VTK_DELETE_FUNCTION;
+  vtkCollapseGraph(const vtkCollapseGraph&) = delete;
+  void operator=(const vtkCollapseGraph&) = delete;
 };
 
 #endif

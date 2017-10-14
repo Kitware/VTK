@@ -94,23 +94,23 @@ struct SampleDataSetWithGradients
 // Okay define the VTK class proper
 vtkSampleImplicitFunctionFilter::vtkSampleImplicitFunctionFilter()
 {
-  this->ImplicitFunction = NULL;
+  this->ImplicitFunction = nullptr;
 
   this->ComputeGradients = 1;
 
-  this->ScalarArrayName = 0;
+  this->ScalarArrayName = nullptr;
   this->SetScalarArrayName("Implicit scalars");
 
-  this->GradientArrayName = 0;
+  this->GradientArrayName = nullptr;
   this->SetGradientArrayName("Implicit gradients");
 }
 
 //----------------------------------------------------------------------------
 vtkSampleImplicitFunctionFilter::~vtkSampleImplicitFunctionFilter()
 {
-  this->SetImplicitFunction(NULL);
-  this->SetScalarArrayName(NULL);
-  this->SetGradientArrayName(NULL);
+  this->SetImplicitFunction(nullptr);
+  this->SetScalarArrayName(nullptr);
+  this->SetGradientArrayName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -163,8 +163,8 @@ int vtkSampleImplicitFunctionFilter::RequestData(
   newScalars->SetNumberOfTuples(numPts);
   float *scalars = newScalars->WritePointer(0,numPts);
 
-  vtkFloatArray *newGradients=NULL;
-  float *gradients=NULL;
+  vtkFloatArray *newGradients=nullptr;
+  float *gradients=nullptr;
   if ( this->ComputeGradients )
   {
     newGradients = vtkFloatArray::New();
@@ -217,7 +217,7 @@ vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -252,7 +252,7 @@ void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
 
   os << indent << "Scalar Array Name: ";
-  if(this->ScalarArrayName != 0)
+  if(this->ScalarArrayName != nullptr)
   {
     os  << this->ScalarArrayName << endl;
   }
@@ -262,7 +262,7 @@ void vtkSampleImplicitFunctionFilter::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "Gradient Array Name: ";
-  if(this->GradientArrayName != 0)
+  if(this->GradientArrayName != nullptr)
   {
     os  << this->GradientArrayName << endl;
   }

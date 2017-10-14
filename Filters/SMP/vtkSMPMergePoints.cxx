@@ -59,7 +59,7 @@ void vtkSMPMergePoints::Merge(vtkSMPMergePoints* locator,
 
   vtkIdType i;
   vtkIdList *bucket, *oldIdToMerge;
-  vtkFloatArray* floatOldDataArray = 0;
+  vtkFloatArray* floatOldDataArray = nullptr;
 
   if ( !(bucket = this->HashTable[idx]) )
   {

@@ -106,7 +106,7 @@ void vtkPNGReader::ExecuteInformation()
 {
   vtkInternals* impl = this->Internals;
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     return;
   }
@@ -134,8 +134,8 @@ void vtkPNGReader::ExecuteInformation()
   }
 
   png_structp png_ptr = png_create_read_struct
-    (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
-     NULL, NULL);
+    (PNG_LIBPNG_VER_STRING, (png_voidp)nullptr,
+     nullptr, nullptr);
   if (!png_ptr)
   {
     vtkErrorMacro(<< "Out of memory." );
@@ -147,7 +147,7 @@ void vtkPNGReader::ExecuteInformation()
   if (!info_ptr)
   {
     png_destroy_read_struct(&png_ptr,
-                            (png_infopp)NULL, (png_infopp)NULL);
+                            (png_infopp)nullptr, (png_infopp)nullptr);
     vtkErrorMacro(<< "Out of memory.");
     fclose(fp);
     return;
@@ -157,7 +157,7 @@ void vtkPNGReader::ExecuteInformation()
   if (!end_info)
   {
     png_destroy_read_struct(&png_ptr, &info_ptr,
-                            (png_infopp)NULL);
+                            (png_infopp)nullptr);
     vtkErrorMacro(<<"Unable to read PNG file!");
     fclose(fp);
     return;
@@ -166,7 +166,7 @@ void vtkPNGReader::ExecuteInformation()
   // Set error handling
   if (setjmp (png_jmpbuf(png_ptr)))
   {
-    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)nullptr);
     fclose(fp);
     return;
   }
@@ -275,7 +275,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   }
 
   png_structp png_ptr = png_create_read_struct
-    (PNG_LIBPNG_VER_STRING, (png_voidp)NULL, NULL, NULL);
+    (PNG_LIBPNG_VER_STRING, (png_voidp)nullptr, nullptr, nullptr);
   if (!png_ptr)
   {
     fclose(fp);
@@ -286,7 +286,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   if (!info_ptr)
   {
     png_destroy_read_struct(&png_ptr,
-                            (png_infopp)NULL, (png_infopp)NULL);
+                            (png_infopp)nullptr, (png_infopp)nullptr);
     fclose(fp);
     return;
   }
@@ -295,7 +295,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   if (!end_info)
   {
     png_destroy_read_struct(&png_ptr, &info_ptr,
-                            (png_infopp)NULL);
+                            (png_infopp)nullptr);
     fclose(fp);
     return;
   }
@@ -303,7 +303,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   // Set error handling
   if (setjmp (png_jmpbuf(png_ptr)))
   {
-    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
+    png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)nullptr);
     fclose(fp);
     return;
   }
@@ -380,7 +380,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   delete [] row_pointers;
 
   // close the file
-  png_read_end(png_ptr, NULL);
+  png_read_end(png_ptr, nullptr);
   png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
   fclose(fp);
 }
@@ -422,7 +422,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject *output,
 {
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
@@ -467,8 +467,8 @@ int vtkPNGReader::CanReadFile(const char* fname)
     return 0;
   }
   png_structp png_ptr = png_create_read_struct
-    (PNG_LIBPNG_VER_STRING, (png_voidp)NULL,
-     NULL, NULL);
+    (PNG_LIBPNG_VER_STRING, (png_voidp)nullptr,
+     nullptr, nullptr);
   if (!png_ptr)
   {
     fclose(fp);
@@ -479,7 +479,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   if (!info_ptr)
   {
     png_destroy_read_struct(&png_ptr,
-                            (png_infopp)NULL, (png_infopp)NULL);
+                            (png_infopp)nullptr, (png_infopp)nullptr);
     fclose(fp);
     return 0;
   }
@@ -488,7 +488,7 @@ int vtkPNGReader::CanReadFile(const char* fname)
   if (!end_info)
   {
     png_destroy_read_struct(&png_ptr, &info_ptr,
-                            (png_infopp)NULL);
+                            (png_infopp)nullptr);
     fclose(fp);
     return 0;
   }

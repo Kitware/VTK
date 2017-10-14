@@ -185,7 +185,7 @@ const char* vtkDataArraySelection::GetArrayName(int index)
   {
     return this->Internal->ArrayNames[index].c_str();
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

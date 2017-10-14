@@ -68,7 +68,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtk3DWidget : public vtkInteractorObserver
 {
 public:
   vtkTypeMacro(vtk3DWidget,vtkInteractorObserver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -132,7 +132,7 @@ public:
 
 protected:
   vtk3DWidget();
-  ~vtk3DWidget() VTK_OVERRIDE;
+  ~vtk3DWidget() override;
 
   // Used to position and scale the widget initially
   vtkProp3D *Prop3D;
@@ -158,8 +158,8 @@ protected:
   void UpdateInput();
 
 private:
-  vtk3DWidget(const vtk3DWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtk3DWidget&) VTK_DELETE_FUNCTION;
+  vtk3DWidget(const vtk3DWidget&) = delete;
+  void operator=(const vtk3DWidget&) = delete;
 
 };
 

@@ -44,11 +44,11 @@ public:
 
 protected:
   vtkQtTimePointUtility() {}
-  ~vtkQtTimePointUtility() VTK_OVERRIDE {}
+  ~vtkQtTimePointUtility() override {}
 
 private:
-  vtkQtTimePointUtility(const vtkQtTimePointUtility&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTimePointUtility&) VTK_DELETE_FUNCTION;
+  vtkQtTimePointUtility(const vtkQtTimePointUtility&) = delete;
+  void operator=(const vtkQtTimePointUtility&) = delete;
 };
 
 #endif

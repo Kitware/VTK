@@ -115,15 +115,15 @@ vtkMTimeType vtkImageSeparableConvolution::GetMTime()
 //----------------------------------------------------------------------------
 vtkImageSeparableConvolution::~vtkImageSeparableConvolution()
 {
-  SetXKernel ( NULL );
-  SetYKernel ( NULL );
-  SetZKernel ( NULL );
+  SetXKernel ( nullptr );
+  SetYKernel ( nullptr );
+  SetZKernel ( nullptr );
 }
 
 //----------------------------------------------------------------------------
 vtkImageSeparableConvolution::vtkImageSeparableConvolution()
 {
-  XKernel = YKernel = ZKernel = NULL;
+  XKernel = YKernel = ZKernel = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   int *wholeExtent =
     input->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-  vtkFloatArray* KernelArray = NULL;
+  vtkFloatArray* KernelArray = nullptr;
   switch ( this->GetIteration() )
   {
     case 0:
@@ -218,7 +218,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
     (inMax2-inMin2+1)*(inMax1-inMin1+1)/50.0);
   target++;
 
-  vtkFloatArray* KernelArray = NULL;
+  vtkFloatArray* KernelArray = nullptr;
   switch ( self->GetIteration() )
   {
     case 0:
@@ -232,7 +232,7 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
       break;
   }
   int kernelSize = 0;
-  float* kernel = NULL;
+  float* kernel = nullptr;
 
   if ( KernelArray )
   {
@@ -375,7 +375,7 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   {
     vtkTemplateMacro(
       vtkImageSeparableConvolutionExecute(
-        this, inData, outData, static_cast<VTK_TT*>(0),
+        this, inData, outData, static_cast<VTK_TT*>(nullptr),
         inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
         outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())));
     default:

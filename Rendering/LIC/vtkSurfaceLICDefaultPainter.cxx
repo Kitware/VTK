@@ -40,7 +40,7 @@ vtkSurfaceLICDefaultPainter::vtkSurfaceLICDefaultPainter()
 //----------------------------------------------------------------------------
 vtkSurfaceLICDefaultPainter::~vtkSurfaceLICDefaultPainter()
 {
-  this->SetSurfaceLICPainter(NULL);
+  this->SetSurfaceLICPainter(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void vtkSurfaceLICDefaultPainter::BuildPainterChain()
     cerr << painter->GetClassName() << "->";
     painter = painter->GetDelegatePainter();
   }
-  cerr << "NULL" << endl;
+  cerr << "nullptr" << endl;
   #endif
 }
 

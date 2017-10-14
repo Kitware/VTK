@@ -268,7 +268,7 @@ static bool CheckUniques(
   for (int c = 0; c < nc; ++c)
   {
     arr->GetProminentComponentValues(
-      c, uniques.GetPointer(), uncertainty, minProminence);
+      c, uniques, uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  comp " << c << " (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
@@ -291,7 +291,7 @@ static bool CheckUniques(
   if (nc > 1)
   {
     arr->GetProminentComponentValues(
-      -1, uniques.GetPointer(), uncertainty, minProminence);
+      -1, uniques, uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  tuples (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
@@ -325,30 +325,30 @@ int TestArrayUniqueValueDetection(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
   darr->SetArray(testTuplesDouble,
     sizeof(testTuplesDouble)/sizeof(testTuplesDouble[0]), 1);
   darr->SetName("Some3DPoints - Show off distinct tuple detection");
-  ok &= CheckUniques(darr.GetPointer(), numUniqueDouble, 0., 0.);
+  ok &= CheckUniques(darr, numUniqueDouble, 0., 0.);
 
   iarr->SetNumberOfComponents(2);
   iarr->SetArray(testTuplesInt,
     sizeof(testTuplesInt)/sizeof(testTuplesInt[0]), 1);
   iarr->SetName("Some2DPoints - Show off tuple non-detection");
-  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt, 0., 0.);
+  ok &= CheckUniques(iarr, numUniqueInt, 0., 0.);
 
   iarr->SetNumberOfComponents(1);
   iarr->SetArray(testTuplesInt2,
     sizeof(testTuplesInt2)/sizeof(testTuplesInt2[0]), 1);
   //iarr->Modified(); // required since we have changed the tuples?
   iarr->SetName("Some1DPoints - Show off component non-detection");
-  ok &= CheckUniques(iarr.GetPointer(), numUniqueInt2, 0., 0.);
+  ok &= CheckUniques(iarr, numUniqueInt2, 0., 0.);
 
   sarr->SetNumberOfComponents(1);
   sarr->SetArray(testTuplesString,
     sizeof(testTuplesString)/sizeof(testTuplesString[0]), 1);
   sarr->SetName("SomeNonWords - Show off string value detection");
-  ok &= CheckUniques(sarr.GetPointer(), numUniqueStringComplete, 0.0, 0.0);
+  ok &= CheckUniques(sarr, numUniqueStringComplete, 0.0, 0.0);
 
   sarr->Modified(); // Verify that modifying the array causes a re-compute
   sarr->SetName("SomeNonWords - Show off non-exhaustive search");
-  ok &= CheckUniques(sarr.GetPointer(), numUniqueStringSubset, 0.5, 0.1);
+  ok &= CheckUniques(sarr, numUniqueStringSubset, 0.5, 0.1);
 
   return ok ? 0 : 1;
 }

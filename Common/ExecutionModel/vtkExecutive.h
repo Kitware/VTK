@@ -47,7 +47,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutive : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutive,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the algorithm to which this executive has been assigned.
@@ -70,7 +70,7 @@ public:
    * containing the common information, specifically the output port
    * through which the request was made and the resulting modified
    * time.  Note that unlike ProcessRequest the request information
-   * object may be NULL for this method.  It also does not contain a
+   * object may be nullptr for this method.  It also does not contain a
    * request identifcation key because the request is known from the
    * method name.
    */
@@ -181,8 +181,8 @@ public:
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   /**
@@ -228,7 +228,7 @@ public:
 
 protected:
   vtkExecutive();
-  ~vtkExecutive() VTK_OVERRIDE;
+  ~vtkExecutive() override;
 
   // Helper methods for subclasses.
   int InputPortIndexInRange(int port, const char* action);
@@ -258,7 +258,7 @@ protected:
   virtual int UpdateDataObject()=0;
 
   // Garbage collection support.
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
 
@@ -284,8 +284,8 @@ private:
   friend class vtkAlgorithmToExecutiveFriendship;
 
 private:
-  vtkExecutive(const vtkExecutive&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExecutive&) VTK_DELETE_FUNCTION;
+  vtkExecutive(const vtkExecutive&) = delete;
+  void operator=(const vtkExecutive&) = delete;
 };
 
 #endif

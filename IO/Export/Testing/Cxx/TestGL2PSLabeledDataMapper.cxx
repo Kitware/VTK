@@ -62,20 +62,20 @@ int TestGL2PSLabeledDataMapper(int, char *[] )
   rect->InsertCellPoint(0);
 
   vtkNew<vtkPolyData> selectRect;
-  selectRect->SetPoints(pts.GetPointer());
-  selectRect->SetLines(rect.GetPointer());
+  selectRect->SetPoints(pts);
+  selectRect->SetLines(rect);
 
   vtkNew<vtkPolyDataMapper2D> rectMapper;
   vtkNew<vtkActor2D> rectActor;
-  rectMapper->SetInputData(selectRect.GetPointer());
-  rectActor->SetMapper(rectMapper.GetPointer());
+  rectMapper->SetInputData(selectRect);
+  rectActor->SetMapper(rectMapper);
 
   // Create sphere
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkPolyDataMapper> sphereMapper;
   vtkNew<vtkActor> sphereActor;
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   // Generate ids for labeling
   vtkNew<vtkIdFilter> ids;
@@ -95,7 +95,7 @@ int TestGL2PSLabeledDataMapper(int, char *[] )
   ldm->SetLabelModeToLabelFieldData();
 
   vtkNew<vtkActor2D> pointLabels;
-  pointLabels->SetMapper(ldm.GetPointer());
+  pointLabels->SetMapper(ldm);
 
   // Create labels for cells:
   vtkNew<vtkCellCenters> cc;
@@ -112,29 +112,29 @@ int TestGL2PSLabeledDataMapper(int, char *[] )
   cellMapper->GetLabelTextProperty()->SetColor(0., 1., 0.);
 
   vtkNew<vtkActor2D> cellLabels;
-  cellLabels->SetMapper(cellMapper.GetPointer());
+  cellLabels->SetMapper(cellMapper);
 
   // Rendering setup
   vtkNew<vtkRenderer> ren;
-  visPts->SetRenderer(ren.GetPointer());
-  visCells->SetRenderer(ren.GetPointer());
-  ren->AddActor(sphereActor.GetPointer());
-  ren->AddActor2D(rectActor.GetPointer());
-  ren->AddActor2D(pointLabels.GetPointer());
-  ren->AddActor2D(cellLabels.GetPointer());
+  visPts->SetRenderer(ren);
+  visCells->SetRenderer(ren);
+  ren->AddActor(sphereActor);
+  ren->AddActor2D(rectActor);
+  ren->AddActor2D(pointLabels);
+  ren->AddActor2D(cellLabels);
   ren->SetBackground(1., 1., 1.);
   ren->GetActiveCamera()->Zoom(.55);
 
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
-  renWin->AddRenderer(ren.GetPointer());
+  iren->SetRenderWindow(renWin);
+  renWin->AddRenderer(ren);
   renWin->SetMultiSamples(0);
   renWin->SetSize(500, 500);
   renWin->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(renWin.GetPointer());
+  exp->SetRenderWindow(renWin);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetPS3Shading(0);

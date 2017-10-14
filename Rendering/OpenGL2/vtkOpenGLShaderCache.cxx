@@ -91,7 +91,7 @@ vtkStandardNewMacro(vtkOpenGLShaderCache);
 // ----------------------------------------------------------------------------
 vtkOpenGLShaderCache::vtkOpenGLShaderCache() : Internal(new Private)
 {
-  this->LastShaderBound  = NULL;
+  this->LastShaderBound  = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   // assume their inputs come from a Vertex Shader. When we
   // have a Geometry shader we rename the frament shader inputs
   // to come from the geometry shader
-  if (GSSource.size() > 0)
+  if (!GSSource.empty())
   {
     vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
   }
@@ -184,14 +184,6 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
     "#define texture2D texture\n"
     "#define texture3D texture\n"
     "#endif // 300\n"
-    "#if __VERSION__ == 100\n"
-    "#extension GL_OES_standard_derivatives : enable\n"
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "precision highp float;\n"
-    "#else\n"
-    "precision mediump float;\n"
-    "#endif\n"
-    "#endif // 100\n"
     "#else // GL_ES\n"
     "#define highp\n"
     "#define mediump\n"
@@ -282,7 +274,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   return this->ReadyShaderProgram(shader, cap);
 }
 
-// return NULL if there is an issue
+// return nullptr if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   const char *vertexCode, const char *fragmentCode, const char *geometryCode,
   vtkTransformFeedback *cap)
@@ -303,32 +295,32 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   return this->ReadyShaderProgram(shader, cap);
 }
 
-// return NULL if there is an issue
+// return nullptr if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
     vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {
   if (!shader)
   {
-    return NULL;
+    return nullptr;
   }
 
   if (shader->GetTransformFeedback() != cap)
   {
     this->ReleaseCurrentShader();
-    shader->ReleaseGraphicsResources(NULL);
+    shader->ReleaseGraphicsResources(nullptr);
     shader->SetTransformFeedback(cap);
   }
 
   // compile if needed
   if (!shader->GetCompiled() && !shader->CompileShader())
   {
-    return NULL;
+    return nullptr;
   }
 
   // bind if needed
   if (!this->BindShader(shader))
   {
-    return NULL;
+    return nullptr;
   }
 
   return shader;
@@ -382,7 +374,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
     vtkShaderProgram *sps = vtkShaderProgram::New();
     sps->GetVertexShader()->SetSource(vertexCode);
     sps->GetFragmentShader()->SetSource(fragmentCode);
-    if (geometryCode != NULL)
+    if (geometryCode != nullptr)
     {
       sps->GetGeometryShader()->SetSource(geometryCode);
     }
@@ -422,7 +414,7 @@ void vtkOpenGLShaderCache::ReleaseCurrentShader()
   if (this->LastShaderBound)
   {
     this->LastShaderBound->Release();
-    this->LastShaderBound = NULL;
+    this->LastShaderBound = nullptr;
   }
 }
 

@@ -35,12 +35,12 @@ vtkCxxSetObjectMacro(vtkCheckerboardRepresentation,LeftRepresentation,vtkSliderR
 //----------------------------------------------------------------------
 vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
 {
-  this->Checkerboard = NULL;
-  this->ImageActor = NULL;
+  this->Checkerboard = nullptr;
+  this->ImageActor = nullptr;
 
   this->TopRepresentation = vtkSliderRepresentation3D::New();
   this->TopRepresentation->ShowSliderLabelOff();
-  this->TopRepresentation->SetTitleText(NULL);
+  this->TopRepresentation->SetTitleText(nullptr);
   this->TopRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
   this->TopRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
   this->TopRepresentation->SetSliderLength(0.050);
@@ -53,7 +53,7 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
 
   this->RightRepresentation = vtkSliderRepresentation3D::New();
   this->RightRepresentation->ShowSliderLabelOff();
-  this->RightRepresentation->SetTitleText(NULL);
+  this->RightRepresentation->SetTitleText(nullptr);
   this->RightRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
   this->RightRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
   this->RightRepresentation->SetSliderLength(0.050);
@@ -66,7 +66,7 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
 
   this->BottomRepresentation = vtkSliderRepresentation3D::New();
   this->BottomRepresentation->ShowSliderLabelOff();
-  this->BottomRepresentation->SetTitleText(NULL);
+  this->BottomRepresentation->SetTitleText(nullptr);
   this->BottomRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
   this->BottomRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
   this->BottomRepresentation->SetSliderLength(0.050);
@@ -79,7 +79,7 @@ vtkCheckerboardRepresentation::vtkCheckerboardRepresentation()
 
   this->LeftRepresentation = vtkSliderRepresentation3D::New();
   this->LeftRepresentation->ShowSliderLabelOff();
-  this->LeftRepresentation->SetTitleText(NULL);
+  this->LeftRepresentation->SetTitleText(nullptr);
   this->LeftRepresentation->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
   this->LeftRepresentation->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
   this->LeftRepresentation->SetSliderLength(0.050);

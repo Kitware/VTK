@@ -39,7 +39,7 @@ class VTKIOGDAL_EXPORT vtkGDALVectorReader : public vtkMultiBlockDataSetAlgorith
 {
 public:
   static vtkGDALVectorReader* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGDALVectorReader,vtkMultiBlockDataSetAlgorithm);
 
   vtkSetStringMacro(FileName);
@@ -120,10 +120,10 @@ public:
 
 protected:
   vtkGDALVectorReader();
-  virtual ~vtkGDALVectorReader();
+  ~vtkGDALVectorReader() override;
 
-  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
+  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   int InitializeInternal();
 
@@ -146,8 +146,8 @@ protected:
   std::map<int, std::string> LayersProjection;
 
 private:
-  vtkGDALVectorReader(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
+  vtkGDALVectorReader(const vtkGDALVectorReader&) = delete;
+  void operator=(const vtkGDALVectorReader&) = delete;
 };
 
 #endif // vtkGDALVectorReader_h

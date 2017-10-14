@@ -42,18 +42,18 @@ vtkLODActor::vtkLODActor()
   m->Delete();
 
   this->LODMappers = vtkMapperCollection::New();
-  this->MediumResFilter = NULL;
-  this->LowResFilter = NULL;
+  this->MediumResFilter = nullptr;
+  this->LowResFilter = nullptr;
   this->NumberOfCloudPoints = 150;
-  this->LowMapper = NULL;
-  this->MediumMapper = NULL;
+  this->LowMapper = nullptr;
+  this->MediumMapper = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkLODActor::~vtkLODActor()
 {
   this->Device->Delete();
-  this->Device = NULL;
+  this->Device = nullptr;
   this->DeleteOwnLODs();
   this->LODMappers->Delete();
 }
@@ -126,7 +126,7 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
   {
     vtkCollectionSimpleIterator mit;
     this->LODMappers->InitTraversal(mit);
-    while ((mapper = this->LODMappers->GetNextMapper(mit)) != NULL &&
+    while ((mapper = this->LODMappers->GetNextMapper(mit)) != nullptr &&
            bestTime != 0.0)
     {
       tempTime = mapper->GetTimeToDraw();
@@ -179,6 +179,11 @@ void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
   // Store information on time it takes to render.
   // We might want to estimate time from the number of polygons in mapper.
+
+  // The internal actor needs to share property keys. This allows depth peeling
+  // etc to work.
+  this->Device->SetPropertyKeys(this->GetPropertyKeys());
+
   this->Device->Render(ren, bestMapper);
   this->EstimatedRenderTime = bestMapper->GetTimeToDraw();
 }
@@ -362,26 +367,26 @@ void vtkLODActor::DeleteOwnLODs()
   {
     this->LODMappers->RemoveItem(this->LowMapper);
     this->LowMapper->Delete();
-    this->LowMapper = NULL;
+    this->LowMapper = nullptr;
   }
 
   if (this->MediumMapper)
   {
     this->LODMappers->RemoveItem(this->MediumMapper);
     this->MediumMapper->Delete();
-    this->MediumMapper = NULL;
+    this->MediumMapper = nullptr;
   }
 
   // delete the filters used to create the LODs ...
-  // The NULL check should not be necessary, but for sanity ...
-  this->SetLowResFilter(NULL);
-  this->SetMediumResFilter(NULL);
+  // The nullptr check should not be necessary, but for sanity ...
+  this->SetLowResFilter(nullptr);
+  this->SetMediumResFilter(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkLODActor::Modified()
 {
-  if (this->Device) // Will be NULL only during destruction of this class.
+  if (this->Device) // Will be nullptr only during destruction of this class.
   {
     this->Device->Modified();
   }

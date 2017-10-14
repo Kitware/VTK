@@ -33,7 +33,7 @@ class VTKFILTERSMODELING_EXPORT vtkSpherePuzzleArrows : public vtkPolyDataAlgori
 {
 public:
   vtkTypeMacro(vtkSpherePuzzleArrows,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkSpherePuzzleArrows *New();
 
@@ -52,9 +52,9 @@ public:
 
 protected:
   vtkSpherePuzzleArrows();
-  ~vtkSpherePuzzleArrows() VTK_OVERRIDE;
+  ~vtkSpherePuzzleArrows() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void AppendArrow(int id1, int id2, vtkPoints *pts, vtkCellArray *polys);
 
   int Permutation[32];
@@ -62,8 +62,8 @@ protected:
   double Radius;
 
 private:
-  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
+  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&) = delete;
+  void operator=(const vtkSpherePuzzleArrows&) = delete;
 };
 
 #endif

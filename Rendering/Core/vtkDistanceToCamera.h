@@ -42,7 +42,7 @@ class VTKRENDERINGCORE_EXPORT vtkDistanceToCamera : public vtkPointSetAlgorithm
 public:
   static vtkDistanceToCamera *New();
   vtkTypeMacro(vtkDistanceToCamera,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -82,16 +82,16 @@ public:
   /**
    * The modified time of this filter.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkDistanceToCamera();
-  ~vtkDistanceToCamera() VTK_OVERRIDE;
+  ~vtkDistanceToCamera() override;
 
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   vtkRenderer* Renderer;
   double ScreenSize;
@@ -104,8 +104,8 @@ protected:
   char*  DistanceArrayName;
 
 private:
-  vtkDistanceToCamera(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
+  vtkDistanceToCamera(const vtkDistanceToCamera&) = delete;
+  void operator=(const vtkDistanceToCamera&) = delete;
 };
 
 #endif

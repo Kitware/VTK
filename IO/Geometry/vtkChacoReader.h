@@ -41,7 +41,7 @@ class VTKIOGEOMETRY_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 public:
   static vtkChacoReader *New();
   vtkTypeMacro(vtkChacoReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify the base name of the Chaco files.  The reader will try to
@@ -98,7 +98,7 @@ public:
   /**
    * This method returns the name of the selected Vertex weight point
    * array.  If you did not turn on GenerateVertexWeightArrays, or
-   * if the weight you requested is invalid, it returns NULL.
+   * if the weight you requested is invalid, it returns nullptr.
    * Weights begin at one and go up to NumberOfVertexWeights.
    * This is a pointer to our copy of the name, so don't "delete" it.
    */
@@ -128,7 +128,7 @@ public:
   /**
    * This method returns the name of the selected Edge weight cell
    * array.  If you did not turn on GenerateEdgeWeightArrays, or
-   * if the weight you requested is invalid, it returns NULL.
+   * if the weight you requested is invalid, it returns nullptr.
    * Weights begin at one and go up to NumberOfEdgeWeights.
    * This is a pointer to our copy of the name, so don't "delete" it.
    */
@@ -162,7 +162,7 @@ public:
 
 protected:
   vtkChacoReader();
-  ~vtkChacoReader() VTK_OVERRIDE;
+  ~vtkChacoReader() override;
 
   int BuildOutputGrid(vtkUnstructuredGrid *gr);
 
@@ -228,13 +228,13 @@ protected:
   int RemakeDataCacheFlag;
 
   int RequestInformation(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkChacoReader(const vtkChacoReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChacoReader&) VTK_DELETE_FUNCTION;
+  vtkChacoReader(const vtkChacoReader&) = delete;
+  void operator=(const vtkChacoReader&) = delete;
 
   double ReadVal(FILE *infile, int *end_flag);
   vtkIdType ReadInt(FILE *infile, int *end_flag);

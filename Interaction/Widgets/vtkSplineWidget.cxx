@@ -49,7 +49,7 @@ vtkSplineWidget::vtkSplineWidget()
   this->ProjectToPlane = 0;  //default off
   this->ProjectionNormal = 0;  //default YZ not used
   this->ProjectionPosition = 0.0;
-  this->PlaneSource = NULL;
+  this->PlaneSource = nullptr;
   this->Closed = 0;
 
   // Does this widget respond to interaction?
@@ -118,7 +118,6 @@ vtkSplineWidget::vtkSplineWidget()
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputConnection(
     this->ParametricFunctionSource->GetOutputPort());
-  lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   this->LineActor = vtkActor::New();
@@ -144,16 +143,16 @@ vtkSplineWidget::vtkSplineWidget()
   this->LinePicker->AddPickList(this->LineActor);
   this->LinePicker->PickFromListOn();
 
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
   this->CurrentHandleIndex = -1;
 
   this->Transform = vtkTransform::New();
 
   // Set up the initial properties
-  this->HandleProperty = NULL;
-  this->SelectedHandleProperty = NULL;
-  this->LineProperty = NULL;
-  this->SelectedLineProperty = NULL;
+  this->HandleProperty = nullptr;
+  this->SelectedHandleProperty = nullptr;
+  this->LineProperty = nullptr;
+  this->SelectedLineProperty = nullptr;
   this->CreateDefaultProperties();
 }
 
@@ -218,11 +217,11 @@ void vtkSplineWidget::SetParametricSpline(vtkParametricSpline* spline)
     // to avoid destructor recursion
     vtkParametricSpline *temp = this->ParametricSpline;
     this->ParametricSpline = spline;
-    if (temp != NULL)
+    if (temp != nullptr)
     {
       temp->UnRegister(this);
     }
-    if (this->ParametricSpline != NULL)
+    if (this->ParametricSpline != nullptr)
     {
       this->ParametricSpline->Register(this);
       this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
@@ -268,7 +267,7 @@ double* vtkSplineWidget::GetHandlePosition(int handle)
   if ( handle < 0 || handle >= this->NumberOfHandles )
   {
     vtkErrorMacro(<<"vtkSplineWidget: handle index out of range.");
-    return NULL;
+    return nullptr;
   }
 
   return this->HandleGeometry[handle]->GetCenter();
@@ -296,7 +295,7 @@ void vtkSplineWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if ( this->CurrentRenderer == NULL )
+      if ( this->CurrentRenderer == nullptr )
       {
         return;
       }
@@ -334,7 +333,7 @@ void vtkSplineWidget::SetEnabled(int enabling)
     this->BuildRepresentation();
     this->SizeHandles();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling----------------------------------------------------------
@@ -360,9 +359,9 @@ void vtkSplineWidget::SetEnabled(int enabling)
       this->CurrentRenderer->RemoveActor(this->Handle[i]);
     }
 
-    this->CurrentHandle = NULL;
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->CurrentHandle = nullptr;
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -481,7 +480,7 @@ void vtkSplineWidget::ProjectPointsToPlane()
 {
   if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE )
   {
-    if ( this->PlaneSource != NULL )
+    if ( this->PlaneSource != nullptr )
     {
       this->ProjectPointsToObliquePlane();
     }
@@ -622,7 +621,7 @@ void vtkSplineWidget::OnLeftButtonDown()
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->CurrentHandleIndex = this->HighlightHandle(path->GetFirstNode()->GetViewProp());
   }
@@ -630,13 +629,13 @@ void vtkSplineWidget::OnLeftButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->HighlightLine(1);
     }
     else
     {
-      this->CurrentHandleIndex = this->HighlightHandle(NULL);
+      this->CurrentHandleIndex = this->HighlightHandle(nullptr);
       this->State = vtkSplineWidget::Outside;
       return;
     }
@@ -644,7 +643,7 @@ void vtkSplineWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -657,14 +656,14 @@ void vtkSplineWidget::OnLeftButtonUp()
   }
 
   this->State = vtkSplineWidget::Start;
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
   this->HighlightLine(0);
 
   this->SizeHandles();
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -694,11 +693,11 @@ void vtkSplineWidget::OnMiddleButtonDown()
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path == NULL )
+  if ( path == nullptr )
   {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path == NULL )
+    if ( path == nullptr )
     {
       this->State = vtkSplineWidget::Outside;
       this->HighlightLine(0);
@@ -716,7 +715,7 @@ void vtkSplineWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -735,7 +734,7 @@ void vtkSplineWidget::OnMiddleButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -766,7 +765,7 @@ void vtkSplineWidget::OnRightButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     switch ( this->State )
     {
@@ -794,7 +793,7 @@ void vtkSplineWidget::OnRightButtonDown()
     // try to insert or scale so pick the line
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->HighlightLine(1);
     }
@@ -807,7 +806,7 @@ void vtkSplineWidget::OnRightButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -826,7 +825,7 @@ void vtkSplineWidget::OnRightButtonUp()
   else if ( this->State == vtkSplineWidget::Erasing )
   {
     int index = this->CurrentHandleIndex;
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
     this->EraseHandle(index);
   }
 
@@ -837,7 +836,7 @@ void vtkSplineWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -905,7 +904,7 @@ void vtkSplineWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -1028,7 +1027,7 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
   {
     if ( this->ProjectionNormal == VTK_PROJECTION_OBLIQUE )
     {
-      if (this->PlaneSource != NULL )
+      if (this->PlaneSource != nullptr )
       {
         double* normal = this->PlaneSource->GetNormal();
         axis[0] = normal[0];
@@ -1222,7 +1221,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     handleMapper->Delete();
     this->Handle[i]->SetProperty(this->HandleProperty);
     u[0] = i/(this->NumberOfHandles - 1.0);
-    this->ParametricSpline->Evaluate(u, pt, NULL);
+    this->ParametricSpline->Evaluate(u, pt, nullptr);
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
@@ -1238,7 +1237,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
     }
-    if ( this->CurrentRenderer != NULL )
+    if ( this->CurrentRenderer != nullptr )
     {
       for ( i = 0; i < this->NumberOfHandles; ++i )
       {
@@ -1261,7 +1260,7 @@ void vtkSplineWidget::Initialize(void)
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
     }
-    if ( this->CurrentRenderer != NULL)
+    if ( this->CurrentRenderer != nullptr)
     {
       for ( i = 0; i < this->NumberOfHandles; ++i )
       {

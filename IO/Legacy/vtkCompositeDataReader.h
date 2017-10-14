@@ -40,7 +40,7 @@ class VTKIOLEGACY_EXPORT vtkCompositeDataReader : public vtkDataReader
 public:
   static vtkCompositeDataReader* New();
   vtkTypeMacro(vtkCompositeDataReader, vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -53,26 +53,26 @@ public:
 
 protected:
   vtkCompositeDataReader();
-  ~vtkCompositeDataReader() VTK_OVERRIDE;
+  ~vtkCompositeDataReader() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Override ProcessRequest to handle request data object event
   int ProcessRequest(vtkInformation *, vtkInformationVector **,
-                             vtkInformationVector *) VTK_OVERRIDE;
+                             vtkInformationVector *) override;
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   // Create output (a directed or undirected graph).
   virtual int RequestDataObject(vtkInformation *, vtkInformationVector **,
                                 vtkInformationVector *);
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * Read the output type information.
@@ -87,8 +87,8 @@ protected:
   vtkDataObject* ReadChild();
 
 private:
-  vtkCompositeDataReader(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataReader(const vtkCompositeDataReader&) = delete;
+  void operator=(const vtkCompositeDataReader&) = delete;
 
 };
 

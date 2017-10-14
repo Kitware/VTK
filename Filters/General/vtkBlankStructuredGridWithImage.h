@@ -42,7 +42,7 @@ class VTKFILTERSGENERAL_EXPORT vtkBlankStructuredGridWithImage : public vtkStruc
 public:
   static vtkBlankStructuredGridWithImage *New();
   vtkTypeMacro(vtkBlankStructuredGridWithImage,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -54,14 +54,14 @@ public:
 
 protected:
   vtkBlankStructuredGridWithImage();
-  ~vtkBlankStructuredGridWithImage() VTK_OVERRIDE;
+  ~vtkBlankStructuredGridWithImage() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
+  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&) = delete;
+  void operator=(const vtkBlankStructuredGridWithImage&) = delete;
 };
 
 #endif

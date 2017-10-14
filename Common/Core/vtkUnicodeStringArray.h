@@ -42,46 +42,46 @@ class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray :
 public:
   static vtkUnicodeStringArray* New();
   vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  int Allocate(vtkIdType sz, vtkIdType ext=1000) VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
-  int GetDataType() VTK_OVERRIDE;
-  int GetDataTypeSize() VTK_OVERRIDE;
-  int GetElementComponentSize() VTK_OVERRIDE;
-  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
+  int Allocate(vtkIdType sz, vtkIdType ext=1000) override;
+  void Initialize() override;
+  int GetDataType() override;
+  int GetDataTypeSize() override;
+  int GetElementComponentSize() override;
+  void SetNumberOfTuples(vtkIdType number) override;
   void SetTuple(vtkIdType i, vtkIdType j,
-                vtkAbstractArray* source) VTK_OVERRIDE;
+                vtkAbstractArray* source) override;
   void InsertTuple(vtkIdType i, vtkIdType j,
-                   vtkAbstractArray* source) VTK_OVERRIDE;
+                   vtkAbstractArray* source) override;
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) VTK_OVERRIDE;
+                    vtkAbstractArray *source) override;
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) VTK_OVERRIDE;
-  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) VTK_OVERRIDE;
-  void* GetVoidPointer(vtkIdType id) VTK_OVERRIDE;
-  void DeepCopy(vtkAbstractArray* da) VTK_OVERRIDE;
+                    vtkAbstractArray* source) override;
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) override;
+  void* GetVoidPointer(vtkIdType id) override;
+  void DeepCopy(vtkAbstractArray* da) override;
   void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights) VTK_OVERRIDE;
+    vtkAbstractArray* source,  double* weights) override;
   void InterpolateTuple(vtkIdType i,
     vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
-  void Squeeze() VTK_OVERRIDE;
-  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
-  void SetVoidArray(void *array, vtkIdType size, int save) VTK_OVERRIDE;
+    vtkIdType id2, vtkAbstractArray* source2, double t) override;
+  void Squeeze() override;
+  int Resize(vtkIdType numTuples) override;
+  void SetVoidArray(void *array, vtkIdType size, int save) override;
   void SetVoidArray(void *array, vtkIdType size, int save,
-                    int deleteMethod) VTK_OVERRIDE;
-  unsigned long GetActualMemorySize() VTK_OVERRIDE; // in bytes
-  int IsNumeric() VTK_OVERRIDE;
-  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() VTK_OVERRIDE;
-  vtkVariant GetVariantValue(vtkIdType idx) VTK_OVERRIDE;
-  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
-  void LookupValue(vtkVariant value, vtkIdList* ids) VTK_OVERRIDE;
+                    int deleteMethod) override;
+  unsigned long GetActualMemorySize() override; // in bytes
+  int IsNumeric() override;
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
+  vtkVariant GetVariantValue(vtkIdType idx) override;
+  vtkIdType LookupValue(vtkVariant value) override;
+  void LookupValue(vtkVariant value, vtkIdList* ids) override;
 
-  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
-  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
-  void DataChanged() VTK_OVERRIDE;
-  void ClearLookup() VTK_OVERRIDE;
+  void SetVariantValue(vtkIdType idx, vtkVariant value) override;
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) override;
+  void DataChanged() override;
+  void ClearLookup() override;
 
   vtkIdType InsertNextValue(const vtkUnicodeString&);
   void InsertValue(vtkIdType idx, const vtkUnicodeString&); // Ranged checked
@@ -94,11 +94,11 @@ public:
 
 protected:
   vtkUnicodeStringArray();
-  ~vtkUnicodeStringArray() VTK_OVERRIDE;
+  ~vtkUnicodeStringArray() override;
 
 private:
-  vtkUnicodeStringArray(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
+  vtkUnicodeStringArray(const vtkUnicodeStringArray&) = delete;
+  void operator=(const vtkUnicodeStringArray&) = delete;
 
   class Implementation;
   Implementation* Internal;

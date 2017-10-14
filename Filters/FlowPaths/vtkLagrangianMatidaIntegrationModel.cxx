@@ -62,14 +62,14 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkDataSet* dataSet,
   std::fill(f, f + 6, 0.0);
 
   // Check for a particle
-  if (this->CurrentParticle == NULL)
+  if (this->CurrentParticle == nullptr)
   {
     vtkErrorMacro(<< "No particle to integrate");
     return 0;
   }
 
   // Sanity Check
-  if (dataSet == NULL || cellId == -1)
+  if (dataSet == nullptr || cellId == -1)
   {
     vtkErrorMacro(<< "No cell or dataset to integrate the particle on. Dataset: "
       << dataSet << " CellId:" << cellId);
@@ -117,7 +117,7 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkDataSet* dataSet,
   // Fetch Particle Diameter at index 6
   vtkDataArray* particleDiameters = vtkDataArray::SafeDownCast(
     this->GetSeedArray(6, this->CurrentParticle));
-  if (particleDiameters == NULL)
+  if (particleDiameters == nullptr)
   {
     vtkErrorMacro(<< "Particle diameter is not set in particle data, "
       "cannot use Matida equations");
@@ -128,7 +128,7 @@ int vtkLagrangianMatidaIntegrationModel::FunctionValues(vtkDataSet* dataSet,
   // Fetch Particle Density at index 7
   vtkDataArray* particleDensities = vtkDataArray::SafeDownCast(
     this->GetSeedArray(7, this->CurrentParticle));
-  if (particleDensities == NULL)
+  if (particleDensities == nullptr)
   {
     vtkErrorMacro(<< "Particle density is not set in particle data, "
       "cannot use Matida equations");

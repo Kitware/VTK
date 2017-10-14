@@ -60,7 +60,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAxesTransformRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -133,20 +133,20 @@ public:
   /**
    * Method to satisfy superclasses' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
-  double *GetBounds() VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void StartWidgetInteraction(double e[2]) override;
+  void WidgetInteraction(double e[2]) override;
+  double *GetBounds() override;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
   //@}
 
   //@{
@@ -173,7 +173,7 @@ public:
 
 protected:
   vtkAxesTransformRepresentation();
-  ~vtkAxesTransformRepresentation() VTK_OVERRIDE;
+  ~vtkAxesTransformRepresentation() override;
 
   // The handle and the rep used to close the handles
   vtkHandleRepresentation *OriginRepresentation;
@@ -212,8 +212,8 @@ protected:
   double LastEventPosition[3];
 
 private:
-  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
+  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&) = delete;
+  void operator=(const vtkAxesTransformRepresentation&) = delete;
 };
 
 #endif

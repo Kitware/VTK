@@ -47,7 +47,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 #include <dlfcn.h>
 #endif //VTK_USE_APPLE_LOADER
 
-#ifdef VTK_USE_OSMESA
+#ifdef VTK_OPENGL_HAS_OSMESA
 
 # ifndef GLAPI
 #  define GLAPI extern
@@ -62,7 +62,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 # endif
 
 # include <GL/osmesa.h>
-#endif // VTK_USE_OSMESA
+#endif // VTK_OPENGL_HAS_OSMESA
 
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
@@ -733,7 +733,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   return NULL;
 #endif //VTK_USE_VTK_DYNAMIC_LOADER
 
-#ifdef VTK_USE_OSMESA
+#ifdef VTK_OPENGL_HAS_OSMESA
   return static_cast<vtkOpenGLExtensionManagerFunctionPointer>(
       OSMesaGetProcAddress(fname));
 #endif

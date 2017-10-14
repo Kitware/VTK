@@ -115,7 +115,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkBiDimensionalWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -123,7 +123,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -142,7 +142,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * A flag indicates whether the bi-dimensional measure is valid. The widget
@@ -162,7 +162,7 @@ public:
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) VTK_OVERRIDE;
+  void SetProcessEvents(int) override;
 
   /**
    * Enum defining the state of the widget. By default the widget is in Start mode,
@@ -195,7 +195,7 @@ public:
 
 protected:
   vtkBiDimensionalWidget();
-  ~vtkBiDimensionalWidget() VTK_OVERRIDE;
+  ~vtkBiDimensionalWidget() override;
 
   // The state of the widget
   int WidgetState;
@@ -232,8 +232,8 @@ protected:
   friend class vtkBiDimensionalWidgetCallback;
 
 private:
-  vtkBiDimensionalWidget(const vtkBiDimensionalWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiDimensionalWidget&) VTK_DELETE_FUNCTION;
+  vtkBiDimensionalWidget(const vtkBiDimensionalWidget&) = delete;
+  void operator=(const vtkBiDimensionalWidget&) = delete;
 };
 
 #endif

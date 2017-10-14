@@ -45,7 +45,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkRectilinearGridGeometryFilter : public vtkPol
 {
 public:
   vtkTypeMacro(vtkRectilinearGridGeometryFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with initial extent (0,100, 0,100, 0,0) (i.e., a k-plane).
@@ -72,15 +72,15 @@ public:
 
 protected:
   vtkRectilinearGridGeometryFilter();
-  ~vtkRectilinearGridGeometryFilter() VTK_OVERRIDE {}
+  ~vtkRectilinearGridGeometryFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int Extent[6];
 private:
-  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) = delete;
+  void operator=(const vtkRectilinearGridGeometryFilter&) = delete;
 };
 
 #endif

@@ -40,7 +40,7 @@ class VTKIOEXPORT_EXPORT vtkIVExporter : public vtkExporter
 public:
   static vtkIVExporter *New();
   vtkTypeMacro(vtkIVExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -52,9 +52,9 @@ public:
 
 protected:
   vtkIVExporter();
-  ~vtkIVExporter() VTK_OVERRIDE;
+  ~vtkIVExporter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   void WriteALight(vtkLight *aLight, FILE *fp);
   void WriteAnActor(vtkActor *anActor, FILE *fp);
   void WritePointData(vtkPoints *points, vtkDataArray *normals,
@@ -62,8 +62,8 @@ protected:
                       FILE *fp);
   char *FileName;
 private:
-  vtkIVExporter(const vtkIVExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIVExporter&) VTK_DELETE_FUNCTION;
+  vtkIVExporter(const vtkIVExporter&) = delete;
+  void operator=(const vtkIVExporter&) = delete;
 };
 
 #endif

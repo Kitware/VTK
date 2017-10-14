@@ -174,7 +174,6 @@ int vtkCPExodusIIElementBlockImpl::IsHomogeneous()
 void vtkCPExodusIIElementBlockImpl::Allocate(vtkIdType, int)
 {
   vtkErrorMacro("Read only container.")
-  return;
 }
 
 //------------------------------------------------------------------------------
@@ -203,12 +202,11 @@ vtkIdType vtkCPExodusIIElementBlockImpl::InsertNextCell(
 void vtkCPExodusIIElementBlockImpl::ReplaceCell(vtkIdType, int, vtkIdType*)
 {
   vtkErrorMacro("Read only container.")
-  return;
 }
 
 //------------------------------------------------------------------------------
 vtkCPExodusIIElementBlockImpl::vtkCPExodusIIElementBlockImpl()
-  : Elements(NULL),
+  : Elements(nullptr),
     CellType(VTK_EMPTY_CELL),
     CellSize(0),
     NumberOfCells(0)

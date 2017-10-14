@@ -45,9 +45,9 @@ vtkmAverageToPoints::~vtkmAverageToPoints()
 }
 
 //------------------------------------------------------------------------------
-int vtkmAverageToPoints::RequestData(vtkInformation *request,
-                                   vtkInformationVector **inputVector,
-                                   vtkInformationVector *outputVector)
+int vtkmAverageToPoints::RequestData(vtkInformation *vtkNotUsed(request),
+                                     vtkInformationVector **inputVector,
+                                     vtkInformationVector *outputVector)
 {
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -87,9 +87,9 @@ int vtkmAverageToPoints::RequestData(vtkInformation *request,
   vtkmInputFilterPolicy policy;
   vtkm::filter::PointAverage filter;
   filter.SetOutputFieldName(field.GetName()); //should we expose this control?
-  vtkm::filter::ResultField result = filter.Execute( in, field, policy );
+  vtkm::filter::Result result = filter.Execute( in, field, policy );
 
-  if(result.IsValid())
+  if(result.IsFieldValid())
     {
     //convert back the dataset to VTK, and add the field as a point field
     vtkDataArray* resultingArray = fromvtkm::Convert(result.GetField());

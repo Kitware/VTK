@@ -45,7 +45,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public 
 public:
   static vtkUnstructuredGridVolumeRayCastMapper *New();
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastMapper,vtkUnstructuredGridVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -127,7 +127,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -135,7 +135,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
   vtkGetVectorMacro( ImageOrigin, int, 2 );
@@ -145,7 +145,7 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayCastMapper();
-  ~vtkUnstructuredGridVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkUnstructuredGridVolumeRayCastMapper() override;
 
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;
@@ -219,8 +219,8 @@ protected:
   int           CellScalars;
 
 private:
-  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) = delete;
+  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) = delete;
 };
 
 #endif

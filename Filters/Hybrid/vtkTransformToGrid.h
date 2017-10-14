@@ -38,7 +38,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
 public:
   static vtkTransformToGrid *New();
   vtkTypeMacro(vtkTransformToGrid,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,11 +111,11 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkTransformToGrid();
-  ~vtkTransformToGrid() VTK_OVERRIDE;
+  ~vtkTransformToGrid() override;
 
   void RequestInformation (vtkInformation *,
                            vtkInformationVector **, vtkInformationVector *);
@@ -129,7 +129,7 @@ protected:
    */
   void UpdateShiftScale();
 
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   vtkAbstractTransform *Input;
 
@@ -143,11 +143,11 @@ protected:
   vtkTimeStamp ShiftScaleTime;
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkTransformToGrid(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
+  vtkTransformToGrid(const vtkTransformToGrid&) = delete;
+  void operator=(const vtkTransformToGrid&) = delete;
 };
 
 #endif

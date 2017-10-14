@@ -598,7 +598,7 @@ int vtkYoungsMaterialInterface::RequestData(
   vtkMultiBlockDataSet * output = vtkMultiBlockDataSet::SafeDownCast(
                                                                      outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (compositeInput == 0 || output == 0)
+  if (compositeInput == nullptr || output == nullptr)
   {
     vtkErrorMacro(<<"Invalid algorithm connection\n");
     return 0;
@@ -752,7 +752,7 @@ int vtkYoungsMaterialInterface::RequestData(
         bool materialHasBlock = ( (*it).blocks.find(composite_index) != (*it).blocks.end() );
         if( ! this->UseAllBlocks && ! materialHasBlock )
         {
-          Mats[m].fractionArray = 0; // TODO: we certainly can do better to avoid material calculations
+          Mats[m].fractionArray = nullptr; // TODO: we certainly can do better to avoid material calculations
         }
 
         Mats[m].numberOfCells = 0;
@@ -793,7 +793,7 @@ int vtkYoungsMaterialInterface::RequestData(
 
         for(int m=0;m<nmat;m++)
         {
-          double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(c) : 0;
+          double fraction = ( Mats[m].fractionArray != nullptr ) ? Mats[m].fractionArray->GetTuple1(c) : 0;
           if( this->CellProduceInterface(cellDim,np,fraction,this->VolumeFractionRange[0],this->VolumeFractionRange[1]) )
           {
             if( cellDim == 2 )
@@ -868,9 +868,9 @@ int vtkYoungsMaterialInterface::RequestData(
         for(int mi = 0;mi<nmat;mi++)
         {
           matOrdering[mi].index = mi;
-          matOrdering[mi].value = ( Mats[mi].orderingArray != 0 ) ? Mats[mi].orderingArray->GetTuple1(ci) : 0.0;
+          matOrdering[mi].value = ( Mats[mi].orderingArray != nullptr ) ? Mats[mi].orderingArray->GetTuple1(ci) : 0.0;
 
-          double fraction = ( Mats[mi].fractionArray != 0 ) ? Mats[mi].fractionArray->GetTuple1(ci) : 0;
+          double fraction = ( Mats[mi].fractionArray != nullptr ) ? Mats[mi].fractionArray->GetTuple1(ci) : 0;
           if( this->UseFractionAsDistance || fraction>this->VolumeFractionRange[0] ) nEffectiveMat++;
         }
         std::stable_sort( matOrdering , matOrdering+nmat );
@@ -934,7 +934,7 @@ int vtkYoungsMaterialInterface::RequestData(
         }
 
         // For debugging : ensure that we don't read anything from cell, but only from previously filled arrays
-        vtkcell = 0;
+        vtkcell = nullptr;
 
         int processedEfectiveMat = 0;
 
@@ -944,7 +944,7 @@ int vtkYoungsMaterialInterface::RequestData(
           int m = this->ReverseMaterialOrder ? matOrdering[nmat-1-mi].index : matOrdering[mi].index;
 
           // Get volume fraction and interface plane normal from input arrays
-          double fraction = ( Mats[m].fractionArray != 0 ) ? Mats[m].fractionArray->GetTuple1(ci) : 0;
+          double fraction = ( Mats[m].fractionArray != nullptr ) ? Mats[m].fractionArray->GetTuple1(ci) : 0;
 
           // Normalize remaining volume fraction
           fraction = (referenceVolume>0) ? (fraction/referenceVolume) : 0.0;
@@ -958,10 +958,10 @@ int vtkYoungsMaterialInterface::RequestData(
             {
               normal[0]=0; normal[1]=0; normal[2]=0;
 
-              if( Mats[m].normalArray != 0 ) Mats[m].normalArray->GetTuple(ci,normal);
-              if( Mats[m].normalXArray != 0 ) normal[0] = Mats[m].normalXArray->GetTuple1(ci);
-              if( Mats[m].normalYArray != 0 ) normal[1] = Mats[m].normalYArray->GetTuple1(ci);
-              if( Mats[m].normalZArray != 0 ) normal[2] = Mats[m].normalZArray->GetTuple1(ci);
+              if( Mats[m].normalArray != nullptr ) Mats[m].normalArray->GetTuple(ci,normal);
+              if( Mats[m].normalXArray != nullptr ) normal[0] = Mats[m].normalXArray->GetTuple1(ci);
+              if( Mats[m].normalYArray != nullptr ) normal[1] = Mats[m].normalYArray->GetTuple1(ci);
+              if( Mats[m].normalZArray != nullptr ) normal[2] = Mats[m].normalZArray->GetTuple1(ci);
 
               // work-around for degenerated normals
               if( vtkMath::Norm(normal) == 0.0 ) // should it be <EPSILON ?
@@ -1396,7 +1396,7 @@ int vtkYoungsMaterialInterface::RequestData(
                   vtkWarningMacro(<<"Triangulation failed. Info: cell "<<ci<<", material "<<mi<<", np="<<nextCell.np<<", nf="<<nextCell.nf<<", ne="<<nextCell.nEdges<<"\n");
                 }
                 nextCell.needTriangulation = false;
-                vtkcell = 0;
+                vtkcell = nullptr;
               }
 
               // switch to next cell
@@ -1406,7 +1406,7 @@ int vtkYoungsMaterialInterface::RequestData(
 
             else
             {
-              vtkcell = 0;
+              vtkcell = nullptr;
             }
 
           } // end of 'cell is ok'
@@ -1510,7 +1510,7 @@ int vtkYoungsMaterialInterface::RequestData(
         for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
         {
           vtkDataArray* attr = input->GetCellData()->GetAttribute(i);
-          if( attr!=0 )
+          if( attr!=nullptr )
           {
             ugOutput->GetCellData()->SetActiveAttribute(attr->GetName(),i);
           }
@@ -1518,7 +1518,7 @@ int vtkYoungsMaterialInterface::RequestData(
         for ( int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++ i )
         {
           vtkDataArray* attr = input->GetPointData()->GetAttribute(i);
-          if( attr!=0 )
+          if( attr!=nullptr )
           {
             ugOutput->GetPointData()->SetActiveAttribute(attr->GetName(),i);
           }

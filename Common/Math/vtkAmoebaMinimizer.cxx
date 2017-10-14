@@ -23,14 +23,14 @@ vtkStandardNewMacro(vtkAmoebaMinimizer);
 //----------------------------------------------------------------------------
 vtkAmoebaMinimizer::vtkAmoebaMinimizer()
 {
-  this->Function = NULL;
-  this->FunctionArg = NULL;
-  this->FunctionArgDelete = NULL;
+  this->Function = nullptr;
+  this->FunctionArg = nullptr;
+  this->FunctionArgDelete = nullptr;
 
   this->NumberOfParameters = 0;
-  this->ParameterNames = NULL;
-  this->ParameterValues = NULL;
-  this->ParameterScales = NULL;
+  this->ParameterNames = nullptr;
+  this->ParameterValues = nullptr;
+  this->ParameterScales = nullptr;
 
   this->FunctionValue = 0.0;
 
@@ -44,9 +44,9 @@ vtkAmoebaMinimizer::vtkAmoebaMinimizer()
   this->FunctionEvaluations = 0;
 
   // specific to the amoeba
-  this->AmoebaVertices = NULL;
-  this->AmoebaValues = NULL;
-  this->AmoebaSum = NULL;
+  this->AmoebaVertices = nullptr;
+  this->AmoebaValues = nullptr;
+  this->AmoebaSum = nullptr;
   this->AmoebaSize = 0;
   this->AmoebaHighValue = 0;
   this->AmoebaNStepsNoImprovement = 0;
@@ -61,9 +61,9 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
   {
     (*this->FunctionArgDelete)(this->FunctionArg);
   }
-  this->FunctionArg = NULL;
-  this->FunctionArgDelete = NULL;
-  this->Function = NULL;
+  this->FunctionArg = nullptr;
+  this->FunctionArgDelete = nullptr;
+  this->Function = nullptr;
 
   if (this->ParameterNames)
   {
@@ -72,12 +72,12 @@ vtkAmoebaMinimizer::~vtkAmoebaMinimizer()
       delete [] this->ParameterNames[i];
     }
     delete [] this->ParameterNames;
-    this->ParameterNames = NULL;
+    this->ParameterNames = nullptr;
   }
   delete [] this->ParameterValues;
-  this->ParameterValues = NULL;
+  this->ParameterValues = nullptr;
   delete [] this->ParameterScales;
-  this->ParameterScales = NULL;
+  this->ParameterScales = nullptr;
 
   this->NumberOfParameters = 0;
 }
@@ -222,12 +222,12 @@ void vtkAmoebaMinimizer::SetParameterValue(int i, double val)
   for (int j = 0; j < this->NumberOfParameters; j++)
   {
     newParameterNames[j] = this->ParameterNames[j];
-    this->ParameterNames[j] = NULL; // or else it will be deleted in Initialize
+    this->ParameterNames[j] = nullptr; // or else it will be deleted in Initialize
     newParameterValues[j] = this->ParameterValues[j];
     newParameterScales[j] = this->ParameterScales[j];
   }
 
-  newParameterNames[n-1] = 0;
+  newParameterNames[n-1] = nullptr;
   newParameterValues[n-1] = val;
   newParameterScales[n-1] = 1.0;
 
@@ -297,12 +297,12 @@ void vtkAmoebaMinimizer::Initialize()
       delete [] this->ParameterNames[i];
     }
     delete [] this->ParameterNames;
-    this->ParameterNames = 0;
+    this->ParameterNames = nullptr;
   }
   delete [] this->ParameterValues;
-  this->ParameterValues = 0;
+  this->ParameterValues = nullptr;
   delete [] this->ParameterScales;
-  this->ParameterScales = 0;
+  this->ParameterScales = nullptr;
 
   this->NumberOfParameters = 0;
   this->Iterations = 0;
@@ -363,7 +363,7 @@ int vtkAmoebaMinimizer::Iterate()
   {
     if (!this->Function)
     {
-      vtkErrorMacro("Iterate: Function is NULL");
+      vtkErrorMacro("Iterate: Function is nullptr");
       return 0;
     }
     this->InitializeAmoeba();
@@ -388,7 +388,7 @@ void vtkAmoebaMinimizer::Minimize()
   {
     if (!this->Function)
     {
-      vtkErrorMacro("Minimize: Function is NULL");
+      vtkErrorMacro("Minimize: Function is nullptr");
       return;
     }
     this->InitializeAmoeba();
@@ -602,12 +602,12 @@ void  vtkAmoebaMinimizer::TerminateAmoeba()
   {
     delete [] this->AmoebaVertices[0];
     delete [] this->AmoebaVertices;
-    this->AmoebaVertices = NULL;
+    this->AmoebaVertices = nullptr;
   }
   delete [] this->AmoebaValues;
-  this->AmoebaValues = NULL;
+  this->AmoebaValues = nullptr;
   delete [] this->AmoebaSum;
-  this->AmoebaSum = NULL;
+  this->AmoebaSum = nullptr;
 }
 
 /* ----------------------------- MNI Header -----------------------------------

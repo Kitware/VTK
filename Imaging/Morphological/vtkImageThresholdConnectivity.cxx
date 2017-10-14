@@ -39,7 +39,7 @@ vtkImageThresholdConnectivity::vtkImageThresholdConnectivity()
 {
   this->UpperThreshold = VTK_FLOAT_MAX;
   this->LowerThreshold = -VTK_FLOAT_MAX;
-  this->SeedPoints = 0;
+  this->SeedPoints = nullptr;
   this->ReplaceIn = 0;
   this->InValue = 0.0;
   this->ReplaceOut = 0;
@@ -165,7 +165,7 @@ vtkImageStencilData *vtkImageThresholdConnectivity::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkImageStencilData::SafeDownCast(
@@ -463,7 +463,7 @@ void vtkImageThresholdConnectivityExecute(
   inPtr += activeComponent;
   outPtr += activeComponent;
 
-  if (stencil == 0)
+  if (stencil == nullptr)
   {
     memset(maskPtr, 0, fullsize);
   }
@@ -501,7 +501,7 @@ void vtkImageThresholdConnectivityExecute(
 
   // initialize with the seeds provided by the user
   vtkPoints *points = self->GetSeedPoints();
-  if (points == 0)
+  if (points == nullptr)
   { // no seeds!
     return;
   }
@@ -735,7 +735,7 @@ int vtkImageThresholdConnectivity::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkImageData *maskData = this->ImageMask;
 
-  vtkImageStencilData* stencil = 0;
+  vtkImageStencilData* stencil = nullptr;
   if (stencilInfo)
   {
     stencil = static_cast<vtkImageStencilData *>(

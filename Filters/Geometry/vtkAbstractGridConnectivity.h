@@ -64,7 +64,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkAbstractGridConnectivity : public vtkObject
 {
 public:
   vtkTypeMacro( vtkAbstractGridConnectivity, vtkObject );
-  void PrintSelf(ostream &os,vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os,vtkIndent indent ) override;
 
   //@{
   /**
@@ -104,7 +104,7 @@ public:
   /**
    * Returns the ghosted points ghost array for the grid associated with the
    * given grid ID. The return pointer is a shallow-copy of the internal
-   * data-structure. The pointer may be NULL iff there is no ghosted points
+   * data-structure. The pointer may be nullptr iff there is no ghosted points
    * ghost array for the requested grid.
    */
   vtkUnsignedCharArray* GetGhostedPointGhostArray( const int gridID );
@@ -112,7 +112,7 @@ public:
   /**
    * Returns the ghosted cells ghost array for the grid associated with the
    * given grid ID. The return pointer is a shallow-copy of the internal
-   * data-structure. The pointer may be NULL iff there is no ghosted cells
+   * data-structure. The pointer may be nullptr iff there is no ghosted cells
    * ghost array for the requested grid.
    */
   vtkUnsignedCharArray* GetGhostedCellGhostArray( const int gridID );
@@ -120,7 +120,7 @@ public:
   /**
    * Returns the ghosted grid point data for the grid associated with the
    * given grid ID. The return pointer is a shallow-copy of the internal
-   * data-structure. The pointer may be NULL iff there is no ghosted point
+   * data-structure. The pointer may be nullptr iff there is no ghosted point
    * data for the requested grid.
    */
   vtkPointData* GetGhostedGridPointData( const int gridID );
@@ -128,7 +128,7 @@ public:
   /**
    * Returns the ghosted grid cell data for the grid associated with the
    * given grid ID. The return pointer is a shallow-copy of the internal
-   * data-structure. The pointer may be NULL iff there is no ghosted cell
+   * data-structure. The pointer may be nullptr iff there is no ghosted cell
    * data for the requested grid.
    */
   vtkCellData* GetGhostedGridCellData( const int gridID );
@@ -136,14 +136,14 @@ public:
   /**
    * Returns the ghosted grid points for the grid associated with the given
    * grid ID. The return pointer is a shallow-copy of the internal data
-   * structure. The pointer may be NULL iff there are no ghosted points
+   * structure. The pointer may be nullptr iff there are no ghosted points
    * created for the requested grid.
    */
   vtkPoints* GetGhostedPoints( const int gridID );
 
 protected:
   vtkAbstractGridConnectivity();
-  ~vtkAbstractGridConnectivity() VTK_OVERRIDE;
+  ~vtkAbstractGridConnectivity() override;
 
   /**
    * Fills the ghost arrays for the given grid.
@@ -210,8 +210,8 @@ protected:
   std::vector< vtkPoints* > GhostedGridPoints;
 
 private:
-  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
+  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) = delete;
+  void operator=(const vtkAbstractGridConnectivity&) = delete;
 };
 
 //------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ vtkAbstractGridConnectivity::GetGhostedPointGhostArray( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
   {
-    return NULL;
+    return nullptr;
   }
 
 
@@ -238,7 +238,7 @@ vtkAbstractGridConnectivity::GetGhostedCellGhostArray( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
   {
-    return NULL;
+    return nullptr;
   }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
@@ -255,7 +255,7 @@ vtkAbstractGridConnectivity::GetGhostedGridPointData( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
   {
-    return NULL;
+    return nullptr;
   }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
@@ -272,7 +272,7 @@ vtkAbstractGridConnectivity::GetGhostedGridCellData( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
   {
-    return NULL;
+    return nullptr;
   }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
@@ -289,7 +289,7 @@ vtkAbstractGridConnectivity::GetGhostedPoints( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
   {
-    return NULL;
+    return nullptr;
   }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
@@ -308,11 +308,11 @@ vtkAbstractGridConnectivity::AllocateUserRegisterDataStructures()
   assert( "pre: Allocating UserRegister for N > 0 grids" &&
           (this->NumberOfGrids > 0) );
 
-  this->GridPointGhostArrays.resize( this->NumberOfGrids, NULL );
-  this->GridCellGhostArrays.resize( this->NumberOfGrids, NULL );
-  this->GridPointData.resize( this->NumberOfGrids, NULL );
-  this->GridCellData.resize( this->NumberOfGrids, NULL );
-  this->GridPoints.resize( this->NumberOfGrids, NULL );
+  this->GridPointGhostArrays.resize( this->NumberOfGrids, nullptr );
+  this->GridCellGhostArrays.resize( this->NumberOfGrids, nullptr );
+  this->GridPointData.resize( this->NumberOfGrids, nullptr );
+  this->GridCellData.resize( this->NumberOfGrids, nullptr );
+  this->GridPoints.resize( this->NumberOfGrids, nullptr );
 }
 
 //------------------------------------------------------------------------------
@@ -334,23 +334,23 @@ vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
   {
 // NOTE: Ghost arrays are not deleted here b/c when they are registered, they
 // are not shallow-copied.
-//    if( this->GridPointGhostArrays[i] != NULL )
+//    if( this->GridPointGhostArrays[i] != nullptr )
 //      {
 //      this->GridPointGhostArrays[i]->Delete();
 //      }
-//    if( this->GridCellGhostArrays[i] != NULL )
+//    if( this->GridCellGhostArrays[i] != nullptr )
 //      {
 //      this->GridCellGhostArrays[i]->Delete();
 //      }
-    if( this->GridPointData[i] != NULL )
+    if( this->GridPointData[i] != nullptr )
     {
       this->GridPointData[i]->Delete();
     }
-    if( this->GridCellData[i] != NULL )
+    if( this->GridCellData[i] != nullptr )
     {
       this->GridCellData[i]->Delete();
     }
-    if( this->GridPoints[i] != NULL )
+    if( this->GridPoints[i] != nullptr )
     {
       this->GridPoints[i]->Delete();
     }
@@ -370,11 +370,11 @@ vtkAbstractGridConnectivity::AllocateInternalDataStructures()
   assert( "pre: Allocating Internal data-structured for N > 0 grids" &&
           (this->NumberOfGrids > 0) );
 
-  this->GhostedGridPointData.resize( this->NumberOfGrids, NULL );
-  this->GhostedGridCellData.resize( this->NumberOfGrids, NULL );
-  this->GhostedPointGhostArray.resize( this->NumberOfGrids, NULL );
-  this->GhostedCellGhostArray.resize( this->NumberOfGrids, NULL );
-  this->GhostedGridPoints.resize( this->NumberOfGrids, NULL );
+  this->GhostedGridPointData.resize( this->NumberOfGrids, nullptr );
+  this->GhostedGridCellData.resize( this->NumberOfGrids, nullptr );
+  this->GhostedPointGhostArray.resize( this->NumberOfGrids, nullptr );
+  this->GhostedCellGhostArray.resize( this->NumberOfGrids, nullptr );
+  this->GhostedGridPoints.resize( this->NumberOfGrids, nullptr );
   this->AllocatedGhostDataStructures = true;
 }
 
@@ -400,23 +400,23 @@ vtkAbstractGridConnectivity::DeAllocateInternalDataStructures()
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
   {
-    if( this->GhostedGridPointData[i] != NULL )
+    if( this->GhostedGridPointData[i] != nullptr )
     {
       this->GhostedGridPointData[i]->Delete();
     }
-    if( this->GhostedGridCellData[i] != NULL )
+    if( this->GhostedGridCellData[i] != nullptr )
     {
       this->GhostedGridCellData[i]->Delete();
     }
-    if( this->GhostedPointGhostArray[i] != NULL )
+    if( this->GhostedPointGhostArray[i] != nullptr )
     {
       this->GhostedPointGhostArray[i]->Delete();
     }
-    if( this->GhostedCellGhostArray[i] != NULL )
+    if( this->GhostedCellGhostArray[i] != nullptr )
     {
       this->GhostedCellGhostArray[i]->Delete();
     }
-    if( this->GhostedGridPoints[i] != NULL )
+    if( this->GhostedGridPoints[i] != nullptr )
     {
       this->GhostedGridPoints[i]->Delete();
     }
@@ -463,28 +463,28 @@ inline void vtkAbstractGridConnectivity::RegisterFieldData(
        (this->GridCellData.size() == this->NumberOfGrids ) );
 
   // Note: The size of these vectors is allocated in SetNumberOfGrids
-  if( PointData != NULL )
+  if( PointData != nullptr )
   {
-    assert( "pre: GridPointData[gridID] must be NULL" &&
-             this->GridPointData[ gridID ]==NULL );
+    assert( "pre: GridPointData[gridID] must be nullptr" &&
+             this->GridPointData[ gridID ]==nullptr );
     this->GridPointData[ gridID ] = vtkPointData::New();
     this->GridPointData[ gridID ]->ShallowCopy( PointData );
   }
   else
   {
-    this->GridPointData[ gridID ] = NULL;
+    this->GridPointData[ gridID ] = nullptr;
   }
 
-  if( CellData != NULL )
+  if( CellData != nullptr )
   {
-    assert( "pre: GridCellData[gridID] must be NULL" &&
-            this->GridCellData[gridID]==NULL );
+    assert( "pre: GridCellData[gridID] must be nullptr" &&
+            this->GridCellData[gridID]==nullptr );
     this->GridCellData[ gridID ]  = vtkCellData::New();
     this->GridCellData[ gridID ]->ShallowCopy( CellData );
   }
   else
   {
-    this->GridCellData[ gridID ] = NULL;
+    this->GridCellData[ gridID ] = nullptr;
   }
 }
 
@@ -498,17 +498,17 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(
   assert( "pre: GridPoints has not been allocated!" &&
        (this->GridPoints.size() == this->NumberOfGrids) );
 
-  if( nodes != NULL )
+  if( nodes != nullptr )
   {
-    assert( "pre:GridPoints[gridID] must be NULL" &&
-            this->GridPoints[gridID]==NULL );
+    assert( "pre:GridPoints[gridID] must be nullptr" &&
+            this->GridPoints[gridID]==nullptr );
     this->GridPoints[ gridID ] = vtkPoints::New();
     this->GridPoints[ gridID ]->SetDataTypeToDouble();
     this->GridPoints[ gridID ]->ShallowCopy( nodes );
   }
   else
   {
-    this->GridPoints[ gridID ] = NULL;
+    this->GridPoints[ gridID ] = nullptr;
   }
 }
 

@@ -67,7 +67,7 @@ public:
    */
   static vtkMaskPointsFilter *New();
   vtkTypeMacro(vtkMaskPointsFilter,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -96,27 +96,27 @@ public:
 
 protected:
   vtkMaskPointsFilter();
-  ~vtkMaskPointsFilter();
+  ~vtkMaskPointsFilter() override;
 
   unsigned char EmptyValue; // what value indicates a voxel is empty
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
+  int FilterPoints(vtkPointSet *input) override;
 
   // Support second input
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   vtkImageData *Mask; //just a placeholder during execution
 
 private:
-  vtkMaskPointsFilter(const vtkMaskPointsFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMaskPointsFilter&) VTK_DELETE_FUNCTION;
+  vtkMaskPointsFilter(const vtkMaskPointsFilter&) = delete;
+  void operator=(const vtkMaskPointsFilter&) = delete;
 
 };
 

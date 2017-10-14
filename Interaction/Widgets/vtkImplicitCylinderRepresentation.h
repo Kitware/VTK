@@ -75,7 +75,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitCylinderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -295,24 +295,24 @@ public:
   /**
    * Methods to interface with the vtkImplicitCylinderWidget.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double newEventPos[2]) override;
+  void EndWidgetInteraction(double newEventPos[2]) override;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetActors(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -379,7 +379,7 @@ public:
 
 protected:
   vtkImplicitCylinderRepresentation();
-  ~vtkImplicitCylinderRepresentation() VTK_OVERRIDE;
+  ~vtkImplicitCylinderRepresentation() override;
 
   int RepresentationState;
 
@@ -461,7 +461,7 @@ protected:
   vtkCellPicker *CylPicker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
@@ -495,8 +495,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) = delete;
+  void operator=(const vtkImplicitCylinderRepresentation&) = delete;
 };
 
 #endif

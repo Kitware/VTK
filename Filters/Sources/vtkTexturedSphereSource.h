@@ -35,7 +35,7 @@ class VTKFILTERSSOURCES_EXPORT vtkTexturedSphereSource : public vtkPolyDataAlgor
 {
 public:
   vtkTypeMacro(vtkTexturedSphereSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct sphere with radius=0.5 and default resolution 8 in both Phi
@@ -95,9 +95,9 @@ public:
 
 protected:
   vtkTexturedSphereSource(int res=8);
-  ~vtkTexturedSphereSource() VTK_OVERRIDE {}
+  ~vtkTexturedSphereSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Radius;
   double Theta;
   double Phi;
@@ -106,8 +106,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkTexturedSphereSource(const vtkTexturedSphereSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTexturedSphereSource&) VTK_DELETE_FUNCTION;
+  vtkTexturedSphereSource(const vtkTexturedSphereSource&) = delete;
+  void operator=(const vtkTexturedSphereSource&) = delete;
 };
 
 #endif

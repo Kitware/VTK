@@ -39,7 +39,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPUniformGridAMRWriter : public vtkXMLUniform
 public:
   static vtkXMLPUniformGridAMRWriter* New();
   vtkTypeMacro(vtkXMLPUniformGridAMRWriter, vtkXMLUniformGridAMRWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,21 +58,21 @@ public:
    * is set to flag only on process 0 and all other processes have
    * WriteMetaFile set to 0 by default.
    */
-  void SetWriteMetaFile(int flag) VTK_OVERRIDE;
+  void SetWriteMetaFile(int flag) override;
 
 protected:
   vtkXMLPUniformGridAMRWriter();
-  ~vtkXMLPUniformGridAMRWriter() VTK_OVERRIDE;
+  ~vtkXMLPUniformGridAMRWriter() override;
 
   /**
    * Overridden to reduce information about data-types across all processes.
    */
-  void FillDataTypes(vtkCompositeDataSet*) VTK_OVERRIDE;
+  void FillDataTypes(vtkCompositeDataSet*) override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&) = delete;
+  void operator=(const vtkXMLPUniformGridAMRWriter&) = delete;
 
 };
 

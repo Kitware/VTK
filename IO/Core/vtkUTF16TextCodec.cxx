@@ -99,17 +99,17 @@ namespace
   class testIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    testIterator& operator++(int) VTK_OVERRIDE {return *this;}
-    testIterator& operator*() VTK_OVERRIDE {return *this;}
-    testIterator& operator=(const vtkUnicodeString::value_type) VTK_OVERRIDE
+    testIterator& operator++(int) override {return *this;}
+    testIterator& operator*() override {return *this;}
+    testIterator& operator=(const vtkUnicodeString::value_type) override
       {return *this;}
 
     testIterator() {}
-    ~testIterator() VTK_OVERRIDE {}
+    ~testIterator() override {}
 
   private:
-    testIterator(const testIterator&) VTK_DELETE_FUNCTION;
-    const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
+    testIterator(const testIterator&) = delete;
+    const testIterator& operator=(const testIterator&) = delete;
   };
 
 

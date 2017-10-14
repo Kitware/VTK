@@ -46,7 +46,7 @@ class VTKRENDERINGCORE_EXPORT vtkActor : public vtkProp3D
 {
 public:
   vtkTypeMacro(vtkActor, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates an actor with the following defaults: origin(0,0,0)
@@ -60,20 +60,20 @@ public:
    * able to collect all the actors or volumes. These methods
    * are used in that process.
    */
-  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection *) override;
 
   //@{
   /**
    * Support the standard render methods.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * This causes the actor to be rendered. It in turn will render the actor's
@@ -86,14 +86,14 @@ public:
   /**
    * Shallow copy of an actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -155,7 +155,7 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
 
   /**
    * Apply the current properties to all parts that compose this actor.
@@ -170,7 +170,7 @@ public:
   /**
    * Get the actors mtime plus consider its properties and texture if set.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Return the mtime of anything that would cause the rendered image to
@@ -178,7 +178,7 @@ public:
    * prop plus anything else it depends on such as properties, textures,
    * etc.
    */
-  vtkMTimeType GetRedrawMTime() VTK_OVERRIDE;
+  vtkMTimeType GetRedrawMTime() override;
 
   //@{
   /**
@@ -198,11 +198,11 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() VTK_OVERRIDE;
+  bool GetSupportsSelection() override;
 
 protected:
   vtkActor();
-  ~vtkActor() VTK_OVERRIDE;
+  ~vtkActor() override;
 
   // is this actor opaque
   int GetIsOpaque();
@@ -220,8 +220,8 @@ protected:
   vtkTimeStamp BoundsMTime;
 
 private:
-  vtkActor(const vtkActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActor&) VTK_DELETE_FUNCTION;
+  vtkActor(const vtkActor&) = delete;
+  void operator=(const vtkActor&) = delete;
 };
 
 #endif

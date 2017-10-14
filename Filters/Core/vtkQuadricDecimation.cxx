@@ -65,8 +65,8 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->EdgeCosts = vtkPriorityQueue::New();
   this->EndPoint1List = vtkIdList::New();
   this->EndPoint2List = vtkIdList::New();
-  this->ErrorQuadrics = NULL;
-  this->VolumeConstraints = NULL;
+  this->ErrorQuadrics = nullptr;
+  this->VolumeConstraints = nullptr;
   this->TargetPoints = vtkDoubleArray::New();
 
   this->TargetReduction = 0.9;
@@ -203,8 +203,8 @@ int vtkQuadricDecimation::RequestData(
   vtkIdType numDeletedTris=0;
 
   // check some assumptions about the data
-  if (input->GetPolys() == NULL || input->GetPoints() == NULL ||
-      input->GetPointData() == NULL  || input->GetFieldData() == NULL)
+  if (input->GetPolys() == nullptr || input->GetPoints() == nullptr ||
+      input->GetPointData() == nullptr  || input->GetFieldData() == nullptr)
   {
     vtkErrorMacro("Nothing to decimate");
     return 1;
@@ -407,7 +407,7 @@ int vtkQuadricDecimation::RequestData(
   // renormalize, clamp attributes
   if (this->AttributeErrorMetric)
   {
-    if (NULL != (attrib = output->GetPointData()->GetNormals()))
+    if (nullptr != (attrib = output->GetPointData()->GetNormals()))
     {
       for (i = 0; i < attrib->GetNumberOfTuples(); i++)
       {
@@ -428,7 +428,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   vtkIdType ptId;
   int i, j;
   vtkCellArray *polys;
-  vtkIdType npts, *pts=NULL;
+  vtkIdType npts, *pts=nullptr;
   double point0[3], point1[3], point2[3];
   double n[3];
   double tempP1[3], tempP2[3],  d, triArea2;
@@ -819,7 +819,6 @@ void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
   }
 
   changedEdges->Delete();
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -1329,7 +1328,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   }
 
   // Scalar attributes
-  if (pd->GetScalars() != NULL && this->ScalarsAttribute)
+  if (pd->GetScalars() != nullptr && this->ScalarsAttribute)
   {
     for (j = 0; j < pd->GetScalars()->GetNumberOfComponents(); j++)
     {
@@ -1350,7 +1349,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   this->AttributeComponents[0] = this->NumberOfComponents;
 
   // Vector attributes
-  if (pd->GetVectors() != NULL && this->VectorsAttribute)
+  if (pd->GetVectors() != nullptr && this->VectorsAttribute)
   {
     for (j = 0; j < pd->GetVectors()->GetNumberOfComponents(); j++)
     {
@@ -1371,7 +1370,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   this->AttributeComponents[1] = this->NumberOfComponents;
 
   // Normals attributes -- normals are assumed normalized
-  if (pd->GetNormals() != NULL && this->NormalsAttribute)
+  if (pd->GetNormals() != nullptr && this->NormalsAttribute)
   {
     this->NumberOfComponents += 3;
     pd->CopyNormalsOn();
@@ -1382,7 +1381,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   this->AttributeComponents[2] = this->NumberOfComponents;
 
   // Texture coords attributes
-  if (pd->GetTCoords() != NULL && this->TCoordsAttribute)
+  if (pd->GetTCoords() != nullptr && this->TCoordsAttribute)
   {
     for (j = 0; j < pd->GetTCoords()->GetNumberOfComponents(); j++)
     {
@@ -1403,7 +1402,7 @@ void vtkQuadricDecimation::ComputeNumberOfComponents(void)
   this->AttributeComponents[3] = this->NumberOfComponents;
 
   // Tensors attributes
-  if (pd->GetTensors() != NULL && this->TensorsAttribute)
+  if (pd->GetTensors() != nullptr && this->TensorsAttribute)
   {
     vtkDataArray* inTensors = pd->GetTensors();
     int nComp = inTensors->GetNumberOfComponents();

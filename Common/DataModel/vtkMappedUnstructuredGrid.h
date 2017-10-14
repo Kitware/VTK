@@ -157,34 +157,34 @@ public:
   typedef CellIterator CellIteratorType;
 
   // Virtuals from various base classes:
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
-  void CopyStructure(vtkDataSet *pd) VTK_OVERRIDE;
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void CopyStructure(vtkDataSet *pd) override;
+  void ShallowCopy(vtkDataObject *src) override;
+  vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
-  vtkCell* GetCell(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
-  vtkCellIterator* NewCellIterator() VTK_OVERRIDE;
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
-  int GetMaxCellSize() VTK_OVERRIDE;
-  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) VTK_OVERRIDE;
-  int IsHomogeneous() VTK_OVERRIDE;
-  void Allocate(vtkIdType numCells, int extSize = 1000) VTK_OVERRIDE;
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) VTK_OVERRIDE;
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) VTK_OVERRIDE;
+  vtkCell* GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  int GetCellType(vtkIdType cellId) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
+  vtkCellIterator* NewCellIterator() override;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
+  int GetMaxCellSize() override;
+  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) override;
+  int IsHomogeneous() override;
+  void Allocate(vtkIdType numCells, int extSize = 1000) override;
+  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) override;
+  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) override;
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces) VTK_OVERRIDE;
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) VTK_OVERRIDE;
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+                           vtkIdType nfaces, vtkIdType *faces) override;
+  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) override;
+  vtkMTimeType GetMTime() override;
 
   void SetImplementation(ImplementationType *impl);
   ImplementationType *GetImplementation();
 
 protected:
   vtkMappedUnstructuredGrid();
-  ~vtkMappedUnstructuredGrid() VTK_OVERRIDE;
+  ~vtkMappedUnstructuredGrid() override;
 
   // For convenience...
   typedef vtkMappedUnstructuredGrid<Implementation, CellIterator> ThisType;
@@ -192,8 +192,8 @@ protected:
   vtkSmartPointer<ImplementationType> Impl;
 
 private:
-  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMappedUnstructuredGrid &) VTK_DELETE_FUNCTION;
+  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &) = delete;
+  void operator=(const vtkMappedUnstructuredGrid &) = delete;
 
   vtkNew<vtkGenericCell> TempCell;
 };
@@ -219,7 +219,7 @@ protected: \
     this->SetImplementation(i); \
     i->Delete(); \
   } \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -240,7 +240,7 @@ protected: \
     this->SetImplementation(i); \
     i->Delete(); \
   } \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -257,7 +257,7 @@ public: \
   static _className* New(); \
 protected: \
   _className() {} \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \
@@ -272,7 +272,7 @@ public: \
   static _className* New(); \
 protected: \
   _className() {} \
-  ~_className() {} \
+  ~_className() override {} \
 private: \
   _className(const _className&); \
   void operator=(const _className&); \

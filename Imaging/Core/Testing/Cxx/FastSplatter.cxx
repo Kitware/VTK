@@ -23,7 +23,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <math.h>
+#include <cmath>
 
 const int SPLAT_IMAGE_SIZE = 100;
 

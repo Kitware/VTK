@@ -1032,7 +1032,7 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   maceMapper->SetInputConnection(apd->GetOutputPort());
 
   vtkNew<vtkActor> maceActor;
-  maceActor->SetMapper(maceMapper.GetPointer());
+  maceActor->SetMapper(maceMapper);
   maceActor->VisibilityOn();
 
   // Create the RenderWindow, Renderer and both Actors
@@ -1042,8 +1042,8 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   vtkNew<vtkRenderer> ren2;
   ren2->SetViewport(0.5, 0, 1.0, 1.0);
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
-  renWin->AddRenderer(ren2.GetPointer());
+  renWin->AddRenderer(ren1);
+  renWin->AddRenderer(ren2);
   // set the background and size
   ren1->SetBackground(0., 0.2, 0.4);
   ren2->SetBackground(0.9, 0.8, 0.6);
@@ -1051,13 +1051,13 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
   vtkNew<vtkButtonWidgetMultipleViewportsCallback> myCallback;
-  myCallback->Glyph = glyph.GetPointer();
+  myCallback->Glyph = glyph;
 
   vtkNew<vtkEllipticalButtonSource> button;
   button->TwoSidedOn();
@@ -1082,10 +1082,10 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   rep->FollowCameraOn();
 
   vtkNew<vtkButtonWidget> buttonWidget;
-  buttonWidget->SetInteractor(iren.GetPointer());
-  buttonWidget->SetRepresentation(rep.GetPointer());
+  buttonWidget->SetInteractor(iren);
+  buttonWidget->SetRepresentation(rep);
   buttonWidget->AddObserver(
-    vtkCommand::StateChangedEvent, myCallback.GetPointer());
+    vtkCommand::StateChangedEvent, myCallback);
 
   // Another 3D button widget, this time use alternative PlaceWidget() method
   vtkNew<vtkEllipticalButtonSource> button2;
@@ -1113,10 +1113,10 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   rep2->FollowCameraOff();
 
   vtkNew<vtkButtonWidget> buttonWidget2;
-  buttonWidget2->SetInteractor(iren.GetPointer());
-  buttonWidget2->SetRepresentation(rep2.GetPointer());
+  buttonWidget2->SetInteractor(iren);
+  buttonWidget2->SetRepresentation(rep2);
   buttonWidget2->AddObserver(
-    vtkCommand::StateChangedEvent, myCallback.GetPointer());
+    vtkCommand::StateChangedEvent, myCallback);
 
   // Okay now for the 2D version of the widget (in display space)
   vtkNew<vtkTexturedButtonRepresentation2D> rep3;
@@ -1131,11 +1131,11 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   rep3->PlaceWidget(bds);
 
   vtkNew<vtkButtonWidget> buttonWidget3;
-  buttonWidget3->SetInteractor(iren.GetPointer());
-  buttonWidget3->SetRepresentation(rep3.GetPointer());
-  buttonWidget3->SetCurrentRenderer(ren2.GetPointer());
+  buttonWidget3->SetInteractor(iren);
+  buttonWidget3->SetRepresentation(rep3);
+  buttonWidget3->SetCurrentRenderer(ren2);
   buttonWidget3->AddObserver(
-    vtkCommand::StateChangedEvent, myCallback.GetPointer());
+    vtkCommand::StateChangedEvent, myCallback);
 
   // Okay now for the 2D version of the widget (in world space)
   vtkNew<vtkTexturedButtonRepresentation2D> rep4;
@@ -1152,11 +1152,11 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   rep4->PlaceWidget(bds, size);
 
   vtkNew<vtkButtonWidget> buttonWidget4;
-  buttonWidget4->SetInteractor(iren.GetPointer());
-  buttonWidget4->SetRepresentation(rep4.GetPointer());
-  buttonWidget4->SetDefaultRenderer(ren2.GetPointer());
+  buttonWidget4->SetInteractor(iren);
+  buttonWidget4->SetRepresentation(rep4);
+  buttonWidget4->SetDefaultRenderer(ren2);
   buttonWidget4->AddObserver(
-    vtkCommand::StateChangedEvent, myCallback.GetPointer());
+    vtkCommand::StateChangedEvent, myCallback);
 
   // Finally now a set of vtkProp3D's to define a vtkProp3DButtonRepresentation
   vtkNew<vtkLookupTable> lut;
@@ -1188,54 +1188,54 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   tet->SetSolidTypeToTetrahedron();
   vtkNew<vtkPolyDataMapper> tetMapper;
   tetMapper->SetInputConnection(tet->GetOutputPort());
-  tetMapper->SetLookupTable(lut.GetPointer());
+  tetMapper->SetLookupTable(lut);
   tetMapper->SetScalarRange(0, 19);
   vtkNew<vtkActor> tetActor;
-  tetActor->SetMapper(tetMapper.GetPointer());
+  tetActor->SetMapper(tetMapper);
 
   vtkNew<vtkPlatonicSolidSource> cube;
   cube->SetSolidTypeToCube();
   vtkNew<vtkPolyDataMapper> cubeMapper;
   cubeMapper->SetInputConnection(cube->GetOutputPort());
-  cubeMapper->SetLookupTable(lut.GetPointer());
+  cubeMapper->SetLookupTable(lut);
   cubeMapper->SetScalarRange(0, 19);
   vtkNew<vtkActor> cubeActor;
-  cubeActor->SetMapper(cubeMapper.GetPointer());
+  cubeActor->SetMapper(cubeMapper);
 
   vtkNew<vtkPlatonicSolidSource> oct;
   oct->SetSolidTypeToOctahedron();
   vtkNew<vtkPolyDataMapper> octMapper;
   octMapper->SetInputConnection(oct->GetOutputPort());
-  octMapper->SetLookupTable(lut.GetPointer());
+  octMapper->SetLookupTable(lut);
   octMapper->SetScalarRange(0, 19);
   vtkNew<vtkActor> octActor;
-  octActor->SetMapper(octMapper.GetPointer());
+  octActor->SetMapper(octMapper);
 
   vtkNew<vtkPlatonicSolidSource> ico;
   ico->SetSolidTypeToIcosahedron();
   vtkNew<vtkPolyDataMapper> icoMapper;
   icoMapper->SetInputConnection(ico->GetOutputPort());
-  icoMapper->SetLookupTable(lut.GetPointer());
+  icoMapper->SetLookupTable(lut);
   icoMapper->SetScalarRange(0, 19);
   vtkNew<vtkActor> icoActor;
-  icoActor->SetMapper(icoMapper.GetPointer());
+  icoActor->SetMapper(icoMapper);
 
   vtkNew<vtkPlatonicSolidSource> dode;
   dode->SetSolidTypeToDodecahedron();
   vtkNew<vtkPolyDataMapper> dodeMapper;
   dodeMapper->SetInputConnection(dode->GetOutputPort());
-  dodeMapper->SetLookupTable(lut.GetPointer());
+  dodeMapper->SetLookupTable(lut);
   dodeMapper->SetScalarRange(0, 19);
   vtkNew<vtkActor> dodeActor;
-  dodeActor->SetMapper(dodeMapper.GetPointer());
+  dodeActor->SetMapper(dodeMapper);
 
   vtkNew<vtkProp3DButtonRepresentation> rep5;
   rep5->SetNumberOfStates(5);
-  rep5->SetButtonProp(0, tetActor.GetPointer());
-  rep5->SetButtonProp(1, cubeActor.GetPointer());
-  rep5->SetButtonProp(2, octActor.GetPointer());
-  rep5->SetButtonProp(3, icoActor.GetPointer());
-  rep5->SetButtonProp(4, dodeActor.GetPointer());
+  rep5->SetButtonProp(0, tetActor);
+  rep5->SetButtonProp(1, cubeActor);
+  rep5->SetButtonProp(2, octActor);
+  rep5->SetButtonProp(3, icoActor);
+  rep5->SetButtonProp(4, dodeActor);
   rep5->SetPlaceFactor(1);
   bds[0] = 0.65;
   bds[1] = 0.75;
@@ -1247,13 +1247,13 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   rep5->FollowCameraOn();
 
   vtkNew<vtkButtonWidget> buttonWidget5;
-  buttonWidget5->SetInteractor(iren.GetPointer());
-  buttonWidget5->SetRepresentation(rep5.GetPointer());
-  buttonWidget5->SetDefaultRenderer(ren2.GetPointer());
+  buttonWidget5->SetInteractor(iren);
+  buttonWidget5->SetRepresentation(rep5);
+  buttonWidget5->SetDefaultRenderer(ren2);
   buttonWidget5->AddObserver(
-    vtkCommand::StateChangedEvent, myCallback.GetPointer());
+    vtkCommand::StateChangedEvent, myCallback);
 
-  ren1->AddActor(maceActor.GetPointer());
+  ren1->AddActor(maceActor);
 
   // Add the actors to the renderer, set the background and size
   //
@@ -1275,5 +1275,5 @@ int TestButtonWidgetMultipleViewports(int argc, char* argv[])
   ren2->ResetCamera();
 
   return vtkTesting::InteractorEventLoop(
-    argc, argv, iren.GetPointer(), ButtonWidgetMultipleViewportsEventLog);
+    argc, argv, iren, ButtonWidgetMultipleViewportsEventLog);
 }

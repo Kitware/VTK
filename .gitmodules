@@ -1,0 +1,3 @@
+[submodule "VTK-m"]
+	path = ThirdParty/vtkm/vtk-m
+	url = https://gitlab.kitware.com/vtk/vtk-m.git

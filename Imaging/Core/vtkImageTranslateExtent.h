@@ -31,7 +31,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageTranslateExtent : public vtkImageAlgorithm
 public:
   static vtkImageTranslateExtent *New();
   vtkTypeMacro(vtkImageTranslateExtent,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -43,18 +43,18 @@ public:
 
 protected:
   vtkImageTranslateExtent();
-  ~vtkImageTranslateExtent()VTK_OVERRIDE {}
+  ~vtkImageTranslateExtent() override {}
 
   int Translation[3];
 
-  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageTranslateExtent(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
+  vtkImageTranslateExtent(const vtkImageTranslateExtent&) = delete;
+  void operator=(const vtkImageTranslateExtent&) = delete;
 };
 
 #endif

@@ -15,7 +15,7 @@
 
 /**
  * @class   vtkOpenGLRenderTimer
- * @brief   Asynchronously measures GPU execution time.
+ * @brief   Asynchronously measures GPU execution time for a single event.
  *
  *
  * This class posts events to the OpenGL server to measure execution times
@@ -24,7 +24,8 @@
  *
  * This uses GL_TIMESTAMP rather than GL_ELAPSED_TIME, since only one
  * GL_ELAPSED_TIME query may be active at a time. Since GL_TIMESTAMP is not
- * available on OpenGL ES2
+ * available on OpenGL ES, timings will not be available on those platforms.
+ * Use the static IsSupported() method to determine if the timer is available.
  */
 
 #ifndef vtkOpenGLRenderTimer_h
@@ -38,6 +39,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderTimer
 public:
   vtkOpenGLRenderTimer();
   ~vtkOpenGLRenderTimer();
+
+  /**
+   * Returns true if timer events are supported by the current OpenGL
+   * implementation.
+   */
+  static bool IsSupported();
 
   /**
    * Clear out any previous results and prepare for a new query.
@@ -110,6 +117,14 @@ public:
   //@}
 
   /**
+   * If Ready() returns true, return the start or stop time in nanoseconds.
+   * @{
+   */
+  vtkTypeUInt64 GetStartTime();
+  vtkTypeUInt64 GetStopTime();
+  /**@}*/
+
+  /**
    * Simply calls Reset() to ensure that query ids are freed. All stored timing
    * information will be lost.
    */
@@ -129,8 +144,8 @@ protected:
   bool ReusableEnded;
 
 private:
-  vtkOpenGLRenderTimer(const vtkOpenGLRenderTimer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLRenderTimer&) VTK_DELETE_FUNCTION;
+  vtkOpenGLRenderTimer(const vtkOpenGLRenderTimer&) = delete;
+  void operator=(const vtkOpenGLRenderTimer&) = delete;
 };
 
 #endif // vtkOpenGLRenderTimer_h

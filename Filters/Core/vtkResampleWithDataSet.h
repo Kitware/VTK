@@ -13,11 +13,11 @@
 
 =========================================================================*/
 /**
- * @class   vtkResampleWithDataset
+ * @class   vtkResampleWithDataSet
  * @brief   sample point and cell data of a dataset on
  * points from another dataset.
  *
- * Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataset takes two
+ * Similar to vtkCompositeDataProbeFilter, vtkResampleWithDataSet takes two
  * inputs - Input and Source, and samples the point and cell values of Source
  * on to the point locations of Input. The output has the same structure as
  * Input but its point data have the resampled values from Source. Unlike
@@ -42,7 +42,7 @@ class VTKFILTERSCORE_EXPORT vtkResampleWithDataSet : public vtkPassInputTypeAlgo
 {
 public:
   vtkTypeMacro(vtkResampleWithDataSet, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkResampleWithDataSet *New();
 
@@ -133,21 +133,21 @@ public:
   vtkBooleanMacro(MarkBlankPointsAndCells, bool);
   //@}
 
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkResampleWithDataSet();
-  ~vtkResampleWithDataSet() VTK_OVERRIDE;
+  ~vtkResampleWithDataSet() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) VTK_OVERRIDE;
+                         vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation *) override;
 
   /**
    * Get the name of the valid-points mask array.
@@ -163,8 +163,8 @@ protected:
   bool MarkBlankPointsAndCells;
 
 private:
-  vtkResampleWithDataSet(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResampleWithDataSet&) VTK_DELETE_FUNCTION;
+  vtkResampleWithDataSet(const vtkResampleWithDataSet&) = delete;
+  void operator=(const vtkResampleWithDataSet&) = delete;
 };
 
 #endif // vtkResampleWithDataSet_h

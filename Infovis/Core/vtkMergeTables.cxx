@@ -32,8 +32,8 @@ vtkStandardNewMacro(vtkMergeTables);
 //---------------------------------------------------------------------------
 vtkMergeTables::vtkMergeTables()
 {
-  this->FirstTablePrefix = 0;
-  this->SecondTablePrefix = 0;
+  this->FirstTablePrefix = nullptr;
+  this->SecondTablePrefix = nullptr;
   this->MergeColumnsByName = true;
   this->PrefixAllButMerged = false;
   this->SetFirstTablePrefix("Table1.");
@@ -45,8 +45,8 @@ vtkMergeTables::vtkMergeTables()
 //---------------------------------------------------------------------------
 vtkMergeTables::~vtkMergeTables()
 {
-  this->SetFirstTablePrefix(0);
-  this->SetSecondTablePrefix(0);
+  this->SetFirstTablePrefix(nullptr);
+  this->SetSecondTablePrefix(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -119,7 +119,7 @@ int vtkMergeTables::RequestData(
     vtkAbstractArray* col = table2->GetColumn(c);
     char* name = col->GetName();
     vtkAbstractArray* newCol = vtkAbstractArray::CreateArray(col->GetDataType());
-    if (table1->GetColumnByName(name) != 0)
+    if (table1->GetColumnByName(name) != nullptr)
     {
       // We have a naming conflict.
       // Rename both columns using the prefixes.

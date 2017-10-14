@@ -55,7 +55,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDicer : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkDicer,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkDicer();
-  ~vtkDicer() VTK_OVERRIDE {}
+  ~vtkDicer() override {}
 
   virtual void UpdatePieceMeasures(vtkDataSet *input);
 
@@ -142,8 +142,8 @@ protected:
   int           DiceMode;
 
 private:
-  vtkDicer(const vtkDicer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDicer&) VTK_DELETE_FUNCTION;
+  vtkDicer(const vtkDicer&) = delete;
+  void operator=(const vtkDicer&) = delete;
 };
 
 #endif

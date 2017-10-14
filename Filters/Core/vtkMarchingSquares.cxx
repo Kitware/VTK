@@ -50,7 +50,7 @@ vtkMarchingSquares::vtkMarchingSquares()
   this->ImageRange[2] = 0; this->ImageRange[3] = VTK_INT_MAX;
   this->ImageRange[4] = 0; this->ImageRange[5] = 0;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 vtkMarchingSquares::~vtkMarchingSquares()
@@ -59,7 +59,7 @@ vtkMarchingSquares::~vtkMarchingSquares()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -247,7 +247,7 @@ int vtkMarchingSquares::RequestData(
   vtkPoints *newPts;
   vtkCellArray *newLines;
   vtkDataArray *inScalars;
-  vtkDataArray *newScalars = NULL;
+  vtkDataArray *newScalars = nullptr;
   int i, dims[3], roi[6], dataSize, dim, plane=0;
   int *ext;
   double origin[3], ar[3];
@@ -260,13 +260,13 @@ int vtkMarchingSquares::RequestData(
 // Initialize and check input
 //
   pd=input->GetPointData();
-  if (pd ==NULL)
+  if (pd ==nullptr)
   {
-    vtkErrorMacro(<<"PointData is NULL");
+    vtkErrorMacro(<<"PointData is nullptr");
     return 1;
   }
   inScalars=pd->GetScalars();
-  if ( inScalars == NULL )
+  if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
@@ -374,7 +374,7 @@ int vtkMarchingSquares::RequestData(
   newLines->Allocate(newLines->EstimateSize(estimatedSize,2));
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -447,7 +447,7 @@ void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if ( locator )
@@ -461,7 +461,7 @@ void vtkMarchingSquares::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkMarchingSquares::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL)
+  if ( this->Locator == nullptr)
   {
     this->Locator = vtkMergePoints::New();
   }

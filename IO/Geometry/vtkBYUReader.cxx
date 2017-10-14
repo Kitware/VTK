@@ -29,10 +29,10 @@ vtkStandardNewMacro(vtkBYUReader);
 
 vtkBYUReader::vtkBYUReader()
 {
-  this->GeometryFileName = NULL;
-  this->DisplacementFileName = NULL;
-  this->ScalarFileName = NULL;
-  this->TextureFileName = NULL;
+  this->GeometryFileName = nullptr;
+  this->DisplacementFileName = nullptr;
+  this->ScalarFileName = nullptr;
+  this->TextureFileName = nullptr;
 
   this->ReadDisplacement = 1;
   this->ReadScalar = 1;
@@ -55,7 +55,7 @@ int vtkBYUReader::CanReadFile(const char *filename)
 {
   int result;
   FILE *fp = fopen(filename, "r");
-  if (fp == NULL) return 0;
+  if (fp == nullptr) return 0;
 
   int numParts, numPts, numPolys, numEdges;
   result = fscanf(fp, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
@@ -94,12 +94,12 @@ int vtkBYUReader::RequestData(
   FILE *geomFp;
   int numPts;
 
-  if (this->GeometryFileName == NULL || this->GeometryFileName[0] == '\0')
+  if (this->GeometryFileName == nullptr || this->GeometryFileName[0] == '\0')
   {
     vtkErrorMacro(<< "No GeometryFileName specified!");
     return 0;
   }
-  if ((geomFp = fopen(this->GeometryFileName, "r")) == NULL)
+  if ((geomFp = fopen(this->GeometryFileName, "r")) == nullptr)
   {
     vtkErrorMacro(<< "Geometry file: " << this->GeometryFileName << " not found");
     return 0;

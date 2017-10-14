@@ -129,7 +129,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   QString password;
   if (askpass)
   {
-    password = QInputDialog::getText(NULL, "Enter password", "Password", QLineEdit::Password);
+    password = QInputDialog::getText(nullptr, "Enter password", "Password", QLineEdit::Password);
   }
 
   vtkQtSQLDatabase* db = vtkQtSQLDatabase::New();

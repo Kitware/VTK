@@ -53,7 +53,7 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction *cf)
   this->ContourValues = vtkContourValues::New();
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
@@ -64,11 +64,11 @@ vtkGenericCutter::vtkGenericCutter(vtkImplicitFunction *cf)
 vtkGenericCutter::~vtkGenericCutter()
 {
   this->ContourValues->Delete();
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   this->InternalPD->Delete();
   this->SecondaryPD->Delete();
@@ -159,13 +159,13 @@ vtkMTimeType vtkGenericCutter::GetMTime()
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  if ( this->CutFunction != NULL )
+  if ( this->CutFunction != nullptr )
   {
     time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -194,13 +194,13 @@ int vtkGenericCutter::RequestData(
 
   vtkDebugMacro(<< "Executing cutter");
 
-  if (input==0)
+  if (input==nullptr)
   {
     vtkErrorMacro("No input specified");
     return 1;
   }
 
-  if (this->CutFunction==0)
+  if (this->CutFunction==nullptr)
   {
     vtkErrorMacro("No cut function specified");
     return 1;
@@ -240,7 +240,7 @@ int vtkGenericCutter::RequestData(
   output->Allocate(numCells);
 
   // locator used to merge potentially duplicate points
-  if(this->Locator==0)
+  if(this->Locator==nullptr)
   {
     this->CreateDefaultLocator();
   }
@@ -269,7 +269,7 @@ int vtkGenericCutter::RequestData(
       attributeArray->SetName(attribute->GetName());
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->InternalPD->GetAttribute(attributeType)==0)
+      if(this->InternalPD->GetAttribute(attributeType)==nullptr)
       {
         this->InternalPD->SetActiveAttribute(
           this->InternalPD->GetNumberOfArrays()-1,attributeType);
@@ -286,7 +286,7 @@ int vtkGenericCutter::RequestData(
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(secondaryAttributes->GetAttribute(attributeType)==0)
+    if(secondaryAttributes->GetAttribute(attributeType)==nullptr)
     {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
@@ -368,7 +368,7 @@ int vtkGenericCutter::RequestData(
 // an instance of vtkMergePoints is used.
 void vtkGenericCutter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

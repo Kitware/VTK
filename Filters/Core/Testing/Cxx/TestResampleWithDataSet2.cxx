@@ -59,7 +59,7 @@ int TestResampleWithDataSet2(int argc, char *argv[])
   input->SetSpacing(spacing);
 
   vtkNew<vtkResampleWithDataSet> resample;
-  resample->SetInputData(input.GetPointer());
+  resample->SetInputData(input);
   resample->SetSourceConnection(reader->GetOutputPort());
   resample->UpdateTimeStep(0.00199999);
 
@@ -82,31 +82,31 @@ int TestResampleWithDataSet2(int argc, char *argv[])
 
 
   double range[2];
-  calculator->GetOutput()->GetPointData()->GetArray("VEL_MAG")->GetRange(range);
+  vtkDataSet::SafeDownCast(calculator->GetOutput())->GetPointData()->GetArray("VEL_MAG")->GetRange(range);
 
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(calculator->GetOutputPort());
   mapper->SetScalarRange(range);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   renderer->GetActiveCamera()->SetPosition(0.0, -1.0, 0.0);
   renderer->GetActiveCamera()->SetViewUp(0.0, 0.0, 1.0);
   renderer->ResetCamera();
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   iren->Initialize();
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -62,7 +62,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCompositeDataPipeline :
 public:
   static vtkCompositeDataPipeline* New();
   vtkTypeMacro(vtkCompositeDataPipeline,vtkStreamingDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the data object stored with the DATA_OBJECT() in the
@@ -115,35 +115,35 @@ public:
 
 protected:
   vtkCompositeDataPipeline();
-  ~vtkCompositeDataPipeline() VTK_OVERRIDE;
+  ~vtkCompositeDataPipeline() override;
 
-  int ForwardUpstream(vtkInformation* request) VTK_OVERRIDE;
+  int ForwardUpstream(vtkInformation* request) override;
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
 
   // Copy information for the given request.
   void CopyDefaultInformation(vtkInformation* request, int direction,
                                       vtkInformationVector** inInfoVec,
-                                      vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                      vtkInformationVector* outInfoVec) override;
 
   virtual void PushInformation(vtkInformation*);
   virtual void PopInformation (vtkInformation*);
 
   int ExecuteDataObject(vtkInformation* request,
                                 vtkInformationVector** inInfo,
-                                vtkInformationVector* outInfo) VTK_OVERRIDE;
+                                vtkInformationVector* outInfo) override;
 
   int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                          vtkInformationVector* outInfoVec) override;
 
   void ExecuteDataStart(vtkInformation* request,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector* outInfoVec) override;
 
   // Override this check to account for update extent.
   int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector* outInfoVec) override;
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
@@ -182,18 +182,14 @@ protected:
                               int& compositePort);
 
   int InputTypeIsValid(int port, int index,
-                                vtkInformationVector **inInfoVec) VTK_OVERRIDE;
+                                vtkInformationVector **inInfoVec) override;
 
   vtkInformation* InformationCache;
 
   vtkInformation* GenericRequest;
-  vtkInformation* DataObjectRequest;
   vtkInformation* InformationRequest;
-  vtkInformation* UpdateExtentRequest;
-  vtkInformation* DataRequest;
 
-
-  void ResetPipelineInformation(int port, vtkInformation*) VTK_OVERRIDE;
+  void ResetPipelineInformation(int port, vtkInformation*) override;
 
   /**
    * Tries to create the best possible composite data output for the given input
@@ -210,7 +206,7 @@ protected:
   // Override this to handle UPDATE_COMPOSITE_INDICES().
   void MarkOutputsGenerated(vtkInformation* request,
                                     vtkInformationVector** inInfoVec,
-                                    vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+                                    vtkInformationVector* outInfoVec) override;
 
   int NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo);
 
@@ -229,8 +225,8 @@ protected:
   static vtkInformationIntegerVectorKey* DATA_COMPOSITE_INDICES();
 
 private:
-  vtkCompositeDataPipeline(const vtkCompositeDataPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataPipeline&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataPipeline(const vtkCompositeDataPipeline&) = delete;
+  void operator=(const vtkCompositeDataPipeline&) = delete;
 };
 
 #endif

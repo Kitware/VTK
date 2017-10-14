@@ -40,7 +40,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkIdTypeArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -52,7 +52,7 @@ public:
   /**
    * Get the data type.
    */
-  int GetDataType() VTK_OVERRIDE
+  int GetDataType() override
   {
       // This needs to overwritten from superclass because
       // the templated superclass is not able to differentiate
@@ -83,14 +83,14 @@ public:
 
 protected:
   vtkIdTypeArray();
-  ~vtkIdTypeArray() VTK_OVERRIDE;
+  ~vtkIdTypeArray() override;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<vtkIdType> RealSuperclass;
 
-  vtkIdTypeArray(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
+  vtkIdTypeArray(const vtkIdTypeArray&) = delete;
+  void operator=(const vtkIdTypeArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

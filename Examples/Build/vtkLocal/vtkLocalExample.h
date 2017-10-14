@@ -21,15 +21,15 @@ class VTKLOCALEXAMPLE_EXPORT vtkLocalExample : public vtkObject
 public:
   static vtkLocalExample* New();
   vtkTypeMacro(vtkLocalExample, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkLocalExample();
-  ~vtkLocalExample();
+  ~vtkLocalExample() override;
 
 private:
-  vtkLocalExample(const vtkLocalExample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLocalExample&) VTK_DELETE_FUNCTION;
+  vtkLocalExample(const vtkLocalExample&) = delete;
+  void operator=(const vtkLocalExample&) = delete;
 };
 
 #endif

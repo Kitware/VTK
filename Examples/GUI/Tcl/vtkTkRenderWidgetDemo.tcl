@@ -26,7 +26,6 @@ $renWin AddRenderer ren1
 vtkConeSource cone
 vtkPolyDataMapper coneMapper
   coneMapper SetInputConnection [cone GetOutputPort]
-  coneMapper GlobalImmediateModeRenderingOn
 vtkLODActor coneActor
   coneActor SetMapper coneMapper
 

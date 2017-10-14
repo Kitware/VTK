@@ -88,7 +88,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject2 : public vtkObject
 public:
   static vtkFrameBufferObject2* New();
   vtkTypeMacro(vtkFrameBufferObject2, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -330,7 +330,7 @@ protected:
   int GetOpenGLType(int vtkType);
 
   vtkFrameBufferObject2();
-  ~vtkFrameBufferObject2() VTK_OVERRIDE;
+  ~vtkFrameBufferObject2() override;
 
   vtkWeakPointer<vtkRenderWindow> Context;
 
@@ -342,8 +342,8 @@ protected:
   unsigned int PreviousReadBuffer;
 
 private:
-  vtkFrameBufferObject2(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
+  vtkFrameBufferObject2(const vtkFrameBufferObject2&) = delete;
+  void operator=(const vtkFrameBufferObject2&) = delete;
 
   friend class vtkRenderbuffer; // needs access to LoadRequiredExtentsions
 

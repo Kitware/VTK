@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper :
 public:
   static vtkExtractStructuredGridHelper *New();
   vtkTypeMacro(vtkExtractStructuredGridHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Get & Set Macros
   vtkGetVector6Macro(OutputWholeExtent,int);
@@ -152,11 +152,11 @@ public:
    * \param inExt the input grid extent.
    * \param outExt the output grid extent.
    * \param pd pointer to the input point data.
-   * \param inpnts pointer to the input points, or NULL if uniform grid.
+   * \param inpnts pointer to the input points, or nullptr if uniform grid.
    * \param outPD point to the output point data.
-   * \param outpnts pointer to the output points, or NULL if uniform grid.
-   * \pre pd != NULL.
-   * \pre outPD != NULL.
+   * \param outpnts pointer to the output points, or nullptr if uniform grid.
+   * \pre pd != nullptr.
+   * \pre outPD != nullptr.
    */
   void CopyPointsAndPointData( int inExt[6], int outExt[6],
                     vtkPointData* pd, vtkPoints* inpnts,
@@ -168,8 +168,8 @@ public:
    * \param outExt the output grid extent.
    * \param cd the input cell data.
    * \param outCD the output cell data.
-   * \pre cd != NULL.
-   * \pre outCD != NULL.
+   * \pre cd != nullptr.
+   * \pre outCD != nullptr.
    */
   void CopyCellData(int inExt[6], int outExt[6],
                     vtkCellData* cd, vtkCellData* outCD);
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkExtractStructuredGridHelper();
-  ~vtkExtractStructuredGridHelper() VTK_OVERRIDE;
+  ~vtkExtractStructuredGridHelper() override;
 
   // Input parameters -- used to reinitialize when data changes.
   int VOI[6];
@@ -233,8 +233,8 @@ protected:
   void Invalidate();
 
 private:
-  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
+  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) = delete;
+  void operator=(const vtkExtractStructuredGridHelper&) = delete;
 };
 
 #endif /* VTKEXTRACTSTRUCTUREDGRIDHELPER_H_ */

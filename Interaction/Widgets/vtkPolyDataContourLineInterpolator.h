@@ -41,7 +41,7 @@ public:
    */
   vtkTypeMacro(vtkPolyDataContourLineInterpolator,
                               vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -51,7 +51,7 @@ public:
    */
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE = 0;
+                               int idx1, int idx2 ) override = 0;
 
   /**
    * The interpolator is given a chance to update the node.
@@ -62,7 +62,7 @@ public:
    */
   int UpdateNode( vtkRenderer *,
                           vtkContourRepresentation *,
-                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) VTK_OVERRIDE = 0;
+                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) override = 0;
 
   //@{
   /**
@@ -74,14 +74,14 @@ public:
 
 protected:
   vtkPolyDataContourLineInterpolator();
-  ~vtkPolyDataContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkPolyDataContourLineInterpolator() override;
 
   vtkPolyDataCollection *Polys;
 
 private:
   vtkPolyDataContourLineInterpolator(
-      const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
+      const vtkPolyDataContourLineInterpolator&) = delete;
+  void operator=(const vtkPolyDataContourLineInterpolator&) = delete;
 };
 
 #endif

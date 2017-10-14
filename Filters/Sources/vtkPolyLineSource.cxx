@@ -27,7 +27,7 @@ vtkStandardNewMacro(vtkPolyLineSource);
 //----------------------------------------------------------------------------
 vtkPolyLineSource::vtkPolyLineSource()
 {
-  this->Points = NULL;
+  this->Points = nullptr;
   this->Closed = 0;
 
   this->SetNumberOfInputPorts(0);
@@ -109,12 +109,12 @@ void vtkPolyLineSource::SetPoints(vtkPoints* points)
 {
   if ( points != this->Points )
   {
-    if ( this->Points != NULL )
+    if ( this->Points != nullptr )
     {
       this->Points->Delete();
     }
     this->Points = points;
-    if ( this->Points != NULL )
+    if ( this->Points != nullptr )
     {
       this->Points->Register(this);
     }
@@ -148,7 +148,7 @@ int vtkPolyLineSource::RequestData(
   }
 
   vtkSmartPointer<vtkCellArray> polyLine = vtkSmartPointer<vtkCellArray>::New();
-  polyLine->InsertNextCell(pointIds.GetPointer());
+  polyLine->InsertNextCell(pointIds);
 
   output->SetPoints(this->Points);
   output->SetLines(polyLine);

@@ -85,7 +85,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabase : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSQLDatabase, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Open a new connection to the database.
@@ -241,7 +241,7 @@ public:
 
 protected:
   vtkSQLDatabase();
-  ~vtkSQLDatabase() VTK_OVERRIDE;
+  ~vtkSQLDatabase() override;
 
   /**
    * Subclasses should override this method to determine connection parameters
@@ -251,8 +251,8 @@ protected:
   virtual bool ParseURL( const char* url ) = 0;
 
 private:
-  vtkSQLDatabase(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkSQLDatabase(const vtkSQLDatabase &) = delete;
+  void operator=(const vtkSQLDatabase &) = delete;
 
   //@{
   /**

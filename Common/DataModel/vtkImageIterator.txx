@@ -22,10 +22,10 @@
 template <class DType>
 vtkImageIterator<DType>::vtkImageIterator()
 {
-  this->Pointer = 0;
-  this->EndPointer = 0;
-  this->SpanEndPointer = 0;
-  this->SliceEndPointer = 0;
+  this->Pointer = nullptr;
+  this->EndPointer = nullptr;
+  this->SpanEndPointer = nullptr;
+  this->SliceEndPointer = nullptr;
 }
 
 //----------------------------------------------------------------------------

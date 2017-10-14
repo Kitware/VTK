@@ -26,8 +26,8 @@
 //-----------------------------------------------------------------------------
 vtkGenericSubdivisionErrorMetric::vtkGenericSubdivisionErrorMetric()
 {
-  this->GenericCell = NULL;
-  this->DataSet = 0;
+  this->GenericCell = nullptr;
+  this->DataSet = nullptr;
 }
 
 //-----------------------------------------------------------------------------

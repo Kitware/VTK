@@ -50,7 +50,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOctreePointLocator : public vtkAbstractPointL
 {
 public:
   vtkTypeMacro(vtkOctreePointLocator, vtkAbstractPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOctreePointLocator *New();
 
@@ -86,8 +86,8 @@ public:
    * Get the spatial bounds of the entire octree space. Sets
    * bounds array to xmin, xmax, ymin, ymax, zmin, zmax.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double *bounds) VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetBounds(double *bounds) override;
   //@}
 
   //@{
@@ -117,14 +117,14 @@ public:
    * or data sets.  Cells are assigned to octree spatial regions
    * based on the location of their centroids.
    */
-  void BuildLocator() VTK_OVERRIDE;
+  void BuildLocator() override;
 
   //@{
   /**
    * Return the Id of the point that is closest to the given point.
    * Set the square of the distance between the two points.
    */
-  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
+  vtkIdType FindClosestPoint(const double x[3]) override;
   vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
   //@}
 
@@ -134,7 +134,7 @@ public:
    * dist2 returns the squared distance to the point.
    */
   vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
+    double radius, const double x[3], double& dist2) override;
 
   //@{
   /**
@@ -152,7 +152,7 @@ public:
    * The result is not sorted in any specific manner.
    */
   void FindPointsWithinRadius(
-    double radius, const double x[3], vtkIdList *result) VTK_OVERRIDE;
+    double radius, const double x[3], vtkIdList *result) override;
 
   /**
    * Find the closest N points to a position. This returns the closest
@@ -163,7 +163,7 @@ public:
    * indirectly called from a single thread first.
    */
   void FindClosestNPoints(int N, const double x[3],
-                          vtkIdList *result) VTK_OVERRIDE;
+                          vtkIdList *result) override;
 
   /**
    * Get a list of the original IDs of all points in a leaf node.
@@ -173,13 +173,13 @@ public:
   /**
    * Delete the octree data structure.
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
+  void FreeSearchStructure() override;
 
   /**
    * Create a polydata representation of the boundaries of
    * the octree regions.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
   /**
    * Fill ids with points found in area.  The area is a 6-tuple containing
@@ -192,7 +192,7 @@ public:
 protected:
 
   vtkOctreePointLocator();
-  ~vtkOctreePointLocator() VTK_OVERRIDE;
+  ~vtkOctreePointLocator() override;
 
   vtkOctreePointLocatorNode *Top;
   vtkOctreePointLocatorNode **LeafNodeList;      // indexed by region/node ID
@@ -276,7 +276,7 @@ protected:
    */
   int CreateCubicOctants;
 
-  vtkOctreePointLocator(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
+  vtkOctreePointLocator(const vtkOctreePointLocator&) = delete;
+  void operator=(const vtkOctreePointLocator&) = delete;
 };
 #endif

@@ -28,7 +28,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHandleWidget.cxx
   TestHandleWidget2D.cxx
   TestImageActorContourWidget.cxx
-  TestImageTracerWidget.cxx
   TestImplicitCylinderWidget.cxx
   TestImplicitCylinderWidget2.cxx
   TestImplicitPlaneWidget.cxx
@@ -121,6 +120,12 @@ endif()
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestImageCroppingRegionsWidget.cxx
+    )
+endif()
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  vtk_add_test_cxx(${vtk-module}CxxTests tests
+    TestImageTracerWidget.cxx
     )
 endif()
 

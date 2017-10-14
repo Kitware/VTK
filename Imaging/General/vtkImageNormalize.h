@@ -36,15 +36,15 @@ public:
 
 protected:
   vtkImageNormalize();
-  ~vtkImageNormalize()VTK_OVERRIDE {}
+  ~vtkImageNormalize() override {}
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id) VTK_OVERRIDE;
+                       int extent[6], int id) override;
 private:
-  vtkImageNormalize(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
+  vtkImageNormalize(const vtkImageNormalize&) = delete;
+  void operator=(const vtkImageNormalize&) = delete;
 };
 
 #endif

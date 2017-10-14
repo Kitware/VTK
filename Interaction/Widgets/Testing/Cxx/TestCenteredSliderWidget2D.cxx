@@ -45,14 +45,14 @@ class vtkCenteredSlider2DCallback : public vtkCommand
 public:
   static vtkCenteredSlider2DCallback *New()
   { return new vtkCenteredSlider2DCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkCenteredSliderWidget *sliderWidget =
       reinterpret_cast<vtkCenteredSliderWidget*>(caller);
     double widgetValue = sliderWidget->GetValue();
     this->Glyph->SetScaleFactor(this->Glyph->GetScaleFactor()*widgetValue);
   }
-  vtkCenteredSlider2DCallback():Glyph(0) {}
+  vtkCenteredSlider2DCallback():Glyph(nullptr) {}
   vtkGlyph3D *Glyph;
 };
 

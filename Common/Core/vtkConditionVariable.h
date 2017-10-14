@@ -35,7 +35,7 @@
 
 #include "vtkMutexLock.h" // Need for friend access to vtkSimpleMutexLock
 
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #  include <pthread.h> // Need POSIX thread implementation of mutex (even win32 provides mutexes)
 typedef pthread_cond_t vtkConditionType;
 #endif
@@ -98,10 +98,8 @@ typedef pthread_cond_t vtkConditionType;
 #endif // VTK_USE_WIN32_THREADS
 
 #ifndef VTK_USE_PTHREADS
-#ifndef VTK_HP_PTHREADS
 #ifndef VTK_USE_WIN32_THREADS
 typedef int vtkConditionType;
-#endif
 #endif
 #endif
 
@@ -141,8 +139,8 @@ protected:
   vtkConditionType   ConditionVariable;
 
 private:
-  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other) VTK_DELETE_FUNCTION;
-  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) VTK_DELETE_FUNCTION;
+  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other) = delete;
+  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
@@ -150,7 +148,7 @@ class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
 public:
   static vtkConditionVariable* New();
   vtkTypeMacro(vtkConditionVariable,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /**
    * Wake one thread waiting for the condition to change.
@@ -179,8 +177,8 @@ protected:
   vtkSimpleConditionVariable SimpleConditionVariable;
 
 private:
-  vtkConditionVariable( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
+  vtkConditionVariable( const vtkConditionVariable& ) = delete;
+  void operator = ( const vtkConditionVariable& ) = delete;
 };
 
 inline void vtkConditionVariable::Signal()

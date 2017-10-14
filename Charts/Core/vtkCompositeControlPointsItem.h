@@ -41,7 +41,7 @@ class VTKCHARTSCORE_EXPORT vtkCompositeControlPointsItem:
 {
 public:
   vtkTypeMacro(vtkCompositeControlPointsItem, vtkColorTransferControlPointsItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a piecewise control points object
@@ -88,14 +88,14 @@ public:
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  vtkIdType AddPoint(double* newPos) VTK_OVERRIDE;
+  vtkIdType AddPoint(double* newPos) override;
 
   /**
    * Remove a point of the function. Returns the index of the point (0 based),
    * or -1 on error.
    * Subclasses should reimplement this function to do the actual work.
    */
-  vtkIdType RemovePoint(double* pos) VTK_OVERRIDE;
+  vtkIdType RemovePoint(double* pos) override;
 
   //@{
   /**
@@ -113,30 +113,30 @@ public:
   /**
    * Mouse move event. To take care of some special Key stroke
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
-  bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseDoubleClickEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
   //@}
 
 protected:
   vtkCompositeControlPointsItem();
-  ~vtkCompositeControlPointsItem() VTK_OVERRIDE;
+  ~vtkCompositeControlPointsItem() override;
 
   /**
    * Returns true if control points are to be rendered in log-space. This is
    * true when vtkScalarsToColors is using log-scale, for example.
    */
-  bool UsingLogScale() VTK_OVERRIDE;
+  bool UsingLogScale() override;
 
-  void emitEvent(unsigned long event, void* params) VTK_OVERRIDE;
+  void emitEvent(unsigned long event, void* params) override;
 
-  vtkMTimeType GetControlPointsMTime() VTK_OVERRIDE;
+  vtkMTimeType GetControlPointsMTime() override;
 
-  vtkIdType GetNumberOfPoints()const VTK_OVERRIDE;
-  void DrawPoint(vtkContext2D* painter, vtkIdType index) VTK_OVERRIDE;
-  void GetControlPoint(vtkIdType index, double* pos)const VTK_OVERRIDE;
-  void SetControlPoint(vtkIdType index, double *point) VTK_OVERRIDE;
-  void EditPoint(float tX, float tY) VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints()const override;
+  void DrawPoint(vtkContext2D* painter, vtkIdType index) override;
+  void GetControlPoint(vtkIdType index, double* pos)const override;
+  void SetControlPoint(vtkIdType index, double *point) override;
+  void EditPoint(float tX, float tY) override;
   virtual void EditPointCurve(vtkIdType idx);
 
   void MergeTransferFunctions();
@@ -148,8 +148,8 @@ protected:
   bool UseOpacityPointHandles;
 
 private:
-  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
+  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) = delete;
+  void operator=(const vtkCompositeControlPointsItem &) = delete;
 };
 
 #endif

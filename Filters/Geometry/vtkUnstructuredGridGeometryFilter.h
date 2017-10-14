@@ -54,7 +54,7 @@ public:
   static vtkUnstructuredGridGeometryFilter *New();
   vtkTypeMacro(vtkUnstructuredGridGeometryFilter,
                vtkUnstructuredGridBaseAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -171,7 +171,7 @@ public:
   /**
    * If PassThroughCellIds or PassThroughPointIds is on, then these ivars
    * control the name given to the field in which the ids are written into.  If
-   * set to NULL, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
+   * set to nullptr, then vtkOriginalCellIds or vtkOriginalPointIds (the default)
    * is used, respectively.
    */
   vtkSetStringMacro(OriginalCellIdsName);
@@ -203,16 +203,16 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkUnstructuredGridGeometryFilter();
-  ~vtkUnstructuredGridGeometryFilter() VTK_OVERRIDE;
+  ~vtkUnstructuredGridGeometryFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkIdType PointMaximum;
   vtkIdType PointMinimum;
@@ -235,8 +235,8 @@ protected:
   vtkHashTableOfSurfels *HashTable;
 
 private:
-  vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&) = delete;
+  void operator=(const vtkUnstructuredGridGeometryFilter&) = delete;
 };
 
 #endif

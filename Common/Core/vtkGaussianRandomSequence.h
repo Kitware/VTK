@@ -32,7 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkGaussianRandomSequence : public vtkRandomSequence
 {
 public:
   vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Convenient method to return a value given the mean and standard deviation
@@ -45,10 +45,10 @@ public:
 
 protected:
   vtkGaussianRandomSequence();
-  ~vtkGaussianRandomSequence() VTK_OVERRIDE;
+  ~vtkGaussianRandomSequence() override;
 private:
-  vtkGaussianRandomSequence(const vtkGaussianRandomSequence&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianRandomSequence&) VTK_DELETE_FUNCTION;
+  vtkGaussianRandomSequence(const vtkGaussianRandomSequence&) = delete;
+  void operator=(const vtkGaussianRandomSequence&) = delete;
 };
 
 #endif // #ifndef vtkGaussianRandomSequence_h

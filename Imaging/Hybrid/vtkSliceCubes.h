@@ -59,7 +59,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkSliceCubes : public vtkObject
 public:
   static vtkSliceCubes *New();
   vtkTypeMacro(vtkSliceCubes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // methods to make it look like a filter
   void Write() {this->Update();};
@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkSliceCubes();
-  ~vtkSliceCubes() VTK_OVERRIDE;
+  ~vtkSliceCubes() override;
 
   void Execute();
 
@@ -110,8 +110,8 @@ protected:
   char *LimitsFileName;
 
 private:
-  vtkSliceCubes(const vtkSliceCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSliceCubes&) VTK_DELETE_FUNCTION;
+  vtkSliceCubes(const vtkSliceCubes&) = delete;
+  void operator=(const vtkSliceCubes&) = delete;
 };
 
 #endif

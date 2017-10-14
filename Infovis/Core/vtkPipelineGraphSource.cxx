@@ -56,7 +56,7 @@ vtkPipelineGraphSource::~vtkPipelineGraphSource()
   if (this->Sinks)
   {
     this->Sinks->Delete();
-    this->Sinks = NULL;
+    this->Sinks = nullptr;
   }
 }
 
@@ -71,7 +71,7 @@ void vtkPipelineGraphSource::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 {
-  if (sink != NULL && !this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && !this->Sinks->IsItemPresent(sink))
   {
     this->Sinks->AddItem(sink);
     this->Modified();
@@ -80,7 +80,7 @@ void vtkPipelineGraphSource::AddSink(vtkObject* sink)
 
 void vtkPipelineGraphSource::RemoveSink(vtkObject* sink)
 {
-  if (sink != NULL && this->Sinks->IsItemPresent(sink))
+  if (sink != nullptr && this->Sinks->IsItemPresent(sink))
   {
     this->Sinks->RemoveItem(sink);
     this->Modified();
@@ -200,7 +200,7 @@ void vtkPipelineGraphSource::PipelineToDot(vtkAlgorithm* sink, ostream& output, 
 
 namespace {
 
-void replace_all(std::string& str, std::string oldStr, std::string newStr)
+void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr)
 {
   size_t pos = 0;
   while((pos = str.find(oldStr, pos)) != std::string::npos)

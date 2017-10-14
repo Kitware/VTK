@@ -56,7 +56,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkStructuredGridLIC2D
 public:
   static vtkStructuredGridLIC2D* New();
   vtkTypeMacro(vtkStructuredGridLIC2D, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkStructuredGridLIC2D();
-  ~vtkStructuredGridLIC2D();
+  ~vtkStructuredGridLIC2D() override;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -125,8 +125,8 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port,
+                               vtkInformation *info) override;
 
   /**
    * Fill the output port information objects for this algorithm.
@@ -134,16 +134,16 @@ protected:
    * each port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillOutputPortInformation(int port,
-                                        vtkInformation *info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port,
+                                vtkInformation *info) override;
 
-  virtual int RequestInformation(vtkInformation *request,
+  int RequestInformation(vtkInformation *request,
          vtkInformationVector **inputVector,
-         vtkInformationVector *outputVector) VTK_OVERRIDE;
+         vtkInformationVector *outputVector) override;
 
   int RequestUpdateExtent (vtkInformation *request,
                            vtkInformationVector **inputVector,
-                           vtkInformationVector *outputVector) VTK_OVERRIDE;
+                           vtkInformationVector *outputVector) override;
 
   /**
    * Stolen from vtkImageAlgorithm. Should be in vtkStructuredGridAlgorithm.
@@ -160,9 +160,9 @@ protected:
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   int    Steps;
   double StepSize;
@@ -176,8 +176,8 @@ protected:
   vtkOpenGLHelper *LICProgram;
 
 private:
-  vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridLIC2D&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&) = delete;
+  void operator=(const vtkStructuredGridLIC2D&) = delete;
 
 };
 

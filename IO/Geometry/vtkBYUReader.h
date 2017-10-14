@@ -34,7 +34,7 @@ public:
   static vtkBYUReader *New();
 
   vtkTypeMacro(vtkBYUReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -120,9 +120,9 @@ public:
 
 protected:
   vtkBYUReader();
-  ~vtkBYUReader() VTK_OVERRIDE;
+  ~vtkBYUReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
@@ -141,8 +141,8 @@ protected:
   void ReadScalarFile(int numPts, vtkInformation *outInfo);
   void ReadTextureFile(int numPts, vtkInformation *outInfo);
 private:
-  vtkBYUReader(const vtkBYUReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBYUReader&) VTK_DELETE_FUNCTION;
+  vtkBYUReader(const vtkBYUReader&) = delete;
+  void operator=(const vtkBYUReader&) = delete;
 };
 
 #endif

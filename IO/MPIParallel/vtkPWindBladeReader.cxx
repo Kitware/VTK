@@ -95,7 +95,7 @@ int vtkPWindBladeReader::RequestData(vtkInformation *reqInfo,
     strcpy(cchar, fileName.str().c_str());
     MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
     delete [] cchar;
-    if (this->PInternal->FilePtr == NULL)
+    if (this->PInternal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
     }
@@ -137,7 +137,7 @@ void vtkPWindBladeReader::CalculatePressure(int pressure, int prespre,
     return this->Superclass::CalculatePressure(pressure, prespre,
                                                tempg, density);
   }
-  float *pressureData = NULL, *prespreData = NULL;
+  float *pressureData = nullptr, *prespreData = nullptr;
   this->InitPressureData(pressure, prespre, pressureData, prespreData);
 
   // Read tempg and Density components from file
@@ -212,7 +212,7 @@ void vtkPWindBladeReader::LoadVariableData(int var)
   MPICall(MPI_File_set_view(this->PInternal->FilePtr, this->VariableOffset[var], MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
 
   int numberOfComponents = 0, planeSize = 0, rowSize;
-  float *varData = NULL;
+  float *varData = nullptr;
   float* block = new float[this->BlockSize];
   this->InitVariableData(var, numberOfComponents, varData, planeSize, rowSize);
   for (int comp = 0; comp < numberOfComponents; comp++)
@@ -309,7 +309,7 @@ bool vtkPWindBladeReader::FindVariableOffsets()
   MPICall(MPI_File_open(MPI_COMM_WORLD, cchar, MPI_MODE_RDONLY, MPI_INFO_NULL, &this->PInternal->FilePtr));
   delete [] cchar;
 
-  if (this->PInternal->FilePtr == NULL)
+  if (this->PInternal->FilePtr == nullptr)
   {
     vtkErrorMacro("Could not open file " << fileName.str());
     return false;

@@ -228,7 +228,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     int bytesPerPixel = scalars->GetNumberOfComponents();
 
     // make sure using unsigned char data of color scalars type
-    if (this->MapColorScalarsThroughLookupTable ||
+    if (this->ColorMode == VTK_COLOR_MODE_MAP_SCALARS ||
        scalars->GetDataType() != VTK_UNSIGNED_CHAR )
     {
       dataPtr = this->MapScalarsToColors (scalars);

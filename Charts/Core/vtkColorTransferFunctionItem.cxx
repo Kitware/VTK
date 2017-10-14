@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkColorTransferFunctionItem);
 //-----------------------------------------------------------------------------
 vtkColorTransferFunctionItem::vtkColorTransferFunctionItem()
 {
-  this->ColorTransferFunction = 0;
+  this->ColorTransferFunction = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -42,7 +42,7 @@ vtkColorTransferFunctionItem::~vtkColorTransferFunctionItem()
   {
     this->ColorTransferFunction->RemoveObserver(this->Callback);
     this->ColorTransferFunction->Delete();
-    this->ColorTransferFunction = 0;
+    this->ColorTransferFunction = nullptr;
   }
 }
 
@@ -90,7 +90,7 @@ void vtkColorTransferFunctionItem::SetColorTransferFunction(vtkColorTransferFunc
   {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
   }
-  this->ScalarsToColorsModified(t, vtkCommand::ModifiedEvent, 0);
+  this->ScalarsToColorsModified(t, vtkCommand::ModifiedEvent, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
   {
     return;
   }
-  if (this->Texture == 0)
+  if (this->Texture == nullptr)
   {
     this->Texture = vtkImageData::New();
   }
@@ -146,7 +146,6 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
-  return;
 }
 
 //-----------------------------------------------------------------------------

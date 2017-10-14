@@ -27,7 +27,7 @@
  *    called VTKOSPRAY_ARGS where commandline flags can be inserted for
  *    OSPRay's init call.  As an example of this, below is a commandline
  *    for running paraview on localhost, but having OSPRay's rendering
- *    occur on 2 remote nodes.  ospray_mpi_worker is a seperate application
+ *    occur on 2 remote nodes.  ospray_mpi_worker is a separate application
  *    supplied with OSPRay binary packages or when built with MPI support
  *    from source.
  *    'mpirun -ppn 1 -hosts localhost VTKOSPRAY_ARGS="-osp:mpi"
@@ -54,12 +54,12 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayPass : public vtkRenderPass
 public:
   static vtkOSPRayPass *New();
   vtkTypeMacro(vtkOSPRayPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state s.
    */
-  virtual void Render(const vtkRenderState *s);
+  virtual void Render(const vtkRenderState *s) override;
 
   //@{
   /**
@@ -94,10 +94,9 @@ public:
   vtkRenderPassCollection *RenderPassCollection;
 
  private:
-  vtkOSPRayPass(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
+  vtkOSPRayPass(const vtkOSPRayPass&) = delete;
+  void operator=(const vtkOSPRayPass&) = delete;
 
-  class Internals;
   vtkOSPRayPassInternals *Internal;
 };
 

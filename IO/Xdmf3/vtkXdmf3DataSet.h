@@ -34,6 +34,7 @@
 class vtkXdmf3ArraySelection;
 class vtkXdmf3ArrayKeeper;
 class XdmfArray;
+class XdmfAttribute;
 class vtkDataArray;
 class XdmfGrid;
 class vtkDataObject;
@@ -68,7 +69,7 @@ public:
     XdmfArray* xArray,
     std::string attrName,//TODO: needed because XdmfArray::getName() misbehaves
     unsigned int preferredComponents = 0,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates and Xdmf array corresponding to the VTK array it is given
@@ -76,7 +77,7 @@ public:
   static bool VTKToXdmfArray(
     vtkDataArray *vArray,
     XdmfArray* xArray,
-    unsigned int rank = 0, unsigned int *dims = NULL);
+    unsigned int rank = 0, unsigned int *dims = nullptr);
 
   /**
    * Populates the given VTK DataObject's attribute arrays with the selected
@@ -87,7 +88,7 @@ public:
     vtkXdmf3ArraySelection *cselection,
     vtkXdmf3ArraySelection *pselection,
     XdmfGrid *grid, vtkDataObject *dObject,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the given Xdmf Grid's attribute arrays with the selected
@@ -123,7 +124,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfRegularGrid *grid,
     vtkImageData *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -131,7 +132,7 @@ public:
   static void CopyShape(
     XdmfRegularGrid *grid,
     vtkImageData *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -152,7 +153,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfRectilinearGrid *grid,
     vtkRectilinearGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -160,7 +161,7 @@ public:
   static void CopyShape(
     XdmfRectilinearGrid *grid,
     vtkRectilinearGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -181,7 +182,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfCurvilinearGrid *grid,
     vtkStructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -189,7 +190,7 @@ public:
   static void CopyShape(
     XdmfCurvilinearGrid *grid,
     vtkStructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -210,7 +211,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfUnstructuredGrid *grid,
     vtkUnstructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Helper that does topology for XdmfToVTK
@@ -218,7 +219,7 @@ public:
   static void CopyShape(
     XdmfUnstructuredGrid *grid,
     vtkUnstructuredGrid *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -239,7 +240,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
     XdmfGraph *grid,
     vtkMutableDirectedGraph *dataSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Populates the Xdmf Grid with the contents of the VTK data set
@@ -264,7 +265,7 @@ public:
     vtkXdmf3ArraySelection *pselection,
 */
     XdmfSet *grid, vtkDataObject *dObject,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
   /**
    * Extracts numbered subset out of grid (grid corresponds to dataSet),
@@ -275,8 +276,35 @@ public:
     unsigned int setnum,
     vtkDataSet *dataSet,
     vtkUnstructuredGrid *subSet,
-    vtkXdmf3ArrayKeeper *keeper=NULL);
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 
+  /**
+   * Converts XDMF topology type, finite element family and degree
+   * into an equivalent (or approximative) representation via VTK cell
+   * type.
+   */
+  static int GetVTKFiniteElementCellType(
+    unsigned int element_degree,
+    const std::string& element_family,
+    shared_ptr<const XdmfTopologyType> topologyType);
+
+  /**
+   * Parses finite element function defined in Attribute.
+   *
+   * This method changes geometry stored in vtkDataObject
+   * and adds Point/Cell data field.
+   *
+   * XdmfAttribute must contain 2 arrays - one is the XdmfAttribute itself and
+   * remaining one the auxiliary array. Interpretation of the arrays is
+   * described in XDMF wiki page http://www.xdmf.org/index.php/XDMF_Model_and_Format#Attribute
+   *
+   */
+  static void ParseFiniteElementFunction(
+    vtkDataObject *dObject,
+    shared_ptr <XdmfAttribute> xmfAttribute,
+    vtkDataArray *array,
+    XdmfGrid *grid,
+    vtkXdmf3ArrayKeeper *keeper=nullptr);
 };
 
 #endif

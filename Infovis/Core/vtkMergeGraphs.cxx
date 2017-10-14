@@ -42,7 +42,7 @@ vtkMergeGraphs::vtkMergeGraphs()
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
   this->UseEdgeWindow = false;
-  this->EdgeWindowArrayName = 0;
+  this->EdgeWindowArrayName = nullptr;
   this->SetEdgeWindowArrayName("time");
   this->EdgeWindow = 10000;
 }
@@ -50,7 +50,7 @@ vtkMergeGraphs::vtkMergeGraphs()
 //---------------------------------------------------------------------------
 vtkMergeGraphs::~vtkMergeGraphs()
 {
-  this->SetEdgeWindowArrayName(0);
+  this->SetEdgeWindowArrayName(nullptr);
 }
 
 //---------------------------------------------------------------------------

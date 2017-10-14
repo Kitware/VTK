@@ -91,7 +91,7 @@ def TestDisplay(file1):
         iren.SetInteractorStyle(style)
 
     renwin = vtk.vtkRenderWindow()
-    renwin.SetSize(size[0] + size[2], size[1])
+    renwin.SetSize((size[0] + size[2]) // 2 * 2, size[1] // 2 * 2) # keep size even
     renwin.AddRenderer(ren1)
     renwin.AddRenderer(ren2)
 

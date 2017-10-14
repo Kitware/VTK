@@ -57,5 +57,6 @@ vtkImageViewer viewer
   viewer SetZSlice 90
   viewer SetColorWindow 2000
   viewer SetColorLevel 1000
+  viewer SetSize 200 200
   viewer Render
 

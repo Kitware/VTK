@@ -50,7 +50,7 @@ class VTKIOGEOMETRY_EXPORT vtkWindBladeReader : public vtkStructuredGridAlgorith
 public:
   static vtkWindBladeReader *New();
   vtkTypeMacro(vtkWindBladeReader,vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(Filename);
   vtkGetStringMacro(Filename);
@@ -98,7 +98,7 @@ protected:
    static int   INTEGER;
 
   vtkWindBladeReader();
-  ~vtkWindBladeReader() VTK_OVERRIDE;
+  ~vtkWindBladeReader() override;
 
   char* Filename;   // Base file name
 
@@ -236,11 +236,11 @@ protected:
   void ReadBladeData(std::stringstream &inStr);
 
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   static void SelectionCallback(
     vtkObject *caller,
@@ -253,7 +253,7 @@ protected:
     unsigned long eid,
     void* clientdata, void* calldata);
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   /**
    * We intercept the requests to check for which port
@@ -263,12 +263,12 @@ protected:
    */
   int ProcessRequest(vtkInformation *request,
                      vtkInformationVector **inInfo,
-                     vtkInformationVector *outInfo) VTK_OVERRIDE;
+                     vtkInformationVector *outInfo) override;
 
 private:
   WindBladeReaderInternal * Internal;
 
-  vtkWindBladeReader(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
+  vtkWindBladeReader(const vtkWindBladeReader&) = delete;
+  void operator=(const vtkWindBladeReader&) = delete;
 };
 #endif

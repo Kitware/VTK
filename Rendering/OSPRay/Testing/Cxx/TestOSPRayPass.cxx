@@ -78,14 +78,14 @@ int TestOSPRayPass(int argc, char* argv[])
     else
     {
       cerr << "Render via GL" << endl;
-      renderer->SetPass(NULL);
+      renderer->SetPass(nullptr);
     }
     renWin->Render();
   }
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();
-  style->SetPipelineControlPoints((vtkOpenGLRenderer*)renderer.Get(), ospray, NULL);
+  style->SetPipelineControlPoints(renderer, ospray, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 

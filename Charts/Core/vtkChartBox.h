@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartBox : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartBox, vtkChart);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a box chart
@@ -49,12 +49,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -97,12 +97,12 @@ public:
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
+  vtkPlot* GetPlot(vtkIdType index) override;
 
   /**
    * Get the number of plots the chart contains.
    */
-  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPlots() override;
 
   /**
    * Get the chart Y axis
@@ -128,22 +128,22 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the chart.
@@ -165,7 +165,7 @@ public:
 
 protected:
   vtkChartBox();
-  ~vtkChartBox() VTK_OVERRIDE;
+  ~vtkChartBox() override;
 
   //@{
   /**
@@ -223,8 +223,8 @@ protected:
                         vtkPlot *plot, vtkIdType &segmentIndex);
 
 private:
-  vtkChartBox(const vtkChartBox &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartBox &) VTK_DELETE_FUNCTION;
+  vtkChartBox(const vtkChartBox &) = delete;
+  void operator=(const vtkChartBox &) = delete;
 
 };
 

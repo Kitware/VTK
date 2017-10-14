@@ -38,7 +38,7 @@ vtkEdgePoints::vtkEdgePoints()
 vtkEdgePoints::~vtkEdgePoints()
 {
   this->Locator->Delete();
-  this->Locator = NULL;
+  this->Locator = nullptr;
 }
 
 //
@@ -153,7 +153,7 @@ int vtkEdgePoints::RequestData(
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
       {
         cell->Contour(this->Value, cellScalars, this->Locator, newVerts,
-                      NULL, NULL, inPd, outPd, inCd, cellId, outCd);
+                      nullptr, nullptr, inPd, outPd, inCd, cellId, outCd);
       }
 
       else //

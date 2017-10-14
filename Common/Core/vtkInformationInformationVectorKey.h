@@ -34,10 +34,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationInformationVectorKey : public vtkInform
 {
 public:
   vtkTypeMacro(vtkInformationInformationVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationInformationVectorKey(const char* name, const char* location);
-  ~vtkInformationInformationVectorKey() VTK_OVERRIDE;
+  ~vtkInformationInformationVectorKey() override;
 
   //@{
   /**
@@ -53,23 +53,23 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Duplicate (new instance created) the entry associated with this key from
    * one information object to another (new instances of any contained
    * vtkInformation and vtkInformationVector objects are created).
    */
-  void DeepCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void DeepCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Report a reference this key has in the given information object.
    */
-  void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
+  void Report(vtkInformation* info, vtkGarbageCollector* collector) override;
 
 private:
-  vtkInformationInformationVectorKey(const vtkInformationInformationVectorKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationInformationVectorKey&) VTK_DELETE_FUNCTION;
+  vtkInformationInformationVectorKey(const vtkInformationInformationVectorKey&) = delete;
+  void operator=(const vtkInformationInformationVectorKey&) = delete;
 };
 
 #endif

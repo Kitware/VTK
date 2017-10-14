@@ -123,7 +123,7 @@ int TestTilingCxx(int argc, char* argv[])
 
   VTK_CREATE(vtkWindowToImageFilter, w2i);
   w2i->SetInput(renWin);
-  w2i->SetMagnification(2);
+  w2i->SetScale(3, 2);
   w2i->Update();
 
   // copy the output
@@ -140,8 +140,8 @@ int TestTilingCxx(int argc, char* argv[])
   VTK_CREATE(vtkActor2D, ia2);
   ia2->SetMapper(ia);
 
-  renWin->SetSize(320, 320);
-  renWin->SetPosition(320,320);
+  renWin->SetSize(480, 320);
+  renWin->SetPosition(480, 320);
 
   ren2->RemoveViewProp(scalarBar);
   ren1->RemoveViewProp(sphereActor);

@@ -65,7 +65,7 @@ public:
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSphereTreeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * hierarchy. The hierarchy represents different levels in the tree
    * and enables rapid traversal of the tree.
    */
-  vtkSetMacro(TreeHierarchy,int);
-  vtkGetMacro(TreeHierarchy,int);
-  vtkBooleanMacro(TreeHierarchy,int);
+  vtkSetMacro(TreeHierarchy, bool);
+  vtkGetMacro(TreeHierarchy, bool);
+  vtkBooleanMacro(TreeHierarchy, bool);
   //@}
 
   //@{
@@ -152,28 +152,28 @@ public:
   /**
    * Modified GetMTime because the sphere tree may have changed.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkSphereTreeFilter();
-  ~vtkSphereTreeFilter() VTK_OVERRIDE;
+  ~vtkSphereTreeFilter() override;
 
   vtkSphereTree *SphereTree;
-  int TreeHierarchy;
+  bool TreeHierarchy;
   int ExtractionMode;
   int Level;
   double Point[3];
   double Ray[3];
   double Normal[3];
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *) override;
+  int FillInputPortInformation(int port,
+                               vtkInformation *info) override;
 
 private:
-  vtkSphereTreeFilter(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereTreeFilter&) VTK_DELETE_FUNCTION;
+  vtkSphereTreeFilter(const vtkSphereTreeFilter&) = delete;
+  void operator=(const vtkSphereTreeFilter&) = delete;
 
 };
 

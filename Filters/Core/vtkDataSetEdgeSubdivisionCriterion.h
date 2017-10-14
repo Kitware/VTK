@@ -47,7 +47,7 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
   public:
     vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion,vtkEdgeSubdivisionCriterion);
     static vtkDataSetEdgeSubdivisionCriterion* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
     virtual void SetMesh( vtkDataSet* );
     vtkDataSet* GetMesh();
@@ -63,7 +63,7 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
 
     const vtkCell* GetCell() const;
 
-    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) VTK_OVERRIDE;
+    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) override;
 
     /**
      * Evaluate all of the fields that should be output with the
@@ -153,7 +153,7 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
 
   protected:
     vtkDataSetEdgeSubdivisionCriterion();
-    ~vtkDataSetEdgeSubdivisionCriterion() VTK_OVERRIDE;
+    ~vtkDataSetEdgeSubdivisionCriterion() override;
 
     vtkDataSet* CurrentMesh;
     vtkIdType CurrentCellId;
@@ -166,8 +166,8 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
     int ActiveFieldCriteria;
 
   private:
-    vtkDataSetEdgeSubdivisionCriterion( const vtkDataSetEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkDataSetEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
+    vtkDataSetEdgeSubdivisionCriterion( const vtkDataSetEdgeSubdivisionCriterion& ) = delete;
+    void operator = ( const vtkDataSetEdgeSubdivisionCriterion& ) = delete;
 
 };
 

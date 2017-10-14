@@ -71,16 +71,16 @@ public:
 
 protected:
   vtkBuffer()
-    : Pointer(NULL),
+    : Pointer(nullptr),
       Size(0),
       Save(false),
       DeleteFunction(free)
   {
   }
 
-  ~vtkBuffer() VTK_OVERRIDE
+  ~vtkBuffer() override
   {
-    this->SetBuffer(NULL, 0);
+    this->SetBuffer(nullptr, 0);
   }
 
   ScalarType *Pointer;
@@ -89,8 +89,8 @@ protected:
   void (*DeleteFunction)(void*);
 
 private:
-  vtkBuffer(const vtkBuffer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBuffer&) VTK_DELETE_FUNCTION;
+  vtkBuffer(const vtkBuffer&) = delete;
+  void operator=(const vtkBuffer&) = delete;
 };
 
 template <class ScalarT>
@@ -123,7 +123,7 @@ template <typename ScalarT>
 bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
 {
   // release old memory.
-  this->SetBuffer(NULL, 0);
+  this->SetBuffer(nullptr, 0);
   if (size > 0)
   {
     ScalarType* newArray =

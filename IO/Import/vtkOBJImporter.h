@@ -62,7 +62,7 @@ public:
   static vtkOBJImporter *New();
 
   vtkTypeMacro(vtkOBJImporter,vtkImporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,17 +83,17 @@ public:
 
 protected:
   vtkOBJImporter();
-  ~vtkOBJImporter() VTK_OVERRIDE;
+  ~vtkOBJImporter() override;
 
-  int  ImportBegin() VTK_OVERRIDE /*override*/;
-  void ImportEnd () VTK_OVERRIDE /*override*/;
-  void ReadData() VTK_OVERRIDE /* override */;
+  int  ImportBegin() override /*override*/;
+  void ImportEnd () override /*override*/;
+  void ReadData() override /* override */;
 
   vtkSmartPointer<vtkOBJPolyDataProcessor>   Impl;
 
 private:
-  vtkOBJImporter(const vtkOBJImporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBJImporter&) VTK_DELETE_FUNCTION;
+  vtkOBJImporter(const vtkOBJImporter&) = delete;
+  void operator=(const vtkOBJImporter&) = delete;
 };
 
 

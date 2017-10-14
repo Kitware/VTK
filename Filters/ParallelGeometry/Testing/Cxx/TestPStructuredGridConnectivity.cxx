@@ -91,8 +91,8 @@ void LogMessage( const std::string &msg)
 //------------------------------------------------------------------------------
 int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
 {
-  assert( "pre: Controller should not be NULL" && (Controller != NULL) );
-  assert( "pre: multi-block grid is NULL" && (multiblock != NULL) );
+  assert( "pre: Controller should not be nullptr" && (Controller != nullptr) );
+  assert( "pre: multi-block grid is nullptr" && (multiblock != nullptr) );
 
   // STEP 0: Count local number of nodes
   int numNodes = 0;
@@ -101,7 +101,7 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
     vtkUniformGrid *grid =
         vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
 
-    if( grid != NULL )
+    if( grid != nullptr )
     {
       vtkIdType pntIdx = 0;
       for( ; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
@@ -111,7 +111,7 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
           ++numNodes;
         }
       } // END for all nodes
-    } // END if grid != NULL
+    } // END if grid != nullptr
 
   } // END for all blocks
 
@@ -158,10 +158,10 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   gridPartitioner->Update();
   vtkMultiBlockDataSet *partitionedGrid =
       vtkMultiBlockDataSet::SafeDownCast( gridPartitioner->GetOutput() );
-  assert( "pre: partitionedGrid != NULL" && (partitionedGrid != NULL) );
+  assert( "pre: partitionedGrid != nullptr" && (partitionedGrid != nullptr) );
 
   // Each process has the same number of blocks, i.e., the same structure,
-  // however some block entries are NULL indicating that the data lives on
+  // however some block entries are nullptr indicating that the data lives on
   // some other process
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::New();
   mbds->SetNumberOfBlocks( numPartitions );
@@ -187,12 +187,12 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
 
       // Copy the global extent for the blockinformation
       vtkInformation *info = partitionedGrid->GetMetaData( block );
-      assert( "pre: null metadata!" && (info != NULL) );
+      assert( "pre: null metadata!" && (info != nullptr) );
       assert( "pre: must have a piece extent!" &&
               (info->Has(vtkDataObject::PIECE_EXTENT() ) ) );
 
       vtkInformation *metadata = mbds->GetMetaData( block );
-      assert( "pre: null metadata!" && (metadata != NULL) );
+      assert( "pre: null metadata!" && (metadata != nullptr) );
       metadata->Set(
         vtkDataObject::PIECE_EXTENT(),
         info->Get( vtkDataObject::PIECE_EXTENT() ),
@@ -200,14 +200,14 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
     } // END if we own the block
     else
     {
-      mbds->SetBlock( block, NULL );
+      mbds->SetBlock( block, nullptr );
     } // END else we don't own the block
   } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
-  assert( "pre: mbds is NULL" && (mbds != NULL) );
+  assert( "pre: mbds is nullptr" && (mbds != nullptr) );
   return( mbds );
 }
 
@@ -215,16 +215,16 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
 void RegisterGrids(
     vtkMultiBlockDataSet *mbds, vtkPStructuredGridConnectivity *connectivity )
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert( "pre: connectivity is nullptr!" && (connectivity != nullptr) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    if( grid != NULL )
+    if( grid != nullptr )
     {
       vtkInformation *info = mbds->GetMetaData( block );
-      assert( "pre: metadata should not be NULL" && (info != NULL) );
+      assert( "pre: metadata should not be nullptr" && (info != nullptr) );
       assert( "pre: must have piece extent!" &&
               info->Has(vtkDataObject::PIECE_EXTENT() ) );
       connectivity->RegisterGrid(
@@ -233,7 +233,7 @@ void RegisterGrids(
           grid->GetCellGhostArray(),
           grid->GetPointData(),
           grid->GetCellData(),
-          NULL );
+          nullptr );
     } // END if block belongs to this process
   } // END for all blocks
 }
@@ -242,7 +242,7 @@ void RegisterGrids(
 // Tests StructuredGridConnectivity on a distributed data-set
 int TestPStructuredGridConnectivity( const int factor )
 {
-  assert( "pre: MPI Controller is NULL!" && (Controller != NULL) );
+  assert( "pre: MPI Controller is nullptr!" && (Controller != nullptr) );
 
   int expected = 100*100*100;
 
@@ -253,11 +253,11 @@ int TestPStructuredGridConnectivity( const int factor )
 
   // STEP 1: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // poplulated. A NULL entry indicates that the block belongs to a different
+  // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
   Controller->Barrier();
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
 
@@ -335,7 +335,7 @@ double CalculateExpectedAverage()
 //------------------------------------------------------------------------------
 double GetXYZSumForGrid( vtkUniformGrid *grid )
 {
-  assert( "pre: input grid is NULL!" && (grid != NULL) );
+  assert( "pre: input grid is nullptr!" && (grid != nullptr) );
 
   double pnt[3];
   double sum = 0.0;
@@ -368,10 +368,10 @@ int TestAverage( const int factor )
 
   // STEP 2: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // poplulated. A NULL entry indicates that the block belongs to a different
+  // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
 
@@ -404,7 +404,7 @@ int TestAverage( const int factor )
   {
     vtkUniformGrid *blockPtr =
         vtkUniformGrid::SafeDownCast( mbds->GetBlock( blockIdx ) );
-    if( blockPtr != NULL )
+    if( blockPtr != nullptr )
     {
       partialSum += GetXYZSumForGrid( blockPtr );
     } // END if
@@ -453,11 +453,11 @@ int TestGhostLayerCreation( int factor, int ng )
 
   // STEP 2: Acquire the distributed structured grid for this process.
   // Each process has the same number of blocks, but not all entries are
-  // poplulated. A NULL entry indicates that the block belongs to a different
+  // poplulated. A nullptr entry indicates that the block belongs to a different
   // process.
   vtkMultiBlockDataSet *mbds = GetDataSet( numPartitions );
   WriteDistributedDataSet( "PINITIAL", mbds );
-  assert( "pre: mbds != NULL" && (mbds != NULL) );
+  assert( "pre: mbds != nullptr" && (mbds != nullptr) );
   assert( "pre: numBlocks mismatch" &&
            (static_cast<int>(mbds->GetNumberOfBlocks())==numPartitions) );
 
@@ -499,7 +499,7 @@ int TestPStructuredGridConnectivity( int argc, char *argv[] )
   // STEP 0: Initialize
   Controller = vtkMPIController::New();
   Controller->Initialize( &argc, &argv, 0 );
-  assert("pre: Controller should not be NULL" && (Controller != NULL) );
+  assert("pre: Controller should not be nullptr" && (Controller != nullptr) );
   vtkMultiProcessController::SetGlobalController( Controller );
   LogMessage( "Finished MPI Initialization!" );
 

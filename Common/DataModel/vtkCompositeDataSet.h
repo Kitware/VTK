@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataSet, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by user).
@@ -57,11 +57,11 @@ public:
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_COMPOSITE_DATA_SET;}
+  int GetDataObjectType() override {return VTK_COMPOSITE_DATA_SET;}
 
   /**
    * Copies the tree structure from the input. All pointers to non-composite
-   * data objects are initialized to NULL. This also shallow copies the meta data
+   * data objects are initialized to nullptr. This also shallow copies the meta data
    * associated with all the nodes.
    */
   virtual void CopyStructure(vtkCompositeDataSet* input)=0;
@@ -87,7 +87,7 @@ public:
    * Return the actual size of the data in kibibytes (1024 bytes). This number
    * is valid only after the pipeline has updated.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
@@ -100,14 +100,14 @@ public:
   /**
    * Restore data object to initial state,
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   /**
@@ -133,11 +133,11 @@ public:
 
  protected:
   vtkCompositeDataSet();
-  ~vtkCompositeDataSet() VTK_OVERRIDE;
+  ~vtkCompositeDataSet() override;
  private:
 
-  vtkCompositeDataSet(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataSet(const vtkCompositeDataSet&) = delete;
+  void operator=(const vtkCompositeDataSet&) = delete;
 
 };
 

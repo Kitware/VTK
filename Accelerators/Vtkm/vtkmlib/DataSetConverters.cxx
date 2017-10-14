@@ -19,6 +19,7 @@
 #include "ArrayConverters.h"
 #include "CellSetConverters.h"
 #include "PolyDataConverter.h"
+#include "ImageDataConverter.h"
 #include "Storage.h"
 #include "UnstructuredGridConverter.h"
 
@@ -32,13 +33,11 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <vtkm/cont/ArrayHandle.h>
-#include <vtkm/cont/DataSetBuilderUniform.h>
 #include <vtkm/cont/Field.h>
 
 namespace tovtkm {
@@ -73,7 +72,7 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
   }
 
   typedef vtkm::Vec<T, 3> Vec3;
-  Vec3 *xyz = NULL;
+  Vec3 *xyz = nullptr;
   return vtkm::cont::CoordinateSystem("coords", xyz, 0);
 }
 }
@@ -81,53 +80,27 @@ vtkm::cont::CoordinateSystem deduce_container(vtkPoints *points)
 // convert a vtkPoints array into a coordinate system
 vtkm::cont::CoordinateSystem Convert(vtkPoints *points)
 {
-  if (points->GetDataType() == VTK_FLOAT)
+  if (points)
   {
-    return deduce_container<vtkm::Float32>(points);
+    if (points->GetDataType() == VTK_FLOAT)
+    {
+      return deduce_container<vtkm::Float32>(points);
+    }
+    else if (points->GetDataType() == VTK_DOUBLE)
+    {
+      return deduce_container<vtkm::Float64>(points);
+    }
   }
-  else if (points->GetDataType() == VTK_DOUBLE)
-  {
-    return deduce_container<vtkm::Float64>(points);
-  }
-  else
-  {
-    // unsupported point set
-    typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
-    Vec3 *xyz = NULL;
-    return vtkm::cont::CoordinateSystem("coords", xyz, 0);
-  }
-}
 
-//------------------------------------------------------------------------------
-// convert an image data type
-vtkm::cont::DataSet Convert(vtkImageData *input)
-{
-  int extent[6];
-  input->GetExtent(extent);
-  double vorigin[3];
-  input->GetOrigin(vorigin);
-  double vspacing[3];
-  input->GetSpacing(vspacing);
-  int vdims[3];
-  input->GetDimensions(vdims);
-
-  vtkm::Vec<vtkm::FloatDefault, 3> origin(extent[0]*vspacing[0] + vorigin[0],
-                                          extent[2]*vspacing[1] + vorigin[1],
-                                          extent[4]*vspacing[2] + vorigin[2]);
-  vtkm::Vec<vtkm::FloatDefault, 3> spacing(vspacing[0],
-                                           vspacing[1],
-                                           vspacing[2]);
-  vtkm::Id3 dims(vdims[0], vdims[1], vdims[2]);
-
-  vtkm::cont::DataSet dataset =
-      vtkm::cont::DataSetBuilderUniform::Create(dims, origin, spacing);
-
-  return dataset;
+  // unsupported/null point set
+  typedef vtkm::Vec<vtkm::Float32, 3> Vec3;
+  Vec3 *xyz = nullptr;
+  return vtkm::cont::CoordinateSystem("coords", xyz, 0);
 }
 
 //------------------------------------------------------------------------------
 // convert an structured grid type
-vtkm::cont::DataSet Convert(vtkStructuredGrid *input)
+vtkm::cont::DataSet Convert(vtkStructuredGrid *input, FieldsFlag fields)
 {
   const int dimensionality = input->GetDataDimension();
   int dims[3]; input->GetDimensions(dims);
@@ -156,26 +129,28 @@ vtkm::cont::DataSet Convert(vtkStructuredGrid *input)
     vtkm::cont::CellSetStructured<3> cells("cells");
     cells.SetPointDimensions(vtkm::make_Vec(dims[0],dims[1],dims[2]));
     dataset.AddCellSet(cells);
-
   }
+
+  ProcessFields(input, dataset, fields);
+
   return dataset;
 }
 
 //------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
-vtkm::cont::DataSet Convert(vtkDataSet *input)
+vtkm::cont::DataSet Convert(vtkDataSet *input, FieldsFlag fields)
 {
   switch (input->GetDataObjectType())
   {
   case VTK_UNSTRUCTURED_GRID:
-    return Convert(vtkUnstructuredGrid::SafeDownCast(input));
+    return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
   case VTK_STRUCTURED_GRID:
-    return Convert(vtkStructuredGrid::SafeDownCast(input));
+    return Convert(vtkStructuredGrid::SafeDownCast(input), fields);
   case VTK_UNIFORM_GRID:
   case VTK_IMAGE_DATA:
-    return Convert(vtkImageData::SafeDownCast(input));
+    return Convert(vtkImageData::SafeDownCast(input), fields);
   case VTK_POLY_DATA:
-    return Convert(vtkPolyData::SafeDownCast(input));
+    return Convert(vtkPolyData::SafeDownCast(input), fields);
 
   case VTK_UNSTRUCTURED_GRID_BASE:
   case VTK_RECTILINEAR_GRID:

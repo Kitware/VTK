@@ -121,7 +121,7 @@ int vtkThresholdTable::RequestData(
   vtkInformationVector* outputVector)
 {
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
-  if (arr == NULL)
+  if (arr == nullptr)
   {
     vtkErrorMacro("An input array must be specified.");
     return 0;

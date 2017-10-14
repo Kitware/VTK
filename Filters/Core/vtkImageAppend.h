@@ -37,7 +37,7 @@ class VTKFILTERSCORE_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
 public:
   static vtkImageAppend *New();
   vtkTypeMacro(vtkImageAppend,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Replace one of the input connections with a new input.  You can
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkImageAppend();
-  ~vtkImageAppend() VTK_OVERRIDE;
+  ~vtkImageAppend() override;
 
   int PreserveExtents;
   int AppendAxis;
@@ -110,21 +110,21 @@ protected:
 
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int RequestUpdateExtent(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) VTK_OVERRIDE;
+                            int ext[6], int id) override;
 
 
   // see vtkAlgorithm for docs.
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   void InitOutput(int outExt[6], vtkImageData *outData);
 
@@ -134,18 +134,18 @@ protected:
   // overridden to allocate all of the output arrays, not just active scalars
   void AllocateOutputData(vtkImageData *out,
                           vtkInformation* outInfo,
-                          int *uExtent) VTK_OVERRIDE;
+                          int *uExtent) override;
   vtkImageData *AllocateOutputData(vtkDataObject *out,
-                                   vtkInformation* outInfo) VTK_OVERRIDE;
+                                   vtkInformation* outInfo) override;
 
   // overridden to prevent shallow copies across, since we have to do it elementwise
   void CopyAttributeData(vtkImageData *in, vtkImageData *out,
-                         vtkInformationVector** inputVector) VTK_OVERRIDE;
+                         vtkInformationVector** inputVector) override;
 
 
 private:
-  vtkImageAppend(const vtkImageAppend&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAppend&) VTK_DELETE_FUNCTION;
+  vtkImageAppend(const vtkImageAppend&) = delete;
+  void operator=(const vtkImageAppend&) = delete;
 };
 
 #endif

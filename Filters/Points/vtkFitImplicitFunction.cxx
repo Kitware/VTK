@@ -78,14 +78,14 @@ struct ExtractPoints
 //----------------------------------------------------------------------------
 vtkFitImplicitFunction::vtkFitImplicitFunction()
 {
-  this->ImplicitFunction = NULL;
+  this->ImplicitFunction = nullptr;
   this->Threshold = 0.01;
 }
 
 //----------------------------------------------------------------------------
 vtkFitImplicitFunction::~vtkFitImplicitFunction()
 {
-  this->SetImplicitFunction(NULL);
+  this->SetImplicitFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ vtkMTimeType vtkFitImplicitFunction::GetMTime()
   vtkMTimeType mTime=this->MTime.GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );

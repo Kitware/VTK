@@ -33,12 +33,12 @@ vtkStandardNewMacro(vtkImageViewer2);
 //----------------------------------------------------------------------------
 vtkImageViewer2::vtkImageViewer2()
 {
-  this->RenderWindow    = NULL;
-  this->Renderer        = NULL;
+  this->RenderWindow    = nullptr;
+  this->Renderer        = nullptr;
   this->ImageActor      = vtkImageActor::New();
   this->WindowLevel     = vtkImageMapToWindowLevelColors::New();
-  this->Interactor      = NULL;
-  this->InteractorStyle = NULL;
+  this->Interactor      = nullptr;
+  this->InteractorStyle = nullptr;
 
   this->Slice = 0;
   this->FirstRender = 1;
@@ -63,37 +63,37 @@ vtkImageViewer2::~vtkImageViewer2()
   if (this->WindowLevel)
   {
     this->WindowLevel->Delete();
-    this->WindowLevel = NULL;
+    this->WindowLevel = nullptr;
   }
 
   if (this->ImageActor)
   {
     this->ImageActor->Delete();
-    this->ImageActor = NULL;
+    this->ImageActor = nullptr;
   }
 
   if (this->Renderer)
   {
     this->Renderer->Delete();
-    this->Renderer = NULL;
+    this->Renderer = nullptr;
   }
 
   if (this->RenderWindow)
   {
     this->RenderWindow->Delete();
-    this->RenderWindow = NULL;
+    this->RenderWindow = nullptr;
   }
 
   if (this->Interactor)
   {
     this->Interactor->Delete();
-    this->Interactor = NULL;
+    this->Interactor = nullptr;
   }
 
   if (this->InteractorStyle)
   {
     this->InteractorStyle->Delete();
-    this->InteractorStyle = NULL;
+    this->InteractorStyle = nullptr;
   }
 }
 
@@ -215,7 +215,7 @@ int* vtkImageViewer2::GetSliceRange()
       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()) +
       this->SliceOrientation * 2;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -311,7 +311,7 @@ void vtkImageViewer2::UpdateOrientation()
 {
   // Set the camera position
 
-  vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
+  vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : nullptr;
   if (cam)
   {
     switch (this->SliceOrientation)
@@ -471,9 +471,9 @@ public:
 
   void Execute(vtkObject *caller,
                unsigned long event,
-               void *vtkNotUsed(callData)) VTK_OVERRIDE
+               void *vtkNotUsed(callData)) override
   {
-      if (this->IV->GetInput() == NULL)
+      if (this->IV->GetInput() == nullptr)
       {
         return;
       }
@@ -619,7 +619,7 @@ void vtkImageViewer2::UnInstallPipeline()
 {
   if (this->ImageActor)
   {
-    this->ImageActor->GetMapper()->SetInputConnection(NULL);
+    this->ImageActor->GetMapper()->SetInputConnection(nullptr);
   }
 
   if (this->Renderer && this->ImageActor)
@@ -634,8 +634,8 @@ void vtkImageViewer2::UnInstallPipeline()
 
   if (this->Interactor)
   {
-    this->Interactor->SetInteractorStyle(NULL);
-    this->Interactor->SetRenderWindow(NULL);
+    this->Interactor->SetInteractorStyle(nullptr);
+    this->Interactor->SetRenderWindow(nullptr);
   }
 }
 

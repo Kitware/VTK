@@ -35,14 +35,14 @@ public:
 
 protected:
   vtkStructuredGridOutlineFilter() {}
-  ~vtkStructuredGridOutlineFilter() VTK_OVERRIDE {}
+  ~vtkStructuredGridOutlineFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridOutlineFilter&) VTK_DELETE_FUNCTION;
+  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&) = delete;
+  void operator=(const vtkStructuredGridOutlineFilter&) = delete;
 };
 
 #endif

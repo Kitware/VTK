@@ -147,7 +147,7 @@ vtkOpenGLContextDevice3D::~vtkOpenGLContextDevice3D()
 void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
                                         const unsigned char *colors, int nc)
 {
-  assert("verts must be non-null" && verts != NULL);
+  assert("verts must be non-null" && verts != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();
@@ -184,7 +184,7 @@ void vtkOpenGLContextDevice3D::DrawPoly(const float *verts, int n,
 void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
                                          const unsigned char *colors, int nc)
 {
-  assert("verts must be non-null" && verts != NULL);
+  assert("verts must be non-null" && verts != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();
@@ -220,7 +220,7 @@ void vtkOpenGLContextDevice3D::DrawLines(const float *verts, int n,
 void vtkOpenGLContextDevice3D::DrawPoints(const float *verts, int n,
                                           const unsigned char *colors, int nc)
 {
-  assert("verts must be non-null" && verts != NULL);
+  assert("verts must be non-null" && verts != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();
@@ -255,7 +255,7 @@ void vtkOpenGLContextDevice3D::DrawTriangleMesh(const float *mesh, int n,
                                                 const unsigned char *colors,
                                                 int nc)
 {
-  assert("mesh must be non-null" && mesh != NULL);
+  assert("mesh must be non-null" && mesh != nullptr);
   assert("n must be greater than 0" && n > 0);
 
   vtkOpenGLClearErrorMacro();

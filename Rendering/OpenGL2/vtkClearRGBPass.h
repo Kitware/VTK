@@ -35,12 +35,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkClearRGBPass : public vtkRenderPass
 public:
   static vtkClearRGBPass *New();
   vtkTypeMacro(vtkClearRGBPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state s.
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   //@{
   /**
@@ -60,13 +60,13 @@ public:
   /**
    * Destructor.
    */
-  ~vtkClearRGBPass() VTK_OVERRIDE;
+  ~vtkClearRGBPass() override;
 
   double Background[3];
 
  private:
-  vtkClearRGBPass(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
+  vtkClearRGBPass(const vtkClearRGBPass&) = delete;
+  void operator=(const vtkClearRGBPass&) = delete;
 };
 
 #endif

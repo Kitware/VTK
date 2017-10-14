@@ -49,7 +49,7 @@ vtkExtractGeometry::vtkExtractGeometry(vtkImplicitFunction *f)
 //----------------------------------------------------------------------------
 vtkExtractGeometry::~vtkExtractGeometry()
 {
-  this->SetImplicitFunction(NULL);
+  this->SetImplicitFunction(nullptr);
 }
 
 // Overload standard modified time function. If implicit function is modified,
@@ -59,7 +59,7 @@ vtkMTimeType vtkExtractGeometry::GetMTime()
   vtkMTimeType mTime=this->MTime.GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->ImplicitFunction != NULL )
+  if ( this->ImplicitFunction != nullptr )
   {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -84,7 +84,7 @@ int vtkExtractGeometry::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  // May be NULL, check before dereferencing.
+  // May be nullptr, check before dereferencing.
   vtkUnstructuredGrid *gridInput = vtkUnstructuredGrid::SafeDownCast(input);
 
   vtkIdType ptId, numPts, numCells, i, newCellId, newId, *pointMap;
@@ -144,7 +144,7 @@ int vtkExtractGeometry::RequestData(
   newPts->Allocate(numPts/4,numPts);
   outputPD->CopyAllocate(pd);
   outputCD->CopyAllocate(cd);
-  vtkFloatArray *newScalars = NULL;
+  vtkFloatArray *newScalars = nullptr;
 
   if ( ! this->ExtractBoundaryCells )
   {

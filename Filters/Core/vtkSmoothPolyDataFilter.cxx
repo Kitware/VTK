@@ -130,7 +130,7 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
-  this->SmoothPoints = NULL;
+  this->SmoothPoints = nullptr;
 
   // optional second input
   this->SetNumberOfInputPorts(2);
@@ -145,7 +145,7 @@ vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -166,7 +166,7 @@ typedef struct _vtkMeshVertex
   _vtkMeshVertex()
   {
     type = VTK_SIMPLE_VERTEX; //can smooth
-    edges = NULL;
+    edges = nullptr;
   }
 } vtkMeshVertex, *vtkMeshVertexPtr;
 
@@ -213,7 +213,7 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
     // position of its connected neighbors using the relaxation factor.
     for (vtkIdType i = 0; i < params.numPts; ++i)
     {
-      if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != NULL &&
+      if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != nullptr &&
          (npts = vertsPtr->edges->GetNumberOfIds()) > 0)
       {
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
@@ -243,7 +243,7 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
         if (params.source)
         {
           vtkSmoothPoint *sPtr = params.SmoothPoints->GetSmoothPoint(i);
-          vtkCell *cell = NULL;
+          vtkCell *cell = nullptr;
 
           if (sPtr->cellId >= 0) //in cell
           {
@@ -294,7 +294,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   // get the input and output
   vtkPolyData *input = vtkPolyData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *source = 0;
+  vtkPolyData *source = nullptr;
   if (sourceInfo)
   {
     source = vtkPolyData::SafeDownCast(
@@ -306,21 +306,21 @@ int vtkSmoothPolyDataFilter::RequestData(
   vtkIdType numPts, numCells, i, numPolys, numStrips;
   int j, k;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType p1, p2;
   double conv;
   double x1[3], x2[3], x3[3], l1[3], l2[3];
   double CosFeatureAngle; //Cosine of angle between adjacent polys
   double CosEdgeAngle; // Cosine of angle between adjacent edges
-  double closestPt[3], dist2, *w = NULL;
+  double closestPt[3], dist2, *w = nullptr;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
-  vtkTriangleFilter *toTris=NULL;
+  vtkTriangleFilter *toTris=nullptr;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts;
   vtkMeshVertexPtr Verts;
-  vtkCellLocator *cellLocator=NULL;
+  vtkCellLocator *cellLocator=nullptr;
 
   // Check input
   //
@@ -410,7 +410,7 @@ int vtkSmoothPolyDataFilter::RequestData(
       { //multiply connected, becomes fixed!
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
-        Verts[pts[j]].edges = NULL;
+        Verts[pts[j]].edges = nullptr;
       }
 
     } //for all points in this line
@@ -462,12 +462,12 @@ int vtkSmoothPolyDataFilter::RequestData(
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
 
-        if ( Verts[p1].edges == NULL )
+        if ( Verts[p1].edges == nullptr )
         {
           Verts[p1].edges = vtkIdList::New();
           Verts[p1].edges->Allocate(16,6);
         }
-        if ( Verts[p2].edges == NULL )
+        if ( Verts[p2].edges == nullptr )
         {
           Verts[p2].edges = vtkIdList::New();
           Verts[p2].edges->Allocate(16,6);
@@ -756,10 +756,10 @@ int vtkSmoothPolyDataFilter::RequestData(
   //free up connectivity storage
   for (i=0; i<numPts; i++)
   {
-    if ( Verts[i].edges != NULL )
+    if ( Verts[i].edges != nullptr )
     {
       Verts[i].edges->Delete();
-      Verts[i].edges = NULL;
+      Verts[i].edges = nullptr;
     }
   }
   delete [] Verts;

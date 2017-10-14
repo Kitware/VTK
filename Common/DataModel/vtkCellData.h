@@ -35,15 +35,15 @@ public:
   static vtkCellData *New();
 
   vtkTypeMacro(vtkCellData,vtkDataSetAttributes);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkCellData() {} //make sure constructor and desctructor are protected
-  ~vtkCellData() VTK_OVERRIDE {}
+  ~vtkCellData() override {}
 
 private:
-  vtkCellData(const vtkCellData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellData&) VTK_DELETE_FUNCTION;
+  vtkCellData(const vtkCellData&) = delete;
+  void operator=(const vtkCellData&) = delete;
 };
 
 #endif

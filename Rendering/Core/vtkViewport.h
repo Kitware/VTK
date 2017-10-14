@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkViewport : public vtkObject
 {
 public:
   vtkTypeMacro(vtkViewport,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add a prop to the list of props. Does nothing if the prop is
@@ -331,7 +331,7 @@ protected:
   // two-sided lighting turned on, a viewport of (0,0,1,1), and back face
   // culling turned off.
   vtkViewport();
-  ~vtkViewport() VTK_OVERRIDE;
+  ~vtkViewport() override;
 
   // Picking functions to be implemented by sub-classes
   // Perform the main picking loop
@@ -384,8 +384,8 @@ protected:
 
 
 private:
-  vtkViewport(const vtkViewport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkViewport&) VTK_DELETE_FUNCTION;
+  vtkViewport(const vtkViewport&) = delete;
+  void operator=(const vtkViewport&) = delete;
 };
 
 

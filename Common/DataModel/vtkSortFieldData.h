@@ -60,7 +60,7 @@ public:
    */
   static vtkSortFieldData *New();
   vtkTypeMacro(vtkSortFieldData, vtkSortDataArray);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -107,11 +107,11 @@ public:
 
 protected:
   vtkSortFieldData();
-  ~vtkSortFieldData() VTK_OVERRIDE;
+  ~vtkSortFieldData() override;
 
 private:
-  vtkSortFieldData(const vtkSortFieldData &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSortFieldData &) VTK_DELETE_FUNCTION;
+  vtkSortFieldData(const vtkSortFieldData &) = delete;
+  void operator=(const vtkSortFieldData &) = delete;
 };
 
 #endif //vtkSortFieldData_h

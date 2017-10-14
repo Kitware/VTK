@@ -90,7 +90,7 @@ void vtkGenericVertexAttributeMapping::AddMapping(
   }
 
   vtkInternal::vtkInfo info;
-  info.AttributeName = attributeName.str().c_str();
+  info.AttributeName = attributeName.str();
   info.ArrayName = arrayName;
   info.FieldAssociation = fieldAssociation;
   info.Component = component;
@@ -133,7 +133,7 @@ const char* vtkGenericVertexAttributeMapping::GetAttributeName(unsigned int inde
   if (index >= this->Internal->Mappings.size())
   {
     vtkErrorMacro("Invalid index " << index);
-    return 0;
+    return nullptr;
   }
   return this->Internal->Mappings[index].AttributeName.c_str();
 }
@@ -144,7 +144,7 @@ const char* vtkGenericVertexAttributeMapping::GetArrayName(unsigned int index)
   if (index >= this->Internal->Mappings.size())
   {
     vtkErrorMacro("Invalid index " << index);
-    return 0;
+    return nullptr;
   }
   return this->Internal->Mappings[index].ArrayName.c_str();
 }

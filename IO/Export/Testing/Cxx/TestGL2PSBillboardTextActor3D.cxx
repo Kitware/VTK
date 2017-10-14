@@ -68,7 +68,7 @@ void setupGrid(vtkPolyData *grid)
   double thickness = 200.;
 
   vtkNew<vtkPoints> points;
-  grid->SetPoints(points.Get());
+  grid->SetPoints(points);
   for (int x_i = 0; x_i < 4; ++x_i)
   {
     for (int y_i = 0; y_i < 4; ++y_i)
@@ -94,7 +94,7 @@ void setupGrid(vtkPolyData *grid)
   }
 
   vtkNew<vtkCellArray> cellArray;
-  grid->SetPolys(cellArray.Get());
+  grid->SetPolys(cellArray);
   for (size_t i = 0; i < quads.size(); i += 4)
   {
     grid->InsertNextCell(VTK_QUAD, 4, &quads[i]);
@@ -117,12 +117,12 @@ int TestGL2PSBillboardTextActor3D(int, char *[])
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
   vtkNew<vtkPoints> points;
-  anchors->SetPoints(points.GetPointer());
+  anchors->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  anchors->SetVerts(verts.GetPointer());
+  anchors->SetVerts(verts);
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
-  anchors->GetCellData()->SetScalars(colors.GetPointer());
+  anchors->GetCellData()->SetScalars(colors);
 
   for (size_t row = 0; row < 3; ++row)
   {
@@ -161,53 +161,53 @@ int TestGL2PSBillboardTextActor3D(int, char *[])
                                                    1. - row * .26);
       actor->GetTextProperty()->SetBackgroundOpacity(0.85);
       actor->SetPosition(x[col], y[row], 0.);
-      setupBillboardTextActor3D(actor.GetPointer(), anchors.GetPointer());
-      ren->AddActor(actor.GetPointer());
+      setupBillboardTextActor3D(actor, anchors);
+      ren->AddActor(actor);
     }
   }
 
   vtkNew<vtkPolyDataMapper> anchorMapper;
-  anchorMapper->SetInputData(anchors.GetPointer());
+  anchorMapper->SetInputData(anchors);
   vtkNew<vtkActor> anchorActor;
-  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor(anchorActor.GetPointer());
+  ren->AddActor(anchorActor);
 
   // Add some various 'empty' actors to make sure there are no surprises:
   vtkNew<vtkBillboardTextActor3D> nullInputActor;
-  nullInputActor->SetInput(NULL);
-  ren->AddActor(nullInputActor.GetPointer());
+  nullInputActor->SetInput(nullptr);
+  ren->AddActor(nullInputActor);
 
   vtkNew<vtkBillboardTextActor3D> emptyInputActor;
   emptyInputActor->SetInput("");
-  ren->AddActor(emptyInputActor.GetPointer());
+  ren->AddActor(emptyInputActor);
 
   vtkNew<vtkBillboardTextActor3D> spaceActor;
   spaceActor->SetInput(" ");
-  ren->AddActor(spaceActor.GetPointer());
+  ren->AddActor(spaceActor);
 
   vtkNew<vtkBillboardTextActor3D> tabActor;
   tabActor->SetInput("\t");
-  ren->AddActor(tabActor.GetPointer());
+  ren->AddActor(tabActor);
 
   vtkNew<vtkBillboardTextActor3D> newlineActor;
   newlineActor->SetInput("\n");
-  ren->AddActor(newlineActor.GetPointer());
+  ren->AddActor(newlineActor);
 
   vtkNew<vtkPolyData> grid;
-  setupGrid(grid.Get());
+  setupGrid(grid);
   vtkNew<vtkPolyDataMapper> gridMapper;
-  gridMapper->SetInputData(grid.Get());
+  gridMapper->SetInputData(grid);
   vtkNew<vtkActor> gridActor;
   gridActor->GetProperty()->SetRepresentationToSurface();
   gridActor->GetProperty()->SetColor(0.6, 0.6, 0.6);
-  gridActor->SetMapper(gridMapper.Get());
-  ren->AddActor(gridActor.Get());
+  gridActor->SetMapper(gridMapper);
+  ren->AddActor(gridActor);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetPosition(width/2, height/2, 1400);
@@ -220,7 +220,7 @@ int TestGL2PSBillboardTextActor3D(int, char *[])
   win->Render();
 
   vtkNew<vtkGL2PSExporter> exp;
-  exp->SetRenderWindow(win.GetPointer());
+  exp->SetRenderWindow(win);
   exp->SetFileFormatToPS();
   exp->CompressOff();
   exp->SetSortToSimple();

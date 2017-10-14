@@ -16,7 +16,7 @@
 
 #include <cstring>
 #include <cctype>
-#include <errno.h>
+#include <cerrno>
 
 // this list should only contain the initial, contiguous
 // set of error codes and should not include UserError
@@ -31,7 +31,7 @@ static const char *vtkErrorCodeErrorStrings[] = {
   "OutOfDiskSpaceError",
   "UnknownError",
   "UserError",
-  NULL
+  nullptr
 };
 
 const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
@@ -49,7 +49,7 @@ const char *vtkErrorCode::GetStringFromErrorCode(unsigned long error)
   // find length of table
   if (!numerrors)
   {
-    while (vtkErrorCodeErrorStrings[numerrors] != NULL)
+    while (vtkErrorCodeErrorStrings[numerrors] != nullptr)
     {
       numerrors++;
     }
@@ -72,7 +72,7 @@ unsigned long vtkErrorCode::GetErrorCodeFromString(const char *error)
 {
   unsigned long i;
 
-  for (i = 0; vtkErrorCodeErrorStrings[i] != NULL; i++)
+  for (i = 0; vtkErrorCodeErrorStrings[i] != nullptr; i++)
   {
     if (!strcmp(vtkErrorCodeErrorStrings[i],error))
     {

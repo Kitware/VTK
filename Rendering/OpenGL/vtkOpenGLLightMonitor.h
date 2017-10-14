@@ -39,7 +39,7 @@ public:
   static vtkOpenGLLightMonitor* New();
   static vtkOpenGLLightMonitor *New(int lightId);
   vtkTypeMacro(vtkOpenGLLightMonitor, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -87,7 +87,7 @@ private:
   vtkOpenGLLightMonitor() : LightId(0), UpTime(0)
   { this->Initialize(); }
 
-  ~vtkOpenGLLightMonitor() VTK_OVERRIDE{}
+  ~vtkOpenGLLightMonitor() override{}
 
   void Initialize();
 
@@ -105,8 +105,8 @@ private:
   long long UpTime;
 
 private:
-  vtkOpenGLLightMonitor(const vtkOpenGLLightMonitor &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLightMonitor &) VTK_DELETE_FUNCTION;
+  vtkOpenGLLightMonitor(const vtkOpenGLLightMonitor &) = delete;
+  void operator=(const vtkOpenGLLightMonitor &) = delete;
 };
 
 #endif

@@ -55,14 +55,14 @@ vtkEuclideanClusterExtraction::vtkEuclideanClusterExtraction()
   this->Seeds = vtkIdList::New();
   this->SpecifiedClusterIds = vtkIdList::New();
 
-  this->NewScalars = 0;
+  this->NewScalars = nullptr;
 
 }
 
 //----------------------------------------------------------------------------
 vtkEuclideanClusterExtraction::~vtkEuclideanClusterExtraction()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
   this->ClusterSizes->Delete();
   this->NeighborScalars->Delete();
   this->NeighborPointIds->Delete();
@@ -116,7 +116,7 @@ int vtkEuclideanClusterExtraction::RequestData(
   this->InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity )
   {
-    this->InScalars = NULL;
+    this->InScalars = nullptr;
   }
   else
   {
@@ -373,8 +373,6 @@ void vtkEuclideanClusterExtraction::TraverseAndMark (vtkPoints *inPts)
     this->Wave2 = tmpWave;
     tmpWave->Reset();
   } //while wave is not empty
-
-  return;
 }
 
 //----------------------------------------------------------------------------

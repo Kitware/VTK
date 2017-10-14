@@ -39,7 +39,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkImageToPoints :
 public:
   static vtkImageToPoints *New();
   vtkTypeMacro(vtkImageToPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,28 +62,28 @@ public:
 
 protected:
   vtkImageToPoints();
-  ~vtkImageToPoints() VTK_OVERRIDE;
+  ~vtkImageToPoints() override;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *outInfo) VTK_OVERRIDE;
+                                 vtkInformationVector *outInfo) override;
 
   int RequestUpdateExtent(vtkInformation *request,
                                  vtkInformationVector **inInfo,
-                                 vtkInformationVector *outInfo) VTK_OVERRIDE;
+                                 vtkInformationVector *outInfo) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inInfo,
-                          vtkInformationVector *outInfo) VTK_OVERRIDE;
+                          vtkInformationVector *outInfo) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int OutputPointsPrecision;
 
 private:
-  vtkImageToPoints(const vtkImageToPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToPoints&) VTK_DELETE_FUNCTION;
+  vtkImageToPoints(const vtkImageToPoints&) = delete;
+  void operator=(const vtkImageToPoints&) = delete;
 };
 
 #endif

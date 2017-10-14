@@ -51,7 +51,7 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPStructuredGridConnectivity :
 public:
   static vtkPStructuredGridConnectivity* New();
   vtkTypeMacro(vtkPStructuredGridConnectivity,vtkStructuredGridConnectivity);
-  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
   /**
    * Sets the total number of domains distributed among processors
    */
-  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
+  void SetNumberOfGrids( const unsigned int N ) override;
 
   /**
    * See vtkStructuredGridConnectivity::RegisterGrid
@@ -74,7 +74,7 @@ public:
       vtkUnsignedCharArray* cellGhostArray,
       vtkPointData* pointData,
       vtkCellData* cellData,
-      vtkPoints* gridNodes ) VTK_OVERRIDE;
+      vtkPoints* gridNodes ) override;
 
   /**
    * Returns the number of local grids registers by the process that owns
@@ -113,13 +113,13 @@ public:
    * data-set.
    * See vtkStructuredGridConnectivity::ComputeNeighbors
    */
-  void ComputeNeighbors() VTK_OVERRIDE;
+  void ComputeNeighbors() override;
 
   /**
    * Creates ghost layers on the grids owned by this process using data from
    * both local and remote block neighbors.
    */
-  virtual void CreateGhostLayers( const int N=1 ) VTK_OVERRIDE;
+  virtual void CreateGhostLayers( const int N=1 ) override;
 
 protected:
   vtkPStructuredGridConnectivity();
@@ -208,7 +208,7 @@ protected:
    * extents from the neighboring grids of the grid corresponding to the given
    * gridID.
    */
-  virtual void TransferGhostDataFromNeighbors(const int gridID) VTK_OVERRIDE;
+  virtual void TransferGhostDataFromNeighbors(const int gridID) override;
 
   /**
    * Helper method to pack all the ghost data into send buffers.
@@ -392,8 +392,8 @@ protected:
       int *rcvbuffer, vtkIdType &N, const int processId );
 
 private:
-  vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
+  vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity& ) = delete;
+  void operator=(const vtkPStructuredGridConnectivity& ) = delete;
 };
 
 //=============================================================================
@@ -421,7 +421,7 @@ inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( (this->GridPointData[gridIdx] != NULL) &&
+  if( (this->GridPointData[gridIdx] != nullptr) &&
       (this->GridPointData[gridIdx]->GetNumberOfArrays() > 0) )
   {
     return true;
@@ -436,7 +436,7 @@ inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( (this->GridCellData[gridIdx] != NULL) &&
+  if( (this->GridCellData[gridIdx] != nullptr) &&
       (this->GridCellData[gridIdx]->GetNumberOfArrays( ) > 0) )
   {
     return true;
@@ -451,7 +451,7 @@ inline bool vtkPStructuredGridConnectivity::HasPoints(const int gridIdx)
   assert("pre: grid index is out-of-bounds!" &&
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
-  if( this->GridPoints[gridIdx] != NULL )
+  if( this->GridPoints[gridIdx] != nullptr )
   {
     return true;
   }
@@ -501,7 +501,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemotePoints[i].size(); ++j )
     {
-      if( this->RemotePoints[ i ][ j ] != NULL )
+      if( this->RemotePoints[ i ][ j ] != nullptr )
       {
         this->RemotePoints[ i ][ j ]->Delete();
       }
@@ -515,7 +515,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemotePointData[i].size(); ++j )
     {
-      if( this->RemotePointData[ i ][ j ] != NULL )
+      if( this->RemotePointData[ i ][ j ] != nullptr )
       {
         this->RemotePointData[ i ][ j ]->Delete();
       }
@@ -529,7 +529,7 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
   {
     for( unsigned int j=0; j < this->RemoteCellData[i].size(); ++j )
     {
-      if( this->RemoteCellData[ i ][ j ] != NULL )
+      if( this->RemoteCellData[ i ][ j ] != nullptr )
       {
         this->RemoteCellData[ i ][ j ]->Delete();
       }

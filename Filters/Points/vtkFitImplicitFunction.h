@@ -69,7 +69,7 @@ public:
    */
   static vtkFitImplicitFunction *New();
   vtkTypeMacro(vtkFitImplicitFunction,vtkPointCloudFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -94,22 +94,22 @@ public:
   /**
    * Return the MTime taking into account changes to the implicit function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkFitImplicitFunction();
-  ~vtkFitImplicitFunction() VTK_OVERRIDE;
+  ~vtkFitImplicitFunction() override;
 
   vtkImplicitFunction *ImplicitFunction;
   double Threshold;
 
   // All derived classes must implement this method. Note that a side effect of
   // the class is to populate the PointMap. Zero is returned if there is a failure.
-  int FilterPoints(vtkPointSet *input) VTK_OVERRIDE;
+  int FilterPoints(vtkPointSet *input) override;
 
 private:
-  vtkFitImplicitFunction(const vtkFitImplicitFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFitImplicitFunction&) VTK_DELETE_FUNCTION;
+  vtkFitImplicitFunction(const vtkFitImplicitFunction&) = delete;
+  void operator=(const vtkFitImplicitFunction&) = delete;
 
 };
 

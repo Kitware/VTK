@@ -30,7 +30,7 @@
 #include "vtkColor.h" // needed for vtkColor3d
 #include <stack> //  needed for RenderBlockState.
 
-class vtkCompositeDataDisplayAttributes;
+class vtkCompositeDataDisplayAttributesLegacy;
 class vtkInformationObjectBaseKey;
 class vtkProperty;
 class vtkRenderWindow;
@@ -40,16 +40,16 @@ class VTKRENDERINGOPENGL_EXPORT vtkCompositePainter : public vtkPainter
 public:
   static vtkCompositePainter* New();
   vtkTypeMacro(vtkCompositePainter, vtkPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the output data object from this painter. The default implementation
    * simply forwards the input data object as the output.
    */
-  vtkDataObject* GetOutput() VTK_OVERRIDE;
+  vtkDataObject* GetOutput() override;
 
   /**
-   * Key used to pass a vtkCompositeDataDisplayAttributes instance doing the
+   * Key used to pass a vtkCompositeDataDisplayAttributesLegacy instance doing the
    * painter pipeline.
    */
   static vtkInformationObjectBaseKey* DISPLAY_ATTRIBUTES();
@@ -59,23 +59,23 @@ public:
    * can be used by the painter to control specific rendering attributes on a
    * per-block basis for a multi-block dataset.
    */
-  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
-  vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes)
+  void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributesLegacy *attributes);
+  vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributesLegacy)
 
 protected:
   vtkCompositePainter();
-  ~vtkCompositePainter() VTK_OVERRIDE;
+  ~vtkCompositePainter() override;
 
   /**
    * Take part in garbage collection.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
   /**
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  void ProcessInformation(vtkInformation* information) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation* information) override;
 
   /**
    * Performs the actual rendering. Subclasses may override this method.
@@ -85,7 +85,7 @@ protected:
    * has been called.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-    unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+    unsigned long typeflags, bool forceCompileOnly) override;
 
   class RenderBlockState
   {
@@ -117,10 +117,10 @@ protected:
     vtkRenderWindow*, vtkProperty*, RenderBlockState&) {}
 
   vtkDataObject* OutputData;
-  vtkCompositeDataDisplayAttributes *CompositeDataDisplayAttributes;
+  vtkCompositeDataDisplayAttributesLegacy *CompositeDataDisplayAttributes;
 private:
-  vtkCompositePainter(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
+  vtkCompositePainter(const vtkCompositePainter&) = delete;
+  void operator=(const vtkCompositePainter&) = delete;
 
 };
 

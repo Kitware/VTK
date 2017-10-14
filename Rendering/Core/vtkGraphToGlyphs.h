@@ -49,7 +49,7 @@ class VTKRENDERINGCORE_EXPORT vtkGraphToGlyphs : public vtkPolyDataAlgorithm
 public:
   static vtkGraphToGlyphs *New();
   vtkTypeMacro(vtkGraphToGlyphs, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum
   {
@@ -114,21 +114,21 @@ public:
   /**
    * The modified time of this filter.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkGraphToGlyphs();
-  ~vtkGraphToGlyphs() VTK_OVERRIDE;
+  ~vtkGraphToGlyphs() override;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkSmartPointer<vtkGraphToPoints> GraphToPoints;
   vtkSmartPointer<vtkGlyphSource2D> GlyphSource;
@@ -140,8 +140,8 @@ protected:
   double ScreenSize;
 
 private:
-  vtkGraphToGlyphs(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
+  vtkGraphToGlyphs(const vtkGraphToGlyphs&) = delete;
+  void operator=(const vtkGraphToGlyphs&) = delete;
 };
 
 #endif

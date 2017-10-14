@@ -58,24 +58,24 @@ class VTKFILTERSPARALLELGEOMETRY_EXPORT vtkPUnstructuredGridGhostDataGenerator:
 public:
   static vtkPUnstructuredGridGhostDataGenerator* New();
   vtkTypeMacro(vtkPUnstructuredGridGhostDataGenerator,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPUnstructuredGridGhostDataGenerator();
   virtual ~vtkPUnstructuredGridGhostDataGenerator();
 
   // Standard VTK pipeline routines
-  virtual int FillInputPortInformation(int port,vtkInformation *info) VTK_OVERRIDE;
-  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  virtual int FillInputPortInformation(int port,vtkInformation *info) override;
+  virtual int FillOutputPortInformation(int port, vtkInformation *info) override;
   virtual int RequestData(
       vtkInformation *rqst, vtkInformationVector **inputVector,
-      vtkInformationVector* outputVector ) VTK_OVERRIDE;
+      vtkInformationVector* outputVector ) override;
 
   vtkPUnstructuredGridConnectivity* GhostZoneBuilder;
   vtkMultiProcessController* Controller;
 private:
-  vtkPUnstructuredGridGhostDataGenerator(const vtkPUnstructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPUnstructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
+  vtkPUnstructuredGridGhostDataGenerator(const vtkPUnstructuredGridGhostDataGenerator&) = delete;
+  void operator=(const vtkPUnstructuredGridGhostDataGenerator&) = delete;
 };
 
 #endif //VTK_LEGACY_REMOVE

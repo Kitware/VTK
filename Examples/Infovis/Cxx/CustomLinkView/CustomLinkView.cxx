@@ -13,6 +13,7 @@
 #include <vtkDataObjectToTable.h>
 #include <vtkDataRepresentation.h>
 #include <vtkEventQtSlotConnect.h>
+#include "vtkGenericOpenGLRenderWindow.h"
 #include <vtkGraphLayoutView.h>
 #include <vtkQtTableView.h>
 #include <vtkQtTreeView.h>
@@ -25,6 +26,7 @@
 #include <vtkViewTheme.h>
 #include <vtkViewUpdater.h>
 #include <vtkXMLTreeReader.h>
+
 
 #include <QDir>
 #include <QFileDialog>
@@ -39,6 +41,9 @@ CustomLinkView::CustomLinkView()
 {
   this->ui = new Ui_CustomLinkView;
   this->ui->setupUi(this);
+  vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
+  this->ui->vtkGraphViewWidget->SetRenderWindow(renderWindow);
+
 
   this->XMLReader    = vtkSmartPointer<vtkXMLTreeReader>::New();
   this->GraphView    = vtkSmartPointer<vtkGraphLayoutView>::New();
@@ -59,8 +64,9 @@ CustomLinkView::CustomLinkView()
   // Graph View needs to get my render window
   this->GraphView->SetInteractor(
     this->ui->vtkGraphViewWidget->GetInteractor());
-  this->ui->vtkGraphViewWidget->SetRenderWindow(
-    this->GraphView->GetRenderWindow());
+
+  this->GraphView->SetRenderWindow(
+    this->ui->vtkGraphViewWidget->GetRenderWindow());
 
   // Set up the theme on the graph view :)
   vtkViewTheme* theme = vtkViewTheme::CreateNeonTheme();

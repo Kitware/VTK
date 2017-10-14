@@ -66,7 +66,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vt
 {
 public:
   vtkTypeMacro(vtkCachingInterpolatedVelocityField,vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkCachingInterpolatedVelocityField with no initial data set.
@@ -79,7 +79,7 @@ public:
    * Evaluate the velocity field, f={u,v,w}, at {x, y, z}.
    * returns 1 if valid, 0 if test failed
    */
-  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
+  int FunctionValues(double* x, double* f) override;
   virtual int InsideTest(double* x);
   //@}
 
@@ -91,7 +91,7 @@ public:
   //@{
   /**
    * If you want to work with an arbitrary vector array, then set its name
-   * here. By default this in NULL and the filter will use the active vector
+   * here. By default this in nullptr and the filter will use the active vector
    * array.
    */
   vtkGetStringMacro(VectorsSelection);
@@ -107,7 +107,7 @@ public:
   void SetLastCellInfo(vtkIdType c, int datasetindex);
 
   /**
-   * Set LastCellId to -1 and Cache to NULL so that the next
+   * Set LastCellId to -1 and Cache to nullptr so that the next
    * search does not  start from the previous cell.
    */
   void ClearLastCellInfo();
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkCachingInterpolatedVelocityField();
- ~vtkCachingInterpolatedVelocityField() VTK_OVERRIDE;
+ ~vtkCachingInterpolatedVelocityField() override;
 
   vtkGenericCell          *TempCell;
   int                      CellCacheHit;
@@ -171,8 +171,8 @@ protected:
   //@}
 
 private:
-  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) = delete;
+  void operator=(const vtkCachingInterpolatedVelocityField&) = delete;
 };
 
 //---------------------------------------------------------------------------

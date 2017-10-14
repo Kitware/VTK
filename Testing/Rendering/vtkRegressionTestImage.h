@@ -27,8 +27,8 @@ protected:
   vtkRegressionTester() {}
   ~vtkRegressionTester() {}
 private:
-  vtkRegressionTester(const vtkRegressionTester&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRegressionTester&) VTK_DELETE_FUNCTION;
+  vtkRegressionTester(const vtkRegressionTester&) = delete;
+  void operator=(const vtkRegressionTester&) = delete;
 };
 
 #define vtkRegressionTestImage(rw) \

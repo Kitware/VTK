@@ -40,7 +40,7 @@ public:
     /**
      * Lists all known keys.
      */
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Find an information key from name and location strings. For example,
@@ -53,7 +53,7 @@ public:
 
 protected:
     vtkInformationKeyLookup();
-    ~vtkInformationKeyLookup() VTK_OVERRIDE;
+    ~vtkInformationKeyLookup() override;
 
     friend class vtkInformationKey;
 
@@ -66,8 +66,8 @@ protected:
                             const std::string &location);
 
 private:
-    vtkInformationKeyLookup(const vtkInformationKeyLookup&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkInformationKeyLookup&) VTK_DELETE_FUNCTION;
+    vtkInformationKeyLookup(const vtkInformationKeyLookup&) = delete;
+    void operator=(const vtkInformationKeyLookup&) = delete;
 
     typedef std::pair<std::string, std::string> Identifier; // Location, Name
     typedef std::map<Identifier, vtkInformationKey*> KeyMap;

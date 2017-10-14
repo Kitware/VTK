@@ -41,7 +41,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseTableSource : public vtkTableAlgorithm
 public:
   static vtkSQLDatabaseTableSource* New();
   vtkTypeMacro(vtkSQLDatabaseTableSource, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkStdString GetURL();
   void SetURL(const vtkStdString& url);
@@ -72,16 +72,16 @@ public:
 
 protected:
   vtkSQLDatabaseTableSource();
-  ~vtkSQLDatabaseTableSource() VTK_OVERRIDE;
+  ~vtkSQLDatabaseTableSource() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
+  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) = delete;
+  void operator=(const vtkSQLDatabaseTableSource&) = delete;
 
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;

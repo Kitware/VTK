@@ -36,7 +36,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkGeoMath : public vtkObject
 public:
   static vtkGeoMath *New();
   vtkTypeMacro(vtkGeoMath, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the average radius of the earth in meters.
@@ -58,11 +58,11 @@ public:
 
 protected:
   vtkGeoMath();
-  ~vtkGeoMath() VTK_OVERRIDE;
+  ~vtkGeoMath() override;
 
 private:
-  vtkGeoMath(const vtkGeoMath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoMath&) VTK_DELETE_FUNCTION;
+  vtkGeoMath(const vtkGeoMath&) = delete;
+  void operator=(const vtkGeoMath&) = delete;
 };
 
 #endif

@@ -25,16 +25,16 @@ vtkStandardNewMacro(vtkTextureUnitManager);
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::vtkTextureUnitManager()
 {
-  this->Context=0;
+  this->Context=nullptr;
   this->NumberOfTextureUnits=0;
-  this->TextureUnits=0;
+  this->TextureUnits=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkTextureUnitManager::~vtkTextureUnitManager()
 {
   this->DeleteTable();
-  this->Context=0;
+  this->Context=nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -43,7 +43,7 @@ vtkTextureUnitManager::~vtkTextureUnitManager()
 // all the texture units have been released.
 void vtkTextureUnitManager::DeleteTable()
 {
-  if(this->TextureUnits!=0)
+  if(this->TextureUnits!=nullptr)
   {
     size_t i=0;
     size_t c=this->NumberOfTextureUnits;
@@ -58,7 +58,7 @@ void vtkTextureUnitManager::DeleteTable()
       vtkErrorMacro(<<"the texture unit is deleted but some texture units have not been released: Id="<<i);
     }
     delete[] this->TextureUnits;
-    this->TextureUnits=0;
+    this->TextureUnits=nullptr;
     this->NumberOfTextureUnits=0;
   }
 }
@@ -68,12 +68,12 @@ void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
 {
   if(this->Context!=context)
   {
-    if(this->Context!=0)
+    if(this->Context!=nullptr)
     {
       this->DeleteTable();
     }
     this->Context=context;
-    if(this->Context!=0)
+    if(this->Context!=nullptr)
     {
       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
       if(this->NumberOfTextureUnits > 0)
@@ -175,7 +175,7 @@ void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Context: ";
-  if(this->Context!=0)
+  if(this->Context!=nullptr)
   {
     os << static_cast<void *>(this->Context) <<endl;
   }

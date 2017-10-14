@@ -65,7 +65,7 @@ class VTKIOGEOMETRY_EXPORT vtkMCubesReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkMCubesReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with FlipNormals turned off and Normals set to true.
@@ -164,13 +164,13 @@ public:
   /**
    * Return the mtime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkMCubesReader();
-  ~vtkMCubesReader() VTK_OVERRIDE;
+  ~vtkMCubesReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char *FileName;
   char *LimitsFileName;
@@ -181,8 +181,8 @@ protected:
   int Normals;
 
 private:
-  vtkMCubesReader(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
+  vtkMCubesReader(const vtkMCubesReader&) = delete;
+  void operator=(const vtkMCubesReader&) = delete;
 };
 
 #endif

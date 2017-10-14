@@ -42,7 +42,7 @@ public:
   };
 
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper, vtkGPUVolumeRayCastMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   // Description:
   // Low level API to enable access to depth texture in
@@ -61,12 +61,12 @@ public:
   // Description:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
-  void GetDepthImage(vtkImageData* im) VTK_OVERRIDE;
+  void GetDepthImage(vtkImageData* im) override;
 
   // Description:
   // Low level API to export the color texture as vtkImageData in
   // RenderToImage mode.
-  void GetColorImage(vtkImageData* im) VTK_OVERRIDE;
+  void GetColorImage(vtkImageData* im) override;
 
   // Description:
   // Mapper can have multiple passes and internally it will set
@@ -105,12 +105,12 @@ public:
 
 protected:
   vtkOpenGLGPUVolumeRayCastMapper();
-  ~vtkOpenGLGPUVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkOpenGLGPUVolumeRayCastMapper() override;
 
   // Description:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
@@ -130,19 +130,19 @@ protected:
                          double vtkNotUsed(datasetBounds)[6],
                          double vtkNotUsed(scalarRange)[2],
                          int vtkNotUsed(noOfComponents),
-                         unsigned int vtkNotUsed(numberOfLevels)) VTK_OVERRIDE {};
+                         unsigned int vtkNotUsed(numberOfLevels)) override {};
 
   // \pre input is up-to-date
   void RenderBlock(vtkRenderer *vtkNotUsed(ren),
                            vtkVolume *vtkNotUsed(vol),
-                           unsigned int vtkNotUsed(level)) VTK_OVERRIDE {}
+                           unsigned int vtkNotUsed(level)) override {}
 
   void PostRender(vtkRenderer *vtkNotUsed(ren),
-                          int vtkNotUsed(noOfComponents)) VTK_OVERRIDE {}
+                          int vtkNotUsed(noOfComponents)) override {}
 
   // Description:
   // Rendering volume on GPU
-  void GPURender(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
+  void GPURender(vtkRenderer *ren, vtkVolume *vol) override;
 
   // Description:
   // Method that performs the actual rendering given a volume and a shader
@@ -166,7 +166,7 @@ protected:
 
   // Description:
   // Empty implementation.
-  void GetReductionRatio(double* ratio) VTK_OVERRIDE
+  void GetReductionRatio(double* ratio) override
   {
     ratio[0] = ratio[1] = ratio[2] = 1.0;
   }
@@ -175,7 +175,7 @@ protected:
   // Description:
   // Empty implementation.
   int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
-                                vtkVolumeProperty *vtkNotUsed(property)) VTK_OVERRIDE
+                                vtkVolumeProperty *vtkNotUsed(property)) override
   {
     return 1;
   }
@@ -219,8 +219,8 @@ private:
   int NoiseTextureSize[2];
 
   vtkOpenGLGPUVolumeRayCastMapper(
-    const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
+  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) = delete;
 };
 
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

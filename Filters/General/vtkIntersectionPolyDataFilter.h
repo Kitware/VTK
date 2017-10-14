@@ -69,7 +69,7 @@ class VTKFILTERSGENERAL_EXPORT vtkIntersectionPolyDataFilter :
 public:
   static vtkIntersectionPolyDataFilter *New();
   vtkTypeMacro(vtkIntersectionPolyDataFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -145,6 +145,16 @@ public:
   vtkSetMacro(Tolerance, double);
   //@}
 
+  //@{
+  /**
+   * When discretizing polygons, the minimum ratio of the smallest acceptable
+   * triangle area w.r.t. the area of the polygon
+   *
+   */
+  vtkGetMacro(RelativeSubtriangleArea, double);
+  vtkSetMacro(RelativeSubtriangleArea, double);
+  //@}
+
   /**
    * Given two triangles defined by points (p1, q1, r1) and (p2, q2,
    * r2), returns whether the two triangles intersect. If they do,
@@ -177,15 +187,15 @@ public:
 
 protected:
   vtkIntersectionPolyDataFilter();  //Constructor
-  ~vtkIntersectionPolyDataFilter() VTK_OVERRIDE;  //Destructor
+  ~vtkIntersectionPolyDataFilter() override;  //Destructor
 
   int RequestData(vtkInformation*, vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;  //Update
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE; //Input,Output
+                  vtkInformationVector*) override;  //Update
+  int FillInputPortInformation(int, vtkInformation*) override; //Input,Output
 
 private:
-  vtkIntersectionPolyDataFilter(const vtkIntersectionPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkIntersectionPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkIntersectionPolyDataFilter(const vtkIntersectionPolyDataFilter&) = delete;
+  void operator=(const vtkIntersectionPolyDataFilter&) = delete;
 
   int NumberOfIntersectionPoints;
   int NumberOfIntersectionLines;
@@ -196,6 +206,7 @@ private:
   int CheckInput;
   int Status;
   double Tolerance;
+  double RelativeSubtriangleArea;
 
   class Impl;  //Implementation class
 };

@@ -764,7 +764,7 @@ vtkIdType vtkICF::Fill(
     *maskPtr1 ^= bit;
     counter++;
 
-    if (fillExtent != 0)
+    if (fillExtent != nullptr)
     {
       if (seed[0] < fillExtent[0]) { fillExtent[0] = seed[0]; };
       if (seed[0] > fillExtent[1]) { fillExtent[1] = seed[0]; };
@@ -774,7 +774,7 @@ vtkIdType vtkICF::Fill(
       if (seed[2] > fillExtent[5]) { fillExtent[5] = seed[2]; };
     }
 
-    if (outLimits == 0)
+    if (outLimits == nullptr)
     {
       // get the pointer to the seed position in the mask
       vtkIdType outOffset = (seed[0]*outInc[0] +
@@ -1131,7 +1131,7 @@ void vtkICF::Finish(
         outData, outPtr, stencil, extent, label, regionInfo);
     }
     else if (labelMode != vtkImageConnectivityFilter::SeedScalar ||
-             seedScalars != 0)
+             seedScalars != nullptr)
     {
       // this is done unless labelMode == SeedScalar and seedScalars == 0
       vtkICF::Relabel(
@@ -1163,8 +1163,8 @@ int *vtkICF::ZeroBaseExtent(
     useLimits |= (extent[2*k + 1] != maxIdx[k]);
   }
 
-  // return limits as NULL if we don't have to use them
-  return (useLimits ? extent : 0);
+  // return limits as nullptr if we don't have to use them
+  return (useLimits ? extent : nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -1192,7 +1192,7 @@ void vtkICF::SeededExecute(
   outData->GetExtent(outExt);
 
   // Indexing will go from 0 to maxIdX, and the lower limit if "extent" will
-  // be subracted from outExt.  If outExt was the same as extent, then NULL
+  // be subracted from outExt.  If outExt was the same as extent, then nullptr
   // is returned, else outExt is returned.
   int maxIdx[3];
   int *outLimits = vtkICF::ZeroBaseExtent(extent, outExt, maxIdx);
@@ -1200,7 +1200,7 @@ void vtkICF::SeededExecute(
   // for measuring extent of fill
   int seedExtent[6];
   // only set to non-null if extent generation was requested
-  int *fillExtent = (self->GetGenerateRegionExtents() ? seedExtent : NULL);
+  int *fillExtent = (self->GetGenerateRegionExtents() ? seedExtent : nullptr);
 
   // label consecutively, starting at 1
   OT label = 1;
@@ -1277,7 +1277,7 @@ void vtkICF::SeedlessExecute(
   outData->GetExtent(outExt);
 
   // Indexing will go from 0 to maxIdX, and the lower limit if "extent" will
-  // be subracted from outExt.  If outExt was the same as extent, then NULL
+  // be subracted from outExt.  If outExt was the same as extent, then nullptr
   // is returned, else outExt is returned.
   int maxIdx[3];
   int *outLimits = vtkICF::ZeroBaseExtent(extent, outExt, maxIdx);
@@ -1285,7 +1285,7 @@ void vtkICF::SeedlessExecute(
   // for measuring extent of fill
   int seedExtent[6];
   // only set to non-null if extent generation was requested
-  int *fillExtent = (self->GetGenerateRegionExtents() ? seedExtent : NULL);
+  int *fillExtent = (self->GetGenerateRegionExtents() ? seedExtent : nullptr);
 
   // keep track of position in bitmask
   unsigned char *maskPtr1 = maskPtr;
@@ -1363,7 +1363,7 @@ void vtkICF::ExecuteOutput(
   regionInfo.push_back(vtkICF::Region(0, 0, extent));
 
   // execution depends on how regions are seeded
-  vtkDataArray *seedScalars = 0;
+  vtkDataArray *seedScalars = nullptr;
   if (seedData)
   {
     seedScalars = seedData->GetPointData()->GetScalars();
@@ -1439,14 +1439,14 @@ int vtkImageConnectivityFilter::RequestData(
   vtkImageData* inData = static_cast<vtkImageData *>(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataSet* seedData = 0;
+  vtkDataSet* seedData = nullptr;
   if (seedInfo)
   {
     seedData = static_cast<vtkDataSet *>(
       seedInfo->Get(vtkDataObject::DATA_OBJECT()));
   }
 
-  vtkImageStencilData* stencil = 0;
+  vtkImageStencilData* stencil = nullptr;
   if (stencilInfo)
   {
     stencil = static_cast<vtkImageStencilData *>(

@@ -15,7 +15,7 @@
 #include "vtkCompositePainter.h"
 
 #include "vtkColor.h"
-#include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataDisplayAttributesLegacy.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkGarbageCollector.h"
@@ -36,7 +36,7 @@
 vtkAbstractObjectFactoryNewMacro(vtkCompositePainter)
 
 vtkInformationKeyMacro(vtkCompositePainter, DISPLAY_ATTRIBUTES, ObjectBase);
-vtkCxxSetObjectMacro(vtkCompositePainter, CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes);
+vtkCxxSetObjectMacro(vtkCompositePainter, CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributesLegacy);
 //----------------------------------------------------------------------------
 vtkCompositePainter::vtkCompositePainter()
 {
@@ -157,7 +157,7 @@ void vtkCompositePainter::RenderBlock(vtkRenderer *renderer,
 
   vtkHardwareSelector *selector = renderer->GetSelector();
   vtkProperty *property = actor->GetProperty();
-  vtkCompositeDataDisplayAttributes* cda = this->CompositeDataDisplayAttributes;
+  vtkCompositeDataDisplayAttributesLegacy* cda = this->CompositeDataDisplayAttributes;
 
   // A block always *has* a visibility state, either explicitly set or
   // inherited.
@@ -261,7 +261,7 @@ void vtkCompositePainter::ProcessInformation(vtkInformation* info)
   if (info->Has(DISPLAY_ATTRIBUTES()))
   {
     this->SetCompositeDataDisplayAttributes(
-      vtkCompositeDataDisplayAttributes::SafeDownCast(
+      vtkCompositeDataDisplayAttributesLegacy::SafeDownCast(
         info->Get(DISPLAY_ATTRIBUTES())));
   }
 }

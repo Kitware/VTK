@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkOpenGLVertexBufferObject)
 
 vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
 {
-  this->Cache = NULL;
+  this->Cache = nullptr;
   this->Stride = 0;
   this->NumberOfComponents = 0;
   this->NumberOfTuples = 0;
@@ -42,7 +42,7 @@ vtkOpenGLVertexBufferObject::~vtkOpenGLVertexBufferObject()
   {
     this->Cache->RemoveVBO(this);
     this->Cache->Delete();
-    this->Cache = 0;
+    this->Cache = nullptr;
   }
 }
 
@@ -172,7 +172,7 @@ public:
   template<typename DataArray>
   void operator()(DataArray *array);
 
-  void operator=(const vtkAppendVBOWorker&) VTK_DELETE_FUNCTION;
+  vtkAppendVBOWorker<destType>& operator=(const vtkAppendVBOWorker&) = delete;
 };
 
 template <typename destType>
@@ -189,26 +189,26 @@ void vtkAppendVBOWorker<destType>::operator() (
   }
 
   destType *VBOit =
-    reinterpret_cast<destType *>(&this->VBO->PackedVBO[this->Offset]);
+    reinterpret_cast<destType *>(&this->VBO->GetPackedVBO()[this->Offset]);
 
   ValueType *input = src->Begin();
-  unsigned int numComps = this->VBO->NumberOfComponents;
+  unsigned int numComps = this->VBO->GetNumberOfComponents();
   unsigned int numTuples = src->GetNumberOfTuples();
 
   // compute extra padding required
   int bytesNeeded =
-    this->VBO->DataTypeSize*this->VBO->NumberOfComponents;
+    this->VBO->GetDataTypeSize()*this->VBO->GetNumberOfComponents();
   int extraComponents =
-    ((4 - (bytesNeeded % 4)) % 4)/this->VBO->DataTypeSize;
+    ((4 - (bytesNeeded % 4)) % 4)/this->VBO->GetDataTypeSize();
 
   // If not shift & scale
   if(!this->VBO->GetCoordShiftAndScaleEnabled())
   {
     // if no padding and no type conversion then memcpy
     if (extraComponents == 0 &&
-        src->GetDataType() == this->VBO->DataType)
+        src->GetDataType() == this->VBO->GetDataType())
     {
-      memcpy(VBOit, input, this->VBO->DataTypeSize*numComps*numTuples);
+      memcpy(VBOit, input, this->VBO->GetDataTypeSize()*numComps*numTuples);
     }
     else
     {
@@ -286,58 +286,82 @@ void vtkAppendVBOWorker<destType>::operator() (DataArray *array)
 
 } // end anon namespace
 
-// ----------------------------------------------------------------------------
-bool vtkOpenGLVertexBufferObject::DoesArrayConformToVBO(vtkDataArray * array)
+void vtkOpenGLVertexBufferObject::SetDataType(int v)
 {
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (this->DataType == v)
   {
-    vtkErrorMacro( << "No array given.");
-    return false;
+    return;
   }
-  if (this->NumberOfComponents !=
-      static_cast<unsigned int>(array->GetNumberOfComponents()))
-  {
-    return false;
-  }
-  return true;
+
+  this->DataType = v;
+  this->DataTypeSize =
+    vtkAbstractArray::GetDataTypeSize(this->DataType);
+
+  this->Modified();
 }
 
-// ----------------------------------------------------------------------------
-void vtkOpenGLVertexBufferObject::InitVBO(
-  vtkDataArray * array,
-  int destType)
+void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
 {
-  this->NumberOfTuples = 0;
-
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
-    vtkErrorMacro( << "No array given.");
-    this->NumberOfComponents = 0;
     return;
   }
 
   this->NumberOfComponents = array->GetNumberOfComponents();
-  this->DataType = destType;
-  this->DataTypeSize = vtkAbstractArray::GetDataTypeSize(this->DataType);
 
   // Set stride (size of a tuple in bytes on the VBO) based on the data
   int bytesNeeded = this->NumberOfComponents*this->DataTypeSize;
   int extraComponents = (this->DataTypeSize > 0) ?
     ((4 - (bytesNeeded % 4)) % 4)/this->DataTypeSize : 0;
   this->Stride = (this->NumberOfComponents + extraComponents) * this->DataTypeSize;
-}
 
-void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
-{
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  // Can we use the fast path?
+  // have to compute auto shift scale first to know if we can use
+  // the fast path
+  if (this->GetCoordShiftAndScaleMethod() == vtkOpenGLVertexBufferObject::AUTO_SHIFT_SCALE)
   {
-    return;
+    std::vector<double> shift;
+    std::vector<double> scale;
+    bool useSS = false;
+    for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+    {
+      double range[2];
+      array->GetRange(range, i);
+      double dshift = 0.5 * (range[1] + range[0]);
+      double delta = range[1] - range[0];
+      if (delta > 0 && (
+        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
+      {
+        useSS = true;
+        break;
+      }
+    }
+    if (useSS)
+    {
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      {
+        double range[2];
+        array->GetRange(range, i);
+        shift.push_back(0.5 * (range[1] + range[0]));
+        double delta = range[1] - range[0];
+        if (delta > 0)
+        {
+          scale.push_back(1.0 / delta);
+        }
+        else
+        {
+          scale.push_back(1.0);
+        }
+      }
+      this->SetShift(shift);
+      this->SetScale(scale);
+    }
   }
 
+  // can we use the fast path and just upload the raw array?
   if (!this->GetCoordShiftAndScaleEnabled() &&
       this->DataType == array->GetDataType() &&
-      this->Stride ==
-        static_cast<unsigned int>(array->GetDataTypeSize()*array->GetNumberOfComponents()))
+      extraComponents == 0)
   {
     this->NumberOfTuples = array->GetNumberOfTuples();
     this->PackedVBO.resize(0);
@@ -346,9 +370,39 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
       vtkOpenGLBufferObject::ArrayBuffer);
     this->UploadTime.Modified();
   }
+  // otherwise use a worker to build the array to upload
   else
   {
-    this->AppendDataArray(array);
+    this->NumberOfTuples = array->GetNumberOfTuples();
+
+    // Resize VBO to fit new array
+    this->PackedVBO.resize(this->NumberOfTuples * this->Stride/sizeof(float));
+
+    // Dispatch based on the array data type
+    typedef vtkArrayDispatch::DispatchByValueType <vtkArrayDispatch::AllTypes> Dispatcher;
+    bool result = false;
+    switch (this->DataType)
+    {
+      case VTK_FLOAT:
+      {
+        vtkAppendVBOWorker<float> worker(this, 0, this->GetShift(), this->GetScale());
+        result = Dispatcher::Execute(array, worker);
+        break;
+      }
+      case VTK_UNSIGNED_CHAR:
+      {
+        vtkAppendVBOWorker<unsigned char> worker(this, 0, this->GetShift(), this->GetScale());
+        result = Dispatcher::Execute(array, worker);
+        break;
+      }
+    }
+
+    if(!result)
+    {
+      vtkErrorMacro( << "Error filling VBO.");
+    }
+
+    this->Modified();
     this->UploadVBO();
   }
 }
@@ -356,9 +410,25 @@ void vtkOpenGLVertexBufferObject::UploadDataArray(vtkDataArray *array)
 void vtkOpenGLVertexBufferObject::AppendDataArray(
   vtkDataArray *array)
 {
-  if (array == NULL || array->GetNumberOfTuples() == 0)
+  if (array == nullptr || array->GetNumberOfTuples() == 0)
   {
     return;
+  }
+
+  if (this->NumberOfTuples == 0)
+  {
+    // Set stride (size of a tuple in bytes on the VBO) based on the data
+    this->NumberOfComponents = array->GetNumberOfComponents();
+    int bytesNeeded = this->NumberOfComponents*this->DataTypeSize;
+    int extraComponents = (this->DataTypeSize > 0) ?
+      ((4 - (bytesNeeded % 4)) % 4)/this->DataTypeSize : 0;
+    this->Stride = (this->NumberOfComponents + extraComponents) * this->DataTypeSize;
+  }
+  else if (static_cast<int>(this->NumberOfComponents)
+    != array->GetNumberOfComponents())
+  {
+    vtkErrorMacro(
+      "Attempt to append an array to a VBO with a different number of components");
   }
 
   int offset = this->NumberOfTuples * this->Stride/sizeof(float);
@@ -369,24 +439,40 @@ void vtkOpenGLVertexBufferObject::AppendDataArray(
   {
     std::vector<double> shift;
     std::vector<double> scale;
+    bool useSS = false;
     for (int i = 0; i < array->GetNumberOfComponents(); ++i)
     {
       double range[2];
       array->GetRange(range, i);
-      shift.push_back(range[0]); //-0.5 * (bds[1] + bds[0]);
+      double dshift = 0.5 * (range[1] + range[0]);
       double delta = range[1] - range[0];
-      if ((delta > 0 && fabs(shift.at(i)) / delta > 1.0e4))
+      if (delta > 0 && (
+        fabs(dshift) / delta > 1.0e3 || fabs(log10(delta)) > 3.0))
       {
-        scale.push_back(1.0 / delta);
-      }
-      else
-      {
-        shift.at(i) = 0.0;
-        scale.push_back(1.0);
+        useSS = true;
+        break;
       }
     }
-    this->SetShift(shift);
-    this->SetScale(scale);
+    if (useSS)
+    {
+      for (int i = 0; i < array->GetNumberOfComponents(); ++i)
+      {
+        double range[2];
+        array->GetRange(range, i);
+        shift.push_back(0.5 * (range[1] + range[0]));
+        double delta = range[1] - range[0];
+        if (delta > 0)
+        {
+          scale.push_back(1.0 / delta);
+        }
+        else
+        {
+          scale.push_back(1.0);
+        }
+      }
+      this->SetShift(shift);
+      this->SetScale(scale);
+    }
   }
 
   this->NumberOfTuples += array->GetNumberOfTuples();

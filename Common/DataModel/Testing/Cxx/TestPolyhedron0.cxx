@@ -390,7 +390,7 @@ int TestPolyhedron0( int argc, char* argv[] )
   locator->InitPointInsertion(resultPoints, ugrid0->GetBounds());
 
   polyhedron->Contour(0.5, tetraGrid->GetPointData()->GetScalars(), locator,
-                      NULL, NULL, resultPolys,
+                      nullptr, nullptr, resultPolys,
                       tetraGrid->GetPointData(), resultPd,
                       tetraGrid->GetCellData(), 0, resultCd);
 

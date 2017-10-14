@@ -102,10 +102,10 @@ int vtkQuadraturePointInterpolator::RequestData(
     = vtkUnstructuredGrid::SafeDownCast(tmpDataObj);
 
   // Quick sanity check.
-  if (usgIn==NULL || usgOut==NULL
+  if (usgIn==nullptr || usgOut==nullptr
      || usgIn->GetNumberOfCells()==0
      || usgIn->GetNumberOfPoints()==0
-     || usgIn->GetPointData()==NULL
+     || usgIn->GetPointData()==nullptr
      || usgIn->GetPointData()->GetNumberOfArrays()==0)
   {
     vtkWarningMacro("Filter data has not been configured correctly. Aborting.");
@@ -142,7 +142,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     = usgOut->GetPointData()->GetNumberOfArrays();
 
   vtkDataArray *offsets=this->GetInputArrayToProcess(0,usgOut);
-  if(offsets == NULL)
+  if(offsets == nullptr)
   {
     vtkWarningMacro("no Offset array, skipping.");
     return 0;
@@ -193,7 +193,7 @@ int vtkQuadraturePointInterpolator::InterpolateFields(
     switch (V_type)
     {
       vtkTemplateMacro(
-        if (!Interpolate(
+        if (!vtkQuadraturePointsUtilities::Interpolate(
                 usgOut,
                 nCells,
                 static_cast<VTK_TT*>(pV),

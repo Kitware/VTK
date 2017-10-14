@@ -90,14 +90,14 @@ class VTKFILTERSSTATISTICS_EXPORT vtkMultiCorrelativeStatistics : public vtkStat
 {
 public:
   vtkTypeMacro(vtkMultiCorrelativeStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   static vtkMultiCorrelativeStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
   void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+                          vtkMultiBlockDataSet* ) override;
 
   //@{
   /**
@@ -112,33 +112,33 @@ public:
 
 protected:
   vtkMultiCorrelativeStatistics();
-  ~vtkMultiCorrelativeStatistics() VTK_OVERRIDE;
+  ~vtkMultiCorrelativeStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                vtkMultiBlockDataSet*,
-               vtkTable* ) VTK_OVERRIDE;
+               vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE { return; }
+             vtkTable* ) override { return; }
 
   /**
    * Provide the appropriate assessment functor.
@@ -146,7 +146,7 @@ protected:
   void SelectAssessFunctor( vtkTable* inData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
 
   /**
    * Computes the median of inData with vtkOrderStatistics.
@@ -162,8 +162,8 @@ protected:
   bool MedianAbsoluteDeviation;
 
 private:
-  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
+  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) = delete;
+  void operator = ( const vtkMultiCorrelativeStatistics& ) = delete;
 };
 
 #endif

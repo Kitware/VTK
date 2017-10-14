@@ -52,7 +52,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractPolyDataGeometry : public vtkPolyDat
 {
 public:
   vtkTypeMacro(vtkExtractPolyDataGeometry,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with ExtractInside turned on.
@@ -62,7 +62,7 @@ public:
   /**
    * Return the MTime taking into account changes to the implicit function
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -104,11 +104,11 @@ public:
   //@}
 
 protected:
-  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
-  ~vtkExtractPolyDataGeometry() VTK_OVERRIDE;
+  vtkExtractPolyDataGeometry(vtkImplicitFunction *f=nullptr);
+  ~vtkExtractPolyDataGeometry() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
@@ -118,8 +118,8 @@ protected:
   vtkIdType InsertPointInMap(vtkIdType i, vtkPoints *inPts, vtkPoints *newPts, vtkIdType *pointMap);
 
 private:
-  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPolyDataGeometry&) VTK_DELETE_FUNCTION;
+  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&) = delete;
+  void operator=(const vtkExtractPolyDataGeometry&) = delete;
 };
 
 //@{

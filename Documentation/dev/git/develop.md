@@ -26,6 +26,7 @@ Before you begin, perform initial setup:
 
         $ git clone https://gitlab.kitware.com/vtk/vtk.git VTK
         $ cd VTK
+        $ git submodule update --init
     The main repository will be configured as your `origin` remote.
 
 4.  Run the [developer setup script][] to prepare your VTK work tree and
@@ -35,7 +36,7 @@ Before you begin, perform initial setup:
     This will prompt for your GitLab user name and configure a remote
     called `gitlab` to refer to it.
 
-5.  (Optional but highly recommended.)
+5.  (Optional, but highly recommended.)
     [Register](https://open.cdash.org/register.php) with the VTK project
     on Kitware's CDash instance to better know how your code performs in
     regression tests.  After registering and signing in, click on
@@ -273,7 +274,7 @@ A well written merge request will motivate your reviewers, and bring them up
 to speed faster. Future software developers will be able to understand the
 reasons why something was done, and possibly avoid chasing down dead ends,
 Although it may take you a little more time to write a good merge request,
-you’ll likely see payback in faster reviews and better understood and
+you'll likely see payback in faster reviews and better understood and
 maintainable software.
 
 
@@ -384,9 +385,6 @@ results when it schedules builds.
 
 The `Do: test` command accepts the following arguments:
 
-  * `--oneshot`
-        only build the *current* hash of the branch; updates will not be built
-        using this command
   * `--stop`
         clear the list of commands for the merge request
   * `--superbuild`

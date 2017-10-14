@@ -40,17 +40,17 @@ public:
 
 protected:
   vtkImageWrapPad() {}
-  ~vtkImageWrapPad()VTK_OVERRIDE {}
+  ~vtkImageWrapPad() override {}
 
-  void ComputeInputUpdateExtent (int inExt[6], int outExt[6], int wExt[6]) VTK_OVERRIDE;
+  void ComputeInputUpdateExtent (int inExt[6], int outExt[6], int wExt[6]) override;
   void ThreadedRequestData (vtkInformation* request,
                             vtkInformationVector** inputVector,
                             vtkInformationVector* outputVector,
                             vtkImageData ***inData, vtkImageData **outData,
-                            int ext[6], int id) VTK_OVERRIDE;
+                            int ext[6], int id) override;
 private:
-  vtkImageWrapPad(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
+  vtkImageWrapPad(const vtkImageWrapPad&) = delete;
+  void operator=(const vtkImageWrapPad&) = delete;
 };
 
 #endif

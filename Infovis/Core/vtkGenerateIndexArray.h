@@ -54,7 +54,7 @@ public:
   static vtkGenerateIndexArray *New();
 
   vtkTypeMacro(vtkGenerateIndexArray, vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -100,22 +100,22 @@ public:
 
 protected:
   vtkGenerateIndexArray();
-  ~vtkGenerateIndexArray() VTK_OVERRIDE;
+  ~vtkGenerateIndexArray() override;
 
   int ProcessRequest(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   int RequestDataObject(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* ArrayName;
   int FieldType;
@@ -123,8 +123,8 @@ protected:
   int PedigreeID;
 
 private:
-  vtkGenerateIndexArray(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
+  vtkGenerateIndexArray(const vtkGenerateIndexArray&) = delete;
+  void operator=(const vtkGenerateIndexArray&) = delete;
 };
 
 #endif

@@ -34,12 +34,12 @@ vtkStandardNewMacro(vtkGAMBITReader);
 //----------------------------------------------------------------------------
 vtkGAMBITReader::vtkGAMBITReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->NumberOfCells = 0;
   this->NumberOfNodes = 0;
   this->NumberOfNodeFields = 0;
   this->NumberOfCellFields = 0;
-  this->FileStream = NULL;
+  this->FileStream = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -65,9 +65,9 @@ int vtkGAMBITReader::RequestData(
 
   vtkDebugMacro( << "Reading GAMBIT Neutral file");
 
-  // If ExecuteInformation() failed the FileStream will be NULL and
+  // If ExecuteInformation() failed the FileStream will be nullptr and
   // ExecuteInformation() will have spit out an error.
-  if ( this->FileStream == NULL )
+  if ( this->FileStream == nullptr )
   {
     return 0;
   }
@@ -113,7 +113,7 @@ void vtkGAMBITReader::ReadFile(vtkUnstructuredGrid *output)
   }
 
   delete this->FileStream;
-  this->FileStream = NULL;
+  this->FileStream = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ int vtkGAMBITReader::RequestInformation(
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     delete this->FileStream;
-    this->FileStream = NULL;
+    this->FileStream = nullptr;
     vtkErrorMacro("Specified filename not found");
     return 0;
   }

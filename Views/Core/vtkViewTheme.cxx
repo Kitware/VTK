@@ -131,7 +131,7 @@ double* vtkViewTheme::GetPointHueRange()
   {
     return lut->GetHueRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetPointHueRange(double& mn, double& mx)
@@ -175,7 +175,7 @@ double* vtkViewTheme::GetPointSaturationRange()
   {
     return lut->GetSaturationRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetPointSaturationRange(double& mn, double& mx)
@@ -219,7 +219,7 @@ double* vtkViewTheme::GetPointValueRange()
   {
     return lut->GetValueRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetPointValueRange(double& mn, double& mx)
@@ -263,7 +263,7 @@ double* vtkViewTheme::GetPointAlphaRange()
   {
     return lut->GetAlphaRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetPointAlphaRange(double& mn, double& mx)
@@ -307,7 +307,7 @@ double* vtkViewTheme::GetCellHueRange()
   {
     return lut->GetHueRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetCellHueRange(double& mn, double& mx)
@@ -351,7 +351,7 @@ double* vtkViewTheme::GetCellSaturationRange()
   {
     return lut->GetSaturationRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetCellSaturationRange(double& mn, double& mx)
@@ -395,7 +395,7 @@ double* vtkViewTheme::GetCellValueRange()
   {
     return lut->GetValueRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetCellValueRange(double& mn, double& mx)
@@ -439,7 +439,7 @@ double* vtkViewTheme::GetCellAlphaRange()
   {
     return lut->GetAlphaRange();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkViewTheme::GetCellAlphaRange(double& mn, double& mx)
@@ -468,7 +468,7 @@ void vtkViewTheme::SetVertexLabelColor(double r, double g, double b)
 
 double *vtkViewTheme::GetVertexLabelColor()
 {
-  return this->PointTextProperty ? this->PointTextProperty->GetColor() : 0;
+  return this->PointTextProperty ? this->PointTextProperty->GetColor() : nullptr;
 }
 
 void vtkViewTheme::SetEdgeLabelColor(double r, double g, double b)
@@ -481,7 +481,7 @@ void vtkViewTheme::SetEdgeLabelColor(double r, double g, double b)
 
 double *vtkViewTheme::GetEdgeLabelColor()
 {
-  return this->CellTextProperty ? this->CellTextProperty->GetColor() : 0;
+  return this->CellTextProperty ? this->CellTextProperty->GetColor() : nullptr;
 }
 
 vtkViewTheme* vtkViewTheme::CreateOceanTheme()

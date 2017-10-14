@@ -41,8 +41,8 @@ vtkCxxSetObjectMacro(vtkAreaLayout, LayoutStrategy, vtkAreaLayoutStrategy);
 
 vtkAreaLayout::vtkAreaLayout()
 {
-  this->AreaArrayName = 0;
-  this->LayoutStrategy = 0;
+  this->AreaArrayName = nullptr;
+  this->LayoutStrategy = nullptr;
   this->SetAreaArrayName("area");
   this->EdgeRoutingPoints = true;
   this->SetSizeArrayName("size");
@@ -51,7 +51,7 @@ vtkAreaLayout::vtkAreaLayout()
 
 vtkAreaLayout::~vtkAreaLayout()
 {
-  this->SetAreaArrayName(0);
+  this->SetAreaArrayName(nullptr);
   if (this->LayoutStrategy)
   {
     this->LayoutStrategy->Delete();
@@ -63,12 +63,12 @@ int vtkAreaLayout::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  if (this->LayoutStrategy == NULL)
+  if (this->LayoutStrategy == nullptr)
   {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
   }
-  if (this->AreaArrayName == NULL)
+  if (this->AreaArrayName == nullptr)
   {
     vtkErrorMacro(<< "Sector array name must be non-null.");
     return 0;
@@ -101,12 +101,12 @@ int vtkAreaLayout::RequestData(
 
   if (!this->EdgeRoutingPoints)
   {
-    outputEdgeRoutingTree = 0;
+    outputEdgeRoutingTree = nullptr;
   }
 
   vtkSmartPointer<vtkDataArray> sizeArray =
     this->GetInputArrayToProcess(0, inputTree);
-  if (!sizeArray.GetPointer())
+  if (!sizeArray)
   {
     vtkSmartPointer<vtkTreeFieldAggregator> agg =
       vtkSmartPointer<vtkTreeFieldAggregator>::New();
@@ -193,7 +193,7 @@ vtkMTimeType vtkAreaLayout::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if (this->LayoutStrategy != NULL)
+  if (this->LayoutStrategy != nullptr)
   {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);

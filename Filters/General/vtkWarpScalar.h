@@ -48,7 +48,7 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpScalar : public vtkPointSetAlgorithm
 public:
   static vtkWarpScalar *New();
   vtkTypeMacro(vtkWarpScalar,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -88,18 +88,18 @@ public:
   vtkBooleanMacro(XYPlane,int);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 protected:
   vtkWarpScalar();
-  ~vtkWarpScalar() VTK_OVERRIDE;
+  ~vtkWarpScalar() override;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+                        vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   double ScaleFactor;
   int UseNormal;
@@ -107,13 +107,13 @@ protected:
   int XYPlane;
 
   double *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray *normals);
-  double *DataNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  double *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
-  double *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
+  double *DataNormal(vtkIdType id, vtkDataArray *normals=nullptr);
+  double *InstanceNormal(vtkIdType id, vtkDataArray *normals=nullptr);
+  double *ZNormal(vtkIdType id, vtkDataArray *normals=nullptr);
 
 private:
-  vtkWarpScalar(const vtkWarpScalar&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWarpScalar&) VTK_DELETE_FUNCTION;
+  vtkWarpScalar(const vtkWarpScalar&) = delete;
+  void operator=(const vtkWarpScalar&) = delete;
 };
 
 #endif

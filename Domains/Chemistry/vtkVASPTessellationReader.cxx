@@ -124,7 +124,7 @@ void vtkVASPTessellationReader::PrintSelf(std::ostream &os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 vtkVASPTessellationReader::vtkVASPTessellationReader()
-  : FileName(NULL),
+  : FileName(nullptr),
     TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
     LatticeParser(new RegEx("^ *Rx1 *= *([0-9EeDd.+-]+) *," // Rx1
                             " *Rx2 *= *([0-9EeDd.+-]+) *," // Rx2
@@ -151,7 +151,7 @@ vtkVASPTessellationReader::vtkVASPTessellationReader()
 //------------------------------------------------------------------------------
 vtkVASPTessellationReader::~vtkVASPTessellationReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->TimeParser;
   delete this->LatticeParser;
   delete this->AtomCountParser;
@@ -464,7 +464,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   vtkNew<vtkPointLocator> locator;
   vtkNew<vtkPoints> tessPoints;
   tessPoints->SetDataTypeToFloat();
-  voronoi->SetPoints(tessPoints.Get());
+  voronoi->SetPoints(tessPoints);
   voronoi->Allocate(nAtoms);
 
   // Cell attributes for the voronoi tesselation:
@@ -476,7 +476,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   tessAtomIds->Allocate(nAtoms);
 
   // Estimate 10 unique points per atom:
-  locator->InitPointInsertion(tessPoints.Get(), bounds, nAtoms * 10);
+  locator->InitPointInsertion(tessPoints, bounds, nAtoms * 10);
 
   // Storage for parsing the tessellation points/faces info
   std::vector<vtkIdType> faceStream;
@@ -617,16 +617,16 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
     // Add cell to tessellation dataset:
     voronoi->InsertNextCell(VTK_POLYHEDRON,
                             static_cast<vtkIdType>(pointIds.size()),
-                            pointIds.empty() ? NULL : &pointIds[0],
+                            pointIds.empty() ? nullptr : &pointIds[0],
                             static_cast<vtkIdType>(faceData.size()),
-                            faceStream.empty() ? NULL : &faceStream[0]);
+                            faceStream.empty() ? nullptr : &faceStream[0]);
     tessAtomicNumbers->InsertNextValue(atom.GetAtomicNumber());
     tessAtomIds->InsertNextValue(atom.GetId());
   }
 
-  molecule->GetVertexData()->AddArray(radii.Get());
-  voronoi->GetCellData()->SetScalars(tessAtomicNumbers.Get());
-  voronoi->GetCellData()->AddArray(tessAtomIds.Get());
+  molecule->GetVertexData()->AddArray(radii);
+  voronoi->GetCellData()->SetScalars(tessAtomicNumbers);
+  voronoi->GetCellData()->AddArray(tessAtomIds);
 
   return true;
 }

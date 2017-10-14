@@ -48,7 +48,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkTextRepresentation,vtkBorderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -71,8 +71,8 @@ public:
   /**
    * Satisfy the superclasses API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void GetSize(double size[2]) VTK_OVERRIDE
+  void BuildRepresentation() override;
+  void GetSize(double size[2]) override
     {size[0]=2.0; size[1]=2.0;}
 
   //@{
@@ -80,12 +80,12 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  void GetActors2D(vtkPropCollection*) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void GetActors2D(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   enum
@@ -120,8 +120,8 @@ public:
    * Set the text position, by overiding the same function of
    * vtkBorderRepresentation so that the Modified() will be called.
    */
-  void SetPosition(double x, double y) VTK_OVERRIDE;
-  void SetPosition(double pos[2]) VTK_OVERRIDE
+  void SetPosition(double x, double y) override;
+  void SetPosition(double pos[2]) override
     { this->SetPosition(pos[0], pos[1]);};
   //@}
 
@@ -135,7 +135,7 @@ public:
 
 protected:
   vtkTextRepresentation();
-  ~vtkTextRepresentation() VTK_OVERRIDE;
+  ~vtkTextRepresentation() override;
 
   // Initialize text actor
   virtual void InitializeTextActor();
@@ -155,8 +155,8 @@ protected:
   vtkTextRepresentationObserver *Observer;
 
 private:
-  vtkTextRepresentation(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
+  vtkTextRepresentation(const vtkTextRepresentation&) = delete;
+  void operator=(const vtkTextRepresentation&) = delete;
 };
 
 #endif

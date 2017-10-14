@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkColorTransferControlPointsItem);
 //-----------------------------------------------------------------------------
 vtkColorTransferControlPointsItem::vtkColorTransferControlPointsItem()
 {
-  this->ColorTransferFunction = 0;
+  this->ColorTransferFunction = nullptr;
   this->ColorFill = false;
 }
 
@@ -48,7 +48,7 @@ vtkColorTransferControlPointsItem::~vtkColorTransferControlPointsItem()
   {
     this->ColorTransferFunction->RemoveObserver(this->Callback);
     this->ColorTransferFunction->Delete();
-    this->ColorTransferFunction = 0;
+    this->ColorTransferFunction = nullptr;
   }
 }
 

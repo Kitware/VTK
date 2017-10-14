@@ -44,7 +44,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMatricizeArray : public vtkArrayDataAlgorithm
 public:
   static vtkMatricizeArray* New();
   vtkTypeMacro(vtkMatricizeArray, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,16 +62,16 @@ public:
 
 protected:
   vtkMatricizeArray();
-  ~vtkMatricizeArray() VTK_OVERRIDE;
+  ~vtkMatricizeArray() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkMatricizeArray(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
+  vtkMatricizeArray(const vtkMatricizeArray&) = delete;
+  void operator=(const vtkMatricizeArray&) = delete;
 
   class Generator;
 

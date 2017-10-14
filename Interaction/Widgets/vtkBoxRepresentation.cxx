@@ -167,7 +167,7 @@ vtkBoxRepresentation::vtkBoxRepresentation()
   this->HexPicker->AddPickList(HexActor);
   this->HexPicker->PickFromListOn();
 
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
   // Internal data memebers for performance
   this->Transform = vtkTransform::New();
@@ -813,7 +813,7 @@ void vtkBoxRepresentation::SetTransform(vtkTransform* t)
 {
   if (!t)
   {
-    vtkErrorMacro(<<"vtkTransform t must be non-NULL");
+    vtkErrorMacro(<<"vtkTransform t must be non-nullptr");
     return;
   }
 
@@ -950,12 +950,12 @@ int vtkBoxRepresentation::ComputeInteractionState(int X, int Y, int modify)
   }
 
   // Try and pick a handle first
-  this->LastPicker = NULL;
-  this->CurrentHandle = NULL;
+  this->LastPicker = nullptr;
+  this->CurrentHandle = nullptr;
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->ValidPick = 1;
     this->LastPicker = this->HandlePicker;
@@ -994,7 +994,7 @@ int vtkBoxRepresentation::ComputeInteractionState(int X, int Y, int modify)
   {
     path = this->GetAssemblyPath(X, Y, 0., this->HexPicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->LastPicker = this->HexPicker;
       this->ValidPick = 1;
@@ -1041,7 +1041,7 @@ void vtkBoxRepresentation::SetInteractionState(int state)
       break;
     case vtkBoxRepresentation::Rotating:
       this->HighlightOutline(0);
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       this->HighlightFace(this->HexPicker->GetCellId());
       break;
     case vtkBoxRepresentation::Translating:
@@ -1052,7 +1052,7 @@ void vtkBoxRepresentation::SetInteractionState(int state)
       break;
     default:
       this->HighlightOutline(0);
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       this->HighlightFace(-1);
   }
 }

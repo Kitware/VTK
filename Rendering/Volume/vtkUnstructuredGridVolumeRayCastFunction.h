@@ -39,7 +39,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastFunction : publi
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastFunction,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
 
@@ -55,11 +55,11 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeRayCastFunction() {}
-  ~vtkUnstructuredGridVolumeRayCastFunction()VTK_OVERRIDE {}
+  ~vtkUnstructuredGridVolumeRayCastFunction() override {}
 
 private:
-  vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&) = delete;
+  void operator=(const vtkUnstructuredGridVolumeRayCastFunction&) = delete;
 };
 
 #endif

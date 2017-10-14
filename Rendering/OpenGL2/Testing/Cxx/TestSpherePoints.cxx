@@ -35,14 +35,14 @@ int TestSpherePoints(int argc, char *argv[])
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkLight>light;
   light->SetPosition(0,1,0);
   light->SetLightTypeToSceneLight();
-//  renderer->AddLight(light.Get());
+//  renderer->AddLight(light);
 
   vtkNew<vtkSphereSource> sphere;
   sphere->SetThetaResolution(16);
@@ -53,12 +53,12 @@ int TestSpherePoints(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
-  renderer->AddActor(actor.Get());
-  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor);
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(0.4, 1.0, 1.0);
   vtkNew<vtkProperty> backProp;
   backProp->SetDiffuseColor(0.4, 0.65, 0.8);
-  actor->SetBackfaceProperty(backProp.Get());
+  actor->SetBackfaceProperty(backProp);
   actor->GetProperty()->EdgeVisibilityOn();
   actor->GetProperty()->SetLineWidth(7.0);
   actor->GetProperty()->RenderLinesAsTubesOn();
@@ -70,8 +70,8 @@ int TestSpherePoints(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
-  renderer->AddActor(actor.Get());
-  actor->SetMapper(mapper.Get());
+  renderer->AddActor(actor);
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
   actor->GetProperty()->SetSpecular(0.5);
   actor->GetProperty()->SetDiffuse(0.7);
@@ -90,7 +90,7 @@ int TestSpherePoints(int argc, char *argv[])
   renderer->ResetCameraClippingRange();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();

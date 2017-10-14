@@ -55,7 +55,7 @@ void vtkOpenGLPropItem::UpdateTransforms()
   // Reset the info that computes the view:
   vtkNew<vtkTransform> identity;
   identity->Identity();
-  activeCamera->SetUserViewTransform(identity.GetPointer());
+  activeCamera->SetUserViewTransform(identity);
   activeCamera->SetFocalPoint(0.0, 0.0, 0.0);
   activeCamera->SetPosition(0.0, 0.0, 1.0);
   activeCamera->SetViewUp(0.0, 1.0, 0.0);
@@ -152,14 +152,14 @@ void vtkOpenGLPropItem::ResetTransforms()
 {
   // Reset the active camera:
   vtkCamera *activeCamera = this->Scene->GetRenderer()->GetActiveCamera();
-  activeCamera->DeepCopy(this->CameraCache.GetPointer());
+  activeCamera->DeepCopy(this->CameraCache);
 }
 
 bool vtkOpenGLPropItem::Paint(vtkContext2D *painter)
 {
   this->Painter = painter;
   bool result = this->Superclass::Paint(painter);
-  this->Painter = NULL;
+  this->Painter = nullptr;
 
   return result;
 }

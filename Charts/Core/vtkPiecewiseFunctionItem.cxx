@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkPiecewiseFunctionItem);
 vtkPiecewiseFunctionItem::vtkPiecewiseFunctionItem()
 {
   this->PolyLinePen->SetLineType(vtkPen::SOLID_LINE);
-  this->PiecewiseFunction = 0;
+  this->PiecewiseFunction = nullptr;
   this->SetColor(1., 1., 1.);
 }
 
@@ -44,7 +44,7 @@ vtkPiecewiseFunctionItem::~vtkPiecewiseFunctionItem()
   {
     this->PiecewiseFunction->RemoveObserver(this->Callback);
     this->PiecewiseFunction->Delete();
-    this->PiecewiseFunction = 0;
+    this->PiecewiseFunction = nullptr;
   }
 }
 
@@ -92,7 +92,7 @@ void vtkPiecewiseFunctionItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
   {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
   }
-  this->ScalarsToColorsModified(this->PiecewiseFunction, vtkCommand::ModifiedEvent, 0);
+  this->ScalarsToColorsModified(this->PiecewiseFunction, vtkCommand::ModifiedEvent, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -105,7 +105,7 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
    {
     return;
    }
-  if (this->Texture == 0)
+  if (this->Texture == nullptr)
   {
     this->Texture = vtkImageData::New();
   }
@@ -146,5 +146,4 @@ void vtkPiecewiseFunctionItem::ComputeTexture()
     }
   }
   delete[] values;
-  return;
 }

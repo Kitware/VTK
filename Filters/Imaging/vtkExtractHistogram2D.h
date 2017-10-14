@@ -60,7 +60,7 @@ class VTKFILTERSIMAGING_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgor
 public:
   static vtkExtractHistogram2D* New();
   vtkTypeMacro(vtkExtractHistogram2D, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OutputIndices
   {
@@ -178,11 +178,11 @@ public:
   /**
    * Given a collection of models, calculate aggregate model. Not used.
    */
-  void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) VTK_OVERRIDE {}
+  void Aggregate( vtkDataObjectCollection*, vtkMultiBlockDataSet* ) override {}
 
 protected:
   vtkExtractHistogram2D();
-  ~vtkExtractHistogram2D() VTK_OVERRIDE;
+  ~vtkExtractHistogram2D() override;
 
   int SwapColumns;
   int NumberOfBins[2];
@@ -202,26 +202,26 @@ protected:
    */
   void Learn( vtkTable* inData,
                       vtkTable* inParameters,
-                      vtkMultiBlockDataSet* inMeta ) VTK_OVERRIDE;
+                      vtkMultiBlockDataSet* inMeta ) override;
 
   /**
    * Execute the calculations required by the Derive option. Not used.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE {}
+  void Derive( vtkMultiBlockDataSet* ) override {}
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) VTK_OVERRIDE { return; };
+                     vtkTable* ) override { return; };
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
-                       vtkTable* ) VTK_OVERRIDE { return; };
+                       vtkTable* ) override { return; };
 
   /**
    * Provide the appropriate assessment functor. Not used.
@@ -229,16 +229,16 @@ protected:
   void SelectAssessFunctor( vtkTable* vtkNotUsed(outData),
                                     vtkDataObject* vtkNotUsed(inMeta),
                                     vtkStringArray* vtkNotUsed(rowNames),
-                                    AssessFunctor*& vtkNotUsed(dfunc) ) VTK_OVERRIDE {}
+                                    AssessFunctor*& vtkNotUsed(dfunc) ) override {}
 
-  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillOutputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * Makes sure that the image data output port has up-to-date spacing/origin/etc
    */
   int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                  vtkInformationVector *outputVector) override;
 
   /**
    * Get points to the arrays that live in the two input columns
@@ -246,8 +246,8 @@ protected:
   int GetInputArrays(vtkDataArray*& col1, vtkDataArray*& col2);
 
 private:
-  vtkExtractHistogram2D(const vtkExtractHistogram2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractHistogram2D&) VTK_DELETE_FUNCTION;
+  vtkExtractHistogram2D(const vtkExtractHistogram2D&) = delete;
+  void operator=(const vtkExtractHistogram2D&) = delete;
 };
 
 #endif

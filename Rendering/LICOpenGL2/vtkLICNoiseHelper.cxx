@@ -127,7 +127,7 @@ float *vtkLICRandomNoise2D::Generate(
             impulseBgNoiseVal,
             seed);
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

@@ -40,7 +40,7 @@ public:
   static vtkCirclePackToPolyData *New();
 
   vtkTypeMacro(vtkCirclePackToPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The field containing triples of the form (Xcenter, Ycenter, Radius).
@@ -60,18 +60,18 @@ public:
   vtkGetMacro(Resolution, unsigned int);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   vtkCirclePackToPolyData();
-  ~vtkCirclePackToPolyData() VTK_OVERRIDE;
+  ~vtkCirclePackToPolyData() override;
 
   unsigned int Resolution;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCirclePackToPolyData&) VTK_DELETE_FUNCTION;
+  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&) = delete;
+  void operator=(const vtkCirclePackToPolyData&) = delete;
   void CreateCircle(const double& x,
                     const double& y,
                     const double& z,

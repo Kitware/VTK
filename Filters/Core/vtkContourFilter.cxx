@@ -64,10 +64,10 @@ vtkContourFilter::vtkContourFilter()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->UseScalarTree = 0;
-  this->ScalarTree = NULL;
+  this->ScalarTree = nullptr;
 
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 
@@ -104,12 +104,12 @@ vtkContourFilter::~vtkContourFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( this->ScalarTree )
   {
     this->ScalarTree->Delete();
-    this->ScalarTree = NULL;
+    this->ScalarTree = nullptr;
   }
   this->SynchronizedTemplates2D->Delete();
   this->SynchronizedTemplates3D->Delete();
@@ -437,7 +437,7 @@ int vtkContourFilter::RequestData(
     cgrid->SetUseScalarTree(this->UseScalarTree);
     if ( this->UseScalarTree ) //special treatment to reuse it
     {
-      if ( this->ScalarTree == NULL )
+      if ( this->ScalarTree == nullptr )
       {
         this->ScalarTree = vtkSpanSpace::New();
       }
@@ -518,7 +518,7 @@ int vtkContourFilter::RequestData(
     cellScalars->Allocate(cellScalars->GetNumberOfComponents()*VTK_CELL_SIZE);
 
     // locator used to merge potentially duplicate points
-    if ( this->Locator == NULL )
+    if ( this->Locator == nullptr )
     {
       this->CreateDefaultLocator();
     }
@@ -616,7 +616,7 @@ int vtkContourFilter::RequestData(
       for (i=0; i < numContours; i++)
       {
         for ( this->ScalarTree->InitTraversal(values[i]);
-              (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
+              (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != nullptr; )
         {
           helper.Contour(cell,values[i],cellScalars,cellId);
         } //for all cells
@@ -663,7 +663,7 @@ int vtkContourFilter::RequestData(
       normalsFilter->SetOutputPointsPrecision(this->OutputPointsPrecision);
       vtkNew<vtkPolyData> tempInput;
       tempInput->ShallowCopy(output);
-      normalsFilter->SetInputData(tempInput.GetPointer());
+      normalsFilter->SetInputData(tempInput);
       normalsFilter->SetFeatureAngle(180.);
       normalsFilter->UpdatePiece(
         info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
@@ -692,7 +692,7 @@ void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   if ( locator )
   {
@@ -705,7 +705,7 @@ void vtkContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 //-----------------------------------------------------------------------------
 void vtkContourFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

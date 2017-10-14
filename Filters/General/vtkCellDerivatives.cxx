@@ -61,9 +61,9 @@ int vtkCellDerivatives::RequestData(
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkDataArray *inScalars=this->GetInputArrayToProcess(0, inputVector);
   vtkDataArray *inVectors=this->GetInputArrayToProcess(1, inputVector);
-  vtkDoubleArray *outGradients=NULL;
-  vtkDoubleArray *outVorticity=NULL;
-  vtkDoubleArray *outTensors=NULL;
+  vtkDoubleArray *outGradients=nullptr;
+  vtkDoubleArray *outVorticity=nullptr;
+  vtkDoubleArray *outTensors=nullptr;
   vtkIdType numCells=input->GetNumberOfCells();
   int computeScalarDerivs=1, computeVectorDerivs=1, computeVorticity=1, subId;
 

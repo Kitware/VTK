@@ -39,12 +39,12 @@ vtkTreeBFSIterator::vtkTreeBFSIterator()
 vtkTreeBFSIterator::~vtkTreeBFSIterator()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 
   if (this->Color)
   {
     this->Color->Delete();
-    this->Color = NULL;
+    this->Color = nullptr;
   }
 }
 
@@ -55,7 +55,7 @@ void vtkTreeBFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTreeBFSIterator::Initialize()
 {
-  if (this->Tree == NULL)
+  if (this->Tree == nullptr)
   {
     return;
   }
@@ -69,7 +69,7 @@ void vtkTreeBFSIterator::Initialize()
   {
     this->StartVertex = this->Tree->GetRoot();
   }
-  while (this->Internals->Queue.size())
+  while (!this->Internals->Queue.empty())
   {
     this->Internals->Queue.pop();
   }
@@ -93,7 +93,7 @@ vtkIdType vtkTreeBFSIterator::NextInternal()
     this->Internals->Queue.push(this->StartVertex);
   }
 
-  while (this->Internals->Queue.size() > 0)
+  while (!this->Internals->Queue.empty())
   {
     vtkIdType currentId = this->Internals->Queue.front();
     this->Internals->Queue.pop();

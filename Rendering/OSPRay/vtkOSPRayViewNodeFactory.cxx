@@ -85,6 +85,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkVolume", vol_maker);
   this->RegisterOverride("vtkOpenGLCamera", cam_maker);
   this->RegisterOverride("vtkOpenGLLight", light_maker);
+  this->RegisterOverride("vtkPVLight", light_maker);
   this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkSmartVolumeMapper", vm_maker);

@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPseudosphere :
   public:
 
     vtkTypeMacro(vtkParametricPseudosphere, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct a pseudosphere surface with the following parameters:
@@ -53,7 +53,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPseudosphere :
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     /**
      * Pseudosphere surface.
@@ -63,22 +63,22 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPseudosphere :
      * \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
      * This method simply returns 0.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricPseudosphere();
-    ~vtkParametricPseudosphere() VTK_OVERRIDE;
+    ~vtkParametricPseudosphere() override;
 
   private:
-    vtkParametricPseudosphere(const vtkParametricPseudosphere&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricPseudosphere&) VTK_DELETE_FUNCTION;
+    vtkParametricPseudosphere(const vtkParametricPseudosphere&) = delete;
+    void operator=(const vtkParametricPseudosphere&) = delete;
 };
 
 #endif

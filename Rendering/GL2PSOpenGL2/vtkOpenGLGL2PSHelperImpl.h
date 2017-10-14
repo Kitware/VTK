@@ -34,35 +34,35 @@ class VTKRENDERINGGL2PSOPENGL2_EXPORT vtkOpenGLGL2PSHelperImpl
 public:
   static vtkOpenGLGL2PSHelperImpl *New();
   vtkTypeMacro(vtkOpenGLGL2PSHelperImpl, vtkOpenGLGL2PSHelper)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
-                                        vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+                                        vtkRenderer *ren, vtkActor *act) override;
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        unsigned char col[4]) VTK_OVERRIDE;
+                                        unsigned char col[4]) override;
   void ProcessTransformFeedback(vtkTransformFeedback *tfc,
                                         vtkRenderer *ren,
-                                        float col[4]) VTK_OVERRIDE;
+                                        float col[4]) override;
 
   void DrawString(const std::string &str, vtkTextProperty *tprop,
                           double pos[3], double backgroundDepth,
-                          vtkRenderer *ren) VTK_OVERRIDE;
+                          vtkRenderer *ren) override;
 
   void DrawPath(vtkPath *path, double rasterPos[3], double windowPos[2],
-                        unsigned char rgba[4], double scale[2] = NULL,
+                        unsigned char rgba[4], double scale[2] = nullptr,
                         double rotateAngle = 0.0, float strokeWidth = -1,
-                        const char *label = NULL) VTK_OVERRIDE;
+                        const char *label = nullptr) override;
 
   void Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
                           double rasterPos[3], unsigned char actorColor[4],
-                          vtkRenderer *ren, const char *label = NULL) VTK_OVERRIDE;
+                          vtkRenderer *ren, const char *label = nullptr) override;
 
-  void DrawImage(vtkImageData *image, double pos[3]) VTK_OVERRIDE;
+  void DrawImage(vtkImageData *image, double pos[3]) override;
 
 protected:
   vtkOpenGLGL2PSHelperImpl();
-  ~vtkOpenGLGL2PSHelperImpl() VTK_OVERRIDE;
+  ~vtkOpenGLGL2PSHelperImpl() override;
 
   /**
    * Translate the tprop's fontname into a Postscript font name.
@@ -88,12 +88,12 @@ protected:
    * Project the point from world coordinates into device coordinates.
    */
   static void ProjectPoint(double point[3], vtkRenderer *ren,
-                           vtkMatrix4x4 *actorMatrix = NULL);
+                           vtkMatrix4x4 *actorMatrix = nullptr);
   static void ProjectPoint(double point[4], vtkMatrix4x4 *transformMatrix,
                            double viewportOrigin[2], double halfWidth,
                            double halfHeight, double zfact1, double zfact2);
   static void ProjectPoints(vtkPoints *points, vtkRenderer *ren,
-                            vtkMatrix4x4 *actorMatrix = NULL);
+                            vtkMatrix4x4 *actorMatrix = nullptr);
   //@}
 
   //@{
@@ -106,7 +106,7 @@ protected:
                              double halfHeight, double zfact1, double zfact2);
   static void UnprojectPoints(double *points3D, vtkIdType numPoints,
                               vtkRenderer *ren,
-                              vtkMatrix4x4 *actorMatrix = NULL);
+                              vtkMatrix4x4 *actorMatrix = nullptr);
   //@}
 
   void DrawPathPS(vtkPath *path, double rasterPos[3], double windowPos[2],
@@ -120,8 +120,8 @@ protected:
                    float strokeWidth, const std::string &label);
 
 private:
-  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
+  vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &) = delete;
+  void operator=(const vtkOpenGLGL2PSHelperImpl &) = delete;
 };
 
 #endif // vtkOpenGLGL2PSHelperImpl_h

@@ -40,7 +40,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoProjection : public vtkObject
 {
 public:
   static vtkGeoProjection* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoProjection,vtkObject);
 
   /**
@@ -80,7 +80,7 @@ public:
 
   /**
    * Get the description of a projection.
-   * This will return NULL if the projection name is invalid.
+   * This will return nullptr if the projection name is invalid.
    */
   const char* GetDescription();
 
@@ -95,7 +95,7 @@ public:
 
   /**
    * Return a pointer to the PROJ.4 data structure describing this projection.
-   * This may return NULL if an invalid projection name or parameter set is specified.
+   * This may return nullptr if an invalid projection name or parameter set is specified.
    * If you invoke any methods on this vtkGeoProjection object, the PROJ.4 structure
    * this method returns may be freed, so you should not use the PROJ.4 structure
    * after changing any parameters. Also, you should not modify the PROJ.4 structure
@@ -136,7 +136,7 @@ public:
 
 protected:
   vtkGeoProjection();
-  ~vtkGeoProjection() VTK_OVERRIDE;
+  ~vtkGeoProjection() override;
 
   /**
    * Determine whether the current projection structure has any
@@ -152,8 +152,8 @@ protected:
   vtkMTimeType ProjectionMTime;
 
 private:
-  vtkGeoProjection( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
+  vtkGeoProjection( const vtkGeoProjection& ) = delete;
+  void operator = ( const vtkGeoProjection& ) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

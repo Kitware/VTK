@@ -26,9 +26,9 @@ vtkStandardNewMacro(vtkProgrammableAttributeDataFilter);
 
 vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
 {
-  this->ExecuteMethod = NULL;
-  this->ExecuteMethodArg = NULL;
-  this->ExecuteMethodArgDelete = NULL;
+  this->ExecuteMethod = nullptr;
+  this->ExecuteMethodArg = nullptr;
+  this->ExecuteMethodArgDelete = nullptr;
   this->InputList = vtkDataSetCollection::New();
 }
 
@@ -42,7 +42,7 @@ vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
   if (this->InputList)
   {
     this->InputList->Delete();
-    this->InputList = NULL;
+    this->InputList = nullptr;
   }
 }
 
@@ -120,7 +120,7 @@ int vtkProgrammableAttributeDataFilter::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // Now invoke the procedure, if specified.
-  if ( this->ExecuteMethod != NULL )
+  if ( this->ExecuteMethod != nullptr )
   {
     (*this->ExecuteMethod)(this->ExecuteMethodArg);
   }

@@ -54,7 +54,7 @@ vtkSpanTreeLayoutStrategy::~vtkSpanTreeLayoutStrategy()
   if (this->TreeLayout)
   {
     this->TreeLayout->Delete();
-    this->TreeLayout = NULL;
+    this->TreeLayout = nullptr;
   }
 }
 

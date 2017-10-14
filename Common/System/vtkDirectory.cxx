@@ -23,7 +23,7 @@
 vtkStandardNewMacro(vtkDirectory)
 
 vtkDirectory::vtkDirectory()
-  : Path(0)
+  : Path(nullptr)
 {
   this->Files = vtkStringArray::New();
 }
@@ -33,14 +33,14 @@ void vtkDirectory::CleanUpFilesAndPath()
 {
   this->Files->Reset();
   delete [] this->Path;
-  this->Path = 0;
+  this->Path = nullptr;
 }
 
 vtkDirectory::~vtkDirectory()
 {
   this->CleanUpFilesAndPath();
   this->Files->Delete();
-  this->Files = 0;
+  this->Files = nullptr;
 }
 
 
@@ -162,7 +162,7 @@ int vtkDirectory::Open(const char* name)
     return 0;
   }
 
-  vtkdirectory_dirent* d =0;
+  vtkdirectory_dirent* d =nullptr;
 
   for (d = readdir(dir); d; d = readdir(dir))
   {
@@ -195,7 +195,7 @@ const char* vtkDirectory::GetFile(vtkIdType index)
   if(index >= this->Files->GetNumberOfValues() || index < 0)
   {
     vtkErrorMacro( << "Bad index for GetFile on vtkDirectory\n");
-    return 0;
+    return nullptr;
   }
 
   return this->Files->GetValue(index).c_str();
@@ -215,7 +215,7 @@ int vtkDirectory::FileIsDirectory(const char *name)
   // and it will broke KWWidgets. Reverse back to 1.30
   // return vtksys::SystemTools::FileIsDirectory(name);
 
-  if (name == 0)
+  if (name == nullptr)
   {
     return 0;
   }

@@ -36,11 +36,11 @@ vtkEncodedGradientShader::vtkEncodedGradientShader()
 
   for ( j = 0; j < VTK_MAX_SHADING_TABLES; j++ )
   {
-      this->ShadingTableVolume[j] = NULL;
+      this->ShadingTableVolume[j] = nullptr;
       this->ShadingTableSize[j] = 0;
       for ( i = 0; i < 6; i++ )
       {
-        this->ShadingTable[j][i] = NULL;
+        this->ShadingTable[j][i] = nullptr;
       }
   }
 
@@ -77,7 +77,7 @@ float *vtkEncodedGradientShader::GetRedDiffuseShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][0];
@@ -98,7 +98,7 @@ float *vtkEncodedGradientShader::GetGreenDiffuseShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][1];
@@ -119,7 +119,7 @@ float *vtkEncodedGradientShader::GetBlueDiffuseShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][2];
@@ -140,7 +140,7 @@ float *vtkEncodedGradientShader::GetRedSpecularShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][3];
@@ -161,7 +161,7 @@ float *vtkEncodedGradientShader::GetGreenSpecularShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][4];
@@ -182,7 +182,7 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
   if ( index == VTK_MAX_SHADING_TABLES )
   {
     vtkErrorMacro( << "No shading table found for that volume!" );
-    return NULL;
+    return nullptr;
   }
 
   return this->ShadingTable[index][5];
@@ -225,7 +225,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   {
     for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
     {
-      if ( this->ShadingTableVolume[index] == NULL )
+      if ( this->ShadingTableVolume[index] == nullptr )
       {
         this->ShadingTableVolume[index] = vol;
         break;
@@ -303,7 +303,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   lightCollection = ren->GetLights();
 
   // In rare cases there are no lights
-  vtkLight *artificialLight=NULL;
+  vtkLight *artificialLight=nullptr;
   if ( lightCollection->GetNumberOfItems() == 0 )
   {
     artificialLight = vtkLight::New();
@@ -313,7 +313,7 @@ void vtkEncodedGradientShader::UpdateShadingTable(
 
   vtkCollectionSimpleIterator sit;
   lightCollection->InitTraversal(sit);
-  while ( (light = lightCollection->GetNextLight(sit)) != NULL  )
+  while ( (light = lightCollection->GetNextLight(sit)) != nullptr  )
   {
     if ( ! light->GetSwitch() )
     {

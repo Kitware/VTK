@@ -46,7 +46,7 @@ vtkImageDilateErode3D::~vtkImageDilateErode3D()
   if (this->Ellipse)
   {
     this->Ellipse->Delete();
-    this->Ellipse = NULL;
+    this->Ellipse = nullptr;
   }
 }
 

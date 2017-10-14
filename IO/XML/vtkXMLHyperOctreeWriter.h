@@ -40,7 +40,7 @@ class VTKIOXML_EXPORT vtkXMLHyperOctreeWriter : public vtkXMLWriter
 {
 public:
   vtkTypeMacro(vtkXMLHyperOctreeWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperOctreeWriter* New();
 
   /**
@@ -51,25 +51,25 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLHyperOctreeWriter();
-  ~vtkXMLHyperOctreeWriter() VTK_OVERRIDE;
+  ~vtkXMLHyperOctreeWriter() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   // specify that we require HyperOctree input
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // The most important method, make the XML file for my input.
-  int WriteData() VTK_OVERRIDE;
+  int WriteData() override;
 
   // <HyperOctree ...
   int StartPrimElement(vtkIndent);
 
   // ... dim, size, origin>
-  void WritePrimaryElementAttributes(ostream &, vtkIndent) VTK_OVERRIDE;
+  void WritePrimaryElementAttributes(ostream &, vtkIndent) override;
 
   // Tree Structure
   int WriteTopology(vtkIndent);
@@ -91,8 +91,8 @@ protected:
   OffsetsManagerGroup * CellDataOM;
 
 private:
-  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) = delete;
+  void operator=(const vtkXMLHyperOctreeWriter&) = delete;
 };
 
 #endif

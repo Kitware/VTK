@@ -71,9 +71,9 @@ int TestLagrangianParticleTracker(int, char*[])
   partDens->FillComponent(0, 1920);
   partDiam->FillComponent(0, 0.1);
 
-  seedData->AddArray(partVel.Get());
-  seedData->AddArray(partDens.Get());
-  seedData->AddArray(partDiam.Get());
+  seedData->AddArray(partVel);
+  seedData->AddArray(partDens);
+  seedData->AddArray(partDiam);
 
   // Create a wavelet
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -104,9 +104,9 @@ int TestLagrangianParticleTracker(int, char*[])
   flowDens->FillComponent(0, 1000);
   flowDynVisc->FillComponent(0, 0.894);
 
-  cd->AddArray(flowVel.Get());
-  cd->AddArray(flowDens.Get());
-  cd->AddArray(flowDynVisc.Get());
+  cd->AddArray(flowVel);
+  cd->AddArray(flowDens);
+  cd->AddArray(flowDynVisc);
 
   // Create surface
   vtkNew<vtkDataSetSurfaceFilter> surface;
@@ -121,7 +121,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypeTerm->SetNumberOfTuples(surfacePd->GetNumberOfCells());
   surfaceTypeTerm->FillComponent(0,
     vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_TERM);
-  surfacePd->GetCellData()->AddArray(surfaceTypeTerm.Get());
+  surfacePd->GetCellData()->AddArray(surfaceTypeTerm);
 
   // Create plane passThrough
   vtkNew<vtkPlaneSource> surfacePass;
@@ -138,7 +138,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypePass->SetNumberOfTuples(passPd->GetNumberOfCells());
   surfaceTypePass->FillComponent(0,
     vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS);
-  passPd->GetCellData()->AddArray(surfaceTypePass.Get());
+  passPd->GetCellData()->AddArray(surfaceTypePass);
 
   // Create plane passThrough
   vtkNew<vtkPlaneSource> surfaceBounce;
@@ -155,7 +155,7 @@ int TestLagrangianParticleTracker(int, char*[])
   surfaceTypeBounce->SetNumberOfTuples(bouncePd->GetNumberOfCells());
   surfaceTypeBounce->FillComponent(0,
     vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_BOUNCE);
-  bouncePd->GetCellData()->AddArray(surfaceTypeBounce.Get());
+  bouncePd->GetCellData()->AddArray(surfaceTypeBounce);
 
   vtkNew<vtkMultiBlockDataGroupFilter> groupSurface;
   groupSurface->AddInputDataObject(surfacePd);
@@ -194,23 +194,23 @@ int TestLagrangianParticleTracker(int, char*[])
 
   // Put in tracker
   vtkNew<vtkLagrangianParticleTracker> tracker;
-  tracker->SetIntegrator(NULL);
-  tracker->SetIntegrationModel(NULL);
+  tracker->SetIntegrator(nullptr);
+  tracker->SetIntegrationModel(nullptr);
   tracker->Print(cout);
-  if (tracker->GetSource() != 0 || tracker->GetSurface() != 0)
+  if (tracker->GetSource() != nullptr || tracker->GetSurface() != nullptr)
   {
     std::cerr << "Incorrect Input Initialization" << std::endl;
     return EXIT_FAILURE;
   }
-  tracker->SetIntegrator(integrator.Get());
-  if (tracker->GetIntegrator() != integrator.Get())
+  tracker->SetIntegrator(integrator);
+  if (tracker->GetIntegrator() != integrator)
   {
     std::cerr << "Incorrect Integrator" << std::endl;
     return EXIT_FAILURE;
   }
 
-  tracker->SetIntegrationModel(integrationModel.Get());
-  if (tracker->GetIntegrationModel() != integrationModel.Get())
+  tracker->SetIntegrationModel(integrationModel);
+  if (tracker->GetIntegrationModel() != integrationModel)
   {
     std::cerr << "Incorrect Integration Model" << std::endl;
     return EXIT_FAILURE;
@@ -311,7 +311,7 @@ int TestLagrangianParticleTracker(int, char*[])
   points->InsertNextPoint(1, 1, 1);
   points->InsertNextPoint(2, 2, 2);
   vtkNew<vtkPolyData> polydata;
-  polydata->SetPoints(points.Get());
+  polydata->SetPoints(points);
 
   vtkNew<vtkGlyph3D> glyph;
   glyph->SetSourceConnection(sphereGlyph->GetOutputPort());
@@ -324,21 +324,21 @@ int TestLagrangianParticleTracker(int, char*[])
   mapper->SetInputData(vtkPolyData::SafeDownCast(tracker->GetOutput()));
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkPolyDataMapper> surfaceMapper;
   surfaceMapper->SetInputConnection(surfaceBounce->GetOutputPort());
   vtkNew<vtkActor> surfaceActor;
-  surfaceActor->SetMapper(surfaceMapper.Get());
+  surfaceActor->SetMapper(surfaceMapper);
   vtkNew<vtkPolyDataMapper> surfaceMapper2;
   surfaceMapper2->SetInputConnection(surfacePass->GetOutputPort());
   vtkNew<vtkActor> surfaceActor2;
-  surfaceActor2->SetMapper(surfaceMapper2.Get());
+  surfaceActor2->SetMapper(surfaceMapper2);
 
   vtkNew<vtkPolyDataMapper> glyphMapper;
   glyphMapper->SetInputConnection(glyph->GetOutputPort());
   vtkNew<vtkActor> glyphActor;
-  glyphActor->SetMapper(glyphMapper.Get());
+  glyphActor->SetMapper(glyphMapper);
 
   // Setup camera
   vtkNew<vtkCamera> camera;
@@ -348,15 +348,15 @@ int TestLagrangianParticleTracker(int, char*[])
 
   // Setup render window, renderer, and interactor
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera(camera.Get());
+  renderer->SetActiveCamera(camera);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
-  renderer->AddActor(actor.Get());
-  renderer->AddActor(surfaceActor.Get());
-  renderer->AddActor(surfaceActor2.Get());
-  renderer->AddActor(glyphActor.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+  renderer->AddActor(actor);
+  renderer->AddActor(surfaceActor);
+  renderer->AddActor(surfaceActor2);
+  renderer->AddActor(glyphActor);
   renderer->SetBackground(0.1, .5, 1);
 
   renderWindow->Render();

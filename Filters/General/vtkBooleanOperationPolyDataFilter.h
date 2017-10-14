@@ -52,7 +52,7 @@ public:
   vtkTypeMacro(vtkBooleanOperationPolyDataFilter,
                vtkPolyDataAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OperationType
   {
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkBooleanOperationPolyDataFilter();
-  ~vtkBooleanOperationPolyDataFilter() VTK_OVERRIDE;
+  ~vtkBooleanOperationPolyDataFilter() override;
 
   /**
    * Labels triangles in mesh as part of the intersection or union surface.
@@ -104,12 +104,12 @@ protected:
   void SortPolyData(vtkPolyData* input, vtkIdList* intersectionList,
                     vtkIdList* unionList);
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) = delete;
+  void operator=(const vtkBooleanOperationPolyDataFilter&) = delete;
 
   /**
    * Copies cells with indices given by  from one vtkPolyData to

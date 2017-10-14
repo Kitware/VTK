@@ -71,13 +71,13 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetColor(colorFunction.GetPointer());
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetColor(colorFunction);
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   // Setup volume actor
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   // Testing prefers image comparison with small images
   vtkNew<vtkRenderWindow> renWin;
@@ -85,12 +85,12 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
   renWin->SetSize(401, 399);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->GetActiveCamera()->Azimuth(90);
   ren->GetActiveCamera()->Roll(90);
   ren->GetActiveCamera()->Azimuth(-90);
@@ -101,10 +101,10 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
   vtkNew<vtkImageData> im;
 
   // Get color texture as image
-  volumeMapper->GetColorImage(im.GetPointer());
+  volumeMapper->GetColorImage(im);
 
   // Get depth texture as image
-  volumeMapper->GetDepthImage(im.GetPointer());
+  volumeMapper->GetDepthImage(im);
 
   // Create a grayscale lookup table
   vtkNew<vtkLookupTable> lut;
@@ -116,14 +116,14 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
 
   // Map the pixel values of the image with the lookup table
   vtkNew<vtkImageMapToColors> imageMap;
-  imageMap->SetInputData(im.GetPointer());
-  imageMap->SetLookupTable(lut.GetPointer());
+  imageMap->SetInputData(im);
+  imageMap->SetLookupTable(lut);
 
   // Render the image in the scene
   vtkNew<vtkImageActor> ia;
   ia->GetMapper()->SetInputConnection(imageMap->GetOutputPort());
-  ren->AddActor(ia.GetPointer());
-  ren->RemoveVolume(volume.GetPointer());
+  ren->AddActor(ia);
+  ren->RemoveVolume(volume);
   ren->GetActiveCamera()->SetPosition(0, 0, -1);
   ren->GetActiveCamera()->SetFocalPoint(0, 0, 1);
   ren->GetActiveCamera()->SetViewUp(0, 1, 0);
@@ -132,7 +132,7 @@ int TestGPURayCastRenderDepthToImage(int argc, char *argv[])
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

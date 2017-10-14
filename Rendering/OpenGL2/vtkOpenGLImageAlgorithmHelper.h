@@ -42,8 +42,8 @@ public:
   virtual ~vtkOpenGLImageAlgorithmCallback() {};
   vtkOpenGLImageAlgorithmCallback() {};
 private:
-  vtkOpenGLImageAlgorithmCallback(const vtkOpenGLImageAlgorithmCallback&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageAlgorithmCallback&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageAlgorithmCallback(const vtkOpenGLImageAlgorithmCallback&) = delete;
+  void operator=(const vtkOpenGLImageAlgorithmCallback&) = delete;
 };
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageAlgorithmHelper : public vtkObject
@@ -51,7 +51,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageAlgorithmHelper : public vtkObjec
 public:
   static vtkOpenGLImageAlgorithmHelper *New();
   vtkTypeMacro(vtkOpenGLImageAlgorithmHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Execute(
     vtkOpenGLImageAlgorithmCallback *cb,
@@ -69,14 +69,14 @@ public:
 
  protected:
   vtkOpenGLImageAlgorithmHelper();
-  ~vtkOpenGLImageAlgorithmHelper() VTK_OVERRIDE;
+  ~vtkOpenGLImageAlgorithmHelper() override;
 
   vtkSmartPointer<vtkOpenGLRenderWindow> RenderWindow;
   vtkOpenGLHelper Quad;
 
  private:
-  vtkOpenGLImageAlgorithmHelper(const vtkOpenGLImageAlgorithmHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageAlgorithmHelper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageAlgorithmHelper(const vtkOpenGLImageAlgorithmHelper&) = delete;
+  void operator=(const vtkOpenGLImageAlgorithmHelper&) = delete;
 };
 
 #endif

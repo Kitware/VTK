@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageAlgorithm : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -56,7 +56,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   //@{
   /**
@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkImageAlgorithm();
-  ~vtkImageAlgorithm() VTK_OVERRIDE;
+  ~vtkImageAlgorithm() override;
 
   /**
    * Subclasses can reimplement this method to collect information
@@ -175,13 +175,13 @@ protected:
    * more than a single input or single output.
    * See vtkAlgorithm for more information.
    */
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   //@}
 
 private:
-  vtkImageAlgorithm(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkImageAlgorithm(const vtkImageAlgorithm&) = delete;
+  void operator=(const vtkImageAlgorithm&) = delete;
 };
 
 #endif

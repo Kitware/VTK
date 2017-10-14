@@ -122,7 +122,7 @@ class VTKFILTERSGENERAL_EXPORT vtkMultiThreshold : public vtkMultiBlockDataSetAl
 public:
   vtkTypeMacro(vtkMultiThreshold,vtkMultiBlockDataSetAlgorithm);
   static vtkMultiThreshold* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   /// Whether the endpoint value of an interval should be included or excluded.
   enum Closure {
@@ -318,9 +318,9 @@ public:
      */
     int Match( double cellNorm[2] );
 
-    ~Interval() VTK_OVERRIDE { }
-    void PrintNode( ostream& os ) VTK_OVERRIDE;
-    Interval* GetIntervalPointer() VTK_OVERRIDE;
+    ~Interval() override { }
+    void PrintNode( ostream& os ) override;
+    Interval* GetIntervalPointer() override;
   };
 
   /// A subset of a mesh represented as a boolean set operation
@@ -336,15 +336,15 @@ public:
       this->Id = sId;
       this->Operator = op;
     }
-    ~BooleanSet() VTK_OVERRIDE { }
-    void PrintNode( ostream& os ) VTK_OVERRIDE;
-    BooleanSet* GetBooleanSetPointer() VTK_OVERRIDE;
+    ~BooleanSet() override { }
+    void PrintNode( ostream& os ) override;
+    BooleanSet* GetBooleanSetPointer() override;
   };
 
 protected:
 
   vtkMultiThreshold();
-  ~vtkMultiThreshold() VTK_OVERRIDE;
+  ~vtkMultiThreshold() override;
 
   /**
    * When an interval is evaluated, its value is used to update a truth table.
@@ -369,14 +369,14 @@ protected:
   /**
    * This function performs the actual thresholding.
    */
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   /**
    * We accept any mesh that is descended from vtkPointSet.
    * In the future, it is possible to accept more types but this would require
    * us to generate a new vtkPoints object for each output mesh.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * A variable used to store the next index to use when calling SetInputArrayToProcess.
@@ -434,8 +434,8 @@ protected:
    */
   void PrintGraph( ostream& os );
 
-  vtkMultiThreshold( const vtkMultiThreshold& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkMultiThreshold& ) VTK_DELETE_FUNCTION;
+  vtkMultiThreshold( const vtkMultiThreshold& ) = delete;
+  void operator = ( const vtkMultiThreshold& ) = delete;
 };
 
 inline int vtkMultiThreshold::AddLowpassIntervalSet( double xmax, int assoc, const char* arrayName, int component, int allScalars )
@@ -467,12 +467,12 @@ inline int vtkMultiThreshold::AddNotchIntervalSet(
 
 inline vtkMultiThreshold::Interval* vtkMultiThreshold::Set::GetIntervalPointer()
 {
-  return 0;
+  return nullptr;
 }
 
 inline vtkMultiThreshold::BooleanSet* vtkMultiThreshold::Set::GetBooleanSetPointer()
 {
-  return 0;
+  return nullptr;
 }
 
 inline vtkMultiThreshold::Interval* vtkMultiThreshold::Interval::GetIntervalPointer()

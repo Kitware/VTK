@@ -110,7 +110,7 @@ void vtkPointWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -140,7 +140,7 @@ void vtkPointWidget::SetEnabled(int enabling)
     this->Actor->SetProperty(this->Property);
     this->Cursor3D->Update();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling----------------------------------------------------------
@@ -160,8 +160,8 @@ void vtkPointWidget::SetEnabled(int enabling)
     // turn off the line
     this->CurrentRenderer->RemoveActor(this->Actor);
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -318,11 +318,11 @@ void vtkPointWidget::OnLeftButtonDown()
 
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPointWidget::Moving;
     this->Highlight(1);
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
+    this->ConstraintAxis = this->DetermineConstraintAxis(-1,nullptr);
   }
   else
   {
@@ -334,7 +334,7 @@ void vtkPointWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -351,7 +351,7 @@ void vtkPointWidget::OnLeftButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -370,11 +370,11 @@ void vtkPointWidget::OnMiddleButtonDown()
   // Okay, we can process this.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPointWidget::Translating;
     this->Highlight(1);
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
+    this->ConstraintAxis = this->DetermineConstraintAxis(-1,nullptr);
   }
   else
   {
@@ -385,7 +385,7 @@ void vtkPointWidget::OnMiddleButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -402,7 +402,7 @@ void vtkPointWidget::OnMiddleButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -421,7 +421,7 @@ void vtkPointWidget::OnRightButtonDown()
   // Okay, we can process this. Pick the cursor.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->State = vtkPointWidget::Scaling;
     int idx = this->CursorPicker->GetCellId();
@@ -440,7 +440,7 @@ void vtkPointWidget::OnRightButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -457,7 +457,7 @@ void vtkPointWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -528,7 +528,7 @@ void vtkPointWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   this->Interactor->Render();
 }
 

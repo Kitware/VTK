@@ -152,7 +152,7 @@ void vtkTransformFeedback::BindBuffer()
   this->BufferHandle = static_cast<int>(tbo);
   glBindBuffer(GL_ARRAY_BUFFER, tbo);
   glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(this->GetBufferSize()),
-               NULL, GL_STATIC_READ);
+               nullptr, GL_STATIC_READ);
   glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
   glBeginTransformFeedback(static_cast<GLenum>(this->PrimitiveMode));
 
@@ -174,7 +174,7 @@ void vtkTransformFeedback::ReadBuffer()
   this->ReleaseBufferData();
   this->BufferData = new unsigned char[bufferSize];
 
-  unsigned char *glBuffer(NULL);
+  unsigned char *glBuffer(nullptr);
   glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
                    GL_MAP_READ_BIT);
   glGetBufferPointerv(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER,
@@ -204,7 +204,7 @@ void vtkTransformFeedback::ReleaseBufferData(bool freeBuffer)
   {
     delete [] this->BufferData;
   }
-  this->BufferData = NULL;
+  this->BufferData = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -215,7 +215,7 @@ vtkTransformFeedback::vtkTransformFeedback()
     BufferMode(GL_INTERLEAVED_ATTRIBS),
     BufferHandle(0),
     PrimitiveMode(GL_POINTS),
-    BufferData(NULL)
+    BufferData(nullptr)
 {
 }
 

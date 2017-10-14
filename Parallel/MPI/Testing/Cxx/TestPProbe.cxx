@@ -82,7 +82,6 @@ int TestPProbe(int argc,char *argv[])
 
   vtkPolyDataMapper* Mapper4 = vtkPolyDataMapper::New();
   Mapper4->SetInputConnection(Geometry4->GetOutputPort());
-  Mapper4->SetImmediateModeRendering(0);
   Mapper4->SetScalarRange(0,1);
   Mapper4->SetScalarVisibility(0);
   Mapper4->SetScalarModeToDefault();
@@ -115,7 +114,6 @@ int TestPProbe(int argc,char *argv[])
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
   Mapper6->SetInputConnection(Tuber0->GetOutputPort());
-  Mapper6->SetImmediateModeRendering(0);
   Mapper6->SetScalarRange(0,228);
   Mapper6->SetScalarVisibility(1);
   Mapper6->SetScalarModeToUsePointFieldData();

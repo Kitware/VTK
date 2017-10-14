@@ -37,6 +37,12 @@ class vtkEmptyCell;
 class vtkHexahedron;
 class vtkIdList;
 class vtkIdTypeArray;
+class vtkLagrangeCurve;
+class vtkLagrangeQuadrilateral;
+class vtkLagrangeHexahedron;
+class vtkLagrangeTriangle;
+class vtkLagrangeTetra;
+class vtkLagrangeWedge;
 class vtkLine;
 class vtkPixel;
 class vtkPolyLine;
@@ -79,12 +85,12 @@ public:
   static vtkUnstructuredGrid *New();
 
   vtkTypeMacro(vtkUnstructuredGrid, vtkUnstructuredGridBase)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_UNSTRUCTURED_GRID;};
+  int GetDataObjectType() override {return VTK_UNSTRUCTURED_GRID;};
 
   /**
    * Method allocates initial storage for the cell connectivity. Use this
@@ -92,7 +98,7 @@ public:
    * doubled when the inserting a cell exceeds the current capacity.
    * extSize is no longer used.
    */
-  void Allocate(vtkIdType numCells=1000, int extSize=1000) VTK_OVERRIDE;
+  void Allocate(vtkIdType numCells=1000, int extSize=1000) override;
 
   /**
    * Insert/create cell in object by type and list of point ids defining
@@ -104,7 +110,7 @@ public:
    * (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
    * Make sure you have called Allocate() before calling this method
    */
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) VTK_OVERRIDE;
+  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) override;
 
   /**
    * Insert/create cell in object by a list of point ids defining
@@ -115,7 +121,7 @@ public:
    * (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
    * Make sure you have called Allocate() before calling this method
    */
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) VTK_OVERRIDE;
+  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) override;
 
   // Desciption:
   // Insert/create a polyhedron cell. npts is the number of unique points in
@@ -125,30 +131,30 @@ public:
   // All point Ids are global.
   // Make sure you have called Allocate() before calling this method
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces) VTK_OVERRIDE;
+                           vtkIdType nfaces, vtkIdType *faces) override;
 
   //@{
   /**
    * Standard vtkDataSet methods; see vtkDataSet.h for documentation.
    */
   void Reset();
-  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *ds) override;
+  vtkIdType GetNumberOfCells() override;
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
-  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
-  vtkCellIterator* NewCellIterator() VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
+  vtkCellIterator* NewCellIterator() override;
   //@}
 
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) override;
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
   vtkIdTypeArray* GetCellLocationsArray() { return this->Locations; }
-  void Squeeze() VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
-  int GetMaxCellSize() VTK_OVERRIDE;
+  void Squeeze() override;
+  void Initialize() override;
+  int GetMaxCellSize() override;
   void BuildLinks();
   vtkCellLinks *GetCellLinks() {return this->Links;};
   virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
@@ -196,7 +202,7 @@ public:
   //@}
 
   vtkCellArray *GetCells() {return this->Connectivity;};
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) VTK_OVERRIDE;
+  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) override;
   vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void AddReferenceToCell(vtkIdType ptId, vtkIdType cellId);
@@ -209,7 +215,7 @@ public:
    * THE DATASET IS NOT MODIFIED
    */
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds) VTK_OVERRIDE;
+                        vtkIdList *cellIds) override;
 
   //@{
   /**
@@ -232,14 +238,14 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   /**
@@ -247,12 +253,12 @@ public:
    * method traverses all cells and, for a particular cell type,
    * inserts the cell Id into the container.
    */
-  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) VTK_OVERRIDE;
+  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) override;
 
   /**
    * Traverse cells and determine if cells are all of the same type.
    */
-  int IsHomogeneous() VTK_OVERRIDE;
+  int IsHomogeneous() override;
 
   /**
    * This method will remove any cell that is marked as ghost
@@ -269,7 +275,7 @@ public:
   //@}
 
   /**
-   * Special support for polyhedron. Return NULL for all other cell types.
+   * Special support for polyhedron. Return nullptr for all other cell types.
    */
   vtkIdType      *GetFaces(vtkIdType cellId);
 
@@ -285,10 +291,19 @@ public:
    * Special function used by vtkUnstructuredGridReader.
    * By default vtkUnstructuredGrid does not contain face information, which is
    * only used by polyhedron cells. If so far no polyhedron cells have been
-   * added, Faces and FaceLocations pointers will be NULL. In this case, need to
+   * added, Faces and FaceLocations pointers will be nullptr. In this case, need to
    * initialize the arrays and assign values to the previous non-polyhedron cells.
    */
   int InitializeFacesRepresentation(vtkIdType numPrevCells);
+
+  /**
+   * Return the mesh (geometry/topology) modification time.
+   * This time is different from the usual MTime which also takes into
+   * account the modification of data arrays. This function can be used to
+   * track the changes on the mesh separately from the data arrays
+   * (eg. static mesh over time with transient data).
+   */
+  virtual vtkMTimeType GetMeshMTime();
 
   /**
    * A static method for converting a polyhedron vtkCellArray of format
@@ -353,11 +368,17 @@ public:
 
 protected:
   vtkUnstructuredGrid();
-  ~vtkUnstructuredGrid() VTK_OVERRIDE;
+  ~vtkUnstructuredGrid() override;
 
   // used by GetCell method
   vtkVertex                         *Vertex;
   vtkPolyVertex                     *PolyVertex;
+  vtkLagrangeCurve                  *LagrangeCurve;
+  vtkLagrangeQuadrilateral          *LagrangeQuadrilateral;
+  vtkLagrangeHexahedron             *LagrangeHexahedron;
+  vtkLagrangeTriangle               *LagrangeTriangle;
+  vtkLagrangeTetra                  *LagrangeTetra;
+  vtkLagrangeWedge                  *LagrangeWedge;
   vtkLine                           *Line;
   vtkPolyLine                       *PolyLine;
   vtkTriangle                       *Triangle;
@@ -409,8 +430,8 @@ protected:
 
 private:
   // Hide these from the user and the compiler.
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&) = delete;
+  void operator=(const vtkUnstructuredGrid&) = delete;
 
   void Cleanup();
 };

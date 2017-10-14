@@ -14,10 +14,10 @@
 =========================================================================*/
 /**
  * @class   vtkThreadedImageAlgorithm
- * @brief   Generic filter that has one input..
+ * @brief   Generic filter that has one input.
  *
  * vtkThreadedImageAlgorithm is a filter superclass that hides much of the
- * pipeline  complexity. It handles breaking the pipeline execution
+ * pipeline complexity. It handles breaking the pipeline execution
  * into smaller extents so that the vtkImageData limits are observed. It
  * also provides support for multithreading. If you don't need any of this
  * functionality, consider using vtkSimpleImageToImageAlgorithm instead.
@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedImageAlgorithm : public vtkImage
 {
 public:
   vtkTypeMacro(vtkThreadedImageAlgorithm,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * If the subclass does not define an Execute method, then the task
@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkThreadedImageAlgorithm();
-  ~vtkThreadedImageAlgorithm() VTK_OVERRIDE;
+  ~vtkThreadedImageAlgorithm() override;
 
   vtkMultiThreader *Threader;
   int NumberOfThreads;
@@ -153,7 +153,7 @@ protected:
    */
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   /**
    * Execute ThreadedRequestData for the given set of pieces.
@@ -177,12 +177,12 @@ protected:
    */
   virtual void PrepareImageData(vtkInformationVector **inputVector,
                                 vtkInformationVector *outputVector,
-                                vtkImageData ***inDataObjects=0,
-                                vtkImageData **outDataObjects=0);
+                                vtkImageData ***inDataObjects=nullptr,
+                                vtkImageData **outDataObjects=nullptr);
 
 private:
-  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) = delete;
+  void operator=(const vtkThreadedImageAlgorithm&) = delete;
 
   friend class vtkThreadedImageAlgorithmFunctor;
 };

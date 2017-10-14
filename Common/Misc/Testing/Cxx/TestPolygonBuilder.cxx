@@ -45,7 +45,7 @@ int TestPolygonBuilder(int, char* [])
   }
 
   vtkNew<vtkIdListCollection> polys;
-  builder.GetPolygons(polys.GetPointer());
+  builder.GetPolygons(polys);
 
   if (polys->GetNumberOfItems()!=1)
   {

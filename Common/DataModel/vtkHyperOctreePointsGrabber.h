@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreePointsGrabber : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperOctreePointsGrabber,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the dimension of the hyperoctree.
@@ -89,13 +89,13 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreePointsGrabber();
-  ~vtkHyperOctreePointsGrabber() VTK_OVERRIDE;
+  ~vtkHyperOctreePointsGrabber() override;
 
   int Dimension;
 
 private:
-  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) = delete;
+  void operator=(const vtkHyperOctreePointsGrabber&) = delete;
 };
 
 #endif

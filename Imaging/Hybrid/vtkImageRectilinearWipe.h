@@ -63,7 +63,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkImageRectilinearWipe : public vtkThreadedImageA
 public:
   static vtkImageRectilinearWipe *New();
   vtkTypeMacro(vtkImageRectilinearWipe,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -128,22 +128,22 @@ public:
 
 protected:
   vtkImageRectilinearWipe();
-  ~vtkImageRectilinearWipe() VTK_OVERRIDE {}
+  ~vtkImageRectilinearWipe() override {}
 
   void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId) VTK_OVERRIDE;
+                                   int extent[6], int threadId) override;
 
   int Position[2];
   int Wipe;
   int Axis[2];
 
 private:
-  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
+  vtkImageRectilinearWipe(const vtkImageRectilinearWipe&) = delete;
+  void operator=(const vtkImageRectilinearWipe&) = delete;
 };
 
 #endif

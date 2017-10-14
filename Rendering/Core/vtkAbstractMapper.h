@@ -53,12 +53,12 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractMapper : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkAbstractMapper, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Override Modifiedtime as we have added Clipping planes
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -129,9 +129,14 @@ public:
                                               int arrayAccessMode, int arrayId,
                                               const char *arrayName, int& cellFlag);
 
+  /**
+   * Get the number of clipping planes.
+   */
+  int GetNumberOfClippingPlanes();
+
 protected:
   vtkAbstractMapper();
-  ~vtkAbstractMapper() VTK_OVERRIDE;
+  ~vtkAbstractMapper() override;
 
   vtkTimerLog *Timer;
   double TimeToDraw;
@@ -139,8 +144,8 @@ protected:
   vtkPlaneCollection *ClippingPlanes;
 
 private:
-  vtkAbstractMapper(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
+  vtkAbstractMapper(const vtkAbstractMapper&) = delete;
+  void operator=(const vtkAbstractMapper&) = delete;
 };
 
 #endif

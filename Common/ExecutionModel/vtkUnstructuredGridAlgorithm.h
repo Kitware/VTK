@@ -42,7 +42,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUnstructuredGridAlgorithm : public vtkAl
 public:
   static vtkUnstructuredGridAlgorithm *New();
   vtkTypeMacro(vtkUnstructuredGridAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,7 +58,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkUnstructuredGridAlgorithm();
-  ~vtkUnstructuredGridAlgorithm() VTK_OVERRIDE;
+  ~vtkUnstructuredGridAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -112,12 +112,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkUnstructuredGridAlgorithm(const vtkUnstructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridAlgorithm(const vtkUnstructuredGridAlgorithm&) = delete;
+  void operator=(const vtkUnstructuredGridAlgorithm&) = delete;
 };
 
 #endif

@@ -43,7 +43,7 @@ void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self, T *inPts,
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   vtkIdType numNewPts, numNewLines, numNewPolys, polyAllocSize;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType newIds[3] = {0, 0, 0};
   vtkPoints *newPoints;
   T *p1, *p2, *p3;
@@ -286,7 +286,7 @@ int vtkShrinkPolyData::RequestData(
   // Initialize
   vtkDebugMacro(<<"Shrinking polygonal data");
 
-  if (input == NULL || input->GetPoints() == NULL)
+  if (input == nullptr || input->GetPoints() == nullptr)
   {
     return 1;
   }

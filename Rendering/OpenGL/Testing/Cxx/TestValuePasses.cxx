@@ -126,7 +126,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       this->Alg = p;
     }
 
-    void OnKeyPress() VTK_OVERRIDE
+    void OnKeyPress() override
     {
       if (this->GLRenderer == NULL)
       {

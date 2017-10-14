@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkFrustumSource,Planes,vtkPlanes);
 // ----------------------------------------------------------------------------
 vtkFrustumSource::vtkFrustumSource()
 {
-  this->Planes=0;
+  this->Planes=nullptr;
   this->ShowLines=true;
   this->LinesLength=1.0;
   this->OutputPointsPrecision = vtkAlgorithm::SINGLE_PRECISION;
@@ -40,7 +40,7 @@ vtkFrustumSource::vtkFrustumSource()
 // ----------------------------------------------------------------------------
 vtkFrustumSource::~vtkFrustumSource()
 {
-  if(this->Planes!=0)
+  if(this->Planes!=nullptr)
   {
     this->Planes->Delete();
   }
@@ -52,7 +52,7 @@ int vtkFrustumSource::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  if(this->Planes==0 || this->Planes->GetNumberOfPlanes()!=6)
+  if(this->Planes==nullptr || this->Planes->GetNumberOfPlanes()!=6)
   {
     vtkErrorMacro(<<" 6 planes required.");
     return 0;
@@ -255,7 +255,7 @@ int vtkFrustumSource::RequestData(
   pts[3]=5;
   newPolys->InsertNextCell(4,pts);
 
-  vtkCellArray *newLines=0;
+  vtkCellArray *newLines=nullptr;
   if(this->ShowLines)
   {
     vtkIdType numLines=4;
@@ -322,7 +322,7 @@ int vtkFrustumSource::RequestData(
   output->SetPoints(newPoints);
   newPoints->Delete();
 
-  if(newLines!=0)
+  if(newLines!=nullptr)
   {
     newLines->Squeeze(); // since we've estimated size; reclaim some space
     output->SetLines(newLines);
@@ -395,7 +395,7 @@ void vtkFrustumSource::ComputePoint(int planes[3],
 vtkMTimeType vtkFrustumSource::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
-  if(this->Planes!=0)
+  if(this->Planes!=nullptr)
   {
     vtkMTimeType time;
     time = this->Planes->GetMTime();
@@ -414,7 +414,7 @@ void vtkFrustumSource::PrintSelf(ostream &os,
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Planes:";
-  if(this->Planes!=0)
+  if(this->Planes!=nullptr)
   {
     this->Planes->PrintSelf(os,indent);
   }

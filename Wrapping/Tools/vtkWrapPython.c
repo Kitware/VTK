@@ -179,7 +179,8 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     for (i = 0; i < n; i++)
     {
       currentFunction = data->Functions[i];
-      if (currentFunction->Access == VTK_ACCESS_PUBLIC)
+      if (currentFunction->Access == VTK_ACCESS_PUBLIC &&
+          strcmp(currentFunction->Class, data->Name) == 0)
       {
         classname = "void";
         aType = VTK_PARSE_VOID;
@@ -276,6 +277,14 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     }
   }
 
+  /* special case for the way vtkGenericDataArray template is used */
+  if (data && strcmp(data->Name, "vtkGenericDataArray") == 0)
+  {
+    fprintf(fp,
+      "#include \"vtkSOADataArrayTemplate.h\"\n"
+      "#include \"vtkAOSDataArrayTemplate.h\"\n");
+  }
+
   free((char **)types);
 }
 
@@ -353,12 +362,12 @@ int main(int argc, char *argv[])
   /* get the global namespace */
   contents = file_info->Contents;
 
-  /* use the hierarchy file to expand typedefs */
+  /* use the hierarchy file to find super classes and expand typedefs */
   if (hinfo)
   {
     for (i = 0; i < contents->NumberOfClasses; i++)
     {
-      vtkWrap_ApplyUsingDeclarations(contents->Classes[i], file_info, hinfo);
+      vtkWrap_MergeSuperClasses(contents->Classes[i], file_info, hinfo);
     }
     for (i = 0; i < contents->NumberOfClasses; i++)
     {
@@ -536,12 +545,17 @@ int main(int argc, char *argv[])
       fprintf(fp,
              "  if (o)\n"
              "  {\n"
-             "    PyObject *l = PyObject_CallMethod(o, (char *)\"values\", 0);\n"
+             "#if PY_VERSION_HEX >= 0x03040000\n"
+             "    const char *methodname = \"values\";\n"
+             "#else\n"
+             "    char methodname[] = \"values\";\n"
+             "#endif\n"
+             "    PyObject *l = PyObject_CallMethod(o, methodname, nullptr);\n"
              "    Py_ssize_t n = PyList_GET_SIZE(l);\n"
              "    for (Py_ssize_t i = 0; i < n; i++)\n"
              "    {\n"
              "      PyObject *ot = PyList_GET_ITEM(l, i);\n"
-             "      const char *nt = NULL;\n"
+             "      const char *nt = nullptr;\n"
              "      if (PyType_Check(ot))\n"
              "      {\n"
              "        nt = ((PyTypeObject *)ot)->tp_name;\n"

@@ -88,7 +88,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This flag will turn logging of events off or on.
@@ -208,7 +208,7 @@ public:
 
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
-  ~vtkTimerLog() VTK_OVERRIDE { };
+  ~vtkTimerLog() override { };
 
   static int               Logging;
   static int               Indent;
@@ -251,10 +251,36 @@ protected:
                         int tick, int deltatick, const char *event);
 
 private:
-  vtkTimerLog(const vtkTimerLog&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
+  vtkTimerLog(const vtkTimerLog&) = delete;
+  void operator=(const vtkTimerLog&) = delete;
 };
 
+/**
+ * Helper class to log time within scope
+ */
+class vtkTimerLogScope
+{
+public:
+  vtkTimerLogScope(const char* eventString)
+  {
+    if (eventString)
+    {
+      this->EventString = eventString;
+    }
+    vtkTimerLog::MarkStartEvent(eventString);
+  }
+
+  ~vtkTimerLogScope()
+  {
+    vtkTimerLog::MarkEndEvent(this->EventString.c_str());
+  };
+
+protected:
+  std::string EventString;
+private:
+  vtkTimerLogScope(const vtkTimerLogScope&) = delete;
+  void operator=(const vtkTimerLogScope&) = delete;
+};
 
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());

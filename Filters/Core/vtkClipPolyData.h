@@ -69,7 +69,7 @@ class VTKFILTERSCORE_EXPORT vtkClipPolyData : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkClipPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
@@ -167,7 +167,7 @@ public:
   /**
    * Return the mtime also considering the locator and clip function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -181,10 +181,10 @@ public:
   //@}
 
 protected:
-  vtkClipPolyData(vtkImplicitFunction *cf=NULL);
-  ~vtkClipPolyData() VTK_OVERRIDE;
+  vtkClipPolyData(vtkImplicitFunction *cf=nullptr);
+  ~vtkClipPolyData() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   vtkImplicitFunction *ClipFunction;
 
   vtkIncrementalPointLocator *Locator;
@@ -195,8 +195,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkClipPolyData(const vtkClipPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClipPolyData&) VTK_DELETE_FUNCTION;
+  vtkClipPolyData(const vtkClipPolyData&) = delete;
+  void operator=(const vtkClipPolyData&) = delete;
 };
 
 #endif

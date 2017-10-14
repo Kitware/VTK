@@ -67,7 +67,7 @@ public:
     {
       this->Grow();
     }
-    int nchars = sprintf(this->Top, "%s", newcontent);
+    int nchars = snprintf(this->Top, this->MaxBufferSize, "%s", newcontent);
     this->Top+=nchars;
   }
   inline void append(const double newcontent)
@@ -77,7 +77,7 @@ public:
     {
       this->Grow();
     }
-     int nchars = sprintf(this->Top, "%s", this->NumBuffer);
+     int nchars = snprintf(this->Top, this->MaxBufferSize, "%s", this->NumBuffer);
      this->Top+=nchars;
   }
   char *Buffer;
@@ -89,21 +89,21 @@ public:
  //------------------------------------------------------------------------------
  vtkGeoJSONWriter::vtkGeoJSONWriter()
  {
-   this->FileName = NULL;
-   this->OutputString = NULL;
+   this->FileName = nullptr;
+   this->OutputString = nullptr;
    this->SetNumberOfOutputPorts(0);
    this->WriteToOutputString = false;
    this->ScalarFormat = 2;
-   this->LookupTable = NULL;
+   this->LookupTable = nullptr;
    this->WriterHelper = new vtkGeoJSONWriter::Internals();
  }
 
  //------------------------------------------------------------------------------
  vtkGeoJSONWriter::~vtkGeoJSONWriter()
  {
-   this->SetFileName(NULL);
+   this->SetFileName(nullptr);
    delete[] this->OutputString;
-   this->SetLookupTable(NULL);
+   this->SetLookupTable(nullptr);
    delete this->WriterHelper;
  }
 
@@ -140,7 +140,7 @@ public:
      if (!this->FileName)
      {
        vtkErrorMacro(<< "No FileName specified! Can't write!");
-       return NULL;
+       return nullptr;
      }
 
      fptr = new ofstream(this->FileName, ios::out);
@@ -151,7 +151,7 @@ public:
      if (this->OutputString)
      {
        delete [] this->OutputString;
-       this->OutputString = NULL;
+       this->OutputString = nullptr;
        this->OutputStringLength = 0;
      }
      fptr = new std::ostringstream;
@@ -161,7 +161,7 @@ public:
    {
      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
      delete fptr;
-     return NULL;
+     return nullptr;
    }
 
    return fptr;
@@ -172,7 +172,7 @@ public:
  {
    vtkDebugMacro(<<"Closing file\n");
 
-   if ( fp != NULL )
+   if ( fp != nullptr )
    {
      if (this->WriteToOutputString)
      {
@@ -300,7 +300,7 @@ public:
    this->WriterHelper->append("[\n");
 
    vtkIdType cellLoc = 0;
-   vtkIdType *cellPts = NULL;
+   vtkIdType *cellPts = nullptr;
    vtkIdType cellSize = 0;
    vtkIdType numlines, numpolys;
    numlines = input->GetLines()->GetNumberOfCells();
@@ -520,7 +520,7 @@ public:
    {
      vtkErrorMacro("Problem writing result check disk space.");
      delete fp;
-     fp = NULL;
+     fp = nullptr;
    }
 
    this->CloseFile(fp);
@@ -531,7 +531,7 @@ char *vtkGeoJSONWriter::RegisterAndGetOutputString()
 {
   char *tmp = this->OutputString;
 
-  this->OutputString = NULL;
+  this->OutputString = nullptr;
   this->OutputStringLength = 0;
 
   return tmp;

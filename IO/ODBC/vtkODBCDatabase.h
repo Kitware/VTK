@@ -46,7 +46,7 @@
  * @warning
  * The password supplied as an argument to the Open call will override
  * whatever password is set (if any) in the DSN definition.  To use
- * the password from the DSN definition, pass in NULL for
+ * the password from the DSN definition, pass in nullptr for
  * the password argument.
  *
  * @warning
@@ -155,7 +155,7 @@ public:
   /**
    * String representing database type (e.g. "ODBC").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }
@@ -167,8 +167,8 @@ public:
    * Return the SQL string with the syntax to create a column inside a
    * "CREATE TABLE" SQL statement.
    * NB2: if a column has type SERIAL in the schema, this will be turned
-   * into INT NOT NULL. Therefore, one should not pass
-   * NOT NULL as an attribute of a column whose type is SERIAL.
+   * into INT NOT nullptr. Therefore, one should not pass
+   * NOT nullptr as an attribute of a column whose type is SERIAL.
    */
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
@@ -229,8 +229,8 @@ private:
 
   char *DatabaseType;
 
-  vtkODBCDatabase(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
+  vtkODBCDatabase(const vtkODBCDatabase &) = delete;
+  void operator=(const vtkODBCDatabase &) = delete;
 };
 
 #endif // vtkODBCDatabase_h

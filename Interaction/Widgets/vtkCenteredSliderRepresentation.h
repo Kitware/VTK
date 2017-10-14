@@ -71,7 +71,7 @@ public:
    */
   vtkTypeMacro(vtkCenteredSliderRepresentation,
                        vtkSliderRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -99,8 +99,8 @@ public:
    * Specify the label text for this widget. If the value is not set, or set
    * to the empty string "", then the label text is not displayed.
    */
-  void SetTitleText(const char*) VTK_OVERRIDE;
-  const char* GetTitleText() VTK_OVERRIDE;
+  void SetTitleText(const char*) override;
+  const char* GetTitleText() override;
   //@}
 
   //@{
@@ -132,27 +132,27 @@ public:
    * assumes that the parameter bounds[6] specifies the location in display
    * space where the widget should be placed.
    */
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void Highlight(int) VTK_OVERRIDE;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void WidgetInteraction(double eventPos[2]) override;
+  void Highlight(int) override;
   //@}
 
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  void GetActors(vtkPropCollection*) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  void GetActors(vtkPropCollection*) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
   //@}
 
 protected:
   vtkCenteredSliderRepresentation();
-  ~vtkCenteredSliderRepresentation() VTK_OVERRIDE;
+  ~vtkCenteredSliderRepresentation() override;
 
   // Positioning the widget
   vtkCoordinate *Point1Coordinate;
@@ -199,8 +199,8 @@ private:
   double TubeSize;
 
   vtkCenteredSliderRepresentation
-    (const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
+    (const vtkCenteredSliderRepresentation&) = delete;
+  void operator=(const vtkCenteredSliderRepresentation&) = delete;
 };
 
 #endif

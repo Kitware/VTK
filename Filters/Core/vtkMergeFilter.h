@@ -35,7 +35,7 @@ class VTKFILTERSCORE_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
 public:
   static vtkMergeFilter *New();
   vtkTypeMacro(vtkMergeFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -168,17 +168,17 @@ public:
 
 protected:
   vtkMergeFilter();
-  ~vtkMergeFilter() VTK_OVERRIDE;
+  ~vtkMergeFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkFieldList* FieldList;
 private:
-  vtkMergeFilter(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
+  vtkMergeFilter(const vtkMergeFilter&) = delete;
+  void operator=(const vtkMergeFilter&) = delete;
 };
 
 #endif

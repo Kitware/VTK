@@ -40,7 +40,7 @@ class VTKIOPARALLELXML_EXPORT vtkXMLPUnstructuredGridWriter : public vtkXMLPUnst
 public:
   static vtkXMLPUnstructuredGridWriter* New();
   vtkTypeMacro(vtkXMLPUnstructuredGridWriter,vtkXMLPUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get/Set the writer's input.
@@ -50,21 +50,21 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLPUnstructuredGridWriter();
-  ~vtkXMLPUnstructuredGridWriter() VTK_OVERRIDE;
+  ~vtkXMLPUnstructuredGridWriter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
-  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
+  vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter() override;
 
 private:
-  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&) = delete;
+  void operator=(const vtkXMLPUnstructuredGridWriter&) = delete;
 };
 
 #endif

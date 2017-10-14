@@ -15,6 +15,7 @@
 
 #include "vtkWrapPythonConstant.h"
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,9 @@
    The "scope" is a namespace to use for enum constants, it is ignored
    if null.
 
+   The "pythonscope" is the same namespace, but with any template
+   parameters mangled so that it can be used as a python identifier.
+
    The "attrib" is the attribute to set in the dictionary, if null then
    val->Name is used as the attribute name.
 
@@ -36,7 +40,8 @@
 */
 void vtkWrapPython_AddConstantHelper(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
-  const char *scope, const char *attrib, const char *attribval,
+  const char *scope, const char *pythonscope,
+  const char *attrib, const char *attribval,
   ValueInfo *val)
 {
   unsigned int valtype;
@@ -56,7 +61,7 @@ void vtkWrapPython_AddConstantHelper(
   {
     valtype = VTK_PARSE_VOID;
   }
-  else if (strcmp(valstring, "NULL") == 0)
+  else if (strcmp(valstring, "nullptr") == 0)
   {
     valtype = VTK_PARSE_VOID;
   }
@@ -74,9 +79,10 @@ void vtkWrapPython_AddConstantHelper(
       fprintf(fp,
               "%s%s = Py%s%s%s_FromEnum(%s%s%s);\n",
               indent, objvar,
-              (scope ? scope : ""), (scope ? "_" : ""), val->Class,
-              ((scope && !attribval) ? scope : ""),
-              ((scope && !attribval) ? "::" : ""),
+              (pythonscope ? pythonscope : ""),
+              (pythonscope ? "_" : ""), val->Class,
+              ((pythonscope && !attribval) ? pythonscope : ""),
+              ((pythonscope && !attribval) ? "::" : ""),
               (!attribval ? valname : attribval));
       objcreated = 1;
     }
@@ -103,7 +109,7 @@ void vtkWrapPython_AddConstantHelper(
 
     case VTK_PARSE_CHAR_PTR:
       fprintf(fp,
-              "%s%s = PyString_FromString((char *)(%s));\n",
+              "%s%s = PyString_FromString(%s);\n",
               indent, objvar, valstring);
       objcreated = 1;
       break;
@@ -191,10 +197,12 @@ void vtkWrapPython_AddPublicConstants(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data)
 {
+  char text[1024];
   const char *nextindent = "        ";
   ValueInfo *val;
   ValueInfo *firstval;
   const char *scope;
+  const char *pythonscope = 0;
   int scopeType, scopeValue;
   unsigned int valtype;
   const char *typeName;
@@ -213,9 +221,18 @@ void vtkWrapPython_AddPublicConstants(
 
   /* get the name of the namespace, or NULL if global */
   scope = data->Name;
-  if (scope && scope[0] == '\0')
+  if (scope)
   {
-    scope = 0;
+    if (scope[0] == '\0')
+    {
+      scope = 0;
+    }
+    else
+    {
+      /* convert C++ class names to a python-friendly format */
+      vtkWrapText_PythonName(scope, text);
+      pythonscope = text;
+    }
   }
 
   /* go through the constants, collecting them by type */
@@ -327,7 +344,7 @@ void vtkWrapPython_AddPublicConstants(
       indent);
 
     vtkWrapPython_AddConstantHelper(
-      fp, nextindent, dictvar, objvar, scope,
+      fp, nextindent, dictvar, objvar, scope, pythonscope,
       "constants[c].name", "constants[c].value", firstval);
 
     fprintf(fp,
@@ -344,5 +361,5 @@ void vtkWrapPython_AddConstant(
   const char *scope, ValueInfo *val)
 {
   vtkWrapPython_AddConstantHelper(
-    fp, indent, dictvar, objvar, scope, NULL, NULL, val);
+    fp, indent, dictvar, objvar, scope, scope, NULL, NULL, val);
 }

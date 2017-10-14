@@ -50,7 +50,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
   this->ConnectionHolder = vtkCubeAxesActor2DConnection::New();
 
-  this->ViewProp = NULL;
+  this->ViewProp = nullptr;
   this->Bounds[0] = -1.0; this->Bounds[1] = 1.0;
   this->Bounds[2] = -1.0; this->Bounds[3] = 1.0;
   this->Bounds[4] = -1.0; this->Bounds[5] = 1.0;
@@ -60,7 +60,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->Ranges[2] = 0; this->Ranges[3] = 0;
   this->Ranges[4] = 0; this->Ranges[5] = 0;
 
-  this->Camera = NULL;
+  this->Camera = nullptr;
   this->FlyMode = VTK_FLY_CLOSEST_TRIAD;
   this->Scaling = 1;
 
@@ -157,14 +157,14 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
   this->ZAxis->Delete();
 
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 
   delete [] this->XLabel;
   delete [] this->YLabel;
   delete [] this->ZLabel;
 
-  this->SetAxisLabelTextProperty(NULL);
-  this->SetAxisTitleTextProperty(NULL);
+  this->SetAxisLabelTextProperty(nullptr);
+  this->SetAxisTitleTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -715,7 +715,7 @@ void vtkCubeAxesActor2D::GetBounds(double bounds[6])
     }
   }
   else if ( this->ViewProp &&
-            ((propBounds = this->ViewProp->GetBounds()) && propBounds != NULL) )
+            ((propBounds = this->ViewProp->GetBounds()) && propBounds != nullptr) )
   {
     for (i=0; i< 6; i++)
     {

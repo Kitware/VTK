@@ -357,7 +357,7 @@ void vtkKochanekSpline::DeepCopy(vtkSpline *s)
 {
   vtkKochanekSpline *spline = vtkKochanekSpline::SafeDownCast(s);
 
-  if ( spline != NULL )
+  if ( spline != nullptr )
   {
     this->DefaultBias = spline->DefaultBias;
     this->DefaultTension = spline->DefaultTension;

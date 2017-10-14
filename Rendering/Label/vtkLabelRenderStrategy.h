@@ -36,7 +36,7 @@ class vtkTextProperty;
 class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 {
  public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkLabelRenderStrategy, vtkObject);
 
   /**
@@ -123,14 +123,14 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelRenderStrategy : public vtkObject
 
 protected:
   vtkLabelRenderStrategy();
-  ~vtkLabelRenderStrategy() VTK_OVERRIDE;
+  ~vtkLabelRenderStrategy() override;
 
   vtkRenderer* Renderer;
   vtkTextProperty* DefaultTextProperty;
 
 private:
-  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&) = delete;
+  void operator=(const vtkLabelRenderStrategy&) = delete;
 };
 
 #endif

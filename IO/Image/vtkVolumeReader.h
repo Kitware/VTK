@@ -52,7 +52,7 @@ class VTKIOIMAGE_EXPORT vtkVolumeReader : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkVolumeReader,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkVolumeReader();
-  ~vtkVolumeReader() VTK_OVERRIDE;
+  ~vtkVolumeReader() override;
 
   char *FilePrefix;
   char *FilePattern;
@@ -109,8 +109,8 @@ protected:
   double DataSpacing[3];
   double DataOrigin[3];
 private:
-  vtkVolumeReader(const vtkVolumeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeReader&) VTK_DELETE_FUNCTION;
+  vtkVolumeReader(const vtkVolumeReader&) = delete;
+  void operator=(const vtkVolumeReader&) = delete;
 };
 
 #endif

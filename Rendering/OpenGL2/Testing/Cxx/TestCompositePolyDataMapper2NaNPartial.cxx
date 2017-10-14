@@ -62,15 +62,15 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
   }
 
   // Only add scalars to sphere 1.
-  sphere1->GetPointData()->SetScalars(scalars.Get());
+  sphere1->GetPointData()->SetScalars(scalars);
 
   vtkNew<vtkMultiBlockDataSet> mbds;
   mbds->SetNumberOfBlocks(2);
   mbds->SetBlock(0, sphere1);
-  mbds->SetBlock(1, sphere2.Get());
+  mbds->SetBlock(1, sphere2);
 
   vtkNew<vtkTrivialProducer> source;
-  source->SetOutput(mbds.Get());
+  source->SetOutput(mbds);
 
   vtkNew<vtkLookupTable> lut;
   lut->SetValueRange(scalars->GetRange());
@@ -79,7 +79,7 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
 
   vtkNew<vtkCompositePolyDataMapper2> mapper;
   mapper->SetInputConnection(source->GetOutputPort());
-  mapper->SetLookupTable(lut.Get());
+  mapper->SetLookupTable(lut);
   mapper->SetScalarVisibility(1);
   mapper->SetScalarRange(scalars->GetRange());
   mapper->SetColorMissingArraysWithNanColor(true);
@@ -88,15 +88,15 @@ int TestCompositePolyDataMapper2NaNPartial(int, char*[])
                                  vtkDataSetAttributes::SCALARS);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetColor(0., 0., 1.);
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  iren->SetRenderWindow(renWin.Get());
-  renWin->AddRenderer(renderer.Get());
+  iren->SetRenderWindow(renWin);
+  renWin->AddRenderer(renderer);
 
   renWin->SetSize(500,500);
   renderer->GetActiveCamera()->SetPosition(0,0,1);

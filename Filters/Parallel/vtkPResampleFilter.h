@@ -30,7 +30,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPResampleFilter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkPResampleFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPResampleFilter *New();
 
@@ -71,13 +71,13 @@ public:
 
 protected:
   vtkPResampleFilter();
-  ~vtkPResampleFilter() VTK_OVERRIDE;
+  ~vtkPResampleFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   double* CalculateBounds(vtkDataSet* input);
 
@@ -88,8 +88,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkPResampleFilter(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
+  vtkPResampleFilter(const vtkPResampleFilter&) = delete;
+  void operator=(const vtkPResampleFilter&) = delete;
 
 };
 

@@ -42,7 +42,7 @@ void vtkInteractorStyleMultiTouchCamera::OnRotate()
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
 
-  if ( this->CurrentRenderer == NULL )
+  if ( this->CurrentRenderer == nullptr )
   {
     return;
   }
@@ -64,7 +64,7 @@ void vtkInteractorStyleMultiTouchCamera::OnPinch()
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
 
-  if ( this->CurrentRenderer == NULL )
+  if ( this->CurrentRenderer == nullptr )
   {
     return;
   }
@@ -101,7 +101,7 @@ void vtkInteractorStyleMultiTouchCamera::OnPan()
   this->FindPokedRenderer(this->Interactor->GetEventPositions(pointer)[0],
                           this->Interactor->GetEventPositions(pointer)[1]);
 
-  if ( this->CurrentRenderer == NULL )
+  if ( this->CurrentRenderer == nullptr )
   {
     return;
   }

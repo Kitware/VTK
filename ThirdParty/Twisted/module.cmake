@@ -1,6 +1,7 @@
 vtk_module(Twisted
   DEPENDS
     constantly
+    hyperlink
     incremental
     ZopeInterface
   COMPILE_DEPENDS

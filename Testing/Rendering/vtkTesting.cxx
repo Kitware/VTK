@@ -20,6 +20,7 @@
 #include "vtkPNGWriter.h"
 #include "vtkImageShiftScale.h"
 #include "vtkImageDifference.h"
+#include "vtkImageExtractComponents.h"
 #include "vtkRenderWindow.h"
 #include "vtkImageData.h"
 #include "vtkTimerLog.h"
@@ -51,10 +52,10 @@ using std::string;
 // failing that return a default.
 // Up to caller to delete the string returned.
 static string vtkTestingGetArgOrEnvOrDefault(
-          string argName,       // argument idnetifier flag. eg "-D"
+          const string& argName,       // argument idnetifier flag. eg "-D"
           vector<string> &argv, // command tail
-          string env,           // environment variable name to find
-          string def)           // default to use if "env" is not found.
+          const string& env,           // environment variable name to find
+          const string& def)           // default to use if "env" is not found.
 {
   string argValue;
 
@@ -127,11 +128,11 @@ vtkIdType AccumulateScaledL2Norm(
 vtkTesting::vtkTesting()
 {
   this->FrontBuffer = 0;
-  this->RenderWindow = 0;
-  this->ValidImageFileName = 0;
+  this->RenderWindow = nullptr;
+  this->ValidImageFileName = nullptr;
   this->ImageDifference = 0;
-  this->DataRoot = 0;
-  this->TempDirectory = 0;
+  this->DataRoot = nullptr;
+  this->TempDirectory = nullptr;
   this->BorderOffset = 0;
   this->Verbose = 0;
 
@@ -143,10 +144,10 @@ vtkTesting::vtkTesting()
 //-----------------------------------------------------------------------------
 vtkTesting::~vtkTesting()
 {
-  this->SetRenderWindow(0);
-  this->SetValidImageFileName(0);
-  this->SetDataRoot(0);
-  this->SetTempDirectory(0);
+  this->SetRenderWindow(nullptr);
+  this->SetValidImageFileName(nullptr);
+  this->SetDataRoot(nullptr);
+  this->SetTempDirectory(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -200,7 +201,7 @@ const char *vtkTesting::GetDataRoot()
                 "-D",this->Args, "VTK_DATA_ROOT","../../../../VTKData");
 #endif
   this->SetDataRoot(
-     vtksys::SystemTools::CollapseFullPath(dr.c_str()).c_str());
+     vtksys::SystemTools::CollapseFullPath(dr).c_str());
 
   return this->DataRoot;
 }
@@ -210,14 +211,14 @@ const char *vtkTesting::GetTempDirectory()
   string td=vtkTestingGetArgOrEnvOrDefault(
                 "-T",this->Args, "VTK_TEMP_DIR","../../../Testing/Temporary");
   this->SetTempDirectory(
-    vtksys::SystemTools::CollapseFullPath(td.c_str()).c_str());
+    vtksys::SystemTools::CollapseFullPath(td).c_str());
 
   return this->TempDirectory;
 }
 //-----------------------------------------------------------------------------
 const char *vtkTesting::GetValidImageFileName()
 {
-  this->SetValidImageFileName(0);
+  this->SetValidImageFileName(nullptr);
   if (!this->IsValidImageSpecified())
   {
     return this->ValidImageFileName;
@@ -298,7 +299,7 @@ char* vtkTesting::IncrementFileName(const char* fname, int count)
   int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)
   {
-    return 0;
+    return nullptr;
   }
   int extLen = static_cast<int>(strlen(counts));
   char* newFileName = new char[orgLen + extLen + 2];
@@ -403,14 +404,14 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
   rtW2if->ReadFrontBufferOff();
   rtW2if->Update();
   this->RenderWindow->SetSwapBuffers(swapBuffers); // restore swap state.
-  int res = this->RegressionTest(rtW2if.Get(), thresh, out1);
+  int res = this->RegressionTest(rtW2if, thresh, out1);
   if (res == FAILED)
   {
       std::ostringstream out2;
       // tell it to read front buffer
       rtW2if->ReadFrontBufferOn();
       rtW2if->Update();
-      res = this->RegressionTest(rtW2if.Get(), thresh, out2);
+      res = this->RegressionTest(rtW2if, thresh, out2);
       // If both tests fail, rerun the backbuffer tests to recreate the test
       // image. Otherwise an incorrect image will be uploaded to CDash.
       if (res == PASSED)
@@ -427,7 +428,7 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
         }
         rtW2if->ReadFrontBufferOff();
         rtW2if->Update();
-        return this->RegressionTest(rtW2if.Get(), thresh, os);
+        return this->RegressionTest(rtW2if, thresh, os);
       }
   }
   else
@@ -448,7 +449,22 @@ int vtkTesting::RegressionTest(const string &pngFileName, double thresh,
   vtkNew<vtkPNGReader> inputReader;
   inputReader->SetFileName(pngFileName.c_str());
   inputReader->Update();
-  return this->RegressionTest(inputReader.GetPointer(), thresh, os);
+
+  vtkAlgorithm *src = inputReader;
+
+  vtkSmartPointer<vtkImageExtractComponents> extract;
+  // Convert rgba to rgb if needed
+  if (inputReader->GetOutput() &&
+      inputReader->GetOutput()->GetNumberOfScalarComponents() == 4)
+  {
+    extract = vtkSmartPointer<vtkImageExtractComponents>::New();
+    extract->SetInputConnection(src->GetOutputPort());
+    extract->SetComponents(0, 1, 2);
+    extract->Update();
+    src = extract;
+  }
+
+  return this->RegressionTest(src, thresh, os);
 }
 //-----------------------------------------------------------------------------
 int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
@@ -461,7 +477,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   // construct the names for the error images
   string validName = this->ValidImageFileName;
-  string::size_type slashPos = validName.rfind("/");
+  string::size_type slashPos = validName.rfind('/');
   if (slashPos != string::npos)
   {
     validName = validName.substr(slashPos + 1);
@@ -502,10 +518,16 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
     return FAILED;
   }
 
+  imageSource->Update();
+
   vtkNew<vtkPNGReader> rtPng;
   rtPng->SetFileName(this->ValidImageFileName);
   rtPng->Update();
-  imageSource->Update();
+
+  vtkNew<vtkImageExtractComponents> rtExtract;
+  rtExtract->SetInputConnection(rtPng->GetOutputPort());
+  rtExtract->SetComponents(0, 1, 2);
+  rtExtract->Update();
 
   vtkNew<vtkImageDifference> rtId;
 
@@ -515,7 +537,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
 
   vtkNew<vtkImageClip> ic2;
   ic2->SetClipData(1);
-  ic2->SetInputConnection(rtPng->GetOutputPort());
+  ic2->SetInputConnection(rtExtract->GetOutputPort());
 
   int* wExt1 = ic1->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
@@ -725,10 +747,10 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   {
     os << "Image differencing failed to produce an image because images are "
       "different size:" << endl;
-    os << "Valid image: " << (ext2[1] - ext2[0]) << ", " << (ext2[3] - ext2[2])
-      << ", " << (ext2[5] - ext2[4]) << endl;
-    os << "Test image: " << (ext1[1] - ext1[0]) << ", " << (ext1[3] - ext1[2])
-      << ", " << (ext1[5] - ext1[4]) << endl;
+    os << "Valid image: " << (ext2[1] - ext2[0] + 1) << ", " << (ext2[3] - ext2[2] + 1)
+      << ", " << (ext2[5] - ext2[4] + 1) << endl;
+    os << "Test image: " << (ext1[1] - ext1[0] + 1) << ", " << (ext1[3] - ext1[2] + 1)
+      << ", " << (ext1[5] - ext1[4] + 1) << endl;
     return FAILED;
   }
 
@@ -738,7 +760,7 @@ int vtkTesting::RegressionTest(vtkAlgorithm* imageSource,
   if (hasDiff)
   {
     string diffFilename = tmpDir + "/" + validName;
-    string::size_type dotPos = diffFilename.rfind(".");
+    string::size_type dotPos = diffFilename.rfind('.');
     if (dotPos != string::npos)
     {
       diffFilename = diffFilename.substr(0, dotPos);
@@ -892,15 +914,15 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataArray *daA,
 int vtkTesting::CompareAverageOfL2Norm(vtkDataSet *dsA, vtkDataSet *dsB,
                                        double tol)
 {
-  vtkDataArray *daA = 0;
-  vtkDataArray *daB = 0;
+  vtkDataArray *daA = nullptr;
+  vtkDataArray *daB = nullptr;
   int status = 0;
 
   // Compare points if the dataset derives from
   // vtkPointSet.
   vtkPointSet *ptSetA = vtkPointSet::SafeDownCast(dsA);
   vtkPointSet *ptSetB = vtkPointSet::SafeDownCast(dsB);
-  if (ptSetA != NULL && ptSetB != NULL)
+  if (ptSetA != nullptr && ptSetB != nullptr)
   {
     if (this->Verbose)
     {

@@ -53,56 +53,56 @@ public:
   static vtkRectilinearGrid *New();
 
   vtkTypeMacro(vtkRectilinearGrid,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_RECTILINEAR_GRID;};
+  int GetDataObjectType() override {return VTK_RECTILINEAR_GRID;};
 
   /**
    * Copy the geometric and topological structure of an input rectilinear grid
    * object.
    */
-  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *ds) override;
 
   /**
    * Restore object to initial state. Release memory back to system.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
-  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
-  void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
-  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
-  vtkCell *GetCell(int i, int j, int k) VTK_OVERRIDE;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
-  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() override;
+  vtkIdType GetNumberOfPoints() override;
+  double *GetPoint(vtkIdType ptId) override;
+  void GetPoint(vtkIdType id, double x[3]) override;
+  vtkCell *GetCell(vtkIdType cellId) override;
+  vtkCell *GetCell(int i, int j, int k) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) override;
   vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
+  vtkIdType FindPoint(double x[3]) override;
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-                     int& subId, double pcoords[3], double *weights) VTK_OVERRIDE;
+                     int& subId, double pcoords[3], double *weights) override;
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
                      vtkIdType cellId, double tol2, int& subId,
-                     double pcoords[3], double *weights) VTK_OVERRIDE;
+                     double pcoords[3], double *weights) override;
   vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
                           double tol2, int& subId, double pcoords[3],
-                          double *weights) VTK_OVERRIDE;
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE
+                          double *weights) override;
+  int GetCellType(vtkIdType cellId) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
                                       this->Dimensions);}
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
-  void ComputeBounds() VTK_OVERRIDE;
-  int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //voxel is the largest
+  void ComputeBounds() override;
+  int GetMaxCellSize() override {return 8;}; //voxel is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds) VTK_OVERRIDE;
+                        vtkIdList *cellIds) override;
   //@}
 
   /**
@@ -200,27 +200,27 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   /**
    * Structured extent. The extent type is a 3D extent
    */
-  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; };
+  int GetExtentType() override { return VTK_3D_EXTENT; };
 
   /**
    * Reallocates and copies to set the Extent to the UpdateExtent.
    * This is used internally when the exact extent is requested,
    * and the source generated more than the update extent.
    */
-  void Crop(const int* updateExtent) VTK_OVERRIDE;
+  void Crop(const int* updateExtent) override;
 
   //@{
   /**
@@ -232,7 +232,7 @@ public:
 
 protected:
   vtkRectilinearGrid();
-  ~vtkRectilinearGrid() VTK_OVERRIDE;
+  ~vtkRectilinearGrid() override;
 
   // for the GetCell method
   vtkVertex *Vertex;
@@ -256,8 +256,8 @@ private:
   void Cleanup();
 
 private:
-  vtkRectilinearGrid(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGrid(const vtkRectilinearGrid&) = delete;
+  void operator=(const vtkRectilinearGrid&) = delete;
 };
 
 //----------------------------------------------------------------------------

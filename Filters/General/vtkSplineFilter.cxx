@@ -47,13 +47,13 @@ vtkSplineFilter::~vtkSplineFilter()
   if (this->Spline)
   {
     this->Spline->Delete();
-    this->Spline = 0;
+    this->Spline = nullptr;
   }
 
   if (this->TCoordMap)
   {
     this->TCoordMap->Delete();
-    this->TCoordMap = 0;
+    this->TCoordMap = nullptr;
   }
 }
 
@@ -83,9 +83,9 @@ int vtkSplineFilter::RequestData(
   vtkCellArray *newLines;
   vtkIdType numNewPts, numNewCells;
   vtkPoints *newPts;
-  vtkIdType npts=0, *pts=NULL;
+  vtkIdType npts=0, *pts=nullptr;
   vtkIdType offset=0;
-  vtkFloatArray *newTCoords=NULL;
+  vtkFloatArray *newTCoords=nullptr;
   int abort=0;
   vtkIdType inCellId, numGenPts;
   int genTCoords = VTK_TCOORDS_OFF;
@@ -101,7 +101,7 @@ int vtkSplineFilter::RequestData(
     return 1;
   }
 
-  if ( this->Spline == NULL )
+  if ( this->Spline == nullptr )
   {
     vtkWarningMacro(<< "Need to specify a spline!");
     return 1;
@@ -116,7 +116,7 @@ int vtkSplineFilter::RequestData(
 
   // Point data
   if ( (this->GenerateTCoords == VTK_TCOORDS_FROM_SCALARS &&
-        pd->GetScalars() != NULL) ||
+        pd->GetScalars() != nullptr) ||
        (this->GenerateTCoords == VTK_TCOORDS_FROM_LENGTH ||
         this->GenerateTCoords == VTK_TCOORDS_FROM_NORMALIZED_LENGTH) )
   {

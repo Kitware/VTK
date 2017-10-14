@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
   public:
 
     vtkTypeMacro(vtkParametricKuen, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct Kuen's surface with the following parameters:
@@ -53,7 +53,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -75,22 +75,22 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public
      * \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
      * This method simply returns 0.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricKuen();
-    ~vtkParametricKuen() VTK_OVERRIDE;
+    ~vtkParametricKuen() override;
 
   private:
-    vtkParametricKuen(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
+    vtkParametricKuen(const vtkParametricKuen&) = delete;
+    void operator=(const vtkParametricKuen&) = delete;
 
     double DeltaV0;
 };

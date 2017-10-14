@@ -44,8 +44,8 @@ vtkVoxel::vtkVoxel()
   {
     this->PointIds->SetId(i,0);
   }
-  this->Line = 0;
-  this->Pixel = 0;
+  this->Line = nullptr;
+  this->Pixel = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -360,7 +360,10 @@ void vtkVoxel::Contour(double value, vtkDataArray *cellScalars,
          pts[1] != pts[2] )
     {
       newCellId = offset + polys->InsertNextCell(3,pts);
-      outCd->CopyData(inCd,cellId,newCellId);
+      if (outCd)
+      {
+        outCd->CopyData(inCd, cellId, newCellId);
+      }
     }
   }
 }

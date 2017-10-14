@@ -39,7 +39,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrainNode : public vtkGeoTreeNode
 public:
   static vtkGeoTerrainNode *New();
   vtkTypeMacro(vtkGeoTerrainNode, vtkGeoTreeNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -118,26 +118,26 @@ public:
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
-  void DeepCopy(vtkGeoTreeNode *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkGeoTreeNode *src) override;
+  void DeepCopy(vtkGeoTreeNode *src) override;
   //@}
 
   /**
    * Returns whether this node has valid data associated
    * with it, or if it is an "empty" node.
    */
-  bool HasData() VTK_OVERRIDE;
+  bool HasData() override;
 
   /**
    * Deletes the data associated with the node to make this
    * an "empty" node. This is performed when the node has
    * been unused for a certain amount of time.
    */
-  void DeleteData() VTK_OVERRIDE;
+  void DeleteData() override;
 
 protected:
   vtkGeoTerrainNode();
-  ~vtkGeoTerrainNode() VTK_OVERRIDE;
+  ~vtkGeoTerrainNode() override;
 
   vtkSmartPointer<vtkPolyData> Model;
 
@@ -158,8 +158,8 @@ protected:
   float  Coverage;
 
 private:
-  vtkGeoTerrainNode(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
+  vtkGeoTerrainNode(const vtkGeoTerrainNode&) = delete;
+  void operator=(const vtkGeoTerrainNode&) = delete;
 };
 
 #endif

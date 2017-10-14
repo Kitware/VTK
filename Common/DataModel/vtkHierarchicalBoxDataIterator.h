@@ -31,15 +31,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
   public:
     static vtkHierarchicalBoxDataIterator* New();
     vtkTypeMacro(vtkHierarchicalBoxDataIterator,vtkUniformGridAMRDataIterator);
-    void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream &os, vtkIndent indent) override;
 
   protected:
     vtkHierarchicalBoxDataIterator();
-    ~vtkHierarchicalBoxDataIterator() VTK_OVERRIDE;
+    ~vtkHierarchicalBoxDataIterator() override;
 
   private:
-    vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;
+    vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&) = delete;
+    void operator=(const vtkHierarchicalBoxDataIterator&) = delete;
 };
 
 #endif /* VTKHIERARCHICALBOXDATAITERATOR_H_ */

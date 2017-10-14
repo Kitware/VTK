@@ -47,7 +47,7 @@ int TestOSPRayWindow( int argc, char *argv[] )
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(elev->GetOutputPort(0));
   vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper.Get());
+  sphereActor->SetMapper(sphereMapper);
 
   vtkSmartPointer<vtkLight> light1 = vtkSmartPointer<vtkLight>::New();
 
@@ -62,7 +62,7 @@ int TestOSPRayWindow( int argc, char *argv[] )
 
   // Add the actors to the renderer, set the background and size
   //
-  ren1->AddActor( sphereActor.Get() );
+  ren1->AddActor( sphereActor );
   ren1->SetBackground( .2,.3,.4 );
 
   // render the image
@@ -81,21 +81,21 @@ int TestOSPRayWindow( int argc, char *argv[] )
 
   // Create a new image actor and remove the geometry one
   vtkNew<vtkImageActor> imageActor;
-  imageActor->GetMapper()->SetInputData(image.Get());
+  imageActor->GetMapper()->SetInputData(image);
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(imageActor.Get());
+  renderer->AddActor(imageActor);
 
   // Background color white to distinguish image boundary
   renderer->SetBackground(1, 1, 1);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

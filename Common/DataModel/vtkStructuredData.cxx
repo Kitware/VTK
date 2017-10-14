@@ -357,8 +357,6 @@ void vtkStructuredData::GetPointCells(vtkIdType ptId, vtkIdList *cellIds,
       cellIds->InsertNextId(cellId);
     }
   }
-
-  return;
 }
 
 //------------------------------------------------------------------------------

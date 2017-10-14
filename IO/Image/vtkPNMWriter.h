@@ -31,19 +31,19 @@ class VTKIOIMAGE_EXPORT vtkPNMWriter : public vtkImageWriter
 public:
   static vtkPNMWriter *New();
   vtkTypeMacro(vtkPNMWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPNMWriter() {}
-  ~vtkPNMWriter() VTK_OVERRIDE {}
+  ~vtkPNMWriter() override {}
 
   void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) VTK_OVERRIDE;
+    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
   void WriteFileHeader(
-    ofstream *, vtkImageData *, int wExt[6]) VTK_OVERRIDE;
+    ofstream *, vtkImageData *, int wExt[6]) override;
 private:
-  vtkPNMWriter(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
+  vtkPNMWriter(const vtkPNMWriter&) = delete;
+  void operator=(const vtkPNMWriter&) = delete;
 };
 
 #endif

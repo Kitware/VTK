@@ -37,33 +37,33 @@ class VTKIOXML_EXPORT vtkXMLPStructuredDataReader : public vtkXMLPDataReader
 {
 public:
   vtkTypeMacro(vtkXMLPStructuredDataReader,vtkXMLPDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // For the specified port, copy the information this reader sets up in
   // SetupOutputInformation to outInfo
-  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
+  void CopyOutputInformation(vtkInformation *outInfo, int port) override;
 protected:
   vtkXMLPStructuredDataReader();
-  ~vtkXMLPStructuredDataReader() VTK_OVERRIDE;
+  ~vtkXMLPStructuredDataReader() override;
 
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
-  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) VTK_OVERRIDE;
-  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() override;
+  vtkIdType GetNumberOfCells() override;
+  void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) override;
+  void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) override;
 
   virtual void SetOutputExtent(int* extent)=0;
   virtual void GetPieceInputExtent(int index, int* extent)=0;
 
   // Pipeline execute data driver.  Called by vtkXMLReader.
-  void ReadXMLData() VTK_OVERRIDE;
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  void ReadXMLData() override;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
-  void SetupOutputData() VTK_OVERRIDE;
+  void SetupOutputData() override;
 
-  void SetupPieces(int numPieces) VTK_OVERRIDE;
-  void DestroyPieces() VTK_OVERRIDE;
-  int ReadPiece(vtkXMLDataElement* ePiece) VTK_OVERRIDE;
-  int ReadPieceData() VTK_OVERRIDE;
+  void SetupPieces(int numPieces) override;
+  void DestroyPieces() override;
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+  int ReadPieceData() override;
   void CopySubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements,
                      int* outExtent,int* outDimensions,vtkIdType* outIncrements,
                      int* subExtent, int* subDimensions,
@@ -94,11 +94,11 @@ protected:
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
 private:
-  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&) = delete;
+  void operator=(const vtkXMLPStructuredDataReader&) = delete;
 };
 
 #endif

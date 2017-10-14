@@ -36,14 +36,14 @@ vtkStandardNewMacro(vtkExtractUserDefinedPiece);
 
 vtkExtractUserDefinedPiece::vtkExtractUserDefinedPiece()
 {
-  this->ConstantData = NULL;
+  this->ConstantData = nullptr;
   this->ConstantDataLen = 0;
-  this->InPiece = NULL;
+  this->InPiece = nullptr;
 }
 vtkExtractUserDefinedPiece::~vtkExtractUserDefinedPiece()
 {
   delete [] (char *)this->ConstantData;
-  this->ConstantData = NULL;
+  this->ConstantData = nullptr;
 }
 void vtkExtractUserDefinedPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -100,8 +100,8 @@ int vtkExtractUserDefinedPiece::RequestData(
   vtkIdList *pointOwnership;
   vtkCell *cell;
   vtkPoints *newPoints;
-  vtkUnsignedCharArray* cellGhostLevels = 0;
-  vtkUnsignedCharArray* pointGhostLevels = 0;
+  vtkUnsignedCharArray* cellGhostLevels = nullptr;
+  vtkUnsignedCharArray* pointGhostLevels = nullptr;
   vtkIdType i, ptId, newId, numPts;
   int numCellPts;
   double *x;
@@ -206,14 +206,14 @@ int vtkExtractUserDefinedPiece::RequestData(
     cellGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
-    cellGhostLevels = 0;
+    cellGhostLevels = nullptr;
   }
   if (pointGhostLevels)
   {
     pointGhostLevels->SetName(vtkDataSetAttributes::GhostArrayName());
     output->GetPointData()->AddArray(pointGhostLevels);
     pointGhostLevels->Delete();
-    pointGhostLevels = 0;
+    pointGhostLevels = nullptr;
   }
   output->SetPoints(newPoints);
   newPoints->Delete();

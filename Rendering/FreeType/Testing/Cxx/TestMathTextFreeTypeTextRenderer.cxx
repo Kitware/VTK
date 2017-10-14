@@ -38,7 +38,7 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   std::string uncodeFontFile(argv[1]);
 
   vtkNew<vtkTextRenderer> tren;
-  if (tren.GetPointer() == NULL)
+  if (tren == nullptr)
   {
     std::cerr << "Object factory cannot find vtkTextRenderer override.\n";
     return EXIT_FAILURE;
@@ -198,25 +198,25 @@ int TestMathTextFreeTypeTextRenderer(int argc, char *argv[])
   ren->SetBackground(0.1, 0.1, 0.1);
   vtkNew<vtkRenderWindow> win;
   win->SetSize(600, 600);
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor1.GetPointer());
-  ren->AddActor(actor2.GetPointer());
-  ren->AddActor(actor3.GetPointer());
-  ren->AddActor(actor4.GetPointer());
-  ren->AddActor(actor5.GetPointer());
-  ren->AddActor(actor6.GetPointer());
-  ren->AddActor(actor7.GetPointer());
-  ren->AddActor(actor8.GetPointer());
-  ren->AddActor(actor9.GetPointer());
-  ren->AddActor(actor10.GetPointer());
-  ren->AddActor(actor11.GetPointer());
-  ren->AddActor(actor12.GetPointer());
-  ren->AddActor(actor13.GetPointer());
-  ren->AddActor(actor14.GetPointer());
-  ren->AddActor(actor15.GetPointer());
+  ren->AddActor(actor1);
+  ren->AddActor(actor2);
+  ren->AddActor(actor3);
+  ren->AddActor(actor4);
+  ren->AddActor(actor5);
+  ren->AddActor(actor6);
+  ren->AddActor(actor7);
+  ren->AddActor(actor8);
+  ren->AddActor(actor9);
+  ren->AddActor(actor10);
+  ren->AddActor(actor11);
+  ren->AddActor(actor12);
+  ren->AddActor(actor13);
+  ren->AddActor(actor14);
+  ren->AddActor(actor15);
 
   win->SetMultiSamples(0);
   win->Render();

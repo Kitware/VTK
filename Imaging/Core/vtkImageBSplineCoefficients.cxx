@@ -85,7 +85,7 @@ int vtkImageBSplineCoefficients::RequestData(
   else if (this->DataWasPassed)
   {
     // force reallocation of the scalars
-    outData->GetPointData()->SetScalars(NULL);
+    outData->GetPointData()->SetScalars(nullptr);
     this->DataWasPassed = 0;
   }
 

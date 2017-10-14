@@ -43,7 +43,7 @@ vtkDelaunay2D::vtkDelaunay2D()
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
   this->Offset = 1.0;
-  this->Transform = NULL;
+  this->Transform = nullptr;
   this->ProjectionPlaneMode = VTK_DELAUNAY_XY_PLANE;
 
   // optional 2nd input
@@ -75,7 +75,7 @@ vtkPolyData *vtkDelaunay2D::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -291,7 +291,7 @@ int vtkDelaunay2D::RequestData(
   // get the input and output
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkPolyData *source = 0;
+  vtkPolyData *source = nullptr;
   if (sourceInfo)
   {
     source =
@@ -308,11 +308,11 @@ int vtkDelaunay2D::RequestData(
   vtkIdType p3 = 0;
   vtkPoints *inPoints;
   vtkPoints *points;
-  vtkPoints *tPoints = NULL;
+  vtkPoints *tPoints = nullptr;
   vtkCellArray *triangles;
   int ncells;
   vtkIdType nodes[4][3], *neiPts;
-  vtkIdType *triPts = 0;
+  vtkIdType *triPts = nullptr;
   vtkIdType numNeiPts;
   vtkIdType npts = 0;
   vtkIdType pts[3], swapPts[3];
@@ -320,7 +320,7 @@ int vtkDelaunay2D::RequestData(
   vtkIdType tri1, tri2;
   double center[3], radius, tol, x[3];
   double n1[3], n2[3];
-  int *triUse = NULL;
+  int *triUse = nullptr;
 
   vtkDebugMacro(<<"Generating 2D Delaunay triangulation");
 
@@ -336,7 +336,7 @@ int vtkDelaunay2D::RequestData(
 
   // Initialize; check input
   //
-  if ( (inPoints=input->GetPoints()) == NULL )
+  if ( (inPoints=input->GetPoints()) == nullptr )
   {
     vtkDebugMacro("Cannot triangulate; no input points");
     return 1;
@@ -400,7 +400,7 @@ int vtkDelaunay2D::RequestData(
   {
     points->DeepCopy(tPoints);
     tPoints->Delete();
-    tPoints = NULL;
+    tPoints = nullptr;
   }
 
   const double *bounds = points->GetBounds();
@@ -730,7 +730,7 @@ int vtkDelaunay2D::RequestData(
   // - the bounding triangulation must be deleted
   //   (BoundingTriangulation == OFF)
   // - alpha spheres are not used (Alpha == 0.0)
-  // - the triangulation is not constrained (source == NULL)
+  // - the triangulation is not constrained (source == nullptr)
 
   if ( !this->BoundingTriangulation && this->Alpha == 0.0 && !source )
   {
@@ -950,7 +950,7 @@ int vtkDelaunay2D::RequestData(
     if (this->Transform)
     {
       this->Transform->UnRegister(this);
-      this->Transform = NULL;
+      this->Transform = nullptr;
     }
   }
 
@@ -971,7 +971,7 @@ int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
 {
   vtkCellArray *lines=source->GetLines();
   vtkCellArray *polys=source->GetPolys();
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType npts = 0;
   vtkIdType i, p1, p2;
   int *triUse;
@@ -1203,10 +1203,28 @@ int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
   // the chains and replace them with the new triangulation.
   //
   success = 1;
-  success &= (rightPoly->Triangulate(0, rightPtIds, rightTriPts));
+  success &= (rightPoly->BoundedTriangulate(rightPtIds, this->Tolerance));
+  {
+    vtkIdList *ids = vtkIdList::New(); ids->Allocate(64);
+    for (i = 0; i < rightPtIds->GetNumberOfIds(); i++)
+    {
+      ids->InsertId(i,rightPoly->PointIds->GetId(rightPtIds->GetId(i)));
+    }
+    rightPtIds->Delete();
+    rightPtIds = ids;
+  }
   numRightTris = rightPtIds->GetNumberOfIds() / 3;
 
-  success &= (leftPoly->Triangulate(0, leftPtIds, leftTriPts));
+  success &= (leftPoly->BoundedTriangulate(leftPtIds, this->Tolerance));
+  {
+    vtkIdList *ids = vtkIdList::New(); ids->Allocate(64);
+    for (i = 0; i < leftPtIds->GetNumberOfIds(); i++)
+    {
+      ids->InsertId(i,leftPoly->PointIds->GetId(leftPtIds->GetId(i)));
+    }
+    leftPtIds->Delete();
+    leftPtIds = ids;
+  }
   numLeftTris = leftPtIds->GetNumberOfIds() / 3;
 
   if ( ! success )
@@ -1312,7 +1330,7 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
 {
   vtkIdType p1, p2, j, kk;
   int i, k;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType *triPts;
   vtkIdType npts = 0;
   vtkIdType numPts;

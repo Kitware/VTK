@@ -53,35 +53,35 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBiQuadraticQuad : public vtkNonLinearCell
 public:
   static vtkBiQuadraticQuad *New ();
   vtkTypeMacro(vtkBiQuadraticQuad,vtkNonLinearCell);
-  void PrintSelf (ostream & os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf (ostream & os, vtkIndent indent) override;
 
   /**
    * Implement the vtkCell API. See the vtkCell API for descriptions
    * of these methods.
    */
-  int GetCellType() VTK_OVERRIDE { return VTK_BIQUADRATIC_QUAD; }
-  int GetCellDimension() VTK_OVERRIDE { return 2; }
-  int GetNumberOfEdges() VTK_OVERRIDE { return 4; }
-  int GetNumberOfFaces() VTK_OVERRIDE { return 0; }
-  vtkCell *GetEdge (int) VTK_OVERRIDE;
-  vtkCell *GetFace (int) VTK_OVERRIDE { return 0; }
+  int GetCellType() override { return VTK_BIQUADRATIC_QUAD; }
+  int GetCellDimension() override { return 2; }
+  int GetNumberOfEdges() override { return 4; }
+  int GetNumberOfFaces() override { return 0; }
+  vtkCell *GetEdge (int) override;
+  vtkCell *GetFace (int) override { return nullptr; }
 
-  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts) VTK_OVERRIDE;
+  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts) override;
   int EvaluatePosition (double x[3], double *closestPoint,
                         int &subId, double pcoords[3],
-                        double &dist2, double *weights) VTK_OVERRIDE;
+                        double &dist2, double *weights) override;
   void EvaluateLocation (int &subId, double pcoords[3], double x[3],
-                         double *weights) VTK_OVERRIDE;
-  int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) VTK_OVERRIDE;
+                         double *weights) override;
+  int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) override;
   void Derivatives (int subId, double pcoords[3], double *values,
-                    int dim, double *derivs) VTK_OVERRIDE;
-  double *GetParametricCoords() VTK_OVERRIDE;
+                    int dim, double *derivs) override;
+  double *GetParametricCoords() override;
 
   void Contour (double value, vtkDataArray * cellScalars,
                 vtkIncrementalPointLocator * locator, vtkCellArray * verts,
                 vtkCellArray * lines, vtkCellArray * polys,
                 vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
-                vtkIdType cellId, vtkCellData * outCd) VTK_OVERRIDE;
+                vtkIdType cellId, vtkCellData * outCd) override;
 
   /**
    * Clip this biquadratic quad using scalar value provided. Like contouring,
@@ -91,7 +91,7 @@ public:
              vtkIncrementalPointLocator * locator, vtkCellArray * polys,
              vtkPointData * inPd, vtkPointData * outPd,
              vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd,
-             int insideOut) VTK_OVERRIDE;
+             int insideOut) override;
 
   /**
    * Line-edge intersection. Intersection has to occur within [0,1] parametric
@@ -99,31 +99,18 @@ public:
    */
   int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
                          double x[3], double pcoords[3],
-                         int &subId) VTK_OVERRIDE;
+                         int &subId) override;
 
   /**
    * Return the center of the pyramid in parametric coordinates.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuad::InterpolateFunctions as of VTK 5.2
-   */
-  VTK_LEGACY(static void InterpolationFunctions (double pcoords[3], double weights[9]));
-  /**
-   * @deprecated Replaced by vtkBiQuadraticQuad::InterpolateDerivs as of VTK 5.2
-   */
-  VTK_LEGACY(static void InterpolationDerivs (double pcoords[3], double derivs[18]));
-  //@{
-  /**
-   * Compute the interpolation functions/derivatives
-   * (aka shape functions/derivatives)
-   */
-  void InterpolateFunctions (double pcoords[3], double weights[9]) VTK_OVERRIDE
+  void InterpolateFunctions (double pcoords[3], double weights[9]) override
   {
     vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords,weights);
   }
-  void InterpolateDerivs (double pcoords[3], double derivs[18]) VTK_OVERRIDE
+  void InterpolateDerivs (double pcoords[3], double derivs[18]) override
   {
     vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords,derivs);
   }
@@ -131,7 +118,7 @@ public:
 
 protected:
   vtkBiQuadraticQuad();
-  ~vtkBiQuadraticQuad() VTK_OVERRIDE;
+  ~vtkBiQuadraticQuad() override;
 
   vtkQuadraticEdge *Edge;
   vtkQuad          *Quad;
@@ -139,8 +126,8 @@ protected:
   vtkDoubleArray   *Scalars;
 
 private:
-  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
+  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) = delete;
+  void operator=(const vtkBiQuadraticQuad&) = delete;
 
   static void InterpolationFunctionsPrivate (double pcoords[3], double weights[9]);
   static void InterpolationDerivsPrivate (double pcoords[3], double derivs[18]);

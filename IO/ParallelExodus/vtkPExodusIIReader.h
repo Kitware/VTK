@@ -52,7 +52,7 @@ class VTKIOPARALLELEXODUS_EXPORT vtkPExodusIIReader : public vtkExodusIIReader
 public:
   static vtkPExodusIIReader* New();
   vtkTypeMacro(vtkPExodusIIReader,vtkExodusIIReader);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -98,7 +98,7 @@ public:
    */
   void SetFileNames( int nfiles, const char** names );
 
-  virtual void SetFileName( const char* name ) VTK_OVERRIDE;
+  void SetFileName( const char* name ) override;
 
   /**
    * Return pointer to list of file names set in SetFileNames
@@ -117,8 +117,8 @@ public:
   vtkGetMacro(NumberOfFiles,int);
   //@}
 
-  virtual vtkIdType GetTotalNumberOfElements() VTK_OVERRIDE;
-  virtual vtkIdType GetTotalNumberOfNodes() VTK_OVERRIDE;
+  vtkIdType GetTotalNumberOfElements() override;
+  vtkIdType GetTotalNumberOfNodes() override;
 
   /**
    * Sends metadata (that read from the input file, not settings modified
@@ -143,7 +143,7 @@ public:
 
 protected:
   vtkPExodusIIReader();
-  ~vtkPExodusIIReader();
+  ~vtkPExodusIIReader() override;
 
   //@{
   /**
@@ -182,12 +182,12 @@ protected:
   int Timing;
   vtkTimerLog *TimerLog;
 
-  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
 private:
-  vtkPExodusIIReader( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
+  vtkPExodusIIReader( const vtkPExodusIIReader& ) = delete;
+  void operator = ( const vtkPExodusIIReader& ) = delete;
 };
 
 #endif

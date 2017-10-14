@@ -104,7 +104,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightKit : public vtkObject
 public:
   static vtkLightKit *New();
   vtkTypeMacro(vtkLightKit, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum LightKitType {
     TKeyLight,
@@ -299,7 +299,7 @@ public:
 
   void DeepCopy(vtkLightKit *kit);
 
-  void Modified() VTK_OVERRIDE;
+  void Modified() override;
   void Update();
 
   /**
@@ -315,7 +315,7 @@ public:
   /**
    * Helper method to go from a enum subtype to a string subtype
    * The difference from GetStringFromSubType is that it returns
-   * a shorter strings (useful for GUI with minimun space)
+   * a shorter strings (useful for GUI with minimum space)
    */
   static const char *GetShortStringFromSubType(int subtype);
 
@@ -327,7 +327,7 @@ public:
 
 protected:
   vtkLightKit();
-  ~vtkLightKit() VTK_OVERRIDE;
+  ~vtkLightKit() override;
 
   void WarmthToRGBI(double w, double rgb[3], double& i);
   void WarmthToRGB(double w, double rgb[3]);
@@ -367,8 +367,8 @@ protected:
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
 
 private:
-  vtkLightKit(const vtkLightKit&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightKit&) VTK_DELETE_FUNCTION;
+  vtkLightKit(const vtkLightKit&) = delete;
+  void operator=(const vtkLightKit&) = delete;
 };
 
 #endif

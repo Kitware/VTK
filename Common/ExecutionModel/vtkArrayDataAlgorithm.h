@@ -55,14 +55,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkArrayDataAlgorithm : public vtkAlgorithm
 public:
   static vtkArrayDataAlgorithm *New();
   vtkTypeMacro(vtkArrayDataAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkArrayDataAlgorithm();
-  ~vtkArrayDataAlgorithm() VTK_OVERRIDE;
+  ~vtkArrayDataAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -104,12 +104,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkArrayDataAlgorithm(const vtkArrayDataAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayDataAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkArrayDataAlgorithm(const vtkArrayDataAlgorithm&) = delete;
+  void operator=(const vtkArrayDataAlgorithm&) = delete;
 };
 
 #endif

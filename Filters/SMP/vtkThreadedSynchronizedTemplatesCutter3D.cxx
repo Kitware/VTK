@@ -58,14 +58,18 @@ vtkCxxSetObjectMacro(vtkThreadedSynchronizedTemplatesCutter3D,CutFunction,vtkImp
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D()
 {
-  this->CutFunction = 0;
+  VTK_LEGACY_BODY(
+    vtkThreadedSynchronizedTemplatesCutter3D::vtkThreadedSynchronizedTemplatesCutter3D,
+    "VTK 8.1");
+
+  this->CutFunction = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
 vtkThreadedSynchronizedTemplatesCutter3D::~vtkThreadedSynchronizedTemplatesCutter3D()
 {
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -75,7 +79,7 @@ vtkMTimeType vtkThreadedSynchronizedTemplatesCutter3D::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
 
-  if ( this->CutFunction != NULL )
+  if ( this->CutFunction != nullptr )
   {
     vtkMTimeType time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -285,12 +289,9 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
   }
 
   // allocate scalar storage for two slices
-  T *scalars = 0;
-  T *scalars1 = 0;
-  T *scalars2 = 0;
-  scalars = new T [xdim*ydim*2];
-  scalars1 = scalars;
-  scalars2 = scalars + xdim*ydim;
+  T *scalars = new T [xdim*ydim*2];
+  T *scalars1 = scalars;
+  T *scalars2 = scalars + xdim*ydim;
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -621,7 +622,7 @@ class DoThreadedCut
 public:
   DoThreadedCut(vtkThreadedSynchronizedTemplatesCutter3D* filter, int* exExt,
     vtkImageData* input, int numPieces)
-    : Filter(filter), ExExt(exExt), Input(input), Outputs(NULL),
+    : Filter(filter), ExExt(exExt), Input(input), Outputs(nullptr),
       NumberOfPieces(numPieces), NumOutputPieces(0)
   {
   }
@@ -675,7 +676,7 @@ public:
       et->PieceToExtent();
       et->GetExtent(exExt2);
       ContourImage(this->Filter, exExt2, this->Input, this->tlsPoly.Local(),
-                   (double*)0, true);
+                   (double*)nullptr, true);
     }
   }
 

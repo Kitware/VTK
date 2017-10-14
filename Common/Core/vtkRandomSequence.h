@@ -39,7 +39,7 @@ class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRandomSequence,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Current value
@@ -53,10 +53,10 @@ public:
 
 protected:
   vtkRandomSequence();
-  ~vtkRandomSequence() VTK_OVERRIDE;
+  ~vtkRandomSequence() override;
 private:
-  vtkRandomSequence(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
+  vtkRandomSequence(const vtkRandomSequence&) = delete;
+  void operator=(const vtkRandomSequence&) = delete;
 };
 
 #endif // #ifndef vtkRandomSequence_h

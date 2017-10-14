@@ -40,6 +40,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <limits>
 #include <vector>
 
 //-----------------------------------------------------------------------------
@@ -48,8 +49,14 @@ vtkStandardNewMacro(vtkGradientFilter);
 
 namespace
 {
-  // helper function to replace the gradient of a vector
-  // with the vorticity/curl of that vector
+// special template macro for only float and double types since we will never
+// have other data types for output arrays and this helps with reducing template expansion
+#define vtkFloatingPointTemplateMacro(call)         \
+  vtkTemplateMacroCase(VTK_DOUBLE, double, call);   \
+  vtkTemplateMacroCase(VTK_FLOAT, float, call);
+
+// helper function to replace the gradient of a vector
+// with the vorticity/curl of that vector
 //-----------------------------------------------------------------------------
   template<class data_type>
   void ComputeVorticityFromGradient(data_type* gradients, data_type* vorticity)
@@ -68,24 +75,19 @@ namespace
   template<class data_type>
   void ComputeQCriterionFromGradient(data_type* gradients, data_type* qCriterion)
   {
-    data_type t1 = ( (gradients[7]-gradients[5])*(gradients[7]-gradients[5]) +
-                     (gradients[3]-gradients[1])*(gradients[3]-gradients[1]) +
-                     (gradients[2]-gradients[6])*(gradients[2]-gradients[6]) ) / 2;
-    data_type t2 = gradients[0]*gradients[0]+gradients[4]*gradients[4]+
-      gradients[8]*gradients[8]+ (
-        (gradients[3]+gradients[1])*(gradients[3]+gradients[1]) +
-        (gradients[6]+gradients[2])*(gradients[6]+gradients[2]) +
-        (gradients[7]+gradients[5])*(gradients[7]+gradients[5]) ) / 2;
-
-    qCriterion[0] = (t1 - t2) / 2;
+    // see http://public.kitware.com/pipermail/paraview/2015-May/034233.html for
+    // paper citation and formula on Q-criterion.
+    qCriterion[0] =
+      - (gradients[0]*gradients[0]+gradients[4]*gradients[4]+gradients[8]*gradients[8])/2.
+      - (gradients[1]*gradients[3]+gradients[2]*gradients[6]+gradients[5]*gradients[7]);
   }
 
   // Functions for unstructured grids and polydatas
   template<class data_type>
   void ComputePointGradientsUG(
-    vtkDataSet *structure, data_type *array, data_type *gradients,
+    vtkDataSet *structure, vtkDataArray *array, data_type *gradients,
     int numberOfInputComponents, data_type* vorticity, data_type* qCriterion,
-    data_type* divergence);
+    data_type* divergence, int highestCellDimension, int contributingCellOption);
 
   int GetCellParametricData(
     vtkIdType pointId, double pointCoord[3], vtkCell *cell, int & subId,
@@ -93,13 +95,13 @@ namespace
 
   template<class data_type>
   void ComputeCellGradientsUG(
-    vtkDataSet *structure, data_type *array, data_type *gradients,
+    vtkDataSet *structure, vtkDataArray *array, data_type *gradients,
     int numberOfInputComponents, data_type* vorticity, data_type* qCriterion,
     data_type* divergence);
 
   // Functions for image data and structured grids
   template<class Grid, class data_type>
-  void ComputeGradientsSG(Grid output, data_type* array, data_type* gradients,
+  void ComputeGradientsSG(Grid output, vtkDataArray* array, data_type* gradients,
                           int numberOfInputComponents, int fieldAssociation,
                           data_type* vorticity, data_type* qCriterion,
                           data_type* divergence);
@@ -136,20 +138,51 @@ namespace
       cell->EvaluateLocation(subId, pcoords, coords, &weights[0]);
     }
   }
+
+  template<class data_type>
+  void Fill(vtkDataArray* array, data_type vtkNotUsed(data), int replacementValueOption)
+  {
+    switch (replacementValueOption)
+    {
+    case vtkGradientFilter::Zero:
+      array->Fill(0);
+      return;
+    case vtkGradientFilter::NaN:
+      array->Fill(vtkMath::Nan());
+      return;
+    case vtkGradientFilter::DataTypeMin:
+      array->Fill(std::numeric_limits<data_type>::min());
+      return;
+    case vtkGradientFilter::DataTypeMax:
+      array->Fill(std::numeric_limits<data_type>::max());
+      return;
+    }
+  }
+  template<class data_type>
+  int GetOutputDataType(data_type vtkNotUsed(data))
+  {
+    if(sizeof(data_type)>=8)
+    {
+      return VTK_DOUBLE;
+    }
+    return VTK_FLOAT;
+  }
 } // end anonymous namespace
 
 //-----------------------------------------------------------------------------
 vtkGradientFilter::vtkGradientFilter()
 {
-  this->ResultArrayName = NULL;
-  this->DivergenceArrayName = NULL;
-  this->VorticityArrayName = NULL;
-  this->QCriterionArrayName = NULL;
+  this->ResultArrayName = nullptr;
+  this->DivergenceArrayName = nullptr;
+  this->VorticityArrayName = nullptr;
+  this->QCriterionArrayName = nullptr;
   this->FasterApproximation = 0;
   this->ComputeGradient = 1;
   this->ComputeDivergence = 0;
   this->ComputeVorticity = 0;
   this->ComputeQCriterion = 0;
+  this->ContributingCellOption = vtkGradientFilter::All;
+  this->ReplacementValueOption = vtkGradientFilter::Zero;
   this->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
                         vtkDataSetAttributes::SCALARS);
 }
@@ -157,10 +190,10 @@ vtkGradientFilter::vtkGradientFilter()
 //-----------------------------------------------------------------------------
 vtkGradientFilter::~vtkGradientFilter()
 {
-  this->SetResultArrayName(NULL);
-  this->SetDivergenceArrayName(NULL);
-  this->SetVorticityArrayName(NULL);
-  this->SetQCriterionArrayName(NULL);
+  this->SetResultArrayName(nullptr);
+  this->SetDivergenceArrayName(nullptr);
+  this->SetVorticityArrayName(nullptr);
+  this->SetQCriterionArrayName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -181,6 +214,8 @@ void vtkGradientFilter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "ComputeDivergence:"  << this->ComputeDivergence << endl;
   os << indent << "ComputeVorticity:" << this->ComputeVorticity << endl;
   os << indent << "ComputeQCriterion:" << this->ComputeQCriterion << endl;
+  os << indent << "ContributingCellOption:" << this->ContributingCellOption << endl;
+  os << indent << "ReplacementValueOption:" << this->ReplacementValueOption << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -264,7 +299,7 @@ int vtkGradientFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkDataArray *array = this->GetInputArrayToProcess(0, inputVector);
 
-  if (array == NULL)
+  if (array == nullptr)
   {
     vtkErrorMacro("No input array.");
     return 0;
@@ -335,13 +370,18 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
   bool computeVorticity, bool computeQCriterion, bool computeDivergence,
   vtkDataSet* output)
 {
+  int arrayType = this->GetOutputArrayType(array);
   int numberOfInputComponents = array->GetNumberOfComponents();
-  vtkSmartPointer<vtkDataArray> gradients = NULL;
+  vtkSmartPointer<vtkDataArray> gradients = nullptr;
   if(this->ComputeGradient)
   {
-    gradients.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    gradients.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     gradients->SetNumberOfComponents(3*numberOfInputComponents);
     gradients->SetNumberOfTuples(array->GetNumberOfTuples());
+    switch (arrayType)
+    {
+      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+    }
     if (this->ResultArrayName)
     {
       gradients->SetName(this->ResultArrayName);
@@ -351,11 +391,15 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       gradients->SetName("Gradients");
     }
   }
-  vtkSmartPointer<vtkDataArray> divergence = NULL;
+  vtkSmartPointer<vtkDataArray> divergence = nullptr;
   if(computeDivergence)
   {
-    divergence.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    divergence.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     divergence->SetNumberOfTuples(array->GetNumberOfTuples());
+    switch (arrayType)
+    {
+      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+    }
     if (this->DivergenceArrayName)
     {
       divergence->SetName(this->DivergenceArrayName);
@@ -368,9 +412,13 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
   vtkSmartPointer<vtkDataArray> vorticity;
   if(computeVorticity)
   {
-    vorticity.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    vorticity.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     vorticity->SetNumberOfComponents(3);
     vorticity->SetNumberOfTuples(array->GetNumberOfTuples());
+    switch (arrayType)
+    {
+      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+    }
     if (this->VorticityArrayName)
     {
       vorticity->SetName(this->VorticityArrayName);
@@ -383,8 +431,12 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
   vtkSmartPointer<vtkDataArray> qCriterion;
   if(computeQCriterion)
   {
-    qCriterion.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    qCriterion.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     qCriterion->SetNumberOfTuples(array->GetNumberOfTuples());
+    switch (arrayType)
+    {
+      vtkFloatingPointTemplateMacro(Fill(gradients, static_cast<VTK_TT>(0), this->ReplacementValueOption));
+    }
     if (this->QCriterionArrayName)
     {
       qCriterion->SetName(this->QCriterionArrayName);
@@ -395,24 +447,42 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     }
   }
 
+  int highestCellDimension = 0;
+  if (this->ContributingCellOption == vtkGradientFilter::DataSetMax)
+  {
+    int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
+    for (vtkIdType i=0;i<input->GetNumberOfCells();i++)
+    {
+      int dim = input->GetCell(i)->GetCellDimension();
+      if (dim > highestCellDimension)
+      {
+        highestCellDimension = dim;
+        if (highestCellDimension == maxDimension)
+        {
+          break;
+        }
+      }
+    }
+  }
+
   if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
     if (!this->FasterApproximation)
     {
-      switch (array->GetDataType())
-      {
-        vtkTemplateMacro(ComputePointGradientsUG(
-                           input,
-                           static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                           (gradients == NULL ? NULL :
+      switch (arrayType)
+      { // ok to use template macro here since we made the output arrays ourselves
+        vtkFloatingPointTemplateMacro(ComputePointGradientsUG(
+                           input, array,
+                           (gradients == nullptr ? nullptr :
                             static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                            numberOfInputComponents,
-                           (vorticity == NULL ? NULL :
+                           (vorticity == nullptr ? nullptr :
                             static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                           (qCriterion == NULL ? NULL :
+                           (qCriterion == nullptr ? nullptr :
                             static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                           (divergence == NULL ? NULL :
-                            static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
+                           (divergence == nullptr ? nullptr :
+                            static_cast<VTK_TT *>(divergence->GetVoidPointer(0))),
+                           highestCellDimension, this->ContributingCellOption));
       }
       if(gradients)
       {
@@ -436,50 +506,50 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       // The cell computation is faster and works off of point data anyway.  The
       // faster approximation is to use the cell algorithm and then convert the
       // result to point data.
-      vtkSmartPointer<vtkDataArray> cellGradients = NULL;
+      vtkSmartPointer<vtkDataArray> cellGradients = nullptr;
       if(gradients)
       {
-        cellGradients.TakeReference(vtkDataArray::CreateDataArray(gradients->GetDataType()));
+        cellGradients.TakeReference(vtkDataArray::CreateDataArray(arrayType));
         cellGradients->SetName(gradients->GetName());
         cellGradients->SetNumberOfComponents(3*array->GetNumberOfComponents());
         cellGradients->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellDivergence = NULL;
+      vtkSmartPointer<vtkDataArray> cellDivergence = nullptr;
       if(divergence)
       {
-        cellDivergence.TakeReference(vtkDataArray::CreateDataArray(divergence->GetDataType()));
+        cellDivergence.TakeReference(vtkDataArray::CreateDataArray(arrayType));
         cellDivergence->SetName(divergence->GetName());
         cellDivergence->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellVorticity = NULL;
+      vtkSmartPointer<vtkDataArray> cellVorticity = nullptr;
       if(vorticity)
       {
-        cellVorticity.TakeReference(vtkDataArray::CreateDataArray(vorticity->GetDataType()));
+        cellVorticity.TakeReference(vtkDataArray::CreateDataArray(arrayType));
         cellVorticity->SetName(vorticity->GetName());
         cellVorticity->SetNumberOfComponents(3);
         cellVorticity->SetNumberOfTuples(input->GetNumberOfCells());
       }
-      vtkSmartPointer<vtkDataArray> cellQCriterion = NULL;
+      vtkSmartPointer<vtkDataArray> cellQCriterion = nullptr;
       if(qCriterion)
       {
-        cellQCriterion.TakeReference(vtkDataArray::CreateDataArray(qCriterion->GetDataType()));
+        cellQCriterion.TakeReference(vtkDataArray::CreateDataArray(arrayType));
         cellQCriterion->SetName(qCriterion->GetName());
         cellQCriterion->SetNumberOfTuples(input->GetNumberOfCells());
       }
 
-      switch (array->GetDataType())
-      {
-        vtkTemplateMacro(
+      switch (arrayType)
+      { // ok to use template macro here since we made the output arrays ourselves
+        vtkFloatingPointTemplateMacro(
           ComputeCellGradientsUG(
-            input, static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-            (cellGradients == NULL ? NULL :
+            input, array,
+            (cellGradients == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellGradients->GetVoidPointer(0))),
             numberOfInputComponents,
-            (vorticity == NULL ? NULL :
+            (vorticity == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellVorticity->GetVoidPointer(0))),
-            (qCriterion == NULL ? NULL :
+            (qCriterion == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellQCriterion->GetVoidPointer(0))),
-            (divergence == NULL ? NULL :
+            (divergence == nullptr ? nullptr :
              static_cast<VTK_TT *>(cellDivergence->GetVoidPointer(0)))));
       }
 
@@ -507,6 +577,7 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
       vtkNew<vtkCellDataToPointData> cd2pd;
       cd2pd->SetInputData(dummy);
       cd2pd->PassCellDataOff();
+      cd2pd->SetContributingCellOption(this->ContributingCellOption);
       cd2pd->Update();
 
       // Set the gradients array in the output and cleanup.
@@ -543,24 +614,24 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(
     vtkNew<vtkCellDataToPointData> cd2pd;
     cd2pd->SetInputData(dummy);
     cd2pd->PassCellDataOff();
+    cd2pd->SetContributingCellOption(this->ContributingCellOption);
     cd2pd->Update();
     vtkDataArray *pointScalars
       = cd2pd->GetOutput()->GetPointData()->GetScalars();
     pointScalars->Register(this);
 
-    switch (pointScalars->GetDataType())
-    {
-      vtkTemplateMacro(ComputeCellGradientsUG(
-                         input,
-                         static_cast<VTK_TT *>(pointScalars->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+    switch (arrayType)
+    { // ok to use template macro here since we made the output arrays ourselves
+      vtkFloatingPointTemplateMacro(ComputeCellGradientsUG(
+                         input, pointScalars,
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
     }
 
@@ -591,11 +662,12 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   vtkDataArray* array, int fieldAssociation, bool computeVorticity,
   bool computeQCriterion, bool computeDivergence, vtkDataSet* output)
 {
+  int arrayType = this->GetOutputArrayType(array);
   int numberOfInputComponents = array->GetNumberOfComponents();
-  vtkSmartPointer<vtkDataArray> gradients = NULL;
+  vtkSmartPointer<vtkDataArray> gradients = nullptr;
   if(this->ComputeGradient)
   {
-    gradients.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    gradients.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     gradients->SetNumberOfComponents(3*numberOfInputComponents);
     gradients->SetNumberOfTuples(array->GetNumberOfTuples());
     if (this->ResultArrayName)
@@ -607,10 +679,10 @@ int vtkGradientFilter::ComputeRegularGridGradient(
       gradients->SetName("Gradients");
     }
   }
-  vtkSmartPointer<vtkDataArray> divergence = NULL;
+  vtkSmartPointer<vtkDataArray> divergence = nullptr;
   if(computeDivergence)
   {
-    divergence.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    divergence.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     divergence->SetNumberOfTuples(array->GetNumberOfTuples());
     if (this->DivergenceArrayName)
     {
@@ -624,7 +696,7 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   vtkSmartPointer<vtkDataArray> vorticity;
   if(computeVorticity)
   {
-    vorticity.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    vorticity.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     vorticity->SetNumberOfComponents(3);
     vorticity->SetNumberOfTuples(array->GetNumberOfTuples());
     if (this->VorticityArrayName)
@@ -639,7 +711,7 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   vtkSmartPointer<vtkDataArray> qCriterion;
   if(computeQCriterion)
   {
-    qCriterion.TakeReference(vtkDataArray::CreateDataArray(array->GetDataType()));
+    qCriterion.TakeReference(vtkDataArray::CreateDataArray(arrayType));
     qCriterion->SetNumberOfTuples(array->GetNumberOfTuples());
     if (this->QCriterionArrayName)
     {
@@ -653,56 +725,53 @@ int vtkGradientFilter::ComputeRegularGridGradient(
 
   if(vtkStructuredGrid* structuredGrid = vtkStructuredGrid::SafeDownCast(output))
   {
-    switch (array->GetDataType())
-    {
-      vtkTemplateMacro(ComputeGradientsSG(
-                         structuredGrid,
-                         static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+    switch (arrayType)
+    { // ok to use template macro here since we made the output arrays ourselves
+      vtkFloatingPointTemplateMacro(ComputeGradientsSG(
+                         structuredGrid, array,
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
 
     }
   }
   else if(vtkImageData* imageData = vtkImageData::SafeDownCast(output))
   {
-    switch (array->GetDataType())
-    {
-      vtkTemplateMacro(ComputeGradientsSG(
-                         imageData,
-                         static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+    switch (arrayType)
+    { // ok to use template macro here since we made the output arrays ourselves
+      vtkFloatingPointTemplateMacro(ComputeGradientsSG(
+                         imageData, array,
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
     }
   }
   else if(vtkRectilinearGrid* rectilinearGrid = vtkRectilinearGrid::SafeDownCast(output))
   {
-    switch (array->GetDataType())
-    {
-      vtkTemplateMacro(ComputeGradientsSG(
-                         rectilinearGrid,
-                         static_cast<VTK_TT *>(array->GetVoidPointer(0)),
-                         (gradients == NULL ? NULL :
+    switch (arrayType)
+    { // ok to use template macro here since we made the output arrays ourselves
+      vtkFloatingPointTemplateMacro(ComputeGradientsSG(
+                         rectilinearGrid, array,
+                         (gradients == nullptr ? nullptr :
                           static_cast<VTK_TT *>(gradients->GetVoidPointer(0))),
                          numberOfInputComponents, fieldAssociation,
-                         (vorticity == NULL ? NULL :
+                         (vorticity == nullptr ? nullptr :
                           static_cast<VTK_TT *>(vorticity->GetVoidPointer(0))),
-                         (qCriterion == NULL ? NULL :
+                         (qCriterion == nullptr ? nullptr :
                           static_cast<VTK_TT *>(qCriterion->GetVoidPointer(0))),
-                         (divergence == NULL ? NULL :
+                         (divergence == nullptr ? nullptr :
                           static_cast<VTK_TT *>(divergence->GetVoidPointer(0)))));
 
     }
@@ -753,13 +822,24 @@ int vtkGradientFilter::ComputeRegularGridGradient(
   return 1;
 }
 
+//-----------------------------------------------------------------------------
+int vtkGradientFilter::GetOutputArrayType(vtkDataArray* array)
+{
+  int retType = VTK_DOUBLE;
+  switch (array->GetDataType())
+  {
+    vtkTemplateMacro(retType = GetOutputDataType(static_cast<VTK_TT>(0)));
+  }
+  return retType;
+}
+
 namespace {
 //-----------------------------------------------------------------------------
   template<class data_type>
   void ComputePointGradientsUG(
-    vtkDataSet *structure, data_type *array, data_type *gradients,
+    vtkDataSet *structure, vtkDataArray *array, data_type *gradients,
     int numberOfInputComponents, data_type* vorticity, data_type* qCriterion,
-    data_type* divergence)
+    data_type* divergence, int highestCellDimension, int contributingCellOption)
   {
     vtkNew<vtkIdList> currentPoint;
     currentPoint->SetNumberOfIds(1);
@@ -770,80 +850,102 @@ namespace {
     int numberOfOutputComponents = 3*numberOfInputComponents;
     std::vector<data_type> g(numberOfOutputComponents);
 
+    // if we are doing patches for contributing cell dimensions we want to keep track of
+    // the maximum expected dimension so we can exit out of the check loop quicker
+    const int maxCellDimension = structure->IsA("vtkPolyData") ? 2 : 3;
+
     for (vtkIdType point = 0; point < numpts; point++)
     {
       currentPoint->SetId(0, point);
       double pointcoords[3];
       structure->GetPoint(point, pointcoords);
       // Get all cells touching this point.
-      structure->GetCellNeighbors(-1, currentPoint.GetPointer(),
-                                  cellsOnPoint.GetPointer());
+      structure->GetCellNeighbors(-1, currentPoint, cellsOnPoint);
       vtkIdType numCellNeighbors = cellsOnPoint->GetNumberOfIds();
-      vtkIdType numValidCellNeighbors = 0;
 
       for(int i=0;i<numberOfOutputComponents;i++)
       {
         g[i] = 0;
       }
 
+      if (contributingCellOption == vtkGradientFilter::Patch)
+      {
+        highestCellDimension = 0;
+        for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
+        {
+          int cellDimension = structure->GetCell(cellsOnPoint->GetId(neighbor))->GetCellDimension();
+          if (cellDimension > highestCellDimension)
+          {
+            highestCellDimension = cellDimension;
+            if (highestCellDimension == maxCellDimension)
+            {
+              break;
+            }
+          }
+        }
+      }
+      vtkIdType numValidCellNeighbors = 0;
+
       // Iterate on all cells and find all points connected to current point
       // by an edge.
       for (vtkIdType neighbor = 0; neighbor < numCellNeighbors; neighbor++)
       {
         vtkCell *cell = structure->GetCell(cellsOnPoint->GetId(neighbor));
-        int subId;
-        double parametricCoord[3];
-        if(GetCellParametricData(point, pointcoords, cell,
-                                 subId, parametricCoord))
+        if (cell->GetCellDimension() >= highestCellDimension)
         {
-          numValidCellNeighbors++;
-          for(int InputComponent=0;InputComponent<numberOfInputComponents;InputComponent++)
+          int subId;
+          double parametricCoord[3];
+          if(GetCellParametricData(point, pointcoords, cell,
+                                   subId, parametricCoord))
           {
-            int NumberOfCellPoints = cell->GetNumberOfPoints();
-            std::vector<double> values(NumberOfCellPoints);
-            // Get values of Array at cell points.
-            for (int i = 0; i < NumberOfCellPoints; i++)
+            numValidCellNeighbors++;
+            for(int inputComponent=0;inputComponent<numberOfInputComponents;inputComponent++)
             {
-              values[i] = static_cast<double>(
-                array[cell->GetPointId(i)*numberOfInputComponents+InputComponent]);
-            }
+              int numberOfCellPoints = cell->GetNumberOfPoints();
+              std::vector<double> values(numberOfCellPoints);
+              // Get values of Array at cell points.
+              for (int i = 0; i < numberOfCellPoints; i++)
+              {
+                values[i] = array->GetComponent(cell->GetPointId(i), inputComponent);
+              }
 
-            double derivative[3];
-            // Get derivative of cell at point.
-            cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
+              double derivative[3];
+              // Get derivative of cell at point.
+              cell->Derivatives(subId, parametricCoord, &values[0], 1, derivative);
 
-            g[InputComponent*3] += static_cast<data_type>(derivative[0]);
-            g[InputComponent*3+1] += static_cast<data_type>(derivative[1]);
-            g[InputComponent*3+2] += static_cast<data_type>(derivative[2]);
-          } // iterating over Components
-        } // if(GetCellParametricData())
+              g[inputComponent*3] += static_cast<data_type>(derivative[0]);
+              g[inputComponent*3+1] += static_cast<data_type>(derivative[1]);
+              g[inputComponent*3+2] += static_cast<data_type>(derivative[2]);
+            } // iterating over Components
+          } // if(GetCellParametricData())
+        } // if(cell->GetCellDimension () >= highestCellDimension
       } // iterating over neighbors
 
-      if (numCellNeighbors > 0)
+      if (numValidCellNeighbors > 0)
       {
         for(int i=0;i<3*numberOfInputComponents;i++)
         {
-          g[i] /= numCellNeighbors;
+          g[i] /= numValidCellNeighbors;
         }
-      }
 
-      if(vorticity)
-      {
-        ComputeVorticityFromGradient(&g[0], vorticity+3*point);
-      }
-      if(qCriterion)
-      {
-        ComputeQCriterionFromGradient(&g[0], qCriterion+point);
-      }
-      if(divergence)
-      {
-        ComputeDivergenceFromGradient(&g[0], divergence+point);
-      }
-      if(gradients)
-      {
-        for(int i=0;i<numberOfOutputComponents;i++)
+        if(vorticity)
         {
-          gradients[point*numberOfOutputComponents+i] = g[i];
+          ComputeVorticityFromGradient(&g[0], vorticity+3*point);
+        }
+        if(qCriterion)
+        {
+          ComputeQCriterionFromGradient(&g[0], qCriterion+point);
+        }
+        if(divergence)
+        {
+          ComputeDivergenceFromGradient(&g[0], divergence+point);
+        }
+        if(gradients)
+        {
+          for(int i=0;i<numberOfOutputComponents;i++)
+          {
+            gradients[point*numberOfOutputComponents+i] = g[i];
+          }
         }
       }
     }  // iterating over points in grid
@@ -874,7 +976,7 @@ namespace {
     int numpoints = cell->GetNumberOfPoints();
     std::vector<double> values(numpoints);
     // Get parametric position of point.
-    cell->EvaluatePosition(pointCoord, NULL, subId, parametricCoord,
+    cell->EvaluatePosition(pointCoord, nullptr, subId, parametricCoord,
                            dummy, &values[0]/*Really another dummy.*/);
 
     return 1;
@@ -883,9 +985,9 @@ namespace {
 //-----------------------------------------------------------------------------
   template<class data_type>
     void ComputeCellGradientsUG(
-      vtkDataSet *structure, data_type *array, data_type *gradients,
-      int numberOfInputComponents, data_type* vorticity,
-      data_type* qCriterion, data_type* divergence)
+      vtkDataSet *structure, vtkDataArray *array, data_type *gradients,
+      int numberOfInputComponents, data_type* vorticity, data_type* qCriterion,
+      data_type* divergence)
   {
     vtkIdType numcells = structure->GetNumberOfCells();
     std::vector<double> values(8);
@@ -893,7 +995,6 @@ namespace {
     for (vtkIdType cellid = 0; cellid < numcells; cellid++)
     {
       vtkCell *cell = structure->GetCell(cellid);
-
       int subId;
       double cellCenter[3];
       subId = cell->GetParametricCenter(cellCenter);
@@ -909,8 +1010,7 @@ namespace {
       {
         for (int i = 0; i < numpoints; i++)
         {
-          values[i] = static_cast<double>(
-            array[cell->GetPointId(i)*numberOfInputComponents+inputComponent]);
+          values[i] = array->GetComponent(cell->GetPointId(i), inputComponent);
         }
 
         cell->Derivatives(subId, cellCenter, &values[0], 1, derivative);
@@ -945,7 +1045,7 @@ namespace {
 
 //-----------------------------------------------------------------------------
   template<class Grid, class data_type>
-  void ComputeGradientsSG(Grid output, data_type* array, data_type* gradients,
+  void ComputeGradientsSG(Grid output, vtkDataArray* array, data_type* gradients,
                           int numberOfInputComponents, int fieldAssociation,
                           data_type* vorticity, data_type* qCriterion,
                           data_type* divergence)
@@ -1010,8 +1110,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else if ( i == (dims[0]-1) )
@@ -1024,8 +1124,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else
@@ -1038,8 +1138,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
 
@@ -1077,8 +1177,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else if ( j == (dims[1]-1) )
@@ -1091,8 +1191,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else
@@ -1105,8 +1205,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
 
@@ -1144,8 +1244,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else if ( k == (dims[2]-1) )
@@ -1158,8 +1258,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
           else
@@ -1172,8 +1272,8 @@ namespace {
             for(inputComponent=0;inputComponent<numberOfInputComponents;
                 inputComponent++)
             {
-              plusvalues[inputComponent] = array[idx*numberOfInputComponents+inputComponent];
-              minusvalues[inputComponent] = array[idx2*numberOfInputComponents+inputComponent];
+              plusvalues[inputComponent] = array->GetComponent(idx, inputComponent);
+              minusvalues[inputComponent] = array->GetComponent(idx2, inputComponent);
             }
           }
 

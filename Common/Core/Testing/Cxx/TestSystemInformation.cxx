@@ -82,7 +82,7 @@ int TestSystemInformation(int argc, char* argv[])
     "Common/Core/vtkToolkits.h",
     "VTKConfig.cmake",
     "Testing/Temporary/ConfigSummary.txt",
-    0
+    nullptr
     };
 
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;

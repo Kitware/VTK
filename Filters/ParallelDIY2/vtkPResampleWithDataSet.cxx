@@ -78,7 +78,7 @@ vtkCxxSetObjectMacro(vtkPResampleWithDataSet, Controller, vtkMultiProcessControl
 
 //---------------------------------------------------------------------------
 vtkPResampleWithDataSet::vtkPResampleWithDataSet()
-  : Controller(NULL), UseBalancedPartitionForPointsLookup(false)
+  : Controller(nullptr), UseBalancedPartitionForPointsLookup(false)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
@@ -86,7 +86,7 @@ vtkPResampleWithDataSet::vtkPResampleWithDataSet()
 //----------------------------------------------------------------------------
 vtkPResampleWithDataSet::~vtkPResampleWithDataSet()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ public:
 class RegularPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) override
   {
     // compute the bounds of the composite dataset
     size_t totalNumberOfPoints = 0;
@@ -260,7 +260,7 @@ public:
     }
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const override
   {
     if (this->Nodes.empty())
     {
@@ -352,7 +352,7 @@ private:
 class BalancedPartition : public Partition
 {
 public:
-  void CreatePartition(const std::vector<vtkDataSet*> &blocks) VTK_OVERRIDE
+  void CreatePartition(const std::vector<vtkDataSet*> &blocks) override
   {
     // count total number of points
     vtkIdType totalNumberOfPoints = 0;
@@ -400,7 +400,7 @@ public:
                          &this->Splits[0], &this->Splits[splitsSize], 0);
   }
 
-  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const VTK_OVERRIDE
+  void FindPointsInBounds(const double bounds[6], std::vector<Point> &points) const override
   {
     int tag = 0;
     for (int i = 0; i < 3; ++i)
@@ -763,7 +763,7 @@ class EnqueueDataArray
 {
 public:
   EnqueueDataArray(const diy::Master::ProxyWithLink& cp, const diy::BlockID &dest)
-    : Proxy(&cp), Dest(dest), Masks(NULL), RBegin(0), REnd(0)
+    : Proxy(&cp), Dest(dest), Masks(nullptr), RBegin(0), REnd(0)
   {
   }
 
@@ -852,9 +852,9 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
         pts->InsertNextPoint(points[j].Position);
       }
       vtkNew<vtkUnstructuredGrid> ds;
-      ds->SetPoints(pts.GetPointer());
+      ds->SetPoints(pts);
 
-      prober->SetInputData(ds.GetPointer());
+      prober->SetInputData(ds);
       prober->Update();
       vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
       if (numberOfValidPoints == 0)
@@ -916,7 +916,7 @@ void PerformResampling(DiyBlock *block, const diy::Master::ProxyWithLink& cp,
         ds->SetOrigin(points.Origin);
         ds->SetSpacing(points.Spacing);
 
-        prober->SetInputData(ds.GetPointer());
+        prober->SetInputData(ds);
         prober->Update();
         vtkIdType numberOfValidPoints = prober->GetValidPoints()->GetNumberOfTuples();
         if (numberOfValidPoints == 0)
@@ -971,7 +971,7 @@ class DequeueDataArray
 {
 public:
   DequeueDataArray(const diy::Master::ProxyWithLink &proxy, int sourceGID)
-    : Proxy(&proxy), SourceGID(sourceGID), PointIds(NULL)
+    : Proxy(&proxy), SourceGID(sourceGID), PointIds(nullptr)
   { }
 
   void SetPointIds(const std::vector<vtkIdType> &pointIds)
@@ -1151,7 +1151,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
     {
       if (vtkImageData::SafeDownCast(dsblocks[i]))
       {
-        dsblocks[i] = NULL;
+        dsblocks[i] = nullptr;
       }
     }
     block.PointsLookup->CreatePartition(dsblocks);
@@ -1178,7 +1178,7 @@ int vtkPResampleWithDataSet::RequestData(vtkInformation *request,
   master.foreach<DiyBlock>(&FindPointsToSend);
   // the lookup structures are no longer required
   delete block.PointsLookup;
-  block.PointsLookup = NULL;
+  block.PointsLookup = nullptr;
   master.exchange();
   // perform resampling on local and remote points
   master.foreach<DiyBlock>(&PerformResampling, this->Prober.GetPointer());

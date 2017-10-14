@@ -40,7 +40,7 @@ vtkTrivialProducer::vtkTrivialProducer()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->Output = 0;
+  this->Output = nullptr;
   this->WholeExtent[0] = this->WholeExtent[2] = this->WholeExtent[4] =  0;
   this->WholeExtent[1] = this->WholeExtent[3] = this->WholeExtent[5] = -1;
 }
@@ -48,7 +48,7 @@ vtkTrivialProducer::vtkTrivialProducer()
 //----------------------------------------------------------------------------
 vtkTrivialProducer::~vtkTrivialProducer()
 {
-  this->SetOutput(0);
+  this->SetOutput(nullptr);
 }
 
 //----------------------------------------------------------------------------

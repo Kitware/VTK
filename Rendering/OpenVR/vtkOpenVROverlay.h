@@ -23,8 +23,6 @@
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkObject.h"
-#define SDL_MAIN_HANDLED
-#include <SDL.h> // for ivars
 #include <openvr.h> // for ivars
 #include <vector> // ivars
 #include "vtkNew.h" // for ivars
@@ -41,7 +39,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVROverlay : public vtkObject
 public:
   static vtkOpenVROverlay *New();
   vtkTypeMacro(vtkOpenVROverlay, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the overlay
@@ -106,8 +104,10 @@ public:
   //@}
 
   vtkOpenVRCameraPose *GetSavedCameraPose(size_t i);
+  virtual void WriteCameraPoses(ostream& os);
   virtual void WriteCameraPoses();
   virtual void ReadCameraPoses();
+  virtual void ReadCameraPoses(istream &is);
   virtual void SaveCameraPose(int num);
   virtual void LoadCameraPose(int num);
   virtual void LoadNextCameraPose();
@@ -147,8 +147,8 @@ protected:
   double ActiveSpotIntensity;
 
 private:
-  vtkOpenVROverlay(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVROverlay&) VTK_DELETE_FUNCTION;
+  vtkOpenVROverlay(const vtkOpenVROverlay&) = delete;
+  void operator=(const vtkOpenVROverlay&) = delete;
 };
 
 #endif

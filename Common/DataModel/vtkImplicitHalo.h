@@ -44,20 +44,20 @@ public:
   static vtkImplicitHalo *New();
 
   vtkTypeMacro(vtkImplicitHalo,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Evaluate the equation.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate normal. Not implemented.
    */
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   //@{
   /**
@@ -85,15 +85,15 @@ public:
 
 protected:
   vtkImplicitHalo();
-  ~vtkImplicitHalo() VTK_OVERRIDE;
+  ~vtkImplicitHalo() override;
 
   double Radius;
   double Center[3];
   double FadeOut;
 
 private:
-  vtkImplicitHalo(const vtkImplicitHalo&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitHalo&) VTK_DELETE_FUNCTION;
+  vtkImplicitHalo(const vtkImplicitHalo&) = delete;
+  void operator=(const vtkImplicitHalo&) = delete;
 };
 
 #endif

@@ -50,8 +50,8 @@ vtkForceDirectedLayoutStrategy::vtkForceDirectedLayoutStrategy()
   this->AutomaticBoundsComputation = false;
   this->ThreeDimensionalLayout = false;
   this->RandomInitialPoints = true;
-  this->v = NULL;
-  this->e = NULL;
+  this->v = nullptr;
+  this->e = nullptr;
 }
 
 vtkForceDirectedLayoutStrategy::~vtkForceDirectedLayoutStrategy()

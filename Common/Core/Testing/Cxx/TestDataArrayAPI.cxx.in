@@ -115,13 +115,13 @@ int @VTK_TESTDATAARRAYAPI_TESTNAME@(int, char *[])
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<ScalarT>(); \
   vtkAOSDataArrayTemplate<ScalarT> *name = \
   vtkAOSDataArrayTemplate<ScalarT>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPICreateReferenceArrayWithType(name, valueType) \
   vtkSmartPointer<vtkDataArray> name##DA = CreateDataArray<valueType>(); \
   vtkAOSDataArrayTemplate<valueType> *name = \
     vtkAOSDataArrayTemplate<valueType>::SafeDownCast(name##DA.GetPointer()); \
-  assert("Reference array is vtkAOSDataArrayTemplate" && name != NULL)
+  assert("Reference array is vtkAOSDataArrayTemplate" && name != nullptr)
 
 #define DataArrayAPINonFatalError(x) \
   { \
@@ -321,7 +321,7 @@ int Test_ComponentNames()
   for (vtkIdType c = 0; c < static_cast<vtkIdType>(comps); ++c)
   {
     DataArrayAPIUpdateSignature("const char* GetComponentName(vtkIdType comp)");
-    DataArrayAPIAssert(array->GetComponentName(c) == NULL,
+    DataArrayAPIAssert(array->GetComponentName(c) == nullptr,
                        "New array has a named component.");
     str.str("");
     str << "Component " << c;
@@ -927,7 +927,7 @@ int Test_voidPtr_GetVoidPointer()
       vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
     }
 
-    DataArrayAPIAssert(ptr != NULL, "GetVoidPointer returned NULL!");
+    DataArrayAPIAssert(ptr != nullptr, "GetVoidPointer returned nullptr!");
     for (int c = 0; c < comps; ++c)
     {
       ScalarT test = *ptr++;
@@ -953,8 +953,20 @@ int Test_voidPtr_GetVoidPointer()
 struct CheckShallowCopy
 {
   // Mismatched arrays -- these will not shallow copy, always return true.
-  template <typename Array1T, typename Array2T>
-  bool operator()(Array1T *, Array2T *) { return true; }
+  template <typename Array1DerivedT, typename Array1ValueT,
+            typename Array2DerivedT, typename Array2ValueT>
+  bool operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT> *,
+                  vtkGenericDataArray<Array2DerivedT, Array2ValueT> *)
+  {
+    return true;
+  }
+
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wunused-template"
+  #endif
+#endif
 
   // AOS same-ValueType case:
   template <typename ValueType>
@@ -980,6 +992,13 @@ struct CheckShallowCopy
     return true;
   }
 };
+
+// Undo warning suppression.
+#if defined(__clang__) && defined(__has_warning)
+  #if __has_warning("-Wunused-template")
+    #pragma clang diagnostic pop
+  #endif
+#endif
 
 // void ShallowCopy(vtkDataArray *other)
 // Shallow copies AOS/SOA arrays if and only if arrays are the same type,
@@ -1587,7 +1606,7 @@ int Test_int_IsNumeric()
 }
 
 // vtkArrayIterator* NewIterator()
-// Just test that the returned iterator is non-NULL and the data types match.
+// Just test that the returned iterator is non-nullptr and the data types match.
 template <typename ScalarT, typename ArrayT>
 int Test_vtkArrayIteratorPtr_NewIterator()
 {
@@ -1615,8 +1634,8 @@ int Test_vtkArrayIteratorPtr_NewIterator()
     vtksys::SystemTools::UnPutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS");
   }
 
-  DataArrayAPIAssert(iter != NULL,
-                     "NewIterator() returns NULL.");
+  DataArrayAPIAssert(iter != nullptr,
+                     "NewIterator() returns nullptr.");
 
   int iterDataType = iter->GetDataType();
   iter->Delete();
@@ -1740,7 +1759,7 @@ int Test_LookupValue_allSigs()
        ++it)
   {
     it->second->Delete();
-    it->second = NULL;
+    it->second = nullptr;
   }
 
   DataArrayAPIFinish();
@@ -2092,7 +2111,7 @@ int Test_void_FillComponent_j_c()
   vtkIdType tuples = 10;
   source->SetNumberOfComponents(comps);
   source->SetNumberOfTuples(tuples);
-  for (vtkIdType j = 0; j < comps; ++j)
+  for (int j = 0; j < comps; ++j)
   {
     source->FillComponent(j, static_cast<double>(((j + 1) * j) % 17));
   }
@@ -2207,7 +2226,7 @@ int Test_voidptr_WriteVoidPointer_id_number()
 }
 
 // void CreateDefaultLookupTable()
-// GetLookupTable should be non-NULL after calling.
+// GetLookupTable should be non-nullptr after calling.
 template <typename ScalarT, typename ArrayT>
 int Test_void_CreateDefaultLookupTable()
 {
@@ -2216,7 +2235,7 @@ int Test_void_CreateDefaultLookupTable()
   DataArrayAPICreateTestArray(source);
 
   source->CreateDefaultLookupTable();
-  if (source->GetLookupTable() == NULL)
+  if (source->GetLookupTable() == nullptr)
   {
     DataArrayAPIError("Lookup table was not created.");
   }
@@ -2224,12 +2243,12 @@ int Test_void_CreateDefaultLookupTable()
   DataArrayAPIFinish();
 }
 
-//  double 	GetTuple1 (vtkIdType i)
-//  double * 	GetTuple2 (vtkIdType i)
-//  double * 	GetTuple3 (vtkIdType i)
-//  double * 	GetTuple4 (vtkIdType i)
-//  double * 	GetTuple6 (vtkIdType i)
-//  double * 	GetTuple9 (vtkIdType i)
+//  double   GetTuple1 (vtkIdType i)
+//  double * GetTuple2 (vtkIdType i)
+//  double * GetTuple3 (vtkIdType i)
+//  double * GetTuple4 (vtkIdType i)
+//  double * GetTuple6 (vtkIdType i)
+//  double * GetTuple9 (vtkIdType i)
 // Returns the ith tuple.
 template <typename ScalarT, typename ArrayT, int N>
 int Test_doubleptr_GetTupleN_i()
@@ -3039,10 +3058,6 @@ int Test_GetRange_all_overloads()
 //------------------------------------------------------------------------------
 //-----------Unit Test Function Caller------------------------------------------
 //------------------------------------------------------------------------------
-struct CanDispatch // Dummy for testing if we can dispatch an array type.
-{
-  template <typename ArrayT> void operator()(ArrayT *) {}
-};
 
 template <typename ScalarT, typename ArrayT>
 int ExerciseDataArray()
@@ -3179,6 +3194,7 @@ int ExerciseDataArray()
   errors += Test_void_RemoveFirstTuple<ScalarT, ArrayT>();
   errors += Test_void_RemoveLastTuple<ScalarT, ArrayT>();
   errors += Test_void_GetData_tupleMin_tupleMax_compMin_compMax_data<ScalarT, ArrayT>();
+  errors += Test_void_FillComponent_j_c<ScalarT, ArrayT>();
   errors += Test_void_CopyComponent_j_from_fromComponent<ScalarT, ArrayT>();
 
   return errors;

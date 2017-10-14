@@ -57,13 +57,13 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkAngleRepresentation3D,vtkAngleRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Satisfy the superclasses API. Angle returned is in radians.
    */
-  double GetAngle() VTK_OVERRIDE;
+  double GetAngle() override;
 
   //@{
   /**
@@ -71,18 +71,18 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
-  void GetPoint1WorldPosition(double pos[3]) VTK_OVERRIDE;
-  void GetCenterWorldPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2WorldPosition(double pos[3]) VTK_OVERRIDE;
+  void GetPoint1WorldPosition(double pos[3]) override;
+  void GetCenterWorldPosition(double pos[3]) override;
+  void GetPoint2WorldPosition(double pos[3]) override;
   virtual void SetPoint1WorldPosition(double pos[3]);
-  void SetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint1DisplayPosition(double pos[3]) override;
   virtual void SetCenterWorldPosition(double pos[3]);
-  void SetCenterDisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetCenterDisplayPosition(double pos[3]) override;
   virtual void SetPoint2WorldPosition(double pos[3]);
-  void SetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint1DisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetCenterDisplayPosition(double pos[3]) VTK_OVERRIDE;
-  void GetPoint2DisplayPosition(double pos[3]) VTK_OVERRIDE;
+  void SetPoint2DisplayPosition(double pos[3]) override;
+  void GetPoint1DisplayPosition(double pos[3]) override;
+  void GetCenterDisplayPosition(double pos[3]) override;
+  void GetPoint2DisplayPosition(double pos[3]) override;
   //@}
 
   //@{
@@ -109,21 +109,21 @@ public:
    * Method defined by vtkWidgetRepresentation superclass and
    * needed here.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkAngleRepresentation3D();
-  ~vtkAngleRepresentation3D() VTK_OVERRIDE;
+  ~vtkAngleRepresentation3D() override;
 
   // The pieces that make up the angle representations
   vtkLineSource     *Line1Source;
@@ -143,8 +143,8 @@ protected:
   double             TextPosition[3];
 
 private:
-  vtkAngleRepresentation3D(const vtkAngleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkAngleRepresentation3D(const vtkAngleRepresentation3D&) = delete;
+  void operator=(const vtkAngleRepresentation3D&) = delete;
 };
 
 #endif

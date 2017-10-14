@@ -37,15 +37,15 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo) VTK_OVERRIDE;
+                             vtkInformationVector* outInfo) override;
 
 protected:
   vtkImageImportExecutive() {}
-  ~vtkImageImportExecutive() VTK_OVERRIDE {}
+  ~vtkImageImportExecutive() override {}
 
 private:
-  vtkImageImportExecutive(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
+  vtkImageImportExecutive(const vtkImageImportExecutive&) = delete;
+  void operator=(const vtkImageImportExecutive&) = delete;
 };
 
 #endif

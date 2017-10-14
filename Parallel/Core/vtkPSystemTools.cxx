@@ -44,7 +44,7 @@ std::string vtkPSystemTools::CollapseFullPath(const std::string& in_relative)
   std::string returnString;
   if(controller->GetLocalProcessId() == 0)
   {
-    returnString = vtksys::SystemTools::CollapseFullPath(in_relative, 0);
+    returnString = vtksys::SystemTools::CollapseFullPath(in_relative, nullptr);
   }
   vtkPSystemTools::BroadcastString(returnString, 0);
 

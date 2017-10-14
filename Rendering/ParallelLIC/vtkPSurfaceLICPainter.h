@@ -35,7 +35,7 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICPainter : public vtkSurfaceLI
 public:
   static vtkPSurfaceLICPainter* New();
   vtkTypeMacro(vtkPSurfaceLICPainter, vtkSurfaceLICPainter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Methods used for parallel benchmarks. Use cmake to define
@@ -88,8 +88,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPSurfaceLICPainter(const vtkPSurfaceLICPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSurfaceLICPainter&) VTK_DELETE_FUNCTION;
+  vtkPSurfaceLICPainter(const vtkPSurfaceLICPainter&) = delete;
+  void operator=(const vtkPSurfaceLICPainter&) = delete;
 };
 
 #endif

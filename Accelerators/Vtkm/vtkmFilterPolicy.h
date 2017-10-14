@@ -185,12 +185,13 @@ struct PointListOutVTK
 
 //------------------------------------------------------------------------------
 struct CellListStructuredInVTK
-    : vtkm::ListTagBase<vtkm::cont::CellSetStructured<3>>
+    : vtkm::ListTagBase<vtkm::cont::CellSetStructured<3>, vtkm::cont::CellSetStructured<2>>
 {
 };
 struct CellListStructuredOutVTK
     : vtkm::ListTagBase<
-          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<3>>>
+          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<3>>,
+          vtkm::cont::CellSetPermutation<vtkm::cont::CellSetStructured<2>> >
 {
 };
 
@@ -203,6 +204,7 @@ struct CellListUnstructuredInVTK
 struct CellListUnstructuredOutVTK
     : vtkm::ListTagBase<
           vtkm::cont::CellSetExplicit<>, vtkm::cont::CellSetSingleType<>,
+          vtkm::cont::vtkmCellSetExplicitAOS, vtkm::cont::vtkmCellSetSingleType,
           vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetExplicitAOS>,
           vtkm::cont::CellSetPermutation<vtkm::cont::vtkmCellSetSingleType>>
 {

@@ -160,7 +160,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * Standard Type-Macro
    */
   vtkTypeMacro(vtkModifiedBSPTree,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -175,17 +175,17 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   /**
    * Free tree memory
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
+  void FreeSearchStructure() override;
 
   /**
    * Build Tree
    */
-  void BuildLocator() VTK_OVERRIDE;
+  void BuildLocator() override;
 
   /**
    * Generate BBox representation of Nth level
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
   /**
    * Generate BBox representation of all leaf nodes
@@ -198,7 +198,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    */
   int IntersectWithLine(
     double p1[3], double p2[3], double tol, double &t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId) VTK_OVERRIDE;
+    double pcoords[3], int &subId, vtkIdType &cellId) override;
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
@@ -206,14 +206,14 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    */
   int IntersectWithLine(
     double p1[3], double p2[3], double tol, double &t, double x[3],
-    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+    double pcoords[3], int &subId, vtkIdType &cellId, vtkGenericCell *cell) override;
 
   /**
    * Take the passed line segment and intersect it with the data set.
    * The return value of the function is 0 if no intersections were found.
    * For each intersection found, the vtkPoints and CellIds objects
    * have the relevant information added in order of intersection increasing
-   * from ray start to end. If either vtkPoints or CellIds are NULL
+   * from ray start to end. If either vtkPoints or CellIds are nullptr
    * pointers, then no information is generated for that list.
    */
   virtual int IntersectWithLine(
@@ -225,9 +225,9 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
    * or -1 if not.
    */
   vtkIdType FindCell(double x[3], double tol2, vtkGenericCell *GenCell,
-    double pcoords[3], double *weights) VTK_OVERRIDE;
+    double pcoords[3], double *weights) override;
 
-  bool InsideCellBounds(double x[3], vtkIdType cell_ID) VTK_OVERRIDE;
+  bool InsideCellBounds(double x[3], vtkIdType cell_ID) override;
 
   /**
    * After subdivision has completed, one may wish to query the tree to find
@@ -238,7 +238,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
 
   protected:
    vtkModifiedBSPTree();
-  ~vtkModifiedBSPTree() VTK_OVERRIDE;
+  ~vtkModifiedBSPTree() override;
   //
   BSPNode  *mRoot;               // bounding box root node
   int       npn;
@@ -261,8 +261,8 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   void ForceBuildLocator();
   void BuildLocatorInternal();
 private:
-  vtkModifiedBSPTree(const vtkModifiedBSPTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkModifiedBSPTree&) VTK_DELETE_FUNCTION;
+  vtkModifiedBSPTree(const vtkModifiedBSPTree&) = delete;
+  void operator=(const vtkModifiedBSPTree&) = delete;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -275,8 +275,8 @@ class BSPNode {
   public:
     // Constructor
     BSPNode(void) {
-      mChild[0] = mChild[1] = mChild[2] = NULL;
-      for (int i=0; i<6; i++) sorted_cell_lists[i] = NULL;
+      mChild[0] = mChild[1] = mChild[2] = nullptr;
+      for (int i=0; i<6; i++) sorted_cell_lists[i] = nullptr;
       for (int i=0; i<3; i++) { this->Bounds[i*2] = VTK_FLOAT_MAX; this->Bounds[i*2+1] = -VTK_FLOAT_MAX; }
     }
     // Destructor
@@ -297,7 +297,7 @@ class BSPNode {
     // BBox
     double       Bounds[6];
   protected:
-    // The child nodes of this one (if present - NULL otherwise)
+    // The child nodes of this one (if present - nullptr otherwise)
     BSPNode   *mChild[3];
     // The axis we subdivide this voxel along
     int        mAxis;

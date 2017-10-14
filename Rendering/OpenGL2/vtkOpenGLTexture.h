@@ -35,23 +35,23 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
 public:
   static vtkOpenGLTexture *New();
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Renders a texture map. It first checks the object's modified time
    * to make sure the texture maps Input is valid, then it invokes the
    * Load() method.
    */
-  void Render(vtkRenderer* ren) VTK_OVERRIDE;
+  void Render(vtkRenderer* ren) override;
 
   /**
    * Implement base class method.
    */
-  void Load(vtkRenderer*) VTK_OVERRIDE;
+  void Load(vtkRenderer*) override;
 
   // Descsription:
   // Clean up after the rendering is complete.
-  void PostRender(vtkRenderer*) VTK_OVERRIDE;
+  void PostRender(vtkRenderer*) override;
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -59,7 +59,7 @@ public:
    * resources to release. Using the same texture object in multiple
    * render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * copy the renderers read buffer into this texture
@@ -88,7 +88,7 @@ public:
   /**
    * Return the texture unit used for this texture
    */
-  int GetTextureUnit() VTK_OVERRIDE;
+  int GetTextureUnit() override;
 
   /**
    * Is this Texture Translucent?
@@ -96,11 +96,11 @@ public:
    * only fully transparent pixels and fully opaque pixels and the
    * Interpolate flag is turn off.
    */
-  int IsTranslucent() VTK_OVERRIDE;
+  int IsTranslucent() override;
 
 protected:
   vtkOpenGLTexture();
-  ~vtkOpenGLTexture() VTK_OVERRIDE;
+  ~vtkOpenGLTexture() override;
 
   vtkTimeStamp   LoadTime;
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
@@ -118,8 +118,8 @@ protected:
 
 
 private:
-  vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
+  vtkOpenGLTexture(const vtkOpenGLTexture&) = delete;
+  void operator=(const vtkOpenGLTexture&) = delete;
 };
 
 #endif

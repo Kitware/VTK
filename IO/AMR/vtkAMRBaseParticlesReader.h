@@ -39,7 +39,7 @@ class VTKIOAMR_EXPORT vtkAMRBaseParticlesReader :
 {
 public:
   vtkTypeMacro( vtkAMRBaseParticlesReader, vtkMultiBlockDataSetAlgorithm );
-  void PrintSelf(ostream &os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkAMRBaseParticlesReader();
-  ~vtkAMRBaseParticlesReader() VTK_OVERRIDE;
+  ~vtkAMRBaseParticlesReader() override;
 
   /**
    * Reads the metadata, e.g., the number of blocks in the file.
@@ -215,8 +215,8 @@ protected:
    */
   int RequestData( vtkInformation *request,
       vtkInformationVector **inputVector,
-      vtkInformationVector *outputVector ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int port, vtkInformation *info ) VTK_OVERRIDE;
+      vtkInformationVector *outputVector ) override;
+  int FillOutputPortInformation( int port, vtkInformation *info ) override;
   //@}
 
   int NumberOfBlocks;
@@ -233,8 +233,8 @@ protected:
   char *FileName;
 
 private:
-  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
+  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ) = delete;
+  void operator=(const vtkAMRBaseParticlesReader& ) = delete;
 };
 
 #endif /* vtkAMRBaseParticlesReader_h */

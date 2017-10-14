@@ -365,7 +365,7 @@ class CellVisibility
 {
 public:
   CellVisibility(vtkStructuredGrid *structuredGrid) : MASKED_CELL_VALUE(vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL),
-                                                      InputStructuredGrid(structuredGrid), InputCellGhostArray(NULL)
+                                                      InputStructuredGrid(structuredGrid), InputCellGhostArray(nullptr)
   {
     if (this->InputStructuredGrid->HasAnyBlankCells() && !this->InputStructuredGrid->HasAnyBlankPoints())
     {
@@ -455,9 +455,9 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   // Used to be passed in as parameteters.
   vtkCellArray *newPolys;
   vtkPoints *newPts;
-  vtkFloatArray *newScalars = NULL;
-  vtkFloatArray *newNormals = NULL;
-  vtkFloatArray *newGradients = NULL;
+  vtkFloatArray *newScalars = nullptr;
+  vtkFloatArray *newNormals = nullptr;
+  vtkFloatArray *newGradients = nullptr;
   vtkPolygonBuilder polyBuilder;
   vtkSmartPointer<vtkIdListCollection> polys =
     vtkSmartPointer<vtkIdListCollection>::New();
@@ -818,19 +818,19 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
     idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    newScalars = NULL;
+    newScalars = nullptr;
   }
   if (newGradients)
   {
     output->GetPointData()->SetVectors(newGradients);
     newGradients->Delete();
-    newGradients = NULL;
+    newGradients = nullptr;
   }
   if (newNormals)
   {
     output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
-    newNormals = NULL;
+    newNormals = nullptr;
   }
 
   delete [] isect1;
@@ -844,7 +844,7 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   switch(input->GetPoints()->GetData()->GetDataType())
   {
     vtkTemplateMacro(
-      ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(0), inScalars, outputTriangles));
+      ContourGrid(self, exExt, scalars, input, output,static_cast<VTK_TT *>(nullptr), inScalars, outputTriangles));
   }
 }
 
@@ -878,7 +878,7 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(vtkStructuredGrid *input,
 
   vtkDebugMacro(<< "Executing 3D structured contour");
 
-  if ( inScalars == NULL )
+  if ( inScalars == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return;

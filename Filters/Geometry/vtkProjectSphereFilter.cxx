@@ -228,7 +228,7 @@ void vtkProjectSphereFilter::TransformCellInformation(
   }
 
   vtkIdType numberOfCells = input->GetNumberOfCells();
-  vtkCellArray* connectivity = NULL;
+  vtkCellArray* connectivity = nullptr;
   vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast(output);
   vtkPolyData* poly = vtkPolyData::SafeDownCast(output);
   if(ugrid)

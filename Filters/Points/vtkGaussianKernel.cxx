@@ -57,7 +57,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
   vtkIdType id;
   double d2, y[3], sum = 0.0;
   weights->SetNumberOfTuples(numPts);
-  double *p = (prob ? prob->GetPointer(0) : NULL);
+  double *p = (prob ? prob->GetPointer(0) : nullptr);
   double *w = weights->GetPointer(0);
   double f2=this->F2;
 

@@ -74,7 +74,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgori
 {
 public:
   vtkTypeMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with user-specified implicit function; InsideOut turned off;
@@ -175,12 +175,12 @@ public:
   /**
    * Return the mtime also considering the locator and clip function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
    * If you want to clip by an arbitrary array, then set its name here.
-   * By default this in NULL and the filter will use the active scalar array.
+   * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName)
@@ -188,11 +188,11 @@ public:
   //@}
 
 protected:
-  vtkGenericClip(vtkImplicitFunction *cf=NULL);
-  ~vtkGenericClip() VTK_OVERRIDE;
+  vtkGenericClip(vtkImplicitFunction *cf=nullptr);
+  ~vtkGenericClip() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   vtkImplicitFunction *ClipFunction;
 
@@ -213,8 +213,8 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericClip(const vtkGenericClip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericClip&) VTK_DELETE_FUNCTION;
+  vtkGenericClip(const vtkGenericClip&) = delete;
+  void operator=(const vtkGenericClip&) = delete;
 };
 
 #endif

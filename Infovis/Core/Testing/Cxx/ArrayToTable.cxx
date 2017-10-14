@@ -54,7 +54,7 @@ int ArrayToTable(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     test_expression(c->GetOutput()->GetNumberOfColumns() == 1);
     test_expression(c->GetOutput()->GetNumberOfRows() == 2);
-    test_expression(vtkStdString(c->GetOutput()->GetColumn(0)->GetName()) == "");
+    test_expression(vtkStdString(c->GetOutput()->GetColumn(0)->GetName()).empty());
     test_expression(c->GetOutput()->GetValue(0, 0).ToString() == "Howdy");
     test_expression(c->GetOutput()->GetValue(1, 0).ToString() == "World!");
 

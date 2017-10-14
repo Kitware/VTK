@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLVolumeTextureMapper3D
 {
 public:
   vtkTypeMacro(vtkOpenGLVolumeTextureMapper3D,vtkVolumeTextureMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOpenGLVolumeTextureMapper3D *New();
 
@@ -51,14 +51,14 @@ public:
    * not support the required extensions
    */
   int IsRenderSupported(vtkVolumeProperty *,
-                        vtkRenderer *ren) VTK_OVERRIDE;
+                        vtkRenderer *ren) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkVolume *vol) override;
 
   // Desciption:
   // Initialize when we go to render, or go to answer the
@@ -71,11 +71,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkOpenGLVolumeTextureMapper3D();
-  ~vtkOpenGLVolumeTextureMapper3D() VTK_OVERRIDE;
+  ~vtkOpenGLVolumeTextureMapper3D() override;
 
   void GetLightInformation(vtkRenderer *ren,
                            vtkVolume *vol,
@@ -148,7 +148,7 @@ protected:
    * Check if we can support this texture size for the number of components.
    */
   int IsTextureSizeSupported(int size[3],
-                             int components) VTK_OVERRIDE;
+                             int components) override;
 
   /**
    * Common code for setting up interpolation / clamping on 3D textures
@@ -156,8 +156,8 @@ protected:
   void Setup3DTextureParameters( vtkVolumeProperty *property );
 
 private:
-  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&) = delete;
+  void operator=(const vtkOpenGLVolumeTextureMapper3D&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

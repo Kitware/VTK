@@ -40,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkCameraActor : public vtkProp3D
 public:
   static vtkCameraActor *New();
   vtkTypeMacro(vtkCameraActor, vtkProp3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,29 +62,29 @@ public:
   /**
    * Support the standard render methods.
    */
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
 
   /**
    * Does this prop have some translucent polygonal geometry? No.
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
+  double *GetBounds() override;
 
   /**
    * Get the actors mtime plus consider its properties and texture if set.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Get property of the internal actor.
@@ -98,7 +98,7 @@ public:
 
 protected:
   vtkCameraActor();
-  ~vtkCameraActor() VTK_OVERRIDE;
+  ~vtkCameraActor() override;
 
   void UpdateViewProps();
 
@@ -110,8 +110,8 @@ protected:
   vtkActor *FrustumActor;
 
 private:
-  vtkCameraActor(const vtkCameraActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCameraActor&) VTK_DELETE_FUNCTION;
+  vtkCameraActor(const vtkCameraActor&) = delete;
+  void operator=(const vtkCameraActor&) = delete;
 };
 
 #endif

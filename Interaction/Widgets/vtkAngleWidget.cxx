@@ -35,7 +35,7 @@ class vtkAngleWidgetCallback : public vtkCommand
 public:
   static vtkAngleWidgetCallback *New()
     { return new vtkAngleWidgetCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {
@@ -210,7 +210,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
     {
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(X,Y));
 
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -297,7 +297,7 @@ void vtkAngleWidget::SetEnabled(int enabling)
     this->WidgetRep->BuildRepresentation();
     this->CurrentRenderer->AddViewProp(this->WidgetRep);
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling------------------
@@ -345,8 +345,8 @@ void vtkAngleWidget::SetEnabled(int enabling)
       this->Point2Widget->SetEnabled(0);
     }
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
 
@@ -384,7 +384,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
   {
     self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkAngleWidget::Define;
-    self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     double e[2];
     e[0] = static_cast<double>(X);
     e[1] = static_cast<double>(Y);
@@ -417,7 +417,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
       self->Point2Widget->SetEnabled(1);
       self->CurrentHandle = (-1);
       self->ReleaseFocus();
-      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
     }
   }
 
@@ -444,7 +444,7 @@ void vtkAngleWidget::AddPointAction(vtkAbstractWidget *w)
     {
       self->CurrentHandle = 2;
     }
-    self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+    self->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
   }
 
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -480,13 +480,13 @@ void vtkAngleWidget::MoveAction(vtkAbstractWidget *w)
       reinterpret_cast<vtkAngleRepresentation*>(self->WidgetRep)->
         WidgetInteraction(e);
     }
-    self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1);
   }
 
   else //must be moving a handle, invoke a event for the handle widgets
   {
-    self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+    self->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
   }
 
   self->WidgetRep->BuildRepresentation();
@@ -507,7 +507,7 @@ void vtkAngleWidget::EndSelectAction(vtkAbstractWidget *w)
   }
 
   self->ReleaseFocus();
-  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+  self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
   self->CurrentHandle = (-1);
   self->WidgetRep->BuildRepresentation();
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -520,13 +520,13 @@ void vtkAngleWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkAngleWidget::StartAngleInteraction(int)
 {
   this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkAngleWidget::AngleInteraction(int)
 {
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -534,7 +534,7 @@ void vtkAngleWidget::EndAngleInteraction(int)
 {
   this->Superclass::EndInteraction();
 
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------

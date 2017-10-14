@@ -420,14 +420,14 @@ class vtkTIPWCallback : public vtkCommand
 public:
   static vtkTIPWCallback *New()
   { return new vtkTIPWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImplicitPlaneWidget *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget*>(caller);
     planeWidget->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
-  vtkTIPWCallback():Plane(0),Actor(0) {}
+  vtkTIPWCallback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 

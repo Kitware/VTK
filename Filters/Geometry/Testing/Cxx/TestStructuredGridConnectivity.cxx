@@ -59,9 +59,9 @@ namespace
 // the points by color -- 0(off) or 1(on) -- to indicate whether or not a
 // particular flag is "ON"
 void AttachPointFlagsArray(
-    vtkUniformGrid *grid, const int flag, std::string label )
+    vtkUniformGrid *grid, const int flag, const std::string& label )
 {
-  assert( "pre: grid should not be NULL!" && (grid != NULL) );
+  assert( "pre: grid should not be nullptr!" && (grid != nullptr) );
 
   vtkUnsignedIntArray *flags = vtkUnsignedIntArray::New();
   flags->SetName( label.c_str() ) ;
@@ -93,9 +93,9 @@ void AttachPointFlagsArray(
 // the points by color -- 0(off) or 1(on) -- to indicate whether or not a
 // particular flag is "ON"
 void AttachCellFlagsArray(
-    vtkUniformGrid *grid, const int flag, std::string label )
+    vtkUniformGrid *grid, const int flag, const std::string& label )
 {
-  assert( "pre: grid should not be NULL" && (grid != NULL) );
+  assert( "pre: grid should not be nullptr" && (grid != nullptr) );
 
   vtkUnsignedIntArray *flags = vtkUnsignedIntArray::New();
   flags->SetName( label.c_str() );
@@ -127,13 +127,13 @@ void AttachCellFlagsArray(
 // for each ghost property that label whether a property is off(0) or on(1).
 void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
   unsigned int block=0;
   for( ; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *myGrid =
        vtkUniformGrid::SafeDownCast(mbds->GetBlock( block ) );
-    if( myGrid != NULL )
+    if( myGrid != nullptr )
     {
       // original IGNORE
       AttachPointFlagsArray( myGrid, vtkDataSetAttributes::DUPLICATEPOINT,
@@ -151,13 +151,13 @@ void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
 // corresponding to the XYZ coordinates at that location
 void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
 {
-  assert( "pre: grd should not be NULL" && (grd != NULL)  );
+  assert( "pre: grd should not be nullptr" && (grd != nullptr)  );
 
   // Get the grid's point-data and cell-data data-structures
   vtkCellData  *CD = grd->GetCellData();
   vtkPointData *PD = grd->GetPointData();
-  assert( "pre: Cell data is NULL" && (CD != NULL) );
-  assert( "pre: Point data is NULL" && (PD != NULL)  );
+  assert( "pre: Cell data is nullptr" && (CD != nullptr) );
+  assert( "pre: Point data is nullptr" && (PD != nullptr)  );
 
   std::ostringstream oss;
 
@@ -182,7 +182,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
   for( vtkIdType cellIdx=0; cellIdx < grd->GetNumberOfCells(); ++cellIdx )
   {
     vtkCell *c = grd->GetCell( cellIdx );
-    assert( "pre: cell is not NULL" && (c != NULL) );
+    assert( "pre: cell is not nullptr" && (c != nullptr) );
 
     double centroid[3];
     double xsum = 0.0;
@@ -316,7 +316,7 @@ vtkMultiBlockDataSet* GetDataSet(
   wholeGrid->Delete();
   gridPartitioner->Delete();
 
-  assert( "pre: mbds is NULL" && (mbds != NULL) );
+  assert( "pre: mbds is nullptr" && (mbds != nullptr) );
   return( mbds );
 }
 
@@ -325,7 +325,7 @@ vtkMultiBlockDataSet* GetDataSet(
 // Computes the total number of nodes in the multi-block dataset.
 int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
 {
-  assert( "multi-block grid is NULL" && (multiblock != NULL) );
+  assert( "multi-block grid is nullptr" && (multiblock != nullptr) );
 
   int numNodes = 0;
 
@@ -334,7 +334,7 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
     vtkUniformGrid *grid =
         vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
 
-    if( grid != NULL )
+    if( grid != nullptr )
     {
       vtkIdType pntIdx = 0;
       for( ; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
@@ -347,7 +347,7 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
           ++numNodes;
         }
       } // END for all nodes
-    } // END if grid != NULL
+    } // END if grid != nullptr
 
   } // END for all blocks
 
@@ -359,7 +359,7 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
 // Computes the total number of nodes in the multi-block dataset.
 int GetTotalNumberOfCells( vtkMultiBlockDataSet *multiblock )
 {
-  assert( "multi-block grid is NULL" && (multiblock != NULL) );
+  assert( "multi-block grid is nullptr" && (multiblock != nullptr) );
 
   int numCells = 0;
 
@@ -368,7 +368,7 @@ int GetTotalNumberOfCells( vtkMultiBlockDataSet *multiblock )
     vtkUniformGrid *grid =
         vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
 
-    if( grid != NULL )
+    if( grid != nullptr )
     {
       vtkIdType cellIdx = 0;
       for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
@@ -381,7 +381,7 @@ int GetTotalNumberOfCells( vtkMultiBlockDataSet *multiblock )
           ++numCells;
         }
       } // END for all cells
-    } // END if grid != NULL
+    } // END if grid != nullptr
   } // END for all blocks
   return( numCells );
 }
@@ -390,18 +390,18 @@ int GetTotalNumberOfCells( vtkMultiBlockDataSet *multiblock )
 void RegisterGrids(
     vtkMultiBlockDataSet *mbds, vtkStructuredGridConnectivity *connectivity )
 {
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
-  assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
+  assert( "pre: connectivity is nullptr!" && (connectivity != nullptr) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
   {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
-    assert( "pre: grid should not be NULL!" && (grid != NULL) );
+    assert( "pre: grid should not be nullptr!" && (grid != nullptr) );
     grid->AllocatePointGhostArray();
     grid->AllocateCellGhostArray();
 
     vtkInformation *info = mbds->GetMetaData( block );
-    assert( "pre: metadata should not be NULL" && (info != NULL) );
+    assert( "pre: metadata should not be nullptr" && (info != nullptr) );
     assert( "pre: must have piece extent!" &&
             info->Has(vtkDataObject::PIECE_EXTENT() ) );
 
@@ -411,7 +411,7 @@ void RegisterGrids(
         grid->GetCellGhostArray(),
         grid->GetPointData(),
         grid->GetCellData(),
-        NULL);
+        nullptr);
   } // END for all blocks
 }
 
@@ -420,10 +420,10 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
 
 
-  assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
+  assert( "pre: Multi-block is nullptr!" && (mbds != nullptr) );
 
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
-  assert( "pre: Cannot allocate writer" && (writer != NULL) );
+  assert( "pre: Cannot allocate writer" && (writer != nullptr) );
 
   std::ostringstream oss;
   oss.str("");
@@ -440,7 +440,7 @@ void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 //------------------------------------------------------------------------------
 vtkUniformGrid* GetGhostedGridFromGrid( vtkUniformGrid *grid, int gext[6] )
 {
-  assert( "pre: input grid is NULL" && (grid != NULL) );
+  assert( "pre: input grid is nullptr" && (grid != nullptr) );
   vtkUniformGrid *newGrid = vtkUniformGrid::New();
 
   int dims[3];
@@ -467,8 +467,8 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
     vtkMultiBlockDataSet *mbds,
     vtkStructuredGridConnectivity *SGC, int numGhosts )
 {
-  assert( "pre: Multi-block dataset is not NULL" && (mbds != NULL) );
-  assert( "pre: SGC is NULL" && (SGC != NULL) );
+  assert( "pre: Multi-block dataset is not nullptr" && (mbds != nullptr) );
+  assert( "pre: SGC is nullptr" && (SGC != nullptr) );
   assert( "pre: Number of ghosts requested is invalid" && (numGhosts >= 1) );
   assert( "pre: Number of blocks in input must match registered grids!" &&
           mbds->GetNumberOfBlocks()==SGC->GetNumberOfGrids() );
@@ -485,14 +485,14 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
   {
     vtkUniformGrid *grid =
         vtkUniformGrid::SafeDownCast( mbds->GetBlock(block) );
-    assert( "pre: Uniform grid should not be NULL" && (grid != NULL) );
+    assert( "pre: Uniform grid should not be nullptr" && (grid != nullptr) );
 
 
     SGC->GetGridExtent( block, GridExtent );
     SGC->GetGhostedGridExtent( block, GhostedGridExtent );
 
     vtkUniformGrid *ghostedGrid= GetGhostedGridFromGrid(grid,GhostedGridExtent);
-    assert( "pre:ghosted grid is NULL!" && (ghostedGrid != NULL) );
+    assert( "pre:ghosted grid is nullptr!" && (ghostedGrid != nullptr) );
 
     // Copy the point data
     ghostedGrid->GetPointData()->DeepCopy(
@@ -571,7 +571,7 @@ int TestStructuredGridConnectivity_internal( int argc, char *argv[] )
       // STEP 0: Construct the dataset
       vtkMultiBlockDataSet *mbds =
           GetDataSet(3,numberOfPartitions[ i ], numGhostLayers[ j ] );
-      assert( "pre: multi-block is NULL" && (mbds != NULL) );
+      assert( "pre: multi-block is nullptr" && (mbds != nullptr) );
       assert( "pre: NumBlocks mismatch!" &&
        (numberOfPartitions[i] ==static_cast<int>(mbds->GetNumberOfBlocks()) ) );
 
@@ -688,7 +688,7 @@ bool CheckArrays( vtkDoubleArray *computed, vtkDoubleArray *expected )
 bool CompareFieldsForGrid( vtkUniformGrid *grid )
 {
   // Sanity check
-  assert( "pre: grid should not be NULL" && (grid != NULL) );
+  assert( "pre: grid should not be nullptr" && (grid != nullptr) );
   assert( "pre: COMPUTED-CellXYZ array is expected!" &&
            grid->GetCellData()->HasArray( "COMPUTED-CellXYZ" ) );
   assert( "pre: EXPECTED-CellXYZ array is expected!" &&
@@ -701,12 +701,12 @@ bool CompareFieldsForGrid( vtkUniformGrid *grid )
   vtkDoubleArray *computedCellData =
       vtkArrayDownCast<vtkDoubleArray>(
           grid->GetCellData()->GetArray( "COMPUTED-CellXYZ" ) );
-  assert( "pre: computedCellData is NULL" && (computedCellData != NULL) );
+  assert( "pre: computedCellData is nullptr" && (computedCellData != nullptr) );
 
   vtkDoubleArray *expectedCellData =
       vtkArrayDownCast<vtkDoubleArray>(
           grid->GetCellData()->GetArray( "EXPECTED-CellXYZ" ) );
-  assert( "pre: expectedCellData is NULL" && (expectedCellData != NULL) );
+  assert( "pre: expectedCellData is nullptr" && (expectedCellData != nullptr) );
 
   bool status = CheckArrays( computedCellData, expectedCellData );
   if( !status )
@@ -717,12 +717,12 @@ bool CompareFieldsForGrid( vtkUniformGrid *grid )
   vtkDoubleArray *computedPointData =
       vtkArrayDownCast<vtkDoubleArray>(
           grid->GetPointData()->GetArray( "COMPUTED-NodeXYZ" ) );
-  assert( "pre: computePointData is NULL" && (computedPointData != NULL) );
+  assert( "pre: computePointData is nullptr" && (computedPointData != nullptr) );
 
   vtkDoubleArray *expectedPointData =
       vtkArrayDownCast<vtkDoubleArray>(
           grid->GetPointData()->GetArray( "EXPECTED-NodeXYZ" ) );
-  assert( "pre: expectedPointData is NULL" && (expectedPointData != NULL) );
+  assert( "pre: expectedPointData is nullptr" && (expectedPointData != nullptr) );
 
   status = CheckArrays( computedPointData, expectedPointData );
   return( status );

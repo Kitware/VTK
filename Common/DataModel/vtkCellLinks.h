@@ -57,14 +57,14 @@ public:
    */
   static vtkCellLinks *New();
   vtkTypeMacro(vtkCellLinks,vtkAbstractCellLinks);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Build the link list array. All subclasses of vtkAbstractCellLinks
    * must support this method.
    */
-  void BuildLinks(vtkDataSet *data) VTK_OVERRIDE;
+  void BuildLinks(vtkDataSet *data) override;
 
   /**
    * Build the link list array with a provided connectivity array.
@@ -162,8 +162,8 @@ public:
   void DeepCopy(vtkCellLinks *src);
 
 protected:
-  vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
-  ~vtkCellLinks() VTK_OVERRIDE;
+  vtkCellLinks():Array(nullptr),Size(0),MaxId(-1),Extend(1000) {}
+  ~vtkCellLinks() override;
 
   /**
    * Increment the count of the number of cells using the point.
@@ -185,8 +185,8 @@ protected:
   Link *Resize(vtkIdType sz);  // function to resize data
 
 private:
-  vtkCellLinks(const vtkCellLinks&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
+  vtkCellLinks(const vtkCellLinks&) = delete;
+  void operator=(const vtkCellLinks&) = delete;
 };
 
 //----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ inline void vtkCellLinks::DeletePoint(vtkIdType ptId)
 {
   this->Array[ptId].ncells = 0;
   delete [] this->Array[ptId].cells;
-  this->Array[ptId].cells = NULL;
+  this->Array[ptId].cells = nullptr;
 }
 
 //----------------------------------------------------------------------------

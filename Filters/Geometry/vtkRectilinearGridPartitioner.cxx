@@ -77,10 +77,10 @@ void vtkRectilinearGridPartitioner::ExtractGridCoordinates(
     vtkRectilinearGrid *grd, int subext[6],
     vtkDoubleArray *xcoords, vtkDoubleArray *ycoords, vtkDoubleArray *zcoords )
 {
-  assert("pre: NULL rectilinear grid" && (grd != NULL) );
-  assert("pre: NULL xcoords" && (xcoords != NULL) );
-  assert("pre: NULL ycoords" && (ycoords != NULL) );
-  assert("pre: NULL zcoords" && (zcoords != NULL) );
+  assert("pre: nullptr rectilinear grid" && (grd != nullptr) );
+  assert("pre: nullptr xcoords" && (xcoords != nullptr) );
+  assert("pre: nullptr ycoords" && (ycoords != nullptr) );
+  assert("pre: nullptr zcoords" && (zcoords != nullptr) );
 
   int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(subext);
 
@@ -118,17 +118,17 @@ int vtkRectilinearGridPartitioner::RequestData(
 {
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert("pre: input information object is NULL" && (input != NULL) );
+  assert("pre: input information object is nullptr" && (input != nullptr) );
   vtkRectilinearGrid *grd =
      vtkRectilinearGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert("pre: output information object is NULL" && (output != NULL) );
+  assert("pre: output information object is nullptr" && (output != nullptr) );
   vtkMultiBlockDataSet *multiblock =
       vtkMultiBlockDataSet::SafeDownCast(
           output->Get(vtkDataObject::DATA_OBJECT()));
-  assert("pre: multi-block grid is NULL" && (multiblock != NULL) );
+  assert("pre: multi-block grid is nullptr" && (multiblock != nullptr) );
 
   // STEP 2: Get the global extent
   int extent[6];
@@ -136,7 +136,7 @@ int vtkRectilinearGridPartitioner::RequestData(
 
   // STEP 3: Setup extent partitioner
   vtkExtentRCBPartitioner *extentPartitioner = vtkExtentRCBPartitioner::New();
-  assert("pre: extent partitioner is NULL" && (extentPartitioner != NULL) );
+  assert("pre: extent partitioner is nullptr" && (extentPartitioner != nullptr) );
   extentPartitioner->SetGlobalExtent( extent );
   extentPartitioner->SetNumberOfPartitions( this->NumberOfPartitions );
   extentPartitioner->SetNumberOfGhostLayers( this->NumberOfGhostLayers );
@@ -181,7 +181,7 @@ int vtkRectilinearGridPartitioner::RequestData(
     zcoords->Delete();
 
     vtkInformation *metadata = multiblock->GetMetaData( blockIdx );
-    assert( "pre: metadata is NULL" && (metadata != NULL) );
+    assert( "pre: metadata is nullptr" && (metadata != nullptr) );
     metadata->Set( vtkDataObject::PIECE_EXTENT(), subext, 6);
 
     multiblock->SetBlock(blockIdx, subgrid);

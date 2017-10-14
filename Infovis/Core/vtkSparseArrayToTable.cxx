@@ -78,7 +78,7 @@ vtkStandardNewMacro(vtkSparseArrayToTable);
 // ----------------------------------------------------------------------
 
 vtkSparseArrayToTable::vtkSparseArrayToTable() :
-  ValueColumn(0)
+  ValueColumn(nullptr)
 {
   this->SetValueColumn("value");
 
@@ -90,7 +90,7 @@ vtkSparseArrayToTable::vtkSparseArrayToTable() :
 
 vtkSparseArrayToTable::~vtkSparseArrayToTable()
 {
-  this->SetValueColumn(0);
+  this->SetValueColumn(nullptr);
 }
 
 // ----------------------------------------------------------------------

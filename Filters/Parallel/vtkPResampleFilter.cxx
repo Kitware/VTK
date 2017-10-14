@@ -38,7 +38,7 @@ vtkCxxSetObjectMacro(vtkPResampleFilter, Controller, vtkMultiProcessController);
 vtkPResampleFilter::vtkPResampleFilter()
   : UseInputBounds(0)
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->UseInputBoundsOn();
   this->CustomSamplingBounds[0] = this->CustomSamplingBounds[2] = this->CustomSamplingBounds[4] = 0;
@@ -51,7 +51,7 @@ vtkPResampleFilter::vtkPResampleFilter()
 //----------------------------------------------------------------------------
 vtkPResampleFilter::~vtkPResampleFilter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -167,7 +167,7 @@ int vtkPResampleFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkNew<vtkPProbeFilter> probeFilter;
   probeFilter->SetController(this->Controller);
   probeFilter->SetSourceData(input);
-  probeFilter->SetInputData(source.GetPointer());
+  probeFilter->SetInputData(source);
   probeFilter->Update();
   output->ShallowCopy(probeFilter->GetOutput());
 

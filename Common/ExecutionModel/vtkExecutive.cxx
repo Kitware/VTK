@@ -81,7 +81,7 @@ vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
   if(newNumberOfPorts > oldNumberOfPorts)
   {
     // Create new vectors.
-    this->InputInformation.resize(newNumberOfPorts, 0);
+    this->InputInformation.resize(newNumberOfPorts, nullptr);
     for(int i=oldNumberOfPorts; i < newNumberOfPorts; ++i)
     {
       this->InputInformation[i] = vtkInformationVector::New();
@@ -94,10 +94,10 @@ vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
     {
       if(vtkInformationVector* v = this->InputInformation[i])
       {
-        // Set the pointer to NULL first to avoid reporting of the
+        // Set the pointer to nullptr first to avoid reporting of the
         // entry if deleting the vector causes a garbage collection
         // reference walk.
-        this->InputInformation[i] = 0;
+        this->InputInformation[i] = nullptr;
         v->Delete();
       }
     }
@@ -111,7 +111,7 @@ vtkExecutiveInternals::GetInputInformation(int newNumberOfPorts)
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -120,16 +120,16 @@ vtkExecutive::vtkExecutive()
 {
   this->ExecutiveInternal = new vtkExecutiveInternals;
   this->OutputInformation = vtkInformationVector::New();
-  this->Algorithm = 0;
+  this->Algorithm = nullptr;
   this->InAlgorithm = 0;
-  this->SharedInputInformation = 0;
-  this->SharedOutputInformation = 0;
+  this->SharedInputInformation = nullptr;
+  this->SharedOutputInformation = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkExecutive::~vtkExecutive()
 {
-  this->SetAlgorithm(0);
+  this->SetAlgorithm(nullptr);
   if(this->OutputInformation)
   {
     this->OutputInformation->Delete();
@@ -216,7 +216,7 @@ vtkInformation* vtkExecutive::GetInputInformation(int port, int connection)
 {
   if(!this->InputPortIndexInRange(port, "get connected input information from"))
   {
-    return 0;
+    return nullptr;
   }
   vtkInformationVector* inVector = this->GetInputInformation()[port];
   return inVector->GetInformationObject(connection);
@@ -227,7 +227,7 @@ vtkInformationVector* vtkExecutive::GetInputInformation(int port)
 {
   if(!this->InputPortIndexInRange(port, "get input information vector from"))
   {
-    return 0;
+    return nullptr;
   }
   return this->GetInputInformation()[port];
 }
@@ -244,7 +244,7 @@ vtkInformationVector* vtkExecutive::GetOutputInformation()
   // Use this executive's output information vector.
   if (!this->Algorithm)
   {
-    return 0;
+    return nullptr;
   }
   // Set the length of the vector to match the number of ports.
   int oldNumberOfPorts =
@@ -282,13 +282,13 @@ vtkExecutive* vtkExecutive::GetInputExecutive(int port, int index)
                   << "), which has "
                   << this->GetNumberOfInputConnections(port)
                   << " connections.");
-    return 0;
+    return nullptr;
   }
   if(vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(port, index))
   {
     return input->GetProducer()->GetExecutive();
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -446,13 +446,13 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
 {
   if(!this->OutputPortIndexInRange(port, "get data for"))
   {
-    return 0;
+    return nullptr;
   }
 
   vtkInformation* info = this->GetOutputInformation(port);
   if (!info)
   {
-    return 0;
+    return nullptr;
   }
 
   // for backward compatibility we bring Outputs up to date if they do not
@@ -500,7 +500,7 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))
   {
-    return 0;
+    return nullptr;
   }
 
   vtkInformationVector* inVector = this->GetInputInformation()[port];
@@ -514,7 +514,7 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
   }
   else
   {
-    return 0;
+    return nullptr;
   }
 }
 
@@ -524,12 +524,12 @@ vtkDataObject* vtkExecutive::GetInputData
 {
   if (!inInfoVec[port])
   {
-    return 0;
+    return nullptr;
   }
   vtkInformation *info = inInfoVec[port]->GetInformationObject(index);
   if (!info)
   {
-    return 0;
+    return nullptr;
   }
   return info->Get(vtkDataObject::DATA_OBJECT());
 }
@@ -632,7 +632,7 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
     {
       vtkInformation* info = inVector->GetInformationObject(j);
       // Get the executive producing this input.  If there is none, then
-      // it is a NULL input.
+      // it is a nullptr input.
       vtkExecutive* e;
       int producerPort;
       vtkExecutive::PRODUCER()->Get(info,e,producerPort);

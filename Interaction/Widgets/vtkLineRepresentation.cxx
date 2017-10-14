@@ -55,9 +55,9 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->HandleRepresentation->SetHotSpotSize(1.0);
   this->HandleRepresentation->SetPlaceFactor(1.0);
   this->HandleRepresentation->TranslationModeOn();
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->LineHandleRepresentation = NULL;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
+  this->LineHandleRepresentation = nullptr;
   this->InstantiateHandleRepresentation();
 
   // Miscellaneous parameters
@@ -197,7 +197,7 @@ vtkLineRepresentation::~vtkLineRepresentation()
   this->BoundingBox->Delete();
 
   delete [] this->DistanceAnnotationFormat;
-  this->DistanceAnnotationFormat = NULL;
+  this->DistanceAnnotationFormat = nullptr;
 
   this->TextInput->Delete();
   this->TextMapper->Delete();

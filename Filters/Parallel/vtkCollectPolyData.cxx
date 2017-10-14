@@ -34,18 +34,18 @@ vtkCxxSetObjectMacro(vtkCollectPolyData,SocketController, vtkSocketController);
 vtkCollectPolyData::vtkCollectPolyData()
 {
   this->PassThrough = 0;
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkCollectPolyData::~vtkCollectPolyData()
 {
-  this->SetController(0);
-  this->SetSocketController(0);
+  this->SetController(nullptr);
+  this->SetSocketController(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -87,7 +87,7 @@ int vtkCollectPolyData::RequestData(
   int numProcs, myId;
   int idx;
 
-  if (this->Controller == NULL && this->SocketController == NULL)
+  if (this->Controller == nullptr && this->SocketController == nullptr)
   { // Running as a single process.
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
@@ -95,7 +95,7 @@ int vtkCollectPolyData::RequestData(
     return 1;
   }
 
-  if (this->Controller == NULL && this->SocketController != NULL)
+  if (this->Controller == nullptr && this->SocketController != nullptr)
   { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
     {
@@ -105,7 +105,7 @@ int vtkCollectPolyData::RequestData(
       output->GetPointData()->PassData(pd->GetPointData());
       output->GetCellData()->PassData(pd->GetCellData());
       pd->Delete();
-      pd = NULL;
+      pd = nullptr;
       return 1;
     }
     // If not collected, output will be empty from initialization.
@@ -126,7 +126,7 @@ int vtkCollectPolyData::RequestData(
 
   // Collect.
   vtkAppendPolyData *append = vtkAppendPolyData::New();
-  vtkPolyData *pd = NULL;;
+  vtkPolyData *pd = nullptr;;
 
   if (myId == 0)
   {
@@ -142,7 +142,7 @@ int vtkCollectPolyData::RequestData(
       this->Controller->Receive(pd, idx, 121767);
       append->AddInputData(pd);
       pd->Delete();
-      pd = NULL;
+      pd = nullptr;
     }
     append->Update();
     input = append->GetOutput();
@@ -158,13 +158,13 @@ int vtkCollectPolyData::RequestData(
       output->GetCellData()->PassData(input->GetCellData());
     }
     append->Delete();
-    append = NULL;
+    append = nullptr;
   }
   else
   {
     this->Controller->Send(input, 0, 121767);
     append->Delete();
-    append = NULL;
+    append = nullptr;
   }
 
   return 1;

@@ -58,7 +58,7 @@ public:
   vtkTypeMacro(vtkProjectedTetrahedraMapper,
                        vtkUnstructuredGridVolumeMapper);
   static vtkProjectedTetrahedraMapper *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   virtual void SetVisibilitySort(vtkVisibilitySort *sort);
   vtkGetObjectMacro(VisibilitySort, vtkVisibilitySort);
@@ -80,7 +80,7 @@ public:
 
 protected:
   vtkProjectedTetrahedraMapper();
-  ~vtkProjectedTetrahedraMapper() VTK_OVERRIDE;
+  ~vtkProjectedTetrahedraMapper() override;
 
   vtkVisibilitySort *VisibilitySort;
 
@@ -88,11 +88,11 @@ protected:
    * The visibility sort will probably make a reference loop by holding a
    * reference to the input.
    */
-  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector *collector) override;
 
 private:
-  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
+  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) = delete;
+  void operator=(const vtkProjectedTetrahedraMapper &) = delete;
 };
 
 #endif

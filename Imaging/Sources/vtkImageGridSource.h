@@ -31,7 +31,7 @@ class VTKIMAGINGSOURCES_EXPORT vtkImageGridSource : public vtkImageAlgorithm
 public:
   static vtkImageGridSource *New();
   vtkTypeMacro(vtkImageGridSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkImageGridSource();
-  ~vtkImageGridSource()VTK_OVERRIDE {}
+  ~vtkImageGridSource() override {}
 
   int GridSpacing[3];
   int GridOrigin[3];
@@ -127,12 +127,12 @@ protected:
 
   int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
 
 private:
-  vtkImageGridSource(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
+  vtkImageGridSource(const vtkImageGridSource&) = delete;
+  void operator=(const vtkImageGridSource&) = delete;
 };
 
 

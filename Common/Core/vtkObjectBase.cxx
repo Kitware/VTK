@@ -40,7 +40,7 @@ class vtkObjectBaseToWeakPointerBaseFriendship
 public:
   static void ClearPointer(vtkWeakPointerBase *p)
   {
-    p->Object = NULL;
+    p->Object = nullptr;
   }
 };
 
@@ -74,7 +74,7 @@ ostream& operator<<(ostream& os, vtkObjectBase& o)
 vtkObjectBase::vtkObjectBase()
 {
   this->ReferenceCount = 1;
-  this->WeakPointers = 0;
+  this->WeakPointers = nullptr;
 #ifdef VTK_DEBUG_LEAKS
   vtkDebugLeaks::ConstructingObject(this);
 #endif
@@ -139,14 +139,14 @@ vtkTypeBool vtkObjectBase::IsA(const char *type)
 // will not work with reference counting.
 void vtkObjectBase::Delete()
 {
-  this->UnRegister(static_cast<vtkObjectBase *>(NULL));
+  this->UnRegister(static_cast<vtkObjectBase *>(nullptr));
 }
 
 void vtkObjectBase::FastDelete()
 {
   // Remove the reference without doing a collection check even if
   // this object normally participates in garbage collection.
-  this->UnRegisterInternal(0, 0);
+  this->UnRegisterInternal(nullptr, 0);
 }
 
 void vtkObjectBase::Print(ostream& os)

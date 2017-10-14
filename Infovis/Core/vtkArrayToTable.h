@@ -39,22 +39,22 @@ class VTKINFOVISCORE_EXPORT vtkArrayToTable : public vtkTableAlgorithm
 public:
   static vtkArrayToTable* New();
   vtkTypeMacro(vtkArrayToTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkArrayToTable();
-  ~vtkArrayToTable() VTK_OVERRIDE;
+  ~vtkArrayToTable() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkArrayToTable(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
+  vtkArrayToTable(const vtkArrayToTable&) = delete;
+  void operator=(const vtkArrayToTable&) = delete;
 };
 
 #endif

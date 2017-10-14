@@ -42,10 +42,10 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompressCompositer : public vtkCompositer
 public:
   static vtkCompressCompositer *New();
   vtkTypeMacro(vtkCompressCompositer,vtkCompositer);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  virtual void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
-                               vtkDataArray *pTmp, vtkFloatArray *zTmp) VTK_OVERRIDE;
+  void CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
+                       vtkDataArray *pTmp, vtkFloatArray *zTmp) override;
 
   /**
    * I am granting access to these methods and making them static
@@ -63,7 +63,7 @@ public:
                                  vtkFloatArray *outZ, vtkDataArray *outP);
 protected:
   vtkCompressCompositer();
-  ~vtkCompressCompositer();
+  ~vtkCompressCompositer() override;
 
 
   vtkDataArray *InternalPData;
@@ -72,8 +72,8 @@ protected:
   vtkTimerLog *Timer;
 
 private:
-  vtkCompressCompositer(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
+  vtkCompressCompositer(const vtkCompressCompositer&) = delete;
+  void operator=(const vtkCompressCompositer&) = delete;
 };
 
 #endif

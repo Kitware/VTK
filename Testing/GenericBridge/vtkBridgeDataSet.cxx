@@ -44,7 +44,7 @@ vtkStandardNewMacro(vtkBridgeDataSet);
 // Default constructor.
 vtkBridgeDataSet::vtkBridgeDataSet(  )
 {
-  this->Implementation = 0;
+  this->Implementation = nullptr;
   this->Types = vtkCellTypes::New();
   this->Tessellator = vtkSimpleCellTessellator::New();
 }
@@ -66,7 +66,7 @@ void vtkBridgeDataSet::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "implementation: ";
-  if(this->Implementation==0)
+  if(this->Implementation==nullptr)
   {
     os << "(none)" << endl;
   }
@@ -99,7 +99,7 @@ void vtkBridgeDataSet::SetDataSet(vtkDataSet *ds)
   vtkSetObjectBodyMacro(Implementation,vtkDataSet,ds);
   // refresh the attribute collection
   this->Attributes->Reset();
-  if(ds!=0)
+  if(ds!=nullptr)
   {
     // point data
     pd=ds->GetPointData();
@@ -168,7 +168,7 @@ void vtkBridgeDataSet::ComputeNumberOfCellsAndTypes()
 
      this->Types->Reset();
 
-     if(this->Implementation!=0)
+     if(this->Implementation!=nullptr)
      {
        cellId=0;
        while(cellId<numCells)
@@ -221,7 +221,7 @@ vtkIdType vtkBridgeDataSet::GetNumberOfCells(int dim)
   assert("pre: valid_dim_range" && (dim>=-1) && (dim<=3));
 
   vtkIdType result=0;
-  if(this->Implementation!=0)
+  if(this->Implementation!=nullptr)
   {
     if(dim==-1)
     {
@@ -305,7 +305,7 @@ int vtkBridgeDataSet::GetCellDimension()
 // \pre types_exist: types!=0
 void vtkBridgeDataSet::GetCellTypes(vtkCellTypes *types)
 {
-  assert("pre: types_exist" && types!=0);
+  assert("pre: types_exist" && types!=nullptr);
 
   int i;
   int c;
@@ -338,7 +338,7 @@ vtkGenericCellIterator *vtkBridgeDataSet::NewCellIterator(int dim)
   vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
   result->InitWithDataSet(this,dim); // vtkBridgeCellIteratorOnDataSetCells
 
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -358,7 +358,7 @@ vtkGenericCellIterator *vtkBridgeDataSet::NewBoundaryIterator(int dim,
   vtkBridgeCellIterator *result=vtkBridgeCellIterator::New();
   result->InitWithDataSetBoundaries(this,dim,exteriorOnly); //vtkBridgeCellIteratorOnDataSetBoundaries(dim,exterior_only);
 
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -370,7 +370,7 @@ vtkGenericPointIterator *vtkBridgeDataSet::NewPointIterator()
 {
   vtkBridgePointIterator *result=vtkBridgePointIterator::New();
   result->InitWithDataSet(this);
-  assert("post: result_exists" && result!=0);
+  assert("post: result_exists" && result!=nullptr);
   return result;
 }
 
@@ -403,7 +403,7 @@ int vtkBridgeDataSet::FindCell(double x[3],
                                double pcoords[3])
 {
   assert("pre: not_empty" && GetNumberOfCells()>0);
-  assert("pre: cell_exists" && cell!=0);
+  assert("pre: cell_exists" && cell!=nullptr);
   assert("pre: positive_tolerance" && tol2>0);
 
   vtkIdType cellid;
@@ -415,7 +415,7 @@ int vtkBridgeDataSet::FindCell(double x[3],
 
   if(cell->IsAtEnd())
   {
-    cellid=this->Implementation->FindCell(x,0,0,tol2,subId,pcoords,
+    cellid=this->Implementation->FindCell(x,nullptr,0,tol2,subId,pcoords,
                                           ignoredWeights);
   }
   else
@@ -468,10 +468,10 @@ void vtkBridgeDataSet::FindPoint(double x[3],
                                  vtkGenericPointIterator *p)
 {
   assert("pre: not_empty" && GetNumberOfPoints()>0);
-  assert("pre: p_exists" && p!=0);
+  assert("pre: p_exists" && p!=nullptr);
   vtkBridgePointIterator *bp=static_cast<vtkBridgePointIterator *>(p);
 
-  if(this->Implementation!=0)
+  if(this->Implementation!=nullptr)
   {
     vtkIdType pt=this->Implementation->FindPoint(x);
     bp->InitWithOnePoint(this,pt);
@@ -492,7 +492,7 @@ vtkMTimeType vtkBridgeDataSet::GetMTime()
 
   result = this->Superclass::GetMTime();
 
-  if(this->Implementation!=0)
+  if(this->Implementation!=nullptr)
   {
     mtime = this->Implementation->GetMTime();
     result = ( mtime > result ? mtime : result );
@@ -507,7 +507,7 @@ void vtkBridgeDataSet::ComputeBounds()
 {
   if ( this->GetMTime() > this->ComputeTime )
   {
-    if(this->Implementation!=0)
+    if(this->Implementation!=nullptr)
     {
       this->Implementation->ComputeBounds();
       this->ComputeTime.Modified();

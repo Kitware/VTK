@@ -28,7 +28,7 @@ vtkCxxSetObjectMacro(vtkLookupTableWithEnabling,EnabledArray,vtkDataArray);
 vtkLookupTableWithEnabling::vtkLookupTableWithEnabling(int sze, int ext) :
   vtkLookupTable(sze, ext)
 {
-  this->EnabledArray = 0;
+  this->EnabledArray = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -37,7 +37,7 @@ vtkLookupTableWithEnabling::~vtkLookupTableWithEnabling()
   if(this->EnabledArray)
   {
     this->EnabledArray->Delete();
-    this->EnabledArray = 0;
+    this->EnabledArray = nullptr;
   }
 }
 

@@ -45,7 +45,7 @@ int vtkTriangleFilter::RequestData(
   vtkIdType cellNum=0;
   vtkIdType numPts, newId;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   int i, j;
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
@@ -136,7 +136,7 @@ int vtkTriangleFilter::RequestData(
     }
   }
 
-  vtkCellArray *newPolys=NULL;
+  vtkCellArray *newPolys=nullptr;
   if ( !abort && input->GetPolys()->GetNumberOfCells() > 0 )
   {
     cells = input->GetPolys();
@@ -199,7 +199,7 @@ int vtkTriangleFilter::RequestData(
   {
     cells = input->GetStrips();
     newId = output->GetNumberOfCells();
-    if ( newPolys == NULL )
+    if ( newPolys == nullptr )
     {
       newPolys = vtkCellArray::New();
       newPolys->EstimateSize(cells->GetNumberOfCells(),3);
@@ -220,7 +220,7 @@ int vtkTriangleFilter::RequestData(
     }//for all strips
   }
 
-  if ( newPolys != NULL )
+  if ( newPolys != nullptr )
   {
     newPolys->Delete();
   }

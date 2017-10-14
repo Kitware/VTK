@@ -32,20 +32,20 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator: public vtkCellIterator
 public:
   static vtkDataSetCellIterator *New();
   vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  bool IsDoneWithTraversal() VTK_OVERRIDE;
-  vtkIdType GetCellId() VTK_OVERRIDE;
+  bool IsDoneWithTraversal() override;
+  vtkIdType GetCellId() override;
 
 protected:
   vtkDataSetCellIterator();
-  ~vtkDataSetCellIterator() VTK_OVERRIDE;
+  ~vtkDataSetCellIterator() override;
 
-  void ResetToFirstCell() VTK_OVERRIDE;
-  void IncrementToNextCell() VTK_OVERRIDE;
-  void FetchCellType() VTK_OVERRIDE;
-  void FetchPointIds() VTK_OVERRIDE;
-  void FetchPoints() VTK_OVERRIDE;
+  void ResetToFirstCell() override;
+  void IncrementToNextCell() override;
+  void FetchCellType() override;
+  void FetchPointIds() override;
+  void FetchPoints() override;
 
   friend class vtkDataSet;
   void SetDataSet(vtkDataSet *ds);
@@ -54,8 +54,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkDataSetCellIterator(const vtkDataSetCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetCellIterator &) VTK_DELETE_FUNCTION;
+  vtkDataSetCellIterator(const vtkDataSetCellIterator &) = delete;
+  void operator=(const vtkDataSetCellIterator &) = delete;
 };
 
 #endif //vtkDataSetCellIterator_h

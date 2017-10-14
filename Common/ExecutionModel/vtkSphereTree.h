@@ -80,7 +80,7 @@ public:
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSphereTree,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -107,9 +107,9 @@ public:
    * Control whether the tree hierarchy is built. If not, then just
    * cell spheres are created (one for each cell).
    */
-  vtkSetMacro(BuildHierarchy,int);
-  vtkGetMacro(BuildHierarchy,int);
-  vtkBooleanMacro(BuildHierarchy,int);
+  vtkSetMacro(BuildHierarchy, bool);
+  vtkGetMacro(BuildHierarchy, bool);
+  vtkBooleanMacro(BuildHierarchy, bool);
   //@}
 
   //@{
@@ -196,7 +196,7 @@ public:
 
 protected:
   vtkSphereTree();
-  ~vtkSphereTree() VTK_OVERRIDE;
+  ~vtkSphereTree() override;
 
   // Data members
   vtkDataSet *DataSet;
@@ -204,7 +204,7 @@ protected:
   int Resolution;
   int MaxLevel;
   int NumberOfLevels;
-  int BuildHierarchy;
+  bool BuildHierarchy;
 
   // The tree and its hierarchy
   vtkDoubleArray *Tree;
@@ -217,7 +217,7 @@ protected:
   vtkTimeStamp BuildTime; //time at which tree was built
 
   // Supporting methods
-  vtkDoubleArray *BuildTreeSpheres(vtkDataSet *input);
+  void BuildTreeSpheres(vtkDataSet *input);
   void ExtractCellIds(const unsigned char *selected, vtkIdList *cellIds,
                       vtkIdType numSelected);
 
@@ -227,8 +227,8 @@ protected:
   int SphereTreeType; //keep track of the type of tree hierarchy generated
 
 private:
-  vtkSphereTree(const vtkSphereTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereTree&) VTK_DELETE_FUNCTION;
+  vtkSphereTree(const vtkSphereTree&) = delete;
+  void operator=(const vtkSphereTree&) = delete;
 
 };
 

@@ -86,7 +86,7 @@ ConstructDelaunay3DSphere(vtkIdType numberOfPoints, vtkMersenneTwister* seq,
   vtkCellIterator *it = ug->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
   {
-    it->GetCell(cell.GetPointer());
+    it->GetCell(cell);
     cell->GetParametricCenter(pcoords);
     cell->EvaluateLocation(subId, pcoords, coords, weights);
 
@@ -117,9 +117,9 @@ int TestBinCellDataFilter(int, char*[])
   const vtkIdType numberOfInputPoints = 1.e1;
 
   vtkSmartPointer<vtkUnstructuredGrid> sourceGrid =
-    ConstructDelaunay3DSphere(numberOfSourcePoints, seq.GetPointer(), false);
+    ConstructDelaunay3DSphere(numberOfSourcePoints, seq, false);
   vtkSmartPointer<vtkUnstructuredGrid> inputGrid =
-    ConstructDelaunay3DSphere(numberOfInputPoints, seq.GetPointer(), true);
+    ConstructDelaunay3DSphere(numberOfInputPoints, seq, true);
 
   vtkNew<vtkBinCellDataFilter> binDataFilter;
   binDataFilter->SetInputData(inputGrid);

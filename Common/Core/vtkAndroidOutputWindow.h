@@ -37,7 +37,7 @@ class VTKCOMMONCORE_EXPORT vtkAndroidOutputWindow : public vtkOutputWindow
 public:
 // Methods from vtkObject
   vtkTypeMacro(vtkAndroidOutputWindow,vtkOutputWindow);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a vtkAndroidOutputWindow.
@@ -61,8 +61,8 @@ protected:
   virtual ~vtkAndroidOutputWindow();
 
 private:
-  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAndroidOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkAndroidOutputWindow(const vtkAndroidOutputWindow&) = delete;
+  void operator=(const vtkAndroidOutputWindow&) = delete;
 };
 
 

@@ -47,7 +47,7 @@ class VTKIOXDMF2_EXPORT vtkXdmfReader : public vtkDataReader
 public:
   static vtkXdmfReader* New();
   vtkTypeMacro(vtkXdmfReader, vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Until needed, multiple domains are not supported.
   //// Description:
@@ -70,7 +70,7 @@ public:
 
   //// Description:
   //// Returns the name for the active domain. Note that this may be different
-  //// from what GetDomainName() returns if DomainName is NULL or invalid.
+  //// from what GetDomainName() returns if DomainName is nullptr or invalid.
   // vtkGetStringMacro(ActiveDomainName);
 
   /**
@@ -81,7 +81,7 @@ public:
   int GetNumberOfPointArrays();
 
   /**
-   * Returns the name of point array at the give index. Returns NULL if index is
+   * Returns the name of point array at the give index. Returns nullptr if index is
    * invalid.
    */
   const char* GetPointArrayName(int index);
@@ -185,17 +185,17 @@ public:
 
 protected:
   vtkXdmfReader();
-  ~vtkXdmfReader();
+  ~vtkXdmfReader() override;
 
-  virtual int ProcessRequest(vtkInformation *request,
+  int ProcessRequest(vtkInformation *request,
     vtkInformationVector **inputVector,
-    vtkInformationVector *outputVector) VTK_OVERRIDE;
+    vtkInformationVector *outputVector) override;
   virtual int RequestDataObject(vtkInformationVector *outputVector);
-  virtual int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  virtual int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **,
+    vtkInformationVector *) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   vtkXdmfArraySelection* GetPointArraySelection();
   vtkXdmfArraySelection* GetCellArraySelection();
@@ -243,8 +243,8 @@ private:
   int ChooseTimeStep(vtkInformation* outInfo);
 
 private:
-  vtkXdmfReader(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
+  vtkXdmfReader(const vtkXdmfReader&) = delete;
+  void operator=(const vtkXdmfReader&) = delete;
 
 };
 

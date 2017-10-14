@@ -134,11 +134,11 @@ public:
 
 protected:
   vtkByteSwap();
-  ~vtkByteSwap() VTK_OVERRIDE;
+  ~vtkByteSwap() override;
 
 private:
-  vtkByteSwap(const vtkByteSwap&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkByteSwap&) VTK_DELETE_FUNCTION;
+  vtkByteSwap(const vtkByteSwap&) = delete;
+  void operator=(const vtkByteSwap&) = delete;
 };
 
 #endif

@@ -37,7 +37,7 @@
 vtkStandardNewMacro(vtkGL2PSUtilities)
 
 // Initialize static members
-vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = NULL;
+vtkRenderWindow *vtkGL2PSUtilities::RenderWindow = nullptr;
 bool vtkGL2PSUtilities::TextAsPath = false;
 float vtkGL2PSUtilities::PointSizeFactor = 5.f / 7.f;
 float vtkGL2PSUtilities::LineWidthFactor = 5.f / 7.f;
@@ -57,7 +57,7 @@ bool GetMetrics(vtkTextProperty* tprop, const char* str, vtkTextRenderer::Metric
     vtkNew<vtkTextProperty> tpropTmp;
     tpropTmp->ShallowCopy(tprop);
     tpropTmp->SetOrientation(0.);
-    if(! tren->GetMetrics(tpropTmp.Get(), str, m, dpi))
+    if(! tren->GetMetrics(tpropTmp, str, m, dpi))
     {
       return false;
     }
@@ -140,10 +140,10 @@ void vtkGL2PSUtilities::DrawString(const char *str,
   }
 
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
-  if (tren == NULL)
+  if (tren == nullptr)
   {
     vtkNew<vtkGL2PSUtilities> dummy;
-    vtkErrorWithObjectMacro(dummy.GetPointer(),
+    vtkErrorWithObjectMacro(dummy,
                             <<"vtkTextRenderer unavailable.");
     return;
   }
@@ -260,7 +260,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
   {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    tren->StringToPath(tprop, str, path.GetPointer(), dpi);
+    tren->StringToPath(tprop, str, path, dpi);
     // Get color
     double rgbd[3];
     tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);
@@ -273,7 +273,7 @@ void vtkGL2PSUtilities::DrawString(const char *str,
     double devicePos[4] = { pos[0], pos[1], pos[2], 1. };
     vtkGL2PSUtilities::ProjectPoint(devicePos);
 
-    vtkGL2PSUtilities::DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL,
+    vtkGL2PSUtilities::DrawPath(path, pos, devicePos, rgba, NULL,
                                 0.0, -1.f, (std::string("Pathified string: ")
                                             + str).c_str());
   }
@@ -424,7 +424,7 @@ void vtkGL2PSUtilities::Draw3DPath(vtkPath *path, vtkMatrix4x4 *actorMatrix,
   vtkNew<vtkPath> projPath;
   projPath->DeepCopy(path);
   vtkGL2PSUtilities::ProjectPoints(projPath->GetPoints(), actorMatrix);
-  vtkGL2PSUtilities::DrawPath(projPath.GetPointer(), rasterPos, translation,
+  vtkGL2PSUtilities::DrawPath(projPath, rasterPos, translation,
                               actorColor, NULL, 0.0, -1.f, label);
 }
 
@@ -525,7 +525,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   int *codeBegin = code;
 #endif
   int *codeEnd = code + codes->GetNumberOfTuples();
-  if (label != NULL && label[0] != '\0')
+  if (label != nullptr && label[0] != '\0')
   {
     out << "% " << label << endl;
   }
@@ -624,7 +624,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
   out << "grestore" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
@@ -776,7 +776,7 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
   colorRgba[2] = rgba[2]/255.0;
   colorRgba[3] = rgba[3]/255.0;
 
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), colorRgba);
+  gl2psSpecialColor(gl2psGetFileFormat(), out.str().c_str(), colorRgba);
 }
 
 void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
@@ -812,7 +812,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
   if (!vtkGL2PSUtilities::RenderWindow)
   {
     vtkNew<vtkGL2PSUtilities> dummy;
-    vtkErrorWithObjectMacro(dummy.GetPointer(), << "No render window set!");
+    vtkErrorWithObjectMacro(dummy, << "No render window set!");
     return;
   }
   double windowHeight =
@@ -825,7 +825,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
   int *codeBegin = code;
 #endif
 
-  if (label != NULL && label[0] != '\0')
+  if (label != nullptr && label[0] != '\0')
   {
     out << "<!-- " << label << " -->" << endl;
   }
@@ -937,7 +937,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
       << "</g>" << endl;
 
   glRasterPos3dv(rasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 
@@ -956,14 +956,14 @@ inline void vtkGL2PSUtilities::ProjectPoint(double point[4],
   modelviewMatrix->DeepCopy(glMatrix);
   modelviewMatrix->Transpose();
   vtkNew<vtkMatrix4x4> transformMatrix;
-  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                            modelviewMatrix.GetPointer(),
-                            transformMatrix.GetPointer());
+  vtkMatrix4x4::Multiply4x4(projectionMatrix,
+                            modelviewMatrix,
+                            transformMatrix);
   if (actorMatrix)
   {
-    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+    vtkMatrix4x4::Multiply4x4(transformMatrix,
                               actorMatrix,
-                              transformMatrix.GetPointer());
+                              transformMatrix);
   }
 
   double viewport[4];
@@ -976,7 +976,7 @@ inline void vtkGL2PSUtilities::ProjectPoint(double point[4],
   const double zFactor1 = (depthRange[1] - depthRange[0]) * 0.5;
   const double zFactor2 = (depthRange[1] + depthRange[0]) * 0.5;
 
-  vtkGL2PSUtilities::ProjectPoint(point, transformMatrix.GetPointer(), viewport,
+  vtkGL2PSUtilities::ProjectPoint(point, transformMatrix, viewport,
                                   halfWidth, halfHeight, zFactor1, zFactor2);
 }
 
@@ -1016,14 +1016,14 @@ inline void vtkGL2PSUtilities::ProjectPoints(vtkPoints *points,
   modelviewMatrix->Transpose();
 
   vtkNew<vtkMatrix4x4> transformMatrix;
-  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                            modelviewMatrix.GetPointer(),
-                            transformMatrix.GetPointer());
+  vtkMatrix4x4::Multiply4x4(projectionMatrix,
+                            modelviewMatrix,
+                            transformMatrix);
   if (actorMatrix)
   {
-    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+    vtkMatrix4x4::Multiply4x4(transformMatrix,
                               actorMatrix,
-                              transformMatrix.GetPointer());
+                              transformMatrix);
   }
 
   double viewport[4];
@@ -1041,7 +1041,7 @@ inline void vtkGL2PSUtilities::ProjectPoints(vtkPoints *points,
   {
     points->GetPoint(i, point);
     point[3] = 1.0;
-    vtkGL2PSUtilities::ProjectPoint(point, transformMatrix.GetPointer(),
+    vtkGL2PSUtilities::ProjectPoint(point, transformMatrix,
                                     viewport, halfWidth, halfHeight, zFactor1,
                                     zFactor2);
     points->SetPoint(i, point);
@@ -1081,14 +1081,14 @@ void vtkGL2PSUtilities::UnprojectPoints(double *points3D, vtkIdType numPoints,
   modelviewMatrix->Transpose();
 
   vtkNew<vtkMatrix4x4> transformMatrix;
-  vtkMatrix4x4::Multiply4x4(projectionMatrix.GetPointer(),
-                            modelviewMatrix.GetPointer(),
-                            transformMatrix.GetPointer());
+  vtkMatrix4x4::Multiply4x4(projectionMatrix,
+                            modelviewMatrix,
+                            transformMatrix);
   if (actorMatrix)
   {
-    vtkMatrix4x4::Multiply4x4(transformMatrix.GetPointer(),
+    vtkMatrix4x4::Multiply4x4(transformMatrix,
                               actorMatrix,
-                              transformMatrix.GetPointer());
+                              transformMatrix);
   }
 
   transformMatrix->Invert();
@@ -1106,7 +1106,7 @@ void vtkGL2PSUtilities::UnprojectPoints(double *points3D, vtkIdType numPoints,
   for (vtkIdType i = 0; i < numPoints; ++i)
   {
     double *point = points3D + (i * 4);
-    vtkGL2PSUtilities::UnprojectPoint(point, transformMatrix.GetPointer(),
+    vtkGL2PSUtilities::UnprojectPoint(point, transformMatrix,
                                       viewport, halfWidth, halfHeight, zFactor1,
                                       zFactor2);
   }

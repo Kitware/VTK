@@ -30,7 +30,7 @@ int vtkSeedWidgetTest1(int , char * [] )
 
 
   vtkSmartPointer<vtkHandleWidget> handleWidget = node1->CreateNewHandle();
-  if (handleWidget == NULL)
+  if (handleWidget == nullptr)
   {
     std::cerr << "Failed to CreateNewHandle." << std::endl;
     return EXIT_FAILURE;

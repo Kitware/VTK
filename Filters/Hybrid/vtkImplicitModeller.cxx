@@ -378,7 +378,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   userData = (vtkImplicitModellerAppendInfo *)
     (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
-  if (userData->Input[threadId] == NULL)
+  if (userData->Input[threadId] == nullptr)
   {
     return VTK_THREAD_RETURN_VALUE;
   }
@@ -475,7 +475,7 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
         userData->Modeller,
         userData->Input[threadId], output, outExt,
         userData->MaximumDistance, locator, threadId,
-        static_cast<VTK_TT *>(0)));
+        static_cast<VTK_TT *>(nullptr)));
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return VTK_THREAD_RETURN_VALUE;
@@ -634,7 +634,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
                                           input,
                                           output,
                                           this->InternalMaxDistance,
-                                          static_cast<VTK_TT *>(0)));
+                                          static_cast<VTK_TT *>(nullptr)));
     }
   }
   else
@@ -642,8 +642,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
     vtkImplicitModellerAppendInfo info;
     double minZ, maxZ;
     int slabMin, slabMax, slabSize, i;
-    vtkClipPolyData **minClipper = NULL, **maxClipper = NULL;
-    vtkPlane ** minPlane = NULL, **maxPlane = NULL;
+    vtkClipPolyData **minClipper = nullptr, **maxClipper = nullptr;
+    vtkPlane ** minPlane = nullptr, **maxPlane = nullptr;
     double *spacing, *origin;
 
     spacing = output->GetSpacing();
@@ -710,7 +710,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
         for (i = 0; i < this->NumberOfThreads; i++)
         {
-          minPlane[i] = maxPlane[i] = 0;
+          minPlane[i] = maxPlane[i] = nullptr;
           //////////////////////////////////////////////////
           // do the 1st clip
           slabMin = i * slabSize;
@@ -739,8 +739,8 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
           if ( minClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
           {
-            info.Input[i] = NULL;
-            maxPlane[i] = NULL;
+            info.Input[i] = nullptr;
+            maxPlane[i] = nullptr;
             continue;
           }
           minClipper[i]->ReleaseDataFlagOn();
@@ -771,7 +771,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
 
           if ( maxClipper[i]->GetOutput()->GetNumberOfCells() == 0 )
           {
-            info.Input[i] = NULL;
+            info.Input[i] = nullptr;
           }
           else
           {
@@ -780,7 +780,7 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
         }
         for (i++; i < this->NumberOfThreads; i++)
         {
-          minPlane[i] = maxPlane[i] = 0;
+          minPlane[i] = maxPlane[i] = nullptr;
         }
       }
     }
@@ -895,7 +895,7 @@ int vtkImplicitModeller::RequestData(
 
   vtkDebugMacro(<< "Executing implicit model");
 
-  if (input == NULL)
+  if (input == nullptr)
   {
     // we do not want to release the data because user might
     // have called Append ...
@@ -923,14 +923,14 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
   {
-    if (input != NULL)
+    if (input != nullptr)
     {
       bounds = input->GetBounds();
     }
     else
     {
       vtkDataSet *dsInput = vtkDataSet::SafeDownCast(this->GetInput());
-      if (dsInput != NULL)
+      if (dsInput != nullptr)
       {
         bounds = dsInput->GetBounds();
       }

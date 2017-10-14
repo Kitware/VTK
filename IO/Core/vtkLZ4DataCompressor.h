@@ -27,7 +27,7 @@ class VTKIOCORE_EXPORT vtkLZ4DataCompressor : public vtkDataCompressor
 {
 public:
   vtkTypeMacro(vtkLZ4DataCompressor,vtkDataCompressor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLZ4DataCompressor* New();
 
   // Description:
@@ -35,7 +35,7 @@ public:
   // given uncompressed size after compression.  This is the minimum
   // size of the output buffer that can be passed to the four-argument
   // Compress method.
-  size_t GetMaximumCompressionSpace(size_t size) VTK_OVERRIDE;
+  size_t GetMaximumCompressionSpace(size_t size) override;
 
   // Description:
   // Get/Set the compression level.
@@ -44,7 +44,7 @@ public:
 
 protected:
   vtkLZ4DataCompressor();
-  ~vtkLZ4DataCompressor() VTK_OVERRIDE;
+  ~vtkLZ4DataCompressor() override;
 
   int AccelerationLevel;
 
@@ -52,15 +52,15 @@ protected:
   size_t CompressBuffer(unsigned char const* uncompressedData,
                         size_t uncompressedSize,
                         unsigned char* compressedData,
-                        size_t compressionSpace) VTK_OVERRIDE;
+                        size_t compressionSpace) override;
   // Decompression method required by vtkDataCompressor.
   size_t UncompressBuffer(unsigned char const* compressedData,
                           size_t compressedSize,
                           unsigned char* uncompressedData,
-                          size_t uncompressedSize) VTK_OVERRIDE;
+                          size_t uncompressedSize) override;
 private:
-  vtkLZ4DataCompressor(const vtkLZ4DataCompressor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLZ4DataCompressor&) VTK_DELETE_FUNCTION;
+  vtkLZ4DataCompressor(const vtkLZ4DataCompressor&) = delete;
+  void operator=(const vtkLZ4DataCompressor&) = delete;
 };
 
 #endif

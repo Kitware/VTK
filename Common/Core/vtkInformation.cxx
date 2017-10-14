@@ -54,7 +54,7 @@ vtkInformation::vtkInformation()
   this->Internal = new vtkInformationInternals;
 
   // There is no request key stored initially.
-  this->Request = 0;
+  this->Request = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -144,19 +144,19 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
     if(newvalue)
     {
       i->second = newvalue;
-      newvalue->Register(0);
+      newvalue->Register(nullptr);
     }
     else
     {
       this->Internal->Map.erase(i);
     }
-    oldvalue->UnRegister(0);
+    oldvalue->UnRegister(nullptr);
   }
   else if(newvalue)
   {
     MapType::value_type entry(key, newvalue);
     this->Internal->Map.insert(entry);
-    newvalue->Register(0);
+    newvalue->Register(nullptr);
   }
   this->Modified(key);
 }
@@ -174,7 +174,7 @@ const vtkObjectBase* vtkInformation::GetAsObjectBase(
       return i->second;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -189,13 +189,13 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
       return i->second;
     }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
 void vtkInformation::Clear()
 {
-  this->Copy(0);
+  this->Copy(nullptr);
 }
 
 //----------------------------------------------------------------------------

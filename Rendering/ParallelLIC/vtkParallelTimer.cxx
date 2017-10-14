@@ -76,7 +76,7 @@ vtkParallelTimer::vtkParallelTimerDestructor::~vtkParallelTimerDestructor()
   if (this->Log)
   {
     this->Log->Delete();
-    this->Log = NULL;
+    this->Log = nullptr;
   }
 }
 
@@ -473,7 +473,7 @@ void vtkParallelTimer::DeleteGlobalInstance()
   if (vtkParallelTimer::GlobalInstance)
   {
     vtkParallelTimer::GlobalInstance->Delete();
-    vtkParallelTimer::GlobalInstance = NULL;
+    vtkParallelTimer::GlobalInstance = nullptr;
 
     vtkParallelTimer::GlobalInstanceDestructor.SetLog(0);
   }

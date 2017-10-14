@@ -30,12 +30,14 @@
 
 #include "vtkDataObjectAlgorithm.h"
 
+class vtkDoubleArray;
+
 class VTKIOXDMF3_EXPORT vtkXdmf3Writer : public vtkDataObjectAlgorithm
 {
 public:
   static vtkXdmf3Writer *New();
   vtkTypeMacro(vtkXdmf3Writer,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the input data set.
@@ -48,6 +50,15 @@ public:
    */
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
+  //@}
+
+  //@{
+  /**
+   * We never write out ghost cells.  This variable is here to satisfy
+   * the behavior of ParaView on invoking a parallel writer.
+   */
+  void SetGhostLevel(int) {}
+  int GetGhostLevel() {return 0;}
   //@}
 
   /**
@@ -82,25 +93,39 @@ protected:
   ~vtkXdmf3Writer();
 
   //Overridden to set up automatic loop over time steps.
-  virtual int RequestInformation(vtkInformation*,
-                                 vtkInformationVector**,
-                                 vtkInformationVector*);
+  int RequestInformation(vtkInformation*,
+                         vtkInformationVector**,
+                         vtkInformationVector*) override;
   //Overridden to continue automatic loop over time steps.
-  virtual int RequestUpdateExtent(vtkInformation*,
-                                  vtkInformationVector**,
-                                  vtkInformationVector*);
-  //Write out the input data objects as XDMF and HDF output files.
-  virtual int RequestData(vtkInformation*,
+  int RequestUpdateExtent(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*);
+                          vtkInformationVector*) override;
+  //Write out the input data objects as XDMF and HDF output files.
+  int RequestData(vtkInformation*,
+                  vtkInformationVector**,
+                  vtkInformationVector*) override;
 
   char *FileName;
   unsigned int LightDataLimit;
   bool WriteAllTimeSteps;
+  int NumberOfProcesses;
+  int MyRank;
+
+  vtkDoubleArray* TimeValues;
+  vtkDataObject *OriginalInput;
+  void WriteDataInternal (vtkInformation* request);
+  int CheckParametersInternal (int NumberOfProcesses, int MyRank);
+  virtual int CheckParameters ();
+  // If writing in parallel multiple time steps exchange after each time step
+  // if we should continue the execution. Pass local continueExecution as a
+  // parameter and return the global continueExecution.
+  virtual int GlobalContinueExecuting(int localContinueExecution);
+
+  bool InitWriters;
 
 private:
-  vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
+  vtkXdmf3Writer(const vtkXdmf3Writer&) = delete;
+  void operator=(const vtkXdmf3Writer&) = delete;
 
   class Internals;
   Internals *Internal;

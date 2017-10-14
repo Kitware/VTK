@@ -51,7 +51,7 @@ vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
                      VisibilitySort, vtkVisibilitySort);
 
 //-----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkProjectedTetrahedraMapper)
 
 //-----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ vtkProjectedTetrahedraMapper::vtkProjectedTetrahedraMapper()
 
 vtkProjectedTetrahedraMapper::~vtkProjectedTetrahedraMapper()
 {
-  this->SetVisibilitySort(NULL);
+  this->SetVisibilitySort(nullptr);
 }
 
 void vtkProjectedTetrahedraMapper::PrintSelf(ostream &os, vtkIndent indent)

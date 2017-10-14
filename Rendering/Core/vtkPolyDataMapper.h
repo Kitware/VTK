@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper : public vtkMapper
 public:
   static vtkPolyDataMapper *New();
   vtkTypeMacro(vtkPolyDataMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
@@ -48,7 +48,7 @@ public:
   /**
    * This calls RenderPiece (in a for loop if streaming is necessary).
    */
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -62,10 +62,10 @@ public:
   /**
    * Bring this algorithm's outputs up-to-date.
    */
-  void Update(int port) VTK_OVERRIDE;
-  void Update() VTK_OVERRIDE;
-  int Update(int port, vtkInformationVector* requests) VTK_OVERRIDE;
-  int Update(vtkInformation* requests) VTK_OVERRIDE;
+  void Update(int port) override;
+  void Update() override;
+  int Update(int port, vtkInformationVector* requests) override;
+  int Update(vtkInformation* requests) override;
   //@}
 
   //@{
@@ -92,8 +92,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override
     { this->Superclass::GetBounds(bounds); }
 
   /**
@@ -135,11 +135,11 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkPolyDataMapper();
-  ~vtkPolyDataMapper() VTK_OVERRIDE {}
+  ~vtkPolyDataMapper() override {}
 
   /**
    * Called in GetBounds(). When this method is called, the consider the input
@@ -153,11 +153,11 @@ protected:
   int NumberOfSubPieces;
   int GhostLevel;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkPolyDataMapper(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapper(const vtkPolyDataMapper&) = delete;
+  void operator=(const vtkPolyDataMapper&) = delete;
 };
 
 #endif

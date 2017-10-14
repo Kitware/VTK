@@ -45,7 +45,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProp, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * For some exporters and other other operations we must be
@@ -122,7 +122,7 @@ public:
    * in world coordinates. NULL means that the bounds are not defined.
    */
   virtual double *GetBounds()
-    { return NULL; }
+    { return nullptr; }
 
   /**
    * Shallow copy of this vtkProp.
@@ -155,7 +155,7 @@ public:
    */
   virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {}
   virtual vtkMatrix4x4 *GetMatrix()
-    { return NULL; }
+    { return nullptr; }
 
   //@{
   /**
@@ -424,7 +424,7 @@ public:
 
 protected:
   vtkProp();
-  ~vtkProp() VTK_OVERRIDE;
+  ~vtkProp() override;
 
   int Visibility;
   int Pickable;
@@ -447,8 +447,8 @@ protected:
   vtkInformation *PropertyKeys;
 
 private:
-  vtkProp(const vtkProp&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProp&) VTK_DELETE_FUNCTION;
+  vtkProp(const vtkProp&) = delete;
+  void operator=(const vtkProp&) = delete;
 };
 
 #endif

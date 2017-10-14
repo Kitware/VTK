@@ -50,7 +50,7 @@ public:
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkSmoothErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -86,7 +86,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
-                              double *rightPoint, double alpha) VTK_OVERRIDE;
+                              double *rightPoint, double alpha) override;
 
   /**
    * Return the error at the mid-point. It will return an error relative to
@@ -102,18 +102,18 @@ public:
    * \post positive_result: result>=0
    */
   double GetError(double *leftPoint, double *midPoint, double *rightPoint,
-                  double alpha) VTK_OVERRIDE;
+                  double alpha) override;
 
 protected:
   vtkSmoothErrorMetric();
-  ~vtkSmoothErrorMetric() VTK_OVERRIDE;
+  ~vtkSmoothErrorMetric() override;
 
   double AngleTolerance;
   double CosTolerance;
 
 private:
-  vtkSmoothErrorMetric(const vtkSmoothErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSmoothErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkSmoothErrorMetric(const vtkSmoothErrorMetric&) = delete;
+  void operator=(const vtkSmoothErrorMetric&) = delete;
 };
 
 #endif

@@ -126,7 +126,7 @@ void vtkPoints2D::GetBounds(double bounds[4])
   memcpy(bounds, this->Bounds, 4 * sizeof(double));
 }
 
-int vtkPoints2D::Allocate(const vtkIdType sz, const vtkIdType ext)
+int vtkPoints2D::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);
@@ -162,7 +162,7 @@ void vtkPoints2D::SetDataType(int dataType)
 // the object.
 void vtkPoints2D::SetData(vtkDataArray *data)
 {
-  if (data != this->Data && data != NULL)
+  if (data != this->Data && data != nullptr)
   {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
@@ -184,11 +184,11 @@ void vtkPoints2D::SetData(vtkDataArray *data)
 // makes sense.
 void vtkPoints2D::DeepCopy(vtkPoints2D *da)
 {
-  if (da == NULL)
+  if (da == nullptr)
   {
     return;
   }
-  if (da->Data != this->Data && da->Data != NULL)
+  if (da->Data != this->Data && da->Data != nullptr)
   {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {

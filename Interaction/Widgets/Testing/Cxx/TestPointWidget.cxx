@@ -528,13 +528,13 @@ class vtkmyPWCallback : public vtkCommand
 public:
   static vtkmyPWCallback *New()
   { return new vtkmyPWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
     pointWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkmyPWCallback():PolyData(0),Actor(0) {}
+  vtkmyPWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

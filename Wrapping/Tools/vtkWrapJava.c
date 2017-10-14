@@ -372,7 +372,7 @@ void get_args(FILE *fp, int i)
       break;
     case VTK_PARSE_FLOAT_PTR:
     case VTK_PARSE_DOUBLE_PTR:
-      fprintf(fp,"  tempArray%i = (void *)(env->GetDoubleArrayElements(id%i,NULL));\n",i,i);
+      fprintf(fp,"  tempArray%i = (void *)(env->GetDoubleArrayElements(id%i,nullptr));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
       {
         fprintf(fp,"  temp%i[%i] = ((jdouble *)tempArray%i)[%i];\n",i,j,i,j);
@@ -386,7 +386,7 @@ void get_args(FILE *fp, int i)
     case VTK_PARSE___INT64_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
     case VTK_PARSE_BOOL_PTR:
-      fprintf(fp,"  tempArray%i = (void *)(env->GetIntArrayElements(id%i,NULL));\n",i,i);
+      fprintf(fp,"  tempArray%i = (void *)(env->GetIntArrayElements(id%i,nullptr));\n",i,i);
       for (j = 0; j < currentFunction->ArgCounts[i]; j++)
       {
         fprintf(fp,"  temp%i[%i] = ((jint *)tempArray%i)[%i];\n",i,j,i,j);
@@ -763,7 +763,7 @@ void HandleDataArray(FILE *fp, ClassInfo *data)
   fprintf(fp,"  %s *op;\n", data->Name);
   fprintf(fp,"  %s *tempArray0;\n", type);
   fprintf(fp,"  int length;\n");
-  fprintf(fp,"  tempArray0 = (%s *)(env->Get%sArrayElements(id0,NULL));\n", type, jfromtype);
+  fprintf(fp,"  tempArray0 = (%s *)(env->Get%sArrayElements(id0,nullptr));\n", type, jfromtype);
   fprintf(fp,"  length = env->GetArrayLength(id0);\n");
   fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj);\n",
     data->Name);
@@ -1330,13 +1330,13 @@ int main(int argc, char *argv[])
     char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
     const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
 
-    fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != NULL)",
+    fprintf(fp,"  if ((res= %s_Typecast(me,dType)) != nullptr)",
             safe_superclass);
     fprintf(fp," { return res; }\n");
 
     free(safe_name);
   }
-  fprintf(fp,"  return NULL;\n");
+  fprintf(fp,"  return nullptr;\n");
   fprintf(fp,"}\n\n");
 
   HandleDataArray(fp, data);

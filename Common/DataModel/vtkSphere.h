@@ -32,7 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSphere : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkSphere,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct sphere with center at (0,0,0) and radius=0.5.
@@ -44,13 +44,13 @@ public:
    * Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate sphere gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -100,14 +100,14 @@ public:
 
 protected:
   vtkSphere();
-  ~vtkSphere() VTK_OVERRIDE {}
+  ~vtkSphere() override {}
 
   double Radius;
   double Center[3];
 
 private:
-  vtkSphere(const vtkSphere&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphere&) VTK_DELETE_FUNCTION;
+  vtkSphere(const vtkSphere&) = delete;
+  void operator=(const vtkSphere&) = delete;
 };
 
 #endif

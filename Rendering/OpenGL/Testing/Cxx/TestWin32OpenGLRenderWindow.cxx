@@ -27,7 +27,7 @@
 int TestWin32OpenGLRenderWindow(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
-  if (!vtkWin32OpenGLRenderWindow::SafeDownCast(renWin.GetPointer()))
+  if (!vtkWin32OpenGLRenderWindow::SafeDownCast(renWin))
   {
     std::cout << "Expected vtkRenderWindow to be a vtkWin32OpenGLRenderWindow"
               << std::endl;
@@ -40,10 +40,10 @@ int TestWin32OpenGLRenderWindow(int argc, char* argv[])
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkConeSource> coneSource;
   coneSource->Update();
@@ -52,9 +52,9 @@ int TestWin32OpenGLRenderWindow(int argc, char* argv[])
   coneMapper->SetInputConnection(coneSource->GetOutputPort());
 
   vtkNew<vtkActor> coneActor;
-  coneActor->SetMapper(coneMapper.GetPointer());
+  coneActor->SetMapper(coneMapper);
 
-  renderer->AddActor(coneActor.GetPointer());
+  renderer->AddActor(coneActor);
 
   int width = 100;
   int height = 75;
@@ -93,7 +93,7 @@ int TestWin32OpenGLRenderWindow(int argc, char* argv[])
 
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

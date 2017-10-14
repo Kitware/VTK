@@ -55,7 +55,7 @@ class VTKIOINFOVIS_EXPORT vtkFixedWidthTextReader : public vtkTableAlgorithm
 public:
   static vtkFixedWidthTextReader* New();
   vtkTypeMacro(vtkFixedWidthTextReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
@@ -98,12 +98,12 @@ public:
 
  protected:
   vtkFixedWidthTextReader();
-  ~vtkFixedWidthTextReader() VTK_OVERRIDE;
+  ~vtkFixedWidthTextReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   void OpenFile();
 
@@ -113,8 +113,8 @@ public:
   int FieldWidth;
 
 private:
-  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedWidthTextReader&) VTK_DELETE_FUNCTION;
+  vtkFixedWidthTextReader(const vtkFixedWidthTextReader&) = delete;
+  void operator=(const vtkFixedWidthTextReader&) = delete;
   vtkCommand *TableErrorObserver;
 };
 

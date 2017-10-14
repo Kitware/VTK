@@ -38,7 +38,7 @@ class VTKFILTERSSOURCES_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
 public:
   static vtkLineSource *New();
   vtkTypeMacro(vtkLineSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -86,10 +86,10 @@ public:
 
 protected:
   vtkLineSource(int res=1);
-  ~vtkLineSource() VTK_OVERRIDE;
+  ~vtkLineSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Point1[3];
   double Point2[3];
   int Resolution;
@@ -102,8 +102,8 @@ protected:
   vtkPoints* Points;
 
 private:
-  vtkLineSource(const vtkLineSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineSource&) VTK_DELETE_FUNCTION;
+  vtkLineSource(const vtkLineSource&) = delete;
+  void operator=(const vtkLineSource&) = delete;
 };
 
 #endif

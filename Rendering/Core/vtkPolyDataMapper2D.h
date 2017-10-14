@@ -47,7 +47,7 @@ class VTKRENDERINGCORE_EXPORT vtkPolyDataMapper2D : public vtkMapper2D
 public:
   vtkTypeMacro(vtkPolyDataMapper2D,vtkMapper2D);
   static vtkPolyDataMapper2D *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -177,7 +177,7 @@ public:
    * Overload standard modified time function. If lookup table is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -216,9 +216,9 @@ public:
 
 protected:
   vtkPolyDataMapper2D();
-  ~vtkPolyDataMapper2D() VTK_OVERRIDE;
+  ~vtkPolyDataMapper2D() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   vtkUnsignedCharArray *Colors;
 
@@ -239,8 +239,8 @@ protected:
   int ArrayComponent;
   int ArrayAccessMode;
 private:
-  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataMapper2D&) VTK_DELETE_FUNCTION;
+  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&) = delete;
+  void operator=(const vtkPolyDataMapper2D&) = delete;
 };
 
 

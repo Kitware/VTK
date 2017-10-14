@@ -38,7 +38,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCursor2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkCursor2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with model bounds = (-10,10,-10,10), focal point = (0,0),
@@ -144,9 +144,9 @@ public:
 
 protected:
   vtkCursor2D();
-  ~vtkCursor2D() VTK_OVERRIDE {}
+  ~vtkCursor2D() override {}
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   double ModelBounds[6];
   double FocalPoint[3];
@@ -158,8 +158,8 @@ protected:
   int    Wrap;
 
 private:
-  vtkCursor2D(const vtkCursor2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCursor2D&) VTK_DELETE_FUNCTION;
+  vtkCursor2D(const vtkCursor2D&) = delete;
+  void operator=(const vtkCursor2D&) = delete;
 };
 
 #endif

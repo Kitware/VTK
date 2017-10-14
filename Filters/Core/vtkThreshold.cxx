@@ -110,7 +110,7 @@ int vtkThreshold::RequestData(
   vtkIdList *newCellPts;
   vtkCell *cell;
   vtkPoints *newPoints;
-  int i, ptId, newId, numPts;
+  vtkIdType i, ptId, newId, numPts;
   int numCellPts;
   double x[3];
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
@@ -300,7 +300,7 @@ int vtkThreshold::EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts
   double minScalar=DBL_MAX, maxScalar=DBL_MIN;
   for (int i=0; i < numCellPts; i++)
   {
-    int ptId = cellPts->GetId(i);
+    vtkIdType ptId = cellPts->GetId(i);
     double s = scalars->GetComponent(ptId,c);
     minScalar = std::min(s,minScalar);
     maxScalar = std::max(s,maxScalar);
@@ -406,8 +406,11 @@ int vtkThreshold::GetPointsDataType()
 
 void vtkThreshold::SetOutputPointsPrecision(int precision)
 {
-  this->OutputPointsPrecision = precision;
-  this->Modified();
+  if (this->OutputPointsPrecision != precision)
+  {
+    this->OutputPointsPrecision = precision;
+    this->Modified();
+  }
 }
 
 int vtkThreshold::GetOutputPointsPrecision() const

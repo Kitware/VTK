@@ -39,47 +39,47 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTriangleStrip : public vtkCell
 public:
   static vtkTriangleStrip *New();
   vtkTypeMacro(vtkTriangleStrip,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_TRIANGLE_STRIP;};
-  int GetCellDimension() VTK_OVERRIDE {return 2;};
-  int GetNumberOfEdges() VTK_OVERRIDE {return this->GetNumberOfPoints();};
-  int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
-  vtkCell *GetFace(int vtkNotUsed(faceId)) VTK_OVERRIDE {return 0;};
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int GetCellType() override {return VTK_TRIANGLE_STRIP;};
+  int GetCellDimension() override {return 2;};
+  int GetNumberOfEdges() override {return this->GetNumberOfPoints();};
+  int GetNumberOfFaces() override {return 0;};
+  vtkCell *GetEdge(int edgeId) override;
+  vtkCell *GetFace(int vtkNotUsed(faceId)) override {return nullptr;};
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
   //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
-  int IsPrimaryCell() VTK_OVERRIDE {return 0;}
+                   int dim, double *derivs) override;
+  int IsPrimaryCell() override {return 0;}
 
   /**
    * Return the center of the point cloud in parametric coordinates.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
   /**
    * Given a triangle strip, decompose it into a list of (triangle)
@@ -89,14 +89,14 @@ public:
 
 protected:
   vtkTriangleStrip();
-  ~vtkTriangleStrip() VTK_OVERRIDE;
+  ~vtkTriangleStrip() override;
 
   vtkLine *Line;
   vtkTriangle *Triangle;
 
 private:
-  vtkTriangleStrip(const vtkTriangleStrip&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTriangleStrip&) VTK_DELETE_FUNCTION;
+  vtkTriangleStrip(const vtkTriangleStrip&) = delete;
+  void operator=(const vtkTriangleStrip&) = delete;
 };
 
 #endif

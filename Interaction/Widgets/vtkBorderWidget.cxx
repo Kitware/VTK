@@ -155,7 +155,7 @@ void vtkBorderWidget::SelectAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -196,7 +196,7 @@ void vtkBorderWidget::TranslateAction(vtkAbstractWidget *w)
 
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
-  self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -256,7 +256,7 @@ void vtkBorderWidget::MoveAction(vtkAbstractWidget *w)
 
   // start a drag
   self->EventCallbackCommand->SetAbortFlag(1);
-  self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   self->Render();
 }
 
@@ -280,7 +280,7 @@ void vtkBorderWidget::EndSelectAction(vtkAbstractWidget *w)
   // stop adjusting
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
-  self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -295,7 +295,7 @@ void vtkBorderWidget::CreateDefaultRepresentation()
 //-------------------------------------------------------------------------
 void vtkBorderWidget::SelectRegion(double* vtkNotUsed(eventPos[2]))
 {
-  this->InvokeEvent(vtkCommand::WidgetActivateEvent,NULL);
+  this->InvokeEvent(vtkCommand::WidgetActivateEvent,nullptr);
 }
 
 //-------------------------------------------------------------------------

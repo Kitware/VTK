@@ -1257,7 +1257,7 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
   volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetSampleDistance(0.5);
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
-  volumeMapper->AddObserver(vtkCommand::ErrorEvent, errorObserver.GetPointer());
+  volumeMapper->AddObserver(vtkCommand::ErrorEvent, errorObserver);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   vtkNew<vtkColorTransferFunction> ctf;
@@ -1269,39 +1269,39 @@ int TestGPUVolumeRayCastMapper(int argc, char *argv[])
   pwf->AddPoint(37.3531, 0.0);
   pwf->AddPoint(276.829, 1.0);
 
-  volumeProperty->SetColor(ctf.GetPointer());
-  volumeProperty->SetScalarOpacity(pwf.GetPointer());
+  volumeProperty->SetColor(ctf);
+  volumeProperty->SetScalarOpacity(pwf);
   volumeProperty->SetShade(0);
   volumeProperty->SetScalarOpacityUnitDistance(1.732);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
 
   // Create the renderwindow, interactor and renderer
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(401, 399); // NPOT size
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renderWindow.GetPointer());
+  iren->SetRenderWindow(renderWindow);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.3, 0.3, 0.4);
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
 
-  renderer->AddVolume(volume.GetPointer());
+  renderer->AddVolume(volume);
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int valid = volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = volumeMapper->IsRenderSupported(renderWindow,
+                                              volumeProperty);
 
   int retVal;
   if (valid)
   {
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
-                                                iren.GetPointer(),
+                                                iren,
                                                 TestGPUVolumeRayCastMapperLog));
   }
   else

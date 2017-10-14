@@ -41,7 +41,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkAbstractContextItem : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractContextItem, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Perform any updates to the item that may be necessary before rendering.
@@ -71,7 +71,7 @@ public:
    * Add child items to this item. Increments reference count of item.
    * \return the index of the child item.
    */
-  unsigned int AddItem(vtkAbstractContextItem* item);
+  vtkIdType AddItem(vtkAbstractContextItem* item);
 
   /**
    * Remove child item from this item. Decrements reference count of item.
@@ -85,24 +85,24 @@ public:
    * \param index of the item to be removed.
    * \return true on success, false otherwise.
    */
-  bool RemoveItem(unsigned int index);
+  bool RemoveItem(vtkIdType index);
 
   /**
    * Get the item at the specified index.
    * \return the item at the specified index (null if index is invalid).
    */
-  vtkAbstractContextItem* GetItem(unsigned int index);
+  vtkAbstractContextItem* GetItem(vtkIdType index);
 
   /**
-   * Get the index of the specified item.
-   * \return the index of the item (-1 if item is not a valid child).
+   * Get the index of the specified item in itemIndex.
+   * \return the item index if found or -1 if not.
    */
-  unsigned int GetItemIndex(vtkAbstractContextItem* item);
+  vtkIdType GetItemIndex(vtkAbstractContextItem* item);
 
   /**
    * Get the number of child items.
    */
-  unsigned int GetNumberOfItems();
+  vtkIdType GetNumberOfItems();
 
   /**
    * Remove all child items from this item.
@@ -114,7 +114,7 @@ public:
    * \return The new index of the item
    * \sa StackAbove(), Lower(), LowerUnder()
    */
-  unsigned int Raise(unsigned int index);
+  vtkIdType Raise(vtkIdType index);
 
   /**
    * Raises the \a child above the \a under sibling. If \a under is invalid,
@@ -122,15 +122,15 @@ public:
    * \return The new index of the item
    * \sa Raise(), Lower(), StackUnder()
    */
-  virtual unsigned int StackAbove(unsigned int index,
-                                  unsigned int under);
+  virtual vtkIdType StackAbove(vtkIdType index,
+                               vtkIdType under);
 
   /**
    * Lowers the \a child to the bottom of the item's stack.
    * \return The new index of the item
    * \sa StackUnder(), Raise(), StackAbove()
    */
-  unsigned int Lower(unsigned int index);
+  vtkIdType Lower(vtkIdType index);
 
   /**
    * Lowers the \a child under the \a above sibling. If \a above is invalid,
@@ -138,8 +138,8 @@ public:
    * \return The new index of the item
    * \sa Lower(), Raise(), StackAbove()
    */
-  virtual unsigned int StackUnder(unsigned int child,
-                                  unsigned int above);
+  virtual vtkIdType StackUnder(vtkIdType child,
+                               vtkIdType above);
 
   /**
    * Return true if the supplied x, y coordinate is inside the item.
@@ -290,7 +290,7 @@ public:
 
 protected:
   vtkAbstractContextItem();
-  ~vtkAbstractContextItem() VTK_OVERRIDE;
+  ~vtkAbstractContextItem() override;
 
   /**
    * Point to the scene the item is on - can be null.
@@ -320,8 +320,8 @@ protected:
   bool Interactive;
 
 private:
-  vtkAbstractContextItem(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
+  vtkAbstractContextItem(const vtkAbstractContextItem &) = delete;
+  void operator=(const vtkAbstractContextItem &) = delete;
 
 };
 

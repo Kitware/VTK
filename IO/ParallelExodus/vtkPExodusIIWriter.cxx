@@ -161,3 +161,15 @@ int vtkPExodusIIWriter::GlobalContinueExecuting(int localContinue)
   }
   return globalContinue;
 }
+
+//----------------------------------------------------------------------------
+unsigned int vtkPExodusIIWriter::GetMaxNameLength()
+{
+  unsigned int maxName = this->Superclass::GetMaxNameLength();
+
+  vtkMultiProcessController *c =
+    vtkMultiProcessController::GetGlobalController();
+  unsigned int globalMaxName = 0;
+  c->AllReduce(&maxName, &globalMaxName, 1, vtkCommunicator::MAX_OP);
+  return maxName;
+}

@@ -45,20 +45,20 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkLinearContourLineInterpolator,vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE;
+                               int idx1, int idx2 ) override;
 
 protected:
   vtkLinearContourLineInterpolator();
-  ~vtkLinearContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkLinearContourLineInterpolator() override;
 
 private:
-  vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&) = delete;
+  void operator=(const vtkLinearContourLineInterpolator&) = delete;
 };
 
 #endif

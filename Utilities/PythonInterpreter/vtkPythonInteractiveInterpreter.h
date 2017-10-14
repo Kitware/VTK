@@ -46,7 +46,7 @@ class VTKPYTHONINTERPRETER_EXPORT vtkPythonInteractiveInterpreter : public vtkOb
 public:
   static vtkPythonInteractiveInterpreter* New();
   vtkTypeMacro(vtkPythonInteractiveInterpreter, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Push a line of code. It should have have trailing newlines. It can have
@@ -87,17 +87,16 @@ public:
 
 protected:
   vtkPythonInteractiveInterpreter();
-  ~vtkPythonInteractiveInterpreter();
+  ~vtkPythonInteractiveInterpreter() override;
 
   void HandleEvents(vtkObject* caller, unsigned long eventid, void* calldata);
 
 private:
-  vtkPythonInteractiveInterpreter(const vtkPythonInteractiveInterpreter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPythonInteractiveInterpreter&) VTK_DELETE_FUNCTION;
+  vtkPythonInteractiveInterpreter(const vtkPythonInteractiveInterpreter&) = delete;
+  void operator=(const vtkPythonInteractiveInterpreter&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;
-
 };
 
 #endif

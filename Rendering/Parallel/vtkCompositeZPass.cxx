@@ -69,37 +69,37 @@ vtkCxxSetObjectMacro(vtkCompositeZPass,Controller,vtkMultiProcessController);
 // ----------------------------------------------------------------------------
 vtkCompositeZPass::vtkCompositeZPass()
 {
-  this->Controller=0;
-  this->PBO=0;
-  this->ZTexture=0;
-  this->Program=0;
-  this->RawZBuffer=0;
+  this->Controller=nullptr;
+  this->PBO=nullptr;
+  this->ZTexture=nullptr;
+  this->Program=nullptr;
+  this->RawZBuffer=nullptr;
   this->RawZBufferSize=0;
 }
 
 // ----------------------------------------------------------------------------
 vtkCompositeZPass::~vtkCompositeZPass()
 {
-  if(this->Controller!=0)
+  if(this->Controller!=nullptr)
   {
       this->Controller->Delete();
   }
-  if(this->PBO!=0)
+  if(this->PBO!=nullptr)
   {
     vtkErrorMacro(<<"PixelBufferObject should have been deleted in ReleaseGraphicsResources().");
   }
-   if(this->ZTexture!=0)
+   if(this->ZTexture!=nullptr)
    {
     vtkErrorMacro(<<"ZTexture should have been deleted in ReleaseGraphicsResources().");
    }
-   if(this->Program!=0)
+   if(this->Program!=nullptr)
    {
 #ifdef VTK_OPENGL2
      delete this->Program;
 #else
      this->Program->Delete();
 #endif
-     this->Program = 0;
+     this->Program = nullptr;
    }
    delete[] this->RawZBuffer;
 }
@@ -110,7 +110,7 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Controller:";
-  if(this->Controller!=0)
+  if(this->Controller!=nullptr)
   {
     this->Controller->PrintSelf(os,indent);
   }
@@ -124,7 +124,7 @@ void vtkCompositeZPass::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
 #ifdef VTK_OPENGL2
-  return context != 0;
+  return context != nullptr;
 #else
   return vtkFrameBufferObject::IsSupported(context)
     && vtkTextureObject::IsSupported(context)
@@ -138,9 +138,9 @@ bool vtkCompositeZPass::IsSupported(vtkOpenGLRenderWindow *context)
 // \pre s_exists: s!=0
 void vtkCompositeZPass::Render(const vtkRenderState *s)
 {
-  assert("pre: s_exists" && s!=0);
+  assert("pre: s_exists" && s!=nullptr);
 
-  if(this->Controller==0)
+  if(this->Controller==nullptr)
   {
     vtkErrorMacro(<<" no controller.");
     return;
@@ -202,7 +202,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   int h=0;
 
   vtkFrameBufferObjectBase *fbo = s->GetFrameBuffer();
-  if(fbo==0)
+  if(fbo==nullptr)
   {
     r->GetTiledSize(&w,&h);
   }
@@ -231,18 +231,18 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
   {
     delete[] this->RawZBuffer;
   }
-  if(this->RawZBuffer==0)
+  if(this->RawZBuffer==nullptr)
   {
     this->RawZBufferSize=static_cast<size_t>(w*h);
     this->RawZBuffer=new float[this->RawZBufferSize];
   }
 
-  if(this->PBO==0)
+  if(this->PBO==nullptr)
   {
     this->PBO=vtkPixelBufferObject::New();
     this->PBO->SetContext(context);
   }
-  if(this->ZTexture==0)
+  if(this->ZTexture==nullptr)
   {
     this->ZTexture=vtkTextureObject::New();
     this->ZTexture->SetContext(context);
@@ -286,7 +286,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     state->Update();
     vtkIndent indent;
@@ -449,7 +449,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
       this->ZTexture->CreateDepth(dims[0],dims[1],vtkTextureObject::Native,
                                   this->PBO);
 
-      if(this->Program==0)
+      if(this->Program==nullptr)
       {
         this->CreateProgram(context);
       }
@@ -571,7 +571,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     // PBO to client
     this->PBO->Download2D(VTK_FLOAT,this->RawZBuffer,dims,1,continuousInc);
@@ -642,7 +642,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0,0,w,h,GL_DEPTH_COMPONENT,GL_FLOAT,
-                 static_cast<GLfloat *>(NULL));
+                 static_cast<GLfloat *>(nullptr));
 
     // PBO to client
     this->PBO->Download2D(VTK_FLOAT,this->RawZBuffer,dims,1,continuousInc);
@@ -759,7 +759,7 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_ALWAYS);
 
-    if(this->Program==0)
+    if(this->Program==nullptr)
     {
       this->CreateProgram(context);
     }
@@ -803,8 +803,8 @@ void vtkCompositeZPass::Render(const vtkRenderState *s)
 // ----------------------------------------------------------------------------
 void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
 {
-  assert("pre: context_exists" && context!=0);
-  assert("pre: Program_void" && this->Program==0);
+  assert("pre: context_exists" && context!=nullptr);
+  assert("pre: Program_void" && this->Program==nullptr);
 
 #ifdef VTK_OPENGL2
   this->Program = new vtkOpenGLHelper;
@@ -834,7 +834,7 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
   }
 #endif
 
-  assert("post: Program_exists" && this->Program!=0);
+  assert("post: Program_exists" && this->Program!=nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -844,21 +844,21 @@ void vtkCompositeZPass::CreateProgram(vtkOpenGLRenderWindow *context)
 // \pre w_exists: w!=0
 void vtkCompositeZPass::ReleaseGraphicsResources(vtkWindow *w)
 {
-  assert("pre: w_exists" && w!=0);
+  assert("pre: w_exists" && w!=nullptr);
 
   (void)w;
 
-  if(this->PBO!=0)
+  if(this->PBO!=nullptr)
   {
     this->PBO->Delete();
-    this->PBO=0;
+    this->PBO=nullptr;
   }
-  if(this->ZTexture!=0)
+  if(this->ZTexture!=nullptr)
   {
     this->ZTexture->Delete();
-    this->ZTexture=0;
+    this->ZTexture=nullptr;
   }
-  if(this->Program!=0)
+  if(this->Program!=nullptr)
   {
 #ifdef VTK_OPENGL2
     this->Program->ReleaseGraphicsResources(w);

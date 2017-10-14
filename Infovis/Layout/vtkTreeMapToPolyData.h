@@ -38,7 +38,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkTreeMapToPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkTreeMapToPolyData *New();
   vtkTypeMacro(vtkTreeMapToPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The field containing quadruples of the form (min x, max x, min y, max y)
@@ -74,19 +74,19 @@ public:
   vtkSetMacro(AddNormals, bool);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 protected:
   vtkTreeMapToPolyData();
-  ~vtkTreeMapToPolyData() VTK_OVERRIDE;
+  ~vtkTreeMapToPolyData() override;
 
   double LevelDeltaZ;
   bool AddNormals;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkTreeMapToPolyData(const vtkTreeMapToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeMapToPolyData&) VTK_DELETE_FUNCTION;
+  vtkTreeMapToPolyData(const vtkTreeMapToPolyData&) = delete;
+  void operator=(const vtkTreeMapToPolyData&) = delete;
 };
 
 #endif

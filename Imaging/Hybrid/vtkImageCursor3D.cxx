@@ -114,7 +114,7 @@ int vtkImageCursor3D::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
-  void *ptr = NULL;
+  void *ptr = nullptr;
 
   // let superclass allocate data
   this->Superclass::RequestData(request, inputVector, outputVector);

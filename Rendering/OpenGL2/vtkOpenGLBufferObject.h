@@ -34,7 +34,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLBufferObject : public vtkObject
 public:
   static vtkOpenGLBufferObject *New();
   vtkTypeMacro(vtkOpenGLBufferObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ObjectType
   {
@@ -98,15 +98,15 @@ public:
 
 protected:
   vtkOpenGLBufferObject();
-  ~vtkOpenGLBufferObject() VTK_OVERRIDE;
+  ~vtkOpenGLBufferObject() override;
   bool  Dirty;
   std::string Error;
 
   bool UploadInternal(const void *buffer, size_t size, ObjectType objectType);
 
 private:
-  vtkOpenGLBufferObject(const vtkOpenGLBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLBufferObject&) VTK_DELETE_FUNCTION;
+  vtkOpenGLBufferObject(const vtkOpenGLBufferObject&) = delete;
+  void operator=(const vtkOpenGLBufferObject&) = delete;
   struct Private;
   Private *Internal;
 };

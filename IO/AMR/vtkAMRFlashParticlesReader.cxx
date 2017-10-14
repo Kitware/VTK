@@ -47,7 +47,7 @@ static void GetParticleCoordinates( hid_t &dataIdx,
   int NumParticles )
 {
 
-  assert( "pre: internal reader should not be NULL" && (iReader != NULL) );
+  assert( "pre: internal reader should not be nullptr" && (iReader != nullptr) );
 
   hid_t theTypes[3];
   theTypes[0] = theTypes[1] = theTypes[2] = H5I_UNINIT;
@@ -166,7 +166,7 @@ void vtkAMRFlashParticlesReader::ReadMetaData()
 //------------------------------------------------------------------------------
 int vtkAMRFlashParticlesReader::GetTotalNumberOfParticles()
 {
-  assert( "Internal reader is null" && (this->Internal!=NULL) );
+  assert( "Internal reader is null" && (this->Internal!=nullptr) );
   return( this->Internal->NumberOfParticles );
 }
 
@@ -178,7 +178,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
   if( dataIdx < 0 )
   {
     vtkErrorMacro( "Could not open particles file!" );
-    return NULL;
+    return nullptr;
   }
 
   vtkPolyData *particles = vtkPolyData::New();
@@ -187,7 +187,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
   positions->SetNumberOfPoints( this->Internal->NumberOfParticles );
 
   vtkPointData *pdata = particles->GetPointData();
-  assert( "pre: PointData is NULL" && (pdata != NULL) );
+  assert( "pre: PointData is nullptr" && (pdata != nullptr) );
 
   // Load the particle position arrays by name
   std::vector< double > xcoords;
@@ -251,7 +251,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
       if( attrType == H5T_NATIVE_DOUBLE )
       {
         double *data = new double[ this->Internal->NumberOfParticles ];
-        assert( data != NULL );
+        assert( data != nullptr );
 
         if( this->Internal->FileFormatVersion < FLASH_READER_FLASH3_FFV8 )
         {
@@ -285,7 +285,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
         H5Tinsert( dataType, name, 0, H5T_NATIVE_INT );
 
         int *data = new int[ this->Internal->NumberOfParticles ];
-        assert( data != NULL );
+        assert( data != nullptr );
         H5Dread( dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, data );
 
         vtkDataArray *array = vtkIntArray::New();
@@ -305,7 +305,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
       else
       {
         vtkErrorMacro( "Unsupport array type in HDF5 file!" );
-        return NULL;
+        return nullptr;
       }
     } // END if the array is supposed to be loaded
   } // END for all arrays
@@ -318,20 +318,20 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 //------------------------------------------------------------------------------
 vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
 {
-  assert( "pre: Internal reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal reader is nullptr" && (this->Internal != nullptr) );
   assert( "pre: Not initialized " && (this->Initialized) );
 
   int NumberOfParticles = this->Internal->NumberOfParticles;
   if( NumberOfParticles <= 0 )
   {
     vtkPolyData *emptyParticles = vtkPolyData::New();
-    assert( "Cannot create particle dataset" && (emptyParticles != NULL)  );
+    assert( "Cannot create particle dataset" && (emptyParticles != nullptr)  );
     return( emptyParticles );
   }
 
   vtkPolyData* particles = this->GetParticles(
      this->Internal->ParticleName.c_str(), blkidx );
-  assert( "partciles should not be NULL " && (particles != NULL) );
+  assert( "partciles should not be nullptr " && (particles != nullptr) );
 
   return( particles );
 }
@@ -339,7 +339,7 @@ vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
 //------------------------------------------------------------------------------
 void vtkAMRFlashParticlesReader::SetupParticleDataSelections()
 {
-  assert( "pre: Internal reader is NULL" && (this->Internal != NULL) );
+  assert( "pre: Internal reader is nullptr" && (this->Internal != nullptr) );
 
   unsigned int N =
       static_cast<unsigned int>(this->Internal->ParticleAttributeNames.size());

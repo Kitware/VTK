@@ -44,18 +44,18 @@ int TestMultipleViewports( int , char *[] )
   ren1->SetBackground(0.1,0.1,0.1);
   ren1->SetViewport(0.5, 0, 1, 1);
 
-  renWin->AddRenderer(ren0.GetPointer());
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren0);
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkPlaneSource> plane;
   vtkNew<vtkPolyDataMapper> planeMapper;
   planeMapper->SetInputConnection(plane->GetOutputPort());
   vtkNew<vtkActor> planeActor;
-  planeActor->SetMapper(planeMapper.GetPointer());
-  ren1->AddActor(planeActor.GetPointer());
+  planeActor->SetMapper(planeMapper);
+  ren1->AddActor(planeActor);
 
   iren->Initialize();
   renWin->SetSize(300,150);
@@ -65,21 +65,21 @@ int TestMultipleViewports( int , char *[] )
   // should be set to prevent the automated detection of renderer which
   // screws things up with multiple renderers.
   vtkNew<vtkBorderWidget> borderWidget;
-  borderWidget->SetInteractor(iren.GetPointer());
-  borderWidget->SetCurrentRenderer(ren0.GetPointer());
+  borderWidget->SetInteractor(iren);
+  borderWidget->SetCurrentRenderer(ren0);
   vtkNew<vtkBorderRepresentation> borderRep;
   borderRep->GetPositionCoordinate()->SetValue(0.1, 0.5);
   borderRep->GetPosition2Coordinate()->SetValue(0.4, 0.1);
   borderRep->SetShowBorderToOn();
-  borderWidget->SetRepresentation(borderRep.GetPointer());
+  borderWidget->SetRepresentation(borderRep);
   borderWidget->On();
 
   vtkNew<vtkHandleWidget> handleWidget;
-  handleWidget->SetCurrentRenderer(ren1.GetPointer());
-  handleWidget->SetInteractor(iren.GetPointer());
+  handleWidget->SetCurrentRenderer(ren1);
+  handleWidget->SetInteractor(iren);
   vtkNew<vtkPointHandleRepresentation2D> handleRep;
   handleRep->SetWorldPosition(plane->GetOrigin());
-  handleWidget->SetRepresentation(handleRep.GetPointer());
+  handleWidget->SetRepresentation(handleRep);
   handleWidget->On();
 
   // Remove the observers so we can go interactive. Without this the "-I"

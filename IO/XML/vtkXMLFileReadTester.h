@@ -31,7 +31,7 @@ class VTKIOXML_EXPORT vtkXMLFileReadTester: public vtkXMLParser
 {
 public:
   vtkTypeMacro(vtkXMLFileReadTester,vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLFileReadTester* New();
 
   /**
@@ -43,7 +43,7 @@ public:
   //@{
   /**
    * Get the data type of the XML file tested.  If the file could not
-   * be read, returns NULL.
+   * be read, returns nullptr.
    */
   vtkGetStringMacro(FileDataType);
   //@}
@@ -51,22 +51,22 @@ public:
   //@{
   /**
    * Get the file version of the XML file tested.  If the file could not
-   * be read, returns NULL.
+   * be read, returns nullptr.
    */
   vtkGetStringMacro(FileVersion);
   //@}
 
 protected:
   vtkXMLFileReadTester();
-  ~vtkXMLFileReadTester() VTK_OVERRIDE;
+  ~vtkXMLFileReadTester() override;
 
-  void StartElement(const char* name, const char** atts) VTK_OVERRIDE;
-  int ParsingComplete() VTK_OVERRIDE;
-  void ReportStrayAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
-  void ReportMissingAttribute(const char*, const char*) VTK_OVERRIDE {}
-  void ReportBadAttribute(const char*, const char*, const char*) VTK_OVERRIDE {}
-  void ReportUnknownElement(const char*) VTK_OVERRIDE {}
-  void ReportXmlParseError() VTK_OVERRIDE {}
+  void StartElement(const char* name, const char** atts) override;
+  int ParsingComplete() override;
+  void ReportStrayAttribute(const char*, const char*, const char*) override {}
+  void ReportMissingAttribute(const char*, const char*) override {}
+  void ReportBadAttribute(const char*, const char*, const char*) override {}
+  void ReportUnknownElement(const char*) override {}
+  void ReportXmlParseError() override {}
 
   char* FileDataType;
   char* FileVersion;
@@ -76,8 +76,8 @@ protected:
   vtkSetStringMacro(FileVersion);
 
 private:
-  vtkXMLFileReadTester(const vtkXMLFileReadTester&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLFileReadTester&) VTK_DELETE_FUNCTION;
+  vtkXMLFileReadTester(const vtkXMLFileReadTester&) = delete;
+  void operator=(const vtkXMLFileReadTester&) = delete;
 };
 
 #endif

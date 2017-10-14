@@ -47,14 +47,14 @@ vtkStandardNewMacro(vtkBoostBrandesCentrality);
 vtkBoostBrandesCentrality::vtkBoostBrandesCentrality() :
   UseEdgeWeightArray    (false),
   InvertEdgeWeightArray (false),
-  EdgeWeightArrayName   (NULL)
+  EdgeWeightArrayName   (nullptr)
 {
 }
 
 //-----------------------------------------------------------------------------
 vtkBoostBrandesCentrality::~vtkBoostBrandesCentrality()
 {
-  this->SetEdgeWeightArrayName(0);
+  this->SetEdgeWeightArrayName(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkBoostBrandesCentrality::PrintSelf(ostream& os, vtkIndent indent)
     << endl;
 
   os << indent << "this->EdgeWeightArrayName: " <<
-    (this->EdgeWeightArrayName ?  this->EdgeWeightArrayName : "NULL") << endl;
+    (this->EdgeWeightArrayName ?  this->EdgeWeightArrayName : "nullptr") << endl;
 }
 
 //-----------------------------------------------------------------------------

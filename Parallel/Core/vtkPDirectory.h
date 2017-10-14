@@ -36,7 +36,7 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
  public:
   static vtkPDirectory *New();
   vtkTypeMacro(vtkPDirectory,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -88,7 +88,7 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
 
  protected:
   vtkPDirectory();
-  ~vtkPDirectory() VTK_OVERRIDE;
+  ~vtkPDirectory() override;
 
  private:
   // Array of Files
@@ -97,8 +97,8 @@ class VTKPARALLELCORE_EXPORT vtkPDirectory : public vtkObject
   // Path to Open'ed directory
   std::string Path;
 
-  vtkPDirectory(const vtkPDirectory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDirectory&) VTK_DELETE_FUNCTION;
+  vtkPDirectory(const vtkPDirectory&) = delete;
+  void operator=(const vtkPDirectory&) = delete;
 }; // End Class: vtkPDirectory
 
 #endif

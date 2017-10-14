@@ -195,7 +195,7 @@ int vtkExtractSelectedGraph::RequestData(
   // Convert the selection to an INDICES selection
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToIndexSelection(selection, input));
-  if (!converted.GetPointer())
+  if (!converted)
   {
     vtkErrorMacro("Selection conversion to INDICES failed.");
     return 0;
@@ -209,7 +209,7 @@ int vtkExtractSelectedGraph::RequestData(
   for (unsigned int i = 0; i < converted->GetNumberOfNodes(); ++i)
   {
     vtkSelectionNode* node = converted->GetNode(i);
-    vtkIdTypeArray* list = 0;
+    vtkIdTypeArray* list = nullptr;
     if (node->GetFieldType() == vtkSelectionNode::VERTEX)
     {
       list = vertexList;
@@ -268,7 +268,7 @@ int vtkExtractSelectedGraph::RequestData(
   vtkSmartPointer<vtkMutableUndirectedGraph> undirBuilder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
   bool directed;
-  vtkGraph* builder = 0;
+  vtkGraph* builder = nullptr;
   if (vtkDirectedGraph::SafeDownCast(input))
   {
     directed = true;

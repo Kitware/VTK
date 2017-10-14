@@ -35,7 +35,6 @@ vtkPOutlineFilter Geometry4
 	Geometry4 SetInputConnection [ironProt0 GetOutputPort]
 vtkPolyDataMapper Mapper4
 	Mapper4 SetInputConnection [Geometry4 GetOutputPort]
-	Mapper4 SetImmediateModeRendering 0
 	Mapper4 SetScalarRange 0 1
 	Mapper4 SetScalarVisibility 0
 	Mapper4 SetScalarModeToDefault
@@ -69,7 +68,6 @@ Tuber0 Update
 
 vtkPolyDataMapper Mapper6
  	Mapper6 SetInputConnection [Tuber0 GetOutputPort]
- 	Mapper6 SetImmediateModeRendering 0
  	Mapper6 SetScalarRange 0 228
  	Mapper6 SetScalarVisibility 1
  	Mapper6 SetScalarModeToUsePointFieldData

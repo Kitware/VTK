@@ -34,7 +34,7 @@ vtkPDirectory::vtkPDirectory()
 vtkPDirectory::~vtkPDirectory()
 {
   this->Files->Delete();
-  this->Files = 0;
+  this->Files = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ const char* vtkPDirectory::GetFile(vtkIdType index) const
 {
   if ( index >= this->Files->GetNumberOfTuples() )
   {
-    return NULL;
+    return nullptr;
   }
   return this->Files->GetValue(index).c_str();
 }
@@ -116,7 +116,7 @@ int vtkPDirectory::FileIsDirectory(const char *name)
   // and it will broke KWWidgets. Reverse back to 1.30
   // return vtksys::SystemTools::FileIsDirectory(name);
 
-  if (name == 0)
+  if (name == nullptr)
   {
     return 0;
   }

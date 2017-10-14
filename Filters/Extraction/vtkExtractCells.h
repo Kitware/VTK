@@ -41,14 +41,14 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractCells : public vtkUnstructuredGridAl
 {
 public:
   vtkTypeMacro(vtkExtractCells, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkExtractCells *New();
 
   /**
    * Set the list of cell IDs that the output vtkUnstructuredGrid
    * will be composed of.  Replaces any other cell ID list supplied
-   * so far.  (Set to NULL to free memory used by cell list.)
+   * so far.  (Set to nullptr to free memory used by cell list.)
    */
 
   void SetCellList(vtkIdList *l);
@@ -69,11 +69,11 @@ public:
 
 protected:
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkExtractCells();
-  ~vtkExtractCells() VTK_OVERRIDE;
+  ~vtkExtractCells() override;
 
 private:
 
@@ -91,8 +91,8 @@ private:
   vtkIdType SubSetUGridCellArraySize;
   char InputIsUgrid;
 
-  vtkExtractCells(const vtkExtractCells&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractCells&) VTK_DELETE_FUNCTION;
+  vtkExtractCells(const vtkExtractCells&) = delete;
+  void operator=(const vtkExtractCells&) = delete;
 };
 
 #endif

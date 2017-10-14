@@ -30,7 +30,7 @@
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
 {
   this->ExtentSplitter = vtkExtentSplitter::New();
-  this->PieceExtents = 0;
+  this->PieceExtents = nullptr;
   memset(this->UpdateExtent, 0, sizeof(this->UpdateExtent));
   memset(this->PointDimensions, 0, sizeof(this->PointDimensions));
   memset(this->PointIncrements, 0, sizeof(this->PointIncrements));
@@ -254,7 +254,7 @@ void vtkXMLPStructuredDataReader::SetupPieces(int numPieces)
 void vtkXMLPStructuredDataReader::DestroyPieces()
 {
   delete [] this->PieceExtents;
-  this->PieceExtents = 0;
+  this->PieceExtents = nullptr;
   this->Superclass::DestroyPieces();
 }
 

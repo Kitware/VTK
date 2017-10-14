@@ -332,8 +332,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) VTK_DELETE_FUNCTION;" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) VTK_DELETE_FUNCTION;" % self.ClassName
+        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) = delete;" % ( self.ClassName, self.ClassName)
+        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) = delete;" % self.ClassName
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
@@ -363,7 +363,7 @@ class TestVTKFiles:
         if foundcopy < 1:
             self.Print( "File: %s does not define copy constructor" %
                         self.FileName )
-            self.Print( "Should be:\n%s(const %s&) VTK_DELETE_FUNCTION;" %
+            self.Print( "Should be:\n%s(const %s&) = delete;" %
                         (self.ClassName, self.ClassName) )
             self.Error("No private copy constructor")
         if foundcopy > 1:
@@ -373,7 +373,7 @@ class TestVTKFiles:
         if foundasgn < 1:
             self.Print( "File: %s does not define assignment operator" %
                         self.FileName )
-            self.Print( "Should be:\nvoid operator=(const %s&) VTK_DELETE_FUNCTION;"
+            self.Print( "Should be:\nvoid operator=(const %s&) = delete;"
                         % self.ClassName )
             self.Error("No private assignment operator")
         if foundcopy > 1:

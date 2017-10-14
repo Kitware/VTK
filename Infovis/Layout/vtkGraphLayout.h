@@ -46,7 +46,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkGraphLayout : public vtkGraphAlgorithm
 public:
   static vtkGraphLayout *New();
   vtkTypeMacro(vtkGraphLayout, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
   /**
    * Get the modification time of the layout algorithm.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkGraphLayout();
-  ~vtkGraphLayout() VTK_OVERRIDE;
+  ~vtkGraphLayout() override;
 
   vtkGraphLayoutStrategy* LayoutStrategy;
 
@@ -106,7 +106,7 @@ protected:
    */
   vtkEventForwarderCommand *EventForwarder;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 
@@ -118,8 +118,8 @@ private:
   vtkAbstractTransform* Transform;
   bool UseTransform;
 
-  vtkGraphLayout(const vtkGraphLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphLayout&) VTK_DELETE_FUNCTION;
+  vtkGraphLayout(const vtkGraphLayout&) = delete;
+  void operator=(const vtkGraphLayout&) = delete;
 };
 
 #endif

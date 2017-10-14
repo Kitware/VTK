@@ -75,7 +75,7 @@ public:
    */
   static vtkContourLoopExtraction *New();
   vtkTypeMacro(vtkContourLoopExtraction,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -127,7 +127,7 @@ public:
 
 protected:
   vtkContourLoopExtraction();
-  ~vtkContourLoopExtraction();
+  ~vtkContourLoopExtraction() override;
 
   int LoopClosure;
   bool ScalarThresholding;
@@ -135,11 +135,11 @@ protected:
   double Normal[3];
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
 private:
-  vtkContourLoopExtraction(const vtkContourLoopExtraction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourLoopExtraction&) VTK_DELETE_FUNCTION;
+  vtkContourLoopExtraction(const vtkContourLoopExtraction&) = delete;
+  void operator=(const vtkContourLoopExtraction&) = delete;
 };
 
 

@@ -35,12 +35,12 @@ public:
   static vtkPath *New();
 
   vtkTypeMacro(vtkPath,vtkPointSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_PATH;}
+  int GetDataObjectType() override {return VTK_PATH;}
 
   /**
    * Enumeration of recognized control point types:
@@ -84,26 +84,26 @@ public:
   /**
    * vtkPath doesn't use cells. These methods return trivial values.
    */
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE { return 0; }
+  vtkIdType GetNumberOfCells() override { return 0; }
   using vtkDataSet::GetCell;
-  vtkCell *GetCell(vtkIdType)  VTK_OVERRIDE { return NULL; }
-  void GetCell(vtkIdType, vtkGenericCell *) VTK_OVERRIDE;
-  int GetCellType(vtkIdType)   VTK_OVERRIDE { return 0; }
+  vtkCell *GetCell(vtkIdType)  override  { return nullptr; }
+  void GetCell(vtkIdType, vtkGenericCell *) override;
+  int GetCellType(vtkIdType)   override  { return 0; }
 
   /**
    * vtkPath doesn't use cells, this method just clears ptIds.
    */
-  void GetCellPoints(vtkIdType, vtkIdList *ptIds) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType, vtkIdList *ptIds) override;
 
   /**
    * vtkPath doesn't use cells, this method just clears cellIds.
    */
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override;
 
   /**
    * Return the maximum cell size in this poly data.
    */
-  int GetMaxCellSize() VTK_OVERRIDE { return 0; }
+  int GetMaxCellSize() override { return 0; }
 
   /**
    * Method allocates initial storage for points. Use this method before the
@@ -127,11 +127,11 @@ public:
 
 protected:
   vtkPath();
-  ~vtkPath() VTK_OVERRIDE;
+  ~vtkPath() override;
 
 private:
-  vtkPath(const vtkPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPath&) VTK_DELETE_FUNCTION;
+  vtkPath(const vtkPath&) = delete;
+  void operator=(const vtkPath&) = delete;
 };
 
 #endif

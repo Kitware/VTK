@@ -36,7 +36,7 @@ public:
   static vtkImageHSIToRGB *New();
   vtkTypeMacro(vtkImageHSIToRGB,vtkThreadedImageAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,15 +51,15 @@ public:
 
 protected:
   vtkImageHSIToRGB();
-  ~vtkImageHSIToRGB() VTK_OVERRIDE {}
+  ~vtkImageHSIToRGB() override {}
 
   double Maximum;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 private:
-  vtkImageHSIToRGB(const vtkImageHSIToRGB&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageHSIToRGB&) VTK_DELETE_FUNCTION;
+  vtkImageHSIToRGB(const vtkImageHSIToRGB&) = delete;
+  void operator=(const vtkImageHSIToRGB&) = delete;
 };
 
 #endif

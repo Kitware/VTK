@@ -57,7 +57,7 @@ public:
   static vtkConeLayoutStrategy *New();
 
   vtkTypeMacro(vtkConeLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -100,11 +100,11 @@ public:
   /**
    * Perform the layout.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
 protected:
   vtkConeLayoutStrategy();
-  ~vtkConeLayoutStrategy() VTK_OVERRIDE;
+  ~vtkConeLayoutStrategy() override;
 
   /**
    * Helper operations for tree layout.  Layout is performed
@@ -134,8 +134,8 @@ protected:
   double SumOfRadii;
 
 private:
-  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&) = delete;
+  void operator=(const vtkConeLayoutStrategy&) = delete;
 };
 
 #endif

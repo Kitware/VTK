@@ -33,18 +33,18 @@ class VTKWEBGLEXPORTER_EXPORT vtkWebGLWidget : public vtkWebGLObject
 public:
   static vtkWebGLWidget* New();
   vtkTypeMacro(vtkWebGLWidget, vtkWebGLObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
-  void GenerateBinaryData() VTK_OVERRIDE;
-  unsigned char* GetBinaryData(int part) VTK_OVERRIDE;
-  int GetBinarySize(int part) VTK_OVERRIDE;
-  int GetNumberOfParts() VTK_OVERRIDE;
+  void GenerateBinaryData() override;
+  unsigned char* GetBinaryData(int part) override;
+  int GetBinarySize(int part) override;
+  int GetNumberOfParts() override;
 
   void GetDataFromColorMap(vtkActor2D* actor);
 
 protected:
     vtkWebGLWidget();
-    ~vtkWebGLWidget();
+    ~vtkWebGLWidget() override;
 
     unsigned char* binaryData;
     int binarySize;
@@ -58,8 +58,8 @@ protected:
     std::vector <double*>colors;      //x, r, g, b
 
 private:
-  vtkWebGLWidget(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
+  vtkWebGLWidget(const vtkWebGLWidget&) = delete;
+  void operator=(const vtkWebGLWidget&) = delete;
 
 };
 

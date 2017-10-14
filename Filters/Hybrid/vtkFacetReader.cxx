@@ -43,7 +43,7 @@ vtkStandardNewMacro(vtkFacetReader);
 // if any data were read before the end-of-file was reached.
 //
 static bool GetLineFromStream(istream& is,
-  std::string& line, bool *has_newline = 0)
+  std::string& line, bool *has_newline = nullptr)
 {
   const int bufferSize = 1024;
   char buffer[bufferSize];
@@ -82,7 +82,7 @@ static bool GetLineFromStream(istream& is,
 //----------------------------------------------------------------------------
 vtkFacetReader::vtkFacetReader()
 {
-  this->FileName  = NULL;
+  this->FileName  = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 

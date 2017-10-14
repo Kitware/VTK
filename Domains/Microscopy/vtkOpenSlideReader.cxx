@@ -29,7 +29,7 @@ void vtkOpenSlideReader::ExecuteInformation()
 
   this->openslide_handle = openslide_open(this->GetFileName());
 
-  if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
+  if(this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
   {
     vtkErrorWithObjectMacro(this,
                             "File could not be opened by openslide"
@@ -69,7 +69,7 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
 
   vtkImageData *data = this->AllocateOutputData(output, outInfo);
 
-  if(this->openslide_handle == NULL)
+  if(this->openslide_handle == nullptr)
   {
     vtkErrorWithObjectMacro(this,
                             "File could not be read by openslide"
@@ -99,7 +99,7 @@ void vtkOpenSlideReader::ExecuteDataWithInformation(vtkDataObject *output,
     h
     );
 
-  if(openslide_get_error(this->openslide_handle) != NULL)
+  if(openslide_get_error(this->openslide_handle) != nullptr)
   {
     // Buffer is deleted by the openslide in case the error occurs
     // delete[] buffer;
@@ -140,7 +140,7 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
 
   this->openslide_handle = openslide_open(fname);
 
-  if(this->openslide_handle == NULL || openslide_get_error(this->openslide_handle) != NULL)
+  if(this->openslide_handle == nullptr || openslide_get_error(this->openslide_handle) != nullptr)
   {
     // Unable to open
     return 0;
@@ -148,10 +148,10 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
   else
   {
     // Pretty sure
-    if(this->openslide_handle != NULL)
+    if(this->openslide_handle != nullptr)
     {
       openslide_close(this->openslide_handle);
-      this->openslide_handle = NULL;
+      this->openslide_handle = nullptr;
     }
     return 2;
   }
@@ -160,7 +160,7 @@ int vtkOpenSlideReader::CanReadFile(const char* fname)
 vtkOpenSlideReader::~vtkOpenSlideReader()
 {
   // Release openslide_handle if being used
-  if(this->openslide_handle != NULL)
+  if(this->openslide_handle != nullptr)
   {
     openslide_close(this->openslide_handle);
   }

@@ -41,13 +41,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiTimeStepAlgorithm : public vtkAlgor
 public:
   static vtkMultiTimeStepAlgorithm *New();
   vtkTypeMacro(vtkMultiTimeStepAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
 protected:
   vtkMultiTimeStepAlgorithm();
 
-  ~vtkMultiTimeStepAlgorithm() VTK_OVERRIDE
+  ~vtkMultiTimeStepAlgorithm() override
   {
   };
 
@@ -97,14 +97,14 @@ protected:
     return 1;
   }
 
-  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   bool CacheData;
   unsigned int NumberOfCacheEntries;
 
 private:
-  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) = delete;
+  void operator=(const vtkMultiTimeStepAlgorithm&) = delete;
 
 
   vtkSmartPointer<vtkMultiBlockDataSet> MDataSet; //stores all the temporal data sets

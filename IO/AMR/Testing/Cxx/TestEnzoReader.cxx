@@ -91,7 +91,7 @@ int TestEnzoReader( int argc, char *argv[] )
   std::cout << "Filename: " << fileName << std::endl;
   std::cout.flush();
 
-  vtkOverlappingAMR *amr = NULL;
+  vtkOverlappingAMR *amr = nullptr;
   myEnzoReader->SetFileName( fileName );
   for(int level = 0; level < myEnzoReader->GetNumberOfLevels(); ++level )
   {
@@ -102,7 +102,7 @@ int TestEnzoReader( int argc, char *argv[] )
 
     amr = myEnzoReader->GetOutput();
     amr->Audit();
-    if( amr != NULL )
+    if( amr != nullptr )
     {
       rc+=EnzoReaderTest::CheckValue(
         "OUTPUT LEVELS",static_cast<int>(ComputeMaxNonEmptyLevel(amr)),level+1);
@@ -115,7 +115,7 @@ int TestEnzoReader( int argc, char *argv[] )
     }
     else
     {
-      std::cerr << "ERROR: output AMR dataset is NULL!";
+      std::cerr << "ERROR: output AMR dataset is nullptr!";
       return 1;
     }
   } // END for all levels

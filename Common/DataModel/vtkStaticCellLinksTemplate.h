@@ -59,7 +59,7 @@ public:
    * Default constructor. BuildLinks() does most of the work.
    */
   vtkStaticCellLinksTemplate() :
-    LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
+    LinksSize(0), NumPts(0), NumCells(0), Links(nullptr), Offsets(nullptr)
   {
   }
 
@@ -116,8 +116,8 @@ protected:
   TIds *Offsets; //offsets for each point into the link array
 
 private:
-  vtkStaticCellLinksTemplate(const vtkStaticCellLinksTemplate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStaticCellLinksTemplate&) VTK_DELETE_FUNCTION;
+  vtkStaticCellLinksTemplate(const vtkStaticCellLinksTemplate&) = delete;
+  void operator=(const vtkStaticCellLinksTemplate&) = delete;
 
 };
 

@@ -187,7 +187,7 @@ void save(Archiver& ar, const vtkVariantArray& c_array,
 
   // Array name
   vtkStdString name;
-  if(array.GetName()!=NULL) name=array.GetName();
+  if(array.GetName()!=nullptr) name=array.GetName();
   ar & name;
 
   // Array data

@@ -53,7 +53,7 @@ public:
    */
   static vtkFillHolesFilter *New();
   vtkTypeMacro(vtkFillHolesFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -69,15 +69,15 @@ public:
 
 protected:
   vtkFillHolesFilter();
-  ~vtkFillHolesFilter() VTK_OVERRIDE;
+  ~vtkFillHolesFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double HoleSize;
 
 private:
-  vtkFillHolesFilter(const vtkFillHolesFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFillHolesFilter&) VTK_DELETE_FUNCTION;
+  vtkFillHolesFilter(const vtkFillHolesFilter&) = delete;
+  void operator=(const vtkFillHolesFilter&) = delete;
 };
 
 #endif

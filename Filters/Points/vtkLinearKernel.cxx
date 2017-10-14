@@ -38,7 +38,7 @@ ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *prob,
                vtkDoubleArray *weights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
-  double *p = (prob ? prob->GetPointer(0) : NULL);
+  double *p = (prob ? prob->GetPointer(0) : nullptr);
   weights->SetNumberOfTuples(numPts);
   double *w = weights->GetPointer(0);
   double weight = 1.0 / static_cast<double>(numPts);

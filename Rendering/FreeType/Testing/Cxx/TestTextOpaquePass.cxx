@@ -53,7 +53,7 @@ void configureTextArray(vtkNew<T> objs[2][2][3],
     {
       for (size_t b = 0; b < 3; ++b)
       {
-        T *obj = objs[t][e][b].Get();
+        T *obj = objs[t][e][b];
         vtkTextProperty *tprop = obj->GetTextProperty();
 
         tprop->SetJustificationToCentered();
@@ -105,11 +105,11 @@ int TestTextOpaquePass(int, char *[])
 
   // Disable everything but opaque and overlay:
   vtkNew<vtkRenderStepsPass> pass;
-  pass->SetTranslucentPass(NULL);
-  pass->SetVolumetricPass(NULL);
+  pass->SetTranslucentPass(nullptr);
+  pass->SetVolumetricPass(nullptr);
 
   vtkNew<vtkRenderer> ren;
-  ren->SetPass(pass.Get());
+  ren->SetPass(pass);
   ren->GradientBackgroundOn();
   ren->SetBackground(0., 0., 0.);
   ren->SetBackground2(1., 1., 1.);
@@ -122,11 +122,11 @@ int TestTextOpaquePass(int, char *[])
   ren->GetActiveCamera()->SetParallelScale(height/2);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   win->SetSize(width, height);
   win->SetMultiSamples(0);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   // Used for computing coordinates:
   double dx = width / 5.;
@@ -138,12 +138,12 @@ int TestTextOpaquePass(int, char *[])
     {
       for (size_t b = 0; b < 3; ++b)
       {
-        textMapperActor[t][e][b]->SetMapper(textMapper[t][e][b].Get());
+        textMapperActor[t][e][b]->SetMapper(textMapper[t][e][b]);
 
-        ren->AddViewProp(textActor[t][e][b].Get());
-        ren->AddViewProp(textActor3D[t][e][b].Get());
-        ren->AddViewProp(textMapperActor[t][e][b].Get());
-        ren->AddViewProp(billboardActor[t][e][b].Get());
+        ren->AddViewProp(textActor[t][e][b]);
+        ren->AddViewProp(textActor3D[t][e][b]);
+        ren->AddViewProp(textMapperActor[t][e][b]);
+        ren->AddViewProp(billboardActor[t][e][b]);
 
         // Convert TEB coordinates into a flat index:
         size_t idx = t * 6 + e * 3 + b;

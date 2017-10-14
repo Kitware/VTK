@@ -60,7 +60,7 @@ int TestGaussianBlurPass(int argc, char* argv[])
   renWin->AddRenderer(renderer);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkSmartPointer<vtkRenderStepsPass> basicPasses =
@@ -127,7 +127,6 @@ int TestGaussianBlurPass(int argc, char* argv[])
   vtkSmartPointer<vtkPolyDataMapper> coneMapper=
     vtkSmartPointer<vtkPolyDataMapper>::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
-  coneMapper->SetImmediateModeRendering(1);
 
   vtkSmartPointer<vtkActor> coneActor=
     vtkSmartPointer<vtkActor>::New();

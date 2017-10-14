@@ -40,7 +40,7 @@ class VTKIMAGINGFOURIER_EXPORT vtkImageIdealHighPass : public vtkThreadedImageAl
 public:
   static vtkImageIdealHighPass *New();
   vtkTypeMacro(vtkImageIdealHighPass,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -61,7 +61,7 @@ public:
 
 protected:
   vtkImageIdealHighPass();
-  ~vtkImageIdealHighPass()VTK_OVERRIDE {}
+  ~vtkImageIdealHighPass() override {}
 
   double CutOff[3];
 
@@ -69,10 +69,10 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) VTK_OVERRIDE;
+                           int outExt[6], int id) override;
 private:
-  vtkImageIdealHighPass(const vtkImageIdealHighPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageIdealHighPass&) VTK_DELETE_FUNCTION;
+  vtkImageIdealHighPass(const vtkImageIdealHighPass&) = delete;
+  void operator=(const vtkImageIdealHighPass&) = delete;
 };
 
 #endif

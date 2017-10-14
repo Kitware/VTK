@@ -32,6 +32,7 @@ vtkCursor3D::vtkCursor3D()
 
   this->Focus = vtkPolyData::New();
   pts = vtkPoints::New();
+  pts->SetDataTypeToDouble();
   pts->vtkPoints::InsertPoint(0, 0.0, 0.0, 0.0);
   this->Focus->SetPoints(pts);
   pts->Delete();
@@ -151,6 +152,7 @@ int vtkCursor3D::RequestData(
   if ( numPts )
   {
     newPts = vtkPoints::New();
+    newPts->SetDataTypeToDouble();
     newPts->Allocate(numPts);
     newLines = vtkCellArray::New();
     newLines->Allocate(newLines->EstimateSize(numLines,2));

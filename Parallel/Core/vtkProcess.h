@@ -47,7 +47,7 @@ class VTKPARALLELCORE_EXPORT vtkProcess : public vtkObject
 {
 public:
   vtkTypeMacro(vtkProcess,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Entry point of the process.
@@ -57,7 +57,7 @@ public:
 
   /**
    * Give access to the controller that launched the process.
-   * Initial value is NULL.
+   * Initial value is nullptr.
    */
   vtkMultiProcessController *GetController();
 
@@ -79,8 +79,8 @@ protected:
   int ReturnValue;
 
 private:
-  vtkProcess(const vtkProcess&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProcess&) VTK_DELETE_FUNCTION;
+  vtkProcess(const vtkProcess&) = delete;
+  void operator=(const vtkProcess&) = delete;
 };
 
 #endif

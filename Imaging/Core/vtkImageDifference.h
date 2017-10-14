@@ -48,7 +48,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageDifference : public vtkThreadedImageAlgorith
 public:
   static vtkImageDifference *New();
   vtkTypeMacro(vtkImageDifference,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,7 +111,7 @@ public:
 
 protected:
   vtkImageDifference();
-  ~vtkImageDifference() VTK_OVERRIDE {}
+  ~vtkImageDifference() override {}
 
   // Parameters
   int AllowShift;
@@ -125,20 +125,20 @@ protected:
 
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   void ThreadedRequestData(vtkInformation *request,
                                    vtkInformationVector **inputVector,
                                    vtkInformationVector *outputVector,
                                    vtkImageData ***inData,
                                    vtkImageData **outData,
-                                   int extent[6], int threadId) VTK_OVERRIDE;
+                                   int extent[6], int threadId) override;
 
   // Used for vtkMultiThreader operation.
   vtkImageDifferenceThreadData *ThreadData;
@@ -147,8 +147,8 @@ protected:
   vtkImageDifferenceSMPThreadLocal *SMPThreadData;
 
 private:
-  vtkImageDifference(const vtkImageDifference&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDifference&) VTK_DELETE_FUNCTION;
+  vtkImageDifference(const vtkImageDifference&) = delete;
+  void operator=(const vtkImageDifference&) = delete;
 
   friend class vtkImageDifferenceSMPFunctor;
 };

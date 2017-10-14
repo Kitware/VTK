@@ -32,7 +32,7 @@ vtkOpenGLCamera::vtkOpenGLCamera()
   this->WCVCMatrix = vtkMatrix4x4::New();
   this->NormalMatrix = vtkMatrix3x3::New();
   this->VCDCMatrix = vtkMatrix4x4::New();
-  this->LastRenderer = 0;
+  this->LastRenderer = nullptr;
 }
 
 vtkOpenGLCamera::~vtkOpenGLCamera()

@@ -31,19 +31,19 @@ class VTKIOCORE_EXPORT vtkBase64OutputStream : public vtkOutputStream
 public:
   vtkTypeMacro(vtkBase64OutputStream,vtkOutputStream);
   static vtkBase64OutputStream *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Called after the stream position has been set by the caller, but
    * before any Write calls.  The stream position should not be
    * adjusted by the caller until after an EndWriting call.
    */
-  int StartWriting() VTK_OVERRIDE;
+  int StartWriting() override;
 
   /**
    * Write output data of the given length.
    */
-  int Write(void const* data, size_t length) VTK_OVERRIDE;
+  int Write(void const* data, size_t length) override;
 
   /**
    * Called after all desired calls to Write have been made.  After
@@ -51,11 +51,11 @@ public:
    * stream.  Additional writes should not be done until after another
    * call to StartWriting.
    */
-  int EndWriting() VTK_OVERRIDE;
+  int EndWriting() override;
 
 protected:
   vtkBase64OutputStream();
-  ~vtkBase64OutputStream() VTK_OVERRIDE;
+  ~vtkBase64OutputStream() override;
 
   // Number of un-encoded bytes left in Buffer from last call to Write.
   unsigned int BufferLength;
@@ -67,8 +67,8 @@ protected:
   int EncodeEnding(unsigned char c0);
 
 private:
-  vtkBase64OutputStream(const vtkBase64OutputStream&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBase64OutputStream&) VTK_DELETE_FUNCTION;
+  vtkBase64OutputStream(const vtkBase64OutputStream&) = delete;
+  void operator=(const vtkBase64OutputStream&) = delete;
 };
 
 #endif

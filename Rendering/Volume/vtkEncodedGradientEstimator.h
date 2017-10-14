@@ -45,7 +45,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEncodedGradientEstimator,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -212,9 +212,9 @@ public:
 
 protected:
   vtkEncodedGradientEstimator();
-  ~vtkEncodedGradientEstimator() VTK_OVERRIDE;
+  ~vtkEncodedGradientEstimator() override;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
@@ -250,8 +250,8 @@ protected:
   int                        ZeroPad;
 
 private:
-  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
+  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&) = delete;
+  void operator=(const vtkEncodedGradientEstimator&) = delete;
 };
 
 

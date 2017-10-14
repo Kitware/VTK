@@ -39,8 +39,8 @@ vtkEllipsoidalGaussianKernel::vtkEllipsoidalGaussianKernel()
 
   this->F2 = this->Sharpness / this->Radius;
   this->E2 = this->Eccentricity * this->Eccentricity;
-  this->NormalsArray = NULL;
-  this->ScalarsArray = NULL;
+  this->NormalsArray = nullptr;
+  this->ScalarsArray = nullptr;
 }
 
 
@@ -60,13 +60,13 @@ FreeStructures()
   if ( this->NormalsArray )
   {
     this->NormalsArray->Delete();
-    this->NormalsArray = NULL;
+    this->NormalsArray = nullptr;
   }
 
   if ( this->ScalarsArray )
   {
     this->ScalarsArray->Delete();
-    this->ScalarsArray = NULL;
+    this->ScalarsArray = nullptr;
   }
 }
 
@@ -92,7 +92,7 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
   }
   else
   {
-    this->ScalarsArray = NULL;
+    this->ScalarsArray = nullptr;
   }
 
   // Grab the normals if requested
@@ -109,7 +109,7 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *pd)
     }
     else
     {
-      this->NormalsArray = NULL;
+      this->NormalsArray = nullptr;
     }
   }
 
@@ -129,7 +129,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
   vtkIdType id;
   double sum = 0.0;
   weights->SetNumberOfTuples(numPts);
-  double *p = (prob ? prob->GetPointer(0) : NULL);
+  double *p = (prob ? prob->GetPointer(0) : nullptr);
   double *w = weights->GetPointer(0);
   double y[3], v[3], r2, z2, rxy2, mag;
   double n[3], s, scale;

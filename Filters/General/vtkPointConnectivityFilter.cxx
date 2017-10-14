@@ -95,7 +95,7 @@ int vtkPointConnectivityFilter::RequestData(
 
   // Check input
   vtkIdType numPts;
-  if ( input == NULL || (numPts=input->GetNumberOfPoints()) < 1 )
+  if ( input == nullptr || (numPts=input->GetNumberOfPoints()) < 1 )
   {
     return 1;
   }
@@ -109,12 +109,12 @@ int vtkPointConnectivityFilter::RequestData(
   // Loop over all points, retrieving connectivity count
   // The first GetPointCells() primes the pump (builds internal structures, etc.)
   vtkNew<vtkIdList> cellIds;
-  input->GetPointCells(0, cellIds.GetPointer());
+  input->GetPointCells(0, cellIds);
   UpdateConnectivityCount updateCount(input,connPtr);
   vtkSMPTools::For(0,numPts, updateCount);
 
   // Pass array to the output
-  output->GetPointData()->AddArray(connCount.GetPointer());
+  output->GetPointData()->AddArray(connCount);
 
   return 1;
 }

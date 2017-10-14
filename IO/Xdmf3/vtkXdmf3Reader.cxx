@@ -47,6 +47,7 @@
 #include "XdmfRegularGrid.hpp"
 #include "XdmfUnstructuredGrid.hpp"
 
+#include <algorithm>
 
 //TODO: implement fast and approximate CanReadFile
 //TODO: read from buffer, allowing for xincludes
@@ -284,7 +285,7 @@ private:
     unsigned int updateNumPieces = 1;
     vtkMultiProcessController* ctrl =
       vtkMultiProcessController::GetGlobalController();
-    if (ctrl != NULL)
+    if (ctrl != nullptr)
     {
       updatePiece = ctrl->GetLocalProcessId();
       updateNumPieces = ctrl->GetNumberOfProcesses();
@@ -363,7 +364,7 @@ private:
     unsigned int updateNumPieces = 1;
     vtkMultiProcessController* ctrl =
       vtkMultiProcessController::GetGlobalController();
-    if (ctrl != NULL)
+    if (ctrl != nullptr)
     {
       updatePiece = ctrl->GetLocalProcessId();
       updateNumPieces = ctrl->GetNumberOfProcesses();
@@ -412,7 +413,7 @@ vtkStandardNewMacro(vtkXdmf3Reader);
 //----------------------------------------------------------------------------
 vtkXdmf3Reader::vtkXdmf3Reader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->Internal = new vtkXdmf3Reader::Internals();
   this->FileSeriesAsTime = true;
@@ -428,7 +429,7 @@ vtkXdmf3Reader::vtkXdmf3Reader()
 vtkXdmf3Reader::~vtkXdmf3Reader()
 {
 
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->Internal;
   //XdmfHDF5Controller::closeFiles();
 }
@@ -705,7 +706,7 @@ int vtkXdmf3Reader::RequestData(vtkInformation *,
     time =
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     //find the nearest match (floor), so we have something exact to search for
-    std::vector<double>::iterator it = upper_bound(
+    std::vector<double>::iterator it = std::upper_bound(
       this->Internal->TimeSteps.begin(), this->Internal->TimeSteps.end(), time);
     if (it != this->Internal->TimeSteps.begin())
     {
@@ -790,7 +791,7 @@ vtkMultiPieceDataSet * vtkXdmf3Reader::Internals::Flatten
   unsigned int numProcs ;
   vtkMultiProcessController* ctrl =
     vtkMultiProcessController::GetGlobalController();
-  if (ctrl != NULL)
+  if (ctrl != nullptr)
   {
     procnum = ctrl->GetLocalProcessId();
     numProcs = ctrl->GetNumberOfProcesses();
@@ -821,7 +822,7 @@ vtkMultiPieceDataSet * vtkXdmf3Reader::Internals::Flatten
   vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::New();
   for (i = 0; i < total; i++)
   {
-    mpds->SetPiece(i++, NULL);
+    mpds->SetPiece(i++, nullptr);
   }
 
   //fill in my pieces

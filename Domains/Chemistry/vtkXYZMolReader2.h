@@ -40,14 +40,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkXYZMolReader2 : public vtkMoleculeAlgorithm
 public:
   static vtkXYZMolReader2 *New();
   vtkTypeMacro(vtkXYZMolReader2,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *) VTK_OVERRIDE;
+  void SetOutput(vtkMolecule *) override;
   //@}
 
   //@{
@@ -60,12 +60,12 @@ public:
 
 protected:
   vtkXYZMolReader2();
-  ~vtkXYZMolReader2() VTK_OVERRIDE;
+  ~vtkXYZMolReader2() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   char *FileName;
   std::vector<istream::pos_type> file_positions; // to store beginning of each tstep
@@ -75,8 +75,8 @@ protected:
   int NumberOfAtoms;
 
 private:
-  vtkXYZMolReader2(const vtkXYZMolReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYZMolReader2&) VTK_DELETE_FUNCTION;
+  vtkXYZMolReader2(const vtkXYZMolReader2&) = delete;
+  void operator=(const vtkXYZMolReader2&) = delete;
 };
 
 #endif

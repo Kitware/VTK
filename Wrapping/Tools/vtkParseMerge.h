@@ -58,6 +58,11 @@ MergeInfo *vtkParseMerge_MergeSuperClasses(
   FileInfo *finfo, NamespaceInfo *data, ClassInfo *classInfo);
 
 /**
+ * Create an initialized MergeInfo object.
+ */
+MergeInfo *vtkParseMerge_CreateMergeInfo(ClassInfo *classInfo);
+
+/**
  * Free the MergeInfo object.
  */
 void vtkParseMerge_FreeMergeInfo(MergeInfo *info);

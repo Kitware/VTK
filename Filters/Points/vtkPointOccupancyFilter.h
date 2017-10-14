@@ -55,7 +55,7 @@ public:
    */
   static vtkPointOccupancyFilter *New();
   vtkTypeMacro(vtkPointOccupancyFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -93,7 +93,7 @@ public:
 
 protected:
   vtkPointOccupancyFilter();
-  ~vtkPointOccupancyFilter();
+  ~vtkPointOccupancyFilter() override;
 
   int SampleDimensions[3]; // dimensions of volume over which to compute occupancy
   double ModelBounds[6]; // bounding box defining image
@@ -101,20 +101,20 @@ protected:
   unsigned char EmptyValue; // what value indicates a voxel is empty
   unsigned char OccupiedValue; // what value indicates a voxel is occupied
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   void ComputeModelBounds(vtkDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);
 
 private:
-  vtkPointOccupancyFilter(const vtkPointOccupancyFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointOccupancyFilter&) VTK_DELETE_FUNCTION;
+  vtkPointOccupancyFilter(const vtkPointOccupancyFilter&) = delete;
+  void operator=(const vtkPointOccupancyFilter&) = delete;
 };
 
 #endif

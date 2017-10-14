@@ -41,7 +41,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkSurfaceLICComposite : public vtkObject
 public:
   static vtkSurfaceLICComposite *New();
   vtkTypeMacro(vtkSurfaceLICComposite, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Initialize the object based on the following description of the
@@ -159,7 +159,7 @@ public:
    * use.
    */
   virtual void SetContext(vtkOpenGLRenderWindow *){}
-  virtual vtkOpenGLRenderWindow *GetContext(){ return NULL; }
+  virtual vtkOpenGLRenderWindow *GetContext(){ return nullptr; }
 
   /**
    * Set the communicator for parallel communication. A duplicate
@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkSurfaceLICComposite();
-  ~vtkSurfaceLICComposite();
+  ~vtkSurfaceLICComposite() override;
 
   /**
    * For serial run. Make a decomposition disjoint. Sorts extents and
@@ -282,8 +282,8 @@ protected:
   int NumberOfAAGuardPixels;                   // n antialias passes
 
 private:
-  vtkSurfaceLICComposite(const vtkSurfaceLICComposite&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSurfaceLICComposite&) VTK_DELETE_FUNCTION;
+  vtkSurfaceLICComposite(const vtkSurfaceLICComposite&) = delete;
+  void operator=(const vtkSurfaceLICComposite&) = delete;
 
   friend
   ostream &operator<<(ostream &os, vtkSurfaceLICComposite &ss);

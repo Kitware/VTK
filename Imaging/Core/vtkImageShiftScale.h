@@ -34,7 +34,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageShiftScale : public vtkThreadedImageAlgorith
 public:
   static vtkImageShiftScale *New();
   vtkTypeMacro(vtkImageShiftScale,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkImageShiftScale();
-  ~vtkImageShiftScale() VTK_OVERRIDE;
+  ~vtkImageShiftScale() override;
 
   double Shift;
   double Scale;
@@ -106,7 +106,7 @@ protected:
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
 
   void ThreadedRequestData(vtkInformation*,
                                    vtkInformationVector**,
@@ -114,10 +114,10 @@ protected:
                                    vtkImageData*** inData,
                                    vtkImageData** outData,
                                    int outExt[6],
-                                   int threadId) VTK_OVERRIDE;
+                                   int threadId) override;
 private:
-  vtkImageShiftScale(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
+  vtkImageShiftScale(const vtkImageShiftScale&) = delete;
+  void operator=(const vtkImageShiftScale&) = delete;
 };
 
 #endif

@@ -73,9 +73,9 @@ public:
     this->DataX = vtkArrayDownCast<vtkDataArray>(valsX);
     this->DataY = vtkArrayDownCast<vtkDataArray>(valsY);
   }
-  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  ~BivariateContingenciesAndInformationFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     Tuple x (this->DataX->GetNumberOfComponents ());
     Tuple y (this->DataX->GetNumberOfComponents ());
@@ -125,9 +125,9 @@ public:
     this->DataX = valsX;
     this->DataY = valsY;
   }
-  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  ~BivariateContingenciesAndInformationFunctor() override { }
   void operator() ( vtkDoubleArray* result,
-                            vtkIdType id ) VTK_OVERRIDE
+                            vtkIdType id ) override
   {
     TypeSpec x = this->DataX->GetVariantValue( id ).ToString ();
     TypeSpec y = this->DataY->GetVariantValue( id ).ToString ();
@@ -147,7 +147,7 @@ void Count (std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>,vtkId
 {
   vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(valsX);
   vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(valsY);
-  if (dataX == 0 || dataY == 0)
+  if (dataX == nullptr || dataY == nullptr)
     return;
   vtkIdType nRow = dataX->GetNumberOfTuples ();
   for ( vtkIdType r = 0; r < nRow; ++ r )
@@ -245,7 +245,7 @@ public:
     vtkType* dataX = vtkType::SafeDownCast (valsX);
     vtkType* dataY = vtkType::SafeDownCast (valsY);
 
-    if (dataX == 0 || dataY == 0)
+    if (dataX == nullptr || dataY == nullptr)
       return;
 
     int nRowSumm = varX->GetNumberOfTuples ();
@@ -427,7 +427,7 @@ public:
     vtkType* dataX = vtkType::SafeDownCast (valsX);
     vtkType* dataY = vtkType::SafeDownCast (valsY);
 
-    if (dataX == 0 || dataY == 0)
+    if (dataX == nullptr || dataY == nullptr)
       return;
 
     double n = contingencyTab->GetValueByName( 0, "Cardinality" ).ToDouble ();
@@ -643,7 +643,7 @@ public:
     vtkType* dataX = vtkType::SafeDownCast (valsX);
     vtkType* dataY = vtkType::SafeDownCast (valsY);
 
-    if (dataX == 0 || dataY == 0)
+    if (dataX == nullptr || dataY == nullptr)
       return;
 
     int nRowSumm = varX->GetNumberOfTuples ();
@@ -806,7 +806,7 @@ public:
     vtkType* dataX = vtkType::SafeDownCast (valsX);
     vtkType* dataY = vtkType::SafeDownCast (valsY);
 
-    if (dataX == 0 || dataY == 0)
+    if (dataX == nullptr || dataY == nullptr)
       return;
 
     double n = contingencyTab->GetValueByName( 0, "Cardinality" ).ToDouble ();
@@ -1022,7 +1022,7 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName( colX ));
     vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName( colY ));
 
-    if (dataX == 0 || dataY == 0)
+    if (dataX == nullptr || dataY == nullptr)
     {
       specialization = None;
       break;
@@ -1278,7 +1278,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
   // Container for information entropies
   Entropies *H = new Entropies[nEntropy];
 
-  if (dataX == 0 || dataY == 0)
+  if (dataX == nullptr || dataY == nullptr)
   {
     ContingencyImpl<vtkStdString,vtkStringArray> impl;
     impl.ComputeMarginals (keys, varX, varY, valsX, valsY, card, contingencyTab);
@@ -1675,7 +1675,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
     }
 
     // Eliminating the case where one or both marginal counts are not provided in the model
-    if ( ! ek[0].size() )
+    if ( ek[0].empty() )
     {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
                      << varNameX
@@ -1683,7 +1683,7 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
       return;
     }
 
-    if ( ! ek[1].size() )
+    if ( ek[1].empty() )
     {
       vtkErrorMacro( "Incomplete input: missing marginal count for "
                      << varNameY
@@ -1765,7 +1765,7 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
                                                     vtkStringArray* rowNames,
                                                     AssessFunctor*& dfunc )
 {
-  dfunc = 0;
+  dfunc = nullptr;
   vtkTable* contingencyTab = vtkTable::SafeDownCast( inMeta->GetBlock( 1 ) );
   if ( ! contingencyTab  )
   {

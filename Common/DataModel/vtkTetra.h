@@ -43,46 +43,46 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTetra : public vtkCell3D
 public:
   static vtkTetra *New();
   vtkTypeMacro(vtkTetra,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See vtkCell3D API for description of these methods.
    */
-  void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
-  void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
+  void GetEdgePoints(int edgeId, int* &pts) override;
+  void GetFacePoints(int faceId, int* &pts) override;
   //@}
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_TETRA;}
-  int GetNumberOfEdges() VTK_OVERRIDE {return 6;}
-  int GetNumberOfFaces() VTK_OVERRIDE {return 4;}
-  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
-  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
+  int GetCellType() override {return VTK_TETRA;}
+  int GetNumberOfEdges() override {return 6;}
+  int GetNumberOfFaces() override {return 4;}
+  vtkCell *GetEdge(int edgeId) override;
+  vtkCell *GetFace(int faceId) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
-  double *GetParametricCoords() VTK_OVERRIDE;
+                   int dim, double *derivs) override;
+  double *GetParametricCoords() override;
   //@}
 
   /**
@@ -90,18 +90,18 @@ public:
    * are closest parametrically to the point specified. This may include faces,
    * edges, or vertices.
    */
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
 
   /**
    * Return the center of the tetrahedron in parametric coordinates.
    */
-  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
+  int GetParametricCenter(double pcoords[3]) override;
 
   /**
    * Return the distance of the parametric coordinate provided to the
    * cell. If inside the cell, a distance of zero is returned.
    */
-  double GetParametricDistance(double pcoords[3]) VTK_OVERRIDE;
+  double GetParametricDistance(double pcoords[3]) override;
 
   /**
    * Compute the center of the tetrahedron,
@@ -167,11 +167,11 @@ public:
    * Compute the interpolation functions/derivatives
    * (aka shape functions/derivatives)
    */
-  void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
+  void InterpolateFunctions(double pcoords[3], double weights[4]) override
   {
     vtkTetra::InterpolationFunctions(pcoords,weights);
   }
-  void InterpolateDerivs(double pcoords[3], double derivs[12]) VTK_OVERRIDE
+  void InterpolateDerivs(double pcoords[3], double derivs[12]) override
   {
     vtkTetra::InterpolationDerivs(pcoords,derivs);
   }
@@ -188,14 +188,14 @@ public:
 
 protected:
   vtkTetra();
-  ~vtkTetra() VTK_OVERRIDE;
+  ~vtkTetra() override;
 
   vtkLine *Line;
   vtkTriangle *Triangle;
 
 private:
-  vtkTetra(const vtkTetra&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTetra&) VTK_DELETE_FUNCTION;
+  vtkTetra(const vtkTetra&) = delete;
+  void operator=(const vtkTetra&) = delete;
 };
 
 inline int vtkTetra::GetParametricCenter(double pcoords[3])

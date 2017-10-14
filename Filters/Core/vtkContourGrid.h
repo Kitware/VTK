@@ -62,7 +62,7 @@ class VTKFILTERSCORE_EXPORT vtkContourGrid : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkContourGrid,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with initial range (0,1) and single contour value
@@ -87,7 +87,7 @@ public:
   /**
    * Modified GetMTime Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -184,10 +184,10 @@ public:
 
 protected:
   vtkContourGrid();
-  ~vtkContourGrid() VTK_OVERRIDE;
+  ~vtkContourGrid() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
   int ComputeNormals;
@@ -204,8 +204,8 @@ protected:
   vtkEdgeTable *EdgeTable;
 
 private:
-  vtkContourGrid(const vtkContourGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContourGrid&) VTK_DELETE_FUNCTION;
+  vtkContourGrid(const vtkContourGrid&) = delete;
+  void operator=(const vtkContourGrid&) = delete;
 };
 
 /**

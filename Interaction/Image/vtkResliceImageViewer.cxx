@@ -52,7 +52,7 @@ public:
   static vtkResliceImageViewerScrollCallback *New()
     { return new vtkResliceImageViewerScrollCallback; }
 
-  void Execute(vtkObject *, unsigned long ev, void*) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long ev, void*) override
   {
     if (!this->Viewer->GetSliceScrollOnMouseWheel())
     {
@@ -75,7 +75,7 @@ public:
     this->SetAbortFlag(1);
   }
 
-  vtkResliceImageViewerScrollCallback():Viewer(0) {}
+  vtkResliceImageViewerScrollCallback():Viewer(nullptr) {}
   vtkResliceImageViewer *Viewer;
 };
 
@@ -124,7 +124,7 @@ vtkResliceImageViewer::~vtkResliceImageViewer()
   if (this->ResliceCursorWidget)
   {
     this->ResliceCursorWidget->Delete();
-    this->ResliceCursorWidget = NULL;
+    this->ResliceCursorWidget = nullptr;
   }
 
   this->PointPlacer->Delete();
@@ -223,7 +223,7 @@ vtkScalarsToColors * vtkResliceImageViewer::GetLookupTable()
     return rep->GetLookupTable();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -231,7 +231,7 @@ void vtkResliceImageViewer::UpdateOrientation()
 {
     // Set the camera position
 
-    vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
+    vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : nullptr;
     if (cam)
     {
       switch (this->SliceOrientation)
@@ -430,7 +430,7 @@ vtkResliceCursor * vtkResliceImageViewer::GetResliceCursor()
     return rep->GetResliceCursor();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -537,7 +537,7 @@ vtkPlane * vtkResliceImageViewer::GetReslicePlane()
     return plane;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -565,8 +565,8 @@ void vtkResliceImageViewer::IncrementSlice( int inc )
     this->SetSlice(this->GetSlice() + inc);
     if (this->GetSlice() != oldSlice)
     {
-      this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, NULL );
-      this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
+      this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, nullptr );
+      this->InvokeEvent( vtkCommand::InteractionEvent, nullptr );
     }
   }
   else
@@ -593,8 +593,8 @@ void vtkResliceImageViewer::IncrementSlice( int inc )
         {
           this->GetResliceCursor()->SetCenter(c);
 
-          this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, NULL );
-          this->InvokeEvent( vtkCommand::InteractionEvent, NULL );
+          this->InvokeEvent( vtkResliceImageViewer::SliceChangedEvent, nullptr );
+          this->InvokeEvent( vtkCommand::InteractionEvent, nullptr );
         }
       }
     }

@@ -51,7 +51,7 @@ char vtkAssignAttribute::AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20
 
 vtkAssignAttribute::vtkAssignAttribute()
 {
-  this->FieldName = 0;
+  this->FieldName = nullptr;
   this->AttributeLocationAssignment = -1;
   this->AttributeType = -1;
   this->InputAttributeType = -1;
@@ -75,7 +75,7 @@ vtkAssignAttribute::vtkAssignAttribute()
 vtkAssignAttribute::~vtkAssignAttribute()
 {
   delete[] this->FieldName;
-  this->FieldName = 0;
+  this->FieldName = nullptr;
 }
 
 void vtkAssignAttribute::Assign(const char* fieldName, int attributeType,
@@ -279,7 +279,7 @@ int vtkAssignAttribute::RequestData(
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  vtkDataSetAttributes* ods=0;
+  vtkDataSetAttributes* ods=nullptr;
   if (vtkDataSet::SafeDownCast(input))
   {
     vtkDataSet *dsInput = vtkDataSet::SafeDownCast(input);

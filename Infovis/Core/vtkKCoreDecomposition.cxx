@@ -156,7 +156,7 @@ public:
     if(this->_array)
     {
       this->_array->Delete();
-      this->_array = 0;
+      this->_array = nullptr;
     }
   }
 
@@ -181,7 +181,7 @@ class tableDeg {
 public:
   tableDeg()
   {
-    this->_array = 0;
+    this->_array = nullptr;
   }
 
   ~tableDeg()
@@ -189,7 +189,7 @@ public:
     if(this->_array)
     {
       this->_array->Delete();
-      this->_array = 0;
+      this->_array = nullptr;
     }
   }
 
@@ -231,7 +231,7 @@ private:
 
 vtkKCoreDecomposition::vtkKCoreDecomposition()
 {
-  this->OutputArrayName = 0;
+  this->OutputArrayName = nullptr;
   this->UseInDegreeNeighbors = true;
   this->UseOutDegreeNeighbors = true;
   this->CheckInputGraph = true;
@@ -239,7 +239,7 @@ vtkKCoreDecomposition::vtkKCoreDecomposition()
 
 vtkKCoreDecomposition::~vtkKCoreDecomposition()
 {
-  this->SetOutputArrayName(0);
+  this->SetOutputArrayName(nullptr);
 }
 
 // This is the O(edges) k-cores algorithm implementation

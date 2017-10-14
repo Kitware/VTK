@@ -5,7 +5,6 @@ if(VTK_USE_GLSL_SHADERS)
 endif()
 
 vtk_add_test_python(
-  CamBlur.py
   ImageActor.py
   ImageActorStressed.py
   NoLightGeneration.py
@@ -29,7 +28,6 @@ vtk_add_test_python(
   distanceToCamera.py
   pickCells.py
   compositePolyDataMapperBounds.py,NO_RT
-  pickCompositeData.py,NO_RT
   pickImageData.py,NO_RT
   propAssembly.py
   rendererSource.py
@@ -45,12 +43,16 @@ vtk_add_test_python(
   TestTransformCoordinateSystems.py
   TestWindowToImageTransparency.py
   TexturedSphere.py
-  TestScalarMaterialMode.py
   cells.py,NO_RT
   ${glsl_tests}
   )
 
-if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+vtk_add_test_python(
+#  TestScalarMaterialMode.py
+  pickCompositeData.py,NO_RT
+)
+else()
 vtk_add_test_python(
   # pass triangle cell scalars into a strip as field data
   # have the renderer render the triangle strip using the

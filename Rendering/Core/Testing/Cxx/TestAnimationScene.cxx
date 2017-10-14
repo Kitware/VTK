@@ -34,9 +34,9 @@ class CueAnimator
 public:
   CueAnimator()
   {
-      this->SphereSource=0;
-      this->Mapper=0;
-      this->Actor=0;
+      this->SphereSource=nullptr;
+      this->Mapper=nullptr;
+      this->Actor=nullptr;
   }
 
   ~CueAnimator()
@@ -90,21 +90,21 @@ protected:
 
   void Cleanup()
   {
-      if(this->SphereSource!=0)
+      if(this->SphereSource!=nullptr)
       {
         this->SphereSource->Delete();
-        this->SphereSource=0;
+        this->SphereSource=nullptr;
       }
 
-      if(this->Mapper!=0)
+      if(this->Mapper!=nullptr)
       {
         this->Mapper->Delete();
-        this->Mapper=0;
+        this->Mapper=nullptr;
       }
-      if(this->Actor!=0)
+      if(this->Actor!=nullptr)
       {
         this->Actor->Delete();
-        this->Actor=0;
+        this->Actor=nullptr;
       }
   }
 };
@@ -119,9 +119,9 @@ public:
 
   void Execute(vtkObject *vtkNotUsed(caller),
                        unsigned long event,
-                       void *calldata) VTK_OVERRIDE
+                       void *calldata) override
   {
-      if(this->Animator!=0 && this->Renderer!=0)
+      if(this->Animator!=nullptr && this->Renderer!=nullptr)
       {
         vtkAnimationCue::AnimationCueInfo *info=
           static_cast<vtkAnimationCue::AnimationCueInfo *>(calldata);
@@ -138,7 +138,7 @@ public:
             break;
         }
       }
-      if(this->RenWin!=0)
+      if(this->RenWin!=nullptr)
       {
         this->RenWin->Render();
       }
@@ -150,9 +150,9 @@ public:
 protected:
   vtkAnimationCueObserver()
   {
-      this->Renderer=0;
-      this->Animator=0;
-      this->RenWin=0;
+      this->Renderer=nullptr;
+      this->Animator=nullptr;
+      this->RenWin=nullptr;
   }
 };
 

@@ -136,6 +136,16 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     endif()
   endforeach()
 
+  # write wrapper-tool arguments to a file
+  set(_other_hierarchy_args )
+  foreach(hierarchy_file ${OTHER_HIERARCHY_FILES})
+    set(_other_hierarchy_args "${_other_hierarchy_args}\"${hierarchy_file}\"\n")
+  endforeach()
+  set(_other_hierarchy_args_file ${module_name}OtherHierarchyFiles.args)
+  string(STRIP "${_other_hierarchy_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
+  configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
+    ${_other_hierarchy_args_file} @ONLY)
+
   # Ninja does not wait for order-only dependencies before enforcing the
   # existence of explicit dependencies that those order-only dependencies
   # might have produced.  Specify the real output to help it out.
@@ -151,7 +161,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
             @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
             ${module_name}Hierarchy.data
-            ${OTHER_HIERARCHY_FILES}
+            @${_other_hierarchy_args_file}
     COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
     COMMENT "For ${module_name} - updating ${module_name}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}

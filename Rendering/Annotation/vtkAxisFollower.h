@@ -42,7 +42,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisFollower : public vtkFollower
 {
 public:
  vtkTypeMacro(vtkAxisFollower,vtkFollower);
- void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+ void PrintSelf(ostream& os, vtkIndent indent) override;
 
  /**
   * Creates a follower with no camera set
@@ -132,9 +132,9 @@ public:
   * property, texture map and then mapper. If a property hasn't been
   * assigned, then the actor will create one automatically.
   */
- int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
- int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
- void Render(vtkRenderer *ren) VTK_OVERRIDE;
+ int RenderOpaqueGeometry(vtkViewport *viewport) override;
+ int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+ void Render(vtkRenderer *ren) override;
  //@}
 
  /**
@@ -146,7 +146,7 @@ public:
  /**
   * Shallow copy of a follower. Overloads the virtual vtkProp method.
   */
- void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+ void ShallowCopy(vtkProp *prop) override;
 
  /**
   * Calculate scale factor to maintain same size of a object
@@ -157,7 +157,7 @@ public:
 
 protected:
  vtkAxisFollower();
- ~vtkAxisFollower() VTK_OVERRIDE;
+ ~vtkAxisFollower() override;
 
  void CalculateOrthogonalVectors(double Rx[3], double Ry[3], double Rz[3],
                                  vtkAxisActor *axis1, double *dop,
@@ -193,15 +193,11 @@ private:
  int TextUpsideDown;
  int VisibleAtCurrentViewAngle;
 
- vtkAxisFollower(const vtkAxisFollower&) VTK_DELETE_FUNCTION;
- void operator =(const vtkAxisFollower&) VTK_DELETE_FUNCTION;
+ vtkAxisFollower(const vtkAxisFollower&) = delete;
+ void operator =(const vtkAxisFollower&) = delete;
 
  // hide the two parameter Render() method from the user and the compiler.
- void Render(vtkRenderer *, vtkMapper *) VTK_OVERRIDE {}
-
- //Internal matrices to avoid New/Delete for performance reasons
- vtkMatrix4x4 *InternalMatrix;
-
+ void Render(vtkRenderer *, vtkMapper *) override {}
 };
 
 #endif // vtkAxisFollower_h

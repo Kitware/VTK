@@ -56,12 +56,7 @@ class vtkStdString;
 class vtkUnicodeString;
 class vtkObjectBase;
 class vtkAbstractArray;
-// workaround clang bug, needs export on forward declaration
-#ifdef __clang__
-class VTKCOMMONCORE_EXPORT vtkVariant;
-#else
 class vtkVariant;
-#endif
 struct vtkVariantLessThan;
 
 VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
@@ -322,58 +317,58 @@ public:
    */
   float ToFloat(bool *valid) const;
   float ToFloat() const {
-    return this->ToFloat(0); };
+    return this->ToFloat(nullptr); };
   double ToDouble(bool *valid) const;
   double ToDouble() const {
-    return this->ToDouble(0); };
+    return this->ToDouble(nullptr); };
   char ToChar(bool *valid) const;
   char ToChar() const {
-    return this->ToChar(0); };
+    return this->ToChar(nullptr); };
   unsigned char ToUnsignedChar(bool *valid) const;
   unsigned char ToUnsignedChar() const {
-    return this->ToUnsignedChar(0); };
+    return this->ToUnsignedChar(nullptr); };
   signed char ToSignedChar(bool *valid) const;
   signed char ToSignedChar() const {
-    return this->ToSignedChar(0); };
+    return this->ToSignedChar(nullptr); };
   short ToShort(bool *valid) const;
   short ToShort() const {
-    return this->ToShort(0); };
+    return this->ToShort(nullptr); };
   unsigned short ToUnsignedShort(bool *valid) const;
   unsigned short ToUnsignedShort() const {
-    return this->ToUnsignedShort(0); };
+    return this->ToUnsignedShort(nullptr); };
   int ToInt(bool *valid) const;
   int ToInt() const {
-    return this->ToInt(0); };
+    return this->ToInt(nullptr); };
   unsigned int ToUnsignedInt(bool *valid) const;
   unsigned int ToUnsignedInt() const {
-    return this->ToUnsignedInt(0); };
+    return this->ToUnsignedInt(nullptr); };
   long ToLong(bool *valid) const;
   long ToLong() const {
-    return this->ToLong(0); };
+    return this->ToLong(nullptr); };
   unsigned long ToUnsignedLong(bool *valid) const;
   unsigned long ToUnsignedLong() const {
-    return this->ToUnsignedLong(0); };
+    return this->ToUnsignedLong(nullptr); };
   long long ToLongLong(bool *valid) const;
   long long ToLongLong() const {
-    return this->ToLongLong(0); };
+    return this->ToLongLong(nullptr); };
   unsigned long long ToUnsignedLongLong(bool *valid) const;
   unsigned long long ToUnsignedLongLong() const {
-    return this->ToUnsignedLongLong(0); };
+    return this->ToUnsignedLongLong(nullptr); };
   vtkTypeInt64 ToTypeInt64(bool *valid) const;
   vtkTypeInt64 ToTypeInt64() const {
-    return this->ToTypeInt64(0); };
+    return this->ToTypeInt64(nullptr); };
   vtkTypeUInt64 ToTypeUInt64(bool *valid) const;
   vtkTypeUInt64 ToTypeUInt64() const {
-    return this->ToTypeUInt64(0); };
+    return this->ToTypeUInt64(nullptr); };
   //@}
 
   /**
-   * Return the VTK object, or NULL if not of that type.
+   * Return the VTK object, or nullptr if not of that type.
    */
   vtkObjectBase* ToVTKObject() const;
 
   /**
-   * Return the array, or NULL if not of that type.
+   * Return the array, or nullptr if not of that type.
    */
   vtkAbstractArray* ToArray() const;
 

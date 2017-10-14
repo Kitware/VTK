@@ -49,14 +49,12 @@ class MassProperties(vtk.test.Testing.vtkTest):
 
         sphereMapper = vtk.vtkPolyDataMapper()
         sphereMapper.SetInputConnection(sphere.GetOutputPort())
-        sphereMapper.GlobalImmediateModeRenderingOn()
 
         sphereActor = vtk.vtkActor()
         sphereActor.SetMapper(sphereMapper)
         sphereActor.GetProperty().SetDiffuseColor(1, .2, .4)
         coneMapper = vtk.vtkPolyDataMapper()
         coneMapper.SetInputConnection(cone.GetOutputPort())
-        coneMapper.GlobalImmediateModeRenderingOn()
 
         coneActor = vtk.vtkActor()
         coneActor.SetMapper(coneMapper)
@@ -64,7 +62,6 @@ class MassProperties(vtk.test.Testing.vtkTest):
 
         cubeMapper = vtk.vtkPolyDataMapper()
         cubeMapper.SetInputConnection(cube.GetOutputPort())
-        cubeMapper.GlobalImmediateModeRenderingOn()
 
         cubeActor = vtk.vtkActor()
         cubeActor.SetMapper(cubeMapper)

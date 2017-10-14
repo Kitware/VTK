@@ -36,8 +36,8 @@ public:
   ~vtkOutputWindowCleanup();
 
 private:
-  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) VTK_DELETE_FUNCTION;
-  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) = delete;
+  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
@@ -48,7 +48,7 @@ public:
   /**
    * Print ObjectFactor to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is a singleton pattern New.  There will only be ONE
@@ -92,13 +92,13 @@ public:
 
 protected:
   vtkOutputWindow();
-  ~vtkOutputWindow() VTK_OVERRIDE;
+  ~vtkOutputWindow() override;
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;
 private:
-  vtkOutputWindow(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkOutputWindow(const vtkOutputWindow&) = delete;
+  void operator=(const vtkOutputWindow&) = delete;
 };
 
 // Uses schwartz counter idiom for singleton management

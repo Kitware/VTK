@@ -36,15 +36,15 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkMapperNode :
 public:
   static vtkMapperNode* New();
   vtkTypeMacro(vtkMapperNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkMapperNode();
   ~vtkMapperNode();
 
  private:
-  vtkMapperNode(const vtkMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapperNode&) VTK_DELETE_FUNCTION;
+  vtkMapperNode(const vtkMapperNode&) = delete;
+  void operator=(const vtkMapperNode&) = delete;
 };
 
 #endif

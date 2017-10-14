@@ -21,7 +21,7 @@
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkTestErrorObserver.h"
 
@@ -127,7 +127,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
     points->GetPoint(n, x);
 
     double result[3];
-    pspline->Evaluate(t, result, NULL);
+    pspline->Evaluate(t, result, nullptr);
     if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
         !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
         !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
@@ -161,7 +161,7 @@ int TestSetPoints(vtkPoints *points, bool closed)
     t[1] = t[2] = 0.0;
 
     double result[3];
-    pspline->Evaluate(t, result, NULL);
+    pspline->Evaluate(t, result, nullptr);
     if (!vtkMathUtilities::FuzzyCompare(x[0], result[0], tolerance) ||
         !vtkMathUtilities::FuzzyCompare(x[1], result[1], tolerance) ||
         !vtkMathUtilities::FuzzyCompare(x[2], result[2], tolerance))
@@ -196,7 +196,7 @@ int TestErrors()
   x[0] = 0.0; x[1] = 0.0; x[2] = 0.0;
   double result[3];
 
-  pspline->Evaluate(x, result, 0);
+  pspline->Evaluate(x, result, nullptr);
   // Check for model bounds error
   if (errorObserver->GetError())
   {
@@ -211,7 +211,7 @@ int TestErrors()
   errorObserver->Clear();
 
   pspline->SetNumberOfPoints(0);
-  pspline->EvaluateScalar(x, 0, 0);
+  pspline->EvaluateScalar(x, nullptr, nullptr);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "
@@ -224,8 +224,8 @@ int TestErrors()
   }
   errorObserver->Clear();
 
-  pspline->SetXSpline(NULL);
-  pspline->Evaluate(x, result, 0);
+  pspline->SetXSpline(nullptr);
+  pspline->Evaluate(x, result, nullptr);
   if (errorObserver->GetError())
   {
     std::cout << "Caught expected error: "
@@ -261,9 +261,9 @@ int TestSetGet()
     ++status;
   }
 
-  if (pspline->GetPoints() != NULL)
+  if (pspline->GetPoints() != nullptr)
   {
-    std::cout << "GetPoints: Expected NULL but got "
+    std::cout << "GetPoints: Expected nullptr but got "
               << pspline->GetPoints() << std::endl;
     ++status;
   }
@@ -353,7 +353,7 @@ int TestConstraints()
   pspline->SetRightValue(0.0);
 
   // Force initialize
-  pspline->Evaluate(x, result, NULL);
+  pspline->Evaluate(x, result, nullptr);
 
   if (pspline->GetXSpline()->GetLeftConstraint() !=
       pspline->GetLeftConstraint())
@@ -425,12 +425,12 @@ int TestMisc()
   x[1] = 0.0;
   x[2] = 0.0;
 
-  if (pspline->EvaluateScalar(x, NULL, NULL) != x[0])
+  if (pspline->EvaluateScalar(x, nullptr, nullptr) != x[0])
   {
     std::cout << "EvaluateScalar: Expected "
               << x[0]
               << " but got "
-              << pspline->EvaluateScalar(x, NULL, NULL)
+              << pspline->EvaluateScalar(x, nullptr, nullptr)
               << std::endl;
     ++status;
   }
@@ -451,9 +451,9 @@ void TestPrint()
   pspline->SetPoint(0, x[0], x[1], x[2]);
   pspline->Print(std::cout);
 
-  // With NULL Splines
-  pspline->SetXSpline(NULL);
-  pspline->SetYSpline(NULL);
-  pspline->SetZSpline(NULL);
+  // With nullptr Splines
+  pspline->SetXSpline(nullptr);
+  pspline->SetYSpline(nullptr);
+  pspline->SetZSpline(nullptr);
   pspline->Print(std::cout);
 }

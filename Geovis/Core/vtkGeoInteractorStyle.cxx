@@ -54,7 +54,7 @@ namespace
   public:
     vtkEventCommand(vtkGeoInteractorStyle* selfptr) {this->Self = selfptr;}
     void Execute(vtkObject *caller, unsigned long eventId,
-                         void * /*callData*/) VTK_OVERRIDE
+                         void * /*callData*/) override
     {
       if (eventId == vtkCommand::InteractionEvent)
       {
@@ -70,7 +70,7 @@ vtkGeoInteractorStyle::vtkGeoInteractorStyle()
 {
   vtkEventCommand* rc = new vtkEventCommand(this);
   this->EventCommand = rc;
-  rc->UnRegister(0);
+  rc->UnRegister(nullptr);
 
   this->GeoCamera = vtkSmartPointer<vtkGeoCamera>::New();
 
@@ -85,7 +85,6 @@ vtkGeoInteractorStyle::vtkGeoInteractorStyle()
   this->EndPosition[0] = this->EndPosition[1] = 0;
   this->PixelArray = vtkUnsignedCharArray::New();
   this->PixelDims[0] = this->PixelDims[1] = 0;
-  this->MotionFactor   = 10.0;
 
   // Rubberband zoom has a verification stage.
   this->RubberBandExtent[0] = this->RubberBandExtent[1] = 0;
@@ -135,7 +134,7 @@ void vtkGeoInteractorStyle::OnMiddleButtonDown()
   double x = this->Interactor->GetEventPosition()[0];
   double y = this->Interactor->GetEventPosition()[1];
   this->FindPokedRenderer(static_cast<int>(x),static_cast<int>(y));
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -169,7 +168,7 @@ void vtkGeoInteractorStyle::OnRightButtonDown()
   this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENS);
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -537,13 +536,13 @@ void vtkGeoInteractorStyle::OnMouseMove()
     case VTKIS_PAN:
       this->FindPokedRenderer(x, y);
       this->Pan();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
 
     case VTKIS_DOLLY:
       this->FindPokedRenderer(x, y);
       this->Dolly();
-      this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+      this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
       break;
   }
   //rubber band zoom case:
@@ -663,7 +662,7 @@ void vtkGeoInteractorStyle::GetPanCenter(double &px, double &py)
 void vtkGeoInteractorStyle::Pan()
 {
   // just change the lat lon
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -714,7 +713,7 @@ void vtkGeoInteractorStyle::Pan()
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::Dolly()
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -732,7 +731,7 @@ void vtkGeoInteractorStyle::Dolly()
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::Dolly(double factor)
 {
-  if (this->CurrentRenderer == NULL)
+  if (this->CurrentRenderer == nullptr)
   {
     return;
   }
@@ -905,7 +904,7 @@ void vtkGeoInteractorStyle::EnableRubberBandRedraw()
   }
 
   vtkRenderWindow* renWin = this->Interactor->GetRenderWindow();
-  if (renWin == 0)
+  if (renWin == nullptr)
   {
     return;
   }
@@ -924,13 +923,13 @@ void vtkGeoInteractorStyle::EnableRubberBandRedraw()
 //-----------------------------------------------------------------------------
 void vtkGeoInteractorStyle::DisableRubberBandRedraw()
 {
-  if (this->RenderCallbackTag == 0 || this->Interactor == 0)
+  if (this->RenderCallbackTag == 0 || this->Interactor == nullptr)
   {
     return;
   }
 
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
-  if (renWin == 0)
+  if (renWin == nullptr)
   {
     return;
   }
@@ -1066,7 +1065,7 @@ void vtkGeoInteractorStyle::StartState(int newstate)
   {
     vtkRenderWindowInteractor *rwi = this->Interactor;
     rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetDesiredUpdateRate());
-    this->InvokeEvent(vtkCommand::StartInteractionEvent, NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     rwi->SetTimerEventDuration(this->TimerDuration);
     if ( this->UseTimers && !(this->TimerId=rwi->CreateTimer(VTKI_TIMER_FIRST)) )
     {

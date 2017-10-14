@@ -359,7 +359,7 @@ int vtkFastSplatter::RequestData(vtkInformation *vtkNotUsed(request),
 
   // Get the input and output objects.
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkPoints* points = 0;
+  vtkPoints* points = nullptr;
   if(vtkPointSet* const input =
     vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
   {

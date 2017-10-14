@@ -35,7 +35,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageExtractComponents : public vtkThreadedImageA
 public:
   static vtkImageExtractComponents *New();
   vtkTypeMacro(vtkImageExtractComponents,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -57,19 +57,19 @@ public:
 
 protected:
   vtkImageExtractComponents();
-  ~vtkImageExtractComponents() VTK_OVERRIDE {}
+  ~vtkImageExtractComponents() override {}
 
   int NumberOfComponents;
   int Components[3];
 
   int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 private:
-  vtkImageExtractComponents(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
+  vtkImageExtractComponents(const vtkImageExtractComponents&) = delete;
+  void operator=(const vtkImageExtractComponents&) = delete;
 };
 
 #endif

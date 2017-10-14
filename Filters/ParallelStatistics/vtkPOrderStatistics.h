@@ -54,7 +54,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
  public:
   static vtkPOrderStatistics* New();
   vtkTypeMacro(vtkPOrderStatistics, vtkOrderStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -68,13 +68,13 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable*,
-                      vtkTable*,
-                      vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Learn( vtkTable*,
+              vtkTable*,
+              vtkMultiBlockDataSet* ) override;
 
  protected:
   vtkPOrderStatistics();
-  ~vtkPOrderStatistics();
+  ~vtkPOrderStatistics() override;
 
   /**
    * Reduce the collection of local histograms to the global one for data inputs
@@ -100,8 +100,8 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
 
   vtkMultiProcessController* Controller;
  private:
-  vtkPOrderStatistics(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
+  vtkPOrderStatistics(const vtkPOrderStatistics&) = delete;
+  void operator=(const vtkPOrderStatistics&) = delete;
 };
 
 #endif

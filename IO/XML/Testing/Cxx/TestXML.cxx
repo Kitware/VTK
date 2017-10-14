@@ -29,12 +29,12 @@ public:
 
 protected:
   vtkMyXML() {}
-  void StartElement(const char*, const char**) VTK_OVERRIDE {}
-  void EndElement(const char*) VTK_OVERRIDE {}
+  void StartElement(const char*, const char**) override {}
+  void EndElement(const char*) override {}
 
 private:
-  vtkMyXML(const vtkMyXML&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMyXML&) VTK_DELETE_FUNCTION;
+  vtkMyXML(const vtkMyXML&) = delete;
+  void operator=(const vtkMyXML&) = delete;
 };
 
 vtkStandardNewMacro(vtkMyXML);
@@ -56,7 +56,7 @@ int TestXML(int argc, char *argv[])
     cout << "Cannot parse the file: " << argv[1] << endl;
     res = 1;
   }
-  parser->SetFileName(0);
+  parser->SetFileName(nullptr);
 
   if( !parser->Parse("<xml>This is an XML file</xml>") )
   {

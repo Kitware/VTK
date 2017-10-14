@@ -41,8 +41,8 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 {
   this->SamplingRate=0.0;
   this->NumColors = 128;
-  this->OSPRayVolume = NULL;
-  this->TransferFunction = NULL;
+  this->OSPRayVolume = nullptr;
+  this->TransferFunction = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     osp::Model* OSPRayModel = orn->GetOModel();
 
     // make sure that we have scalar input and update the scalar input
-    if ( mapper->GetDataSetInput() == NULL )
+    if ( mapper->GetDataSetInput() == nullptr )
     {
       //OK - PV cli/srv for instance vtkErrorMacro("VolumeMapper had no input!");
       return;
@@ -106,7 +106,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkErrorMacro("VolumeMapper's Input has no scalar array!");
       return;
     }
-    vtkDataArray *sca = NULL;
+    vtkDataArray *sca = nullptr;
     int ncomp = sa->GetNumberOfComponents();
     if (ncomp>1)
     {
@@ -307,7 +307,7 @@ vtkAbstractArray *vtkOSPRayVolumeMapperNode::GetArrayToProcess(
   vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
   if (!mapper)
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkAbstractArray *scalars;
@@ -388,5 +388,5 @@ vtkAbstractArray *vtkOSPRayVolumeMapperNode::GetArrayToProcess(
     return scalars;
   }
 
-  return NULL;
+  return nullptr;
 }

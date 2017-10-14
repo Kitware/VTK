@@ -48,7 +48,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkAreaLayout : public vtkTreeAlgorithm
 public:
   static vtkAreaLayout *New();
   vtkTypeMacro(vtkAreaLayout,vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The array name to use for retrieving the relative size of each vertex.
@@ -89,7 +89,7 @@ public:
   /**
    * Get the modification time of the layout algorithm.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Get the vertex whose area contains the point, or return -1
@@ -104,19 +104,19 @@ public:
 
 protected:
   vtkAreaLayout();
-  ~vtkAreaLayout() VTK_OVERRIDE;
+  ~vtkAreaLayout() override;
 
   char* AreaArrayName;
   bool  EdgeRoutingPoints;
   char* EdgeRoutingPointsArrayName;
   vtkAreaLayoutStrategy* LayoutStrategy;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 
-  vtkAreaLayout(const vtkAreaLayout&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAreaLayout&) VTK_DELETE_FUNCTION;
+  vtkAreaLayout(const vtkAreaLayout&) = delete;
+  void operator=(const vtkAreaLayout&) = delete;
 };
 
 #endif

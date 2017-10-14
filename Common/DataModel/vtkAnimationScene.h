@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
   vtkTypeMacro(vtkAnimationScene, vtkAnimationCue);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnimationScene* New();
 
   //@{
@@ -108,7 +108,7 @@ public:
    * Overridden to allow change to Normalized mode only
    * if none of the constituent cues is in Relative time mode.
    */
-  void SetTimeMode(int mode) VTK_OVERRIDE;
+  void SetTimeMode(int mode) override;
 
   /**
    * Returns if the animation is being played.
@@ -123,16 +123,16 @@ public:
 
 protected:
   vtkAnimationScene();
-  ~vtkAnimationScene() VTK_OVERRIDE;
+  ~vtkAnimationScene() override;
 
   //@{
   /**
    * Called on every valid tick.
    * Calls ticks on all the contained cues.
    */
-  void TickInternal(double currenttime, double deltatime, double clocktime) VTK_OVERRIDE;
-  void StartCueInternal() VTK_OVERRIDE;
-  void EndCueInternal() VTK_OVERRIDE;
+  void TickInternal(double currenttime, double deltatime, double clocktime) override;
+  void StartCueInternal() override;
+  void EndCueInternal() override;
   //@}
 
   void InitializeChildren();
@@ -143,15 +143,14 @@ protected:
   int Loop;
   int InPlay;
   int StopPlay;
-  double AnimationTime;
 
   vtkCollection* AnimationCues;
   vtkCollectionIterator* AnimationCuesIterator;
   vtkTimerLog* AnimationTimer;
 
 private:
-  vtkAnimationScene(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
+  vtkAnimationScene(const vtkAnimationScene&) = delete;
+  void operator=(const vtkAnimationScene&) = delete;
 };
 
 #endif

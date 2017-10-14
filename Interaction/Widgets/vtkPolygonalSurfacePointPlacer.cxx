@@ -62,7 +62,7 @@ public:
         return this->Nodes[i];
       }
     }
-    return NULL;
+    return nullptr;
   }
 
   vtkPolygonalSurfacePointPlacerNode
@@ -77,7 +77,7 @@ public:
         return this->Nodes[i];
       }
     }
-    return NULL;
+    return nullptr;
   }
 
     vtkPolygonalSurfacePointPlacerNode
@@ -103,14 +103,14 @@ public:
       vtkMapper::SafeDownCast(picker->GetMapper());
     if (!mapper)
     {
-      return NULL;
+      return nullptr;
     }
 
     // Get the underlying dataset
     vtkPolyData *pd = vtkPolyData::SafeDownCast(mapper->GetInput());
     if (!pd)
     {
-      return NULL;
+      return nullptr;
     }
 
     node->CellId = picker->GetCellId();
@@ -290,7 +290,7 @@ int vtkPolygonalSurfacePointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       // If not, no prop will be picked.
 
       bool found = false;
-      vtkAssemblyNode *node = NULL;
+      vtkAssemblyNode *node = nullptr;
       vtkCollectionSimpleIterator sit;
       this->SurfaceProps->InitTraversal(sit);
 

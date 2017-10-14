@@ -7,12 +7,17 @@ vtk_add_test_python(
   TestFLUENTReader.py
   TestGAMBITReader.py
   # TestPolygonWriters.py # needs vtkCGMWriter (not built)
-  TestXYZMol.py
-  caffeine.py
-  caffeine_notrailingwhitespaces.py
   motor.py
   testHexaPenta.py
   TestChacoReader.py
   TestSimplePointsReader.py
   TestPlot3DMeta.py
   )
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+vtk_add_test_python(
+  TestXYZMol.py
+  caffeine.py
+  caffeine_notrailingwhitespaces.py
+)
+endif()

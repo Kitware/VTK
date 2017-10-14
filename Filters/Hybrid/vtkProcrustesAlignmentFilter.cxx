@@ -151,7 +151,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
   }
 
   int i,v;
-  vtkPointSet* input = 0;
+  vtkPointSet* input = nullptr;
   for (i=0; i<N_SETS; i++)
   {
     input = vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
@@ -179,7 +179,7 @@ int vtkProcrustesAlignmentFilter::RequestData(
   {
     tmpInput =
       vtkPointSet::SafeDownCast(mbInput->GetBlock(i));
-    vtkPointSet* outputBlock = 0;
+    vtkPointSet* outputBlock = nullptr;
     if (tmpInput)
     {
       outputBlock = tmpInput->NewInstance();

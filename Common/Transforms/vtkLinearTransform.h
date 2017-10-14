@@ -33,7 +33,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkLinearTransform : public vtkHomogeneousTrans
 public:
 
   vtkTypeMacro(vtkLinearTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the transformation to a normal.
@@ -145,7 +145,7 @@ public:
    * Apply the transformation to a series of points, and append the
    * results to outPts.
    */
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) override;
 
   /**
    * Apply the transformation to a series of normals, and append the
@@ -168,7 +168,7 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) VTK_OVERRIDE;
+                                     vtkDataArray *outVrs) override;
 
   /**
    * Just like GetInverse, but it includes a typecast to
@@ -184,8 +184,8 @@ public:
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   //@{
@@ -213,17 +213,17 @@ public:
    * classes.
    */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) VTK_OVERRIDE;
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) VTK_OVERRIDE;
+                                   double derivative[3][3]) override;
   //@}
 
 protected:
   vtkLinearTransform() {}
-  ~vtkLinearTransform() VTK_OVERRIDE {}
+  ~vtkLinearTransform() override {}
 private:
-  vtkLinearTransform(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
+  vtkLinearTransform(const vtkLinearTransform&) = delete;
+  void operator=(const vtkLinearTransform&) = delete;
 };
 
 #endif

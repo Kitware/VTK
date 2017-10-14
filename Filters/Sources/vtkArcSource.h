@@ -47,7 +47,7 @@ class VTKFILTERSSOURCES_EXPORT vtkArcSource : public vtkPolyDataAlgorithm
 public:
   static vtkArcSource *New();
   vtkTypeMacro(vtkArcSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -154,10 +154,10 @@ public:
 
 protected:
   vtkArcSource(int res=1);
-  ~vtkArcSource() VTK_OVERRIDE {}
+  ~vtkArcSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Point1[3];
   double Point2[3];
   double Center[3];
@@ -170,8 +170,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkArcSource(const vtkArcSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArcSource&) VTK_DELETE_FUNCTION;
+  vtkArcSource(const vtkArcSource&) = delete;
+  void operator=(const vtkArcSource&) = delete;
 };
 
 #endif

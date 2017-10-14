@@ -41,346 +41,313 @@ static const char* TestGPURayCastCameraInsideSmallSpacingLog =
 "# StreamVersion 1\n"
 "EnterEvent 188 3 0 0 0 0 0\n"
 "MouseMoveEvent 188 3 0 0 0 0 0\n"
-"MouseMoveEvent 186 5 0 0 0 0 0\n"
-"MouseMoveEvent 184 7 0 0 0 0 0\n"
-"MouseMoveEvent 183 9 0 0 0 0 0\n"
-"MouseMoveEvent 181 11 0 0 0 0 0\n"
-"MouseMoveEvent 179 15 0 0 0 0 0\n"
-"MouseMoveEvent 178 18 0 0 0 0 0\n"
-"MouseMoveEvent 177 20 0 0 0 0 0\n"
-"MouseMoveEvent 177 21 0 0 0 0 0\n"
-"MouseMoveEvent 176 22 0 0 0 0 0\n"
-"MouseMoveEvent 175 24 0 0 0 0 0\n"
-"MouseMoveEvent 175 26 0 0 0 0 0\n"
-"MouseMoveEvent 174 27 0 0 0 0 0\n"
-"MouseMoveEvent 174 28 0 0 0 0 0\n"
-"MouseMoveEvent 173 30 0 0 0 0 0\n"
-"MouseMoveEvent 172 31 0 0 0 0 0\n"
-"MouseMoveEvent 170 34 0 0 0 0 0\n"
-"MouseMoveEvent 169 36 0 0 0 0 0\n"
-"MouseMoveEvent 168 38 0 0 0 0 0\n"
-"MouseMoveEvent 168 41 0 0 0 0 0\n"
-"MouseMoveEvent 167 42 0 0 0 0 0\n"
-"MouseMoveEvent 167 44 0 0 0 0 0\n"
-"MouseMoveEvent 167 47 0 0 0 0 0\n"
-"MouseMoveEvent 167 50 0 0 0 0 0\n"
-"MouseMoveEvent 166 52 0 0 0 0 0\n"
-"MouseMoveEvent 166 55 0 0 0 0 0\n"
-"MouseMoveEvent 166 57 0 0 0 0 0\n"
-"MouseMoveEvent 166 59 0 0 0 0 0\n"
-"MouseMoveEvent 166 60 0 0 0 0 0\n"
-"MouseMoveEvent 166 61 0 0 0 0 0\n"
-"MouseMoveEvent 166 62 0 0 0 0 0\n"
-"MouseMoveEvent 166 63 0 0 0 0 0\n"
-"MouseMoveEvent 167 65 0 0 0 0 0\n"
-"MouseMoveEvent 167 66 0 0 0 0 0\n"
 "MouseMoveEvent 165 67 0 0 0 0 0\n"
 "MouseMoveEvent 164 67 0 0 0 0 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelForwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelForwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "EndInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
 "MouseWheelBackwardEvent 164 67 0 0 0 0 0\n"
-"StartInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
-"EndInteractionEvent 164 67 0 0 0 0 0\n"
-"RenderEvent 164 67 0 0 0 0 0\n"
+
+
+
+
 "MouseWheelBackwardEvent 164 67 0 0 0 1 0\n"
 "StartInteractionEvent 164 67 0 0 0 1 0\n"
 "RenderEvent 164 67 0 0 0 1 0\n"
@@ -1606,44 +1573,44 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char *argv[])
   opacity->AddPoint(255.0, 1.0);
 
   vtkNew<vtkVolumeProperty> property;
-  property->SetColor(color.GetPointer());
-  property->SetScalarOpacity(opacity.GetPointer());
+  property->SetColor(color);
+  property->SetScalarOpacity(opacity);
   property->SetInterpolationTypeToLinear();
   property->ShadeOff();
   property->SetScalarOpacityUnitDistance(7e-6);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(property.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(property);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(301, 300);
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
-//  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
+//  renWin->AddRenderer(ren);
 
 // Attach OSPRay render pass
   vtkSmartPointer<vtkOSPRayPass> osprayPass =
     vtkSmartPointer<vtkOSPRayPass>::New();
   if (useOSP)
   {
-    ren->SetPass(osprayPass.GetPointer());
+    ren->SetPass(osprayPass);
   }
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   ren->ResetCamera();
 
   renWin->Render();
   iren->Initialize();
 
   return vtkTesting::InteractorEventLoop(argc, argv,
-                                         iren.GetPointer(),
+                                         iren,
                                          TestGPURayCastCameraInsideSmallSpacingLog);
 }

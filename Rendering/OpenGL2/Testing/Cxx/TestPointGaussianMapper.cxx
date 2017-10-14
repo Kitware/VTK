@@ -73,13 +73,13 @@ int TestPointGaussianMapper(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
   renderWindow->SetMultiSamples(0);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
-  renderer->AddActor(actor.Get());
+  actor->SetMapper(mapper);
+  renderer->AddActor(actor);
 
 #ifdef TestPoints
   randomAttr->SetDataTypeToUnsignedChar();
@@ -119,13 +119,14 @@ int TestPointGaussianMapper(int argc, char *argv[])
   mapper->SetScalarModeToUsePointFieldData();
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
-  mapper->SetScaleArray("RandomPointScalars");
+  mapper->SetScaleArray("RandomPointVectors");
+  mapper->SetScaleArrayComponent(3);
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(0.0,0.1,1.0,0.8);
   ctf->AddHSVPoint(1.0,0.2,0.5,1.0);
   ctf->SetColorSpaceToRGB();
-  mapper->SetLookupTable(ctf.Get());
+  mapper->SetLookupTable(ctf);
 #endif
 
   vtkNew<vtkTimerLog> timer;
@@ -160,7 +161,7 @@ int TestPointGaussianMapper(int argc, char *argv[])
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

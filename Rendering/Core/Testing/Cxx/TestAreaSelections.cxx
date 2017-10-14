@@ -209,7 +209,7 @@ int TestAreaSelections(int argc, char* argv[])
   }
 
   areaPicker->AreaPick(51,78,82,273,renderer);
-  EndPick(NULL, 0, NULL, NULL);
+  EndPick(nullptr, 0, nullptr, nullptr);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage( renWin );
@@ -218,10 +218,10 @@ int TestAreaSelections(int argc, char* argv[])
     iren->Start();
   }
 
-  renderer = 0;
-  SS1 = 0;
-  sMap = 0;
-  emptyPD = 0;
+  renderer = nullptr;
+  SS1 = nullptr;
+  sMap = nullptr;
+  emptyPD = nullptr;
 
   // Cleanup
   return !retVal;

@@ -87,7 +87,7 @@ class vtkExtractCTHPart::ScaledProgress
 public:
   ScaledProgress(double shift, double scale, vtkExtractCTHPart* self)
   {
-    assert((self != NULL) &&
+    assert((self != nullptr) &&
       (shift >= 0.0) && (shift <= 1.0) &&
       (scale >= 0.0) && (scale <= 1.0));
 
@@ -114,7 +114,7 @@ public:
       this->Self->ProgressShift = this->Shift;
       //cout << "Shift-Scale Pop: " << this->Self->ProgressShift << ", " <<
       //  this->Self->ProgressScale << endl;
-      this->Self = NULL;
+      this->Self = nullptr;
     }
   }
 };
@@ -127,7 +127,7 @@ public:
 vtkExtractCTHPart::vtkExtractCTHPart()
 {
   this->Internals = new vtkExtractCTHPartInternal();
-  this->ClipPlane = NULL;
+  this->ClipPlane = nullptr;
   this->GenerateTriangles = true;
   this->Capping = true;
   this->RemoveGhostCells = true;
@@ -136,18 +136,18 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->ProgressScale = 1.0;
   this->ProgressShift = 0.0;
 
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //-----------------------------------------------------------------------------
 vtkExtractCTHPart::~vtkExtractCTHPart()
 {
-  this->SetController(NULL);
-  this->SetClipPlane(NULL);
+  this->SetController(nullptr);
+  this->SetClipPlane(nullptr);
 
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void vtkExtractCTHPart::RemoveVolumeArrayNames()
 //-----------------------------------------------------------------------------
 void vtkExtractCTHPart::AddVolumeArrayName(const char* arrayName)
 {
-  if (arrayName !=0 &&
+  if (arrayName !=nullptr &&
     arrayName[0] != 0 &&
     std::find(this->Internals->VolumeArrayNames.begin(),
       this->Internals->VolumeArrayNames.end(), std::string(arrayName))==
@@ -203,7 +203,7 @@ const char* vtkExtractCTHPart::GetVolumeArrayName(int idx)
   if ( idx < 0 ||
        idx > static_cast<int>(this->Internals->VolumeArrayNames.size()) )
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Internals->VolumeArrayNames[idx].c_str();
@@ -238,13 +238,13 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
   vtkSmartPointer<vtkCompositeDataSet> inputCD = vtkCompositeDataSet::SafeDownCast(inputDO);
   vtkRectilinearGrid* inputRG = vtkRectilinearGrid::SafeDownCast(inputDO);
-  assert(inputCD != NULL || inputRG != NULL);
+  assert(inputCD != nullptr || inputRG != nullptr);
 
   if (inputRG)
   {
     vtkNew<vtkMultiBlockDataSet> mb;
     mb->SetBlock(0, inputRG);
-    inputCD = mb.GetPointer();
+    inputCD = mb;
   }
 
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector, 0);
@@ -282,7 +282,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 
     vtkNew<vtkPolyData> contour;
     vtkGarbageCollector::DeferredCollectionPush();
-    if (this->ExtractContour(contour.GetPointer(), inputCD, iter->c_str()) &&
+    if (this->ExtractContour(contour, inputCD, iter->c_str()) &&
       (contour->GetNumberOfPoints() > 0))
     {
       // Add extra arrays.
@@ -291,12 +291,12 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
       partArray->SetNumberOfComponents(1);
       partArray->SetNumberOfTuples(contour->GetNumberOfPoints());
       partArray->FillComponent(0, static_cast<double>(array_index));
-      contour->GetPointData()->AddArray(partArray.GetPointer());
+      contour->GetPointData()->AddArray(partArray);
 
       // I'm not adding the "Name" array that was added in previous
       // implementation. Don't think that's much of use.
 
-      output->SetBlock(array_index, contour.GetPointer());
+      output->SetBlock(array_index, contour);
     }
     vtkGarbageCollector::DeferredCollectionPop();
   }
@@ -306,7 +306,7 @@ int vtkExtractCTHPart::RequestData(vtkInformation *vtkNotUsed(request),
 //-----------------------------------------------------------------------------
 bool vtkExtractCTHPart::ComputeGlobalBounds(vtkCompositeDataSet *input)
 {
-  assert("pre: input_exists" && input!=0);
+  assert("pre: input_exists" && input!=nullptr);
   this->Internals->GlobalInputBounds.Reset();
 
   this->Internals->TotalNumberOfDatasets = 0;
@@ -362,7 +362,7 @@ bool vtkExtractCTHPart::ComputeGlobalBounds(vtkCompositeDataSet *input)
 bool vtkExtractCTHPart::ExtractContour(
   vtkPolyData* output, vtkCompositeDataSet* input, const char*arrayName)
 {
-  assert(output!=0 && input!=0 && arrayName!=0 && arrayName[0]!=0);
+  assert(output!=nullptr && input!=nullptr && arrayName!=nullptr && arrayName[0]!=0);
 
   bool warn_once = true;
   vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -414,7 +414,7 @@ bool vtkExtractCTHPart::ExtractContour(
     }
   }
 
-  if (fragments.size() == 0)
+  if (fragments.empty())
   {
     // empty contour. Not an error though, hence we don't return false.
     return true;
@@ -427,7 +427,7 @@ bool vtkExtractCTHPart::ExtractContour(
   vtkNew<vtkAppendPolyData> appender;
   for (size_t cc=0; cc < fragments.size(); cc++)
   {
-    appender->AddInputData(fragments[cc].GetPointer());
+    appender->AddInputData(fragments[cc]);
   }
   appender->Update();
   output->ShallowCopy(appender->GetOutputDataObject(0));
@@ -440,7 +440,7 @@ template <class T>
 bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
   vtkExtractCTHPart::VectorOfFragments& fragments, T* dataset, const char* arrayName)
 {
-  assert(arrayName!=0 && arrayName[0]!=0 && dataset != 0);
+  assert(arrayName!=nullptr && arrayName[0]!=0 && dataset != nullptr);
 
   vtkDataArray* volumeFractionArray = dataset->GetCellData()->GetArray(arrayName);
   if (!volumeFractionArray)
@@ -469,11 +469,11 @@ bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
   // Convert cell-data-2-point-data so we can contour.
   vtkNew<vtkDoubleArray> pointVolumeFractionArray;
   this->ExecuteCellDataToPointData(volumeFractionArray,
-    pointVolumeFractionArray.GetPointer(), inputClone->GetDimensions());
-  inputClone->GetPointData()->SetScalars(pointVolumeFractionArray.GetPointer());
+    pointVolumeFractionArray, inputClone->GetDimensions());
+  inputClone->GetPointData()->SetScalars(pointVolumeFractionArray);
 
   VectorOfFragments blockFragments;
-  if (!this->ExtractContourOnBlock<T>(blockFragments, inputClone.GetPointer(), arrayName))
+  if (!this->ExtractContourOnBlock<T>(blockFragments, inputClone, arrayName))
   {
     return false;
   }
@@ -503,7 +503,7 @@ bool vtkExtractCTHPart::ExtractClippedContourOnBlock(
     vtkNew<vtkCutter> cutter;
     cutter->SetCutFunction(this->ClipPlane);
     cutter->SetGenerateTriangles(this->GenerateTriangles? 1 : 0);
-    cutter->SetInputDataObject(inputClone.GetPointer());
+    cutter->SetInputDataObject(inputClone);
 
     vtkNew<vtkClipPolyData> scalarClipper;
     scalarClipper->SetInputConnection(cutter->GetOutputPort());
@@ -519,11 +519,11 @@ template <class T>
 bool vtkExtractCTHPart::ExtractContourOnBlock(
   vtkExtractCTHPart::VectorOfFragments& fragments, T* dataset, const char* arrayName)
 {
-  assert(arrayName!=0 && arrayName[0]!=0 && dataset != 0);
+  assert(arrayName!=nullptr && arrayName[0]!=0 && dataset != nullptr);
 
   vtkDataArray* volumeFractionArray = dataset->GetPointData()->GetArray(arrayName);
-  assert(volumeFractionArray !=0);
-  assert(dataset->GetPointData()->GetArray(arrayName) !=0);
+  assert(volumeFractionArray !=nullptr);
+  assert(dataset->GetPointData()->GetArray(arrayName) !=nullptr);
 
   // Contour only if necessary.
   double range[2];
@@ -540,7 +540,7 @@ bool vtkExtractCTHPart::ExtractContourOnBlock(
     this->ExtractExteriorSurface(fragments, dataset);
   }
 
-  if (this->ClipPlane == NULL && range[0] > this->VolumeFractionSurfaceValueInternal)
+  if (this->ClipPlane == nullptr && range[0] > this->VolumeFractionSurfaceValueInternal)
   {
     // no need to extract contour.
     return true;
@@ -581,7 +581,7 @@ template <class T>
 void vtkExtractCTHPart::ExtractExteriorSurface(
   vtkExtractCTHPart::VectorOfFragments& fragments, T* input)
 {
-  assert("pre: valid_input" && input!=0 && input->CheckAttributes()==0);
+  assert("pre: valid_input" && input!=nullptr && input->CheckAttributes()==0);
 
   int result=0;
 #if 1
@@ -861,10 +861,10 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet *input,
                                          int bAxis,
                                          int cAxis)
 {
-  assert("pre: input_exists" && input!=0);
-  assert("pre: output_exists" && output!=0);
-  assert("pre: originalExtents_exists" && originalExtents!=0);
-  assert("pre: ext_exists" && ext!=0);
+  assert("pre: input_exists" && input!=nullptr);
+  assert("pre: output_exists" && output!=nullptr);
+  assert("pre: originalExtents_exists" && originalExtents!=nullptr);
+  assert("pre: ext_exists" && ext!=nullptr);
   assert("pre: valid_axes"
          && aAxis>=0 && aAxis<=2
          && bAxis>=0 && bAxis<=2
@@ -1205,10 +1205,10 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "ClipPlane: NULL\n";
+    os << indent << "ClipPlane: nullptr\n";
   }
 
-  if ( this->Controller!=0)
+  if ( this->Controller!=nullptr)
   {
     os << "Controller:" << endl;
     this->Controller->PrintSelf(os, indent.GetNextIndent());

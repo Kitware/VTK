@@ -42,13 +42,13 @@ vtkDataSet::vtkDataSet ()
   this->DataObserver->SetClientData(this);
 
   this->PointData = vtkPointData::New();
-  this->PointGhostArray = NULL;
+  this->PointGhostArray = nullptr;
   this->PointGhostArrayCached = false;
   // when point data is modified, we update the point data ghost array cache
   this->PointData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
 
   this->CellData = vtkCellData::New();
-  this->CellGhostArray = NULL;
+  this->CellGhostArray = nullptr;
   this->CellGhostArrayCached = false;
   // when cell data is modified, we update the cell data ghost array cache
   this->CellData->AddObserver(vtkCommand::ModifiedEvent, this->DataObserver);
@@ -278,7 +278,7 @@ vtkCell *vtkDataSet::FindAndGetCell (double x[3], vtkCell *cell,
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
   return cell;
 }
@@ -359,7 +359,7 @@ void vtkDataSet::ShallowCopy(vtkDataObject *dataObject)
 {
   vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dataObject);
 
-  if ( dataSet != NULL )
+  if ( dataSet != nullptr )
   {
     this->InternalDataSetCopy(dataSet);
     this->CellData->ShallowCopy(dataSet->GetCellData());
@@ -374,7 +374,7 @@ void vtkDataSet::DeepCopy(vtkDataObject *dataObject)
 {
   vtkDataSet *dataSet = vtkDataSet::SafeDownCast(dataObject);
 
-  if ( dataSet != NULL )
+  if ( dataSet != nullptr )
   {
     this->InternalDataSetCopy(dataSet);
     this->CellData->DeepCopy(dataSet->GetCellData());
@@ -423,7 +423,7 @@ int vtkDataSet::CheckAttributes()
       array = this->GetPointData()->GetAbstractArray(idx);
       numTuples = array->GetNumberOfTuples();
       name = array->GetName();
-      if (name == NULL)
+      if (name == nullptr)
       {
         name = "";
       }
@@ -456,7 +456,7 @@ int vtkDataSet::CheckAttributes()
       array = this->GetCellData()->GetAbstractArray(idx);
       numTuples = array->GetNumberOfTuples();
       name = array->GetName();
-      if (name == NULL)
+      if (name == nullptr)
       {
         name = "";
       }
@@ -676,7 +676,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
 //----------------------------------------------------------------------------
 vtkDataSet* vtkDataSet::GetData(vtkInformation* info)
 {
-  return info? vtkDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkDataSet::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

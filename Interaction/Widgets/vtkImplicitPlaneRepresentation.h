@@ -49,6 +49,7 @@ class vtkLineSource;
 class vtkSphereSource;
 class vtkTubeFilter;
 class vtkPlane;
+class vtkPlaneSource;
 class vtkCutter;
 class vtkProperty;
 class vtkImageData;
@@ -73,7 +74,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkImplicitPlaneRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -147,6 +148,15 @@ public:
   void SetDrawPlane(int plane);
   vtkGetMacro(DrawPlane,int);
   vtkBooleanMacro(DrawPlane,int);
+  //@}
+
+  //@{
+  /**
+   * Enable/disable the drawing of the outline.
+   */
+  void SetDrawOutline(int plane);
+  vtkGetMacro(DrawOutline,int);
+  vtkBooleanMacro(DrawOutline,int);
   //@}
 
   //@{
@@ -307,25 +317,42 @@ public:
 
   //@{
   /**
-   * Methods to interface with the vtkSliderWidget.
+   * Methods to interface with the vtkImplicitPlaneWidget2.
    */
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
-  void EndWidgetInteraction(double newEventPos[2]) VTK_OVERRIDE;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double newEventPos[2]) override;
+  void EndWidgetInteraction(double newEventPos[2]) override;
+  void StartComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
+  void ComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
+  int ComputeComplexInteractionState(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata, int modify = 0) override;
+  void EndComplexInteraction(
+    vtkRenderWindowInteractor *iren,
+    vtkAbstractWidget *widget,
+    unsigned long event, void *calldata) override;
   //@}
+
   //@{
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *pc) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetActors(vtkPropCollection *pc) override;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   // Manage the state of the widget
@@ -362,14 +389,32 @@ public:
   vtkGetMacro(RepresentationState, int);
   //@}
 
+  // Get the underlying plane object used by this rep
+  // this can be used as a cropping plane in vtkMapper
+  vtkPlane *GetUnderlyingPlane() {
+    return this->Plane; }
+
+  //@{
+  /**
+   * Control if the plane should be drawn cropped by the bounding box
+   * or without cropping. Defaults to on.
+   */
+  virtual void SetCropPlaneToBoundingBox(bool);
+  vtkGetMacro(CropPlaneToBoundingBox,bool);
+  vtkBooleanMacro(CropPlaneToBoundingBox,bool);
+  //@}
+
+
 protected:
   vtkImplicitPlaneRepresentation();
-  ~vtkImplicitPlaneRepresentation() VTK_OVERRIDE;
+  ~vtkImplicitPlaneRepresentation() override;
 
   int RepresentationState;
 
   // Keep track of event positions
   double LastEventPosition[3];
+  double LastEventOrientation[4];
+  double StartEventOrientation[4];
 
   // Controlling ivars
   int NormalToXAxis;
@@ -399,9 +444,11 @@ protected:
 
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
+  vtkPlaneSource    *PlaneSource;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
   int                DrawPlane;
+  int                DrawOutline;
   void HighlightPlane(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
@@ -441,16 +488,18 @@ protected:
   vtkCellPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
 
   // Methods to manipulate the plane
   void Rotate(double X, double Y, double *p1, double *p2, double *vpn);
+  void Rotate3D(double *p1, double *p2);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);
   void TranslateOrigin(double *p1, double *p2);
+  void UpdatePose(double *p1, double *d1, double *p2, double *d2);
   void Push(double *p1, double *p2);
   void Scale(double *p1, double *p2, double X, double Y);
   void SizeHandles();
@@ -468,12 +517,14 @@ protected:
 
   void GeneratePlane();
 
+  bool CropPlaneToBoundingBox;
+
   // Support GetBounds() method
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPlaneRepresentation&) VTK_DELETE_FUNCTION;
+  vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&) = delete;
+  void operator=(const vtkImplicitPlaneRepresentation&) = delete;
 };
 
 #endif

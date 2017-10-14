@@ -37,7 +37,7 @@ vtkExtractVectorComponents::~vtkExtractVectorComponents()
 {
 }
 
-// Get the output dataset representing velocity x-component. If output is NULL
+// Get the output dataset representing velocity x-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 0.)
@@ -46,7 +46,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVxComponent()
   return this->GetOutput(0);
 }
 
-// Get the output dataset representing velocity y-component. If output is NULL
+// Get the output dataset representing velocity y-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 1.)
@@ -55,7 +55,7 @@ vtkDataSet *vtkExtractVectorComponents::GetVyComponent()
   return this->GetOutput(1);
 }
 
-// Get the output dataset representing velocity z-component. If output is NULL
+// Get the output dataset representing velocity z-component. If output is nullptr
 // then input hasn't been set, which is necessary for abstract objects. (Note:
 // this method returns the same information as the GetOutput() method with an
 // index of 2.)
@@ -74,7 +74,7 @@ void vtkExtractVectorComponents::SetInputData(vtkDataSet *input)
 
   this->Superclass::SetInputData(0, input);
 
-  if ( input == NULL )
+  if ( input == nullptr )
   {
     return;
   }
@@ -143,8 +143,8 @@ int vtkExtractVectorComponents::RequestData(
   vtkDataArray *vectors, *vectorsc;
   vtkDataArray *vx, *vy, *vz;
   vtkDataArray *vxc, *vyc, *vzc;
-  vtkPointData *pd, *outVx, *outVy=0, *outVz=0;
-  vtkCellData *cd, *outVxc, *outVyc=0, *outVzc=0;
+  vtkPointData *pd, *outVx, *outVy=nullptr, *outVz=nullptr;
+  vtkCellData *cd, *outVxc, *outVyc=nullptr, *outVzc=nullptr;
 
   vtkDebugMacro(<<"Extracting vector components...");
 
@@ -170,9 +170,9 @@ int vtkExtractVectorComponents::RequestData(
 
   vectors = pd->GetVectors();
   vectorsc = cd->GetVectors();
-  if ( (vectors == NULL ||
+  if ( (vectors == nullptr ||
         ((numVectors = vectors->GetNumberOfTuples()) < 1) ) &&
-       (vectorsc == NULL ||
+       (vectorsc == nullptr ||
         ((numVectorsc = vectorsc->GetNumberOfTuples()) < 1)))
   {
     vtkErrorMacro(<<"No vector data to extract!");
@@ -190,33 +190,34 @@ int vtkExtractVectorComponents::RequestData(
   }
   else
   {
-    name = 0;
+    name = nullptr;
   }
 
-  char* newName;
+  size_t newNameSize;
   if (name)
   {
-    newName = new char[strlen(name)+10];
+    newNameSize = strlen(name)+10;
   }
   else
   {
-    newName = new char[10];
+    newNameSize = 10;
     name = "";
   }
+  char* newName = new char[newNameSize];
 
   if (vectors)
   {
     vx = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vx->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vx->SetName(newName);
     vy = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vy->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vy->SetName(newName);
     vz = vtkDataArray::CreateDataArray(vectors->GetDataType());
     vz->SetNumberOfTuples(numVectors);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vz->SetName(newName);
 
     switch (vectors->GetDataType())
@@ -257,15 +258,15 @@ int vtkExtractVectorComponents::RequestData(
   {
     vxc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vxc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-x", name);
+    snprintf(newName, newNameSize, "%s-x", name);
     vxc->SetName(newName);
     vyc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vyc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-y", name);
+    snprintf(newName, newNameSize, "%s-y", name);
     vyc->SetName(newName);
     vzc = vtkDataArray::CreateDataArray(vectorsc->GetDataType());
     vzc->SetNumberOfTuples(numVectorsc);
-    sprintf(newName, "%s-z", name);
+    snprintf(newName, newNameSize, "%s-z", name);
     vzc->SetName(newName);
 
     switch (vectorsc->GetDataType())

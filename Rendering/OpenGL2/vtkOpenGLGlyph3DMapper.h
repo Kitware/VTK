@@ -41,24 +41,24 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DMapper
 public:
   static vtkOpenGLGlyph3DMapper* New();
   vtkTypeMacro(vtkOpenGLGlyph3DMapper, vtkGlyph3DMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Method initiates the mapping process. Generally sent by the actor
    * as each frame is rendered.
    */
-  void Render(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *a) override;
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkOpenGLGlyph3DMapper();
-  ~vtkOpenGLGlyph3DMapper() VTK_OVERRIDE;
+  ~vtkOpenGLGlyph3DMapper() override;
 
   /**
    * Render setup
@@ -87,11 +87,11 @@ protected:
     vtkIdType numPts, vtkActor* actor, vtkDataSet* dataset,
     vtkBitArray *maskArray);
 
-  vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
+  vtkMTimeType BlockMTime; // Last time BlockAttributes was modified.
 
 private:
-  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) = delete;
+  void operator=(const vtkOpenGLGlyph3DMapper&) = delete;
 };
 
 #endif

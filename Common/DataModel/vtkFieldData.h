@@ -56,7 +56,7 @@ public:
   static vtkFieldData *New();
 
   vtkTypeMacro(vtkFieldData,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Release all data but do not delete object.
@@ -68,7 +68,7 @@ public:
    * Allocate data for each array.
    * Note that ext is no longer used.
    */
-  int Allocate(const vtkIdType sz, const vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000);
 
   /**
    * Copy data array structure from a given field.  The same arrays
@@ -90,7 +90,7 @@ public:
 
   /**
    * Get the number of arrays of data available.
-   * This does not include NULL array pointers therefore after
+   * This does not include nullptr array pointers therefore after
    * fd->AllocateArray(n); nArrays = GetNumberOfArrays()
    * nArrays is not necessarily equal to n.
    */
@@ -117,7 +117,7 @@ public:
   /**
    * Not recommended for use. Use GetAbstractArray(int i) instead.
    *
-   * Return the ith array in the field. A NULL is returned if the
+   * Return the ith array in the field. A nullptr is returned if the
    * index i is out of range, or if the array at the given
    * index is not a vtkDataArray. To access vtkStringArray,
    * vtkUnicodeStringArray, or vtkVariantArray, use GetAbstractArray(int i).
@@ -128,8 +128,8 @@ public:
    * Not recommended for use. Use
    * GetAbstractArray(const char *arrayName, int &index) instead.
    *
-   * Return the array with the name given. Returns NULL if array not found.
-   * A NULL is also returned if the array with the given name is not a
+   * Return the array with the name given. Returns nullptr if array not found.
+   * A nullptr is also returned if the array with the given name is not a
    * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
    * vtkVariantArray, use GetAbstractArray(const char* arrayName, int &index).
    * Also returns the index of the array if found, -1 otherwise.
@@ -141,8 +141,8 @@ public:
    * Not recommended for use. Use GetAbstractArray(const char *arrayName)
    * instead.
    *
-   * Return the array with the name given. Returns NULL if array not found.
-   * A NULL is also returned if the array with the given name is not a
+   * Return the array with the name given. Returns nullptr if array not found.
+   * A nullptr is also returned if the array with the given name is not a
    * vtkDataArray. To access vtkStringArray, vtkUnicodeStringArray, or
    * vtkVariantArray, use GetAbstractArray(const char *arrayName).
    */
@@ -155,13 +155,13 @@ public:
 
   /**
    * Returns the ith array in the field. Unlike GetArray(), this method returns
-   * a vtkAbstractArray and can be used to access any array type. A NULL is
+   * a vtkAbstractArray and can be used to access any array type. A nullptr is
    * returned only if the index i is out of range.
    */
   vtkAbstractArray* GetAbstractArray(int i);
 
   /**
-   * Return the array with the name given. Returns NULL if array not found.
+   * Return the array with the name given. Returns nullptr if array not found.
    * Unlike GetArray(), this method returns a vtkAbstractArray and can be used
    * to access any array type. Also returns index of array if found, -1
    * otherwise.
@@ -170,7 +170,7 @@ public:
 
   //@{
   /**
-   * Return the array with the name given. Returns NULL if array not found.
+   * Return the array with the name given. Returns nullptr if array not found.
    * Unlike GetArray(), this method returns a vtkAbstractArray and can be used
    * to access any array type.
    */
@@ -198,12 +198,12 @@ public:
   /**
    * Get the name of ith array.
    * Note that this is equivalent to:
-   * GetAbstractArray(i)->GetName() if ith array pointer is not NULL
+   * GetAbstractArray(i)->GetName() if ith array pointer is not nullptr
    */
   const char* GetArrayName(int i)
   {
     vtkAbstractArray* da = this->GetAbstractArray(i);
-    return da ? da->GetName() : 0;
+    return da ? da->GetName() : nullptr;
   }
   //@}
 
@@ -279,7 +279,7 @@ public:
   /**
    * Check object's components for modified times.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Get a field from a list of ids. Supplied field f should have same
@@ -303,7 +303,7 @@ public:
 
   /**
    * Get the number of components in the field. This is determined by adding
-   * up the components in each non-NULL array.
+   * up the components in each non-nullptr array.
    * This method should not be used if the instance is from a
    * subclass of vtkFieldData (vtkPointData or vtkCellData).
    * This is because in those cases, the attribute data is
@@ -357,7 +357,7 @@ public:
 protected:
 
   vtkFieldData();
-  ~vtkFieldData() VTK_OVERRIDE;
+  ~vtkFieldData() override;
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
@@ -391,8 +391,8 @@ protected:
 
 
 private:
-  vtkFieldData(const vtkFieldData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFieldData&) VTK_DELETE_FUNCTION;
+  vtkFieldData(const vtkFieldData&) = delete;
+  void operator=(const vtkFieldData&) = delete;
 
 public:
 
@@ -442,8 +442,8 @@ public:
 
     Iterator(const Iterator& source);
     Iterator& operator=(const Iterator& source);
-    ~Iterator() VTK_OVERRIDE;
-    Iterator(vtkFieldData* dsa, const int* list=0,
+    ~Iterator() override;
+    Iterator(vtkFieldData* dsa, const int* list=nullptr,
              unsigned int listSize=0);
 
     vtkDataArray* Begin()
@@ -457,7 +457,7 @@ public:
         this->Position++;
         if (this->End())
         {
-          return 0;
+          return nullptr;
         }
 
         // vtkFieldData::GetArray() can return null, which implies that

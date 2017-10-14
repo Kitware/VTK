@@ -36,12 +36,12 @@ public:
   static vtkTreeOrbitLayoutStrategy *New();
 
   vtkTypeMacro(vtkTreeOrbitLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the orbital layout.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
   //@{
   /**
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkTreeOrbitLayoutStrategy();
-  ~vtkTreeOrbitLayoutStrategy() VTK_OVERRIDE;
+  ~vtkTreeOrbitLayoutStrategy() override;
 
   void OrbitChildren(vtkTree *t, vtkPoints *p, vtkIdType parent, double radius);
 
@@ -86,8 +86,8 @@ protected:
 
 private:
 
-  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&) = delete;
+  void operator=(const vtkTreeOrbitLayoutStrategy&) = delete;
 };
 
 #endif

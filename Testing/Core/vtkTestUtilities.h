@@ -137,7 +137,7 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
     }
     else
     {
-      value = NULL;
+      value = nullptr;
     }
   }
 

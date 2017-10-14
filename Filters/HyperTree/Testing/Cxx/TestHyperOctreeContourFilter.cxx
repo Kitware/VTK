@@ -102,9 +102,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
 
   mapper3d->SetLookupTable(lut3d);
 
-  if(contour3d->GetOutput()->GetCellData()!=0)
+  if(contour3d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(contour3d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(contour3d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper3d->SetScalarRange( contour3d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());
@@ -173,9 +173,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   mapper2d->SetLookupTable(lut2d);
   mapper2d->SetScalarModeToUseCellData();
 
-  if(contour2d->GetOutput()->GetCellData()!=0)
+  if(contour2d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(contour2d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(contour2d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper2d->SetScalarRange( contour2d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
@@ -245,9 +245,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   mapper1d->SetLookupTable(lut1d);
   mapper1d->SetScalarModeToUseCellData();
 
-  if(contour1d->GetOutput()->GetCellData()!=0)
+  if(contour1d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(contour1d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(contour1d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper1d->SetScalarRange( contour1d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());

@@ -37,7 +37,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoTransform* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoTransform,vtkAbstractTransform);
 
   //@{
@@ -59,20 +59,20 @@ public:
   /**
    * Transform many points at once.
    */
-  void TransformPoints( vtkPoints* src, vtkPoints* dst ) VTK_OVERRIDE;
+  void TransformPoints( vtkPoints* src, vtkPoints* dst ) override;
 
   /**
    * Invert the transformation.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   //@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint( const float in[3], float out[3] ) VTK_OVERRIDE;
-  void InternalTransformPoint( const double in[3], double out[3] ) VTK_OVERRIDE;
+  void InternalTransformPoint( const float in[3], float out[3] ) override;
+  void InternalTransformPoint( const double in[3], double out[3] ) override;
   //@}
 
   //@{
@@ -82,18 +82,18 @@ public:
    * transformation at that point.  This method does not call Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) VTK_OVERRIDE;
-  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) VTK_OVERRIDE;
+  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) override;
+  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) override;
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform* MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform* MakeTransform() override;
 
 protected:
   vtkGeoTransform();
-  ~vtkGeoTransform() VTK_OVERRIDE;
+  ~vtkGeoTransform() override;
 
   void InternalTransformPoints( double* ptsInOut, vtkIdType numPts, int stride );
 
@@ -101,8 +101,8 @@ protected:
   vtkGeoProjection* DestinationProjection;
 
 private:
-  vtkGeoTransform( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoTransform& ) VTK_DELETE_FUNCTION;
+  vtkGeoTransform( const vtkGeoTransform& ) = delete;
+  void operator = ( const vtkGeoTransform& ) = delete;
 };
 
 #endif // vtkGeoTransform_h

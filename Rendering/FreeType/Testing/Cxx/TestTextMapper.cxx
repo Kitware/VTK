@@ -70,12 +70,12 @@ int TestTextMapper(int, char *[])
   // Render the anchor points to check alignment:
   vtkNew<vtkPolyData> anchors;
   vtkNew<vtkPoints> points;
-  anchors->SetPoints(points.GetPointer());
+  anchors->SetPoints(points);
   vtkNew<vtkCellArray> verts;
-  anchors->SetVerts(verts.GetPointer());
+  anchors->SetVerts(verts);
   vtkNew<vtkUnsignedCharArray> colors;
   colors->SetNumberOfComponents(4);
-  anchors->GetCellData()->SetScalars(colors.GetPointer());
+  anchors->GetCellData()->SetScalars(colors);
 
   for (size_t row = 0; row < 3; ++row)
   {
@@ -110,24 +110,24 @@ int TestTextMapper(int, char *[])
       mapper->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
       vtkNew<vtkActor2D> actor;
       actor->SetPosition(x[col], y[row]);
-      actor->SetMapper(mapper.GetPointer());
-      setupTextMapper(mapper.GetPointer(), actor.GetPointer(),
-                      anchors.GetPointer());
-      ren->AddActor2D(actor.GetPointer());
+      actor->SetMapper(mapper);
+      setupTextMapper(mapper, actor,
+                      anchors);
+      ren->AddActor2D(actor);
     }
   }
 
   vtkNew<vtkPolyDataMapper2D> anchorMapper;
-  anchorMapper->SetInputData(anchors.GetPointer());
+  anchorMapper->SetInputData(anchors);
   vtkNew<vtkActor2D> anchorActor;
-  anchorActor->SetMapper(anchorMapper.GetPointer());
+  anchorActor->SetMapper(anchorMapper);
   anchorActor->GetProperty()->SetPointSize(5);
-  ren->AddActor2D(anchorActor.GetPointer());
+  ren->AddActor2D(anchorActor);
 
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0, 0.0, 0.0);
   ren->GetActiveCamera()->SetPosition(0, 0, 400);

@@ -205,7 +205,7 @@ struct vtkBinTree
       this->BatchSize = 0;
 
       this->OffsetsType = offsetsType;
-      this->OffsetsArray = NULL;
+      this->OffsetsArray = nullptr;
   }
 
   // Virtual functions supporting convenience methods in templated subclass.
@@ -218,7 +218,7 @@ struct vtkBinTree
       if ( this->OffsetsArray )
       {
         this->OffsetsArray->Delete();
-        this->OffsetsArray = NULL;
+        this->OffsetsArray = nullptr;
       }
   }
   virtual void Execute(vtkPointSet *input, vtkPolyData *output) = 0;
@@ -340,7 +340,7 @@ struct BinTree : public vtkBinTree
   }
 
   // Release allocated memory
-  ~BinTree() VTK_OVERRIDE
+  ~BinTree() override
   {
       delete [] this->Map;
       //Offsets data array deleted by superclass
@@ -545,7 +545,7 @@ struct BinTree : public vtkBinTree
   }; //ShuffleArray
 
   // Bin the points, produce output
-  void Execute(vtkPointSet *input, vtkPolyData *output) VTK_OVERRIDE
+  void Execute(vtkPointSet *input, vtkPolyData *output) override
   {
       vtkPoints *inPts = input->GetPoints();
       void *pts = inPts->GetVoidPointer(0);
@@ -658,7 +658,7 @@ struct BinTree : public vtkBinTree
       }//for each candidate array
   }
 
-  vtkIdType GetLevelOffset(int level, vtkIdType& npts) VTK_OVERRIDE
+  vtkIdType GetLevelOffset(int level, vtkIdType& npts) override
   {
     vtkIdType offset = this->Offsets[this->Tree[level]->LevelOffset];
     vtkIdType offset2 = this->Offsets[this->Tree[level+1]->LevelOffset];
@@ -667,7 +667,7 @@ struct BinTree : public vtkBinTree
     return offset;
   }
 
-  vtkIdType GetBinOffset(int globalBin, vtkIdType& npts) VTK_OVERRIDE
+  vtkIdType GetBinOffset(int globalBin, vtkIdType& npts) override
   {
     vtkIdType offset = this->Offsets[globalBin];
     vtkIdType offset2 = this->Offsets[globalBin+1];
@@ -676,7 +676,7 @@ struct BinTree : public vtkBinTree
     return offset;
   }
 
-  vtkIdType GetLocalBinOffset(int level, int localBin, vtkIdType& npts) VTK_OVERRIDE
+  vtkIdType GetLocalBinOffset(int level, int localBin, vtkIdType& npts) override
   {
     vtkIdType offset = this->Offsets[this->Tree[level]->LevelOffset] + localBin;
     vtkIdType offset2 = this->Offsets[this->Tree[level]->LevelOffset] + localBin + 1;
@@ -703,7 +703,7 @@ vtkHierarchicalBinningFilter::vtkHierarchicalBinningFilter()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = 0.0;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
 
-  this->Tree = NULL;
+  this->Tree = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -712,7 +712,7 @@ vtkHierarchicalBinningFilter::~vtkHierarchicalBinningFilter()
   if ( this->Tree )
   {
     delete this->Tree;
-    this->Tree = NULL;
+    this->Tree = nullptr;
   }
 }
 

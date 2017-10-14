@@ -67,7 +67,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastMapper : public vtkVolumeMapper
 public:
   static vtkVolumeRayCastMapper *New();
   vtkTypeMacro(vtkVolumeRayCastMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -167,7 +167,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -175,7 +175,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -188,24 +188,24 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Values needed by the volume
    */
-  float GetGradientMagnitudeScale() VTK_OVERRIDE;
-  float GetGradientMagnitudeBias() VTK_OVERRIDE;
-  float GetGradientMagnitudeScale(int) VTK_OVERRIDE
+  float GetGradientMagnitudeScale() override;
+  float GetGradientMagnitudeBias() override;
+  float GetGradientMagnitudeScale(int) override
     {return this->GetGradientMagnitudeScale();};
-  float GetGradientMagnitudeBias(int) VTK_OVERRIDE
+  float GetGradientMagnitudeBias(int) override
     {return this->GetGradientMagnitudeBias();};
   //@}
 
 protected:
   vtkVolumeRayCastMapper();
-  ~vtkVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkVolumeRayCastMapper() override;
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
   vtkEncodedGradientEstimator  *GradientEstimator;
   vtkEncodedGradientShader     *GradientShader;
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // The distance between sample points along the ray
   double                       SampleDistance;
@@ -298,8 +298,8 @@ protected:
   double         GetZBufferValue( int x, int y );
 
 private:
-  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) = delete;
+  void operator=(const vtkVolumeRayCastMapper&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

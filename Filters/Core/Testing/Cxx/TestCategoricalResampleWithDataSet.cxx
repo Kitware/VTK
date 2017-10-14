@@ -59,7 +59,7 @@ int TestCategoricalResampleWithDataSet(int, char *[])
 
   vtkNew<vtkResampleWithDataSet> probeFilter;
   probeFilter->SetInputConnection(sphere->GetOutputPort());
-  probeFilter->SetSourceData(imageData.GetPointer());
+  probeFilter->SetSourceData(imageData);
   probeFilter->SetCategoricalData(true);
   probeFilter->Update();
 

@@ -34,14 +34,14 @@ public:
 
 protected:
   vtkOpenGLLabeledContourMapper();
-  ~vtkOpenGLLabeledContourMapper() VTK_OVERRIDE;
+  ~vtkOpenGLLabeledContourMapper() override;
 
-  bool ApplyStencil(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-  bool RemoveStencil() VTK_OVERRIDE;
+  bool ApplyStencil(vtkRenderer *ren, vtkActor *act) override;
+  bool RemoveStencil() override;
 
 private:
-  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLabeledContourMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&) = delete;
+  void operator=(const vtkOpenGLLabeledContourMapper&) = delete;
 };
 
 #endif

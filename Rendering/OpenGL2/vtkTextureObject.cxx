@@ -46,7 +46,7 @@
 #include "vtkTextureObjectFS.h"
 #include "vtkTextureObjectVS.h"  // a pass through shader
 
-#define BUFFER_OFFSET(i) (static_cast<char *>(NULL) + (i))
+#define BUFFER_OFFSET(i) (reinterpret_cast<char *>(i))
 
 // Mapping from DepthTextureCompareFunction values to OpenGL values.
 //----------------------------------------------------------------------------
@@ -95,16 +95,6 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "ClampToBorder"
   };
 
-  //----------------------------------------------------------------------------
-  static GLenum OpenGLAlphaInternalFormat[5]=
-  {
-    GL_R8,
-    GL_R8,
-    GL_R16,
-    GL_R16F,
-    GL_R32F
-  };
-
 #else
   //--------------------------------------------------------------------------
   static GLint OpenGLWrap[3]=
@@ -120,17 +110,6 @@ static const char *DepthTextureCompareFunctionAsString[8]=
     "ClampToEdge",
     "Repeat",
     "MirroredRepeat"
-  };
-
-  //----------------------------------------------------------------------------
-  // Should be GL_RED but that requires an extension for ES 2.0
-  static GLenum OpenGLAlphaInternalFormat[5]=
-  {
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE,
-    GL_LUMINANCE
   };
 
 #endif
@@ -167,51 +146,46 @@ static const char *MinMagFilterAsString[6]=
 };
 
 //----------------------------------------------------------------------------
-static GLenum OpenGLDepthInternalFormat[5]=
+static GLenum OpenGLDepthInternalFormat[7]=
 {
-  GL_DEPTH_COMPONENT,
-  GL_DEPTH_COMPONENT16,
+  GL_DEPTH_COMPONENT, // native
+  GL_DEPTH_COMPONENT, // fixed8
+  GL_DEPTH_COMPONENT16, //fixed16
 #ifdef GL_DEPTH_COMPONENT24
-  GL_DEPTH_COMPONENT24,
+  GL_DEPTH_COMPONENT24, //fixed24
 #else
   GL_DEPTH_COMPONENT16,
 #endif
 #ifdef GL_DEPTH_COMPONENT32
-  GL_DEPTH_COMPONENT32,
+  GL_DEPTH_COMPONENT32, // fixed32
 #else
   GL_DEPTH_COMPONENT16,
 #endif
 #ifdef GL_DEPTH_COMPONENT32F
-  GL_DEPTH_COMPONENT32F
+  GL_DEPTH_COMPONENT32F, // float16
+  GL_DEPTH_COMPONENT32F  // float32
 #else
+  GL_DEPTH_COMPONENT16,
   GL_DEPTH_COMPONENT16
 #endif
 };
 
 //----------------------------------------------------------------------------
-static GLenum OpenGLDepthInternalFormatType[5]=
+static GLenum OpenGLDepthInternalFormatType[7]=
 {
+  GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
   GL_UNSIGNED_INT,
 #ifdef GL_DEPTH_COMPONENT32F
+  GL_FLOAT,
   GL_FLOAT
 #else
+  GL_UNSIGNED_INT,
   GL_UNSIGNED_INT
 #endif
 };
-
-/*
-static const char *DepthInternalFormatFilterAsString[6]=
-{
-  "Native",
-  "Fixed16",
-  "Fixed24",
-  "Fixed32",
-  "Float32"
-};
-*/
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTextureObject);
@@ -219,7 +193,7 @@ vtkStandardNewMacro(vtkTextureObject);
 //----------------------------------------------------------------------------
 vtkTextureObject::vtkTextureObject()
 {
-  this->Context = NULL;
+  this->Context = nullptr;
   this->Handle = 0;
   this->NumberOfDimensions = 0;
   this->Target = 0;
@@ -247,12 +221,13 @@ vtkTextureObject::vtkTextureObject()
   this->DepthTextureCompare = false;
   this->DepthTextureCompareFunction = Lequal;
   this->GenerateMipmap = false;
-  this->ShaderProgram = NULL;
+  this->ShaderProgram = nullptr;
   this->BorderColor[0] = 0.0f;
   this->BorderColor[1] = 0.0f;
   this->BorderColor[2] = 0.0f;
   this->BorderColor[3] = 0.0f;
-  this->BufferObject = 0;
+  this->BufferObject = nullptr;
+  this->UseSRGBColorSpace = false;
 
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkTextureObject>(this,
     &vtkTextureObject::ReleaseGraphicsResources);
@@ -267,12 +242,12 @@ vtkTextureObject::~vtkTextureObject()
   {
     this->ResourceCallback->Release();
     delete this->ResourceCallback;
-    this->ResourceCallback = NULL;
+    this->ResourceCallback = nullptr;
   }
   if (this->ShaderProgram)
   {
     delete this->ShaderProgram;
-    this->ShaderProgram = NULL;
+    this->ShaderProgram = nullptr;
   }
 }
 
@@ -359,7 +334,7 @@ void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
 
   this->ResetFormatAndType();
 
-  this->Context = NULL;
+  this->Context = nullptr;
   this->Modified();
   // all done if assigned null
   if (!renWin)
@@ -494,8 +469,6 @@ void vtkTextureObject::Deactivate()
 {
   if (this->Context)
   {
-    this->Context->ActivateTexture(this);
-    this->UnBind();
     this->Context->DeactivateTexture(this);
   }
 }
@@ -509,15 +482,13 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
     return;
   }
 
-  vtkOpenGLRenderWindow *rwin =
-   vtkOpenGLRenderWindow::SafeDownCast(win);
-
   // Ensure that the context is current before releasing any graphics
   // resources tied to it.
   if (this->Handle)
   {
-    rwin->ActivateTexture(this);
-    this->UnBind();
+    vtkOpenGLRenderWindow *rwin =
+      vtkOpenGLRenderWindow::SafeDownCast(win);
+    // you can commewnt out the next line to look for textures left active
     rwin->DeactivateTexture(this);
     GLuint tex = this->Handle;
     glDeleteTextures(1, &tex);
@@ -534,7 +505,7 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   {
     this->ShaderProgram->ReleaseGraphicsResources(win);
     delete this->ShaderProgram;
-    this->ShaderProgram = NULL;
+    this->ShaderProgram = nullptr;
   }
 }
 
@@ -550,16 +521,6 @@ void vtkTextureObject::Bind()
   if (this->AutoParameters && (this->GetMTime() > this->SendParametersTime))
   {
     this->SendParameters();
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkTextureObject::UnBind()
-{
-  if (this->Target)
-  {
-    glBindTexture(this->Target, 0);
-    vtkOpenGLCheckErrorMacro("failed at glBindTexture(0)");
   }
 }
 
@@ -726,7 +687,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
   if (shaderSupportsTextureInt)
   {
     result = this->Context->GetDefaultTextureInternalFormat(
-      vtktype,numComps,true,false);
+      vtktype,numComps, true, false, this->UseSRGBColorSpace);
     if (!result)
     {
       vtkDebugMacro("Unsupported internal texture type!");
@@ -736,7 +697,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
 
   // try default next
   result = this->Context->GetDefaultTextureInternalFormat(
-    vtktype,numComps,false,false);
+    vtktype,numComps,false,false,this->UseSRGBColorSpace);
   if (result)
   {
     return result;
@@ -744,7 +705,7 @@ unsigned int vtkTextureObject::GetDefaultInternalFormat(
 
   // try floating point
   result = this->Context->GetDefaultTextureInternalFormat(
-    vtktype,numComps,false,true);
+    vtktype,numComps,false,true,this->UseSRGBColorSpace);
 
   if (!result)
   {
@@ -805,7 +766,7 @@ void vtkTextureObject::GetShiftAndScale(float &shift, float &scale)
 
   // check to see if this is an int format
   GLenum iresult = this->Context->GetDefaultTextureInternalFormat(
-    vtkGetVTKType(this->Type), this->Components, true, false);
+    vtkGetVTKType(this->Type), this->Components, true, false, this->UseSRGBColorSpace);
 
   // using an int texture format, no shift scale
   if (iresult == this->InternalFormat)
@@ -1175,57 +1136,6 @@ bool vtkTextureObject::Create1DFromRaw(unsigned int width, int numComps,
   return true;
 }
 
-// ----------------------------------------------------------------------------
-// Description:
-// Create a 1D alpha texture using a raw pointer.
-// This is a blocking call. If you can, use PBO instead.
-bool vtkTextureObject::CreateAlphaFromRaw(unsigned int width,
-                                          int internalFormat,
-                                          int rawType,
-                                          void* raw)
-{
-  assert("pre: context_exists" && this->GetContext()!=0);
-  assert("pre: raw_exists" && raw!=0);
-
-  assert("pre: valid_internalFormat" && internalFormat>=0
-         && internalFormat<NumberOfAlphaFormats);
-
-  // Now, detemine texture parameters using the arguments.
-  this->GetDataType(rawType);
-
-  if (!this->InternalFormat)
-  {
-    this->InternalFormat
-      = OpenGLAlphaInternalFormat[internalFormat];
-  }
-
-  if (!this->InternalFormat || !this->Type)
-  {
-    vtkErrorMacro("Failed to detemine texture parameters.");
-    return false;
-  }
-
-  this->Target = GL_TEXTURE_1D;
-  this->Format = GL_RED;
-  this->Width = width;
-  this->Height = 1;
-  this->Depth = 1;
-  this->NumberOfDimensions = 1;
-  this->Components = 1;
-
-  this->Context->ActivateTexture(this);
-  this->CreateTexture();
-  this->Bind();
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
-               static_cast<GLsizei>(this->Width), 0,
-               this->Format, this->Type, raw);
-  vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
-  this->Deactivate();
-  return true;
-}
-
 // Description:
 // Create a texture buffer basically a 1D texture that can be
 // very large for passing data into the fragment shader
@@ -1366,8 +1276,8 @@ bool vtkTextureObject::CreateDepth(unsigned int width,
                                    int internalFormat,
                                    vtkPixelBufferObject *pbo)
 {
-  assert("pre: context_exists" && this->GetContext()!=0);
-  assert("pre: pbo_context_exists" && pbo->GetContext()!=0);
+  assert("pre: context_exists" && this->GetContext()!=nullptr);
+  assert("pre: pbo_context_exists" && pbo->GetContext()!=nullptr);
   assert("pre: context_match" && this->GetContext()==pbo->GetContext());
   assert("pre: sizes_match" && pbo->GetSize()==width*height);
   assert("pre: valid_internalFormat" && internalFormat>=0
@@ -1485,18 +1395,18 @@ vtkPixelBufferObject* vtkTextureObject::Download()
   if (vtktype == 0)
   {
     vtkErrorMacro("Failed to determine type.");
-    return 0;
+    return nullptr;
   }
 
   unsigned int size = this->Width* this->Height* this->Depth;
 
   // doesn't matter which Upload*D method we use since we are not really
   // uploading any data, simply allocating GPU space.
-  if (!pbo->Upload1D(vtktype, NULL, size, this->Components, 0))
+  if (!pbo->Upload1D(vtktype, nullptr, size, this->Components, 0))
   {
     vtkErrorMacro("Could not allocate memory for PBO.");
     pbo->Delete();
-    return 0;
+    return nullptr;
   }
 
   pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
@@ -1593,7 +1503,7 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width,
 
   glTexImage3D(GL_PROXY_TEXTURE_3D, 0, this->InternalFormat,
     static_cast<GLsizei>(width), static_cast<GLsizei>(height),
-    static_cast<GLsizei>(depth), 0, this->Format, this->Type, NULL);
+    static_cast<GLsizei>(depth), 0, this->Format, this->Type, nullptr);
 
   GLsizei testWidth;
   glGetTexLevelParameteriv(GL_PROXY_TEXTURE_3D, 0, GL_TEXTURE_WIDTH,
@@ -1723,8 +1633,8 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
                                           int rawType,
                                           void *raw)
 {
-  assert("pre: context_exists" && this->GetContext()!=0);
-  assert("pre: raw_exists" && raw!=0);
+  assert("pre: context_exists" && this->GetContext()!=nullptr);
+  assert("pre: raw_exists" && raw!=nullptr);
 
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
@@ -1770,7 +1680,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
 bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
                                      int internalFormat)
 {
-  assert("pre: context_exists" && this->GetContext()!=0);
+  assert("pre: context_exists" && this->GetContext()!=nullptr);
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
 
@@ -1825,7 +1735,7 @@ bool vtkTextureObject::AllocateDepth(unsigned int width, unsigned int height,
       0,
       this->Format,
       this->Type,
-      0);
+      nullptr);
   }
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
@@ -1858,7 +1768,7 @@ bool vtkTextureObject::Allocate1D(unsigned int width, int numComps,
   this->Bind();
   glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width), 0, this->Format,
-               this->Type,0);
+               this->Type,nullptr);
   vtkOpenGLCheckErrorMacro("failed at glTexImage1D");
   this->Deactivate();
   return true;
@@ -1918,7 +1828,7 @@ bool vtkTextureObject::Allocate2D(unsigned int width,unsigned int height,
       0,
       this->Format,
       this->Type,
-      0);
+      nullptr);
   }
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
   this->Deactivate();
@@ -1936,7 +1846,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
 #ifdef GL_TEXTURE_3D
   this->Target=GL_TEXTURE_3D;
 
-  if(this->Context==0)
+  if(this->Context==nullptr)
   {
     vtkErrorMacro("No context specified. Cannot create texture.");
     return false;
@@ -1960,7 +1870,7 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
                static_cast<GLsizei>(this->Width),
                static_cast<GLsizei>(this->Height),
                static_cast<GLsizei>(this->Depth), 0,
-               this->Format, this->Type, 0);
+               this->Format, this->Type, nullptr);
   vtkOpenGLCheckErrorMacro("failed at glTexImage3D");
   this->Deactivate();
   return true;
@@ -2215,7 +2125,7 @@ void vtkTextureObject::Resize(unsigned int width, unsigned int height)
       glTexImage2D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                  static_cast<GLsizei>(this->Width),
                  static_cast<GLsizei>(this->Height),
-                 0, this->Format, this->Type, 0);
+                 0, this->Format, this->Type, nullptr);
     }
   }
   else if (this->NumberOfDimensions== 3)
@@ -2225,14 +2135,14 @@ void vtkTextureObject::Resize(unsigned int width, unsigned int height)
                static_cast<GLsizei>(this->Width),
                static_cast<GLsizei>(this->Height),
                static_cast<GLsizei>(this->Depth), 0,
-               this->Format, this->Type, 0);
+               this->Format, this->Type, nullptr);
   }
 #ifdef GL_TEXTURE_1D
   else if (this->NumberOfDimensions == 1)
   {
     glTexImage1D(this->Target, 0, static_cast<GLint>(this->InternalFormat),
                static_cast<GLsizei>(this->Width), 0, this->Format,
-               this->Type,0);
+               this->Type,nullptr);
   }
 #endif
 
@@ -2273,6 +2183,10 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "NumberOfDimensions: " << this->NumberOfDimensions << endl;
+
+  os << indent << "Format: " << this->Format << endl;
+  os << indent << "InternalFormat: " << this->InternalFormat << endl;
+  os << indent << "Type: " << this->Type << endl;
 
   os << indent << "WrapS: " << WrapAsString[this->WrapS] << endl;
   os << indent << "WrapT: " << WrapAsString[this->WrapT] << endl;

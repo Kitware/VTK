@@ -41,7 +41,7 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageQuantizeRGBToIndex : public vtkImageAlgorit
 public:
   static vtkImageQuantizeRGBToIndex *New();
   vtkTypeMacro(vtkImageQuantizeRGBToIndex,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkImageQuantizeRGBToIndex();
-  ~vtkImageQuantizeRGBToIndex() VTK_OVERRIDE;
+  ~vtkImageQuantizeRGBToIndex() override;
 
   vtkLookupTable  *LookupTable;
   int             NumberOfColors;
@@ -92,16 +92,16 @@ protected:
   double           BuildTreeExecuteTime;
   double           LookupIndexExecuteTime;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
 private:
-  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageQuantizeRGBToIndex&) VTK_DELETE_FUNCTION;
+  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&) = delete;
+  void operator=(const vtkImageQuantizeRGBToIndex&) = delete;
 };
 
 #endif

@@ -29,7 +29,7 @@ vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 {
   this->MinBlankingValue = VTK_FLOAT_MAX;
   this->MaxBlankingValue = VTK_FLOAT_MAX;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
   this->ArrayId = -1;
   this->Component = 0;
 }
@@ -37,7 +37,7 @@ vtkBlankStructuredGrid::vtkBlankStructuredGrid()
 vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
 {
   delete [] this->ArrayName;
-  this->ArrayName = NULL;
+  this->ArrayName = nullptr;
 }
 
 
@@ -83,7 +83,7 @@ int vtkBlankStructuredGrid::RequestData(
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int numPts = input->GetNumberOfPoints();
-  vtkDataArray *dataArray=NULL;
+  vtkDataArray *dataArray=nullptr;
   int numComp;
 
   vtkDebugMacro(<< "Blanking Grid");
@@ -96,7 +96,7 @@ int vtkBlankStructuredGrid::RequestData(
 
   // Get the appropriate data array
   //
-  if ( this->ArrayName != NULL )
+  if ( this->ArrayName != nullptr )
   {
     dataArray = pd->GetArray(this->ArrayName);
   }

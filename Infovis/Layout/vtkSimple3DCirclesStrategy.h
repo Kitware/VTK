@@ -54,7 +54,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkSimple3DCirclesStrategy : public vtkGraphLayout
 public:
   static vtkSimple3DCirclesStrategy * New();
   vtkTypeMacro(vtkSimple3DCirclesStrategy,vtkGraphLayoutStrategy);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   enum
   {
@@ -168,15 +168,15 @@ public:
   /**
    * Standard layout method
    */
-  void Layout( void ) VTK_OVERRIDE;
+  void Layout( void ) override;
   /**
    * Set graph (warning: HierarchicalOrder and HierarchicalLayers will set to zero. These reference counts will be decreased!)
    */
-  void SetGraph( vtkGraph * graph ) VTK_OVERRIDE;
+  void SetGraph( vtkGraph * graph ) override;
 protected:
 
   vtkSimple3DCirclesStrategy( void );
-  ~vtkSimple3DCirclesStrategy( void ) VTK_OVERRIDE;
+  ~vtkSimple3DCirclesStrategy( void ) override;
 
   inline void Transform( double Local[], double Global[] );
 
@@ -212,8 +212,8 @@ private:
 
   double T[3][3];
 
-  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
+  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) = delete;
+  void operator=(const vtkSimple3DCirclesStrategy&) = delete;
 };
 
 #endif

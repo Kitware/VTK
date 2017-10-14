@@ -41,12 +41,12 @@ class VTKFILTERSCORE_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataA
 public:
   static vtkGridSynchronizedTemplates3D *New();
   vtkTypeMacro(vtkGridSynchronizedTemplates3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -171,11 +171,11 @@ public:
 
 protected:
   vtkGridSynchronizedTemplates3D();
-  ~vtkGridSynchronizedTemplates3D() VTK_OVERRIDE;
+  ~vtkGridSynchronizedTemplates3D() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -188,8 +188,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGridSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&) = delete;
+  void operator=(const vtkGridSynchronizedTemplates3D&) = delete;
 };
 
 

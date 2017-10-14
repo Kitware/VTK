@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkWidgetEventTranslator.h"
 #include "vtkCommand.h"
+#include "vtkEventData.h"
 #include "vtkObjectFactory.h"
 #include "vtkWidgetEvent.h"
 #include "vtkRenderWindowInteractor.h"
@@ -31,12 +32,37 @@ vtkStandardNewMacro(vtkWidgetEventTranslator);
 struct EventItem {
   vtkSmartPointer< vtkEvent > VTKEvent;
   unsigned long WidgetEvent;
+  vtkEventData *EventData = nullptr;
+  bool HasData = false;
 
   EventItem(vtkEvent *e, unsigned long we)
   {
     this->VTKEvent    = e;
     this->WidgetEvent = we;
+    this->HasData = false;
   }
+  EventItem(vtkEventData *edata, unsigned long we)
+  {
+    this->EventData = edata;
+    this->EventData->Register(nullptr);
+    this->WidgetEvent = we;
+    this->HasData = true;
+  }
+  ~EventItem() { if (this->HasData && this->EventData) { this->EventData->UnRegister(nullptr); this->EventData = nullptr; }}
+
+  EventItem(const EventItem&v) {
+    this->VTKEvent = v.VTKEvent;
+    this->WidgetEvent = v.WidgetEvent;
+    this->HasData = v.HasData;
+    this->EventData = v.EventData;
+    if (this->HasData && this->EventData)
+    {
+      this->EventData->Register(nullptr);
+    }
+  }
+
+private:
+  EventItem() = delete;
 };
 
 // A list of events
@@ -68,6 +94,19 @@ struct EventList : public std::list<EventItem>
     return vtkWidgetEvent::NoEvent;
   }
 
+  unsigned long find(vtkEventData *edata)
+  {
+    std::list<EventItem>::iterator liter = this->begin();
+    for ( ; liter != this->end(); ++liter)
+    {
+      if ( liter->HasData && *edata == *liter->EventData )
+      {
+        return liter->WidgetEvent;
+      }
+    }
+    return vtkWidgetEvent::NoEvent;
+  }
+
   // Remove a mapping
   int Remove( vtkEvent *VTKEvent )
   {
@@ -82,9 +121,20 @@ struct EventList : public std::list<EventItem>
     }
     return 0;
   }
+  int Remove( vtkEventData *edata )
+  {
+    std::list<EventItem>::iterator liter = this->begin();
+    for ( ; liter != this->end(); ++liter)
+    {
+      if ( liter->HasData && *edata == *liter->EventData )
+      {
+        this->erase( liter );
+        return 1;
+      }
+    }
+    return 0;
+  }
 };
-
-
 
 // A STL map used to translate VTK events into lists of events. The reason
 // that we have this list is because of the modifiers on the event. The
@@ -153,6 +203,21 @@ void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent,
   }
 }
 
+void vtkWidgetEventTranslator::SetTranslation(
+  unsigned long VTKEvent,
+  vtkEventData *edata,
+  unsigned long widgetEvent)
+{
+  if (widgetEvent != vtkWidgetEvent::NoEvent)
+  {
+    (*this->EventMap)[VTKEvent].push_back(EventItem(edata,widgetEvent));
+  }
+  else
+  {
+    this->RemoveTranslation( edata );
+  }
+}
+
 //----------------------------------------------------------------------------
 void vtkWidgetEventTranslator::SetTranslation(vtkEvent *VTKEvent,
                                               unsigned long widgetEvent)
@@ -207,10 +272,21 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent,
     EventList &elist = (*iter).second;
     return elist.find(this->Event);
   }
-  else
+  return vtkWidgetEvent::NoEvent;
+}
+
+//----------------------------------------------------------------------------
+unsigned long vtkWidgetEventTranslator::GetTranslation(
+  unsigned long ,
+  vtkEventData *edata )
+{
+  EventMapIterator iter = this->EventMap->find(edata->GetType());
+  if (iter != this->EventMap->end())
   {
-    return vtkWidgetEvent::NoEvent;
+    EventList &elist = (*iter).second;
+    return elist.find(edata);
   }
+  return vtkWidgetEvent::NoEvent;
 }
 
 //----------------------------------------------------------------------------
@@ -253,6 +329,27 @@ int vtkWidgetEventTranslator::RemoveTranslation( vtkEvent *e )
     {
       ++numTranslationsRemoved;
       iter = this->EventMap->find(e->GetEventId());
+      if (iter == this->EventMap->end())
+      {
+        break;
+      }
+    }
+  }
+
+  return numTranslationsRemoved;
+}
+
+//----------------------------------------------------------------------------
+int vtkWidgetEventTranslator::RemoveTranslation( vtkEventData *edata )
+{
+  EventMapIterator iter = this->EventMap->find(edata->GetType());
+  int numTranslationsRemoved = 0;
+  if (iter != this->EventMap->end())
+  {
+    while (iter->second.Remove(edata))
+    {
+      ++numTranslationsRemoved;
+      iter = this->EventMap->find(edata->GetType());
       if (iter == this->EventMap->end())
       {
         break;

@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkAbstractVolumeMapper : public vtkAbstractMapper
 {
 public:
   vtkTypeMacro(vtkAbstractVolumeMapper,vtkAbstractMapper3D);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -54,8 +54,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
   //@}
 
@@ -133,14 +133,14 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) override {}
 
 protected:
   vtkAbstractVolumeMapper();
-  ~vtkAbstractVolumeMapper() VTK_OVERRIDE;
+  ~vtkAbstractVolumeMapper() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int         ScalarMode;
   char       *ArrayName;
@@ -148,8 +148,8 @@ protected:
   int         ArrayAccessMode;
 
 private:
-  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) = delete;
+  void operator=(const vtkAbstractVolumeMapper&) = delete;
 };
 
 

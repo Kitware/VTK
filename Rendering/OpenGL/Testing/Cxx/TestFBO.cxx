@@ -48,7 +48,7 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   int pipe;
   do
   {
-    pipe =  vtksysProcess_WaitForData(process, &data, &length, NULL);
+    pipe =  vtksysProcess_WaitForData(process, &data, &length, nullptr);
     switch (pipe)
     {
     case vtksysProcess_Pipe_STDOUT:

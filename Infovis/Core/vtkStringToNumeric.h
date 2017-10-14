@@ -37,7 +37,7 @@ class VTKINFOVISCORE_EXPORT vtkStringToNumeric : public vtkDataObjectAlgorithm
 public:
   static vtkStringToNumeric* New();
   vtkTypeMacro(vtkStringToNumeric,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -144,18 +144,18 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkStringToNumeric();
-  ~vtkStringToNumeric() VTK_OVERRIDE;
+  ~vtkStringToNumeric() override;
 
   /**
    * Creates the same output type as the input type.
    */
   int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
   /**
    * Tries to convert string arrays to integer or double arrays.
@@ -184,11 +184,11 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkStringToNumeric(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
+  vtkStringToNumeric(const vtkStringToNumeric&) = delete;
+  void operator=(const vtkStringToNumeric&) = delete;
 };
 
 #endif

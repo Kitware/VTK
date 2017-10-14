@@ -88,7 +88,7 @@ class VTKIMAGINGHYBRID_EXPORT vtkGaussianSplatter : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkGaussianSplatter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with dimensions=(50,50,50); automatic computation of
@@ -284,15 +284,15 @@ public:
 
 protected:
   vtkGaussianSplatter();
-  ~vtkGaussianSplatter() VTK_OVERRIDE {}
+  ~vtkGaussianSplatter() override {}
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   void Cap(vtkDoubleArray *s);
 
   int SampleDimensions[3]; // dimensions of volume to splat into
@@ -329,8 +329,8 @@ private:
   double NullValue;
 
 private:
-  vtkGaussianSplatter(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
+  vtkGaussianSplatter(const vtkGaussianSplatter&) = delete;
+  void operator=(const vtkGaussianSplatter&) = delete;
 };
 
 #endif

@@ -36,13 +36,13 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSMPProgressObserver : public vtkProgress
 public:
   static vtkSMPProgressObserver *New();
   vtkTypeMacro(vtkSMPProgressObserver,vtkProgressObserver);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Passes the progress event to a thread local ProgressObserver
    * instance.
    */
-  void UpdateProgress(double amount) VTK_OVERRIDE;
+  void UpdateProgress(double amount) override;
 
   /**
    * Returns the progress observer local to the thread it was
@@ -55,13 +55,13 @@ public:
 
 protected:
   vtkSMPProgressObserver();
-  ~vtkSMPProgressObserver() VTK_OVERRIDE;
+  ~vtkSMPProgressObserver() override;
 
   vtkSMPThreadLocalObject<vtkProgressObserver> Observers;
 
 private:
-  vtkSMPProgressObserver(const vtkSMPProgressObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPProgressObserver&) VTK_DELETE_FUNCTION;
+  vtkSMPProgressObserver(const vtkSMPProgressObserver&) = delete;
+  void operator=(const vtkSMPProgressObserver&) = delete;
 };
 
 #endif

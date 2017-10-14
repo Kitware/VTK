@@ -55,7 +55,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkmLevelOfDetail,vtkPolyDataAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmLevelOfDetail* New();
 
   // Description:
@@ -88,13 +88,13 @@ protected:
   ~vtkmLevelOfDetail();
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 private:
   int NumberOfDivisions[3];
 
-  vtkmLevelOfDetail(const vtkmLevelOfDetail&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmLevelOfDetail&) VTK_DELETE_FUNCTION;
+  vtkmLevelOfDetail(const vtkmLevelOfDetail&) = delete;
+  void operator=(const vtkmLevelOfDetail&) = delete;
 };
 
 #endif // vtkmLevelOfDetail_h

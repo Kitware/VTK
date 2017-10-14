@@ -16,7 +16,12 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkRenderingOpenGLConfigure.h"
+#ifdef VTK_OPENGL2
 #include "vtkCompositeDataDisplayAttributes.h"
+#else
+#include "vtkCompositeDataDisplayAttributesLegacy.h"
+#endif
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
@@ -59,8 +64,13 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+#ifdef VTK_OPENGL2
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+#else
+  vtkNew<vtkCompositeDataDisplayAttributesLegacy> cdsa;
+  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+#endif
 
 #ifdef syntheticData
 
@@ -86,6 +96,7 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -101,7 +112,7 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -125,8 +136,6 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
   }
-
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
 
 #else
 

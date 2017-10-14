@@ -23,7 +23,7 @@ class vtkInstantiatorHashNode
 public:
   typedef vtkInstantiator::CreateFunction CreateFunction;
 
-  vtkInstantiatorHashNode() { this->ClassName = 0; this->Function = 0; }
+  vtkInstantiatorHashNode() { this->ClassName = nullptr; this->Function = nullptr; }
 
   void SetClassName(const char* className) { this->ClassName = className; }
   const char* GetClassName() { return this->ClassName; }
@@ -64,8 +64,8 @@ protected:
   unsigned long ClassNamesSize;
 
 private:
-  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
+  vtkInstantiatorHashTable(const vtkInstantiatorHashTable&) = delete;
+  void operator=(const vtkInstantiatorHashTable&) = delete;
 };
 
 //----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ vtkInstantiatorHashTable::Find(const char* className)
     if(strcmp(this->Buckets[bucket][i].GetClassName(), className) == 0)
       { return this->Buckets[bucket][i].GetFunction(); }
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -262,9 +262,10 @@ void vtkInstantiator::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkObject* vtkInstantiator::CreateInstance(const char* className)
 {
+  VTK_LEGACY_BODY(vtkInstantiator::CreateInstance, "VTK 8.1");
   CreateFunction function = vtkInstantiator::CreatorTable->Find(className);
   if(function) { return function(); }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -26,7 +26,7 @@ const char *vtkViewNode::operation_type_strings[] =
   "build",
   "synchronize",
   "render",
-  NULL
+  nullptr
 };
 
 //----------------------------------------------------------------------------
@@ -38,11 +38,11 @@ vtkCxxSetObjectMacro(vtkViewNode,MyFactory,vtkViewNodeFactory);
 //----------------------------------------------------------------------------
 vtkViewNode::vtkViewNode()
 {
-  this->Renderable = NULL;
-  this->Parent = NULL;
+  this->Renderable = nullptr;
+  this->Parent = nullptr;
   this->Children = vtkViewNodeCollection::New();
   this->PreparedNodes = vtkCollection::New();
-  this->MyFactory = NULL;
+  this->MyFactory = nullptr;
 
   this->RenderTime = 0;
 }
@@ -77,7 +77,7 @@ void vtkViewNode::SetParent(vtkViewNode *p)
 //----------------------------------------------------------------------------
 vtkViewNode *vtkViewNode::GetParent()
 {
-  return this->Parent.GetPointer();
+  return this->Parent;
 }
 
 
@@ -200,7 +200,7 @@ void vtkViewNode::Traverse(int operation)
 //----------------------------------------------------------------------------
 vtkViewNode *vtkViewNode::CreateViewNode(vtkObject *obj)
 {
-  vtkViewNode *ret = NULL;
+  vtkViewNode *ret = nullptr;
   if (!this->MyFactory)
   {
     vtkWarningMacro("Can not create view nodes without my own factory");
@@ -221,7 +221,7 @@ vtkViewNode *vtkViewNode::GetFirstAncestorOfType(const char *type)
 {
   if (!this->Parent)
   {
-    return NULL;
+    return nullptr;
   }
   if (this->Parent->IsA(type))
   {
@@ -270,7 +270,7 @@ vtkViewNode* vtkViewNode::GetViewNodeFor(vtkObject *obj)
     return this;
   }
 
-  vtkViewNode *owner = NULL;
+  vtkViewNode *owner = nullptr;
   vtkCollectionIterator *it = this->Children->NewIterator();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())

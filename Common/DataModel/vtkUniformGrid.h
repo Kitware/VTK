@@ -40,46 +40,46 @@ public:
    */
   static vtkUniformGrid *New();
   vtkTypeMacro(vtkUniformGrid,vtkImageData);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Copy the geometric and topological structure of an input image data
    * object.
    */
-  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *ds) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_UNIFORM_GRID;};
+  int GetDataObjectType() override {return VTK_UNIFORM_GRID;};
 
   //@{
   /**
    * Standard vtkDataSet API methods. See vtkDataSet for more information.
    */
-  vtkCell *GetCell(int i, int j, int k) VTK_OVERRIDE;
-  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  vtkCell *GetCell(int i, int j, int k) override;
+  vtkCell *GetCell(vtkIdType cellId) override;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) override;
   vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-    int& subId, double pcoords[3], double *weights) VTK_OVERRIDE;
+    int& subId, double pcoords[3], double *weights) override;
   vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkGenericCell *gencell,
     vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double *weights) VTK_OVERRIDE;
+    double pcoords[3], double *weights) override;
   vtkCell *FindAndGetCell(
     double x[3], vtkCell *cell, vtkIdType cellId,
     double tol2, int& subId, double pcoords[3],
-    double *weights) VTK_OVERRIDE;
-  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE
+    double *weights) override;
+  int GetCellType(vtkIdType cellId) override;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) override
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->GetDataDescription(),
                                       this->GetDimensions());}
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) override
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
-  void Initialize() VTK_OVERRIDE;
-  int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //voxel is the largest
+  void Initialize() override;
+  int GetMaxCellSize() override {return 8;}; //voxel is the largest
   //@}
 
   /**
@@ -151,12 +151,12 @@ public:
    * Returns 1 if there is any visibility constraint on the cells,
    * 0 otherwise.
    */
-  bool HasAnyBlankCells() VTK_OVERRIDE;
+  bool HasAnyBlankCells() override;
   /**
    * Returns 1 if there is any visibility constraint on the points,
    * 0 otherwise.
    */
-  bool HasAnyBlankPoints() VTK_OVERRIDE;
+  bool HasAnyBlankPoints() override;
 
   /**
    * Return non-zero value if specified point is visible.
@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkUniformGrid();
-  ~vtkUniformGrid() VTK_OVERRIDE;
+  ~vtkUniformGrid() override;
 
   /**
    * Returns the cell dimensions for this vtkUniformGrid instance.
@@ -194,13 +194,13 @@ protected:
   /**
    * Override this method because of blanking.
    */
-  void ComputeScalarRange() VTK_OVERRIDE;
+  void ComputeScalarRange() override;
 
   vtkEmptyCell* GetEmptyCell();
 
 private:
-  vtkUniformGrid(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
+  vtkUniformGrid(const vtkUniformGrid&) = delete;
+  void operator=(const vtkUniformGrid&) = delete;
 
   vtkEmptyCell *EmptyCell;
 

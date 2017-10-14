@@ -37,7 +37,7 @@ class VTKFILTERSGENERAL_EXPORT vtkRotationFilter : public vtkUnstructuredGridAlg
 public:
   static vtkRotationFilter *New();
   vtkTypeMacro(vtkRotationFilter, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   enum RotationAxis
   {
@@ -96,10 +96,10 @@ public:
 
 protected:
   vtkRotationFilter();
-  ~vtkRotationFilter() VTK_OVERRIDE;
+  ~vtkRotationFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int Axis;
   double Angle;
@@ -108,8 +108,8 @@ protected:
   int CopyInput;
 
 private:
-  vtkRotationFilter(const vtkRotationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRotationFilter&) VTK_DELETE_FUNCTION;
+  vtkRotationFilter(const vtkRotationFilter&) = delete;
+  void operator=(const vtkRotationFilter&) = delete;
 };
 
 #endif

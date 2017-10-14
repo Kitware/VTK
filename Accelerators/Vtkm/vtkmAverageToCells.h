@@ -35,7 +35,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmAverageToCells : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkmAverageToCells, vtkDataSetAlgorithm)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToCells* New();
 
 protected:
@@ -43,11 +43,11 @@ protected:
   ~vtkmAverageToCells();
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 private:
-  vtkmAverageToCells(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmAverageToCells&) VTK_DELETE_FUNCTION;
+  vtkmAverageToCells(const vtkmAverageToCells&) = delete;
+  void operator=(const vtkmAverageToCells&) = delete;
 };
 
 #endif // vtkmAverageToCells_h

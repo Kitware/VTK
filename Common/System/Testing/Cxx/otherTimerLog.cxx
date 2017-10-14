@@ -103,10 +103,31 @@ void otherTimerLogTest(ostream& strm)
   strm << "Test vtkTimerLog End" << endl;
 }
 
+void timerLogScopeTest()
+{
+  {
+    vtkTimerLogScope timer("Test");
+    {
+      vtkTimerLogScope timer2("Test2");
+#ifndef _WIN32
+      sleep (1);
+#else
+      Sleep(1000);
+#endif
+    }
+#ifndef _WIN32
+    sleep (1);
+#else
+    Sleep(1000);
+#endif
+  }
+  vtkTimerLog::DumpLogWithIndents(&cerr, 0);
+}
+
 int otherTimerLog(int,char *[])
 {
   std::ostringstream vtkmsg_with_warning_C4701;
   otherTimerLogTest(vtkmsg_with_warning_C4701);
-
+  timerLogScopeTest();
   return 0;
 }

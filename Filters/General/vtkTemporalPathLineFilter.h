@@ -59,7 +59,7 @@ public:
    */
   static vtkTemporalPathLineFilter *New();
   vtkTypeMacro(vtkTemporalPathLineFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -90,7 +90,7 @@ public:
    * the index of each point. This is necessary only if the particles
    * change position (Id order) on each time step. The Id can be used
    * to identify particles at each step and hence track them properly.
-   * If this array is NULL, the global point ids are used.  If an Id
+   * If this array is nullptr, the global point ids are used.  If an Id
    * array cannot otherwise be found, the point index is used as the ID.
    */
   vtkSetStringMacro(IdChannelArray);
@@ -143,13 +143,13 @@ public:
 
 protected:
    vtkTemporalPathLineFilter();
-  ~vtkTemporalPathLineFilter() VTK_OVERRIDE;
+  ~vtkTemporalPathLineFilter() override;
 
   //
   // Make sure the pipeline knows what type we expect as input
   //
-  int FillInputPortInformation (int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation (int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   //@{
   /**
@@ -157,11 +157,11 @@ protected:
    */
   int RequestInformation (vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
   //
   int RequestData(vtkInformation *request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
   //@}
 
   TrailPointer GetTrail(vtkIdType i);
@@ -191,8 +191,8 @@ protected:
 
   //
 private:
-  vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalPathLineFilter&) VTK_DELETE_FUNCTION;
+  vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&) = delete;
+  void operator=(const vtkTemporalPathLineFilter&) = delete;
 };
 
 #endif

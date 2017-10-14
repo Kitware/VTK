@@ -38,26 +38,26 @@ public:
   static vtkImplicitSum *New();
 
   vtkTypeMacro(vtkImplicitSum,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Evaluate implicit function using current functions and weights.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate gradient of the weighted sum of functions.  Input functions
    * should be linear.
    */
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   /**
    * Override modified time retrieval because of object dependencies.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Add another implicit function to the list of functions, along with a
@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkImplicitSum();
-  ~vtkImplicitSum() VTK_OVERRIDE;
+  ~vtkImplicitSum() override;
 
   vtkImplicitFunctionCollection *FunctionList;
   vtkDoubleArray *Weights;
@@ -106,8 +106,8 @@ protected:
   int NormalizeByWeight;
 
 private:
-  vtkImplicitSum(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
+  vtkImplicitSum(const vtkImplicitSum&) = delete;
+  void operator=(const vtkImplicitSum&) = delete;
 };
 
 #endif

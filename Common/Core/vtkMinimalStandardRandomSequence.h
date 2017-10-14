@@ -43,7 +43,7 @@ class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence
 {
 public:
   vtkTypeMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkMinimalStandardRandomSequence* New();
 
@@ -86,12 +86,12 @@ public:
    * Current value
    * \post unit_range: result>=0.0 && result<=1.0
    */
-  double GetValue() VTK_OVERRIDE;
+  double GetValue() override;
 
   /**
    * Move to the next number in the random sequence.
    */
-  void Next() VTK_OVERRIDE;
+  void Next() override;
 
   /**
    * Convenient method to return a value in a specific range from the
@@ -110,11 +110,11 @@ public:
 
 protected:
   vtkMinimalStandardRandomSequence();
-  ~vtkMinimalStandardRandomSequence() VTK_OVERRIDE;
+  ~vtkMinimalStandardRandomSequence() override;
   int Seed;
 private:
-  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
+  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) = delete;
+  void operator=(const vtkMinimalStandardRandomSequence&) = delete;
 };
 
 #endif // #ifndef vtkMinimalStandardRandomSequence_h

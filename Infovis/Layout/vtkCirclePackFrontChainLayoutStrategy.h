@@ -56,7 +56,7 @@ public:
   static vtkCirclePackFrontChainLayoutStrategy *New();
 
   vtkTypeMacro(vtkCirclePackFrontChainLayoutStrategy,vtkCirclePackLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the layout of the input tree, and store the circle
@@ -64,7 +64,7 @@ public:
    * (Xcenter, Ycenter, Radius).
    */
   void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
-                      vtkDataArray* sizeArray) VTK_OVERRIDE;
+                      vtkDataArray* sizeArray) override;
 
   //@{
   /**
@@ -79,7 +79,7 @@ public:
 
 protected:
   vtkCirclePackFrontChainLayoutStrategy();
-  ~vtkCirclePackFrontChainLayoutStrategy() VTK_OVERRIDE;
+  ~vtkCirclePackFrontChainLayoutStrategy() override;
 
   char * CirclesFieldName;
   int Width;
@@ -89,8 +89,8 @@ private:
 
   vtkCirclePackFrontChainLayoutStrategyImplementation* pimpl; // Private implementation
 
-  vtkCirclePackFrontChainLayoutStrategy(const vtkCirclePackFrontChainLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCirclePackFrontChainLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkCirclePackFrontChainLayoutStrategy(const vtkCirclePackFrontChainLayoutStrategy&) = delete;
+  void operator=(const vtkCirclePackFrontChainLayoutStrategy&) = delete;
 };
 
 #endif

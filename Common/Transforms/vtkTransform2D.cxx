@@ -34,12 +34,12 @@ vtkTransform2D::~vtkTransform2D()
   if (this->Matrix)
   {
     this->Matrix->Delete();
-    this->Matrix = NULL;
+    this->Matrix = nullptr;
   }
   if (this->InverseMatrix)
   {
     this->InverseMatrix->Delete();
-    this->InverseMatrix = NULL;
+    this->InverseMatrix = nullptr;
   }
 }
 

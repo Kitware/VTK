@@ -124,21 +124,21 @@ static double vtkMoleculeReaderBaseRadius[] = {
 
 vtkMoleculeReaderBase::vtkMoleculeReaderBase()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->BScale = 1.0;
   this->HBScale = 1.0;
-  this->Molecule = NULL;
-  this->AtomType = NULL;
-  this->AtomTypeStrings = 0;
-  this->Points = NULL;
-  this->RGB = NULL;
-  this->Radii = NULL;
-  this->Chain = NULL;
-  this->Residue = NULL;
-  this->SecondaryStructures = NULL;
-  this->SecondaryStructuresBegin = NULL;
-  this->SecondaryStructuresEnd = NULL;
-  this->IsHetatm = NULL;
+  this->Molecule = nullptr;
+  this->AtomType = nullptr;
+  this->AtomTypeStrings = nullptr;
+  this->Points = nullptr;
+  this->RGB = nullptr;
+  this->Radii = nullptr;
+  this->Chain = nullptr;
+  this->Residue = nullptr;
+  this->SecondaryStructures = nullptr;
+  this->SecondaryStructuresBegin = nullptr;
+  this->SecondaryStructuresEnd = nullptr;
+  this->IsHetatm = nullptr;
   this->NumberOfAtoms = 0;
 
   this->SetNumberOfInputPorts(0);
@@ -233,7 +233,7 @@ int vtkMoleculeReaderBase::RequestData(
     return 0;
   }
 
-  if ((fp = fopen(this->FileName, "r")) == NULL)
+  if ((fp = fopen(this->FileName, "r")) == nullptr)
   {
     vtkErrorMacro(<< "Unable to open " << this->FileName);
     return 0;
@@ -430,7 +430,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
   ds->SetPoints(newPts);
 
   vtkNew<vtkPointLocator> locator;
-  locator->SetDataSet(ds.GetPointer());
+  locator->SetDataSet(ds);
 
   vtkNew<vtkIdList> result;
 
@@ -457,7 +457,7 @@ int vtkMoleculeReaderBase::MakeBonds(vtkPoints *newPts,
     radius =
       (vtkMoleculeReaderBaseCovRadius[atype->GetValue(i)] + 2.0 + 0.56) *
       std::max(BScale, HBScale);
-    locator->FindPointsWithinRadius(radius, X, result.GetPointer());
+    locator->FindPointsWithinRadius(radius, X, result);
     for (k = result->GetNumberOfIds()-1; k >= 0; k--)
     {
       j = result->GetId(k);

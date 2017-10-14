@@ -52,11 +52,11 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
 
     mappers[i]->SetInputConnection(lines[i]->GetOutputPort());
 
-    actors[i]->SetMapper(mappers[i].Get());
+    actors[i]->SetMapper(mappers[i]);
     actors[i]->GetProperty()->SetColor(0., 1., 0.);
     actors[i]->GetProperty()->SetRepresentationToWireframe();
     actors[i]->GetProperty()->SetLineWidth(((i + widthBias) % 2) ? 1 : 3);
-    renderer->AddActor(actors[i].Get());
+    renderer->AddActor(actors[i]);
   }
 
   vtkNew<vtkSphereSource> sphere;
@@ -67,11 +67,11 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper.Get());
+  sphereActor->SetMapper(sphereMapper);
   sphereActor->GetProperty()->SetColor(0.9, 0.4, 0.2);
   sphereActor->GetProperty()->SetAmbient(.6);
   sphereActor->GetProperty()->SetDiffuse(.4);
-  renderer->AddActor(sphereActor.Get());
+  renderer->AddActor(sphereActor);
 
   vtkNew<vtkConeSource> cone;
   cone->SetCenter(0., 0.5, -0.5);
@@ -82,11 +82,11 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   vtkNew<vtkPolyDataMapper> coneMapper;
   coneMapper->SetInputConnection(cone->GetOutputPort());
   vtkNew<vtkActor> coneActor;
-  coneActor->SetMapper(coneMapper.Get());
+  coneActor->SetMapper(coneMapper);
   coneActor->GetProperty()->SetColor(0.9, .6, 0.8);
   coneActor->GetProperty()->SetAmbient(.6);
   coneActor->GetProperty()->SetDiffuse(.4);
-  renderer->AddActor(coneActor.Get());
+  renderer->AddActor(coneActor);
 
   vtkNew<vtkDiskSource> disk;
   disk->SetCircumferentialResolution(80);
@@ -96,11 +96,11 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   diskMapper->SetInputConnection(disk->GetOutputPort());
   vtkNew<vtkActor> diskActor;
   diskActor->SetPosition(0., -0.5, -0.5);
-  diskActor->SetMapper(diskMapper.Get());
+  diskActor->SetMapper(diskMapper);
   diskActor->GetProperty()->SetColor(.3, .1, .4);
   diskActor->GetProperty()->SetAmbient(.6);
   diskActor->GetProperty()->SetDiffuse(.4);
-  renderer->AddActor(diskActor.Get());
+  renderer->AddActor(diskActor);
 
   vtkNew<vtkCylinderSource> cyl;
   cyl->SetCenter(0., -.5, 0.);
@@ -112,11 +112,11 @@ void BuildRenderer(vtkRenderer *renderer, int widthBias)
   vtkNew<vtkActor> cylActor;
   cylActor->SetOrigin(cyl->GetCenter());
   cylActor->RotateWXYZ(35, -0.2, 0., 1.);
-  cylActor->SetMapper(cylMapper.Get());
+  cylActor->SetMapper(cylMapper);
   cylActor->GetProperty()->SetColor(0.3, .9, .4);
   cylActor->GetProperty()->SetAmbient(.6);
   cylActor->GetProperty()->SetDiffuse(.4);
-  renderer->AddActor(cylActor.Get());
+  renderer->AddActor(cylActor);
 
   renderer->SetBackground(0., 0., 0.);
   renderer->GetActiveCamera()->ParallelProjectionOn();
@@ -132,7 +132,7 @@ int TestFXAAFilter(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderer> rendererFXAA;
@@ -144,7 +144,7 @@ int TestFXAAFilter(int argc, char *argv[])
   label->GetTextProperty()->SetJustificationToCentered();
   label->GetTextProperty()->SetVerticalJustificationToBottom();
   label->SetPosition(85, 10);
-  renderer->AddActor2D(label.Get());
+  renderer->AddActor2D(label);
 
   vtkNew<vtkTextActor> labelFXAA;
   labelFXAA->SetInput("FXAA");
@@ -152,20 +152,20 @@ int TestFXAAFilter(int argc, char *argv[])
   labelFXAA->GetTextProperty()->SetJustificationToCentered();
   labelFXAA->GetTextProperty()->SetVerticalJustificationToBottom();
   labelFXAA->SetPosition(85, 10);
-  rendererFXAA->AddActor2D(labelFXAA.Get());
+  rendererFXAA->AddActor2D(labelFXAA);
 
   renderer->SetViewport(0., 0., .5, 1.);
-  BuildRenderer(renderer.Get(), 0);
-  renWin->AddRenderer(renderer.Get());
+  BuildRenderer(renderer, 0);
+  renWin->AddRenderer(renderer);
 
   rendererFXAA->SetViewport(.5, 0., 1., 1.);
-  BuildRenderer(rendererFXAA.Get(), 1);
-  renWin->AddRenderer(rendererFXAA.Get());
+  BuildRenderer(rendererFXAA, 1);
+  renWin->AddRenderer(rendererFXAA);
 
   renWin->SetSize(1000, 500);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.Get());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

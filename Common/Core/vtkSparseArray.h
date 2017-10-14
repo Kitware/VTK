@@ -47,7 +47,7 @@
  * Reserve storage for a specific number of non-null values, for efficiency when the
  * number of non-null values is known in advance.
  *
- * Recompute the array extents so that they bound the largest set of non-NULL values
+ * Recompute the array extents so that they bound the largest set of non-nullptr values
  * along each dimension.
  *
  * Specify arbitrary array extents.
@@ -77,40 +77,40 @@ class vtkSparseArray : public vtkTypedArray<T>
 public:
   vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>)
   static vtkSparseArray<T>* New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::DimensionT DimensionT;
   typedef typename vtkArray::SizeT SizeT;
 
   // vtkArray API
-  bool IsDense() VTK_OVERRIDE;
-  const vtkArrayExtents& GetExtents() VTK_OVERRIDE;
-  SizeT GetNonNullSize() VTK_OVERRIDE;
-  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) VTK_OVERRIDE;
-  vtkArray* DeepCopy() VTK_OVERRIDE;
+  bool IsDense() override;
+  const vtkArrayExtents& GetExtents() override;
+  SizeT GetNonNullSize() override;
+  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) override;
+  vtkArray* DeepCopy() override;
 
   // vtkTypedArray API
-  const T& GetValue(CoordinateT i) VTK_OVERRIDE;
-  const T& GetValue(CoordinateT i, CoordinateT j) VTK_OVERRIDE;
-  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k) VTK_OVERRIDE;
-  const T& GetValue(const vtkArrayCoordinates& coordinates) VTK_OVERRIDE;
-  const T& GetValueN(const SizeT n) VTK_OVERRIDE;
-  void SetValue(CoordinateT i, const T& value) VTK_OVERRIDE;
-  void SetValue(CoordinateT i, CoordinateT j, const T& value) VTK_OVERRIDE;
-  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value) VTK_OVERRIDE;
-  void SetValue(const vtkArrayCoordinates& coordinates, const T& value) VTK_OVERRIDE;
-  void SetValueN(const SizeT n, const T& value) VTK_OVERRIDE;
+  const T& GetValue(CoordinateT i) override;
+  const T& GetValue(CoordinateT i, CoordinateT j) override;
+  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k) override;
+  const T& GetValue(const vtkArrayCoordinates& coordinates) override;
+  const T& GetValueN(const SizeT n) override;
+  void SetValue(CoordinateT i, const T& value) override;
+  void SetValue(CoordinateT i, CoordinateT j, const T& value) override;
+  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value) override;
+  void SetValue(const vtkArrayCoordinates& coordinates, const T& value) override;
+  void SetValueN(const SizeT n, const T& value) override;
 
   // vtkSparseArray API
 
   /**
-   * Set the value that will be returned by GetValue() for NULL areas of the array.
+   * Set the value that will be returned by GetValue() for nullptr areas of the array.
    */
   void SetNullValue(const T& value);
 
   /**
-   * Returns the value that will be returned by GetValue() for NULL areas of the array.
+   * Returns the value that will be returned by GetValue() for nullptr areas of the array.
    */
   const T& GetNullValue();
 
@@ -166,7 +166,7 @@ public:
   /**
    * Reserve storage for a specific number of values.  This is useful for reading external
    * data using GetCoordinateStorage() and GetValueStorage(), when the total
-   * number of non-NULL values in the array can be determined in advance.  Note that after
+   * number of non-nullptr values in the array can be determined in advance.  Note that after
    * calling ReserveStorage(), all coordinates and values will be undefined, so you must
    * ensure that every set of coordinates and values is overwritten.  It is the caller's
    * responsibility to ensure that duplicate coordinates are not inserted into the array.
@@ -212,15 +212,15 @@ public:
 
 protected:
   vtkSparseArray();
-  ~vtkSparseArray() VTK_OVERRIDE;
+  ~vtkSparseArray() override;
 
 private:
-  vtkSparseArray(const vtkSparseArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSparseArray&) VTK_DELETE_FUNCTION;
+  vtkSparseArray(const vtkSparseArray&) = delete;
+  void operator=(const vtkSparseArray&) = delete;
 
-  void InternalResize(const vtkArrayExtents& extents) VTK_OVERRIDE;
-  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) VTK_OVERRIDE;
-  vtkStdString InternalGetDimensionLabel(DimensionT i) VTK_OVERRIDE;
+  void InternalResize(const vtkArrayExtents& extents) override;
+  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) override;
+  vtkStdString InternalGetDimensionLabel(DimensionT i) override;
 
   typedef vtkSparseArray<T> ThisT;
 
@@ -247,7 +247,7 @@ private:
 
   //@{
   /**
-   * Stores the value that will be returned when accessing NULL areas
+   * Stores the value that will be returned when accessing nullptr areas
    * of the array.
    */
   T NullValue;

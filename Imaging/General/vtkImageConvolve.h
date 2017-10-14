@@ -36,7 +36,7 @@ public:
    */
   static vtkImageConvolve *New();
   vtkTypeMacro(vtkImageConvolve,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -92,13 +92,13 @@ public:
 
 protected:
   vtkImageConvolve();
-  ~vtkImageConvolve() VTK_OVERRIDE;
+  ~vtkImageConvolve() override;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) VTK_OVERRIDE;
+                           int outExt[6], int id) override;
 
   void GetKernel(double *kernel);
   double* GetKernel();
@@ -109,8 +109,8 @@ protected:
   int KernelSize[3];
   double Kernel[343];
 private:
-  vtkImageConvolve(const vtkImageConvolve&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageConvolve&) VTK_DELETE_FUNCTION;
+  vtkImageConvolve(const vtkImageConvolve&) = delete;
+  void operator=(const vtkImageConvolve&) = delete;
 };
 
 #endif

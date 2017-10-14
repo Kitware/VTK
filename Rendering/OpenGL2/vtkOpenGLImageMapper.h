@@ -41,12 +41,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageMapper : public vtkImageMapper
 public:
   static vtkOpenGLImageMapper *New();
   vtkTypeMacro(vtkOpenGLImageMapper, vtkImageMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Handle the render method.
    */
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor) override
     { this->RenderStart(viewport, actor); }
 
   /**
@@ -54,7 +54,7 @@ public:
    * the image to the screen.
    */
   void RenderData(vtkViewport* viewport, vtkImageData* data,
-                  vtkActor2D* actor) VTK_OVERRIDE;
+                  vtkActor2D* actor) override;
 
   /**
    * draw the data once it has been converted to uchar, windowed leveled
@@ -66,17 +66,17 @@ public:
    * Release any graphics resources that are being consumed by this
    * mapper, the image texture in particular.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkOpenGLImageMapper();
-  ~vtkOpenGLImageMapper() VTK_OVERRIDE;
+  ~vtkOpenGLImageMapper() override;
 
   vtkTexturedActor2D *Actor;
 
 private:
-  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) = delete;
+  void operator=(const vtkOpenGLImageMapper&) = delete;
 };
 
 #endif

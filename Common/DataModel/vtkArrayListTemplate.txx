@@ -70,7 +70,7 @@ AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
 {
   if (this->IsExcluded(inArray))
   {
-    return NULL;
+    return nullptr;
   }
 
   int iType = inArray->GetDataType();

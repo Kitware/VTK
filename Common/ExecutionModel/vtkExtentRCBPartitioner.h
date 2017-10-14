@@ -34,7 +34,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
   public:
     static vtkExtentRCBPartitioner *New();
     vtkTypeMacro(vtkExtentRCBPartitioner,vtkObject);
-    void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
     //@{
     /**
@@ -106,7 +106,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
   protected:
     vtkExtentRCBPartitioner();
-   ~vtkExtentRCBPartitioner() VTK_OVERRIDE;
+   ~vtkExtentRCBPartitioner() override;
 
     //@{
     /**
@@ -219,8 +219,8 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      std::vector<int> PartitionExtents;
 
   private:
-    vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& ) VTK_DELETE_FUNCTION;
-    void operator=( const vtkExtentRCBPartitioner& ) VTK_DELETE_FUNCTION;
+    vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& ) = delete;
+    void operator=( const vtkExtentRCBPartitioner& ) = delete;
 };
 
 #endif /* VTKEXTENTRCBPARTITIONER_H_ */

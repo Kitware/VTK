@@ -81,11 +81,11 @@ public:
 
 vtkQtRichTextView::vtkQtRichTextView()
 {
-  this->ContentColumnName=NULL;
-  this->PreviewColumnName=NULL;
-  this->TitleColumnName=NULL;
+  this->ContentColumnName=nullptr;
+  this->PreviewColumnName=nullptr;
+  this->TitleColumnName=nullptr;
   this->ProxyPort = 0;
-  this->ProxyURL = NULL;
+  this->ProxyURL = nullptr;
   this->SetContentColumnName("html");
   this->SetPreviewColumnName("preview");
   this->Internal = new Implementation();
@@ -210,7 +210,7 @@ void vtkQtRichTextView::Update()
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
     s, table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
 
-  if(!selection.GetPointer() || selection->GetNumberOfNodes() == 0)
+  if(!selection || selection->GetNumberOfNodes() == 0)
   {
     this->Internal->UI.WebView->setHtml("");
     this->Internal->UI.Title->setText("");

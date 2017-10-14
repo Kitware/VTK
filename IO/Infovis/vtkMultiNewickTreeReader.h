@@ -39,7 +39,7 @@ class VTKIOINFOVIS_EXPORT vtkMultiNewickTreeReader : public vtkDataReader
 public:
   static vtkMultiNewickTreeReader *New();
   vtkTypeMacro(vtkMultiNewickTreeReader,vtkDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -52,21 +52,21 @@ public:
 
 protected:
   vtkMultiNewickTreeReader();
-  ~vtkMultiNewickTreeReader() VTK_OVERRIDE;
+  ~vtkMultiNewickTreeReader() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 private:
-  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
+  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&) = delete;
+  void operator=(const vtkMultiNewickTreeReader&) = delete;
 };
 
 #endif

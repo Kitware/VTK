@@ -50,7 +50,7 @@ public:
   static ContextPDFTest *New();
   vtkTypeMacro(ContextPDFTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 };
 
 int TestPDFContextExport(int, char*[])
@@ -60,7 +60,7 @@ int TestPDFContextExport(int, char*[])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<ContextPDFTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
@@ -78,16 +78,11 @@ int TestPDFContextExport(int, char*[])
   exp->SetFileName(filename.c_str());
   exp->Write();
 
-  // See VTK issue #17009. The OpenGL1 backend doesn't properly render brush
-  // textures, so we'll just validate the PDF and not worry about the OpenGL
-  // rendering for now.
-#ifndef VTK_OPENGL1
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(view->GetRenderWindow());
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetRenderWindow()->GetInteractor()->Initialize();
   view->GetRenderWindow()->GetInteractor()->Start();
-#endif
 
   return EXIT_SUCCESS;
 }
@@ -98,7 +93,7 @@ vtkStandardNewMacro(ContextPDFTest)
 bool ContextPDFTest::Paint(vtkContext2D *painter)
 {
   // Reset painter state that we care about:
-  painter->GetBrush()->SetTexture(NULL);
+  painter->GetBrush()->SetTexture(nullptr);
   painter->GetBrush()->SetColor(0, 0, 0, 255);
   painter->GetPen()->SetColor(0, 0, 0, 255);
   painter->GetPen()->SetWidth(1.f);
@@ -232,19 +227,19 @@ bool ContextPDFTest::Paint(vtkContext2D *painter)
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;
   transform->Translate(20, 200);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(255, 0, 0);
   painter->GetPen()->SetWidth(6.0);
   painter->DrawPoly(points);
 
   transform->Translate(0, 10);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(0, 0, 200);
   painter->GetPen()->SetWidth(2.0);
   painter->DrawPoints(points);
 
   transform->Translate(0, -20);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(100, 0, 200);
   painter->GetPen()->SetWidth(5.0);
   painter->DrawPoints(points);
@@ -264,7 +259,7 @@ bool ContextPDFTest::Paint(vtkContext2D *painter)
 
   // Remove the transform:
   transform->Identity();
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
 
   // Toss some images in:
   vtkNew<vtkRTAnalyticSource> imageSrc;
@@ -360,8 +355,8 @@ bool ContextPDFTest::Paint(vtkContext2D *painter)
       patternScalars->SetTypedComponent(i, (test % 2 == 0) ? 0 : 2, 255);
     }
   }
-  pattern->GetPointData()->SetScalars(patternScalars.Get());
-  painter->GetBrush()->SetTexture(pattern.Get());
+  pattern->GetPointData()->SetScalars(patternScalars);
+  painter->GetBrush()->SetTexture(pattern);
   painter->GetBrush()->SetOpacity(0);
 
   // Stretching:
@@ -387,18 +382,18 @@ bool ContextPDFTest::Paint(vtkContext2D *painter)
   spriteScalars->SetNumberOfComponents(3);
   spriteScalars->SetNumberOfTuples(25*25);
   spriteScalars->FillValue(0);
-  sprite->GetPointData()->SetScalars(spriteScalars.Get());
+  sprite->GetPointData()->SetScalars(spriteScalars);
   std::vector<float> spritePoints;
   spritePoints.reserve(50);
   std::vector<unsigned char> spriteColors;
   spriteColors.reserve(100);
   for (int i = 0; i < 25; ++i)
   {
-    this->SetSpritePoint(i,  0,  sprite.Get());
-    this->SetSpritePoint(0,  i,  sprite.Get());
-    this->SetSpritePoint(i,  i,  sprite.Get());
-    this->SetSpritePoint(10, i,  sprite.Get());
-    this->SetSpritePoint(i,  10, sprite.Get());
+    this->SetSpritePoint(i,  0,  sprite);
+    this->SetSpritePoint(0,  i,  sprite);
+    this->SetSpritePoint(i,  i,  sprite);
+    this->SetSpritePoint(10, i,  sprite);
+    this->SetSpritePoint(i,  10, sprite);
     spritePoints.push_back(790.f); // x
     spritePoints.push_back(50.f + i * 20); // y
     spriteColors.push_back(static_cast<unsigned char>(127 + 128 / (i+1))); // r
@@ -408,10 +403,10 @@ bool ContextPDFTest::Paint(vtkContext2D *painter)
   }
   for (int i = 0; i < 10; ++i)
   {
-    this->SetSpritePoint(24 - i, i, sprite.Get());
+    this->SetSpritePoint(24 - i, i, sprite);
   }
   painter->GetPen()->SetWidth(18);
-  painter->DrawPointSprites(sprite.Get(), spritePoints.data(), 25,
+  painter->DrawPointSprites(sprite, spritePoints.data(), 25,
                             spriteColors.data(), 4);
 
 

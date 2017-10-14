@@ -53,21 +53,21 @@ class VTKRENDERINGOPENGL_EXPORT vtkStandardPolyDataPainter : public vtkPolyDataP
 {
 public:
   vtkTypeMacro(vtkStandardPolyDataPainter, vtkPolyDataPainter);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkStandardPolyDataPainter *New();
 
   void AddMultiTextureCoordsArray(vtkDataArray * array);
 
 protected:
   vtkStandardPolyDataPainter();
-  ~vtkStandardPolyDataPainter() VTK_OVERRIDE;
+  ~vtkStandardPolyDataPainter() override;
 
   /**
    * Generates rendering primitives of appropriate type(s). Multiple types
    * of preimitives can be requested by or-ring the primitive flags.
    */
   void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
-                              unsigned long typeflags, bool forceCompileOnly) VTK_OVERRIDE;
+                              unsigned long typeflags, bool forceCompileOnly) override;
 
   void DrawCells(int mode, vtkCellArray *connectivity,
                  vtkIdType startCellId,
@@ -79,14 +79,14 @@ protected:
    * Called before RenderInternal() if the Information has been changed
    * since the last time this method was called.
    */
-  void ProcessInformation(vtkInformation*) VTK_OVERRIDE;
+  void ProcessInformation(vtkInformation*) override;
 
   void UpdateGenericAttributesCache(vtkShaderDeviceAdapter2 *shaderDevice2);
 
   vtkIdType TotalCells;
 private:
-  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
+  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&) = delete;
+  void operator=(const vtkStandardPolyDataPainter&) = delete;
 
   class vtkInternal;
   vtkInternal* Internal;

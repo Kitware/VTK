@@ -37,7 +37,7 @@ public:
   static GL2PSMathTextScalingTest *New();
   vtkTypeMacro(GL2PSMathTextScalingTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  virtual bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ int TestGL2PSMathTextScaling(int, char *[])
   view->GetRenderWindow()->SetSize(500, 500);
   view->GetRenderWindow()->SetDPI(120);
   vtkNew<GL2PSMathTextScalingTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   view->GetRenderWindow()->SetMultiSamples(0);
 

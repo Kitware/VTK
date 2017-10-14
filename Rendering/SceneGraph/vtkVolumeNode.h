@@ -33,20 +33,20 @@ class VTKRENDERINGSCENEGRAPH_EXPORT vtkVolumeNode :
 public:
   static vtkVolumeNode* New();
   vtkTypeMacro(vtkVolumeNode, vtkViewNode);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Build containers for our child nodes.
    */
-  virtual void Build(bool prepass);
+  virtual void Build(bool prepass) override;
 
 protected:
   vtkVolumeNode();
   ~vtkVolumeNode();
 
 private:
-  vtkVolumeNode(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
+  vtkVolumeNode(const vtkVolumeNode&) = delete;
+  void operator=(const vtkVolumeNode&) = delete;
 };
 
 #endif

@@ -37,7 +37,7 @@ int TestMatrix3x3(int,char *[])
   }
   // Check copying and comparison
   vtkNew<vtkMatrix3x3> matrix2;
-  matrix2->DeepCopy(matrix.GetPointer());
+  matrix2->DeepCopy(matrix);
   for (int i = 0; i < 3; ++i)
   {
     for (int j = 0; j < 3; ++j)
@@ -98,7 +98,7 @@ int TestMatrix3x3(int,char *[])
   points->SetPoint(1, 3.0, 4.9);
   points->SetPoint(2, 42.0, 69.0);
 
-  transform->TransformPoints(points.GetPointer(), points2.GetPointer());
+  transform->TransformPoints(points, points2);
   for (int i = 0; i < 3; ++i)
   {
     double p1[2], p2[2];
@@ -116,7 +116,7 @@ int TestMatrix3x3(int,char *[])
     }
   }
   transform->Translate(2.0, 6.9);
-  transform->TransformPoints(points.GetPointer(), points2.GetPointer());
+  transform->TransformPoints(points, points2);
   for (int i = 0; i < 3; ++i)
   {
     double p1[2], p2[2];
@@ -133,7 +133,7 @@ int TestMatrix3x3(int,char *[])
       return 1;
     }
   }
-  transform->InverseTransformPoints(points2.GetPointer(), points2.GetPointer());
+  transform->InverseTransformPoints(points2, points2);
   for (int i = 0; i < 3; ++i)
   {
     double p1[2], p2[2];

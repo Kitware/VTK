@@ -81,7 +81,7 @@ public:
     //vtkVector2i res(20, 50);
     vtkNew<vtkParametricBoy> parametricShape;
     vtkNew<vtkParametricFunctionSource> parametricSource;
-    parametricSource->SetParametricFunction(parametricShape.Get());
+    parametricSource->SetParametricFunction(parametricShape);
     parametricSource->SetUResolution(res[0] * 50);
     parametricSource->SetVResolution(res[1] * 100);
     parametricSource->Update();
@@ -90,8 +90,8 @@ public:
     mapper->SetInputConnection(parametricSource->GetOutputPort());
     mapper->SetScalarRange(0, 360);
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.Get());
-    renderer->AddActor(actor.Get());
+    actor->SetMapper(mapper);
+    renderer->AddActor(actor);
 
     return parametricSource->GetOutput()->GetPolys()->GetNumberOfCells();
   }
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> window;
-  window->AddRenderer(renderer.Get());
+  window->AddRenderer(renderer);
   window->SetSize(800, 600);
   renderer->SetBackground(0.2, 0.3, 0.4);
   vtkNew<vtkCamera> refCamera;
@@ -227,23 +227,23 @@ int main(int argc, char *argv[])
   averageFrame->SetName("Average Frame");
   vtkNew<vtkDoubleArray> triRate;
   triRate->SetName("Mtris/sec");
-  results->AddColumn(tris.Get());
-  results->AddColumn(firstFrame.Get());
-  results->AddColumn(averageFrame.Get());
-  results->AddColumn(triRate.Get());
+  results->AddColumn(tris);
+  results->AddColumn(firstFrame);
+  results->AddColumn(averageFrame);
+  results->AddColumn(triRate);
 
   // Set up a chart to show the data being generated in real time.
   vtkNew<vtkContextView> chartView;
   chartView->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkChartXY> chart;
-  chartView->GetScene()->AddItem(chart.Get());
+  chartView->GetScene()->AddItem(chart);
   vtkPlot *plot = chart->AddPlot(vtkChart::LINE);
-  plot->SetInputData(results.Get(), 0, 3);
+  plot->SetInputData(results, 0, 3);
   plot = chart->AddPlot(vtkChart::LINE);
-  plot->SetInputData(results.Get(), 0, 1);
+  plot->SetInputData(results, 0, 1);
   chart->SetPlotCorner(plot, 1);
   plot = chart->AddPlot(vtkChart::LINE);
-  plot->SetInputData(results.Get(), 0, 2);
+  plot->SetInputData(results, 0, 2);
   chart->SetPlotCorner(plot, 1);
   chart->GetAxis(vtkAxis::LEFT)->SetTitle("Mtris/sec");
   chart->GetAxis(vtkAxis::BOTTOM)->SetTitle("triangles");
@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
     results->SetNumberOfRows(i - startSeq + 1);
     window->Render();
     renderer->RemoveAllViewProps();
-    renderer->GetActiveCamera()->DeepCopy(refCamera.Get());
-    if (!runTest(renderer.Get(), results.Get(), i, row++, args.Timeout))
+    renderer->GetActiveCamera()->DeepCopy(refCamera);
+    if (!runTest(renderer, results, i, row++, args.Timeout))
       {
       break;
       }
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     }
 
   vtkNew<vtkDelimitedTextWriter> writer;
-  writer->SetInputData(results.Get());
+  writer->SetInputData(results);
   writer->SetFileName(args.FileName.c_str());
   writer->Update();
   writer->Write();

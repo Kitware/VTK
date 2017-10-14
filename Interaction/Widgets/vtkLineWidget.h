@@ -93,18 +93,18 @@ public:
   static vtkLineWidget *New();
 
   vtkTypeMacro(vtkLineWidget,vtk3DWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Methods that satisfy the superclass' API.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
-  void PlaceWidget() VTK_OVERRIDE
+  void SetEnabled(int) override;
+  void PlaceWidget(double bounds[6]) override;
+  void PlaceWidget() override
     {this->Superclass::PlaceWidget();}
   void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
-                   double zmin, double zmax) VTK_OVERRIDE
+                   double zmin, double zmax) override
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
   //@}
 
@@ -195,7 +195,7 @@ public:
 
 protected:
   vtkLineWidget();
-  ~vtkLineWidget() VTK_OVERRIDE;
+  ~vtkLineWidget() override;
 
   // Manage the state of the widget
   friend class vtkPWCallback;
@@ -247,7 +247,7 @@ protected:
   vtkSphereSource   **HandleGeometry;
 
   void BuildRepresentation();
-  void SizeHandles() VTK_OVERRIDE;
+  void SizeHandles() override;
   void HandlesOn(double length);
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
@@ -261,7 +261,7 @@ protected:
   void  SetLinePosition(double x[3]);
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Methods to manipulate the hexahedron.
   void Scale(double *p1, double *p2, int X, int Y);
@@ -294,8 +294,8 @@ protected:
   int ForwardEvent(unsigned long event);
 
 private:
-  vtkLineWidget(const vtkLineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLineWidget&) VTK_DELETE_FUNCTION;
+  vtkLineWidget(const vtkLineWidget&) = delete;
+  void operator=(const vtkLineWidget&) = delete;
 };
 
 #endif

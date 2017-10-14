@@ -91,13 +91,13 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->ImageReductionFactor = 1;
-  this->Controller = NULL;
+  this->Controller = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 MyProcess::~MyProcess()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
   bool success = p->Execute(argc, argv);
   p->Delete();
   contr->Finalize();
-  contr = 0;
+  contr = nullptr;
   return success? EXIT_SUCCESS :EXIT_FAILURE;
 }
 

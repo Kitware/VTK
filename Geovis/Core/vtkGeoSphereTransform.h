@@ -41,21 +41,21 @@ class VTKGEOVISCORE_EXPORT vtkGeoSphereTransform : public vtkAbstractTransform
 {
 public:
   static vtkGeoSphereTransform* New();
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoSphereTransform,vtkAbstractTransform);
 
   /**
    * Invert the transformation.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   //@{
   /**
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint( const float in[3], float out[3] ) VTK_OVERRIDE;
-  void InternalTransformPoint( const double in[3], double out[3] ) VTK_OVERRIDE;
+  void InternalTransformPoint( const float in[3], float out[3] ) override;
+  void InternalTransformPoint( const double in[3], double out[3] ) override;
   //@}
 
   //@{
@@ -65,14 +65,14 @@ public:
    * transformation at that point.  This method does not call Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) VTK_OVERRIDE;
-  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) VTK_OVERRIDE;
+  void InternalTransformDerivative( const float in[3], float out[3], float derivative[3][3] ) override;
+  void InternalTransformDerivative( const double in[3], double out[3], double derivative[3][3] ) override;
   //@}
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform* MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform* MakeTransform() override;
 
   //@{
   /**
@@ -97,14 +97,14 @@ public:
 
 protected:
   vtkGeoSphereTransform();
-  ~vtkGeoSphereTransform() VTK_OVERRIDE;
+  ~vtkGeoSphereTransform() override;
 
   bool ToRectangular;
   double BaseAltitude;
 
 private:
-  vtkGeoSphereTransform( const vtkGeoSphereTransform& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkGeoSphereTransform& ) VTK_DELETE_FUNCTION;
+  vtkGeoSphereTransform( const vtkGeoSphereTransform& ) = delete;
+  void operator = ( const vtkGeoSphereTransform& ) = delete;
 };
 
 #endif // vtkGeoSphereTransform_h

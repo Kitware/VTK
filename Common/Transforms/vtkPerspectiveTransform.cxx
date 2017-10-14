@@ -23,19 +23,19 @@ vtkStandardNewMacro(vtkPerspectiveTransform);
 //----------------------------------------------------------------------------
 vtkPerspectiveTransform::vtkPerspectiveTransform()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
 
   // most of the functionality is provided by the concatenation
   this->Concatenation = vtkTransformConcatenation::New();
 
   // the stack will be allocated the first time Push is called
-  this->Stack = NULL;
+  this->Stack = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkPerspectiveTransform::~vtkPerspectiveTransform()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 
   if (this->Concatenation)
   {
@@ -169,7 +169,7 @@ void vtkPerspectiveTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
   // copy the stack
   if (transform->Stack)
   {
-    if (this->Stack == NULL)
+    if (this->Stack == nullptr)
     {
       this->Stack = vtkTransformConcatenationStack::New();
     }
@@ -180,7 +180,7 @@ void vtkPerspectiveTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
     if (this->Stack)
     {
       this->Stack->Delete();
-      this->Stack = NULL;
+      this->Stack = nullptr;
     }
   }
 

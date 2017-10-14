@@ -48,7 +48,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractUnstructuredGrid : public vtkUnstruc
 {
 public:
   vtkTypeMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with all types of clipping turned off.
@@ -156,13 +156,13 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkExtractUnstructuredGrid();
-  ~vtkExtractUnstructuredGrid()VTK_OVERRIDE {}
+  ~vtkExtractUnstructuredGrid() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkIdType PointMinimum;
   vtkIdType PointMaximum;
@@ -176,8 +176,8 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&) = delete;
+  void operator=(const vtkExtractUnstructuredGrid&) = delete;
 };
 
 #endif

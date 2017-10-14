@@ -34,7 +34,7 @@ class VTKCOMMONCORE_EXPORT vtkType@VTK_TYPE_NAME@Array : public vtkTypeArrayBase
 public:
   static vtkType@VTK_TYPE_NAME@Array* New();
   vtkTypeMacro(vtkType@VTK_TYPE_NAME@Array,vtkTypeArrayBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
@@ -45,11 +45,11 @@ public:
 
 protected:
   vtkType@VTK_TYPE_NAME@Array();
-  ~vtkType@VTK_TYPE_NAME@Array();
+  ~vtkType@VTK_TYPE_NAME@Array() override;
 
 private:
-  vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;
+  vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&) = delete;
+  void operator=(const vtkType@VTK_TYPE_NAME@Array&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

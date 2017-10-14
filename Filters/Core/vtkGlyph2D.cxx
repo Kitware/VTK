@@ -38,15 +38,15 @@ int vtkGlyph2D::RequestData(
   vtkPointData *pd;
   vtkDataArray *inScalars;
   vtkDataArray *inVectors;
-  unsigned char* inGhostLevels = 0;
-  vtkDataArray *inNormals, *sourceNormals = NULL;
+  unsigned char* inGhostLevels = nullptr;
+  vtkDataArray *inNormals, *sourceNormals = nullptr;
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
   int index;
-  vtkPoints *sourcePts = NULL;
+  vtkPoints *sourcePts = nullptr;
   vtkPoints *newPts;
-  vtkDataArray *newScalars=NULL;
-  vtkDataArray *newVectors=NULL;
-  vtkDataArray *newNormals=NULL;
+  vtkDataArray *newScalars=nullptr;
+  vtkDataArray *newVectors=nullptr;
+  vtkDataArray *newNormals=nullptr;
   double x[3], v[3], s = 0.0, vMag = 0.0, value, theta;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
@@ -62,7 +62,7 @@ int vtkGlyph2D::RequestData(
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   int numberOfSources = this->GetNumberOfInputConnections(1);
-  vtkPolyData *source = 0;
+  vtkPolyData *source = nullptr;
 
   vtkDebugMacro(<<"Generating 2D glyphs");
 
@@ -75,7 +75,7 @@ int vtkGlyph2D::RequestData(
   inVectors = this->GetInputArrayToProcess(1,inputVector);
   inNormals = this->GetInputArrayToProcess(2,inputVector);
 
-  vtkDataArray* temp = 0;
+  vtkDataArray* temp = nullptr;
   if (pd)
   {
     temp = pd->GetArray(vtkDataSetAttributes::GhostArrayName());
@@ -106,8 +106,8 @@ int vtkGlyph2D::RequestData(
     den = 1.0;
   }
   if ( this->VectorMode != VTK_VECTOR_ROTATION_OFF &&
-       ((this->VectorMode == VTK_USE_VECTOR && inVectors != NULL) ||
-        (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL)) )
+       ((this->VectorMode == VTK_USE_VECTOR && inVectors != nullptr) ||
+        (this->VectorMode == VTK_USE_NORMAL && inNormals != nullptr)) )
   {
     haveVectors = 1;
   }
@@ -152,7 +152,7 @@ int vtkGlyph2D::RequestData(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
   {
-    if ( this->GetSource(0, inputVector[1]) == NULL )
+    if ( this->GetSource(0, inputVector[1]) == nullptr )
     {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -172,13 +172,13 @@ int vtkGlyph2D::RequestData(
   outputPD->CopyNormalsOff();
   if ( this->IndexMode != VTK_INDEXING_OFF )
   {
-    pd = NULL;
+    pd = nullptr;
     //numSourcePts = numSourceCells = 0;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
     {
       source = this->GetSource(i, inputVector[1]);
-      if ( source != NULL )
+      if ( source != nullptr )
       {
         numSourcePts += source->GetNumberOfPoints();
         numSourceCells += source->GetNumberOfCells();
@@ -339,7 +339,7 @@ int vtkGlyph2D::RequestData(
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
       source = this->GetSource(index, inputVector[1]);
-      if ( source != NULL )
+      if ( source != nullptr )
       {
         sourcePts = source->GetPoints();
         sourceNormals = source->GetPointData()->GetNormals();
@@ -349,7 +349,7 @@ int vtkGlyph2D::RequestData(
     }
 
     // Make sure we're not indexing into empty glyph
-    if ( this->GetSource(index, inputVector[1]) == NULL )
+    if ( this->GetSource(index, inputVector[1]) == nullptr )
     {
       continue;
     }

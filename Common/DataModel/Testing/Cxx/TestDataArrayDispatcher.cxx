@@ -29,7 +29,7 @@
 namespace
 {
 
-void test_expression(bool valid, std::string msg)
+void test_expression(bool valid, const std::string& msg)
 {
   if(!valid)
   {

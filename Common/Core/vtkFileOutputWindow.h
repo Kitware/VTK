@@ -35,13 +35,13 @@ public:
 
   static vtkFileOutputWindow* New();
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Put the text into the log file.
    * New lines are converted to carriage return new lines.
    */
-  void DisplayText(const char*) VTK_OVERRIDE;
+  void DisplayText(const char*) override;
 
   //@{
   /**
@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkFileOutputWindow();
-  ~vtkFileOutputWindow() VTK_OVERRIDE;
+  ~vtkFileOutputWindow() override;
   void Initialize();
 
   char* FileName;
@@ -84,8 +84,8 @@ protected:
   int Append;
 
 private:
-  vtkFileOutputWindow(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
+  vtkFileOutputWindow(const vtkFileOutputWindow&) = delete;
+  void operator=(const vtkFileOutputWindow&) = delete;
 };
 
 

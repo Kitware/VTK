@@ -71,7 +71,7 @@ unsigned int GetNumberOfDigits(unsigned int i)
 vtkExodusIIWriter::vtkExodusIIWriter ()
 {
   this->fid = -1;
-  this->FileName = 0;
+  this->FileName = nullptr;
 
   this->StoreDoubles = -1;
   this->GhostLevel = 0;
@@ -79,8 +79,8 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
   this->WriteOutGlobalElementIdArray = 0;
   this->WriteOutGlobalNodeIdArray = 0;
   this->WriteAllTimeSteps = 0;
-  this->BlockIdArrayName = 0;
-  this->ModelMetadata = 0;
+  this->BlockIdArrayName = nullptr;
+  this->ModelMetadata = nullptr;
 
   this->NumberOfTimeSteps = 0;
   this->CurrentTimeIndex = 0;
@@ -94,17 +94,17 @@ vtkExodusIIWriter::vtkExodusIIWriter ()
 
   this->PassDoubles = 1;
 
-  this->BlockElementVariableTruthTable = 0;
+  this->BlockElementVariableTruthTable = nullptr;
 
-  this->LocalNodeIdMap = 0;
-  this->LocalElementIdMap = 0;
+  this->LocalNodeIdMap = nullptr;
+  this->LocalElementIdMap = nullptr;
   this->TopologyChanged = false;
   this->IgnoreMetaDataWarning = 0;
 }
 
 vtkExodusIIWriter::~vtkExodusIIWriter ()
 {
-  this->SetModelMetadata(0); // kill the reference if its there
+  this->SetModelMetadata(nullptr); // kill the reference if its there
 
   delete [] this->FileName;
   delete [] this->BlockIdArrayName;
@@ -291,7 +291,7 @@ void vtkExodusIIWriter::WriteData ()
 
   // For now, we don't support changing topology even if the writer supports it.
   // The reader needs to be updated to support changing topology.
-  if (newHierarchy && this->FlattenedInput.size () != 0)
+  if (newHierarchy && !this->FlattenedInput.empty())
   {
     this->TopologyChanged = true;
     vtkErrorMacro (
@@ -414,7 +414,7 @@ void vtkExodusIIWriter::WriteData ()
 //----------------------------------------------------------------------------
 char *vtkExodusIIWriter::StrDupWithNew(const char *s)
 {
-  char *newstr = NULL;
+  char *newstr = nullptr;
 
   if (s)
   {
@@ -451,11 +451,11 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name,
          iter->GoToNextItem ())
     {
       name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
-      if (name != NULL && strstr (name, "Sets") != 0)
+      if (name != nullptr && strstr (name, "Sets") != nullptr)
       {
         continue;
       }
-      if (name == NULL)
+      if (name == nullptr)
       {
         // avoid null references in StdString
         name = "";
@@ -608,13 +608,14 @@ int vtkExodusIIWriter::CreateNewExodusFile()
                << std::setw(numDigits) << this->MyRank;
     this->fid = ex_create(myFileName.str().c_str(), EX_CLOBBER,
                           &compWordSize, &IOWordSize);
-    if (fid <= 0)
+    if (this->fid <= 0)
     {
       vtkErrorMacro (
         << "vtkExodusIIWriter: CreateNewExodusFile can't create "
         << myFileName.str());
     }
   }
+  ex_set_max_name_length(this->fid, static_cast<int>(this->GetMaxNameLength()));
 
   // FileTimeOffset makes the time in the file relative
   // e.g., if the CurrentTimeIndex for this file is 4 and goes through 6, the
@@ -825,7 +826,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
     else
     {
       // Will fill in below
-      this->BlockIdList[i] = 0;
+      this->BlockIdList[i] = nullptr;
     }
 
     // Trying to find global element id
@@ -841,7 +842,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
       {
         vtkWarningMacro(<<
           "vtkExodusIIWriter, element ID array is not an Id array, ignoring it");
-        this->GlobalElementIdList[i] = NULL;
+        this->GlobalElementIdList[i] = nullptr;
       }
       else
       {
@@ -864,7 +865,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
       {
         vtkWarningMacro(<<
           "vtkExodusIIWriter, node ID array is not an Id array, ignoring it");
-        this->GlobalNodeIdList[i] = 0;
+        this->GlobalNodeIdList[i] = nullptr;
       }
       else
       {
@@ -874,7 +875,7 @@ int vtkExodusIIWriter::CheckInputArrays ()
     }
     else
     {
-      this->GlobalNodeIdList[i] = 0;
+      this->GlobalNodeIdList[i] = nullptr;
     }
   }
 
@@ -949,7 +950,7 @@ int vtkExodusIIWriter::ConstructBlockInfoMap ()
         // This may get pulled from the meta data below,
         // but if not, default reasonably to 0
         b.NumAttributes = 0;
-        b.BlockAttributes = 0;
+        b.BlockAttributes = nullptr;
       }
       else
       {
@@ -1010,12 +1011,12 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkFieldData *fd = this->FlattenedInput[i]->GetFieldData ();
     for (int j = 0; j < fd->GetNumberOfArrays (); j ++)
     {
-      char *name = 0;
+      char *name = nullptr;
       if (fd->GetAbstractArray(j))
       {
         name = fd->GetAbstractArray(j)->GetName();
       }
-      if (name == 0)
+      if (name == nullptr)
       {
         vtkWarningMacro ("Array in input field data has Null name, cannot output it");
         continue;
@@ -1061,12 +1062,12 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkCellData *cd = this->FlattenedInput[i]->GetCellData();
     for (int j = 0; j < cd->GetNumberOfArrays(); j ++)
     {
-      char *name = 0;
+      char *name = nullptr;
       if (cd->GetArray(j))
       {
         name = cd->GetArray(j)->GetName();
       }
-      if (name == 0)
+      if (name == nullptr)
       {
         vtkWarningMacro ("Array in input cell data has Null name, cannot output it");
         continue;
@@ -1112,12 +1113,12 @@ int vtkExodusIIWriter::ConstructVariableInfoMaps ()
     vtkPointData *pd = this->FlattenedInput[i]->GetPointData();
     for (int j = 0; j < pd->GetNumberOfArrays(); j ++)
     {
-      char *name = 0;
+      char *name = nullptr;
       if (pd->GetArray(j))
       {
         name = pd->GetArray(j)->GetName();
       }
-      if (name == 0)
+      if (name == nullptr)
       {
         vtkWarningMacro ("Array in input point data has Null name, cannot output it");
         continue;
@@ -1211,7 +1212,7 @@ int vtkExodusIIWriter::CreateDefaultMetadata ()
   vtkModelMetadata *em = vtkModelMetadata::New();
 
   char *title = new char [MAX_LINE_LENGTH + 1];
-  time_t currentTime = time(NULL);
+  time_t currentTime = time(nullptr);
   char *stime = ctime(&currentTime);
 
   snprintf(title, MAX_LINE_LENGTH + 1, "Created by vtkExodusIIWriter, %s", stime);
@@ -1246,7 +1247,7 @@ int vtkExodusIIWriter::CreateDefaultMetadata ()
 //----------------------------------------------------------------------------
 char *vtkExodusIIWriter::GetCellTypeName(int t)
 {
-  if (MAX_STR_LENGTH < 32) return NULL;
+  if (MAX_STR_LENGTH < 32) return nullptr;
   char *nm = new char [MAX_STR_LENGTH + 1];
 
   switch (t)
@@ -1393,7 +1394,7 @@ int vtkExodusIIWriter::CreateBlockIdMetadata(vtkModelMetadata *em)
 int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
 {
   size_t narrays = this->GlobalVariableMap.size ();
-  char **flattenedNames = NULL;
+  char **flattenedNames = nullptr;
   if (narrays > 0)
   {
     flattenedNames = vtkExodusIIWriter::FlattenOutVariableNames(
@@ -1402,7 +1403,7 @@ int vtkExodusIIWriter::CreateBlockVariableMetadata (vtkModelMetadata *em)
   }
 
   narrays = this->BlockVariableMap.size ();
-  char **nms = NULL;
+  char **nms = nullptr;
   if (narrays > 0)
   {
     nms = new char * [narrays];
@@ -1497,14 +1498,14 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
       const char *name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
       if (iter->GetCurrentDataObject ()->IsA ("vtkMultiBlockDataSet"))
       {
-        isASideSet = (name != 0 && strncmp (name, "Side Sets", 9) == 0);
-        isANodeSet = (name != 0 && strncmp (name, "Node Sets", 9) == 0);
+        isASideSet = (name != nullptr && strncmp (name, "Side Sets", 9) == 0);
+        isANodeSet = (name != nullptr && strncmp (name, "Node Sets", 9) == 0);
       }
       else if (isANodeSet)
       {
         numNodeSets ++;
-        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
-        if (id_str != 0)
+        const char* id_str = name != nullptr ? strstr (name, "ID:") : nullptr;
+        if (id_str != nullptr)
         {
           id_str += 3;
           node_id = atoi (id_str);
@@ -1520,7 +1521,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         node_id ++; // Make sure the node_id is unique if id_str is invalid
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetPointData ();
-        vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("GlobalNodeId") : 0);
+        vtkIdTypeArray* globalIds = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("GlobalNodeId") : nullptr);
         if (globalIds)
         {
           int size = 0;
@@ -1552,8 +1553,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         int otherSides = 0;
         int badSides = 0;
         numSideSets ++;
-        const char* id_str = name != 0 ? strstr (name, "ID:") : 0;
-        if (id_str != 0)
+        const char* id_str = name != nullptr ? strstr (name, "ID:") : nullptr;
+        if (id_str != nullptr)
         {
           id_str += 3;
           side_id = atoi (id_str);
@@ -1568,8 +1569,8 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
         vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast (iter->GetCurrentDataObject ());
         vtkFieldData* field = grid->GetCellData ();
         int cells = grid->GetNumberOfCells ();
-        vtkIdTypeArray* sourceElement = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("SourceElementId") : 0);
-        vtkIntArray* sourceSide = vtkArrayDownCast<vtkIntArray>(field ? field->GetArray ("SourceElementSide") : 0);
+        vtkIdTypeArray* sourceElement = vtkArrayDownCast<vtkIdTypeArray>(field ? field->GetArray ("SourceElementId") : nullptr);
+        vtkIntArray* sourceSide = vtkArrayDownCast<vtkIntArray>(field ? field->GetArray ("SourceElementSide") : nullptr);
         if (sourceElement && sourceSide)
         {
           for (int c = 0; c < cells; c ++)
@@ -1620,7 +1621,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfNodeSets (numNodeSets);
     em->SetSumNodesPerNodeSet (sumNodes);
-    em->SetNodeSetNames (nodeSetNames.Get());
+    em->SetNodeSetNames (nodeSetNames);
 
     int *nodeSetIds_a = new int[nodeSetIds->GetNumberOfTuples ()];
     memcpy (nodeSetIds_a, nodeSetIds->GetPointer (0), nodeSetIds->GetNumberOfTuples () * sizeof(int));
@@ -1640,7 +1641,7 @@ int vtkExodusIIWriter::CreateSetsMetadata (vtkModelMetadata* em)
 
     em->SetNumberOfSideSets (numSideSets);
     em->SetSumSidesPerSideSet (sumSides);
-    em->SetSideSetNames (sideSetNames.Get());
+    em->SetSideSetNames (sideSetNames);
 
     int *sideSetIds_a = new int[sideSetIds->GetNumberOfTuples ()];
     memcpy (sideSetIds_a, sideSetIds->GetPointer (0), sideSetIds->GetNumberOfTuples() * sizeof(int));
@@ -1718,7 +1719,7 @@ int vtkExodusIIWriter::WriteInformationRecords()
 
   if (nlines > 0)
   {
-    char **lines = NULL;
+    char **lines = nullptr;
 
     em->GetInformationLines(&lines);
 
@@ -1877,8 +1878,8 @@ int vtkExodusIIWriter::WriteBlockInformation()
     }
     else
     {
-      connectivity[outputIndex] = 0;
-      attributesD[outputIndex] = 0;
+      connectivity[outputIndex] = nullptr;
+      attributesD[outputIndex] = nullptr;
     }
   }
 
@@ -1888,13 +1889,13 @@ int vtkExodusIIWriter::WriteBlockInformation()
   for (size_t i = 0; i < this->FlattenedInput.size (); i ++)
   {
     vtkCellArray *ca = this->FlattenedInput[i]->GetCells();
-    vtkIdType *ptIds = 0;
+    vtkIdType *ptIds = nullptr;
     if (ca)
     {
       ptIds = ca->GetPointer ();
     }
     vtkIdTypeArray *loca = this->FlattenedInput[i]->GetCellLocationsArray();
-    vtkIdType *loc = 0;
+    vtkIdType *loc = nullptr;
     if (loca)
     {
       loc = loca->GetPointer(0);
@@ -1947,7 +1948,7 @@ int vtkExodusIIWriter::WriteBlockInformation()
 
       int numAtts = this->BlockInfoMap[blockId].NumAttributes;
 
-      if ((numAtts == 0) || (att == 0)) continue;
+      if ((numAtts == 0) || (att == nullptr)) continue;
 
       int attOff = (elementOffset * numAtts); // location for the element in the block
 
@@ -2127,7 +2128,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "G", this->NumberOfScalarGlobalArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should be treating this read only... hopefully
     if (rc < 0)
     {
@@ -2167,7 +2168,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "E", this->NumberOfScalarElementArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should be treating this read only... hopefully
     if (rc < 0)
     {
@@ -2205,15 +2206,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
       int off = iter->second.ScalarOutOffset;
       for (int j=0; j<iter->second.NumComponents; j++)
       {
-        if (iter->second.OutNames[j].size () > MAX_STR_LENGTH)
-        {
-          outputArrayNames[off + j] =
-            iter->second.OutNames[j].substr (0, MAX_STR_LENGTH - 1).c_str ();
-        }
-        else
-        {
-          outputArrayNames[off + j] = iter->second.OutNames[j].c_str ();
-        }
+        outputArrayNames[off + j] = iter->second.OutNames[j].c_str ();
       }
     }
 
@@ -2229,7 +2222,7 @@ int vtkExodusIIWriter::WriteVariableArrayNames()
     }
 
     rc = ex_put_var_names(this->fid, "N", this->NumberOfScalarNodeArrays,
-                          (char **)outputArrayNames);
+                          const_cast<char **>(outputArrayNames));
                           // This should not save references... hopefully
     if (rc < 0)
     {
@@ -2339,11 +2332,6 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
   else if (numComponents <= 2)
   {
     std::string s (root);
-    // Adjust for Exodus' MAX_STR_LENGTH
-    if (s.size () > MAX_STR_LENGTH - 2)
-    {
-      s = s.substr (0, MAX_STR_LENGTH - 3);
-    }
     switch (component)
     {
       case 0:
@@ -2358,11 +2346,6 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
   else if (numComponents <= 3)
   {
     std::string s (root);
-    // Adjust for Exodus' MAX_STR_LENGTH
-    if (s.size () > MAX_STR_LENGTH - 1)
-    {
-      s = s.substr (0, MAX_STR_LENGTH - 2);
-    }
     switch (component)
     {
       case 0:
@@ -2380,11 +2363,6 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
   else if (numComponents <= 6)
   {
     std::string s (root);
-    // Adjust for Exodus' MAX_STR_LENGTH
-    if (s.size () > MAX_STR_LENGTH - 2)
-    {
-      s = s.substr (0, MAX_STR_LENGTH - 3);
-    }
     switch (component)
     {
       case 0:
@@ -2411,11 +2389,6 @@ std::string vtkExodusIIWriter::CreateNameForScalarArray(
   else
   {
     std::string s (root);
-    // Adjust for Exodus' MAX_STR_LENGTH
-    if (s.size () > MAX_STR_LENGTH - 10)
-    {
-      s = s.substr (0, MAX_STR_LENGTH - 11);
-    }
     // assume largest for 32 bit decimal representation
     char n[11];
     snprintf (n, sizeof(n), "%10d", component);
@@ -2487,7 +2460,7 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
     memset(buf, 0, sizeof(int) * nnsets);
 
     rc = ex_put_concat_node_sets(this->fid, em->GetNodeSetIds(),
-              buf, buf, buf, buf, NULL, NULL);
+              buf, buf, buf, buf, nullptr, nullptr);
 
     delete [] buf;
 
@@ -2502,8 +2475,8 @@ int vtkExodusIIWriter::WriteNodeSetInformation()
   int ndf = em->GetSumDistFactPerNodeSet();
 
   int *idBuf = new int [nids];
-  float *dfBuf = NULL;
-  double *dfBufD = NULL;
+  float *dfBuf = nullptr;
+  double *dfBufD = nullptr;
 
   if (ndf)
   {
@@ -2685,7 +2658,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
     memset(buf, 0, sizeof(int) * nssets);
 
     rc = ex_put_concat_side_sets(this->fid, em->GetSideSetIds(),
-              buf, buf, buf, buf, NULL, NULL, NULL);
+              buf, buf, buf, buf, nullptr, nullptr, nullptr);
 
     delete [] buf;
 
@@ -2701,8 +2674,8 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
   int *idBuf = new int [nids];
   int *sideBuf = new int [nids];
-  float *dfBuf = NULL;
-  double *dfBufD = NULL;
+  float *dfBuf = nullptr;
+  double *dfBufD = nullptr;
 
   if (ndf)
   {
@@ -2736,7 +2709,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
     if (emSsSize[i] == 0) continue;
 
-    float *df = NULL;
+    float *df = nullptr;
 
     if (ndf > 0)
     {
@@ -3202,6 +3175,83 @@ int vtkExodusIIWriter::WritePointData (int timestep, vtkDataArray *buffer)
   return 1;
 }
 
+namespace
+{
+unsigned int GetLongestFieldDataName(vtkFieldData* fd)
+{
+  unsigned int maxName = 0;
+  for (int i=0;i<fd->GetNumberOfArrays();i++)
+  {
+    unsigned int length = static_cast<unsigned int>(strlen(fd->GetArrayName(i)));
+    if (length > maxName)
+    {
+      maxName = length;
+    }
+  }
+  return maxName;
+}
+
+unsigned int GetLongestDataSetName(vtkDataSet* ds)
+{
+  unsigned int maxName = 32;
+  unsigned int maxDataSetName = GetLongestFieldDataName(ds->GetPointData());
+  if (maxDataSetName > maxName)
+  {
+    maxName = maxDataSetName;
+  }
+  maxDataSetName = GetLongestFieldDataName(ds->GetCellData());
+  if (maxDataSetName > maxName)
+  {
+    maxName = maxDataSetName;
+  }
+  maxDataSetName = GetLongestFieldDataName(ds->GetFieldData());
+  if (maxDataSetName > maxName)
+  {
+    maxName = maxDataSetName;
+  }
+  return maxName;
+}
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkExodusIIWriter::GetMaxNameLength()
+{
+  unsigned int maxName = 32;
+  if (vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(this->OriginalInput))
+  {
+    vtkCompositeDataIterator* iter = mb->NewIterator();
+    iter->SkipEmptyNodesOn();
+    for (iter->InitTraversal();!iter->IsDoneWithTraversal();iter->GoToNextItem())
+    {
+      if (vtkDataSet* dataSet = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
+      {
+        unsigned int maxDataSetName = GetLongestDataSetName(dataSet);
+        if (maxDataSetName > maxName)
+        {
+          maxName = maxDataSetName;
+        }
+        if (vtkInformation* info = iter->GetCurrentMetaData())
+        {
+          if (const char* objectName = info->Get(vtkCompositeDataSet::NAME()))
+          {
+            maxDataSetName = static_cast<unsigned int>(strlen(objectName));
+            if (maxDataSetName > maxName)
+            {
+              maxName = maxDataSetName;
+            }
+          }
+        }
+      }
+    }
+    iter->Delete();
+  }
+  else if (vtkDataSet* dataSet = vtkDataSet::SafeDownCast(this->OriginalInput))
+  {
+    maxName = GetLongestDataSetName(dataSet);
+  }
+  return maxName;
+}
+
 //----------------------------------------------------------------------------
 int vtkExodusIIWriter::WriteNextTimeStep()
 {
@@ -3292,7 +3342,7 @@ bool vtkExodusIIWriter::SameTypeOfCells (vtkIntArray* cellToBlockId,
 vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
   const char* name, vtkUnstructuredGrid* input)
 {
-  vtkDataArray *da = 0;
+  vtkDataArray *da = nullptr;
   vtkCellData *cd = input->GetCellData();
   if (name)
   {
@@ -3311,13 +3361,13 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
   if (da)
   {
     vtkIntArray *ia = vtkArrayDownCast<vtkIntArray>(da);
-    if (ia != 0 && vtkExodusIIWriter::SameTypeOfCells (ia, input))
+    if (ia != nullptr && vtkExodusIIWriter::SameTypeOfCells (ia, input))
     {
       this->SetBlockIdArrayName(name);
       return ia;
     }
   }
-  this->SetBlockIdArrayName(0);
+  this->SetBlockIdArrayName(nullptr);
   if ((this->NumberOfProcesses > 1) &&
       // you don't have metadata but you have some tuples.
       cd->GetNumberOfTuples() > 0 &&
@@ -3328,5 +3378,5 @@ vtkIntArray* vtkExodusIIWriter::GetBlockIdArray (
     // list of block IDs for each cell.
     vtkWarningMacro(<< "Attempting to proceed without metadata");
   }
-  return 0;
+  return nullptr;
 }

@@ -31,7 +31,7 @@
 //----------------------------------------------------------------------------
 vtkDatabaseToTableReader::vtkDatabaseToTableReader()
 {
-  this->Database = 0;
+  this->Database = nullptr;
   this->SetNumberOfInputPorts(0);
 }
 
@@ -51,11 +51,11 @@ bool vtkDatabaseToTableReader::SetDatabase(vtkSQLDatabase *db)
   if(this->Database->IsOpen() == false)
   {
     vtkErrorMacro(<<"SetDatabase must be passed an open database connection");
-    this->Database = 0;
+    this->Database = nullptr;
     return false;
   }
 
-  if(this->TableName != "")
+  if(!this->TableName.empty())
   {
     return this->CheckIfTableExists();
   }
@@ -82,7 +82,7 @@ bool vtkDatabaseToTableReader::CheckIfTableExists()
     vtkErrorMacro(<<"CheckIfTableExists() called with no open database!");
     return false;
   }
-  if(this->TableName == "")
+  if(this->TableName.empty())
   {
     vtkErrorMacro(<<"CheckIfTableExists() called but no table name specified.");
     return false;

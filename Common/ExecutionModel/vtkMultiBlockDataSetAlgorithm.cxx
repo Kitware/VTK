@@ -65,7 +65,7 @@ vtkDataObject* vtkMultiBlockDataSetAlgorithm::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return this->GetExecutive()->GetInputData(port, 0);
 }

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkImageBlend);
 //----------------------------------------------------------------------------
 vtkImageBlend::vtkImageBlend()
 {
-  this->Opacity = 0;
+  this->Opacity = nullptr;
   this->OpacityArrayLength = 0;
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
   this->CompoundThreshold = 0.0;
@@ -85,7 +85,7 @@ vtkDataObject *vtkImageBlend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
@@ -108,7 +108,7 @@ vtkImageStencilData *vtkImageBlend::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -250,7 +250,7 @@ int vtkImageBlend::RequestData(
       info->Get(vtkDataObject::DATA_OBJECT()));
     if (this->DataWasPassed)
     {
-      outData->GetPointData()->SetScalars(NULL);
+      outData->GetPointData()->SetScalars(nullptr);
       this->DataWasPassed = 0;
     }
     return this->Superclass::RequestData(request,inputVector,outputVector);
@@ -896,7 +896,7 @@ void vtkImageBlend::ThreadedRequestData (
 
   double opacity;
 
-  vtkImageData *tmpData = NULL;
+  vtkImageData *tmpData = nullptr;
 
   // check
   if (inData[0][0]->GetNumberOfScalarComponents() > 4)
@@ -916,7 +916,7 @@ void vtkImageBlend::ThreadedRequestData (
 
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
       tmpData = vtkImageData::New();
-      if (tmpData == NULL)
+      if (tmpData == nullptr)
       {
         vtkErrorMacro(<< "Execute: Unable to allocate memory");
         return;
@@ -943,7 +943,7 @@ void vtkImageBlend::ThreadedRequestData (
   for (int idx1 = first_index;
        idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
-    if (inData[0][idx1] != NULL)
+    if (inData[0][idx1] != nullptr)
     {
 
       // RGB with RGB, greyscale with greyscale

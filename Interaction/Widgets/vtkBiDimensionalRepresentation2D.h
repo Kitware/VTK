@@ -68,7 +68,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkBiDimensionalRepresentation2D,vtkBiDimensionalRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -95,41 +95,41 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void StartWidgetDefinition(double e[2]) VTK_OVERRIDE;
-  void Point2WidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void Point3WidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void StartWidgetManipulation(double e[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void Highlight(int highlightOn) VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void StartWidgetDefinition(double e[2]) override;
+  void Point2WidgetInteraction(double e[2]) override;
+  void Point3WidgetInteraction(double e[2]) override;
+  void StartWidgetManipulation(double e[2]) override;
+  void WidgetInteraction(double e[2]) override;
+  void Highlight(int highlightOn) override;
   //@}
 
   //@{
   /**
    * Methods required by vtkProp superclass.
    */
-  void ReleaseGraphicsResources(vtkWindow *w) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *w) override;
+  int RenderOverlay(vtkViewport *viewport) override;
   //@}
 
   /**
    * Get the text shown in the widget's label.
    */
-  char* GetLabelText() VTK_OVERRIDE;
+  char* GetLabelText() override;
 
   //@{
   /**
    * Get the position of the widget's label in display coordinates.
    */
-  double* GetLabelPosition() VTK_OVERRIDE;
-  void GetLabelPosition(double pos[3]) VTK_OVERRIDE;
-  void GetWorldLabelPosition(double pos[3]) VTK_OVERRIDE;
+  double* GetLabelPosition() override;
+  void GetLabelPosition(double pos[3]) override;
+  void GetWorldLabelPosition(double pos[3]) override;
   //@}
 
 protected:
   vtkBiDimensionalRepresentation2D();
-  ~vtkBiDimensionalRepresentation2D() VTK_OVERRIDE;
+  ~vtkBiDimensionalRepresentation2D() override;
 
   // Geometry of the lines
   vtkCellArray        *LineCells;
@@ -150,8 +150,8 @@ protected:
                               double dir, double xP[3]);
 
 private:
-  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
+  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) = delete;
+  void operator=(const vtkBiDimensionalRepresentation2D&) = delete;
 };
 
 #endif

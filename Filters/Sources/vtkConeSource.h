@@ -39,7 +39,7 @@ class VTKFILTERSSOURCES_EXPORT vtkConeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkConeSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with default resolution 6, height 1.0, radius 0.5, and
@@ -126,10 +126,10 @@ public:
 
 protected:
   vtkConeSource(int res=6);
-  ~vtkConeSource() VTK_OVERRIDE {}
+  ~vtkConeSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Height;
   double Radius;
@@ -140,8 +140,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkConeSource(const vtkConeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConeSource&) VTK_DELETE_FUNCTION;
+  vtkConeSource(const vtkConeSource&) = delete;
+  void operator=(const vtkConeSource&) = delete;
 };
 
 #endif

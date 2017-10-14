@@ -109,7 +109,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkKMeansStatistics : public vtkStatisticsAlgo
 {
 public:
   vtkTypeMacro(vtkKMeansStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   static vtkKMeansStatistics* New();
 
   //@{
@@ -159,43 +159,43 @@ public:
    * NB: not implemented
    */
   void Aggregate( vtkDataObjectCollection*,
-                  vtkMultiBlockDataSet* ) VTK_OVERRIDE { return; };
+                  vtkMultiBlockDataSet* ) override { return; };
 
   /**
    * A convenience method for setting properties by name.
    */
   bool SetParameter(
-    const char* parameter, int index, vtkVariant value ) VTK_OVERRIDE;
+    const char* parameter, int index, vtkVariant value ) override;
 
 protected:
   vtkKMeansStatistics();
-  ~vtkKMeansStatistics() VTK_OVERRIDE;
+  ~vtkKMeansStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                vtkMultiBlockDataSet*,
-               vtkTable* ) VTK_OVERRIDE;
+               vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
                      vtkMultiBlockDataSet*,
-                     vtkTable* ) VTK_OVERRIDE { return; };
+                     vtkTable* ) override { return; };
 
   /**
    * Provide the appropriate assessment functor.
@@ -203,7 +203,7 @@ protected:
   void SelectAssessFunctor( vtkTable* inData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
 
   /**
    * Subroutine to update new cluster centers from the old centers.
@@ -227,7 +227,7 @@ protected:
   virtual vtkIdType GetTotalNumberOfObservations( vtkIdType numObservations );
 
   /**
-   * Subroutine to initalize the cluster centers using those provided by the user
+   * Subroutine to initialize the cluster centers using those provided by the user
    * in input port LEARN_PARAMETERS.  If no cluster centers are provided, the subroutine uses the
    * first DefaultNumberOfClusters input data points as initial cluster centers.
    * Called from within Learn.
@@ -276,8 +276,8 @@ protected:
   vtkKMeansDistanceFunctor* DistanceFunctor;
 
 private:
-  vtkKMeansStatistics( const vtkKMeansStatistics& ) VTK_DELETE_FUNCTION;
-  void operator=( const vtkKMeansStatistics& ) VTK_DELETE_FUNCTION;
+  vtkKMeansStatistics( const vtkKMeansStatistics& ) = delete;
+  void operator=( const vtkKMeansStatistics& ) = delete;
 };
 
 #endif

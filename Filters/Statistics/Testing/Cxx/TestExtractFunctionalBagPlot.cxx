@@ -71,7 +71,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
     ss << "Var" << j;
     arr->SetName(ss.str().c_str());
     arr->SetNumberOfValues(numPoints);
-    table->AddColumn(arr.GetPointer());
+    table->AddColumn(arr);
   }
 
   table->SetNumberOfRows(numPoints);
@@ -101,8 +101,8 @@ int TestExtractFunctionalBagPlot(int , char * [])
   }
 
   vtkNew<vtkTable> inTableDensity;
-  inTableDensity->AddColumn(density.GetPointer());
-  inTableDensity->AddColumn(varName.GetPointer());
+  inTableDensity->AddColumn(density);
+  inTableDensity->AddColumn(varName);
   std::vector<double> sortedDensities(
     densities, densities + sizeof(densities) / sizeof(double));
   double totalSumOfDensities = 0.;
@@ -137,12 +137,12 @@ int TestExtractFunctionalBagPlot(int , char * [])
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
    // First verify that absence of input does not cause trouble
-  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1.GetPointer());
+  ebp->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
   ebp->Update();
   int status = errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkExtractFunctionalBagPlot");
 
-  ebp->SetInputData(0, table.GetPointer());
-  ebp->SetInputData(1, inTableDensity.GetPointer());
+  ebp->SetInputData(0, table);
+  ebp->SetInputData(1, inTableDensity);
   ebp->SetInputArrayToProcess(0, 1, 0,
     vtkDataObject::FIELD_ASSOCIATION_ROWS, "Density");
   ebp->SetInputArrayToProcess(1, 1, 0,
@@ -150,7 +150,7 @@ int TestExtractFunctionalBagPlot(int , char * [])
   ebp->Update();
 
   vtkTable* outBPTable = ebp->GetOutput();
-  vtkDoubleArray* q3Points = 0;
+  vtkDoubleArray* q3Points = nullptr;
   for (vtkIdType i = 0; i < outBPTable->GetNumberOfColumns(); i++)
   {
     const char* colName = outBPTable->GetColumnName(i);

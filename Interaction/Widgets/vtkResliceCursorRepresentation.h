@@ -48,6 +48,9 @@ class vtkTexture;
 class vtkTextActor;
 class vtkImageAlgorithm;
 
+// Private.
+#define VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF 128
+
 class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorRepresentation : public vtkWidgetRepresentation
 {
 public:
@@ -56,7 +59,7 @@ public:
    * Standard VTK methods.
    */
   vtkTypeMacro(vtkResliceCursorRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -121,7 +124,7 @@ public:
   /**
    * These are methods that satisfy vtkWidgetRepresentation's API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   //@{
   /**
@@ -144,7 +147,7 @@ public:
    * alternatively, to the lut of another Reslice cusror widget.  In this way,
    * a set of three orthogonal planes can share the same lut so that
    * window-levelling is performed uniformly among planes.  The default
-   * internal lut can be re- set/allocated by setting to 0 (NULL).
+   * internal lut can be re- set/allocated by setting to 0 (nullptr).
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
@@ -247,7 +250,7 @@ public:
 
 protected:
   vtkResliceCursorRepresentation();
-  ~vtkResliceCursorRepresentation() VTK_OVERRIDE;
+  ~vtkResliceCursorRepresentation() override;
 
   //@{
   /**
@@ -325,15 +328,15 @@ protected:
   double                    InitialLevel;
   double                    LastEventPosition[2];
   int                       UseImageActor;
-  char                      TextBuff[128];
+  char                      TextBuff[VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF];
   int                       DisplayText;
 
   vtkScalarsToColors      * CreateDefaultLookupTable();
   void                      GenerateText();
 
 private:
-  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceCursorRepresentation&) VTK_DELETE_FUNCTION;
+  vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&) = delete;
+  void operator=(const vtkResliceCursorRepresentation&) = delete;
 };
 
 #endif

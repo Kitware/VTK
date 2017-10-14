@@ -42,7 +42,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPPCAStatistics : public vtkPCAStati
 {
 public:
   vtkTypeMacro(vtkPPCAStatistics, vtkPCAStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPPCAStatistics* New();
 
   //@{
@@ -57,28 +57,28 @@ public:
 
 protected:
   vtkPPCAStatistics();
-  ~vtkPPCAStatistics();
+  ~vtkPPCAStatistics() override;
 
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) override;
 
   /**
    * Execute the calculations required by the Test option.
    * NB: Not implemented for more than 1 processor
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* ) VTK_OVERRIDE;
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) override;
 
-  virtual vtkOrderStatistics* CreateOrderStatisticsInstance() VTK_OVERRIDE;
+  vtkOrderStatistics* CreateOrderStatisticsInstance() override;
 
 private:
-  vtkPPCAStatistics(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;
+  vtkPPCAStatistics(const vtkPPCAStatistics&) = delete;
+  void operator=(const vtkPPCAStatistics&) = delete;
 };
 
 #endif

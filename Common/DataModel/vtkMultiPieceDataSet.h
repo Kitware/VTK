@@ -42,13 +42,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkDataObjectTree
 public:
   static vtkMultiPieceDataSet* New();
   vtkTypeMacro(vtkMultiPieceDataSet, vtkDataObjectTree);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return class name of data type (see vtkType.h for
    * definitions).
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_MULTIPIECE_DATA_SET;}
+  int GetDataObjectType() override {return VTK_MULTIPIECE_DATA_SET;}
 
   /**
    * Set the number of pieces. This will cause allocation if the new number of
@@ -102,22 +102,22 @@ public:
   /**
    * Unhiding superclass method.
    */
-  vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
+  vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) override
     { return this->Superclass::GetMetaData(iter); }
 
   /**
    * Unhiding superclass method.
    */
-  int HasMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
+  int HasMetaData(vtkCompositeDataIterator* iter) override
     { return this->Superclass::HasMetaData(iter); }
 
 protected:
   vtkMultiPieceDataSet();
-  ~vtkMultiPieceDataSet() VTK_OVERRIDE;
+  ~vtkMultiPieceDataSet() override;
 
 private:
-  vtkMultiPieceDataSet(const vtkMultiPieceDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiPieceDataSet&) VTK_DELETE_FUNCTION;
+  vtkMultiPieceDataSet(const vtkMultiPieceDataSet&) = delete;
+  void operator=(const vtkMultiPieceDataSet&) = delete;
 
 };
 

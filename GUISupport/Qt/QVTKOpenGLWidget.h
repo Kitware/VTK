@@ -126,7 +126,7 @@ class VTKGUISUPPORTQT_EXPORT QVTKOpenGLWidget : public QOpenGLWidget
   typedef QOpenGLWidget Superclass;
 public:
   QVTKOpenGLWidget(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
-  virtual ~QVTKOpenGLWidget();
+  ~QVTKOpenGLWidget() override;
 
   //@{
   /**
@@ -240,11 +240,6 @@ protected:
 
 private:
   Q_DISABLE_COPY(QVTKOpenGLWidget);
-
-  /**
-   * initializes the render window during constructor.
-   */
-  void initializeRenderWindow(vtkGenericOpenGLRenderWindow* win);
 
   /**
    * Called when vtkCommand::WindowFrameEvent is fired by the

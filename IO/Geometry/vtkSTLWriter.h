@@ -17,9 +17,10 @@
  * @brief   write stereo lithography files
  *
  * vtkSTLWriter writes stereo lithography (.stl) files in either ASCII or
- * binary form. Stereo lithography files only contain triangles. If polygons
- * with more than 3 vertices are present, only the first 3 vertices are
- * written.  Use vtkTriangleFilter to convert polygons to triangles.
+ * binary form. Stereo lithography files contain only triangles. Since VTK 8.1,
+ * this writer converts non-triangle polygons into triangles, so there is no
+ * longer a need to use vtkTriangleFilter prior to using this writer if the
+ * input contains polygons with more than three vertices.
  *
  * @warning
  * Binary files written on one system may not be readable on other systems.
@@ -41,7 +42,7 @@ class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkWriter
 public:
   static vtkSTLWriter *New();
   vtkTypeMacro(vtkSTLWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -79,13 +80,13 @@ public:
 
 protected:
   vtkSTLWriter();
-  ~vtkSTLWriter() VTK_OVERRIDE
+  ~vtkSTLWriter() override
   {
     delete[] this->FileName;
     delete[] this->Header;
   }
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteBinarySTL(
     vtkPoints *pts, vtkCellArray *polys, vtkCellArray *strips);
@@ -96,11 +97,11 @@ protected:
   char *Header;
   int   FileType;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkSTLWriter(const vtkSTLWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSTLWriter&) VTK_DELETE_FUNCTION;
+  vtkSTLWriter(const vtkSTLWriter&) = delete;
+  void operator=(const vtkSTLWriter&) = delete;
 };
 
 #endif

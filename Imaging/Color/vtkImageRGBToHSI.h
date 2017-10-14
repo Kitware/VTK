@@ -32,7 +32,7 @@ class VTKIMAGINGCOLOR_EXPORT vtkImageRGBToHSI : public vtkThreadedImageAlgorithm
 public:
   static vtkImageRGBToHSI *New();
   vtkTypeMacro(vtkImageRGBToHSI,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,16 +46,16 @@ public:
 
 protected:
   vtkImageRGBToHSI();
-  ~vtkImageRGBToHSI() VTK_OVERRIDE {}
+  ~vtkImageRGBToHSI() override {}
 
   double Maximum;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 
 private:
-  vtkImageRGBToHSI(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
+  vtkImageRGBToHSI(const vtkImageRGBToHSI&) = delete;
+  void operator=(const vtkImageRGBToHSI&) = delete;
 };
 
 #endif

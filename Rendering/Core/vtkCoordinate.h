@@ -73,7 +73,7 @@ class VTKRENDERINGCORE_EXPORT vtkCoordinate : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCoordinate, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates an instance of this class with the following defaults:
@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkCoordinate();
-  ~vtkCoordinate() VTK_OVERRIDE;
+  ~vtkCoordinate() override;
 
   double Value[3];
   int CoordinateSystem;
@@ -187,8 +187,8 @@ protected:
   double ComputedUserDefinedValue[3];
 
 private:
-  vtkCoordinate(const vtkCoordinate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCoordinate&) VTK_DELETE_FUNCTION;
+  vtkCoordinate(const vtkCoordinate&) = delete;
+  void operator=(const vtkCoordinate&) = delete;
 };
 
 #endif

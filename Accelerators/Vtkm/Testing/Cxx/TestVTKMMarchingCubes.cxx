@@ -15,6 +15,7 @@
 //=============================================================================
 #include "vtkActor.h"
 #include "vtkCellData.h"
+#include "vtkCountVertices.h"
 #include "vtkmContour.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageData.h"
@@ -36,8 +37,8 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
 
-  renWin->AddRenderer(ren.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  renWin->AddRenderer(ren);
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkmContour> cubes;
 
@@ -57,22 +58,39 @@ int RunVTKPipeline(T *t, int argc, char* argv[])
   mapper->SetScalarRange(0.0, 1.0);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
     {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
     }
 
-  if (!cubes->GetOutput()->GetPointData()->GetNormals())
+  vtkDataSet *output = cubes->GetOutput();
+
+  if (!output->GetPointData()->GetNormals())
   {
     std::cerr << "Output normals not set.\n";
+    return EXIT_FAILURE;
+  }
+
+  vtkDataArray *cellvar = output->GetCellData()->GetArray("Vertex Count");
+  if (!cellvar)
+  {
+    std::cerr << "Cell data missing.\n";
+    return EXIT_FAILURE;
+  }
+
+  if (cellvar->GetNumberOfTuples() != output->GetNumberOfCells())
+  {
+    std::cerr << "Mapped cell field does not match number of output cells.\n"
+              << "Expected: " << output->GetNumberOfCells() << " Actual: "
+              << cellvar->GetNumberOfTuples() << "\n";
     return EXIT_FAILURE;
   }
 
@@ -96,6 +114,9 @@ int TestVTKMMarchingCubes(int argc, char* argv[])
   elevation->SetLowPoint(-1.75, 0.0, 1.0);
   elevation->SetHighPoint(0.75, 0.0, 1.0);
 
+  vtkNew<vtkCountVertices> countVerts;
+  countVerts->SetInputConnection(elevation->GetOutputPort());
+
   //run the pipeline
-  return RunVTKPipeline(elevation.GetPointer(),argc,argv);
+  return RunVTKPipeline(countVerts.GetPointer(),argc,argv);
 }

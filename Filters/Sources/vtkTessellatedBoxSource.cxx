@@ -564,8 +564,8 @@ void vtkTessellatedBoxSource::BuildFace(vtkPoints *points,
                                           int changed)
 {
   assert("pre: positive_id" && firstPointId>=0);
-  assert("pre: points_exists" && points!=0);
-  assert("pre: polys_exists" && polys!=0);
+  assert("pre: points_exists" && points!=nullptr);
+  assert("pre: polys_exists" && polys!=nullptr);
 
   double direction[2][3];
 

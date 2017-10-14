@@ -13,9 +13,9 @@
 
 =========================================================================*/
 
-#include "vtkCompositeDataDisplayAttributes.h"
-
 #include "vtkBoundingBox.h"
+#include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataIterator.h"
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
@@ -32,15 +32,14 @@ vtkCompositeDataDisplayAttributes::~vtkCompositeDataDisplayAttributes()
 {
 }
 
-void vtkCompositeDataDisplayAttributes::SetBlockVisibility(unsigned int flat_index, bool visible)
+void vtkCompositeDataDisplayAttributes::SetBlockVisibility(vtkDataObject* data_object, bool visible)
 {
-  this->BlockVisibilities[flat_index] = visible;
+  this->BlockVisibilities[data_object] = visible;
 }
 
-bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(unsigned int flat_index) const
+bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(vtkDataObject* data_object) const
 {
-  std::map<unsigned int, bool>::const_iterator iter =
-    this->BlockVisibilities.find(flat_index);
+  BoolMap::const_iterator iter = this->BlockVisibilities.find(data_object);
   if(iter != this->BlockVisibilities.end())
   {
     return iter->second;
@@ -57,32 +56,79 @@ bool vtkCompositeDataDisplayAttributes::HasBlockVisibilities() const
   return !this->BlockVisibilities.empty();
 }
 
-bool vtkCompositeDataDisplayAttributes::HasBlockVisibility(unsigned int flat_index) const
+bool vtkCompositeDataDisplayAttributes::HasBlockVisibility(vtkDataObject* data_object) const
 {
-  return this->BlockVisibilities.count(flat_index) == size_t(1);
+  return this->BlockVisibilities.count(data_object) == size_t(1);
 }
 
-void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(unsigned int flat_index)
+void vtkCompositeDataDisplayAttributes::RemoveBlockVisibility(vtkDataObject* data_object)
 {
-  this->BlockVisibilities.erase(flat_index);
+  this->BlockVisibilities.erase(data_object);
 }
 
-void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
+void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities()
 {
   this->BlockVisibilities.clear();
 }
 
-void vtkCompositeDataDisplayAttributes::SetBlockColor(
-  unsigned int flat_index, const double color[3])
+#ifndef VTK_LEGACY_REMOVE
+void vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites()
 {
-  this->BlockColors[flat_index] = vtkColor3d(color[0], color[1], color[2]);
+  VTK_LEGACY_REPLACED_BODY(vtkCompositeDataDisplayAttributes::RemoveBlockVisibilites, "VTK 8.1",
+    vtkCompositeDataDisplayAttributes::RemoveBlockVisibilities());
+  this->RemoveBlockVisibilities();
+}
+#endif
+
+void vtkCompositeDataDisplayAttributes::SetBlockPickability(vtkDataObject* data_object, bool visible)
+{
+  this->BlockPickabilities[data_object] = visible;
+}
+
+bool vtkCompositeDataDisplayAttributes::GetBlockPickability(vtkDataObject* data_object) const
+{
+  BoolMap::const_iterator iter = this->BlockPickabilities.find(data_object);
+  if(iter != this->BlockPickabilities.end())
+  {
+    return iter->second;
+  }
+  else
+  {
+    // default to true
+    return true;
+  }
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockPickabilities() const
+{
+  return !this->BlockPickabilities.empty();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockPickability(vtkDataObject* data_object) const
+{
+  return this->BlockPickabilities.count(data_object) == size_t(1);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockPickability(vtkDataObject* data_object)
+{
+  this->BlockPickabilities.erase(data_object);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockPickabilities()
+{
+  this->BlockPickabilities.clear();
+}
+
+void vtkCompositeDataDisplayAttributes::SetBlockColor(
+  vtkDataObject* data_object, const double color[3])
+{
+  this->BlockColors[data_object] = vtkColor3d(color[0], color[1], color[2]);
 }
 
 void vtkCompositeDataDisplayAttributes::GetBlockColor(
-  unsigned int flat_index, double color[3]) const
+  vtkDataObject* data_object, double color[3]) const
 {
-  std::map<unsigned int, vtkColor3d>::const_iterator
-    iter = this->BlockColors.find(flat_index);
+  ColorMap::const_iterator iter = this->BlockColors.find(data_object);
   if(iter != this->BlockColors.end())
   {
     std::copy(&iter->second[0], &iter->second[3], color);
@@ -90,11 +136,9 @@ void vtkCompositeDataDisplayAttributes::GetBlockColor(
 }
 
 vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(
-  unsigned int flat_index) const
+  vtkDataObject* data_object) const
 {
-  std::map<unsigned int, vtkColor3d>::const_iterator
-    iter = this->BlockColors.find(flat_index);
-  if(iter != this->BlockColors.end())
+  ColorMap::const_iterator iter = this->BlockColors.find(data_object);  if(iter != this->BlockColors.end())
   {
     return iter->second;
   }
@@ -107,15 +151,15 @@ bool vtkCompositeDataDisplayAttributes::HasBlockColors() const
 }
 
 bool vtkCompositeDataDisplayAttributes::HasBlockColor(
-  unsigned int flat_index) const
+  vtkDataObject* data_object) const
 {
-  return this->BlockColors.count(flat_index) == size_t(1);
+  return this->BlockColors.count(data_object) == size_t(1);
 }
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockColor(
-  unsigned int flat_index)
+  vtkDataObject* data_object)
 {
-  this->BlockColors.erase(flat_index);
+  this->BlockColors.erase(data_object);
 }
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockColors()
@@ -128,14 +172,14 @@ void vtkCompositeDataDisplayAttributes::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-void vtkCompositeDataDisplayAttributes::SetBlockOpacity(unsigned int flat_index, double opacity)
+void vtkCompositeDataDisplayAttributes::SetBlockOpacity(vtkDataObject* data_object, double opacity)
 {
-  this->BlockOpacities[flat_index] = opacity;
+  this->BlockOpacities[data_object] = opacity;
 }
 
-double vtkCompositeDataDisplayAttributes::GetBlockOpacity(unsigned int flat_index) const
+double vtkCompositeDataDisplayAttributes::GetBlockOpacity(vtkDataObject* data_object) const
 {
-  std::map<unsigned int, double>::const_iterator iter = this->BlockOpacities.find(flat_index);
+  DoubleMap::const_iterator iter = this->BlockOpacities.find(data_object);
 
   if(iter != this->BlockOpacities.end())
   {
@@ -150,19 +194,57 @@ bool vtkCompositeDataDisplayAttributes::HasBlockOpacities() const
   return !this->BlockOpacities.empty();
 }
 
-bool vtkCompositeDataDisplayAttributes::HasBlockOpacity(unsigned int flat_index) const
+bool vtkCompositeDataDisplayAttributes::HasBlockOpacity(vtkDataObject* data_object) const
 {
-  return this->BlockOpacities.find(flat_index) != this->BlockOpacities.end();
+  return this->BlockOpacities.find(data_object) != this->BlockOpacities.end();
 }
 
-void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(unsigned int flat_index)
+void vtkCompositeDataDisplayAttributes::RemoveBlockOpacity(vtkDataObject* data_object)
 {
-  this->BlockOpacities.erase(flat_index);
+  this->BlockOpacities.erase(data_object);
 }
 
 void vtkCompositeDataDisplayAttributes::RemoveBlockOpacities()
 {
   this->BlockOpacities.clear();
+}
+
+void vtkCompositeDataDisplayAttributes::SetBlockMaterial(vtkDataObject* data_object, const std::string& material)
+{
+  this->BlockMaterials[data_object] = material;
+}
+
+const std::string& vtkCompositeDataDisplayAttributes::GetBlockMaterial(vtkDataObject* data_object) const
+{
+  StringMap::const_iterator iter = this->BlockMaterials.find(data_object);
+
+  if(iter != this->BlockMaterials.end())
+  {
+    return iter->second;
+  }
+
+  static const std::string nomat = "";
+  return nomat;
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockMaterials() const
+{
+  return !this->BlockMaterials.empty();
+}
+
+bool vtkCompositeDataDisplayAttributes::HasBlockMaterial(vtkDataObject* data_object) const
+{
+  return this->BlockMaterials.find(data_object) != this->BlockMaterials.end();
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockMaterial(vtkDataObject* data_object)
+{
+  this->BlockMaterials.erase(data_object);
+}
+
+void vtkCompositeDataDisplayAttributes::RemoveBlockMaterials()
+{
+  this->BlockMaterials.clear();
 }
 
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
@@ -173,9 +255,8 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
   vtkMath::UninitializeBounds(bounds);
   // computing bounds with only visible blocks
   vtkBoundingBox bbox;
-  unsigned int flat_index = 0;
   vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
-    cda, dobj, flat_index, &bbox);
+    cda, dobj, &bbox);
   if(bbox.IsValid())
   {
     bbox.GetBounds(bounds);
@@ -185,7 +266,6 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   vtkCompositeDataDisplayAttributes* cda,
   vtkDataObject *dobj,
-  unsigned int& flat_index,
   vtkBoundingBox* bbox,
   bool parentVisible)
 {
@@ -195,29 +275,25 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   }
 
   // A block always *has* a visibility state, either explicitly set or inherited.
-  bool blockVisible = (cda && cda->HasBlockVisibility(flat_index)) ?
-    cda->GetBlockVisibility(flat_index) : parentVisible;
-
-  // Advance flat-index. After this point, flat_index no longer points to this block.
-  flat_index++;
+  bool blockVisible = (cda && cda->HasBlockVisibility(dobj)) ?
+    cda->GetBlockVisibility(dobj) : parentVisible;
 
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
   vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
   if (mbds || mpds)
   {
-    unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
+    const unsigned int numChildren = mbds ? mbds->GetNumberOfBlocks() :
       mpds->GetNumberOfPieces();
-    for (unsigned int cc=0 ; cc < numChildren; cc++)
+    for (unsigned int cc = 0 ; cc < numChildren; cc++)
     {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
-      if (child == NULL)
+      if (child == nullptr)
       {
-        // speeds things up when dealing with NULL blocks (which is common with AMRs).
-        flat_index++;
+        // Speeds things up when dealing with nullptr blocks (which is common with AMRs).
         continue;
       }
       vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
-        cda, child, flat_index, bbox, blockVisible);
+        cda, child, bbox, blockVisible);
     }
   }
   else if (dobj && blockVisible == true)
@@ -230,4 +306,44 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
       bbox->AddBounds(bounds);
     }
   }
+}
+
+vtkDataObject* vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+  const unsigned int flat_index, vtkDataObject* parent_obj,
+  unsigned int& current_flat_index)
+{
+  if (current_flat_index == flat_index)
+  {
+    return parent_obj;
+  }
+  current_flat_index++;
+
+  auto multiBlock = vtkMultiBlockDataSet::SafeDownCast(parent_obj);
+  auto multiPiece = vtkMultiPieceDataSet::SafeDownCast(parent_obj);
+  if (multiBlock || multiPiece)
+  {
+    const unsigned int numChildren = multiBlock ?
+      multiBlock->GetNumberOfBlocks() : multiPiece->GetNumberOfPieces();
+
+    for (unsigned int cc = 0; cc < numChildren; cc++)
+    {
+      vtkDataObject* child = multiBlock ? multiBlock->GetBlock(cc) :
+        multiPiece->GetPiece(cc);
+
+      if (!child)
+      {
+        current_flat_index++;
+        continue;
+      }
+
+      const auto data = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        flat_index, child, current_flat_index);
+      if (data)
+      {
+        return data;
+      }
+    }
+  }
+
+  return nullptr;
 }

@@ -57,7 +57,7 @@ class VTKIOINFOVIS_EXPORT vtkDIMACSGraphWriter : public vtkDataWriter
 public:
   static vtkDIMACSGraphWriter *New();
   vtkTypeMacro(vtkDIMACSGraphWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,15 +69,15 @@ public:
 
 protected:
   vtkDIMACSGraphWriter() {}
-  ~vtkDIMACSGraphWriter() VTK_OVERRIDE {}
+  ~vtkDIMACSGraphWriter() override {}
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
+  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) = delete;
+  void operator=(const vtkDIMACSGraphWriter&) = delete;
 };
 
 #endif

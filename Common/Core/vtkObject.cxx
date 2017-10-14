@@ -64,7 +64,7 @@ int vtkObject::GetGlobalWarningDisplay()
 class vtkObserver
 {
  public:
-  vtkObserver():Command(0),Event(0),Tag(0),Next(0),Priority(0.0) {}
+  vtkObserver():Command(nullptr),Event(0),Tag(0),Next(nullptr),Priority(0.0) {}
   ~vtkObserver();
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -95,7 +95,7 @@ void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
 class vtkSubjectHelper
 {
 public:
-  vtkSubjectHelper():ListModified(0),Focus1(0),Focus2(0),Start(0),Count(1) {}
+  vtkSubjectHelper():ListModified(0),Focus1(nullptr),Focus2(nullptr),Start(nullptr),Count(1) {}
   ~vtkSubjectHelper();
 
   unsigned long AddObserver(unsigned long event, vtkCommand *cmd, float p);
@@ -109,7 +109,7 @@ public:
   int HasObserver(unsigned long event);
   int HasObserver(unsigned long event, vtkCommand *cmd);
   void GrabFocus(vtkCommand *c1, vtkCommand *c2) {this->Focus1 = c1; this->Focus2 = c2;}
-  void ReleaseFocus() {this->Focus1 = NULL; this->Focus2 = NULL;}
+  void ReleaseFocus() {this->Focus1 = nullptr; this->Focus2 = nullptr;}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   int         ListModified;
@@ -139,7 +139,7 @@ vtkObject *vtkObject::New()
 vtkObject::vtkObject()
 {
   this->Debug = false;
-  this->SubjectHelper = NULL;
+  this->SubjectHelper = nullptr;
   this->Modified(); // Insures modified time > than any other time
   // initial reference count = 1 and reference counting on.
 }
@@ -156,7 +156,7 @@ vtkObject::~vtkObject()
     vtkErrorMacro(<< "Trying to delete object with non-zero reference count.");
   }
   delete this->SubjectHelper;
-  this->SubjectHelper = NULL;
+  this->SubjectHelper = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -229,7 +229,7 @@ void vtkObject::BreakOnError()
 //----------------------------------------------------------------------------
 vtkObserver::~vtkObserver()
 {
-  this->Command->UnRegister(0);
+  this->Command->UnRegister(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -243,9 +243,9 @@ vtkSubjectHelper::~vtkSubjectHelper()
     delete elem;
     elem = next;
   }
-  this->Start = NULL;
-  this->Focus1 = NULL;
-  this->Focus2 = NULL;
+  this->Start = nullptr;
+  this->Focus1 = nullptr;
+  this->Focus2 = nullptr;
 }
 
 
@@ -258,10 +258,10 @@ AddObserver(unsigned long event, vtkCommand *cmd, float p)
   // initialize the new observer element
   elem = new vtkObserver;
   elem->Priority = p;
-  elem->Next = NULL;
+  elem->Next = nullptr;
   elem->Event = event;
   elem->Command = cmd;
-  cmd->Register(0);
+  cmd->Register(nullptr);
   elem->Tag = this->Count;
   this->Count++;
 
@@ -274,7 +274,7 @@ AddObserver(unsigned long event, vtkCommand *cmd, float p)
   else
   {
     // insert high priority first
-    vtkObserver* prev = 0;
+    vtkObserver* prev = nullptr;
     vtkObserver* pos = this->Start;
     while(pos->Priority >= elem->Priority && pos->Next)
     {
@@ -311,7 +311,7 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
   vtkObserver *next;
 
   elem = this->Start;
-  prev = NULL;
+  prev = nullptr;
   while (elem)
   {
     if (elem->Tag == tag)
@@ -347,7 +347,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
   vtkObserver *next;
 
   elem = this->Start;
-  prev = NULL;
+  prev = nullptr;
   while (elem)
   {
     if (elem->Event == event)
@@ -383,7 +383,7 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand *cmd)
   vtkObserver *next;
 
   elem = this->Start;
-  prev = NULL;
+  prev = nullptr;
   while (elem)
   {
     if (elem->Event == event && elem->Command == cmd)
@@ -422,7 +422,7 @@ void vtkSubjectHelper::RemoveAllObservers()
     delete elem;
     elem = next;
   }
-  this->Start = NULL;
+  this->Start = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -668,7 +668,7 @@ vtkCommand *vtkSubjectHelper::GetCommand(unsigned long tag)
     }
     elem = elem->Next;
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -712,7 +712,7 @@ vtkCommand *vtkObject::GetCommand(unsigned long tag)
   {
     return this->SubjectHelper->GetCommand(tag);
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -848,7 +848,7 @@ void vtkObject::InternalReleaseFocus()
 void vtkObject::Modified()
 {
   this->MTime.Modified();
-  this->InvokeEvent(vtkCommand::ModifiedEvent,NULL);
+  this->InvokeEvent(vtkCommand::ModifiedEvent,nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -862,7 +862,7 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   }
   else
   {
-    vtkDebugMacro(<< "Registered by NULL, ReferenceCount = "
+    vtkDebugMacro(<< "Registered by nullptr, ReferenceCount = "
                   << this->ReferenceCount+1);
   }
 
@@ -882,7 +882,7 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   }
   else
   {
-    vtkDebugMacro(<< "UnRegistered by NULL, ReferenceCount = "
+    vtkDebugMacro(<< "UnRegistered by nullptr, ReferenceCount = "
                   << (this->ReferenceCount-1));
   }
 
@@ -890,7 +890,7 @@ void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
   {
     // The reference count is 1, so the object is about to be deleted.
     // Invoke the delete event.
-    this->InvokeEvent(vtkCommand::DeleteEvent, 0);
+    this->InvokeEvent(vtkCommand::DeleteEvent, nullptr);
 
     // Clean out observers prior to entering destructor
     this->RemoveAllObservers();
@@ -912,7 +912,7 @@ public:
 
   vtkTypeMacro(vtkObjectCommandInternal, vtkCommand);
   void Execute(
-    vtkObject *caller, unsigned long eventId, void *callData) VTK_OVERRIDE
+    vtkObject *caller, unsigned long eventId, void *callData) override
   {
     if (this->Callable)
     {
@@ -934,9 +934,9 @@ public:
 protected:
   vtkObjectCommandInternal()
   {
-    this->Callable = NULL;
+    this->Callable = nullptr;
   }
-  ~vtkObjectCommandInternal() VTK_OVERRIDE
+  ~vtkObjectCommandInternal() override
   {
     delete this->Callable;
   }

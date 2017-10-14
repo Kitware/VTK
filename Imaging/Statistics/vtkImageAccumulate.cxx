@@ -116,7 +116,7 @@ vtkImageStencilData *vtkImageAccumulate::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -362,7 +362,7 @@ int vtkImageAccumulate::RequestUpdateExtent (
 {
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* stencilInfo = 0;
+  vtkInformation* stencilInfo = nullptr;
   if(inputVector[1]->GetNumberOfInformationObjects() > 0)
   {
     stencilInfo = inputVector[1]->GetInformationObject(0);

@@ -41,7 +41,7 @@ class VTKCOMMONMATH_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -72,7 +72,7 @@ public:
       double minStep = delT;
       double maxStep = delT;
       double delTActual;
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
@@ -90,7 +90,7 @@ public:
                               double minStep, double maxStep,
                               double maxError, double& error)
   {
-      return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
+      return this->ComputeNextStep(xprev, nullptr, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
   }
   virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
@@ -122,7 +122,7 @@ public:
 
 protected:
   vtkInitialValueProblemSolver();
-  ~vtkInitialValueProblemSolver() VTK_OVERRIDE;
+  ~vtkInitialValueProblemSolver() override;
 
   virtual void Initialize();
 
@@ -134,8 +134,8 @@ protected:
   int Adaptive;
 
 private:
-  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInitialValueProblemSolver&) VTK_DELETE_FUNCTION;
+  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&) = delete;
+  void operator=(const vtkInitialValueProblemSolver&) = delete;
 };
 
 #endif

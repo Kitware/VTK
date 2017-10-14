@@ -46,12 +46,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDirectedGraph : public vtkGraph
 public:
   static vtkDirectedGraph *New();
   vtkTypeMacro(vtkDirectedGraph, vtkGraph);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_DIRECTED_GRAPH;}
+  int GetDataObjectType() override {return VTK_DIRECTED_GRAPH;}
 
   //@{
   /**
@@ -66,15 +66,15 @@ public:
    * undirected graph. This is public to allow
    * the ToDirected/UndirectedGraph to work.
    */
-  bool IsStructureValid(vtkGraph *g) VTK_OVERRIDE;
+  bool IsStructureValid(vtkGraph *g) override;
 
 protected:
   vtkDirectedGraph();
-  ~vtkDirectedGraph() VTK_OVERRIDE;
+  ~vtkDirectedGraph() override;
 
 private:
-  vtkDirectedGraph(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
+  vtkDirectedGraph(const vtkDirectedGraph&) = delete;
+  void operator=(const vtkDirectedGraph&) = delete;
 };
 
 #endif

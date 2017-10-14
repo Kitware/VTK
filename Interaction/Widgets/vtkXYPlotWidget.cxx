@@ -64,7 +64,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -83,7 +83,7 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
 
     // Add the xy plot
     this->CurrentRenderer->AddViewProp(this->XYPlotActor);
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
   else //disabling------------------------------------------
   {
@@ -99,8 +99,8 @@ void vtkXYPlotWidget::SetEnabled(int enabling)
 
     // turn off the line
     this->CurrentRenderer->RemoveActor(this->XYPlotActor);
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -264,7 +264,7 @@ void vtkXYPlotWidget::OnLeftButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //-------------------------------------------------------------------------
@@ -424,7 +424,7 @@ void vtkXYPlotWidget::OnMouseMove()
 
   // start a drag
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
   this->Interactor->Render();
 }
 
@@ -441,7 +441,7 @@ void vtkXYPlotWidget::OnLeftButtonUp()
   this->EventCallbackCommand->SetAbortFlag(1);
   this->RequestCursorShape(VTK_CURSOR_DEFAULT);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 

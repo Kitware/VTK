@@ -55,15 +55,15 @@ vtkCornerAnnotation::vtkCornerAnnotation()
 
   for (int i = 0; i < NumTextPositions; i++)
   {
-    this->CornerText[i] = NULL;
+    this->CornerText[i] = nullptr;
     this->TextMapper[i] = vtkTextMapper::New();
     this->TextActor[i] = vtkActor2D::New();
     this->TextActor[i]->SetMapper(this->TextMapper[i]);
   }
 
-  this->ImageActor = NULL;
-  this->LastImageActor = 0;
-  this->WindowLevel = NULL;
+  this->ImageActor = nullptr;
+  this->LastImageActor = nullptr;
+  this->WindowLevel = nullptr;
 
   this->LevelShift = 0;
   this->LevelScale = 1;
@@ -74,7 +74,7 @@ vtkCornerAnnotation::vtkCornerAnnotation()
 //----------------------------------------------------------------------------
 vtkCornerAnnotation::~vtkCornerAnnotation()
 {
-  this->SetTextProperty(NULL);
+  this->SetTextProperty(nullptr);
 
   for (int i = 0; i < NumTextPositions; i++)
   {
@@ -83,8 +83,8 @@ vtkCornerAnnotation::~vtkCornerAnnotation()
     this->TextActor[i]->Delete();
   }
 
-  this->SetWindowLevel(NULL);
-  this->SetImageActor(NULL);
+  this->SetWindowLevel(nullptr);
+  this->SetImageActor(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
   char *rpos, *tmp;
   double window = 0, level = 0;
   long int windowi = 0, leveli = 0;
-  vtkImageData *wl_input = NULL, *ia_input = NULL;
+  vtkImageData *wl_input = nullptr, *ia_input = nullptr;
   int input_type_is_float = 0;
 
   if (wl)
@@ -146,8 +146,9 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
   {
     if (this->CornerText[i] && strlen(this->CornerText[i]))
     {
-      text = new char [strlen(this->CornerText[i])+1000];
-      text2 = new char [strlen(this->CornerText[i])+1000];
+      size_t textSize = strlen(this->CornerText[i])+1000;
+      text = new char [textSize];
+      text2 = new char [textSize];
       strcpy(text,this->CornerText[i]);
 
       // now do the replacements
@@ -158,11 +159,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          sprintf(text2,"%sImage: %i%s",text,slice,rpos+7);
+          snprintf(text2,textSize,"%sImage: %i%s",text,slice,rpos+7);
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+7);
+          snprintf(text2,textSize,"%s%s",text,rpos+7);
         }
         tmp = text;
         text = text2;
@@ -176,11 +177,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          sprintf(text2,"%sImage: %i / %i%s",text,slice,slice_max,rpos+15);
+          snprintf(text2,textSize,"%sImage: %i / %i%s",text,slice,slice_max,rpos+15);
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+15);
+          snprintf(text2,textSize,"%s%s",text,rpos+15);
         }
         tmp = text;
         text = text2;
@@ -194,11 +195,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          sprintf(text2,"%sSlice: %i%s",text,slice,rpos+7);
+          snprintf(text2,textSize,"%sSlice: %i%s",text,slice,rpos+7);
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+7);
+          snprintf(text2,textSize,"%s%s",text,rpos+7);
         }
         tmp = text;
         text = text2;
@@ -212,11 +213,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         *rpos = '\0';
         if (ia && this->ShowSliceAndImage)
         {
-          sprintf(text2,"%sSlice: %i / %i%s",text,slice,slice_max,rpos+15);
+          snprintf(text2,textSize,"%sSlice: %i / %i%s",text,slice,slice_max,rpos+15);
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+15);
+          snprintf(text2,textSize,"%s%s",text,rpos+15);
         }
         tmp = text;
         text = text2;
@@ -245,11 +246,11 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
           {
             pos = dbounds[4];
           }
-          sprintf(text2,"%s%g%s",text,pos,rpos+11);
+          snprintf(text2,textSize,"%s%g%s",text,pos,rpos+11);
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+11);
+          snprintf(text2,textSize,"%s%s",text,rpos+11);
         }
         tmp = text;
         text = text2;
@@ -265,16 +266,16 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         {
           if (input_type_is_float)
           {
-            sprintf(text2,"%sWindow: %g%s",text,window,rpos+8);
+            snprintf(text2,textSize,"%sWindow: %g%s",text,window,rpos+8);
           }
           else
           {
-            sprintf(text2,"%sWindow: %li%s",text,windowi,rpos+8);
+            snprintf(text2,textSize,"%sWindow: %li%s",text,windowi,rpos+8);
           }
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+8);
+          snprintf(text2,textSize,"%s%s",text,rpos+8);
         }
         tmp = text;
         text = text2;
@@ -290,16 +291,16 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         {
           if (input_type_is_float)
           {
-            sprintf(text2,"%sLevel: %g%s",text,level,rpos+7);
+            snprintf(text2,textSize,"%sLevel: %g%s",text,level,rpos+7);
           }
           else
           {
-            sprintf(text2,"%sLevel: %li%s",text,leveli,rpos+7);
+            snprintf(text2,textSize,"%sLevel: %li%s",text,leveli,rpos+7);
           }
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+7);
+          snprintf(text2,textSize,"%s%s",text,rpos+7);
         }
         tmp = text;
         text = text2;
@@ -315,16 +316,16 @@ void vtkCornerAnnotation::TextReplace(vtkImageActor *ia,
         {
           if (input_type_is_float)
           {
-            sprintf(text2,"%sWW/WL: %g / %g%s",text,window,level,rpos+14);
+            snprintf(text2,textSize,"%sWW/WL: %g / %g%s",text,window,level,rpos+14);
           }
           else
           {
-            sprintf(text2,"%sWW/WL: %li / %li%s",text,windowi,leveli,rpos+14);
+            snprintf(text2,textSize,"%sWW/WL: %li / %li%s",text,windowi,leveli,rpos+14);
           }
         }
         else
         {
-          sprintf(text2,"%s%s",text,rpos+14);
+          snprintf(text2,textSize,"%s%s",text,rpos+14);
         }
         tmp = text;
         text = text2;
@@ -362,15 +363,15 @@ namespace {
 // Ported from old vtkTextMapper implementation
 int GetNumberOfLines(const char *str)
 {
-  if (str == NULL || *str == '\0')
+  if (str == nullptr || *str == '\0')
   {
     return 0;
   }
 
   int result = 1;
-  while (str != NULL)
+  while (str != nullptr)
   {
-    if ((str = strstr(str, "\n")) != NULL)
+    if ((str = strstr(str, "\n")) != nullptr)
     {
       result++;
       str++; // Skip '\n'
@@ -402,7 +403,7 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Is there an image actor ?
   vtkImageMapToWindowLevelColors *wl = this->WindowLevel;
-  vtkImageActor *ia = NULL;
+  vtkImageActor *ia = nullptr;
   if (this->ImageActor)
   {
     ia = this->ImageActor;
@@ -712,7 +713,7 @@ const char* vtkCornerAnnotation::GetText(int i)
 {
   if (i < 0 || i >= NumTextPositions)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->CornerText[i];

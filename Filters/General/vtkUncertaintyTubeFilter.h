@@ -48,7 +48,7 @@ public:
    * Standard methods for printing and obtaining type information for instances of this class.
    */
   vtkTypeMacro(vtkUncertaintyTubeFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -67,10 +67,10 @@ public:
 
 protected:
   vtkUncertaintyTubeFilter();
-  ~vtkUncertaintyTubeFilter() VTK_OVERRIDE;
+  ~vtkUncertaintyTubeFilter() override;
 
   // Integrate data
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int BuildTubes(vtkPointData *pd, vtkPointData *outPD,
                  vtkCellData *cd, vtkCellData *outCD, vtkPolyData *output);
 
@@ -82,8 +82,8 @@ protected:
   int NumberOfSides;
 
 private:
-  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
+  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) = delete;
+  void operator=(const vtkUncertaintyTubeFilter&) = delete;
 };
 
 #endif

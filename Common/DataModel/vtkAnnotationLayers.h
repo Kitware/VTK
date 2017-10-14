@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnnotationLayers : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAnnotationLayers, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkAnnotationLayers* New();
 
   //@{
@@ -86,19 +86,19 @@ public:
   /**
    * Initialize the data structure to an empty state.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Copy data from another data object into this one
    * which references the same member annotations.
    */
-  void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject* other) override;
 
   /**
    * Copy data from another data object into this one,
    * performing a deep copy of member annotations.
    */
-  void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject* other) override;
 
   //@{
   /**
@@ -111,19 +111,19 @@ public:
   /**
    * The modified time for this object.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkAnnotationLayers();
-  ~vtkAnnotationLayers() VTK_OVERRIDE;
+  ~vtkAnnotationLayers() override;
 
   class Internals;
   Internals* Implementation;
   vtkAnnotation* CurrentAnnotation;
 
 private:
-  vtkAnnotationLayers(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLayers(const vtkAnnotationLayers&) = delete;
+  void operator=(const vtkAnnotationLayers&) = delete;
 
 };
 

@@ -52,7 +52,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
   vtkTypeMacro(vtkKochanekSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a KochanekSpline with the following defaults: DefaultBias = 0,
@@ -63,12 +63,12 @@ public:
   /**
    * Compute Kochanek Spline coefficients.
    */
-  void Compute () VTK_OVERRIDE;
+  void Compute () override;
 
   /**
    * Evaluate a 1D Kochanek spline.
    */
-  double Evaluate (double t) VTK_OVERRIDE;
+  double Evaluate (double t) override;
 
   //@{
   /**
@@ -97,11 +97,11 @@ public:
   /**
    * Deep copy of cardinal spline data.
    */
-  void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
+  void DeepCopy(vtkSpline *s) override;
 
 protected:
   vtkKochanekSpline();
-  ~vtkKochanekSpline() VTK_OVERRIDE {}
+  ~vtkKochanekSpline() override {}
 
   void Fit1D (int n, double *x, double *y, double tension, double bias,
               double continuity, double coefficients[][4], int leftConstraint,
@@ -112,8 +112,8 @@ protected:
   double DefaultContinuity;
 
 private:
-  vtkKochanekSpline(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
+  vtkKochanekSpline(const vtkKochanekSpline&) = delete;
+  void operator=(const vtkKochanekSpline&) = delete;
 };
 
 #endif

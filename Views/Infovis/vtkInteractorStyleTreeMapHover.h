@@ -50,7 +50,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkInteractorStyleTreeMapHover : public vtkInteract
 public:
   static vtkInteractorStyleTreeMapHover* New();
   vtkTypeMacro(vtkInteractorStyleTreeMapHover,vtkInteractorStyleImage);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -83,8 +83,8 @@ public:
    * Overridden from vtkInteractorStyleImage to provide the desired
    * interaction behavior.
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonUp() override;
   //@}
 
   //@{
@@ -95,7 +95,7 @@ public:
   void HighLightCurrentSelectedItem();
   //@}
 
-  void SetInteractor(vtkRenderWindowInteractor *rwi) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor *rwi) override;
 
   /**
    * Set the color used to highlight the hovered vertex.
@@ -125,11 +125,11 @@ public:
 
 protected:
   vtkInteractorStyleTreeMapHover();
-  ~vtkInteractorStyleTreeMapHover() VTK_OVERRIDE;
+  ~vtkInteractorStyleTreeMapHover() override;
 
 private:
-  vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTreeMapHover&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&) = delete;
+  void operator=(const vtkInteractorStyleTreeMapHover&) = delete;
 
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);

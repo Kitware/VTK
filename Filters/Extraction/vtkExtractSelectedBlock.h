@@ -38,27 +38,27 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractSelectedBlock : public vtkExtractSel
 public:
   static vtkExtractSelectedBlock* New();
   vtkTypeMacro(vtkExtractSelectedBlock, vtkExtractSelectionBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExtractSelectedBlock();
-  ~vtkExtractSelectedBlock() VTK_OVERRIDE;
+  ~vtkExtractSelectedBlock() override;
 
   // Generate the output.
   int RequestData(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Sets up empty output dataset
    */
   int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 private:
-  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
+  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) = delete;
+  void operator=(const vtkExtractSelectedBlock&) = delete;
 
 };
 

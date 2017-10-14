@@ -67,7 +67,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkShaderProgram2 : public vtkObject
 public:
   static vtkShaderProgram2* New();
   vtkTypeMacro(vtkShaderProgram2, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns if the context supports the required extensions.
@@ -419,7 +419,7 @@ public:
 
 protected:
   vtkShaderProgram2();
-  ~vtkShaderProgram2() VTK_OVERRIDE;
+  ~vtkShaderProgram2() override;
 
   /**
    * Load the required OpenGL extensions.
@@ -465,8 +465,8 @@ protected:
   int GeometryVerticesOut;
 
 private:
-  vtkShaderProgram2(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
+  vtkShaderProgram2(const vtkShaderProgram2&) = delete;
+  void operator=(const vtkShaderProgram2&) = delete;
 };
 
 // ----------------------------------------------------------------------------

@@ -83,7 +83,7 @@ int TestOggTheoraWriter(int argc, char* argv[])
   w->Delete();
 
   exists = (int) vtksys::SystemTools::FileExists(fileName.c_str());
-  length = vtksys::SystemTools::FileLength(fileName.c_str());
+  length = vtksys::SystemTools::FileLength(fileName);
   std::cout << "TestOggTheoraWriter.ogv file exists: " << exists << std::endl;
   std::cout << "TestOggTheoraWriter.ogv file length: " << length << std::endl;
   if (!exists)

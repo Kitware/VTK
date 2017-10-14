@@ -1,6 +1,5 @@
 vtk_add_test_python(
   3DMorph.py
-  TestFacetReader.py
   TestGreedyTerrainDecimation.py
   TestGridWarp3D.py
   TestGridWarpCubic.py
@@ -23,3 +22,9 @@ vtk_add_test_python(
   largeImageParallel.py
   TestProcrustesRigidCentroid.py
   )
+
+if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
+  vtk_add_test_python(
+    TestFacetReader.py
+  )
+endif()

@@ -48,7 +48,7 @@ public:
 
   /**
    * Set the persistence metric evaluation code
-   * Default value: NULL (standard topological persistence).
+   * Default value: nullptr (standard topological persistence).
    */
   void SetSimplificationMetric(vtkReebGraphSimplificationMetric *metric);
 
@@ -69,8 +69,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraphSimplificationFilter&) VTK_DELETE_FUNCTION;
+  vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&) = delete;
+  void operator=(const vtkReebGraphSimplificationFilter&) = delete;
 };
 
 #endif

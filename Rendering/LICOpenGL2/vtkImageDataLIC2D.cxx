@@ -60,7 +60,7 @@ vtkStandardNewMacro(vtkImageDataLIC2D);
 //----------------------------------------------------------------------------
 vtkImageDataLIC2D::vtkImageDataLIC2D()
 {
-  this->Context = NULL;
+  this->Context = nullptr;
   this->OwnWindow = false;
   this->OpenGLExtensionsSupported = 0;
 
@@ -93,7 +93,7 @@ vtkImageDataLIC2D::~vtkImageDataLIC2D()
 {
   this->NoiseSource->Delete();
   this->ImageCast->Delete();
-  this->SetContext(NULL);
+  this->SetContext(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ int vtkImageDataLIC2D::SetContext(vtkRenderWindow * renWin)
     this->Context->Delete();
   }
   this->Modified();
-  this->Context = NULL;
+  this->Context = nullptr;
   this->OwnWindow = false;
   this->OpenGLExtensionsSupported = 0;
 
@@ -324,7 +324,7 @@ int vtkImageDataLIC2D::RequestData(
 
   // Noise.
   vtkInformation *noiseInfo = inputVector[1]->GetInformationObject(0);
-  vtkImageData *noise = NULL;
+  vtkImageData *noise = nullptr;
   if ( noiseInfo )
   {
     noise
@@ -336,13 +336,13 @@ int vtkImageDataLIC2D::RequestData(
         "Default noise dataset is used");
     }
 
-    if ( (noise->GetPointData()==0)
-      || (noise->GetPointData()->GetScalars()==0) )
+    if ( (noise->GetPointData()==nullptr)
+      || (noise->GetPointData()->GetScalars()==nullptr) )
     {
       vtkErrorMacro(
         "Noise dataset missing point data scalars. "
         "Default noise dataset is used");
-      noise = NULL;
+      noise = nullptr;
     }
 
     double noiseRange[2];
@@ -353,7 +353,7 @@ int vtkImageDataLIC2D::RequestData(
       vtkErrorMacro(
         "Noise dataset has values out of range 0.0 to 1.0."
         "Default noise dataset is used");
-      noise = NULL;
+      noise = nullptr;
     }
   }
 
@@ -427,7 +427,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_vectors.vtk",
-              vectorTex, NULL, NULL);
+              vectorTex, nullptr, nullptr);
   #endif
 
   // magnify vectors
@@ -500,7 +500,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
               "idlic2d_magvectors.vtk",
-              magVectorTex, NULL, NULL);
+              magVectorTex, nullptr, nullptr);
   #endif
 
   // send noise data to a texture
@@ -543,7 +543,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_noise.vtk",
-          noiseTex, NULL, NULL);
+          noiseTex, nullptr, nullptr);
   #endif
 
   // step size conversion to normalize image space
@@ -603,7 +603,7 @@ int vtkImageDataLIC2D::RequestData(
             magLicGuardExtents,
             magLicExtents,
             magVectorTex,
-            NULL,
+            nullptr,
             noiseTex);
 
   LICer->Delete();
@@ -619,7 +619,7 @@ int vtkImageDataLIC2D::RequestData(
   #if (vtkImageDataLIC2DDEBUG >= 1)
   vtkTextureIO::Write(
           "idlic2d_lic.vtk",
-          licTex, NULL, NULL);
+          licTex, nullptr, nullptr);
   #endif
 
   // transfer lic from texture to vtk array

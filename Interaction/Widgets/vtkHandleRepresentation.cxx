@@ -48,7 +48,7 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
 {
   this->DisplayPosition->Delete();
   this->WorldPosition->Delete();
-  this->SetPointPlacer(NULL);
+  this->SetPointPlacer(nullptr);
 }
 
 //----------------------------------------------------------------------

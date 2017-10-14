@@ -62,7 +62,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     /**
      * Print the current connections between VTK and Qt
      */
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Connect a vtk object's event with a Qt object's slot.  Multiple
@@ -70,7 +70,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
      */
     virtual void Connect(vtkObject* vtk_obj, unsigned long event,
                          const QObject* qt_obj, const char* slot,
-                         void* client_data=NULL, float priority=0.0
+                         void* client_data=nullptr, float priority=0.0
                          ,Qt::ConnectionType type = Qt::AutoConnection);
 
     /**
@@ -82,8 +82,8 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
      * Passing all information in will match all information.
      */
     virtual void Disconnect(
-      vtkObject* vtk_obj=NULL, unsigned long event=vtkCommand::NoEvent,
-      const QObject* qt_obj=NULL, const char* slot = 0, void* client_data=NULL);
+      vtkObject* vtk_obj=nullptr, unsigned long event=vtkCommand::NoEvent,
+      const QObject* qt_obj=nullptr, const char* slot = 0, void* client_data=nullptr);
 
     /**
      * Allow to query vtkEventQtSlotConnect to know if some Connect() have been
@@ -97,11 +97,11 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
     void RemoveConnection(vtkQtConnection*);
 
     vtkEventQtSlotConnect();
-    ~vtkEventQtSlotConnect() VTK_OVERRIDE;
+    ~vtkEventQtSlotConnect() override;
 
   private:
-    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkEventQtSlotConnect&) VTK_DELETE_FUNCTION;
+    vtkEventQtSlotConnect(const vtkEventQtSlotConnect&) = delete;
+    void operator=(const vtkEventQtSlotConnect&) = delete;
 };
 
 #endif

@@ -26,7 +26,7 @@ void vtkContextKeyEvent::SetInteractor(vtkRenderWindowInteractor *interactor)
 
 vtkRenderWindowInteractor* vtkContextKeyEvent::GetInteractor() const
 {
-  return this->Interactor.GetPointer();
+  return this->Interactor;
 }
 
 char vtkContextKeyEvent::GetKeyCode() const

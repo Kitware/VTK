@@ -29,9 +29,9 @@
 //------------------------------------------------------------------------------
 vtkXdmf3SILBuilder::vtkXdmf3SILBuilder()
 {
-  this->SIL = NULL;
-  this->NamesArray = NULL;
-  this->CrossEdgesArray = NULL;
+  this->SIL = nullptr;
+  this->NamesArray = nullptr;
+  this->CrossEdgesArray = nullptr;
   this->RootVertex = -1;
   this->BlocksRoot = -1;
   this->HierarchyRoot = -1;

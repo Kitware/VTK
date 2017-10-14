@@ -69,7 +69,7 @@ class VTKFILTERSCORE_EXPORT vtkUnstructuredGridQuadricDecimation : public vtkUns
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridQuadricDecimation, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkUnstructuredGridQuadricDecimation *New();
 
   // The following 3 parameters will control the process of simplification in
@@ -164,10 +164,10 @@ public:
 
 protected:
   vtkUnstructuredGridQuadricDecimation();
-  ~vtkUnstructuredGridQuadricDecimation() VTK_OVERRIDE;
+  ~vtkUnstructuredGridQuadricDecimation() override;
 
   void ReportError(int err);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int NumberOfTetsOutput;
   int NumberOfEdgesToDecimate;
@@ -180,8 +180,8 @@ protected:
   char *ScalarsName;
 
 private:
-  vtkUnstructuredGridQuadricDecimation(const vtkUnstructuredGridQuadricDecimation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridQuadricDecimation&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridQuadricDecimation(const vtkUnstructuredGridQuadricDecimation&) = delete;
+  void operator=(const vtkUnstructuredGridQuadricDecimation&) = delete;
 
 };
 

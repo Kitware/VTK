@@ -33,29 +33,36 @@
 #include <vector>
 #include <string>
 
-class vtkOpenGLRenderer;
+class vtkCommand;
+class vtkRenderer;
 class vtkRenderPass;
+class vtkRenderWindow;
 
 // Define interaction style
 class vtkOSPRayTestInteractor : public vtkInteractorStyleTrackballCamera
 {
 private:
-  vtkOpenGLRenderer *GLRenderer;
+  vtkRenderer *GLRenderer;
   vtkRenderPass *O;
   vtkRenderPass *G;
   int VisibleActor;
   int VisibleLight;
+  vtkCommand *Looper;
 
 public:
   static vtkOSPRayTestInteractor* New();
   vtkTypeMacro(vtkOSPRayTestInteractor, vtkInteractorStyleTrackballCamera);
   vtkOSPRayTestInteractor();
-  void SetPipelineControlPoints(vtkOpenGLRenderer *g,
+  ~vtkOSPRayTestInteractor();
+  void SetPipelineControlPoints(vtkRenderer *g,
                                 vtkRenderPass *_O,
                                 vtkRenderPass *_G);
-  virtual void OnKeyPress();
+  virtual void OnKeyPress() override;
 
   static void AddName(const char *name);
+
+  //access to a progressive rendering automator
+  vtkCommand *GetLooper(vtkRenderWindow*);
 };
 
 #endif

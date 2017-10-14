@@ -16,10 +16,34 @@
 
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVectorOperators.h"
+
+namespace impl
+{
+template <class T>
+vtkVector3d GetCenter(const vtkRect<T>& rect)
+{
+  return vtkVector3d(
+    rect.GetX() + 0.5 * rect.GetWidth(), rect.GetY() + 0.5 * rect.GetHeight(), 0.0);
+}
+
+vtkVector3d DisplayToWorld(const vtkVector3d& display, vtkRenderer* ren)
+{
+  ren->SetDisplayPoint(display[0], display[1], display[2]);
+  ren->DisplayToView();
+  ren->ViewToWorld();
+
+  vtkVector<double, 4> world4;
+  ren->GetWorldPoint(world4.GetData());
+  double invw = 1.0 * world4[3];
+  world4 = world4 * invw;
+  return vtkVector3d(world4.GetData());
+}
+}
 
 vtkStandardNewMacro(vtkInteractorStyleRubberBandZoom);
 
@@ -28,12 +52,51 @@ vtkInteractorStyleRubberBandZoom::vtkInteractorStyleRubberBandZoom()
   this->StartPosition[0] = this->StartPosition[1] = 0;
   this->EndPosition[0] = this->EndPosition[1] = 0;
   this->Moving = 0;
+  this->LockAspectToViewport = false;
+  this->CenterAtStartPosition = false;
+  this->UseDollyForPerspectiveProjection = true;
   this->PixelArray = vtkUnsignedCharArray::New();
 }
 
 vtkInteractorStyleRubberBandZoom::~vtkInteractorStyleRubberBandZoom()
 {
   this->PixelArray->Delete();
+}
+
+void vtkInteractorStyleRubberBandZoom::AdjustBox(int startPosition[2], int endPosition[2]) const
+{
+  if (this->LockAspectToViewport && this->CurrentRenderer != nullptr)
+  {
+    double aspect = this->CurrentRenderer->GetAspect()[0];
+
+    int dx = endPosition[0] - startPosition[0];
+    int dy = endPosition[1] - startPosition[1];
+
+    // now we could adjust dx or dy. We pick one that ensures that the current end
+    // position is always included in the new box. That way, the mouse is not
+    // floating outside of the box.
+    const int newDY = static_cast<int>(0.5 + std::abs(dx) / aspect);
+    if (std::abs(dy) > newDY)
+    {
+      const int newDX = static_cast<int>(0.5 + aspect * std::abs(dy));
+      dx = (dx < 0) ? -newDX : newDX;
+    }
+    else
+    {
+      dy = (dy < 0) ? -newDY : newDY;
+    }
+    endPosition[0] = startPosition[0] + dx;
+    endPosition[1] = startPosition[1] + dy;
+  }
+
+  if (this->CenterAtStartPosition)
+  {
+    vtkVector2i dia;
+    dia = vtkVector2i(endPosition) - vtkVector2i(startPosition);
+    vtkVector2i newStartPosition = vtkVector2i(startPosition) - dia;
+    startPosition[0] = newStartPosition.GetX();
+    startPosition[1] = newStartPosition.GetY();
+  }
 }
 
 void vtkInteractorStyleRubberBandZoom::OnMouseMove()
@@ -63,20 +126,21 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
     this->EndPosition[1] = 0;
   }
 
+  int startPosition[2] = { this->StartPosition[0], this->StartPosition[1] };
+  int endPosition[2] = { this->EndPosition[0], this->EndPosition[1] };
+  // Adjust box to fit aspect ratio, if needed.
+  this->AdjustBox(startPosition, endPosition);
+
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
 
   unsigned char *pixels = tmpPixelArray->GetPointer(0);
 
   int min[2], max[2];
-  min[0] = this->StartPosition[0] <= this->EndPosition[0] ?
-    this->StartPosition[0] : this->EndPosition[0];
-  min[1] = this->StartPosition[1] <= this->EndPosition[1] ?
-    this->StartPosition[1] : this->EndPosition[1];
-  max[0] = this->EndPosition[0] > this->StartPosition[0] ?
-    this->EndPosition[0] : this->StartPosition[0];
-  max[1] = this->EndPosition[1] > this->StartPosition[1] ?
-    this->EndPosition[1] : this->StartPosition[1];
+  min[0] = startPosition[0] <= endPosition[0] ? startPosition[0] : endPosition[0];
+  min[1] = startPosition[1] <= endPosition[1] ? startPosition[1] : endPosition[1];
+  max[0] = endPosition[0] > startPosition[0] ? endPosition[0] : startPosition[0];
+  max[1] = endPosition[1] > startPosition[1] ? endPosition[1] : startPosition[1];
 
   int i;
   for (i = min[0]; i <= max[0]; i++)
@@ -127,6 +191,11 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
   renWin->GetPixelData(0, 0, size[0]-1, size[1]-1, 1, this->PixelArray);
 
   this->FindPokedRenderer(this->StartPosition[0], this->StartPosition[1]);
+  if (this->CurrentRenderer)
+  {
+    // Ensure the aspect ratio is up-to-date.
+    this->CurrentRenderer->ComputeAspect();
+  }
 }
 
 void vtkInteractorStyleRubberBandZoom::OnLeftButtonUp()
@@ -146,76 +215,61 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonUp()
 
 void vtkInteractorStyleRubberBandZoom::Zoom()
 {
-  int width, height;
-  width = abs(this->EndPosition[0] - this->StartPosition[0]);
-  height = abs(this->EndPosition[1] - this->StartPosition[1]);
-  int *size = this->CurrentRenderer->GetSize();
-  int *origin = this->CurrentRenderer->GetOrigin();
+  int startPosition[2] = { this->StartPosition[0], this->StartPosition[1] };
+  int endPosition[2] = { this->EndPosition[0], this->EndPosition[1] };
+
+  // Adjust box to fit aspect ratio, if needed.
+  this->AdjustBox(startPosition, endPosition);
+
+  const vtkRecti box(startPosition[0] < endPosition[0] ? startPosition[0] : endPosition[0],
+    startPosition[1] < endPosition[1] ? startPosition[1] : endPosition[1],
+    std::abs(endPosition[0] - startPosition[0]), std::abs(endPosition[1] - startPosition[1]));
+
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
-
-  int min[2];
-  double rbcenter[3];
-  min[0] = this->StartPosition[0] < this->EndPosition[0] ?
-    this->StartPosition[0] : this->EndPosition[0];
-  min[1] = this->StartPosition[1] < this->EndPosition[1] ?
-    this->StartPosition[1] : this->EndPosition[1];
-
-  rbcenter[0] = min[0] + 0.5*width;
-  rbcenter[1] = min[1] + 0.5*height;
-  rbcenter[2] = 0;
-
-  this->CurrentRenderer->SetDisplayPoint(rbcenter);
-  this->CurrentRenderer->DisplayToView();
-  this->CurrentRenderer->ViewToWorld();
-
-  double invw;
-  double worldRBCenter[4];
-  this->CurrentRenderer->GetWorldPoint(worldRBCenter);
-  invw = 1.0/worldRBCenter[3];
-  worldRBCenter[0] *= invw;
-  worldRBCenter[1] *= invw;
-  worldRBCenter[2] *= invw;
-
-  double winCenter[3];
-  winCenter[0] = origin[0] + 0.5*size[0];
-  winCenter[1] = origin[1] + 0.5*size[1];
-  winCenter[2] = 0;
-
-  this->CurrentRenderer->SetDisplayPoint(winCenter);
-  this->CurrentRenderer->DisplayToView();
-  this->CurrentRenderer->ViewToWorld();
-
-  double worldWinCenter[4];
-  this->CurrentRenderer->GetWorldPoint(worldWinCenter);
-  invw = 1.0/worldWinCenter[3];
-  worldWinCenter[0] *= invw;
-  worldWinCenter[1] *= invw;
-  worldWinCenter[2] *= invw;
-
-  double translation[3];
-  translation[0] = worldRBCenter[0] - worldWinCenter[0];
-  translation[1] = worldRBCenter[1] - worldWinCenter[1];
-  translation[2] = worldRBCenter[2] - worldWinCenter[2];
-
-  double pos[3], fp[3];
-  cam->GetPosition(pos);
-  cam->GetFocalPoint(fp);
-
-  pos[0] += translation[0]; pos[1] += translation[1]; pos[2] += translation[2];
-  fp[0] += translation[0];  fp[1] += translation[1];  fp[2] += translation[2];
-
-  cam->SetPosition(pos);
-  cam->SetFocalPoint(fp);
-
-  double zoomFactor;
-  if (width > height)
+  if (cam->GetParallelProjection() || this->UseDollyForPerspectiveProjection)
   {
-    zoomFactor = size[0] / static_cast<double>(width);
+    this->ZoomTraditional(box);
   }
   else
   {
-    zoomFactor = size[1] / static_cast<double>(height);
+    this->ZoomPerspectiveProjectionUsingViewAngle(box);
   }
+  this->Interactor->Render();
+}
+
+void vtkInteractorStyleRubberBandZoom::ZoomTraditional(const vtkRecti& box)
+{
+  const int* size = this->CurrentRenderer->GetSize();
+  const int* origin = this->CurrentRenderer->GetOrigin();
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
+
+  const vtkVector3d rbcenter = impl::GetCenter(box);
+  const vtkVector3d worldRBCenter = impl::DisplayToWorld(rbcenter, this->CurrentRenderer);
+
+  const vtkVector3d winCenter = impl::GetCenter(vtkRecti(origin[0], origin[1], size[0], size[1]));
+  const vtkVector3d worldWinCenter = impl::DisplayToWorld(winCenter, this->CurrentRenderer);
+  const vtkVector3d translation = worldRBCenter - worldWinCenter;
+
+  vtkVector3d pos, fp;
+  cam->GetPosition(pos.GetData());
+  cam->GetFocalPoint(fp.GetData());
+
+  pos = pos + translation;
+  fp = fp + translation;
+
+  cam->SetPosition(pos.GetData());
+  cam->SetFocalPoint(fp.GetData());
+
+  double zoomFactor;
+  if (box.GetWidth() > box.GetHeight())
+  {
+    zoomFactor = size[0] / static_cast<double>(box.GetWidth());
+  }
+  else
+  {
+    zoomFactor = size[1] / static_cast<double>(box.GetHeight());
+  }
+
   if (cam->GetParallelProjection())
   {
     cam->Zoom(zoomFactor);
@@ -227,6 +281,7 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
     // clipping planes to best match the actual position they were in before.
     double initialDistance = cam->GetDistance();
     cam->Dolly(zoomFactor);
+
     double finalDistance = cam->GetDistance();
     double deltaDistance = initialDistance - finalDistance;
     double clippingRange[2];
@@ -245,11 +300,35 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
     }
     cam->SetClippingRange(clippingRange);
   }
+}
 
-  this->Interactor->Render();
+void vtkInteractorStyleRubberBandZoom::ZoomPerspectiveProjectionUsingViewAngle(const vtkRecti& box)
+{
+  const int* size = this->CurrentRenderer->GetSize();
+  vtkCamera* cam = this->CurrentRenderer->GetActiveCamera();
+
+  const vtkVector3d rbcenter = impl::GetCenter(box);
+  const vtkVector3d worldRBCenter = impl::DisplayToWorld(rbcenter, this->CurrentRenderer);
+  cam->SetFocalPoint(worldRBCenter.GetData());
+
+  double zoomFactor;
+  if (box.GetWidth() > box.GetHeight())
+  {
+    zoomFactor = size[0] / static_cast<double>(box.GetWidth());
+  }
+  else
+  {
+    zoomFactor = size[1] / static_cast<double>(box.GetHeight());
+  }
+
+  cam->Zoom(zoomFactor);
 }
 
 void vtkInteractorStyleRubberBandZoom::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "LockAspectToViewport: " << this->LockAspectToViewport << endl;
+  os << indent << "CenterAtStartPosition: " << this->CenterAtStartPosition << endl;
+  os << indent << "UseDollyForPerspectiveProjection: " << this->UseDollyForPerspectiveProjection
+     << endl;
 }

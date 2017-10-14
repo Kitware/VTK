@@ -34,7 +34,7 @@ class VTKFILTERSSOURCES_EXPORT vtkHyperOctreeFractalSource : public vtkHyperOctr
 {
 public:
   vtkTypeMacro(vtkHyperOctreeFractalSource,vtkHyperOctreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkHyperOctreeFractalSource *New();
 
@@ -124,14 +124,14 @@ public:
 
 protected:
   vtkHyperOctreeFractalSource();
-  ~vtkHyperOctreeFractalSource() VTK_OVERRIDE;
+  ~vtkHyperOctreeFractalSource() override;
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
                           vtkInformationVector ** vtkNotUsed( inputVector ),
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   void Subdivide(vtkHyperOctreeCursor *cursor,
                  int level, vtkHyperOctree *output,
@@ -162,8 +162,8 @@ protected:
   double SpanThreshold;
 
 private:
-  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) = delete;
+  void operator=(const vtkHyperOctreeFractalSource&) = delete;
 };
 
 #endif

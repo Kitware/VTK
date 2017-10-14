@@ -39,13 +39,13 @@ class VTKRENDERINGOPENGL2_EXPORT vtkLightsPass : public vtkRenderPass
 public:
   static vtkLightsPass *New();
   vtkTypeMacro(vtkLightsPass,vtkRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
  protected:
   /**
@@ -56,11 +56,11 @@ public:
   /**
    * Destructor.
    */
-  ~vtkLightsPass() VTK_OVERRIDE;
+  ~vtkLightsPass() override;
 
  private:
-  vtkLightsPass(const vtkLightsPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLightsPass&) VTK_DELETE_FUNCTION;
+  vtkLightsPass(const vtkLightsPass&) = delete;
+  void operator=(const vtkLightsPass&) = delete;
 };
 
 #endif

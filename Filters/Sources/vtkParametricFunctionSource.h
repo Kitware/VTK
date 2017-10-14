@@ -58,7 +58,7 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
 {
   public:
     vtkTypeMacro(vtkParametricFunctionSource, vtkPolyDataAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Create a new instance with (50,50,50) points in the (u-v-w) directions.
@@ -190,7 +190,7 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
     /**
      * Return the MTime also considering the parametric function.
      */
-    vtkMTimeType GetMTime() VTK_OVERRIDE;
+    vtkMTimeType GetMTime() override;
 
     //@{
     /**
@@ -204,11 +204,11 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
 
   protected:
     vtkParametricFunctionSource();
-    ~vtkParametricFunctionSource() VTK_OVERRIDE;
+    ~vtkParametricFunctionSource() override;
 
     // Usual data generation method
     int RequestData(vtkInformation *info, vtkInformationVector **input,
-                    vtkInformationVector *output) VTK_OVERRIDE;
+                    vtkInformationVector *output) override;
 
     // Variables
     vtkParametricFunction *ParametricFunction;
@@ -239,8 +239,8 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
      */
     void MakeTriangles(vtkCellArray * strips, int PtsU, int PtsV);
 
-    vtkParametricFunctionSource(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
+    vtkParametricFunctionSource(const vtkParametricFunctionSource&) = delete;
+    void operator=(const vtkParametricFunctionSource&) = delete;
 
 };
 

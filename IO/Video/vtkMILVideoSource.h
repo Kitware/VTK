@@ -318,8 +318,8 @@ protected:
   double NextFramePeriod;
 
 private:
-  vtkMILVideoSource(const vtkMILVideoSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMILVideoSource&) VTK_DELETE_FUNCTION;
+  vtkMILVideoSource(const vtkMILVideoSource&) = delete;
+  void operator=(const vtkMILVideoSource&) = delete;
 };
 
 #endif

@@ -31,7 +31,7 @@ public:
 vtkInformationIterator::vtkInformationIterator()
 {
   this->Internal = new vtkInformationIteratorInternals;
-  this->Information = 0;
+  this->Information = nullptr;
   this->ReferenceIsWeak = false;
 }
 
@@ -40,7 +40,7 @@ vtkInformationIterator::~vtkInformationIterator()
 {
   if (this->ReferenceIsWeak)
   {
-    this->Information = 0;
+    this->Information = nullptr;
   }
   if (this->Information)
   {
@@ -54,7 +54,7 @@ void vtkInformationIterator::SetInformation(vtkInformation* inf)
 {
   if (this->ReferenceIsWeak)
   {
-    this->Information = 0;
+    this->Information = nullptr;
   }
   this->ReferenceIsWeak = false;
   vtkSetObjectBodyMacro(Information, vtkInformation, inf);
@@ -65,7 +65,7 @@ void vtkInformationIterator::SetInformationWeak(vtkInformation* inf)
 {
   if (!this->ReferenceIsWeak)
   {
-    this->SetInformation(0);
+    this->SetInformation(nullptr);
   }
 
   this->ReferenceIsWeak = true;
@@ -122,7 +122,7 @@ vtkInformationKey* vtkInformationIterator::GetCurrentKey()
 {
   if (this->IsDoneWithTraversal())
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Internal->Iterator->first;

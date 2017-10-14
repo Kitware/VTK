@@ -46,7 +46,7 @@ public:
   static vtkImageStencilSource *New();
   vtkTypeMacro(vtkImageStencilSource, vtkImageStencilAlgorithm);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -93,14 +93,14 @@ public:
   /**
    * Report object referenced by instances of this class.
    */
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
 protected:
   vtkImageStencilSource();
-  ~vtkImageStencilSource() VTK_OVERRIDE;
+  ~vtkImageStencilSource() override;
 
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
 
   vtkImageData *InformationInput;
 
@@ -109,8 +109,8 @@ protected:
   double OutputSpacing[3];
 
 private:
-  vtkImageStencilSource(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
+  vtkImageStencilSource(const vtkImageStencilSource&) = delete;
+  void operator=(const vtkImageStencilSource&) = delete;
 };
 
 #endif

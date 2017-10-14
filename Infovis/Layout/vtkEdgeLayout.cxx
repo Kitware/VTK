@@ -38,8 +38,8 @@ vtkStandardNewMacro(vtkEdgeLayout);
 
 vtkEdgeLayout::vtkEdgeLayout()
 {
-  this->LayoutStrategy = 0;
-  this->InternalGraph = NULL;
+  this->LayoutStrategy = nullptr;
+  this->InternalGraph = nullptr;
 
   this->ObserverTag = 0;
   this->EventForwarder = vtkEventForwarderCommand::New();
@@ -71,7 +71,7 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy)
   {
     vtkEdgeLayoutStrategy *tmp = this->LayoutStrategy;
     this->LayoutStrategy = strategy;
-    if (this->LayoutStrategy != NULL)
+    if (this->LayoutStrategy != nullptr)
     {
       this->LayoutStrategy->Register(this);
       this->ObserverTag =
@@ -83,7 +83,7 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy)
         this->LayoutStrategy->SetGraph(this->InternalGraph);
       }
     }
-    if (tmp != NULL)
+    if (tmp != nullptr)
     {
       tmp->RemoveObserver(this->ObserverTag);
       tmp->UnRegister(this);
@@ -100,7 +100,7 @@ vtkMTimeType vtkEdgeLayout::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if (this->LayoutStrategy != NULL)
+  if (this->LayoutStrategy != nullptr)
   {
     time = this->LayoutStrategy->GetMTime();
     mTime = (time > mTime ? time : mTime);
@@ -114,7 +114,7 @@ int vtkEdgeLayout::RequestData(vtkInformation *vtkNotUsed(request),
                                vtkInformationVector **inputVector,
                                vtkInformationVector *outputVector)
 {
-  if (this->LayoutStrategy == NULL)
+  if (this->LayoutStrategy == nullptr)
   {
     vtkErrorMacro(<< "Layout strategy must be non-null.");
     return 0;
@@ -145,10 +145,10 @@ int vtkEdgeLayout::RequestData(vtkInformation *vtkNotUsed(request),
   this->InternalGraph->DeepCopyEdgePoints(input);
 
   // Give the layout strategy a pointer to the input.  We set it to
-  // NULL first to force the layout algorithm to re-initialize
+  // nullptr first to force the layout algorithm to re-initialize
   // itself.  This is necessary in case the input is the same data
   // object with a newer mtime.
-  this->LayoutStrategy->SetGraph(NULL);
+  this->LayoutStrategy->SetGraph(nullptr);
   this->LayoutStrategy->SetGraph(this->InternalGraph);
 
   // No matter whether the input is new or not, the layout strategy

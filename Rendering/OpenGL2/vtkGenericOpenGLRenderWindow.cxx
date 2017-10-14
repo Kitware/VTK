@@ -30,6 +30,8 @@ vtkGenericOpenGLRenderWindow::vtkGenericOpenGLRenderWindow()
   this->CurrentStatus = false;
   this->SupportsOpenGLStatus = 0;
   this->ForceMaximumHardwareLineWidth = 0;
+  this->ScreenSize[0] = 0;
+  this->ScreenSize[1] = 0;
 }
 
 vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
@@ -41,7 +43,7 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 }
 
@@ -96,12 +98,12 @@ void vtkGenericOpenGLRenderWindow::Finalize()
 
 void vtkGenericOpenGLRenderWindow::Frame()
 {
-  this->InvokeEvent(vtkCommand::WindowFrameEvent, NULL);
+  this->InvokeEvent(vtkCommand::WindowFrameEvent, nullptr);
 }
 
 void vtkGenericOpenGLRenderWindow::MakeCurrent()
 {
-  this->InvokeEvent(vtkCommand::WindowMakeCurrentEvent, NULL);
+  this->InvokeEvent(vtkCommand::WindowMakeCurrentEvent, nullptr);
 }
 
 bool vtkGenericOpenGLRenderWindow::IsCurrent()
@@ -128,7 +130,7 @@ void vtkGenericOpenGLRenderWindow::SetWindowId(void*)
 
 void* vtkGenericOpenGLRenderWindow::GetGenericWindowId()
 {
-  return NULL;
+  return nullptr;
 }
 
 
@@ -142,22 +144,22 @@ void vtkGenericOpenGLRenderWindow::SetParentId(void*)
 
 void* vtkGenericOpenGLRenderWindow::GetGenericDisplayId()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericParentId()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericContext()
 {
-  return NULL;
+  return nullptr;
 }
 
 void* vtkGenericOpenGLRenderWindow::GetGenericDrawable()
 {
-  return NULL;
+  return nullptr;
 }
 
 void vtkGenericOpenGLRenderWindow::SetWindowInfo(char*)
@@ -170,7 +172,7 @@ void vtkGenericOpenGLRenderWindow::SetParentInfo(char*)
 
 int* vtkGenericOpenGLRenderWindow::GetScreenSize()
 {
-  return NULL;
+  return this->ScreenSize;
 }
 
 void vtkGenericOpenGLRenderWindow::Start()
@@ -240,5 +242,16 @@ void vtkGenericOpenGLRenderWindow::Render()
 
     // Restore state to previous known value
     this->RestoreGLState();
+  }
+}
+
+void vtkGenericOpenGLRenderWindow::SetIsPicking(int isPicking)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting IsPicking to " << isPicking); \
+  if (this->IsPicking != isPicking)
+  {
+    this->IsPicking = isPicking;
+    this->Modified();
+    this->InvokeEvent(this->IsPicking ? vtkCommand::StartPickEvent : vtkCommand::EndPickEvent, nullptr);
   }
 }

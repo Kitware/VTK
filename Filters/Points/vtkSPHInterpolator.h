@@ -100,7 +100,7 @@ public:
    */
   static vtkSPHInterpolator *New();
   vtkTypeMacro(vtkSPHInterpolator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -212,7 +212,7 @@ public:
   {
       if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
       {
-        return NULL;
+        return nullptr;
       }
       return this->ExcludedArrays[i].c_str();
   }
@@ -256,13 +256,13 @@ public:
   {
       if ( i < 0 || i >= static_cast<int>(this->DerivArrays.size()) )
       {
-        return NULL;
+        return nullptr;
       }
       return this->DerivArrays[i].c_str();
   }
   //@}
 
-  // How to handle NULL points
+  // How to handle nullptr points
   enum NullStrategy
   {
     MASK_POINTS=0,
@@ -378,11 +378,11 @@ public:
   /**
    * Get the MTime of this object also considering the locator and kernel.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkSPHInterpolator();
-  ~vtkSPHInterpolator() VTK_OVERRIDE;
+  ~vtkSPHInterpolator() override;
 
   vtkAbstractPointLocator *Locator;
   vtkSPHKernel *Kernel;
@@ -411,11 +411,11 @@ protected:
   bool PassFieldArrays;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   /**
    * Virtual for specialized subclass(es)
@@ -429,15 +429,9 @@ protected:
   virtual void PassAttributeData(
     vtkDataSet* input, vtkDataObject* source, vtkDataSet* output);
 
-  /**
-   * Internal method to extract image metadata
-   */
-  void ExtractImageDescription(vtkImageData *input, int dims[3],
-                               double origin[3], double spacing[3]);
-
 private:
-  vtkSPHInterpolator(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
+  vtkSPHInterpolator(const vtkSPHInterpolator&) = delete;
+  void operator=(const vtkSPHInterpolator&) = delete;
 
 };
 

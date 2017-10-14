@@ -33,7 +33,7 @@ class VTKFILTERSMODELING_EXPORT vtkSpherePuzzle : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkSpherePuzzle,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkSpherePuzzle *New();
 
@@ -76,9 +76,9 @@ public:
 
 protected:
   vtkSpherePuzzle();
-  ~vtkSpherePuzzle() VTK_OVERRIDE;
+  ~vtkSpherePuzzle() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   void MarkVertical(int section);
   void MarkHorizontal(int section);
 
@@ -98,8 +98,8 @@ protected:
   int Section;
 
 private:
-  vtkSpherePuzzle(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
+  vtkSpherePuzzle(const vtkSpherePuzzle&) = delete;
+  void operator=(const vtkSpherePuzzle&) = delete;
 };
 
 #endif

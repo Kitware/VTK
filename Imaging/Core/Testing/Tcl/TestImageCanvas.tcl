@@ -34,13 +34,6 @@ vtkImageViewer viewer
 viewer SetInputConnection [imageCanvas GetOutputPort]
 viewer SetColorWindow 255
 viewer SetColorLevel 128
+viewer SetSize 300 300
 
 viewer Render
-
-
-
-
-
-
-
-

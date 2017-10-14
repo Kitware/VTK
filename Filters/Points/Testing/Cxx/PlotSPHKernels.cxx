@@ -121,7 +121,7 @@ int PlotSPHKernels(int, char*[])
     vtkSmartPointer<vtkSPHCubicKernel>::New();
   cubic->SetDimension(2);
   cubic->SetSpatialStep(1.0);
-  cubic->Initialize(NULL,NULL,NULL);
+  cubic->Initialize(nullptr,nullptr,nullptr);
   rgb[0] = 255; rgb[1] = 0; rgb[2] = 0;
   AddKernelToPlot<vtkSPHCubicKernel>(cubic, chart, "Cubic", table, rgb);
 
@@ -130,7 +130,7 @@ int PlotSPHKernels(int, char*[])
     vtkSmartPointer<vtkSPHQuarticKernel>::New();
   quartic->SetDimension(2);
   quartic->SetSpatialStep(1.0);
-  quartic->Initialize(NULL,NULL,NULL);
+  quartic->Initialize(nullptr,nullptr,nullptr);
   rgb[0] = 0; rgb[1] = 255; rgb[2] = 0;
   AddKernelToPlot<vtkSPHQuarticKernel>(quartic, chart, "Quartic", table, rgb);
 
@@ -139,7 +139,7 @@ int PlotSPHKernels(int, char*[])
     vtkSmartPointer<vtkSPHQuinticKernel>::New();
   quintic->SetDimension(2);
   quintic->SetSpatialStep(1.0);
-  quintic->Initialize(NULL,NULL,NULL);
+  quintic->Initialize(nullptr,nullptr,nullptr);
   rgb[0] = 0; rgb[1] = 0; rgb[2] = 255;
   AddKernelToPlot<vtkSPHQuinticKernel>(quintic, chart, "Quintic", table, rgb);
 
@@ -148,7 +148,7 @@ int PlotSPHKernels(int, char*[])
     vtkSmartPointer<vtkWendlandQuinticKernel>::New();
   wendland->SetDimension(2);
   wendland->SetSpatialStep(1.0);
-  wendland->Initialize(NULL,NULL,NULL);
+  wendland->Initialize(nullptr,nullptr,nullptr);
   rgb[0] = 255; rgb[1] = 0; rgb[2] = 255;
   AddKernelToPlot<vtkWendlandQuinticKernel>(wendland, chart, "Wendland", table, rgb);
 

@@ -50,7 +50,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageAnisotropicDiffusion3D : public vtkImageS
 public:
   static vtkImageAnisotropicDiffusion3D *New();
   vtkTypeMacro(vtkImageAnisotropicDiffusion3D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
   /**
@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkImageAnisotropicDiffusion3D();
-  ~vtkImageAnisotropicDiffusion3D()VTK_OVERRIDE {}
+  ~vtkImageAnisotropicDiffusion3D() override {}
 
   int NumberOfIterations;
   double DiffusionThreshold;
@@ -130,12 +130,12 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) VTK_OVERRIDE;
+                           int extent[6], int id) override;
   void Iterate(vtkImageData *in, vtkImageData *out,
                double ar0, double ar1, double ar3, int *coreExtent, int count);
 private:
-  vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAnisotropicDiffusion3D&) VTK_DELETE_FUNCTION;
+  vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&) = delete;
+  void operator=(const vtkImageAnisotropicDiffusion3D&) = delete;
 };
 
 #endif

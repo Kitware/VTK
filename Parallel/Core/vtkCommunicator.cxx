@@ -61,7 +61,7 @@ class vtkCommunicator##name##Class \
   : public vtkCommunicator::Operation \
 { \
 public: \
-  void Function(const void *A, void *B, vtkIdType length, int datatype) { \
+  void Function(const void *A, void *B, vtkIdType length, int datatype) override { \
     switch (datatype) \
     { \
       vtkTemplateMacro(vtkCommunicator##name##Func \
@@ -70,7 +70,7 @@ public: \
                                           length)); \
     } \
   } \
-  int Commutative() { return 1; } \
+  int Commutative() override { return 1; } \
 };
 
 #define STANDARD_OPERATION_FLOAT_OVERRIDE(name) \
@@ -179,7 +179,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
   switch(data_type)
   {
   case -1:
-    // NULL data.
+    // nullptr data.
     return 1;
 
     //error on types we can't send
@@ -247,7 +247,7 @@ int vtkCommunicator::Send(vtkDataArray* data, int remoteHandle, int tag)
   tag = mangledTag;
 
   int type = -1;
-  if (data == NULL)
+  if (data == nullptr)
   {
       this->Send( &type, 1, remoteHandle, tag);
       return 1;
@@ -324,12 +324,12 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
   this->Receive(&data_type, 1, remoteHandle, tag);
   if (data_type < 0)
   {
-    // NULL data object.
-    return NULL;
+    // nullptr data object.
+    return nullptr;
   }
   //manufacture a data object of the proper type to fill
   vtkDataObject * dObj = vtkDataObjectTypes::NewDataObject(data_type);
-  if (dObj != NULL)
+  if (dObj != nullptr)
   {
     if (this->ReceiveDataObject(dObj, remoteHandle, tag, data_type) == 1)
     {
@@ -340,7 +340,7 @@ vtkDataObject *vtkCommunicator::ReceiveDataObject(int remoteHandle, int tag)
   {
     dObj->Delete();
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -451,7 +451,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
   }
 
   if (type == -1)
-  { // This indicates a NULL object was sent. Do nothing.
+  { // This indicates a nullptr object was sent. Do nothing.
     return 1;
   }
 
@@ -491,7 +491,7 @@ int vtkCommunicator::Receive(vtkDataArray* data, int remoteHandle, int tag)
   }
   else
   {
-    data->SetName(NULL);
+    data->SetName(nullptr);
   }
 
   if (size < 0)
@@ -519,7 +519,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
   buffer->Initialize();
   buffer->SetNumberOfComponents(1);
 
-  if (object == NULL)
+  if (object == nullptr)
   {
     buffer->SetNumberOfTuples(0);
     return 1;
@@ -533,7 +533,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
 
   writer->SetFileTypeToBinary();
   // There is a problem with binary files with no data.
-  if (vtkDataSet::SafeDownCast(copy) != NULL)
+  if (vtkDataSet::SafeDownCast(copy) != nullptr)
   {
     vtkDataSet *ds = vtkDataSet::SafeDownCast(copy);
     if (ds->GetNumberOfCells() + ds->GetNumberOfPoints() == 0)
@@ -620,7 +620,7 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
   vtkIdType bufferSize = buffer ? buffer->GetNumberOfTuples() : 0;
   if (bufferSize <= 0)
   {
-    return NULL;
+    return nullptr;
   }
 
   // You would think that the extent information would be properly saved, but
@@ -643,7 +643,7 @@ vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray
 
   vtkNew<vtkGenericDataObjectReader> reader;
   reader->ReadFromInputStringOn();
-  reader->SetInputArray(objectBuffer.Get());
+  reader->SetInputArray(objectBuffer);
   reader->Update();
 
   vtkSmartPointer<vtkDataObject> dobj = reader->GetOutputDataObject(0);
@@ -877,7 +877,7 @@ int vtkCommunicator::Broadcast(vtkDataArray *data, int srcProcessId)
   vtkIdType numTuples;
   int numComponents;
   int nameLength = 0;
-  char *name = NULL;
+  char *name = nullptr;
 
   // On the source process, extract the metadata.
   if (this->LocalProcessId == srcProcessId)
@@ -907,7 +907,7 @@ int vtkCommunicator::Broadcast(vtkDataArray *data, int srcProcessId)
       vtkErrorMacro("Broadcast data types do not match!");
       return 0;
     }
-    name = (nameLength > 0) ? new char[nameLength] : NULL;
+    name = (nameLength > 0) ? new char[nameLength] : nullptr;
     data->SetNumberOfComponents(numComponents);
     data->SetNumberOfTuples(numTuples);
   }
@@ -979,7 +979,7 @@ int vtkCommunicator::Gather(vtkDataArray *sendBuffer,
 {
   int type = sendBuffer->GetDataType();
   const void *sb = sendBuffer->GetVoidPointer(0);
-  void *rb = NULL;
+  void *rb = nullptr;
   int numComponents = sendBuffer->GetNumberOfComponents();
   vtkIdType numTuples = sendBuffer->GetNumberOfTuples();
   if (this->LocalProcessId == destProcessId)
@@ -1003,7 +1003,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
   int destProcessId)
 {
   vtkNew<vtkCharArray> sendArray;
-  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray.Get()) == 0)
+  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray) == 0)
   {
     vtkErrorMacro("Marshalling failed! Cannot 'Gather' successfully!");
     sendArray->Initialize();
@@ -1020,7 +1020,7 @@ int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
     }
   }
 
-  if (this->GatherV(sendArray.Get(), fullRecvArray.Get(), &recvArrays[0], destProcessId))
+  if (this->GatherV(sendArray, fullRecvArray, &recvArrays[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
@@ -1046,7 +1046,7 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer,
   vtkNew<vtkIdTypeArray> offsets;
   int retValue = this->GatherV(
     sendBuffer, recvBuffer,
-    recvLengths.GetPointer(), offsets.GetPointer(), destProcessId);
+    recvLengths, offsets, destProcessId);
   if (destProcessId == this->LocalProcessId)
   {
     int numComponents = sendBuffer->GetNumberOfComponents();
@@ -1072,7 +1072,7 @@ int vtkCommunicator::GatherVElementalDataObject(
   std::vector<vtkSmartPointer<vtkDataArray> > recvBuffers(
     this->NumberOfProcesses);
 
-  vtkCommunicator::MarshalDataObject(sendData, sendBuffer.GetPointer());
+  vtkCommunicator::MarshalDataObject(sendData, sendBuffer);
   if (this->LocalProcessId == destProcessId)
   {
     for (int i = 0; i < this->NumberOfProcesses; ++i)
@@ -1080,15 +1080,14 @@ int vtkCommunicator::GatherVElementalDataObject(
       recvBuffers[i] = vtkSmartPointer<vtkCharArray>::New();
     }
   }
-  if (this->GatherV(sendBuffer.GetPointer(), recvBuffer.GetPointer(),
-                    &recvBuffers[0], destProcessId))
+  if (this->GatherV(sendBuffer, recvBuffer, &recvBuffers[0], destProcessId))
   {
     if (this->LocalProcessId == destProcessId)
     {
       for (int i = 0; i < this->NumberOfProcesses; ++i)
       {
         if (! vtkCommunicator::UnMarshalDataObject(
-              vtkArrayDownCast<vtkCharArray>(recvBuffers[i].GetPointer()),
+              vtkArrayDownCast<vtkCharArray>(recvBuffers[i]),
               receiveData[i]))
         {
           return 0;
@@ -1193,8 +1192,8 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
 {
   vtkNew<vtkIdTypeArray> recvLengths;
   vtkNew<vtkIdTypeArray> offsets;
-  return this->GatherV(sendBuffer, recvBuffer, recvLengths.GetPointer(),
-                       offsets.GetPointer(), destProcessId);
+  return this->GatherV(sendBuffer, recvBuffer, recvLengths,
+                       offsets, destProcessId);
 }
 
 //-----------------------------------------------------------------------------
@@ -1210,7 +1209,7 @@ int vtkCommunicator::GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
   }
   return this->GatherVVoidArray(sendBuffer->GetVoidPointer(0),
                                 (  recvBuffer
-                                 ? recvBuffer->GetVoidPointer(0) : NULL ),
+                                 ? recvBuffer->GetVoidPointer(0) : nullptr ),
                                 (  sendBuffer->GetNumberOfComponents()
                                  * sendBuffer->GetNumberOfTuples() ),
                                 recvLengths, offsets, type,
@@ -1298,7 +1297,7 @@ int vtkCommunicator::Scatter(vtkDataArray *sendBuffer,
                              int srcProcessId)
 {
   int type = recvBuffer->GetDataType();
-  const void *sb = NULL;
+  const void *sb = nullptr;
   void *rb = recvBuffer->GetVoidPointer(0);
   int numComponents = recvBuffer->GetNumberOfComponents();
   vtkIdType numTuples = recvBuffer->GetNumberOfTuples();
@@ -1468,7 +1467,7 @@ int vtkCommunicator::ReduceVoidArray(const void *sendBuffer,
 #define OP_CASE(id, opclass) \
   case id: opClass = new vtkCommunicator##opclass##Class; break;
 
-  vtkCommunicator::Operation *opClass = 0;
+  vtkCommunicator::Operation *opClass = nullptr;
 
   switch (operation)
   {

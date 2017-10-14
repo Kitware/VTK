@@ -80,7 +80,7 @@ private:
 
 // Initialize static members:
 int vtkXRenderWindowInteractor::NumAppInitialized = 0;
-XtAppContext vtkXRenderWindowInteractor::App = 0;
+XtAppContext vtkXRenderWindowInteractor::App = nullptr;
 int vtkXRenderWindowInteractor::BreakLoopFlag = 1;
 
 
@@ -95,11 +95,11 @@ OptionsRec      Options;
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
   this->Internal = new vtkXRenderWindowInteractorInternals;
-  this->Top = 0;
+  this->Top = nullptr;
   this->OwnTop = 0;
   this->OwnApp = 0;
-  this->TopLevelShell = NULL;
-  this->DisplayId = 0;
+  this->TopLevelShell = nullptr;
+  this->DisplayId = nullptr;
   this->WindowId = 0;
   this->KillAtom = 0;
 }
@@ -124,7 +124,7 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
       {
         XtDestroyApplicationContext(vtkXRenderWindowInteractor::App);
       }
-      vtkXRenderWindowInteractor::App = 0;
+      vtkXRenderWindowInteractor::App = nullptr;
     }
     vtkXRenderWindowInteractor::NumAppInitialized--;
   }
@@ -318,7 +318,7 @@ void vtkXRenderWindowInteractor::Initialize()
   {
     vtkDebugMacro("opening display");
     this->DisplayId =
-      XtOpenDisplay(vtkXRenderWindowInteractor::App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
+      XtOpenDisplay(vtkXRenderWindowInteractor::App,nullptr,"VTK","vtk",nullptr,0,&argc,nullptr);
     vtkDebugMacro("opened display");
   }
   else
@@ -327,7 +327,7 @@ void vtkXRenderWindowInteractor::Initialize()
     if (!this->Top)
     {
       XtDisplayInitialize(vtkXRenderWindowInteractor::App,this->DisplayId,
-                          "VTK","vtk",NULL,0,&argc,NULL);
+                          "VTK","vtk",nullptr,0,&argc,nullptr);
     }
   }
 
@@ -356,7 +356,7 @@ void vtkXRenderWindowInteractor::Initialize()
                                    XtNheight, size[1],
                                    XtNinput, True,
                                    XtNmappedWhenManaged, 0,
-                                   static_cast<void *>(NULL));
+                                   static_cast<void *>(nullptr));
     this->OwnTop = 1;
     XtRealizeWidget(this->Top);
     XSync(this->DisplayId,False);
@@ -579,7 +579,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       // only render if we are currently accepting events
       if (me->Enabled)
       {
-        me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
+        me->InvokeEvent(vtkCommand::ExposeEvent,nullptr);
         me->Render();
       }
     }
@@ -618,7 +618,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         // only render if we are currently accepting events
         if (me->Enabled)
         {
-          me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
+          me->InvokeEvent(vtkCommand::ConfigureEvent,nullptr);
           if(resizeSmaller)
           {
             // Don't call Render when the window is resized to be larger:
@@ -677,19 +677,19 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
       {
         case Button1:
-          me->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+          me->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
           break;
         case Button2:
-          me->InvokeEvent(vtkCommand::MiddleButtonPressEvent,NULL);
+          me->InvokeEvent(vtkCommand::MiddleButtonPressEvent,nullptr);
           break;
         case Button3:
-          me->InvokeEvent(vtkCommand::RightButtonPressEvent,NULL);
+          me->InvokeEvent(vtkCommand::RightButtonPressEvent,nullptr);
           break;
         case Button4:
-          me->InvokeEvent(vtkCommand::MouseWheelForwardEvent,NULL);
+          me->InvokeEvent(vtkCommand::MouseWheelForwardEvent,nullptr);
           break;
         case Button5:
-          me->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,NULL);
+          me->InvokeEvent(vtkCommand::MouseWheelBackwardEvent,nullptr);
           break;
       }
     }
@@ -717,13 +717,13 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
       {
         case Button1:
-          me->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+          me->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
           break;
         case Button2:
-          me->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,NULL);
+          me->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent,nullptr);
           break;
         case Button3:
-          me->InvokeEvent(vtkCommand::RightButtonReleaseEvent,NULL);
+          me->InvokeEvent(vtkCommand::RightButtonReleaseEvent,nullptr);
           break;
       }
     }
@@ -732,7 +732,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
     case EnterNotify:
     {
       // Force the keyboard focus to be this render window
-      if (me->TopLevelShell != NULL)
+      if (me->TopLevelShell != nullptr)
       {
         XtSetKeyboardFocus(me->TopLevelShell, me->Top);
       }
@@ -745,7 +745,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                      (e->state & ShiftMask) != 0);
         me->SetAltKey(
           ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0);
-        me->InvokeEvent(vtkCommand::EnterEvent, NULL);
+        me->InvokeEvent(vtkCommand::EnterEvent, nullptr);
       }
     }
       break;
@@ -761,7 +761,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                      (e->state & ShiftMask) != 0);
         me->SetAltKey(
           ((reinterpret_cast<XButtonEvent *>(event))->state & Mod1Mask) ? 1 : 0);
-        me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+        me->InvokeEvent(vtkCommand::LeaveEvent, nullptr);
       }
     }
       break;
@@ -781,7 +781,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
+      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,nullptr);
       xp = (reinterpret_cast<XKeyEvent*>(event))->x;
       yp = (reinterpret_cast<XKeyEvent*>(event))->y;
       me->SetEventInformationFlipY(xp,
@@ -792,8 +792,8 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                    1,
                                    XKeysymToString(ks));
       me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-      me->InvokeEvent(vtkCommand::CharEvent, NULL);
+      me->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
+      me->InvokeEvent(vtkCommand::CharEvent, nullptr);
     }
       break;
 
@@ -812,7 +812,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       KeySym ks;
       static char buffer[20];
       buffer[0] = '\0';
-      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,NULL);
+      XLookupString(reinterpret_cast<XKeyEvent *>(event),buffer, 20, &ks,nullptr);
       xp = (reinterpret_cast<XKeyEvent *>(event))->x;
       yp = (reinterpret_cast<XKeyEvent *>(event))->y;
       me->SetEventInformationFlipY(xp,
@@ -823,7 +823,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
                                    1,
                                    XKeysymToString(ks));
       me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+      me->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
     }
       break;
 
@@ -846,7 +846,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       me->GetMousePosition(&xp, &yp);
       me->SetEventInformation(xp, yp, ctrl, shift);
       me->SetAltKey(alt);
-      me->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      me->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
     }
       break;
 

@@ -62,7 +62,7 @@ class VTKIOGEOMETRY_EXPORT vtkOpenFOAMReader : public vtkMultiBlockDataSetAlgori
 public:
   static vtkOpenFOAMReader *New();
   vtkTypeMacro(vtkOpenFOAMReader, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &, vtkIndent) VTK_OVERRIDE;
+  void PrintSelf(ostream &, vtkIndent) override;
 
   /**
    * Determine if the file can be read with this reader.
@@ -383,11 +383,11 @@ protected:
   int CurrentReaderIndex;
 
   vtkOpenFOAMReader();
-  ~vtkOpenFOAMReader() VTK_OVERRIDE;
+  ~vtkOpenFOAMReader() override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   void CreateCasePath(vtkStdString &, vtkStdString &);
   void SetTimeInformation(vtkInformationVector *, vtkDoubleArray *);
@@ -398,8 +398,8 @@ protected:
 private:
   vtkOpenFOAMReader *Parent;
 
-  vtkOpenFOAMReader(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
+  vtkOpenFOAMReader(const vtkOpenFOAMReader&) = delete;
+  void operator=(const vtkOpenFOAMReader&) = delete;
 
   int GetNumberOfSelectionArrays(vtkDataArraySelection *);
   int GetSelectionArrayStatus(vtkDataArraySelection *, const char *);

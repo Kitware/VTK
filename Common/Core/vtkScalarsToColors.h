@@ -61,7 +61,7 @@ class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkScalarsToColors *New();
 
   /**
@@ -266,7 +266,7 @@ public:
    * Set a list of discrete values, either
    * as a categorical set of values (when IndexedLookup is true) or
    * as a set of annotations to add to a scalar array (when IndexedLookup is false).
-   * The two arrays must both either be NULL or of the same length or
+   * The two arrays must both either be nullptr or of the same length or
    * the call will be ignored.
 
    * Note that these arrays are deep copied rather than being used directly
@@ -388,7 +388,7 @@ public:
 
 protected:
   vtkScalarsToColors();
-  ~vtkScalarsToColors() VTK_OVERRIDE;
+  ~vtkScalarsToColors() override;
 
   /**
    * An internal method that assumes that the input already has the right
@@ -460,8 +460,8 @@ private:
   double RGB[3];
   double InputRange[2];
 
-  vtkScalarsToColors(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
+  vtkScalarsToColors(const vtkScalarsToColors&) = delete;
+  void operator=(const vtkScalarsToColors&) = delete;
 };
 
 //@{

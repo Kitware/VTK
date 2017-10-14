@@ -38,17 +38,17 @@ vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataFileConverter::vtkXMLHierarchicalBoxDataFileConverter()
 {
-  this->InputFileName = 0;
-  this->OutputFileName = 0;
-  this->FilePath = 0;
+  this->InputFileName = nullptr;
+  this->OutputFileName = nullptr;
+  this->FilePath = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLHierarchicalBoxDataFileConverter::~vtkXMLHierarchicalBoxDataFileConverter()
 {
-  this->SetInputFileName(NULL);
-  this->SetOutputFileName(NULL);
-  this->SetFilePath(NULL);
+  this->SetInputFileName(nullptr);
+  this->SetOutputFileName(nullptr);
+  this->SetFilePath(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -74,11 +74,11 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   }
 
   // Ensure this file we can convert.
-  if (dom->GetName() == NULL ||
+  if (dom->GetName() == nullptr ||
     strcmp(dom->GetName(), "VTKFile") != 0 ||
-    dom->GetAttribute("type") == NULL ||
+    dom->GetAttribute("type") == nullptr ||
     strcmp(dom->GetAttribute("type"), "vtkHierarchicalBoxDataSet") != 0 ||
-    dom->GetAttribute("version") == NULL ||
+    dom->GetAttribute("version") == nullptr ||
     strcmp(dom->GetAttribute("version"), "1.0") != 0)
   {
     vtkErrorMacro("Cannot convert the input file: " << this->InputFileName);
@@ -115,7 +115,7 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
 
   // We need origin for level 0, and spacing for all levels.
   double origin[3];
-  double *spacing = NULL;
+  double *spacing = nullptr;
 
   int gridDescription = this->GetOriginAndSpacing(
     ePrimary, origin, spacing);
@@ -196,7 +196,7 @@ vtkXMLDataElement* vtkXMLHierarchicalBoxDataFileConverter::ParseXML(
   if (!parser->Parse())
   {
     vtkErrorMacro("Failed to parse input XML: " << fname);
-    return NULL;
+    return nullptr;
   }
 
   vtkXMLDataElement* element = parser->GetRootElement();
@@ -232,7 +232,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
       vtkXMLDataElement* dsElement = child->GetNestedElement(cc);
       if (dsElement && dsElement->GetName() &&
         strcmp(dsElement->GetName(), "DataSet") == 0 &&
-        dsElement->GetAttribute("file") != 0)
+        dsElement->GetAttribute("file") != nullptr)
       {
         std::string file = dsElement->GetAttribute("file");
         if (file.c_str()[0] != '/' && file.c_str()[1] != ':')
@@ -283,7 +283,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   for (std::map<int, std::set<std::string> >::iterator iter =
     filenames.begin(); iter != filenames.end(); ++iter)
   {
-    if (iter->second.size() == 0)
+    if (iter->second.empty())
     {
       continue;
     }

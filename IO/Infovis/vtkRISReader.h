@@ -48,7 +48,7 @@ class VTKIOINFOVIS_EXPORT vtkRISReader : public vtkTableAlgorithm
 public:
   static vtkRISReader* New();
   vtkTypeMacro(vtkRISReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -76,20 +76,20 @@ public:
 
  protected:
   vtkRISReader();
-  ~vtkRISReader() VTK_OVERRIDE;
+  ~vtkRISReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   char* Delimiter;
   int MaxRecords;
 
 private:
-  vtkRISReader(const vtkRISReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRISReader&) VTK_DELETE_FUNCTION;
+  vtkRISReader(const vtkRISReader&) = delete;
+  void operator=(const vtkRISReader&) = delete;
 };
 
 #endif

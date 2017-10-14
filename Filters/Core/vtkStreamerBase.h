@@ -40,18 +40,18 @@ class VTKFILTERSCORE_EXPORT vtkStreamerBase : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkStreamerBase, vtkAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
-                     vtkInformationVector*) VTK_OVERRIDE;
+                     vtkInformationVector*) override;
 
 protected:
   vtkStreamerBase();
-  ~vtkStreamerBase() VTK_OVERRIDE;
+  ~vtkStreamerBase() override;
 
   virtual int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
@@ -89,8 +89,8 @@ protected:
   unsigned int CurrentIndex;
 
 private:
-  vtkStreamerBase(const vtkStreamerBase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStreamerBase &) VTK_DELETE_FUNCTION;
+  vtkStreamerBase(const vtkStreamerBase &) = delete;
+  void operator=(const vtkStreamerBase &) = delete;
 
 };
 

@@ -42,40 +42,40 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
 {
   if(!inputVector[0])
   {
-    vtkErrorMacro("Error: NULL or invalid input vtkInformationVector.");
+    vtkErrorMacro("Error: nullptr or invalid input vtkInformationVector.");
     return 1;
   }
 
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if(!inInfo)
   {
-    vtkErrorMacro("Error: NULL or invalid input vtkInformation.");
+    vtkErrorMacro("Error: nullptr or invalid input vtkInformation.");
     return 1;
   }
 
   vtkDataObject* inDataObj = inInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!inDataObj)
   {
-    vtkErrorMacro("Error: NULL or invalid input data object.");
+    vtkErrorMacro("Error: nullptr or invalid input data object.");
     return 1;
   }
 
   if(!outputVector)
   {
-    vtkErrorMacro("Error: NULL or invalid output vtkInformationVector.");
+    vtkErrorMacro("Error: nullptr or invalid output vtkInformationVector.");
     return 1;
   }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(!outInfo)
   {
-    vtkErrorMacro("Error: NULL of invalid output vtkInformation.")
+    vtkErrorMacro("Error: nullptr of invalid output vtkInformation.")
   }
 
   vtkDataObject* outDataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(!outDataObj)
   {
-    vtkErrorMacro("Error: NULL or invalid output data object.");
+    vtkErrorMacro("Error: nullptr or invalid output data object.");
     return 1;
   }
 
@@ -160,7 +160,7 @@ int vtkThresholdGraph::RequestData(vtkInformation* vtkNotUsed(request),
 
   if(!output)
   {
-    vtkErrorMacro("NULL or invalid output.");
+    vtkErrorMacro("nullptr or invalid output.");
     return 1;
   }
 

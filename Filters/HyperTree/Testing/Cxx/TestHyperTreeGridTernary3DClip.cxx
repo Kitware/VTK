@@ -13,8 +13,8 @@
 
 ===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay, Kitware 2013
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was written by Philippe Pebay, 2013 & 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridToUnstructuredGrid.h"
@@ -56,7 +56,7 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   plane->SetNormal( -.2, -.6, 1. );
   vtkNew<vtkClipDataSet> clip;
   clip->SetInputConnection( htGrid->GetOutputPort() );
-  clip->SetClipFunction( plane.GetPointer() );
+  clip->SetClipFunction( plane );
 
   // Shrink
   vtkNew<vtkShrinkFilter> shrink;
@@ -68,27 +68,22 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   double* range = clip->GetOutput()->GetPointData()->GetScalars()->GetRange();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkDataSetMapper> mapper1;
-  mapper1->SetInputConnection( clip->GetOutputPort() );
-  mapper1->SetScalarRange( range );
+  mapper1->SetInputConnection( htg2ug->GetOutputPort() );
+  mapper1->ScalarVisibilityOff();
   vtkNew<vtkDataSetMapper> mapper2;
-  mapper2->SetInputConnection( htg2ug->GetOutputPort() );
-  mapper2->ScalarVisibilityOff();
-  vtkNew<vtkDataSetMapper> mapper3;
-  mapper3->SetInputConnection( shrink->GetOutputPort() );
-  mapper3->SetScalarRange( range );
+  mapper2->SetInputConnection( shrink->GetOutputPort() );
+  mapper2->SetScalarRange( range );
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
+  actor1->GetProperty()->SetRepresentationToWireframe();
+  actor1->GetProperty()->SetColor( .8, .8, .8 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
-  actor2->GetProperty()->SetRepresentationToWireframe();
-  actor2->GetProperty()->SetColor( .8, .8, .8 );
-  vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
+  actor2->SetMapper( mapper2 );
 
   // Camera
-  vtkHyperTreeGrid* ht = htGrid->GetOutput();
+  vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
   double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
@@ -98,26 +93,25 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  //renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 40 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 40 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

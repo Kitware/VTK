@@ -39,7 +39,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
  public:
   static vtkDataSetGradient* New();
   vtkTypeMacro(vtkDataSetGradient,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,15 +51,15 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradient : public vtkDataSetAlgorithm
 
  protected:
   vtkDataSetGradient ();
-  ~vtkDataSetGradient() VTK_OVERRIDE;
+  ~vtkDataSetGradient() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* ResultArrayName;
 
  private:
-  vtkDataSetGradient(const vtkDataSetGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetGradient&) VTK_DELETE_FUNCTION;
+  vtkDataSetGradient(const vtkDataSetGradient&) = delete;
+  void operator=(const vtkDataSetGradient&) = delete;
 };
 
 #endif /* VTK_DATA_SET_GRADIENT_H */

@@ -10,7 +10,6 @@ endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   NO_VALID
-  # TestMovieWriter.cxx           # fixme (deps not satisfied)
   ${TEST_SRC}
   )
 

@@ -52,7 +52,7 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 {
  public:
   vtkTypeMacro(vtkCellDistanceSelector,vtkSelectionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 //@}
 
   static vtkCellDistanceSelector* New();
@@ -118,12 +118,12 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 
  protected:
   vtkCellDistanceSelector ();
-  ~vtkCellDistanceSelector () VTK_OVERRIDE;
+  ~vtkCellDistanceSelector () override;
 
   void AddSelectionNode(vtkSelection* output, vtkSmartPointer<vtkDataArray> outIndices, int partNumber, int d);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int RequestData(vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
 
   /**
    * Tological radius from seed cells to be used to select cells
@@ -144,8 +144,8 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
   int AddIntermediate;
 
  private:
-  vtkCellDistanceSelector(const vtkCellDistanceSelector &) VTK_DELETE_FUNCTION;
-  void operator= (const vtkCellDistanceSelector &) VTK_DELETE_FUNCTION;
+  vtkCellDistanceSelector(const vtkCellDistanceSelector &) = delete;
+  void operator= (const vtkCellDistanceSelector &) = delete;
 };
 
 #endif /* vtkCellDistanceSelector_h */

@@ -36,7 +36,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialProducer : public vtkAlgorithm
 public:
   static vtkTrivialProducer *New();
   vtkTypeMacro(vtkTrivialProducer,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Process upstream/downstream requests trivially.  The associated
@@ -45,7 +45,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Set the data object that is "produced" by this producer.  It is
@@ -57,7 +57,7 @@ public:
    * The modified time of this producer is the newer of this object or
    * the assigned output.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -79,21 +79,21 @@ public:
 
 protected:
   vtkTrivialProducer();
-  ~vtkTrivialProducer() VTK_OVERRIDE;
+  ~vtkTrivialProducer() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   // The real data object.
   vtkDataObject* Output;
 
   int WholeExtent[6];
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkTrivialProducer(const vtkTrivialProducer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTrivialProducer&) VTK_DELETE_FUNCTION;
+  vtkTrivialProducer(const vtkTrivialProducer&) = delete;
+  void operator=(const vtkTrivialProducer&) = delete;
 };
 
 #endif

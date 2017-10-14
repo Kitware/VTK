@@ -23,8 +23,8 @@ class vtkPHardwareSelector::vtkObserver : public vtkCommand
 {
 public:
   static vtkObserver* New() { return new vtkObserver(); }
-  virtual void Execute(vtkObject *, unsigned long eventId,
-                       void *)
+  void Execute(vtkObject *, unsigned long eventId,
+               void *) override
   {
     if (eventId == vtkCommand::StartEvent)
     {
@@ -52,7 +52,7 @@ vtkPHardwareSelector::vtkPHardwareSelector()
 //----------------------------------------------------------------------------
 vtkPHardwareSelector::~vtkPHardwareSelector()
 {
-  this->Observer->Target = 0;
+  this->Observer->Target = nullptr;
   this->Observer->Delete();
 }
 

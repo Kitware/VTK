@@ -36,18 +36,18 @@ vtkCxxSetObjectMacro(vtkCollectTable,SocketController, vtkSocketController);
 vtkCollectTable::vtkCollectTable()
 {
   this->PassThrough = 0;
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkCollectTable::~vtkCollectTable()
 {
-  this->SetController(0);
-  this->SetSocketController(0);
+  this->SetController(nullptr);
+  this->SetSocketController(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -89,13 +89,13 @@ int vtkCollectTable::RequestData(
   int numProcs, myId;
   int idx;
 
-  if (this->Controller == NULL && this->SocketController == NULL)
+  if (this->Controller == nullptr && this->SocketController == nullptr)
   { // Running as a single process.
     output->ShallowCopy(input);
     return 1;
   }
 
-  if (this->Controller == NULL && this->SocketController != NULL)
+  if (this->Controller == nullptr && this->SocketController != nullptr)
   { // This is a client.  We assume no data on client for input.
     if ( ! this->PassThrough)
     {
@@ -103,7 +103,7 @@ int vtkCollectTable::RequestData(
       this->SocketController->Receive(table, 1, 121767);
       output->ShallowCopy(table);
       table->Delete();
-      table = NULL;
+      table = nullptr;
       return 1;
     }
     // If not collected, output will be empty from initialization.

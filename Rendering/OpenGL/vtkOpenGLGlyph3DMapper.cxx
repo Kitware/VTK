@@ -159,8 +159,6 @@ void vtkOpenGLGlyph3DMapper::UpdatePainterInformation()
   info->Set(vtkScalarsToColorsPainter::ARRAY_ID(), this->ArrayId);
   info->Set(vtkScalarsToColorsPainter::ARRAY_NAME(), this->ArrayName);
   info->Set(vtkScalarsToColorsPainter::ARRAY_COMPONENT(), this->ArrayComponent);
-  info->Set(vtkScalarsToColorsPainter::SCALAR_MATERIAL_MODE(),
-    this->GetScalarMaterialMode());
   this->PainterUpdateTime.Modified();
 }
 

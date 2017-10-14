@@ -50,33 +50,33 @@ public:
   static vtkGeoInteractorStyle *New();
   vtkTypeMacro(vtkGeoInteractorStyle,
                        vtkInteractorStyleTrackballCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Event bindings
    */
-  void OnEnter() VTK_OVERRIDE;
-  void OnLeave() VTK_OVERRIDE;
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnChar() VTK_OVERRIDE;
+  void OnEnter() override;
+  void OnLeave() override;
+  void OnMouseMove() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonUp() override;
+  void OnLeftButtonDown() override;
+  void OnMiddleButtonDown() override;
+  void OnRightButtonDown() override;
+  void OnChar() override;
   //@}
 
   virtual void RubberBandZoom();
-  void Pan() VTK_OVERRIDE;
-  void Dolly() VTK_OVERRIDE;
+  void Pan() override;
+  void Dolly() override;
 
   // Public for render callback.
   void RedrawRectangle();
 
   // See cxx for description of why we need this method.
-  void StartState(int newstate) VTK_OVERRIDE;
+  void StartState(int newstate) override;
 
   // Used for updating the terrain.
   vtkGeoCamera* GetGeoCamera();
@@ -93,7 +93,7 @@ public:
    * Set/Get the Interactor wrapper being controlled by this object.
    * (Satisfy superclass API.)
    */
-  void SetInteractor(vtkRenderWindowInteractor *interactor) VTK_OVERRIDE;
+  void SetInteractor(vtkRenderWindowInteractor *interactor) override;
 
   int ViewportToWorld(double x, double y,
                       double &wx, double &wy, double &wz);
@@ -108,7 +108,7 @@ public:
   /**
    * Override to make the renderer use this camera subclass
    */
-  void SetCurrentRenderer(vtkRenderer*) VTK_OVERRIDE;
+  void SetCurrentRenderer(vtkRenderer*) override;
 
   //@{
   /**
@@ -126,13 +126,13 @@ public:
 
 protected:
   vtkGeoInteractorStyle();
-  ~vtkGeoInteractorStyle() VTK_OVERRIDE;
+  ~vtkGeoInteractorStyle() override;
 
   // To avoid a warning.
   // We should really inherit directy from vtkInteractorStyle
-  void Dolly(double) VTK_OVERRIDE;
+  void Dolly(double) override;
 
-  void OnTimer() VTK_OVERRIDE;
+  void OnTimer() override;
   // Used to get a constant speed regardless of frame rate.
   double LastTime;
 
@@ -152,7 +152,6 @@ protected:
   int StartPosition[2];
   int EndPosition[2];
   int DraggingRubberBandBoxState;
-  double MotionFactor;
   vtkUnsignedCharArray *PixelArray;
   int PixelDims[2];
   bool LockHeading;
@@ -164,8 +163,8 @@ protected:
   vtkSmartPointer<vtkCommand> EventCommand;
 
 private:
-  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
+  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) = delete;
+  void operator=(const vtkGeoInteractorStyle&) = delete;
 };
 
 #endif

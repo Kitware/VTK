@@ -45,7 +45,7 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
   this->Mixed3DCellGeneration = 1;
@@ -72,11 +72,11 @@ vtkClipVolume::~vtkClipVolume()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   this->Triangulator->Delete();
-  this->SetClipFunction(NULL);
+  this->SetClipFunction(nullptr);
 }
 
 vtkUnstructuredGrid *vtkClipVolume::GetClippedOutput()
@@ -93,13 +93,13 @@ vtkMTimeType vtkClipVolume::GetMTime()
 
   mTime=this->Superclass::GetMTime();
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->ClipFunction != NULL )
+  if ( this->ClipFunction != nullptr )
   {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -202,7 +202,7 @@ int vtkClipVolume::RequestData(
   this->Types->Allocate(estimatedSize);
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -657,7 +657,7 @@ void vtkClipVolume::SetLocator(vtkIncrementalPointLocator *locator)
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 
   if (locator)
@@ -671,7 +671,7 @@ void vtkClipVolume::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkClipVolume::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }

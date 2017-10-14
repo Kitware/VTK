@@ -179,7 +179,7 @@ public:
   /**
    * Print information about this object.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the magic number for the NIFTI file as a null-terminated string.
@@ -398,7 +398,7 @@ public:
 
 protected:
   vtkNIFTIImageHeader();
-  ~vtkNIFTIImageHeader() VTK_OVERRIDE;
+  ~vtkNIFTIImageHeader() override;
 
   char Magic[12];
   vtkTypeInt64 VoxOffset;
@@ -439,8 +439,8 @@ protected:
   void SetStringValue(char *x, const char *y, size_t n);
 
 private:
-  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
+  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) = delete;
+  void operator=(const vtkNIFTIImageHeader&) = delete;
 };
 
 #endif // vtkNIFTIImageHeader_h

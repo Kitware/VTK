@@ -52,7 +52,7 @@ public:
   static vtkGenericDataSetTessellator *New();
   vtkTypeMacro(vtkGenericDataSetTessellator,
                        vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -96,15 +96,15 @@ public:
   /**
    * Return the MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkGenericDataSetTessellator();
-  ~vtkGenericDataSetTessellator() VTK_OVERRIDE;
+  ~vtkGenericDataSetTessellator() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   // See Set/Get KeepCellIds() for explanations.
   int KeepCellIds;
@@ -116,8 +116,8 @@ protected:
   vtkIncrementalPointLocator *Locator;
 
 private:
-  vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataSetTessellator&) VTK_DELETE_FUNCTION;
+  vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&) = delete;
+  void operator=(const vtkGenericDataSetTessellator&) = delete;
 };
 
 #endif

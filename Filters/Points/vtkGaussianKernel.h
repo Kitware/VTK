@@ -53,7 +53,7 @@ public:
    */
   static vtkGaussianKernel *New();
   vtkTypeMacro(vtkGaussianKernel,vtkGeneralizedKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -61,7 +61,7 @@ public:
    * computational values.
    */
   void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) VTK_OVERRIDE;
+                          vtkPointData *pd) override;
 
   // Re-use any superclass signatures that we don't override.
   using vtkGeneralizedKernel::ComputeWeights;
@@ -77,11 +77,11 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly. The probably weighting prob are numbers 0<=prob<=1 which are
    * multiplied against the interpolation weights before normalization. They
-   * are estimates of local confidence of weights. The prob may be NULL in
+   * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *prob, vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *prob, vtkDoubleArray *weights) override;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkGaussianKernel();
-  ~vtkGaussianKernel() VTK_OVERRIDE;
+  ~vtkGaussianKernel() override;
 
   double Sharpness;
 
@@ -103,8 +103,8 @@ protected:
   double F2;
 
 private:
-  vtkGaussianKernel(const vtkGaussianKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianKernel&) VTK_DELETE_FUNCTION;
+  vtkGaussianKernel(const vtkGaussianKernel&) = delete;
+  void operator=(const vtkGaussianKernel&) = delete;
 };
 
 #endif

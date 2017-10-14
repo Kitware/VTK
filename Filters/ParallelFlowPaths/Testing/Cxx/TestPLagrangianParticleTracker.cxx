@@ -59,11 +59,11 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
 
   // Setup render window, renderer, and interactor
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera(camera.Get());
+  renderer->SetActiveCamera(camera);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Create seeds with point source
   vtkNew<vtkPointSource> seeds;
@@ -94,9 +94,9 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   partDens->FillComponent(0, 1920);
   partDiam->FillComponent(0, 0.1);
 
-  seedData->AddArray(partVel.Get());
-  seedData->AddArray(partDens.Get());
-  seedData->AddArray(partDiam.Get());
+  seedData->AddArray(partVel);
+  seedData->AddArray(partDens);
+  seedData->AddArray(partDiam);
 
   // Create input (flow) from wavelet
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -128,9 +128,9 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   flowDens->FillComponent(0, 1000);
   flowDynVisc->FillComponent(0, 0.894);
 
-  cd->AddArray(flowVel.Get());
-  cd->AddArray(flowDens.Get());
-  cd->AddArray(flowDynVisc.Get());
+  cd->AddArray(flowVel);
+  cd->AddArray(flowDens);
+  cd->AddArray(flowDynVisc);
 
   // Create input outline
   vtkNew<vtkOutlineFilter> outline;
@@ -138,14 +138,13 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
 
   vtkNew<vtkPolyDataMapper> outlineMapper;
   outlineMapper->SetInputConnection(outline->GetOutputPort());
-  outlineMapper->SetImmediateModeRendering(1);
   outlineMapper->UseLookupTableScalarRangeOn();
   outlineMapper->SetScalarVisibility(0);
   outlineMapper->SetScalarModeToDefault();
 
   vtkNew<vtkActor> outlineActor;
-  outlineActor->SetMapper(outlineMapper.Get());
-  renderer->AddActor(outlineActor.Get());
+  outlineActor->SetMapper(outlineMapper);
+  renderer->AddActor(outlineActor);
 
   // Create Integrator
   vtkNew<vtkRungeKutta2> integrator;
@@ -169,8 +168,8 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
 
   // Put in tracker
   vtkNew<vtkLagrangianParticleTracker> tracker;
-  tracker->SetIntegrator(integrator.Get());
-  tracker->SetIntegrationModel(integrationModel.Get());
+  tracker->SetIntegrator(integrator);
+  tracker->SetIntegrationModel(integrationModel);
   tracker->SetInputData(waveletImg);
   tracker->SetStepFactor(0.1);
   tracker->SetSourceData(seedPD);
@@ -178,12 +177,12 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   vtkNew<vtkPolyDataMapper> trackerMapper;
   trackerMapper->SetInputConnection(tracker->GetOutputPort());
   vtkNew<vtkActor> trackerActor;
-  trackerActor->SetMapper(trackerMapper.Get());
-  renderer->AddActor(trackerActor.Get());
+  trackerActor->SetMapper(trackerMapper);
+  renderer->AddActor(trackerActor);
 
   // Check result
   vtkNew<vtkCompositeRenderManager> compManager;
-  compManager->SetRenderWindow(renderWindow.Get());
+  compManager->SetRenderWindow(renderWindow);
   compManager->SetController(controller);
   compManager->InitializePieces();
 
@@ -197,7 +196,7 @@ void MainPLagrangianParticleTracker(vtkMultiProcessController *controller, void 
   {
     renderWindow->Render();
     *(args->retVal) =
-      vtkRegressionTester::Test(args->argc, args->argv, renderWindow.Get(), 10);
+      vtkRegressionTester::Test(args->argc, args->argv, renderWindow, 10);
     for (int i = 1; i < numProcs; i++)
     {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);

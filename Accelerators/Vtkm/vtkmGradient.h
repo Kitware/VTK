@@ -40,7 +40,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmGradient : public vtkGradientFilter
 {
 public:
   vtkTypeMacro(vtkmGradient, vtkGradientFilter)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmGradient* New();
 
 protected:
@@ -49,11 +49,11 @@ protected:
 
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 private:
-  vtkmGradient(const vtkmGradient&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmGradient&) VTK_DELETE_FUNCTION;
+  vtkmGradient(const vtkmGradient&) = delete;
+  void operator=(const vtkmGradient&) = delete;
 };
 
 #endif // vtkmGradient_h

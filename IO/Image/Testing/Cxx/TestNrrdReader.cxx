@@ -36,7 +36,7 @@ int TestNrrdReader(int argc, char *argv[])
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
   char *filename2 =
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
-  if ((filename1 == NULL) || (filename2 == NULL))
+  if ((filename1 == nullptr) || (filename2 == nullptr))
   {
     cerr << "Could not get file names.";
     return 1;
@@ -57,10 +57,10 @@ int TestNrrdReader(int argc, char *argv[])
   mapper1->SetColorLevel(127.5);
 
   vtkNew<vtkActor2D> actor1;
-  actor1->SetMapper(mapper1.GetPointer());
+  actor1->SetMapper(mapper1);
 
   vtkNew<vtkRenderer> renderer1;
-  renderer1->AddActor(actor1.GetPointer());
+  renderer1->AddActor(actor1);
 
   vtkNew<vtkNrrdReader> reader2;
   if (!reader2->CanReadFile(filename2))
@@ -77,24 +77,24 @@ int TestNrrdReader(int argc, char *argv[])
   mapper2->SetColorLevel(0.5);
 
   vtkNew<vtkActor2D> actor2;
-  actor2->SetMapper(mapper2.GetPointer());
+  actor2->SetMapper(mapper2);
 
   vtkNew<vtkRenderer> renderer2;
-  renderer2->AddActor(actor2.GetPointer());
+  renderer2->AddActor(actor2);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(200, 100);
 
   renderer1->SetViewport(0.0, 0.0, 0.5, 1.0);
-  renderWindow->AddRenderer(renderer1.GetPointer());
+  renderWindow->AddRenderer(renderer1);
 
   renderer2->SetViewport(0.5, 0.0, 1.0, 1.0);
-  renderWindow->AddRenderer(renderer2.GetPointer());
+  renderWindow->AddRenderer(renderer2);
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetRenderWindow(renderWindow);
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

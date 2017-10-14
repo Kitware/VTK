@@ -66,13 +66,13 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(300, 300);
   renderWindow->SetMultiSamples(0);
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor>  iren;
-  iren->SetRenderWindow(renderWindow.Get());
+  iren->SetRenderWindow(renderWindow);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
-  renderer->AddActor(actor.Get());
+  actor->SetMapper(mapper);
+  renderer->AddActor(actor);
 
   randomAttr->SetDataTypeToFloat();
   randomAttr->GeneratePointScalarsOn();
@@ -86,7 +86,9 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   mapper->SelectColorArray("RandomPointVectors");
   mapper->SetInterpolateScalarsBeforeMapping(0);
   mapper->SetScaleArray("RandomPointScalars");
+  mapper->SetScaleArrayComponent(1);
   mapper->SetOpacityArray("RandomPointArray");
+  mapper->SetOpacityArrayComponent(0);
   mapper->EmissiveOff();
 
   // show other shader examples
@@ -118,12 +120,12 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   ctf->AddHSVPoint(1.0,0.9,0.7,1.0);
   ctf->SetColorSpaceToHSV();
   ctf->HSVWrapOff();
-  mapper->SetLookupTable(ctf.Get());
+  mapper->SetLookupTable(ctf);
 
   vtkNew<vtkPiecewiseFunction> otf;
   otf->AddPoint(0.0,0.3);
   otf->AddPoint(1.0,1.0);
-  mapper->SetScalarOpacityFunction(otf.Get());
+  mapper->SetScalarOpacityFunction(otf);
 
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
@@ -157,7 +159,7 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -16,7 +16,12 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkRenderingOpenGLConfigure.h"
+#ifdef VTK_OPENGL2
 #include "vtkCompositeDataDisplayAttributes.h"
+#else
+#include "vtkCompositeDataDisplayAttributesLegacy.h"
+#endif
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
@@ -62,8 +67,13 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
+#ifdef VTK_OPENGL2
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+#else
+  vtkNew<vtkCompositeDataDisplayAttributesLegacy> cdsa;
+  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+#endif
 
   int resolution = 18;
   vtkNew<vtkCylinderSource> cyl;
@@ -110,6 +120,7 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -128,7 +139,7 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
           p2c->Update();
           child->DeepCopy(p2c->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some
@@ -150,7 +161,6 @@ int TestCompositePolyDataMapper2MixedGeometryCellScalars(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   mapper->SetScalarModeToUseCellData();
 
   vtkSmartPointer<vtkActor> actor =

@@ -34,15 +34,15 @@ vtkCxxSetObjectMacro(vtkDuplicatePolyData,SocketController, vtkSocketController)
 vtkDuplicatePolyData::vtkDuplicatePolyData()
 {
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   this->Synchronous = 1;
 
-  this->Schedule = NULL;
+  this->Schedule = nullptr;
   this->ScheduleLength = 0;
   this->NumberOfProcesses = 0;
 
-  this->SocketController = NULL;
+  this->SocketController = nullptr;
   this->ClientFlag = 0;
   this->MemorySize = 0;
 }
@@ -50,7 +50,7 @@ vtkDuplicatePolyData::vtkDuplicatePolyData()
 //----------------------------------------------------------------------------
 vtkDuplicatePolyData::~vtkDuplicatePolyData()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
   // Free the schedule memory.
   this->InitializeSchedule(0);
 }
@@ -77,7 +77,7 @@ static inline int vtkDPDLog2(int j, int& exact)
 void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
 {
   int i, j, k, exact;
-  int *procFlags = NULL;
+  int *procFlags = nullptr;
 
   if (this->NumberOfProcesses == numProcs)
   {
@@ -88,10 +88,10 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
   for (i = 0; i < this->NumberOfProcesses; ++i)
   {
     delete [] this->Schedule[i];
-    this->Schedule[i] = NULL;
+    this->Schedule[i] = nullptr;
   }
   delete [] this->Schedule;
-  this->Schedule = NULL;
+  this->Schedule = nullptr;
 
   this->NumberOfProcesses = numProcs;
   if (numProcs == 0)
@@ -164,7 +164,7 @@ void vtkDuplicatePolyData::InitializeSchedule(int numProcs)
   }
 
   delete [] procFlags;
-  procFlags = NULL;
+  procFlags = nullptr;
 }
 
 //--------------------------------------------------------------------------
@@ -212,7 +212,7 @@ int vtkDuplicatePolyData::RequestData(
     return 1;
   }
 
-  if (this->Controller == NULL)
+  if (this->Controller == nullptr)
   {
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
@@ -252,7 +252,7 @@ int vtkDuplicatePolyData::RequestData(
         this->Controller->Receive(pd, partner, 131767);
         append->AddInputData(pd);
         pd->Delete();
-        pd = NULL;
+        pd = nullptr;
       }
       else
       {
@@ -260,7 +260,7 @@ int vtkDuplicatePolyData::RequestData(
         this->Controller->Receive(pd, partner, 131767);
         append->AddInputData(pd);
         pd->Delete();
-        pd = NULL;
+        pd = nullptr;
 
         this->Controller->Send(input, partner, 131767);
       }
@@ -274,7 +274,7 @@ int vtkDuplicatePolyData::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());
   append->Delete();
-  append = NULL;
+  append = nullptr;
 
   if (this->SocketController && ! this->ClientFlag)
   {

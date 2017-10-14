@@ -289,7 +289,7 @@ public:
    */
   static void Subtract(
         const vtkPixelExtent &A,
-        vtkPixelExtent B,
+        const vtkPixelExtent& B,
         std::deque<vtkPixelExtent> &newExts);
 
   /**

@@ -5,7 +5,6 @@ vtk_module(vtkIOXdmf3
     vtkFiltersGeneral
     vtkTestingCore
     vtkTestingRendering
-    vtkParallelMPI
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel

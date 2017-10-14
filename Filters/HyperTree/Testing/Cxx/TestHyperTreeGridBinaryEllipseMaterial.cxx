@@ -14,7 +14,8 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
@@ -24,6 +25,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkContourFilter.h"
 #include "vtkNew.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkProperty2D.h"
@@ -43,6 +45,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   htGrid->SetGridSize( 16, 24, 1 );
   htGrid->SetGridScale( .5, .25, .7 );
   htGrid->SetDimension( 2 );
+  htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 2 );
   htGrid->UseDescriptorOff();
   htGrid->UseMaterialMaskOn();
@@ -51,13 +54,13 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
                             0., 0., 0.,
                             32., 54., 0.,
                             -109. );
-  htGrid->SetQuadric( quadric.GetPointer() );
+  htGrid->SetQuadric( quadric );
 
   // Geometry
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputConnection( htGrid->GetOutputPort() );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkPolyData* pd = geometry->GetPolyDataOutput();
   pd->GetCellData()->SetActiveScalars( "Quadric" );
 
   // Contour
@@ -83,7 +86,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->UseLookupTableScalarRangeOn();
-  mapper1->SetLookupTable( colorFunction.GetPointer() );
+  mapper1->SetLookupTable( colorFunction );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
@@ -93,13 +96,13 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
+  actor3->SetMapper( mapper3 );
   actor3->GetProperty()->SetRepresentationToWireframe();
   actor3->GetProperty()->SetColor( .2, .9, .2 );
 
@@ -113,7 +116,7 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 
   // Scalar bar
   vtkNew<vtkScalarBarActor> scalarBar;
-  scalarBar->SetLookupTable( colorFunction.GetPointer() );
+  scalarBar->SetLookupTable( colorFunction );
   scalarBar->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar->GetPositionCoordinate()->SetValue( .45, .3 );
   scalarBar->SetTitle( "Quadric" );
@@ -133,27 +136,27 @@ int TestHyperTreeGridBinaryEllipseMaterial( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
-  renderer->AddActor( scalarBar.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
+  renderer->AddActor( actor3 );
+  renderer->AddActor( scalarBar );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

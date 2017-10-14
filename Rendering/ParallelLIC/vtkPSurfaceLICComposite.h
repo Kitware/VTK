@@ -55,27 +55,27 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICComposite : public vtkSurface
 public:
   static vtkPSurfaceLICComposite *New();
   vtkTypeMacro(vtkPSurfaceLICComposite, vtkSurfaceLICComposite);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Set the rendering context. Must set prior to use. Reference is not
    * held, so caller must ensure the renderer is not destroyed during
    * use.
    */
-  virtual void SetContext(vtkOpenGLRenderWindow *rwin) VTK_OVERRIDE;
-  virtual vtkOpenGLRenderWindow *GetContext() VTK_OVERRIDE { return this->Context; }
+  virtual void SetContext(vtkOpenGLRenderWindow *rwin) override;
+  virtual vtkOpenGLRenderWindow *GetContext() override { return this->Context; }
 
   /**
    * Set the communicator for parallel communication. The Default is
    * COMM_NULL.
    */
-   virtual void SetCommunicator(vtkPainterCommunicator *comm) VTK_OVERRIDE;
+   virtual void SetCommunicator(vtkPainterCommunicator *comm) override;
 
   /**
    * Build programs to move data to the new decomp
    * THIS IS A COLLECTIVE OPERATION
    */
-  virtual int BuildProgram(float *vectors) VTK_OVERRIDE;
+  virtual int BuildProgram(float *vectors) override;
 
   /**
    * Move a single buffer from the geometry decomp to the LIC decomp.
@@ -85,7 +85,7 @@ public:
         void *pSendPBO,
         int dataType,
         int nComps,
-        vtkTextureObject *&newImage) VTK_OVERRIDE;
+        vtkTextureObject *&newImage) override;
 
   /**
    * Move a single buffer from the LIC decomp to the geometry decomp
@@ -95,7 +95,7 @@ public:
         void *pSendPBO,
         int dataType,
         int nComps,
-        vtkTextureObject *&newImage) VTK_OVERRIDE;
+        vtkTextureObject *&newImage) override;
 
 protected:
   vtkPSurfaceLICComposite();
@@ -218,8 +218,8 @@ private:
   friend VTKRENDERINGPARALLELLIC_EXPORT
   ostream &operator<<(ostream &os, vtkPSurfaceLICComposite &ss);
 
-  vtkPSurfaceLICComposite(const vtkPSurfaceLICComposite&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSurfaceLICComposite&) VTK_DELETE_FUNCTION;
+  vtkPSurfaceLICComposite(const vtkPSurfaceLICComposite&) = delete;
+  void operator=(const vtkPSurfaceLICComposite&) = delete;
 };
 
 VTKRENDERINGPARALLELLIC_EXPORT

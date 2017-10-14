@@ -47,7 +47,7 @@ class VTKINFOVISCORE_EXPORT vtkMergeTables : public vtkTableAlgorithm
 public:
   static vtkMergeTables* New();
   vtkTypeMacro(vtkMergeTables,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -92,7 +92,7 @@ public:
 
 protected:
   vtkMergeTables();
-  ~vtkMergeTables() VTK_OVERRIDE;
+  ~vtkMergeTables() override;
 
   bool MergeColumnsByName;
   bool PrefixAllButMerged;
@@ -102,11 +102,11 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkMergeTables(const vtkMergeTables&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeTables&) VTK_DELETE_FUNCTION;
+  vtkMergeTables(const vtkMergeTables&) = delete;
+  void operator=(const vtkMergeTables&) = delete;
 };
 
 #endif

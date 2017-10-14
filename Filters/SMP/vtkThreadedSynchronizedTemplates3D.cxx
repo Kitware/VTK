@@ -54,6 +54,10 @@ vtkStandardNewMacro(vtkThreadedSynchronizedTemplates3D);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkThreadedSynchronizedTemplates3D::vtkThreadedSynchronizedTemplates3D()
 {
+  VTK_LEGACY_BODY(
+    vtkThreadedSynchronizedTemplates3D::vtkThreadedSynchronizedTemplates3D,
+    "VTK 8.1");
+
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -686,7 +690,7 @@ class DoThreadedContour
 public:
   DoThreadedContour(vtkThreadedSynchronizedTemplates3D* filter,
     int* exExt, vtkImageData* input, vtkDataArray* scalars,
-    int numPieces) : Filter(filter), ExExt(exExt), Input(input), Outputs(NULL),
+    int numPieces) : Filter(filter), ExExt(exExt), Input(input), Outputs(nullptr),
                      NumOutputPieces(0), Scalars(scalars),
                      NumberOfPieces(numPieces)
   {
@@ -711,7 +715,7 @@ public:
   {
     ThreadLocalWorkSpace &ws = this->tlws.Local();
     ws.poly = vtkPolyData::New();
-    ws.scalars = ws.normals = ws.gradients = NULL;
+    ws.scalars = ws.normals = ws.gradients = nullptr;
 
     if (Filter->GetComputeScalars())
     {
@@ -827,7 +831,7 @@ void vtkThreadedSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   //
   // Check data type and execute appropriate function
   //
-  if (inScalars == NULL)
+  if (inScalars == nullptr)
   {
     vtkDebugMacro("No scalars for contouring.");
     return;

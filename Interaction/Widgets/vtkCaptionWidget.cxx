@@ -33,7 +33,7 @@ class vtkCaptionAnchorCallback : public vtkCommand
 public:
   static vtkCaptionAnchorCallback *New()
     { return new vtkCaptionAnchorCallback; }
-  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eventId, void*) override
   {
       switch (eventId)
       {
@@ -48,7 +48,7 @@ public:
           break;
       }
   }
-  vtkCaptionAnchorCallback():CaptionWidget(0) {}
+  vtkCaptionAnchorCallback():CaptionWidget(nullptr) {}
   vtkCaptionWidget *CaptionWidget;
 };
 
@@ -144,7 +144,7 @@ vtkCaptionActor2D *vtkCaptionWidget::GetCaptionActor2D()
   vtkCaptionRepresentation *capRep = reinterpret_cast<vtkCaptionRepresentation*>(this->WidgetRep);
   if ( ! capRep )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -156,7 +156,7 @@ vtkCaptionActor2D *vtkCaptionWidget::GetCaptionActor2D()
 void vtkCaptionWidget::StartAnchorInteraction()
 {
   this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -166,14 +166,14 @@ void vtkCaptionWidget::AnchorInteraction()
   double pos[3];
   rep->GetAnchorRepresentation()->GetWorldPosition(pos);
   rep->SetAnchorPosition(pos);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkCaptionWidget::EndAnchorInteraction()
 {
   this->Superclass::EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }
 
 //-------------------------------------------------------------------------

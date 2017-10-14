@@ -51,14 +51,14 @@ vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFun
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkSynchronizedTemplatesCutter3D::vtkSynchronizedTemplatesCutter3D()
 {
-  this->CutFunction = 0;
+  this->CutFunction = nullptr;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
 
 //----------------------------------------------------------------------------
 vtkSynchronizedTemplatesCutter3D::~vtkSynchronizedTemplatesCutter3D()
 {
-  this->SetCutFunction(NULL);
+  this->SetCutFunction(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -223,12 +223,9 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   }
 
   // allocate scalar storage for two slices
-  T *scalars = 0;
-  T *scalars1 = 0;
-  T *scalars2 = 0;
-  scalars = new T [xdim*ydim*2];
-  scalars1 = scalars;
-  scalars2 = scalars + xdim*ydim;
+  T *scalars = new T [xdim*ydim*2];
+  T *scalars1 = scalars;
+  T *scalars2 = scalars + xdim*ydim;
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -564,7 +561,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
 
 
   // Check data type and execute appropriate function
-  ContourImage(this, exExt, data, output, (double *)0, this->GenerateTriangles!=0);
+  ContourImage(this, exExt, data, output, (double *)nullptr, this->GenerateTriangles!=0);
 }
 
 //----------------------------------------------------------------------------

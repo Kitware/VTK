@@ -129,8 +129,15 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   vtkPolyData* output =
       vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
+  if (!input || input->GetNumberOfPoints() == 0)
+  {
+    // Fail gracefully on empty inputs
+    return 1;
+  }
+
   // convert the input dataset to a vtkm::cont::DataSet
-  vtkm::cont::DataSet in = tovtkm::Convert(input);
+  vtkm::cont::DataSet in = tovtkm::Convert(input,
+                                           tovtkm::FieldsFlag::PointsAndCells);
   const bool dataSetValid =
       in.GetNumberOfCoordinateSystems() > 0 && in.GetNumberOfCellSets() > 0;
   if (!dataSetValid)
@@ -146,17 +153,35 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
                                              this->NumberOfDivisions[2]));
 
   vtkmInputFilterPolicy policy;
-  vtkm::filter::ResultDataSet result = filter.Execute(in, policy);
+  vtkm::filter::Result result = filter.Execute(in, policy);
 
   // currently we can't convert point based scalar arrays over to the new output
   // as the algorithm doesn't cache any of the interpolation data
   //
   // This shouldn't be hard, the question that we need answered is should
   // we average the point field like we average the coordinates, or should
-  // we just take a random value
+  // we just take a random value. See VTKM issue #161. The mapping below is a
+  // no-op until this is resolved.
   bool convertedDataSet = false;
-  if (result.IsValid())
+  if (result.IsDataSetValid())
   {
+    // Map fields:
+    vtkm::Id numFields = static_cast<vtkm::Id>(in.GetNumberOfFields());
+    for (vtkm::Id fieldIdx = 0; fieldIdx < numFields; ++fieldIdx)
+    {
+      const vtkm::cont::Field &field = in.GetField(fieldIdx);
+      try
+      {
+        filter.MapFieldOntoOutput(result, field, policy);
+      }
+      catch (vtkm::cont::Error &e)
+      {
+        vtkWarningMacro(<< "Unable to use VTKm to convert field( "
+                        << field.GetName() << " ) to the LevelOfDetail"
+                        << " output: " << e.what());
+      }
+    }
+
     // convert back the dataset to VTK
     convertedDataSet = fromvtkm::Convert(result.GetDataSet(), output, input);
   }

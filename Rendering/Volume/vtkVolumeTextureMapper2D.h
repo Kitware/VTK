@@ -35,7 +35,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextu
 {
 public:
   vtkTypeMacro(vtkVolumeTextureMapper2D,vtkVolumeTextureMapper);
-  void PrintSelf( ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent) override;
 
   static vtkVolumeTextureMapper2D *New();
 
@@ -79,7 +79,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *, vtkVolume *) VTK_OVERRIDE {}
+  void Render(vtkRenderer *, vtkVolume *) override {}
 
   virtual void RenderQuads( int vtkNotUsed(count),
                             float *vtkNotUsed(v), float *vtkNotUsed(t),
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkVolumeTextureMapper2D();
-  ~vtkVolumeTextureMapper2D() VTK_OVERRIDE;
+  ~vtkVolumeTextureMapper2D() override;
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol )
     {this->InitializeRender( ren, vol, -1 );}
@@ -128,8 +128,8 @@ protected:
   void           RenderSavedTexture();
 
 private:
-  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) = delete;
+  void operator=(const vtkVolumeTextureMapper2D&) = delete;
 };
 
 #endif // VTK_LEGACY_REMOVE

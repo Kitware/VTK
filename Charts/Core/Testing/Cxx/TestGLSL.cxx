@@ -95,7 +95,7 @@ int TestGLSL( int, char * [] )
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(200, 200);
   vtkNew<GLSLTestItem> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Ensure that there is a valid OpenGL context - Mac inconsistent behavior.
   view->GetRenderWindow()->SetMultiSamples(0);

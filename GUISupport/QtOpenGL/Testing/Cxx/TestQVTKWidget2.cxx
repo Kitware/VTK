@@ -37,26 +37,26 @@ int TestQVTKWidget2(int argc, char* argv[])
   vtkNew<vtkDataSetMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> sphereActor;
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   vtkNew<vtkDataSetMapper> coneMapper;
   coneMapper->SetInputConnection(cone->GetOutputPort());
   vtkNew<vtkActor> coneActor;
-  coneActor->SetMapper(coneMapper.GetPointer());
+  coneActor->SetMapper(coneMapper);
 
   sphereActor->GetProperty()->SetOpacity(0.3);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(sphereActor.GetPointer());
-  renderer->AddActor(coneActor.GetPointer());
+  renderer->AddActor(sphereActor);
+  renderer->AddActor(coneActor);
   renderer->ResetCamera();
 
   vtkNew<vtkGenericOpenGLRenderWindow> renWin;
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
   renWin->SetMultiSamples(0);
 
-  QTestMainWindow* qwindow = new QTestMainWindow(renWin.GetPointer(), argc, argv);
-  QVTKWidget2* widget = new QVTKWidget2(renWin.GetPointer());
+  QTestMainWindow* qwindow = new QTestMainWindow(renWin, argc, argv);
+  QVTKWidget2* widget = new QVTKWidget2(renWin);
   widget->setMinimumSize(QSize(300, 300));
   widget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   qwindow->setCentralWidget(widget);

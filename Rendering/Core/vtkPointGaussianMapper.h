@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
 public:
   static vtkPointGaussianMapper* New();
   vtkTypeMacro(vtkPointGaussianMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,6 +62,14 @@ public:
    */
   vtkSetStringMacro(ScaleArray);
   vtkGetStringMacro(ScaleArray);
+  //@}
+
+  //@{
+  /**
+   * Convenience method to set the component of the array to scale with.
+   */
+  vtkSetMacro(ScaleArrayComponent, int);
+  vtkGetMacro(ScaleArrayComponent, int);
   //@}
 
   //@{
@@ -115,6 +123,14 @@ public:
 
   //@{
   /**
+   * Convenience method to set the component of the array to opacify with.
+   */
+  vtkSetMacro(OpacityArrayComponent, int);
+  vtkGetMacro(OpacityArrayComponent, int);
+  //@}
+
+  //@{
+  /**
    * Method to override the fragment shader code for the splat.  You can
    * set this to draw other shapes. For the OPenGL2 backend some of
    * the variables you can use and/or modify include,
@@ -147,10 +163,12 @@ public:
 
 protected:
   vtkPointGaussianMapper();
-  ~vtkPointGaussianMapper() VTK_OVERRIDE;
+  ~vtkPointGaussianMapper() override;
 
   char *ScaleArray;
+  int ScaleArrayComponent;
   char *OpacityArray;
+  int OpacityArrayComponent;
   char *SplatShaderCode;
 
   vtkPiecewiseFunction *ScaleFunction;
@@ -165,8 +183,8 @@ protected:
   float TriangleScale;
 
 private:
-  vtkPointGaussianMapper(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
+  vtkPointGaussianMapper(const vtkPointGaussianMapper&) = delete;
+  void operator=(const vtkPointGaussianMapper&) = delete;
 };
 
 #endif

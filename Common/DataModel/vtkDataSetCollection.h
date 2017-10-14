@@ -71,15 +71,15 @@ public:
 
 protected:
   vtkDataSetCollection() {}
-  ~vtkDataSetCollection() VTK_OVERRIDE {}
+  ~vtkDataSetCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkDataSetCollection(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
+  vtkDataSetCollection(const vtkDataSetCollection&) = delete;
+  void operator=(const vtkDataSetCollection&) = delete;
 };
 
 

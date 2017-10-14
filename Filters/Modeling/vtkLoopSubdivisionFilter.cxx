@@ -36,7 +36,7 @@ static double LoopWeights[4] =
 int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   double *weights;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType numPts, cellId, newId;
   int edgeId;
   vtkIdType npts;

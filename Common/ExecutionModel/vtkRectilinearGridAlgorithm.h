@@ -45,7 +45,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkRectilinearGridAlgorithm : public vtkAlg
 public:
   static vtkRectilinearGridAlgorithm *New();
   vtkTypeMacro(vtkRectilinearGridAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -61,7 +61,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkRectilinearGridAlgorithm();
-  ~vtkRectilinearGridAlgorithm() VTK_OVERRIDE;
+  ~vtkRectilinearGridAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -120,12 +120,12 @@ protected:
   //@}
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&) = delete;
+  void operator=(const vtkRectilinearGridAlgorithm&) = delete;
 };
 
 #endif

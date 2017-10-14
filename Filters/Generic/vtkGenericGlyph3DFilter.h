@@ -103,7 +103,7 @@ class VTKFILTERSGENERIC_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgor
 {
 public:
   vtkTypeMacro(vtkGenericGlyph3DFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scaling on, scaling mode is by scalar value,
@@ -255,7 +255,7 @@ public:
   //@{
   /**
    * If you want to use an arbitrary scalars array, then set its name here.
-   * By default this in NULL and the filter will use the active scalar array.
+   * By default this in nullptr and the filter will use the active scalar array.
    */
   vtkGetStringMacro(InputScalarsSelection);
   void SelectInputScalars(const char *fieldName)
@@ -265,7 +265,7 @@ public:
   //@{
   /**
    * If you want to use an arbitrary vectors array, then set its name here.
-   * By default this in NULL and the filter will use the active vector array.
+   * By default this in nullptr and the filter will use the active vector array.
    */
   vtkGetStringMacro(InputVectorsSelection);
   void SelectInputVectors(const char *fieldName)
@@ -275,7 +275,7 @@ public:
   //@{
   /**
    * If you want to use an arbitrary normals array, then set its name here.
-   * By default this in NULL and the filter will use the active normal array.
+   * By default this in nullptr and the filter will use the active normal array.
    */
   vtkGetStringMacro(InputNormalsSelection);
   void SelectInputNormals(const char *fieldName)
@@ -284,13 +284,13 @@ public:
 
 protected:
   vtkGenericGlyph3DFilter();
-  ~vtkGenericGlyph3DFilter() VTK_OVERRIDE;
+  ~vtkGenericGlyph3DFilter() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude
@@ -312,8 +312,8 @@ protected:
   vtkSetStringMacro(InputNormalsSelection);
 
 private:
-  vtkGenericGlyph3DFilter(const vtkGenericGlyph3DFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericGlyph3DFilter&) VTK_DELETE_FUNCTION;
+  vtkGenericGlyph3DFilter(const vtkGenericGlyph3DFilter&) = delete;
+  void operator=(const vtkGenericGlyph3DFilter&) = delete;
 };
 
 //@{

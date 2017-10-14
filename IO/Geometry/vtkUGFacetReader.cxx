@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkUGFacetReader.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
@@ -32,14 +34,16 @@ vtkStandardNewMacro(vtkUGFacetReader);
 // turned on.
 vtkUGFacetReader::vtkUGFacetReader()
 {
-  this->FileName = NULL;
-  this->PartColors = NULL;
+  this->FileName = nullptr;
+  this->PartColors = nullptr;
   this->PartNumber = (-1); //extract all parts
 
   this->Merging = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
 
   this->SetNumberOfInputPorts(0);
+
+  VTK_LEGACY_BODY(vtkUGFacetReader::vtkUGFacetReader, "VTK 8.1");
 }
 
 vtkUGFacetReader::~vtkUGFacetReader()
@@ -50,10 +54,10 @@ vtkUGFacetReader::~vtkUGFacetReader()
   {
     this->PartColors->Delete();
   }
-  if (this->Locator != NULL)
+  if (this->Locator != nullptr)
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
 }
 
@@ -99,23 +103,23 @@ int vtkUGFacetReader::RequestData(
   int triEstimate;
 
   vtkDebugMacro(<<"Reading UG facet file...");
-  if ( this->FileName == NULL || strlen(this->FileName) == 0)
+  if ( this->FileName == nullptr || strlen(this->FileName) == 0)
   {
     vtkErrorMacro(<<"No FileName specified...please specify one.");
     return 0;
   }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "rb")) == NULL)
+  if ( (fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
   }
 
   // read the header stuff
-  if ( fread (header, 1, 2, fp) <= 0 ||
-  fread (&numFacetSets, 4, 1, fp) <= 0 ||
-  fread (header, 1, 36, fp) <= 0 )
+  if ( fread (header, 1, 2, fp) == 0 ||
+       fread (&numFacetSets, 4, 1, fp) == 0 ||
+       fread (header, 1, 36, fp) == 0 )
   {
     vtkErrorMacro(<<"File ended prematurely");
     fclose(fp);
@@ -155,9 +159,9 @@ int vtkUGFacetReader::RequestData(
   for (setNumber=0; setNumber < numFacetSets; setNumber++)
   {
 
-    if ( fread (&ugiiColor, 2, 1, fp) <= 0 ||
-    fread (&direction, 2, 1, fp) <= 0 ||
-    fread (&numberTris, 4, 1, fp) <= 0 )
+    if ( fread (&ugiiColor, 2, 1, fp) == 0 ||
+         fread (&direction, 2, 1, fp) == 0 ||
+         fread (&numberTris, 4, 1, fp) == 0 )
     {
       vtkErrorMacro(<<"File ended prematurely");
       break;
@@ -172,7 +176,7 @@ int vtkUGFacetReader::RequestData(
 
     for (facetNumber=0; facetNumber < numberTris; facetNumber++)
     {
-      if ( fread(&facet,72,1,fp) <= 0 )
+      if ( fread(&facet,72,1,fp) == 0 )
       {
         vtkErrorMacro(<<"File ended prematurely");
         break;
@@ -209,7 +213,7 @@ int vtkUGFacetReader::RequestData(
   if ( this->Merging )
   {
     int i;
-    vtkIdType *pts = 0;
+    vtkIdType *pts = nullptr;
     vtkIdType nodes[3];
     vtkIdType npts;
     double *x;
@@ -222,7 +226,7 @@ int vtkUGFacetReader::RequestData(
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
 
-    if ( this->Locator == NULL )
+    if ( this->Locator == nullptr )
     {
       this->CreateDefaultLocator();
     }
@@ -288,23 +292,23 @@ int vtkUGFacetReader::GetNumberOfParts()
   FILE *fp;
   int numberOfParts;
 
-  if ( this->FileName == NULL || strlen(this->FileName) == 0)
+  if ( this->FileName == nullptr || strlen(this->FileName) == 0)
   {
     vtkErrorMacro(<<"No FileName specified...please specify one.");
     return 0;
   }
 
   // open the file
-  if ( (fp = fopen(this->FileName, "rb")) == NULL)
+  if ( (fp = fopen(this->FileName, "rb")) == nullptr)
   {
     vtkErrorMacro(<<"Cannot open file specified.");
     return 0;
   }
 
   // read the header stuff
-  if ( fread (header, 1, 2, fp) <= 0 ||
-  fread (&numberOfParts, 4, 1, fp) <= 0 ||
-  fread (header, 1, 36, fp) <= 0 )
+  if ( fread (header, 1, 2, fp) == 0 ||
+       fread (&numberOfParts, 4, 1, fp) == 0 ||
+       fread (header, 1, 36, fp) == 0 )
   {
     vtkErrorMacro(<<"File ended prematurely");
     fclose(fp);
@@ -321,7 +325,7 @@ int vtkUGFacetReader::GetNumberOfParts()
 // Retrieve color index for the parts in the file.
 short vtkUGFacetReader::GetPartColorIndex(int partId)
 {
-  if ( this->PartColors == NULL )
+  if ( this->PartColors == nullptr )
   {
     this->Update();
   }
@@ -345,12 +349,12 @@ void vtkUGFacetReader::SetLocator(vtkIncrementalPointLocator *locator)
   {
     return;
   }
-  if (this->Locator != NULL)
+  if (this->Locator != nullptr)
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  if (locator != NULL)
+  if (locator != nullptr)
   {
     locator->Register(this);
   }
@@ -360,7 +364,7 @@ void vtkUGFacetReader::SetLocator(vtkIncrementalPointLocator *locator)
 
 void vtkUGFacetReader::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -385,3 +389,5 @@ void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
   }
 }
+
+#endif //VTK_LEGACY_REMOVE

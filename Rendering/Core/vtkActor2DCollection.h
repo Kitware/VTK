@@ -92,9 +92,9 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
 
 protected:
   vtkActor2DCollection() {}
-  ~vtkActor2DCollection() VTK_OVERRIDE;
+  ~vtkActor2DCollection() override;
 
-  void DeleteElement(vtkCollectionElement *) VTK_OVERRIDE;
+  void DeleteElement(vtkCollectionElement *) override;
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -103,8 +103,8 @@ private:
   int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
 
 private:
-  vtkActor2DCollection(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
+  vtkActor2DCollection(const vtkActor2DCollection&) = delete;
+  void operator=(const vtkActor2DCollection&) = delete;
 };
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)
@@ -119,9 +119,9 @@ inline vtkActor2D *vtkActor2DCollection::GetNextActor2D()
 
 inline vtkActor2D *vtkActor2DCollection::GetLastActor2D()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

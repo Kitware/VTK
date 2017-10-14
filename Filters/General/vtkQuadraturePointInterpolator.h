@@ -43,18 +43,18 @@ class VTKFILTERSGENERAL_EXPORT vtkQuadraturePointInterpolator : public vtkDataSe
 public:
   static vtkQuadraturePointInterpolator *New();
   vtkTypeMacro(vtkQuadraturePointInterpolator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
+  int RequestData(vtkInformation *req, vtkInformationVector **input, vtkInformationVector *output) override;
   vtkQuadraturePointInterpolator();
-  ~vtkQuadraturePointInterpolator() VTK_OVERRIDE;
+  ~vtkQuadraturePointInterpolator() override;
 
 private:
-  vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQuadraturePointInterpolator &) VTK_DELETE_FUNCTION;
+  vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator &) = delete;
+  void operator=(const vtkQuadraturePointInterpolator &) = delete;
   //
   void Clear();
   //@{

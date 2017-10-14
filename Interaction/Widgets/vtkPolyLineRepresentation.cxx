@@ -62,7 +62,6 @@ vtkPolyLineRepresentation::vtkPolyLineRepresentation()
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   lineMapper->SetInputConnection(
     this->PolyLineSource->GetOutputPort()) ;
-  lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   this->LineActor->SetMapper( lineMapper );
@@ -126,7 +125,7 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
   }
 
   // Ensure that no handle is current
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
 
   double radius = this->HandleGeometry[0]->GetRadius();
   this->Initialize();
@@ -175,7 +174,7 @@ void vtkPolyLineRepresentation::SetNumberOfHandles(int npts)
   }
   else
   {
-    this->CurrentHandleIndex = this->HighlightHandle(NULL);
+    this->CurrentHandleIndex = this->HighlightHandle(nullptr);
   }
 
   this->BuildRepresentation();

@@ -45,7 +45,6 @@
 #include "vtkResliceCursorWidget.h"
 #include "vtkResliceCursorLineRepresentation.h"
 #include "vtkBiDimensionalWidget.h"
-//#include "vtkResliceCursorThickLineRepresentation.h"
 
 #include "vtkTestUtilities.h"
 
@@ -58,7 +57,7 @@ public:
   { return new vtkResliceCursorCallback; }
 
   void Execute( vtkObject *caller, unsigned long /*ev*/,
-                void *callData ) VTK_OVERRIDE
+                void *callData ) override
   {
     vtkImagePlaneWidget* ipw =
       dynamic_cast< vtkImagePlaneWidget* >( caller );

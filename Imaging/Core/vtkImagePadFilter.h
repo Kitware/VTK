@@ -33,7 +33,7 @@ class VTKIMAGINGCORE_EXPORT vtkImagePadFilter : public vtkThreadedImageAlgorithm
 public:
   static vtkImagePadFilter *New();
   vtkTypeMacro(vtkImagePadFilter,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -56,24 +56,24 @@ public:
 
 protected:
   vtkImagePadFilter();
-  ~vtkImagePadFilter() VTK_OVERRIDE {}
+  ~vtkImagePadFilter() override {}
 
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
 
   int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
 
   virtual void ComputeInputUpdateExtent (int inExt[6], int outExt[6],
                                          int wExt[6]);
 
 private:
-  vtkImagePadFilter(const vtkImagePadFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImagePadFilter&) VTK_DELETE_FUNCTION;
+  vtkImagePadFilter(const vtkImagePadFilter&) = delete;
+  void operator=(const vtkImagePadFilter&) = delete;
 };
 
 #endif

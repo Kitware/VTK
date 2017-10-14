@@ -97,7 +97,7 @@ void vtkGeoSource::Initialize(int numThreads)
 
 void vtkGeoSource::ShutDown()
 {
-  if (this->Implementation->ThreadIds.size() > 0)
+  if (!this->Implementation->ThreadIds.empty())
   {
     this->Lock->Lock();
     this->StopThread = true;
@@ -119,7 +119,7 @@ void vtkGeoSource::ShutDown()
 
 vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
 {
-  vtkCollection* c = 0;
+  vtkCollection* c = nullptr;
   this->OutputSetLock->Lock();
   std::pair<unsigned long, int> p(node->GetId(), node->GetLevel());
   if (this->Implementation->OutputMap.count(p) > 0)
@@ -127,8 +127,8 @@ vtkCollection* vtkGeoSource::GetRequestedNodes(vtkGeoTreeNode* node)
     c = this->Implementation->OutputMap[p];
     if (c)
     {
-      c->Register(0);
-      this->Implementation->OutputMap[p] = 0;
+      c->Register(nullptr);
+      this->Implementation->OutputMap[p] = nullptr;
     }
   }
   this->OutputSetLock->Unlock();
@@ -183,7 +183,7 @@ void vtkGeoSource::WorkerThread()
 
       // Create appropriate child instances
       vtkGeoTreeNode* child[4];
-      isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != NULL ? true : false;
+      isTerrainNode = vtkGeoTerrainNode::SafeDownCast(node) != nullptr ? true : false;
       if (isTerrainNode)
       {
         for (int i = 0; i < 4; ++i)
@@ -226,7 +226,7 @@ void vtkGeoSource::WorkerThread()
 
 
       node->Delete();
-      node = NULL;
+      node = nullptr;
 
       for (int i = 0; i < 4; ++i)
       {

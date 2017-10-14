@@ -197,8 +197,8 @@ int vtkPointSetToLabelHierarchy::RequestData(
     return 0;
   }
 
-  vtkPoints* pts = 0;
-  vtkDataSetAttributes* pdata = 0;
+  vtkPoints* pts = nullptr;
+  vtkDataSetAttributes* pdata = nullptr;
 
   if ( graph )
   {

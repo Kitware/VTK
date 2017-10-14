@@ -40,9 +40,9 @@ vtkStreamingStatistics::vtkStreamingStatistics()
   this->SetNumberOfInputPorts(3);
   this->SetNumberOfOutputPorts(3);
 
-  // Initialize internal stats algorithm to NULL
-  this->StatisticsAlgorithm = 0;
-  this->SetStatisticsAlgorithm(0);
+  // Initialize internal stats algorithm to nullptr
+  this->StatisticsAlgorithm = nullptr;
+  this->SetStatisticsAlgorithm(nullptr);
 
   // Initialize internal model
   this->InternalModel = vtkMultiBlockDataSet::New();
@@ -52,12 +52,12 @@ vtkStreamingStatistics::vtkStreamingStatistics()
 vtkStreamingStatistics::~vtkStreamingStatistics()
 {
   // Release/delete internal stats algorithm
-  this->SetStatisticsAlgorithm(0);
-  this->StatisticsAlgorithm = 0;
+  this->SetStatisticsAlgorithm(nullptr);
+  this->StatisticsAlgorithm = nullptr;
 
-  // Release/delete internal model to NULL
+  // Release/delete internal model to nullptr
   this->InternalModel->Delete();
-  this->InternalModel = 0;
+  this->InternalModel = nullptr;
 }
 
 // ----------------------------------------------------------------------

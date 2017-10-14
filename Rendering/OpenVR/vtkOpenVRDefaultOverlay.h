@@ -29,7 +29,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRDefaultOverlay : public vtkOpenVROverla
 public:
   static vtkOpenVRDefaultOverlay *New();
   vtkTypeMacro(vtkOpenVRDefaultOverlay, vtkOpenVROverlay);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Render the overlay, we set some opf the spots based on current settings
@@ -43,8 +43,8 @@ protected:
   virtual void SetupSpots();
 
 private:
-  vtkOpenVRDefaultOverlay(const vtkOpenVRDefaultOverlay&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenVRDefaultOverlay&) VTK_DELETE_FUNCTION;
+  vtkOpenVRDefaultOverlay(const vtkOpenVRDefaultOverlay&) = delete;
+  void operator=(const vtkOpenVRDefaultOverlay&) = delete;
 };
 
 #endif

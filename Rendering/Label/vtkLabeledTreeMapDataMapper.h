@@ -59,14 +59,14 @@ class VTKRENDERINGLABEL_EXPORT vtkLabeledTreeMapDataMapper : public vtkLabeledDa
 public:
   static vtkLabeledTreeMapDataMapper *New();
   vtkTypeMacro(vtkLabeledTreeMapDataMapper,vtkLabeledDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Draw the text to the screen at each input point.
    */
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) VTK_OVERRIDE;
-  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) VTK_OVERRIDE;
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor) override;
+  void RenderOverlay(vtkViewport *viewport, vtkActor2D *actor) override;
   //@}
 
   /**
@@ -108,7 +108,7 @@ public:
   /**
    * Release any graphics resources that are being consumed by this actor.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -130,7 +130,7 @@ public:
 
 protected:
   vtkLabeledTreeMapDataMapper();
-  ~vtkLabeledTreeMapDataMapper() VTK_OVERRIDE;
+  ~vtkLabeledTreeMapDataMapper() override;
   void LabelTree(vtkTree *tree, vtkFloatArray *boxInfo,
                  vtkDataArray *numericData, vtkStringArray *stringData,
                  int activeComp, int numComps);
@@ -171,8 +171,8 @@ protected:
   vtkTextProperty **HLabelProperties;
 
 private:
-  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
+  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&) = delete;
+  void operator=(const vtkLabeledTreeMapDataMapper&) = delete;
 };
 
 

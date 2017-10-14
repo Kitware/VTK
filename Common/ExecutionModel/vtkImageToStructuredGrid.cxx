@@ -70,22 +70,22 @@ int vtkImageToStructuredGrid::RequestData(
 {
   vtkInformation* inInfo  = inputVector[0]->GetInformationObject( 0 );
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
-  assert( inInfo  != NULL );
-  assert( outInfo != NULL );
+  assert( inInfo  != nullptr );
+  assert( outInfo != nullptr );
 
    vtkImageData* img = vtkImageData::SafeDownCast(
        inInfo->Get(vtkImageData::DATA_OBJECT() ) );
-   assert( img != NULL );
+   assert( img != nullptr );
 
    vtkStructuredGrid* grid = vtkStructuredGrid::SafeDownCast(
        outInfo->Get( vtkStructuredGrid::DATA_OBJECT()  ) );
-   assert( grid != NULL );
+   assert( grid != nullptr );
 
    int dims[3];
    img->GetDimensions( dims );
 
    vtkPoints *gridPoints = vtkPoints::New();
-   assert( gridPoints != NULL );
+   assert( gridPoints != nullptr );
    gridPoints->SetDataTypeToDouble();
    gridPoints->SetNumberOfPoints( img->GetNumberOfPoints() );
 
@@ -109,8 +109,8 @@ int vtkImageToStructuredGrid::RequestData(
 void vtkImageToStructuredGrid::CopyPointData(
                     vtkImageData* img, vtkStructuredGrid* sgrid)
 {
-  assert( img != NULL );
-  assert( sgrid != NULL );
+  assert( img != nullptr );
+  assert( sgrid != nullptr );
 
   if( img->GetPointData()->GetNumberOfArrays() == 0 )
     return;
@@ -126,8 +126,8 @@ void vtkImageToStructuredGrid::CopyPointData(
 void vtkImageToStructuredGrid::CopyCellData(
                   vtkImageData* img, vtkStructuredGrid* sgrid )
 {
-  assert( img != NULL );
-  assert( sgrid != NULL );
+  assert( img != nullptr );
+  assert( sgrid != nullptr );
 
   if( img->GetCellData()->GetNumberOfArrays() == 0)
     return;

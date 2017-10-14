@@ -137,7 +137,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Do the basic initialization. This includes saving the parameters
@@ -164,7 +164,7 @@ protected:
   {
     VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
   }
-  ~vtkVolumeRayCastFunction()VTK_OVERRIDE {}
+  ~vtkVolumeRayCastFunction() override {}
 
   /**
    * This method gives the subclass a chance to do any special
@@ -176,8 +176,8 @@ protected:
                                            vtkVolumeRayCastMapper *mapper )=0;
 
 private:
-  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&) = delete;
+  void operator=(const vtkVolumeRayCastFunction&) = delete;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

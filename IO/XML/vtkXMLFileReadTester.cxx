@@ -20,15 +20,15 @@ vtkStandardNewMacro(vtkXMLFileReadTester);
 //----------------------------------------------------------------------------
 vtkXMLFileReadTester::vtkXMLFileReadTester()
 {
-  this->FileDataType = 0;
-  this->FileVersion = 0;
+  this->FileDataType = nullptr;
+  this->FileVersion = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLFileReadTester::~vtkXMLFileReadTester()
 {
-  this->SetFileDataType(0);
-  this->SetFileVersion(0);
+  this->SetFileDataType(nullptr);
+  this->SetFileVersion(nullptr);
 }
 
 //----------------------------------------------------------------------------

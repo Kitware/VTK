@@ -31,20 +31,20 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCameraNode :
 public:
   static vtkOSPRayCameraNode* New();
   vtkTypeMacro(vtkOSPRayCameraNode, vtkCameraNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass);
+  virtual void Render(bool prepass) override;
 
 protected:
   vtkOSPRayCameraNode();
   ~vtkOSPRayCameraNode();
 
 private:
-  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayCameraNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayCameraNode(const vtkOSPRayCameraNode&) = delete;
+  void operator=(const vtkOSPRayCameraNode&) = delete;
 };
 
 #endif

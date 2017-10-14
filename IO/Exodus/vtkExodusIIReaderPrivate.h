@@ -341,7 +341,7 @@ public:
     /// Cached cell connectivity arrays for mesh
     vtkUnstructuredGrid* CachedConnectivity;
 
-    BlockSetInfoType(){this->CachedConnectivity=0;}
+    BlockSetInfoType(){this->CachedConnectivity=nullptr;}
     BlockSetInfoType(const BlockSetInfoType& block);
     ~BlockSetInfoType();
     BlockSetInfoType& operator=(const BlockSetInfoType& block);
@@ -428,23 +428,23 @@ public:
   const char* GetPartName(int idx);
   const char* GetPartBlockInfo(int idx);
   int GetPartStatus(int idx);
-  int GetPartStatus(vtkStdString name);
+  int GetPartStatus(const vtkStdString& name);
   void SetPartStatus(int idx, int on);
-  void SetPartStatus(vtkStdString name, int flag);
+  void SetPartStatus(const vtkStdString& name, int flag);
 
   int GetNumberOfMaterials();
   const char* GetMaterialName(int idx);
   int GetMaterialStatus(int idx);
-  int GetMaterialStatus(vtkStdString name);
+  int GetMaterialStatus(const vtkStdString& name);
   void SetMaterialStatus(int idx, int on);
-  void SetMaterialStatus(vtkStdString name, int flag);
+  void SetMaterialStatus(const vtkStdString& name, int flag);
 
   int GetNumberOfAssemblies();
   const char* GetAssemblyName(int idx);
   int GetAssemblyStatus(int idx);
-  int GetAssemblyStatus(vtkStdString name);
+  int GetAssemblyStatus(const vtkStdString& name);
   void SetAssemblyStatus(int idx, int on);
-  void SetAssemblyStatus(vtkStdString name, int flag);
+  void SetAssemblyStatus(const vtkStdString& name, int flag);
 
   void SetFastPathObjectType(vtkExodusIIReader::ObjectType type)
     {this->FastPathObjectType = type;};
@@ -492,7 +492,7 @@ public:
 
 protected:
   vtkExodusIIReaderPrivate();
-  ~vtkExodusIIReaderPrivate() VTK_OVERRIDE;
+  ~vtkExodusIIReaderPrivate() override;
 
   /// Build SIL. This must be called only after RequestInformation().
   void BuildSIL();
@@ -732,7 +732,7 @@ protected:
    * "DISPX ", "DISPY ", "DISPZ " (note trailing spaces),
    * which prevented glomming and use of the vector field for displacements.
    */
-  void RemoveBeginningAndTrailingSpaces( int len, char **names );
+  void RemoveBeginningAndTrailingSpaces( int len, char **names, int maxNameLength );
 
   /// Delete any cached connectivity information (for all blocks and sets)
   void ClearConnectivityCaches();
@@ -861,8 +861,8 @@ protected:
 
   vtkMutableDirectedGraph* SIL;
 private:
-  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
+  vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ) = delete;
+  void operator = ( const vtkExodusIIReaderPrivate& ) = delete;
 };
 
 #endif // vtkExodusIIReaderPrivate_h

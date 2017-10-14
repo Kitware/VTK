@@ -149,7 +149,7 @@ int UnitTestGenericGeometryFilter(int, char*[])
               << " FAILED." << std::endl;
     status++;
   }
-  else if (filter->GetOutput()->GetCellData()->GetArray("vtkOriginalCellIds") == NULL)
+  else if (filter->GetOutput()->GetCellData()->GetArray("vtkOriginalCellIds") == nullptr)
   {
     std::cout << " PassThroughCellIdsOn should produce vtkOriginalCellIds, but did not." << std::endl;
     std::cout << " FAILED." << std::endl;

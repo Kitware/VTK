@@ -48,7 +48,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextMapper : public vtkMapper2D
 {
 public:
   vtkTypeMacro(vtkTextMapper,vtkMapper2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new text mapper.
@@ -123,20 +123,20 @@ public:
                                          int *stringSize, float sizeFactor);
   //@}
 
-  void RenderOverlay(vtkViewport *, vtkActor2D *) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  void RenderOverlay(vtkViewport *, vtkActor2D *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkTextMapper();
-  ~vtkTextMapper() VTK_OVERRIDE;
+  ~vtkTextMapper() override;
 
   char* Input;
   vtkTextProperty *TextProperty;
 
 private:
-  vtkTextMapper(const vtkTextMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextMapper&) VTK_DELETE_FUNCTION;
+  vtkTextMapper(const vtkTextMapper&) = delete;
+  void operator=(const vtkTextMapper&) = delete;
 
   void UpdateQuad(vtkActor2D *actor, int dpi);
   void UpdateImage(int dpi);

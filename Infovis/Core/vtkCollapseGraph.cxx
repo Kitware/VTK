@@ -30,7 +30,6 @@
 #include "vtkSelection.h"
 #include "vtkSmartPointer.h"
 
-//#include <iterator>
 #include <vector>
 
 /// Defines storage for a collection of edges

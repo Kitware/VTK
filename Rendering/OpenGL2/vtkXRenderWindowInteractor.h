@@ -53,19 +53,19 @@ class VTKRENDERINGOPENGL2_EXPORT vtkXRenderWindowInteractor : public vtkRenderWi
 public:
   static vtkXRenderWindowInteractor *New();
   vtkTypeMacro(vtkXRenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initializes the event handlers without an XtAppContext.  This is
    * good for when you don't have a user interface, but you still
    * want to have mouse interaction.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Break the event loop on 'q','e' keypress. Want more ???
    */
-  void TerminateApp() VTK_OVERRIDE;
+  void TerminateApp() override;
 
   //@{
   /**
@@ -99,15 +99,15 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  void Enable() VTK_OVERRIDE;
-  void Disable() VTK_OVERRIDE;
+  void Enable() override;
+  void Disable() override;
   //@}
 
   /**
    * Update the Size data member and set the associated RenderWindow's
    * size.
    */
-  void UpdateSize(int,int) VTK_OVERRIDE;
+  void UpdateSize(int,int) override;
 
   //@{
   /**
@@ -167,7 +167,7 @@ public:
   /**
    * Re-defines virtual function to get mouse position by querying X-server.
    */
-  void GetMousePosition(int *x, int *y) VTK_OVERRIDE;
+  void GetMousePosition(int *x, int *y) override;
 
   //@{
   /**
@@ -180,7 +180,7 @@ public:
 
 protected:
   vtkXRenderWindowInteractor();
-  ~vtkXRenderWindowInteractor() VTK_OVERRIDE;
+  ~vtkXRenderWindowInteractor() override;
 
   //Using static here to avoid detroying context when many apps are open:
   static XtAppContext App;
@@ -201,8 +201,8 @@ protected:
    * X-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
-  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
   //@}
 
   XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
@@ -217,11 +217,11 @@ protected:
    * call this method it will loop processing X events until the
    * application is exited.
    */
-  void StartEventLoop() VTK_OVERRIDE;
+  void StartEventLoop() override;
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) = delete;
+  void operator=(const vtkXRenderWindowInteractor&) = delete;
 };
 
 #endif

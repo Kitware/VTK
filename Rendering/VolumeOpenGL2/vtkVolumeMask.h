@@ -32,7 +32,7 @@ public:
   //--------------------------------------------------------------------------
   vtkVolumeMask()
   {
-    this->Texture = NULL;
+    this->Texture = nullptr;
     this->Loaded = false;
     this->LoadedExtent[0] = VTK_INT_MAX;
     this->LoadedExtent[1] = VTK_INT_MIN;
@@ -48,7 +48,7 @@ public:
     if (this->Texture)
     {
       this->Texture->Delete();
-      this->Texture = 0;
+      this->Texture = nullptr;
     }
   }
 
@@ -330,7 +330,7 @@ public:
     {
       this->Texture->ReleaseGraphicsResources(window);
       this->Texture->Delete();
-      this->Texture = 0;
+      this->Texture = nullptr;
     }
   }
 

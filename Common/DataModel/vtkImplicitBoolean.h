@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum OperationType
   {
@@ -64,18 +64,18 @@ public:
    * Evaluate boolean combinations of implicit function using current operator.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate gradient of boolean combination.
    */
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   /**
    * Override modified time retrieval because of object dependencies.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Add another implicit function to the list of functions.
@@ -111,15 +111,15 @@ public:
 
 protected:
   vtkImplicitBoolean();
-  ~vtkImplicitBoolean() VTK_OVERRIDE;
+  ~vtkImplicitBoolean() override;
 
   vtkImplicitFunctionCollection *FunctionList;
 
   int OperationType;
 
 private:
-  vtkImplicitBoolean(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
+  vtkImplicitBoolean(const vtkImplicitBoolean&) = delete;
+  void operator=(const vtkImplicitBoolean&) = delete;
 };
 
 //@{

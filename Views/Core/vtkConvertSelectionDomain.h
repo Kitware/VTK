@@ -51,26 +51,26 @@ class VTKVIEWSCORE_EXPORT vtkConvertSelectionDomain : public vtkPassInputTypeAlg
 public:
   static vtkConvertSelectionDomain *New();
   vtkTypeMacro(vtkConvertSelectionDomain, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkConvertSelectionDomain();
-  ~vtkConvertSelectionDomain() VTK_OVERRIDE;
+  ~vtkConvertSelectionDomain() override;
 
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   int FillInputPortInformation(
-    int port, vtkInformation* info) VTK_OVERRIDE;
+    int port, vtkInformation* info) override;
 
   int FillOutputPortInformation(
-    int port, vtkInformation* info) VTK_OVERRIDE;
+    int port, vtkInformation* info) override;
 
 private:
-  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
+  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) = delete;
+  void operator=(const vtkConvertSelectionDomain&) = delete;
 };
 
 #endif

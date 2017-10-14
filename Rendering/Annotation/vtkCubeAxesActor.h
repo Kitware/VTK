@@ -68,7 +68,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkCubeAxesActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkCubeAxesActor,vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with label format "6.3g" and the number of labels
@@ -80,11 +80,11 @@ public:
   /**
    * Draw the axes as per the vtkProp superclass' API.
    */
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport*) override;
   virtual int RenderTranslucentGeometry(vtkViewport*);
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -104,7 +104,7 @@ public:
    */
   vtkSetVector6Macro(Bounds,double);
   using Superclass::GetBounds;
-  double *GetBounds() VTK_OVERRIDE { return this->Bounds; }
+  double *GetBounds() override { return this->Bounds; }
   //@}
 
   //@{
@@ -265,7 +265,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -549,7 +549,7 @@ public:
 
   //@{
   /**
-   * Provide a custom AxisOrigin. This point must be inside the bouding box and
+   * Provide a custom AxisOrigin. This point must be inside the bounding box and
    * will represent the point where the 3 axes will interesect
    */
   vtkSetVector3Macro(AxisOrigin,double);
@@ -605,7 +605,7 @@ public:
 
 protected:
   vtkCubeAxesActor();
-  ~vtkCubeAxesActor() VTK_OVERRIDE;
+  ~vtkCubeAxesActor() override;
 
   /**
    * Computes a bounding sphere used to determine the sticky bounding box.
@@ -810,8 +810,8 @@ protected:
   double AxisBaseForZ[3];
 
 private:
-  vtkCubeAxesActor(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
+  vtkCubeAxesActor(const vtkCubeAxesActor&) = delete;
+  void operator=(const vtkCubeAxesActor&) = delete;
 
   vtkSetStringMacro(ActualXLabel);
   vtkSetStringMacro(ActualYLabel);

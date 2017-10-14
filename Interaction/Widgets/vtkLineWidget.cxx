@@ -48,13 +48,13 @@ class vtkPWCallback : public vtkCommand
 public:
   static vtkPWCallback *New()
     { return new vtkPWCallback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetLinePosition(x);
   }
-  vtkPWCallback():LineWidget(0),PointWidget(0) {}
+  vtkPWCallback():LineWidget(nullptr),PointWidget(nullptr) {}
   vtkLineWidget  *LineWidget;
   vtkPointWidget *PointWidget;
 };
@@ -67,13 +67,13 @@ class vtkPW1Callback : public vtkCommand
 public:
   static vtkPW1Callback *New()
     { return new vtkPW1Callback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetPoint1(x);
   }
-  vtkPW1Callback():LineWidget(0),PointWidget(0) {}
+  vtkPW1Callback():LineWidget(nullptr),PointWidget(nullptr) {}
   vtkLineWidget  *LineWidget;
   vtkPointWidget *PointWidget;
 };
@@ -86,13 +86,13 @@ class vtkPW2Callback : public vtkCommand
 public:
   static vtkPW2Callback *New()
     { return new vtkPW2Callback; }
-  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*) override
   {
       double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetPoint2(x);
   }
-  vtkPW2Callback():LineWidget(0),PointWidget(0) {}
+  vtkPW2Callback():LineWidget(nullptr),PointWidget(nullptr) {}
   vtkLineWidget *LineWidget;
   vtkPointWidget *PointWidget;
 };
@@ -162,7 +162,7 @@ vtkLineWidget::vtkLineWidget()
   this->LinePicker->AddPickList(this->LineActor);
   this->LinePicker->PickFromListOn();
 
-  this->CurrentHandle = NULL;
+  this->CurrentHandle = nullptr;
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -198,7 +198,7 @@ vtkLineWidget::vtkLineWidget()
                                   this->PW1Callback, 0.0);
   this->PointWidget2->AddObserver(vtkCommand::InteractionEvent,
                                   this->PW2Callback, 0.0);
-  this->CurrentPointWidget = NULL;
+  this->CurrentPointWidget = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -261,7 +261,7 @@ void vtkLineWidget::SetEnabled(int enabling)
         this->Interactor->FindPokedRenderer(
           this->Interactor->GetLastEventPosition()[0],
           this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -304,7 +304,7 @@ void vtkLineWidget::SetEnabled(int enabling)
     this->BuildRepresentation();
     this->SizeHandles();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling----------------------------------------------------------
@@ -335,9 +335,9 @@ void vtkLineWidget::SetEnabled(int enabling)
       this->CurrentPointWidget->EnabledOff();
     }
 
-    this->CurrentHandle = NULL;
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->CurrentHandle = nullptr;
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -508,7 +508,7 @@ int vtkLineWidget::ForwardEvent(unsigned long event)
   }
 
   this->CurrentPointWidget->ProcessEvents(this,event,
-                                          this->CurrentPointWidget,NULL);
+                                          this->CurrentPointWidget,nullptr);
 
   return 1;
 }
@@ -568,7 +568,7 @@ void vtkLineWidget::DisablePointWidget()
   {
     this->CurrentPointWidget->Off();
   }
-  this->CurrentPointWidget = NULL;
+  this->CurrentPointWidget = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -622,11 +622,11 @@ void vtkLineWidget::OnLeftButtonDown()
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->EventCallbackCommand->SetAbortFlag(1);
     this->StartInteraction();
-    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     this->State = vtkLineWidget::MovingHandle;
     this->HighlightHandle(path->GetFirstNode()->GetViewProp());
     this->EnablePointWidget();
@@ -636,11 +636,11 @@ void vtkLineWidget::OnLeftButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->EventCallbackCommand->SetAbortFlag(1);
       this->StartInteraction();
-      this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+      this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
       this->State = vtkLineWidget::MovingLine;
       this->HighlightLine(1);
       this->EnablePointWidget();
@@ -649,7 +649,7 @@ void vtkLineWidget::OnLeftButtonDown()
     else
     {
       this->State = vtkLineWidget::Outside;
-      this->HighlightHandle(NULL);
+      this->HighlightHandle(nullptr);
       return;
     }
   }
@@ -670,7 +670,7 @@ void vtkLineWidget::OnLeftButtonUp()
   }
 
   this->State = vtkLineWidget::Start;
-  this->HighlightHandle(NULL);
+  this->HighlightHandle(nullptr);
   this->HighlightLine(0);
 
   this->SizeHandles();
@@ -680,7 +680,7 @@ void vtkLineWidget::OnLeftButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   if ( ! forward )
   {
     this->Interactor->Render();
@@ -706,11 +706,11 @@ void vtkLineWidget::OnMiddleButtonDown()
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->EventCallbackCommand->SetAbortFlag(1);
     this->StartInteraction();
-    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
     this->State = vtkLineWidget::MovingLine;
     this->HighlightHandles(1);
     this->HighlightLine(1);
@@ -721,11 +721,11 @@ void vtkLineWidget::OnMiddleButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->EventCallbackCommand->SetAbortFlag(1);
       this->StartInteraction();
-      this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+      this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
       //The highlight methods set the LastPickPosition, so they are ordered
       this->HighlightHandles(1);
       this->HighlightLine(1);
@@ -766,7 +766,7 @@ void vtkLineWidget::OnMiddleButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   if ( ! forward )
   {
     this->Interactor->Render();
@@ -790,7 +790,7 @@ void vtkLineWidget::OnRightButtonDown()
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->HandlePicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->HighlightLine(1);
     this->HighlightHandles(1);
@@ -800,7 +800,7 @@ void vtkLineWidget::OnRightButtonDown()
   {
     path = this->GetAssemblyPath(X, Y, 0., this->LinePicker);
 
-    if ( path != NULL )
+    if ( path != nullptr )
     {
       this->HighlightHandles(1);
       this->HighlightLine(1);
@@ -816,7 +816,7 @@ void vtkLineWidget::OnRightButtonDown()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -837,7 +837,7 @@ void vtkLineWidget::OnRightButtonUp()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -893,7 +893,7 @@ void vtkLineWidget::OnMouseMove()
 
   // Interact, if desired
   this->EventCallbackCommand->SetAbortFlag(1);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   if ( ! forward )
   {
     this->Interactor->Render();

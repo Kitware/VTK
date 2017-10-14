@@ -32,7 +32,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractUnstructuredGridPiece : public vtkUnst
 public:
   static vtkExtractUnstructuredGridPiece *New();
   vtkTypeMacro(vtkExtractUnstructuredGridPiece, vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -45,12 +45,12 @@ public:
 
 protected:
   vtkExtractUnstructuredGridPiece();
-  ~vtkExtractUnstructuredGridPiece() VTK_OVERRIDE {}
+  ~vtkExtractUnstructuredGridPiece() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   // A method for labeling which piece the cells belong to.
   void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
@@ -63,8 +63,8 @@ private:
   void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
                          int piece, int numPieces);
 
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) = delete;
+  void operator=(const vtkExtractUnstructuredGridPiece&) = delete;
 };
 
 #endif

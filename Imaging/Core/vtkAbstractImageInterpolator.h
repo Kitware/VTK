@@ -47,7 +47,7 @@ class VTKIMAGINGCORE_EXPORT vtkAbstractImageInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractImageInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the interpolator with the data that you wish to interpolate.
@@ -179,7 +179,7 @@ public:
    * Get the support size for use in computing update extents.  If the data
    * will be sampled on a regular grid, then pass a matrix describing the
    * structured coordinate transformation between the output and the input.
-   * Otherwise, pass NULL as the matrix to retrieve the full kernel size.
+   * Otherwise, pass nullptr as the matrix to retrieve the full kernel size.
    */
   virtual void ComputeSupportSize(const double matrix[16], int support[3]) = 0;
 
@@ -262,7 +262,7 @@ public:
 
 protected:
   vtkAbstractImageInterpolator();
-  ~vtkAbstractImageInterpolator() VTK_OVERRIDE;
+  ~vtkAbstractImageInterpolator() override;
 
   /**
    * Subclass-specific updates.
@@ -327,8 +327,8 @@ protected:
 
 private:
 
-  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
+  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) = delete;
+  void operator=(const vtkAbstractImageInterpolator&) = delete;
 };
 
 inline void vtkAbstractImageInterpolator::InterpolateIJK(

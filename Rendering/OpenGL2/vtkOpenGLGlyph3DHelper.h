@@ -31,7 +31,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLGlyph3DHelper : public vtkOpenGLPolyDa
 public:
   static vtkOpenGLGlyph3DHelper* New();
   vtkTypeMacro(vtkOpenGLGlyph3DHelper, vtkOpenGLPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Fast path for rendering glyphs comprised of only one type of primitive
@@ -47,11 +47,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkOpenGLGlyph3DHelper();
-  ~vtkOpenGLGlyph3DHelper() VTK_OVERRIDE;
+  ~vtkOpenGLGlyph3DHelper() override;
 
   // special opengl 32 version that uses instances
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
@@ -64,7 +64,7 @@ protected:
    */
   void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -72,26 +72,26 @@ protected:
    */
   void ReplaceShaderPicking(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
   void ReplaceShaderNormal(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
   void ReplaceShaderClip(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
   void ReplaceShaderPositionVC(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
   //@}
 
   /**
    * Set the shader parameteres related to the actor/mapper
    */
   void SetMapperShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
 
   bool UsingInstancing;
 
@@ -103,8 +103,8 @@ protected:
 
 
 private:
-  vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLGlyph3DHelper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) = delete;
+  void operator=(const vtkOpenGLGlyph3DHelper&) = delete;
 };
 
 #endif

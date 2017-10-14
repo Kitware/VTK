@@ -51,7 +51,7 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction *cf)
 {
   this->ClipFunction = cf;
   this->InsideOut = 0;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->Value = 0.0;
   this->GenerateClipScalars = 0;
 
@@ -63,7 +63,7 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction *cf)
   this->GetExecutive()->SetOutputData(1, output2);
   output2->Delete();
 
-  this->InputScalarsSelection = NULL;
+  this->InputScalarsSelection = nullptr;
 
   this->InternalPD = vtkPointData::New();
   this->SecondaryPD = vtkPointData::New();
@@ -76,10 +76,10 @@ vtkGenericClip::~vtkGenericClip()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
-  this->SetClipFunction(NULL);
-  this->SetInputScalarsSelection(NULL);
+  this->SetClipFunction(nullptr);
+  this->SetInputScalarsSelection(nullptr);
   this->InternalPD->Delete();
   this->SecondaryPD->Delete();
   this->SecondaryCD->Delete();
@@ -104,12 +104,12 @@ vtkMTimeType vtkGenericClip::GetMTime()
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->ClipFunction != NULL )
+  if ( this->ClipFunction != nullptr )
   {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -123,7 +123,7 @@ vtkUnstructuredGrid *vtkGenericClip::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
@@ -149,7 +149,7 @@ int vtkGenericClip::RequestData(
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if(input==0)
+  if(input==nullptr)
   {
     return 1;
   }
@@ -170,8 +170,8 @@ int vtkGenericClip::RequestData(
   int numOutputs = 1;
   vtkGenericAdaptorCell *cell;
 
-  outCD[0] = 0;
-  outCD[1] = 0;
+  outCD[0] = nullptr;
+  outCD[1] = nullptr;
 
   vtkDebugMacro(<< "Clipping dataset");
 
@@ -222,7 +222,7 @@ int vtkGenericClip::RequestData(
   }
 
   // locator used to merge potentially duplicate points
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->CreateDefaultLocator();
   }
@@ -252,7 +252,7 @@ int vtkGenericClip::RequestData(
       attributeArray->SetName(attribute->GetName());
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->InternalPD->GetAttribute(attributeType)==0)
+      if(this->InternalPD->GetAttribute(attributeType)==nullptr)
       {
         this->InternalPD->SetActiveAttribute(
           this->InternalPD->GetNumberOfArrays()-1,attributeType);
@@ -269,7 +269,7 @@ int vtkGenericClip::RequestData(
     secondaryAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(secondaryAttributes->GetAttribute(attributeType)==0)
+    if(secondaryAttributes->GetAttribute(attributeType)==nullptr)
     {
       secondaryAttributes->SetActiveAttribute(secondaryAttributes->GetNumberOfArrays()-1,
                                               attributeType);
@@ -389,7 +389,7 @@ int vtkGenericClip::RequestData(
 // an instance of vtkMergePoints is used.
 void vtkGenericClip::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

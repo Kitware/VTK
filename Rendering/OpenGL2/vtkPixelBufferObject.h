@@ -61,7 +61,7 @@ public:
 
   static vtkPixelBufferObject* New();
   vtkTypeMacro(vtkPixelBufferObject, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
     newinc[0] = increment;
     newinc[1] = 0;
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,0);
+    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
   }
   //@}
 
@@ -144,7 +144,7 @@ public:
     newinc[0] = increments[0];
     newinc[1] = increments[1];
     newinc[2] = 0;
-    return this->Upload3D(type, data, newdims, comps, newinc,0,0);
+    return this->Upload3D(type, data, newdims, comps, newinc,0,nullptr);
   }
   //@}
 
@@ -355,7 +355,7 @@ public:
 
 protected:
   vtkPixelBufferObject();
-  ~vtkPixelBufferObject() VTK_OVERRIDE;
+  ~vtkPixelBufferObject() override;
 
   /**
    * Loads all required OpenGL extensions. Must be called every time a new
@@ -381,8 +381,8 @@ protected:
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
 private:
-  vtkPixelBufferObject(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
+  vtkPixelBufferObject(const vtkPixelBufferObject&) = delete;
+  void operator=(const vtkPixelBufferObject&) = delete;
 };
 
 #endif

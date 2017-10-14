@@ -31,7 +31,7 @@ class VTKFILTERSGENERAL_EXPORT vtkWarpLens : public vtkPointSetAlgorithm
 public:
   static vtkWarpLens *New();
   vtkTypeMacro(vtkWarpLens,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -99,18 +99,18 @@ public:
   vtkGetMacro(ImageHeight,int);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 protected:
   vtkWarpLens();
-  ~vtkWarpLens() VTK_OVERRIDE {}
+  ~vtkWarpLens() override {}
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+                        vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   double PrincipalPoint[2];      // The calibrated principal point of camera/lens in mm
   double K1;                     // Symmetric radial distortion parameters
@@ -122,8 +122,8 @@ protected:
   int ImageWidth;               // image width in pixels
   int ImageHeight;              // image height in pixels
 private:
-  vtkWarpLens(const vtkWarpLens&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWarpLens&) VTK_DELETE_FUNCTION;
+  vtkWarpLens(const vtkWarpLens&) = delete;
+  void operator=(const vtkWarpLens&) = delete;
 };
 
 #endif

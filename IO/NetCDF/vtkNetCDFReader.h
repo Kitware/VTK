@@ -53,7 +53,7 @@ class VTKIONETCDF_EXPORT vtkNetCDFReader : public vtkDataObjectAlgorithm
 public:
   vtkTypeMacro(vtkNetCDFReader, vtkDataObjectAlgorithm);
   static vtkNetCDFReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   virtual void SetFileName(const char *filename);
   vtkGetStringMacro(FileName);
@@ -148,7 +148,7 @@ public:
 
 protected:
   vtkNetCDFReader();
-  ~vtkNetCDFReader() VTK_OVERRIDE;
+  ~vtkNetCDFReader() override;
 
   char *FileName;
   vtkTimeStamp FileNameMTime;
@@ -179,15 +179,15 @@ protected:
 
   int RequestDataObject(vtkInformation *request,
                                 vtkInformationVector **inputVector,
-                                vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                vtkInformationVector *outputVector) override;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Callback registered with the VariableArraySelection.
@@ -255,8 +255,8 @@ protected:
                            vtkDataSet *output);
 
 private:
-  vtkNetCDFReader(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
+  vtkNetCDFReader(const vtkNetCDFReader &) = delete;
+  void operator=(const vtkNetCDFReader &) = delete;
 
   int UpdateExtent[6];
   char *TimeUnits;

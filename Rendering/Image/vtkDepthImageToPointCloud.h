@@ -83,13 +83,13 @@ public:
    */
   static vtkDepthImageToPointCloud *New();
   vtkTypeMacro(vtkDepthImageToPointCloud, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Return the MTime also considering the camera.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Indicates what camera was used to generate the depth image. The camera
@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkDepthImageToPointCloud();
-  ~vtkDepthImageToPointCloud() VTK_OVERRIDE;
+  ~vtkDepthImageToPointCloud() override;
 
   vtkCamera *Camera;
   bool CullNearPoints;
@@ -174,22 +174,22 @@ protected:
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
 
   int RequestUpdateExtent(vtkInformation *request,
                                   vtkInformationVector **inInfo,
-                                  vtkInformationVector *outInfo) VTK_OVERRIDE;
+                                  vtkInformationVector *outInfo) override;
 
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthImageToPointCloud&) VTK_DELETE_FUNCTION;
+  vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&) = delete;
+  void operator=(const vtkDepthImageToPointCloud&) = delete;
 
 };
 

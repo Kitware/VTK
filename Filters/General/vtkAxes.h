@@ -34,7 +34,7 @@ public:
   static vtkAxes *New();
 
   vtkTypeMacro(vtkAxes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -72,9 +72,9 @@ public:
 
 protected:
   vtkAxes();
-  ~vtkAxes() VTK_OVERRIDE {}
+  ~vtkAxes() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   // This source does not know how to generate pieces yet.
   int ComputeDivisionExtents(vtkDataObject *output,
                              int idx, int numDivisions);
@@ -85,8 +85,8 @@ protected:
   int Symmetric;
   int ComputeNormals;
 private:
-  vtkAxes(const vtkAxes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxes&) VTK_DELETE_FUNCTION;
+  vtkAxes(const vtkAxes&) = delete;
+  void operator=(const vtkAxes&) = delete;
 };
 
 #endif

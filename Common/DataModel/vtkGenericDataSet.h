@@ -74,7 +74,7 @@ public:
    * Standard VTK type and print macros.
    */
   vtkTypeMacro(vtkGenericDataSet,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -176,7 +176,7 @@ public:
    * Datasets are composite objects and need to check each part for their
    * modified time.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Compute the geometry bounding box.
@@ -232,12 +232,12 @@ public:
    * <li>EDGE   - Defined in vtkGraph subclasses.
    * <li>ROW    - Defined in vtkTable.
    * </ul>
-   * The other attribute type, FIELD, will return NULL since
+   * The other attribute type, FIELD, will return nullptr since
    * field data is stored as a vtkFieldData instance, not a
    * vtkDataSetAttributes instance. To retrieve field data, use
    * GetAttributesAsFieldData.
    */
-  vtkDataSetAttributes* GetAttributes(int type) VTK_OVERRIDE
+  vtkDataSetAttributes* GetAttributes(int type) override
     { return this->Superclass::GetAttributes(type); }
 
   //@{
@@ -255,12 +255,12 @@ public:
    * updated. It is guaranteed to be greater than or equal to the memory
    * required to represent the data.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   /**
    * Return the type of data object.
    */
-  int GetDataObjectType() VTK_OVERRIDE;
+  int GetDataObjectType() override;
 
   /**
    * Estimated size needed after tessellation (or special operation)
@@ -282,7 +282,7 @@ protected:
    */
   vtkGenericDataSet();
 
-  ~vtkGenericDataSet() VTK_OVERRIDE;
+  ~vtkGenericDataSet() override;
 
   vtkGenericAttributeCollection *Attributes;
 
@@ -294,8 +294,8 @@ protected:
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
 
 private:
-  vtkGenericDataSet(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
+  vtkGenericDataSet(const vtkGenericDataSet&) = delete;
+  void operator=(const vtkGenericDataSet&) = delete;
 };
 
 #endif

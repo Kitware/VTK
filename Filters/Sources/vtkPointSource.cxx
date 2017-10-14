@@ -46,7 +46,7 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
 
   this->Distribution = VTK_POINT_UNIFORM;
   this->OutputPointsPrecision = SINGLE_PRECISION;
-  this->RandomSequence = NULL;
+  this->RandomSequence = nullptr;
 
   this->SetNumberOfInputPorts(0);
 }
@@ -54,7 +54,7 @@ vtkPointSource::vtkPointSource(vtkIdType numPts)
 //----------------------------------------------------------------------------
 vtkPointSource::~vtkPointSource()
 {
-  this->SetRandomSequence(NULL);
+  this->SetRandomSequence(nullptr);
 }
 
 //----------------------------------------------------------------------------

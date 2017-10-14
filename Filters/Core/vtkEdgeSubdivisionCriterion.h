@@ -43,7 +43,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
 {
   public:
     vtkTypeMacro(vtkEdgeSubdivisionCriterion,vtkObject);
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
     /**
      * You must implement this member function in a subclass.
@@ -105,7 +105,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
 
   protected:
     vtkEdgeSubdivisionCriterion();
-    ~vtkEdgeSubdivisionCriterion() VTK_OVERRIDE;
+    ~vtkEdgeSubdivisionCriterion() override;
 
     int* FieldIds;
     int* FieldOffsets;
@@ -174,8 +174,8 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
     bool FixedFieldErrorEval( const double* p0, double* p1, double* p1_actual, const double* p2, int field_start, int field_criteria, double* allowableFieldErr ) const;
 
   private:
-    vtkEdgeSubdivisionCriterion( const vtkEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
+    vtkEdgeSubdivisionCriterion( const vtkEdgeSubdivisionCriterion& ) = delete;
+    void operator = ( const vtkEdgeSubdivisionCriterion& ) = delete;
 };
 
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldIds() const { return this->FieldIds; }

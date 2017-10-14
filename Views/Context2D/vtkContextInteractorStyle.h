@@ -38,7 +38,7 @@ class VTKVIEWSCONTEXT2D_EXPORT vtkContextInteractorStyle : public vtkInteractorS
 public:
   static vtkContextInteractorStyle *New();
   vtkTypeMacro(vtkContextInteractorStyle, vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the scene to forward user events to.
@@ -63,55 +63,55 @@ public:
    * Called when the user moves the mouse
    * Default behavior forwards the event to the observed scene.
    */
-  void OnMouseMove() VTK_OVERRIDE;
+  void OnMouseMove() override;
 
   /**
    * Called when the user clicks the mouse left button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnLeftButtonDown() VTK_OVERRIDE;
+  void OnLeftButtonDown() override;
 
   /**
    * Called when the user releases the mouse left button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnLeftButtonUp() VTK_OVERRIDE;
+  void OnLeftButtonUp() override;
 
   /**
    * Called when the user clicks the mouse middle button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnMiddleButtonDown() VTK_OVERRIDE;
+  void OnMiddleButtonDown() override;
 
   /**
    * Called when the user releases the mouse middle button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnMiddleButtonUp() VTK_OVERRIDE;
+  void OnMiddleButtonUp() override;
 
   /**
    * Called when the user clicks the mouse right button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnRightButtonDown() VTK_OVERRIDE;
+  void OnRightButtonDown() override;
 
   /**
    * Called when the user releases the mouse right button.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnRightButtonUp() override;
 
   /**
    * Called when the user moves the mouse wheel forward.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnMouseWheelForward() VTK_OVERRIDE;
+  void OnMouseWheelForward() override;
 
   /**
    * Called when the user moves the mouse wheel backward.
    * Default behavior forwards the event to the observed scene.
    */
-  void OnMouseWheelBackward() VTK_OVERRIDE;
+  void OnMouseWheelBackward() override;
 
   /**
    * Place holder for future implementation.
@@ -122,21 +122,21 @@ public:
   /**
    * Handle key presses.
    */
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
   /**
    * Called when the user presses a key.
    */
-  void OnKeyPress() VTK_OVERRIDE;
+  void OnKeyPress() override;
 
   /**
    * Called when the user releases a key.
    */
-  void OnKeyRelease() VTK_OVERRIDE;
+  void OnKeyRelease() override;
 
 protected:
   vtkContextInteractorStyle();
-  ~vtkContextInteractorStyle() VTK_OVERRIDE;
+  ~vtkContextInteractorStyle() override;
 
   static void ProcessSceneEvents(vtkObject* object, unsigned long event,
                                  void* clientdata, void* calldata);
@@ -166,12 +166,12 @@ protected:
   int                 ProcessingEvents;
   vtkMTimeType        LastSceneRepaintMTime;
 
-  int                 TimerId;
+  int                 SceneTimerId;
   bool                TimerCallbackInitialized;
 
 private:
-  vtkContextInteractorStyle(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
+  vtkContextInteractorStyle(const vtkContextInteractorStyle&) = delete;
+  void operator=(const vtkContextInteractorStyle&) = delete;
 
   void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
   bool ProcessMousePress(const vtkContextMouseEvent &event);

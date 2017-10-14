@@ -42,7 +42,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
   public:
 
     vtkTypeMacro(vtkParametricDini, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct Dini's surface with the following parameters:
@@ -59,7 +59,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     //@{
     /**
@@ -89,7 +89,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
      * \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = Du X Dv\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
@@ -105,19 +105,19 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
      * instantiated function should return zero.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricDini();
-    ~vtkParametricDini() VTK_OVERRIDE;
+    ~vtkParametricDini() override;
 
     // Variables
     double A;
     double B;
 
   private:
-    vtkParametricDini(const vtkParametricDini&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricDini&) VTK_DELETE_FUNCTION;
+    vtkParametricDini(const vtkParametricDini&) = delete;
+    void operator=(const vtkParametricDini&) = delete;
 };
 
 #endif

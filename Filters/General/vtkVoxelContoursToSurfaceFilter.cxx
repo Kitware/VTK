@@ -35,10 +35,10 @@ vtkVoxelContoursToSurfaceFilter::vtkVoxelContoursToSurfaceFilter()
   this->LineList           = new double[4*1000];
   this->LineListLength     = 0;
   this->LineListSize       = 1000;
-  this->SortedXList        = NULL;
-  this->SortedYList        = NULL;
-  this->WorkingList        = NULL;
-  this->IntersectionList   = NULL;
+  this->SortedXList        = nullptr;
+  this->SortedYList        = nullptr;
+  this->WorkingList        = nullptr;
+  this->IntersectionList   = nullptr;
   this->SortedListSize     = 0;
 }
 
@@ -471,7 +471,7 @@ int vtkVoxelContoursToSurfaceFilter::RequestData(
   int                  numberOfInputCells;
   int                  currentInputCellIndex;
   vtkIdType            npts = 0;
-  vtkIdType            *pts = 0;
+  vtkIdType            *pts = nullptr;
   double                point1[3], point2[3];
   double                currentZ;
   vtkStructuredPoints  *volume;

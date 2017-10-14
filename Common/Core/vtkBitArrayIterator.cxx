@@ -22,15 +22,15 @@ vtkCxxSetObjectMacro(vtkBitArrayIterator, Array, vtkBitArray);
 //-----------------------------------------------------------------------------
 vtkBitArrayIterator::vtkBitArrayIterator()
 {
-  this->Array = 0;
-  this->Tuple = 0;
+  this->Array = nullptr;
+  this->Tuple = nullptr;
   this->TupleSize = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkBitArrayIterator::~vtkBitArrayIterator()
 {
-  this->SetArray(0);
+  this->SetArray(nullptr);
   delete [] this->Tuple;
 }
 
@@ -57,7 +57,7 @@ int* vtkBitArrayIterator::GetTuple(vtkIdType id)
 {
   if (!this->Array)
   {
-    return 0;
+    return nullptr;
   }
 
   vtkIdType numComps = this->Array->GetNumberOfComponents();

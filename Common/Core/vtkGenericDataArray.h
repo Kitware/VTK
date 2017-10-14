@@ -110,7 +110,8 @@ public:
    * NumberOfComponents is known to the compiler (See vtkAssume.h).
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  void SetValue(vtkIdType valueIdx, ValueType value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     static_cast<DerivedT*>(this)->SetValue(valueIdx, value);
   }
@@ -123,7 +124,8 @@ public:
    * access.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     static_cast<const DerivedT*>(this)->GetTypedTuple(tupleIdx, tuple);
   }
@@ -136,7 +138,8 @@ public:
    * access.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     static_cast<DerivedT*>(this)->SetTypedTuple(tupleIdx, tuple);
   }
@@ -146,7 +149,9 @@ public:
    * the fastest way to access array data.
    * @ingroup vtkGDAConceptMethods
    */
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int compIdx) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     return static_cast<const DerivedT*>(this)->GetTypedComponent(tupleIdx,
                                                                  compIdx);
@@ -157,8 +162,9 @@ public:
    * typically the fastest way to set array data.
    * @ingroup vtkGDAConceptMethods
    */
-  inline void SetTypedComponent(vtkIdType tupleIdx, int compIdx,
-                                ValueType value)
+  void SetTypedComponent(vtkIdType tupleIdx, int compIdx, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_EXPECTS(0 <= compIdx && compIdx < GetNumberOfComponents())
   {
     static_cast<DerivedT*>(this)->SetTypedComponent(tupleIdx, compIdx, value);
   }
@@ -168,11 +174,11 @@ public:
    * Default implementation raises a runtime error. If subclasses keep on
    * supporting this API, they should override this method.
    */
-  void *GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE;
+  void *GetVoidPointer(vtkIdType valueIdx) override;
   ValueType* GetPointer(vtkIdType valueIdx);
-  void SetVoidArray(void*, vtkIdType, int) VTK_OVERRIDE;
-  void SetVoidArray(void*, vtkIdType, int, int) VTK_OVERRIDE;
-  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) VTK_OVERRIDE;
+  void SetVoidArray(void*, vtkIdType, int) override;
+  void SetVoidArray(void*, vtkIdType, int, int) override;
+  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   //@}
 
@@ -182,7 +188,7 @@ public:
    * encouraged to reimplemented this method to support faster implementations,
    * if needed.
    */
-  void RemoveTuple(vtkIdType tupleIdx) VTK_OVERRIDE;
+  void RemoveTuple(vtkIdType tupleIdx) override;
 
   /**
    * Insert data at the end of the array. Return its location in the array.
@@ -242,71 +248,71 @@ public:
    */
   virtual void FillValue(ValueType value);
 
-  int GetDataType() VTK_OVERRIDE;
-  int GetDataTypeSize() VTK_OVERRIDE;
-  bool HasStandardMemoryLayout() VTK_OVERRIDE;
-  int Allocate(vtkIdType size, vtkIdType ext = 1000) VTK_OVERRIDE;
-  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
-  void SetNumberOfComponents(int num) VTK_OVERRIDE;
-  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
-  void Squeeze() VTK_OVERRIDE;
+  int GetDataType() override;
+  int GetDataTypeSize() override;
+  bool HasStandardMemoryLayout() override;
+  int Allocate(vtkIdType size, vtkIdType ext = 1000) override;
+  int Resize(vtkIdType numTuples) override;
+  void SetNumberOfComponents(int num) override;
+  void SetNumberOfTuples(vtkIdType number) override;
+  void Initialize() override;
+  void Squeeze() override;
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                vtkAbstractArray* source) VTK_OVERRIDE;
+                vtkAbstractArray* source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::SetTuple;
-  void SetTuple(vtkIdType tupleIdx, const float *tuple) VTK_OVERRIDE
+  void SetTuple(vtkIdType tupleIdx, const float *tuple) override
   { this->Superclass::SetTuple(tupleIdx, tuple); }
-  void SetTuple(vtkIdType tupleIdx, const double *tuple) VTK_OVERRIDE
+  void SetTuple(vtkIdType tupleIdx, const double *tuple) override
   { this->Superclass::SetTuple(tupleIdx, tuple); }
 
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source) VTK_OVERRIDE;
+                    vtkAbstractArray *source) override;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
   // using Superclass::InsertTuples;
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source) VTK_OVERRIDE
+                    vtkAbstractArray* source) override
   { this->Superclass::InsertTuples(dstStart, n, srcStart, source); }
 
   void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                   vtkAbstractArray *source) VTK_OVERRIDE;
-  void InsertTuple(vtkIdType tupleIdx, const float *source) VTK_OVERRIDE;
-  void InsertTuple(vtkIdType tupleIdx, const double *source) VTK_OVERRIDE;
+                   vtkAbstractArray *source) override;
+  void InsertTuple(vtkIdType tupleIdx, const float *source) override;
+  void InsertTuple(vtkIdType tupleIdx, const double *source) override;
   void InsertComponent(vtkIdType tupleIdx, int compIdx,
-                       double value) VTK_OVERRIDE;
+                       double value) override;
   vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
-                            vtkAbstractArray *source) VTK_OVERRIDE;
-  vtkIdType InsertNextTuple(const float *tuple) VTK_OVERRIDE;
-  vtkIdType InsertNextTuple(const double *tuple) VTK_OVERRIDE;
+                            vtkAbstractArray *source) override;
+  vtkIdType InsertNextTuple(const float *tuple) override;
+  vtkIdType InsertNextTuple(const double *tuple) override;
   void GetTuples(vtkIdList *tupleIds,
-                 vtkAbstractArray *output) VTK_OVERRIDE;
+                 vtkAbstractArray *output) override;
   void GetTuples(vtkIdType p1, vtkIdType p2,
-                 vtkAbstractArray *output) VTK_OVERRIDE;
-  double *GetTuple(vtkIdType tupleIdx) VTK_OVERRIDE;
-  void GetTuple(vtkIdType tupleIdx, double * tuple) VTK_OVERRIDE;
+                 vtkAbstractArray *output) override;
+  double *GetTuple(vtkIdType tupleIdx) override;
+  void GetTuple(vtkIdType tupleIdx, double * tuple) override;
   void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
                         vtkAbstractArray* source,
-                        double* weights) VTK_OVERRIDE;
+                        double* weights) override;
   void InterpolateTuple(vtkIdType dstTupleIdx,
     vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
-    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
-  void SetComponent(vtkIdType tupleIdx, int compIdx, double value) VTK_OVERRIDE;
-  double GetComponent(vtkIdType tupleIdx, int compIdx) VTK_OVERRIDE;
-  void SetVariantValue(vtkIdType valueIdx, vtkVariant value) VTK_OVERRIDE;
-  vtkVariant GetVariantValue(vtkIdType valueIdx) VTK_OVERRIDE;
-  void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) VTK_OVERRIDE;
-  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) override;
+  void SetComponent(vtkIdType tupleIdx, int compIdx, double value) override;
+  double GetComponent(vtkIdType tupleIdx, int compIdx) override;
+  void SetVariantValue(vtkIdType valueIdx, vtkVariant value) override;
+  vtkVariant GetVariantValue(vtkIdType valueIdx) override;
+  void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) override;
+  vtkIdType LookupValue(vtkVariant value) override;
   virtual vtkIdType LookupTypedValue(ValueType value);
-  void LookupValue(vtkVariant value, vtkIdList* valueIds) VTK_OVERRIDE;
+  void LookupValue(vtkVariant value, vtkIdList* valueIds) override;
   virtual void LookupTypedValue(ValueType value, vtkIdList* valueIds);
-  void ClearLookup() VTK_OVERRIDE;
-  void DataChanged() VTK_OVERRIDE;
-  void FillComponent(int compIdx, double value) VTK_OVERRIDE;
-  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() VTK_OVERRIDE;
+  void ClearLookup() override;
+  void DataChanged() override;
+  void FillComponent(int compIdx, double value) override;
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
 
 protected:
   vtkGenericDataArray();
-  ~vtkGenericDataArray() VTK_OVERRIDE;
+  ~vtkGenericDataArray() override;
 
   /**
    * Allocate space for numTuples. Old data is not preserved. If numTuples == 0,
@@ -338,8 +344,8 @@ protected:
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 
 private:
-  vtkGenericDataArray(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
+  vtkGenericDataArray(const vtkGenericDataArray&) = delete;
+  void operator=(const vtkGenericDataArray&) = delete;
 
 };
 
@@ -353,7 +359,7 @@ private:
 // implementation.
 #define vtkAOSArrayNewInstanceMacro(thisClass) \
   protected: \
-  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE \
+  vtkObjectBase *NewInstanceInternal() const override \
   { \
     if (vtkDataArray *da = \
         vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE)) \

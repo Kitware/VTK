@@ -32,7 +32,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageShrink3D : public vtkThreadedImageAlgorithm
 public:
   static vtkImageShrink3D *New();
   vtkTypeMacro(vtkImageShrink3D,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkImageShrink3D();
-  ~vtkImageShrink3D()VTK_OVERRIDE {}
+  ~vtkImageShrink3D() override {}
 
   int ShrinkFactors[3];
   int Shift[3];
@@ -90,20 +90,20 @@ protected:
   int Maximum;
   int Median;
 
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int ext[6], int id) VTK_OVERRIDE;
+                           int ext[6], int id) override;
 
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
 private:
-  vtkImageShrink3D(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
+  vtkImageShrink3D(const vtkImageShrink3D&) = delete;
+  void operator=(const vtkImageShrink3D&) = delete;
 };
 
 #endif

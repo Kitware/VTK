@@ -39,7 +39,7 @@ public:
    * dimensionality 3.
    */
   vtkTypeMacro(vtkImageDecomposeFilter,vtkImageIterateFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -63,14 +63,14 @@ public:
 
 protected:
   vtkImageDecomposeFilter();
-  ~vtkImageDecomposeFilter()VTK_OVERRIDE {}
+  ~vtkImageDecomposeFilter() override {}
 
   int Dimensionality;
 
 
 private:
-  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDecomposeFilter&) VTK_DELETE_FUNCTION;
+  vtkImageDecomposeFilter(const vtkImageDecomposeFilter&) = delete;
+  void operator=(const vtkImageDecomposeFilter&) = delete;
 };
 
 #endif

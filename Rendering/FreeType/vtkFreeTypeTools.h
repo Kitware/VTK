@@ -28,13 +28,16 @@
 
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // For smart pointer
 #include "vtkTextRenderer.h" // For Metrics struct
+#include "vtkUnicodeString.h" // For vtkUnicodeStringValueType
+
+#include <array> // for std::array
 
 class vtkImageData;
 class vtkPath;
 class vtkTextProperty;
 class vtkStdString;
-class vtkUnicodeString;
 
 // FreeType
 #include "vtk_freetype.h"  //since ft2build.h could be in the path
@@ -64,8 +67,26 @@ private:
 class VTKRENDERINGFREETYPE_EXPORT vtkFreeTypeTools : public vtkObject
 {
 public:
+  struct FaceMetrics
+  {
+    int UnitsPerEM;
+    int Ascender;
+    int Descender;
+    int HorizAdvance;
+    std::array<int, 4> BoundingBox; // xmin, xmax, ymin, ymax
+    std::string FamilyName;
+    bool Scalable;
+    bool Bold;
+    bool Italic;
+  };
+  struct GlyphOutline
+  {
+    int HorizAdvance;
+    vtkSmartPointer<vtkPath> Path;
+  };
+
   vtkTypeMacro(vtkFreeTypeTools, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the singleton instance with no reference counting.
@@ -92,6 +113,31 @@ public:
    * Get the FreeType library singleton.
    */
   FT_Library* GetLibrary();
+
+  /**
+   * Return some metrics about a font face. The information is generic and not
+   * tied to a single font size, but describes a scalable font defined on the EM
+   * square.
+   */
+  FaceMetrics GetFaceMetrics(vtkTextProperty *tprop);
+
+  /**
+   * Return a generic outline of a glyph with some additional metadata. The
+   * information is generic and not tied to a single font size, but describes a
+   * scalable font defined on the EM square.
+   */
+  GlyphOutline GetUnscaledGlyphOutline(vtkTextProperty *tprop,
+                                       vtkUnicodeStringValueType charId);
+
+  /**
+   * Return a 2D vector detailing the unscaled kerning offset for a pair of
+   * characters. If tprop's font size is 0, the information will be generic and
+   * not tied to a single font size, but describe a scalable font defined on
+   * the EM square.
+   */
+  std::array<int, 2> GetUnscaledKerning(vtkTextProperty *tprop,
+                                        vtkUnicodeStringValueType leftChar,
+                                        vtkUnicodeStringValueType rightChar);
 
   //@{
   /**
@@ -145,9 +191,9 @@ public:
    * options.
    */
   bool RenderString(vtkTextProperty *tprop, const vtkStdString& str, int dpi,
-                    vtkImageData *data, int textDims[2] = NULL);
+                    vtkImageData *data, int textDims[2] = nullptr);
   bool RenderString(vtkTextProperty *tprop, const vtkUnicodeString& str,
-                    int dpi, vtkImageData *data, int textDims[2] = NULL);
+                    int dpi, vtkImageData *data, int textDims[2] = nullptr);
   //@}
 
   //@{
@@ -332,7 +378,7 @@ protected:
   bool ScaleToPowerTwo;
 
   vtkFreeTypeTools();
-  ~vtkFreeTypeTools() VTK_OVERRIDE;
+  ~vtkFreeTypeTools() override;
 
   /**
    * Attempt to get the typeface of the specified font.
@@ -406,8 +452,8 @@ protected:
   void ReleaseCacheManager();
 
 private:
-  vtkFreeTypeTools(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
+  vtkFreeTypeTools(const vtkFreeTypeTools&) = delete;
+  void operator=(const vtkFreeTypeTools&) = delete;
 
   /**
    * Internal helper called by RenderString methods
@@ -462,6 +508,8 @@ private:
                        FT_UInt &previousGlyphIndex, vtkPath *path,
                        MetaData &metaData);
   //@}
+
+  void OutlineToPath(int x, int y, FT_Outline *outline, vtkPath *path);
 
   /**
    * Internal helper method called by GetConstrainedFontSize. Returns the

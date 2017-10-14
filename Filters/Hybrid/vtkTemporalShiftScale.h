@@ -42,7 +42,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalShiftScale: public vtkAlgorithm
 public:
   static vtkTemporalShiftScale *New();
   vtkTypeMacro(vtkTemporalShiftScale, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkTemporalShiftScale();
-  ~vtkTemporalShiftScale() VTK_OVERRIDE;
+  ~vtkTemporalShiftScale() override;
 
   double PreShift;
   double PostShift;
@@ -136,14 +136,14 @@ protected:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
   virtual int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
                                    vtkInformationVector *);
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
 
   virtual int RequestDataObject(vtkInformation *,
@@ -163,8 +163,8 @@ protected:
   double BackwardConvert(double T1);
 
 private:
-  vtkTemporalShiftScale(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
+  vtkTemporalShiftScale(const vtkTemporalShiftScale&) = delete;
+  void operator=(const vtkTemporalShiftScale&) = delete;
 };
 
 

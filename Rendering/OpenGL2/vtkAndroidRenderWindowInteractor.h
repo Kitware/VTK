@@ -152,8 +152,8 @@ protected:
   virtual void StartEventLoop();
 
 private:
-  vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAndroidRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&) = delete;
+  void operator=(const vtkAndroidRenderWindowInteractor&) = delete;
 };
 
 #endif

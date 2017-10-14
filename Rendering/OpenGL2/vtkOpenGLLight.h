@@ -32,20 +32,20 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLLight : public vtkLight
 public:
   static vtkOpenGLLight *New();
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  void Render(vtkRenderer *ren, int light_index) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, int light_index) override;
 
 protected:
   vtkOpenGLLight() {}
-  ~vtkOpenGLLight() VTK_OVERRIDE {}
+  ~vtkOpenGLLight() override {}
 
 private:
-  vtkOpenGLLight(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
+  vtkOpenGLLight(const vtkOpenGLLight&) = delete;
+  void operator=(const vtkOpenGLLight&) = delete;
 };
 
 #endif

@@ -38,7 +38,7 @@ class VTKIOEXPORT_EXPORT vtkOBJExporter : public vtkExporter
 public:
   static vtkOBJExporter *New();
   vtkTypeMacro(vtkOBJExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,14 +51,14 @@ public:
 
 protected:
   vtkOBJExporter();
-  ~vtkOBJExporter() VTK_OVERRIDE;
+  ~vtkOBJExporter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;
 private:
-  vtkOBJExporter(const vtkOBJExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBJExporter&) VTK_DELETE_FUNCTION;
+  vtkOBJExporter(const vtkOBJExporter&) = delete;
+  void operator=(const vtkOBJExporter&) = delete;
 };
 
 #endif

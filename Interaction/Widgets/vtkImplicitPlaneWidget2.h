@@ -113,7 +113,7 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkImplicitPlaneWidget2,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -126,7 +126,7 @@ public:
   // Descritpion:
   // Disable/Enable the widget if needed.
   // Unobserved the camera if the widget is disabled.
-  void SetEnabled(int enabling) VTK_OVERRIDE;
+  void SetEnabled(int enabling) override;
 
   /**
    * Observe/Unobserve the camera if the widget is locked/unlocked to update the
@@ -143,11 +143,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkImplicitPlaneWidget2();
-  ~vtkImplicitPlaneWidget2() VTK_OVERRIDE;
+  ~vtkImplicitPlaneWidget2() override;
 
   // Manage the state of the widget
   int WidgetState;
@@ -160,6 +160,9 @@ protected:
   static void EndSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void MovePlaneAction(vtkAbstractWidget*);
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
   /**
    * Update the cursor shape based on the interaction state. Returns 1
@@ -176,8 +179,8 @@ protected:
   //@}
 
 private:
-  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
+  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) = delete;
+  void operator=(const vtkImplicitPlaneWidget2&) = delete;
 };
 
 #endif

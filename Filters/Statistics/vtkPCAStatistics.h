@@ -63,7 +63,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkPCAStatistics : public vtkMultiCorrelativeS
 {
 public:
   vtkTypeMacro(vtkPCAStatistics,vtkMultiCorrelativeStatistics);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   static vtkPCAStatistics* New();
 
   /**
@@ -238,37 +238,37 @@ public:
    */
   bool SetParameter( const char* parameter,
                      int index,
-                     vtkVariant value ) VTK_OVERRIDE;
+                     vtkVariant value ) override;
 
 protected:
   vtkPCAStatistics();
-  ~vtkPCAStatistics() VTK_OVERRIDE;
+  ~vtkPCAStatistics() override;
 
   /**
    * This algorithm accepts a vtkTable containing normalization values for
    * its fourth input (port 3).
    * We override FillInputPortInformation to indicate this.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE;
+             vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                vtkMultiBlockDataSet*,
-               vtkTable* ) VTK_OVERRIDE;
+               vtkTable* ) override;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -282,7 +282,7 @@ protected:
   void SelectAssessFunctor( vtkTable* inData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
 
   int NormalizationScheme;
   int BasisScheme;
@@ -293,8 +293,8 @@ protected:
   static const char* NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1];
 
 private:
-  vtkPCAStatistics( const vtkPCAStatistics& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPCAStatistics& ) VTK_DELETE_FUNCTION;
+  vtkPCAStatistics( const vtkPCAStatistics& ) = delete;
+  void operator = ( const vtkPCAStatistics& ) = delete;
 };
 
 #endif // vtkPCAStatistics_h

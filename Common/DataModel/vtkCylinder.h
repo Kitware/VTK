@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkCylinder,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct cylinder radius of 0.5; centered at origin with axis
@@ -55,13 +55,13 @@ public:
    * Evaluate cylinder equation F(r) = r^2 - Radius^2.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate cylinder function gradient.
    */
-  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double g[3]) override;
 
   //@{
   /**
@@ -92,15 +92,15 @@ public:
 
 protected:
   vtkCylinder();
-  ~vtkCylinder() VTK_OVERRIDE {}
+  ~vtkCylinder() override {}
 
   double Radius;
   double Center[3];
   double Axis[3];
 
 private:
-  vtkCylinder(const vtkCylinder&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCylinder&) VTK_DELETE_FUNCTION;
+  vtkCylinder(const vtkCylinder&) = delete;
+  void operator=(const vtkCylinder&) = delete;
 };
 
 #endif

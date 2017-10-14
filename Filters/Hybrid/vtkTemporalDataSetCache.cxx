@@ -238,7 +238,7 @@ int vtkTemporalDataSetCache
     }
 
     // if we need any data
-    if (reqTimeSteps.size())
+    if (!reqTimeSteps.empty())
     {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),reqTimeSteps[0]);
     }
@@ -272,7 +272,7 @@ int vtkTemporalDataSetCache::RequestData(
 
   vtkInformation      *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation     *outInfo = outputVector->GetInformationObject(0);
-  vtkDataObject       *output = NULL;
+  vtkDataObject       *output = nullptr;
 
   vtkMTimeType outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
 

@@ -291,7 +291,7 @@ int vtkDensifyPointCloudFilter::RequestData(
   vtkPoints *newPts = inPts->NewInstance();
   newPts->DeepCopy(inPts);
   output->SetPoints(newPts);
-  vtkPointData *outPD=NULL;
+  vtkPointData *outPD=nullptr;
   if ( this->InterpolateAttributeData )
   {
     outPD = output->GetPointData();
@@ -301,7 +301,7 @@ int vtkDensifyPointCloudFilter::RequestData(
 
   vtkIdType ptId, numInPts, numNewPts;
   vtkIdType npts, offset, *offsets;
-  void *pts=NULL;
+  void *pts=nullptr;
   double d = this->TargetDistance;
 
   // Loop over the data, bisecting connecting edges as required.

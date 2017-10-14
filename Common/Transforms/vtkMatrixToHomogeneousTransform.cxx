@@ -23,14 +23,14 @@ vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform,Input,vtkMatrix4x4);
 //----------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::vtkMatrixToHomogeneousTransform()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
   this->InverseFlag = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMatrixToHomogeneousTransform::~vtkMatrixToHomogeneousTransform()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 }
 
 //----------------------------------------------------------------------------

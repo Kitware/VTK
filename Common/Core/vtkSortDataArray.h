@@ -83,7 +83,7 @@ public:
    */
   static vtkSortDataArray *New();
   vtkTypeMacro(vtkSortDataArray, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -180,7 +180,7 @@ public:
 
 protected:
   vtkSortDataArray();
-  ~vtkSortDataArray() VTK_OVERRIDE;
+  ~vtkSortDataArray() override;
 
   // A more efficient sort for single component arrays. This is delegated to
   // by the methods above (if appropriate).
@@ -193,8 +193,8 @@ protected:
                             vtkAbstractArray *arr, void *dataIn, int dir);
 
 private:
-  vtkSortDataArray(const vtkSortDataArray &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSortDataArray &) VTK_DELETE_FUNCTION;
+  vtkSortDataArray(const vtkSortDataArray &) = delete;
+  void operator=(const vtkSortDataArray &) = delete;
 };
 
 #endif //vtkSortDataArray_h

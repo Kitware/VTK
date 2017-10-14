@@ -43,7 +43,7 @@ class vtkCocoaTkUtilities : public vtkObject
 public:
   static vtkCocoaTkUtilities *New();
   vtkTypeMacro(vtkCocoaTkUtilities,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the NSView for a Tk_Window.  It is returned as a void pointer
@@ -53,11 +53,11 @@ public:
 
 protected:
   vtkCocoaTkUtilities() {}
-  ~vtkCocoaTkUtilities() VTK_OVERRIDE {}
+  ~vtkCocoaTkUtilities() override {}
 
 private:
-  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
+  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&) = delete;
+  void operator=(const vtkCocoaTkUtilities&) = delete;
 };
 
 #endif

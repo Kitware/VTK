@@ -67,17 +67,17 @@ vtkStandardNewMacro(vtkPlotPoints)
 //-----------------------------------------------------------------------------
 vtkPlotPoints::vtkPlotPoints()
 {
-  this->Points = NULL;
-  this->Sorted = NULL;
-  this->BadPoints = NULL;
-  this->ValidPointMask = NULL;
+  this->Points = nullptr;
+  this->Sorted = nullptr;
+  this->BadPoints = nullptr;
+  this->ValidPointMask = nullptr;
   this->MarkerStyle = vtkPlotPoints::CIRCLE;
   this->MarkerSize = -1.0;
   this->LogX = false;
   this->LogY = false;
 
-  this->LookupTable = 0;
-  this->Colors = 0;
+  this->LookupTable = nullptr;
+  this->Colors = nullptr;
   this->ScalarVisibility = 0;
 
   this->UnscaledInputBounds[0] = this->UnscaledInputBounds[2] = vtkMath::Inf();
@@ -90,19 +90,19 @@ vtkPlotPoints::~vtkPlotPoints()
   if (this->Points)
   {
     this->Points->Delete();
-    this->Points = NULL;
+    this->Points = nullptr;
   }
   delete this->Sorted;
   if (this->BadPoints)
   {
     this->BadPoints->Delete();
-    this->BadPoints = NULL;
+    this->BadPoints = nullptr;
   }
   if (this->LookupTable)
   {
     this->LookupTable->UnRegister(this);
   }
-  if ( this->Colors != 0 )
+  if ( this->Colors != nullptr )
   {
     this->Colors->UnRegister(this);
   }
@@ -126,7 +126,7 @@ void vtkPlotPoints::Update()
   }
   else
   {
-    this->ValidPointMask = 0;
+    this->ValidPointMask = nullptr;
   }
 
   if (!table)
@@ -184,7 +184,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     painter->GetPen()->SetWidth(width);
 
     float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
-    unsigned char *colors = 0;
+    unsigned char *colors = nullptr;
     int nColorComponents = 0;
     if (this->ScalarVisibility && this->Colors)
     {
@@ -195,33 +195,27 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
     {
       vtkIdType lastGood = 0;
+      vtkIdType bpIdx = 0;
+      vtkIdType nPoints = this->Points->GetNumberOfPoints();
+      vtkIdType nBadPoints = this->BadPoints->GetNumberOfTuples();
 
-      for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
+      while (lastGood < nPoints)
       {
-        vtkIdType id = this->BadPoints->GetValue(i);
+        vtkIdType id = bpIdx < nBadPoints ?
+          this->BadPoints->GetValue(bpIdx) : this->Points->GetNumberOfPoints();
 
         // render from last good point to one before this bad point
-        if (id - lastGood > 2)
+        if (id - lastGood > 0)
         {
           painter->DrawMarkers(this->MarkerStyle, false,
-                               points + 2 * (lastGood + 1),
-                               id - lastGood - 1,
-                               colors ? colors + 4 * (lastGood + 1) : 0,
+                               points + 2 * (lastGood),
+                               id - lastGood,
+                               colors ? colors + 4 * (lastGood) : nullptr,
                                nColorComponents);
         }
-
-        lastGood = id;
+        lastGood = id + 1;
+        bpIdx++;
       }
-
-        // render any trailing good points
-        if (this->Points->GetNumberOfPoints() - lastGood > 2)
-        {
-          painter->DrawMarkers(this->MarkerStyle, false,
-                               points + 2 * (lastGood + 1),
-                               this->Points->GetNumberOfPoints() - lastGood - 1,
-                               colors ? colors + 4 * (lastGood + 1) : 0,
-                               nColorComponents);
-        }
     }
     else
     {
@@ -492,6 +486,7 @@ bool vtkPlotPoints::SelectPointsInPolygon(const vtkContextPolygon &polygon)
       this->Selection->InsertNextValue(pointId);
     }
   }
+  this->Selection->Modified();
 
   // return true if we selected any points
   return this->Selection->GetNumberOfTuples() > 0;
@@ -659,7 +654,7 @@ bool vtkPlotPoints::GetDataArrays(vtkTable *table, vtkDataArray *array[2])
 
   // Get the x and y arrays (index 0 and 1 respectively)
   array[0] = this->UseIndexForXSeries ?
-        0 : this->Data->GetInputArrayToProcess(0, table);
+        nullptr : this->Data->GetInputArrayToProcess(0, table);
   array[1] = this->Data->GetInputArrayToProcess(1, table);
 
   if (!array[0] && !this->UseIndexForXSeries)
@@ -686,7 +681,7 @@ bool vtkPlotPoints::GetDataArrays(vtkTable *table, vtkDataArray *array[2])
 //-----------------------------------------------------------------------------
 bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
 {
-  vtkDataArray *array[2] = { 0, 0 };
+  vtkDataArray *array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
     this->BuildTime.Modified();
@@ -725,7 +720,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   this->FindBadPoints();
   this->Points->Modified();
   delete this->Sorted;
-  this->Sorted = 0;
+  this->Sorted = nullptr;
 
   // Additions for color mapping
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
@@ -751,7 +746,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
     else
     {
       this->Colors->UnRegister(this);
-      this->Colors = 0;
+      this->Colors = nullptr;
     }
   }
 
@@ -764,7 +759,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
 void vtkPlotPoints::CalculateUnscaledInputBounds()
 {
   vtkTable *table = this->Data->GetInput();
-  vtkDataArray *array[2] = { 0, 0 };
+  vtkDataArray *array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
     return;
@@ -849,7 +844,7 @@ void vtkPlotPoints::FindBadPoints()
 
   // Scan through and find any bad points.
   vtkTable *table = this->Data->GetInput();
-  vtkDataArray *array[2] = { 0, 0 };
+  vtkDataArray *array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
     return;
@@ -901,7 +896,7 @@ void vtkPlotPoints::FindBadPoints()
   else if (this->BadPoints)
   {
     this->BadPoints->Delete();
-    this->BadPoints = NULL;
+    this->BadPoints = nullptr;
   }
 }
 
@@ -951,7 +946,7 @@ void vtkPlotPoints::SetLookupTable(vtkScalarsToColors *lut)
 //-----------------------------------------------------------------------------
 vtkScalarsToColors *vtkPlotPoints::GetLookupTable()
 {
-  if ( this->LookupTable == 0 )
+  if ( this->LookupTable == nullptr )
   {
     this->CreateDefaultLookupTable();
   }
@@ -996,7 +991,6 @@ void vtkPlotPoints::SelectColorArray(const vtkStdString& arrayName)
   vtkDebugMacro(<< "SelectColorArray called with invalid column name.");
   this->ColorArrayName = "";
   this->Modified();
-  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1018,7 +1012,7 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
   else
   {
     const char *arrayName = table->GetColumnName(arrayNum);
-    if (this->ColorArrayName == arrayName || arrayName == 0)
+    if (this->ColorArrayName == arrayName || arrayName == nullptr)
     {
       return;
     }

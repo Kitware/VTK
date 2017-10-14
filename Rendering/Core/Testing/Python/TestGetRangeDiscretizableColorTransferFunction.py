@@ -15,8 +15,8 @@ class TestGetRangeDiscretizableColorTransferFunction(Testing.vtkTest):
     def testGetRangeTwoDoubleStarArg(self):
         cmap = vtk.vtkDiscretizableColorTransferFunction()
 
-        localMin = vtk.mutable(-1)
-        localMax = vtk.mutable(-1)
+        localMin = vtk.reference(-1)
+        localMax = vtk.reference(-1)
         cmap.GetRange(localMin, localMax)
         self.assertEqual(localMin, 0.0)
         self.assertEqual(localMax, 0.0)

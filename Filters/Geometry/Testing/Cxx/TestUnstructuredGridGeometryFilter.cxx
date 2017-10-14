@@ -3663,9 +3663,9 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection(0, linearGeom->GetOutputPort(0) );
 
- if(linearGeom->GetOutput()->GetPointData()!=0)
+ if(linearGeom->GetOutput()->GetPointData()!=nullptr)
  {
-    if(linearGeom->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(linearGeom->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( linearGeom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

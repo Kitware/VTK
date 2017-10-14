@@ -169,7 +169,7 @@ int vtkQuadraticQuad::EvaluatePosition(double* x,
       pcoords[1] = 0.5 + (pcoords[1]/2.0);
     }
     pcoords[2] = 0.0;
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
     {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
@@ -452,7 +452,7 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
                                    double pcoords[3], double *values,
                                    int dim, double *derivs)
 {
-  double sum[3], weights[8];
+  double sum[3];
   double functionDerivs[16];
   double elemNodes[8][3];
   double *J[3], J0[3], J1[3], J2[3];
@@ -463,7 +463,6 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
     this->Points->GetPoint(i, elemNodes[i]);
   }
 
-  this->InterpolationFunctions(pcoords,weights);
   this->InterpolationDerivs(pcoords,functionDerivs);
 
   // Compute transposed Jacobian and inverse Jacobian

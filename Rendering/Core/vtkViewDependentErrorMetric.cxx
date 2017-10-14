@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkViewDependentErrorMetric);
 vtkViewDependentErrorMetric::vtkViewDependentErrorMetric()
 {
   this->PixelTolerance = 0.25; // arbitrary positive value
-  this->Viewport = 0;
+  this->Viewport = nullptr;
   this->Coordinate = vtkCoordinate::New();
   this->Coordinate->SetCoordinateSystemToWorld();
 }
@@ -76,9 +76,9 @@ int vtkViewDependentErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
                                                          double *rightPoint,
                                                          double vtkNotUsed(alpha))
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
   {
@@ -137,9 +137,9 @@ double vtkViewDependentErrorMetric::GetError(double *leftPoint,
                                              double *rightPoint,
                                              double vtkNotUsed(alpha))
 {
-  assert("pre: leftPoint_exists" && leftPoint!=0);
-  assert("pre: midPoint_exists" && midPoint!=0);
-  assert("pre: rightPoint_exists" && rightPoint!=0);
+  assert("pre: leftPoint_exists" && leftPoint!=nullptr);
+  assert("pre: midPoint_exists" && midPoint!=nullptr);
+  assert("pre: rightPoint_exists" && rightPoint!=nullptr);
 //  assert("pre: clamped_alpha" && alpha>0 && alpha<1); // or else true
   if( this->GenericCell->IsGeometryLinear() )
   {

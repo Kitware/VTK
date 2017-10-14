@@ -90,7 +90,7 @@ int vtkAMRSliceFilter::FillOutputPortInformation(
 //------------------------------------------------------------------------------
 bool vtkAMRSliceFilter::IsAMRData2D( vtkOverlappingAMR *input )
 {
-  assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
+  assert( "pre: Input AMR dataset is nullptr" && (input != nullptr)  );
 
   if( input->GetGridDescription() != VTK_XYZ_GRID )
   {
@@ -136,7 +136,7 @@ void vtkAMRSliceFilter::InitializeOffSet(
 //------------------------------------------------------------------------------
 vtkPlane* vtkAMRSliceFilter::GetCutPlane( vtkOverlappingAMR *inp )
 {
-  assert( "pre: AMR dataset should not be NULL" && (inp != NULL) );
+  assert( "pre: AMR dataset should not be nullptr" && (inp != nullptr) );
 
   vtkTimerLog::MarkStartEvent( "AMRSlice::GetCutPlane" );
 
@@ -292,8 +292,8 @@ bool vtkAMRSliceFilter::PlaneIntersectsAMRBox(double plane[4],double bounds[6])
 void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(
     vtkPlane *p, vtkOverlappingAMR *metadata )
 {
-  assert( "pre: plane object is NULL" && (p != NULL) );
-  assert( "pre: metadata object is NULL" && (metadata != NULL) );
+  assert( "pre: plane object is nullptr" && (p != nullptr) );
+  assert( "pre: metadata object is nullptr" && (metadata != nullptr) );
 
   vtkTimerLog::MarkStartEvent( "AMRSlice::ComputeAMRBlocksToLoad" );
 
@@ -331,9 +331,9 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     vtkPlane *p, vtkOverlappingAMR *inp,
     vtkOverlappingAMR *out )
 {
-  assert( "pre: input AMR dataset is NULL" && (inp != NULL) );
-  assert( "pre: output AMR dataset is NULL" && (out != NULL) );
-  assert( "pre: cut plane is NULL" && (p != NULL) );
+  assert( "pre: input AMR dataset is nullptr" && (inp != nullptr) );
+  assert( "pre: output AMR dataset is nullptr" && (out != nullptr) );
+  assert( "pre: cut plane is nullptr" && (p != nullptr) );
 
   int description=0;
   switch( this->Normal )
@@ -399,7 +399,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     unsigned int dataIdx;
     inp->GetLevelAndIndex(flatIndex,level,dataIdx);
     vtkUniformGrid *grid = inp->GetDataSet( level, dataIdx );
-    vtkUniformGrid* slice = NULL;
+    vtkUniformGrid* slice = nullptr;
 
     if(grid)
     {
@@ -408,7 +408,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
       grid->GetDimensions( dims );
       slice = this->GetSlice( p->GetOrigin(), dims, grid->GetOrigin(), grid->GetSpacing());
       assert( "Dimension of slice must be 2-D" && (slice->GetDataDimension()==2) );
-      assert( "2-D slice is NULL" && (slice != NULL) );
+      assert( "2-D slice is nullptr" && (slice != nullptr) );
       this->GetSliceCellData( slice, grid );
     }
     else
@@ -444,12 +444,12 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
 void vtkAMRSliceFilter::ComputeCellCenter(
     vtkUniformGrid *ug, const int cellIdx, double centroid[3] )
 {
-    assert( "pre: Input grid is NULL" && (ug != NULL) );
+    assert( "pre: Input grid is nullptr" && (ug != nullptr) );
     assert( "pre: cell index out-of-bounds!" &&
             ( (cellIdx >= 0) && (cellIdx < ug->GetNumberOfCells() ) ) );
 
     vtkCell *myCell = ug->GetCell( cellIdx );
-    assert( "post: cell is NULL" && (myCell != NULL) );
+    assert( "post: cell is nullptr" && (myCell != nullptr) );
 
     myCell->GetNumberOfPoints();
     double pCenter[3];
@@ -500,17 +500,17 @@ int vtkAMRSliceFilter::GetDonorCellIdx( double x[3], vtkUniformGrid *ug )
 void vtkAMRSliceFilter::GetSliceCellData(
     vtkUniformGrid *slice, vtkUniformGrid *grid3D )
 {
-  assert( "pre: AMR slice grid is NULL" && (slice != NULL) );
-  assert( "pre: 3-D AMR slice grid is NULL" && (grid3D != NULL) );
+  assert( "pre: AMR slice grid is nullptr" && (slice != nullptr) );
+  assert( "pre: 3-D AMR slice grid is nullptr" && (grid3D != nullptr) );
 
 //  vtkTimerLog::MarkStartEvent( "AMRSlice::GetDataForBlock" );
 
   // STEP 1: Allocate data-structures
   vtkCellData *sourceCD = grid3D->GetCellData();
-  assert( "pre: source cell data is NULL" && ( sourceCD != NULL ) );
+  assert( "pre: source cell data is nullptr" && ( sourceCD != nullptr ) );
 
   vtkCellData *targetCD = slice->GetCellData();
-  assert( "pre: target cell data is NULL" && (targetCD != NULL) );
+  assert( "pre: target cell data is nullptr" && (targetCD != nullptr) );
 
   if( sourceCD->GetNumberOfArrays() == 0 )
     return;
@@ -526,7 +526,7 @@ void vtkAMRSliceFilter::GetSliceCellData(
     array->SetNumberOfTuples( numCells );
     targetCD->AddArray( array );
     vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(array);
-    if (uca != NULL && uca == slice->GetCellGhostArray())
+    if (uca != nullptr && uca == slice->GetCellGhostArray())
     {
       // initiallize the ghost array
       memset(uca->WritePointer(0, numCells), 0, numCells);
@@ -548,14 +548,14 @@ void vtkAMRSliceFilter::GetSliceCellData(
        for(;arrayIdx < sourceCD->GetNumberOfArrays(); ++arrayIdx )
        {
          vtkDataArray *sourceArray = sourceCD->GetArray(arrayIdx);
-         assert( "pre: src array is NULL" &&
-                 (sourceArray != NULL) );
+         assert( "pre: src array is nullptr" &&
+                 (sourceArray != nullptr) );
          const char *name = sourceArray->GetName();
          assert( "pre: target cell data must have array" &&
                   (targetCD->HasArray( name ) ) );
          vtkDataArray *targetArray = targetCD->GetArray( name );
-         assert( "pre: target array is NULL" &&
-                 (targetArray != NULL ) );
+         assert( "pre: target array is nullptr" &&
+                 (targetArray != nullptr ) );
          assert( "pre: numcom mismatch" &&
                  (sourceArray->GetNumberOfComponents()==
                   targetArray->GetNumberOfComponents() ) );
@@ -591,7 +591,7 @@ int vtkAMRSliceFilter::RequestInformation(
   if( this->ForwardUpstream == 1 )
   {
     vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-    assert( "pre: input information object is NULL" && (input != NULL) );
+    assert( "pre: input information object is nullptr" && (input != nullptr) );
 
     // Check if metadata are passed downstream
     if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
@@ -602,7 +602,7 @@ int vtkAMRSliceFilter::RequestInformation(
                   vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA( ) ) );
 
       vtkPlane *cutPlane = this->GetCutPlane( metadata );
-      assert( "Cut plane is NULL" && (cutPlane != NULL) );
+      assert( "Cut plane is nullptr" && (cutPlane != nullptr) );
 
       this->ComputeAMRBlocksToLoad( cutPlane, metadata );
       cutPlane->Delete();
@@ -622,7 +622,7 @@ int vtkAMRSliceFilter::RequestUpdateExtent(
   if( this->ForwardUpstream == 1 )
   {
     vtkInformation * inInfo = inputVector[0]->GetInformationObject(0);
-    assert( "pre: inInfo is NULL" && (inInfo != NULL)  );
+    assert( "pre: inInfo is nullptr" && (inInfo != nullptr)  );
 
     // Send upstream request for higher resolution
     inInfo->Set(
@@ -647,7 +647,7 @@ int vtkAMRSliceFilter::RequestData(
 
   // STEP 0: Get input object
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
-  assert( "pre: input information object is NULL" && (input != NULL) );
+  assert( "pre: input information object is nullptr" && (input != nullptr) );
 
 
   vtkOverlappingAMR *inputAMR=
@@ -657,7 +657,7 @@ int vtkAMRSliceFilter::RequestData(
 
   // STEP 1: Get output object
   vtkInformation *output = outputVector->GetInformationObject( 0 );
-  assert( "pre: output information object is NULL" && (output != NULL) );
+  assert( "pre: output information object is nullptr" && (output != nullptr) );
   vtkOverlappingAMR *outputAMR=
       vtkOverlappingAMR::SafeDownCast(
         output->Get( vtkDataObject::DATA_OBJECT() ) );
@@ -670,7 +670,7 @@ int vtkAMRSliceFilter::RequestData(
 
   // STEP 2: Compute global origin
   vtkPlane *cutPlane = this->GetCutPlane( inputAMR );
-  assert( "Cut plane is NULL" && (cutPlane != NULL) );
+  assert( "Cut plane is nullptr" && (cutPlane != nullptr) );
 
   // STEP 3: Get the AMR slice
   this->GetAMRSliceInPlane( cutPlane, inputAMR, outputAMR );

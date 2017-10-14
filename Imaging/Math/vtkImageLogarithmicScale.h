@@ -33,7 +33,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageLogarithmicScale : public vtkThreadedImageAl
 public:
   static vtkImageLogarithmicScale *New();
   vtkTypeMacro(vtkImageLogarithmicScale,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -45,15 +45,15 @@ public:
 
 protected:
   vtkImageLogarithmicScale();
-  ~vtkImageLogarithmicScale() VTK_OVERRIDE {}
+  ~vtkImageLogarithmicScale() override {}
 
   double Constant;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int outExt[6], int id) VTK_OVERRIDE;
+                       int outExt[6], int id) override;
 private:
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) = delete;
+  void operator=(const vtkImageLogarithmicScale&) = delete;
 };
 
 #endif

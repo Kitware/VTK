@@ -38,7 +38,7 @@ vtkDijkstraGraphGeodesicPath::vtkDijkstraGraphGeodesicPath()
   this->UseScalarWeights = 0;
   this->NumberOfVertices = 0;
   this->RepelPathFromVertices = 0;
-  this->RepelVertices = NULL;
+  this->RepelVertices = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ vtkDijkstraGraphGeodesicPath::~vtkDijkstraGraphGeodesicPath()
     this->IdList->Delete();
   }
   delete this->Internals;
-  this->SetRepelVertices(NULL);
+  this->SetRepelVertices(nullptr);
 }
 
 //----------------------------------------------------------------------------

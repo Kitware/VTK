@@ -37,7 +37,7 @@ class VTKWRAPPINGPYTHONCORE_EXPORT PyVTKClass
 {
 public:
   PyVTKClass() :
-    py_type(0), py_methods(0), vtk_name(0), vtk_new(0) {}
+    py_type(nullptr), py_methods(nullptr), vtk_name(nullptr), vtk_new(nullptr) {}
 
   PyVTKClass(
     PyTypeObject *typeobj, PyMethodDef *methods,

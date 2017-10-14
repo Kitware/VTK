@@ -33,8 +33,8 @@ vtkStandardNewMacro(vtkJSONImageWriter);
 //----------------------------------------------------------------------------
 vtkJSONImageWriter::vtkJSONImageWriter()
 {
-  this->FileName = NULL;
-  this->ArrayName = NULL;
+  this->FileName = nullptr;
+  this->ArrayName = nullptr;
   this->Slice = -1;
   this->SetNumberOfOutputPorts(0);
 }
@@ -42,7 +42,7 @@ vtkJSONImageWriter::vtkJSONImageWriter()
 //----------------------------------------------------------------------------
 vtkJSONImageWriter::~vtkJSONImageWriter()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ int vtkJSONImageWriter::RequestData(
     vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Error checking
-  if (input == NULL )
+  if (input == nullptr )
   {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return 0;
@@ -131,7 +131,7 @@ int vtkJSONImageWriter::RequestData(
       {
         file << ", ";
       }
-      if((validMask == NULL) || (validMask && validMask->GetValue(idx)))
+      if((validMask == nullptr) || (validMask && validMask->GetValue(idx)))
       {
         file << array->GetVariantValue(idx).ToString();
       }

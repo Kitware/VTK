@@ -33,7 +33,7 @@ class VTKIMAGINGMATH_EXPORT vtkImageMaskBits : public vtkThreadedImageAlgorithm
 public:
   static vtkImageMaskBits *New();
   vtkTypeMacro(vtkImageMaskBits,vtkThreadedImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -64,16 +64,16 @@ public:
 
 protected:
   vtkImageMaskBits();
-  ~vtkImageMaskBits() VTK_OVERRIDE {}
+  ~vtkImageMaskBits() override {}
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                       int ext[6], int id) VTK_OVERRIDE;
+                       int ext[6], int id) override;
 
   unsigned int Masks[4];
   int Operation;
 private:
-  vtkImageMaskBits(const vtkImageMaskBits&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMaskBits&) VTK_DELETE_FUNCTION;
+  vtkImageMaskBits(const vtkImageMaskBits&) = delete;
+  void operator=(const vtkImageMaskBits&) = delete;
 };
 
 #endif

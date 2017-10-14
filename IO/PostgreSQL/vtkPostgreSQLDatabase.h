@@ -101,7 +101,7 @@ public:
   /**
    * String representing database type (e.g. "psql").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }
@@ -255,8 +255,8 @@ protected:
   char* LastErrorText;
 
 private:
-  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
+  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) = delete;
+  void operator = ( const vtkPostgreSQLDatabase& ) = delete;
 };
 
 // This is basically the body of the SetStringMacro but with a
@@ -266,7 +266,7 @@ private:
   inline void className::Set##name (const char* _arg) \
   { \
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
-    if ( this->name == NULL && _arg == NULL) { return;} \
+    if ( this->name == nullptr && _arg == nullptr) { return;} \
     if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
     delete [] this->name; \
     if (_arg) \
@@ -279,7 +279,7 @@ private:
     } \
      else \
      { \
-          this->name = NULL; \
+          this->name = nullptr; \
      } \
     this->Modified(); \
     this->timeStamp.Modified(); \

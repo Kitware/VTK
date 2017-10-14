@@ -25,7 +25,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include <math.h>
+#include <cmath>
 
 int TestMapVectorsAsRGBColors(int argc, char *argv[])
 {
@@ -41,7 +41,7 @@ int TestMapVectorsAsRGBColors(int argc, char *argv[])
   for (int ncomp = 1; ncomp <= 4; ncomp++)
   {
     inputs[ncomp-1] = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    vtkUnsignedCharArray *arr = inputs[ncomp-1].GetPointer();
+    vtkUnsignedCharArray *arr = inputs[ncomp-1];
 
     arr->SetNumberOfComponents(ncomp);
     arr->SetNumberOfTuples(6400);

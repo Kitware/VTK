@@ -74,7 +74,7 @@ public:
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkLocator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -165,13 +165,13 @@ public:
   /**
    * Handle the PointSet <-> Locator loop.
    */
-  void Register(vtkObjectBase *o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
+  void Register(vtkObjectBase *o) override;
+  void UnRegister(vtkObjectBase *o) override;
   //@}
 
 protected:
   vtkLocator();
-  ~vtkLocator() VTK_OVERRIDE;
+  ~vtkLocator() override;
 
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
@@ -181,11 +181,11 @@ protected:
 
   vtkTimeStamp BuildTime;  // time at which locator was built
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
 private:
-  vtkLocator(const vtkLocator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLocator&) VTK_DELETE_FUNCTION;
+  vtkLocator(const vtkLocator&) = delete;
+  void operator=(const vtkLocator&) = delete;
 };
 
 #endif

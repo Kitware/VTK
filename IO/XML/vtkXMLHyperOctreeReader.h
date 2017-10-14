@@ -40,7 +40,7 @@ class VTKIOXML_EXPORT vtkXMLHyperOctreeReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLHyperOctreeReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperOctreeReader *New();
 
   //@{
@@ -53,31 +53,31 @@ public:
 
 protected:
   vtkXMLHyperOctreeReader();
-  ~vtkXMLHyperOctreeReader() VTK_OVERRIDE;
+  ~vtkXMLHyperOctreeReader() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   // Setup the output with no data available.  Used in error cases.
-  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
 
   // Declare that this reader produces HyperOctrees
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   //These defer to the HyperOctree output.
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() override;
+  vtkIdType GetNumberOfCells() override;
 
   // Overridden here to do allocation.
   int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray) VTK_OVERRIDE;
+                                 vtkAbstractArray* outArray) override;
   int ReadArrayForCells(vtkXMLDataElement* da,
-                                vtkAbstractArray* outArray) VTK_OVERRIDE;
+                                vtkAbstractArray* outArray) override;
 
 
 
   // The most important stuff is here.
   // Read the rest of the file and create the HyperOctree.
-  void ReadXMLData() VTK_OVERRIDE;
+  void ReadXMLData() override;
 
   // Recover the structure of the HyperOctree, used by ReadXMLData.
   void ReadTopology(vtkXMLDataElement *elem);
@@ -89,8 +89,8 @@ protected:
   int ArrayIndex;
 
 private:
-  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
+  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) = delete;
+  void operator=(const vtkXMLHyperOctreeReader&) = delete;
 };
 
 #endif

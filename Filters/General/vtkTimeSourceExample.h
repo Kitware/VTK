@@ -36,7 +36,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTimeSourceExample : public vtkUnstructuredGrid
 public:
   static vtkTimeSourceExample *New();
   vtkTypeMacro(vtkTimeSourceExample,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -73,15 +73,15 @@ public:
 
 protected:
   vtkTimeSourceExample();
-  ~vtkTimeSourceExample() VTK_OVERRIDE;
+  ~vtkTimeSourceExample() override;
 
   int RequestInformation(vtkInformation*,
                          vtkInformationVector**,
-                         vtkInformationVector*) VTK_OVERRIDE;
+                         vtkInformationVector*) override;
 
   int RequestData(vtkInformation*,
                   vtkInformationVector**,
-                  vtkInformationVector*) VTK_OVERRIDE;
+                  vtkInformationVector*) override;
 
 
   void LookupTimeAndValue(double &time, double &value);
@@ -99,8 +99,8 @@ protected:
   double *Steps;
   double *Values;
 private:
-  vtkTimeSourceExample(const vtkTimeSourceExample&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimeSourceExample&) VTK_DELETE_FUNCTION;
+  vtkTimeSourceExample(const vtkTimeSourceExample&) = delete;
+  void operator=(const vtkTimeSourceExample&) = delete;
 };
 
 #endif

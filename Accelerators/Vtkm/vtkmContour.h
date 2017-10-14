@@ -40,7 +40,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmContour : public vtkContourFilter
 {
 public:
   vtkTypeMacro(vtkmContour,vtkContourFilter)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmContour* New();
 
 protected:
@@ -48,11 +48,11 @@ protected:
   ~vtkmContour();
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 private:
-  vtkmContour(const vtkmContour&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmContour&) VTK_DELETE_FUNCTION;
+  vtkmContour(const vtkmContour&) = delete;
+  void operator=(const vtkmContour&) = delete;
 };
 
 #endif // vtkmContour_h

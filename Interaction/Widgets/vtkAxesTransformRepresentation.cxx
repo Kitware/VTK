@@ -101,7 +101,7 @@ vtkAxesTransformRepresentation::vtkAxesTransformRepresentation()
   // The bounding box
   this->BoundingBox = vtkBox::New();
 
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 
   this->Tolerance = 1;
 
@@ -124,7 +124,7 @@ vtkAxesTransformRepresentation::~vtkAxesTransformRepresentation()
   this->LabelActor->Delete();
 
   delete [] this->LabelFormat;
-  this->LabelFormat = NULL;
+  this->LabelFormat = nullptr;
 
   this->GlyphPoints->Delete();
   this->GlyphVectors->Delete();

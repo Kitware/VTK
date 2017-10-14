@@ -88,7 +88,7 @@ float *vtkCellCenterDepthSort::ComputeProjectionVector()
 {
   vtkDebugMacro("ComputeProjectionVector");
 
-  if (this->Camera == NULL)
+  if (this->Camera == nullptr)
   {
     vtkErrorMacro("Must set camera before sorting cells.");
     static float v[3] = { 0.0, 0.0, 0.0};
@@ -201,7 +201,7 @@ vtkIdTypeArray *vtkCellCenterDepthSort::GetNextCells()
   if (this->ToSort->Stack.empty())
   {
     // Already sorted and returned everything.
-    return NULL;
+    return nullptr;
   }
 
   vtkIdType *cellIds = this->SortedCells->GetPointer(0);

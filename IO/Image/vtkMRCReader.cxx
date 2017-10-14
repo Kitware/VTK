@@ -130,7 +130,7 @@ public:
   ifstream* stream;
   mrc_file_header header;
 
-  vtkInternal() : stream(NULL) {}
+  vtkInternal() : stream(nullptr) {}
 
   ~vtkInternal()
   {
@@ -139,10 +139,7 @@ public:
 
   void openFile(const char* file)
   {
-    if (stream != NULL)
-    {
-      delete stream;
-    }
+    delete stream;
     stream = new std::ifstream(file, std::ifstream::binary);
   }
 };
@@ -151,21 +148,21 @@ vtkStandardNewMacro(vtkMRCReader)
 
 vtkMRCReader::vtkMRCReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Internals = new vtkInternal;
   this->SetNumberOfInputPorts(0);
 }
 
 vtkMRCReader::~vtkMRCReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   delete this->Internals;
 }
 
 void vtkMRCReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
-  os << indent << "FileName: " << (this->FileName ? this->FileName : "NULL")
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "nullptr")
      << ", " << std::endl;
 }
 
@@ -314,7 +311,7 @@ ByteSwapFunction getByteSwapFunction(int vtkType, bool isLittleEndian)
     return isLittleEndian ? &vtkByteSwap::Swap8LERange
                           : &vtkByteSwap::Swap8BERange;
   }
-  return NULL;
+  return nullptr;
 }
 
 template <typename T>

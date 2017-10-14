@@ -74,21 +74,21 @@ vtkGenericStreamTracer::vtkGenericStreamTracer()
   this->ComputeVorticity = 1;
   this->RotationScale = 1.0;
 
-  this->InputVectorsSelection = 0;
+  this->InputVectorsSelection = nullptr;
 
   this->LastUsedTimeStep = 0.0;
 
   this->GenerateNormalsInIntegrate = 1;
 
-  this->InterpolatorPrototype = 0;
+  this->InterpolatorPrototype = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkGenericStreamTracer::~vtkGenericStreamTracer()
 {
-  this->SetIntegrator(0);
-  this->SetInputVectorsSelection(0);
-  this->SetInterpolatorPrototype(0);
+  this->SetIntegrator(nullptr);
+  this->SetInputVectorsSelection(nullptr);
+  this->SetInterpolatorPrototype(nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ vtkDataSet *vtkGenericStreamTracer::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1) // because the port is optional
   {
-    return 0;
+    return nullptr;
   }
   return static_cast<vtkDataSet *>(this->GetExecutive()->GetInputData(1, 0));
 }
@@ -160,7 +160,7 @@ int vtkGenericStreamTracer::GetIntegratorType()
 //-----------------------------------------------------------------------------
 void vtkGenericStreamTracer::SetIntegratorType(int type)
 {
-  vtkInitialValueProblemSolver* ivp = 0;
+  vtkInitialValueProblemSolver* ivp = nullptr;
   switch (type)
   {
     case RUNGE_KUTTA2:
@@ -471,7 +471,7 @@ void vtkGenericStreamTracer::CalculateVorticity(vtkGenericAdaptorCell* cell,
                                                 vtkGenericAttribute *attribute,
                                                 double vorticity[3])
 {
-  assert("pre: attribute_exists" && attribute!=0);
+  assert("pre: attribute_exists" && attribute!=nullptr);
   assert("pre: point_centered_attribute" && attribute->GetCentering()==vtkPointCentered);
   assert("pre: vector_attribute" && attribute->GetType()==vtkDataSetAttributes::VECTORS);
 
@@ -492,7 +492,7 @@ void vtkGenericStreamTracer::InitializeSeeds(
   vtkDataSet* source = this->GetSource();
   seedIds = vtkIdList::New();
   integrationDirections = vtkIntArray::New();
-  seeds=0;
+  seeds=nullptr;
 
   if (source)
   {
@@ -594,9 +594,9 @@ int vtkGenericStreamTracer::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray* seeds = 0;
-  vtkIdList* seedIds = 0;
-  vtkIntArray* integrationDirections = 0;
+  vtkDataArray* seeds = nullptr;
+  vtkIdList* seedIds = nullptr;
+  vtkIntArray* integrationDirections = nullptr;
   this->InitializeSeeds(seeds, seedIds, integrationDirections);
 
   if (seeds)
@@ -654,18 +654,18 @@ int vtkGenericStreamTracer::CheckInputs(
   for (int i = 0; i < numInputConnections; i++)
   {
     vtkInformation *info = inputVector[0]->GetInformationObject(i);
-    vtkGenericDataSet* inp=0;
+    vtkGenericDataSet* inp=nullptr;
 
-    if(info!=0)
+    if(info!=nullptr)
     {
       inp = vtkGenericDataSet::SafeDownCast(
         info->Get(vtkDataObject::DATA_OBJECT()));
     }
-    if(inp!=0)
+    if(inp!=nullptr)
     {
     int attrib;
       int attributeFound;
-      if(this->InputVectorsSelection!=0)
+      if(this->InputVectorsSelection!=nullptr)
       {
         attrib=inp->GetAttributes()->FindAttribute(this->InputVectorsSelection);
 
@@ -735,7 +735,7 @@ void vtkGenericStreamTracer::Integrate(
 
   int direction=1;
 
-  if (this->GetIntegrator() == 0)
+  if (this->GetIntegrator() == nullptr)
   {
     vtkErrorMacro("No integrator is specified.");
     return;
@@ -743,7 +743,7 @@ void vtkGenericStreamTracer::Integrate(
 
   // Used in GetCell()
 //  vtkGenericCell* cell = vtkGenericCell::New();
-  vtkGenericAdaptorCell *cell=0;
+  vtkGenericAdaptorCell *cell=nullptr;
 
   // Create a new integrator, the type is the same as Integrator
   vtkInitialValueProblemSolver* integrator =
@@ -767,9 +767,9 @@ void vtkGenericStreamTracer::Integrate(
   vtkIntArray* retVals = vtkIntArray::New();
   retVals->SetName("ReasonForTermination");
 
-  vtkDoubleArray* vorticity = 0;
-  vtkDoubleArray* rotation = 0;
-  vtkDoubleArray* angularVel = 0;
+  vtkDoubleArray* vorticity = nullptr;
+  vtkDoubleArray* rotation = nullptr;
+  vtkDoubleArray* angularVel = nullptr;
   if (this->ComputeVorticity)
   {
     vorticity = vtkDoubleArray::New();
@@ -811,7 +811,7 @@ void vtkGenericStreamTracer::Integrate(
       outputPD->AddArray(attributeArray);
       attributeArray->Delete();
 
-      if(outputPD->GetAttribute(attributeType)==0)
+      if(outputPD->GetAttribute(attributeType)==nullptr)
       {
         outputPD->SetActiveAttribute(outputPD->GetNumberOfArrays()-1,
                                      attributeType);
@@ -1157,7 +1157,7 @@ void vtkGenericStreamTracer::Integrate(
       output->SetLines(outputLines);
       if (this->GenerateNormalsInIntegrate)
       {
-        this->GenerateNormals(output, 0);
+        this->GenerateNormals(output, nullptr);
       }
 
       outputCD->AddArray(retVals);
@@ -1185,7 +1185,6 @@ void vtkGenericStreamTracer::Integrate(
   delete[] values;
 
   output->Squeeze();
-  return;
 }
 
 //-----------------------------------------------------------------------------
@@ -1225,7 +1224,7 @@ void vtkGenericStreamTracer::GenerateNormals(vtkPolyData* output,
       for(i=0; i<numPts; i++)
       {
         normals->GetTuple(i, normal);
-        if (newVectors == NULL)
+        if (newVectors == nullptr)
         { // This should never happen.
           vtkErrorMacro("Could not find output array.");
           return;

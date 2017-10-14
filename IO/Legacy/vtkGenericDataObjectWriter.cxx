@@ -60,7 +60,7 @@ void vtkGenericDataObjectWriter::WriteData()
 {
   vtkDebugMacro(<<"Writing vtk data object ...");
 
-  vtkDataWriter* writer = 0;
+  vtkDataWriter* writer = nullptr;
 
   vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
   switch(this->GetInput()->GetDataObjectType())

@@ -64,7 +64,7 @@ public:
    */
   static vtkVoxelGrid *New();
   vtkTypeMacro(vtkVoxelGrid,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -100,7 +100,8 @@ public:
   /**
    * Set the number of divisions in x-y-z directions (the binning volume
    * dimensions). This data member is used when the configuration style is
-   * set to MANUAL.
+   * set to MANUAL. Note that these values may be adjusted if <1 or too
+   * large.
    */
   vtkSetVector3Macro(Divisions,int);
   vtkGetVectorMacro(Divisions,int,3);
@@ -140,7 +141,7 @@ public:
 
 protected:
   vtkVoxelGrid();
-  ~vtkVoxelGrid() VTK_OVERRIDE;
+  ~vtkVoxelGrid() override;
 
   vtkStaticPointLocator *Locator;
   int ConfigurationStyle;
@@ -151,12 +152,12 @@ protected:
   vtkInterpolationKernel *Kernel;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkVoxelGrid(const vtkVoxelGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoxelGrid&) VTK_DELETE_FUNCTION;
+  vtkVoxelGrid(const vtkVoxelGrid&) = delete;
+  void operator=(const vtkVoxelGrid&) = delete;
 
 };
 

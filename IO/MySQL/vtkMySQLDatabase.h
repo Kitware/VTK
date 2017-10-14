@@ -105,7 +105,7 @@ public:
   /**
    * String representing database type (e.g. "mysql").
    */
-  const char* GetDatabaseType() VTK_OVERRIDE
+  const char* GetDatabaseType() override
   {
     return this->DatabaseType;
   }
@@ -182,8 +182,8 @@ public:
    * `<column name>` <column type> <column attributes>
    * \endverbatim
    * NB2: if a column has type SERIAL in the schema, this will be turned
-   * into INT NOT NULL AUTO_INCREMENT. Therefore, one should not pass
-   * NOT NULL as an attribute of a column whose type is SERIAL.
+   * into INT NOT nullptr AUTO_INCREMENT. Therefore, one should not pass
+   * NOT nullptr as an attribute of a column whose type is SERIAL.
    */
   virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
                                                int tblHandle,
@@ -245,8 +245,8 @@ private:
 
   vtkMySQLDatabasePrivate* const Private;
 
-  vtkMySQLDatabase(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
+  vtkMySQLDatabase(const vtkMySQLDatabase &) = delete;
+  void operator=(const vtkMySQLDatabase &) = delete;
 };
 
 #endif // vtkMySQLDatabase_h

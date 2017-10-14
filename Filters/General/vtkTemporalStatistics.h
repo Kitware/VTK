@@ -65,7 +65,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTemporalStatistics : public vtkPassInputTypeAl
 public:
   vtkTypeMacro(vtkTemporalStatistics, vtkPassInputTypeAlgorithm);
   static vtkTemporalStatistics *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkTemporalStatistics();
-  ~vtkTemporalStatistics() VTK_OVERRIDE;
+  ~vtkTemporalStatistics() override;
 
   int ComputeAverage;
   int ComputeMaximum;
@@ -117,20 +117,20 @@ protected:
   // Used when iterating the pipeline to keep track of which timestep we are on.
   int CurrentTimeIndex;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+                        vtkInformationVector *outputVector) override;
   int RequestInformation(vtkInformation *request,
                          vtkInformationVector **inputVector,
-                         vtkInformationVector *outputVector) VTK_OVERRIDE;
+                         vtkInformationVector *outputVector) override;
   int RequestUpdateExtent(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                  vtkInformationVector *outputVector) override;
 
   virtual void InitializeStatistics(vtkDataObject *input,
                                     vtkDataObject *output);
@@ -161,8 +161,8 @@ protected:
                                  const char *nameSuffix);
 
 private:
-  vtkTemporalStatistics(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
+  vtkTemporalStatistics(const vtkTemporalStatistics &) = delete;
+  void operator=(const vtkTemporalStatistics &) = delete;
 
   //@{
   /**

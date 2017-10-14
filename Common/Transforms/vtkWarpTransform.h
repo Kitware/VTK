@@ -33,7 +33,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkWarpTransform : public vtkAbstractTransform
 public:
 
   vtkTypeMacro(vtkWarpTransform,vtkAbstractTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Invert the transformation.  Warp transformations are usually
@@ -41,7 +41,7 @@ public:
    * The inverse transform is usually around five or six times as
    * computationally expensive as the forward transform.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   //@{
   /**
@@ -78,8 +78,8 @@ public:
    * This will calculate the transformation without calling Update.
    * Meant for use only within other VTK classes.
    */
-  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const float in[3], float out[3]) override;
+  void InternalTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   //@{
@@ -89,9 +89,9 @@ public:
    * classes.
    */
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]) VTK_OVERRIDE;
+                                   float derivative[3][3]) override;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]) VTK_OVERRIDE;
+                                   double derivative[3][3]) override;
   //@}
 
   //@{
@@ -125,7 +125,7 @@ public:
 
 protected:
   vtkWarpTransform();
-  ~vtkWarpTransform() VTK_OVERRIDE;
+  ~vtkWarpTransform() override;
 
   //@{
   /**
@@ -172,8 +172,8 @@ protected:
   int InverseIterations;
   double InverseTolerance;
 private:
-  vtkWarpTransform(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
+  vtkWarpTransform(const vtkWarpTransform&) = delete;
+  void operator=(const vtkWarpTransform&) = delete;
 };
 
 #endif

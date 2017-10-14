@@ -40,8 +40,8 @@ vtkCxxSetObjectMacro(vtkLabelHierarchyIterator,TraversedBounds,vtkPolyData);
 
 vtkLabelHierarchyIterator::vtkLabelHierarchyIterator()
 {
-  this->Hierarchy = 0;
-  this->TraversedBounds = 0;
+  this->Hierarchy = nullptr;
+  this->TraversedBounds = nullptr;
   this->BoundsFactor = 1.0;
   this->AllBounds = 0;
   this->AllBoundsRecorded = 0;

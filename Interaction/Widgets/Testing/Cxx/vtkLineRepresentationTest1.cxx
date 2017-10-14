@@ -23,7 +23,7 @@ int vtkLineRepresentationTest1(int , char * [] )
 
   double pos[3] = {-100.0, 0.0, 99.9};
   double pos2[3];
-  double *posptr = NULL;
+  double *posptr = nullptr;
 
   // point 1 world
   node1->SetPoint1WorldPosition(pos);
@@ -133,36 +133,36 @@ int vtkLineRepresentationTest1(int , char * [] )
   subHandleRep = node1->GetLineHandleRepresentation();
 
   vtkSmartPointer<vtkProperty> prop = node1->GetEndPointProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "End Point Property is NULL." << std::endl;
+    std::cout << "End Point Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedEndPointProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected End Point Property is NULL." << std::endl;
+    std::cout << "Selected End Point Property is nullptr." << std::endl;
   }
 
   prop = node1->GetEndPoint2Property();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "End Point2 Property is NULL." << std::endl;
+    std::cout << "End Point2 Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedEndPoint2Property();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected End Point2 Property is NULL." << std::endl;
+    std::cout << "Selected End Point2 Property is nullptr." << std::endl;
   }
 
   prop = node1->GetLineProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Line Property is NULL." << std::endl;
+    std::cout << "Line Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedLineProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected Line Property is NULL." << std::endl;
+    std::cout << "Selected Line Property is nullptr." << std::endl;
   }
 
   TEST_SET_GET_INT_RANGE(node1, Tolerance, 2, 99);
@@ -171,7 +171,7 @@ int vtkLineRepresentationTest1(int , char * [] )
 
   vtkSmartPointer<vtkPolyData> pd =  vtkSmartPointer<vtkPolyData>::New();
   node1->GetPolyData(pd);
-  if (pd == NULL)
+  if (pd == nullptr)
   {
     std::cout << "Polydata is null" << std::endl;
   }

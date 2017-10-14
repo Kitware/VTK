@@ -91,6 +91,6 @@ void vtkCommonInformationKeyManager::ClassFinalize()
     // delete.
     vtkCommonInformationKeyManagerKeys->~vtkCommonInformationKeyManagerKeysType();
     free(vtkCommonInformationKeyManagerKeys);
-    vtkCommonInformationKeyManagerKeys = 0;
+    vtkCommonInformationKeyManagerKeys = nullptr;
   }
 }

@@ -25,8 +25,8 @@ vtkSpline::vtkSpline ()
   this->ComputeTime = 0;
   this->ClampValue = 0;
   this->PiecewiseFunction = vtkPiecewiseFunction::New();
-  this->Intervals = NULL;
-  this->Coefficients = NULL;
+  this->Intervals = nullptr;
+  this->Coefficients = nullptr;
   this->LeftConstraint = 1;
   this->LeftValue = 0.0;
   this->RightConstraint = 1;
@@ -82,7 +82,7 @@ double vtkSpline::ComputeLeftDerivative()
 {
   double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
-  if ( dptr == NULL || size < 2 )
+  if ( dptr == nullptr || size < 2 )
   {
     return 0.0;
   }
@@ -97,7 +97,7 @@ double vtkSpline::ComputeRightDerivative()
 {
   double *dptr = this->PiecewiseFunction->GetDataPointer();
   int size = this->PiecewiseFunction->GetSize();
-  if ( dptr == NULL || size < 2 )
+  if ( dptr == nullptr || size < 2 )
   {
     return 0.0;
   }
@@ -150,7 +150,7 @@ void vtkSpline::DeepCopy(vtkSpline *s)
 {
   vtkSpline *spline = vtkSpline::SafeDownCast(s);
 
-  if ( spline != NULL )
+  if ( spline != nullptr )
   {
     this->ClampValue = s->ClampValue;
     this->LeftConstraint = s->LeftConstraint;
@@ -170,7 +170,7 @@ vtkMTimeType vtkSpline::GetMTime()
   vtkMTimeType mTime=this->vtkObject::GetMTime();
   vtkMTimeType DataMTime;
 
-  if ( this->PiecewiseFunction != NULL )
+  if ( this->PiecewiseFunction != nullptr )
   {
     DataMTime = this->PiecewiseFunction->GetMTime();
     mTime = ( DataMTime > mTime ? DataMTime : mTime );

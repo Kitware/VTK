@@ -88,13 +88,13 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
                                             vtkTextureObject *colortarget,
                                             vtkTextureObject *depthtarget)
 {
-  assert("pre: s_exists" && s!=0);
-  assert("pre: fbo_exists" && fbo!=0);
-  assert("pre: fbo_has_context" && fbo->GetContext()!=0);
-  assert("pre: colortarget_exists" && colortarget!=0);
-  assert("pre: colortarget_has_context" && colortarget->GetContext()!=0);
-  assert("pre: depthtarget_exists" && depthtarget!=0);
-  assert("pre: depthtarget_has_context" && depthtarget->GetContext()!=0);
+  assert("pre: s_exists" && s!=nullptr);
+  assert("pre: fbo_exists" && fbo!=nullptr);
+  assert("pre: fbo_has_context" && fbo->GetContext()!=nullptr);
+  assert("pre: colortarget_exists" && colortarget!=nullptr);
+  assert("pre: colortarget_has_context" && colortarget->GetContext()!=nullptr);
+  assert("pre: depthtarget_exists" && depthtarget!=nullptr);
+  assert("pre: depthtarget_has_context" && depthtarget->GetContext()!=nullptr);
 
   vtkRenderer *r=s->GetRenderer();
   vtkRenderState s2(r);
@@ -165,12 +165,12 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
 //
 void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
 {
-    assert("pre: s_exists" && s!=0);
+    assert("pre: s_exists" && s!=nullptr);
 
     vtkOpenGLFramebufferObject *fbo=vtkOpenGLFramebufferObject::SafeDownCast
       (s->GetFrameBuffer());
     vtkRenderer *r = s->GetRenderer();
-    if(fbo==0)
+    if(fbo==nullptr)
     {
       r->GetTiledSize(&this->Width,&this->Height);
     }

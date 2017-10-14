@@ -33,7 +33,7 @@ vtkStandardNewMacro(vtkOpenQubeMoleculeSource);
 //----------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
   : vtkDataReader(),
-    FileName(NULL),
+    FileName(nullptr),
     CleanUpBasisSet(false)
 {
 }
@@ -41,11 +41,11 @@ vtkOpenQubeMoleculeSource::vtkOpenQubeMoleculeSource()
 //----------------------------------------------------------------------------
 vtkOpenQubeMoleculeSource::~vtkOpenQubeMoleculeSource()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
   if (this->CleanUpBasisSet)
   {
     delete this->BasisSet;
-    this->BasisSet = NULL;
+    this->BasisSet = nullptr;
   }
 }
 
@@ -130,7 +130,7 @@ int vtkOpenQubeMoleculeSource::RequestData(
   // Add ElectronicData
   vtkNew<vtkOpenQubeElectronicData> oqed;
   oqed->SetBasisSet(basisSet);
-  output->SetElectronicData(oqed.GetPointer());
+  output->SetElectronicData(oqed);
 
   return 1;
 }

@@ -48,7 +48,7 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageAnisotropicDiffusion2D : public vtkImageS
 public:
   static vtkImageAnisotropicDiffusion2D *New();
   vtkTypeMacro(vtkImageAnisotropicDiffusion2D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method sets the number of interations which also affects the
@@ -113,7 +113,7 @@ public:
 
 protected:
   vtkImageAnisotropicDiffusion2D();
-  ~vtkImageAnisotropicDiffusion2D()VTK_OVERRIDE {}
+  ~vtkImageAnisotropicDiffusion2D() override {}
 
   int NumberOfIterations;
   double DiffusionThreshold;
@@ -129,12 +129,12 @@ protected:
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int extent[6], int id) VTK_OVERRIDE;
+                           int extent[6], int id) override;
   void Iterate(vtkImageData *in, vtkImageData *out,
                double ar0, double ar1, int *coreExtent, int count);
 private:
-  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAnisotropicDiffusion2D&) VTK_DELETE_FUNCTION;
+  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&) = delete;
+  void operator=(const vtkImageAnisotropicDiffusion2D&) = delete;
 };
 
 #endif

@@ -98,8 +98,8 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->Texture            = vtkTexture::New();
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
-  this->ImageData          = 0;
-  this->LookupTable        = 0;
+  this->ImageData          = nullptr;
+  this->LookupTable        = nullptr;
 
   // Represent the cross hair cursor
   //
@@ -138,7 +138,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Manage the picking stuff
   //
-  this->PlanePicker = NULL;
+  this->PlanePicker = nullptr;
   vtkCellPicker* picker = vtkCellPicker::New();
   picker->SetTolerance(0.005); //need some fluff
   this->SetPicker(picker);
@@ -146,11 +146,11 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Set up the initial properties
   //
-  this->PlaneProperty         = 0;
-  this->SelectedPlaneProperty = 0;
-  this->TexturePlaneProperty  = 0;
-  this->CursorProperty        = 0;
-  this->MarginProperty        = 0;
+  this->PlaneProperty         = nullptr;
+  this->SelectedPlaneProperty = nullptr;
+  this->TexturePlaneProperty  = nullptr;
+  this->CursorProperty        = nullptr;
+  this->MarginProperty        = nullptr;
   this->CreateDefaultProperties();
 
   // Set up actions
@@ -222,7 +222,7 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
 
   if ( this->ImageData )
   {
-    this->ImageData = 0;
+    this->ImageData = nullptr;
   }
 
   this->CursorActor->Delete();
@@ -284,7 +284,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -323,7 +323,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     this->TexturePlaneActor->PickableOn();
 
-    this->InvokeEvent(vtkCommand::EnableEvent,0);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
 
   }
 
@@ -358,8 +358,8 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
 
     this->TexturePlaneActor->PickableOff();
 
-    this->InvokeEvent(vtkCommand::DisableEvent,0);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Interactor->Render();
@@ -795,7 +795,7 @@ void vtkImagePlaneWidget::StartCursor()
 
   int found = 0;
   int i;
-  if ( path != 0 )
+  if ( path != nullptr )
   {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
@@ -811,7 +811,7 @@ void vtkImagePlaneWidget::StartCursor()
     }
   }
 
-  if( ! found || path == 0 )
+  if( ! found || path == nullptr )
   {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
@@ -831,7 +831,7 @@ void vtkImagePlaneWidget::StartCursor()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -851,7 +851,7 @@ void vtkImagePlaneWidget::StopCursor()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -874,7 +874,7 @@ void vtkImagePlaneWidget::StartSliceMotion()
 
   int found = 0;
   int i;
-  if ( path != 0 )
+  if ( path != nullptr )
   {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
@@ -890,7 +890,7 @@ void vtkImagePlaneWidget::StartSliceMotion()
     }
   }
 
-  if ( !found || path == 0 )
+  if ( !found || path == nullptr )
   {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
@@ -908,7 +908,7 @@ void vtkImagePlaneWidget::StartSliceMotion()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -927,7 +927,7 @@ void vtkImagePlaneWidget::StopSliceMotion()
 
   this->EventCallbackCommand->SetAbortFlag(1);
   this->EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,0);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   this->Interactor->Render();
 }
 
@@ -950,7 +950,7 @@ void vtkImagePlaneWidget::StartWindowLevel()
 
   int found = 0;
   int i;
-  if ( path != 0 )
+  if ( path != nullptr )
   {
     // Deal with the possibility that we may be using a shared picker
     vtkCollectionSimpleIterator sit;
@@ -969,7 +969,7 @@ void vtkImagePlaneWidget::StartWindowLevel()
   this->InitialWindow = this->CurrentWindow;
   this->InitialLevel = this->CurrentLevel;
 
-  if( ! found || path == 0 )
+  if( ! found || path == nullptr )
   {
     this->State = vtkImagePlaneWidget::Outside;
     this->HighlightPlane(0);
@@ -1115,7 +1115,7 @@ void vtkImagePlaneWidget::OnMouseMove()
   }
   else
   {
-    this->InvokeEvent(vtkCommand::InteractionEvent,0);
+    this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
   }
 
   this->Interactor->Render();
@@ -1300,21 +1300,29 @@ void vtkImagePlaneWidget::ManageTextDisplay()
 
   if ( this->State == vtkImagePlaneWidget::WindowLevelling )
   {
-    sprintf(this->TextBuff,"Window, Level: ( %g, %g )",
-            this->CurrentWindow, this->CurrentLevel );
+    snprintf(this->TextBuff,
+             VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+             "Window, Level: ( %g, %g )",
+             this->CurrentWindow,
+             this->CurrentLevel );
   }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
   {
     if( this->CurrentImageValue == VTK_DOUBLE_MAX )
     {
-      sprintf(this->TextBuff,"Off Image");
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "Off Image");
     }
     else
     {
-      sprintf(this->TextBuff,"( %g, %g, %g ): %g",
-                   this->CurrentCursorPosition[0],
-                   this->CurrentCursorPosition[1],
-                   this->CurrentCursorPosition[2],this->CurrentImageValue);
+      snprintf(this->TextBuff,
+               VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF,
+               "( %g, %g, %g ): %g",
+               this->CurrentCursorPosition[0],
+               this->CurrentCursorPosition[1],
+               this->CurrentCursorPosition[2],
+               this->CurrentImageValue);
     }
   }
 
@@ -1503,10 +1511,10 @@ void vtkImagePlaneWidget::SetInputConnection(vtkAlgorithmOutput* aout)
 
   if( !this->ImageData )
   {
-    // If NULL is passed, remove any reference that Reslice had
+    // If nullptr is passed, remove any reference that Reslice had
     // on the old ImageData
     //
-    this->Reslice->SetInputData(NULL);
+    this->Reslice->SetInputData(nullptr);
     return;
   }
 
@@ -1728,7 +1736,7 @@ vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
 {
   if ( ! this->Reslice )
   {
-    return 0;
+    return nullptr;
   }
   return this->Reslice->GetOutput();
 }
@@ -1772,13 +1780,13 @@ void vtkImagePlaneWidget::SetPicker(vtkAbstractPropPicker* picker)
     // to avoid destructor recursion
     vtkAbstractPropPicker *temp = this->PlanePicker;
     this->PlanePicker = picker;
-    if (temp != 0)
+    if (temp != nullptr)
     {
       temp->UnRegister(this);
     }
 
     int delPicker = 0;
-    if (this->PlanePicker == 0)
+    if (this->PlanePicker == nullptr)
     {
       this->PlanePicker = vtkCellPicker::New();
       vtkCellPicker::SafeDownCast(this->PlanePicker)->SetTolerance(0.005);
@@ -1825,11 +1833,11 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
     // to avoid destructor recursion
     vtkLookupTable *temp = this->LookupTable;
     this->LookupTable = table;
-    if (temp != 0)
+    if (temp != nullptr)
     {
       temp->UnRegister(this);
     }
-    if (this->LookupTable != 0)
+    if (this->LookupTable != nullptr)
     {
       this->LookupTable->Register(this);
     }
@@ -2113,7 +2121,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
     }
   }
 
-  if( !found || path == 0 )
+  if( !found || path == nullptr )
   {
     this->CursorActor->VisibilityOff();
     return;
@@ -2184,6 +2192,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   cursorPts->SetPoint(1,b);
   cursorPts->SetPoint(2,c);
   cursorPts->SetPoint(3,d);
+  cursorPts->GetData()->Modified();
 
   this->CursorPolyData->Modified();
 }
@@ -2213,7 +2222,7 @@ int vtkImagePlaneWidget::UpdateContinuousCursor(double *q)
 
   // Find the cell that contains q and get it
   //
-  cell = this->ImageData->FindAndGetCell(q,NULL,-1,tol2,subId,pcoords,weights);
+  cell = this->ImageData->FindAndGetCell(q,nullptr,-1,tol2,subId,pcoords,weights);
   int found = 0;
   if (cell)
   {
@@ -2436,7 +2445,7 @@ void vtkImagePlaneWidget::GetVector2(double v2[3])
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::AdjustState()
 {
-  int *auto_modifier = NULL;
+  int *auto_modifier = nullptr;
   switch (this->LastButtonPressed)
   {
     case vtkImagePlaneWidget::VTK_LEFT_BUTTON:
@@ -2561,8 +2570,8 @@ void vtkImagePlaneWidget::AdjustState()
     }
   }
 
-  double *raPtr = 0;
-  double *rvPtr = 0;
+  double *raPtr = nullptr;
+  double *rvPtr = nullptr;
   double rvfac = 1.0;
   double rafac = 1.0;
 
@@ -2744,7 +2753,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
     this->PlaneSource->GetOutputPort());
 
   this->Texture->SetQualityTo32Bit();
-  this->Texture->MapColorScalarsThroughLookupTableOff();
+  this->Texture->SetColorMode(VTK_COLOR_MODE_DEFAULT);
   this->Texture->SetInterpolate(this->TextureInterpolate);
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);
@@ -2831,7 +2840,7 @@ void vtkImagePlaneWidget::GenerateCursor()
 //----------------------------------------------------------------------------
 void vtkImagePlaneWidget::GenerateText()
 {
-  sprintf(this->TextBuff,"NA");
+  snprintf(this->TextBuff, VTK_IMAGE_PLANE_WIDGET_MAX_TEXTBUFF, "NA");
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->SetTextScaleModeToNone();
 
@@ -2902,6 +2911,7 @@ void vtkImagePlaneWidget::UpdateMargins()
   marginPts->SetPoint(5,b);
   marginPts->SetPoint(6,c);
   marginPts->SetPoint(7,d);
+  marginPts->GetData()->Modified();
 
   this->MarginPolyData->Modified();
 }

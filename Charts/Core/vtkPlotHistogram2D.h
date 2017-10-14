@@ -36,7 +36,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotHistogram2D : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotHistogram2D, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a new object.
@@ -48,12 +48,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the item, called whenever it needs to be drawn.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Set the input, we are expecting a vtkImageData with just one component,
@@ -61,8 +61,8 @@ public:
    * functions as a double to generate a color.
    */
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
-  void SetInputData(vtkTable*)VTK_OVERRIDE { }
-  void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&)VTK_OVERRIDE { }
+  void SetInputData(vtkTable*) override { }
+  void SetInputData(vtkTable*, const vtkStdString&, const vtkStdString&) override { }
 
   /**
    * Get the input table used by the plot.
@@ -80,7 +80,7 @@ public:
    */
   vtkScalarsToColors * GetTransferFunction();
 
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
@@ -105,7 +105,7 @@ public:
    */
   vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex) VTK_OVERRIDE;
+                                       vtkIdType segmentIndex) override;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -117,11 +117,11 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
 protected:
   vtkPlotHistogram2D();
-  ~vtkPlotHistogram2D() VTK_OVERRIDE;
+  ~vtkPlotHistogram2D() override;
 
   /**
    * Where all the magic happens...
@@ -134,8 +134,8 @@ protected:
   vtkRectf Position;
 
 private:
-  vtkPlotHistogram2D(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotHistogram2D &) VTK_DELETE_FUNCTION;
+  vtkPlotHistogram2D(const vtkPlotHistogram2D &) = delete;
+  void operator=(const vtkPlotHistogram2D &) = delete;
 
 };
 

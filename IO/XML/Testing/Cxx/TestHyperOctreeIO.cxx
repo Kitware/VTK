@@ -206,7 +206,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   }
   if (!compressed)
   {
-    writerX->SetCompressor(NULL);
+    writerX->SetCompressor(nullptr);
   }
 
   cout<<"update writerX..."<<endl;
@@ -246,7 +246,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
     }
     if (!compressed)
     {
-      writerX->SetCompressor(NULL);
+      writerX->SetCompressor(nullptr);
     }
     writerX->Write();
     writerX->Delete();
@@ -314,9 +314,9 @@ int TestHyperOctreeIO(int argc, char* argv[])
   smapper->SetLookupTable(lut);
   smapper->SetScalarModeToUseCellData();
 
-  if(contour->GetOutput()->GetCellData()!=0)
+  if(contour->GetOutput()->GetCellData()!=nullptr)
   {
-    if(contour->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(contour->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       smapper->SetScalarRange( contour->GetOutput()->GetCellData()->
                                GetScalars()->GetRange());

@@ -52,7 +52,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkScalarBarRepresentation : public vtkBorder
 {
 public:
   vtkTypeMacro(vtkScalarBarRepresentation, vtkBorderRepresentation);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkScalarBarRepresentation *New();
 
   //@{
@@ -67,9 +67,9 @@ public:
   /**
    * Satisfy the superclass' API.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
-  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void GetSize(double size[2]) VTK_OVERRIDE
+  void BuildRepresentation() override;
+  void WidgetInteraction(double eventPos[2]) override;
+  void GetSize(double size[2]) override
     {size[0]=2.0; size[1]=2.0;}
   //@}
 
@@ -78,14 +78,14 @@ public:
    * These methods are necessary to make this representation behave as
    * a vtkProp.
    */
-  int GetVisibility() VTK_OVERRIDE;
-  void SetVisibility(int) VTK_OVERRIDE;
-  void GetActors2D(vtkPropCollection *collection) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int GetVisibility() override;
+  void SetVisibility(int) override;
+  void GetActors2D(vtkPropCollection *collection) override;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   //@{
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkScalarBarRepresentation();
-  ~vtkScalarBarRepresentation() VTK_OVERRIDE;
+  ~vtkScalarBarRepresentation() override;
 
   /**
    * Change horizontal <--> vertical orientation, rotate the corners of the
@@ -119,8 +119,8 @@ protected:
   bool AutoOrient;
 
 private:
-  vtkScalarBarRepresentation(const vtkScalarBarRepresentation &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarBarRepresentation &) VTK_DELETE_FUNCTION;
+  vtkScalarBarRepresentation(const vtkScalarBarRepresentation &) = delete;
+  void operator=(const vtkScalarBarRepresentation &) = delete;
 };
 
 #endif //vtkScalarBarRepresentation_h

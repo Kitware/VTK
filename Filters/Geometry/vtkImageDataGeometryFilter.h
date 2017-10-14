@@ -45,7 +45,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataGeometryFilter : public vtkPolyDataA
 {
 public:
   vtkTypeMacro(vtkImageDataGeometryFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with initial extent of all the data
@@ -95,10 +95,10 @@ public:
 
 protected:
   vtkImageDataGeometryFilter();
-  ~vtkImageDataGeometryFilter() VTK_OVERRIDE {}
+  ~vtkImageDataGeometryFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int    Extent[6];
   int    ThresholdCells;
@@ -106,8 +106,8 @@ protected:
   int    OutputTriangles;
 
 private:
-  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) = delete;
+  void operator=(const vtkImageDataGeometryFilter&) = delete;
 };
 
 #endif

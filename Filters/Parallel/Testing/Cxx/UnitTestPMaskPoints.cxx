@@ -45,7 +45,7 @@ int UnitTestPMaskPoints (int argc, char* argv[])
   vtkSmartPointer<vtkPMaskPoints> mask0 =
     vtkSmartPointer<vtkPMaskPoints>::New();
   // For coverage
-  mask0->SetController(NULL); mask0->SetController(NULL);
+  mask0->SetController(nullptr); mask0->SetController(nullptr);
   mask0->Print(print0);
 
   vtkMPIController* cntrl = vtkMPIController::New();

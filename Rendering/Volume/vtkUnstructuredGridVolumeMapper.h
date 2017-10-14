@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeMapper : public vtkAbst
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeMapper,vtkAbstractVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
    * Render the volume
    */
-  void Render(vtkRenderer *ren, vtkVolume *vol) VTK_OVERRIDE =0;
+  void Render(vtkRenderer *ren, vtkVolume *vol) override =0;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -72,7 +72,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) override {}
 
   enum
   {
@@ -82,15 +82,15 @@ public:
 
 protected:
   vtkUnstructuredGridVolumeMapper();
-  ~vtkUnstructuredGridVolumeMapper() VTK_OVERRIDE;
+  ~vtkUnstructuredGridVolumeMapper() override;
 
   int   BlendMode;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&) = delete;
+  void operator=(const vtkUnstructuredGridVolumeMapper&) = delete;
 };
 
 

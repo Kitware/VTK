@@ -115,7 +115,7 @@ vtkMTimeType vtkPoints::GetMTime()
   return doTime;
 }
 
-int vtkPoints::Allocate(const vtkIdType sz, const vtkIdType ext)
+int vtkPoints::Allocate(vtkIdType sz, vtkIdType ext)
 {
   int numComp = this->Data->GetNumberOfComponents();
   return this->Data->Allocate(sz * numComp, ext * numComp);
@@ -125,6 +125,15 @@ void vtkPoints::Initialize()
 {
   this->Data->Initialize();
   this->Modified();
+}
+
+void vtkPoints::Modified()
+{
+  this->Superclass::Modified();
+  if (this->Data)
+  {
+    this->Data->Modified();
+  }
 }
 
 int vtkPoints::GetDataType()
@@ -151,7 +160,7 @@ void vtkPoints::SetDataType(int dataType)
 // the object.
 void vtkPoints::SetData(vtkDataArray *data)
 {
-  if (data != this->Data && data != NULL)
+  if (data != this->Data && data != nullptr)
   {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {
@@ -173,11 +182,11 @@ void vtkPoints::SetData(vtkDataArray *data)
 // makes sense.
 void vtkPoints::DeepCopy(vtkPoints *da)
 {
-  if (da == NULL)
+  if (da == nullptr)
   {
     return;
   }
-  if (da->Data != this->Data && da->Data != NULL)
+  if (da->Data != this->Data && da->Data != nullptr)
   {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
     {

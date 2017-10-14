@@ -60,22 +60,22 @@ int TestMultiCylinderOn(int, char *[])
   mol->AppendBond( O1,  H5, 1);
 
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInputData(mol.GetPointer());
+  molmapper->SetInputData(mol);
 
   molmapper->UseBallAndStickSettings();
   molmapper->RenderAtomsOff();
   molmapper->UseMultiCylindersForBondsOn();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(molmapper.GetPointer());
+  actor->SetMapper(molmapper);
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
 
   ren->SetBackground(0.0,0.0,0.0);
   win->SetSize(450,450);

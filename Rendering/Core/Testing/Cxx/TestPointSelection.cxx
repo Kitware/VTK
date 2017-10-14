@@ -51,7 +51,7 @@ public:
   {
   }
 
-  ~PointPickCommand() VTK_OVERRIDE
+  ~PointPickCommand() override
   {
   }
 
@@ -104,7 +104,7 @@ public:
     this->Picker = p;
   }
 
-  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long, void *) override
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
@@ -154,15 +154,15 @@ int TestPointSelection(int argc, char *argv[])
   sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(sphereMapper.GetPointer());
+  actor->SetMapper(sphereMapper);
 
   vtkNew<vtkRenderer> ren;
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   vtkNew<vtkRenderWindow> win;
   win->SetMultiSamples(0);
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.0,0.0,0.0);
   win->SetSize(450,450);
@@ -171,25 +171,25 @@ int TestPointSelection(int argc, char *argv[])
 
   // Setup picker
   vtkNew<vtkInteractorStyleRubberBandPick> pickerInt;
-  iren->SetInteractorStyle(pickerInt.GetPointer());
+  iren->SetInteractorStyle(pickerInt);
   vtkNew<vtkRenderedAreaPicker> picker;
-  iren->SetPicker(picker.GetPointer());
+  iren->SetPicker(picker);
 
   // We'll follow up the cheap RenderedAreaPick with a detailed selection
   // to obtain the atoms and bonds.
   vtkNew<PointPickCommand> com;
-  com->SetRenderer(ren.GetPointer());
-  com->SetPicker(picker.GetPointer());
-  com->SetMapper(sphereMapper.GetPointer());
-  picker->AddObserver(vtkCommand::EndPickEvent, com.GetPointer());
+  com->SetRenderer(ren);
+  com->SetPicker(picker);
+  com->SetMapper(sphereMapper);
+  picker->AddObserver(vtkCommand::EndPickEvent, com);
 
   // Make pick -- lower left quarter of renderer
   win->Render();
-  picker->AreaPick(0, 0, 225, 225, ren.GetPointer());
+  picker->AreaPick(0, 0, 225, 225, ren);
   win->Render();
 
   // Interact if desired
-  int retVal = vtkRegressionTestImage(win.GetPointer());
+  int retVal = vtkRegressionTestImage(win);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

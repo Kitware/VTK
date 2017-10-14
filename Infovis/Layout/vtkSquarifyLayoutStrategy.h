@@ -47,7 +47,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkSquarifyLayoutStrategy : public vtkTreeMapLayou
 public:
   static vtkSquarifyLayoutStrategy *New();
   vtkTypeMacro(vtkSquarifyLayoutStrategy,vtkTreeMapLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform the layout of a tree and place the results as 4-tuples in
@@ -56,11 +56,11 @@ public:
   void Layout(
       vtkTree* inputTree,
       vtkDataArray* coordsArray,
-      vtkDataArray* sizeArray) VTK_OVERRIDE;
+      vtkDataArray* sizeArray) override;
 
 protected:
   vtkSquarifyLayoutStrategy();
-  ~vtkSquarifyLayoutStrategy() VTK_OVERRIDE;
+  ~vtkSquarifyLayoutStrategy() override;
 
 private:
 
@@ -74,8 +74,8 @@ private:
     float minX, float maxX,
     float minY, float maxY);
 
-  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&) = delete;
+  void operator=(const vtkSquarifyLayoutStrategy&) = delete;
 };
 
 #endif

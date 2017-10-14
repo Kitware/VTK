@@ -60,7 +60,7 @@ bool vtkContext2D::End()
   {
     this->Device->End();
     this->Device->Delete();
-    this->Device = NULL;
+    this->Device = nullptr;
     this->Modified();
     return true;
   }
@@ -70,14 +70,14 @@ bool vtkContext2D::End()
 // ----------------------------------------------------------------------------
 bool vtkContext2D::GetBufferIdMode() const
 {
-  return this->BufferId!=0;
+  return this->BufferId!=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 void vtkContext2D::BufferIdModeBegin(vtkAbstractContextBufferId *bufferId)
 {
   assert("pre: not_yet" && !this->GetBufferIdMode());
-  assert("pre: bufferId_exists" && bufferId!=0);
+  assert("pre: bufferId_exists" && bufferId!=nullptr);
 
   this->BufferId=bufferId;
   this->Device->BufferIdModeBegin(bufferId);
@@ -91,7 +91,7 @@ void vtkContext2D::BufferIdModeEnd()
   assert("pre: started" && this->GetBufferIdMode());
 
   this->Device->BufferIdModeEnd();
-  this->BufferId=0;
+  this->BufferId=nullptr;
 
   assert("post: done" && !this->GetBufferIdMode());
 }
@@ -332,7 +332,7 @@ void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n,
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawMarkers(int shape, bool highlight, float *points, int n)
 {
-  this->DrawMarkers(shape, highlight, points, n, NULL, 0);
+  this->DrawMarkers(shape, highlight, points, n, nullptr, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -470,6 +470,45 @@ void vtkContext2D::DrawPolygon(float *points, int n)
   this->Device->DrawPoly(&closeLine[0], 2);
 }
 
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *x, float *y, int n, unsigned char *color,
+                               int nc_comps)
+{
+  // Copy the points into an array and draw it.
+  float *p = new float[2*n];
+  for (int i = 0; i < n; ++i)
+  {
+    p[2*i]   = x[i];
+    p[2*i+1] = y[i];
+  }
+  this->DrawPolygon(&p[0], n, color, nc_comps);
+  delete[] p;
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(vtkPoints2D *points, unsigned char *color,
+                               int nc_comps)
+{
+
+  // Construct an array with the correct coordinate packing for OpenGL.
+  int n = static_cast<int>(points->GetNumberOfPoints());
+  // If the points are of type float then call OpenGL directly
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
+  this->DrawPolygon(f, n, color, nc_comps);
+}
+
+//-----------------------------------------------------------------------------
+void vtkContext2D::DrawPolygon(float *points, int n, unsigned char *color, int nc_comps)
+{
+  if (!this->Device)
+  {
+    vtkErrorMacro(<< "Attempted to paint with no active vtkContextDevice2D.");
+    return;
+  }
+
+  // Draw the filled area of the polygon.
+  this->Device->DrawColoredPolygon(points, n, color, nc_comps);
+}
 
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawEllipse(float x, float y, float rx, float ry)
@@ -873,7 +912,7 @@ vtkPen* vtkContext2D::GetPen()
   {
     return this->Device->GetPen();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -889,7 +928,7 @@ vtkBrush* vtkContext2D::GetBrush()
   {
     return this->Device->GetBrush();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -905,7 +944,7 @@ vtkTextProperty* vtkContext2D::GetTextProp()
   {
     return this->Device->GetTextProp();
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -925,7 +964,7 @@ vtkTransform2D* vtkContext2D::GetTransform()
     this->Device->GetMatrix(this->Transform->GetMatrix());
     return this->Transform;
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -986,7 +1025,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
 {
   if (rect->GetNumberOfPoints() < 2)
   {
-    return vtkVector2f();
+    return vtkVector2f(0, 0);
   }
 
   float *f = vtkArrayDownCast<vtkFloatArray>(rect->GetData())->GetPointer(0);
@@ -1030,11 +1069,11 @@ vtkVector2f vtkContext2D::CalculateTextPosition(float rect[4])
 }
 
 //-----------------------------------------------------------------------------
-vtkContext2D::vtkContext2D() : Context3D(NULL)
+vtkContext2D::vtkContext2D() : Context3D(nullptr)
 {
-  this->Device = NULL;
+  this->Device = nullptr;
   this->Transform = vtkTransform2D::New();
-  this->BufferId = 0;
+  this->BufferId = nullptr;
 }
 
 //-----------------------------------------------------------------------------

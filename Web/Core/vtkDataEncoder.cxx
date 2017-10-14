@@ -45,18 +45,24 @@ namespace
     public:
       vtkTypeUInt32 TimeStamp;
       vtkSmartPointer<vtkUnsignedCharArray> Data;
-      OutputValueType() : TimeStamp(0), Data(NULL)
+      OutputValueType() : TimeStamp(0), Data(nullptr)
       {
       }
     };
 
+    enum
+    {
+      ENCODING_NONE = 0,
+      ENCODING_BASE64 = 1
+    };
     struct InputValueType
     {
     public:
       vtkTypeUInt32 OutputStamp;
       vtkSmartPointer<vtkImageData> Image;
       int Quality;
-      InputValueType() : OutputStamp(0), Image(NULL), Quality(100)
+      int Encoding;
+      InputValueType() : OutputStamp(0), Image(nullptr), Quality(100), Encoding(ENCODING_BASE64)
       {
       }
     };
@@ -157,7 +163,7 @@ namespace
 
     //------------------------------------------------------------------------
     void PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data,
-      vtkTypeUInt64 stamp, int quality)
+      vtkTypeUInt64 stamp, int quality, int encoding)
     {
       this->InputsLock.Lock();
       {
@@ -165,7 +171,8 @@ namespace
         value.Image.TakeReference(data);
         value.OutputStamp = stamp;
         value.Quality = quality;
-        data = NULL;
+        value.Encoding = encoding;
+        data = nullptr;
       }
       this->InputsLock.Unlock();
       this->InputsAvailable.Signal();
@@ -189,7 +196,7 @@ namespace
     // NOTE: This method may suspend the calling thread until inputs become
     // available.
     vtkTypeUInt64 GetNextInputToProcess(vtkTypeUInt32& key,
-      vtkSmartPointer<vtkImageData>& image, int& quality)
+      vtkSmartPointer<vtkImageData>& image, int& quality, int& encoding)
     {
       vtkTypeUInt32 stamp = 0;
 
@@ -200,23 +207,24 @@ namespace
         InputMapType::iterator iter;
         for (iter = this->Inputs.begin(); iter != this->Inputs.end(); ++iter)
         {
-          if (iter->second.Image.GetPointer() != NULL)
+          if (iter->second.Image != nullptr)
           {
             key = iter->first;
             image = iter->second.Image;
-            iter->second.Image = NULL;
+            iter->second.Image = nullptr;
             stamp = iter->second.OutputStamp;
             quality = iter->second.Quality;
+            encoding = iter->second.Encoding;
             break;
           }
         }
-        if (image.GetPointer() == NULL && !this->IsDone())
+        if (image == nullptr && !this->IsDone())
         {
           // No data is available, let's wait till it becomes available.
           this->InputsAvailable.Wait(this->InputsLock);
         }
 
-      } while (image.GetPointer() == NULL && !this->IsDone());
+      } while (image == nullptr && !this->IsDone());
 
       this->InputsLock.Unlock();
       return stamp;
@@ -230,7 +238,7 @@ namespace
       assert(dataRef->GetReferenceCount() == 1);
       OutputMapType::iterator iter = this->Outputs.find(key);
       if (iter == this->Outputs.end() ||
-        iter->second.Data.GetPointer() == NULL ||
+        iter->second.Data == nullptr ||
         iter->second.TimeStamp < timestamp)
       {
         //cout << "Done: " <<
@@ -238,12 +246,12 @@ namespace
         //  << key << ", " << timestamp << endl;
         this->Outputs[key].TimeStamp = timestamp;
         this->Outputs[key].Data.TakeReference(dataRef);
-        dataRef = NULL;
+        dataRef = nullptr;
       }
       else
       {
         dataRef->Delete();
-        dataRef = NULL;
+        dataRef = nullptr;
       }
       this->OutputsLock.Unlock();
       this->OutputsAvailable.Broadcast();
@@ -257,11 +265,11 @@ namespace
       this->OutputsLock.Lock();
       {
         const vtkSharedData::OutputValueType &output = this->Outputs[key];
-        if (output.Data.GetPointer() != NULL &&
+        if (output.Data != nullptr &&
           (output.Data->GetMTime() > data->GetMTime() ||
            output.Data->GetNumberOfTuples() != data->GetNumberOfTuples()))
         {
-          data->DeepCopy(output.Data.GetPointer());
+          data->DeepCopy(output.Data);
           data->Modified();
         }
         dataTimeStamp = output.TimeStamp;
@@ -309,11 +317,13 @@ namespace
       vtkTypeUInt32 key = 0;
       vtkSmartPointer<vtkImageData> image;
       vtkTypeUInt64 timestamp = 0;
+      // these are defaults, reset by GetNextInputToProcess
       int quality = 100;
+      int encoding = 1;
 
-      timestamp = sharedData->GetNextInputToProcess(key, image, quality);
+      timestamp = sharedData->GetNextInputToProcess(key, image, quality, encoding);
 
-      if (timestamp == 0 || image.GetPointer() == NULL)
+      if (timestamp == 0 || image == nullptr)
       {
         // end thread.
         break;
@@ -330,18 +340,23 @@ namespace
       vtkUnsignedCharArray* data = writer->GetResult();
 
       vtkUnsignedCharArray* result = vtkUnsignedCharArray::New();
-      result->SetNumberOfComponents(1);
-      result->SetNumberOfTuples(std::ceil(1.5 * data->GetNumberOfTuples()));
-      unsigned long size = vtkBase64Utilities::Encode(
-        data->GetPointer(0),
-        data->GetNumberOfTuples(),
-        result->GetPointer(0), /*mark_end=*/ 0);
-      result->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
-      result->SetValue(size, 0);
-
+      if (encoding) {
+        result->SetNumberOfComponents(1);
+        result->SetNumberOfTuples(std::ceil(1.5 * data->GetNumberOfTuples()));
+        unsigned long size = vtkBase64Utilities::Encode(
+          data->GetPointer(0),
+          data->GetNumberOfTuples(),
+          result->GetPointer(0), /*mark_end=*/ 0);
+        result->SetNumberOfTuples(static_cast<vtkIdType>(size)+1);
+        result->SetValue(size, 0);
+      }
+      else
+      {
+        result->ShallowCopy(data);
+      }
       // Pass over the "result" reference.
       sharedData->SetOutputReference(key, timestamp, result);
-      assert(result == NULL);
+      assert(result == nullptr);
     }
 
     //cout << "Closing Thread: " << vtkMultiThreader::GetCurrentThreadID() << endl;
@@ -427,7 +442,7 @@ vtkDataEncoder::~vtkDataEncoder()
 {
   this->Internals->TerminateAllWorkers();
   delete this->Internals;
-  this->Internals = 0;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -438,15 +453,15 @@ void vtkDataEncoder::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality)
+void vtkDataEncoder::PushAndTakeReference(vtkTypeUInt32 key, vtkImageData* &data, int quality, int encoding)
 {
   // if data->ReferenceCount != 1, it means the caller thread is keep an extra
   // reference and that's bad.
   assert(data->GetReferenceCount() == 1);
 
   this->Internals->SharedData.PushAndTakeReference(
-    key, data, ++this->Internals->Counter, quality);
-  assert(data == NULL);
+    key, data, ++this->Internals->Counter, quality, encoding);
+  assert(data == nullptr);
 }
 
 //----------------------------------------------------------------------------

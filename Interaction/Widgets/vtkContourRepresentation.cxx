@@ -46,9 +46,9 @@ vtkContourRepresentation::vtkContourRepresentation()
 
   this->PixelTolerance           = 7;
   this->WorldTolerance           = 0.001;
-  this->PointPlacer              = NULL;
-  this->LineInterpolator         = NULL;
-  this->Locator                  = NULL;
+  this->PointPlacer              = nullptr;
+  this->LineInterpolator         = nullptr;
+  this->Locator                  = nullptr;
   this->RebuildLocator           = false;
   this->ActiveNode               = -1;
   this->NeedToRender             = 0;
@@ -62,8 +62,8 @@ vtkContourRepresentation::vtkContourRepresentation()
 //----------------------------------------------------------------------
 vtkContourRepresentation::~vtkContourRepresentation()
 {
-  this->SetPointPlacer(NULL);
-  this->SetLineInterpolator(NULL);
+  this->SetPointPlacer(nullptr);
+  this->SetLineInterpolator(nullptr);
   this->Internal->ClearNodes();
 
   delete this->Internal;
@@ -587,7 +587,7 @@ vtkContourRepresentationNode * vtkContourRepresentation::GetNthNode( int n )
   if ( n < 0 ||
        static_cast<unsigned int>(n) >= this->Internal->Nodes.size() )
   {
-    return 0;
+    return nullptr;
   }
   return this->Internal->Nodes[n];
 }
@@ -713,7 +713,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
                                                          int *idx )
 {
   // Make a line out of this viewing ray
-  double p1[4], p2[4], *p3=NULL, *p4=NULL;
+  double p1[4], p2[4], *p3=nullptr, *p4=nullptr;
 
   double tmp1[4], tmp2[4];
   tmp1[0] = X;
@@ -761,7 +761,7 @@ int vtkContourRepresentation::FindClosestPointOnContour( int X, int Y,
       if ( j == 0 )
       {
         p3 = this->Internal->Nodes[i]->WorldPosition;
-        if ( this->Internal->Nodes[i]->Points.size() )
+        if ( !this->Internal->Nodes[i]->Points.empty() )
         {
           p4 = this->Internal->Nodes[i]->Points[j]->WorldPosition;
         }
@@ -1214,7 +1214,7 @@ void vtkContourRepresentation
 void vtkContourRepresentation::Initialize( vtkPolyData * pd )
 {
   // For backward compatibility
-  this->InitializeContour(pd, NULL);
+  this->InitializeContour(pd, nullptr);
 }
 
 //----------------------------------------------------------------------

@@ -136,12 +136,12 @@ namespace
 vtkAMRInformation::vtkAMRInformation(): NumBlocks(1,0)
 {
   this->Refinement = vtkSmartPointer<vtkIntArray>::New();
-  this->SourceIndex = NULL;
+  this->SourceIndex = nullptr;
   this->GridDescription = -1;
 
   this->Origin[0] = this->Origin[1] = this->Origin[2] = DBL_MAX;
-  this->Spacing =NULL;
-  this->BlockLevel = NULL;
+  this->Spacing =nullptr;
+  this->BlockLevel = nullptr;
 
   this->Bounds[0] = VTK_DOUBLE_MAX;
   this->Bounds[1] = VTK_DOUBLE_MIN;
@@ -492,7 +492,7 @@ unsigned int *vtkAMRInformation::GetParents(unsigned int level, unsigned int ind
      this->AllParents[level][index].empty())
   {
     num = 0;
-    return NULL;
+    return nullptr;
   }
 
   num = static_cast<unsigned int>(this->AllParents[level][index].size());
@@ -509,7 +509,7 @@ GetChildren(unsigned int level, unsigned int index, unsigned int& size)
      this->AllChildren[level][index].empty())
   {
     size = 0;
-    return NULL;
+    return nullptr;
   }
 
   size = static_cast<unsigned int>(this->AllChildren[level][index].size());
@@ -546,13 +546,13 @@ void vtkAMRInformation::GenerateParentChildInformation()
   {
     this->GenerateRefinementRatio();
   }
-  AllChildren.resize(this->GetNumberOfLevels());
-  AllParents.resize(this->GetNumberOfLevels());
+  this->AllChildren.resize(this->GetNumberOfLevels());
+  this->AllParents.resize(this->GetNumberOfLevels());
 
   unsigned int numLevels = this->GetNumberOfLevels();
   for(unsigned int i=1; i<numLevels; i++)
   {
-    this->CalculateParentChildRelationShip(i, AllChildren[i-1], AllParents[i]);
+    this->CalculateParentChildRelationShip(i, this->AllChildren[i-1], this->AllParents[i]);
   }
 }
 
@@ -959,7 +959,7 @@ bool vtkAMRInformation::FindGrid(double q[3], unsigned int& level, unsigned int&
   {
     unsigned int n;
     unsigned int *children = this->GetChildren(level, gridId,n);
-    if (children == NULL)
+    if (children == nullptr)
     {
       break;
     }

@@ -32,7 +32,7 @@ class VTKIMAGINGCORE_EXPORT vtkRTAnalyticSource : public vtkImageAlgorithm
 public:
   static vtkRTAnalyticSource *New();
   vtkTypeMacro(vtkRTAnalyticSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -136,7 +136,7 @@ protected:
   /**
    * Destructor.
    */
-  ~vtkRTAnalyticSource() VTK_OVERRIDE
+  ~vtkRTAnalyticSource() override
   {
   }
 
@@ -154,14 +154,14 @@ protected:
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRTAnalyticSource(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
+  vtkRTAnalyticSource(const vtkRTAnalyticSource&) = delete;
+  void operator=(const vtkRTAnalyticSource&) = delete;
 };
 
 

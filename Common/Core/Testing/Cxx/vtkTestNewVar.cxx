@@ -40,6 +40,11 @@ vtkObject * vtkTestNewVar::GetPoints()
   return this->Points.GetPointer();
 }
 
+vtkObject * vtkTestNewVar::GetPoints2()
+{
+  return this->Points;
+}
+
 void vtkTestNewVar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

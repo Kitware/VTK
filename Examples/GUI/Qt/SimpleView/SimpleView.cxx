@@ -13,15 +13,16 @@
 
 #include <vtkDataObjectToTable.h>
 #include <vtkElevationFilter.h>
+#include "vtkGenericOpenGLRenderWindow.h"
+#include <vtkNew.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkQtTableView.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
+#include "vtkSmartPointer.h"
 #include <vtkVectorText.h>
 
-#include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) \
-  vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
+
 
 // Constructor
 SimpleView::SimpleView()
@@ -36,34 +37,35 @@ SimpleView::SimpleView()
   this->ui->tableFrame->layout()->addWidget(this->TableView->GetWidget());
 
   // Geometry
-  VTK_CREATE(vtkVectorText, text);
+  vtkNew<vtkVectorText> text;
   text->SetText("VTK and Qt!");
-  VTK_CREATE(vtkElevationFilter, elevation);
+  vtkNew<vtkElevationFilter> elevation;
   elevation->SetInputConnection(text->GetOutputPort());
   elevation->SetLowPoint(0,0,0);
   elevation->SetHighPoint(10,0,0);
 
   // Mapper
-  VTK_CREATE(vtkPolyDataMapper, mapper);
-  mapper->ImmediateModeRenderingOn();
+  vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(elevation->GetOutputPort());
 
   // Actor in scene
-  VTK_CREATE(vtkActor, actor);
+  vtkNew<vtkActor> actor;
   actor->SetMapper(mapper);
 
   // VTK Renderer
-  VTK_CREATE(vtkRenderer, ren);
+  vtkNew<vtkRenderer> ren;
 
   // Add Actor to renderer
   ren->AddActor(actor);
 
   // VTK/Qt wedded
+  vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
+  this->ui->qvtkWidget->SetRenderWindow(renderWindow);
   this->ui->qvtkWidget->GetRenderWindow()->AddRenderer(ren);
 
   // Just a bit of Qt interest: Culling off the
   // point data and handing it to a vtkQtTableView
-  VTK_CREATE(vtkDataObjectToTable, toTable);
+  vtkNew<vtkDataObjectToTable> toTable;
   toTable->SetInputConnection(elevation->GetOutputPort());
   toTable->SetFieldType(vtkDataObjectToTable::POINT_DATA);
 

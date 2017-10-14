@@ -48,7 +48,7 @@ class vtkPostgreSQLDatabasePrivate
  public:
   vtkPostgreSQLDatabasePrivate()
   {
-      this->Connection = NULL;
+      this->Connection = nullptr;
   }
 
   /**
@@ -75,7 +75,7 @@ class vtkPostgreSQLDatabasePrivate
 
 
 
-  // This is the actual database connection.  It will be NULL if no
+  // This is the actual database connection.  It will be nullptr if no
   // connection is open.
   PGconn  *Connection;
 

@@ -37,14 +37,14 @@ class vtkMultiProcessController;
 class VTKIOPARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkPDataSetWriter,vtkDataSetWriter);
   static vtkPDataSetWriter *New();
 
   /**
    * Write the pvtk file and cooresponding vtk files.
    */
-  int Write() VTK_OVERRIDE;
+  int Write() override;
 
   //@{
   /**
@@ -109,17 +109,21 @@ public:
 
 protected:
   vtkPDataSetWriter();
-  ~vtkPDataSetWriter() VTK_OVERRIDE;
+  ~vtkPDataSetWriter() override;
 
   ostream *OpenFile();
   int WriteUnstructuredMetaData(vtkDataSet *input,
-                                char *root, char *str, ostream *fptr);
+                                char *root, char *str,
+                                size_t strSize, ostream *fptr);
   int WriteImageMetaData(vtkImageData *input,
-                         char *root, char *str, ostream *fptr);
+                         char *root, char *str,
+                         size_t strSize, ostream *fptr);
   int WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
-                                   char *root, char *str, ostream *fptr);
+                                   char *root, char *str,
+                                   size_t strSize, ostream *fptr);
   int WriteStructuredGridMetaData(vtkStructuredGrid *input,
-                                  char *root, char *str, ostream *fptr);
+                                  char *root, char *str,
+                                  size_t strSize, ostream *fptr);
 
   int StartPiece;
   int EndPiece;
@@ -138,8 +142,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPDataSetWriter(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
+  vtkPDataSetWriter(const vtkPDataSetWriter&) = delete;
+  void operator=(const vtkPDataSetWriter&) = delete;
 };
 
 #endif

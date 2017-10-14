@@ -42,7 +42,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitByCellScalarFilter : public vtkMultiBlock
 public:
   static vtkSplitByCellScalarFilter *New();
   vtkTypeMacro(vtkSplitByCellScalarFilter, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -60,18 +60,18 @@ public:
 
 protected:
   vtkSplitByCellScalarFilter();
-  ~vtkSplitByCellScalarFilter() VTK_OVERRIDE;
+  ~vtkSplitByCellScalarFilter() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   bool PassAllPoints;
 
 private:
-  vtkSplitByCellScalarFilter(const vtkSplitByCellScalarFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplitByCellScalarFilter&) VTK_DELETE_FUNCTION;
+  vtkSplitByCellScalarFilter(const vtkSplitByCellScalarFilter&) = delete;
+  void operator=(const vtkSplitByCellScalarFilter&) = delete;
 };
 
 #endif

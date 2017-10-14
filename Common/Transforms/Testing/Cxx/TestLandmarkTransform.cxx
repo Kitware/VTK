@@ -126,8 +126,8 @@ static int TestSpecificLandmarkTransform(
   // compute the landmark transform
   vtkNew<vtkLandmarkTransform> ltrans;
   ltrans->SetMode(mode);
-  ltrans->SetSourceLandmarks(points1.Get());
-  ltrans->SetTargetLandmarks(points2.Get());
+  ltrans->SetSourceLandmarks(points1);
+  ltrans->SetTargetLandmarks(points2);
   ltrans->Update();
 
   // check the determinant
@@ -190,7 +190,7 @@ static int TestSpecificLandmarkTransform(
 
   // apply the landmark transform and compare to original
   vtkNew<vtkPoints> points3;
-  ltrans->TransformPoints(points1.Get(), points3.Get());
+  ltrans->TransformPoints(points1, points3);
 
   double dsum = 0.0;
   double dmax = 0.0;
@@ -226,13 +226,13 @@ static int TestSpecificLandmarkTransform(
   // the points we get the inverse matrix.
   vtkNew<vtkLandmarkTransform> ltrans2;
   ltrans2->SetMode(mode);
-  ltrans2->SetSourceLandmarks(points2.Get());
-  ltrans2->SetTargetLandmarks(points1.Get());
+  ltrans2->SetSourceLandmarks(points2);
+  ltrans2->SetTargetLandmarks(points1);
   ltrans2->Update();
 
   vtkNew<vtkMatrix4x4> testInverse;
   vtkMatrix4x4::Multiply4x4(ltrans->GetMatrix(), ltrans2->GetMatrix(),
-                            testInverse.Get());
+                            testInverse);
   double tol = 1e-6;
   double maxerr = 0.0;
   for (int i = 0; i < 4; i++)

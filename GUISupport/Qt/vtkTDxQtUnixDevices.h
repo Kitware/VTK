@@ -20,7 +20,7 @@
  * vtkTDXUnixDevice. It is uses internally by QVTKApplication.
  *
  * @sa
- * vtkTDxUnixDevice QVTKWidget QVTKApplication
+ * vtkTDxUnixDevice QVTKOpenGLWidget QVTKApplication
 */
 
 #ifndef vtkTDxQtUnixDevices_h
@@ -51,7 +51,7 @@ signals:
 /**
  * This signal should be connected to a slot in the QApplication.
  * The slot in the QApplication is supposed to remit this signal.
- * The QVTKWidget have slot to receive this signal from the QApplication.
+ * The QVTKOpenGLWidget have slot to receive this signal from the QApplication.
  */
    void CreateDevice(vtkTDxDevice *device);
 
@@ -60,8 +60,8 @@ protected:
   vtkTDxQtUnixDevicesPrivate *Private;
 
 private:
-  vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxQtUnixDevices&) VTK_DELETE_FUNCTION;
+  vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&) = delete;
+  void operator=(const vtkTDxQtUnixDevices&) = delete;
 };
 
 #endif

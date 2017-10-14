@@ -422,9 +422,9 @@ struct StructuredGrid
 //------------------------------------------------------------------------------
   bool IsRectilinearGrid()
   {
-    if( (this->X_Coords != NULL) &&
-        (this->Y_Coords != NULL) &&
-        (this->Z_Coords != NULL) )
+    if( (this->X_Coords != nullptr) &&
+        (this->Y_Coords != nullptr) &&
+        (this->Z_Coords != nullptr) )
     {
       return true;
     }
@@ -434,30 +434,30 @@ struct StructuredGrid
 //------------------------------------------------------------------------------
   void Clear()
   {
-    if( this->Nodes != NULL )
+    if( this->Nodes != nullptr )
     {
       this->Nodes->Delete();
-      this->Nodes = NULL;
+      this->Nodes = nullptr;
     }
-    if( this->PointData != NULL )
+    if( this->PointData != nullptr )
     {
       this->PointData->Delete();
-      this->PointData = NULL;
+      this->PointData = nullptr;
     }
-    if( this->X_Coords != NULL )
+    if( this->X_Coords != nullptr )
     {
       this->X_Coords->Delete();
-      this->X_Coords = NULL;
+      this->X_Coords = nullptr;
     }
-    if( this->Y_Coords != NULL )
+    if( this->Y_Coords != nullptr )
     {
       this->Y_Coords->Delete();
-      this->Y_Coords = NULL;
+      this->Y_Coords = nullptr;
     }
-    if( this->Z_Coords != NULL )
+    if( this->Z_Coords != nullptr )
     {
       this->Z_Coords->Delete();
-      this->Z_Coords = NULL;
+      this->Z_Coords = nullptr;
     }
     this->Neighbors.clear();
   }
@@ -465,9 +465,9 @@ struct StructuredGrid
 //------------------------------------------------------------------------------
   void Initialize(StructuredGrid* grid)
   {
-    assert("pre: input grid is NULL!" && (grid != NULL) );
+    assert("pre: input grid is nullptr!" && (grid != nullptr) );
 
-    this->Initialize(grid->ID,grid->Extent,NULL,NULL);
+    this->Initialize(grid->ID,grid->Extent,nullptr,nullptr);
 
     // Grow the extent in each dimension as needed
     for(int i=0; i < 3; ++i)
@@ -483,7 +483,7 @@ struct StructuredGrid
         this->Extent,grid->DataDescription);
 
    // Allocate coordinates, if needed
-   if( grid->Nodes != NULL )
+   if( grid->Nodes != nullptr )
    {
      this->Nodes = vtkPoints::New();
      this->Nodes->SetDataType( grid->Nodes->GetDataType() );
@@ -491,13 +491,13 @@ struct StructuredGrid
    } // END if has points
    else
    {
-     this->Nodes = NULL;
+     this->Nodes = nullptr;
    }
 
    // Allocate rectilinear grid coordinates, if needed
-   if( (grid->X_Coords != NULL) &&
-       (grid->Y_Coords != NULL) &&
-       (grid->Z_Coords != NULL) )
+   if( (grid->X_Coords != nullptr) &&
+       (grid->Y_Coords != nullptr) &&
+       (grid->Z_Coords != nullptr) )
    {
      int dims[3];
      vtkStructuredData::GetDimensionsFromExtent(
@@ -529,13 +529,13 @@ struct StructuredGrid
    } // END if rectilinear grid
    else
    {
-     grid->X_Coords = NULL;
-     grid->Y_Coords = NULL;
-     grid->Z_Coords = NULL;
+     grid->X_Coords = nullptr;
+     grid->Y_Coords = nullptr;
+     grid->Z_Coords = nullptr;
    }
 
    // Allocate fields, if needed
-   if( grid->PointData != NULL )
+   if( grid->PointData != nullptr )
    {
      this->PointData = vtkPointData::New();
      this->PointData->CopyAllocate(grid->PointData,nnodes);
@@ -551,7 +551,7 @@ struct StructuredGrid
    }
    else
    {
-     this->PointData = NULL;
+     this->PointData = nullptr;
    }
 
    // copy everything from the given grid
@@ -573,13 +573,13 @@ struct StructuredGrid
              vtkStructuredData::ComputePointIdForExtent(this->Extent,ijk,desc);
 
          // Copy nodes
-         if( this->Nodes != NULL )
+         if( this->Nodes != nullptr )
          {
            this->Nodes->SetPoint(targetIdx,grid->Nodes->GetPoint(srcIdx));
          }
 
          // Copy node-centered fields
-         if( this->PointData != NULL )
+         if( this->PointData != nullptr )
          {
            this->PointData->CopyData(grid->PointData,srcIdx,targetIdx);
          }
@@ -594,9 +594,9 @@ struct StructuredGrid
   void Initialize(int id, int ext[6], vtkDataArray* x_coords,
       vtkDataArray* y_coords, vtkDataArray* z_coords, vtkPointData* fields)
   {
-    assert("pre: NULL x_coords!" && (x_coords != NULL) );
-    assert("pre: NULL y_coords!" && (y_coords != NULL) );
-    assert("pre: NULL z_coords!" && (z_coords != NULL) );
+    assert("pre: nullptr x_coords!" && (x_coords != nullptr) );
+    assert("pre: nullptr y_coords!" && (y_coords != nullptr) );
+    assert("pre: nullptr z_coords!" && (z_coords != nullptr) );
 
     this->ID = id;
     memcpy(this->Extent,ext,6*sizeof(int));
@@ -604,7 +604,7 @@ struct StructuredGrid
     std::fill(this->Grow,this->Grow+3,0);
     std::fill(this->Implicit,this->Implicit+3,0);
 
-    this->Nodes = NULL;
+    this->Nodes = nullptr;
 
     // Effectively, shallow copy the coordinate arrays and maintain ownership
     // of these arrays in the caller.
@@ -620,14 +620,14 @@ struct StructuredGrid
     this->Z_Coords->SetVoidArray(
         z_coords->GetVoidPointer(0),z_coords->GetNumberOfTuples(),1);
 
-    if(fields != NULL)
+    if(fields != nullptr)
     {
       this->PointData = vtkPointData::New();
       this->PointData->ShallowCopy(fields);
     }
     else
     {
-      this->PointData = NULL;
+      this->PointData = nullptr;
     }
   }
 
@@ -640,28 +640,28 @@ struct StructuredGrid
   std::fill(this->Grow,this->Grow+3,0);
   std::fill(this->Implicit,this->Implicit+3,0);
 
-  this->X_Coords = NULL;
-  this->Y_Coords = NULL;
-  this->Z_Coords = NULL;
+  this->X_Coords = nullptr;
+  this->Y_Coords = nullptr;
+  this->Z_Coords = nullptr;
 
-  if(nodes != NULL)
+  if(nodes != nullptr)
   {
     this->Nodes = vtkPoints::New();
     this->Nodes->ShallowCopy(nodes);
   }
   else
   {
-    this->Nodes = NULL;
+    this->Nodes = nullptr;
   }
 
-  if(fields != NULL)
+  if(fields != nullptr)
   {
     this->PointData = vtkPointData::New();
     this->PointData->ShallowCopy(fields);
   }
   else
   {
-    this->PointData = NULL;
+    this->PointData = nullptr;
   }
   }
 
@@ -747,7 +747,7 @@ void CommunicationManager::EnqueueRcv(const int fromRank)
   assert("pre: rcv from rank has already been enqueued!" &&
           (this->Rcv.find(fromRank)==this->Rcv.end()) );
 
-  this->Rcv[ fromRank ] = NULL;
+  this->Rcv[ fromRank ] = nullptr;
   this->RcvByteSize[ fromRank ] = 0;
 }
 
@@ -801,7 +801,7 @@ void CommunicationManager::AllocateRcvBuffers(vtkMPIController* comm)
   for( ;bufferIter != this->Rcv.end(); ++bufferIter)
   {
     int fromRank = bufferIter->first;
-    assert("pre: rcv buffer should be NULL!" && (this->Rcv[fromRank]==NULL) );
+    assert("pre: rcv buffer should be nullptr!" && (this->Rcv[fromRank]==nullptr) );
     this->Rcv[ fromRank ] = new unsigned char[ this->RcvByteSize[fromRank] ];
   }
 }
@@ -863,10 +863,10 @@ vtkStandardNewMacro(vtkStructuredImplicitConnectivity);
 //------------------------------------------------------------------------------
 vtkStructuredImplicitConnectivity::vtkStructuredImplicitConnectivity()
 {
-  this->DomainInfo  = NULL;
-  this->InputGrid   = NULL;
-  this->OutputGrid  = NULL;
-  this->CommManager = NULL;
+  this->DomainInfo  = nullptr;
+  this->InputGrid   = nullptr;
+  this->OutputGrid  = nullptr;
+  this->CommManager = nullptr;
   this->Controller  = vtkMPIController::SafeDownCast(
             vtkMultiProcessController::GetGlobalController());
 }
@@ -875,30 +875,30 @@ vtkStructuredImplicitConnectivity::vtkStructuredImplicitConnectivity()
 vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
 {
   delete this->DomainInfo;
-  this->DomainInfo = NULL;
+  this->DomainInfo = nullptr;
 
-  if( this->InputGrid != NULL )
+  if( this->InputGrid != nullptr )
   {
     this->InputGrid->Clear();
     delete this->InputGrid;
-    this->InputGrid = NULL;
+    this->InputGrid = nullptr;
   }
 
-  if( this->OutputGrid != NULL )
+  if( this->OutputGrid != nullptr )
   {
     this->OutputGrid->Clear();
     delete this->OutputGrid;
-    this->OutputGrid = NULL;
+    this->OutputGrid = nullptr;
   }
 
-  if( this->CommManager != NULL )
+  if( this->CommManager != nullptr )
   {
     this->CommManager->Clear();
     delete this->CommManager;
-    this->CommManager = NULL;
+    this->CommManager = nullptr;
   }
 
-  this->Controller = NULL;
+  this->Controller = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -906,14 +906,14 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << "Controller: "      << this->Controller << std::endl;
-  if( this->Controller != NULL )
+  if( this->Controller != nullptr )
   {
     os << "Number of Ranks: " << this->Controller->GetNumberOfProcesses();
     os << std::endl;
-  } // END if Controller != NULL
+  } // END if Controller != nullptr
 
   os << "Input Grid: " << this->InputGrid  << std::endl;
-  if( this->InputGrid != NULL )
+  if( this->InputGrid != nullptr )
   {
     os << "Extent: [" << this->InputGrid->Extent[0];
     os << ", " << this->InputGrid->Extent[1];
@@ -936,7 +936,7 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
       os << "\t" << this->InputGrid->Neighbors[ nei ].ToString();
       os << std::endl;
     } // END for all neighbors
-  } // END if InputGrid != NULL
+  } // END if InputGrid != nullptr
 }
 
 //------------------------------------------------------------------------------
@@ -959,14 +959,14 @@ void vtkStructuredImplicitConnectivity::RegisterGrid(
       vtkPointData* pointData)
 {
   // Sanity Checks!
-  assert("pre: NULL Domain, whole extent is not set!" &&
-          (this->DomainInfo != NULL) );
-  assert("pre: input not NULL in this process!" &&
-          (this->InputGrid == NULL) );
+  assert("pre: nullptr Domain, whole extent is not set!" &&
+          (this->DomainInfo != nullptr) );
+  assert("pre: input not nullptr in this process!" &&
+          (this->InputGrid == nullptr) );
   assert("pre: input grid ID should be >= 0" && (gridID >= 0) );
 
   delete this->InputGrid;
-  this->InputGrid = NULL;
+  this->InputGrid = nullptr;
 
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.
@@ -987,14 +987,14 @@ void vtkStructuredImplicitConnectivity::RegisterRectilinearGrid(
             vtkPointData* pointData)
 {
   // Sanity Checks!
-  assert("pre: NULL Domain, whole extent is not set!" &&
-          (this->DomainInfo != NULL) );
-  assert("pre: input not NULL in this process!" &&
-          (this->InputGrid == NULL) );
+  assert("pre: nullptr Domain, whole extent is not set!" &&
+          (this->DomainInfo != nullptr) );
+  assert("pre: input not nullptr in this process!" &&
+          (this->InputGrid == nullptr) );
   assert("pre: input grid ID should be >= 0" && (gridID >= 0) );
 
   delete this->InputGrid;
-  this->InputGrid = NULL;
+  this->InputGrid = nullptr;
 
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.
@@ -1010,13 +1010,13 @@ void vtkStructuredImplicitConnectivity::RegisterRectilinearGrid(
 void vtkStructuredImplicitConnectivity::ExchangeExtents()
 {
   // Sanity checks!
-  assert("pre: null controller!" && (this->Controller != NULL) );
-  assert("pre: null domain!" && (this->DomainInfo != NULL) );
+  assert("pre: null controller!" && (this->Controller != nullptr) );
+  assert("pre: null domain!" && (this->DomainInfo != nullptr) );
 
   // STEP 0: Construct the extent buffer that will be sent from each process.
   // Each process sends 7 ints: [gridId imin imax jmin jmax kmin kmax]
   int extbuffer[7];
-  if( this->InputGrid == NULL )
+  if( this->InputGrid == nullptr )
   {
     // pad the buffer with -1, indicating that this process has no grid
     std::fill(extbuffer,extbuffer+7,-1);
@@ -1149,9 +1149,9 @@ bool vtkStructuredImplicitConnectivity::GlobalDataDescriptionMatch()
 //------------------------------------------------------------------------------
 bool vtkStructuredImplicitConnectivity::HasImplicitConnectivity()
 {
-  if( this->DomainInfo == NULL )
+  if( this->DomainInfo == nullptr )
   {
-    vtkGenericWarningMacro(<< "NULL domain, WholeExtent not set!");
+    vtkGenericWarningMacro(<< "nullptr domain, WholeExtent not set!");
     return false;
   }
 
@@ -1168,10 +1168,10 @@ bool vtkStructuredImplicitConnectivity::HasImplicitConnectivity()
 void vtkStructuredImplicitConnectivity::GetGlobalImplicitConnectivityState()
 {
   // Sanity checks!
-  assert("pre: null controller!" && (this->Controller != NULL) );
+  assert("pre: null controller!" && (this->Controller != nullptr) );
 
   int sndbuffer[3];
-  if( this->InputGrid == NULL)
+  if( this->InputGrid == nullptr)
   {
     std::fill(sndbuffer,sndbuffer+3,0);
   }
@@ -1188,9 +1188,9 @@ void vtkStructuredImplicitConnectivity::GetGlobalImplicitConnectivityState()
 void vtkStructuredImplicitConnectivity::EstablishConnectivity()
 {
   // Sanity checks!
-  assert("pre: null controller!" && (this->Controller != NULL) );
-  assert("pre: NULL domain, WholeExtent not set!" &&
-          (this->DomainInfo != NULL) );
+  assert("pre: null controller!" && (this->Controller != nullptr) );
+  assert("pre: nullptr domain, WholeExtent not set!" &&
+          (this->DomainInfo != nullptr) );
 
   // STEP 0: Exchange extents
   this->ExchangeExtents();
@@ -1209,11 +1209,11 @@ void vtkStructuredImplicitConnectivity::EstablishConnectivity()
 void vtkStructuredImplicitConnectivity::GetOutputStructuredGrid(
         const int gridID, vtkStructuredGrid* grid)
 {
-  assert("pre: NULL output grid!" && (grid != NULL) );
-  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL));
+  assert("pre: nullptr output grid!" && (grid != nullptr) );
+  assert("pre: output grid is nullptr!" && (this->OutputGrid != nullptr));
   assert("pre: mismatch gridID" && (this->OutputGrid->ID == gridID));
   assert("pre: output grid has no points!" &&
-          (this->OutputGrid->Nodes != NULL) );
+          (this->OutputGrid->Nodes != nullptr) );
 
   // silence warnings, the intent for the gridID here is for extending the
   // implementation in the future to allow multiple grids per process.
@@ -1229,8 +1229,8 @@ void vtkStructuredImplicitConnectivity::GetOutputStructuredGrid(
 void vtkStructuredImplicitConnectivity::GetOutputImageData(
         const int gridID, vtkImageData* grid)
 {
-  assert("pre: NULL output grid!" && (grid != NULL) );
-  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL));
+  assert("pre: nullptr output grid!" && (grid != nullptr) );
+  assert("pre: output grid is nullptr!" && (this->OutputGrid != nullptr));
   assert("pre: mismatch gridID" && (this->OutputGrid->ID == gridID));
 
   // silence warnings, the intent for the gridID here is for extending the
@@ -1245,8 +1245,8 @@ void vtkStructuredImplicitConnectivity::GetOutputImageData(
 void vtkStructuredImplicitConnectivity::GetOutputRectilinearGrid(
       const int gridID, vtkRectilinearGrid* grid)
 {
-  assert("pre: NULL output grid!" && (grid != NULL) );
-  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL));
+  assert("pre: nullptr output grid!" && (grid != nullptr) );
+  assert("pre: output grid is nullptr!" && (this->OutputGrid != nullptr));
   assert("pre: mismatch gridID" && (this->OutputGrid->ID == gridID));
 
   // silence warnings, the intent for the gridID here is for extending the
@@ -1263,11 +1263,11 @@ void vtkStructuredImplicitConnectivity::GetOutputRectilinearGrid(
 //------------------------------------------------------------------------------
 void vtkStructuredImplicitConnectivity::ConstructOutput()
 {
-  if( this->OutputGrid != NULL )
+  if( this->OutputGrid != nullptr )
   {
     this->OutputGrid->Clear();
     delete this->OutputGrid;
-    this->OutputGrid = NULL;
+    this->OutputGrid = nullptr;
   }
 
    this->OutputGrid = new vtk::detail::StructuredGrid();
@@ -1278,10 +1278,10 @@ void vtkStructuredImplicitConnectivity::ConstructOutput()
 void vtkStructuredImplicitConnectivity::UpdateNeighborList(const int dim)
 {
   assert("pre: dimension index out-of-bounds!" && (dim >= 0) && (dim <= 2) );
-  assert("pre: input grid is NULL!" && this->InputGrid != NULL );
-  assert("pre: domain info is NULL!" && this->DomainInfo != NULL);
+  assert("pre: input grid is nullptr!" && this->InputGrid != nullptr );
+  assert("pre: domain info is nullptr!" && this->DomainInfo != nullptr);
 
-  vtk::detail::ImplicitNeighbor* neiPtr = NULL;
+  vtk::detail::ImplicitNeighbor* neiPtr = nullptr;
   size_t nNeis = this->InputGrid->Neighbors.size();
   for( size_t nei=0; nei < nNeis; ++nei )
   {
@@ -1319,14 +1319,14 @@ void vtkStructuredImplicitConnectivity::PackData(
       int ext[6], vtkMultiProcessStream& bytestream)
 {
   // Sanity checks
-  assert("pre: input grid is NULL!" && (this->InputGrid != NULL) );
-  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL) );
+  assert("pre: input grid is nullptr!" && (this->InputGrid != nullptr) );
+  assert("pre: output grid is nullptr!" && (this->OutputGrid != nullptr) );
   assert("pre: extent is out-of-bounds the output grid!" &&
           vtkStructuredExtent::Smaller(ext,this->OutputGrid->Extent));
 
   bytestream.Push( ext, 6);
 
-  if( this->OutputGrid->Nodes != NULL )
+  if( this->OutputGrid->Nodes != nullptr )
   {
     bytestream << VTK_STRUCTURED_GRID;
     vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(ext);
@@ -1355,7 +1355,7 @@ void vtkStructuredImplicitConnectivity::PackData(
     coords[2] = this->OutputGrid->Z_Coords;
     for(int dim=0; dim < 3; ++dim)
     {
-      assert("pre: NULL coordinates" && coords[dim] != NULL);
+      assert("pre: nullptr coordinates" && coords[dim] != nullptr);
       int flag = -1;
       if( ext[dim*2] == ext[dim*2+1] )
       {
@@ -1375,7 +1375,7 @@ void vtkStructuredImplicitConnectivity::PackData(
   }
 
   // serialize the node-centered fields
-  if(this->OutputGrid->PointData != NULL)
+  if(this->OutputGrid->PointData != nullptr)
   {
     vtkFieldDataSerializer::SerializeSubExtent(
         ext,this->OutputGrid->Extent,this->OutputGrid->PointData,bytestream);
@@ -1390,19 +1390,19 @@ void vtkStructuredImplicitConnectivity::PackData(
 void vtkStructuredImplicitConnectivity::UnPackData(
       unsigned char* buffer, unsigned int size)
 {
-  assert("pre: output grid is NULL!" && (this->OutputGrid != NULL) );
+  assert("pre: output grid is nullptr!" && (this->OutputGrid != nullptr) );
 
   if( size == 0 )
   {
     return;
   }
 
-  assert("pre: NULL buffer encountered!" && (buffer != NULL) );
+  assert("pre: nullptr buffer encountered!" && (buffer != nullptr) );
 
   vtkMultiProcessStream bytestream;
   bytestream.SetRawData(buffer,size);
 
-  int* ext = NULL;
+  int* ext = nullptr;
   unsigned int sz = 0;
   bytestream.Pop(ext,sz);
   assert("post: ext size should be 6" && (sz==6) );
@@ -1419,7 +1419,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(
     bytestream >> nnodes;
     assert("pre: nnodes must be greater than 0!" && (nnodes > 0) );
     assert("post: output grid must have nodes!" &&
-           (this->OutputGrid->Nodes != NULL) );
+           (this->OutputGrid->Nodes != nullptr) );
 
     int ijk[3]         = {0,0,0};
     double* pnt        = new double[3];
@@ -1454,7 +1454,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(
     coords[2] = this->OutputGrid->Z_Coords;
     for(int dim=0; dim < 3; ++dim)
     {
-      assert("pre: NULL coordinates" && coords[dim] != NULL);
+      assert("pre: nullptr coordinates" && coords[dim] != nullptr);
       int flag = 0;
       bytestream >> flag;
       if( flag == 1 )
@@ -1468,7 +1468,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(
   } // END if rectilinear
 
   // de-serialize the node-centered fields
-  if( this->OutputGrid->PointData != NULL )
+  if( this->OutputGrid->PointData != nullptr )
   {
     vtkFieldDataSerializer::DeSerializeToSubExtent(
       ext,this->OutputGrid->Extent,this->OutputGrid->PointData,bytestream);
@@ -1483,7 +1483,7 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
   assert("pre: dimension index out-of-bounds!" && (dim >= 0) && (dim <= 2) );
 
   // Allocate CommBuffer data-structure
-  if(this->CommManager == NULL)
+  if(this->CommManager == nullptr)
   {
     this->CommManager = new vtk::detail::CommunicationManager();
   }
@@ -1509,7 +1509,7 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
       vtkMultiProcessStream bytestream;
       this->PackData(neiPtr->Overlap,bytestream);
 
-      unsigned char* buffer = NULL;
+      unsigned char* buffer = nullptr;
       unsigned int bytesize = 0;
       bytestream.GetRawData(buffer,bytesize);
 
@@ -1522,11 +1522,11 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
 void vtkStructuredImplicitConnectivity::GrowGrid(const int dim)
 {
   assert("pre: dimension index out-of-bounds!" && (dim >= 0) && (dim <= 2) );
-  assert("pre: input grid is NULL!" && this->InputGrid != NULL );
+  assert("pre: input grid is nullptr!" && this->InputGrid != nullptr );
 
   // STEP 0: Allocate buffers & associated data-structures
   this->AllocateBuffers( dim );
-  assert("pre: CommManager is NULL!" && (this->CommManager != NULL) );
+  assert("pre: CommManager is nullptr!" && (this->CommManager != nullptr) );
 
   // STEP 1: Exchange data
   this->CommManager->Exchange(this->Controller);
@@ -1553,9 +1553,9 @@ void vtkStructuredImplicitConnectivity::GrowGrid(const int dim)
 void vtkStructuredImplicitConnectivity::ExchangeData()
 {
   // Sanity checks!
-  assert( "pre: null controller!" && (this->Controller != NULL) );
+  assert( "pre: null controller!" && (this->Controller != nullptr) );
 
-  if(this->InputGrid != NULL)
+  if(this->InputGrid != nullptr)
   {
     // STEP 0: construct output grid data-structure
     this->ConstructOutput();
@@ -1572,7 +1572,7 @@ void vtkStructuredImplicitConnectivity::ExchangeData()
   } // END if
   else
   {
-    this->OutputGrid = NULL;
+    this->OutputGrid = nullptr;
   } // END else
 
   // Barrier synchronization

@@ -67,7 +67,7 @@ public:
   /**
    * Prints information about the state of the filter.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates with similarity transform.
@@ -118,12 +118,12 @@ public:
 
 protected:
   vtkProcrustesAlignmentFilter();
-  ~vtkProcrustesAlignmentFilter() VTK_OVERRIDE;
+  ~vtkProcrustesAlignmentFilter() override;
 
   /**
    * Usual data generation method.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkLandmarkTransform *LandmarkTransform;
 
@@ -133,8 +133,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProcrustesAlignmentFilter&) VTK_DELETE_FUNCTION;
+  vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&) = delete;
+  void operator=(const vtkProcrustesAlignmentFilter&) = delete;
 };
 
 #endif

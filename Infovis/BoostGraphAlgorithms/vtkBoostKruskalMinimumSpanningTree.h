@@ -102,8 +102,8 @@ private:
   bool NegateEdgeWeights;
   float EdgeWeightMultiplier;
 
-  vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostKruskalMinimumSpanningTree&) VTK_DELETE_FUNCTION;
+  vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&) = delete;
+  void operator=(const vtkBoostKruskalMinimumSpanningTree&) = delete;
 };
 
 #endif

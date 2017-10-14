@@ -36,7 +36,7 @@ class VTKCOMMONCORE_EXPORT vtkTimePointUtility : public vtkObject
 public:
   static vtkTimePointUtility *New();
   vtkTypeMacro(vtkTimePointUtility,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the time point for 12:00am on a specified day.
@@ -141,7 +141,7 @@ public:
    * the second argument.  The value will be set to true if the
    * string was parsed successfully, false otherwise.
    */
-  static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = NULL);
+  static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = nullptr);
 
   /**
    * Converts a VTK timepoint into one of the following ISO8601
@@ -166,11 +166,11 @@ public:
 
 protected:
   vtkTimePointUtility() {}
-  ~vtkTimePointUtility() VTK_OVERRIDE {}
+  ~vtkTimePointUtility() override {}
 
 private:
-  vtkTimePointUtility(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
+  vtkTimePointUtility(const vtkTimePointUtility&) = delete;
+  void operator=(const vtkTimePointUtility&) = delete;
 };
 
 #endif

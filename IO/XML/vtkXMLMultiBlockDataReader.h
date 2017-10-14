@@ -39,17 +39,17 @@ class VTKIOXML_EXPORT vtkXMLMultiBlockDataReader : public vtkXMLCompositeDataRea
 public:
   static vtkXMLMultiBlockDataReader* New();
   vtkTypeMacro(vtkXMLMultiBlockDataReader,vtkXMLCompositeDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkXMLMultiBlockDataReader();
-  ~vtkXMLMultiBlockDataReader() VTK_OVERRIDE;
+  ~vtkXMLMultiBlockDataReader() override;
 
   // Read the XML element for the subtree of a the composite dataset.
   // dataSetIndex is used to rank the leaf nodes in an inorder traversal.
   void ReadComposite(vtkXMLDataElement* element,
     vtkCompositeDataSet* composite, const char* filePath,
-    unsigned int &dataSetIndex) VTK_OVERRIDE;
+    unsigned int &dataSetIndex) override;
 
   // Reads file version < 1.0.
   virtual void ReadVersion0(vtkXMLDataElement* element,
@@ -57,21 +57,21 @@ protected:
     unsigned int &dataSetIndex);
 
   // Get the name of the data set being read.
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
-  int FillOutputPortInformation(int, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation* info) override;
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
 
   virtual int FillMetaData(vtkCompositeDataSet* metadata,
                            vtkXMLDataElement* element,
                            unsigned int& dataSetIndex);
 
 private:
-  vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLMultiBlockDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&) = delete;
+  void operator=(const vtkXMLMultiBlockDataReader&) = delete;
 };
 
 #endif

@@ -65,13 +65,13 @@ int TestGPURayCastVolumeLightKit(int argc, char *argv[])
   lightKit->SetKeyLightWarmth(1.0);
   lightKit->SetFillLightWarmth(0.0);
   lightKit->SetBackLightWarmth(0.0);
-  lightKit->AddLightsToRenderer(ren.GetPointer());
+  lightKit->AddLightsToRenderer(ren);
 
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(55, 0.0);
@@ -83,7 +83,7 @@ int TestGPURayCastVolumeLightKit(int argc, char *argv[])
   volumeProperty->SetDiffuse(1.0);
   volumeProperty->SetSpecular(0.0);
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-  volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(scalarOpacity);
 
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
     volumeProperty->GetRGBTransferFunction(0);
@@ -91,16 +91,16 @@ int TestGPURayCastVolumeLightKit(int argc, char *argv[])
   colorTransferFunction->AddRGBPoint(scalarRange[0], 1.0, 1.0, 1.0);
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
-  ren->AddViewProp(volume.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
+  ren->AddViewProp(volume);
 
   renWin->Render();
   ren->ResetCamera();
 
   iren->Initialize();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

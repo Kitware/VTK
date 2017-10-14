@@ -64,7 +64,7 @@ class VTKFILTERSHYBRID_EXPORT vtkTemporalInterpolator : public vtkMultiTimeStepA
 public:
   static vtkTemporalInterpolator *New();
   vtkTypeMacro(vtkTemporalInterpolator, vtkMultiTimeStepAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -105,30 +105,30 @@ public:
 
 protected:
   vtkTemporalInterpolator();
-  ~vtkTemporalInterpolator() VTK_OVERRIDE;
+  ~vtkTemporalInterpolator() override;
 
 
   double DiscreteTimeStepInterval;
   int    ResampleFactor;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
 
   int RequestDataObject(vtkInformation *,
                                 vtkInformationVector **,
-                                vtkInformationVector *) VTK_OVERRIDE;
+                                vtkInformationVector *) override;
 
   int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *,
                                  vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
 
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   /**
    * General interpolation routine for any type on input data. This is
@@ -170,8 +170,8 @@ protected:
   double Tfrac;
 
 private:
-  vtkTemporalInterpolator(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
+  vtkTemporalInterpolator(const vtkTemporalInterpolator&) = delete;
+  void operator=(const vtkTemporalInterpolator&) = delete;
 };
 
 

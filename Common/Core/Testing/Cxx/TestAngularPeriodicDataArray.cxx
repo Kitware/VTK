@@ -35,10 +35,10 @@ int TestAngularPeriodicDataArray(int, char * [])
   array->InsertNextTuple(tmp);
   floatArray->InsertNextTuple(tmp);
 
-  angularPeriodicDataArray->InitializeArray(array.Get());
+  angularPeriodicDataArray->InitializeArray(array);
   angularPeriodicDataArray->SetAngle(37.8152145);
 
-  angularPeriodicDataArray2->InitializeArray(floatArray.Get());
+  angularPeriodicDataArray2->InitializeArray(floatArray);
   angularPeriodicDataArray2->SetAngle(55.5769061);
   angularPeriodicDataArray2->SetAxis(VTK_PERIODIC_ARRAY_AXIS_Y);
 
@@ -116,7 +116,7 @@ int TestAngularPeriodicDataArray(int, char * [])
   tmp3[8] = 19.19191919;
 
   tensorArray->InsertNextTuple(tmp3);
-  tensorPArray->InitializeArray(tensorArray.Get());
+  tensorPArray->InitializeArray(tensorArray);
   tensorPArray->SetAngle(32);
   tensorPArray->SetAxis(VTK_PERIODIC_ARRAY_AXIS_Z);
   tensorPArray->SetCenter(tmp);

@@ -31,12 +31,13 @@
 
 class vtkContext2D;
 class vtkContext3D;
+class vtkContextDevice2D;
 class vtkContextScene;
 
 class VTKRENDERINGCONTEXT2D_EXPORT vtkContextActor : public vtkProp
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkContextActor,vtkProp);
 
   static vtkContextActor* New();
@@ -44,7 +45,7 @@ public:
   /**
    * We only render in the overlay for the context scene.
    */
-  int RenderOverlay(vtkViewport *viewport) VTK_OVERRIDE;
+  int RenderOverlay(vtkViewport *viewport) override;
 
   //@{
   /**
@@ -64,15 +65,24 @@ public:
   void SetScene(vtkContextScene *scene);
 
   /**
+   * Force rendering to a specific device. If left NULL, a default
+   * device will be created.
+   * @{
+   */
+  void SetForceDevice(vtkContextDevice2D *dev);
+  vtkGetObjectMacro(ForceDevice, vtkContextDevice2D)
+  /**@}*/
+
+  /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *window) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *window) override;
 
 protected:
   vtkContextActor();
-  ~vtkContextActor() VTK_OVERRIDE;
+  ~vtkContextActor() override;
 
   /**
    * Initialize the actor - right now we just decide which device to initialize.
@@ -82,11 +92,12 @@ protected:
   vtkSmartPointer<vtkContextScene> Scene;
   vtkNew<vtkContext2D> Context;
   vtkNew<vtkContext3D> Context3D;
+  vtkContextDevice2D *ForceDevice;
   bool Initialized;
 
 private:
-  vtkContextActor(const vtkContextActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextActor&) VTK_DELETE_FUNCTION;
+  vtkContextActor(const vtkContextActor&) = delete;
+  void operator=(const vtkContextActor&) = delete;
 };
 
 #endif

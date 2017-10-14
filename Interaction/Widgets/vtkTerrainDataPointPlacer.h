@@ -57,7 +57,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkTerrainDataPointPlacer,vtkPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Descuription:
@@ -88,7 +88,7 @@ public:
   int ComputeWorldPosition( vtkRenderer *ren,
                                     double displayPos[2],
                                     double worldPos[3],
-                                    double worldOrient[9] ) VTK_OVERRIDE;
+                                    double worldOrient[9] ) override;
 
   /**
    * Given a renderer, a display position, and a reference world
@@ -100,25 +100,25 @@ public:
                                     double displayPos[2],
                                     double refWorldPos[3],
                                     double worldPos[3],
-                                    double worldOrient[9] ) VTK_OVERRIDE;
+                                    double worldOrient[9] ) override;
 
   /**
    * Given a world position check the validity of this
    * position according to the constraints of the placer
    */
-  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
+  int ValidateWorldPosition( double worldPos[3] ) override;
 
   /**
    * Given a display position, check the validity of this position.
    */
-  int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] ) VTK_OVERRIDE;
+  int ValidateDisplayPosition( vtkRenderer *, double displayPos[2] ) override;
 
   /**
    * Given a world position and a world orientation,
    * validate it according to the constraints of the placer.
    */
   int ValidateWorldPosition( double worldPos[3],
-                                     double worldOrient[9] ) VTK_OVERRIDE;
+                                     double worldOrient[9] ) override;
 
   //@{
   /**
@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkTerrainDataPointPlacer();
-  ~vtkTerrainDataPointPlacer() VTK_OVERRIDE;
+  ~vtkTerrainDataPointPlacer() override;
 
   // The props that represents the terrain data (one or more) in a rendered
   // scene
@@ -138,8 +138,8 @@ protected:
   double              HeightOffset;
 
 private:
-  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
+  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&) = delete;
+  void operator=(const vtkTerrainDataPointPlacer&) = delete;
 };
 
 #endif

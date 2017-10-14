@@ -50,14 +50,14 @@ class VTKFILTERSSTATISTICS_EXPORT vtkHighestDensityRegionsStatistics :
 {
 public:
   vtkTypeMacro(vtkHighestDensityRegionsStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   static vtkHighestDensityRegionsStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
   void Aggregate(vtkDataObjectCollection*,
-                 vtkMultiBlockDataSet*) VTK_OVERRIDE { return; }
+                 vtkMultiBlockDataSet*) override { return; }
 
   /**
    * Set the width of the gaussian kernel.
@@ -90,33 +90,33 @@ public:
 
 protected:
   vtkHighestDensityRegionsStatistics();
-  ~vtkHighestDensityRegionsStatistics() VTK_OVERRIDE;
+  ~vtkHighestDensityRegionsStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn(vtkTable*,
              vtkTable*,
-             vtkMultiBlockDataSet*) VTK_OVERRIDE;
+             vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) VTK_OVERRIDE;
+  void Derive(vtkMultiBlockDataSet*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess(vtkTable*,
               vtkMultiBlockDataSet*,
-              vtkTable*) VTK_OVERRIDE { return; }
+              vtkTable*) override { return; }
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test(vtkTable*,
             vtkMultiBlockDataSet*,
-            vtkTable*) VTK_OVERRIDE { return; }
+            vtkTable*) override { return; }
 
   /**
    * Provide the appropriate assessment functor.
@@ -124,7 +124,7 @@ protected:
   void SelectAssessFunctor(vtkTable*,
                            vtkDataObject*,
                            vtkStringArray*,
-                           AssessFunctor*&) VTK_OVERRIDE { return; }
+                           AssessFunctor*&) override { return; }
 
   //@{
   /**
@@ -153,8 +153,8 @@ private :
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
 private:
-  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
-  void operator = (const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
+  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) = delete;
+  void operator = (const vtkHighestDensityRegionsStatistics&) = delete;
 };
 
 #endif

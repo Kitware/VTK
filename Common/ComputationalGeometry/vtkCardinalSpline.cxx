@@ -438,7 +438,7 @@ void vtkCardinalSpline::DeepCopy(vtkSpline *s)
 {
   vtkCardinalSpline *spline = vtkCardinalSpline::SafeDownCast(s);
 
-  if ( spline != NULL )
+  if ( spline != nullptr )
   {
     //nothing to do
   }

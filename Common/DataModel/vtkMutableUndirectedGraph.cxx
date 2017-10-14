@@ -62,17 +62,17 @@ vtkIdType vtkMutableUndirectedGraph::SetNumberOfVertices( vtkIdType numVerts )
 vtkIdType vtkMutableUndirectedGraph::AddVertex()
 {
   if (this->Internals->UsingPedigreeIds
-      && this->GetDistributedGraphHelper() != 0)
+      && this->GetDistributedGraphHelper() != nullptr)
   {
     vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
   }
 
-  return this->AddVertex(0);
+  return this->AddVertex(nullptr);
 }
 //----------------------------------------------------------------------------
 vtkIdType vtkMutableUndirectedGraph::AddVertex(vtkVariantArray *propertyArr)
 {
-  if (this->GetVertexData()->GetPedigreeIds() != 0)
+  if (this->GetVertexData()->GetPedigreeIds() != nullptr)
   {
     this->Internals->UsingPedigreeIds = true;
   }
@@ -95,7 +95,7 @@ vtkIdType vtkMutableUndirectedGraph::AddVertex(const vtkVariant& pedigreeId)
 //----------------------------------------------------------------------------
 vtkEdgeType vtkMutableUndirectedGraph::AddEdge(vtkIdType u, vtkIdType v)
 {
-  return this->AddEdge(u, v, 0);
+  return this->AddEdge(u, v, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -145,23 +145,23 @@ vtkEdgeType vtkMutableUndirectedGraph::AddEdge(const vtkVariant& u,
 void vtkMutableUndirectedGraph::LazyAddVertex()
 {
   if (this->Internals->UsingPedigreeIds
-      && this->GetDistributedGraphHelper() != 0)
+      && this->GetDistributedGraphHelper() != nullptr)
   {
     vtkErrorMacro("Adding vertex without a pedigree ID into a distributed graph that uses pedigree IDs to name vertices");
   }
 
-  this->LazyAddVertex(0);
+  this->LazyAddVertex(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddVertex(vtkVariantArray *propertyArr)
 {
-  if (this->GetVertexData()->GetPedigreeIds() != 0)
+  if (this->GetVertexData()->GetPedigreeIds() != nullptr)
   {
     this->Internals->UsingPedigreeIds = true;
   }
 
-  this->AddVertexInternal(propertyArr, 0);
+  this->AddVertexInternal(propertyArr, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -169,20 +169,20 @@ void vtkMutableUndirectedGraph::LazyAddVertex(const vtkVariant& pedigreeId)
 {
   this->Internals->UsingPedigreeIds = true;
 
-  this->AddVertexInternal(pedigreeId, 0);
+  this->AddVertexInternal(pedigreeId, nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v)
 {
-  this->LazyAddEdge(u, v, 0);
+  this->LazyAddEdge(u, v, nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, vtkIdType v,
                                             vtkVariantArray *propertyArr)
 {
-  this->AddEdgeInternal(u, v, false, propertyArr, 0);
+  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -191,7 +191,7 @@ void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u, vtkIdType v,
 {
   this->Internals->UsingPedigreeIds = true;
 
-  this->AddEdgeInternal(u, v, false, propertyArr, 0);
+  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -200,7 +200,7 @@ void vtkMutableUndirectedGraph::LazyAddEdge(vtkIdType u, const vtkVariant& v,
 {
   this->Internals->UsingPedigreeIds = true;
 
-  this->AddEdgeInternal(u, v, false, propertyArr, 0);
+  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -210,7 +210,7 @@ void vtkMutableUndirectedGraph::LazyAddEdge(const vtkVariant& u,
 {
   this->Internals->UsingPedigreeIds = true;
 
-  this->AddEdgeInternal(u, v, false, propertyArr, 0);
+  this->AddEdgeInternal(u, v, false, propertyArr, nullptr);
 }
 
 //----------------------------------------------------------------------------

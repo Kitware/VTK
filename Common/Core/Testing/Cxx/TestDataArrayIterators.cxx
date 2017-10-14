@@ -40,25 +40,25 @@ public:
     this->NumberOfComponents = array->GetNumberOfComponents();
     this->MaxId = array->GetMaxId();
   }
-  ValueType& GetValueReference(vtkIdType idx) VTK_OVERRIDE
+  ValueType& GetValueReference(vtkIdType idx) override
   {
     return *this->Data->GetPointer(idx);
   }
 
   // These pure virtuals are no-op -- all we care about is GetValueReference
   // to test the iterator.
-  void SetTypedTuple(vtkIdType, const ValueType *) VTK_OVERRIDE {}
-  void InsertTypedTuple(vtkIdType, const ValueType *) VTK_OVERRIDE {}
-  vtkIdType InsertNextTypedTuple(const ValueType *) VTK_OVERRIDE { return 0; }
-  vtkIdType LookupTypedValue(ValueType) VTK_OVERRIDE { return 0; }
-  void LookupTypedValue(ValueType, vtkIdList*) VTK_OVERRIDE {}
-  ValueType GetValue(vtkIdType) const VTK_OVERRIDE { return 0; }
-  void SetValue(vtkIdType, ValueType) VTK_OVERRIDE {}
-  void GetTypedTuple(vtkIdType, ValueType*) const VTK_OVERRIDE {}
-  vtkIdType InsertNextValue(ValueType) VTK_OVERRIDE { return 0; }
-  void InsertValue(vtkIdType, ValueType) VTK_OVERRIDE {}
-  int Allocate(vtkIdType, vtkIdType) VTK_OVERRIDE { return 0; }
-  int Resize(vtkIdType) VTK_OVERRIDE { return 0; }
+  void SetTypedTuple(vtkIdType, const ValueType *) override {}
+  void InsertTypedTuple(vtkIdType, const ValueType *) override {}
+  vtkIdType InsertNextTypedTuple(const ValueType *) override { return 0; }
+  vtkIdType LookupTypedValue(ValueType) override { return 0; }
+  void LookupTypedValue(ValueType, vtkIdList*) override {}
+  ValueType GetValue(vtkIdType) const override { return 0; }
+  void SetValue(vtkIdType, ValueType) override {}
+  void GetTypedTuple(vtkIdType, ValueType*) const override {}
+  vtkIdType InsertNextValue(ValueType) override { return 0; }
+  void InsertValue(vtkIdType, ValueType) override {}
+  int Allocate(vtkIdType, vtkIdType) override { return 0; }
+  int Resize(vtkIdType) override { return 0; }
 };
 }
 
@@ -70,7 +70,7 @@ int TestDataArrayIterators(int, char *[])
   vtkIdType numTuples = numValues / numComps;
 
   vtkNew<vtkFloatArray> arrayContainer;
-  vtkFloatArray *array = arrayContainer.GetPointer();
+  vtkFloatArray *array = arrayContainer;
   array->SetNumberOfComponents(numComps);
   array->SetNumberOfTuples(numTuples);
   for (vtkIdType i = 0; i < numValues; ++i)
@@ -81,7 +81,7 @@ int TestDataArrayIterators(int, char *[])
 
   // Create the vtkTypedDataArray testing implementation:
   vtkNew<MyArray> tdaContainer;
-  MyArray *tda = tdaContainer.GetPointer();
+  MyArray *tda = tdaContainer;
   tda->Init(array);
 
   // should be vtkAOSDataArrayTemplate<float>::Iterator (float*):

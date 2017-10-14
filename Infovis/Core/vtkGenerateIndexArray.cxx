@@ -30,9 +30,9 @@
 vtkStandardNewMacro(vtkGenerateIndexArray);
 
 vtkGenerateIndexArray::vtkGenerateIndexArray() :
-  ArrayName(0),
+  ArrayName(nullptr),
   FieldType(ROW_DATA),
-  ReferenceArrayName(0),
+  ReferenceArrayName(nullptr),
   PedigreeID(false)
 {
   this->SetArrayName("index");
@@ -40,8 +40,8 @@ vtkGenerateIndexArray::vtkGenerateIndexArray() :
 
 vtkGenerateIndexArray::~vtkGenerateIndexArray()
 {
-  this->SetArrayName(0);
-  this->SetReferenceArrayName(0);
+  this->SetArrayName(nullptr);
+  this->SetReferenceArrayName(nullptr);
 }
 
 void vtkGenerateIndexArray::PrintSelf(ostream& os, vtkIndent indent)
@@ -115,7 +115,7 @@ int vtkGenerateIndexArray::RequestData(
   output->ShallowCopy(input);
 
   // Figure-out where we'll be reading/writing data ...
-  vtkDataSetAttributes* output_attributes = 0;
+  vtkDataSetAttributes* output_attributes = nullptr;
   vtkIdType output_count = 0;
 
   switch(this->FieldType)
@@ -123,35 +123,35 @@ int vtkGenerateIndexArray::RequestData(
     case ROW_DATA:
     {
       vtkTable* const table = vtkTable::SafeDownCast(output);
-      output_attributes = table ? table->GetRowData() : 0;
+      output_attributes = table ? table->GetRowData() : nullptr;
       output_count = table ? table->GetNumberOfRows() : 0;
       break;
     }
     case POINT_DATA:
     {
       vtkDataSet* const data_set = vtkDataSet::SafeDownCast(output);
-      output_attributes = data_set ? data_set->GetPointData() : 0;
+      output_attributes = data_set ? data_set->GetPointData() : nullptr;
       output_count = data_set ? data_set->GetNumberOfPoints() : 0;
       break;
     }
     case CELL_DATA:
     {
       vtkDataSet* const data_set = vtkDataSet::SafeDownCast(output);
-      output_attributes = data_set ? data_set->GetCellData() : 0;
+      output_attributes = data_set ? data_set->GetCellData() : nullptr;
       output_count = data_set ? data_set->GetNumberOfCells() : 0;
       break;
     }
     case VERTEX_DATA:
     {
       vtkGraph* const graph = vtkGraph::SafeDownCast(output);
-      output_attributes = graph ? graph->GetVertexData() : 0;
+      output_attributes = graph ? graph->GetVertexData() : nullptr;
       output_count = graph ? graph->GetNumberOfVertices() : 0;
       break;
     }
     case EDGE_DATA:
     {
       vtkGraph* const graph = vtkGraph::SafeDownCast(output);
-      output_attributes = graph ? graph->GetEdgeData() : 0;
+      output_attributes = graph ? graph->GetEdgeData() : nullptr;
       output_count = graph ? graph->GetNumberOfEdges() : 0;
       break;
     }

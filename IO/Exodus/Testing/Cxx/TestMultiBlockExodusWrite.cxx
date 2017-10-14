@@ -60,13 +60,13 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
 
   vtkFieldData *ifieldData = elems->GetBlock(0)->GetFieldData ();
   int index;
-  if (ifieldData->GetArray ("CALIBER", index) == 0)
+  if (ifieldData->GetArray ("CALIBER", index) == nullptr)
   {
     cerr << "Expected to find array CALIBER in original data set" << endl;
     return 1;
   }
 
-  if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
+  if (ifieldData->GetArray ("GUNPOWDER", index) == nullptr)
   {
     cerr << "Expected to find array GUNPOWDER in original data set" << endl;
     return 1;
@@ -119,13 +119,13 @@ int TestMultiBlockExodusWrite (int argc, char *argv[])
   }
 
   ifieldData = elems->GetBlock(0)->GetFieldData ();
-  if (ifieldData->GetArray ("CALIBER", index) == 0)
+  if (ifieldData->GetArray ("CALIBER", index) == nullptr)
   {
     cerr << "Array CALIBER was not written to output" << endl;
     return 1;
   }
 
-  if (ifieldData->GetArray ("GUNPOWDER", index) == 0)
+  if (ifieldData->GetArray ("GUNPOWDER", index) == nullptr)
   {
     cerr << "Array GUNPOWDER was not written to output" << endl;
     return 1;

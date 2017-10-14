@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate cell array (connectivity list).
@@ -55,7 +55,7 @@ public:
   /**
    * Allocate memory and set the size to extend by.
    */
-  int Allocate(const vtkIdType sz, const int ext=1000)
+  int Allocate(vtkIdType sz, vtkIdType ext=1000)
     {return this->Ia->Allocate(sz,ext);}
 
   /**
@@ -101,7 +101,8 @@ public:
    * is encountered, 0 is returned. A value of 1 is returned whenever
    * npts and pts have been updated without error.
    */
-  int GetNextCell(vtkIdType& npts, vtkIdType* &pts);
+  int GetNextCell(vtkIdType& npts, vtkIdType* &pts)
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * A cell traversal methods that is more efficient than vtkDataSet traversal
@@ -128,13 +129,16 @@ public:
    * Internal method used to retrieve a cell given an offset into
    * the internal array.
    */
-  void GetCell(vtkIdType loc, vtkIdType &npts, vtkIdType* &pts);
+  void GetCell(vtkIdType loc, vtkIdType &npts, vtkIdType* &pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize())
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Internal method used to retrieve a cell given an offset into
    * the internal array.
    */
-  void GetCell(vtkIdType loc, vtkIdList* pts);
+  void GetCell(vtkIdType loc, vtkIdList* pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Insert a cell object. Return the cell id of the cell.
@@ -145,7 +149,8 @@ public:
    * Create a cell by specifying the number of points and an array of point
    * id's.  Return the cell id of the cell.
    */
-  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts);
+  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts)
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Create a cell by specifying a list of point ids. Return the cell id of
@@ -199,7 +204,8 @@ public:
    * Special method inverts ordering of current cell. Must be called
    * carefully or the cell topology may be corrupted.
    */
-  void ReverseCell(vtkIdType loc);
+  void ReverseCell(vtkIdType loc)
+    VTK_EXPECTS(0 <= loc && loc < GetSize());
 
   /**
    * Replace the point ids of the cell with a different list of point ids.
@@ -207,7 +213,9 @@ public:
    * the responsibility of the caller and may be done after multiple calls to
    * ReplaceCell.
    */
-  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts);
+  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts)
+    VTK_EXPECTS(0 <= loc && loc < GetSize())
+    VTK_SIZEHINT(pts, npts);
 
   /**
    * Returns the size of the largest cell. The size is the number of points
@@ -273,7 +281,7 @@ public:
 
 protected:
   vtkCellArray();
-  ~vtkCellArray() VTK_OVERRIDE;
+  ~vtkCellArray() override;
 
   vtkIdType NumberOfCells;
   vtkIdType InsertLocation;     //keep track of current insertion point
@@ -281,8 +289,8 @@ protected:
   vtkIdTypeArray *Ia;
 
 private:
-  vtkCellArray(const vtkCellArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellArray&) VTK_DELETE_FUNCTION;
+  vtkCellArray(const vtkCellArray&) = delete;
+  void operator=(const vtkCellArray&) = delete;
 };
 
 
@@ -359,7 +367,7 @@ inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
     return 1;
   }
   npts=0;
-  pts=0;
+  pts=nullptr;
   return 0;
 }
 

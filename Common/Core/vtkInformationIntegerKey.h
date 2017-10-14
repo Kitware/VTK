@@ -32,10 +32,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationIntegerKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationIntegerKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationIntegerKey(const char* name, const char* location);
-  ~vtkInformationIntegerKey() VTK_OVERRIDE;
+  ~vtkInformationIntegerKey() override;
 
   /**
    * This method simply returns a new vtkInformationIntegerKey, given a
@@ -61,12 +61,12 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 protected:
   /**
@@ -77,8 +77,8 @@ protected:
   int* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationIntegerKey(const vtkInformationIntegerKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationIntegerKey&) VTK_DELETE_FUNCTION;
+  vtkInformationIntegerKey(const vtkInformationIntegerKey&) = delete;
+  void operator=(const vtkInformationIntegerKey&) = delete;
 };
 
 #endif

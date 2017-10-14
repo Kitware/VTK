@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTreeIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkTreeIterator();
-  ~vtkTreeIterator() VTK_OVERRIDE;
+  ~vtkTreeIterator() override;
 
   virtual void Initialize() = 0;
   virtual vtkIdType NextInternal() = 0;
@@ -87,8 +87,8 @@ protected:
   vtkIdType NextId;
 
 private:
-  vtkTreeIterator(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
+  vtkTreeIterator(const vtkTreeIterator &) = delete;
+  void operator=(const vtkTreeIterator &) = delete;
 };
 
 #endif

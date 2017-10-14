@@ -35,7 +35,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMergePoints : public vtkPointLocator
 public:
   static vtkMergePoints *New();
   vtkTypeMacro(vtkMergePoints,vtkPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -43,8 +43,8 @@ public:
    * Return id of previously inserted point if this is true, otherwise return
    * -1.
    */
-  vtkIdType IsInsertedPoint(const double x[3]) VTK_OVERRIDE;
-  vtkIdType IsInsertedPoint(double x, double  y, double z) VTK_OVERRIDE
+  vtkIdType IsInsertedPoint(const double x[3]) override;
+  vtkIdType IsInsertedPoint(double x, double  y, double z) override
     {return this->vtkPointLocator::IsInsertedPoint(x, y, z); };
   //@}
 
@@ -56,15 +56,15 @@ public:
    * Note this combines the functionality of IsInsertedPoint() followed
    * by a call to InsertNextPoint().
    */
-  int InsertUniquePoint(const double x[3], vtkIdType &ptId) VTK_OVERRIDE;
+  int InsertUniquePoint(const double x[3], vtkIdType &ptId) override;
 
 protected:
   vtkMergePoints() {}
-  ~vtkMergePoints() VTK_OVERRIDE {}
+  ~vtkMergePoints() override {}
 
 private:
-  vtkMergePoints(const vtkMergePoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergePoints&) VTK_DELETE_FUNCTION;
+  vtkMergePoints(const vtkMergePoints&) = delete;
+  void operator=(const vtkMergePoints&) = delete;
 };
 
 #endif

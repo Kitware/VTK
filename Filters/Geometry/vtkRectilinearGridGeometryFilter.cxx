@@ -57,10 +57,10 @@ int vtkRectilinearGridGeometryFilter::RequestData(
   vtkIdType idx, startIdx, startCellIdx;
   vtkIdType ptIds[4];
   vtkIdType cellId;
-  vtkPoints *newPts=0;
-  vtkCellArray *newVerts=0;
-  vtkCellArray *newLines=0;
-  vtkCellArray *newPolys=0;
+  vtkPoints *newPts=nullptr;
+  vtkCellArray *newVerts=nullptr;
+  vtkCellArray *newLines=nullptr;
+  vtkCellArray *newPolys=nullptr;
   vtkIdType totPoints, pos;
   int offset[3], numPolys;
   double x[3];

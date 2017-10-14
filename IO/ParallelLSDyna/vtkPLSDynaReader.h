@@ -131,13 +131,13 @@ class VTKIOPARALLELLSDYNA_EXPORT vtkPLSDynaReader : public vtkLSDynaReader
 {
 public:
   vtkTypeMacro(vtkPLSDynaReader,vtkLSDynaReader);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkPLSDynaReader *New();
 
   /**
    * Determine if the file can be readed with this reader.
    */
-  virtual int CanReadFile( const char* fname ) VTK_OVERRIDE;
+  int CanReadFile( const char* fname ) override;
 
   //@{
   /**
@@ -149,17 +149,17 @@ public:
 
 protected:
   vtkPLSDynaReader();
-  virtual ~vtkPLSDynaReader();
+  ~vtkPLSDynaReader() override;
 
-  virtual int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
-  virtual int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestInformation( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
-  virtual int ReadTopology() VTK_OVERRIDE;
+  int ReadTopology() override;
 
 private:
 
-  vtkPLSDynaReader( const vtkPLSDynaReader& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkPLSDynaReader& ) VTK_DELETE_FUNCTION;
+  vtkPLSDynaReader( const vtkPLSDynaReader& ) = delete;
+  void operator = ( const vtkPLSDynaReader& ) = delete;
 
   void GetPartRanges(vtkIdType* mins,vtkIdType* maxs);
 

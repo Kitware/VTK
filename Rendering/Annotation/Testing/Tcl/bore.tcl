@@ -84,7 +84,7 @@ ren1 AddActor arcActor2
 ren1 AddActor arcActor3
 
 ren1 SetBackground 1 1 1
-renWin SetSize 235 500
+renWin SetSize 230 500
 
 camera SetClippingRange 14144 32817
 camera SetFocalPoint -1023 680 5812

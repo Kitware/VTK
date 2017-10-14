@@ -44,7 +44,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkShortArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -73,14 +73,14 @@ public:
 
 protected:
   vtkShortArray();
-  ~vtkShortArray() VTK_OVERRIDE;
+  ~vtkShortArray() override;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<short> RealSuperclass;
 
-  vtkShortArray(const vtkShortArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShortArray&) VTK_DELETE_FUNCTION;
+  vtkShortArray(const vtkShortArray&) = delete;
+  void operator=(const vtkShortArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

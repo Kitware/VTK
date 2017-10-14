@@ -101,9 +101,9 @@ int TestHyperOctreeToUniformGrid(int argc, char* argv[])
   mapper3d->SetInputConnection(0, flat3d->GetOutputPort(0) );
   mapper3d->SetLookupTable(lut3d);
 
-  if(flat3d->GetOutput()->GetCellData()!=0)
+  if(flat3d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(flat3d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(flat3d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper3d->SetScalarRange( flat3d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());
@@ -168,9 +168,9 @@ int TestHyperOctreeToUniformGrid(int argc, char* argv[])
   mapper2d->SetInputConnection(0, flat2d->GetOutputPort(0) );
   mapper2d->SetLookupTable(lut2d);
 
-  if(flat2d->GetOutput()->GetCellData()!=0)
+  if(flat2d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(flat2d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(flat2d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper2d->SetScalarRange( flat2d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());
@@ -244,9 +244,9 @@ int TestHyperOctreeToUniformGrid(int argc, char* argv[])
 
   mapper1d->SetLookupTable(lut1d);
 
-  if(flat1d->GetOutput()->GetCellData()!=0)
+  if(flat1d->GetOutput()->GetCellData()!=nullptr)
   {
-    if(flat1d->GetOutput()->GetCellData()->GetScalars()!=0)
+    if(flat1d->GetOutput()->GetCellData()->GetScalars()!=nullptr)
     {
       mapper1d->SetScalarRange( flat1d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());

@@ -89,7 +89,7 @@ public:
    * (use Print() instead) but used in the hierarchical print
    * process to combine the output of several classes.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkNamedColors object.
@@ -391,7 +391,7 @@ public:
 
 protected:
   vtkNamedColors();
-  ~vtkNamedColors() VTK_OVERRIDE;
+  ~vtkNamedColors() override;
 
 private:
   //@{
@@ -402,8 +402,8 @@ private:
   vtkColorStringParser* Parser;
   //@}
 
-  vtkNamedColors(const vtkNamedColors&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkNamedColors&) VTK_DELETE_FUNCTION;
+  vtkNamedColors(const vtkNamedColors&) = delete;
+  void operator=(const vtkNamedColors&) = delete;
 };
 
 #endif /* vtkNamedColors_h */

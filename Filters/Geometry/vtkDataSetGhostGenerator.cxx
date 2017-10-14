@@ -45,7 +45,7 @@ void vtkDataSetGhostGenerator::PrintSelf(ostream& os, vtkIndent indent )
 int vtkDataSetGhostGenerator::FillInputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  assert( "pre: information object is NULL!" && (info != NULL) );
+  assert( "pre: information object is nullptr!" && (info != nullptr) );
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(),"vtkMultiBlockDataSet");
   return 1;
 }
@@ -54,7 +54,7 @@ int vtkDataSetGhostGenerator::FillInputPortInformation(
 int vtkDataSetGhostGenerator::FillOutputPortInformation(
     int vtkNotUsed(port), vtkInformation *info )
 {
-  assert( "pre: information object is NULL!" && (info != NULL) );
+  assert( "pre: information object is nullptr!" && (info != nullptr) );
 
   info->Set(vtkDataObject::DATA_TYPE_NAME(),"vtkMultiBlockDataSet");
   return 1;
@@ -68,19 +68,19 @@ int vtkDataSetGhostGenerator::RequestData(
 
  // STEP 0: Get input object
  vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
- assert( "pre: Null input object!" && (input != NULL)  );
+ assert( "pre: Null input object!" && (input != nullptr)  );
  vtkMultiBlockDataSet *inputMultiBlock=
      vtkMultiBlockDataSet::SafeDownCast(
          input->Get(vtkDataObject::DATA_OBJECT() ) );
- assert( "pre: Input multi-block object is NULL" && (inputMultiBlock != NULL) );
+ assert( "pre: Input multi-block object is nullptr" && (inputMultiBlock != nullptr) );
 
  // STEP 1: Get output object
  vtkInformation *output = outputVector->GetInformationObject( 0 );
- assert( "pre: Null output object!" && (output != NULL) );
+ assert( "pre: Null output object!" && (output != nullptr) );
  vtkMultiBlockDataSet *outputMultiBlock =
      vtkMultiBlockDataSet::SafeDownCast(
          output->Get(vtkDataObject::DATA_OBJECT() ) );
- assert( "pre: Outpu multi-block object is NULL" && (outputMultiBlock != NULL));
+ assert( "pre: Outpu multi-block object is nullptr" && (outputMultiBlock != nullptr));
 
  // STEP 2: Generate ghost layers
  if( this->NumberOfGhostLayers == 0 )

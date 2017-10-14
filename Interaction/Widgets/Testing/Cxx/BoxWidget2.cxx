@@ -35,7 +35,7 @@ class vtkBWCallback2 : public vtkCommand
 public:
   static vtkBWCallback2 *New()
   { return new vtkBWCallback2; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkBoxWidget2 *boxWidget =
       reinterpret_cast<vtkBoxWidget2*>(caller);
@@ -44,7 +44,7 @@ public:
     boxRep->GetTransform(this->Transform);
     this->Actor->SetUserTransform(this->Transform);
   }
-  vtkBWCallback2():Transform(0),Actor(0) {}
+  vtkBWCallback2():Transform(nullptr),Actor(nullptr) {}
   vtkTransform *Transform;
   vtkActor     *Actor;
 };

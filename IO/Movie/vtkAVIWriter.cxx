@@ -49,15 +49,15 @@ vtkStandardNewMacro(vtkAVIWriter);
 vtkAVIWriter::vtkAVIWriter()
 {
   this->Internals = new vtkAVIWriterInternal;
-  this->Internals->Stream = NULL;
-  this->Internals->StreamCompressed = NULL;
-  this->Internals->AVIFile = NULL;
+  this->Internals->Stream = nullptr;
+  this->Internals->StreamCompressed = nullptr;
+  this->Internals->AVIFile = nullptr;
   this->Time = 0;
   this->Quality = 10000;
   this->Rate = 1000;
-  this->Internals->hDIB = NULL;  // handle to DIB, temp handle
+  this->Internals->hDIB = nullptr;  // handle to DIB, temp handle
   this->PromptCompressionOptions = 0;
-  this->CompressorFourCC = NULL;
+  this->CompressorFourCC = nullptr;
   this->SetCompressorFourCC("MSVC");
 }
 
@@ -69,7 +69,7 @@ vtkAVIWriter::~vtkAVIWriter()
     this->End();
   }
   delete this->Internals;
-  this->SetCompressorFourCC(NULL);
+  this->SetCompressorFourCC(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void vtkAVIWriter::Start()
 {
   // Error checking
   this->Error = 1;
-  if ( this->GetInput() == NULL )
+  if ( this->GetInput() == nullptr )
   {
     vtkErrorMacro(<<"Write:Please specify an input!");
     this->SetErrorCode(vtkGenericMovieWriter::NoInputError);
@@ -160,7 +160,7 @@ void vtkAVIWriter::Start()
 
   if (this->PromptCompressionOptions)
   {
-    if (!AVISaveOptions(NULL, 0,
+    if (!AVISaveOptions(nullptr, 0,
                         1, &this->Internals->Stream,
                         (LPAVICOMPRESSOPTIONS FAR *) &aopts))
     {
@@ -171,7 +171,7 @@ void vtkAVIWriter::Start()
 
   int avierr = AVIMakeCompressedStream(&this->Internals->StreamCompressed,
                               this->Internals->Stream,
-                              &opts, NULL);
+                              &opts, nullptr);
   if (avierr != AVIERR_OK)
   {
     vtkErrorMacro("Unable to compress " << this->FileName << ": " <<
@@ -255,7 +255,7 @@ void vtkAVIWriter::Write()
                  this->Internals->lpbi->biSize,
                  this->Internals->lpbi->biSizeImage,  // size of this frame
                  AVIIF_KEYFRAME,       // flags....
-                 NULL, NULL);
+                 nullptr, nullptr);
   this->Time++;
 }
 
@@ -266,19 +266,19 @@ void vtkAVIWriter::End()
   if (this->Internals->Stream)
   {
     AVIStreamClose(this->Internals->Stream);
-    this->Internals->Stream = NULL;
+    this->Internals->Stream = nullptr;
   }
 
   if (this->Internals->StreamCompressed)
   {
     AVIStreamClose(this->Internals->StreamCompressed);
-    this->Internals->StreamCompressed = NULL;
+    this->Internals->StreamCompressed = nullptr;
   }
 
   if (this->Internals->AVIFile)
   {
     AVIFileClose(this->Internals->AVIFile);
-    this->Internals->AVIFile = NULL;
+    this->Internals->AVIFile = nullptr;
   }
 
   AVIFileExit();          // releases AVIFile library

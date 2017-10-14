@@ -33,16 +33,16 @@ class VTKIOGEOMETRY_EXPORT vtkOBJReader : public vtkAbstractPolyDataReader
 public:
   static vtkOBJReader *New();
   vtkTypeMacro(vtkOBJReader,vtkAbstractPolyDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkOBJReader();
-  ~vtkOBJReader() VTK_OVERRIDE;
+  ~vtkOBJReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 private:
-  vtkOBJReader(const vtkOBJReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOBJReader&) VTK_DELETE_FUNCTION;
+  vtkOBJReader(const vtkOBJReader&) = delete;
+  void operator=(const vtkOBJReader&) = delete;
 };
 
 #endif

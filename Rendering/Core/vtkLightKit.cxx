@@ -26,7 +26,7 @@ static const char *vtkLightKitTypeStrings[] = {
   "FillLight",
   "BackLight",
   "HeadLight",
-  NULL
+  nullptr
 };
 
 static const char *vtkLightKitSubTypeStrings[] = {
@@ -37,7 +37,7 @@ static const char *vtkLightKitSubTypeStrings[] = {
   "K:F Ratio",
   "K:B Ratio",
   "K:H Ratio",
-  NULL
+  nullptr
 };
 
 // These are the same as vtkLightKitSubTypeStrings but shorter
@@ -50,7 +50,7 @@ static const char *vtkLightKitSubTypeShortStrings[] = {
   "K:F",
   "K:B",
   "K:H",
-  NULL
+  nullptr
 };
 
 
@@ -165,7 +165,7 @@ void vtkLightKit::WarmthToRGBI(double w, double rgb[3], double& i)
 //----------------------------------------------------------------------------
 void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer)
 {
-  if(renderer != NULL)
+  if(renderer != nullptr)
   {
     renderer->AddLight(this->HeadLight);
     renderer->AddLight(this->KeyLight);
@@ -178,7 +178,7 @@ void vtkLightKit::AddLightsToRenderer(vtkRenderer *renderer)
 //----------------------------------------------------------------------------
 void vtkLightKit::RemoveLightsFromRenderer(vtkRenderer *renderer)
 {
-  if(renderer != NULL)
+  if(renderer != nullptr)
   {
     renderer->RemoveLight(this->HeadLight);
     renderer->RemoveLight(this->KeyLight);
@@ -430,7 +430,7 @@ const char *vtkLightKit::GetStringFromType(int type)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -444,7 +444,7 @@ const char *vtkLightKit::GetStringFromSubType(int subtype)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -458,7 +458,7 @@ const char *vtkLightKit::GetShortStringFromSubType(int subtype)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 //----------------------------------------------------------------------------

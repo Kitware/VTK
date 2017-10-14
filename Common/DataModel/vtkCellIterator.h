@@ -77,7 +77,7 @@ class vtkPoints;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellIterator : public vtkObject
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkAbstractTypeMacro(vtkCellIterator, vtkObject)
 
   /**
@@ -152,7 +152,7 @@ public:
 
 protected:
   vtkCellIterator();
-  ~vtkCellIterator() VTK_OVERRIDE;
+  ~vtkCellIterator() override;
 
   /**
    * Update internal state to point to the first cell.
@@ -193,8 +193,8 @@ protected:
   vtkIdList *Faces;
 
 private:
-  vtkCellIterator(const vtkCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellIterator &) VTK_DELETE_FUNCTION;
+  vtkCellIterator(const vtkCellIterator &) = delete;
+  void operator=(const vtkCellIterator &) = delete;
 
   enum
   {

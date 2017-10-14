@@ -52,7 +52,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkAffineRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -87,11 +87,11 @@ public:
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
 protected:
   vtkAffineRepresentation();
-  ~vtkAffineRepresentation() VTK_OVERRIDE;
+  ~vtkAffineRepresentation() override;
 
   // The tolerance for selecting different parts of the widget.
   int Tolerance;
@@ -100,8 +100,8 @@ protected:
   vtkTransform *Transform;
 
 private:
-  vtkAffineRepresentation(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
+  vtkAffineRepresentation(const vtkAffineRepresentation&) = delete;
+  void operator=(const vtkAffineRepresentation&) = delete;
 };
 
 #endif

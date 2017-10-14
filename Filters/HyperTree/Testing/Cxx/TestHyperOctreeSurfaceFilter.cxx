@@ -164,9 +164,9 @@ int TestHyperOctreeSurfaceFilter(int argc, char* argv[])
   mapper->SetInputConnection(0,surface->GetOutputPort(0));
   mapper->SetLookupTable(lut);
 
-  if(source3d->GetOutput()->GetLeafData()!=0)
+  if(source3d->GetOutput()->GetLeafData()!=nullptr)
   {
-    if(source3d->GetOutput()->GetLeafData()->GetScalars()!=0)
+    if(source3d->GetOutput()->GetLeafData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( source3d->GetOutput()->GetLeafData()->
                               GetScalars()->GetRange());

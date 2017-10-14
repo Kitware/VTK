@@ -90,7 +90,7 @@ class VTKIOEXODUS_EXPORT vtkModelMetadata : public vtkObject
 {
 public:
   vtkTypeMacro(vtkModelMetadata, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkModelMetadata *New();
 
   /**
@@ -664,7 +664,7 @@ public:
 
 protected:
   vtkModelMetadata();
-  ~vtkModelMetadata() VTK_OVERRIDE;
+  ~vtkModelMetadata() override;
 
 private:
   void InitializeAllMetadata();
@@ -837,7 +837,7 @@ private:
   int AllVariablesDefinedInAllBlocks;
 
 private:
-  vtkModelMetadata(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
+  vtkModelMetadata(const vtkModelMetadata&) = delete;
+  void operator=(const vtkModelMetadata&) = delete;
 };
 #endif

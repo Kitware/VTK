@@ -46,14 +46,14 @@ class VTKIOCORE_EXPORT vtkUTF16TextCodec : public vtkTextCodec
 public:
   vtkTypeMacro(vtkUTF16TextCodec, vtkTextCodec);
   static vtkUTF16TextCodec* New() ;
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * The name this codec goes by - should match the string the factory will take to create it
    */
-  const char* Name() VTK_OVERRIDE;
-  bool CanHandle(const char* NameString) VTK_OVERRIDE ;
+  const char* Name() override;
+  bool CanHandle(const char* NameString) override ;
   //@}
 
   /**
@@ -69,31 +69,31 @@ public:
   /**
    * is the given sample valid for this codec? - will take endianness into account
    */
-  bool IsValid(istream& InputStream) VTK_OVERRIDE ;
+  bool IsValid(istream& InputStream) override ;
 
   /**
    * Iterate through the sequence represented by the begin and end iterators assigning the result
    * to the output iterator.  This is the current pattern in vtkDelimitedTextReader
    */
   void ToUnicode(istream& InputStream,
-                         vtkTextCodec::OutputIterator& output) VTK_OVERRIDE ;
+                         vtkTextCodec::OutputIterator& output) override ;
 
   /**
    * Return the next code point from the sequence represented by the begin, end iterators
    * advancing begin through however many places needed to assemble that code point
    */
-  vtkUnicodeString::value_type  NextUnicode(istream& inputStream) VTK_OVERRIDE ;
+  vtkUnicodeString::value_type  NextUnicode(istream& inputStream) override ;
 
 protected:
   vtkUTF16TextCodec() ;
-  ~vtkUTF16TextCodec() VTK_OVERRIDE;
+  ~vtkUTF16TextCodec() override;
 
   bool _endianExplicitlySet ;
   bool _bigEndian ;
 
 private:
-  vtkUTF16TextCodec(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
+  vtkUTF16TextCodec(const vtkUTF16TextCodec &) = delete;
+  void operator=(const vtkUTF16TextCodec &) = delete;
 
 };
 

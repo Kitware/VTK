@@ -526,7 +526,7 @@ static double *vtkSRVector(long nl, long nh)
   if (!v)
   {
     vtkGenericWarningMacro(<<"allocation failure in vector()");
-    return NULL;
+    return nullptr;
   }
 
   return (v-nl+VTK_NR_END);
@@ -544,7 +544,7 @@ static double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
   if (!m)
   {
     vtkGenericWarningMacro(<<"allocation failure 1 in Matrix()");
-    return NULL;
+    return nullptr;
   }
 
   m += VTK_NR_END;
@@ -555,7 +555,7 @@ static double **vtkSRMatrix(long nrl, long nrh, long ncl, long nch)
   if (!m[nrl])
   {
     vtkGenericWarningMacro("allocation failure 2 in Matrix()");
-    return NULL;
+    return nullptr;
   }
 
   m[nrl] += VTK_NR_END;

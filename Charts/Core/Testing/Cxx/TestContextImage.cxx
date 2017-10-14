@@ -38,7 +38,7 @@ int TestContextImage(int argc, char * argv [])
   vtkNew<vtkContextView> view;
   view->GetRenderWindow()->SetSize(275, 275);
   vtkNew<vtkImageItem> item;
-  view->GetScene()->AddItem(item.GetPointer());
+  view->GetScene()->AddItem(item);
 
   vtkNew<vtkPNGReader> reader;
   reader->SetFileName(logo);

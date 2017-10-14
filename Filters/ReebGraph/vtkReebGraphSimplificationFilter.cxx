@@ -26,7 +26,7 @@ vtkReebGraphSimplificationFilter::vtkReebGraphSimplificationFilter()
 {
   this->SetNumberOfInputPorts(1);
   this->SimplificationThreshold = 0;
-  this->SimplificationMetric = NULL;
+  this->SimplificationMetric = nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -34,15 +34,15 @@ class VTKPARALLELCORE_EXPORT vtkDummyController : public vtkMultiProcessControll
 public:
   static vtkDummyController *New();
   vtkTypeMacro(vtkDummyController,vtkMultiProcessController);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method is for setting up the processes.
    */
-  void Initialize(int*, char***, int) VTK_OVERRIDE {}
-  void Initialize(int*, char***) VTK_OVERRIDE {}
-  void Finalize() VTK_OVERRIDE {}
-  void Finalize(int) VTK_OVERRIDE {}
+  void Initialize(int*, char***, int) override {}
+  void Initialize(int*, char***) override {}
+  void Finalize() override {}
+  void Finalize(int) override {}
 
   /**
    * This method always returns 0.
@@ -52,17 +52,17 @@ public:
   /**
    * Directly calls the single method.
    */
-  void SingleMethodExecute() VTK_OVERRIDE;
+  void SingleMethodExecute() override;
 
   /**
    * Directly calls multiple method 0.
    */
-  void MultipleMethodExecute() VTK_OVERRIDE;
+  void MultipleMethodExecute() override;
 
   /**
    * Does nothing.
    */
-  void CreateOutputWindow() VTK_OVERRIDE {}
+  void CreateOutputWindow() override {}
 
   //@{
   /**
@@ -76,11 +76,11 @@ public:
 
 protected:
   vtkDummyController();
-  ~vtkDummyController() VTK_OVERRIDE;
+  ~vtkDummyController() override;
 
 private:
-  vtkDummyController(const vtkDummyController&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDummyController&) VTK_DELETE_FUNCTION;
+  vtkDummyController(const vtkDummyController&) = delete;
+  void operator=(const vtkDummyController&) = delete;
 };
 
 #endif

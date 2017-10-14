@@ -42,20 +42,20 @@ vtkCxxSetObjectMacro(vtkTextMapper,TextProperty,vtkTextProperty);
 // Creates a new text mapper
 vtkTextMapper::vtkTextMapper()
 {
-  this->Input = NULL;
-  this->TextProperty = NULL;
+  this->Input = nullptr;
+  this->TextProperty = nullptr;
 
   this->RenderedDPI = 0;
 
   vtkNew<vtkTextProperty> tprop;
-  this->SetTextProperty(tprop.GetPointer());
+  this->SetTextProperty(tprop);
 
   this->Points->SetNumberOfPoints(4);
   this->Points->SetPoint(0, 0., 0., 0.);
   this->Points->SetPoint(1, 0., 0., 0.);
   this->Points->SetPoint(2, 0., 0., 0.);
   this->Points->SetPoint(3, 0., 0., 0.);
-  this->PolyData->SetPoints(this->Points.GetPointer());
+  this->PolyData->SetPoints(this->Points);
 
   vtkNew<vtkCellArray> quad;
   quad->InsertNextCell(4);
@@ -63,7 +63,7 @@ vtkTextMapper::vtkTextMapper()
   quad->InsertCellPoint(1);
   quad->InsertCellPoint(2);
   quad->InsertCellPoint(3);
-  this->PolyData->SetPolys(quad.GetPointer());
+  this->PolyData->SetPolys(quad);
 
   vtkNew<vtkFloatArray> tcoords;
   tcoords->SetNumberOfComponents(2);
@@ -72,10 +72,10 @@ vtkTextMapper::vtkTextMapper()
   tcoords->SetTuple2(1, 0., 0.);
   tcoords->SetTuple2(2, 0., 0.);
   tcoords->SetTuple2(3, 0., 0.);
-  this->PolyData->GetPointData()->SetTCoords(tcoords.GetPointer());
-  this->Mapper->SetInputData(this->PolyData.GetPointer());
+  this->PolyData->GetPointData()->SetTCoords(tcoords);
+  this->Mapper->SetInputData(this->PolyData);
 
-  this->Texture->SetInputData(this->Image.GetPointer());
+  this->Texture->SetInputData(this->Image);
   this->TextDims[0] = this->TextDims[1] = 0;
 }
 
@@ -93,7 +93,7 @@ void vtkTextMapper::ShallowCopy(vtkTextMapper *tm)
 vtkTextMapper::~vtkTextMapper()
 {
   delete [] this->Input;
-  this->SetTextProperty(NULL);
+  this->SetTextProperty(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkTextMapper::GetSize(vtkViewport *vp, int size[2])
 {
-  vtkWindow *win = vp ? vp->GetVTKWindow() : NULL;
+  vtkWindow *win = vp ? vp->GetVTKWindow() : nullptr;
   if (!win)
   {
     size[0] = size[1] = 0;
@@ -366,7 +366,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
 
   vtkDebugMacro(<<"RenderOverlay called");
 
-  vtkRenderer *ren = NULL;
+  vtkRenderer *ren = nullptr;
   if (this->Input && this->Input[0])
   {
     vtkWindow *win = viewport->GetVTKWindow();
@@ -471,6 +471,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
 
       tc->InsertNextValue(tcXMax);
       tc->InsertNextValue(tcYMin);
+      tc->Modified();
 
       this->TCoordsTime.Modified();
     }
@@ -514,6 +515,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     this->Points->InsertNextPoint(x - shiftPixel, y + h - shiftPixel, 0.);
     this->Points->InsertNextPoint(x + w - shiftPixel, y + h - shiftPixel, 0.);
     this->Points->InsertNextPoint(x + w - shiftPixel, y - shiftPixel, 0.);
+    this->Points->Modified();
     this->CoordsTime.Modified();
   }
 }
@@ -531,7 +533,7 @@ void vtkTextMapper::UpdateImage(int dpi)
     {
       if (!tren->RenderString(this->TextProperty,
                               this->Input ? this->Input : std::string(),
-                              this->Image.GetPointer(), this->TextDims, dpi))
+                              this->Image, this->TextDims, dpi))
       {
         vtkErrorMacro(<<"Texture generation failed.");
       }

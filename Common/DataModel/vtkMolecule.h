@@ -89,13 +89,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMolecule : public vtkUndirectedGraph
 public:
   static vtkMolecule *New();
   vtkTypeMacro(vtkMolecule,vtkUndirectedGraph);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
+  void Initialize() override;
 
   /**
    * Return what type of dataset this is.
    */
-  int GetDataObjectType() VTK_OVERRIDE {return VTK_MOLECULE;}
+  int GetDataObjectType() override {return VTK_MOLECULE;}
 
   /**
    * Add new atom with atomic number 0 (dummy atom) at origin. Return
@@ -223,24 +223,24 @@ public:
    * but instead of reporting an error for an incompatible graph,
    * returns false.
    */
-  bool CheckedShallowCopy(vtkGraph *g) VTK_OVERRIDE;
+  bool CheckedShallowCopy(vtkGraph *g) override;
 
   /**
    * Performs the same operation as DeepCopy(),
    * but instead of reporting an error for an incompatible graph,
    * returns false.
    */
-  bool CheckedDeepCopy(vtkGraph *g) VTK_OVERRIDE;
+  bool CheckedDeepCopy(vtkGraph *g) override;
 
   /**
    * Shallow copies the data object into this molecule.
    */
-  void ShallowCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *obj) override;
 
   /**
    * Deep copies the data object into this molecule.
    */
-  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *obj) override;
 
   /**
    * Shallow copies the atoms and bonds from @a m into @a this.
@@ -321,7 +321,7 @@ public:
 
   /**
    * Get the unit cell lattice vectors. The matrix is stored using a row-major
-   * layout, with the vectors encoded as columns. Will return NULL if no
+   * layout, with the vectors encoded as columns. Will return nullptr if no
    * unit cell information is available.
    * @sa GetLatticeOrigin
    */
@@ -346,7 +346,7 @@ public:
 
  protected:
   vtkMolecule();
-  ~vtkMolecule() VTK_OVERRIDE;
+  ~vtkMolecule() override;
 
   /**
    * Copy bonds and atoms.
@@ -379,8 +379,8 @@ public:
   vtkVector3d LatticeOrigin;
 
 private:
-  vtkMolecule(const vtkMolecule&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMolecule&) VTK_DELETE_FUNCTION;
+  vtkMolecule(const vtkMolecule&) = delete;
+  void operator=(const vtkMolecule&) = delete;
 };
 
 #endif

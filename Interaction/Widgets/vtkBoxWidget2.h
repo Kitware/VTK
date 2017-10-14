@@ -113,7 +113,7 @@ public:
    * Standard class methods for type information and printing.
    */
   vtkTypeMacro(vtkBoxWidget2,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -151,11 +151,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkBoxRepresentation class.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkBoxWidget2();
-  ~vtkBoxWidget2() VTK_OVERRIDE;
+  ~vtkBoxWidget2() override;
 
   // Manage the state of the widget
   int WidgetState;
@@ -174,8 +174,8 @@ protected:
   int RotationEnabled;
   int MoveFacesEnabled;
 private:
-  vtkBoxWidget2(const vtkBoxWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoxWidget2&) VTK_DELETE_FUNCTION;
+  vtkBoxWidget2(const vtkBoxWidget2&) = delete;
+  void operator=(const vtkBoxWidget2&) = delete;
 };
 
 #endif

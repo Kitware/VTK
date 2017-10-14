@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkCursor3D.h"
+#include "vtkEventData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 #include "vtkCellPicker.h"
@@ -198,7 +199,7 @@ int vtkPointHandleRepresentation3D
   double d[3];
   this->GetDisplayPosition(d);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
   }
@@ -208,6 +209,42 @@ int vtkPointHandleRepresentation3D
     if ( this->ActiveRepresentation )
     {
       this->VisibilityOff();
+    }
+  }
+
+  return this->InteractionState;
+}
+
+int vtkPointHandleRepresentation3D::ComputeComplexInteractionState(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long , void *calldata, int )
+{
+  this->VisibilityOn(); //actor must be on to be picked
+
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double pos[3];
+    edd->GetWorldPosition(pos);
+    vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(pos, this->CursorPicker);
+    double focus[3];
+    this->Cursor3D->GetFocalPoint(focus);
+    double d[3];
+    this->GetDisplayPosition(d);
+
+    if ( path != nullptr )
+    {
+      this->InteractionState = vtkHandleRepresentation::Nearby;
+    }
+    else
+    {
+      this->InteractionState = vtkHandleRepresentation::Outside;
+      if ( this->ActiveRepresentation )
+      {
+        this->VisibilityOff();
+      }
     }
   }
 
@@ -277,7 +314,7 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   vtkAssemblyPath* path = this->GetAssemblyPath(
     startEventPos[0], startEventPos[1], 0., this->CursorPicker);
 
-  if ( path != NULL )
+  if ( path != nullptr )
   {
     this->InteractionState = vtkHandleRepresentation::Nearby;
     this->ConstraintAxis = -1;
@@ -292,6 +329,38 @@ void vtkPointHandleRepresentation3D::StartWidgetInteraction(double startEventPos
   this->WaitCount = 0;
 }
 
+void vtkPointHandleRepresentation3D::StartComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata)
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    edd->GetWorldPosition(this->StartEventPosition);
+    this->LastEventPosition[0] = this->StartEventPosition[0];
+    this->LastEventPosition[1] = this->StartEventPosition[1];
+    this->LastEventPosition[2] = this->StartEventPosition[2];
+
+    vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(
+      this->StartEventPosition, this->CursorPicker);
+
+    if ( path != nullptr )
+    {
+      this->InteractionState = vtkHandleRepresentation::Nearby;
+      this->ConstraintAxis = -1;
+      this->CursorPicker->GetPickPosition(this->LastPickPosition);
+    }
+    else
+    {
+      this->InteractionState = vtkHandleRepresentation::Outside;
+      this->ConstraintAxis = -1;
+    }
+    this->Cursor3D->SetTranslationMode(this->TranslationMode);
+    this->WaitCount = 0;
+  }
+}
 
 //----------------------------------------------------------------------
 // Based on the displacement vector (computed in display coordinates) and
@@ -475,6 +544,52 @@ void vtkPointHandleRepresentation3D::WidgetInteraction(double eventPos[2])
   this->LastEventPosition[1] = eventPos[1];
 
   this->Modified();
+}
+
+void vtkPointHandleRepresentation3D::ComplexInteraction(
+  vtkRenderWindowInteractor *,
+  vtkAbstractWidget *,
+  unsigned long, void *calldata )
+{
+  vtkEventData *edata = static_cast<vtkEventData *>(calldata);
+  vtkEventDataDevice3D *edd = edata->GetAsEventDataDevice3D();
+  if (edd)
+  {
+    double eventPos[3];
+    edd->GetWorldPosition(eventPos);
+    // Process the motion
+    if ( this->InteractionState == vtkHandleRepresentation::Selecting ||
+         this->InteractionState == vtkHandleRepresentation::Translating )
+    {
+      this->WaitCount++;
+
+      if ( this->WaitCount > 3 || !this->Constrained )
+      {
+        this->ConstraintAxis = this->DetermineConstraintAxis(
+            this->ConstraintAxis, eventPos, this->StartEventPosition);
+
+        if (    this->InteractionState == vtkHandleRepresentation::Selecting
+            && !this->TranslationMode )
+        {
+          vtkDebugMacro( << "Processing widget interaction for Select mode" );
+
+          this->MoveFocus( this->LastEventPosition, eventPos );
+        }
+        else
+        {
+          vtkDebugMacro( << "Processing widget interaction for translate" );
+          this->Translate(this->LastEventPosition, eventPos);
+        }
+      }
+    }
+
+    // Book keeping
+    this->LastEventPosition[0] = eventPos[0];
+    this->LastEventPosition[1] = eventPos[1];
+    this->LastEventPosition[2] = eventPos[2];
+
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------

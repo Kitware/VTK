@@ -71,7 +71,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
   this->Internal = new vtkInternal;
-  this->Table = NULL;
+  this->Table = nullptr;
   this->SplitMultiComponentColumns = false;
   this->DecorationLocation = vtkQtTableModelAdapter::HEADER;
   this->DecorationStrategy = vtkQtTableModelAdapter::NONE;
@@ -93,7 +93,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   this->IconIndexColumn = -1;
   this->IconSheetSize[0] = this->IconSheetSize[1] = 0;
   this->IconSize[0] = this->IconSize[1] = 0;
-  if (this->Table != NULL)
+  if (this->Table != nullptr)
   {
     this->Table->Register(0);
   }
@@ -102,7 +102,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
 //----------------------------------------------------------------------------
 vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
 {
-  if (this->Table != NULL)
+  if (this->Table != nullptr)
   {
     this->Table->Delete();
   }
@@ -338,12 +338,12 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
 //----------------------------------------------------------------------------
 void vtkQtTableModelAdapter::setTable(vtkTable* t)
 {
-  if (this->Table != NULL)
+  if (this->Table != nullptr)
   {
     this->Table->Delete();
   }
   this->Table = t;
-  if (this->Table != NULL)
+  if (this->Table != nullptr)
   {
     this->Table->Register(0);
 
@@ -361,7 +361,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
 //----------------------------------------------------------------------------
 bool vtkQtTableModelAdapter::noTableCheck() const
 {
-  if (this->Table == NULL)
+  if (this->Table == nullptr)
   {
     // It's not necessarily an error to have a null pointer for the
     // table.  It just means that the model is empty.

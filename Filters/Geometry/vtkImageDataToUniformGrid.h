@@ -40,7 +40,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataToUniformGrid
  public:
   static vtkImageDataToUniformGrid *New();
   vtkTypeMacro(vtkImageDataToUniformGrid,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -56,24 +56,24 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataToUniformGrid
 
 protected:
   vtkImageDataToUniformGrid();
-  ~vtkImageDataToUniformGrid() VTK_OVERRIDE;
+  ~vtkImageDataToUniformGrid() override;
 
   int RequestData(vtkInformation *req,
                   vtkInformationVector **inV,
-                  vtkInformationVector *outV) VTK_OVERRIDE;
+                  vtkInformationVector *outV) override;
   int RequestDataObject(vtkInformation *req,
                         vtkInformationVector **inV,
-                        vtkInformationVector *outV) VTK_OVERRIDE;
+                        vtkInformationVector *outV) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   virtual int Process(vtkImageData* input, int association, const char* arrayName,
                       vtkUniformGrid* output);
 
 private:
-  vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataToUniformGrid&) VTK_DELETE_FUNCTION;
+  vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&) = delete;
+  void operator=(const vtkImageDataToUniformGrid&) = delete;
 
   int Reverse;
 };

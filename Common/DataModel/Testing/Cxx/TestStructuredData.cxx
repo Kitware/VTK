@@ -57,12 +57,19 @@ int TestStructuredData(int,char *[])
 //------------------------------------------------------------------------------
 int TestGetNumNodesAndCells()
 {
+
+#ifdef VTK_USE_64BIT_IDS
+  const int maxDim = 2047;
+#else
+  const int maxDim = 511;
+#endif
+
   // Extent for 2048^3 grid
-  int ext[6]={0,2047, 0,2047, 0,2047};
+  int ext[6]={0, maxDim, 0, maxDim, 0, maxDim};
 
   int dims[3];
   vtkStructuredData::GetDimensionsFromExtent(ext,dims);
-  if( (dims[0] != 2048) || (dims[1] != 2048) || (dims[2] != 2048) )
+  if( (dims[0] != maxDim + 1) || (dims[1] != maxDim + 1) || (dims[2] != maxDim + 1) )
   {
     std::cerr << "Wrong dims computed: ";
     std::cerr << dims[0] << ", " << dims[1] << ", " << dims[2] << std::endl;
@@ -85,7 +92,7 @@ int TestGetNumNodesAndCells()
   }
 
   vtkStructuredData::GetCellDimensionsFromExtent(ext,dims);
-  if( (dims[0] != 2047) || (dims[1] != 2047) || (dims[2] != 2047) )
+  if( (dims[0] != maxDim) || (dims[1] != maxDim) || (dims[2] != maxDim) )
   {
     std::cerr << "Wrong dims computed: ";
     std::cerr << dims[0] << ", " << dims[1] << ", " << dims[2] << std::endl;

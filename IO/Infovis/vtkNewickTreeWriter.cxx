@@ -29,8 +29,8 @@ vtkNewickTreeWriter::vtkNewickTreeWriter()
   this->EdgeWeightArrayName = "weight";
   this->NodeNameArrayName = "node name";
 
-  this->EdgeWeightArray = NULL;
-  this->NodeNameArray = NULL;
+  this->EdgeWeightArray = nullptr;
+  this->NodeNameArray = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void vtkNewickTreeWriter::WriteVertex(ostream *fp, vtkTree* const input,
   if (this->NodeNameArray)
   {
     vtkStdString name = this->NodeNameArray->GetVariantValue(vertex).ToString();
-    if (name != "")
+    if (!name.empty())
     {
       *fp << name;
     }

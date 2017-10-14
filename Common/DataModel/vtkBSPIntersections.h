@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBSPIntersections : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBSPIntersections, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkBSPIntersections *New();
 
@@ -158,7 +158,7 @@ public:
 protected:
 
   vtkBSPIntersections();
-  ~vtkBSPIntersections() VTK_OVERRIDE;
+  ~vtkBSPIntersections() override;
 
   vtkGetMacro(RegionListBuildTime, vtkMTimeType);
 
@@ -203,7 +203,7 @@ private:
 
   int ComputeIntersectionsUsingDataBounds;
 
-  vtkBSPIntersections(const vtkBSPIntersections&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBSPIntersections&) VTK_DELETE_FUNCTION;
+  vtkBSPIntersections(const vtkBSPIntersections&) = delete;
+  void operator=(const vtkBSPIntersections&) = delete;
 };
 #endif

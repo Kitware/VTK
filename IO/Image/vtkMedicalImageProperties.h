@@ -37,7 +37,7 @@ class VTKIOIMAGE_EXPORT vtkMedicalImageProperties : public vtkObject
 public:
   static vtkMedicalImageProperties *New();
   vtkTypeMacro(vtkMedicalImageProperties,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Convenience method to reset all fields to an emptry string/value
@@ -480,7 +480,7 @@ public:
 
 protected:
   vtkMedicalImageProperties();
-  ~vtkMedicalImageProperties() VTK_OVERRIDE;
+  ~vtkMedicalImageProperties() override;
 
   char *StudyDate;
   char *AcquisitionDate;
@@ -521,8 +521,8 @@ protected:
   vtkMedicalImagePropertiesInternals *Internals;
 
 private:
-  vtkMedicalImageProperties(const vtkMedicalImageProperties&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMedicalImageProperties&) VTK_DELETE_FUNCTION;
+  vtkMedicalImageProperties(const vtkMedicalImageProperties&) = delete;
+  void operator=(const vtkMedicalImageProperties&) = delete;
 };
 
 #endif

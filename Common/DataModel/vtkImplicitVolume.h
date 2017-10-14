@@ -50,7 +50,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an vtkImplicitVolume with no initial volume; the OutValue
@@ -63,7 +63,7 @@ public:
    * on the volume, and it therefore must be called before the function is
    * evaluated.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -71,13 +71,13 @@ public:
    * at x[3].
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate ImplicitVolume gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -105,7 +105,7 @@ public:
 
 protected:
   vtkImplicitVolume();
-  ~vtkImplicitVolume() VTK_OVERRIDE;
+  ~vtkImplicitVolume() override;
 
   vtkImageData *Volume; // the structured points
   double OutValue;
@@ -114,8 +114,8 @@ protected:
   vtkIdList *PointIds;
 
 private:
-  vtkImplicitVolume(const vtkImplicitVolume&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitVolume&) VTK_DELETE_FUNCTION;
+  vtkImplicitVolume(const vtkImplicitVolume&) = delete;
+  void operator=(const vtkImplicitVolume&) = delete;
 };
 
 #endif

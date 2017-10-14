@@ -51,7 +51,7 @@ class VTKFILTERSGENERAL_EXPORT vtkImageMarchingCubes : public vtkPolyDataAlgorit
 public:
   static vtkImageMarchingCubes *New();
   vtkTypeMacro(vtkImageMarchingCubes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
   /**
    * Because we delegate to vtkContourValues & refer to vtkImplicitFunction
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkImageMarchingCubes();
-  ~vtkImageMarchingCubes() VTK_OVERRIDE;
+  ~vtkImageMarchingCubes() override;
 
   int NumberOfSlicesPerChunk;
   vtkIdType InputMemoryLimit;
@@ -146,8 +146,8 @@ protected:
   int LocatorMinX;
   int LocatorMinY;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   void March(vtkImageData *inData, int chunkMin, int chunkMax,
              int numContours, double *values);
@@ -156,8 +156,8 @@ protected:
   vtkIdType *GetLocatorPointer(int cellX, int cellY, int edge);
 
 private:
-  vtkImageMarchingCubes(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
+  vtkImageMarchingCubes(const vtkImageMarchingCubes&) = delete;
+  void operator=(const vtkImageMarchingCubes&) = delete;
 };
 
 /**

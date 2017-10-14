@@ -34,7 +34,7 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = NULL;
+  const char *data_root = nullptr;
   for (i = 0; i < argc-1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)
@@ -81,19 +81,19 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   mapper->SetInputConnection(surfaces->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor.GetPointer());
+  renderer->AddActor(actor);
   renderer->SetBackground(0,0,0);
 
   vtkNew<vtkRenderWindow> renwin;
   renwin->SetMultiSamples(0);
-  renwin->AddRenderer(renderer.GetPointer());
+  renwin->AddRenderer(renderer);
   renwin->SetSize(300, 300);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renwin.GetPointer());
+  iren->SetRenderWindow(renwin);
   iren->Initialize();
 
   renderer->ResetCamera();
@@ -105,7 +105,7 @@ int TestXMLUnstructuredGridReader(int argc, char *argv[])
   // interact with data
   renwin->Render();
 
-  int rtResult = vtkRegressionTestImage( renwin.GetPointer() );
+  int rtResult = vtkRegressionTestImage( renwin );
   if ( rtResult == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

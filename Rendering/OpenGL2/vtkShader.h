@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkShader : public vtkObject
 public:
   static vtkShader *New();
   vtkTypeMacro(vtkShader, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 
   /** Available shader types. */
@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkShader();
-  ~vtkShader() VTK_OVERRIDE;
+  ~vtkShader() override;
 
   Type ShaderType;
   int  Handle;
@@ -91,8 +91,8 @@ protected:
   std::string Error;
 
 private:
-  vtkShader(const vtkShader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShader&) VTK_DELETE_FUNCTION;
+  vtkShader(const vtkShader&) = delete;
+  void operator=(const vtkShader&) = delete;
 };
 
 

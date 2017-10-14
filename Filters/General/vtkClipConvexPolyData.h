@@ -36,7 +36,7 @@ class VTKFILTERSGENERAL_EXPORT vtkClipConvexPolyData : public vtkPolyDataAlgorit
 public:
   static vtkClipConvexPolyData *New();
   vtkTypeMacro(vtkClipConvexPolyData,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -51,16 +51,16 @@ public:
    * Redefines this method, as this filter depends on time of its components
    * (planes)
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkClipConvexPolyData();
-  ~vtkClipConvexPolyData() VTK_OVERRIDE;
+  ~vtkClipConvexPolyData() override;
 
   // The method that does it all...
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                  vtkInformationVector *outputVector) override;
 
   /**
    * Clip the input with a given plane `p'.
@@ -93,8 +93,8 @@ protected:
   vtkClipConvexPolyDataInternals *Internal;
 
 private:
-  vtkClipConvexPolyData(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
+  vtkClipConvexPolyData(const vtkClipConvexPolyData&) = delete;
+  void operator=(const vtkClipConvexPolyData&) = delete;
 };
 
 #endif

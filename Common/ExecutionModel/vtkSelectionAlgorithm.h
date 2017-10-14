@@ -48,14 +48,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSelectionAlgorithm : public vtkAlgorithm
 public:
   static vtkSelectionAlgorithm *New();
   vtkTypeMacro(vtkSelectionAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkSelectionAlgorithm();
-  ~vtkSelectionAlgorithm() VTK_OVERRIDE;
+  ~vtkSelectionAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -97,12 +97,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkSelectionAlgorithm(const vtkSelectionAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSelectionAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkSelectionAlgorithm(const vtkSelectionAlgorithm&) = delete;
+  void operator=(const vtkSelectionAlgorithm&) = delete;
 };
 
 #endif

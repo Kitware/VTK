@@ -38,7 +38,7 @@ class VTKACCELERATORSVTKM_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
   vtkTypeMacro(vtkmThreshold,vtkThreshold)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkmThreshold* New();
 
@@ -47,11 +47,11 @@ protected:
   ~vtkmThreshold();
 
   virtual int RequestData(vtkInformation*, vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
 private:
-  vtkmThreshold(const vtkmThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkmThreshold&) VTK_DELETE_FUNCTION;
+  vtkmThreshold(const vtkmThreshold&) = delete;
+  void operator=(const vtkmThreshold&) = delete;
 };
 
 #endif // vtkmThreshold_h

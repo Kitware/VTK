@@ -30,7 +30,7 @@
 #include "vtkObjectFactory.h"
 
 // ----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkProjectedAAHexahedraMapper)
 
 // ----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ vtkProjectedAAHexahedraMapper::vtkProjectedAAHexahedraMapper()
 // ----------------------------------------------------------------------------
 vtkProjectedAAHexahedraMapper::~vtkProjectedAAHexahedraMapper()
 {
-  this->SetVisibilitySort(NULL);
+  this->SetVisibilitySort(nullptr);
 }
 
 // ----------------------------------------------------------------------------

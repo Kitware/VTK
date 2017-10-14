@@ -38,7 +38,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkFocalPlanePointPlacer,vtkPointPlacer);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Descirption:
@@ -52,7 +52,7 @@ public:
   int ComputeWorldPosition( vtkRenderer *ren,
                             double displayPos[2],
                             double worldPos[3],
-                            double worldOrient[9] ) VTK_OVERRIDE;
+                            double worldOrient[9] ) override;
 
   /**
    * Given a renderer, a display position, and a reference
@@ -68,16 +68,16 @@ public:
                             double displayPos[2],
                             double refWorldPos[3],
                             double worldPos[3],
-                            double worldOrient[9] ) VTK_OVERRIDE;
+                            double worldOrient[9] ) override;
 
   //@{
   /**
    * Validate a world position. All world positions
    * are valid so these methods always return 1.
    */
-  int ValidateWorldPosition( double worldPos[3] ) VTK_OVERRIDE;
+  int ValidateWorldPosition( double worldPos[3] ) override;
   int ValidateWorldPosition( double worldPos[3],
-                             double worldOrient[9]) VTK_OVERRIDE;
+                             double worldOrient[9]) override;
   //@}
 
   //@{
@@ -101,7 +101,7 @@ public:
 
 protected:
   vtkFocalPlanePointPlacer();
-  ~vtkFocalPlanePointPlacer() VTK_OVERRIDE;
+  ~vtkFocalPlanePointPlacer() override;
 
   void GetCurrentOrientation( double worldOrient[9] );
 
@@ -109,8 +109,8 @@ protected:
   double Offset;
 
 private:
-  vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFocalPlanePointPlacer&) VTK_DELETE_FUNCTION;
+  vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&) = delete;
+  void operator=(const vtkFocalPlanePointPlacer&) = delete;
 };
 
 #endif

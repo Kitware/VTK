@@ -44,14 +44,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAnnotationLayersAlgorithm : public vtkAl
 public:
   static vtkAnnotationLayersAlgorithm *New();
   vtkTypeMacro(vtkAnnotationLayersAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -69,7 +69,7 @@ public:
 
 protected:
   vtkAnnotationLayersAlgorithm();
-  ~vtkAnnotationLayersAlgorithm() VTK_OVERRIDE;
+  ~vtkAnnotationLayersAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -93,12 +93,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&) = delete;
+  void operator=(const vtkAnnotationLayersAlgorithm&) = delete;
 };
 
 #endif

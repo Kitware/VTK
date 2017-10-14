@@ -48,7 +48,7 @@ public:
   static vtkMassProperties *New();
 
   vtkTypeMacro(vtkMassProperties,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Compute and return the volume.
@@ -105,11 +105,11 @@ public:
 
 protected:
   vtkMassProperties();
-  ~vtkMassProperties() VTK_OVERRIDE;
+  ~vtkMassProperties() override;
 
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
 
   double  SurfaceArea;
   double  MinCellArea;
@@ -125,8 +125,8 @@ protected:
   double  NormalizedShapeIndex;
 
 private:
-  vtkMassProperties(const vtkMassProperties&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMassProperties&) VTK_DELETE_FUNCTION;
+  vtkMassProperties(const vtkMassProperties&) = delete;
+  void operator=(const vtkMassProperties&) = delete;
 };
 
 #endif

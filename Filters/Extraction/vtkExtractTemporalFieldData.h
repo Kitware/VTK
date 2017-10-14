@@ -52,7 +52,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractTemporalFieldData : public vtkDataOb
 public:
   static vtkExtractTemporalFieldData *New();
   vtkTypeMacro(vtkExtractTemporalFieldData,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the number of time steps
@@ -72,18 +72,18 @@ public:
 
 protected:
   vtkExtractTemporalFieldData();
-  ~vtkExtractTemporalFieldData() VTK_OVERRIDE;
+  ~vtkExtractTemporalFieldData() override;
 
   int RequestDataObject(vtkInformation*,
                         vtkInformationVector**,
-                        vtkInformationVector*) VTK_OVERRIDE;
+                        vtkInformationVector*) override;
   int RequestInformation(vtkInformation* request,
                          vtkInformationVector** inputVector,
-                         vtkInformationVector* outputVector) VTK_OVERRIDE;
+                         vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation* request,
                   vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+                  vtkInformationVector* outputVector) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * This looks at the arrays in the vtkFieldData of input and copies them
@@ -94,8 +94,8 @@ protected:
 
   bool HandleCompositeDataBlocksIndividually;
 private:
-  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
+  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) = delete;
+  void operator=(const vtkExtractTemporalFieldData&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

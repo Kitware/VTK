@@ -80,6 +80,20 @@ else()
   endif ()
 endif()
 
+# Setup VTK-m if it was enabled
+set(VTK_HAS_VTKM @VTK_HAS_VTKM@)
+if(VTK_HAS_VTKM AND __vtk_install_tree)
+  set(VTKM_CMAKE_DIR "${VTK_CMAKE_DIR}")
+  get_filename_component(VTKM_CMAKE_DIR "${VTKM_CMAKE_DIR}" PATH)
+  find_package(VTKm
+               PATHS "${CMAKE_CURRENT_LIST_DIR}"
+                     "${VTKM_CMAKE_DIR}"
+                     "${VTK_RUNTIME_DIRS}"
+               NO_DEFAULT_PATH
+               )
+endif()
+
+
 #-----------------------------------------------------------------------------
 # Load requested modules.
 

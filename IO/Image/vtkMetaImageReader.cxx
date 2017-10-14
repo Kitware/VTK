@@ -269,7 +269,7 @@ int vtkMetaImageReader::CanReadFile(const char* fname)
 {
 
   std::string filename = fname;
-  if( filename == "" )
+  if( filename.empty() )
   {
     return false;
   }

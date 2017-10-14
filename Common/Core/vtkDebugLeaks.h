@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkDebugLeaks(){}
-  ~vtkDebugLeaks() VTK_OVERRIDE{}
+  ~vtkDebugLeaks() override{}
 
   static int DisplayMessageBox(const char*);
 
@@ -114,8 +114,8 @@ private:
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
-  vtkDebugLeaks(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
+  vtkDebugLeaks(const vtkDebugLeaks&) = delete;
+  void operator=(const vtkDebugLeaks&) = delete;
 };
 
 // This class defines callbacks for debugging tools. The callbacks are not for general use.

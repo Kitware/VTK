@@ -37,18 +37,19 @@
 
 class vtkImageData;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkThreadedSynchronizedTemplates3D : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkThreadedSynchronizedTemplates3D *New();
 
   vtkTypeMacro(vtkThreadedSynchronizedTemplates3D,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -173,24 +174,24 @@ public:
 
 protected:
   vtkThreadedSynchronizedTemplates3D();
-  ~vtkThreadedSynchronizedTemplates3D() VTK_OVERRIDE;
+  ~vtkThreadedSynchronizedTemplates3D() override;
 
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int ArrayComponent;
 
   int GenerateTriangles;
 
 private:
-  vtkThreadedSynchronizedTemplates3D(const vtkThreadedSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadedSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  vtkThreadedSynchronizedTemplates3D(const vtkThreadedSynchronizedTemplates3D&) = delete;
+  void operator=(const vtkThreadedSynchronizedTemplates3D&) = delete;
 };
 
 
@@ -199,4 +200,5 @@ private:
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_1[];
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_2[];
 
+#endif //VTK_LEGACY_REMOVE
 #endif

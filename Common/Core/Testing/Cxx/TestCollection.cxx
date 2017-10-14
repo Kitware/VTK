@@ -44,7 +44,7 @@ static bool IsEqual(vtkCollection* collection, const std::vector<vtkSmartPointer
   {
     return false;
   }
-  vtkIntArray* dataArray = 0;
+  vtkIntArray* dataArray = nullptr;
   vtkCollectionSimpleIterator it;
   int i = 0;
   for (collection->InitTraversal(it);
@@ -69,14 +69,14 @@ bool TestRegister()
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
   }
-  object->Register(0);
+  object->Register(nullptr);
   collection->RemoveItem(object);
   if (object->GetReferenceCount() != 1)
   {
     std::cout << object->GetReferenceCount() << std::endl;
     return false;
   }
-  object->UnRegister(0);
+  object->UnRegister(nullptr);
   return true;
 }
 
@@ -87,7 +87,7 @@ bool TestRemoveItem(int index, bool removeIndex)
   for (int i = 0; i < 10; ++i)
   {
     vtkNew<vtkIntArray> object;
-    collection->AddItem(object.GetPointer());
+    collection->AddItem(object);
     objects.push_back(object.GetPointer());
   }
   if (removeIndex)
@@ -100,7 +100,7 @@ bool TestRemoveItem(int index, bool removeIndex)
     collection->RemoveItem(objectToRemove);
   }
   objects.erase(objects.begin() + index);
-  if (!IsEqual(collection.GetPointer(), objects))
+  if (!IsEqual(collection, objects))
   {
     std::cout << "TestRemoveItem failed:" << std::endl;
     collection->Print(std::cout);

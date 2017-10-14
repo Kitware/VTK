@@ -35,7 +35,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2Collection : public vtkCollection
 public:
   vtkTypeMacro(vtkImageReader2Collection,vtkCollection);
   static vtkImageReader2Collection *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an image reader to the list.
@@ -55,7 +55,7 @@ public:
 
 protected:
   vtkImageReader2Collection() {}
-  ~vtkImageReader2Collection() VTK_OVERRIDE {}
+  ~vtkImageReader2Collection() override {}
 
 
 private:
@@ -63,8 +63,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImageReader2Collection(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
+  vtkImageReader2Collection(const vtkImageReader2Collection&) = delete;
+  void operator=(const vtkImageReader2Collection&) = delete;
 };
 
 #endif

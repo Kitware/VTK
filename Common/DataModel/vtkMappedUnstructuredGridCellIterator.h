@@ -42,27 +42,27 @@ public:
   typedef Implementation ImplementationType;
   typedef vtkMappedUnstructuredGridCellIterator<ImplementationType> ThisType;
   static vtkMappedUnstructuredGridCellIterator<ImplementationType> *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void SetMappedUnstructuredGrid(
       vtkMappedUnstructuredGrid<ImplementationType, ThisType> *grid);
 
-  bool IsDoneWithTraversal() VTK_OVERRIDE;
-  vtkIdType GetCellId() VTK_OVERRIDE;
+  bool IsDoneWithTraversal() override;
+  vtkIdType GetCellId() override;
 
 protected:
   vtkMappedUnstructuredGridCellIterator();
-  ~vtkMappedUnstructuredGridCellIterator() VTK_OVERRIDE;
+  ~vtkMappedUnstructuredGridCellIterator() override;
 
-  void ResetToFirstCell() VTK_OVERRIDE;
-  void IncrementToNextCell() VTK_OVERRIDE;
-  void FetchCellType() VTK_OVERRIDE;
-  void FetchPointIds() VTK_OVERRIDE;
-  void FetchPoints() VTK_OVERRIDE;
+  void ResetToFirstCell() override;
+  void IncrementToNextCell() override;
+  void FetchCellType() override;
+  void FetchPointIds() override;
+  void FetchPoints() override;
 
 private:
-  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMappedUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
+  vtkMappedUnstructuredGridCellIterator(const vtkMappedUnstructuredGridCellIterator &) = delete;
+  void operator=(const vtkMappedUnstructuredGridCellIterator &) = delete;
 
   vtkSmartPointer<ImplementationType> Impl;
   vtkSmartPointer<vtkPoints> GridPoints;

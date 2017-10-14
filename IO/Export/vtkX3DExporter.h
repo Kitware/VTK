@@ -30,21 +30,22 @@
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkExporter.h"
 
-class vtkLight;
 class vtkActor;
 class vtkActor2D;
-class vtkPoints;
 class vtkDataArray;
+class vtkLight;
+class vtkPoints;
+class vtkPolyData;
+class vtkRenderer;
 class vtkUnsignedCharArray;
 class vtkX3DExporterWriter;
-class vtkRenderer;
 
 class VTKIOEXPORT_EXPORT vtkX3DExporter : public vtkExporter
 {
 public:
   static vtkX3DExporter *New();
   vtkTypeMacro(vtkX3DExporter,vtkExporter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -104,7 +105,7 @@ public:
   //@}
 
   /**
-   * This convenience method returns the string, sets the IVAR to NULL,
+   * This convenience method returns the string, sets the IVAR to nullptr,
    * so that the user is responsible for deleting the string.
    * I am not sure what the name should be, so it may change in the future.
    */
@@ -112,7 +113,7 @@ public:
 
 protected:
   vtkX3DExporter();
-  ~vtkX3DExporter() VTK_OVERRIDE;
+  ~vtkX3DExporter() override;
 
   // Stream management
   int WriteToOutputString;
@@ -122,11 +123,12 @@ protected:
   /**
    * Write data to output.
    */
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   void WriteALight(vtkLight *aLight, vtkX3DExporterWriter* writer);
   void WriteAnActor(vtkActor *anActor, vtkX3DExporterWriter* writer,
     int index);
+  void WriteAPiece(vtkPolyData* piece, vtkActor *anActor, vtkX3DExporterWriter* writer, int index);
   void WritePointData(vtkPoints *points, vtkDataArray *normals,
     vtkDataArray *tcoords, vtkUnsignedCharArray *colors,
     vtkX3DExporterWriter* writer, int index);
@@ -134,7 +136,13 @@ protected:
     vtkX3DExporterWriter* writer);
   void WriteATexture(vtkActor *anActor, vtkX3DExporterWriter* writer);
   void WriteAnAppearance(vtkActor *anActor, bool writeEmissiveColor, vtkX3DExporterWriter* writer);
+
+  // Called to give subclasses a chance to write additional nodes to the file.
+  // Default implementation does nothing.
+  virtual void WriteAdditionalNodes(vtkX3DExporterWriter* vtkNotUsed(writer)) {}
+
   int HasHeadLight(vtkRenderer* ren);
+
   char *FileName;
   double Speed;
   int Binary;
@@ -142,8 +150,8 @@ protected:
 
 private:
 
-  vtkX3DExporter(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
+  vtkX3DExporter(const vtkX3DExporter&) = delete;
+  void operator=(const vtkX3DExporter&) = delete;
 };
 
 

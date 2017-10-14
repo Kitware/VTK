@@ -23,14 +23,14 @@ vtkCxxSetObjectMacro(vtkPReflectionFilter, Controller, vtkMultiProcessController
 //----------------------------------------------------------------------------
 vtkPReflectionFilter::vtkPReflectionFilter()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPReflectionFilter::~vtkPReflectionFilter()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------

@@ -68,12 +68,12 @@ public:
   int RequestInformation(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
 public:
   int TimeStepRange[2];
@@ -172,7 +172,7 @@ public:
   static vtkTestTemporalCacheSimpleExecuteCallback *New()
   { return new vtkTestTemporalCacheSimpleExecuteCallback; }
 
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     // count the number of timesteps requested
     vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);
@@ -248,7 +248,7 @@ int TestTemporalCacheSimple(int , char *[])
     }
   }
 
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 
   if (executecb->Count == 11)
   {

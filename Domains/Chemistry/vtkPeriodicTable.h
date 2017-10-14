@@ -39,7 +39,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkPeriodicTable : public vtkObject
 {
 public:
   vtkTypeMacro(vtkPeriodicTable, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPeriodicTable * New();
 
   //@{
@@ -106,13 +106,13 @@ public:
 
 protected:
   vtkPeriodicTable();
-  ~vtkPeriodicTable() VTK_OVERRIDE;
+  ~vtkPeriodicTable() override;
 
   static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
-  vtkPeriodicTable(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
+  vtkPeriodicTable(const vtkPeriodicTable&) = delete;
+  void operator=(const vtkPeriodicTable&) = delete;
 };
 
 #endif

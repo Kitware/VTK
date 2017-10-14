@@ -24,7 +24,9 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationVector.h"
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkInstantiator.h"
+#endif
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -36,6 +38,7 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
 #include "vtkXMLStructuredGridReader.h"
+#include "vtkXMLTableReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <map>
@@ -161,17 +164,17 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
 {
   if (!type)
   {
-    return 0;
+    return nullptr;
   }
 
   vtkXMLCompositeDataReaderInternals::ReadersType::iterator iter =
     this->Internal->Readers.find(type);
   if (iter != this->Internal->Readers.end())
   {
-    return iter->second.GetPointer();
+    return iter->second;
   }
 
-  vtkXMLReader* reader = 0;
+  vtkXMLReader* reader = nullptr;
   if (strcmp(type, "vtkXMLImageDataReader") == 0)
   {
     reader = vtkXMLImageDataReader::New();
@@ -192,11 +195,17 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   {
     reader = vtkXMLStructuredGridReader::New();
   }
+  else if (strcmp(type,"vtkXMLTableReader") == 0)
+  {
+    reader = vtkXMLTableReader::New();
+  }
+#ifndef VTK_LEGACY_REMOVE
   if (!reader)
   {
     // If all fails, Use the instantiator to create the reader.
     reader = vtkXMLReader::SafeDownCast(vtkInstantiator::CreateInstance(type));
   }
+#endif
   if (reader)
   {
     if (this->GetParserErrorObserver())
@@ -207,7 +216,7 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     {
       vtkNew<vtkEventForwarderCommand> fwd;
       fwd->SetTarget(this);
-      reader->AddObserver("ErrorEvent", fwd.GetPointer());
+      reader->AddObserver("ErrorEvent", fwd);
     }
     this->Internal->Readers[type] = reader;
     reader->Delete();
@@ -342,16 +351,15 @@ int vtkXMLCompositeDataReader::ShouldReadDataSet(unsigned int dataSetIndex)
   }
   return shouldRead;
 }
-
 //----------------------------------------------------------------------------
-vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlElem,
   const char* filePath)
 {
   // Construct the name of the internal file.
   const char* file = xmlElem->GetAttribute("file");
   if (!file)
   {
-    return 0;
+    return nullptr;
   }
 
   std::string fileName;
@@ -367,14 +375,14 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
 
   // Get the file extension.
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(fileName);
-  if (ext.size() > 0)
+  if (!ext.empty())
   {
     // remote "." from the extension.
     ext = &(ext.c_str()[1]);
   }
 
   // Search for the reader matching this extension.
-  const char* rname = 0;
+  const char* rname = nullptr;
   for(const vtkXMLCompositeDataReaderEntry* readerEntry =
     this->Internal->ReaderList;
     !rname && readerEntry->extension; ++readerEntry)
@@ -388,7 +396,7 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   if (!reader)
   {
     vtkErrorMacro("Could not create reader for " << rname);
-    return 0;
+    return nullptr;
   }
   reader->SetFileName(fileName.c_str());
   // initialize array selection so we don't have any residual array selections
@@ -396,15 +404,23 @@ vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
   reader->GetPointDataArraySelection()->RemoveAllArrays();
   reader->GetCellDataArraySelection()->RemoveAllArrays();
   reader->Update();
-  vtkDataSet* output = reader->GetOutputAsDataSet();
+  vtkDataObject* output = reader->GetOutputDataObject(0);
   if (!output)
   {
-    return 0;
+    return nullptr;
   }
 
-  vtkDataSet* outputCopy = output->NewInstance();
+  vtkDataObject* outputCopy = output->NewInstance();
   outputCopy->ShallowCopy(output);
   return outputCopy;
+}
+
+
+//----------------------------------------------------------------------------
+vtkDataSet* vtkXMLCompositeDataReader::ReadDataset(vtkXMLDataElement* xmlElem,
+  const char* filePath)
+{
+  return vtkDataSet::SafeDownCast(ReadDataObject(xmlElem, filePath));
 }
 
 //----------------------------------------------------------------------------
@@ -431,5 +447,6 @@ const vtkXMLCompositeDataReaderEntry
   {"vti", "vtkXMLImageDataReader"},
   {"vtr", "vtkXMLRectilinearGridReader"},
   {"vts", "vtkXMLStructuredGridReader"},
-  {0, 0}
+  {"vtt", "vtkXMLTableReader"},
+  {nullptr, nullptr}
 };

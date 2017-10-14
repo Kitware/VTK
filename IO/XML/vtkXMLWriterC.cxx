@@ -76,15 +76,15 @@ vtkXMLWriterC* vtkXMLWriterC_New(void)
   if(vtkXMLWriterC* self = new vtkXMLWriterC)
   {
     // Initialize the object.
-    self->Writer = 0;
-    self->DataObject = 0;
+    self->Writer = nullptr;
+    self->DataObject = nullptr;
     self->Writing = 0;
     return self;
   }
   else
   {
     vtkGenericWarningMacro("Failed to allocate a vtkXMLWriterC object.");
-    return 0;
+    return nullptr;
   }
 }
 
@@ -94,8 +94,8 @@ void vtkXMLWriterC_Delete(vtkXMLWriterC* self)
   if(self)
   {
     // Finalize the object.
-    self->Writer = 0;
-    self->DataObject = 0;
+    self->Writer = nullptr;
+    self->DataObject = nullptr;
     delete self;
   }
 }
@@ -224,7 +224,7 @@ void vtkXMLWriterC_SetPoints(vtkXMLWriterC* self, int dataType,
   {
     // Create the vtkDataArray that will reference the points.
     if(vtkSmartPointer<vtkDataArray> array =
-       vtkXMLWriterC_NewDataArray("SetPoints", 0,
+       vtkXMLWriterC_NewDataArray("SetPoints", nullptr,
                                   dataType, data, numPoints, 3))
     {
       // Store the point array in the data object's points.
@@ -320,7 +320,7 @@ void vtkXMLWriterC_SetCoordinates(vtkXMLWriterC* self, int axis,
 
     // Create the vtkDataArray that will reference the coordinates.
     if(vtkSmartPointer<vtkDataArray> array =
-       vtkXMLWriterC_NewDataArray("SetCoordinates", 0, dataType, data,
+       vtkXMLWriterC_NewDataArray("SetCoordinates", nullptr, dataType, data,
                                   numCoordinates, 1))
     {
       switch(axis)
@@ -533,7 +533,7 @@ void vtkXMLWriterC_Start(vtkXMLWriterC* self)
         "vtkXMLWriterC_Start called with no time steps."
         );
     }
-    else if(self->Writer->GetFileName() == 0)
+    else if(self->Writer->GetFileName() == nullptr)
     {
       vtkGenericWarningMacro(
         "vtkXMLWriterC_Start called before vtkXMLWriterC_SetFileName."
@@ -621,7 +621,7 @@ vtkXMLWriterC_NewDataArray(const char* method, const char* name, int dataType,
     vtkGenericWarningMacro("vtkXMLWriterC_" << method
                            << " could not allocate array of type "
                            << dataType << ".");
-    return 0;
+    return nullptr;
   }
 
   // Set the number of components.
@@ -651,7 +651,7 @@ vtkXMLWriterC_NewCellArray(const char* method, vtkIdType ncells,
     vtkGenericWarningMacro(
       "vtkXMLWriterC_" << method << " failed to allocate a vtkIdTypeArray."
       );
-    return 0;
+    return nullptr;
   }
   array->SetArray(cells, ncells*cellsSize, 1);
 
@@ -663,7 +663,7 @@ vtkXMLWriterC_NewCellArray(const char* method, vtkIdType ncells,
     vtkGenericWarningMacro(
       "vtkXMLWriterC_" << method << " failed to allocate a vtkCellArray."
       );
-    return 0;
+    return nullptr;
   }
   cellArray->SetCells(ncells, array);
   return cellArray;

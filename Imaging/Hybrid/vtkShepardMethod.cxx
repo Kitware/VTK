@@ -350,7 +350,7 @@ int vtkShepardMethod::RequestData(
     return 1;
   }
 
-  if ( (inScalars = input->GetPointData()->GetScalars()) == NULL )
+  if ( (inScalars = input->GetPointData()->GetScalars()) == nullptr )
   {
     vtkErrorMacro(<<"Scalars must be defined!");
     return 1;

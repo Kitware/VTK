@@ -133,7 +133,7 @@ vtkDataObject* vtkUniformGridAMRAlgorithm::GetInput(int port)
 {
   if( this->GetNumberOfInputConnections(port) < 1 )
   {
-    return NULL;
+    return nullptr;
   }
   return this->GetExecutive()->GetInputData(port,0);
 }

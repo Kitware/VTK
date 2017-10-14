@@ -30,8 +30,17 @@
 /* Rendering Configuration                                                  */
 #cmakedefine VTK_USE_X
 #define VTK_USE_OPENGL_LIBRARY
-#cmakedefine VTK_USE_OSMESA
-#cmakedefine VTK_USE_OFFSCREEN
+#cmakedefine VTK_OPENGL_HAS_OSMESA
+#cmakedefine VTK_OPENGL_HAS_EGL
+#cmakedefine VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
+
+// for legacy codes (don't use these in new codes)
+#ifdef VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
+# define VTK_USE_OFFSCREEN
+#endif
+#ifdef VTK_OPENGL_HAS_OSMESA
+# define VTK_USE_OSMESA
+#endif
 
 #define VTK_USE_GLSL_SHADERS
 

@@ -32,19 +32,19 @@ vtkPolyPlane::vtkPolyPlane()
   this->ExtrusionDirection[1] = 0.0;
   this->ExtrusionDirection[2] = 1.0;
 
-  this->PolyLine = NULL;
-  this->Normals = NULL;
+  this->PolyLine = nullptr;
+  this->Normals = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkPolyPlane::~vtkPolyPlane()
 {
-  this->SetPolyLine( NULL );
+  this->SetPolyLine( nullptr );
 
   if (this->Normals)
   {
     this->Normals->Delete();
-    this->Normals = NULL;
+    this->Normals = nullptr;
   }
 }
 
@@ -96,7 +96,7 @@ void vtkPolyPlane::ComputeNormals()
     {
       // Delete the array if it already exists. We will reallocate later.
       this->Normals->Delete();
-      this->Normals = NULL;
+      this->Normals = nullptr;
     }
 
     vtkPoints *points = this->PolyLine->GetPoints();

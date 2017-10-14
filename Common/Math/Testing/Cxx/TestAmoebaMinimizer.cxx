@@ -14,7 +14,7 @@
 =========================================================================*/
 
 #include "vtkAmoebaMinimizer.h"
-#include <math.h>
+#include <cmath>
 
 // the function to be minimized
 static void vtkFunctionToMinimize(void *arg)

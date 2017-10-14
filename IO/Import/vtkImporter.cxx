@@ -21,18 +21,18 @@ vtkCxxSetObjectMacro(vtkImporter,RenderWindow,vtkRenderWindow);
 
 vtkImporter::vtkImporter ()
 {
-  this->Renderer = NULL;
-  this->RenderWindow = NULL;
+  this->Renderer = nullptr;
+  this->RenderWindow = nullptr;
 }
 
 vtkImporter::~vtkImporter ()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 
   if (this->Renderer)
   {
-    this->Renderer->UnRegister( NULL );
-    this->Renderer = NULL;
+    this->Renderer->UnRegister( nullptr );
+    this->Renderer = nullptr;
   }
 
 }
@@ -51,7 +51,7 @@ void vtkImporter::Read ()
   vtkRenderer *renderer;
 
   // if there is no render window, create one
-  if (this->RenderWindow == NULL)
+  if (this->RenderWindow == nullptr)
   {
     vtkDebugMacro( <<"Creating a RenderWindow\n");
     this->RenderWindow = vtkRenderWindow::New ();
@@ -59,7 +59,7 @@ void vtkImporter::Read ()
 
   // Get the first renderer in the render window
   renderer = this->RenderWindow->GetRenderers()->GetFirstRenderer();
-  if (renderer == NULL)
+  if (renderer == nullptr)
   {
     vtkDebugMacro( <<"Creating a Renderer\n");
     this->Renderer = vtkRenderer::New ();
@@ -70,7 +70,7 @@ void vtkImporter::Read ()
   {
     if (this->Renderer)
     {
-      this->Renderer->UnRegister(NULL);
+      this->Renderer->UnRegister(nullptr);
     }
     this->Renderer = renderer;
     this->Renderer->Register( this );

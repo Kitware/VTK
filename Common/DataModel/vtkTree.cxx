@@ -104,7 +104,7 @@ bool vtkTree::IsLeaf(vtkIdType vertex)
 //----------------------------------------------------------------------------
 vtkTree *vtkTree::GetData(vtkInformation *info)
 {
-  return info? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkTree::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 //----------------------------------------------------------------------------

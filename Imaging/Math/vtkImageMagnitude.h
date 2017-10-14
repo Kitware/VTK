@@ -34,17 +34,17 @@ public:
 
 protected:
   vtkImageMagnitude();
-  ~vtkImageMagnitude() VTK_OVERRIDE {}
+  ~vtkImageMagnitude() override {}
 
   int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                        int outExt[6], int id) VTK_OVERRIDE;
+                        int outExt[6], int id) override;
 
 private:
-  vtkImageMagnitude(const vtkImageMagnitude&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageMagnitude&) VTK_DELETE_FUNCTION;
+  vtkImageMagnitude(const vtkImageMagnitude&) = delete;
+  void operator=(const vtkImageMagnitude&) = delete;
 };
 
 #endif

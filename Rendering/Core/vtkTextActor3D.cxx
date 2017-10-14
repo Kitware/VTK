@@ -35,10 +35,11 @@ vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 // ----------------------------------------------------------------------------
 vtkTextActor3D::vtkTextActor3D()
 {
-  this->Input        = NULL;
+  this->Input        = nullptr;
+  this->LastInputString = "";
   this->ImageActor   = vtkImageActor::New();
-  this->ImageData    = NULL;
-  this->TextProperty = NULL;
+  this->ImageData    = nullptr;
+  this->TextProperty = nullptr;
 
   this->BuildTime.Modified();
 
@@ -51,16 +52,16 @@ vtkTextActor3D::vtkTextActor3D()
 // --------------------------------------------------------------------------
 vtkTextActor3D::~vtkTextActor3D()
 {
-  this->SetTextProperty(NULL);
-  this->SetInput(NULL);
+  this->SetTextProperty(nullptr);
+  this->SetInput(nullptr);
 
   this->ImageActor->Delete();
-  this->ImageActor = NULL;
+  this->ImageActor = nullptr;
 
   if (this->ImageData)
   {
     this->ImageData->Delete();
-    this->ImageData = NULL;
+    this->ImageData = nullptr;
   }
 }
 
@@ -68,7 +69,7 @@ vtkTextActor3D::~vtkTextActor3D()
 void vtkTextActor3D::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor3D *a = vtkTextActor3D::SafeDownCast(prop);
-  if (a != NULL)
+  if (a != nullptr)
   {
     this->SetInput(a->GetInput());
     this->SetTextProperty(a->GetTextProperty());
@@ -254,14 +255,14 @@ int vtkTextActor3D::UpdateImageActor()
   if (!this->TextProperty)
   {
     vtkErrorMacro(<<"Need a text property to render text actor");
-    this->ImageActor->SetInputData(0);
+    this->ImageActor->SetInputData(nullptr);
     return 0;
   }
 
   // No input, the assign the image actor a zilch input
   if (!this->Input || !*this->Input)
   {
-    this->ImageActor->SetInputData(0);
+    this->ImageActor->SetInputData(nullptr);
     return 1;
   }
 
@@ -278,9 +279,6 @@ int vtkTextActor3D::UpdateImageActor()
       this->TextProperty->GetMTime() > this->BuildTime ||
       !this->ImageData)
   {
-
-    this->BuildTime.Modified();
-
     // we have to give vtkFTU::RenderString something to work with
     if (!this->ImageData)
     {
@@ -292,26 +290,32 @@ int vtkTextActor3D::UpdateImageActor()
     if (!tRend)
     {
       vtkErrorMacro(<<"Failed getting the TextRenderer instance.");
-      this->ImageActor->SetInputData(0);
+      this->ImageActor->SetInputData(nullptr);
       return 0;
     }
 
-    if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData,
-                             NULL, vtkTextActor3D::GetRenderedDPI()))
+    if (this->TextProperty->GetMTime() > this->BuildTime ||
+        this->LastInputString != this->Input)
     {
-      vtkErrorMacro(<<"Failed rendering text to buffer");
-      this->ImageActor->SetInputData(0);
-      return 0;
+      if (!tRend->RenderString(this->TextProperty, this->Input, this->ImageData,
+                               nullptr, vtkTextActor3D::GetRenderedDPI()))
+      {
+        vtkErrorMacro(<<"Failed rendering text to buffer");
+        this->ImageActor->SetInputData(nullptr);
+        return 0;
+      }
+
+      // Associate the image data (should be up to date now) to the image actor
+      this->ImageActor->SetInputData(this->ImageData);
+
+      // Only render the visible portions of the texture.
+      int bbox[6] = {0, 0, 0, 0, 0, 0};
+      this->GetBoundingBox(bbox);
+      this->ImageActor->SetDisplayExtent(bbox);
+      this->LastInputString = this->Input;
     }
 
-    // Associate the image data (should be up to date now) to the image actor
-    this->ImageActor->SetInputData(this->ImageData);
-
-    // Only render the visible portions of the texture.
-    int bbox[6] = {0, 0, 0, 0, 0, 0};
-    this->GetBoundingBox(bbox);
-    this->ImageActor->SetDisplayExtent(bbox);
-
+    this->BuildTime.Modified();
   } // if (this->GetMTime() ...
 
   // Position the actor

@@ -40,22 +40,22 @@ class VTKFILTERSPARALLELIMAGING_EXPORT vtkExtractPiece : public vtkCompositeData
 public:
   static vtkExtractPiece* New();
   vtkTypeMacro(vtkExtractPiece, vtkCompositeDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkExtractPiece() {}
-  ~vtkExtractPiece() VTK_OVERRIDE {}
+  ~vtkExtractPiece() override {}
 
   int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
   int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
   void ExtractImageData(vtkImageData *imageData,
                         vtkCompositeDataSet *output,
@@ -78,8 +78,8 @@ protected:
                                int piece, int numberOfPieces, int ghostLevel,
                                vtkCompositeDataIterator* iter);
 private:
-  vtkExtractPiece(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractPiece(const vtkExtractPiece&) = delete;
+  void operator=(const vtkExtractPiece&) = delete;
 };
 
 #endif

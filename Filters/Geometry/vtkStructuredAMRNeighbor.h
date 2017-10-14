@@ -81,7 +81,7 @@ public:
   /**
    * Destructor.
    */
-  ~vtkStructuredAMRNeighbor() VTK_OVERRIDE {}
+  ~vtkStructuredAMRNeighbor() override {}
 
   /**
    * Overload assignment operator.
@@ -108,7 +108,7 @@ public:
    */
   void ComputeSendAndReceiveExtent(
       int gridRealExtent[6], int gridGhostedExtent[6], int neiRealExtent[6],
-      int WholeExtent[6], const int N) VTK_OVERRIDE;
+      int WholeExtent[6], const int N) override;
 };
   //@}
 

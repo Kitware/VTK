@@ -34,17 +34,17 @@ public:
 
 protected:
   vtkImageLuminance();
-  ~vtkImageLuminance() VTK_OVERRIDE {}
+  ~vtkImageLuminance() override {}
 
   int RequestInformation (vtkInformation *, vtkInformationVector**,
-                                  vtkInformationVector *) VTK_OVERRIDE;
+                                  vtkInformationVector *) override;
 
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
-                        int outExt[6], int id) VTK_OVERRIDE;
+                        int outExt[6], int id) override;
 
 private:
-  vtkImageLuminance(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
+  vtkImageLuminance(const vtkImageLuminance&) = delete;
+  void operator=(const vtkImageLuminance&) = delete;
 };
 
 #endif

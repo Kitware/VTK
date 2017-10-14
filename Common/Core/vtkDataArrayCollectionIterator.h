@@ -34,14 +34,14 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayCollectionIterator : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkDataArrayCollectionIterator,vtkCollectionIterator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDataArrayCollectionIterator* New();
 
   //@{
   /**
    * Set the collection over which to iterate.
    */
-  void SetCollection(vtkCollection*) VTK_OVERRIDE;
+  void SetCollection(vtkCollection*) override;
   void SetCollection(vtkDataArrayCollection*);
   //@}
 
@@ -53,11 +53,11 @@ public:
 
 protected:
   vtkDataArrayCollectionIterator();
-  ~vtkDataArrayCollectionIterator() VTK_OVERRIDE;
+  ~vtkDataArrayCollectionIterator() override;
 
 private:
-  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;
+  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&) = delete;
+  void operator=(const vtkDataArrayCollectionIterator&) = delete;
 };
 
 #endif

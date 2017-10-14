@@ -33,7 +33,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotArea : public vtkPlot
 public:
   static vtkPlotArea* New();
   vtkTypeMacro(vtkPlotArea, vtkPlot);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Convenience method to set the input arrays. vtkPlotArea supports the
@@ -49,8 +49,8 @@ public:
    * Overridden to set the brush color.
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                        unsigned char a) VTK_OVERRIDE;
-  void SetColor(double r,  double g, double b) VTK_OVERRIDE;
+                        unsigned char a) override;
+  void SetColor(double r,  double g, double b) override;
   //@}
 
   //@{
@@ -64,24 +64,24 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Get the bounds for this plot as (Xmin, Xmax, Ymin, Ymax).
    */
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   /**
    * Subclasses that build data caches to speed up painting should override this
    * method to update such caches. This is called on each Paint, hence
    * subclasses must add checks to avoid rebuilding of cache, unless necessary.
    */
-  void UpdateCache() VTK_OVERRIDE;
+  void UpdateCache() override;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the plot, called whenever the legend needs the
@@ -91,7 +91,7 @@ public:
    * by Plots that return more than one label.
    */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) VTK_OVERRIDE;
+                           int legendIndex) override;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -100,7 +100,7 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
   /**
    * Generate and return the tooltip label string for this plot
@@ -108,11 +108,11 @@ public:
    */
   vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex) VTK_OVERRIDE;
+                                       vtkIdType segmentIndex) override;
 
 protected:
   vtkPlotArea();
-  ~vtkPlotArea() VTK_OVERRIDE;
+  ~vtkPlotArea() override;
 
   /**
    * Name of the valid point mask array.
@@ -120,8 +120,8 @@ protected:
   vtkStdString ValidPointMaskName;
 
 private:
-  vtkPlotArea(const vtkPlotArea&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotArea&) VTK_DELETE_FUNCTION;
+  vtkPlotArea(const vtkPlotArea&) = delete;
+  void operator=(const vtkPlotArea&) = delete;
 
   class vtkTableCache;
   vtkTableCache* TableCache;

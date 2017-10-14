@@ -52,7 +52,7 @@ public:
    * Standard macros.
    */
   vtkTypeMacro(vtkObserverMediator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkObserverMediator();
-  ~vtkObserverMediator() VTK_OVERRIDE;
+  ~vtkObserverMediator() override;
 
   // The render window whose cursor we are controlling
   vtkRenderWindowInteractor *Interactor;
@@ -93,8 +93,8 @@ protected:
   int                    CurrentCursorShape;
 
 private:
-  vtkObserverMediator(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
+  vtkObserverMediator(const vtkObserverMediator&) = delete;
+  void operator=(const vtkObserverMediator&) = delete;
 };
 
 #endif

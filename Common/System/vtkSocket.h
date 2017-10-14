@@ -31,7 +31,7 @@ class VTKCOMMONSYSTEM_EXPORT vtkSocket : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSocket, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // ----- Status API ----
   /**
@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkSocket();
-  ~vtkSocket() VTK_OVERRIDE;
+  ~vtkSocket() override;
 
   int SocketDescriptor;
 
@@ -130,8 +130,8 @@ protected:
   int GetPort(int socketdescriptor);
 
 private:
-  vtkSocket(const vtkSocket&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSocket&) VTK_DELETE_FUNCTION;
+  vtkSocket(const vtkSocket&) = delete;
+  void operator=(const vtkSocket&) = delete;
 };
 
 

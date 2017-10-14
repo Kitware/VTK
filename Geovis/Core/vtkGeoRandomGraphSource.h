@@ -48,20 +48,20 @@ class VTKGEOVISCORE_EXPORT vtkGeoRandomGraphSource : public vtkRandomGraphSource
 public:
   static vtkGeoRandomGraphSource* New();
   vtkTypeMacro(vtkGeoRandomGraphSource,vtkRandomGraphSource);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkGeoRandomGraphSource();
-  ~vtkGeoRandomGraphSource() VTK_OVERRIDE;
+  ~vtkGeoRandomGraphSource() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
-  vtkGeoRandomGraphSource(const vtkGeoRandomGraphSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoRandomGraphSource&) VTK_DELETE_FUNCTION;
+  vtkGeoRandomGraphSource(const vtkGeoRandomGraphSource&) = delete;
+  void operator=(const vtkGeoRandomGraphSource&) = delete;
 };
 
 #endif

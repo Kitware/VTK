@@ -101,7 +101,7 @@ int vtkPolyDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       // If not, no prop will be picked.
 
       bool found = false;
-      vtkAssemblyNode *node = NULL;
+      vtkAssemblyNode *node = nullptr;
       vtkCollectionSimpleIterator sit;
       this->SurfaceProps->InitTraversal(sit);
 

@@ -14,7 +14,6 @@
 """Basic components support
 """
 from collections import defaultdict
-import weakref
 
 try:
     from zope.event import notify
@@ -68,50 +67,14 @@ class _UnhashableComponentCounter(object):
                 return
         raise KeyError(component) # pragma: no cover
 
+def _defaultdict_int():
+    return defaultdict(int)
 
 class _UtilityRegistrations(object):
 
-    _regs_for_components = {}
-    _weakrefs_for_components = {}
-
-    @classmethod
-    def for_components(cls, components):
-        # We manage these utility/subscription registrations as associated
-        # objects with a weakref to avoid making any changes to
-        # the pickle format. They are keyed off the id of the component because
-        # Components subclasses are not guaranteed to be hashable.
-        key = id(components)
-        try:
-            regs = cls._regs_for_components[key]
-        except KeyError:
-            regs = None
-        else:
-            # In case the components have been re-initted, clear the cache
-            # (zope.component.testing does this between tests)
-            if (regs._utilities is not components.utilities
-                or regs._utility_registrations is not components._utility_registrations):
-                regs = None
-
-        if regs is None:
-            regs = cls(components.utilities, components._utility_registrations)
-            cls._regs_for_components[key] = regs
-
-            if key not in cls._weakrefs_for_components:
-                def _cleanup(r):
-                    cls._weakrefs_for_components.pop(key)
-                    cls._regs_for_components.pop(key)
-
-                cls._weakrefs_for_components[key] = weakref.ref(components, _cleanup)
-
-        return regs
-
-    @classmethod
-    def clear_cache(cls):
-        cls._regs_for_components.clear()
-
     def __init__(self, utilities, utility_registrations):
         # {provided -> {component: count}}
-        self._cache = defaultdict(lambda: defaultdict(int))
+        self._cache = defaultdict(_defaultdict_int)
         self._utilities = utilities
         self._utility_registrations = utility_registrations
 
@@ -177,17 +140,39 @@ class _UtilityRegistrations(object):
 @implementer(IComponents)
 class Components(object):
 
+    _v_utility_registrations_cache = None
+
     def __init__(self, name='', bases=()):
+        # __init__ is used for test cleanup as well as initialization.
+        # XXX add a separate API for test cleanup.
         assert isinstance(name, STRING_TYPES)
         self.__name__ = name
         self._init_registries()
         self._init_registrations()
         self.__bases__ = tuple(bases)
+        self._v_utility_registrations_cache = None
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self.__name__)
 
+    def __reduce__(self):
+        # Mimic what a persistent.Persistent object does and elide
+        # _v_ attributes so that they don't get saved in ZODB.
+        # This allows us to store things that cannot be pickled in such
+        # attributes.
+        reduction = super(Components, self).__reduce__()
+        # (callable, args, state, listiter, dictiter)
+        # We assume the state is always a dict; the last three items
+        # are technically optional and can be missing or None.
+        filtered_state = {k: v for k, v in reduction[2].items()
+                          if not k.startswith('_v_')}
+        reduction = list(reduction)
+        reduction[2] = filtered_state
+        return tuple(reduction)
+
     def _init_registries(self):
+        # Subclasses have never been required to call this method
+        # if they override it, merely to fill in these two attributes.
         self.adapters = AdapterRegistry()
         self.utilities = AdapterRegistry()
 
@@ -196,6 +181,19 @@ class Components(object):
         self._adapter_registrations = {}
         self._subscription_registrations = []
         self._handler_registrations = []
+
+    @property
+    def _utility_registrations_cache(self):
+        # We use a _v_ attribute internally so that data aren't saved in ZODB,
+        # because this object cannot be pickled.
+        cache = self._v_utility_registrations_cache
+        if (cache is None
+            or cache._utilities is not self.utilities
+            or cache._utility_registrations is not self._utility_registrations):
+            cache = self._v_utility_registrations_cache = _UtilityRegistrations(
+                self.utilities,
+                self._utility_registrations)
+        return cache
 
     def _getBases(self):
         # Subclasses might override
@@ -234,7 +232,8 @@ class Components(object):
                 return
             self.unregisterUtility(reg[0], provided, name)
 
-        _UtilityRegistrations.for_components(self).registerUtility(provided, name, component, info, factory)
+        self._utility_registrations_cache.registerUtility(
+            provided, name, component, info, factory)
 
         if event:
             notify(Registered(
@@ -264,7 +263,8 @@ class Components(object):
             component = old[0]
 
         # Note that component is now the old thing registered
-        _UtilityRegistrations.for_components(self).unregisterUtility(provided, name, component)
+        self._utility_registrations_cache.unregisterUtility(
+            provided, name, component)
 
         notify(Unregistered(
             UtilityRegistration(self, provided, name, component, *old[1:])

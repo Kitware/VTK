@@ -56,7 +56,7 @@ public:
    */
   vtkTypeMacro(vtkFixedSizeHandleRepresentation3D,
                vtkPolygonalHandleRepresentation3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -89,12 +89,12 @@ public:
 
 protected:
   vtkFixedSizeHandleRepresentation3D();
-  ~vtkFixedSizeHandleRepresentation3D() VTK_OVERRIDE;
+  ~vtkFixedSizeHandleRepresentation3D() override;
 
   /**
    * Recomputes the handle world size based on the set display size.
    */
-  void BuildRepresentation() VTK_OVERRIDE;
+  void BuildRepresentation() override;
 
   /**
    * Convenience method to convert from world to display
@@ -111,8 +111,8 @@ protected:
   double                                      HandleSizeToleranceInPixels;
 
 private:
-  vtkFixedSizeHandleRepresentation3D(const vtkFixedSizeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedSizeHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkFixedSizeHandleRepresentation3D(const vtkFixedSizeHandleRepresentation3D&) = delete;
+  void operator=(const vtkFixedSizeHandleRepresentation3D&) = delete;
 };
 
 #endif

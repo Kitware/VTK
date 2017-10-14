@@ -38,7 +38,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexArrayObject : public vtkObject
 public:
   static vtkOpenGLVertexArrayObject* New();
   vtkTypeMacro(vtkOpenGLVertexArrayObject, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Bind();
 
@@ -82,12 +82,12 @@ public:
 
 protected:
   vtkOpenGLVertexArrayObject();
-  ~vtkOpenGLVertexArrayObject() VTK_OVERRIDE;
+  ~vtkOpenGLVertexArrayObject() override;
 
 private:
   vtkOpenGLVertexArrayObject(
-    const vtkOpenGLVertexArrayObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexArrayObject&) VTK_DELETE_FUNCTION;
+    const vtkOpenGLVertexArrayObject&) = delete;
+  void operator=(const vtkOpenGLVertexArrayObject&) = delete;
   class Private;
   Private *Internal;
 };

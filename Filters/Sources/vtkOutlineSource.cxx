@@ -85,7 +85,7 @@ int vtkOutlineSource::RequestData(
   vtkIdType pts[4];
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  vtkCellArray *newPolys = 0;
+  vtkCellArray *newPolys = nullptr;
 
   //
   // Initialize

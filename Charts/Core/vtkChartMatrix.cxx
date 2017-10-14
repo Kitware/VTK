@@ -208,7 +208,7 @@ void vtkChartMatrix::SetSpecificResize(const vtkVector2i& index, const vtkVector
 
 void vtkChartMatrix::ClearSpecificResizes()
 {
-  if (this->SpecificResize.size() != 0)
+  if (!this->SpecificResize.empty())
     {
     this->SpecificResize.clear();
     this->LayoutIsDirty = true;
@@ -245,18 +245,18 @@ vtkChart* vtkChartMatrix::GetChart(const vtkVector2i &position)
   if (position.GetX() < this->Size.GetX() && position.GetY() < this->Size.GetY())
   {
     size_t index = position.GetY() * this->Size.GetX() + position.GetX();
-    if (this->Private->Charts[index] == NULL)
+    if (this->Private->Charts[index] == nullptr)
     {
       vtkNew<vtkChartXY> chart;
-      this->Private->Charts[index] = chart.GetPointer();
-      this->AddItem(chart.GetPointer());
+      this->Private->Charts[index] = chart;
+      this->AddItem(chart);
       chart->SetLayoutStrategy(vtkChart::AXES_TO_RECT);
     }
     return this->Private->Charts[index];
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 

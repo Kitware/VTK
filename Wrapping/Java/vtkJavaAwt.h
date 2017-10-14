@@ -22,14 +22,9 @@
 #define VTK_JAVA_DEBUG
 
 // On OS X, disable deprecation warnings since JAWT_GetAWT() is deprecated.
-#if defined(__APPLE__)
-  #if defined(__GNUC__) && ((__GNUC__ > 4) || \
-                            ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-    #pragma GCC diagnostic push
-  #endif
-  #if defined(__GNUC__)
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  #endif
+#if defined(__APPLE__) && defined(__GNUC__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 #if defined(_WIN32)
@@ -366,11 +361,8 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
 }
 
 // Undo disabling of deprecation warning.
-#if defined(__APPLE__)
-  #if defined(__GNUC__) && ((__GNUC__ > 4) || \
-                            ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-    #pragma GCC diagnostic pop
-  #endif
+#if defined(__APPLE__) && defined(__GNUC__)
+  #pragma GCC diagnostic pop
 #endif
 
 #endif

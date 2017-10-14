@@ -31,10 +31,10 @@ int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
   ren->SetBackground(0,0,0);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->SetSize(300,300);
 
@@ -44,7 +44,7 @@ int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
     argc, argv, "Data/quadraticTetra01.vtu");
   reader->SetFileName(filename);
   delete [] filename;
-  filename = NULL;
+  filename = nullptr;
 
   vtkNew<vtkDataSetSurfaceFilter> extract_surface;
   extract_surface->SetInputConnection(reader->GetOutputPort());
@@ -57,12 +57,12 @@ int TestExtractSurfaceNonLinearSubdivision(int argc, char* argv[])
   mapper->SetScalarModeToUsePointFieldData();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
+  actor->SetMapper(mapper);
 
-  ren->AddActor(actor.GetPointer());
+  ren->AddActor(actor);
   ren->ResetCamera();
 
-  int retVal = vtkRegressionTestImage(renWin.GetPointer());
+  int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

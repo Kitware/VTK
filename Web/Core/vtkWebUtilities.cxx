@@ -41,7 +41,7 @@ vtkWebUtilities::~vtkWebUtilities()
 std::string vtkWebUtilities::WriteAttributesToJavaScript(
   int field_type, vtkDataSet* dataset)
 {
-  if (dataset == NULL || (
+  if (dataset == nullptr || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
   {
@@ -55,16 +55,16 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   vtkNew<vtkJavaScriptDataWriter> writer;
   writer->SetOutputStream(&stream);
   writer->SetInputDataObject(splitter->GetOutputDataObject(0));
-  writer->SetVariableName(NULL);
+  writer->SetVariableName(nullptr);
   writer->SetIncludeFieldNames(false);
   writer->Write();
 
@@ -75,7 +75,7 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
 std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   int field_type, vtkDataSet* dataset)
 {
-  if (dataset == NULL || (
+  if (dataset == nullptr || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
   {
@@ -91,10 +91,10 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   clone->RemoveArray("vtkValidPointMask");
 
   vtkNew<vtkTable> table;
-  table->SetRowData(clone.GetPointer());
+  table->SetRowData(clone);
 
   vtkNew<vtkSplitColumnComponents> splitter;
-  splitter->SetInputDataObject(table.GetPointer());
+  splitter->SetInputDataObject(table);
   splitter->Update();
 
   dsa = vtkTable::SafeDownCast(

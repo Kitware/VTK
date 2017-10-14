@@ -90,12 +90,12 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   char *current_token;
   char current_line[OBJ_LINE_SIZE];
   char material_open = 0;
-  vtkOBJImportedMaterial* current_mtl = NULL;
+  vtkOBJImportedMaterial* current_mtl = nullptr;
   FILE *mtl_file_stream;
 
   // open scene
   mtl_file_stream = fopen( filename, "r");
-  if(mtl_file_stream == 0)
+  if(mtl_file_stream == nullptr)
   {
     vtkErrorMacro("Error reading file: " << filename);
     result_code = -1;
@@ -104,11 +104,19 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
 
   while( fgets(current_line, OBJ_LINE_SIZE, mtl_file_stream) )
   {
-    current_token = strtok( current_line, " \t\n\r");
+    // watch out for BOM
+    if (current_line[0] == -17 && current_line[1] == -69 && current_line[2] == -65)
+    {
+      current_token = strtok( current_line + 3, " \t\n\r");
+    }
+    else
+    {
+      current_token = strtok( current_line, " \t\n\r");
+    }
     line_number++;
 
     //skip comments
-    if( current_token == NULL || strequal(current_token, "//") || strequal(current_token, "#"))
+    if( current_token == nullptr || strequal(current_token, "//") || strequal(current_token, "#"))
     {
       continue;
     }
@@ -123,63 +131,71 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
 
       // material names can have spaces in them
       // get the name
-      strncpy(current_mtl->name, strtok(NULL, "\t\n\r"), MATERIAL_NAME_SIZE);
+      strncpy(current_mtl->name, strtok(nullptr, "\t\n\r"), MATERIAL_NAME_SIZE);
       // be safe with strncpy
       if (current_mtl->name[MATERIAL_NAME_SIZE-1] != '\0')
       {
         current_mtl->name[MATERIAL_NAME_SIZE-1] = '\0';
         vtkErrorMacro("material name too long, truncated");
       }
+      // trim trailing spaces
+      char *end = current_mtl->name + strlen(current_mtl->name) - 1;
+      while(end > current_mtl->name && isspace((unsigned char)*end))
+      {
+        end--;
+      }
+      // Write new null terminator
+      *(end+1) = 0;
     }
 
     //ambient
     else if( strequal(current_token, "Ka") && material_open)
     {
       // But this is ... right? no?
-      current_mtl->amb[0] = atof( strtok(NULL, " \t"));
-      current_mtl->amb[1] = atof( strtok(NULL, " \t"));
-      current_mtl->amb[2] = atof( strtok(NULL, " \t"));
+      current_mtl->amb[0] = atof( strtok(nullptr, " \t"));
+      current_mtl->amb[1] = atof( strtok(nullptr, " \t"));
+      current_mtl->amb[2] = atof( strtok(nullptr, " \t"));
     }
 
     //diff
     else if( strequal(current_token, "Kd") && material_open)
     {
-      current_mtl->diff[0] = atof( strtok(NULL, " \t"));
-      current_mtl->diff[1] = atof( strtok(NULL, " \t"));
-      current_mtl->diff[2] = atof( strtok(NULL, " \t"));
+      current_mtl->diff[0] = atof( strtok(nullptr, " \t"));
+      current_mtl->diff[1] = atof( strtok(nullptr, " \t"));
+      current_mtl->diff[2] = atof( strtok(nullptr, " \t"));
     }
 
     //specular
     else if( strequal(current_token, "Ks") && material_open)
     {
-      current_mtl->spec[0] = atof( strtok(NULL, " \t"));
-      current_mtl->spec[1] = atof( strtok(NULL, " \t"));
-      current_mtl->spec[2] = atof( strtok(NULL, " \t"));
+      current_mtl->spec[0] = atof( strtok(nullptr, " \t"));
+      current_mtl->spec[1] = atof( strtok(nullptr, " \t"));
+      current_mtl->spec[2] = atof( strtok(nullptr, " \t"));
     }
     //shiny
     else if( strequal(current_token, "Ns") && material_open)
     {
-      current_mtl->shiny = atof( strtok(NULL, " \t"));
+      current_mtl->shiny = atof( strtok(nullptr, " \t"));
     }
     //transparent
     else if( strequal(current_token, "d") && material_open)
     {
-      current_mtl->trans = atof( strtok(NULL, " \t"));
+      current_mtl->trans = atof( strtok(nullptr, " \t"));
     }
     //reflection
     else if( strequal(current_token, "r") && material_open)
     {
-      current_mtl->reflect = atof( strtok(NULL, " \t"));
+      current_mtl->reflect = atof( strtok(nullptr, " \t"));
     }
     //glossy
     else if( strequal(current_token, "sharpness") && material_open)
     {
-      current_mtl->glossy = atof( strtok(NULL, " \t"));
+      current_mtl->glossy = atof( strtok(nullptr, " \t"));
     }
     //refract index
     else if( strequal(current_token, "Ni") && material_open)
     {
-      current_mtl->refract_index = atof( strtok(NULL, " \t"));
+      current_mtl->refract_index = atof( strtok(nullptr, " \t"));
     }
     // illumination type
     else if( strequal(current_token, "illum") && material_open)
@@ -190,7 +206,7 @@ std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
     {
       /** (pk note: why was this map_Ka initially? should map_Ka be supported? ) */
       // tmap may be null so we test first before doing a strncpy
-      char *tmap = strtok(NULL, " \t\n\r");
+      char *tmap = strtok(nullptr, " \t\n\r");
       if (tmap)
       {
         strncpy(current_mtl->texture_filename, tmap, OBJ_FILENAME_LENGTH);
@@ -235,17 +251,17 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
                                           vtkOBJPolyDataProcessor* reader )
 {
-  if( NULL == (renderWindow) )
+  if( nullptr == (renderWindow) )
   {
     vtkErrorWithObjectMacro(reader, "RenderWindow is null, failure!");
     return;
   }
-  if( NULL == (renderer) )
+  if( nullptr == (renderer) )
   {
     vtkErrorWithObjectMacro(reader, "Renderer is null, failure!");
     return;
   }
-  if( NULL == (reader) )
+  if( nullptr == (reader) )
   {
     vtkErrorWithObjectMacro(reader, "vtkOBJPolyDataProcessor is null, failure!");
     return;

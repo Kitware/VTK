@@ -37,7 +37,7 @@ class VTKCHARTSCORE_EXPORT vtkChartHistogram2D : public vtkChartXY
 {
 public:
   vtkTypeMacro(vtkChartHistogram2D, vtkChartXY);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 2D histogram chart
@@ -49,7 +49,7 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   virtual void SetInputData(vtkImageData *data, vtkIdType z = 0);
   virtual void SetTransferFunction(vtkScalarsToColors *function);
@@ -57,16 +57,16 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
+  vtkPlot* GetPlot(vtkIdType index) override;
 
 protected:
   vtkChartHistogram2D();
-  ~vtkChartHistogram2D() VTK_OVERRIDE;
+  ~vtkChartHistogram2D() override;
 
   vtkSmartPointer<vtkPlotHistogram2D> Histogram;
 
@@ -78,11 +78,11 @@ protected:
   class Private;
   Private* Storage;
 
-  bool UpdateLayout(vtkContext2D *painter) VTK_OVERRIDE;
+  bool UpdateLayout(vtkContext2D *painter) override;
 
 private:
-  vtkChartHistogram2D(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
+  vtkChartHistogram2D(const vtkChartHistogram2D &) = delete;
+  void operator=(const vtkChartHistogram2D &) = delete;
 };
 
 #endif //vtkChartHistogram2D_h

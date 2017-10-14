@@ -46,7 +46,7 @@ int TestPolygonBuilder4(int, char* [])
     builder.InsertTriangle(p);
   }
 
-  builder.GetPolygons(polys.GetPointer());
+  builder.GetPolygons(polys);
 
   vtkIdType expected(1);
   if (polys->GetNumberOfItems()!=1) // and a-b-c-d expected

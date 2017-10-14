@@ -17,7 +17,6 @@
 
 #include "vtkImageData.h"
 #include "vtkMPIController.h"
-//#include "vtkMPIGroup.h"
 #include "vtkProcessGroup.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"

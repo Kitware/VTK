@@ -92,7 +92,7 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkAngleWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -100,7 +100,7 @@ public:
    * must be overridden because it is a composite widget and does more than
    * its superclasses' vtkAbstractWidget::SetEnabled() method.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -113,7 +113,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   /**
    * Return the representation as a vtkAngleRepresentation.
@@ -131,7 +131,7 @@ public:
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) VTK_OVERRIDE;
+  void SetProcessEvents(int) override;
 
   /**
    * Enum defining the state of the widget. By default the widget is in Start mode,
@@ -164,7 +164,7 @@ public:
 
 protected:
   vtkAngleWidget();
-  ~vtkAngleWidget() VTK_OVERRIDE;
+  ~vtkAngleWidget() override;
 
   // The state of the widget
   int WidgetState;
@@ -193,8 +193,8 @@ protected:
   friend class vtkAngleWidgetCallback;
 
 private:
-  vtkAngleWidget(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
+  vtkAngleWidget(const vtkAngleWidget&) = delete;
+  void operator=(const vtkAngleWidget&) = delete;
 };
 
 #endif

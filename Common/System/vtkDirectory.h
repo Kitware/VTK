@@ -49,7 +49,7 @@ public:
   /**
    * Print directory to stream.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Open the specified directory and load the names of the files
@@ -108,7 +108,7 @@ protected:
   // NumberOfFiles to 0
   void CleanUpFilesAndPath();
   vtkDirectory();
-  ~vtkDirectory() VTK_OVERRIDE;
+  ~vtkDirectory() override;
 
 private:
   char* Path;           // Path to Open'ed directory
@@ -117,8 +117,8 @@ private:
   static int CreateDirectoryInternal(const char* dir);
 
 private:
-  vtkDirectory(const vtkDirectory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDirectory&) VTK_DELETE_FUNCTION;
+  vtkDirectory(const vtkDirectory&) = delete;
+  void operator=(const vtkDirectory&) = delete;
 };
 
 #endif

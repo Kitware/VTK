@@ -39,24 +39,24 @@ public:
   static vtkOpenGLPropItem *New();
   vtkTypeMacro(vtkOpenGLPropItem, vtkPropItem)
 
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
 protected:
   vtkOpenGLPropItem();
-  ~vtkOpenGLPropItem() VTK_OVERRIDE;
+  ~vtkOpenGLPropItem() override;
 
   // Sync the active vtkCamera with the GL state set by the painter.
-  void UpdateTransforms() VTK_OVERRIDE;
+  void UpdateTransforms() override;
 
   // Restore the vtkCamera state.
-  void ResetTransforms() VTK_OVERRIDE;
+  void ResetTransforms() override;
 
 private:
   vtkNew<vtkCamera> CameraCache;
   vtkContext2D *Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
+  vtkOpenGLPropItem(const vtkOpenGLPropItem &) = delete;
+  void operator=(const vtkOpenGLPropItem &) = delete;
 };
 
 #endif //vtkOpenGLPropItem_h

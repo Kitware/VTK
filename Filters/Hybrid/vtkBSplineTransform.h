@@ -51,7 +51,7 @@ class VTKFILTERSHYBRID_EXPORT vtkBSplineTransform : public vtkWarpTransform
 public:
   static vtkBSplineTransform *New();
   vtkTypeMacro(vtkBSplineTransform,vtkWarpTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -99,47 +99,47 @@ public:
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
   /**
    * Get the MTime.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkBSplineTransform();
-  ~vtkBSplineTransform() VTK_OVERRIDE;
+  ~vtkBSplineTransform() override;
 
   /**
    * Update the displacement grid.
    */
-  void InternalUpdate() VTK_OVERRIDE;
+  void InternalUpdate() override;
 
   /**
    * Copy this transform from another of the same type.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   //@{
   /**
    * Internal functions for calculating the transformation.
    */
-  void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void ForwardTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void ForwardTransformPoint(const float in[3], float out[3]) override;
+  void ForwardTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) VTK_OVERRIDE;
+                                  float derivative[3][3]) override;
   void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) VTK_OVERRIDE;
+                                  double derivative[3][3]) override;
 
-  void InverseTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InverseTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InverseTransformPoint(const float in[3], float out[3]) override;
+  void InverseTransformPoint(const double in[3], double out[3]) override;
 
   void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) VTK_OVERRIDE;
+                                  float derivative[3][3]) override;
   void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) VTK_OVERRIDE;
+                                  double derivative[3][3]) override;
 
   void (*CalculateSpline)(const double point[3], double displacement[3],
                           double derivatives[3][3],
@@ -156,8 +156,8 @@ protected:
   vtkIdType GridIncrements[3];
 
 private:
-  vtkBSplineTransform(const vtkBSplineTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBSplineTransform&) VTK_DELETE_FUNCTION;
+  vtkBSplineTransform(const vtkBSplineTransform&) = delete;
+  void operator=(const vtkBSplineTransform&) = delete;
 
   vtkBSplineTransformConnectionHolder* ConnectionHolder;
 };

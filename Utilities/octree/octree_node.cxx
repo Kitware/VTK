@@ -62,8 +62,8 @@
 template< typename T_, int d_, typename A_ >
 octree_node<T_,d_,A_>::octree_node()
 {
-  this->_M_parent = 0;
-  this->_M_children = 0;
+  this->_M_parent = nullptr;
+  this->_M_children = nullptr;
 }
 
 /**\brief Root node constructor.
@@ -79,7 +79,7 @@ template< typename T_, int d_, typename A_ >
 octree_node<T_,d_,A_>::octree_node( octree_node_pointer parent, const value_type& data )
   : _M_parent( parent ), _M_data( data )
 {
-  this->_M_children = 0;
+  this->_M_children = nullptr;
 }
 
 /**\brief Destructor.
@@ -164,11 +164,11 @@ bool octree_node<T_,d_,A_>::remove_children()
     int i;
     for ( i = 0; i < ( 1 << d_ ); ++ i )
       {
-      this->_M_children[i]._M_parent = 0; // prevent updates from propagating up the portion of the tree being deleted.
+      this->_M_children[i]._M_parent = nullptr; // prevent updates from propagating up the portion of the tree being deleted.
       this->_M_children[i].remove_children();
       }
     delete [] this->_M_children;
-    this->_M_children = 0;
+    this->_M_children = nullptr;
     return true;
     }
   return false;

@@ -141,15 +141,15 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   vtkIdType sizePolys, numPolys;
   vtkCellArray *inStrips, *newStrips;
   vtkIdType numPts, numCells;
-  vtkPointData *inPD = NULL;
-  vtkCellData *inCD = NULL;
+  vtkPointData *inPD = nullptr;
+  vtkCellData *inCD = nullptr;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  vtkDataArray *newPtScalars = NULL;
-  vtkDataArray *newPtVectors = NULL;
-  vtkDataArray *newPtNormals = NULL;
-  vtkDataArray *newPtTCoords = NULL;
-  vtkDataArray *newPtTensors = NULL;
+  vtkDataArray *newPtScalars = nullptr;
+  vtkDataArray *newPtVectors = nullptr;
+  vtkDataArray *newPtNormals = nullptr;
+  vtkDataArray *newPtTCoords = nullptr;
+  vtkDataArray *newPtTensors = nullptr;
   vtkIdType *pStrips, *pLines, *pPolys,*pVerts;
 
   vtkDebugMacro(<<"Appending polydata");
@@ -170,7 +170,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   for (idx = 0; idx < numInputs; ++idx)
   {
     ds = inputs[idx];
-    if (ds != NULL)
+    if (ds != nullptr)
     {
       if (ds->GetNumberOfPoints() > 0)
       {
@@ -180,7 +180,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
       {
         ++countCD;
       } // for a data set that has cells
-    } // for a non NULL input
+    } // for a non nullptr input
   } // for each input
 
   // These are used to determine which fields are available for appending
@@ -191,7 +191,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   for (idx = 0; idx < numInputs; ++idx)
   {
     ds = inputs[idx];
-    if (ds != NULL)
+    if (ds != nullptr)
     {
       // Skip points and cells if there are no points.  Empty inputs may have no arrays.
       if (ds->GetNumberOfPoints() > 0)
@@ -251,7 +251,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
         }
         ++countCD;
       } // for a data set that has cells
-    } // for a non NULL input
+    } // for a non nullptr input
   } // for each input
 
   if (numPts < 1 && numCells < 1)
@@ -271,7 +271,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
   for (idx = 0; idx < numInputs; ++idx)
   {
     ds = inputs[idx];
-    if (ds != NULL && ds->GetNumberOfPoints()>0)
+    if (ds != nullptr && ds->GetNumberOfPoints()>0)
     {
       if ( firstType )
       {
@@ -340,7 +340,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
 
   // These are created manually for faster execution
   // Uses the properties of the last input
-  vtkDataArray *inDA=0;
+  vtkDataArray *inDA=nullptr;
   if ( ptList.IsAttributePresent(vtkDataSetAttributes::SCALARS) > -1 )
   {
     inDA=inPD->GetScalars();
@@ -428,7 +428,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     this->UpdateProgress(0.2 + 0.8*idx/numInputs);
     ds = inputs[idx];
     // this check is not necessary, but I'll put it in anyway
-    if (ds != NULL)
+    if (ds != nullptr)
     {
       numPts = ds->GetNumberOfPoints();
       numCells = ds->GetNumberOfCells();
@@ -743,7 +743,7 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
 {
   vtkIdType *pSrc, *end, *pNum;
 
-  if (src == NULL)
+  if (src == nullptr)
   {
     return pDest;
   }

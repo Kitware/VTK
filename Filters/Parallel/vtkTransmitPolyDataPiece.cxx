@@ -35,14 +35,14 @@ vtkTransmitPolyDataPiece::vtkTransmitPolyDataPiece()
   this->CreateGhostCells = 1;
 
   // Controller keeps a reference to this object as well.
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkTransmitPolyDataPiece::~vtkTransmitPolyDataPiece()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ int vtkTransmitPolyDataPiece::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int procId;
-  if (this->Controller == NULL)
+  if (this->Controller == nullptr)
   {
     vtkErrorMacro("Could not find Controller.");
     return 0;

@@ -42,7 +42,7 @@ class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageSeedConnectivity : public vtkImageA
 public:
   static vtkImageSeedConnectivity *New();
   vtkTypeMacro(vtkImageSeedConnectivity,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkImageSeedConnectivity();
-  ~vtkImageSeedConnectivity() VTK_OVERRIDE;
+  ~vtkImageSeedConnectivity() override;
 
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;
@@ -104,12 +104,12 @@ protected:
   vtkImageConnector *Connector;
   int Dimensionality;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
+  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) = delete;
+  void operator=(const vtkImageSeedConnectivity&) = delete;
 };
 
 

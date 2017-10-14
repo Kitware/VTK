@@ -43,32 +43,32 @@ class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleTrackballCamera : public vtkI
 public:
   static vtkInteractorStyleTrackballCamera *New();
   vtkTypeMacro(vtkInteractorStyleTrackballCamera,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
-  void OnMouseWheelForward() VTK_OVERRIDE;
-  void OnMouseWheelBackward() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
+  void OnMouseWheelForward() override;
+  void OnMouseWheelBackward() override;
   //@}
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
   // they are called by OnTimer, they do not have mouse coord parameters
   // (use interactor's GetEventPosition and GetLastEventPosition)
-  void Rotate() VTK_OVERRIDE;
-  void Spin() VTK_OVERRIDE;
-  void Pan() VTK_OVERRIDE;
-  void Dolly() VTK_OVERRIDE;
+  void Rotate() override;
+  void Spin() override;
+  void Pan() override;
+  void Dolly() override;
 
   //@{
   /**
@@ -80,15 +80,15 @@ public:
 
 protected:
   vtkInteractorStyleTrackballCamera();
-  ~vtkInteractorStyleTrackballCamera() VTK_OVERRIDE;
+  ~vtkInteractorStyleTrackballCamera() override;
 
   double MotionFactor;
 
   virtual void Dolly(double factor);
 
 private:
-  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTrackballCamera&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&) = delete;
+  void operator=(const vtkInteractorStyleTrackballCamera&) = delete;
 };
 
 #endif

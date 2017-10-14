@@ -98,7 +98,7 @@ vtkDataObject::vtkDataObject()
   // then they will fill it with valid data.
   this->DataReleased = 0;
 
-  this->FieldData = NULL;
+  this->FieldData = nullptr;
   vtkFieldData *fd = vtkFieldData::New();
   this->SetFieldData(fd);
   fd->FastDelete();
@@ -107,8 +107,8 @@ vtkDataObject::vtkDataObject()
 //----------------------------------------------------------------------------
 vtkDataObject::~vtkDataObject()
 {
-  this->SetInformation(0);
-  this->SetFieldData(NULL);
+  this->SetInformation(nullptr);
+  this->SetFieldData(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -210,12 +210,12 @@ vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
-    return NULL;
+    return nullptr;
   }
 
   if (!fieldDataInfoVector)
   {
-    return NULL;
+    return nullptr;
   }
 
   for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
@@ -227,7 +227,7 @@ vtkInformation *vtkDataObject::GetActiveFieldInformation(vtkInformation *info,
       return fieldDataInfo;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -258,12 +258,12 @@ vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
-    return NULL;
+    return nullptr;
   }
 
   if (!fieldDataInfoVector)
   {
-    return NULL;
+    return nullptr;
   }
 
   for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
@@ -275,7 +275,7 @@ vtkInformation *vtkDataObject::GetNamedFieldInformation(vtkInformation *info,
       return fieldDataInfo;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -324,7 +324,6 @@ void vtkDataObject::RemoveNamedFieldInformation(vtkInformation *info,
       return;
     }
   }
-  return;
 }
 
 //----------------------------------------------------------------------------
@@ -356,7 +355,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
   else
   {
     vtkGenericWarningMacro("Unrecognized field association!");
-    return NULL;
+    return nullptr;
   }
   if (!fieldDataInfoVector)
   {
@@ -382,7 +381,7 @@ vtkInformation *vtkDataObject::SetActiveAttribute(vtkInformation *info,
 
   // if we find a matching field, turn it on (active);  if another field of same
   // attribute type was active, turn it off (not active)
-  vtkInformation *activeField = NULL;
+  vtkInformation *activeField = nullptr;
   int activeAttribute;
   const char *fieldName;
   for (i = 0; i < fieldDataInfoVector->GetNumberOfInformationObjects(); i++)
@@ -478,7 +477,7 @@ void vtkDataObject::SetPointDataActiveScalarInfo(vtkInformation *info,
                                         int arrayType, int numComponents)
 {
   vtkDataObject::SetActiveAttributeInfo(info, FIELD_ASSOCIATION_POINTS,
-    vtkDataSetAttributes::SCALARS, NULL, arrayType, numComponents, -1);
+    vtkDataSetAttributes::SCALARS, nullptr, arrayType, numComponents, -1);
 }
 
 //----------------------------------------------------------------------------
@@ -527,7 +526,7 @@ void vtkDataObject::ShallowCopy(vtkDataObject *src)
 
   if (!src->FieldData)
   {
-    this->SetFieldData(0);
+    this->SetFieldData(nullptr);
   }
   else
   {
@@ -561,7 +560,7 @@ void vtkDataObject::DeepCopy(vtkDataObject *src)
   }
   else
   {
-    this->SetFieldData(NULL);
+    this->SetFieldData(nullptr);
   }
 }
 
@@ -614,7 +613,7 @@ void vtkDataObject::Crop(const int*)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataObject::GetData(vtkInformation* info)
 {
-  return info? info->Get(DATA_OBJECT()) : 0;
+  return info? info->Get(DATA_OBJECT()) : nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -629,7 +628,7 @@ const char* vtkDataObject::GetAssociationTypeAsString(int associationType)
   if (associationType < 0 || associationType >= NUMBER_OF_ASSOCIATIONS)
   {
     vtkGenericWarningMacro("Bad association type.");
-    return NULL;
+    return nullptr;
   }
   return FieldAssociationsNames[associationType];
 }
@@ -639,7 +638,7 @@ int vtkDataObject::GetAssociationTypeFromString(const char* associationName)
 {
   if (!associationName)
   {
-    vtkGenericWarningMacro("NULL association name.");
+    vtkGenericWarningMacro("nullptr association name.");
     return -1;
   }
 
@@ -679,7 +678,7 @@ vtkFieldData* vtkDataObject::GetAttributesAsFieldData(int type)
     case FIELD:
       return this->FieldData;
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

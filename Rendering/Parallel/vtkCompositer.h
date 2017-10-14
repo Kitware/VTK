@@ -43,7 +43,7 @@ class VTKRENDERINGPARALLEL_EXPORT vtkCompositer : public vtkObject
 public:
   static vtkCompositer *New();
   vtkTypeMacro(vtkCompositer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This method gets called on every process.  The final image gets
@@ -81,14 +81,14 @@ public:
 
 protected:
   vtkCompositer();
-  ~vtkCompositer();
+  ~vtkCompositer() override;
 
   vtkMultiProcessController *Controller;
   int NumberOfProcesses;
 
 private:
-  vtkCompositer(const vtkCompositer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositer&) VTK_DELETE_FUNCTION;
+  vtkCompositer(const vtkCompositer&) = delete;
+  void operator=(const vtkCompositer&) = delete;
 };
 
 #endif

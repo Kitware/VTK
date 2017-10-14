@@ -65,8 +65,8 @@ public:
   ~vtkTextRendererCleanup();
 
 private:
-  vtkTextRendererCleanup(const vtkTextRendererCleanup& other) VTK_DELETE_FUNCTION;
-  vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs) VTK_DELETE_FUNCTION;
+  vtkTextRendererCleanup(const vtkTextRendererCleanup& other) = delete;
+  vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs) = delete;
 };
 
 class VTKRENDERINGCORE_EXPORT vtkTextRenderer: public vtkObject
@@ -114,7 +114,7 @@ public:
   };
 
   vtkTypeMacro(vtkTextRenderer, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * This is a singleton pattern New. There will be only ONE reference
@@ -296,7 +296,7 @@ public:
 
 protected:
   vtkTextRenderer();
-  ~vtkTextRenderer() VTK_OVERRIDE;
+  ~vtkTextRenderer() override;
 
   //@{
   /**
@@ -370,8 +370,8 @@ protected:
   int DefaultBackend;
 
 private:
-  vtkTextRenderer(const vtkTextRenderer &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextRenderer &) VTK_DELETE_FUNCTION;
+  vtkTextRenderer(const vtkTextRenderer &) = delete;
+  void operator=(const vtkTextRenderer &) = delete;
 };
 
 #endif //vtkTextRenderer_h

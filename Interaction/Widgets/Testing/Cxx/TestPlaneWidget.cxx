@@ -395,13 +395,13 @@ class vtkTPWCallback : public vtkCommand
 public:
   static vtkTPWCallback *New()
   { return new vtkTPWCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkPlaneWidget *planeWidget = reinterpret_cast<vtkPlaneWidget*>(caller);
     planeWidget->GetPolyData(this->PolyData);
     this->Actor->VisibilityOn();
   }
-  vtkTPWCallback():PolyData(0),Actor(0) {}
+  vtkTPWCallback():PolyData(nullptr),Actor(nullptr) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };

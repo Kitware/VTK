@@ -69,7 +69,7 @@ void vtkLabelHierarchyCompositeIterator::Begin(vtkIdTypeArray* list)
   this->Implementation->InitialTraversal = 0;
 
   // Take care of the no-iterator case
-  if (this->Implementation->Iterators.size() == 0)
+  if (this->Implementation->Iterators.empty())
   {
     return;
   }
@@ -147,7 +147,7 @@ vtkLabelHierarchy* vtkLabelHierarchyCompositeIterator::GetHierarchy()
   {
     return this->Implementation->Iterators[this->Implementation->CurrentIterator].first->GetHierarchy();
   }
-  return 0;
+  return nullptr;
 }
 
 void vtkLabelHierarchyCompositeIterator::GetNodeGeometry(double ctr[3], double& size)

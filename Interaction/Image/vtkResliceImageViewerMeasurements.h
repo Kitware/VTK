@@ -52,7 +52,7 @@ public:
    */
   static vtkResliceImageViewerMeasurements *New();
   vtkTypeMacro(vtkResliceImageViewerMeasurements,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkResliceImageViewerMeasurements();
-  ~vtkResliceImageViewerMeasurements() VTK_OVERRIDE;
+  ~vtkResliceImageViewerMeasurements() override;
 
   //@{
   /**
@@ -142,8 +142,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
+  vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&) = delete;
+  void operator=(const vtkResliceImageViewerMeasurements&) = delete;
 };
 
 #endif

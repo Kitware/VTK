@@ -36,7 +36,7 @@ class VTKIOLEGACY_EXPORT vtkRectilinearGridWriter : public vtkDataWriter
 public:
   static vtkRectilinearGridWriter *New();
   vtkTypeMacro(vtkRectilinearGridWriter,vtkDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -61,17 +61,17 @@ public:
 
 protected:
   vtkRectilinearGridWriter() : WriteExtent(false) {}
-  ~vtkRectilinearGridWriter() VTK_OVERRIDE {}
+  ~vtkRectilinearGridWriter() override {}
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   bool WriteExtent;
 
 private:
-  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) = delete;
+  void operator=(const vtkRectilinearGridWriter&) = delete;
 };
 
 #endif

@@ -94,7 +94,7 @@ int
   }
 
   // Find the PPoints element.
-  this->PPointsElement = 0;
+  this->PPointsElement = nullptr;
   int numNested = ePrimary->GetNumberOfNestedElements();
   for (int i = 0; i < numNested; ++i)
   {

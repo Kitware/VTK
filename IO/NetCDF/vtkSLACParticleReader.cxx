@@ -154,9 +154,9 @@ public:
 protected:
   int fd;
 private:
-  vtkSLACParticleReaderAutoCloseNetCDF() VTK_DELETE_FUNCTION;
-  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
+  vtkSLACParticleReaderAutoCloseNetCDF() = delete;
+  vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &) = delete;
+  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) = delete;
 };
 
 //=============================================================================
@@ -167,12 +167,12 @@ vtkSLACParticleReader::vtkSLACParticleReader()
 {
   this->SetNumberOfInputPorts(0);
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
 }
 
 vtkSLACParticleReader::~vtkSLACParticleReader()
 {
-  this->SetFileName(NULL);
+  this->SetFileName(nullptr);
 }
 
 void vtkSLACParticleReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -293,7 +293,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   VTK_CREATE(vtkDoubleArray, coords);
   coords->SetNumberOfComponents(3);
   coords->SetNumberOfTuples(numParticles);
-  CALL_NETCDF(nc_get_vars_double(ncFD(), particlePosVar, start, count, NULL,
+  CALL_NETCDF(nc_get_vars_double(ncFD(), particlePosVar, start, count, nullptr,
               coords->GetPointer(0)));
   points->SetData(coords);
   output->SetPoints(points);
@@ -303,7 +303,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   momentum->SetNumberOfComponents(3);
   momentum->SetNumberOfTuples(numParticles);
   start[1] = 3;
-  CALL_NETCDF(nc_get_vars_double(ncFD(), particlePosVar, start, count, NULL,
+  CALL_NETCDF(nc_get_vars_double(ncFD(), particlePosVar, start, count, nullptr,
               momentum->GetPointer(0)));
   output->GetPointData()->AddArray(momentum);
 
@@ -315,7 +315,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   ids->SetName("ParticleIds");
   ids->SetNumberOfComponents(1);
   ids->SetNumberOfTuples(numParticles);
-  CALL_NETCDF(nc_get_vars_vtkIdType(ncFD(), particleInfoVar, start, count, NULL,
+  CALL_NETCDF(nc_get_vars_vtkIdType(ncFD(), particleInfoVar, start, count, nullptr,
               ids->GetPointer(0)));
   output->GetPointData()->SetGlobalIds(ids);
 
@@ -324,7 +324,7 @@ int vtkSLACParticleReader::RequestData(vtkInformation *vtkNotUsed(request),
   emissionType->SetNumberOfComponents(1);
   emissionType->SetNumberOfTuples(numParticles);
   start[1] = 1;
-  CALL_NETCDF(nc_get_vars_int(ncFD(), particleInfoVar, start, count, NULL,
+  CALL_NETCDF(nc_get_vars_int(ncFD(), particleInfoVar, start, count, nullptr,
               emissionType->GetPointer(0)));
   output->GetPointData()->AddArray(emissionType);
 

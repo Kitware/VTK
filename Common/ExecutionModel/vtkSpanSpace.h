@@ -57,7 +57,7 @@ public:
    * Standard type related macros and PrintSelf() method.
    */
   vtkTypeMacro(vtkSpanSpace,vtkScalarTree);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //----------------------------------------------------------------------
@@ -83,13 +83,13 @@ public:
   /**
    * Initialize locator. Frees memory and resets object as appropriate.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Construct the scalar tree from the dataset provided. Checks build times
    * and modified time from input and reconstructs the tree if necessary.
    */
-  void BuildTree() VTK_OVERRIDE;
+  void BuildTree() override;
 
   /**
    * Begin to traverse the cells based on a scalar value. Returned cells
@@ -97,16 +97,16 @@ public:
    * method must be called prior to parallel or serial traversal since it
    * specifies the scalar value to be extracted.
    */
-  void InitTraversal(double scalarValue) VTK_OVERRIDE;
+  void InitTraversal(double scalarValue) override;
 
   /**
    * Return the next cell that may contain scalar value specified to
-   * InitTraversal(). The value NULL is returned if the list is
+   * InitTraversal(). The value nullptr is returned if the list is
    * exhausted. Make sure that InitTraversal() has been invoked first or
    * you'll get erratic behavior. This is inherently a serial operation.
    */
   vtkCell *GetNextCell(vtkIdType &cellId, vtkIdList* &ptIds,
-                               vtkDataArray *cellScalars) VTK_OVERRIDE;
+                               vtkDataArray *cellScalars) override;
 
   // The following methods supports parallel (threaded)
   // applications. Basically batches of cells (which represent a
@@ -122,7 +122,7 @@ public:
    * [0...(NumberOfCellBatches-1)] will contain all the cells
    * potentially containing the isocontour.
    */
-  vtkIdType GetNumberOfCellBatches() VTK_OVERRIDE;
+  vtkIdType GetNumberOfCellBatches() override;
 
   /**
    * Return the array of cell ids in the specified batch. The method
@@ -130,11 +130,11 @@ public:
    * call InitTraversal() beforehand.
    */
   const vtkIdType* GetCellBatch(vtkIdType batchNum,
-                                        vtkIdType& numCells) VTK_OVERRIDE;
+                                        vtkIdType& numCells) override;
 
 protected:
   vtkSpanSpace();
-  ~vtkSpanSpace() VTK_OVERRIDE;
+  ~vtkSpanSpace() override;
 
   vtkIdType Resolution;
   vtkInternalSpanSpace *SpanSpace;
@@ -152,8 +152,8 @@ private:
   vtkIdType CurrentNumCells; //number of cells on the current span row
 
 private:
-  vtkSpanSpace(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
+  vtkSpanSpace(const vtkSpanSpace&) = delete;
+  void operator=(const vtkSpanSpace&) = delete;
 };
 
 #endif

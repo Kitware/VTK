@@ -94,8 +94,8 @@ inline void vtkMatrixTranspose(double **a, double **b, int rows, int cols)
 //------------------------------------------------------------------------
 vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
 {
-  this->SourceLandmarks=NULL;
-  this->TargetLandmarks=NULL;
+  this->SourceLandmarks=nullptr;
+  this->TargetLandmarks=nullptr;
   this->Sigma = 1.0;
 
   // If the InverseFlag is set, then we use an iterative
@@ -109,7 +109,7 @@ vtkThinPlateSplineTransform::vtkThinPlateSplineTransform()
   this->SetBasisToR2LogR();
 
   this->NumberOfPoints = 0;
-  this->MatrixW = NULL;
+  this->MatrixW = nullptr;
 }
 
 //------------------------------------------------------------------------
@@ -126,7 +126,7 @@ vtkThinPlateSplineTransform::~vtkThinPlateSplineTransform()
   if (this->MatrixW)
   {
     vtkDeleteMatrix(this->MatrixW);
-    this->MatrixW = NULL;
+    this->MatrixW = nullptr;
   }
 }
 
@@ -195,13 +195,13 @@ vtkMTimeType vtkThinPlateSplineTransform::GetMTime()
 //------------------------------------------------------------------------
 void vtkThinPlateSplineTransform::InternalUpdate()
 {
-  if (this->SourceLandmarks == NULL || this->TargetLandmarks == NULL)
+  if (this->SourceLandmarks == nullptr || this->TargetLandmarks == nullptr)
   {
     if (this->MatrixW)
     {
       vtkDeleteMatrix(this->MatrixW);
     }
-    this->MatrixW = NULL;
+    this->MatrixW = nullptr;
     this->NumberOfPoints = 0;
     return;
   }
@@ -420,7 +420,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
         else // rotation by 180 degrees
         {
           // rotate around a vector perpendicular to ds
-          vtkMath::Perpendiculars(ds,dt,0,0);
+          vtkMath::Perpendiculars(ds,dt,nullptr,0);
           f = sin(theta/2);
           x = dt[0]*f;
           y = dt[1]*f;

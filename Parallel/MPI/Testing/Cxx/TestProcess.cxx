@@ -29,7 +29,7 @@ public:
   static MyProcess *New();
   vtkTypeMacro(MyProcess, vtkProcess);
 
-  virtual void Execute() VTK_OVERRIDE;
+  virtual void Execute() override;
 
   void SetArgs(int anArgc,
                char *anArgv[]);
@@ -46,7 +46,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,

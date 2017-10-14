@@ -45,20 +45,20 @@ class vtkStringArrayLookup
 public:
   vtkStringArrayLookup() : Rebuild(true)
   {
-    this->SortedArray = NULL;
-    this->IndexArray = NULL;
+    this->SortedArray = nullptr;
+    this->IndexArray = nullptr;
   }
   ~vtkStringArrayLookup()
   {
     if (this->SortedArray)
     {
       this->SortedArray->Delete();
-      this->SortedArray = NULL;
+      this->SortedArray = nullptr;
     }
     if (this->IndexArray)
     {
       this->IndexArray->Delete();
-      this->IndexArray = NULL;
+      this->IndexArray = nullptr;
     }
   }
   vtkStringArray* SortedArray;
@@ -73,9 +73,9 @@ vtkStandardNewMacro(vtkStringArray);
 
 vtkStringArray::vtkStringArray()
 {
-  this->Array = NULL;
+  this->Array = nullptr;
   this->SaveUserArray = 0;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -163,7 +163,7 @@ void vtkStringArray::Initialize()
   {
     delete [] this->Array;
   }
-  this->Array = 0;
+  this->Array = nullptr;
   this->Size = 0;
   this->MaxId = -1;
   this->SaveUserArray = 0;
@@ -175,7 +175,7 @@ void vtkStringArray::Initialize()
 
 void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
 {
-  // Do nothing on a NULL input.
+  // Do nothing on a nullptr input.
   if(!aa)
   {
     return;
@@ -197,7 +197,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
   }
 
   vtkStringArray *fa = vtkArrayDownCast<vtkStringArray>( aa );
-  if ( fa == NULL )
+  if ( fa == nullptr )
   {
     vtkErrorMacro(<< "Shouldn't Happen: Couldn't downcast array into a vtkStringArray." );
     return;
@@ -332,14 +332,14 @@ vtkStdString * vtkStringArray::ResizeAndExtend(vtkIdType sz)
   if(newSize <= 0)
   {
     this->Initialize();
-    return 0;
+    return nullptr;
   }
 
   newArray = new vtkStdString[newSize];
   if(!newArray)
   {
     vtkErrorMacro("Cannot allocate memory\n");
-    return 0;
+    return nullptr;
   }
 
   if(this->Array)
@@ -661,7 +661,7 @@ vtkStdString& vtkStringArray::GetValue( vtkIdType id )
 // ----------------------------------------------------------------------------
 void vtkStringArray::GetTuples(vtkIdList *indices, vtkAbstractArray *aa)
 {
-  if (aa == NULL)
+  if (aa == nullptr)
   {
     vtkErrorMacro(<<"GetTuples: Output array is null!");
     return;
@@ -669,7 +669,7 @@ void vtkStringArray::GetTuples(vtkIdList *indices, vtkAbstractArray *aa)
 
   vtkStringArray *output = vtkArrayDownCast<vtkStringArray>(aa);
 
-  if (output == NULL)
+  if (output == nullptr)
   {
     vtkErrorMacro(<< "Can't copy values from a string array into an array "
                   << "of type " << aa->GetDataTypeAsString());
@@ -688,7 +688,7 @@ void vtkStringArray::GetTuples(vtkIdType startIndex,
                           vtkIdType endIndex,
                           vtkAbstractArray *aa)
 {
-  if (aa == NULL)
+  if (aa == nullptr)
   {
     vtkErrorMacro(<<"GetTuples: Output array is null!");
     return;
@@ -696,7 +696,7 @@ void vtkStringArray::GetTuples(vtkIdType startIndex,
 
   vtkStringArray *output = vtkArrayDownCast<vtkStringArray>(aa);
 
-  if (output == NULL)
+  if (output == nullptr)
   {
     vtkErrorMacro(<< "Can't copy values from a string array into an array "
                   << "of type " << aa->GetDataTypeAsString());
@@ -756,7 +756,7 @@ void vtkStringArray::LookupValue(vtkVariant var, vtkIdList* ids)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vtkStringArray::LookupValue(vtkStdString value)
+vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
 {
   this->UpdateLookup();
 
@@ -826,7 +826,7 @@ vtkIdType vtkStringArray::LookupValue(vtkStdString value)
 }
 
 //-----------------------------------------------------------------------------
-void vtkStringArray::LookupValue(vtkStdString value, vtkIdList* ids)
+void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
 {
   this->UpdateLookup();
   ids->Reset();
@@ -915,7 +915,7 @@ void vtkStringArray::DataElementChanged(vtkIdType id)
 void vtkStringArray::ClearLookup()
 {
   delete this->Lookup;
-  this->Lookup = NULL;
+  this->Lookup = nullptr;
 }
 
 

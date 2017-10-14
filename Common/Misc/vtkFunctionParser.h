@@ -135,12 +135,12 @@ class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return parser's MTime
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -311,7 +311,7 @@ public:
 
 protected:
   vtkFunctionParser();
-  ~vtkFunctionParser() VTK_OVERRIDE;
+  ~vtkFunctionParser() override;
 
   int Parse();
 
@@ -345,7 +345,7 @@ protected:
   int GetMathConstantNumber(int currentIndex);
   int GetMathConstantStringLength(int mathConstantNumber);
   unsigned char GetElementaryOperatorNumber(char op);
-  unsigned char GetOperandNumber(int currentIndex);
+  unsigned int GetOperandNumber(int currentIndex);
   int GetVariableNameLength(int variableNumber);
 
   int DisambiguateOperators();
@@ -392,8 +392,8 @@ protected:
   char* ParseError;
 
 private:
-  vtkFunctionParser(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
+  vtkFunctionParser(const vtkFunctionParser&) = delete;
+  void operator=(const vtkFunctionParser&) = delete;
 };
 
 #endif

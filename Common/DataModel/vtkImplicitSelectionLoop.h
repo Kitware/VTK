@@ -62,7 +62,7 @@ public:
    * Standard VTK methods for printing and type information.
    */
   vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -75,13 +75,13 @@ public:
    * Evaluate selection loop returning a signed distance.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate selection loop returning the gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -115,11 +115,11 @@ public:
   /**
    * Overload GetMTime() because we depend on the Loop
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkImplicitSelectionLoop();
-  ~vtkImplicitSelectionLoop() VTK_OVERRIDE;
+  ~vtkImplicitSelectionLoop() override;
 
   vtkPoints *Loop;
   double Normal[3];
@@ -138,8 +138,8 @@ private:
   vtkTimeStamp InitializationTime;
 
 private:
-  vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitSelectionLoop&) VTK_DELETE_FUNCTION;
+  vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&) = delete;
+  void operator=(const vtkImplicitSelectionLoop&) = delete;
 };
 
 #endif

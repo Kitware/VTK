@@ -51,7 +51,7 @@ public:
    * Standard methods for instances of this class.
    */
   vtkTypeMacro(vtkSphereHandleRepresentation,vtkHandleRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -62,8 +62,8 @@ public:
    * the superclasses' SetWorldPosition() and SetDisplayPosition() in
    * order to set the focal point of the cursor properly.
    */
-  void SetWorldPosition(double p[3]) VTK_OVERRIDE;
-  void SetDisplayPosition(double p[3]) VTK_OVERRIDE;
+  void SetWorldPosition(double p[3]) override;
+  void SetDisplayPosition(double p[3]) override;
   //@}
 
   //@{
@@ -108,37 +108,37 @@ public:
    * Overload the superclasses SetHandleSize() method to update internal
    * variables.
    */
-  void SetHandleSize(double size) VTK_OVERRIDE;
+  void SetHandleSize(double size) override;
 
   //@{
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void BuildRepresentation() VTK_OVERRIDE;
-  void StartWidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double eventPos[2]) VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  double *GetBounds() override;
+  void BuildRepresentation() override;
+  void StartWidgetInteraction(double eventPos[2]) override;
+  void WidgetInteraction(double eventPos[2]) override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void PlaceWidget(double bounds[6]) override;
   //@}
 
   //@{
   /**
    * Methods to make this class behave as a vtkProp.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
-  void DeepCopy(vtkProp *prop) VTK_OVERRIDE;
-  void GetActors(vtkPropCollection *) VTK_OVERRIDE;
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
+  void DeepCopy(vtkProp *prop) override;
+  void GetActors(vtkPropCollection *) override;
+  void ReleaseGraphicsResources(vtkWindow *) override;
+  int RenderOpaqueGeometry(vtkViewport *viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *viewport) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
-  void Highlight(int highlight) VTK_OVERRIDE;
+  void Highlight(int highlight) override;
 protected:
   vtkSphereHandleRepresentation();
-  ~vtkSphereHandleRepresentation() VTK_OVERRIDE;
+  ~vtkSphereHandleRepresentation() override;
 
   // the cursor3D
   vtkActor          *Actor;
@@ -152,7 +152,7 @@ protected:
   double LastEventPosition[2];
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Methods to manipulate the cursor
   int  ConstraintAxis;
@@ -180,8 +180,8 @@ protected:
   int TranslationMode;
 
 private:
-  vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereHandleRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&) = delete;
+  void operator=(const vtkSphereHandleRepresentation&) = delete;
 };
 
 #endif

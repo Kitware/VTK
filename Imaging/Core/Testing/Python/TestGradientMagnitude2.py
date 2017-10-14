@@ -21,6 +21,7 @@ viewer = vtk.vtkImageViewer()
 viewer.SetInputConnection(slide.GetOutputPort())
 viewer.SetColorWindow(-1000)
 viewer.SetColorLevel(500)
+viewer.SetSize(150,150)
 viewer.Render()
 #skipping source
 # --- end of script --

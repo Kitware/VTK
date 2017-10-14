@@ -25,7 +25,7 @@ vtkImageViewer viewer
 viewer SetInputConnection [slide GetOutputPort]
 viewer SetColorWindow -1000
 viewer SetColorLevel 500
-
+viewer SetSize 150 150
 viewer Render
 
 source [file join [file dirname [info script]] WindowLevelInterface.tcl]

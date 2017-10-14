@@ -36,11 +36,11 @@ int TestTextActorScaleModeProp(int, char *[])
 
   vtkNew<vtkTextActor> textActor;
   textActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  textActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
+  textActor->GetPositionCoordinate()->SetReferenceCoordinate(nullptr);
   textActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  textActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  textActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   textActor->SetTextScaleModeToProp();
-  textActor->SetTextProperty(textProperty.GetPointer());
+  textActor->SetTextProperty(textProperty);
   textActor->SetInput("15412");
 
   textActor->GetPositionCoordinate()->SetValue(20.0, 20.0, 0.0);
@@ -48,14 +48,14 @@ int TestTextActorScaleModeProp(int, char *[])
 
   vtkNew<vtkRenderer> ren;
   vtkNew<vtkRenderWindow> win;
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
   ren->SetBackground(0.1, 0.1, 0.1);
   win->SetSize(300, 300);
 
-  ren->AddActor2D(textActor.GetPointer());
+  ren->AddActor2D(textActor);
 
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();

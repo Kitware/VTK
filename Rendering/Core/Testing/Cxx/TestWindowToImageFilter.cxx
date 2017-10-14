@@ -39,23 +39,23 @@ int TestWindowToImageFilter(int argc, char* argv[])
   mapper->SetInputConnection(sphereSource->GetOutputPort());
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   renderWindow->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
 
   renderWindow->Render();
 
   // Take the partial screenshot
   vtkNew<vtkWindowToImageFilter> windowToImageFilter;
-  windowToImageFilter->SetInput(renderWindow.Get());
+  windowToImageFilter->SetInput(renderWindow);
   windowToImageFilter->SetInputBufferTypeToRGB();
   windowToImageFilter->SetViewport(0.5, 0.5, 0.8, 1.0);
   windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
@@ -65,14 +65,14 @@ int TestWindowToImageFilter(int argc, char* argv[])
   vtkNew<vtkImageActor> imageActor;
   imageActor->GetMapper()->SetInputData(windowToImageFilter->GetOutput());
 
-  renderer->RemoveActor(actor.Get());
-  renderer->AddActor(imageActor.Get());
+  renderer->RemoveActor(actor);
+  renderer->AddActor(imageActor);
 
   renderWindow->Render();
   renderer->ResetCamera();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.Get());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

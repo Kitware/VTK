@@ -41,16 +41,16 @@ const char * vtkXMLTreeReader::CharDataField = ".chardata";
 
 vtkXMLTreeReader::vtkXMLTreeReader()
 {
-  this->FileName = 0;
-  this->XMLString = 0;
+  this->FileName = nullptr;
+  this->XMLString = nullptr;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
   this->ReadCharData = 0;
   this->ReadTagName = 1;
   this->MaskArrays = 0;
-  this->EdgePedigreeIdArrayName = 0;
+  this->EdgePedigreeIdArrayName = nullptr;
   this->SetEdgePedigreeIdArrayName("edge id");
-  this->VertexPedigreeIdArrayName = 0;
+  this->VertexPedigreeIdArrayName = nullptr;
   this->SetVertexPedigreeIdArrayName("vertex id");
   this->GenerateEdgePedigreeIds = true;
   this->GenerateVertexPedigreeIds = true;
@@ -58,10 +58,10 @@ vtkXMLTreeReader::vtkXMLTreeReader()
 
 vtkXMLTreeReader::~vtkXMLTreeReader()
 {
-  this->SetFileName(0);
-  this->SetXMLString(0);
-  this->SetEdgePedigreeIdArrayName(0);
-  this->SetVertexPedigreeIdArrayName(0);
+  this->SetFileName(nullptr);
+  this->SetXMLString(nullptr);
+  this->SetEdgePedigreeIdArrayName(nullptr);
+  this->SetVertexPedigreeIdArrayName(nullptr);
 }
 
 void vtkXMLTreeReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -129,7 +129,7 @@ static void vtkXMLTreeReaderProcessElement(vtkMutableDirectedGraph *tree,
       strcpy(validName, ".valid.");
       strcat(validName, name);
       vtkStringArray *stringArr = vtkArrayDownCast<vtkStringArray>(data->GetAbstractArray(name));
-      vtkBitArray *bitArr = 0;
+      vtkBitArray *bitArr = nullptr;
       if (maskArrays)
       {
         bitArr = vtkArrayDownCast<vtkBitArray>(data->GetAbstractArray(validName));
@@ -184,16 +184,16 @@ int vtkXMLTreeReader::RequestData(
     return 0;
   }
 
-  xmlDoc *doc = NULL;
+  xmlDoc *doc = nullptr;
   if (this->FileName)
   {
     // Parse the file and get the DOM
-    doc = xmlReadFile(this->FileName, NULL, 0);
+    doc = xmlReadFile(this->FileName, nullptr, 0);
   }
   else if (this->XMLString)
   {
     // Parse from memory and get the DOM
-    doc = xmlReadMemory(this->XMLString, static_cast<int>(strlen(this->XMLString)), "noname.xml", NULL, 0);
+    doc = xmlReadMemory(this->XMLString, static_cast<int>(strlen(this->XMLString)), "noname.xml", nullptr, 0);
   }
 
   // Store the XML hierarchy into a vtkMutableDirectedGraph,

@@ -32,7 +32,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkDataSetRegionSurfaceFilter : public vtkDataSe
 public:
   static vtkDataSetRegionSurfaceFilter* New();
   vtkTypeMacro(vtkDataSetRegionSurfaceFilter, vtkDataSetSurfaceFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -44,13 +44,13 @@ public:
   //@}
 
   int UnstructuredGridExecute(vtkDataSet *input,
-                                      vtkPolyData *output) VTK_OVERRIDE;
+                                      vtkPolyData *output) override;
 
   //make it clear we want all the recordOrigCellId signatures from our parent
   using vtkDataSetSurfaceFilter::RecordOrigCellId;
 
   //override one of the signatures
-  void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad) VTK_OVERRIDE;
+  void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad) override;
 
   //@{
   /**
@@ -99,25 +99,25 @@ public:
 
 protected:
   vtkDataSetRegionSurfaceFilter();
-  ~vtkDataSetRegionSurfaceFilter() VTK_OVERRIDE;
+  ~vtkDataSetRegionSurfaceFilter() override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   /// Implementation of the algorithm.
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   virtual void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                                 vtkIdType d, vtkIdType sourceId, vtkIdType faceId);
   void InsertQuadInHash(vtkIdType a, vtkIdType b, vtkIdType c,
-                                vtkIdType d, vtkIdType sourceId) VTK_OVERRIDE
+                                vtkIdType d, vtkIdType sourceId) override
   {
     this->InsertQuadInHash(a,b,c,d,sourceId, -1); //for -Woverloaded-virtual comp warning
   }
 
   void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
-                       vtkIdType sourceId, vtkIdType faceId) VTK_OVERRIDE;
+                       vtkIdType sourceId, vtkIdType faceId) override;
   virtual void InsertTriInHash(vtkIdType a, vtkIdType b, vtkIdType c,
                        vtkIdType sourceId)
   {
@@ -127,8 +127,8 @@ protected:
   virtual vtkFastGeomQuad *GetNextVisibleQuadFromHash();
 
 private:
-  vtkDataSetRegionSurfaceFilter(const vtkDataSetRegionSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetRegionSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkDataSetRegionSurfaceFilter(const vtkDataSetRegionSurfaceFilter&) = delete;
+  void operator=(const vtkDataSetRegionSurfaceFilter&) = delete;
 
   char *RegionArrayName;
   vtkIntArray    *RegionArray;

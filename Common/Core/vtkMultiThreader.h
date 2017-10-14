@@ -17,8 +17,8 @@
  * @brief   A class for performing multithreaded execution
  *
  * vtkMultithreader is a class that provides support for multithreaded
- * execution using sproc() on an SGI, or pthread_create on any platform
- * supporting POSIX threads.  This class can be used to execute a single
+ * execution using pthreads on POSIX systems, or Win32 threads on
+ * Windows.  This class can be used to execute a single
  * method on multiple threads, or to specify a method per thread.
 */
 
@@ -28,34 +28,21 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#ifdef VTK_USE_SPROC
-#include <sys/types.h> // Needed for unix implementation of sproc
-#include <unistd.h> // Needed for unix implementation of sproc
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 #include <sys/types.h> // Needed for unix implementation of pthreads
 #include <unistd.h> // Needed for unix implementation of pthreads
 #endif
 
-// If VTK_USE_SPROC is defined, then sproc() will be used to create
-// multiple threads on an SGI. If VTK_USE_PTHREADS is defined, then
-// pthread_create() will be used to create multiple threads (on
-// a sun, for example)
+// If VTK_USE_PTHREADS is defined, then pthread_create() will be
+// used to create multiple threads
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_MAX_THREADS
 
 // If VTK_USE_PTHREADS is defined, then the multithreaded
-// function is of type void *, and returns NULL
+// function is of type void *, and returns nullptr
 // Otherwise the type is void which is correct for WIN32
-// and SPROC
-
-#ifdef VTK_USE_SPROC
-typedef int vtkThreadProcessIDType;
-typedef int vtkMultiThreaderIDType;
-#endif
 
 // Defined in vtkSystemIncludes.h:
 //   VTK_THREAD_RETURN_VALUE
@@ -64,7 +51,7 @@ typedef int vtkMultiThreaderIDType;
 #ifdef VTK_USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
 typedef pthread_t vtkThreadProcessIDType;
-// #define VTK_THREAD_RETURN_VALUE  NULL
+// #define VTK_THREAD_RETURN_VALUE  nullptr
 // #define VTK_THREAD_RETURN_TYPE   void *
 typedef pthread_t vtkMultiThreaderIDType;
 #endif
@@ -93,7 +80,7 @@ public:
   static vtkMultiThreader *New();
 
   vtkTypeMacro(vtkMultiThreader,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * This is the structure that is passed to the thread that is
@@ -196,7 +183,7 @@ public:
   /**
    * Determine if a thread is still active
    */
-  int IsThreadActive( int threadID );
+  vtkTypeBool IsThreadActive( int threadID );
 
   /**
    * Get the thread identifier of the calling thread.
@@ -206,12 +193,12 @@ public:
   /**
    * Check whether two thread identifiers refer to the same thread.
    */
-  static int ThreadsEqual(vtkMultiThreaderIDType t1,
-                          vtkMultiThreaderIDType t2);
+  static vtkTypeBool ThreadsEqual(vtkMultiThreaderIDType t1,
+                                  vtkMultiThreaderIDType t2);
 
 protected:
   vtkMultiThreader();
-  ~vtkMultiThreader() VTK_OVERRIDE;
+  ~vtkMultiThreader() override;
 
   // The number of threads to use
   int                        NumberOfThreads;
@@ -237,13 +224,9 @@ protected:
   void                       *MultipleData[VTK_MAX_THREADS];
 
 private:
-  vtkMultiThreader(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
+  vtkMultiThreader(const vtkMultiThreader&) = delete;
+  void operator=(const vtkMultiThreader&) = delete;
 };
 
 #endif
-
-
-
-
 

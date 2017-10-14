@@ -152,7 +152,7 @@ vtkFLUENTReader::vtkFLUENTReader()
 {
   this->SwapBytes = 0;
   this->SetNumberOfInputPorts(0);
-  this->FileName  = NULL;
+  this->FileName  = nullptr;
   this->Points = vtkPoints::New();
   this->Triangle = vtkTriangle::New();
   this->Tetra = vtkTetra::New();
@@ -663,7 +663,7 @@ void vtkFLUENTReader::GetNumberOfCellZones()
 
   for (int i = 0; i < (int)this->Cells->value.size(); i++)
   {
-    if (this->CellZones->value.size() == 0)
+    if (this->CellZones->value.empty())
     {
       this->CellZones->value.push_back(this->Cells->value[i].zone);
     }
@@ -4254,7 +4254,7 @@ void vtkFLUENTReader::GetSpeciesVariableNames()
   {
     variables.erase( 0, startPos);
 
-    size_t endPos = variables.find(")");
+    size_t endPos = variables.find(')');
     variables.erase(endPos);
 
     std::stringstream tokenizer(variables);

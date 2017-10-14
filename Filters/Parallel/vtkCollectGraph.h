@@ -38,7 +38,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkCollectGraph : public vtkGraphAlgorithm
 public:
   static vtkCollectGraph *New();
   vtkTypeMacro(vtkCollectGraph, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -89,22 +89,22 @@ public:
 
 protected:
   vtkCollectGraph();
-  ~vtkCollectGraph() VTK_OVERRIDE;
+  ~vtkCollectGraph() override;
 
   int PassThrough;
   int OutputType;
 
   // Data generation method
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectGraph(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
+  vtkCollectGraph(const vtkCollectGraph&) = delete;
+  void operator=(const vtkCollectGraph&) = delete;
 };
 
 #endif

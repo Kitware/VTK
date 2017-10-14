@@ -56,7 +56,7 @@ bool GetMetrics(vtkRenderWindow* renwin,
     vtkNew<vtkTextProperty> tpropTmp;
     tpropTmp->ShallowCopy(tprop);
     tpropTmp->SetOrientation(0.);
-    if(! tren->GetMetrics(tpropTmp.Get(), str, m, dpi))
+    if(! tren->GetMetrics(tpropTmp, str, m, dpi))
     {
       return false;
     }
@@ -182,7 +182,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
 
   if (!data)
   {
-    vtkErrorMacro("TransformFeedback buffer is NULL.");
+    vtkErrorMacro("TransformFeedback buffer is nullptr.");
     return;
   }
 
@@ -270,7 +270,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
     {
       case GL_POINTS:
         gl2psAddPolyPrimitive(GL2PS_POINT, 1, verts, 0, 0.f, 0.f, 0xffff, 1,
-                              pointSize, 0);
+                              pointSize, 0, 0, 0);
         break;
 
       case GL_LINES:
@@ -278,7 +278,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         if (curVert == 0)
         {
           gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0.f, 0.f,
-                                this->LineStipple, 1, lineWidth, 0);
+                                this->LineStipple, 1, lineWidth, 0, 0, 0);
         }
         break;
 
@@ -287,7 +287,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
         if (curVert == 0)
         {
           gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, verts, 0, 0.f, 0.f, 0xffff,
-                                1, 1, 0);
+                                1, 1, 0, 0, 0);
         }
         break;
 
@@ -313,7 +313,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
   }
 
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
-  if (tren == NULL)
+  if (tren == nullptr)
   {
     vtkErrorMacro("vtkTextRenderer unavailable.");
     return;
@@ -357,9 +357,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
       bgVerts[4].xyz[2] = bgVerts[0].xyz[2];
 
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts,     0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, 0, 0, 0);
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts + 2, 0, 0, 0, 0xffff, 0,
-                            0, 0);
+                            0, 0, 0, 0);
     }
   }
 
@@ -431,7 +431,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
   {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
-    tren->StringToPath(tprop, str, path.GetPointer(), dpi);
+    tren->StringToPath(tprop, str, path, dpi);
     // Get color
     double rgbd[3];
     tprop->GetColor(rgbd[0], rgbd[1], rgbd[2]);
@@ -444,7 +444,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     double devicePos[3] = {pos[0], pos[1], pos[2]};
     this->ProjectPoint(devicePos, ren);
 
-    this->DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL, 0.0, -1.f,
+    this->DrawPath(path, pos, devicePos, rgba, nullptr, 0.0, -1.f,
                    (std::string("Pathified string: ") + str).c_str());
   }
 }
@@ -493,8 +493,8 @@ void vtkOpenGLGL2PSHelperImpl::Draw3DPath(
   vtkNew<vtkPath> projPath;
   projPath->DeepCopy(path);
   this->ProjectPoints(projPath->GetPoints(), ren, actorMatrix);
-  this->DrawPath(projPath.GetPointer(), rasterPos, translation,
-                 actorColor, NULL, 0.0, -1.f, label);
+  this->DrawPath(projPath, rasterPos, translation,
+                 actorColor, nullptr, 0.0, -1.f, label);
 }
 
 //------------------------------------------------------------------------------
@@ -746,11 +746,11 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoint(double point[3],
   double halfSize[2];
   double zFact[2];
   vtkOpenGLGL2PSHelperImpl::GetTransformParameters(
-        ren, actorMatrix, xform.GetPointer(), vpOrigin, halfSize, zFact);
+        ren, actorMatrix, xform, vpOrigin, halfSize, zFact);
 
   double tmp[4] = { point[0], point[1], point[2], 1. };
   vtkOpenGLGL2PSHelperImpl::ProjectPoint(
-        tmp, xform.GetPointer(), vpOrigin, halfSize[0], halfSize[1],
+        tmp, xform, vpOrigin, halfSize[0], halfSize[1],
         zFact[0], zFact[1]);
 }
 
@@ -783,7 +783,7 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoints(vtkPoints *points,
   double halfSize[2];
   double zFact[2];
   vtkOpenGLGL2PSHelperImpl::GetTransformParameters(
-        ren, actorMatrix, xform.GetPointer(), vpOrigin, halfSize, zFact);
+        ren, actorMatrix, xform, vpOrigin, halfSize, zFact);
 
   double point[4];
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
@@ -791,7 +791,7 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoints(vtkPoints *points,
     points->GetPoint(i, point);
     point[3] = 1.0;
     vtkOpenGLGL2PSHelperImpl::ProjectPoint(
-          point, xform.GetPointer(), vpOrigin, halfSize[0], halfSize[1],
+          point, xform, vpOrigin, halfSize[0], halfSize[1],
           zFact[0], zFact[1]);
     points->SetPoint(i, point);
   }
@@ -823,7 +823,7 @@ inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoints(
   double halfSize[2];
   double zFact[2];
   vtkOpenGLGL2PSHelperImpl::GetTransformParameters(
-        ren, actorMatrix, xform.GetPointer(), vpOrigin, halfSize, zFact);
+        ren, actorMatrix, xform, vpOrigin, halfSize, zFact);
 
   xform->Invert();
 
@@ -834,7 +834,7 @@ inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoints(
     std::copy(points3D + (i * 3), points3D + ((i + 1) * 3), point);
     point[3] = 1.0;
     vtkOpenGLGL2PSHelperImpl::UnprojectPoint(
-          point, xform.GetPointer(), vpOrigin, halfSize[0], halfSize[1],
+          point, xform, vpOrigin, halfSize[0], halfSize[1],
           zFact[0], zFact[1]);
     std::copy(point, point + 3, points3D + (i * 3));
   }
@@ -983,7 +983,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -1140,7 +1140,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -1300,5 +1300,5 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
   gl2psRasterPos.rgba[2] = 0.f;
   gl2psRasterPos.rgba[3] = 0.f;
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str(), NULL);
+  gl2psSpecial(gl2psGetFileFormat(), out.str().c_str());
 }

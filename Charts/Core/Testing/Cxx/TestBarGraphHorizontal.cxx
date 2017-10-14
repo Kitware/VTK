@@ -41,26 +41,26 @@ int TestBarGraphHorizontal(int , char * [])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(400, 300);
   vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
 
   vtkNew<vtkIntArray> arrMonth;
   arrMonth->SetName("Month");
-  table->AddColumn(arrMonth.GetPointer());
+  table->AddColumn(arrMonth);
 
   vtkNew<vtkIntArray> arr2008;
   arr2008->SetName("2008");
-  table->AddColumn(arr2008.GetPointer());
+  table->AddColumn(arr2008);
 
   vtkNew<vtkIntArray> arr2009;
   arr2009->SetName("2009");
-  table->AddColumn(arr2009.GetPointer());
+  table->AddColumn(arr2009);
 
   vtkNew<vtkIntArray> arr2010;
   arr2010->SetName("2010");
-  table->AddColumn(arr2010.GetPointer());
+  table->AddColumn(arr2010);
 
   table->SetNumberOfRows(12);
   for (int i = 0; i < 12; i++)
@@ -72,24 +72,24 @@ int TestBarGraphHorizontal(int , char * [])
   }
 
   // Add multiple bar plots, setting the colors etc
-  vtkPlot *plot = 0;
-  vtkPlotBar* barPlot = 0;
+  vtkPlot *plot = nullptr;
+  vtkPlotBar* barPlot = nullptr;
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInputData(table.GetPointer(), 0, 1);
+  barPlot->SetInputData(table, 0, 1);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 255, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInputData(table.GetPointer(), 0, 2);
+  barPlot->SetInputData(table, 0, 2);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(255, 0, 0, 255);
 
   plot = chart->AddPlot(vtkChart::BAR);
   barPlot = vtkPlotBar::SafeDownCast(plot);
-  barPlot->SetInputData(table.GetPointer(), 0, 3);
+  barPlot->SetInputData(table, 0, 3);
   barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   barPlot->SetColor(0, 0, 255, 255);
 

@@ -37,6 +37,10 @@ vtkSMPWarpVector::vtkSMPWarpVector()
   // by default process active point vectors
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
+
+  VTK_LEGACY_BODY(
+    vtkSMPWarpVector::vtkSMPWarpVector,
+    "VTK 8.1");
 }
 
 //----------------------------------------------------------------------------
@@ -143,7 +147,7 @@ int vtkSMPWarpVector::RequestData(
   // First, copy the input to the output as a starting point
   output->CopyStructure( input );
 
-  if (input == NULL || input->GetPoints() == NULL)
+  if (input == nullptr || input->GetPoints() == nullptr)
   {
     return 1;
   }

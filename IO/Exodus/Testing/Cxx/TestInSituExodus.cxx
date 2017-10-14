@@ -108,7 +108,7 @@ bool readExodusCopy(std::string fileName, vtkMultiBlockDataSet *mbds)
 
 vtkUnstructuredGridBase* getConnectivityBlock(vtkMultiBlockDataSet *mbds)
 {
-  vtkUnstructuredGridBase *result = NULL;
+  vtkUnstructuredGridBase *result = nullptr;
    if (vtkDataObject *tmpDO = mbds->GetBlock(0))
    {
      if (vtkMultiBlockDataSet *tmpMBDS =
@@ -186,7 +186,7 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
     vtkDataArray *testArray = testPointData->GetArray(arrayIndex);
     const char *arrayName = testArray->GetName();
     vtkDataArray *refArray = refPointData->GetArray(arrayName);
-    if (refArray == NULL)
+    if (refArray == nullptr)
     {
 #ifdef GLOM_WORKAROUND
       cerr << "Warning: "
@@ -272,8 +272,8 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
        ++cellId, refCellIter->GoToNextCell(), testCellIter->GoToNextCell())
   {
     // Lookup cells in iterators:
-    refCellIter->GetCell(refCell.GetPointer());
-    testCellIter->GetCell(testCell.GetPointer());
+    refCellIter->GetCell(refCell);
+    testCellIter->GetCell(testCell);
 
     if (refCell->GetCellType() != testCell->GetCellType())
     {
@@ -345,7 +345,7 @@ bool compareDataSets(vtkDataSet *ref, vtkDataSet *test)
     vtkDataArray *testArray = testCellData->GetArray(arrayIndex);
     const char *arrayName = testArray->GetName();
     vtkDataArray *refArray = refCellData->GetArray(arrayName);
-    if (refArray == NULL)
+    if (refArray == nullptr)
     {
 #ifdef GLOM_WORKAROUND
       cerr << "Warning: "
@@ -430,8 +430,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testScalars->SetExodusScalarArrays(std::vector<double*>(1, testScalarArray),
                                      numPoints);
 
-  ref->GetPointData()->SetScalars(refScalars.GetPointer());
-  test->GetPointData()->SetScalars(testScalars.GetPointer());
+  ref->GetPointData()->SetScalars(refScalars);
+  test->GetPointData()->SetScalars(testScalars);
 
   // And some fake normals
   vtkNew<vtkFloatArray> refNormals;
@@ -469,8 +469,8 @@ void populateAttributes(vtkDataSet *ref, vtkDataSet *test)
   testNormalVector.push_back(testNormalArrayZ);
   testNormals->SetExodusScalarArrays(testNormalVector, numPoints);
 
-  ref->GetPointData()->SetNormals(refNormals.GetPointer());
-  test->GetPointData()->SetNormals(testNormals.GetPointer());
+  ref->GetPointData()->SetNormals(refNormals);
+  test->GetPointData()->SetNormals(testNormals);
 }
 
 void testContourFilter(vtkUnstructuredGridBase *input,
@@ -485,7 +485,7 @@ void testContourFilter(vtkUnstructuredGridBase *input,
   contour->Update();
   timer->StopTimer();
   output = contour->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -501,7 +501,7 @@ void testDataSetSurfaceFilter(vtkUnstructuredGridBase *input,
   extractSurface->Update();
   timer->StopTimer();
   output = extractSurface->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -519,13 +519,13 @@ void testCutterFilter(vtkUnstructuredGridBase *input,
   // Cutter (slice, polydata output)
   vtkNew<vtkCutter> cutter;
   cutter->SetInputData(input);
-  cutter->SetCutFunction(slicePlane.GetPointer());
+  cutter->SetCutFunction(slicePlane);
   cutter->SetGenerateTriangles(0);
   timer->StartTimer();
   cutter->Update();
   timer->StopTimer();
   output = cutter->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -542,7 +542,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase *input,
 
   vtkNew<vtkExtractGeometry> extract;
   extract->SetInputData(input);
-  extract->SetImplicitFunction(slicePlane.GetPointer());
+  extract->SetImplicitFunction(slicePlane);
   extract->SetExtractInside(1);
   extract->SetExtractOnlyBoundaryCells(1);
   extract->SetExtractBoundaryCells(1);
@@ -550,7 +550,7 @@ void testExtractGeometryFilter(vtkUnstructuredGridBase *input,
   extract->Update();
   timer->StopTimer();
   output = extract->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -575,7 +575,7 @@ void testGlyph3DFilter(vtkUnstructuredGridBase *input,
   glypher->Update();
   timer->StopTimer();
   output = glypher->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -590,7 +590,7 @@ void testWarpScalarFilter(vtkUnstructuredGridBase *input,
   warpScalar->Update();
   timer->StopTimer();
   output = warpScalar->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -606,7 +606,7 @@ void testWarpVectorFilter(vtkUnstructuredGridBase *input,
   warpVector->Update();
   timer->StopTimer();
   output = warpVector->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -626,7 +626,7 @@ void testPipeline(vtkUnstructuredGridBase *input, vtkDataSet *&output,
   warpVector->Update();
   timer->StopTimer();
   output = warpVector->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
   time = timer->GetElapsedTime();
 }
 
@@ -660,9 +660,9 @@ bool validateFilterOutput(const std::string &name,
   cout << name << " produced " << refOutput->GetNumberOfPoints()
        << " points and " << refOutput->GetNumberOfCells() << " cells." << endl;
   refOutput->Delete();
-  refOutput = NULL;
+  refOutput = nullptr;
   testOutput->Delete();
-  testOutput = NULL;
+  testOutput = nullptr;
   return true;
 }
 
@@ -750,14 +750,14 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   int numBenchmarks = 1;
 
   // Temporary variables for outputs.
-  vtkDataSet *refOutput(NULL);
-  vtkDataSet *testOutput(NULL);
+  vtkDataSet *refOutput(nullptr);
+  vtkDataSet *testOutput(nullptr);
 
 #ifdef PROFILE
   // Profiling, multirun:
   std::vector<double> profileTimes;
   doBenchmark(PROFILE(test, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               profileTimes, numBenchmarks);
   return true;
 #endif
@@ -767,10 +767,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> benchmarkRefTimes;
   std::vector<double> benchmarkTestTimes;
   doBenchmark(BENCHMARK(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               benchmarkRefTimes, numBenchmarks);
   doBenchmark(BENCHMARK(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               benchmarkTestTimes, numBenchmarks);
   if (!validateFilterOutput("Benchmark:", refOutput, testOutput))
   {
@@ -788,10 +788,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> contourRefTimes;
   std::vector<double> contourTestTimes;
   doBenchmark(testContourFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               contourRefTimes, numBenchmarks);
   doBenchmark(testContourFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               contourTestTimes, numBenchmarks);
   if (!validateFilterOutput("Contour filter", refOutput, testOutput))
   {
@@ -803,10 +803,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> dataSetSurfaceRefTimes;
   std::vector<double> dataSetSurfaceTestTimes;
   doBenchmark(testDataSetSurfaceFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               dataSetSurfaceRefTimes, numBenchmarks);
   doBenchmark(testDataSetSurfaceFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               dataSetSurfaceTestTimes, numBenchmarks);
   if (!validateFilterOutput("Data set surface filter", refOutput, testOutput))
   {
@@ -819,10 +819,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> cutterRefTimes;
   std::vector<double> cutterTestTimes;
   doBenchmark(testCutterFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               cutterRefTimes, numBenchmarks);
   doBenchmark(testCutterFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               cutterTestTimes, numBenchmarks);
   if (!validateFilterOutput("Cutter", refOutput, testOutput))
   {
@@ -834,10 +834,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> extractGeometryRefTimes;
   std::vector<double> extractGeometryTestTimes;
   doBenchmark(testExtractGeometryFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               extractGeometryRefTimes, numBenchmarks);
   doBenchmark(testExtractGeometryFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               extractGeometryTestTimes, numBenchmarks);
   if (!validateFilterOutput("Extract geometry", refOutput, testOutput))
   {
@@ -850,10 +850,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> glyph3dRefTimes;
   std::vector<double> glyph3dTestTimes;
   doBenchmark(testGlyph3DFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               glyph3dRefTimes, numBenchmarks);
   doBenchmark(testGlyph3DFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               glyph3dTestTimes, numBenchmarks);
   if (!validateFilterOutput("Glyph3D", refOutput, testOutput))
   {
@@ -865,10 +865,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> warpScalarRefTimes;
   std::vector<double> warpScalarTestTimes;
   doBenchmark(testWarpScalarFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               warpScalarRefTimes, numBenchmarks);
   doBenchmark(testWarpScalarFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               warpScalarTestTimes, numBenchmarks);
   if (!validateFilterOutput("Warp scalar", refOutput, testOutput))
   {
@@ -880,10 +880,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> warpVectorRefTimes;
   std::vector<double> warpVectorTestTimes;
   doBenchmark(testWarpVectorFilter(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               warpVectorRefTimes, numBenchmarks);
   doBenchmark(testWarpVectorFilter(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               warpVectorTestTimes, numBenchmarks);
   if (!validateFilterOutput("Warp vector", refOutput, testOutput))
   {
@@ -895,10 +895,10 @@ bool testFilters(vtkUnstructuredGridBase *ref,
   std::vector<double> pipelineRefTimes;
   std::vector<double> pipelineTestTimes;
   doBenchmark(testPipeline(ref, refOutput, benchmarkTime),
-              refOutput->Delete(); refOutput = NULL,
+              refOutput->Delete(); refOutput = nullptr,
               pipelineRefTimes, numBenchmarks);
   doBenchmark(testPipeline(test, testOutput, benchmarkTime),
-              testOutput->Delete(); testOutput = NULL,
+              testOutput->Delete(); testOutput = nullptr,
               pipelineTestTimes, numBenchmarks);
   // Ensure that the mapped test produced a mapped output:
   if (!testOutput->IsA("vtkCPExodusIIElementBlock"))
@@ -926,7 +926,7 @@ bool testCopies(vtkUnstructuredGridBase *test)
 
   // Deep copy: test --> vtk
   vtkTarget->DeepCopy(test);
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
+  if (!compareDataSets(test, vtkTarget))
   {
     FAILB("Deep copy insitu --> VTK failed.")
   }
@@ -934,7 +934,7 @@ bool testCopies(vtkUnstructuredGridBase *test)
 
   // Shallow copy: test --> vtk
   vtkTarget->ShallowCopy(test); // Should really deep copy.
-  if (!compareDataSets(test, vtkTarget.GetPointer()))
+  if (!compareDataSets(test, vtkTarget))
   {
     FAILB("Shallow copy insitu --> VTK failed.")
   }
@@ -984,8 +984,8 @@ int TestInSituExodus(int argc, char *argv[])
 
   // Read reference copy
   vtkNew<vtkMultiBlockDataSet> refMBDS;
-  readExodusCopy(fileName, refMBDS.GetPointer());
-  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS.GetPointer()));
+  readExodusCopy(fileName, refMBDS);
+  vtkUnstructuredGridBase *refGrid(getConnectivityBlock(refMBDS));
   if (!refGrid)
   {
     FAIL("Error retrieving reference element block container.");

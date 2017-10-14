@@ -54,12 +54,12 @@ vtkStandardNewMacro(vtkADIOSWriter);
 
 //----------------------------------------------------------------------------
 vtkADIOSWriter::vtkADIOSWriter()
-: FileName(NULL),
+: FileName(nullptr),
   TransportMethod(static_cast<int>(ADIOS::TransportMethod_POSIX)),
-  TransportMethodArguments(NULL),
+  TransportMethodArguments(nullptr),
   Transform(static_cast<int>(ADIOS::Transform_NONE)),
-  CurrentStep(-1), Controller(NULL),
-  Writer(NULL),
+  CurrentStep(-1), Controller(nullptr),
+  Writer(nullptr),
   NumberOfPieces(-1), RequestPiece(-1), NumberOfGhostLevels(-1),
   WriteAllTimeSteps(false), TimeSteps(), CurrentTimeStepIndex(-1)
 {
@@ -73,9 +73,9 @@ vtkADIOSWriter::vtkADIOSWriter()
 vtkADIOSWriter::~vtkADIOSWriter()
 {
   delete this->Writer;
-  this->SetFileName(NULL);
-  this->SetTransportMethodArguments(NULL);
-  this->SetController(NULL);
+  this->SetFileName(nullptr);
+  this->SetTransportMethodArguments(nullptr);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------

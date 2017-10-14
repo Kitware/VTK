@@ -31,18 +31,18 @@
  * \code
  *
  *  public:
- *   void Register(vtkObjectBase* o) VTK_OVERRIDE
+ *   void Register(vtkObjectBase* o) override
  *     {
  *     this->RegisterInternal(o, true);
  *     }
- *   void UnRegister(vtkObjectBase* o) VTK_OVERRIDE
+ *   void UnRegister(vtkObjectBase* o) override
  *     {
  *     this->UnRegisterInternal(o, true);
  *     }
  *
  *  protected:
  *
- *   void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE
+ *   void ReportReferences(vtkGarbageCollector* collector) override
  *     {
  *     // Report references held by this object that may be in a loop.
  *     this->Superclass::ReportReferences(collector);
@@ -54,10 +54,10 @@
  * It is important that the reference be reported using the real
  * pointer or smart pointer instance that holds the reference.  When
  * collecting the garbage collector will actually set this pointer to
- * NULL.  The destructor of the class should be written to deal with
+ * nullptr.  The destructor of the class should be written to deal with
  * this.  It is also expected that an invariant is maintained for any
  * reference that is reported.  The variable holding the reference
- * must always either be NULL or refer to a fully constructed valid
+ * must always either be nullptr or refer to a fully constructed valid
  * object.  Therefore code like "this->Object->UnRegister(this)" must
  * be avoided if "this->Object" is a reported reference because it
  * is possible that the object is deleted before UnRegister returns
@@ -97,7 +97,7 @@ class VTKCOMMONCORE_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGarbageCollector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkGarbageCollector* New();
 
   /**
@@ -149,7 +149,7 @@ public:
 
 protected:
   vtkGarbageCollector();
-  ~vtkGarbageCollector() VTK_OVERRIDE;
+  ~vtkGarbageCollector() override;
 
 private:
 
@@ -190,8 +190,8 @@ private:
                                     const char*);
 
 private:
-  vtkGarbageCollector(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
+  vtkGarbageCollector(const vtkGarbageCollector&) = delete;
+  void operator=(const vtkGarbageCollector&) = delete;
 };
 
 class vtkSmartPointerBase;

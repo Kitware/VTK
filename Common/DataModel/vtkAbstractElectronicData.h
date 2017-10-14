@@ -31,7 +31,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAbstractElectronicData : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAbstractElectronicData,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the number of molecular orbitals available.
@@ -99,7 +99,7 @@ public:
   /**
    * Deep copies the data object into this.
    */
-  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *obj) override;
 
   //@{
   /**
@@ -111,13 +111,13 @@ public:
 
 protected:
   vtkAbstractElectronicData();
-  ~vtkAbstractElectronicData() VTK_OVERRIDE;
+  ~vtkAbstractElectronicData() override;
 
   double Padding;
 
 private:
-  vtkAbstractElectronicData(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
+  vtkAbstractElectronicData(const vtkAbstractElectronicData&) = delete;
+  void operator=(const vtkAbstractElectronicData&) = delete;
 };
 
 #endif

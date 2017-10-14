@@ -20,7 +20,7 @@
  * on the Microsoft Windows platform. The data type of the file is
  * unsigned char regardless of the input type.
  * @sa
- * vtkGenericMovieWriter vtkMPEG2Writer
+ * vtkGenericMovieWriter
 */
 
 #ifndef vtkAVIWriter_h
@@ -113,8 +113,8 @@ protected:
   char *CompressorFourCC;
 
 private:
-  vtkAVIWriter(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
+  vtkAVIWriter(const vtkAVIWriter&) = delete;
+  void operator=(const vtkAVIWriter&) = delete;
 };
 
 #endif

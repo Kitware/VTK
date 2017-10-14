@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkProgressObserver : public vtkObject
 public:
   static vtkProgressObserver *New();
   vtkTypeMacro(vtkProgressObserver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The default behavior is to update the Progress data member
@@ -55,13 +55,13 @@ public:
 
 protected:
   vtkProgressObserver();
-  ~vtkProgressObserver() VTK_OVERRIDE;
+  ~vtkProgressObserver() override;
 
   double Progress;
 
 private:
-  vtkProgressObserver(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
+  vtkProgressObserver(const vtkProgressObserver&) = delete;
+  void operator=(const vtkProgressObserver&) = delete;
 };
 
 #endif

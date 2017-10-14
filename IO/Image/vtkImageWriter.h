@@ -34,7 +34,7 @@ class VTKIOIMAGE_EXPORT vtkImageWriter : public vtkImageAlgorithm
 public:
   static vtkImageWriter *New();
   vtkTypeMacro(vtkImageWriter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -58,7 +58,7 @@ public:
 
   //@{
   /**
-   * The sprintf format used to build filename from FilePrefix and number.
+   * The snprintf format used to build filename from FilePrefix and number.
    */
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
@@ -88,7 +88,7 @@ public:
 
 protected:
   vtkImageWriter();
-  ~vtkImageWriter() VTK_OVERRIDE;
+  ~vtkImageWriter() override;
 
   int FileDimensionality;
   char *FilePrefix;
@@ -97,6 +97,8 @@ protected:
   int FileNumber;
   int FileLowerLeft;
   char *InternalFileName;
+  size_t InternalFileNameSize;
+
   // Required for subclasses that need to prevent the writer
   // from touching the file system. The getter/setter are only
   // available in these subclasses.
@@ -120,15 +122,15 @@ protected:
   // This is the method you should override.
   int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   int MinimumFileNumber;
   int MaximumFileNumber;
   int FilesDeleted;
 
 private:
-  vtkImageWriter(const vtkImageWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageWriter&) VTK_DELETE_FUNCTION;
+  vtkImageWriter(const vtkImageWriter&) = delete;
+  void operator=(const vtkImageWriter&) = delete;
 };
 
 #endif

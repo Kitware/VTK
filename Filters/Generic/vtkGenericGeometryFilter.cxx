@@ -67,7 +67,7 @@ vtkGenericGeometryFilter::vtkGenericGeometryFilter()
   this->ExtentClipping = 0;
 
   this->Merging = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->InternalPD = vtkPointData::New();
 
   this->PassThroughCellIds = 0;
@@ -78,7 +78,7 @@ vtkGenericGeometryFilter::~vtkGenericGeometryFilter()
   if ( this->Locator )
   {
     this->Locator->UnRegister(this);
-    this->Locator = NULL;
+    this->Locator = nullptr;
   }
   this->InternalPD->Delete();
 }
@@ -165,7 +165,7 @@ int vtkGenericGeometryFilter::RequestData(
   (!this->ExtentClipping) )
   {
     allVisible = 1;
-    cellVis = NULL;
+    cellVis = nullptr;
   }
   else
   {
@@ -269,7 +269,7 @@ int vtkGenericGeometryFilter::RequestData(
       attributeArray->SetName(attribute->GetName());
       this->InternalPD->AddArray(attributeArray);
       attributeArray->Delete();
-      if(this->InternalPD->GetAttribute(attributeType)==0)
+      if(this->InternalPD->GetAttribute(attributeType)==nullptr)
       {
         this->InternalPD->SetActiveAttribute(this->InternalPD->GetNumberOfArrays()-1,attributeType);
       }
@@ -284,16 +284,16 @@ int vtkGenericGeometryFilter::RequestData(
     dsAttributes->AddArray(attributeArray);
     attributeArray->Delete();
 
-    if(dsAttributes->GetAttribute(attributeType)==0)
+    if(dsAttributes->GetAttribute(attributeType)==nullptr)
     {
       dsAttributes->SetActiveAttribute(dsAttributes->GetNumberOfArrays()-1,attributeType);
     }
   }
 
-  vtkIncrementalPointLocator *locator = 0;
+  vtkIncrementalPointLocator *locator = nullptr;
   if ( this->Merging )
   {
-    if ( this->Locator == NULL )
+    if ( this->Locator == nullptr )
     {
       this->CreateDefaultLocator();
     }
@@ -311,7 +311,7 @@ int vtkGenericGeometryFilter::RequestData(
 
   input->GetTessellator()->InitErrorMetrics(input);
 
-  vtkIdTypeArray *originalCellIds = NULL;
+  vtkIdTypeArray *originalCellIds = nullptr;
   if (this->PassThroughCellIds)
   {
     originalCellIds = vtkIdTypeArray::New();
@@ -345,7 +345,7 @@ int vtkGenericGeometryFilter::RequestData(
             {
               cell->Tessellate(input->GetAttributes(), input->GetTessellator(),
                                newPts, locator,cellArray, this->InternalPD,
-                               outputPD, outputCD,0); //newScalars );
+                               outputPD, outputCD,nullptr); //newScalars );
 
             }
           break;
@@ -382,7 +382,7 @@ int vtkGenericGeometryFilter::RequestData(
   {
     outputCD->AddArray(originalCellIds);
     originalCellIds->Delete();
-    originalCellIds = NULL;
+    originalCellIds = nullptr;
   }
 
   cellIt->Delete();
@@ -427,7 +427,7 @@ int vtkGenericGeometryFilter::FillInputPortInformation(int port,
 // default an instance of vtkMergePoints is used.
 void vtkGenericGeometryFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
   }
@@ -473,7 +473,7 @@ vtkMTimeType vtkGenericGeometryFilter::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

@@ -49,12 +49,12 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
   // If the current system only supports the legacy peeler, skip this test:
   vtkNew<vtkRenderWindow> renWin;
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkRenderer> ren;
   renWin->Render(); // Create the context
-  renWin->AddRenderer(ren.GetPointer());
-  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren.Get());
+  renWin->AddRenderer(ren);
+  vtkOpenGLRenderer *oglRen = vtkOpenGLRenderer::SafeDownCast(ren);
   assert(oglRen); // This test should only be enabled for OGL2 backend.
   // This will print details about why depth peeling is unsupported:
   oglRen->SetDebug(1);
@@ -65,7 +65,7 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
     std::cerr << "Skipping test; volume peeling not supported.\n";
     return VTK_SKIP_RETURN_CODE;
   }
-  renWin->RemoveRenderer(ren.Get());
+  renWin->RemoveRenderer(ren);
 
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -111,8 +111,8 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
   opacity->AddPoint(255.0, 0.8);
 
   vtkNew<vtkVolumeProperty> property;
-  property->SetScalarOpacity(opacity.GetPointer());
-  property->SetColor(color.GetPointer());
+  property->SetScalarOpacity(opacity);
+  property->SetColor(color);
 
   vtkNew<vtkVolume> volume[4];
 
@@ -143,16 +143,16 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
 
   vtkNew<vtkPolyDataMapper> sphereMapper;
   sphereMapper->SetInputConnection(sphereSource->GetOutputPort());
-  sphereActor->SetMapper(sphereMapper.GetPointer());
+  sphereActor->SetMapper(sphereMapper);
 
   for (int i = 0; i < 4; ++i)
   {
-    mapper[i]->SetInputData(image.GetPointer());
-    volume[i]->SetMapper(mapper[i].GetPointer());
-    volume[i]->SetProperty(property.GetPointer());
+    mapper[i]->SetInputData(image);
+    volume[i]->SetMapper(mapper[i]);
+    volume[i]->SetProperty(property);
 
-    renderer[i]->AddVolume(volume[i].GetPointer());
-    renderer[i]->AddActor(sphereActor.GetPointer());
+    renderer[i]->AddVolume(volume[i]);
+    renderer[i]->AddActor(sphereActor);
 
     renderer[i]->SetUseDepthPeeling(1);
     renderer[i]->SetOcclusionRatio(0.0);
@@ -162,12 +162,12 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char *argv[])
     renderer[i]->GetActiveCamera()->Yaw(20.0);
     renderer[i]->ResetCamera();
 
-    renWin->AddRenderer(renderer[i].GetPointer());
+    renWin->AddRenderer(renderer[i]);
   }
 
   renWin->Render();
 
-  int retVal = vtkTesting::Test(argc, argv, renWin.GetPointer(), 15);
+  int retVal = vtkTesting::Test(argc, argv, renWin, 15);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

@@ -63,14 +63,14 @@ vtkCxxSetObjectMacro(vtkQtTreeRingLabelMapper,LabelTextProperty,vtkTextProperty)
 
 vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 {
-  this->Input = NULL;
-  this->Renderer = NULL;
+  this->Input = nullptr;
+  this->Renderer = nullptr;
 
   this->VCoord = vtkCoordinate::New();
 
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
-  this->FieldDataName = NULL;
+  this->FieldDataName = nullptr;
 
   this->TextRotationArrayName = 0;
   this->SetTextRotationArrayName("TextRotation");
@@ -116,10 +116,10 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
 
 vtkQtTreeRingLabelMapper::~vtkQtTreeRingLabelMapper()
 {
-  this->SetRenderer(NULL);
+  this->SetRenderer(nullptr);
 
-  this->SetLabelTextProperty(NULL);
-  this->SetFieldDataName(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetFieldDataName(nullptr);
 
   this->SetTextRotationArrayName( 0 );
 
@@ -207,10 +207,10 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
     // figure out what to label, and if we can label it
-    abstractData = NULL;
-    numericData = NULL;
-    stringData = NULL;
-    uStringData = NULL;
+    abstractData = nullptr;
+    numericData = nullptr;
+    stringData = nullptr;
+    uStringData = nullptr;
     switch (this->LabelMode)
     {
       case VTK_LABEL_SCALARS:
@@ -246,7 +246,7 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       case VTK_LABEL_FIELD_DATA:
       {
       int arrayNum;
-      if (this->FieldDataName != NULL)
+      if (this->FieldDataName != nullptr)
       {
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
       }
@@ -343,7 +343,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     }
 
     //check to see if the text will fit in the sector
-    this->GetVertexLabel(i, numericData, stringData, uStringData, activeComp, numComps, string);
+    this->GetVertexLabel(i, numericData, stringData, uStringData, activeComp, numComps, string, sizeof(string));
     QString ResultString(string);
 
     double x[3];
@@ -543,7 +543,7 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
   newDim[1] = height;
 
   // We are done with the coordinate, so release the viewport
-  this->VCoord->SetViewport(NULL);
+  this->VCoord->SetViewport(nullptr);
 
   return return_value;
 }
@@ -577,7 +577,7 @@ void vtkQtTreeRingLabelMapper::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkQtTreeRingLabelMapper::GetVertexLabel(
   vtkIdType vertex, vtkDataArray *numericData, vtkStringArray *stringData, vtkUnicodeStringArray* uStringData,
-  int activeComp, int numComp, char *string)
+  int activeComp, int numComp, char *string, size_t stringSize)
 {
   char format[1024];
   double val;
@@ -594,13 +594,13 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(
           string[0] = '\0';
           return;
         }
-        sprintf(string, this->LabelFormat,
-                static_cast<char>(numericData->GetComponent(vertex, activeComp)));
+        snprintf(string, stringSize, this->LabelFormat,
+                 static_cast<char>(numericData->GetComponent(vertex, activeComp)));
       }
       else
       {
-        sprintf(string, this->LabelFormat,
-                numericData->GetComponent(vertex, activeComp));
+        snprintf(string, stringSize, this->LabelFormat,
+                 numericData->GetComponent(vertex, activeComp));
       }
     }
     else
@@ -608,11 +608,11 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(
       strcpy(format, "("); strcat(format, this->LabelFormat);
       for (j=0; j<(numComp-1); j++)
       {
-        sprintf(string, format, numericData->GetComponent(vertex, j));
+        snprintf(string, stringSize, format, numericData->GetComponent(vertex, j));
         strcpy(format,string); strcat(format,", ");
         strcat(format, this->LabelFormat);
       }
-      sprintf(string, format, numericData->GetComponent(vertex, numComp-1));
+      snprintf(string, stringSize, format, numericData->GetComponent(vertex, numComp-1));
       strcat(string, ")");
     }
   }
@@ -624,8 +624,8 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(
       string[0] = '\0';
       return;
     }
-    sprintf(string, this->LabelFormat,
-            stringData->GetValue(vertex).c_str());
+    snprintf(string, stringSize, this->LabelFormat,
+             stringData->GetValue(vertex).c_str());
   }
   else if (uStringData)// rendering unicode string data
   {
@@ -635,12 +635,12 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(
       string[0] = '\0';
       return;
     }
-    sprintf(string, this->LabelFormat, uStringData->GetValue(vertex).utf8_str());
+    snprintf(string, stringSize, this->LabelFormat, uStringData->GetValue(vertex).utf8_str());
   }
   else // Use the vertex id
   {
     val = static_cast<double>(vertex);
-    sprintf(string, this->LabelFormat, val);
+    snprintf(string, stringSize, this->LabelFormat, val);
   }
 }
 

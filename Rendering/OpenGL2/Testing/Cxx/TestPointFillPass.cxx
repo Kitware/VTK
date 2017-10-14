@@ -43,9 +43,9 @@ int TestPointFillPass(int argc, char* argv[])
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   renWin->SetAlphaBitPlanes(1);
-  iren->SetRenderWindow(renWin.Get());
+  iren->SetRenderWindow(renWin);
   vtkNew<vtkRenderer> renderer;
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
 
   vtkNew<vtkPolyDataMapper> mapper;
   const char* fileName =
@@ -59,7 +59,7 @@ int TestPointFillPass(int argc, char* argv[])
   // create three dragons
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(1.0, 0.0, 0.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.8, 0.3);
   actor->GetProperty()->SetSpecular(0.0);
@@ -67,12 +67,12 @@ int TestPointFillPass(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.3);
   actor->SetPosition(-0.1,0.0,-0.1);
   actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(0.2, 1.0, 0.8);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
@@ -81,12 +81,12 @@ int TestPointFillPass(int argc, char* argv[])
   actor->GetProperty()->SetAmbient(0.1);
   actor->GetProperty()->SetSpecularPower(10.0);
   actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   {
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
   actor->GetProperty()->SetDiffuseColor(0.5, 0.65, 1.0);
   actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
   actor->GetProperty()->SetSpecular(0.7);
@@ -94,7 +94,7 @@ int TestPointFillPass(int argc, char* argv[])
   actor->GetProperty()->SetSpecularPower(60.0);
   actor->SetPosition(0.1,0.0,0.1);
   actor->GetProperty()->SetRepresentationToPoints();
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   }
 
   renderer->SetBackground(0.8,0.8,0.9);
@@ -103,18 +103,18 @@ int TestPointFillPass(int argc, char* argv[])
   //renderer->SetNearClippingPlaneTolerance(0.1);
 
   vtkOpenGLRenderer *glrenderer =
-      vtkOpenGLRenderer::SafeDownCast(renderer.GetPointer());
+      vtkOpenGLRenderer::SafeDownCast(renderer);
 
   // create the basic VTK render steps
   vtkNew<vtkRenderStepsPass> basicPasses;
 
   // finally add the PF passs
   vtkNew<vtkPointFillPass> pfp;
-  pfp->SetDelegatePass(basicPasses.Get());
+  pfp->SetDelegatePass(basicPasses);
   // tell the renderer to use our render pass pipeline
   vtkNew<vtkCameraPass> camPass;
-  camPass->SetDelegatePass(pfp.Get());
-  glrenderer->SetPass(camPass.Get());
+  camPass->SetDelegatePass(pfp);
+  glrenderer->SetPass(camPass);
 
   renWin->SetSize(500,500);
 
@@ -150,7 +150,7 @@ int TestPointFillPass(int argc, char* argv[])
   renderer->GetActiveCamera()->Zoom(1.8);
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.Get() );
+  int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {

@@ -56,7 +56,7 @@ bool testCellIterator(vtkCellIterator *iter, vtkUnstructuredGrid *grid)
   iter->InitTraversal();
   while (!iter->IsDoneWithTraversal())
   {
-    grid->GetCell(cellId, cell.GetPointer());
+    grid->GetCell(cellId, cell);
 
     if (iter->GetCellType() != cell->GetCellType())
     {
@@ -150,6 +150,9 @@ bool runValidation(vtkUnstructuredGrid *grid)
   return true;
 }
 
+// Benchmarking code follows:
+#ifdef BENCHMARK
+
 // Do-nothing function that ensures arguments passed in will not be compiled
 // out. Aggressive optimization will otherwise remove portions of the following
 // loops, throwing off the benchmark results:
@@ -162,8 +165,6 @@ void useData(const Type& data)
 }
 } // end anon namespace
 
-// Benchmarking code follows:
-#ifdef BENCHMARK
 // There are three signatures for each benchmark function:
 // - double ()(vtkUnstructuredGrid *)
 //   Iterate through cells in an unstructured grid, using raw memory when
@@ -241,7 +242,7 @@ double benchmarkPointIdIteration(vtkUnstructuredGrid *grid)
 {
   vtkCellArray *cellArray = grid->GetCells();
   vtkIdType numCells = cellArray->GetNumberOfCells();
-  vtkIdType *cellPtr = cellArray->GetPointer();
+  vtkIdType *cellPtr = cellArray-;
   vtkIdType range[2] = {VTK_ID_MAX, VTK_ID_MIN};
   vtkIdType cellSize;
 
@@ -327,7 +328,7 @@ double benchmarkPointsIteration(vtkUnstructuredGrid *grid)
 {
   vtkCellArray *cellArray = grid->GetCells();
   const vtkIdType numCells = cellArray->GetNumberOfCells();
-  vtkIdType *cellPtr = cellArray->GetPointer();
+  vtkIdType *cellPtr = cellArray-;
   vtkIdType cellSize;
 
   vtkPoints *points = grid->GetPoints();
@@ -483,7 +484,7 @@ double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid)
 
   // Setup for point ids:
   vtkCellArray *cellArray = grid->GetCells();
-  vtkIdType *cellArrayPtr = cellArray->GetPointer();
+  vtkIdType *cellArrayPtr = cellArray-;
   vtkIdType ptIdRange[2] = {VTK_ID_MAX, VTK_ID_MIN};
   vtkIdType cellSize;
 

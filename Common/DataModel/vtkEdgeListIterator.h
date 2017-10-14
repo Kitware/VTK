@@ -52,7 +52,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 public:
   static vtkEdgeListIterator *New();
   vtkTypeMacro(vtkEdgeListIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGetObjectMacro(Graph, vtkGraph);
   virtual void SetGraph(vtkGraph *graph);
@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkEdgeListIterator();
-  ~vtkEdgeListIterator() VTK_OVERRIDE;
+  ~vtkEdgeListIterator() override;
 
   void Increment();
 
@@ -90,8 +90,8 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkEdgeListIterator(const vtkEdgeListIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEdgeListIterator&) VTK_DELETE_FUNCTION;
+  vtkEdgeListIterator(const vtkEdgeListIterator&) = delete;
+  void operator=(const vtkEdgeListIterator&) = delete;
 };
 
 #endif

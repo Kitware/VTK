@@ -88,7 +88,7 @@ public:
   // Create a new list of associated observers
   void CreateDefaultCollection(vtkAbstractPicker* picker, vtkObject* object);
 
-  // vtkCollection doesn't allow NULL values. Instead we use a vector
+  // vtkCollection doesn't allow nullptr values. Instead we use a vector
   // containing vtkObject to allow using 0 as a valid value because it is
   // allowed the return a picker event if he is not associated to a specific
   // object.
@@ -107,7 +107,7 @@ public:
     bool operator () (const vtkSmartPointer<vtkAbstractPicker>& first,
                       const vtkSmartPointer<vtkAbstractPicker>& second) const
     {
-      return first.GetPointer() < second.GetPointer();
+      return first < second;
     }
   };
 
@@ -132,7 +132,7 @@ public:
 
     bool operator () (const PickerObjectsPairType& pickerObjs) const
     {
-      return this->Picker == pickerObjs.first.GetPointer();
+      return this->Picker == pickerObjs.first;
     }
 
     vtkAbstractPicker* Picker;
@@ -228,7 +228,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
 {
   if (!this->External->Interactor)
   {
-    return 0;
+    return nullptr;
   }
   else if (this->External->GetOptimizeOnInteractorEvents() &&
            this->CurrentInteractionTime.GetMTime() == this->LastPickingTime)
@@ -256,7 +256,7 @@ vtkAbstractPicker* vtkPickingManager::vtkInternal::SelectPicker()
 vtkAbstractPicker* vtkPickingManager::vtkInternal::
 ComputePickerSelection(double X, double Y, double Z, vtkRenderer* renderer)
 {
-  vtkAbstractPicker* closestPicker = 0;
+  vtkAbstractPicker* closestPicker = nullptr;
   if (!renderer)
   {
     return closestPicker;
@@ -307,10 +307,10 @@ void vtkPickingManager::vtkInternal::UpdateTime(vtkObject *vtkNotUsed(caller),
 
 //------------------------------------------------------------------------------
 vtkPickingManager::vtkPickingManager()
-  : Interactor(0)
+  : Interactor(nullptr)
   , Enabled(false)
   , OptimizeOnInteractorEvents(true)
-  , Internal(0)
+  , Internal(nullptr)
 {
   this->Internal = new vtkInternal(this);
 }
@@ -318,7 +318,7 @@ vtkPickingManager::vtkPickingManager()
 //------------------------------------------------------------------------------
 vtkPickingManager::~vtkPickingManager()
 {
-  this->SetInteractor(0);
+  this->SetInteractor(nullptr);
   delete this->Internal;
 }
 
@@ -414,7 +414,7 @@ void vtkPickingManager::RemovePicker(vtkAbstractPicker* picker,
   it->second.erase(itObj);
 
   // Delete the picker when it is not associated with any object anymore.
-  if(it->second.size() == 0)
+  if(it->second.empty())
   {
     this->Internal->Pickers.erase(it);
   }
@@ -437,7 +437,7 @@ void vtkPickingManager::RemoveObject(vtkObject* object)
     {
       it->second.erase(itObj);
 
-      if (it->second.size() == 0)
+      if (it->second.empty())
       {
         vtkPickingManager::vtkInternal::PickerObjectsType::iterator
           toRemove = it;
@@ -493,7 +493,7 @@ GetAssemblyPath(double X, double Y, double Z,
     // Return 0 when the Picker is not selected
     if (!this->Pick(picker, obj))
     {
-      return 0;
+      return nullptr;
     }
   }
   else
@@ -544,7 +544,7 @@ void vtkPickingManager::PrintSelf(ostream& os, vtkIndent indent)
 
   for(; it != this->Internal->Pickers.end(); ++it)
   {
-    os << indent << indent << "Picker: " << it->first.GetPointer() << "\n";
+    os << indent << indent << "Picker: " << it->first << "\n";
     os << indent << indent << "NumberOfObjectsLinked: " << it->second.size()
        << "\n";
   }

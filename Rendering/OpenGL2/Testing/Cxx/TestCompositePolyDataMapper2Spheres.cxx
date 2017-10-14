@@ -54,12 +54,12 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
+  mapper->SetCompositeDataDisplayAttributes(cdsa);
 
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa2;
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper2 =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
-  mapper2->SetCompositeDataDisplayAttributes(cdsa2.GetPointer());
+  mapper2->SetCompositeDataDisplayAttributes(cdsa2);
 
   int resolution = 10;
   vtkNew<vtkCylinderSource> cyl;
@@ -84,6 +84,8 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
+  mapper2->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -99,7 +101,7 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
           cyl->Update();
           child->DeepCopy(cyl->GetOutput(0));
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not setting it on some
@@ -117,7 +119,7 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
         else
         {
           vtkNew<vtkMultiBlockDataSet> child;
-          blocks[parent]->SetBlock(block, child.GetPointer());
+          blocks[parent]->SetBlock(block, child);
           blocks.push_back(child.GetPointer());
         }
       }
@@ -125,8 +127,6 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
   }
-
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
@@ -138,7 +138,6 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
 //  actor->GetProperty()->SetRepresentationToWireframe();
   ren->AddActor(actor);
 
-  mapper2->SetInputData((vtkPolyData *)(data.GetPointer()));
   vtkSmartPointer<vtkActor> actor2 =
     vtkSmartPointer<vtkActor>::New();
   actor2->SetMapper(mapper2);
@@ -187,7 +186,7 @@ int TestCompositePolyDataMapper2Spheres(int argc, char* argv[])
     double t =  timer->GetElapsedTime();
     cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
-  int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
+  int retVal = vtkRegressionTestImageThreshold( win,15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     iren->Start();

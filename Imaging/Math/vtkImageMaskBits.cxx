@@ -143,35 +143,35 @@ void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData,
   {
     case VTK_INT:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<int *>(0));
+                              static_cast<int *>(nullptr));
       break;
     case VTK_UNSIGNED_INT:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<unsigned int *>(0));
+                              static_cast<unsigned int *>(nullptr));
       break;
     case VTK_LONG:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<long *>(0));
+                              static_cast<long *>(nullptr));
       break;
     case VTK_UNSIGNED_LONG:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<unsigned long *>(0));
+                              static_cast<unsigned long *>(nullptr));
       break;
     case VTK_SHORT:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<short *>(0));
+                              static_cast<short *>(nullptr));
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<unsigned short *>(0));
+                              static_cast<unsigned short *>(nullptr));
       break;
     case VTK_CHAR:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<char *>(0));
+                              static_cast<char *>(nullptr));
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
-                              static_cast<unsigned char *>(0));
+                              static_cast<unsigned char *>(nullptr));
       break;
     default:
       vtkErrorMacro(<< "Execute: ScalarType can only be [unsigned] char, [unsigned] short, "

@@ -43,7 +43,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredGridPartitioner :
 public:
   static vtkStructuredGridPartitioner *New();
   vtkTypeMacro(vtkStructuredGridPartitioner, vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream &oss, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream &oss, vtkIndent indent ) override;
 
   //@{
   /**
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkStructuredGridPartitioner();
-  ~vtkStructuredGridPartitioner() VTK_OVERRIDE;
+  ~vtkStructuredGridPartitioner() override;
 
   /**
    * Extracts the coordinates of the sub-grid from the whole grid.
@@ -81,17 +81,17 @@ protected:
 
   // Standard Pipeline methods
   int RequestData(
-     vtkInformation*,vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
-  int FillOutputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+     vtkInformation*,vtkInformationVector**,vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int port, vtkInformation *info) override;
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
   int DuplicateNodes;
 
 private:
-  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
+  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) = delete;
+  void operator=(const vtkStructuredGridPartitioner &) = delete;
 };
 
 #endif /* vtkStructuredGridPartitioner_h */

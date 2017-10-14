@@ -38,13 +38,13 @@ int TestRenderString(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   tprop->SetFontSize(50);
 
   vtkNew<vtkImageViewer2> viewer;
-  utils->RenderString(str, image.GetPointer(), tprop.GetPointer(),
+  utils->RenderString(str, image, tprop,
                       viewer->GetRenderWindow()->GetDPI());
 
-  viewer->SetInputData(image.GetPointer());
+  viewer->SetInputData(image);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  viewer->SetupInteractor(iren.GetPointer());
+  viewer->SetupInteractor(iren);
 
   viewer->Render();
   viewer->GetRenderer()->ResetCamera();

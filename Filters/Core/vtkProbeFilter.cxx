@@ -48,14 +48,14 @@ vtkProbeFilter::vtkProbeFilter()
   this->CategoricalData = 0;
   this->SpatialMatch = 0;
   this->ValidPoints = vtkIdTypeArray::New();
-  this->MaskPoints = NULL;
+  this->MaskPoints = nullptr;
   this->SetNumberOfInputPorts(2);
-  this->ValidPointMaskArrayName = 0;
+  this->ValidPointMaskArrayName = nullptr;
   this->SetValidPointMaskArrayName("vtkValidPointMask");
   this->CellArrays = new vtkVectorOfArrays();
 
-  this->PointList = 0;
-  this->CellList = 0;
+  this->PointList = nullptr;
+  this->CellList = nullptr;
 
   this->PassCellArrays = 0;
   this->PassPointArrays = 0;
@@ -70,11 +70,11 @@ vtkProbeFilter::~vtkProbeFilter()
   if (this->MaskPoints)
   {
     this->MaskPoints->Delete();
-    this->MaskPoints = 0;
+    this->MaskPoints = nullptr;
   }
   this->ValidPoints->Delete();
-  this->ValidPoints = NULL;
-  this->SetValidPointMaskArrayName(0);
+  this->ValidPoints = nullptr;
+  this->SetValidPointMaskArrayName(nullptr);
   delete this->CellArrays;
 
   delete this->PointList;
@@ -98,7 +98,7 @@ vtkDataObject *vtkProbeFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);
@@ -418,7 +418,7 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     input->GetPoint(ptId, x);
 
     // Find the cell that contains xyz and get it
-    vtkIdType cellId = source->FindCell(x,NULL,-1,tol2,subId,pcoords,weights);
+    vtkIdType cellId = source->FindCell(x,nullptr,-1,tol2,subId,pcoords,weights);
     if (cellId >= 0)
     {
       cell = source->GetCell(cellId);
@@ -431,13 +431,13 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
         cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
         if (dist2 > (cell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
         {
-          cell = 0;
+          cell = nullptr;
         }
       }
     }
     else
     {
-      cell = 0;
+      cell = nullptr;
     }
 
     if (cell)
@@ -526,7 +526,7 @@ void vtkProbeFilter::ProbeImagePointsInCell(vtkCell *cell, vtkIdType cellId,
   if (cell->IsA("vtkCell3D"))
   {
     // we only care about closest point and its distance for 2D cells
-    closestPoint = NULL;
+    closestPoint = nullptr;
   }
 
   double userTol2 = this->Tolerance * this->Tolerance;
@@ -624,7 +624,7 @@ public:
 private:
   void Initialize()
   {
-    vtkGenericCell *null = NULL;
+    vtkGenericCell *null = nullptr;
     std::fill(this->Cells, this->Cells + VTK_NUMBER_OF_CELL_TYPES, null);
   }
 

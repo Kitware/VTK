@@ -40,12 +40,12 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapperNode :
 public:
   static vtkOSPRayVolumeMapperNode* New();
   vtkTypeMacro(vtkOSPRayVolumeMapperNode, vtkVolumeMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   /**
    * TODO: fix me
@@ -75,7 +75,7 @@ protected:
     (vtkDataSet* input, int& association);
 
 private:
-  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
+  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;
+  void operator=(const vtkOSPRayVolumeMapperNode&) = delete;
 };
 #endif

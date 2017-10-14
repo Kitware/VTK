@@ -26,21 +26,21 @@
 static unsigned char VoxelValue(int i, int j, int k)
 {
   static bool seeded = false;
-  static int randseq[127];
+  static unsigned int randseq[127];
   if (!seeded)
   {
-    int seed = 230981;
-    for (int c = 0; c < 127; c++)
+    unsigned int seed = 230981U;
+    for (unsigned int c = 0; c < 127; c++)
     {
-      randseq[c] = 1664525*seed + 1013904223;
+      randseq[c] = 1664525U*seed + 1013904223U;
       seed = randseq[c];
     }
     seeded = true;
   }
 
-  int l = (k*127*127 + j*127 + i) % (4*127);
-  int m = l / 4;
-  int n = l % 4;
+  unsigned int l = (k*127*127 + j*127 + i) % (4*127);
+  unsigned int m = l / 4;
+  unsigned int n = l % 4;
   return static_cast<unsigned char>(randseq[m] >> (8*n));
 }
 
@@ -97,13 +97,13 @@ static bool CheckStencilExtents(
   int imageExt[6], int stencilExt[6], int extent[6])
 {
   vtkNew<vtkImageData> image;
-  GenerateImage(image.Get(), imageExt);
+  GenerateImage(image, imageExt);
 
   vtkNew<vtkImageStencilData> stencil;
-  GenerateStencil(stencil.Get(), stencilExt);
+  GenerateStencil(stencil, stencilExt);
 
   vtkImageStencilIterator<unsigned char> iter;
-  iter.Initialize(image.Get(), stencil.Get(), extent);
+  iter.Initialize(image, stencil, extent);
 
   bool match = true;
   int i = extent[0];

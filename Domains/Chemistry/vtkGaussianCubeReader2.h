@@ -36,14 +36,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkGaussianCubeReader2 : public vtkMoleculeAlgo
 public:
   static vtkGaussianCubeReader2 *New();
   vtkTypeMacro(vtkGaussianCubeReader2,vtkMoleculeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get/Set the output (vtkMolecule) that the reader will fill
    */
   vtkMolecule *GetOutput();
-  void SetOutput(vtkMolecule *) VTK_OVERRIDE;
+  void SetOutput(vtkMolecule *) override;
   //@}
 
   /**
@@ -61,18 +61,18 @@ public:
 
 protected:
   vtkGaussianCubeReader2();
-  ~vtkGaussianCubeReader2() VTK_OVERRIDE;
+  ~vtkGaussianCubeReader2() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   char *FileName;
 private:
-  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGaussianCubeReader2&) VTK_DELETE_FUNCTION;
+  vtkGaussianCubeReader2(const vtkGaussianCubeReader2&) = delete;
+  void operator=(const vtkGaussianCubeReader2&) = delete;
 };
 
 #endif

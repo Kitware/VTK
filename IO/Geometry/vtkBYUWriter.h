@@ -40,7 +40,7 @@ public:
   static vtkBYUWriter *New();
 
   vtkTypeMacro(vtkBYUWriter,vtkWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,9 +111,9 @@ public:
 
 protected:
   vtkBYUWriter();
-  ~vtkBYUWriter() VTK_OVERRIDE;
+  ~vtkBYUWriter() override;
 
-  void WriteData() VTK_OVERRIDE;
+  void WriteData() override;
 
   char *GeometryFileName;
   char *DisplacementFileName;
@@ -128,11 +128,11 @@ protected:
   void WriteScalarFile(int numPts);
   void WriteTextureFile(int numPts);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkBYUWriter(const vtkBYUWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBYUWriter&) VTK_DELETE_FUNCTION;
+  vtkBYUWriter(const vtkBYUWriter&) = delete;
+  void operator=(const vtkBYUWriter&) = delete;
 };
 
 #endif

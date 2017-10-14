@@ -47,14 +47,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTreeAlgorithm : public vtkAlgorithm
 public:
   static vtkTreeAlgorithm *New();
   vtkTypeMacro(vtkTreeAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   /**
    * Get the output data object for a port on this algorithm.
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkTreeAlgorithm();
-  ~vtkTreeAlgorithm() VTK_OVERRIDE;
+  ~vtkTreeAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -96,12 +96,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkTreeAlgorithm(const vtkTreeAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTreeAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkTreeAlgorithm(const vtkTreeAlgorithm&) = delete;
+  void operator=(const vtkTreeAlgorithm&) = delete;
 };
 
 #endif

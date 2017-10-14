@@ -52,9 +52,9 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   std::string output_dir = temp_dir;
   output_dir += "/HierarchicalBoxDataset.Converted.v1.1";
 
-  vtksys::SystemTools::RemoveADirectory(output_dir.c_str());
+  vtksys::SystemTools::RemoveADirectory(output_dir);
   if (!vtksys::SystemTools::CopyADirectory(
-      input_dir.c_str(), output_dir.c_str()))
+      input_dir, output_dir))
   {
     delete [] temp_dir;
     delete [] data_dir;

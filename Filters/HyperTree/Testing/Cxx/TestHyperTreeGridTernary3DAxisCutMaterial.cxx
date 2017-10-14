@@ -14,10 +14,12 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridAxisCut.h"
+#include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
@@ -55,20 +57,26 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   axisCut1->SetInputConnection( htGrid->GetOutputPort() );
   axisCut1->SetPlaneNormalAxis( 0 );
   axisCut1->SetPlanePosition( 1.99 );
-  axisCut1->Update();
   vtkNew<vtkHyperTreeGridAxisCut> axisCut2;
   axisCut2->SetInputConnection( htGrid->GetOutputPort() );
   axisCut2->SetPlaneNormalAxis( 2 );
   axisCut2->SetPlanePosition( .35 );
-  axisCut2->Update();
-  vtkPolyData* pd = axisCut2->GetOutput();
+
+  // Geometries
+  vtkNew<vtkHyperTreeGridGeometry> geometry1;
+  geometry1->SetInputConnection( axisCut1->GetOutputPort() );
+  geometry1->Update();
+  vtkNew<vtkHyperTreeGridGeometry> geometry2;
+  geometry2->SetInputConnection( axisCut2->GetOutputPort() );
+  geometry2->Update();
+  vtkPolyData* pd = geometry2->GetPolyDataOutput();
 
   // Shrinks
   vtkNew<vtkShrinkFilter> shrink1;
-  shrink1->SetInputConnection( axisCut1->GetOutputPort() );
+  shrink1->SetInputConnection( geometry1->GetOutputPort() );
   shrink1->SetShrinkFactor( .8 );
   vtkNew<vtkShrinkFilter> shrink2;
-  shrink2->SetInputConnection( axisCut2->GetOutputPort() );
+  shrink2->SetInputConnection( geometry2->GetOutputPort() );
   shrink2->SetShrinkFactor( .8 );
 
   // Mappers
@@ -77,7 +85,7 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( axisCut1->GetOutputPort() );
+  mapper2->SetInputConnection( geometry1->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper3;
   mapper3->SetInputConnection( outline->GetOutputPort() );
@@ -86,29 +94,29 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   mapper4->SetInputConnection( shrink2->GetOutputPort() );
   mapper4->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   vtkNew<vtkPolyDataMapper> mapper5;
-  mapper5->SetInputConnection( axisCut2->GetOutputPort() );
+  mapper5->SetInputConnection( geometry2->GetOutputPort() );
   mapper5->ScalarVisibilityOff();
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3.GetPointer() );
+  actor3->SetMapper( mapper3 );
   actor3->GetProperty()->SetColor( .1, .1, .1 );
   actor3->GetProperty()->SetLineWidth( 1 );
   vtkNew<vtkActor> actor4;
-  actor4->SetMapper( mapper4.GetPointer() );
+  actor4->SetMapper( mapper4 );
   vtkNew<vtkActor> actor5;
-  actor5->SetMapper( mapper5.GetPointer() );
+  actor5->SetMapper( mapper5 );
   actor5->GetProperty()->SetRepresentationToWireframe();
   actor5->GetProperty()->SetColor( .7, .7, .7 );
 
   // Camera
-  vtkHyperTreeGrid* ht = htGrid->GetOutput();
+  vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
   double bd[6];
   ht->GetBounds( bd );
   vtkNew<vtkCamera> camera;
@@ -118,28 +126,28 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
-  renderer->AddActor( actor3.GetPointer() );
-  renderer->AddActor( actor4.GetPointer() );
-  renderer->AddActor( actor5.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
+  renderer->AddActor( actor3 );
+  renderer->AddActor( actor4 );
+  renderer->AddActor( actor5 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 25 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

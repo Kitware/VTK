@@ -30,7 +30,7 @@ int TestSetInputDataObject(int, char*[])
   vtkMTimeType mtime = filter->GetMTime();
 
   // this should change the filter's mtime.
-  filter->SetInputDataObject(inputData.GetPointer());
+  filter->SetInputDataObject(inputData);
 
   vtkMTimeType changed_mtime = filter->GetMTime();
   if (changed_mtime <= mtime)
@@ -40,7 +40,7 @@ int TestSetInputDataObject(int, char*[])
   }
 
   // this should *not* change the filter's mtime.
-  filter->SetInputDataObject(inputData.GetPointer());
+  filter->SetInputDataObject(inputData);
   if (changed_mtime != filter->GetMTime())
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << endl;
@@ -48,7 +48,7 @@ int TestSetInputDataObject(int, char*[])
   }
 
   // this should change the filter's mtime.
-  filter->SetInputDataObject(inputData2.GetPointer());
+  filter->SetInputDataObject(inputData2);
   if (filter->GetMTime() <= changed_mtime)
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
@@ -58,7 +58,7 @@ int TestSetInputDataObject(int, char*[])
   changed_mtime = filter->GetMTime();
 
   // this should change the filter's mtime.
-  filter->SetInputDataObject(NULL);
+  filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() <= changed_mtime)
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
@@ -68,7 +68,7 @@ int TestSetInputDataObject(int, char*[])
   changed_mtime = filter->GetMTime();
 
   // this should *not* change the filter's mtime.
-  filter->SetInputDataObject(NULL);
+  filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() != changed_mtime)
   {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << endl;

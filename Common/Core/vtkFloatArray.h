@@ -41,7 +41,7 @@ public:
 #endif
 
   static vtkFloatArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -71,14 +71,14 @@ public:
 
 protected:
   vtkFloatArray();
-  ~vtkFloatArray() VTK_OVERRIDE;
+  ~vtkFloatArray() override;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<float> RealSuperclass;
 
-  vtkFloatArray(const vtkFloatArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFloatArray&) VTK_DELETE_FUNCTION;
+  vtkFloatArray(const vtkFloatArray&) = delete;
+  void operator=(const vtkFloatArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

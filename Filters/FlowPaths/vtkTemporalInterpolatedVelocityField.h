@@ -69,7 +69,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalInterpolatedVelocityField : public v
 {
 public:
   vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct a vtkTemporalInterpolatedVelocityField with no initial data set.
@@ -82,13 +82,13 @@ public:
    * Evaluate the velocity field, f, at (x, y, z, t).
    * For now, t is ignored.
    */
-  int FunctionValues(double* x, double* u) VTK_OVERRIDE;
+  int FunctionValues(double* x, double* u) override;
   int FunctionValuesAtT(int T, double* x, double* u);
   //@}
 
   /**
    * If you want to work with an arbitrary vector array, then set its name
-   * here. By default this is NULL and the filter will use the active vector
+   * here. By default this is nullptr and the filter will use the active vector
    * array.
    */
   void SelectVectors(const char *fieldName)
@@ -157,7 +157,7 @@ public:
 
 protected:
   vtkTemporalInterpolatedVelocityField();
-  ~vtkTemporalInterpolatedVelocityField() VTK_OVERRIDE;
+  ~vtkTemporalInterpolatedVelocityField() override;
 
   int FunctionValues(vtkDataSet* ds, double* x, double* f);
   virtual void SetVectorsSelection(const char *v);
@@ -185,8 +185,8 @@ private:
   virtual void AddDataSet(vtkDataSet*) {}
 
 private:
-  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) = delete;
+  void operator=(const vtkTemporalInterpolatedVelocityField&) = delete;
 };
 
 #endif

@@ -78,16 +78,16 @@ void display()
   if (!initialized)
   {
     vtkNew<vtkExternalOpenGLRenderWindow> renWin;
-    externalVTKWidget->SetRenderWindow(renWin.GetPointer());
+    externalVTKWidget->SetRenderWindow(renWin);
     vtkNew<vtkCallbackCommand> callback;
     callback->SetCallback(MakeCurrentCallback);
     renWin->AddObserver(vtkCommand::WindowMakeCurrentEvent,
-                        callback.GetPointer());
+                        callback);
     vtkNew<vtkPolyDataMapper> mapper;
     vtkNew<vtkActor> actor;
-    actor->SetMapper(mapper.GetPointer());
+    actor->SetMapper(mapper);
     vtkRenderer* ren = externalVTKWidget->AddRenderer();
-    ren->AddActor(actor.GetPointer());
+    ren->AddActor(actor);
     vtkNew<vtkCubeSource> cs;
     mapper->SetInputConnection(cs->GetOutputPort());
     actor->RotateX(45.0);

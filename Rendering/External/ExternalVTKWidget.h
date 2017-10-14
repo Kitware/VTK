@@ -31,7 +31,7 @@ class VTKRENDERINGEXTERNAL_EXPORT ExternalVTKWidget : public vtkObject
 public:
   static ExternalVTKWidget *New();
   vtkTypeMacro(ExternalVTKWidget, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   // Set/Get an external render window for the ExternalVTKWidget.
   // Since this is a special environment, the methods are limited to use
@@ -49,13 +49,13 @@ public:
 
 protected:
   ExternalVTKWidget();
-  ~ExternalVTKWidget() VTK_OVERRIDE;
+  ~ExternalVTKWidget() override;
 
   vtkExternalOpenGLRenderWindow* RenderWindow;
 
 private:
-  ExternalVTKWidget(const ExternalVTKWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const ExternalVTKWidget&) VTK_DELETE_FUNCTION;
+  ExternalVTKWidget(const ExternalVTKWidget&) = delete;
+  void operator=(const ExternalVTKWidget&) = delete;
 };
 
 #endif //__ExternalVTKWidget_h

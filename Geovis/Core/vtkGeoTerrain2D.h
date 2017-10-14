@@ -49,7 +49,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrain2D : public vtkGeoTerrain
 public:
   static vtkGeoTerrain2D *New();
   vtkTypeMacro(vtkGeoTerrain2D,vtkGeoTerrain);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkGeoTerrain2D();
-  ~vtkGeoTerrain2D() VTK_OVERRIDE;
+  ~vtkGeoTerrain2D() override;
 
   double LocationTolerance;
   double TextureTolerance;
@@ -84,26 +84,26 @@ protected:
   /**
    * AddActors() calls this to setup parameters for evaluating nodes.
    */
-  void InitializeNodeAnalysis(vtkRenderer* ren) VTK_OVERRIDE;
+  void InitializeNodeAnalysis(vtkRenderer* ren) override;
 
   /**
    * AddActors() calls this to determine if a node is in the current
    * viewport.
    */
-  bool NodeInViewport(vtkGeoTerrainNode* node) VTK_OVERRIDE;
+  bool NodeInViewport(vtkGeoTerrainNode* node) override;
 
   /**
    * AddActors() calls to to evaluate whether a node should be
    * refined (1), coarsened (-1), or remain at the same level (0).
    */
-  int EvaluateNode(vtkGeoTerrainNode* node) VTK_OVERRIDE;
+  int EvaluateNode(vtkGeoTerrainNode* node) override;
 
   double CameraBounds[4];
   double PixelSize;
 
 private:
-  vtkGeoTerrain2D(const vtkGeoTerrain2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoTerrain2D&) VTK_DELETE_FUNCTION;
+  vtkGeoTerrain2D(const vtkGeoTerrain2D&) = delete;
+  void operator=(const vtkGeoTerrain2D&) = delete;
 };
 
 #endif

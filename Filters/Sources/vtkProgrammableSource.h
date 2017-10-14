@@ -110,11 +110,11 @@ public:
 
 protected:
   vtkProgrammableSource();
-  ~vtkProgrammableSource() VTK_OVERRIDE;
+  ~vtkProgrammableSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestDataObject(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   ProgrammableMethodCallbackType ExecuteMethod; //function to invoke
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
@@ -125,8 +125,8 @@ protected:
   int RequestedDataType;
 
 private:
-  vtkProgrammableSource(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
+  vtkProgrammableSource(const vtkProgrammableSource&) = delete;
+  void operator=(const vtkProgrammableSource&) = delete;
 };
 
 #endif

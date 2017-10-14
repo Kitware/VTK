@@ -38,6 +38,15 @@ XdmfTopologyType::NoTopologyType()
 {
   std::vector<shared_ptr<const XdmfTopologyType> > faces;
   static shared_ptr<const XdmfTopologyType>
+  /* XdmfTopologyType(numPoints, // if variable will be read from xmf file
+                      numFaces, 
+                      faces, 
+                      numConnectingLines,
+                      TopologyName,
+                      Linear/Quadratic/Arbitrary/Structured,
+                      CellType)
+    Cell type is denoted by the number after the x
+    */
     p(new XdmfTopologyType(0, 0, faces, 0, "NoTopology", NoCellType, 0x0));
   return p;
 }

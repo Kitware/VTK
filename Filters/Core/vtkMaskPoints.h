@@ -39,7 +39,7 @@ class VTKFILTERSCORE_EXPORT vtkMaskPoints : public vtkPolyDataAlgorithm
 public:
   static vtkMaskPoints *New();
   vtkTypeMacro(vtkMaskPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -154,11 +154,11 @@ public:
 
 protected:
   vtkMaskPoints();
-  ~vtkMaskPoints() VTK_OVERRIDE {}
+  ~vtkMaskPoints() override {}
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int OnRatio;     // every OnRatio point is on; all others are off.
   vtkIdType Offset;      // offset (or starting point id)
@@ -178,8 +178,8 @@ protected:
   unsigned long GetLocalSampleSize(vtkIdType, int);
 
 private:
-  vtkMaskPoints(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
+  vtkMaskPoints(const vtkMaskPoints&) = delete;
+  void operator=(const vtkMaskPoints&) = delete;
 };
 
 #endif

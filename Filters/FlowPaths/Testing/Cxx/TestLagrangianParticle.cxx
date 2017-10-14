@@ -32,11 +32,11 @@ int TestLagrangianParticle(int, char*[])
   vel->InsertNextTuple(velTmp);
 
   vtkNew<vtkPointData> pd;
-  pd->AddArray(vel.Get());
+  pd->AddArray(vel);
   vtkIdType particleCounter = 0;
 
   vtkLagrangianParticle* part = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd.Get());
+    particleCounter, seedId, 0, pd);
   particleCounter++;
   if (nvar != part->GetNumberOfVariables())
   {
@@ -254,9 +254,9 @@ int TestLagrangianParticle(int, char*[])
     delete part3;
     return EXIT_FAILURE;
   }
-  if (part->GetSeedData() != pd.Get() ||
-    part2->GetSeedData() != pd.Get() ||
-    part3->GetSeedData() != pd.Get())
+  if (part->GetSeedData() != pd ||
+    part2->GetSeedData() != pd ||
+    part3->GetSeedData() != pd)
   {
     std::cerr << "Incorrect Seed data " << std::endl;
     delete part;
@@ -274,8 +274,8 @@ int TestLagrangianParticle(int, char*[])
 
   vtkNew<vtkPolyData> poly;
   int cellId = 17;
-  part->SetLastCell(poly.Get(), cellId);
-  if (part->GetLastDataSet() != poly.Get() || part->GetLastCellId() != cellId)
+  part->SetLastCell(poly, cellId);
+  if (part->GetLastDataSet() != poly || part->GetLastCellId() != cellId)
   {
     std::cerr << "Incorrect LastCellId or LastDataSet" << std::endl;
     delete part;
@@ -378,10 +378,10 @@ int TestLagrangianParticle(int, char*[])
 
   particleCounter = 0;
   vtkLagrangianParticle* part4 = new vtkLagrangianParticle(nvar, seedId,
-    particleCounter, seedId, 0, pd.Get());
+    particleCounter, seedId, 0, pd);
   particleCounter++;
   vtkLagrangianParticle* part5 = vtkLagrangianParticle::NewInstance(nvar, seedId,
-    particleCounter, seedId, 0.17, pd.Get(), 17, 0.13);
+    particleCounter, seedId, 0.17, pd, 17, 0.13);
   particleCounter++;
   if (part4->GetId() != 0)
   {

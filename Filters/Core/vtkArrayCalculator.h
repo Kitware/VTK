@@ -61,22 +61,26 @@
 #ifndef vtkArrayCalculator_h
 #define vtkArrayCalculator_h
 
+#include "vtkDataObject.h" // For attribute types
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkDataSetAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
+class vtkDataSet;
 class vtkFunctionParser;
 
+#ifndef VTK_LEGACY_REMOVE
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
 #define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
 #define VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA 3
 #define VTK_ATTRIBUTE_MODE_USE_EDGE_DATA 4
+#endif
 
-class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeMacro(vtkArrayCalculator,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  vtkTypeMacro(vtkArrayCalculator,vtkPassInputTypeAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkArrayCalculator *New();
 
@@ -186,20 +190,53 @@ public:
    * (AttributeModeToUsePointData) or cell data (AttributeModeToUseCellData).
    * For graphs you can set the filter to use vertex data
    * (AttributeModeToUseVertexData) or edge data (AttributeModeToUseEdgeData).
+   *
+   * @deprecated Replaced By GetAttributeType and SetAttributeType as of VTK 8.1.
    */
-  vtkSetMacro(AttributeMode,int);
-  vtkGetMacro(AttributeMode,int);
-  void SetAttributeModeToDefault()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_DEFAULT);};
-  void SetAttributeModeToUsePointData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_POINT_DATA);};
-  void SetAttributeModeToUseCellData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_CELL_DATA);};
-  void SetAttributeModeToUseVertexData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_VERTEX_DATA);};
-  void SetAttributeModeToUseEdgeData()
-    {this->SetAttributeMode(VTK_ATTRIBUTE_MODE_USE_EDGE_DATA);};
-  const char *GetAttributeModeAsString();
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(void SetAttributeMode(int newMode);)
+  VTK_LEGACY(int GetAttributeMode();)
+  VTK_LEGACY(void SetAttributeModeToDefault())
+    {this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);};
+  VTK_LEGACY(void SetAttributeModeToUsePointData())
+    {this->SetAttributeType(vtkDataObject::POINT);};
+  VTK_LEGACY(void SetAttributeModeToUseCellData())
+    {this->SetAttributeType(vtkDataObject::CELL);};
+  VTK_LEGACY(void SetAttributeModeToUseVertexData())
+    {this->SetAttributeType(vtkDataObject::VERTEX);};
+  VTK_LEGACY(void SetAttributeModeToUseEdgeData())
+    {this->SetAttributeType(vtkDataObject::EDGE);};
+  VTK_LEGACY(const char *GetAttributeModeAsString());
+#endif
+  //@}
+
+  /**
+   * Returns a string representation of the calculator's AttributeType
+   */
+  const char *GetAttributeTypeAsString();
+
+  static const int DEFAULT_ATTRIBUTE_TYPE = -1;
+  //@{
+  /**
+   * Control which AttributeType the filter operates on (point data or cell data
+   * for vtkDataSets).  By default the filter uses Point/Vertex/Row data depending
+   * on the input data type.  The input value for this function should be one of the
+   * constants in vtkDataObject::AttributeTypes or DEFAULT_ATTRIBUTE_TYPE for 'default behavior'.
+   */
+  vtkSetMacro(AttributeType, int);
+  vtkGetMacro(AttributeType, int);
+  void SetAttributeTypeToDefault()
+  {this->SetAttributeType(DEFAULT_ATTRIBUTE_TYPE);}
+  void SetAttributeTypeToPointData()
+  {this->SetAttributeType(vtkDataObject::POINT);}
+  void SetAttributeTypeToCellData()
+  {this->SetAttributeType(vtkDataObject::CELL);}
+  void SetAttributeTypeToEdgeData()
+  {this->SetAttributeType(vtkDataObject::EDGE);}
+  void SetAttributeTypeToVertexData()
+  {this->SetAttributeType(vtkDataObject::VERTEX);}
+  void SetAttributeTypeToRowData()
+  {this->SetAttributeType(vtkDataObject::ROW);}
   //@}
 
   /**
@@ -261,11 +298,19 @@ public:
   vtkGetMacro(ReplacementValue,double);
   //@}
 
+  /**
+   * Returns the output of the filter downcast to a vtkDataSet or nullptr if the
+   * cast fails.
+   */
+  vtkDataSet* GetDataSetOutput();
+
 protected:
   vtkArrayCalculator();
-  ~vtkArrayCalculator() VTK_OVERRIDE;
+  ~vtkArrayCalculator() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
+
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char  * Function;
   char  * ResultArrayName;
@@ -275,7 +320,7 @@ protected:
   char ** VectorVariableNames;
   int     NumberOfScalarArrays;
   int     NumberOfVectorArrays;
-  int     AttributeMode;
+  int     AttributeType;
   int   * SelectedScalarComponents;
   int  ** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
@@ -295,8 +340,8 @@ protected:
 
   int     ResultArrayType;
 private:
-  vtkArrayCalculator(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
+  vtkArrayCalculator(const vtkArrayCalculator&) = delete;
+  void operator=(const vtkArrayCalculator&) = delete;
 };
 
 #endif

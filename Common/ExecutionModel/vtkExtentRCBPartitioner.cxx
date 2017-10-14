@@ -83,7 +83,7 @@ void vtkExtentRCBPartitioner::Partition()
 
   // STEP 1: Insert the global extent to the workQueue
   vtkPriorityQueue *wrkQueue = vtkPriorityQueue::New();
-  assert( "pre: work queue is NULL" && (wrkQueue != NULL) );
+  assert( "pre: work queue is nullptr" && (wrkQueue != nullptr) );
 
   this->AddExtent( this->GlobalExtent );
   wrkQueue->Insert( this->GetNumberOfNodes( this->GlobalExtent), 0);

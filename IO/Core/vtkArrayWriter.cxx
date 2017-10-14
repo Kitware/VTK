@@ -73,7 +73,7 @@ void WriteHeader(const vtkStdString& array_type,
   // Serialize the array name ...
   stream << array->GetName() << "\n";
 
-  // Serialize the array extents and number of non-NULL values ...
+  // Serialize the array extents and number of non-nullptr values ...
   for(vtkIdType i = 0; i != dimensions; ++i)
     stream << extents[i].GetBegin() << " " << extents[i].GetEnd() << " ";
   stream << array->GetNonNullSize() << "\n";
@@ -103,7 +103,7 @@ bool WriteSparseArrayBinary(const vtkStdString& type_name, vtkArray* array, ostr
   WriteHeader("vtk-sparse-array", type_name, array, stream, true);
   WriteEndianOrderMark(stream);
 
-  // Serialize the array NULL value ...
+  // Serialize the array nullptr value ...
   stream.write(
     reinterpret_cast<const char*>(&concrete_array->GetNullValue()),
     sizeof(ValueT));
@@ -135,7 +135,7 @@ bool WriteSparseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArra
   WriteHeader("vtk-sparse-array", type_name, array, stream, true);
   WriteEndianOrderMark(stream);
 
-  // Serialize the array NULL value ...
+  // Serialize the array nullptr value ...
   stream.write(
     concrete_array->GetNullValue().c_str(),
     concrete_array->GetNullValue().size() + 1);
@@ -148,7 +148,7 @@ bool WriteSparseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArra
       concrete_array->GetNonNullSize() * sizeof(vtkIdType));
   }
 
-  // Serialize the array values as a set of packed, NULL-terminated strings ...
+  // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
   for(vtkIdType n = 0; n != value_count; ++n)
   {
@@ -173,7 +173,7 @@ bool WriteSparseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtk
   WriteHeader("vtk-sparse-array", type_name, array, stream, true);
   WriteEndianOrderMark(stream);
 
-  // Serialize the array NULL value ...
+  // Serialize the array nullptr value ...
   stream.write(
     concrete_array->GetNullValue().utf8_str(),
     strlen(concrete_array->GetNullValue().utf8_str()) + 1);
@@ -186,7 +186,7 @@ bool WriteSparseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtk
       concrete_array->GetNonNullSize() * sizeof(vtkIdType));
   }
 
-  // Serialize the array values as a set of packed, NULL-terminated strings ...
+  // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
   for(vtkIdType n = 0; n != value_count; ++n)
   {
@@ -230,7 +230,7 @@ bool WriteDenseArrayBinary<vtkStdString>(const vtkStdString& type_name, vtkArray
   WriteHeader("vtk-dense-array", type_name, array, stream, true);
   WriteEndianOrderMark(stream);
 
-  // Serialize the array values as a set of packed, NULL-terminated strings ...
+  // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
   for(vtkIdType n = 0; n != value_count; ++n)
   {
@@ -255,7 +255,7 @@ bool WriteDenseArrayBinary<vtkUnicodeString>(const vtkStdString& type_name, vtkA
   WriteHeader("vtk-dense-array", type_name, array, stream, true);
   WriteEndianOrderMark(stream);
 
-  // Serialize the array values as a set of packed, NULL-terminated strings ...
+  // Serialize the array values as a set of packed, nullptr-terminated strings ...
   const vtkIdType value_count = array->GetNonNullSize();
   for(vtkIdType n = 0; n != value_count; ++n)
   {
@@ -283,7 +283,7 @@ bool WriteSparseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostre
   if(std::numeric_limits<ValueT>::is_specialized)
     stream.precision(std::numeric_limits<ValueT>::digits10 + 1);
 
-  // Write the array NULL value ...
+  // Write the array nullptr value ...
   WriteValue(stream, concrete_array->GetNullValue());
   stream << "\n";
 
@@ -337,7 +337,7 @@ bool WriteDenseArrayAscii(const vtkStdString& type_name, vtkArray* array, ostrea
 vtkStandardNewMacro(vtkArrayWriter);
 
 vtkArrayWriter::vtkArrayWriter() :
-  FileName(0),
+  FileName(nullptr),
   Binary(false),
   WriteToOutputString(false)
 {
@@ -345,7 +345,7 @@ vtkArrayWriter::vtkArrayWriter() :
 
 vtkArrayWriter::~vtkArrayWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkArrayWriter::PrintSelf(ostream& os, vtkIndent indent)
@@ -408,7 +408,7 @@ bool vtkArrayWriter::Write(ostream& stream, bool WriteBinary)
 
     vtkArray* const array = array_data->GetArray(static_cast<vtkIdType>(0));
     if(!array)
-      throw std::runtime_error("Cannot serialize NULL vtkArray.");
+      throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
     return this->Write(array, stream, WriteBinary);
   }
@@ -424,7 +424,7 @@ bool vtkArrayWriter::Write(vtkArray* array, ostream& stream, bool WriteBinary)
   try
   {
     if(!array)
-      throw std::runtime_error("Cannot serialize NULL vtkArray.");
+      throw std::runtime_error("Cannot serialize nullptr vtkArray.");
 
     if(WriteBinary)
     {

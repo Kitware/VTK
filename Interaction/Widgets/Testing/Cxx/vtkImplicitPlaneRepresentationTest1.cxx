@@ -18,13 +18,13 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
 
   vtkSmartPointer<vtkPolyData> pd;
   node1->GetPolyData(pd);
-  if (pd == NULL)
+  if (pd == nullptr)
   {
     std::cout << "Polydata is null" << std::endl;
   }
 
   vtkSmartPointer<vtkPolyDataAlgorithm> pda = node1->GetPolyDataAlgorithm();
-  if (pda == NULL)
+  if (pda == nullptr)
   {
     std::cout << "Polydata algorithm is null" << std::endl;
   }
@@ -40,42 +40,42 @@ int vtkImplicitPlaneRepresentationTest1(int , char * [] )
 
 
   vtkSmartPointer<vtkProperty> prop = node1->GetNormalProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Normal Property is NULL." << std::endl;
+    std::cout << "Normal Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedNormalProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected Normal Property is NULL." << std::endl;
+    std::cout << "Selected Normal Property is nullptr." << std::endl;
   }
 
   prop = node1->GetPlaneProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Plane Property is NULL." << std::endl;
+    std::cout << "Plane Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedPlaneProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected Plane Property is NULL." << std::endl;
+    std::cout << "Selected Plane Property is nullptr." << std::endl;
   }
 
   prop = node1->GetOutlineProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Outline Property is NULL." << std::endl;
+    std::cout << "Outline Property is nullptr." << std::endl;
   }
   prop = node1->GetSelectedOutlineProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Selected Outline Property is NULL." << std::endl;
+    std::cout << "Selected Outline Property is nullptr." << std::endl;
   }
 
   prop = node1->GetEdgesProperty();
-  if (prop == NULL)
+  if (prop == nullptr)
   {
-    std::cout << "Edges Property is NULL." << std::endl;
+    std::cout << "Edges Property is nullptr." << std::endl;
   }
 
   // clamped 0-7

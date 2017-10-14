@@ -87,14 +87,14 @@ class VTKVIEWSINFOVIS_EXPORT vtkParallelCoordinatesRepresentation : public vtkRe
 public:
   static vtkParallelCoordinatesRepresentation* New();
   vtkTypeMacro(vtkParallelCoordinatesRepresentation, vtkRenderedRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Apply the theme to this view.  CellColor is used for line coloring
    * and titles.  EdgeLabelColor is used for axis color. CellOpacity is
    * used for line opacity.
    */
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   /**
    * Returns the hover text at an x,y location.
@@ -238,22 +238,22 @@ public:
 
 protected:
   vtkParallelCoordinatesRepresentation();
-  ~vtkParallelCoordinatesRepresentation() VTK_OVERRIDE;
+  ~vtkParallelCoordinatesRepresentation() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   //@{
   /**
    * Add/remove the props and actors to/from a view
    */
-  bool AddToView(vtkView* view) VTK_OVERRIDE;
-  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
-  void PrepareForRendering(vtkRenderView* view) VTK_OVERRIDE;
+  bool AddToView(vtkView* view) override;
+  bool RemoveFromView(vtkView* view) override;
+  void PrepareForRendering(vtkRenderView* view) override;
   //@}
 
   /**
@@ -283,7 +283,7 @@ protected:
   //@{
   /**
    * Place line primitives into a vtkPolyData from the input data.  idsToPlot
-   * is a list of which rows/samples should be plotted.  If NULL, all
+   * is a list of which rows/samples should be plotted.  If nullptr, all
    * rows/samples are plotted.
    */
   virtual int PlaceLines(vtkPolyData* polyData, vtkTable* data, vtkIdTypeArray* idsToPlot);
@@ -324,7 +324,7 @@ protected:
    * Select a set of points using the prescribed operator (add, subtract, etc.) and class
    */
   virtual void SelectRows(vtkIdType brushClass, vtkIdType brushOperator, vtkIdTypeArray* rowIds);
-  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) VTK_OVERRIDE;
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* selection) override;
   virtual void BuildInverseSelection();
   virtual vtkPolyDataMapper2D* InitializePlotMapper(vtkPolyData* input, vtkActor2D* actor, bool forceStandard=false);
   //@}
@@ -399,8 +399,8 @@ protected:
   char* InternalHoverText;
 
 private:
-  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
+  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&) = delete;
+  void operator=(const vtkParallelCoordinatesRepresentation&) = delete;
 };
 
 #endif

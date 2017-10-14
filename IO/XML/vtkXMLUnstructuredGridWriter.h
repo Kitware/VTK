@@ -40,7 +40,7 @@ class VTKIOXML_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDa
 {
 public:
   vtkTypeMacro(vtkXMLUnstructuredGridWriter,vtkXMLUnstructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLUnstructuredGridWriter* New();
 
   /**
@@ -51,28 +51,28 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLUnstructuredGridWriter();
-  ~vtkXMLUnstructuredGridWriter() VTK_OVERRIDE;
+  ~vtkXMLUnstructuredGridWriter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void AllocatePositionArrays() VTK_OVERRIDE;
-  void DeletePositionArrays() VTK_OVERRIDE;
+  void AllocatePositionArrays() override;
+  void DeletePositionArrays() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
-  void WriteInlinePieceAttributes() VTK_OVERRIDE;
-  void WriteInlinePiece(vtkIndent indent) VTK_OVERRIDE;
+  void WriteInlinePieceAttributes() override;
+  void WriteInlinePiece(vtkIndent indent) override;
 
-  void WriteAppendedPieceAttributes(int index) VTK_OVERRIDE;
-  void WriteAppendedPiece(int index, vtkIndent indent) VTK_OVERRIDE;
-  void WriteAppendedPieceData(int index) VTK_OVERRIDE;
+  void WriteAppendedPieceAttributes(int index) override;
+  void WriteAppendedPiece(int index, vtkIndent indent) override;
+  void WriteAppendedPieceData(int index) override;
 
-  vtkIdType GetNumberOfInputCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfInputCells() override;
   void CalculateSuperclassFraction(float* fractions);
 
   // Positions of attributes for each piece.
@@ -80,8 +80,8 @@ protected:
   OffsetsManagerArray *CellsOM; //one per piece
 
 private:
-  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) = delete;
+  void operator=(const vtkXMLUnstructuredGridWriter&) = delete;
 };
 
 #endif

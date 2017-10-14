@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
  public:
   static vtkCullerCollection *New();
   vtkTypeMacro(vtkCullerCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an Culler to the bottom of the list.
@@ -70,7 +70,7 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
 
 protected:
   vtkCullerCollection() {}
-  ~vtkCullerCollection() VTK_OVERRIDE {}
+  ~vtkCullerCollection() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -80,16 +80,16 @@ private:
   }
 
 private:
-  vtkCullerCollection(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
+  vtkCullerCollection(const vtkCullerCollection&) = delete;
+  void operator=(const vtkCullerCollection&) = delete;
 };
 
 
 inline vtkCuller *vtkCullerCollection::GetLastItem()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

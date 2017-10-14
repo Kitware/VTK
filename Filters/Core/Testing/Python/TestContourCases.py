@@ -71,7 +71,7 @@ class CellTestBase:
 
             calcFilter = vtk.vtkArrayCalculator()
             calcFilter.SetInputConnection(normalsFilter.GetOutputPort())
-            calcFilter.SetAttributeModeToUsePointData()
+            calcFilter.SetAttributeTypeToPointData()
             calcFilter.AddVectorArrayName('grad')
             calcFilter.AddVectorArrayName('Normals')
             calcFilter.SetResultArrayName('dir')

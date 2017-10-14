@@ -70,7 +70,14 @@ public:
   virtual ~XdmfAttribute();
 
   LOKI_DEFINE_VISITABLE(XdmfAttribute, XdmfArray)
+  XDMF_CHILDREN(XdmfAttribute, XdmfArray, AuxiliaryArray, Name)
   static const std::string ItemTag;
+
+  using XdmfArray::insert;
+
+#if defined(SWIG)
+  using XdmfItem::insert;
+#endif
 
   /**
    * Get the XdmfAttributeCenter associated with this attribute.
@@ -164,6 +171,34 @@ public:
   shared_ptr<const XdmfAttributeType> getType() const;
 
   /**
+   * Get the ItemType associated with this attribute.
+   *
+   * @return    ItemType of the attribute.
+   */
+  std::string getItemType() const;
+
+  /**
+   * Get the ElementFamily associated with this attribute.
+   *
+   * @return    ElementFamily of the attribute.
+   */
+  std::string getElementFamily() const;
+
+  /**
+   * Get the ElementDegree associated with this attribute.
+   *
+   * @return    ElementDegree of the attribute.
+   */
+  unsigned int getElementDegree() const;
+
+  /**
+   * Get the ElementCell associated with this attribute.
+   *
+   * @return    ElementCell of the attribute.
+   */
+  std::string getElementCell() const;
+
+  /**
    * Set the XdmfAttributeCenter associated with this attribute.
    *
    * Example of use:
@@ -238,7 +273,37 @@ public:
    */
   void setType(const shared_ptr<const XdmfAttributeType> type);
 
+   /**
+   * Set the ItemType associated with this attribute.
+   *
+   * @param     type    ItemType to set.
+   */
+  void setItemType(std::string type);
+
+   /**
+   * Set the ElementFamily associated with this attribute.
+   *
+   * @param     type    ElementFamily to set.
+   */
+  void setElementFamily(std::string type);
+
+   /**
+   * Set the ElementDegree associated with this attribute.
+   *
+   * @param     type    ElementDegree to set.
+   */
+  void setElementDegree(unsigned int degree);
+
+   /**
+   * Set the ElementCell associated with this attribute.
+   *
+   * @param     type    ElementCell to set.
+   */
+  void setElementCell(std::string cell);
+
   XdmfAttribute(XdmfAttribute &);
+
+  void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
 protected:
 
@@ -257,6 +322,11 @@ private:
   shared_ptr<const XdmfAttributeCenter> mCenter;
   std::string mName;
   shared_ptr<const XdmfAttributeType> mType;
+  std::string mItemType;
+  unsigned int mElementDegree;
+  std::string mElementFamily;
+  std::string mElementCell;
+
 };
 
 #endif

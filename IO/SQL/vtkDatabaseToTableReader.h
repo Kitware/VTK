@@ -34,7 +34,7 @@ class VTKIOSQL_EXPORT vtkDatabaseToTableReader : public vtkTableAlgorithm
 {
 public:
   vtkTypeMacro(vtkDatabaseToTableReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the database associated with this reader
@@ -56,16 +56,16 @@ public:
 
 protected:
    vtkDatabaseToTableReader();
-  ~vtkDatabaseToTableReader() VTK_OVERRIDE;
+  ~vtkDatabaseToTableReader() override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE = 0;
+                          vtkInformationVector *) override = 0;
   vtkSQLDatabase *Database;
 
   std::string TableName;
 
 private:
-  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDatabaseToTableReader&) VTK_DELETE_FUNCTION;
+  vtkDatabaseToTableReader(const vtkDatabaseToTableReader&) = delete;
+  void operator=(const vtkDatabaseToTableReader&) = delete;
 };
 
 #endif

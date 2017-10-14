@@ -65,32 +65,32 @@ public:
   static vtkInteractorStyleTerrain *New();
 
   vtkTypeMacro(vtkInteractorStyleTerrain,vtkInteractorStyle);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Event bindings controlling the effects of pressing mouse buttons
    * or moving the mouse.
    */
-  void OnMouseMove() VTK_OVERRIDE;
-  void OnLeftButtonDown() VTK_OVERRIDE;
-  void OnLeftButtonUp() VTK_OVERRIDE;
-  void OnMiddleButtonDown() VTK_OVERRIDE;
-  void OnMiddleButtonUp() VTK_OVERRIDE;
-  void OnRightButtonDown() VTK_OVERRIDE;
-  void OnRightButtonUp() VTK_OVERRIDE;
+  void OnMouseMove() override;
+  void OnLeftButtonDown() override;
+  void OnLeftButtonUp() override;
+  void OnMiddleButtonDown() override;
+  void OnMiddleButtonUp() override;
+  void OnRightButtonDown() override;
+  void OnRightButtonUp() override;
   //@}
 
   /**
    * Override the "fly-to" (f keypress) for images.
    */
-  void OnChar() VTK_OVERRIDE;
+  void OnChar() override;
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion.
-  void Rotate() VTK_OVERRIDE;
-  void Pan() VTK_OVERRIDE;
-  void Dolly() VTK_OVERRIDE;
+  void Rotate() override;
+  void Pan() override;
+  void Dolly() override;
 
   //@{
   /**
@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkInteractorStyleTerrain();
-  ~vtkInteractorStyleTerrain() VTK_OVERRIDE;
+  ~vtkInteractorStyleTerrain() override;
 
   // Internal helper attributes
   int LatLongLines;
@@ -119,8 +119,8 @@ protected:
   double MotionFactor;
 
 private:
-  vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInteractorStyleTerrain&) VTK_DELETE_FUNCTION;
+  vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&) = delete;
+  void operator=(const vtkInteractorStyleTerrain&) = delete;
 
 };
 

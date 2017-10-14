@@ -2,36 +2,44 @@ PROJECT (Charts)
 
 IF(NOT VTK_BINARY_DIR)
 FIND_PACKAGE(VTK REQUIRED)
-IF(NOT VTK_USE_CHARTS)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires VTK_USE_CHARTS.")
+IF(NOT vtkChartsCore_LOADED)
+  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires vtkChartsCore module.")
 ENDIF()
 INCLUDE(${VTK_USE_FILE})
 ENDIF()
 
-IF(VTK_USE_VIEWS)
+IF(vtkViewsInfovis_LOADED AND vtkViewsContext2D_LOADED)
   ADD_EXECUTABLE(GraphItem GraphItem.cxx vtkGraphItem.cxx)
-  TARGET_LINK_LIBRARIES(GraphItem vtkCharts)
+  set_property(TARGET GraphItem APPEND
+    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
+  set_property(TARGET GraphItem APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
+  TARGET_LINK_LIBRARIES(GraphItem ${VTK_LIBRARIES})
 ENDIF()
 
-ADD_EXECUTABLE(PiecewiseItem PiecewiseItem.cxx)
-TARGET_LINK_LIBRARIES(PiecewiseItem vtkCharts)
+IF(vtkViewsContext2D_LOADED)
+  ADD_EXECUTABLE(PiecewiseItem PiecewiseItem.cxx)
+  set_property(TARGET PiecewiseItem APPEND
+    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
+  set_property(TARGET PiecewiseItem APPEND
+    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
+  TARGET_LINK_LIBRARIES(PiecewiseItem ${VTK_LIBRARIES})
+ENDIF()
 
-IF(VTK_USE_QVTK)
-  FIND_PACKAGE(Qt4 REQUIRED)
-  INCLUDE(${QT_USE_FILE})
-  INCLUDE_DIRECTORIES(${QT_INCLUDE_DIR})
-  ADD_EXECUTABLE(QChartTable QChartTable.cxx)
-  TARGET_LINK_LIBRARIES(QChartTable
-    QVTK
-    ${QT_LIBRARIES}
-    vtkRendering
-    vtkCharts
-  )
-  ADD_EXECUTABLE(QScalarsToColors QScalarsToColors.cxx)
-  TARGET_LINK_LIBRARIES(QScalarsToColors
-    QVTK
-    ${QT_LIBRARIES}
-    vtkRendering
-    vtkCharts
-  )
+IF(vtkGUISupportQt_LOADED)
+  if(VTK_QT_VERSION VERSION_GREATER "4")
+    ADD_EXECUTABLE(QChartTable QChartTable.cxx)
+    set_property(TARGET QChartTable APPEND
+      PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
+    set_property(TARGET QChartTable APPEND
+      PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES(QChartTable ${VTK_LIBRARIES})
+
+    ADD_EXECUTABLE(QScalarsToColors QScalarsToColors.cxx)
+    set_property(TARGET QScalarsToColors APPEND
+      PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
+    set_property(TARGET QScalarsToColors APPEND
+      PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
+    TARGET_LINK_LIBRARIES(QScalarsToColors ${VTK_LIBRARIES})
+  endif()
 ENDIF()

@@ -81,8 +81,8 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
 
   // Create a volume mapper and add image data and mask
   vtkNew<vtkGPUVolumeRayCastMapper> mapper;
-  mapper->SetInputData(imageData.GetPointer());
-  mapper->SetMaskInput(imageMask.GetPointer());
+  mapper->SetInputData(imageData);
+  mapper->SetMaskInput(imageMask);
   mapper->SetMaskTypeToBinary();
 
   // Create color and opacity nodes (red and blue)
@@ -96,13 +96,13 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
 
   // Create color property
   vtkNew<vtkVolumeProperty> colorProperty;
-  colorProperty->SetColor(colors.GetPointer());
-  colorProperty->SetScalarOpacity(opacities.GetPointer());
+  colorProperty->SetColor(colors);
+  colorProperty->SetScalarOpacity(opacities);
 
   // Create volume
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(mapper.GetPointer());
-  volume->SetProperty(colorProperty.GetPointer());
+  volume->SetMapper(mapper);
+  volume->SetProperty(colorProperty);
 
   // Render
   vtkNew<vtkRenderWindow> renWin;
@@ -110,21 +110,21 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   renWin->SetSize(301, 300); // Intentional NPOT size
 
   vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   renWin->Render();
-  int valid = mapper->IsRenderSupported(renWin.GetPointer(),
-                                        colorProperty.GetPointer());
+  int valid = mapper->IsRenderSupported(renWin,
+                                        colorProperty);
   if (!valid)
   {
     cout << "Required extensions not supported." << endl;
     return EXIT_SUCCESS;
   }
 
-  ren->AddVolume(volume.GetPointer());
+  ren->AddVolume(volume);
   renWin->Render();
   double values[6];
   colors->GetNodeValue(0, values);
@@ -132,5 +132,5 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char *argv[])
   colors->SetNodeValue(0, values);
   ren->ResetCamera();
   renWin->Render();
-  return vtkTesting::InteractorEventLoop( argc, argv, iren.GetPointer() );
+  return vtkTesting::InteractorEventLoop( argc, argv, iren );
 }

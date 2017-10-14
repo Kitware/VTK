@@ -34,15 +34,15 @@ class VTKRENDERINGCORE_EXPORT vtkHierarchicalPolyDataMapper : public vtkComposit
 public:
   static vtkHierarchicalPolyDataMapper *New();
   vtkTypeMacro(vtkHierarchicalPolyDataMapper, vtkCompositePolyDataMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkHierarchicalPolyDataMapper();
-  ~vtkHierarchicalPolyDataMapper() VTK_OVERRIDE;
+  ~vtkHierarchicalPolyDataMapper() override;
 
 private:
-  vtkHierarchicalPolyDataMapper(const vtkHierarchicalPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalPolyDataMapper(const vtkHierarchicalPolyDataMapper&) = delete;
+  void operator=(const vtkHierarchicalPolyDataMapper&) = delete;
 };
 
 #endif

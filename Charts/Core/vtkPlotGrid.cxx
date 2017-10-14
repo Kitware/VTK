@@ -33,15 +33,15 @@ vtkStandardNewMacro(vtkPlotGrid);
 //-----------------------------------------------------------------------------
 vtkPlotGrid::vtkPlotGrid()
 {
-  this->XAxis = NULL;
-  this->YAxis = NULL;
+  this->XAxis = nullptr;
+  this->YAxis = nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vtkPlotGrid::~vtkPlotGrid()
 {
-  this->SetXAxis(NULL);
-  this->SetYAxis(NULL);
+  this->SetXAxis(nullptr);
+  this->SetYAxis(nullptr);
 }
 
 //-----------------------------------------------------------------------------

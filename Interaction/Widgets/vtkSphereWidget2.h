@@ -40,7 +40,7 @@
  * <pre>
  * If the handle or sphere are selected:
  *   LeftButtonPressEvent - select the handle or sphere
- *   LeftButtonReleaseEvent - release the handle ot sphere
+ *   LeftButtonReleaseEvent - release the handle to sphere
  *   MouseMoveEvent - move the handle or translate the sphere
  * In all the cases, independent of what is picked, the widget responds to the
  * following VTK events:
@@ -107,7 +107,7 @@ public:
    * Standard class methods for type information and printing.
    */
   vtkTypeMacro(vtkSphereWidget2,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -135,11 +135,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkSphereRepresentation class.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkSphereWidget2();
-  ~vtkSphereWidget2() VTK_OVERRIDE;
+  ~vtkSphereWidget2() override;
 
   // Manage the state of the widget
   int WidgetState;
@@ -157,8 +157,8 @@ protected:
   int ScalingEnabled;
 
 private:
-  vtkSphereWidget2(const vtkSphereWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereWidget2&) VTK_DELETE_FUNCTION;
+  vtkSphereWidget2(const vtkSphereWidget2&) = delete;
+  void operator=(const vtkSphereWidget2&) = delete;
 };
 
 #endif

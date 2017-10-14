@@ -82,14 +82,14 @@ class VTK_INFORMATION_EXPORT vtkInformation : public vtkObject
 public:
   VTKCOMMONCORE_EXPORT static vtkInformation *New();
   vtkTypeMacro(vtkInformation,vtkObject);
-  VTKCOMMONCORE_EXPORT void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void PrintSelf(ostream& os, vtkIndent indent) override;
   VTKCOMMONCORE_EXPORT void PrintKeys(ostream& os, vtkIndent indent);
 
   /**
    * Modified signature with no arguments that calls Modified
    * on vtkObject superclass.
    */
-  VTKCOMMONCORE_EXPORT void Modified() VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void Modified() override;
 
   /**
    * Modified signature that takes an information key as an argument.
@@ -469,8 +469,8 @@ public:
   /**
    * Initiate garbage collection when a reference is removed.
    */
-  VTKCOMMONCORE_EXPORT void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  VTKCOMMONCORE_EXPORT void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void Register(vtkObjectBase* o) override;
+  VTKCOMMONCORE_EXPORT void UnRegister(vtkObjectBase* o) override;
   //@}
 
   //@{
@@ -483,7 +483,7 @@ public:
 
 protected:
   VTKCOMMONCORE_EXPORT vtkInformation();
-  VTKCOMMONCORE_EXPORT ~vtkInformation() VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT ~vtkInformation() override;
 
   // Get/Set a map entry directly through the vtkObjectBase instance
   // representing the value.  Used internally to manage the map.
@@ -497,7 +497,7 @@ protected:
   vtkInformationInternals* Internal;
 
   // Garbage collection support.
-  VTKCOMMONCORE_EXPORT void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void ReportReferences(vtkGarbageCollector*) override;
 
   // Report the object associated with the given key to the collector.
   VTKCOMMONCORE_EXPORT void ReportAsObjectBase(vtkInformationKey* key,
@@ -509,8 +509,8 @@ private:
   friend class vtkInformationIterator;
 
 private:
-  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) VTK_DELETE_FUNCTION;
-  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) VTK_DELETE_FUNCTION;
+  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) = delete;
+  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) = delete;
   vtkInformationRequestKey *Request;
 };
 

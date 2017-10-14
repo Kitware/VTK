@@ -43,12 +43,12 @@ public:
   static vtkSynchronizedTemplates3D *New();
 
   vtkTypeMacro(vtkSynchronizedTemplates3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -173,24 +173,24 @@ public:
 
 protected:
   vtkSynchronizedTemplates3D();
-  ~vtkSynchronizedTemplates3D() VTK_OVERRIDE;
+  ~vtkSynchronizedTemplates3D() override;
 
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int ArrayComponent;
 
   int GenerateTriangles;
 
 private:
-  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&) = delete;
+  void operator=(const vtkSynchronizedTemplates3D&) = delete;
 };
 
 

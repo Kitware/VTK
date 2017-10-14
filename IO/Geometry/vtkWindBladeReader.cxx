@@ -71,7 +71,7 @@ public:
 //----------------------------------------------------------------------------
 vtkWindBladeReader::vtkWindBladeReader()
 {
-  this->Filename = NULL;
+  this->Filename = nullptr;
   this->SetNumberOfInputPorts(0);
 
   // Set up three output ports for field, blade and ground
@@ -83,7 +83,7 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->XSpacing = vtkFloatArray::New();
   this->YSpacing = vtkFloatArray::New();
   this->ZSpacing = vtkFloatArray::New();
-  this->ZTopographicValues = NULL;
+  this->ZTopographicValues = nullptr;
 
   // Blade geometry
   this->BPoints = vtkPoints::New();
@@ -114,7 +114,7 @@ vtkWindBladeReader::vtkWindBladeReader()
 
   // Variables need to be divided by density
   this->NumberOfTimeSteps = 1;
-  this->TimeSteps = NULL;
+  this->TimeSteps = nullptr;
   this->NumberOfVariables = 0;
   this->DivideVariables = vtkStringArray::New();
   this->DivideVariables->InsertNextValue("UVW");
@@ -122,19 +122,19 @@ vtkWindBladeReader::vtkWindBladeReader()
   this->DivideVariables->InsertNextValue("B-scale turbulence");
   this->DivideVariables->InsertNextValue("Oxygen");
 
-  this->Data = NULL;
+  this->Data = nullptr;
   this->Internal = new WindBladeReaderInternal();
 
   // by default don't skip any lines because normal wind files do not
   // have a header
   this->NumberOfLinesToSkip = 0;
 
-  this->VariableName = NULL;
-  this->VariableStruct = NULL;
-  this->VariableCompSize = NULL;
-  this->VariableBasicType = NULL;
-  this->VariableByteCount = NULL;
-  this->VariableOffset = NULL;
+  this->VariableName = nullptr;
+  this->VariableStruct = nullptr;
+  this->VariableCompSize = nullptr;
+  this->VariableBasicType = nullptr;
+  this->VariableByteCount = nullptr;
+  this->VariableOffset = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ vtkWindBladeReader::vtkWindBladeReader()
 //----------------------------------------------------------------------------
 vtkWindBladeReader::~vtkWindBladeReader()
 {
-  this->SetFilename(NULL);
+  this->SetFilename(nullptr);
   this->PointDataArraySelection->Delete();
   this->DivideVariables->Delete();
 
@@ -324,7 +324,7 @@ int vtkWindBladeReader::RequestInformation(vtkInformation* reqInfo,
 
     // Collect temporal information and attach to both output ports
     delete [] this->TimeSteps;
-    this->TimeSteps = NULL;
+    this->TimeSteps = nullptr;
 
     if (this->NumberOfTimeSteps > 0)
     {
@@ -372,7 +372,7 @@ void vtkWindBladeReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Filename: "
-     << (this->Filename ? this->Filename : "(NULL)") << endl;
+     << (this->Filename ? this->Filename : "(nullptr)") << endl;
 
   os << indent << "WholeExent: {" << this->WholeExtent[0] << ", "
      << this->WholeExtent[1] << ", " << this->WholeExtent[2] << ", "
@@ -405,7 +405,7 @@ int vtkWindBladeReader::RequestData(
     vtkStructuredGrid *field = this->GetFieldOutput();
     this->InitFieldData(outVector, fileName, field);
     this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
-    if (this->Internal->FilePtr == NULL)
+    if (this->Internal->FilePtr == nullptr)
     {
       vtkWarningMacro(<< "Could not open file " << fileName.str());
       return 0;
@@ -467,7 +467,7 @@ void vtkWindBladeReader::DivideByDensity(const char* varName)
 void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
                                            int tempg, int density)
 {
-  float *pressureData = NULL, *prespreData = NULL;
+  float *pressureData = nullptr, *prespreData = nullptr;
   this->InitPressureData(pressure, prespre, pressureData, prespreData);
 
   // Read tempg and Density components from file
@@ -562,7 +562,7 @@ void vtkWindBladeReader::LoadVariableData(int var)
   fseek(this->Internal->FilePtr, this->VariableOffset[var], SEEK_SET);
 
   int numberOfComponents = 0, planeSize = 0, rowSize;
-  float *varData = NULL;
+  float *varData = nullptr;
   float* block = new float[this->BlockSize];
   this->InitVariableData(var, numberOfComponents, varData, planeSize, rowSize);
   for (int comp = 0; comp < numberOfComponents; comp++)
@@ -742,7 +742,7 @@ bool vtkWindBladeReader::FindVariableOffsets()
 
   this->Internal->FilePtr = fopen(fileName.str().c_str(), "rb");
 
-  if (this->Internal->FilePtr == NULL)
+  if (this->Internal->FilePtr == nullptr)
   {
     vtkErrorMacro("Could not open file " << fileName.str());
     return false;
@@ -1556,7 +1556,7 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
     vtkWarningMacro("Could not open the global .wind file " << fileName);
   }
 
-  std::string::size_type dirPos = std::string(fileName).rfind("/");
+  std::string::size_type dirPos = std::string(fileName).rfind('/');
   if (dirPos == std::string::npos)
   {
     vtkWarningMacro("Bad input file name " << fileName);
@@ -1575,7 +1575,7 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
       std::string::size_type keyPos = line.find(' ');
       keyword = line.substr(0, keyPos);
       rest = line.substr(keyPos + 1);
-      std::istringstream lineStr(rest.c_str());
+      std::istringstream lineStr(rest);
 
       // Header information
       if (keyword == "WIND_HEADER_VERSION")
@@ -2128,7 +2128,7 @@ vtkUnstructuredGrid *vtkWindBladeReader::GetBladeOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
@@ -2139,7 +2139,7 @@ vtkStructuredGrid *vtkWindBladeReader::GetGroundOutput()
 {
   if (this->GetNumberOfOutputPorts() < 3)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkStructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(2));

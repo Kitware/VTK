@@ -33,7 +33,7 @@ class VTKINFOVISCORE_EXPORT vtkPipelineGraphSource : public vtkDirectedGraphAlgo
 public:
   static vtkPipelineGraphSource* New();
   vtkTypeMacro(vtkPipelineGraphSource,vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void AddSink(vtkObject* object);
   void RemoveSink(vtkObject* object);
@@ -51,18 +51,18 @@ public:
 
 protected:
   vtkPipelineGraphSource();
-  ~vtkPipelineGraphSource() VTK_OVERRIDE;
+  ~vtkPipelineGraphSource() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   vtkCollection* Sinks;
 
 private:
-  vtkPipelineGraphSource(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
+  vtkPipelineGraphSource(const vtkPipelineGraphSource&) = delete;
+  void operator=(const vtkPipelineGraphSource&) = delete;
 
 };
 

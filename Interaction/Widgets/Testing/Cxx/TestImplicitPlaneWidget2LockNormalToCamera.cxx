@@ -416,7 +416,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -426,7 +426,7 @@ public:
     rep->GetPlane(this->Plane);
     this->Actor->VisibilityOn();
   }
-  vtkTIPW2Callback():Plane(0),Actor(0) {}
+  vtkTIPW2Callback():Plane(nullptr),Actor(nullptr) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 };
@@ -441,7 +441,7 @@ public:
   {
     return new vtkEnableSlaveCallback;
   }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
@@ -461,7 +461,7 @@ public:
   }
 
   // Ctors
-  vtkEnableSlaveCallback():lockMode(true), pWidget(0) {}
+  vtkEnableSlaveCallback():lockMode(true), pWidget(nullptr) {}
 
   // Attributes
   bool lockMode;
@@ -493,7 +493,7 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   maceMapper->SetInputConnection(apd->GetOutputPort());
 
   vtkNew<vtkLODActor> maceActor;
-  maceActor->SetMapper(maceMapper.GetPointer());
+  maceActor->SetMapper(maceMapper);
   maceActor->VisibilityOn();
 
   // This portion of the code clips the mace with the vtkPlanes
@@ -501,14 +501,14 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   vtkNew<vtkPlane> plane;
   vtkNew<vtkClipPolyData> clipper;
   clipper->SetInputConnection(apd->GetOutputPort());
-  clipper->SetClipFunction(plane.GetPointer());
+  clipper->SetClipFunction(plane);
   clipper->InsideOutOn();
 
   vtkNew<vtkPolyDataMapper> selectMapper;
   selectMapper->SetInputConnection(clipper->GetOutputPort());
 
   vtkNew<vtkLODActor> selectActor;
-  selectActor->SetMapper(selectMapper.GetPointer());
+  selectActor->SetMapper(selectMapper);
   selectActor->GetProperty()->SetColor(0,1,0);
   selectActor->VisibilityOff();
   selectActor->SetScale(1.01, 1.01, 1.01);
@@ -517,20 +517,20 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   //
   vtkNew<vtkRenderer> ren1;
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(ren1.GetPointer());
+  renWin->AddRenderer(ren1);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
   vtkNew<vtkInteractorStyleTrackballCamera> style;
-  iren->SetInteractorStyle(style.GetPointer());
+  iren->SetInteractorStyle(style);
 
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
   vtkNew<vtkTIPW2Callback> myCallback;
-  myCallback->Plane = plane.GetPointer();
-  myCallback->Actor = selectActor.GetPointer();
+  myCallback->Plane = plane;
+  myCallback->Actor = selectActor;
 
   vtkNew<vtkImplicitPlaneRepresentation> rep;
   rep->SetPlaceFactor(1.25);
@@ -538,30 +538,30 @@ int TestImplicitPlaneWidget2LockNormalToCamera(int vtkNotUsed(argc),
   rep->SetEdgeColor(0.,1.,0.);
 
   vtkNew<vtkImplicitPlaneWidget2> planeWidget;
-  planeWidget->SetInteractor(iren.GetPointer());
-  planeWidget->SetRepresentation(rep.GetPointer());
+  planeWidget->SetInteractor(iren);
+  planeWidget->SetRepresentation(rep);
 
   // Callback to the swaper interaction function
   vtkNew<vtkEnableSlaveCallback> lockMode;
-  lockMode->pWidget = planeWidget.GetPointer();
+  lockMode->pWidget = planeWidget;
 
   // Link the Swapper to the RenderWindowInteractor
-  iren->AddObserver(vtkCommand::KeyPressEvent, lockMode.GetPointer());
+  iren->AddObserver(vtkCommand::KeyPressEvent, lockMode);
 
   planeWidget->AddObserver(vtkCommand::InteractionEvent,
-                           myCallback.GetPointer());
-  planeWidget->AddObserver(vtkCommand::UpdateEvent, myCallback.GetPointer());
+                           myCallback);
+  planeWidget->AddObserver(vtkCommand::UpdateEvent, myCallback);
 
   // Add the actors to the renderer, set the background and size
   //
   ren1->SetBackground(0.1, 0.2, 0.4);
-  ren1->AddActor(maceActor.GetPointer());
-  ren1->AddActor(selectActor.GetPointer());
+  ren1->AddActor(maceActor);
+  ren1->AddActor(selectActor);
   renWin->SetSize(300, 300);
 
   // record events
   vtkNew<vtkInteractorEventRecorder> recorder;
-  recorder->SetInteractor(iren.GetPointer());
+  recorder->SetInteractor(iren);
 //  recorder->SetFileName("c:/record.log");
 //  recorder->Record();
   recorder->ReadFromInputStringOn();

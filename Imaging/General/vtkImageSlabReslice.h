@@ -57,7 +57,7 @@ public:
   /**
    * Printself method.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkImageSlabReslice();
-  ~vtkImageSlabReslice() VTK_OVERRIDE;
+  ~vtkImageSlabReslice() override;
 
   /**
    * This method simply calls the superclass method. In addition, it also
@@ -107,7 +107,7 @@ protected:
    * SlabResolution.
    */
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                                 vtkInformationVector *) VTK_OVERRIDE;
+                                 vtkInformationVector *) override;
 
   int    BlendMode; // can be MIN, MIP, MAX
   double SlabThickness;
@@ -115,8 +115,8 @@ protected:
   int    NumBlendSamplePoints;
 
 private:
-  vtkImageSlabReslice(const vtkImageSlabReslice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSlabReslice&) VTK_DELETE_FUNCTION;
+  vtkImageSlabReslice(const vtkImageSlabReslice&) = delete;
+  void operator=(const vtkImageSlabReslice&) = delete;
 };
 
 #endif

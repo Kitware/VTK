@@ -102,7 +102,7 @@ void InitializeDataCommon(vtkDataObject *data)
   // Add a dummy array to test component name and information key serialization.
   vtkNew<vtkFloatArray> array;
   array->SetName("Test Array");
-  fd->AddArray(array.GetPointer());
+  fd->AddArray(array);
   array->SetNumberOfComponents(3);
   array->SetComponentName(0, "Component 0 name");
   array->SetComponentName(1, "Component 1 name");

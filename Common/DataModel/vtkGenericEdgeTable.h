@@ -49,7 +49,7 @@ public:
    * Standard VTK type and print macros.
    */
   vtkTypeMacro(vtkGenericEdgeTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -249,7 +249,7 @@ public:
 
 protected:
   vtkGenericEdgeTable();
-  ~vtkGenericEdgeTable() VTK_OVERRIDE;
+  ~vtkGenericEdgeTable() override;
 
   /**
    * Split the edge with the indicated point id.
@@ -276,8 +276,8 @@ protected:
   vtkIdType NumberOfComponents;
 
 private:
-  vtkGenericEdgeTable(const vtkGenericEdgeTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGenericEdgeTable&) VTK_DELETE_FUNCTION;
+  vtkGenericEdgeTable(const vtkGenericEdgeTable&) = delete;
+  void operator=(const vtkGenericEdgeTable&) = delete;
 
 };
 

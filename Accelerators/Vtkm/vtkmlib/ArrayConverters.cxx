@@ -32,6 +32,44 @@
 
 namespace tovtkm {
 
+void ProcessFields(vtkDataSet *input, vtkm::cont::DataSet &dataset,
+                   tovtkm::FieldsFlag fields)
+{
+  if ((fields & tovtkm::FieldsFlag::Points) != tovtkm::FieldsFlag::None)
+  {
+    vtkPointData* pd = input->GetPointData();
+    for (vtkIdType i = 0; i < pd->GetNumberOfArrays(); i++)
+    {
+      vtkDataArray* array = pd->GetArray(i);
+      if (array == nullptr)
+      {
+        continue;
+      }
+
+      vtkm::cont::Field pfield =
+          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      dataset.AddField(pfield);
+    }
+  }
+
+  if ((fields & tovtkm::FieldsFlag::Cells) != tovtkm::FieldsFlag::None)
+  {
+    vtkCellData* cd = input->GetCellData();
+    for (vtkIdType i = 0; i < cd->GetNumberOfArrays(); i++)
+    {
+      vtkDataArray* array = cd->GetArray(i);
+      if (array == nullptr)
+      {
+        continue;
+      }
+
+      vtkm::cont::Field cfield =
+          tovtkm::Convert(array, vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      dataset.AddField(cfield);
+    }
+  }
+}
+
 template <typename DataArrayType>
 vtkm::cont::Field ConvertPointField(DataArrayType* input)
 {
@@ -219,7 +257,7 @@ template <int Components> struct CopyArrayContents
     for (vtkIdType i = 0; i < numValues; ++i, ++iter)
     {
       T t = *iter;
-      for (vtkIdType j = 0; j < Components; ++j, ++index)
+      for (vtkm::IdComponent j = 0; j < Components; ++j, ++index)
       {
         array->SetValue(index, t[j]);
       }
@@ -232,7 +270,6 @@ template <> struct CopyArrayContents<1>
   template <typename IteratorType, typename U>
   void operator()(IteratorType iter, U* array, vtkIdType numValues) const
   {
-    typedef typename IteratorType::value_type T;
     // fast path for single component arrays, can't steal the memory
     // since the storage types isn't one we know
     for (vtkIdType i = 0; i < numValues; ++i, ++iter)
@@ -312,7 +349,7 @@ struct ArrayConverter
   {
     // we can grab the already allocated vtk memory
     this->Data = handle.Internals->ControlArray.VTKArray();
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
 
   template <typename T>
@@ -322,7 +359,7 @@ struct ArrayConverter
   {
     // we can grab the already allocated vtk memory
     this->Data = handle.Internals->ControlArray.VTKArray();
-    this->Data->Register(NULL);
+    this->Data->Register(nullptr);
   }
 };
 }

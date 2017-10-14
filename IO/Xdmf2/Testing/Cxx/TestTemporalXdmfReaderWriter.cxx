@@ -77,7 +77,7 @@ int TestTemporalXdmfReaderWriter(int argc, char *argv[])
     "Data/XDMF/temporalStaticMeshes.xmf");
   vtkNew<vtkXdmfReader> reader;
   reader->SetFileName(filePath);
-  if (TestStaticMesh(reader.Get()) == VTK_ERROR)
+  if (TestStaticMesh(reader) == VTK_ERROR)
   {
     std::cerr << "Error while reading " << reader->GetFileName() << std::endl;
     return VTK_ERROR;
@@ -95,7 +95,7 @@ int TestTemporalXdmfReaderWriter(int argc, char *argv[])
   // Test written file
   vtkNew<vtkXdmfReader> reader2;
   reader2->SetFileName(outFilePath.c_str());
-  if (TestStaticMesh(reader2.Get()) == VTK_ERROR)
+  if (TestStaticMesh(reader2) == VTK_ERROR)
   {
       std::cerr << "Error while reading " << reader2->GetFileName() << std::endl;
     return VTK_ERROR;

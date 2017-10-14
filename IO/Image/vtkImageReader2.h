@@ -54,7 +54,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2 : public vtkImageAlgorithm
 public:
   static vtkImageReader2 *New();
   vtkTypeMacro(vtkImageReader2,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -91,7 +91,7 @@ public:
 
   //@{
   /**
-   * The sprintf-style format string used to build filename from
+   * The snprintf-style format string used to build filename from
    * FilePrefix and slice number.
    */
   virtual void SetFilePattern(const char *);
@@ -288,7 +288,7 @@ public:
    */
   virtual const char* GetFileExtensions()
   {
-      return 0;
+      return nullptr;
   }
 
   //@{
@@ -297,11 +297,11 @@ public:
    */
   virtual const char* GetDescriptiveName()
   {
-      return 0;
+      return nullptr;
   }
 protected:
   vtkImageReader2();
-  ~vtkImageReader2() VTK_OVERRIDE;
+  ~vtkImageReader2() override;
   //@}
 
   vtkStringArray *FileNames;
@@ -334,13 +334,13 @@ protected:
 
   int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector* outputVector) override;
   virtual void ExecuteInformation();
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) VTK_OVERRIDE;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo) override;
   virtual void ComputeDataIncrements();
 private:
-  vtkImageReader2(const vtkImageReader2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageReader2&) VTK_DELETE_FUNCTION;
+  vtkImageReader2(const vtkImageReader2&) = delete;
+  void operator=(const vtkImageReader2&) = delete;
 };
 
 #endif

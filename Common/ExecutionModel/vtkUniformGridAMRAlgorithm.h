@@ -37,7 +37,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
   public:
     static vtkUniformGridAMRAlgorithm* New();
     vtkTypeMacro(vtkUniformGridAMRAlgorithm, vtkAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -60,11 +60,11 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
      */
     int ProcessRequest(vtkInformation* request,
                                vtkInformationVector** inputVector,
-                               vtkInformationVector* outputVector ) VTK_OVERRIDE;
+                               vtkInformationVector* outputVector ) override;
 
   protected:
     vtkUniformGridAMRAlgorithm();
-    ~vtkUniformGridAMRAlgorithm() VTK_OVERRIDE;
+    ~vtkUniformGridAMRAlgorithm() override;
 
     /**
      * This is called by the superclass.
@@ -101,21 +101,21 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
     /**
      * Create a default executive
      */
-    vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+    vtkExecutive* CreateDefaultExecutive() override;
 
     //@{
     /**
      * See algorithm for more info.
      */
-    int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillOutputPortInformation(int port, vtkInformation* info) override;
+    int FillInputPortInformation(int port, vtkInformation* info) override;
     //@}
 
     vtkDataObject *GetInput(int port);
 
   private:
-    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
+    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&) = delete;
+    void operator=(const vtkUniformGridAMRAlgorithm&) = delete;
 };
 
 #endif /* VTKUNIFORMGRIDAMRALGORITHM_H_ */

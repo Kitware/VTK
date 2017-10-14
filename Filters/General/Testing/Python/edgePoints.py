@@ -30,7 +30,6 @@ edgePoints.SetValue(1150)
 #
 mapper = vtk.vtkDataSetMapper()
 mapper.SetInputConnection(edgePoints.GetOutputPort())
-mapper.ImmediateModeRenderingOn()
 mapper.ScalarVisibilityOff()
 
 head = vtk.vtkActor()

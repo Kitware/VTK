@@ -51,7 +51,7 @@ public:
   static vtkBMPReader *New();
   vtkTypeMacro(vtkBMPReader,vtkImageReader);
 
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -63,14 +63,14 @@ public:
   /**
    * Is the given file a BMP file?
    */
-  int CanReadFile(const char* fname) VTK_OVERRIDE;
+  int CanReadFile(const char* fname) override;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  const char* GetFileExtensions() VTK_OVERRIDE
+  const char* GetFileExtensions() override
   {
       return ".bmp";
   }
@@ -78,7 +78,7 @@ public:
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE
+  const char* GetDescriptiveName() override
   {
       return "Windows BMP";
   }
@@ -105,19 +105,19 @@ public:
 
 protected:
   vtkBMPReader();
-  ~vtkBMPReader() VTK_OVERRIDE;
+  ~vtkBMPReader() override;
 
   unsigned char *Colors;
   short Depth;
   int Allow8BitBMP;
   vtkLookupTable *LookupTable;
 
-  void ComputeDataIncrements() VTK_OVERRIDE;
-  void ExecuteInformation() VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo) VTK_OVERRIDE;
+  void ComputeDataIncrements() override;
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo) override;
 private:
-  vtkBMPReader(const vtkBMPReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBMPReader&) VTK_DELETE_FUNCTION;
+  vtkBMPReader(const vtkBMPReader&) = delete;
+  void operator=(const vtkBMPReader&) = delete;
 };
 #endif
 

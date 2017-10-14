@@ -145,12 +145,12 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
     const char* tagName = childXML->GetName();
     if (strcmp(tagName, "DataSet") == 0)
     {
-      vtkSmartPointer<vtkDataSet> childDS;
-      const char* name = 0;
+      vtkSmartPointer<vtkDataObject> childDS;
+      const char* name = nullptr;
       if (this->ShouldReadDataSet(dataSetIndex))
       {
         // Read
-        childDS.TakeReference(this->ReadDataset(childXML, filePath));
+        childDS.TakeReference(this->ReadDataObject(childXML, filePath));
         name = childXML->GetAttribute("name");
       }
       // insert
@@ -167,7 +167,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       dataSetIndex++;
     }
     // Child is a multiblock dataset itself. Create it.
-    else if (mblock != 0
+    else if (mblock != nullptr
              && strcmp(tagName, "Block") == 0)
     {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();;
@@ -178,7 +178,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
       childDS->Delete();
     }
     // Child is a multipiece dataset. Create it.
-    else if (mblock!=0
+    else if (mblock!=nullptr
              && strcmp(tagName, "Piece") == 0)
     {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;
@@ -202,15 +202,15 @@ namespace
                                             vtkMultiPieceDataSet* mpiece,
                                             int index)
   {
-    vtkInformation* piece_metadata = 0;
+    vtkInformation* piece_metadata = nullptr;
     if (mblock)
     {
-      mblock->SetBlock(index, NULL);
+      mblock->SetBlock(index, nullptr);
       piece_metadata = mblock->GetMetaData(index);
     }
     else if (mpiece)
     {
-      mpiece->SetPiece(index, NULL);
+      mpiece->SetPiece(index, nullptr);
       piece_metadata = mpiece->GetMetaData(index);
     }
     return piece_metadata;
@@ -277,7 +277,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       dataSetIndex++;
     }
     // Child is a multiblock dataset itself. Create it.
-    else if (mblock != 0
+    else if (mblock != nullptr
              && strcmp(tagName, "Block") == 0)
     {
       vtkMultiBlockDataSet* childDS = vtkMultiBlockDataSet::New();
@@ -294,7 +294,7 @@ int vtkXMLMultiBlockDataReader::FillMetaData(vtkCompositeDataSet* metadata,
       childDS->Delete();
     }
     // Child is a multipiece dataset. Create it.
-    else if (mblock!=0
+    else if (mblock!=nullptr
              && strcmp(tagName, "Piece") == 0)
     {
       vtkMultiPieceDataSet* childDS = vtkMultiPieceDataSet::New();;

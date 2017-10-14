@@ -40,7 +40,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper1;
   vtkNew<vtkActor2D> actor1;
-  actor1->SetMapper(mapper1.GetPointer());
+  actor1->SetMapper(mapper1);
   mapper1->GetTextProperty()->SetFontSize(20);
   mapper1->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
   mapper1->GetTextProperty()->SetJustificationToLeft();
@@ -51,7 +51,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper2;
   vtkNew<vtkActor2D> actor2;
-  actor2->SetMapper(mapper2.GetPointer());
+  actor2->SetMapper(mapper2);
   mapper2->GetTextProperty()->SetFontSize(20);
   mapper2->GetTextProperty()->SetColor(0.0, 1.0, 0.0);
   mapper2->GetTextProperty()->SetJustificationToRight();
@@ -62,7 +62,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper3;
   vtkNew<vtkActor2D> actor3;
-  actor3->SetMapper(mapper3.GetPointer());
+  actor3->SetMapper(mapper3);
   mapper3->GetTextProperty()->SetFontSize(20);
   mapper3->GetTextProperty()->SetColor(0.0, 0.0, 1.0);
   mapper3->GetTextProperty()->SetJustificationToLeft();
@@ -73,7 +73,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper4;
   vtkNew<vtkActor2D> actor4;
-  actor4->SetMapper(mapper4.GetPointer());
+  actor4->SetMapper(mapper4);
   mapper4->GetTextProperty()->SetFontSize(20);
   mapper4->GetTextProperty()->SetColor(0.3, 0.4, 0.5);
   mapper4->GetTextProperty()->SetJustificationToRight();
@@ -86,7 +86,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper5;
   vtkNew<vtkActor2D> actor5;
-  actor5->SetMapper(mapper5.GetPointer());
+  actor5->SetMapper(mapper5);
   mapper5->GetTextProperty()->SetFontSize(20);
   mapper5->GetTextProperty()->SetColor(1.0, 1.0, 0.0);
   mapper5->GetTextProperty()->SetJustificationToCentered();
@@ -100,7 +100,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper6;
   vtkNew<vtkActor2D> actor6;
-  actor6->SetMapper(mapper6.GetPointer());
+  actor6->SetMapper(mapper6);
   mapper6->GetTextProperty()->SetFontSize(16);
   mapper6->GetTextProperty()->SetColor(1.0, 0.5, 0.2);
   mapper6->GetTextProperty()->SetJustificationToCentered();
@@ -111,7 +111,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper7;
   vtkNew<vtkActor2D> actor7;
-  actor7->SetMapper(mapper7.GetPointer());
+  actor7->SetMapper(mapper7);
   mapper7->GetTextProperty()->SetFontSize(16);
   mapper7->GetTextProperty()->SetColor(0.5, 0.2, 1.0);
   mapper7->GetTextProperty()->SetJustificationToLeft();
@@ -122,7 +122,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
 
   vtkNew<vtkTextMapper> mapper8;
   vtkNew<vtkActor2D> actor8;
-  actor8->SetMapper(mapper8.GetPointer());
+  actor8->SetMapper(mapper8);
   mapper8->GetTextProperty()->SetFontSize(16);
   mapper8->GetTextProperty()->SetColor(0.8, 1.0, 0.3);
   mapper8->GetTextProperty()->SetJustificationToRight();
@@ -134,7 +134,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   // Numbers, using courier, Text that gets 'cut off'
   vtkNew<vtkTextMapper> mapper9;
   vtkNew<vtkActor2D> actor9;
-  actor9->SetMapper(mapper9.GetPointer());
+  actor9->SetMapper(mapper9);
   mapper9->GetTextProperty()->SetFontSize(21);
   mapper9->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
   mapper9->GetTextProperty()->SetJustificationToCentered();
@@ -148,7 +148,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   // UTF-8 freetype handling:
   vtkNew<vtkTextMapper> mapper10;
   vtkNew<vtkActor2D> actor10;
-  actor10->SetMapper(mapper10.GetPointer());
+  actor10->SetMapper(mapper10);
   mapper10->GetTextProperty()->SetFontFile(uncodeFontFile.c_str());
   mapper10->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
   mapper10->GetTextProperty()->SetJustificationToCentered();
@@ -161,7 +161,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   // Test for rotated kerning (PR#15301)
   vtkNew<vtkTextMapper> mapper11;
   vtkNew<vtkActor2D> actor11;
-  actor11->SetMapper(mapper11.GetPointer());
+  actor11->SetMapper(mapper11);
   mapper11->GetTextProperty()->SetFontFile(uncodeFontFile.c_str());
   mapper11->GetTextProperty()->SetFontFamily(VTK_FONT_FILE);
   mapper11->GetTextProperty()->SetJustificationToCentered();
@@ -175,7 +175,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   // Empty string, solid background: should not render
   vtkNew<vtkTextMapper> mapper12;
   vtkNew<vtkActor2D> actor12;
-  actor12->SetMapper(mapper12.GetPointer());
+  actor12->SetMapper(mapper12);
   mapper12->GetTextProperty()->SetFontSize(16);
   mapper12->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
   mapper12->GetTextProperty()->SetBackgroundColor(1.0, 0.5, 1.0);
@@ -191,22 +191,22 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   ren->SetBackground(0.1, 0.1, 0.1);
   vtkNew<vtkRenderWindow> win;
   win->SetSize(600, 600);
-  win->AddRenderer(ren.GetPointer());
+  win->AddRenderer(ren);
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(win.GetPointer());
+  iren->SetRenderWindow(win);
 
-  ren->AddActor(actor1.GetPointer());
-  ren->AddActor(actor2.GetPointer());
-  ren->AddActor(actor3.GetPointer());
-  ren->AddActor(actor4.GetPointer());
-  ren->AddActor(actor5.GetPointer());
-  ren->AddActor(actor6.GetPointer());
-  ren->AddActor(actor7.GetPointer());
-  ren->AddActor(actor8.GetPointer());
-  ren->AddActor(actor9.GetPointer());
-  ren->AddActor(actor10.GetPointer());
-  ren->AddActor(actor11.GetPointer());
-  ren->AddActor(actor12.GetPointer());
+  ren->AddActor(actor1);
+  ren->AddActor(actor2);
+  ren->AddActor(actor3);
+  ren->AddActor(actor4);
+  ren->AddActor(actor5);
+  ren->AddActor(actor6);
+  ren->AddActor(actor7);
+  ren->AddActor(actor8);
+  ren->AddActor(actor9);
+  ren->AddActor(actor10);
+  ren->AddActor(actor11);
+  ren->AddActor(actor12);
 
   win->SetMultiSamples(0);
   win->Render();

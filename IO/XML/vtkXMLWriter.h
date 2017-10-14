@@ -54,7 +54,7 @@ class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Enumerate big and little endian byte order settings.
@@ -231,7 +231,7 @@ public:
   // See the vtkAlgorithm for a description of what these do
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 
   //@{
@@ -253,7 +253,7 @@ public:
 
 protected:
   vtkXMLWriter();
-  ~vtkXMLWriter() VTK_OVERRIDE;
+  ~vtkXMLWriter() override;
 
   virtual int RequestInformation(
                           vtkInformation* request,
@@ -371,10 +371,10 @@ protected:
   vtkTypeInt64 GetAppendedDataOffset();
   void WriteAppendedDataOffset(vtkTypeInt64 streamPos,
                                vtkTypeInt64 &lastoffset,
-                               const char* attr=0);
+                               const char* attr=nullptr);
   void ForwardAppendedDataOffset(vtkTypeInt64 streamPos,
                                  vtkTypeInt64 offset,
-                                 const char* attr=0);
+                                 const char* attr=nullptr);
   void ForwardAppendedDataDouble(vtkTypeInt64 streamPos,
                                  double value,
                                  const char* attr);
@@ -404,11 +404,11 @@ protected:
     const char* alternateName, int writeNumTuples, int timestep);
   virtual void WriteArrayFooter(ostream &os, vtkIndent indent, vtkAbstractArray *a, int shortFormat);
   virtual void WriteArrayInline(vtkAbstractArray* a, vtkIndent indent,
-    const char* alternateName=0, int writeNumTuples=0);
+    const char* alternateName=nullptr, int writeNumTuples=0);
   virtual void WriteInlineData(vtkAbstractArray* a, vtkIndent indent);
 
   void WriteArrayAppended(vtkAbstractArray* a, vtkIndent indent,
-    OffsetsManager &offs, const char* alternateName=0,  int writeNumTuples=0,
+    OffsetsManager &offs, const char* alternateName=nullptr,  int writeNumTuples=0,
     int timestep=0);
   int WriteAsciiData(vtkAbstractArray* a, vtkIndent indent);
   int WriteBinaryData(vtkAbstractArray* a);
@@ -449,7 +449,7 @@ protected:
   void WritePCellData(vtkCellData* cd, vtkIndent indent);
   void WritePPoints(vtkPoints* points, vtkIndent indent);
   void WritePArray(vtkAbstractArray* a, vtkIndent indent,
-    const char* alternateName=0);
+    const char* alternateName=nullptr);
   void WritePCoordinates(vtkDataArray* xc, vtkDataArray* yc,
                          vtkDataArray* zc, vtkIndent indent);
 
@@ -506,8 +506,8 @@ protected:
   friend class vtkXMLWriterHelper;
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLWriter(const vtkXMLWriter&) = delete;
+  void operator=(const vtkXMLWriter&) = delete;
 };
 
 #endif

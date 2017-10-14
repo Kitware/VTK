@@ -57,7 +57,7 @@ void vtkOculusRenderer::ResetCamera(double bounds[6])
   double vn[3], *vup;
 
   this->GetActiveCamera();
-  if ( this->ActiveCamera != NULL )
+  if ( this->ActiveCamera != nullptr )
   {
     this->ActiveCamera->GetViewPlaneNormal(vn);
   }

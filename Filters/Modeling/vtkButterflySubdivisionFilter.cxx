@@ -33,7 +33,7 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
   vtkPointData *outputPD)
 {
   double *weights, *weights1, *weights2;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType cellId, newId, i, j;
   int edgeId;
   vtkIdType npts = 0;

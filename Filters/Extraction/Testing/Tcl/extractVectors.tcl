@@ -32,7 +32,6 @@ vtkPolyDataNormals normalsVx
 vtkPolyDataMapper isoVxMapper
     isoVxMapper SetInputConnection [normalsVx GetOutputPort]
     isoVxMapper ScalarVisibilityOff
-    isoVxMapper ImmediateModeRenderingOn
 vtkActor isoVxActor
     isoVxActor SetMapper isoVxMapper
     eval [isoVxActor GetProperty] SetColor 1 0.7 0.6
@@ -50,7 +49,6 @@ vtkPolyDataNormals normalsVy
 vtkPolyDataMapper isoVyMapper
     isoVyMapper SetInputConnection [normalsVy GetOutputPort]
     isoVyMapper ScalarVisibilityOff
-    isoVyMapper ImmediateModeRenderingOn
 vtkActor isoVyActor
     isoVyActor SetMapper isoVyMapper
     eval [isoVyActor GetProperty] SetColor 0.7 1 0.6
@@ -68,7 +66,6 @@ vtkPolyDataNormals normalsVz
 vtkPolyDataMapper isoVzMapper
     isoVzMapper SetInputConnection [normalsVz GetOutputPort]
     isoVzMapper ScalarVisibilityOff
-    isoVzMapper ImmediateModeRenderingOn
 vtkActor isoVzActor
     isoVzActor SetMapper isoVzMapper
     eval [isoVzActor GetProperty] SetColor 0.4 0.5 1
@@ -89,7 +86,7 @@ ren1 AddActor isoVyActor
 ren1 AddActor isoVzActor
 isoVzActor AddPosition 0 -12 0
 ren1 SetBackground .8 .8 .8
-renWin SetSize 321 321
+renWin SetSize 320 320
 
 [ren1 GetActiveCamera] SetPosition -63.3093 -1.55444 64.3922
 [ren1 GetActiveCamera] SetFocalPoint 8.255 0.0499763 29.7631

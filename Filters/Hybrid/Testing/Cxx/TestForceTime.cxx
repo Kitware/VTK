@@ -41,7 +41,7 @@ protected:
 
   int RequestInformation(vtkInformation * request,
                          vtkInformationVector **inputVector,
-                         vtkInformationVector *outputVector) VTK_OVERRIDE
+                         vtkInformationVector *outputVector) override
   {
     // get the info objects
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -56,7 +56,7 @@ protected:
     return 1;
   }
 
-  void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) VTK_OVERRIDE
+  void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) override
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 
@@ -72,7 +72,7 @@ protected:
     vtkNew<vtkDoubleArray> timeArray;
     timeArray->SetName("timeData");
     timeArray->SetNumberOfValues(maxX * maxY * maxZ);
-    data->GetPointData()->SetScalars(timeArray.Get());
+    data->GetPointData()->SetScalars(timeArray);
 
     double t = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
     vtkIdType cnt = 0;
@@ -89,8 +89,8 @@ protected:
   }
 
 private:
-  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
+  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&) = delete;
+  void operator=(const vtkTimeRTAnalyticSource&) = delete;
 };
 
 vtkStandardNewMacro(vtkTimeRTAnalyticSource);
@@ -125,15 +125,15 @@ int TestForceTime(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mapper->SetScalarRange(0, 30);
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
+  actor->SetMapper(mapper);
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderer->AddActor(actor.Get());
+  renderer->AddActor(actor);
   renderer->SetBackground(.3, .6, .3); // Background color green
 
   renderWindow->Render();

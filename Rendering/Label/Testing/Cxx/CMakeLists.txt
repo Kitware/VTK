@@ -1,4 +1,5 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestClipLabels.cxx
   TestDynamic2DLabelMapper.cxx
   TestLabelPlacer.cxx
   TestLabelPlacer2D.cxx

@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkBillboardTextActor3D: public vtkProp3D
 public:
   static vtkBillboardTextActor3D* New();
   vtkTypeMacro(vtkBillboardTextActor3D, vtkProp3D)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * The UTF-8 encoded string to display.
@@ -82,21 +82,21 @@ public:
   /**
    * Defers to internal actor.
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Check/update geometry/texture in opaque pass, since it only happens once.
    */
-  int RenderOpaqueGeometry(vtkViewport *vp) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport *vp) override;
 
   /**
    * Just render in translucent pass, since it can execute multiple times
    * (depth peeling, for instance).
    */
-  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *vp) override;
 
-  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
-  double *GetBounds() VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *win) override;
+  double *GetBounds() override;
   using Superclass::GetBounds;
 
   /**
@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkBillboardTextActor3D();
-  ~vtkBillboardTextActor3D() VTK_OVERRIDE;
+  ~vtkBillboardTextActor3D() override;
 
   bool InputIsValid();
 
@@ -148,8 +148,8 @@ protected:
   double AnchorDC[3];
 
 private:
-  vtkBillboardTextActor3D(const vtkBillboardTextActor3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBillboardTextActor3D&) VTK_DELETE_FUNCTION;
+  vtkBillboardTextActor3D(const vtkBillboardTextActor3D&) = delete;
+  void operator=(const vtkBillboardTextActor3D&) = delete;
 };
 
 #endif // vtkBillboardTextActor3D_h

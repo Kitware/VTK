@@ -117,12 +117,11 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
 
   // parse the input file to create the graph
   vtkNew<vtkMutableDirectedGraph> builder;
-  this->BuildTree(const_cast<char*> (buffer), builder.GetPointer(), weights.GetPointer(),
-    names.GetPointer(), -1);
+  this->BuildTree(const_cast<char*> (buffer), builder, weights, names, -1);
 
-  builder->GetVertexData()->AddArray(names.GetPointer());
+  builder->GetVertexData()->AddArray(names);
 
-  if (!tree.CheckedShallowCopy(builder.GetPointer()))
+  if (!tree.CheckedShallowCopy(builder))
   {
     vtkErrorMacro(<<"Edges do not create a valid tree.");
     return 1;
@@ -143,7 +142,7 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
     return 1;
   }
 
-  tree.GetEdgeData()->AddArray(weights.GetPointer());
+  tree.GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(tree.GetNumberOfVertices());
@@ -166,7 +165,7 @@ int vtkNewickTreeReader:: ReadNewickTree(  const char *  buffer, vtkTree & tree)
   }
 
   nodeWeights->SetName("node weight");
-  tree.GetVertexData()->AddArray(nodeWeights.GetPointer());
+  tree.GetVertexData()->AddArray(nodeWeights);
 
   return 1;
 }
@@ -365,7 +364,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
 {
   char *current;
   char *start;
-  char *colon = NULL;
+  char *colon = nullptr;
   char temp;
   int childCount;
   vtkIdType node;
@@ -385,7 +384,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
       current++;
     }
     node = g->AddChild(parent);
-    if (colon == NULL)
+    if (colon == nullptr)
     {
       // Name only
       std::string name(start, strlen(start));

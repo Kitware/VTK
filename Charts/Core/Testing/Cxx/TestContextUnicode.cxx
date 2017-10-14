@@ -39,7 +39,7 @@ public:
   static ContextUnicode *New();
   vtkTypeMacro(ContextUnicode, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
   std::string FontFile;
 };
 

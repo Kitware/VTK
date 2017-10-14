@@ -37,7 +37,7 @@ class VTKIOINFOVIS_EXPORT vtkPhyloXMLTreeWriter : public vtkXMLWriter
 public:
   static vtkPhyloXMLTreeWriter *New();
   vtkTypeMacro(vtkPhyloXMLTreeWriter,vtkXMLWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -50,7 +50,7 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
   //@{
   /**
@@ -85,13 +85,13 @@ public:
 
 protected:
   vtkPhyloXMLTreeWriter();
-  ~vtkPhyloXMLTreeWriter() VTK_OVERRIDE {}
+  ~vtkPhyloXMLTreeWriter() override {}
 
-  int WriteData() VTK_OVERRIDE;
+  int WriteData() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
-  int StartFile() VTK_OVERRIDE;
-  int EndFile() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
+  int StartFile() override;
+  int EndFile() override;
 
   /**
    * Check for an optional, tree-level element and write it out if it is
@@ -151,7 +151,7 @@ protected:
   const char* GetArrayAttribute(vtkAbstractArray *array,
                                 const char *attributeName);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkInformation* InputInformation;
 
@@ -163,8 +163,8 @@ protected:
   vtkSmartPointer<vtkStringArray> Blacklist;
 
 private:
-  vtkPhyloXMLTreeWriter(const vtkPhyloXMLTreeWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPhyloXMLTreeWriter&) VTK_DELETE_FUNCTION;
+  vtkPhyloXMLTreeWriter(const vtkPhyloXMLTreeWriter&) = delete;
+  void operator=(const vtkPhyloXMLTreeWriter&) = delete;
 };
 
 #endif

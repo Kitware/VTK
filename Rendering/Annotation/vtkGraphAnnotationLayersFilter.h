@@ -63,7 +63,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkGraphAnnotationLayersFilter: public vtkPo
 public:
   static vtkGraphAnnotationLayersFilter *New();
   vtkTypeMacro(vtkGraphAnnotationLayersFilter, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -109,26 +109,26 @@ public:
   /**
    * The modified time of this filter.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkGraphAnnotationLayersFilter();
-  ~vtkGraphAnnotationLayersFilter() VTK_OVERRIDE;
+  ~vtkGraphAnnotationLayersFilter() override;
 
   /**
    * This is called by the superclass. This is the method you should override.
    */
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   /**
    * Set the input to vtkGraph and vtkAnnotationLayers.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) = delete;
+  void operator=(const vtkGraphAnnotationLayersFilter&) = delete;
 
   vtkSmartPointer<vtkAppendPolyData> HullAppend;
   vtkSmartPointer<vtkAppendPolyData> OutlineAppend;

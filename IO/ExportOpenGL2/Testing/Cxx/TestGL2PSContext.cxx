@@ -46,7 +46,7 @@ public:
   static ContextGL2PSTest *New();
   vtkTypeMacro(ContextGL2PSTest, vtkContextItem)
   // Paint event for the chart, called whenever the chart needs to be drawn
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ int TestGL2PSContext( int, char *[] )
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<ContextGL2PSTest> test;
-  view->GetScene()->AddItem(test.GetPointer());
+  view->GetScene()->AddItem(test);
 
   // Force the use of the freetype based rendering strategy
   vtkOpenGLContextDevice2D::SafeDownCast(view->GetContext()->GetDevice())
@@ -214,19 +214,19 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
   // Now to test out the transform...
   vtkNew<vtkTransform2D> transform;
   transform->Translate(20, 200);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(255, 0, 0);
   painter->GetPen()->SetWidth(6.0);
   painter->DrawPoly(points);
 
   transform->Translate(0, 10);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(0, 0, 200);
   painter->GetPen()->SetWidth(2.0);
   painter->DrawPoints(points);
 
   transform->Translate(0, -20);
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
   painter->GetPen()->SetColor(100, 0, 200);
   painter->GetPen()->SetWidth(5.0);
   painter->DrawPoints(points);
@@ -246,7 +246,7 @@ bool ContextGL2PSTest::Paint(vtkContext2D *painter)
 
   // Remove the transform:
   transform->Identity();
-  painter->SetTransform(transform.GetPointer());
+  painter->SetTransform(transform);
 
   // Toss some images in:
   vtkNew<vtkRTAnalyticSource> imageSrc;

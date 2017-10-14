@@ -61,12 +61,12 @@ vtkTreeHeatmapItem::~vtkTreeHeatmapItem()
 void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 {
   this->Dendrogram->SetTree(tree);
-  if (tree == NULL)
+  if (tree == nullptr)
   {
     return;
   }
 
-  if (this->GetTable() != NULL &&
+  if (this->GetTable() != nullptr &&
       this->GetTable()->GetNumberOfRows() != 0)
   {
     this->Dendrogram->SetDrawLabels(false);
@@ -74,7 +74,7 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
   this->Dendrogram->SetVisible(true);
 
   // rearrange our table to match the order of the leaf nodes in this tree.
-  if (this->GetTable() != NULL && this->GetTable()->GetNumberOfRows() != 0)
+  if (this->GetTable() != nullptr && this->GetTable()->GetNumberOfRows() != 0)
   {
     this->ReorderTable();
   }
@@ -84,12 +84,12 @@ void vtkTreeHeatmapItem::SetTree(vtkTree *tree)
 void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 {
   this->Heatmap->SetTable(table);
-  if (table == NULL)
+  if (table == nullptr)
   {
     return;
   }
 
-  if (this->Dendrogram->GetTree() != NULL &&
+  if (this->Dendrogram->GetTree() != nullptr &&
       this->Dendrogram->GetTree()->GetNumberOfVertices() != 0)
   {
     this->Dendrogram->SetDrawLabels(false);
@@ -98,7 +98,7 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 
 
   // rearrange our table to match the order of the leaf nodes in this tree.
-  if (this->GetTree() != NULL && this->GetTree()->GetNumberOfVertices() != 0)
+  if (this->GetTree() != nullptr && this->GetTree()->GetNumberOfVertices() != 0)
   {
     this->ReorderTable();
   }
@@ -156,7 +156,7 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 void vtkTreeHeatmapItem::SetColumnTree(vtkTree *tree)
 {
   this->ColumnDendrogram->SetTree(tree);
-  if (tree == NULL)
+  if (tree == nullptr)
   {
     return;
   }
@@ -183,7 +183,7 @@ vtkTree * vtkTreeHeatmapItem::GetColumnTree()
 //-----------------------------------------------------------------------------
 vtkDendrogramItem * vtkTreeHeatmapItem::GetDendrogram()
 {
-  return this->Dendrogram.GetPointer();
+  return this->Dendrogram;
 }
 
 //-----------------------------------------------------------------------------
@@ -195,7 +195,7 @@ void vtkTreeHeatmapItem::SetDendrogram(vtkDendrogramItem *dendrogram)
 //-----------------------------------------------------------------------------
 vtkHeatmapItem * vtkTreeHeatmapItem::GetHeatmap()
 {
-  return this->Heatmap.GetPointer();
+  return this->Heatmap;
 }
 
 //-----------------------------------------------------------------------------
@@ -551,7 +551,7 @@ void vtkTreeHeatmapItem::GetBounds(double bounds[4])
 
   double columnTreeBounds[4] =
     {VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN};
-  if (this->ColumnDendrogram->GetTree() != NULL)
+  if (this->ColumnDendrogram->GetTree() != nullptr)
   {
     this->ColumnDendrogram->GetBounds(columnTreeBounds);
   }

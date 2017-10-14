@@ -35,20 +35,20 @@ int TestPickTextActor(int, char*[])
   actor2->SetPosition(160, 170);
 
   vtkNew<vtkRenderer> renderer;
-  renderer->AddActor(actor1.Get());
-  renderer->AddActor(actor2.Get());
+  renderer->AddActor(actor1);
+  renderer->AddActor(actor2);
 
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer(renderer.Get());
+  renWin->AddRenderer(renderer);
   renWin->Render();
 
   vtkNew<vtkPropPicker> picker;
-  picker->Pick(145, 145, 0.0, renderer.Get());
+  picker->Pick(145, 145, 0.0, renderer);
   vtkActor2D* pickedActor = picker->GetActor2D();
-  if (pickedActor != actor1.Get())
+  if (pickedActor != actor1)
   {
     std::cout << "Incorrect actor picked!" << std::endl;
-    std::cout << "Should have been " << actor1.Get() << ", but was " << pickedActor << std::endl;
+    std::cout << "Should have been " << actor1 << ", but was " << pickedActor << std::endl;
     return EXIT_FAILURE;
   }
 

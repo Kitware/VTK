@@ -38,12 +38,12 @@ class VTKIOIMAGE_EXPORT vtkJPEGWriter : public vtkImageWriter
 public:
   static vtkJPEGWriter *New();
   vtkTypeMacro(vtkJPEGWriter,vtkImageWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * The main interface which triggers the writer to start.
    */
-  void Write() VTK_OVERRIDE;
+  void Write() override;
 
   //@{
   /**
@@ -73,7 +73,7 @@ public:
 
   //@{
   /**
-   * When writing to memory this is the result, it will be NULL until the
+   * When writing to memory this is the result, it will be nullptr until the
    * data is written the first time
    */
   virtual void SetResult(vtkUnsignedCharArray*);
@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkJPEGWriter();
-  ~vtkJPEGWriter() VTK_OVERRIDE;
+  ~vtkJPEGWriter() override;
 
   void WriteSlice(vtkImageData *data, int* uExtent);
 
@@ -93,8 +93,8 @@ private:
   FILE *TempFP;
 
 private:
-  vtkJPEGWriter(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
+  vtkJPEGWriter(const vtkJPEGWriter&) = delete;
+  void operator=(const vtkJPEGWriter&) = delete;
 };
 
 #endif

@@ -45,12 +45,12 @@ class VTKFILTERSGENERAL_EXPORT vtkTransformFilter : public vtkPointSetAlgorithm
 public:
   static vtkTransformFilter *New();
   vtkTypeMacro(vtkTransformFilter,vtkPointSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the MTime also considering the transform.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -60,7 +60,7 @@ public:
   vtkGetObjectMacro(Transform,vtkAbstractTransform);
   //@}
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   //@{
   /**
@@ -74,20 +74,20 @@ public:
 
 protected:
   vtkTransformFilter();
-  ~vtkTransformFilter() VTK_OVERRIDE;
+  ~vtkTransformFilter() override;
 
   int RequestDataObject(vtkInformation *request,
                         vtkInformationVector **inputVector,
-                        vtkInformationVector *outputVector) VTK_OVERRIDE;
+                        vtkInformationVector *outputVector) override;
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;
 private:
-  vtkTransformFilter(const vtkTransformFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformFilter&) VTK_DELETE_FUNCTION;
+  vtkTransformFilter(const vtkTransformFilter&) = delete;
+  void operator=(const vtkTransformFilter&) = delete;
 };
 
 #endif

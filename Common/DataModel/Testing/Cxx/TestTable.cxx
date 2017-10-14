@@ -24,7 +24,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
-#include <time.h>
+#include <ctime>
 #include <vector>
 using namespace std;
 
@@ -125,7 +125,7 @@ int TestTable(int, char*[])
 {
   cout << "CTEST_FULL_OUTPUT" << endl;
 
-  long seed = time(NULL);
+  long seed = time(nullptr);
   cout << "Seed: " << seed << endl;
   vtkMath::RandomSeed(seed);
 

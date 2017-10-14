@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextProperty : public vtkObject
 {
 public:
   vtkTypeMacro(vtkTextProperty,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a new text property with font size 12, bold off, italic off,
@@ -256,7 +256,7 @@ public:
 
 protected:
   vtkTextProperty();
-  ~vtkTextProperty() VTK_OVERRIDE;
+  ~vtkTextProperty() override;
 
   double Color[3];
   double Opacity;
@@ -280,8 +280,8 @@ protected:
   double LineSpacing;
 
 private:
-  vtkTextProperty(const vtkTextProperty&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextProperty&) VTK_DELETE_FUNCTION;
+  vtkTextProperty(const vtkTextProperty&) = delete;
+  void operator=(const vtkTextProperty&) = delete;
 };
 
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )

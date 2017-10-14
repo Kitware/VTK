@@ -84,13 +84,13 @@ static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr,
 
 vtkGroupLeafVertices::vtkGroupLeafVertices()
 {
-  this->GroupDomain = 0;
+  this->GroupDomain = nullptr;
   this->SetGroupDomain("group_vertex");
 }
 
 vtkGroupLeafVertices::~vtkGroupLeafVertices()
 {
-  this->SetGroupDomain(0);
+  this->SetGroupDomain(nullptr);
 }
 
 void vtkGroupLeafVertices::PrintSelf(ostream& os, vtkIndent indent)
@@ -135,17 +135,16 @@ int vtkGroupLeafVertices::RequestData(
 
   // Get the field to filter on
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, inputVector);
-  if (arr == NULL)
+  if (arr == nullptr)
   {
     vtkErrorMacro(<< "An input array must be specified");
     return 0;
   }
 
   // Get the builder's group array.
-  vtkAbstractArray *outputGroupArr = 0;
   char *groupname = arr->GetName();
-  outputGroupArr = builderVertexData->GetAbstractArray(groupname);
-  if (outputGroupArr == NULL)
+  vtkAbstractArray *outputGroupArr = builderVertexData->GetAbstractArray(groupname);
+  if (outputGroupArr == nullptr)
   {
     vtkErrorMacro(<< "Could not find the group array in the builder.");
     return 0;
@@ -157,12 +156,12 @@ int vtkGroupLeafVertices::RequestData(
   vtkAbstractArray* inputNameArr = this->GetInputAbstractArrayToProcess(1, inputVector);
 
   // Get the builder's name array.
-  vtkAbstractArray *outputNameArr = 0;
+  vtkAbstractArray *outputNameArr = nullptr;
   if (inputNameArr)
   {
     char *name = inputNameArr->GetName();
     outputNameArr = builderVertexData->GetAbstractArray(name);
-    if (outputNameArr == NULL)
+    if (outputNameArr == nullptr)
     {
       vtkErrorMacro(<< "Could not find the name array in the builder.");
       return 0;
@@ -391,7 +390,7 @@ static int
 splitString(const vtkStdString& input,
             std::vector<vtkStdString>& results)
 {
-  if (input.size() == 0)
+  if (input.empty())
   {
     return 0;
   }
@@ -438,11 +437,11 @@ splitString(const vtkStdString& input,
         lastCharacter = thisCharacter;
         continue;
       }
-      else if ((strchr(" ", thisCharacter) != NULL))
+      else if ((strchr(" ", thisCharacter) != nullptr))
       {
         // A delimiter starts a new field unless we're in a string, in
         // which case it's normal text and we won't even get here.
-        if (currentField.size() > 0)
+        if (!currentField.empty())
         {
           results.push_back(currentField);
         }

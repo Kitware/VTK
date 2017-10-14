@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome :
   public:
 
     vtkTypeMacro(vtkParametricBohemianDome, vtkParametricFunction);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     //@{
     /**
@@ -64,7 +64,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome :
     /**
      * Return the parametric dimension of the class.
      */
-    int GetDimension() VTK_OVERRIDE {return 2;}
+    int GetDimension() override {return 2;}
 
     /**
      * BohemianDome surface.
@@ -74,18 +74,18 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome :
      * \f$Pt = (x, y, z), D_u\vec{f} = (dx/du, dy/du, dz/du), D_v\vec{f} = (dx/dv, dy/dv, dz/dv)\f$ .
      * Then the normal is \f$N = D_u\vec{f} \times D_v\vec{f}\f$ .
      */
-    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
+    void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) override;
 
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
      * This method simply returns 0.
      */
     double EvaluateScalar(double uvw[3], double Pt[3],
-                          double Duvw[9]) VTK_OVERRIDE;
+                          double Duvw[9]) override;
 
   protected:
     vtkParametricBohemianDome();
-    ~vtkParametricBohemianDome() VTK_OVERRIDE;
+    ~vtkParametricBohemianDome() override;
 
     // Variables
     double A;
@@ -93,8 +93,8 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome :
     double C;
 
   private:
-    vtkParametricBohemianDome(const vtkParametricBohemianDome&) VTK_DELETE_FUNCTION;
-    void operator=(const vtkParametricBohemianDome&) VTK_DELETE_FUNCTION;
+    vtkParametricBohemianDome(const vtkParametricBohemianDome&) = delete;
+    void operator=(const vtkParametricBohemianDome&) = delete;
 };
 
 #endif

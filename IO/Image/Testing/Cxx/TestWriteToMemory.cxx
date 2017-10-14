@@ -53,7 +53,7 @@ int TestWriteToMemory(int argc, char *argv[])
   vtkSmartPointer<vtkImageWriter> writer;
 
   std::string filename = argv[1];
-  std::string fileext = filename.substr(filename.find_last_of(".") + 1);
+  std::string fileext = filename.substr(filename.find_last_of('.') + 1);
 
   // Delete any existing files to prevent false failures
   if (vtksys::SystemTools::FileExists(filename))

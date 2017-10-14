@@ -38,7 +38,7 @@ class VTKFILTERSSOURCES_EXPORT vtkEllipseArcSource : public vtkPolyDataAlgorithm
 public:
   static vtkEllipseArcSource *New();
   vtkTypeMacro(vtkEllipseArcSource, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -119,10 +119,10 @@ public:
 
 protected:
   vtkEllipseArcSource();
-  ~vtkEllipseArcSource() VTK_OVERRIDE {}
+  ~vtkEllipseArcSource() override {}
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   double Center[3];
   double Normal[3];
@@ -134,8 +134,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkEllipseArcSource(const vtkEllipseArcSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEllipseArcSource&) VTK_DELETE_FUNCTION;
+  vtkEllipseArcSource(const vtkEllipseArcSource&) = delete;
+  void operator=(const vtkEllipseArcSource&) = delete;
 };
 
 #endif

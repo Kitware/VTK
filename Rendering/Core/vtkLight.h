@@ -45,6 +45,7 @@
 #include "vtkObject.h"
 
 /* need for virtual function */
+class vtkInformation;
 class vtkRenderer;
 class vtkMatrix4x4;
 
@@ -56,7 +57,7 @@ class VTKRENDERINGCORE_EXPORT vtkLight : public vtkObject
 {
 public:
   vtkTypeMacro(vtkLight,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a light with the focal point at the origin and its position
@@ -243,21 +244,20 @@ public:
    * located at the camera's position.  CameraLights are defined in a
    * coordinate space where the camera is located at (0, 0, 1), looking
    * towards (0, 0, 0) at a distance of 1, with up being (0, 1, 0).
+   * CameraLight uses the transform matrix to establish this space.
 
-   * Note: Use SetLightTypeToSceneLight, rather than SetLightType(3), since
-   * the former clears the light's transform matrix.
+   * Note: All SetLightType(), and SetLightTypeTo*() calls clear the
+   * light's transform matrix.
    */
-  vtkSetMacro(LightType, int);
+  virtual void SetLightType(int);
   vtkGetMacro(LightType, int);
+
   void SetLightTypeToHeadlight()
-    {this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT);}
+    { this->SetLightType(VTK_LIGHT_TYPE_HEADLIGHT); }
   void SetLightTypeToSceneLight()
-  {
-    this->SetTransformMatrix(NULL);
-    this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT);
-  }
+    { this->SetLightType(VTK_LIGHT_TYPE_SCENE_LIGHT); }
   void SetLightTypeToCameraLight()
-    {this->SetLightType(VTK_LIGHT_TYPE_CAMERA_LIGHT);}
+    { this->SetLightType(VTK_LIGHT_TYPE_CAMERA_LIGHT); }
   //@}
 
   //@{
@@ -268,9 +268,6 @@ public:
   int LightTypeIsSceneLight();
   int LightTypeIsCameraLight();
   //@}
-
-  void ReadSelf(istream& is);
-  void WriteSelf(ostream& os);
 
   //@{
   /**
@@ -283,10 +280,17 @@ public:
   vtkGetMacro(ShadowAttenuation,float);
   //@}
 
+  //@{
+  /**
+   * Set/Get the information object associated with the light.
+   */
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+  //@}
 
 protected:
   vtkLight();
-  ~vtkLight() VTK_OVERRIDE;
+  ~vtkLight() override;
 
   double FocalPoint[3];
   double Position[3];
@@ -305,9 +309,12 @@ protected:
   int    LightType;
   float  ShadowAttenuation;
 
+  // Arbitrary extra information associated with this light.
+  vtkInformation* Information;
+
 private:
-  vtkLight(const vtkLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLight&) VTK_DELETE_FUNCTION;
+  vtkLight(const vtkLight&) = delete;
+  void operator=(const vtkLight&) = delete;
 };
 
 #endif

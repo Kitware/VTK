@@ -39,7 +39,7 @@ class VTKIOXML_EXPORT vtkXMLImageDataWriter : public vtkXMLStructuredDataWriter
 public:
   static vtkXMLImageDataWriter* New();
   vtkTypeMacro(vtkXMLImageDataWriter,vtkXMLStructuredDataWriter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get/Set the writer's input.
@@ -49,22 +49,22 @@ public:
   /**
    * Get the default file extension for files written by this writer.
    */
-  const char* GetDefaultFileExtension() VTK_OVERRIDE;
+  const char* GetDefaultFileExtension() override;
 
 protected:
   vtkXMLImageDataWriter();
-  ~vtkXMLImageDataWriter() VTK_OVERRIDE;
+  ~vtkXMLImageDataWriter() override;
 
   // see algorithm for more info
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) VTK_OVERRIDE;
-  void GetInputExtent(int* extent) VTK_OVERRIDE;
-  const char* GetDataSetName() VTK_OVERRIDE;
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent) override;
+  void GetInputExtent(int* extent) override;
+  const char* GetDataSetName() override;
 
 private:
-  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
+  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) = delete;
+  void operator=(const vtkXMLImageDataWriter&) = delete;
 };
 
 #endif

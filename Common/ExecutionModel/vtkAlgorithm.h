@@ -55,13 +55,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithm : public vtkObject
 public:
   static vtkAlgorithm *New();
   vtkTypeMacro(vtkAlgorithm,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Values used for setting the desired output precision for various
    * algorithms. Currently, the following algorithms support changing their
    * output precision: vtkAppendFilter, vtkAppendPoints, vtkContourFilter,
-   * vtkContourGrid, vtkCutter, vtkGridSynchronizedTemplates3D,
+   * vtkContourGrid, vtkCutter, vtkGlyph3D, vtkGeometryFilter,
+   * vtkGridSynchronizedTemplates3D,
    * vtkPolyDataNormals, vtkSynchronizedTemplatesCutter3D,
    * vtkTableBasedClipDataSet, vtkThreshold, vtkTransformFilter, and
    * vtkTransformPolyData.
@@ -190,8 +191,8 @@ public:
   /**
    * Participate in garbage collection.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   //@{
@@ -574,7 +575,7 @@ public:
    * Supports piece and extent (optional) requests.
    */
   virtual int UpdatePiece(
-    int piece, int numPieces, int ghostLevels, const int extents[6]=0);
+    int piece, int numPieces, int ghostLevels, const int extents[6]=nullptr);
 
   /**
    * Convenience method to update an algorithm after passing requests
@@ -590,7 +591,7 @@ public:
    * Supports time, piece (optional) and extent (optional) requests.
    */
   virtual int UpdateTimeStep(double time,
-    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
+    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=nullptr);
 
   /**
    * Bring the algorithm's information up-to-date.
@@ -652,43 +653,6 @@ public:
    * in CreateDefaultExecutive() using NewInstance().
    */
   static void SetDefaultExecutivePrototype(vtkExecutive* proto);
-
-  /**
-   * If the whole output extent is required, this method can be called to set
-   * the output update extent to the whole extent. This method assumes that
-   * the whole extent is known (that UpdateInformation has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtentToWholeExtent(0)
-   * This method assumes that the whole extent is known (that UpdateInformation
-   * has been called).
-   */
-  VTK_LEGACY(int SetUpdateExtentToWholeExtent());
-
-  /**
-   * Set the output update extent in terms of piece and ghost levels.
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port,
-                       int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, piece,
-   * numPieces, ghostLevel)
-   */
-  VTK_LEGACY(void SetUpdateExtent(
-    int piece,int numPieces, int ghostLevel));
-
-  /**
-   * Set the output update extent for data objects that use 3D extents
-   */
-  VTK_LEGACY(void SetUpdateExtent(int port, int extent[6]));
-
-  /**
-   * Convenience function equivalent to SetUpdateExtent(0, extent)
-   */
-  VTK_LEGACY(void SetUpdateExtent(int extent[6]));
 
   //@{
   /**
@@ -755,7 +719,7 @@ public:
 
 protected:
   vtkAlgorithm();
-  ~vtkAlgorithm() VTK_OVERRIDE;
+  ~vtkAlgorithm() override;
 
   // Keys used to indicate that input/output port information has been
   // filled.
@@ -916,14 +880,14 @@ protected:
   char  *ProgressText;
 
   // Garbage collection support.
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   // executive methods below
 
   /**
    * Replace the Nth connection on the given input port.  For use only
-   * by this class and subclasses.  If this is used to store a NULL
-   * input then the subclass must be able to handle NULL inputs in its
+   * by this class and subclasses.  If this is used to store a nullptr
+   * input then the subclass must be able to handle nullptr inputs in its
    * ProcessRequest method.
    */
   virtual void SetNthInputConnection(int port, int index,
@@ -932,7 +896,7 @@ protected:
   /**
    * Set the number of input connections on the given input port.  For
    * use only by this class and subclasses.  If this is used to store
-   * a NULL input then the subclass must be able to handle NULL inputs
+   * a nullptr input then the subclass must be able to handle nullptr inputs
    * in its ProcessRequest method.
    */
   virtual void SetNumberOfInputConnections(int port, int n);
@@ -965,8 +929,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkAlgorithm(const vtkAlgorithm&) = delete;
+  void operator=(const vtkAlgorithm&) = delete;
 };
 
 #endif

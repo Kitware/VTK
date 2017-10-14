@@ -41,7 +41,7 @@ vtkPolyDataStreamer::vtkPolyDataStreamer()
 vtkPolyDataStreamer::~vtkPolyDataStreamer()
 {
   this->Append->Delete();
-  this->Append = 0;
+  this->Append = nullptr;
 }
 
 //----------------------------------------------------------------------------

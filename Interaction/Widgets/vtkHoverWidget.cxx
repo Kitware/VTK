@@ -93,7 +93,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
     this->TimerId = this->Interactor->CreateRepeatingTimer(this->TimerDuration);
     this->WidgetState = vtkHoverWidget::Timing;
 
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling------------------
@@ -107,7 +107,7 @@ void vtkHoverWidget::SetEnabled(int enabling)
 
     this->Enabled = 0;
     this->Interactor->RemoveObserver(this->EventCallbackCommand);
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
   }
 }
 
@@ -123,7 +123,7 @@ void vtkHoverWidget::MoveAction(vtkAbstractWidget *w)
   {
     self->WidgetState = vtkHoverWidget::Timing;
     self->SubclassEndHoverAction();
-    self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+    self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
   }
   self->TimerId = self->Interactor->CreateRepeatingTimer(self->TimerDuration);
 }
@@ -140,7 +140,7 @@ void vtkHoverWidget::HoverAction(vtkAbstractWidget *w)
     self->Interactor->DestroyTimer(self->TimerId);
     self->WidgetState = vtkHoverWidget::TimedOut;
     self->SubclassHoverAction();
-    self->InvokeEvent(vtkCommand::TimerEvent,NULL);
+    self->InvokeEvent(vtkCommand::TimerEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this timer
   }
 }
@@ -154,7 +154,7 @@ void vtkHoverWidget::SelectAction(vtkAbstractWidget *w)
   if ( self->WidgetState == vtkHoverWidget::TimedOut )
   {
     self->SubclassSelectAction();
-    self->InvokeEvent(vtkCommand::WidgetActivateEvent,NULL);
+    self->InvokeEvent(vtkCommand::WidgetActivateEvent,nullptr);
     self->EventCallbackCommand->SetAbortFlag(1); //no one else gets this event
   }
 }

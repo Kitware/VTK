@@ -34,19 +34,19 @@ class VTKIOIMAGE_EXPORT vtkPNGReader : public vtkImageReader2
 public:
   static vtkPNGReader *New();
   vtkTypeMacro(vtkPNGReader,vtkImageReader2);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Is the given file a PNG file?
    */
-  int CanReadFile(const char* fname) VTK_OVERRIDE;
+  int CanReadFile(const char* fname) override;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  const char* GetFileExtensions() VTK_OVERRIDE
+  const char* GetFileExtensions() override
   {
       return ".png";
   }
@@ -54,7 +54,7 @@ public:
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  const char* GetDescriptiveName() VTK_OVERRIDE
+  const char* GetDescriptiveName() override
   {
       return "PNG";
   }
@@ -93,10 +93,10 @@ public:
   //@}
 protected:
   vtkPNGReader();
-  ~vtkPNGReader() VTK_OVERRIDE;
+  ~vtkPNGReader() override;
 
-  void ExecuteInformation() VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) VTK_OVERRIDE;
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
   template <class OT>
     void vtkPNGReaderUpdate(vtkImageData *data, OT *outPtr);
   template <class OT>
@@ -105,8 +105,8 @@ protected:
 
 
 private:
-  vtkPNGReader(const vtkPNGReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPNGReader&) VTK_DELETE_FUNCTION;
+  vtkPNGReader(const vtkPNGReader&) = delete;
+  void operator=(const vtkPNGReader&) = delete;
 
   class vtkInternals;
   vtkInternals* Internals;

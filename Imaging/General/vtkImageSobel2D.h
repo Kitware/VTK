@@ -33,24 +33,24 @@ class VTKIMAGINGGENERAL_EXPORT vtkImageSobel2D : public vtkImageSpatialAlgorithm
 public:
   static vtkImageSobel2D *New();
   vtkTypeMacro(vtkImageSobel2D,vtkImageSpatialAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkImageSobel2D();
-  ~vtkImageSobel2D()VTK_OVERRIDE {}
+  ~vtkImageSobel2D() override {}
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,
                            vtkInformationVector *outputVector,
                            vtkImageData ***inData, vtkImageData **outData,
-                           int outExt[6], int id) VTK_OVERRIDE;
+                           int outExt[6], int id) override;
   int RequestInformation (vtkInformation *request,
                                   vtkInformationVector **inputVector,
-                                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                  vtkInformationVector *outputVector) override;
 
 private:
-  vtkImageSobel2D(const vtkImageSobel2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageSobel2D&) VTK_DELETE_FUNCTION;
+  vtkImageSobel2D(const vtkImageSobel2D&) = delete;
+  void operator=(const vtkImageSobel2D&) = delete;
 };
 
 #endif

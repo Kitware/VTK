@@ -48,7 +48,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSpline : public vtkPara
 {
 public:
   vtkTypeMacro(vtkParametricSpline,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct the spline with the following parameters:
@@ -61,19 +61,19 @@ public:
   /**
    * Return the parametric dimension of the class.
    */
-  int GetDimension() VTK_OVERRIDE {return 1;}
+  int GetDimension() override {return 1;}
 
   /**
    * Evaluate the spline at parametric coordinate u[0] returning
    * the point coordinate Pt[3].
    */
-  void Evaluate(double u[3], double Pt[3], double Du[9]) VTK_OVERRIDE;
+  void Evaluate(double u[3], double Pt[3], double Du[9]) override;
 
   /**
    * Evaluate a scalar value at parametric coordinate u[0] and Pt[3].
    * The scalar value is just the parameter u[0].
    */
-  double EvaluateScalar(double u[3], double Pt[3], double Du[9]) VTK_OVERRIDE;
+  double EvaluateScalar(double u[3], double Pt[3], double Du[9]) override;
 
   //@{
   /**
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkParametricSpline();
-  ~vtkParametricSpline() VTK_OVERRIDE;
+  ~vtkParametricSpline() override;
 
   // Points definition
   vtkPoints *Points;
@@ -193,8 +193,8 @@ protected:
   double ClosedLength;
 
 private:
-  vtkParametricSpline(const vtkParametricSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkParametricSpline&) VTK_DELETE_FUNCTION;
+  vtkParametricSpline(const vtkParametricSpline&) = delete;
+  void operator=(const vtkParametricSpline&) = delete;
 };
 
 #endif

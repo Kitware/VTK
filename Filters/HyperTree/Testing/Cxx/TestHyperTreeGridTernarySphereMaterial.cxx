@@ -14,8 +14,10 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware 2012
-// This work was supported in part by Commissariat a l'Energie Atomique (CEA/DIF)
+// This test was revised by Philippe Pebay, 2016
+// This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
@@ -23,6 +25,7 @@
 #include "vtkCellData.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -47,7 +50,7 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
                             0, 0., 0.,
                             0.0, 0., 0.,
                             -25. );
-  htGrid->SetQuadric( quadric.GetPointer() );
+  htGrid->SetQuadric( quadric );
   vtkNew<vtkTimerLog> timer;
   timer->StartTimer();
   htGrid->Update();
@@ -61,9 +64,9 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
   // Geometry
   timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputData( htgCopy.GetPointer() );
+  geometry->SetInputData( htgCopy );
   geometry->Update();
-  vtkPolyData* pd = geometry->GetOutput();
+  vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
   cerr << "Geometry time : " << timer->GetElapsedTime() << endl;
 
@@ -78,9 +81,9 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   // Actors
   vtkNew<vtkActor> actor1;
-  actor1->SetMapper( mapper1.GetPointer() );
+  actor1->SetMapper( mapper1 );
   vtkNew<vtkActor> actor2;
-  actor2->SetMapper( mapper2.GetPointer() );
+  actor2->SetMapper( mapper2 );
   actor2->GetProperty()->SetRepresentationToWireframe();
   actor2->GetProperty()->SetColor( .7, .7, .7 );
 
@@ -94,25 +97,25 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   // Renderer
   vtkNew<vtkRenderer> renderer;
-  renderer->SetActiveCamera( camera.GetPointer() );
+  renderer->SetActiveCamera( camera );
   renderer->SetBackground( 1., 1., 1. );
-  renderer->AddActor( actor1.GetPointer() );
-  renderer->AddActor( actor2.GetPointer() );
+  renderer->AddActor( actor1 );
+  renderer->AddActor( actor2 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( renderer.GetPointer() );
+  renWin->AddRenderer( renderer );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
   // Interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 110 );
+  int retVal = vtkRegressionTestImageThreshold( renWin, 110 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
   {
     iren->Start();

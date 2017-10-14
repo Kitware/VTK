@@ -52,7 +52,7 @@ int TestDendrogramItem(int argc, char* argv[])
   weights->SetValue(graph->GetEdgeId(internalOne, c), 3.0f);
 
   weights->SetName("weight");
-  graph->GetEdgeData()->AddArray(weights.GetPointer());
+  graph->GetEdgeData()->AddArray(weights);
 
   vtkNew<vtkStringArray> names;
   names->SetNumberOfTuples(6);
@@ -61,7 +61,7 @@ int TestDendrogramItem(int argc, char* argv[])
   names->SetValue(c, "c");
 
   names->SetName("node name");
-  graph->GetVertexData()->AddArray(names.GetPointer());
+  graph->GetVertexData()->AddArray(names);
 
   vtkNew<vtkDoubleArray> nodeWeights;
   nodeWeights->SetNumberOfTuples(6);
@@ -72,41 +72,41 @@ int TestDendrogramItem(int argc, char* argv[])
   nodeWeights->SetValue(b, 4.0f);
   nodeWeights->SetValue(c, 4.0f);
   nodeWeights->SetName("node weight");
-  graph->GetVertexData()->AddArray(nodeWeights.GetPointer());
+  graph->GetVertexData()->AddArray(nodeWeights);
 
   vtkNew<vtkContextActor> actor;
 
   vtkNew<vtkTree> tree;
-  tree->ShallowCopy(graph.GetPointer());
+  tree->ShallowCopy(graph);
 
   vtkNew<vtkDendrogramItem> dendrogram;
-  dendrogram->SetTree(tree.GetPointer());
+  dendrogram->SetTree(tree);
   dendrogram->SetPosition(40, 15);
 
   vtkNew<vtkContextTransform> trans;
   trans->SetInteractive(true);
-  trans->AddItem(dendrogram.GetPointer());
+  trans->AddItem(dendrogram);
   trans->Scale(3, 3);
-  actor->GetScene()->AddItem(trans.GetPointer());
+  actor->GetScene()->AddItem(trans);
 
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(1.0, 1.0, 1.0);
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(400, 200);
-  renderWindow->AddRenderer(renderer.GetPointer());
-  renderer->AddActor(actor.GetPointer());
+  renderWindow->AddRenderer(renderer);
+  renderer->AddActor(actor);
 
   vtkNew<vtkContextInteractorStyle> interactorStyle;
   interactorStyle->SetScene(actor->GetScene());
 
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetInteractorStyle(interactorStyle.GetPointer());
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetInteractorStyle(interactorStyle);
+  interactor->SetRenderWindow(renderWindow);
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindow->Render();

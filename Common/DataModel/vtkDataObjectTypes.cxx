@@ -14,7 +14,9 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 #include "vtkDataObjectTypes.h"
 
+#ifndef VTK_LEGACY_REMOVE
 #include "vtkInstantiator.h"
+#endif
 #include "vtkObjectFactory.h"
 
 #include  "vtkAnnotation.h"
@@ -56,7 +58,7 @@ vtkStandardNewMacro(vtkDataObjectTypes);
 
 // This list should contain the data object class names in
 // the same order as the #define's in vtkType.h. Make sure
-// this list is NULL terminated.
+// this list is nullptr terminated.
 static const char* vtkDataObjectTypesStrings[] = {
   "vtkPolyData",
   "vtkStructuredPoints",
@@ -95,7 +97,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkPistonDataObject", // OBSOLETE
   "vtkPath",
   "vtkUnstructuredGridBase",
-  NULL
+  nullptr
 };
 
 //----------------------------------------------------------------------------
@@ -106,7 +108,7 @@ const char* vtkDataObjectTypes::GetClassNameFromTypeId(int type)
   // find length of table
   if (numClasses == 0)
   {
-    while (vtkDataObjectTypesStrings[numClasses] != NULL)
+    while (vtkDataObjectTypesStrings[numClasses] != nullptr)
     {
       numClasses++;
     }
@@ -131,7 +133,7 @@ int vtkDataObjectTypes::GetTypeIdFromClassName(const char* classname)
     return -1;
   }
 
-  for(int idx=0; vtkDataObjectTypesStrings[idx] != NULL; idx++)
+  for(int idx=0; vtkDataObjectTypesStrings[idx] != nullptr; idx++)
   {
     if (strcmp(vtkDataObjectTypesStrings[idx], classname) == 0)
     {
@@ -151,7 +153,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
     return vtkDataObjectTypes::NewDataObject(className);
   }
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -162,7 +164,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   {
     vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
                << "\" which does not exist.");
-    return 0;
+    return nullptr;
   }
 
   // Check for some standard types and then try the instantiator.
@@ -274,6 +276,7 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   {
     return vtkPath::New();
   }
+#ifndef VTK_LEGACY_REMOVE
   else if(vtkObject* obj = vtkInstantiator::CreateInstance(type))
   {
     vtkDataObject* data = vtkDataObject::SafeDownCast(obj);
@@ -282,18 +285,19 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
       obj->Delete();
     }
 
-    if(data == NULL)
+    if(data == nullptr)
     {
       vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
                  << "\" which does not exist.");
     }
     return data;
   }
+#endif
 
   vtkGenericWarningMacro("NewDataObject(): You are trying to instantiate DataObjectType \"" << type
              << "\" which does not exist.");
 
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -306,12 +310,12 @@ int vtkDataObjectTypes::Validate()
 {
   int rc = 0;
 
-  for(int i=0; vtkDataObjectTypesStrings[i] != NULL; i++)
+  for(int i=0; vtkDataObjectTypesStrings[i] != nullptr; i++)
   {
     const char* cls = vtkDataObjectTypesStrings[i];
     vtkDataObject* obj = vtkDataObjectTypes::NewDataObject(cls);
 
-    if(obj == NULL)
+    if(obj == nullptr)
     {
       continue;
     }

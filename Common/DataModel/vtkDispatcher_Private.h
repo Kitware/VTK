@@ -101,7 +101,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
@@ -110,7 +110,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 
@@ -256,7 +256,7 @@ class FunctorImpl{
     template <class U>
     static U* Clone(U* pObj)
     {
-        if (!pObj) return 0;
+        if (!pObj) return nullptr;
         U* pClone = static_cast<U*>(pObj->DoClone());
         assert(typeid(*pClone) == typeid(*pObj));
         return pClone;
@@ -265,7 +265,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
+    FunctorImpl& operator =(const FunctorImpl&) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +291,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
+  FunctorHandler& operator =(const FunctorHandler& b) = delete;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

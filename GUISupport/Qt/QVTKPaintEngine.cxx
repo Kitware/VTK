@@ -22,6 +22,7 @@ QVTKPaintEngine::QVTKPaintEngine()
     : QPaintEngine(QPaintEngine::PaintOutsidePaintEvent |
                    QPaintEngine::AlphaBlend)
 {
+  VTK_LEGACY_BODY(QVTKPaintEngine, "VTK 8.1");
   this->Internal = new QVTKPaintEngineInternal;
 }
 
@@ -40,7 +41,7 @@ bool QVTKPaintEngine::begin(QPaintDevice* dev)
 bool QVTKPaintEngine::end()
 {
   //Widget->GetRenderWindow()->Frame();
-  Widget = NULL;
+  Widget = nullptr;
   return true;
 }
 

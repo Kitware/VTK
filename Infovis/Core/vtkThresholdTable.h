@@ -39,7 +39,7 @@ class VTKINFOVISCORE_EXPORT vtkThresholdTable : public vtkTableAlgorithm
 public:
   static vtkThresholdTable* New();
   vtkTypeMacro(vtkThresholdTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum {
     ACCEPT_LESS_THAN = 0,
@@ -125,20 +125,20 @@ public:
 
 protected:
   vtkThresholdTable();
-  ~vtkThresholdTable() VTK_OVERRIDE;
+  ~vtkThresholdTable() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   vtkVariant MinValue;
   vtkVariant MaxValue;
   int Mode;
 
 private:
-  vtkThresholdTable(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
+  vtkThresholdTable(const vtkThresholdTable&) = delete;
+  void operator=(const vtkThresholdTable&) = delete;
 };
 
 #endif

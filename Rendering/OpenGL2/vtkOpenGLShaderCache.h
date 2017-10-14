@@ -36,25 +36,25 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 public:
   static vtkOpenGLShaderCache *New();
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(
     const char *vertexCode,
     const char *fragmentCode,
     const char *geometryCode,
-    vtkTransformFeedback *cap = NULL);
+    vtkTransformFeedback *cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   // will increment the reference count on the shaders if it
   // needs to keep them around
   virtual vtkShaderProgram *ReadyShaderProgram(
     std::map<vtkShader::Type,vtkShader *> shaders,
-      vtkTransformFeedback *cap = NULL);
+      vtkTransformFeedback *cap = nullptr);
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(
-      vtkShaderProgram *shader, vtkTransformFeedback *cap = NULL);
+      vtkShaderProgram *shader, vtkTransformFeedback *cap = nullptr);
 
   /**
    * Release the current shader.  Basically go back to
@@ -72,12 +72,12 @@ public:
    * Get/Clear the last Shader bound, called by shaders as they release
    * their graphics resources
    */
-  virtual void ClearLastShaderBound() { this->LastShaderBound = NULL; }
+  virtual void ClearLastShaderBound() { this->LastShaderBound = nullptr; }
   vtkGetObjectMacro(LastShaderBound, vtkShaderProgram);
 
 protected:
   vtkOpenGLShaderCache();
-  ~vtkOpenGLShaderCache() VTK_OVERRIDE;
+  ~vtkOpenGLShaderCache() override;
 
   // perform System and Output replacments in place. Returns
   // the number of outputs
@@ -98,8 +98,8 @@ protected:
   vtkShaderProgram *LastShaderBound;
 
 private:
-  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
+  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) = delete;
+  void operator=(const vtkOpenGLShaderCache&) = delete;
 
 };
 

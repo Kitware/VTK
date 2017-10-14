@@ -15,4 +15,4 @@ vtk_module(vtkViewsQt
     vtkFiltersExtraction
     vtkFiltersGeneral
     vtkInfovisCore
-  )
+)

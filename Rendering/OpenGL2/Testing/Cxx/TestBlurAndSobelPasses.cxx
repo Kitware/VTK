@@ -156,7 +156,6 @@ int TestBlurAndSobelPasses(int argc, char* argv[])
   vtkConeSource *cone=vtkConeSource::New();
   vtkPolyDataMapper *coneMapper=vtkPolyDataMapper::New();
   coneMapper->SetInputConnection(cone->GetOutputPort());
-  coneMapper->SetImmediateModeRendering(1);
   cone->Delete();
   vtkActor *coneActor=vtkActor::New();
   coneActor->SetMapper(coneMapper);

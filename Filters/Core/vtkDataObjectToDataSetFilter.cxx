@@ -47,48 +47,48 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
 
   for (i=0; i < 3; i++)
   {
-    this->PointArrays[i] = NULL;
+    this->PointArrays[i] = nullptr;
     this->PointArrayComponents[i] = -1; //uninitialized
     this->PointComponentRange[i][0] = this->PointComponentRange[i][1] = -1;
     this->PointNormalize[i] = 1; //yes, normalize
   }
 
-  this->VertsArray = NULL;
+  this->VertsArray = nullptr;
   this->VertsArrayComponent = -1;
   this->VertsComponentRange[0] = this->VertsComponentRange[1] = -1;
 
-  this->LinesArray = NULL;
+  this->LinesArray = nullptr;
   this->LinesArrayComponent = -1;
   this->LinesComponentRange[0] = this->LinesComponentRange[1] = -1;
 
-  this->PolysArray = NULL;
+  this->PolysArray = nullptr;
   this->PolysArrayComponent = -1;
   this->PolysComponentRange[0] = this->PolysComponentRange[1] = -1;
 
-  this->StripsArray = NULL;
+  this->StripsArray = nullptr;
   this->StripsArrayComponent = -1;
   this->StripsComponentRange[0] = this->StripsComponentRange[1] = -1;
 
-  this->CellTypeArray = NULL;
+  this->CellTypeArray = nullptr;
   this->CellTypeArrayComponent = -1;
   this->CellTypeComponentRange[0] = this->CellTypeComponentRange[1] = -1;
 
-  this->CellConnectivityArray = NULL;
+  this->CellConnectivityArray = nullptr;
   this->CellConnectivityArrayComponent = -1;
   this->CellConnectivityComponentRange[0] =
     this->CellConnectivityComponentRange[1] = -1;
 
   this->DefaultNormalize = 0;
 
-  this->DimensionsArray = NULL;; //the name of the array
+  this->DimensionsArray = nullptr;; //the name of the array
   this->DimensionsArrayComponent = -1;
   this->DimensionsComponentRange[0] = this->DimensionsComponentRange[1] = -1;
 
-  this->SpacingArray = NULL;; //the name of the array
+  this->SpacingArray = nullptr;; //the name of the array
   this->SpacingArrayComponent = -1;
   this->SpacingComponentRange[0] = this->SpacingComponentRange[1] = -1;
 
-  this->OriginArray = NULL;; //the name of the array
+  this->OriginArray = nullptr;; //the name of the array
   this->OriginArrayComponent = -1;
   this->OriginComponentRange[0] = this->OriginComponentRange[1] = -1;
 
@@ -162,7 +162,7 @@ vtkDataObject *vtkDataObjectToDataSetFilter::GetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(0, 0);
@@ -345,7 +345,7 @@ vtkDataSet *vtkDataObjectToDataSetFilter::GetOutput()
 {
   if (this->GetNumberOfOutputPorts() < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkDataSet::SafeDownCast(
@@ -525,7 +525,7 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject *input,
       fd, this->PointArrays[i],
       this->PointArrayComponents[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested");
       return 0;
@@ -603,7 +603,7 @@ vtkIdType vtkDataObjectToDataSetFilter::ConstructPoints(vtkDataObject *input,
       fd, this->PointArrays[i],
       this->PointArrayComponents[i]);
 
-    if ( fieldArray[i] == NULL )
+    if ( fieldArray[i] == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested");
       return 0;
@@ -1021,7 +1021,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
 
   fieldArray[0] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->VertsArray, this->VertsArrayComponent);
-  if ( this->VertsArray && fieldArray[0] == NULL )
+  if ( this->VertsArray && fieldArray[0] == nullptr )
   {
     vtkErrorMacro(<<"Can't find array requested for vertices");
     return 0;
@@ -1029,7 +1029,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
 
   fieldArray[1] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->LinesArray, this->LinesArrayComponent);
-  if ( this->LinesArray && fieldArray[1] == NULL )
+  if ( this->LinesArray && fieldArray[1] == nullptr )
   {
     vtkErrorMacro(<<"Can't find array requested for lines");
     return 0;
@@ -1037,7 +1037,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
 
   fieldArray[2] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->PolysArray, this->PolysArrayComponent);
-  if ( this->PolysArray && fieldArray[2] == NULL )
+  if ( this->PolysArray && fieldArray[2] == nullptr )
   {
     vtkErrorMacro(<<"Can't find array requested for polygons");
     return 0;
@@ -1045,7 +1045,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
 
   fieldArray[3] = vtkFieldDataToAttributeDataFilter::GetFieldArray(
     fd, this->StripsArray, this->StripsArrayComponent);
-  if ( this->StripsArray && fieldArray[3] == NULL )
+  if ( this->StripsArray && fieldArray[3] == nullptr )
   {
     vtkErrorMacro(<<"Can't find array requested for triangle strips");
     return 0;
@@ -1058,7 +1058,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
     vtkCellArray *verts = this->ConstructCellArray(
       fieldArray[0], this->VertsArrayComponent,
       this->VertsComponentRange);
-    if ( verts != NULL )
+    if ( verts != nullptr )
     {
       pd->SetVerts(verts);
       ncells += verts->GetNumberOfCells();
@@ -1073,7 +1073,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
       fieldArray[1], this->LinesComponentRange);
     vtkCellArray *lines = this->ConstructCellArray(
       fieldArray[1], this->LinesArrayComponent, this->LinesComponentRange);
-    if ( lines != NULL )
+    if ( lines != nullptr )
     {
       pd->SetLines(lines);
       ncells += lines->GetNumberOfCells();
@@ -1089,7 +1089,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
     vtkCellArray *polys = this->ConstructCellArray(
       fieldArray[2], this->PolysArrayComponent,
       this->PolysComponentRange);
-    if ( polys != NULL )
+    if ( polys != nullptr )
     {
       pd->SetPolys(polys);
       ncells += polys->GetNumberOfCells();
@@ -1104,7 +1104,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
       fieldArray[3], this->StripsComponentRange);
     vtkCellArray *triStrips = this->ConstructCellArray(fieldArray[3],
                        this->StripsArrayComponent, this->StripsComponentRange);
-    if ( triStrips != NULL )
+    if ( triStrips != nullptr )
     {
       pd->SetStrips(triStrips);
       ncells += triStrips->GetNumberOfCells();
@@ -1129,7 +1129,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
     fd, this->CellTypeArray,
     this->CellTypeArrayComponent);
 
-   if ( fieldArray[0] == NULL )
+   if ( fieldArray[0] == nullptr )
    {
     vtkErrorMacro(<<"Can't find array requested for cell types");
     return 0;
@@ -1145,7 +1145,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
     fd,
     this->CellConnectivityArray,
     this->CellConnectivityArrayComponent);
-  if ( fieldArray[1] == NULL )
+  if ( fieldArray[1] == nullptr )
   {
     vtkErrorMacro(<<"Can't find array requested for cell connectivity");
     return 0;
@@ -1187,7 +1187,7 @@ int vtkDataObjectToDataSetFilter::ConstructCells(vtkDataObject *input,
         fieldArray[1],
         this->CellConnectivityArrayComponent,
         this->CellConnectivityComponentRange);
-      if ( carray != NULL ) //insert into unstructured grid
+      if ( carray != nullptr ) //insert into unstructured grid
       {
         ug->SetCells(types,carray);
         carray->Delete();
@@ -1220,7 +1220,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(
   if ( comp < 0 || comp >= numComp )
   {
     vtkErrorMacro(<<"Bad component specification");
-    return NULL;
+    return nullptr;
   }
 
   carray = vtkCellArray::New();
@@ -1249,7 +1249,7 @@ vtkCellArray *vtkDataObjectToDataSetFilter::ConstructCellArray(
       {
         vtkErrorMacro(<<"Error constructing cell array");
         carray->Delete();
-        return NULL;
+        return nullptr;
       }
       else
       {
@@ -1343,7 +1343,7 @@ void vtkDataObjectToDataSetFilter::SetOriginComponent(char *arrayName,
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject *input)
 {
-  if ( this->DimensionsArray == NULL || this->DimensionsArrayComponent < 0 )
+  if ( this->DimensionsArray == nullptr || this->DimensionsArrayComponent < 0 )
   {
     return; //assume dimensions have been set
   }
@@ -1353,7 +1353,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject *input)
     vtkDataArray *fieldArray
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->DimensionsArray, this->DimensionsArrayComponent);
-    if ( fieldArray == NULL )
+    if ( fieldArray == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested for dimensions");
       return;
@@ -1376,7 +1376,7 @@ void vtkDataObjectToDataSetFilter::ConstructDimensions(vtkDataObject *input)
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructSpacing(vtkDataObject *input)
 {
-  if ( this->SpacingArray == NULL || this->SpacingArrayComponent < 0 )
+  if ( this->SpacingArray == nullptr || this->SpacingArrayComponent < 0 )
   {
     return; //assume Spacing have been set
   }
@@ -1386,7 +1386,7 @@ void vtkDataObjectToDataSetFilter::ConstructSpacing(vtkDataObject *input)
     vtkDataArray *fieldArray
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->SpacingArray, this->SpacingArrayComponent);
-    if ( fieldArray == NULL )
+    if ( fieldArray == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested for Spacing");
       return;
@@ -1414,7 +1414,7 @@ vtkDataSet *vtkDataObjectToDataSetFilter::GetOutput(int idx)
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ConstructOrigin(vtkDataObject *input)
 {
-  if ( this->OriginArray == NULL || this->OriginArrayComponent < 0 )
+  if ( this->OriginArray == nullptr || this->OriginArrayComponent < 0 )
   {
     return; //assume Origin have been set
   }
@@ -1424,7 +1424,7 @@ void vtkDataObjectToDataSetFilter::ConstructOrigin(vtkDataObject *input)
     vtkDataArray *fieldArray
       = vtkFieldDataToAttributeDataFilter::GetFieldArray(
         fd, this->OriginArray, this->OriginArrayComponent);
-    if ( fieldArray == NULL )
+    if ( fieldArray == nullptr )
     {
       vtkErrorMacro(<<"Can't find array requested for Origin");
       return;

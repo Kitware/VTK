@@ -119,14 +119,14 @@ int TestAtomic(int, char*[])
   }
 
   vtkNew<vtkMultiThreader> mt;
-  mt->SetSingleMethod(MyFunction, NULL);
+  mt->SetSingleMethod(MyFunction, nullptr);
   mt->SetNumberOfThreads(NumThreads);
   mt->SingleMethodExecute();
 
-  mt->SetSingleMethod(MyFunction2, NULL);
+  mt->SetSingleMethod(MyFunction2, nullptr);
   mt->SingleMethodExecute();
 
-  mt->SetSingleMethod(MyFunction3, NULL);
+  mt->SetSingleMethod(MyFunction3, nullptr);
   mt->SingleMethodExecute();
 
   // Making sure that atomic incr returned unique
@@ -168,7 +168,7 @@ int TestAtomic(int, char*[])
     return 1;
   }
 
-  mt->SetSingleMethod(MyFunction4, NULL);
+  mt->SetSingleMethod(MyFunction4, nullptr);
   mt->SingleMethodExecute();
 
 #ifdef SHOW_DIFFERENCE

@@ -30,7 +30,7 @@ vtkStandardNewMacro(vtkLookupTableItem);
 vtkLookupTableItem::vtkLookupTableItem()
 {
   this->Interpolate = false;
-  this->LookupTable = 0;
+  this->LookupTable = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ vtkLookupTableItem::~vtkLookupTableItem()
   if (this->LookupTable)
   {
     this->LookupTable->Delete();
-    this->LookupTable = 0;
+    this->LookupTable = nullptr;
   }
 }
 
@@ -87,7 +87,7 @@ void vtkLookupTableItem::SetLookupTable(vtkLookupTable* t)
   {
     t->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
   }
-  this->ScalarsToColorsModified(this->LookupTable, vtkCommand::ModifiedEvent, 0);
+  this->ScalarsToColorsModified(this->LookupTable, vtkCommand::ModifiedEvent, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ void vtkLookupTableItem::ComputeTexture()
   {
     return;
   }
-  if (this->Texture == 0)
+  if (this->Texture == nullptr)
   {
     this->Texture = vtkImageData::New();
   }
@@ -129,5 +129,4 @@ void vtkLookupTableItem::ComputeTexture()
       ptr+=4;
     }
   }
-  return;
 }

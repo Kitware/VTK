@@ -58,7 +58,7 @@ vtkOBJImporter::~vtkOBJImporter()
 int CanReadFile( vtkObject* that, const std::string& fname )
 {
   FILE* fileFD = fopen (fname.c_str(), "rb");
-  if (fileFD == NULL)
+  if (fileFD == nullptr)
   {
     vtkErrorWithObjectMacro(that,<< "Unable to open file: "<< fname.c_str());
     return 0;
@@ -92,7 +92,7 @@ void vtkOBJImporter::ReadData()
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
-    bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl.Get());
+    bindTexturedPolydataToRenderWindow(this->RenderWindow,this->Renderer,Impl);
   }
 }
 
@@ -181,7 +181,7 @@ struct vtkOBJImportedPolyDataWithMaterial
     normals->SetNumberOfComponents(3);
 
     materialName  = "";
-    mtlProperties = NULL;
+    mtlProperties = nullptr;
   }
 
   // these can be shared
@@ -213,7 +213,7 @@ struct vtkOBJImportedPolyDataWithMaterial
 //----------------------------------------------------------------------------
 vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
 {
-  // Instantiate object with NULL filename, and no materials yet loaded.
+  // Instantiate object with nullptr filename, and no materials yet loaded.
   this->FileName    = "";
   this->MTLFileName = "";
   this->DefaultMTLFileName = true;
@@ -239,7 +239,7 @@ vtkOBJPolyDataProcessor::~vtkOBJPolyDataProcessor()
   for( size_t k = 0; k < poly_list.size(); ++k)
   {
     delete poly_list[k];
-    poly_list[k] = NULL;
+    poly_list[k] = nullptr;
   }
 }
 
@@ -248,7 +248,7 @@ vtkOBJImportedMaterial*  vtkOBJPolyDataProcessor::GetMaterial(int k)
 {
   if (k >= static_cast<int>(poly_list.size()))
   {
-    return NULL;
+    return nullptr;
   }
   vtkOBJImportedPolyDataWithMaterial*  rpdmm = this->poly_list[k];
   return rpdmm->mtlProperties;
@@ -345,7 +345,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   }
 
   FILE *in = fopen(this->FileName.c_str(),"r");
-  if (in == NULL)
+  if (in == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     return 0;
@@ -355,7 +355,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   for( size_t k = 0; k < poly_list.size(); ++k)
   {
     delete poly_list[k];
-    poly_list[k] = NULL;
+    poly_list[k] = nullptr;
   }
   poly_list.clear();
 
@@ -375,12 +375,13 @@ int vtkOBJPolyDataProcessor::RequestData(
     mtlname = this->FileName + ".mtl";
   }
   FILE *defMTL = fopen(mtlname.c_str(), "r");
-  if (defMTL == NULL)
+  if (defMTL == nullptr)
   {
     if (!this->DefaultMTLFileName)
     {
       vtkErrorMacro(<< "The MTL file " << mtlname <<
                     " could not be found");
+      fclose(in);
       return 0;
     }
   }
@@ -450,7 +451,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   float xyz[3];
 
   int lineNr = 0;
-  while (everything_ok && fgets(rawLine, MAX_LINE, in) != NULL)
+  while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
   { /** While OK and there is another line in the file */
     lineNr++;
     char *pLine = rawLine;
@@ -553,7 +554,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;
@@ -625,7 +626,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;
@@ -725,7 +726,7 @@ int vtkOBJPolyDataProcessor::RequestData(
           else if (strcmp(pLine, "\\\n") == 0)
           {
             // handle backslash-newline continuation
-            if (fgets(rawLine, MAX_LINE, in) != NULL)
+            if (fgets(rawLine, MAX_LINE, in) != nullptr)
             {
               lineNr++;
               pLine = rawLine;
@@ -798,6 +799,9 @@ int vtkOBJPolyDataProcessor::RequestData(
       vtkDebugMacro("strLine = " << strLine);
       int idxNewLine = strLine.find_first_of("\r\n");
       std::string mtl_name = strLine.substr(0, idxNewLine);
+      // trim trailing whitespace
+      size_t last = mtl_name.find_last_not_of(' ');
+      mtl_name = mtl_name.substr(0, last + 1);
       vtkDebugMacro("'Use Material' command, usemtl with name: " << mtl_name);
 
       if (! mtlName_to_mtlData.count(mtl_name))
@@ -1050,6 +1054,6 @@ vtkPolyData* vtkOBJPolyDataProcessor::GetOutput(int idx)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }

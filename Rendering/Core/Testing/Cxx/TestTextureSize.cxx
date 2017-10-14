@@ -38,7 +38,7 @@ vtkImageData* createTexture2D(int width, int height, int comp)
   void* data = malloc(width*height*comp*sizeof(unsigned char));
   if (!data)
   {
-    return 0;
+    return nullptr;
   }
   free(data);
   vtkImageData* image = vtkImageData::New();
@@ -70,9 +70,9 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   //Create a renderer, render window, and interactor
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindow->AddRenderer(renderer);
   vtkNew<vtkRenderWindowInteractor> interactor;
-  interactor->SetRenderWindow(renderWindow.GetPointer());
+  interactor->SetRenderWindow(renderWindow);
 
   vtkNew<vtkPoints> points;
   points->InsertPoint(0, 0., 0., 0.);
@@ -95,12 +95,12 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   tcoords->InsertNextTuple2(0.f, 1.f);
 
   vtkNew<vtkPolyData> textureCoords;
-  textureCoords->SetPoints(points.GetPointer());
-  textureCoords->SetPolys(cells.GetPointer());
-  textureCoords->GetPointData()->SetTCoords(tcoords.GetPointer());
+  textureCoords->SetPoints(points);
+  textureCoords->SetPolys(cells);
+  textureCoords->GetPointData()->SetTCoords(tcoords);
 
   vtkNew<vtkPolyDataMapper2D> polyDataMapper;
-  polyDataMapper->SetInputData( textureCoords.GetPointer() );
+  polyDataMapper->SetInputData( textureCoords );
 
   int textureSizes[23][2] =
     {{1,2}, {1,3}, {1,4}, {1,5}, {1,255}, {1,256}, {257,1},
@@ -116,7 +116,7 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       vtkSmartPointer<vtkImageData> image =
         vtkSmartPointer<vtkImageData>::Take(
           createTexture2D(size[0], size[1], componentSizes[c]));
-      if (image.GetPointer() == 0)
+      if (image == nullptr)
       {
         return EXIT_SUCCESS;
       }
@@ -128,9 +128,9 @@ int TestTextureSize(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       //texture->SetInterpolate(true);
 
       vtkNew<vtkTexturedActor2D> textureActor;
-      textureActor->SetTexture(texture.GetPointer());
-      textureActor->SetMapper(polyDataMapper.GetPointer());
-      renderer->AddActor(textureActor.GetPointer());
+      textureActor->SetTexture(texture);
+      textureActor->SetMapper(polyDataMapper);
+      renderer->AddActor(textureActor);
 
       texture->SetRestrictPowerOf2ImageSmaller(false);
       renderWindow->Render();

@@ -52,7 +52,7 @@ enum vtkPythonArgPenalties
 class vtkPythonOverloadHelper
 {
 public:
-  vtkPythonOverloadHelper() : m_format(0), m_classname(0), m_penalty(0) {}
+  vtkPythonOverloadHelper() : m_format(nullptr), m_classname(nullptr), m_penalty(0) {}
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   bool optional() { return m_optional; }
@@ -101,7 +101,7 @@ void vtkPythonOverloadHelper::initialize(bool selfIsClass, const char *format)
 
 // Get the next format char and, if char is 'O', the classname.
 // The classname is terminated with space, not with null.
-// If there is no classname for an arg, classname will be set to NULL.
+// If there is no classname for an arg, classname will be set to nullptr.
 bool vtkPythonOverloadHelper::next(
   const char **format, const char **classname)
 {
@@ -137,7 +137,7 @@ bool vtkPythonOverloadHelper::next(
   }
   else
   {
-    *classname = 0;
+    *classname = nullptr;
   }
 
   // increment to the next format character
@@ -280,9 +280,9 @@ int vtkPythonOverload::CheckArg(
   const char *classname = classtext;
 
   // If mutable object, check the type of the value inside
-  if (PyVTKMutableObject_Check(arg))
+  if (PyVTKReference_Check(arg))
   {
-    arg = PyVTKMutableObject_GetValue(arg);
+    arg = PyVTKReference_GetValue(arg);
   }
 
   switch (*format)
@@ -499,7 +499,7 @@ int vtkPythonOverload::CheckArg(
         penalty = VTK_PYTHON_NEEDS_CONVERSION;
       }
       // make sure that arg can act as a buffer
-      else if (Py_TYPE(arg)->tp_as_buffer == 0)
+      else if (Py_TYPE(arg)->tp_as_buffer == nullptr)
       {
         penalty = VTK_PYTHON_INCOMPATIBLE;
       }
@@ -530,7 +530,7 @@ int vtkPythonOverload::CheckArg(
         else if (PyVTKObject_Check(arg))
         {
           PyVTKClass *info = vtkPythonUtil::FindClass(classname);
-          PyTypeObject *pytype = (info ? info->py_type : NULL);
+          PyTypeObject *pytype = (info ? info->py_type : nullptr);
           if (Py_TYPE(arg) != pytype)
           {
             // Check superclasses
@@ -564,7 +564,7 @@ int vtkPythonOverload::CheckArg(
       {
         // Look up the required type in the map
         PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
-        PyTypeObject *pytype = (info ? info->py_type : NULL);
+        PyTypeObject *pytype = (info ? info->py_type : nullptr);
 
         // Check for an exact match
         if (Py_TYPE(arg) != pytype)
@@ -583,7 +583,7 @@ int vtkPythonOverload::CheckArg(
             penalty = VTK_PYTHON_NEEDS_CONVERSION;
 
             // The "level != 0" ensures that we don't chain conversions
-            if (level != 0 || info == 0)
+            if (level != 0 || info == nullptr)
             {
               penalty = VTK_PYTHON_INCOMPATIBLE;
             }
@@ -606,7 +606,7 @@ int vtkPythonOverload::CheckArg(
 
         // Look up the required type in the map
         PyVTKSpecialType *info = vtkPythonUtil::FindSpecialType(classname);
-        PyTypeObject *pytype = (info ? info->py_type : NULL);
+        PyTypeObject *pytype = (info ? info->py_type : nullptr);
 
         // Check for an exact match
         if (Py_TYPE(arg) != pytype)
@@ -784,14 +784,14 @@ PyObject *vtkPythonOverload::CallMethod(
   int matchCount = 1;
 
   // Make sure there is more than one method
-  if (methods[1].ml_meth != 0)
+  if (methods[1].ml_meth != nullptr)
   {
     vtkPythonOverloadHelper helperStorage[16];
     vtkPythonOverloadHelper *helperArray = helperStorage;
     vtkPythonOverloadHelper *helper;
 
-    const char *format = 0;
-    const char *classname = 0;
+    const char *format = nullptr;
+    const char *classname = nullptr;
     bool selfIsClass = 0;
     int sig;
 
@@ -802,7 +802,7 @@ PyObject *vtkPythonOverload::CallMethod(
       selfIsClass = true;
     }
 
-    for (sig = 0; methods[sig].ml_meth != 0; sig++)
+    for (sig = 0; methods[sig].ml_meth != nullptr; sig++)
     {
       // Have we overgrown the stack storage?
       if ((sig & 15) == 0 && sig != 0)
@@ -857,7 +857,7 @@ PyObject *vtkPythonOverload::CallMethod(
 
     // Loop through methods and identify the best match
     int minPenalty = VTK_PYTHON_INCOMPATIBLE;
-    meth = 0;
+    meth = nullptr;
     matchCount = 0;
     for (sig = 0; sig < nsig; sig++)
     {
@@ -893,7 +893,7 @@ PyObject *vtkPythonOverload::CallMethod(
     PyErr_SetString(PyExc_TypeError,
       "ambiguous call, multiple overloaded methods match the arguments");
 
-    return NULL;
+    return nullptr;
   }
 
   if (meth)
@@ -904,7 +904,7 @@ PyObject *vtkPythonOverload::CallMethod(
   PyErr_SetString(PyExc_TypeError,
     "arguments do not match any overloaded methods");
 
-  return NULL;
+  return nullptr;
 }
 
 //--------------------------------------------------------------------
@@ -916,13 +916,13 @@ PyMethodDef *vtkPythonOverload::FindConversionMethod(
 {
   vtkPythonOverloadHelper helper;
   const char *dummy1, *dummy2;
-  const char *format = 0;
-  const char *classname = 0;
-  PyMethodDef *method = 0;
+  const char *format = nullptr;
+  const char *classname = nullptr;
+  PyMethodDef *method = nullptr;
   int minPenalty = VTK_PYTHON_NEEDS_CONVERSION;
   int matchCount = 0;
 
-  for (PyMethodDef *meth = methods; meth->ml_meth != NULL; meth++)
+  for (PyMethodDef *meth = methods; meth->ml_meth != nullptr; meth++)
   {
     // If method has "explicit" marker, don't use for conversions
     if (meth->ml_doc[0] != '-')

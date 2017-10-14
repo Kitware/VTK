@@ -42,7 +42,7 @@ class VTKFILTERSMODELING_EXPORT vtkVolumeOfRevolutionFilter :
 {
 public:
   vtkTypeMacro(vtkVolumeOfRevolutionFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create object with sweep angle of 360 degrees, resolution = 12,
@@ -96,12 +96,12 @@ public:
 
 protected:
   vtkVolumeOfRevolutionFilter();
-  ~vtkVolumeOfRevolutionFilter() VTK_OVERRIDE;
+  ~vtkVolumeOfRevolutionFilter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   int Resolution;
   double SweepAngle;
@@ -110,8 +110,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkVolumeOfRevolutionFilter(const vtkVolumeOfRevolutionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeOfRevolutionFilter&) VTK_DELETE_FUNCTION;
+  vtkVolumeOfRevolutionFilter(const vtkVolumeOfRevolutionFilter&) = delete;
+  void operator=(const vtkVolumeOfRevolutionFilter&) = delete;
 };
 
 #endif

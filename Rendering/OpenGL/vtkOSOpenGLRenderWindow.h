@@ -244,8 +244,8 @@ protected:
 
 
 private:
-  vtkOSOpenGLRenderWindow(const vtkOSOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  vtkOSOpenGLRenderWindow(const vtkOSOpenGLRenderWindow&) = delete;
+  void operator=(const vtkOSOpenGLRenderWindow&) = delete;
 };
 
 

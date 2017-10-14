@@ -65,7 +65,7 @@ public:
    * Override the standard GetMTime() to check for the modified times
    * of the paths.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
@@ -76,7 +76,7 @@ public:
 
 protected:
   vtkAssemblyPaths() {}
-  ~vtkAssemblyPaths() VTK_OVERRIDE {}
+  ~vtkAssemblyPaths() override {}
 
 private:
   // hide the standard AddItem from the user and the compiler.
@@ -89,8 +89,8 @@ private:
   int  IsItemPresent(vtkObject *o)
     { return this->vtkCollection::IsItemPresent(o); }
 private:
-  vtkAssemblyPaths(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
+  vtkAssemblyPaths(const vtkAssemblyPaths&) = delete;
+  void operator=(const vtkAssemblyPaths&) = delete;
 };
 
 inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p)

@@ -55,7 +55,7 @@ class VTKCOMMONMISC_EXPORT vtkHeap : public vtkObject
 public:
   static vtkHeap *New();
   vtkTypeMacro(vtkHeap,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Allocate the memory requested.
@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkHeap();
-  ~vtkHeap() VTK_OVERRIDE;
+  ~vtkHeap() override;
 
   void Add(size_t blockSize);
   void CleanAll();
@@ -114,8 +114,8 @@ protected:
   size_t Position; //the position in the Current block
 
 private:
-  vtkHeap(const vtkHeap&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHeap&) VTK_DELETE_FUNCTION;
+  vtkHeap(const vtkHeap&) = delete;
+  void operator=(const vtkHeap&) = delete;
 };
 
 #endif

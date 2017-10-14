@@ -497,21 +497,18 @@ typedef std::pair<unsigned int, double> PassThroughItem;
 typedef std::set<PassThroughItem> PassThroughSetType;
 
 //----------------------------------------------------------------------------
-vtkCxxSetObjectMacro(vtkLagrangianBasicIntegrationModel, Locator, vtkAbstractCellLocator);
-
-//----------------------------------------------------------------------------
 vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel():
-  Locator(NULL),
-  LastLocator(NULL),
-  LastDataSet(NULL),
+  Locator(nullptr),
+  LastLocator(nullptr),
+  LastDataSet(nullptr),
   WeightsSize(0),
-  CurrentParticle(NULL),
-  TmpParticle(NULL),
-  TmpArray(NULL),
+  CurrentParticle(nullptr),
+  TmpParticle(nullptr),
+  TmpArray(nullptr),
   Tolerance(1.0e-8),
   NonPlanarQuadSupport(false),
   UseInitialIntegrationTime(false),
-  Tracker(NULL)
+  Tracker(nullptr)
 {
   SurfaceArrayDescription surfaceTypeDescription;
   surfaceTypeDescription.nComp = 1;
@@ -540,6 +537,7 @@ vtkLagrangianBasicIntegrationModel::vtkLagrangianBasicIntegrationModel():
   // Using a vtkCellLocator by default
   vtkAbstractCellLocator* locator = vtkCellLocator::New();
   this->SetLocator(locator);
+  this->LocatorsBuilt = false;
   locator->Delete();
 }
 
@@ -549,19 +547,15 @@ vtkLagrangianBasicIntegrationModel::~vtkLagrangianBasicIntegrationModel()
   this->ClearDataSets(true);
   this->Cell->Delete();
   delete[] this->LastWeights;
-  this->SetLocator(NULL);
-  this->LastLocator = NULL;
+  this->SetLocator(nullptr);
+  this->LastLocator = nullptr;
   delete this->Locators;
   delete this->DataSets;
   delete this->Surfaces;
   delete this->SurfaceLocators;
+  delete this->TmpParticle;
 
-  if (this->TmpParticle != NULL)
-  {
-    delete this->TmpParticle;
-  }
-
-  if (this->TmpArray != NULL)
+  if (this->TmpArray != nullptr)
   {
     this->TmpArray->Delete();
   }
@@ -606,13 +600,13 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(vtkDataSet * dataset,
   // Sanity check
   if (!dataset)
   {
-    vtkErrorMacro(<< "Dataset NULL!");
+    vtkErrorMacro(<< "Dataset nullptr!");
     return;
   }
 
   if (!this->Locator)
   {
-    vtkErrorMacro(<< "Locator NULL");
+    vtkErrorMacro(<< "Locator nullptr");
     return;
   }
 
@@ -628,7 +622,7 @@ void vtkLagrangianBasicIntegrationModel::AddDataSet(vtkDataSet * dataset,
   }
 
   // insert a locator into Locators vector, non-null only for vtkPointSet
-  vtkSmartPointer<vtkAbstractCellLocator> locator = 0;
+  vtkSmartPointer<vtkAbstractCellLocator> locator = nullptr;
   if (dataset->IsA("vtkPointSet"))
   {
     if (surface)
@@ -681,12 +675,12 @@ void vtkLagrangianBasicIntegrationModel::ClearDataSets(bool surface)
   {
     this->DataSets->clear();
     this->Locators->clear();
-    this->LastDataSet = NULL;
-    this->LastLocator = NULL;
+    this->LastDataSet = nullptr;
+    this->LastLocator = nullptr;
 
     this->WeightsSize = 0;
     delete[] this->LastWeights;
-    this->LastWeights = NULL;
+    this->LastWeights = nullptr;
   }
 }
 
@@ -723,11 +717,31 @@ int vtkLagrangianBasicIntegrationModel::FunctionValues(double* x, double* f)
 }
 
 //---------------------------------------------------------------------------
+void vtkLagrangianBasicIntegrationModel::SetLocator(vtkAbstractCellLocator* locator)
+{
+  if (this->Locator != locator)
+  {
+    vtkAbstractCellLocator* temp = this->Locator;
+    this->Locator = locator;
+    if (this->Locator != nullptr)
+    {
+      this->Locator->Register(this);
+    }
+    if (temp != nullptr)
+    {
+      temp->UnRegister(this);
+    }
+    this->Modified();
+    this->LocatorsBuilt = false;
+  }
+}
+
+//---------------------------------------------------------------------------
 vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInteraction(
   vtkLagrangianParticle* particle, std::queue<vtkLagrangianParticle*>& particles,
   unsigned int& surfaceFlatIndex, PassThroughParticlesType& passThroughParticles)
 {
-  vtkDataSet* surface = NULL;
+  vtkDataSet* surface = nullptr;
   double interFactor = 1.0;
   vtkIdType cellId = -1;
   int surfaceType = -1;
@@ -739,11 +753,11 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     perforation = false;
     for (size_t iDs = 0; iDs < this->Surfaces->size(); iDs++)
     {
-      vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs].GetPointer();
+      vtkAbstractCellLocator* loc = (*this->SurfaceLocators)[iDs];
       vtkDataSet* tmpSurface = (*this->Surfaces)[iDs].second;
       vtkNew<vtkIdList> cellList;
       loc->FindCellsAlongLine(particle->GetPosition(), particle->GetNextPosition(),
-        this->Tolerance, cellList.Get());
+        this->Tolerance, cellList);
       for (vtkIdType i = 0; i < cellList->GetNumberOfIds(); i++)
       {
         double tmpFactor;
@@ -773,18 +787,18 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
           if (ret == -1)
           {
             vtkErrorMacro(<< "Surface Type is not correctly set in surface dataset");
-            return NULL;
+            return nullptr;
           }
           if (ret == vtkDataObject::FIELD_ASSOCIATION_NONE)
           {
             surfaceTupleId = 0;
           }
-          if (!this->GetFlowOrSurfaceData(surfaceIndex, tmpSurface, surfaceTupleId, NULL,
+          if (!this->GetFlowOrSurfaceData(surfaceIndex, tmpSurface, surfaceTupleId, nullptr,
             surfaceTypePtr, nComponent) || nComponent != 1)
           {
             vtkErrorMacro(<< "Surface Type is not set in surface dataset or"
               " have incorrect number of components, cannot use surface interaction");
-            return NULL;
+            return nullptr;
           }
           int tmpSurfaceType = static_cast<int>(*surfaceTypePtr);
           if (tmpSurfaceType == vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS)
@@ -835,11 +849,11 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
     }
   }
 
-  // Store surface cache (even NULL one)
+  // Store surface cache (even nullptr one)
   particle->SetLastSurfaceCell(surface, cellId);
 
   bool recordInteraction = false;
-  vtkLagrangianParticle* interactionParticle = NULL;
+  vtkLagrangianParticle* interactionParticle = nullptr;
   if (cellId != -1)
   {
     // There is an actual interaction
@@ -860,7 +874,7 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
       case vtkLagrangianBasicIntegrationModel::SURFACE_TYPE_PASS:
         vtkErrorMacro(<< "Something went wrong with pass-through surface, "
           "next results will be invalid.");
-        return NULL;
+        return nullptr;
       default:
         if (surfaceType != SURFACE_TYPE_MODEL && surfaceType < USER_SURFACE_TYPE)
         {
@@ -875,7 +889,7 @@ vtkLagrangianParticle* vtkLagrangianBasicIntegrationModel::ComputeSurfaceInterac
   if (!recordInteraction)
   {
     delete interactionParticle;
-    interactionParticle = NULL;
+    interactionParticle = nullptr;
   }
   return interactionParticle;
 }
@@ -896,7 +910,7 @@ bool vtkLagrangianBasicIntegrationModel::BounceParticle(vtkLagrangianParticle* p
 
   // Recover surface normal
   // Surface should have been computed already
-  assert(surface->GetCellData()->GetNormals() != NULL);
+  assert(surface->GetCellData()->GetNormals() != nullptr);
   double normal[3];
   surface->GetCellData()->GetNormals()->GetTuple(cellId, normal);
 
@@ -920,7 +934,7 @@ bool vtkLagrangianBasicIntegrationModel::BreakParticle(vtkLagrangianParticle* pa
 
   // Recover surface normal
   // Surface should have been computed already
-  assert(surface->GetCellData()->GetNormals() != NULL);
+  assert(surface->GetCellData()->GetNormals() != nullptr);
   double normal[3];
   surface->GetCellData()->GetNormals()->GetTuple(cellId, normal);
 
@@ -975,7 +989,7 @@ bool vtkLagrangianBasicIntegrationModel::IntersectWithLine(vtkCell* cell,
   if (this->NonPlanarQuadSupport)
   {
     vtkQuad* quad = vtkQuad::SafeDownCast(cell);
-    if (quad != NULL)
+    if (quad != nullptr)
     {
       if (p1[0] == p2[0] && p1[1] == p2[1] && p1[2] == p2[2])
       {
@@ -1076,7 +1090,7 @@ bool vtkLagrangianBasicIntegrationModel::CheckSurfacePerforation(
 {
   // Recover surface normal
   // Surface should have been computed already
-  assert(surface->GetCellData()->GetNormals() != NULL);
+  assert(surface->GetCellData()->GetNormals() != nullptr);
   double normal[3];
   surface->GetCellData()->GetNormals()->GetTuple(cellId, normal);
 
@@ -1156,10 +1170,10 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x,
   vtkNew<vtkGenericCell> cell;
 
   // We have a cache
-  if (this->LastDataSet != NULL)
+  if (this->LastDataSet != nullptr)
   {
     cellId = this->FindInLocator(this->LastDataSet, this->LastLocator, x,
-      cell.Get(), weights);
+      cell, weights);
     if (cellId != -1)
     {
       dataset = this->LastDataSet;
@@ -1171,11 +1185,11 @@ bool vtkLagrangianBasicIntegrationModel::FindInLocators(double* x,
   // No cache or Cache miss, try other datasets
   for (size_t iDs = 0; iDs < this->DataSets->size(); iDs++)
   {
-    loc = (*this->Locators)[iDs].GetPointer();
+    loc = (*this->Locators)[iDs];
     dataset = (*this->DataSets)[iDs];
     if (dataset != this->LastDataSet)
     {
-      cellId = this->FindInLocator(dataset, loc, x, cell.Get(), weights);
+      cellId = this->FindInLocator(dataset, loc, x, cell, weights);
       if (cellId != -1)
       {
         return true;
@@ -1201,7 +1215,7 @@ vtkIdType vtkLagrangianBasicIntegrationModel::FindInLocator(vtkDataSet* ds,
     // No locator, ds is vtkImageData or vtkRectilinearGrid,
     // which does not require any cellToUse when calling FindCell.
     int subId;
-    cellId = ds->FindCell(x, NULL, 0, this->Tolerance, subId, pcoords, weights);
+    cellId = ds->FindCell(x, nullptr, 0, this->Tolerance, subId, pcoords, weights);
   }
 
   // Ignore Ghost cells
@@ -1228,7 +1242,7 @@ vtkAbstractArray* vtkLagrangianBasicIntegrationModel::GetSeedArray(int idx,
   if (this->InputArrays.count(idx) == 0)
   {
     vtkErrorMacro(<< "No arrays at index:" << idx);
-    return NULL;
+    return nullptr;
   }
 
   ArrayMapVal arrayIndexes = this->InputArrays[idx];
@@ -1238,14 +1252,14 @@ vtkAbstractArray* vtkLagrangianBasicIntegrationModel::GetSeedArray(int idx,
   {
     vtkErrorMacro(<< "This input array at idx " << idx << " named " <<
       arrayIndexes.second << " is not a particle data array");
-    return NULL;
+    return nullptr;
   }
 
   // Check connection, should be 0, no multiple connection
   if (arrayIndexes.first.val[1] != 0)
   {
     vtkErrorMacro(<< "This filter does not support multiple connections by port");
-    return NULL;
+    return nullptr;
   }
 
   // Check field association
@@ -1265,9 +1279,8 @@ vtkAbstractArray* vtkLagrangianBasicIntegrationModel::GetSeedArray(int idx,
     }
     default:
       vtkErrorMacro(<< "Only FIELD_ASSOCIATION_POINTS are supported in particle data input");
-      return NULL;
   }
-  return NULL; // never reached
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -1299,7 +1312,7 @@ bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(int idx, vtkDataSe
   }
 
   // Check dataset is present
-  if (dataSet == NULL)
+  if (dataSet == nullptr)
   {
     vtkErrorMacro(<< "Please provide a dataSet when calling this method "
       "for input arrays coming from the flow or surface");
@@ -1335,7 +1348,7 @@ bool vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceData(int idx, vtkDataSe
       }
       // Setup the tmpArray and Interpolate
       nComponents = array->GetNumberOfComponents();
-      if (this->TmpArray != NULL)
+      if (this->TmpArray != nullptr)
       {
         this->TmpArray->Delete();
       }
@@ -1423,19 +1436,19 @@ int vtkLagrangianBasicIntegrationModel::GetFlowOrSurfaceDataFieldAssociation(int
 //---------------------------------------------------------------------------
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayNames()
 {
-  return this->SeedArrayNames.Get();
+  return this->SeedArrayNames;
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayComps()
 {
-  return this->SeedArrayComps.Get();
+  return this->SeedArrayComps;
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSeedArrayTypes()
 {
-  return this->SeedArrayTypes.Get();
+  return this->SeedArrayTypes;
 }
 
 //---------------------------------------------------------------------------
@@ -1448,7 +1461,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayNames()
   {
     this->SurfaceArrayNames->InsertNextValue(it->first.c_str());
   }
-  return this->SurfaceArrayNames.Get();
+  return this->SurfaceArrayNames;
 }
 
 //---------------------------------------------------------------------------
@@ -1461,7 +1474,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayComps()
   {
     this->SurfaceArrayComps->InsertNextValue(it->second.nComp);
   }
-  return this->SurfaceArrayComps.Get();
+  return this->SurfaceArrayComps;
 }
 
 vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
@@ -1480,7 +1493,7 @@ vtkStringArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayEnumValues()
       this->SurfaceArrayEnumValues->InsertNextValue(it->second.enumValues[i].second.c_str());
     }
   }
-  return this->SurfaceArrayEnumValues.Get();
+  return this->SurfaceArrayEnumValues;
 }
 
 vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues()
@@ -1499,7 +1512,7 @@ vtkDoubleArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayDefaultValues
     }
     delete[] defaultValues;
   }
-  return this->SurfaceArrayDefaultValues.Get();
+  return this->SurfaceArrayDefaultValues;
 }
 
 //---------------------------------------------------------------------------
@@ -1512,7 +1525,7 @@ vtkIntArray* vtkLagrangianBasicIntegrationModel::GetSurfaceArrayTypes()
   {
     this->SurfaceArrayTypes->InsertNextValue(it->second.type);
   }
-  return this->SurfaceArrayTypes.Get();
+  return this->SurfaceArrayTypes;
 }
 
 //---------------------------------------------------------------------------

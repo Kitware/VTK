@@ -43,7 +43,7 @@ vtkCleanPolyData::vtkCleanPolyData()
   this->ConvertPolysToLines  = 1;
   this->ConvertLinesToPoints = 1;
   this->ConvertStripsToPolys = 1;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->PieceInvariant = 1;
   this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 }
@@ -51,7 +51,7 @@ vtkCleanPolyData::vtkCleanPolyData()
 //--------------------------------------------------------------------------
 vtkCleanPolyData::~vtkCleanPolyData()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //--------------------------------------------------------------------------
@@ -133,7 +133,7 @@ int vtkCleanPolyData::RequestData(
   vtkIdType   numPts = input->GetNumberOfPoints();
 
   vtkDebugMacro(<<"Beginning PolyData clean");
-  if ( (numPts<1) || (inPts == NULL ) )
+  if ( (numPts<1) || (inPts == nullptr ) )
   {
     vtkDebugMacro(<<"No data to Operate On!");
     return 1;
@@ -165,15 +165,15 @@ int vtkCleanPolyData::RequestData(
   int i;
   vtkIdType ptId;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   double x[3];
   double newx[3];
-  vtkIdType *pointMap=0; //used if no merging
+  vtkIdType *pointMap=nullptr; //used if no merging
 
-  vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = NULL;
-  vtkCellArray *inLines  = input->GetLines(),  *newLines  = NULL;
-  vtkCellArray *inPolys  = input->GetPolys(),  *newPolys  = NULL;
-  vtkCellArray *inStrips = input->GetStrips(), *newStrips = NULL;
+  vtkCellArray *inVerts  = input->GetVerts(),  *newVerts  = nullptr;
+  vtkCellArray *inLines  = input->GetLines(),  *newLines  = nullptr;
+  vtkCellArray *inPolys  = input->GetPolys(),  *newPolys  = nullptr;
+  vtkCellArray *inStrips = input->GetStrips(), *newStrips = nullptr;
 
   vtkPointData *inputPD = input->GetPointData();
   vtkCellData  *inputCD = input->GetCellData();
@@ -216,9 +216,9 @@ int vtkCleanPolyData::RequestData(
   // strips. We need to maintain separate cell data lists so we can
   // copy them all correctly. Tedious but easy to implement. We can
   // use outputCD for vertex cell data, then add the rest at the end.
-  vtkCellData  *outLineData = NULL;
-  vtkCellData  *outPolyData = NULL;
-  vtkCellData  *outStrpData = NULL;
+  vtkCellData  *outLineData = nullptr;
+  vtkCellData  *outPolyData = nullptr;
+  vtkCellData  *outStrpData = nullptr;
   vtkIdType vertIDcounter = 0, lineIDcounter = 0;
   vtkIdType polyIDcounter = 0, strpIDcounter = 0;
 
@@ -616,7 +616,7 @@ void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input)
     }
   }
 
-  if ( this->Locator == NULL)
+  if ( this->Locator == nullptr)
   {
     if (tol==0.0)
     {
@@ -636,7 +636,7 @@ void vtkCleanPolyData::CreateDefaultLocator(vtkPolyData *input)
     // check that the tolerance wasn't changed from zero to non-zero
     if ((tol>0.0) && (this->GetLocator()->GetTolerance()==0.0))
     {
-      this->SetLocator(NULL);
+      this->SetLocator(nullptr);
       this->Locator = vtkPointLocator::New();
       this->Locator->Register(this);
       this->Locator->Delete();
@@ -682,7 +682,7 @@ vtkMTimeType vtkCleanPolyData::GetMTime()
 {
   vtkMTimeType mTime=this->vtkObject::GetMTime();
   vtkMTimeType time;
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );

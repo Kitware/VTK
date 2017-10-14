@@ -69,7 +69,7 @@ class vtkDataRepresentation::Command : public vtkCommand
 public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) VTK_OVERRIDE
+                       void *callData) override
   {
     if (this->Target)
     {
@@ -81,7 +81,7 @@ public:
     this->Target = t;
   }
 private:
-  Command() { this->Target = 0; }
+  Command() { this->Target = nullptr; }
   vtkDataRepresentation* Target;
 };
 
@@ -98,7 +98,7 @@ vtkCxxSetObjectMacro(vtkDataRepresentation, SelectionArrayNames, vtkStringArray)
 vtkTrivialProducer* vtkDataRepresentation::GetInternalInput(int port, int conn)
 {
   return this->Implementation->InputInternal[
-    std::pair<int, int>(port, conn)].second.GetPointer();
+    std::pair<int, int>(port, conn)].second;
 }
 
 //----------------------------------------------------------------------------
@@ -131,8 +131,8 @@ vtkDataRepresentation::~vtkDataRepresentation()
 {
   delete this->Implementation;
   this->Observer->Delete();
-  this->SetSelectionArrayNames(0);
-  this->SetAnnotationLinkInternal(0);
+  this->SetSelectionArrayNames(nullptr);
+  this->SetAnnotationLinkInternal(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalOutputPort(int port, int c
   {
     vtkErrorMacro("Port " << port << ", connection "
       << conn << " is not defined on this representation.");
-    return 0;
+    return nullptr;
   }
 
   // The cached shallow copy is out of date when the input data object
@@ -211,7 +211,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalAnnotationOutputPort(
   {
     vtkErrorMacro("Port " << port << ", connection "
       << conn << " is not defined on this representation.");
-    return 0;
+    return nullptr;
   }
 
   // Create a new filter in the cache if necessary.
@@ -244,7 +244,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(
   // First make sure the convert domain filter is up to date.
   if (!this->GetInternalAnnotationOutputPort(port, conn))
   {
-    return 0;
+    return nullptr;
   }
 
   // Output port 1 of the convert domain filter is the current selection
@@ -255,7 +255,7 @@ vtkAlgorithmOutput* vtkDataRepresentation::GetInternalSelectionOutputPort(
   {
     return this->Implementation->ConvertDomainInternal[p]->GetOutputPort(1);
   }
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -356,7 +356,7 @@ const char* vtkDataRepresentation::GetSelectionArrayName()
   {
     return this->SelectionArrayNames->GetValue(0);
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

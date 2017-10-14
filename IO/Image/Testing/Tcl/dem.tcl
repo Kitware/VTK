@@ -66,7 +66,6 @@ eval elevation$lod SetScalarRange $lo $hi
     demMapper$lod SetInputConnection [normals$lod GetOutputPort]
 eval demMapper$lod SetScalarRange $lo $hi
     demMapper$lod SetLookupTable lut
-    demMapper$lod ImmediateModeRenderingOn
 
 demMapper$lod Update
 

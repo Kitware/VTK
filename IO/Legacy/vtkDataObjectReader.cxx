@@ -64,7 +64,7 @@ int vtkDataObjectReader::RequestData(
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   char line[256];
-  vtkFieldData *field=NULL;
+  vtkFieldData *field=nullptr;
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
@@ -80,7 +80,7 @@ int vtkDataObjectReader::RequestData(
     if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
     {
       field = this->ReadFieldData(); //reads named field (or first found)
-      if ( field != NULL )
+      if ( field != nullptr )
       {
         output->SetFieldData(field);
         field->Delete();

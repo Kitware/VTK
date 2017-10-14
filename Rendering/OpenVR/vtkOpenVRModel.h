@@ -25,8 +25,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkRenderingOpenVRModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkOpenGLHelper.h"
-#include "vtkNew.h"
+#include "vtkOpenGLHelper.h" // ivar
+#include "vtkNew.h" // for ivar
 #include <openvr.h> // for ivars
 
 class vtkOpenVRRenderWindow;
@@ -41,6 +41,7 @@ class VTKRENDERINGOPENVR_EXPORT vtkOpenVRModel : public vtkObject
 public:
   static vtkOpenVRModel *New();
   vtkTypeMacro(vtkOpenVRModel, vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   bool Build(vtkOpenVRRenderWindow *win);
   void Render(vtkOpenVRRenderWindow *win,
@@ -54,11 +55,11 @@ public:
   };
 
   // show the model
-  void SetShow(bool v) {
-    this->Show = v;
+  void SetVisibility(bool v) {
+    this->Visibility = v;
   };
-  bool GetShow() {
-    return this->Show;
+  bool GetVisibility() {
+    return this->Visibility;
   };
 
   //Set Ray parameters
@@ -67,15 +68,18 @@ public:
 
   void ReleaseGraphicsResources(vtkRenderWindow *win);
 
+  // the tracked device this model represents if any
+  vr::TrackedDeviceIndex_t TrackedDevice;
+
   vr::RenderModel_t *RawModel;
 
 protected:
   vtkOpenVRModel();
-  ~vtkOpenVRModel();
+  ~vtkOpenVRModel()  override;
 
   std::string ModelName;
 
-  bool Show;
+  bool Visibility;
   bool Loaded;
   bool FailedToLoad;
 
@@ -87,6 +91,10 @@ protected:
 
   //Controller ray
   vtkNew<vtkOpenVRRay> Ray;
+
+private:
+  vtkOpenVRModel(const vtkOpenVRModel&) = delete;
+  void operator=(const vtkOpenVRModel&) = delete;
 };
 
 #endif

@@ -176,8 +176,8 @@ protected:
 
   vtkXYPlotActor *XYPlotActor;
 private:
-  vtkXYPlotRepresentation(const vtkXYPlotRepresentation &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYPlotRepresentation &) VTK_DELETE_FUNCTION;
+  vtkXYPlotRepresentation(const vtkXYPlotRepresentation &) = delete;
+  void operator=(const vtkXYPlotRepresentation &) = delete;
 };
 
 #endif //vtkXYPlotRepresentation_h

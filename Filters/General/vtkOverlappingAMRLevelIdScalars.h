@@ -36,22 +36,22 @@ class VTKFILTERSGENERAL_EXPORT vtkOverlappingAMRLevelIdScalars :
 public:
   static vtkOverlappingAMRLevelIdScalars* New();
   vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkOverlappingAMRAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkOverlappingAMRLevelIdScalars();
-  ~vtkOverlappingAMRLevelIdScalars() VTK_OVERRIDE;
+  ~vtkOverlappingAMRLevelIdScalars() override;
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   void AddColorLevels(vtkUniformGridAMR *input, vtkUniformGridAMR *output);
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
+  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) = delete;
+  void operator=(const vtkOverlappingAMRLevelIdScalars&) = delete;
 
 };
 

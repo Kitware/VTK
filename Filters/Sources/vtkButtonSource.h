@@ -53,7 +53,7 @@
 class VTKFILTERSSOURCES_EXPORT vtkButtonSource : public vtkPolyDataAlgorithm
 {
 public:
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   vtkTypeMacro(vtkButtonSource,vtkPolyDataAlgorithm);
 
   //@{
@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkButtonSource();
-  ~vtkButtonSource() VTK_OVERRIDE {}
+  ~vtkButtonSource() override {}
 
   double Center[3];
   double ShoulderTextureCoordinate[2];
@@ -119,8 +119,8 @@ protected:
   int    TwoSided;
 
 private:
-  vtkButtonSource(const vtkButtonSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkButtonSource&) VTK_DELETE_FUNCTION;
+  vtkButtonSource(const vtkButtonSource&) = delete;
+  void operator=(const vtkButtonSource&) = delete;
 
 };
 

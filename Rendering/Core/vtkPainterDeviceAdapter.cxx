@@ -25,7 +25,7 @@
 
 #include "vtkObjectFactory.h"
 
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkPainterDeviceAdapter)
 
 //-----------------------------------------------------------------------------

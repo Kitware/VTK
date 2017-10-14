@@ -44,7 +44,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkExtractUserDefinedPiece : public vtkExtractUn
 public:
   vtkTypeMacro(vtkExtractUserDefinedPiece, vtkExtractUnstructuredGridPiece);
   static vtkExtractUserDefinedPiece *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid *grid, void *constantData);
 
@@ -65,16 +65,16 @@ public:
 protected:
 
   vtkExtractUserDefinedPiece();
-  ~vtkExtractUserDefinedPiece() VTK_OVERRIDE;
+  ~vtkExtractUserDefinedPiece() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void ComputeCellTagsWithFunction(vtkIntArray *tags, vtkIdList *pointOwnership,
                                    vtkUnstructuredGrid *input);
 
 private:
-  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
+  vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&) = delete;
+  void operator=(const vtkExtractUserDefinedPiece&) = delete;
 
   void *ConstantData;
   int ConstantDataLen;

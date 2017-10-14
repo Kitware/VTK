@@ -21,7 +21,7 @@ vtkStandardNewMacro(vtkAlgorithmOutput);
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput::vtkAlgorithmOutput()
 {
-  this->Producer = 0;
+  this->Producer = nullptr;
   this->Index = 0;
 }
 

@@ -53,7 +53,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContext2D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContext2D, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Painter object.
@@ -263,6 +263,28 @@ public:
    * Note: Fastest code path - points packed in x and y.
    */
   void DrawPolygon(float *points, int n);
+
+  /**
+   * Draw a polygon specified specified by the points using the x and y arrays
+   * supplied
+   */
+  void DrawPolygon(float *x, float *y, int n,
+                   unsigned char *color, int nc_comps);
+
+  /**
+   * Draw a polygon defined by the specified points - fastest code path due to
+   * memory layout of the coordinates.
+   */
+  void DrawPolygon(vtkPoints2D *points,
+                   unsigned char *color, int nc_comps);
+
+  /**
+   * Draw a polygon defined by the specified points, where the float array is
+   * of size 2*n and the points are packed x1, y1, x2, y2 etc.
+   * Note: Fastest code path - points packed in x and y.
+   */
+  void DrawPolygon(float *points, int n,
+                   unsigned char *color, int nc_comps);
 
   /**
    * Draw an ellipse with center at x, y and radii rx, ry.
@@ -528,7 +550,7 @@ public:
 
 protected:
   vtkContext2D();
-  ~vtkContext2D() VTK_OVERRIDE;
+  ~vtkContext2D() override;
 
   vtkContextDevice2D *Device; // The underlying device
   vtkTransform2D *Transform;  // Current transform
@@ -537,8 +559,8 @@ protected:
   vtkContext3D *Context3D; // May be very temporary - get at a 3D version.
 
 private:
-  vtkContext2D(const vtkContext2D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContext2D &) VTK_DELETE_FUNCTION;
+  vtkContext2D(const vtkContext2D &) = delete;
+  void operator=(const vtkContext2D &) = delete;
 
   /**
    * Calculate position of text for rendering in a rectangle.

@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkBMPReader);
 
 vtkBMPReader::vtkBMPReader()
 {
-  this->Colors = NULL;
+  this->Colors = nullptr;
   this->SetDataByteOrderToLittleEndian();
   this->Depth = 0;
   // we need to create it now in case its asked for later (pointer must be valid)
@@ -45,12 +45,12 @@ vtkBMPReader::~vtkBMPReader()
 {
   // free any old memory
   delete [] this->Colors;
-  this->Colors = NULL;
+  this->Colors = nullptr;
 
   if (this->LookupTable)
   {
     this->LookupTable->Delete();
-    this->LookupTable = NULL;
+    this->LookupTable = nullptr;
   }
 }
 
@@ -66,7 +66,7 @@ void vtkBMPReader::ExecuteInformation()
 
   // free any old memory
   delete [] this->Colors;
-  this->Colors = NULL;
+  this->Colors = nullptr;
 
   // if the user has not set the extent, but has set the VOI
   // set the zaxis extent to the VOI z axis
@@ -78,7 +78,7 @@ void vtkBMPReader::ExecuteInformation()
   }
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == NULL || this->InternalFileName[0] == '\0')
+  if (this->InternalFileName == nullptr || this->InternalFileName[0] == '\0')
   {
     return;
   }
@@ -541,7 +541,7 @@ void vtkBMPReader::ExecuteDataWithInformation(vtkDataObject *output,
   {
     return;
   }
-  if (this->InternalFileName == NULL)
+  if (this->InternalFileName == nullptr)
   {
     vtkErrorMacro(<< "Either a FileName or FilePrefix must be specified.");
     return;
@@ -580,7 +580,7 @@ void vtkBMPReader::PrintSelf(ostream& os, vtkIndent indent)
   }
     else
     {
-    os << indent << "LookupTable: NULL\n";
+    os << indent << "LookupTable: nullptr\n";
     }
 }
 

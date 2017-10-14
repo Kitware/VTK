@@ -75,7 +75,7 @@ vtkStandardNewMacro(MyProcess);
 MyProcess::MyProcess()
 {
   this->Argc=0;
-  this->Argv=0;
+  this->Argv=nullptr;
 }
 
 void MyProcess::SetArgs(int anArgc,
@@ -111,7 +111,7 @@ void MyProcess::Execute()
     delete [] fname;
 
     go = 1;
-    if ((sp == NULL) || (sp->GetNumberOfCells() == 0))
+    if ((sp == nullptr) || (sp->GetNumberOfCells() == 0))
     {
       if (sp)
       {

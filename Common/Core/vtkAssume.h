@@ -50,10 +50,7 @@
 // VTK_ASSUME_IMPL is compiler-specific:
 #if defined(VTK_COMPILER_MSVC) || defined(VTK_COMPILER_ICC)
 # define VTK_ASSUME_IMPL(cond) __assume(cond)
-#elif defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION >= 40500
-// Added in 4.5.0:
-# define VTK_ASSUME_IMPL(cond) if (!(cond)) __builtin_unreachable()
-#elif defined(VTK_COMPILER_CLANG)
+#elif defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG)
 # define VTK_ASSUME_IMPL(cond) if (!(cond)) __builtin_unreachable()
 #else
 # define VTK_ASSUME_IMPL(cond) do {} while (false) /* no-op */

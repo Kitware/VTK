@@ -37,7 +37,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationVector : public vtkObject
 public:
   static vtkInformationVector *New();
   vtkTypeMacro(vtkInformationVector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,8 +74,8 @@ public:
   /**
    * Initiate garbage collection when a reference is removed.
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   /**
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkInformationVector();
-  ~vtkInformationVector() VTK_OVERRIDE;
+  ~vtkInformationVector() override;
 
   // Internal implementation details.
   vtkInformationVectorInternals* Internal;
@@ -97,10 +97,10 @@ protected:
   int NumberOfInformationObjects;
 
   // Garbage collection support.
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 private:
-  vtkInformationVector(const vtkInformationVector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationVector&) VTK_DELETE_FUNCTION;
+  vtkInformationVector(const vtkInformationVector&) = delete;
+  void operator=(const vtkInformationVector&) = delete;
 };
 
 #endif

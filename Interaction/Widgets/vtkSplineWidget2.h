@@ -36,7 +36,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkSplineWidget2 : public vtkAbstractWidget
 public:
   static vtkSplineWidget2* New();
   vtkTypeMacro(vtkSplineWidget2, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -53,11 +53,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkSplineRepresentation class.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkSplineWidget2();
-  ~vtkSplineWidget2() VTK_OVERRIDE;
+  ~vtkSplineWidget2() override;
 
   int WidgetState;
   enum _WidgetState {Start=0,Active};
@@ -70,8 +70,8 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkSplineWidget2(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
+  vtkSplineWidget2(const vtkSplineWidget2&) = delete;
+  void operator=(const vtkSplineWidget2&) = delete;
 
 };
 

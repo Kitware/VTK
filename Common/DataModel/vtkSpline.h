@@ -63,7 +63,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -166,7 +166,7 @@ public:
   /**
    * Return the MTime also considering the Piecewise function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Deep copy of spline data.
@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkSpline();
-  ~vtkSpline() VTK_OVERRIDE;
+  ~vtkSpline() override;
 
   vtkMTimeType ComputeTime;
   int ClampValue;
@@ -197,8 +197,8 @@ protected:
   int FindIndex(int size, double t);
 
 private:
-  vtkSpline(const vtkSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpline&) VTK_DELETE_FUNCTION;
+  vtkSpline(const vtkSpline&) = delete;
+  void operator=(const vtkSpline&) = delete;
 };
 
 #endif

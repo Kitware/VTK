@@ -132,7 +132,7 @@ public:
     return new vtkInteractorStyleCallback;
   }
 
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkInteractorStyle* style = reinterpret_cast<vtkInteractorStyle*>(caller);
 
@@ -216,7 +216,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   vtkNew<vtkImageData> imageData;
   imageData->SetDimensions(width, height, depth);
   imageData->SetSpacing(spacing);
-  imageData->GetPointData()->SetScalars(dataArrayMag.GetPointer());
+  imageData->GetPointData()->SetScalars(dataArrayMag);
 
   // Create a clipping plane
   vtkNew<vtkPlane> frontClippingPlane;
@@ -224,18 +224,18 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   // Create a clipping plane collection
   vtkNew<vtkPlaneCollection> clippingPlaneCollection;
-  clippingPlaneCollection->AddItem(frontClippingPlane.GetPointer());
-  clippingPlaneCollection->AddItem(rearClippingPlane.GetPointer());
+  clippingPlaneCollection->AddItem(frontClippingPlane);
+  clippingPlaneCollection->AddItem(rearClippingPlane);
 
   // Create a mapper
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   //volumeMapper->SetInputConnection(reader->GetOutputPort());
-  volumeMapper->SetInputData(imageData.GetPointer());
+  volumeMapper->SetInputData(imageData);
   volumeMapper->SetBlendModeToMaximumIntensity();
   volumeMapper->AutoAdjustSampleDistancesOff();
   volumeMapper->SetSampleDistance(1.0);
   volumeMapper->SetImageSampleDistance(1.0);
-  volumeMapper->SetClippingPlanes(clippingPlaneCollection.GetPointer());
+  volumeMapper->SetClippingPlanes(clippingPlaneCollection);
 
   // Create volume scale opacity
   vtkNew<vtkPiecewiseFunction> volumeScalarOpacity;
@@ -251,13 +251,13 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   volumeProperty->SetDiffuse(0.0);
   volumeProperty->SetSpecular(0.0);
   volumeProperty->IndependentComponentsOn();
-  volumeProperty->SetScalarOpacity(volumeScalarOpacity.GetPointer());
-  volumeProperty->SetColor(volumeScalarOpacity.GetPointer());
+  volumeProperty->SetScalarOpacity(volumeScalarOpacity);
+  volumeProperty->SetColor(volumeScalarOpacity);
 
   // Create a volume
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
-  volume->SetProperty(volumeProperty.GetPointer());
+  volume->SetMapper(volumeMapper);
+  volume->SetProperty(volumeProperty);
   volume->PickableOff();
 
   // Rotate the blue props
@@ -286,20 +286,20 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   // Create a outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
-  outlineFilter->SetInputData(imageData.GetPointer());
+  outlineFilter->SetInputData(imageData);
 
   // Create an outline mapper
   vtkNew<vtkPolyDataMapper> outlineMapper;
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
 
   vtkNew<vtkActor> outline;
-  outline->SetMapper(outlineMapper.GetPointer());
+  outline->SetMapper(outlineMapper);
   outline->PickableOff();
 
   // Create a renderer
   vtkNew<vtkRenderer> ren;
-  ren->AddViewProp(volume.GetPointer());
-  ren->AddViewProp(outline.GetPointer());
+  ren->AddViewProp(volume);
+  ren->AddViewProp(outline);
 
   // Get the center of volume
   double* center = volume->GetCenter();
@@ -318,8 +318,8 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   cameraPosition[2] = cameraFocal[2] + cameraDistance * cameraNormal[2];
 
   // Update clipping planes
-  UpdateFrontClippingPlane(frontClippingPlane.GetPointer(), cameraNormal, cameraFocal, 3.0);
-  UpdateRearClippingPlane(rearClippingPlane.GetPointer(), cameraNormal, cameraFocal, 3.0);
+  UpdateFrontClippingPlane(frontClippingPlane, cameraNormal, cameraFocal, 3.0);
+  UpdateRearClippingPlane(rearClippingPlane, cameraNormal, cameraFocal, 3.0);
 
   // Get the active camera
   vtkCamera* camera = ren->GetActiveCamera();
@@ -332,7 +332,7 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
   // Create a render window
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(500, 500);
-  renWin->AddRenderer(ren.GetPointer());
+  renWin->AddRenderer(ren);
 
   // Create a style
   vtkNew<vtkInteractorStyleImage> style;
@@ -340,20 +340,20 @@ int TestGPURayCastClippingUserTransform(int argc, char *argv[])
 
   // Create a interactor style callback
   vtkNew<vtkInteractorStyleCallback> interactorStyleCallback;
-  interactorStyleCallback->frontClippingPlane = frontClippingPlane.GetPointer();
-  interactorStyleCallback->rearClippingPlane = rearClippingPlane.GetPointer();
-  style->AddObserver(vtkCommand::InteractionEvent, interactorStyleCallback.GetPointer());
+  interactorStyleCallback->frontClippingPlane = frontClippingPlane;
+  interactorStyleCallback->rearClippingPlane = rearClippingPlane;
+  style->AddObserver(vtkCommand::InteractionEvent, interactorStyleCallback);
 
   // Create an interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetInteractorStyle(style.GetPointer());
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetInteractorStyle(style);
+  iren->SetRenderWindow(renWin);
 
   // Start
   iren->Initialize();
   renWin->Render();
 
-  int retVal = vtkRegressionTestImageThreshold(renWin.GetPointer(), 70);
+  int retVal = vtkRegressionTestImageThreshold(renWin, 70);
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

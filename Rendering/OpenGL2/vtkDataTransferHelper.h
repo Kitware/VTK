@@ -46,7 +46,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkDataTransferHelper : public vtkObject
 public:
   static vtkDataTransferHelper* New();
   vtkTypeMacro(vtkDataTransferHelper, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -176,7 +176,7 @@ public:
    * \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4) || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 && componentList!=0)
    */
   bool Upload(int components=0,
-              int *componentList=NULL);
+              int *componentList=nullptr);
 
   /**
    * old comment:
@@ -223,7 +223,7 @@ public:
 
 protected:
   vtkDataTransferHelper();
-  ~vtkDataTransferHelper() VTK_OVERRIDE;
+  ~vtkDataTransferHelper() override;
 
   int CPUExtent[6];
   int GPUExtent[6];
@@ -242,8 +242,8 @@ protected:
   // We try to reuse the PBO if possible.
   vtkSmartPointer<vtkPixelBufferObject> PBO;
 private:
-  vtkDataTransferHelper(const vtkDataTransferHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataTransferHelper&) VTK_DELETE_FUNCTION;
+  vtkDataTransferHelper(const vtkDataTransferHelper&) = delete;
+  void operator=(const vtkDataTransferHelper&) = delete;
 
 };
 

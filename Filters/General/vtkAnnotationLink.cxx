@@ -40,7 +40,7 @@ class vtkAnnotationLink::Command : public vtkCommand
 public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData) VTK_OVERRIDE
+                       void *callData) override
   {
     if (this->Target)
     {
@@ -52,7 +52,7 @@ public:
     this->Target = t;
   }
 private:
-  Command() { this->Target = 0; }
+  Command() { this->Target = nullptr; }
   vtkAnnotationLink* Target;
 };
 
@@ -110,13 +110,13 @@ void vtkAnnotationLink::SetAnnotationLayers(vtkAnnotationLayers* layers)
       tmp->RemoveObserver(this->Observer);
     }
     this->AnnotationLayers = layers;
-    if (this->AnnotationLayers != NULL)
+    if (this->AnnotationLayers != nullptr)
     {
       this->AnnotationLayers->Register(this);
       this->AnnotationLayers->AddObserver(vtkCommand::ModifiedEvent,
                                         this->Observer);
     }
-    if (tmp != NULL)
+    if (tmp != nullptr)
     {
       tmp->UnRegister(this);
     }
@@ -177,7 +177,7 @@ vtkSelection* vtkAnnotationLink::GetCurrentSelection()
   {
     return this->AnnotationLayers->GetCurrentSelection();
   }
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -188,8 +188,8 @@ int vtkAnnotationLink::RequestData(
 {
   vtkInformation *inInfo = inVector[0]->GetInformationObject(0);
   vtkTable* inputMap = vtkTable::GetData(inVector[1]);
-  vtkAnnotationLayers* input = 0;
-  vtkSelection* inputSelection = 0;
+  vtkAnnotationLayers* input = nullptr;
+  vtkSelection* inputSelection = nullptr;
   if (inInfo)
   {
     input = vtkAnnotationLayers::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));

@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOctreePointLocatorNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOctreePointLocatorNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOctreePointLocatorNode *New();
 
@@ -252,7 +252,7 @@ public:
 
 protected:
   vtkOctreePointLocatorNode();
-  ~vtkOctreePointLocatorNode() VTK_OVERRIDE;
+  ~vtkOctreePointLocatorNode() override;
 
 private:
 
@@ -308,8 +308,8 @@ private:
    */
   int MinID;
 
-  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
+  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&) = delete;
+  void operator=(const vtkOctreePointLocatorNode&) = delete;
 };
 
 #endif

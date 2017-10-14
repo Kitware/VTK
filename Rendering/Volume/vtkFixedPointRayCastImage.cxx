@@ -44,8 +44,8 @@ vtkFixedPointRayCastImage::vtkFixedPointRayCastImage()
 
   this->UseZBuffer           = 0;
 
-  this->Image                = NULL;
-  this->ZBuffer              = NULL;
+  this->Image                = nullptr;
+  this->ZBuffer              = nullptr;
 }
 
 // Destruct a vtkFixedPointRayCastImage - clean up any memory used
@@ -59,7 +59,7 @@ vtkFixedPointRayCastImage::~vtkFixedPointRayCastImage()
 void vtkFixedPointRayCastImage::AllocateImage()
 {
   delete [] this->Image;
-  this->Image = NULL;
+  this->Image = nullptr;
 
   if ( this->ImageMemorySize[0] > 0 &&
        this->ImageMemorySize[1] > 0 )
@@ -93,7 +93,7 @@ void vtkFixedPointRayCastImage::AllocateZBuffer()
   {
     // If our current buffer is not large enough, delete it
     delete [] this->ZBuffer;
-    this->ZBuffer = NULL;
+    this->ZBuffer = nullptr;
 
     // Try out a size equal to the viewport in pixels
     this->ZBufferMemorySize =

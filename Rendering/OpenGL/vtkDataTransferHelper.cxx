@@ -473,7 +473,7 @@ bool vtkDataTransferHelper::DownloadAsync1()
   vtkSmartPointer<vtkPixelBufferObject> pbo;
   pbo.TakeReference(this->Texture->Download());
 
-  if (!pbo.GetPointer())
+  if (!pbo)
   {
     vtkErrorMacro("Failed to download texture to a Pixel Buffer object.");
     return false;
@@ -557,7 +557,7 @@ void vtkDataTransferHelper::SetShaderSupportsTextureInt(bool value)
 //----------------------------------------------------------------------------
 vtkPixelBufferObject* vtkDataTransferHelper::GetPBO()
 {
-  if (!this->PBO.GetPointer())
+  if (!this->PBO)
   {
     this->PBO = vtkSmartPointer<vtkPixelBufferObject>::New();
     this->PBO->SetContext(this->Context);

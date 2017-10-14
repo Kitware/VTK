@@ -51,7 +51,7 @@ class VTKIONETCDF_EXPORT vtkSLACParticleReader : public vtkPolyDataAlgorithm
 public:
   vtkTypeMacro(vtkSLACParticleReader, vtkPolyDataAlgorithm);
   static vtkSLACParticleReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   vtkGetStringMacro(FileName);
   vtkSetStringMacro(FileName);
@@ -63,17 +63,17 @@ public:
 
 protected:
   vtkSLACParticleReader();
-  ~vtkSLACParticleReader() VTK_OVERRIDE;
+  ~vtkSLACParticleReader() override;
 
   char *FileName;
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Convenience function that checks the dimensions of a 2D netCDF array that
@@ -86,8 +86,8 @@ protected:
                                            int expectedNumComponents);
 
 private:
-  vtkSLACParticleReader(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
+  vtkSLACParticleReader(const vtkSLACParticleReader &) = delete;
+  void operator=(const vtkSLACParticleReader &) = delete;
 };
 
 #endif //vtkSLACParticleReader_h

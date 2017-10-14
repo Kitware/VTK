@@ -64,7 +64,7 @@ vtkPolyData *vtkDeformPointSet::GetControlMeshData()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(
@@ -129,7 +129,7 @@ int vtkDeformPointSet::RequestData(
   outPts->SetNumberOfPoints(numberOfPointSetPoints);
   output->SetPoints(outPts);
 
-  // Start by determing whether weights must be computed or not
+  // Start by determining whether weights must be computed or not
   int abort=0;
   vtkIdType progressInterval=(numberOfPointSetPoints/10 + 1);
   int workLoad=1;

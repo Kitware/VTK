@@ -55,7 +55,7 @@ class VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPTemporalStreamTracer : public vtkTe
 public:
 
     vtkTypeMacro(vtkPTemporalStreamTracer,vtkTemporalStreamTracer);
-    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+    void PrintSelf(ostream& os, vtkIndent indent) override;
 
     /**
      * Construct object using 2nd order Runge Kutta
@@ -81,7 +81,7 @@ public:
     //
     virtual int RequestData(vtkInformation* request,
                             vtkInformationVector** inputVector,
-                            vtkInformationVector* outputVector) VTK_OVERRIDE;
+                            vtkInformationVector* outputVector) override;
 
 //
 
@@ -96,14 +96,14 @@ public:
     virtual void AssignSeedsToProcessors(
       vtkDataSet *source, int sourceID, int ptId,
       vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints,
-      int &LocalAssignedCount) VTK_OVERRIDE;
+      int &LocalAssignedCount) override;
 
     /**
      * give each one a uniqu ID. We need to use MPI to find out
      * who is using which numbers.
      */
     virtual void AssignUniqueIds(
-      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints) VTK_OVERRIDE;
+      vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints) override;
 
     /**
      * this is used during classification of seed points and also between iterations
@@ -112,7 +112,7 @@ public:
     virtual void TransmitReceiveParticles(
       vtkTemporalStreamTracerNamespace::ParticleVector &outofdomain,
       vtkTemporalStreamTracerNamespace::ParticleVector &received,
-      bool removeself) VTK_OVERRIDE;
+      bool removeself) override;
 
     void AddParticleToMPISendList(
       vtkTemporalStreamTracerNamespace::ParticleInformation &info);
@@ -125,8 +125,8 @@ public:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
+  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) = delete;
+  void operator=(const vtkPTemporalStreamTracer&) = delete;
 };
 
 #endif

@@ -41,7 +41,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumePicker : public vtkCellPicker
 public:
   static vtkVolumePicker *New();
   vtkTypeMacro(vtkVolumePicker, vtkCellPicker);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,15 +69,15 @@ public:
 
 protected:
   vtkVolumePicker();
-  ~vtkVolumePicker() VTK_OVERRIDE;
+  ~vtkVolumePicker() override;
 
-  void ResetPickInfo() VTK_OVERRIDE;
+  void ResetPickInfo() override;
 
   double IntersectVolumeWithLine(const double p1[3],
                                          const double p2[3],
                                          double t1, double t2,
                                          vtkProp3D *prop,
-                                         vtkAbstractVolumeMapper *mapper) VTK_OVERRIDE;
+                                         vtkAbstractVolumeMapper *mapper) override;
 
   static int ClipLineWithCroppingRegion(const double bounds[6],
                                         const int extent[6], int flags,
@@ -91,8 +91,8 @@ protected:
   int CroppingPlaneId;
 
 private:
-  vtkVolumePicker(const vtkVolumePicker&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumePicker&) VTK_DELETE_FUNCTION;
+  vtkVolumePicker(const vtkVolumePicker&) = delete;
+  void operator=(const vtkVolumePicker&) = delete;
 };
 
 #endif

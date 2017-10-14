@@ -57,7 +57,7 @@ class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
 public:
   static vtkThreshold *New();
   vtkTypeMacro(vtkThreshold,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Criterion is cells whose scalars are less or equal to lower threshold.
@@ -185,12 +185,12 @@ public:
 
 protected:
   vtkThreshold();
-  ~vtkThreshold() VTK_OVERRIDE;
+  ~vtkThreshold() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 
   int    AllScalars;
@@ -213,8 +213,8 @@ protected:
   int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
   int EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts );
 private:
-  vtkThreshold(const vtkThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreshold&) VTK_DELETE_FUNCTION;
+  vtkThreshold(const vtkThreshold&) = delete;
+  void operator=(const vtkThreshold&) = delete;
 };
 
 #endif

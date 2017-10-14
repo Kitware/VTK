@@ -34,10 +34,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationStringKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationStringKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationStringKey(const char* name, const char* location);
-  ~vtkInformationStringKey() VTK_OVERRIDE;
+  ~vtkInformationStringKey() override;
 
   /**
    * This method simply returns a new vtkInformationStringKey, given a
@@ -64,16 +64,16 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Print the key's value in an information object to a stream.
    */
-  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
+  void Print(ostream& os, vtkInformation* info) override;
 
 private:
-  vtkInformationStringKey(const vtkInformationStringKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationStringKey&) VTK_DELETE_FUNCTION;
+  vtkInformationStringKey(const vtkInformationStringKey&) = delete;
+  void operator=(const vtkInformationStringKey&) = delete;
 };
 
 #endif

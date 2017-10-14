@@ -137,7 +137,7 @@ vtkTubePoint *vtkTubeArray::Resize(vtkIdType sz)
 // number of sides 6; radius 0.5; and logarithmic scaling off.
 vtkUncertaintyTubeFilter::vtkUncertaintyTubeFilter()
 {
-  this->Tubes = NULL;
+  this->Tubes = nullptr;
 
   this->NumberOfSides = 12;
 }

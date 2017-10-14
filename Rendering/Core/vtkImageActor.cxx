@@ -64,12 +64,12 @@ vtkImageActor::~vtkImageActor()
   if (this->Property)
   {
     this->Property->Delete();
-    this->Property = NULL;
+    this->Property = nullptr;
   }
   if (this->Mapper)
   {
     this->Mapper->Delete();
-    this->Mapper = NULL;
+    this->Mapper = nullptr;
   }
 }
 
@@ -88,7 +88,7 @@ vtkAlgorithm *vtkImageActor::GetInputAlgorithm()
 {
   if (!this->Mapper)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Mapper->GetInputAlgorithm();
@@ -99,7 +99,7 @@ vtkImageData *vtkImageActor::GetInput()
 {
   if (!this->Mapper)
   {
-    return 0;
+    return nullptr;
   }
 
   return this->Mapper->GetInput();
@@ -198,7 +198,7 @@ int vtkImageActor::GetSliceNumberMin()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageActor::SetDisplayExtent(int extent[6])
+void vtkImageActor::SetDisplayExtent(const int extent[6])
 {
   int idx, modified = 0;
 
@@ -238,11 +238,7 @@ void vtkImageActor::SetDisplayExtent(int minX, int maxX,
                                      int minY, int maxY,
                                      int minZ, int maxZ)
 {
-  int extent[6];
-
-  extent[0] = minX;  extent[1] = maxX;
-  extent[2] = minY;  extent[3] = maxY;
-  extent[4] = minZ;  extent[5] = maxZ;
+  const int extent[6] = {minX, maxX, minY, maxY, minZ, maxZ};
   this->SetDisplayExtent(extent);
 }
 
@@ -260,7 +256,7 @@ void vtkImageActor::GetDisplayExtent(int extent[6])
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 double *vtkImageActor::GetDisplayBounds()
 {
-  vtkAlgorithm* inputAlg = NULL;
+  vtkAlgorithm* inputAlg = nullptr;
 
   if (this->Mapper && this->Mapper->GetNumberOfInputConnections(0) > 0)
   {
@@ -450,14 +446,12 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkImageActor::GetWholeZMin()
 {
-  int *extent;
-
   if ( ! this->GetInputAlgorithm())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  extent = this->Mapper->GetInputInformation()->Get(
+  int *extent = this->Mapper->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[4];
 }
@@ -465,14 +459,12 @@ int vtkImageActor::GetWholeZMin()
 //----------------------------------------------------------------------------
 int vtkImageActor::GetWholeZMax()
 {
-  int *extent;
-
   if ( ! this->GetInputAlgorithm())
   {
     return 0;
   }
   this->GetInputAlgorithm()->UpdateInformation();
-  extent = this->Mapper->GetInputInformation()->Get(
+  int *extent = this->Mapper->GetInputInformation()->Get(
     vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   return extent[5];
 }
@@ -520,7 +512,7 @@ int vtkImageActor::HasTranslucentPolygonalGeometry()
   if (this->GetMTime() < this->TranslucentComputationTime)
   {
     vtkImageData *input = this->GetInput();
-    if (input == NULL ||
+    if (input == nullptr ||
         input->GetMTime() <= this->TranslucentComputationTime)
     {
       return this->TranslucentCachedResult;

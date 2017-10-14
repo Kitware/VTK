@@ -40,7 +40,7 @@ vtkLineSource::vtkLineSource(int res)
   this->Point2[1] =  .0;
   this->Point2[2] =  .0;
 
-  this->Points = 0;
+  this->Points = nullptr;
 
   this->Resolution = ( res < 1 ? 1 : res );
   this->OutputPointsPrecision = SINGLE_PRECISION;
@@ -51,7 +51,7 @@ vtkLineSource::vtkLineSource(int res)
 // ----------------------------------------------------------------------
 vtkLineSource::~vtkLineSource()
 {
-  this->SetPoints( 0 );
+  this->SetPoints( nullptr );
 }
 
 // ----------------------------------------------------------------------

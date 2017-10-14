@@ -45,7 +45,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
 public:
   static vtkPointSetAlgorithm *New();
   vtkTypeMacro(vtkPointSetAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -103,11 +103,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkPointSetAlgorithm();
-  ~vtkPointSetAlgorithm() VTK_OVERRIDE {}
+  ~vtkPointSetAlgorithm() override {}
 
   /**
    * This is called by the superclass.
@@ -147,12 +147,12 @@ protected:
   //@}
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&) = delete;
+  void operator=(const vtkPointSetAlgorithm&) = delete;
 };
 
 #endif

@@ -75,7 +75,7 @@ public:
    * Standard methods for type and printing.
    */
   vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -88,7 +88,7 @@ public:
    * ComputeWeights(). Note that ptId is optional in most cases, although in
    * some kernels it is used to facilitate basis computation.
    */
-  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) VTK_OVERRIDE;
+  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) override;
 
   /**
    * Given a point x, a list of basis points pIds, and a probability
@@ -101,7 +101,7 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly. The probably weighting prob are numbers 0<=prob<=1 which are
    * multiplied against the interpolation weights before normalization. They
-   * are estimates of local confidence of weights. The prob may be NULL in
+   * are estimates of local confidence of weights. The prob may be nullptr in
    * which all probabilities are considered =1.
    */
   virtual vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
@@ -116,9 +116,9 @@ public:
    * invoke ComputeWeights() and provide the interpolation basis points pIds
    * directly.
    */
-  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights) VTK_OVERRIDE
+  vtkIdType ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights) override
   {
-    return this->ComputeWeights(x,pIds,NULL,weights);
+    return this->ComputeWeights(x,pIds,nullptr,weights);
   }
 
   /**
@@ -181,7 +181,7 @@ public:
 
 protected:
   vtkGeneralizedKernel();
-  ~vtkGeneralizedKernel() VTK_OVERRIDE;
+  ~vtkGeneralizedKernel() override;
 
   int KernelFootprint;
   double Radius;
@@ -189,8 +189,8 @@ protected:
   bool NormalizeWeights;
 
 private:
-  vtkGeneralizedKernel(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
+  vtkGeneralizedKernel(const vtkGeneralizedKernel&) = delete;
+  void operator=(const vtkGeneralizedKernel&) = delete;
 };
 
 #endif

@@ -96,8 +96,8 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
 {
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
-  this->FileName = NULL;
-  this->OpenedFileName = NULL;
+  this->FileName = nullptr;
+  this->OpenedFileName = nullptr;
   this->Stride[0] = this->Stride[1] = this->Stride[2] = 1;
   this->SelectionObserver = vtkCallbackCommand::New();
   this->SelectionObserver->SetCallback
@@ -106,7 +106,7 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
   this->Internals = new vtkPNetCDFPOPReaderInternal;
   this->Internals->VariableArraySelection->AddObserver(
     vtkCommand::ModifiedEvent, this->SelectionObserver);
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMPIController::SafeDownCast(
                         vtkMultiProcessController::GetGlobalController()));
   this->NCDFFD = -1;
@@ -116,7 +116,7 @@ vtkPNetCDFPOPReader::vtkPNetCDFPOPReader()
 //delete filename and netcdf file descriptor
 vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
 {
-  this->SetController(NULL);
+  this->SetController(nullptr);
   this->SetFileName(0);
   if(this->OpenedFileName)
   {
@@ -126,10 +126,10 @@ vtkPNetCDFPOPReader::~vtkPNetCDFPOPReader()
   if(this->SelectionObserver)
   {
     this->SelectionObserver->Delete();
-    this->SelectionObserver = NULL;
+    this->SelectionObserver = nullptr;
   }
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -138,9 +138,9 @@ void vtkPNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "FileName: "
-     << (this->FileName ? this->FileName : "(NULL)") << endl;
+     << (this->FileName ? this->FileName : "(nullptr)") << endl;
   os << indent << "OpenedFileName: "
-     << (this->OpenedFileName ? this->OpenedFileName : "(NULL)") << endl;
+     << (this->OpenedFileName ? this->OpenedFileName : "(nullptr)") << endl;
   os << indent << "Stride: {" << this->Stride[0] << ", "
      << this->Stride[1] << ", " << this->Stride[2] << ", "
      << "}" << endl;
@@ -150,7 +150,7 @@ void vtkPNetCDFPOPReader::PrintSelf(ostream &os, vtkIndent indent)
   }
   else
   {
-    os << indent << "Controller: (NULL)" << endl;
+    os << indent << "Controller: (nullptr)" << endl;
   }
   os << indent << "NCDFFD: " << this->NCDFFD << endl;
 
@@ -168,7 +168,7 @@ int vtkPNetCDFPOPReader::RequestInformation(
     vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if(this->FileName == NULL)
+  if(this->FileName == nullptr)
   {
     vtkErrorMacro("FileName not set.");
     return 0;
@@ -509,7 +509,7 @@ const char* vtkPNetCDFPOPReader::GetVariableArrayName(int index)
 {
   if(index < 0 || index >= this->GetNumberOfVariableArrays())
   {
-    return NULL;
+    return nullptr;
   }
   return this->Internals->VariableArraySelection->GetArrayName(index);
 }
@@ -749,9 +749,9 @@ void vtkPNetCDFPOPReader::SetController(vtkMPIController *controller)
   if(this->Controller != controller)
   {
     this->Controller = controller;
-    if (this->Controller != NULL)
+    if (this->Controller != nullptr)
     {
-      this->SetReaderRanks(NULL);
+      this->SetReaderRanks(nullptr);
     }
   }
 }

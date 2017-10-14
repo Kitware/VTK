@@ -36,7 +36,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLHardwareSupport :
 {
 public:
   vtkTypeMacro(vtkOpenGLHardwareSupport, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkOpenGLHardwareSupport *New();
 
@@ -67,11 +67,11 @@ public:
 
 protected:
   vtkOpenGLHardwareSupport();
-  ~vtkOpenGLHardwareSupport() VTK_OVERRIDE;
+  ~vtkOpenGLHardwareSupport() override;
 
 private:
-  vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLHardwareSupport&) VTK_DELETE_FUNCTION;
+  vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&) = delete;
+  void operator=(const vtkOpenGLHardwareSupport&) = delete;
 
   bool ExtensionManagerSet();
 

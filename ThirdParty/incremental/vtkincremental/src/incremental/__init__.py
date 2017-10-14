@@ -9,7 +9,6 @@ See L{Version}.
 
 from __future__ import division, absolute_import
 
-import os
 import sys
 import warnings
 
@@ -21,33 +20,6 @@ if sys.version_info < (3, 0):
     _PY3 = False
 else:
     _PY3 = True
-    unicode = str
-
-
-def _nativeString(s):
-    """
-    Convert C{bytes} or C{unicode} to the native C{str} type, using ASCII
-    encoding if conversion is necessary.
-
-    @raise UnicodeError: The input string is not ASCII encodable/decodable.
-    @raise TypeError: The input is neither C{bytes} nor C{unicode}.
-    """
-    if not isinstance(s, (bytes, unicode)):
-        raise TypeError("%r is neither bytes nor unicode" % s)
-    if _PY3:
-        if isinstance(s, bytes):
-            return s.decode("ascii")
-        else:
-            # Ensure we're limited to ASCII subset:
-            s.encode("ascii")
-    else:
-        if isinstance(s, unicode):
-            return s.encode("ascii")
-        else:
-            # Ensure we're limited to ASCII subset:
-            s.decode("ascii")
-    return s
-
 
 try:
     _cmp = cmp
@@ -146,6 +118,7 @@ class _inf(object):
             return 0
         return 1
 
+
 _inf = _inf()
 
 
@@ -162,8 +135,7 @@ class Version(object):
     PEP-440 compatible version strings.
 
     This class supports the standard major.minor.micro[rcN] scheme of
-    versioning, with support for "local versions" which may include a SVN
-    revision or Git SHA1 hash.
+    versioning.
     """
     def __init__(self, package, major, minor, micro, release_candidate=None,
                  prerelease=None, dev=None):
@@ -212,38 +184,6 @@ class Version(object):
                       DeprecationWarning, stacklevel=2),
         return self.release_candidate
 
-    def short(self):
-        """
-        Return a string in canonical short version format,
-        <major>.<minor>.<micro>[+rSVNVer/+gitsha1].
-        """
-        s = self.base()
-        gitver = self._getGitVersion()
-
-        if not gitver:
-            svnver = self._getSVNVersion()
-            if svnver:
-                s += '+r' + _nativeString(svnver)
-        else:
-            s += '+' + gitver
-        return s
-
-    def local(self):
-        """
-        Return a PEP440-compatible "local" representation of this L{Version}.
-
-        This includes a SVN revision or Git commit SHA1 hash, if available.
-
-        Examples:
-
-          - 14.4.0+r1223
-          - 1.2.3rc1+rb2e812003b5d5fcf08efd1dffed6afa98d44ac8c
-          - 12.10.1
-          - 3.4.8rc2
-          - 11.93.0rc1dev3
-        """
-        return self.short()
-
     def public(self):
         """
         Return a PEP440-compatible "public" representation of this L{Version}.
@@ -254,12 +194,6 @@ class Version(object):
           - 1.2.3rc1
           - 14.2.1rc1dev9
           - 16.04.0dev0
-        """
-        return self.base()
-
-    def base(self):
-        """
-        Like L{short}, but without the +rSVNVer or @gitsha1.
         """
         if self.major == "NEXT":
             return self.major
@@ -279,16 +213,11 @@ class Version(object):
                                  self.micro,
                                  rc, dev)
 
-    def __repr__(self):
-        # Git repr
-        gitver = self._formatGitVersion()
-        if gitver:
-            gitver = '  #' + gitver
+    base = public
+    short = public
+    local = public
 
-        # SVN repr
-        svnver = self._formatSVNVersion()
-        if svnver:
-            svnver = '  #' + svnver
+    def __repr__(self):
 
         if self.release_candidate is None:
             release_candidate = ""
@@ -301,15 +230,14 @@ class Version(object):
         else:
             dev = ", dev=%r" % (self.dev,)
 
-        return '%s(%r, %r, %d, %d%s%s)%s' % (
+        return '%s(%r, %r, %d, %d%s%s)' % (
             self.__class__.__name__,
             self.package,
             self.major,
             self.minor,
             self.micro,
             release_candidate,
-            dev,
-            gitver or svnver)
+            dev)
 
     def __str__(self):
         return '[%s, version %s]' % (
@@ -381,131 +309,6 @@ class Version(object):
                   otherrc,
                   otherdev))
         return x
-
-    def _parseGitDir(self, directory):
-
-        headFile = os.path.abspath(os.path.join(directory, 'HEAD'))
-
-        with open(headFile, "r") as f:
-            headContent = f.read().strip()
-
-        if headContent.startswith("ref: "):
-            with open(os.path.abspath(
-                    os.path.join(directory,
-                                 headContent.split(" ")[1]))) as f:
-                commit = f.read()
-                return commit.strip()
-
-        return headContent
-
-    def _getGitVersion(self):
-        """
-        Given a package directory, walk up and find the git commit sha.
-        """
-        mod = sys.modules.get(self.package)
-        if mod:
-            basepath = os.path.dirname(mod.__file__)
-
-            upOne = os.path.abspath(os.path.join(basepath, '..'))
-
-            if ".git" in os.listdir(upOne):
-                return self._parseGitDir(os.path.join(upOne, '.git'))
-
-            while True:
-
-                upOneMore = os.path.abspath(os.path.join(upOne, '..'))
-
-                if upOneMore == upOne:
-                    return None
-
-                if ".git" in os.listdir(upOneMore):
-                    return self._parseGitDir(os.path.join(upOneMore, '.git'))
-
-                upOne = upOneMore
-
-    def _parseSVNEntries_4(self, entriesFile):
-        """
-        Given a readable file object which represents a .svn/entries file in
-        format version 4, return the revision as a string.  We do this by
-        reading first XML element in the document that has a 'revision'
-        attribute.
-        """
-        from xml.dom.minidom import parse
-        doc = parse(entriesFile).documentElement
-        for node in doc.childNodes:
-            if hasattr(node, 'getAttribute'):
-                rev = node.getAttribute('revision')
-                if rev is not None:
-                    return rev.encode('ascii')
-
-    def _parseSVNEntries_8(self, entriesFile):
-        """
-        Given a readable file object which represents a .svn/entries file in
-        format version 8, return the revision as a string.
-        """
-        entriesFile.readline()
-        entriesFile.readline()
-        entriesFile.readline()
-        return entriesFile.readline().strip()
-
-    # Add handlers for version 9 and 10 formats, which are the same as
-    # version 8 as far as revision information is concerned.
-    _parseSVNEntries_9 = _parseSVNEntries_8
-    _parseSVNEntriesTenPlus = _parseSVNEntries_8
-
-    def _getSVNVersion(self):
-        """
-        Figure out the SVN revision number based on the existence of
-        <package>/.svn/entries, and its contents. This requires discovering the
-        format version from the 'format' file and parsing the entries file
-        accordingly.
-
-        @return: None or string containing SVN Revision number.
-        """
-        mod = sys.modules.get(self.package)
-        if mod:
-            svn = os.path.join(os.path.dirname(mod.__file__), '.svn')
-            if not os.path.exists(svn):
-                # It's not an svn working copy
-                return None
-
-            formatFile = os.path.join(svn, 'format')
-            if os.path.exists(formatFile):
-                # It looks like a less-than-version-10 working copy.
-                with open(formatFile, 'rb') as fObj:
-                    format = fObj.read().strip()
-                parser = getattr(self,
-                                 '_parseSVNEntries_' + format.decode('ascii'),
-                                 None)
-            else:
-                # It looks like a version-10-or-greater working copy, which
-                # has version information in the entries file.
-                parser = self._parseSVNEntriesTenPlus
-
-            if parser is None:
-                return b'Unknown'
-
-            entriesFile = os.path.join(svn, 'entries')
-            entries = open(entriesFile, 'rb')
-            try:
-                try:
-                    return parser(entries)
-                finally:
-                    entries.close()
-            except:
-                return b'Unknown'
-
-    def _formatSVNVersion(self):
-        ver = self._getSVNVersion()
-        if ver is None:
-            return ''
-        return ' (SVN r%s)' % (ver,)
-
-    def _formatGitVersion(self):
-        ver = self._getGitVersion()
-        if ver is None:
-            return ''
-        return ' (Git %s)' % (ver,)
 
 
 def getVersionString(version):

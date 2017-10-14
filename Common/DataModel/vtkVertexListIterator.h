@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkVertexListIterator : public vtkObject
 public:
   static vtkVertexListIterator *New();
   vtkTypeMacro(vtkVertexListIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Setup the iterator with a graph.
@@ -82,15 +82,15 @@ public:
 
 protected:
   vtkVertexListIterator();
-  ~vtkVertexListIterator() VTK_OVERRIDE;
+  ~vtkVertexListIterator() override;
 
   vtkGraph *Graph;
   vtkIdType  Current;
   vtkIdType  End;
 
 private:
-  vtkVertexListIterator(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
+  vtkVertexListIterator(const vtkVertexListIterator&) = delete;
+  void operator=(const vtkVertexListIterator&) = delete;
 };
 
 #endif

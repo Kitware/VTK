@@ -68,7 +68,7 @@ public:
 
   static vtkValuePass *New();
   vtkTypeMacro(vtkValuePass, vtkOpenGLRenderPass);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetMacro(RenderingMode, int);
   vtkGetMacro(RenderingMode, int);
@@ -81,7 +81,7 @@ public:
    * Perform rendering according to a render state \p s.
    * \pre s_exists: s!=0
    */
-  void Render(const vtkRenderState *s) VTK_OVERRIDE;
+  void Render(const vtkRenderState *s) override;
 
   /**
    * Interface to get the rendered image in FLOATING_POINT mode.  Returns a
@@ -109,7 +109,7 @@ public:
    */
   bool IsFloatingPointModeSupported();
 
-  void ReleaseGraphicsResources(vtkWindow *win) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *win) override;
 
   /**
    * Convert an RGB triplet to a floating point value. This method is exposed
@@ -120,7 +120,7 @@ public:
 
  protected:
   vtkValuePass();
-  ~vtkValuePass() VTK_OVERRIDE;
+  ~vtkValuePass() override;
 
   ///@{
   /**
@@ -136,14 +136,14 @@ public:
                                    std::string &geometryShader,
                                    std::string &fragmentShader,
                                    vtkAbstractMapper *mapper,
-                                   vtkProp *prop) VTK_OVERRIDE;
+                                   vtkProp *prop) override;
   /**
    * Update the uniforms of the shader program.
    * Return false on error.
    */
   bool SetShaderParameters(vtkShaderProgram* program,
                                    vtkAbstractMapper* mapper, vtkProp* prop,
-                                   vtkOpenGLVertexArrayObject* VAO = NULL) VTK_OVERRIDE;
+                                   vtkOpenGLVertexArrayObject* VAO = nullptr) override;
   /**
    * For multi-stage render passes that need to change shader code during a
    * single pass, use this method to notify a mapper that the shader needs to be
@@ -151,7 +151,7 @@ public:
    * return the last time that the shader stage changed, or 0 if the shader
    * is single-stage.
    */
-  vtkMTimeType GetShaderStageMTime() VTK_OVERRIDE;
+  vtkMTimeType GetShaderStageMTime() override;
   ///@}
 
   /**
@@ -236,8 +236,8 @@ public:
 
   void PopulateCellCellMap(const vtkRenderState *s);
 
-  vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
+  vtkValuePass(const vtkValuePass&) = delete;
+  void operator=(const vtkValuePass&) = delete;
 };
 
 #endif

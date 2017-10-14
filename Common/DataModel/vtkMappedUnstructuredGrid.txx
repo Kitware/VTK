@@ -24,9 +24,9 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::PrintSelf(ostream &os, vtkIndent indent)
 {
   os << indent << "Implementation:";
-  if (this->Impl == NULL)
+  if (this->Impl == nullptr)
   {
-    os << " NULL" << endl;
+    os << " nullptr" << endl;
   }
   else
   {
@@ -74,8 +74,8 @@ template <class Implementation, class CellIterator>
 vtkCell* vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::GetCell(vtkIdType cellId)
 {
-  this->GetCell(cellId, this->TempCell.GetPointer());
-  return this->TempCell.GetPointer();
+  this->GetCell(cellId, this->TempCell);
+  return this->TempCell;
 }
 
 //------------------------------------------------------------------------------
@@ -204,7 +204,7 @@ vtkMTimeType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 template <class Implementation, class CellIterator>
 vtkMappedUnstructuredGrid<Implementation, CellIterator>::
 vtkMappedUnstructuredGrid()
-  : Impl(NULL)
+  : Impl(nullptr)
 {
 }
 

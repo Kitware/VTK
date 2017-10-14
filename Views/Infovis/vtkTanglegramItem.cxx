@@ -46,8 +46,8 @@ vtkTanglegramItem::vtkTanglegramItem()
   this->AddItem(this->Dendrogram2);
 
   this->Table = vtkSmartPointer<vtkTable>::New();
-  this->Tree1Label = NULL;
-  this->Tree2Label = NULL;
+  this->Tree1Label = nullptr;
+  this->Tree2Label = nullptr;
 
   this->LookupTable = vtkSmartPointer<vtkLookupTable>::New();
 
@@ -97,7 +97,7 @@ vtkTable * vtkTanglegramItem::GetTable()
 //-----------------------------------------------------------------------------
 void vtkTanglegramItem::SetTable(vtkTable *table)
 {
-  if (table == NULL)
+  if (table == nullptr)
   {
     return;
   }
@@ -130,12 +130,12 @@ bool vtkTanglegramItem::Paint(vtkContext2D *painter)
 
   this->PaintChildren(painter);
 
-  if (this->Table != NULL)
+  if (this->Table != nullptr)
   {
     this->PaintCorrespondenceLines(painter);
   }
 
-  if (this->Tree1Label != NULL || this->Tree2Label != NULL)
+  if (this->Tree1Label != nullptr || this->Tree2Label != nullptr)
   {
     this->PaintTreeLabels(painter);
   }
@@ -269,7 +269,7 @@ void vtkTanglegramItem::PaintCorrespondenceLines(vtkContext2D *painter)
       }
 
       std::string target = this->Table->GetColumnName(col);
-      if (target == "")
+      if (target.empty())
       {
         continue;
       }
@@ -439,14 +439,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
   switch(this->Orientation)
   {
     case vtkDendrogramItem::DOWN_TO_UP:
-      if (this->Tree1Label != NULL)
+      if (this->Tree1Label != nullptr)
       {
         x = (this->Tree1Bounds[1] + this->Tree1Bounds[0]) / 2.0;
         y = this->Tree1Bounds[2] - this->Spacing;
         painter->DrawString(x, y, this->Tree1Label);
       }
 
-      if (this->Tree2Label != NULL)
+      if (this->Tree2Label != nullptr)
       {
         x = (this->Tree2Bounds[1] + this->Tree2Bounds[0]) / 2.0;
         y = this->Tree2Bounds[3] + this->Spacing;
@@ -455,14 +455,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
       break;
 
     case vtkDendrogramItem::UP_TO_DOWN:
-      if (this->Tree1Label != NULL)
+      if (this->Tree1Label != nullptr)
       {
         x = (this->Tree1Bounds[1] + this->Tree1Bounds[0]) / 2.0;
         y = this->Tree1Bounds[3] + this->Spacing;
         painter->DrawString(x, y, this->Tree1Label);
       }
 
-      if (this->Tree2Label != NULL)
+      if (this->Tree2Label != nullptr)
       {
         x = (this->Tree2Bounds[1] + this->Tree2Bounds[0]) / 2.0;
         y = this->Tree2Bounds[2] - this->Spacing;
@@ -471,14 +471,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
       break;
 
     case vtkDendrogramItem::RIGHT_TO_LEFT:
-      if (this->Tree1Label != NULL)
+      if (this->Tree1Label != nullptr)
       {
         x = this->Tree1Bounds[0] + this->LabelWidth1 + this->Spacing / 2.0;
         y = this->Tree1Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree1Label);
       }
 
-      if (this->Tree2Label != NULL)
+      if (this->Tree2Label != nullptr)
       {
         x = this->Tree2Bounds[1] - this->LabelWidth2 - this->Spacing / 2.0;
         y = this->Tree2Bounds[3] + this->Spacing * 2.0;
@@ -488,14 +488,14 @@ void vtkTanglegramItem::PaintTreeLabels(vtkContext2D *painter)
 
     case vtkDendrogramItem::LEFT_TO_RIGHT:
     default:
-      if (this->Tree1Label != NULL)
+      if (this->Tree1Label != nullptr)
       {
         x = this->Tree1Bounds[1] - this->LabelWidth1 - this->Spacing / 2.0;
         y = this->Tree1Bounds[3] + this->Spacing * 2.0;
         painter->DrawString(x, y, this->Tree1Label);
       }
   painter->GetTextProp()->SetOrientation(0.0);
-      if (this->Tree2Label != NULL)
+      if (this->Tree2Label != nullptr)
       {
         x = this->Tree2Bounds[0] + this->LabelWidth1 + this->Spacing / 2.0;
         y = this->Tree2Bounds[3] + this->Spacing * 2.0;
@@ -516,7 +516,7 @@ void vtkTanglegramItem::ReorderTree()
 {
   if (this->Dendrogram1->GetTree()->GetNumberOfVertices() == 0 ||
       this->Dendrogram2->GetTree()->GetNumberOfVertices() == 0 ||
-      this->Table == NULL)
+      this->Table == nullptr)
   {
     return;
   }
@@ -570,7 +570,7 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
     newChildOrder->InsertNextValue(wv.ID);
   }
 
-  tree->ReorderChildren(parent, newChildOrder.GetPointer());
+  tree->ReorderChildren(parent, newChildOrder);
 }
 
 //-----------------------------------------------------------------------------
@@ -613,7 +613,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
     vtkDoubleArray *column = vtkArrayDownCast<vtkDoubleArray>(
       this->Table->GetColumnByName(tree2Name.c_str()));
 
-    if (column == NULL)
+    if (column == nullptr)
     {
       continue;
     }

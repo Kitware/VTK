@@ -101,7 +101,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   //
   inPts = input->GetPoints();
 
-  if (inPts == NULL)
+  if (inPts == nullptr)
   {
     vtkErrorMacro("No points!");
     return 1;
@@ -121,7 +121,7 @@ int vtkPolyDataConnectivityFilter::RequestData(
   this->InScalars = input->GetPointData()->GetScalars();
   if ( !this->ScalarConnectivity )
   {
-    this->InScalars = NULL;
+    this->InScalars = nullptr;
   }
   else
   {
@@ -505,8 +505,6 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
     this->Wave2.clear();
     this->Wave2.reserve(numCells);
   } //while wave is not empty
-
-  return;
 }
 
 // --------------------------------------------------------------------------

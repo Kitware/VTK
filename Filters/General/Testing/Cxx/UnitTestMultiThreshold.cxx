@@ -330,7 +330,7 @@ int TestErrorsAndWarnings()
   intervalSets.push_back(threshold->AddIntervalSet(
     0, 2,
     vtkMultiThreshold::CLOSED, vtkMultiThreshold::CLOSED,
-    vtkDataObject::FIELD_ASSOCIATION_POINTS, (char *) NULL, 0, 1 ));
+    vtkDataObject::FIELD_ASSOCIATION_POINTS, (char *) nullptr, 0, 1 ));
   if (filterObserver->GetWarning())
   {
     std::cout << "Caught expected warning: "

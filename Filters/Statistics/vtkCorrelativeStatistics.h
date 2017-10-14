@@ -57,44 +57,44 @@ class VTKFILTERSSTATISTICS_EXPORT vtkCorrelativeStatistics : public vtkStatistic
 {
 public:
   vtkTypeMacro(vtkCorrelativeStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCorrelativeStatistics* New();
 
   /**
    * Given a collection of models, calculate aggregate model
    */
   void Aggregate( vtkDataObjectCollection*,
-                  vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+                  vtkMultiBlockDataSet* ) override;
 
 protected:
   vtkCorrelativeStatistics();
-  ~vtkCorrelativeStatistics() VTK_OVERRIDE;
+  ~vtkCorrelativeStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE;
+             vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable* inData,
                vtkMultiBlockDataSet* inMeta,
-               vtkTable* outData ) VTK_OVERRIDE
+               vtkTable* outData ) override
   { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
 
   /**
@@ -109,11 +109,11 @@ protected:
   void SelectAssessFunctor( vtkTable* outData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
 
 private:
-  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) = delete;
+  void operator=(const vtkCorrelativeStatistics&) = delete;
 };
 
 #endif

@@ -43,8 +43,8 @@ vtkVisibilitySort::vtkVisibilitySort()
   this->InverseModelTransform = vtkMatrix4x4::New();
   this->InverseModelTransform->Identity();
 
-  this->Camera = NULL;
-  this->Input = NULL;
+  this->Camera = nullptr;
+  this->Input = nullptr;
 
   this->Direction = vtkVisibilitySort::BACK_TO_FRONT;
 
@@ -58,8 +58,8 @@ vtkVisibilitySort::~vtkVisibilitySort()
   this->ModelTransform->Delete();
   this->InverseModelTransform->Delete();
 
-  this->SetCamera(NULL);
-  this->SetInput(NULL);
+  this->SetCamera(nullptr);
+  this->SetInput(nullptr);
 }
 
 //-----------------------------------------------------------------------------

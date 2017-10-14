@@ -252,7 +252,7 @@ private:
         UseLog(useLog)
     {}
 
-    CopyToPoints& operator=(const CopyToPoints &) VTK_DELETE_FUNCTION;
+    CopyToPoints& operator=(const CopyToPoints &) = delete;
 
     // Use input array:
     template <class ArrayT>
@@ -310,7 +310,7 @@ private:
 
   VectorPIMPL SortedPoints;
 public:
-  // Array which marks valid points in the array. If NULL (the default), all
+  // Array which marks valid points in the array. If nullptr (the default), all
   // points in the input array are considered valid.
   vtkWeakPointer<vtkCharArray> ValidPointMask;
 
@@ -332,7 +332,7 @@ public:
 
   void Reset()
   {
-    this->ValidPointMask = NULL;
+    this->ValidPointMask = nullptr;
     this->Points->Initialize();
     this->Points->SetDataTypeToFloat();
     this->BadPoints.clear();
@@ -340,12 +340,12 @@ public:
 
   bool IsInputDataValid() const
   {
-    return this->InputArrays[1] != NULL && this->InputArrays[2] != NULL;
+    return this->InputArrays[1] != nullptr && this->InputArrays[2] != nullptr;
   }
 
   bool SetPoints(vtkDataArray* x, vtkDataArray* y1, vtkDataArray* y2)
   {
-    if (y1 == NULL || y2 == NULL)
+    if (y1 == nullptr || y2 == nullptr)
     {
       return false;
     }
@@ -353,7 +353,7 @@ public:
     vtkIdType numTuples = y1->GetNumberOfTuples();
 
     // sanity check.
-    assert((x == NULL || x->GetNumberOfTuples() == numTuples) && y2->GetNumberOfTuples() == numTuples);
+    assert((x == nullptr || x->GetNumberOfTuples() == numTuples) && y2->GetNumberOfTuples() == numTuples);
 
     this->InputArrays[0] = x;
     this->InputArrays[1] = y1;
@@ -415,7 +415,7 @@ public:
     float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
     if (this->InputArrays[0])
     {
-      vtkDataArray *array = this->InputArrays[0].GetPointer();
+      vtkDataArray *array = this->InputArrays[0];
       vtkIdType numValues = array->GetNumberOfTuples() *
                             array->GetNumberOfComponents();
 
@@ -445,8 +445,8 @@ public:
       worker2();
     }
 
-    vtkDataArray *array1 = this->InputArrays[1].GetPointer();
-    vtkDataArray *array2 = this->InputArrays[2].GetPointer();
+    vtkDataArray *array1 = this->InputArrays[1];
+    vtkDataArray *array2 = this->InputArrays[2];
     vtkIdType numValues1 = array1->GetNumberOfTuples() *
                            array1->GetNumberOfComponents();
     vtkIdType numValues2 = array2->GetNumberOfTuples() *
@@ -494,7 +494,7 @@ public:
       return -1;
     }
 
-    if (this->SortedPoints.size() == 0)
+    if (this->SortedPoints.empty())
     {
       float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
       this->SortedPoints.Initialize(reinterpret_cast<vtkVector2f*>(data),
@@ -518,7 +518,7 @@ vtkPlotArea::vtkPlotArea()
 vtkPlotArea::~vtkPlotArea()
 {
   delete this->TableCache;
-  this->TableCache = NULL;
+  this->TableCache = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -545,9 +545,9 @@ void vtkPlotArea::Update()
 
     cache.Reset();
     cache.ValidPointMask = (this->ValidPointMaskName.empty() == false)?
-      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName)) : nullptr;
     cache.SetPoints(
-      this->UseIndexForXSeries? NULL: this->Data->GetInputArrayToProcess(0, table),
+      this->UseIndexForXSeries? nullptr: this->Data->GetInputArrayToProcess(0, table),
       this->Data->GetInputArrayToProcess(1, table),
       this->Data->GetInputArrayToProcess(2, table));
     this->UpdateTime.Modified();

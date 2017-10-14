@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkBox,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct box with center at (0,0,0) and each side of length 1.0.
@@ -50,12 +50,12 @@ public:
    * Evaluate box defined by the two points (pMin,pMax).
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
 
   /**
    * Evaluate the gradient of the box.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -110,7 +110,7 @@ public:
    * plane2 where integers (0, 1, 2, 3, 4, 5) stand for the
    * (xmin, xmax, ymin, ymax, zmin, zmax) planes respectively, and a value
    * of -1 means that no intersection occurred.  The actual intersection
-   * coordinates are stored in x1 and x2, which can be set to NULL of you
+   * coordinates are stored in x1 and x2, which can be set to nullptr of you
    * do not need them to be returned.  The function return value will be
    * zero if the line is wholly outside of the box.
    */
@@ -132,14 +132,14 @@ public:
 
 protected:
   vtkBox();
-  ~vtkBox() VTK_OVERRIDE;
+  ~vtkBox() override;
 
   vtkBoundingBox *BBox;
   double Bounds[6]; //supports the GetBounds() method
 
 private:
-  vtkBox(const vtkBox&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBox&) VTK_DELETE_FUNCTION;
+  vtkBox(const vtkBox&) = delete;
+  void operator=(const vtkBox&) = delete;
 };
 
 

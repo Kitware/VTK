@@ -62,7 +62,7 @@ public:
    */
   vtkTypeMacro(vtkTerrainContourLineInterpolator,
                               vtkContourLineInterpolator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -74,7 +74,7 @@ public:
    */
   int InterpolateLine( vtkRenderer *ren,
                                vtkContourRepresentation *rep,
-                               int idx1, int idx2 ) VTK_OVERRIDE;
+                               int idx1, int idx2 ) override;
 
   /**
    * The interpolator is given a chance to update the node.
@@ -83,7 +83,7 @@ public:
    */
   int UpdateNode( vtkRenderer *,
                           vtkContourRepresentation *,
-                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) VTK_OVERRIDE;
+                          double * vtkNotUsed(node), int vtkNotUsed(idx) ) override;
 
   //@{
   /**
@@ -106,14 +106,14 @@ public:
 
 protected:
   vtkTerrainContourLineInterpolator();
-  ~vtkTerrainContourLineInterpolator() VTK_OVERRIDE;
+  ~vtkTerrainContourLineInterpolator() override;
 
   vtkImageData              *ImageData; // height field data
   vtkProjectedTerrainPath   *Projector;
 
 private:
-  vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTerrainContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&) = delete;
+  void operator=(const vtkTerrainContourLineInterpolator&) = delete;
 };
 
 #endif

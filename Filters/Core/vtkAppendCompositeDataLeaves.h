@@ -45,7 +45,7 @@
  *     location to the corresponding location in the output.
  *
  * Other types of leaf datasets will be ignored and their positions in the
- * output dataset will be NULL pointers.
+ * output dataset will be nullptr pointers.
  *
  * @sa
  * vtkAppendPolyData vtkAppendFilter
@@ -66,7 +66,7 @@ public:
   static vtkAppendCompositeDataLeaves* New();
 
   vtkTypeMacro(vtkAppendCompositeDataLeaves,vtkCompositeDataSetAlgorithm);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -81,23 +81,23 @@ public:
 
 protected:
   vtkAppendCompositeDataLeaves();
-  ~vtkAppendCompositeDataLeaves() VTK_OVERRIDE;
+  ~vtkAppendCompositeDataLeaves() override;
 
   /**
    * Since vtkCompositeDataSet is an abstract class and we output the same types as the input,
    * we must override the default implementation.
    */
-  int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestDataObject( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   /**
    * Iterates over the datasets and appends corresponding notes.
    */
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) VTK_OVERRIDE;
+  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
 
   /**
    * The input is repeatable, so we override the default implementation.
    */
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
 
   /**
    * When leaf nodes are unstructured grids, this uses a vtkAppendFilter to merge them.
@@ -123,8 +123,8 @@ protected:
   int AppendFieldData;
 
 private:
-  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
+  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) = delete;
+  void operator = ( const vtkAppendCompositeDataLeaves& ) = delete;
 };
 
 #endif // vtkAppendCompositeDataLeaves_h

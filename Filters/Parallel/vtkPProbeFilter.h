@@ -33,7 +33,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPProbeFilter : public vtkCompositeDataProbeFi
 {
 public:
   vtkTypeMacro(vtkPProbeFilter,vtkCompositeDataProbeFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkPProbeFilter *New();
 
@@ -47,7 +47,7 @@ public:
 
 protected:
   vtkPProbeFilter();
-  ~vtkPProbeFilter() VTK_OVERRIDE;
+  ~vtkPProbeFilter() override;
 
   enum
   {
@@ -55,15 +55,15 @@ protected:
   };
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPProbeFilter(const vtkPProbeFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPProbeFilter&) VTK_DELETE_FUNCTION;
+  vtkPProbeFilter(const vtkPProbeFilter&) = delete;
+  void operator=(const vtkPProbeFilter&) = delete;
 
 };
 

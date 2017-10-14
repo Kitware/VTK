@@ -46,7 +46,7 @@ class VTKFILTERSTEXTURE_EXPORT vtkThresholdTextureCoords : public vtkDataSetAlgo
 public:
   static vtkThresholdTextureCoords *New();
   vtkTypeMacro(vtkThresholdTextureCoords,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Criterion is cells whose scalars are less than lower threshold.
@@ -98,10 +98,10 @@ public:
 
 protected:
   vtkThresholdTextureCoords();
-  ~vtkThresholdTextureCoords() VTK_OVERRIDE {}
+  ~vtkThresholdTextureCoords() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double LowerThreshold;
   double UpperThreshold;
@@ -118,8 +118,8 @@ protected:
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThresholdTextureCoords&) VTK_DELETE_FUNCTION;
+  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) = delete;
+  void operator=(const vtkThresholdTextureCoords&) = delete;
 };
 
 #endif

@@ -838,37 +838,12 @@ void SystemInformation::RunMemoryCheck()
   this->Implementation->RunMemoryCheck();
 }
 
-// --------------------------------------------------------------
 // SystemInformationImplementation starts here
 
 #define STORE_TLBCACHE_INFO(x, y) x = (x < (y)) ? (y) : x
 #define TLBCACHE_INFO_UNITS (15)
 #define CLASSICAL_CPU_FREQ_LOOP 10000000
 #define RDTSC_INSTRUCTION _asm _emit 0x0f _asm _emit 0x31
-
-#define MMX_FEATURE 0x00000001
-#define MMX_PLUS_FEATURE 0x00000002
-#define SSE_FEATURE 0x00000004
-#define SSE2_FEATURE 0x00000008
-#define AMD_3DNOW_FEATURE 0x00000010
-#define AMD_3DNOW_PLUS_FEATURE 0x00000020
-#define IA64_FEATURE 0x00000040
-#define MP_CAPABLE 0x00000080
-#define HYPERTHREAD_FEATURE 0x00000100
-#define SERIALNUMBER_FEATURE 0x00000200
-#define APIC_FEATURE 0x00000400
-#define SSE_FP_FEATURE 0x00000800
-#define SSE_MMX_FEATURE 0x00001000
-#define CMOV_FEATURE 0x00002000
-#define MTRR_FEATURE 0x00004000
-#define L1CACHE_FEATURE 0x00008000
-#define L2CACHE_FEATURE 0x00010000
-#define L3CACHE_FEATURE 0x00020000
-#define ACPI_FEATURE 0x00040000
-#define THERMALMONITOR_FEATURE 0x00080000
-#define TEMPSENSEDIODE_FEATURE 0x00100000
-#define FREQUENCYID_FEATURE 0x00200000
-#define VOLTAGEID_FREQUENCY 0x00400000
 
 // Status Flag
 #define HT_NOT_CAPABLE 0
@@ -943,7 +918,8 @@ int LoadLines(const char* fileName, std::vector<std::string>& lines)
 
 // ****************************************************************************
 template <typename T>
-int NameValue(std::vector<std::string>& lines, std::string name, T& value)
+int NameValue(std::vector<std::string> const& lines, std::string const& name,
+              T& value)
 {
   size_t nLines = lines.size();
   for (size_t i = 0; i < nLines; ++i) {
@@ -1314,7 +1290,6 @@ private:
   int ReportPath;
 };
 
-// --------------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const SymbolProperties& sp)
 {
 #if defined(KWSYS_SYSTEMINFORMATION_HAS_SYMBOL_LOOKUP)
@@ -1333,7 +1308,6 @@ std::ostream& operator<<(std::ostream& os, const SymbolProperties& sp)
   return os;
 }
 
-// --------------------------------------------------------------------------
 SymbolProperties::SymbolProperties()
 {
   // not using an initializer list
@@ -1352,20 +1326,18 @@ SymbolProperties::SymbolProperties()
   this->GetLineNumber();
 }
 
-// --------------------------------------------------------------------------
 std::string SymbolProperties::GetFileName(const std::string& path) const
 {
   std::string file(path);
   if (!this->ReportPath) {
     size_t at = file.rfind("/");
     if (at != std::string::npos) {
-      file = file.substr(at + 1, std::string::npos);
+      file = file.substr(at + 1);
     }
   }
   return file;
 }
 
-// --------------------------------------------------------------------------
 std::string SymbolProperties::GetBinary() const
 {
 // only linux has proc fs
@@ -1386,7 +1358,6 @@ std::string SymbolProperties::GetBinary() const
   return this->GetFileName(this->Binary);
 }
 
-// --------------------------------------------------------------------------
 std::string SymbolProperties::Demangle(const char* symbol) const
 {
   std::string result = safes(symbol);
@@ -1406,7 +1377,6 @@ std::string SymbolProperties::Demangle(const char* symbol) const
   return result;
 }
 
-// --------------------------------------------------------------------------
 void SymbolProperties::Initialize(void* address)
 {
   this->Address = address;
@@ -1425,7 +1395,6 @@ void SymbolProperties::Initialize(void* address)
 }
 #endif // don't define this class if we're not using it
 
-// --------------------------------------------------------------------------
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define KWSYS_SYSTEMINFORMATION_USE_GetSystemTimes
 #endif
@@ -1875,11 +1844,11 @@ int SystemInformationImplementation::GetProcessorCacheSize()
 int SystemInformationImplementation::GetProcessorCacheXSize(long int dwCacheID)
 {
   switch (dwCacheID) {
-    case L1CACHE_FEATURE:
+    case SystemInformation::CPU_FEATURE_L1CACHE:
       return this->Features.L1CacheSize;
-    case L2CACHE_FEATURE:
+    case SystemInformation::CPU_FEATURE_L2CACHE:
       return this->Features.L2CacheSize;
-    case L3CACHE_FEATURE:
+    case SystemInformation::CPU_FEATURE_L3CACHE:
       return this->Features.L3CacheSize;
   }
   return -1;
@@ -1890,102 +1859,119 @@ bool SystemInformationImplementation::DoesCPUSupportFeature(long int dwFeature)
   bool bHasFeature = false;
 
   // Check for MMX instructions.
-  if (((dwFeature & MMX_FEATURE) != 0) && this->Features.HasMMX)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_MMX) != 0) &&
+      this->Features.HasMMX)
     bHasFeature = true;
 
   // Check for MMX+ instructions.
-  if (((dwFeature & MMX_PLUS_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_MMX_PLUS) != 0) &&
       this->Features.ExtendedFeatures.HasMMXPlus)
     bHasFeature = true;
 
   // Check for SSE FP instructions.
-  if (((dwFeature & SSE_FEATURE) != 0) && this->Features.HasSSE)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_SSE) != 0) &&
+      this->Features.HasSSE)
     bHasFeature = true;
 
   // Check for SSE FP instructions.
-  if (((dwFeature & SSE_FP_FEATURE) != 0) && this->Features.HasSSEFP)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_SSE_FP) != 0) &&
+      this->Features.HasSSEFP)
     bHasFeature = true;
 
   // Check for SSE MMX instructions.
-  if (((dwFeature & SSE_MMX_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_SSE_MMX) != 0) &&
       this->Features.ExtendedFeatures.HasSSEMMX)
     bHasFeature = true;
 
   // Check for SSE2 instructions.
-  if (((dwFeature & SSE2_FEATURE) != 0) && this->Features.HasSSE2)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_SSE2) != 0) &&
+      this->Features.HasSSE2)
     bHasFeature = true;
 
   // Check for 3DNow! instructions.
-  if (((dwFeature & AMD_3DNOW_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_AMD_3DNOW) != 0) &&
       this->Features.ExtendedFeatures.Has3DNow)
     bHasFeature = true;
 
   // Check for 3DNow+ instructions.
-  if (((dwFeature & AMD_3DNOW_PLUS_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_AMD_3DNOW_PLUS) != 0) &&
       this->Features.ExtendedFeatures.Has3DNowPlus)
     bHasFeature = true;
 
   // Check for IA64 instructions.
-  if (((dwFeature & IA64_FEATURE) != 0) && this->Features.HasIA64)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_IA64) != 0) &&
+      this->Features.HasIA64)
     bHasFeature = true;
 
   // Check for MP capable.
-  if (((dwFeature & MP_CAPABLE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_MP_CAPABLE) != 0) &&
       this->Features.ExtendedFeatures.SupportsMP)
     bHasFeature = true;
 
   // Check for a serial number for the processor.
-  if (((dwFeature & SERIALNUMBER_FEATURE) != 0) && this->Features.HasSerial)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_SERIALNUMBER) != 0) &&
+      this->Features.HasSerial)
     bHasFeature = true;
 
   // Check for a local APIC in the processor.
-  if (((dwFeature & APIC_FEATURE) != 0) && this->Features.HasAPIC)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_APIC) != 0) &&
+      this->Features.HasAPIC)
     bHasFeature = true;
 
   // Check for CMOV instructions.
-  if (((dwFeature & CMOV_FEATURE) != 0) && this->Features.HasCMOV)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_CMOV) != 0) &&
+      this->Features.HasCMOV)
     bHasFeature = true;
 
   // Check for MTRR instructions.
-  if (((dwFeature & MTRR_FEATURE) != 0) && this->Features.HasMTRR)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_MTRR) != 0) &&
+      this->Features.HasMTRR)
     bHasFeature = true;
 
   // Check for L1 cache size.
-  if (((dwFeature & L1CACHE_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_L1CACHE) != 0) &&
       (this->Features.L1CacheSize != -1))
     bHasFeature = true;
 
   // Check for L2 cache size.
-  if (((dwFeature & L2CACHE_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_L2CACHE) != 0) &&
       (this->Features.L2CacheSize != -1))
     bHasFeature = true;
 
   // Check for L3 cache size.
-  if (((dwFeature & L3CACHE_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_L3CACHE) != 0) &&
       (this->Features.L3CacheSize != -1))
     bHasFeature = true;
 
   // Check for ACPI capability.
-  if (((dwFeature & ACPI_FEATURE) != 0) && this->Features.HasACPI)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_ACPI) != 0) &&
+      this->Features.HasACPI)
     bHasFeature = true;
 
   // Check for thermal monitor support.
-  if (((dwFeature & THERMALMONITOR_FEATURE) != 0) && this->Features.HasThermal)
+  if (((dwFeature & SystemInformation::CPU_FEATURE_THERMALMONITOR) != 0) &&
+      this->Features.HasThermal)
     bHasFeature = true;
 
   // Check for temperature sensing diode support.
-  if (((dwFeature & TEMPSENSEDIODE_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_TEMPSENSEDIODE) != 0) &&
       this->Features.ExtendedFeatures.PowerManagement.HasTempSenseDiode)
     bHasFeature = true;
 
   // Check for frequency ID support.
-  if (((dwFeature & FREQUENCYID_FEATURE) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_FREQUENCYID) != 0) &&
       this->Features.ExtendedFeatures.PowerManagement.HasFrequencyID)
     bHasFeature = true;
 
   // Check for voltage ID support.
-  if (((dwFeature & VOLTAGEID_FREQUENCY) != 0) &&
+  if (((dwFeature & SystemInformation::CPU_FEATURE_VOLTAGEID_FREQUENCY) !=
+       0) &&
       this->Features.ExtendedFeatures.PowerManagement.HasVoltageID)
+    bHasFeature = true;
+
+  // Check for FPU support.
+  if (((dwFeature & SystemInformation::CPU_FEATURE_FPU) != 0) &&
+      this->Features.HasFPU)
     bHasFeature = true;
 
   return bHasFeature;
@@ -3356,11 +3342,11 @@ std::string SystemInformationImplementation::ExtractValueFromCpuInfoFile(
   std::string buffer, const char* word, size_t init)
 {
   size_t pos = buffer.find(word, init);
-  if (pos != buffer.npos) {
+  if (pos != std::string::npos) {
     this->CurrentPositionInFile = pos;
     pos = buffer.find(":", pos);
     size_t pos2 = buffer.find("\n", pos);
-    if (pos != buffer.npos && pos2 != buffer.npos) {
+    if (pos != std::string::npos && pos2 != std::string::npos) {
       // It may happen that the beginning matches, but this is still not the
       // requested key.
       // An example is looking for "cpu" when "cpu family" comes first. So we
@@ -3375,7 +3361,7 @@ std::string SystemInformationImplementation::ExtractValueFromCpuInfoFile(
       return buffer.substr(pos + 2, pos2 - pos - 2);
     }
   }
-  this->CurrentPositionInFile = buffer.npos;
+  this->CurrentPositionInFile = std::string::npos;
   return "";
 }
 
@@ -3402,7 +3388,7 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   // Number of logical CPUs (combination of multiple processors, multi-core
   // and SMT)
   size_t pos = buffer.find("processor\t");
-  while (pos != buffer.npos) {
+  while (pos != std::string::npos) {
     this->NumberOfLogicalCPU++;
     pos = buffer.find("processor\t", pos + 1);
   }
@@ -3411,7 +3397,7 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
   // Count sockets.
   std::set<int> PhysicalIDs;
   std::string idc = this->ExtractValueFromCpuInfoFile(buffer, "physical id");
-  while (this->CurrentPositionInFile != buffer.npos) {
+  while (this->CurrentPositionInFile != std::string::npos) {
     int id = atoi(idc.c_str());
     PhysicalIDs.insert(id);
     idc = this->ExtractValueFromCpuInfoFile(buffer, "physical id",
@@ -3521,7 +3507,7 @@ bool SystemInformationImplementation::RetreiveInformationFromCpuInfoFile()
       this->ExtractValueFromCpuInfoFile(buffer, cachename[index]);
     if (!cacheSize.empty()) {
       pos = cacheSize.find(" KB");
-      if (pos != cacheSize.npos) {
+      if (pos != std::string::npos) {
         cacheSize = cacheSize.substr(0, pos);
       }
       this->Features.L1CacheSize += atoi(cacheSize.c_str());
@@ -4600,10 +4586,10 @@ std::string SystemInformationImplementation::ExtractValueFromSysCtl(
   const char* word)
 {
   size_t pos = this->SysCtlBuffer.find(word);
-  if (pos != this->SysCtlBuffer.npos) {
+  if (pos != std::string::npos) {
     pos = this->SysCtlBuffer.find(": ", pos);
     size_t pos2 = this->SysCtlBuffer.find("\n", pos);
-    if (pos != this->SysCtlBuffer.npos && pos2 != this->SysCtlBuffer.npos) {
+    if (pos != std::string::npos && pos2 != std::string::npos) {
       return this->SysCtlBuffer.substr(pos + 2, pos2 - pos - 2);
     }
   }
@@ -4675,14 +4661,14 @@ std::string SystemInformationImplementation::ParseValueFromKStat(
   args.push_back("-p");
 
   std::string command = arguments;
-  size_t start = command.npos;
+  size_t start = std::string::npos;
   size_t pos = command.find(' ', 0);
-  while (pos != command.npos) {
+  while (pos != std::string::npos) {
     bool inQuotes = false;
     // Check if we are between quotes
     size_t b0 = command.find('"', 0);
     size_t b1 = command.find('"', b0 + 1);
-    while (b0 != command.npos && b1 != command.npos && b1 > b0) {
+    while (b0 != std::string::npos && b1 != std::string::npos && b1 > b0) {
       if (pos > b0 && pos < b1) {
         inQuotes = true;
         break;
@@ -4696,7 +4682,7 @@ std::string SystemInformationImplementation::ParseValueFromKStat(
 
       // Remove the quotes if any
       size_t quotes = arg.find('"');
-      while (quotes != arg.npos) {
+      while (quotes != std::string::npos) {
         arg.erase(quotes, 1);
         quotes = arg.find('"');
       }
@@ -4879,11 +4865,11 @@ bool SystemInformationImplementation::QueryQNXMemory()
   args.clear();
 
   size_t pos = buffer.find("System RAM:");
-  if (pos == buffer.npos)
+  if (pos == std::string::npos)
     return false;
   pos = buffer.find(":", pos);
   size_t pos2 = buffer.find("M (", pos);
-  if (pos2 == buffer.npos)
+  if (pos2 == std::string::npos)
     return false;
 
   pos++;
@@ -4937,11 +4923,11 @@ bool SystemInformationImplementation::QueryQNXProcessor()
   args.clear();
 
   size_t pos = buffer.find("Processor1:");
-  if (pos == buffer.npos)
+  if (pos == std::string::npos)
     return false;
 
   size_t pos2 = buffer.find("MHz", pos);
-  if (pos2 == buffer.npos)
+  if (pos2 == std::string::npos)
     return false;
 
   size_t pos3 = pos2;
@@ -4951,9 +4937,9 @@ bool SystemInformationImplementation::QueryQNXProcessor()
   this->CPUSpeedInMHz = atoi(buffer.substr(pos3 + 1, pos2 - pos3 - 1).c_str());
 
   pos2 = buffer.find(" Stepping", pos);
-  if (pos2 != buffer.npos) {
+  if (pos2 != std::string::npos) {
     pos2 = buffer.find(" ", pos2 + 1);
-    if (pos2 != buffer.npos && pos2 < pos3) {
+    if (pos2 != std::string::npos && pos2 < pos3) {
       this->ChipID.Revision =
         atoi(buffer.substr(pos2 + 1, pos3 - pos2).c_str());
     }
@@ -4963,7 +4949,7 @@ bool SystemInformationImplementation::QueryQNXProcessor()
   do {
     pos = buffer.find("\nProcessor", pos + 1);
     ++this->NumberOfPhysicalCPU;
-  } while (pos != buffer.npos);
+  } while (pos != std::string::npos);
   this->NumberOfLogicalCPU = 1;
 
   return true;

@@ -43,7 +43,7 @@ class VTKFILTERSGENERAL_EXPORT vtkInterpolateDataSetAttributes : public vtkDataS
 public:
   static vtkInterpolateDataSetAttributes *New();
   vtkTypeMacro(vtkInterpolateDataSetAttributes,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the list of inputs to this filter.
@@ -60,19 +60,19 @@ public:
 
 protected:
   vtkInterpolateDataSetAttributes();
-  ~vtkInterpolateDataSetAttributes() VTK_OVERRIDE;
+  ~vtkInterpolateDataSetAttributes() override;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkDataSetCollection *InputList; // list of data sets to interpolate
   double T; // interpolation parameter
 
 private:
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) = delete;
+  void operator=(const vtkInterpolateDataSetAttributes&) = delete;
 };
 
 #endif

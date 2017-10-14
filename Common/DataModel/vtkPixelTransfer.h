@@ -165,7 +165,7 @@ int vtkPixelTransfer::Blit(
        int nDestComps,
        DEST_TYPE *destData)
 {
-  if ( (srcData == NULL) || (destData == NULL) )
+  if ( (srcData == nullptr) || (destData == nullptr) )
   {
     return -1;
   }

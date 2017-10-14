@@ -146,7 +146,7 @@ class VTKFILTERSCORE_EXPORT vtkWindowedSincPolyDataFilter : public vtkPolyDataAl
 {
 public:
   vtkTypeMacro(vtkWindowedSincPolyDataFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with number of iterations 20; passband .1;
@@ -253,9 +253,9 @@ public:
 
  protected:
   vtkWindowedSincPolyDataFilter();
-  ~vtkWindowedSincPolyDataFilter() VTK_OVERRIDE {}
+  ~vtkWindowedSincPolyDataFilter() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int NumberOfIterations;
   double PassBand;
@@ -268,8 +268,8 @@ public:
   int GenerateErrorVectors;
   int NormalizeCoordinates;
 private:
-  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWindowedSincPolyDataFilter&) VTK_DELETE_FUNCTION;
+  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) = delete;
+  void operator=(const vtkWindowedSincPolyDataFilter&) = delete;
 };
 
 #endif

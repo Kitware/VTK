@@ -89,19 +89,6 @@ NestedTestOuter::~NestedTestOuter()
 
 //----------------------------------------------------------------------------
 
-/* Test inclusion of some stl headers.  */
-#ifdef _MSC_VER
-#pragma warning (push, 2)
-#endif
-
-#include <vector>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-//----------------------------------------------------------------------------
-
 /* Test full template specialization of functions.  */
 template <class T>
 int FullySpecializedFunction(T*)
@@ -446,49 +433,6 @@ int TestException()
 # pragma warning (pop)
 #endif
 
-//----------------------------------------------------------------------------
-
-/* Test void return type syntax.  */
-
-// Intel C++ warns about type qualifiers on return types.
-#if defined(__INTEL_COMPILER)
-# pragma warning (push)
-# pragma warning (disable:858) // type qualifier on return is meaningless
-#endif
-
-// clang warns about type qualifiers on return types.
-#if defined(__clang__)
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wignored-qualifiers"
-#endif
-
-// gcc>=4.3 says type qualifiers ignored on function return type
-#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-# pragma GCC diagnostic push
-#endif
-#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 3)))
-# pragma GCC diagnostic ignored "-Wignored-qualifiers"
-#endif
-
-// aCC warns "type qualifier on return type is meaningless" - just omit the
-// function on aCC builds since there is no way to suppress the warning via
-// pragmas...
-#if !defined(__HP_aCC)
-void const TestVoidConstReturn() {}
-#endif
-
-#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 6)))
-# pragma GCC diagnostic pop
-#endif
-
-#if defined(__clang__)
-# pragma clang diagnostic pop
-#endif
-
-#if defined(__INTEL_COMPILER)
-# pragma warning (pop)
-#endif
-
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
 #if defined(_MSC_VER) && defined(_DEBUG)
@@ -509,7 +453,7 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 #include <locale.h>
 int TestSetLocale()
 {
-  char *oldLocale = strdup(setlocale(LC_NUMERIC,NULL));
+  char *oldLocale = strdup(setlocale(LC_NUMERIC,nullptr));
   setlocale(LC_NUMERIC,"English");
 
   // restore the local

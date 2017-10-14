@@ -53,7 +53,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   amrDataSet->SetGridDescription(description);
   amrDataSet->SetOrigin(origin);
 
-  vtkUniformGrid *gridPtr = NULL;
+  vtkUniformGrid *gridPtr = nullptr;
   switch( description )
   {
     case VTK_XY_PLANE:
@@ -165,10 +165,10 @@ int TestAMRVisibility( const int dataDescription )
 {
   int rc = 0;
   vtkOverlappingAMR *myAMR = GetAMRDataSet( dataDescription );
-  assert("pre: AMR dataset is NULL" && (myAMR != NULL) );
+  assert("pre: AMR dataset is nullptr" && (myAMR != nullptr) );
 
   vtkUniformGrid *root = myAMR->GetDataSet(0,0);
-  assert("ERROR: root AMR block is NULL!" && (root != NULL) );
+  assert("ERROR: root AMR block is nullptr!" && (root != nullptr) );
 
   vtkIdType cellIdx = 0;
   for(; cellIdx < root->GetNumberOfCells(); ++cellIdx )

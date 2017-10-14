@@ -52,7 +52,7 @@ bool vtkAMRInterpolatedVelocityField::FindGrid(double q[3],vtkOverlappingAMR *am
   {
     unsigned int n;
     unsigned int *children = amrds->GetChildren(level, gridId,n);
-    if (children == NULL)
+    if (children == nullptr)
     {
       break;
     }
@@ -80,14 +80,14 @@ vtkStandardNewMacro(vtkAMRInterpolatedVelocityField);
 vtkAMRInterpolatedVelocityField::vtkAMRInterpolatedVelocityField()
 {
   this->Weights = new double[8];
-  this->AmrDataSet = NULL;
+  this->AmrDataSet = nullptr;
   this->LastLevel= this->LastId=-1;
 }
 
 vtkAMRInterpolatedVelocityField::~vtkAMRInterpolatedVelocityField()
 {
   delete [] this->Weights;
-  this->Weights = NULL;
+  this->Weights = nullptr;
 }
 
 void vtkAMRInterpolatedVelocityField::PrintSelf( ostream & os, vtkIndent indent )
@@ -110,8 +110,8 @@ int vtkAMRInterpolatedVelocityField::FunctionValues( double * x, double * f )
   }
 
   //Either we do not know which data set it is, or existing LastDataSet does not contain x
-  //In any case, set LastDataSet to NULL and try to find a new one
-  this->LastDataSet = NULL;
+  //In any case, set LastDataSet to nullptr and try to find a new one
+  this->LastDataSet = nullptr;
   this->LastCellId  = -1;
 
   this->LastLevel = -1;
@@ -143,7 +143,7 @@ bool vtkAMRInterpolatedVelocityField::SetLastDataSet(int level, int id)
   this->LastLevel = level;
   this->LastId = id;
   this->LastDataSet = this->AmrDataSet->GetDataSet(level,id);
-  return this->LastDataSet!=NULL;
+  return this->LastDataSet!=nullptr;
 }
 
 

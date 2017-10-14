@@ -67,16 +67,16 @@ vtkTransferAttributes::vtkTransferAttributes()
   this->SetNumberOfInputPorts(2);
   this->DirectMapping = false;
   this->DefaultValue = 1;
-  this->SourceArrayName = 0;
-  this->TargetArrayName = 0;
+  this->SourceArrayName = nullptr;
+  this->TargetArrayName = nullptr;
   this->SourceFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS;
   this->TargetFieldType=vtkDataObject::FIELD_ASSOCIATION_POINTS;
 }
 
 vtkTransferAttributes::~vtkTransferAttributes()
 {
-  this->SetSourceArrayName(0);
-  this->SetTargetArrayName(0);
+  this->SetSourceArrayName(nullptr);
+  this->SetTargetArrayName(nullptr);
 }
 
 int vtkTransferAttributes::FillInputPortInformation(int port, vtkInformation* info)
@@ -112,7 +112,7 @@ int vtkTransferAttributes::RequestData(
 
   // get the input and output
   int item_count_source = 0;
-  vtkDataSetAttributes* dsa_source = 0;
+  vtkDataSetAttributes* dsa_source = nullptr;
   if (vtkDataSet::SafeDownCast(sourceInput) &&
       this->SourceFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
   {
@@ -150,8 +150,8 @@ int vtkTransferAttributes::RequestData(
     return 0;
   }
 
-  vtkDataSetAttributes* dsa_target = 0;
-  vtkDataSetAttributes* dsa_out = 0;
+  vtkDataSetAttributes* dsa_target = nullptr;
+  vtkDataSetAttributes* dsa_out = nullptr;
   int item_count_target = 0;
   if (vtkDataSet::SafeDownCast(targetInput) &&
       this->TargetFieldType == vtkDataObject::FIELD_ASSOCIATION_POINTS)
@@ -195,7 +195,7 @@ int vtkTransferAttributes::RequestData(
     return 0;
   }
 
-  if( this->SourceArrayName == 0 || this->TargetArrayName == 0 )
+  if( this->SourceArrayName == nullptr || this->TargetArrayName == nullptr )
   {
     vtkErrorMacro( "Must specify source and target array names for the transfer." );
     return 0;

@@ -77,7 +77,7 @@ vtkDataObject *vtkStructuredGridAppend::GetInput(int idx)
 {
   if (this->GetNumberOfInputConnections(0) <= idx)
   {
-    return 0;
+    return nullptr;
   }
   return vtkStructuredGrid::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
@@ -242,7 +242,7 @@ int vtkStructuredGridAppend::RequestData(
   for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
   {
     vtkStructuredGrid* input = vtkStructuredGrid::GetData(inputVector[0], idx1);
-    if (input != NULL)
+    if (input != nullptr)
     {
       // Get the input extent and output extent
       // the real out extent for this input may be clipped.
@@ -278,7 +278,7 @@ int vtkStructuredGridAppend::RequestData(
         {
           inArray = input->GetPointData()->GetArray(ai);
           outArray = output->GetPointData()->GetArray(ai);
-          if(outArray == NULL)
+          if(outArray == nullptr)
           {
             outArray = inArray->NewInstance();
             outArray->SetName(inArray->GetName());
@@ -333,12 +333,12 @@ int vtkStructuredGridAppend::RequestData(
 
         // do the point locations array
         inArray = input->GetPoints()->GetData();
-        if(output->GetPoints() == NULL)
+        if(output->GetPoints() == nullptr)
         {
           vtkNew<vtkPoints> points;
           points->SetDataType(inArray->GetDataType());
           points->SetNumberOfPoints(vtkStructuredData::GetNumberOfPoints(outExt));
-          output->SetPoints(points.GetPointer());
+          output->SetPoints(points);
         }
         outArray = output->GetPoints()->GetData();
         inPtr = inArray->GetVoidPointer(0);
@@ -375,7 +375,7 @@ int vtkStructuredGridAppend::RequestData(
         {
           inArray = input->GetCellData()->GetArray(ai);
           outArray = output->GetCellData()->GetArray(ai);
-          if(outArray == NULL)
+          if(outArray == nullptr)
           {
             outArray = inArray->NewInstance();
             outArray->SetName(inArray->GetName());

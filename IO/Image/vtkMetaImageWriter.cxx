@@ -45,7 +45,7 @@ vtkStandardNewMacro(vtkMetaImageWriter);
 //----------------------------------------------------------------------------
 vtkMetaImageWriter::vtkMetaImageWriter()
 {
-  this->MHDFileName = 0;
+  this->MHDFileName = nullptr;
   this->FileLowerLeft = 1;
 
   this->MetaImagePtr = new vtkmetaio::MetaImage;
@@ -55,7 +55,7 @@ vtkMetaImageWriter::vtkMetaImageWriter()
 //----------------------------------------------------------------------------
 vtkMetaImageWriter::~vtkMetaImageWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
   delete this->MetaImagePtr;
 }
 
@@ -63,7 +63,7 @@ vtkMetaImageWriter::~vtkMetaImageWriter()
 void vtkMetaImageWriter::SetFileName(const char* fname)
 {
   this->SetMHDFileName(fname);
-  this->Superclass::SetFileName( 0 );
+  this->Superclass::SetFileName( nullptr );
 }
 
 //----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ void vtkMetaImageWriter::Write( )
     this->GetInputExecutive(0, 0))->UpdateInformation();
 
   // Error checking
-  if (this->GetInput() == NULL )
+  if (this->GetInput() == nullptr )
   {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;

@@ -29,15 +29,15 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
   // Create a renderer and a render window
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->AddRenderer(renderer.Get());
+  renderWindow->AddRenderer(renderer);
 
   // Create an interactor
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
-  renderWindowInteractor->SetRenderWindow(renderWindow.Get());
+  renderWindowInteractor->SetRenderWindow(renderWindow);
 
   // Create a sphere widget
   vtkNew<vtkSphereWidget2> sphereWidget;
-  sphereWidget->SetInteractor(renderWindowInteractor.Get());
+  sphereWidget->SetInteractor(renderWindowInteractor);
   sphereWidget->CreateDefaultRepresentation();
 
   vtkSphereRepresentation* sphereRepresentation =
@@ -49,7 +49,7 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
 
   // Create a second sphere widget
   vtkNew<vtkSphereWidget2> sphereWidget2;
-  sphereWidget2->SetInteractor(renderWindowInteractor.Get());
+  sphereWidget2->SetInteractor(renderWindowInteractor);
   sphereWidget2->CreateDefaultRepresentation();
 
   vtkSphereRepresentation* sphereRepresentation2 =
@@ -71,7 +71,7 @@ int TestSphereWidget2CenterCursor( int argc, char* argv[] )
   sphereWidget2->On();
   renderWindow->Render();
 
-  int retVal = vtkRegressionTestImage( renderWindow.Get() );
+  int retVal = vtkRegressionTestImage( renderWindow );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
   {
     renderWindowInteractor->Start();

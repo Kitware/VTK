@@ -49,12 +49,12 @@ public:
   static vtkCocoaRenderWindowInteractor *New();
 
   vtkTypeMacro(vtkCocoaRenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Initialize the even handler
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   //@{
   /**
@@ -66,8 +66,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  void Enable() VTK_OVERRIDE;
-  void Disable() VTK_OVERRIDE;
+  void Enable() override;
+  void Disable() override;
   //@}
 
   /**
@@ -75,7 +75,7 @@ public:
    * calls PostQuitMessage(0) to terminate app. An application can Specify
    * ExitMethod for alternative behaviour (i.e. suppresion of keyboard exit)
    */
-  void TerminateApp() VTK_OVERRIDE;
+  void TerminateApp() override;
 
   //@{
   /**
@@ -92,14 +92,14 @@ public:
    * These methods correspond to the the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
-  void ExitCallback() VTK_OVERRIDE;
+  void ExitCallback() override;
 
 //  int GetButtonDown();
 //  void SetButtonDown(int button);
 
 protected:
   vtkCocoaRenderWindowInteractor();
-  ~vtkCocoaRenderWindowInteractor() VTK_OVERRIDE;
+  ~vtkCocoaRenderWindowInteractor() override;
 
   /**
    * Accessors for the Cocoa member variables. These should be used at all time, even
@@ -124,8 +124,8 @@ protected:
    * Cocoa-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
-  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
+  int InternalDestroyTimer(int platformTimerId) override;
   //@}
 
   /**
@@ -133,7 +133,7 @@ protected:
    * call this method it will loop processing events until the
    * application is exited.
    */
-  void StartEventLoop() VTK_OVERRIDE;
+  void StartEventLoop() override;
 
   //@{
   /**
@@ -149,8 +149,8 @@ protected:
 #endif
 
 private:
-  vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCocoaRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  vtkCocoaRenderWindowInteractor(const vtkCocoaRenderWindowInteractor&) = delete;
+  void operator=(const vtkCocoaRenderWindowInteractor&) = delete;
 
   // Important: this class cannot contain Objective-C instance
   // variables for 2 reasons:

@@ -66,17 +66,17 @@ vtkPieChartActor::vtkPieChartActor()
   this->PositionCoordinate->SetValue(0.1,0.1);
   this->Position2Coordinate->SetCoordinateSystemToNormalizedViewport();
   this->Position2Coordinate->SetValue(0.9, 0.8);
-  this->Position2Coordinate->SetReferenceCoordinate(NULL);
+  this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
   this->ConnectionHolder = vtkPieChartActorConnection::New();
 
   this->ArrayNumber = 0;
   this->ComponentNumber = 0;
   this->TitleVisibility = 1;
-  this->Title = NULL;
+  this->Title = nullptr;
   this->Labels = new vtkPieceLabelArray;
-  this->PieceMappers = NULL;
-  this->PieceActors = NULL;
+  this->PieceMappers = nullptr;
+  this->PieceActors = nullptr;
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
   this->LabelTextProperty->SetBold(1);
@@ -97,7 +97,7 @@ vtkPieChartActor::vtkPieChartActor()
   this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
-  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
   this->LegendActor->BorderOff();
   this->LegendActor->SetNumberOfEntries(100); //initial allocation
   this->LegendActor->SetPadding(2);
@@ -121,7 +121,7 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->N = 0;
   this->Total = 0.0;
-  this->Fractions = NULL;
+  this->Fractions = nullptr;
 
   this->WebData = vtkPolyData::New();
   this->WebMapper = vtkPolyDataMapper2D::New();
@@ -141,14 +141,14 @@ vtkPieChartActor::vtkPieChartActor()
 vtkPieChartActor::~vtkPieChartActor()
 {
   this->ConnectionHolder->Delete();
-  this->ConnectionHolder = 0;
+  this->ConnectionHolder = nullptr;
 
   delete [] this->Title;
-  this->Title = NULL;
+  this->Title = nullptr;
 
   delete this->Labels;
-  this->SetLabelTextProperty(NULL);
-  this->SetTitleTextProperty(NULL);
+  this->SetLabelTextProperty(nullptr);
+  this->SetTitleTextProperty(nullptr);
 
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
@@ -156,9 +156,9 @@ vtkPieChartActor::~vtkPieChartActor()
   this->Initialize();
 
   this->TitleMapper->Delete();
-  this->TitleMapper = NULL;
+  this->TitleMapper = nullptr;
   this->TitleActor->Delete();
-  this->TitleActor = NULL;
+  this->TitleActor = nullptr;
 
   this->WebData->Delete();
   this->WebMapper->Delete();
@@ -202,9 +202,9 @@ void vtkPieChartActor::Initialize()
       this->PieceActors[i]->Delete();
     }
     delete [] this->PieceMappers;
-    this->PieceMappers = NULL;
+    this->PieceMappers = nullptr;
     delete [] this->PieceActors;
-    this->PieceActors = NULL;
+    this->PieceActors = nullptr;
   }
 
   this->N = 0;
@@ -224,7 +224,7 @@ int vtkPieChartActor::RenderOverlay(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->GetInput() == NULL || this->N <= 0 )
+  if ( this->GetInput() == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -267,7 +267,7 @@ int vtkPieChartActor::RenderOpaqueGeometry(vtkViewport *viewport)
   }
 
   // Done rebuilding, render as appropriate.
-  if ( this->GetInput() == NULL || this->N <= 0 )
+  if ( this->GetInput() == nullptr || this->N <= 0 )
   {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -509,7 +509,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
       x[0] = this->Center[0] + (this->Radius+5)*cos((theta+thetaM)/2.0);
       x[1] = this->Center[1] + (this->Radius+5)*sin((theta+thetaM)/2.0);
       this->PieceMappers[i] = vtkTextMapper::New();
-      if ( (str=this->GetPieceLabel(i)) != NULL )
+      if ( (str=this->GetPieceLabel(i)) != nullptr )
       {
         this->PieceMappers[i]->SetInput(str);
       }
@@ -589,7 +589,7 @@ int vtkPieChartActor::PlaceAxes(vtkViewport *viewport, int* vtkNotUsed(size))
     color = this->LegendActor->GetEntryColor(i);
     colors->InsertNextTuple3(255*color[0],255*color[1],255*color[2]);
     this->LegendActor->SetEntrySymbol(i,this->GlyphSource->GetOutput());
-    if ( (str=this->GetPieceLabel(i)) != NULL )
+    if ( (str=this->GetPieceLabel(i)) != nullptr )
     {
       this->LegendActor->SetEntryString(i,str);
     }
@@ -685,7 +685,7 @@ const char* vtkPieChartActor::GetPieceLabel(int i)
 {
   if ( i < 0 || static_cast<unsigned int>(i) >= this->Labels->size())
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->Labels->at(i).c_str();

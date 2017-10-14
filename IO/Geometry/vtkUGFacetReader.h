@@ -24,6 +24,8 @@
 #ifndef vtkUGFacetReader_h
 #define vtkUGFacetReader_h
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -34,7 +36,7 @@ class VTKIOGEOMETRY_EXPORT vtkUGFacetReader : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkUGFacetReader,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object to extract all parts, and with point merging
@@ -46,7 +48,7 @@ public:
    * Overload standard modified time function. If locator is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -102,9 +104,9 @@ public:
 
 protected:
   vtkUGFacetReader();
-  ~vtkUGFacetReader() VTK_OVERRIDE;
+  ~vtkUGFacetReader() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char *FileName;
   vtkShortArray *PartColors;
@@ -112,8 +114,10 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkUGFacetReader(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
+  vtkUGFacetReader(const vtkUGFacetReader&) = delete;
+  void operator=(const vtkUGFacetReader&) = delete;
 };
+
+#endif //VTK_LEGACY_REMOVE
 
 #endif

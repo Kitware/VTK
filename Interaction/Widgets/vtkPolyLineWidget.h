@@ -36,7 +36,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkPolyLineWidget : public vtkAbstractWidget
 public:
   static vtkPolyLineWidget* New();
   vtkTypeMacro(vtkPolyLineWidget, vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -53,11 +53,11 @@ public:
    * Create the default widget representation if one is not set. By default,
    * this is an instance of the vtkPolyLineRepresentation class.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkPolyLineWidget();
-  ~vtkPolyLineWidget() VTK_OVERRIDE;
+  ~vtkPolyLineWidget() override;
 
   int WidgetState;
   enum _WidgetState {Start=0,Active};
@@ -70,8 +70,8 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkPolyLineWidget(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
+  vtkPolyLineWidget(const vtkPolyLineWidget&) = delete;
+  void operator=(const vtkPolyLineWidget&) = delete;
 
 };
 

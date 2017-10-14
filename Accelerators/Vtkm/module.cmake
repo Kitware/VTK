@@ -6,12 +6,16 @@ vtk_module(vtkAcceleratorsVTKm
     vtkCommonExecutionModel
     vtkFiltersGeneral
     vtkFiltersGeometry
+    vtkImagingCore
+    vtkm
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingFreeType
     vtkIOLegacy
+    vtkIOPLY
     vtkIOXML
     vtkImagingHybrid
     vtkImagingSources

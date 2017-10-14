@@ -45,7 +45,7 @@ class VTKFILTERSCORE_EXPORT vtkMarchingCubes : public vtkPolyDataAlgorithm
 public:
   static vtkMarchingCubes *New();
   vtkTypeMacro(vtkMarchingCubes,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Methods to set contour values
   void SetValue(int i, double value);
@@ -58,7 +58,7 @@ public:
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Because we delegate to vtkContourValues
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -112,10 +112,10 @@ public:
 
 protected:
   vtkMarchingCubes();
-  ~vtkMarchingCubes() VTK_OVERRIDE;
+  ~vtkMarchingCubes() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
   int ComputeNormals;
@@ -123,8 +123,8 @@ protected:
   int ComputeScalars;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkMarchingCubes(const vtkMarchingCubes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMarchingCubes&) VTK_DELETE_FUNCTION;
+  vtkMarchingCubes(const vtkMarchingCubes&) = delete;
+  void operator=(const vtkMarchingCubes&) = delete;
 };
 
 /**

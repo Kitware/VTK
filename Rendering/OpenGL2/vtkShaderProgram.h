@@ -46,7 +46,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkShaderProgram : public vtkObject
 public:
   static vtkShaderProgram *New();
   vtkTypeMacro(vtkShaderProgram, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -187,6 +187,7 @@ public:
   bool SetUniform2i(const char *name, const int v[2]);
   bool SetUniform2f(const char *name, const float v[2]);
   bool SetUniform3f(const char *name, const float v[3]);
+  bool SetUniform3f(const char *name, const double v[3]);
   bool SetUniform4f(const char *name, const float v[4]);
   bool SetUniform3uc(const char *name, const unsigned char v[3]); // maybe remove
   bool SetUniform4uc(const char *name, const unsigned char v[4]); // maybe remove
@@ -269,7 +270,7 @@ public:
 
 protected:
   vtkShaderProgram();
-  ~vtkShaderProgram() VTK_OVERRIDE;
+  ~vtkShaderProgram() override;
 
   /***************************************************************
    * The following functions are only for use by the shader cache
@@ -357,8 +358,8 @@ private:
   int FindAttributeArray(const char *name);
   int FindUniform(const char *name);
 
-  vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+  vtkShaderProgram(const vtkShaderProgram&) = delete;
+  void operator=(const vtkShaderProgram&) = delete;
 
   char* FileNamePrefixForDebugging;
 };

@@ -83,14 +83,14 @@ int vtkSeedRepresentationTest1(int , char * [] )
 
   vtkSmartPointer<vtkPointHandleRepresentation3D> handleRep2;
   handleRep2 = vtkPointHandleRepresentation3D::SafeDownCast(node1->GetHandleRepresentation());
-  if (handleRep2 == NULL ||
+  if (handleRep2 == nullptr ||
       handleRep2 != handleRep)
   {
     std::cerr << "Error in Set/Get handle rep at top level." << std::endl;
     return EXIT_FAILURE;
   }
   handleRep2 =  vtkPointHandleRepresentation3D::SafeDownCast(node1->GetHandleRepresentation(0));
-  if (handleRep2 == NULL)
+  if (handleRep2 == nullptr)
   {
     std::cerr << "Error in Set/Get handle rep 0." << std::endl;
     return EXIT_FAILURE;

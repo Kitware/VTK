@@ -44,7 +44,7 @@ vtkVPICReader::vtkVPICReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->NumberOfNodes = 0;
   this->NumberOfVariables = 0;
   this->CurrentTimeStep = -1;
@@ -134,7 +134,7 @@ vtkVPICReader::~vtkVPICReader()
 
   // Do not delete the MPIController it is Singleton like and will
   // cleanup itself;
-  this->MPIController = NULL;
+  this->MPIController = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -211,7 +211,7 @@ int vtkVPICReader::RequestInformation(
 
     // Collect temporal information
     this->NumberOfTimeSteps = this->vpicData->getNumberOfTimeSteps();
-    this->TimeSteps = NULL;
+    this->TimeSteps = nullptr;
 
     if (this->NumberOfTimeSteps > 0) {
       this->TimeSteps = new double[this->NumberOfTimeSteps];
@@ -569,7 +569,7 @@ vtkImageData* vtkVPICReader::GetOutput(int idx)
 {
   if (idx)
   {
-    return NULL;
+    return nullptr;
   }
   else
   {
@@ -618,7 +618,7 @@ void vtkVPICReader::SetPointArrayStatus(const char* name, int status)
 
 void vtkVPICReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "FileName: " << (this->FileName != NULL ? this->FileName : "") << endl;
+  os << indent << "FileName: " << (this->FileName != nullptr ? this->FileName : "") << endl;
   os << indent << "Stride: {" << this->Stride[0] << ", " << this->Stride[1]
      << ", " << this->Stride[2] << "}" << endl;
   os << indent << "XLayout: {" << this->XLayout[0] << ", " << this->XLayout[1] << "}" << endl;

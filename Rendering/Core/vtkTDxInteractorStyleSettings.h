@@ -36,7 +36,7 @@ class VTKRENDERINGCORE_EXPORT vtkTDxInteractorStyleSettings : public vtkObject
 public:
   static vtkTDxInteractorStyleSettings *New();
   vtkTypeMacro(vtkTDxInteractorStyleSettings,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -118,7 +118,7 @@ public:
 
 protected:
   vtkTDxInteractorStyleSettings();
-  ~vtkTDxInteractorStyleSettings() VTK_OVERRIDE;
+  ~vtkTDxInteractorStyleSettings() override;
 
   double AngleSensitivity;
   bool UseRotationX;
@@ -130,7 +130,7 @@ protected:
   double TranslationZSensitivity;
 
 private:
-  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
+  vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&) = delete;
+  void operator=(const vtkTDxInteractorStyleSettings&) = delete;
 };
 #endif

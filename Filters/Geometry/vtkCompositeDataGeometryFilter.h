@@ -35,31 +35,31 @@ class VTKFILTERSGEOMETRY_EXPORT vtkCompositeDataGeometryFilter : public vtkPolyD
 public:
   static vtkCompositeDataGeometryFilter *New();
   vtkTypeMacro(vtkCompositeDataGeometryFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * see vtkAlgorithm for details
    */
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector) VTK_OVERRIDE;
+                     vtkInformationVector* outputVector) override;
 
 protected:
   vtkCompositeDataGeometryFilter();
-  ~vtkCompositeDataGeometryFilter() VTK_OVERRIDE;
+  ~vtkCompositeDataGeometryFilter() override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   // Create a default executive.
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   virtual int RequestCompositeData(vtkInformation*,
                                    vtkInformationVector**,
                                    vtkInformationVector*);
 
 private:
-  vtkCompositeDataGeometryFilter(const vtkCompositeDataGeometryFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeDataGeometryFilter&) VTK_DELETE_FUNCTION;
+  vtkCompositeDataGeometryFilter(const vtkCompositeDataGeometryFilter&) = delete;
+  void operator=(const vtkCompositeDataGeometryFilter&) = delete;
 };
 
 #endif

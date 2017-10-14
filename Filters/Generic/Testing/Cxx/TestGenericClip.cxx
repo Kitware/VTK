@@ -118,7 +118,7 @@ int TestGenericClip(int argc, char* argv[])
 
   clipper->Update(); //So that we can call GetRange() on the scalars
 
-  assert(clipper->GetOutput()!=0);
+  assert(clipper->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -137,9 +137,9 @@ int TestGenericClip(int argc, char* argv[])
 #endif
   mapper->SetLookupTable(lut);
 
-  if(clipper->GetOutput()->GetPointData()!=0)
+  if(clipper->GetOutput()->GetPointData()!=nullptr)
   {
-    if(clipper->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(clipper->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( clipper->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

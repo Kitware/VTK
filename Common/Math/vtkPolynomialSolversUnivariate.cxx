@@ -27,12 +27,7 @@
 #include "vtkDataArray.h"
 #include "vtkMath.h"
 
-#if defined(_MSC_VER) || \
-    (defined(__BORLANDC__) && (__BORLANDC__ < 0x660)) || \
-    defined (__SUNPRO_C) || \
-    defined(__SUNPRO_CC)
-# define fmax(a,b) ( (a) >= (b) ? (a) : (b) )
-#endif
+#include <cmath>
 
 #define VTK_SIGN(x)              (( (x) < 0 )?( -1 ):( 1 ))
 
@@ -304,7 +299,7 @@ static int polynomialEucliDivOppositeR(
 }
 
 //----------------------------------------------------------------------------
-inline double vtkNormalizePolyCoeff( double d, double* div = 0 )
+inline double vtkNormalizePolyCoeff( double d, double* div = nullptr )
 {
   static const double high = 18446744073709551616.; // 2^64
   static const double reallyBig = 1.e300;
@@ -458,7 +453,7 @@ inline double evaluateHorner( double* P, int d, double x )
 }
 
 static int vtkGetSignChanges(
-  double* P, int* degP, int* offsets, int count, double val, int* fsign = 0 )
+  double* P, int* degP, int* offsets, int count, double val, int* fsign = nullptr )
 {
   int oldVal = 0;
   double v;

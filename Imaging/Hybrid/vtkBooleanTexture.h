@@ -53,7 +53,7 @@ public:
   static vtkBooleanTexture *New();
 
   vtkTypeMacro(vtkBooleanTexture,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -153,10 +153,10 @@ public:
 
 protected:
   vtkBooleanTexture();
-  ~vtkBooleanTexture() VTK_OVERRIDE {}
+  ~vtkBooleanTexture() override {}
 
-  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) VTK_OVERRIDE;
-  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) VTK_OVERRIDE;
+  int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *) override;
+  void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo) override;
 
   int XSize;
   int YSize;
@@ -173,8 +173,8 @@ protected:
   unsigned char OutOn[2];
 
 private:
-  vtkBooleanTexture(const vtkBooleanTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBooleanTexture&) VTK_DELETE_FUNCTION;
+  vtkBooleanTexture(const vtkBooleanTexture&) = delete;
+  void operator=(const vtkBooleanTexture&) = delete;
 };
 
 #endif

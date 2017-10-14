@@ -38,7 +38,7 @@ public:
   typedef tovtkm::vtkArrayPortal<const ValueType, ArrayType> PortalConstType;
 
   Storage()
-    : Array(NULL),
+    : Array(nullptr),
       NumberOfValues(0),
       AllocatedSize(0),
       DeallocateOnRelease(false),
@@ -132,7 +132,7 @@ public:
   typedef tovtkm::vtkArrayPortal<const ValueType, ArrayType> PortalConstType;
 
   Storage()
-    : Array(NULL),
+    : Array(nullptr),
       NumberOfValues(0),
       AllocatedSize(0),
       DeallocateOnRelease(false),
@@ -222,7 +222,7 @@ public:
   typedef tovtkm::vtkArrayPortal<const ValueType, ArrayType> PortalConstType;
 
   Storage()
-    : Array(NULL),
+    : Array(nullptr),
       NumberOfValues(0),
       AllocatedSize(0),
       DeallocateOnRelease(false),

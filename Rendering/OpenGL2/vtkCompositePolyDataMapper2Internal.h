@@ -7,6 +7,7 @@ public:
   unsigned int FlatIndex;
   double Opacity;
   bool Visibility;
+  bool Pickability;
   bool OverridesColor;
   vtkColor3d AmbientColor;
   vtkColor3d DiffuseColor;
@@ -34,6 +35,7 @@ public:
             vtkHardwareSelector::COMPOSITE_INDEX_PASS) ||
       this->Opacity != next->Opacity ||
       this->Visibility != next->Visibility ||
+      this->Pickability != next->Pickability ||
       this->OverridesColor != next->OverridesColor ||
       this->AmbientColor != next->AmbientColor ||
       this->DiffuseColor != next->DiffuseColor ||
@@ -58,7 +60,7 @@ public:
 
   // Description:
   // Implemented by sub classes. Actual rendering is done here.
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) override;
 
   // keep track of what data is being used as the multiblock
   // can change
@@ -80,9 +82,9 @@ protected:
 
   vtkCompositeMapperHelper2()
   {
-    this->Parent = 0;
+    this->Parent = nullptr;
   };
-  ~vtkCompositeMapperHelper2() VTK_OVERRIDE;
+  ~vtkCompositeMapperHelper2() override;
 
   void DrawIBO(
     vtkRenderer* ren, vtkActor *actor,
@@ -101,15 +103,15 @@ protected:
   // ReplaceShaderValues
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
 
   // Description:
   // Determine if the buffer objects need to be rebuilt
-  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
 
   // Description:
   // Build the VBO/IBO, called by UpdateBufferObjects
-  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) override;
   virtual void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
     unsigned int &flat_index,
@@ -120,14 +122,14 @@ protected:
   // Returns if we can use texture maps for scalar coloring. Note this doesn't
   // say we "will" use scalar coloring. It says, if we do use scalar coloring,
   // we will use a texture. Always off for this mapper.
-  int CanUseTextureMapForColoring(vtkDataObject*) VTK_OVERRIDE;
+  int CanUseTextureMapForColoring(vtkDataObject*) override;
 
   std::vector<unsigned int> VertexOffsets;
 
   // vert line poly strip edge stripedge
   std::vector<unsigned int> IndexArray[PrimitiveEnd];
 
-  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) override;
 
   bool PrimIDUsed;
   bool OverideColorUsed;
@@ -139,7 +141,7 @@ protected:
   std::vector<vtkPolyData*> RenderedList;
 
 private:
-  vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeMapperHelper2&) VTK_DELETE_FUNCTION;
+  vtkCompositeMapperHelper2(const vtkCompositeMapperHelper2&) = delete;
+  void operator=(const vtkCompositeMapperHelper2&) = delete;
 };
 // VTK-HeaderTest-Exclude: vtkCompositePolyDataMapper2Internal.h

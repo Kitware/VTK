@@ -34,7 +34,7 @@ class VTKWEBCORE_EXPORT vtkWebUtilities : public vtkObject
 public:
   static vtkWebUtilities* New();
   vtkTypeMacro(vtkWebUtilities, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static std::string WriteAttributesToJavaScript(int field_type, vtkDataSet*);
   static std::string WriteAttributeHeadersToJavaScript(
@@ -53,11 +53,11 @@ public:
 
 protected:
   vtkWebUtilities();
-  ~vtkWebUtilities();
+  ~vtkWebUtilities() override;
 
 private:
-  vtkWebUtilities(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
+  vtkWebUtilities(const vtkWebUtilities&) = delete;
+  void operator=(const vtkWebUtilities&) = delete;
 
 };
 

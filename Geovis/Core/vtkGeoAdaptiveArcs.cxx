@@ -44,10 +44,10 @@ vtkStandardNewMacro(vtkGeoAdaptiveArcs);
 vtkGeoAdaptiveArcs::vtkGeoAdaptiveArcs()
 {
   this->GlobeRadius = vtkGeoMath::EarthRadiusMeters();
-  this->Renderer = 0;
+  this->Renderer = nullptr;
   this->MaximumPixelSeparation = 10.0;
   this->MinimumPixelSeparation = 1.0;
-  this->LastInput = 0;
+  this->LastInput = nullptr;
   this->LastInputMTime = 0;
   this->InputLatitude = vtkDoubleArray::New();
   this->InputLongitude = vtkDoubleArray::New();
@@ -120,7 +120,7 @@ int vtkGeoAdaptiveArcs::RequestData(
   for (vtkIdType i = 0; i < lines->GetNumberOfCells(); i++)
   {
     vtkIdType npts=0; // to remove warning
-    vtkIdType* pts=0; // to remove warning
+    vtkIdType* pts=nullptr; // to remove warning
     lines->GetNextCell(npts, pts);
 
     bool lastPointOffScreen = false;

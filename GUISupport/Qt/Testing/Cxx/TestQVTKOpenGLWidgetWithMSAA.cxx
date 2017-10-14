@@ -39,21 +39,21 @@ int TestQVTKOpenGLWidgetWithMSAA(int argc, char* argv[])
   vtkNew<vtkGenericOpenGLRenderWindow> window;
 
   QVTKOpenGLWidget widget;
-  widget.SetRenderWindow(window.Get());
+  widget.SetRenderWindow(window);
 
   vtkNew<vtkRenderer> ren;
   ren->SetGradientBackground(1);
   ren->SetBackground2(0.7, 0.7, 0.7);
-  window->AddRenderer(ren.Get());
+  window->AddRenderer(ren);
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkPolyDataMapper> mapper;
   mapper->SetInputConnection(sphere->GetOutputPort());
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.Get());
-  ren->AddActor(actor.Get());
+  actor->SetMapper(mapper);
+  ren->AddActor(actor);
 
-  vtktesting->SetRenderWindow(window.Get());
+  vtktesting->SetRenderWindow(window);
   widget.show();
   app.processEvents();
 

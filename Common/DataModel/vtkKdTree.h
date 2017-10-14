@@ -76,7 +76,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkKdTree, vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkKdTree *New();
 
@@ -191,7 +191,7 @@ public:
    * Clear out all data sets and replace with single data set.  For backward
    * compatibility with superclass.
    */
-  void SetDataSet(vtkDataSet *set) VTK_OVERRIDE;
+  void SetDataSet(vtkDataSet *set) override;
 
   /**
    * This class can compute a spatial decomposition based on the cells in a list
@@ -228,7 +228,7 @@ public:
    * Return the 0'th data set.  For compatibility with the superclass'
    * interface.
    */
-  vtkDataSet *GetDataSet() VTK_OVERRIDE { return this->GetDataSet(0); }
+  vtkDataSet *GetDataSet() override { return this->GetDataSet(0); }
 
   //@{
   /**
@@ -353,7 +353,7 @@ public:
    * but whose centroid lies in a region not on the list.
 
    * The total number of cell IDs written to both lists is returned.
-   * Either list pointer passed in can be NULL, and it will be ignored.
+   * Either list pointer passed in can be nullptr, and it will be ignored.
    * If there are multiple data sets, you must specify which data set
    * you wish cell IDs for.
 
@@ -405,7 +405,7 @@ public:
    * or data sets.  Cells are assigned to k-d tree spatial regions
    * based on the location of their centroids.
    */
-  void BuildLocator() VTK_OVERRIDE;
+  void BuildLocator() override;
 
   /**
    * Given a list of region IDs, determine the decomposition of
@@ -568,14 +568,14 @@ public:
    * Delete the k-d tree data structure. Also delete any
    * cell lists that were computed with CreateCellLists().
    */
-  void FreeSearchStructure() VTK_OVERRIDE;
+  void FreeSearchStructure() override;
 
   /**
    * Create a polydata representation of the boundaries of
    * the k-d tree regions.  If level equals GetLevel(), the
    * leaf nodes are represented.
    */
-  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) override;
 
   /**
    * Generate a polygonal representation of a list of regions.
@@ -638,7 +638,7 @@ public:
 protected:
 
   vtkKdTree();
-  ~vtkKdTree() VTK_OVERRIDE;
+  ~vtkKdTree() override;
 
   vtkBSPIntersections *BSPCalculator;
   int UserDefinedCuts;
@@ -714,7 +714,7 @@ protected:
 
   /**
    * Get or compute the center of one cell.  If the DataSet is
-   * NULL, the first DataSet is used.  This is the point used in
+   * nullptr, the first DataSet is used.  This is the point used in
    * determining to which spatial region the cell is assigned.
    */
 
@@ -791,7 +791,7 @@ protected:
 
   struct _cellList{
     vtkDataSet *dataSet;        // cell lists for which data set
-    int *regionIds;            // NULL if listing all regions
+    int *regionIds;            // nullptr if listing all regions
     int nRegions;
     vtkIdList **cells;
     vtkIdList **boundaryCells;
@@ -922,7 +922,7 @@ protected:
   vtkBSPCuts *Cuts;
   double Progress;
 
-  vtkKdTree(const vtkKdTree&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkKdTree&) VTK_DELETE_FUNCTION;
+  vtkKdTree(const vtkKdTree&) = delete;
+  void operator=(const vtkKdTree&) = delete;
 };
 #endif

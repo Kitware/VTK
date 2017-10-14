@@ -17,7 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataDisplayAttributes.h"
+#include "vtkCompositeDataDisplayAttributesLegacy.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkDataObject.h"
 #include "vtkNew.h"
@@ -60,7 +60,7 @@ int TestMultiblockDisplayProperties(int argc, char* argv[])
   renderer->ResetCamera();
   renWin->Render();
 
-  vtkNew<vtkCompositeDataDisplayAttributes> attributes;
+  vtkNew<vtkCompositeDataDisplayAttributesLegacy> attributes;
   mapper->SetCompositeDataDisplayAttributes(attributes.GetPointer());
 
   mapper->SetBlockVisibility(1, 0);

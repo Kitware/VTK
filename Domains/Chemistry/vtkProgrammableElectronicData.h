@@ -34,14 +34,14 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkProgrammableElectronicData
 public:
   static vtkProgrammableElectronicData *New();
   vtkTypeMacro(vtkProgrammableElectronicData,vtkAbstractElectronicData);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Get/Set the number of molecular orbitals. Setting this will resize this
    * internal array of MOs.
    */
-  vtkIdType GetNumberOfMOs() VTK_OVERRIDE;
+  vtkIdType GetNumberOfMOs() override;
   virtual void SetNumberOfMOs(vtkIdType);
   //@}
 
@@ -50,7 +50,7 @@ public:
    * Get/Set the number of electrons in the molecule. Needed for HOMO/LUMO
    * convenience functions
    */
-  vtkIdType GetNumberOfElectrons() VTK_OVERRIDE
+  vtkIdType GetNumberOfElectrons() override
   {
     return this->NumberOfElectrons;
   }
@@ -61,7 +61,7 @@ public:
   /**
    * Get/Set the vtkImageData for the requested molecular orbital.
    */
-  vtkImageData * GetMO(vtkIdType orbitalNumber) VTK_OVERRIDE;
+  vtkImageData * GetMO(vtkIdType orbitalNumber) override;
   void SetMO(vtkIdType orbitalNumber, vtkImageData *data);
   //@}
 
@@ -69,7 +69,7 @@ public:
   /**
    * Get/Set the vtkImageData for the molecule's electron density.
    */
-  vtkImageData* GetElectronDensity() VTK_OVERRIDE
+  vtkImageData* GetElectronDensity() override
   {
     return this->ElectronDensity;
   }
@@ -87,11 +87,11 @@ public:
   /**
    * Deep copies the data object into this.
    */
-  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *obj) override;
 
 protected:
   vtkProgrammableElectronicData();
-  ~vtkProgrammableElectronicData() VTK_OVERRIDE;
+  ~vtkProgrammableElectronicData() override;
 
   /**
    * Electronic data set property
@@ -107,8 +107,8 @@ protected:
   //@}
 
 private:
-  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
+  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) = delete;
+  void operator=(const vtkProgrammableElectronicData&) = delete;
 };
 
 #endif

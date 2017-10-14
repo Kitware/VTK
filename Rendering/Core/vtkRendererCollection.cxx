@@ -30,7 +30,7 @@ void vtkRendererCollection::Render()
   vtkCollectionSimpleIterator rsit;
   this->InitTraversal(rsit);
   firstRen = this->GetNextRenderer(rsit);
-  if (firstRen == NULL)
+  if (firstRen == nullptr)
   {
     // We cannot determine the number of layers because there are no
     // renderers.  No problem, just return.
@@ -65,9 +65,9 @@ void vtkRendererCollection::Render()
 
 vtkRenderer *vtkRendererCollection::GetFirstRenderer()
 {
-  if ( this->Top == NULL )
+  if ( this->Top == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

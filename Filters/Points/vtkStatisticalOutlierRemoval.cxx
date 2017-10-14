@@ -283,7 +283,7 @@ vtkStatisticalOutlierRemoval::vtkStatisticalOutlierRemoval()
 //----------------------------------------------------------------------------
 vtkStatisticalOutlierRemoval::~vtkStatisticalOutlierRemoval()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------

@@ -34,16 +34,16 @@ class VTKIOSQL_EXPORT vtkSQLiteToTableReader :
 public:
   static vtkSQLiteToTableReader *New();
   vtkTypeMacro(vtkSQLiteToTableReader,vtkDatabaseToTableReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
    vtkSQLiteToTableReader();
-  ~vtkSQLiteToTableReader() VTK_OVERRIDE;
+  ~vtkSQLiteToTableReader() override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 private:
-  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
+  vtkSQLiteToTableReader(const vtkSQLiteToTableReader&) = delete;
+  void operator=(const vtkSQLiteToTableReader&) = delete;
 };
 
 #endif

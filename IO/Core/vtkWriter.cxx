@@ -54,7 +54,7 @@ vtkDataObject *vtkWriter::GetInput(int port)
 {
   if (this->GetNumberOfInputConnections(port) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return this->GetExecutive()->GetInputData(port, 0);
 }
@@ -110,7 +110,7 @@ int vtkWriter::RequestData(
 
   for (idx = 0; idx < this->GetNumberOfInputPorts(); ++idx)
   {
-    if (this->GetInputExecutive(idx, 0) != NULL)
+    if (this->GetInputExecutive(idx, 0) != nullptr)
     {
       this->GetInputExecutive(idx, 0)->Update();
     }
@@ -135,9 +135,9 @@ int vtkWriter::RequestData(
     return 1;
   }
 
-  this->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartEvent,nullptr);
   this->WriteData();
-  this->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndEvent,nullptr);
 
   this->WriteTime.Modified();
 

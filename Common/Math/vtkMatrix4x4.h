@@ -44,7 +44,7 @@ public:
   static vtkMatrix4x4 *New();
 
   vtkTypeMacro(vtkMatrix4x4,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the elements of the matrix to the same values as the elements
@@ -170,33 +170,16 @@ public:
    */
   double *GetData() { return *this->Element; }
 
-  //@{
-  /**
-   * Legacy methods. Do not use.
-   */
-  VTK_LEGACY(double *operator[](const unsigned int i));
-  VTK_LEGACY(const double *operator[](unsigned int i) const);
-  VTK_LEGACY(void Adjoint(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(double Determinant(vtkMatrix4x4 &in));
-  VTK_LEGACY(double Determinant(vtkMatrix4x4 *));
-  VTK_LEGACY(void Invert(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(void Transpose(vtkMatrix4x4 &in, vtkMatrix4x4 &out));
-  VTK_LEGACY(static void PointMultiply(const double [16],
-                                       const float [4], float [4]));
-  VTK_LEGACY(static void PointMultiply(const double [16],
-                                       const double [4], double [4]));
-  //@}
-
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
-  ~vtkMatrix4x4() VTK_OVERRIDE {}
+  ~vtkMatrix4x4() override {}
 
   float FloatPoint[4];
   double DoublePoint[4];
 
 private:
-  vtkMatrix4x4(const vtkMatrix4x4&) VTK_DELETE_FUNCTION;
-  void operator= (const vtkMatrix4x4&) VTK_DELETE_FUNCTION;
+  vtkMatrix4x4(const vtkMatrix4x4&) = delete;
+  void operator= (const vtkMatrix4x4&) = delete;
 };
 
 //----------------------------------------------------------------------------

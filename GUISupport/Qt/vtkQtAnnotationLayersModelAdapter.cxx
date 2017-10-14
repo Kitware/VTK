@@ -42,14 +42,14 @@
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(QObject* p)
   : vtkQtAbstractModelAdapter(p)
 {
-  this->Annotations = NULL;
+  this->Annotations = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* t, QObject* p)
   : vtkQtAbstractModelAdapter(p), Annotations(t)
 {
-  if (this->Annotations != NULL)
+  if (this->Annotations != nullptr)
   {
     this->Annotations->Register(0);
   }
@@ -58,7 +58,7 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotati
 //----------------------------------------------------------------------------
 vtkQtAnnotationLayersModelAdapter::~vtkQtAnnotationLayersModelAdapter()
 {
-  if (this->Annotations != NULL)
+  if (this->Annotations != nullptr)
   {
     this->Annotations->Delete();
   }
@@ -117,12 +117,12 @@ vtkDataObject* vtkQtAnnotationLayersModelAdapter::GetVTKDataObject() const
 //----------------------------------------------------------------------------
 void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers* t)
 {
-  if (this->Annotations != NULL)
+  if (this->Annotations != nullptr)
   {
     this->Annotations->Delete();
   }
   this->Annotations = t;
-  if (this->Annotations != NULL)
+  if (this->Annotations != nullptr)
   {
     this->Annotations->Register(0);
 
@@ -140,7 +140,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
 //----------------------------------------------------------------------------
 bool vtkQtAnnotationLayersModelAdapter::noAnnotationsCheck() const
 {
-  if (this->Annotations == NULL)
+  if (this->Annotations == nullptr)
   {
     // It's not necessarily an error to have a null pointer for the
     // table.  It just means that the model is empty.

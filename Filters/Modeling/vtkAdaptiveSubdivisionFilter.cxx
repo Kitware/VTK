@@ -34,7 +34,7 @@ vtkAdaptiveSubdivisionFilter::vtkAdaptiveSubdivisionFilter()
   this->MaximumTriangleArea = 1.0;
   this->MaximumNumberOfTriangles = VTK_ID_MAX;
   this->MaximumNumberOfPasses = VTK_ID_MAX;
-  this->Locator = NULL;
+  this->Locator = nullptr;
   this->OutputPointsPrecision = DEFAULT_PRECISION;
 }
 
@@ -42,13 +42,13 @@ vtkAdaptiveSubdivisionFilter::vtkAdaptiveSubdivisionFilter()
 // Construct object with number of subdivisions set to 1.
 vtkAdaptiveSubdivisionFilter::~vtkAdaptiveSubdivisionFilter()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //-----------------------------------------------------------------------------
 void vtkAdaptiveSubdivisionFilter::CreateDefaultLocator()
 {
-  if ( this->Locator == NULL )
+  if ( this->Locator == nullptr )
   {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);

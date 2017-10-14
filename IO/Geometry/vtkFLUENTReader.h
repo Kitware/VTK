@@ -53,7 +53,7 @@ class VTKIOGEOMETRY_EXPORT vtkFLUENTReader : public vtkMultiBlockDataSetAlgorith
 public:
   static vtkFLUENTReader *New();
   vtkTypeMacro(vtkFLUENTReader,vtkMultiBlockDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -140,11 +140,11 @@ public:
 
 protected:
   vtkFLUENTReader();
-  ~vtkFLUENTReader() VTK_OVERRIDE;
+  ~vtkFLUENTReader() override;
   int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector **, vtkInformationVector *) override;
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformationVector *) override;
 
   //@{
   /**
@@ -250,7 +250,7 @@ protected:
   int NumberOfVectors;
 
 private:
-  vtkFLUENTReader(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
+  vtkFLUENTReader(const vtkFLUENTReader&) = delete;
+  void operator=(const vtkFLUENTReader&) = delete;
 };
 #endif

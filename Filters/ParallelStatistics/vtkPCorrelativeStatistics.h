@@ -43,7 +43,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPCorrelativeStatistics : public vtk
 public:
   static vtkPCorrelativeStatistics* New();
   vtkTypeMacro(vtkPCorrelativeStatistics, vtkCorrelativeStatistics);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -57,26 +57,26 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  virtual void Learn( vtkTable* inData,
-                      vtkTable* inParameters,
-                      vtkMultiBlockDataSet* outMeta ) VTK_OVERRIDE;
+  void Learn( vtkTable* inData,
+              vtkTable* inParameters,
+              vtkMultiBlockDataSet* outMeta ) override;
 
   /**
    * Execute the calculations required by the Test option.
    * NB: Not implemented for more than 1 processor
    */
-  virtual void Test( vtkTable*,
-                     vtkMultiBlockDataSet*,
-                     vtkTable* ) VTK_OVERRIDE;
+  void Test( vtkTable*,
+             vtkMultiBlockDataSet*,
+             vtkTable* ) override;
 
 protected:
   vtkPCorrelativeStatistics();
-  ~vtkPCorrelativeStatistics();
+  ~vtkPCorrelativeStatistics() override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPCorrelativeStatistics(const vtkPCorrelativeStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  vtkPCorrelativeStatistics(const vtkPCorrelativeStatistics&) = delete;
+  void operator=(const vtkPCorrelativeStatistics&) = delete;
 };
 
 #endif

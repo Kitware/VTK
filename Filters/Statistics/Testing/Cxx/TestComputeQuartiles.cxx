@@ -34,8 +34,8 @@ int TestComputeQuartiles(int , char * [])
 
   // Create a two columns table
   vtkNew<vtkTable> table;
-  table->AddColumn(arrFirstVariable.GetPointer());
-  table->AddColumn(arrSecondVariable.GetPointer());
+  table->AddColumn(arrFirstVariable);
+  table->AddColumn(arrSecondVariable);
 
   const int numNotes = 20;
   table->SetNumberOfRows(numNotes);
@@ -69,12 +69,12 @@ int TestComputeQuartiles(int , char * [])
 
   vtkNew<vtkTest::ErrorObserver> errorObserver1;
   // First verify that absence of input does not cause trouble
-  quartiles->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1.GetPointer());
+  quartiles->GetExecutive()->AddObserver(vtkCommand::ErrorEvent,errorObserver1);
   quartiles->Update();
   errorObserver1->CheckErrorMessage("Input port 0 of algorithm vtkComputeQuartiles");
 
   // Now set the real input table
-  quartiles->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table.GetPointer());
+  quartiles->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table);
   quartiles->Update();
 
   vtkTable *outTable = quartiles->GetOutput();

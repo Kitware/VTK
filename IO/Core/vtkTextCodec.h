@@ -52,7 +52,7 @@ public:
    * to create it
    */
   virtual const char* Name();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   virtual bool CanHandle(const char* NameString);
@@ -80,8 +80,8 @@ public:
     OutputIterator() {}    virtual ~OutputIterator() {}
 
   private:
-    OutputIterator(const OutputIterator&) VTK_DELETE_FUNCTION;
-    const OutputIterator& operator=(const OutputIterator&) VTK_DELETE_FUNCTION;
+    OutputIterator(const OutputIterator&) = delete;
+    const OutputIterator& operator=(const OutputIterator&) = delete;
   };
 
   /**
@@ -107,11 +107,11 @@ public:
 
 protected:
   vtkTextCodec();
-  ~vtkTextCodec() VTK_OVERRIDE;
+  ~vtkTextCodec() override;
 
 private:
-  vtkTextCodec(const vtkTextCodec &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTextCodec &) VTK_DELETE_FUNCTION;
+  vtkTextCodec(const vtkTextCodec &) = delete;
+  void operator=(const vtkTextCodec &) = delete;
 
 };
 

@@ -41,7 +41,7 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
   this->MaxLevel = 20;
   this->Level = 0;
   this->BranchingFactor = 3;
-  this->Tree = NULL;
+  this->Tree = nullptr;
   this->TreeSize = 0;
 
   // Variables that support serial traversal
@@ -51,7 +51,7 @@ vtkSimpleScalarTree::vtkSimpleScalarTree()
   this->CellId = 0;
 
   // For supporting parallel computing, list of possible candidates
-  this->CandidateCells = NULL;
+  this->CandidateCells = nullptr;
   this->NumCandidates = 0;
 }
 
@@ -62,7 +62,7 @@ vtkSimpleScalarTree::~vtkSimpleScalarTree()
   if ( this->CandidateCells )
   {
     delete [] this->CandidateCells;
-    this->CandidateCells = NULL;
+    this->CandidateCells = nullptr;
   }
 }
 
@@ -71,7 +71,7 @@ vtkSimpleScalarTree::~vtkSimpleScalarTree()
 void vtkSimpleScalarTree::Initialize()
 {
   delete [] this->Tree;
-  this->Tree = NULL;
+  this->Tree = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void vtkSimpleScalarTree::BuildTree()
     return;
   }
 
-  if ( this->Tree != NULL && this->BuildTime > this->MTime
+  if ( this->Tree != nullptr && this->BuildTime > this->MTime
     && this->BuildTime > this->DataSet->GetMTime() )
   {
     return;
@@ -313,7 +313,7 @@ int vtkSimpleScalarTree::FindNextLeaf(vtkIdType childIndex, int childLevel)
 
 //-----------------------------------------------------------------------------
 // Return the next cell that may contain scalar value specified to
-// initialize traversal. The value NULL is returned if the list is
+// initialize traversal. The value nullptr is returned if the list is
 // exhausted. Make sure that InitTraversal() has been invoked first or
 // you'll get erratic behavior.
 vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId,
@@ -360,7 +360,7 @@ vtkCell *vtkSimpleScalarTree::GetNextCell(vtkIdType& cellId,
     this->FindNextLeaf(this->TreeIndex, this->Level);
   } //while not all leafs visited
 
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -373,7 +373,7 @@ vtkIdType vtkSimpleScalarTree::GetNumberOfCellBatches()
   if ( this->CandidateCells )
   {
     delete [] this->CandidateCells;
-    this->CandidateCells = NULL;
+    this->CandidateCells = nullptr;
   }
   if ( this->NumCells < 1 )
   {
@@ -417,7 +417,7 @@ GetCellBatch(vtkIdType batchNum, vtkIdType& numCells)
        pos > this->NumCandidates )
   {
     numCells = 0;
-    return NULL;
+    return nullptr;
   }
 
   if ( (this->NumCandidates - pos) >= this->BranchingFactor )

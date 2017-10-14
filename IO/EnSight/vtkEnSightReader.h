@@ -34,7 +34,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 {
 public:
   vtkTypeMacro(vtkEnSightReader, vtkGenericEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   enum ElementTypesList
   {
@@ -99,16 +99,16 @@ public:
 
 protected:
   vtkEnSightReader();
-  ~vtkEnSightReader() VTK_OVERRIDE;
+  ~vtkEnSightReader() override;
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector*) VTK_OVERRIDE;
+                                 vtkInformationVector*) override;
   int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector*) VTK_OVERRIDE;
+                          vtkInformationVector*) override;
 
-  void ClearForNewCaseFileName() VTK_OVERRIDE;
+  void ClearForNewCaseFileName() override;
 
   //@{
   /**
@@ -224,7 +224,7 @@ protected:
   /**
    * Add another file name to the list for a particular variable type.
    */
-  void AddVariableFileName(const char* fileName1, const char* fileName2 = NULL);
+  void AddVariableFileName(const char* fileName1, const char* fileName2 = nullptr);
 
   /**
    * Add another description to the list for a particular variable type.
@@ -351,8 +351,8 @@ protected:
   double ActualTimeValue;
 
 private:
-  vtkEnSightReader(const vtkEnSightReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSightReader&) VTK_DELETE_FUNCTION;
+  vtkEnSightReader(const vtkEnSightReader&) = delete;
+  void operator=(const vtkEnSightReader&) = delete;
 };
 
 #endif

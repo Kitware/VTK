@@ -31,7 +31,6 @@
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
-#include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
@@ -49,9 +48,9 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Request);
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
-  this->InfoRequest = 0;
-  this->DataObjectRequest = 0;
-  this->DataRequest = 0;
+  this->InfoRequest = nullptr;
+  this->DataObjectRequest = nullptr;
+  this->DataRequest = nullptr;
   this->PipelineMTime = 0;
 }
 
@@ -327,14 +326,14 @@ int vtkDemandDrivenPipeline::Update(int port)
 int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdatePipelineMTime", 0))
+  if(!this->CheckAlgorithm("UpdatePipelineMTime", nullptr))
   {
     return 0;
   }
 
   // Send the request for pipeline modified time.
   vtkMTimeType mtime;
-  this->ComputePipelineMTime(0,
+  this->ComputePipelineMTime(nullptr,
                              this->GetInputInformation(),
                              this->GetOutputInformation(),
                              -1, &mtime);
@@ -345,7 +344,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateDataObject", 0))
+  if(!this->CheckAlgorithm("UpdateDataObject", nullptr))
   {
     return 0;
   }
@@ -377,7 +376,7 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
 int vtkDemandDrivenPipeline::UpdateInformation()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateInformation", 0))
+  if(!this->CheckAlgorithm("UpdateInformation", nullptr))
   {
     return 0;
   }
@@ -409,7 +408,7 @@ int vtkDemandDrivenPipeline::UpdateInformation()
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateData", 0))
+  if(!this->CheckAlgorithm("UpdateData", nullptr))
   {
     return 0;
   }
@@ -549,7 +548,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
   }
 
   // Tell observers the algorithm is about to execute.
-  this->Algorithm->InvokeEvent(vtkCommand::StartEvent,NULL);
+  this->Algorithm->InvokeEvent(vtkCommand::StartEvent,nullptr);
 
   // The algorithm has not yet made any progress.
   this->Algorithm->SetAbortExecute(0);
@@ -568,7 +567,7 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request,
   }
 
   // Tell observers the algorithm is done executing.
-  this->Algorithm->InvokeEvent(vtkCommand::EndEvent,NULL);
+  this->Algorithm->InvokeEvent(vtkCommand::EndEvent,nullptr);
 
   // Tell outputs they have been generated.
   this->MarkOutputsGenerated(request,inInfoVec,outputs);
@@ -774,19 +773,19 @@ int vtkDemandDrivenPipeline::InputTypeIsValid
   if(info->Has(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE())
      && info->Length(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE()) > 0)
   {
-    // The input cannot be NULL unless the port is optional.
+    // The input cannot be nullptr unless the port is optional.
     if(!input && !info->Get(vtkAlgorithm::INPUT_IS_OPTIONAL()))
     {
       vtkErrorMacro("Input for connection index " << index
                     << " on input port index " << port
                     << " for algorithm " << this->Algorithm->GetClassName()
-                    << "(" << this->Algorithm << ") is NULL, but a "
+                    << "(" << this->Algorithm << ") is nullptr, but a "
                     << info->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), 0)
                     << " is required.");
       return 0;
     }
 
-    // The input must be one of the required types or NULL.
+    // The input must be one of the required types or nullptr.
     bool foundMatch = false;
     if(input)
     {
@@ -865,7 +864,7 @@ int vtkDemandDrivenPipeline::InputFieldsAreValid
   }
   vtkDataObject* input = this->GetInputData(port, index, inInfoVec);
 
-  // NULL inputs do not have to have the proper fields.
+  // nullptr inputs do not have to have the proper fields.
   if(!input)
   {
     return 1;

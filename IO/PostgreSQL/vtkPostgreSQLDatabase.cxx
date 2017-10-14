@@ -88,13 +88,13 @@ void vtkPostgreSQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
   {
     os << "(null)" << endl;
   }
-  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
-  os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
-  os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
+  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
+  os << indent << "HostName: " << (this->HostName ? this->HostName : "nullptr") << endl;
+  os << indent << "User: " << (this->User ? this->User : "nullptr") << endl;
   os << indent << "Password: " << (this->Password? "(hidden)":"(none)") << endl;
-  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
+  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "nullptr") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
-  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "NULL") << endl;
+  os << indent << "ConnectOptions: " << (this->ConnectOptions ? this->ConnectOptions : "nullptr") << endl;
   os << indent << "LastErrorText: " << this->LastErrorText << endl;
 }
 
@@ -434,7 +434,7 @@ vtkStringArray* vtkPostgreSQLDatabase::GetTables()
     this->Tables->InsertNextValue( query->DataValue( 0 ).ToString() );
   }
   query->Delete();
-  this->SetLastErrorText(NULL);
+  this->SetLastErrorText(nullptr);
   return this->Tables;
 }
 
@@ -539,7 +539,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
 {
   if ( ! dbName )
   {
-    vtkErrorMacro( "Databases must have a non-NULL name" );
+    vtkErrorMacro( "Databases must have a non-nullptr name" );
     return false;
   }
 
@@ -612,7 +612,7 @@ bool vtkPostgreSQLDatabase::CreateDatabase( const char* dbName, bool dropExistin
 // ----------------------------------------------------------------------
 bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
 {
-  if ( ! dbName || strlen( dbName ) <= 0 )
+  if ( ! dbName || strlen( dbName ) == 0 )
   {
     vtkErrorMacro( "DropDatabase called with an empty database name" );
     return false;
@@ -659,7 +659,7 @@ bool vtkPostgreSQLDatabase::DropDatabase( const char* dbName )
 
 void vtkPostgreSQLDatabase::NullTrailingWhitespace( char* msg )
 {
-  // overwrite any blank space at the end of a message with NULL.
+  // overwrite any blank space at the end of a message with nullptr.
   // PostgreSQL error messages are terminated with a newline, which
   // does not work well with VTK's already lengthy error output.
   int msglen = strlen( msg );
@@ -670,7 +670,7 @@ void vtkPostgreSQLDatabase::NullTrailingWhitespace( char* msg )
 
 bool vtkPostgreSQLDatabase::OpenInternal( const char* connectionOptions )
 {
-  assert(this->Connection == NULL);
+  assert(this->Connection == nullptr);
   this->Connection = new vtkPostgreSQLDatabasePrivate;
   this->Connection->Connection = PQconnectdb(connectionOptions);
   if (PQstatus(this->Connection->Connection) == CONNECTION_OK)

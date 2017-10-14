@@ -56,7 +56,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
 {
  public:
   vtkTypeMacro(vtkRenderPass,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Perform rendering according to a render state \p s.
@@ -88,7 +88,7 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
   /**
    * Destructor. Do nothing.
    */
-  ~vtkRenderPass() VTK_OVERRIDE;
+  ~vtkRenderPass() override;
 
   /**
    * Call UpdateCamera() on Renderer. This ugly mechanism gives access to
@@ -133,8 +133,8 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
   int NumberOfRenderedProps;
 
  private:
-  vtkRenderPass(const vtkRenderPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderPass&) VTK_DELETE_FUNCTION;
+  vtkRenderPass(const vtkRenderPass&) = delete;
+  void operator=(const vtkRenderPass&) = delete;
 };
 
 #endif

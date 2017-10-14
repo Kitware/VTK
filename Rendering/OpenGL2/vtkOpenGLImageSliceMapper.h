@@ -39,23 +39,23 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageSliceMapper :
 public:
   static vtkOpenGLImageSliceMapper *New();
   vtkTypeMacro(vtkOpenGLImageSliceMapper, vtkImageSliceMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.  Perform the render.
    */
-  void Render(vtkRenderer *ren, vtkImageSlice *prop) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkImageSlice *prop) override;
 
   /**
    * Release any graphics resources that are being consumed by this
    * mapper, the image texture in particular. Using the same texture
    * in multiple render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkOpenGLImageSliceMapper();
-  ~vtkOpenGLImageSliceMapper() VTK_OVERRIDE;
+  ~vtkOpenGLImageSliceMapper() override;
 
   /**
    * Recursive internal method, will call the non-recursive method
@@ -106,7 +106,7 @@ protected:
    */
   void ComputeTextureSize(
     const int extent[6], int &xdim, int &ydim,
-    int imageSize[2], int textureSize[2]) VTK_OVERRIDE;
+    int imageSize[2], int textureSize[2]) override;
 
   /**
    * Test whether a given texture size is supported.  This includes a
@@ -137,8 +137,8 @@ protected:
   bool UseFragmentProgram;
 
 private:
-  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) = delete;
+  void operator=(const vtkOpenGLImageSliceMapper&) = delete;
 };
 
 #endif

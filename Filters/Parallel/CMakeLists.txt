@@ -32,6 +32,7 @@ set(Module_SRCS
   vtkPipelineSize.cxx
   vtkProcessIdScalars.cxx
   vtkRectilinearGridOutlineFilter.cxx
+  vtkRemoveGhosts.cxx
   vtkTransmitPolyDataPiece.cxx
   vtkTransmitStructuredDataPiece.cxx
   vtkTransmitRectilinearGridPiece.cxx

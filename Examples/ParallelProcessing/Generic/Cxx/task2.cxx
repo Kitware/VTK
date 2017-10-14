@@ -75,7 +75,6 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
   mapper->SetInputConnection(glyph->GetOutputPort());
   mapper->SetScalarRange(50, 180);
-  mapper->ImmediateModeRenderingOn();
 
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);

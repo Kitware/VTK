@@ -138,15 +138,15 @@ namespace {
 //-----------------------------------------------------------------------------
 vtkPNrrdReader::vtkPNrrdReader()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
-  this->GroupedController = NULL;
+  this->GroupedController = nullptr;
 }
 
 vtkPNrrdReader::~vtkPNrrdReader()
 {
-  this->SetController(NULL);
-  this->SetGroupedController(NULL);
+  this->SetController(nullptr);
+  this->SetGroupedController(nullptr);
 }
 
 void vtkPNrrdReader::PrintSelf(ostream &os, vtkIndent indent)
@@ -176,7 +176,7 @@ void vtkPNrrdReader::PartitionController(const int extent[6])
 
   if ((this->GetFileDimensionality() == 3) || (numZ == 1))
   {
-    // Everyone reads from the same single file.  No need to partion controller.
+    // Everyone reads from the same single file.  No need to partition controller.
     this->SetGroupedController(this->Controller);
     return;
   }
@@ -448,7 +448,7 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
     this->Transform = newTransform;
   }
 
-  // Get information on data partion requested.
+  // Get information on data partition requested.
   int inExtent[6];
   vtkIdType inIncrements[3];
   data->GetExtent(inExtent);
@@ -534,7 +534,7 @@ void vtkPNrrdReader::ExecuteDataWithInformation(vtkDataObject *output,
   }
 
   // Done with this for now.
-  this->SetGroupedController(NULL);
+  this->SetGroupedController(nullptr);
 #else // VTK_USE_MPI_IO
   this->Superclass::ExecuteDataWithInformation(output, outInfo);
 #endif // VTK_USE_MPI_IO

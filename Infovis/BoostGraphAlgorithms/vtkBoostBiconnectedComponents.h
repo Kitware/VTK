@@ -73,8 +73,8 @@ private:
 
   char* OutputArrayName;
 
-  vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBoostBiconnectedComponents&) VTK_DELETE_FUNCTION;
+  vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&) = delete;
+  void operator=(const vtkBoostBiconnectedComponents&) = delete;
 };
 
 #endif

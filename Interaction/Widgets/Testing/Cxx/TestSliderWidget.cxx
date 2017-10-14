@@ -506,13 +506,13 @@ class vtkSliderCallback : public vtkCommand
 public:
   static vtkSliderCallback *New()
   { return new vtkSliderCallback; }
-  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
+  void Execute(vtkObject *caller, unsigned long, void*) override
   {
     vtkSliderWidget *sliderWidget =
       reinterpret_cast<vtkSliderWidget*>(caller);
     this->Glyph->SetScaleFactor(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
   }
-  vtkSliderCallback():Glyph(0) {}
+  vtkSliderCallback():Glyph(nullptr) {}
   vtkGlyph3D *Glyph;
 };
 

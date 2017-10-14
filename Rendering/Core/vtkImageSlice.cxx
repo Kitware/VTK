@@ -74,8 +74,8 @@ public:
 //----------------------------------------------------------------------------
 vtkImageSlice::vtkImageSlice()
 {
-  this->Mapper = NULL;
-  this->Property = NULL;
+  this->Mapper = nullptr;
+  this->Property = nullptr;
 
   this->ForceTranslucent = false;
 }
@@ -88,7 +88,7 @@ vtkImageSlice::~vtkImageSlice()
     this->Property->UnRegister(this);
   }
 
-  this->SetMapper(NULL);
+  this->SetMapper(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ void vtkImageSlice::ShallowCopy(vtkProp *prop)
 {
   vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
 
-  if (v != NULL)
+  if (v != nullptr)
   {
     this->SetMapper(v->GetMapper());
     this->SetProperty(v->GetProperty());
@@ -117,13 +117,13 @@ void vtkImageSlice::SetMapper(vtkImageMapper3D *mapper)
 {
   if (this->Mapper != mapper)
   {
-    if (this->Mapper != NULL)
+    if (this->Mapper != nullptr)
     {
-      vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, NULL);
+      vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, nullptr);
       this->Mapper->UnRegister(this);
     }
     this->Mapper = mapper;
-    if (this->Mapper != NULL)
+    if (this->Mapper != nullptr)
     {
       this->Mapper->Register(this);
       vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, this);
@@ -149,7 +149,7 @@ double *vtkImageSlice::GetBounds()
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
   {
-    return NULL;
+    return nullptr;
   }
 
   // fill out vertices of a bounding box
@@ -331,7 +331,7 @@ void vtkImageSlice::Render(vtkRenderer *ren)
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
   }
 
-  vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, NULL);
+  vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -359,12 +359,12 @@ void vtkImageSlice::SetProperty(vtkImageProperty *property)
 {
   if (this->Property != property)
   {
-    if (this->Property != NULL)
+    if (this->Property != nullptr)
     {
       this->Property->UnRegister(this);
     }
     this->Property = property;
-    if (this->Property != NULL)
+    if (this->Property != nullptr)
     {
       this->Property->Register(this);
     }
@@ -375,7 +375,7 @@ void vtkImageSlice::SetProperty(vtkImageProperty *property)
 //----------------------------------------------------------------------------
 vtkImageProperty *vtkImageSlice::GetProperty()
 {
-  if (this->Property == NULL)
+  if (this->Property == nullptr)
   {
     this->Property = vtkImageProperty::New();
     this->Property->Register(this);
@@ -390,19 +390,19 @@ vtkMTimeType vtkImageSlice::GetMTime()
   vtkMTimeType mTime = this->Superclass::GetMTime();
   vtkMTimeType time;
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->UserMatrix != NULL )
+  if ( this->UserMatrix != nullptr )
   {
     time = this->UserMatrix->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 
-  if ( this->UserTransform != NULL )
+  if ( this->UserTransform != nullptr )
   {
     time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -417,11 +417,11 @@ vtkMTimeType vtkImageSlice::GetRedrawMTime()
   vtkMTimeType mTime = this->GetMTime();
   vtkMTimeType time;
 
-  if ( this->Mapper != NULL )
+  if ( this->Mapper != nullptr )
   {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    if (this->GetMapper()->GetInputAlgorithm() != NULL)
+    if (this->GetMapper()->GetInputAlgorithm() != nullptr)
     {
       this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetInput()->GetMTime();
@@ -429,12 +429,12 @@ vtkMTimeType vtkImageSlice::GetRedrawMTime()
     }
   }
 
-  if ( this->Property != NULL )
+  if ( this->Property != nullptr )
   {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
 
-    if ( this->Property->GetLookupTable() != NULL )
+    if ( this->Property->GetLookupTable() != nullptr )
     {
       // check the lookup table mtime
       time = this->Property->GetLookupTable()->GetMTime();

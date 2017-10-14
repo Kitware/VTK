@@ -63,7 +63,7 @@ int TestTStripsNormalsTCoords(int argc, char *argv[])
   stripper->Update();
 
   vtkPolyData *polyData = stripper->GetOutput();
-  polyData->Register(NULL);
+  polyData->Register(nullptr);
   stripper->Delete();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();

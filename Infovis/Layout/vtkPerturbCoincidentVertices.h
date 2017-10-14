@@ -43,7 +43,7 @@ class VTKINFOVISLAYOUT_EXPORT vtkPerturbCoincidentVertices : public vtkGraphAlgo
 public:
   static vtkPerturbCoincidentVertices* New();
   vtkTypeMacro(vtkPerturbCoincidentVertices,vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,12 +55,12 @@ public:
 
 protected:
   vtkPerturbCoincidentVertices();
-  ~vtkPerturbCoincidentVertices() VTK_OVERRIDE;
+  ~vtkPerturbCoincidentVertices() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
 private:
 
@@ -70,8 +70,8 @@ private:
 
   float PerturbFactor;
 
-  vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPerturbCoincidentVertices&) VTK_DELETE_FUNCTION;
+  vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&) = delete;
+  void operator=(const vtkPerturbCoincidentVertices&) = delete;
 };
 
 #endif

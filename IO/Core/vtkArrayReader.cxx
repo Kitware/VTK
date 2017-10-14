@@ -136,7 +136,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
 
-  // Read the array NULL value ...
+  // Read the array nullptr value ...
   ValueT null_value;
   stream.read(
     reinterpret_cast<char*>(&null_value),
@@ -158,7 +158,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayBinary(istream& stream)
     reinterpret_cast<char*>(array->GetValueStorage()),
     non_null_size * sizeof(ValueT));
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -175,7 +175,7 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
 
-  // Read the array NULL value ...
+  // Read the array nullptr value ...
   std::string null_value;
   for(int character = stream.get(); stream; character = stream.get())
   {
@@ -216,7 +216,7 @@ vtkSparseArray<vtkStdString>* ReadSparseArrayBinary<vtkStdString>(istream& strea
     }
   }
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -233,7 +233,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
   ReadHeader(stream, extents, non_null_size, array);
   ReadEndianOrderMark(stream, swap_endian);
 
-  // Read the array NULL value ...
+  // Read the array nullptr value ...
   std::string null_value;
   for(int character = stream.get(); stream; character = stream.get())
   {
@@ -274,7 +274,7 @@ vtkSparseArray<vtkUnicodeString>* ReadSparseArrayBinary<vtkUnicodeString>(istrea
     }
   }
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -301,7 +301,7 @@ vtkDenseArray<ValueT>* ReadDenseArrayBinary(istream& stream)
   if(stream.bad())
     throw std::runtime_error("Error while reading file.");
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -334,7 +334,7 @@ vtkDenseArray<vtkStdString>* ReadDenseArrayBinary<vtkStdString>(istream& stream)
     }
   }
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -367,7 +367,7 @@ vtkDenseArray<vtkUnicodeString>* ReadDenseArrayBinary<vtkUnicodeString>(istream&
     }
   }
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -385,17 +385,17 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
   if(non_null_size > extents.GetSize())
     throw std::runtime_error("Too many values for a sparse array.");
 
-  // Read the array NULL value ...
+  // Read the array nullptr value ...
   std::string line_buffer;
   std::getline(stream, line_buffer);
   if(!stream)
-    throw std::runtime_error("Premature end-of-stream reading NULL value.");
+    throw std::runtime_error("Premature end-of-stream reading nullptr value.");
 
   std::istringstream line_stream(line_buffer);
   ValueT null_value;
   ExtractValue(line_stream, null_value);
   if(!line_stream)
-    throw std::runtime_error("Missing NULL value.");
+    throw std::runtime_error("Missing nullptr value.");
   array->SetNullValue(null_value);
 
   // Setup storage for the stream contents ...
@@ -435,7 +435,7 @@ vtkSparseArray<ValueT>* ReadSparseArrayAscii(istream& stream)
   if(value_count != non_null_size)
     throw std::runtime_error("Stream doesn't contain enough values.");
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
@@ -476,14 +476,14 @@ vtkDenseArray<ValueT>* ReadDenseArrayAscii(istream& stream)
     stream.get();
   }
 
-  array->Register(0);
+  array->Register(nullptr);
   return array;
 }
 
 } // End anonymous namespace
 
 vtkArrayReader::vtkArrayReader() :
-  FileName(0)
+  FileName(nullptr)
 {
   this->SetNumberOfInputPorts(0);
   this->ReadFromInputString = false;
@@ -491,7 +491,7 @@ vtkArrayReader::vtkArrayReader() :
 
 vtkArrayReader::~vtkArrayReader()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 void vtkArrayReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -522,7 +522,7 @@ int vtkArrayReader::RequestData(
 {
   try
   {
-    vtkArray* array = NULL;
+    vtkArray* array = nullptr;
     if(this->ReadFromInputString)
     {
       array = this->Read(this->InputString);
@@ -554,7 +554,7 @@ int vtkArrayReader::RequestData(
   return 0;
 }
 
-vtkArray* vtkArrayReader::Read(vtkStdString str)
+vtkArray* vtkArrayReader::Read(const vtkStdString& str)
 {
   std::istringstream iss(str);
   return vtkArrayReader::Read(iss);
@@ -646,5 +646,5 @@ vtkArray* vtkArrayReader::Read(istream& stream)
     vtkGenericWarningMacro(<< e.what());
   }
 
-  return 0;
+  return nullptr;
 }

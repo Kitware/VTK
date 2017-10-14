@@ -3,8 +3,8 @@
 # documentation for backends in this file that will be displayed in
 # cmake-gui and ccmake.
 #
-# The OpenGL backend is the current default, and the OpenGL2 backend is
-# the new rendering code. This differs from groups in that only one backend
+# The OpenGL2 backend is the current default, and the OpenGL backend is
+# the legacy rendering code. This differs from groups in that only one backend
 # can be built/linked to at any given time. The backend modules should use a
 # naming convention where the backend name is the final word in the
 # module name, i.e. vtkRenderingOpenGL for OpenGL and vtkRenderingOpenGL2
@@ -23,7 +23,9 @@ if (${_index} EQUAL -1)
 
   # if it is in the cache as a bad value we need to reset it
   if(DEFINED VTK_RENDERING_BACKEND)
-    message(STATUS "The cache contains an illegal value for VTK_RENDERING_BACKEND, forcing it to the default value of '${VTK_RENDERING_BACKEND_DEFAULT}'.")
+    message(WARNING "There are no modules for VTK_RENDERING_BACKEND: "
+      "'${VTK_RENDERING_BACKEND}', forcing it to the default value of "
+      "'${VTK_RENDERING_BACKEND_DEFAULT}'.")
     set(VTK_RENDERING_BACKEND "${VTK_RENDERING_BACKEND_DEFAULT}" CACHE STRING
         "Choose the rendering backend." FORCE)
   else()
@@ -54,6 +56,16 @@ endforeach()
 # check for None with rendering turned on
 if(VTK_RENDERING_BACKEND STREQUAL "None" AND VTK_Group_Rendering)
   message(FATAL_ERROR "VTK_Group_Rendering is on when the rendering backend is set to None. Please either turn off the rendering group or set the rendering backend to a different value")
+endif()
+
+if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
+  if(NOT VTK_LEGACY_SILENT)
+    message(WARNING "
+=====================================================================
+VTK_RENDERING_BACKEND is set to `OpenGL`. `OpenGL` rendering backend was deprecated for 8.1 and will not be available in subsequent VTK versions. Please switch to using `OpenGL2` rendering backend.
+=====================================================================
+")
+  endif()
 endif()
 
 if (VTK_RENDERING_BACKEND STREQUAL "None")

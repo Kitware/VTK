@@ -73,7 +73,7 @@ public:
    * Standard methods for instantiation, obtaining type information, and printing.
    */
   vtkTypeMacro(vtkSPHKernel,vtkInterpolationKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -135,7 +135,7 @@ public:
    * after setting initial values like SpatialStep.
    */
   void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) VTK_OVERRIDE;
+                          vtkPointData *pd) override;
 
   /**
    * Given a point x (and optional associated ptId), determine the points
@@ -145,14 +145,14 @@ public:
    * is called before ComputeWeights(). Note that while ptId is optional in most
    * cases, if a cutoff array is provided, then ptId must be provided.
    */
-  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) VTK_OVERRIDE;
+  vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) override;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
    * weights associated with these basis points.
    */
   vtkIdType ComputeWeights(double x[3], vtkIdList *pIds,
-                                   vtkDoubleArray *weights) VTK_OVERRIDE;
+                                   vtkDoubleArray *weights) override;
 
   /**
    * Given a point x, and a list of basis points pIds, compute interpolation
@@ -185,7 +185,7 @@ public:
 
 protected:
   vtkSPHKernel();
-  ~vtkSPHKernel() VTK_OVERRIDE;
+  ~vtkSPHKernel() override;
 
   // Instance variables
   double SpatialStep; //also known as smoothing length h
@@ -208,8 +208,8 @@ protected:
   bool UseArraysForVolume; //if both mass and density arrays are present
 
 private:
-  vtkSPHKernel(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
+  vtkSPHKernel(const vtkSPHKernel&) = delete;
+  void operator=(const vtkSPHKernel&) = delete;
 };
 
 #endif

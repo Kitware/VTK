@@ -198,7 +198,7 @@ public:
       vtkIdType cellOffset = offsets->GetId(i);
       while (cellOffset < nextOffset)
       {
-        inCellArray->GetCell(cellOffset, cellIds.GetPointer());
+        inCellArray->GetCell(cellOffset, cellIds);
         vtkIdType nids = cellIds->GetNumberOfIds();
         // Insert the cells - first number of points and ids
         outCellArray->SetValue(outputOffset + cellOffset, nids);
@@ -381,9 +381,9 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
     mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).VertOffsets, (*itr).Input->GetVerts()));
     ++itr;
     }
-    MergeCells(mcData, idMaps, numVerts, 0, outVerts.GetPointer());
+    MergeCells(mcData, idMaps, numVerts, 0, outVerts);
 
-    outPolyData->SetVerts(outVerts.GetPointer());
+    outPolyData->SetVerts(outVerts);
 
     mcData.clear();
   }
@@ -399,9 +399,9 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
     mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).LineOffsets, (*itr).Input->GetLines()));
     ++itr;
     }
-    MergeCells(mcData, idMaps, numLines, vertSize, outLines.GetPointer());
+    MergeCells(mcData, idMaps, numLines, vertSize, outLines);
 
-    outPolyData->SetLines(outLines.GetPointer());
+    outPolyData->SetLines(outLines);
 
     mcData.clear();
   }
@@ -417,9 +417,9 @@ vtkPolyData* vtkSMPMergePolyDataHelper::MergePolyData(std::vector<InputData>& in
       mcData.push_back(vtkMergeCellsData((*itr).Input, (*itr).PolyOffsets, (*itr).Input->GetPolys()));
       ++itr;
     }
-    MergeCells(mcData, idMaps, numPolys, vertSize + lineSize, outPolys.GetPointer());
+    MergeCells(mcData, idMaps, numPolys, vertSize + lineSize, outPolys);
 
-    outPolyData->SetPolys(outPolys.GetPointer());
+    outPolyData->SetPolys(outPolys);
   }
 
   outPolyData->GetCellData()->ShallowCopy(outCellData);

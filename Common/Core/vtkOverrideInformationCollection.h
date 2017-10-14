@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkOverrideInformationCollection() {}
-  ~vtkOverrideInformationCollection() VTK_OVERRIDE {}
+  ~vtkOverrideInformationCollection() override {}
 
 
 private:
@@ -65,8 +65,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
+  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) = delete;
+  void operator=(const vtkOverrideInformationCollection&) = delete;
 };
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)

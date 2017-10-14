@@ -33,7 +33,7 @@ class vtkCWCallback : public vtkCommand
 public:
   static vtkCWCallback *New()
     { return new vtkCWCallback; }
-  void Execute(vtkObject *, unsigned long eventId, void*) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long eventId, void*) override
   {
       switch (eventId)
       {
@@ -48,7 +48,7 @@ public:
           break;
       }
   }
-  vtkCWCallback():SliderNumber(0),CheckerboardWidget(0) {}
+  vtkCWCallback():SliderNumber(0),CheckerboardWidget(nullptr) {}
   int SliderNumber; //the number of the currently active slider
   vtkCheckerboardWidget *CheckerboardWidget;
 };
@@ -142,7 +142,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
         this->Interactor->FindPokedRenderer(
           this->Interactor->GetLastEventPosition()[0],
           this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer == NULL)
+      if (this->CurrentRenderer == nullptr)
       {
         return;
       }
@@ -180,7 +180,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
     this->Interactor->Enable();
 
     // Add the actors
-    this->InvokeEvent(vtkCommand::EnableEvent,NULL);
+    this->InvokeEvent(vtkCommand::EnableEvent,nullptr);
   }
 
   else //disabling------------------
@@ -202,8 +202,8 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
     this->LeftSlider->SetEnabled(0);
     this->Interactor->Enable();
 
-    this->InvokeEvent(vtkCommand::DisableEvent,NULL);
-    this->SetCurrentRenderer(NULL);
+    this->InvokeEvent(vtkCommand::DisableEvent,nullptr);
+    this->SetCurrentRenderer(nullptr);
   }
 
   this->Render();
@@ -213,7 +213,7 @@ void vtkCheckerboardWidget::SetEnabled(int enabling)
 void vtkCheckerboardWidget::StartCheckerboardInteraction()
 {
   this->Superclass::StartInteraction();
-  this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
@@ -221,14 +221,14 @@ void vtkCheckerboardWidget::CheckerboardInteraction(int sliderNum)
 {
   reinterpret_cast<vtkCheckerboardRepresentation*>(this->WidgetRep)->
     SliderValueChanged(sliderNum);
-  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkCheckerboardWidget::EndCheckerboardInteraction()
 {
   this->Superclass::EndInteraction();
-  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
 }
 
 //----------------------------------------------------------------------

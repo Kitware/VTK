@@ -32,15 +32,15 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
 ::Initialize()
 {
   delete[] this->TempScalarArray;
-  this->TempScalarArray = NULL;
+  this->TempScalarArray = nullptr;
   delete[] this->TempDoubleArray;
-  this->TempDoubleArray = NULL;
+  this->TempDoubleArray = nullptr;
   this->TempTupleIdx = -1;
 
   if (this->Data)
   {
     this->Data->Delete();
-    this->Data = 0;
+    this->Data = nullptr;
   }
 
   this->MaxId = -1;
@@ -65,7 +65,7 @@ template <class Scalar> void vtkPeriodicDataArray<Scalar>
   this->Size = data->GetSize();
   this->MaxId = data->GetMaxId();
   this->Data = data;
-  this->Data->Register(0);
+  this->Data->Register(nullptr);
   this->TempScalarArray = new Scalar[this->NumberOfComponents];
   this->TempDoubleArray = new double[this->NumberOfComponents];
   this->SetName(data->GetName());
@@ -632,10 +632,10 @@ template <class Scalar> vtkPeriodicDataArray<Scalar>
 ::vtkPeriodicDataArray()
 {
   this->NumberOfComponents = 0;
-  this->TempScalarArray = NULL;
-  this->TempDoubleArray = NULL;
+  this->TempScalarArray = nullptr;
+  this->TempDoubleArray = nullptr;
   this->TempTupleIdx = -1;
-  this->Data = 0;
+  this->Data = nullptr;
   this->MaxId = -1;
   this->Size = 0;
 

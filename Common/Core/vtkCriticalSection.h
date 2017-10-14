@@ -46,7 +46,7 @@ public:
   static vtkCriticalSection *New();
 
   vtkTypeMacro(vtkCriticalSection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Lock the vtkCriticalSection
@@ -61,11 +61,11 @@ public:
 protected:
   vtkSimpleCriticalSection SimpleCriticalSection;
   vtkCriticalSection() {}
-  ~vtkCriticalSection() VTK_OVERRIDE {}
+  ~vtkCriticalSection() override {}
 
 private:
-  vtkCriticalSection(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
+  vtkCriticalSection(const vtkCriticalSection&) = delete;
+  void operator=(const vtkCriticalSection&) = delete;
 };
 
 

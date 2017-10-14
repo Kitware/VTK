@@ -21,7 +21,7 @@ vtkGeometryFilter geom
 
 vtkArrayCalculator calc
     calc SetInputConnection [geom GetOutputPort]
-    calc SetAttributeModeToUsePointData
+    calc SetAttributeTypeToPointData
     calc SetFunction "pointCVectors_r . pointCVectors_i + pointScalars"
     calc AddScalarArrayName "pointScalars" 0
     calc AddVectorArrayName "pointCVectors_r" 0 1 2

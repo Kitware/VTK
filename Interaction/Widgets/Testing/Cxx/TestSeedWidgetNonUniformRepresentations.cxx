@@ -52,7 +52,7 @@ class vtkSeedNonUniformRepresentationCallback : public vtkCommand
 public:
   static vtkSeedNonUniformRepresentationCallback *New()
     { return new vtkSeedNonUniformRepresentationCallback; }
-  void Execute( vtkObject *o, unsigned long event, void* ) VTK_OVERRIDE
+  void Execute( vtkObject *o, unsigned long event, void* ) override
   {
     vtkSeedWidget *sw = vtkSeedWidget::SafeDownCast(o);
     if (sw && event == vtkCommand::PlacePointEvent)
@@ -61,7 +61,7 @@ public:
     }
   }
 
-  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(0) {}
+  vtkSeedNonUniformRepresentationCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 

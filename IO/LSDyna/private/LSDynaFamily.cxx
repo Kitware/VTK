@@ -18,10 +18,9 @@
 ----------------------------------------------------------------------------*/
 
 #include "LSDynaFamily.h"
-//#include "vtksys/SystemTools.hxx"
 
-#include <errno.h>
-#include <ctype.h>
+#include <cerrno>
+#include <cctype>
 #include <cassert>
 
 #include <string>
@@ -69,7 +68,7 @@ vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
   return f;
 #else
   vtkLSDynaFile_t f = fopen(fname, "rb");
-  setvbuf(f,NULL,_IONBF,0); //disable buffer
+  setvbuf(f,nullptr,_IONBF,0); //disable buffer
   return f;
 #endif
 }
@@ -101,7 +100,7 @@ vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
 
     if ( number > 0 )
     {
-      char n[4];
+      char n[12];
       snprintf(n, sizeof(n), "%02d", number);
       blorb += n;
     }
@@ -162,7 +161,7 @@ LSDynaFamily::LSDynaFamily()
     this->StateSize = 0; // Time steps take up no room on disk
 
     this->AdaptationsMarkers.push_back( LSDynaFamilyAdaptLevel() );
-    this->Chunk = NULL;
+    this->Chunk = nullptr;
     this->ChunkWord = 0;
     this->ChunkAlloc = 0;
 
@@ -256,7 +255,7 @@ int LSDynaFamily::ScanDatabaseDirectory()
       adapted = true;
     }
   }
-    return this->Files.size() == 0;
+    return this->Files.empty();
 }
 
 //-----------------------------------------------------------------------------
@@ -512,7 +511,7 @@ int LSDynaFamily::ClearBuffer()
     this->ChunkWord = 0;
     this->ChunkValid = 0;
     delete [] this->Chunk;
-    this->Chunk = NULL;
+    this->Chunk = nullptr;
   }
 
   return 0;
@@ -571,7 +570,7 @@ int LSDynaFamily::AdvanceFile()
 {
   if ( this->FNum < 0 && VTK_LSDYNA_ISBADFILE(this->FD) )
   {
-    if ( this->Files.size() > 0 )
+    if ( !this->Files.empty() )
     {
       this->FNum = 0;
       this->FAdapt = 0;

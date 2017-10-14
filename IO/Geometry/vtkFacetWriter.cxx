@@ -39,20 +39,20 @@ vtkStandardNewMacro(vtkFacetWriter);
 //----------------------------------------------------------------------------
 vtkFacetWriter::vtkFacetWriter()
 {
-  this->FileName  = NULL;
-  this->OutputStream = 0;
+  this->FileName  = nullptr;
+  this->OutputStream = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkFacetWriter::~vtkFacetWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkFacetWriter::Write()
 {
-  this->WriteToStream(0);
+  this->WriteToStream(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ int vtkFacetWriter::RequestData(
       if ( cleanStream )
       {
         delete this->OutputStream;
-        this->OutputStream = 0;
+        this->OutputStream = nullptr;
       }
       return 0;
     }
@@ -110,7 +110,7 @@ int vtkFacetWriter::RequestData(
   if ( cleanStream )
   {
     delete this->OutputStream;
-    this->OutputStream = 0;
+    this->OutputStream = nullptr;
   }
   return 1;
 }
@@ -127,7 +127,7 @@ void vtkFacetWriter::WriteToStream(ostream* ost)
               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
               6);
   this->Update();
-  this->OutputStream = 0;
+  this->OutputStream = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -167,7 +167,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     ca = data->GetVerts();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
-    vtkIdType *pts = NULL;
+    vtkIdType *pts = nullptr;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
     {
@@ -201,7 +201,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     ca = data->GetLines();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
-    vtkIdType *pts = NULL;
+    vtkIdType *pts = nullptr;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
     {
@@ -235,7 +235,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     ca = data->GetPolys();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
-    vtkIdType *pts = NULL;
+    vtkIdType *pts = nullptr;
     ca->InitTraversal();
     ca->GetNextCell(numPts, pts);
     totalCells ++;
@@ -276,7 +276,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
     ca = data->GetStrips();
     numCells = ca->GetNumberOfCells();
     vtkIdType numPts = 0;
-    vtkIdType *pts = NULL;
+    vtkIdType *pts = nullptr;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
     {

@@ -50,7 +50,7 @@ public:
   static vtkCommunity2DLayoutStrategy *New();
 
   vtkTypeMacro(vtkCommunity2DLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -125,7 +125,7 @@ public:
    * This strategy sets up some data structures
    * for faster processing of each Layout() call
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * This is the layout method where the graph that was
@@ -134,13 +134,13 @@ public:
    * graph. If you have an iterative layout please implement
    * the IsLayoutComplete() method.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
   /**
    * I'm an iterative layout so this method lets the caller
    * know if I'm done laying out the graph
    */
-  int IsLayoutComplete() VTK_OVERRIDE {return this->LayoutComplete;}
+  int IsLayoutComplete() override {return this->LayoutComplete;}
 
   //@{
   /**
@@ -163,7 +163,7 @@ public:
 
 protected:
   vtkCommunity2DLayoutStrategy();
-  ~vtkCommunity2DLayoutStrategy() VTK_OVERRIDE;
+  ~vtkCommunity2DLayoutStrategy() override;
 
   int    MaxNumberOfIterations;  //Maximum number of iterations.
   float  InitialTemperature;
@@ -206,8 +206,8 @@ private:
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
   void ResolveCoincidentVertices();
 
-  vtkCommunity2DLayoutStrategy(const vtkCommunity2DLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCommunity2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkCommunity2DLayoutStrategy(const vtkCommunity2DLayoutStrategy&) = delete;
+  void operator=(const vtkCommunity2DLayoutStrategy&) = delete;
 };
 
 #endif

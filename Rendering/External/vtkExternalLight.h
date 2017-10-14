@@ -62,7 +62,7 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalLight : public vtkLight
 {
 public:
   vtkTypeMacro(vtkExternalLight, vtkLight);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create an external light object with the focal point at the origin and its
@@ -112,52 +112,52 @@ public:
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetPosition(double, double, double) VTK_OVERRIDE;
+  void SetPosition(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetFocalPoint(double, double, double) VTK_OVERRIDE;
+  void SetFocalPoint(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetAmbientColor(double, double, double) VTK_OVERRIDE;
+  void SetAmbientColor(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetDiffuseColor(double, double, double) VTK_OVERRIDE;
+  void SetDiffuseColor(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetSpecularColor(double, double, double) VTK_OVERRIDE;
+  void SetSpecularColor(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetIntensity(double) VTK_OVERRIDE;
+  void SetIntensity(double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetConeAngle(double) VTK_OVERRIDE;
+  void SetConeAngle(double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetAttenuationValues(double, double, double) VTK_OVERRIDE;
+  void SetAttenuationValues(double, double, double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetExponent(double) VTK_OVERRIDE;
+  void SetExponent(double) override;
 
   /**
    * Override Set method to keep a record of changed value
    */
-  void SetPositional(int) VTK_OVERRIDE;
+  void SetPositional(int) override;
 
   //@{
   /**
@@ -231,7 +231,7 @@ public:
 
 protected:
   vtkExternalLight();
-  ~vtkExternalLight() VTK_OVERRIDE;
+  ~vtkExternalLight() override;
 
   int LightIndex;
   int ReplaceMode;
@@ -248,8 +248,8 @@ protected:
   bool PositionalSet;
 
 private:
-  vtkExternalLight(const vtkExternalLight&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalLight&) VTK_DELETE_FUNCTION;
+  vtkExternalLight(const vtkExternalLight&) = delete;
+  void operator=(const vtkExternalLight&) = delete;
 };
 
 #endif // vtkExternalLight_h

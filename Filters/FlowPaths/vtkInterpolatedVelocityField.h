@@ -63,7 +63,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkInterpolatedVelocityField
 public:
   vtkTypeMacro( vtkInterpolatedVelocityField,
                         vtkCompositeInterpolatedVelocityField );
-  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream & os, vtkIndent indent ) override;
 
   /**
    * Construct a vtkInterpolatedVelocityField without an initial dataset.
@@ -77,12 +77,12 @@ public:
    * match is found. THIS FUNCTION DOES NOT CHANGE THE REFERENCE COUNT OF
    * DATASET FOR THREAD SAFETY REASONS.
    */
-  void AddDataSet( vtkDataSet * dataset ) VTK_OVERRIDE;
+  void AddDataSet( vtkDataSet * dataset ) override;
 
   /**
    * Evaluate the velocity field f at point (x, y, z).
    */
-  int FunctionValues( double * x, double * f ) VTK_OVERRIDE;
+  int FunctionValues( double * x, double * f ) override;
 
   /**
    * Project the provided point on current cell, current dataset.
@@ -92,17 +92,17 @@ public:
   /**
    * Set the cell id cached by the last evaluation within a specified dataset.
    */
-  void SetLastCellId( vtkIdType c, int dataindex ) VTK_OVERRIDE;
+  void SetLastCellId( vtkIdType c, int dataindex ) override;
 
   /**
    * Set the cell id cached by the last evaluation.
    */
-  void SetLastCellId( vtkIdType c ) VTK_OVERRIDE
+  void SetLastCellId( vtkIdType c ) override
     { this->Superclass::SetLastCellId( c ); }
 
 protected:
   vtkInterpolatedVelocityField() { }
-  ~vtkInterpolatedVelocityField() VTK_OVERRIDE { }
+  ~vtkInterpolatedVelocityField() override { }
 
   /**
    * Evaluate the velocity field f at point (x, y, z) in a specified dataset
@@ -111,14 +111,14 @@ protected:
    * invoking vtkImageData/vtkRectilinearGrid::FindCell() to fulfill the same
    * task if the point is outside the current cell.
    */
-  int FunctionValues( vtkDataSet * ds, double * x, double * f ) VTK_OVERRIDE
+  int FunctionValues( vtkDataSet * ds, double * x, double * f ) override
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:
   vtkInterpolatedVelocityField
-    ( const vtkInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+    ( const vtkInterpolatedVelocityField & ) = delete;
   void operator =
-    ( const vtkInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+    ( const vtkInterpolatedVelocityField & ) = delete;
 };
 
 #endif

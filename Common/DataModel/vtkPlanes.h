@@ -50,20 +50,20 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanes : public vtkImplicitFunction
 public:
   static vtkPlanes *New();
   vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Evaluate plane equations. Return smallest absolute value.
    */
   using vtkImplicitFunction::EvaluateFunction;
-  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
+  double EvaluateFunction(double x[3]) override;
   //@}
 
   /**
    * Evaluate planes gradient.
    */
-  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
+  void EvaluateGradient(double x[3], double n[3]) override;
 
   //@{
   /**
@@ -106,7 +106,7 @@ public:
 
   /**
    * Create and return a pointer to a vtkPlane object at the ith
-   * position. Asking for a plane outside the allowable range returns NULL.
+   * position. Asking for a plane outside the allowable range returns nullptr.
    * This method always returns the same object.
    * Use GetPlane(int i, vtkPlane *plane) instead.
    */
@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkPlanes();
-  ~vtkPlanes() VTK_OVERRIDE;
+  ~vtkPlanes() override;
 
   vtkPoints *Points;
   vtkDataArray *Normals;
@@ -132,8 +132,8 @@ private:
   double Bounds[6];
 
 private:
-  vtkPlanes(const vtkPlanes&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlanes&) VTK_DELETE_FUNCTION;
+  vtkPlanes(const vtkPlanes&) = delete;
+  void operator=(const vtkPlanes&) = delete;
 };
 
 #endif

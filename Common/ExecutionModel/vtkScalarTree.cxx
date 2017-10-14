@@ -26,16 +26,16 @@ vtkCxxSetObjectMacro(vtkScalarTree,Scalars,vtkDataArray);
 // Instantiate scalar tree.
 vtkScalarTree::vtkScalarTree()
 {
-  this->DataSet = NULL;
-  this->Scalars = NULL;
+  this->DataSet = nullptr;
+  this->Scalars = nullptr;
   this->ScalarValue = 0.0;
 }
 
 //-----------------------------------------------------------------------------
 vtkScalarTree::~vtkScalarTree()
 {
-  this->SetDataSet(NULL);
-  this->SetScalars(NULL);
+  this->SetDataSet(nullptr);
+  this->SetScalars(nullptr);
 }
 
 //-----------------------------------------------------------------------------

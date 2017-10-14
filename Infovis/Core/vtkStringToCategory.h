@@ -47,7 +47,7 @@ class VTKINFOVISCORE_EXPORT vtkStringToCategory : public vtkDataObjectAlgorithm
 public:
   static vtkStringToCategory* New();
   vtkTypeMacro(vtkStringToCategory,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,31 +62,31 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkStringToCategory();
-  ~vtkStringToCategory() VTK_OVERRIDE;
+  ~vtkStringToCategory() override;
 
   /**
    * Creates the same output type as the input type.
    */
   int RequestDataObject(vtkInformation* request,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
   char *CategoryArrayName;
 
 private:
-  vtkStringToCategory(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
+  vtkStringToCategory(const vtkStringToCategory&) = delete;
+  void operator=(const vtkStringToCategory&) = delete;
 };
 
 #endif

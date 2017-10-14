@@ -42,7 +42,7 @@ vtkStandardNewMacro(vtkImageHistogram);
 class vtkImageHistogramThreadData
 {
 public:
-  vtkImageHistogramThreadData() : Data(0) {}
+  vtkImageHistogramThreadData() : Data(nullptr) {}
 
   vtkIdType *Data;
   int Range[2];
@@ -75,8 +75,8 @@ vtkImageHistogram::vtkImageHistogram()
   this->Histogram = vtkIdTypeArray::New();
   this->Total = 0;
 
-  this->ThreadData = 0;
-  this->SMPThreadData = 0;
+  this->ThreadData = nullptr;
+  this->SMPThreadData = nullptr;
 
   this->SetNumberOfInputPorts(2);
   this->SetNumberOfOutputPorts(1);
@@ -162,7 +162,7 @@ vtkImageStencilData *vtkImageHistogram::GetStencil()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkImageStencilData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -325,7 +325,7 @@ VTK_THREAD_RETURN_TYPE vtkImageHistogramThreadedExecute(void *arg)
         splitExt[5] >= splitExt[4])
     {
       ts->Algorithm->ThreadedRequestData(
-        ts->Request, ts->InputsInfo, ts->OutputsInfo, NULL, NULL,
+        ts->Request, ts->InputsInfo, ts->OutputsInfo, nullptr, nullptr,
         splitExt, ti->ThreadID);
     }
   }
@@ -339,7 +339,7 @@ void vtkImageHistogramExecuteRange(
   vtkImageData *inData, vtkImageStencilData *stencil,
   T *inPtr, int extent[6], double range[2], int component)
 {
-  vtkImageStencilIterator<T> inIter(inData, stencil, extent, NULL);
+  vtkImageStencilIterator<T> inIter(inData, stencil, extent, nullptr);
 
   T xmin = vtkTypeTraits<T>::Max();
   T xmax = vtkTypeTraits<T>::Min();
@@ -392,7 +392,7 @@ void vtkImageHistogramExecute(
   double o, double s, int component, int threadId)
 {
   vtkImageStencilIterator<T>
-    inIter(inData, stencil, extent, ((threadId == 0) ? self : NULL));
+    inIter(inData, stencil, extent, ((threadId == 0) ? self : nullptr));
 
   // set up components
   int nc = inData->GetNumberOfScalarComponents();
@@ -453,7 +453,7 @@ void vtkImageHistogramExecuteInt(
   T *inPtr, int extent[6], vtkIdType *outPtr, int component, int threadId)
 {
   vtkImageStencilIterator<T>
-    inIter(inData, stencil, extent, ((threadId == 0) ? self : NULL));
+    inIter(inData, stencil, extent, ((threadId == 0) ? self : nullptr));
 
   // set up components
   int nc = inData->GetNumberOfScalarComponents();
@@ -635,7 +635,7 @@ void vtkImageHistogramFunctor::operator()(vtkIdType begin, vtkIdType end)
   vtkImageHistogramThreadStruct *ts = this->PipelineInfo;
 
   ts->Algorithm->SMPRequestData(
-    ts->Request, ts->InputsInfo, ts->OutputsInfo, NULL, NULL,
+    ts->Request, ts->InputsInfo, ts->OutputsInfo, nullptr, nullptr,
     begin, end, this->NumberOfPieces, this->Extent);
 }
 
@@ -789,7 +789,7 @@ int vtkImageHistogram::RequestData(
     inData->GetExtent(extent);
 
     // do a dummy execution of SplitExtent to compute the number of pieces
-    vtkIdType pieces = this->SplitExtent(0, extent, 0, this->NumberOfThreads);
+    vtkIdType pieces = this->SplitExtent(nullptr, extent, 0, this->NumberOfThreads);
 
     // create the thread-local object and the functor
     vtkImageHistogramSMPThreadLocal tlocal;
@@ -800,7 +800,7 @@ int vtkImageHistogram::RequestData(
     this->Debug = false;
     vtkSMPTools::For(0, pieces, functor);
     this->Debug = debug;
-    this->SMPThreadData = 0;
+    this->SMPThreadData = nullptr;
   }
   else
   {
@@ -946,7 +946,7 @@ void vtkImageHistogram::ThreadedRequestData(
 
     int a = vtkMath::Floor(minBinRange + 0.5);
     int b = vtkMath::Floor(maxBinRange + 0.5);
-    if (threadLocal->Data == 0)
+    if (threadLocal->Data == nullptr)
     {
       // allocate the histogram
       histogram = new vtkIdType[this->NumberOfBins];
@@ -1048,7 +1048,7 @@ void vtkImageHistogram::ComputeImageScalarRange(
   {
     vtkTemplateAliasMacro(
       vtkImageHistogramExecuteRange(
-        data, 0, static_cast<VTK_TT *>(inPtr),
+        data, nullptr, static_cast<VTK_TT *>(inPtr),
         extent, range, component));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

@@ -95,14 +95,14 @@ public:
    * Standard methods for a VTK class.
    */
   vtkTypeMacro(vtkBalloonWidget,vtkHoverWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * The method for activating and deactivating this widget. This method
    * must be overridden because it performs special timer-related operations.
    */
-  void SetEnabled(int) VTK_OVERRIDE;
+  void SetEnabled(int) override;
 
   /**
    * Specify an instance of vtkWidgetRepresentation used to represent this
@@ -121,7 +121,7 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -131,14 +131,14 @@ public:
   void AddBalloon(vtkProp *prop, vtkStdString *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str, vtkImageData *img);
   void AddBalloon(vtkProp *prop, const char *str) //for wrapping
-    {this->AddBalloon(prop,str,NULL);}
+    {this->AddBalloon(prop,str,nullptr);}
   void RemoveBalloon(vtkProp *prop);
   //@}
 
   //@{
   /**
    * Methods to retrieve the information associated with each vtkProp (i.e.,
-   * the information that makes up each balloon). A NULL will be returned if
+   * the information that makes up each balloon). A nullptr will be returned if
    * the vtkProp does not exist, or if a string or image have not been
    * associated with the specified vtkProp.
    */
@@ -157,7 +157,7 @@ public:
 
   /**
    * Return the current vtkProp that is being hovered over. Note that the
-   * value may be NULL (if hovering over nothing or the mouse is moving).
+   * value may be nullptr (if hovering over nothing or the mouse is moving).
    */
   virtual vtkProp *GetCurrentProp()
     {return this->CurrentProp;}
@@ -175,11 +175,11 @@ public:
 
 protected:
   vtkBalloonWidget();
-  ~vtkBalloonWidget() VTK_OVERRIDE;
+  ~vtkBalloonWidget() override;
 
   // This class implements the method called from its superclass.
-  int SubclassEndHoverAction() VTK_OVERRIDE;
-  int SubclassHoverAction() VTK_OVERRIDE;
+  int SubclassEndHoverAction() override;
+  int SubclassHoverAction() override;
 
   // Classes for managing balloons
   vtkPropMap *PropMap; //PIMPL'd map of (vtkProp,vtkStdString)
@@ -188,14 +188,14 @@ protected:
   vtkAbstractPropPicker *Picker;
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
-  // The vtkProp that is being hovered over (which may be NULL)
+  // The vtkProp that is being hovered over (which may be nullptr)
   vtkProp *CurrentProp;
 
 private:
-  vtkBalloonWidget(const vtkBalloonWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBalloonWidget&) VTK_DELETE_FUNCTION;
+  vtkBalloonWidget(const vtkBalloonWidget&) = delete;
+  void operator=(const vtkBalloonWidget&) = delete;
 };
 
 #endif

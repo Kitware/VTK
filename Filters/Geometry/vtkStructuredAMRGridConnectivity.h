@@ -49,7 +49,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkStructuredAMRGridConnectivity :
 public:
   static vtkStructuredAMRGridConnectivity* New();
   vtkTypeMacro(vtkStructuredAMRGridConnectivity, vtkAbstractGridConnectivity);
-  void PrintSelf(ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent ) override;
 
   /**
    * Initializes this instance of vtkStructuredAMRGridConnectivity where N
@@ -65,12 +65,12 @@ public:
   /**
    * Computes neighboring information.
    */
-  void ComputeNeighbors() VTK_OVERRIDE;
+  void ComputeNeighbors() override;
 
   /**
    * Creates ghost layers.
    */
-  void CreateGhostLayers(const int N=1) VTK_OVERRIDE;
+  void CreateGhostLayers(const int N=1) override;
 
   /**
    * Registers the AMR grid with the given global linear grid ID (starting
@@ -146,12 +146,12 @@ public:
 
 protected:
   vtkStructuredAMRGridConnectivity();
-  ~vtkStructuredAMRGridConnectivity() VTK_OVERRIDE;
+  ~vtkStructuredAMRGridConnectivity() override;
 
   /**
    * Sets the total number of grids(blocks) in the AMR hierarchy
    */
-  void SetNumberOfGrids( const unsigned int N ) VTK_OVERRIDE;
+  void SetNumberOfGrids( const unsigned int N ) override;
 
   /**
    * Creates the ghosted mask arrays
@@ -419,7 +419,7 @@ protected:
   void FillGhostArrays(
             const int gridId,
             vtkUnsignedCharArray* nodesArray,
-            vtkUnsignedCharArray* cellsArray ) VTK_OVERRIDE;
+            vtkUnsignedCharArray* cellsArray ) override;
 
   /**
    * Compute the AMR neighbor of grid "i" and its neighbor grid "j".
@@ -573,8 +573,8 @@ protected:
   std::vector< int > RefinementRatios;
 
 private:
-   vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&) VTK_DELETE_FUNCTION;
-   void operator=(const vtkStructuredAMRGridConnectivity&) VTK_DELETE_FUNCTION;
+   vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&) = delete;
+   void operator=(const vtkStructuredAMRGridConnectivity&) = delete;
 };
 
 //=============================================================================

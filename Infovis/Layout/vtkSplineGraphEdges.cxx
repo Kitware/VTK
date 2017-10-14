@@ -188,9 +188,9 @@ double BCubic(vtkIdType i, double* k, double t)
 vtkSplineGraphEdges::vtkSplineGraphEdges()
 {
   this->Spline = vtkCardinalSpline::New();
-  this->XSpline = 0;
-  this->YSpline = 0;
-  this->ZSpline = 0;
+  this->XSpline = nullptr;
+  this->YSpline = nullptr;
+  this->ZSpline = nullptr;
   this->NumberOfSubdivisions = 20;
   this->SplineType = CUSTOM;
 }
@@ -200,7 +200,7 @@ vtkSplineGraphEdges::~vtkSplineGraphEdges()
   if (this->Spline)
   {
     this->Spline->Delete();
-    this->Spline = 0;
+    this->Spline = nullptr;
   }
 }
 

@@ -34,7 +34,7 @@ class GraphAnimate : public vtkCommand
 public:
   static GraphAnimate *New() { return new GraphAnimate(); }
   vtkTypeMacro(GraphAnimate, vtkCommand);
-  virtual void Execute(vtkObject *, unsigned long, void *)
+  virtual void Execute(vtkObject *, unsigned long, void *) override
   {
     this->GraphItem->UpdatePositions();
     this->View->Render();

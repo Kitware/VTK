@@ -37,17 +37,17 @@ class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayCompositePolyDataMapper2Node :
 public:
   static vtkOSPRayCompositePolyDataMapper2Node* New();
   vtkTypeMacro(vtkOSPRayCompositePolyDataMapper2Node, vtkOSPRayPolyDataMapperNode);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
   /**
    * Invalidates cached rendering data.
    */
-  virtual void Invalidate(bool prepass);
+  virtual void Invalidate(bool prepass) override;
 
 protected:
   vtkOSPRayCompositePolyDataMapper2Node();
@@ -61,6 +61,7 @@ protected:
       std::stack<vtkColor3d> AmbientColor;
       std::stack<vtkColor3d> DiffuseColor;
       std::stack<vtkColor3d> SpecularColor;
+      std::stack<std::string> Material;
     };
 
   RenderBlockState BlockState;
@@ -72,7 +73,7 @@ protected:
 
 
 private:
-  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
+  vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
+  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) = delete;
 };
 #endif

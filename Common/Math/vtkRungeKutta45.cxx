@@ -54,7 +54,7 @@ vtkRungeKutta45::vtkRungeKutta45()
 {
   for(int i=0; i<6; i++)
   {
-    this->NextDerivs[i] = 0;
+    this->NextDerivs[i] = nullptr;
   }
   this->Adaptive = 1;
 }
@@ -65,7 +65,7 @@ vtkRungeKutta45::~vtkRungeKutta45()
   for(int i=0; i<6; i++)
   {
     delete[] this->NextDerivs[i];
-    this->NextDerivs[i] = 0;
+    this->NextDerivs[i] = nullptr;
   }
 }
 

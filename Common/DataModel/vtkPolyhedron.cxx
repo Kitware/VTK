@@ -160,14 +160,14 @@ public:
 
 vtkInternal()
 {
-  this->FacesBackup = NULL;
-  this->EdgeTableBackup = NULL;
+  this->FacesBackup = nullptr;
+  this->EdgeTableBackup = nullptr;
 }
 
 ~vtkInternal()
 {
-  this->FacesBackup = NULL;
-  this->EdgeTableBackup = NULL;
+  this->FacesBackup = nullptr;
+  this->EdgeTableBackup = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -289,8 +289,8 @@ void RemoveDuplicatedPointsFromFaceArrayAndEdgeTable(vtkPoints * points,
   }
   else
   {
-    this->FacesBackup = NULL;
-    this->EdgeTableBackup = NULL;
+    this->FacesBackup = nullptr;
+    this->EdgeTableBackup = nullptr;
   }
 }
 
@@ -630,8 +630,8 @@ int  ExtractContourConnectivities(
       fvMapIt = faceToPointsMap.find(fVector[i]);
       if (fvMapIt == faceToPointsMap.end())
       {
-        cout << "Cannot find point ids of a face. We should never get "
-          "here. Contouring aborted." << endl;
+        vtkErrorWithObjectMacro(nullptr,"Cannot find point ids of a face. We should never get "
+          "here. Contouring aborted.");
         return 0;
       }
 
@@ -1057,8 +1057,8 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   edgesSize = edges.size();
   if (extremePointAngles.size() != edgesSize)
   {
-    cout << "The size of the edge array does not match the size of the "
-      "angle array. We should never get here." << endl;
+    vtkErrorWithObjectMacro(nullptr,"The size of the edge array does not match the size of the "
+      "angle array. We should never get here.");
     return;
   }
   vtkIdType outBoundary = -1;
@@ -1098,7 +1098,19 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   // traverse the contour graph to remove all incoming boundary edges.
   while (currPid != maxPid)
   {
-    edges = cpMap.find(currPid)->second;
+    mapIt = cpMap.find(currPid);
+    if (mapIt == cpMap.end())
+    {
+      double point[3];
+      points->GetPoint(cpMap.find(prevPid)->first, point);
+      vtkErrorWithObjectMacro(nullptr,"Found an unexpected case with multiple connected points. "
+        "The input polyhedron cell may not be "
+        "watertight or the polygonal faces may not be planar. Contouring "
+        "will continue, but this cell may not be processed correctly." << endl
+        << "Previous point used was : " << point[0] << " " << point[1] << " " << point[2])
+      break;
+    }
+    edges = mapIt->second;
     edgesSize = edges.size();
     size_t i;
     bool foundPrevPid = false;
@@ -1154,9 +1166,9 @@ void OrderTwoConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
     mapIt = cpMap.find(currPid);
     if (mapIt == cpMap.end())
     {
-      cout << "Find an unexpected case. The input polyhedron cell may not be a "
-        << "water tight or the polygonal faces may not be planar. Contouring "
-        << "will continue, but this cell may not be processed correctly." << endl;
+      vtkErrorWithObjectMacro(nullptr,"Find an unexpected case. The input polyhedron cell may not be a "
+        << "watertight or the polygonal faces may not be planar. Contouring "
+        << "will continue, but this cell may not be processed correctly.");
       break;
     }
     edges = mapIt->second;
@@ -1570,7 +1582,7 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 
   if ( edgeId < 0 || edgeId >= numEdges )
   {
-    return NULL;
+    return nullptr;
   }
 
   // Return the requested edge
@@ -1700,7 +1712,7 @@ vtkCell *vtkPolyhedron::GetFace(int faceId)
 {
   if ( faceId < 0 || faceId >= this->GlobalFaces->GetValue(0) )
   {
-    return NULL;
+    return nullptr;
   }
 
   this->GenerateFaces();
@@ -1765,7 +1777,7 @@ vtkIdType *vtkPolyhedron::GetFaces()
 {
   if (!this->GlobalFaces->GetNumberOfTuples())
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GlobalFaces->GetPointer(0);
@@ -2175,7 +2187,7 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   double x[3], n[3], o[3], v[3];
   double dist, minDist = VTK_DOUBLE_MAX;
   vtkIdType numFacePts = -1;
-  vtkIdType * facePts = 0;
+  vtkIdType * facePts = nullptr;
 
   // compute coordinates
   this->ComputePositionFromParametricCoordinate(pcoords, x);
@@ -2374,7 +2386,7 @@ void vtkPolyhedron::Derivatives(int vtkNotUsed(subId), double pcoords[3],
 //----------------------------------------------------------------------------
 double *vtkPolyhedron::GetParametricCoords()
 {
-  return NULL;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -2518,7 +2530,7 @@ int vtkPolyhedron::InternalContour(double value,
   double v0, v1, v, t;
 
   vtkIdType p0, p1, pid, fid, outPid, globalP0, globalP1;
-  void * ptr = NULL;
+  void * ptr = nullptr;
 
   pointToFacesMap.clear();
   faceToPointsMap.clear();
@@ -3011,7 +3023,7 @@ int vtkPolyhedron::InternalContour(double value,
 
     // check the dimensionality of the contour
     int ret = this->Internal->
-      CheckContourDimensions(points, npts, pts, NULL, NULL);
+      CheckContourDimensions(points, npts, pts, nullptr, nullptr);
 
     if (ret <= 1) // skip single point or co-linear points
     {
@@ -3071,7 +3083,7 @@ void vtkPolyhedron::Contour(double value,
     vtkSmartPointer<vtkCellArray>::New();
 
   int ret = this->InternalContour(value, 0, locator, pointScalars,
-                    NULL, inPd, outPd, contourPolys,
+                    nullptr, inPd, outPd, contourPolys,
                     faceToPointsMap, pointToFacesMap, pointIdMap);
   if (ret != 0)
   {
@@ -3080,7 +3092,7 @@ void vtkPolyhedron::Contour(double value,
   }
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   contourPolys->InitTraversal();
   while (contourPolys->GetNextCell(npts, pts))
   {
@@ -3093,7 +3105,10 @@ void vtkPolyhedron::Contour(double value,
     }
 
     vtkIdType newCellId = offset + polys->InsertNextCell(npts, pts);
-    outCd->CopyData(inCd, cellId, newCellId);
+    if (outCd)
+    {
+      outCd->CopyData(inCd, cellId, newCellId);
+    }
   }
 
   this->Internal->RestoreFaceArrayAndEdgeTable(this->Faces, this->EdgeTable);
@@ -3114,7 +3129,7 @@ void vtkPolyhedron::Clip(double value,
   vtkIdType newPid, newCellId;
 
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
 
   // initialization
   this->GenerateEdges();

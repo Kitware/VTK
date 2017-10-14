@@ -48,7 +48,7 @@ public:
    * Standard VTK type and error macros.
    */
   vtkTypeMacro(vtkAttributesErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -114,7 +114,7 @@ public:
    * =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
    */
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint, double *rightPoint,
-                              double alpha) VTK_OVERRIDE;
+                              double alpha) override;
 
   /**
    * Return the error at the mid-point. The type of error depends on the state
@@ -130,11 +130,11 @@ public:
    * \post positive_result: result>=0
    */
   double GetError(double *leftPoint, double *midPoint,
-                  double *rightPoint, double alpha) VTK_OVERRIDE;
+                  double *rightPoint, double alpha) override;
 
 protected:
   vtkAttributesErrorMetric();
-  ~vtkAttributesErrorMetric() VTK_OVERRIDE;
+  ~vtkAttributesErrorMetric() override;
 
   /**
    * Compute the square absolute attribute tolerance, only if the cached value
@@ -157,8 +157,8 @@ protected:
   vtkGenericAttributeCollection *AttributeCollection;
 
 private:
-  vtkAttributesErrorMetric(const vtkAttributesErrorMetric&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAttributesErrorMetric&) VTK_DELETE_FUNCTION;
+  vtkAttributesErrorMetric(const vtkAttributesErrorMetric&) = delete;
+  void operator=(const vtkAttributesErrorMetric&) = delete;
 };
 
 #endif

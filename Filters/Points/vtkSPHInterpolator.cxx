@@ -85,7 +85,7 @@ struct ProbePoints
       {
         const char *arrayName = sphInt->GetExcludedArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
-        if ( array != NULL )
+        if ( array != nullptr )
         {
           outPD->RemoveArray(array->GetName());
           this->Arrays.ExcludeArray(array);
@@ -99,7 +99,7 @@ struct ProbePoints
       {
         const char *arrayName = sphInt->GetDerivativeArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
-        if ( array != NULL )
+        if ( array != nullptr )
         {
           vtkStdString outName = arrayName; outName += "_deriv";
           if (vtkDataArray* outArray = this->DerivArrays.AddArrayPair(
@@ -109,7 +109,7 @@ struct ProbePoints
           }
         }
       }
-      this->ComputeDerivArrays = (this->DerivArrays.Arrays.size() > 0 ? true : false);
+      this->ComputeDerivArrays = (!this->DerivArrays.Arrays.empty() ? true : false);
   }
 
   // Just allocate a little bit of memory to get started.
@@ -178,96 +178,6 @@ struct ProbePoints
   }
 
 }; //ProbePoints
-
-// Probe points using an image. Uses a more efficient iteration scheme.
-struct ImageProbePoints : public ProbePoints
-{
-  int Dims[3];
-  double Origin[3];
-  double Spacing[3];
-
-  ImageProbePoints(vtkSPHInterpolator *sphInt, vtkImageData *image, int dims[3],
-                   double origin[3], double spacing[3], vtkPointData *inPD,
-                   vtkPointData *outPD, char *valid, float *shep) :
-    ProbePoints(sphInt, image, inPD, outPD, valid, shep)
-  {
-      for (int i=0; i < 3; ++i)
-      {
-        this->Dims[i] = dims[i];
-        this->Origin[i] = origin[i];
-        this->Spacing[i] = spacing[i];
-      }
-  }
-
-  // Threaded interpolation method specialized to image traversal
-  void operator() (vtkIdType slice, vtkIdType sliceEnd)
-  {
-      double x[3];
-      vtkIdType numWeights;
-      double *origin=this->Origin;
-      double *spacing=this->Spacing;
-      int *dims=this->Dims;
-      vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
-      vtkIdList*& pIds = this->PIds.Local();
-      vtkDoubleArray*& weights = this->Weights.Local();
-      vtkDoubleArray*& gradWeights = this->DerivWeights.Local();
-
-      for ( ; slice < sliceEnd; ++slice)
-      {
-        x[2] = origin[2] + slice*spacing[2];
-        kOffset = slice*sliceSize;
-
-        for ( int j=0;  j < dims[1]; ++j)
-        {
-          x[1] = origin[1] + j*spacing[1];
-          jOffset = j*dims[0];
-
-          for ( int i=0; i < dims[0]; ++i)
-          {
-            x[0] = origin[0] + i*spacing[0];
-            ptId = i + jOffset + kOffset;
-
-            if ( (numWeights=this->Kernel->ComputeBasis(x, pIds, ptId)) > 0 )
-            {
-              if ( ! this->ComputeDerivArrays )
-              {
-                this->Kernel->ComputeWeights(x, pIds, weights);
-              }
-              else
-              {
-                this->Kernel->ComputeDerivWeights(x, pIds, weights, gradWeights);
-                this->DerivArrays.Interpolate(numWeights, pIds->GetPointer(0),
-                                              gradWeights->GetPointer(0), ptId);
-              }
-              this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
-                                       weights->GetPointer(0), ptId);
-            }
-            else
-            {
-              this->Arrays.AssignNullValue(ptId);
-              if ( this->Strategy == vtkSPHInterpolator::MASK_POINTS)
-              {
-                this->Valid[ptId] = 0;
-              }
-            }// null point
-
-            // Shepard's coefficient if requested
-            if ( this->Shepard )
-            {
-              double sum=0.0, *w=weights->GetPointer(0);
-              for (int ii=0; ii < numWeights; ++ii) //numWieights=0 for null point
-              {
-                sum += w[ii];
-              }
-              this->Shepard[ptId] = sum;
-            }
-
-          }//over i
-        }//over j
-      }//over slices
-  }
-}; //ImageProbePoints
-
 } //anonymous namespace
 
 //================= Begin class proper =======================================
@@ -288,7 +198,7 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->NullPointsStrategy = vtkSPHInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
-  this->ValidPointsMask = NULL;
+  this->ValidPointsMask = nullptr;
   this->ValidPointsMaskArrayName = "vtkValidPointMask";
 
   this->ComputeShepardSum = true;
@@ -304,8 +214,8 @@ vtkSPHInterpolator::vtkSPHInterpolator()
 //----------------------------------------------------------------------------
 vtkSPHInterpolator::~vtkSPHInterpolator()
 {
-  this->SetLocator(NULL);
-  this->SetKernel(NULL);
+  this->SetLocator(nullptr);
+  this->SetKernel(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -325,20 +235,10 @@ vtkDataObject *vtkSPHInterpolator::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);
-}
-
-//----------------------------------------------------------------------------
-void vtkSPHInterpolator::
-ExtractImageDescription(vtkImageData *input, int dims[3], double origin[3],
-                        double spacing[3])
-{
-  input->GetDimensions(dims);
-  input->GetOrigin(origin);
-  input->GetSpacing(spacing);
 }
 
 //----------------------------------------------------------------------------
@@ -369,7 +269,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   outPD->InterpolateAllocate(sourcePD,numPts);
 
   // Masking if requested
-  char *mask=NULL;
+  char *mask=nullptr;
   if ( this->NullPointsStrategy == vtkSPHInterpolator::MASK_POINTS )
   {
     this->ValidPointsMask = vtkCharArray::New();
@@ -379,7 +279,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   }
 
   // Shepard summation if requested
-  float *shepardArray=NULL;
+  float *shepardArray=nullptr;
   if ( this->ComputeShepardSum )
   {
     this->ShepardSumArray = vtkFloatArray::New();
@@ -397,22 +297,8 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   }
 
   // Now loop over input points, finding closest points and invoking kernel.
-  // If the input is image data then there is a (slightly) faster path.
-  vtkImageData *imgInput = vtkImageData::SafeDownCast(input);
-  if ( imgInput )
-  {
-    int dims[3];
-    double origin[3], spacing[3];
-    this->ExtractImageDescription(imgInput,dims,origin,spacing);
-    ImageProbePoints imageProbe(this, imgInput, dims, origin,
-                                spacing, sourcePD, outPD, mask, shepardArray);
-    vtkSMPTools::For(0, dims[2], imageProbe);//over slices
-  }
-  else
-  {
-    ProbePoints probe(this, input, sourcePD, outPD, mask, shepardArray);
-    vtkSMPTools::For(0, numPts, probe);
-  }
+  ProbePoints probe(this, input, sourcePD, outPD, mask, shepardArray);
+  vtkSMPTools::For(0, numPts, probe);
 
   // Clean up
   if ( this->ShepardSumArray )
@@ -420,7 +306,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ShepardSumArray->SetName(this->ShepardSumArrayName);
     outPD->AddArray(this->ShepardSumArray);
     this->ShepardSumArray->Delete();
-    this->ShepardSumArray = NULL;
+    this->ShepardSumArray = nullptr;
   }
 
   if ( mask )
@@ -428,7 +314,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
-    this->ValidPointsMask = NULL;
+    this->ValidPointsMask = nullptr;
   }
 }
 
@@ -579,12 +465,12 @@ vtkMTimeType vtkSPHInterpolator::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType mTime2;
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     mTime2 = this->Locator->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
   }
-  if ( this->Kernel != NULL )
+  if ( this->Kernel != nullptr )
   {
     mTime2 = this->Kernel->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );

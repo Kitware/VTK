@@ -44,14 +44,14 @@ vtkStandardNewMacro(vtkTreeFieldAggregator);
 vtkTreeFieldAggregator::vtkTreeFieldAggregator()
 {
   this->MinValue = 0;
-  this->Field = 0;
+  this->Field = nullptr;
   this->LeafVertexUnitSize = true;
   this->LogScale = false;
 }
 
 vtkTreeFieldAggregator::~vtkTreeFieldAggregator()
 {
-  this->SetField(0);
+  this->SetField(nullptr);
 }
 
 int vtkTreeFieldAggregator::RequestData(

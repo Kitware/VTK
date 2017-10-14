@@ -40,7 +40,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotParallelCoordinates : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotParallelCoordinates, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Creates a parallel coordinates chart
@@ -52,12 +52,12 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -66,12 +66,12 @@ public:
    * and 3). The plot can choose how to fill the space supplied.
    */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) VTK_OVERRIDE;
+                           int legendIndex) override;
 
   /**
    * Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   /**
    * Set the selection criteria on the given axis in normalized space (0.0 - 1.0).
@@ -87,9 +87,9 @@ public:
   /**
    * This is a convenience function to set the input table.
    */
-  void SetInputData(vtkTable *table) VTK_OVERRIDE;
+  void SetInputData(vtkTable *table) override;
   void SetInputData(vtkTable *table, const vtkStdString&,
-                            const vtkStdString&) VTK_OVERRIDE
+                            const vtkStdString&) override
   {
     this->SetInputData(table);
   }
@@ -135,7 +135,7 @@ public:
 
 protected:
   vtkPlotParallelCoordinates();
-  ~vtkPlotParallelCoordinates() VTK_OVERRIDE;
+  ~vtkPlotParallelCoordinates() override;
 
   /**
    * Update the table cache.
@@ -166,8 +166,8 @@ protected:
   //@}
 
 private:
-  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
+  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &) = delete;
+  void operator=(const vtkPlotParallelCoordinates &) = delete;
 
 };
 

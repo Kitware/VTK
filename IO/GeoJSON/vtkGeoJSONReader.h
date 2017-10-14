@@ -122,8 +122,8 @@ private:
   class GeoJSONReaderInternal;
   GeoJSONReaderInternal *Internal;
 
-  vtkGeoJSONReader(const vtkGeoJSONReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoJSONReader&) VTK_DELETE_FUNCTION;
+  vtkGeoJSONReader(const vtkGeoJSONReader&) = delete;
+  void operator=(const vtkGeoJSONReader&) = delete;
 };
 
 #endif // vtkGeoJSONReader_h

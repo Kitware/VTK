@@ -51,7 +51,7 @@ class VTKFILTERSGENERAL_EXPORT vtkVoxelContoursToSurfaceFilter : public vtkPolyD
 public:
   static vtkVoxelContoursToSurfaceFilter *New();
   vtkTypeMacro(vtkVoxelContoursToSurfaceFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -69,9 +69,9 @@ public:
 
 protected:
   vtkVoxelContoursToSurfaceFilter();
-  ~vtkVoxelContoursToSurfaceFilter() VTK_OVERRIDE;
+  ~vtkVoxelContoursToSurfaceFilter() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int     MemoryLimitInBytes;
 
@@ -99,8 +99,8 @@ protected:
 
   void    PushDistances( float *ptr, int gridSize[3], int chunkSize );
 private:
-  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVoxelContoursToSurfaceFilter&) VTK_DELETE_FUNCTION;
+  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&) = delete;
+  void operator=(const vtkVoxelContoursToSurfaceFilter&) = delete;
 };
 
 #endif

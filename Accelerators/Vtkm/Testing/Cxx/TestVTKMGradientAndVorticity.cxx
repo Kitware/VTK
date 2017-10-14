@@ -17,6 +17,7 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
+#include "vtkArrayCalculator.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
@@ -114,41 +115,56 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
-  int IsGradientCorrect(vtkDoubleArray* gradients, int offset)
+  int IsGradientCorrect(vtkDoubleArray* gradients,
+                        vtkDoubleArray* correct)
   {
     int numberOfComponents = gradients->GetNumberOfComponents();
     for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
     {
-      double* values = gradients->GetTuple(i);
-      for(int origComp=0;origComp<numberOfComponents/3;origComp++)
+      bool invalid = false;
+      for(int j=0;j<numberOfComponents;j++)
       {
-        for(int gradDir=0;gradDir<3;gradDir++)
+        double value = gradients->GetTypedComponent(i, j);
+        double expected = correct->GetTypedComponent(i, j);
+
+        if( (value - expected) > Tolerance)
         {
-          if((origComp-gradDir+offset)%3 == 0)
-          {
-            if(fabs(values[origComp*3+gradDir]-1.) > Tolerance)
-            {
-              vtkGenericWarningMacro("Gradient[ "
-                                     << (origComp*3+gradDir)
-                                     << " ] value should be one but is "
-                                     << values[origComp*3+gradDir]);
-              if(i>10)
-              return 0;
-            }
-          }
-          else if(fabs(values[origComp*3+gradDir]) > Tolerance)
-          {
-            vtkGenericWarningMacro("Gradient[ "
-                                     << (origComp*3+gradDir)
-                                     << " ] value should be zero but is "
-                                     << values[origComp*3+gradDir]);
-            if(i>10)
-            return 0;
-          }
+          invalid = true;
         }
       }
+
+      if(invalid)
+      {
+        std::vector<double> values; values.resize(numberOfComponents);
+        std::vector<double> expected; expected.resize(numberOfComponents);
+
+        gradients->GetTypedTuple(i, values.data());
+        correct->GetTypedTuple(i, expected.data());
+
+        std::cout << "Gradient[ i ] should look like: " << std::endl;
+        std::cout << expected[0] << ", " << expected[1] << ", " <<  expected[2] << std::endl;
+        if(numberOfComponents > 3)
+        {
+          std::cout << expected[3] << ", " <<  expected[4] << ", " <<  expected[5] << std::endl;
+          std::cout << expected[6] << ", " <<  expected[7] << ", " <<  expected[8] << std::endl;
+        }
+
+        std::cout << "Gradient[ i ] actually looks like: " << std::endl;
+        std::cout << values[0] << ", " << values[1] << ", " <<  values[2] << std::endl;
+        if(numberOfComponents > 3)
+        {
+          std::cout << values[3] << ", " <<  values[4] << ", " <<  values[5] << std::endl;
+          std::cout << values[6] << ", " <<  values[7] << ", " <<  values[8] << std::endl;
+        }
+        std::cout << std::endl;
+      }
+
+      if(i>10 && invalid)
+      {
+        return 0;
+      }
     }
-    return 1;
+  return 1;
   }
 
 //-----------------------------------------------------------------------------
@@ -275,25 +291,44 @@ namespace
       vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
     cellGradients->SetResultArrayName(resultName);
 
+    VTK_CREATE(vtkGradientFilter, correctCellGradients);
+    correctCellGradients->SetInputData(grid);
+    correctCellGradients->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    correctCellGradients->SetResultArrayName(resultName);
+
     VTK_CREATE(vtkmGradient, pointGradients);
     pointGradients->SetInputData(grid);
     pointGradients->SetInputScalars(
       vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
     pointGradients->SetResultArrayName(resultName);
 
+    VTK_CREATE(vtkGradientFilter, correctPointGradients);
+    correctPointGradients->SetInputData(grid);
+    correctPointGradients->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+    correctPointGradients->SetResultArrayName(resultName);
+
     cellGradients->Update();
     pointGradients->Update();
+
+    correctCellGradients->Update();
+    correctPointGradients->Update();
 
     vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
 
-    if(!grid->IsA("vtkUnstructuredGrid"))
+    vtkDoubleArray* correctCellArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        correctCellGradients->GetOutput())->GetCellData()->GetArray(resultName));
+
+    if(!grid->IsA("vtkStructuredGrid"))
     {
-      // ignore cell gradients if this is an unstructured grid
-      // because the accuracy is so lousy
-      std::cout << "testing cell gradients" << std::endl;
-      if(!IsGradientCorrect(gradCellArray, offset))
+      // ignore cell gradients on structured grids as the version for
+      // VTK-m differs from VTK. Once VTK-m is able to do stencil based
+      // gradients for point and cells, we can enable this check.
+      if(!IsGradientCorrect(gradCellArray, correctCellArray))
       {
         return EXIT_FAILURE;
       }
@@ -302,8 +337,12 @@ namespace
     vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
-    std::cout << "testing point gradients" << std::endl;
-    if(!IsGradientCorrect(gradPointArray, offset))
+
+    vtkDoubleArray* correctPointArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        correctPointGradients->GetOutput())->GetPointData()->GetArray(resultName));
+
+    if(!IsGradientCorrect(gradPointArray, correctPointArray))
     {
       return EXIT_FAILURE;
     }
@@ -331,7 +370,6 @@ namespace
     vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
-
     if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
     {
       return EXIT_FAILURE;
@@ -341,19 +379,19 @@ namespace
     vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
-
     if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
     {
       return EXIT_FAILURE;
     }
+
     vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
-
     if(!IsDivergenceCorrect(gradPointArray, divergencePointArray))
     {
       return EXIT_FAILURE;
     }
+
     vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
@@ -371,7 +409,7 @@ int TestVTKMGradientAndVorticity(int argc, char *argv[])
 {
   int i;
   // Need to get the data root.
-  const char *data_root = NULL;
+  const char *data_root = nullptr;
   for (i = 0; i < argc-1; i++)
   {
     if (strcmp("-D", argv[i]) == 0)

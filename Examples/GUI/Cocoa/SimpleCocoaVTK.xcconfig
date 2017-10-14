@@ -12,11 +12,11 @@ PRODUCT_NAME = SimpleCocoaVTK
 // SDKROOT = macosx
 
 // OS X Deployment Target (match to CMAKE_OSX_DEPLOYMENT_TARGET used to built VTK itself).
-// MACOSX_DEPLOYMENT_TARGET = 10.7
+// MACOSX_DEPLOYMENT_TARGET = 10.9
 
 // Use the source trees to find the VTK libs and headers.
 HEADER_SEARCH_PATHS = $(vtk-debug-include)
 LIBRARY_SEARCH_PATHS = $(vtk-debug-lib)
 
-// Use ARC memory management.
+// Use ARC memory management (this sample code requires it).
 CLANG_ENABLE_OBJC_ARC = YES

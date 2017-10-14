@@ -54,12 +54,12 @@ vtkTreeDFSIterator::vtkTreeDFSIterator()
 vtkTreeDFSIterator::~vtkTreeDFSIterator()
 {
   delete this->Internals;
-  this->Internals = NULL;
+  this->Internals = nullptr;
 
   if (this->Color)
   {
     this->Color->Delete();
-    this->Color = NULL;
+    this->Color = nullptr;
   }
 }
 
@@ -72,7 +72,7 @@ void vtkTreeDFSIterator::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkTreeDFSIterator::Initialize()
 {
-  if (this->Tree == NULL)
+  if (this->Tree == nullptr)
   {
     return;
   }
@@ -87,7 +87,7 @@ void vtkTreeDFSIterator::Initialize()
     this->StartVertex = this->Tree->GetRoot();
   }
   this->CurRoot = this->StartVertex;
-  while (this->Internals->Stack.size())
+  while (!this->Internals->Stack.empty())
   {
     this->Internals->Stack.pop();
   }
@@ -117,7 +117,7 @@ vtkIdType vtkTreeDFSIterator::NextInternal()
 {
   while (this->Color->GetValue(this->StartVertex) != this->BLACK)
   {
-    while (this->Internals->Stack.size() > 0)
+    while (!this->Internals->Stack.empty())
     {
       // Pop the current position off the stack
       vtkTreeDFSIteratorPosition pos = this->Internals->Stack.top();

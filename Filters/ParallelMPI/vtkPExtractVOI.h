@@ -44,7 +44,7 @@ class VTKFILTERSPARALLELMPI_EXPORT vtkPExtractVOI : public vtkExtractVOI
 public:
   static vtkPExtractVOI* New();
   vtkTypeMacro(vtkPExtractVOI,vtkExtractVOI);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkPExtractVOI();
@@ -52,17 +52,17 @@ protected:
 
   // Standard VTK Pipeline methods
   virtual int RequestData(
-      vtkInformation*, vtkInformationVector**,vtkInformationVector*) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**,vtkInformationVector*) override;
   virtual int RequestInformation(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   virtual int RequestUpdateExtent(
-      vtkInformation*, vtkInformationVector**, vtkInformationVector*) VTK_OVERRIDE;
+      vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   vtkMPIController* Controller;
 
 private:
-  vtkPExtractVOI(const vtkPExtractVOI&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPExtractVOI&) VTK_DELETE_FUNCTION;
+  vtkPExtractVOI(const vtkPExtractVOI&) = delete;
+  void operator=(const vtkPExtractVOI&) = delete;
 };
 
 #endif

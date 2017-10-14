@@ -46,7 +46,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkGraphItem : public vtkContextItem
 public:
   static vtkGraphItem *New();
   vtkTypeMacro(vtkGraphItem, vtkContextItem);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -76,13 +76,13 @@ public:
 
 protected:
   vtkGraphItem();
-  ~vtkGraphItem() VTK_OVERRIDE;
+  ~vtkGraphItem() override;
 
   /**
    * Paints the graph. This method will call RebuildBuffers()
    * if the graph is dirty, then call PaintBuffers().
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Builds a cache of data from the graph by calling the virtual functions
@@ -197,18 +197,18 @@ protected:
   /**
    * Handle mouse events.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
-  bool MouseLeaveEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
-  bool MouseEnterEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
-  bool MouseButtonPressEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event) VTK_OVERRIDE;
-  bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &event) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent &event) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent &event) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &event) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &event) override;
+  bool MouseWheelEvent(const vtkContextMouseEvent &event, int delta) override;
   //@}
 
   /**
    * Whether this graph item is hit.
    */
-  bool Hit(const vtkContextMouseEvent &event) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent &event) override;
 
   /**
    * Change the position of the tooltip based on the vertex hovered.
@@ -216,8 +216,8 @@ protected:
   virtual void PlaceTooltip(vtkIdType v);
 
 private:
-  vtkGraphItem(const vtkGraphItem&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphItem&) VTK_DELETE_FUNCTION;
+  vtkGraphItem(const vtkGraphItem&) = delete;
+  void operator=(const vtkGraphItem&) = delete;
 
   struct Internals;
   Internals *Internal;

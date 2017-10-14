@@ -38,7 +38,7 @@ class VTKIOXML_EXPORT vtkXMLPRectilinearGridReader : public vtkXMLPStructuredDat
 {
 public:
   vtkTypeMacro(vtkXMLPRectilinearGridReader,vtkXMLPStructuredDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLPRectilinearGridReader *New();
 
   //@{
@@ -51,28 +51,28 @@ public:
 
 protected:
   vtkXMLPRectilinearGridReader();
-  ~vtkXMLPRectilinearGridReader() VTK_OVERRIDE;
+  ~vtkXMLPRectilinearGridReader() override;
 
   vtkRectilinearGrid* GetPieceInput(int index);
 
-  void SetupEmptyOutput() VTK_OVERRIDE;
-  const char* GetDataSetName() VTK_OVERRIDE;
-  void SetOutputExtent(int* extent) VTK_OVERRIDE;
-  void GetPieceInputExtent(int index, int* extent) VTK_OVERRIDE;
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
-  void SetupOutputData() VTK_OVERRIDE;
-  int ReadPieceData() VTK_OVERRIDE;
-  vtkXMLDataReader* CreatePieceReader() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
+  const char* GetDataSetName() override;
+  void SetOutputExtent(int* extent) override;
+  void GetPieceInputExtent(int index, int* extent) override;
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
+  void SetupOutputData() override;
+  int ReadPieceData() override;
+  vtkXMLDataReader* CreatePieceReader() override;
   void CopySubCoordinates(int* inBounds, int* outBounds, int* subBounds,
                           vtkDataArray* inArray, vtkDataArray* outArray);
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   // The PCoordinates element with coordinate information.
   vtkXMLDataElement* PCoordinatesElement;
 
 private:
-  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) = delete;
+  void operator=(const vtkXMLPRectilinearGridReader&) = delete;
 };
 
 #endif

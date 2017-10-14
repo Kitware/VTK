@@ -41,7 +41,7 @@ class VTKINFOVISCORE_EXPORT vtkAdjacencyMatrixToEdgeTable : public vtkTableAlgor
 public:
   static vtkAdjacencyMatrixToEdgeTable* New();
   vtkTypeMacro(vtkAdjacencyMatrixToEdgeTable, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -82,14 +82,14 @@ public:
 
 protected:
   vtkAdjacencyMatrixToEdgeTable();
-  ~vtkAdjacencyMatrixToEdgeTable() VTK_OVERRIDE;
+  ~vtkAdjacencyMatrixToEdgeTable() override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   vtkIdType SourceDimension;
   char* ValueArrayName;
@@ -97,8 +97,8 @@ protected:
   double MinimumThreshold;
 
 private:
-  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
+  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&) = delete;
+  void operator=(const vtkAdjacencyMatrixToEdgeTable&) = delete;
 };
 
 #endif

@@ -39,7 +39,7 @@ typedef std::list<vtkHandleRepresentation*>::iterator vtkHandleListIterator;
 //----------------------------------------------------------------------
 vtkSeedRepresentation::vtkSeedRepresentation()
 {
-  this->HandleRepresentation  = NULL;
+  this->HandleRepresentation  = nullptr;
 
   // The representation for the seed handles
   this->Handles = new vtkHandleList;
@@ -77,10 +77,10 @@ vtkHandleRepresentation *vtkSeedRepresentation
   }
   else //create one
   {
-    if (this->HandleRepresentation == NULL)
+    if (this->HandleRepresentation == nullptr)
     {
       vtkErrorMacro("GetHandleRepresentation " << num << ", no handle representation has been set yet, cannot create a new handle.");
-      return NULL;
+      return nullptr;
     }
     vtkHandleRepresentation *rep = this->HandleRepresentation->NewInstance();
     rep->DeepCopy(this->HandleRepresentation);
@@ -143,7 +143,7 @@ ComputeInteractionState(int vtkNotUsed(X), int vtkNotUsed(Y), int vtkNotUsed(mod
   vtkHandleListIterator iter;
   for ( i = 0, iter = this->Handles->begin(); iter != this->Handles->end(); ++iter, ++i )
   {
-    if ( *iter != NULL )
+    if ( *iter != nullptr )
     {
       if ( (*iter)->GetInteractionState() != vtkHandleRepresentation::Outside )
       {
@@ -175,7 +175,7 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
 
   vtkHandleRepresentation *rep = this->GetHandleRepresentation(
     static_cast<int>(this->Handles->size()));
-  if (rep == NULL)
+  if (rep == nullptr)
   {
     vtkErrorMacro("CreateHandle: no handle representation set yet! Cannot create a new handle.");
     return -1;
@@ -189,7 +189,7 @@ int vtkSeedRepresentation::CreateHandle(double e[2])
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveLastHandle()
 {
-  if ( this->Handles->size() < 1 )
+  if ( this->Handles->empty() )
   {
     return;
   }
@@ -225,7 +225,7 @@ void vtkSeedRepresentation::RemoveHandle( int n )
 //----------------------------------------------------------------------
 void vtkSeedRepresentation::RemoveActiveHandle()
 {
-  if ( this->Handles->size() < 1 )
+  if ( this->Handles->empty() )
   {
     return;
   }

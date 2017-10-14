@@ -561,6 +561,20 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         resizing = false;
       }
     }
+
+    if (this->OffScreenInitialized)
+    {
+      if (!resizing)
+      {
+      resizing = true;
+      // we don't call DestroyOffScreenWindow/CreateOffScreenWindow here since
+      // those method destroy/release all graphics resources too which is not
+      // needed for a resize. All we want is to resize the FBO.
+      this->DestroyHardwareOffScreenWindow();
+      this->CreateHardwareOffScreenWindow(x, y);
+      resizing = false;
+      }
+    }
   }
 }
 
@@ -647,67 +661,6 @@ void vtkCocoaRenderWindow::Frame()
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers)
   {
     [(NSOpenGLContext*)this->GetContextId() flushBuffer];
-  }
-}
-
-//----------------------------------------------------------------------------
-// Update system if needed due to stereo rendering.
-void vtkCocoaRenderWindow::StereoUpdate()
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 1;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 1;
-        break;
-    }
-  }
-  else if ((!this->StereoRender) && this->StereoStatus)
-  {
-    switch (this->StereoType)
-    {
-      case VTK_STEREO_CRYSTAL_EYES:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_RED_BLUE:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_ANAGLYPH:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_DRESDEN:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_INTERLACED:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_CHECKERBOARD:
-        this->StereoStatus = 0;
-        break;
-      case VTK_STEREO_SPLITVIEWPORT_HORIZONTAL:
-        this->StereoStatus = 0;
-        break;
-    }
   }
 }
 
@@ -1528,7 +1481,7 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetWindowInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)
@@ -1542,7 +1495,7 @@ void vtkCocoaRenderWindow::SetWindowInfo(char *info)
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetParentInfo(char *info)
 {
-  // The paramater is an ASCII string of a decimal number representing
+  // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
   ptrdiff_t tmp = 0;
   if (info)

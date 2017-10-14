@@ -32,10 +32,10 @@ class VTKCOMMONCORE_EXPORT vtkInformationInformationKey : public vtkInformationK
 {
 public:
   vtkTypeMacro(vtkInformationInformationKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkInformationInformationKey(const char* name, const char* location);
-  ~vtkInformationInformationKey() VTK_OVERRIDE;
+  ~vtkInformationInformationKey() override;
 
   /**
    * This method simply returns a new vtkInformationInformationKey, given a
@@ -61,18 +61,18 @@ public:
    * object to another.  If there is no entry in the first information
    * object for this key, the value is removed from the second.
    */
-  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) override;
 
   /**
    * Duplicate (new instance created) the entry associated with this key from
    * one information object to another (new instances of any contained
    * vtkInformation and vtkInformationVector objects are created).
    */
-  void DeepCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
+  void DeepCopy(vtkInformation* from, vtkInformation* to) override;
 
 private:
-  vtkInformationInformationKey(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
+  vtkInformationInformationKey(const vtkInformationInformationKey&) = delete;
+  void operator=(const vtkInformationInformationKey&) = delete;
 };
 
 #endif

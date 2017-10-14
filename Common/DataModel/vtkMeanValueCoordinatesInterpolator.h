@@ -64,7 +64,7 @@ public:
    */
   static vtkMeanValueCoordinatesInterpolator *New();
   vtkTypeMacro(vtkMeanValueCoordinatesInterpolator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkMeanValueCoordinatesInterpolator();
-  ~vtkMeanValueCoordinatesInterpolator() VTK_OVERRIDE;
+  ~vtkMeanValueCoordinatesInterpolator() override;
 
   /**
    * Internal method that sets up the processing of triangular meshes.
@@ -105,8 +105,8 @@ protected:
 
 
 private:
-  vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMeanValueCoordinatesInterpolator&) VTK_DELETE_FUNCTION;
+  vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&) = delete;
+  void operator=(const vtkMeanValueCoordinatesInterpolator&) = delete;
 };
 
 #endif

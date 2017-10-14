@@ -59,7 +59,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFXAAFilter: public vtkObject
 public:
   static vtkOpenGLFXAAFilter* New();
   vtkTypeMacro(vtkOpenGLFXAAFilter, vtkObject)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Perform FXAA on the current render buffer in @a ren.
@@ -102,7 +102,7 @@ public:
 
 protected:
   vtkOpenGLFXAAFilter();
-  ~vtkOpenGLFXAAFilter() VTK_OVERRIDE;
+  ~vtkOpenGLFXAAFilter() override;
 
   void Prepare();
   void FreeGLObjects();
@@ -147,8 +147,8 @@ protected:
   vtkOpenGLBufferObject *VBO;
 
 private:
-  vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLFXAAFilter&) VTK_DELETE_FUNCTION;
+  vtkOpenGLFXAAFilter(const vtkOpenGLFXAAFilter&) = delete;
+  void operator=(const vtkOpenGLFXAAFilter&) = delete;
 };
 
 #endif // vtkOpenGLFXAAFilter_h

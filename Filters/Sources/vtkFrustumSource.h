@@ -41,13 +41,13 @@ class VTKFILTERSSOURCES_EXPORT vtkFrustumSource : public vtkPolyDataAlgorithm
 public:
   static vtkFrustumSource *New();
   vtkTypeMacro(vtkFrustumSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
-   * Return the 6 planes defining the frustum. Initial value is NULL.
+   * Return the 6 planes defining the frustum. Initial value is nullptr.
    * The 6 planes are defined in this order: left,right,bottom,top,far,near.
-   * If Planes==NULL or if Planes->GetNumberOfPlanes()!=6 when RequestData()
+   * If Planes==nullptr or if Planes->GetNumberOfPlanes()!=6 when RequestData()
    * is called, an error message will be emitted and RequestData() will
    * return right away.
    */
@@ -80,7 +80,7 @@ public:
   /**
    * Modified GetMTime because of Planes.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -94,15 +94,15 @@ public:
 
 protected:
   /**
-   * Default constructor. Planes=NULL. ShowLines=true. LinesLength=1.0.
+   * Default constructor. Planes=nullptr. ShowLines=true. LinesLength=1.0.
    */
   vtkFrustumSource();
 
-  ~vtkFrustumSource() VTK_OVERRIDE;
+  ~vtkFrustumSource() override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Compute the intersection of 3 planes.
@@ -116,8 +116,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkFrustumSource(const vtkFrustumSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFrustumSource&) VTK_DELETE_FUNCTION;
+  vtkFrustumSource(const vtkFrustumSource&) = delete;
+  void operator=(const vtkFrustumSource&) = delete;
 };
 
 #endif

@@ -43,7 +43,7 @@ vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
   if (this->InputList)
   {
     this->InputList->Delete();
-    this->InputList = NULL;
+    this->InputList = nullptr;
   }
 }
 

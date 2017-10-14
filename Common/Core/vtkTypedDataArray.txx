@@ -109,7 +109,7 @@ vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
         break;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 #endif //vtkTypedDataArray_txx

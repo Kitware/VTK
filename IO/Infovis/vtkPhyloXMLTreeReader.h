@@ -49,7 +49,7 @@ class VTKIOINFOVIS_EXPORT vtkPhyloXMLTreeReader : public vtkXMLReader
 public:
   static vtkPhyloXMLTreeReader *New();
   vtkTypeMacro(vtkPhyloXMLTreeReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -61,12 +61,12 @@ public:
 
 protected:
   vtkPhyloXMLTreeReader();
-  ~vtkPhyloXMLTreeReader() VTK_OVERRIDE;
+  ~vtkPhyloXMLTreeReader() override;
 
   /**
    * Read the input PhyloXML and populate our output vtkTree.
    */
-  void ReadXMLData() VTK_OVERRIDE;
+  void ReadXMLData() override;
 
   /**
    * Read one particular XML element.  This method calls the more specific
@@ -157,17 +157,17 @@ protected:
    */
   std::string GetStringAfterColon(const char *input);
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  const char* GetDataSetName() VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
+  const char* GetDataSetName() override;
   void SetOutput(vtkTree *output);
-  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
 
 private:
   vtkIdType NumberOfNodes;
   bool HasBranchColor;
   vtkSmartPointer<vtkBitArray> ColoredVertices;
-  vtkPhyloXMLTreeReader(const vtkPhyloXMLTreeReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPhyloXMLTreeReader&) VTK_DELETE_FUNCTION;
+  vtkPhyloXMLTreeReader(const vtkPhyloXMLTreeReader&) = delete;
+  void operator=(const vtkPhyloXMLTreeReader&) = delete;
 };
 
 #endif

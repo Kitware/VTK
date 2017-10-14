@@ -40,7 +40,7 @@ class VTKIOXMLPARSER_EXPORT vtkXMLParser : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLParser,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkXMLParser* New();
 
@@ -112,7 +112,7 @@ public:
 
   //@{
   /**
-   * Set and get the encoding the parser should expect (NULL defaults to
+   * Set and get the encoding the parser should expect (nullptr defaults to
    * Expat's own default encoder, i.e UTF-8).
    * This should be set before parsing (i.e. a call to Parse()) or
    * even initializing the parser (i.e. a call to InitializeParser())
@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkXMLParser();
-  ~vtkXMLParser() VTK_OVERRIDE;
+  ~vtkXMLParser() override;
 
   // Input stream.  Set by user.
   istream* Stream;
@@ -209,8 +209,8 @@ protected:
   int IgnoreCharacterData;
 
 private:
-  vtkXMLParser(const vtkXMLParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLParser&) VTK_DELETE_FUNCTION;
+  vtkXMLParser(const vtkXMLParser&) = delete;
+  void operator=(const vtkXMLParser&) = delete;
 };
 
 //----------------------------------------------------------------------------

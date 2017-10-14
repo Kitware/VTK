@@ -38,7 +38,7 @@ class vtkMPIOutputWindow : public vtkOutputWindow
 public:
   vtkTypeMacro(vtkMPIOutputWindow,vtkOutputWindow);
 
-  void DisplayText(const char* t) VTK_OVERRIDE
+  void DisplayText(const char* t) override
   {
       if (this->Controller && vtkMPIController::Initialized)
       {
@@ -167,8 +167,8 @@ void vtkMPIController::Initialize(int* argc, char*** argv,
   vtkMPIController::WorldRMICommunicator = vtkMPICommunicator::New();
   vtkMPIController::WorldRMICommunicator->Duplicate((vtkMPICommunicator*)this->Communicator);
   this->RMICommunicator = vtkMPIController::WorldRMICommunicator;
-  // Since we use Delete to get rid of the reference, we should use NULL to register.
-  this->RMICommunicator->Register(NULL);
+  // Since we use Delete to get rid of the reference, we should use nullptr to register.
+  this->RMICommunicator->Register(nullptr);
 
   this->Modified();
 }
@@ -316,15 +316,21 @@ vtkMPIController *vtkMPIController::CreateSubController(vtkProcessGroup *group)
 {
   VTK_CREATE(vtkMPICommunicator, subcomm);
 
-  if (!subcomm->Initialize(group)) return NULL;
+  if (!subcomm->Initialize(group))
+  {
+    return nullptr;
+  }
 
   // MPI is kind of funny in that in order to create a communicator from a
   // subgroup of another communicator, it is a collective operation involving
   // all of the processes in the original communicator, not just those belonging
   // to the group.  In any process not part of the group, the communicator is
-  // created with MPI_COMM_NULL.  Check for that and return NULL ourselves,
+  // created with MPI_COMM_NULL.  Check for that and return nullptr ourselves,
   // which is not really an error condition.
-  if (*(subcomm->GetMPIComm()->Handle) == MPI_COMM_NULL) return NULL;
+  if (*(subcomm->GetMPIComm()->Handle) == MPI_COMM_NULL)
+  {
+    return nullptr;
+  }
 
   vtkMPIController *controller = vtkMPIController::New();
   controller->SetCommunicator(subcomm);
@@ -339,7 +345,7 @@ vtkMPIController *vtkMPIController::PartitionController(int localColor,
 
   if (!subcomm->SplitInitialize(this->Communicator, localColor, localKey))
   {
-    return NULL;
+    return nullptr;
   }
 
   vtkMPIController *controller = vtkMPIController::New();
@@ -351,7 +357,7 @@ vtkMPIController *vtkMPIController::PartitionController(int localColor,
 int vtkMPIController::WaitSome(
   const int count, vtkMPICommunicator::Request rqsts[], vtkIntArray *completed)
 {
-  assert( "pre: completed array is NULL!" && (completed != NULL) );
+  assert( "pre: completed array is nullptr!" && (completed != nullptr) );
 
   // Allocate set of completed requests
   completed->SetNumberOfComponents(1);
@@ -412,7 +418,7 @@ bool vtkMPIController::TestSome(
     const int count, vtkMPICommunicator::Request requests[],
     vtkIntArray *completed )
 {
-  assert("pre: completed array is NULL" && (completed != NULL) );
+  assert("pre: completed array is nullptr" && (completed != nullptr) );
 
   // Allocate set of completed requests
   completed->SetNumberOfComponents(1);

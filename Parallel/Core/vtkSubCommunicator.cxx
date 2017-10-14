@@ -30,12 +30,12 @@ vtkStandardNewMacro(vtkSubCommunicator);
 //-----------------------------------------------------------------------------
 vtkSubCommunicator::vtkSubCommunicator()
 {
-  this->Group = NULL;
+  this->Group = nullptr;
 }
 
 vtkSubCommunicator::~vtkSubCommunicator()
 {
-  this->SetGroup(NULL);
+  this->SetGroup(nullptr);
 }
 
 void vtkSubCommunicator::PrintSelf(ostream &os, vtkIndent indent)

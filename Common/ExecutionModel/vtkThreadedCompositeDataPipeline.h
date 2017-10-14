@@ -39,7 +39,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedCompositeDataPipeline : public v
  public:
   static vtkThreadedCompositeDataPipeline* New();
   vtkTypeMacro(vtkThreadedCompositeDataPipeline,vtkCompositeDataPipeline);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * An API to CallAlgorithm that allows you to pass in the info objects to
@@ -47,22 +47,22 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedCompositeDataPipeline : public v
    */
   int CallAlgorithm(vtkInformation* request, int direction,
                             vtkInformationVector** inInfo,
-                            vtkInformationVector* outInfo) VTK_OVERRIDE;
+                            vtkInformationVector* outInfo) override;
 
  protected:
   vtkThreadedCompositeDataPipeline();
-  ~vtkThreadedCompositeDataPipeline() VTK_OVERRIDE;
+  ~vtkThreadedCompositeDataPipeline() override;
   void ExecuteEach(vtkCompositeDataIterator* iter,
                            vtkInformationVector** inInfoVec,
                            vtkInformationVector* outInfoVec,
                            int compositePort,
                            int connection,
                            vtkInformation* request,
-                           vtkCompositeDataSet* compositeOutput) VTK_OVERRIDE;
+                           vtkCompositeDataSet* compositeOutput) override;
 
  private:
-  vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThreadedCompositeDataPipeline&) VTK_DELETE_FUNCTION;
+  vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) = delete;
+  void operator=(const vtkThreadedCompositeDataPipeline&) = delete;
   friend class ProcessBlock;
 };
 

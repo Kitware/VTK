@@ -44,7 +44,7 @@ public:
   void AddItem(vtkTransform *);
 
   /**
-   * Get the next Transform in the list. Return NULL when the end of the
+   * Get the next Transform in the list. Return nullptr when the end of the
    * list is reached.
    */
   vtkTransform *GetNextItem();
@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkTransformCollection() {}
-  ~vtkTransformCollection() VTK_OVERRIDE {}
+  ~vtkTransformCollection() override {}
 
 
 private:
@@ -69,8 +69,8 @@ private:
   }
 
 private:
-  vtkTransformCollection(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
+  vtkTransformCollection(const vtkTransformCollection&) = delete;
+  void operator=(const vtkTransformCollection&) = delete;
 };
 
 //----------------------------------------------------------------------------

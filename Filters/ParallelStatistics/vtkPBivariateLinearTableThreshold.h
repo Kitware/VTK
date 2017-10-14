@@ -41,7 +41,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPBivariateLinearTableThreshold : pu
 public:
   static vtkPBivariateLinearTableThreshold* New();
   vtkTypeMacro(vtkPBivariateLinearTableThreshold, vtkBivariateLinearTableThreshold);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -54,17 +54,17 @@ public:
 
 protected:
   vtkPBivariateLinearTableThreshold();
-  virtual ~vtkPBivariateLinearTableThreshold();
+  ~vtkPBivariateLinearTableThreshold() override;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPBivariateLinearTableThreshold(const vtkPBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  vtkPBivariateLinearTableThreshold(const vtkPBivariateLinearTableThreshold&) = delete;
+  void operator=(const vtkPBivariateLinearTableThreshold&) = delete;
 };
 
 #endif

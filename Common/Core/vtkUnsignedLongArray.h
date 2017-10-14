@@ -46,7 +46,7 @@ public:
 #undef vtkDataArray
 #endif
   static vtkUnsignedLongArray* New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
@@ -75,14 +75,14 @@ public:
 
 protected:
   vtkUnsignedLongArray();
-  ~vtkUnsignedLongArray() VTK_OVERRIDE;
+  ~vtkUnsignedLongArray() override;
 
 private:
 
   typedef vtkAOSDataArrayTemplate<unsigned long> RealSuperclass;
 
-  vtkUnsignedLongArray(const vtkUnsignedLongArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnsignedLongArray&) VTK_DELETE_FUNCTION;
+  vtkUnsignedLongArray(const vtkUnsignedLongArray&) = delete;
+  void operator=(const vtkUnsignedLongArray&) = delete;
 };
 
 // Define vtkArrayDownCast implementation:

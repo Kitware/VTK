@@ -37,7 +37,7 @@ class VTKFILTERSGEOMETRY_EXPORT vtkLinearToQuadraticCellsFilter :
 {
 public:
   vtkTypeMacro(vtkLinearToQuadraticCellsFilter,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLinearToQuadraticCellsFilter *New();
 
   //@{
@@ -69,21 +69,21 @@ public:
   /**
    * Return the mtime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkLinearToQuadraticCellsFilter();
-  ~vtkLinearToQuadraticCellsFilter() VTK_OVERRIDE;
+  ~vtkLinearToQuadraticCellsFilter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   vtkIncrementalPointLocator *Locator;
   int OutputPointsPrecision;
 
 private:
-  vtkLinearToQuadraticCellsFilter(const vtkLinearToQuadraticCellsFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearToQuadraticCellsFilter&) VTK_DELETE_FUNCTION;
+  vtkLinearToQuadraticCellsFilter(const vtkLinearToQuadraticCellsFilter&) = delete;
+  void operator=(const vtkLinearToQuadraticCellsFilter&) = delete;
 
 };
 

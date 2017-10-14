@@ -101,7 +101,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVol
 public:
   static vtkFixedPointVolumeRayCastMapper *New();
   vtkTypeMacro(vtkFixedPointVolumeRayCastMapper,vtkVolumeMapper);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -223,7 +223,7 @@ public:
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * Initialize rendering for this volume.
    */
-  void Render( vtkRenderer *, vtkVolume * ) VTK_OVERRIDE;
+  void Render( vtkRenderer *, vtkVolume * ) override;
 
   unsigned int ToFixedPointPosition( float val );
   void ToFixedPointPosition( float in[3], unsigned int out[3] );
@@ -357,11 +357,11 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkFixedPointVolumeRayCastMapper();
-  ~vtkFixedPointVolumeRayCastMapper() VTK_OVERRIDE;
+  ~vtkFixedPointVolumeRayCastMapper() override;
 
   // The helper class that displays the image
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
@@ -548,8 +548,8 @@ protected:
   void ApplyFinalColorWindowLevel();
 
 private:
-  vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFixedPointVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&) = delete;
+  void operator=(const vtkFixedPointVolumeRayCastMapper&) = delete;
 
   bool ThreadWarning;
 };

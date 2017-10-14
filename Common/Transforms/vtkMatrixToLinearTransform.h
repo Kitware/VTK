@@ -39,7 +39,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
  public:
   static vtkMatrixToLinearTransform *New();
   vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
-  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf (ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -54,30 +54,30 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
    * The input matrix is left as-is, but the transformation matrix
    * is inverted.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   /**
    * Get the MTime: this is the bit of magic that makes everything work.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Make a new transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
   vtkMatrixToLinearTransform();
-  ~vtkMatrixToLinearTransform() VTK_OVERRIDE;
+  ~vtkMatrixToLinearTransform() override;
 
-  void InternalUpdate() VTK_OVERRIDE;
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalUpdate() override;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   int InverseFlag;
   vtkMatrix4x4 *Input;
 private:
-  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatrixToLinearTransform&) VTK_DELETE_FUNCTION;
+  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) = delete;
+  void operator=(const vtkMatrixToLinearTransform&) = delete;
 };
 
 #endif

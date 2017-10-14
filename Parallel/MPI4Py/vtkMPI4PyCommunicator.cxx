@@ -56,13 +56,13 @@ vtkMPICommunicator* vtkMPI4PyCommunicator::ConvertToVTK(PyObject* comm)
   {
     if (import_mpi4py() < 0)
     {
-      return NULL;
+      return nullptr;
     }
   }
 
   if (!comm || !PyObject_TypeCheck(comm, &PyMPIComm_Type))
   {
-    return NULL;
+    return nullptr;
   }
 
   MPI_Comm *mpiComm = PyMPIComm_Get(comm);
@@ -71,7 +71,7 @@ vtkMPICommunicator* vtkMPI4PyCommunicator::ConvertToVTK(PyObject* comm)
   if (!vtkComm->InitializeExternal(&opaqueComm))
   {
     vtkComm->Delete();
-    return NULL;
+    return nullptr;
   }
 
   return vtkComm;

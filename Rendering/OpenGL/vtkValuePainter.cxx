@@ -422,7 +422,7 @@ void vtkValuePainter::DrawCells(
     internalColorTexture = vtkSmartPointer<vtkOpenGLTexture>::New();
     //texture ensures that GL interpolates point values across polygons
     internalColorTexture->RepeatOff();
-    internalColorTexture->SetInputData(this->Internals->Texture.GetPointer());
+    internalColorTexture->SetInputData(this->Internals->Texture);
     internalColorTexture->Load(renderer);
   }
 

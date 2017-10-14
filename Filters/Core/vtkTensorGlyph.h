@@ -14,15 +14,19 @@
 =========================================================================*/
 /**
  * @class   vtkTensorGlyph
- * @brief   scale and orient glyph(s) according to tensor eigenvalues and eigenvectors
+ * @brief   scale and orient glyph(s) according to eigenvalues and eigenvectors of symmetrical part of tensor
  *
  * vtkTensorGlyph is a filter that copies a geometric representation
  * (specified as polygonal data) to every input point. The geometric
  * representation, or glyph, can be scaled and/or rotated according to
  * the tensor at the input point. Scaling and rotation is controlled
- * by the eigenvalues/eigenvectors of the tensor as follows. For each
- * tensor, the eigenvalues (and associated eigenvectors) are sorted to
- * determine the major, medium, and minor eigenvalues/eigenvectors.
+ * by the eigenvalues/eigenvectors of the symmetrical part of the tensor
+ * as follows:
+ * For each tensor, the eigenvalues (and associated eigenvectors) are sorted
+ * to determine the major, medium, and minor eigenvalues/eigenvectors.
+ * The eigenvalue decomposition only makes sense for symmetric tensors,
+ * hence the need to only consider the symmetric part of the tensor, which is
+ * 1/2 (T + T.transposed()).
  *
  * If the boolean variable ThreeGlyphs is not set the major eigenvalue
  * scales the glyph in the x-direction, the medium in the y-direction,
@@ -86,7 +90,7 @@ class VTKFILTERSCORE_EXPORT vtkTensorGlyph : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTensorGlyph,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with scaling on and scale factor 1.0. Eigenvalues are
@@ -233,11 +237,11 @@ public:
 
 protected:
   vtkTensorGlyph();
-  ~vtkTensorGlyph() VTK_OVERRIDE;
+  ~vtkTensorGlyph() override;
 
-  int RequestUpdateExtent(vtkInformation *,  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *,  vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry
@@ -250,8 +254,8 @@ protected:
   int Symmetric; // Boolean controls drawing a "mirror" of each glyph
   double Length; // Distance, in x, from the origin to the end of the glyph
 private:
-  vtkTensorGlyph(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
+  vtkTensorGlyph(const vtkTensorGlyph&) = delete;
+  void operator=(const vtkTensorGlyph&) = delete;
 };
 
 #endif

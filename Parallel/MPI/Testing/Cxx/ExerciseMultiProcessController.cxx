@@ -424,7 +424,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->Gather(sourceArrays[rank]->GetPointer(0), NULL, arraySize,
+    controller->Gather(sourceArrays[rank]->GetPointer(0), nullptr, arraySize,
                        destProcessId);
   }
   CheckSuccess(controller, result);
@@ -480,8 +480,8 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->GatherV(sourceArrays[rank]->GetPointer(0), NULL,
-                        lengths[rank], NULL, NULL, destProcessId);
+    controller->GatherV(sourceArrays[rank]->GetPointer(0), nullptr,
+                        lengths[rank], nullptr, nullptr, destProcessId);
   }
   CheckSuccess(controller, result);
 
@@ -525,7 +525,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->Scatter(NULL, buffer->GetPointer(0), length, srcProcessId);
+    controller->Scatter(nullptr, buffer->GetPointer(0), length, srcProcessId);
   }
   result = 1;
   for (i = 0; i < length; i++)
@@ -558,7 +558,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->ScatterV(NULL, buffer->GetPointer(0), &lengths[0], &offsets[0],
+    controller->ScatterV(nullptr, buffer->GetPointer(0), &lengths[0], &offsets[0],
                          lengths[rank], srcProcessId);
   }
   result = 1;
@@ -748,7 +748,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->Gather(sourceArrays[rank], NULL, destProcessId);
+    controller->Gather(sourceArrays[rank], nullptr, destProcessId);
   }
   CheckSuccess(controller, result);
 
@@ -817,7 +817,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->GatherV(tmpSource, NULL, destProcessId);
+    controller->GatherV(tmpSource, nullptr, destProcessId);
   }
   CheckSuccess(controller, result);
 
@@ -905,7 +905,7 @@ void ExerciseType(vtkMultiProcessController *controller)
   }
   else
   {
-    controller->Scatter(NULL, buffer, srcProcessId);
+    controller->Scatter(nullptr, buffer, srcProcessId);
   }
   result = 1;
   for (i = 0; i < length; i++)
@@ -1115,7 +1115,7 @@ int ExerciseMultiProcessController(vtkMultiProcessController *controller)
 
   // First, let us create a random seed that everyone will have.
   int seed;
-  seed = time(NULL);
+  seed = time(nullptr);
   controller->Broadcast(&seed, 1, 0);
   COUT("**** Random Seed = " << seed << " ****");
   vtkMath::RandomSeed(seed);

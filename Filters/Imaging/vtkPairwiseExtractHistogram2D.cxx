@@ -292,7 +292,7 @@ void vtkPairwiseExtractHistogram2D::SetCustomColumnRange(int column, double rmin
     if (a)
     {
       this->Implementation->ColumnUsesCustomExtents[a->GetName()] = true;
-      if (this->Implementation->ColumnExtents[a->GetName()].size() == 0)
+      if (this->Implementation->ColumnExtents[a->GetName()].empty())
       {
         this->Implementation->ColumnExtents[a->GetName()].push_back(rmin);
         this->Implementation->ColumnExtents[a->GetName()].push_back(rmax);
@@ -356,7 +356,7 @@ vtkImageData* vtkPairwiseExtractHistogram2D::GetOutputHistogramImage(int idx)
   {
     return vtkImageData::SafeDownCast(mbds->GetBlock(idx));
   }
-  return NULL;
+  return nullptr;
 }
 //------------------------------------------------------------------------------
 void vtkPairwiseExtractHistogram2D::GetBinWidth(int idx,double bw[2])
@@ -377,7 +377,7 @@ double* vtkPairwiseExtractHistogram2D::GetHistogramExtents(int idx)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 //------------------------------------------------------------------------------

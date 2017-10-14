@@ -69,7 +69,7 @@ class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkRearrangeFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkRearrangeFields with an empty operation list.
@@ -161,16 +161,16 @@ public:
     int ToFieldLoc;   // fd, pd or do
     int Id;            // assigned during creation
     Operation* Next;   // linked list
-    Operation() { FieldName = 0; }
+    Operation() { FieldName = nullptr; }
     ~Operation() { delete[] FieldName; }
   };
 
 protected:
 
   vtkRearrangeFields();
-  ~vtkRearrangeFields() VTK_OVERRIDE;
+  ~vtkRearrangeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 
   // Operations are stored as a linked list.
@@ -214,8 +214,8 @@ protected:
   void PrintAllOperations(ostream& os, vtkIndent indent);
   void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
 private:
-  vtkRearrangeFields(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
+  vtkRearrangeFields(const vtkRearrangeFields&) = delete;
+  void operator=(const vtkRearrangeFields&) = delete;
 };
 
 #endif

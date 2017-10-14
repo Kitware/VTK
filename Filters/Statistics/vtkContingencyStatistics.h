@@ -57,7 +57,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkContingencyStatistics : public vtkStatistic
 {
 public:
   vtkTypeMacro(vtkContingencyStatistics, vtkStatisticsAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkContingencyStatistics* New();
 
   /**
@@ -65,37 +65,37 @@ public:
    * NB: not implemented
    */
   void Aggregate( vtkDataObjectCollection*,
-                          vtkMultiBlockDataSet* ) VTK_OVERRIDE { return; };
+                          vtkMultiBlockDataSet* ) override { return; };
 
 protected:
   vtkContingencyStatistics();
-  ~vtkContingencyStatistics() VTK_OVERRIDE;
+  ~vtkContingencyStatistics() override;
 
   /**
    * Execute the calculations required by the Learn option.
    */
   void Learn( vtkTable*,
               vtkTable*,
-              vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+              vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive( vtkMultiBlockDataSet* ) VTK_OVERRIDE;
+  void Derive( vtkMultiBlockDataSet* ) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
   void Test( vtkTable*,
              vtkMultiBlockDataSet*,
-             vtkTable* ) VTK_OVERRIDE;
+             vtkTable* ) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
   void Assess( vtkTable*,
                vtkMultiBlockDataSet*,
-               vtkTable* ) VTK_OVERRIDE;
+               vtkTable* ) override;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -111,7 +111,7 @@ protected:
   void SelectAssessFunctor( vtkTable* outData,
                             vtkDataObject* inMeta,
                             vtkStringArray* rowNames,
-                            AssessFunctor*& dfunc ) VTK_OVERRIDE;
+                            AssessFunctor*& dfunc ) override;
   /**
    * Provide the appropriate assessment functor.
    * This one is the one that is actually used.
@@ -123,8 +123,8 @@ protected:
                                     AssessFunctor*& dfunc );
 
 private:
-  vtkContingencyStatistics(const vtkContingencyStatistics&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContingencyStatistics&) VTK_DELETE_FUNCTION;
+  vtkContingencyStatistics(const vtkContingencyStatistics&) = delete;
+  void operator=(const vtkContingencyStatistics&) = delete;
 };
 
 #endif

@@ -58,5 +58,6 @@ viewer.SetInputConnection(reslice.GetOutputPort())
 viewer.SetZSlice(70)
 viewer.SetColorWindow(2000)
 viewer.SetColorLevel(1000)
+viewer.SetSize(200,200)
 viewer.Render()
 # --- end of script --

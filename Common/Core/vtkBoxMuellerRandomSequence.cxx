@@ -68,7 +68,7 @@ void vtkBoxMuellerRandomSequence::Next()
 // ----------------------------------------------------------------------------
 vtkRandomSequence *vtkBoxMuellerRandomSequence::GetUniformSequence()
 {
-  assert("post: result_exists" && this->UniformSequence!=0);
+  assert("post: result_exists" && this->UniformSequence!=nullptr);
   return this->UniformSequence;
 }
 
@@ -79,7 +79,7 @@ vtkRandomSequence *vtkBoxMuellerRandomSequence::GetUniformSequence()
 void vtkBoxMuellerRandomSequence::SetUniformSequence(
   vtkRandomSequence *uniformSequence)
 {
-  assert("pre: uniformSequence_exists" && uniformSequence!=0);
+  assert("pre: uniformSequence_exists" && uniformSequence!=nullptr);
 
   if(this->UniformSequence!=uniformSequence)
   {

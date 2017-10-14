@@ -319,7 +319,7 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
     std::vector<vtkSparseArray<double>::CoordinateT> badcoords =
       array1D->GetUniqueCoordinates(5);
-    test_expression(badcoords.size() == 0);
+    test_expression(badcoords.empty());
     test_expression(
       errorObserver->GetErrorMessage().find(
         "Dimension out-of-bounds.") != std::string::npos);

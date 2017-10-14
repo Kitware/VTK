@@ -32,6 +32,8 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+class vtkMergePoints;
+
 class VTKFILTERSSOURCES_EXPORT vtkCellTypeSource : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -41,7 +43,7 @@ public:
    */
   static vtkCellTypeSource *New();
   vtkTypeMacro(vtkCellTypeSource,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -54,6 +56,54 @@ public:
 
   //@{
   /**
+   * Set/Get the order of Lagrange interpolation to be used.
+   *
+   * This is only used when the cell type is a Lagrange element.
+   * The default is cubic (order 3).
+   * Lagrange elements are the same order along all axes
+   * (i.e., you cannot specify a different interpolation order
+   * for the i, j, and k axes of a hexahedron).
+   */
+  vtkSetMacro(CellOrder, int);
+  vtkGetMacro(CellOrder, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get whether quadratic cells with simplicial shapes should be "completed".
+   *
+   * By default, quadratic Lagrange cells with simplicial shapes
+   * do not completely span the basis of all polynomial of the maximal
+   * degree. This can be corrected by adding mid-face and body-centered
+   * nodes. Setting this option to true will generate cells with these
+   * additional nodes.
+   *
+   * This is only used when
+   * (1) the cell type is a Lagrange triangle, tetrahedron, or wedge;
+   * and (2) \a CellOrder is set to 2 (quadratic elements).
+   * The default is false.
+   *
+   * When true, generated
+   * (1) triangles will have 7 nodes instead of 6;
+   * (2) tetrahedra will have 15 nodes instead of 10;
+   * (3) wedges will have 21 nodes instead of 18.
+   */
+  vtkSetMacro(CompleteQuadraticSimplicialElements, bool);
+  vtkGetMacro(CompleteQuadraticSimplicialElements, bool);
+  vtkBooleanMacro(CompleteQuadraticSimplicialElements, bool);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the polynomial order of the "Polynomial" point field.
+   * The default is 1.
+   */
+  vtkSetClampMacro(PolynomialFieldOrder, int, 0, VTK_INT_MAX);
+  vtkGetMacro(PolynomialFieldOrder, int);
+  //@}
+
+  //@{
+  /**
    * Get the dimension of the cell blocks to be generated
    */
   int GetCellDimension();
@@ -62,11 +112,11 @@ public:
   //@{
   /**
    * Set/get the desired precision for the output points.
-   * vtkAlgorithm::SINGLE_PRECISION - Output single-precision floating point.
-   * vtkAlgorithm::DOUBLE_PRECISION - Output double-precision floating point.
+   * vtkAlgorithm::SINGLE_PRECISION (0) - Output single-precision floating point.
+   * vtkAlgorithm::DOUBLE_PRECISION (1) - Output double-precision floating point.
    */
-  vtkSetMacro(OutputPointsPrecision,int);
-  vtkGetMacro(OutputPointsPrecision,int);
+  vtkSetClampMacro(OutputPrecision,int, 0, 1);
+  vtkGetMacro(OutputPrecision,int);
   //@}
 
   //@{
@@ -83,10 +133,10 @@ public:
 
 protected:
   vtkCellTypeSource();
-  ~vtkCellTypeSource() VTK_OVERRIDE {}
+  ~vtkCellTypeSource() override {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   void GenerateTriangles(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuads(vtkUnstructuredGrid*, int extent[6]);
@@ -101,13 +151,27 @@ protected:
   void GenerateQuadraticWedges(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticPyramids(vtkUnstructuredGrid*, int extent[6]);
 
+  void GenerateLagrangeCurves(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeTris(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeQuads(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeTets(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeHexes(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeWedges(vtkUnstructuredGrid*, int extent[6]);
+
+  virtual void ComputeFields(vtkUnstructuredGrid*);
+  double GetValueOfOrder(int order, double coords[3]);
+
   int BlocksDimensions[3];
   int CellType;
-  int OutputPointsPrecision;
+  int CellOrder;
+  bool CompleteQuadraticSimplicialElements;
+  int OutputPrecision;
+  int PolynomialFieldOrder;
+  vtkMergePoints* Locator; // Only valid during RequestData.
 
 private:
-  vtkCellTypeSource(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;
+  vtkCellTypeSource(const vtkCellTypeSource&) = delete;
+  void operator=(const vtkCellTypeSource&) = delete;
 };
 
 #endif

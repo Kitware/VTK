@@ -44,7 +44,7 @@ LSDynaMetaData::LSDynaMetaData()
 }
 
 //-----------------------------------------------------------------------------
-bool LSDynaMetaData::AddPointArray( std::string name, int numComponents, int status )
+bool LSDynaMetaData::AddPointArray( const std::string& name, int numComponents, int status )
 {
   for ( unsigned i = 0; i < this->PointArrayNames.size(); ++i )
   {
@@ -61,7 +61,7 @@ bool LSDynaMetaData::AddPointArray( std::string name, int numComponents, int sta
 }
 
 //-----------------------------------------------------------------------------
-  bool LSDynaMetaData::AddCellArray( int cellType, std::string name, int numComponents, int status )
+  bool LSDynaMetaData::AddCellArray( int cellType, const std::string& name, int numComponents, int status )
   {
   for ( unsigned i = 0; i < this->CellArrayNames[cellType].size(); ++i )
   {

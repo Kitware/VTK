@@ -2,7 +2,7 @@
 
 #include "vtkObjectFactory.h"
 
-#include <errno.h>
+#include <cerrno>
 
 vtkStandardNewMacro(vtkConditionVariable);
 
@@ -22,7 +22,7 @@ vtkStandardNewMacro(vtkConditionVariable);
 #  define EAGAIN 35
 #endif
 
-#if ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
+#if ! defined(VTK_USE_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
 // Why is this encapsulated in a namespace?  Because you can get errors if
 // these symbols (particularly the typedef) are already defined.  We run
 // into this problem on a system that has pthread headers but no libraries
@@ -59,22 +59,15 @@ int pthread_cond_broadcast( vtkConditionType* cv )
 
 int pthread_cond_wait( vtkConditionType* cv, vtkMutexType* lock )
 {
-#ifdef VTK_USE_SPROC
-  release_lock( lock );
-#else // VTK_USE_SPROC
   *lock = 0;
-#endif // VTK_USE_SPROC
   while ( ! *cv );
-#ifdef VTK_USE_SPROC
-  spin_lock( lock );
-#else // VTK_USE_SPROC
   *lock = 1;
-#endif // VTK_USE_SPROC
+
   return 0;
 }
 
 }
-#endif // ! defined(VTK_USE_PTHREADS) && ! defined(VTK_HP_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
+#endif // ! defined(VTK_USE_PTHREADS) && ! defined(VTK_USE_WIN32_THREADS)
 
 #ifdef VTK_USE_WIN32_THREADS
 typedef int pthread_condattr_t;
@@ -85,16 +78,16 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t* )
   cv->WaitingThreadCount = 0;
   cv->WasBroadcast = 0;
   cv->Semaphore = CreateSemaphore(
-    NULL,       // no security
+    nullptr,       // no security
     0,          // initially 0
     0x7fffffff, // max count
-    NULL );     // unnamed
+    nullptr );     // unnamed
   InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
   cv->DoneWaiting = CreateEvent(
-    NULL,   // no security
+    nullptr,   // no security
     FALSE,  // auto-reset
     FALSE,  // non-signaled initially
-    NULL ); // unnamed
+    nullptr ); // unnamed
 
   return 0;
 }
@@ -214,10 +207,10 @@ int pthread_cond_init( pthread_cond_t* cv, const pthread_condattr_t * )
 
   // Create a manual-reset event.
   cv->Event = CreateEvent(
-    NULL,   // no security
+    nullptr,   // no security
     TRUE,   // manual-reset
     FALSE,  // non-signaled initially
-    NULL ); // unnamed
+    nullptr ); // unnamed
 
   InitializeCriticalSection( &cv->WaitingThreadCountCritSec );
 
@@ -313,7 +306,7 @@ int pthread_cond_destroy( pthread_cond_t* cv )
 
 vtkSimpleConditionVariable::vtkSimpleConditionVariable()
 {
-  int result = pthread_cond_init( &this->ConditionVariable, 0 );
+  int result = pthread_cond_init( &this->ConditionVariable, nullptr );
   switch ( result )
   {
   case EINVAL:
@@ -374,9 +367,6 @@ void vtkConditionVariable::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "ThreadingModel: "
 #ifdef VTK_USE_PTHREADS
     << "pthreads "
-#endif
-#ifdef VTK_HP_PTHREADS
-    << "HP pthreads "
 #endif
 #ifdef VTK_USE_WIN32_THREADS
     << "win32 threads "

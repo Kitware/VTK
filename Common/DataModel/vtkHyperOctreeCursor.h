@@ -52,7 +52,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCursor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the index of the current leaf in the data arrays.
@@ -177,9 +177,9 @@ public:
 protected:
   // Constructor.
   vtkHyperOctreeCursor();
-  ~vtkHyperOctreeCursor() VTK_OVERRIDE;
+  ~vtkHyperOctreeCursor() override;
 private:
-  vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHyperOctreeCursor&) VTK_DELETE_FUNCTION;
+  vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) = delete;
+  void operator=(const vtkHyperOctreeCursor&) = delete;
 };
 #endif

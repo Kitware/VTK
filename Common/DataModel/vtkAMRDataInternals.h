@@ -47,7 +47,7 @@ public:
   vtkTypeMacro(vtkAMRDataInternals, vtkObject);
 
   void Initialize();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void Insert(unsigned int index, vtkUniformGrid* grid);
   vtkUniformGrid* GetDataSet(unsigned int compositeIndex);
@@ -64,7 +64,7 @@ public:
 protected:
 
   vtkAMRDataInternals();
-  ~vtkAMRDataInternals() VTK_OVERRIDE;
+  ~vtkAMRDataInternals() override;
 
   void GenerateIndex(bool force=false);
 
@@ -73,8 +73,8 @@ protected:
   bool GetInternalIndex(unsigned int compositeIndex, unsigned int& internalIndex);
 
 private:
-  vtkAMRDataInternals(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
+  vtkAMRDataInternals(const vtkAMRDataInternals&) = delete;
+  void operator=(const vtkAMRDataInternals&) = delete;
 };
 
 #endif

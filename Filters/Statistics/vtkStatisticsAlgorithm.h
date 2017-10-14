@@ -72,7 +72,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkStatisticsAlgorithm : public vtkTableAlgori
 {
 public:
   vtkTypeMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * enumeration values to specify input port types
@@ -237,7 +237,7 @@ public:
 
    * For the version of this routine that returns const char*,
    * if the request or column does not exist because \a r or \a c is out of bounds,
-   * the routine returns NULL. Otherwise it returns the column name.
+   * the routine returns nullptr. Otherwise it returns the column name.
    * This version is not thread-safe.
    */
   virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );
@@ -284,15 +284,15 @@ public:
 
 protected:
   vtkStatisticsAlgorithm();
-  ~vtkStatisticsAlgorithm() VTK_OVERRIDE;
+  ~vtkStatisticsAlgorithm() override;
 
-  int FillInputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
-  int FillOutputPortInformation( int port, vtkInformation* info ) VTK_OVERRIDE;
+  int FillInputPortInformation( int port, vtkInformation* info ) override;
+  int FillOutputPortInformation( int port, vtkInformation* info ) override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector* ) VTK_OVERRIDE;
+    vtkInformationVector* ) override;
 
   /**
    * Execute the calculations required by the Learn option, given some input Data
@@ -345,8 +345,8 @@ protected:
   vtkStatisticsAlgorithmPrivate* Internals;
 
 private:
-  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) = delete;
+  void operator=(const vtkStatisticsAlgorithm&) = delete;
 };
 
 #endif

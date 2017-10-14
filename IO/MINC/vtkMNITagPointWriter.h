@@ -81,7 +81,7 @@ public:
   vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
 
   static vtkMNITagPointWriter *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the entension for this file format.
@@ -154,12 +154,12 @@ public:
   /**
    * Write the file.
    */
-  int Write() VTK_OVERRIDE;
+  int Write() override;
 
   /**
    * Get the MTime.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -171,7 +171,7 @@ public:
 
 protected:
   vtkMNITagPointWriter();
-  ~vtkMNITagPointWriter() VTK_OVERRIDE;
+  ~vtkMNITagPointWriter() override;
 
   vtkPoints *Points[2];
   vtkStringArray *LabelText;
@@ -180,13 +180,13 @@ protected:
   vtkIntArray *PatientIds;
   char *Comments;
 
-  void WriteData() VTK_OVERRIDE {}
+  void WriteData() override {}
   virtual void WriteData(vtkPointSet *inputs[2]);
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
   char* FileName;
 
@@ -196,8 +196,8 @@ protected:
   void CloseFile(ostream *fp);
 
 private:
-  vtkMNITagPointWriter(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
+  vtkMNITagPointWriter(const vtkMNITagPointWriter&) = delete;
+  void operator=(const vtkMNITagPointWriter&) = delete;
 
 };
 

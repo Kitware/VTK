@@ -23,14 +23,12 @@ vtkCubeSource cube
 
 vtkPolyDataMapper   sphereMapper
     sphereMapper SetInputConnection [sphere GetOutputPort]
-    sphereMapper GlobalImmediateModeRenderingOn
 
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 [sphereActor GetProperty] SetDiffuseColor 1 .2 .4
 vtkPolyDataMapper   coneMapper
     coneMapper SetInputConnection [cone GetOutputPort]
-    coneMapper GlobalImmediateModeRenderingOn
 
 vtkActor coneActor
     coneActor SetMapper coneMapper
@@ -38,7 +36,6 @@ vtkActor coneActor
 
 vtkPolyDataMapper   cubeMapper
     cubeMapper SetInputConnection [cube GetOutputPort]
-    cubeMapper GlobalImmediateModeRenderingOn
 
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper

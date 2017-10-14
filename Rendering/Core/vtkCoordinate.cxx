@@ -30,8 +30,8 @@ vtkCoordinate::vtkCoordinate()
   this->Value[0] = 0.0;
   this->Value[1] = 0.0;
   this->Value[2] = 0.0;
-  this->Viewport = NULL;
-  this->ReferenceCoordinate = NULL;
+  this->Viewport = nullptr;
+  this->ReferenceCoordinate = nullptr;
   this->Computing = 0;
 }
 
@@ -40,7 +40,7 @@ vtkCoordinate::vtkCoordinate()
 vtkCoordinate::~vtkCoordinate()
 {
   // To get rid of references (Reference counting).
-  this->SetReferenceCoordinate(NULL);
+  this->SetReferenceCoordinate(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ double *vtkCoordinate::GetComputedWorldValue(vtkViewport* viewport)
     viewport = this->Viewport;
   }
 
-  // if viewport is NULL then we can only do minimal calculations
+  // if viewport is nullptr then we can only do minimal calculations
   if (!viewport)
   {
     if (this->CoordinateSystem == VTK_WORLD)
@@ -327,8 +327,8 @@ double *vtkCoordinate::GetComputedDoubleDisplayValue(vtkViewport* viewport)
     viewport = this->Viewport;
   }
 
-  // if viewport is NULL, there is very little we can do
-  if (viewport == NULL)
+  // if viewport is nullptr, there is very little we can do
+  if (viewport == nullptr)
   {
     // for DISPLAY and VIEWPORT just use the value
     if (this->CoordinateSystem == VTK_DISPLAY)

@@ -71,13 +71,19 @@ int vtkWrap_IsPODPointer(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
   return (t != VTK_PARSE_CHAR && vtkWrap_IsNumeric(val) &&
-          vtkWrap_IsPointer(val));
+          vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) == 0);
+}
+
+int vtkWrap_IsZeroCopyPointer(ValueInfo *val)
+{
+  return (vtkWrap_IsPointer(val) && (val->Type & VTK_PARSE_ZEROCOPY) != 0);
 }
 
 int vtkWrap_IsVTKObject(ValueInfo *val)
 {
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   return (t == VTK_PARSE_OBJECT_PTR &&
+          !val->IsEnum &&
           val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
 }
 
@@ -86,6 +92,7 @@ int vtkWrap_IsSpecialObject(ValueInfo *val)
   unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
   return ((t == VTK_PARSE_OBJECT ||
            t == VTK_PARSE_OBJECT_REF) &&
+          !val->IsEnum &&
           val->Class[0] == 'v' && strncmp(val->Class, "vtk", 3) == 0);
 }
 
@@ -364,6 +371,27 @@ int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f)
         return 1;
       }
     }
+  }
+
+  return 0;
+}
+
+int vtkWrap_IsInheritedMethod(ClassInfo *c, FunctionInfo *f)
+{
+  size_t l;
+  for (l = 0; c->Name[l]; l++)
+  {
+    /* ignore template args */
+    if (c->Name[l] == '<')
+    {
+      break;
+    }
+  }
+
+  if (f->Class &&
+      (strlen(f->Class) != l || strncmp(f->Class, c->Name, l) != 0))
+  {
+    return 1;
   }
 
   return 0;
@@ -898,6 +926,32 @@ void vtkWrap_ApplyUsingDeclarations(
 }
 
 /* -------------------------------------------------------------------- */
+/* Merge superclass methods */
+void vtkWrap_MergeSuperClasses(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo)
+{
+  int n = data->NumberOfSuperClasses;
+  int i;
+  MergeInfo *info;
+
+  if (n == 0)
+  {
+    return;
+  }
+
+  info = vtkParseMerge_CreateMergeInfo(data);
+
+  for (i = 0; i < n; i++)
+  {
+    vtkParseMerge_MergeHelper(
+      finfo, finfo->Contents, hinfo, data->SuperClasses[i],
+      0, NULL, info, data);
+  }
+
+  vtkParseMerge_FreeMergeInfo(info);
+}
+
+/* -------------------------------------------------------------------- */
 /* get the type name */
 
 const char *vtkWrap_GetTypeName(ValueInfo *val)
@@ -999,6 +1053,7 @@ void vtkWrap_DeclareVariable(
         aType == VTK_PARSE_CHAR_PTR &&
         val->Value &&
         strcmp(val->Value, "0") != 0 &&
+        strcmp(val->Value, "nullptr") != 0 &&
         strcmp(val->Value, "NULL") != 0)
     {
       fprintf(fp,"const ");
@@ -1024,15 +1079,17 @@ void vtkWrap_DeclareVariable(
      * other refs are passed by value */
     if (aType == VTK_PARSE_CHAR_PTR ||
         aType == VTK_PARSE_VOID_PTR ||
-        aType == VTK_PARSE_OBJECT_PTR ||
-        aType == VTK_PARSE_OBJECT_REF ||
-        aType == VTK_PARSE_OBJECT ||
-        vtkWrap_IsQtObject(val))
+        (!val->IsEnum &&
+         (aType == VTK_PARSE_OBJECT_PTR ||
+          aType == VTK_PARSE_OBJECT_REF ||
+          aType == VTK_PARSE_OBJECT ||
+          vtkWrap_IsQtObject(val))))
     {
       fprintf(fp, "*");
     }
     /* arrays of unknown size are handled via pointers */
     else if (val->CountHint || vtkWrap_IsPODPointer(val) ||
+             vtkWrap_IsZeroCopyPointer(val) ||
              (vtkWrap_IsArray(val) && val->Value))
     {
       fprintf(fp, "*");
@@ -1061,7 +1118,7 @@ void vtkWrap_DeclareVariable(
         !vtkWrap_IsPODPointer(val) &&
         !(vtkWrap_IsArray(val) && val->Value))
     {
-      if (val->NumberOfDimensions == 1 && val->Count > 0)
+      if (val->NumberOfDimensions <= 1 && val->Count > 0)
       {
         fprintf(fp, "[%d]", val->Count);
       }
@@ -1081,16 +1138,17 @@ void vtkWrap_DeclareVariable(
     }
     else if (aType == VTK_PARSE_CHAR_PTR ||
              aType == VTK_PARSE_VOID_PTR ||
-             aType == VTK_PARSE_OBJECT_PTR ||
-             aType == VTK_PARSE_OBJECT_REF ||
-             aType == VTK_PARSE_OBJECT ||
-             vtkWrap_IsQtObject(val))
+             (!val->IsEnum &&
+              (aType == VTK_PARSE_OBJECT_PTR ||
+               aType == VTK_PARSE_OBJECT_REF ||
+               aType == VTK_PARSE_OBJECT ||
+               vtkWrap_IsQtObject(val))))
     {
-      fprintf(fp, " = NULL");
+      fprintf(fp, " = nullptr");
     }
     else if (val->CountHint || vtkWrap_IsPODPointer(val))
     {
-      fprintf(fp, " = NULL");
+      fprintf(fp, " = nullptr");
     }
     else if (aType == VTK_PARSE_BOOL)
     {

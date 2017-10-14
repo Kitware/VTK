@@ -52,8 +52,8 @@ vtkBalloonRepresentation::vtkBalloonRepresentation()
   this->ImageVisible = 0;
 
   // Balloon related
-  this->BalloonText = NULL;
-  this->BalloonImage = NULL;
+  this->BalloonText = nullptr;
+  this->BalloonImage = nullptr;
   this->BalloonLayout = ImageTop;
 
   // Displaying the image in the balloon using texture. Create a quad polygon

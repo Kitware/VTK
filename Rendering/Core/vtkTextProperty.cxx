@@ -38,8 +38,8 @@ vtkTextProperty::vtkTextProperty()
   this->FrameColor[1] = 1.0;
   this->FrameColor[2] = 1.0;
 
-  this->FontFamilyAsString = 0;
-  this->FontFile = NULL;
+  this->FontFamilyAsString = nullptr;
+  this->FontFile = nullptr;
   this->SetFontFamilyAsString( "Arial" );
   this->FontSize = 12;
 
@@ -62,8 +62,8 @@ vtkTextProperty::vtkTextProperty()
 //----------------------------------------------------------------------------
 vtkTextProperty::~vtkTextProperty()
 {
-  this->SetFontFamilyAsString(NULL);
-  this->SetFontFile(NULL);
+  this->SetFontFamilyAsString(nullptr);
+  this->SetFontFile(nullptr);
 }
 
 //----------------------------------------------------------------------------

@@ -19,7 +19,7 @@
  * vtkPointSet is an abstract class that specifies the interface for
  * datasets that explicitly use "point" arrays to represent geometry.
  * For example, vtkPolyData and vtkUnstructuredGrid require point arrays
- * to specify point position, while vtkStructuredPoints generates point
+ * to specify point position, while vtkStructuredGrid generates point
  * positions implicitly.
  *
  * @sa
@@ -40,35 +40,35 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkPointSet,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Reset to an empty state and free any memory.
    */
-  void Initialize() VTK_OVERRIDE;
+  void Initialize() override;
 
   /**
    * Copy the geometric structure of an input point set object.
    */
-  void CopyStructure(vtkDataSet *pd) VTK_OVERRIDE;
+  void CopyStructure(vtkDataSet *pd) override;
 
   //@{
   /**
    * See vtkDataSet for additional information.
    */
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
-  void GetPoint(vtkIdType ptId, double x[3]) VTK_OVERRIDE
+  vtkIdType GetNumberOfPoints() override;
+  void GetPoint(vtkIdType ptId, double x[3]) override
     {this->Points->GetPoint(ptId,x);};
-  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
+  vtkIdType FindPoint(double x[3]) override;
   vtkIdType FindPoint(double x, double y, double z) {
     return this->vtkDataSet::FindPoint(x, y, z);};
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
-                             double *weights) VTK_OVERRIDE;
+                             double *weights) override;
   vtkIdType FindCell(double x[3], vtkCell *cell,
                              vtkGenericCell *gencell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
-                             double *weights) VTK_OVERRIDE;
+                             double *weights) override;
   //@}
 
   /**
@@ -77,28 +77,28 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE
+  double *GetPoint(vtkIdType ptId) override
     {return this->Points->GetPoint(ptId);};
 
   /**
    * Return an iterator that traverses the cells in this data set.
    */
-  vtkCellIterator* NewCellIterator() VTK_OVERRIDE;
+  vtkCellIterator* NewCellIterator() override;
 
   /**
    * Get MTime which also considers its vtkPoints MTime.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Compute the (X, Y, Z)  bounds of the data.
    */
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   /**
    * Reclaim any unused memory.
    */
-  void Squeeze() VTK_OVERRIDE;
+  void Squeeze() override;
 
   //@{
   /**
@@ -116,22 +116,22 @@ public:
    * arrays, etc. are not included in the return value). THIS METHOD
    * IS THREAD SAFE.
    */
-  unsigned long GetActualMemorySize() VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() override;
 
   //@{
   /**
    * Shallow and Deep copy.
    */
-  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
-  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataObject *src) override;
+  void DeepCopy(vtkDataObject *src) override;
   //@}
 
   //@{
   /**
    * Overwritten to handle the data/locator loop
    */
-  void Register(vtkObjectBase* o) VTK_OVERRIDE;
-  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
+  void Register(vtkObjectBase* o) override;
+  void UnRegister(vtkObjectBase* o) override;
   //@}
 
   //@{
@@ -144,18 +144,18 @@ public:
 
 protected:
   vtkPointSet();
-  ~vtkPointSet() VTK_OVERRIDE;
+  ~vtkPointSet() override;
 
   vtkPoints *Points;
   vtkPointLocator *Locator;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 private:
 
   void Cleanup();
 
-  vtkPointSet(const vtkPointSet&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSet&) VTK_DELETE_FUNCTION;
+  vtkPointSet(const vtkPointSet&) = delete;
+  void operator=(const vtkPointSet&) = delete;
 };
 
 inline vtkIdType vtkPointSet::GetNumberOfPoints()

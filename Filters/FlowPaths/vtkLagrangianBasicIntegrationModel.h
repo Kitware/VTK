@@ -84,7 +84,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkLagrangianBasicIntegrationModel :
 {
 public:
   vtkTypeMacro(vtkLagrangianBasicIntegrationModel, vtkFunctionSet);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   typedef enum SurfaceType
   {
@@ -111,7 +111,7 @@ public:
    * in found this will call
    * FunctionValues(vtkDataSet* detaSet, vtkIdType cellId, double* x, double* f)
    */
-  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
+  int FunctionValues(double* x, double* f) override;
 
   //@{
   /**
@@ -122,6 +122,14 @@ public:
    */
   virtual void SetLocator(vtkAbstractCellLocator* locator);
   vtkGetObjectMacro(Locator, vtkAbstractCellLocator);
+  //@}
+
+  //@{
+  /**
+   * Get the state of the current locators
+   */
+  vtkGetMacro(LocatorsBuilt, bool);
+  vtkSetMacro(LocatorsBuilt, bool);
   //@}
 
   /**
@@ -169,7 +177,7 @@ public:
 
   /**
    * Interact the current particle with a surfaces
-   * Return a particle to record as interaction point if not NULL
+   * Return a particle to record as interaction point if not nullptr
    * Uses SurfaceType array from the intersected surface cell
    * to compute the interaction.
    * MODEL :
@@ -346,7 +354,7 @@ public:
 
   /**
    * Enable model post process on output
-   * Return true if sucessful, false otherwise
+   * Return true if successful, false otherwise
    * Empty and Always return true with basic model
    */
   virtual bool FinalizeOutputs(vtkPolyData* vtkNotUsed(particlePathsOutput),
@@ -365,7 +373,7 @@ public:
 
 protected:
   vtkLagrangianBasicIntegrationModel();
-  ~vtkLagrangianBasicIntegrationModel() VTK_OVERRIDE;
+  ~vtkLagrangianBasicIntegrationModel() override;
 
   /**
    * Actually compute the integration model velocity field
@@ -467,6 +475,7 @@ protected:
                                              int nComponent, double* defaultValues);
 
   vtkAbstractCellLocator* Locator;
+  bool LocatorsBuilt;
   vtkAbstractCellLocator* LastLocator;
   vtkLocatorsType* Locators;
 
@@ -515,8 +524,8 @@ protected:
   vtkWeakPointer<vtkLagrangianParticleTracker> Tracker;
 
 private:
-  vtkLagrangianBasicIntegrationModel(const vtkLagrangianBasicIntegrationModel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLagrangianBasicIntegrationModel&) VTK_DELETE_FUNCTION;
+  vtkLagrangianBasicIntegrationModel(const vtkLagrangianBasicIntegrationModel&) = delete;
+  void operator=(const vtkLagrangianBasicIntegrationModel&) = delete;
 };
 
 #endif

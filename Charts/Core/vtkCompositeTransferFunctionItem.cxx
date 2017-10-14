@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkCompositeTransferFunctionItem);
 vtkCompositeTransferFunctionItem::vtkCompositeTransferFunctionItem()
 {
   this->PolyLinePen->SetLineType(vtkPen::SOLID_LINE);
-  this->OpacityFunction = 0;
+  this->OpacityFunction = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ vtkCompositeTransferFunctionItem::~vtkCompositeTransferFunctionItem()
   {
     this->OpacityFunction->RemoveObserver(this->Callback);
     this->OpacityFunction->Delete();
-    this->OpacityFunction = 0;
+    this->OpacityFunction = nullptr;
   }
 }
 
@@ -93,7 +93,7 @@ void vtkCompositeTransferFunctionItem::SetOpacityFunction(vtkPiecewiseFunction* 
   {
     opacity->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
   }
-  this->ScalarsToColorsModified(this->OpacityFunction, vtkCommand::ModifiedEvent, 0);
+  this->ScalarsToColorsModified(this->OpacityFunction, vtkCommand::ModifiedEvent, nullptr);
 }
 
 //-----------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
   {
     return;
   }
-  if (this->Texture == 0)
+  if (this->Texture == nullptr)
   {
     this->Texture = vtkImageData::New();
   }
@@ -144,5 +144,4 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
-  return;
 }

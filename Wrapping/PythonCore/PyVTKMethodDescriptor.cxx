@@ -49,7 +49,7 @@ PyObject *PyVTKMethodDescriptor_New(PyTypeObject *pytype, PyMethodDef *meth)
     if (!PyDescr_NAME(descr))
     {
       Py_DECREF(descr);
-      descr = 0;
+      descr = nullptr;
     }
   }
 
@@ -92,7 +92,7 @@ static PyObject *PyVTKMethodDescriptor_Call(
   PyObject *ob, PyObject *args, PyObject *kwds)
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
-  PyObject *result = 0;
+  PyObject *result = nullptr;
   PyObject *func = PyCFunction_New(
     descr->d_method, (PyObject *)PyDescr_TYPE(descr));
 
@@ -110,7 +110,7 @@ static PyObject *PyVTKMethodDescriptor_Get(
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)self;
 
-  if (obj == NULL)
+  if (obj == nullptr)
   {
     // If no object to bind to, return the descriptor itself
     Py_INCREF(self);
@@ -137,14 +137,14 @@ static PyObject *PyVTKMethodDescriptor_Get(
     Py_TYPE(obj)->tp_name);
 #endif
 
-  return NULL;
+  return nullptr;
 }
 
 static PyObject *PyVTKMethodDescriptor_GetDoc(PyObject *ob, void *)
 {
   PyMethodDescrObject *descr = (PyMethodDescrObject *)ob;
 
-  if (descr->d_method->ml_doc == NULL)
+  if (descr->d_method->ml_doc == nullptr)
   {
     Py_INCREF(Py_None);
     return Py_None;
@@ -154,16 +154,29 @@ static PyObject *PyVTKMethodDescriptor_GetDoc(PyObject *ob, void *)
 }
 
 static PyGetSetDef PyVTKMethodDescriptor_GetSet[] = {
-  { (char *)"__doc__", PyVTKMethodDescriptor_GetDoc, 0, 0, 0 },
-  { 0, 0, 0, 0, 0 }
+#if PY_VERSION_HEX >= 0x03070000
+  { "__doc__", PyVTKMethodDescriptor_GetDoc, nullptr, nullptr, nullptr },
+#else
+  { const_cast<char *>("__doc__"), PyVTKMethodDescriptor_GetDoc,
+    nullptr, nullptr, nullptr },
+#endif
+  { nullptr, nullptr, nullptr, nullptr, nullptr }
 };
 
 static PyMemberDef PyVTKMethodDescriptor_Members[] = {
-  { (char *)"__objclass__", T_OBJECT, offsetof(PyDescrObject, d_type),
-    READONLY, 0 },
-  { (char *)"__name__", T_OBJECT, offsetof(PyDescrObject, d_name),
-    READONLY, 0 },
-  { 0, 0, 0, 0, 0 }
+#if PY_VERSION_HEX >= 0x03070000
+  { "__objclass__", T_OBJECT, offsetof(PyDescrObject, d_type),
+    READONLY, nullptr },
+  { "__name__", T_OBJECT, offsetof(PyDescrObject, d_name),
+    READONLY, nullptr },
+#else
+  { const_cast<char *>("__objclass__"), T_OBJECT,
+    offsetof(PyDescrObject, d_type), READONLY, nullptr },
+  { const_cast<char *>("__name__"), T_OBJECT,
+    offsetof(PyDescrObject, d_name),
+    READONLY, nullptr },
+#endif
+  { nullptr, 0, 0, 0, nullptr }
 };
 
 //--------------------------------------------------------------------
@@ -173,45 +186,45 @@ PyTypeObject PyVTKMethodDescriptor_Type = {
   sizeof(PyMethodDescrObject),           // tp_basicsize
   0,                                     // tp_itemsize
   PyVTKMethodDescriptor_Delete,          // tp_dealloc
-  0,                                     // tp_print
-  0,                                     // tp_getattr
-  0,                                     // tp_setattr
-  0,                                     // tp_compare
+  nullptr,                               // tp_print
+  nullptr,                               // tp_getattr
+  nullptr,                               // tp_setattr
+  nullptr,                               // tp_compare
   PyVTKMethodDescriptor_Repr,            // tp_repr
-  0,                                     // tp_as_number
-  0,                                     // tp_as_sequence
-  0,                                     // tp_as_mapping
-  0,                                     // tp_hash
+  nullptr,                               // tp_as_number
+  nullptr,                               // tp_as_sequence
+  nullptr,                               // tp_as_mapping
+  nullptr,                               // tp_hash
   PyVTKMethodDescriptor_Call,            // tp_call
-  0,                                     // tp_string
+  nullptr,                               // tp_string
   PyObject_GenericGetAttr,               // tp_getattro
-  0,                                     // tp_setattro
-  0,                                     // tp_as_buffer
+  nullptr,                               // tp_setattro
+  nullptr,                               // tp_as_buffer
   Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC, // tp_flags
-  0,                                     // tp_doc
+  nullptr,                               // tp_doc
   PyVTKMethodDescriptor_Traverse,        // tp_traverse
-  0,                                     // tp_clear
-  0,                                     // tp_richcompare
+  nullptr,                               // tp_clear
+  nullptr,                               // tp_richcompare
   0,                                     // tp_weaklistoffset
-  0,                                     // tp_iter
-  0,                                     // tp_iternext
-  0,                                     // tp_methods
+  nullptr,                               // tp_iter
+  nullptr,                               // tp_iternext
+  nullptr,                               // tp_methods
   PyVTKMethodDescriptor_Members,         // tp_members
   PyVTKMethodDescriptor_GetSet,          // tp_getset
-  0,                                     // tp_base
-  0,                                     // tp_dict
+  nullptr,                               // tp_base
+  nullptr,                               // tp_dict
   PyVTKMethodDescriptor_Get,             // tp_descr_get
-  0,                                     // tp_descr_set
+  nullptr,                               // tp_descr_set
   0,                                     // tp_dictoffset
-  0,                                     // tp_init
-  0,                                     // tp_alloc
-  0,                                     // tp_new
-  0,                                     // tp_free
-  0,                                     // tp_is_gc
-  0,                                     // tp_bases
-  0,                                     // tp_mro
-  0,                                     // tp_cache
-  0,                                     // tp_subclasses
-  0,                                     // tp_weaklist
+  nullptr,                               // tp_init
+  nullptr,                               // tp_alloc
+  nullptr,                               // tp_new
+  nullptr,                               // tp_free
+  nullptr,                               // tp_is_gc
+  nullptr,                               // tp_bases
+  nullptr,                               // tp_mro
+  nullptr,                               // tp_cache
+  nullptr,                               // tp_subclasses
+  nullptr,                               // tp_weaklist
   VTK_WRAP_PYTHON_SUPPRESS_UNINITIALIZED
 };

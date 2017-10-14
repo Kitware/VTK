@@ -68,7 +68,7 @@ class VTKFILTERSCORE_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorith
 {
 public:
   vtkTypeMacro(vtkAssignAttribute,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkAssignAttribute.
@@ -111,11 +111,11 @@ protected:
   };
 
   vtkAssignAttribute();
-  ~vtkAssignAttribute() VTK_OVERRIDE;
+  ~vtkAssignAttribute() override;
 
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   char* FieldName;
   int FieldTypeAssignment;
@@ -126,8 +126,8 @@ protected:
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
-  vtkAssignAttribute(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
+  vtkAssignAttribute(const vtkAssignAttribute&) = delete;
+  void operator=(const vtkAssignAttribute&) = delete;
 };
 
 #endif

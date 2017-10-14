@@ -25,13 +25,13 @@ vtkAssemblyPath::vtkAssemblyPath()
 {
   this->Transform = vtkTransform::New();
   this->Transform->PreMultiply();
-  this->TransformedProp = NULL;
+  this->TransformedProp = nullptr;
 }
 
 vtkAssemblyPath::~vtkAssemblyPath()
 {
   this->Transform->Delete();
-  if ( this->TransformedProp != NULL )
+  if ( this->TransformedProp != nullptr )
   {
     this->TransformedProp->Delete();
   }
@@ -54,7 +54,7 @@ void vtkAssemblyPath::AddNode(vtkAssemblyNode *n)
   // Grab the matrix, if any, and concatenate it
   this->Transform->Push(); //keep in synch with list of nodes
   vtkMatrix4x4 *matrix;
-  if ((matrix = n->GetMatrix()) != NULL)
+  if ((matrix = n->GetMatrix()) != nullptr)
   {
     this->Transform->Concatenate(matrix);
     this->Transform->GetMatrix(matrix); //replace previous matrix
@@ -69,13 +69,13 @@ vtkAssemblyNode *vtkAssemblyPath::GetNextNode()
 vtkAssemblyNode *vtkAssemblyPath::GetFirstNode()
 {
   return this->Top ?
-    static_cast<vtkAssemblyNode*>(this->Top->Item) : 0;
+    static_cast<vtkAssemblyNode*>(this->Top->Item) : nullptr;
 }
 
 vtkAssemblyNode *vtkAssemblyPath::GetLastNode()
 {
   return this->Bottom ?
-    static_cast<vtkAssemblyNode*>(this->Bottom->Item) : 0;
+    static_cast<vtkAssemblyNode*>(this->Bottom->Item) : nullptr;
 }
 
 void vtkAssemblyPath::DeleteLastNode()

@@ -85,20 +85,20 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridBunykRayCastFunction : public
 public:
   static vtkUnstructuredGridBunykRayCastFunction *New();
   vtkTypeMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Called by the ray cast mapper at the start of rendering
    */
-  void Initialize( vtkRenderer *ren, vtkVolume   *vol ) VTK_OVERRIDE;
+  void Initialize( vtkRenderer *ren, vtkVolume   *vol ) override;
 
   /**
    * Called by the ray cast mapper at the end of rendering
    */
-  void Finalize() VTK_OVERRIDE;
+  void Finalize() override;
 
   VTK_NEWINSTANCE
-  vtkUnstructuredGridVolumeRayCastIterator *NewIterator() VTK_OVERRIDE;
+  vtkUnstructuredGridVolumeRayCastIterator *NewIterator() override;
 
   // Used to store each triangle - made public because of the
   // templated function
@@ -168,7 +168,7 @@ public:
 
 protected:
   vtkUnstructuredGridBunykRayCastFunction();
-  ~vtkUnstructuredGridBunykRayCastFunction() VTK_OVERRIDE;
+  ~vtkUnstructuredGridBunykRayCastFunction() override;
 
   // These are cached during the initialize method so that they do not
   // need to be passed into subsequent CastRay calls.
@@ -270,8 +270,8 @@ protected:
   void          ComputePixelIntersections();
 
 private:
-  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) = delete;
+  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) = delete;
 };
 
 #endif

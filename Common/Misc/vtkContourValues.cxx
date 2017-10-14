@@ -80,7 +80,7 @@ void vtkContourValues::SetNumberOfContours(const int number)
   vtkIdType    currentNumber = this->Contours->GetMaxId()+1;
   vtkIdType    n = ( number < 0 ? 0 : number);
   vtkIdType    i;
-  double  *oldValues = NULL;
+  double  *oldValues = nullptr;
 
   if ( n != currentNumber )
   {

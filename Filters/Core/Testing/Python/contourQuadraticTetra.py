@@ -26,7 +26,7 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 class contourQuadraticTetra(vtk.test.Testing.vtkTest):
 
     def testContourQuadraticTetra(self):
-	# Create a reader to load the data (quadratic tetrahedra)
+        # Create a reader to load the data (quadratic tetrahedra)
         reader = vtk.vtkUnstructuredGridReader()
         reader.SetFileName(VTK_DATA_ROOT + "/Data/quadTetEdgeTest.vtk")
 

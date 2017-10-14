@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredPoints : public vtkImag
 public:
   static vtkImageToStructuredPoints *New();
   vtkTypeMacro(vtkImageToStructuredPoints,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,21 +55,21 @@ public:
 
 protected:
   vtkImageToStructuredPoints();
-  ~vtkImageToStructuredPoints() VTK_OVERRIDE;
+  ~vtkImageToStructuredPoints() override;
 
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
 private:
-  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
+  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&) = delete;
+  void operator=(const vtkImageToStructuredPoints&) = delete;
 };
 
 

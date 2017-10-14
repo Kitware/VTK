@@ -48,7 +48,7 @@ public:
   static vtkMatrix3x3 *New();
 
   vtkTypeMacro(vtkMatrix3x3,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the elements of the matrix to the same values as the elements
@@ -145,25 +145,6 @@ public:
   double GetElement(int i, int j) const
     {return this->Element[i][j];}
 
-  //@{
-  /**
-   * Legacy methods. Do not use.
-   */
-  VTK_LEGACY(double *operator[](const unsigned int i));
-  VTK_LEGACY(const double *operator[](unsigned int i) const);
-  VTK_LEGACY(bool operator==(const vtkMatrix3x3&));
-  VTK_LEGACY(bool operator!=(const vtkMatrix3x3&));
-  VTK_LEGACY(void Adjoint(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(double Determinant(vtkMatrix3x3 &in));
-  VTK_LEGACY(double Determinant(vtkMatrix3x3 *));
-  VTK_LEGACY(void Invert(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(void Transpose(vtkMatrix3x3 &in,vtkMatrix3x3 &out));
-  VTK_LEGACY(static void PointMultiply(const double [9],
-                                       const float [3], float [3]));
-  VTK_LEGACY(static void PointMultiply(const double [9],
-                                       const double [3], double [3]));
-  //@}
-
   // Descption:
   // Returns true if this matrix is equal to the identity matrix.
   bool IsIdentity();
@@ -175,13 +156,13 @@ public:
 
 protected:
   vtkMatrix3x3();
-  ~vtkMatrix3x3() VTK_OVERRIDE;
+  ~vtkMatrix3x3() override;
 
   double Element[3][3]; // The elements of the 3x3 matrix
 
 private:
-  vtkMatrix3x3(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
+  vtkMatrix3x3(const vtkMatrix3x3&) = delete;
+  void operator=(const vtkMatrix3x3&) = delete;
 };
 
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)

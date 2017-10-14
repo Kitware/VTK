@@ -68,8 +68,8 @@ protected:
   float MetaPadding;
 
 private:
-  OQEDImageData(const OQEDImageData&) VTK_DELETE_FUNCTION;
-  void operator=(const OQEDImageData&) VTK_DELETE_FUNCTION;
+  OQEDImageData(const OQEDImageData&) = delete;
+  void operator=(const OQEDImageData&) = delete;
 };
 vtkStandardNewMacro(OQEDImageData);
 
@@ -78,7 +78,7 @@ vtkStandardNewMacro(vtkOpenQubeElectronicData);
 
 //----------------------------------------------------------------------------
 vtkOpenQubeElectronicData::vtkOpenQubeElectronicData()
-  : BasisSet(NULL), Spacing(0.1)
+  : BasisSet(nullptr), Spacing(0.1)
 {
   this->Padding = 2.0;
 }
@@ -271,7 +271,7 @@ void vtkOpenQubeElectronicData::DeepCopy(vtkDataObject *obj)
     {
       vtkNew<OQEDImageData> thisImage;
       thisImage->DeepCopy(oqedImage);
-      this->Images->AddItem(thisImage.GetPointer());
+      this->Images->AddItem(thisImage);
     }
   }
 
@@ -319,14 +319,14 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateMO(vtkIdType orbitalNumber)
                 << orbitalNumber);
 
   // Copy cube --> image
-  this->FillImageDataFromQube( cube, image.GetPointer() );
+  this->FillImageDataFromQube( cube, image );
   image->SetOrbitalNumber(orbitalNumber);
 
   vtkDebugMacro(<<"Adding vtkImageData to this->Images for MO "
                 << orbitalNumber);
-  this->Images->AddItem(image.GetPointer());
+  this->Images->AddItem(image);
 
-  return image.GetPointer();
+  return image;
 }
 
 //----------------------------------------------------------------------------
@@ -363,12 +363,12 @@ vtkImageData * vtkOpenQubeElectronicData::CalculateElectronDensity()
   vtkDebugMacro(<<"Converting OpenQube::Cube to vtkImageData.");
 
   // Copy cube --> image
-  this->FillImageDataFromQube( cube, image.GetPointer() );
+  this->FillImageDataFromQube( cube, image );
 
   vtkDebugMacro(<<"Adding vtkImageData to this->Images");
-  this->Images->AddItem(image.GetPointer());
+  this->Images->AddItem(image);
 
-  return image.GetPointer();
+  return image;
 }
 
 //----------------------------------------------------------------------------

@@ -37,26 +37,26 @@ public:
   static vtkCardinalSpline *New();
 
   vtkTypeMacro(vtkCardinalSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Compute Cardinal Splines for each dependent variable
    */
-  void Compute () VTK_OVERRIDE;
+  void Compute () override;
 
   /**
    * Evaluate a 1D cardinal spline.
    */
-  double Evaluate (double t) VTK_OVERRIDE;
+  double Evaluate (double t) override;
 
   /**
    * Deep copy of cardinal spline data.
    */
-  void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
+  void DeepCopy(vtkSpline *s) override;
 
 protected:
   vtkCardinalSpline();
-  ~vtkCardinalSpline() VTK_OVERRIDE {}
+  ~vtkCardinalSpline() override {}
 
   void Fit1D (int n, double *x, double *y, double *w, double coefficients[][4],
               int leftConstraint, double leftValue, int rightConstraint,
@@ -66,8 +66,8 @@ protected:
                     double coefficients[][4]);
 
 private:
-  vtkCardinalSpline(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
+  vtkCardinalSpline(const vtkCardinalSpline&) = delete;
+  void operator=(const vtkCardinalSpline&) = delete;
 };
 
 #endif

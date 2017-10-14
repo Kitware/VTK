@@ -54,7 +54,7 @@ class VTKIOADIOS_EXPORT vtkADIOSWriter : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSWriter* New();
   vtkTypeMacro(vtkADIOSWriter,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   const char* GetDefaultFileExtension();
 
@@ -74,7 +74,7 @@ public:
   vtkSetClampMacro(TransportMethod, int,
                    static_cast<int>(ADIOS::TransportMethod_NULL),
                    static_cast<int>(ADIOS::TransportMethod_NetCDF4));
-  void SetTransportMethodToNULL()         { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_NULL)); }
+  void SetTransportMethodTonullptr()         { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_NULL)); }
   void SetTransportMethodToPOSIX()        { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_POSIX)); }
   void SetTransportMethodToMPI()          { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_MPI)); }
   void SetTransportMethodToMPILustre()    { this->SetTransportMethod(static_cast<int>(ADIOS::TransportMethod_MPI_LUSTRE)); }
@@ -225,8 +225,8 @@ private:
   template<typename T>
   bool DefineAndWrite(vtkDataObject *input);
 
-  vtkADIOSWriter(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
+  vtkADIOSWriter(const vtkADIOSWriter&) = delete;
+  void operator=(const vtkADIOSWriter&) = delete;
 };
 
 #endif

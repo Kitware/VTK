@@ -44,12 +44,12 @@ public:
   static vtkRectilinearSynchronizedTemplates *New();
 
   vtkTypeMacro(vtkRectilinearSynchronizedTemplates,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -166,7 +166,7 @@ public:
 
 protected:
   vtkRectilinearSynchronizedTemplates();
-  ~vtkRectilinearSynchronizedTemplates() VTK_OVERRIDE;
+  ~vtkRectilinearSynchronizedTemplates() override;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -175,9 +175,9 @@ protected:
 
   vtkContourValues *ContourValues;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int ArrayComponent;
 
@@ -185,8 +185,8 @@ protected:
                             vtkRectilinearGrid *input);
 
 private:
-  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
+  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) = delete;
+  void operator=(const vtkRectilinearSynchronizedTemplates&) = delete;
 };
 
 // template table.

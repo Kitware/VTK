@@ -57,9 +57,9 @@ public:
    * then progress events will provided for the algorithm.
    */
   vtkImagePointDataIterator(vtkImageData *image,
-                            const int extent[6] = 0,
-                            vtkImageStencilData *stencil=0,
-                            vtkAlgorithm *algorithm=0,
+                            const int extent[6] = nullptr,
+                            vtkImageStencilData *stencil=nullptr,
+                            vtkAlgorithm *algorithm=nullptr,
                             int threadId=0)
   {
     this->Initialize(image, extent, stencil, algorithm, threadId);
@@ -68,9 +68,9 @@ public:
   /**
    * Initialize an iterator.  See constructor for more details.
    */
-  void Initialize(vtkImageData *image, const int extent[6] = 0,
-                  vtkImageStencilData *stencil=0,
-                  vtkAlgorithm *algorithm=0, int threadId=0);
+  void Initialize(vtkImageData *image, const int extent[6] = nullptr,
+                  vtkImageStencilData *stencil=nullptr,
+                  vtkAlgorithm *algorithm=nullptr, int threadId=0);
 
   /**
    * Move the iterator to the beginning of the next span.
@@ -138,7 +138,7 @@ public:
    */
   static void *GetVoidPointer(vtkImageData *image,
                               vtkIdType i=0,
-                              int *pixelIncrement=0);
+                              int *pixelIncrement=nullptr);
 
   /**
    * Get a void pointer and pixel increment for the given point Id.
@@ -147,7 +147,7 @@ public:
    */
   static void *GetVoidPointer(vtkDataArray *array,
                               vtkIdType i=0,
-                              int *pixelIncrement=0);
+                              int *pixelIncrement=nullptr);
 
 protected:
 

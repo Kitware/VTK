@@ -70,7 +70,7 @@ void vtkArrayData::PrintSelf(ostream &os, vtkIndent indent)
 
 vtkArrayData* vtkArrayData::GetData(vtkInformation* info)
 {
-  return info? vtkArrayData::SafeDownCast(info->Get(DATA_OBJECT())) : 0;
+  return info? vtkArrayData::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
 }
 
 vtkArrayData* vtkArrayData::GetData(vtkInformationVector* v, int i)
@@ -82,7 +82,7 @@ void vtkArrayData::AddArray(vtkArray* array)
 {
   if(!array)
   {
-    vtkErrorMacro(<< "Cannot add NULL array.");
+    vtkErrorMacro(<< "Cannot add nullptr array.");
     return;
   }
 
@@ -106,7 +106,7 @@ void vtkArrayData::AddArray(vtkArray* array)
   }
 
   this->Implementation->Arrays.push_back(array);
-  array->Register(0);
+  array->Register(nullptr);
 
   this->Modified();
 }
@@ -134,7 +134,7 @@ vtkArray* vtkArrayData::GetArray(vtkIdType index)
      static_cast<size_t>(index) >= this->Implementation->Arrays.size())
   {
     vtkErrorMacro(<< "Array index out-of-range.");
-    return 0;
+    return nullptr;
   }
 
   return this->Implementation->Arrays[static_cast<size_t>(index)];
@@ -145,10 +145,10 @@ vtkArray* vtkArrayData::GetArrayByName(const char *name)
   if(!name || name[0]=='\0')
   {
     vtkErrorMacro(<< "No name passed into routine.");
-    return 0;
+    return nullptr;
   }
 
-  vtkArray *temp = 0;
+  vtkArray *temp = nullptr;
   for (vtkIdType ctr=0; ctr<this->GetNumberOfArrays(); ctr++)
   {
     temp = this->GetArray(ctr);
@@ -156,7 +156,7 @@ vtkArray* vtkArrayData::GetArrayByName(const char *name)
     {
       break;
     }
-    temp = 0;
+    temp = nullptr;
   }
   return temp;
 }

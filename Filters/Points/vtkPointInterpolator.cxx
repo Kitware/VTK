@@ -80,7 +80,7 @@ struct ProbePoints
       {
         const char *arrayName = ptInt->GetExcludedArray(i);
         vtkDataArray *array = this->InPD->GetArray(arrayName);
-        if ( array != NULL )
+        if ( array != nullptr )
         {
           outPD->RemoveArray(array->GetName());
           this->Arrays.ExcludeArray(array);
@@ -233,7 +233,7 @@ vtkPointInterpolator::vtkPointInterpolator()
   this->NullPointsStrategy = vtkPointInterpolator::NULL_VALUE;
   this->NullValue = 0.0;
 
-  this->ValidPointsMask = NULL;
+  this->ValidPointsMask = nullptr;
   this->ValidPointsMaskArrayName = "vtkValidPointMask";
 
   this->PromoteOutputArrays = true;
@@ -246,8 +246,8 @@ vtkPointInterpolator::vtkPointInterpolator()
 //----------------------------------------------------------------------------
 vtkPointInterpolator::~vtkPointInterpolator()
 {
-  this->SetLocator(NULL);
-  this->SetKernel(NULL);
+  this->SetLocator(nullptr);
+  this->SetKernel(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ vtkDataObject *vtkPointInterpolator::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
 
   return this->GetExecutive()->GetInputData(1, 0);
@@ -311,7 +311,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   outPD->InterpolateAllocate(inPD,numPts);
 
   // Masking if requested
-  char *mask=NULL;
+  char *mask=nullptr;
   if ( this->NullPointsStrategy == vtkPointInterpolator::MASK_POINTS )
   {
     this->ValidPointsMask = vtkCharArray::New();
@@ -497,12 +497,12 @@ vtkMTimeType vtkPointInterpolator::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType mTime2;
-  if ( this->Locator != NULL )
+  if ( this->Locator != nullptr )
   {
     mTime2 = this->Locator->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );
   }
-  if ( this->Kernel != NULL )
+  if ( this->Kernel != nullptr )
   {
     mTime2 = this->Kernel->GetMTime();
     mTime = ( mTime2 > mTime ? mTime2 : mTime );

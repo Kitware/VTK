@@ -35,57 +35,57 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLHardwareSelector : public vtkHardwareS
 public:
   static vtkOpenGLHardwareSelector* New();
   vtkTypeMacro(vtkOpenGLHardwareSelector, vtkHardwareSelector);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Called by the mapper before and after
    * rendering each prop.
    */
-  void BeginRenderProp() VTK_OVERRIDE;
-  void EndRenderProp() VTK_OVERRIDE
+  void BeginRenderProp() override;
+  void EndRenderProp() override
     { this->vtkHardwareSelector::EndRenderProp(); }
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
    * Currently indices >= 0xffffff are not supported.
    */
-  void RenderCompositeIndex(unsigned int index) VTK_OVERRIDE;
+  void RenderCompositeIndex(unsigned int index) override;
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render an attribute's id.
    */
-  void RenderAttributeId(vtkIdType attribid) VTK_OVERRIDE;
+  void RenderAttributeId(vtkIdType attribid) override;
 
   /**
    * Called by any vtkMapper or subclass to render process id. This has any
    * effect when this->UseProcessIdFromData is true.
    */
-  void RenderProcessId(unsigned int processid) VTK_OVERRIDE;
+  void RenderProcessId(unsigned int processid) override;
 
   // we need to initialze the depth buffer
-  void BeginSelection() VTK_OVERRIDE;
+  void BeginSelection() override;
 
 protected:
   vtkOpenGLHardwareSelector();
-  ~vtkOpenGLHardwareSelector() VTK_OVERRIDE;
+  ~vtkOpenGLHardwareSelector() override;
 
-  void PreCapturePass(int pass) VTK_OVERRIDE;
-  void PostCapturePass(int pass) VTK_OVERRIDE;
+  void PreCapturePass(int pass) override;
+  void PostCapturePass(int pass) override;
 
   // Called internally before and after each prop is rendered
   // for device specific configuration/preparation etc.
-  void BeginRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
-  void EndRenderProp(vtkRenderWindow *) VTK_OVERRIDE;
+  void BeginRenderProp(vtkRenderWindow *) override;
+  void EndRenderProp(vtkRenderWindow *) override;
 
-  void SavePixelBuffer(int passNo) VTK_OVERRIDE;
+  void SavePixelBuffer(int passNo) override;
 
   // for internal state
   class vtkInternals;
   vtkInternals* Internals;
 
 private:
-  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLHardwareSelector&) VTK_DELETE_FUNCTION;
+  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&) = delete;
+  void operator=(const vtkOpenGLHardwareSelector&) = delete;
 };
 
 #endif

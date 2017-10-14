@@ -11,6 +11,9 @@ Utilities/Scripts/SetupGitAliases.sh && echo &&
 Utilities/Scripts/SetupExternalData.sh && echo &&
 Utilities/GitSetup/tips
 
+echo "Initializing and updating git submodules..."
+git submodule update --init --recursive
+
 # Rebase master by default
 git config rebase.stat true
 git config branch.master.rebase true

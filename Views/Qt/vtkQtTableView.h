@@ -54,7 +54,7 @@ Q_OBJECT
 public:
   static vtkQtTableView *New();
   vtkTypeMacro(vtkQtTableView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -62,7 +62,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  QWidget* GetWidget() VTK_OVERRIDE;
+  QWidget* GetWidget() override;
 
   /**
    * Have the view show/hide its column headers
@@ -157,7 +157,7 @@ public:
   /**
    * Updates the view.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   //@{
   /**
@@ -179,7 +179,7 @@ public:
   /**
    * Apply a view theme to this view.
    */
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   enum
   {
@@ -214,10 +214,10 @@ public:
 
 protected:
   vtkQtTableView();
-  ~vtkQtTableView() VTK_OVERRIDE;
+  ~vtkQtTableView() override;
 
-  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
-  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void AddRepresentationInternal(vtkDataRepresentation* rep) override;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
@@ -246,8 +246,8 @@ private:
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtTableView(const vtkQtTableView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTableView&) VTK_DELETE_FUNCTION;
+  vtkQtTableView(const vtkQtTableView&) = delete;
+  void operator=(const vtkQtTableView&) = delete;
 
 };
 

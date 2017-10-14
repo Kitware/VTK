@@ -52,20 +52,20 @@ vtkExtentTranslator::vtkExtentTranslator()
   this->SplitMode   = vtkExtentTranslator::BLOCK_MODE;
 
   this->SplitLen = 0;
-  this->SplitPath = NULL;
+  this->SplitPath = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkExtentTranslator::~vtkExtentTranslator()
 {
-  this->SetSplitPath(0, NULL);
+  this->SetSplitPath(0, nullptr);
 }
 
 //----------------------------------------------------------------------------
 void vtkExtentTranslator::SetSplitPath(int len, int *sp)
 {
   delete[] this->SplitPath;
-  this->SplitPath = NULL;
+  this->SplitPath = nullptr;
   this->SplitLen = len;
   if (len && sp)
   {

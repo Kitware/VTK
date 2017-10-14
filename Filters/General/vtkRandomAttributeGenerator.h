@@ -65,7 +65,7 @@ public:
   static vtkRandomAttributeGenerator *New();
 
   vtkTypeMacro(vtkRandomAttributeGenerator,vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -336,11 +336,11 @@ public:
 
 protected:
   vtkRandomAttributeGenerator();
-  ~vtkRandomAttributeGenerator() VTK_OVERRIDE {}
+  ~vtkRandomAttributeGenerator() override {}
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int       DataType;
   int       NumberOfComponents;
@@ -381,8 +381,8 @@ protected:
 
 
 private:
-  vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRandomAttributeGenerator&) VTK_DELETE_FUNCTION;
+  vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) = delete;
+  void operator=(const vtkRandomAttributeGenerator&) = delete;
 };
 
 #endif

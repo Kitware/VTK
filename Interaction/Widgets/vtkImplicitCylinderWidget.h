@@ -106,7 +106,7 @@ public:
    * Standard vtkObject methods
    */
   vtkTypeMacro(vtkImplicitCylinderWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -119,7 +119,7 @@ public:
   // Descritpion:
   // Disable/Enable the widget if needed.
   // Unobserved the camera if the widget is disabled.
-  void SetEnabled(int enabling) VTK_OVERRIDE;
+  void SetEnabled(int enabling) override;
 
   /**
    * Return the representation as a vtkImplicitCylinderRepresentation.
@@ -130,11 +130,11 @@ public:
   /**
    * Create the default widget representation if one is not set.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
 protected:
   vtkImplicitCylinderWidget();
-  ~vtkImplicitCylinderWidget() VTK_OVERRIDE;
+  ~vtkImplicitCylinderWidget() override;
 
   // Manage the state of the widget
   int WidgetState;
@@ -155,8 +155,8 @@ protected:
   int UpdateCursorShape( int interactionState );
 
 private:
-  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
+  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) = delete;
+  void operator=(const vtkImplicitCylinderWidget&) = delete;
 };
 
 #endif

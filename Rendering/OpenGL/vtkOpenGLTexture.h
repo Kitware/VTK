@@ -38,16 +38,16 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLTexture : public vtkTexture
 public:
   static vtkOpenGLTexture *New();
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  void Load(vtkRenderer*) VTK_OVERRIDE;
+  void Load(vtkRenderer*) override;
 
   // Descsription:
   // Clean up after the rendering is complete.
-  void PostRender(vtkRenderer*) VTK_OVERRIDE;
+  void PostRender(vtkRenderer*) override;
 
   /**
    * Release any graphics resources that are being consumed by this texture.
@@ -55,7 +55,7 @@ public:
    * resources to release. Using the same texture object in multiple
    * render windows is NOT currently supported.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   //@{
   /**
@@ -68,7 +68,7 @@ public:
 protected:
 
   vtkOpenGLTexture();
-  ~vtkOpenGLTexture() VTK_OVERRIDE;
+  ~vtkOpenGLTexture() override;
 
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize,
                                       unsigned char *dptr, int bpp);
@@ -82,8 +82,8 @@ protected:
   vtkPixelBufferObject *PBO;
 
 private:
-  vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
+  vtkOpenGLTexture(const vtkOpenGLTexture&) = delete;
+  void operator=(const vtkOpenGLTexture&) = delete;
 
   /**
    * Handle loading in extension support

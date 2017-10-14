@@ -36,13 +36,13 @@ class VTKFILTERSGENERAL_EXPORT vtkAppendPoints : public vtkPolyDataAlgorithm
 public:
   static vtkAppendPoints *New();
   vtkTypeMacro(vtkAppendPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * Sets the output array name to fill with the input connection index
    * for each point. This provides a way to trace a point back to a
-   * particular input. If this is NULL (the default), the array is not generated.
+   * particular input. If this is nullptr (the default), the array is not generated.
    */
   vtkSetStringMacro(InputIdArrayName);
   vtkGetStringMacro(InputIdArrayName);
@@ -64,18 +64,18 @@ public:
 
 protected:
   vtkAppendPoints();
-  ~vtkAppendPoints() VTK_OVERRIDE;
+  ~vtkAppendPoints() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *,
-                  vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int, vtkInformation *) VTK_OVERRIDE;
+                  vtkInformationVector **, vtkInformationVector *) override;
+  int FillInputPortInformation(int, vtkInformation *) override;
 
   char* InputIdArrayName;
   int OutputPointsPrecision;
 private:
-  vtkAppendPoints(const vtkAppendPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAppendPoints&) VTK_DELETE_FUNCTION;
+  vtkAppendPoints(const vtkAppendPoints&) = delete;
+  void operator=(const vtkAppendPoints&) = delete;
 };
 
 #endif

@@ -45,7 +45,7 @@ class VTKIOVIDEO_EXPORT vtkVideoSource : public vtkImageAlgorithm
 public:
   static vtkVideoSource *New();
   vtkTypeMacro(vtkVideoSource,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Record incoming video at the specified FrameRate.  The recording
@@ -290,8 +290,8 @@ public:
 
 protected:
   vtkVideoSource();
-  ~vtkVideoSource() VTK_OVERRIDE;
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  ~vtkVideoSource() override;
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int Initialized;
 
@@ -359,15 +359,15 @@ protected:
    */
   virtual void UpdateFrameBuffer();
   virtual void AdvanceFrameBuffer(int n);
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr,
                                 int start, int count);
   //@}
 
 private:
-  vtkVideoSource(const vtkVideoSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVideoSource&) VTK_DELETE_FUNCTION;
+  vtkVideoSource(const vtkVideoSource&) = delete;
+  void operator=(const vtkVideoSource&) = delete;
 };
 
 #endif

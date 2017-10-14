@@ -28,7 +28,7 @@ vtkImageIterateFilter::vtkImageIterateFilter()
   // for filters that execute multiple times
   this->Iteration = 0;
   this->NumberOfIterations = 0;
-  this->IterationData = NULL;
+  this->IterationData = nullptr;
   this->SetNumberOfIterations(1);
   this->InputVector = vtkInformationVector::New();
   this->OutputVector = vtkInformationVector::New();
@@ -243,10 +243,10 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
     for (idx = 1; idx < this->NumberOfIterations; ++idx)
     {
       this->IterationData[idx]->Delete();
-      this->IterationData[idx] = NULL;
+      this->IterationData[idx] = nullptr;
     }
     delete [] this->IterationData;
-    this->IterationData = NULL;
+    this->IterationData = nullptr;
   }
 
   // special case for destructor
@@ -258,7 +258,7 @@ void vtkImageIterateFilter::SetNumberOfIterations(int num)
   // create new ones (first and last set later to input and output)
   this->IterationData =
     reinterpret_cast<vtkAlgorithm **>( new void *[num + 1]);
-  this->IterationData[0] = this->IterationData[num] = NULL;
+  this->IterationData[0] = this->IterationData[num] = nullptr;
   for (idx = 1; idx < num; ++idx)
   {
     vtkImageData* cache = vtkImageData::New();

@@ -644,7 +644,7 @@ class vtkAngleCallback : public vtkCommand
 public:
   static vtkAngleCallback *New()
     { return new vtkAngleCallback; }
-  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long eid, void*) override
   {
       if ( eid == vtkCommand::PlacePointEvent )
       {
@@ -670,7 +670,7 @@ public:
       }
   }
   vtkAngleRepresentation3D *Rep;
-  vtkAngleCallback():Rep(0) {}
+  vtkAngleCallback():Rep(nullptr) {}
 };
 
 

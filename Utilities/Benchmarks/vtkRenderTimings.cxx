@@ -125,15 +125,15 @@ void vtkRTTestSequence::Run()
     // Set up our results table, this will be used for our timings etc.
     summary->SetName(this->Test->GetSummaryResultName());
     secondSummary->SetName(this->Test->GetSecondSummaryResultName());
-    results->AddColumn(secondSummary.Get());
-    results->AddColumn(summary.Get());
+    results->AddColumn(secondSummary);
+    results->AddColumn(summary);
 
     // Set up a chart to show the data being generated in real time.
     chartView->GetRenderWindow()->SetSize(700, 500);
     chartView->GetRenderWindow()->SetPosition(700, 0);
-    chartView->GetScene()->AddItem(chart.Get());
+    chartView->GetScene()->AddItem(chart);
     vtkPlot *plot = chart->AddPlot(vtkChart::LINE);
-    plot->SetInputData(results.Get(), 0, 1);
+    plot->SetInputData(results, 0, 1);
     chart->GetAxis(vtkAxis::LEFT)->SetTitle(this->Test->GetSummaryResultName());
     chart->GetAxis(vtkAxis::LEFT)->LogScaleOn();
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle(this->Test->GetSecondSummaryResultName());
@@ -185,7 +185,7 @@ void vtkRTTestSequence::Run()
 void vtkRTTestSequence::ReportSummaryResults(ostream &ost)
 {
   double result = 0.0;
-  vtkRTTestResult *bestTestResult = NULL;
+  vtkRTTestResult *bestTestResult = nullptr;
   bool initialized = false;
   std::vector<vtkRTTestResult>::iterator trItr;
   for (trItr = this->TestResults.begin(); trItr != this->TestResults.end(); ++trItr)

@@ -72,7 +72,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkApplyIcons : public vtkPassInputTypeAlgorithm
 public:
   static vtkApplyIcons *New();
   vtkTypeMacro(vtkApplyIcons, vtkPassInputTypeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -168,18 +168,18 @@ public:
 
 protected:
   vtkApplyIcons();
-  ~vtkApplyIcons() VTK_OVERRIDE;
+  ~vtkApplyIcons() override;
 
   /**
    * Convert the vtkGraph into vtkPolyData.
    */
   int RequestData(
-    vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+    vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Set the input type of the algorithm to vtkGraph.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int DefaultIcon;
   int SelectedIcon;
@@ -192,8 +192,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkApplyIcons(const vtkApplyIcons&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkApplyIcons&) VTK_DELETE_FUNCTION;
+  vtkApplyIcons(const vtkApplyIcons&) = delete;
+  void operator=(const vtkApplyIcons&) = delete;
 };
 
 #endif

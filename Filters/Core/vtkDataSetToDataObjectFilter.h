@@ -56,7 +56,7 @@ class VTKFILTERSCORE_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectA
 {
 public:
   vtkTypeMacro(vtkDataSetToDataObjectFilter,vtkDataObjectAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate the object to transform all data into a data object.
@@ -110,14 +110,14 @@ public:
 
 protected:
   vtkDataSetToDataObjectFilter();
-  ~vtkDataSetToDataObjectFilter() VTK_OVERRIDE;
+  ~vtkDataSetToDataObjectFilter() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE; //generate output data
+                  vtkInformationVector *) override; //generate output data
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   int Geometry;
   int Topology;
@@ -126,8 +126,8 @@ protected:
   int FieldData;
 
 private:
-  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
+  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) = delete;
+  void operator=(const vtkDataSetToDataObjectFilter&) = delete;
 };
 
 #endif

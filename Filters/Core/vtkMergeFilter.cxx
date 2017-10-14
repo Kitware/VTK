@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkMergeFilter);
 class vtkFieldNode
 {
 public:
-  vtkFieldNode(const char* name, vtkDataSet* ptr=0)
+  vtkFieldNode(const char* name, vtkDataSet* ptr=nullptr)
   {
       size_t length = strlen(name);
       if (length > 0)
@@ -41,10 +41,10 @@ public:
       }
       else
       {
-        this->Name = 0;
+        this->Name = nullptr;
       }
       this->Ptr = ptr;
-      this->Next = 0;
+      this->Next = nullptr;
   }
   ~vtkFieldNode()
   {
@@ -58,8 +58,8 @@ public:
   vtkDataSet* Ptr;
   vtkFieldNode* Next;
 private:
-  vtkFieldNode(const vtkFieldNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFieldNode&) VTK_DELETE_FUNCTION;
+  vtkFieldNode(const vtkFieldNode&) = delete;
+  void operator=(const vtkFieldNode&) = delete;
   char* Name;
 };
 
@@ -68,8 +68,8 @@ class vtkFieldList
 public:
   vtkFieldList()
   {
-      this->First = 0;
-      this->Last = 0;
+      this->First = nullptr;
+      this->Last = nullptr;
   }
   ~vtkFieldList()
   {
@@ -112,7 +112,7 @@ public:
   vtkFieldListIterator(vtkFieldList* list)
   {
       this->List = list;
-      this->Position = 0;
+      this->Position = nullptr;
   }
   void Begin()
   {
@@ -157,7 +157,7 @@ vtkDataSet* vtkMergeFilter::GetGeometry()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
@@ -171,7 +171,7 @@ vtkDataSet *vtkMergeFilter::GetScalars()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -185,7 +185,7 @@ vtkDataSet *vtkMergeFilter::GetVectors()
 {
   if (this->GetNumberOfInputConnections(2) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(2, 0));
@@ -199,7 +199,7 @@ vtkDataSet *vtkMergeFilter::GetNormals()
 {
   if (this->GetNumberOfInputConnections(3) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(3, 0));
@@ -213,7 +213,7 @@ vtkDataSet *vtkMergeFilter::GetTCoords()
 {
   if (this->GetNumberOfInputConnections(4) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(4, 0));
@@ -227,7 +227,7 @@ vtkDataSet *vtkMergeFilter::GetTensors()
 {
   if (this->GetNumberOfInputConnections(5) < 1)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(5, 0));
@@ -257,11 +257,11 @@ int vtkMergeFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkDataSet *scalarsData = 0;
-  vtkDataSet *vectorsData = 0;
-  vtkDataSet *normalsData = 0;
-  vtkDataSet *tCoordsData = 0;
-  vtkDataSet *tensorsData = 0;
+  vtkDataSet *scalarsData = nullptr;
+  vtkDataSet *vectorsData = nullptr;
+  vtkDataSet *normalsData = nullptr;
+  vtkDataSet *tCoordsData = nullptr;
+  vtkDataSet *tensorsData = nullptr;
   if (scalarsInfo)
   {
     scalarsData = vtkDataSet::SafeDownCast(
@@ -293,17 +293,17 @@ int vtkMergeFilter::RequestData(
   vtkIdType numCells, numCellScalars=0, numCellVectors=0, numCellNormals=0;
   vtkIdType numCellTCoords=0, numCellTensors=0;
   vtkPointData *pd;
-  vtkDataArray *scalars = NULL;
-  vtkDataArray *vectors = NULL;
-  vtkDataArray *normals = NULL;
-  vtkDataArray *tcoords = NULL;
-  vtkDataArray *tensors = NULL;
+  vtkDataArray *scalars = nullptr;
+  vtkDataArray *vectors = nullptr;
+  vtkDataArray *normals = nullptr;
+  vtkDataArray *tcoords = nullptr;
+  vtkDataArray *tensors = nullptr;
   vtkCellData *cd;
-  vtkDataArray *cellScalars = NULL;
-  vtkDataArray *cellVectors = NULL;
-  vtkDataArray *cellNormals = NULL;
-  vtkDataArray *cellTCoords = NULL;
-  vtkDataArray *cellTensors = NULL;
+  vtkDataArray *cellScalars = nullptr;
+  vtkDataArray *cellVectors = nullptr;
+  vtkDataArray *cellNormals = nullptr;
+  vtkDataArray *cellTCoords = nullptr;
+  vtkDataArray *cellTensors = nullptr;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
 
@@ -321,13 +321,13 @@ int vtkMergeFilter::RequestData(
   {
     pd = scalarsData->GetPointData();
     scalars = pd->GetScalars();
-    if ( scalars != NULL )
+    if ( scalars != nullptr )
     {
       numScalars = scalars->GetNumberOfTuples();
     }
     cd = scalarsData->GetCellData();
     cellScalars = cd->GetScalars();
-    if ( cellScalars != NULL )
+    if ( cellScalars != nullptr )
     {
       numCellScalars = cellScalars->GetNumberOfTuples();
     }
@@ -337,13 +337,13 @@ int vtkMergeFilter::RequestData(
   {
     pd = vectorsData->GetPointData();
     vectors = pd->GetVectors();
-    if ( vectors != NULL )
+    if ( vectors != nullptr )
     {
       numVectors= vectors->GetNumberOfTuples();
     }
     cd = vectorsData->GetCellData();
     cellVectors = cd->GetVectors();
-    if ( cellVectors != NULL )
+    if ( cellVectors != nullptr )
     {
       numCellVectors = cellVectors->GetNumberOfTuples();
     }
@@ -353,13 +353,13 @@ int vtkMergeFilter::RequestData(
   {
     pd = normalsData->GetPointData();
     normals = pd->GetNormals();
-    if ( normals != NULL )
+    if ( normals != nullptr )
     {
       numNormals= normals->GetNumberOfTuples();
     }
     cd = normalsData->GetCellData();
     cellNormals = cd->GetNormals();
-    if ( cellNormals != NULL )
+    if ( cellNormals != nullptr )
     {
       numCellNormals = cellNormals->GetNumberOfTuples();
     }
@@ -369,13 +369,13 @@ int vtkMergeFilter::RequestData(
   {
     pd = tCoordsData->GetPointData();
     tcoords = pd->GetTCoords();
-    if ( tcoords != NULL )
+    if ( tcoords != nullptr )
     {
       numTCoords= tcoords->GetNumberOfTuples();
     }
     cd = tCoordsData->GetCellData();
     cellTCoords = cd->GetTCoords();
-    if ( cellTCoords != NULL )
+    if ( cellTCoords != nullptr )
     {
       numCellTCoords = cellTCoords->GetNumberOfTuples();
     }
@@ -385,13 +385,13 @@ int vtkMergeFilter::RequestData(
   {
     pd = tensorsData->GetPointData();
     tensors = pd->GetTensors();
-    if ( tensors != NULL )
+    if ( tensors != nullptr )
     {
       numTensors = tensors->GetNumberOfTuples();
     }
     cd = tensorsData->GetCellData();
     cellTensors = cd->GetTensors();
-    if ( cellTensors != NULL )
+    if ( cellTensors != nullptr )
     {
       numCellTensors = cellTensors->GetNumberOfTuples();
     }

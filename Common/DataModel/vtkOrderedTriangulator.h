@@ -115,7 +115,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOrderedTriangulator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object.
@@ -341,7 +341,7 @@ public:
 
 protected:
   vtkOrderedTriangulator();
-  ~vtkOrderedTriangulator() VTK_OVERRIDE;
+  ~vtkOrderedTriangulator() override;
 
 private:
   void       Initialize();
@@ -365,8 +365,8 @@ private:
   TemplateIDType  ComputeTemplateIndex();
 
 private:
-  vtkOrderedTriangulator(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
+  vtkOrderedTriangulator(const vtkOrderedTriangulator&) = delete;
+  void operator=(const vtkOrderedTriangulator&) = delete;
 };
 
 #endif

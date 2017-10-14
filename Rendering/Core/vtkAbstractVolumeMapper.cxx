@@ -60,7 +60,7 @@ vtkDataObject *vtkAbstractVolumeMapper::GetDataObjectInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return this->GetInputDataObject(0, 0);
 }
@@ -69,7 +69,7 @@ vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
   {
-    return 0;
+    return nullptr;
   }
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }

@@ -67,8 +67,8 @@ int vtkConeSource::RequestData(
   int i;
   vtkIdType pts[VTK_CELL_SIZE];
   vtkPoints *newPoints;
-  vtkCellArray *newLines=0;
-  vtkCellArray *newPolys=0;
+  vtkCellArray *newLines=nullptr;
+  vtkCellArray *newPolys=nullptr;
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   // for streaming

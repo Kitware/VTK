@@ -28,9 +28,9 @@ vtkStandardNewMacro(vtkCollection);
 vtkCollection::vtkCollection()
 {
   this->NumberOfItems = 0;
-  this->Top = NULL;
-  this->Bottom = NULL;
-  this->Current = NULL;
+  this->Top = nullptr;
+  this->Bottom = nullptr;
+  this->Current = nullptr;
 }
 
 // Destructor for the vtkCollection class. This removes all
@@ -43,7 +43,7 @@ vtkCollection::~vtkCollection()
 // protected function to delete an element. Internal use only.
 void vtkCollection::DeleteElement(vtkCollectionElement *e)
 {
-  if (e->Item != NULL)
+  if (e->Item != nullptr)
   {
     e->Item->UnRegister(this);
   }
@@ -97,7 +97,7 @@ void vtkCollection::AddItem(vtkObject *a)
 
   a->Register(this);
   elem->Item = a;
-  elem->Next = NULL;
+  elem->Next = nullptr;
 
   this->Modified();
 
@@ -164,7 +164,7 @@ void vtkCollection::RemoveItem(vtkObject *a)
     return;
   }
 
-  vtkCollectionElement *prev = NULL;
+  vtkCollectionElement *prev = nullptr;
   vtkCollectionElement *elem = this->Top;
   for (int i = 0; i < this->NumberOfItems; i++)
   {
@@ -193,7 +193,7 @@ void vtkCollection::RemoveAllItems()
 
   while (this->NumberOfItems)
   {
-    this->RemoveElement(this->Top, NULL);
+    this->RemoveElement(this->Top, nullptr);
   }
 
   this->Modified();
@@ -236,7 +236,7 @@ void vtkCollection::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-// Get the i'th item in the collection. NULL is returned if i is out
+// Get the i'th item in the collection. nullptr is returned if i is out
 // of range
 vtkObject *vtkCollection::GetItemAsObject(int i)
 {
@@ -244,7 +244,7 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
 
   if (i < 0)
   {
-    return NULL;
+    return nullptr;
   }
 
   if (i == this->NumberOfItems - 1)
@@ -254,19 +254,19 @@ vtkObject *vtkCollection::GetItemAsObject(int i)
   }
   else
   {
-    while (elem != NULL && i > 0)
+    while (elem != nullptr && i > 0)
     {
       elem = elem->Next;
       i--;
     }
   }
-  if ( elem != NULL )
+  if ( elem != nullptr )
   {
     return elem->Item;
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -293,7 +293,7 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
   }
 
   // Take care of reference counting
-  if (elem->Item != NULL)
+  if (elem->Item != nullptr)
   {
     elem->Item->UnRegister(this);
   }
@@ -321,7 +321,7 @@ void vtkCollection::RemoveItem(int i)
   }
 
   elem = this->Top;
-  prev = NULL;
+  prev = nullptr;
   for (int j = 0; j < i; j++)
   {
     prev = elem;

@@ -42,7 +42,7 @@ class VTKIOEXODUS_EXPORT vtkExodusIIReaderParser : public vtkXMLParser
 public:
   static vtkExodusIIReaderParser* New();
   vtkTypeMacro(vtkExodusIIReaderParser, vtkXMLParser);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -89,10 +89,10 @@ public:
 
 protected:
   vtkExodusIIReaderParser();
-  ~vtkExodusIIReaderParser() VTK_OVERRIDE;
+  ~vtkExodusIIReaderParser() override;
 
-  void StartElement( const char* tagName, const char** attrs) VTK_OVERRIDE;
-  void EndElement(const char* tagName) VTK_OVERRIDE;
+  void StartElement( const char* tagName, const char** attrs) override;
+  void EndElement(const char* tagName) override;
   void FinishedParsing();
 
   const char* GetValue(const char* attr,const char** attrs)
@@ -114,7 +114,7 @@ protected:
         return attrs[i+1];
       }
     }
-    return NULL;
+    return nullptr;
   }
 
   // Convenience methods to add vertices/edges to the SIL.
@@ -172,8 +172,8 @@ protected:
   bool InMaterialAssignments;
 
 private:
-  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
+  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&) = delete;
+  void operator=(const vtkExodusIIReaderParser&) = delete;
 
 };
 

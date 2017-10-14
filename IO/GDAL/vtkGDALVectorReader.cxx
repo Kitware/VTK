@@ -50,7 +50,7 @@ public:
 #else
     GDALAllRegister();
     this->Source = static_cast<GDALDataset*>(
-      GDALOpenEx(srcName, GDAL_OF_VECTOR, NULL, NULL, NULL));
+      GDALOpenEx(srcName, GDAL_OF_VECTOR, nullptr, nullptr, nullptr));
 #endif
     if ( ! this->Source )
     {
@@ -109,8 +109,8 @@ public:
     {
       vtkNew<vtkIdTypeArray> featIds;
       featIds->SetName("_vtkPedigreeIds");
-      (*pd)->GetCellData()->SetPedigreeIds(featIds.GetPointer());
-      fields->push_back(featIds.GetPointer());
+      (*pd)->GetCellData()->SetPedigreeIds(featIds);
+      fields->push_back(featIds);
     }
 
     *lines = vtkCellArray::New();
@@ -535,7 +535,7 @@ const char* vtkGDALVectorReader::GetLayerProjection(int layerIndex)
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -613,7 +613,7 @@ int vtkGDALVectorReader::RequestData( vtkInformation* request,
       char *projStr;
       layer->GetSpatialRef()->exportToWkt(&projStr);
       this->LayersProjection[layerIdx] = std::string(projStr);
-      OGRFree(projStr);
+      CPLFree(projStr);
     }
 
     p->ReadLayer( layer, mbds );

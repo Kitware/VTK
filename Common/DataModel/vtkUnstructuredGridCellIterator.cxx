@@ -45,7 +45,7 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "FacesLocsPtr: " << this->FacesLocsPtr << endl;
   os << indent << "SkippedCells: " << this->SkippedCells << endl;
   os << indent << "UnstructuredGridPoints: " <<
-        this->UnstructuredGridPoints.GetPointer() << endl;
+        this->UnstructuredGridPoints << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -53,9 +53,9 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
     vtkUnstructuredGrid *ug)
 {
   // If the unstructured grid has not been initialized yet, these may not exist:
-  vtkUnsignedCharArray *cellTypeArray = ug ? ug->GetCellTypesArray() : NULL;
-  vtkCellArray *cellArray = ug ? ug->GetCells() : NULL;
-  vtkPoints *points = ug ? ug->GetPoints() : NULL;
+  vtkUnsignedCharArray *cellTypeArray = ug ? ug->GetCellTypesArray() : nullptr;
+  vtkCellArray *cellArray = ug ? ug->GetCells() : nullptr;
+  vtkPoints *points = ug ? ug->GetPoints() : nullptr;
 
   if(points)
   {
@@ -66,7 +66,7 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
   {
     // Cell types
     this->CellTypeBegin = this->CellTypeEnd = this->CellTypePtr
-        = cellTypeArray ? cellTypeArray->GetPointer(0) : NULL;
+        = cellTypeArray ? cellTypeArray->GetPointer(0) : nullptr;
     this->CellTypeEnd += cellTypeArray ? cellTypeArray->GetNumberOfTuples() : 0;
 
     // CellArray
@@ -85,22 +85,22 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
     }
     else
     {
-      this->FacesBegin = NULL;
-      this->FacesLocsBegin = NULL;
-      this->FacesLocsPtr = NULL;
+      this->FacesBegin = nullptr;
+      this->FacesLocsBegin = nullptr;
+      this->FacesLocsPtr = nullptr;
     }
   }
   else
   {
-    this->CellTypeBegin = NULL;
-    this->CellTypePtr = NULL;
-    this->CellTypeEnd = NULL;
-    this->FacesBegin = NULL;
-    this->FacesLocsBegin = NULL;
-    this->FacesLocsPtr = NULL;
-    this->ConnectivityBegin= NULL;
-    this->ConnectivityPtr = NULL;
-    this->UnstructuredGridPoints = NULL;
+    this->CellTypeBegin = nullptr;
+    this->CellTypePtr = nullptr;
+    this->CellTypeEnd = nullptr;
+    this->FacesBegin = nullptr;
+    this->FacesLocsBegin = nullptr;
+    this->FacesLocsPtr = nullptr;
+    this->ConnectivityBegin= nullptr;
+    this->ConnectivityPtr = nullptr;
+    this->UnstructuredGridPoints = nullptr;
   }
 
   this->SkippedCells = 0;
@@ -153,23 +153,23 @@ void vtkUnstructuredGridCellIterator::IncrementToNextCell()
   ++this->SkippedCells;
 
   // Note that we may be incrementing an invalid pointer here...check
-  // if FacesLocsBegin is NULL before dereferencing this!
+  // if FacesLocsBegin is nullptr before dereferencing this!
   ++this->FacesLocsPtr;
 }
 
 //------------------------------------------------------------------------------
 vtkUnstructuredGridCellIterator::vtkUnstructuredGridCellIterator()
   : vtkCellIterator(),
-    CellTypeBegin(NULL),
-    CellTypePtr(NULL),
-    CellTypeEnd(NULL),
-    ConnectivityBegin(NULL),
-    ConnectivityPtr(NULL),
-    FacesBegin(NULL),
-    FacesLocsBegin(NULL),
-    FacesLocsPtr(NULL),
+    CellTypeBegin(nullptr),
+    CellTypePtr(nullptr),
+    CellTypeEnd(nullptr),
+    ConnectivityBegin(nullptr),
+    ConnectivityPtr(nullptr),
+    FacesBegin(nullptr),
+    FacesLocsBegin(nullptr),
+    FacesLocsPtr(nullptr),
     SkippedCells(0),
-    UnstructuredGridPoints(NULL)
+    UnstructuredGridPoints(nullptr)
 {
 }
 

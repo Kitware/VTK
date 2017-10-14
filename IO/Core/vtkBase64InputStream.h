@@ -31,26 +31,26 @@ class VTKIOCORE_EXPORT vtkBase64InputStream : public vtkInputStream
 public:
   vtkTypeMacro(vtkBase64InputStream,vtkInputStream);
   static vtkBase64InputStream *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Called after the stream position has been set by the caller, but
    * before any Seek or Read calls.  The stream position should not be
    * adjusted by the caller until after an EndReading call.
    */
-  void StartReading() VTK_OVERRIDE;
+  void StartReading() override;
 
   /**
    * Seek to the given offset in the input data.  Returns 1 for
    * success, 0 for failure.
    */
-  int Seek(vtkTypeInt64 offset) VTK_OVERRIDE;
+  int Seek(vtkTypeInt64 offset) override;
 
   /**
    * Read input data of the given length.  Returns amount actually
    * read.
    */
-  size_t Read(void* data, size_t length) VTK_OVERRIDE;
+  size_t Read(void* data, size_t length) override;
 
   /**
    * Called after all desired calls to Seek and Read have been made.
@@ -58,11 +58,11 @@ public:
    * stream.  Additional reads should not be done until after another
    * call to StartReading.
    */
-  void EndReading() VTK_OVERRIDE;
+  void EndReading() override;
 
 protected:
   vtkBase64InputStream();
-  ~vtkBase64InputStream() VTK_OVERRIDE;
+  ~vtkBase64InputStream() override;
 
   // Number of decoded bytes left in Buffer from last call to Read.
   int BufferLength;
@@ -72,8 +72,8 @@ protected:
   int DecodeTriplet(unsigned char& c0, unsigned char& c1, unsigned char& c2);
 
 private:
-  vtkBase64InputStream(const vtkBase64InputStream&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkBase64InputStream&) VTK_DELETE_FUNCTION;
+  vtkBase64InputStream(const vtkBase64InputStream&) = delete;
+  void operator=(const vtkBase64InputStream&) = delete;
 };
 
 #endif

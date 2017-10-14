@@ -78,11 +78,11 @@ vtkMySQLDatabase::~vtkMySQLDatabase()
 void vtkMySQLDatabase::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "NULL") << endl;
-  os << indent << "HostName: " << (this->HostName ? this->HostName : "NULL") << endl;
-  os << indent << "User: " << (this->User ? this->User : "NULL") << endl;
+  os << indent << "DatabaseType: " << (this->DatabaseType ? this->DatabaseType : "nullptr") << endl;
+  os << indent << "HostName: " << (this->HostName ? this->HostName : "nullptr") << endl;
+  os << indent << "User: " << (this->User ? this->User : "nullptr") << endl;
   os << indent << "Password: " << (this->Password ? "(hidden)":"(none)") << endl;
-  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "NULL") << endl;
+  os << indent << "DatabaseName: " << (this->DatabaseName ? this->DatabaseName : "nullptr") << endl;
   os << indent << "ServerPort: " << this->ServerPort << endl;
   os << indent << "Reconnect: " << (this->Reconnect ? "ON" : "OFF") << endl;
 }
@@ -142,7 +142,7 @@ bool vtkMySQLDatabase::Open( const char* password )
     return true;
   }
 
-  assert(this->Private->Connection == NULL);
+  assert(this->Private->Connection == nullptr);
 
   if ( this->Reconnect )
   {
@@ -159,7 +159,7 @@ bool vtkMySQLDatabase::Open( const char* password )
                         this->GetServerPort(),
                         0, 0);
 
-  if (this->Private->Connection == NULL)
+  if (this->Private->Connection == nullptr)
   {
     vtkErrorMacro(<<"Open() failed with error: "
                   << mysql_error(& this->Private->NullConnection));
@@ -189,14 +189,14 @@ void vtkMySQLDatabase::Close()
   else
   {
     mysql_close(this->Private->Connection);
-    this->Private->Connection = NULL;
+    this->Private->Connection = nullptr;
   }
 }
 
 // ----------------------------------------------------------------------
 bool vtkMySQLDatabase::IsOpen()
 {
-  return (this->Private->Connection != NULL);
+  return (this->Private->Connection != nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -219,7 +219,7 @@ vtkStringArray* vtkMySQLDatabase::GetTables()
   else
   {
     MYSQL_RES* tableResult = mysql_list_tables(
-      this->Private->Connection, NULL );
+      this->Private->Connection, nullptr );
 
     if ( ! tableResult )
     {
@@ -399,7 +399,7 @@ vtkStdString vtkMySQLDatabase::GetColumnSpecification( vtkSQLDatabaseSchema* sch
   switch ( static_cast<vtkSQLDatabaseSchema::DatabaseColumnType>( colType ) )
   {
     case vtkSQLDatabaseSchema::SERIAL:
-      colTypeStr = "INT NOT NULL AUTO_INCREMENT";
+      colTypeStr = "INT NOT nullptr AUTO_INCREMENT";
       break;
     case vtkSQLDatabaseSchema::SMALLINT:
       colTypeStr = "SMALLINT";

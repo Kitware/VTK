@@ -41,7 +41,7 @@ vtkImageMarchingCubes::vtkImageMarchingCubes()
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
 
-  this->LocatorPointIds = NULL;
+  this->LocatorPointIds = nullptr;
   this->InputMemoryLimit = 10240;  // 10 mega Bytes
 }
 
@@ -116,7 +116,7 @@ int vtkImageMarchingCubes::RequestData(
   switch (inData->GetScalarType())
   {
     vtkTemplateMacro(
-      temp = vtkImageMarchingCubesGetTypeSize(static_cast<VTK_TT*>(0))
+      temp = vtkImageMarchingCubesGetTypeSize(static_cast<VTK_TT*>(nullptr))
       );
     default:
       vtkErrorMacro(<< "Could not determine input scalar type.");
@@ -231,22 +231,22 @@ int vtkImageMarchingCubes::RequestData(
                << this->Triangles->GetNumberOfCells() << " triangles");
   output->SetPoints(this->Points);
   this->Points->Delete();
-  this->Points = NULL;
+  this->Points = nullptr;
   output->SetPolys(this->Triangles);
   this->Triangles->Delete();
-  this->Triangles = NULL;
+  this->Triangles = nullptr;
   if (this->ComputeScalars)
   {
     int idx = output->GetPointData()->AddArray(this->Scalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     this->Scalars->Delete();
-    this->Scalars = NULL;
+    this->Scalars = nullptr;
   }
   if (this->ComputeNormals)
   {
     output->GetPointData()->SetNormals(this->Normals);
     this->Normals->Delete();
-    this->Normals = NULL;
+    this->Normals = nullptr;
   }
 
   // Recover extra space.
@@ -324,7 +324,7 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
                                       double value)
 {
   int edgeAxis = 0;
-  T *ptrB = NULL;
+  T *ptrB = nullptr;
   double temp, pt[3];
 
   // decode the edge into starting point and axis direction
@@ -702,7 +702,7 @@ void vtkImageMarchingCubes::DeleteLocator()
 {
   // Free old memory
   delete [] this->LocatorPointIds;
-  this->LocatorPointIds = NULL;
+  this->LocatorPointIds = nullptr;
 }
 
 //----------------------------------------------------------------------------

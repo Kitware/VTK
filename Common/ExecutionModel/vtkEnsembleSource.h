@@ -41,7 +41,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkEnsembleSource : public vtkAlgorithm
 public:
   static vtkEnsembleSource *New();
   vtkTypeMacro(vtkEnsembleSource,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an algorithm (source) that will produce the next ensemble member.
@@ -90,7 +90,7 @@ public:
 
 protected:
   vtkEnsembleSource();
-  ~vtkEnsembleSource() VTK_OVERRIDE;
+  ~vtkEnsembleSource() override;
 
   static vtkInformationIntegerKey* DATA_MEMBER();
 
@@ -98,8 +98,8 @@ protected:
 
   int ProcessRequest(vtkInformation *request,
                              vtkInformationVector **inputVector,
-                             vtkInformationVector *outputVector) VTK_OVERRIDE;
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+                             vtkInformationVector *outputVector) override;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   vtkAlgorithm* GetCurrentReader(vtkInformation*);
 
@@ -109,8 +109,8 @@ protected:
   vtkTable* MetaData;
 
 private:
-  vtkEnsembleSource(const vtkEnsembleSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnsembleSource&) VTK_DELETE_FUNCTION;
+  vtkEnsembleSource(const vtkEnsembleSource&) = delete;
+  void operator=(const vtkEnsembleSource&) = delete;
 };
 
 #endif

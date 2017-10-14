@@ -51,13 +51,13 @@ static inline void LinearTransformPoint(double mtx[4][4],
 vtkWeightedTransformFilter::vtkWeightedTransformFilter()
 {
   this->AddInputValues = 0;
-  this->Transforms = NULL;
+  this->Transforms = nullptr;
   this->NumberOfTransforms = 0;
 
-  this->CellDataWeightArray = NULL;
-  this->WeightArray = NULL;
-  this->CellDataTransformIndexArray = NULL;
-  this->TransformIndexArray = NULL;
+  this->CellDataWeightArray = nullptr;
+  this->WeightArray = nullptr;
+  this->CellDataTransformIndexArray = nullptr;
+  this->TransformIndexArray = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -65,11 +65,11 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
 {
   int i;
 
-  if(this->Transforms != NULL)
+  if(this->Transforms != nullptr)
   {
     for(i = 0; i < this->NumberOfTransforms; i++)
     {
-      if(this->Transforms[i] != NULL)
+      if(this->Transforms[i] != nullptr)
       {
         this->Transforms[i]->UnRegister(this);
       }
@@ -77,11 +77,11 @@ vtkWeightedTransformFilter::~vtkWeightedTransformFilter()
     delete [] this->Transforms;
   }
 
-  // Setting these strings to NULL has the side-effect of deleting them.
-  this->SetCellDataWeightArray(NULL);
-  this->SetWeightArray(NULL);
-  this->SetCellDataTransformIndexArray(NULL);
-  this->SetTransformIndexArray(NULL);
+  // Setting these strings to nullptr has the side-effect of deleting them.
+  this->SetCellDataWeightArray(nullptr);
+  this->SetWeightArray(nullptr);
+  this->SetCellDataTransformIndexArray(nullptr);
+  this->SetTransformIndexArray(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -96,13 +96,13 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
     return;
   }
 
-  if(this->Transforms == NULL)
+  if(this->Transforms == nullptr)
   {
     // first time
     this->Transforms = new vtkAbstractTransform*[num];
     for(i = 0; i < num; i++)
     {
-      this->Transforms[i] = NULL;
+      this->Transforms[i] = nullptr;
     }
     this->NumberOfTransforms = num;
     return;
@@ -119,10 +119,10 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
     // and copy other elements
     for(i = num; i < this->NumberOfTransforms; i++)
     {
-      if(this->Transforms[i] != NULL)
+      if(this->Transforms[i] != nullptr)
       {
         this->Transforms[i]->UnRegister(this);
-        this->Transforms[i] = NULL;
+        this->Transforms[i] = nullptr;
       }
     }
     newTransforms = new vtkAbstractTransform*[num];
@@ -143,7 +143,7 @@ void vtkWeightedTransformFilter::SetNumberOfTransforms(int num)
 
     for(i = this->NumberOfTransforms; i < num; i++)
     {
-      newTransforms[i] = NULL;
+      newTransforms[i] = nullptr;
     }
     delete [] this->Transforms;
     this->Transforms = newTransforms;
@@ -168,12 +168,12 @@ void vtkWeightedTransformFilter::SetTransform(vtkAbstractTransform *trans,
     this->NumberOfTransforms);
     return;
   }
-  if(this->Transforms[num] != NULL)
+  if(this->Transforms[num] != nullptr)
   {
     this->Transforms[num]->UnRegister(this);
   }
   this->Transforms[num] = trans;
-  if(trans != NULL)
+  if(trans != nullptr)
   {
     trans->Register(this);
   }
@@ -186,14 +186,14 @@ vtkAbstractTransform *vtkWeightedTransformFilter::GetTransform(int num)
   if(num < 0)
   {
     vtkErrorMacro(<<"Transform number must be greater than 0");
-    return NULL;
+    return nullptr;
   }
 
   if(num >= this->NumberOfTransforms)
   {
     vtkErrorMacro(<<"Transform number exceeds maximum of " <<
     this->NumberOfTransforms);
-    return NULL;
+    return nullptr;
   }
 
   return this->Transforms[num];
@@ -219,8 +219,8 @@ int vtkWeightedTransformFilter::RequestData(
   vtkPoints *newPts;
   vtkDataArray *inVectors, *inCellVectors;
   vtkDataArray *inNormals, *inCellNormals;
-  vtkFloatArray *newVectors=NULL, *newCellVectors=NULL;
-  vtkFloatArray *newNormals=NULL, *newCellNormals=NULL;
+  vtkFloatArray *newVectors=nullptr, *newCellVectors=nullptr;
+  vtkFloatArray *newNormals=nullptr, *newCellNormals=nullptr;
   vtkIdType numPts, numCells, p;
   int activeTransforms, allLinear;
   int i, c, tidx;
@@ -232,8 +232,8 @@ int vtkWeightedTransformFilter::RequestData(
   double xformPt[3], cumPt[3];
   double xformVec[3], cumVec[3];
   double derivMatrix[3][3];
-  float *weights = NULL;
-  unsigned short *transformIndices = NULL;
+  float *weights = nullptr;
+  unsigned short *transformIndices = nullptr;
   double thisWeight;
   vtkDataArray *pdArray, *cdArray;
   vtkUnsignedShortArray *tiArray, *cdtiArray;
@@ -249,7 +249,7 @@ int vtkWeightedTransformFilter::RequestData(
 
   // Check input
   //
-  if ( this->Transforms == NULL || this->NumberOfTransforms == 0)
+  if ( this->Transforms == nullptr || this->NumberOfTransforms == 0)
   {
     vtkErrorMacro(<<"No transform defined!");
     return 1;
@@ -258,7 +258,7 @@ int vtkWeightedTransformFilter::RequestData(
   activeTransforms = 0;
   for(c = 0; c < this->NumberOfTransforms; c++)
   {
-    if(this->Transforms[c] != NULL)
+    if(this->Transforms[c] != nullptr)
     {
       activeTransforms++;
     }
@@ -275,10 +275,10 @@ int vtkWeightedTransformFilter::RequestData(
   allLinear = 1;
   for(c = 0; c < this->NumberOfTransforms; c++)
   {
-    if(this->Transforms[c] == NULL)
+    if(this->Transforms[c] == nullptr)
     {
-      linearPtMtx[c] = NULL;
-      linearNormMtx[c] = NULL;
+      linearPtMtx[c] = nullptr;
+      linearNormMtx[c] = nullptr;
       continue;
     }
 
@@ -286,8 +286,8 @@ int vtkWeightedTransformFilter::RequestData(
 
     if(! this->Transforms[c]->IsA("vtkLinearTransform"))
     {
-      linearPtMtx[c] = NULL;
-      linearNormMtx[c] = NULL;
+      linearPtMtx[c] = nullptr;
+      linearNormMtx[c] = nullptr;
       allLinear = 0;
       continue;
     }
@@ -299,22 +299,22 @@ int vtkWeightedTransformFilter::RequestData(
     vtkMatrix4x4::Transpose(linearNormMtx[c], linearNormMtx[c]);
   }
 
-  pdArray = NULL;
+  pdArray = nullptr;
   pdComponents = 0;
-  if(this->WeightArray != NULL && this->WeightArray[0] != '\0')
+  if(this->WeightArray != nullptr && this->WeightArray[0] != '\0')
   {
     fd = pd;
-    if(fd != NULL) {
+    if(fd != nullptr) {
     pdArray = fd->GetArray(this->WeightArray);
     }
-    if(pdArray == NULL)
+    if(pdArray == nullptr)
     {
       fd = input->GetFieldData();
-      if(fd != NULL) {
+      if(fd != nullptr) {
       pdArray = fd->GetArray(this->WeightArray);
       }
     }
-    if(pdArray == NULL)
+    if(pdArray == nullptr)
     {
       vtkErrorMacro(<<"WeightArray " << this->WeightArray <<
       " " << "doesn't exist");
@@ -330,23 +330,23 @@ int vtkWeightedTransformFilter::RequestData(
     }
   }
 
-  tiArray = NULL;
-  if(this->TransformIndexArray!=NULL && this->TransformIndexArray[0]!='\0')
+  tiArray = nullptr;
+  if(this->TransformIndexArray!=nullptr && this->TransformIndexArray[0]!='\0')
   {
     fd = pd;
-    if(fd != NULL) {
+    if(fd != nullptr) {
     tiArray = reinterpret_cast<vtkUnsignedShortArray *>
       (fd->GetArray(this->TransformIndexArray));
     }
-    if(tiArray == NULL)
+    if(tiArray == nullptr)
     {
       fd = input->GetFieldData();
-      if(fd != NULL) {
+      if(fd != nullptr) {
       tiArray = reinterpret_cast<vtkUnsignedShortArray *>
         (fd->GetArray(this->TransformIndexArray));
       }
     }
-    if(tiArray == NULL)
+    if(tiArray == nullptr)
     {
       vtkErrorMacro(<<"TransformIndexArray " << this->TransformIndexArray <<
       " " << "doesn't exist");
@@ -360,34 +360,34 @@ int vtkWeightedTransformFilter::RequestData(
       vtkWarningMacro(<<"TransformIndexArray " << this->TransformIndexArray <<
       " " << "does not have the same number of components as WeightArray " <<
                     this->WeightArray);
-      tiArray = NULL;
+      tiArray = nullptr;
     }
     if (tiArray->GetDataType() != VTK_UNSIGNED_SHORT)
     {
       vtkWarningMacro(<<"TransformIndexArray " << this->TransformIndexArray <<
                       " " << " is not of type unsigned short, ignoring.");
-      tiArray = NULL;
+      tiArray = nullptr;
     }
   }
 
-  cdArray = NULL;
+  cdArray = nullptr;
   cdComponents = 0;
-  if(this->CellDataWeightArray != NULL &&
+  if(this->CellDataWeightArray != nullptr &&
      this->CellDataWeightArray[0] != '\0')
   {
     fd = cd;
-    if(fd != NULL)
+    if(fd != nullptr)
     {
       cdArray = fd->GetArray(this->CellDataWeightArray);
     }
-    if(cdArray == NULL)
+    if(cdArray == nullptr)
     {
       fd = input->GetFieldData();
-      if(fd != NULL) {
+      if(fd != nullptr) {
       cdArray = fd->GetArray(this->CellDataWeightArray);
       }
     }
-    if(cdArray == NULL)
+    if(cdArray == nullptr)
     {
       vtkErrorMacro(<<"CellDataWeightArray " << this->CellDataWeightArray <<
       " " << "doesn't exist");
@@ -402,26 +402,26 @@ int vtkWeightedTransformFilter::RequestData(
     }
   }
 
-  cdtiArray = NULL;
-  if(this->CellDataTransformIndexArray != NULL &&
+  cdtiArray = nullptr;
+  if(this->CellDataTransformIndexArray != nullptr &&
      this->CellDataTransformIndexArray[0] != '\0')
   {
     fd = pd;
-    if(fd != NULL)
+    if(fd != nullptr)
     {
       cdtiArray = reinterpret_cast<vtkUnsignedShortArray *>
         (fd->GetArray(this->CellDataTransformIndexArray));
     }
-    if(cdtiArray == NULL)
+    if(cdtiArray == nullptr)
     {
       fd = input->GetFieldData();
-      if(fd != NULL)
+      if(fd != nullptr)
       {
         cdtiArray = reinterpret_cast<vtkUnsignedShortArray *>
           (fd->GetArray(this->CellDataTransformIndexArray));
       }
     }
-    if(cdtiArray == NULL)
+    if(cdtiArray == nullptr)
     {
       vtkErrorMacro(<<"CellDataTransformIndexArray " <<
                     this->CellDataTransformIndexArray <<
@@ -438,14 +438,14 @@ int vtkWeightedTransformFilter::RequestData(
                     " " <<
                     "does not have the same number of components as " <<
                     "CellDataWeightArray " << this->WeightArray);
-      cdtiArray = NULL;
+      cdtiArray = nullptr;
     }
     if (cdtiArray && (cdtiArray->GetDataType() != VTK_UNSIGNED_SHORT))
     {
       vtkWarningMacro(<<"CellDataTransformIndexArray " <<
                       this->CellDataTransformIndexArray <<
                       " " << " is not of type unsigned short, ignoring.");
-      cdtiArray = NULL;
+      cdtiArray = nullptr;
     }
   }
 
@@ -489,9 +489,9 @@ int vtkWeightedTransformFilter::RequestData(
   // work done in vtkTransform
 
   // -------------------------- POINT DATA -------------------------------
-  if(pdArray != NULL)
+  if(pdArray != nullptr)
   {
-    transformIndices = NULL;
+    transformIndices = nullptr;
     // do points
     for(p = 0; p < numPts; p++)
     {
@@ -547,7 +547,7 @@ int vtkWeightedTransformFilter::RequestData(
       weights = reinterpret_cast<vtkFloatArray *>
         (pdArray)->GetPointer(p*pdComponents);
 
-      if(tiArray != NULL)
+      if(tiArray != nullptr)
       {
         transformIndices = reinterpret_cast<vtkUnsignedShortArray *>
           (tiArray)->GetPointer(p*pdComponents);
@@ -556,7 +556,7 @@ int vtkWeightedTransformFilter::RequestData(
       // for each transform...
       for(c = 0; c < pdComponents; c++)
       {
-        if (transformIndices != NULL)
+        if (transformIndices != nullptr)
         {
           tidx = transformIndices[c];
         }
@@ -571,12 +571,12 @@ int vtkWeightedTransformFilter::RequestData(
           continue;
         }
         thisWeight = weights[c];
-        if(this->Transforms[tidx] == NULL || thisWeight == 0.0)
+        if(this->Transforms[tidx] == nullptr || thisWeight == 0.0)
         {
           continue;
         }
 
-        if(linearPtMtx[tidx] != NULL)
+        if(linearPtMtx[tidx] != nullptr)
         {
           // -------------------- linear fast path ------------------------
           LinearTransformPoint((double (*)[4])linearPtMtx[tidx],
@@ -657,7 +657,7 @@ int vtkWeightedTransformFilter::RequestData(
   // -------------------------- CELL DATA -------------------------------
 
   // can only work on cell data if the transforms are all linear
-  if(cdArray != NULL && allLinear)
+  if(cdArray != nullptr && allLinear)
   {
     if( inCellVectors )
     {
@@ -671,7 +671,7 @@ int vtkWeightedTransformFilter::RequestData(
       newCellNormals->SetNumberOfComponents(3);
       newCellNormals->Allocate(3*numCells);
     }
-    transformIndices = NULL;
+    transformIndices = nullptr;
     for(p = 0; p < numCells; p++)
     {
       // -------- normals init ---------------
@@ -715,7 +715,7 @@ int vtkWeightedTransformFilter::RequestData(
 
       weights = reinterpret_cast<vtkFloatArray *>
         (cdArray)->GetPointer(p*cdComponents);
-      if(cdtiArray != NULL)
+      if(cdtiArray != nullptr)
       {
         transformIndices = reinterpret_cast<vtkUnsignedShortArray *>
           (cdtiArray)->GetPointer(p*cdComponents);
@@ -724,7 +724,7 @@ int vtkWeightedTransformFilter::RequestData(
       // for each transform...
       for(c = 0; c < cdComponents; c++)
       {
-        if (transformIndices != NULL)
+        if (transformIndices != nullptr)
         {
           tidx = transformIndices[c];
         }
@@ -739,7 +739,7 @@ int vtkWeightedTransformFilter::RequestData(
           continue;
         }
         thisWeight = weights[c];
-        if(linearPtMtx[tidx] == NULL || thisWeight == 0.0)
+        if(linearPtMtx[tidx] == nullptr || thisWeight == 0.0)
         {
           continue;
         }

@@ -82,7 +82,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   vtkIdType numPts, numCells, numPolys, numStrips, i;
   int j, k;
   vtkIdType npts = 0;
-  vtkIdType *pts = 0;
+  vtkIdType *pts = nullptr;
   vtkIdType p1, p2;
   double x[3], y[3], deltaX[3], xNew[3];
   double x1[3], x2[3], x3[3], l1[3], l2[3];
@@ -90,9 +90,9 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   double CosEdgeAngle; // Cosine of angle between adjacent edges
   int iterationNumber;
   vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
-  vtkPolyData *inMesh = NULL, *Mesh;
+  vtkPolyData *inMesh = nullptr, *Mesh;
   vtkPoints *inPts;
-  vtkTriangleFilter *toTris=NULL;
+  vtkTriangleFilter *toTris=nullptr;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   vtkPoints *newPts[4];
   vtkMeshVertexPtr Verts;
@@ -153,7 +153,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   for (i=0; i<numPts; i++)
   {
     Verts[i].type = VTK_SIMPLE_VERTEX; //can smooth
-    Verts[i].edges = NULL;
+    Verts[i].edges = nullptr;
   }
 
   inPts = input->GetPoints();
@@ -203,7 +203,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
       { //multiply connected, becomes fixed!
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
-        Verts[pts[j]].edges = NULL;
+        Verts[pts[j]].edges = nullptr;
       }
 
     } //for all points in this line
@@ -254,13 +254,13 @@ int vtkWindowedSincPolyDataFilter::RequestData(
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
 
-        if ( Verts[p1].edges == NULL )
+        if ( Verts[p1].edges == nullptr )
         {
           Verts[p1].edges = vtkIdList::New();
           Verts[p1].edges->Allocate(16,6);
           // Verts[p1].edges = new vtkIdList(6,6);
         }
-        if ( Verts[p2].edges == NULL )
+        if ( Verts[p2].edges == nullptr )
         {
           Verts[p2].edges = vtkIdList::New();
           Verts[p2].edges->Allocate(16,6);
@@ -581,7 +581,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   // first iteration
   for (i=0; i<numPts; i++)
   {
-    if ( Verts[i].edges != NULL &&
+    if ( Verts[i].edges != nullptr &&
          (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
     {
       // point is allowed to move
@@ -643,7 +643,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
 
     for (i=0; i<numPts; i++)
     {
-      if ( Verts[i].edges != NULL &&
+      if ( Verts[i].edges != nullptr &&
            (npts = Verts[i].edges->GetNumberOfIds()) > 0 )
       {
         // point is allowed to move
@@ -785,7 +785,7 @@ int vtkWindowedSincPolyDataFilter::RequestData(
   //free up connectivity storage
   for (i=0; i<numPts; i++)
   {
-    if ( Verts[i].edges != NULL ) {Verts[i].edges->Delete();}
+    if ( Verts[i].edges != nullptr ) {Verts[i].edges->Delete();}
   }
   delete [] Verts;
 

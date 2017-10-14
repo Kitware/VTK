@@ -81,7 +81,7 @@ protected:
                     int numberOfPickers, int numberOfObjectsLinked1);
 
   bool CheckState(int numberOfPickers,
-                  vtkPicker* picker = 0,
+                  vtkPicker* picker = nullptr,
                   int NumberOfObjectsLinked = 0);
 
 private:
@@ -103,14 +103,14 @@ class PickingManagerClient : public vtkObject
 
   protected:
     PickingManagerClient();
-    ~PickingManagerClient() VTK_OVERRIDE;
+    ~PickingManagerClient() override;
 
   private:
     vtkPickingManager *PickingManager;
     vtkPicker *Picker;
 
-    PickingManagerClient(const PickingManagerClient&) VTK_DELETE_FUNCTION;
-    void operator=(const PickingManagerClient&) VTK_DELETE_FUNCTION;
+    PickingManagerClient(const PickingManagerClient&) = delete;
+    void operator=(const PickingManagerClient&) = delete;
 };
 
 vtkStandardNewMacro(PickingManagerClient);
@@ -184,11 +184,11 @@ bool PickingManagerTest::TestProperties()
   res = VTK_VERIFY(this->PickingManager->GetOptimizeOnInteractorEvents() == 1,
                    "Error optimizationOnInteractor not enabled by default:")
         && res;
-  res = VTK_VERIFY(this->PickingManager->GetInteractor() == 0,
+  res = VTK_VERIFY(this->PickingManager->GetInteractor() == nullptr,
                    "Error interactor not null by default:") && res;
   res = VTK_VERIFY(this->PickingManager->GetNumberOfPickers() == 0,
                    "Error numberOfPickers not nul by default:") && res;
-  res = VTK_VERIFY(this->PickingManager->GetNumberOfObjectsLinked(0) == 0,
+  res = VTK_VERIFY(this->PickingManager->GetNumberOfObjectsLinked(nullptr) == 0,
                    "Error NumberOfObjectsLinked not nul with null picker:")
         && res;
 
@@ -233,10 +233,10 @@ bool PickingManagerTest::TestAddPickers()
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->AddPicker(picker, object);
 
-  res = VTK_VERIFY(this->CheckState(1, picker.GetPointer(), 1),
+  res = VTK_VERIFY(this->CheckState(1, picker, 1),
                   "Error adding same picker with same object:") && res;
 
   return res;
@@ -265,11 +265,11 @@ bool PickingManagerTest::TestRemovePickers()
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->RemovePicker(picker.GetPointer(), object.GetPointer());
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->RemovePicker(picker, object);
 
-  res = VTK_VERIFY(this->CheckState(0, picker.GetPointer(), 0),
+  res = VTK_VERIFY(this->CheckState(0, picker, 0),
                   "Error removing a picker with same object:") && res;
 
   return res;
@@ -294,29 +294,29 @@ bool PickingManagerTest::TestRemoveObjects()
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker;
   vtkNew<vtkObject> object;
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->RemoveObject(object.GetPointer());
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->RemoveObject(object);
 
-  res = VTK_VERIFY(this->CheckState(0, picker.GetPointer(), 0),
+  res = VTK_VERIFY(this->CheckState(0, picker, 0),
                   "Error removing an object with same picker:") && res;
 
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkObject> object2;
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->AddPicker(picker.GetPointer(), object2.GetPointer());
-  this->PickingManager->RemoveObject(object.GetPointer());
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->AddPicker(picker, object2);
+  this->PickingManager->RemoveObject(object);
 
-  res = VTK_VERIFY(this->CheckState(1, picker.GetPointer(), 1),
+  res = VTK_VERIFY(this->CheckState(1, picker, 1),
                   "Error removing one of the objects with same picker:") && res;
 
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkNew<vtkPicker> picker2;
-  this->PickingManager->AddPicker(picker.GetPointer(), object.GetPointer());
-  this->PickingManager->AddPicker(picker2.GetPointer(), object.GetPointer());
-  this->PickingManager->RemoveObject(object.GetPointer());
+  this->PickingManager->AddPicker(picker, object);
+  this->PickingManager->AddPicker(picker2, object);
+  this->PickingManager->RemoveObject(object);
 
-  res = VTK_VERIFY(this->CheckState(0, picker.GetPointer(), 0),
+  res = VTK_VERIFY(this->CheckState(0, picker, 0),
                   "Error removing object with different pickers:") && res;
 
   return res;
@@ -330,16 +330,16 @@ bool PickingManagerTest::TestObjectOwnership()
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkSmartPointer<PickingManagerClient> client =
     vtkSmartPointer<PickingManagerClient>::New();
-  client->SetPickingManager(this->PickingManager.GetPointer());
+  client->SetPickingManager(this->PickingManager);
   client->RegisterPicker();
 
   res = VTK_VERIFY(this->CheckState(1, client->GetPicker(), 1),
                    "Error after client registers picker:") && res;
 
-  client = NULL;
+  client = nullptr;
 
-  res = VTK_VERIFY(this->CheckState(0, NULL, 0),
-                   "Error after setting client object to NULL:") && res;
+  res = VTK_VERIFY(this->CheckState(0, nullptr, 0),
+                   "Error after setting client object to nullptr:") && res;
 
   return res;
 }
@@ -348,8 +348,8 @@ bool PickingManagerTest::TestObjectOwnership()
 std::pair<vtkSmartPointer<vtkPicker>, vtkSmartPointer<vtkObject> > PickingManagerTest::
 AddPickerObject(int pickerType, int objectType)
 {
-  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? 0 : vtkSmartPointer<vtkPicker>::New();
-  vtkSmartPointer<vtkObject> object = (objectType == 0) ? 0 : vtkSmartPointer<vtkObject>::New();
+  vtkSmartPointer<vtkPicker> picker = (pickerType == 0) ? nullptr : vtkSmartPointer<vtkPicker>::New();
+  vtkSmartPointer<vtkObject> object = (objectType == 0) ? nullptr : vtkSmartPointer<vtkObject>::New();
 
   this->PickingManager->AddPicker(picker, object);
 
@@ -367,7 +367,7 @@ bool PickingManagerTest::AddPicker(int pickerType, int objectType,
     this->AddPickerObject(pickerType, objectType).first;
 
   return this->CheckState(numberOfPickers,
-                          picker.GetPointer(),
+                          picker,
                           numberOfObjectsLinked);
 }
 
@@ -388,13 +388,13 @@ AddPickerTwice(int pickerType0, int objectType0,
 
   if (samePicker)
   {
-    this->PickingManager->AddPicker(picker1.GetPointer());
+    this->PickingManager->AddPicker(picker1);
   }
 
   return (this->CheckState(numberOfPickers,
-                           picker0.GetPointer(), numberOfObjectsLinked0) &&
+                           picker0, numberOfObjectsLinked0) &&
           this->CheckState(numberOfPickers,
-                           picker1.GetPointer(), numberOfObjectsLinked1));
+                           picker1, numberOfObjectsLinked1));
 }
 
 //------------------------------------------------------------------------------
@@ -403,9 +403,9 @@ bool PickingManagerTest::RemovePicker(int pickerType, int numberOfPickers)
   this->PickingManager = vtkSmartPointer<vtkPickingManager>::New();
   vtkSmartPointer<vtkPicker> picker = this->AddPickerObject(pickerType, 0).first;
 
-  this->PickingManager->RemovePicker(picker.GetPointer());
+  this->PickingManager->RemovePicker(picker);
 
-  return this->CheckState(numberOfPickers, 0, 0);
+  return this->CheckState(numberOfPickers, nullptr, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -425,15 +425,15 @@ RemoveOneOfPickers(int pickerType0, int objectType0,
 
   if (samePicker)
   {
-    this->PickingManager->AddPicker(picker1.GetPointer());
+    this->PickingManager->AddPicker(picker1);
   }
 
-  this->PickingManager->RemovePicker(picker0.GetPointer());
+  this->PickingManager->RemovePicker(picker0);
 
   return (this->CheckState(numberOfPickers,
-                           picker0.GetPointer(), numberOfObjectsLinked0) &&
+                           picker0, numberOfObjectsLinked0) &&
           this->CheckState(numberOfPickers,
-                           picker1.GetPointer(), numberOfObjectsLinked1));
+                           picker1, numberOfObjectsLinked1));
 }
 
 //------------------------------------------------------------------------------

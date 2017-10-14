@@ -63,7 +63,7 @@ signals:
 public:
   static vtkQtTreeView *New();
   vtkTypeMacro(vtkQtTreeView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -71,7 +71,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  QWidget* GetWidget() VTK_OVERRIDE;
+  QWidget* GetWidget() override;
 
   /**
    * Have the view show/hide its column headers (default is ON)
@@ -163,7 +163,7 @@ public:
   /**
    * Updates the view.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Set item delegate to something custom
@@ -187,14 +187,14 @@ public:
   vtkBooleanMacro(ColorByArray, bool);
   //@}
 
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
 protected:
   vtkQtTreeView();
-  ~vtkQtTreeView() VTK_OVERRIDE;
+  ~vtkQtTreeView() override;
 
-  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
-  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void AddRepresentationInternal(vtkDataRepresentation* rep) override;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
 private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
@@ -220,8 +220,8 @@ private:
 
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtTreeView(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
+  vtkQtTreeView(const vtkQtTreeView&) = delete;
+  void operator=(const vtkQtTreeView&) = delete;
 
 };
 

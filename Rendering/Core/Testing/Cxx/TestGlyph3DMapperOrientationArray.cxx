@@ -65,7 +65,7 @@ int TestGlyph3DMapperOrientationArray(int argc, char *argv[])
   calc->SetFunction("100*x*jHat");
   calc->Update();
 
-  calc->GetOutput()->GetPointData()->SetActiveScalars("Elevation");
+  vtkDataSet::SafeDownCast(calc->GetOutput())->GetPointData()->SetActiveScalars("Elevation");
 
   vtkActor *planeActor=vtkActor::New();
   planeActor->SetMapper(planeMapper);

@@ -52,14 +52,14 @@
 #define TEST_OBJECT_TYPE(subDir, objType, blockId) \
   if(!subDir) \
   { \
-    return NULL; \
+    return nullptr; \
   } \
  \
   const ADIOS::Scalar *v = subDir->GetScalar("DataObjectType"); \
   if(!(v && v->GetValue<vtkTypeUInt8>(this->RequestStepIndex, blockId) == \
             objType)) \
   { \
-    return NULL; \
+    return nullptr; \
   }
 
 //----------------------------------------------------------------------------
@@ -72,8 +72,8 @@ vtkStandardNewMacro(vtkADIOSReader);
 //----------------------------------------------------------------------------
 
 vtkADIOSReader::vtkADIOSReader()
-: FileName(NULL), ReadMethod(static_cast<int>(ADIOS::ReadMethod_BP)),
-  ReadMethodArguments(NULL), Tree(NULL), Reader(NULL), Controller(NULL),
+: FileName(nullptr), ReadMethod(static_cast<int>(ADIOS::ReadMethod_BP)),
+  ReadMethodArguments(nullptr), Tree(nullptr), Reader(nullptr), Controller(nullptr),
   NumberOfPieces(-1)
 {
   this->SetNumberOfInputPorts(0);
@@ -93,9 +93,9 @@ vtkADIOSReader::~vtkADIOSReader()
     this->PostReadOperations.pop();
   }
 
-  this->SetFileName(NULL);
-  this->SetReadMethodArguments(NULL);
-  this->SetController(NULL);
+  this->SetFileName(nullptr);
+  this->SetReadMethodArguments(nullptr);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -310,7 +310,7 @@ int vtkADIOSReader::RequestData(vtkInformation *vtkNotUsed(req),
   // Set up multi-piece for paraview
   vtkNew<vtkMultiPieceDataSet> outputPieces;
   output->SetNumberOfBlocks(1);
-  output->SetBlock(0, outputPieces.GetPointer());
+  output->SetBlock(0, outputPieces);
 
   // Make sure the multi-piece has the "global view"
   outputPieces->SetNumberOfPieces(

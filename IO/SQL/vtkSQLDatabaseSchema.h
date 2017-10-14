@@ -62,7 +62,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
 {
  public:
   vtkTypeMacro(vtkSQLDatabaseSchema, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkSQLDatabaseSchema* New();
 
   /**
@@ -188,7 +188,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   /**
    * Add a (possibly backend-specific) trigger action to a table.
 
-   * Triggers must be given unique, non-NULL names as some database backends require them.
+   * Triggers must be given unique, non-nullptr names as some database backends require them.
    * The returned value is a trigger handle or -1 if an error occurred.
    */
   virtual int AddTriggerToTable(
@@ -407,7 +407,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
    * schema->SetName( "Example" );
    * schema->AddTableMultipleArguments( "atable",
    * vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::INTEGER, "tablekey",  0, "",
-   * vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT NULL",
+   * vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::VARCHAR, "somename", 11, "NOT nullptr",
    * vtkSQLDatabaseSchema::COLUMN_TOKEN, vtkSQLDatabaseSchema::BIGINT,  "somenmbr", 17, "DEFAULT 0",
    * vtkSQLDatabaseSchema::INDEX_TOKEN, vtkSQLDatabaseSchema::PRIMARY_KEY, "bigkey",
    * vtkSQLDatabaseSchema::INDEX_COLUMN_TOKEN, "tablekey",
@@ -431,15 +431,15 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
 
  protected:
   vtkSQLDatabaseSchema();
-  ~vtkSQLDatabaseSchema() VTK_OVERRIDE;
+  ~vtkSQLDatabaseSchema() override;
 
   char* Name;
 
   class vtkSQLDatabaseSchemaInternals* Internals;
 
  private:
-  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
+  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &) = delete;
+  void operator=(const vtkSQLDatabaseSchema &) = delete;
 };
 
 #endif // vtkSQLDatabaseSchema_h

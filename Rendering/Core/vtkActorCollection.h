@@ -38,7 +38,7 @@ class VTKRENDERINGCORE_EXPORT vtkActorCollection : public vtkPropCollection
 public:
   static vtkActorCollection *New();
   vtkTypeMacro(vtkActorCollection,vtkPropCollection);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Add an actor to the bottom of the list.
@@ -79,7 +79,7 @@ public:
 
 protected:
   vtkActorCollection() {}
-  ~vtkActorCollection() VTK_OVERRIDE {}
+  ~vtkActorCollection() override {}
 
 
 private:
@@ -88,8 +88,8 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
 private:
-  vtkActorCollection(const vtkActorCollection&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkActorCollection&) VTK_DELETE_FUNCTION;
+  vtkActorCollection(const vtkActorCollection&) = delete;
+  void operator=(const vtkActorCollection&) = delete;
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a)
@@ -104,9 +104,9 @@ inline vtkActor *vtkActorCollection::GetNextActor()
 
 inline vtkActor *vtkActorCollection::GetLastActor()
 {
-  if ( this->Bottom == NULL )
+  if ( this->Bottom == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
   else
   {

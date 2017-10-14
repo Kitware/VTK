@@ -47,9 +47,9 @@ class VTKRENDERINGCORE_EXPORT vtkLabeledContourMapper : public vtkMapper
 public:
   static vtkLabeledContourMapper *New();
   vtkTypeMacro(vtkLabeledContourMapper, vtkMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void Render(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -64,8 +64,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE;
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override;
   //@}
 
   /**
@@ -137,15 +137,15 @@ public:
   vtkGetNewMacro(PolyDataMapper, vtkPolyDataMapper)
   //@}
 
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkLabeledContourMapper();
-  ~vtkLabeledContourMapper() VTK_OVERRIDE;
+  ~vtkLabeledContourMapper() override;
 
   virtual void ComputeBounds();
 
-  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillInputPortInformation(int, vtkInformation*) override;
 
   void Reset();
 
@@ -184,8 +184,8 @@ protected:
   vtkTimeStamp LabelBuildTime;
 
 private:
-  vtkLabeledContourMapper(const vtkLabeledContourMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLabeledContourMapper&) VTK_DELETE_FUNCTION;
+  vtkLabeledContourMapper(const vtkLabeledContourMapper&) = delete;
+  void operator=(const vtkLabeledContourMapper&) = delete;
 
   struct Private;
   Private *Internal;

@@ -114,19 +114,19 @@ void CreateDataset(vtkPolyData* dataset,
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// Utility to compare char arrays that may be NULL. If one argument is NULL,
-// returns 0 if the other is NULL too, 1 otherwise. If neither argument is NULL,
+// Utility to compare char arrays that may be nullptr. If one argument is nullptr,
+// returns 0 if the other is nullptr too, 1 otherwise. If neither argument is nullptr,
 // returns results of strcmp(s1, s2)
 //////////////////////////////////////////////////////////////////////////////
 int strcmp_null(const char* s1, const char* s2)
 {
-  if (s1 == NULL)
+  if (s1 == nullptr)
   {
-    return (s2 != NULL);
+    return (s2 != nullptr);
   }
-  if (s2 == NULL)
+  if (s2 == nullptr)
   {
-    return (s1 != NULL);
+    return (s1 != nullptr);
   }
 
   return strcmp(s1, s2);
@@ -168,9 +168,9 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
   {
     vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* arrayName = outputArray->GetName();
-    if (arrayName == NULL)
+    if (arrayName == nullptr)
     {
-      // Arrays with NULL names can only come out of the filter if they are designated an attribute.
+      // Arrays with nullptr names can only come out of the filter if they are designated an attribute.
       // We'll check those later.
       continue;
     }
@@ -252,7 +252,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
     }
 
     // Now check whether we should a) have an output array if there isn't one specified
-    // and b) the output array has the same name as the input attribute array names (maybe NULL)
+    // and b) the output array has the same name as the input attribute array names (maybe nullptr)
     bool allInputsHaveAttribute = true;
     bool allInputsHaveSameName = true;
     for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)
@@ -343,7 +343,7 @@ vtkDataSetAttributes* PointDataSelector(vtkDataSet* ds)
     return ds->GetPointData();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
@@ -353,7 +353,7 @@ vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
     return ds->GetCellData();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 
@@ -406,7 +406,7 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d1;
   int d1NumberOfPoints = 3;
   int d1NumberOfCells = 7;
-  CreateDataset(d1.GetPointer(), d1NumberOfPoints, d1PointInfo, d1NumberOfCells, d1CellInfo);
+  CreateDataset(d1, d1NumberOfPoints, d1PointInfo, d1NumberOfCells, d1CellInfo);
 
   // Set up d2 data object
   std::vector<DataArrayInfo> d2PointInfo(3, DataArrayInfo());
@@ -429,7 +429,7 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d2;
   int d2NumberOfPoints = 7;
   int d2NumberOfCells = 9;
-  CreateDataset(d2.GetPointer(), d2NumberOfPoints, d2PointInfo, d2NumberOfCells, d2CellInfo);
+  CreateDataset(d2, d2NumberOfPoints, d2PointInfo, d2NumberOfCells, d2CellInfo);
 
   // This tests that the active attributes are ignored when appending data sets, but
   // that the active attributes in the output are set to the active attributes in
@@ -438,9 +438,9 @@ int TestAppendFilter( int, char* [])
   // Now append these datasets and print the results
   std::cout << "===========================================================\n";
   std::cout << "Append result with no active scalars: " << std::endl;
-  std::vector<vtkPolyData*> inputs(2, static_cast<vtkPolyData*>(NULL));
-  inputs[0] = d1.GetPointer();
-  inputs[1] = d2.GetPointer();
+  std::vector<vtkPolyData*> inputs(2, static_cast<vtkPolyData*>(nullptr));
+  inputs[0] = d1;
+  inputs[1] = d2;
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with no active scalars\n";
@@ -525,20 +525,20 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d3;
   int d3NumberOfPoints = 4;
   int d3NumberOfCells = 8;
-  CreateDataset(d3.GetPointer(), d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
+  CreateDataset(d3, d3NumberOfPoints, d3PointInfo, d3NumberOfCells, d3CellInfo);
 
   // No common arrays
   std::cout << "===========================================================\n";
   std::cout << "Append result with no common array names and no active scalars: " << std::endl;
-  inputs[0] = d1.GetPointer();
-  inputs[1] = d3.GetPointer();
+  inputs[0] = d1;
+  inputs[1] = d3;
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with no common array names and no active scalars\n";
     return EXIT_FAILURE;
   }
 
-  // Test appending of NULL array names with active scalars
+  // Test appending of nullptr array names with active scalars
   std::vector<DataArrayInfo> d4PointInfo(2, DataArrayInfo());
   d4PointInfo[0].Name = "(null)";
   d4PointInfo[0].Value = std::vector<int>(1, 10);
@@ -556,9 +556,9 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d4;
   int d4NumberOfPoints = 6;
   int d4NumberOfCells = 10;
-  CreateDataset(d4.GetPointer(), d4NumberOfPoints, d4PointInfo, d4NumberOfCells, d4CellInfo);
+  CreateDataset(d4, d4NumberOfPoints, d4PointInfo, d4NumberOfCells, d4CellInfo);
 
-  // Set scalars to array whose name is NULL
+  // Set scalars to array whose name is nullptr
   d4->GetPointData()->SetScalars(d4->GetPointData()->GetArray(0));
   d4->GetCellData()->SetScalars(d4->GetCellData()->GetArray(0));
 
@@ -579,19 +579,19 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d5;
   int d5NumberOfPoints = 6;
   int d5NumberOfCells = 3;
-  CreateDataset(d5.GetPointer(), d5NumberOfPoints, d5PointInfo, d5NumberOfCells, d5CellInfo);
+  CreateDataset(d5, d5NumberOfPoints, d5PointInfo, d5NumberOfCells, d5CellInfo);
 
-  // Set scalars to array whose name is NULL
+  // Set scalars to array whose name is nullptr
   d5->GetPointData()->SetScalars(d5->GetPointData()->GetArray(1));
   d5->GetCellData()->SetScalars(d5->GetCellData()->GetArray(1));
 
   std::cout << "===========================================================\n";
-  std::cout << "Append result of scalar arrays with NULL names: " << std::endl;
-  inputs[0] = d4.GetPointer();
-  inputs[1] = d5.GetPointer();
+  std::cout << "Append result of scalar arrays with nullptr names: " << std::endl;
+  inputs[0] = d4;
+  inputs[1] = d5;
   if (!AppendDatasetsAndPrint(inputs))
   {
-    std::cerr << "vtkAppendFilter failed with scalar arrays with NULL names\n";
+    std::cerr << "vtkAppendFilter failed with scalar arrays with nullptr names\n";
     return EXIT_FAILURE;
   }
 
@@ -608,7 +608,7 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d6;
   int d6NumberOfPoints = 9;
   int d6NumberOfCells = 4;
-  CreateDataset(d6.GetPointer(), d6NumberOfPoints, d6PointInfo, d6NumberOfCells, d6CellInfo);
+  CreateDataset(d6, d6NumberOfPoints, d6PointInfo, d6NumberOfCells, d6CellInfo);
 
   std::vector<DataArrayInfo> d7PointInfo(1, DataArrayInfo());
   d7PointInfo[0].Name = "Q";
@@ -623,12 +623,12 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d7;
   int d7NumberOfPoints = 5;
   int d7NumberOfCells = 7;
-  CreateDataset(d7.GetPointer(), d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
+  CreateDataset(d7, d7NumberOfPoints, d7PointInfo, d7NumberOfCells, d7CellInfo);
 
   std::cout << "===========================================================\n";
   std::cout << "Append result of scalar arrays with 2 components: " << std::endl;
-  inputs[0] = d6.GetPointer();
-  inputs[1] = d7.GetPointer();
+  inputs[0] = d6;
+  inputs[1] = d7;
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with scalar arrays with 2 components\n";
@@ -646,12 +646,12 @@ int TestAppendFilter( int, char* [])
   vtkNew<vtkPolyData> d8;
   int d8NumberOfPoints = 11;
   int d8NumberOfCells = 8;
-  CreateDataset(d8.GetPointer(), d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
+  CreateDataset(d8, d8NumberOfPoints, d8PointInfo, d8NumberOfCells, d8CellInfo);
 
   std::cout << "===========================================================\n";
   std::cout << "Append result of scalar arrays with same name but different number of components: " << std::endl;
-  inputs[0] = d7.GetPointer();
-  inputs[1] = d8.GetPointer();
+  inputs[0] = d7;
+  inputs[1] = d8;
   if (!AppendDatasetsAndPrint(inputs))
   {
     std::cerr << "vtkAppendFilter failed with scalar arrays with same name but different components\n";

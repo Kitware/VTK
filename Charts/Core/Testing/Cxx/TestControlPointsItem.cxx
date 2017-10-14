@@ -36,9 +36,9 @@ int TestControlPointsItem(int, char*[])
 
   vtkNew<vtkColorTransferControlPointsItem> controlPoints;
 
-  controlPoints->SetColorTransferFunction(transferFunction.GetPointer());
+  controlPoints->SetColorTransferFunction(transferFunction);
 
-  if (controlPoints->GetColorTransferFunction() != transferFunction.GetPointer())
+  if (controlPoints->GetColorTransferFunction() != transferFunction)
   {
     std::cerr << "vtkColorTransferControlPointsItem::GetColorTransferFunction "
               << "failed, bad pointer: "
@@ -57,7 +57,7 @@ int TestControlPointsItem(int, char*[])
   }
 
   vtkNew<vtkIdTypeArray> ids;
-  controlPoints->GetControlPointsIds(ids.GetPointer(), true);
+  controlPoints->GetControlPointsIds(ids, true);
 
   if (ids->GetSize() != controlPoints->GetNumberOfPoints() - 2 ||
       ids->GetValue(0) != 1 || ids->GetValue(1) != 2)
@@ -68,7 +68,7 @@ int TestControlPointsItem(int, char*[])
     return EXIT_FAILURE;
   }
 
-  controlPoints->GetControlPointsIds(ids.GetPointer());
+  controlPoints->GetControlPointsIds(ids);
 
   if (ids->GetSize() != controlPoints->GetNumberOfPoints() ||
       ids->GetValue(0) != 0 || ids->GetValue(1) != 1 ||
@@ -94,7 +94,7 @@ int TestControlPointsItem(int, char*[])
   }
 
   // MovePoints
-  controlPoints->MovePoints(vtkVector2f(1.,0.), ids.GetPointer());
+  controlPoints->MovePoints(vtkVector2f(1.,0.), ids);
 
   double point0[4], point1[4], point2[4], point3[4];
   controlPoints->GetControlPoint(0, point0);
@@ -112,7 +112,7 @@ int TestControlPointsItem(int, char*[])
   }
 
   // SpreadPoints
-  controlPoints->SpreadPoints(1., ids.GetPointer());
+  controlPoints->SpreadPoints(1., ids);
 
   controlPoints->GetControlPoint(0, point0);
   controlPoints->GetControlPoint(1, point1);
@@ -128,7 +128,7 @@ int TestControlPointsItem(int, char*[])
     return EXIT_FAILURE;
   }
 
-  controlPoints->SpreadPoints(-1., ids.GetPointer());
+  controlPoints->SpreadPoints(-1., ids);
 
   controlPoints->GetControlPoint(0, point0);
   controlPoints->GetControlPoint(1, point1);

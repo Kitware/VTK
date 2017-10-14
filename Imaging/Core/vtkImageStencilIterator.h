@@ -40,9 +40,9 @@ public:
   vtkImageStencilIterator()
   {
     this->Increment = 0;
-    this->BasePointer = 0;
-    this->Pointer = 0;
-    this->SpanEndPointer = 0;
+    this->BasePointer = nullptr;
+    this->Pointer = nullptr;
+    this->SpanEndPointer = nullptr;
   }
   //@}
 
@@ -57,9 +57,9 @@ public:
    * then progress events will provided for the algorithm.
    */
   vtkImageStencilIterator(vtkImageData *image,
-                          vtkImageStencilData *stencil=0,
-                          const int extent[6] = 0,
-                          vtkAlgorithm *algorithm=0,
+                          vtkImageStencilData *stencil=nullptr,
+                          const int extent[6] = nullptr,
+                          vtkAlgorithm *algorithm=nullptr,
                           int threadId=0)
     : vtkImagePointDataIterator(image, extent, stencil, algorithm, threadId)
   {
@@ -74,9 +74,9 @@ public:
    * Initialize an iterator.  See constructor for more details.
    */
   void Initialize(vtkImageData *image,
-                  vtkImageStencilData *stencil=0,
-                  const int extent[6] = 0,
-                  vtkAlgorithm *algorithm=0,
+                  vtkImageStencilData *stencil=nullptr,
+                  const int extent[6] = nullptr,
+                  vtkAlgorithm *algorithm=nullptr,
                   int threadId=0)
   {
     this->vtkImagePointDataIterator::Initialize(

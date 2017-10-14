@@ -230,7 +230,7 @@ int vtkPExtractVOI::RequestData(
   gridConnectivity->RegisterGrid(
     this->Controller->GetLocalProcessId(),
     output->GetExtent(),
-    NULL,
+    nullptr,
     output->GetPointData()
     );
 

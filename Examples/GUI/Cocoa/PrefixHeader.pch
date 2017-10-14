@@ -1,5 +1,7 @@
 // This header is automatically #included in every source file in the Xcode project.
 
+#ifdef __cplusplus
+
 // VTK factory methods now require "auto-initialization".
 // <http://www.vtk.org/Wiki/VTK/VTK_6_Migration/Factories_now_require_defines>
 // Match the definitions used to build VTK.
@@ -12,3 +14,5 @@
 VTK_MODULE_INIT(vtkInteractionStyle)
 VTK_MODULE_INIT(vtkRenderingFreeType)
 VTK_MODULE_INIT(vtkRenderingOpenGL2)
+
+#endif

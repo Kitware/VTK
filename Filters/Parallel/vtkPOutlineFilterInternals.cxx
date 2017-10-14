@@ -36,12 +36,12 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 {
   // Description:
   // Performs a "B.AddBounds(A)" operation.
-  void Function(const void *A, void *B, vtkIdType length, int datatype) VTK_OVERRIDE
+  void Function(const void *A, void *B, vtkIdType length, int datatype) override
   {
     (void)datatype;
     assert((datatype == VTK_DOUBLE) && (length%6==0));
-    assert("pre: A vector is NULL" && (A != NULL) );
-    assert("pre: B vector is NULL" && (B != NULL) );
+    assert("pre: A vector is nullptr" && (A != nullptr) );
+    assert("pre: B vector is nullptr" && (B != nullptr) );
     vtkBoundingBox box;
     const double *aPtr = reinterpret_cast<const double*>(A);
     double *bPtr       = reinterpret_cast<double*>(B);
@@ -55,13 +55,13 @@ class AddBoundsListOperator : public vtkCommunicator::Operation
 
   // Description:
   // Sets Commutative to true for this operation
-  int Commutative() VTK_OVERRIDE { return 1; }
+  int Commutative() override { return 1; }
 };
 
 // ----------------------------------------------------------------------------
 vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->IsCornerSource = false;
   this->CornerFactor = 0.2;
 }
@@ -69,7 +69,7 @@ vtkPOutlineFilterInternals::vtkPOutlineFilterInternals()
 // ----------------------------------------------------------------------------
 vtkPOutlineFilterInternals::~vtkPOutlineFilterInternals()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -99,13 +99,13 @@ int vtkPOutlineFilterInternals::RequestData(
   vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
   vtkPolyData* output = vtkPolyData::GetData(outputVector, 0);
 
-  if (input == NULL || output == NULL)
+  if (input == nullptr || output == nullptr)
   {
     vtkGenericWarningMacro("Missing input or output.");
     return 0;
   }
 
-  if (this->Controller == NULL)
+  if (this->Controller == nullptr)
   {
     vtkGenericWarningMacro("Missing Controller.");
     return 0;
@@ -148,13 +148,13 @@ void vtkPOutlineFilterInternals::CollectCompositeBounds(vtkDataObject* input)
 {
   vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
   vtkCompositeDataSet* compInput = vtkCompositeDataSet::SafeDownCast(input);
-  if (ds != NULL)
+  if (ds != nullptr)
   {
     double bounds[6];
     ds->GetBounds(bounds);
     this->BoundsList.push_back(vtkBoundingBox(bounds));
   }
-  else if (compInput != NULL)
+  else if (compInput != nullptr)
   {
     vtkCompositeDataIterator* iter = compInput->NewIterator();
     iter->SkipEmptyNodesOff();

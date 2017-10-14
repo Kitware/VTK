@@ -39,46 +39,46 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkCylindricalTransform : public vtkWarpTransfo
 public:
   static vtkCylindricalTransform *New();
   vtkTypeMacro(vtkCylindricalTransform,vtkWarpTransform);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make another transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
   vtkCylindricalTransform();
-  ~vtkCylindricalTransform() VTK_OVERRIDE;
+  ~vtkCylindricalTransform() override;
 
   /**
    * Copy this transform from another of the same type.
    */
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   //@{
   /**
    * Internal functions for calculating the transformation.
    */
-  void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void ForwardTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void ForwardTransformPoint(const float in[3], float out[3]) override;
+  void ForwardTransformPoint(const double in[3], double out[3]) override;
   //@}
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) VTK_OVERRIDE;
+                                  float derivative[3][3]) override;
   void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) VTK_OVERRIDE;
+                                  double derivative[3][3]) override;
 
-  void InverseTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
-  void InverseTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
+  void InverseTransformPoint(const float in[3], float out[3]) override;
+  void InverseTransformPoint(const double in[3], double out[3]) override;
 
   void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]) VTK_OVERRIDE;
+                                  float derivative[3][3]) override;
   void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]) VTK_OVERRIDE;
+                                  double derivative[3][3]) override;
 
 private:
-  vtkCylindricalTransform(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
+  vtkCylindricalTransform(const vtkCylindricalTransform&) = delete;
+  void operator=(const vtkCylindricalTransform&) = delete;
 };
 
 #endif

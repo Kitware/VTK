@@ -194,7 +194,7 @@ vtkPCANormalEstimation::vtkPCANormalEstimation()
 //----------------------------------------------------------------------------
 vtkPCANormalEstimation::~vtkPCANormalEstimation()
 {
-  this->SetLocator(NULL);
+  this->SetLocator(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -333,8 +333,6 @@ TraverseAndFlip (vtkPoints *inPts, float *normals, char *pointMap,
   } //while wave is not empty
 
   neighborPointIds->Delete();
-
-  return;
 }
 
 //----------------------------------------------------------------------------

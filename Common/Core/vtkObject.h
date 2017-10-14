@@ -112,7 +112,7 @@ public:
    * Print() instead) but used in the hierarchical print process to
    * combine the output of several classes.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -235,16 +235,16 @@ public:
   int InvokeEvent(const char *event, void *callData);
   //@}
 
-  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
-  int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
+  int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, nullptr); };
+  int InvokeEvent(const char *event) { return this->InvokeEvent(event, nullptr); };
 
 protected:
   vtkObject();
-  ~vtkObject() VTK_OVERRIDE;
+  ~vtkObject() override;
 
   // See vtkObjectBase.h.
-  void RegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
-  void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
+  void RegisterInternal(vtkObjectBase*, vtkTypeBool check) override;
+  void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check) override;
 
   bool     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time
@@ -259,13 +259,13 @@ protected:
    * these methods are designed to support vtkInteractorObservers since
    * they use two separate vtkCommands to watch for mouse and keypress events.
    */
-  void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
+  void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=nullptr);
   void InternalReleaseFocus();
   //@}
 
 private:
-  vtkObject(const vtkObject&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
+  vtkObject(const vtkObject&) = delete;
+  void operator=(const vtkObject&) = delete;
 
   /**
    * Following classes (vtkClassMemberCallbackBase,
@@ -299,7 +299,7 @@ private:
       {
         // The cast is needed in case "o" has multi-inheritance,
         // to offset the pointer to get the vtkObjectBase.
-        if ((this->VoidPointer = dynamic_cast<T*>(o)) == 0)
+        if ((this->VoidPointer = dynamic_cast<T*>(o)) == nullptr)
         {
           // fallback to just using its vtkObjectBase as-is.
           this->VoidPointer = o;
@@ -310,14 +310,14 @@ private:
       void operator=(void *o)
       {
         this->VoidPointer = o;
-        this->WeakPointer = 0;
+        this->WeakPointer = nullptr;
         this->UseWeakPointer = false;
       }
       T *GetPointer()
       {
         if (this->UseWeakPointer && !this->WeakPointer.GetPointer())
         {
-          return 0;
+          return nullptr;
         }
         return static_cast<T*>(this->VoidPointer);
       }
@@ -346,32 +346,32 @@ private:
       {
         this->Handler = handler;
         this->Method1 = method;
-        this->Method2 = NULL;
-        this->Method3 = NULL;
+        this->Method2 = nullptr;
+        this->Method3 = nullptr;
       }
 
       vtkClassMemberCallback(
         T* handler, void (T::*method)(vtkObject*, unsigned long, void*))
       {
         this->Handler = handler;
-        this->Method1 = NULL;
+        this->Method1 = nullptr;
         this->Method2 = method;
-        this->Method3 = NULL;
+        this->Method3 = nullptr;
       }
 
       vtkClassMemberCallback(
         T* handler, bool (T::*method)(vtkObject*, unsigned long, void*))
       {
         this->Handler = handler;
-        this->Method1 = NULL;
-        this->Method2 = NULL;
+        this->Method1 = nullptr;
+        this->Method2 = nullptr;
         this->Method3 = method;
       }
-      ~vtkClassMemberCallback() VTK_OVERRIDE { }
+      ~vtkClassMemberCallback() override { }
 
       // Called when the event is invoked
       bool operator()(
-        vtkObject* caller, unsigned long event, void* calldata) VTK_OVERRIDE
+        vtkObject* caller, unsigned long event, void* calldata) override
       {
         T *handler = this->Handler.GetPointer();
         if (handler)

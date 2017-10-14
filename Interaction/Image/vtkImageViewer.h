@@ -43,7 +43,7 @@ public:
   static vtkImageViewer *New();
 
   vtkTypeMacro(vtkImageViewer,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get name of rendering window
@@ -123,6 +123,7 @@ public:
    * Get the internal objects
    */
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
+  void SetRenderWindow(vtkRenderWindow* renWin);
   vtkGetObjectMacro(Renderer, vtkRenderer);
   vtkGetObjectMacro(ImageMapper,vtkImageMapper);
   vtkGetObjectMacro(Actor2D,vtkActor2D);
@@ -147,7 +148,7 @@ public:
 
 protected:
   vtkImageViewer();
-  ~vtkImageViewer() VTK_OVERRIDE;
+  ~vtkImageViewer() override;
 
   vtkRenderWindow *RenderWindow;
   vtkRenderer *Renderer;
@@ -161,8 +162,8 @@ protected:
   vtkAlgorithm* GetInputAlgorithm();
 
 private:
-  vtkImageViewer(const vtkImageViewer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageViewer&) VTK_DELETE_FUNCTION;
+  vtkImageViewer(const vtkImageViewer&) = delete;
+  void operator=(const vtkImageViewer&) = delete;
 };
 
 #endif

@@ -50,6 +50,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBoxPlot2.cxx
   TestCategoryLegend.cxx
   TestColorTransferFunction.cxx
+  TestChartBadPoints.cxx
   TestChartDouble.cxx
   TestChartDoubleColors.cxx
   TestChartMatrix.cxx

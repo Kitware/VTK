@@ -17,9 +17,16 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
-find_package(VTKm REQUIRED
-  OPTIONAL_COMPONENTS Serial CUDA TBB
-  )
+vtk_module_dep_includes(vtkm)
+list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
+
+if(VTKm_ENABLE_TBB)
+  vtkm_configure_component_TBB()
+endif()
+
+if(VTKm_ENABLE_CUDA)
+  vtkm_configure_component_CUDA()
+endif()
 
 set(lib_srcs
   vtkmlib/PolyDataConverter.cxx
@@ -27,6 +34,7 @@ set(lib_srcs
   vtkmlib/ArrayConverters.cxx
   vtkmlib/CellSetConverters.cxx
   vtkmlib/DataSetConverters.cxx
+  vtkmlib/ImageDataConverter.cxx
   vtkmlib/Storage.cxx
   )
 
@@ -37,10 +45,13 @@ set(headers
   vtkmClip.h
   vtkmContour.h
   vtkmExternalFaces.h
+  vtkmExtractVOI.h
   vtkmThreshold.h
   vtkmLevelOfDetail.h
   vtkmAverageToCells.h
   vtkmGradient.h
+  vtkmPolyDataNormals.h
+  vtkmTriangleMeshPointNormals.h
   )
 
 #implementation of the algorithms for cpu accelerators
@@ -50,6 +61,7 @@ set(cpu_accelerator_srcs
   vtkmClip.cxx
   vtkmContour.cxx
   vtkmExternalFaces.cxx
+  vtkmExtractVOI.cxx
   vtkmThreshold.cxx
   vtkmLevelOfDetail.cxx
   vtkmAverageToCells.cxx
@@ -57,6 +69,8 @@ set(cpu_accelerator_srcs
   vtkmCellSetSingleType.cxx
   vtkmConnectivityExec.cxx
   vtkmGradient.cxx
+  vtkmPolyDataNormals.cxx
+  vtkmTriangleMeshPointNormals.cxx
   vtkmlib/Portals.cxx
   vtkmlib/ImplicitFunctionConverter.cxx
   )
@@ -68,6 +82,7 @@ set(cuda_accelerator_srcs
   vtkmClip.cu
   vtkmContour.cu
   vtkmExternalFaces.cu
+  vtkmExtractVOI.cu
   vtkmThreshold.cu
   vtkmLevelOfDetail.cu
   vtkmAverageToCells.cu
@@ -75,6 +90,8 @@ set(cuda_accelerator_srcs
   vtkmCellSetSingleType.cu
   vtkmConnectivityExec.cu
   vtkmGradient.cu
+  vtkmPolyDataNormals.cu
+  vtkmTriangleMeshPointNormals.cu
   vtkmlib/Portals.cu
   vtkmlib/ImplicitFunctionConverter.cu
   )
@@ -84,16 +101,36 @@ set(VTKM_FILTER_INCLUDE_SOA ${VTK_DISPATCH_SOA_ARRAYS})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h" @ONLY)
 
-#mark all the helper classes as being excluded from wrappers
+# ====================
+# Important for wrapping and install rules for vtkmlib
+#  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
+#    to the vtkmlib directory and not the root include directory as vtk
+#    normally does
+#  - WRAP_EXCLUDE* are enabled as we don't want any vtkmlib private classes
+#    being used as public api
+# ====================
 set_source_files_properties(
   vtkmlib/PolyDataConverter
   vtkmlib/UnstructuredGridConverter
   vtkmlib/ArrayConverters
   vtkmlib/CellSetConverters
   vtkmlib/DataSetConverters
+  vtkmlib/ImageDataConverter
   vtkmlib/Storage
   vtkmlib/Portals
   vtkmlib/ImplicitFunctionConverter
+  PROPERTIES
+    SKIP_HEADER_INSTALL 1
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+  )
+
+# ====================
+# Important for wrapping and install rules for vtkmlib
+#  - WRAP_EXCLUDE* are enabled as we don't want any vtkm private classes
+#    being used as public api
+# ====================
+set_source_files_properties(
   vtkmCellSetExplicit
   vtkmCellSetSingleType
   vtkmConnectivityExec
@@ -102,6 +139,7 @@ set_source_files_properties(
     WRAP_EXCLUDE_PYTHON 1
   )
 
+
 set(${vtk-module}_HDRS
   vtkmTags.h
   vtkmFilterPolicy.h
@@ -109,7 +147,7 @@ set(${vtk-module}_HDRS
   )
 
 #we are building with CUDA support
-if(VTKm_CUDA_FOUND)
+if(VTKm_ENABLE_CUDA)
 
   #need to find cudadevrt
   find_library(CUDA_cudadevrt_LIBRARY cudadevrt
@@ -150,7 +188,7 @@ if(VTKm_CUDA_FOUND)
   if(PRIVATE IN_LIST CUDA_LIBRARIES)
     set(cache_cuda_libs ${CUDA_LIBRARIES})
     set(cache_devrt_libs ${CUDA_cudadevrt_LIBRARY})
-    set(CUDA_LIBRARIES ${CUDA_LIBRARIES} vtkFiltersGeneral)
+    set(CUDA_LIBRARIES ${CUDA_LIBRARIES} ${vtkAcceleratorsVTKm_DEPENDS})
     set(CUDA_cudadevrt_LIBRARY PRIVATE ${CUDA_cudadevrt_LIBRARY})
   endif()
 
@@ -195,18 +233,32 @@ else()
                      )
 endif()
 
-#We need to system up VTK-m as a system include dir so that modules
-#such as wrapping that depend on vtkAcceleratorsVTKm properly find
-#the headers
-target_include_directories(vtkAcceleratorsVTKm PUBLIC ${VTKm_INCLUDE_DIRS})
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})
+target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
 
-vtk_module_link_libraries(vtkAcceleratorsVTKm LINK_PRIVATE ${VTKm_LIBRARIES})
-target_compile_options(vtkAcceleratorsVTKm PRIVATE ${VTKm_COMPILE_OPTIONS})
+if (MSVC)
+  # MSVC has limits on obj size that are exceeded by this module so we need
+  # a flag to ignore those limits
+  target_compile_options(vtkAcceleratorsVTKm PRIVATE /bigobj)
+
+  #C4702 Generates numerous false positives with template code about
+  #      unreachable code
+  #C4512 Generates numerous warning that implicit assignment operators can't
+  #      be constructed. This is understood and we don't care.
+  #C4510 Generates numerous warning that implicit constructors can't
+  #      be constructed. This is understood and we don't care.
+  target_compile_options(vtkAcceleratorsVTKm PRIVATE -wd4702 -wd4512 -wd4510)
+endif()
+
+
 
 #install the required headers to make your own vtkm-vtk filter
 if(NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(DIRECTORY
     ${CMAKE_CURRENT_SOURCE_DIR}/vtkmlib
     DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development)
+    COMPONENT Development
+    FILES_MATCHING PATTERN "*.h*"
+
+    )
 endif()

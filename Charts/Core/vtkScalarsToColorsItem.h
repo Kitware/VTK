@@ -41,13 +41,13 @@ class VTKCHARTSCORE_EXPORT vtkScalarsToColorsItem: public vtkPlot
 {
 public:
   vtkTypeMacro(vtkScalarsToColorsItem, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Bounds of the item, use the UserBounds if valid otherwise compute
    * the bounds of the item (based on the transfer function range).
    */
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   //@{
   /**
@@ -64,7 +64,7 @@ public:
    * MaskAboveCurve is true and a shape has been provided by a subclass, it
    * draws the texture into the shape
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkScalarsToColorsItem();
-  ~vtkScalarsToColorsItem() VTK_OVERRIDE;
+  ~vtkScalarsToColorsItem() override;
 
   /**
    * Bounds of the item, by default (0, 1, 0, 1) but it depends on the
@@ -127,8 +127,8 @@ protected:
   vtkPen*             PolyLinePen;
   bool                MaskAboveCurve;
 private:
-  vtkScalarsToColorsItem(const vtkScalarsToColorsItem &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarsToColorsItem &) VTK_DELETE_FUNCTION;
+  vtkScalarsToColorsItem(const vtkScalarsToColorsItem &) = delete;
+  void operator=(const vtkScalarsToColorsItem &) = delete;
 };
 
 #endif

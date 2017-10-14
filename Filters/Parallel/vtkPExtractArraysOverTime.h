@@ -46,7 +46,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPExtractArraysOverTime : public vtkExtractArr
 public:
   static vtkPExtractArraysOverTime *New();
   vtkTypeMacro(vtkPExtractArraysOverTime,vtkExtractArraysOverTime);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -63,11 +63,11 @@ public:
 
 protected:
   vtkPExtractArraysOverTime();
-  ~vtkPExtractArraysOverTime() VTK_OVERRIDE;
+  ~vtkPExtractArraysOverTime() override;
 
   void PostExecute(vtkInformation* request,
                            vtkInformationVector** inputVector,
-                           vtkInformationVector* outputVector) VTK_OVERRIDE;
+                           vtkInformationVector* outputVector) override;
   void AddRemoteData(vtkMultiBlockDataSet* routput,
                      vtkMultiBlockDataSet* output);
   void MergeTables(vtkTable* routput, vtkTable* output);
@@ -75,8 +75,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
+  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&) = delete;
+  void operator=(const vtkPExtractArraysOverTime&) = delete;
 };
 
 #endif

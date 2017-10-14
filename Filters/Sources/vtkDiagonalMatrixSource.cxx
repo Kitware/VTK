@@ -39,8 +39,8 @@ vtkDiagonalMatrixSource::vtkDiagonalMatrixSource() :
   Diagonal(1.0),
   SuperDiagonal(0.0),
   SubDiagonal(0.0),
-  RowLabel(0),
-  ColumnLabel(0)
+  RowLabel(nullptr),
+  ColumnLabel(nullptr)
 {
   this->SetRowLabel("rows");
   this->SetColumnLabel("columns");
@@ -53,8 +53,8 @@ vtkDiagonalMatrixSource::vtkDiagonalMatrixSource() :
 
 vtkDiagonalMatrixSource::~vtkDiagonalMatrixSource()
 {
-  this->SetRowLabel(0);
-  this->SetColumnLabel(0);
+  this->SetRowLabel(nullptr);
+  this->SetColumnLabel(nullptr);
 }
 
 // ----------------------------------------------------------------------
@@ -84,7 +84,7 @@ int vtkDiagonalMatrixSource::RequestData(
     return 0;
   }
 
-  vtkArray* array = 0;
+  vtkArray* array = nullptr;
   switch(this->ArrayType)
   {
     case DENSE:

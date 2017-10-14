@@ -77,8 +77,8 @@ public:
   {
     static vtkEGLDeviceExtensions* GetInstance()
     {
-      static vtkEGLDeviceExtensions* instance = NULL;
-      if (instance == NULL)
+      static vtkEGLDeviceExtensions* instance = nullptr;
+      if (instance == nullptr)
       {
         instance = new vtkEGLDeviceExtensions();
       }
@@ -96,8 +96,8 @@ public:
     vtkEGLDeviceExtensions()
     {
       this->Available_ = false;
-      this->eglQueryDevices = NULL;
-      this->eglGetPlatformDisplay = NULL;
+      this->eglQueryDevices = nullptr;
+      this->eglGetPlatformDisplay = nullptr;
       const char* s = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
       std::string platformExtensions(s);
       if (platformExtensions.find("EGL_EXT_device_base") != std::string::npos &&
@@ -143,14 +143,15 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->ScreenSize[1] = 1080;
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
-#ifdef VTK_USE_OFFSCREEN_EGL
-  this->DeviceIndex = VTK_EGL_DEVICE_INDEX;
-#endif
+  this->DeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
+
 #if ANDROID
   this->OffScreenRendering = false;
 #else
+  // this is an offscreen-only window otherwise.
   this->OffScreenRendering = true;
 #endif
+
   this->IsPointSpriteBugTested = false;
   this->IsPointSpriteBugPresent_ = false;
 }
@@ -166,7 +167,7 @@ vtkEGLRenderWindow::~vtkEGLRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
   delete this->Internals;
 }
@@ -237,7 +238,7 @@ int vtkEGLRenderWindow::GetNumberOfDevices()
   if (ext->Available())
   {
       EGLint num_devices = 0;
-      ext->eglQueryDevices(num_devices, NULL, &num_devices);
+      ext->eglQueryDevices(num_devices, nullptr, &num_devices);
       return num_devices;
   }
   vtkWarningMacro("Getting the number of devices (graphics cards) on a system require "
@@ -253,7 +254,7 @@ void vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
   if (ext->Available())
   {
     EGLint num_devices = 0;
-    ext->eglQueryDevices(num_devices, NULL, &num_devices);
+    ext->eglQueryDevices(num_devices, nullptr, &num_devices);
     if (deviceIndex >= num_devices)
     {
       vtkWarningMacro("EGL device index: " << deviceIndex << " is greater than "
@@ -264,7 +265,7 @@ void vtkEGLRenderWindow::SetDeviceAsDisplay(int deviceIndex)
     EGLDeviceEXT* devices = new EGLDeviceEXT[num_devices];
     ext->eglQueryDevices(num_devices, devices, &num_devices);
     impl->Display =
-      ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], NULL);
+      ext->eglGetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[deviceIndex], nullptr);
     delete[] devices;
     return;
   }
@@ -287,7 +288,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   {
     surfaceType = EGL_PBUFFER_BIT;
     clientAPI = EGL_OPENGL_BIT;
-    contextAttribs = NULL;
+    contextAttribs = nullptr;
   }
   else
   {
@@ -379,7 +380,7 @@ void vtkEGLRenderWindow::ResizeWindow(int width, int height)
   }
   impl->Surface = this->OffScreenRendering ?
     eglCreatePbufferSurface(impl->Display, config, surface_attribs):
-    eglCreateWindowSurface(impl->Display, config, impl->Window, NULL);
+    eglCreateWindowSurface(impl->Display, config, impl->Window, nullptr);
   this->Mapped = 1;
   this->OwnWindow = 1;
 
@@ -438,9 +439,10 @@ void vtkEGLRenderWindow::WindowInitialize (void)
   this->OpenGLInit();
 
   // for offscreen EGL always turn on point sprites
-#ifdef VTK_USE_OFFSCREEN_EGL
-  glEnable(GL_POINT_SPRITE);
-#endif
+  if (this->OffScreenRendering)
+  {
+    glEnable(GL_POINT_SPRITE);
+  }
 }
 
 // Initialize the rendering window.
@@ -635,7 +637,7 @@ void* vtkEGLRenderWindow::GetGenericContext()
 //----------------------------------------------------------------------------
 void vtkEGLRenderWindow::SetOffScreenRendering (int)
 {
-  // this is determined at compile time: ANDROID -> 0, VTK_USE_OFFSCREEN_EGL -> 1
+  // this is determined at compile time: ANDROID -> 0, otherwise -> 1
 }
 
 //----------------------------------------------------------------------------

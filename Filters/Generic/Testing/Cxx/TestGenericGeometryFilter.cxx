@@ -116,7 +116,7 @@ int TestGenericGeometryFilter(int argc, char* argv[])
 
   geom->Update(); //So that we can call GetRange() on the scalars
 
-  assert(geom->GetOutput()!=0);
+  assert(geom->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -126,9 +126,9 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( geom->GetOutputPort() );
 
-  if(geom->GetOutput()->GetPointData()!=0)
+  if(geom->GetOutput()->GetPointData()!=nullptr)
   {
-    if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(geom->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

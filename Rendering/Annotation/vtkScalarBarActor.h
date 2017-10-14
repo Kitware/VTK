@@ -78,7 +78,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkScalarBarActor, vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
@@ -91,22 +91,22 @@ public:
   /**
    * Draw the scalar bar and annotation text to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE { return 0; };
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; };
+  int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
    * Fills rect with the dimensions of the scalar bar in viewport coordinates.
@@ -220,7 +220,7 @@ public:
   /**
    * Shallow copy of a scalar bar actor. Overloads the virtual vtkProp method.
    */
-  void ShallowCopy(vtkProp* prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp* prop) override;
 
   //@{
   /**
@@ -482,7 +482,7 @@ public:
 
 protected:
   vtkScalarBarActor();
-  ~vtkScalarBarActor() VTK_OVERRIDE;
+  ~vtkScalarBarActor() override;
 
   /**
    * Called from within \a RenderOpaqueGeometry when the internal state
@@ -780,8 +780,8 @@ protected:
   //@}
 
 private:
-  vtkScalarBarActor(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
+  vtkScalarBarActor(const vtkScalarBarActor&) = delete;
+  void operator=(const vtkScalarBarActor&) = delete;
 };
 
 #endif

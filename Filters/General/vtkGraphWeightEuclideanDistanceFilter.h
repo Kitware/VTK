@@ -34,26 +34,26 @@ class VTKFILTERSGENERAL_EXPORT vtkGraphWeightEuclideanDistanceFilter : public vt
  public:
   static vtkGraphWeightEuclideanDistanceFilter *New();
   vtkTypeMacro(vtkGraphWeightEuclideanDistanceFilter, vtkGraphWeightFilter);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkGraphWeightEuclideanDistanceFilter(){}
-  ~vtkGraphWeightEuclideanDistanceFilter() VTK_OVERRIDE {}
+  ~vtkGraphWeightEuclideanDistanceFilter() override {}
 
   /**
    * Compute the Euclidean distance between the Points defined for the
    * verticies of a specified 'edge'.
    */
-  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const VTK_OVERRIDE;
+  float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const override;
 
   /**
    * Ensure that 'graph' has Points defined.
    */
-  bool CheckRequirements(vtkGraph* const graph) const VTK_OVERRIDE;
+  bool CheckRequirements(vtkGraph* const graph) const override;
 
 private:
-  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
+  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) = delete;
+  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) = delete;
 };
 
 #endif

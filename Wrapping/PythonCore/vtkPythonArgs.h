@@ -73,14 +73,14 @@ public:
 
   /**
    * Get a pointer to the self object, converted to its C++ type.
-   * Returns NULL and sets a TypeError if the type is wrong.
+   * Returns nullptr and sets a TypeError if the type is wrong.
    * If "self" is a class type, pull the object from the first arg.
    */
   static vtkObjectBase *GetSelfPointer(PyObject *self, PyObject *args);
 
   /**
    * Get a pointer to the self object, converted to its C++ type.
-   * Returns NULL and sets a TypeError if the type is wrong.
+   * Returns nullptr and sets a TypeError if the type is wrong.
    * If "self" is a type, pull the object from the first arg.
    */
   static void *GetSelfSpecialPointer(PyObject *self, PyObject *args);
@@ -100,6 +100,11 @@ public:
    * Verify the arg count.  Sets a python exception on failure.
    */
   bool CheckArgCount(int n);
+
+  /**
+   * Verify preconditions.  Sets a python exception on failure.
+   */
+  bool CheckPrecond(bool c, const char *text);
 
   /**
    * Returns true if self is an object, false if self is a class.
@@ -178,13 +183,13 @@ public:
   template<class T>
   bool GetSpecialObject(T *&v, PyObject *&o, const char *classname) {
     v = static_cast<T *>(this->GetArgAsSpecialObject(classname, &o));
-    return (v != NULL); }
+    return (v != nullptr); }
   template<class T>
   static bool GetSpecialObject(
     PyObject *arg, T *&v, PyObject *&o, const char *classname) {
     v = static_cast<T *>(
       vtkPythonArgs::GetArgAsSpecialObject(arg, classname, &o));
-    return (v != NULL); }
+    return (v != nullptr); }
   //@}
 
   //@{
@@ -194,13 +199,13 @@ public:
    */
   template<class T>
   bool GetSpecialObject(T *&v, const char *classname) {
-    v = static_cast<T *>(this->GetArgAsSpecialObject(classname, NULL));
-    return (v != NULL); }
+    v = static_cast<T *>(this->GetArgAsSpecialObject(classname, nullptr));
+    return (v != nullptr); }
   template<class T>
   static bool GetSpecialObject(PyObject *o, T *&v, const char *classname) {
     v = static_cast<T *>(
-      vtkPythonArgs::GetArgAsSpecialObject(o, classname, NULL));
-    return (v != NULL); }
+      vtkPythonArgs::GetArgAsSpecialObject(o, classname, nullptr));
+    return (v != nullptr); }
   //@}
 
   //@{
@@ -260,11 +265,69 @@ public:
   static bool GetFunction(PyObject *arg, PyObject *&o);
   //@}
 
-  // Get the next arg as a void pointer (to a buffer object).
+  // Get the next arg as a pointer to a buffer.
   bool GetBuffer(void *&v, Py_buffer *buf);
   static bool GetBuffer(PyObject *o, void *&v, Py_buffer *buf);
   bool GetBuffer(const void *&v, Py_buffer *buf);
   static bool GetBuffer(PyObject *o, const void *&v, Py_buffer *buf);
+  bool GetBuffer(float *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, float *&v, Py_buffer *buf);
+  bool GetBuffer(const float *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const float *&v, Py_buffer *buf);
+  bool GetBuffer(double *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, double *&v, Py_buffer *buf);
+  bool GetBuffer(const double *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const double *&v, Py_buffer *buf);
+  bool GetBuffer(bool *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, bool *&v, Py_buffer *buf);
+  bool GetBuffer(const bool *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const bool *&v, Py_buffer *buf);
+  bool GetBuffer(char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, char *&v, Py_buffer *buf);
+  bool GetBuffer(const char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const char *&v, Py_buffer *buf);
+  bool GetBuffer(signed char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, signed char *&v, Py_buffer *buf);
+  bool GetBuffer(const signed char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const signed char *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned char *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned char *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned char *&v, Py_buffer *buf);
+  bool GetBuffer(short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, short *&v, Py_buffer *buf);
+  bool GetBuffer(const short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const short *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned short *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned short *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned short *&v, Py_buffer *buf);
+  bool GetBuffer(int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, int *&v, Py_buffer *buf);
+  bool GetBuffer(const int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const int *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned int *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned int *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned int *&v, Py_buffer *buf);
+  bool GetBuffer(long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, long *&v, Py_buffer *buf);
+  bool GetBuffer(const long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const long *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned long *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned long *&v, Py_buffer *buf);
+  bool GetBuffer(long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, long long *&v, Py_buffer *buf);
+  bool GetBuffer(const long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const long long *&v, Py_buffer *buf);
+  bool GetBuffer(unsigned long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, unsigned long long *&v, Py_buffer *buf);
+  bool GetBuffer(const unsigned long long *&v, Py_buffer *buf);
+  static bool GetBuffer(PyObject *o, const unsigned long long *&v,
+                        Py_buffer *buf);
+
 
   //@{
   /**
@@ -362,7 +425,7 @@ public:
 
   //@{
   /**
-   * Set the value of an argument if it is an assignable type.
+   * Set the value of an argument that was passed by reference.
    */
   bool SetArgValue(int i, const std::string &v);
   bool SetArgValue(int i, const vtkUnicodeString &v);
@@ -380,6 +443,19 @@ public:
   bool SetArgValue(int i, unsigned long v);
   bool SetArgValue(int i, long long v);
   bool SetArgValue(int i, unsigned long long v);
+  bool SetArgValue(int i, const float *v, int n);
+  bool SetArgValue(int i, const double *v, int n);
+  bool SetArgValue(int i, const bool *v, int n);
+  bool SetArgValue(int i, const signed char *v, int n);
+  bool SetArgValue(int i, const unsigned char *v, int n);
+  bool SetArgValue(int i, const short *v, int n);
+  bool SetArgValue(int i, const unsigned short *v, int n);
+  bool SetArgValue(int i, const int *v, int n);
+  bool SetArgValue(int i, const unsigned int *v, int n);
+  bool SetArgValue(int i, const long *v, int n);
+  bool SetArgValue(int i, const unsigned long *v, int n);
+  bool SetArgValue(int i, const long long *v, int n);
+  bool SetArgValue(int i, const unsigned long long *v, int n);
   //@}
 
   //@{
@@ -550,6 +626,11 @@ public:
   static bool ArgCountError(int n, const char *name);
 
   /**
+   * Raise an error that says that a precondition failed.
+   */
+  static bool PrecondError(const char *name);
+
+  /**
    * A simple RAII array class that stores small arrays on the stack.
    */
   template<class T>
@@ -665,7 +746,7 @@ vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
   {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
   }
-  return (self ? ((PyVTKObject *)self)->vtk_ptr : NULL);
+  return (self ? ((PyVTKObject *)self)->vtk_ptr : nullptr);
 }
 
 // Get "self" from a PyVTKSpecialObject.
@@ -676,7 +757,7 @@ void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self, PyObject *args)
   {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
   }
-  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : NULL);
+  return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : nullptr);
 }
 
 // Get "self" from a PyVTKSpecialObject (for methods with no args).
@@ -716,6 +797,19 @@ bool vtkPythonArgs::CheckArgCount(int n)
 }
 
 //--------------------------------------------------------------------
+// Inline method for checking generic preconditions.
+
+inline
+bool vtkPythonArgs::CheckPrecond(bool c, const char *text)
+{
+  if (!c)
+  {
+    this->PrecondError(text);
+  }
+  return c;
+}
+
+//--------------------------------------------------------------------
 // Inline method for guarding against pure virtual method calls
 
 inline
@@ -735,7 +829,7 @@ bool vtkPythonArgs::IsPureVirtual()
 inline
 bool vtkPythonArgs::ErrorOccurred()
 {
-  return (PyErr_Occurred() != NULL);
+  return (PyErr_Occurred() != nullptr);
 }
 
 //--------------------------------------------------------------------
@@ -766,7 +860,7 @@ inline
 PyObject *vtkPythonArgs::BuildEnumValue(int, const char *)
 {
   /* not implemented */
-  return NULL;
+  return nullptr;
 }
 
 inline
@@ -780,7 +874,7 @@ inline
 PyObject *vtkPythonArgs::BuildSIPEnumValue(int, const char *)
 {
   /* not implemented */
-  return NULL;
+  return nullptr;
 }
 
 inline
@@ -804,9 +898,10 @@ PyObject *vtkPythonArgs::BuildValue(const char *a, size_t l)
 #if PY_VERSION_HEX >= 0x03030000
   PyObject *o = PyUnicode_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
 #else
-  PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l), NULL, NULL);
+  PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l),
+                                 nullptr, nullptr);
 #endif
-  if (o == NULL)
+  if (o == nullptr)
   {
     PyErr_Clear();
     o = PyBytes_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
@@ -838,7 +933,7 @@ PyObject *vtkPythonArgs::BuildValue(const vtkUnicodeString &a)
   std::string s;
   a.utf8_str(s);
 #ifdef Py_USING_UNICODE
-  return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), NULL);
+  return PyUnicode_DecodeUTF8(s.c_str(), static_cast<Py_ssize_t>(s.size()), nullptr);
 #else
   return PyString_FromStringAndSize(s.c_str(), static_cast<Py_ssize_t>(s.size()));
 #endif

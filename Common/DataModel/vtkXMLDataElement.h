@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLDataElement,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLDataElement* New();
 
   //@{
@@ -289,7 +289,7 @@ public:
 
 protected:
   vtkXMLDataElement();
-  ~vtkXMLDataElement() VTK_OVERRIDE;
+  ~vtkXMLDataElement() override;
 
   // The name of the element from the XML file.
   char* Name;
@@ -341,8 +341,8 @@ protected:
   friend class vtkXMLMaterialParser;
 
 private:
-  vtkXMLDataElement(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
+  vtkXMLDataElement(const vtkXMLDataElement&) = delete;
+  void operator=(const vtkXMLDataElement&) = delete;
 };
 
 //----------------------------------------------------------------------------

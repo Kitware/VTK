@@ -21,14 +21,14 @@ vtkStandardNewMacro(vtkCollectionIterator);
 //----------------------------------------------------------------------------
 vtkCollectionIterator::vtkCollectionIterator()
 {
-  this->Element = 0;
-  this->Collection = 0;
+  this->Element = nullptr;
+  this->Collection = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkCollectionIterator::~vtkCollectionIterator()
 {
-  this->SetCollection(0);
+  this->SetCollection(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void vtkCollectionIterator::GoToFirstItem()
   }
   else
   {
-    this->Element = 0;
+    this->Element = nullptr;
   }
 }
 
@@ -87,5 +87,5 @@ vtkObject* vtkCollectionIterator::GetCurrentObject()
   {
     return this->Element->Item;
   }
-  return 0;
+  return nullptr;
 }

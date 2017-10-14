@@ -31,49 +31,49 @@ class VTKCOMMONDATAMODEL_EXPORT vtkEmptyCell : public vtkCell
 public:
   static vtkEmptyCell *New();
   vtkTypeMacro(vtkEmptyCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * See the vtkCell API for descriptions of these methods.
    */
-  int GetCellType() VTK_OVERRIDE {return VTK_EMPTY_CELL;};
-  int GetCellDimension() VTK_OVERRIDE {return 0;};
-  int GetNumberOfEdges() VTK_OVERRIDE {return 0;};
-  int GetNumberOfFaces() VTK_OVERRIDE {return 0;};
-  vtkCell *GetEdge(int)  VTK_OVERRIDE {return 0;};
-  vtkCell *GetFace(int)  VTK_OVERRIDE {return 0;};
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
+  int GetCellType() override {return VTK_EMPTY_CELL;};
+  int GetCellDimension() override {return 0;};
+  int GetNumberOfEdges() override {return 0;};
+  int GetNumberOfFaces() override {return 0;};
+  vtkCell *GetEdge(int)  override  {return nullptr;};
+  vtkCell *GetFace(int)  override  {return nullptr;};
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) override;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts1,
                vtkCellArray *lines, vtkCellArray *verts2,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) override;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *pts,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut) VTK_OVERRIDE;
+            int insideOut) override;
   //@}
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights) VTK_OVERRIDE;
+                       double& dist2, double *weights) override;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights) VTK_OVERRIDE;
+                        double *weights) override;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
+                        double x[3], double pcoords[3], int& subId) override;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) override;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs) VTK_OVERRIDE;
+                   int dim, double *derivs) override;
 
 protected:
   vtkEmptyCell() {}
-  ~vtkEmptyCell() VTK_OVERRIDE {}
+  ~vtkEmptyCell() override {}
 
 private:
-  vtkEmptyCell(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
+  vtkEmptyCell(const vtkEmptyCell&) = delete;
+  void operator=(const vtkEmptyCell&) = delete;
 };
 
 #endif

@@ -28,16 +28,17 @@
 class vtkInformation;
 class vtkInformationVector;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSMP_EXPORT vtkSMPWarpVector : public vtkWarpVector
 {
 public :
   vtkTypeMacro(vtkSMPWarpVector,vtkWarpVector);
   static vtkSMPWarpVector *New();
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected :
   vtkSMPWarpVector();
-  ~vtkSMPWarpVector() VTK_OVERRIDE;
+  ~vtkSMPWarpVector() override;
 
 
   /**
@@ -45,12 +46,13 @@ protected :
    */
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
 
 private :
-  vtkSMPWarpVector(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
+  vtkSMPWarpVector(const vtkSMPWarpVector&) = delete;
+  void operator=(const vtkSMPWarpVector&) = delete;
 
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif //vtkSMPWarpVector_h

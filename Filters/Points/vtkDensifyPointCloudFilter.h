@@ -61,7 +61,7 @@ public:
    */
   static vtkDensifyPointCloudFilter *New();
   vtkTypeMacro(vtkDensifyPointCloudFilter,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -158,7 +158,7 @@ public:
 
 protected:
   vtkDensifyPointCloudFilter();
-  ~vtkDensifyPointCloudFilter() VTK_OVERRIDE;
+  ~vtkDensifyPointCloudFilter() override;
 
   // Data members
   int NeighborhoodType;
@@ -171,12 +171,12 @@ protected:
 
   // Pipeline management
   int RequestData(vtkInformation *, vtkInformationVector **,
-    vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+    vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDensifyPointCloudFilter&) VTK_DELETE_FUNCTION;
+  vtkDensifyPointCloudFilter(const vtkDensifyPointCloudFilter&) = delete;
+  void operator=(const vtkDensifyPointCloudFilter&) = delete;
 
 };
 

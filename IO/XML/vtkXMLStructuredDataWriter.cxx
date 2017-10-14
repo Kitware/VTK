@@ -41,7 +41,7 @@ vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
   this->WriteExtent[4] = 0; this->WriteExtent[5] = -1;
 
   this->CurrentPiece = 0;
-  this->ProgressFractions = 0;
+  this->ProgressFractions = nullptr;
   this->FieldDataOM->Allocate(0);
   this->PointDataOM = new OffsetsManagerArray;
   this->CellDataOM  = new OffsetsManagerArray;
@@ -178,9 +178,9 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
       {
         return 0;
       }
-      if (this->GetInputAsDataSet() != NULL &&
-          (this->GetInputAsDataSet()->GetPointGhostArray() != NULL ||
-           this->GetInputAsDataSet()->GetCellGhostArray() != NULL))
+      if (this->GetInputAsDataSet() != nullptr &&
+          (this->GetInputAsDataSet()->GetPointGhostArray() != nullptr ||
+           this->GetInputAsDataSet()->GetCellGhostArray() != nullptr))
       {
         // use the current version for the file
         this->UsePreviousVersion = false;
@@ -273,7 +273,7 @@ void vtkXMLStructuredDataWriter::AllocatePositionArrays()
 void vtkXMLStructuredDataWriter::DeletePositionArrays()
 {
   delete[] this->ExtentPositions;
-  this->ExtentPositions = NULL;
+  this->ExtentPositions = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -422,7 +422,7 @@ int vtkXMLStructuredDataWriter::WriteFooter()
   }
 
   delete[] this->ProgressFractions;
-  this->ProgressFractions = 0;
+  this->ProgressFractions = nullptr;
 
   return 1;
 }

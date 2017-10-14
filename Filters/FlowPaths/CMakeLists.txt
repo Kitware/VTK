@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkCachingInterpolatedVelocityField.cxx
   vtkCellLocatorInterpolatedVelocityField.cxx
   vtkCompositeInterpolatedVelocityField.cxx
+  vtkEvenlySpacedStreamlines2D.cxx
   vtkInterpolatedVelocityField.cxx
   vtkLagrangianParticleTracker.cxx
   vtkLagrangianBasicIntegrationModel.cxx

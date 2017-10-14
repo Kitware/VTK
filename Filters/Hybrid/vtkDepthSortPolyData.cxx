@@ -108,7 +108,7 @@ void getCellCenterDepth(vtkPolyData *pds, vtkDataArray *gpts,
   for (vtkIdType cid = 0; cid < nCells; ++cid)
   {
     // get the cell point ids using the fast api
-    vtkIdType *pids = NULL;
+    vtkIdType *pids = nullptr;
     vtkIdType nPids = 0;
     pds->GetCellPoints(cid, nPids, pids);
 
@@ -160,7 +160,7 @@ void getCellPoint0Depth(vtkPolyData *pds, vtkDataArray *gpts,
   T *cx = new T[nCells];
   T *cy = new T[nCells];
   T *cz = new T[nCells];
-  vtkIdType *pids = NULL;
+  vtkIdType *pids = nullptr;
   vtkIdType nPids = 0;
   for (vtkIdType cid = 0; cid < nCells; ++cid)
   {
@@ -198,7 +198,7 @@ vtkCxxSetObjectMacro(vtkDepthSortPolyData,Camera,vtkCamera);
 vtkDepthSortPolyData::vtkDepthSortPolyData() :
   Direction(VTK_DIRECTION_BACK_TO_FRONT),
   DepthSortMode(VTK_SORT_FIRST_POINT),
-  Camera(NULL), Prop3D(NULL),
+  Camera(nullptr), Prop3D(nullptr),
   Transform(vtkTransform::New()),
   SortScalars(0)
 {
@@ -277,7 +277,7 @@ int vtkDepthSortPolyData::RequestData(
     order[cid] = cid;
   }
 
-  vtkIdTypeArray *newCellIds = NULL;
+  vtkIdTypeArray *newCellIds = nullptr;
   if (this->SortScalars)
   {
     newCellIds = vtkIdTypeArray::New();
@@ -297,7 +297,7 @@ int vtkDepthSortPolyData::RequestData(
         vtkTemplateMacro(
 
           // compute the cell's depth
-          VTK_TT *depth = NULL;
+          VTK_TT *depth = nullptr;
           if (this->DepthSortMode == VTK_SORT_FIRST_POINT)
           {
             ::getCellPoint0Depth(
@@ -375,7 +375,7 @@ int vtkDepthSortPolyData::RequestData(
   output->GetPointData()->PassData(input->GetPointData());
 
   // allocate the cells for the output
-  vtkIdType *pOutputVerts = NULL;
+  vtkIdType *pOutputVerts = nullptr;
   if (nVerts)
   {
     vtkCellArray *outputVertCells = vtkCellArray::New();
@@ -388,7 +388,7 @@ int vtkDepthSortPolyData::RequestData(
     pOutputVerts = outputVerts->GetPointer(0);
   }
 
-  vtkIdType *pOutputLines = NULL;
+  vtkIdType *pOutputLines = nullptr;
   if (nLines)
   {
     vtkCellArray *outputLineCells = vtkCellArray::New();
@@ -401,7 +401,7 @@ int vtkDepthSortPolyData::RequestData(
     pOutputLines = outputLines->GetPointer(0);
   }
 
-  vtkIdType *pOutputPolys = NULL;
+  vtkIdType *pOutputPolys = nullptr;
   if (nPolys)
   {
     vtkCellArray *outputPolyCells = vtkCellArray::New();
@@ -414,7 +414,7 @@ int vtkDepthSortPolyData::RequestData(
     pOutputPolys = outputPolys->GetPointer(0);
   }
 
-  vtkIdType *pOutputStrips = NULL;
+  vtkIdType *pOutputStrips = nullptr;
   if (nStrips)
   {
     vtkCellArray *outputStripCells = vtkCellArray::New();
@@ -430,7 +430,7 @@ int vtkDepthSortPolyData::RequestData(
   for (vtkIdType i = 0; i < nCells; ++i)
   {
     // get the cell points using the fast api
-    vtkIdType *pids = NULL;
+    vtkIdType *pids = nullptr;
     vtkIdType cid = order[i];
     unsigned char ctype = tmpInput->GetCell(cid, pids);
     vtkIdType nids = pids[0] + 1;
@@ -533,13 +533,13 @@ vtkMTimeType vtkDepthSortPolyData::GetMTime()
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
   {
     vtkMTimeType time;
-    if ( this->Camera != NULL )
+    if ( this->Camera != nullptr )
     {
       time = this->Camera->GetMTime();
       mTime = ( time > mTime ? time : mTime );
     }
 
-    if ( this->Prop3D != NULL )
+    if ( this->Prop3D != nullptr )
     {
       time = this->Prop3D->GetMTime();
       mTime = ( time > mTime ? time : mTime );

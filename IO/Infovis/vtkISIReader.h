@@ -46,7 +46,7 @@ class VTKIOINFOVIS_EXPORT vtkISIReader : public vtkTableAlgorithm
 public:
   static vtkISIReader* New();
   vtkTypeMacro(vtkISIReader,vtkTableAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -74,20 +74,20 @@ public:
 
  protected:
   vtkISIReader();
-  ~vtkISIReader() VTK_OVERRIDE;
+  ~vtkISIReader() override;
 
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*) VTK_OVERRIDE;
+    vtkInformationVector*) override;
 
   char* FileName;
   char* Delimiter;
   int MaxRecords;
 
 private:
-  vtkISIReader(const vtkISIReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkISIReader&) VTK_DELETE_FUNCTION;
+  vtkISIReader(const vtkISIReader&) = delete;
+  void operator=(const vtkISIReader&) = delete;
 };
 
 #endif

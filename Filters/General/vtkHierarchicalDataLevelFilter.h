@@ -32,7 +32,7 @@ class VTKFILTERSGENERAL_EXPORT vtkHierarchicalDataLevelFilter : public vtkLevelI
 {
 public:
   vtkTypeMacro(vtkHierarchicalDataLevelFilter,vtkLevelIdScalars);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct object with PointIds and CellIds on; and ids being generated
@@ -42,11 +42,11 @@ public:
 
 protected:
   vtkHierarchicalDataLevelFilter();
-  ~vtkHierarchicalDataLevelFilter() VTK_OVERRIDE;
+  ~vtkHierarchicalDataLevelFilter() override;
 
 private:
-  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
+  vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&) = delete;
+  void operator=(const vtkHierarchicalDataLevelFilter&) = delete;
 };
 
 #endif

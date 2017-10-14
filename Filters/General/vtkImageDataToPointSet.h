@@ -43,23 +43,23 @@ class VTKFILTERSGENERAL_EXPORT vtkImageDataToPointSet : public vtkStructuredGrid
 {
 public:
   vtkTypeMacro(vtkImageDataToPointSet, vtkStructuredGridAlgorithm);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkImageDataToPointSet *New();
 
 protected:
   vtkImageDataToPointSet();
-  ~vtkImageDataToPointSet() VTK_OVERRIDE;
+  ~vtkImageDataToPointSet() override;
 
   int RequestData(vtkInformation *request,
                   vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                  vtkInformationVector *outputVector) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkImageDataToPointSet(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
+  vtkImageDataToPointSet(const vtkImageDataToPointSet &) = delete;
+  void operator=(const vtkImageDataToPointSet &) = delete;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkImageData *inData);
 };

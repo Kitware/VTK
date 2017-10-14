@@ -156,8 +156,8 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
   }
 
   vtkNew<vtkPath> path;
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, outRx, outRy, false);
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, inRx, inRy, true);
+  this->AddEllipseToPath(path, 0.f, 0.f, outRx, outRy, false);
+  this->AddEllipseToPath(path, 0.f, 0.f, inRx, inRy, true);
 
   std::stringstream label;
   label << "vtkGL2PSContextDevice2D::DrawEllipseWedge("
@@ -173,7 +173,7 @@ void vtkGL2PSContextDevice2D::DrawEllipseWedge(float x, float y,
   this->TransformPoint(x, y);
   double windowPos[3] = {static_cast<double>(x), static_cast<double>(y), 0.};
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), rasterPos, windowPos, color,
+  vtkGL2PSUtilities::DrawPath(path, rasterPos, windowPos, color,
                               NULL, 0.0, -1.f, label.str().c_str());
 }
 
@@ -196,8 +196,8 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
   }
 
   vtkNew<vtkPath> path;
-  this->AddEllipseToPath(path.GetPointer(), 0.f, 0.f, rx, ry, false);
-  this->TransformPath(path.GetPointer());
+  this->AddEllipseToPath(path, 0.f, 0.f, rx, ry, false);
+  this->TransformPath(path);
 
   double origin[3] = {x, y, 0.f};
 
@@ -210,7 +210,7 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
         << x << ", " << y << ", " << rx << ", " << ry << ", "
         << startAngle << ", " << stopAngle << ") fill:";
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, fillColor,
+  vtkGL2PSUtilities::DrawPath(path, origin, origin, fillColor,
                               NULL, 0.0, -1.f, label.str().c_str());
 
   // and stroke
@@ -223,7 +223,7 @@ void vtkGL2PSContextDevice2D::DrawEllipticArc(float x, float y,
   label << "vtkGL2PSContextDevice2D::DrawEllipticArc("
         << x << ", " << y << ", " << rx << ", " << ry << ", "
         << startAngle << ", " << stopAngle << ") stroke:";
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, strokeColor,
+  vtkGL2PSUtilities::DrawPath(path, origin, origin, strokeColor,
                               NULL, 0.0, strokeWidth, label.str().c_str());
 }
 
@@ -251,7 +251,7 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
   bool ok;
   if (vtkMathTextUtilities *mtu = vtkMathTextUtilities::GetInstance())
   {
-    ok = mtu->StringToPath(string.c_str(), path.GetPointer(), this->TextProp,
+    ok = mtu->StringToPath(string.c_str(), path, this->TextProp,
                            this->RenderWindow->GetDPI());
   }
   else
@@ -276,9 +276,9 @@ void vtkGL2PSContextDevice2D::DrawMathTextString(float apoint[],
   color[2] = static_cast<unsigned char>(dcolor[2]*255);
   color[3] = static_cast<unsigned char>(this->TextProp->GetOpacity()*255);
 
-  this->TransformPath(path.GetPointer());
+  this->TransformPath(path);
 
-  vtkGL2PSUtilities::DrawPath(path.GetPointer(), origin, origin, color, NULL,
+  vtkGL2PSUtilities::DrawPath(path, origin, origin, color, NULL,
                               rotateAngle, -1.f,
                               ("Pathified string: " + string).c_str());
 }

@@ -24,15 +24,6 @@
 
 =========================================================================*/
 
-/*========================================================================
- For general information about using VTK and Qt, see:
- http://www.trolltech.com/products/3rdparty/vtksupport.html
-=========================================================================*/
-
-// .NAME QVTKInteractor - Handle Qt events.
-// .SECTION Description
-// QVTKInteractor handles relaying Qt events to VTK.
-
 #ifndef Q_VTK_INTERACTOR_H
 #define Q_VTK_INTERACTOR_H
 
@@ -49,7 +40,7 @@ class vtkTDxWinDevice;
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
 class vtkTDxMacDevice;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 class vtkTDxDevice;
 class vtkTDxUnixDevice;
 #endif
@@ -57,9 +48,13 @@ class vtkTDxUnixDevice;
 
 class QVTKInteractorInternal;
 
-// .NAME QVTKInteractor - An interactor for the QVTKWidget.
-// .SECTION Description
-// QVTKInteractor is an interactor for a QVTKWiget.
+/**
+ * @class QVTKInteractor
+ * @brief - an interactor for QVTKOpenGLWidget (and QVTKWiget).
+ *
+ * QVTKInteractor handles relaying Qt events to VTK.
+ * @sa QVTKOpenGLWidget
+ */
 
 class VTKGUISUPPORTQT_EXPORT QVTKInteractor : public vtkRenderWindowInteractor
 {
@@ -67,9 +62,10 @@ public:
   static QVTKInteractor* New();
   vtkTypeMacro(QVTKInteractor,vtkRenderWindowInteractor);
 
-  // Description:
-  // Enum for additional event types supported.
-  // These events can be picked up by command observers on the interactor
+  /**
+   * Enum for additional event types supported.
+   * These events can be picked up by command observers on the interactor.
+   */
   enum vtkCustomEvents
   {
     ContextMenuEvent = vtkCommand::UserEvent + 100,
@@ -79,30 +75,35 @@ public:
     DropEvent
   };
 
+  /**
+   * Overloaded terminate app, which does nothing in Qt.
+   * Use qApp->exit() instead.
+   */
+  void TerminateApp() override;
 
-  // Description:
-  // Overloaded terminiate app, which does nothing in Qt.
-  // Use qApp->exit() instead.
-  void TerminateApp() VTK_OVERRIDE;
+  /**
+   * Overloaded start method does nothing.
+   * Use qApp->exec() instead.
+   */
+  void Start() override;
+  void Initialize() override;
 
-  // Description:
-  // Overloaded start method does nothing.
-  // Use qApp->exec() instead.
-  void Start() VTK_OVERRIDE;
-  void Initialize() VTK_OVERRIDE;
-
-  // Description:
-  // Start listening events on 3DConnexion device.
+  /**
+   * Start listening events on 3DConnexion device.
+   */
   virtual void StartListening();
 
-  // Description:
-  // Stop listening events on 3DConnexion device.
+  /**
+   * Stop listening events on 3DConnexion device.
+   */
   virtual void StopListening();
 
-  // timer event slot
+  /**
+   * timer event slot
+   */
   virtual void TimerEvent(int timerId);
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   virtual vtkTDxUnixDevice *GetDevice();
   virtual void SetDevice(vtkTDxDevice *device);
 #endif
@@ -111,19 +112,19 @@ protected:
   // constructor
   QVTKInteractor();
   // destructor
-  ~QVTKInteractor() VTK_OVERRIDE;
+  ~QVTKInteractor() override;
 
   // create a Qt Timer
-  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) override;
   // destroy a Qt Timer
-  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
+  int InternalDestroyTimer(int platformTimerId) override;
 #if defined(VTK_USE_TDX) && defined(Q_OS_WIN)
   vtkTDxWinDevice *Device;
 #endif
 #if defined(VTK_USE_TDX) && defined(Q_OS_MAC)
   vtkTDxMacDevice *Device;
 #endif
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
   vtkTDxUnixDevice *Device;
 #endif
 

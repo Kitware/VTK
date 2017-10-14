@@ -50,7 +50,7 @@ vtkQuadricLODActor::vtkQuadricLODActor()
   this->CollapseDimensionRatio = 0.05;
   this->DataConfiguration = UNKNOWN;
   this->PropType = ACTOR;
-  this->Camera = NULL;
+  this->Camera = nullptr;
 
   // Internal data members
   this->CachedInteractiveFrameRate = 0.0;
@@ -60,7 +60,6 @@ vtkQuadricLODActor::vtkQuadricLODActor()
 
   // mapper for LOD actor
   this->LODMapper = vtkPolyDataMapper::New();
-  this->LODMapper->ImmediateModeRenderingOff();
 
   // A internal matrix for performance
   vtkMatrix4x4 *m = vtkMatrix4x4::New();
@@ -73,7 +72,7 @@ vtkQuadricLODActor::~vtkQuadricLODActor()
 {
   this->LODFilter->Delete();
   this->LODActor->Delete();
-  this->LODActor = NULL;
+  this->LODActor = nullptr;
   this->LODMapper->Delete();
 }
 
@@ -146,17 +145,6 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     interactiveRender = 1;
   }
 
-  // Use display lists if it makes sense
-  vtkIdType nCells = this->GetDisplayListSize(static_cast<vtkPolyData*>(this->Mapper->GetInput()));
-  if (nCells < this->MaximumDisplayListSize)
-  {
-    this->Mapper->ImmediateModeRenderingOff();
-  }
-  else
-  {
-    this->Mapper->ImmediateModeRenderingOn();
-  }
-
   vtkMatrix4x4 *matrix;
 
   // Build LOD only if necessary
@@ -175,7 +163,6 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 
     // Make sure LOD mapper is consistent with mapper
     this->LODMapper->ShallowCopy(this->Mapper);
-    this->LODMapper->ImmediateModeRenderingOff();
     this->LODActor->SetProperty(this->GetProperty());
     this->LODActor->SetBackfaceProperty(this->BackfaceProperty);
 
@@ -264,7 +251,6 @@ void vtkQuadricLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
     this->LODFilter->AutoAdjustNumberOfDivisionsOff();
     this->LODFilter->SetInputConnection(this->Mapper->GetInputConnection(0, 0));
     this->LODFilter->Update();
-    nCells = this->GetDisplayListSize(this->LODFilter->GetOutput());
     this->LODMapper->SetInputConnection(this->LODFilter->GetOutputPort());
 
     // Make sure the device has the same matrix. Only update when still update

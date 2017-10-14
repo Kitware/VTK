@@ -35,7 +35,7 @@ class VTKFILTERSCORE_EXPORT vtkThresholdPoints : public vtkPolyDataAlgorithm
 public:
   static vtkThresholdPoints *New();
   vtkTypeMacro(vtkThresholdPoints,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Criterion is cells whose scalars are less or equal to lower threshold.
@@ -81,12 +81,12 @@ public:
 
 protected:
   vtkThresholdPoints();
-  ~vtkThresholdPoints() VTK_OVERRIDE {}
+  ~vtkThresholdPoints() override {}
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   double LowerThreshold;
   double UpperThreshold;
@@ -99,8 +99,8 @@ protected:
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdPoints(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
+  vtkThresholdPoints(const vtkThresholdPoints&) = delete;
+  void operator=(const vtkThresholdPoints&) = delete;
 };
 
 #endif

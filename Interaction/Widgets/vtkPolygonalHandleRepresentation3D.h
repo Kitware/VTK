@@ -46,13 +46,13 @@ public:
    */
   vtkTypeMacro(vtkPolygonalHandleRepresentation3D,
                        vtkAbstractPolygonalHandleRepresentation3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
    * Set the position of the point in world and display coordinates.
    */
-  void SetWorldPosition(double p[3]) VTK_OVERRIDE;
+  void SetWorldPosition(double p[3]) override;
 
   //@{
   /**
@@ -65,13 +65,13 @@ public:
 
 protected:
   vtkPolygonalHandleRepresentation3D();
-  ~vtkPolygonalHandleRepresentation3D() VTK_OVERRIDE {}
+  ~vtkPolygonalHandleRepresentation3D() override {}
 
   double Offset[3];
 
 private:
-  vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  vtkPolygonalHandleRepresentation3D(const vtkPolygonalHandleRepresentation3D&) = delete;
+  void operator=(const vtkPolygonalHandleRepresentation3D&) = delete;
 };
 
 #endif

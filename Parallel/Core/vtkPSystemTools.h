@@ -35,7 +35,7 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
  public:
   static vtkPSystemTools *New();
   vtkTypeMacro(vtkPSystemTools,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Given a string on process proc, broadcast that string to
@@ -91,9 +91,9 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
   static bool FindProgramPath(const char* argv0,
                               std::string& pathOut,
                               std::string& errorMsg,
-                              const char* exeName = 0,
-                              const char* buildDir = 0,
-                              const char* installPrefix = 0);
+                              const char* exeName = nullptr,
+                              const char* buildDir = nullptr,
+                              const char* installPrefix = nullptr);
 
   /**
    * Get current working directory CWD
@@ -109,11 +109,11 @@ class VTKPARALLELCORE_EXPORT vtkPSystemTools : public vtkObject
 
 protected:
   vtkPSystemTools() {}
-  ~vtkPSystemTools() VTK_OVERRIDE {}
+  ~vtkPSystemTools() override {}
 
 private:
-  vtkPSystemTools(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
+  vtkPSystemTools(const vtkPSystemTools&) = delete;
+  void operator=(const vtkPSystemTools&) = delete;
 };
 
 #endif

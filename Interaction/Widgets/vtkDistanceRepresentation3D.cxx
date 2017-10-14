@@ -89,6 +89,7 @@ vtkDistanceRepresentation3D::vtkDistanceRepresentation3D()
   this->GlyphXForm->SetTransform(xform);
   xform->RotateZ(90);
   this->Glyph3D = vtkGlyph3D::New();
+  this->Glyph3D->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   this->Glyph3D->SetInputData(this->GlyphPolyData);
   this->Glyph3D->SetSourceConnection(this->GlyphXForm->GetOutputPort());
   this->Glyph3D->SetScaleModeToDataScalingOff();
@@ -134,6 +135,31 @@ vtkDistanceRepresentation3D::~vtkDistanceRepresentation3D()
   this->GlyphActor->Delete();
 
   this->BoundingBox->Delete();
+}
+
+//----------------------------------------------------------------------
+void vtkDistanceRepresentation3D::SetLabelActor(vtkFollower *fol)
+{
+  if (fol == this->LabelActor)
+  {
+    return;
+  }
+
+  if (fol)
+  {
+    fol->Register(this);
+    fol->SetMapper(this->LabelMapper);
+  }
+
+  if (this->LabelActor)
+  {
+    this->LabelActor->ReleaseGraphicsResources(nullptr);
+    this->LabelActor->UnRegister(this);
+    this->LabelActor = nullptr;
+  }
+
+  this->LabelActor = fol;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------
@@ -262,7 +288,8 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
 
     // Label
     char string[512];
-    snprintf(string, sizeof(string), this->LabelFormat, this->Distance);
+    snprintf(string, sizeof(string), this->LabelFormat, this->Distance,
+      fabs(p1[0] - p2[0]), fabs(p1[1] - p2[1]), fabs(p1[2] - p2[2]));
     this->LabelText->SetText(string);
     this->UpdateLabelPosition();
     if (this->Renderer) //make the label face the camera

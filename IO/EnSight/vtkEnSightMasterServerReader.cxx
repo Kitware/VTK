@@ -35,7 +35,7 @@ static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* 
 //----------------------------------------------------------------------------
 vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
 {
-  this->PieceCaseFileName = 0;
+  this->PieceCaseFileName = nullptr;
   this->MaxNumberOfPieces = 0;
   this->CurrentPiece      = -1;
 }
@@ -43,7 +43,7 @@ vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
 //----------------------------------------------------------------------------
 vtkEnSightMasterServerReader::~vtkEnSightMasterServerReader()
 {
-  this->SetPieceCaseFileName(0);
+  this->SetPieceCaseFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
     delete this->IS;
-    this->IS = NULL;
+    this->IS = nullptr;
     return 0;
   }
 
@@ -182,7 +182,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 
   this->MaxNumberOfPieces = numberservers;
   delete this->IS;
-  this->IS = 0;
+  this->IS = nullptr;
   return VTK_OK;
 }
 

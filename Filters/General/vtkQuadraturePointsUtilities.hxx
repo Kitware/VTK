@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkUnstructuredGrid.h"
 
-namespace {
+namespace vtkQuadraturePointsUtilities {
 
 
 // Description:
@@ -46,14 +46,14 @@ int Interpolate(
   for (vtkIdType cellId=0; cellId<nCellsUsg; ++cellId)
   {
     // Point to the start of the data associated with this cell.
-    if (indices!=NULL)
+    if (indices!=nullptr)
     {
       indices[cellId]=static_cast<TI>(currentIndex);
     }
     // Grab the cell's associated shape function definition.
     int cellType=usg->GetCellType(cellId);
     vtkQuadratureSchemeDefinition *def=dict[cellType];
-    if (def==NULL)
+    if (def==nullptr)
     {
       // no quadrature scheme been specified for this cell type
       // skipping the cell.
@@ -62,7 +62,7 @@ int Interpolate(
     vtkIdType nNodes=def->GetNumberOfNodes();
     int nQPts=def->GetNumberOfQuadraturePoints();
     // Grab the cell's node ids.
-    vtkIdType *cellNodeIds=0;
+    vtkIdType *cellNodeIds=nullptr;
     usg->GetCellPoints(cellId,nNodes,cellNodeIds);
     // Walk quadrature points.
     for (int qPtId=0; qPtId<nQPts; ++qPtId)
@@ -125,5 +125,6 @@ void ApplyShapeFunction(double *r,double N_j,T *A,int nComps)
 }
 
 };
+
 
 #endif

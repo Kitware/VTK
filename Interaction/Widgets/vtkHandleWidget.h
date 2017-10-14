@@ -83,7 +83,7 @@ public:
    * Standard VTK class macros.
    */
   vtkTypeMacro(vtkHandleWidget,vtkAbstractWidget);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -104,7 +104,7 @@ public:
    * Create the default widget representation if one is not set. By default
    * an instance of vtkPointHandleRepresenation3D is created.
    */
-  void CreateDefaultRepresentation() VTK_OVERRIDE;
+  void CreateDefaultRepresentation() override;
 
   //@{
   /**
@@ -115,6 +115,15 @@ public:
   vtkSetMacro( EnableAxisConstraint, int );
   vtkGetMacro( EnableAxisConstraint, int );
   vtkBooleanMacro( EnableAxisConstraint, int );
+  //@}
+
+  //@{
+  /**
+   * Enable moving of handles. By default, the handle can be moved.
+   */
+  vtkSetMacro(EnableTranslation, int);
+  vtkGetMacro(EnableTranslation, int);
+  vtkBooleanMacro(EnableTranslation, int);
   //@}
 
   //@{
@@ -139,7 +148,7 @@ public:
 
 protected:
   vtkHandleWidget();
-  ~vtkHandleWidget() VTK_OVERRIDE;
+  ~vtkHandleWidget() override;
 
   // These are the callbacks for this widget
   static void GenericAction(vtkHandleWidget*);
@@ -148,19 +157,22 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
 
   // helper methods for cursor management
-  void SetCursor(int state) VTK_OVERRIDE;
+  void SetCursor(int state) override;
 
   int WidgetState;
   int EnableAxisConstraint;
+  int EnableTranslation;
 
   // Allow resizing of handles.
   int AllowHandleResize;
 
 private:
-  vtkHandleWidget(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
+  vtkHandleWidget(const vtkHandleWidget&) = delete;
+  void operator=(const vtkHandleWidget&) = delete;
 };
 
 #endif

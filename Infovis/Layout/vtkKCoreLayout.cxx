@@ -52,11 +52,11 @@ vtkStandardNewMacro(vtkKCoreLayout);
 vtkKCoreLayout::vtkKCoreLayout()
 {
   this->SetNumberOfInputPorts(1);
-  this->KCoreLabelArrayName        = NULL;
-  this->PolarCoordsRadiusArrayName = NULL;
-  this->PolarCoordsAngleArrayName  = NULL;
-  this->CartesianCoordsXArrayName  = NULL;
-  this->CartesianCoordsYArrayName  = NULL;
+  this->KCoreLabelArrayName        = nullptr;
+  this->PolarCoordsRadiusArrayName = nullptr;
+  this->PolarCoordsAngleArrayName  = nullptr;
+  this->CartesianCoordsXArrayName  = nullptr;
+  this->CartesianCoordsYArrayName  = nullptr;
   this->Cartesian  = true;
   this->Polar      = false;
   this->Epsilon    = 0.2f;
@@ -67,7 +67,7 @@ vtkKCoreLayout::vtkKCoreLayout()
 // Default Destructor
 vtkKCoreLayout::~vtkKCoreLayout()
 {
-  this->KCoreLabelArrayName = NULL;
+  this->KCoreLabelArrayName = nullptr;
 }
 
 
@@ -81,7 +81,7 @@ void vtkKCoreLayout::PrintSelf(ostream& os, vtkIndent indent)
   }
   else
   {
-    os << indent << "KCoreLabelArrayName : NULL" << endl;
+    os << indent << "KCoreLabelArrayName : nullptr" << endl;
   }
 
   os << indent << "Polar               : " << this->Polar << endl;
@@ -176,12 +176,10 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
   // graph size
   vtkIdType num_verts = output->GetNumberOfVertices();
 
-  if(this->KCoreLabelArrayName)
+  if(!this->KCoreLabelArrayName)
   {
-  }
-  else
-  {
-    this->KCoreLabelArrayName = (char*)"kcore";
+    const char * kcore = "kcore";
+    this->KCoreLabelArrayName = strcpy(new char [strlen(kcore)+1], kcore);
   }
 
   // Get the kcore attribute array

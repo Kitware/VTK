@@ -62,7 +62,7 @@ struct QVTKWidgetInsideQWidgets
     renderer->SetBackground(1.0,0.0,0.8);
     renderer->SetBackground2(0.5,0.5,0.5);
     renderer->SetGradientBackground(true);
-    glwin->AddRenderer(renderer.Get());
+    glwin->AddRenderer(renderer);
   }
 
   ~QVTKWidgetInsideQWidgets()
@@ -74,7 +74,7 @@ struct QVTKWidgetInsideQWidgets
     //delete widget2;
   }
 
-  QVTKWidget* spawnSubwidget( QTabWidget* tabWidget,QVTKWidget* qvtk=NULL)
+  QVTKWidget* spawnSubwidget( QTabWidget* tabWidget,QVTKWidget* qvtk=nullptr)
   {
     if(!mainWindow)
       mainWindow = new QMainWindow();
@@ -88,7 +88,7 @@ struct QVTKWidgetInsideQWidgets
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QMainWindow* mainWin,QVTKWidget* qvtk = NULL)
+  QVTKWidget* spawnSubwidget(QMainWindow* mainWin,QVTKWidget* qvtk = nullptr)
   {
     mainWindow       = mainWin;
     if (!qvtk)
@@ -99,7 +99,7 @@ struct QVTKWidgetInsideQWidgets
     return qvtk;
   }
 
-  QVTKWidget* spawnSubwidget(QDockWidget* dock,QVTKWidget* qvtk = NULL)
+  QVTKWidget* spawnSubwidget(QDockWidget* dock,QVTKWidget* qvtk = nullptr)
   {
     if (!mainWindow)
       mainWindow = new QMainWindow();
@@ -117,7 +117,7 @@ struct QVTKWidgetInsideQWidgets
     initializeWidget(widget1);
     QVTKWidget* qvtk   = spawnSubwidget( widget1 );
 
-    qvtk->SetRenderWindow(glwin.Get());
+    qvtk->SetRenderWindow(glwin);
 
     PRINT_AND_EVAL("BEFORE RENDER:" << glwin->ReportCapabilities());
     glwin->Render();

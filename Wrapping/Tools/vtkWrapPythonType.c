@@ -111,10 +111,10 @@ static void vtkWrapPython_NewDeleteProtocol(
     "  {\n"
     "    PyErr_SetString(PyExc_TypeError,\n"
     "                    \"this function takes no keyword arguments\");\n"
-    "    return NULL;\n"
+    "    return nullptr;\n"
     "  }\n"
     "\n"
-    "  return Py%s_%*.*s(NULL, args);\n"
+    "  return Py%s_%*.*s(nullptr, args);\n"
     "}\n"
     "\n",
     classname, classname, (int)n, (int)n, constructor);
@@ -128,7 +128,7 @@ static void vtkWrapPython_NewDeleteProtocol(
     "  PyErr_SetString(PyExc_TypeError,\n"
     "                  \"this class cannot be instantiated\");\n"
     "\n"
-    "  return NULL;\n"
+    "  return nullptr;\n"
     "}\n"
     "\n",
     classname);
@@ -300,10 +300,10 @@ static void vtkWrapPython_RichCompareProtocol(
       "static PyObject *Py%s_RichCompare(\n"
       "  PyObject *o1, PyObject *o2, int opid)\n"
       "{\n"
-      "  PyObject *n1 = NULL;\n"
-      "  PyObject *n2 = NULL;\n"
-      "  const %s *so1 = NULL;\n"
-      "  const %s *so2 = NULL;\n"
+      "  PyObject *n1 = nullptr;\n"
+      "  PyObject *n2 = nullptr;\n"
+      "  const %s *so1 = nullptr;\n"
+      "  const %s *so2 = nullptr;\n"
       "  int result = -1;\n"
       "\n",
       classname, data->Name, data->Name);
@@ -323,7 +323,7 @@ static void vtkWrapPython_RichCompareProtocol(
         "    so%d = static_cast<const %s *>(\n"
         "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
         "        o%d, \"%s\", &n%d));\n"
-        "    if (so%d == NULL)\n"
+        "    if (so%d == nullptr)\n"
         "    {\n"
         "      PyErr_Clear();\n"
         "      Py_INCREF(Py_NotImplemented);\n"
@@ -380,7 +380,7 @@ static void vtkWrapPython_RichCompareProtocol(
       "  if (result == -1)\n"
       "  {\n"
       "    PyErr_SetString(PyExc_TypeError, \"operation not available\");\n"
-      "    return NULL;\n"
+      "    return nullptr;\n"
       "  }\n"
       "\n"
       "  // avoids aliasing issues with Py_INCREF(Py_False)\n"
@@ -517,7 +517,7 @@ static void vtkWrapPython_SequenceProtocol(
                 vtkWrap_IsObject(getItemFunc->ReturnValue)) ? "*" : ""));
 
       fprintf(fp,
-              "    if (PyErr_Occurred() == NULL)\n"
+              "    if (PyErr_Occurred() == nullptr)\n"
               "    {\n"
               "      result = 0;\n"
               "    }\n"
@@ -709,15 +709,15 @@ void vtkWrapPython_GenerateSpecialType(
     "  sizeof(PyVTKSpecialObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
     "  Py%s_Delete, // tp_dealloc\n"
-    "  0, // tp_print\n"
-    "  0, // tp_getattr\n"
-    "  0, // tp_setattr\n"
-    "  0, // tp_compare\n"
+    "  nullptr, // tp_print\n"
+    "  nullptr, // tp_getattr\n"
+    "  nullptr, // tp_setattr\n"
+    "  nullptr, // tp_compare\n"
     "  PyVTKSpecialObject_Repr, // tp_repr\n",
     classname, module, classname, classname);
 
   fprintf(fp,
-    "  0, // tp_as_number\n");
+    "  nullptr, // tp_as_number\n");
 
   if (info.has_sequence)
   {
@@ -728,13 +728,13 @@ void vtkWrapPython_GenerateSpecialType(
   else
   {
   fprintf(fp,
-      "  0, // tp_as_sequence\n");
+      "  nullptr, // tp_as_sequence\n");
   }
 
   fprintf(fp,
-    "  0, // tp_as_mapping\n"
+    "  nullptr, // tp_as_mapping\n"
     "  Py%s_Hash, // tp_hash\n"
-    "  0, // tp_call\n",
+    "  nullptr, // tp_call\n",
     classname);
 
   if (info.has_print)
@@ -751,17 +751,17 @@ void vtkWrapPython_GenerateSpecialType(
   else
   {
     fprintf(fp,
-      "  0, // tp_str\n");
+      "  nullptr, // tp_str\n");
   }
 
   fprintf(fp,
     "  PyObject_GenericGetAttr, // tp_getattro\n"
-    "  0, // tp_setattro\n"
-    "  0, // tp_as_buffer\n"
+    "  nullptr, // tp_setattro\n"
+    "  nullptr, // tp_as_buffer\n"
     "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
-    "  0, // tp_doc\n"
-    "  0, // tp_traverse\n"
-    "  0, // tp_clear\n");
+    "  nullptr, // tp_doc\n"
+    "  nullptr, // tp_traverse\n"
+    "  nullptr, // tp_clear\n");
 
   if (info.has_compare)
   {
@@ -772,35 +772,35 @@ void vtkWrapPython_GenerateSpecialType(
   else
   {
     fprintf(fp,
-      "  0, // tp_richcompare\n");
+      "  nullptr, // tp_richcompare\n");
   }
 
   fprintf(fp,
     "  0, // tp_weaklistoffset\n"
-    "  0, // tp_iter\n"
-    "  0, // tp_iternext\n"
-    "  0, // tp_methods\n"
-    "  0, // tp_members\n"
-    "  0, // tp_getset\n"
-    "  0, // tp_base\n"
-    "  0, // tp_dict\n"
-    "  0, // tp_descr_get\n"
-    "  0, // tp_descr_set\n"
+    "  nullptr, // tp_iter\n"
+    "  nullptr, // tp_iternext\n"
+    "  nullptr, // tp_methods\n"
+    "  nullptr, // tp_members\n"
+    "  nullptr, // tp_getset\n"
+    "  nullptr, // tp_base\n"
+    "  nullptr, // tp_dict\n"
+    "  nullptr, // tp_descr_get\n"
+    "  nullptr, // tp_descr_set\n"
     "  0, // tp_dictoffset\n"
-    "  0, // tp_init\n"
-    "  0, // tp_alloc\n"
+    "  nullptr, // tp_init\n"
+    "  nullptr, // tp_alloc\n"
     "  Py%s_New, // tp_new\n"
     "  PyObject_Del, // tp_free\n"
-    "  0, // tp_is_gc\n",
+    "  nullptr, // tp_is_gc\n",
     classname);
 
   /* fields set by python itself */
   fprintf(fp,
-    "  0, // tp_bases\n"
-    "  0, // tp_mro\n"
-    "  0, // tp_cache\n"
-    "  0, // tp_subclasses\n"
-    "  0, // tp_weaklist\n");
+    "  nullptr, // tp_bases\n"
+    "  nullptr, // tp_mro\n"
+    "  nullptr, // tp_cache\n"
+    "  nullptr, // tp_subclasses\n"
+    "  nullptr, // tp_weaklist\n");
 
   /* internal struct members */
   fprintf(fp,
@@ -880,7 +880,7 @@ void vtkWrapPython_GenerateSpecialType(
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
     "    Py%s_%*.*s_Methods,\n"
-    "    Py%s_Doc(), NULL);\n"
+    "    Py%s_Doc(), nullptr);\n"
     "\n",
     classname, classname,
     classname, (int)n, (int)n, constructor,
@@ -892,8 +892,8 @@ void vtkWrapPython_GenerateSpecialType(
     "  PyVTKSpecialType_Add(\n"
     "    &Py%s_Type,\n"
     "    Py%s_Methods,\n"
-    "    NULL,\n"
-    "    Py%s_Doc(), NULL);\n"
+    "    nullptr,\n"
+    "    Py%s_Doc(), nullptr);\n"
     "\n",
     classname, classname, classname);
   }

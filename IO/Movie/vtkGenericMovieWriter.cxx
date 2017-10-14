@@ -21,14 +21,14 @@
 //---------------------------------------------------------------------------
 vtkGenericMovieWriter::vtkGenericMovieWriter()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
   this->Error = 0;
 }
 
 //---------------------------------------------------------------------------
 vtkGenericMovieWriter::~vtkGenericMovieWriter()
 {
-  this->SetFileName(0);
+  this->SetFileName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -49,7 +49,7 @@ static const char *vtkMovieWriterErrorStrings[] = {
   "Can Not Compress Error",
   "Can Not Format Error",
   "Changed Resolution Error",
-  NULL
+  nullptr
 };
 
 const char *vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
@@ -66,7 +66,7 @@ const char *vtkGenericMovieWriter::GetStringFromErrorCode(unsigned long error)
 
   if (!numerrors)
   {
-    while (vtkMovieWriterErrorStrings[numerrors] != NULL)
+    while (vtkMovieWriterErrorStrings[numerrors] != nullptr)
     {
       numerrors++;
     }

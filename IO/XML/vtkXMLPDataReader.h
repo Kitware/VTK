@@ -14,11 +14,11 @@
 =========================================================================*/
 /**
  * @class   vtkXMLPDataReader
- * @brief   Superclass for PVTK XML file readers.
+ * @brief   Superclass for PVTK XML file readers that read vtkDataSets.
  *
  * vtkXMLPDataReader provides functionality common to all PVTK XML
- * file readers.  Concrete subclasses call upon this functionality
- * when needed.
+ * file readers that read vtkDataSets. Concrete subclasses call upon
+ * this functionality when needed.
  *
  * @sa
  * vtkXMLDataReader
@@ -28,94 +28,117 @@
 #define vtkXMLPDataReader_h
 
 #include "vtkIOXMLModule.h" // For export macro
-#include "vtkXMLReader.h"
+#include "vtkXMLPDataObjectReader.h"
 
 class vtkDataArray;
 class vtkDataSet;
 class vtkXMLDataReader;
 
-class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLReader
+class VTKIOXML_EXPORT vtkXMLPDataReader : public vtkXMLPDataObjectReader
 {
 public:
-  vtkTypeMacro(vtkXMLPDataReader,vtkXMLReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  vtkTypeMacro(vtkXMLPDataReader, vtkXMLPDataObjectReader);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //@{
   /**
-   * Get the number of pieces from the summary file being read.
-   */
-  vtkGetMacro(NumberOfPieces, int);
-  //@}
-
-  // For the specified port, copy the information this reader sets up in
-  // SetupOutputInformation to outInfo
-  void CopyOutputInformation(vtkInformation *outInfo, int port) VTK_OVERRIDE;
+  * For the specified port, copy the information this reader sets up in
+  * SetupOutputInformation to outInfo
+  */
+  void CopyOutputInformation(vtkInformation* outInfo, int port) override;
 
 protected:
   vtkXMLPDataReader();
-  ~vtkXMLPDataReader() VTK_OVERRIDE;
+  ~vtkXMLPDataReader() override;
 
-  // Pipeline execute information driver.  Called by vtkXMLReader.
-  int ReadXMLInformation() VTK_OVERRIDE;
-  void SetupOutputInformation(vtkInformation *outInfo) VTK_OVERRIDE;
+  // Re-use any superclass signatures that we don't override.
+  using vtkXMLPDataObjectReader::ReadPiece;
 
-  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) VTK_OVERRIDE;
+  /**
+   * Delete all piece readers and related information
+   */
+  void DestroyPieces() override;
 
+  virtual vtkIdType GetNumberOfPoints() = 0;
+
+  virtual vtkIdType GetNumberOfCells() = 0;
+
+  /**
+   * Get a given piece input as a dataset, return nullptr if there is none.
+   */
   vtkDataSet* GetPieceInputAsDataSet(int piece);
-  void SetupOutputData() VTK_OVERRIDE;
 
-  virtual vtkXMLDataReader* CreatePieceReader()=0;
-  virtual vtkIdType GetNumberOfPoints()=0;
-  virtual vtkIdType GetNumberOfCells()=0;
-  virtual void CopyArrayForPoints(vtkDataArray* inArray,
-                                  vtkDataArray* outArray)=0;
-  virtual void CopyArrayForCells(vtkDataArray* inArray,
-                                 vtkDataArray* outArray)=0;
+  /**
+   * Initialize the output data
+   */
+  void SetupOutputData() override;
 
-  virtual void SetupPieces(int numPieces);
-  virtual void DestroyPieces();
-  int ReadPiece(vtkXMLDataElement* ePiece, int index);
-  virtual int ReadPiece(vtkXMLDataElement* ePiece);
+  /**
+  * Pipeline execute information driver.  Called by vtkXMLReader.
+  */
+  void SetupOutputInformation(vtkInformation* outInfo) override;
+
+  /**
+   * Setup the number of pieces to be read and allocate space accordingly
+   */
+  void SetupPieces(int numPieces) override;
+
+  /**
+   * Whether or not the current reader can read the current piece
+   */
+  int CanReadPiece(int index) override;
+
+  /**
+   * Create a reader according to the data to read. It needs to be overridden by subclass.
+   */
+  virtual vtkXMLDataReader* CreatePieceReader() = 0;
+
+  /**
+   * Setup the current piece reader
+   */
+  int ReadPiece(vtkXMLDataElement* ePiece) override;
+
+  /**
+   * Actually read the piece at the given index data
+   */
   int ReadPieceData(int index);
+
+  /**
+   * Actually read the current piece data
+   */
   virtual int ReadPieceData();
-  int CanReadPiece(int index);
 
-  char* CreatePieceFileName(const char* fileName);
-  void SplitFileName();
+  /**
+   * Read the information relative to the dataset and allocate the needed structures according to it
+   */
+  int ReadPrimaryElement(vtkXMLDataElement* ePrimary) override;
 
-  // Callback registered with the PieceProgressObserver.
-  static void PieceProgressCallbackFunction(vtkObject*, unsigned long, void*,
-                                           void*);
-  virtual void PieceProgressCallback();
+  virtual void CopyArrayForPoints(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
+  virtual void CopyArrayForCells(vtkDataArray* inArray, vtkDataArray* outArray) = 0;
 
-  // Pieces from the input summary file.
-  int NumberOfPieces;
+  /**
+  * Callback registered with the PieceProgressObserver.
+  */
+  void PieceProgressCallback() override;
 
-  // The ghost level available on each input piece.
+  /**
+  * The ghost level available on each input piece.
+  */
   int GhostLevel;
 
-  // The piece currently being read.
-  int Piece;
-
-  // The path to the input file without the file name.
-  char* PathName;
-
-  // Information per-piece.
-  vtkXMLDataElement** PieceElements;
+  /**
+  * Information per-piece.
+  */
   vtkXMLDataReader** PieceReaders;
-  int* CanReadPieceFlag;
 
-  // The PPointData and PCellData element representations.
+  /**
+  * The PPointData and PCellData element representations.
+  */
   vtkXMLDataElement* PPointDataElement;
   vtkXMLDataElement* PCellDataElement;
 
-  // The observer to report progress from reading serial data in each
-  // piece.
-  vtkCallbackCommand* PieceProgressObserver;
-
 private:
-  vtkXMLPDataReader(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
+  vtkXMLPDataReader(const vtkXMLPDataReader&) = delete;
+  void operator=(const vtkXMLPDataReader&) = delete;
 };
 
 #endif

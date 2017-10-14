@@ -86,8 +86,8 @@ protected:
   vtkRenderWindowInteractor *Interactor;
 
 private:
-  vtkTDxDevice(const vtkTDxDevice&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTDxDevice&) VTK_DELETE_FUNCTION;
+  vtkTDxDevice(const vtkTDxDevice&) = delete;
+  void operator=(const vtkTDxDevice&) = delete;
 };
 
 #endif

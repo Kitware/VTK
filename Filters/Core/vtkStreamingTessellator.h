@@ -87,7 +87,7 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
   public:
     vtkTypeMacro(vtkStreamingTessellator,vtkObject);
     static vtkStreamingTessellator* New();
-    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+    void PrintSelf( ostream& os, vtkIndent indent ) override;
 
     typedef void (*VertexProcessorFunction)( const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*EdgeProcessorFunction)( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
@@ -332,7 +332,7 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     int MaximumNumberOfSubdivisions;
 
     vtkStreamingTessellator();
-    ~vtkStreamingTessellator() VTK_OVERRIDE;
+    ~vtkStreamingTessellator() override;
 
     void AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3, int maxDepth ) const ;
     void AdaptivelySample2Facet( double* v0, double* v1, double* v2, int maxDepth, int move=7 ) const ;
@@ -341,8 +341,8 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     int BestTets( int*, double**, int, int ) const;
 
   private:
-    vtkStreamingTessellator( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
-    void operator = ( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
+    vtkStreamingTessellator( const vtkStreamingTessellator& ) = delete;
+    void operator = ( const vtkStreamingTessellator& ) = delete;
 };
 
 inline void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, double* v2, double* v3 ) const

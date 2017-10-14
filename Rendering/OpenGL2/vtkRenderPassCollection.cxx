@@ -61,7 +61,7 @@ vtkRenderPass *vtkRenderPassCollection::GetNextRenderPass()
 vtkRenderPass *vtkRenderPassCollection::GetLastRenderPass()
 {
   return (this->Bottom) ?
-    static_cast<vtkRenderPass *>(this->Bottom->Item) : NULL;
+    static_cast<vtkRenderPass *>(this->Bottom->Item) : nullptr;
 }
 
 // ----------------------------------------------------------------------------

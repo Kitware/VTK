@@ -128,7 +128,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkXYPlotActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkXYPlotActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with autorange computation; bold, italic, and shadows
@@ -153,9 +153,9 @@ public:
    * a pipeline connection whereas AddInputConnection() does.
    */
   void AddDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
-  void AddDataSetInput(vtkDataSet *ds) {this->AddDataSetInput(ds, NULL, 0);}
+  void AddDataSetInput(vtkDataSet *ds) {this->AddDataSetInput(ds, nullptr, 0);}
   void AddDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
-  void AddDataSetInputConnection(vtkAlgorithmOutput *in) {this->AddDataSetInputConnection(in, NULL, 0);}
+  void AddDataSetInputConnection(vtkAlgorithmOutput *in) {this->AddDataSetInputConnection(in, nullptr, 0);}
   //@}
 
   //@{
@@ -163,11 +163,11 @@ public:
    * Remove a dataset from the list of data to append.
    */
   void RemoveDataSetInput(vtkDataSet *ds, const char* arrayName, int component);
-  void RemoveDataSetInput(vtkDataSet *ds) {this->RemoveDataSetInput(ds, NULL, 0);}
+  void RemoveDataSetInput(vtkDataSet *ds) {this->RemoveDataSetInput(ds, nullptr, 0);}
   void RemoveDataSetInputConnection(vtkAlgorithmOutput *in, const char* arrayName, int component);
   void RemoveDataSetInputConnection(vtkAlgorithmOutput *in)
   {
-    this->RemoveDataSetInputConnection(in, NULL, 0);
+    this->RemoveDataSetInputConnection(in, nullptr, 0);
   }
   //@}
 
@@ -718,7 +718,7 @@ enum Alignment {
   /**
    * Take into account the modified time of internal helper classes.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Write the XY Ploat Actor as a CSV (comma separated value) representation.
@@ -731,22 +731,22 @@ enum Alignment {
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the x-y plot.
    */
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport *) VTK_OVERRIDE {return 0;}
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport *) override {return 0;}
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
   /**
    * Release any graphics resources that are being consumed by this actor.
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -848,7 +848,7 @@ enum Alignment {
 
 protected:
   vtkXYPlotActor();
-  ~vtkXYPlotActor() VTK_OVERRIDE;
+  ~vtkXYPlotActor() override;
 
   vtkXYPlotActorConnections* InputConnectionHolder;
   char** SelectedInputScalars; // list of data set arrays to plot
@@ -966,8 +966,8 @@ protected:
   int PlotColorIndex;
 
 private:
-  vtkXYPlotActor(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
+  vtkXYPlotActor(const vtkXYPlotActor&) = delete;
+  void operator=(const vtkXYPlotActor&) = delete;
 
   bool DoesConnectionMatch(int i, vtkAlgorithmOutput* in);
 

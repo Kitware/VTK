@@ -111,12 +111,12 @@ protected:
 
   vtkPExodusIIReaderUpdateProgress()
   {
-    Reader = NULL;
+    Reader = nullptr;
     Index = 0;
   }
-  ~vtkPExodusIIReaderUpdateProgress(){}
+  ~vtkPExodusIIReaderUpdateProgress() override{}
 
-  void Execute(vtkObject*, unsigned long event, void* callData) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long event, void* callData) override
   {
     if(event == vtkCommand::ProgressEvent)
     {
@@ -138,7 +138,7 @@ protected:
 
 //----------------------------------------------------------------------------
 // Description:
-// Instantiate object with NULL filename.
+// Instantiate object with nullptr filename.
 vtkPExodusIIReader::vtkPExodusIIReader()
 {
   this->ProcRank = 0;
@@ -155,10 +155,10 @@ vtkPExodusIIReader::vtkPExodusIIReader()
   this->CurrentFileRange[0] = 0;
   this->CurrentFileRange[1] = 0;
   this->NumberOfFiles = 1;
-  this->FileNames = NULL;
+  this->FileNames = nullptr;
   this->NumberOfFileNames = 0;
   this->MultiFileName = new char[vtkPExodusIIReaderMAXPATHLEN];
-  this->XMLFileName=NULL;
+  this->XMLFileName=nullptr;
   this->LastCommonTimeStep = -1;
   this->VariableCacheSize = 100;
 }
@@ -271,9 +271,9 @@ int vtkPExodusIIReader::RequestInformation(
 
     if ( newPattern && ! rebuildPattern )
     {
-      char* nm =
-        new char[strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20];
-      sprintf( nm, this->FilePattern, this->FilePrefix, this->FileRange[0] );
+      size_t nmSize = strlen( this->FilePattern ) + strlen( this->FilePrefix ) + 20;
+      char* nm = new char[nmSize];
+      snprintf( nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0] );
       delete [] this->FileName;
       this->FileName = nm;
     }
@@ -299,7 +299,7 @@ int vtkPExodusIIReader::RequestInformation(
     // in them. It's possible that some of them don't and if they don't
     // we won't have the proper information generated.
     int reader_idx=0;
-    for ( int fileIndex = 0; fileIndex <= numFiles; ++fileIndex, ++reader_idx )
+    for ( int fileIndex = 0; fileIndex < numFiles; ++fileIndex, ++reader_idx )
     {
       if ( this->NumberOfFileNames > 1 )
       {
@@ -311,13 +311,13 @@ int vtkPExodusIIReader::RequestInformation(
       }
       else if ( this->FilePattern )
       {
-        sprintf( this->MultiFileName, this->FilePattern, this->FilePrefix, fileIndex );
+        snprintf( this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, fileIndex );
       }
       char* nm = new char[strlen( this->MultiFileName )+1];
       strcpy(nm, this->MultiFileName);
       delete [] this->FileName;
       this->FileName = nm;
-      nm = NULL;
+      nm = nullptr;
 
       // Read in info based on this->FileName
       requestInformationRetVal = this->Superclass::RequestInformation( request, inputVector, outputVector );
@@ -368,9 +368,9 @@ int vtkPExodusIIReader::RequestInformation(
   if ( this->CurrentFilePrefix )
   {
     delete [] this->CurrentFilePrefix;
-    this->CurrentFilePrefix = NULL;
+    this->CurrentFilePrefix = nullptr;
     delete [] this->CurrentFilePattern;
-    this->CurrentFilePattern = NULL;
+    this->CurrentFilePattern = nullptr;
     this->CurrentFileRange[0] = 0;
     this->CurrentFileRange[1] = 0;
   }
@@ -536,7 +536,7 @@ int vtkPExodusIIReader::RequestData(
     }
     else if ( this->FilePattern )
     {
-      sprintf( this->MultiFileName, this->FilePattern, this->FilePrefix, fileIndex );
+      snprintf( this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, fileIndex );
       if ( this->GetGenerateFileIdArray() )
       {
         fileId = fileIndex;
@@ -725,7 +725,7 @@ int vtkPExodusIIReader::RequestData(
   }
 
   // I've copied append's output to the 'output' so delete append
-  append = NULL;
+  append = nullptr;
 
 #if 0 // FIXME: Need multiblock version... or not?
   if ( this->PackExodusModelOntoOutput )
@@ -771,7 +771,7 @@ void vtkPExodusIIReader::SetFileNames( int nfiles, const char** names )
       delete [] this->FileNames[i];
     }
     delete [] this->FileNames;
-    this->FileNames = NULL;
+    this->FileNames = nullptr;
   }
 
   // Set the number of files
@@ -884,7 +884,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   std::string extension = numberRegEx.match(3);
 
   // Determine the pattern
-  sprintf(pattern, "%%s%%0%ii%s", scount, extension.c_str());
+  snprintf(pattern, sizeof(pattern), "%%s%%0%ii%s", scount, extension.c_str());
 
   // Count up the files
   char buffer[1024];
@@ -893,7 +893,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   // First go up every 100
   for ( cc = min + 100; true; cc += 100 )
   {
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -903,7 +903,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
   cc = cc - 100;
   for ( cc = cc + 1; true; ++cc )
   {
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -919,7 +919,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     if ( cc < 0 )
       break;
 
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -933,7 +933,7 @@ int vtkPExodusIIReader::DeterminePattern( const char* file )
     if ( cc < 0 )
       break;
 
-    sprintf( buffer, pattern, prefix.c_str(), cc );
+    snprintf( buffer, sizeof(buffer), pattern, prefix.c_str(), cc );
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -973,7 +973,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   }
   else
   {
-    os << indent << "FilePattern: NULL\n";
+    os << indent << "FilePattern: nullptr\n";
   }
 
   if ( this->FilePattern )
@@ -982,7 +982,7 @@ void vtkPExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   }
   else
   {
-    os << indent << "FilePrefix: NULL\n";
+    os << indent << "FilePrefix: nullptr\n";
   }
 
   os << indent << "FileRange: "

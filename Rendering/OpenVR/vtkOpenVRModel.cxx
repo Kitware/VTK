@@ -86,6 +86,7 @@ vtkOpenVRRay::~vtkOpenVRRay()
   this->ModelVBO = 0;
 }
 
+
 void vtkOpenVRRay::ReleaseGraphicsResources(vtkRenderWindow *win)
 {
   this->ModelVBO->ReleaseGraphicsResources();
@@ -98,17 +99,11 @@ bool vtkOpenVRRay::Build(vtkOpenVRRenderWindow *win)
   float vert[] = {
     0, 0, 0,
     0, 0, -1};
-  unsigned short ind[] = {0, 1};
 
   this->ModelVBO->Upload(
     vert,
     2 * 3,
     vtkOpenGLBufferObject::ArrayBuffer);
-  this->ModelHelper.IBO->Upload(
-    ind,
-    1 * 2,
-    vtkOpenGLBufferObject::ElementArrayBuffer);
-  this->ModelHelper.IBO->IndexCount = 1 * 2;
 
   this->ModelHelper.Program = win->GetShaderCache()->ReadyShaderProgram(
 
@@ -119,7 +114,7 @@ bool vtkOpenVRRay::Build(vtkOpenVRRenderWindow *win)
     "attribute vec3 position;\n"
     "void main()\n"
     "{\n"
-    " gl_Position =  matrix * vec4(scale * position, 1);\n"
+    " gl_Position =  matrix * vec4(scale * position, 1.0);\n"
     "}\n",
 
     //fragment shader
@@ -127,7 +122,7 @@ bool vtkOpenVRRay::Build(vtkOpenVRRenderWindow *win)
     "//VTK::Output::Dec\n"
     "void main()\n"
     "{\n"
-    "   gl_FragData[0] = vec4(1,0,0,1);\n"
+    "   gl_FragData[0] = vec4(1.0,0.0,0.0,1.0);\n"
     "}\n",
 
     // geom shader
@@ -165,7 +160,6 @@ void vtkOpenVRRay::Render(
   // Render ray
   win->GetShaderCache()->ReadyShaderProgram(this->ModelHelper.Program);
   this->ModelHelper.VAO->Bind();
-  this->ModelHelper.IBO->Bind();
 
   vtkRenderer *ren = static_cast< vtkRenderer * >(
     win->GetRenderers()->GetItemAsObject(0));
@@ -185,9 +179,7 @@ void vtkOpenVRRay::Render(
   this->ModelHelper.Program->SetUniformMatrix("matrix",
     poseMatrix);
 
-  glDrawElements(GL_LINES,
-    static_cast<GLsizei>(this->ModelHelper.IBO->IndexCount),
-    GL_UNSIGNED_SHORT, 0);
+  glDrawArrays(GL_LINES, 0, 6);
 }
 
 /*=========================================================================
@@ -197,17 +189,27 @@ vtkStandardNewMacro(vtkOpenVRModel);
 
 vtkOpenVRModel::vtkOpenVRModel()
 {
-  this->RawModel = NULL;
-  this->RawTexture = NULL;
+  this->RawModel = nullptr;
+  this->RawTexture = nullptr;
   this->Loaded = false;
   this->ModelVBO = vtkOpenGLVertexBufferObject::New();
   this->FailedToLoad = false;
+  this->TrackedDevice = vr::k_unTrackedDeviceIndexInvalid;
 };
 
 vtkOpenVRModel::~vtkOpenVRModel()
 {
   this->ModelVBO->Delete();
   this->ModelVBO = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenVRModel::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Loaded "
+     << (this->Loaded  ? "On\n" : "Off\n");
 }
 
 void vtkOpenVRModel::ReleaseGraphicsResources(vtkRenderWindow *win)
@@ -392,7 +394,7 @@ void vtkOpenVRModel::Render(
         (double *)(this->PoseMatrix->Element));
 
       this->ModelHelper.Program->SetUniformMatrix("matrix",
-        this->PoseMatrix.Get());
+        this->PoseMatrix);
     }
 
     glDrawElements(GL_TRIANGLES,
@@ -400,24 +402,10 @@ void vtkOpenVRModel::Render(
       GL_UNSIGNED_SHORT, 0);
     this->TextureObject->Deactivate();
 
-    //Handle drawing of the ray associated to this model
-    if (!win->GetInteractor())
-    {
-      vtkErrorMacro("Unable to get interactor");
-      return;
-    }
-    if (!win->GetInteractor()->GetInteractorStyle())
-    {
-      vtkErrorMacro("Unable to get interactor style");
-      return;
-    }
-    //Update ray points and draw state
-    win->GetInteractor()->GetInteractorStyle()->InvokeEvent(
-      vtkCommand::RenderEvent);
     //Draw ray
     if (this->Ray->GetShow())
     {
-      this->Ray->Render(win, this->PoseMatrix.Get());
+      this->Ray->Render(win, this->PoseMatrix);
     }
   }
 }

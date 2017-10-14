@@ -62,11 +62,11 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     MetaScene(unsigned int dim);
 
-    ~MetaScene(void);
+    ~MetaScene(void) MET_OVERRIDE;
 
-    void PrintInfo(void) const;
+    void PrintInfo(void) const MET_OVERRIDE;
 
-    void CopyInfo(const MetaObject * _object);
+    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
 
     void AddObject(MetaObject* object);
 
@@ -78,9 +78,9 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     bool Write(const char *_headName=NULL);
 
-    bool Append(const char* =NULL) {METAIO_STREAM::cout << "Not Implemented !" << METAIO_STREAM::endl;return true;}
+    bool Append(const char* =NULL) MET_OVERRIDE {METAIO_STREAM::cout << "Not Implemented !" << METAIO_STREAM::endl;return true;}
 
-    void  Clear(void);
+    void  Clear(void) MET_OVERRIDE;
 
 
     //    NObjects(...)
@@ -101,15 +101,15 @@ class METAIO_EXPORT MetaScene : public MetaObject
 
     bool  m_ElementByteOrderMSB;
 
-    void  M_Destroy(void);
+    void  M_Destroy(void) MET_OVERRIDE;
 
-    void  M_SetupReadFields(void);
+    void  M_SetupReadFields(void) MET_OVERRIDE;
 
-    void  M_SetupWriteFields(void);
+    void  M_SetupWriteFields(void) MET_OVERRIDE;
 
-    bool  M_Read(void);
+    bool  M_Read(void) MET_OVERRIDE;
 
-    bool  M_Write(void);
+    bool  M_Write(void) MET_OVERRIDE;
 
     int m_NObjects;      // "NObjects = "         0
 

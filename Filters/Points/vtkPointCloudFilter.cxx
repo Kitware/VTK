@@ -139,7 +139,7 @@ struct MapOutliers
 //----------------------------------------------------------------------------
 vtkPointCloudFilter::vtkPointCloudFilter()
 {
-  this->PointMap = NULL;
+  this->PointMap = nullptr;
   this->NumberOfPointsRemoved = 0;
   this->GenerateOutliers = false;
   this->GenerateVertices = false;
@@ -151,10 +151,7 @@ vtkPointCloudFilter::vtkPointCloudFilter()
 //----------------------------------------------------------------------------
 vtkPointCloudFilter::~vtkPointCloudFilter()
 {
-  if ( this->PointMap )
-  {
-    delete [] this->PointMap;
-  }
+  delete [] this->PointMap;
 }
 
 //----------------------------------------------------------------------------
@@ -193,10 +190,8 @@ int vtkPointCloudFilter::RequestData(
 
   // Reset the filter
   this->NumberOfPointsRemoved = 0;
-  if ( this->PointMap )
-  {
-    delete [] this->PointMap; //might have executed previously
-  }
+
+  delete [] this->PointMap; //might have executed previously
 
   // Check input
   if ( !input || !output )
@@ -315,7 +310,7 @@ int vtkPointCloudFilter::RequestData(
 void vtkPointCloudFilter::GenerateVerticesIfRequested(vtkPolyData *output)
 {
   vtkIdType numPts;
-  if ( ! this->GenerateVertices || output->GetPoints() == NULL ||
+  if ( ! this->GenerateVertices || output->GetPoints() == nullptr ||
        (numPts=output->GetNumberOfPoints()) < 1)
   {
     return;

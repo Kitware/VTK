@@ -21,30 +21,21 @@
  * It assumes ownership of one reference during its lifetime, and calls
  * T->Delete() on destruction.
  *
- * Automatic casting is intentionally unavailable, calling GetPointer() will
- * return a raw pointer. Users of this method should ensure that they do not
+ * Automatic casting to raw pointer is available for convenience, but
+ * users of this method should ensure that they do not
  * return this pointer if the vtkNew will go out of scope without
- * incrementing its reference count using vtkSmartPointer or similar.
+ * incrementing its reference count.
  *
- * \code
- * vtkNew<vtkClass> a;
- * a->SomeMethod();
- *
- * vtkSmartPointer<vtkClass> b = a.GetPointer();
- * b->SomeOtherMethod();
- * \endcode
- *
- * It should be noted that vtkNew is not a drop in replacement for
- * vtkSmartPointer as it is not implicitly cast to a pointer in functions
- * requiring a pointer. The GetPointer() method must be used, for example,
+ * vtkNew is a drop in replacement for vtkSmartPointer, for example,
  *
  * \code
  * vtkNew<vtkRenderer> ren;
  * vtkNew<vtkRenderWindow> renWin;
- * renWin->AddRenderer(ren.GetPointer());
+ * renWin->AddRenderer(ren);
  * vtkNew<vtkRenderWindowInteractor> iren;
- * iren->SetRenderWindow(renWin.GetPointer());
+ * iren->SetRenderWindow(renWin);
  * \endcode
+ *
  *
  * @sa
  * vtkSmartPointer vtkWeakPointer
@@ -82,7 +73,7 @@ public:
     T* obj = this->Object;
     if (obj)
     {
-      this->Object = 0;
+      this->Object = nullptr;
       obj->Delete();
     }
   }
@@ -112,22 +103,27 @@ public:
   {
     return this->Object;
   }
+  operator T* () const
+  {
+    return static_cast<T*>(this->Object);
+  }
   //@}
+  /**
+   * Dereference the pointer and return a reference to the contained object.
+   * When using this function be careful that the reference count does not
+   * drop to 0 when using the pointer returned.
+   * This will happen when the vtkNew object goes out of scope for example.
+   */
+  T& operator*() const
+  {
+    return *static_cast<T*>(this->Object);
+  }
 
 private:
-  vtkNew(vtkNew<T> const&) VTK_DELETE_FUNCTION;
-  void operator=(vtkNew<T> const&) VTK_DELETE_FUNCTION;
+  vtkNew(vtkNew<T> const&) = delete;
+  void operator=(vtkNew<T> const&) = delete;
   T* Object;
 };
-
-/**
- * Streaming operator to print vtkNew like regular pointers.
- */
-template <class T>
-inline ostream& operator << (ostream& os, const vtkNew<T>& p)
-{
-  return os << p.GetPointer();
-}
 
 #endif
 // VTK-HeaderTest-Exclude: vtkNew.h

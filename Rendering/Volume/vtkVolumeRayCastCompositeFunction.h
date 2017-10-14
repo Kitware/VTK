@@ -42,7 +42,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkVolumeRayCastCompositeFunction : public vtkVo
 public:
   static vtkVolumeRayCastCompositeFunction *New();
   vtkTypeMacro(vtkVolumeRayCastCompositeFunction,vtkVolumeRayCastFunction);
-  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
 
   //@{
   /**
@@ -59,23 +59,23 @@ public:
   //@}
 
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
-                vtkVolumeRayCastStaticInfo *staticInfo) VTK_OVERRIDE;
+                vtkVolumeRayCastStaticInfo *staticInfo) override;
 
-  float GetZeroOpacityThreshold( vtkVolume *vol ) VTK_OVERRIDE;
+  float GetZeroOpacityThreshold( vtkVolume *vol ) override;
 
 protected:
   vtkVolumeRayCastCompositeFunction();
-  ~vtkVolumeRayCastCompositeFunction() VTK_OVERRIDE;
+  ~vtkVolumeRayCastCompositeFunction() override;
 
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
-                                   vtkVolumeRayCastMapper *mapper ) VTK_OVERRIDE;
+                                   vtkVolumeRayCastMapper *mapper ) override;
 
   int           CompositeMethod;
 private:
-  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
+  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&) = delete;
+  void operator=(const vtkVolumeRayCastCompositeFunction&) = delete;
 };
 
 

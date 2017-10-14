@@ -43,82 +43,82 @@ class VTKRENDERINGCONTEXTOPENGL2_EXPORT vtkOpenGLContextDevice3D : public vtkCon
 {
 public:
   vtkTypeMacro(vtkOpenGLContextDevice3D, vtkContextDevice3D);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkOpenGLContextDevice3D * New();
 
   /**
    * Draw a polyline between the specified points.
    */
-  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc) VTK_OVERRIDE;
+  void DrawPoly(const float *verts, int n, const unsigned char *colors, int nc) override;
 
   /**
    * Draw lines defined by specified pair of points.
    * \sa DrawPoly()
    */
-  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc) VTK_OVERRIDE;
+  void DrawLines(const float *verts, int n, const unsigned char *colors, int nc) override;
 
   /**
    * Draw points at the vertex positions specified.
    */
   void DrawPoints(const float *verts, int n,
-                  const unsigned char *colors, int nc) VTK_OVERRIDE;
+                  const unsigned char *colors, int nc) override;
 
   /**
    * Draw triangles to generate the specified mesh.
    */
   void DrawTriangleMesh(const float *mesh, int n,
-                        const unsigned char *colors, int nc) VTK_OVERRIDE;
+                        const unsigned char *colors, int nc) override;
 
   /**
    * Apply the supplied pen which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkPen
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  void ApplyPen(vtkPen *pen) VTK_OVERRIDE;
+  void ApplyPen(vtkPen *pen) override;
 
   /**
    * Apply the supplied brush which controls the outlines of shapes, as well as
    * lines, points and related primitives. This makes a deep copy of the vtkBrush
    * object in the vtkContext2D, it does not hold a pointer to the supplied object.
    */
-  void ApplyBrush(vtkBrush *brush) VTK_OVERRIDE;
+  void ApplyBrush(vtkBrush *brush) override;
 
   /**
    * Set the model view matrix for the display
    */
-  void SetMatrix(vtkMatrix4x4 *m) VTK_OVERRIDE;
+  void SetMatrix(vtkMatrix4x4 *m) override;
 
   /**
    * Set the model view matrix for the display
    */
-  void GetMatrix(vtkMatrix4x4 *m) VTK_OVERRIDE;
+  void GetMatrix(vtkMatrix4x4 *m) override;
 
   /**
    * Multiply the current model view matrix by the supplied one
    */
-  void MultiplyMatrix(vtkMatrix4x4 *m) VTK_OVERRIDE;
+  void MultiplyMatrix(vtkMatrix4x4 *m) override;
 
   /**
    * Push the current matrix onto the stack.
    */
-  void PushMatrix() VTK_OVERRIDE;
+  void PushMatrix() override;
 
   /**
    * Pop the current matrix off of the stack.
    */
-  void PopMatrix() VTK_OVERRIDE;
+  void PopMatrix() override;
 
   /**
    * Supply a float array of length 4 with x1, y1, width, height specifying
    * clipping region for the device in pixels.
    */
-  void SetClipping(const vtkRecti &rect) VTK_OVERRIDE;
+  void SetClipping(const vtkRecti &rect) override;
 
   /**
    * Enable or disable the clipping of the scene.
    */
-  void EnableClipping(bool enable) VTK_OVERRIDE;
+  void EnableClipping(bool enable) override;
 
   //@{
   /**
@@ -128,8 +128,8 @@ public:
    * clipping plane: Ax + By + Cz + D = 0.  This is the equation format
    * expected by glClipPlane.
    */
-  void EnableClippingPlane(int i, double *planeEquation) VTK_OVERRIDE;
-  void DisableClippingPlane(int i) VTK_OVERRIDE;
+  void EnableClippingPlane(int i, double *planeEquation) override;
+  void DisableClippingPlane(int i) override;
   //@}
 
   /**
@@ -144,7 +144,7 @@ public:
 
 protected:
   vtkOpenGLContextDevice3D();
-  ~vtkOpenGLContextDevice3D() VTK_OVERRIDE;
+  ~vtkOpenGLContextDevice3D() override;
 
   /**
    * Begin drawing, turn on the depth buffer.
@@ -187,8 +187,8 @@ protected:
   std::vector<double> ClippingPlaneValues;
 
 private:
-  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLContextDevice3D &) VTK_DELETE_FUNCTION;
+  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &) = delete;
+  void operator=(const vtkOpenGLContextDevice3D &) = delete;
 
   //@{
   /**

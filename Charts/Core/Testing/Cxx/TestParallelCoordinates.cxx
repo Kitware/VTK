@@ -32,22 +32,22 @@ int TestParallelCoordinates(int , char* [])
   view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
   view->GetRenderWindow()->SetSize(800, 600);
   vtkNew<vtkChartParallelCoordinates> chart;
-  view->GetScene()->AddItem(chart.GetPointer());
+  view->GetScene()->AddItem(chart);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
   vtkNew<vtkFloatArray> arrX;
   arrX->SetName("Field 1");
-  table->AddColumn(arrX.GetPointer());
+  table->AddColumn(arrX);
   vtkNew<vtkFloatArray> arrC;
   arrC->SetName("Field 2");
-  table->AddColumn(arrC.GetPointer());
+  table->AddColumn(arrC);
   vtkNew<vtkFloatArray> arrS;
   arrS->SetName("Field 3");
-  table->AddColumn(arrS.GetPointer());
+  table->AddColumn(arrS);
   vtkNew<vtkFloatArray> arrS2;
   arrS2->SetName("Field 4");
-  table->AddColumn(arrS2.GetPointer());
+  table->AddColumn(arrS2);
   // Test charting with a few more points...
   int numPoints = 200;
   float inc = 7.5 / (numPoints-1);
@@ -60,7 +60,7 @@ int TestParallelCoordinates(int , char* [])
     table->SetValue(i, 3, tan(i * inc) + 0.5);
   }
 
-  chart->GetPlot(0)->SetInputData(table.GetPointer());
+  chart->GetPlot(0)->SetInputData(table);
 
   view->GetRenderWindow()->SetMultiSamples(0);
   view->GetInteractor()->Initialize();

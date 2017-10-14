@@ -17,31 +17,33 @@
 #include "vtkMultiBlockPLOT3DReader.h"
 
 #include "vtkByteSwap.h"
+#include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDoubleArray.h"
+#include "vtkDummyController.h"
 #include "vtkErrorCode.h"
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkIdList.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkIdList.h"
-#include "vtkCellData.h"
-#include "vtkMultiProcessController.h"
-#include "vtkDummyController.h"
-#include "vtkNew.h"
 
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
+#include "vtkSMPTools.h"
 
 vtkObjectFactoryNewMacro(vtkMultiBlockPLOT3DReader);
-
+vtkInformationKeyMacro(vtkMultiBlockPLOT3DReader, INTERMEDIATE_RESULT, Integer);
 vtkCxxSetObjectMacro(vtkMultiBlockPLOT3DReader,
                      Controller,
                      vtkMultiProcessController);
@@ -55,14 +57,1116 @@ class vtkPlot3DCFile
   FILE* Handle;
   bool CloseOnDelete;
 public:
-  vtkPlot3DCFile(FILE* handle=NULL) : Handle(handle), CloseOnDelete(true) {}
+  vtkPlot3DCFile(FILE* handle=nullptr) : Handle(handle), CloseOnDelete(true) {}
   ~vtkPlot3DCFile() { if (this->Handle && this->CloseOnDelete) { fclose(this->Handle); } }
   operator FILE*&() { return this->Handle; }
   // This may be needed to tell vtkPlot3DCFile not to close on delete, instead
   // we're taking over the calling close on the file.
   void DisableClose() { this->CloseOnDelete = false; }
 };
+}
 
+namespace Functors
+{
+class ComputeFunctor
+{
+public:
+  vtkMultiBlockPLOT3DReader* Reader = nullptr;
+  vtkStructuredGrid* Grid = nullptr;
+  vtkDataArray* Result = nullptr; // The target data of the computations
+
+  // I made these members because they are not computed and frequently required in the computations
+  vtkDataArray* Density = nullptr;
+  vtkDataArray* Momentum = nullptr;
+  vtkDataArray* Energy = nullptr;
+  vtkDataArray* Gamma = nullptr;
+  vtkDataArray* Properties = nullptr;
+
+  ComputeFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : Reader(reader), Grid(grid)
+  {
+    vtkPointData* pd = grid->GetPointData();
+    vtkFieldData* fd = grid->GetFieldData();
+    Density = pd->GetArray("Density");
+    Momentum = pd->GetArray("Momentum");
+    Energy = pd->GetArray("StagnationEnergy");
+    Gamma = pd->GetArray("Gamma");
+    Properties = fd->GetArray("Properties");
+  }
+
+  virtual void operator()(vtkIdType, vtkIdType) {}
+  virtual ~ComputeFunctor() {}
+protected:
+  // Check if the dependent data are existing, if it is missing and computable, then compute it, otherwise return nullptr
+  // Compute the target data with number of components specified
+  vtkDataArray* Execute(const std::vector<std::string>& dependencies, const std::string& target, vtkIdType numComps = 1)
+  {
+    std::string message;
+    //  Check that the required data is available
+    //
+    vtkPointData* pd = Grid->GetPointData();
+    vtkFieldData* fd = Grid->GetFieldData();
+    if ((Result = pd->GetArray(target.c_str())))
+    {
+      // already computed.
+      return Result;
+    }
+    // Check the dependencies
+    for (auto& val : dependencies)
+    {
+      // Some variables depend on other variables that should be computed, rather than read
+      // Some variables require points
+      if (val == "Velocity")
+      {
+        Reader->ComputeVelocity(Grid);
+      }
+      else if (val == "Vorticity")
+      {
+        Reader->ComputeVorticity(Grid);
+      }
+      else if (val == "Pressure")
+      {
+        Reader->ComputePressure(Grid);
+      }
+      else if ((val == "Points" && !Grid->GetPoints()) ||
+               (val != "Points" && !pd->GetArray(val.c_str()) &&
+                !fd->GetArray(val.c_str())))
+      {
+          message = "Cannot compute ";
+          message = message + target;
+          vtkErrorWithObjectMacro(nullptr, <<message);
+          return nullptr;
+      }
+    }
+    // Allocate memory for the target
+    vtkIdType numPts = pd->GetArray(dependencies[0].c_str())->GetNumberOfTuples();
+    Result = Reader->NewFloatArray();
+    Result->SetNumberOfComponents(numComps);
+    Result->SetNumberOfTuples(numPts);
+    // Compute
+    vtkSMPTools::For(0, numPts, *this);
+    // Set name to the result and attach it to the grid
+    Result->SetName(target.c_str());
+    pd->AddArray(Result);
+    // Clean up
+    Result->GetInformation()->Set(Reader->INTERMEDIATE_RESULT(), 1);
+    Result->Delete();
+    message = "Created ";
+    message = message + target;
+    vtkDebugWithObjectMacro(nullptr, <<message);
+    return Result;
+  }
+};
+
+class ComputeTemperatureFunctor : public ComputeFunctor
+{
+public:
+  ComputeTemperatureFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, rr, u, v, w, v2, p, d, rrgas, m[3];
+    rrgas = 1.0 / Reader->R;
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      p = (Reader->GetGamma(i, Gamma) - 1.) * (e - 0.5 * d * v2);
+      Result->SetTuple1(i, p*rr*rrgas);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "Temperature");
+  }
+};
+
+class ComputePressureFunctor : public ComputeFunctor
+{
+public:
+  ComputePressureFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, rr, u, v, w, v2, p, d, m[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      p = (Reader->GetGamma(i, Gamma) - 1.) * (e - 0.5 * d * v2);
+      Result->SetTuple1(i, p);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "Pressure");
+  }
+};
+
+class ComputePressureCoefficientFunctor : public ComputeFunctor
+{
+public:
+  ComputePressureCoefficientFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, u, v, w, v2, p, d, rr, pc, gi, pi, fsm, den, m[3];
+    gi = Properties->GetComponent(0,4);
+    fsm = Properties->GetComponent(0,0);
+    den = .5*fsm*fsm;
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      pi = 1.0 / gi;
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      p = (Reader->GetGamma(i, Gamma)-1.) * (e - 0.5 * d * v2);
+      pc = (p - pi)/den;
+      Result->SetTuple1(i, pc);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy", "Properties"}, "PressureCoefficient");
+  }
+};
+
+class ComputeMachNumberFunctor : public ComputeFunctor
+{
+public:
+  ComputeMachNumberFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, u, v, w, v2, a2, d, g, rr, m[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      g = Reader->GetGamma(i, Gamma);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      a2 = g * (g-1.) * (e * rr - .5*v2);
+      Result->SetTuple1(i, sqrt(v2/a2));
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "MachNumber");
+  }
+};
+
+class ComputeSoundSpeedFunctor : public ComputeFunctor
+{
+public:
+  ComputeSoundSpeedFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, u, v, w, v2, p, d, g, rr, m[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      g = Reader->GetGamma(i, Gamma);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      p = (g-1.) * (e - 0.5 * d * v2);
+      Result->SetTuple1(i, sqrt(g*p*rr));
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "SoundSpeed");
+  }
+};
+
+class ComputeEnthalpyFunctor : public ComputeFunctor
+{
+public:
+  ComputeEnthalpyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double e, u, v, w, v2, d, rr, m[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      Result->SetTuple1(i, Reader->GetGamma(i, Gamma)*(e*rr - 0.5*v2));
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "Enthalpy");
+  }
+};
+
+class ComputeKineticEnergyFunctor : public ComputeFunctor
+{
+public:
+  ComputeKineticEnergyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double u, v, w, v2, d, rr, m[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      Result->SetTuple1(i, 0.5*v2);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum"}, "KineticEnergy");
+  }
+};
+
+class ComputeVelocityMagnitudeFunctor : public ComputeFunctor
+{
+public:
+  ComputeVelocityMagnitudeFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double m[3], u, v, w, v2, d, rr;
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      Result->SetTuple1(i, sqrt((double)v2));
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "VelocityMagnitude");
+  }
+};
+
+class ComputeEntropyFunctor : public ComputeFunctor
+{
+public:
+  ComputeEntropyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double u, v, w, v2, d, rr, s, p, e, m[3];
+    double rhoinf = 1.0;
+    double cinf = 1.0;
+    double pinf = ((rhoinf*cinf) * (rhoinf*cinf) / Reader->GammaInf);
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      e = Energy->GetComponent(i,0);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      p = (Reader->GetGamma(i, Gamma)-1.)*(e - 0.5*d*v2);
+      double cv = Reader->R / (Reader->GetGamma(i, Gamma)-1.0);
+      s = cv * log((p/pinf)/pow(d/rhoinf, Reader->GetGamma(i, Gamma)));
+      Result->SetTuple1(i,s);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "Entropy");
+  }
+};
+
+class ComputeSwirlFunctor : public ComputeFunctor
+{
+public:
+  ComputeSwirlFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double d, rr, u, v, w, v2, s, m[3], vort[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      vtkDataArray* Vorticity = Grid->GetPointData()->GetArray("Vorticity");
+      Vorticity->GetTuple(i, vort);
+      rr = 1.0 / d;
+      u = m[0] * rr;
+      v = m[1] * rr;
+      w = m[2] * rr;
+      v2 = u*u + v*v + w*w;
+      if ( v2 != 0.0 )
+      {
+        s = (vort[0]*m[0] + vort[1]*m[1] + vort[2]*m[2]) / v2;
+      }
+      else
+      {
+        s = 0.0;
+      }
+      Result->SetTuple1(i,s);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy", "Vorticity"}, "Swirl");
+  }
+};
+
+class ComputeVelocityFunctor : public ComputeFunctor
+{
+public:
+  ComputeVelocityFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    double m[3], v[3], d, rr;
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      d = Density->GetComponent(i,0);
+      d = (d != 0.0 ? d : 1.0);
+      Momentum->GetTuple(i, m);
+      rr = 1.0 / d;
+      v[0] = m[0] * rr;
+      v[1] = m[1] * rr;
+      v[2] = m[2] * rr;
+      Result->SetTuple(i, v);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy"}, "Velocity", 3);
+  }
+};
+
+class ComputeVorticityMagnitudeFunctor : public ComputeFunctor
+{
+public:
+  ComputeVorticityMagnitudeFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    vtkDataArray* Vorticity = Grid->GetPointData()->GetArray("Vorticity");
+    double vort[3];
+    for (vtkIdType i = begin; i < end; ++i)
+    {
+      Vorticity->GetTuple(i, vort);
+      double magnitude = sqrt(vort[0]*vort[0]+
+                              vort[1]*vort[1]+vort[2]*vort[2]);
+      Result->SetTuple1(i, magnitude);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Vorticity"}, "VorticityMagnitude");
+  }
+};
+
+class ComputePressureGradientFunctor : public ComputeFunctor
+{
+public:
+  ComputePressureGradientFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    int dims[3], ijsize;
+    int i, j, k, idx, idx2, ii, temp;
+    double g[3], xp[3], xm[3], pp, pm, factor;
+    double xxi, yxi, zxi, pxi;
+    double xeta, yeta, zeta, peta;
+    double xzeta, yzeta, zzeta, pzeta;
+    double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+
+    vtkPoints *points = Grid->GetPoints();
+    vtkDataArray* pressure = Grid->GetPointData()->GetArray("Pressure");
+    Grid->GetDimensions(dims);
+
+    ijsize = dims[0]*dims[1];
+
+    for (vtkIdType n = begin; n < end; ++n)
+    {
+      // Decompose the global counter n into i, j, k components
+      // i + j*dims[0] + k*dims[0]*dims[1] = n
+      i = n%dims[0];
+      temp = (n - i)/dims[0];
+      j = temp%dims[1];
+      k = (temp-j)/dims[1];
+      //  Xi derivatives.
+      if ( dims[0] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          xp[ii] = xm[ii] = 0.0;
+        }
+        xp[0] = 1.0; pp = pm = 0.0;
+      }
+      else if ( i == 0 )
+      {
+        factor = 1.0;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else if ( i == (dims[0]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i-1 + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = (i-1) + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+
+      xxi = factor * (xp[0] - xm[0]);
+      yxi = factor * (xp[1] - xm[1]);
+      zxi = factor * (xp[2] - xm[2]);
+      pxi = factor * (pp - pm);
+
+      //  Eta derivatives.
+      if ( dims[1] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          xp[ii] = xm[ii] = 0.0;
+        }
+        xp[1] = 1.0; pp = pm = 0.0;
+      }
+      else if ( j == 0 )
+      {
+        factor = 1.0;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else if ( j == (dims[1]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+
+      xeta = factor * (xp[0] - xm[0]);
+      yeta = factor * (xp[1] - xm[1]);
+      zeta = factor * (xp[2] - xm[2]);
+      peta = factor * (pp - pm);
+
+      //  Zeta derivatives.
+      if ( dims[2] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          xp[ii] = xm[ii] = 0.0;
+        }
+        xp[2] = 1.0; pp = pm = 0.0;
+      }
+      else if ( k == 0 )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else if ( k == (dims[2]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        pp = pressure->GetComponent(idx,0);
+        pm = pressure->GetComponent(idx2,0);
+      }
+
+      xzeta = factor * (xp[0] - xm[0]);
+      yzeta = factor * (xp[1] - xm[1]);
+      zzeta = factor * (xp[2] - xm[2]);
+      pzeta = factor * (pp - pm);
+
+      //  Now calculate the Jacobian.  Grids occasionally have
+      //  singularities, or points where the Jacobian is infinite (the
+      //  inverse is zero).  For these cases, we'll set the Jacobian to
+      //  zero, which will result in a zero vorticity.
+      //
+      aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
+            -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
+      if (aj != 0.0)
+      {
+        aj = 1. / aj;
+      }
+
+      //  Xi metrics.
+      xix  =  aj*(yeta*zzeta-zeta*yzeta);
+      xiy  = -aj*(xeta*zzeta-zeta*xzeta);
+      xiz  =  aj*(xeta*yzeta-yeta*xzeta);
+
+      //  Eta metrics.
+      etax = -aj*(yxi*zzeta-zxi*yzeta);
+      etay =  aj*(xxi*zzeta-zxi*xzeta);
+      etaz = -aj*(xxi*yzeta-yxi*xzeta);
+
+      //  Zeta metrics.
+      zetax=  aj*(yxi*zeta-zxi*yeta);
+      zetay= -aj*(xxi*zeta-zxi*xeta);
+      zetaz=  aj*(xxi*yeta-yxi*xeta);
+
+      //  Finally, the vorticity components.
+      g[0]= xix*pxi+etax*peta+zetax*pzeta;
+      g[1]= xiy*pxi+etay*peta+zetay*pzeta;
+      g[2]= xiz*pxi+etaz*peta+zetaz*pzeta;
+
+      idx = i + j*dims[0] + k*ijsize;
+      Result->SetTuple(idx,g);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy", "Points", "Pressure"}, "PressureGradient", 3);
+  }
+};
+
+class ComputeVorticityFunctor : public ComputeFunctor
+{
+public:
+  ComputeVorticityFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    int dims[3], ijsize;
+    int i, j, k, idx, idx2, ii, temp;
+    double vort[3], xp[3], xm[3], vp[3], vm[3], factor;
+    double xxi, yxi, zxi, uxi, vxi, wxi;
+    double xeta, yeta, zeta, ueta, veta, weta;
+    double xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
+    double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+
+    vtkPoints *points = Grid->GetPoints();
+    vtkDataArray *velocity = Grid->GetPointData()->GetArray("Velocity");
+
+    Grid->GetDimensions(dims);
+    ijsize = dims[0]*dims[1];
+
+    for (vtkIdType n = begin; n < end; ++n)
+    {
+      // Decompose the global counter n into i, j, k components
+      // i + j*dims[0] + k*dims[0]*dims[1] = n
+      i = n%dims[0];
+      temp = (n - i)/dims[0];
+      j = temp%dims[1];
+      k = (temp-j)/dims[1];
+      //  Xi derivatives.
+      if ( dims[0] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[0] = 1.0;
+      }
+      else if ( i == 0 )
+      {
+        factor = 1.0;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( i == (dims[0]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i-1 + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = (i-1) + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+      xxi = factor * (xp[0] - xm[0]);
+      yxi = factor * (xp[1] - xm[1]);
+      zxi = factor * (xp[2] - xm[2]);
+      uxi = factor * (vp[0] - vm[0]);
+      vxi = factor * (vp[1] - vm[1]);
+      wxi = factor * (vp[2] - vm[2]);
+
+      //  Eta derivatives.
+      if ( dims[1] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[1] = 1.0;
+      }
+      else if ( j == 0 )
+      {
+        factor = 1.0;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( j == (dims[1]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+
+      xeta = factor * (xp[0] - xm[0]);
+      yeta = factor * (xp[1] - xm[1]);
+      zeta = factor * (xp[2] - xm[2]);
+      ueta = factor * (vp[0] - vm[0]);
+      veta = factor * (vp[1] - vm[1]);
+      weta = factor * (vp[2] - vm[2]);
+
+      //  Zeta derivatives.
+      if ( dims[2] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[2] = 1.0;
+      }
+      else if ( k == 0 )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( k == (dims[2]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+      xzeta = factor * (xp[0] - xm[0]);
+      yzeta = factor * (xp[1] - xm[1]);
+      zzeta = factor * (xp[2] - xm[2]);
+      uzeta = factor * (vp[0] - vm[0]);
+      vzeta = factor * (vp[1] - vm[1]);
+      wzeta = factor * (vp[2] - vm[2]);
+
+      // Now calculate the Jacobian.  Grids occasionally have
+      // singularities, or points where the Jacobian is infinite (the
+      // inverse is zero).  For these cases, we'll set the Jacobian to
+      // zero, which will result in a zero vorticity.
+      //
+      aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
+            -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
+      if (aj != 0.0)
+      {
+        aj = 1. / aj;
+      }
+
+      //  Xi metrics.
+      xix  =  aj*(yeta*zzeta-zeta*yzeta);
+      xiy  = -aj*(xeta*zzeta-zeta*xzeta);
+      xiz  =  aj*(xeta*yzeta-yeta*xzeta);
+
+      //  Eta metrics.
+      etax = -aj*(yxi*zzeta-zxi*yzeta);
+      etay =  aj*(xxi*zzeta-zxi*xzeta);
+      etaz = -aj*(xxi*yzeta-yxi*xzeta);
+
+      //  Zeta metrics.
+      zetax=  aj*(yxi*zeta-zxi*yeta);
+      zetay= -aj*(xxi*zeta-zxi*xeta);
+      zetaz=  aj*(xxi*yeta-yxi*xeta);
+
+      //  Finally, the vorticity components.
+      //
+      vort[0]= xiy*wxi+etay*weta+zetay*wzeta - xiz*vxi-etaz*veta-zetaz*vzeta;
+      vort[1]= xiz*uxi+etaz*ueta+zetaz*uzeta - xix*wxi-etax*weta-zetax*wzeta;
+      vort[2]= xix*vxi+etax*veta+zetax*vzeta - xiy*uxi-etay*ueta-zetay*uzeta;
+      idx = i + j*dims[0] + k*ijsize;
+      Result->SetTuple(idx,vort);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "StagnationEnergy", "Points", "Velocity"}, "Vorticity", 3);
+  }
+};
+
+class ComputeStrainRateFunctor : public ComputeFunctor
+{
+public:
+  ComputeStrainRateFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
+
+  void operator()(vtkIdType begin, vtkIdType end)
+  {
+    int dims[3], ijsize;
+    int i, j, k, idx, idx2, ii, temp;
+    double stRate[3], xp[3], xm[3], vp[3], vm[3], factor;
+    double xxi, yxi, zxi, uxi, vxi, wxi;
+    double xeta, yeta, zeta, ueta, veta, weta;
+    double xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
+    double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+
+    vtkPoints *points = Grid->GetPoints();
+    vtkDataArray* velocity = Grid->GetPointData()->GetArray("Velocity");
+
+    Grid->GetDimensions(dims);
+    ijsize = dims[0]*dims[1];
+
+    for (vtkIdType n = begin; n < end; ++n)
+    {
+      // Decompose the global counter n into i, j, k components
+      // i + j*dims[0] + k*dims[0]*dims[1] = n
+      i = n%dims[0];
+      temp = (n - i)/dims[0];
+      j = temp%dims[1];
+      k = (temp-j)/dims[1];
+      //  Xi derivatives.
+      if ( dims[0] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[0] = 1.0;
+      }
+      else if ( i == 0 )
+      {
+        factor = 1.0;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( i == (dims[0]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i-1 + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = (i+1) + j*dims[0] + k*ijsize;
+        idx2 = (i-1) + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+      xxi = factor * (xp[0] - xm[0]);
+      yxi = factor * (xp[1] - xm[1]);
+      zxi = factor * (xp[2] - xm[2]);
+      uxi = factor * (vp[0] - vm[0]);
+      vxi = factor * (vp[1] - vm[1]);
+      wxi = factor * (vp[2] - vm[2]);
+
+      //  Eta derivatives.
+      if ( dims[1] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[1] = 1.0;
+      }
+      else if ( j == 0 )
+      {
+        factor = 1.0;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( j == (dims[1]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + (j+1)*dims[0] + k*ijsize;
+        idx2 = i + (j-1)*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+
+      xeta = factor * (xp[0] - xm[0]);
+      yeta = factor * (xp[1] - xm[1]);
+      zeta = factor * (xp[2] - xm[2]);
+      ueta = factor * (vp[0] - vm[0]);
+      veta = factor * (vp[1] - vm[1]);
+      weta = factor * (vp[2] - vm[2]);
+
+      //  Zeta derivatives.
+      if ( dims[2] == 1 ) // 2D in this direction
+      {
+        factor = 1.0;
+        for (ii=0; ii<3; ii++)
+        {
+          vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
+        }
+        xp[2] = 1.0;
+      }
+      else if ( k == 0 )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + k*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else if ( k == (dims[2]-1) )
+      {
+        factor = 1.0;
+        idx = i + j*dims[0] + k*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+      else
+      {
+        factor = 0.5;
+        idx = i + j*dims[0] + (k+1)*ijsize;
+        idx2 = i + j*dims[0] + (k-1)*ijsize;
+        points->GetPoint(idx,xp);
+        points->GetPoint(idx2,xm);
+        velocity->GetTuple(idx,vp);
+        velocity->GetTuple(idx2,vm);
+      }
+
+      xzeta = factor * (xp[0] - xm[0]);
+      yzeta = factor * (xp[1] - xm[1]);
+      zzeta = factor * (xp[2] - xm[2]);
+      uzeta = factor * (vp[0] - vm[0]);
+      vzeta = factor * (vp[1] - vm[1]);
+      wzeta = factor * (vp[2] - vm[2]);
+
+      // Now calculate the Jacobian.  Grids occasionally have
+      // singularities, or points where the Jacobian is infinite (the
+      // inverse is zero).  For these cases, we'll set the Jacobian to
+      // zero, which will result in a zero vorticity.
+      //
+      aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
+            -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
+      if (aj != 0.0)
+      {
+        aj = 1. / aj;
+      }
+
+      //  Xi metrics.
+      xix  =  aj*(yeta*zzeta-zeta*yzeta);
+      xiy  = -aj*(xeta*zzeta-zeta*xzeta);
+      xiz  =  aj*(xeta*yzeta-yeta*xzeta);
+
+      //  Eta metrics.
+      etax = -aj*(yxi*zzeta-zxi*yzeta);
+      etay =  aj*(xxi*zzeta-zxi*xzeta);
+      etaz = -aj*(xxi*yzeta-yxi*xzeta);
+
+      //  Zeta metrics.
+      zetax=  aj*(yxi*zeta-zxi*yeta);
+      zetay= -aj*(xxi*zeta-zxi*xeta);
+      zetaz=  aj*(xxi*yeta-yxi*xeta);
+
+      //  Finally, the strain rate components.
+      //
+      stRate[0] = xix*uxi+etax*ueta+zetax*uzeta;
+      stRate[1] = xiy*vxi+etay*veta+zetay*vzeta;
+      stRate[2] = xiz*wxi+etaz*weta+zetaz*wzeta;
+      idx = i + j*dims[0] + k*ijsize;
+      Result->SetTuple(idx,stRate);
+    }
+  }
+
+  vtkDataArray* Execute()
+  {
+    return ComputeFunctor::Execute({"Density", "Momentum", "Points", "Velocity"}, "StrainRate", 3);
+  }
+};
 }
 
 template <class DataType>
@@ -94,7 +1198,7 @@ public:
       separators = record.GetSubRecordSeparators(vtk_ftell(fp), sizeof(DataType) * n);
 
       vtkIdType retVal;
-      if (separators.size() == 0)
+      if (separators.empty())
       {
         // no record separators will be encountered, yay! Just read the block.
         retVal = static_cast<vtkIdType>(fread(scalar, sizeof(DataType), n, fp));
@@ -184,9 +1288,9 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 {
   this->Internal = new vtkMultiBlockPLOT3DReaderInternals;
 
-  this->XYZFileName = NULL;
-  this->QFileName = NULL;
-  this->FunctionFileName = NULL;
+  this->XYZFileName = nullptr;
+  this->QFileName = nullptr;
+  this->FunctionFileName = nullptr;
   this->BinaryFile = 1;
   this->HasByteCount = 0;
   this->FileSize = 0;
@@ -202,6 +1306,8 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
   this->Gamma = 1.4;
   this->GammaInf = this->Gamma;
 
+  this->PreserveIntermediateFunctions = true;
+
   this->FunctionList = vtkIntArray::New();
 
   this->ScalarFunctionNumber = -1;
@@ -211,7 +1317,7 @@ vtkMultiBlockPLOT3DReader::vtkMultiBlockPLOT3DReader()
 
   this->SetNumberOfInputPorts(0);
 
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 
   this->ExecutedGhostLevels = 0;
@@ -227,7 +1333,7 @@ vtkMultiBlockPLOT3DReader::~vtkMultiBlockPLOT3DReader()
 
   delete this->Internal;
 
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 double vtkMultiBlockPLOT3DReader::GetGamma(vtkIdType idx, vtkDataArray* gamma)
@@ -347,7 +1453,7 @@ int vtkMultiBlockPLOT3DReader::OpenFileForDataRead(void*& fp, const char* fname)
   {
     fp = fopen(fname, "r");
   }
-  if ( fp == NULL)
+  if ( fp == nullptr)
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro(<< "File: " << fname << " not found.");
@@ -371,7 +1477,7 @@ int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
   {
     fp = fopen(fname, "r");
   }
-  if ( fp == NULL)
+  if ( fp == nullptr)
   {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro(<< "File: " << fname << " not found.");
@@ -382,7 +1488,7 @@ int vtkMultiBlockPLOT3DReader::CheckFile(FILE*& fp, const char* fname)
 
 int vtkMultiBlockPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
 {
-  if ( this->XYZFileName == NULL || this->XYZFileName[0] == '\0'  )
+  if ( this->XYZFileName == nullptr || this->XYZFileName[0] == '\0'  )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -393,7 +1499,7 @@ int vtkMultiBlockPLOT3DReader::CheckGeometryFile(FILE*& xyzFp)
 
 int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 {
-  if ( this->QFileName == NULL || this->QFileName[0] == '\0' )
+  if ( this->QFileName == nullptr || this->QFileName[0] == '\0' )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -404,7 +1510,7 @@ int vtkMultiBlockPLOT3DReader::CheckSolutionFile(FILE*& qFp)
 
 int vtkMultiBlockPLOT3DReader::CheckFunctionFile(FILE*& fFp)
 {
-  if ( this->FunctionFileName == NULL || this->FunctionFileName[0] == '\0' )
+  if ( this->FunctionFileName == nullptr || this->FunctionFileName[0] == '\0' )
   {
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     vtkErrorMacro(<< "Must specify geometry file");
@@ -818,11 +1924,7 @@ int vtkMultiBlockPLOT3DReader::GetNumberOfBlocksInternal(FILE* xyzFp, int vtkNot
     numGrid=1;
   }
 
-
-  if ( numGrid > (int)this->Internal->Dimensions.size() )
-  {
-    this->Internal->Dimensions.resize(numGrid);
-  }
+  this->Internal->Dimensions.resize(numGrid);
 
   return numGrid;
 }
@@ -985,7 +2087,7 @@ void vtkMultiBlockPLOT3DReader::SetXYZFileName( const char* name )
   }
   else
   {
-    this->XYZFileName = 0;
+    this->XYZFileName = nullptr;
   }
 
   this->Internal->NeedToCheckXYZFile = true;
@@ -1080,7 +2182,7 @@ int vtkMultiBlockPLOT3DReader::RequestInformation(
       if (this->XYZFileName &&
           this->XYZFileName[0] != '\0' &&
           (this->Internal->NeedToCheckXYZFile ||
-           this->Internal->Blocks.size() == 0))
+           this->Internal->Blocks.empty()))
       {
         vtkPlot3DCFile xyzFp;
         if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
@@ -1252,12 +2354,40 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     }
   }
 
+  // Before we start reading, if we are using cached datasets, we
+  // need to make sure we release all field arrays otherwise we may end up
+  // with obsolete arrays (paraview/paraview#17467).
+  for (auto biter = this->Internal->Blocks.begin(); biter != this->Internal->Blocks.end(); ++biter)
+  {
+    if (vtkStructuredGrid* grid = biter->GetPointer())
+    {
+      // preserve ghost and blanking arrays since those are read from geometry
+      // file and not reread if using cache.
+      vtkSmartPointer<vtkDataArray> pIBlank = grid->GetPointData()->GetArray("IBlank");
+      vtkSmartPointer<vtkDataArray> cGhostArray = grid->GetCellData()->GetArray(
+          vtkDataSetAttributes::GhostArrayName());
+      // initialize
+      grid->GetCellData()->Initialize();
+      grid->GetPointData()->Initialize();
+      grid->GetFieldData()->Initialize();
+      // restore
+      if (pIBlank)
+      {
+        grid->GetPointData()->AddArray(pIBlank);
+      }
+      if (cGhostArray)
+      {
+        grid->GetCellData()->AddArray(cGhostArray);
+      }
+    }
+  }
+
   vtkNew<vtkExtentTranslator> et;
   et->SetPiece(rank);
   et->SetNumberOfPieces(size);
   et->SetSplitModeToZSlab();
 
-  vtkPlot3DCFile xyzFp(0);
+  vtkPlot3DCFile xyzFp(nullptr);
 
   // Don't read the geometry if we already have it!
   if ( numBlocks == 0 )
@@ -1487,7 +2617,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   // Now read the solution.
   if (this->QFileName && this->QFileName[0] != '\0')
   {
-    vtkPlot3DCFile qFp(NULL);
+    vtkPlot3DCFile qFp(nullptr);
     int nq=0, nqc=0, isOverflow=0;
 
     int error = 0;
@@ -1849,6 +2979,12 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           }
         }
       }
+      // Remove intermediate results, if requested.
+      if (this->PreserveIntermediateFunctions == false)
+      {
+        this->RemoveIntermediateFunctions(nthOutput->GetPointData());
+        this->RemoveIntermediateFunctions(nthOutput->GetCellData());
+      }
       this->AssignAttribute(this->ScalarFunctionNumber, nthOutput,
                             vtkDataSetAttributes::SCALARS);
       this->AssignAttribute(this->VectorFunctionNumber, nthOutput,
@@ -1862,7 +2998,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   {
     vtkTypeUInt64 offset = 0;
 
-    vtkPlot3DCFile fFp(NULL);
+    vtkPlot3DCFile fFp(nullptr);
 
     std::vector<int> nFunctions(numBlocks);
     int error = 0;
@@ -1990,72 +3126,117 @@ void vtkMultiBlockPLOT3DReader::MapFunction(int fNumber, vtkStructuredGrid* outp
       break;
 
     case 110: //Pressure
-      this->ComputePressure(output);
+      if (vtkDataArray* dataArray = this->ComputePressure(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 111: // Pressure Coefficient
-      this->ComputePressureCoefficient(output);
+      if (vtkDataArray* dataArray = this->ComputePressureCoefficient(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 112: // Mach Number
-      this->ComputeMachNumber(output);
+      if (vtkDataArray* dataArray = this->ComputeMachNumber(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 113: // Sound Speed
-      this->ComputeSoundSpeed(output);
+      if (vtkDataArray* dataArray = this->ComputeSoundSpeed(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 120: //Temperature
-      this->ComputeTemperature(output);
+      if (vtkDataArray* dataArray = this->ComputeTemperature(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 130: //Enthalpy
-      this->ComputeEnthalpy(output);
+      if (vtkDataArray* dataArray = this->ComputeEnthalpy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 140: //Internal Energy
       break;
 
     case 144: //Kinetic Energy
-      this->ComputeKineticEnergy(output);
+      if (vtkDataArray* dataArray = this->ComputeKineticEnergy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 153: //Velocity Magnitude
-      this->ComputeVelocityMagnitude(output);
+      if (vtkDataArray* dataArray = this->ComputeVelocityMagnitude(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 163: //Stagnation energy
       break;
 
     case 170: //Entropy
-      this->ComputeEntropy(output);
+      if (vtkDataArray* dataArray = this->ComputeEntropy(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 184: //Swirl
-      this->ComputeSwirl(output);
+      if (vtkDataArray* dataArray = this->ComputeSwirl(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 200: //Velocity
-      this->ComputeVelocity(output);
+      if (vtkDataArray* dataArray = this->ComputeVelocity(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 201: //Vorticity
-      this->ComputeVorticity(output);
+      if (vtkDataArray* dataArray = this->ComputeVorticity(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 202: //Momentum
       break;
 
     case 210: //PressureGradient
-      this->ComputePressureGradient(output);
+      if (vtkDataArray* dataArray = this->ComputePressureGradient(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 211: // Vorticity Magnitude
-      this->ComputeVorticityMagnitude(output);
+      if (vtkDataArray* dataArray = this->ComputeVorticityMagnitude(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     case 212: // Strain Rate
-      this->ComputeStrainRate(output);
+      if (vtkDataArray* dataArray = this->ComputeStrainRate(output))
+      {
+        dataArray->GetInformation()->Remove(INTERMEDIATE_RESULT());
+      }
       break;
 
     default:
@@ -2148,1262 +3329,113 @@ void vtkMultiBlockPLOT3DReader::AssignAttribute(int fNumber, vtkStructuredGrid* 
   }
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeTemperature(vtkStructuredGrid* output)
 {
-  double *m, e, rr, u, v, w, v2, p, d, rrgas;
-  vtkIdType i;
-  vtkDataArray *temperature;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute temperature");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  temperature = this->NewFloatArray();
-  temperature->SetNumberOfTuples(numPts);
-
-  //  Compute the temperature
-  //
-  rrgas = 1.0 / this->R;
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    p = (this->GetGamma(i, gamma)-1.) * (e - 0.5 * d * v2);
-    temperature->SetTuple1(i, p*rr*rrgas);
-  }
-
-  temperature->SetName("Temperature");
-  outputPD->AddArray(temperature);
-
-  temperature->Delete();
-  vtkDebugMacro(<<"Created temperature scalar");
+  Functors::ComputeTemperatureFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressure(vtkStructuredGrid* output)
 {
-  double *m, e, u, v, w, v2, p, d, rr;
-  vtkIdType i;
-  vtkDataArray *pressure;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute pressure");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  pressure = this->NewFloatArray();
-  pressure->SetNumberOfTuples(numPts);
-
-  //  Compute the pressure
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    p = (this->GetGamma(i, gamma)-1.) * (e - 0.5 * d * v2);
-    pressure->SetTuple1(i, p);
-  }
-
-  pressure->SetName("Pressure");
-  outputPD->AddArray(pressure);
-  pressure->Delete();
-  vtkDebugMacro(<<"Created pressure scalar");
+  Functors::ComputePressureFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeEnthalpy(vtkStructuredGrid* output)
 {
-  double *m, e, u, v, w, v2, d, rr;
-  vtkIdType i;
-  vtkDataArray *enthalpy;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute enthalpy");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  enthalpy = this->NewFloatArray();
-  enthalpy->SetNumberOfTuples(numPts);
-
-  //  Compute the enthalpy
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    enthalpy->SetTuple1(i, this->GetGamma(i, gamma)*(e*rr - 0.5*v2));
-  }
-  enthalpy->SetName("Enthalpy");
-  outputPD->AddArray(enthalpy);
-  enthalpy->Delete();
-  vtkDebugMacro(<<"Created enthalpy scalar");
+  Functors::ComputeEnthalpyFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeKineticEnergy(vtkStructuredGrid* output)
 {
-  double *m, u, v, w, v2, d, rr;
-  vtkIdType i;
-  vtkDataArray *kineticEnergy;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  if ( density == NULL || momentum == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute kinetic energy");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  kineticEnergy = this->NewFloatArray();
-  kineticEnergy->SetNumberOfTuples(numPts);
-
-  //  Compute the kinetic energy
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    kineticEnergy->SetTuple1(i, 0.5*v2);
-  }
-  kineticEnergy->SetName("KineticEnergy");
-  outputPD->AddArray(kineticEnergy);
-  kineticEnergy->Delete();
-  vtkDebugMacro(<<"Created kinetic energy scalar");
+  Functors::ComputeKineticEnergyFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVelocityMagnitude(vtkStructuredGrid* output)
 {
-  double *m, u, v, w, v2, d, rr;
-  vtkIdType i;
-  vtkDataArray *velocityMag;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute velocity magnitude");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  velocityMag = this->NewFloatArray();
-  velocityMag->SetNumberOfTuples(numPts);
-
-  //  Compute the velocity magnitude
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    velocityMag->SetTuple1(i, sqrt((double)v2));
-  }
-  velocityMag->SetName("VelocityMagnitude");
-  outputPD->AddArray(velocityMag);
-  velocityMag->Delete();
-  vtkDebugMacro(<<"Created velocity magnitude scalar");
+  Functors::ComputeVelocityMagnitudeFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeEntropy(vtkStructuredGrid* output)
 {
-  double *m, u, v, w, v2, d, rr, s, p, e;
-  vtkIdType i;
-  vtkDataArray *entropy;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute entropy");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  entropy = this->NewFloatArray();
-  entropy->SetNumberOfTuples(numPts);
-
-  //  Compute the entropy
-  //
-  double rhoinf = 1.0;
-  double cinf = 1.0;
-  double pinf = ((rhoinf*cinf) * (rhoinf*cinf) / this->GammaInf);
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    p = (this->GetGamma(i, gamma)-1.)*(e - 0.5*d*v2);
-    double cv = this->R / (this->GetGamma(i, gamma)-1.0);
-    s = cv * log((p/pinf)/pow(d/rhoinf, this->GetGamma(i, gamma)));
-    entropy->SetTuple1(i,s);
-  }
-  entropy->SetName("Entropy");
-  outputPD->AddArray(entropy);
-  entropy->Delete();
-  vtkDebugMacro(<<"Created entropy scalar");
+  Functors::ComputeEntropyFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeSwirl(vtkStructuredGrid* output)
 {
-  vtkDataArray *vorticity;
-  double d, rr, *m, u, v, w, v2, *vort, s;
-  vtkIdType i;
-  vtkDataArray *swirl;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute swirl");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  swirl = this->NewFloatArray();
-  swirl->SetNumberOfTuples(numPts);
-
-  this->ComputeVorticity(output);
-  vorticity = outputPD->GetArray("Vorticity");
-//
-//  Compute the swirl
-//
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    vort = vorticity->GetTuple(i);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    if ( v2 != 0.0 )
-    {
-      s = (vort[0]*m[0] + vort[1]*m[1] + vort[2]*m[2]) / v2;
-    }
-    else
-    {
-      s = 0.0;
-    }
-
-    swirl->SetTuple1(i,s);
-  }
-  swirl->SetName("Swirl");
-  outputPD->AddArray(swirl);
-  swirl->Delete();
-  vtkDebugMacro(<<"Created swirl scalar");
-
+  Functors::ComputeSwirlFunctor func(this, output);
+  return func.Execute();
 }
 
 // Vector functions
-void vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVelocity(vtkStructuredGrid* output)
 {
-  double *m, v[3], d, rr;
-  vtkIdType i;
-  vtkDataArray *velocity;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute velocity");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  velocity = this->NewFloatArray();
-  velocity->SetNumberOfComponents(3);
-  velocity->SetNumberOfTuples(numPts);
-
-  //  Compute the velocity
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    rr = 1.0 / d;
-    v[0] = m[0] * rr;
-    v[1] = m[1] * rr;
-    v[2] = m[2] * rr;
-    velocity->SetTuple(i, v);
-  }
-  velocity->SetName("Velocity");
-  outputPD->AddArray(velocity);
-  velocity->Delete();
-  vtkDebugMacro(<<"Created velocity vector");
+  Functors::ComputeVelocityFunctor func(this, output);
+  return func.Execute();
 }
 
-void vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVorticity(vtkStructuredGrid* output)
 {
-  vtkDataArray *velocity;
-  vtkDataArray *vorticity;
-  int dims[3], ijsize;
-  vtkPoints *points;
-  int i, j, k, idx, idx2, ii;
-  double vort[3], xp[3], xm[3], vp[3], vm[3], factor;
-  double xxi, yxi, zxi, uxi, vxi, wxi;
-  double xeta, yeta, zeta, ueta, veta, weta;
-  double xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
-  double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
+  Functors::ComputeVorticityFunctor func(this, output);
+  return func.Execute();
+}
 
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( (points=output->GetPoints()) == NULL ||
-       density == NULL || momentum == NULL ||
-       energy == NULL )
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
+{
+  Functors::ComputePressureGradientFunctor func(this, output);
+  return func.Execute();
+}
+
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* output)
+{
+  Functors::ComputePressureCoefficientFunctor func(this, output);
+  return func.Execute();
+}
+
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
+{
+  Functors::ComputeMachNumberFunctor func(this, output);
+  return func.Execute();
+}
+
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
+{
+  Functors::ComputeSoundSpeedFunctor func(this, output);
+  return func.Execute();
+}
+
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeVorticityMagnitude(vtkStructuredGrid* output)
+{
+  Functors::ComputeVorticityMagnitudeFunctor func(this, output);
+  return func.Execute();
+}
+
+vtkDataArray* vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
+{
+  Functors::ComputeStrainRateFunctor func(this, output);
+  return func.Execute();
+}
+
+void vtkMultiBlockPLOT3DReader::RemoveIntermediateFunctions(vtkDataSetAttributes* dsa)
+{
+  assert(dsa != nullptr);
+  int max = dsa->GetNumberOfArrays();
+  for (int index = 0; index < max; ++index)
   {
-    vtkErrorMacro(<<"Cannot compute vorticity");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  vorticity = this->NewFloatArray();
-  vorticity->SetNumberOfComponents(3);
-  vorticity->SetNumberOfTuples(numPts);
-
-  this->ComputeVelocity(output);
-  velocity = outputPD->GetArray("Velocity");
-
-  output->GetDimensions(dims);
-  ijsize = dims[0]*dims[1];
-
-  for (k=0; k<dims[2]; k++)
-  {
-    for (j=0; j<dims[1]; j++)
+    if (vtkAbstractArray* array = dsa->GetAbstractArray(index))
     {
-      for (i=0; i<dims[0]; i++)
+      if (array->GetInformation()->Has(INTERMEDIATE_RESULT()))
       {
-        //  Xi derivatives.
-        if ( dims[0] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[0] = 1.0;
-        }
-        else if ( i == 0 )
-        {
-          factor = 1.0;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( i == (dims[0]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i-1 + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = (i-1) + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-        xxi = factor * (xp[0] - xm[0]);
-        yxi = factor * (xp[1] - xm[1]);
-        zxi = factor * (xp[2] - xm[2]);
-        uxi = factor * (vp[0] - vm[0]);
-        vxi = factor * (vp[1] - vm[1]);
-        wxi = factor * (vp[2] - vm[2]);
-
-        //  Eta derivatives.
-        if ( dims[1] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[1] = 1.0;
-        }
-        else if ( j == 0 )
-        {
-          factor = 1.0;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( j == (dims[1]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-
-        xeta = factor * (xp[0] - xm[0]);
-        yeta = factor * (xp[1] - xm[1]);
-        zeta = factor * (xp[2] - xm[2]);
-        ueta = factor * (vp[0] - vm[0]);
-        veta = factor * (vp[1] - vm[1]);
-        weta = factor * (vp[2] - vm[2]);
-
-        //  Zeta derivatives.
-        if ( dims[2] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[2] = 1.0;
-        }
-        else if ( k == 0 )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( k == (dims[2]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-        xzeta = factor * (xp[0] - xm[0]);
-        yzeta = factor * (xp[1] - xm[1]);
-        zzeta = factor * (xp[2] - xm[2]);
-        uzeta = factor * (vp[0] - vm[0]);
-        vzeta = factor * (vp[1] - vm[1]);
-        wzeta = factor * (vp[2] - vm[2]);
-
-        // Now calculate the Jacobian.  Grids occasionally have
-        // singularities, or points where the Jacobian is infinite (the
-        // inverse is zero).  For these cases, we'll set the Jacobian to
-        // zero, which will result in a zero vorticity.
-        //
-        aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
-              -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
-        if (aj != 0.0)
-        {
-          aj = 1. / aj;
-        }
-
-        //  Xi metrics.
-        xix  =  aj*(yeta*zzeta-zeta*yzeta);
-        xiy  = -aj*(xeta*zzeta-zeta*xzeta);
-        xiz  =  aj*(xeta*yzeta-yeta*xzeta);
-
-        //  Eta metrics.
-        etax = -aj*(yxi*zzeta-zxi*yzeta);
-        etay =  aj*(xxi*zzeta-zxi*xzeta);
-        etaz = -aj*(xxi*yzeta-yxi*xzeta);
-
-        //  Zeta metrics.
-        zetax=  aj*(yxi*zeta-zxi*yeta);
-        zetay= -aj*(xxi*zeta-zxi*xeta);
-        zetaz=  aj*(xxi*yeta-yxi*xeta);
-
-        //  Finally, the vorticity components.
-        //
-        vort[0]= xiy*wxi+etay*weta+zetay*wzeta - xiz*vxi-etaz*veta-zetaz*vzeta;
-        vort[1]= xiz*uxi+etaz*ueta+zetaz*uzeta - xix*wxi-etax*weta-zetax*wzeta;
-        vort[2]= xix*vxi+etax*veta+zetax*vzeta - xiy*uxi-etay*ueta-zetay*uzeta;
-        idx = i + j*dims[0] + k*ijsize;
-        vorticity->SetTuple(idx,vort);
+        dsa->RemoveArray(index);
+        index--;
+        max--;
       }
     }
   }
-  vorticity->SetName("Vorticity");
-  outputPD->AddArray(vorticity);
-  vorticity->Delete();
-  vtkDebugMacro(<<"Created vorticity vector");
-}
-
-void vtkMultiBlockPLOT3DReader::ComputePressureGradient(vtkStructuredGrid* output)
-{
-  vtkDataArray *pressure;
-  vtkDataArray *gradient;
-  int dims[3], ijsize;
-  vtkPoints *points;
-  int i, j, k, idx, idx2, ii;
-  double g[3], xp[3], xm[3], pp, pm, factor;
-  double xxi, yxi, zxi, pxi;
-  double xeta, yeta, zeta, peta;
-  double xzeta, yzeta, zzeta, pzeta;
-  double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  if ( (points=output->GetPoints()) == NULL ||
-       density == NULL || momentum == NULL ||
-       energy == NULL )
-  {
-    vtkErrorMacro(<<"Cannot compute pressure gradient");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  gradient = this->NewFloatArray();
-  gradient->SetNumberOfComponents(3);
-  gradient->SetNumberOfTuples(numPts);
-
-  this->ComputePressure(output);
-  pressure = outputPD->GetArray("Pressure");
-
-  output->GetDimensions(dims);
-  ijsize = dims[0]*dims[1];
-
-  for (k=0; k<dims[2]; k++)
-  {
-    for (j=0; j<dims[1]; j++)
-    {
-      for (i=0; i<dims[0]; i++)
-      {
-        //  Xi derivatives.
-        if ( dims[0] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            xp[ii] = xm[ii] = 0.0;
-          }
-          xp[0] = 1.0; pp = pm = 0.0;
-        }
-        else if ( i == 0 )
-        {
-          factor = 1.0;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else if ( i == (dims[0]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i-1 + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = (i-1) + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-
-        xxi = factor * (xp[0] - xm[0]);
-        yxi = factor * (xp[1] - xm[1]);
-        zxi = factor * (xp[2] - xm[2]);
-        pxi = factor * (pp - pm);
-
-        //  Eta derivatives.
-        if ( dims[1] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            xp[ii] = xm[ii] = 0.0;
-          }
-          xp[1] = 1.0; pp = pm = 0.0;
-        }
-        else if ( j == 0 )
-        {
-          factor = 1.0;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else if ( j == (dims[1]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-
-        xeta = factor * (xp[0] - xm[0]);
-        yeta = factor * (xp[1] - xm[1]);
-        zeta = factor * (xp[2] - xm[2]);
-        peta = factor * (pp - pm);
-
-        //  Zeta derivatives.
-        if ( dims[2] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            xp[ii] = xm[ii] = 0.0;
-          }
-          xp[2] = 1.0; pp = pm = 0.0;
-        }
-        else if ( k == 0 )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else if ( k == (dims[2]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          points->GetPoint(idx,xp);
-          points->GetPoint(idx2,xm);
-          pp = pressure->GetComponent(idx,0);
-          pm = pressure->GetComponent(idx2,0);
-        }
-
-        xzeta = factor * (xp[0] - xm[0]);
-        yzeta = factor * (xp[1] - xm[1]);
-        zzeta = factor * (xp[2] - xm[2]);
-        pzeta = factor * (pp - pm);
-
-        //  Now calculate the Jacobian.  Grids occasionally have
-        //  singularities, or points where the Jacobian is infinite (the
-        //  inverse is zero).  For these cases, we'll set the Jacobian to
-        //  zero, which will result in a zero vorticity.
-        //
-        aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
-              -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
-        if (aj != 0.0)
-        {
-          aj = 1. / aj;
-        }
-
-        //  Xi metrics.
-        xix  =  aj*(yeta*zzeta-zeta*yzeta);
-        xiy  = -aj*(xeta*zzeta-zeta*xzeta);
-        xiz  =  aj*(xeta*yzeta-yeta*xzeta);
-
-        //  Eta metrics.
-        etax = -aj*(yxi*zzeta-zxi*yzeta);
-        etay =  aj*(xxi*zzeta-zxi*xzeta);
-        etaz = -aj*(xxi*yzeta-yxi*xzeta);
-
-        //  Zeta metrics.
-        zetax=  aj*(yxi*zeta-zxi*yeta);
-        zetay= -aj*(xxi*zeta-zxi*xeta);
-        zetaz=  aj*(xxi*yeta-yxi*xeta);
-
-        //  Finally, the vorticity components.
-        g[0]= xix*pxi+etax*peta+zetax*pzeta;
-        g[1]= xiy*pxi+etay*peta+zetay*pzeta;
-        g[2]= xiz*pxi+etaz*peta+zetaz*pzeta;
-
-        idx = i + j*dims[0] + k*ijsize;
-        gradient->SetTuple(idx,g);
-      }
-    }
-  }
-  gradient->SetName("PressureGradient");
-  outputPD->AddArray(gradient);
-  gradient->Delete();
-  vtkDebugMacro(<<"Created pressure gradient vector");
-}
-
-void vtkMultiBlockPLOT3DReader::ComputePressureCoefficient(vtkStructuredGrid* output)
-{
-  double *m, e, u, v, w, v2, p, d, g, rr, pc, gi, pi, fsm, den;
-  vtkIdType i;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  vtkFieldData* outputFD = output->GetFieldData();
-  // It's already computed
-  if (outputPD->GetArray("PressureCoefficient"))
-  {
-    return;
-  }
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  vtkDataArray* props = outputFD->GetArray("Properties");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL || props == NULL)
-  {
-    vtkErrorMacro(<<"Cannot compute pressure coefficient");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  vtkDataArray* pressure_coeff = this->NewFloatArray();
-  pressure_coeff->SetNumberOfTuples(numPts);
-  //  Compute the pressure coefficient
-  //
-  gi = props->GetComponent(0,4);
-  fsm = props->GetComponent(0,0);
-  den = .5*fsm*fsm;
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    g = this->GetGamma(i, gamma);
-    pi = 1.0 / gi;
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    p = (g-1.) * (e - 0.5 * d * v2);
-    pc = (p - pi)/den;
-    pressure_coeff->SetTuple1(i, pc);
-  }
-
-  pressure_coeff->SetName("PressureCoefficient");
-  outputPD->AddArray(pressure_coeff);
-  pressure_coeff->Delete();
-  vtkDebugMacro(<<"Created pressure coefficient scalar");
-}
-
-void vtkMultiBlockPLOT3DReader::ComputeMachNumber(vtkStructuredGrid* output)
-{
-  double *m, e, u, v, w, v2, a2, d, g, rr;
-  vtkIdType i;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  // It's already computed
-  if (outputPD->GetArray("MachNumber"))
-  {
-    return;
-  }
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL)
-  {
-    vtkErrorMacro(<<"Cannot compute mach number");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  vtkDataArray* machnumber = this->NewFloatArray();
-  machnumber->SetNumberOfTuples(numPts);
-
-  //  Compute the mach number
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    g = this->GetGamma(i, gamma);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    a2 = g * (g-1.) * (e * rr - .5*v2);
-    machnumber->SetTuple1(i, sqrt(v2/a2));
-  }
-
-  machnumber->SetName("MachNumber");
-  outputPD->AddArray(machnumber);
-  machnumber->Delete();
-  vtkDebugMacro(<<"Created mach number scalar");
-}
-
-void vtkMultiBlockPLOT3DReader::ComputeSoundSpeed(vtkStructuredGrid* output)
-{
-  double *m, e, u, v, w, v2, p, d, g, rr;
-  vtkIdType i;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  // It's already computed
-  if (outputPD->GetArray("SoundSpeed"))
-  {
-    return;
-  }
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  vtkDataArray* energy = outputPD->GetArray("StagnationEnergy");
-  vtkDataArray* gamma = outputPD->GetArray("Gamma");
-  if ( density == NULL || momentum == NULL ||
-       energy == NULL)
-  {
-    vtkErrorMacro(<<"Cannot compute sound speed");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  vtkDataArray* soundspeed = this->NewFloatArray();
-  soundspeed->SetNumberOfTuples(numPts);
-
-  //  Compute sound speed
-  //
-  for (i=0; i < numPts; i++)
-  {
-    d = density->GetComponent(i,0);
-    d = (d != 0.0 ? d : 1.0);
-    m = momentum->GetTuple(i);
-    e = energy->GetComponent(i,0);
-    g = this->GetGamma(i, gamma);
-    rr = 1.0 / d;
-    u = m[0] * rr;
-    v = m[1] * rr;
-    w = m[2] * rr;
-    v2 = u*u + v*v + w*w;
-    p = (g-1.) * (e - 0.5 * d * v2);
-    soundspeed->SetTuple1(i, sqrt(g*p*rr));
-  }
-
-  soundspeed->SetName("SoundSpeed");
-  outputPD->AddArray(soundspeed);
-  soundspeed->Delete();
-  vtkDebugMacro(<<"Created sound speed scalar");
-}
-
-void vtkMultiBlockPLOT3DReader::ComputeVorticityMagnitude(vtkStructuredGrid* output)
-{
-  vtkPointData* outputPD = output->GetPointData();
-  // It's already computed
-  if (outputPD->GetArray("VorticityMagnitude"))
-  {
-    return;
-  }
-  this->ComputeVorticity(output);
-  vtkDataArray* vorticity = outputPD->GetArray("Vorticity");
-  vtkDataArray* vm = this->NewFloatArray();
-  vtkIdType numPts = vorticity->GetNumberOfTuples();
-  vm->SetNumberOfTuples(numPts);
-  for (vtkIdType idx=0; idx<numPts; idx++)
-  {
-    double* vort = vorticity->GetTuple(idx);
-    double magnitude = sqrt(vort[0]*vort[0]+
-                            vort[1]*vort[1]+vort[2]*vort[2]);
-    vm->SetTuple1(idx, magnitude);
-  }
-  vm->SetName("VorticityMagnitude");
-  outputPD->AddArray(vm);
-  vm->Delete();
-}
-
-void vtkMultiBlockPLOT3DReader::ComputeStrainRate(vtkStructuredGrid* output)
-{
-  vtkDataArray *velocity;
-  int dims[3], ijsize;
-  int i, j, k, idx, idx2, ii;
-  double stRate[3], xp[3], xm[3], vp[3], vm[3], factor;
-  double xxi, yxi, zxi, uxi, vxi, wxi;
-  double xeta, yeta, zeta, ueta, veta, weta;
-  double xzeta, yzeta, zzeta, uzeta, vzeta, wzeta;
-  double aj, xix, xiy, xiz, etax, etay, etaz, zetax, zetay, zetaz;
-
-  //  Check that the required data is available
-  //
-  vtkPointData* outputPD = output->GetPointData();
-  if (outputPD->GetArray("StrainRate"))
-  {
-    return;
-  }
-  vtkDataArray* density = outputPD->GetArray("Density");
-  vtkDataArray* momentum = outputPD->GetArray("Momentum");
-  if ( density == NULL || momentum == NULL )
-  {
-    vtkErrorMacro("Cannot compute strain rate.");
-    return;
-  }
-
-  vtkIdType numPts = density->GetNumberOfTuples();
-  vtkDataArray* strainRate = this->NewFloatArray();
-  strainRate->SetNumberOfComponents(3);
-  strainRate->SetNumberOfTuples(numPts);
-  strainRate->SetName("StrainRate");
-
-  this->ComputeVelocity(output);
-  velocity = outputPD->GetArray("Velocity");
-  if(!velocity)
-  {
-    vtkErrorMacro("Could not compute strain rate.");
-    return;
-  }
-
-  output->GetDimensions(dims);
-  ijsize = dims[0]*dims[1];
-
-  for (k=0; k<dims[2]; k++)
-  {
-    for (j=0; j<dims[1]; j++)
-    {
-      for (i=0; i<dims[0]; i++)
-      {
-        //  Xi derivatives.
-        if ( dims[0] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[0] = 1.0;
-        }
-        else if ( i == 0 )
-        {
-          factor = 1.0;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( i == (dims[0]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i-1 + j*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = (i+1) + j*dims[0] + k*ijsize;
-          idx2 = (i-1) + j*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-        xxi = factor * (xp[0] - xm[0]);
-        yxi = factor * (xp[1] - xm[1]);
-        zxi = factor * (xp[2] - xm[2]);
-        uxi = factor * (vp[0] - vm[0]);
-        vxi = factor * (vp[1] - vm[1]);
-        wxi = factor * (vp[2] - vm[2]);
-
-        //  Eta derivatives.
-        if ( dims[1] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[1] = 1.0;
-        }
-        else if ( j == 0 )
-        {
-          factor = 1.0;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( j == (dims[1]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + (j+1)*dims[0] + k*ijsize;
-          idx2 = i + (j-1)*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-
-        xeta = factor * (xp[0] - xm[0]);
-        yeta = factor * (xp[1] - xm[1]);
-        zeta = factor * (xp[2] - xm[2]);
-        ueta = factor * (vp[0] - vm[0]);
-        veta = factor * (vp[1] - vm[1]);
-        weta = factor * (vp[2] - vm[2]);
-
-        //  Zeta derivatives.
-        if ( dims[2] == 1 ) // 2D in this direction
-        {
-          factor = 1.0;
-          for (ii=0; ii<3; ii++)
-          {
-            vp[ii] = vm[ii] = xp[ii] = xm[ii] = 0.0;
-          }
-          xp[2] = 1.0;
-        }
-        else if ( k == 0 )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + k*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else if ( k == (dims[2]-1) )
-        {
-          factor = 1.0;
-          idx = i + j*dims[0] + k*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-        else
-        {
-          factor = 0.5;
-          idx = i + j*dims[0] + (k+1)*ijsize;
-          idx2 = i + j*dims[0] + (k-1)*ijsize;
-          output->GetPoint(idx,xp);
-          output->GetPoint(idx2,xm);
-          velocity->GetTuple(idx,vp);
-          velocity->GetTuple(idx2,vm);
-        }
-
-        xzeta = factor * (xp[0] - xm[0]);
-        yzeta = factor * (xp[1] - xm[1]);
-        zzeta = factor * (xp[2] - xm[2]);
-        uzeta = factor * (vp[0] - vm[0]);
-        vzeta = factor * (vp[1] - vm[1]);
-        wzeta = factor * (vp[2] - vm[2]);
-
-        // Now calculate the Jacobian.  Grids occasionally have
-        // singularities, or points where the Jacobian is infinite (the
-        // inverse is zero).  For these cases, we'll set the Jacobian to
-        // zero, which will result in a zero vorticity.
-        //
-        aj =  xxi*yeta*zzeta+yxi*zeta*xzeta+zxi*xeta*yzeta
-              -zxi*yeta*xzeta-yxi*xeta*zzeta-xxi*zeta*yzeta;
-        if (aj != 0.0)
-        {
-          aj = 1. / aj;
-        }
-
-        //  Xi metrics.
-        xix  =  aj*(yeta*zzeta-zeta*yzeta);
-        xiy  = -aj*(xeta*zzeta-zeta*xzeta);
-        xiz  =  aj*(xeta*yzeta-yeta*xzeta);
-
-        //  Eta metrics.
-        etax = -aj*(yxi*zzeta-zxi*yzeta);
-        etay =  aj*(xxi*zzeta-zxi*xzeta);
-        etaz = -aj*(xxi*yzeta-yxi*xzeta);
-
-        //  Zeta metrics.
-        zetax=  aj*(yxi*zeta-zxi*yeta);
-        zetay= -aj*(xxi*zeta-zxi*xeta);
-        zetaz=  aj*(xxi*yeta-yxi*xeta);
-
-        //  Finally, the strain rate components.
-        //
-        stRate[0] = xix*uxi+etax*ueta+zetax*uzeta;
-        stRate[1] = xiy*vxi+etay*veta+zetay*vzeta;
-        stRate[2] = xiz*wxi+etaz*weta+zetaz*wzeta;
-        idx = i + j*dims[0] + k*ijsize;
-        strainRate->SetTuple(idx,stRate);
-      }
-    }
-  }
-  outputPD->AddArray(strainRate);
-  strainRate->Delete();
 }
 
 void vtkMultiBlockPLOT3DReader::SetByteOrderToBigEndian()
@@ -3471,4 +3503,7 @@ void vtkMultiBlockPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
      << endl;
   os << indent << "Double Precision:" << this->DoublePrecision << endl;
   os << indent << "Auto Detect Format: " << this->AutoDetectFormat << endl;
+  os << indent
+     << "PreserveIntermediateFunctions: " << (this->PreserveIntermediateFunctions ? "on" : "off")
+     << endl;
 }

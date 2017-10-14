@@ -66,7 +66,7 @@ vtkTableToGraph::vtkTableToGraph()
 //---------------------------------------------------------------------------
 vtkTableToGraph::~vtkTableToGraph()
 {
-  this->SetLinkGraph(0);
+  this->SetLinkGraph(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -396,7 +396,7 @@ int vtkTableToGraph::RequestData(
 
   // Extract vertex table
   vtkInformation* vertexTableInfo = inputVector[1]->GetInformationObject(0);
-  vtkTable* vertexTable = 0;
+  vtkTable* vertexTable = nullptr;
   if (vertexTableInfo)
   {
     vertexTable = vtkTable::SafeDownCast(
@@ -464,7 +464,7 @@ int vtkTableToGraph::RequestData(
   double createVertexTime = 0.25;
   double createEdgeTime = 0.75;
   double hiddenTime = 0.0;
-  if (hiddenTypes.size() > 0)
+  if (!hiddenTypes.empty())
   {
     createVertexTime = 0.1;
     createEdgeTime = 0.3;
@@ -671,7 +671,7 @@ int vtkTableToGraph::RequestData(
   // Create builder for the graph
   VTK_CREATE(vtkMutableDirectedGraph, dirBuilder);
   VTK_CREATE(vtkMutableUndirectedGraph, undirBuilder);
-  vtkGraph *builder = 0;
+  vtkGraph *builder = nullptr;
   if (this->Directed)
   {
     builder = dirBuilder;
@@ -703,7 +703,7 @@ int vtkTableToGraph::RequestData(
   // Check if the vertex table already has pedigree ids.
   // If it does we're not going to add the generated
   // array.
-  if (vertexTable->GetRowData()->GetPedigreeIds() == NULL)
+  if (vertexTable->GetRowData()->GetPedigreeIds() == nullptr)
   {
     builder->GetVertexData()->SetPedigreeIds(idArr);
   }
@@ -872,7 +872,7 @@ int vtkTableToGraph::RequestData(
   }
 
   // Check if pedigree ids are in the input edge data
-  if (edgeTable->GetRowData()->GetPedigreeIds() == NULL)
+  if (edgeTable->GetRowData()->GetPedigreeIds() == nullptr)
   {
     // Add pedigree ids to the edges of the graph.
     vtkIdType numEdges = builder->GetNumberOfEdges();
@@ -916,7 +916,7 @@ int vtkTableToGraph::RequestDataObject(
   vtkInformationVector**,
   vtkInformationVector* )
 {
-  vtkGraph *output = 0;
+  vtkGraph *output = nullptr;
   if (this->Directed)
   {
     output = vtkDirectedGraph::New();

@@ -40,7 +40,7 @@ class VTKFILTERSSOURCES_EXPORT vtkPointSource : public vtkPolyDataAlgorithm
 public:
   static vtkPointSource *New();
   vtkTypeMacro(vtkPointSource,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -104,9 +104,9 @@ public:
 
 protected:
   vtkPointSource(vtkIdType numPts=10);
-  ~vtkPointSource() VTK_OVERRIDE;
+  ~vtkPointSource() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Random();
 
@@ -118,8 +118,8 @@ protected:
   vtkRandomSequence* RandomSequence;
 
 private:
-  vtkPointSource(const vtkPointSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPointSource&) VTK_DELETE_FUNCTION;
+  vtkPointSource(const vtkPointSource&) = delete;
+  void operator=(const vtkPointSource&) = delete;
 };
 
 #endif

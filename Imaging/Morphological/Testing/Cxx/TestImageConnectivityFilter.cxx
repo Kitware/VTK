@@ -135,7 +135,7 @@ int TestImageConnectivityFilter(int argc, char *argv[])
     {
       // Seeds with no scalars
       connectivity->SetScalarRange(800, 1200);
-      seedData->GetPointData()->SetScalars(NULL);
+      seedData->GetPointData()->SetScalars(nullptr);
       connectivity->SetSeedData(seedData);
     }
     else if (i == 6)

@@ -54,7 +54,7 @@ public:
    */
   static vtkWendlandQuinticKernel *New();
   vtkTypeMacro(vtkWendlandQuinticKernel,vtkSPHKernel);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -62,7 +62,7 @@ public:
    * after setting initial values like SpatialStep.
    */
   void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
-                          vtkPointData *pd) VTK_OVERRIDE;
+                          vtkPointData *pd) override;
 
   //@{
   /**
@@ -70,7 +70,7 @@ public:
    * Note that the formulation is slightly different to avoid an extra operation
    * (which has the effect of affecting the NormFactor by 1/16).
    */
-  double ComputeFunctionWeight(const double d) VTK_OVERRIDE
+  double ComputeFunctionWeight(const double d) override
   {
     if ( d >= 2.0 )
     {
@@ -89,7 +89,7 @@ public:
    * Compute weighting factor for derivative quantities given a normalized
    * distance from a sample point.
    */
-  double ComputeDerivWeight(const double d) VTK_OVERRIDE
+  double ComputeDerivWeight(const double d) override
   {
     if ( d >= 2.0 )
     {
@@ -106,11 +106,11 @@ public:
 
 protected:
   vtkWendlandQuinticKernel();
-  ~vtkWendlandQuinticKernel() VTK_OVERRIDE;
+  ~vtkWendlandQuinticKernel() override;
 
 private:
-  vtkWendlandQuinticKernel(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
+  vtkWendlandQuinticKernel(const vtkWendlandQuinticKernel&) = delete;
+  void operator=(const vtkWendlandQuinticKernel&) = delete;
 };
 
 #endif

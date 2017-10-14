@@ -50,12 +50,12 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMap
 public:
   static vtkOpenGLPolyDataMapper* New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper, vtkPolyDataMapper)
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
-  void RenderPiece(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void RenderPiece(vtkRenderer *ren, vtkActor *act) override;
 
   //@{
   /**
@@ -71,7 +71,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   vtkGetMacro(PopulateSelectionSettings,int);
   void SetPopulateSelectionSettings(int v) { this->PopulateSelectionSettings = v; };
@@ -82,7 +82,7 @@ public:
    * Used by vtkHardwareSelector to determine if the prop supports hardware
    * selection.
    */
-  bool GetSupportsSelection() VTK_OVERRIDE { return true; }
+  bool GetSupportsSelection() override { return true; }
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -94,7 +94,7 @@ public:
    * Overridden to use the actual data and ScalarMode to determine if we have
    * opaque geometry.
    */
-  bool GetIsOpaque() VTK_OVERRIDE;
+  bool GetIsOpaque() override;
 
   // used by RenderPiece and functions it calls to reduce
   // calls to get the input and allow for rendering of
@@ -237,9 +237,36 @@ public:
                               vtkCellArray **prims, int representation,
                               vtkPoints *points);
 
+  /**
+   * Select a data array from the point/cell data
+   * and map it to a generic vertex attribute.
+   * vertexAttributeName is the name of the vertex attribute.
+   * dataArrayName is the name of the data array.
+   * fieldAssociation indicates when the data array is a point data array or
+   * cell data array (vtkDataObject::FIELD_ASSOCIATION_POINTS or
+   * (vtkDataObject::FIELD_ASSOCIATION_CELLS).
+   * componentno indicates which component from the data array must be passed as
+   * the attribute. If -1, then all components are passed.
+   */
+  void MapDataArrayToVertexAttribute(
+    const char* vertexAttributeName,
+    const char* dataArrayName,
+    int fieldAssociation,
+    int componentno = -1) override;
+
+  /**
+   * Remove a vertex attribute mapping.
+   */
+  void RemoveVertexAttributeMapping(const char* vertexAttributeName) override;
+
+  /**
+   * Remove all vertex attributes.
+   */
+  void RemoveAllVertexAttributeMappings() override;
+
 protected:
   vtkOpenGLPolyDataMapper();
-  ~vtkOpenGLPolyDataMapper() VTK_OVERRIDE;
+  ~vtkOpenGLPolyDataMapper() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
@@ -263,7 +290,7 @@ protected:
    * to be updated depending on whether this->Static is set or not. This method
    * simply obtains the bounds from the data-object and returns it.
    */
-  void ComputeBounds() VTK_OVERRIDE;
+  void ComputeBounds() override;
 
   /**
    * Make sure appropriate shaders are defined, compiled and bound.  This method
@@ -502,6 +529,15 @@ protected:
 
   std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
 
+  class ExtraAttributeValue
+  {
+    public:
+      std::string DataArrayName;
+      int FieldAssociation;
+      int ComponentNumber;
+  };
+  std::map<std::string,ExtraAttributeValue> ExtraAttributes;
+
   char *VertexShaderCode;
   char *FragmentShaderCode;
   char *GeometryShaderCode;
@@ -512,7 +548,7 @@ protected:
   bool DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor);
   bool DrawingTubesOrSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor);
 
-  // get why opengl mode to use to draw the primitive
+  // get which opengl mode to use to draw the primitive
   int GetOpenGLMode(int representation, int primType);
 
   // get how big to make the points when doing point picking
@@ -523,8 +559,8 @@ protected:
   std::vector<unsigned int> CellCellMap;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) = delete;
+  void operator=(const vtkOpenGLPolyDataMapper&) = delete;
 };
 
 #endif

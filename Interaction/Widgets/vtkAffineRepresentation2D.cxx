@@ -178,7 +178,6 @@ vtkAffineRepresentation2D::vtkAffineRepresentation2D()
   // Transformation matrix
   this->CurrentTransform = vtkTransform::New();
   this->TotalTransform = vtkTransform::New();
-  this->TempTransform = vtkTransform::New();
 
   this->CurrentTranslation[0] = 0.0;
   this->CurrentTranslation[1] = 0.0;
@@ -231,7 +230,6 @@ vtkAffineRepresentation2D::~vtkAffineRepresentation2D()
 
   this->CurrentTransform->Delete();
   this->TotalTransform->Delete();
-  this->TempTransform->Delete();
 }
 
 //-------------------------------------------------------------------------

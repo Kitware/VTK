@@ -37,14 +37,14 @@ class VTKCHARTSCORE_EXPORT vtkPlotPie : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotPie, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkPlotPie *New();
 
   /**
    * Paint event for the item.
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -52,7 +52,7 @@ public:
    * corner of the rect (elements 0 and 1) and with width x height (elements 2
    * and 3). The plot can choose how to fill the space supplied.
    */
-  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int legendIndex) VTK_OVERRIDE;
+  bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect, int legendIndex) override;
 
   /**
    * Set the dimensions of the pie, arguments 1 and 2 are the x and y coordinate
@@ -91,11 +91,11 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
 protected:
   vtkPlotPie();
-  ~vtkPlotPie() VTK_OVERRIDE;
+  ~vtkPlotPie() override;
 
   /**
    * Update the table cache.
@@ -120,8 +120,8 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkPlotPie(const vtkPlotPie &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotPie &) VTK_DELETE_FUNCTION;
+  vtkPlotPie(const vtkPlotPie &) = delete;
+  void operator=(const vtkPlotPie &) = delete;
 
   vtkPlotPiePrivate *Private;
 

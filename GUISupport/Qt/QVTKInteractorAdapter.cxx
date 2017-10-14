@@ -79,7 +79,7 @@ void QVTKInteractorAdapter::SetDevicePixelRatio(int ratio, vtkRenderWindowIntera
 
 bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* iren)
 {
-  if(iren == NULL || e == NULL)
+  if(iren == nullptr || e == nullptr)
     return false;
 
   const QEvent::Type t = e->type();
@@ -209,15 +209,15 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       iren->SetPointerIndex(point.id());
       if (point.state() & Qt::TouchPointReleased)
       {
-        iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+        iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,nullptr);
       }
       if (point.state() & Qt::TouchPointPressed)
       {
-        iren->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+        iren->InvokeEvent(vtkCommand::LeftButtonPressEvent,nullptr);
       }
       if (point.state() & Qt::TouchPointMoved)
       {
-        iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+        iren->InvokeEvent(vtkCommand::MouseMoveEvent, nullptr);
       }
     }
     e2->accept();

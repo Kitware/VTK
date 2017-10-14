@@ -44,7 +44,7 @@ public:
   static vtkPolyDataStreamer *New();
 
   vtkTypeMacro(vtkPolyDataStreamer,vtkStreamerBase);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -70,24 +70,24 @@ public:
 
 protected:
   vtkPolyDataStreamer();
-  ~vtkPolyDataStreamer() VTK_OVERRIDE;
+  ~vtkPolyDataStreamer() override;
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int ExecutePass(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                  vtkInformationVector *outputVector) override;
 
   int PostExecute(vtkInformationVector **inputVector,
-                  vtkInformationVector *outputVector) VTK_OVERRIDE;
+                  vtkInformationVector *outputVector) override;
 
   int ColorByPiece;
 private:
-  vtkPolyDataStreamer(const vtkPolyDataStreamer&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataStreamer&) VTK_DELETE_FUNCTION;
+  vtkPolyDataStreamer(const vtkPolyDataStreamer&) = delete;
+  void operator=(const vtkPolyDataStreamer&) = delete;
 
   vtkAppendPolyData* Append;
 };

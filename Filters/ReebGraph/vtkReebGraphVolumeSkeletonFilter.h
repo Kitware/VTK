@@ -102,8 +102,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphVolumeSkeletonFilter(const vtkReebGraphVolumeSkeletonFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkReebGraphVolumeSkeletonFilter&) VTK_DELETE_FUNCTION;
+  vtkReebGraphVolumeSkeletonFilter(const vtkReebGraphVolumeSkeletonFilter&) = delete;
+  void operator=(const vtkReebGraphVolumeSkeletonFilter&) = delete;
 };
 
 #endif

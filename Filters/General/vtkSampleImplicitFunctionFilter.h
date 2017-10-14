@@ -50,7 +50,7 @@ public:
    */
   static vtkSampleImplicitFunctionFilter *New();
   vtkTypeMacro(vtkSampleImplicitFunctionFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -91,27 +91,27 @@ public:
   /**
    * Return the MTime also taking into account the implicit function.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkSampleImplicitFunctionFilter();
-  ~vtkSampleImplicitFunctionFilter() VTK_OVERRIDE;
+  ~vtkSampleImplicitFunctionFilter() override;
 
   vtkImplicitFunction *ImplicitFunction;
   int ComputeGradients;
   char *ScalarArrayName;
   char *GradientArrayName;
 
-  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
+  void ReportReferences(vtkGarbageCollector*) override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 
 private:
-  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
+  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) = delete;
+  void operator=(const vtkSampleImplicitFunctionFilter&) = delete;
 };
 
 #endif

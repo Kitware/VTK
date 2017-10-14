@@ -33,12 +33,12 @@ class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {
 public:
   static vtkSubclassPlaybackRepresentation *New() {return new vtkSubclassPlaybackRepresentation;}
-  void Play() VTK_OVERRIDE {std::cout << "play\n";}
-  void Stop() VTK_OVERRIDE {std::cout << "stop\n";}
-  void ForwardOneFrame() VTK_OVERRIDE {std::cout << "forward one frame\n";}
-  void BackwardOneFrame() VTK_OVERRIDE {std::cout << "backward one frame\n";}
-  void JumpToBeginning() VTK_OVERRIDE {std::cout << "jump to beginning\n";}
-  void JumpToEnd() VTK_OVERRIDE {std::cout << "jump to end\n";}
+  void Play() override {std::cout << "play\n";}
+  void Stop() override {std::cout << "stop\n";}
+  void ForwardOneFrame() override {std::cout << "forward one frame\n";}
+  void BackwardOneFrame() override {std::cout << "backward one frame\n";}
+  void JumpToBeginning() override {std::cout << "jump to beginning\n";}
+  void JumpToEnd() override {std::cout << "jump to end\n";}
 };
 
 

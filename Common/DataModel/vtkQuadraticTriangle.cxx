@@ -128,7 +128,7 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
       pcoords[1] = 0.5 - pcoords[1]/2.0;
     }
     pcoords[2] = 0.0;
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
     {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
@@ -259,14 +259,74 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId),
-                                       double vtkNotUsed(pcoords)[3],
-                                       double *vtkNotUsed(values),
-                                       int vtkNotUsed(dim),
-                                       double *vtkNotUsed(derivs))
+void vtkQuadraticTriangle::Derivatives(int vtkNotUsed(subId), double pcoords[3],
+                                       double *values, int dim, double *derivs)
 {
-}
+  double sum[3];
+  double functionDerivs[12];
+  double elemNodes[6][3];
+  double *J[3], J0[3], J1[3], J2[3];
+  double *JI[3], JI0[3], JI1[3], JI2[3];
 
+  for(int i = 0; i<6; i++)
+  {
+    this->Points->GetPoint(i, elemNodes[i]);
+  }
+
+  this->InterpolationDerivs(pcoords,functionDerivs);
+
+  // Compute transposed Jacobian and inverse Jacobian
+  J[0] = J0; J[1] = J1; J[2] = J2;
+  JI[0] = JI0; JI[1] = JI1; JI[2] = JI2;
+  for(int k = 0; k<3; k++)
+  {
+    J0[k] = J1[k] = 0.0;
+  }
+
+  for(int i = 0; i<6; i++)
+  {
+    for(int j = 0; j<2; j++)
+    {
+      for(int k = 0; k<3; k++)
+      {
+        J[j][k] += elemNodes[i][k] * functionDerivs[j*6+i];
+      }
+    }
+  }
+
+  // Compute third row vector in transposed Jacobian and normalize it, so that Jacobian
+  // determinant stays the same.
+  vtkMath::Cross(J0,J1,J2);
+  if ( vtkMath::Normalize(J2) == 0.0 || !vtkMath::InvertMatrix(J,JI,3)) //degenerate
+  {
+    for (int j=0; j < dim; j++ )
+    {
+      for (int i=0; i < 3; i++ )
+      {
+        derivs[j*dim + i] = 0.0;
+      }
+    }
+    return;
+  }
+
+  // Loop over "dim" derivative values. For each set of values, compute derivatives
+  // in local system and then transform into modelling system.
+  // First compute derivatives in local x'-y' coordinate system
+  for (int j=0; j < dim; j++ )
+  {
+    sum[0] = sum[1] = sum[2] = 0.0;
+    for (int i=0; i < 6; i++) //loop over interp. function derivatives
+    {
+      sum[0] += functionDerivs[i] * values[dim*i + j];
+      sum[1] += functionDerivs[6 + i] * values[dim*i + j];
+    }
+
+    // Transform into global system (dot product with global axes)
+    derivs[3*j] = sum[0]*JI[0][0] + sum[1]*JI[0][1];
+    derivs[3*j + 1] = sum[0]*JI[1][0] + sum[1]*JI[1][1];
+    derivs[3*j + 2] = sum[0]*JI[2][0] + sum[1]*JI[2][1];
+  }
+}
 
 //----------------------------------------------------------------------------
 // Clip this quadratic triangle using the scalar value provided. Like

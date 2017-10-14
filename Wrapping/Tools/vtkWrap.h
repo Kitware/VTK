@@ -39,6 +39,7 @@ extern "C" {
 /**
  * Check for common types.
  * IsPODPointer is for unsized arrays of POD types.
+ * IsZeroCopyPointer is for buffers that shouldn't be copied.
  */
 /*@{*/
 int vtkWrap_IsVoid(ValueInfo *val);
@@ -46,6 +47,7 @@ int vtkWrap_IsVoidFunction(ValueInfo *val);
 int vtkWrap_IsVoidPointer(ValueInfo *val);
 int vtkWrap_IsCharPointer(ValueInfo *val);
 int vtkWrap_IsPODPointer(ValueInfo *val);
+int vtkWrap_IsZeroCopyPointer(ValueInfo *val);
 int vtkWrap_IsVTKObject(ValueInfo *val);
 int vtkWrap_IsSpecialObject(ValueInfo *val);
 int vtkWrap_IsPythonObject(ValueInfo *val);
@@ -173,6 +175,13 @@ void vtkWrap_ApplyUsingDeclarations(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 /**
+ * Merge members of all superclasses into the data structure.
+ * The superclass header files will be read and parsed.
+ */
+void vtkWrap_MergeSuperClasses(
+  ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
+
+/**
  * Apply any hints about array sizes, e.g. hint that the
  * GetNumberOfComponents() method gives the tuple size.
  */
@@ -206,6 +215,11 @@ int vtkWrap_IsConstructor(ClassInfo *c, FunctionInfo *f);
  * True if the method a destructor of the class.
  */
 int vtkWrap_IsDestructor(ClassInfo *c, FunctionInfo *f);
+
+/**
+ * True if the method is inherited from a base class.
+ */
+int vtkWrap_IsInheritedMethod(ClassInfo *c, FunctionInfo *f);
 
 /**
  * Check if a method is from a SetVector method.

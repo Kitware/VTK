@@ -67,7 +67,7 @@ public:
 
   static vtkDIMACSGraphReader *New();
   vtkTypeMacro(vtkDIMACSGraphReader, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -96,11 +96,11 @@ public:
 protected:
 
   vtkDIMACSGraphReader();
-  ~vtkDIMACSGraphReader() VTK_OVERRIDE;
+  ~vtkDIMACSGraphReader() override;
 
   int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
 
   int buildGenericGraph(vtkGraph     * output,
                         vtkStdString & defaultVertexAttrArrayName,
@@ -114,7 +114,7 @@ protected:
    */
   int RequestDataObject(vtkInformation*,
                                 vtkInformationVector** inputVector,
-                                vtkInformationVector* outputVector) VTK_OVERRIDE;
+                                vtkInformationVector* outputVector) override;
 
   int ReadGraphMetaData();
 
@@ -130,8 +130,8 @@ private:
   int numEdges;
   vtkStdString dimacsProblemStr;
 
-  vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDIMACSGraphReader&) VTK_DELETE_FUNCTION;
+  vtkDIMACSGraphReader(const vtkDIMACSGraphReader&) = delete;
+  void operator=(const vtkDIMACSGraphReader&) = delete;
 };
 
 #endif // vtkDIMACSGraphReader_h

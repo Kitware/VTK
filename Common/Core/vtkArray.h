@@ -65,7 +65,7 @@ class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArray, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   typedef vtkArrayExtents::CoordinateT CoordinateT;
   typedef vtkArrayExtents::DimensionT DimensionT;
@@ -240,11 +240,11 @@ public:
 
 protected:
   vtkArray();
-  ~vtkArray() VTK_OVERRIDE;
+  ~vtkArray() override;
 
 private:
-  vtkArray(const vtkArray&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkArray&) VTK_DELETE_FUNCTION;
+  vtkArray(const vtkArray&) = delete;
+  void operator=(const vtkArray&) = delete;
 
   /**
    * Stores the array name.

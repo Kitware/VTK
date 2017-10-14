@@ -14,7 +14,6 @@ vtkSphereSource sphere
   sphere SetPhiResolution 40
 vtkPolyDataMapper sphereMapper
   sphereMapper SetInputConnection [sphere GetOutputPort]
-  sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
   sphereActor SetMapper sphereMapper
 

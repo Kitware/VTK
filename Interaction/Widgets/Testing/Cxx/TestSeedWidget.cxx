@@ -412,12 +412,20 @@ class vtkSeedCallback : public vtkCommand
 public:
   static vtkSeedCallback *New()
   { return new vtkSeedCallback; }
-  void Execute(vtkObject*, unsigned long event, void *calldata) VTK_OVERRIDE
+  void Execute(vtkObject*, unsigned long event, void *calldata) override
   {
     if (event == vtkCommand::PlacePointEvent)
     {
       std::cout << "Point placed, total of: "
                 << this->SeedRepresentation->GetNumberOfSeeds() << std::endl;
+    }
+    if (event == vtkCommand::StartInteractionEvent)
+    {
+      if (calldata)
+      {
+        std::cout << "Start interacting with seed : "
+                  << *(static_cast< int * >(calldata)) << std::endl;
+      }
     }
     if (event == vtkCommand::InteractionEvent)
     {
@@ -428,7 +436,7 @@ public:
       }
     }
   }
-  vtkSeedCallback() : SeedRepresentation(0) {}
+  vtkSeedCallback() : SeedRepresentation(nullptr) {}
   vtkSeedRepresentation *SeedRepresentation;
 };
 
@@ -480,6 +488,7 @@ int TestSeedWidget(int argc, char *argv[])
     vtkSmartPointer<vtkSeedCallback>::New();
   scbk->SeedRepresentation = rep;
   widget->AddObserver(vtkCommand::PlacePointEvent,scbk);
+  widget->AddObserver(vtkCommand::StartInteractionEvent,scbk);
   widget->AddObserver(vtkCommand::InteractionEvent,scbk);
 
   // Add the actors to the renderer, set the background and size
@@ -511,7 +520,7 @@ int TestSeedWidget(int argc, char *argv[])
               << endNumSeeds << std::endl;
     retVal = EXIT_FAILURE;
 
-    if (widget->GetSeed(0) != NULL)
+    if (widget->GetSeed(0) != nullptr)
     {
       vtkSeedRepresentation *seedRep =  vtkSeedRepresentation::SafeDownCast(
         widget->GetRepresentation());

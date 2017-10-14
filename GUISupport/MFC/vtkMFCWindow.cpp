@@ -79,13 +79,13 @@ void vtkMFCWindow::Dump(CDumpContext& dc) const
 
 vtkMFCWindow::vtkMFCWindow(CWnd *pcWnd)
 {
-  this->pvtkWin32OpenGLRW = NULL;
+  this->pvtkWin32OpenGLRW = nullptr;
 
   // create self as a child of passed in parent
   DWORD style = WS_VISIBLE | WS_CLIPSIBLINGS;
   if(pcWnd)
     style |= WS_CHILD;
-  BOOL bCreated = CWnd::Create(NULL, _T("VTK-MFC Window"),
+  BOOL bCreated = CWnd::Create(nullptr, _T("VTK-MFC Window"),
                                style, CRect(0, 0, 1, 1),
                                pcWnd, (UINT)IDC_STATIC);
 
@@ -100,7 +100,7 @@ vtkMFCWindow::vtkMFCWindow(CWnd *pcWnd)
 
 vtkMFCWindow::~vtkMFCWindow()
 {
-  this->SetRenderWindow(NULL);
+  this->SetRenderWindow(nullptr);
 }
 
 void vtkMFCWindow::OnDestroy()
@@ -118,14 +118,14 @@ void vtkMFCWindow::SetRenderWindow(vtkWin32OpenGLRenderWindow* win)
     {
     if(this->pvtkWin32OpenGLRW->GetMapped())
       this->pvtkWin32OpenGLRW->Finalize();
-    this->pvtkWin32OpenGLRW->UnRegister(NULL);
+    this->pvtkWin32OpenGLRW->UnRegister(nullptr);
     }
 
   this->pvtkWin32OpenGLRW = win;
 
   if(this->pvtkWin32OpenGLRW)
     {
-    this->pvtkWin32OpenGLRW->Register(NULL);
+    this->pvtkWin32OpenGLRW->Register(nullptr);
 
     vtkWin32RenderWindowInteractor* iren = vtkWin32RenderWindowInteractor::New();
     iren->SetInstallMessageProc(0);
@@ -157,7 +157,9 @@ vtkWin32OpenGLRenderWindow* vtkMFCWindow::GetRenderWindow()
 vtkRenderWindowInteractor* vtkMFCWindow::GetInteractor()
 {
   if(!this->pvtkWin32OpenGLRW)
-    return NULL;
+  {
+    return nullptr;
+  }
   return this->pvtkWin32OpenGLRW->GetInteractor();
 }
 
@@ -212,7 +214,7 @@ void vtkMFCWindow::DrawDC(CDC* pDC)
   HDC MemoryHdc = (HDC)CreateCompatibleDC(pDC->GetSafeHdc());
   HBITMAP dib = CreateDIBSection(MemoryHdc,
                                  &MemoryDataHeader, DIB_RGB_COLORS,
-                                 (void **)(&(MemoryData)),  NULL, 0);
+                                 (void **)(&(MemoryData)),  nullptr, 0);
 
   // copy the pixels over
   for (int i = 0; i < cyWindow; i++)

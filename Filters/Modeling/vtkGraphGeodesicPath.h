@@ -37,7 +37,7 @@ public:
    * Standard methids for printing and determining type information.
    */
   vtkTypeMacro(vtkGraphGeodesicPath,vtkGeodesicPath);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -58,14 +58,14 @@ public:
 
 protected:
   vtkGraphGeodesicPath();
-  ~vtkGraphGeodesicPath() VTK_OVERRIDE;
+  ~vtkGraphGeodesicPath() override;
 
   vtkIdType StartVertex;
   vtkIdType EndVertex;
 
 private:
-  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGraphGeodesicPath&) VTK_DELETE_FUNCTION;
+  vtkGraphGeodesicPath(const vtkGraphGeodesicPath&) = delete;
+  void operator=(const vtkGraphGeodesicPath&) = delete;
 
 };
 

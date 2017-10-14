@@ -16,6 +16,7 @@
 #include "vtkWrapPythonEnum.h"
 
 #include "vtkWrap.h"
+#include "vtkWrapText.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -94,7 +95,7 @@ void vtkWrapPython_AddEnumType(
   /* Don't add anonymous enums */
   fprintf(fp,
           "%sPyType_Ready(&Py%s%s%s_Type);\n"
-          "%sPy%s%s%s_Type.tp_new = NULL;\n"
+          "%sPy%s%s%s_Type.tp_new = nullptr;\n"
           "%svtkPythonUtil::AddEnumToMap(&Py%s%s%s_Type);\n"
           "\n",
           indent, (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
@@ -143,55 +144,55 @@ void vtkWrapPython_GenerateEnumType(
     "  \"%sPython.%s\", // tp_name\n"
     "  sizeof(PyIntObject), // tp_basicsize\n"
     "  0, // tp_itemsize\n"
-    "  0, // tp_dealloc\n"
-    "  0, // tp_print\n"
-    "  0, // tp_getattr\n"
-    "  0, // tp_setattr\n"
-    "  0, // tp_compare\n"
-    "  0, // tp_repr\n",
+    "  nullptr, // tp_dealloc\n"
+    "  nullptr, // tp_print\n"
+    "  nullptr, // tp_getattr\n"
+    "  nullptr, // tp_setattr\n"
+    "  nullptr, // tp_compare\n"
+    "  nullptr, // tp_repr\n",
     enumname, module, tpname);
 
   fprintf(fp,
-    "  0, // tp_as_number\n"
-    "  0, // tp_as_sequence\n"
-    "  0, // tp_as_mapping\n"
-    "  0, // tp_hash\n"
-    "  0, // tp_call\n"
-    "  0, // tp_str\n"
-    "  0, // tp_getattro\n"
-    "  0, // tp_setattro\n"
-    "  0, // tp_as_buffer\n"
+    "  nullptr, // tp_as_number\n"
+    "  nullptr, // tp_as_sequence\n"
+    "  nullptr, // tp_as_mapping\n"
+    "  nullptr, // tp_hash\n"
+    "  nullptr, // tp_call\n"
+    "  nullptr, // tp_str\n"
+    "  nullptr, // tp_getattro\n"
+    "  nullptr, // tp_setattro\n"
+    "  nullptr, // tp_as_buffer\n"
     "  Py_TPFLAGS_DEFAULT, // tp_flags\n"
-    "  0, // tp_doc\n"
-    "  0, // tp_traverse\n"
-    "  0, // tp_clear\n"
-    "  0, // tp_richcompare\n"
+    "  nullptr, // tp_doc\n"
+    "  nullptr, // tp_traverse\n"
+    "  nullptr, // tp_clear\n"
+    "  nullptr, // tp_richcompare\n"
     "  0, // tp_weaklistoffset\n");
 
   fprintf(fp,
-    "  0, // tp_iter\n"
-    "  0, // tp_iternext\n"
-    "  0, // tp_methods\n"
-    "  0, // tp_members\n"
-    "  0, // tp_getset\n"
+    "  nullptr, // tp_iter\n"
+    "  nullptr, // tp_iternext\n"
+    "  nullptr, // tp_methods\n"
+    "  nullptr, // tp_members\n"
+    "  nullptr, // tp_getset\n"
     "  &PyInt_Type, // tp_base\n"
-    "  0, // tp_dict\n"
-    "  0, // tp_descr_get\n"
-    "  0, // tp_descr_set\n"
+    "  nullptr, // tp_dict\n"
+    "  nullptr, // tp_descr_get\n"
+    "  nullptr, // tp_descr_set\n"
     "  0, // tp_dictoffset\n"
-    "  0, // tp_init\n"
-    "  0, // tp_alloc\n"
-    "  0, // tp_new\n"
+    "  nullptr, // tp_init\n"
+    "  nullptr, // tp_alloc\n"
+    "  nullptr, // tp_new\n"
     "  PyObject_Del, // tp_free\n"
-    "  0, // tp_is_gc\n");
+    "  nullptr, // tp_is_gc\n");
 
   /* fields set by python itself */
   fprintf(fp,
-    "  0, // tp_bases\n"
-    "  0, // tp_mro\n"
-    "  0, // tp_cache\n"
-    "  0, // tp_subclasses\n"
-    "  0, // tp_weaklist\n");
+    "  nullptr, // tp_bases\n"
+    "  nullptr, // tp_mro\n"
+    "  nullptr, // tp_cache\n"
+    "  nullptr, // tp_subclasses\n"
+    "  nullptr, // tp_weaklist\n");
 
   /* internal struct members */
   fprintf(fp,
@@ -206,7 +207,7 @@ void vtkWrapPython_GenerateEnumType(
     "{\n"
     "#ifdef VTK_PY3K\n"
     "  PyObject *args = Py_BuildValue(\"(i)\", val);\n"
-    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, NULL);\n"
+    "  PyObject *obj = PyLong_Type.tp_new(&Py%s_Type, args, nullptr);\n"
     "  Py_DECREF(args);\n"
     "  return obj;\n"
     "#else\n"
@@ -225,14 +226,23 @@ void vtkWrapPython_AddPublicEnumTypes(
   FILE *fp, const char *indent, const char *dictvar, const char *objvar,
   NamespaceInfo *data)
 {
+  char text[1024];
+  const char *pythonname = data->Name;
   int i;
+
+  if (data->Name)
+  {
+    /* convert C++ class names to a python-friendly format */
+    vtkWrapText_PythonName(data->Name, text);
+    pythonname = text;
+  }
 
   for (i = 0; i < data->NumberOfEnums; i++)
   {
     if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
     {
       vtkWrapPython_AddEnumType(
-        fp, indent, dictvar, objvar, data->Name, data->Enums[i]);
+        fp, indent, dictvar, objvar, pythonname, data->Enums[i]);
       fprintf(fp, "\n");
     }
   }

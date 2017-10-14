@@ -42,8 +42,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  vtkMySQLToTableReader(const vtkMySQLToTableReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMySQLToTableReader&) VTK_DELETE_FUNCTION;
+  vtkMySQLToTableReader(const vtkMySQLToTableReader&) = delete;
+  void operator=(const vtkMySQLToTableReader&) = delete;
 
 };
 

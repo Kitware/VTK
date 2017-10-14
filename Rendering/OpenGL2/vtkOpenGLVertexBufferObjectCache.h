@@ -16,7 +16,12 @@
  * @class   vtkOpenGLVertexBufferObjectCache
  * @brief   manage vertex buffer objects shared within a context
  *
- * vtkOpenGLVertexBufferObjectCache is awesome
+ * This class allows mappers to share VBOs. Specifically it
+ * is used by the V..B..O..Group to see if a VBO already exists
+ * for a given vtkDataArray.
+ *
+ *
+ *
 */
 
 #ifndef vtkOpenGLVertexBufferObjectCache_h
@@ -35,7 +40,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLVertexBufferObjectCache : public vtkOb
 public:
   static vtkOpenGLVertexBufferObjectCache *New();
   vtkTypeMacro(vtkOpenGLVertexBufferObjectCache, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Returns the vertex buffer object which holds the
@@ -58,13 +63,13 @@ public:
 
 protected:
   vtkOpenGLVertexBufferObjectCache();
-  ~vtkOpenGLVertexBufferObjectCache();
+  ~vtkOpenGLVertexBufferObjectCache() override;
 
   VBOMap MappedVBOs;
 
 private:
-  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOpenGLVertexBufferObjectCache&) VTK_DELETE_FUNCTION;
+  vtkOpenGLVertexBufferObjectCache(const vtkOpenGLVertexBufferObjectCache&) = delete;
+  void operator=(const vtkOpenGLVertexBufferObjectCache&) = delete;
 
 };
 

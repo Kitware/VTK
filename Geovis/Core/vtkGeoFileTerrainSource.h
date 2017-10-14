@@ -43,20 +43,20 @@ class VTKGEOVISCORE_EXPORT vtkGeoFileTerrainSource : public vtkGeoSource
 public:
   static vtkGeoFileTerrainSource *New();
   vtkTypeMacro(vtkGeoFileTerrainSource,vtkGeoSource);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkGeoFileTerrainSource();
-  ~vtkGeoFileTerrainSource() VTK_OVERRIDE;
+  ~vtkGeoFileTerrainSource() override;
 
   /**
    * Retrieve the root geometry representing the entire globe.
    */
-  bool FetchRoot(vtkGeoTreeNode* root) VTK_OVERRIDE;
+  bool FetchRoot(vtkGeoTreeNode* root) override;
 
   /**
    * Retrieve the child's geometry from disk.
    */
-  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) VTK_OVERRIDE;
+  bool FetchChild(vtkGeoTreeNode* node, int index, vtkGeoTreeNode* child) override;
 
   //@{
   /**
@@ -71,8 +71,8 @@ protected:
   bool ReadModel(int level, int id, vtkGeoTerrainNode* node);
 
 private:
-  vtkGeoFileTerrainSource(const vtkGeoFileTerrainSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkGeoFileTerrainSource&) VTK_DELETE_FUNCTION;
+  vtkGeoFileTerrainSource(const vtkGeoFileTerrainSource&) = delete;
+  void operator=(const vtkGeoFileTerrainSource&) = delete;
 
   char* Path;
 };

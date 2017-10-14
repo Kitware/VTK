@@ -122,7 +122,7 @@ const char* vtkInformationStringVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx < 0 || idx >= this->Length(info))
   {
-    return 0;
+    return nullptr;
   }
   vtkInformationStringVectorValue* v =
     static_cast<vtkInformationStringVectorValue *>

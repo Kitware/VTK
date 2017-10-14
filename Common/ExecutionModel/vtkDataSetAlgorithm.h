@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkDataSetAlgorithm : public vtkAlgorithm
 public:
   static vtkDataSetAlgorithm *New();
   vtkTypeMacro(vtkDataSetAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -125,11 +125,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkDataSetAlgorithm();
-  ~vtkDataSetAlgorithm() VTK_OVERRIDE {}
+  ~vtkDataSetAlgorithm() override {}
 
   /**
    * This is called within ProcessRequest when a request asks for
@@ -183,14 +183,14 @@ protected:
 
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) = delete;
+  void operator=(const vtkDataSetAlgorithm&) = delete;
 };
 
 #endif

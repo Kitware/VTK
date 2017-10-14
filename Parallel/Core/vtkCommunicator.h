@@ -53,7 +53,7 @@ class VTKPARALLELCORE_EXPORT vtkCommunicator : public vtkObject
 public:
 
   vtkTypeMacro(vtkCommunicator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -1261,8 +1261,8 @@ public:
    */
   virtual int ComputeGlobalBounds(int processorId, int numProcesses,
                                   vtkBoundingBox *bounds,
-                                  int *rightHasBounds = 0,
-                                  int *leftHasBounds = 0,
+                                  int *rightHasBounds = nullptr,
+                                  int *leftHasBounds = nullptr,
                                   int hasBoundsTag = 288402,
                                   int localBoundsTag = 288403,
                                   int globalBoundsTag = 288404);
@@ -1290,8 +1290,8 @@ public:
   /**
    * Same as UnMarshalDataObject(vtkCharArray*, vtkDataObject*) except that this
    * method doesn't need to know the type of the data object a priori. It can
-   * deduce that from the contents of the \c buffer. May return NULL data object
-   * if \c buffer is NULL or empty.
+   * deduce that from the contents of the \c buffer. May return nullptr data object
+   * if \c buffer is nullptr or empty.
    */
   static vtkSmartPointer<vtkDataObject> UnMarshalDataObject(vtkCharArray* buffer);
 
@@ -1301,7 +1301,7 @@ protected:
   int ReadDataArray(vtkDataArray *object);
 
   vtkCommunicator();
-  ~vtkCommunicator() VTK_OVERRIDE;
+  ~vtkCommunicator() override;
 
   // Internal methods called by Send/Receive(vtkDataObject *... ) above.
   int SendElementalDataObject(vtkDataObject* data, int remoteHandle, int tag);
@@ -1338,8 +1338,8 @@ protected:
   vtkIdType Count;
 
 private:
-  vtkCommunicator(const vtkCommunicator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCommunicator&) VTK_DELETE_FUNCTION;
+  vtkCommunicator(const vtkCommunicator&) = delete;
+  void operator=(const vtkCommunicator&) = delete;
 };
 
 #endif // vtkCommunicator_h

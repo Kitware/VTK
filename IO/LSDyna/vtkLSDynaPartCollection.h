@@ -32,7 +32,7 @@ public:
   static vtkLSDynaPartCollection *New();
 
   vtkTypeMacro(vtkLSDynaPartCollection,vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //Description:
   //Pass in the metadata to setup this collection.
@@ -41,7 +41,7 @@ public:
   //the range of the min and max
   //Note: min is included, and max is excluded from the valid range of cells.
   void InitCollection(LSDynaMetaData *metaData,
-    vtkIdType* mins=NULL, vtkIdType* maxs=NULL);
+    vtkIdType* mins=nullptr, vtkIdType* maxs=nullptr);
 
 
   //Description:
@@ -129,7 +129,7 @@ public:
 
 protected:
   vtkLSDynaPartCollection();
-  ~vtkLSDynaPartCollection() VTK_OVERRIDE;
+  ~vtkLSDynaPartCollection() override;
 
   vtkIdType* MinIds;
   vtkIdType* MaxIds;
@@ -165,8 +165,8 @@ protected:
                          vtkLSDynaPart** parts, const vtkIdType numParts);
 
 private:
-  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
-  void operator = ( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
+  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ) = delete;
+  void operator = ( const vtkLSDynaPartCollection& ) = delete;
 
   LSDynaMetaData *MetaData;
 

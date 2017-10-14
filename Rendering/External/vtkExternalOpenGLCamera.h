@@ -34,12 +34,12 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera :
 public:
   static vtkExternalOpenGLCamera *New();
   vtkTypeMacro(vtkExternalOpenGLCamera, vtkOpenGLCamera);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Implement base class method.
    */
-  void Render(vtkRenderer *ren) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren) override;
 
   /**
    * Set the view transform matrix
@@ -53,19 +53,19 @@ public:
 
 protected:
   vtkExternalOpenGLCamera();
-  ~vtkExternalOpenGLCamera() VTK_OVERRIDE {}
+  ~vtkExternalOpenGLCamera() override {}
 
   /**
    * These methods should only be used within vtkCamera.cxx.
    * Bypass computation if user provided the view transform
    */
-  void ComputeViewTransform() VTK_OVERRIDE;
+  void ComputeViewTransform() override;
 
 private:
   bool UserProvidedViewTransform;
 
-  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
+  vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&) = delete;
+  void operator=(const vtkExternalOpenGLCamera&) = delete;
 };
 
 #endif

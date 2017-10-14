@@ -32,7 +32,7 @@ class vtkBLWCallback : public vtkCommand
 public:
   static vtkBLWCallback *New()
   { return new vtkBLWCallback; }
-  void Execute( vtkObject *caller, unsigned long, void* ) VTK_OVERRIDE
+  void Execute( vtkObject *caller, unsigned long, void* ) override
   {
     // Retrieve polydata line
     vtkBrokenLineWidget *line = reinterpret_cast<vtkBrokenLineWidget*>( caller );
@@ -52,7 +52,7 @@ public:
     txt << "Number of selected elements: " << ( selection ? selection->GetNumberOfCells() : 0 );
     this->Text->SetInput( txt.str().c_str() );
   }
-vtkBLWCallback():Poly(0),Selector(0),Extractor(0),Mapper(0),Text(0) {};
+vtkBLWCallback():Poly(nullptr),Selector(nullptr),Extractor(nullptr),Mapper(nullptr),Text(nullptr) {};
   vtkPolyData* Poly;
   vtkLinearSelector* Selector;
   vtkExtractSelection* Extractor;

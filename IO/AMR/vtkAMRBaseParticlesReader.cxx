@@ -54,8 +54,8 @@ int vtkAMRBaseParticlesReader::FillOutputPortInformation(
 //------------------------------------------------------------------------------
 int vtkAMRBaseParticlesReader::GetNumberOfParticleArrays()
 {
-  assert( "pre: ParticleDataArraySelection is NULL!" &&
-          (this->ParticleDataArraySelection != NULL) );
+  assert( "pre: ParticleDataArraySelection is nullptr!" &&
+          (this->ParticleDataArraySelection != nullptr) );
   return this->ParticleDataArraySelection->GetNumberOfArrays();
 }
 
@@ -72,7 +72,7 @@ const char* vtkAMRBaseParticlesReader::GetParticleArrayName( int index )
 //------------------------------------------------------------------------------
 int vtkAMRBaseParticlesReader::GetParticleArrayStatus( const char* name )
 {
-  assert( "pre: array name is NULL" && (name != NULL)  );
+  assert( "pre: array name is nullptr" && (name != nullptr)  );
   return this->ParticleDataArraySelection->ArrayIsEnabled( name );
 }
 
@@ -108,7 +108,7 @@ void vtkAMRBaseParticlesReader::Initialize( )
   this->NumberOfBlocks = 0;
   this->Initialized    = false;
   this->InitialRequest = true;
-  this->FileName       = NULL;
+  this->FileName       = nullptr;
   this->Controller     = vtkMultiProcessController::GetGlobalController();
 
   for( int i=0; i < 3; ++i )
@@ -141,13 +141,13 @@ void vtkAMRBaseParticlesReader::InitializeParticleDataSelections()
 void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 {
 
-  if( this->FileName != NULL )
+  if( this->FileName != nullptr )
   {
     if( strcmp(this->FileName,fileName) != 0 )
     {
       this->Initialized = false;
       delete [] this->FileName;
-      this->FileName = NULL;
+      this->FileName = nullptr;
     }
     else
     {
@@ -164,7 +164,7 @@ void vtkAMRBaseParticlesReader::SetFileName( const char *fileName )
 //------------------------------------------------------------------------------
 bool vtkAMRBaseParticlesReader::IsParallel()
 {
-  if( this->Controller != NULL && this->Controller->GetNumberOfProcesses() > 1 )
+  if( this->Controller != nullptr && this->Controller->GetNumberOfProcesses() > 1 )
   {
     return true;
   }
@@ -234,7 +234,7 @@ int vtkAMRBaseParticlesReader::RequestData(
   vtkInformation *outInf     = outputVector->GetInformationObject( 0 );
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(
       outInf->Get( vtkDataObject::DATA_OBJECT() ) );
-  assert( "pre: output multi-block dataset object is NULL" && (mbds != NULL) );
+  assert( "pre: output multi-block dataset object is nullptr" && (mbds != nullptr) );
 
   // STEP 1: Read Meta-Data
   this->ReadMetaData();
@@ -247,15 +247,15 @@ int vtkAMRBaseParticlesReader::RequestData(
     if( this->IsBlockMine( blkidx ) )
     {
       vtkPolyData *particles = this->ReadParticles( blkidx );
-      assert( "particles dataset should not be NULL!" &&
-               (particles != NULL) );
+      assert( "particles dataset should not be nullptr!" &&
+               (particles != nullptr) );
 
       mbds->SetBlock( blkidx, particles );
       particles->Delete();
     }
     else
     {
-      mbds->SetBlock( blkidx, NULL );
+      mbds->SetBlock( blkidx, nullptr );
     }
   } // END for all blocks
 

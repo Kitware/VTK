@@ -33,14 +33,14 @@ vtkCxxSetObjectMacro(vtkPExtractArraysOverTime, Controller, vtkMultiProcessContr
 //----------------------------------------------------------------------------
 vtkPExtractArraysOverTime::vtkPExtractArraysOverTime()
 {
-  this->Controller = 0;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //----------------------------------------------------------------------------
 vtkPExtractArraysOverTime::~vtkPExtractArraysOverTime()
 {
-  this->SetController(0);
+  this->SetController(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ void vtkPExtractArraysOverTime::MergeTables(
         int numRArrays = remoteRowData->GetNumberOfArrays();
         for (int aidx=0; aidx<numRArrays; aidx++)
         {
-          const char* name = 0;
+          const char* name = nullptr;
           vtkAbstractArray* raa = remoteRowData->GetAbstractArray(aidx);
           if (raa)
           {
@@ -228,7 +228,7 @@ void vtkPExtractArraysOverTime::MergeTables(
               aa->DeepCopy(raa);
               aa->SetName(name);
               outRowData->AddArray(aa);
-              aa->UnRegister(0);
+              aa->UnRegister(nullptr);
             }
             if (raa->GetNumberOfTuples() > i)
             {

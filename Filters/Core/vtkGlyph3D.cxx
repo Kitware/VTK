@@ -54,11 +54,12 @@ vtkGlyph3D::vtkGlyph3D()
   this->Clamping = 0;
   this->IndexMode = VTK_INDEXING_OFF;
   this->GeneratePointIds = 0;
-  this->PointIdsName = NULL;
+  this->PointIdsName = nullptr;
   this->SetPointIdsName("InputPointIds");
   this->SetNumberOfInputPorts(2);
   this->FillCellData = 0;
-  this->SourceTransform = 0;
+  this->SourceTransform = nullptr;
+  this->OutputPointsPrecision = vtkAlgorithm::DEFAULT_PRECISION;
 
   // by default process active point scalars
   this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -78,7 +79,7 @@ vtkGlyph3D::vtkGlyph3D()
 vtkGlyph3D::~vtkGlyph3D()
 {
   delete [] PointIdsName;
-  this->SetSourceTransform(NULL);
+  this->SetSourceTransform(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -86,7 +87,7 @@ vtkMTimeType vtkGlyph3D::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   vtkMTimeType time;
-  if ( this->SourceTransform != NULL )
+  if ( this->SourceTransform != nullptr )
   {
     time = this->SourceTransform ->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -127,7 +128,7 @@ bool vtkGlyph3D::Execute(
   vtkDataArray *inVectors)
 {
   assert(input && output);
-  if (input == NULL || output == NULL)
+  if (input == nullptr || output == nullptr)
   {
     // nothing to do.
     return true;
@@ -138,17 +139,17 @@ bool vtkGlyph3D::Execute(
 
   vtkPointData *pd;
   vtkDataArray *inCScalars; // Scalars for Coloring
-  unsigned char* inGhostLevels=0;
-  vtkDataArray *inNormals, *sourceNormals = NULL;
-  vtkDataArray *sourceTCoords = NULL;
+  unsigned char* inGhostLevels=nullptr;
+  vtkDataArray *inNormals, *sourceNormals = nullptr;
+  vtkDataArray *sourceTCoords = nullptr;
   vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
-  vtkPoints *sourcePts = NULL;
+  vtkPoints *sourcePts = nullptr;
   vtkSmartPointer<vtkPoints> transformedSourcePts = vtkSmartPointer<vtkPoints>::New();
   vtkPoints *newPts;
-  vtkDataArray *newScalars=NULL;
-  vtkDataArray *newVectors=NULL;
-  vtkDataArray *newNormals=NULL;
-  vtkDataArray *newTCoords = NULL;
+  vtkDataArray *newScalars=nullptr;
+  vtkDataArray *newVectors=nullptr;
+  vtkDataArray *newNormals=nullptr;
+  vtkDataArray *newTCoords = nullptr;
   double x[3], v[3], vNew[3], s = 0.0, vMag = 0.0, value, tc[3];
   vtkTransform *trans = vtkTransform::New();
   vtkNew<vtkIdList> pointIdList;
@@ -161,9 +162,8 @@ bool vtkGlyph3D::Execute(
   vtkPointData* outputPD = output->GetPointData();
   vtkCellData* outputCD = output->GetCellData();
   int numberOfSources = this->GetNumberOfInputConnections(1);
-  vtkPolyData *defaultSource = NULL;
-  vtkIdTypeArray *pointIds=0;
-  vtkPolyData *source = this->GetSource(0, sourceVector);
+  vtkIdTypeArray *pointIds=nullptr;
+  vtkSmartPointer<vtkPolyData> source = this->GetSource(0, sourceVector);
   vtkNew<vtkIdList> srcPointIdList;
   vtkNew<vtkIdList> dstPointIdList;
   vtkNew<vtkIdList> srcCellIdList;
@@ -177,12 +177,12 @@ bool vtkGlyph3D::Execute(
   pd = input->GetPointData();
   inNormals = this->GetInputArrayToProcess(2, input);
   inCScalars = this->GetInputArrayToProcess(3, input);
-  if (inCScalars == NULL)
+  if (inCScalars == nullptr)
   {
     inCScalars = inSScalars;
   }
 
-  vtkDataArray* temp = 0;
+  vtkDataArray* temp = nullptr;
   if (pd)
   {
     temp = pd->GetArray(vtkDataSetAttributes::GhostArrayName());
@@ -214,8 +214,8 @@ bool vtkGlyph3D::Execute(
     den = 1.0;
   }
   if ( this->VectorMode != VTK_VECTOR_ROTATION_OFF &&
-       ((this->VectorMode == VTK_USE_VECTOR && inVectors != NULL) ||
-        (this->VectorMode == VTK_USE_NORMAL && inNormals != NULL)) )
+       ((this->VectorMode == VTK_USE_VECTOR && inVectors != nullptr) ||
+        (this->VectorMode == VTK_USE_NORMAL && inNormals != nullptr)) )
   {
     haveVectors = 1;
   }
@@ -229,7 +229,7 @@ bool vtkGlyph3D::Execute(
        ((!inVectors && this->VectorMode == VTK_USE_VECTOR) ||
         (!inNormals && this->VectorMode == VTK_USE_NORMAL))) )
   {
-    if ( !source )
+    if ( source == nullptr )
     {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
       pts->Delete();
@@ -249,11 +249,11 @@ bool vtkGlyph3D::Execute(
   outputPD->CopyNormalsOff();
   outputPD->CopyTCoordsOff();
 
-  if (!source)
+  if ( source == nullptr )
   {
-    defaultSource = vtkPolyData::New();
+    vtkNew<vtkPolyData> defaultSource;
     defaultSource->Allocate();
-    vtkPoints *defaultPoints = vtkPoints::New();
+    vtkNew<vtkPoints> defaultPoints;
     defaultPoints->Allocate(6);
     defaultPoints->InsertNextPoint(0, 0, 0);
     defaultPoints->InsertNextPoint(1, 0, 0);
@@ -262,21 +262,17 @@ bool vtkGlyph3D::Execute(
     defaultPointIds[1] = 1;
     defaultSource->SetPoints(defaultPoints);
     defaultSource->InsertNextCell(VTK_LINE, 2, defaultPointIds);
-    defaultSource->Delete();
-    defaultSource = NULL;
-    defaultPoints->Delete();
-    defaultPoints = NULL;
     source = defaultSource;
   }
 
   if ( this->IndexMode != VTK_INDEXING_OFF )
   {
-    pd = NULL;
+    pd = nullptr;
     haveNormals = 1;
     for (numSourcePts=numSourceCells=i=0; i < numberOfSources; i++)
     {
       source = this->GetSource(i, sourceVector);
-      if ( source != NULL )
+      if ( source != nullptr )
       {
         if (source->GetNumberOfPoints() > numSourcePts)
         {
@@ -334,6 +330,21 @@ bool vtkGlyph3D::Execute(
   dstCellIdList->SetNumberOfIds(numSourceCells);
 
   newPts = vtkPoints::New();
+
+  // Set the desired precision for the points in the output.
+  if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_FLOAT);
+  }
+  else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
+  {
+    newPts->SetDataType(VTK_DOUBLE);
+  }
+
   newPts->Allocate(numPts*numSourcePts);
   if ( this->GeneratePointIds )
   {
@@ -498,7 +509,7 @@ bool vtkGlyph3D::Execute(
               (index >= numberOfSources ? (numberOfSources-1) : index));
 
       source = this->GetSource(index, sourceVector);
-      if ( source != NULL )
+      if ( source != nullptr )
       {
         sourcePts = source->GetPoints();
         sourceNormals = source->GetPointData()->GetNormals();
@@ -508,7 +519,7 @@ bool vtkGlyph3D::Execute(
     }
 
     // Make sure we're not indexing into empty glyph
-    if ( !source )
+    if ( source == nullptr )
     {
       continue;
     }
@@ -540,8 +551,8 @@ bool vtkGlyph3D::Execute(
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
     {
-      source->GetCellPoints(cellId, pointIdList.GetPointer());
-      cellPts = pointIdList.GetPointer();
+      source->GetCellPoints(cellId, pointIdList);
+      cellPts = pointIdList;
       npts = cellPts->GetNumberOfIds();
       for (pts->Reset(), i=0; i < npts; i++)
       {
@@ -668,8 +679,7 @@ bool vtkGlyph3D::Execute(
         srcPointIdList->SetId(i, inPtId);
         dstPointIdList->SetId(i, ptIncr + i);
       }
-      outputPD->CopyData(pd, srcPointIdList.GetPointer(),
-                         dstPointIdList.GetPointer());
+      outputPD->CopyData(pd, srcPointIdList, dstPointIdList);
       if (this->FillCellData)
       {
         for (i = 0; i < numSourceCells; ++i)
@@ -677,8 +687,7 @@ bool vtkGlyph3D::Execute(
           srcCellIdList->SetId(i, inPtId);
           dstCellIdList->SetId(i, cellIncr + i);
         }
-        outputCD->CopyData(pd, srcCellIdList.GetPointer(),
-                           dstCellIdList.GetPointer());
+        outputCD->CopyData(pd, srcCellIdList, dstCellIdList);
       }
     }
 
@@ -771,7 +780,7 @@ void vtkGlyph3D::SetSourceData(int id, vtkPolyData *pd)
     return;
   }
 
-  vtkTrivialProducer* tp = 0;
+  vtkTrivialProducer* tp = nullptr;
   if (pd)
   {
     tp = vtkTrivialProducer::New();
@@ -786,7 +795,7 @@ void vtkGlyph3D::SetSourceData(int id, vtkPolyData *pd)
     }
     else
     {
-      this->SetNthInputConnection(1, id, 0);
+      this->SetNthInputConnection(1, id, nullptr);
     }
   }
   else if (id == numConnections && tp)
@@ -806,7 +815,7 @@ vtkPolyData *vtkGlyph3D::GetSource(int id)
 {
   if ( id < 0 || id >= this->GetNumberOfInputConnections(1) )
   {
-    return NULL;
+    return nullptr;
   }
 
   return vtkPolyData::SafeDownCast(
@@ -824,11 +833,14 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PointIdsName: " << (this->PointIdsName ? this->PointIdsName
        : "(none)") << "\n";
 
+  os << indent << "Output Points Precision: " << this->OutputPointsPrecision
+     << "\n";
+
   os << indent << "Color Mode: " << this->GetColorModeAsString() << endl;
 
   if ( this->GetNumberOfInputConnections(1) < 2 )
   {
-    if ( this->GetSource(0) != NULL )
+    if ( this->GetSource(0) != nullptr )
     {
       os << indent << "Source: (" << this->GetSource(0) << ")\n";
     }
@@ -928,7 +940,7 @@ vtkPolyData* vtkGlyph3D::GetSource(int idx, vtkInformationVector *sourceInfo)
   vtkInformation *info = sourceInfo->GetInformationObject(idx);
   if (!info)
   {
-    return NULL;
+    return nullptr;
   }
   return vtkPolyData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 }

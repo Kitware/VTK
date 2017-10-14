@@ -51,7 +51,7 @@ class VTKIONETCDF_EXPORT vtkSLACReader : public vtkMultiBlockDataSetAlgorithm
 public:
   vtkTypeMacro(vtkSLACReader, vtkMultiBlockDataSetAlgorithm);
   static vtkSLACReader *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   vtkGetStringMacro(MeshFileName);
   vtkSetStringMacro(MeshFileName);
@@ -216,7 +216,7 @@ public:
 
 protected:
   vtkSLACReader();
-  ~vtkSLACReader() VTK_OVERRIDE;
+  ~vtkSLACReader() override;
 
   class vtkInternal;
   vtkInternal *Internal;
@@ -248,11 +248,11 @@ protected:
 
   int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
-                                 vtkInformationVector *outputVector) VTK_OVERRIDE;
+                                 vtkInformationVector *outputVector) override;
 
   int RequestData(vtkInformation *request,
                           vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+                          vtkInformationVector *outputVector) override;
 
   /**
    * Callback registered with the VariableArraySelection.
@@ -324,7 +324,7 @@ protected:
     vtkIdType GetNumberOfMidpoints() const;
 
     /**
-     * Finds the coordinates for the given edge or returns NULL if it
+     * Finds the coordinates for the given edge or returns nullptr if it
      * does not exist.
      */
     MidpointCoordinates *FindMidpoint(const EdgeEndpoints &edge);
@@ -356,7 +356,7 @@ protected:
     vtkIdType GetNumberOfMidpoints() const;
 
     /**
-     * Finds the id for the given edge or returns NULL if it does not exist.
+     * Finds the id for the given edge or returns nullptr if it does not exist.
      */
     vtkIdType *FindMidpoint(const EdgeEndpoints &edge);
 
@@ -438,8 +438,8 @@ protected:
   virtual int MeshUpToDate();
 
 private:
-  vtkSLACReader(const vtkSLACReader &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSLACReader &) VTK_DELETE_FUNCTION;
+  vtkSLACReader(const vtkSLACReader &) = delete;
+  void operator=(const vtkSLACReader &) = delete;
 };
 
 #endif //vtkSLACReader_h

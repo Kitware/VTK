@@ -68,7 +68,7 @@ public:
   {
   }
 
-  ~PointPickCommand() VTK_OVERRIDE
+  ~PointPickCommand() override
   {
   }
 
@@ -126,7 +126,7 @@ public:
     this->Picker = p;
   }
 
-  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
+  void Execute(vtkObject *, unsigned long, void *) override
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
@@ -205,6 +205,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
   int numLeaves = 0;
   int numNodes = 0;
   vtkStdString blockName("Rolf");
+  mapper->SetInputDataObject(data.GetPointer());
   for (int level = 1; level < numLevels; ++level)
   {
     int nblocks=blocksPerLevel[level];
@@ -232,7 +233,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
             child->DeepCopy(extract->GetOutput(0));
           }
           blocks[parent]->SetBlock(
-            block, (block % 2) ? NULL : child.GetPointer());
+            block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           // test not seting it on some
@@ -254,7 +255,6 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
     levelEnd = static_cast<unsigned>(blocks.size());
   }
 
-  mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
   mapper->SetScalarModeToUseCellData();
 
   vtkSmartPointer<vtkActor> actor =

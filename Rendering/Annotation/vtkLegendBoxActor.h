@@ -59,7 +59,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkLegendBoxActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkLegendBoxActor,vtkActor2D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object with a rectangle in normaled view coordinates
@@ -200,7 +200,7 @@ public:
    * Shallow copy of this scaled text actor. Overloads the virtual
    * vtkProp method.
    */
-  void ShallowCopy(vtkProp *prop) VTK_OVERRIDE;
+  void ShallowCopy(vtkProp *prop) override;
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -209,7 +209,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
   //@{
   /**
@@ -217,19 +217,19 @@ public:
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
    * Draw the legend box to the screen.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport* ) VTK_OVERRIDE {return 0;};
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* ) override {return 0;};
+  int RenderOverlay(vtkViewport* viewport) override;
   //@}
 
   /**
    * Does this prop have some translucent polygonal geometry?
    */
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int HasTranslucentPolygonalGeometry() override;
 
 protected:
   vtkLegendBoxActor();
-  ~vtkLegendBoxActor() VTK_OVERRIDE;
+  ~vtkLegendBoxActor() override;
 
   void InitializeEntries();
 
@@ -286,8 +286,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLegendBoxActor(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
+  vtkLegendBoxActor(const vtkLegendBoxActor&) = delete;
+  void operator=(const vtkLegendBoxActor&) = delete;
 };
 
 

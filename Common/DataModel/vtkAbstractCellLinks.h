@@ -47,7 +47,7 @@ public:
    * Standard type and print methods.
    */
   vtkTypeMacro(vtkAbstractCellLinks,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   /**
@@ -68,11 +68,11 @@ public:
 
 protected:
   vtkAbstractCellLinks();
-  ~vtkAbstractCellLinks() VTK_OVERRIDE;
+  ~vtkAbstractCellLinks() override;
 
 private:
-  vtkAbstractCellLinks(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
+  vtkAbstractCellLinks(const vtkAbstractCellLinks&) = delete;
+  void operator=(const vtkAbstractCellLinks&) = delete;
 };
 
 #endif

@@ -43,7 +43,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
 public:
   static vtkPolyDataAlgorithm *New();
   vtkTypeMacro(vtkPolyDataAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -59,7 +59,7 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
   // this method is not recommended for use, but lots of old style filters
   // use it
@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkPolyDataAlgorithm();
-  ~vtkPolyDataAlgorithm() VTK_OVERRIDE;
+  ~vtkPolyDataAlgorithm() override;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -113,12 +113,12 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&) = delete;
+  void operator=(const vtkPolyDataAlgorithm&) = delete;
 };
 
 #endif

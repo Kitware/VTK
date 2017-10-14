@@ -338,7 +338,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       // bound value of the next entry anyway.
       size_t start[2];  start[0] = start[1] = 0;
       size_t count[2];  count[0] = dimLen;  count[1] = 1;
-      CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, NULL,
+      CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, nullptr,
                                         this->Bounds->GetPointer(0)));
 
       // Read in the last value for the bounds array.  It will be the second
@@ -346,7 +346,7 @@ int vtkNetCDFCFReader::vtkDimensionInfo::LoadMetaData(int ncFD)
       // dimension is a longitudinal one that wraps all the way around.
       start[0] = dimLen-1;  start[1] = 1;
       count[0] = 1;  count[1] = 1;
-      CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, NULL,
+      CALL_NETCDF_GW(nc_get_vars_double(ncFD, boundsVarId, start, count, nullptr,
         this->Bounds->GetPointer(static_cast<vtkIdType>(dimLen))));
     }
     else
@@ -680,7 +680,7 @@ int vtkNetCDFCFReader::vtkDependentDimensionInfo::LoadBoundsVariable(
   // connect to the cell in the -i topological direction.  Tuple entries 0 and 3
   // connect to the cell in the -j topological direction.
   std::vector<double> boundsData(dimSizes[0]*dimSizes[1]*4);
-  if (boundsData.size() > 0)
+  if (!boundsData.empty())
   {
     CALL_NETCDF_GW(nc_get_var_double(ncFD, varId, &boundsData.at(0)));
   }
@@ -1074,7 +1074,7 @@ int vtkNetCDFCFReader::RequestData(vtkInformation *request,
                       << " be loaded incorrectly.");
     }
   }
-  else // output == NULL
+  else // output == nullptr
   {
     vtkErrorMacro(<< "No output object.");
     return 0;
@@ -1311,9 +1311,9 @@ void vtkNetCDFCFReader::FakeRectilinearCoordinates(
     }
     switch(dim)
     {
-      case 0: rectilinearOutput->SetXCoordinates(coordinate.GetPointer());break;
-      case 1: rectilinearOutput->SetYCoordinates(coordinate.GetPointer());break;
-      case 2: rectilinearOutput->SetZCoordinates(coordinate.GetPointer());break;
+      case 0: rectilinearOutput->SetXCoordinates(coordinate);break;
+      case 1: rectilinearOutput->SetYCoordinates(coordinate);break;
+      case 2: rectilinearOutput->SetZCoordinates(coordinate);break;
       default: vtkErrorMacro("Sanity check failed!"); break;
     }
   }
@@ -1388,7 +1388,7 @@ void vtkNetCDFCFReader::Add2DRectilinearCoordinates(vtkPoints *points,
   vtkDoubleArray *longitudeCoordinates = info->GetLongitudeCoordinates();
   vtkDoubleArray *latitudeCoordinates = info->GetLatitudeCoordinates();
 
-  vtkDoubleArray *verticalCoordinates = NULL;
+  vtkDoubleArray *verticalCoordinates = nullptr;
   if (this->LoadingDimensions->GetNumberOfTuples() == 3)
   {
     int vertDim = this->LoadingDimensions->GetValue(0);
@@ -1473,7 +1473,7 @@ void vtkNetCDFCFReader::FakeStructuredCoordinates(
     }
   }
 
-  structuredOutput->SetPoints(points.GetPointer());
+  structuredOutput->SetPoints(points);
 }
 
 //-----------------------------------------------------------------------------
@@ -1597,7 +1597,7 @@ void vtkNetCDFCFReader::Add2DSphericalCoordinates(vtkPoints *points,
   vtkDoubleArray *longitudeCoordinates = info->GetLongitudeCoordinates();
   vtkDoubleArray *latitudeCoordinates = info->GetLatitudeCoordinates();
 
-  vtkDoubleArray *verticalCoordinates = NULL;
+  vtkDoubleArray *verticalCoordinates = nullptr;
   if (this->LoadingDimensions->GetNumberOfTuples() == 3)
   {
     int vertDim = this->LoadingDimensions->GetValue(0);
@@ -1912,7 +1912,7 @@ int vtkNetCDFCFReader::ReadMetaData(int ncFD)
   {
     vtkDependentDimensionInfo info(ncFD, i, this);
     if (!info.GetValid()) continue;
-    if (this->FindDependentDimensionInfo(info.GetGridDimensions()) != NULL)
+    if (this->FindDependentDimensionInfo(info.GetGridDimensions()) != nullptr)
     {
       continue;
     }
@@ -2020,7 +2020,7 @@ vtkNetCDFCFReader::FindDependentDimensionInfo(vtkIntArray *dims)
       if (same) return &(this->DependentDimensionInfo->v[i]);
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------

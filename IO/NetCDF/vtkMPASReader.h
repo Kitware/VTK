@@ -95,7 +95,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
  public:
   static vtkMPASReader *New();
   vtkTypeMacro(vtkMPASReader,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -229,11 +229,11 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
    */
   static int CanReadFile(const char *filename);
 
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
  protected:
   vtkMPASReader();
-  ~vtkMPASReader() VTK_OVERRIDE;
+  ~vtkMPASReader() override;
   void ReleaseNcData();
   void DestroyData();
 
@@ -246,9 +246,9 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   vtkCallbackCommand* SelectionObserver;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestInformation(vtkInformation *, vtkInformationVector **,
-                         vtkInformationVector *) VTK_OVERRIDE;
+                         vtkInformationVector *) override;
 
 
   static void SelectionCallback(vtkObject* caller, unsigned long eid,
@@ -376,8 +376,8 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   void LoadTimeFieldData(vtkUnstructuredGrid *dataset);
 
  private:
-  vtkMPASReader(const vtkMPASReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMPASReader&) VTK_DELETE_FUNCTION;
+  vtkMPASReader(const vtkMPASReader&) = delete;
+  void operator=(const vtkMPASReader&) = delete;
 
   class Internal;
   Internal *Internals;

@@ -82,7 +82,6 @@ vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_ID, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, ARRAY_COMPONENT, Integer);
 vtkInformationKeyMacro(vtkScalarsToColorsPainter, FIELD_DATA_TUPLE_ID, Integer);
-vtkInformationKeyMacro(vtkScalarsToColorsPainter, SCALAR_MATERIAL_MODE, Integer);
 
 //-----------------------------------------------------------------------------
 vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
@@ -103,7 +102,6 @@ vtkScalarsToColorsPainter::vtkScalarsToColorsPainter()
   this->UseLookupTableScalarRange = 1;
   this->ScalarRange[0] = 0.0;
   this->ScalarRange[1] = 1.0;
-  this->ScalarMaterialMode = VTK_MATERIALMODE_DEFAULT;
 
   this->UsingScalarColoring = 0;
   this->ScalarVisibility = 1;
@@ -193,12 +191,6 @@ void vtkScalarsToColorsPainter::ProcessInformation(vtkInformation* info)
   {
     this->SetFieldDataTupleId(info->Get(FIELD_DATA_TUPLE_ID()));
   }
-
-  if (info->Has(SCALAR_MATERIAL_MODE()))
-  {
-    this->SetScalarMaterialMode(info->Get(SCALAR_MATERIAL_MODE()));
-  }
-
 
   // when the iVars will be set, this->MTime will get updated.
   // This will eventually get caught by PrepareForRendering()

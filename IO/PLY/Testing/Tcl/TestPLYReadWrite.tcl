@@ -87,7 +87,7 @@ ren1 AddActor plyActor
 ren1 AddActor plyActor2
 ren1 AddActor plyActor3
 
-renWin SetSize 325 125
+renWin SetSize 330 120
 iren Initialize
 renWin Render
 [ren1 GetActiveCamera] Zoom 3.0

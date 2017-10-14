@@ -42,7 +42,7 @@ class VTKRENDERINGCONTEXT2D_EXPORT vtkContextDevice3D : public vtkObject
 {
 public:
   vtkTypeMacro(vtkContextDevice3D, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkContextDevice3D * New();
 
@@ -51,20 +51,20 @@ public:
    * \sa DrawLines()
    */
   virtual void DrawPoly(const float *verts, int n,
-                        const unsigned char *colors = 0, int nc = 0) = 0;
+                        const unsigned char *colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw lines defined by specified pair of points.
    * \sa DrawPoly()
    */
   virtual void DrawLines(const float *verts, int n,
-                         const unsigned char *colors = 0, int nc = 0) = 0;
+                         const unsigned char *colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw points at the vertex positions specified.
    */
   virtual void DrawPoints(const float *verts, int n,
-                          const unsigned char *colors = 0, int nc = 0) = 0;
+                          const unsigned char *colors = nullptr, int nc = 0) = 0;
 
   /**
    * Draw triangles to generate the specified mesh.
@@ -138,11 +138,11 @@ public:
 
 protected:
   vtkContextDevice3D();
-  ~vtkContextDevice3D() VTK_OVERRIDE;
+  ~vtkContextDevice3D() override;
 
 private:
-  vtkContextDevice3D(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
+  vtkContextDevice3D(const vtkContextDevice3D &) = delete;
+  void operator=(const vtkContextDevice3D &) = delete;
 };
 
 #endif

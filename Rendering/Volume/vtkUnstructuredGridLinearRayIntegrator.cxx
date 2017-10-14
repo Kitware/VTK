@@ -78,14 +78,14 @@ public:
   acolor *Colors;
 
 private:
-  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkLinearRayIntegratorTransferFunction &) VTK_DELETE_FUNCTION;
+  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) = delete;
+  void operator=(const vtkLinearRayIntegratorTransferFunction &) = delete;
 };
 
 vtkLinearRayIntegratorTransferFunction::vtkLinearRayIntegratorTransferFunction()
 {
-  this->ControlPoints = NULL;
-  this->Colors = NULL;
+  this->ControlPoints = nullptr;
+  this->Colors = nullptr;
 
   this->NumControlPoints = 0;
 }
@@ -315,8 +315,8 @@ vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
 {
-  this->Property = NULL;
-  this->TransferFunctions = NULL;
+  this->Property = nullptr;
+  this->TransferFunctions = nullptr;
   this->NumIndependentComponents = 0;
 }
 

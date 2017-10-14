@@ -37,7 +37,7 @@ vtkStandardNewMacro(vtkPlotFunctionalBag);
 //-----------------------------------------------------------------------------
 vtkPlotFunctionalBag::vtkPlotFunctionalBag()
 {
-  this->LookupTable = 0;
+  this->LookupTable = nullptr;
   this->TooltipDefaultLabelFormat = "%l (%x, %y)";
   this->LogX = false;
   this->LogY = false;
@@ -62,7 +62,7 @@ bool vtkPlotFunctionalBag::IsBag()
 //-----------------------------------------------------------------------------
 bool vtkPlotFunctionalBag::GetVisible()
 {
-  return this->Superclass::GetVisible() || this->GetSelection() != 0;
+  return this->Superclass::GetVisible() || this->GetSelection() != nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
 
   this->BagPoints->Reset();
 
-  vtkDataArray *array[2] = { 0, 0 };
+  vtkDataArray *array[2] = { nullptr, nullptr };
   if (!this->GetDataArrays(table, array))
   {
     this->BuildTime.Modified();
@@ -183,7 +183,7 @@ bool vtkPlotFunctionalBag::GetDataArrays(vtkTable *table, vtkDataArray *array[2]
 
   // Get the x and y arrays (index 0 and 1 respectively)
   array[0] = this->UseIndexForXSeries ?
-        0 : this->Data->GetInputArrayToProcess(0, table);
+        nullptr : this->Data->GetInputArrayToProcess(0, table);
   array[1] = this->Data->GetInputArrayToProcess(1, table);
 
   if (!array[0] && !this->UseIndexForXSeries)
@@ -229,7 +229,7 @@ bool vtkPlotFunctionalBag::Paint(vtkContext2D *painter)
     pen->GetColor(pcolor);
     this->Brush->SetColor(pcolor);
     painter->ApplyBrush(this->Brush);
-    painter->DrawQuadStrip(this->BagPoints.GetPointer());
+    painter->DrawQuadStrip(this->BagPoints);
     pen->SetWidth(pwidth);
   }
   else
@@ -250,7 +250,7 @@ bool vtkPlotFunctionalBag::PaintLegend(vtkContext2D *painter,
     vtkNew<vtkPen> blackPen;
     blackPen->SetWidth(1.0);
     blackPen->SetColor(0, 0, 0, 255);
-    painter->ApplyPen(blackPen.GetPointer());
+    painter->ApplyPen(blackPen);
     painter->ApplyBrush(this->Brush);
     painter->DrawRect(rect[0], rect[1], rect[2], rect[3]);
   }
@@ -362,7 +362,7 @@ void vtkPlotFunctionalBag::SetLookupTable(vtkScalarsToColors *lut)
 //-----------------------------------------------------------------------------
 vtkScalarsToColors *vtkPlotFunctionalBag::GetLookupTable()
 {
-  if ( this->LookupTable == 0 )
+  if ( this->LookupTable == nullptr )
   {
     this->CreateDefaultLookupTable();
   }

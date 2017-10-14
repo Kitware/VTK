@@ -21,19 +21,19 @@ vtkStandardNewMacro(vtkGeneralTransform);
 //----------------------------------------------------------------------------
 vtkGeneralTransform::vtkGeneralTransform()
 {
-  this->Input = NULL;
+  this->Input = nullptr;
 
   // most of the functionality is provided by the concatenation
   this->Concatenation = vtkTransformConcatenation::New();
 
   // the stack will be allocated the first time Push is called
-  this->Stack = NULL;
+  this->Stack = nullptr;
 }
 
 //----------------------------------------------------------------------------
 vtkGeneralTransform::~vtkGeneralTransform()
 {
-  this->SetInput(NULL);
+  this->SetInput(nullptr);
 
   if (this->Concatenation)
   {
@@ -198,7 +198,7 @@ void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
   // copy the stack
   if (transform->Stack)
   {
-    if (this->Stack == NULL)
+    if (this->Stack == nullptr)
     {
       this->Stack = vtkTransformConcatenationStack::New();
     }
@@ -209,7 +209,7 @@ void vtkGeneralTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
     if (this->Stack)
     {
       this->Stack->Delete();
-      this->Stack = NULL;
+      this->Stack = nullptr;
     }
   }
 }

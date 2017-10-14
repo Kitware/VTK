@@ -44,7 +44,7 @@ class VTKCHARTSCORE_EXPORT vtkChartXY : public vtkChart
 {
 public:
   vtkTypeMacro(vtkChartXY, vtkChart);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates a 2D Chart object.
@@ -56,38 +56,38 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the chart, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D* painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D* painter) override;
 
   /**
    * Add a plot to the chart, defaults to using the name of the y column
    */
-  vtkPlot* AddPlot(int type) VTK_OVERRIDE;
+  vtkPlot* AddPlot(int type) override;
 
   /**
    * Adds a plot to the chart
    */
-  vtkIdType AddPlot(vtkPlot* plot) VTK_OVERRIDE;
+  vtkIdType AddPlot(vtkPlot* plot) override;
 
   /**
    * Remove the plot at the specified index, returns true if successful,
    * false if the index was invalid.
    */
-  bool RemovePlot(vtkIdType index) VTK_OVERRIDE;
+  bool RemovePlot(vtkIdType index) override;
 
   /**
    * Remove all plots from the chart.
    */
-  void ClearPlots() VTK_OVERRIDE;
+  void ClearPlots() override;
 
   /**
    * Get the plot at the specified index, returns null if the index is invalid.
    */
-  vtkPlot* GetPlot(vtkIdType index) VTK_OVERRIDE;
+  vtkPlot* GetPlot(vtkIdType index) override;
 
   /**
    * Get the index of the specified plot, returns -1 if the plot does not
@@ -128,7 +128,7 @@ public:
   /**
    * Get the number of plots the chart contains.
    */
-  vtkIdType GetNumberOfPlots() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPlots() override;
 
   /**
    * Figure out which quadrant the plot is in.
@@ -145,17 +145,17 @@ public:
    * position enum, valid values are vtkAxis::LEFT, vtkAxis::BOTTOM,
    * vtkAxis::RIGHT and vtkAxis::TOP.
    */
-  vtkAxis* GetAxis(int axisIndex) VTK_OVERRIDE;
+  vtkAxis* GetAxis(int axisIndex) override;
 
   /**
    * Set whether the chart should draw a legend.
    */
-  void SetShowLegend(bool visible) VTK_OVERRIDE;
+  void SetShowLegend(bool visible) override;
 
   /**
    * Get the vtkChartLegend object that will be displayed by the chart.
    */
-  vtkChartLegend* GetLegend() VTK_OVERRIDE;
+  vtkChartLegend* GetLegend() override;
 
   /**
    * Set the vtkTooltipItem object that will be displayed by the chart.
@@ -170,13 +170,13 @@ public:
   /**
    * Get the number of axes in the current chart.
    */
-  vtkIdType GetNumberOfAxes() VTK_OVERRIDE;
+  vtkIdType GetNumberOfAxes() override;
 
   /**
    * Request that the chart recalculates the range of its axes. Especially
    * useful in applications after the parameters of plots have been modified.
    */
-  void RecalculateBounds() VTK_OVERRIDE;
+  void RecalculateBounds() override;
 
   /**
    * Set the selection method, which controls how selections are handled by the
@@ -185,7 +185,7 @@ public:
    * for finer-grained selections specific to each plot, and so to each XY
    * column pair.
    */
-  void SetSelectionMethod(int method) VTK_OVERRIDE;
+  void SetSelectionMethod(int method) override;
 
   //@{
   /**
@@ -260,6 +260,28 @@ public:
   vtkBooleanMacro(AdjustLowerBoundForLogPlot, bool);
   //@}
 
+  //@{
+  /**
+  * Set if the point can be dragged along X
+  * by the ClickAndDrag Action
+  * True by default.
+  */
+  vtkSetMacro(DragPointAlongX, bool);
+  vtkGetMacro(DragPointAlongX, bool);
+  vtkBooleanMacro(DragPointAlongX, bool);
+  //@}
+
+  //@{
+  /**
+  * Set if the point can be dragged along Y
+  * by the ClickAndDrag Action
+  * True by default.
+  */
+  vtkSetMacro(DragPointAlongY, bool);
+  vtkGetMacro(DragPointAlongY, bool);
+  vtkBooleanMacro(DragPointAlongY, bool);
+  //@}
+
   /**
    * Set the information passed to the tooltip.
    */
@@ -269,46 +291,46 @@ public:
   /**
    * Return true if the supplied x, y coordinate is inside the item.
    */
-  bool Hit(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool Hit(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse enter event.
    */
-  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool MouseEnterEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse leave event.
    */
-  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool MouseLeaveEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button down event
    */
-  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse button release event.
    */
-  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) VTK_OVERRIDE;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse) override;
 
   /**
    * Mouse wheel event, positive delta indicates forward movement of the wheel.
    */
-  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) VTK_OVERRIDE;
+  bool MouseWheelEvent(const vtkContextMouseEvent& mouse, int delta) override;
 
   /**
    * Key press event.
    */
-  bool KeyPressEvent(const vtkContextKeyEvent& key) VTK_OVERRIDE;
+  bool KeyPressEvent(const vtkContextKeyEvent& key) override;
 
 protected:
   vtkChartXY();
-  ~vtkChartXY() VTK_OVERRIDE;
+  ~vtkChartXY() override;
 
   /**
    * Recalculate the necessary transforms.
@@ -320,6 +342,11 @@ protected:
    * will fit into the plot area.
    */
   void RecalculatePlotBounds();
+
+  /**
+  * Remove all the selection from Plots
+  */
+  void ReleasePlotSelections();
 
   /**
    * Update the layout of the chart, this may require the vtkContext2D in order
@@ -424,11 +451,23 @@ protected:
    */
   bool AdjustLowerBoundForLogPlot;
 
+  /**
+  * Properties to enable the drag of a point for the ClickAndDrag Action
+  */
+  bool DragPointAlongX;
+  bool DragPointAlongY;
+
 private:
-  vtkChartXY(const vtkChartXY&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkChartXY&) VTK_DELETE_FUNCTION;
+  vtkChartXY(const vtkChartXY&) = delete;
+  void operator=(const vtkChartXY&) = delete;
 
   vtkChartXYPrivate* ChartPrivate; // Private class where I hide my STL containers
+
+  /**
+   * Internal variable to handle update of drag:
+   * true if a point has been selected by the user click.
+   */
+  bool DragPoint;
 
   /**
    * Figure out the spacing between the bar chart plots, and their offsets.

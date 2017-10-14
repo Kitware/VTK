@@ -14,14 +14,16 @@
 =========================================================================*/
 #include "vtkLight.h"
 
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
+vtkCxxSetObjectMacro(vtkLight, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkLight,TransformMatrix,vtkMatrix4x4);
 
 //----------------------------------------------------------------------------
-// Return NULL if no override is supplied.
+// Return nullptr if no override is supplied.
 vtkAbstractObjectFactoryNewMacro(vtkLight)
 
 // Create a light with the focal point at the origin and its position
@@ -62,18 +64,24 @@ vtkLight::vtkLight()
 
   this->LightType = VTK_LIGHT_TYPE_SCENE_LIGHT;
 
-  this->TransformMatrix = NULL;
+  this->TransformMatrix = nullptr;
 
   this->ShadowAttenuation = 1.0;
+
+  this->Information = vtkInformation::New();
+  this->Information->Register(this);
+  this->Information->Delete();
 }
 
 vtkLight::~vtkLight()
 {
-  if(this->TransformMatrix != NULL)
+  if(this->TransformMatrix != nullptr)
   {
       this->TransformMatrix->UnRegister(this);
-      this->TransformMatrix = NULL;
+      this->TransformMatrix = nullptr;
   }
+
+  this->SetInformation(nullptr);
 }
 
 // ----------------------------------------------------------------------------
@@ -104,7 +112,7 @@ vtkLight *vtkLight::ShallowClone()
   result->LightType=this->LightType;
 
   result->TransformMatrix=this->TransformMatrix;
-  if(result->TransformMatrix!=0)
+  if(result->TransformMatrix!=nullptr)
   {
     result->TransformMatrix->Register(result);
   }
@@ -243,6 +251,17 @@ void vtkLight::DeepCopy(vtkLight *light)
   this->SetAttenuationValues(light->GetAttenuationValues());
 }
 
+void vtkLight::SetLightType(int type)
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting LightType to " << type);
+  if (this->LightType != type)
+  {
+    this->SetTransformMatrix(nullptr);
+    this->LightType = type;
+    this->Modified();
+  }
+}
+
 void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -285,7 +304,7 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   }
 
   os << indent << "TransformMatrix: ";
-  if(this->TransformMatrix != NULL)
+  if(this->TransformMatrix != nullptr)
   {
     os << this->TransformMatrix << "\n";
   }
@@ -295,48 +314,3 @@ void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "ShadowAttenuation: " << this->ShadowAttenuation << "\n";
 }
-
-void vtkLight::WriteSelf(ostream& os)
-{
-  os << this->FocalPoint[0] << " " << this->FocalPoint[1] << " "
-     << this->FocalPoint[2] << " ";
-  os << this->Position[0] << " " << this->Position[1] << " "
-     << this->Position[2] << " ";
-  os << this->Intensity << " ";
-  os << this->AmbientColor[0] << " " << this->AmbientColor[1] << " "
-     << this->AmbientColor[2] << " ";
-  os << this->DiffuseColor[0] << " " << this->DiffuseColor[1] << " "
-     << this->DiffuseColor[2] << " ";
-  os << this->SpecularColor[0] << " " << this->SpecularColor[1] << " "
-     << this->SpecularColor[2] << " ";
-  os << this->Switch << " ";
-  os << this->Switch << " ";
-  os << this->Positional << " ";
-  os << this->Exponent << " ";
-  os << this->ConeAngle << " ";
-  os << this->AttenuationValues[0] << " " << this->AttenuationValues[1] << " "
-     << this->AttenuationValues[2] << " ";
-  os << this->ShadowAttenuation << " ";
-  // XXX - LightType, TransformMatrix ???
-}
-
-void vtkLight::ReadSelf(istream& is)
-{
-  is >> this->FocalPoint[0] >> this->FocalPoint[1] >> this->FocalPoint[2] ;
-  is >> this->Position[0] >> this->Position[1] >> this->Position[2];
-  is >> this->Intensity;
-  is >> this->AmbientColor[0] >> this->AmbientColor[1] >> this->AmbientColor[2];
-  is >> this->DiffuseColor[0] >> this->DiffuseColor[1] >> this->DiffuseColor[2];
-  is >> this->SpecularColor[0] >> this->SpecularColor[1] >> this->SpecularColor[2];
-  is >> this->Switch;
-  is >> this->Positional;
-  is >> this->Exponent;
-  is >> this->ConeAngle;
-  is >> this->AttenuationValues[0] >> this->AttenuationValues[1]
-     >> this->AttenuationValues[2];
-  is >> this->ShadowAttenuation;
-  // XXX - LightType, TransformMatrix ???
-}
-
-
-

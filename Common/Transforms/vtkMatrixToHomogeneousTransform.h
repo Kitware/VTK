@@ -39,7 +39,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
  public:
   static vtkMatrixToHomogeneousTransform *New();
   vtkTypeMacro(vtkMatrixToHomogeneousTransform,vtkHomogeneousTransform);
-  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf (ostream& os, vtkIndent indent) override;
 
   // Set the input matrix.  Any modifications to the matrix will be
   // reflected in the transformation.
@@ -50,30 +50,30 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
    * The input matrix is left as-is, but the transformation matrix
    * is inverted.
    */
-  void Inverse() VTK_OVERRIDE;
+  void Inverse() override;
 
   /**
    * Get the MTime: this is the bit of magic that makes everything work.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Make a new transform of the same type.
    */
-  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
+  vtkAbstractTransform *MakeTransform() override;
 
 protected:
   vtkMatrixToHomogeneousTransform();
-  ~vtkMatrixToHomogeneousTransform() VTK_OVERRIDE;
+  ~vtkMatrixToHomogeneousTransform() override;
 
-  void InternalUpdate() VTK_OVERRIDE;
-  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
+  void InternalUpdate() override;
+  void InternalDeepCopy(vtkAbstractTransform *transform) override;
 
   int InverseFlag;
   vtkMatrix4x4 *Input;
 private:
-  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMatrixToHomogeneousTransform&) VTK_DELETE_FUNCTION;
+  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&) = delete;
+  void operator=(const vtkMatrixToHomogeneousTransform&) = delete;
 };
 
 #endif

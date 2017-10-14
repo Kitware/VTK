@@ -41,8 +41,8 @@ vtkImageViewer::vtkImageViewer()
 
   this->FirstRender = 1;
 
-  this->Interactor = 0;
-  this->InteractorStyle = 0;
+  this->Interactor = nullptr;
+  this->InteractorStyle = nullptr;
 }
 
 
@@ -99,9 +99,9 @@ public:
 
   void Execute(vtkObject *caller,
                unsigned long event,
-               void *vtkNotUsed(callData)) VTK_OVERRIDE
+               void *vtkNotUsed(callData)) override
   {
-      if (this->IV->GetInput() == NULL)
+      if (this->IV->GetInput() == nullptr)
       {
         return;
       }
@@ -278,4 +278,11 @@ void vtkImageViewer::OffScreenRenderingOff()
 vtkAlgorithm* vtkImageViewer::GetInputAlgorithm()
 {
   return this->ImageMapper->GetInputAlgorithm();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer::SetRenderWindow(vtkRenderWindow* renWin)
+{
+  vtkSetObjectBodyMacro(RenderWindow,vtkRenderWindow,renWin);
+  renWin->AddRenderer(this->GetRenderer());
 }

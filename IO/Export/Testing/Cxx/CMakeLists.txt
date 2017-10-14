@@ -1,4 +1,15 @@
 include(vtkGhostscript)
+include(vtkWkHtmlToImage)
+
+if (VTK_WKHTMLTOIMAGE_EXECUTABLE AND VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  set(SVGTests
+    TestSVGContextExport.cxx,NO_DATA,NO_VALID
+    TestSVGContextShading.cxx,NO_DATA,NO_VALID
+    TestSVGExporterContextPolyData.cxx,NO_VALID
+    )
+else()
+  set(SVGTests)
+endif()
 
 # Only run GL2PS tests if GhostScript is available
 if(VTK_GHOSTSCRIPT_EXECUTABLE)
@@ -27,20 +38,23 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
 
   # These only produce PDFs. They're separated since the above tests produce
   # and verify both PDF and PS.
-  if (VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-    # Mark this as NO_VALID on OpenGL backend. It looks like the textured
-    # brush painting is broken. See issue #17009. We still run the test to
-    # validate the generated PDF, but won't validate the OpenGL rendering.
-    set(PDFTests TestPDFContextExport.cxx,NO_DATA,NO_VALID)
+  if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    set(PDFTests
+      TestPDFContextExport.cxx,NO_DATA
+      TestPDFContextShading.cxx,NO_DATA
+      TestPDFExporterContextPolyData.cxx
+    )
   else()
-    set(PDFTests TestPDFContextExport.cxx,NO_DATA)
+    # The Context2D on OpenGL1 does not support many of the options used by
+    # these tests. Skip them on the legacy backend.
+    set(PDFTests)
   endif()
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
   TestOBJExporter.cxx,NO_DATA,NO_VALID
-  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests}
+  ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests} ${SVGTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID
   )
@@ -112,3 +126,6 @@ else()
   # test postscript and pdf
   vtk_add_gl2ps_test_cxx(pdf ${GL2PSTestsPDF})
 endif()
+
+include(vtkTestingSVG)
+vtk_add_svg_test(${SVGTests})

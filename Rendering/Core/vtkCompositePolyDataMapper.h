@@ -43,42 +43,42 @@ class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper : public vtkMapper
 public:
   static vtkCompositePolyDataMapper *New();
   vtkTypeMacro(vtkCompositePolyDataMapper, vtkMapper);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Standard method for rendering a mapper. This method will be
    * called by the actor.
    */
-  void Render(vtkRenderer *ren, vtkActor *a) VTK_OVERRIDE;
+  void Render(vtkRenderer *ren, vtkActor *a) override;
 
   //@{
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE { this->Superclass::GetBounds( bounds ); };
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override { this->Superclass::GetBounds( bounds ); };
   //@}
 
   /**
    * Release the underlying resources associated with this mapper
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow *) override;
 
 protected:
   vtkCompositePolyDataMapper();
-  ~vtkCompositePolyDataMapper() VTK_OVERRIDE;
+  ~vtkCompositePolyDataMapper() override;
 
   /**
    * We need to override this method because the standard streaming
    * demand driven pipeline is not what we want - we are expecting
    * hierarchical data as input
    */
-  vtkExecutive* CreateDefaultExecutive() VTK_OVERRIDE;
+  vtkExecutive* CreateDefaultExecutive() override;
 
   /**
    * Need to define the type of data handled by this mapper.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * This is the build method for creating the internal polydata
@@ -115,8 +115,8 @@ protected:
   vtkTimeStamp InternalMappersBuildTime;
 
 private:
-  vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositePolyDataMapper&) VTK_DELETE_FUNCTION;
+  vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&) = delete;
+  void operator=(const vtkCompositePolyDataMapper&) = delete;
 };
 
 #endif

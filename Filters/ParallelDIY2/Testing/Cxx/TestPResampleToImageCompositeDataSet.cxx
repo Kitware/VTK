@@ -54,15 +54,15 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
     vtkSmartPointer<vtkRenderer>::Take(prm->MakeRenderer());
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::Take(prm->MakeRenderWindow());
-  renWin->AddRenderer(renderer.GetPointer());
+  renWin->AddRenderer(renderer);
   renWin->DoubleBufferOn();
   renWin->SetMultiSamples(0);
 
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow(renWin.GetPointer());
+  iren->SetRenderWindow(renWin);
 
-  prm->SetRenderWindow(renWin.GetPointer());
-  prm->SetController(controller.GetPointer());
+  prm->SetRenderWindow(renWin);
+  prm->SetController(controller);
 
 
   // Create input dataset
@@ -93,14 +93,14 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
     pointToCell->UpdateExtent(pieceExtent);
     vtkNew<vtkImageData> img;
     img->DeepCopy(vtkImageData::SafeDownCast(pointToCell->GetOutput()));
-    input->SetBlock(piece, img.GetPointer());
+    input->SetBlock(piece, img);
   }
 
 
   // create pipeline
   vtkNew<vtkPResampleToImage> resample;
-  resample->SetInputDataObject(input.GetPointer());
-  resample->SetController(controller.GetPointer());
+  resample->SetInputDataObject(input);
+  resample->SetController(controller);
   resample->SetUseInputBounds(true);
   resample->SetSamplingDimensions(64, 64, 64);
 
@@ -121,15 +121,15 @@ int TestPResampleToImageCompositeDataSet(int argc, char *argv[])
   mapper->Update();
 
   vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
-  renderer->AddActor(actor.GetPointer());
+  actor->SetMapper(mapper);
+  renderer->AddActor(actor);
 
   int retVal;
   if (world.rank() == 0)
   {
     prm->ResetAllCameras();
     renWin->Render();
-    retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
+    retVal = vtkRegressionTester::Test(argc, argv, renWin, 10);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
     {
       prm->StartInteractor();

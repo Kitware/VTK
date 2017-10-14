@@ -71,7 +71,7 @@ class VTKFILTERSPOINTS_EXPORT vtkEuclideanClusterExtraction : public vtkPolyData
 {
 public:
   vtkTypeMacro(vtkEuclideanClusterExtraction,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct with default extraction mode to extract largest clusters.
@@ -191,7 +191,7 @@ public:
 
 protected:
   vtkEuclideanClusterExtraction();
-  ~vtkEuclideanClusterExtraction() VTK_OVERRIDE;
+  ~vtkEuclideanClusterExtraction() override;
 
   double Radius; //connection radius
   bool ColorClusters; //boolean turns on/off scalar gen for separate clusters
@@ -209,16 +209,16 @@ protected:
 
   // Configure the pipeline
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   // Internal method for propagating connected waves.
   void InsertIntoWave(vtkIdList *wave, vtkIdType ptId);
   void TraverseAndMark(vtkPoints *pts);
 
 private:
-  vtkEuclideanClusterExtraction(const vtkEuclideanClusterExtraction&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEuclideanClusterExtraction&) VTK_DELETE_FUNCTION;
+  vtkEuclideanClusterExtraction(const vtkEuclideanClusterExtraction&) = delete;
+  void operator=(const vtkEuclideanClusterExtraction&) = delete;
 
   // used to support algorithm execution
   vtkFloatArray *NeighborScalars;

@@ -195,10 +195,10 @@ void vtkAngleRepresentation2D::GetPoint2DisplayPosition(double pos[3])
 //----------------------------------------------------------------------
 void vtkAngleRepresentation2D::BuildRepresentation()
 {
-  if (this->Point1Representation == NULL ||
-      this->CenterRepresentation == NULL ||
-      this->Point2Representation == NULL ||
-      this->Arc == NULL)
+  if (this->Point1Representation == nullptr ||
+      this->CenterRepresentation == nullptr ||
+      this->Point2Representation == nullptr ||
+      this->Arc == nullptr)
   {
     // for now, return. Could create defaults here.
     return;

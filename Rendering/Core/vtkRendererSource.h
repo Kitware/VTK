@@ -58,12 +58,12 @@ class VTKRENDERINGCORE_EXPORT vtkRendererSource : public vtkAlgorithm
 public:
   static vtkRendererSource *New();
   vtkTypeMacro(vtkRendererSource, vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return the MTime also considering the Renderer.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Indicates what renderer to get the pixel data from.
@@ -143,11 +143,11 @@ public:
    */
   int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*) VTK_OVERRIDE;
+                             vtkInformationVector*) override;
 
 protected:
   vtkRendererSource();
-  ~vtkRendererSource() VTK_OVERRIDE;
+  ~vtkRendererSource() override;
 
   void RequestData(vtkInformation* request,
                    vtkInformationVector** inputVector,
@@ -164,11 +164,11 @@ protected:
   int DepthValuesOnly;
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkRendererSource(const vtkRendererSource&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRendererSource&) VTK_DELETE_FUNCTION;
+  vtkRendererSource(const vtkRendererSource&) = delete;
+  void operator=(const vtkRendererSource&) = delete;
 };
 
 #endif

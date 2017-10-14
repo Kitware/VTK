@@ -52,7 +52,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgor
 public:
   static vtkPassInputTypeAlgorithm *New();
   vtkTypeMacro(vtkPassInputTypeAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -134,11 +134,11 @@ public:
    */
   int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector) VTK_OVERRIDE;
+                             vtkInformationVector* outputVector) override;
 
 protected:
   vtkPassInputTypeAlgorithm();
-  ~vtkPassInputTypeAlgorithm() VTK_OVERRIDE {}
+  ~vtkPassInputTypeAlgorithm() override {}
 
   /**
    * This is called within ProcessRequest when a request asks for
@@ -202,14 +202,14 @@ protected:
 
 
   // see algorithm for more info
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
+  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&) = delete;
+  void operator=(const vtkPassInputTypeAlgorithm&) = delete;
 };
 
 #endif

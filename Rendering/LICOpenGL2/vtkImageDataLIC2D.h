@@ -49,7 +49,7 @@ class VTKRENDERINGLICOPENGL2_EXPORT vtkImageDataLIC2D : public vtkImageAlgorithm
 public:
   static vtkImageDataLIC2D* New();
   vtkTypeMacro(vtkImageDataLIC2D, vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,10 +111,10 @@ public:
 
 protected:
   vtkImageDataLIC2D();
-  ~vtkImageDataLIC2D();
+  ~vtkImageDataLIC2D() override;
 
-  virtual int RequestInformation(vtkInformation *,
-    vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestInformation(vtkInformation *,
+    vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Fill the input port information objects for this algorithm.  This
@@ -122,20 +122,20 @@ protected:
    * port so subclasses can specify what they can handle.
    * Redefined from the superclass.
    */
-  virtual int FillInputPortInformation(int port,
-                                       vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port,
+                               vtkInformation *info) override;
 
   int RequestUpdateExtent (vtkInformation * vtkNotUsed(request),
                            vtkInformationVector **inputVector,
-                           vtkInformationVector *vtkNotUsed( outputVector )) VTK_OVERRIDE;
+                           vtkInformationVector *vtkNotUsed( outputVector )) override;
 
   /**
    * This is called by the superclass.
    * This is the method you should override.
    */
-  virtual int RequestData(vtkInformation *request,
-                          vtkInformationVector **inputVector,
-                          vtkInformationVector *outputVector) VTK_OVERRIDE;
+  int RequestData(vtkInformation *request,
+                  vtkInformationVector **inputVector,
+                  vtkInformationVector *outputVector) override;
 
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
   bool OwnWindow;
@@ -150,8 +150,8 @@ protected:
 
 
 private:
-  vtkImageDataLIC2D(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
+  vtkImageDataLIC2D(const vtkImageDataLIC2D&) = delete;
+  void operator=(const vtkImageDataLIC2D&) = delete;
 
 };
 

@@ -10,7 +10,7 @@ readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/twisted.git"
 readonly tag="for/vtk"
 readonly paths="
-NEWS
+NEWS.rst
 LICENSE
 README.rst
 .gitattributes

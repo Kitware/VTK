@@ -85,7 +85,7 @@ public:
    * Standard methods for type information and to print out the contents of the class.
    */
   vtkTypeMacro(vtkSphereRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   // Used to manage the state of the widget
@@ -280,29 +280,29 @@ public:
    * version of place widget is available where the center and handle position
    * are specified.
    */
-  void PlaceWidget(double bounds[6]) VTK_OVERRIDE;
+  void PlaceWidget(double bounds[6]) override;
   virtual void PlaceWidget(double center[3], double handlePosition[3]);
-  void BuildRepresentation() VTK_OVERRIDE;
-  int ComputeInteractionState(int X, int Y, int modify=0) VTK_OVERRIDE;
-  void StartWidgetInteraction(double e[2]) VTK_OVERRIDE;
-  void WidgetInteraction(double e[2]) VTK_OVERRIDE;
-  double *GetBounds() VTK_OVERRIDE;
+  void BuildRepresentation() override;
+  int ComputeInteractionState(int X, int Y, int modify=0) override;
+  void StartWidgetInteraction(double e[2]) override;
+  void WidgetInteraction(double e[2]) override;
+  double *GetBounds() override;
   //@}
 
   //@{
   /**
    * Methods supporting, and required by, the rendering process.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
-  int RenderOpaqueGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport*) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
+  int RenderOpaqueGeometry(vtkViewport*) override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
+  int RenderOverlay(vtkViewport*) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
 protected:
   vtkSphereRepresentation();
-  ~vtkSphereRepresentation() VTK_OVERRIDE;
+  ~vtkSphereRepresentation() override;
 
   // Manage how the representation appears
   double LastEventPosition[3];
@@ -322,7 +322,7 @@ protected:
   double LastPickPosition[3];
 
   // Register internal Pickers within PickingManager
-  void RegisterPickers() VTK_OVERRIDE;
+  void RegisterPickers() override;
 
   // Methods to manipulate the sphere widget
   void Translate(double *p1, double *p2);
@@ -371,8 +371,8 @@ protected:
   bool CenterCursor;
 
 private:
-  vtkSphereRepresentation(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSphereRepresentation(const vtkSphereRepresentation&) = delete;
+  void operator=(const vtkSphereRepresentation&) = delete;
 };
 
 #endif

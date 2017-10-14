@@ -70,12 +70,12 @@ class VTKFILTERSCORE_EXPORT vtkFlyingEdges2D : public vtkPolyDataAlgorithm
 public:
   static vtkFlyingEdges2D *New();
   vtkTypeMacro(vtkFlyingEdges2D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Set a particular contour value at contour number i. The index i ranges
@@ -153,19 +153,19 @@ public:
 
 protected:
   vtkFlyingEdges2D();
-  ~vtkFlyingEdges2D() VTK_OVERRIDE;
+  ~vtkFlyingEdges2D() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
   vtkContourValues *ContourValues;
 
   int ComputeScalars;
   int ArrayComponent;
 
 private:
-  vtkFlyingEdges2D(const vtkFlyingEdges2D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFlyingEdges2D&) VTK_DELETE_FUNCTION;
+  vtkFlyingEdges2D(const vtkFlyingEdges2D&) = delete;
+  void operator=(const vtkFlyingEdges2D&) = delete;
 };
 
 

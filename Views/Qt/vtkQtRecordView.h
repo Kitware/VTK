@@ -49,7 +49,7 @@ Q_OBJECT
 public:
   static vtkQtRecordView *New();
   vtkTypeMacro(vtkQtRecordView, vtkQtView);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Get the main container of this view (a  QWidget).
@@ -57,7 +57,7 @@ public:
    * to GetWidget(): something like this
    * this->ui->box->layout()->addWidget(this->View->GetWidget());
    */
-  QWidget* GetWidget() VTK_OVERRIDE;
+  QWidget* GetWidget() override;
 
   enum
   {
@@ -84,15 +84,15 @@ public:
   /**
    * Updates the view.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
 protected:
 
   vtkQtRecordView();
-  ~vtkQtRecordView() VTK_OVERRIDE;
+  ~vtkQtRecordView() override;
 
-  void AddRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
-  void RemoveRepresentationInternal(vtkDataRepresentation* rep) VTK_OVERRIDE;
+  void AddRepresentationInternal(vtkDataRepresentation* rep) override;
+  void RemoveRepresentationInternal(vtkDataRepresentation* rep) override;
 
   vtkSmartPointer<vtkDataObjectToTable> DataObjectToTable;
 
@@ -104,8 +104,8 @@ protected:
 
 
 private:
-  vtkQtRecordView(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
+  vtkQtRecordView(const vtkQtRecordView&) = delete;
+  void operator=(const vtkQtRecordView&) = delete;
 
   vtkMTimeType CurrentSelectionMTime;
   vtkMTimeType LastInputMTime;

@@ -28,12 +28,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-#ifdef VTK_USE_SPROC
-#include <abi_mutex.h> // Needed for SPROC implementation of mutex
-typedef abilock_t vtkMutexType;
-#endif
-
-#if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
+#if defined(VTK_USE_PTHREADS)
 #include <pthread.h> // Needed for PTHREAD implementation of mutex
 typedef pthread_mutex_t vtkMutexType;
 #endif
@@ -42,11 +37,9 @@ typedef pthread_mutex_t vtkMutexType;
 typedef vtkWindowsHANDLE vtkMutexType;
 #endif
 
-#ifndef VTK_USE_SPROC
 #ifndef VTK_USE_PTHREADS
 #ifndef VTK_USE_WIN32_THREADS
 typedef int vtkMutexType;
-#endif
 #endif
 #endif
 
@@ -77,8 +70,8 @@ protected:
   vtkMutexType   MutexLock;
 
 private:
-  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) VTK_DELETE_FUNCTION;
-  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) VTK_DELETE_FUNCTION;
+  vtkSimpleMutexLock(const vtkSimpleMutexLock& other) = delete;
+  vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs) = delete;
 };
 
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
@@ -87,7 +80,7 @@ public:
   static vtkMutexLock *New();
 
   vtkTypeMacro(vtkMutexLock,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Lock the vtkMutexLock
@@ -106,8 +99,8 @@ protected:
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {}
 private:
-  vtkMutexLock(const vtkMutexLock&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMutexLock&) VTK_DELETE_FUNCTION;
+  vtkMutexLock(const vtkMutexLock&) = delete;
+  void operator=(const vtkMutexLock&) = delete;
 };
 
 

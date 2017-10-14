@@ -36,7 +36,7 @@ class VTKFILTERSEXTRACTION_EXPORT vtkExtractEdges : public vtkPolyDataAlgorithm
 public:
   static vtkExtractEdges *New();
   vtkTypeMacro(vtkExtractEdges,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -55,21 +55,21 @@ public:
   /**
    * Return MTime also considering the locator.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
 protected:
   vtkExtractEdges();
-  ~vtkExtractEdges() VTK_OVERRIDE;
+  ~vtkExtractEdges() override;
 
   // Usual data generation method
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkExtractEdges(const vtkExtractEdges&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkExtractEdges&) VTK_DELETE_FUNCTION;
+  vtkExtractEdges(const vtkExtractEdges&) = delete;
+  void operator=(const vtkExtractEdges&) = delete;
 };
 
 #endif

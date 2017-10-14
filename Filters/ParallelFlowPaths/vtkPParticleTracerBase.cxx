@@ -37,15 +37,15 @@ using namespace vtkParticleTracerBaseNamespace;
 
 vtkPParticleTracerBase::vtkPParticleTracerBase()
 {
-  this->Controller = NULL;
+  this->Controller = nullptr;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //---------------------------------------------------------------------------
 vtkPParticleTracerBase::~vtkPParticleTracerBase()
 {
-  this->SetController(NULL);
-  this->SetParticleWriter(NULL);
+  this->SetController(nullptr);
+  this->SetParticleWriter(nullptr);
 }
 
 //---------------------------------------------------------------------------
@@ -85,7 +85,7 @@ bool vtkPParticleTracerBase::SendParticleToAnotherProcess(
   remoteInfo.Previous = previousInfo;
   remoteInfo.PreviousPD = vtkSmartPointer<vtkPointData>::New();
   // the point data that we get values from.
-  vtkPointData* fromPD = NULL;
+  vtkPointData* fromPD = nullptr;
   vtkIdType fromTupleId = -1;
   // ProtoPD is ONLY used to properly copy allocate the new point data
   if(info.PointId >= 0)
@@ -314,8 +314,8 @@ bool vtkPParticleTracerBase::SendReceiveParticles(RemoteParticleVector &sParticl
   //receive the message
 
   std::vector<char> recvMessage(allMessageSize,0);
-  this->Controller->AllGatherV(messageSize>0?  &sendMessage[0] : NULL,
-                               allMessageSize>0? &recvMessage[0] : NULL,
+  this->Controller->AllGatherV(messageSize>0?  &sendMessage[0] : nullptr,
+                               allMessageSize>0? &recvMessage[0] : nullptr,
                                messageSize, &messageLength[0],
                                &messageOffset[0]);
 

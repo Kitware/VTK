@@ -72,7 +72,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor : public vtkActor
 {
 public:
   vtkTypeMacro(vtkAxisActor, vtkActor);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Instantiate object.
@@ -114,7 +114,7 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  double* GetBounds(void) VTK_OVERRIDE;
+  double* GetBounds(void) override;
   void GetBounds(double bounds[6]);
   //@}
 
@@ -264,7 +264,7 @@ public:
 
   //@{
   /**
-   * Get/Set the alignement of the title related to the axis.
+   * Get/Set the alignment of the title related to the axis.
    * Possible Alignment: VTK_ALIGN_TOP, VTK_ALIGN_BOTTOM, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2
    */
   virtual void SetTitleAlignLocation(int location);
@@ -470,11 +470,11 @@ public:
   /**
    * Draw the axis.
    */
-  int RenderOpaqueGeometry(vtkViewport* viewport) VTK_OVERRIDE;
+  int RenderOpaqueGeometry(vtkViewport* viewport) override;
   virtual int RenderTranslucentGeometry(vtkViewport* viewport);
-  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) VTK_OVERRIDE;
-  int RenderOverlay(vtkViewport* viewport) VTK_OVERRIDE;
-  int HasTranslucentPolygonalGeometry() VTK_OVERRIDE;
+  int RenderTranslucentPolygonalGeometry(vtkViewport* viewport) override;
+  int RenderOverlay(vtkViewport* viewport) override;
+  int HasTranslucentPolygonalGeometry() override;
   //@}
 
   /**
@@ -482,7 +482,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow*) VTK_OVERRIDE;
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   double ComputeMaxLabelLength(const double[3]);
   double ComputeTitleLength(const double[3]);
@@ -680,7 +680,7 @@ public:
 
 protected:
   vtkAxisActor();
-  ~vtkAxisActor() VTK_OVERRIDE;
+  ~vtkAxisActor() override;
 
   char* Title;
   char* Exponent;
@@ -700,13 +700,13 @@ protected:
   int TickLocation;
 
   /**
-   * Hold the alignement property of the title related to the axis.
+   * Hold the alignment property of the title related to the axis.
    * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
    */
   int TitleAlignLocation;
 
   /**
-   * Hold the alignement property of the exponent coming from the label values.
+   * Hold the alignment property of the exponent coming from the label values.
    * Possible Alignment: VTK_ALIGN_BOTTOM, VTK_ALIGN_TOP, VTK_ALIGN_POINT1, VTK_ALIGN_POINT2.
    */
   int ExponentLocation;
@@ -737,7 +737,6 @@ protected:
   bool Log;
   int AxisType;
   int AxisPosition;
-  double Bounds[6];
 
   // coordinate system for axisAxtor, relative to world coordinates
   double AxisBaseForX[3];
@@ -745,8 +744,8 @@ protected:
   double AxisBaseForZ[3];
 
 private:
-  vtkAxisActor(const vtkAxisActor&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkAxisActor&) VTK_DELETE_FUNCTION;
+  vtkAxisActor(const vtkAxisActor&) = delete;
+  void operator=(const vtkAxisActor&) = delete;
 
   void TransformBounds(vtkViewport*, double bnds[6]);
 

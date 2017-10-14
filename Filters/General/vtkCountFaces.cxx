@@ -32,12 +32,12 @@ void vtkCountFaces::PrintSelf(std::ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "OutputArrayName: "
-     << (this->OutputArrayName ? this->OutputArrayName : "(NULL)") << "\n";
+     << (this->OutputArrayName ? this->OutputArrayName : "(nullptr)") << "\n";
 }
 
 //------------------------------------------------------------------------------
 vtkCountFaces::vtkCountFaces()
-  : OutputArrayName(NULL)
+  : OutputArrayName(nullptr)
 {
   this->SetOutputArrayName("Face Count");
 }
@@ -45,7 +45,7 @@ vtkCountFaces::vtkCountFaces()
 //------------------------------------------------------------------------------
 vtkCountFaces::~vtkCountFaces()
 {
-  this->SetOutputArrayName(NULL);
+  this->SetOutputArrayName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ int vtkCountFaces::RequestData(vtkInformation *,
   vtkNew<vtkIdTypeArray> faceCount;
   faceCount->Allocate(input->GetNumberOfCells());
   faceCount->SetName(this->OutputArrayName);
-  output->GetCellData()->AddArray(faceCount.Get());
+  output->GetCellData()->AddArray(faceCount);
 
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())

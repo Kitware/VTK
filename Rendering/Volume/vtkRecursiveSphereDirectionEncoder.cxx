@@ -25,8 +25,8 @@ vtkStandardNewMacro(vtkRecursiveSphereDirectionEncoder);
 vtkRecursiveSphereDirectionEncoder::vtkRecursiveSphereDirectionEncoder()
 {
   this->RecursionDepth = 6;
-  this->IndexTable = NULL;
-  this->DecodedNormal = NULL;
+  this->IndexTable = nullptr;
+  this->DecodedNormal = nullptr;
   this->InitializeIndexTable();
 }
 

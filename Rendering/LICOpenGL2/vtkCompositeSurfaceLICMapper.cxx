@@ -85,33 +85,33 @@ public:
 
 protected:
   vtkCompositeLICHelper();
-  ~vtkCompositeLICHelper();
+  ~vtkCompositeLICHelper() override;
 
   /**
    * Build the VBO/IBO, called by UpdateBufferObjects
    */
-  virtual void AppendOneBufferObject(vtkRenderer *ren,
+  void AppendOneBufferObject(vtkRenderer *ren,
     vtkActor *act, vtkCompositeMapperHelperData *hdata,
     unsigned int &flat_index,
     std::vector<unsigned char> &colors,
-    std::vector<float> &norms) VTK_OVERRIDE;
+    std::vector<float> &norms) override;
 
 protected:
   /**
    * Set the shader parameteres related to the mapper/input data, called by UpdateShader
    */
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
 
   /**
    * Perform string replacments on the shader templates
    */
-  virtual void ReplaceShaderValues(
+  void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
+    vtkRenderer *ren, vtkActor *act) override;
 
 private:
-  vtkCompositeLICHelper(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
+  vtkCompositeLICHelper(const vtkCompositeLICHelper&) = delete;
+  void operator=(const vtkCompositeLICHelper&) = delete;
 };
 
 //----------------------------------------------------------------------------
@@ -244,7 +244,7 @@ void vtkCompositeSurfaceLICMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkCompositeSurfaceLICMapper::CopyMapperValuesToHelper(vtkCompositeMapperHelper2 *helper)
 {
   this->Superclass::CopyMapperValuesToHelper(helper);
-  // static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface.Get());
+  // static_cast<vtkCompositeLICHelper *>(helper)->SetLICInterface(this->LICInterface);
   helper->SetInputArrayToProcess(0,
      this->GetInputArrayInformation(0));
 }
@@ -288,7 +288,7 @@ void vtkCompositeSurfaceLICMapper::Render(
       vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
       if (pd && pd->GetPoints())
       {
-        haveVectors = haveVectors && (this->GetInputArrayToProcess(0, pd) != NULL);
+        haveVectors = haveVectors && (this->GetInputArrayToProcess(0, pd) != nullptr);
       }
     }
   }
@@ -298,7 +298,7 @@ void vtkCompositeSurfaceLICMapper::Render(
       this->GetInputDataObject(0, 0));
     if (pd && pd->GetPoints())
     {
-      haveVectors = (this->GetInputArrayToProcess(0, pd) != NULL);
+      haveVectors = (this->GetInputArrayToProcess(0, pd) != nullptr);
     }
   }
 

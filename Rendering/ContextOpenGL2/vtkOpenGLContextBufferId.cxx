@@ -28,14 +28,14 @@ vtkStandardNewMacro(vtkOpenGLContextBufferId);
 // ----------------------------------------------------------------------------
 vtkOpenGLContextBufferId::vtkOpenGLContextBufferId()
 {
-  this->Texture=0;
-  this->Context=0;
+  this->Texture=nullptr;
+  this->Context=nullptr;
 }
 
 // ----------------------------------------------------------------------------
 vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
 {
-  if(this->Texture!=0)
+  if(this->Texture!=nullptr)
   {
     vtkErrorMacro("texture should have been released.");
   }
@@ -44,10 +44,10 @@ vtkOpenGLContextBufferId::~vtkOpenGLContextBufferId()
 // ----------------------------------------------------------------------------
 void vtkOpenGLContextBufferId::ReleaseGraphicsResources()
 {
-  if(this->Texture!=0)
+  if(this->Texture!=nullptr)
   {
     this->Texture->Delete();
-    this->Texture=0;
+    this->Texture=nullptr;
   }
 }
 
@@ -72,7 +72,7 @@ vtkRenderWindow *vtkOpenGLContextBufferId::GetContext()
 // ----------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsSupported()
 {
-  assert("pre: context_is_set" && this->GetContext()!=0);
+  assert("pre: context_is_set" && this->GetContext()!=nullptr);
   return vtkTextureObject::IsSupported(this->Context);
 }
 
@@ -81,9 +81,9 @@ void vtkOpenGLContextBufferId::Allocate()
 {
   assert("pre: positive_width" && this->GetWidth()>0);
   assert("pre: positive_height" && this->GetHeight()>0);
-  assert("pre: context_is_set" && this->GetContext()!=0);
+  assert("pre: context_is_set" && this->GetContext()!=nullptr);
 
-  if(this->Texture==0)
+  if(this->Texture==nullptr)
   {
     this->Texture=vtkTextureObject::New();
     this->Texture->SetContext(this->Context);
@@ -98,7 +98,7 @@ void vtkOpenGLContextBufferId::Allocate()
 // ----------------------------------------------------------------------------
 bool vtkOpenGLContextBufferId::IsAllocated() const
 {
-  return this->Texture!=0 &&
+  return this->Texture!=nullptr &&
     this->Texture->GetWidth()==static_cast<unsigned int>(this->Width) &&
     this->Texture->GetHeight()==static_cast<unsigned int>(this->Height);
 }
@@ -169,7 +169,7 @@ vtkIdType vtkOpenGLContextBufferId::GetPickedItem(int x, int y)
 
       this->Texture->CopyToFrameBuffer(x,y,x,y,x,y,
         this->Context->GetSize()[0],
-        this->Context->GetSize()[1],NULL,NULL);
+        this->Context->GetSize()[1],nullptr,nullptr);
 
       GLint savedReadBuffer;
       glGetIntegerv(GL_READ_BUFFER,&savedReadBuffer);

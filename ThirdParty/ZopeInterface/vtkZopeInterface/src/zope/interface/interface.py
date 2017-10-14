@@ -115,7 +115,7 @@ class SpecificationBasePy(object):
 SpecificationBase = SpecificationBasePy
 try:
     from zope.interface._zope_interface_coptimizations import SpecificationBase
-except ImportError: #pragma NO COVER
+except ImportError:
     pass
 
 _marker = object()
@@ -156,14 +156,14 @@ class InterfaceBasePy(object):
 InterfaceBase = InterfaceBasePy
 try:
     from zope.interface._zope_interface_coptimizations import InterfaceBase
-except ImportError: #pragma NO COVER
+except ImportError:
     pass
 
 
 adapter_hooks = []
 try:
     from zope.interface._zope_interface_coptimizations import adapter_hooks
-except ImportError: #pragma NO COVER
+except ImportError:
     pass
 
 
@@ -321,7 +321,7 @@ class InterfaceClass(Element, InterfaceBase, Specification):
                     # This is how cPython figures out the module of
                     # a class, but of course it does it in C. :-/
                     __module__ = sys._getframe(1).f_globals['__name__']
-                except (AttributeError, KeyError): #pragma NO COVERAGE
+                except (AttributeError, KeyError): # pragma: no cover
                     pass
 
         self.__module__ = __module__
@@ -465,7 +465,7 @@ class InterfaceClass(Element, InterfaceBase, Specification):
     def _call_conform(self, conform):
         try:
             return conform(self)
-        except TypeError: #pragma NO COVER
+        except TypeError: # pragma: no cover
             # We got a TypeError. It might be an error raised by
             # the __conform__ implementation, or *we* may have
             # made the TypeError by calling an unbound method
@@ -479,7 +479,7 @@ class InterfaceClass(Element, InterfaceBase, Specification):
                 raise
             # This clever trick is from Phillip Eby
 
-        return None #pragma NO COVER
+        return None # pragma: no cover
 
     def __reduce__(self):
         return self.__name__
@@ -517,7 +517,7 @@ class InterfaceClass(Element, InterfaceBase, Specification):
 
     def __hash__(self):
         d = self.__dict__
-        if '__module__' not in d or '__name__' not in d: #pragma NO COVER
+        if '__module__' not in d or '__name__' not in d: # pragma: no cover
             warnings.warn('Hashing uninitialized InterfaceClass instance')
             return 1
         return hash((self.__name__, self.__module__))

@@ -27,7 +27,7 @@
 #define NTIMESTEPS 8
 #define VTK_EPSILON 1.e-6
 
-void generateDataSetWithTimesteps(std::string filename)
+void generateDataSetWithTimesteps(const std::string& filename)
 {
   int i,j;
   {
@@ -74,7 +74,7 @@ void generateDataSetWithTimesteps(std::string filename)
   }
 }
 
-void generateDataSetWithDuplicateArrayNames(std::string filename)
+void generateDataSetWithDuplicateArrayNames(const std::string& filename)
 {
   std::string dataSet =
     "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n"

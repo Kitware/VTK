@@ -53,7 +53,7 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 {
   int picked = 0;
   vtkProp *propCandidate;
-  vtkAbstractMapper3D *mapper = NULL;
+  vtkAbstractMapper3D *mapper = nullptr;
   int pickable;
 
   //  Initialize picking process
@@ -65,12 +65,12 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   this->SelectionPoint[2] = 0.0;
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent,nullptr);
 
   this->DefineFrustum(x0, y0, x1, y1, renderer);
 
   // Ask the renderer do the hardware pick
-  vtkPropCollection* pickList = NULL;
+  vtkPropCollection* pickList = nullptr;
   if(this->PickFromList)
   {
     pickList = this->PickList;
@@ -96,24 +96,24 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
         vtkMapper *map1;
         vtkAbstractVolumeMapper *vmap;
         vtkImageMapper3D *imap;
-        if ( (map1=vtkMapper::SafeDownCast(mapper)) != NULL )
+        if ( (map1=vtkMapper::SafeDownCast(mapper)) != nullptr )
         {
           this->DataSet = map1->GetInput();
           this->Mapper = map1;
         }
-        else if ( (vmap=vtkAbstractVolumeMapper::SafeDownCast(mapper)) != NULL )
+        else if ( (vmap=vtkAbstractVolumeMapper::SafeDownCast(mapper)) != nullptr )
         {
           this->DataSet = vmap->GetDataSetInput();
           this->Mapper = vmap;
         }
-        else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != NULL )
+        else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != nullptr )
         {
           this->DataSet = imap->GetDataSetInput();
           this->Mapper = imap;
         }
         else
         {
-          this->DataSet = NULL;
+          this->DataSet = nullptr;
         }
       }//mapper
     }//pickable
@@ -140,10 +140,10 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
 
     // Invoke pick method if one defined - prop goes first
     this->Path->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
   }
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
 
   return picked;
 }

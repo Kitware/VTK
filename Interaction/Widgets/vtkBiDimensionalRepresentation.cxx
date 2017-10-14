@@ -40,10 +40,10 @@ vtkBiDimensionalRepresentation::vtkBiDimensionalRepresentation()
 {
   // By default, use one of these handles
   this->HandleRepresentation  = vtkPointHandleRepresentation2D::New();
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
+  this->Point3Representation = nullptr;
+  this->Point4Representation = nullptr;
   this->InstantiateHandleRepresentation();
 
   this->Modifier = 0;
@@ -86,14 +86,14 @@ vtkBiDimensionalRepresentation::~vtkBiDimensionalRepresentation()
     this->Point4Representation->Delete();
   }
 
-  this->SetLabelFormat(0);
+  this->SetLabelFormat(nullptr);
 }
 
 //----------------------------------------------------------------------
 void vtkBiDimensionalRepresentation
 ::SetHandleRepresentation(vtkHandleRepresentation *handle)
 {
-  if ( handle == NULL || handle == this->HandleRepresentation )
+  if ( handle == nullptr || handle == this->HandleRepresentation )
   {
     return;
   }
@@ -108,10 +108,10 @@ void vtkBiDimensionalRepresentation
   this->Point3Representation->Delete();
   this->Point4Representation->Delete();
 
-  this->Point1Representation = NULL;
-  this->Point2Representation = NULL;
-  this->Point3Representation = NULL;
-  this->Point4Representation = NULL;
+  this->Point1Representation = nullptr;
+  this->Point2Representation = nullptr;
+  this->Point3Representation = nullptr;
+  this->Point4Representation = nullptr;
 
   this->InstantiateHandleRepresentation();
 }

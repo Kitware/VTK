@@ -55,7 +55,7 @@ class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMergeFields,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkMergeFields.
@@ -105,7 +105,7 @@ public:
     void SetName(const char* name)
     {
         delete[] this->FieldName;
-        this->FieldName = 0;
+        this->FieldName = nullptr;
         if (name)
         {
           size_t len = strlen(name)+1;
@@ -113,7 +113,7 @@ public:
           strncpy(this->FieldName, name, len);
         }
     }
-    Component() { FieldName = 0; }
+    Component() { FieldName = nullptr; }
     ~Component() { delete[] FieldName; }
   };
 
@@ -126,9 +126,9 @@ protected:
   };
 
   vtkMergeFields();
-  ~vtkMergeFields() VTK_OVERRIDE;
+  ~vtkMergeFields() override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   char* FieldName;
   int FieldLocation;
@@ -156,8 +156,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkMergeFields(const vtkMergeFields&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMergeFields&) VTK_DELETE_FUNCTION;
+  vtkMergeFields(const vtkMergeFields&) = delete;
+  void operator=(const vtkMergeFields&) = delete;
 };
 
 #endif

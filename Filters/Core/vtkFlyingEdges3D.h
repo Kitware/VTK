@@ -72,12 +72,12 @@ class VTKFILTERSCORE_EXPORT vtkFlyingEdges3D : public vtkPolyDataAlgorithm
 public:
   static vtkFlyingEdges3D *New();
   vtkTypeMacro(vtkFlyingEdges3D,vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Because we delegate to vtkContourValues.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   //@{
   /**
@@ -189,7 +189,7 @@ public:
 
 protected:
   vtkFlyingEdges3D();
-  ~vtkFlyingEdges3D() VTK_OVERRIDE;
+  ~vtkFlyingEdges3D() override;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -199,14 +199,14 @@ protected:
   vtkContourValues *ContourValues;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *) VTK_OVERRIDE;
+                  vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation *info) VTK_OVERRIDE;
+                          vtkInformationVector *) override;
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkFlyingEdges3D(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
+  vtkFlyingEdges3D(const vtkFlyingEdges3D&) = delete;
+  void operator=(const vtkFlyingEdges3D&) = delete;
 };
 
 #endif

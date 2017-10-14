@@ -243,7 +243,7 @@ void vtkResliceCursorActor::UpdateHoleSize( vtkViewport * v )
 // ----------------------------------------------------------------------------
 void vtkResliceCursorActor::UpdateViewProps(vtkViewport *v)
 {
-  if (this->CursorAlgorithm->GetResliceCursor() == 0)
+  if (this->CursorAlgorithm->GetResliceCursor() == nullptr)
   {
     vtkDebugMacro(<< "no cursor to represent.");
     return;

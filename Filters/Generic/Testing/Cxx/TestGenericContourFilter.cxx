@@ -96,7 +96,7 @@ int TestGenericContourFilter(int argc, char* argv[])
   contour->SetValue( 0, 0.1);
   contour->Update(); //So that we can call GetRange() on the scalars
 
-  assert(contour->GetOutput()!=0);
+  assert(contour->GetOutput()!=nullptr);
 
   // This creates a blue to red lut.
   vtkLookupTable *lut = vtkLookupTable::New();
@@ -106,9 +106,9 @@ int TestGenericContourFilter(int argc, char* argv[])
   mapper->SetLookupTable(lut);
   mapper->SetInputConnection( contour->GetOutputPort() );
 
-  if(contour->GetOutput()->GetPointData()!=0)
+  if(contour->GetOutput()->GetPointData()!=nullptr)
   {
-    if(contour->GetOutput()->GetPointData()->GetScalars()!=0)
+    if(contour->GetOutput()->GetPointData()->GetScalars()!=nullptr)
     {
       mapper->SetScalarRange( contour->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());

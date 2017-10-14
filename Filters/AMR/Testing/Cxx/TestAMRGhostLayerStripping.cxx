@@ -46,7 +46,7 @@
 #include "vtkXMLImageDataWriter.h"
 void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 {
-  assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
+  assert( "pre: Uniform grid (g) is nullptr!" && (g != nullptr) );
 
   vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
 
@@ -62,7 +62,7 @@ void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 void WriteUnGhostedGrids(
     const int dimension, vtkOverlappingAMR *amr)
 {
-  assert("pre: AMR dataset is NULL!" && (amr != NULL) );
+  assert("pre: AMR dataset is nullptr!" && (amr != nullptr) );
 
   std::ostringstream oss;
   oss.clear();
@@ -73,7 +73,7 @@ void WriteUnGhostedGrids(
     for(;dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx )
     {
       vtkUniformGrid *grid = amr->GetDataSet(levelIdx,dataIdx);
-      if( grid != NULL )
+      if( grid != nullptr )
       {
         oss.str("");
         oss << dimension << "D_UNGHOSTED_GRID_" << levelIdx << "_" << dataIdx;
@@ -112,7 +112,7 @@ double ComputePulse(
 void ComputeCellCenter(
     vtkUniformGrid *grid, vtkIdType cellIdx, double centroid[3])
 {
-  assert("pre: input grid instance is NULL" && (grid != NULL));
+  assert("pre: input grid instance is nullptr" && (grid != nullptr));
   assert("pre: cell index is out-of-bounds!" &&
          (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()));
 
@@ -129,7 +129,7 @@ void ComputeCellCenter(
 //------------------------------------------------------------------------------
 void GeneratePulseField(const int dimension,vtkUniformGrid* grid)
 {
-  assert("pre: grid is NULL!" && (grid != NULL));
+  assert("pre: grid is nullptr!" && (grid != nullptr));
   assert("pre: grid is empty!" && (grid->GetNumberOfCells() >= 1) );
 
   double pulseOrigin[3];
@@ -178,10 +178,10 @@ vtkUniformGrid* GetGhostedGrid(
 {
   assert("pre: NG >= 1" && (NG >= 1) );
 
-  // STEP 0: If the reference grid is NULL just return
-  if( refGrid == NULL )
+  // STEP 0: If the reference grid is nullptr just return
+  if( refGrid == nullptr )
   {
-    return NULL;
+    return nullptr;
   }
 
   // STEP 1: Acquire reference grid origin,spacing, dims
@@ -305,7 +305,7 @@ bool CheckFields(vtkUniformGrid *grid)
 {
   // Since we know exactly what the fields are, i.e., gaussian-pulse and
   // centroid, we manually check the grid for correctness.
-  assert("pre: grid is NULL" && (grid != NULL) );
+  assert("pre: grid is nullptr" && (grid != nullptr) );
   vtkCellData *CD = grid->GetCellData();
   if( !CD->HasArray("Centroid") || !CD->HasArray("Gaussian-Pulse") )
   {
@@ -314,7 +314,7 @@ bool CheckFields(vtkUniformGrid *grid)
 
   vtkDoubleArray *centroidArray =
       vtkArrayDownCast<vtkDoubleArray>(CD->GetArray("Centroid"));
-  assert("pre: centroid arrays is NULL!" && (centroidArray != NULL) );
+  assert("pre: centroid arrays is nullptr!" && (centroidArray != nullptr) );
   if( centroidArray->GetNumberOfComponents() != 3 )
   {
     return false;
@@ -323,7 +323,7 @@ bool CheckFields(vtkUniformGrid *grid)
 
   vtkDoubleArray *pulseArray =
       vtkArrayDownCast<vtkDoubleArray>(CD->GetArray("Gaussian-Pulse"));
-  assert("pre: pulse array is NULL!" && (pulseArray != NULL) );
+  assert("pre: pulse array is nullptr!" && (pulseArray != nullptr) );
   if( pulseArray->GetNumberOfComponents() != 1)
   {
     return false;
@@ -372,8 +372,8 @@ bool CheckFields(vtkUniformGrid *grid)
 bool AMRDataSetsAreEqual(
     vtkOverlappingAMR *computed, vtkOverlappingAMR *expected)
 {
-  assert("pre: computed AMR dataset is NULL" && (computed != NULL) );
-  assert("pre: expected AMR dataset is NULL" && (expected != NULL) );
+  assert("pre: computed AMR dataset is nullptr" && (computed != nullptr) );
+  assert("pre: expected AMR dataset is nullptr" && (expected != nullptr) );
 
   if( computed == expected )
   {
@@ -441,7 +441,7 @@ int TestGhostStripping(
 
   // Get the non-ghosted dataset
   vtkOverlappingAMR *amrData = GetAMRDataSet(dimension,refinementRatio);
-  assert("pre: amrData should not be NULL!" && (amrData != NULL) );
+  assert("pre: amrData should not be nullptr!" && (amrData != nullptr) );
   if(vtkAMRUtilities::HasPartiallyOverlappingGhostCells(amrData))
   {
    ++rc;
@@ -451,7 +451,7 @@ int TestGhostStripping(
 
   // Get the ghosted dataset
   vtkOverlappingAMR *ghostedAMRData=GetGhostedDataSet(dimension,NG,amrData);
-  assert("pre: ghosted AMR data is NULL!" && (ghostedAMRData != NULL) );
+  assert("pre: ghosted AMR data is nullptr!" && (ghostedAMRData != nullptr) );
 
   if( NG == refinementRatio  )
   {

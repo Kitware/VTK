@@ -64,7 +64,7 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
   /**
    * Prints information about the state of the filter.
    */
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Creates with similarity transform.
@@ -113,16 +113,16 @@ class VTKFILTERSHYBRID_EXPORT vtkPCAAnalysisFilter : public vtkMultiBlockDataSet
 
 protected:
   vtkPCAAnalysisFilter();
-  ~vtkPCAAnalysisFilter() VTK_OVERRIDE;
+  ~vtkPCAAnalysisFilter() override;
 
   /**
    * Usual data generation method.
    */
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
-  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
+  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) = delete;
+  void operator=(const vtkPCAAnalysisFilter&) = delete;
 
   // Eigenvalues
   vtkFloatArray *Evals;

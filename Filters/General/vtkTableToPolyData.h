@@ -32,7 +32,7 @@ class VTKFILTERSGENERAL_EXPORT vtkTableToPolyData : public vtkPolyDataAlgorithm
 public:
   static vtkTableToPolyData* New();
   vtkTypeMacro(vtkTableToPolyData, vtkPolyDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -135,18 +135,18 @@ public:
 
 protected:
   vtkTableToPolyData();
-  ~vtkTableToPolyData() VTK_OVERRIDE;
+  ~vtkTableToPolyData() override;
 
   /**
    * Overridden to specify that input must be a vtkTable.
    */
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Convert input vtkTable to vtkPolyData.
    */
   int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector) override;
 
   char* XColumn;
   char* YColumn;
@@ -160,8 +160,8 @@ protected:
   bool Create2DPoints;
   bool PreserveCoordinateColumnsAsDataArrays;
 private:
-  vtkTableToPolyData(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
+  vtkTableToPolyData(const vtkTableToPolyData&) = delete;
+  void operator=(const vtkTableToPolyData&) = delete;
 
 };
 

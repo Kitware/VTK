@@ -130,7 +130,7 @@ void GridFactory::AddVertexCells()
 vtkUnstructuredGrid* GridFactory::Get()
 {
   if ( ! this->Grid )
-    return NULL;
+    return nullptr;
 
   // Create a point data array
   const char* name = "foo";

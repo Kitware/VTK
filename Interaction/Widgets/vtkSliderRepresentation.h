@@ -41,7 +41,7 @@ public:
    * Standard methods for the class.
    */
   vtkTypeMacro(vtkSliderRepresentation,vtkWidgetRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   //@}
 
   //@{
@@ -125,7 +125,7 @@ public:
    * to the empty string "", then the label text is not displayed.
    */
   virtual void SetTitleText(const char*) {}
-  virtual const char* GetTitleText() {return NULL;}
+  virtual const char* GetTitleText() {return nullptr;}
 
   //@{
   /**
@@ -184,7 +184,7 @@ public:
 
 protected:
   vtkSliderRepresentation();
-  ~vtkSliderRepresentation() VTK_OVERRIDE;
+  ~vtkSliderRepresentation() override;
 
   // Values
   double Value;
@@ -209,8 +209,8 @@ protected:
   double TitleHeight;
 
 private:
-  vtkSliderRepresentation(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
+  vtkSliderRepresentation(const vtkSliderRepresentation&) = delete;
+  void operator=(const vtkSliderRepresentation&) = delete;
 };
 
 #endif

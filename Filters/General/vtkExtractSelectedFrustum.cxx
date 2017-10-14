@@ -97,7 +97,7 @@ vtkMTimeType vtkExtractSelectedFrustum::GetMTime()
   vtkMTimeType mTime=this->MTime.GetMTime();
   vtkMTimeType impFuncMTime;
 
-  if ( this->Frustum != NULL )
+  if ( this->Frustum != nullptr )
   {
     impFuncMTime = this->Frustum->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
@@ -213,7 +213,7 @@ int vtkExtractSelectedFrustum::RequestData(
     vtkInformation *selInfo = inputVector[1]->GetInformationObject(0);
     vtkSelection *sel = vtkSelection::SafeDownCast(
       selInfo->Get(vtkDataObject::DATA_OBJECT()));
-    vtkSelectionNode *node = 0;
+    vtkSelectionNode *node = nullptr;
     if (sel->GetNumberOfNodes() == 1)
     {
       node = sel->GetNode(0);
@@ -372,8 +372,8 @@ int vtkExtractSelectedFrustum::RequestData(
   newCellPts = vtkIdList::New();
   newCellPts->Allocate(VTK_CELL_SIZE);
 
-  vtkIdTypeArray *originalCellIds = NULL;
-  vtkIdTypeArray *originalPointIds = NULL;
+  vtkIdTypeArray *originalCellIds = nullptr;
+  vtkIdTypeArray *originalPointIds = nullptr;
 
   signed char flag = this->InsideOut ? 1 : -1;
 
@@ -866,7 +866,7 @@ int vtkExtractSelectedFrustum::ABoxFrustumIsect(double *bounds, vtkCell *cell)
   */
   vtkCell *face;
   vtkCell *edge;
-  vtkPoints *pts=0;
+  vtkPoints *pts=nullptr;
   double *vertbuffer;
   int maxedges = 16;
   //be ready to resize if we hit a polygon with many vertices
@@ -1159,8 +1159,6 @@ void vtkExtractSelectedFrustum::PlaneClipEdge(double *V0, double *V1, int pid,
     overts[noverts*3+2] = V1[2];
     noverts++;
   }
-
-  return;
 }
 
 //----------------------------------------------------------------------------

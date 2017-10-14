@@ -71,7 +71,7 @@ public:
   static vtkSpanTreeLayoutStrategy *New();
 
   vtkTypeMacro(vtkSpanTreeLayoutStrategy, vtkGraphLayoutStrategy);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -89,18 +89,18 @@ public:
   /**
    * Perform the layout.
    */
-  void Layout() VTK_OVERRIDE;
+  void Layout() override;
 
 protected:
   vtkSpanTreeLayoutStrategy();
-  ~vtkSpanTreeLayoutStrategy() VTK_OVERRIDE;
+  ~vtkSpanTreeLayoutStrategy() override;
 
   vtkGraphLayoutStrategy *TreeLayout;
   bool DepthFirstSpanningTree;
 
 private:
-  vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSpanTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&) = delete;
+  void operator=(const vtkSpanTreeLayoutStrategy&) = delete;
 };
 
 #endif

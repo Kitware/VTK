@@ -80,14 +80,14 @@ struct TemplateCastRayWorker
       NumIntersections(0)
   {}
 
-  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) VTK_DELETE_FUNCTION;
+  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) = delete;
 
-  // Execute the algorithm with all arrays set to NULL.
+  // Execute the algorithm with all arrays set to nullptr.
   void operator()()
   {
-    (*this)(static_cast<vtkAOSDataArrayTemplate<float>*>(NULL),
-            static_cast<vtkAOSDataArrayTemplate<float>*>(NULL),
-            static_cast<vtkAOSDataArrayTemplate<float>*>(NULL));
+    (*this)(static_cast<vtkAOSDataArrayTemplate<float>*>(nullptr),
+            static_cast<vtkAOSDataArrayTemplate<float>*>(nullptr),
+            static_cast<vtkAOSDataArrayTemplate<float>*>(nullptr));
   }
 
   template <typename ScalarArrayT, typename NearArrayT, typename FarArrayT>
@@ -216,7 +216,7 @@ struct TemplateCastRayWorker
       {
         // The ray never exited the cell?  Perhaps numerical inaccuracies
         // got us here.  Just bail out as if we exited the mesh.
-        nextTriangle = NULL;
+        nextTriangle = nullptr;
         nextTetra = -1;
       }
       else
@@ -299,13 +299,13 @@ struct TemplateCastRayWorker
         this->NumIntersections++;
 
         // The far triangle has one or two tetras in its referred list.
-        // If one, return -1 for next tetra and NULL for next triangle
+        // If one, return -1 for next tetra and nullptr for next triangle
         // since we are exiting. If two, return the one that isn't the
         // current one.
         if ( (nextTriangle)->ReferredByTetra[1] == -1 )
         {
           nextTetra = -1;
-          nextTriangle = NULL;
+          nextTriangle = nullptr;
         }
         else
         {
@@ -346,20 +346,20 @@ public:
                        vtkUnstructuredGridVolumeRayCastIterator);
   static vtkUnstructuredGridBunykRayCastIterator *New();
 
-  void Initialize(int x, int y) VTK_OVERRIDE;
+  void Initialize(int x, int y) override;
 
   vtkIdType GetNextIntersections(vtkIdList *intersectedCells,
                                  vtkDoubleArray *intersectionLengths,
                                  vtkDataArray *scalars,
                                  vtkDataArray *nearIntersections,
-                                 vtkDataArray *farIntersections) VTK_OVERRIDE;
+                                 vtkDataArray *farIntersections) override;
 
   vtkSetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
 
 protected:
   vtkUnstructuredGridBunykRayCastIterator();
-  ~vtkUnstructuredGridBunykRayCastIterator() VTK_OVERRIDE;
+  ~vtkUnstructuredGridBunykRayCastIterator() override;
 
   int RayPosition[2];
 
@@ -370,20 +370,20 @@ protected:
   vtkIdType                                              CurrentTetra;
 
 private:
-  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) = delete;
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) = delete;
 };
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);
 
 vtkUnstructuredGridBunykRayCastIterator::vtkUnstructuredGridBunykRayCastIterator()
 {
-  this->RayCastFunction = NULL;
+  this->RayCastFunction = nullptr;
 }
 
 vtkUnstructuredGridBunykRayCastIterator::~vtkUnstructuredGridBunykRayCastIterator()
 {
-  this->SetRayCastFunction(NULL);
+  this->SetRayCastFunction(nullptr);
 }
 
 void vtkUnstructuredGridBunykRayCastIterator::Initialize(int x, int y)
@@ -393,14 +393,14 @@ void vtkUnstructuredGridBunykRayCastIterator::Initialize(int x, int y)
   this->IntersectionPtr
     = this->RayCastFunction->GetIntersectionList(this->RayPosition[0],
                                                  this->RayPosition[1]);
-  this->CurrentTriangle = NULL;
+  this->CurrentTriangle = nullptr;
   this->CurrentTetra = -1;
 
   // Intersect cells until we get to Bounds[0] (the near clip plane).
   TemplateCastRayWorker worker(
       this->RayCastFunction, 0, this->RayPosition[0], this->RayPosition[1],
       this->Bounds[0], this->IntersectionPtr, this->CurrentTriangle,
-      this->CurrentTetra, NULL, NULL, this->MaxNumberOfIntersections);
+      this->CurrentTetra, nullptr, nullptr, this->MaxNumberOfIntersections);
   do
   {
     worker();
@@ -433,8 +433,8 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
         this->RayCastFunction, 0, this->RayPosition[0], this->RayPosition[1],
         this->Bounds[1], this->IntersectionPtr, this->CurrentTriangle,
         this->CurrentTetra,
-        intersectedCells ? intersectedCells->GetPointer(0) : NULL,
-        intersectionLengths ? intersectionLengths->GetPointer(0) : NULL,
+        intersectedCells ? intersectedCells->GetPointer(0) : nullptr,
+        intersectionLengths ? intersectionLengths->GetPointer(0) : nullptr,
         this->MaxNumberOfIntersections);
     worker();
     numIntersections = worker.NumIntersections;
@@ -456,8 +456,8 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
         this->RayCastFunction, scalars->GetNumberOfComponents(),
         this->RayPosition[0], this->RayPosition[1], this->Bounds[1],
         this->IntersectionPtr, this->CurrentTriangle, this->CurrentTetra,
-        intersectedCells ? intersectedCells->GetPointer(0) : NULL,
-        intersectionLengths ? intersectionLengths->GetPointer(0) : NULL,
+        intersectedCells ? intersectedCells->GetPointer(0) : nullptr,
+        intersectionLengths ? intersectionLengths->GetPointer(0) : nullptr,
         this->MaxNumberOfIntersections
         );
 
@@ -494,14 +494,14 @@ vtkIdType vtkUnstructuredGridBunykRayCastIterator::GetNextIntersections(
 // Constructor - initially everything to null, and create a matrix for use later
 vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction()
 {
-  this->Renderer          = NULL;
-  this->Volume            = NULL;
-  this->Mapper            = NULL;
+  this->Renderer          = nullptr;
+  this->Volume            = nullptr;
+  this->Mapper            = nullptr;
   this->Valid             = 0;
-  this->Points            = NULL;
-  this->Image             = NULL;
-  this->TriangleList      = NULL;
-  this->TetraTriangles    = NULL;
+  this->Points            = nullptr;
+  this->Image             = nullptr;
+  this->TriangleList      = nullptr;
+  this->TetraTriangles    = nullptr;
   this->TetraTrianglesSize= 0;
   this->NumberOfPoints    = 0;
   this->ImageSize[0]      = 0;
@@ -510,11 +510,11 @@ vtkUnstructuredGridBunykRayCastFunction::vtkUnstructuredGridBunykRayCastFunction
 
   for (int i = 0; i < VTK_BUNYKRCF_MAX_ARRAYS; i++ )
   {
-    this->IntersectionBuffer[i] = NULL;
+    this->IntersectionBuffer[i] = nullptr;
     this->IntersectionBufferCount[i] = 0;
   }
 
-  this->SavedTriangleListInput       = NULL;
+  this->SavedTriangleListInput       = nullptr;
 }
 
 // Destructor - release all memory
@@ -524,7 +524,7 @@ vtkUnstructuredGridBunykRayCastFunction::~vtkUnstructuredGridBunykRayCastFunctio
 
   this->ClearImage();
   delete [] this->Image;
-  this->Image = NULL;
+  this->Image = nullptr;
 
   delete [] this->TetraTriangles;
 
@@ -546,7 +546,7 @@ vtkUnstructuredGridBunykRayCastFunction::~vtkUnstructuredGridBunykRayCastFunctio
 }
 
 // Clear the intersection image. This does NOT release memory -
-// it just sets the link pointers to NULL. The memory is
+// it just sets the link pointers to nullptr. The memory is
 // contained in the IntersectionBuffer arrays.
 void vtkUnstructuredGridBunykRayCastFunction::ClearImage()
 {
@@ -555,7 +555,7 @@ void vtkUnstructuredGridBunykRayCastFunction::ClearImage()
   {
     for ( i = 0; i < this->ImageSize[0]*this->ImageSize[1]; i++ )
     {
-      this->Image[i] = NULL;
+      this->Image[i] = nullptr;
     }
   }
 
@@ -585,11 +585,11 @@ void *vtkUnstructuredGridBunykRayCastFunction::NewIntersection()
     }
   }
 
-  // We have run out of space - return NULL
+  // We have run out of space - return nullptr
   if ( i == VTK_BUNYKRCF_MAX_ARRAYS )
   {
     vtkErrorMacro("Out of space for intersections!");
-    return NULL;
+    return nullptr;
   }
 
   // We need another array - allocate it and set its count to 0 indicating
@@ -823,7 +823,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
     delete this->TriangleList;
     this->TriangleList = tmp;
   }
-  this->TriangleList = NULL;
+  this->TriangleList = nullptr;
 
   // A temporary structure to reduce search time - VTK_BUNYKRCF_NUMLISTS small
   // lists instead of one big one
@@ -832,7 +832,7 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
   vtkIdType i;
   for ( i = 0; i < VTK_BUNYKRCF_NUMLISTS; i++ )
   {
-    tmpList[i] = NULL;
+    tmpList[i] = nullptr;
   }
 
   vtkIdType numCells = input->GetNumberOfCells();
@@ -844,12 +844,12 @@ void  vtkUnstructuredGridBunykRayCastFunction::UpdateTriangleList()
   // Create a set of links from each tetra to the four triangles
   // This is redundant information, but saves time during rendering
 
-  if(this->TetraTriangles!=0 && numCells!=this->TetraTrianglesSize)
+  if(this->TetraTriangles!=nullptr && numCells!=this->TetraTrianglesSize)
   {
     delete [] this->TetraTriangles;
-    this->TetraTriangles=0;
+    this->TetraTriangles=nullptr;
   }
-  if(this->TetraTriangles==0)
+  if(this->TetraTriangles==nullptr)
   {
     this->TetraTriangles = new Triangle *[4 * numCells];
     this->TetraTrianglesSize=numCells;
@@ -1108,7 +1108,7 @@ void vtkUnstructuredGridBunykRayCastFunction::ComputePixelIntersections()
                 {
                   intersect->TriPtr = triPtr;
                   intersect->Z      = az;
-                  intersect->Next   = NULL;
+                  intersect->Next   = nullptr;
 
                   if ( !this->Image[y*this->ImageSize[0] + x] ||
                        intersect->Z < this->Image[y*this->ImageSize[0] + x]->Z )
@@ -1191,7 +1191,7 @@ int  vtkUnstructuredGridBunykRayCastFunction::IsTriangleFrontFacing( Triangle *t
 vtkUnstructuredGridVolumeRayCastIterator
     *vtkUnstructuredGridBunykRayCastFunction::NewIterator()
 {
-  if (!this->Valid) return NULL;
+  if (!this->Valid) return nullptr;
 
   vtkUnstructuredGridBunykRayCastIterator *iterator
     = vtkUnstructuredGridBunykRayCastIterator::New();
@@ -1202,9 +1202,9 @@ vtkUnstructuredGridVolumeRayCastIterator
 
 void vtkUnstructuredGridBunykRayCastFunction::Finalize( )
 {
-  this->Renderer = NULL;
-  this->Volume   = NULL;
-  this->Mapper   = NULL;
+  this->Renderer = nullptr;
+  this->Volume   = nullptr;
+  this->Mapper   = nullptr;
 
   this->Valid    = 0;
 }

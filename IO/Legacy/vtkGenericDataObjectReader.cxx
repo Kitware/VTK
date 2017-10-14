@@ -104,9 +104,9 @@ int vtkGenericDataObjectReader::RequestDataObject(
   vtkInformationVector** /*inputVector*/,
   vtkInformationVector* outputVector)
 {
-  if(this->GetFileName() == NULL &&
+  if(this->GetFileName() == nullptr &&
       (this->GetReadFromInputString() == 0 ||
-       (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
+       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
     vtkWarningMacro(<< "FileName must be set");
     return 0;
@@ -189,15 +189,15 @@ int vtkGenericDataObjectReader::RequestInformation(
   vtkInformationVector* outputVector)
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  if(this->GetFileName() == NULL &&
+  if(this->GetFileName() == nullptr &&
       (this->GetReadFromInputString() == 0 ||
-       (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
+       (this->GetInputArray() == nullptr && this->GetInputString() == nullptr)))
   {
     vtkWarningMacro(<< "FileName must be set");
     return 0;
   }
 
-  vtkDataReader *reader = 0;
+  vtkDataReader *reader = nullptr;
   int retVal;
   switch (this->ReadOutputType())
   {
@@ -238,7 +238,7 @@ int vtkGenericDataObjectReader::RequestInformation(
       reader = vtkCompositeDataReader::New();
       break;
     default:
-      reader = NULL;
+      reader = nullptr;
   }
 
   if(reader)

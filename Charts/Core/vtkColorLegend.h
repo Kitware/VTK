@@ -39,7 +39,7 @@ class VTKCHARTSCORE_EXPORT vtkColorLegend: public vtkChartLegend
 {
 public:
   vtkTypeMacro(vtkColorLegend, vtkChartLegend);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
   static vtkColorLegend* New();
 
   /**
@@ -61,14 +61,14 @@ public:
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint the texture into a rectangle defined by the bounds. If
    * MaskAboveCurve is true and a shape has been provided by a subclass, it
    * draws the texture into the shape
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   //@{
   /**
@@ -82,7 +82,7 @@ public:
   /**
    * Set the point this legend is anchored to.
    */
-  void SetPoint(float x, float y) VTK_OVERRIDE;
+  void SetPoint(float x, float y) override;
 
   /**
    * Set the size of the scalar bar drawn by this legend.
@@ -109,7 +109,7 @@ public:
    * height being the total width/height required by the axis. In order to
    * ensure the numbers are correct, Update() should be called first.
    */
-  vtkRectf GetBoundingRect(vtkContext2D* painter) VTK_OVERRIDE;
+  vtkRectf GetBoundingRect(vtkContext2D* painter) override;
 
   //@{
   /**
@@ -141,11 +141,11 @@ public:
   /**
    * Mouse move event.
    */
-  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) VTK_OVERRIDE;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
 protected:
   vtkColorLegend();
-  ~vtkColorLegend() VTK_OVERRIDE;
+  ~vtkColorLegend() override;
 
   /**
    * Need to be reimplemented by subclasses, ComputeTexture() is called at
@@ -180,8 +180,8 @@ protected:
   int                                 Orientation;
 
 private:
-  vtkColorLegend(const vtkColorLegend &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkColorLegend &) VTK_DELETE_FUNCTION;
+  vtkColorLegend(const vtkColorLegend &) = delete;
+  void operator=(const vtkColorLegend &) = delete;
 };
 
 #endif

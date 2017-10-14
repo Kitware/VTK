@@ -47,7 +47,7 @@ class VTKIMAGINGSTATISTICS_EXPORT vtkImageAccumulate : public vtkImageAlgorithm
 public:
   static vtkImageAccumulate *New();
   vtkTypeMacro(vtkImageAccumulate,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -99,7 +99,7 @@ public:
    * Use a stencil to specify which voxels to accumulate.
    * Backcompatible methods.
    * It set and get the stencil on input port 1.
-   * Initial value is NULL.
+   * Initial value is nullptr.
    */
   void SetStencilData(vtkImageStencilData *stencil);
   vtkImageStencilData *GetStencil();
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkImageAccumulate();
-  ~vtkImageAccumulate() VTK_OVERRIDE;
+  ~vtkImageAccumulate() override;
 
   double ComponentSpacing[3];
   double ComponentOrigin[3];
@@ -146,13 +146,13 @@ protected:
 
   int RequestUpdateExtent(vtkInformation*,
                                    vtkInformationVector**,
-                                   vtkInformationVector*) VTK_OVERRIDE;
+                                   vtkInformationVector*) override;
   int RequestInformation (vtkInformation*,
                                   vtkInformationVector**,
-                                  vtkInformationVector*) VTK_OVERRIDE;
+                                  vtkInformationVector*) override;
   int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector) VTK_OVERRIDE;
+                          vtkInformationVector* outputVector) override;
 
   int    IgnoreZero;
   double Min[3];
@@ -163,11 +163,11 @@ protected:
 
   int ReverseStencil;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
 private:
-  vtkImageAccumulate(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
+  vtkImageAccumulate(const vtkImageAccumulate&) = delete;
+  void operator=(const vtkImageAccumulate&) = delete;
 };
 
 #endif

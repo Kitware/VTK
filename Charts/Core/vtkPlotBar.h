@@ -43,7 +43,7 @@ class VTKCHARTSCORE_EXPORT vtkPlotBar : public vtkPlot
 {
 public:
   vtkTypeMacro(vtkPlotBar, vtkPlot);
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Enum of bar chart oritentation types
@@ -61,12 +61,12 @@ public:
   /**
    * Perform any updates to the item that may be necessary before rendering.
    */
-  void Update() VTK_OVERRIDE;
+  void Update() override;
 
   /**
    * Paint event for the XY plot, called whenever the chart needs to be drawn
    */
-  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Paint legend event for the XY plot, called whenever the legend needs the
@@ -75,23 +75,23 @@ public:
    * and 3). The plot can choose how to fill the space supplied.
    */
   bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
-                           int legendIndex) VTK_OVERRIDE;
+                           int legendIndex) override;
 
   //@{
   /**
    * Set the plot color
    */
   void SetColor(unsigned char r, unsigned char g, unsigned char b,
-                        unsigned char a) VTK_OVERRIDE;
-  void SetColor(double r,  double g, double b) VTK_OVERRIDE;
-  void GetColor(double rgb[3]) VTK_OVERRIDE;
+                        unsigned char a) override;
+  void SetColor(double r,  double g, double b) override;
+  void GetColor(double rgb[3]) override;
   //@}
 
   //@{
   /**
    * Set the width of the line.
    */
-  void SetWidth(float _arg) VTK_OVERRIDE
+  void SetWidth(float _arg) override
   {
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting Width to " << _arg);
     if (this->Width != _arg)
@@ -106,7 +106,7 @@ public:
   /**
    * Get the width of the line.
    */
-  float GetWidth() VTK_OVERRIDE
+  float GetWidth() override
   {
     vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Width of " << this->Width );
     return this->Width;
@@ -141,17 +141,17 @@ public:
   /**
    * Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
    */
-  void GetBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetBounds(double bounds[4]) override;
 
   /**
    * Get un-log-scaled bounds for this mapper as (Xmin,Xmax,Ymin,Ymax).
    */
-  void GetUnscaledInputBounds(double bounds[4]) VTK_OVERRIDE;
+  void GetUnscaledInputBounds(double bounds[4]) override;
 
   /**
    * When used to set additional arrays, stacked bars are created.
    */
-  void SetInputArray(int index, const vtkStdString &name) VTK_OVERRIDE;
+  void SetInputArray(int index, const vtkStdString &name) override;
 
   /**
    * Set the color series to use if this becomes a stacked bar plot.
@@ -204,7 +204,7 @@ public:
   /**
    * Get the plot labels.
    */
-  vtkStringArray *GetLabels() VTK_OVERRIDE;
+  vtkStringArray *GetLabels() override;
 
   /**
    * Set the group name of the bar chart - can be displayed on the X axis.
@@ -222,12 +222,12 @@ public:
    */
   vtkStdString GetTooltipLabel(const vtkVector2d &plotPos,
                                        vtkIdType seriesIndex,
-                                       vtkIdType segmentIndex) VTK_OVERRIDE;
+                                       vtkIdType segmentIndex) override;
 
   /**
    * Select all points in the specified rectangle.
    */
-  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) VTK_OVERRIDE;
+  bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) override;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -236,7 +236,7 @@ public:
    */
   vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
-                                    vtkVector2f* location) VTK_OVERRIDE;
+                                    vtkVector2f* location) override;
 
   /**
    * Function to query a plot for the nearest point to the specified coordinate.
@@ -262,7 +262,7 @@ public:
 
 protected:
   vtkPlotBar();
-  ~vtkPlotBar() VTK_OVERRIDE;
+  ~vtkPlotBar() override;
 
   /**
    * Update the table cache.
@@ -303,8 +303,8 @@ protected:
   bool LogY;
 
 private:
-  vtkPlotBar(const vtkPlotBar &) VTK_DELETE_FUNCTION;
-  void operator=(const vtkPlotBar &) VTK_DELETE_FUNCTION;
+  vtkPlotBar(const vtkPlotBar &) = delete;
+  void operator=(const vtkPlotBar &) = delete;
 
   vtkPlotBarPrivate *Private;
 

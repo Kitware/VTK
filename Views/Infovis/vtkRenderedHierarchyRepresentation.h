@@ -34,7 +34,7 @@ class VTKVIEWSINFOVIS_EXPORT vtkRenderedHierarchyRepresentation : public vtkRend
 public:
   static vtkRenderedHierarchyRepresentation* New();
   vtkTypeMacro(vtkRenderedHierarchyRepresentation, vtkRenderedGraphRepresentation);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -111,14 +111,14 @@ public:
 
 protected:
   vtkRenderedHierarchyRepresentation();
-  ~vtkRenderedHierarchyRepresentation() VTK_OVERRIDE;
+  ~vtkRenderedHierarchyRepresentation() override;
 
   //@{
   /**
    * Called by the view to add/remove this representation.
    */
-  bool AddToView(vtkView* view) VTK_OVERRIDE;
-  bool RemoveFromView(vtkView* view) VTK_OVERRIDE;
+  bool AddToView(vtkView* view) override;
+  bool RemoveFromView(vtkView* view) override;
   //@}
 
   /**
@@ -126,9 +126,9 @@ protected:
    */
   bool ValidIndex(int idx);
 
-  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) VTK_OVERRIDE;
+  vtkSelection* ConvertSelection(vtkView* view, vtkSelection* sel) override;
 
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   /**
    * Sets up the input connections for this representation.
@@ -136,16 +136,16 @@ protected:
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) VTK_OVERRIDE;
+    vtkInformationVector* outputVector) override;
 
-  void ApplyViewTheme(vtkViewTheme* theme) VTK_OVERRIDE;
+  void ApplyViewTheme(vtkViewTheme* theme) override;
 
   class Internals;
   Internals* Implementation;
 
 private:
-  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
+  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&) = delete;
+  void operator=(const vtkRenderedHierarchyRepresentation&) = delete;
 };
 
 #endif

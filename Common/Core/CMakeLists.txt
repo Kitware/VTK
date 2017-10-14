@@ -180,6 +180,7 @@ SET(Module_SRCS
   vtkDataArrayCollection.cxx
   vtkDataArrayCollectionIterator.cxx
   vtkDataArray.cxx
+  vtkDataArrayPrivate.txx
   vtkDataArraySelection.cxx
   vtkDebugLeaks.cxx
   vtkDebugLeaksManager.cxx
@@ -192,6 +193,7 @@ SET(Module_SRCS
   vtkGarbageCollector.cxx
   vtkGarbageCollectorManager.cxx
   vtkGaussianRandomSequence.cxx
+  vtkGenericDataArray.txx
   vtkIdListCollection.cxx
   vtkIdList.cxx
   vtkIdTypeArray.cxx
@@ -219,7 +221,6 @@ SET(Module_SRCS
   vtkInformationVariantKey.cxx
   vtkInformationVariantVectorKey.cxx
   vtkInformationVector.cxx
-  vtkInstantiator.cxx
   vtkIntArray.cxx
   vtkLargeInteger.cxx
   vtkLongArray.cxx
@@ -279,7 +280,6 @@ SET(Module_SRCS
   vtkDenseArray.txx
   vtkSparseArray.txx
   vtkTypedArray.txx
-  vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
   vtkWrappingHints.h
@@ -289,6 +289,11 @@ SET(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkInstantiator.cxx)
+endif ()
 
 set(${vtk-module}_HDRS
   vtkABI.h
@@ -309,9 +314,7 @@ set(${vtk-module}_HDRS
   vtkDataArrayAccessor.h
   vtkDataArrayIteratorMacro.h
   vtkDataArrayTemplate.h
-  vtkGenericDataArray.h
   vtkGenericDataArrayLookupHelper.h
-  vtkGenericDataArray.txx
   vtkIOStream.h
   vtkIOStreamFwd.h
   vtkInformationInternals.h
@@ -322,7 +325,6 @@ set(${vtk-module}_HDRS
   vtkPeriodicDataArray.h
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
@@ -612,7 +614,6 @@ set_source_files_properties(
   vtkOldStyleCallbackCommand.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
-  vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
@@ -635,6 +636,7 @@ set_source_files_properties(
   vtkAtomicTypes.h
   vtkAutoInit.h
   vtkDenseArray.txx
+  vtkGenericDataArray.txx
   vtkGenericDataArrayHelpers.h
   vtkInformationInternals.h
   vtkIOStream.h
@@ -664,7 +666,6 @@ set_source_files_properties(
   vtkConfigure.h
   vtkMathConfigure.h
   vtkVersionMacros.h
-  vtkTypeTemplate.h
   vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
@@ -690,7 +691,6 @@ set_source_files_properties(
   vtkSetGet.h
   vtkSmartPointer.h
   vtkSmartPointerBase.h
-  vtkSOADataArrayTemplate.txx
   vtkSOADataArrayTemplateInstantiate.cxx # Has no API
   vtkStdString.cxx
   vtkUnicodeString.cxx
@@ -706,7 +706,6 @@ set_source_files_properties(
   vtkDenseArray.h
   vtkSparseArray.h
   vtkTypedArray.h
-  vtkTypeTemplate.h
   "${VTK_TYPELISTMACROS_HEADER}"
   HEADER_FILE_ONLY
   )
@@ -716,6 +715,13 @@ set_source_files_properties(
   vtkSOADataArrayTemplateInstantiate.cxx # Has no header
   PROPERTIES SKIP_HEADER_INSTALL 1
 )
+
+if(MSVC)
+  set_source_files_properties(
+    vtkDataArray.cxx
+    PROPERTIES COMPILE_FLAGS /bigobj
+    )
+endif()
 
 # Need nsl to resolve gethostbyname on SunOS-5.8
 # and socket also

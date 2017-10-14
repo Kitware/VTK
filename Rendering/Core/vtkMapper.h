@@ -34,14 +34,6 @@
  * setting of the ColorMode flag. See the documentation for the appropriate
  * methods for an explanation.
  *
- * Another important feature of this class is whether to use immediate mode
- * rendering (ImmediateModeRenderingOn) or display list rendering
- * (ImmediateModeRenderingOff). If display lists are used, a data structure
- * is constructed (generally in the rendering library) which can then be
- * rapidly traversed and rendered by the rendering library. The disadvantage
- * of display lists is that they require additionally memory which may affect
- * the performance of the system.
- *
  * Another important feature of the mapper is the ability to shift the
  * z-buffer to resolve coincident topology. For example, if you'd like to
  * draw a mesh with some edges a different color, and the edges lie on the
@@ -86,7 +78,7 @@ class VTKRENDERINGCORE_EXPORT vtkMapper : public vtkAbstractMapper3D
 {
 public:
   vtkTypeMacro(vtkMapper, vtkAbstractMapper3D);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Make a shallow copy of this mapper.
@@ -97,7 +89,7 @@ public:
    * Overload standard modified time function. If lookup table is modified,
    * then this object is modified as well.
    */
-  vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() override;
 
   /**
    * Method initiates the mapping process. Generally sent by the actor
@@ -110,7 +102,7 @@ public:
    * The parameter window could be used to determine which graphic
    * resources to release.
    */
-  void ReleaseGraphicsResources(vtkWindow *) VTK_OVERRIDE {}
+  void ReleaseGraphicsResources(vtkWindow *) override {}
 
   //@{
   /**
@@ -220,9 +212,10 @@ public:
    * having problems rendering a large dataset you might
    * want to consider using immediate more rendering.
    */
-  vtkSetMacro(ImmediateModeRendering, int);
-  vtkGetMacro(ImmediateModeRendering, int);
-  vtkBooleanMacro(ImmediateModeRendering, int);
+  VTK_LEGACY(void SetImmediateModeRendering(int));
+  VTK_LEGACY(int GetImmediateModeRendering());
+  VTK_LEGACY(void ImmediateModeRenderingOn());
+  VTK_LEGACY(void ImmediateModeRenderingOff());
   //@}
 
   //@{
@@ -234,12 +227,10 @@ public:
    * having problems rendering a large dataset you might
    * want to consider using immediate more rendering.
    */
-  static void SetGlobalImmediateModeRendering(int val);
-  static void GlobalImmediateModeRenderingOn()
-    { vtkMapper::SetGlobalImmediateModeRendering(1); }
-  static void GlobalImmediateModeRenderingOff()
-    { vtkMapper::SetGlobalImmediateModeRendering(0); }
-  static int  GetGlobalImmediateModeRendering();
+  VTK_LEGACY(static void SetGlobalImmediateModeRendering(int val));
+  VTK_LEGACY(static void GlobalImmediateModeRenderingOn());
+  VTK_LEGACY(static void GlobalImmediateModeRenderingOff());
+  VTK_LEGACY(static int  GetGlobalImmediateModeRendering());
   //@}
 
   //@{
@@ -252,8 +243,8 @@ public:
    * (call of display lists can be nested but not their creation.)
    * There is no good reason to expose it to wrappers.
    */
-  vtkGetMacro(ForceCompileOnly, int);
-  void SetForceCompileOnly(int value);
+  VTK_LEGACY(int GetForceCompileOnly());
+  VTK_LEGACY(void SetForceCompileOnly(int value));
   //@}
 
   /**
@@ -471,8 +462,8 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() VTK_OVERRIDE;
-  void GetBounds(double bounds[6]) VTK_OVERRIDE
+  double *GetBounds() override;
+  void GetBounds(double bounds[6]) override
     { this->vtkAbstractMapper3D::GetBounds(bounds); }
 
   /**
@@ -520,22 +511,18 @@ public:
   /**
    * Set/Get the light-model color mode.
    */
-  vtkSetMacro(ScalarMaterialMode,int);
-  vtkGetMacro(ScalarMaterialMode,int);
-  void SetScalarMaterialModeToDefault()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DEFAULT); }
-  void SetScalarMaterialModeToAmbient()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT); }
-  void SetScalarMaterialModeToDiffuse()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_DIFFUSE); }
-  void SetScalarMaterialModeToAmbientAndDiffuse()
-    { this->SetScalarMaterialMode(VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE); }
+  VTK_LEGACY(void SetScalarMaterialMode(int val));
+  VTK_LEGACY(int GetScalarMaterialMode());
+  VTK_LEGACY(void SetScalarMaterialModeToDefault());
+  VTK_LEGACY(void SetScalarMaterialModeToAmbient());
+  VTK_LEGACY(void SetScalarMaterialModeToDiffuse());
+  VTK_LEGACY(void SetScalarMaterialModeToAmbientAndDiffuse());
   //@}
 
   /**
    * Return the light-model color mode.
    */
-  const char *GetScalarMaterialModeAsString();
+  VTK_LEGACY(const char *GetScalarMaterialModeAsString());
 
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
@@ -589,7 +576,7 @@ public:
 
 protected:
   vtkMapper();
-  ~vtkMapper() VTK_OVERRIDE;
+  ~vtkMapper() override;
 
   // color mapped colors
   vtkUnsignedCharArray *Colors;
@@ -607,10 +594,14 @@ protected:
   vtkTimeStamp BuildTime;
   double ScalarRange[2];
   int UseLookupTableScalarRange;
+
+#ifndef VTK_LEGACY_REMOVE
   int ImmediateModeRendering;
+  int ForceCompileOnly;
+#endif
+
   int ColorMode;
   int ScalarMode;
-  int ScalarMaterialMode;
 
   double RenderTime;
 
@@ -626,8 +617,6 @@ protected:
 
   int Static;
 
-  int ForceCompileOnly;
-
   double CoincidentPolygonFactor;
   double CoincidentPolygonOffset;
   double CoincidentLineFactor;
@@ -635,8 +624,8 @@ protected:
   double CoincidentPointOffset;
 
 private:
-  vtkMapper(const vtkMapper&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkMapper&) VTK_DELETE_FUNCTION;
+  vtkMapper(const vtkMapper&) = delete;
+  void operator=(const vtkMapper&) = delete;
 };
 
 #endif

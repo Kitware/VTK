@@ -33,7 +33,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCountFaces: public vtkPassInputTypeAlgorithm
 public:
   static vtkCountFaces* New();
   vtkTypeMacro(vtkCountFaces, vtkPassInputTypeAlgorithm)
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -45,19 +45,19 @@ public:
 
 protected:
   vtkCountFaces();
-  ~vtkCountFaces() VTK_OVERRIDE;
+  ~vtkCountFaces() override;
 
   int RequestData(vtkInformation* request, vtkInformationVector **inInfoVec,
-                  vtkInformationVector *outInfoVec) VTK_OVERRIDE;
+                  vtkInformationVector *outInfoVec) override;
 
-  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
-  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillOutputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   char *OutputArrayName;
 
 private:
-  vtkCountFaces(const vtkCountFaces&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkCountFaces&) VTK_DELETE_FUNCTION;
+  vtkCountFaces(const vtkCountFaces&) = delete;
+  void operator=(const vtkCountFaces&) = delete;
 };
 
 #endif // vtkCountFaces_h

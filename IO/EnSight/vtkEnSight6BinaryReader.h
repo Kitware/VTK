@@ -50,11 +50,11 @@ class VTKIOENSIGHT_EXPORT vtkEnSight6BinaryReader : public vtkEnSightReader
 public:
   static vtkEnSight6BinaryReader *New();
   vtkTypeMacro(vtkEnSight6BinaryReader, vtkEnSightReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkEnSight6BinaryReader();
-  ~vtkEnSight6BinaryReader() VTK_OVERRIDE;
+  ~vtkEnSight6BinaryReader() override;
 
   // Returns 1 if successful.  Sets file size as a side action.
   int OpenFile(const char* filename);
@@ -63,14 +63,14 @@ protected:
    * Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
    */
   int ReadGeometryFile(const char* fileName, int timeStep,
-                               vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                               vtkMultiBlockDataSet *output) override;
 
   /**
    * Read the measured geometry file.  If an error occurred, 0 is returned;
    * otherwise 1.
    */
   int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
-                                       vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                       vtkMultiBlockDataSet *output) override;
 
   /**
    * Read scalars per node for this dataset.  If an error occurred, 0 is
@@ -80,7 +80,7 @@ protected:
   int ReadScalarsPerNode(const char* fileName, const char* description,
                                  int timeStep, vtkMultiBlockDataSet *output,
                                  int measured = 0, int numberOfComponents = 1,
-                                 int component = 0) VTK_OVERRIDE;
+                                 int component = 0) override;
 
   /**
    * Read vectors per node for this dataset.  If an error occurred, 0 is
@@ -88,14 +88,14 @@ protected:
    */
   int ReadVectorsPerNode(const char* fileName, const char* description,
                                  int timeStep, vtkMultiBlockDataSet *output,
-                                 int measured = 0) VTK_OVERRIDE;
+                                 int measured = 0) override;
 
   /**
    * Read tensors per node for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                 int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read scalars per element for this dataset.  If an error occurred, 0 is
@@ -106,21 +106,21 @@ protected:
                                     const char* description, int timeStep,
                                     vtkMultiBlockDataSet *output,
                                     int numberOfComponents = 1,
-                                    int component = 0) VTK_OVERRIDE;
+                                    int component = 0) override;
 
   /**
    * Read vectors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                    int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read tensors per element for this dataset.  If an error occurred, 0 is
    * returned; otherwise 1.
    */
   int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep, vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                    int timeStep, vtkMultiBlockDataSet *output) override;
 
   /**
    * Read an unstructured part (partId) from the geometry file and create a
@@ -129,7 +129,7 @@ protected:
   int CreateUnstructuredGridOutput(int partId,
                                            char line[256],
                                            const char* name,
-                                           vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                           vtkMultiBlockDataSet *output) override;
 
   /**
    * Read a structured part from the geometry file and create a
@@ -138,7 +138,7 @@ protected:
   int CreateStructuredGridOutput(int partId,
                                          char line[256],
                                          const char* name,
-                                         vtkMultiBlockDataSet *output) VTK_OVERRIDE;
+                                         vtkMultiBlockDataSet *output) override;
 
   /**
    * Internal function to read in a line up to 80 characters.
@@ -184,10 +184,10 @@ protected:
   // The size of the file is used to choose byte order.
   vtkTypeUInt64 FileSize;
 
-  ifstream *IFile;
+  ifstream *BinaryIFile;
 private:
-  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
+  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&) = delete;
+  void operator=(const vtkEnSight6BinaryReader&) = delete;
 };
 
 #endif

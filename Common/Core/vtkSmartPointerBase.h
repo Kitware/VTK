@@ -33,7 +33,7 @@ class VTKCOMMONCORE_EXPORT vtkSmartPointerBase
 {
 public:
   /**
-   * Initialize smart pointer to NULL.
+   * Initialize smart pointer to nullptr.
    */
   vtkSmartPointerBase();
 
