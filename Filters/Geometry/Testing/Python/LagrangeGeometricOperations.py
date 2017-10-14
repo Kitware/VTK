@@ -11,6 +11,26 @@ try:
 except:
     numpyMissing = True
 
+renderWindowSizeMatchedRequest = None
+
+def renderWindowTooSmall():
+    global renderWindowSizeMatchedRequest
+    if renderWindowSizeMatchedRequest == None:
+        # Make sure we can render at the desired size:
+        trw = vtkRenderWindow()
+        trr = vtkRenderer()
+        trr.SetBackground(1,1,1)
+        trw.SetSize(512,512)
+        trw.AddRenderer(trr)
+        twi = vtkWindowToImageFilter()
+        twi.SetInput(trw)
+        twi.Update()
+        tim = twi.GetOutput()
+        renderWindowSizeMatchedRequest = (trw.GetSize() == tim.GetDimensions()[0:2])
+        if not renderWindowSizeMatchedRequest:
+            print('Skipping because RW %s != WI %s' % (trw.GetSize(), tim.GetDimensions()[0:2]))
+    return not renderWindowSizeMatchedRequest
+
 class LagrangeGeometricOperations(Testing.vtkTest):
     def setUp(self):
         self.rw = vtkRenderWindow()
@@ -23,6 +43,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rs.SetCurrentStyleToTrackballCamera()
         self.rs.SetCurrentStyleToMultiTouchCamera()
         self.rr.SetBackground(1,1,1)
+        self.rw.SetSize(512, 512)
 
         self.rdr = vtkXMLUnstructuredGridReader()
         self.rdr.SetFileName(self.pathToData('Elements.vtu'))
@@ -57,6 +78,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # wri.Write()
         return (a2, m2)
 
+    @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testContour(self):
         ## Contour actor
         con = vtkContourFilter()
@@ -103,7 +125,6 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # cam.SetFocalPoint(4.0, 2.25, 2.25)
         # cam.SetViewUp(-0.384040517561, 0.519961374525, 0.762989547683)
 
-        self.rw.SetSize(512, 512)
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Contour.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
@@ -116,6 +137,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # wri.SetFileName('/tmp/contours.vtp')
         # wri.Write()
 
+    @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testBoundaryExtraction(self):
         ugg = vtkUnstructuredGridGeometryFilter()
         ugg.SetInputConnection(self.rdr.GetOutputPort())
@@ -147,13 +169,13 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # wri.SetFileName('/tmp/surface.vtu')
         # wri.Write()
 
-        self.rw.SetSize(512, 512)
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Boundary.png'
         #events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
         vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
         # vtk.test.Testing.interact()
 
+    @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testClip(self):
 
         # Color the cells with a qualitative color scheme:
@@ -198,7 +220,6 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         cam.SetPosition(16.0784261776, 11.8079343039, -6.69074553411)
         cam.SetFocalPoint(4.54685488135, 1.74152986486, 2.38091647662)
         cam.SetViewUp(-0.523934540522, 0.81705750638, 0.240644194852)
-        self.rw.SetSize(512, 512)
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Clip.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
@@ -207,6 +228,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
 
         # ri.Start()
 
+    @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testCut(self):
 
         # Color the cells with a qualitative color scheme:
@@ -249,7 +271,6 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         cam.SetPosition(16.0784261776, 11.8079343039, -6.69074553411)
         cam.SetFocalPoint(4.54685488135, 1.74152986486, 2.38091647662)
         cam.SetViewUp(-0.523934540522, 0.81705750638, 0.240644194852)
-        self.rw.SetSize(512, 512)
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Cut.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
@@ -257,6 +278,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # vtk.test.Testing.interact()
 
     @unittest.skipIf(numpyMissing, 'Numpy unavailable')
+    @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testIntersectWithLine(self):
         import numpy as np
         rn = vtkMinimalStandardRandomSequence()
@@ -371,7 +393,6 @@ class LagrangeGeometricOperations(Testing.vtkTest):
 
         ## Render test scene
         self.ri.Initialize()
-        self.rw.SetSize(512, 512)
         cam = self.rr.GetActiveCamera()
         # cam.SetPosition(4.14824823557, -15.3201939164, 7.48529277914)
         # cam.SetFocalPoint(4.0392921746, 2.25197875899, 1.59174422348)
