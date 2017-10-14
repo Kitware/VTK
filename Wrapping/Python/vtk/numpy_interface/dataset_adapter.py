@@ -148,11 +148,8 @@ def vtkDataArrayToVTKArray(array, dataset=None):
 
 def numpyTovtkDataArray(array, name="numpy_array", array_type=None):
     """Given a numpy array or a VTKArray and a name, returns a vtkDataArray.
-    The resulting vtkDataArray will store a reference to the numpy array
-    through a DeleteEvent observer: the numpy array is released only when
-    the vtkDataArray is destroyed."""
-    if not array.flags.contiguous:
-        array = array.copy()
+    The resulting vtkDataArray will store a reference to the numpy array:
+    the numpy array is released only when the vtkDataArray is destroyed."""
     vtkarray = numpy_support.numpy_to_vtk(array, array_type=array_type)
     vtkarray.SetName(name)
     # This makes the VTK array carry a reference to the numpy array.
@@ -731,7 +728,7 @@ class DataSetAttributes(VTKObjectWrapper):
 
         # If array is not contiguous, make a deep copy that is contiguous
         if not narray.flags.contiguous:
-            narray = narray.copy()
+            narray = numpy.ascontiguousarray(narray)
 
         # Flatten array of matrices to array of vectors
         if len(shape) == 3:
