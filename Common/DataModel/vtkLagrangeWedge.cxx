@@ -903,7 +903,7 @@ bool vtkLagrangeWedge::TransformApproxToCellParams(int subCell, double* pcoords)
     vtkVector3d sDir = triPt2 - triPt0;
     pcoords[0] = triPt0[0] + rst[0] * rDir[0] + rst[1] * sDir[0];
     pcoords[1] = triPt0[1] + rst[0] * rDir[1] + rst[1] * sDir[1];
-    pcoords[2] = (subCell / 6 ? 0.0 : 0.5) + 0.5 * rst[2];
+    pcoords[2] = ((subCell / 6) ? 0.0 : 0.5) + 0.5 * rst[2];
     return true;
   }
 #endif
