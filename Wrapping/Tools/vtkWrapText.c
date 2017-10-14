@@ -35,7 +35,10 @@ const char *vtkWrapText_QuoteString(
 {
   static char *result = 0;
   static size_t oldmaxlen = 0;
-  size_t i, j, n;
+  size_t i = 0;
+  size_t j = 0;
+  size_t k, n, m;
+  unsigned short x;
 
   if (maxlen > oldmaxlen)
   {
@@ -52,47 +55,79 @@ const char *vtkWrapText_QuoteString(
     return "";
   }
 
-  j = 0;
-
-  n = strlen(comment);
-  for (i = 0; i < n; i++)
+  while (comment[i] != '\0')
   {
-    if (comment[i] == '\"')
+    n = 1; /* "n" stores number of input bytes consumed */
+    m = 1; /* "m" stores number of output bytes written */
+
+    if ((comment[i] & 0x80) != 0)
     {
-      strcpy(&result[j],"\\\"");
-      j += 2;
+      /* check for trailing bytes in utf-8 sequence */
+      while ((comment[i + n] & 0xC0) == 0x80)
+      {
+        n++;
+      }
+
+      /* the first two bytes will be used to check for validity */
+      x = (((unsigned char)(comment[i]) << 8) |
+            (unsigned char)(comment[i + 1]));
+
+      /* check for valid 2, 3, or 4 byte utf-8 sequences */
+      if ((n == 2 && x >= 0xC280 && x < 0xE000) ||
+          (n == 3 && x >= 0xE0A0 && x < 0xF000 &&
+                    (x >= 0xEE80 || x < 0xEDA0)) ||
+          (n == 4 && x >= 0xF090 && x < 0xF490))
+      {
+        /* write the valid utf-8 sequence */
+        for (k = 0; k < n; k++)
+        {
+          sprintf(&result[j + 4*k], "\\%3.3o",
+                  (unsigned char)(comment[i + k]));
+        }
+        m = 4*n;
+      }
+      else
+      {
+        /* bad sequence, write the replacement character code U+FFFD */
+        sprintf(&result[j], "%s", "\\357\\277\\275");
+        m = 12;
+      }
     }
-    else if (comment[i] == '\\')
+    else if (comment[i] == '\"' || comment[i] == '\\')
     {
-      strcpy(&result[j],"\\\\");
-      j += 2;
+      result[j] = '\\';
+      result[j + 1] = comment[i];
+      m = 2;
+    }
+    else if (isprint(comment[i]))
+    {
+      result[j] = comment[i];
     }
     else if (comment[i] == '\n')
     {
-      strcpy(&result[j],"\\n");
-      j += 2;
-    }
-    else if ((comment[i] & 0x80) == 0 && isprint(comment[i]))
-    {
-      /* only ASCII printable characters are considered here,
-         extended character codes are passed through as octal
-         escape sequences */
-      result[j] = comment[i];
-      j++;
+      result[j] = '\\';
+      result[j + 1] = 'n';
+      m = 2;
     }
     else
     {
-      /* cast is needed for platforms where "char" is signed */
-      sprintf(&result[j],"\\%3.3o",(unsigned char)(comment[i]));
-      j += 4;
+      /* use octal escape sequences for other control codes */
+      sprintf(&result[j], "\\%3.3o", comment[i]);
+      m = 4;
     }
-    if (j >= maxlen - 21)
+
+    /* check if output limit is reached */
+    if (j + m >= maxlen - 20)
     {
       sprintf(&result[j]," ...\\n [Truncated]\\n");
-      j += (int)strlen(" ...\\n [Truncated]\\n");
+      j += strlen(" ...\\n [Truncated]\\n");
       break;
     }
+
+    i += n;
+    j += m;
   }
+
   result[j] = '\0';
 
   return result;
