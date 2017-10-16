@@ -28,7 +28,6 @@
 #include <map>
 
 #if defined(_WIN32)
-#pragma warning(disable : 4267)
 #pragma warning(disable : 4800)
 #endif
 
@@ -36,13 +35,13 @@ const int OBJ_LINE_SIZE = 4096;
 
 namespace
 {
-char strequal(const char *s1, const char *s2)
+bool strequal(const char *s1, const char *s2)
 {
   if(strcmp(s1, s2) == 0)
   {
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 int localVerbosity = 0;

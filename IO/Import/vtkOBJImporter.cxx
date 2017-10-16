@@ -37,10 +37,6 @@
 #include <memory>
 #include "vtkOBJImporterInternals.h"
 
-#if defined(_WIN32)
-  #pragma warning(disable : 4267)
-#endif
-
 vtkStandardNewMacro(vtkOBJImporter)
 vtkStandardNewMacro(vtkOBJPolyDataProcessor)
 
@@ -224,7 +220,7 @@ vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
   /** multi-poly-data paradigm: pivot based on named materials */
   vtkOBJImportedPolyDataWithMaterial* default_poly = (new vtkOBJImportedPolyDataWithMaterial);
   poly_list.push_back(default_poly);
-  this->SetNumberOfOutputPorts(poly_list.size());
+  this->SetNumberOfOutputPorts(static_cast<int>(poly_list.size()));
 }
 
 //----------------------------------------------------------------------------
@@ -797,7 +793,7 @@ int vtkOBJPolyDataProcessor::RequestData(
       }
       std::string strLine(pLine);
       vtkDebugMacro("strLine = " << strLine);
-      int idxNewLine = strLine.find_first_of("\r\n");
+      size_t idxNewLine = strLine.find_first_of("\r\n");
       std::string mtl_name = strLine.substr(0, idxNewLine);
       // trim trailing whitespace
       size_t last = mtl_name.find_last_not_of(' ');
@@ -818,7 +814,7 @@ int vtkOBJPolyDataProcessor::RequestData(
         // yep we have a usemtl command. check to make sure idiots don't try to add vertices later.
         gotFirstUseMaterialTag = true;
       }
-      int mtlCount = mtlName_to_Actor.count(mtl_name);
+      size_t mtlCount = mtlName_to_Actor.count(mtl_name);
       if ( 0 == mtlCount )
       {
         // new material encountered; bag and tag it, make a new named-poly-data-container
@@ -867,11 +863,11 @@ int vtkOBJPolyDataProcessor::RequestData(
 
   /** based on how many used materials are present,
                  set the number of output ports of vtkPolyData */
-  this->SetNumberOfOutputPorts( poly_list.size() );
+  this->SetNumberOfOutputPorts( static_cast<int>(poly_list.size()) );
   vtkDebugMacro("vtkOBJPolyDataProcessor.cxx, set # of output ports to "
                 << poly_list.size());
   this->outVector_of_vtkPolyData.clear();
-  for( int i = 0; i < (int)poly_list.size(); ++i)
+  for( size_t i = 0; i < poly_list.size(); ++i)
   {
     vtkSmartPointer<vtkPolyData> poly_data = vtkSmartPointer<vtkPolyData>::New();
     this->outVector_of_vtkPolyData.push_back(poly_data);

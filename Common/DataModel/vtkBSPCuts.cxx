@@ -23,10 +23,6 @@
 #include "vtkKdTree.h"
 #include "vtkObjectFactory.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable : 4100 )
-#endif
-
 vtkStandardNewMacro(vtkBSPCuts);
 
 //----------------------------------------------------------------------------
