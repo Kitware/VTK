@@ -192,12 +192,6 @@ public:
   static PyTypeObject *FindEnum(const char *name);
 
   /**
-   * Utility function to build a docstring by concatenating a series
-   * of strings until a null string is found.
-   */
-  static PyObject *BuildDocString(const char *docstring[]);
-
-  /**
    * Utility function for creating SWIG-style mangled pointer string.
    */
   static char *ManglePointer(const void *ptr, const char *type);
