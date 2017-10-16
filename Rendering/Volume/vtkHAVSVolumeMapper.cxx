@@ -50,7 +50,7 @@ public:
   vtkHAVSSortedFace(unsigned int f, unsigned int d)
   {
     this->Face = f;
-    this->Distance = d ^ ((-(static_cast<int>(d) >> 31)) | 0x80000000);
+    this->Distance = d ^ ((d > 0x7FFFFFFF) ? 0x80000001 : 0x80000000);
   }
 
   bool operator<(const vtkHAVSSortedFace &rhs) const

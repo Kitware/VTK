@@ -900,7 +900,8 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 
 
   // memory clearance
-  dataPnts = nullptr;                     unstruct = nullptr;
+  dataPnts = nullptr;
+  unstruct = nullptr;
   if ( ptIdList )
   {
     ptIdList->Delete();
@@ -917,41 +918,26 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     ugReader = nullptr;
   }
 
-  if ( truthIds )
-  {
-    free( truthIds );
-    truthIds = nullptr;
-  }
-  if ( resltIds )
-  {
-    free( resltIds );
-    resltIds = nullptr;
-  }
-  if ( pDataPts )
-  {
-    free( pDataPts );
-    pDataPts = nullptr;
-  }
-  if ( pLocPnts )
-  {
-    free( pLocPnts );
-    pLocPnts = nullptr;
-  }
-  if ( minDist2 )
-  {
-    free( minDist2 );
-    minDist2 = nullptr;
-  }
-  if ( maxDist2 )
-  {
-    free( maxDist2 );
-    maxDist2 = nullptr;
-  }
-  if ( clzNdst2 )
-  {
-    free( clzNdst2 );
-    clzNdst2 = nullptr;
-  }
+  free( truthIds );
+  truthIds = nullptr;
+
+  free( resltIds );
+  resltIds = nullptr;
+
+  free( pDataPts );
+  pDataPts = nullptr;
+
+  free( pLocPnts );
+  pLocPnts = nullptr;
+
+  free( minDist2 );
+  minDist2 = nullptr;
+
+  free( maxDist2 );
+  maxDist2 = nullptr;
+
+  free( clzNdst2 );
+  clzNdst2 = nullptr;
 
   if ( diskFile )
   {

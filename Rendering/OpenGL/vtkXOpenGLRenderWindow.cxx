@@ -269,10 +269,6 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
   {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
     {
-      if (fbc)
-      {
-        XFree(fbc);
-      }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  win_doublebuffer,
@@ -290,10 +286,6 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
   {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
     {
-      if (fbc)
-      {
-        XFree(fbc);
-      }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  !win_doublebuffer,
@@ -346,10 +338,6 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
       {
         for (multi = this->MultiSamples; !v && multi >= 0; multi--)
         {
-          if (v)
-          {
-            XFree(v);
-          }
           v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
                                                  this->DoubleBuffer,
                                                  stereo, multi, alpha,

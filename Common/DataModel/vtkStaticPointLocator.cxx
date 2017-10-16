@@ -769,7 +769,6 @@ FindClosestPointWithinRadius(double radius, const double x[3],
 
   vtkDataArray *pointData =
     static_cast<vtkPointSet *>(this->DataSet)->GetPoints()->GetData();
-  int flag = 1;
 
   //  Find the bucket the point is in.
   //
@@ -785,14 +784,7 @@ FindClosestPointWithinRadius(double radius, const double x[3],
     for (j=0; j < numIds; j++)
     {
       ptId = ids[j].PtId;
-      if (flag)
-      {
-        pointData->GetTuple(ptId, pt);
-      }
-      else
-      {
-        this->DataSet->GetPoint(ptId, pt);
-      }
+      pointData->GetTuple(ptId, pt);
       if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
       {
         closest = ptId;
@@ -876,14 +868,7 @@ FindClosestPointWithinRadius(double radius, const double x[3],
           for (j=0; j < numIds; j++)
           {
             ptId = ids[j].PtId;
-            if (flag)
-            {
-              pointData->GetTuple(ptId, pt);
-            }
-            else
-            {
-              this->DataSet->GetPoint(ptId, pt);
-            }
+            pointData->GetTuple(ptId, pt);
             if ( (dist2 = vtkMath::Distance2BetweenPoints(x,pt)) < minDist2 )
             {
               closest = ptId;

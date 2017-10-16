@@ -296,9 +296,9 @@ int vtkSurfaceReconstructionFilter::RequestData(
   // that has the lowest cost connection with a visited vertex. Record this
   // vertex as visited, add any new neighbors to the neighbors list.
 
-  int orientationPropagation=1;
-  if(orientationPropagation)
-  {// set to false if you don't want orientation propagation (for testing)
+  // Disable if you don't want orientation propagation (for testing)
+#if 1
+  {
     vtkIdList *nearby = vtkIdList::New(); // list of nearby, unvisited points
 
     // start with some vertex
@@ -381,6 +381,7 @@ int vtkSurfaceReconstructionFilter::RequestData(
 
     nearby->Delete();
   }
+#endif
 
   //time(&t3);
 

@@ -1423,7 +1423,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::PerformBoolean(
         nocellregion.push_back(i);
       }
     }
-    if (nocellregion.size() > 0)
+    if (!nocellregion.empty())
     {
       if (nocellregion.front() == 0)
       {

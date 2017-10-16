@@ -113,6 +113,7 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
     if (strcmp("-DistanceOffset", argv[i]) == 0)
     {
       distanceOffset = atof(argv[i+1]);
+      distanceOffsetSpecified = true;
     }
   }
 
