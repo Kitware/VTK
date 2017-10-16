@@ -34,6 +34,8 @@ vtkSegY2DReader::vtkSegY2DReader()
   this->XYCoordMode = VTK_SEGY_SOURCE;
   this->XCoordByte = 73;
   this->YCoordByte = 77;
+
+  this->VerticalCRS = VTK_SEGY_VERTICAL_HEIGHTS;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,6 +103,8 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
   }
+
+  this->Reader->SetVerticalCRS(this->VerticalCRS);
 
   this->Reader->LoadFromFile(FileName);
   std::chrono::time_point<std::chrono::system_clock> start, end;

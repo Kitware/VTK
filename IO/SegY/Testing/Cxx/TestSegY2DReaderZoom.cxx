@@ -78,6 +78,18 @@ int TestSegY2DReaderZoom(int argc, char* argv[])
     retVal++;
   }
 
+  // Test the Z-coordinate range for VerticalCRS
+  double bounds[6];
+  output->GetBounds(bounds);
+
+  if (!vtkMathUtilities::FuzzyCompare<double>(bounds[4], -4000.00) ||
+      (bounds[5] > 1e-3))
+  {
+    std::cerr << "Error: Z bounds are incorrect: (" << bounds[4] << ", "
+              << bounds[5] << ")" << std::endl
+              << "Expected Z bounds: (-4000, 0)" << std::endl;
+  }
+
   // Test some scalar values
   vtkFloatArray* scalars =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());

@@ -36,6 +36,7 @@ vtkSegYReader::vtkSegYReader()
 {
   this->BinaryHeaderBytesPos = new vtkSegYBinaryHeaderBytesPositions();
   this->TraceReader = new vtkSegYTraceReader();
+  this->VerticalCRS = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,6 +52,12 @@ vtkSegYReader::~vtkSegYReader()
 void vtkSegYReader::SetXYCoordBytePositions(int x, int y)
 {
   this->TraceReader->SetXYCoordBytePositions(x, y);
+}
+
+//-----------------------------------------------------------------------------
+void vtkSegYReader::SetVerticalCRS(int v)
+{
+  this->VerticalCRS = v > 0 ? 1 : 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -333,7 +340,8 @@ void vtkSegYReader::ExportData2D(vtkStructuredGrid* grid)
 
       // The samples are uniformly placed at sample interval depths
       // Dividing by 1000.0 to convert from microseconds to milliseconds.
-      float z = k * (trace->SampleInterval / 1000.0);
+      int sign = this->VerticalCRS == 0 ? -1 : 1;
+      float z = sign * k * (trace->SampleInterval / 1000.0);
       points->InsertNextPoint(x, y, z);
     }
   }
