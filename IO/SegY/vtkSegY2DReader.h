@@ -96,8 +96,8 @@ public:
 
 protected:
   int RequestData(vtkInformation* request,
-    vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector) override;
+                  vtkInformationVector** inputVector,
+                  vtkInformationVector* outputVector) override;
 
   int XYCoordMode;
 
