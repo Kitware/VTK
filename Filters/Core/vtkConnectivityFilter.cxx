@@ -130,7 +130,7 @@ int vtkConnectivityFilter::RequestData(
   vtkPolyData* pdOutput = vtkPolyData::SafeDownCast(output);
   vtkUnstructuredGrid* ugOutput = vtkUnstructuredGrid::SafeDownCast(output);
 
-  vtkIdType numPts, numCells, cellId, newCellId, i, j, pt;
+  vtkIdType numPts, numCells, cellId, i, j, pt;
   vtkPoints *newPts;
   int id;
   int maxCellsInRegion;
@@ -390,6 +390,7 @@ int vtkConnectivityFilter::RequestData(
             this->PointIds->InsertId(i,id);
           }
         }
+        vtkIdType newCellId = -1;
         if (pdOutput)
         {
           newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
@@ -400,8 +401,10 @@ int vtkConnectivityFilter::RequestData(
           newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
                                                this->PointIds);
         }
-
-        outputCD->CopyData(cd,cellId,newCellId);
+        if (newCellId >= 0)
+        {
+          outputCD->CopyData(cd, cellId, newCellId);
+        }
       }
     }
   }
@@ -440,6 +443,7 @@ int vtkConnectivityFilter::RequestData(
               this->PointIds->InsertId(i,id);
             }
           }
+          vtkIdType newCellId = -1;
           if (pdOutput)
           {
             newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
@@ -450,7 +454,10 @@ int vtkConnectivityFilter::RequestData(
             newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
                                                  this->PointIds);
           }
-          outputCD->CopyData(cd,cellId,newCellId);
+          if (newCellId >= 0)
+          {
+            outputCD->CopyData(cd, cellId, newCellId);
+          }
         }
       }
     }
@@ -479,6 +486,7 @@ int vtkConnectivityFilter::RequestData(
             this->PointIds->InsertId(i,id);
           }
         }
+        vtkIdType newCellId = -1;
         if (pdOutput)
         {
           newCellId = pdOutput->InsertNextCell(input->GetCellType(cellId),
@@ -489,7 +497,10 @@ int vtkConnectivityFilter::RequestData(
           newCellId = ugOutput->InsertNextCell(input->GetCellType(cellId),
                                                this->PointIds);
         }
-        outputCD->CopyData(cd,cellId,newCellId);
+        if (newCellId >= 0)
+        {
+          outputCD->CopyData(cd, cellId, newCellId);
+        }
       }
     }
   }
