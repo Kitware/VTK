@@ -691,11 +691,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
       break;
 
     case 1:  // headlight
+      vtkShaderProgram::Substitute(FSSource,"//VTK::Light::Dec",
+        "uniform vec3 lightColor0;\n");
       toString <<
         "  float df = max(0.0,normalVCVSOutput.z);\n"
         "  float sf = pow(df, specularPower);\n"
-        "  vec3 diffuse = df * diffuseColor;\n"
-        "  vec3 specular = sf * specularColor;\n"
+        "  vec3 diffuse = df * diffuseColor * lightColor0;\n"
+        "  vec3 specular = sf * specularColor * lightColor0;\n"
         "  gl_FragData[0] = vec4(ambientColor + diffuse + specular, opacity);\n"
         "  //VTK::Light::Impl\n";
       vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl",
@@ -1594,7 +1596,6 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
 
       if (lightComplexity == 1
           && (numberOfLights > 1
-            || light->GetIntensity() != 1.0
             || light->GetLightType() != VTK_LIGHT_TYPE_HEADLIGHT))
       {
         lightComplexity = 2;
@@ -1927,8 +1928,8 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
   vtkRenderer* ren,
   vtkActor *actor)
 {
-  // for unlit and headlight there are no lighting parameters
-  if (this->LastLightComplexity[&cellBO] < 2)
+  // for unlit there are no lighting parameters
+  if (this->LastLightComplexity[&cellBO] < 1)
   {
     return;
   }
@@ -1988,42 +1989,46 @@ void vtkOpenGLPolyDataMapper::SetLightingShaderParameters(
         lightColor[1] = dColor[1] * intensity;
         lightColor[2] = dColor[2] * intensity;
       }
-      // get required info from light
-      double *lfp = light->GetTransformedFocalPoint();
-      double *lp = light->GetTransformedPosition();
-      double lightDir[3];
-      vtkMath::Subtract(lfp,lp,lightDir);
-      vtkMath::Normalize(lightDir);
-      double *tDir = viewTF->TransformNormal(lightDir);
-      lightDirection[0] = tDir[0];
-      lightDirection[1] = tDir[1];
-      lightDirection[2] = tDir[2];
-
       program->SetUniform3f((lcolor + count).c_str(), lightColor);
-      program->SetUniform3f((ldir + count).c_str(), lightDirection);
 
-      // we are done unless we have positional lights
-      if (this->LastLightComplexity[&cellBO] >= 3)
+      // we are done unless we have non headlights
+      if (this->LastLightComplexity[&cellBO] >= 2)
       {
-        // if positional lights pass down more parameters
-        float lightAttenuation[3];
-        float lightPosition[3];
-        double *attn = light->GetAttenuationValues();
-        lightAttenuation[0] = attn[0];
-        lightAttenuation[1] = attn[1];
-        lightAttenuation[2] = attn[2];
-        double *tlp = viewTF->TransformPoint(lp);
-        lightPosition[0] = tlp[0];
-        lightPosition[1] = tlp[1];
-        lightPosition[2] = tlp[2];
+        // get required info from light
+        double *lfp = light->GetTransformedFocalPoint();
+        double *lp = light->GetTransformedPosition();
+        double lightDir[3];
+        vtkMath::Subtract(lfp,lp,lightDir);
+        vtkMath::Normalize(lightDir);
+        double *tDir = viewTF->TransformNormal(lightDir);
+        lightDirection[0] = tDir[0];
+        lightDirection[1] = tDir[1];
+        lightDirection[2] = tDir[2];
 
-        program->SetUniform3f((latten + count).c_str(), lightAttenuation);
-        program->SetUniformi((lpositional + count).c_str(), light->GetPositional());
-        program->SetUniform3f((lpos + count).c_str(), lightPosition);
-        program->SetUniformf((lexp + count).c_str(), light->GetExponent());
-        program->SetUniformf((lcone + count).c_str(), light->GetConeAngle());
+        program->SetUniform3f((ldir + count).c_str(), lightDirection);
+
+        // we are done unless we have positional lights
+        if (this->LastLightComplexity[&cellBO] >= 3)
+        {
+          // if positional lights pass down more parameters
+          float lightAttenuation[3];
+          float lightPosition[3];
+          double *attn = light->GetAttenuationValues();
+          lightAttenuation[0] = attn[0];
+          lightAttenuation[1] = attn[1];
+          lightAttenuation[2] = attn[2];
+          double *tlp = viewTF->TransformPoint(lp);
+          lightPosition[0] = tlp[0];
+          lightPosition[1] = tlp[1];
+          lightPosition[2] = tlp[2];
+
+          program->SetUniform3f((latten + count).c_str(), lightAttenuation);
+          program->SetUniformi((lpositional + count).c_str(), light->GetPositional());
+          program->SetUniform3f((lpos + count).c_str(), lightPosition);
+          program->SetUniformf((lexp + count).c_str(), light->GetExponent());
+          program->SetUniformf((lcone + count).c_str(), light->GetConeAngle());
+        }
       }
-
       numberOfLights++;
     }
   }
