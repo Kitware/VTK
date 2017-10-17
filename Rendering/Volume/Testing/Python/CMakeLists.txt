@@ -23,7 +23,9 @@ set (VolumeOpenGL2PythonTests
      gaussian.py
      TestGPURayCastIndependentComponent.py,NO_RT
      TestGPURayCastIndependentComponentMIP.py,NO_RT
-     TestGPURayCastIndependentComponentMinIP.py,NO_RT)
+     TestGPURayCastIndependentComponentMinIP.py,NO_RT
+     TestGPURayCastUserShader.py
+     )
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_python(
