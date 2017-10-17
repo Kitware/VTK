@@ -27,9 +27,11 @@
  * region).
  *
  * vtkConnectivityFilter is generalized to handle any type of input dataset.
- * It generates output data of type vtkUnstructuredGrid. If you know that
- * your input type is vtkPolyData, you may wish to use
- * vtkPolyDataConnectivityFilter.
+ * If the input to this filter is a vtkPolyData, the output will be a vtkPolyData.
+ * For all other input types, it generates output data of type vtkUnstructuredGrid.
+ * Note that the only Get*Output() methods that will return a non-null pointer
+ * are GetUnstructuredGridOutput() and GetPolyDataOutput() when the output of the
+ * filter is a vtkUnstructuredGrid or vtkPolyData, respectively.
  *
  * The behavior of vtkConnectivityFilter can be modified by turning on the
  * boolean ivar ScalarConnectivity. If this flag is on, the connectivity
@@ -51,7 +53,7 @@
 #define vtkConnectivityFilter_h
 
 #include "vtkFiltersCoreModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkPointSetAlgorithm.h"
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
@@ -61,15 +63,17 @@
 #define VTK_EXTRACT_CLOSEST_POINT_REGION 6
 
 class vtkDataArray;
+class vtkDataSet;
 class vtkFloatArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkIntArray;
+class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkConnectivityFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT vtkConnectivityFilter : public vtkPointSetAlgorithm
 {
 public:
-  vtkTypeMacro(vtkConnectivityFilter,vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkConnectivityFilter,vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -181,13 +185,18 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
+  int ProcessRequest(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter() override;
 
   // Usual data generation method
+  int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
+    vtkInformationVector* outputVector);
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
+  int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
 
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
