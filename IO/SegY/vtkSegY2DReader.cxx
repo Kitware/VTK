@@ -34,6 +34,8 @@ vtkSegY2DReader::vtkSegY2DReader()
   this->XYCoordMode = VTK_SEGY_SOURCE;
   this->XCoordByte = 73;
   this->YCoordByte = 77;
+
+  this->VerticalCRS = VTK_SEGY_VERTICAL_HEIGHTS;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,8 +66,8 @@ void vtkSegY2DReader::SetXYCoordModeToCustom()
 
 //-----------------------------------------------------------------------------
 int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* outputVector)
+                                 vtkInformationVector** vtkNotUsed(inputVector),
+                                 vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkStructuredGrid* output =
@@ -77,7 +79,7 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  switch(this->XYCoordMode)
+  switch (this->XYCoordMode)
   {
     case VTK_SEGY_SOURCE:
     {
@@ -102,6 +104,8 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
+  this->Reader->SetVerticalCRS(this->VerticalCRS);
+
   this->Reader->LoadFromFile(FileName);
   std::chrono::time_point<std::chrono::system_clock> start, end;
   start = std::chrono::system_clock::now();
@@ -118,6 +122,26 @@ int vtkSegY2DReader::RequestData(vtkInformation* vtkNotUsed(request),
 void vtkSegY2DReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)")
-     << "\n";
+     << endl;
+  switch (this->XYCoordMode)
+  {
+    case VTK_SEGY_SOURCE:
+      os << indent << "XYCoordMode: VTK_SEGY_SOURCE" << endl;
+      break;
+    case VTK_SEGY_CDP:
+      os << indent << "XYCoordMode: VTK_SEGY_CDP" << endl;
+      break;
+    case VTK_SEGY_CUSTOM:
+      os << indent << "XYCoordMode: VTK_SEGY_CUSTOM" << endl;
+      break;
+    default:
+      os << indent << "XYCoordMode: (unidentified)" << endl;
+  }
+  os << indent << "XCoordByte " << this->XCoordByte << endl;
+  os << indent << "YCoordByte " << this->YCoordByte << endl;
+  os << indent
+     << "VerticalCRS: " << (this->VerticalCRS ? "VTK_SEGY_VERTICAL_DEPTHS"
+                                              : "VTK_SEGY_VERTICAL_HEIGHTS")
+     << endl;
   Superclass::PrintSelf(os, indent);
 }

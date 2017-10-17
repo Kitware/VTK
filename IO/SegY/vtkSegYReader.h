@@ -40,6 +40,7 @@ public:
   void ExportData2D(vtkStructuredGrid*);
   void AddScalars(vtkStructuredGrid*);
   void SetXYCoordBytePositions(int x, int y);
+  void SetVerticalCRS(int);
 
 private:
   bool ReadHeader(std::ifstream& in);
@@ -48,6 +49,7 @@ private:
   vtkSegYBinaryHeaderBytesPositions* BinaryHeaderBytesPos;
   vtkSegYTraceReader* TraceReader;
   int SampleCountPerTrace;
+  int VerticalCRS;
 };
 
 #endif // vtkSegYReader_h
