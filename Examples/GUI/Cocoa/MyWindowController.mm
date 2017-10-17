@@ -8,6 +8,8 @@
 #import "vtkCylinderSource.h"
 #import "vtkPolyDataMapper.h"
 #import "vtkSmartPointer.h"
+#import "vtkTextActor.h"
+#import "vtkTextProperty.h"
 
 // Private Interface
 @interface MyWindowController()
@@ -18,16 +20,48 @@
 @implementation MyWindowController
 
 // ----------------------------------------------------------------------------
+// Private helper method to get the path to the system font appropriate for
+// the given font and font size.
++ (nullable NSURL*)fontPathForString:(nullable NSString*)inString
+                                size:(CGFloat)inSize
+{
+  NSURL* fontUrl = nil;
+
+  if (inString)
+  {
+    NSFont* startFont = [NSFont systemFontOfSize:inSize];
+    CTFontRef font = CTFontCreateForString((__bridge CTFontRef)startFont,
+                                           (__bridge CFStringRef)inString,
+                                           CFRangeMake(0, [inString length]));
+    if (font)
+    {
+      NSFontDescriptor* fontDesc = [(__bridge NSFont*)font fontDescriptor];
+      fontUrl = [fontDesc objectForKey:(__bridge NSString*)kCTFontURLAttribute];
+
+      CFRelease(font);
+    }
+  }
+
+  return fontUrl;
+}
+
+// ----------------------------------------------------------------------------
 - (void)setupLeftVTKView
 {
-  [[self leftVTKView] initializeVTKSupport];
+  BasicVTKView* thisView = [self leftVTKView];
+
+  // Explicitly enable HiDPI/Retina (this is the default anyway).
+  [thisView setWantsBestResolutionOpenGLSurface:YES];
+
+  [thisView initializeVTKSupport];
 
   // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [[self leftVTKView] getInteractor]->SetInteractorStyle(intStyle);
+  [thisView getInteractor]->SetInteractorStyle(intStyle);
+
 
   // Create a cone, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
@@ -41,23 +75,48 @@
   vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
   coneActor->SetMapper(coneMapper);
 
-  [[self leftVTKView] getRenderer]->AddActor(coneActor);
+  [thisView getRenderer]->AddActor(coneActor);
+
+
+  // Create a text actor.
+  NSString* string = @"日本語";
+  int fontSize = 30;
+  vtkSmartPointer<vtkTextActor> textActor = vtkSmartPointer<vtkTextActor>::New();
+  textActor->SetPickable(false);
+  textActor->SetInput([string UTF8String]);
+  vtkTextProperty* properties = textActor->GetTextProperty();
+  NSURL* fontURL = [[self class] fontPathForString:string size:fontSize];
+  properties->SetFontFile([fontURL fileSystemRepresentation]);
+  properties->SetFontFamily(VTK_FONT_FILE);
+  properties->SetFontSize(fontSize);
+  vtkCoordinate* coord = textActor->GetPositionCoordinate();
+  coord->SetCoordinateSystemToWorld();
+  coord->SetValue(0.0, 0.5, 0.0);
+  [thisView getRenderer]->AddViewProp(textActor);
+
 
   // Tell the system that the view needs to be redrawn
-  [[self leftVTKView] setNeedsDisplay:YES];
+  [thisView setNeedsDisplay:YES];
 }
 
 // ----------------------------------------------------------------------------
 - (void)setupRightVTKView
 {
-  [[self rightVTKView] initializeVTKSupport];
+  BasicVTKView* thisView = [self rightVTKView];
+
+  // Explicitly disable HiDPI/Retina as a demonstration of the difference.
+  // One might want to disable it to reduce memory usage / increase performance.
+  [thisView setWantsBestResolutionOpenGLSurface:NO];
+
+  [thisView initializeVTKSupport];
 
   // 'smart pointers' are used because they are very similar to reference counting in Cocoa.
 
   // Personal Taste Section. I like to use a trackball interactor
   vtkSmartPointer<vtkInteractorStyleSwitch> intStyle = vtkSmartPointer<vtkInteractorStyleSwitch>::New();
   intStyle->SetCurrentStyleToTrackballCamera();
-  [[self rightVTKView] getInteractor]->SetInteractorStyle(intStyle);
+  [thisView getInteractor]->SetInteractorStyle(intStyle);
+
 
   // Create a cylinder, see the "VTK User's Guide" for details
   vtkSmartPointer<vtkCylinderSource> cylinder = vtkSmartPointer<vtkCylinderSource>::New();
@@ -69,10 +128,28 @@
   vtkSmartPointer<vtkActor> cylinderActor = vtkSmartPointer<vtkActor>::New();
   cylinderActor->SetMapper(cylinderMapper);
 
-  [[self rightVTKView] getRenderer]->AddActor(cylinderActor);
+  [thisView getRenderer]->AddActor(cylinderActor);
+
+
+  // Create a text actor.
+  NSString* string = @"日本語";
+  int fontSize = 30;
+  vtkSmartPointer<vtkTextActor> textActor = vtkSmartPointer<vtkTextActor>::New();
+  textActor->SetPickable(false);
+  textActor->SetInput([string UTF8String]);
+  vtkTextProperty* properties = textActor->GetTextProperty();
+  NSURL* fontURL = [[self class] fontPathForString:string size:fontSize];
+  properties->SetFontFile([fontURL fileSystemRepresentation]);
+  properties->SetFontFamily(VTK_FONT_FILE);
+  properties->SetFontSize(fontSize);
+  vtkCoordinate* coord = textActor->GetPositionCoordinate();
+  coord->SetCoordinateSystemToWorld();
+  coord->SetValue(0.3, 0.5, 0.0);
+  [thisView getRenderer]->AddViewProp(textActor);
+
 
   // Tell the system that the view needs to be redrawn
-  [[self rightVTKView] setNeedsDisplay:YES];
+  [thisView setNeedsDisplay:YES];
 }
 
 #pragma mark -
