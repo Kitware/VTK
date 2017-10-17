@@ -43,6 +43,8 @@ if(NOT VTK_INSTALL_EXPORT_NAME)
   set(VTK_INSTALL_EXPORT_NAME VTKTargets)
 endif()
 
+include(${VTK_CMAKE_DIR}/vtkInitializeBuildType.cmake)
+
 # Add the VTK_MODULES_DIR to the CMAKE_MODULE_PATH and then use the binary
 # directory for the project to write out new ones to.
 if(VTK_MODULES_DIR)
