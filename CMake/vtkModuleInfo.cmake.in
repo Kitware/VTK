@@ -6,4 +6,5 @@ set(@vtk-module@_LIBRARY_DIRS "@vtk-module-LIBRARY_DIRS@")
 set(@vtk-module@_RUNTIME_LIBRARY_DIRS "@vtk-module-RUNTIME_LIBRARY_DIRS@")
 set(@vtk-module@_WRAP_HIERARCHY_FILE "@vtk-module-WRAP_HIERARCHY_FILE@")
 set(@vtk-module@_KIT "@vtk-module-KIT@")
+set(@vtk-module@_TARGETS_FILE "@vtk-module-TARGETS_FILE@")
 @vtk-module-EXPORT_CODE@

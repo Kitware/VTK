@@ -309,6 +309,14 @@ macro(vtk_module_export_info)
   endif()
   set(vtk-module-EXPORT_CODE-build "${_code}${${vtk-module}_EXPORT_CODE_BUILD}\n")
   set(vtk-module-EXPORT_CODE-install "${_code}${${vtk-module}_EXPORT_CODE_INSTALL}\n")
+  if(VTK_SOURCE_DIR)
+    # Uses VTKTargets.cmake
+    set(vtk-module-TARGETS_FILE-build "")
+    set(vtk-module-TARGETS_FILE-install "")
+  else()
+    set(vtk-module-TARGETS_FILE-build "${${vtk-module}_TARGETS_FILE_BUILD}")
+    set(vtk-module-TARGETS_FILE-install "${${vtk-module}_TARGETS_FILE_INSTALL}")
+  endif()
 
   if(${vtk-module}_WRAP_HINTS)
     set(vtk-module-EXPORT_CODE-build
@@ -336,6 +344,7 @@ macro(vtk_module_export_info)
   set(vtk-module-RUNTIME_LIBRARY_DIRS "${vtk-module-RUNTIME_LIBRARY_DIRS-build}")
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-build}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-build}")
+  set(vtk-module-TARGETS_FILE "${vtk-module-TARGETS_FILE-build}")
   set(vtk-module-WRAP_HIERARCHY_FILE "${${vtk-module}_WRAP_HIERARCHY_FILE}")
   set(vtk-module-KIT "${${vtk-module}_KIT}")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
@@ -343,6 +352,7 @@ macro(vtk_module_export_info)
   set(vtk-module-INCLUDE_DIRS "${vtk-module-INCLUDE_DIRS-install}")
   set(vtk-module-RUNTIME_LIBRARY_DIRS "${vtk-module-RUNTIME_LIBRARY_DIRS-install}")
   set(vtk-module-EXPORT_CODE "${vtk-module-EXPORT_CODE-install}")
+  set(vtk-module-TARGETS_FILE "${vtk-module-TARGETS_FILE-install}")
   set(vtk-module-WRAP_HIERARCHY_FILE
     "\${CMAKE_CURRENT_LIST_DIR}/${vtk-module}Hierarchy.txt")
   configure_file(${_VTKModuleMacros_DIR}/vtkModuleInfo.cmake.in
@@ -481,7 +491,19 @@ function(vtk_target_name _name)
 endfunction()
 
 function(vtk_target_export _name)
-  set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
+  set(is_insource_module 0)
+  if(VTK_SOURCE_DIR)
+    set(is_insource_module 1)
+  endif()
+  set(is_local_project 0)
+  if("${${vtk-module}-targets-build}" STREQUAL "")
+    set(is_local_project 1) # E.g Examples/Build/vtkMy or Examples/Build/vtkLocal
+  endif()
+  if(is_insource_module OR is_local_module )
+    set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
+  else()
+    export(TARGETS ${_name} APPEND FILE ${${vtk-module}-targets-build}) # External VTK module
+  endif()
 endfunction()
 
 function(vtk_target_install _name)
