@@ -380,6 +380,10 @@ public:
    *
    * \note The native range of the transfer function is the range returned by
    * vtkColorTransferFunction::GetRange() or vtkPiecewiseFunction::GetRange().
+   *
+   * \note There is no special API provided for 2D transfer functions
+   * considering that they are set as a pre-generated vtkImageData on this
+   * class i.e. the range is already encoded.
    */
   vtkSetMacro(ColorRangeType, int);
   vtkGetMacro(ColorRangeType, int);

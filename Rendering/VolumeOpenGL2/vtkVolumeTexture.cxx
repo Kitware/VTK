@@ -630,8 +630,6 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // scale = (d - c) / (b - a)
   // bias = c - a * scale
   // For unsigned/float types c is zero.
-  //double const oglScale = OglScale;
-  //double const oglBias = OglBias;
   int const components = vtkMath::Min(noOfComponents, 4);
   this->Scale[0] = this->Scale[1] = this->Scale[2] = this->Scale[3] = 1.0;
   this->Bias[0] = Bias[1] = Bias[2] = Bias[3] = 0.0;
@@ -639,10 +637,6 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   {
   this->GetScaleAndBias(scalarType, this->ScalarRange[n],
                         this->Scale[n], this->Bias[n]);
-    //double const oglA = ScalarRange[n][0] * oglScale + oglBias;
-    //double const oglB = ScalarRange[n][1] * oglScale + oglBias;
-    //this->Scale[n] =  1.0/ (oglB - oglA);
-    //this->Bias[n] = 0.0 - oglA * this->Scale[n];
   }
 }
 
