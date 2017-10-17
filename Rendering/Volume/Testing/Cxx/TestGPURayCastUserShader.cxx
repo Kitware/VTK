@@ -77,15 +77,17 @@ int TestGPURayCastUserShader(int argc, char* argv[])
   mapper->SetUseJittering(1);
 
   // Modify the shader to color based on the depth of the translucent voxel
-  mapper->AddShaderReplacement(vtkShader::Fragment,
-    "//VTK::Base::Dec",
-    true,              // before the standard replacements
-    "//VTK::Base::Dec" // We still want the default
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,    // Replace in the fragment shader
+    "//VTK::Base::Dec",     // Source string to replace
+    true,                   // before the standard replacements
+    "//VTK::Base::Dec"      // We still want the default
     "\n bool l_updateDepth;"
     "\n vec3 l_opaqueFragPos;",
-    false // only do it once
+    false                   // only do it once i.e. only replace the first match
   );
-  mapper->AddShaderReplacement(vtkShader::Fragment,
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
     "//VTK::Base::Init",
     true,
     "//VTK::Base::Init\n"
@@ -103,7 +105,8 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n      l_updateDepth = false;"
     "\n      }",
     false);
-  mapper->AddShaderReplacement(vtkShader::Fragment,
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,
     "//VTK::RenderToImage::Exit",
     true,
     "//VTK::RenderToImage::Exit"

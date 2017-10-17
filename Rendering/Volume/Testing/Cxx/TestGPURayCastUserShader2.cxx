@@ -36,7 +36,6 @@
 #include "vtkVolumeProperty.h"
 
 #include <TestGPURayCastUserShader2_FS.h>
-//#include <raycasterfs.h>
 
 int TestGPURayCastUserShader2(int argc, char* argv[])
 {
