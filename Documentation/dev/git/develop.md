@@ -312,9 +312,8 @@ following votes followed by nothing but whitespace before the end
 of the line:
 
 *   `-1` or :-1: (`:-1:`) means "The change is not ready for integration."
-*   `+1` or :+1: (`:+1:`) means "I like the change but defer to others."
-*   `+2` means "The change is ready for integration."
-*   `+3` means "I have tested the change and verified it works."
+*   `+1` or :+1: (`:+1:`) means "The change is ready for integration."
+*   `+2` means "I have tested the change and verified it works."
 
 #### Middle Lines ####
 
