@@ -23,5 +23,5 @@ git config branch.master.rebase true
 git config hooks.GerritId false
 
 # Record the version of this setup so Scripts/pre-commit can check it.
-SetupForDevelopment_VERSION=2
+SetupForDevelopment_VERSION=3
 git config hooks.SetupForDevelopment ${SetupForDevelopment_VERSION}

@@ -19,5 +19,6 @@ git config alias.gerrit-push '!sh -c "echo '"${gerrit_disabled}"'"' &&
 
 # Alias to push the current topic branch to GitLab
 git config alias.gitlab-push '!bash Utilities/GitSetup/git-gitlab-push' &&
+git config alias.gitlab-sync '!bash Utilities/GitSetup/git-gitlab-sync' &&
 
 true
