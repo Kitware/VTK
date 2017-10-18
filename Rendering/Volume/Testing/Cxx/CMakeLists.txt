@@ -44,13 +44,6 @@ set (VolumeOpenGLCxxTests
   ZsweepConcavities.cxx
   )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list (APPEND VolumeOpenGLCxxTests
-    TestProp3DFollower.cxx
-    TestTM3DLightComponents.cxx
-    volProt.cxx)
-endif()
-
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
   TestGPURayCastAverageIP.cxx
@@ -133,20 +126,3 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
   ExerciseUnstructuredGridRayCastMapper.cxx)
-
-if (NOT VTK_LEGACY_REMOVE)
-  if(NOT VTK_TEST_TIMEOUT_TestProp3DFollower)
-    set(VTK_TEST_TIMEOUT_TestProp3DFollower 100)
-  endif()
-  set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestProp3DFollower})
-endif()
-
-if (NOT VTK_LEGACY_REMOVE)
-  # Allow local customization of timeout for this test.
-  if(NOT VTK_TEST_TIMEOUT_TestTM3DLightComponents)
-    set(VTK_TEST_TIMEOUT_TestTM3DLightComponents 120)
-  endif()
-  set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
-    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestTM3DLightComponents})
-endif()

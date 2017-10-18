@@ -21,7 +21,7 @@
  * This is the abstract device-independent superclass.
  *
  * @sa
- * vtkVolumeRayCastMapper vtkUnstructuredGridVolumeRayCastMapper
+ * vtkUnstructuredGridVolumeRayCastMapper
  * vtkOpenGLRayCastImageDisplayHelper
 */
 

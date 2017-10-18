@@ -32,11 +32,9 @@ vtkColorTransferFunction ctfun
   ctfun AddRGBPoint   1960.0 0.81 0.27 0.1
   ctfun AddRGBPoint   4095.0 0.5  0.5  0.5
 
-vtkVolumeRayCastCompositeFunction  compositeFunction
-
-vtkVolumeRayCastMapper volumeMapper
+vtkGPUVolumeRayCastMapper volumeMapper
   volumeMapper SetInputConnection [v16 GetOutputPort]
-  volumeMapper SetVolumeRayCastFunction compositeFunction
+  volumeMapper SetBlendModeToComposite
 
 vtkVolumeProperty volumeProperty
   volumeProperty SetColor ctfun

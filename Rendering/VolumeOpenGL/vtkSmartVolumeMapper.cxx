@@ -28,7 +28,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkVolumeTextureMapper3D.h"
 #include "vtkSmartPointer.h"
 #include <cassert>
 
@@ -63,9 +62,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->MaxMemoryInBytes=this->GPUMapper->GetMaxMemoryInBytes();
   this->MaxMemoryFraction=this->GPUMapper->GetMaxMemoryFraction();
 
-#if !defined(VTK_LEGACY_REMOVE)
-  this->TextureMapper   = vtkVolumeTextureMapper3D::New();
-#endif // VTK_LEGACY_REMOVE
   this->GPULowResMapper = vtkGPUVolumeRayCastMapper::New();
 
   // If the render window has a desired update rate of at least 1 frame
@@ -101,19 +97,6 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsStartEvent, cb);
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsEndEvent, cb);
   this->RayCastMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
-
-  // And the texture mapper's events
-#if !defined(VTK_LEGACY_REMOVE)
-  this->TextureMapper->AddObserver(vtkCommand::StartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::EndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::ProgressEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderStartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderEndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperRenderProgressEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsStartEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsEndEvent, cb);
-  this->TextureMapper->AddObserver(vtkCommand::VolumeMapperComputeGradientsProgressEvent, cb);
-#endif // VTK_LEGACY_REMOVE
 
   // And the GPU mapper's events
   // Commented out because too many events are being forwwarded
@@ -158,13 +141,6 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     this->GPULowResMapper->Delete();
     this->GPULowResMapper = 0;
   }
-#if !defined(VTK_LEGACY_REMOVE)
-  if (this->TextureMapper)
-  {
-    this->TextureMapper->Delete();
-    this->TextureMapper = 0;
-  }
-#endif // VTK_LEGACY_REMOVE
   if (this->GPUResampleFilter)
   {
     this->GPUResampleFilter->Delete();
@@ -197,11 +173,6 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     case vtkSmartVolumeMapper::RayCastRenderMode:
       this->RayCastMapper->Render(ren,vol);
       break;
-#if !defined(VTK_LEGACY_REMOVE)
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      this->TextureMapper->Render(ren,vol);
-      break;
-#endif // VTK_LEGACY_REMOVE
     case vtkSmartVolumeMapper::GPURenderMode:
       if(this->LowResGPUNecessary)
       {
@@ -296,21 +267,6 @@ void vtkSmartVolumeMapper::Initialize(vtkRenderer *ren, vtkVolume *vol)
   vtkRenderWindow *win=ren->GetRenderWindow();
   win->MakeCurrent();
 
-#if !defined(VTK_LEGACY_REMOVE)
-  // Have to give the texture mapper its input or else it won't report that
-  // it is supported. Texture mapper only supported for composite blend
-  if ( this->GetBlendMode() !=  vtkVolumeMapper::COMPOSITE_BLEND )
-  {
-    this->TextureSupported = 0;
-  }
-  else
-  {
-    this->ConnectMapperInput(this->TextureMapper);
-    this->TextureSupported = this->TextureMapper->IsRenderSupported(
-      vol->GetProperty(),ren);
-  }
-#endif // VTK_LEGACY_REMOVE
-
   this->GPUSupported = this->GPUMapper->IsRenderSupported(win,
                                                           vol->GetProperty());
   this->Initialized = 1;
@@ -364,16 +320,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       }
       break;
 
-#if !defined(VTK_LEGACY_REMOVE)
-    // Requested 3D texture - OK as long as it is supported
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      if ( this->TextureSupported )
-      {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
-      }
-      break;
-#endif // VTK_LEGACY_REMOVE
-
     // Requested GPU - OK as long as it is supported
     case vtkSmartVolumeMapper::GPURenderMode:
       if ( this->GPUSupported )
@@ -398,36 +344,11 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       {
         this->CurrentRenderMode = vtkSmartVolumeMapper::GPURenderMode;
       }
-#if !defined(VTK_LEGACY_REMOVE)
-      // If this is interactive, try for texture mapping
-      else if ( win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate &&
-                this->TextureSupported )
-      {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
-      }
-#endif // VTK_LEGACY_REMOVE
       else if ( this->RayCastSupported )
       {
         this->CurrentRenderMode = vtkSmartVolumeMapper::RayCastRenderMode;
       }
       break;
-
-#if !defined(VTK_LEGACY_REMOVE)
-      // Requested the texture mapping / ray cast combo. If texture
-      // mapping is supported and this is an interactive render, then
-      // use it. Otherwise use ray casting.
-    case vtkSmartVolumeMapper::RayCastAndTextureRenderMode:
-      if (this->TextureSupported &&
-          (win->GetDesiredUpdateRate() >= this->InteractiveUpdateRate))
-      {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::TextureRenderMode;
-      }
-      else if ( this->RayCastSupported )
-      {
-        this->CurrentRenderMode = vtkSmartVolumeMapper::RayCastRenderMode;
-      }
-      break;
-#endif // VTK_LEGACY_REMOVE
 
       // This should never happen since the SetRequestedRenderMode
       // protects against invalid states
@@ -460,38 +381,6 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
       this->RayCastMapper->SetFinalColorWindow(this->FinalColorWindow);
       this->RayCastMapper->SetFinalColorLevel(this->FinalColorLevel);
       break;
-
-#if !defined(VTK_LEGACY_REMOVE)
-      // We are rendering with the vtkVolumeTextureMapper3D
-    case vtkSmartVolumeMapper::TextureRenderMode:
-      if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME)
-      {
-        this->TextureMapper->SelectScalarArray(this->ArrayName);
-      }
-      else if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
-        this->TextureMapper->SelectScalarArray(this->ArrayId);
-      }
-      this->TextureMapper->SetScalarMode(this->GetScalarMode());
-      this->ConnectMapperInput(this->TextureMapper);
-      if ( this->RequestedRenderMode == vtkSmartVolumeMapper::DefaultRenderMode ||
-           this->RequestedRenderMode == vtkSmartVolumeMapper::RayCastAndTextureRenderMode )
-      {
-        this->TextureMapper->SetSampleDistance( static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 2.0) );
-      }
-      else
-      {
-        this->TextureMapper->SetSampleDistance( static_cast<float>((spacing[0] + spacing[1] + spacing[2] ) / 6.0) );
-      }
-      this->TextureMapper->SetClippingPlanes(this->GetClippingPlanes());
-      this->TextureMapper->SetCropping(this->GetCropping());
-      this->TextureMapper->SetCroppingRegionPlanes(
-        this->GetCroppingRegionPlanes());
-      this->TextureMapper->SetCroppingRegionFlags(
-        this->GetCroppingRegionFlags());
-      // TextureMapper does not support FinalColor Window/Level.
-      break;
-#endif // VTK_LEGACY_REMOVE
 
       // We are rendering with the vtkGPUVolumeRayCastMapper
     case vtkSmartVolumeMapper::GPURenderMode:
@@ -673,25 +562,6 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
 }
 
 // ----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkSmartVolumeMapper::SetRequestedRenderModeToTexture()
-{
-  this->SetRequestedRenderMode(vtkSmartVolumeMapper::TextureRenderMode);
-  VTK_LEGACY_BODY(vtkSmartVolumeMapper::SetRequestedRenderModeToTexture,"VTK 7.0");
-}
-#endif // VTK_LEGACY_REMOVE
-
-// ----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture()
-{
-  this->SetRequestedRenderMode(
-    vtkSmartVolumeMapper::RayCastAndTextureRenderMode );
-  VTK_LEGACY_BODY(vtkSmartVolumeMapper::SetRequestedRenderModeToRayCastAndTexture,"VTK 7.0");
-}
-#endif // VTK_LEGACY_REMOVE
-
-// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::RayCastRenderMode);
@@ -701,9 +571,6 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToRayCast()
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)
 {
   this->RayCastMapper->ReleaseGraphicsResources(w);
-#if !defined(VTK_LEGACY_REMOVE)
-  this->TextureMapper->ReleaseGraphicsResources(w);
-#endif // VTK_LEGACY_REMOVE
   this->GPUMapper->ReleaseGraphicsResources(w);
   this->GPULowResMapper->ReleaseGraphicsResources(w);
 

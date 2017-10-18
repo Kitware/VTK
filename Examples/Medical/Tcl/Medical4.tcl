@@ -30,11 +30,9 @@ vtkVolume16Reader v16
 # The volume will be displayed by ray-cast alpha compositing.
 # A ray-cast mapper is needed to do the ray-casting, and a
 # compositing function is needed to do the compositing along the ray.
-vtkVolumeRayCastCompositeFunction rayCastFunction
-
-vtkVolumeRayCastMapper volumeMapper
+vtkGPUVolumeRayCastMapper volumeMapper
   volumeMapper SetInputConnection [v16 GetOutputPort]
-  volumeMapper SetVolumeRayCastFunction rayCastFunction
+  volumeMapper SetBlendModeToComposite
 
 # The color transfer function maps voxel intensities to colors.
 # It is modality-specific, and often anatomy-specific as well.

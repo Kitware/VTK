@@ -81,11 +81,7 @@ public:
 
   //@{
   /**
-   * Set/Get the blend mode. Currently this is only supported
-   * by the vtkFixedPointVolumeRayCastMapper - other mappers
-   * have different ways to set this (supplying a function
-   * to a vtkVolumeRayCastMapper) or don't have any options
-   * (vtkVolumeTextureMapper2D supports only compositing).
+   * Set/Get the blend mode.
    * Additive blend mode adds scalars along the ray and multiply them by
    * their opacity mapping value.
    */

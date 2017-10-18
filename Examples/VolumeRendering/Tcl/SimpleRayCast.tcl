@@ -1,5 +1,5 @@
 # This is a simple volume rendering example that
-# uses a vtkVolumeRayCast mapper
+# uses a vtkGPUVolumeRayCastMapper
 
 package require vtk
 package require vtkinteraction
@@ -37,9 +37,8 @@ vtkVolumeProperty volumeProperty
     volumeProperty SetInterpolationTypeToLinear
 
 # The mapper / ray cast function know how to render the data
-vtkVolumeRayCastCompositeFunction  compositeFunction
-vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetVolumeRayCastFunction compositeFunction
+vtkGPUVolumeRayCastMapper volumeMapper
+    volumeMapper SetBlendModeToComposite
     volumeMapper SetInputConnection [reader GetOutputPort]
 
 # The volume holds the mapper and the property and

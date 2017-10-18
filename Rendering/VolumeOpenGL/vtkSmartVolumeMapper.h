@@ -114,9 +114,6 @@ class vtkOSPRayVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
-#if !defined(VTK_LEGACY_REMOVE)
-class vtkVolumeTextureMapper3D;
-#endif // VTK_LEGACY_REMOVE
 
 class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkSmartVolumeMapper : public vtkVolumeMapper
 {
@@ -196,25 +193,6 @@ public:
    * good option if you know there is hardware acceleration.
    */
   void SetRequestedRenderModeToGPU();
-
-  /**
-   * Set the requested render mode to
-   * vtkSmartVolumeMapper::TextureRenderMode.
-   */
-#if !defined(VTK_LEGACY_REMOVE)
-  void SetRequestedRenderModeToTexture();
-#endif // VTK_LEGACY_REMOVE
-
-  /**
-   * Set the requested render mode to
-   * vtkSmartVolumeMapper::RayCastAndTextureRenderMode.
-   * This is a good option if you want to avoid using advanced OpenGL
-   * functionality, but would still like to used 3D texture mapping, if
-   * available, for interactive rendering.
-   */
-#if !defined(VTK_LEGACY_REMOVE)
-  void SetRequestedRenderModeToRayCastAndTexture();
-#endif // VTK_LEGACY_REMOVE
 
   /**
    * Set the requested render mode to vtkSmartVolumeMapper::RayCastRenderMode.
@@ -391,9 +369,6 @@ protected:
   vtkGPUVolumeRayCastMapper      *GPULowResMapper;
   vtkGPUVolumeRayCastMapper      *GPUMapper;
   vtkFixedPointVolumeRayCastMapper  *RayCastMapper;
-#if !defined(VTK_LEGACY_REMOVE)
-  vtkVolumeTextureMapper3D          *TextureMapper;
-#endif // VTK_LEGACY_REMOVE
 
   // We need to keep track of the blend mode we had when we initialized
   // because we need to reinitialize (and recheck hardware support) if
