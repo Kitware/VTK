@@ -9,6 +9,7 @@ vtk_module(vtkFiltersParallel
     vtkIOXML
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingParallel
+    vtkFiltersParallelGeometry
     vtkFiltersParallelMPI
     vtkFiltersParallelImaging
     vtkFiltersFlowPaths

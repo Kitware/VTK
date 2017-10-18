@@ -11,6 +11,7 @@ set(Module_SRCS
   vtkExtractUnstructuredGridPiece.cxx
   vtkExtractUserDefinedPiece.cxx
   vtkPCellDataToPointData.cxx
+  vtkPConnectivityFilter.cxx
   vtkPExtractArraysOverTime.cxx
   vtkPeriodicFilter.cxx
   vtkPKdTree.cxx
