@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+#=============================================================================
+# Copyright 2010-2015 Kitware, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#=============================================================================
+
+USAGE='[<remote>] [<options>...] [--]
+
+OPTIONS
+
+--dry-run
+    Show what would be changed without actually updating
+
+--autostash
+    automatically stash/stash pop before and after
+
+'
+OPTIONS_SPEC=
+SUBDIRECTORY_OK=Yes
+. "$(git --exec-path)/git-sh-setup"
+
+egrep_q() {
+  egrep "$@" >/dev/null 2>/dev/null
+}
+
+# Load the project configuration.
+require_work_tree_exists
+state_dir="$GIT_DIR"/gitlab-sync
+
+#-----------------------------------------------------------------------------
+
+remote=''
+autostash="$(git config --bool gitlab.sync.autostash || echo false)"
+dry_run=false
+
+# Parse the command line options.
+while test $# != 0; do
+  case "$1" in
+    --autostash)   autostash=true ;;
+    --no-autostash)   autostash=false ;;
+    --dry-run)    dry_run=true ;;
+    --) shift; break ;;
+    -*) usage ;;
+    *) test -z "$remote" || usage ; remote="$1" ;;
+  esac
+  shift
+done
+test $# = 0 || usage
+
+# Default remote.
+test -n "$remote" || remote="gitlab"
+
+# Identify and validate the topic branch name.
+head="$(git symbolic-ref HEAD)" && topic="${head#refs/heads/}" || topic=''
+if test -z "$topic" -o "$topic" = "master"; then
+  die 'You cant sync the master branch, please checkout the correct a branch with:
+  git checkout <branch>'
+fi
+
+#-----------------------------------------------------------------------------
+apply_autostash () {
+  if test -f "$state_dir/autostash"
+  then
+    stash_sha1=$(cat "$state_dir/autostash")
+    if git stash apply $stash_sha1 2>&1 >/dev/null
+    then
+      gettext 'Applied autostash.'
+    else
+      git stash store -m "autostash" -q $stash_sha1 ||
+      die "$(eval_gettext "Cannot store \$stash_sha1")"
+      gettext 'Applying autostash resulted in conflicts.
+Your changes are safe in the stash.
+You can run "git stash pop" or "git stash drop" at any time.
+'
+    fi
+  fi
+}
+
+finish_sync () {
+  apply_autostash &&
+  { git gc --auto || true; } &&
+  rm -rf "$state_dir"
+}
+
+
+#-----------------------------------------------------------------------------
+if test "$autostash" = true && ! (require_clean_work_tree) 2>/dev/null
+then
+  gettext 'trying to stash local changes' &&
+  stash_sha1=$(git stash create "autostash") ||
+  die "$(gettext 'Cannot autostash')"
+
+  mkdir -p "$state_dir" &&
+  echo $stash_sha1 >"$state_dir/autostash" &&
+  stash_abbrev=$(git rev-parse --short $stash_sha1) &&
+  echo "$(eval_gettext 'Created autostash: $stash_abbrev')" &&
+  git reset --hard
+fi
+
+require_clean_work_tree "sync" "$(gettext "Error syncing \
+We are trying to overwrite all local changes on this branch with the version on \
+gitlab. Before you do this make sure to stash your changes or commit these \
+changes to a different branch.")"
+
+#-----------------------------------------------------------------------------
+
+fetch_stdout=$(git fetch "$remote" $topic); fetch_exit=$?
+gettext "$fetch_stdout"
+
+if [ $fetch_exit -eq 0 ]
+then
+  if test "$dry_run" = true
+  then
+    reset_stdout=$(git diff --color HEAD..FETCH_HEAD); fetch_exit=$?
+    gettext "$reset_stdout"
+  else
+    reset_stdout=$(git reset --hard FETCH_HEAD); fetch_exit=$?
+    gettext "$reset_stdout"
+  fi
+fi
+
+finish_sync
+# Reproduce the push exit code.
+exit $fetch_exit
