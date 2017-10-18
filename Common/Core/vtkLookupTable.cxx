@@ -557,8 +557,8 @@ inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters & p)
     // in the linear mapping above. This is why we keep an extra copy of the last
     // lut value, to avoid extra work in this very hot function.
     // It should never be more than 1 off, assert to be sure.
-    assert(dIndex > -1.0 && dIndex <= (double)p.NumColors && std::isfinite(dIndex));
     index = static_cast<vtkIdType>(dIndex);
+    assert(index >= 0 && dIndex <= p.NumColors);
   }
 
   return index;
@@ -604,7 +604,7 @@ inline void vtkLookupShiftAndScale(const double range[2],
 {
   shift = -range[0];
   double rangeDelta = range[1] - range[0];
-  if (rangeDelta < VTK_DBL_MIN)
+  if (rangeDelta < VTK_DBL_MIN*numColors)
   {
     // if the range is tiny, anything within the range will map to the bottom
     // of the color scale.
