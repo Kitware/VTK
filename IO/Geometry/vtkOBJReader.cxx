@@ -23,6 +23,10 @@
 #include "vtkPolyData.h"
 #include <cctype>
 
+#include <map>
+#include "vtkCellData.h"
+#include "vtkStringArray.h"
+
 vtkStandardNewMacro(vtkOBJReader);
 
 // Description:
@@ -143,6 +147,19 @@ int vtkOBJReader::RequestData(
   bool hasNormals = false;
   bool tcoords_same_as_verts = true;
   bool normals_same_as_verts = true;
+
+  vtkSmartPointer<vtkIntArray> matIds = vtkSmartPointer<vtkIntArray>::New();
+  matIds->SetNumberOfComponents(1);
+  matIds->SetName("MaterialIds");
+  vtkSmartPointer<vtkStringArray> matNames = vtkSmartPointer<vtkStringArray>::New();
+  matNames->SetName("MaterialNames");
+  matNames->SetNumberOfComponents(1);
+  std::map<std::string, int> matNameToId;
+  std::map<int, std::string> startCellToMatName;
+  int matcnt = 0;
+  int matid = 0;
+  bool hasMaterials = false;
+
   bool everything_ok = true; // (use of this flag avoids early return and associated memory leak)
 
   // -- work through the file line by line, assigning into the above 7 structures as appropriate --
@@ -282,6 +299,16 @@ int vtkOBJReader::RequestData(
         vtkErrorMacro(<<"Error reading 'usemtl' at line " << lineNr);
         everything_ok = false;
       }
+      std::map<std::string, int>::iterator mit = matNameToId.find(tcoordsName);
+      if (mit == matNameToId.end())
+      {
+        //haven't seen this material yet, keep a record of it
+        matNameToId[tcoordsName] = matcnt;
+        matNames->InsertNextValue(tcoordsName);
+        matcnt++;
+      }
+      //remember that starting with current cell, we should draw with it
+      startCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
     }
     else if (strcmp(cmd, "vt") == 0)
     {
@@ -652,6 +679,10 @@ int vtkOBJReader::RequestData(
   // we have finished with the file
   fclose(in);
 
+  if (matcnt > 0)
+  {
+    hasMaterials = true;
+  }
 
   if (everything_ok)   // (otherwise just release allocated memory and return)
   {
@@ -701,6 +732,24 @@ int vtkOBJReader::RequestData(
       {
         output->GetPointData()->SetNormals(normals);
       }
+
+      if (hasMaterials)
+      {
+        //keep a record of the material for each cell
+        for (int i=0; i<polys->GetNumberOfCells(); ++i)
+        {
+          std::map<int, std::string>::iterator it = startCellToMatName.find(i);
+          if (it != startCellToMatName.end())
+          {
+            std::string matname = it->second;
+            matid = matNameToId.find(matname)->second;
+          }
+          matIds->InsertNextValue(matid);
+        }
+        output->GetCellData()->AddArray(matIds);
+        output->GetFieldData()->AddArray(matNames);
+      }
+
       output->Squeeze();
     }
     // otherwise we can duplicate the vertices as necessary (a bit slower)
@@ -740,6 +789,16 @@ int vtkOBJReader::RequestData(
         tcoord_polys->GetNextCell(n_tcoord_pts,tcoord_pts);
         normal_polys->GetNextCell(n_normal_pts,normal_pts);
 
+        if (hasMaterials)
+        {
+          //keep a record of the material for each cell
+          std::map<int, std::string>::iterator it = startCellToMatName.find(i);
+          if (it != startCellToMatName.end())
+          {
+            std::string matname = it->second;
+            matid = matNameToId.find(matname)->second;
+          }
+        }
         // If some vertices have tcoords and not others (likewise normals)
         // then we must do something else VTK will complain. (crash on render attempt)
         // Easiest solution is to delete polys that don't have complete tcoords (if there
@@ -779,6 +838,10 @@ int vtkOBJReader::RequestData(
           }
           // copy this poly (pointing at the new points) into the new polys list
           new_polys->InsertNextCell(n_pts,pts);
+          if (hasMaterials)
+          {
+            matIds->InsertNextValue(matid);
+          }
         }
       }
 
@@ -800,6 +863,11 @@ int vtkOBJReader::RequestData(
       if (hasNormals)
       {
         output->GetPointData()->SetNormals(new_normals);
+      }
+      if (hasMaterials)
+      {
+        output->GetCellData()->AddArray(matIds);
+        output->GetFieldData()->AddArray(matNames);
       }
 
       // TODO: fixup for pointElems and lineElems too
