@@ -1295,6 +1295,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             FSSource,"//VTK::UniformFlow::Impl",
             "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
             "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+            // the next two lines deal with some rendering systems
+            // that have difficulty computing dfdx/dfdy when they
+            // are near zero. Normalization later on can amplify
+            // the issue causing rendering artifacts.
+            "  if (abs(fdx.x) < 0.000001) { fdx = vec3(0.0);}\n"
+            "  if (abs(fdy.y) < 0.000001) { fdy = vec3(0.0);}\n"
             "  //VTK::UniformFlow::Impl\n" // For further replacements
             );
       vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
