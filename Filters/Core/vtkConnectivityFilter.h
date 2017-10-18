@@ -193,7 +193,7 @@ protected:
 
   // Usual data generation method
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) override;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
   int FillOutputPortInformation(int vtkNotUsed(port), vtkInformation* info) override;
