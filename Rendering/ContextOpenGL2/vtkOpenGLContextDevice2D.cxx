@@ -984,7 +984,7 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
     std::vector<float> newVerts;
     std::vector<unsigned char> newColors;
     std::vector<float> newDistances;
-    newDistances.resize((n-1)*12);
+    newDistances.resize((n/2)*12);
     for (int i = 0; i < n-1; i += 2)
     {
       // for each line segment draw two triangles
@@ -1020,12 +1020,12 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
         copyColors(newColors, colors+(i+1)*nc, nc);
       }
 
-      newDistances[i*12] = distances[i*2];
-      newDistances[i*12+2] = distances[i*2];
-      newDistances[i*12+4] = distances[i*2+2];
-      newDistances[i*12+6] = distances[i*2];
-      newDistances[i*12+8] = distances[i*2+2];
-      newDistances[i*12+10] = distances[i*2+2];
+      newDistances[i*6] = distances[i*2];
+      newDistances[i*6+2] = distances[i*2];
+      newDistances[i*6+4] = distances[i*2+2];
+      newDistances[i*6+6] = distances[i*2];
+      newDistances[i*6+8] = distances[i*2+2];
+      newDistances[i*6+10] = distances[i*2+2];
     }
 
     this->BuildVBO(cbo, &(newVerts[0]), newVerts.size()/2,
