@@ -341,7 +341,7 @@ void vtkWrapPython_ClassDoc(
         i++;
       }
       /* skip over consecutive newlines */
-      while (ccp[i] != '\0' && ccp[i] == '\n' && i - n < 400)
+      while (ccp[i] == '\n' && i - n < 400)
       {
         i++;
       }
