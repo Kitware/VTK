@@ -25,9 +25,7 @@ on all other packages and will be linked against all VTK packages too.
 What you should do:
 -------------------
 
-- Copy this vtkMy directory to a different out-of-source place, and
-  remove all CVS subdirs to avoid any accidental commit to the main VTK
-  CVS.
+- Copy this vtkMy directory to a different out-of-source place.
 
 - Fill the subdirs with your own classes. Remove the dummy classes if
   needed. For each CMakeList.txt in the package dirs, add or remove the
