@@ -1030,7 +1030,7 @@ macro(vtk_add_module src f bld ) # [test-langs]
   unset(vtk-module-test)
 endmacro()
 
-# called internally to add all the modules undeneath a particular directory to the list of modules
+# called internally to add all the modules underneath a particular directory to the list of modules
 macro(vtk_module_glob src bld) # [test-langs]
   file(GLOB meta RELATIVE "${src}" "${src}/*/*/module.cmake")
   foreach(f ${meta})
