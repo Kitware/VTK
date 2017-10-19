@@ -71,11 +71,18 @@ public:
    * \a SetIndexedColor() will automatically call
    * SetNumberOfIndexedColors(index+1) if the current number of indexed colors
    * is not sufficient for the specified index and all will be initialized to
-   * the RGB values passed to this call.
+   * the RGBA/RGB values passed to this call.
    */
-  void SetIndexedColor(unsigned int index, const double rgb[3])
+  void SetIndexedColorRGB(unsigned int index, const double rgb[3])
     { this->SetIndexedColor(index, rgb[0], rgb[1], rgb[2]); }
-  void SetIndexedColor(unsigned int index, double r, double g, double b);
+  void SetIndexedColorRGBA(unsigned int index, const double rgba[4])
+    { this->SetIndexedColor(index, rgba[0], rgba[1], rgba[2], rgba[3]); }
+  void SetIndexedColor(unsigned int index, double r, double g, double b, double a = 1.0);
+
+#ifndef VTK_LEGACY_REMOVE
+  VTK_LEGACY(void SetIndexedColor(unsigned int index, const double rgb[3])
+    { this->SetIndexedColorRGB(index, rgb); });
+#endif
 
   /**
    * Get the "indexed color" assigned to an index.
