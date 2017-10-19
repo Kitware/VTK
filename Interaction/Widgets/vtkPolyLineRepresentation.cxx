@@ -103,6 +103,7 @@ void vtkPolyLineRepresentation::BuildRepresentation()
   }
   this->PolyLineSource->SetClosed(this->Closed);
   this->PolyLineSource->Modified();
+  points->Modified();
 
   double bounds[6];
   bbox.GetBounds(bounds);
