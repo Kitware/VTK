@@ -29,6 +29,9 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 '''
 sys.dont_write_bytecode = True
 
+# Disable object factory override for vtkNrrdReader
+vtk.vtkObjectFactory.SetAllEnableFlags(False, "vtkNrrdReader", "vtkPNrrdReader")
+
 dataRoot = vtkGetDataRoot()
 reader = vtk.vtkNrrdReader()
 reader.SetFileName("" + str(dataRoot) + "/Data/tooth.nhdr")
