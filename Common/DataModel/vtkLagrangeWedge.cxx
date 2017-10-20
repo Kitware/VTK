@@ -564,7 +564,10 @@ int vtkLagrangeWedge::Triangulate(
   for (int i = 0; i < nwedge; ++i)
   {
     vtkWedge* approx = this->GetApproximateWedge(i);
-    this->SubCellCoordinatesFromId(ijk, i);
+    if (!this->SubCellCoordinatesFromId(ijk, i))
+    {
+      continue;
+    }
     if (approx->Triangulate(
         (ijk[0] + ijk[1] + ijk[2]) % 2,
         this->TmpIds.GetPointer(),

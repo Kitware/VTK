@@ -319,7 +319,10 @@ int vtkLagrangeQuadrilateral::Triangulate(
   for (int i = 0; i < nquad; ++i)
     {
     vtkQuad* approx = this->GetApproximateQuad(i);
-    this->SubCellCoordinatesFromId(ijk, i);
+    if (!this->SubCellCoordinatesFromId(ijk, i))
+    {
+      continue;
+    }
     if (approx->Triangulate(
         (ijk[0] + ijk[1] + ijk[2]) % 2,
         this->TmpIds.GetPointer(),
