@@ -4,6 +4,8 @@ set(LagrangeGeometricOperations_ARGS
   -V DATA{../Data/Baseline/LagrangeGeometricOperations_1.png,:}
   -V DATA{../Data/Baseline/LagrangeGeometricOperations_2.png,:}
   -V DATA{../Data/Baseline/LagrangeGeometricOperations-Boundary.png,:}
+  -V DATA{../Data/Baseline/LagrangeGeometricOperations-Boundary_1.png,:}
+  -V DATA{../Data/Baseline/LagrangeGeometricOperations-Boundary_2.png,:}
   -V DATA{../Data/Baseline/LagrangeGeometricOperations-Contour.png,:}
   -V DATA{../Data/Baseline/LagrangeGeometricOperations-Contour_1.png,:}
   -V DATA{../Data/Baseline/LagrangeGeometricOperations-Cut.png,:}
