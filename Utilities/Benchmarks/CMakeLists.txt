@@ -1,5 +1,5 @@
 # Load up the CMake variables we need.
-vtk_module_impl()
+vtk_module_export_info()
 vtk_module_config(${vtk-module} ${${vtk-module}_DEPENDS})
 
 # Placeholders
