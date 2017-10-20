@@ -77,7 +77,15 @@ public:
   void AddTooltip(vtkProp *prop, vtkStdString* str);
   void AddTooltip(vtkProp *prop, const char* str);
 
-  void PushFrontMenuItem(const char * name, const char *text, vtkCommand *cmd);
+  //@{
+  /**
+  * Methods to add/remove items to the menu, called by the menu widget
+  */
+  void PushFrontMenuItem(const char *name, const char *text, vtkCommand *cmd);
+  void RenameMenuItem(const char *name, const char *text);
+  void RemoveMenuItem(const char *name);
+  void RemoveAllMenuItems();
+  //@}
 
   void Show(vtkEventData *ed);
   void ShowSubMenu(vtkOpenVRMenuWidget *);

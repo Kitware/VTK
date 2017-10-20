@@ -105,6 +105,49 @@ void vtkOpenVRMenuWidget::PushFrontMenuItem(
   this->Modified();
 }
 
+void vtkOpenVRMenuWidget::RenameMenuItem(
+  const char *name, const char *text)
+{
+  for (auto itr : this->Menus)
+  {
+    if (itr->Name == name)
+    {
+      itr->Text = text;
+    }
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RenameMenuItem(name, text);
+}
+
+void vtkOpenVRMenuWidget::RemoveMenuItem(
+  const char *name)
+{
+  for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
+  {
+    if ((*itr)->Name == name)
+    {
+      delete *itr;
+      this->Menus.erase(itr);
+      return;
+    }
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RemoveMenuItem(name);
+}
+
+void vtkOpenVRMenuWidget::RemoveAllMenuItems()
+{
+  while (this->Menus.size() > 0)
+  {
+    auto itr = this->Menus.begin();
+    delete *itr;
+    this->Menus.erase(itr);
+  }
+  static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
+    RemoveAllMenuItems();
+}
+
+
 void vtkOpenVRMenuWidget::EventCallback(
   vtkObject *,
   unsigned long,

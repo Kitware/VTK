@@ -1020,11 +1020,27 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
   this->PickActor->GetProperty()->SetColor(this->PickColor);
 
   int nedges = cell->GetNumberOfEdges();
-  for (int edgenum = 0; edgenum < nedges; ++edgenum)
+
+  if (nedges)
   {
-    vtkCell *edge = cell->GetEdge(edgenum);
-    vtkPoints *pts = edge->GetPoints();
-    int npts = edge->GetNumberOfPoints();
+    for (int edgenum = 0; edgenum < nedges; ++edgenum)
+    {
+      vtkCell *edge = cell->GetEdge(edgenum);
+      vtkPoints *pts = edge->GetPoints();
+      int npts = edge->GetNumberOfPoints();
+      lines->InsertNextCell(npts);
+      for (int ep = 0; ep < npts; ++ep)
+      {
+        vtkIdType newpt = pdpts->InsertNextPoint(pts->GetPoint(ep));
+        lines->InsertCellPoint(newpt);
+      }
+    }
+  }
+  else if (cell->GetCellType() == VTK_LINE ||
+           cell->GetCellType() == VTK_POLY_LINE)
+  {
+    vtkPoints *pts = cell->GetPoints();
+    int npts = cell->GetNumberOfPoints();
     lines->InsertNextCell(npts);
     for (int ep = 0; ep < npts; ++ep)
     {
@@ -1032,8 +1048,13 @@ void vtkOpenVRInteractorStyle::ShowPickCell(vtkCell *cell, vtkProp3D *prop)
       lines->InsertCellPoint(newpt);
     }
   }
-  pd->SetPoints(pdpts);
-  pd->SetLines(lines);
+  else
+  {
+    return;
+  }
+
+  pd->SetPoints(pdpts.Get());
+  pd->SetLines(lines.Get());
 
   if (prop)
   {

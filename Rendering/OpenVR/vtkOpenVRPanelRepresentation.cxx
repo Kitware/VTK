@@ -390,44 +390,50 @@ void vtkOpenVRPanelRepresentation::ComputeMatrix(vtkRenderer *ren)
 
     if (this->CoordinateSystem == LeftController)
     {
-      vr::TrackedDevicePose_t &tdPose =
-        rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController);
-      double pos[3];
-      double ppos[3];
-      double wxyz[4];
-      double wdir[3];
-      static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
-        ->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
+      vr::TrackedDevicePose_t *tdPose;
+      rw->GetTrackedDevicePose(vtkEventDataDevice::LeftController, &tdPose);
+      if (tdPose && tdPose->bPoseIsValid)
+      {
+        double pos[3];
+        double ppos[3];
+        double wxyz[4];
+        double wdir[3];
+        static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+          ->ConvertPoseToWorldCoordinates(*tdPose, pos, wxyz, ppos, wdir);
 
-      double scale = rw->GetPhysicalScale();
+        double scale = rw->GetPhysicalScale();
 
-      this->TempTransform->Identity();
-      this->TempTransform->PreMultiply();
-      this->TempTransform->Translate(pos[0], pos[1], pos[2]);
-      this->TempTransform->Scale(scale, scale, scale);
-      this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-      this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+        this->TempTransform->Identity();
+        this->TempTransform->PreMultiply();
+        this->TempTransform->Translate(pos[0], pos[1], pos[2]);
+        this->TempTransform->Scale(scale, scale, scale);
+        this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+        this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+      }
     }
 
     if (this->CoordinateSystem == RightController)
     {
-      vr::TrackedDevicePose_t &tdPose =
-        rw->GetTrackedDevicePose(vtkEventDataDevice::RightController);
-      double pos[3];
-      double ppos[3];
-      double wxyz[4];
-      double wdir[3];
-      static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
-        ->ConvertPoseToWorldCoordinates(tdPose, pos, wxyz, ppos, wdir);
+      vr::TrackedDevicePose_t *tdPose;
+      rw->GetTrackedDevicePose(vtkEventDataDevice::RightController, &tdPose);
+      if (tdPose && tdPose->bPoseIsValid)
+      {
+        double pos[3];
+        double ppos[3];
+        double wxyz[4];
+        double wdir[3];
+        static_cast<vtkOpenVRRenderWindowInteractor *>(rw->GetInteractor())
+          ->ConvertPoseToWorldCoordinates(*tdPose, pos, wxyz, ppos, wdir);
 
-      double scale = rw->GetPhysicalScale();
+        double scale = rw->GetPhysicalScale();
 
-      this->TempTransform->Identity();
-      this->TempTransform->PreMultiply();
-      this->TempTransform->Translate(pos[0], pos[1], pos[2]);
-      this->TempTransform->Scale(scale, scale, scale);
-      this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
-      this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+        this->TempTransform->Identity();
+        this->TempTransform->PreMultiply();
+        this->TempTransform->Translate(pos[0], pos[1], pos[2]);
+        this->TempTransform->Scale(scale, scale, scale);
+        this->TempTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+        this->TextActor->GetUserMatrix()->DeepCopy(this->TempTransform->GetMatrix());
+      }
     }
   }
 }

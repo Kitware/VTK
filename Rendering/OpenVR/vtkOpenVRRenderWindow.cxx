@@ -275,6 +275,8 @@ vtkOpenVRModel *vtkOpenVRRenderWindow::FindOrLoadRenderModel(
 
 void vtkOpenVRRenderWindow::RenderModels()
 {
+  glEnable(GL_DEPTH_TEST);
+
   bool bIsInputCapturedByAnotherProcess =
     this->HMD->IsInputFocusCapturedByAnotherProcess();
 
@@ -630,10 +632,13 @@ void vtkOpenVRRenderWindow::Initialize (void)
 
   this->OpenGLInit();
 
-  // this->OpenGLInit();
+  // some classes override the ivar in a getter :-(
+  this->MaximumHardwareLineWidth = this->HelperWindow->GetMaximumHardwareLineWidth();
+
   glDepthRange(0., 1.);
 
   // make sure vsync is off
+  // this->HelperWindow->SetSwapControl(0);
 
   m_strDriver = "No Driver";
   m_strDisplay = "No Display";
@@ -736,8 +741,13 @@ vtkOpenVRModel *vtkOpenVRRenderWindow::GetTrackedDeviceModel(vtkEventDataDevice 
   return nullptr;
 }
 
-vr::TrackedDevicePose_t &vtkOpenVRRenderWindow::GetTrackedDevicePose(vtkEventDataDevice dev)
+void vtkOpenVRRenderWindow::GetTrackedDevicePose(
+  vtkEventDataDevice dev, vr::TrackedDevicePose_t **pose)
 {
   vr::TrackedDeviceIndex_t idx = this->GetTrackedDeviceIndexForDevice(dev);
-  return this->GetTrackedDevicePose(idx);
+  *pose = nullptr;
+  if (idx < vr::k_unMaxTrackedDeviceCount)
+  {
+    *pose = &(this->TrackedDevicePose[idx]);
+  }
 }

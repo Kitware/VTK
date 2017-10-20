@@ -85,11 +85,15 @@ public:
   int RenderOverlay(vtkViewport*) override;
   //@}
 
-
+  //@{
   /**
-  * Method to add items to the menu, called by the menu widget
+  * Methods to add/remove items to the menu, called by the menu widget
   */
   void PushFrontMenuItem(const char *name, const char *text, vtkCommand *cmd);
+  void RenameMenuItem(const char *name, const char *text);
+  void RemoveMenuItem(const char *name);
+  void RemoveAllMenuItems();
+  //@}
 
   vtkGetMacro(CurrentOption, double);
 
