@@ -176,24 +176,24 @@ endforeach()
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
   # test modules to the dependecy graph. We now add the test modules for all
-  # enabled modules iff the all the test dependecies are already satisfied
+  # enabled modules if all the test dependencies are already satisfied
   # (BUG #13297).
   foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)
     foreach(test IN LISTS ${vtk-module}_TESTED_BY)
       # if all test-dependencies are satisfied, enable it.
-      set (missing_dependencis)
+      set (missing_dependencies)
       foreach(test-depends IN LISTS ${test}_DEPENDS)
         list(FIND VTK_MODULES_ENABLED ${test-depends} found)
         if (found EQUAL -1)
-          list(APPEND missing_dependencis ${test-depends})
+          list(APPEND missing_dependencies ${test-depends})
         endif()
       endforeach()
-      if (NOT missing_dependencis)
+      if (NOT missing_dependencies)
         vtk_module_enable(${test} "")
         list(APPEND VTK_MODULES_ENABLED ${test})
       else()
         message(STATUS
-        "Disable test module ${test} since required modules are not enabled: ${missing_dependencis}")
+        "Disable test module ${test} since required modules are not enabled: ${missing_dependencies}")
       endif()
     endforeach()
   endforeach()
@@ -297,7 +297,7 @@ foreach(vtk-module ${VTK_MODULES_ALL})
   endif()
 endforeach()
 
-#hide options of modules that are part of a different backend
+# Hide options of modules that are part of a different backend
 # or are required by the backend
 foreach(backend ${VTK_BACKENDS})
   foreach(module ${VTK_BACKEND_${backend}_MODULES})
