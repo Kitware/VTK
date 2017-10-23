@@ -725,6 +725,11 @@ void vtkCamera::Pitch(double angle)
   this->ViewUp[0] = savedViewUp[0];
   this->ViewUp[1] = savedViewUp[1];
   this->ViewUp[2] = savedViewUp[2];
+  // this is needed since the last time Modified was called (in SetFocalPoint),
+  // the ViewUp was not same as savedViewUp. Since we're changing its value
+  // here, we need to fire Modified event. We don't call `SetViewUp` since we
+  // don't want the computation of the view transform to happen again.
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -783,6 +788,11 @@ void vtkCamera::Elevation(double angle)
   this->ViewUp[0] = savedViewUp[0];
   this->ViewUp[1] = savedViewUp[1];
   this->ViewUp[2] = savedViewUp[2];
+  // this is needed since the last time Modified was called (in SetPosition),
+  // the ViewUp was not same as savedViewUp. Since we're changing its value
+  // here, we need to fire Modified event. We don't call `SetViewUp` since we
+  // don't want the computation of the view transform to happen again.
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
