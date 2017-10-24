@@ -242,6 +242,7 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
   this->Prober->Update();
 
   output->ShallowCopy(this->Prober->GetOutput());
+  output->GetFieldData()->PassData(input->GetFieldData());
 }
 
 //----------------------------------------------------------------------------
