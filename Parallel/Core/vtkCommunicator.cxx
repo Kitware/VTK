@@ -211,6 +211,7 @@ int vtkCommunicator::Send(vtkDataObject* data, int remoteHandle,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
       return this->SendElementalDataObject(data, remoteHandle, tag);
   }
 }
@@ -407,6 +408,7 @@ int vtkCommunicator::ReceiveDataObject(vtkDataObject* data, int remoteHandle,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
       return this->ReceiveElementalDataObject(data, remoteHandle, tag);
   }
 }
@@ -1139,6 +1141,7 @@ int vtkCommunicator::GatherV(vtkDataObject *sendData,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+    case VTK_OVERLAPPING_AMR:
 
   case -1:
       return this->GatherVElementalDataObject(
