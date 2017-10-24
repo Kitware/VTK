@@ -163,7 +163,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
     }
     else
     {
-       vtkErrorMacro("Can not execute simple alorithm without output ports");
+       vtkErrorMacro("Can not execute simple algorithm without output ports");
        return 0;
     }
   }
