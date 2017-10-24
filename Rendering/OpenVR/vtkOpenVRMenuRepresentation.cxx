@@ -81,11 +81,6 @@ void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
   const char *text,
   vtkCommand *cmd)
 {
-  // if (this->Menus.find(text) != this->Menus.end())
-  // {
-  //   return;
-  // }
-
   vtkOpenVRMenuRepresentation::InternalElement *el =
     new vtkOpenVRMenuRepresentation::InternalElement();
   el->TextActor->SetInput(text);
@@ -93,6 +88,42 @@ void vtkOpenVRMenuRepresentation::PushFrontMenuItem(
   el->Name = name;
   this->Menus.push_front(el);
   this->Modified();
+}
+
+void vtkOpenVRMenuRepresentation::RenameMenuItem(
+  const char *name, const char *text)
+{
+  for (auto itr : this->Menus)
+  {
+    if (itr->Name == name)
+    {
+      itr->TextActor->SetInput(text);
+    }
+  }
+}
+
+void vtkOpenVRMenuRepresentation::RemoveMenuItem(
+  const char *name)
+{
+  for (auto itr = this->Menus.begin(); itr != this->Menus.end(); ++itr)
+  {
+    if ((*itr)->Name == name)
+    {
+      delete *itr;
+      this->Menus.erase(itr);
+      return;
+    }
+  }
+}
+
+void vtkOpenVRMenuRepresentation::RemoveAllMenuItems()
+{
+  while (this->Menus.size() > 0)
+  {
+    auto itr = this->Menus.begin();
+    delete *itr;
+    this->Menus.erase(itr);
+  }
 }
 
 void vtkOpenVRMenuRepresentation::StartComplexInteraction(

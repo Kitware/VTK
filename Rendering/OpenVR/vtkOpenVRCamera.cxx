@@ -161,7 +161,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
   if (this->LeftEye)
   {
     // Left Eye
-    if (win->GetMultiSamples())
+    if (win->GetMultiSamples() && !ren->GetSelector())
     {
       glEnable( GL_MULTISAMPLE );
     }
@@ -176,7 +176,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
   else
   {
     // right eye
-    if (win->GetMultiSamples())
+    if (win->GetMultiSamples() && !ren->GetSelector())
     {
       glEnable( GL_MULTISAMPLE );
     }

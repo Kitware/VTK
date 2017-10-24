@@ -94,20 +94,35 @@ int vtkOpenVRHardwarePicker::PickProp(
 
   int *size = renderer->GetSize();
 
-  sel->SetArea(size[0]/2 - 2, size[1]/2 - 2, size[0]/2 + 1, size[1]/2 + 1);
+  sel->SetArea(size[0]/2 - 5, size[1]/2 - 5, size[0]/2 + 5, size[1]/2 + 5);
 
   if (this->Selection)
   {
     this->Selection->Delete();
   }
-  this->Selection = sel->Select();
+
+  this->Selection = nullptr;
+  if (sel->CaptureBuffers())
+  {
+    unsigned int outPos[2];
+    unsigned int inPos[2] = {size[0]/2, size[1]/2};
+    // find the data closest to the center
+    vtkHardwareSelector::PixelInformation pinfo =
+      sel->GetPixelInformation(inPos, 5, outPos);
+    if (pinfo.Valid)
+    {
+      this->Selection = sel->GenerateSelection(outPos[0], outPos[1], outPos[0], outPos[1]);
+    }
+  }
+
+  // this->Selection = sel->Select();
 
   // sel->SetArea(0, 0, size[0]-1, size[1]-1);
   renWin->SetTrackHMD(true);
 
   this->InvokeEvent(vtkCommand::EndPickEvent, this->Selection);
 
-  if (this->Selection->GetNode(0))
+  if (this->Selection && this->Selection->GetNode(0))
   {
     return 1;
   }

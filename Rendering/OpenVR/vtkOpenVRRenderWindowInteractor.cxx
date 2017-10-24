@@ -282,7 +282,8 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
   {
     result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
 
-    if (result)
+    // process all pending events
+    while (result)
     {
       vr::TrackedDeviceIndex_t tdi = event.trackedDeviceIndex;
 
@@ -337,6 +338,17 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
             break;
           case vr::EVRButtonId::k_EButton_Axis0:
             ed->SetInput(vtkEventDataDeviceInput::TrackPad);
+            vr::VRControllerState_t cstate;
+            pHMD->GetControllerState(tdi, &cstate, sizeof(cstate));
+            for (unsigned int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+            {
+              if (pHMD->GetInt32TrackedDeviceProperty(tdi,
+                static_cast<vr::ETrackedDeviceProperty>(vr::ETrackedDeviceProperty::Prop_Axis0Type_Int32 + i))
+                == vr::EVRControllerAxisType::k_eControllerAxis_TrackPad)
+              {
+                ed->SetTrackPadPosition(cstate.rAxis[i].x,cstate.rAxis[i].y);
+              }
+            }
             break;
           case vr::EVRButtonId::k_EButton_Grip:
             ed->SetInput(vtkEventDataDeviceInput::Grip);
@@ -375,6 +387,8 @@ void vtkOpenVRRenderWindowInteractor::DoOneEvent(vtkOpenVRRenderWindow *renWin, 
           //----------------------------------------------------------------------------
         }
       }
+
+      result = pHMD->PollNextEvent(&event, sizeof(vr::VREvent_t));
     }
 
     // for each controller create mouse move event

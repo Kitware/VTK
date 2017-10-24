@@ -175,10 +175,29 @@ public:
     this->WorldOrientation[3] = p[3];
   }
 
+  void GetTrackPadPosition(double v[2]) const {
+    v[0] = this->TrackPadPosition[0];
+    v[1] = this->TrackPadPosition[1];
+  }
+  const double *GetTrackPadPosition() const {
+    return this->TrackPadPosition;
+  }
+  void SetTrackPadPosition(const double p[2])
+  {
+    this->TrackPadPosition[0] = p[0];
+    this->TrackPadPosition[1] = p[1];
+  }
+  void SetTrackPadPosition(double x, double y)
+  {
+    this->TrackPadPosition[0] = x;
+    this->TrackPadPosition[1] = y;
+  }
+
 protected:
   double WorldPosition[3];
   double WorldOrientation[4];
   double WorldDirection[3];
+  double TrackPadPosition[2];
 
   vtkEventDataDevice3D() {}
   ~vtkEventDataDevice3D() override {}
