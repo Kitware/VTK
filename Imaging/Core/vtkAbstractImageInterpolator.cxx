@@ -78,6 +78,8 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   this->InterpolationInfo = new vtkInterpolationInfo();
   this->InterpolationInfo->Pointer = nullptr;
   this->InterpolationInfo->NumberOfComponents = 1;
+  this->InterpolationInfo->InterpolationMode = 0;
+  this->InterpolationInfo->ExtraInfo = nullptr;
 
   this->InterpolationFuncDouble =
     &(vtkInterpolateNOP<double>::InterpolationFunc);
@@ -358,9 +360,7 @@ void vtkAbstractImageInterpolator::Update()
   // set all other elements of the InterpolationInfo
   info->ScalarType = scalars->GetDataType();
   info->NumberOfComponents = this->ComputeNumberOfComponents(ncomp);
-  info->InterpolationMode = 0;
   info->BorderMode = this->BorderMode;
-  info->ExtraInfo = nullptr;
 
   // subclass-specific update
   this->InternalUpdate();
