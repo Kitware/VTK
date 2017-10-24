@@ -503,6 +503,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
                 CMake/vtkexportheader.cmake.in
                 CMake/VTKGenerateExportHeader.cmake
+                CMake/vtkInitializeBuildType.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
                 CMake/FindTCL.cmake
