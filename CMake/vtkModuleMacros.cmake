@@ -499,7 +499,7 @@ function(vtk_target_export _name)
   if("${${vtk-module}-targets-build}" STREQUAL "")
     set(is_local_project 1) # E.g Examples/Build/vtkMy or Examples/Build/vtkLocal
   endif()
-  if(is_insource_module OR is_local_module )
+  if(is_insource_module OR is_local_project)
     set_property(GLOBAL APPEND PROPERTY VTK_TARGETS ${_name})
   else()
     export(TARGETS ${_name} APPEND FILE ${${vtk-module}-targets-build}) # External VTK module
