@@ -44,6 +44,29 @@ public:
   vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  enum PieceDistributionStrategy
+  {
+    Block,
+    Interleave
+  };
+
+  /**
+   * Set the strategy for assigning files to parallel readers. The default is
+   * @a Block.
+   *
+   * Let @a X be the rank of a specific reader, and @a N be the number of
+   * reader, then:
+   * @arg @c Block Each processor is assigned a contiguous block of files,
+   *      [@a X * @a N, ( @a X + 1) * @a N ).
+   * @arg @c Interleave The files are interleaved across readers,
+   * @a i * @a N + @a X.
+   * @{
+   */
+  vtkSetClampMacro(PieceDistribution, PieceDistributionStrategy,
+                   Block, Interleave)
+  vtkGetMacro(PieceDistribution, PieceDistributionStrategy)
+  /**@}*/
+
   //@{
   /**
    * Get the output data object for a port on this algorithm.
@@ -107,9 +130,14 @@ protected:
    */
   int ShouldReadDataSet(unsigned int datasetIndex);
 
+  bool DataSetIsValidForBlockStrategy(unsigned int datasetIndex);
+  bool DataSetIsValidForInterleaveStrategy(unsigned int datasetIndex);
+
 private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) = delete;
   void operator=(const vtkXMLCompositeDataReader&) = delete;
+
+  PieceDistributionStrategy PieceDistribution;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };
