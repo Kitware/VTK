@@ -12,6 +12,7 @@ vtk_add_test_python(
   TestGraphLayoutFilter.py
   TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py
+  TestRemoveGhostCells.py,NO_OUTPUT,NO_VALID
   TestSplineFilter.py
   TestStaticCellLocator.py
   TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID

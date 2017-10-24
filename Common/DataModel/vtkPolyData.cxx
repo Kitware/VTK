@@ -1951,6 +1951,8 @@ void vtkPolyData::RemoveGhostCells()
   }
 
   vtkCellData *newCellData = vtkCellData::New();
+  // ensure that all attributes are copied over, including global ids.
+  newCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   newCellData->CopyAllocate(this->CellData, numCells);
 
   vtkIdType *pts, n;
