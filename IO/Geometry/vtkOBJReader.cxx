@@ -155,10 +155,10 @@ int vtkOBJReader::RequestData(
   matNames->SetName("MaterialNames");
   matNames->SetNumberOfComponents(1);
   std::map<std::string, int> matNameToId;
-  std::map<int, std::string> startCellToMatName;
+  std::map<vtkIdType, std::string> wStartCellToMatName;
+  const std::map<vtkIdType, std::string>& rStartCellToMatName = wStartCellToMatName;
   int matcnt = 0;
   int matid = 0;
-  bool hasMaterials = false;
 
   bool everything_ok = true; // (use of this flag avoids early return and associated memory leak)
 
@@ -308,7 +308,7 @@ int vtkOBJReader::RequestData(
         matcnt++;
       }
       //remember that starting with current cell, we should draw with it
-      startCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
+      wStartCellToMatName[polys->GetNumberOfCells()] = tcoordsName;
     }
     else if (strcmp(cmd, "vt") == 0)
     {
@@ -679,10 +679,7 @@ int vtkOBJReader::RequestData(
   // we have finished with the file
   fclose(in);
 
-  if (matcnt > 0)
-  {
-    hasMaterials = true;
-  }
+  bool hasMaterials = matcnt > 0;
 
   if (everything_ok)   // (otherwise just release allocated memory and return)
   {
@@ -736,10 +733,10 @@ int vtkOBJReader::RequestData(
       if (hasMaterials)
       {
         //keep a record of the material for each cell
-        for (int i=0; i<polys->GetNumberOfCells(); ++i)
+        for (vtkIdType i=0; i<polys->GetNumberOfCells(); ++i)
         {
-          std::map<int, std::string>::iterator it = startCellToMatName.find(i);
-          if (it != startCellToMatName.end())
+          std::map<vtkIdType, std::string>::const_iterator it = rStartCellToMatName.find(i);
+          if (it != rStartCellToMatName.end())
           {
             std::string matname = it->second;
             matid = matNameToId.find(matname)->second;
@@ -792,8 +789,9 @@ int vtkOBJReader::RequestData(
         if (hasMaterials)
         {
           //keep a record of the material for each cell
-          std::map<int, std::string>::iterator it = startCellToMatName.find(i);
-          if (it != startCellToMatName.end())
+          std::map<vtkIdType, std::string>::const_iterator it =
+            rStartCellToMatName.find(static_cast<vtkIdType>(i));
+          if (it != rStartCellToMatName.end())
           {
             std::string matname = it->second;
             matid = matNameToId.find(matname)->second;

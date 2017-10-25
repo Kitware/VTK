@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestTecPlotReader.cxx
+  Module:    TestOBJReaderRelative.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkTecplotReader
+// .NAME Test of vtkOBJReader
 // .SECTION Description
 //
 

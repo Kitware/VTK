@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestOBJReaderNormalsTCoords.cxx
+  Module:    TestOBJReaderMaterials.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,25 +12,23 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkOBJReader
+// .NAME Verifies that vtkOBJReader does something sensible w/rt materials.
 // .SECTION Description
 //
 
 #include "vtkOBJReader.h"
-#include "vtkDebugLeaks.h"
 
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
+#include "vtkCellData.h"
+#include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
-
-int TestOBJReaderNormalsTCoords( int argc, char *argv[] )
+int TestOBJReaderMaterials( int argc, char *argv[] )
 {
   int retVal = 0;
 
   // Create the reader.
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/obj_with_normals_and_tcoords.obj");
+  char* fname = vtkTestUtilities::ExpandDataFileName(
+    argc, argv, "Data/obj_with_materials.obj");
   vtkSmartPointer<vtkOBJReader> reader =
     vtkSmartPointer<vtkOBJReader>::New();
   reader->SetFileName(fname);
@@ -44,26 +42,33 @@ int TestOBJReaderNormalsTCoords( int argc, char *argv[] )
     std::cerr << "Could not read data" << std::endl;
     return 1;
   }
-  if(data->GetNumberOfPoints() != 4)
+  vtkStringArray *mna = vtkStringArray::SafeDownCast(
+    data->GetFieldData()->GetAbstractArray("MaterialNames"));
+  if(!mna)
   {
-    std::cerr << "Invalid number of points" << std::endl;
+    std::cerr << "missing material names array" << std::endl;
     return 1;
   }
-  if(data->GetPointData()->GetNumberOfArrays() != 2)
+  vtkIntArray *mia = vtkIntArray::SafeDownCast(
+    data->GetCellData()->GetAbstractArray("MaterialIds"));
+  if(!mia)
   {
-    std::cerr << "Invalid number of arrays" << std::endl;
+    std::cerr << "missing material id array" << std::endl;
     return 1;
   }
-  if(!data->GetPointData()->HasArray("TCoords"))
+  if (data->GetNumberOfCells() != 2)
   {
-    std::cerr << "Could not find TCoords array" << std::endl;
+    std::cerr << "wrong number of cells" << std::endl;
     return 1;
   }
-  if(!data->GetPointData()->HasArray("Normals"))
+  int matid = mia->GetVariantValue(1).ToInt();
+  std::string matname = mna->GetVariantValue(matid).ToString();
+  if (matname != "Air")
   {
-    std::cerr << "Could not find TCoords array" << std::endl;
+    std::cerr << "wrong material for" << std::endl;
     return 1;
   }
+
 
   return retVal;
 }
