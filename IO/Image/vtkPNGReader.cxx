@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtk_png.h"
+#include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
 #include <vector>
@@ -111,7 +112,7 @@ void vtkPNGReader::ExecuteInformation()
     return;
   }
 
-  FILE *fp = fopen(this->InternalFileName, "rb");
+  FILE *fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
   if (!fp)
   {
     vtkErrorMacro("Unable to open file " << this->InternalFileName);
@@ -254,7 +255,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   vtkPNGReader::vtkInternals* impl = this->Internals;
   unsigned int ui;
   int i;
-  FILE *fp = fopen(this->GetInternalFileName(), "rb");
+  FILE *fp = vtksys::SystemTools::Fopen(this->GetInternalFileName(), "rb");
   if (!fp)
   {
     return;
@@ -449,7 +450,7 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject *output,
 //----------------------------------------------------------------------------
 int vtkPNGReader::CanReadFile(const char* fname)
 {
-  FILE* fp = fopen(fname, "rb");
+  FILE* fp = vtksys::SystemTools::Fopen(fname, "rb");
   if(!fp)
   {
     return 0;

@@ -100,7 +100,7 @@ int vtkSTLReader::RequestData(
   }
 
   // Initialize
-  FILE *fp = fopen(this->FileName, "r");
+  FILE *fp = vtksys::SystemTools::Fopen(this->FileName, "r");
   if (fp == nullptr)
   {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
@@ -132,7 +132,7 @@ int vtkSTLReader::RequestData(
   {
     // Close file and reopen in binary mode.
     fclose(fp);
-    fp = fopen(this->FileName, "rb");
+    fp = vtksys::SystemTools::Fopen(this->FileName, "rb");
     if (fp == nullptr)
     {
       vtkErrorMacro(<< "File " << this->FileName << " not found");
