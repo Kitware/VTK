@@ -2008,12 +2008,18 @@ void vtkUnstructuredGrid::RemoveGhostCells()
 
 
   // Now threshold based on the cell ghost array.
+
+  // ensure that all attributes are copied over, including global ids.
+  outPD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+  outCD->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
+
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
 
   numPts = this->GetNumberOfPoints();
   newGrid->Allocate(this->GetNumberOfCells());
   newPoints = vtkPoints::New();
+  newPoints->SetDataType(this->GetPoints()->GetDataType());
   newPoints->Allocate(numPts);
 
   pointMap = vtkIdList::New(); //maps old point ids into new
