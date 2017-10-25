@@ -38,7 +38,7 @@ public:
   /**
    * Send text to the output window process.
    */
-  virtual void DisplayText(const char*);
+  void DisplayText(const char*) VTK_OVERRIDE;
 
 protected:
   vtkWin32ProcessOutputWindow();

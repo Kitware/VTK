@@ -48,7 +48,7 @@ public:
   /**
    * New lines are converted to carriage return new lines.
    */
-  virtual void DisplayText(const char*);
+  void DisplayText(const char*) VTK_OVERRIDE;
   virtual void DisplayErrorText(const char*);
   virtual void DisplayWarningText(const char*);
   virtual void DisplayGenericWarningText(const char*);
