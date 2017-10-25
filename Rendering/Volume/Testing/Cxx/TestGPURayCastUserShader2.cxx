@@ -97,7 +97,7 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  renWin->SetSize(301, 300); // Intentional NPOT size
+  renWin->SetSize(300, 300); // Intentional NPOT size
 
   vtkNew<vtkRenderer> ren;
   renWin->AddRenderer(ren.GetPointer());
