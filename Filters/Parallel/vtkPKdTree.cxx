@@ -292,7 +292,7 @@ bool vtkPKdTree::VolumeBounds(double* volBounds)
   int number_of_datasets = this->GetNumberOfDataSets();
   if (number_of_datasets == 0)
   {
-    VTKERROR("NumberOfDatasets = 0, cannot determine volume bounds.");
+    // Cannot determine volume bounds.
     return false;
   }
 
