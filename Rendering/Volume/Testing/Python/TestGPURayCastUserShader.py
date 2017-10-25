@@ -123,7 +123,7 @@ volume.SetProperty(volumeProperty)
 
 renWin = vtk.vtkRenderWindow()
 renWin.SetMultiSamples(0)
-renWin.SetSize(301, 300)  # Intentional NPOT size
+renWin.SetSize(300, 300)
 
 ren = vtk.vtkRenderer()
 renWin.AddRenderer(ren)
