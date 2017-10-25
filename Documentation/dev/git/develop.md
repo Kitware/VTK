@@ -412,7 +412,11 @@ Builder names always follow this pattern:
   * buildtype: `release` or `debug`
   * feature: alphabetical list of features enabled for the build
 
-For a list of all builders, see:
+For a list of all builders, visit the
+[VTK project on open.cdash.org](https://open.cdash.org/index.php?project=VTK).
+
+Otherwise, `Expected`, `Superbuild`, or `Experimental` builds can be
+directly accesssed from within Kitware at the following sites:
 
   * [vtk-expected](https://buildbot.kitware.com/builders?category=vtk-expected)
   * [vtk-superbuild](https://buildbot.kitware.com/builders?category=vtk-superbuild)
