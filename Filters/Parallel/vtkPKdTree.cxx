@@ -2529,6 +2529,19 @@ int vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
       this->GetDataSet(set)->GetPointData()->GetNumberOfArrays();
   }
 
+  // Find maximum number of cell and point arrays. Set this number on all processes.
+  // This handles the case where some processes have datasets with no cell or point
+  // arrays, which may happen if a dataset on a process has no points or cells.
+  if (this->NumProcesses > 1)
+  {
+    int tmpNumArrays[2], maxNumArrays[2];
+    tmpNumArrays[0] = iNumCellArrays;
+    tmpNumArrays[1] = iNumPointArrays;
+    this->Controller->AllReduce(tmpNumArrays, maxNumArrays, 2, vtkCommunicator::MAX_OP);
+    iNumCellArrays = maxNumArrays[0];
+    iNumPointArrays = maxNumArrays[1];
+  }
+
   this->FreeFieldArrayMinMax();
 
   if (iNumCellArrays > 0)
@@ -2828,11 +2841,11 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
     if (this->NumProcesses > 1)
     {
-      this->SubGroup->ReduceMin(this->CellDataMin, this->CellDataMin, nc, 0);
-      this->SubGroup->Broadcast(this->CellDataMin, nc, 0);
+      this->SubGroup->ReduceMin(this->CellDataMin, this->CellDataMin, this->NumCellArrays, 0);
+      this->SubGroup->Broadcast(this->CellDataMin, this->NumCellArrays, 0);
 
-      this->SubGroup->ReduceMax(this->CellDataMax, this->CellDataMax, nc, 0);
-      this->SubGroup->Broadcast(this->CellDataMax, nc, 0);
+      this->SubGroup->ReduceMax(this->CellDataMax, this->CellDataMax, this->NumCellArrays, 0);
+      this->SubGroup->Broadcast(this->CellDataMax, this->NumCellArrays, 0);
     }
   }
 
@@ -2858,11 +2871,11 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
     if (this->NumProcesses > 1)
     {
-      this->SubGroup->ReduceMin(this->PointDataMin, this->PointDataMin, np, 0);
-      this->SubGroup->Broadcast(this->PointDataMin, np, 0);
+      this->SubGroup->ReduceMin(this->PointDataMin, this->PointDataMin, this->NumPointArrays, 0);
+      this->SubGroup->Broadcast(this->PointDataMin, this->NumPointArrays, 0);
 
-      this->SubGroup->ReduceMax(this->PointDataMax, this->PointDataMax, np, 0);
-      this->SubGroup->Broadcast(this->PointDataMax, np, 0);
+      this->SubGroup->ReduceMax(this->PointDataMax, this->PointDataMax, this->NumPointArrays, 0);
+      this->SubGroup->Broadcast(this->PointDataMax, this->NumPointArrays, 0);
     }
   }
 
