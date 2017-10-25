@@ -151,18 +151,24 @@ int main(int argc,
 {
   std::string option;
 
-  if(argc==7)
+  if(argc==5 || argc == 7)
     {
       option=argv[4];
     }
 
-  if(argc<4 || argc>7 || (argc==7 && option.compare("--build-header")!=0))
+  bool buildHeader = false;
+  if(argc<4 || argc>7 ||
+     ((argc==7 || argc == 5) && option.compare("--build-header")!=0))
     {
       cout << "Encode a string in a C or C++ file from a text file." << endl;
       cout << "Usage: " << argv[0] << " <output-file> <input-path> <stringname>"
            << "[--build-header <export-macro> <extra-header>]" << endl
            << "Example: " << argv[0] << " MyString.cxx MyString.txt MyGeneratedString --build-header MYSTRING_EXPORT MyHeaderDefiningExport.h" << endl;
       return 1;
+    }
+  else if (argc > 4)
+    {
+      buildHeader = true;
     }
   Output ot;
   ot.Stream << "/* DO NOT EDIT." << endl
@@ -173,8 +179,7 @@ int main(int argc,
   std::string input = argv[2];
 
   bool outputIsC=output.find(".c",output.size()-2)!=std::string::npos;
-  bool buildHeader=argc==7;
-
+ 
   std::string fileName=GetFilenameWithoutLastExtension(output);
 
   if(!ot.ProcessFile(input.c_str(), argv[3],buildHeader,fileName))
@@ -202,10 +207,13 @@ int main(int argc,
                 << " */" << endl
                 << "#ifndef __"<<fileName<<"_h"<<endl
                 << "#define __"<<fileName<<"_h"<<endl
-                << endl
-                << "#include \"" << argv[6] << "\"" <<endl // extra header file
                 << endl;
-
+     if (argc > 5)
+      {
+         hs.Stream << "#include \"" << argv[6] << "\"" <<endl // extra header file
+                  << endl;
+      }
+                
       if(outputIsC)
         {
           hs.Stream << "#ifdef __cplusplus" <<endl
@@ -213,7 +221,11 @@ int main(int argc,
                     << "#endif /* #ifdef __cplusplus */" <<endl
                     << endl;
         }
-      hs.Stream << argv[5] <<" extern const char *" << argv[3] << ";"<< endl
+      if (argc > 5)
+        {
+          hs.Stream << argv[5] << " ";
+        }
+      hs.Stream <<"extern const char *" << argv[3] << ";"<< endl
                 << endl;
 
       if(outputIsC)

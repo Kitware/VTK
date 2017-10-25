@@ -228,12 +228,12 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     const std::string& replacementValue,
     bool replaceAll)
 {
-  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  vtkShader::ReplacementSpec spec;
   spec.ShaderType = shaderType;
   spec.OriginalValue = originalValue;
   spec.ReplaceFirst = replaceFirst;
 
-  vtkOpenGLPolyDataMapper::ReplacementValue values;
+  vtkShader::ReplacementValue values;
   values.Replacement = replacementValue;
   values.ReplaceAll = replaceAll;
 
@@ -245,13 +245,13 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     const std::string& originalValue,
     bool replaceFirst)
 {
-  vtkOpenGLPolyDataMapper::ReplacementSpec spec;
+  vtkShader::ReplacementSpec spec;
   spec.ShaderType = shaderType;
   spec.OriginalValue = originalValue;
   spec.ReplaceFirst = replaceFirst;
 
-  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
-    vtkOpenGLPolyDataMapper::ReplacementValue>::iterator RIter;
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::iterator RIter;
   RIter found = this->UserShaderReplacements.find(spec);
   if (found == this->UserShaderReplacements.end())
   {
@@ -266,8 +266,8 @@ void vtkOpenGLPolyDataMapper::BuildShaders(
 {
   this->GetShaderTemplate(shaders, ren, actor);
 
-  typedef std::map<const vtkOpenGLPolyDataMapper::ReplacementSpec,
-    vtkOpenGLPolyDataMapper::ReplacementValue>::const_iterator RIter;
+  typedef std::map<const vtkShader::ReplacementSpec,
+    vtkShader::ReplacementValue>::const_iterator RIter;
 
   // user specified pre replacements
   for (RIter i = this->UserShaderReplacements.begin();

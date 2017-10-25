@@ -211,10 +211,33 @@ public:
   /**
    * perform in place string substitutions, indicate if a substitution was done
    * this is useful for building up shader strings which typically involve
-   * lots of string substitutions. Return true if a substitution was done.
+   * lots of string substitutions.
+   *
+   * \param[in] shader  The source shader object to perform substitutions on
+   * \param[in] search  The string to search for
+   * \param[in] replace The string replacement
+   * \param[in] all     Whether to replace all matches or just the first one
+   * \return    A boolean indicating whether the replacement was successful
    */
   static bool Substitute(
     std::string &source,
+    const std::string &search,
+    const std::string &replace,
+    bool all = true);
+
+  /**
+   * Perform in-place string substitutions on the shader source string and
+   * indicate if one or all substitutions were done. This is useful for building
+   * up shader strings which typically involve a lot of string substitutions.
+   *
+   * \param[in] shader  The source shader object to perform substitutions on
+   * \param[in] search  The string to search for
+   * \param[in] replace The string replacement
+   * \param[in] all     Whether to replace all matches or just the first one
+   * \return    A boolean indicating whether the replacement was successful
+   */
+  static bool Substitute(
+    vtkShader* shader,
     const std::string &search,
     const std::string &replace,
     bool all = true);
