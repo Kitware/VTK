@@ -49,7 +49,7 @@ public:
   explicit vtkQuaternion(const T& scalar) : vtkTuple<T, 4>(scalar) {}
 
   /**
-   * Initalize the quaternion's elements with the elements of the supplied array.
+   * Initialize the quaternion's elements with the elements of the supplied array.
    * Note that the supplied pointer must contain at least as many elements as
    * the quaternion, or it will result in access to out of bounds memory.
    */

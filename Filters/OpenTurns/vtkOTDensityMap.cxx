@@ -317,7 +317,7 @@ void vtkOTDensityMap::BuildContours(vtkPolyData* contourPd,
     table->AddColumn(x);
     table->AddColumn(y);
 
-    // Using neighbor, try to find a cell wich is the begining of the line,
+    // Using neighbor, try to find a cell which is the beginning of the line,
     // or go full circle
     vtkIdType initialCellId = cellId;
     vtkIdType previousCellId = -1;

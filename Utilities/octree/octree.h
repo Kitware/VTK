@@ -57,7 +57,7 @@ public:
 
   typedef A_ allocator_type;
 
-  // Ugly. But neccessary according to young me. Old me says so.
+  // Ugly. But necessary according to young me. Old me says so.
   typedef octree_iterator< T_, T_&, T_*, _self_type, _self_pointer, d_ > iterator;
   typedef octree_iterator< T_, const T_&, const T_*, _self_type, _self_pointer, d_ > const_iterator;
 

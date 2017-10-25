@@ -56,7 +56,7 @@ public:
   }
 
   /**
-   * Initalize the tuple's elements with the elements of the supplied array.
+   * Initialize the tuple's elements with the elements of the supplied array.
    * Note that the supplied pointer must contain at least as many elements as
    * the tuple, or it will result in access to out of bounds memory.
    */

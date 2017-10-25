@@ -64,7 +64,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Test wether or not a given file should even be attempted for use with this
+   * Test whether or not a given file should even be attempted for use with this
    * reader.
    */
   int CanReadFile(const char* name);

@@ -226,7 +226,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     " space separated paths (hence, path containing spaces should be"
     " surrounded by quotes first). Windows users should use forward"
     " (Unix-style) slashes \'/\' instead of the usual backward slashes. "
-    " More informations can be found in the Wrapping/Tcl/README source"
+    " More information can be found in the Wrapping/Tcl/README source"
     " file (also available online at"
     " http://www.vtk.org/cgi-bin/cvsweb.cgi/~checkout~/VTK/Wrapping/Tcl/README).\n"
     "$errorInfo\"\n"

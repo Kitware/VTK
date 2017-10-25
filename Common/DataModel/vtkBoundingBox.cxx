@@ -502,7 +502,7 @@ ComputeDivisions(vtkIdType totalBins, double bounds[6], int divs[3]) const
 }
 
 // ---------------------------------------------------------------------------
-// Desciption:
+// Description:
 // Intersect this box with the half space defined by plane.
 // Returns 1 if there is intersection---which implies that the box has been modified
 // Returns 0 otherwise

@@ -72,7 +72,7 @@ protected:
   int ReadPiece(vtkXMLDataElement* ePiece, int index);
 
   /**
-   * Setup the current piece reader. It needs to be overriden by subclass.
+   * Setup the current piece reader. It needs to be overridden by subclass.
    */
   virtual int ReadPiece(vtkXMLDataElement* ePiece) = 0;
 

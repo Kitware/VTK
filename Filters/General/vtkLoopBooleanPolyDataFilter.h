@@ -26,7 +26,7 @@
  * The filter uses vtkIntersectionPolyDataFilter. Must have information
  * about the cells on mesh that the intersection lines touch. Filter assumes
  * this information is given.
- * The ouput result will have data about the Original Surface,
+ * The output result will have data about the Original Surface,
  * BoundaryPoints, Boundary Cells,
  * Free Edges, and Bad Triangles
 */

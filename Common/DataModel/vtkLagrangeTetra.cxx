@@ -46,7 +46,7 @@ namespace
 
   // When describing a linearized tetra face, there is a mapping between the
   // four-component barycentric tetra system and the three-component barycentric
-  // triangle system. These are the relevent indices within the four-component
+  // triangle system. These are the relevant indices within the four-component
   // system for each face (e.g. face 0 varies across the barycentric tetra
   // coordinates 0, 2 and 3).
   static const vtkIdType FaceBCoords[4][3] = {{0,2,3}, {2,0,1},

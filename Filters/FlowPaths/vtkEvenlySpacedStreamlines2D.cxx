@@ -127,7 +127,7 @@ int vtkEvenlySpacedStreamlines2D::RequestData(
   {
     this->InputData->UnRegister(this);
     vtkErrorMacro(
-      "vtkEvenlySpacedStreamlines2D does not support planes not alligned with XY.");
+      "vtkEvenlySpacedStreamlines2D does not support planes not aligned with XY.");
     return 0;
   }
   std::array<double, 3> v = {{bounds[1] - bounds[0], bounds[3] - bounds[2],
@@ -260,7 +260,7 @@ int vtkEvenlySpacedStreamlines2D::ComputeCellLength(
   vtkDataSet* input;
   auto cell = vtkSmartPointer<vtkGenericCell>::New();
   double velocity[3];
-  // access the start postion
+  // access the start position
   if (!func->FunctionValues(this->StartPosition, velocity))
   {
     func->Delete();

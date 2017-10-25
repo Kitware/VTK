@@ -67,7 +67,7 @@ public:
   //@}
 
   /**
-   * See the vtkAlgorithm for a desciption of what these do
+   * See the vtkAlgorithm for a description of what these do
    */
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,

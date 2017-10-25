@@ -614,7 +614,7 @@ double vtkCellSizeFilter::IntegratePolygon(vtkPointSet* input, vtkIdList* ptIds)
 }
 
 //-----------------------------------------------------------------------------
-// For axis alligned rectangular cells
+// For axis aligned rectangular cells
 double vtkCellSizeFilter::IntegratePixel(vtkDataSet* input, vtkIdList* cellPtIds)
 {
   vtkIdType pt1Id, pt2Id, pt3Id, pt4Id;
@@ -665,7 +665,7 @@ double vtkCellSizeFilter::IntegrateGeneral2DCell(
 }
 
 //-----------------------------------------------------------------------------
-// For axis alligned hexahedral cells
+// For axis aligned hexahedral cells
 double vtkCellSizeFilter::IntegrateVoxel(
   vtkDataSet* input, vtkIdList* cellPtIds)
 {

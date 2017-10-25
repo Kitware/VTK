@@ -603,7 +603,7 @@ int TestAssignmentOperator()
     ++rc;
   }
 
-  // Allocate B and set som ivars arbitrarily
+  // Allocate B and set some ivars arbitrarily
   vtkStructuredAMRNeighbor B;
   B.GridLevel = B.NeighborLevel = 100;
   B.RelationShip = vtkStructuredAMRNeighbor::SAME_LEVEL_SIBLING;

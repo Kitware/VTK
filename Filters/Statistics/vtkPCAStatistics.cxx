@@ -835,7 +835,7 @@ void vtkPCAStatistics::Test( vtkTable* inData,
   {
     vtkTable* derivedTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
 
-    // Silenty ignore empty blocks
+    // Silently ignore empty blocks
     if ( ! derivedTab )
     {
       continue;

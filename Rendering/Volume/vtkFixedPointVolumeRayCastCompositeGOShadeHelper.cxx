@@ -265,7 +265,7 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageFourDependentNN( T *data,
 // then lookup the color/opacity for each component and combine them according
 // to the weighting value for each component. We composite this resulting
 // color into the color already accumulated for this ray, and we check
-// wether we can terminate here (if the accumulated opacity exceeds some
+// whether we can terminate here (if the accumulated opacity exceeds some
 // threshold). Finally we increment to the next sample on the ray.
 template <class T>
 void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN( T *data,

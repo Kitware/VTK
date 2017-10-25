@@ -75,7 +75,7 @@ void vtkHeap::SetBlockSize(size_t _arg)
 
 void* vtkHeap::AllocateMemory(size_t n)
 {
-  if ( n%this->Alignment ) //4-byte word alignement
+  if ( n%this->Alignment ) //4-byte word alignment
   {
     n += this->Alignment - (n%this->Alignment);
   }

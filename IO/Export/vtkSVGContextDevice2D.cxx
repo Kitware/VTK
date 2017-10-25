@@ -2459,7 +2459,7 @@ void vtkSVGContextDevice2D::WriteFonts()
     // We only embed scalable fonts for now.
     if (!faceMetrics.Scalable)
     {
-      vtkWarningMacro("Cannot embed non-scalable fonts (refering to font file: "
+      vtkWarningMacro("Cannot embed non-scalable fonts (referring to font file: "
                       << key.TextProperty->GetFontFile() << ")");
       continue;
     }

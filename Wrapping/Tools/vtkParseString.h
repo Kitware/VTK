@@ -23,7 +23,7 @@
   This file provides string handling routines.
 
   The two important jobs done by these routines are string tokenization
-  and string cacheing.
+  and string caching.
 
   Tokenization is done as per the rules of a C++ preprocessor, and
   breaks the strings into ids, literals, and operators.  Any string
@@ -32,11 +32,11 @@
   two primary tokenization functions are vtkParse_InitTokenizer()
   and vtkParse_NextToken().
 
-  Cacheing refers to how string memory management is done.  The
+  Caching refers to how string memory management is done.  The
   parser uses "const char *" for all strings, and expects all strings
   to be persistent and constant.  These conditions are automatically
   met by static strings, but dynamically-generated strings must be
-  cached until the parse is complete.  The primary cacheing functions
+  cached until the parse is complete.  The primary caching functions
   are vtkParse_CacheString() and vtkParse_FreeStringCache().
 */
 

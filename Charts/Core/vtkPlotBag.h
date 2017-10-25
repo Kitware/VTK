@@ -90,7 +90,7 @@ public:
    * column and the second represent the x,y position . The five others
    * columns represent the quartiles used to display the box.
    * Inherited method will call the last SetInputData method with default
-   * paramaters.
+   * parameters.
    */
   void SetInputData(vtkTable *table) override;
   void SetInputData(vtkTable *table, const vtkStdString &yColumn,

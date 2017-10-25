@@ -177,7 +177,7 @@ void vtkSynchronizedRenderWindows::SetParallelController(
 
   if (controller)
   {
-    // no harm in adding this mutliple times.
+    // no harm in adding this multiple times.
     controller->AddRMI(::RenderRMI, nullptr, SYNC_RENDER_TAG);
   }
 }

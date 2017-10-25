@@ -35,7 +35,7 @@
 
 //
 // This example tests the PickingManager using a scene full of seed widgets.
-// It measures the performances using the Picking manager into differents mode:
+// It measures the performances using the Picking manager into different modes:
 // * Disabled
 // * Enabled
 // * With/Without cache optimization
@@ -557,7 +557,7 @@ public:
 
 //------------------------------------------------------------------------------
 // Write timerlog in file
-// Each time a render event occurs, the correspoding elapsed time is written.
+// Each time a render event occurs, the corresponding elapsed time is written.
 class vtkPMSRecordPerfCallback : public vtkCommand
 {
 public:

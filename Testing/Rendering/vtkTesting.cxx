@@ -59,7 +59,7 @@ static string vtkTestingGetArgOrEnvOrDefault(
 {
   string argValue;
 
-  // Serach command tail.
+  // Search command tail.
   int argc = static_cast<int>(argv.size());
   for (int i = 0; i < argc; i++)
   {

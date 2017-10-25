@@ -78,7 +78,7 @@ public:
   void Build();
 
   // Given a scalar value, return a rectangle in span space. This
-  // rectangle is used subsequently for extracing individual
+  // rectangle is used subsequently for extracting individual
   // rows. rMin is the lower (i,j) lower-left corner of the rectangle;
   // rMax is the upper-right corner (i,j) position of the
   // rectangle.

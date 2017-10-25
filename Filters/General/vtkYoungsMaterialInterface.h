@@ -53,7 +53,7 @@ public:
 
   //@{
   /**
-   * Set/Get wether the normal vector has to be flipped.
+   * Set/Get whether the normal vector has to be flipped.
    */
   vtkSetMacro(InverseNormal,int);
   vtkGetMacro(InverseNormal,int);
@@ -137,7 +137,7 @@ public:
 
   //@{
   /**
-   * Only meaningfull for LOVE software. returns the maximum number of blocks conatining the same material
+   * Only meaningful for LOVE software. returns the maximum number of blocks containing the same material
    */
   vtkGetMacro(NumberOfDomains,int);
   //@}
@@ -154,7 +154,7 @@ public:
   //@}
 
   /**
-   * Removes all meterials previously added.
+   * Removes all materials previously added.
    */
   virtual void RemoveAllMaterials();
 
@@ -224,7 +224,7 @@ protected:
    */
   int NumberOfDomains;
 
-  // Desctiption:
+  // Description:
   // Internal data structures
   vtkYoungsMaterialInterfaceInternals* Internals;
 

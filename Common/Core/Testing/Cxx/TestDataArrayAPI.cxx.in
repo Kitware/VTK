@@ -1498,7 +1498,7 @@ int Test_void_Reset()
   vtkIdType tuples = 0;
   array->SetNumberOfComponents(comps);
 
-  // Reseting a new array shouldn't cause issues
+  // Resetting a new array shouldn't cause issues
   array->Reset();
   DataArrayAPIAssert(array->GetMaxId() == -1,
                      "Invalid MaxId (" << array->GetMaxId() << ").");

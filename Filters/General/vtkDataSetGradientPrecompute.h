@@ -18,7 +18,7 @@
  *
  * Computes a geometry based vector field that the DataSetGradient filter uses to accelerate
  * gradient computation. This vector field is added to FieldData since it has a different
- * value for each vertex of each cell (a vertex shared by two cell has two differents values).
+ * value for each vertex of each cell (a vertex shared by two cell has two different values).
  *
  * @par Thanks:
  * This file is part of the generalized Youngs material interface reconstruction algorithm contributed by
