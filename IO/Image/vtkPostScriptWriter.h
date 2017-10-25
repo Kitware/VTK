@@ -40,9 +40,9 @@ protected:
   ~vtkPostScriptWriter() override {}
 
   void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
-  void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]) override;
-  void WriteFileTrailer(ofstream *, vtkImageData *) override;
+    ostream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
+  void WriteFileHeader(ostream *, vtkImageData *, int wExt[6]) override;
+  void WriteFileTrailer(ostream *, vtkImageData *) override;
 private:
   vtkPostScriptWriter(const vtkPostScriptWriter&) = delete;
   void operator=(const vtkPostScriptWriter&) = delete;

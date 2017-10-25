@@ -38,9 +38,9 @@ protected:
   ~vtkPNMWriter() override {}
 
   void WriteFile(
-    ofstream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
+    ostream *file, vtkImageData *data, int extent[6], int wExt[6]) override;
   void WriteFileHeader(
-    ofstream *, vtkImageData *, int wExt[6]) override;
+    ostream *, vtkImageData *, int wExt[6]) override;
 private:
   vtkPNMWriter(const vtkPNMWriter&) = delete;
   void operator=(const vtkPNMWriter&) = delete;

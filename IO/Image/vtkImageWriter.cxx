@@ -112,7 +112,7 @@ int vtkImageWriter::RequestData(
     vtkErrorMacro(<<"Write:Please specify an input!");
     return 0;
   }
-  if ( !this->FileName && !this->FilePattern)
+  if ( !this->WriteToMemory && !this->FileName && !this->FilePattern)
   {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
@@ -134,7 +134,11 @@ int vtkImageWriter::RequestData(
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
   this->UpdateProgress(0.0);
-  if (!this->WriteToMemory)
+  if (this->WriteToMemory)
+  {
+    this->MemoryWrite(2, input, wExt, inInfo);
+  }
+  else
   {
     this->RecursiveWrite(2, input, inInfo, nullptr);
   }
@@ -168,7 +172,7 @@ void vtkImageWriter::Write()
 void vtkImageWriter::RecursiveWrite(int axis,
                                     vtkImageData *cache,
                                     vtkInformation* inInfo,
-                                    ofstream *file)
+                                    ostream *file)
 {
   vtkImageData    *data;
   int             fileOpenedHere = 0;
@@ -232,7 +236,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      file->close();
+      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      if (ofile)
+      {
+        ofile->close();
+      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -270,7 +278,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    file->close();
+    ofstream *ofile = dynamic_cast<ofstream*>(file);
+    if (ofile)
+    {
+      ofile->close();
+    }
     delete file;
   }
 }
@@ -282,7 +294,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
                                     vtkImageData *cache,
                                     vtkImageData *data,
                                     vtkInformation* inInfo,
-                                    ofstream *file)
+                                    ostream *file)
 {
   int idx, min, max;
 
@@ -296,7 +308,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      file->close();
+      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      if (ofile)
+      {
+        ofile->close();
+      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
@@ -360,7 +376,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      file->close();
+      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      if (ofile)
+      {
+        ofile->close();
+      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -371,7 +391,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     file->flush();
     if (file->fail())
     {
-      file->close();
+      ofstream *ofile = dynamic_cast<ofstream*>(file);
+      if (ofile)
+      {
+        ofile->close();
+      }
       delete file;
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
@@ -383,7 +407,11 @@ void vtkImageWriter::RecursiveWrite(int axis,
     {
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     }
-    file->close();
+    ofstream *ofile = dynamic_cast<ofstream*>(file);
+    if (ofile)
+    {
+      ofile->close();
+    }
     delete file;
     return;
   }
@@ -447,7 +475,7 @@ unsigned long vtkImageWriterGetSize(T*)
 //----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only hanldes 3d data (plus components).
-void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
+void vtkImageWriter::WriteFile(ostream *file, vtkImageData *data,
                                int extent[6], int wExtent[6])
 {
   int idxY, idxZ;

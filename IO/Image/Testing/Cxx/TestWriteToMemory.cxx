@@ -12,15 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of WriteToMemory flag for PNG/JPEG Writers
+// .NAME Test of WriteToMemory flag for PNG/JPEG/BMP Writers
 // .SECTION Description
 //
 
-#include <vtkSmartPointer.h>
-#include <vtkPNGWriter.h>
-#include <vtkJPEGWriter.h>
+#include <vtkBMPWriter.h>
 #include <vtkImageCanvasSource2D.h>
 #include <vtkImageCast.h>
+#include <vtkJPEGWriter.h>
+#include <vtkPNGWriter.h>
+#include <vtkSmartPointer.h>
 
 #include <vtksys/SystemTools.hxx>
 
@@ -74,6 +75,13 @@ int TestWriteToMemory(int argc, char *argv[])
       vtkSmartPointer<vtkJPEGWriter>::New();
     jpgWriter->WriteToMemoryOn();
     writer = jpgWriter;
+  }
+  else if (fileext == "bmp")
+  {
+    vtkSmartPointer<vtkBMPWriter> bmpWriter =
+      vtkSmartPointer<vtkBMPWriter>::New();
+    bmpWriter->WriteToMemoryOn();
+    writer = bmpWriter;
   }
 
   writer->SetFileName(filename.c_str());
