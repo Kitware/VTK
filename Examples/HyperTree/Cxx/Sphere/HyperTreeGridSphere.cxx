@@ -40,11 +40,11 @@ using namespace std;
 void usage ()
 {
   cout << "Usage : amr [-level <int>] [-refine <int>] [-nx <int>] [-ny <int>] [-nz <int>] [-write <file>] [-shrink] [-help]" << endl;
-  cout << "   -depth  : Number of refinement levels. Defaut = 3" << endl;
-  cout << "   -factor : Refinement branching factor. Defaut = 3" << endl;
-  cout << "   -n[xyz] : Number of grid points in each direction. Defaut = 5" << endl;
-  cout << "   -write  : Output mesh in a VTK unstructured grid file. Defaut = no output" << endl;
-  cout << "   -shrink : Apply shrink filter before rendering geometry. Defaut = do not shrink" << endl;
+  cout << "   -depth  : Number of refinement levels. Default = 3" << endl;
+  cout << "   -factor : Refinement branching factor. Default = 3" << endl;
+  cout << "   -n[xyz] : Number of grid points in each direction. Default = 5" << endl;
+  cout << "   -write  : Output mesh in a VTK unstructured grid file. Default = no output" << endl;
+  cout << "   -shrink : Apply shrink filter before rendering geometry. Default = do not shrink" << endl;
   cout << "   -help   : Print available options" << endl;
   exit (0);
 }

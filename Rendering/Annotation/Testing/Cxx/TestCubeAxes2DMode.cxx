@@ -84,7 +84,7 @@ int TestCubeAxes2DMode( int argc, char * argv [] )
   axes->SetZAxisVisibility( 0 );
   axes->SetUse2DMode( 1 );
 
-  // Desactivate LOD for all axes
+  // Deactivate LOD for all axes
   axes->SetEnableDistanceLOD( 0 );
   axes->SetEnableViewAngleLOD( 0 );
 

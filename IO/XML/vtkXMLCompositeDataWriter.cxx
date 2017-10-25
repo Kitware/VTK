@@ -365,7 +365,7 @@ void vtkXMLCompositeDataWriter::MakeDirectory(const char* name)
   if (!vtksys::SystemTools::MakeDirectory(name))
   {
     vtkErrorMacro(<< "Sorry unable to create directory: " << name
-                   << endl << "Last systen error was: "
+                   << endl << "Last system error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str());
   }
 }

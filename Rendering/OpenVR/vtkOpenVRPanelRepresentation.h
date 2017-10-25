@@ -123,7 +123,7 @@ public:
   void SetText(const char* str);
   //@}
 
-  // allow acces to the underlying text actor
+  // allow access to the underlying text actor
   // so that properties can be set
   vtkGetObjectMacro(TextActor, vtkTextActor3D);
 

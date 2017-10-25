@@ -1884,7 +1884,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     idx |= VTK_PDM_COLORS;
     if (c->GetName())
     { // In the future, I will look at the number of components.
-      // All paths will have to handle 3 componet colors.
+      // All paths will have to handle 3 component colors.
       idx |= VTK_PDM_OPAQUE_COLORS;
     }
   }

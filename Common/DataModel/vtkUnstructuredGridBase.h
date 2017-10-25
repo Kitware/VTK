@@ -74,7 +74,7 @@ public:
    */
   virtual vtkIdType InsertNextCell(int type, vtkIdList *ptIds) = 0;
 
-  // Desciption:
+  // Description:
   // Insert/create a polyhedron cell. npts is the number of unique points in
   // the cell. pts is the list of the unique cell point Ids. nfaces is the
   // number of faces in the cell. faces is the face-stream

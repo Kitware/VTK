@@ -234,7 +234,7 @@ public:
   vtkIdTypeArray *GetExtractedRegionLabels() {
     return this->ExtractedRegionLabels; }
 
-  // Desciption:
+  // Description:
   // Get the size of each extracted region, as a voxel count.
   vtkIdTypeArray *GetExtractedRegionSizes() {
     return this->ExtractedRegionSizes; }

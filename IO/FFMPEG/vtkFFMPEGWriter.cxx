@@ -140,7 +140,7 @@ int vtkFFMPEGWriterInternal::Start()
 #endif
   if (!this->avFormatContext)
   {
-    vtkGenericWarningMacro (<< "Coult not open the format context.");
+    vtkGenericWarningMacro (<< "Could not open the format context.");
     return 0;
   }
 

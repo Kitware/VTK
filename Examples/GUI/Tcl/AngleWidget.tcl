@@ -66,7 +66,7 @@ vtkAngleRepresentation2D rep
   [ rep GetRay2 ] AutoLabelOn
   [ rep GetRay2 ] SetLabelFormat "%-#7.1lf"
 
-# Do some additional formating of the text font.
+# Do some additional formatting of the text font.
 #
   set textProp [[ rep GetRay1 ] GetLabelTextProperty ]
   $textProp SetColor 1 0 0

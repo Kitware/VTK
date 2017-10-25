@@ -3249,7 +3249,7 @@ int vtkLSDynaReader::ReadInputDeckXML( ifstream& deck )
   // We must be able to parse the file and end up with 1 part per material ID
   if ( ! parser->Parse() || this->P->GetTotalMaterialCount() != (int)this->P->PartNames.size() )
   {
-    // We had a problem identifying a part, give up and start over by reseting the parts
+    // We had a problem identifying a part, give up and start over by resetting the parts
     this->ResetPartInfo();
   }
   parser->Delete();

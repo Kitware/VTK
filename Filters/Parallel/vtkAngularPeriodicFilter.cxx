@@ -230,7 +230,7 @@ void vtkAngularPeriodicFilter::AppendPeriodicPiece(double angle,
   }
   else
   {
-    // Legacy non mapped code, for unsuported type dataset
+    // Legacy non mapped code, for unsupported type dataset
     vtkWarningMacro(
       "Unsupported Dataset Type for mapped array, using vtkTransformFilter instead.");
     vtkNew<vtkTransform> transform;

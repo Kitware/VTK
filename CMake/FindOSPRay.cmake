@@ -29,7 +29,7 @@ mark_as_advanced(OSPRAY_INSTALL_DIR)
 set(OSPRAY_BUILD_DIR "" CACHE PATH "build location of ospray")
 mark_as_advanced(OSPRAY_BUILD_DIR)
 if (OSPRAY_INSTALL_DIR AND OSPRAY_BUILD_DIR)
-   message("Ignoring the ospray build location in favor of the intall location.")
+   message("Ignoring the ospray build location in favor of the install location.")
 endif()
 
 if (OSPRAY_INSTALL_DIR)

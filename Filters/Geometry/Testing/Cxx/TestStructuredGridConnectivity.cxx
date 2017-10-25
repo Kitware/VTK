@@ -832,7 +832,7 @@ int SimpleTest( int argc, char **argv )
 
   if( !success )
   {
-    std::cerr << "FIELD COMPARISSON FAILED!\n";
+    std::cerr << "FIELD COMPARISON FAILED!\n";
   }
 
   gmbds->Delete();

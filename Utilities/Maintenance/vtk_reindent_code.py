@@ -163,7 +163,7 @@ def reindent(filename, dry_run=False):
 
     # we push a tuple (delim, row, col, newcol) onto this stack whenever
     # we find a {, (, or [ delimiter, this keeps track of where we found
-    # the delimeter and what column we want to move it to
+    # the delimiter and what column we want to move it to
     stack = []
     lastdepth = 0
 

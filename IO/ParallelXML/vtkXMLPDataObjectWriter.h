@@ -118,19 +118,19 @@ protected:
   int WriteData() override;
 
   /**
-   * Write Data associated with the input dataset. It needs to be overriden by subclass
+   * Write Data associated with the input dataset. It needs to be overridden by subclass
    */
   virtual void WritePData(vtkIndent indent) = 0;
 
   /**
    * Write a piece of the dataset on disk. Called by WritePieceInternal().
-   * It needs to be overriden by subclass
+   * It needs to be overridden by subclass
    */
   virtual int WritePiece(int index) = 0;
 
   /**
    * Method called by WriteInternal(). It's used for writing a piece of the dataset.
-   * It needs to be overriden by subclass.
+   * It needs to be overridden by subclass.
    */
   virtual int WritePieceInternal() = 0;
 

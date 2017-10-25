@@ -87,13 +87,13 @@ public:
   virtual void Flush() {}
 
   /**
-   * Starts a document and sets all necessary informations,
+   * Starts a document and sets all necessary information,
    * i.e. the header of the implemented encoding
    */
   virtual void StartDocument() = 0;
 
   /**
-   * Ends a document and sets all necessary informations
+   * Ends a document and sets all necessary information
    * or necessary bytes to finish the encoding correctly
    */
   virtual void EndDocument() = 0;
@@ -174,7 +174,7 @@ public:
    * of the active node to the given value.
    * The type of the field is specified with type
    * It is possible to specify that the field is an
-   * image for optimized formating or compression
+   * image for optimized formatting or compression
    * Supported types: MFINT32, SFIMAGE
    */
   virtual void SetField(int attributeID, const int* values, size_t size, bool image = false) = 0;

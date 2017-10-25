@@ -73,7 +73,7 @@ int vtkImageGradient::RequestInformation(vtkInformation*,
   // Store the new whole extent for the output.
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
-  // Set the number of point data componets to the number of
+  // Set the number of point data components to the number of
   // components in the gradient vector.
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_DOUBLE,
                                               this->Dimensionality);

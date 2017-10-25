@@ -184,7 +184,7 @@ void vtkImageSincInterpolator::ComputeSupportSize(
     // if scale is greater than one, expand kernel size
     if (rowscale > (1.0 + VTK_INTERPOLATE_FLOOR_TOL))
     {
-      // need extra suport for antialiasing
+      // need extra support for antialiasing
       this->BlurFactors[i] = rowscale;
       int s = 2*static_cast<int>(
        rowscale*this->WindowHalfWidth + 1.0 - VTK_INTERPOLATE_FLOOR_TOL);

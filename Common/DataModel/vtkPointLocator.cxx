@@ -1221,7 +1221,7 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts,
 // Incrementally insert a point into search structure. The method returns
 // the insertion location (i.e., point id). You should use the method
 // IsInsertedPoint() to see whether this point has already been
-// inserted (that is, if you desire to prevent dulicate points).
+// inserted (that is, if you desire to prevent duplicate points).
 // Before using this method you must make sure that newPts have been
 // supplied, the bounds has been set properly, and that divs are
 // properly set. (See InitPointInsertion().)
