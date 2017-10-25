@@ -14,14 +14,12 @@
 =========================================================================*/
 /**
  * @class   vtkPdalReader
- * @brief   Reads LIDAR data saved using the Pdal file format.
+ * @brief   Reads LIDAR data using the PDAL library.
  *
- * vtkPdalReader is a source object that reads LIDAR data saved using
- * the Pdal file format. This reader uses the libPdal library.
- * It produces a vtkPolyData with point data arrays:
- * "intensity": vtkUnsignedShortArray
- * "classification": vtkUnsignedCharArray (optional)
- * "color": vtkUnsignedShortArray (optional)
+ * vtkPdalReader reads LIDAR data using the PDAL library.  See the
+ * readers section on www.pdal.io for the supported formats. It produces a
+ * vtkPolyData with point data arrays for attributes such as Intensity,
+ * Classification, Color, ...
  *
  *
  * @sa
