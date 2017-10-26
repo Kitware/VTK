@@ -76,7 +76,22 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   }
 }
 
-#define OSPSET3F(attname) \
+#define OSPSETNF(attname) \
+  std::vector<double> attname = \
+    ml->GetDoubleShaderVariable(nickname, #attname); \
+  if (attname.size() > 0) \
+  { \
+    float *fname = new float[attname.size()]; \
+    for (size_t i = 0; i < attname.size(); i++) \
+    { \
+      fname[i] = static_cast<float>(attname[i]); \
+    } \
+    OSPData data = ospNewData(attname.size()/3, OSP_FLOAT3, fname); \
+    ospSetData(oMaterial, #attname, data); \
+    delete[] fname; \
+  }
+
+#define OSPSET3F(attname)                                   \
   std::vector<double> attname = ml->GetDoubleShaderVariable \
       (nickname, #attname); \
   if (attname.size() == 3) \
@@ -85,7 +100,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
                        static_cast<float>(attname[1]), \
                        static_cast<float>(attname[2])}; \
     ospSet3fv(oMaterial, #attname, fname); \
-  } \
+  }
 
 #define OSPSET1F(attname) \
   std::vector<double> attname = ml->GetDoubleShaderVariable \
@@ -93,7 +108,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   if (attname.size() == 1) \
   { \
     ospSetf(oMaterial, #attname, static_cast<float>(attname[0]));     \
-  } \
+  }
 
 #define OSPSETTEXTURE(texname) \
   vtkTexture *texname = ml->GetTexture(nickname, #texname); \
@@ -138,10 +153,11 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   else if (implname == "Metal")
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
-    OSPSET3F(reflectance);
     OSPSET3F(eta);
     OSPSET3F(k);
     OSPSET1F(roughness);
+    OSPSET3F(reflectance);
+    OSPSETNF(ior);
   }
   else if (implname == "MetallicPaint")
   {
