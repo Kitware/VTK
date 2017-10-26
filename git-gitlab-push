@@ -23,7 +23,8 @@ OPTIONS
     Show what would be pushed without actually updating the destination
 
 -f,--force
-    Force-push the topic HEAD to rewrite the destination branch
+    Force-push the topic HEAD to rewrite the destination branch (use twice
+    to ignore stale remote tracking branches)
 
 --no-default
     Do not push the default branch (e.g. master)
@@ -73,7 +74,14 @@ set_upstream=true
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		-f|--force)    force='+'; lease=true ;;
+		-f|--force)
+			if test -n "$force"; then
+				lease=false
+			else
+				lease=true
+			fi
+			force='+'
+			;;
 		--no-topic)    no_topic=1; set_upstream=false ;;
 		--dry-run)     dry_run=--dry-run ;;
 		--no-default)  no_default=1 ;;
