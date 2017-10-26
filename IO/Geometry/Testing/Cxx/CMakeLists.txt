@@ -27,8 +27,9 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnstructuredGridCellGradients.cxx
   UnstructuredGridFastGradients.cxx
   UnstructuredGridGradients.cxx
-  TestOBJReaderRelative.cxx,NO_VALID
+  TestOBJReaderMaterials.cxx,NO_VALID
   TestOBJReaderNormalsTCoords.cxx,NO_VALID
+  TestOBJReaderRelative.cxx,NO_VALID
   TestOpenFOAMReader.cxx
   TestOpenFOAMReader64BitFloats.cxx
   TestProStarReader.cxx
