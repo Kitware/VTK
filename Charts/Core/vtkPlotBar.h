@@ -188,6 +188,15 @@ public:
 
   //@{
   /**
+   * Enable/disable mapping of the opacity values. Default is set to true.
+   */
+  vtkSetMacro(EnableOpacityMapping, bool)
+  vtkGetMacro(EnableOpacityMapping, bool)
+  vtkBooleanMacro(EnableOpacityMapping, bool)
+  //@}
+
+  //@{
+  /**
    * When ScalarMode is set to UsePointFieldData or UseCellFieldData,
    * you can specify which array to use for coloring using these methods.
    * The lookup table will decide how to convert vectors to colors.
@@ -296,6 +305,7 @@ protected:
   vtkSmartPointer<vtkScalarsToColors> LookupTable;
   vtkSmartPointer<vtkUnsignedCharArray> Colors;
   bool ScalarVisibility;
+  bool EnableOpacityMapping;
   vtkStdString ColorArrayName;
   //@}
 

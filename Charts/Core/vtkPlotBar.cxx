@@ -199,7 +199,21 @@ class vtkPlotBarSegment : public vtkObject {
       {
         if (this->Colors)
         {
-          painter->GetBrush()->SetColor(vtkColor4ub(this->Colors->GetPointer(i * 4)));
+          if (this->Colors->GetNumberOfComponents() == 3)
+          {
+            painter->GetBrush()->SetColor(vtkColor3ub(
+              this->Colors->GetPointer(i * 3)));
+          }
+          else if (this->Colors->GetNumberOfComponents() == 4)
+          {
+            painter->GetBrush()->SetColor(vtkColor4ub(
+              this->Colors->GetPointer(i * 4)));
+          }
+          else
+          {
+            vtkErrorMacro(<< "Number of components not supported : "
+              << this->Colors->GetNumberOfComponents())
+          }
         }
         if (orientation == vtkPlotBar::VERTICAL)
         {
@@ -552,6 +566,7 @@ vtkPlotBar::vtkPlotBar()
   this->ColorSeries = nullptr;
   this->Orientation = vtkPlotBar::VERTICAL;
   this->ScalarVisibility = false;
+  this->EnableOpacityMapping = true;
   this->LogX = false;
   this->LogY = false;
 }
@@ -878,9 +893,12 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
       {
         this->CreateDefaultLookupTable();
       }
+
+      int outputFormat = this->EnableOpacityMapping ? VTK_RGBA : VTK_RGB;
       this->Colors = this->LookupTable->MapScalars(c,
                                                    VTK_COLOR_MODE_MAP_SCALARS,
-                                                   -1);
+                                                   -1, outputFormat);
+
       prev->Colors = this->Colors;
       this->Colors->Delete();
     }
