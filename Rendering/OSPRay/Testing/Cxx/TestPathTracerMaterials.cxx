@@ -284,45 +284,8 @@ int TestPathTracerMaterials(int argc, char* argv[])
   */
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  //matte
-  i=2;
-  j=0;
-  {
-    style->AddName("default matte");
-
-    ml->AddMaterial("Matte 1", "Matte");
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Matte 1");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  j++;
-  {
-    style->AddName("colored matte");
-
-    ml->AddMaterial("Matte 2", "Matte");
-    double reflectance[3] = {0.0,0.0,0.7};
-    ml->AddShaderVariable("Matte 2", "reflectance", 3, reflectance);
-
-    actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
-    prop = actor->GetProperty();
-    prop->SetMaterialName("Matte 2");
-    mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(polysource->GetOutputPort());
-    actor->SetMapper(mapper);
-    renderer->AddActor(actor);
-  }
-
-  //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   //metal
-  i=3;
+  i=2;
   j=0;
   {
     style->AddName("default metal");
@@ -362,10 +325,73 @@ int TestPathTracerMaterials(int argc, char* argv[])
     style->AddName("copper metal");
 
     ml->AddMaterial("Metal 3", "Metal");
-    double cuColor[3] = { 0.7843, 0.4588, 0.2 };
-    ml->AddShaderVariable("Metal 3", "reflectance", 3, cuColor);
     double roughness[1] = { 0.0 };
     ml->AddShaderVariable("Metal 3", "roughness", 1, roughness);
+    //for OSP < 1.4 and > 1.4.0
+        double cuColor[3] = { 0.7843, 0.4588, 0.2 };
+    ml->AddShaderVariable("Metal 3", "reflectance", 3, cuColor);
+    //for OSP >= 1.4
+    double spectrum[58*3] = {
+      300,     1.347459987,     1.679419071,
+      310,     1.321473211,     1.740141215,
+      320,     1.301896917,     1.781554261,
+      330,     1.278815346,     1.816251273,
+      340,     1.257856058,     1.857525737,
+      350,     1.229714372,     1.895968733,
+      360,     1.205793784,     1.941169403,
+      370,     1.183134074,     1.99326522,
+      380,     1.16577487 ,     2.046321345,
+      390,     1.139929606,     2.090129064,
+      400,     1.119339006,     2.14224644,
+      410,     1.097661459,     2.193481406,
+      420,     1.082884327,     2.251163803,
+      430,     1.067185209,     2.306769228,
+      440,     1.056310845,     2.361946782,
+      450,     1.048210496,     2.413637347,
+      460,     1.044058354,     2.464134299,
+      470,     1.040826414,     2.50896784,
+      480,     1.040383818,     2.549587906,
+      490,     1.035622719,     2.577676166,
+      500,     1.0292166  ,     2.600958825,
+      510,     1.01596237 ,     2.610628188,
+      520,     0.995463808,     2.613856957,
+      530,     0.957525814,     2.60358516,
+      540,     0.896412084,     2.584135179,
+      550,     0.79745994 ,     2.56420404,
+      560,     0.649913539,     2.566649101,
+      570,     0.467667795,     2.633707115,
+      580,     0.308052581,     2.774526337,
+      590,     0.206477543,     2.953105649,
+      600,     0.15342929 ,     3.124794481,
+      610,     0.129738592,     3.28082796,
+      620,     0.116677068,     3.422223479,
+      630,     0.110069919,     3.546563885,
+      640,     0.107194012,     3.666809315,
+      650,     0.104232496,     3.775693898,
+      660,     0.102539467,     3.879628119,
+      670,     0.102449402,     3.981770445,
+      680,     0.101216009,     4.082308744,
+      690,     0.101603953,     4.175083635,
+      700,     0.101236908,     4.27062629,
+      710,     0.101557633,     4.365353818,
+      720,     0.101132194,     4.453675754,
+      730,     0.100848965,     4.541494304,
+      740,     0.100919789,     4.632837662,
+      750,     0.101173963,     4.718605321,
+      760,     0.101837799,     4.806908667,
+      770,     0.101672055,     4.890330992,
+      780,     0.104166566,     4.985764803,
+      790,     0.10154611 ,     5.058785587,
+      800,     0.105089997,     5.141307607,
+      810,     0.105640925,     5.225721003,
+      820,     0.1047717  ,     5.314412207,
+      830,     0.108065424,     5.399044187,
+      840,     0.106329275,     5.471682183,
+      850,     0.106803015,     5.558363688,
+      860,     0.10806138 ,     5.64355183,
+      870,     0.109423947,     5.718126756
+    };
+    ml->AddShaderVariable("Metal 3", "ior", 58*3, spectrum);
 
     actor = vtkSmartPointer<vtkActor>::New();
     actor->SetPosition(xo+xr*1.15*i, yo, zo+zr*1.1*j);
