@@ -73,7 +73,6 @@ int vtkPdalReader::RequestData(vtkInformation* vtkNotUsed(request),
 
     pdal::StageFactory factory;
     std::string driverName = factory.inferReaderDriver(this->FileName);
-    std::cout << driverName << std::endl;
     if (driverName.empty())
     {
       vtkErrorMacro("Cannot infer the reader driver for " << this->FileName);
@@ -119,10 +118,10 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
   pointsPolyData->SetPoints(points);
   pdal::PointTable table;
   reader.prepare(table);
-  pdal::PointViewSet point_view_set = reader.execute(table);
-  std::cout << "size=" << point_view_set.size() << std::endl;
-  pdal::PointViewPtr point_view = *point_view_set.begin();
-  pdal::Dimension::IdList dims = point_view->dims();
+  pdal::PointViewSet pointViewSet = reader.execute(table);
+  pdal::PointViewPtr pointView = *pointViewSet.begin();
+  points->SetNumberOfPoints(pointView->size());
+  pdal::Dimension::IdList dims = pointView->dims();
   std::vector<vtkDoubleArray*> doubleArray(dims.size(), nullptr);
   std::vector<vtkFloatArray*> floatArray(dims.size(), nullptr);
   std::vector<vtkTypeUInt8Array*> uInt8Array(dims.size(), nullptr);
@@ -154,6 +153,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     hasColor = true;
     vtkNew<vtkTypeUInt16Array> a;
     a->SetNumberOfComponents(3);
+    a->SetNumberOfTuples(pointView->size());
     a->SetName("Color");
     pointsPolyData->GetPointData()->AddArray(a);
     colorArray = a;
@@ -184,7 +184,6 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       // we ignore fields we don't know about
       continue;
     }
-    std::cout << pdal::Dimension::name(dimensionId) << std::endl;
     switch(type)
     {
     default:
@@ -192,6 +191,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkDoubleArray> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         doubleArray[i] = a;
         break;
@@ -200,6 +200,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkFloatArray> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         floatArray[i] = a;
         break;
@@ -208,6 +209,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkTypeUInt8Array> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt8Array[i] = a;
         break;
@@ -216,6 +218,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkTypeUInt16Array> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt16Array[i] = a;
         break;
@@ -224,6 +227,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkTypeUInt32Array> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt32Array[i] = a;
         break;
@@ -232,6 +236,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkTypeInt32Array> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         int32Array[i] = a;
         break;
@@ -240,28 +245,29 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         vtkNew<vtkTypeUInt64Array> a;
         a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt64Array[i] = a;
         break;
       }
     }
   }
-  for (pdal::PointId pointId = 0; pointId < point_view->size(); ++pointId)
+  for (pdal::PointId pointId = 0; pointId < pointView->size(); ++pointId)
   {
     double point[3] = {
-      point_view->getFieldAs<double>(pdal::Dimension::Id::X, pointId),
-      point_view->getFieldAs<double>(pdal::Dimension::Id::Y, pointId),
-      point_view->getFieldAs<double>(pdal::Dimension::Id::Z, pointId)
+      pointView->getFieldAs<double>(pdal::Dimension::Id::X, pointId),
+      pointView->getFieldAs<double>(pdal::Dimension::Id::Y, pointId),
+      pointView->getFieldAs<double>(pdal::Dimension::Id::Z, pointId)
     };
-    points->InsertNextPoint(point);
+    points->SetPoint(pointId, point);
     if (hasColor)
     {
       uint16_t color[3] = {
-        point_view->getFieldAs<uint16_t>(pdal::Dimension::Id::Red, pointId),
-        point_view->getFieldAs<uint16_t>(pdal::Dimension::Id::Green, pointId),
-        point_view->getFieldAs<uint16_t>(pdal::Dimension::Id::Blue, pointId),
+        pointView->getFieldAs<uint16_t>(pdal::Dimension::Id::Red, pointId),
+        pointView->getFieldAs<uint16_t>(pdal::Dimension::Id::Green, pointId),
+        pointView->getFieldAs<uint16_t>(pdal::Dimension::Id::Blue, pointId),
       };
-      colorArray->InsertNextTypedTuple(color);
+      colorArray->SetTypedTuple(pointId, color);
     }
     for (size_t i = 0; i < dims.size(); ++i)
     {
@@ -294,50 +300,50 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       case pdal::Dimension::Type::Double:
         {
           vtkDoubleArray* a = doubleArray[i];
-          double value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          double value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Float:
         {
           vtkFloatArray* a = floatArray[i];
-          float value = point_view->getFieldAs<float>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          float value = pointView->getFieldAs<float>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Unsigned8:
         {
           vtkTypeUInt8Array* a = uInt8Array[i];
-          uint8_t value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          uint8_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Unsigned16:
         {
           vtkTypeUInt16Array* a = uInt16Array[i];
-          uint16_t value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          uint16_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Unsigned32:
         {
           vtkTypeUInt32Array* a = uInt32Array[i];
-          uint32_t value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          uint32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Signed32:
         {
           vtkTypeInt32Array* a = int32Array[i];
-          int32_t value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          int32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       case pdal::Dimension::Type::Unsigned64:
         {
           vtkTypeUInt64Array* a = uInt64Array[i];
-          uint64_t value = point_view->getFieldAs<double>(dimensionId, pointId);
-          a->InsertNextValue(value);
+          uint64_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
           break;
         }
       }
