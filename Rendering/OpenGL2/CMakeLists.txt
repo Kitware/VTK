@@ -82,6 +82,7 @@ set(Module_SRCS
   vtkShaderProgram.cxx
   vtkShadowMapBakerPass.cxx
   vtkShadowMapPass.cxx
+  vtkSimpleMotionBlurPass.cxx
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
@@ -158,6 +159,7 @@ set(shader_files
   glsl/vtkPolyDataVS.glsl
   glsl/vtkPolyDataWideLineGS.glsl
   glsl/vtkSSAAPassFS.glsl
+  glsl/vtkSimpleMotionBlurPassFS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
   glsl/vtkSphereMapperVS.glsl
