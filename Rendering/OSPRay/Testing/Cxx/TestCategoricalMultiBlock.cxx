@@ -131,7 +131,7 @@ int TestCategoricalMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   vtkProperty *prop;
   prop = actor->GetProperty();
-  prop->SetMaterialName("MasterMaterial"); //making submaterials
+  prop->SetMaterialName("Value Indexed"); //making submaterials
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper=vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   mapper->SetInputDataObject(mbds);

@@ -121,7 +121,7 @@ int TestCategoricalMaterials(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
   vtkProperty *prop;
   prop = actor->GetProperty();
-  prop->SetMaterialName("MasterMaterial"); //using several from the library
+  prop->SetMaterialName("Value Indexed"); //using several from the library
 
   vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   mapper->SetInputData(pd);

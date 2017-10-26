@@ -633,12 +633,12 @@ namespace vtkosp {
     OSPMaterial oMaterial;
     if (pt_avail && property->GetMaterialName())
     {
-      if (std::string("MasterMaterial") == property->GetMaterialName())
+      if (std::string("Value Indexed") == property->GetMaterialName())
       {
         oMaterial = ospNewMaterial(oRenderer, "OBJMaterial");
         vtkOSPRayMaterialHelpers::MakeMaterials(orn, oRenderer, mats);
         std::string requested_mat_name = materialName;
-        if (requested_mat_name != "" && requested_mat_name != "MasterMaterial")
+        if (requested_mat_name != "" && requested_mat_name != "Value Indexed")
         {
           oMaterial = vtkOSPRayMaterialHelpers::MakeMaterial
             (orn, oRenderer, requested_mat_name.c_str());
