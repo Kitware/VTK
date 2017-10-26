@@ -158,7 +158,7 @@ public:
 
   /**
    * Attempt to detect and set the DPI of the display device by querying the
-   * system. Note that this is not supported on all backends, and this method
+   * system. Note that this is not supported on most backends, and this method
    * will return false if the DPI could not be detected. Use GetDPI() to
    * inspect the detected value.
    */

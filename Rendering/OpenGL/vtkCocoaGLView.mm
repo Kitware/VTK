@@ -509,4 +509,43 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
                   cocoaEvent:theEvent];
 }
 
+//----------------------------------------------------------------------------
+// Private
+- (void)modifyDPIForBackingScaleFactorOfWindow:(/*nullable*/ NSWindow *)window
+{
+  if (window)
+  {
+    CGFloat backingScaleFactor = [window backingScaleFactor];
+    assert(backingScaleFactor >= 1.0);
+
+    vtkCocoaRenderWindow *renderWindow = [self getVTKRenderWindow];
+    if (renderWindow)
+    {
+      // Ordinarily, DPI is hardcoded to 72, but in order for vtkTextActors
+      // to have the correct apparent size, we adjust it per the NSWindow's
+      // scaling factor.
+      renderWindow->SetDPI(lround(72.0 * backingScaleFactor));
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSView).
+- (void)viewWillMoveToWindow:(/*nullable*/ NSWindow*)inNewWindow
+{
+  [super viewWillMoveToWindow:inNewWindow];
+
+  [self modifyDPIForBackingScaleFactorOfWindow:inNewWindow];
+}
+
+//----------------------------------------------------------------------------
+// Overridden (from NSView).
+- (void)viewDidChangeBackingProperties
+{
+  [super viewDidChangeBackingProperties];
+
+  NSWindow *window = [self window];
+  [self modifyDPIForBackingScaleFactorOfWindow:window];
+}
+
 @end
