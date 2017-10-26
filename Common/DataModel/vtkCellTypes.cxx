@@ -218,6 +218,22 @@ vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
 
 //----------------------------------------------------------------------------
 // Specify a group of cell types.
+void vtkCellTypes::SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations)
+{
+  vtkIdTypeArray* cellLocations64 = vtkIdTypeArray::New();
+  cellLocations64->SetName(cellLocations->GetName());
+  cellLocations64->SetNumberOfComponents(cellLocations->GetNumberOfComponents());
+  cellLocations64->SetNumberOfTuples(cellLocations->GetNumberOfTuples());
+  for (vtkIdType i=0, iend=cellLocations->GetNumberOfValues(); i<iend; ++i)
+  {
+    cellLocations64->SetValue(i, cellLocations->GetValue(i));
+  }
+  this->SetCellTypes(ncells, cellTypes, cellLocations64);
+  cellLocations64->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Specify a group of cell types.
 void vtkCellTypes::SetCellTypes(vtkIdType ncells,
     vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations)
 {

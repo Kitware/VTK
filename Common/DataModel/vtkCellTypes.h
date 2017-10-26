@@ -72,6 +72,12 @@ public:
   void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations);
 
   /**
+   * Specify a group of cell types. This version is provided to maintain
+   * backwards compatibility and does a copy of the cellLocations
+   */
+  void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations);
+
+  /**
    * Return the location of the cell in the associated vtkCellArray.
    */
   vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId);};
