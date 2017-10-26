@@ -14,6 +14,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 
 # Each of these most be added in a separate vtk_add_test_cxx
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestXMLCompositeDataReaderDistribution.cxx,NO_VALID,NO_OUTPUT
+  "DATA{${VTK_TEST_INPUT_DIR}/distTest.vtm,REGEX:distTest_[0-9]_0.vtp}"
+  )
+vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLReaderBadImageData,TestXMLReaderBadData.cxx,NO_VALID,NO_OUTPUT "DATA{${VTK_TEST_INPUT_DIR}/badImageData.xml}"
 )
 vtk_add_test_cxx(${vtk-module}CxxTests tests
