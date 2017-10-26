@@ -19,7 +19,10 @@
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkFloatArray.h>
+#include <vtkTypeInt8Array.h>
+#include <vtkTypeInt16Array.h>
 #include <vtkTypeInt32Array.h>
+#include <vtkTypeInt64Array.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
@@ -115,6 +118,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
                                         vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
   pointsPolyData->SetPoints(points);
   pdal::PointTable table;
   reader.prepare(table);
@@ -127,8 +131,11 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
   std::vector<vtkTypeUInt8Array*> uInt8Array(dims.size(), nullptr);
   std::vector<vtkTypeUInt16Array*> uInt16Array(dims.size(), nullptr);
   std::vector<vtkTypeUInt32Array*> uInt32Array(dims.size(), nullptr);
-  std::vector<vtkTypeInt32Array*> int32Array(dims.size(), nullptr);
   std::vector<vtkTypeUInt64Array*> uInt64Array(dims.size(), nullptr);
+  std::vector<vtkTypeInt8Array*> int8Array(dims.size(), nullptr);
+  std::vector<vtkTypeInt16Array*> int16Array(dims.size(), nullptr);
+  std::vector<vtkTypeInt32Array*> int32Array(dims.size(), nullptr);
+  std::vector<vtkTypeInt64Array*> int64Array(dims.size(), nullptr);
   vtkTypeUInt16Array* colorArray = nullptr;
   // check if we have a color field, and create the required array
   bool hasColor = false, hasRed = false, hasGreen = false, hasBlue = false;
@@ -162,6 +169,10 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
   for (size_t i = 0; i < dims.size(); ++i)
   {
     pdal::Dimension::Id dimensionId = dims[i];
+    std::cout << "DimensionId: " << static_cast<int>(dimensionId)
+              << "\nDimName: " << pointView->dimName(dimensionId)
+              << std::hex << "\nDimType: " << static_cast<int>(pointView->dimType(dimensionId))
+              << std::endl;
     if (dimensionId == pdal::Dimension::Id::X ||
         dimensionId == pdal::Dimension::Id::Y ||
         dimensionId == pdal::Dimension::Id::Z)
@@ -174,23 +185,12 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     {
       continue;
     }
-    pdal::Dimension::Type type = pdal::Dimension::Type::Double;
-    try
+    switch(pointView->dimType(dimensionId))
     {
-      type = pdal::Dimension::defaultType(dimensionId);
-    }
-    catch(...)
-    {
-      // we ignore fields we don't know about
-      continue;
-    }
-    switch(type)
-    {
-    default:
     case pdal::Dimension::Type::Double:
       {
         vtkNew<vtkDoubleArray> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         doubleArray[i] = a;
@@ -199,7 +199,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     case pdal::Dimension::Type::Float:
       {
         vtkNew<vtkFloatArray> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         floatArray[i] = a;
@@ -208,7 +208,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     case pdal::Dimension::Type::Unsigned8:
       {
         vtkNew<vtkTypeUInt8Array> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt8Array[i] = a;
@@ -217,7 +217,7 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     case pdal::Dimension::Type::Unsigned16:
       {
         vtkNew<vtkTypeUInt16Array> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt16Array[i] = a;
@@ -226,30 +226,59 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     case pdal::Dimension::Type::Unsigned32:
       {
         vtkNew<vtkTypeUInt32Array> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt32Array[i] = a;
         break;
       }
-    case pdal::Dimension::Type::Signed32:
-      {
-        vtkNew<vtkTypeInt32Array> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
-        a->SetNumberOfTuples(pointView->size());
-        pointsPolyData->GetPointData()->AddArray(a);
-        int32Array[i] = a;
-        break;
-      }
     case pdal::Dimension::Type::Unsigned64:
       {
         vtkNew<vtkTypeUInt64Array> a;
-        a->SetName(pdal::Dimension::name(dimensionId).c_str());
+        a->SetName(pointView->dimName(dimensionId).c_str());
         a->SetNumberOfTuples(pointView->size());
         pointsPolyData->GetPointData()->AddArray(a);
         uInt64Array[i] = a;
         break;
       }
+    case pdal::Dimension::Type::Signed8:
+      {
+        vtkNew<vtkTypeInt8Array> a;
+        a->SetName(pointView->dimName(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
+        pointsPolyData->GetPointData()->AddArray(a);
+        int8Array[i] = a;
+        break;
+      }
+    case pdal::Dimension::Type::Signed16:
+      {
+        vtkNew<vtkTypeInt16Array> a;
+        a->SetName(pointView->dimName(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
+        pointsPolyData->GetPointData()->AddArray(a);
+        int16Array[i] = a;
+        break;
+      }
+    case pdal::Dimension::Type::Signed32:
+      {
+        vtkNew<vtkTypeInt32Array> a;
+        a->SetName(pointView->dimName(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
+        pointsPolyData->GetPointData()->AddArray(a);
+        int32Array[i] = a;
+        break;
+      }
+    case pdal::Dimension::Type::Signed64:
+      {
+        vtkNew<vtkTypeInt64Array> a;
+        a->SetName(pointView->dimName(dimensionId).c_str());
+        a->SetNumberOfTuples(pointView->size());
+        pointsPolyData->GetPointData()->AddArray(a);
+        int64Array[i] = a;
+        break;
+      }
+      default:
+        throw std::runtime_error("Invalid pdal::Dimension::Type");
     }
   }
   for (pdal::PointId pointId = 0; pointId < pointView->size(); ++pointId)
@@ -284,19 +313,8 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
       {
         continue;
       }
-      pdal::Dimension::Type type = pdal::Dimension::Type::Double;
-      try
+      switch(pointView->dimType(dimensionId))
       {
-        type = pdal::Dimension::defaultType(dimensionId);
-      }
-      catch(...)
-      {
-        // we ignore fields we don't know about
-        continue;
-      }
-      switch(type)
-      {
-      default:
       case pdal::Dimension::Type::Double:
         {
           vtkDoubleArray* a = doubleArray[i];
@@ -332,13 +350,6 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
           a->SetValue(pointId, value);
           break;
         }
-      case pdal::Dimension::Type::Signed32:
-        {
-          vtkTypeInt32Array* a = int32Array[i];
-          int32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
-          a->SetValue(pointId, value);
-          break;
-        }
       case pdal::Dimension::Type::Unsigned64:
         {
           vtkTypeUInt64Array* a = uInt64Array[i];
@@ -346,6 +357,36 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
           a->SetValue(pointId, value);
           break;
         }
+      case pdal::Dimension::Type::Signed8:
+        {
+          vtkTypeInt8Array* a = int8Array[i];
+          int8_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
+          break;
+        }
+      case pdal::Dimension::Type::Signed16:
+        {
+          vtkTypeInt16Array* a = int16Array[i];
+          int16_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
+          break;
+        }
+      case pdal::Dimension::Type::Signed32:
+        {
+          vtkTypeInt32Array* a = int32Array[i];
+          int32_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
+          break;
+        }
+      case pdal::Dimension::Type::Signed64:
+        {
+          vtkTypeInt64Array* a = int64Array[i];
+          int64_t value = pointView->getFieldAs<double>(dimensionId, pointId);
+          a->SetValue(pointId, value);
+          break;
+        }
+      default:
+        throw std::runtime_error("Invalid pdal::Dimension::Type");
       }
     }
   }
