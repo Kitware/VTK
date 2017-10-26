@@ -26,18 +26,18 @@
  * To use this filter, you typically set the number of colors
  * (between 2 and 65536), execute it, and then retrieve the lookup table.
  * The colors can then be using the lookup table and the image index.
-*
-* This filter can run faster, by initially sampling the colors at a
-* coarser level. This can be specified by the SamplingRate parameter.
-*
-* The "index-image" viewed as a greyscale image, is usually quite
-* arbitrary, excentuating contrast where none can be perceived in
-* the original color image.
-* To make the index image more meaningful (e.g. for image segmentation
-* operating on scalar images), we sort the mean colors by luminance
-* and re-map the indices accordingly. This option does not introduce any
-* computational complexity and has no impact on actual colors in the
-* lookup table (only their order).
+ *
+ * This filter can run faster, by initially sampling the colors at a
+ * coarser level. This can be specified by the SamplingRate parameter.
+ *
+ * The "index-image" viewed as a greyscale image, is usually quite
+ * arbitrary, excentuating contrast where none can be perceived in
+ * the original color image.
+ * To make the index image more meaningful (e.g. for image segmentation
+ * operating on scalar images), we sort the mean colors by luminance
+ * and re-map the indices accordingly. This option does not introduce any
+ * computational complexity and has no impact on actual colors in the
+ * lookup table (only their order).
 */
 
 #ifndef vtkImageQuantizeRGBToIndex_h

@@ -66,16 +66,16 @@ public:
   void SetImage( void *image ) { this->Image = image; };
 
   void SetAxis( int v ) { this->Axis = v; };
-  inline int  GetAxis() { return this->Axis; }
+  int  GetAxis() { return this->Axis; }
 
   void SetSplitPoint( int v ) { this->SplitPoint = v; };
-  inline int  GetSplitPoint() { return this->SplitPoint; }
+  int  GetSplitPoint() { return this->SplitPoint; }
 
   int *GetBounds(          ) { return this->Bounds; };
   void SetBounds( int v[6] ) { memcpy( this->Bounds, v, 6*sizeof(int) ); };
 
   void SetIndex( int v ) { this->Index = v; };
-  inline int  GetIndex() { return this->Index; }
+  int  GetIndex() { return this->Index; }
 
   double GetStdDev( int axis ) { return this->StdDev[axis]; };
   void  ComputeStdDev();
@@ -93,10 +93,10 @@ public:
   void Divide( int axis, int nextIndex );
 
   void SetChild1( vtkColorQuantizeNode *n ) { this->Child1 = n; };
-  inline vtkColorQuantizeNode *GetChild1() { return this->Child1; }
+  vtkColorQuantizeNode *GetChild1() { return this->Child1; }
 
   void SetChild2( vtkColorQuantizeNode *n ) { this->Child2 = n; };
-  inline vtkColorQuantizeNode *GetChild2() { return this->Child2; }
+  vtkColorQuantizeNode *GetChild2() { return this->Child2; }
 
   int GetIndex( int c[3] )
     {  if ( this->Index>=0 ) {return this->Index;}
