@@ -22,6 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include <cctype>
+#include <map>
 
 #include <map>
 #include "vtkCellData.h"
@@ -29,15 +30,14 @@
 
 vtkStandardNewMacro(vtkOBJReader);
 
-// Description:
-// Instantiate object with nullptr filename.
+//----------------------------------------------------------------------------
 vtkOBJReader::vtkOBJReader()
 {
   this->FileName = nullptr;
-
   this->SetNumberOfInputPorts(0);
 }
 
+//----------------------------------------------------------------------------
 vtkOBJReader::~vtkOBJReader()
 {
   delete [] this->FileName;
@@ -51,6 +51,7 @@ To find a full specification, search the net for "OBJ format", eg.:
 
     http://en.wikipedia.org/wiki/Obj
     http://netghost.narod.ru/gff/graphics/summary/waveobj.htm
+    http://paulbourke.net/dataformats/obj/
 
 We support the following types:
 
@@ -65,6 +66,8 @@ vn <x> <y> <z>
 vt <x> <y>
 
     texture coordinate
+    note: vt are globally indexed, see "Referencing vertex data" section
+    of Paul Bourke format description.
 
 f <v_a> <v_b> <v_c> ...
 
@@ -101,7 +104,6 @@ p <v_a> <v_b> ...
 
 \*---------------------------------------------------------------------------*/
 
-
 int vtkOBJReader::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -120,7 +122,7 @@ int vtkOBJReader::RequestData(
     return 0;
   }
 
-  FILE *in = fopen(this->FileName,"r");
+  FILE *in = fopen(this->FileName, "r");
 
   if (in == nullptr)
   {
@@ -132,7 +134,8 @@ int vtkOBJReader::RequestData(
 
   // initialize some structures to store the file contents in
   vtkPoints *points = vtkPoints::New();
-  std::vector<vtkFloatArray*> tcoords_vector;
+  std::map<std::string, vtkFloatArray*> tcoords_map;
+  std::vector<std::pair<float, float> > verticesTextureList;
   vtkFloatArray *normals = vtkFloatArray::New();
   normals->SetNumberOfComponents(3);
   normals->SetName("Normals");
@@ -204,33 +207,12 @@ int vtkOBJReader::RequestData(
       // Read name of texture coordinate
       if (sscanf(pLine, "%s", tcoordsName) == 1)
       {
-        // Go to next line to see if any texture coordinates exist
-        if (fgets(rawLine, MAX_LINE, in) != nullptr)
+        if (tcoords_map.find(tcoordsName) == tcoords_map.end())
         {
-          lineNr++;
-          pLine = rawLine;
-          pEnd = rawLine + strlen(rawLine);
-          while (isspace(*pLine) && pLine < pEnd) { pLine++; }
-          cmd = pLine;
-          while (!isspace(*pLine) && pLine < pEnd) { pLine++; }
-          if (pLine < pEnd)
-          {
-            *pLine = '\0';
-            pLine++;
-          }
-          // if the line starts by "vt", there are texture coordinates associated
-          if (strcmp(cmd, "vt") == 0)
-          {
-            vtkFloatArray* tcoords = vtkFloatArray::New();
-            tcoords->SetNumberOfComponents(2);
-            tcoords->SetName(tcoordsName);
-            tcoords_vector.push_back(tcoords);
-          }
-        }
-        else
-        {
-          vtkErrorMacro(<<"Error reading continuation line at line " << lineNr);
-          everything_ok = false;
+          vtkFloatArray* tcoords = vtkFloatArray::New();
+          tcoords->SetNumberOfComponents(2);
+          tcoords->SetName(tcoordsName);
+          tcoords_map[tcoordsName] = tcoords;
         }
       }
       else
@@ -239,16 +221,37 @@ int vtkOBJReader::RequestData(
         everything_ok = false;
       }
     }
+    else if (strcmp(cmd, "vt") == 0)
+    {
+      // this is a tcoord, expect two floats, separated by whitespace:
+      if (sscanf(pLine, "%f %f", xyz, xyz+1) == 2)
+      {
+        verticesTextureList.push_back(std::pair<float, float>(xyz[0], xyz[1]));
+      }
+    }
   } // (end of first while loop)
 
   // If no material texture coordinates are found, add default TCoords
-  if(tcoords_vector.empty())
+  if (tcoords_map.size() == 0)
   {
     vtkFloatArray *tcoords = vtkFloatArray::New();
     tcoords->SetNumberOfComponents(2);
-    tcoords->SetName("TCoords");
-    tcoords_vector.push_back(tcoords);
-    strcpy(tcoordsName,"TCoords");
+    strcpy(tcoordsName, "TCoords");
+    tcoords->SetName(tcoordsName);
+    tcoords_map[tcoordsName] = tcoords;
+  }
+
+  // Initialize every texture array with (-1, -1)
+  for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
+  {
+    vtkFloatArray* tcoords = it->second;
+    vtkIdType nbTuples = static_cast<vtkIdType>(verticesTextureList.size());
+    tcoords->SetNumberOfTuples(nbTuples);
+
+    for (vtkIdType i = 0; i < nbTuples; ++i)
+    {
+      tcoords->SetTuple2(i, -1.0, -1.0);
+    }
   }
 
   // Second loop to parse points, faces, texture coordinates, normals...
@@ -312,30 +315,7 @@ int vtkOBJReader::RequestData(
     }
     else if (strcmp(cmd, "vt") == 0)
     {
-      // this is a tcoord, expect two floats, separated by whitespace:
-      if (sscanf(pLine, "%f %f", xyz, xyz+1) == 2)
-      {
-        for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
-        {
-          vtkFloatArray* tcoords = tcoords_vector.at(i);
-          if(strcmp(tcoords->GetName(), tcoordsName) == 0)
-          {
-            // Add data to current array
-            tcoords->InsertNextTuple(xyz);
-          }
-          else
-          {
-            // Add (-1,-1) to other arrays
-            tcoords->InsertNextTuple2(-1.0, -1.0);
-          }
-        }
-        numTCoords++;
-      }
-      else
-      {
-        vtkErrorMacro(<<"Error reading 'vt' at line " << lineNr);
-        everything_ok = false;
-      }
+      numTCoords++;
     }
     else if (strcmp(cmd, "vn") == 0)
     {
@@ -530,14 +510,17 @@ int vtkOBJReader::RequestData(
             nVerts++;
 
             // Current index is relative to last texture index
-            if (iTCoord < 0)
-            {
-              tcoord_polys->InsertCellPoint(numTCoords + iTCoord);
-            }
-            else
-            {
-              tcoord_polys->InsertCellPoint(iTCoord - 1);
-            }
+            int iTCoordAbs = (iTCoord < 0) ? numTCoords + iTCoord : iTCoord - 1;
+            tcoord_polys->InsertCellPoint(iTCoordAbs);
+
+            // Set the current texture array with the value corresponding to the
+            // iTcoords read
+            std::pair<float, float>& currentTCoord = verticesTextureList[iTCoordAbs];
+            auto iter = tcoords_map.find(tcoordsName);
+            vtkFloatArray* tcArray = iter->second;
+            tcArray->SetTuple2(
+              iTCoordAbs, currentTCoord.first, currentTCoord.second);
+
             nTCoords++;
 
             // Current index is relative to last normal index
@@ -551,9 +534,13 @@ int vtkOBJReader::RequestData(
             }
             nNormals++;
             if (iTCoord != iVert)
+            {
               tcoords_same_as_verts = false;
+            }
             if (iNormal != iVert)
+            {
               normals_same_as_verts = false;
+            }
           }
           else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
           {
@@ -593,17 +580,20 @@ int vtkOBJReader::RequestData(
             nVerts++;
 
             // Current index is relative to last texture index
-            if (iTCoord < 0)
-            {
-              tcoord_polys->InsertCellPoint(numTCoords + iTCoord);
-            }
-            else
-            {
-              tcoord_polys->InsertCellPoint(iTCoord - 1);
-            }
+            int iTCoordAbs = (iTCoord < 0) ? numTCoords + iTCoord : iTCoord - 1;
+            tcoord_polys->InsertCellPoint(iTCoordAbs);
+
+            // Set the current texture array with the value corresponding to the
+            // iTcoords read
+            std::pair<float, float>& currentTCoord = verticesTextureList[iTCoordAbs];
+            tcoords_map[tcoordsName]->SetTuple2(
+              iTCoordAbs, currentTCoord.first, currentTCoord.second);
+
             nTCoords++;
             if (iTCoord != iVert)
+            {
               tcoords_same_as_verts = false;
+            }
           }
           else if (sscanf(pLine, "%d", &iVert) == 1)
           {
@@ -645,16 +635,12 @@ int vtkOBJReader::RequestData(
       }
 
       // count of tcoords and normals must be equal to number of vertices or zero
-      if ( nVerts < 3 ||
-           (nTCoords > 0 && nTCoords != nVerts) ||
-           (nNormals > 0 && nNormals != nVerts)
-         )
+      if (nVerts < 3 ||
+         (nTCoords > 0 && nTCoords != nVerts) ||
+         (nNormals > 0 && nNormals != nVerts))
       {
-        vtkErrorMacro
-        (
-            <<"Error reading file near line " << lineNr
-            << " while processing the 'f' command"
-        );
+        vtkErrorMacro(<<"Error reading file near line " << lineNr
+          << " while processing the 'f' command");
         everything_ok = false;
       }
 
@@ -712,11 +698,11 @@ int vtkOBJReader::RequestData(
       // assign the tcoords points as point data
       if (hasTCoords && tcoords_same_as_verts)
       {
-        for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
+        for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
         {
-          vtkFloatArray* tcoords = tcoords_vector.at(i);
+          vtkFloatArray* tcoords = it->second;
           output->GetPointData()->AddArray(tcoords);
-          if(i == 0)
+          if (it == tcoords_map.begin())
           {
             output->GetPointData()->SetActiveTCoords(tcoords->GetName());
           }
@@ -756,9 +742,9 @@ int vtkOBJReader::RequestData(
 
       vtkPoints *new_points = vtkPoints::New();
       std::vector<vtkFloatArray*> new_tcoords_vector;
-      for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
+      for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
       {
-        vtkFloatArray* tcoords = tcoords_vector.at(i);
+        vtkFloatArray* tcoords = it->second;
         vtkFloatArray *new_tcoords = vtkFloatArray::New();
         new_tcoords->SetName(tcoords->GetName());
         new_tcoords->SetNumberOfComponents(2);
@@ -780,11 +766,11 @@ int vtkOBJReader::RequestData(
       vtkIdType n_pts=-1,*pts=dummy_warning_prevention_mechanism;
       vtkIdType n_tcoord_pts=-1,*tcoord_pts=dummy_warning_prevention_mechanism;
       vtkIdType n_normal_pts=-1,*normal_pts=dummy_warning_prevention_mechanism;
-      for (int i=0; i<polys->GetNumberOfCells(); ++i)
+      for (vtkIdType i = 0; i < polys->GetNumberOfCells(); ++i)
       {
-        polys->GetNextCell(n_pts,pts);
-        tcoord_polys->GetNextCell(n_tcoord_pts,tcoord_pts);
-        normal_polys->GetNextCell(n_normal_pts,normal_pts);
+        polys->GetNextCell(n_pts, pts);
+        tcoord_polys->GetNextCell(n_tcoord_pts, tcoord_pts);
+        normal_polys->GetNextCell(n_normal_pts, normal_pts);
 
         if (hasMaterials)
         {
@@ -802,10 +788,8 @@ int vtkOBJReader::RequestData(
         // Easiest solution is to delete polys that don't have complete tcoords (if there
         // are any tcoords in the dataset) or normals (if there are any normals in the dataset).
 
-        if (
-            (n_pts != n_tcoord_pts && hasTCoords) ||
-            (n_pts != n_normal_pts && hasNormals)
-           )
+        if ((n_pts != n_tcoord_pts && hasTCoords) ||
+            (n_pts != n_normal_pts && hasNormals))
         {
           // skip this poly
           vtkDebugMacro(<<"Skipping poly "<<i+1<<" (1-based index)");
@@ -813,16 +797,18 @@ int vtkOBJReader::RequestData(
         else
         {
           // copy the corresponding points, tcoords and normals across
-          for (int j=0; j<n_pts; ++j)
+          for (vtkIdType j = 0; j < n_pts; ++j)
           {
             // copy the tcoord for this point across (if there is one)
             if (n_tcoord_pts>0)
             {
-              for(unsigned int k = 0; k < tcoords_vector.size(); ++k)
+              size_t k = 0;
+              for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
               {
                 vtkFloatArray* new_tcoords = new_tcoords_vector.at(k);
-                vtkFloatArray* tcoords = tcoords_vector.at(k);
+                vtkFloatArray* tcoords = it->second;
                 new_tcoords->InsertNextTuple(tcoords->GetTuple(tcoord_pts[j]));
+                k++;
               }
             }
             // copy the normal for this point across (if there is one)
@@ -848,11 +834,11 @@ int vtkOBJReader::RequestData(
       output->SetPolys(new_polys);
       if (hasTCoords)
       {
-        for(unsigned int i = 0; i < new_tcoords_vector.size(); ++i)
+        for (size_t i = 0; i < new_tcoords_vector.size(); ++i)
         {
           vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
           output->GetPointData()->AddArray(new_tcoords);
-          if(i == 0)
+          if (i == 0)
           {
             output->GetPointData()->SetActiveTCoords(new_tcoords->GetName());
           }
@@ -874,7 +860,7 @@ int vtkOBJReader::RequestData(
 
       new_points->Delete();
       new_polys->Delete();
-      for(unsigned int i = 0; i < new_tcoords_vector.size(); ++i)
+      for(size_t i = 0; i < new_tcoords_vector.size(); ++i)
       {
         vtkFloatArray* new_tcoords = new_tcoords_vector.at(i);
         new_tcoords->Delete();
@@ -884,9 +870,9 @@ int vtkOBJReader::RequestData(
   }
 
   points->Delete();
-  for(unsigned int i = 0; i < tcoords_vector.size(); ++i)
+  for (auto it = tcoords_map.begin(); it != tcoords_map.end(); ++it)
   {
-    vtkFloatArray* tcoords = tcoords_vector.at(i);
+    vtkFloatArray* tcoords = it->second;
     tcoords->Delete();
   }
   normals->Delete();
@@ -900,7 +886,7 @@ int vtkOBJReader::RequestData(
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -909,6 +895,3 @@ void vtkOBJReader::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
 }
-
-
-// ************************************************************************* //
