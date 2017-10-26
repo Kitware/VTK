@@ -56,12 +56,11 @@ if(NOT CMAKE_POSITION_INDEPENDENT_CODE)
   set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
-# Add the VTK_MODULES_DIR to the CMAKE_MODULE_PATH and then use the binary
-# directory for the project to write out new ones to.
-if(VTK_MODULES_DIR)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${VTK_MODULES_DIR})
+if(NOT VTK_MODULES_DIR)
+  set(VTK_MODULES_DIR "${VTK_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
 endif()
-set(VTK_MODULES_DIR "${VTK_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${VTK_MODULES_DIR})
+
 
 include(vtkModuleMacros)
 include(module.cmake OPTIONAL RESULT_VARIABLE _found)
@@ -69,7 +68,7 @@ if(_found)
   set(${vtk-module}-targets ${vtk-module}Targets)
   set(${vtk-module}-targets-install "\${VTK_INSTALL_PREFIX}/${VTK_INSTALL_PACKAGE_DIR}/Modules/Targets/${vtk-module}Targets.cmake")
   set(${vtk-module}_TARGETS_FILE_INSTALL "${${vtk-module}-targets-install}")
-  set(${vtk-module}-targets-build-directory "${VTK_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules/Targets")
+  set(${vtk-module}-targets-build-directory "${VTK_MODULES_DIR}/Targets")
   file(MAKE_DIRECTORY ${${vtk-module}-targets-build-directory})
   set(${vtk-module}-targets-build "${${vtk-module}-targets-build-directory}/${vtk-module}Targets.cmake")
   set(${vtk-module}_TARGETS_FILE_BUILD "${${vtk-module}-targets-build}")

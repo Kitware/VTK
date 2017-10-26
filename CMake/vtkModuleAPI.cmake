@@ -116,6 +116,11 @@ endmacro()
 # Do not name a module as the namespace.
 macro(vtk_module_config ns)
 
+  # Sanity check
+  if(NOT DEFINED VTK_MODULES_DIR)
+    message(FATAL_ERROR "VTK_MODULES_DIR is not defined !")
+  endif()
+
   # Determine list of available VTK-modules by scanning the VTK_MODULES_DIR.
   set(VTK_MODULES_AVAILABLE)
   file(GLOB config_files RELATIVE "${VTK_MODULES_DIR}" "${VTK_MODULES_DIR}/*.cmake")
