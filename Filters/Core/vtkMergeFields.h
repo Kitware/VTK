@@ -110,7 +110,7 @@ public:
         {
           size_t len = strlen(name)+1;
           this->FieldName = new char[len];
-          strncpy(this->FieldName, name, len);
+          strncpy_s(this->FieldName, len, name, len - 1);
         }
     }
     Component() { FieldName = nullptr; }

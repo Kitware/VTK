@@ -65,7 +65,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitField : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplitField,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Create a new vtkSplitField.
@@ -115,7 +115,7 @@ public:
         {
           size_t len = strlen(name)+1;
           this->FieldName = new char[len];
-          strncpy(this->FieldName, name, len);
+          strncpy_s(this->FieldName, len, name, len - 1);
         }
     }
     Component() { FieldName = nullptr; }
