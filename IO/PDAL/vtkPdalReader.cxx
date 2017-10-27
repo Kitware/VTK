@@ -34,7 +34,17 @@
 #include <vtkTypeUInt64Array.h>
 #include <vtkVertexGlyphFilter.h>
 
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wnoexcept-type"
+#endif
 #include <pdal/Reader.hpp>
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
