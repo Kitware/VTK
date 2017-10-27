@@ -1861,6 +1861,7 @@ bool vtkChartXY::MouseButtonPressEvent(const vtkContextMouseEvent& mouse)
   {
     this->ReleasePlotSelections();
     this->DragPoint = this->LocatePointInPlots(mouse, vtkCommand::SelectionChangedEvent);
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     return true;
   }
   else if (mouse.GetButton() == this->ActionsClick.Select() ||
@@ -2153,6 +2154,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
   else if (mouse.GetButton() == this->Actions.ClickAndDrag())
   {
     this->ReleasePlotSelections();
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     this->DragPoint = false;
     return true;
   }
