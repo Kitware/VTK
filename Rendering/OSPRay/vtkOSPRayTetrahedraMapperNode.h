@@ -72,9 +72,9 @@ protected:
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  std::vector<int> cells;
-  std::vector<osp::vec3f> vertices;
-  std::vector<float> field;
+  std::vector<int> Cells;
+  std::vector<osp::vec3f> Vertices;
+  std::vector<float> Field;
 
 private:
   vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;

@@ -14,33 +14,17 @@
 =========================================================================*/
 #include "vtkOSPRayTetrahedraMapperNode.h"
 
-#include "vtkArrayDispatch.h"
-#include "vtkCellArray.h"
-#include "vtkCellCenterDepthSort.h"
-#include "vtkCellData.h"
+#include "vtkCell.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkDoubleArray.h"
+#include "vtkDataSet.h"
 #include "vtkFloatArray.h"
-#include "vtkGarbageCollector.h"
-#include "vtkMath.h"
-#include "vtkObjectFactory.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
-#include "vtkTimerLog.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkVisibilitySort.h"
-#include "vtkVolume.h"
-#include "vtkVolumeProperty.h"
-
-#include "vtkVolumeNode.h"
-#include "vtkAbstractVolumeMapper.h"
-#include "vtkUnstructuredGridVolumeMapper.h"
-#include "vtkOSPRayRendererNode.h"
 #include "vtkUnstructuredGridVolumeRayCastMapper.h"
-
-#include <cmath>
-#include <algorithm>
+#include "vtkVolume.h"
+#include "vtkVolumeNode.h"
+#include "vtkVolumeProperty.h"
 
 #include "ospray/ospray.h"
 
@@ -69,27 +53,31 @@ void vtkOSPRayTetrahedraMapperNode::PrintSelf(ostream &os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 {
-  if (prepass) {
+  if (prepass)
+  {
     vtkUnstructuredGridVolumeRayCastMapper *mapper =
-    vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast(this->GetRenderable());
-
-    if (!mapper) {
+      vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast(this->GetRenderable());
+    if (!mapper)
+    {
       vtkErrorMacro("invalid mapper");
       return;
     }
 
     vtkVolumeNode *volNode = vtkVolumeNode::SafeDownCast(this->Parent);
-    if (!volNode) {
+    if (!volNode)
+    {
       vtkErrorMacro("invalid volumeNode");
       return;
     }
 
     vtkVolume* vol = vtkVolume::SafeDownCast(volNode->GetRenderable());
-    if (vol->GetVisibility() == false) {
+    if (vol->GetVisibility() == false)
+    {
       return;
     }
 
-    if (!vol->GetProperty()) {
+    if (!vol->GetProperty())
+    {
       // this is OK, happens in paraview client side for instance
       return;
     }
@@ -98,15 +86,17 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     mapper->GetInputAlgorithm()->Update();
 
     vtkOSPRayRendererNode *orn = static_cast<vtkOSPRayRendererNode *>(
-                         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
+      this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     osp::Model* OSPRayModel = orn->GetOModel();
-    if (!OSPRayModel) {
+    if (!OSPRayModel)
+    {
       return;
     }
 
     vtkDataSet *dataSet = mapper->GetDataSetInput();
-    if (!dataSet) {
+    if (!dataSet)
+    {
       return;
     }
 
@@ -114,29 +104,34 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     int numberOfPoints = dataSet->GetNumberOfPoints();
 
     double point[3];
-    for (int i=0; i<numberOfPoints; i++) {
+    for (int i=0; i<numberOfPoints; i++)
+    {
       dataSet->GetPoint(i,point);
       osp::vec3f v;
       v.x = point[0];
       v.y = point[1];
       v.z = point[2];
-      vertices.push_back(v);
+      this->Vertices.push_back(v);
     }
 
-    for (int i=0; i<numberOfCells; i++) {
+    for (int i=0; i<numberOfCells; i++)
+    {
       vtkCell *cell = dataSet->GetCell(i);
-
-      if (cell->GetCellType() == 10) {//vtkTetra
-        for (int j=0; j<4; j++) {
-          cells.push_back(cell->GetPointId(j));
+      if (cell->GetCellType() == VTK_TETRA)
+      {
+        for (int j=0; j<4; j++)
+        {
+          this->Cells.push_back(cell->GetPointId(j));
         }
       }
     }
 
     // Now check for point data
     vtkPointData *pd = dataSet->GetPointData();
-    if (pd) {
-      for (int i = 0; i < pd->GetNumberOfArrays(); i++) {
+    if (pd)
+    {
+      for (int i = 0; i < pd->GetNumberOfArrays(); i++)
+      {
         vtkAbstractArray *ad = pd->GetAbstractArray(i);
         int nDataPoints = ad->GetNumberOfValues();
         int arrayType = ad->GetArrayType();
@@ -144,11 +139,14 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(ad);
         //VTK_FLOAT only, need to add support for other data types.
         if (!array)
+        {
           vtkErrorMacro("unsupported array type");
+        }
 
-        for(int j=0; j<nDataPoints; j++) {
+        for(int j=0; j<nDataPoints; j++)
+        {
           float val = array->GetValue(j);
-          field.push_back(val);
+          this->Field.push_back(val);
         }
       }
     }
@@ -161,30 +159,31 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     // when input data is modified
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
-      if (this->OSPRayVolume) {
+      if (this->OSPRayVolume)
+      {
         delete this->OSPRayVolume;
-        vertices.clear();
-        cells.clear();
-        field.clear();
+        this->Vertices.clear();
+        this->Cells.clear();
+        this->Field.clear();
       }
       this->OSPRayVolume = ospNewVolume("tetrahedral_volume");
       assert(this->OSPRayVolume);
 
-      OSPData verticesData = ospNewData(vertices.size(),OSP_FLOAT3,
-                vertices.data(),0);
+      OSPData verticesData = ospNewData(this->Vertices.size(),OSP_FLOAT3,
+        this->Vertices.data(),0);
       assert(verticesData);
       ospSetData(this->OSPRayVolume, "vertices", verticesData);
 
-      OSPData fieldData = ospNewData(field.size(),OSP_FLOAT,field.data(),0);
+      OSPData fieldData = ospNewData(this->Field.size(),OSP_FLOAT,this->Field.data(),0);
       assert(fieldData);
       ospSetData(this->OSPRayVolume, "field", fieldData);
 
-      OSPData tetrahedraData = ospNewData(cells.size()/4,OSP_INT4,cells.data(),0);
+      OSPData tetrahedraData = ospNewData(this->Cells.size()/4,OSP_INT4,this->Cells.data(),0);
       assert(tetrahedraData);
       ospSetData(this->OSPRayVolume, "tetrahedra", tetrahedraData);
 
-      ospSet1i(this->OSPRayVolume, "nVertices", vertices.size());
-      ospSet1i(this->OSPRayVolume, "nTetrahedra", cells.size()/4);
+      ospSet1i(this->OSPRayVolume, "nVertices", this->Vertices.size());
+      ospSet1i(this->OSPRayVolume, "nTetrahedra", this->Cells.size()/4);
     }
 
     double* dim = mapper->GetBounds();
@@ -201,7 +200,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       int fieldAssociation;
       vtkDataArray *sa = vtkDataArray::SafeDownCast(
         this->GetArrayToProcess(dataSet, fieldAssociation));
-      if (!sa) {
+      if (!sa)
+      {
         vtkErrorMacro("VolumeMapper's Input has no scalar array!");
         return;
       }
@@ -212,13 +212,13 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       this->TFVals.resize(this->NumColors*3);
       this->TFOVals.resize(this->NumColors);
       scalarTF->GetTable(sa->GetRange()[0],
-             sa->GetRange()[1],
-             this->NumColors,
-             &TFOVals[0]);
+        sa->GetRange()[1],
+        this->NumColors,
+        &TFOVals[0]);
       colorTF->GetTable(sa->GetRange()[0],
-            sa->GetRange()[1],
-            this->NumColors,
-            &this->TFVals[0]);
+        sa->GetRange()[1],
+        this->NumColors,
+        &this->TFVals[0]);
 
       float scalarOpacityUnitDistance = volProperty->GetScalarOpacityUnitDistance();
       if (scalarOpacityUnitDistance < 1e-29) //avoid div by 0
@@ -226,28 +226,30 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         scalarOpacityUnitDistance = 1e-29;
       }
       for(int i=0; i < this->NumColors; i++)
+      {
         this->TFOVals[i] = this->TFOVals[i]/scalarOpacityUnitDistance*samplingStep;
+      }
 
       OSPData colorData = ospNewData(this->NumColors,
-             OSP_FLOAT3,
-             &this->TFVals[0]);
+        OSP_FLOAT3,
+        &this->TFVals[0]);
       ospSetData(this->TransferFunction, "colors", colorData);
 
       OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);
       ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
       ospSet2f(this->TransferFunction, "valueRange", sa->GetRange()[0],
-         sa->GetRange()[1]);
+        sa->GetRange()[1]);
 
       ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
-         volProperty->GetShade());
+        volProperty->GetShade());
 
       ospCommit(this->TransferFunction);
       ospRelease(colorData);
       ospRelease(tfAlphaData);
 
       ospSetObject(this->OSPRayVolume, "transferFunction",
-       this->TransferFunction);
+        this->TransferFunction);
 
       this->PropertyTime.Modified();
     }
