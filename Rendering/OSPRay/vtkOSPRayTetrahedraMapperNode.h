@@ -43,23 +43,23 @@ namespace osp
   struct vec3f;
 }
 
-class VTKRENDERINGVOLUME_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
+class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayTetrahedraMapperNode : public vtkVolumeMapperNode
 
 {
 public:
   vtkTypeMacro(vtkOSPRayTetrahedraMapperNode,
                        vtkVolumeMapperNode);
   static vtkOSPRayTetrahedraMapperNode *New();
-  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
    * Make ospray calls to render me.
    */
-  virtual void Render(bool prepass) VTK_OVERRIDE;
+  virtual void Render(bool prepass) override;
 
 protected:
   vtkOSPRayTetrahedraMapperNode();
-  ~vtkOSPRayTetrahedraMapperNode() VTK_OVERRIDE;
+  ~vtkOSPRayTetrahedraMapperNode() override;
 
   int NumColors;
   double SamplingRate;
@@ -80,8 +80,8 @@ protected:
   std::vector<float> field;
 
 private:
-  vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkOSPRayTetrahedraMapperNode &) VTK_DELETE_FUNCTION;
+  vtkOSPRayTetrahedraMapperNode(const vtkOSPRayTetrahedraMapperNode&) = delete;
+  void operator=(const vtkOSPRayTetrahedraMapperNode &) = delete;
 };
 
 #endif
