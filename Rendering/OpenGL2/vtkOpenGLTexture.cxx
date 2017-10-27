@@ -332,7 +332,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         if (this->Mipmap && levels > 1
             && (!this->CubeMap || majorV >= 4))
         {
-          this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapNearest);
+          this->TextureObject->SetMinificationFilter(vtkTextureObject::LinearMipmapLinear);
           this->TextureObject->SetMaxLevel(levels - 1);
           this->TextureObject->SendParameters();
           glGenerateMipmap(this->TextureObject->GetTarget());

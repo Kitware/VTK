@@ -1068,6 +1068,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
 
   if (this->GetNumberOfClippingPlanes())
   {
@@ -1079,15 +1080,39 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
       numClipPlanes = 6;
     }
 
-    vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec",
-      "uniform int numClipPlanes;\n"
-      "uniform vec4 clipPlanes[6];\n"
-      "varying float clipDistancesVSOutput[6];");
-    vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl",
-      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
-      "    {\n"
-      "    clipDistancesVSOutput[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
-      "    }\n");
+    // geometry shader impl
+    if (GSSource.length())
+    {
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec",
+        "varying vec4 clipVertexMC;");
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl",
+        "  clipVertexMC =  vertexMC;\n");
+      vtkShaderProgram::Substitute(GSSource,
+        "//VTK::Clip::Dec",
+        "uniform int numClipPlanes;\n"
+        "uniform vec4 clipPlanes[6];\n"
+        "in vec4 clipVertexMC[];\n"
+        "out float clipDistancesGSOutput[6];");
+      vtkShaderProgram::Substitute(GSSource,
+        "//VTK::Clip::Impl",
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "  {\n"
+        "    clipDistancesGSOutput[planeNum] = dot(clipPlanes[planeNum], clipVertexMC[i]);\n"
+        "  }\n");
+    }
+    else // vertex shader impl
+    {
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Dec",
+        "uniform int numClipPlanes;\n"
+        "uniform vec4 clipPlanes[6];\n"
+        "varying float clipDistancesVSOutput[6];");
+      vtkShaderProgram::Substitute(VSSource, "//VTK::Clip::Impl",
+        "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+        "    {\n"
+        "    clipDistancesVSOutput[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
+        "    }\n");
+    }
+
     vtkShaderProgram::Substitute(FSSource, "//VTK::Clip::Dec",
       "uniform int numClipPlanes;\n"
       "varying float clipDistancesVSOutput[6];");
@@ -1099,6 +1124,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
   }
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);
+  shaders[vtkShader::Geometry]->SetSource(GSSource);
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
