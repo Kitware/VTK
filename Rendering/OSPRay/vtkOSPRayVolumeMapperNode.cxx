@@ -228,14 +228,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
                         this->NumColors,
                         &this->TFVals[0]);
 
-      float scalarOpacityUnitDistance = volProperty->GetScalarOpacityUnitDistance();
-      if (scalarOpacityUnitDistance < 1e-29)
-      {
-        scalarOpacityUnitDistance = 1e-29;
-      }
-      for(int i=0; i < this->NumColors; i++)
-        this->TFOVals[i] = this->TFOVals[i]/scalarOpacityUnitDistance;
-
       OSPData colorData = ospNewData(this->NumColors,
                                      OSP_FLOAT3,
                                      &this->TFVals[0]);
@@ -285,9 +277,9 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
     }
     ospSet1f(this->OSPRayVolume, "adaptiveScalar", 15.f);
-    float rs = static_cast<float>(volProperty->GetSpecular(0));
-    float gs = static_cast<float>(volProperty->GetSpecular(1));
-    float bs = static_cast<float>(volProperty->GetSpecular(2));
+    float rs = static_cast<float>(volProperty->GetSpecular(0)/16.); //16 chosen because near GL
+    float gs = static_cast<float>(volProperty->GetSpecular(1)/16.);
+    float bs = static_cast<float>(volProperty->GetSpecular(2)/16.);
     ospSet3f(this->OSPRayVolume, "specular", rs,gs,bs);
     ospSet1i(this->OSPRayVolume, "preIntegration", 0); //turn off preIntegration
 
