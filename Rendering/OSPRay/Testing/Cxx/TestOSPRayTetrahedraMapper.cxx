@@ -14,32 +14,25 @@
 =========================================================================*/
 
 // Description
-// This is a basic test that creates and volume renders the wavelet dataset.
+// This test verifies that we can use ospray to volume render
+// vtk unstructured grid
 
-#include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
+#include "vtkImageCast.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRTAnalyticSource.h"
 #include "vtkTesting.h"
-#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkTestErrorObserver.h"
 #include "vtkOSPRayPass.h"
 #include "vtkStructuredPointsReader.h"
-#include "vtkSLCReader.h"
 #include "vtkThreshold.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkUnstructuredGridVolumeRayCastMapper.h"
-#include "vtkContourFilter.h"
-#include "vtkPolyDataMapper.h"
 #include <vtkTestUtilities.h>
 
 static const char * TestOSPRayTetrahedraMapperLog =
@@ -56,7 +49,6 @@ static const char * TestOSPRayTetrahedraMapperLog =
 
 int TestOSPRayTetrahedraMapper(int argc, char *argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
   {
@@ -73,20 +65,20 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
   const char* file1 = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/ironProt.vtk");
   reader->SetFileName(file1);
+  reader->Update();
 
-  // create a reader for the other data that will
-  // be contoured and displayed as a polygonal mesh
-  vtkNew<vtkSLCReader> reader2;
-  const char* file2 = vtkTestUtilities::ExpandDataFileName(
-                            argc, argv, "Data/neghip.slc");
-  reader2->SetFileName(file2);
+  // currently ospray only supports float, remove when that
+  // changes in ospray version that ParaView packages.
+  vtkNew<vtkImageCast> toFloat;
+  toFloat->SetInputConnection(reader->GetOutputPort());
+  toFloat->SetOutputScalarTypeToFloat();
 
   // convert from vtkImageData to vtkUnstructuredGrid, remove
   // any cells where all values are below 80
   vtkNew<vtkThreshold> thresh;
   thresh->ThresholdByUpper(80);
   thresh->AllScalarsOff();
-  thresh->SetInputConnection(reader->GetOutputPort());
+  thresh->SetInputConnection(toFloat->GetOutputPort());
 
   // make sure we have only tetrahedra
   vtkNew<vtkDataSetTriangleFilter> trifilter;
@@ -123,25 +115,10 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  // contour the second dataset
-  vtkNew<vtkContourFilter> contour;
-  contour->SetValue(0,80);
-  contour->SetInputConnection(reader2->GetOutputPort());
-
-  // create a mapper for the polygonal data
-  vtkNew<vtkPolyDataMapper> mapper;
-  mapper->SetInputConnection(contour->GetOutputPort());
-  mapper->ScalarVisibilityOff();
-
-  // create an actor for the polygonal data
-  vtkNew<vtkActor> actor;
-  actor->SetMapper(mapper.GetPointer());
-
   vtkNew<vtkRenderer> ren1;
-  ren1->AddViewProp(actor.GetPointer());
   ren1->AddVolume(volume.GetPointer());
 
-  // // Create the renderwindow, interactor and renderer
+  // Create the renderwindow, interactor and renderer
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(401, 399); // NPOT size
@@ -155,7 +132,7 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
   ren1->ResetCamera();
   renderWindow->Render();
 
-// Attach OSPRay render pass
+  // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
   {
@@ -165,7 +142,7 @@ int TestOSPRayTetrahedraMapper(int argc, char *argv[])
   volumeMapper->DebugOn();
   int retVal;
   retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
-                                                iren.GetPointer(),
-                                                TestOSPRayTetrahedraMapperLog));
+                                              iren.GetPointer(),
+                                              TestOSPRayTetrahedraMapperLog));
   return !retVal;
 }
