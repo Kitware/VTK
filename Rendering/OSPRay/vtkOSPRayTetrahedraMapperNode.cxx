@@ -99,6 +99,24 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     {
       return;
     }
+    int fieldAssociation;
+    vtkDataArray *sa = vtkDataArray::SafeDownCast(
+      this->GetArrayToProcess(dataSet, fieldAssociation));
+    if (!sa)
+    {
+      vtkWarningMacro("VolumeMapper's Input has no scalar array!");
+      return;
+    }
+    if (fieldAssociation != 0)
+    {
+      vtkWarningMacro("Only point aligned data supported currently.");
+    }
+    vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(sa);
+    if (!array)
+    {
+      vtkWarningMacro("Only float supported currently.");
+      return;
+    }
 
     int numberOfCells = dataSet->GetNumberOfCells();
     int numberOfPoints = dataSet->GetNumberOfPoints();
@@ -126,29 +144,11 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       }
     }
 
-    // Now check for point data
-    vtkPointData *pd = dataSet->GetPointData();
-    if (pd)
+    // Now the point data to volume render
+    for(int j=0; j<numberOfPoints; j++)
     {
-      for (int i = 0; i < pd->GetNumberOfArrays(); i++)
-      {
-        vtkAbstractArray *ad = pd->GetAbstractArray(i);
-        int nDataPoints = ad->GetNumberOfValues();
-        int arrayType = ad->GetArrayType();
-
-        vtkSmartPointer<vtkFloatArray> array = vtkFloatArray::SafeDownCast(ad);
-        //VTK_FLOAT only, need to add support for other data types.
-        if (!array)
-        {
-          vtkErrorMacro("unsupported array type");
-        }
-
-        for(int j=0; j<nDataPoints; j++)
-        {
-          float val = array->GetValue(j);
-          this->Field.push_back(val);
-        }
-      }
+      float val = array->GetValue(j);
+      this->Field.push_back(val);
     }
 
     if (!this->TransferFunction)
@@ -196,16 +196,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
     {
       // Get transfer function. ++++++++++++++++++++++++++++++++++++++++++++++++++
-
-      int fieldAssociation;
-      vtkDataArray *sa = vtkDataArray::SafeDownCast(
-        this->GetArrayToProcess(dataSet, fieldAssociation));
-      if (!sa)
-      {
-        vtkErrorMacro("VolumeMapper's Input has no scalar array!");
-        return;
-      }
-
       vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
 
