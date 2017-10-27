@@ -65,6 +65,8 @@ vtkStandardNewMacro(vtkOpenVRInteractorStyle);
 //----------------------------------------------------------------------------
 vtkOpenVRInteractorStyle::vtkOpenVRInteractorStyle()
 {
+  // override the base class picker
+  this->InteractionPicker->Delete();
   this->InteractionPicker = vtkOpenVRPropPicker::New();
 
   for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
@@ -145,6 +147,18 @@ vtkOpenVRInteractorStyle::~vtkOpenVRInteractorStyle()
       this->ClippingPlanes[d] = nullptr;
     }
   }
+  for (int d = 0; d < vtkEventDataNumberOfDevices; ++d)
+  {
+    for (int i = 0; i < vtkEventDataNumberOfInputs; i++)
+    {
+      if (this->ControlsHelpers[d][i])
+      {
+        this->ControlsHelpers[d][i]->Delete();
+        this->ControlsHelpers[d][i] = nullptr;
+      }
+    }
+  }
+  this->MenuCommand->Delete();
 }
 
 void vtkOpenVRInteractorStyle::SetInteractor(vtkRenderWindowInteractor *iren)

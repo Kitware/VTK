@@ -74,7 +74,7 @@ int vtkOpenVRHardwarePicker::PickProp(
     return 0;
   }
 
-  vtkHardwareSelector *sel = vtkHardwareSelector::New();
+  vtkNew<vtkHardwareSelector> sel;
   sel->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   sel->SetRenderer(renderer);
   vtkCamera *oldcam = renderer->GetActiveCamera();
@@ -116,8 +116,8 @@ int vtkOpenVRHardwarePicker::PickProp(
   }
 
   // this->Selection = sel->Select();
-
   // sel->SetArea(0, 0, size[0]-1, size[1]-1);
+
   renWin->SetTrackHMD(true);
 
   this->InvokeEvent(vtkCommand::EndPickEvent, this->Selection);
