@@ -128,8 +128,8 @@ public:
   vtkOpenGLHelper *BlendProgram;
 
  private:
-  vtkSimpleMotionBlurPass(const vtkSimpleMotionBlurPass&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSimpleMotionBlurPass&) VTK_DELETE_FUNCTION;
+  vtkSimpleMotionBlurPass(const vtkSimpleMotionBlurPass&) = delete;
+  void operator=(const vtkSimpleMotionBlurPass&) = delete;
 };
 
 #endif
