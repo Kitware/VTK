@@ -104,7 +104,7 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       this->GetArrayToProcess(dataSet, fieldAssociation));
     if (!sa)
     {
-      vtkWarningMacro("VolumeMapper's Input has no scalar array!");
+      //ok can happen in paraview client server mode for example
       return;
     }
     if (fieldAssociation != 0)
