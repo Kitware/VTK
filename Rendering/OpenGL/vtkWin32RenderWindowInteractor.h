@@ -48,12 +48,12 @@ public:
   static vtkWin32RenderWindowInteractor *New();
 
   vtkTypeMacro(vtkWin32RenderWindowInteractor,vtkRenderWindowInteractor);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   /**
    * Initialize the event handler
    */
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   //@{
   /**
@@ -65,8 +65,8 @@ public:
    * and all other interactors associated with the widget are disabled
    * when their data is not displayed.
    */
-  virtual void Enable();
-  virtual void Disable();
+  void Enable() VTK_OVERRIDE;
+  void Disable() VTK_OVERRIDE;
   //@}
 
   //@{
@@ -86,7 +86,7 @@ public:
    * calls PostQuitMessage(0) to terminate the application. An application can Specify
    * ExitMethod for alternative behavior (i.e. suppression of keyboard exit)
    */
-  void TerminateApp(void);
+  void TerminateApp(void) VTK_OVERRIDE;
 
   friend VTKRENDERINGOPENGL_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);
   friend VTKRENDERINGOPENGL_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l, vtkWin32RenderWindowInteractor *me);
@@ -130,7 +130,7 @@ public:
    * These methods correspond to the the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
-  virtual void ExitCallback();
+  void ExitCallback() VTK_OVERRIDE;
 
 protected:
   vtkWin32RenderWindowInteractor();
@@ -158,8 +158,8 @@ protected:
    * Win32-specific internal timer methods. See the superclass for detailed
    * documentation.
    */
-  virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
-  virtual int InternalDestroyTimer(int platformTimerId);
+  int InternalCreateTimer(int timerId, int timerType, unsigned long duration) VTK_OVERRIDE;
+  int InternalDestroyTimer(int platformTimerId) VTK_OVERRIDE;
   //@}
 
   /**
@@ -167,7 +167,7 @@ protected:
    * call this method it will loop processing events until the
    * application is exited.
    */
-  virtual void StartEventLoop();
+  void StartEventLoop() VTK_OVERRIDE;
 
 #ifdef VTK_USE_TDX
   vtkTDxWinDevice *Device;
