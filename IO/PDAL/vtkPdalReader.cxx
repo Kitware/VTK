@@ -34,8 +34,7 @@
 #include <vtkTypeUInt64Array.h>
 #include <vtkVertexGlyphFilter.h>
 
-#include <pdal/io/LasReader.hpp>
-#include <pdal/io/LasHeader.hpp>
+#include <pdal/Reader.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
 #include <pdal/StageFactory.hpp>
