@@ -74,6 +74,7 @@ vtkOpenVRMenuRepresentation::vtkOpenVRMenuRepresentation()
 //----------------------------------------------------------------------------
 vtkOpenVRMenuRepresentation::~vtkOpenVRMenuRepresentation()
 {
+  this->RemoveAllMenuItems();
 }
 
 void vtkOpenVRMenuRepresentation::PushFrontMenuItem(

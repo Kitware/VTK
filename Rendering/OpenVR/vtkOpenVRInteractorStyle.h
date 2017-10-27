@@ -151,9 +151,6 @@ protected:
   vtkNew<vtkActor> PickActor;
   vtkNew<vtkSphereSource> Sphere;
 
-  //vtkPropPicker *InteractionPicker;
-  //vtkProp3D *InteractionProp;
-
   //device input to interaction state mapping
   int InputMap[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];
   vtkOpenVRControlsHelper* ControlsHelpers[vtkEventDataNumberOfDevices][vtkEventDataNumberOfInputs];

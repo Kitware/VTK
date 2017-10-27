@@ -162,6 +162,7 @@ void vtkOpenVROverlay::ReadCameraPoses(istream &is)
         this->SavedCameraPoses[poseNum].MotionFactor);
       this->SavedCameraPoses[poseNum].Loaded = true;
     }
+    topel->Delete();
   }
 }
 
