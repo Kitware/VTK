@@ -162,6 +162,8 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
     case pdal::Dimension::Id::Blue:
       hasBlue = true;
       break;
+    default:
+      continue;
     }
   }
   if (hasRed && hasGreen && hasBlue)
