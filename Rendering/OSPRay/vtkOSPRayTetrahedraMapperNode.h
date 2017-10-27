@@ -72,9 +72,6 @@ protected:
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  vtkAbstractArray *GetArrayToProcess
-    (vtkDataSet* input, int& association);
-
   std::vector<int> cells;
   std::vector<osp::vec3f> vertices;
   std::vector<float> field;
