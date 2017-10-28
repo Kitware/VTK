@@ -6,6 +6,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   ImageBSplineCoefficients.cxx
   ImageHistogram.cxx
   ImageHistogramStatistics.cxx,NO_VALID
+  ImageInterpolateSlidingWindow2D.cxx
+  ImageInterpolateSlidingWindow3D.cxx
   ImageResize.cxx
   ImageResize3D.cxx
   ImageResizeCropping.cxx
