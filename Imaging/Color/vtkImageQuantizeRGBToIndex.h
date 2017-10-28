@@ -31,7 +31,7 @@
  * coarser level. This can be specified by the SamplingRate parameter.
  *
  * The "index-image" viewed as a greyscale image, is usually quite
- * arbitrary, excentuating contrast where none can be perceived in
+ * arbitrary, accentuating contrast where none can be perceived in
  * the original color image.
  * To make the index image more meaningful (e.g. for image segmentation
  * operating on scalar images), we sort the mean colors by luminance
