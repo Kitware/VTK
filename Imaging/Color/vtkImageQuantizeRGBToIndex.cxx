@@ -314,10 +314,9 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
 
   cannotDivideFurther = 0;
 
-  totalCount =
-    (extentSampled[1] - extentSampled[0] + 1) *
-    (extentSampled[3] - extentSampled[2] + 1) *
-    (extentSampled[5] - extentSampled[4] + 1);
+  totalCount = extentSampled[1] - extentSampled[0] + 1;
+  totalCount *= extentSampled[3] - extentSampled[2] + 1;
+  totalCount *= extentSampled[5] - extentSampled[4] + 1;
 
   // Loop until we've added enough leaf nodes or we can't add any more
   // Here we are using sampled image (VOI).
