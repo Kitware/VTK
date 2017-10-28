@@ -43,10 +43,13 @@ struct vtkInterpolationWeights : public vtkInterpolationInfo
   int WeightExtent[6];
   int KernelSize[3];
   int WeightType; // VTK_FLOAT or VTK_DOUBLE
+  void *Workspace;
+  int LastY;
+  int LastZ;
 
   // partial copy contstructor from superclass
   vtkInterpolationWeights(const vtkInterpolationInfo &info) :
-    vtkInterpolationInfo(info) {}
+    vtkInterpolationInfo(info), Workspace(nullptr) {}
 };
 
 // The internal math functions for the interpolators
