@@ -91,14 +91,24 @@ public:
   static bool IsInitialized();
 
   /**
-   * Set the program name. This must be called before the first Initialize()
-   * call. If called afterwords, this will raise a warning.
+   * Set the program name. This internally calls `Py_SetProgramName`.
+   * Python uses the program name to determine values for prefix and exec_prefix
+   * paths that are used to locate Python standard libraries and hence call this
+   * if you if you know what you are doing.
+   *
+   * If not explicitly overridden, `Initialize` will try to guess a good default
+   * for the `Py_SetProgramName` to  help find Python standard libraries based
+   * on Python libraries used to build VTK.
    */
   static void SetProgramName(const char* programname);
 
   /**
    * Call this method to start the Python event loop (Py_Main()).
    * This will initialize Python if not already initialized.
+   *
+   * @note This function handles `--enable-bt` command line argument before
+   * passing it on to the `Py_Main(..)` call. Thus, the `--enable-bt` flag is
+   * also removed from the arguments passed to `Py_Main`.
    */
   static int PyMain(int argc, char** argv);
 
@@ -130,6 +140,8 @@ public:
   static void SetCaptureStdin(bool);
   static bool GetCaptureStdin();
   //@}
+
+  static int GetPythonVerboseFlag() { return vtkPythonInterpreter::PythonVerboseFlag; }
 
 protected:
   vtkPythonInterpreter();
@@ -166,6 +178,22 @@ private:
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
   //@}
+
+  /**
+   * Since vtkPythonInterpreter is often used outside CPython executable, e.g.
+   * vtkpython, the default logic to locate Python standard libraries used by
+   * Python (which depends on the executable path) may fail or pickup incorrect
+   * Python libs. This methods address the issue by setting program name to help
+   * guide Python's default prefix/exec_prefix searching logic.
+   */
+  static void SetupPythonPrefix();
+
+  /**
+   * Add paths to VTK's Python modules.
+   */
+  static void SetupVTKPythonPaths();
+
+  static int PythonVerboseFlag;
 };
 
 #endif

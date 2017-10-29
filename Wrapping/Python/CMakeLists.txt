@@ -21,6 +21,9 @@ endif ()
 # This is where we actually wrap the modules that have requested it.
 include(vtkPythonWrapping)
 
+# for vtk_python_package()
+include(vtkModuleMacrosPython)
+
 get_property(VTK_PYTHON_MODULES GLOBAL PROPERTY VTK_PYTHON_WRAPPED)
 
 # Get the include directories for the module and all its dependencies.
@@ -168,6 +171,7 @@ if(VTK_ENABLE_VTKPYTHON)
 
 vtk_module_load(vtkWrappingPythonCore)
 vtk_module_load(vtkPython)
+vtk_module_load(vtkPythonInterpreter)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${VTK_SOURCE_DIR}/Utilities
   ${vtkPython_INCLUDE_DIRS}
@@ -188,9 +192,6 @@ vtk_write_python_modules_header_for_wrapped_modules(
   py_module_dependencies)
 
 # Create the VTK/Python  executable
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonAppInitConfigure.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonAppInitConfigure.h)
-
 add_executable(vtkpython vtkPythonAppInit.cxx ${extra_srcs})
 
 if (WIN32)
@@ -209,7 +210,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "AIX")
 endif()
 
 # Link against all the kit wrappers.
-list(APPEND VTKPYTHON_LINK_LIBS vtkWrappingPythonCore)
+list(APPEND VTKPYTHON_LINK_LIBS vtkWrappingPythonCore vtkPythonInterpreter)
 
 if(PYTHON_UTIL_LIBRARY)
   list(APPEND VTKPYTHON_LINK_LIBS ${PYTHON_UTIL_LIBRARY})
