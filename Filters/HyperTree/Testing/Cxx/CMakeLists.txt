@@ -29,6 +29,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridBinary2DVectorAxisReflectionYCenter.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
+  TestHyperTreeGridBinary3DContour.cxx
+  TestHyperTreeGridBinary3DGeometry.cxx
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DMaterial.cxx
   TestHyperTreeGridTernary2DMaterialBits.cxx
