@@ -907,7 +907,7 @@ static const unsigned int MooreChildCursorToChildTable23[81] = {
   4, 5, 3, 7, 8, 6, 1, 2, 0,
 };
 
-/*// d = 3 f = 2
+// d = 3 f = 2
 static const unsigned int MooreChildCursorToChildTable32[216] = {
   7, 6, 7, 5, 4, 5, 7, 6, 7, 3, 2, 3, 1, 0, 1, 3, 2, 3, 7, 6, 7, 5, 4, 5, 7, 6, 7,
   6, 7, 6, 4, 5, 4, 6, 7, 6, 2, 3, 2, 0, 1, 0, 2, 3, 2, 6, 7, 6, 4, 5, 4, 6, 7, 6,
@@ -918,7 +918,7 @@ static const unsigned int MooreChildCursorToChildTable32[216] = {
   1, 0, 1, 3, 2, 3, 1, 0, 1, 5, 4, 5, 7, 6, 7, 5, 4, 5, 1, 0, 1, 3, 2, 3, 1, 0, 1,
   0, 1, 0, 2, 3, 2, 0, 1, 0, 4, 5, 4, 6, 7, 6, 4, 5, 4, 0, 1, 0, 2, 3, 2, 0, 1, 0,
 };
-*/
+
 // d = 3 f = 3
 static const unsigned int MooreChildCursorToChildTable33[729] = {
   26, 24, 25, 20, 18, 19, 23, 21, 22, 8, 6, 7, 2, 0, 1, 5, 3, 4, 17, 15, 16, 11, 9, 10, 14, 12, 13,
@@ -954,7 +954,7 @@ static const unsigned int* MooreChildCursorToChildTable[3][2] = {
    MooreChildCursorToChildTable13},
   {MooreChildCursorToChildTable22,
    MooreChildCursorToChildTable23},
-  {MooreChildCursorToChildTable23,
+  {MooreChildCursorToChildTable32,
    MooreChildCursorToChildTable33}
 };
 //-----------------------------------------------------------------------------
@@ -979,6 +979,7 @@ static const unsigned int MooreChildCursorToParentCursorTable22[36] = {
   3, 4, 4, 3, 4, 4, 6, 7, 7,
   4, 4, 5, 4, 4, 5, 7, 7, 8,
 };
+
 // d = 2 f = 3
 static const unsigned int MooreChildCursorToParentCursorTable23[81] = {
   0, 1, 1, 3, 4, 4, 3, 4, 4,
@@ -991,7 +992,7 @@ static const unsigned int MooreChildCursorToParentCursorTable23[81] = {
   4, 4, 4, 4, 4, 4, 7, 7, 7,
   4, 4, 5, 4, 4, 5, 7, 7, 8,
 };
-/*
+
 // d = 3 f = 2
 static const unsigned int MooreChildCursorToParentCursorTable32[216] = {
   0, 1, 1, 3, 4, 4, 3, 4, 4, 9, 10, 10, 12, 13, 13, 12, 13, 13, 9, 10, 10, 12, 13, 13, 12, 13, 13,
@@ -1003,7 +1004,7 @@ static const unsigned int MooreChildCursorToParentCursorTable32[216] = {
   12, 13, 13, 12, 13, 13, 15, 16, 16, 12, 13, 13, 12, 13, 13, 15, 16, 16, 21, 22, 22, 21, 22, 22, 24, 25, 25,
   13, 13, 14, 13, 13, 14, 16, 16, 17, 13, 13, 14, 13, 13, 14, 16, 16, 17, 22, 22, 23, 22, 22, 23, 25, 25, 26,
 };
-*/
+
 // d = 3 f = 3
 static const unsigned int MooreChildCursorToParentCursorTable33[729] = {
   0, 1, 1, 3, 4, 4, 3, 4, 4, 9, 10, 10, 12, 13, 13, 12, 13, 13, 9, 10, 10, 12, 13, 13, 12, 13, 13,
@@ -1039,7 +1040,7 @@ static const unsigned int* MooreChildCursorToParentCursorTable[3][2] = {
    MooreChildCursorToParentCursorTable13},
   {MooreChildCursorToParentCursorTable22,
    MooreChildCursorToParentCursorTable23},
-  {MooreChildCursorToParentCursorTable23,
+  {MooreChildCursorToParentCursorTable32,
    MooreChildCursorToParentCursorTable33}
 };
 //-----------------------------------------------------------------------------
