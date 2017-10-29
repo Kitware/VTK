@@ -74,7 +74,7 @@ protected:
   /**
    * For this algorithm the output is a vtkPolyData instance
    */
-  int FillInputPortInformation( int, vtkInformation* ) override;
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
    * Main routine to generate cell centers
