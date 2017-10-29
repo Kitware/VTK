@@ -28,8 +28,6 @@
 
 #include <cmath>
 
-#define VTK_NEW(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
-
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -254,7 +252,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   double                color[4];
   int                  rgb[3];
   vtkTimerLog          *timer;
-  int                  totalCount;
+  vtkIdType            totalCount;
   double                weight;
 
   timer = vtkTimerLog::New();
@@ -276,7 +274,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   timer->StartTimer();
 
   vtkImageData* image_sample = inData;
-  VTK_NEW(vtkExtractVOI, sampler); // outside of scope to keep samples image alive
+  auto sampler = vtkSmartPointer<vtkExtractVOI>::New(); // outside of scope to keep samples image alive
   if (self->GetSamplingRate()[0] > 1 ||
     self->GetSamplingRate()[1] > 1 ||
     self->GetSamplingRate()[2] > 1)
