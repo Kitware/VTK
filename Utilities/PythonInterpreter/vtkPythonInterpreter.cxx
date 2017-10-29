@@ -123,13 +123,7 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 {
   if (Py_IsInitialized() == 0)
   {
-#if (VTK_PYTHON_MAJOR_VERSION > 2) ||                                                              \
-  (VTK_PYTHON_MAJOR_VERSION == 2 && VTK_PYTHON_MINOR_VERSION >= 4)
     Py_InitializeEx(initsigs);
-#else
-    (void)initsigs;
-    Py_Initialize();
-#endif
 
 #ifdef SIGINT
     // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.
