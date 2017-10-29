@@ -27,6 +27,7 @@
 
 class vtkAbstractArray;
 class vtkDataSet;
+class vtkVolume;
 
 namespace osp
 {
@@ -58,6 +59,11 @@ public:
 protected:
   vtkOSPRayVolumeMapperNode();
   ~vtkOSPRayVolumeMapperNode();
+
+  /**
+   * updates internal OSPRay transfer function for volume
+   */
+  void UpdateTransferFunction(vtkVolume* vol);
 
   //TODO: SetAndGetters?
   int NumColors;
