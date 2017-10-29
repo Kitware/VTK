@@ -5,6 +5,6 @@
 vtk_fetch_module(vtkDICOM
   "Dicom classes and utilities"
   GIT_REPOSITORY https://github.com/dgobbi/vtk-dicom
-  # vtk-dicom release 0.8.6
-  GIT_TAG 0a638a41a17c100a80e1a621dd1c9c161c62cd57
+  # vtk-dicom release 0.8.7
+  GIT_TAG a29ca407608ad3b21ec5bb6f40a3aed0105f6e70
   )
