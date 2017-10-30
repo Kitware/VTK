@@ -20,6 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkCell.h" // for cell types
 #include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
 #include "vtkPoints.h"

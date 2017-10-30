@@ -380,6 +380,9 @@ void CreateFaceStream(vtkCellIterator* cellIter, vtkIdTypeArray* faceStream, vtk
     vtkIdType* faces = poly->GetFaces();
     vtkIdType nFaces = faces[n++];
 
+    // create offset in vtkUnstructuredGrid fashion, this will later be converted using ConvertFaces
+    faceOffsets->InsertNextValue(offset);
+
     faceStream->InsertNextValue(nFaces);
     for(vtkIdType i = 0; i < nFaces; ++i)
     {
@@ -392,7 +395,6 @@ void CreateFaceStream(vtkCellIterator* cellIter, vtkIdTypeArray* faceStream, vtk
       }
     }
     offset += n;
-    faceOffsets->InsertNextValue(offset);
   }
 }
 
@@ -619,13 +621,18 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(
        cellIter->GoToNextCell())
   {
     vtkIdType ct = cellIter->GetCellType();
-    if (ct == VTK_POLYHEDRON) ++nPolyhedra;
+    if (ct == VTK_POLYHEDRON)
+    {
+      ++nPolyhedra;
+    }
     types->InsertNextValue(static_cast<unsigned char>(ct));
   }
 
   if (nPolyhedra > 0)
   {
-    CreateFaceStream(cellIter, this->Faces, this->FaceOffsets);
+    vtkNew<vtkIdTypeArray> faces, offsets;
+    CreateFaceStream(cellIter, faces.GetPointer(), offsets.GetPointer());
+    this->ConvertFaces(faces.GetPointer(), offsets.GetPointer());
   }
   else
   {
@@ -808,13 +815,17 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppended(
        cellIter->GoToNextCell())
   {
     vtkIdType ct = cellIter->GetCellType();
-    if (ct == VTK_POLYHEDRON) ++nPolyhedra;
+    if (ct == VTK_POLYHEDRON)
+    {
+      ++nPolyhedra;
+    }
     types->InsertNextValue(static_cast<unsigned char>(ct));
   }
   if (nPolyhedra > 0)
   {
-    CreateFaceStream(cellIter, this->Faces, this->FaceOffsets);
-    this->WriteCellsAppended(name, types.GetPointer(), this->Faces, this->FaceOffsets, indent, cellsManager);
+    vtkNew<vtkIdTypeArray> faces, offsets;
+    CreateFaceStream(cellIter, faces.GetPointer(), offsets.GetPointer());
+    this->WriteCellsAppended(name, types.GetPointer(), faces.GetPointer(), offsets.GetPointer(), indent, cellsManager);
   }
   else
   {
@@ -846,7 +857,10 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(
       cellIter->GoToNextCell())
   {
     vtkIdType ct = cellIter->GetCellType();
-    if (ct == VTK_POLYHEDRON) ++nPolyhedra;
+    if (ct == VTK_POLYHEDRON)
+    {
+      ++nPolyhedra;
+    }
     types->InsertNextValue(static_cast<unsigned char>(ct));
   }
 
@@ -854,7 +868,9 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(
   {
     // even though it looks like we do this for the second time
     // the test points out that it is needed here.
-    CreateFaceStream(cellIter, this->Faces, this->FaceOffsets);
+    vtkNew<vtkIdTypeArray> faces, offsets;
+    CreateFaceStream(cellIter, faces.GetPointer(), offsets.GetPointer());
+    this->ConvertFaces(faces.GetPointer(), offsets.GetPointer());
   }
   else
   {
