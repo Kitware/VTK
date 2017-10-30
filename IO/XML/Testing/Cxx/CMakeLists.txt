@@ -33,6 +33,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestXMLReaderBadUniformGridData,TestXMLReaderBadData.cxx,NO_VALID,NO_OUTPUT "DATA{${VTK_TEST_INPUT_DIR}/badUniformGridData.xml}"
 )
 
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestXMLMappedUnstructuredGridIO,TestXMLMappedUnstructuredGridIO.cxx MappedGridImpl.cxx,NO_VALID,NO_DATA
+)
+
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 add_executable(TestXMLCInterface MACOSX_BUNDLE TestXMLCInterface.c)
