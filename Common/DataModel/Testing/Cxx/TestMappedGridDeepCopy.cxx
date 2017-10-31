@@ -94,7 +94,7 @@ MappedCellIterator<I>::MappedCellIterator()
 template <class I> void MappedCellIterator<I>
 ::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << "Mapped Internal Block" << endl;
+  os << indent << "Mapped Internal Block" << endl;
 }
 
 template <class I>
@@ -156,7 +156,7 @@ public:
   static MappedGridImpl* New();
   vtkTypeMacro(MappedGridImpl, vtkObject);
 
-  void Initialize(vtkUnstructuredGrid* original) { original->Register(this); _grid = original; }
+  void Initialize(vtkUnstructuredGrid* ug) { ug->Register(this); _grid = ug; }
 
   void PrintSelf(std::ostream& os, vtkIndent id) override;
 
@@ -196,7 +196,7 @@ vtkStandardNewMacro(MappedGridImpl)
 void
 MappedGridImpl::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << "Mapped Grid Implementation" << endl;
+  os << indent << "Mapped Grid Implementation" << endl;
 }
 
 int
@@ -249,7 +249,7 @@ MappedGridImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 }
 
 void
-MappedGridImpl::Allocate(vtkIdType numCells, int extSize)
+MappedGridImpl::Allocate(vtkIdType numCells, int vtkNotUsed(extSize))
 {
   vtkWarningMacro(<<"Read only block\n");
   return;
@@ -257,29 +257,29 @@ MappedGridImpl::Allocate(vtkIdType numCells, int extSize)
 
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdList *ptIds)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-    vtkIdType nfaces, vtkIdType *faces)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds),
+    vtkIdType vtkNotUsed(nfaces), vtkIdType *vtkNotUsed(faces))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 void
-MappedGridImpl::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
+MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
 {
   vtkWarningMacro(<<"Read only block\n");
   return;
@@ -318,6 +318,7 @@ private:
 vtkStandardNewMacro(MappedGrid)
 
 } // end anonymous namespace
+
 
 using namespace std;
 
@@ -446,12 +447,20 @@ int TestMappedGridDeepCopy(int argc, char *argv[])
   vtkNew<MappedGrid> mg;
   mg->GetImplementation()->Initialize(original);
 
+  // copy the mapped grid into a normal unstructured grid.
+  // copying will proceed via the super class
+  // vtkUnstructuredGridBase::DeepCopy function
+  // implementation that uses a cell iterator. This will
+  // invoke to InsertNextCell function with face list
+  // for *all* cells (even if they are not VTK_POLYHEDRON).
+  // In the old implementation this gave copy errors. The fix
+  // proposed together with this test addresses that issue.
   vtkNew<vtkUnstructuredGrid> copy;
   copy->Allocate(mg->GetNumberOfCells());
   copy->DeepCopy(mg.GetPointer());
 
-  vtkCellIterator* cIt = copy->NewCellIterator();
   vtkCellIterator* oIt = original->NewCellIterator();
+  vtkCellIterator* cIt = copy->NewCellIterator();
 
   vtkNew<vtkGenericCell> orig, copied;
   for(cIt->InitTraversal(), oIt->InitTraversal();
@@ -469,8 +478,8 @@ int TestMappedGridDeepCopy(int argc, char *argv[])
 
     if (cIt->GetCellType() == VTK_POLYHEDRON)
     {
-      vtkIdList *cFaces = cIt->GetFaces();
       vtkIdList *oFaces = oIt->GetFaces();
+      vtkIdList *cFaces = cIt->GetFaces();
 
       if (cFaces->GetNumberOfIds() != oFaces->GetNumberOfIds())
       {
