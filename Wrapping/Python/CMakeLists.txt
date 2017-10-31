@@ -277,173 +277,43 @@ endif()
 # *** Step 1 has to be done carefully to avoid missing out files ***
 
 if(PYTHON_EXECUTABLE)
-  # Make the necessary directories.
-  file(MAKE_DIRECTORY
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/gtk
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/qt4
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/qt
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/tk
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/util
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/wx
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/test
-    ${CMAKE_CURRENT_BINARY_DIR}/vtk/numpy_interface)
 
-# Now create a list of Python files.
+# Configure files that need to be configured, including generation of the *.py
+# files for each of the enabled VTK modules.
 
 # Wrapping/Python/vtk/*.py
-  unset(VTK_PYTHON_FILES)
   unset(VTK_PYTHON_IMPORT_ALL)
   foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
     set(VTK_PYTHON_IMPORT_ALL
       "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
-    configure_file(vtk/module.py.in vtk/${module}.py @ONLY)
-    list(APPEND VTK_PYTHON_FILES
-      "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py")
+    configure_file(vtk/module.py.in
+      "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/${module}.py" @ONLY)
   endforeach()
-  configure_file(vtk/__init__.py.in vtk/__init__.py @ONLY)
-  list(APPEND VTK_PYTHON_FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py")
+  configure_file(vtk/__init__.py.in
+    "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/__init__.py" @ONLY)
 
 # Kit module adapters
   foreach(kit IN LISTS vtk_kits)
     set(_module_kit ${kit}${VTK_KIT_SUFFIX})
     foreach(dep IN LISTS _${kit}_modules)
-      configure_file(vtk/kit_module__init__.py.in vtk/${dep}.py @ONLY)
-      list(APPEND VTK_PYTHON_FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}.py")
+      configure_file(vtk/kit_module__init__.py.in
+        "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/${dep}.py" @ONLY)
     endforeach()
-  endforeach()
-  unset(_module_kit)
-
-# vtk.util package
-  list(APPEND VTK_PYTHON_FILES
-    vtk/util/__init__
-    vtk/util/_argparse
-    vtk/util/vtkMethodParser
-    vtk/util/misc
-    vtk/util/vtkConstants
-    vtk/util/vtkImageExportToArray
-    vtk/util/vtkImageImportFromArray
-    vtk/util/vtkVariant
-    vtk/util/colors
-    vtk/util/numpy_support
-    vtk/util/vtkAlgorithm
-    vtk/util/keys
-    )
-
-# vtk.test package
-  list(APPEND VTK_PYTHON_FILES
-    vtk/test/BlackBox
-    vtk/test/Testing
-    vtk/test/__init__
-    )
-
-# Tk related files
-  list(APPEND VTK_PYTHON_FILES
-    vtk/tk/__init__
-    vtk/tk/vtkLoadPythonTkWidgets
-    vtk/tk/vtkTkImageViewerWidget
-    vtk/tk/vtkTkRenderWidget
-    vtk/tk/vtkTkRenderWindowInteractor
-    vtk/tk/vtkTkPhotoImage
-    )
-
-# PyQt related files
-  list(APPEND VTK_PYTHON_FILES
-    vtk/qt/__init__
-    vtk/qt/QVTKRenderWindowInteractor
-    vtk/qt4/__init__
-    vtk/qt4/QVTKRenderWindowInteractor
-    )
-
-# wxPython related files
-  list(APPEND VTK_PYTHON_FILES
-    vtk/wx/__init__
-    vtk/wx/wxVTKRenderWindow
-    vtk/wx/wxVTKRenderWindowInteractor
-    )
-
-# pyGTK related files
-  list(APPEND VTK_PYTHON_FILES
-    vtk/gtk/GtkVTKRenderWindow
-    vtk/gtk/__init__
-    vtk/gtk/GtkVTKRenderWindowInteractor
-    vtk/gtk/GtkGLExtVTKRenderWindow
-    vtk/gtk/GtkGLExtVTKRenderWindowInteractor
-    )
-
-# vtk.numpy_interface related files
-  list(APPEND VTK_PYTHON_FILES
-    vtk/numpy_interface/__init__
-    vtk/numpy_interface/algorithms
-    vtk/numpy_interface/dataset_adapter
-    vtk/numpy_interface/internal_algorithms
-    )
-# Done listing of files.
-
-# Now copy these files if necessary.
-  unset(VTK_PYTHON_SOURCE_FILES)
-  unset(VTK_PYTHON_OUTPUT_FILES)
-  foreach(file ${VTK_PYTHON_FILES})
-    if (NOT IS_ABSOLUTE "${file}")
-      set(src "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
-      list(APPEND VTK_PYTHON_SOURCE_FILES "${src}")
-    endif ()
+    unset(_module_kit)
   endforeach()
 
-  if(NOT "${VTK_BINARY_DIR}" STREQUAL "${VTK_SOURCE_DIR}")
-    foreach(file ${VTK_PYTHON_FILES})
-      if (NOT IS_ABSOLUTE "${file}")
-        set(src "${CMAKE_CURRENT_SOURCE_DIR}/${file}.py")
-        set(tgt "${CMAKE_CURRENT_BINARY_DIR}/${file}.py")
-        add_custom_command(DEPENDS ${src}
-          COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt}
-          OUTPUT ${tgt}
-          COMMENT "source copy")
-      endif ()
-    endforeach()
-  endif()
+  # Build all py files that form the `vtk` package.
+  vtk_python_package(vtkpython_pyc vtk)
 
-  # Byte compile the Python files.
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
-    ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
-    @ONLY)
-  add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
-    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/vtk_compile_complete"
-    )
-
-  # Create a target on which custom commands can depend.  When this
-  # is up-to-date, it is safe to run VTK python code.  Therefore
-  # this should also depend on the vtkpython executable.
-  add_custom_target(vtkpython_pyc ALL
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtk_compile_complete")
   if(TARGET vtkpython)
-    add_dependencies(vtkpython_pyc
-      vtkpython
-      )
+    add_dependencies(vtkpython vtkpython_pyc)
+  endif()
+  if(TARGET pvtkpython)
+    add_dependencies(pvtkpython vtkpython_pyc)
   endif()
 
   # If no runtime is to be installed then do not install python modules.
   if(NOT VTK_INSTALL_NO_RUNTIME)
-
-    # Install python modules
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/vtk"
-      DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR} COMPONENT RuntimeLibraries
-      USE_SOURCE_PERMISSIONS)
-
-    # Install python extension library that backs the modules
-    if (BUILD_SHARED_LIBS AND NOT VTK_INSTALL_NO_LIBRARIES)
-      foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
-        install(TARGETS ${module}Python
-          RUNTIME DESTINATION ${VTK_INSTALL_RUNTIME_DIR} COMPONENT RuntimeLibraries
-          LIBRARY DESTINATION ${VTK_INSTALL_PYTHON_MODULE_DIR}/vtk COMPONENT RuntimeLibraries
-          ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
-          )
-      endforeach()
-    endif()
-
     # Install the conveniently configured python interpretters
     if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
       # Install the vtkpython executable
@@ -456,7 +326,5 @@ if(PYTHON_EXECUTABLE)
           DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
       endif()
     endif()
-
   endif()
-
 endif()

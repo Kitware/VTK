@@ -38,7 +38,17 @@ function (vtk_module_python_package name)
 
   vtk_module_impl()
   vtk_module_export("")
+  vtk_python_package(${name} ${ARGN})
+endfunction()
 
+
+#------------------------------------------------------------------------------
+# This is same as vtk_module_python_package except it can be used for a Python
+# package that's not a VTK module. This is indeed called by
+# `vtk_module_python_package` once the VTK module specific init/export calls are
+# invoked.
+#------------------------------------------------------------------------------
+function(vtk_python_package name)
   set(_packages)
   set(_no_install)
   set(_can_use_system)

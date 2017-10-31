@@ -28,17 +28,31 @@ vtk_module_impl()
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
 if (NOT VTK_BUILD_PYTHON_MODULE_DIR)
-  set(VTK_BUILD_PYTHON_MODULE_DIR
-      "${VTK_BINARY_DIR}/Wrapping/Python"
+  if(WIN32)
+    set(VTK_BUILD_PYTHON_MODULE_DIR
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Lib/site-packages"
       CACHE
       PATH "Directory where python modules will be built" FORCE)
+  else()
+    set(VTK_BUILD_PYTHON_MODULE_DIR
+      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
+      CACHE
+      PATH "Directory where python modules will be built" FORCE)
+  endif()
 endif()
 
 if (NOT VTK_INSTALL_PYTHON_MODULE_DIR)
-  set(VTK_INSTALL_PYTHON_MODULE_DIR
+  if(WIN32)
+    set(VTK_INSTALL_PYTHON_MODULE_DIR
+      "${VTK_INSTALL_RUNTIME_DIR}/Lib/site-packages"
+      CACHE
+      PATH "Directory where python modules will be installed" FORCE)
+  else()
+    set(VTK_INSTALL_PYTHON_MODULE_DIR
       "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
       CACHE
       PATH "Directory where python modules will be installed" FORCE)
+  endif()
 endif()
 
 # Export location of python module dirs in install and build tree for for
