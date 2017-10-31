@@ -99,6 +99,7 @@ void vtkOpenVRMenuRepresentation::RenameMenuItem(
     if (itr->Name == name)
     {
       itr->TextActor->SetInput(text);
+      this->Modified();
     }
   }
 }
@@ -112,6 +113,7 @@ void vtkOpenVRMenuRepresentation::RemoveMenuItem(
     {
       delete *itr;
       this->Menus.erase(itr);
+      this->Modified();
       return;
     }
   }

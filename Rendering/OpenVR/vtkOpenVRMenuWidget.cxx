@@ -128,7 +128,7 @@ void vtkOpenVRMenuWidget::RemoveMenuItem(
     {
       delete *itr;
       this->Menus.erase(itr);
-      return;
+      break;
     }
   }
   static_cast<vtkOpenVRMenuRepresentation *>(this->WidgetRep)->
