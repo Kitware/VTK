@@ -94,7 +94,7 @@ MappedCellIterator<I>::MappedCellIterator()
 template <class I> void MappedCellIterator<I>
 ::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << "Mapped Internal Block" << endl;
+  os << indent << "Mapped Internal Block" << endl;
 }
 
 template <class I>
@@ -196,7 +196,7 @@ vtkStandardNewMacro(MappedGridImpl)
 void
 MappedGridImpl::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << "Mapped Grid Implementation" << endl;
+  os << indent << "Mapped Grid Implementation" << endl;
 }
 
 int
@@ -249,7 +249,7 @@ MappedGridImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 }
 
 void
-MappedGridImpl::Allocate(vtkIdType numCells, int extSize)
+MappedGridImpl::Allocate(vtkIdType numCells, int vtkNotUsed(extSize))
 {
   vtkWarningMacro(<<"Read only block\n");
   return;
@@ -257,29 +257,29 @@ MappedGridImpl::Allocate(vtkIdType numCells, int extSize)
 
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdList *ptIds)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdList* vtkNotUsed(ptIds))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 vtkIdType
-MappedGridImpl::InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-    vtkIdType nfaces, vtkIdType *faces)
+MappedGridImpl::InsertNextCell(int vtkNotUsed(type), vtkIdType vtkNotUsed(npts), vtkIdType *vtkNotUsed(ptIds),
+    vtkIdType vtkNotUsed(nfaces), vtkIdType *vtkNotUsed(faces))
 {
   vtkWarningMacro(<<"Read only block\n");
   return -1;
 }
 
 void
-MappedGridImpl::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
+MappedGridImpl::ReplaceCell(vtkIdType vtkNotUsed(cellId), int vtkNotUsed(npts), vtkIdType *vtkNotUsed(pts))
 {
   vtkWarningMacro(<<"Read only block\n");
   return;
