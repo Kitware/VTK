@@ -23,8 +23,8 @@
  * triangles,", Masters Thesis, University of Utah, August 1987.
  * For a nice summary of the technique see, Hoppe, H., et. al,
  * "Piecewise Smooth Surface Reconstruction,:, Proceedings of Siggraph 94
- * (Orlando, Florida, July 24-29, 1994). In COmputer Graphics
- * Proceedings, Annual COnference Series, 1994, ACM SIGGRAPH,
+ * (Orlando, Florida, July 24-29, 1994). In Computer Graphics
+ * Proceedings, Annual Conference Series, 1994, ACM SIGGRAPH,
  * pp. 295-302.
  * <P>
  * The filter only operates on triangles. Users should use the

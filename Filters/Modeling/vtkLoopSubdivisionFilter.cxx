@@ -30,10 +30,11 @@
 
 vtkStandardNewMacro(vtkLoopSubdivisionFilter);
 
-static double LoopWeights[4] =
+static const double LoopWeights[4] =
   {.375, .375, .125, .125};
 
-int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
+//----------------------------------------------------------------------------
+int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD)
 {
   double *weights;
   vtkIdType *pts = nullptr;
@@ -126,6 +127,7 @@ int vtkLoopSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,vt
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
                                                     vtkPolyData *polys,
                                                     vtkIdList *stencilIds,
@@ -240,13 +242,12 @@ int vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
   else
   {
     K = stencilIds->GetNumberOfIds();
-   // Remove last id. It's a duplicate of the first
+    // Remove last id. It's a duplicate of the first
     K--;
     if (K > 3)
     {
       // Generate weights
-#define VTK_PI vtkMath::Pi()
-      cosSQ = .375 + .25 * cos (2.0 * VTK_PI / (double) K);
+      cosSQ = .375 + .25 * cos (2.0 * vtkMath::Pi() / (double) K);
       cosSQ = cosSQ * cosSQ;
       beta = (.625 -  cosSQ) / (double) K;
     }
@@ -264,6 +265,7 @@ int vtkLoopSubdivisionFilter::GenerateEvenStencil (vtkIdType p1,
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
                                                    vtkPolyData *polys,
                                                    vtkIdList *stencilIds,
@@ -308,6 +310,7 @@ void vtkLoopSubdivisionFilter::GenerateOddStencil (vtkIdType p1, vtkIdType p2,
   }
 }
 
+//----------------------------------------------------------------------------
 int vtkLoopSubdivisionFilter::RequestUpdateExtent(
   vtkInformation *request,
   vtkInformationVector **inputVector,
