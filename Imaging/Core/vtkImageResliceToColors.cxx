@@ -79,11 +79,10 @@ void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
 vtkMTimeType vtkImageResliceToColors::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
-  vtkMTimeType time;
 
   if (this->LookupTable && !this->Bypass)
   {
-    time = this->LookupTable->GetMTime();
+    vtkMTimeType time = this->LookupTable->GetMTime();
     mTime = ( time > mTime ? time : mTime );
   }
 

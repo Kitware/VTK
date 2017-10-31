@@ -204,10 +204,10 @@ public:
    * saturated colors.
    */
   vtkSetClampMacro(ColorSpace, int, VTK_CTF_RGB, VTK_CTF_LAB_CIEDE2000);
-  void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
-  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
-  void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);};
-  void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); };
+  void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);}
+  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);}
+  void SetColorSpaceToLab(){this->SetColorSpace(VTK_CTF_LAB);}
+  void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); }
   void SetColorSpaceToDiverging(){this->SetColorSpace(VTK_CTF_DIVERGING);}
   vtkGetMacro( ColorSpace, int );
   vtkSetMacro(HSVWrap, int);
@@ -222,8 +222,8 @@ public:
    * zero, the color mapping will be linear.
    */
   vtkSetMacro(Scale,int);
-  void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); };
-  void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); };
+  void SetScaleToLinear() { this->SetScale(VTK_CTF_LINEAR); }
+  void SetScaleToLog10() { this->SetScale(VTK_CTF_LOG10); }
   vtkGetMacro(Scale,int);
   //@}
 
@@ -413,7 +413,7 @@ protected:
    * in this subclass of vtkScalarsToColors.
    */
   void SetRange(double, double) override {}
-  void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
+  void SetRange(const double rng[2]) override {this->SetRange(rng[0],rng[1]);}
 
   /**
    * Internal method to sort the vector and update the

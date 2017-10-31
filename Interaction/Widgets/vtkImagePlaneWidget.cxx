@@ -1212,7 +1212,9 @@ void vtkImagePlaneWidget::InvertTable()
 
   // force the lookuptable to update its InsertTime to avoid
   // rebuilding the array
-  this->LookupTable->SetTableValue( 0, this->LookupTable->GetTableValue( 0 ) );
+  double temp[4];
+  this->LookupTable->GetTableValue( 0, temp );
+  this->LookupTable->SetTableValue( 0, temp );
 }
 
 //----------------------------------------------------------------------------

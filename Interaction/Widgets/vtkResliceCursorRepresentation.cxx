@@ -741,7 +741,9 @@ void vtkResliceCursorRepresentation::InvertTable()
 
     // force the lookuptable to update its InsertTime to avoid
     // rebuilding the array
-    lut->SetTableValue( 0, lut->GetTableValue( 0 ) );
+    double temp[4];
+    lut->GetTableValue( 0, temp );
+    lut->SetTableValue( 0, temp );
   }
 }
 

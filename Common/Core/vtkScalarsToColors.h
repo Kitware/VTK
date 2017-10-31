@@ -66,7 +66,7 @@ public:
 
   /**
    * Return true if all of the values defining the mapping have an opacity
-   * equal to 1. Default implementation return true.
+   * equal to 1. Default implementation returns true.
    */
   virtual int IsOpaque();
 
@@ -82,13 +82,13 @@ public:
    */
   virtual double *GetRange();
   virtual void SetRange(double min, double max);
-  void SetRange(double rng[2])
+  virtual void SetRange(const double rng[2])
     {this->SetRange(rng[0],rng[1]);}
   //@}
 
   /**
    * Map one value through the lookup table and return a color defined
-   * as a RGBA unsigned char tuple (4 bytes).
+   * as an RGBA unsigned char tuple (4 bytes).
    */
   virtual unsigned char *MapValue(double v);
 
@@ -322,7 +322,7 @@ public:
    * value. Does no pointer checks. Returns -1 when \p val not
    * present.
    */
-  vtkIdType GetAnnotatedValueIndexInternal(vtkVariant& val);
+  vtkIdType GetAnnotatedValueIndexInternal(const vtkVariant& val);
 
   /**
    * Get the "indexed color" assigned to an index.
@@ -369,13 +369,13 @@ public:
   //@{
   /**
    * Converts a color from numeric type T to uchar. We assume the integral type
-   * is already in the range 0-255. If it is not, it is going to be truncated.
+   * is already in the range 0-255. If it is not, behavior is undefined.
    * Floating point types are assumed to be in interval 0.0-1.0
    */
   template<typename T> static
     unsigned char ColorToUChar(T t)
   {
-    return t;
+    return static_cast<unsigned char>(t);
   }
   template<typename T> static
     void ColorToUChar(T t, unsigned char* dest)

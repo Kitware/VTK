@@ -235,11 +235,10 @@ void vtkPlotSurface::InsertSurfaceVertex(float *data, float value, int i,
     data[pos] = value;
     ++pos;
 
-    unsigned char *rgb = this->LookupTable->MapValue(data[pos-1]);
-    const unsigned char constRGB[3] = { rgb[0], rgb[1], rgb[2] };
-    this->Colors->InsertNextTypedTuple(&constRGB[0]);
-    this->Colors->InsertNextTypedTuple(&constRGB[1]);
-    this->Colors->InsertNextTypedTuple(&constRGB[2]);
+    const unsigned char *rgb = this->LookupTable->MapValue(data[pos-1]);
+    this->Colors->InsertNextTypedTuple(&rgb[0]);
+    this->Colors->InsertNextTypedTuple(&rgb[1]);
+    this->Colors->InsertNextTypedTuple(&rgb[2]);
 }
 
 //-----------------------------------------------------------------------------

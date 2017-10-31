@@ -212,7 +212,7 @@ public:
             (double)color[0] / 255.0,
             (double)color[1] / 255.0,
             (double)color[2] / 255.0,
-            1);
+            1.0);
       }
       this->InvertibleLookupTable = table;
     }
