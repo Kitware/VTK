@@ -1075,6 +1075,10 @@ vtkIdType vtkUnstructuredGrid::
 InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
                vtkIdType nfaces, vtkIdType *faces)
 {
+  if (type != VTK_POLYHEDRON)
+  {
+    return this->InsertNextCell(type, npts, pts);
+  }
   // Insert connectivity (points that make up polyhedron)
   this->Connectivity->InsertNextCell(npts,pts);
 
@@ -1102,7 +1106,7 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
   this->FaceLocations->InsertNextValue(
     this->Faces->GetMaxId() + 1);
   this->Faces->InsertNextValue(nfaces);
-  vtkIdType i, *face=faces;
+  vtkIdType i, *face=faces + 1;
   for (int faceNum=0; faceNum < nfaces; ++faceNum)
   {
     npts = face[0];

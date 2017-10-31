@@ -21,6 +21,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageIterator.cxx
   TestInterpolationDerivs.cxx
   TestInterpolationFunctions.cxx
+  TestMappedGridDeepCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPixelExtent.cxx
