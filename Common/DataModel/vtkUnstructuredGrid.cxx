@@ -1106,7 +1106,7 @@ InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
   this->FaceLocations->InsertNextValue(
     this->Faces->GetMaxId() + 1);
   this->Faces->InsertNextValue(nfaces);
-  vtkIdType i, *face=faces + 1;
+  vtkIdType i, *face=faces;
   for (int faceNum=0; faceNum < nfaces; ++faceNum)
   {
     npts = face[0];
@@ -1752,7 +1752,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
                            cellIter->GetNumberOfPoints(),
                            cellIter->GetPointIds()->GetPointer(0),
                            cellIter->GetNumberOfFaces(),
-                           cellIter->GetFaces()->GetPointer(0));
+                           cellIter->GetFaces()->GetPointer(1));
     }
   }
 
