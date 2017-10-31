@@ -366,6 +366,7 @@ int TestMappedGridDeepCopy(int argc, char *argv[])
   ids->InsertNextId(7);
   ids->InsertNextId(8);
 
+  // this list of faces does NOT include nfaces as the first entry
   vtkNew<vtkIdList> faces;
   // top face of four points
   faces->InsertNextId(4);
@@ -398,6 +399,25 @@ int TestMappedGridDeepCopy(int argc, char *argv[])
 
   // insert the polyhedron cell
   original->InsertNextCell(VTK_POLYHEDRON, 5, ids.GetPointer()->GetPointer(0), 5, faces.GetPointer()->GetPointer(0));
+
+  vtkNew<vtkGenericCell> aCell;
+  original->GetCell(1, aCell.GetPointer());
+
+  // this is the full faces list, *including* the leading nfaces
+  vtkIdType* cellFaces = aCell->GetFaces();
+  if (cellFaces[0] != 5)
+  {
+    cerr << " expected 5 faces, got " << cellFaces[0] << endl;
+    return EXIT_FAILURE;
+  }
+  for(int i = 0; i < faces->GetNumberOfIds(); ++i)
+  {
+    if (faces->GetId(i) != cellFaces[i+1])
+    {
+      cerr << "faces array not identical at position " << i << endl;
+      return EXIT_FAILURE;
+    }
+  }
 
   // put another pyramid on the bottom towards the 10th point
   faces->Reset();
