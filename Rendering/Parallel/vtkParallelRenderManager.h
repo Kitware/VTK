@@ -636,6 +636,9 @@ protected:
     double DesiredUpdateRate;
     double TileViewport[4];
 
+    // Initialize members
+    RenderWindowInfo() {}
+
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
     bool Restore(vtkMultiProcessStream& stream);
@@ -658,6 +661,9 @@ protected:
 
     double ParallelScale;
 
+    // Initialize members
+    RendererInfo() {}
+
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
     bool Restore(vtkMultiProcessStream& stream);
@@ -668,6 +674,10 @@ protected:
     double Position[3];
     double FocalPoint[3];
     double Type;
+
+    // Initialize members
+    LightInfo() {}
+
     // Save/restore the struct to/from a stream.
     void Save(vtkMultiProcessStream& stream);
     bool Restore(vtkMultiProcessStream& stream);
