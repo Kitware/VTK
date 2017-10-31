@@ -31,11 +31,11 @@
  * VertexCells to generate cells.
  *
  * @sa
- * vtkCellCenters vtkHyperTreeGrid vtkGlyph3D
+ * vtkCellCenters vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
  * This class was written by Guenole Harel and Jacques-Bernard Lekien 2014
- * This class was modified by Philippe Pebay, 2016
+ * This class was rewritten by Philippe Pebay, NexGen Analytics 2017
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
@@ -43,48 +43,58 @@
 #define vtkHyperTreeGridCellCenters_h
 
 #include "vtkFiltersHyperTreeModule.h" // For export macro
-#include "vtkCellCenters.h"
+#include "vtkHyperTreeGridAlgorithm.h"
 
 class vtkBitArray;
-class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridCursor;
-class vtkPolyData;
+class vtkPoints;
 
-class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkCellCenters
+class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridCellCenters : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkHyperTreeGridCellCenters* New();
-  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkCellCenters );
+  vtkTypeMacro( vtkHyperTreeGridCellCenters, vtkHyperTreeGridAlgorithm );
   void PrintSelf( ostream&, vtkIndent ) override;
+
+  //@{
+  /**
+   * Enable/disable the generation of vertex cells. The default
+   * is Off.
+   */
+  vtkSetMacro(VertexCells,int);
+  vtkGetMacro(VertexCells,int);
+  vtkBooleanMacro(VertexCells,int);
+  //@}
 
 protected:
   vtkHyperTreeGridCellCenters();
   ~vtkHyperTreeGridCellCenters() override;
 
-  int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* ) override;
-  int FillInputPortInformation( int, vtkInformation* ) override;
+  /**
+   * For this algorithm the output is a vtkPolyData instance
+   */
+  int FillOutputPortInformation( int, vtkInformation* ) override;
 
   /**
-   * Main routine to process individual trees in the grid
+   * Main routine to generate cell centers
    */
-  virtual void ProcessTrees();
+  int ProcessTrees( vtkHyperTreeGrid*, vtkDataObject* ) override;
 
   /**
    * Recursively descend into tree down to leaves
    */
   void RecursivelyProcessTree( vtkHyperTreeGridCursor*, vtkBitArray* );
 
-  vtkHyperTreeGrid* Input;
-  vtkPolyData* Output;
-
-  vtkDataSetAttributes* InData;
-  vtkDataSetAttributes* OutData;
-
+  /**
+   * Storage for points of output unstructured mesh
+   */
   vtkPoints* Points;
 
-  vtkPointData* InPointData;
-  vtkPointData* OutPointData;
+  /**
+   * Keep track as to whether vertex cells shall be generated.
+   */
+  int VertexCells;
 
 private:
   vtkHyperTreeGridCellCenters(const vtkHyperTreeGridCellCenters&) = delete;
