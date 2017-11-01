@@ -1,6 +1,6 @@
-from vtkWebCorePython import vtkWebApplication
 import vtk
 from vtk.test import Testing
+from vtk.vtkWebCore import vtkWebApplication
 
 class TestObjectId(Testing.vtkTest):
     def testObjId(self):
