@@ -40,6 +40,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPathTracerMaterialLibrary.cxx,NO_VALID
   TestPathTracerMaterials.cxx
   TestPathTracerShadows.cxx
+  TestOSPRayTetrahedraMapper.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx

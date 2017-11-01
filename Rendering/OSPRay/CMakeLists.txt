@@ -13,6 +13,7 @@ set(Module_SRCS
   vtkOSPRayPolyDataMapperNode.cxx
   vtkOSPRayVolumeMapper.cxx
   vtkOSPRayVolumeMapperNode.cxx
+  vtkOSPRayTetrahedraMapperNode.cxx
   vtkOSPRayRendererNode.cxx
   vtkOSPRayViewNodeFactory.cxx
   vtkOSPRayWindowNode.cxx

@@ -71,9 +71,6 @@ protected:
   std::vector<float> TFVals;
   std::vector<float> TFOVals;
 
-  vtkAbstractArray *GetArrayToProcess
-    (vtkDataSet* input, int& association);
-
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) = delete;
   void operator=(const vtkOSPRayVolumeMapperNode&) = delete;

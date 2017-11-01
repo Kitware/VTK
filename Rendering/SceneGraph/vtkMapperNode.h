@@ -27,6 +27,8 @@
 
 #include <vector> //for results
 
+class vtkAbstractArray;
+class vtkDataSet;
 class vtkMapper;
 class vtkPolyData;
 
@@ -42,7 +44,10 @@ protected:
   vtkMapperNode();
   ~vtkMapperNode();
 
- private:
+  vtkAbstractArray *GetArrayToProcess
+    (vtkDataSet* input, int& association);
+
+private:
   vtkMapperNode(const vtkMapperNode&) = delete;
   void operator=(const vtkMapperNode&) = delete;
 };

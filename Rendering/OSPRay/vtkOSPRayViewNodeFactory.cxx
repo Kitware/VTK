@@ -23,6 +23,7 @@
 #include "vtkOSPRayPolyDataMapperNode.h"
 #include "vtkOSPRayVolumeMapperNode.h"
 #include "vtkOSPRayVolumeNode.h"
+#include "vtkOSPRayTetrahedraMapperNode.h"
 
 vtkViewNode *ren_maker()
 {
@@ -71,6 +72,13 @@ vtkViewNode *cpd_maker()
   return vn;
 }
 
+vtkViewNode *tetm_maker()
+{
+  vtkOSPRayTetrahedraMapperNode *vn = vtkOSPRayTetrahedraMapperNode::New();
+  return vn;
+}
+
+
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayViewNodeFactory);
 
@@ -92,6 +100,8 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
+  this->RegisterOverride("vtkProjectedTetrahedraMapper", tetm_maker);
+  this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
 }
 
 //----------------------------------------------------------------------------
