@@ -22,6 +22,10 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimerLog.h"
 
+#include "vtkExtractVOI.h"
+#include "vtkImageLuminance.h"
+#include "vtkSmartPointer.h"
+
 #include <cmath>
 
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
@@ -59,17 +63,17 @@ public:
 
   void SetImage( void *image ) { this->Image = image; };
 
-  int  GetAxis(       ) { return this->Axis; };
   void SetAxis( int v ) { this->Axis = v; };
+  int  GetAxis() { return this->Axis; }
 
-  int  GetSplitPoint(       ) { return this->SplitPoint; };
   void SetSplitPoint( int v ) { this->SplitPoint = v; };
+  int  GetSplitPoint() { return this->SplitPoint; }
 
   int *GetBounds(          ) { return this->Bounds; };
   void SetBounds( int v[6] ) { memcpy( this->Bounds, v, 6*sizeof(int) ); };
 
-  int  GetIndex(       ) { return this->Index; };
   void SetIndex( int v ) { this->Index = v; };
+  int  GetIndex() { return this->Index; }
 
   double GetStdDev( int axis ) { return this->StdDev[axis]; };
   void  ComputeStdDev();
@@ -77,14 +81,20 @@ public:
   int GetCount() { return this->Count; };
 
   double GetMean( int axis ) { return this->Mean[axis]; };
+  void GetMean(double c[3])
+  {
+    c[0] = this->Mean[0];
+    c[1] = this->Mean[1];
+    c[2] = this->Mean[2];
+  }
 
   void Divide( int axis, int nextIndex );
 
-  vtkColorQuantizeNode *GetChild1() { return this->Child1; };
   void SetChild1( vtkColorQuantizeNode *n ) { this->Child1 = n; };
+  vtkColorQuantizeNode *GetChild1() { return this->Child1; }
 
-  vtkColorQuantizeNode *GetChild2() { return this->Child2; };
   void SetChild2( vtkColorQuantizeNode *n ) { this->Child2 = n; };
+  vtkColorQuantizeNode *GetChild2() { return this->Child2; }
 
   int GetIndex( int c[3] )
     {  if ( this->Index>=0 ) {return this->Index;}
@@ -222,9 +232,8 @@ void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
 // This templated function executes the filter for supported types of data.
 template <class T>
 void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
-                                       vtkImageData *inData, T *inPtr,
-                                       vtkImageData *outData,
-                                       unsigned short *outPtr)
+  vtkImageData *inData,
+  vtkImageData *outData)
 {
   int                  extent[6];
   vtkIdType            inIncrement[3], outIncrement[3];
@@ -243,7 +252,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   double                color[4];
   int                  rgb[3];
   vtkTimerLog          *timer;
-  int                  totalCount;
+  vtkIdType            totalCount;
   double                weight;
 
   timer = vtkTimerLog::New();
@@ -264,26 +273,51 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   self->SetInitializeExecuteTime( timer->GetElapsedTime() );
   timer->StartTimer();
 
+  vtkImageData* image_sample = inData;
+  auto sampler = vtkSmartPointer<vtkExtractVOI>::New(); // outside of scope to keep samples image alive
+  if (self->GetSamplingRate()[0] > 1 ||
+    self->GetSamplingRate()[1] > 1 ||
+    self->GetSamplingRate()[2] > 1)
+  {
+    // The idea behind this sampling is to build the octree
+    // with mean colors using a subset of the image data, potentially
+    // allowing a significant speedup.
+    sampler->SetInputData(inData);
+    sampler->SetVOI(inData->GetExtent());
+    sampler->SetSampleRate(self->GetSamplingRate());
+    sampler->Update();
+    image_sample = sampler->GetOutput();
+  }
+
+  auto inPtrSampled = static_cast<T*>(image_sample->GetScalarPointer());
+  auto inPtr = static_cast<T*>(inData->GetScalarPointer());
+  auto outPtr = static_cast<unsigned short*>(outData->GetScalarPointer());
+
+  int       extentSampled[6];
+  vtkIdType incSampled[3];
+  image_sample->GetExtent(extentSampled);
+  image_sample->GetContinuousIncrements(extentSampled, incSampled[0], incSampled[1], incSampled[2]);
+
   // Build the tree
   // Create the root node - it is our only leaf node
   root = new vtkColorQuantizeNode;
   root->SetIndex( 0 );
-  root->SetImageExtent( extent );
-  root->SetImageIncrement( inIncrement );
+  root->SetImageExtent(extentSampled);
+  root->SetImageIncrement(incSampled);
   root->SetImageType( type );
-  root->SetImage( inPtr );
+  root->SetImage(inPtrSampled);
   root->ComputeStdDev();
   leafNodes[0] = root;
   numLeafNodes = 1;
 
   cannotDivideFurther = 0;
 
-  totalCount =
-    (extent[1] - extent[0] + 1) *
-    (extent[3] - extent[2] + 1) *
-    (extent[5] - extent[4] + 1);
+  totalCount = extentSampled[1] - extentSampled[0] + 1;
+  totalCount *= extentSampled[3] - extentSampled[2] + 1;
+  totalCount *= extentSampled[5] - extentSampled[4] + 1;
 
   // Loop until we've added enough leaf nodes or we can't add any more
+  // Here we are using sampled image (VOI).
   while ( numLeafNodes < self->GetNumberOfColors() && !cannotDivideFurther )
   {
     // Find leaf node / axis with maximum deviation
@@ -324,6 +358,36 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
   timer->StartTimer();
 
   root->StartColorAveraging();
+
+  // Sort color indices by luminance
+  // The "index-image" viewed as a greyscale image, is usually quite
+  // arbitrary, accentuating contrast where none can be perceived in
+  // the original color image.
+  // To make the index image more meaningful, we sort the mean colors
+  // by luminance (mapping the indices accordingly).
+  if (self->GetSortIndexByLuminance())
+  {
+    std::vector< std::pair<double, int> > luminance_index_map;
+    double RGB[3];
+    for (leaf = 0; leaf < numLeafNodes; leaf++)
+    {
+      leafNodes[leaf]->GetMean(RGB);
+      double luminance = 0.30*RGB[0] + 0.59*RGB[1] + 0.11*RGB[2];
+      int index = leafNodes[leaf]->GetIndex();
+      luminance_index_map.emplace_back(luminance, index);
+    }
+    std::sort(luminance_index_map.begin(), luminance_index_map.end());
+    std::vector<int> index_map(luminance_index_map.size());
+    for (size_t i=0; i<luminance_index_map.size(); ++i)
+    {
+      index_map.at(luminance_index_map[i].second) = static_cast<int>(i);
+    }
+    for (leaf = 0; leaf < numLeafNodes; leaf++)
+    {
+      int index = leafNodes[leaf]->GetIndex();
+      leafNodes[leaf]->SetIndex(index_map.at(index));
+    }
+  }
 
   // Fill in the indices in the output image
   indexPtr = outPtr;
@@ -563,6 +627,10 @@ vtkImageQuantizeRGBToIndex::vtkImageQuantizeRGBToIndex()
   this->InitializeExecuteTime = 0.0;
   this->BuildTreeExecuteTime = 0.0;
   this->LookupIndexExecuteTime = 0.0;
+  this->SamplingRate[0] = 1;
+  this->SamplingRate[1] = 1;
+  this->SamplingRate[2] = 1;
+  this->SortIndexByLuminance = false;
 }
 
 // Destructor deletes used resources
@@ -583,9 +651,6 @@ int vtkImageQuantizeRGBToIndex::RequestData(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
-  void *inPtr;
-  void *outPtr;
-
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
@@ -600,16 +665,12 @@ int vtkImageQuantizeRGBToIndex::RequestData(
 
   int inExt[6];
   inData->GetExtent(inExt);
-  // if the input extent is empty then exit
   if (inExt[1] < inExt[0] ||
       inExt[3] < inExt[2] ||
       inExt[5] < inExt[4])
   {
     return 1;
   }
-
-  inPtr = inData->GetScalarPointer();
-  outPtr = outData->GetScalarPointer();
 
   // Input must be 3 components (rgb)
   if (inData->GetNumberOfScalarComponents() != 3)
@@ -631,10 +692,9 @@ int vtkImageQuantizeRGBToIndex::RequestData(
   switch ( this->InputType )
   {
     vtkTemplateMacro(
-      vtkImageQuantizeRGBToIndexExecute(this,
-                                        inData, static_cast<VTK_TT *>(inPtr),
-                                        outData,
-                                        static_cast<unsigned short *>(outPtr)));
+      vtkImageQuantizeRGBToIndexExecute<VTK_TT>(this,
+        inData,
+        outData));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
       return 1;

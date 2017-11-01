@@ -2,6 +2,10 @@ vtk_module(vtkImagingColor
   GROUPS
     Imaging
     StandAlone
+  TEST_DEPENDS
+    vtkImagingCore
+    vtkIOImage
+    vtkTestingCore
   KIT
     vtkImaging
   DEPENDS
