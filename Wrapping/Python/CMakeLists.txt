@@ -287,17 +287,17 @@ if(PYTHON_EXECUTABLE)
     set(VTK_PYTHON_IMPORT_ALL
       "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
     configure_file(vtk/module.py.in
-      "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/${module}.py" @ONLY)
+      "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/${module}.py" @ONLY)
   endforeach()
   configure_file(vtk/__init__.py.in
-    "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/__init__.py" @ONLY)
+    "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/__init__.py" @ONLY)
 
 # Kit module adapters
   foreach(kit IN LISTS vtk_kits)
     set(_module_kit ${kit}${VTK_KIT_SUFFIX})
     foreach(dep IN LISTS _${kit}_modules)
       configure_file(vtk/kit_module__init__.py.in
-        "${VTK_BUILD_PYTHON_MODULE_DIR}/vtk/${dep}.py" @ONLY)
+        "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/${dep}.py" @ONLY)
     endforeach()
     unset(_module_kit)
   endforeach()

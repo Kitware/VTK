@@ -231,16 +231,18 @@ endif()
 if(NOT VTK_WWW_DIR)
   set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
 endif()
-if(NOT VTK_INSTALL_PYTHON_MODULE_DIR)
-  set (VTK_INSTALL_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
-       PATH "Directory where python modules will be installed")
-  mark_as_advanced(VTK_INSTALL_PYTHON_MODULE_DIR)
+
+if(DEFINED VTK_INSTALL_PYTHON_MODULE_DIR)
+  message(WARNING
+    "VTK_INSTALL_PYTHON_MODULE_DIR is no longer supported. "
+    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
 endif()
-if(NOT VTK_BUILD_PYTHON_MODULE_DIR)
-  set (VTK_BUILD_PYTHON_MODULE_DIR "-NOTFOUND" CACHE
-       PATH "Directory where python modules will be put inside the build tree")
-  mark_as_advanced(VTK_BUILD_PYTHON_MODULE_DIR)
+if(DEFINED VTK_BUILD_PYTHON_MODULE_DIR)
+  message(WARNING
+    "VTK_BUILD_PYTHON_MODULE_DIR is no longer supported. "
+    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
 endif()
+
 # Full functional CMAKE_CROSSCOMPILING_EMULATOR support for custom_command and
 # custom_target is available in CMake 3.8.0
 # It was first added in CMake 3.6.0 and later fixed in CMake 3.8.0 (commit e7480d67, CMake issue #16288)

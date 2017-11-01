@@ -27,41 +27,36 @@ vtk_module_impl()
 
 # Export location of python module dirs in install and build tree for every vtkpython module to use
 # As long as those modules depend on vtkpython, they can retrieve and use these
-if (NOT VTK_BUILD_PYTHON_MODULE_DIR)
-  if(WIN32)
-    set(VTK_BUILD_PYTHON_MODULE_DIR
-      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Lib/site-packages"
-      CACHE
-      PATH "Directory where python modules will be built" FORCE)
+if(NOT VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+  if(WIN32 AND NOT CYGWIN)
+    set(VTK_PYTHON_SITE_PACKAGES_SUFFIX "Lib/site-packages")
   else()
-    set(VTK_BUILD_PYTHON_MODULE_DIR
-      "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
-      CACHE
-      PATH "Directory where python modules will be built" FORCE)
+    set(VTK_PYTHON_SITE_PACKAGES_SUFFIX
+      "python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages")
   endif()
 endif()
 
-if (NOT VTK_INSTALL_PYTHON_MODULE_DIR)
-  if(WIN32)
-    set(VTK_INSTALL_PYTHON_MODULE_DIR
-      "${VTK_INSTALL_RUNTIME_DIR}/Lib/site-packages"
-      CACHE
-      PATH "Directory where python modules will be installed" FORCE)
-  else()
-    set(VTK_INSTALL_PYTHON_MODULE_DIR
-      "${VTK_INSTALL_LIBRARY_DIR}/python${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}/site-packages"
-      CACHE
-      PATH "Directory where python modules will be installed" FORCE)
-  endif()
+set(VTK_BUILD_PYTHON_MODULES_DIR
+  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+  CACHE INTERNAL "Directory where python modules will be built")
+
+if(WIN32 AND NOT CYGWIN)
+  set(VTK_INSTALL_PYTHON_MODULES_DIR
+    "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    CACHE INTERNAL "Directory where python modules will be installed")
+else()
+  set(VTK_INSTALL_PYTHON_MODULES_DIR
+    "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    CACHE INTERNAL "Directory where python modules will be installed")
 endif()
 
 # Export location of python module dirs in install and build tree for for
 # projects that link against VTK
-set(${vtk-module}_EXPORT_CODE_BUILD "set(VTK_PYTHONPATH \"${VTK_BUILD_PYTHON_MODULE_DIR}\")")
-if(IS_ABSOLUTE ${VTK_INSTALL_PYTHON_MODULE_DIR})
-  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${VTK_INSTALL_PYTHON_MODULE_DIR}\")")
+set(${vtk-module}_EXPORT_CODE_BUILD "set(VTK_PYTHONPATH \"${VTK_BUILD_PYTHON_MODULES_DIR}\")")
+if(IS_ABSOLUTE ${VTK_INSTALL_PYTHON_MODULES_DIR})
+  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${VTK_INSTALL_PYTHON_MODULES_DIR}\")")
 else()
-  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_PYTHON_MODULE_DIR}\")")
+  set(${vtk-module}_EXPORT_CODE_INSTALL "set(VTK_PYTHONPATH \"${CMAKE_INSTALL_PREFIX}/${VTK_INSTALL_PYTHON_MODULES_DIR}\")")
 endif()
 
 vtk_module_export_info()
