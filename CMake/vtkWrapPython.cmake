@@ -43,10 +43,9 @@ macro(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
     set(_common_args "${_common_args}--types \"${file}\"\n")
   endforeach()
 
-  if(NOT VTK_ENABLE_KITS)
-    # write wrapper-tool arguments to a file
-    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.$<CONFIGURATION>.args)
-    file(GENERATE OUTPUT ${_args_file} CONTENT "${_common_args}
+  # write wrapper-tool arguments to a file
+  set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.$<CONFIGURATION>.args)
+  file(GENERATE OUTPUT ${_args_file} CONTENT "${_common_args}
 $<$<BOOL:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>>:
 -D\"$<JOIN:$<TARGET_PROPERTY:${TARGET},COMPILE_DEFINITIONS>,\"
 -D\">\">
@@ -54,40 +53,6 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
 -I\"$<JOIN:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>,\"
 -I\">\">
 ")
-  else()
-    # all the include directories
-    set(TMP_INCLUDE_DIRS)
-    set(_modules ${ARGN})
-    if(NOT _modules)
-      string(REGEX REPLACE "Python\$" "" module "${TARGET}")
-      set(_modules ${module})
-    endif()
-    foreach(module IN LISTS ${_modules})
-      if(${module}_INCLUDE_DIRS)
-        list(APPEND TMP_INCLUDE_DIRS ${${module}_INCLUDE_DIRS})
-      endif()
-    endforeach()
-    if(VTK_WRAP_INCLUDE_DIRS)
-      list(APPEND TMP_INCLUDE_DIRS ${VTK_WRAP_INCLUDE_DIRS})
-    else()
-      list(APPEND TMP_INCLUDE_DIRS ${VTK_INCLUDE_DIRS})
-    endif()
-    if(EXTRA_PYTHON_INCLUDE_DIRS)
-      list(APPEND TMP_INCLUDE_DIRS ${EXTRA_PYTHON_INCLUDE_DIRS})
-    endif()
-    foreach(INCLUDE_DIR ${TMP_INCLUDE_DIRS})
-      set(_common_args "${_common_args}-I\"${INCLUDE_DIR}\"\n")
-    endforeach()
-    get_directory_property(_def_list DEFINITION COMPILE_DEFINITIONS)
-    foreach(TMP_DEF ${_def_list})
-      set(_common_args "${_common_args}-D${TMP_DEF}\n")
-    endforeach()
-    # write wrapper-tool arguments to a file
-    string(STRIP "${_common_args}" CMAKE_CONFIGURABLE_FILE_CONTENT)
-    set(_args_file ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}.args)
-    configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
-                   ${_args_file} @ONLY)
-  endif()
 
   # for each class
   foreach(FILE ${SOURCES})
