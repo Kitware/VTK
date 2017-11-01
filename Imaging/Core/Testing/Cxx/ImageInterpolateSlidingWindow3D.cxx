@@ -25,6 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
+#include "vtkPointData.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
@@ -64,8 +66,40 @@ int ImageInterpolateSlidingWindow3D(int argc, char *argv[])
   // slightly modify Z spacing to force slice interpolation
   reslice->SetOutputSpacing(0.80, 0.80, 1.5001);
   reslice->SetInterpolator(interpolator);
+  reslice->SetOutputScalarType(VTK_DOUBLE);
   reslice->Update();
 
+  // repeat with SlidingWindowOff for comparison
+  auto interpolatorOff = vtkSmartPointer<vtkImageSincInterpolator>::New();
+  interpolatorOff->SlidingWindowOff();
+
+  auto resliceOff = vtkSmartPointer<vtkImageReslice>::New();
+  resliceOff->SetInputConnection(reader->GetOutputPort());
+  resliceOff->SetOutputSpacing(reslice->GetOutputSpacing());
+  resliceOff->SetInterpolator(interpolatorOff);
+  resliceOff->SetOutputScalarType(VTK_DOUBLE);
+  resliceOff->Update();
+
+  // compare SlidingWindowOn against SlidingWindowOff
+  vtkDoubleArray *scalars = static_cast<vtkDoubleArray *>(
+    reslice->GetOutput()->GetPointData()->GetScalars());
+  vtkDoubleArray *scalarsOff = static_cast<vtkDoubleArray *>(
+    resliceOff->GetOutput()->GetPointData()->GetScalars());
+  double maxdiff = 0.0;
+  for (vtkIdType j = 0; j < scalars->GetNumberOfTuples(); j++)
+  {
+    double diff = scalars->GetValue(j) - scalarsOff->GetValue(j);
+    maxdiff = (fabs(diff) > fabs(maxdiff) ? diff : maxdiff);
+  }
+  std::cerr << "Maximum Pixel Error: " << maxdiff << "\n";
+  const double tol = 1e-10;
+  if (fabs(maxdiff) > tol)
+  {
+    std::cerr << "Difference is larger than tolerance " << tol << "\n";
+    return EXIT_FAILURE;
+  }
+
+  // also check that "no interpolation" works
   auto nearest = vtkSmartPointer<vtkImageInterpolator>::New();
   nearest->SetInterpolationModeToNearest();
   nearest->SlidingWindowOn();

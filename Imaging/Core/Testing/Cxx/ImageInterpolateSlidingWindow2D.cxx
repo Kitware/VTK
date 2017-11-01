@@ -25,6 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
+#include "vtkPointData.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
@@ -54,12 +56,22 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
 
   for (int i = 0; i < 4; i++)
   {
+    // compare results for SlidingWindowOn and SlidingWindowOff
     auto interpolator = vtkSmartPointer<vtkImageSincInterpolator>::New();
     interpolator->SlidingWindowOn();
+
+    auto interpolatorOff = vtkSmartPointer<vtkImageSincInterpolator>::New();
+    interpolatorOff->SlidingWindowOff();
 
     auto reslice = vtkSmartPointer<vtkImageReslice>::New();
     reslice->SetInputConnection(reader->GetOutputPort());
     reslice->SetInterpolator(interpolator);
+    reslice->SetOutputScalarType(VTK_DOUBLE);
+
+    auto resliceOff = vtkSmartPointer<vtkImageReslice>::New();
+    resliceOff->SetInputConnection(reader->GetOutputPort());
+    resliceOff->SetInterpolator(interpolatorOff);
+    resliceOff->SetOutputScalarType(VTK_DOUBLE);
 
     auto imageMapper = vtkSmartPointer<vtkImageSliceMapper>::New();
     imageMapper->SetInputConnection(reslice->GetOutputPort());
@@ -70,16 +82,42 @@ int ImageInterpolateSlidingWindow2D(int argc, char *argv[])
     {
       case 0:
         reslice->SetOutputSpacing(0.7, 0.8, 1.0);
+        resliceOff->SetOutputSpacing(0.7, 0.8, 1.0);
         break;
       case 1:
         reslice->SetOutputSpacing(1.0, 0.8, 1.0);
+        resliceOff->SetOutputSpacing(1.0, 0.8, 1.0);
         break;
       case 2:
         reslice->SetOutputSpacing(1.7, 1.8, 1.0);
+        resliceOff->SetOutputSpacing(1.7, 1.8, 1.0);
         break;
       case 3:
         reslice->SetOutputSpacing(0.7, 1.0, 1.0);
+        resliceOff->SetOutputSpacing(0.7, 1.0, 1.0);
         break;
+    }
+
+    reslice->Update();
+    resliceOff->Update();
+
+    // does "On" give the same results as "Off"?
+    vtkDoubleArray *scalars = static_cast<vtkDoubleArray *>(
+      reslice->GetOutput()->GetPointData()->GetScalars());
+    vtkDoubleArray *scalarsOff = static_cast<vtkDoubleArray *>(
+      resliceOff->GetOutput()->GetPointData()->GetScalars());
+    double maxdiff = 0.0;
+    for (vtkIdType j = 0; j < scalars->GetNumberOfValues(); j++)
+    {
+      double diff = scalars->GetValue(j) - scalarsOff->GetValue(j);
+      maxdiff = (fabs(diff) > fabs(maxdiff) ? diff : maxdiff);
+    }
+    std::cerr << "Maximum Pixel Error: " << maxdiff << "\n";
+    const double tol = 1e-10;
+    if (fabs(maxdiff) > tol)
+    {
+      std::cerr << "Difference is larger than tolerance " << tol << "\n";
+      return EXIT_FAILURE;
     }
 
     auto image = vtkSmartPointer<vtkImageSlice>::New();
