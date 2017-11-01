@@ -162,9 +162,11 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   else if (implname == "MetallicPaint")
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
-    OSPSET3F(shadeColor)
-    OSPSET3F(glitterColor)
-    OSPSET1F(glitterSpread)
+    OSPSET3F(baseColor)
+    OSPSET3F(color)
+    OSPSET1F(flakeAmount)
+    OSPSET3F(flakeColor)
+    OSPSET1F(flakeSpread)
     OSPSET1F(eta)
   }
   else if (implname == "OBJMaterial")
@@ -172,8 +174,12 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
     OSPSET1F(alpha);//aka "d", default 1.0
     OSPSET3F(color);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
+    OSPSET3F(kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
+    OSPSET3F(Kd);//aka "Kd" aka "kd", default (0.8,0.8,0.8)
     OSPSET3F(ks);//aka "Ks", default (0.0,0.0,0.0)
+    OSPSET3F(Ks);//aka "Ks", default (0.0,0.0,0.0)
     OSPSET1F(ns);//aka "Ns", default 10.0
+    OSPSET1F(Ns);//aka "Ns", default 10.0
     OSPSET3F(tf);//aka "Tf", default (0.0,0.0,0.0)
     OSPSETTEXTURE(map_d);
     OSPSETTEXTURE(map_kd);
@@ -202,6 +208,9 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
   {
     oMaterial = ospNewMaterial(oRenderer, implname.c_str());
     OSPSET3F(transmission);
+    OSPSET3F(color);
+    OSPSET3F(attenuationColor);
+    OSPSET1F(attenuationDistance);
     OSPSET1F(eta);
     OSPSET1F(thickness);
   }
