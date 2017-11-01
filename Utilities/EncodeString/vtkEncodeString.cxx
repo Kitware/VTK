@@ -205,8 +205,8 @@ int main(int argc,
                 << " * Declare the " << argv[3] << " string." << endl
                 << " *" << endl
                 << " */" << endl
-                << "#ifndef __"<<fileName<<"_h"<<endl
-                << "#define __"<<fileName<<"_h"<<endl
+                << "#ifndef "<<fileName<<"_h"<<endl
+                << "#define "<<fileName<<"_h"<<endl
                 << endl;
      if (argc > 5)
       {
@@ -236,7 +236,7 @@ int main(int argc,
                     << endl;
         }
 
-      hs.Stream << "#endif /* #ifndef __" <<fileName<< "_h */" << endl;
+      hs.Stream << "#endif /* #ifndef " <<fileName<< "_h */" << endl;
 
       std::string headerOutput=GetFilenameWithoutExtension(output)+".h";
 

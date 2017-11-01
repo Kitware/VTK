@@ -25,9 +25,9 @@
 #define vtkSystemIncludes_h
 
 /* first include the local configuration for this machine */
-#define __VTK_SYSTEM_INCLUDES__INSIDE
+#define VTK_SYSTEM_INCLUDES_INSIDE
 #include "vtkWin32Header.h"
-#undef __VTK_SYSTEM_INCLUDES__INSIDE
+#undef VTK_SYSTEM_INCLUDES_INSIDE
 
 // The language wrapper files do not need the real streams.  They
 // define VTK_STREAMS_FWD_ONLY so that the streams are only
@@ -48,10 +48,10 @@
 // this should be removed at some point
 #define VTK_USE_EXECUTIVES
 
-#define __VTK_SYSTEM_INCLUDES__INSIDE
+#define VTK_SYSTEM_INCLUDES_INSIDE
 #include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
 #include "vtkOStrStreamWrapper.h" // Include the ostrstream wrapper.
-#undef __VTK_SYSTEM_INCLUDES__INSIDE
+#undef VTK_SYSTEM_INCLUDES_INSIDE
 
 // Include generic stuff.
 #include <stdio.h>

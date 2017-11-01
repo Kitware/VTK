@@ -13,8 +13,8 @@
 
 =========================================================================*/
 
-#ifndef __@vtk-module@ObjectFactory_h
-#define __@vtk-module@ObjectFactory_h
+#ifndef @vtk-module@ObjectFactory_h
+#define @vtk-module@ObjectFactory_h
 
 #include "@vtk-module@Module.h" // For export macro
 #include "vtkObjectFactory.h"
@@ -39,4 +39,4 @@ private:
   void operator=(const @vtk-module@ObjectFactory&) = delete;
 };
 
-#endif // __@vtk-module@ObjectFactory_h
+#endif // @vtk-module@ObjectFactory_h

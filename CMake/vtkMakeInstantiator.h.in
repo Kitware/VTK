@@ -1,5 +1,5 @@
-#ifndef __@VTK_MAKE_INSTANTIATOR_CLASS_NAME@_h
-#define __@VTK_MAKE_INSTANTIATOR_CLASS_NAME@_h
+#ifndef @VTK_MAKE_INSTANTIATOR_CLASS_NAME@_h
+#define @VTK_MAKE_INSTANTIATOR_CLASS_NAME@_h
 
 #include "vtkInstantiator.h"
 
