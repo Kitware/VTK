@@ -575,7 +575,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   int            i, j, k, q;
   double         previousD, d, crosspoint;
   double         *verts, *newVerts, *tmpVerts;
-  int            vertCount, newVertCount;
+  int            vertCount, newVertCount, oldSize;
   vtkIdType      *pnts;
 
   // Use two arrays to store the vertices of the polygon
@@ -583,7 +583,8 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
   newVerts = new double[3*(this->NumberOfPlanes+1)];
 
   // We need an array to store the indices for the polygon
-  pnts = new vtkIdType[this->NumberOfPlanes-1];
+  oldSize = this->NumberOfPlanes-1;
+  pnts = static_cast<vtkIdType*>(malloc(sizeof(vtkIdType) * oldSize));
 
   // We have no vertices yet
   //vertCount = 0;
@@ -671,6 +672,16 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
 
     if ( vertCount > 0 )
     {
+      if ( vertCount > oldSize )
+      {
+        vtkIdType *tmpPointer = static_cast<vtkIdType*>(realloc(pnts, vertCount * sizeof(vtkIdType)));
+        if (tmpPointer == nullptr)
+        {
+          vtkErrorMacro( << "Unable to allocate space for PointIds" );
+        }
+        pnts = tmpPointer;
+        oldSize = vertCount;
+      }
       for ( j = 0; j < vertCount; j++ )
       {
         pnts[j] = outPoints->InsertNextPoint( (verts + j*3) );
