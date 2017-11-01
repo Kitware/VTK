@@ -42,11 +42,11 @@ set(VTK_BUILD_PYTHON_MODULES_DIR
 
 if(WIN32 AND NOT CYGWIN)
   set(VTK_INSTALL_PYTHON_MODULES_DIR
-    "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CACHE INTERNAL "Directory where python modules will be installed")
 else()
   set(VTK_INSTALL_PYTHON_MODULES_DIR
-    "${VTK_INSTALL_RUNTIME_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    "${VTK_INSTALL_LIBRARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
     CACHE INTERNAL "Directory where python modules will be installed")
 endif()
 
@@ -60,6 +60,15 @@ else()
 endif()
 
 vtk_module_export_info()
+
+# for static builds, since vtkPythonInterpreter cannot work off the library
+# location, but instead has to use the executable location, it needs to know the
+# library dir explicitly.
+if(NOT VTK_BUILD_SHARED_LIBS)
+  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED ${VTK_INSTALL_PYTHON_MODULES_DIR})
+else()
+  set(VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED ${VTK_PYTHON_SITE_PACKAGES_SUFFIX})
+endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkPythonConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkPythonConfigure.h)
