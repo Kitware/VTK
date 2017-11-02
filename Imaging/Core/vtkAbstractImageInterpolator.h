@@ -176,6 +176,18 @@ public:
   //@}
 
   /**
+   * Enable sliding window for separable kernels.
+   * When this is enabled, the interpolator will cache partial sums in
+   * in order to accelerate the computation.  It only makes sense to do
+   * this if the interpolator is used by calling InterpolateRow() while
+   * incrementing first the Y, and then the Z index with every call.
+   */
+  void SetSlidingWindow(bool x);
+  void SlidingWindowOn() { this->SetSlidingWindow(true); }
+  void SlidingWindowOff() { this->SetSlidingWindow(false); }
+  bool GetSlidingWindow() { return this->SlidingWindow; }
+
+  /**
    * Get the support size for use in computing update extents.  If the data
    * will be sampled on a regular grid, then pass a matrix describing the
    * structured coordinate transformation between the output and the input.
@@ -298,6 +310,18 @@ protected:
       vtkInterpolationWeights *, int, int, int, float *, int));
   //@}
 
+  //@{
+  /**
+   * Get the sliding window interpolation functions.
+   */
+  virtual void GetSlidingWindowFunc(
+    void (**doublefunc)(
+      vtkInterpolationWeights *, int, int, int, double *, int));
+  virtual void GetSlidingWindowFunc(
+    void (**floatfunc)(
+      vtkInterpolationWeights *, int, int, int, float *, int));
+  //@}
+
   vtkDataArray *Scalars;
   double StructuredBoundsDouble[6];
   float StructuredBoundsFloat[6];
@@ -309,6 +333,7 @@ protected:
   int BorderMode;
   int ComponentOffset;
   int ComponentCount;
+  bool SlidingWindow;
 
   // information needed by the interpolator funcs
   vtkInterpolationInfo *InterpolationInfo;
