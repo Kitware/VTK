@@ -506,7 +506,9 @@ int TestMappedGridDeepCopy(int argc, char *argv[])
         cerr << "Face id list length does not match" << endl;
         cerr << "Original: ";
         for(vtkIdType i = 0; i < oFaces->GetNumberOfIds(); ++i)
+        {
           cerr << oFaces->GetId(i) << " ";
+        }
         cerr << endl;
 
         cerr << "Copied:   ";
