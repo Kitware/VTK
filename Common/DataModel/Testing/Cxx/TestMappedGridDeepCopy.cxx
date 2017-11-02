@@ -249,7 +249,7 @@ MappedGridImpl::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 }
 
 void
-MappedGridImpl::Allocate(vtkIdType numCells, int vtkNotUsed(extSize))
+MappedGridImpl::Allocate(vtkIdType vtkNotUsed(numCells), int vtkNotUsed(extSize))
 {
   vtkWarningMacro(<<"Read only block\n");
   return;
