@@ -40,6 +40,7 @@
 #include "vtkObject.h"
 
 #include "vtkIntArray.h" // Needed for inline methods
+#include "vtkIdTypeArray.h" // Needed for inline methods
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
 #include "vtkCellType.h" // Needed for VTK_EMPTY_CELL
 
@@ -58,22 +59,28 @@ public:
   /**
    * Add a cell at specified id.
    */
-  void InsertCell(int id, unsigned char type, int loc);
+  void InsertCell(vtkIdType id, unsigned char type, vtkIdType loc);
 
   /**
    * Add a cell to the object in the next available slot.
    */
-  vtkIdType InsertNextCell(unsigned char type, int loc);
+  vtkIdType InsertNextCell(unsigned char type, vtkIdType loc);
 
   /**
    * Specify a group of cell types.
    */
-  void SetCellTypes(int ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations);
+  void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray *cellTypes, vtkIdTypeArray *cellLocations);
+
+  /**
+   * Specify a group of cell types. This version is provided to maintain
+   * backwards compatibility and does a copy of the cellLocations
+   */
+  void SetCellTypes(vtkIdType ncells, vtkUnsignedCharArray *cellTypes, vtkIntArray *cellLocations);
 
   /**
    * Return the location of the cell in the associated vtkCellArray.
    */
-  vtkIdType GetCellLocation(int cellId) { return this->LocationArray->GetValue(cellId);};
+  vtkIdType GetCellLocation(vtkIdType cellId) { return this->LocationArray->GetValue(cellId);};
 
   /**
    * Delete cell by setting to nullptr cell type.
@@ -98,7 +105,7 @@ public:
   /**
    * Return the type of cell.
    */
-  unsigned char GetCellType(int cellId) { return this->TypeArray->GetValue(cellId);};
+  unsigned char GetCellType(vtkIdType cellId) { return this->TypeArray->GetValue(cellId);};
 
   /**
    * Reclaim any extra memory.
@@ -151,7 +158,7 @@ protected:
   ~vtkCellTypes() override;
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
-  vtkIntArray *LocationArray;   // pointer to array of offsets
+  vtkIdTypeArray *LocationArray;   // pointer to array of offsets
   vtkIdType Size;            // allocated size of data
   vtkIdType MaxId;           // maximum index inserted thus far
   vtkIdType Extend;          // grow array by this point

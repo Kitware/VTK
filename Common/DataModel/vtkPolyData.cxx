@@ -222,7 +222,7 @@ int vtkPolyData::GetCellType(vtkIdType cellId)
 //----------------------------------------------------------------------------
 vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
 {
-  int i, loc;
+  vtkIdType i, loc;
   vtkIdType *pts, numPts;
   vtkCell *cell = nullptr;
   unsigned char type;
@@ -338,7 +338,7 @@ vtkCell *vtkPolyData::GetCell(vtkIdType cellId)
 //----------------------------------------------------------------------------
 void vtkPolyData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
-  int             i, loc;
+  vtkIdType       i, loc;
   vtkIdType       *pts=nullptr;
   vtkIdType       numPts;
   unsigned char   type;
@@ -420,7 +420,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
                             vtkPointLocator *locator)
 {
   vtkIdType cellId, ptId, newId, newCellId, locatorPtId;
-  int numPts, numCellPts, i;
+  vtkIdType numPts, numCellPts, i;
   vtkPoints *newPoints;
   vtkIdList *pointMap = vtkIdList::New(); //maps old pt ids into new
   vtkIdList *cellPts, *newCellPts = vtkIdList::New();
@@ -494,7 +494,7 @@ void vtkPolyData::CopyCells(vtkPolyData *pd, vtkIdList *idList,
 // constructing a cell.
 void vtkPolyData::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  int i, loc;
+  vtkIdType i, loc;
   vtkIdType *pts, numPts;
   unsigned char type;
   double x[3];
@@ -944,8 +944,8 @@ void vtkPolyData::BuildCells()
   vtkUnsignedCharArray *types = vtkUnsignedCharArray::New();
   unsigned char *pTypes = types->WritePointer(0, nCells);
 
-  vtkIntArray *locs = vtkIntArray::New();
-  int *pLocs = locs->WritePointer(0, nCells);
+  vtkIdTypeArray *locs = vtkIdTypeArray::New();
+  vtkIdType *pLocs = locs->WritePointer(0, nCells);
 
   // record locations and type of each cell.
   // verts
@@ -1181,11 +1181,11 @@ void vtkPolyData::Allocate(vtkPolyData *inPolyData, vtkIdType numCells,
                            int extSize)
 {
   vtkCellArray *cells;
-  int numVerts=inPolyData->GetVerts()->GetNumberOfCells();
-  int numLines=inPolyData->GetLines()->GetNumberOfCells();
-  int numPolys=inPolyData->GetPolys()->GetNumberOfCells();
-  int numStrips=inPolyData->GetStrips()->GetNumberOfCells();
-  int total=numVerts+numLines+numPolys+numStrips;
+  vtkIdType numVerts=inPolyData->GetVerts()->GetNumberOfCells();
+  vtkIdType numLines=inPolyData->GetLines()->GetNumberOfCells();
+  vtkIdType numPolys=inPolyData->GetPolys()->GetNumberOfCells();
+  vtkIdType numStrips=inPolyData->GetStrips()->GetNumberOfCells();
+  vtkIdType total=numVerts+numLines+numPolys+numStrips;
 
   if ( total <= 0 )
   {
@@ -1243,7 +1243,7 @@ void vtkPolyData::Allocate(vtkPolyData *inPolyData, vtkIdType numCells,
 // Note: will also insert VTK_PIXEL, but converts it to VTK_QUAD.
 vtkIdType vtkPolyData::InsertNextCell(int type, int npts, vtkIdType *pts)
 {
-  int id;
+  vtkIdType id;
 
   if ( !this->Cells )
   {
@@ -1421,7 +1421,8 @@ void vtkPolyData::Reset()
 // Reverse the order of point ids defining the cell.
 void vtkPolyData::ReverseCell(vtkIdType cellId)
 {
-  int loc, type;
+  vtkIdType loc;
+  int type;
 
   if ( this->Cells == nullptr )
   {
@@ -1519,7 +1520,8 @@ void vtkPolyData::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
 // ReplaceLinkedCell() to replace a cell when cell structure has been built.
 void vtkPolyData::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
 {
-  int loc, type;
+  vtkIdType loc;
+  int type;
 
   if ( this->Cells == nullptr )
   {
@@ -1560,7 +1562,7 @@ void vtkPolyData::ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts)
 // link list is changing size.
 void vtkPolyData::ReplaceLinkedCell(vtkIdType cellId, int npts, vtkIdType *pts)
 {
-  int loc = this->Cells->GetCellLocation(cellId);
+  vtkIdType loc = this->Cells->GetCellLocation(cellId);
   int type = this->Cells->GetCellType(cellId);
 
   switch (type)
@@ -1957,7 +1959,7 @@ void vtkPolyData::RemoveGhostCells()
 
   vtkIdType *pts, n;
 
-  int cellId;
+  vtkIdType cellId;
 
   for (vtkIdType i = 0; i < numCells; i++)
   {
