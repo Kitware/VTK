@@ -3,7 +3,7 @@
   Program:   Visualization Toolkit
   Module:    vtkOSPRayTetrahedraMapperNode.h
 
-  Copyright (c) Carson Brownlee, Ken Martin, Will Schroeder, Bill Lorensen
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 

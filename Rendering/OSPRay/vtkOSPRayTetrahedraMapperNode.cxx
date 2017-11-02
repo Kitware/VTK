@@ -251,7 +251,6 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
     {
       //automatically determine sampling rate
-      float minSamplingRate = 0.075f; // lower for min adaptive sampling step
       if (minBound < 100)
       {
         float s = (100.0f - minBound)/100.0f;

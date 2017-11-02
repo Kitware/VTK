@@ -3,6 +3,7 @@ include_directories(${OSPRAY_INCLUDE_DIRS})
 
 set(Module_SRCS
   vtkOSPRayActorNode.cxx
+  vtkOSPRayAMRVolumeMapperNode.cxx
   vtkOSPRayVolumeNode.cxx
   vtkOSPRayCameraNode.cxx
   vtkOSPRayCompositePolyDataMapper2Node.cxx

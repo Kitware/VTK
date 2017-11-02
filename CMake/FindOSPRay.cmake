@@ -51,6 +51,7 @@ else()
       ${OSPRAY_BUILD_DIR}/include
       ${OSPRAY_SOURCE_DIR}
       ${OSPRAY_SOURCE_DIR}/ospray/include
+      ${OSPRAY_SOURCE_DIR}/components
       )
 
     set(LIB_OSPRAY_EMBREE LIB_OSPRAY_EMBREE-NOTFOUND)

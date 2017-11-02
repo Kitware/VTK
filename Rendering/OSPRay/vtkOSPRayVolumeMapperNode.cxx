@@ -296,3 +296,40 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+void vtkOSPRayVolumeMapperNode::UpdateTransferFunction(vtkVolume* vol)
+{
+  vtkVolumeProperty* volProperty = vol->GetProperty();
+  vtkColorTransferFunction* colorTF =
+    volProperty->GetRGBTransferFunction(0);
+  vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
+  double* tfRangeD = colorTF->GetRange();
+  osp::vec2f tfRange = {float(tfRangeD[0]), float(tfRangeD[1])};
+
+  this->TFVals.resize(this->NumColors*3);
+  this->TFOVals.resize(this->NumColors);
+  scalarTF->GetTable(tfRangeD[0],
+                     tfRangeD[1],
+                     this->NumColors,
+                     &TFOVals[0]);
+  colorTF->GetTable(tfRangeD[0],
+                    tfRangeD[1],
+                    this->NumColors,
+                    &this->TFVals[0]);
+
+  OSPData colorData = ospNewData(this->NumColors,
+                                 OSP_FLOAT3,
+                                 &this->TFVals[0]);
+  ospSetData(this->TransferFunction, "colors", colorData);
+
+  OSPData tfAlphaData = ospNewData(this->NumColors, OSP_FLOAT, &TFOVals[0]);
+  ospSetData(this->TransferFunction, "opacities", tfAlphaData);
+  ospSetVec2f(this->TransferFunction, "valueRange", tfRange);
+  ospCommit(this->TransferFunction);
+  ospSetObject(this->OSPRayVolume, "transferFunction",
+               this->TransferFunction);
+
+  ospRelease(colorData);
+  ospRelease(tfAlphaData);
+}

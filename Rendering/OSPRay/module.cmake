@@ -17,6 +17,7 @@ vtk_module(vtkRenderingOSPRay
     # Dependencies for volume rendering tests
     vtkRenderingVolume
     vtkRenderingVolumeOpenGL2
+    vtkFiltersAMR
     vtkFiltersCore
     vtkFiltersHybrid
     vtkFiltersModeling
@@ -33,6 +34,7 @@ vtk_module(vtkRenderingOSPRay
     vtkRenderingCore
     vtkRenderingSceneGraph
   PRIVATE_DEPENDS
+    vtkRenderingVolumeAMR
     vtkCommonCore
     vtkIOImage
     vtkIOLegacy
