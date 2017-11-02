@@ -20,7 +20,7 @@ else()
   endif()
 endif()
 
-set(${vtk-module}_LIBRARIES ${PYTHON_LIBRARIES})
+set(${vtk-module}_LIBRARIES ${VTK_PYTHON_LIBRARIES})
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS "${PYTHON_INCLUDE_DIRS}")
 set(${vtk-module}_NO_Header_Test 1)
 vtk_module_impl()
