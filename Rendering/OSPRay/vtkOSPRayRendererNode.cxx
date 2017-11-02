@@ -872,6 +872,9 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     {
       oRenderer = (osp::Renderer*)this->ORenderer;
     }
+    ospSet1f(this->ORenderer, "maxContribution", 2.f);
+    ospSet1f(this->ORenderer, "minContribution", 0.01f);
+    ospSet1f(this->ORenderer, "varianceThreshold", 0.3f);
     ospCommit(this->ORenderer);
 
     int viewportOrigin[2];
