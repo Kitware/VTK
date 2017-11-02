@@ -38,10 +38,10 @@ bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
     {
       return false;
     }
-    for(vtkIdType i = 0; i < sIds->GetNumberOfIds(); ++i)
+    for(vtkIdType j = 0; i < sIds->GetNumberOfIds(); ++j)
     {
-      vtkIdType sId = sIds->GetId(i);
-      vtkIdType tId = tIds->GetId(i);
+      vtkIdType sId = sIds->GetId(j);
+      vtkIdType tId = tIds->GetId(j);
 
       if(sId != tId) return false;
     }
