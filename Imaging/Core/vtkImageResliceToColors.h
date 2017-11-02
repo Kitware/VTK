@@ -85,7 +85,7 @@ public:
 
   /**
    * When determining the modified time of the filter,
-   * this check the modified time of the transform and matrix.
+   * this checks the modified time of the transform and matrix.
    */
   vtkMTimeType GetMTime() override;
 

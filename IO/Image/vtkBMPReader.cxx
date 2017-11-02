@@ -263,9 +263,9 @@ void vtkBMPReader::ExecuteInformation()
       for (tmp=0; tmp<numColors; tmp++)
       {
         this->LookupTable->SetTableValue(tmp,
-              (float)this->Colors[tmp*3+0]/255.0,
-              (float)this->Colors[tmp*3+1]/255.0,
-              (float)this->Colors[tmp*3+2]/255.0,
+              this->Colors[tmp*3+0]/255.0,
+              this->Colors[tmp*3+1]/255.0,
+              this->Colors[tmp*3+2]/255.0,
               1);
       }
       this->LookupTable->SetRange(0,255);

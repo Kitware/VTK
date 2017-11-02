@@ -430,6 +430,7 @@ namespace
 #define vtkScalarsToColorsLuminance(r, g, b) \
     ((r)*0.30 + (g)*0.59 + (b)*0.11)
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToLuminance(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
@@ -442,6 +443,7 @@ void vtkScalarsToColorsLuminanceToLuminance(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToRGB(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
@@ -458,6 +460,7 @@ void vtkScalarsToColorsLuminanceToRGB(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToLuminance(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
@@ -474,6 +477,7 @@ void vtkScalarsToColorsRGBToLuminance(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToRGB(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents)
@@ -489,6 +493,7 @@ void vtkScalarsToColorsRGBToRGB(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -505,7 +510,7 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsLuminanceToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -526,6 +531,7 @@ void vtkScalarsToColorsLuminanceToRGBA(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -546,6 +552,7 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsRGBToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -565,7 +572,7 @@ void vtkScalarsToColorsRGBToRGBA(
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -594,6 +601,7 @@ void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   }
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsLuminanceAlphaToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -631,6 +639,7 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
   }
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColorsRGBAToLuminanceAlpha(
   const unsigned char *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double alpha)
@@ -650,6 +659,7 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<typename T>
 void vtkScalarsToColorsRGBAToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
@@ -684,14 +694,13 @@ void vtkScalarsToColorsRGBAToRGBA(
 }
 
 //----------------------------------------------------------------------------
-
 template<class T>
 void vtkScalarsToColorsLuminanceToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -707,13 +716,14 @@ void vtkScalarsToColorsLuminanceToLuminance(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -731,13 +741,14 @@ void vtkScalarsToColorsLuminanceToRGB(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToLuminance(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -761,13 +772,14 @@ void vtkScalarsToColorsRGBToLuminance(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToRGB(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -795,14 +807,15 @@ void vtkScalarsToColorsRGBToRGB(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -819,14 +832,15 @@ void vtkScalarsToColorsLuminanceToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -845,14 +859,15 @@ void vtkScalarsToColorsLuminanceToRGBA(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -877,14 +892,15 @@ void vtkScalarsToColorsRGBToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
   unsigned char a = vtkScalarsToColors::ColorToUChar(alpha);
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -913,14 +929,14 @@ void vtkScalarsToColorsRGBToRGBA(
   while (--count);
 }
 
-
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -942,13 +958,14 @@ void vtkScalarsToColorsLuminanceAlphaToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsLuminanceAlphaToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -972,13 +989,14 @@ void vtkScalarsToColorsLuminanceAlphaToRGBA(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBAToLuminanceAlpha(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -1008,13 +1026,14 @@ void vtkScalarsToColorsRGBAToLuminanceAlpha(
   while (--count);
 }
 
+//----------------------------------------------------------------------------
 template<class T>
 void vtkScalarsToColorsRGBAToRGBA(
   const T *inPtr, unsigned char *outPtr, vtkIdType count,
   int numComponents, double shift, double scale, double alpha)
 {
-  static double minval = 0;
-  static double maxval = 255.0;
+  static const double minval = 0;
+  static const double maxval = 255.0;
 
   do
   {
@@ -1534,7 +1553,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 //       'data' could be: array->GetVoidPointer(0)
 #define callForAnyType(array, call)                      \
   switch(array->GetDataType())                           \
-  {                                                    \
+  {                                                      \
     vtkTemplateMacro(call);                              \
   }
 
@@ -1740,8 +1759,7 @@ vtkIdType vtkScalarsToColors::SetAnnotation(
 {
   bool valid;
   vtkVariant val(value);
-  double x;
-  x = val.ToDouble(&valid);
+  double x = val.ToDouble(&valid);
   if (valid)
   {
     return this->SetAnnotation(x, annotation);
@@ -1860,7 +1878,7 @@ vtkIdType vtkScalarsToColors::CheckForAnnotatedValue(vtkVariant value)
 //----------------------------------------------------------------------------
 // An unsafe version of vtkScalarsToColors::CheckForAnnotatedValue for
 // internal use (no pointer checks performed)
-vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(vtkVariant& value)
+vtkIdType vtkScalarsToColors::GetAnnotatedValueIndexInternal(const vtkVariant& value)
 {
   vtkInternalAnnotatedValueMap::iterator it =
     this->AnnotatedValueMap->find(value);

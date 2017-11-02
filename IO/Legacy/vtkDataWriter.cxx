@@ -1610,10 +1610,10 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, vtkIdType
     *fp << "LOOKUP_TABLE " << this->LookupTableName << " " << size << "\n";
     if ( this->FileType == VTK_ASCII )
     {
-      double *c;
+      double c[4];
       for (i=0; i<size; i++)
       {
-        c = lut->GetTableValue(i);
+        lut->GetTableValue(i, c);
         *fp << c[0] << " " << c[1] << " " << c[2] << " " << c[3] << "\n";
       }
     }

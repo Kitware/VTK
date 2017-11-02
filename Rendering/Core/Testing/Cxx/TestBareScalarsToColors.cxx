@@ -119,7 +119,7 @@ int TestBareScalarsToColors(int argc, char *argv[])
     }
 
     // coverage
-    unsigned char *color = table->MapValue(0.5*(range[0] + range[1]));
+    const unsigned char *color = table->MapValue(0.5*(range[0] + range[1]));
     if (color[0] != 128)
     {
       cout << "Expected greyscale 128: ";
