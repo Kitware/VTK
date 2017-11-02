@@ -143,7 +143,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       this->OSPRayVolume = ospNewVolume("amr_volume");
       volDirty=true;
 
-      int lastLevel=0;
+      unsigned int lastLevel=0;
       std::vector<OSPData>   brickDataArray;
       std::vector<BrickInfo> brickInfoArray;
       size_t totalDataSize = 0;
