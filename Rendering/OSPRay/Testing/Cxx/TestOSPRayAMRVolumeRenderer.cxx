@@ -111,6 +111,6 @@ int TestOSPRayAMRVolumeRenderer(int argc, char *argv[])
   {
     iren->Start();
   }
-
+  volumeMapper->SetInputConnection(nullptr);
   return !retVal;
 }
