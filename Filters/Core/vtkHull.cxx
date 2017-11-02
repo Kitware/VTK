@@ -692,7 +692,7 @@ void vtkHull::ClipPolygonsFromPlanes( vtkPoints *outPoints,
 
   delete [] verts;
   delete [] newVerts;
-  delete [] pnts;
+  free(pnts);
 }
 
 void vtkHull::CreateInitialPolygon( double *verts, int i, const double *bounds)
