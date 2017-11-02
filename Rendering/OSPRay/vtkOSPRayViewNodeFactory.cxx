@@ -100,7 +100,8 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
-  this->RegisterOverride("vtkProjectedTetrahedraMapper", tetm_maker);
+  this->RegisterOverride("vtkOpenGLProjectedTetrahedraMapper", tetm_maker);
+  this->RegisterOverride("vtkUnstructuredGridVolumeZSweepMapper", tetm_maker);
   this->RegisterOverride("vtkUnstructuredGridVolumeRayCastMapper", tetm_maker);
 }
 
