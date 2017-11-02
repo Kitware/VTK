@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkXMLCompositeDataReader,vtkXMLReader);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  enum PieceDistributionStrategy
+  enum
   {
     Block,
     Interleave
@@ -62,9 +62,8 @@ public:
    * @a i * @a N + @a X.
    * @{
    */
-  vtkSetClampMacro(PieceDistribution, PieceDistributionStrategy,
-                   Block, Interleave)
-  vtkGetMacro(PieceDistribution, PieceDistributionStrategy)
+  vtkSetClampMacro(PieceDistribution, int, Block, Interleave)
+  vtkGetMacro(PieceDistribution, int)
   /**@}*/
 
   //@{
@@ -137,7 +136,7 @@ private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) = delete;
   void operator=(const vtkXMLCompositeDataReader&) = delete;
 
-  PieceDistributionStrategy PieceDistribution;
+  int PieceDistribution;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };
