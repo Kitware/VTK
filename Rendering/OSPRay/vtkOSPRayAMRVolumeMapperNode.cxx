@@ -135,7 +135,6 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       return;
     }
 
-    OSPRenderer orenderer = orn->GetORenderer();
     vtkVolumeProperty *volProperty = vol->GetProperty();
 
     bool volDirty = false;
@@ -202,8 +201,6 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
               fdata[i]=dptr[i];
             }
             dataPtr=fdata;
-
-            int numTuples = cellArray->GetNumberOfTuples();
           }
           else
           {
