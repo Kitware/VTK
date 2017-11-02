@@ -28,19 +28,6 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkOSPRayVolumeMapperNode.h"
 
-class vtkVolume;
-class ospVolume;
-
-namespace osp {
-  struct Model;
-  struct Volume;
-  struct Renderer;
-  struct TransferFunction;
-}
-typedef osp::Model *OSPModel;
-typedef osp::Volume *OSPVolume;
-typedef osp::TransferFunction *OSPTransferFunction;
-
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayAMRVolumeMapperNode :
   public vtkOSPRayVolumeMapperNode
 {
