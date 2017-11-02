@@ -322,7 +322,7 @@ vtkStandardNewMacro(MappedGrid)
 
 using namespace std;
 
-int TestMappedGridDeepCopy(int argc, char *argv[])
+int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 {
   vtkNew<vtkPoints> points;
 
