@@ -28,8 +28,8 @@
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
 
-#include "ospray/ospcommon/box.h"
-#include "ospray/ospcommon/vec.h"
+#include "ospcommon/box.h"
+#include "ospcommon/vec.h"
 #include "ospray/ospray.h"
 #include "ospray/version.h"
 
