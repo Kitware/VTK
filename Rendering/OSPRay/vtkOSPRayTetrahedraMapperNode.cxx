@@ -21,7 +21,7 @@
 #include "vtkOSPRayRendererNode.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
-#include "vtkUnstructuredGridVolumeRayCastMapper.h"
+#include "vtkUnstructuredGridVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeNode.h"
 #include "vtkVolumeProperty.h"
@@ -55,8 +55,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
 {
   if (prepass)
   {
-    vtkUnstructuredGridVolumeRayCastMapper *mapper =
-      vtkUnstructuredGridVolumeRayCastMapper::SafeDownCast(this->GetRenderable());
+    vtkUnstructuredGridVolumeMapper *mapper =
+      vtkUnstructuredGridVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!mapper)
     {
       vtkErrorMacro("invalid mapper");
