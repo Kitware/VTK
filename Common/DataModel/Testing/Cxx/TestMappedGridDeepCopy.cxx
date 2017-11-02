@@ -17,6 +17,7 @@
 ----------------------------------------------------------------------------*/
 
 #include "vtkDataArray.h"
+#include "vtkDebugLeaks.h"
 #include "vtkCell.h" // for cell types
 #include "vtkCellIterator.h"
 #include "vtkIdList.h"
@@ -532,6 +533,7 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
       }
     }
   }
-
+  oIt->Delete();
+  cIt->Delete();
   return EXIT_SUCCESS;
 }
