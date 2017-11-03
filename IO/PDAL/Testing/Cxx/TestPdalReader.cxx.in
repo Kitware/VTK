@@ -13,12 +13,14 @@
 
 =========================================================================*/
 /**
- * This tests reading a LAS file.
+ * This tests reading a file using a PDAL reader.
  */
 
 #include "vtkCamera.h"
+#include "vtkDataArray.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
+#include "vtkPdalReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -27,12 +29,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkDataArray.h"
 
 
-//#include "vtkXMLPolyDataWriter.h"
 
-#include "vtkPdalReader.h"
+
 
 int TestPdalReader_@VTK_Pdal_READER_POSTFIX@(int argc, char **argv)
 {

@@ -182,10 +182,6 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
   for (size_t i = 0; i < dims.size(); ++i)
   {
     pdal::Dimension::Id dimensionId = dims[i];
-    std::cout << "DimensionId: " << static_cast<int>(dimensionId)
-              << "\nDimName: " << pointView->dimName(dimensionId)
-              << std::hex << "\nDimType: " << static_cast<int>(pointView->dimType(dimensionId))
-              << std::endl;
     if (dimensionId == pdal::Dimension::Id::X ||
         dimensionId == pdal::Dimension::Id::Y ||
         dimensionId == pdal::Dimension::Id::Z)
