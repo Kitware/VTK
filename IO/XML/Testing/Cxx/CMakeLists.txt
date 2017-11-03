@@ -1,15 +1,16 @@
 set(TestXML_ARGS "DATA{${VTK_TEST_INPUT_DIR}/sample.xml}")
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAMRXMLIO.cxx,NO_VALID
+  TestDataObjectXMLIO.cxx,NO_VALID
   TestHyperOctreeIO.cxx
+  TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
+  TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
-  TestXMLUnstructuredGridReader.cxx
-  TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestXMLUnstructuredGridReader.cxx
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
-  TestDataObjectXMLIO.cxx,NO_VALID
-  TestReadDuplicateDataArrayNames.cxx,No_DATA,NO_VALID
   )
 
 # Each of these most be added in a separate vtk_add_test_cxx
