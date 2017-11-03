@@ -1,5 +1,7 @@
 set(CMAKE_SYSTEM_NAME Darwin)
 
+message(STATUS "iPhoneSimulator Toolchain Config for @IOS_SIMULATOR_ARCHITECTURES@")
+
 # Set developer directory
 execute_process(COMMAND /usr/bin/xcode-select -print-path
                 OUTPUT_VARIABLE XCODE_DEVELOPER_DIR
@@ -31,7 +33,8 @@ else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__PHONE_OS_VERSION_MIN_REQIORED=50000")
 endif()
 
-set(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
+# Set compilation flags
+set(CMAKE_OSX_ARCHITECTURES @IOS_SIMULATOR_ARCHITECTURES@)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 
@@ -103,6 +106,6 @@ if (NOT CMAKE_OSX_SYSROOT)
   message(FATAL_ERROR "Could not find a usable iOS SDK in ${sdk_root}")
 endif()
 
-message(STATUS "-- gcc found at: ${CMAKE_C_COMPILER}")
-message(STATUS "-- g++ found at: ${CMAKE_CXX_COMPILER}")
-message(STATUS "-- Using iOS SDK: ${CMAKE_OSX_SYSROOT}")
+message(STATUS "gcc found at: ${CMAKE_C_COMPILER}")
+message(STATUS "g++ found at: ${CMAKE_CXX_COMPILER}")
+message(STATUS "Using iOS SDK: ${CMAKE_OSX_SYSROOT}")

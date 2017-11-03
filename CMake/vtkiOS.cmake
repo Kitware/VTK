@@ -160,7 +160,7 @@ else()
     )
 endif()
 
-macro(crosscompile target toolchain_file archs)
+macro(crosscompile target toolchain_file)
   ExternalProject_Add(
     ${target}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
@@ -171,7 +171,6 @@ macro(crosscompile target toolchain_file archs)
     ${BUILD_ALWAYS_STRING}
     CMAKE_ARGS
       -DCMAKE_CROSSCOMPILING:BOOL=ON
-      -DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}
       -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
@@ -194,10 +193,13 @@ endmacro()
 
 # for simulator architectures
 if (${SIMULATOR_ARCHS_NBR})
+  configure_file(CMake/ios.simulator.toolchain.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.simulator.toolchain.cmake
+    @ONLY
+  )
   crosscompile(vtk-ios-simulator
-    CMake/ios.simulator.toolchain.cmake
-    "${IOS_SIMULATOR_ARCHITECTURES}"
-   )
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.simulator.toolchain.cmake
+  )
   set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a\"" )
   list(APPEND IOS_ARCHITECTURES vtk-ios-simulator )
 endif()
@@ -206,11 +208,11 @@ endif()
 foreach (arch ${IOS_DEVICE_ARCHITECTURES})
   set(CMAKE_CC_ARCH ${arch})
   configure_file(CMake/ios.device.toolchain.cmake.in
-               ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
-               @ONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
+    @ONLY
+  )
   crosscompile(vtk-ios-device-${arch}
     ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
-    ${arch}
   )
   set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-device-${arch}/lib/libvtk*.a\"" )
   list(APPEND IOS_ARCHITECTURES vtk-ios-device-${arch} )
