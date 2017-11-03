@@ -182,7 +182,7 @@ function(vtk_add_test_mpi exename _tests)
               ${VTK_MPI_PRENUMPROC_FLAGS} ${VTK_MPI_NUMPROC_FLAG} ${numprocs}
               ${VTK_MPI_PREFLAGS}
               $<TARGET_FILE:${exename}>
-              ${name}
+              ${test_file}
               ${_D} ${_T} ${_V}
               ${args}
               ${${vtk-module}_ARGS}
