@@ -27,8 +27,8 @@
 #ifndef vtkOStrStreamWrapper_h
 #define vtkOStrStreamWrapper_h
 
-#ifndef __VTK_SYSTEM_INCLUDES__INSIDE
-Do_not_include_vtkOStrStreamWrapper_directly__vtkSystemIncludes_includes_it;
+#ifndef VTK_SYSTEM_INCLUDES_INSIDE
+Do_not_include_vtkOStrStreamWrapper_directly_vtkSystemIncludes_includes_it;
 #endif
 
 class VTKCOMMONCORE_EXPORT vtkOStrStreamWrapper: public vtkOStreamWrapper
