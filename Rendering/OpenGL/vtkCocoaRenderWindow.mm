@@ -483,7 +483,7 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   strm  << "  stencil:  " << pfd << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
-  strm  << "  hardware acceleration::  " << (pfd == 0 ? "No" : "Yes") << endl;
+  strm  << "  hardware acceleration:  " << (pfd == 0 ? "No" : "Yes") << endl;
 
   delete[] this->Capabilities;
 
@@ -958,6 +958,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
       attribs[i++] = (NSOpenGLPixelFormatAttribute)8;
     }
 
+    // zero termination of list
     attribs[i++] = (NSOpenGLPixelFormatAttribute)0;
 
     // make sure that size of array was not exceeded
@@ -970,6 +971,7 @@ void vtkCocoaRenderWindow::CreateGLContext()
       if (this->MultiSamples == 0)
       {
         // after trying with no multisamples, we are done
+        vtkWarningMacro(<< "No OpenGL context whatsoever could be created!");
         break;
       }
       else if (this->MultiSamples < 4)
@@ -984,13 +986,16 @@ void vtkCocoaRenderWindow::CreateGLContext()
     }
   }
 
-  NSOpenGLContext *context = [[NSOpenGLContext alloc]
-                              initWithFormat:pixelFormat
-                                shareContext:nil];
+  NSOpenGLContext *context = nil;
+  if (pixelFormat)
+  {
+    context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
+                                         shareContext:nil];
 
-  // This syncs the OpenGL context to the VBL to prevent tearing
-  GLint one = 1;
-  [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
+    // This syncs the OpenGL context to the VBL to prevent tearing
+    GLint one = 1;
+    [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
+  }
 
   this->SetPixelFormat((void*)pixelFormat);
   this->SetContextId((void*)context);

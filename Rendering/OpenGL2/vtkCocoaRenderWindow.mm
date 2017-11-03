@@ -482,7 +482,10 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   strm  << "  stencil:  " << pfd << endl;
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAAccelerated forVirtualScreen: currentScreen];
-  strm  << "  hardware acceleration::  " << (pfd == 0 ? "No" : "Yes") << endl;
+  strm  << "  hardware acceleration:  " << (pfd == 0 ? "No" : "Yes") << endl;
+
+  [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAOpenGLProfile forVirtualScreen: currentScreen];
+  strm  << "  profile version:  0x" << std::hex << pfd << endl;
 
   delete[] this->Capabilities;
 
@@ -925,6 +928,19 @@ void vtkCocoaRenderWindow::CreateAWindow()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::CreateGLContext()
 {
+  // If the deployment target is at least 10.10, prefer the 'OpenGL 4.1 Core
+  // Implementation', otherwise we'll fall back to the 'OpenGL 3.2 Core
+  // Implementation' (available since 10.7).
+  NSOpenGLPixelFormatAttribute profileVersion;
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
+  profileVersion = NSOpenGLProfileVersion4_1Core;
+#else
+  profileVersion = NSOpenGLProfileVersion3_2Core;
+#endif
+
+  // Prefer hardware acceleration
+  NSOpenGLPixelFormatAttribute hardware = NSOpenGLPFAAccelerated;
+
   // keep trying to get different pixelFormats until successful
   NSOpenGLPixelFormat *pixelFormat = nil;
   while (pixelFormat == nil)
@@ -933,10 +949,8 @@ void vtkCocoaRenderWindow::CreateGLContext()
     NSOpenGLPixelFormatAttribute attribs[20];
 
     attribs[i++] = NSOpenGLPFAOpenGLProfile;
-    attribs[i++] = NSOpenGLProfileVersion3_2Core;
+    attribs[i++] = profileVersion;
 
-  //  OS X always prefers an accelerated context
-  //    attribs[i++] = NSOpenGLPFAAccelerated;
     attribs[i++] = NSOpenGLPFADepthSize;
     attribs[i++] = (NSOpenGLPixelFormatAttribute)32;
 
@@ -960,6 +974,10 @@ void vtkCocoaRenderWindow::CreateGLContext()
       attribs[i++] = (NSOpenGLPixelFormatAttribute)8;
     }
 
+    // must be last in case it is 0
+    attribs[i++] = hardware;
+
+    // zero termination of list
     attribs[i++] = (NSOpenGLPixelFormatAttribute)0;
 
     // make sure that size of array was not exceeded
@@ -969,9 +987,20 @@ void vtkCocoaRenderWindow::CreateGLContext()
 
     if (pixelFormat == nil)
     {
-      if (this->MultiSamples == 0)
+      if (profileVersion != NSOpenGLProfileVersion3_2Core)
+      {
+        // Try falling back to the 3.2 Core Profile
+        profileVersion = NSOpenGLProfileVersion3_2Core;
+      }
+      else if (hardware == NSOpenGLPFAAccelerated)
+      {
+        // Try falling back to the software renderer
+        hardware = 0;
+      }
+      else if (this->MultiSamples == 0)
       {
         // after trying with no multisamples, we are done
+        vtkWarningMacro(<< "No OpenGL context whatsoever could be created!");
         break;
       }
       else if (this->MultiSamples < 4)
@@ -990,13 +1019,16 @@ void vtkCocoaRenderWindow::CreateGLContext()
     }
   }
 
-  NSOpenGLContext *context = [[NSOpenGLContext alloc]
-                              initWithFormat:pixelFormat
-                                shareContext:nil];
+  NSOpenGLContext *context = nil;
+  if (pixelFormat)
+  {
+    context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat
+                                         shareContext:nil];
 
-  // This syncs the OpenGL context to the VBL to prevent tearing
-  GLint one = 1;
-  [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
+    // This syncs the OpenGL context to the VBL to prevent tearing
+    GLint one = 1;
+    [context setValues:&one forParameter:NSOpenGLCPSwapInterval];
+  }
 
   this->SetPixelFormat((void*)pixelFormat);
   this->SetContextId((void*)context);
