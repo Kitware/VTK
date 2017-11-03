@@ -26,6 +26,12 @@ if(NOT ${IOS_ARCHS_NBR})
   message(FATAL_ERROR "No IOS simulator or device architecture to compile for. Populate IOS_DEVICE_ARCHITECTURES and/or IOS_SIMULATOR_ARCHITECTURES.")
 endif()
 
+# iOS Deployment Target
+execute_process(COMMAND /usr/bin/xcrun -sdk iphoneos --show-sdk-version
+                OUTPUT_VARIABLE IOS_DEPLOYMENT_TARGET_TMP
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(IOS_DEPLOYMENT_TARGET ${IOS_DEPLOYMENT_TARGET_TMP} CACHE STRING "iOS Deployment Target")
+
 set(IOS_EMBED_BITCODE ON CACHE BOOL "Embed LLVM bitcode")
 
 set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
