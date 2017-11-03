@@ -45,7 +45,7 @@ void vtkUnstructuredGridBase::DeepCopy(vtkDataObject *src)
                            cellIter->GetNumberOfPoints(),
                            cellIter->GetPointIds()->GetPointer(0),
                            cellIter->GetNumberOfFaces(),
-                           cellIter->GetFaces()->GetPointer(0));
+                           cellIter->GetFaces()->GetPointer(1));
     }
   }
 }

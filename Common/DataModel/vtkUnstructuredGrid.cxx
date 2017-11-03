@@ -1075,6 +1075,10 @@ vtkIdType vtkUnstructuredGrid::
 InsertNextCell(int type, vtkIdType npts, vtkIdType *pts,
                vtkIdType nfaces, vtkIdType *faces)
 {
+  if (type != VTK_POLYHEDRON)
+  {
+    return this->InsertNextCell(type, npts, pts);
+  }
   // Insert connectivity (points that make up polyhedron)
   this->Connectivity->InsertNextCell(npts,pts);
 
@@ -1748,7 +1752,7 @@ void vtkUnstructuredGrid::ShallowCopy(vtkDataObject *dataObject)
                            cellIter->GetNumberOfPoints(),
                            cellIter->GetPointIds()->GetPointer(0),
                            cellIter->GetNumberOfFaces(),
-                           cellIter->GetFaces()->GetPointer(0));
+                           cellIter->GetFaces()->GetPointer(1));
     }
   }
 
