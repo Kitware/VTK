@@ -182,8 +182,8 @@ void vtkOSPRayTetrahedraMapperNode::Render(bool prepass)
       assert(tetrahedraData);
       ospSetData(this->OSPRayVolume, "tetrahedra", tetrahedraData);
 
-      ospSet1i(this->OSPRayVolume, "nVertices", this->Vertices.size());
-      ospSet1i(this->OSPRayVolume, "nTetrahedra", this->Cells.size()/4);
+      ospSet1i(this->OSPRayVolume, "nVertices", static_cast<int>(this->Vertices.size()));
+      ospSet1i(this->OSPRayVolume, "nTetrahedra", static_cast<int>(this->Cells.size())/4);
     }
 
     double* dim = mapper->GetBounds();
