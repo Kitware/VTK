@@ -129,7 +129,7 @@ public:
   /**
    * Map one value through the lookup table.
    */
-  unsigned char *MapValue(double v) override;
+  const unsigned char *MapValue(double v) override;
 
   //@{
   /**

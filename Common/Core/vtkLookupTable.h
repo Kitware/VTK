@@ -264,7 +264,7 @@ public:
   /**
    * Map one value through the lookup table, returning an RBGA[4] color.
    */
-  unsigned char* MapValue(double v) override;
+  const unsigned char* MapValue(double v) override;
 
   /**
    * Map one value through the lookup table and return the color as

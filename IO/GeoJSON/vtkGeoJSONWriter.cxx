@@ -225,7 +225,7 @@ public:
          this->SetLookupTable(lut);
          lut->Delete();
        }
-       unsigned char *color = lut->MapValue(b);
+       const unsigned char *color = lut->MapValue(b);
        this->WriterHelper->append(",");
        this->WriterHelper->append((double)color[0]/255.0);
        this->WriterHelper->append(",");

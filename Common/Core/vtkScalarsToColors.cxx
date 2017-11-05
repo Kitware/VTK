@@ -205,7 +205,7 @@ double vtkScalarsToColors::GetOpacity(double vtkNotUsed(v))
 }
 
 //----------------------------------------------------------------------------
-unsigned char *vtkScalarsToColors::MapValue(double v)
+const unsigned char *vtkScalarsToColors::MapValue(double v)
 {
   double rgb[3];
 

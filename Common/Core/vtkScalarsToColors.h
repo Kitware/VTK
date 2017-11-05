@@ -90,7 +90,7 @@ public:
    * Map one value through the lookup table and return a color defined
    * as an RGBA unsigned char tuple (4 bytes).
    */
-  virtual unsigned char *MapValue(double v);
+  virtual const unsigned char *MapValue(double v);
 
   /**
    * Map one value through the lookup table and store the color as
