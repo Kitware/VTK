@@ -77,7 +77,7 @@ Example: see Examples/GUI/Tcl/MaceTk.Tcl.
 B) vtktesting
 *************
 
-Some developpers might load the vtktesting package to include
+Some developers might load the vtktesting package to include
 additional facilities.
 
         package require vtktesting

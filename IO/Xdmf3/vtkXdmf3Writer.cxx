@@ -403,7 +403,7 @@ void vtkXdmf3Writer::WriteDataInternal (vtkInformation* request)
     shared_ptr<XdmfGridCollection> aggregategroup = XdmfGridCollection::New();
     aggregategroup->setType(XdmfGridCollectionType::Spatial());
 
-    //the structure is simple, one cross reference per top in each satelite
+    //the structure is simple, one cross reference per top in each satellite
     for (rankCount = 0; rankCount<this->NumberOfProcesses; rankCount++)
     {
       std::string rankFileName = choppedFileName;

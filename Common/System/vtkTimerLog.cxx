@@ -503,7 +503,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
       continue;
     }
     else if (logEntryType == vtkTimerLogEntry::STANDALONE)
-    { // Skip this event if it is just to mark that an event occured
+    { // Skip this event if it is just to mark that an event occurred
       continue;
     }
 

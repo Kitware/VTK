@@ -393,7 +393,7 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
       // check to see if pixel is in the tube.
       // project point onto normal vector.
       k = n0 * idx0 + n1 * idx1;
-      // Check that point is inbetween end points.
+      // Check that point is in between end points.
       if ( k >= bk && k <= ak)
       {
         // Compute actual projection point.

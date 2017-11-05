@@ -34,10 +34,10 @@ vtkHyperTreeGridCursor::vtkHyperTreeGridCursor()
   // No tree is given by default
   this->Tree  = 0;
 
-  // Defaut cursor level
+  // Default cursor level
   this->Level = 0;
 
-  // Defaut index
+  // Default index
   this->Index = 0;
 
   // Cursor is not at leaf by default

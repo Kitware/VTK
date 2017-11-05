@@ -1685,7 +1685,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     return true;
   }
 
-  // if texturing then texture componets/blend funcs may have changed
+  // if texturing then texture components/blend funcs may have changed
   if (this->VBOs->GetNumberOfComponents("tcoordMC"))
   {
     vtkMTimeType texMTime = 0;

@@ -99,7 +99,7 @@ int vtkDeformPointSet::RequestData(
     return 0;
   }
 
-  // Pass the input attributes to the ouput
+  // Pass the input attributes to the output
   output->CopyStructure( input );
   output->GetPointData()->PassData(input->GetPointData());
   output->GetCellData()->PassData(input->GetCellData());

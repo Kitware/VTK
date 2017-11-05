@@ -1065,7 +1065,7 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize()
 // Initialize the rendering window.
 void vtkWin32OpenGLRenderWindow::Initialize (void)
 {
-  // make sure we havent already been initialized
+  // make sure we haven't already been initialized
   if (!this->OffScreenRendering && !this->ContextId)
   {
     this->WindowInitialize();

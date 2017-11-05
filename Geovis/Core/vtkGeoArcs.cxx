@@ -82,7 +82,7 @@ int vtkGeoArcs::RequestData(
       newPoints->GetPoint(pts[p], curPoint);
 
       // Find w, a unit vector pointing from the center of the
-      // earth directly inbetween the two endpoints.
+      // earth directly in between the two endpoints.
       double w[3];
       for (int c = 0; c < 3; ++c)
       {

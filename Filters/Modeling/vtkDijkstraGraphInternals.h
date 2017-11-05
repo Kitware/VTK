@@ -189,7 +189,7 @@ public:
 private:
   unsigned int HeapSize;
 
-  // The priority que (a binary heap) with vertex indices.
+  // The priority queue (a binary heap) with vertex indices.
   std::vector<int> Heap;
 
   // HeapIndices(v) the position of v in Heap (HeapIndices and Heap are kind of inverses).

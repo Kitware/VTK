@@ -20,7 +20,7 @@
  * Places vertices on circles depending on the graph vertices hierarchy level.
  * The source graph could be vtkDirectedAcyclicGraph or vtkDirectedGraph if MarkedStartPoints array was added.
  * The algorithm collects the standalone points, too and take them to a separated circle. If method is FixedRadiusMethod,
- * the radius of the circles will be equal. If method is FixedDistanceMethod, the distance beetwen the points on circles will
+ * the radius of the circles will be equal. If method is FixedDistanceMethod, the distance between the points on circles will
  * be equal.
  *
  * In first step initial points are searched. A point is initial, if its in degree equal zero and out degree is greater than zero (or
@@ -63,7 +63,7 @@ public:
 
   //@{
   /**
-   * Set or get cicrle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is FixedRadiusMethod.
+   * Set or get circle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is FixedRadiusMethod.
    */
   vtkSetMacro(Method,int);
   vtkGetMacro(Method,int);
@@ -120,7 +120,7 @@ public:
   //@{
   /**
    * Set or get ForceToUseUniversalStartPointsFinder. If ForceToUseUniversalStartPointsFinder is true, MarkedStartVertices won't be used.
-   * In this case the input graph must be vtkDirectedAcyclicGraph (Defualt: false).
+   * In this case the input graph must be vtkDirectedAcyclicGraph (Default: false).
    */
   vtkSetMacro(ForceToUseUniversalStartPointsFinder,int);
   vtkGetMacro(ForceToUseUniversalStartPointsFinder,int);

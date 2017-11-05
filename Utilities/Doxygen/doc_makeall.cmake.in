@@ -168,7 +168,7 @@ set(VTK_TAGFILE_DEST_DIR "${DOXTEMP}")
 # SOURCE_DIRECTORIES
 #
 # This list is processed by several perl scripts below. Keeping it in one
-# list avoids the possiblity that multiple lists might get out of sync with
+# list avoids the possibility that multiple lists might get out of sync with
 # rushed edits...
 #
 set(SOURCE_DIRECTORIES

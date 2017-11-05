@@ -72,7 +72,7 @@ public:
   //@{
   /**
    * @brief Set/Get the suffix to be append to the output array name.
-   * If not specified, ouput will be suffixed with '_' and the operation
+   * If not specified, output will be suffixed with '_' and the operation
    * type (eg. myarrayname_add).
    */
   vtkSetStringMacro(OutputArrayNameSuffix);

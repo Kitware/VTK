@@ -49,7 +49,7 @@ static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
 #define NO_TRIAN {-1,-1,-1}
 
 // Each edge can either be split or not therefore there is
-// 2^3 = 8 differents cases of tessellation
+// 2^3 = 8 different cases of tessellation
 // The last case is only a sentinel to avoid stepping out of table
 // If we consider edge 3 the first edge, 4 the second and 5 the last one
 // 'Index' can be computed by the decimal evaluation of the binary representing
@@ -90,7 +90,7 @@ static int TETRA_EDGES_TABLE[6][2] = {
 
 
 // Each edge can either be split or not therefore there is
-// 2^6 = 64 differents cases of tessellation
+// 2^6 = 64 different cases of tessellation
 // The last case is only a sentinel to avoid stepping out of table
 // [case][tetra][vertex]
 static signed char vtkTessellatorTetraCasesRight[65][8][4] = {
@@ -895,7 +895,7 @@ public:
   }
 
   // Description:
-  // Return if the four corner points of the tetra are all differents
+  // Return if the four corner points of the tetra are all different
 #ifndef NDEBUG
   int PointsDifferents()
   {

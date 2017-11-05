@@ -54,7 +54,7 @@ renWin SetSize 200 200
 # "package require vtkinteraction".
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
-# This allows the interactor to initalize itself. It has to be
+# This allows the interactor to initialize itself. It has to be
 # called before an event loop. In this example, we allow Tk to
 # start the event loop (this is done automatically by Tk after
 # the user script is executed).

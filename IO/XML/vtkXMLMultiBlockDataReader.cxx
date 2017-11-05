@@ -107,7 +107,7 @@ void vtkXMLMultiBlockDataReader::ReadComposite(vtkXMLDataElement* element,
   vtkMultiPieceDataSet* mpiece = vtkMultiPieceDataSet::SafeDownCast(composite);
   if (!mblock && !mpiece)
   {
-    vtkErrorMacro("Unsuported composite dataset.");
+    vtkErrorMacro("Unsupported composite dataset.");
     return;
   }
 

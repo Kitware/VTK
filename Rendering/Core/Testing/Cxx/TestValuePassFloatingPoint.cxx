@@ -259,7 +259,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     ////// Render results on-screen
     renderer->RemoveActor(actor);
 
-    // Add image actors to display the point dataArray's componets
+    // Add image actors to display the point dataArray's components
     vtkSmartPointer<vtkImageActor> ia_x = vtkSmartPointer<vtkImageActor>::New();
     ia_x->GetMapper()->SetInputData(colorImagesPoint.at(0));
     renderer->AddActor(ia_x);

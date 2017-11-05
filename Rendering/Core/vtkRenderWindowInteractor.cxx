@@ -776,7 +776,7 @@ int vtkRenderWindowInteractor::CreateTimer(int timerType)
   if ( timerType == VTKI_TIMER_FIRST )
   {
     unsigned long duration = this->TimerDuration;
-    timerId = vtkTimerId; //just use current id, assume we don't have mutliple timers
+    timerId = vtkTimerId; //just use current id, assume we don't have multiple timers
     platformTimerId = this->InternalCreateTimer(timerId,RepeatingTimer,duration);
     if ( 0 == platformTimerId )
     {

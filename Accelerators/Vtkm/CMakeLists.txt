@@ -195,7 +195,7 @@ if(VTKm_ENABLE_CUDA)
   # CUDA doesn't obey usage requirements so we have to use
   # CUDA_INCLUDE_DIRECTORIES, but do get the proper list of
   # include dirs I need to query the module system, which
-  # doesnt exist currently, so we manually call vtk_module_impl
+  # doesn't exist currently, so we manually call vtk_module_impl
   vtk_module_impl()
   cuda_include_directories(${CMAKE_CURRENT_BINARY_DIR}
                            ${CMAKE_CURRENT_SOURCE_DIR}

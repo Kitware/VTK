@@ -57,7 +57,7 @@ public:
   virtual void Build(bool prepass);
 
   /**
-   * Traverse graph in OptiX's prefered order and render.
+   * Traverse graph in OptiX's preferred order and render.
    */
   virtual void Render(bool prepass);
 

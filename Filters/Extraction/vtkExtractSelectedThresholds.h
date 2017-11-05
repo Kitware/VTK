@@ -22,7 +22,7 @@
  * values that lie within a vtkSelection's THRESHOLD contents. The selecion
  * can specify to threshold a particular array within either the point or cell
  * attribute data of the input. This is similar to vtkThreshold
- * but allows mutliple thresholds ranges.
+ * but allows multiple thresholds ranges.
  * This filter adds a scalar array called vtkOriginalCellIds that says what
  * input cell produced each output cell. This is an example of a Pedigree ID
  * which helps to trace back results.

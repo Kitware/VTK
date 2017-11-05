@@ -92,7 +92,7 @@ int TestLabeledContourMapper(int argc, char *argv[])
   tprop6->SetColor(.7, .8, .2);
   tprops->AddItem(tprop6);
 
-  // Create a text propery mapping that will reverse the coloring:
+  // Create a text property mapping that will reverse the coloring:
   double *values = contours->GetValues();
   double *valuesEnd = values + contours->GetNumberOfContours();
   vtkNew<vtkDoubleArray> tpropMapping;
