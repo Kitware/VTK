@@ -26,6 +26,12 @@ if(NOT ${IOS_ARCHS_NBR})
   message(FATAL_ERROR "No IOS simulator or device architecture to compile for. Populate IOS_DEVICE_ARCHITECTURES and/or IOS_SIMULATOR_ARCHITECTURES.")
 endif()
 
+# iOS Deployment Target
+execute_process(COMMAND /usr/bin/xcrun -sdk iphoneos --show-sdk-version
+                OUTPUT_VARIABLE IOS_DEPLOYMENT_TARGET_TMP
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(IOS_DEPLOYMENT_TARGET ${IOS_DEPLOYMENT_TARGET_TMP} CACHE STRING "iOS Deployment Target")
+
 set(IOS_EMBED_BITCODE ON CACHE BOOL "Embed LLVM bitcode")
 
 set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
@@ -80,21 +86,28 @@ compile_vtk_tools()
 
 
 # Hide some CMake configs from the user
-mark_as_advanced(
+mark_as_advanced(FORCE
   BUILD_SHARED_LIBS
+  BUILD_TESTING
   CMAKE_INSTALL_PREFIX
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_DEPLOYMENT_TARGET
   CMAKE_OSX_ROOT
   VTK_RENDERING_BACKEND
 )
-
+if(BUILD_SHARED_LIBS)
+  message(WARNING "Can not build shared libraries for iOS framework. BUILD_SHARED_LIBS will be ignored.")
+endif()
+if(BUILD_TESTING)
+  message(WARNING "Tests not supported for the iOS framework. BUILD_TESTING will be ignored.")
+endif()
 
 # expose some module options
 option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
 option(Module_vtkInteractionStyle "Include InteractionStyle module" ON)
 option(Module_vtkInteractionWidgets "Include InteractionWidgets module" OFF)
 option(Module_vtkIOXML "Include IO/XML Module" OFF)
+option(Module_vtkDICOM "Turn on or off this module" OFF)
 option(Module_vtkFiltersModeling "Turn on or off this module" OFF)
 option(Module_vtkFiltersSources "Turn on or off this module" OFF)
 option(Module_vtkIOGeometry "Turn on or off this module" OFF)
@@ -103,6 +116,7 @@ option(Module_vtkIOImage "Turn on or off this module" OFF)
 option(Module_vtkIOPLY "Turn on or off this module" OFF)
 option(Module_vtkIOInfovis "Turn on or off this module" OFF)
 option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
+option(Module_vtkRenderingImage "Turn on or off this module" OFF)
 option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
 option(Module_vtkRenderingLOD "Include LOD Rendering Support" OFF)
 
@@ -127,6 +141,7 @@ set(ios_cmake_flags
   -DModule_vtkInteractionStyle:BOOL=${Module_vtkInteractionStyle}
   -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
   -DModule_vtkIOXML:BOOL=${Module_vtkIOXML}
+  -DModule_vtkDICOM:BOOL=${Module_vtkDICOM}
   -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
   -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
   -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
@@ -135,9 +150,17 @@ set(ios_cmake_flags
   -DModule_vtkIOPLY:BOOL=${Module_vtkIOPLY}
   -DModule_vtkIOInfovis:BOOL=${Module_vtkIOInfovis}
   -DModule_vtkRenderingFreeType:BOOL=${Module_vtkRenderingFreeType}
+  -DModule_vtkRenderingImage:BOOL=${Module_vtkRenderingImage}
   -DModule_vtkRenderingVolumeOpenGL2:BOOL=${Module_vtkRenderingVolumeOpenGL2}
   -DModule_vtkRenderingLOD:BOOL=${Module_vtkRenderingLOD}
 )
+
+if (Module_vtkDICOM AND IOS_EMBED_BITCODE)
+  # libvtkzlib does not contain bitcode
+  list (APPEND ios_cmake_flags
+    -DBUILD_DICOM_PROGRAMS:BOOL=OFF
+    )
+endif()
 
 if (Module_vtkRenderingOpenGL2 OR Module_vtkRenderingVolumeOpenGL2)
   list (APPEND ios_cmake_flags
@@ -149,7 +172,7 @@ else()
     )
 endif()
 
-macro(crosscompile target toolchain_file archs)
+macro(crosscompile target toolchain_file)
   ExternalProject_Add(
     ${target}
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
@@ -160,7 +183,6 @@ macro(crosscompile target toolchain_file archs)
     ${BUILD_ALWAYS_STRING}
     CMAKE_ARGS
       -DCMAKE_CROSSCOMPILING:BOOL=ON
-      -DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}
       -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
@@ -183,10 +205,13 @@ endmacro()
 
 # for simulator architectures
 if (${SIMULATOR_ARCHS_NBR})
+  configure_file(CMake/ios.simulator.toolchain.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.simulator.toolchain.cmake
+    @ONLY
+  )
   crosscompile(vtk-ios-simulator
-    CMake/ios.simulator.toolchain.cmake
-    "${IOS_SIMULATOR_ARCHITECTURES}"
-   )
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.simulator.toolchain.cmake
+  )
   set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-simulator/lib/libvtk*.a\"" )
   list(APPEND IOS_ARCHITECTURES vtk-ios-simulator )
 endif()
@@ -195,11 +220,11 @@ endif()
 foreach (arch ${IOS_DEVICE_ARCHITECTURES})
   set(CMAKE_CC_ARCH ${arch})
   configure_file(CMake/ios.device.toolchain.cmake.in
-               ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
-               @ONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
+    @ONLY
+  )
   crosscompile(vtk-ios-device-${arch}
     ${CMAKE_CURRENT_BINARY_DIR}/CMake/ios.device.toolchain.${arch}.cmake
-    ${arch}
   )
   set(VTK_GLOB_LIBS "${VTK_GLOB_LIBS} \"${INSTALL_DIR}/vtk-ios-device-${arch}/lib/libvtk*.a\"" )
   list(APPEND IOS_ARCHITECTURES vtk-ios-device-${arch} )
