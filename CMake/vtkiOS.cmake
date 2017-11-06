@@ -86,15 +86,21 @@ compile_vtk_tools()
 
 
 # Hide some CMake configs from the user
-mark_as_advanced(
+mark_as_advanced(FORCE
   BUILD_SHARED_LIBS
+  BUILD_TESTING
   CMAKE_INSTALL_PREFIX
   CMAKE_OSX_ARCHITECTURES
   CMAKE_OSX_DEPLOYMENT_TARGET
   CMAKE_OSX_ROOT
   VTK_RENDERING_BACKEND
 )
-
+if(BUILD_SHARED_LIBS)
+  message(WARNING "Can not build shared libraries for iOS framework. BUILD_SHARED_LIBS will be ignored.")
+endif()
+if(BUILD_TESTING)
+  message(WARNING "Tests not supported for the iOS framework. BUILD_TESTING will be ignored.")
+endif()
 
 # expose some module options
 option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
