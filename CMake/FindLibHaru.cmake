@@ -19,7 +19,7 @@
 
 find_path(LIBHARU_INCLUDE_DIR hpdf.h)
 
-find_library(LIBHARU_LIBRARY NAMES hpdf)
+find_library(LIBHARU_LIBRARY NAMES hpdf hpdfs)
 
 # handle the QUIETLY and REQUIRED arguments and set FONTCONFIG_FOUND to TRUE if
 # all listed variables are TRUE
