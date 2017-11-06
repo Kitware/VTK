@@ -55,7 +55,7 @@ public:
 
 protected:
   MappedCellIterator();
-  ~MappedCellIterator();
+  ~MappedCellIterator() override;
   virtual void ResetToFirstCell() override { this->CellId = 0; }
   virtual void IncrementToNextCell() override { this->CellId++; }
   virtual void FetchCellType() override;
@@ -184,7 +184,7 @@ public:
 
 protected:
   MappedGridImpl(){}
-  virtual ~MappedGridImpl() { _grid->UnRegister(this); }
+  virtual ~MappedGridImpl() override { _grid->UnRegister(this); }
 
 private:
   vtkUnstructuredGrid* _grid;
@@ -308,7 +308,7 @@ protected:
     this->SetImplementation(ig);
     ig->Delete();
   }
-  ~MappedGrid() {}
+  ~MappedGrid() override {}
 
 private:
   MappedGrid(const MappedGrid&) = delete;
