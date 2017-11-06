@@ -20,7 +20,7 @@
 #include "vtkDataArray.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
-#include "vtkPdalReader.h"
+#include "vtkPDALReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -34,11 +34,11 @@
 
 
 
-int TestPdalReader_@VTK_Pdal_READER_POSTFIX@(int argc, char **argv)
+int TestPDALReader_@VTK_PDAL_READER_POSTFIX@(int argc, char **argv)
 {
-  const char* fileName = "Data/@VTK_Pdal_READER_TEST_INPUT@";
+  const char* fileName = "Data/@VTK_PDAL_READER_TEST_INPUT@";
   const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
-  vtkNew<vtkPdalReader> reader;
+  vtkNew<vtkPDALReader> reader;
   //Select source file
   reader->SetFileName(path);
 
@@ -115,7 +115,7 @@ int TestPdalReader_@VTK_Pdal_READER_POSTFIX@(int argc, char **argv)
   renderer->ResetCamera();
 
   vtkCamera *camera=renderer->GetActiveCamera();
-  camera->Elevation(@VTK_Pdal_READER_ELEVATION@);
+  camera->Elevation(@VTK_PDAL_READER_ELEVATION@);
 
   int retVal = vtkRegressionTestImage (renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkPdalReader.h"
+#include "vtkPDALReader.h"
 
 #include <vtkDoubleArray.h>
 #include <vtkInformation.h>
@@ -52,11 +52,11 @@
 #include <pdal/StageFactory.hpp>
 #include <pdal/Options.hpp>
 
-vtkStandardNewMacro(vtkPdalReader)
+vtkStandardNewMacro(vtkPDALReader)
 
 
 //----------------------------------------------------------------------------
-vtkPdalReader::vtkPdalReader()
+vtkPDALReader::vtkPDALReader()
 {
   this->FileName = NULL;
 
@@ -65,14 +65,14 @@ vtkPdalReader::vtkPdalReader()
 }
 
 //----------------------------------------------------------------------------
-vtkPdalReader::~vtkPdalReader()
+vtkPDALReader::~vtkPDALReader()
 {
   if ( ! this->FileName )
     delete[] this->FileName;
 }
 
 //----------------------------------------------------------------------------
-int vtkPdalReader::RequestData(vtkInformation* vtkNotUsed(request),
+int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
                                    vtkInformationVector** vtkNotUsed(request),
                                    vtkInformationVector* outputVector)
 {
@@ -93,9 +93,9 @@ int vtkPdalReader::RequestData(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    pdal::Option las_opt_filename("filename", this->FileName);
-    pdal::Options las_opts;
-    las_opts.add(las_opt_filename);
+    pdal::Option opt_filename("filename", this->FileName);
+    pdal::Options opts;
+    opts.add(opt_filename);
     pdal::Stage* stage = factory.createStage(driverName);
     pdal::Reader* reader = static_cast<pdal::Reader*>(stage);
     if (! reader)
@@ -103,7 +103,7 @@ int vtkPdalReader::RequestData(vtkInformation* vtkNotUsed(request),
       vtkErrorMacro("Cannot open file " << this->FileName);
       return 0;
     }
-    reader->setOptions(las_opts);
+    reader->setOptions(opts);
 
     vtkNew<vtkPolyData> pointsPolyData;
     this->ReadPointRecordData(*reader, pointsPolyData);
@@ -125,7 +125,7 @@ int vtkPdalReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //----------------------------------------------------------------------------
-void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
+void vtkPDALReader::ReadPointRecordData(pdal::Reader &reader,
                                         vtkPolyData* pointsPolyData)
 {
   vtkNew<vtkPoints> points;
@@ -402,9 +402,9 @@ void vtkPdalReader::ReadPointRecordData(pdal::Reader &reader,
 }
 
 //----------------------------------------------------------------------------
-void vtkPdalReader::PrintSelf(ostream &os, vtkIndent indent)
+void vtkPDALReader::PrintSelf(ostream &os, vtkIndent indent)
 {
   Superclass::PrintSelf(os, indent);
-  os << "vtkPdalReader" << std::endl;
+  os << "vtkPDALReader" << std::endl;
   os << "Filename: " << this->FileName << std::endl;
 }
