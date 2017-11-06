@@ -16,7 +16,7 @@
  * @class   vtkMergeFields
  * @brief   Merge multiple fields into one.
  *
- * vtkMergeFields is used to merge mutliple field into one.
+ * vtkMergeFields is used to merge multiple field into one.
  * The new field is put in the same field data as the original field.
  * For example
  * @verbatim

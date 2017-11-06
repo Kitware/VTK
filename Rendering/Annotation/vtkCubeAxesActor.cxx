@@ -1728,7 +1728,7 @@ void vtkCubeAxesActor::SetNonDependentAttributes()
   vtkMath::Normalize(this->AxisBaseForY);
   vtkMath::Normalize(this->AxisBaseForZ);
 
-  // Manage custome grid visibility location if FLY and STATIC axis
+  // Manage custom grid visibility location if FLY and STATIC axis
   int gridLocationBasedOnAxis = (this->GridLineLocation == VTK_GRID_LINES_ALL)
       ? VTK_GRID_LINES_ALL : VTK_GRID_LINES_CLOSEST;
 

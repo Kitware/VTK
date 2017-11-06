@@ -107,8 +107,8 @@ int TestGeoView2D(int argc, char* argv[])
       << "  -IF file - Image file\n"
       << "  -IR path - Image database read path\n"
       << "  -IS path - Image database save path\n"
-      << "  -TR file - Terrain databse read path\n"
-      << "  -TS file - Terrain databse save path\n"
+      << "  -TR file - Terrain database read path\n"
+      << "  -TS file - Terrain database save path\n"
       << "  -LT tol  - Set geometry tolerance in pixels (default 5.0)\n"
       << "  -TT tol  - Set texture tolerance in pixels (default 1.0)\n";
     return 0;

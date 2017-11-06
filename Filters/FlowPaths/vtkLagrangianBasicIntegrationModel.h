@@ -436,7 +436,7 @@ protected:
 
   /**
    * Given a particle, check if it perforate a surface cell
-   * ie : interact with next step after interracting with it
+   * ie : interact with next step after interacting with it
    */
   virtual bool CheckSurfacePerforation(vtkLagrangianParticle* particle,
     vtkDataSet*  surface, vtkIdType cellId);

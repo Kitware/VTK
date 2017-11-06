@@ -17,7 +17,7 @@
  * @brief   abstract class to specify dataset behavior
  *
  * vtkDataSet is an abstract class that specifies an interface for dataset
- * objects. vtkDataSet also provides methods to provide informations about
+ * objects. vtkDataSet also provides methods to provide information about
  * the data, such as center, bounding box, and representative length.
  *
  * In vtk a dataset consists of a structure (geometry and topology) and

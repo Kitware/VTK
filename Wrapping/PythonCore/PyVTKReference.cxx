@@ -964,7 +964,7 @@ static PyObject *PyVTKReference_New(
   if (kwds && PyDict_Size(kwds))
   {
     PyErr_SetString(PyExc_TypeError,
-                    "refrence() does not take keyword arguments");
+                    "reference() does not take keyword arguments");
     return nullptr;
   }
 

@@ -13,7 +13,7 @@
 #  TK_WISH                = full path to the wish executable
 #
 # In an effort to remove some clutter and clear up some issues for people
-# who are not necessarily Tcl/Tk gurus/developpers, some variables were
+# who are not necessarily Tcl/Tk gurus/developers, some variables were
 # moved or removed. Changes compared to CMake 2.4 are:
 # - The stub libraries are now found in FindTclStub.cmake
 #   => they were only useful for people writing Tcl/Tk extensions.

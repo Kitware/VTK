@@ -240,7 +240,7 @@ public:
    * This flag is cleared before vtkCommand::WrongTagEvent is fired when ever a
    * message with mismatched tag is received. If the handler wants the message
    * to be buffered for later use, it should set this flag to true. In which
-   * case the vtkSocketCommunicator will  buffer the messsage and it will be
+   * case the vtkSocketCommunicator will buffer the message and it will be
    * automatically processed the next time one does a ReceiveTagged() with a
    * matching tag.
    */

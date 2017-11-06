@@ -20,7 +20,7 @@
 #   - update useful links
 #
 # 0.22 (barre) :
-#   - add more (useful) links to various VTK documentation ressources
+#   - add more (useful) links to various VTK documentation resources
 #
 # 0.21 (barre) :
 #   - no more --logo defaults

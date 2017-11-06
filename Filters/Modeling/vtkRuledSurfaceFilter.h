@@ -150,7 +150,7 @@ public:
   //@{
   /**
    * Indicate whether the generating lines are to be passed to the output.
-   * By defualt lines are not passed to the output.
+   * By default lines are not passed to the output.
    */
   vtkSetMacro(PassLines,int);
   vtkGetMacro(PassLines,int);
@@ -162,7 +162,7 @@ public:
    * Indicate whether the starting points of the loops need to be determined.
    * If set to 0, then its assumes that the 0th point of each loop should be
    * always connected
-   * By defualt the loops are not oriented.
+   * By default the loops are not oriented.
    */
   vtkSetMacro(OrientLoops,int);
   vtkGetMacro(OrientLoops,int);

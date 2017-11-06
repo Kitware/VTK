@@ -165,7 +165,7 @@ public:
   void GenerateRefinementRatio();
 
   /**
-   * Returns Wether refinement ratio has been set (either by calling
+   * Returns whether refinement ratio has been set (either by calling
    * GenerateRefinementRatio() or by calling SetRefinementRatio()
    */
   bool HasRefinementRatio();

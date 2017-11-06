@@ -221,7 +221,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
     if ( numPts > 0 && numCells > 0 )
     {
-      // Retrieve angle for each block, or angle by defaut
+      // Retrieve angle for each block, or angle by default
       double blockAngle = this->GetDefaultAngle();
       vtkDebugMacro(<<"DefaultAngle="<<blockAngle<<"\n");
 

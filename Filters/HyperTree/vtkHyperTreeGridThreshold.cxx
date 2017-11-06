@@ -232,7 +232,7 @@ bool vtkHyperTreeGridThreshold::RecursivelyProcessTree( vtkHyperTreeGridCursor* 
   } // if ( ! inCursor->IsLeaf() && inCursor->GetCurrentDepth() < this->Depth )
   else
   {
-    // Input cursor is at leaf, check whether it is withing range
+    // Input cursor is at leaf, check whether it is within range
     double value = this->InScalars->GetTuple1( inId );
     if( ! ( mask && mask->GetValue( inId ) )
         && value >= this->LowerThreshold && value <= this->UpperThreshold )

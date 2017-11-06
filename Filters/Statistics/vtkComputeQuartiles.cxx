@@ -195,7 +195,7 @@ void vtkComputeQuartiles::ComputeTable(vtkDataObject* input,
   os->SetAssessOption(false);
   os->Update();
 
-  // Get the ouput table of the descriptive statistics that contains quantiles
+  // Get the output table of the descriptive statistics that contains quantiles
   // of the input data series.
   vtkMultiBlockDataSet *outputModelDS =
     vtkMultiBlockDataSet::SafeDownCast(

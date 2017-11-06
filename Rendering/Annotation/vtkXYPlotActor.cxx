@@ -563,7 +563,7 @@ void vtkXYPlotActor::RemoveDataSetInputConnection( vtkAlgorithmOutput *in,
     this->SelectedInputScalarsComponent->SetValue( idx-1,
                                                    this->SelectedInputScalarsComponent->GetValue( idx ) );
   }
-  // Reseting the last item is not really necessary,
+  // Resetting the last item is not really necessary,
   // but to be clean we do it anyway.
   this->SelectedInputScalarsComponent->SetValue( num-1, -1 );
   this->SelectedInputScalars[num-1] = nullptr;

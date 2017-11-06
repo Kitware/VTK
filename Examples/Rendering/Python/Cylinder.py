@@ -42,7 +42,7 @@ ren.AddActor(cylinderActor)
 ren.SetBackground(0.1, 0.2, 0.4)
 renWin.SetSize(200, 200)
 
-# This allows the interactor to initalize itself. It has to be
+# This allows the interactor to initialize itself. It has to be
 # called before an event loop.
 iren.Initialize()
 

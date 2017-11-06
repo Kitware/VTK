@@ -122,7 +122,7 @@ public:
   void Print(ostream& os, vtkInformation* info) override;
 
   // note: I had wanted to make the following interface in vtkInformationKey
-  // with a defualt implementation that did nothing. but we decided that
+  // with a default implementation that did nothing. but we decided that
   // vtkInformationKey class is too important a class to add such an interface
   // without a thorough design review. we don't have budget for such a review.
 

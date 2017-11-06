@@ -183,7 +183,7 @@ public:
       return;
     }
 
-    // compute a regualr partitioning of the space
+    // compute a regular partitioning of the space
     int nbins = 1;
     double dim = 0; // the dimensionality of the dataset
     for (int i = 0; i < 3; ++i)

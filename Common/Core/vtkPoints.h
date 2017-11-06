@@ -240,7 +240,7 @@ public:
   /**
    * Update the modification time for this object and its Data.
    * As this object acts as a shell around a DataArray and
-   * forwards Set methods it needs to forward Modifed as well.
+   * forwards Set methods it needs to forward Modified as well.
    */
   void Modified() override;
 

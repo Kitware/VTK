@@ -42,7 +42,7 @@ protected:
 
   /**
    * Compute the Euclidean distance between the Points defined for the
-   * verticies of a specified 'edge'.
+   * vertices of a specified 'edge'.
    */
   float ComputeWeight(vtkGraph* const graph, const vtkEdgeType& edge) const override;
 

@@ -171,7 +171,7 @@ protected:
   void ReportResults();
 
 private:
-  std::string Regex; // regualr expression for tests
+  std::string Regex; // regular expression for tests
   double TargetTime;
   std::string SystemName;
   vtksys::CommandLineArguments Arguments;

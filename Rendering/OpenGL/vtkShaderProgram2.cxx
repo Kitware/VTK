@@ -210,7 +210,7 @@ void vtkShaderProgram2::SetContext(vtkRenderWindow *renWin)
   {
     return;
   }
-  // free ressources
+  // free resources
   this->ReleaseGraphicsResources();
   this->Context = NULL;
   this->Modified();

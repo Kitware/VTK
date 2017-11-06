@@ -54,8 +54,8 @@ public interface vtkJavaMemoryManager {
    *            as the class name of the objects lefts as well as their
    *            numbers.
    *
-   * @return an information object that provide useful informations for
-   *         statistic or debuging purpose.
+   * @return an information object that provide useful information for
+   *         statistic or debugging purpose.
    */
   vtkReferenceInformation gc(boolean debug);
 

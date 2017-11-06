@@ -502,7 +502,7 @@ static int vtkThreadSleep(vtkMultiThreader::ThreadInfo *data, double time)
 }
 
 //----------------------------------------------------------------------------
-// this function runs in an alternate thread to asyncronously grab frames
+// this function runs in an alternate thread to asynchronously grab frames
 static void *vtkVideoSourceRecordThread(vtkMultiThreader::ThreadInfo *data)
 {
   vtkVideoSource *self = (vtkVideoSource *)(data->UserData);

@@ -123,7 +123,7 @@ public:
   /**
    * The MaskThreshold controls the rendering of fragments in stagnant
    * regions of flow.  // In these regions LIC noise texture will be masked,
-   * where |V| < MaskThreshold is satisifed. The masking process blends a
+   * where |V| < MaskThreshold is satisfied. The masking process blends a
    * the MaskColor with the scalar color of the surface proportional to
    * MaskIntesnsity. See MaskIntensity for more information on the blending
    * algorithm. This blending allows one control over the masking process

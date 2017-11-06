@@ -99,7 +99,7 @@ namespace
 
   //split the blocks into a tree that starts out as a single stem
   //than turn a full tree. This shape is designed so that numLevels and maxNumBlocks
-  //constraint can be satisifed
+  //constraint can be satisfied
   void Split(const vtkAMRBox& rootBox, int numLevels, int refinementRatio, int maxNumBlocks,
              std::vector<std::vector<vtkAMRBox> >& out)
   {

@@ -65,7 +65,7 @@ def get_variable_name(*args):
             continue
         # it is essential to qualify the scope of type since
         # some test define type variable which messes up the
-        # bultin call.
+        # builtin call.
         if __builtins__.type(arg) == __builtins__.type("string"):
             var_name += arg
         else:

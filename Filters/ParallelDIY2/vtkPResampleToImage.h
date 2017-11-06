@@ -42,7 +42,7 @@ public:
 
   //@{
   /**
-   * By defualt this filter uses the global controller,
+   * By default this filter uses the global controller,
    * but this method can be used to set another instead.
    */
   virtual void SetController(vtkMultiProcessController*);

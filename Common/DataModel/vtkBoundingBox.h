@@ -111,7 +111,7 @@ public:
   //@}
 
   /**
-   * Change the bouding box to be the union of itself and bbox.
+   * Change the bounding box to be the union of itself and bbox.
    */
   void AddBox(const vtkBoundingBox &bbox);
 
