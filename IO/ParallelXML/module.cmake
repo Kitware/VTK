@@ -2,7 +2,9 @@ vtk_module(vtkIOParallelXML
   GROUPS
     StandAlone
   TEST_DEPENDS
+    vtkIOParallelXML
     vtkParallelMPI
+    vtkTestingCore
   KIT
     vtkParallel
   DEPENDS
