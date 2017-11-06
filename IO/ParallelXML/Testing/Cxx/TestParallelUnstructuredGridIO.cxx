@@ -11,16 +11,20 @@
 #include <vtkXMLPUnstructuredGridWriter.h>
 #include <vtkXMLPUnstructuredGridReader.h>
 
+using namespace std;
+
 bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
 {
   if (s->GetNumberOfCells() != t->GetNumberOfCells())
   {
+    cerr << "The number of cells does not match: " << s->GetNumberOfCells() << " != " << t->GetNumberOfCells() << endl;
     return false;
   }
   for(vtkIdType i = 0; i < s->GetNumberOfCells(); ++i)
   {
     if (s->GetCellType(i) != t->GetCellType(i))
     {
+      cerr << "The cell type does not match: " << s->GetCellType(i) << " != " << t->GetCellType(i) << endl;
       return false;
     }
     vtkNew<vtkIdList> sIds, tIds;
@@ -36,14 +40,22 @@ bool CompareGrids(vtkUnstructuredGrid *s, vtkUnstructuredGrid *t)
     }
     if (sIds->GetNumberOfIds() != tIds->GetNumberOfIds())
     {
+      cerr << "Cell type : " << s->GetCellType(i) << endl;
+      cerr << "The number of ids does not match: " << sIds->GetNumberOfIds() << " != " << tIds->GetNumberOfIds() << endl;
       return false;
     }
-    for(vtkIdType j = 0; i < sIds->GetNumberOfIds(); ++j)
+
+    for(vtkIdType j = 0; j < sIds->GetNumberOfIds(); ++j)
     {
       vtkIdType sId = sIds->GetId(j);
       vtkIdType tId = tIds->GetId(j);
 
-      if(sId != tId) return false;
+      if(sId != tId)
+      {
+        cerr << "Cell type : " << s->GetCellType(i) << endl;
+        cerr << "The id at position " << j << " does not match: " << sId << " != " << tId << endl;
+        return false;
+      }
     }
   }
 
@@ -198,6 +210,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
 
   // first try reading the piece with a non-parallel reader
   vtkUnstructuredGrid* read = r->GetOutput();
+  cout << "Comparing original with .vtu" << endl;
   if (!CompareGrids(ug.GetPointer(), read)) return EXIT_FAILURE;
 
   // now read the .pvtu file with the paralle reader
@@ -207,6 +220,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   pr->Update();
 
   read = pr->GetOutput();
+  cout << "Comparing original with .pvtu" << endl;
   if (!CompareGrids(ug.GetPointer(), read)) return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
