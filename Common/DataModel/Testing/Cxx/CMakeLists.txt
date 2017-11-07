@@ -87,13 +87,6 @@ list(APPEND data_tests TestPolyhedron2.cxx)
 vtk_add_test_cxx(${vtk-module}CxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
   )
-#vtk_add_test_cxx(${vtk-module}CxxTests custom_tests
-#  LagrangeInterpolation.cxx,NO_DATA
-#  CUSTOM_BASELINES
-#  DATA{../Data/Baseline/LagrangeInterpolation_333hex.png,:}
-#  DATA{../Data/Baseline/LagrangeInterpolation_531hex.png,:}
-#  DATA{../Data/Baseline/LagrangeInterpolation_333wedge.png,:}
-#  )
 ExternalData_add_test(VTKData
   NAME TestPolyhedron2
   COMMAND ${vtk-module}CxxTests TestPolyhedron2
