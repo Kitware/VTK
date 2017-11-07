@@ -164,7 +164,7 @@ public:
    */
   void MapScalarsThroughTable2(void *input, unsigned char *output,
     int inputDataType, int numberOfValues,
-    int inputIncrement, int outputFormat) VTK_OVERRIDE;
+    int inputIncrement, int outputFormat) override;
 
   /**
    * Returns the (x, r, g, b) values as an array.

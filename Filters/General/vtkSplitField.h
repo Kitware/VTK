@@ -65,7 +65,7 @@ class VTKFILTERSGENERAL_EXPORT vtkSplitField : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkSplitField,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Create a new vtkSplitField.

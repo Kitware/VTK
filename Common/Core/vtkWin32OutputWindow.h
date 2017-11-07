@@ -47,7 +47,7 @@ public:
   /**
    * New lines are converted to carriage return new lines.
    */
-  void DisplayText(const char*) VTK_OVERRIDE;
+  void DisplayText(const char*) override;
 
   //@{
   /**
