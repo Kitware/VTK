@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkBoundedPointSource.cxx
+  vtkConnectedPointsFilter.cxx
   vtkDensifyPointCloudFilter.cxx
   vtkEllipsoidalGaussianKernel.cxx
   vtkEuclideanClusterExtraction.cxx
@@ -16,8 +17,8 @@ set(Module_SRCS
   vtkMaskPointsFilter.cxx
   vtkPCACurvatureEstimation.cxx
   vtkPCANormalEstimation.cxx
-  vtkPointDensityFilter.cxx
   vtkPointCloudFilter.cxx
+  vtkPointDensityFilter.cxx
   vtkPointInterpolator.cxx
   vtkPointInterpolator2D.cxx
   vtkPointOccupancyFilter.cxx
