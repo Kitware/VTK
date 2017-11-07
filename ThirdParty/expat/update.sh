@@ -14,7 +14,7 @@ expat/.gitattributes
 expat/CMakeLists.txt
 expat/COPYING
 expat/ConfigureChecks.cmake
-expat/README
+expat/README.md
 expat/expat_config.h.cmake
 expat/lib/*.c
 expat/lib/*.h
