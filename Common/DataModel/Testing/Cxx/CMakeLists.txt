@@ -24,6 +24,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestMappedGridDeepCopy.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
+  TestPiecewiseFunctionLogScale.cxx
   TestPixelExtent.cxx
   TestPointLocators.cxx
   TestPolyDataRemoveCell.cxx

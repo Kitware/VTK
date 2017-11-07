@@ -162,6 +162,16 @@ public:
   //@}
 
   /**
+   * Interpolate between the control points in base-10 logrithmic space.
+   * Default is false.
+   * @{
+   */
+  vtkSetMacro(UseLogScale, bool)
+  vtkGetMacro(UseLogScale, bool)
+  vtkBooleanMacro(UseLogScale, bool)
+  /**@}*/
+
+  /**
    * Return the type of function:
    * Function Types:
    * 0 : Constant        (No change in slope between end points)
@@ -240,6 +250,8 @@ protected:
   double Range[2];
 
   int AllowDuplicateScalars;
+
+  bool UseLogScale;
 
 private:
   vtkPiecewiseFunction(const vtkPiecewiseFunction&) = delete;
