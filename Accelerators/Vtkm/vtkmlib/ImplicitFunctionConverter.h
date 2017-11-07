@@ -20,17 +20,9 @@
 #include "vtkmConfig.h" //required for general vtkm setup
 #include "vtkType.h" // For vtkMTimeType
 
-#include <memory> // For std::shared_ptr
-
+#include "vtkm/cont/ImplicitFunctionHandle.h"
 
 class vtkImplicitFunction;
-
-namespace vtkm {
-namespace cont {
-
-class ImplicitFunction;
-
-}} // vtkm::cont
 
 namespace tovtkm {
 
@@ -40,18 +32,14 @@ public:
   ImplicitFunctionConverter();
 
   void Set(vtkImplicitFunction *);
-  const std::shared_ptr<vtkm::cont::ImplicitFunction>& Get() const;
+  const vtkm::cont::ImplicitFunctionHandle& Get() const;
 
 private:
   vtkImplicitFunction *InFunction;
-  std::shared_ptr<vtkm::cont::ImplicitFunction> OutFunction;
+  vtkm::cont::ImplicitFunctionHandle OutFunction;
   mutable vtkMTimeType MTime;
 };
 
-#ifdef VTKM_MSVC
-extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
-    std::shared_ptr<vtkm::cont::ImplicitFunction>;
-#endif
 }
 
 #endif // vtkmlib_ImplicitFunctionConverter_h

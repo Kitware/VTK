@@ -152,7 +152,7 @@ int vtkmClip::RequestData(vtkInformation *,
   if (this->ClipFunction)
   {
     auto function = this->ClipFunctionConverter.Get();
-    if (function.get())
+    if (function.GetValid())
     {
       functionFilter.SetImplicitFunction(function);
       result = functionFilter.Execute(in, policy);
