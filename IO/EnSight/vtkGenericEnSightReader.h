@@ -271,6 +271,11 @@ public:
    */
   static bool IsEnSightFile(const char *casefilename);
 
+  /**
+  * Returns IsEnSightFile() by default, but can be overridden
+  */
+  virtual bool CanReadFile(const char *casefilename);
+
 //THIB
 vtkGenericEnSightReader* GetReader() { return this->Reader; }
 
