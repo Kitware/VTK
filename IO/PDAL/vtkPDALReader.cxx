@@ -115,12 +115,14 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(vertexFilter->GetOutput());
     return VTK_OK;
   }
-  catch (std::exception e)
+  catch (const std::exception& e)
   {
     vtkErrorMacro("exception: " << e.what());
-    return 0;
   }
-  vtkErrorMacro("Unknown exception");
+  catch (...)
+  {
+    vtkErrorMacro("Unknown exception");
+  }
   return 0;
 }
 
