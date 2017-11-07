@@ -13,10 +13,10 @@
 
 =========================================================================*/
 /**
- * @class   vtkPdalReader
+ * @class   vtkPDALReader
  * @brief   Reads LIDAR data using the PDAL library.
  *
- * vtkPdalReader reads LIDAR data using the PDAL library.  See the
+ * vtkPDALReader reads LIDAR data using the PDAL library.  See the
  * readers section on www.pdal.io for the supported formats. It produces a
  * vtkPolyData with point data arrays for attributes such as Intensity,
  * Classification, Color, ...
@@ -26,8 +26,8 @@
  * vtkPolyData
 */
 
-#ifndef vtkPdalReader_h
-#define vtkPdalReader_h
+#ifndef vtkPDALReader_h
+#define vtkPDALReader_h
 
 #include <vtkIOPDALModule.h> // For export macro
 
@@ -38,13 +38,13 @@ namespace pdal
   class Reader;
 };
 
-class VTKIOPDAL_EXPORT vtkPdalReader: public vtkPolyDataAlgorithm
+class VTKIOPDAL_EXPORT vtkPDALReader: public vtkPolyDataAlgorithm
 {
 public:
-  vtkPdalReader(const vtkPdalReader&) = delete;
-  void operator=(const vtkPdalReader&) = delete;
-  static vtkPdalReader* New();
-  vtkTypeMacro(vtkPdalReader,vtkPolyDataAlgorithm);
+  vtkPDALReader(const vtkPDALReader&) = delete;
+  void operator=(const vtkPDALReader&) = delete;
+  static vtkPDALReader* New();
+  vtkTypeMacro(vtkPDALReader,vtkPolyDataAlgorithm);
   virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   /**
@@ -54,8 +54,8 @@ public:
   vtkGetStringMacro(FileName);
 
 protected:
-  vtkPdalReader();
-  virtual ~vtkPdalReader();
+  vtkPDALReader();
+  virtual ~vtkPDALReader();
 
   /**
    * Core implementation of the data set reader
@@ -71,4 +71,4 @@ protected:
   char* FileName;
 };
 
-#endif // vtkPdalReader_h
+#endif // vtkPDALReader_h

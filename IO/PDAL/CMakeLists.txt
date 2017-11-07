@@ -1,7 +1,7 @@
 find_package(PDAL CONFIG REQUIRED)
 mark_as_advanced(PDAL_INCLUDE_DIR PDAL_LIBRARY)
 
-set(PdalReader_SRCS vtkPdalReader.cxx)
+set(PDALReader_SRCS vtkPDALReader.cxx)
 
 include_directories(${PDAL_INCLUDE_DIRS})
 
@@ -13,5 +13,5 @@ foreach(pdal_lib IN LISTS PDAL_LIBRARIES)
     break()
   endif()
 endforeach()
-vtk_module_library(vtkIOPDAL ${PdalReader_SRCS})
+vtk_module_library(vtkIOPDAL ${PDALReader_SRCS})
 vtk_module_link_libraries(vtkIOPDAL LINK_PRIVATE ${PDAL_LIBRARIES})
