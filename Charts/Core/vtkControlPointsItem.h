@@ -37,6 +37,7 @@ class vtkCallbackCommand;
 class vtkContext2D;
 class vtkPoints2D;
 class vtkTransform2D;
+class vtkPiecewisePointHandleItem;
 
 class VTKCHARTSCORE_EXPORT vtkControlPointsItem: public vtkPlot
 {
@@ -366,6 +367,8 @@ public:
 protected:
   vtkControlPointsItem();
   ~vtkControlPointsItem() override;
+
+  friend class vtkPiecewisePointHandleItem;
 
   void StartChanges();
   void EndChanges();
