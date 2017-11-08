@@ -269,63 +269,68 @@ endif()
 
 endif()
 
-# Handle out-of-source builds correctly.
-#
-#  1. Create a list of Python files to be installed/copied.
-#  2. Copy them to VTK_BINARY_DIR if it is different from VTK_SOURCE_DIR.
-#  3. Use Python's compileall to compile the copied files.
-#
-# *** Step 1 has to be done carefully to avoid missing out files ***
-
-if(PYTHON_EXECUTABLE)
-
-# Configure files that need to be configured, including generation of the *.py
+# "Configure" files that need to be configured, including generation of the *.py
 # files for each of the enabled VTK modules.
+# We don't directly configure to `VTK_BUILD_PYTHON_MODULES_DIR` since of VS generator, the
+# `VTK_BUILD_PYTHON_MODULES_DIR` depends on build configuration not known at configure time.
+# So we configure into a temporary location and then copy those files over to
+# `VTK_BUILD_PYTHON_MODULES_DIR` using a custom_command.
 
 # Wrapping/Python/vtk/*.py
-  unset(VTK_PYTHON_IMPORT_ALL)
-  foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
-    set(VTK_PYTHON_IMPORT_ALL
-      "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
-    configure_file(vtk/module.py.in
-      "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/${module}.py" @ONLY)
-  endforeach()
-  configure_file(vtk/__init__.py.in
-    "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/__init__.py" @ONLY)
+unset(VTK_PYTHON_IMPORT_ALL)
+unset(configured_py_files)
+foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
+  set(VTK_PYTHON_IMPORT_ALL
+    "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
+  configure_file(vtk/module.py.in
+    "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py" @ONLY)
+  list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py")
+endforeach()
+configure_file(vtk/__init__.py.in
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py" @ONLY)
+list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py")
 
 # Kit module adapters
-  foreach(kit IN LISTS vtk_kits)
-    set(_module_kit ${kit}${VTK_KIT_SUFFIX})
-    foreach(dep IN LISTS _${kit}_modules)
-      configure_file(vtk/kit_module__init__.py.in
-        "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk/${dep}.py" @ONLY)
-    endforeach()
-    unset(_module_kit)
+foreach(kit IN LISTS vtk_kits)
+  set(_module_kit ${kit}${VTK_KIT_SUFFIX})
+  foreach(dep IN LISTS _${kit}_modules)
+    configure_file(vtk/kit_module__init__.py.in
+      "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}.py" @ONLY)
+    list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}.py")
   endforeach()
+  unset(_module_kit)
+endforeach()
 
-  # Build all py files that form the `vtk` package.
-  vtk_python_package(vtkpython_pyc vtk)
+# Now copy configured files to build-cfg specific dir.
+add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
+  COMMAND ${CMAKE_COMMAND}
+          -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/vtk" "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk"
+  COMMAND ${CMAKE_COMMAND}
+          -E touch "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
+  DEPENDS ${configured_py_files})
 
-  if(TARGET vtkpython)
-    add_dependencies(vtkpython vtkpython_pyc)
-  endif()
-  if(TARGET pvtkpython)
-    add_dependencies(pvtkpython vtkpython_pyc)
-  endif()
+# Build all py files that form the `vtk` package.
+vtk_python_package(vtkpython_pyc vtk DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/copy-complete")
 
-  # If no runtime is to be installed then do not install python modules.
-  if(NOT VTK_INSTALL_NO_RUNTIME)
-    # Install the conveniently configured python interpretters
-    if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
-      # Install the vtkpython executable
-      install(TARGETS vtkpython
+if(TARGET vtkpython)
+  add_dependencies(vtkpython vtkpython_pyc)
+endif()
+if(TARGET pvtkpython)
+  add_dependencies(pvtkpython vtkpython_pyc)
+endif()
+
+# If no runtime is to be installed then do not install python modules.
+if(NOT VTK_INSTALL_NO_RUNTIME)
+  # Install the conveniently configured python interpretters
+  if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
+    # Install the vtkpython executable
+    install(TARGETS vtkpython
+      DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
+
+    if(PVTKPYTHON_EXECUTABLE)
+      # Install the mpi enabled vtkpython executable
+      install(TARGETS pvtkpython
         DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
-
-      if(PVTKPYTHON_EXECUTABLE)
-        # Install the mpi enabled vtkpython executable
-        install(TARGETS pvtkpython
-          DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
-      endif()
     endif()
   endif()
 endif()

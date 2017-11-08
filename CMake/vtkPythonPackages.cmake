@@ -6,7 +6,9 @@
 #   [LABEL "<label to use>"]
 #   [OUTPUT "<file generated to mark end of copying>"]
 #   [REGEX <regex> [EXCLUDE]]
+#   [DEPENDS [depends ...]]
 #   )
+#
 # One can specify multiple REGEX or REGEX <regex> EXCLUDE arguments.
 #------------------------------------------------------------------------------
 function(copy_files_recursive source-dir)
@@ -14,11 +16,12 @@ function(copy_files_recursive source-dir)
   set (patterns)
   set (exclude-patterns)
   set (output-file)
+  set (extra_depends)
   set (label "Copying files")
 
   set (doing "")
   foreach (arg IN LISTS ARGN)
-    if (arg MATCHES "^(DESTINATION|REGEX|OUTPUT|LABEL)$")
+    if (arg MATCHES "^(DESTINATION|REGEX|OUTPUT|LABEL|DEPENDS)$")
       set (doing "${arg}")
     elseif ("x${doing}" STREQUAL "xDESTINATION")
       set (doing "")
@@ -37,6 +40,8 @@ function(copy_files_recursive source-dir)
     elseif ("x${doing}" STREQUAL "xLABEL")
       set (doing "")
       set (label "${arg}")
+    elseif ("x${doing}" STREQUAL "xDEPENDS")
+      list(APPEND extra_depends "${arg}")
     else()
       message(AUTHOR_WARNING "Unknown argument [${arg}]")
     endif()
@@ -86,5 +91,6 @@ function(copy_files_recursive source-dir)
     COMMAND ${CMAKE_COMMAND} -E touch ${output-file}
     DEPENDS ${all_files}
             "${CMAKE_CURRENT_BINARY_DIR}/${_name}.cfr.cmake"
+            ${extra_depends}
     COMMENT ${label})
 endfunction()

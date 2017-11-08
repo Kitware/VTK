@@ -20,6 +20,8 @@ include(vtkPythonPackages)
 #   [RELATIVE dir]  # If present, the destination package location is determined
 #                   # using the source location relative to the ${dir} (see
 #                   VTK/Web/Python/CMakeLists.txt for usage).
+#   [DEPENDS [depends ...]] # if present, provides dependencies before the
+#                           # module files are copied, built, etc.
 # )
 # Uses following global variables:
 # VTK_BUILD_PYTHON_MODULES_DIR :- location where the entire package will be
@@ -54,22 +56,27 @@ function(vtk_python_package name)
   set(_can_use_system)
   set(_doing)
   set(_relative)
+  set(_depends)
   foreach(arg ${ARGN})
-    if (_doing STREQUAL "RELATIVE")
-      set (_relative "${arg}")
-      set (_doing)
-    elseif(arg STREQUAL "RELATIVE")
-      set (_doing "RELATIVE")
-    elseif(arg STREQUAL "NO_INSTALL")
+    if(arg STREQUAL "NO_INSTALL")
       set (_no_install TRUE)
+      set (_doing)
     elseif(arg STREQUAL "CAN_USE_SYSTEM")
       set (_can_use_system TRUE)
+      set (_doing)
+    elseif (arg MATCHES "^(RELATIVE|DEPENDS)$")
+      set(_doing "${arg}")
+    elseif (_doing STREQUAL "RELATIVE")
+      set (_relative "${arg}")
+      set (_doing)
+    elseif(_doing STREQUAL "DEPENDS")
+      list(APPEND _depends "${arg}")
     else()
       list(APPEND _packages "${arg}")
     endif()
   endforeach()
 
-  find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
+  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
 
   set (_depencies)
   foreach(pkg ${_packages})
@@ -91,24 +98,35 @@ function(vtk_python_package name)
 
     if (NOT _use_system)
       # copy the sources *.py files to build directory.
+      if(_depends)
+        set(_extra_args DEPENDS ${_depends})
+      endif()
       copy_files_recursive("${_dir}"
         DESTINATION "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
         LABEL "Copying files for Python package '${_name}'"
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete"
         REGEX "^(.*\\.py)$"
-        )
+        ${_extra_args})
+      unset(_extra_args)
 
-      add_custom_command(
-        COMMAND ${PYTHON_EXECUTABLE} -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
-        COMMAND ${PYTHON_EXECUTABLE} -O -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
-        COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
-        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete"
-        OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
-        COMMENT "Compiling Python package '${_name}'")
+      if (PYTHON_EXECUTABLE)
+        add_custom_command(
+          COMMAND ${PYTHON_EXECUTABLE} -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
+          COMMAND ${PYTHON_EXECUTABLE} -O -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
+          COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
+          DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete"
+          OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
+          COMMENT "Compiling Python package '${_name}'")
 
-      # save the output file so we can add a target for the module with proper
-      # dependency.
-      list(APPEND _depencies "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete")
+        # save the output file so we can add a target for the module with proper
+        # dependency.
+        list(APPEND _depencies "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete")
+      else()
+        # skip compiling Python modules since PYTHON_EXECUTABLE is not
+        # available. In that case, we just depend on the copying to have
+        # completed.
+        list(APPEND _depencies "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete")
+      endif()
 
       # add install rules.
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
