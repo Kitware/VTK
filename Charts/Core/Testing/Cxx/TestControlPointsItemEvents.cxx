@@ -14,6 +14,7 @@
 =========================================================================*/
 
 // Charts includes
+#include "vtkChartXY.h"
 #include "vtkContextInteractorStyle.h"
 #include "vtkContextScene.h"
 #include "vtkControlPointsItem.h"
@@ -82,8 +83,8 @@ int TestControlPointsItemEvents(int, char*[])
   vtkNew<vtkColorTransferControlPointsItem> controlPoints;
   controlPoints->SetColorTransferFunction(transferFunction);
 
-//  vtkNew<vtkChartXY> chart;
-//  chart->AddPlot(controlPoints);
+  vtkNew<vtkChartXY> chart;
+  chart->AddPlot(controlPoints);
 
   vtkNew<vtkContextScene> scene;
   scene->AddItem(controlPoints);
