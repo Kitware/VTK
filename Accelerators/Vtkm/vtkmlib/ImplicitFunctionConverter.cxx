@@ -18,10 +18,11 @@
 #include "vtkmFilterPolicy.h"
 
 #include "vtkBox.h"
+#include "vtkCylinder.h"
 #include "vtkPlane.h"
 #include "vtkSphere.h"
 
-#include <vtkm/cont/ImplicitFunction.h>
+#include <vtkm/ImplicitFunction.h>
 
 
 namespace tovtkm {
@@ -34,15 +35,14 @@ inline vtkm::Vec<vtkm::FloatDefault, 3> MakeFVec3(const double x[3])
 }
 
 ImplicitFunctionConverter::ImplicitFunctionConverter()
-  : InFunction(nullptr), OutFunction(nullptr), MTime(0)
+  : InFunction(nullptr), OutFunction(), MTime(0)
 {
 }
 
 void ImplicitFunctionConverter::Set(vtkImplicitFunction *function)
 {
-  this->InFunction = function;
-
   vtkBox *box = nullptr;
+  vtkCylinder *cylinder = nullptr;
   vtkPlane *plane = nullptr;
   vtkSphere *sphere = nullptr;
 
@@ -52,9 +52,18 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction *function)
     box->GetXMin(xmin);
     box->GetXMax(xmax);
 
-    auto b = new vtkm::cont::Box(MakeFVec3(xmin), MakeFVec3(xmax));
-    b->ResetDevices(vtkmInputFilterPolicy::DeviceAdapterList());
-    this->OutFunction.reset(b);
+    auto b = new vtkm::Box(MakeFVec3(xmin), MakeFVec3(xmax));
+    this->OutFunction.Reset(b, true, vtkmInputFilterPolicy::DeviceAdapterList());
+  }
+  else if ((cylinder = vtkCylinder::SafeDownCast(function)))
+  {
+    double center[3], axis[3], radius;
+    cylinder->GetCenter(center);
+    cylinder->GetAxis(axis);
+    radius = cylinder->GetRadius();
+
+    auto c = new vtkm::Cylinder(MakeFVec3(center), MakeFVec3(axis), radius);
+    this->OutFunction.Reset(c, true, vtkmInputFilterPolicy::DeviceAdapterList());
   }
   else if ((plane = vtkPlane::SafeDownCast(function)))
   {
@@ -62,9 +71,8 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction *function)
     plane->GetOrigin(origin);
     plane->GetNormal(normal);
 
-    auto p = new vtkm::cont::Plane(MakeFVec3(origin), MakeFVec3(normal));
-    p->ResetDevices(vtkmInputFilterPolicy::DeviceAdapterList());
-    this->OutFunction.reset(p);
+    auto p = new vtkm::Plane(MakeFVec3(origin), MakeFVec3(normal));
+    this->OutFunction.Reset(p, true, vtkmInputFilterPolicy::DeviceAdapterList());
   }
   else if ((sphere = vtkSphere::SafeDownCast(function)))
   {
@@ -72,20 +80,27 @@ void ImplicitFunctionConverter::Set(vtkImplicitFunction *function)
     sphere->GetCenter(center);
     radius = sphere->GetRadius();
 
-    auto s = new vtkm::cont::Sphere(MakeFVec3(center),
-                                    static_cast<vtkm::FloatDefault>(radius));
-    s->ResetDevices(vtkmInputFilterPolicy::DeviceAdapterList());
-    this->OutFunction.reset(s);
+    auto s = new vtkm::Sphere(MakeFVec3(center),
+                              static_cast<vtkm::FloatDefault>(radius));
+    this->OutFunction.Reset(s, true, vtkmInputFilterPolicy::DeviceAdapterList());
+  }
+  else
+  {
+    vtkGenericWarningMacro(<< "The implicit functions " << function->GetClassName()
+                           << " is not supported by vtk-m.");
+    return;
   }
 
   this->MTime = function->GetMTime();
+  this->InFunction = function;
 }
 
-const std::shared_ptr<vtkm::cont::ImplicitFunction>& ImplicitFunctionConverter::Get() const
+const vtkm::cont::ImplicitFunctionHandle& ImplicitFunctionConverter::Get() const
 {
-  if (this->MTime < this->InFunction->GetMTime())
+  if (this->InFunction && (this->MTime < this->InFunction->GetMTime()))
   {
     vtkBox *box = nullptr;
+    vtkCylinder *cylinder = nullptr;
     vtkPlane *plane = nullptr;
     vtkSphere *sphere = nullptr;
 
@@ -95,9 +110,21 @@ const std::shared_ptr<vtkm::cont::ImplicitFunction>& ImplicitFunctionConverter::
       box->GetXMin(xmin);
       box->GetXMax(xmax);
 
-      auto b = static_cast<vtkm::cont::Box*>(this->OutFunction.get());
+      auto b = static_cast<vtkm::Box*>(this->OutFunction.Get());
       b->SetMinPoint(MakeFVec3(xmin));
       b->SetMaxPoint(MakeFVec3(xmax));
+    }
+    else if ((cylinder = vtkCylinder::SafeDownCast(this->InFunction)))
+    {
+      double center[3], axis[3], radius;
+      cylinder->GetCenter(center);
+      cylinder->GetAxis(axis);
+      radius = cylinder->GetRadius();
+
+      auto c = static_cast<vtkm::Cylinder*>(this->OutFunction.Get());
+      c->SetCenter(MakeFVec3(center));
+      c->SetAxis(MakeFVec3(axis));
+      c->SetRadius(radius);
     }
     else if ((plane = vtkPlane::SafeDownCast(this->InFunction)))
     {
@@ -105,7 +132,7 @@ const std::shared_ptr<vtkm::cont::ImplicitFunction>& ImplicitFunctionConverter::
       plane->GetOrigin(origin);
       plane->GetNormal(normal);
 
-      auto p = static_cast<vtkm::cont::Plane*>(this->OutFunction.get());
+      auto p = static_cast<vtkm::Plane*>(this->OutFunction.Get());
       p->SetOrigin(MakeFVec3(origin));
       p->SetNormal(MakeFVec3(normal));
     }
@@ -115,7 +142,7 @@ const std::shared_ptr<vtkm::cont::ImplicitFunction>& ImplicitFunctionConverter::
       sphere->GetCenter(center);
       radius = sphere->GetRadius();
 
-      auto s = static_cast<vtkm::cont::Sphere*>(this->OutFunction.get());
+      auto s = static_cast<vtkm::Sphere*>(this->OutFunction.Get());
       s->SetCenter(MakeFVec3(center));
       s->SetRadius(static_cast<vtkm::FloatDefault>(radius));
     }
