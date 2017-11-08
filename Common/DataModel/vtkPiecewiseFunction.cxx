@@ -716,9 +716,9 @@ double vtkPiecewiseFunction::FindMinimumXDistance()
 }
 
 // Returns a table of function values evaluated at regular intervals
-void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
+void vtkPiecewiseFunction::GetTable( double start, double end,
                                      int size, double* table,
-                                     int stride )
+                                     int stride, int logIncrements )
 {
   int i;
   int idx = 0;
@@ -741,6 +741,15 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
   double y2        = 0.0;
   double midpoint  = 0.0;
   double sharpness = 0.0;
+  double xStart    = start;
+  double xEnd      = end;
+
+  if (logIncrements)
+  {
+    xStart = std::log10(xStart);
+    xEnd = std::log10(xEnd);
+  }
+
 
   // For each table entry
   for ( i = 0; i < size; i++ )
@@ -758,6 +767,12 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
     else
     {
       x = 0.5*(xStart+xEnd);
+    }
+
+    // Convert back into data space if xStart and xEnd are defined in log space:
+    if (logIncrements)
+    {
+      x = std::pow(10., x);
     }
 
     // Do we need to move to the next node?
@@ -914,11 +929,11 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
 // Copy from double table to float
 void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
                                      int size, float* table,
-                                     int stride )
+                                     int stride, int logIncrements )
 {
   double *tmpTable = new double [size];
 
-  this->GetTable( xStart, xEnd, size, tmpTable, 1 );
+  this->GetTable( xStart, xEnd, size, tmpTable, 1, logIncrements );
 
   double *tmpPtr = tmpTable;
   float *tPtr = table;
