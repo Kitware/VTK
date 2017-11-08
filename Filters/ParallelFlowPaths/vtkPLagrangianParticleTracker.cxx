@@ -560,7 +560,7 @@ void vtkPLagrangianParticleTracker::GenerateParticles(
       {
         // this rank have an incorrect number of arrays, not supposed to happen
         vtkErrorMacro("Something went wrong with seed data arrays, discarding arrays");
-        for (int i = 0; i < nArrays; i++)
+        for (int i = nArrays - 1; i >= 0; i--)
         {
           seedData->RemoveArray(i);
         }
