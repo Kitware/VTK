@@ -12,6 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCallbackCommand.h"
 #include "vtkContext2D.h"
@@ -116,7 +118,7 @@ void vtkColorTransferFunctionItem::ComputeTexture()
                            0, 0,
                            0, 0);
   this->Texture->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
-  bool isLogTable = this->UsingLogScale();
+  bool isLogTable = this->GetXAxis()->GetLogScaleActive();
   double logBoundsMin = bounds[0] > 0.0 ? log10(bounds[0]) : 0.0;
   double logBoundsDelta = (bounds[0] > 0.0 && bounds[1] > 0.0)?
     (log10(bounds[1])-log10(bounds[0])) : 0.0;
@@ -146,11 +148,4 @@ void vtkColorTransferFunctionItem::ComputeTexture()
     }
   }
   delete [] values;
-}
-
-//-----------------------------------------------------------------------------
-bool vtkColorTransferFunctionItem::UsingLogScale()
-{
-  return this->ColorTransferFunction?
-    (this->ColorTransferFunction->UsingLogScale() != 0) : false;
 }

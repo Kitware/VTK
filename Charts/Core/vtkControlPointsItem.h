@@ -461,13 +461,6 @@ protected:
    */
   virtual void ComputeBounds(double* bounds);
 
-  /**
-   * Returns true if control points are to be rendered in log-space. This is
-   * true when vtkScalarsToColors is using log-scale, for example. Default
-   * implementation always return false.
-   */
-  virtual bool UsingLogScale() { return false; }
-
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;
   vtkBrush*           SelectedPointBrush;

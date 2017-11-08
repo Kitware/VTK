@@ -376,7 +376,10 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
   this->UpdateLayout(painter);
 
   // Axes may have changed during updateLayout
-  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime())
+  if (this->MTime < this->ChartPrivate->axes[0]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[1]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[2]->GetMTime() ||
+      this->MTime < this->ChartPrivate->axes[3]->GetMTime())
   {
     // Cause the plot transform to be recalculated if necessary
     recalculateTransform = true;
@@ -809,12 +812,12 @@ void vtkChartXY::RecalculatePlotBounds()
     }
     if (this->ForceAxesToBounds)
     {
-      axis->SetMinimumLimit(range[0]);
-      axis->SetMaximumLimit(range[1]);
+      axis->SetUnscaledMinimumLimit(range[0]);
+      axis->SetUnscaledMaximumLimit(range[1]);
     }
     if (axis->GetBehavior() == vtkAxis::AUTO && initialized[i])
     {
-      axis->SetRange(range[0], range[1]);
+      axis->SetUnscaledRange(range[0], range[1]);
       axis->AutoScale();
     }
   }

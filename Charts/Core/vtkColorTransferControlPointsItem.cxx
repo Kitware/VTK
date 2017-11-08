@@ -250,10 +250,3 @@ void vtkColorTransferControlPointsItem::ComputeBounds(double* bounds)
     this->Superclass::ComputeBounds(bounds);
   }
 }
-
-//-----------------------------------------------------------------------------
-bool vtkColorTransferControlPointsItem::UsingLogScale()
-{
-  return (this->ColorTransferFunction?
-    (this->ColorTransferFunction->UsingLogScale() != 0) : false);
-}

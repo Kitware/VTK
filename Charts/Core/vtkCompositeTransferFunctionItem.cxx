@@ -13,6 +13,7 @@
 
 =========================================================================*/
 
+#include "vtkAxis.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
 #include "vtkImageData.h"
@@ -112,25 +113,44 @@ void vtkCompositeTransferFunctionItem::ComputeTexture()
     this->Texture = vtkImageData::New();
   }
 
+  const bool logX = this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis()->GetLogScaleActive();
+
   const int dimension = this->GetTextureWidth();
   double* values = new double[dimension];
-  this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values);
+  this->OpacityFunction->GetTable(bounds[0], bounds[1], dimension, values, 1,
+                                  logX ? 1 : 0);
   unsigned char* ptr =
     reinterpret_cast<unsigned char*>(this->Texture->GetScalarPointer(0,0,0));
+
   // TBD: maybe the shape should be defined somewhere else...
   if (this->MaskAboveCurve || this->PolyLinePen->GetLineType() != vtkPen::SOLID_LINE)
   {
     this->Shape->SetNumberOfPoints(dimension);
-    double step = (bounds[1] - bounds[0]) / dimension;
+
+    if (logX)
+    {
+      bounds[0] = std::log10(bounds[0]);
+      bounds[1] = std::log10(bounds[1]);
+    }
+    const double step = (bounds[1] - bounds[0]) / dimension;
+
     for (int i = 0; i < dimension; ++i)
     {
-      ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
       if (values[i] < 0. || values[i] > 1.)
       {
         vtkWarningMacro( << "Opacity at point " << i << " is " << values[i]
                          << " which is outside the valid range of [0,1]");
       }
-      this->Shape->SetPoint(i, bounds[0] + step * i, values[i]);
+      ptr[3] = static_cast<unsigned char>(values[i] * this->Opacity * 255);
+
+      double xValue = bounds[0] + step * i;
+      double yValue = values[i];
+      if (logY)
+      {
+        yValue = std::log10(yValue);
+      }
+      this->Shape->SetPoint(i, xValue, yValue);
       ptr+=4;
     }
   }
