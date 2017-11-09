@@ -80,11 +80,14 @@ vtkConnectedPointsFilter::~vtkConnectedPointsFilter()
 {
   this->Seeds->Delete();
   this->SpecifiedRegionIds->Delete();
+
   if ( this->RegionLabels != nullptr )
   {
     this->RegionLabels->Delete();
   }
   this->RegionSizes->Delete();
+  this->NeighborPointIds->Delete();
+
   this->SetLocator(nullptr);
 }
 
