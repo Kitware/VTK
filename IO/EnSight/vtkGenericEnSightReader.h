@@ -269,7 +269,12 @@ public:
    * Returns true if the file pointed to by casefilename appears to be a
    * valid EnSight case file.
    */
-  static int CanReadFile(const char *casefilename);
+  static bool IsEnSightFile(const char *casefilename);
+
+  /**
+  * Returns IsEnSightFile() by default, but can be overridden
+  */
+  virtual bool CanReadFile(const char *casefilename);
 
 //THIB
 vtkGenericEnSightReader* GetReader() { return this->Reader; }

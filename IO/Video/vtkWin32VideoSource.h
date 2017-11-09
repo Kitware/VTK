@@ -41,46 +41,46 @@ class VTKIOVIDEO_EXPORT vtkWin32VideoSource : public vtkVideoSource
 public:
   static vtkWin32VideoSource *New();
   vtkTypeMacro(vtkWin32VideoSource,vtkVideoSource);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Standard VCR functionality: Record incoming video.
    */
-  void Record();
+  void Record() override;
 
   /**
    * Standard VCR functionality: Play recorded video.
    */
-  void Play();
+  void Play() override;
 
   /**
    * Standard VCR functionality: Stop recording or playing.
    */
-  void Stop();
+  void Stop() override;
 
   /**
    * Grab a single video frame.
    */
-  void Grab();
+  void Grab() override;
 
   //@{
   /**
    * Request a particular frame size (set the third value to 1).
    */
-  void SetFrameSize(int x, int y, int z);
-  virtual void SetFrameSize(int dim[3]) {
+  void SetFrameSize(int x, int y, int z) override;
+  void SetFrameSize(int dim[3]) override {
     this->SetFrameSize(dim[0], dim[1], dim[2]); };
   //@}
 
   /**
    * Request a particular frame rate (default 30 frames per second).
    */
-  void SetFrameRate(float rate);
+  void SetFrameRate(float rate) override;
 
   /**
    * Request a particular output format (default: VTK_RGB).
    */
-  void SetOutputFormat(int format);
+  void SetOutputFormat(int format) override;
 
   //@{
   /**
@@ -105,13 +105,13 @@ public:
    * Initialize the driver (this is called automatically when the
    * first grab is done).
    */
-  void Initialize();
+  void Initialize() override;
 
   /**
    * Free the driver (this is called automatically inside the
    * destructor).
    */
-  void ReleaseSystemResources();
+  void ReleaseSystemResources() override;
 
   //@{
   /**
@@ -133,7 +133,7 @@ protected:
 
   void CheckBuffer();
   void UnpackRasterLine(char *outptr, char *inptr,
-                        int start, int count);
+                        int start, int count) override;
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();

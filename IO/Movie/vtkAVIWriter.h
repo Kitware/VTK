@@ -36,16 +36,16 @@ class VTKIOMOVIE_EXPORT vtkAVIWriter : public vtkGenericMovieWriter
 public:
   static vtkAVIWriter *New();
   vtkTypeMacro(vtkAVIWriter,vtkGenericMovieWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
    * These methods start writing an AVI file, write a frame to the file
    * and then end the writing process.
    */
-  void Start();
-  void Write();
-  void End();
+  void Start() override;
+  void Write() override;
+  void End() override;
   //@}
 
   //@{

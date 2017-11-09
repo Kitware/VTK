@@ -89,7 +89,7 @@ public:
    * Set the size of the window in pixels.
    */
   void SetSize(int,int) override;
-  void SetSize(int a[2]) override {vtkOpenGLRenderWindow::SetSize(a);}
+  void SetSize(int a[2]) override {vtkOpenGLRenderWindow::SetSize(a);};
   //@}
 
   /**
