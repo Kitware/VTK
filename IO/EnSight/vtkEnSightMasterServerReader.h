@@ -53,7 +53,7 @@ public:
   vtkGetMacro(CurrentPiece, int);
   //@}
 
-  bool CanReadFile(const char *fname) override;
+  int CanReadFile(const char *fname) override;
 
 protected:
   vtkEnSightMasterServerReader();

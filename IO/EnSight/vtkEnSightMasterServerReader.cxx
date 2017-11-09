@@ -187,7 +187,7 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 }
 
 //----------------------------------------------------------------------------
-bool vtkEnSightMasterServerReader::CanReadFile(const char* fname)
+int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
 {
   // We may have to read quite a few lines of the file to do this test
   // for real.  Just check the extension.
