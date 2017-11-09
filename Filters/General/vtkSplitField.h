@@ -115,7 +115,7 @@ public:
         {
           size_t len = strlen(name)+1;
           this->FieldName = new char[len];
-#ifdef _WIN32
+#ifdef _MSC_VER
           strncpy_s(this->FieldName, len, name, len - 1);
 #else
           strncpy(this->FieldName, name, len);
