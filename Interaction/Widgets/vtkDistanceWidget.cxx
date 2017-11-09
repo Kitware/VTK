@@ -374,7 +374,6 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget *w)
   // Freshly enabled and placing the first point
   if ( self->WidgetState == vtkDistanceWidget::Start )
   {
-    self->GrabFocus(self->EventCallbackCommand);
     self->WidgetState = vtkDistanceWidget::Define;
     self->InvokeEvent(vtkCommand::StartInteractionEvent, nullptr);
     reinterpret_cast<vtkDistanceRepresentation*>(self->WidgetRep)->VisibilityOn();
@@ -382,6 +381,7 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget *w)
       self->Interactor, self, vtkWidgetEvent::AddPoint, self->CallData);
     self->CurrentHandle = 0;
     self->InvokeEvent(vtkCommand::PlacePointEvent,&(self->CurrentHandle));
+    self->EventCallbackCommand->SetAbortFlag(1);
   }
 
   // Placing the second point is easy
@@ -393,8 +393,8 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget *w)
     self->Point1Widget->SetEnabled(1);
     self->Point2Widget->SetEnabled(1);
     self->CurrentHandle = -1;
-    self->ReleaseFocus();
     self->InvokeEvent(vtkCommand::EndInteractionEvent, nullptr);
+    self->EventCallbackCommand->SetAbortFlag(1);
   }
 
   // Maybe we are trying to manipulate the widget handles
@@ -409,7 +409,6 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget *w)
       return;
     }
 
-    self->GrabFocus(self->EventCallbackCommand);
     if ( state == vtkDistanceRepresentation::NearP1 )
     {
       self->CurrentHandle = 0;
@@ -419,10 +418,10 @@ void vtkDistanceWidget::AddPointAction3D(vtkAbstractWidget *w)
       self->CurrentHandle = 1;
     }
     self->InvokeEvent(vtkCommand::Button3DEvent, self->CallData);
+    self->EventCallbackCommand->SetAbortFlag(1);
   }
 
   // Clean up
-  self->EventCallbackCommand->SetAbortFlag(1);
   self->Render();
 }
 
@@ -475,7 +474,6 @@ void vtkDistanceWidget::MoveAction3D(vtkAbstractWidget *w)
     self->WidgetRep->ComplexInteraction(
       self->Interactor, self, vtkWidgetEvent::Move3D, self->CallData);
     self->InvokeEvent(vtkCommand::InteractionEvent, nullptr);
-    self->EventCallbackCommand->SetAbortFlag(1);
   }
   else //must be moving a handle, invoke a event for the handle widgets
   {

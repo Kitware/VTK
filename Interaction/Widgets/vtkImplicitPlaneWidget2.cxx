@@ -197,7 +197,6 @@ void vtkImplicitPlaneWidget2::SelectAction3D(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->StartInteraction();
   self->InvokeEvent(vtkCommand::StartInteractionEvent,nullptr);
-  self->Render();
 }
 
 //----------------------------------------------------------------------
@@ -335,7 +334,6 @@ void vtkImplicitPlaneWidget2::MoveAction3D(vtkAbstractWidget *w)
   // moving something
   self->EventCallbackCommand->SetAbortFlag(1);
   self->InvokeEvent(vtkCommand::InteractionEvent,nullptr);
-  self->Render();
 }
 
 //----------------------------------------------------------------------
@@ -389,7 +387,6 @@ void vtkImplicitPlaneWidget2::EndSelectAction3D(vtkAbstractWidget *w)
   self->EventCallbackCommand->SetAbortFlag(1);
   self->EndInteraction();
   self->InvokeEvent(vtkCommand::EndInteractionEvent,nullptr);
-  self->Render();
 }
 
 //----------------------------------------------------------------------

@@ -167,6 +167,11 @@ protected:
   static void TranslateAction(vtkAbstractWidget*);
   static void ScaleAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
+  static void SelectAction3D(vtkAbstractWidget*);
+  static void EndSelectAction3D(vtkAbstractWidget*);
+  static void MoveAction3D(vtkAbstractWidget*);
+  static void StepAction3D(vtkAbstractWidget*);
+
 
   // Control whether scaling, rotation, and translation are supported
   vtkTypeBool TranslationEnabled;
