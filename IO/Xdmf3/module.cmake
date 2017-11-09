@@ -16,4 +16,6 @@ vtk_module(vtkIOXdmf3
     vtkParallelCore
     vtksys
     vtkxdmf3
+  KIT
+    vtkParallel
   )
