@@ -661,6 +661,25 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
     systools::SplitPath(systools::GetFilenamePath(vtklib), vtkprefix_components);
   }
 
+#if defined(_WIN32) && !defined(__CYGWIN__) && defined(VTK_BUILD_SHARED_LIBS)
+  // On Windows, based on how the executable is run, we end up failing to load
+  // pyd files due to inability to load dependent dlls. This seems to overcome
+  // the issue.
+  if (!vtklib.empty())
+  {
+    std::string env_path;
+    if (systools::GetEnv("PATH", env_path))
+    {
+      env_path = systools::GetFilenamePath(vtklib) + ";" + env_path;
+    }
+    else
+    {
+      env_path = systools::GetFilenamePath(vtklib);
+    }
+    systools::PutEnv(std::string("PATH=")+env_path);
+  }
+#endif
+
   const std::string sitepackages = VTK_PYTHON_SITE_PACKAGES_SUFFIX;
 #if defined(_WIN32) && !defined(__CYGWIN__)
   const std::string landmark = "vtk\\__init__.py";
