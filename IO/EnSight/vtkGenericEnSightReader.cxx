@@ -169,7 +169,7 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
 }
 
 //-----------------------------------------------------------------------------
-bool vtkGenericEnSightReader::CanReadFile(const char *casefilename)
+int vtkGenericEnSightReader::CanReadFile(const char *casefilename)
 {
   return IsEnSightFile(casefilename);
 }
