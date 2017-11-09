@@ -93,7 +93,7 @@ protected:
     GLenum mode,
     int pointSize);
 
-  void SetShaderValues(
+  virtual void SetShaderValues(
     vtkShaderProgram *prog,
     vtkCompositeMapperHelperData *hdata,
     size_t primOffset);
