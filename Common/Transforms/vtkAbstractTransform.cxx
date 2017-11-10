@@ -654,10 +654,12 @@ void vtkTransformConcatenation::Identity()
       if (tuple->ForwardTransform)
       {
         tuple->ForwardTransform->Delete();
+        tuple->ForwardTransform = nullptr;
       }
       if (tuple->InverseTransform)
       {
         tuple->InverseTransform->Delete();
+        tuple->InverseTransform = nullptr;
       }
     }
   }
