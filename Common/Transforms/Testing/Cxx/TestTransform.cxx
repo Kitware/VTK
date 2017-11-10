@@ -20,12 +20,15 @@
 
 // forward declare test subroutines
 int testUseOfInverse();
+int testConcatenationIdentity();
 
 int TestTransform(int,char *[])
 {
   int numErrors = 0;
 
   numErrors += testUseOfInverse();
+  numErrors += testConcatenationIdentity();
+
 
   return (numErrors > 0) ? 1 : 0;
 }
@@ -72,5 +75,26 @@ int testUseOfInverse()
     std::cout << "Iteration: " << i << " Reference Count: "
       << inv3->GetReferenceCount() << std::endl;
   }
+  return 0;
+}
+
+
+// This is a regression test for a bug where th following code produced
+// a segfault.  As long as this code does not produce a segfault,
+// consider it to have passed the test.
+int testConcatenationIdentity()
+{
+  vtkSmartPointer<vtkTransform> trans1 =
+    vtkSmartPointer<vtkTransform>::New();
+  // Add 2 transforms
+  trans1->Scale(2., 2., 2.);
+  trans1->Scale(2., 2., 2.);
+  trans1->Identity();
+
+  vtkSmartPointer<vtkTransform> trans2 =
+    vtkSmartPointer<vtkTransform>::New();
+  trans2->Scale(2., 2., 2.);
+
+  trans1->DeepCopy(trans2);
   return 0;
 }
