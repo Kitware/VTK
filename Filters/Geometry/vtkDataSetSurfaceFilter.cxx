@@ -1091,7 +1091,7 @@ int vtkDataSetSurfaceFilter::StructuredWithBlankingExecute(vtkStructuredGrid *in
   vtkCellData *outputCD = output->GetCellData();
   if (numCells == 0)
   {
-    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
+    vtkDebugMacro(<<"Number of cells is zero, no data to process.");
     return 1;
   }
 
@@ -1267,7 +1267,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   vtkCellData *outputCD = output->GetCellData();
   if (numCells == 0)
   {
-    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
+    vtkDebugMacro(<<"Number of cells is zero, no data to process.");
     return 1;
   }
 

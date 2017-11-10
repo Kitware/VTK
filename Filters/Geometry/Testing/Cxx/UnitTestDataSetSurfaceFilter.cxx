@@ -433,7 +433,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   }
   }
   {
-  std::cout << "Testing cells == 0 warning...";
+  std::cout << "Testing cells == 0 ...";
   vtkSmartPointer<vtkTest::ErrorObserver>  warningObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
@@ -443,8 +443,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   filter->AddObserver(vtkCommand::WarningEvent, warningObserver);
   filter->Update();
 
-  int status1 = warningObserver->CheckWarningMessage("Number of cells is zero, no data to process.");
-  if (status1)
+  if (warningObserver->GetError() || warningObserver->GetWarning())
   {
     std::cout << " FAILED." << std::endl;
     status++;
@@ -455,7 +454,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   }
   }
   {
-  std::cout << "Testing DataSetExecute cells == 0 warning...";
+  std::cout << "Testing DataSetExecute cells == 0 ...";
   vtkSmartPointer<vtkTest::ErrorObserver>  warningObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
 
@@ -469,9 +468,7 @@ int UnitTestDataSetSurfaceFilter(int, char*[])
   vtkSmartPointer<vtkPolyData> polyData =
     vtkSmartPointer<vtkPolyData>::New();
   filter->DataSetExecute(ugrid, polyData);
-
-  int status1 = warningObserver->CheckWarningMessage("Number of cells is zero, no data to process.");
-  if (status1)
+  if (warningObserver->GetError() || warningObserver->GetWarning())
   {
     std::cout << " FAILED." << std::endl;
     status++;
