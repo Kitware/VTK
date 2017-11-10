@@ -42,7 +42,7 @@ class PointHandle
 public:
   void Init(float x, float y, vtkIdType idx,
     enumPointHandleType type, float val, float distance,
-    double sceneOrigin[2])
+    vtkVector2f &sceneOrigin)
   {
     this->Position[0]=x;
     this->Position[1]=y;
@@ -137,19 +137,20 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   double point[4];
   parentControl->GetControlPoint(parentControl->GetCurrentPoint(), point);
 
-  // shift/scale to scale from data space to rendering space.
-  const vtkRectd& ss = parentControl->GetShiftScale();
-  point[0] = (point[0] + ss[0]) * ss[2];
-  point[1] = (point[1] + ss[1]) * ss[3];
+  // transform from data space to rendering space.
+  vtkVector2f dataPoint(static_cast<float>(point[0]),
+                        static_cast<float>(point[1]));
+  vtkVector2f screenPoint;
+  parentControl->TransformDataToScreen(dataPoint, screenPoint);
 
   unsigned char brushOpacity = painter->GetBrush()->GetOpacity();
   unsigned char penColor[3];
   painter->GetPen()->GetColor(penColor);
   unsigned char penOpacity = painter->GetPen()->GetOpacity();
 
-  double pointInScene[2];
+  vtkVector2f pointInScene;
   vtkTransform2D* sceneTransform = painter->GetTransform();
-  sceneTransform->TransformPoints(point, pointInScene, 1);
+  sceneTransform->TransformPoints(screenPoint.GetData(), pointInScene.GetData(), 1);
 
   vtkNew<vtkTransform2D> translation;
   translation->Translate(pointInScene[0], pointInScene[1]);
@@ -184,22 +185,22 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   float ptRadius = parentControl->GetScreenPointRadius();
   float fDistance=this->HandleRadius+ptRadius;
 
-  double blPos[2]={prePoint[0],prePoint[1]};
-  double trPos[2]={nxtPoint[0],nxtPoint[1]};
+  vtkVector2f blPosData(prePoint[0], prePoint[1]);
+  vtkVector2f trPosData(nxtPoint[0], nxtPoint[1]);
 
-  blPos[0] = (blPos[0] + ss[0]) * ss[2];
-  blPos[1] = (blPos[1] + ss[1]) * ss[3];
+  vtkVector2f blPosScreen;
+  vtkVector2f trPosScreen;
 
-  trPos[0] = (trPos[0] + ss[0]) * ss[2];
-  trPos[1] = (trPos[1] + ss[1]) * ss[3];
+  parentControl->TransformDataToScreen(blPosData, blPosScreen);
+  parentControl->TransformDataToScreen(trPosData, trPosScreen);
 
-  double screenBLPos[2], screenTRPos[2];
-  sceneTransform->TransformPoints(blPos, screenBLPos, 1);
-  sceneTransform->TransformPoints(trPos, screenTRPos, 1);
-  double blxdistance = fabs(pointInScene[0]-screenBLPos[0])-fDistance*2.0;
-  double blydistance = fabs(pointInScene[1]-screenBLPos[1])-fDistance*2.0;
-  double trxdistance = fabs(pointInScene[0]-screenTRPos[0])-fDistance*2.0;
-  double trydistance = fabs(pointInScene[1]-screenTRPos[1])-fDistance*2.0;
+  sceneTransform->TransformPoints(blPosScreen.GetData(), blPosScreen.GetData(), 1);
+  sceneTransform->TransformPoints(trPosScreen.GetData(), trPosScreen.GetData(), 1);
+
+  double blxdistance = fabs(pointInScene[0] - blPosScreen[0]) - fDistance * 2.0;
+  double blydistance = fabs(pointInScene[1] - blPosScreen[1]) - fDistance * 2.0;
+  double trxdistance = fabs(pointInScene[0] - trPosScreen[0]) - fDistance * 2.0;
+  double trydistance = fabs(pointInScene[1] - trPosScreen[1]) - fDistance * 2.0;
 
   blxdistance = std::max(0.0, blxdistance);
   blydistance = std::max(0.0, blydistance);

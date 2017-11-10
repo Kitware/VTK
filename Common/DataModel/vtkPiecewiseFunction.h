@@ -132,10 +132,12 @@ public:
   //@{
   /**
    * Fills in an array of function values evaluated at regular intervals.
-   * Parameter "stride" is used to step through the output "table".
+   * Parameter "stride" is used to step through the output "table". If
+   * logIncrements is true, the intervals between entries will be constant in
+   * logarithmic space.
    */
-  void GetTable( double x1, double x2, int size, float *table, int stride=1 );
-  void GetTable( double x1, double x2, int size, double *table, int stride=1 );
+  void GetTable( double x1, double x2, int size, float *table, int stride=1, int logIncrements=0 );
+  void GetTable( double x1, double x2, int size, double *table, int stride=1, int logIncrements=0 );
   //@}
 
   /**

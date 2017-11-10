@@ -37,6 +37,7 @@ class vtkCallbackCommand;
 class vtkContext2D;
 class vtkPoints2D;
 class vtkTransform2D;
+class vtkPiecewisePointHandleItem;
 
 class VTKCHARTSCORE_EXPORT vtkControlPointsItem: public vtkPlot
 {
@@ -367,6 +368,8 @@ protected:
   vtkControlPointsItem();
   ~vtkControlPointsItem() override;
 
+  friend class vtkPiecewisePointHandleItem;
+
   void StartChanges();
   void EndChanges();
   void StartInteraction();
@@ -460,13 +463,6 @@ protected:
    * Default implementation uses the range of the control points themselves.
    */
   virtual void ComputeBounds(double* bounds);
-
-  /**
-   * Returns true if control points are to be rendered in log-space. This is
-   * true when vtkScalarsToColors is using log-scale, for example. Default
-   * implementation always return false.
-   */
-  virtual bool UsingLogScale() { return false; }
 
   vtkCallbackCommand* Callback;
   vtkPen*             SelectedPointPen;

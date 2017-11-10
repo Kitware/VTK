@@ -38,12 +38,6 @@ protected:
   ~vtkCompositeTransferFunctionItem() override;
 
   // Description:
-  // Returns true if we are rendering in log space.
-  // Since vtkPiecewiseFunction doesn't support log, we show this transfer
-  // function in non-log space always.
-  bool UsingLogScale() override { return false; }
-
-  // Description:
   // Reimplemented to return the range of the piecewise function
   void ComputeBounds(double bounds[4]) override;
 

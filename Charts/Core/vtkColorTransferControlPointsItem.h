@@ -102,13 +102,6 @@ protected:
   vtkColorTransferControlPointsItem();
   ~vtkColorTransferControlPointsItem() override;
 
-  /**
-   * Returns true if control points are to be rendered in log-space. This is
-   * true when vtkScalarsToColors is using log-scale, for example. Default
-   * implementation always return false.
-   */
-  bool UsingLogScale() override;
-
   void emitEvent(unsigned long event, void* params) override;
 
   vtkMTimeType GetControlPointsMTime() override;
