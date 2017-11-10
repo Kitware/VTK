@@ -283,6 +283,8 @@ struct ArrayConverter
 {
   mutable vtkDataArray* Data;
 
+  ArrayConverter() : Data(nullptr) {}
+
   template <typename T, typename S>
   void operator()(const vtkm::cont::ArrayHandle<T, S>& handle) const
   {

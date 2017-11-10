@@ -12,6 +12,14 @@ if(NOT VTKm_ENABLE_TBB)
   set(VTKm_ENABLE_TBB ${vtk_using_tbb} CACHE BOOL "Set to match VTK" FORCE)
 endif()
 
+# VTK only hides symbols for shared libraries (see
+# vtkModuleMacros::vtk_module_library), and uses default visiblity for static
+# builds. VTK-m always hides symbols by default. This option tells VTK-m to use
+# default visibility for static builds so we get consistent linkage:
+if(NOT BUILD_SHARED_LIBS)
+  set(VTKm_USE_DEFAULT_SYMBOL_VISIBILITY ON)
+endif()
+
 set(VTKm_ENABLE_TESTING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_ENABLE_RENDERING OFF CACHE BOOL "Disabled when building as part of VTK" FORCE)
 set(VTKm_USE_64BIT_IDS ${VTK_USE_64BIT_IDS} CACHE BOOL "Set to match VTK" FORCE)
