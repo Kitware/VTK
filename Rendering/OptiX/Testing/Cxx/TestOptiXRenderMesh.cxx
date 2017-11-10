@@ -47,7 +47,6 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
-#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
@@ -257,7 +256,8 @@ int TestOptiXRenderMesh(int argc, char* argv[])
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkOpenGLRenderer> renderer =
+    vtkSmartPointer<vtkOpenGLRenderer>::New();
   renWin->AddRenderer(renderer);
   renderer->AutomaticLightCreationOn();
   renderer->SetBackground(0.75,0.75,0.75);
@@ -461,7 +461,7 @@ int TestOptiXRenderMesh(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, nullptr);
+    SetPipelineControlPoints(renderer, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 
