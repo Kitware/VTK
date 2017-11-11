@@ -309,14 +309,26 @@ add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
           -E touch "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
   DEPENDS ${configured_py_files})
 
+
 # Build all py files that form the `vtk` package.
 vtk_python_package(vtkpython_pyc vtk DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/copy-complete")
 
+# Let's add a target that generates the `vtk` python package
+# including all the platform dependent and independent modules.
+set(module_Python_libs)
+foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
+  list(APPEND module_Python_libs ${module}Python)
+endforeach()
+
+add_custom_target(vtk_python_package)
+add_dependencies(vtk_python_package vtkpython_pyc ${module_Python_libs})
+unset(module_Python_libs)
+
 if(TARGET vtkpython)
-  add_dependencies(vtkpython vtkpython_pyc)
+  add_dependencies(vtkpython vtk_python_package)
 endif()
 if(TARGET pvtkpython)
-  add_dependencies(pvtkpython vtkpython_pyc)
+  add_dependencies(pvtkpython vtk_python_package)
 endif()
 
 # If no runtime is to be installed then do not install python modules.
