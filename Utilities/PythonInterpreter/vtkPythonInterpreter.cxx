@@ -680,7 +680,15 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   }
 #endif
 
-  const std::string sitepackages = VTK_PYTHON_SITE_PACKAGES_SUFFIX;
+  const std::vector<std::string> sitepackages_dirs =
+  {
+    VTK_PYTHON_SITE_PACKAGES_SUFFIX
+#if defined(__APPLE__)
+    // if in an App bundle, the `sitepackages` dir is <app_root>/Contents/Python
+    , "Contents/Python"
+#endif
+  };
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
   const std::string landmark = "vtk\\__init__.py";
 #else
@@ -690,17 +698,21 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
   while (!vtkprefix_components.empty())
   {
     std::string curprefix = systools::JoinPath(vtkprefix_components);
-    const std::string pathtocheck = curprefix + VTK_PATH_SEPARATOR + sitepackages;
-    const std::string landmarktocheck = pathtocheck + VTK_PATH_SEPARATOR + landmark;
-    if (vtksys::SystemTools::FileExists(landmarktocheck))
+
+    for (const std::string& sitepackages : sitepackages_dirs)
     {
-      VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- success!");
-      vtkSafePrependPythonPath(pathtocheck);
-      break;
-    }
-    else
-    {
-      VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- failed!");
+      const std::string pathtocheck = curprefix + VTK_PATH_SEPARATOR + sitepackages;
+      const std::string landmarktocheck = pathtocheck + VTK_PATH_SEPARATOR + landmark;
+      if (vtksys::SystemTools::FileExists(landmarktocheck))
+      {
+        VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- success!");
+        vtkSafePrependPythonPath(pathtocheck);
+        break;
+      }
+      else
+      {
+        VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- failed!");
+      }
     }
     vtkprefix_components.pop_back();
   }
