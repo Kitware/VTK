@@ -26,6 +26,7 @@ include(vtkMobileDevices)
 include(vtkCrossCompiling)
 include(vtkThirdParty)
 include(vtkThreads)
+include(vtkWrapSettings)
 
 include(vtkModuleMacros)
 
@@ -70,69 +71,6 @@ include(TestBigEndian)
 TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
 
 include(CheckTypeSize)
-
-#-----------------------------------------------------------------------------
-# Configure files with settings for use by the build.
-
-# Add the option for build the Python wrapping to VTK.
-option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)
-set(VTK_PYTHON_VERSION 2 CACHE STRING
-    "Python version to use: 2, 2.x, 3, 3.x, or empty")
-
-# Add the option for build the Python wrapping to VTK.
-option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
-
-# Force reset of hints file location in cache if it was moved
-if(VTK_WRAP_HINTS)
-  if(NOT EXISTS ${VTK_WRAP_HINTS})
-    set(VTK_WRAP_HINTS "VTK_WRAP_HINTS-NOTFOUND")
-  endif()
-endif()
-
-find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping/Tools
-  NO_CMAKE_FIND_ROOT_PATH)
-mark_as_advanced(VTK_WRAP_HINTS)
-
-if(BUILD_TESTING OR VTK_WRAP_PYTHON)
-  # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
-  find_package(PythonInterp ${VTK_PYTHON_VERSION} QUIET)
-  mark_as_advanced(PYTHON_EXECUTABLE)
-endif()
-
-if(VTK_WRAP_PYTHON)
-  set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
-  set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
-  # Force the WrappingPythonCore module to on if wrapping is on
-  set(Module_vtkWrappingPythonCore ON CACHE BOOL "Core Python wrapping library"
-    FORCE)
-else()
-  # if wrapping is not on then force WrappingPythonCore module to be off
-  set(Module_vtkWrappingPythonCore OFF CACHE BOOL "Core Python wrapping library"
-    FORCE)
-endif()
-
-if(VTK_WRAP_JAVA)
-  set(VTK_WRAP_JAVA3_INIT_DIR "${VTK_SOURCE_DIR}/Wrapping/Java")
-  # Wrapping executables.
-  set(VTK_WRAP_JAVA_EXE  vtkWrapJava)
-  set(VTK_PARSE_JAVA_EXE vtkParseJava)
-  set(Module_vtkWrappingJava ON CACHE BOOL "Core Java wrapping library"
-    FORCE)
-
-  # Java package location.
-  set(VTK_JAVA_JAR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/vtk.jar)
-  set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
-  file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
-else()
-  set(Module_vtkWrappingJava OFF CACHE BOOL "Core Java wrapping library"
-    FORCE)
-endif()
-
-option(VTK_WRAP_HIERARCHY "Create wrap hierarchy even if languages are disabled." OFF)
-mark_as_advanced(VTK_WRAP_HIERARCHY)
-if(VTK_WRAP_PYTHON OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
-  set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
-endif()
 
 # Kits bundle multiple modules together into a single library, this
 # is used to dramatically reduce the number of generated libraries.
