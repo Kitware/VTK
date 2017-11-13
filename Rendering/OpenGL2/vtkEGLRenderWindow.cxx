@@ -441,7 +441,9 @@ void vtkEGLRenderWindow::WindowInitialize (void)
   // for offscreen EGL always turn on point sprites
   if (this->OffScreenRendering)
   {
+#ifdef GL_POINT_SPRITE
     glEnable(GL_POINT_SPRITE);
+#endif
   }
 }
 
