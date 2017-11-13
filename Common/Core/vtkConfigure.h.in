@@ -69,12 +69,6 @@
 #cmakedefine VTK_USE_WIN32_THREADS
 # define VTK_MAX_THREADS @VTK_MAX_THREADS@
 
-/* Atomic operations */
-#cmakedefine VTK_HAVE_SYNC_BUILTINS
-#if defined(_WIN32)
- #cmakedefine VTK_HAS_INTERLOCKEDADD
-#endif
-
 /* vtkSMPTools back-end */
 #define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
 #define VTK_SMP_BACKEND "@VTK_SMP_IMPLEMENTATION_TYPE@"

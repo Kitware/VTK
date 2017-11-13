@@ -124,9 +124,6 @@ include(CheckTypeSize)
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
-# Test for atomics and other compiler intrinsics
-include(vtkTestBuiltins)
-
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 set(VTK_HAS_EXODUS 1)

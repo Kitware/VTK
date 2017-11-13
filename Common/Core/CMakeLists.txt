@@ -1,3 +1,5 @@
+include(CheckSymbolExists)
+
 # Core configuration options.
 if("${CMAKE_SIZEOF_VOID_P}" GREATER 4)
  set(VTK_USE_64BIT_IDS_DEFAULT ON)
@@ -87,10 +89,27 @@ elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
 endif()
 
 if (${VTK_SMP_USE_DEFAULT_ATOMICS})
+  include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestBuiltins.cmake")
+
+  set(vtkAtomic_defines)
+
+  # Check for atomic functions
+  if (WIN32)
+    check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
+
+    if (VTK_HAS_INTERLOCKEDADD)
+      list(APPEND vtkAtomic_defines "VTK_HAS_INTERLOCKEDADD")
+    endif ()
+  endif()
+
+  set_source_files_properties(vtkAtomic.cxx
+    PROPERITES
+      COMPILE_DEFINITIONS "${vtkAtomic_defines}")
+
   set(VTK_ATOMICS_DEFAULT_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
   list(APPEND VTK_SMP_SOURCES ${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.cxx)
   configure_file(${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h COPYONLY)
+    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h)
   list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h)
 endif()
 
@@ -380,12 +399,6 @@ if(VTK_LEGACY_REMOVE)
   set(VTK_CONFIG_LEGACY_VERSION "")
 else()
   set(VTK_CONFIG_LEGACY_VERSION "#include \"vtkVersionMacros.h\" // removed by VTK_LEGACY_REMOVE")
-endif()
-
-# Check for atomic functions
-include(CheckSymbolExists)
-if (WIN32)
-  check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
 endif()
 
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
