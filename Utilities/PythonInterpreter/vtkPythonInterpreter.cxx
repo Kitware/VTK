@@ -153,7 +153,7 @@ std::string GetLibraryForSymbol(const char* symbolname)
   return std::string(path);
 #else // *NIX and macOS
   // Use the library location of VTK's python wrapping as a prefix to search
-  void* handle = dlsym(RTLD_NEXT, symbolname);
+  void* handle = dlsym(RTLD_DEFAULT, symbolname);
   if (!handle)
   {
     return std::string();
