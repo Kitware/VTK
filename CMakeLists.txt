@@ -24,6 +24,7 @@ include(vtkTesting)
 include(vtkDirectories)
 include(vtkMobileDevices)
 include(vtkCrossCompiling)
+include(vtkThirdParty)
 
 include(vtkModuleMacros)
 
@@ -39,15 +40,6 @@ set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
 add_subdirectory(Remote)
-
-#-----------------------------------------------------------------------------
-# Do we try to use system libraries by default?
-option(VTK_USE_SYSTEM_LIBRARIES "Use the system's libraries by default." OFF)
-mark_as_advanced(VTK_USE_SYSTEM_LIBRARIES)
-
-#-----------------------------------------------------------------------------
-# The third party macros are still used in one or two third party builds.
-include(vtkThirdParty)
 
 #-----------------------------------------------------------------------------
 include(vtkCompilerExtras)

@@ -1,3 +1,9 @@
+# Do we try to use system libraries by default?
+option(VTK_USE_SYSTEM_LIBRARIES "Use the system's libraries by default." OFF)
+mark_as_advanced(VTK_USE_SYSTEM_LIBRARIES)
+
+# TODO: This should be removed in the future. Warnings should be suppressed as
+# part of the import process, not from this macro.
 macro(vtk_third_party_warning_suppress upper lang)
   if(NOT ${upper}_WARNINGS_ALLOW)
     # Visual Studio generators of CMake use /W0 to suppress warnings.
