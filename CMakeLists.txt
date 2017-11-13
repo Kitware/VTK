@@ -121,15 +121,8 @@ mark_as_advanced(VTK_MAX_THREADS)
 
 include(CheckTypeSize)
 
-# Socket tests etc.
-#INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
-
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
-
-# Include the sockets test.
-# FIXME: The test should be moved and rewritten.
-include(VTKParallelCMakeTests)
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_PYTHON "Should VTK Python wrapping be built?" OFF)

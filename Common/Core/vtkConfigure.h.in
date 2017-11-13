@@ -73,10 +73,6 @@
 #define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
 #define VTK_SMP_BACKEND "@VTK_SMP_IMPLEMENTATION_TYPE@"
 
-/* Compiler features.  */
-#cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
-#cmakedefine VTK_HAVE_SO_REUSEADDR
-
 /* Whether we require large files support.  */
 #cmakedefine VTK_REQUIRE_LARGE_FILE_SUPPORT
 
