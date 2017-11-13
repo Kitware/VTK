@@ -14,6 +14,7 @@ if (APPLE)
 endif ()
 
 include(vtkCompilerChecks)
+include(vtkCompilerExtraFlags)
 include(vtkInitializeBuildType)
 include(vtkVersion)
 set(VTK_VERSION
@@ -39,9 +40,6 @@ set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
 add_subdirectory(Remote)
-
-#-----------------------------------------------------------------------------
-include(vtkCompilerExtras)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
