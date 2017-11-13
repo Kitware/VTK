@@ -31,7 +31,9 @@ int TestPolygonBuilder5(int, char* [])
   for(int i = 0; i < NTRIANGLES; ++i)
   {
     for(int j = 0; j < 3; ++j)
+    {
       p[j] = tris[i][j];
+    }
 
     builder.InsertTriangle(p);
   }
@@ -44,7 +46,9 @@ int TestPolygonBuilder5(int, char* [])
 
   // clean up after ourselves.
   for(int i = 0; i< polys->GetNumberOfItems(); ++i)
+  {
     polys->GetItem(i)->Delete();
+  }
 
   polys->RemoveAllItems();
 
