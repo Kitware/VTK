@@ -63,16 +63,8 @@ public:
   typedef std::vector<vtkAbstractContextItem*>::const_iterator
     const_iterator;
   typedef std::vector<vtkAbstractContextItem*>::iterator iterator;
-  // Older versions of GCC did not implement comparison operators for the
-  // const_reverse_operator, the simplest thing to do is not use the const
-  // form of the operator.
-#ifdef VTK_CONST_REVERSE_ITERATOR_COMPARISON
   typedef std::vector<vtkAbstractContextItem*>::const_reverse_iterator
     const_reverse_iterator;
-#else
-  typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
-    const_reverse_iterator;
-#endif
   typedef std::vector<vtkAbstractContextItem*>::reverse_iterator
     reverse_iterator;
   //@}
