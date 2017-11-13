@@ -595,7 +595,7 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 #else
   auto oldprogramname = Py_GetProgramName();
 #endif
-  if (oldprogramname != nullptr && strcmp(oldprogramname, "python") != 0)
+  if (oldprogramname != nullptr && strcmp(oldprogramname, "python") != 0 && strcmp(oldprogramname, "python3") != 0)
   {
     VTKPY_DEBUG_MESSAGE("program-name has been changed. Leaving unchanged.");
 #if PY_VERSION_HEX >= 0x03000000
