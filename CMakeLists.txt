@@ -64,11 +64,11 @@ endif()
 # so we provide this in case the user needs to specify flags specifically
 # for Objective-C++ source files.  For example, to build with garbage
 # collection support, the -fobjc-gc flag would be used.
-IF(APPLE)
-  SET(VTK_OBJCXX_FLAGS_DEFAULT "")
-  SET(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
-  MARK_AS_ADVANCED(VTK_REQUIRED_OBJCXX_FLAGS)
-ENDIF()
+if(APPLE)
+  set(VTK_OBJCXX_FLAGS_DEFAULT "")
+  set(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
+  mark_as_advanced(VTK_REQUIRED_OBJCXX_FLAGS)
+endif()
 
 set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
@@ -125,7 +125,7 @@ set(VTK_VERSION
 
 #-----------------------------------------------------------------------------
 # Do we want examples built?
-OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
+option(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 #-----------------------------------------------------------------------------
 if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
@@ -153,13 +153,13 @@ endif()
 # some specific defaults for Andriod to give folks
 # a reasonable starting point
 if (ANDROID OR APPLE_IOS)
-  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
+  set( CMAKE_REQUIRE_LARGE_FILE_SUPPORT 2
        CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
+  set( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
        CACHE STRING "Output from TRY_RUN" FORCE)
-  SET( KWSYS_LFS_WORKS 2
+  set( KWSYS_LFS_WORKS 2
      CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
+  set( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
 
   if (APPLE_IOS)
@@ -297,12 +297,12 @@ endif()
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
-INCLUDE(CheckCXXSourceRuns)
-FILE(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
+include(CheckCXXSourceRuns)
+file(READ "${VTK_CMAKE_DIR}/vtkRequireLargeFilesSupport.cxx"
   VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE)
-CHECK_CXX_SOURCE_RUNS("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
+check_cxx_source_runs("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
   CMAKE_REQUIRE_LARGE_FILE_SUPPORT "Support for 64 bit file systems")
-SET(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
+set(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 
 #-----------------------------------------------------------------------------
 # Does the const_reverse_iterator have the comparison operators? They were not
@@ -396,7 +396,7 @@ include(vtkTestBuiltins)
 
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
-SET(VTK_HAS_EXODUS 1)
+set(VTK_HAS_EXODUS 1)
 
 #-----------------------------------------------------------------------------
 # Configure files with settings for use by the build.
