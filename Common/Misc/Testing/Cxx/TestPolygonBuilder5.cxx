@@ -42,7 +42,9 @@ int TestPolygonBuilder5(int, char* [])
   builder.GetPolygons(polys.GetPointer()); // will result in out-of-memory crash
 
   if (polys->GetNumberOfItems() < 1)
+  {
     return EXIT_FAILURE;
+  }
 
   // clean up after ourselves.
   for(int i = 0; i< polys->GetNumberOfItems(); ++i)
