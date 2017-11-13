@@ -200,6 +200,35 @@ void MyProcess::Execute()
 
   prm->InitializeOffScreen();   // Mesa GL only
 
+  // Test the minimum ghost cell settings:
+  bool ghostCellSuccess = true;
+  {
+    dd->UseMinimalMemoryOn();
+    dd->SetBoundaryModeToAssignToOneRegion();
+
+    dd->SetMinimumGhostLevel(0);
+    dd->Update();
+    int ncells = static_cast<vtkUnstructuredGrid*>(dd->GetOutput())->GetNumberOfCells();
+    if (me == 0 && ncells != 79)
+    {
+      std::cerr << "Invalid number of cells for ghost level 0: " << ncells << "\n";
+      ghostCellSuccess = false;
+    }
+
+    dd->SetMinimumGhostLevel(2);
+    dd->Update();
+    ncells = static_cast<vtkUnstructuredGrid*>(dd->GetOutput())->GetNumberOfCells();
+    if (me == 0 && ncells != 160)
+    {
+      std::cerr << "Invalid number of cells for ghost level 2: " << ncells << "\n";
+      ghostCellSuccess = false;
+    }
+
+    dd->SetMinimumGhostLevel(0);
+    dd->UseMinimalMemoryOff();
+    dd->SetBoundaryModeToSplitBoundaryCells();  // clipping
+  }
+
   // We must update the whole pipeline here, otherwise node 0
   // goes into GetActiveCamera which updates the pipeline, putting
   // it into vtkDistributedDataFilter::Execute() which then hangs.
@@ -235,6 +264,11 @@ void MyProcess::Execute()
 
     this->ReturnValue =
       vtkRegressionTester::Test(this->Argc,this->Argv,renWin, 10);
+
+    if (this->ReturnValue == vtkTesting::PASSED && !ghostCellSuccess)
+    {
+      this->ReturnValue = vtkTesting::FAILED;
+    }
 
     if (ncells != 152)
     {
