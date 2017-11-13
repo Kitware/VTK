@@ -1,9 +1,3 @@
-macro (vtk_set_with_default var value)
-  if (NOT ${var})
-    set(${var} "${value}")
-  endif ()
-endmacro ()
-
 # VTK installation structure
 set(vtk_subdir "vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 vtk_set_with_default(VTK_INSTALL_RUNTIME_DIR "bin")

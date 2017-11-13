@@ -18,6 +18,7 @@ include(vtkInitializeBuildType)
 include(vtkVersion)
 set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
+include(vtkSupportMacros)
 include(vtkDownload)
 include(vtkTesting)
 include(vtkDirectories)
