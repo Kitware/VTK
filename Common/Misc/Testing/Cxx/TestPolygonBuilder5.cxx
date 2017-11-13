@@ -42,5 +42,11 @@ int TestPolygonBuilder5(int, char* [])
   if (polys->GetNumberOfItems() < 1)
     return EXIT_FAILURE;
 
+  // clean up after ourselves.
+  for(int i = 0; i< polys->GetNumberOfItems(); ++i)
+    polys->GetItem(i)->Delete();
+
+  polys->RemoveAllItems();
+
   return EXIT_SUCCESS;
 }

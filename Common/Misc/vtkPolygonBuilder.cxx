@@ -13,7 +13,6 @@
 
 =========================================================================*/
 #include "vtkPolygonBuilder.h"
-#include "vtkNew.h"
 #include "vtkIdListCollection.h"
 
 vtkPolygonBuilder::vtkPolygonBuilder()
@@ -129,7 +128,7 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
 
   while (!(this->Edges.empty()))
   {
-    vtkNew<vtkIdList> poly;
+    vtkIdList* poly = vtkIdList::New();
 
     EdgeMap::iterator edgeIt = this->Edges.begin();
     Edge edge = *(edgeIt);
@@ -160,6 +159,10 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
     if (poly->GetNumberOfIds() > 0)
     {
       polys->AddItem(poly);
+    }
+    else
+    {
+      poly->Delete(); // don't leak on failure
     }
   }
 
