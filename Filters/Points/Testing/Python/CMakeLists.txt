@@ -13,6 +13,7 @@ vtk_add_test_python(
 
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_python(
+    TestConnectedPointsFilter.py
     TestDensifyPointCloudFilter.py
     TestEuclideanClusterExtraction.py
     TestEuclideanClusterExtraction2.py
