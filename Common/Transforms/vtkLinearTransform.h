@@ -168,7 +168,10 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) override;
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
   /**
    * Just like GetInverse, but it includes a typecast to

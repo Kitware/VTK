@@ -65,7 +65,10 @@ class VTKFILTERSSMP_EXPORT vtkSMPTransform : public vtkTransform
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) override;
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
 protected:
   vtkSMPTransform ();

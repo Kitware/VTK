@@ -53,7 +53,10 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) override;
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
   /**
    * Get a copy of the internal transformation matrix.  The

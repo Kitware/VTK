@@ -17,8 +17,11 @@
  * @brief   transform points and associated normals and vectors
  *
  * vtkTransformFilter is a filter to transform point coordinates, and
- * associated point normals and vectors. Other point data is passed
- * through the filter.
+ * associated point normals and vectors, as well as cell normals and vectors.
+ * Transformed data array will be stored in a float array or a double array.
+ * Other point and cel data are passed through the filter, unless TransformAllInputVectors
+ * is set to true, in this case all other 3 components arrays from point and cell data
+ * will be transformed as well.
  *
  * An alternative method of transformation is to use vtkActor's methods
  * to scale, rotate, and translate objects. The difference between the
@@ -72,6 +75,17 @@ public:
   vtkGetMacro(OutputPointsPrecision,int);
   //@}
 
+  //@{
+  /**
+   * If off (the default), only Vectors and Normals will be transformed.
+   * If on, all 3-component data arrays ( considered as 3D vectors) will be transformed
+   * All other won't be flipped and will only be copied.
+   */
+  vtkSetMacro(TransformAllInputVectors, bool);
+  vtkGetMacro(TransformAllInputVectors, bool);
+  vtkBooleanMacro(TransformAllInputVectors, bool);
+  //@}
+
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter() override;
@@ -83,8 +97,12 @@ protected:
                   vtkInformationVector **,
                   vtkInformationVector *) override;
 
+  vtkDataArray* CreateNewDataArray();
+
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;
+  bool TransformAllInputVectors;
+
 private:
   vtkTransformFilter(const vtkTransformFilter&) = delete;
   void operator=(const vtkTransformFilter&) = delete;

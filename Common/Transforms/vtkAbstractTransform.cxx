@@ -157,7 +157,10 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                          vtkDataArray *inNms,
                                                          vtkDataArray *outNms,
                                                          vtkDataArray *inVrs,
-                                                         vtkDataArray *outVrs)
+                                                         vtkDataArray *outVrs,
+                                                         int nOptionalVectors,
+                                                         vtkDataArray** inVrsArr,
+                                                         vtkDataArray** outVrsArr)
 {
   this->Update();
 
@@ -179,7 +182,15 @@ void vtkAbstractTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
       vtkMath::Multiply3x3(matrix,coord,coord);
       outVrs->InsertNextTuple(coord);
     }
-
+    if (inVrsArr)
+    {
+      for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+      {
+        inVrsArr[iArr]->GetTuple(i,coord);
+        vtkMath::Multiply3x3(matrix,coord,coord);
+        outVrsArr[iArr]->InsertNextTuple(coord);
+      }
+    }
     if (inNms)
     {
       inNms->GetTuple(i,coord);

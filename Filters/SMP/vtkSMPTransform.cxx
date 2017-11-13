@@ -121,6 +121,9 @@ public:
   vtkDataArray* outNms;
   vtkDataArray* inVcs;
   vtkDataArray* outVcs;
+  int nOptionalVectors;
+  vtkDataArray** inVrsArr;
+  vtkDataArray** outVrsArr;
   double (*matrix)[4];
   double (*matrixInvTr)[4];
   void operator()( vtkIdType begin, vtkIdType end ) const
@@ -136,6 +139,15 @@ public:
         inVcs->GetTuple(id, point);
         vtkSMPTransformVector(matrix, point, point);
         outVcs->SetTuple(id, point);
+      }
+      if (inVrsArr)
+      {
+        for (int iArr = 0; iArr < nOptionalVectors; iArr++)
+        {
+          inVrsArr[iArr]->GetTuple(id, point);
+          vtkSMPTransformVector(matrix, point, point);
+          outVrsArr[iArr]->SetTuple(id, point);
+        }
       }
       if (inNms)
       {
@@ -153,7 +165,10 @@ void vtkSMPTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                     vtkDataArray *inNms,
                                                     vtkDataArray *outNms,
                                                     vtkDataArray *inVrs,
-                                                    vtkDataArray *outVrs)
+                                                    vtkDataArray *outVrs,
+                                                    int nOptionalVectors,
+                                                    vtkDataArray** inVrsArr,
+                                                    vtkDataArray** outVrsArr)
 {
   vtkIdType n = inPts->GetNumberOfPoints();
   double matrix[4][4];
@@ -166,6 +181,9 @@ void vtkSMPTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   functor.outNms = outNms;
   functor.inVcs = inVrs;
   functor.outVcs = outVrs;
+  functor.nOptionalVectors = nOptionalVectors;
+  functor.inVrsArr = inVrsArr;
+  functor.outVrsArr = outVrsArr;
   functor.matrix = this->Matrix->Element;
   if (inNms)
   {
