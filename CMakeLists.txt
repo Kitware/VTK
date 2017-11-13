@@ -6,6 +6,9 @@ endif()
 
 project(VTK)
 
+set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
+set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
+
 #-----------------------------------------------------------------------------
 # Minimum compiler version check: GCC >= 4.8
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
@@ -62,9 +65,6 @@ if(APPLE)
   set(VTK_REQUIRED_OBJCXX_FLAGS ${VTK_OBJCXX_FLAGS_DEFAULT} CACHE STRING "Extra flags for Objective-C++ compilation")
   mark_as_advanced(VTK_REQUIRED_OBJCXX_FLAGS)
 endif()
-
-set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
-set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 include(vtkModuleMacros)
 include(vtkExternalData)
