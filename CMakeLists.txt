@@ -14,6 +14,7 @@ if (APPLE)
 endif ()
 
 include(vtkCompilerChecks)
+include(vtkCompilerPlatformFlags)
 include(vtkCompilerExtraFlags)
 include(vtkInitializeBuildType)
 include(vtkVersion)
@@ -55,10 +56,6 @@ set(VTK_REQUIRE_LARGE_FILE_SUPPORT ${CMAKE_REQUIRE_LARGE_FILE_SUPPORT})
 option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
-
-#-----------------------------------------------------------------------------
-# VTK requires special compiler flags on some platforms.
-include(vtkDetermineCompilerFlags)
 
 # Tell VTK source files they are being built inside VTK.
 add_definitions(-DVTK_IN_VTK)
