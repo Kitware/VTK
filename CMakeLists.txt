@@ -16,6 +16,7 @@ set(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 include(vtkDownload)
 include(vtkTesting)
+include(vtkDirectories)
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
@@ -29,25 +30,6 @@ if(APPLE)
 endif()
 
 include(vtkModuleMacros)
-
-# Set up our directory structure for output libraries and binaries
-if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
-endif()
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-  if(UNIX)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
-  else()
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
-  endif()
-endif()
-if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/lib")
-endif()
-mark_as_advanced(CMAKE_RUNTIME_OUTPUT_DIRECTORY
-  CMAKE_LIBRARY_OUTPUT_DIRECTORY
-  CMAKE_ARCHIVE_OUTPUT_DIRECTORY
-  )
 
 #-----------------------------------------------------------------------------
 # Do we want examples built?
@@ -106,53 +88,6 @@ endif()
 set(VTK_USE_SYSTEM_GLEW OFF CACHE BOOL "do not use a system glew")
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-
-#-----------------------------------------------------------------------------
-# VTK installation structure
-if(NOT VTK_INSTALL_RUNTIME_DIR)
-  set(VTK_INSTALL_RUNTIME_DIR bin)
-endif()
-if(NOT VTK_INSTALL_LIBRARY_DIR)
-  set(VTK_INSTALL_LIBRARY_DIR lib)
-endif()
-if(NOT VTK_INSTALL_ARCHIVE_DIR)
-  set(VTK_INSTALL_ARCHIVE_DIR lib)
-endif()
-if(NOT VTK_INSTALL_INCLUDE_DIR)
-  set(VTK_INSTALL_INCLUDE_DIR include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_DATA_DIR)
-  set(VTK_INSTALL_DATA_DIR share/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_DOC_DIR)
-  set(VTK_INSTALL_DOC_DIR share/doc/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
-if(NOT VTK_INSTALL_PACKAGE_DIR)
-  set(VTK_INSTALL_PACKAGE_DIR "lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
-endif()
-if(NOT VTK_INSTALL_DOXYGEN_DIR)
-  set(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_DOC_DIR}/doxygen)
-endif()
-if(NOT VTK_INSTALL_EXPORT_NAME)
-  set(VTK_INSTALL_EXPORT_NAME VTKTargets)
-endif()
-if(NOT VTK_MODULES_DIR)
-  set(VTK_MODULES_DIR "${VTK_BINARY_DIR}/${VTK_INSTALL_PACKAGE_DIR}/Modules")
-endif()
-if(NOT VTK_WWW_DIR)
-  set(VTK_WWW_DIR "${VTK_BINARY_DIR}/www")
-endif()
-
-if(DEFINED VTK_INSTALL_PYTHON_MODULE_DIR)
-  message(WARNING
-    "VTK_INSTALL_PYTHON_MODULE_DIR is no longer supported. "
-    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
-endif()
-if(DEFINED VTK_BUILD_PYTHON_MODULE_DIR)
-  message(WARNING
-    "VTK_BUILD_PYTHON_MODULE_DIR is no longer supported. "
-    "Set `VTK_PYTHON_SITE_PACKAGES_SUFFIX` instead, although not needed in most cases.")
-endif()
 
 # Full functional CMAKE_CROSSCOMPILING_EMULATOR support for custom_command and
 # custom_target is available in CMake 3.8.0
