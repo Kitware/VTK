@@ -10,6 +10,7 @@ set(VTK_CMAKE_DIR "${VTK_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH ${VTK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 include(vtkCompilerChecks)
+include(vtkInitializeBuildType)
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
@@ -36,8 +37,6 @@ macro(vtk_download_attempt_check _name)
     message(SEND_ERROR "Attempted to download ${_name} when VTK_FORBID_DOWNLOADS is ON")
   endif()
 endmacro()
-
-include(vtkInitializeBuildType)
 
 # Test input data staging directory.
 file(RELATIVE_PATH vtk_reldir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
