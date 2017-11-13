@@ -32,6 +32,8 @@
 
 #define VTK_OPENGL_ES_VERSION 30
 
+#cmakedefine ANDROID
+
 #ifdef ANDROID
 #  include <GLES3/gl3.h>
 #else
