@@ -31,97 +31,15 @@ set(vtkCommonCore_EXPORT_OPTIONS
   VTK_ALL_NEW_OBJECT_FACTORY
   VTK_USE_64BIT_TIMESTAMPS
   )
+set(vtk_smp_sources)
+set(vtk_smp_headers)
+set(vtk_smp_defines)
+set(vtk_smp_includes)
+set(vtk_smp_libraries)
+include("${CMAKE_CURRENT_SOURCE_DIR}/vtkSMPSelection.cmake")
 
-# Choose which multi-threaded parallelism library to use
-set(VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING "Which multi-threaded parallelism implementation to use. Options are Sequential, OpenMP or TBB")
+list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${vtk_smp_includes})
 
-set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING})
-
-set_property(CACHE VTK_SMP_IMPLEMENTATION_TYPE PROPERTY STRINGS Sequential OpenMP TBB)
-
-if( NOT ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP" OR
-         "${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB") )
-  set(VTK_SMP_IMPLEMENTATION_TYPE "Sequential" CACHE STRING ${VTK_SMP_IMPLEMENTATION_TYPE_DOC_STRING} FORCE)
-endif()
-
-set(VTK_SMP_SOURCES "")
-set(VTK_SMP_HEADERS "")
-set(VTK_SMP_USE_DEFAULT_ATOMICS ON)
-
-if ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "TBB")
-  find_package(TBB REQUIRED)
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES ${TBB_LIBRARIES})
-  include_directories(${TBB_INCLUDE_DIRS})
-  # This needs to be here because all modules that include vtkAtomic.h
-  # need to include tbb/atomic.h
-  list(APPEND vtkCommonCore_SYSTEM_INCLUDE_DIRS ${TBB_INCLUDE_DIRS})
-
-  set(VTK_SMP_USE_DEFAULT_ATOMICS OFF)
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/TBB")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG
-    vtkAtomic.h vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "OpenMP")
-  find_package(OpenMP REQUIRED)
-  add_definitions(${OpenMP_CXX_FLAGS})
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES "${OpenMP_CXX_LIBRARIES}")
-
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/OpenMP")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx
-    ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPThreadLocalImpl.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG
-    vtkSMPToolsInternal.h vtkSMPThreadLocal.h vtkSMPThreadLocalImpl.h)
-
-  if (OpenMP_CXX_SPEC_DATE AND NOT ${OpenMP_CXX_SPEC_DATE} LESS 201107)
-    set(VTK_SMP_USE_DEFAULT_ATOMICS OFF)
-    list(APPEND VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkAtomic.cxx)
-    list(APPEND VTK_SMP_HEADERS_TO_CONFIG vtkAtomic.h)
-  else()
-    message(WARNING "Required OpenMP version (3.1) for atomics not detected. Using default atomics implementation.")
-  endif()
-
-elseif ("${VTK_SMP_IMPLEMENTATION_TYPE}" STREQUAL "Sequential")
-  set(VTK_SMP_IMPLEMENTATION_LIBRARIES)
-  set(VTK_SMP_IMPLEMENTATION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
-  set(VTK_SMP_SOURCES ${VTK_SMP_IMPLEMENTATION_DIR}/vtkSMPTools.cxx)
-  set(VTK_SMP_HEADERS_TO_CONFIG vtkSMPToolsInternal.h vtkSMPThreadLocal.h)
-endif()
-
-if (${VTK_SMP_USE_DEFAULT_ATOMICS})
-  include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestBuiltins.cmake")
-
-  set(vtkAtomic_defines)
-
-  # Check for atomic functions
-  if (WIN32)
-    check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
-
-    if (VTK_HAS_INTERLOCKEDADD)
-      list(APPEND vtkAtomic_defines "VTK_HAS_INTERLOCKEDADD")
-    endif ()
-  endif()
-
-  set_source_files_properties(vtkAtomic.cxx
-    PROPERITES
-      COMPILE_DEFINITIONS "${vtkAtomic_defines}")
-
-  set(VTK_ATOMICS_DEFAULT_IMPL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SMP/Sequential")
-  list(APPEND VTK_SMP_SOURCES ${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.cxx)
-  configure_file(${VTK_ATOMICS_DEFAULT_IMPL_DIR}/vtkAtomic.h.in
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h)
-  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/vtkAtomic.h)
-endif()
-
-foreach (HDR_FILE ${VTK_SMP_HEADERS_TO_CONFIG})
-  configure_file(${VTK_SMP_IMPLEMENTATION_DIR}/${HDR_FILE}.in
-    ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE} COPYONLY)
-  list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE})
-endforeach()
-
-list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
-
-#-------------------------------------------------------------------------------
 # Generate the vtkTypeList_Create macros:
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateTypeListMacros.cmake")
 CreateTypeListMacros(
@@ -285,7 +203,7 @@ SET(Module_SRCS
   vtkWindow.cxx
   vtkWrappingHints.h
   vtkXMLFileOutputWindow.cxx
-  ${VTK_SMP_SOURCES}
+  ${vtk_smp_sources}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
@@ -337,11 +255,13 @@ set(${vtk-module}_HDRS
   vtkWeakReference.h
   vtkWin32Header.h
   vtkWindows.h
-  ${VTK_SMP_HEADERS}
+  ${vtk_smp_headers}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h
   )
+
+add_definitions(${vtk_smp_defines})
 
 if(vtkCommonDataModel_ENABLED)
   include_directories(${VTK_BINARY_DIR}/Common/DataModel)
@@ -562,7 +482,7 @@ endif()
 
 vtk_module_library(vtkCommonCore ${Module_SRCS})
 
-vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${VTK_SMP_IMPLEMENTATION_LIBRARIES})
+vtk_module_link_libraries(vtkCommonCore LINK_PRIVATE ${CMAKE_THREAD_LIBS} LINK_PUBLIC ${vtk_smp_libraries})
 
 if(ANDROID)
   target_link_libraries(vtkCommonCore LINK_PRIVATE log)
