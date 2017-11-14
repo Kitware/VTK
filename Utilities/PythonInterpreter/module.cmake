@@ -3,5 +3,7 @@ vtk_module(vtkPythonInterpreter
     vtkCommonCore
     vtkPython
     vtksys
+  PRIVATE_DEPENDS
+    vtkCommonMisc
   OPTIONAL_PYTHON_LINK
 )

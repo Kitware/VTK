@@ -16,8 +16,10 @@
 #include "vtkPythonInterpreter.h"
 
 #include "vtkCommand.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPythonStdStreamCaptureHelper.h"
+#include "vtkResourceFileLocator.h"
 #include "vtkVersion.h"
 #include "vtkWeakPointer.h"
 
@@ -29,14 +31,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
-// Implementation for Windows win32 code but not cygwin
-#include <windows.h>
-#else
-#include <dlfcn.h>
-#endif
 
 #if PY_VERSION_HEX >= 0x03000000
 #if defined(__APPLE__) && PY_VERSION_HEX < 0x03050000
@@ -133,41 +127,6 @@ char* vtk_Py_EncodeLocale(const wchar_t* arg, size_t* size)
 #endif
 }
 #endif
-
-std::string GetLibraryForSymbol(const char* symbolname)
-{
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  (void)symbolname;
-  // Use the path to the running exe as the start of a search prefix
-  HMODULE handle = GetModuleHandle(NULL);
-  if (!handle)
-  { // Can't find ourselves????? this shouldn't happen
-    return std::string();
-  }
-
-  TCHAR path[MAX_PATH];
-  if (!GetModuleFileName(handle, path, MAX_PATH))
-  {
-    return std::string();
-  }
-  return std::string(path);
-#else // *NIX and macOS
-  // Use the library location of VTK's python wrapping as a prefix to search
-  void* handle = dlsym(RTLD_DEFAULT, symbolname);
-  if (!handle)
-  {
-    return std::string();
-  }
-
-  Dl_info di;
-  int ret = dladdr(handle, &di);
-  if (ret == 0 || !di.dli_saddr || !di.dli_fname)
-  {
-    return std::string();
-  }
-  return std::string(di.dli_fname);
-#endif
-}
 
 static std::vector<vtkWeakPointer<vtkPythonInterpreter> > GlobalInterpreters;
 static std::vector<std::string> PythonPaths;
@@ -582,7 +541,7 @@ void vtkPythonInterpreter::SetupPythonPrefix()
     return;
   }
 
-  std::string pythonlib = GetLibraryForSymbol("Py_SetProgramName");
+  std::string pythonlib = vtkGetLibraryPathForSymbol(Py_SetProgramName);
   if (pythonlib.empty())
   {
     VTKPY_DEBUG_MESSAGE("static Python build or `Py_SetProgramName` library couldn't be found. "
@@ -625,95 +584,60 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 void vtkPythonInterpreter::SetupVTKPythonPaths()
 {
   using systools = vtksys::SystemTools;
-
-#if defined(VTK_BUILD_SHARED_LIBS) // and !frozen_vtk_python
-  // add path for VTK shared libs.
-  VTKPY_DEBUG_MESSAGE("shared VTK build detected.");
-  const std::string vtklib = GetLibraryForSymbol("GetVTKVersion");
+  std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())
   {
     VTKPY_DEBUG_MESSAGE(
       "`GetVTKVersion` library couldn't be found. Will use `Py_GetProgramName` next.");
   }
-#else
-  // static build.
-  VTKPY_DEBUG_MESSAGE(
-    "static VTK build detected. Using `Py_GetProgramName` to locate python modules.");
-  const std::string vtklib;
-#endif
 
-  std::vector<std::string> vtkprefix_components;
   if (vtklib.empty())
   {
-    std::string vtkprefix;
 #if PY_VERSION_HEX >= 0x03000000
     auto tmp = vtk_Py_EncodeLocale(Py_GetProgramName(), nullptr);
-    vtkprefix = tmp;
+    vtklib = tmp;
     PyMem_Free(tmp);
 #else
-    vtkprefix = Py_GetProgramName();
+    vtklib = Py_GetProgramName();
 #endif
-    vtkprefix = systools::CollapseFullPath(vtkprefix);
-    systools::SplitPath(vtkprefix, vtkprefix_components);
   }
-  else
-  {
-    systools::SplitPath(systools::GetFilenamePath(vtklib), vtkprefix_components);
-  }
+
+  vtklib = systools::CollapseFullPath(vtklib);
+  const std::string vtkdir = systools::GetFilenamePath(vtklib);
 
 #if defined(_WIN32) && !defined(__CYGWIN__) && defined(VTK_BUILD_SHARED_LIBS)
   // On Windows, based on how the executable is run, we end up failing to load
   // pyd files due to inability to load dependent dlls. This seems to overcome
   // the issue.
-  if (!vtklib.empty())
+  if (!vtkdir.empty())
   {
     std::string env_path;
     if (systools::GetEnv("PATH", env_path))
     {
-      env_path = systools::GetFilenamePath(vtklib) + ";" + env_path;
+      env_path = vtkdir + ";" + env_path;
     }
     else
     {
-      env_path = systools::GetFilenamePath(vtklib);
+      env_path = vtkdir;
     }
     systools::PutEnv(std::string("PATH=")+env_path);
   }
 #endif
 
-  const std::vector<std::string> sitepackages_dirs =
-  {
+  const std::vector<std::string> prefixes = {
     VTK_PYTHON_SITE_PACKAGES_SUFFIX
 #if defined(__APPLE__)
     // if in an App bundle, the `sitepackages` dir is <app_root>/Contents/Python
-    , "Contents/Python"
+    ,
+    "Contents/Python"
 #endif
   };
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  const std::string landmark = "vtk\\__init__.py";
-#else
-  const std::string landmark = "vtk/__init__.py";
-#endif
-
-  while (!vtkprefix_components.empty())
+  vtkNew<vtkResourceFileLocator> locator;
+  locator->SetPrintDebugInformation(vtkPythonInterpreter::GetPythonVerboseFlag() > 1);
+  std::string path = locator->Locate(vtkdir, prefixes, "vtk/__init__.py");
+  if (!path.empty())
   {
-    std::string curprefix = systools::JoinPath(vtkprefix_components);
-
-    for (const std::string& sitepackages : sitepackages_dirs)
-    {
-      const std::string pathtocheck = curprefix + VTK_PATH_SEPARATOR + sitepackages;
-      const std::string landmarktocheck = pathtocheck + VTK_PATH_SEPARATOR + landmark;
-      if (vtksys::SystemTools::FileExists(landmarktocheck))
-      {
-        VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- success!");
-        vtkSafePrependPythonPath(pathtocheck);
-        break;
-      }
-      else
-      {
-        VTKPY_DEBUG_MESSAGE_VV("trying VTK landmark file " << landmarktocheck << " -- failed!");
-      }
-    }
-    vtkprefix_components.pop_back();
+    vtkSafePrependPythonPath(path);
   }
 }
