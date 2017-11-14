@@ -123,17 +123,15 @@ list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
 
 #-------------------------------------------------------------------------------
 # Generate the vtkTypeList_Create macros:
-include(vtkCreateTypeListMacros)
+include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateTypeListMacros.cmake")
 CreateTypeListMacros(
   VTK_TYPELISTMACRO_HEADER_CONTENTS
   99
   vtkTypeList_Create
   "vtkTypeList::TypeList"
-  "vtkTypeList::NullType"
-)
+  "vtkTypeList::NullType")
 configure_file(vtkTypeListMacros.h.in vtkTypeListMacros.h)
 
-#-------------------------------------------------------------------------------
 # And the ArrayDispatch array list header:
 option(VTK_DISPATCH_AOS_ARRAYS "Include array-of-structs vtkDataArray subclasses in dispatcher." ON)
 option(VTK_DISPATCH_SOA_ARRAYS "Include struct-of-arrays vtkDataArray subclasses in dispatcher." OFF)
