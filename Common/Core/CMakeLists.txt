@@ -321,9 +321,18 @@ set_source_files_properties(vtkUnicodeString.cxx
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 
-# look for various headers and functions
-include(CheckCXXExpressionCompiles)
-include(CheckIncludeFile)
+include(CheckCXXSourceCompiles)
+
+macro(CHECK_CXX_EXPRESSION_COMPILES EXPRESSION FILES VARIABLE)
+  set(SOURCE "/* CHECK_CXX_EXPRESSION_COMPILES */\n")
+  foreach(FILE ${FILES})
+    set(SOURCE "${SOURCE}#include <${FILE}>\n")
+  endforeach()
+  set(SOURCE "${SOURCE}\nint main()\n{\n")
+  set(SOURCE "${SOURCE}  static_cast<void>(${EXPRESSION});\n\n")
+  set(SOURCE "${SOURCE}  return 0;\n}\n")
+  check_cxx_source_compiles("${SOURCE}" "${VARIABLE}")
+endmacro()
 
 # Check C++ <cmath> first, where the C++11 standard says these must be.
 check_cxx_expression_compiles("std::isnan(0.0)" "cmath" VTK_HAS_STD_ISNAN)
@@ -353,6 +362,7 @@ configure_file(
   )
 
 # Figure out if feenableexcept and fedisableexcept functions are present
+include(CheckIncludeFile)
 check_include_file("fenv.h" HAVE_FENV_H)
 if(HAVE_FENV_H)
   set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
