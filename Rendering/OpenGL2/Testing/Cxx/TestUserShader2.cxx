@@ -42,9 +42,9 @@ public:
   static vtkShaderCallback *New()
     { return new vtkShaderCallback; }
   vtkRenderer *Renderer;
-  void Execute(vtkObject *, unsigned long, void*cbo) override
+  void Execute(vtkObject *, unsigned long, void* calldata) override
   {
-    vtkOpenGLHelper *cellBO = reinterpret_cast<vtkOpenGLHelper*>(cbo);
+    vtkShaderProgram *program = reinterpret_cast<vtkShaderProgram*>(calldata);
 
     float diffuseColor[3];
 
@@ -77,7 +77,7 @@ public:
     diffuseColor[0] = 0.4;
     diffuseColor[1] = 0.7;
     diffuseColor[2] = 0.6;
-    cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
+    program->SetUniform3f("diffuseColorUniform", diffuseColor);
 #endif
   }
 
@@ -160,7 +160,7 @@ int TestUserShader2(int argc, char *argv[])
   // Setup a callback to change some uniforms
   VTK_CREATE(vtkShaderCallback, myCallback);
   myCallback->Renderer = renderer;
-  mapper->AddObserver(vtkCommand::UpdateShaderEvent,myCallback);
+  mapper->AddObserver(vtkCommand::UpdateShaderEvent, myCallback);
 
   renderWindow->Render();
   renderer->GetActiveCamera()->SetPosition(-0.2,0.4,1);
