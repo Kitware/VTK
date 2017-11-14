@@ -379,10 +379,6 @@ if(ANDROID)
     )
 endif()
 
-# Generate data for folding Unicode strings
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake @ONLY)
-
 # Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
 macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
   if(${not} ${invar})
@@ -406,16 +402,17 @@ configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
 configure_file(vtkToolkits.h.in vtkToolkits.h @ONLY)
 
 add_custom_command(
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
-  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeString.cmake
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
-  )
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/CaseFolding.txt"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake"
+  COMMAND "${CMAKE_COMMAND}"
+          "-Dsource_dir=${CMAKE_CURRENT_SOURCE_DIR}"
+          "-Dbinary_dir=${CMAKE_CURRENT_BINARY_DIR}"
+          -P "${CMAKE_CURRENT_SOURCE_DIR}/vtkUnicodeString.cmake"
+  OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h")
 
-set_source_files_properties(
-  vtkUnicodeString.cxx
-  OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h
-  )
+set_source_files_properties(vtkUnicodeString.cxx
+  PROPERTIES
+    OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/vtkUnicodeCaseFoldData.h")
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.

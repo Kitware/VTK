@@ -1,12 +1,12 @@
 # Generate data for folding Unicode strings
-set(CASE_FOLD_DATA_FILE "@CMAKE_CURRENT_BINARY_DIR@/vtkUnicodeCaseFoldData.h")
+set(CASE_FOLD_DATA_FILE "${binary_dir}/vtkUnicodeCaseFoldData.h")
 file(WRITE ${CASE_FOLD_DATA_FILE} "// Generated file, do not edit by hand!\n")
 file(APPEND ${CASE_FOLD_DATA_FILE} "\n")
 file(APPEND ${CASE_FOLD_DATA_FILE} "static vtkUnicodeString::value_type vtkUnicodeCaseFoldData[] = {\n")
 
 # The following line relies on CMake 2.6, so for now we'll do it the old way
-#file(STRINGS "@CMAKE_CURRENT_SOURCE_DIR@/CaseFolding.txt" FOLDING)
-file(READ "@CMAKE_CURRENT_SOURCE_DIR@/CaseFolding.txt" FOLDING)
+#file(STRINGS "${source_dir}/CaseFolding.txt" FOLDING)
+file(READ "${source_dir}/CaseFolding.txt" FOLDING)
 string(REGEX REPLACE ";" "\\\\;" FOLDING "${FOLDING}")
 string(REGEX REPLACE "\n" ";" FOLDING "${FOLDING}")
 
