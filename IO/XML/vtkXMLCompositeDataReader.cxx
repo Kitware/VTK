@@ -475,6 +475,7 @@ vtkDataObject* vtkXMLCompositeDataReader::ReadDataObject(vtkXMLDataElement* xmlE
   // from previous use of the reader.
   reader->GetPointDataArraySelection()->RemoveAllArrays();
   reader->GetCellDataArraySelection()->RemoveAllArrays();
+  reader->GetColumnArraySelection()->RemoveAllArrays();
   reader->Update();
   vtkDataObject* output = reader->GetOutputDataObject(0);
   if (!output)
