@@ -8,4 +8,6 @@ vtk_module(vtkCommonMisc
   DEPENDS
     vtkCommonCore
     vtkCommonMath
+  PRIVATE_DEPENDS
+    vtksys
   )
