@@ -454,7 +454,7 @@ used to import views of intermediate results.
 By default, `vtkArrayDispatch::Arrays` contains all AOS arrays. The `CMake`
 option `VTK_DISPATCH_SOA_ARRAYS` will enable SOA array dispatch as well. More
 advanced possibilities exist and are described in
-`VTK/CMake/vtkCreateArrayDispatchArrayList.cmake`.
+`VTK/Common/Core/vtkCreateArrayDispatchArrayList.cmake`.
 
 # vtkArrayDownCast # {#VTKAD-vtkArrayDownCast}
 

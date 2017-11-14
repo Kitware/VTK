@@ -135,36 +135,23 @@ configure_file(vtkTypeListMacros.h.in vtkTypeListMacros.h)
 
 #-------------------------------------------------------------------------------
 # And the ArrayDispatch array list header:
-option(VTK_DISPATCH_AOS_ARRAYS
-  "Include array-of-structs vtkDataArray subclasses in dispatcher."
-  ON
-)
-option(VTK_DISPATCH_SOA_ARRAYS
-  "Include struct-of-arrays vtkDataArray subclasses in dispatcher."
-  OFF
-)
-option(VTK_DISPATCH_TYPED_ARRAYS
-  "Include vtkTypedDataArray subclasses (e.g. old mapped arrays) in dispatcher."
-  OFF
-)
-include(vtkCreateArrayDispatchArrayList)
-vtkArrayDispatch_default_array_setup()
-vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
-configure_file(vtkArrayDispatchArrayList.h.in vtkArrayDispatchArrayList.h)
-
-option(VTK_WARN_ON_DISPATCH_FAILURE
-  "If enabled, vtkArrayDispatch will print a warning when a dispatch fails."
-  OFF
-)
-
+option(VTK_DISPATCH_AOS_ARRAYS "Include array-of-structs vtkDataArray subclasses in dispatcher." ON)
+option(VTK_DISPATCH_SOA_ARRAYS "Include struct-of-arrays vtkDataArray subclasses in dispatcher." OFF)
+option(VTK_DISPATCH_TYPED_ARRAYS "Include vtkTypedDataArray subclasses (e.g. old mapped arrays) in dispatcher." OFF)
+option(VTK_WARN_ON_DISPATCH_FAILURE "If enabled, vtkArrayDispatch will print a warning when a dispatch fails." OFF)
 mark_as_advanced(
   VTK_DISPATCH_AOS_ARRAYS
   VTK_DISPATCH_SOA_ARRAYS
   VTK_DISPATCH_TYPED_ARRAYS
-  VTK_WARN_ON_DISPATCH_FAILURE
-)
+  VTK_WARN_ON_DISPATCH_FAILURE)
 
-#-----------------------------------------------------------------------------
+include("${CMAKE_CURRENT_SOURCE_DIR}/vtkCreateArrayDispatchArrayList.cmake")
+vtkArrayDispatch_default_array_setup()
+vtkArrayDispatch_generate_array_header(VTK_ARRAYDISPATCH_ARRAY_LIST)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkArrayDispatchArrayList.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
+  @ONLY)
 
 SET(Module_SRCS
   vtkAOSDataArrayTemplate.txx
