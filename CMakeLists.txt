@@ -60,11 +60,6 @@ mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 # Tell VTK source files they are being built inside VTK.
 add_definitions(-DVTK_IN_VTK)
 
-#-----------------------------------------------------------------------------
-# Platform configuration tests.
-include(TestBigEndian)
-TEST_BIG_ENDIAN(CMAKE_WORDS_BIGENDIAN)
-
 include(CheckTypeSize)
 
 # Kits bundle multiple modules together into a single library, this

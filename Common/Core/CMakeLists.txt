@@ -284,16 +284,9 @@ if(ANDROID)
     )
 endif()
 
-# Setup clean configuration of vtkConfigure.h and vtkToolkits.h.
-macro(VTK_PREPARE_CMAKEDEFINE not invar outvar)
-  if(${not} ${invar})
-    set(${outvar} 1)
-  else()
-    set(${outvar})
-  endif()
-endmacro()
-
-vtk_prepare_cmakedefine("" CMAKE_WORDS_BIGENDIAN VTK_WORDS_BIGENDIAN)
+# Platform configuration tests.
+include(TestBigEndian)
+test_big_endian(VTK_WORDS_BIGENDIAN)
 
 # Provide version macros through vtkConfigure.h for compatibility.
 if(VTK_LEGACY_REMOVE)

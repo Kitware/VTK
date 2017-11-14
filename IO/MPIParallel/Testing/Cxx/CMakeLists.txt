@@ -1,6 +1,6 @@
 set(_known_little_endian FALSE)
-if (DEFINED CMAKE_WORDS_BIGENDIAN)
-  if (NOT CMAKE_WORDS_BIGENDIAN)
+if (DEFINED VTK_WORDS_BIGENDIAN)
+  if (NOT VTK_WORDS_BIGENDIAN)
     set(_known_little_endian TRUE)
   endif()
 endif()
