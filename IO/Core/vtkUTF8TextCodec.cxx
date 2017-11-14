@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkTextCodecFactory.h"
 
-#include <utf8.h>
+#include <vtk_utf8.h>
 
 vtkStandardNewMacro(vtkUTF8TextCodec);
 

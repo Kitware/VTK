@@ -147,8 +147,6 @@ mark_as_advanced(
 
 #-----------------------------------------------------------------------------
 
-include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
-
 SET(Module_SRCS
   vtkAbstractArray.cxx
   vtkAngularPeriodicDataArray.txx

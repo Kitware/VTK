@@ -12,4 +12,5 @@ vtk_module(vtkCommonCore
     vtkkwiml
   PRIVATE_DEPENDS
     vtksys
+    vtkutf8
   )

@@ -25,8 +25,6 @@ SET(Module_SRCS
   vtkArrayDataWriter.cxx
   )
 
-include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
-
 set_source_files_properties(
   vtkAbstractParticleWriter
   vtkDataCompressor
