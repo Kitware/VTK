@@ -167,12 +167,12 @@ mark_as_advanced(
 #-----------------------------------------------------------------------------
 
 SET(Module_SRCS
+  vtkAOSDataArrayTemplate.txx
   vtkAbstractArray.cxx
   vtkAngularPeriodicDataArray.txx
   vtkAnimationCue.cxx
-  vtkAOSDataArrayTemplate.txx
-  vtkArrayCoordinates.cxx
   vtkArray.cxx
+  vtkArrayCoordinates.cxx
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIterator.cxx
@@ -194,13 +194,14 @@ SET(Module_SRCS
   vtkCommonInformationKeyManager.cxx
   vtkConditionVariable.cxx
   vtkCriticalSection.cxx
+  vtkDataArray.cxx
   vtkDataArrayCollection.cxx
   vtkDataArrayCollectionIterator.cxx
-  vtkDataArray.cxx
   vtkDataArrayPrivate.txx
   vtkDataArraySelection.cxx
   vtkDebugLeaks.cxx
   vtkDebugLeaksManager.cxx
+  vtkDenseArray.txx
   vtkDoubleArray.cxx
   vtkDynamicLoader.cxx
   vtkEventForwarderCommand.cxx
@@ -211,8 +212,8 @@ SET(Module_SRCS
   vtkGarbageCollectorManager.cxx
   vtkGaussianRandomSequence.cxx
   vtkGenericDataArray.txx
-  vtkIdListCollection.cxx
   vtkIdList.cxx
+  vtkIdListCollection.cxx
   vtkIdTypeArray.cxx
   vtkIndent.cxx
   vtkInformation.cxx
@@ -249,57 +250,56 @@ SET(Module_SRCS
   vtkMinimalStandardRandomSequence.cxx
   vtkMultiThreader.cxx
   vtkMutexLock.cxx
-  vtkObjectBase.cxx
-  vtkObject.cxx
-  vtkObjectFactoryCollection.cxx
-  vtkObjectFactory.cxx
-  vtkOldStyleCallbackCommand.cxx
-  vtkOStreamWrapper.cxx
   vtkOStrStreamWrapper.cxx
+  vtkOStreamWrapper.cxx
+  vtkObject.cxx
+  vtkObjectBase.cxx
+  vtkObjectFactory.cxx
+  vtkObjectFactoryCollection.cxx
+  vtkOldStyleCallbackCommand.cxx
   vtkOutputWindow.cxx
-  vtkOverrideInformationCollection.cxx
   vtkOverrideInformation.cxx
+  vtkOverrideInformationCollection.cxx
   vtkPeriodicDataArray.txx
-  vtkPoints2D.cxx
   vtkPoints.cxx
+  vtkPoints2D.cxx
   vtkPriorityQueue.cxx
   vtkRandomSequence.cxx
   vtkReferenceCount.cxx
+  vtkSOADataArrayTemplate.txx
+  vtkSOADataArrayTemplateInstantiate.cxx
   vtkScalarsToColors.cxx
   vtkShortArray.cxx
   vtkSignedCharArray.cxx
   vtkSimpleCriticalSection.cxx
   vtkSmartPointerBase.cxx
-  vtkSOADataArrayTemplate.txx
-  vtkSOADataArrayTemplateInstantiate.cxx
   vtkSortDataArray.cxx
+  vtkSparseArray.txx
   vtkStdString.cxx
   vtkStringArray.cxx
   vtkStringOutputWindow.cxx
+  vtkSystemIncludes.h
   vtkTimePointUtility.cxx
   vtkTimeStamp.cxx
+  vtkType.h
+  vtkTypedArray.txx
   vtkTypedDataArray.txx
-  vtkUnicodeStringArray.cxx
   vtkUnicodeString.cxx
+  vtkUnicodeStringArray.cxx
   vtkUnsignedCharArray.cxx
   vtkUnsignedIntArray.cxx
   vtkUnsignedLongArray.cxx
   vtkUnsignedLongLongArray.cxx
   vtkUnsignedShortArray.cxx
-  vtkVariantArray.cxx
   vtkVariant.cxx
+  vtkVariantArray.cxx
   vtkVersion.cxx
   vtkVoidArray.cxx
   vtkWeakPointerBase.cxx
   vtkWeakReference.cxx
   vtkWindow.cxx
-  vtkXMLFileOutputWindow.cxx
-  vtkDenseArray.txx
-  vtkSparseArray.txx
-  vtkTypedArray.txx
-  vtkType.h
-  vtkSystemIncludes.h
   vtkWrappingHints.h
+  vtkXMLFileOutputWindow.cxx
   ${VTK_SMP_SOURCES}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
@@ -334,9 +334,9 @@ set(${vtk-module}_HDRS
   vtkMersenneTwister.h
   vtkNew.h
   vtkPeriodicDataArray.h
+  vtkSOADataArrayTemplate.txx
   vtkSetGet.h
   vtkSmartPointer.h
-  vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
   vtkTypeList.h
