@@ -23,7 +23,7 @@
 #     MY_B_EDGES
 #     MY_C_EDGES     a b
 #
-#  With the involcation of topological_sort shown above and these
+#  With the invocation of topological_sort shown above and these
 #  variables, the resulting reverse topological ordering will be b, a,
 #  c.
 
