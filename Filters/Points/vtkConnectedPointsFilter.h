@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkConnectedPointsFilter();
-  ~vtkConnectedPointsFilter();
+  ~vtkConnectedPointsFilter() override;
 
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
