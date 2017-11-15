@@ -24,4 +24,9 @@
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 
+/* build specific site-packages suffix. This is used to setup Python
+ * module paths during initialization.
+ */
+#define VTK_PYTHON_SITE_PACKAGES_SUFFIX "@VTK_PYTHON_SITE_PACKAGES_SUFFIX_FIXED@"
+
 #endif

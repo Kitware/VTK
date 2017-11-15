@@ -59,6 +59,10 @@ private:
   void operator=(const vtkVersion&) = delete;
 };
 
+extern "C" {
+VTKCOMMONCORE_EXPORT const char* GetVTKVersion();
+}
+
 #endif
 
 // VTK-HeaderTest-Exclude: vtkVersion.h

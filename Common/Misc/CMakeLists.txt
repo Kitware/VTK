@@ -4,6 +4,7 @@ set(Module_SRCS
   vtkFunctionParser.cxx
   vtkHeap.cxx
   vtkPolygonBuilder.cxx
+  vtkResourceFileLocator.cxx
   )
 
 set_source_files_properties(
