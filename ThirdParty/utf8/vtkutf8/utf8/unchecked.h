@@ -50,7 +50,7 @@ namespace vtk_utf8
             }
             else {                                // four octets
                 *(result++) = static_cast<uint8_t>((cp >> 18)         | 0xf0);
-                *(result++) = static_cast<uint8_t>(((cp >> 12)& 0x3f) | 0x80);
+                *(result++) = static_cast<uint8_t>(((cp >> 12) & 0x3f)| 0x80);
                 *(result++) = static_cast<uint8_t>(((cp >> 6) & 0x3f) | 0x80);
                 *(result++) = static_cast<uint8_t>((cp & 0x3f)        | 0x80);
             }
@@ -60,8 +60,8 @@ namespace vtk_utf8
         template <typename octet_iterator>
         uint32_t next(octet_iterator& it)
         {
-            uint32_t cp = internal::mask8(*it);
-            typename std::string::difference_type length = vtk_utf8::internal::sequence_length(it);
+            uint32_t cp = vtk_utf8::internal::mask8(*it);
+            typename std::iterator_traits<octet_iterator>::difference_type length = vtk_utf8::internal::sequence_length(it);
             switch (length) {
                 case 1:
                     break;
@@ -71,15 +71,15 @@ namespace vtk_utf8
                     break;
                 case 3:
                     ++it; 
-                    cp = ((cp << 12) & 0xffff) + ((internal::mask8(*it) << 6) & 0xfff);
+                    cp = ((cp << 12) & 0xffff) + ((vtk_utf8::internal::mask8(*it) << 6) & 0xfff);
                     ++it;
                     cp += (*it) & 0x3f;
                     break;
                 case 4:
                     ++it;
-                    cp = ((cp << 18) & 0x1fffff) + ((internal::mask8(*it) << 12) & 0x3ffff);                
+                    cp = ((cp << 18) & 0x1fffff) + ((vtk_utf8::internal::mask8(*it) << 12) & 0x3ffff);                
                     ++it;
-                    cp += (internal::mask8(*it) << 6) & 0xfff;
+                    cp += (vtk_utf8::internal::mask8(*it) << 6) & 0xfff;
                     ++it;
                     cp += (*it) & 0x3f; 
                     break;
@@ -91,22 +91,22 @@ namespace vtk_utf8
         template <typename octet_iterator>
         uint32_t peek_next(octet_iterator it)
         {
-        return vtk_utf8::unchecked::next(it);    
+            return vtk_utf8::unchecked::next(it);    
         }
 
         template <typename octet_iterator>
         uint32_t prior(octet_iterator& it)
         {
-            while (internal::is_trail(*(--it))) ;
+            while (vtk_utf8::internal::is_trail(*(--it))) ;
             octet_iterator temp = it;
             return vtk_utf8::unchecked::next(temp);
         }
 
-        // Deprecated in versions that include prior, but only for the sake of consistency (see utf8::previous)
+        // Deprecated in versions that include prior, but only for the sake of consistency (see vtk_utf8::previous)
         template <typename octet_iterator>
         inline uint32_t previous(octet_iterator& it)
         {
-            return prior(it);
+            return vtk_utf8::unchecked::prior(it);
         }
 
         template <typename octet_iterator, typename distance_type>
@@ -117,10 +117,10 @@ namespace vtk_utf8
         }
 
         template <typename octet_iterator>
-        typename std::string::difference_type
+        typename std::iterator_traits<octet_iterator>::difference_type
         distance (octet_iterator first, octet_iterator last)
         {
-            typename std::string::difference_type dist;
+            typename std::iterator_traits<octet_iterator>::difference_type dist;
             for (dist = 0; first < last; ++dist) 
                 vtk_utf8::unchecked::next(first);
             return dist;
@@ -130,13 +130,13 @@ namespace vtk_utf8
         octet_iterator utf16to8 (u16bit_iterator start, u16bit_iterator end, octet_iterator result)
         {       
             while (start != end) {
-                uint32_t cp = internal::mask16(*start++);
+                uint32_t cp = vtk_utf8::internal::mask16(*start++);
             // Take care of surrogate pairs first
-                if (internal::is_surrogate(cp)) {
-                    uint32_t trail_surrogate = internal::mask16(*start++);
+                if (vtk_utf8::internal::is_lead_surrogate(cp)) {
+                    uint32_t trail_surrogate = vtk_utf8::internal::mask16(*start++);
                     cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
                 }
-                result = append(cp, result);
+                result = vtk_utf8::unchecked::append(cp, result);
             }
             return result;         
         }
@@ -144,7 +144,7 @@ namespace vtk_utf8
         template <typename u16bit_iterator, typename octet_iterator>
         u16bit_iterator utf8to16 (octet_iterator start, octet_iterator end, u16bit_iterator result)
         {
-            while (start != end) {
+            while (start < end) {
                 uint32_t cp = vtk_utf8::unchecked::next(start);
                 if (cp > 0xffff) { //make a surrogate pair
                     *result++ = static_cast<uint16_t>((cp >> 10)   + internal::LEAD_OFFSET);
@@ -160,7 +160,7 @@ namespace vtk_utf8
         octet_iterator utf32to8 (u32bit_iterator start, u32bit_iterator end, octet_iterator result)
         {
             while (start != end)
-                result = append(*(start++), result);
+                result = vtk_utf8::unchecked::append(*(start++), result);
 
             return result;
         }
@@ -169,7 +169,7 @@ namespace vtk_utf8
         u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result)
         {
             while (start < end)
-                (*result++) = next(start);
+                (*result++) = vtk_utf8::unchecked::next(start);
 
             return result;
         }
@@ -186,7 +186,7 @@ namespace vtk_utf8
             uint32_t operator * () const
             {
                 octet_iterator temp = it;
-                return next(temp);
+                return vtk_utf8::unchecked::next(temp);
             }
             bool operator == (const iterator& rhs) const 
             { 
@@ -198,29 +198,29 @@ namespace vtk_utf8
             }
             iterator& operator ++ () 
             {
-                std::advance(it, internal::sequence_length(it));
+                ::std::advance(it, vtk_utf8::internal::sequence_length(it));
                 return *this;
             }
             iterator operator ++ (int)
             {
                 iterator temp = *this;
-                std::advance(it, internal::sequence_length(it));
+                ::std::advance(it, vtk_utf8::internal::sequence_length(it));
                 return temp;
             }  
             iterator& operator -- ()
             {
-                prior(it);
+                vtk_utf8::unchecked::prior(it);
                 return *this;
             }
             iterator operator -- (int)
             {
                 iterator temp = *this;
-                prior(it);
+                vtk_utf8::unchecked::prior(it);
                 return temp;
             }
           }; // class iterator
 
-    } // namespace utf8::unchecked
+    } // namespace vtk_utf8::unchecked
 } // namespace vtk_utf8 
 
 

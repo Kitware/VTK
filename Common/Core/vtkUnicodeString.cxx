@@ -22,7 +22,7 @@
 #include "vtkUnicodeString.h"
 
 #include "vtkObject.h"
-#include <utf8.h>
+#include <vtk_utf8.h>
 
 #include <map>
 #include <stdexcept>
