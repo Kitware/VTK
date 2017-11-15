@@ -25,7 +25,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkOptiXPass.h"
-#include "vtkRenderer.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
@@ -40,7 +40,8 @@ int TestOptiXMultiBlock(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
   iren->SetRenderWindow(renWin);
-  vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkOpenGLRenderer> renderer =
+    vtkSmartPointer<vtkOpenGLRenderer>::New();
   renWin->AddRenderer(renderer);
 
   vtkSmartPointer<vtkXMLMultiBlockDataReader> reader = vtkSmartPointer<vtkXMLMultiBlockDataReader>::New();
@@ -70,7 +71,7 @@ int TestOptiXMultiBlock(int argc, char* argv[])
   vtkSmartPointer<vtkOptiXTestInteractor> style =
     vtkSmartPointer<vtkOptiXTestInteractor>::New();
   style->
-    SetPipelineControlPoints((vtkOpenGLRenderer*)renderer, optix, nullptr);
+    SetPipelineControlPoints(renderer, optix, nullptr);
   iren->SetInteractorStyle(style);
   style->SetCurrentRenderer(renderer);
 
