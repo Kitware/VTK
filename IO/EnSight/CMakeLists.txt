@@ -8,9 +8,4 @@ set(Module_SRCS
   vtkGenericEnSightReader.cxx
 )
 
-set_source_files_properties(
-  vtkEnSightReader
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOEnSight ${Module_SRCS})

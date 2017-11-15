@@ -2,11 +2,6 @@ set(Module_SRCS
   vtkGenericMovieWriter.cxx
   )
 
-set_source_files_properties(
-  vtkGenericMovieWriter
-  ABSTRACT
-  )
-
 set (VTK_HAS_OGGTHEORA_SUPPORT)
 
 if(vtkIOMovie_vtkoggtheora)

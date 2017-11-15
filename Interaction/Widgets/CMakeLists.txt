@@ -140,29 +140,4 @@ set(Module_SRCS
   vtkResliceCursorPolyDataAlgorithm.cxx
   )
 
-set_source_files_properties(
-  vtk3DWidget
-  vtkAbstractWidget
-  vtkAbstractPolygonalHandleRepresentation3D
-  vtkAffineRepresentation
-  vtkAngleRepresentation
-  vtkBiDimensionalRepresentation
-  vtkButtonRepresentation
-  vtkContinuousValueWidget
-  vtkContinuousValueWidgetRepresentation
-  vtkContourLineInterpolator
-  vtkContourRepresentation
-  vtkCurveRepresentation
-  vtkFocalPlaneContourRepresentation
-  vtkDistanceRepresentation
-  vtkHandleRepresentation
-  vtkPolyDataContourLineInterpolator
-  vtkPolyDataSourceWidget
-  vtkResliceCursorRepresentation
-  vtkSliderRepresentation
-  vtkTensorProbeRepresentation
-  vtkWidgetRepresentation
-  ABSTRACT
-  )
-
 vtk_module_library(vtkInteractionWidgets ${Module_SRCS})

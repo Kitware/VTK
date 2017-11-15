@@ -147,10 +147,6 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   list(APPEND Module_SRCS
     vtkPointGaussianMapper.cxx
     )
-  set_source_files_properties(
-    vtkPointGaussianMapper
-    ABSTRACT
-    )
 endif()
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
@@ -171,39 +167,6 @@ set(${vtk-module}_HDRS
   vtkRayCastStructures.h
   vtkRenderingCoreEnums.h
   vtkTDxMotionEventInfo.h
-  )
-
-set_source_files_properties(
-  vtkAbstractInteractionDevice
-  vtkAbstractMapper3D
-  vtkAbstractMapper
-  vtkAbstractRenderDevice
-  vtkAbstractVolumeMapper
-  vtkAbstractPicker
-  vtkAbstractPropPicker
-  vtkCuller
-  vtkFrameBufferObjectBase
-  vtkGPUInfoList.cxx
-  vtkHardwareSelector
-  vtkImageMapper3D
-  vtkInteractorObserver
-  vtkMapper
-  vtkMapper2D
-  vtkProp
-  vtkProp3D
-  vtkRendererDelegate
-  vtkRenderPass
-  vtkRenderState
-  vtkShader
-  vtkShaderDeviceAdapter
-  vtkShaderDeviceAdapter2
-  vtkShaderProgram
-  vtkTextRenderer
-  vtkTDxInteractorStyle
-  vtkViewport
-  vtkVisibilitySort
-  vtkStringToImage
-  ABSTRACT
   )
 
 set_source_files_properties(

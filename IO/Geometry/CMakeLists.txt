@@ -33,9 +33,4 @@ if (NOT VTK_LEGACY_REMOVE)
     vtkUGFacetReader.cxx)
 endif()
 
-set_source_files_properties(
-  vtkMoleculeReaderBase
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOGeometry ${Module_SRCS})

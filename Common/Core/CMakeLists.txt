@@ -539,47 +539,6 @@ configure_file(
   )
 
 set_source_files_properties(
-  # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
-  vtkAbstractArray
-  vtkArray
-  vtkArrayIterator
-  vtkCallbackCommand
-  vtkCommand
-  vtkCommonInformationKeyManager
-  vtkDataArray
-  vtkEventForwarderCommand
-  vtkFloatingPointExceptions
-  vtkFunctionSet
-  vtkGaussianRandomSequence
-  vtkInformationDataObjectKey
-  vtkInformationDoubleKey
-  vtkInformationDoubleVectorKey
-  vtkInformationIdTypeKey
-  vtkInformationInformationKey
-  vtkInformationInformationVectorKey
-  vtkInformationIntegerKey
-  vtkInformationIntegerPointerKey
-  vtkInformationIntegerVectorKey
-  vtkInformationKey
-  vtkInformationKeyVectorKey
-  vtkInformationObjectBaseKey
-  vtkInformationObjectBaseVectorKey
-  vtkInformationQuadratureSchemeDefinitionVectorKey
-  vtkInformationRequestKey
-  vtkInformationStringKey
-  vtkInformationStringVectorKey
-  vtkInformationUnsignedLongKey
-  vtkInformationVariantKey
-  vtkInformationVariantVectorKey
-  vtkObjectBase
-  vtkObjectFactory
-  vtkOldStyleCallbackCommand
-  vtkRandomSequence
-  vtkWindow
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkAOSDataArrayTemplate.h
   vtkAOSDataArrayTemplate.txx
   vtkArrayCoordinates.cxx

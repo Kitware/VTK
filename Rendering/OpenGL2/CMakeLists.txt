@@ -134,12 +134,6 @@ set_source_files_properties(
   vtkOpenGLRenderTimer
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
-set_source_files_properties(
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLRenderWindow
-  ABSTRACT
-  )
-
 set(shader_files
   glsl/vtkDepthOfFieldPassFS.glsl
   glsl/vtkDepthPeelingPassFinalFS.glsl

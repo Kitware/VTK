@@ -40,11 +40,6 @@ foreach(file ${shader_files})
 endforeach()
 
 set_source_files_properties(
-  vtkParallelRenderManager
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkCompositeRGBAPass
   vtkCompositeZPass
   WRAP_EXCLUDE

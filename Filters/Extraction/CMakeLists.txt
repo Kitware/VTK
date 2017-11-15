@@ -29,9 +29,4 @@ set(Module_SRCS
   vtkHierarchicalDataExtractLevel.cxx
   )
 
-set_source_files_properties(
-  vtkExtractSelectionBase
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersExtraction ${Module_SRCS})

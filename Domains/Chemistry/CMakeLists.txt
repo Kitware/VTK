@@ -19,11 +19,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkMoleculeToPolyDataFilter.cxx
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkBlueObeliskData.cxx
   vtkBlueObeliskDataInternal.h
   vtkBlueObeliskDataParser.cxx

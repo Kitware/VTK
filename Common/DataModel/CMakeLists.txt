@@ -231,45 +231,6 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
-  vtkAbstractCellLinks
-  vtkAbstractCellLocator
-  vtkAbstractPointLocator
-  vtkCell
-  vtkCell3D
-  vtkCellIterator
-  vtkCompositeDataIterator
-  vtkCompositeDataSet
-  vtkDataObjectTree
-  vtkAbstractElectronicData
-  vtkDataSet
-  vtkDataSetGhostGenerator
-  vtkDistributedGraphHelper
-  vtkGenericAttribute
-  vtkGenericAdaptorCell
-  vtkGenericCellIterator
-  vtkGenericCellTessellator
-  vtkGenericDataSet
-  vtkGenericPointIterator
-  vtkGenericSubdivisionErrorMetric
-  vtkGraph
-  vtkHyperOctreeCursor
-  vtkHyperOctreePointsGrabber
-  vtkHyperTree
-  vtkHyperTreeCursor
-  vtkImplicitFunction
-  vtkIncrementalPointLocator
-  vtkInformationQuadratureSchemeDefinitionVectorKey
-  vtkLocator
-  vtkNonLinearCell
-  vtkPointSet
-  vtkSpline
-  vtkStructuredData
-  vtkTreeIterator
-  vtkUnstructuredGridBase
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkAMRBox
   vtkArrayListTemplate.txx
   vtkAtom

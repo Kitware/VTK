@@ -396,14 +396,8 @@ function(vtk_module_export sources)
 
         get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
         get_source_file_property(_wrap_exclude_python ${src} WRAP_EXCLUDE_PYTHON)
-        get_source_file_property(_abstract ${src} ABSTRACT)
 
         list(APPEND vtk-module-HEADERS ${_cls})
-
-        if(_abstract)
-          set(vtk-module-ABSTRACT
-            "${vtk-module-ABSTRACT}set(${vtk-module}_HEADER_${_cls}_ABSTRACT 1)\n")
-        endif()
 
         if(_wrap_exclude)
           set(vtk-module-WRAP_EXCLUDE
@@ -653,7 +647,6 @@ function(vtk_module_library name)
   vtk_module_impl()
 
   set(vtk-module-HEADERS)
-  set(vtk-module-ABSTRACT)
 
   # Collect header files matching sources.
   set(_hdrs ${${vtk-module}_HDRS})

@@ -50,22 +50,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkXMLCompositeDataReader
-  vtkXMLCompositeDataWriter
-  vtkXMLDataReader
-  vtkXMLPDataReader
-  vtkXMLPStructuredDataReader
-  vtkXMLPUnstructuredDataReader
-  vtkXMLReader
-  vtkXMLStructuredDataReader
-  vtkXMLStructuredDataWriter
-  vtkXMLUnstructuredDataReader
-  vtkXMLUnstructuredDataWriter
-  vtkXMLWriter
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkXMLWriterC
   PROPERTIES
     WRAP_EXCLUDE 1

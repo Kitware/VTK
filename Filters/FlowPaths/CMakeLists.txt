@@ -21,13 +21,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkAbstractInterpolatedVelocityField
-  vtkCompositeInterpolatedVelocityField.cxx
-  vtkParticleTracerBase
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkLagrangianParticle.cxx
   WRAP_EXCLUDE
   )

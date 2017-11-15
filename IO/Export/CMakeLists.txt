@@ -31,11 +31,6 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-set_source_files_properties(
-  vtkExporter
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOExport ${Module_SRCS})
 include(vtkOpenGL)
 vtk_opengl_link(vtkIOExport)

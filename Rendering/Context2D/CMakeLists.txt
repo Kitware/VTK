@@ -25,14 +25,6 @@ set(module_SRCS
   )
 
 set_source_files_properties(
-  vtkAbstractContextBufferId
-  vtkAbstractContextItem
-  vtkContextItem
-  vtkMarkerUtilities
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkContextDevice2D
   vtkContextDevice3D
   vtkContext3D

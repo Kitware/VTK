@@ -38,11 +38,4 @@ set(Module_SRCS
   vtkWendlandQuinticKernel.cxx
   )
 
-set_source_files_properties(
-  vtkGeneralizedKernel.cxx
-  vtkInterpolationKernel
-  vtkPointCloudFilter
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersPoints ${Module_SRCS})

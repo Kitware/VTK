@@ -91,12 +91,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkEdgeSubdivisionCriterion
-  vtkStreamerBase
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkContourHelper
   WRAP_EXCLUDE
   )

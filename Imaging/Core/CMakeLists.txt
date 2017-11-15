@@ -46,16 +46,6 @@ set(Module_SRCS
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkAbstractImageInterpolator
-  vtkImageBSplineInternals
-  vtkImageDecomposeFilter
-  vtkImageFourierFilter
-  vtkImageIterateFilter
-  vtkImageSpatialAlgorithm
-  ABSTRACT
-)
-
-SET_SOURCE_FILES_PROPERTIES(
   vtkImagePointIterator
   vtkImagePointDataIterator
   WRAP_EXCLUDE

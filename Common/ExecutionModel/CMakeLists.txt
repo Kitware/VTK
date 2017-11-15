@@ -65,20 +65,6 @@ SET(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkExecutive
-  vtkHyperOctreeAlgorithm
-  vtkHyperTreeGridAlgorithm
-  vtkImageAlgorithm
-  vtkImageInPlaceFilter
-  vtkInformationExecutivePortKey
-  vtkInformationExecutivePortVectorKey
-  vtkScalarTree
-  vtkSimpleImageToImageFilter
-  vtkThreadedImageAlgorithm
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkExecutionSchedulerManager
   vtkFilteringInformationKeyManager
   vtkImageProgressIterator

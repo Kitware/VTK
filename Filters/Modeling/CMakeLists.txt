@@ -28,10 +28,4 @@ set(Module_SRCS
   vtkVolumeOfRevolutionFilter.cxx
   )
 
-set_source_files_properties(
-  vtkGeodesicPath
-  vtkGraphGeodesicPath
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersModeling ${Module_SRCS})

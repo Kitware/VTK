@@ -14,9 +14,4 @@ set(Module_SRCS
   )
 
 
-set_source_files_properties(
-  vtkViewNode
-  ABSTRACT
-  )
-
 vtk_module_library(vtkRenderingSceneGraph ${Module_SRCS})

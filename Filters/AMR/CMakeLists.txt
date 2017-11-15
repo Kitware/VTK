@@ -9,12 +9,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkAMRBaseReader
-  vtkAMRBaseParticlesReader
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkAMRUtilities
   WRAP_EXCLUDE
   )

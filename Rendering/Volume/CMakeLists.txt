@@ -34,17 +34,6 @@ set(Module_SRCS
   vtkVolumeRayCastSpaceLeapingImageFilter.cxx
 )
 
-set_source_files_properties(
-  vtkDirectionEncoder
-  vtkEncodedGradientEstimator
-  vtkVolumeMapper
-  vtkUnstructuredGridVolumeMapper
-  vtkUnstructuredGridVolumeRayCastFunction
-  vtkUnstructuredGridVolumeRayCastIterator
-  vtkUnstructuredGridVolumeRayIntegrator
-  ABSTRACT
-  )
-
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set_source_files_properties(
     vtkGPUVolumeRayCastMapper.cxx APPEND PROPERTIES
