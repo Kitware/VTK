@@ -72,7 +72,6 @@ configure_file(
 SET(Module_SRCS
   vtkAOSDataArrayTemplate.txx
   vtkAbstractArray.cxx
-  vtkAngularPeriodicDataArray.txx
   vtkAnimationCue.cxx
   vtkArray.cxx
   vtkArrayCoordinates.cxx
@@ -163,7 +162,6 @@ SET(Module_SRCS
   vtkOutputWindow.cxx
   vtkOverrideInformation.cxx
   vtkOverrideInformationCollection.cxx
-  vtkPeriodicDataArray.txx
   vtkPoints.cxx
   vtkPoints2D.cxx
   vtkPriorityQueue.cxx
@@ -211,7 +209,6 @@ SET(Module_SRCS
 
 set(${vtk-module}_HDRS
   vtkABI.h
-  vtkAngularPeriodicDataArray.h
   vtkArrayDispatch.h
   vtkArrayDispatch.txx
   vtkArrayInterpolate.h
@@ -236,7 +233,6 @@ set(${vtk-module}_HDRS
   vtkMathUtilities.h
   vtkMersenneTwister.h
   vtkNew.h
-  vtkPeriodicDataArray.h
   vtkSOADataArrayTemplate.txx
   vtkSetGet.h
   vtkSmartPointer.h
