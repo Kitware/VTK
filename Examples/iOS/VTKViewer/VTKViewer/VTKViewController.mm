@@ -11,15 +11,13 @@
 #import "VTKGestureHandler.h"
 #import "VTKView.h"
 
-#include "vtkBoundingBox.h"
-#include "vtkIOSRenderWindow.h"
+#include "vtkActor.h"
+#include "vtkCubeSource.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
-#include "vtkActor.h"
-#include "vtkCubeSource.h"
-#include "vtkPolyDataMapper.h"
 
 @interface VTKViewController ()
 
@@ -28,8 +26,8 @@
 
 // VTK
 @property (nonatomic) vtkSmartPointer<vtkRenderer> renderer;
-@property (assign) vtkBoundingBox boundingBox;
 
+// VTK handlers
 @property (nonatomic) VTKGestureHandler *vtkGestureHandler;
 
 @end
@@ -42,7 +40,7 @@
 
     [self setupPipeline];
 
-    self.vtkGestureHandler = [[VTKGestureHandler alloc] initWithView:self.view vtkView:self.vtkView];
+    self.vtkGestureHandler = [[VTKGestureHandler alloc] initWithVtkView:self.vtkView];
 }
 
 - (void)setupPipeline {
@@ -62,9 +60,8 @@
     self.renderer->GradientBackgroundOn();
     self.renderer->AddActor(actor);
     self.renderer->ResetCamera();
-
-    self.boundingBox.AddBounds(actor->GetBounds());
 }
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
