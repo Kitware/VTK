@@ -57,7 +57,7 @@
 		12BFB1211EF834F100EE3EE1 /* VTKViewerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VTKViewerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		12BFB1251EF834F100EE3EE1 /* VTKViewerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VTKViewerUITests.m; sourceTree = "<group>"; };
 		12BFB1271EF834F100EE3EE1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		12BFB1341EF8363E00EE3EE1 /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = ../../../../../usr/local/Frameworks/vtk.framework; sourceTree = "<group>"; };
+		12BFB1341EF8363E00EE3EE1 /* vtk.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vtk.framework; path = /usr/local/Frameworks/vtk.framework; sourceTree = "<absolute>"; };
 		12BFB1381EF83D2000EE3EE1 /* VTKView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VTKView.h; sourceTree = "<group>"; };
 		12BFB1391EF83D2000EE3EE1 /* VTKView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKView.mm; sourceTree = "<group>"; };
 		12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
