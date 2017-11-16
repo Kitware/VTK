@@ -382,7 +382,7 @@ public:
 
   //@{
   /**
-   * Methods to provide to add shader variables from tcl.
+   * Methods to provide to add shader variables from wrappers.
    */
   void AddShaderVariable(const char* name, int v)
     { this->AddShaderVariable(name, 1, &v); }

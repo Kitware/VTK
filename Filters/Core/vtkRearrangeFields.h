@@ -29,10 +29,6 @@
  * @endverbatim
  * adds an operation which copies a field (data array) called foo from
  * the data object's field data to point data.
- * From Tcl, the same operation can be added as follows:
- * @verbatim
- * rf AddOperation COPY foo DATA_OBJECT POINT_DATA
- * @endverbatim
  * The same can be done using Python and Java bindings by passing
  * strings as arguments.
  * @verbatim
@@ -42,9 +38,9 @@
  * @endverbatim
  *
  * @warning
- * When using Tcl, Java, Python or Visual Basic bindings, the array name
+ * When using Java, Python or Visual Basic bindings, the array name
  * can not be one of the  AttributeTypes when calling AddOperation() which
- * takes strings as arguments. The Tcl (Java etc.) command will
+ * takes strings as arguments. The wrapped command will
  * always assume the string corresponds to an attribute type when
  * the argument is one of the AttributeTypes. In this situation,
  * use the AddOperation() which takes enums.

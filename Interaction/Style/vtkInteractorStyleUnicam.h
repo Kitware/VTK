@@ -41,8 +41,7 @@
  * IMPORTANT: UniCam assumes there is an axis that makes sense as a "up"
  * vector for the world.  By default, this axis is defined to be the
  * vector <0,0,1>.  You can set it explicitly for the data you are
- * viewing with the 'SetWorldUpVector(..)' method in C++, or similarly
- * in Tcl/Tk (or other interpreted languages).
+ * viewing with the 'SetWorldUpVector(..)' method.
  *
  * 1. ROTATE:
  *

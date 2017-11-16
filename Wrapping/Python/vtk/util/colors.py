@@ -1,6 +1,6 @@
 # This module defines many standard colors that should be useful.
 # These colors should be exactly the same as the ones defined in
-# colors.tcl.
+# vtkNamedColors.h.
 
 #  Whites
 antique_white = (0.9804, 0.9216, 0.8431)

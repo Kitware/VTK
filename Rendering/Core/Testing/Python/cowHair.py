@@ -73,7 +73,7 @@ hair.GetProperty().SetAmbient(.3)
 
 # Beige in vtk.vtkNamedColors() is compliant with
 # http://en.wikipedia.org/wiki/Web_colors and is a different color.
-# so we revert to the one used in colors.tcl.
+# so we revert to the one used in colors.py.
 # cow.GetProperty().SetDiffuseColor(GetRGBColor('beige'))
 cow.GetProperty().SetDiffuseColor(163 / 255.0, 148 / 255.0, 128 / 255.0)
 

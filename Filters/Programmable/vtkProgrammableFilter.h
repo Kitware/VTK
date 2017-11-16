@@ -20,7 +20,7 @@
  * use the filter you define a function that retrieves input of the correct
  * type, creates data, and then manipulates the output of the filter.  Using
  * this filter avoids the need for subclassing - and the function can be
- * defined in an interpreter wrapper language such as Tcl or Java.
+ * defined in an interpreter wrapper language such as Java.
  *
  * The trickiest part of using this filter is that the input and output
  * methods are unusual and cannot be compile-time type checked. Instead, as a

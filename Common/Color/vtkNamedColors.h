@@ -40,8 +40,8 @@
  * Wrapping/Tcl/vtktesting/colors.tcl and Wrapping/Python/vtk/util/colors.py.
  *
  * Web colors and names in <a href="http://en.wikipedia.org/wiki/Web_colors">Web colors</a> take
- * precedence over those in colors.tcl and colors.py. One consequence of this
- * is that while colors.py and colors.tcl specify green as equivalent to
+ * precedence over those in colors.py. One consequence of this
+ * is that while colors.py specifies green as equivalent to
  * (0,255,0), the web color standard defines it as (0,128,0).
  *
  * The SetColor methods will overwrite existing colors if the name of the

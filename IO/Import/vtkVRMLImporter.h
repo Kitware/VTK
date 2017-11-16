@@ -37,7 +37,7 @@
  * greatly from the VRML spec and the External Authoring Interface (see the
  * VRML spec). The DEF/USE mechanism does allow the VTK user to extract
  * objects from the scene and directly manipulate them using the native
- * language (Tcl, Python, Java, or whatever language VTK is wrapped
+ * language (Python, Java, or whatever language VTK is wrapped
  * in). This, in a way, removes the need for the route and script mechanism
  * (not completely though).
  * Texture coordinates are attached to the mesh is available but
