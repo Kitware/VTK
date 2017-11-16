@@ -100,7 +100,7 @@ foreach (HDR_FILE ${VTK_SMP_HEADERS_TO_CONFIG})
   list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE})
 endforeach()
 
-list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
+list(APPEND VTK_SMP_HEADERS vtkSMPThreadLocalObject.h)
 
 #-------------------------------------------------------------------------------
 # Generate the vtkTypeList_Create macros:
@@ -631,8 +631,8 @@ set_source_files_properties(
   vtkABI.h
   vtkAOSDataArrayTemplate.txx
   vtkArrayIteratorTemplateInstantiate.cxx
-  vtkAtomic.h
   vtkAutoInit.h
+  vtkDataArrayPrivate.txx
   vtkIOStream.cxx
   vtkIOStreamFwd.h
   vtkLargeInteger.cxx
@@ -650,6 +650,8 @@ set_source_files_properties(
   vtkWeakPointerBase.cxx
   vtkWin32Header.h
   vtkWrappingHints.h
+  ${VTK_SMP_SOURCES}
+  ${VTK_SMP_HEADERS}
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
 )
 
