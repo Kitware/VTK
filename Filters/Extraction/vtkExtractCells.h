@@ -67,6 +67,8 @@ public:
 
   void AddCellRange(vtkIdType from, vtkIdType to);
 
+  vtkMTimeType GetMTime() override;
+
 protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
