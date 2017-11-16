@@ -16,6 +16,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 #include "vtkObject.h"
+#include <string> // used for std::string
 #include <vector> // used for method args
 
 class vtkCellArray;
