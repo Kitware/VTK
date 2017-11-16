@@ -132,7 +132,11 @@ function(vtk_python_package name)
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
         install(DIRECTORY "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}/"
                 DESTINATION "${VTK_INSTALL_PYTHON_MODULES_DIR}/${_name_target}"
-                COMPONENT "Runtime")
+                COMPONENT "Runtime"
+                # Add exclusions to avoid installing VTK's C++ Python modules
+                # These have their own install rules.
+                PATTERN "vtk*Python.so" EXCLUDE
+                PATTERN "vtk*Python.pyd" EXCLUDE)
       endif()
     endif() # NOT _use_system
   endforeach()
