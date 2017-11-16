@@ -48,7 +48,7 @@ JNIEXPORT void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj)
   return obj ? (void*)(size_t)vtkJavaGetId(env, obj) : 0;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, const double *ptr, int size)
 {
   jdoubleArray ret;
   int i;
@@ -73,7 +73,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env, double *ptr, i
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, const float *ptr, int size)
 {
   jdoubleArray ret;
   int i;
@@ -98,7 +98,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env, float *ptr, int
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, const int *ptr, int size)
 {
   jintArray ret;
   int i;
@@ -123,7 +123,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *ptr, int size)
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, const vtkIdType *ptr, int size)
 {
   jintArray ret;
   int i;
@@ -148,7 +148,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *ptr, i
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, const long long *ptr, int size)
 {
   jintArray ret;
   int i;
@@ -173,7 +173,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *ptr,
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, const signed char *ptr, int size)
 {
   jintArray ret;
   int i;
@@ -198,7 +198,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env, float *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env, const float *ptr, int size)
 {
   jfloatArray ret;
   int i;
@@ -223,7 +223,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env, float *ptr, int 
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, const short *ptr, int size)
 {
   jshortArray ret;
   int i;
@@ -248,7 +248,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *ptr, int 
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned char *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, const unsigned char *ptr, int size)
 {
   jbyteArray ret;
   int i;
@@ -273,7 +273,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned c
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, const long *ptr, int size)
 {
   cout.flush();
   jlongArray ret;
@@ -299,7 +299,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *ptr, int siz
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env,unsigned long *ptr,int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env, const unsigned long *ptr,int size)
 {
   cout.flush();
   jlongArray ret;
@@ -325,7 +325,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env,uns
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,unsigned short *ptr,int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env, const unsigned short *ptr,int size)
 {
   cout.flush();
   jshortArray ret;
@@ -351,7 +351,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,u
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env,unsigned char *ptr,int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env, const unsigned char *ptr,int size)
 {
   cout.flush();
   jbyteArray ret;
@@ -377,7 +377,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env,uns
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env,unsigned int *ptr,int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env, const unsigned int *ptr,int size)
 {
   cout.flush();
   jintArray ret;
@@ -403,7 +403,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env,unsig
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *ptr, int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, const char *ptr, int size)
 {
   cout.flush();
   jcharArray ret;
@@ -429,7 +429,7 @@ JNIEXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *ptr, int siz
   return ret;
 }
 
-JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, bool *ptr,int size)
+JNIEXPORT jarray vtkJavaMakeJArrayOfIntFromBool(JNIEnv *env, const bool *ptr,int size)
 {
   cout.flush();
   jintArray ret;
