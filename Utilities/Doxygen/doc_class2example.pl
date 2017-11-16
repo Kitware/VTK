@@ -130,7 +130,7 @@ my %default =
 #                      that shall be eliminated/ignored,
 # %parsers           : hash defining each parser by associating
 #                      parser_name => [filename_matcher, func1, func2].
-#  $parser_name      : language identifier (Tcl, C++, Python, etc.),
+#  $parser_name      : language identifier (C++, Python, etc.),
 #  $filename_matcher : regexp matching the filenames belonging to the language,
 # @$func1            : function called when a filename is matched,
 #                      - receives the contents of the file as a reference to a
@@ -145,7 +145,6 @@ my %default =
 my $eliminate_matcher = '^vtkCommand$';
 
 my %parsers = (
-               "Tcl" => ['\.tcl$', \&rm_tcl_comments, \&parse],
                "C++" => ['\.c(xx|pp|c)$', \&rm_cpp_comments, \&parse],
                "Java" => ['\.java$', \&rm_cpp_comments, \&parse],
                "Python" => ['\.py$', \&rm_tcl_comments, \&parse]
@@ -326,9 +325,7 @@ print " => ", scalar @parsable, " file(s) collected in ", time() - $start_time, 
 # Parse files and build xref
 
 # %xref is a hash : xref{$class}{$parser}{$file}
-# Ex: xref{"vtkPoints"}{"Tcl"}{"examplesTcl/foo.tcl"}
-#     xref{"vtkPoints"}{"Tcl"}{"graphics/examplesTcl/bar.tcl"}
-#     xref{"vtkNormals"}{"C++"}{"test.cxx"}
+# Ex: xref{"vtkNormals"}{"C++"}{"test.cxx"}
 
 my %xref;
 

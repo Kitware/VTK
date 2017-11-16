@@ -226,12 +226,6 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*" AND NOT CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif()
 
-# If we are wrapping Tcl then the Tk libraries are available and should be used
-# in the Python wrapping too.
-if(VTK_WRAP_TCL)
-  list(APPEND VTKPYTHON_LINK_LIBS ${VTK_TK_LIBRARIES})
-endif()
-
 if(HAVE_PTHREAD_H AND CMAKE_USE_PTHREADS)
   list(APPEND VTKPYTHON_LINK_LIBS ${CMAKE_THREAD_LIBS_INIT})
 endif()

@@ -21,7 +21,7 @@ if (!$language)
 
 if ( !$print && ($#ARGV < 0 || $help) )
 {
-    print "Usage: $0 [--language {c++ | tcl | python | java}] ",
+    print "Usage: $0 [--language {c++ | python | java}] ",
           "[--verbose] [--help] [--print-messages] file1 [file2 ...]\n";
     exit;
 }
@@ -78,54 +78,6 @@ if ( !$print && ($#ARGV < 0 || $help) )
 		  '->SetNumberOfNormals' => 42,
 		  '->SetNumberOfTCoords' => 43,
 		  '->SetNumberOfTensors' => 44,
-		  );
-
-%tclmessageids = (
-		  'vtkScalars ' => 5,
-		  'vtkVectors ' => 6,
-		  'vtkNormals ' => 7,
-		  'vtkTCoords ' => 8,
-		  'vtkTensors ' => 9,
-		  '[ \t]+GetScalar([ \t]*$|[^a-zA-Z0-9])' => 10,
-		  '[ \t]+GetVector([ \t]*$|[^a-zA-Z0-9])' => 11,
-		  '[ \t]+GetNormal([ \t]*$|[^a-zA-Z0-9])' => 12,
-		  '[ \t]+GetTCoord([ \t]*$|[^a-zA-Z0-9])' => 13,
-		  '[ \t]+GetTensor([ \t]*$|[^a-zA-Z0-9])' => 14,
-		  '[ \t]+SetScalar([ \t]*$|[^a-zA-Z0-9])' => 15,
-		  '[ \t]+SetVector([ \t]*$|[^a-zA-Z0-9])' => 16,
-		  '[ \t]+SetNormal([ \t]*$|[^a-zA-Z0-9])' => 17,
-		  '[ \t]+SetTCoord([ \t]*$|[^a-zA-Z0-9])' => 18,
-		  '[ \t]+SetTensor([ \t]*$|[^a-zA-Z0-9])' => 19,
-		  '[ \t]GetScalars[ \t]*[a-zA-Z]+.*' => 20,
-		  '[ \t]GetVectors[ \t]*[a-zA-Z]+.*' => 21,
-		  '[ \t]GetNormals[ \t]*[a-zA-Z]+.*' => 22,
-		  '[ \t]GetTCoords[ \t]*[a-zA-Z]+.*' => 23,
-		  '[ \t]GetTensors[ \t]*[a-zA-Z]+.*' => 24,
-		  '[ \t]InsertScalar[ \t]+' => 25,
-		  '[ \t]InsertVector[ \t]+' => 26,
-		  '[ \t]InsertNormal[ \t]+' => 27,
-		  '[ \t]InsertTCoord[ \t]+' => 28,
-		  '[ \t]InsertTensor[ \t]+' => 29,
-		  '[ \t]InsertNextScalar[ \t]+' => 30,
-		  '[ \t]InsertNextVector[ \t]+' => 31,
-		  '[ \t]InsertNextNormal[ \t]+' => 32,
-		  '[ \t]InsertNextTCoord[ \t]+' => 33,
-		  '[ \t]InsertNextTensor[ \t]+' => 34,
-		  '[ \t]GetActiveScalars' => 35,
-		  '[ \t]GetActiveVectors' => 36,
-		  '[ \t]GetActiveNormals' => 37,
-		  '[ \t]GetActiveTCoords' => 38,
-		  '[ \t]GetActiveTensors' => 39,
-		  '[ \t]GetNumberOfScalars' => 40,
-		  '[ \t]GetNumberOfVectors' => 41,
-		  '[ \t]GetNumberOfNormals' => 42,
-		  '[ \t]GetNumberOfTCoords' => 43,
-		  '[ \t]GetNumberOfTensors' => 44,
-		  '[ \t]SetNumberOfScalars' => 40,
-		  '[ \t]SetNumberOfVectors' => 41,
-		  '[ \t]SetNumberOfNormals' => 42,
-		  '[ \t]SetNumberOfTCoords' => 43,
-		  '[ \t]SetNumberOfTensors' => 44,
 		  );
 
 %pythonmessageids = (
@@ -227,10 +179,6 @@ if ( !$print && ($#ARGV < 0 || $help) )
 if ($language eq "c++")
 {
     %messageids = %cxxmessageids;
-}
-elsif($language eq "tcl")
-{
-    %messageids = %tclmessageids;
 }
 elsif($language eq "python")
 {

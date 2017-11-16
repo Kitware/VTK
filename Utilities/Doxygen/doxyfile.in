@@ -58,15 +58,12 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingSquaresCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/DataModel/vtkMarchingCubesCases.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Core/vtkWindows.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTcl.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTk.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPython.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaAwt.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkJavaUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkPythonUtil.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/vtkTclUtil.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel/MPI/vtkMPI.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtk3DS.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO/Import/vtkVRML.h" \

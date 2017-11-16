@@ -339,8 +339,7 @@ ENDIF()
 
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
   ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
-  "vtk.*TCLInit.cxx"
-  "vtk[^\\.]+(Java|Python|Tcl).cxx"
+  "vtk[^\\.]+(Java|Python).cxx"
   ".*vtkOpenGLState.*" # debugging class
   ".*Testing.Cxx.*cxx"
   ".*Testing.Cxx.*h"

@@ -22,7 +22,7 @@ if (!$language)
 
 if ( !$print && ($#ARGV < 0 || $help) )
 {
-    print "Usage: $0 [--language {c++ | tcl | python | java}] ",
+    print "Usage: $0 [--language {c++ | python | java}] ",
           "[--help] [--print-messages] file1 [file2 ...]\n";
     exit;
 }
@@ -222,50 +222,12 @@ if ( !$print && ($#ARGV < 0 || $help) )
      'GetCellData\s*\]\s+GetFieldData\s*\]', 1001,
      'SaveImageAsPPM\s*', 1002,
      'GetImageWindow', 1003,
-     'catch\s*\{\s*load\s*vtktcl\s*\}', 1004,
-     'source\s*\$VTK_TCL\/vtkInt\.tcl', 1005,
-     'source\s*\$VTK_TCL\/colors\.tcl', 1006,
-     );
-
-%tclreps =
-    (
-     0 => 'vtkFloatArray $1',
-     1 => 'SetTuple1 $1 $2',
-     2 => 'InsertTuple1 ',
-     3 => 'InsertNextTuple1 ',
-     4 => 'SetNumberOfTuples ',
-     5 => 'GetNumberOfTuples ',
-     6 => 'GetScalars ',
-
-     100 => 'vtkFloatArray $1; $1 SetNumberOfComponents 3',
-     101 => 'SetTuple3 $1 $2 $3 $4',
-     102 => 'InsertTuple3 ',
-     103 => 'InsertNextTuple3 ',
-     106 => 'GetVectors ',
-
-     206 => 'GetNormals ',
-
-     300 => 'vtkFloatArray $1; $1 SetNumberOfComponents 2',
-     306 => 'GetTCoords ',
-
-     1000 => 'GetPointData\]',
-     1001 => 'GetCellData\]',
-     1002 => 'SaveImageAsPPM \# Use a vtkWindowToImageFilter instead of SaveImageAsPPM',
-     1003 => 'GetRenderWindow',
-     1004 => 'package require vtk',
-     1005 => 'package require vtkinteraction',
-     1006 => 'package require vtktesting',
      );
 
 if ($language eq "c++")
 {
     @messageids = @cxxmessageids;
     %reps = %cxxreps;
-}
-elsif($language eq "tcl")
-{
-    @messageids = @tclmessageids;
-    %reps = %tclreps;
 }
 
 else

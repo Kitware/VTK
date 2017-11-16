@@ -2,25 +2,21 @@
 '''
 This program takes one mandatory parameter, the VTK base folder, and up to
  four optional parameters corresponding to the names of the testing language
- subfolders, e.g Cxx, Python, Tcl and, possibly, an optional print option along
+ subfolders, e.g Cxx, Python, and, possibly, an optional print option along
  with some other optional options.
 
 If no optional parameters are given, then some statistics about the number
  of tests are provided. These statistics are also displayed when optional
  parameters are provided.
 
-Optional parameters are one or more of: Tcl, Cxx or Python.
+Optional parameters are one or more of: Cxx or Python.
 
 If one optional parameter e.g Python, is provided, then a list of the tests
  by folder for that parameter are given if the print option is specified.
 
-If two optional parameters, e.g Tcl Python, are provided, then a list
- of the tests by folder corresponding to those tests that are in Tcl but
+If two optional parameters, e.g Cxx Python, are provided, then a list
+ of the tests by folder corresponding to those tests that are in Cxx but
  not Python is provided if the print option is specified.
-
-If three optional parameters, e.g Tcl Cxx Python, are provided, then a list
- of the tests by folder corresponding to those tests that are in Tcl but
- not Cxx or Python is provided if the print option is specified.
 
 These are the additional options:
   -e: include only those tests enabled in the CMakeLists.txt file.
@@ -30,9 +26,9 @@ These are the additional options:
   -p Print out a list of files.
 
   Some examples of typical usage:
-  <program file Name> <path to VTK> Tcl Python Cxx
-  <program file Name> <path to VTK> Tcl Python Cxx -p
-  <program file Name> <path to VTK> Tcl -n -p
+  <program file Name> <path to VTK> Python Cxx
+  <program file Name> <path to VTK> Python Cxx -p
+  <program file Name> <path to VTK> Python -n -p
   <program file Name> <path to VTK> -d -p
 
 '''
@@ -60,8 +56,7 @@ class FindTests(object):
     def __init__(self, inputPath):
         self.patterns = {'Cxx': re.compile(r'(^.*Testing)(\/Cxx)(.?|\/)$'),
                          'Python': re.compile(
-                                        r'(^.*Testing)(\/Python)(.?|\/)$'),
-                         'Tcl': re.compile(r'(^.*Testing)(\/Tcl)(.?|\/)$')}
+                                        r'(^.*Testing)(\/Python)(.?|\/)$')}
 
         self.inputPath = inputPath
 
@@ -75,7 +70,7 @@ class FindTests(object):
         self.fileExtensions['Python'] = 'py'
         # Used to validate input.
         self.keys = {'cpp': 'Cxx', 'cxx': 'Cxx', 'c++': 'Cxx',
-                      'python': 'Python', 'tcl': 'Tcl'}
+                      'python': 'Python'}
 
     def ParseCMakeFile(self, dir):
         '''
@@ -252,20 +247,19 @@ class FindTests(object):
 
     def NumberOfTestsByLanguage(self, tl):
         '''
-        :param: tl - the language, e.g. Cxx, Python or Tcl.
+        :param: tl - the language, e.g. Cxx or Python.
         :return: The sum of all the elements in the dictionary for that language.
         '''
         return self.GetTotalNumberOfItems(self.tests[tl])
 
-    def NumberOfUniqueTestsByLanguage(self, tl1, tl2, tl3):
+    def NumberOfUniqueTestsByLanguage(self, tl1, tl2):
         '''
-        :param: tl - the language, e.g. Cxx, Python or Tcl.
-        :param: t2 - the language, e.g. Cxx, Python or Tcl.
-        :param: t3 - the language, e.g. Cxx, Python or Tcl.
+        :param: tl - the language, e.g. Cxx or Python.
+        :param: t2 - the language, e.g. Cxx or Python.
         :return: The sum of all the elements in the dictionary for
                   the language tl1 that are unique.
         '''
-        x = self.InANotBOrC(tl1, tl2, tl3)
+        x = self.InANotBOrC(tl1, tl2)
         return self.GetTotalNumberOfItems(x)
 
     def InANotB(self, a, b):
@@ -350,7 +344,7 @@ def GetProgramParameters():
         action='store_true')
     args = parser.parse_args()
     return args.inputPath, \
-            [args.a, args.b, args.c, args.enabled, args.disabled,
+            [args.a, args.b, args.enabled, args.disabled,
              args.notIn, args.printFileNames]
 
 def CheckPythonVersion(ver):
@@ -382,7 +376,7 @@ def main():
     # An index for the number of languages selected.
     select = 0
     idx = 0
-    for v in opts[:3]:
+    for v in opts[:2]:
         if v:
             if not v.lower() in tests.keys:
                 print('Invalid value: ', v)
@@ -396,24 +390,22 @@ def main():
 
     testOptions = 0
     testType = 'All tests'
-    if opts[3]:
+    if opts[2]:
         testOptions = 1
         testType = 'Enabled tests'
-    if opts[4]:
+    if opts[3]:
         testOptions = 2
         estType = 'Disabled tests'
-    if opts[5]:
+    if opts[4]:
         testOptions = 3
         testType = 'Not in CmakeLists.txt'
 
     tests.WalkPaths(testOptions)
 
     c = tests.NumberOfTestsByLanguage('Cxx')
-    ce = tests.NumberOfUniqueTestsByLanguage('Cxx', 'Python', 'Tcl')
+    ce = tests.NumberOfUniqueTestsByLanguage('Cxx', 'Python')
     p = tests.NumberOfTestsByLanguage('Python')
-    pe = tests.NumberOfUniqueTestsByLanguage('Python', 'Cxx', 'Tcl')
-    t = tests.NumberOfTestsByLanguage('Tcl')
-    te = tests.NumberOfUniqueTestsByLanguage('Tcl', 'Cxx', 'Python')
+    pe = tests.NumberOfUniqueTestsByLanguage('Python', 'Cxx')
 
     print('-' * 40)
     print(testType + '.')
@@ -424,13 +416,10 @@ def main():
     print('{:32s}:{:6d}'.format('Unique Python tests', pe))
     print('{:32s}:{:6d}'.format('Total number of Python tests', p))
     print('-' * 40)
-    print('{:32s}:{:6d}'.format('Unique Tcl tests', te))
-    print('{:32s}:{:6d}'.format('Total number of Tcl tests', t))
+    print('{:32s}:{:6d}'.format('Total number of unique tests', ce + pe))
+    print('{:32s}:{:6d}'.format('Total number of tests', c + p))
     print('-' * 40)
-    print('{:32s}:{:6d}'.format('Total number of unique tests', ce + pe + te))
-    print('{:32s}:{:6d}'.format('Total number of tests', c + p + t))
-    print('-' * 40)
-    if opts[6]:  # Print the filenames.
+    if opts[5]:  # Print the filenames.
         if testOptions >= 0 and testOptions < 4:
             if select > 0:
                 if select == 1:
@@ -444,14 +433,6 @@ def main():
                                 opts[0], opts[1]))
                         print('-' * 40)
                         print(tests.MakeSorted(inANotB, opts[0]))
-                elif select == 3:
-                    inANotBOrCOrCxx = tests.InANotBOrC(opts[0],
-                                                        opts[1], opts[2])
-                    if inANotBOrCOrCxx:
-                        print('In {:s} but not in {:s} or {:s}.'.format(
-                                opts[0], opts[1], opts[2]))
-                        print('-' * 40)
-                        print(tests.MakeSorted(inANotBOrCOrCxx, opts[0]))
             else:
                 for k in sorted(tests.tests.keys()):
                     print('-' * 40)
