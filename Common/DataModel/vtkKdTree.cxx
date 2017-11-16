@@ -38,6 +38,7 @@
 #include "vtkIntArray.h"
 #include "vtkPointSet.h"
 #include "vtkImageData.h"
+#include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkCallbackCommand.h"
@@ -48,15 +49,53 @@
 #include <queue>
 #include <set>
 
+namespace
+{
+class TimeLog // Similar to vtkTimerLogScope, but can be disabled at runtime.
+{
+  const std::string Event;
+  int Timing;
 
-// Timing data ---------------------------------------------
+public:
+  TimeLog(const char *event, int timing)
+    : Event(event ? event : "")
+    , Timing(timing)
+  {
+    if (this->Timing)
+    {
+      vtkTimerLog::MarkStartEvent(this->Event.c_str());
+    }
+  }
 
-#include "vtkTimerLog.h"
+  ~TimeLog()
+  {
+    if (this->Timing)
+    {
+      vtkTimerLog::MarkEndEvent(this->Event.c_str());
+    }
+  }
 
-#define MSGSIZE 60
+  static void StartEvent(const char *event, int timing)
+  {
+    if (timing)
+    {
+      vtkTimerLog::MarkStartEvent(event);
+    }
+  }
 
-static char dots[MSGSIZE] = "...........................................................";
-static char msg[MSGSIZE];
+  static void EndEvent(const char *event, int timing)
+  {
+    if (timing)
+    {
+      vtkTimerLog::MarkEndEvent(event);
+    }
+  }
+};
+}
+
+#define SCOPETIMER(msg) TimeLog _timer("KdTree: " msg, this->Timing); (void)_timer
+#define TIMER(msg) TimeLog::StartEvent("KdTree: " msg, this->Timing)
+#define TIMERDONE(msg) TimeLog::EndEvent("KdTree: " msg, this->Timing)
 
 //-----------------------------------------------------------------------------
 static void LastInputDeletedCallback(vtkObject * vtkNotUsed(caller),
@@ -68,33 +107,6 @@ static void LastInputDeletedCallback(vtkObject * vtkNotUsed(caller),
 
   self->InvalidateGeometry();
 }
-
-//----------------------------------------------------------------------------
-static char * makeEntry(const char *s)
-{
-  memcpy(msg, dots, MSGSIZE);
-  int len = static_cast<int>(strlen(s));
-  len = (len >= MSGSIZE) ? MSGSIZE-1 : len;
-
-  memcpy(msg, s, len);
-
-  return msg;
-}
-
-#define TIMER(s)         \
-  if (this->Timing)      \
-  {                    \
-    char *s2 = makeEntry(s);               \
-    if (this->TimerLog == nullptr){           \
-      this->TimerLog = vtkTimerLog::New(); \
-    }                                    \
-    this->TimerLog->MarkStartEvent(s2);    \
-  }
-
-#define TIMERDONE(s) \
-  if (this->Timing){ char *s2 = makeEntry(s); this->TimerLog->MarkEndEvent(s2); }
-
-// Timing data ---------------------------------------------
 
 // helper class for ordering the points in vtkKdTree::FindClosestNPoints()
 namespace
@@ -589,6 +601,7 @@ float *vtkKdTree::ComputeCellCenters(int set)
 //----------------------------------------------------------------------------
 float *vtkKdTree::ComputeCellCenters(vtkDataSet *set)
 {
+  SCOPETIMER("ComputeCellCenters");
   this->UpdateSubOperationProgress(0);
   int totalCells;
 
@@ -742,6 +755,8 @@ void vtkKdTree::ComputeCellCenter(vtkCell *cell, double *center,
 //
 void vtkKdTree::BuildLocator()
 {
+  SCOPETIMER("BuildLocator");
+
   this->UpdateProgress(0);
   int nCells=0;
   int i;
@@ -911,6 +926,8 @@ void vtkKdTree::BuildLocator()
 
 int vtkKdTree::ProcessUserDefinedCuts(double *minBounds)
 {
+  SCOPETIMER("ProcessUserDefinedCuts");
+
   if (!this->Cuts)
   {
     vtkErrorMacro(<< "vtkKdTree::ProcessUserDefinedCuts - no cuts" );
@@ -1629,6 +1646,8 @@ int vtkKdTree::SelfOrder(int startId, vtkKdNode *kd)
 
 void vtkKdTree::BuildRegionList()
 {
+  SCOPETIMER("BuildRegionList");
+
   if (this->Top == nullptr)
   {
     return;
@@ -3092,6 +3111,8 @@ void vtkKdTree::PrintVerboseTree()
 //----------------------------------------------------------------------------
 void vtkKdTree::FreeSearchStructure()
 {
+  SCOPETIMER("FreeSearchStructure");
+
   if (this->Top)
   {
     vtkKdTree::DeleteAllDescendants(this->Top);

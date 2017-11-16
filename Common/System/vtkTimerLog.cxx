@@ -535,7 +535,7 @@ void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
     float percentage =
         vtkMath::Round(elapsedTime / parent.second * 1000.) / 10.f;
 
-    *os << std::setw(8) << std::setprecision(6) << std::fixed
+    *os << std::setw(12) << std::setprecision(6) << std::fixed
         << elapsedTime
         << std::setw(0) << "s"
         << std::setw(curIndent * 2) << " "
