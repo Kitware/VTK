@@ -1761,7 +1761,7 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     this->SetLightingShaderParameters(cellBO, ren, actor);
 
     // allow the program to set what it wants
-    this->InvokeEvent(vtkCommand::UpdateShaderEvent,&cellBO);
+    this->InvokeEvent(vtkCommand::UpdateShaderEvent, cellBO.Program);
   }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateShader");
