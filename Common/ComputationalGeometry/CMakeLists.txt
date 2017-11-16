@@ -26,9 +26,4 @@ set(Module_SRCS
   vtkParametricPluckerConoid.cxx
   )
 
-set_source_files_properties(
-  vtkParametricFunction
-  ABSTRACT
-)
-
 vtk_module_library(vtkCommonComputationalGeometry ${Module_SRCS})

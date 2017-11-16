@@ -10,9 +10,4 @@ set(Module_SRCS
   vtkTableFFT.cxx
   )
 
-set_source_files_properties(
-  vtkImageFourierFilter
-  ABSTRACT
-  )
-
 vtk_module_library(${vtk-module} ${Module_SRCS})

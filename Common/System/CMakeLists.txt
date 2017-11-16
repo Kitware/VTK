@@ -8,11 +8,6 @@ set(Module_SRCS
   vtkTimerLog.cxx
   )
 
-set_source_files_properties(
-  vtkSocket
-  ABSTRACT
-)
-
 if(NOT HAVE_SOCKETS)
   # Tell vtkSocket.cxx that there are no sockets on this platform.
   set_source_files_properties(vtkSocket.cxx PROPERTIES

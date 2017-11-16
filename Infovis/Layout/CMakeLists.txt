@@ -45,13 +45,4 @@ set(Module_SRCS
   vtkKCoreLayout.cxx
   )
 
-set_source_files_properties(
-  vtkAreaLayoutStrategy.cxx
-  vtkCirclePackLayoutStrategy.cxx
-  vtkEdgeLayoutStrategy.cxx
-  vtkGraphLayoutStrategy.cxx
-  vtkTreeMapLayoutStrategy.cxx
-  ABSTRACT
-  )
-
 vtk_module_library(vtkInfovisLayout ${Module_SRCS})

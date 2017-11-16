@@ -20,11 +20,6 @@ set(parallel_overrides
   StreaklineFilter
   )
 
-set_source_files_properties(
-  vtkPParticleTracerBase
-  ABSTRACT
-  )
-
 foreach(_override ${parallel_overrides})
   vtk_add_override(vtk${_override} vtkP${_override})
 endforeach()

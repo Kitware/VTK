@@ -17,12 +17,4 @@ set(Module_SRCS
   vtkLandmarkTransform.cxx
   )
 
-set_source_files_properties(
-  vtkAbstractTransform
-  vtkHomogeneousTransform
-  vtkLinearTransform
-  vtkWarpTransform
-  ABSTRACT
-  )
-
 vtk_module_library(vtkCommonTransforms ${Module_SRCS})

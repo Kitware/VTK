@@ -15,11 +15,4 @@ set(Module_SRCS
   vtkXMLPUniformGridAMRWriter.cxx
   )
 
-set_source_files_properties(
-  vtkXMLPDataWriter
-  vtkXMLPStructuredDataWriter
-  vtkXMLPUnstructuredDataWriter
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOParallelXML ${Module_SRCS})

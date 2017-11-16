@@ -119,13 +119,4 @@ set(Module_SRCS
   vtkCellTreeLocator.cxx
   )
 
-set_source_files_properties(
-  vtkApproximatingSubdivisionFilter
-  vtkDicer
-  vtkGraphWeightFilter
-  vtkInterpolatingSubdivisionFilter
-  vtkSubdivisionFilter
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersGeneral ${Module_SRCS})

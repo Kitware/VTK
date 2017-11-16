@@ -107,7 +107,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGarbageCollector.cxx
   TestGenericDataArrayAPI.cxx
   TestInformationKeyLookup.cxx
-  # TestInstantiator.cxx # Have not enabled instantiators.
   TestLookupTable.cxx
   TestLookupTableThreaded.cxx
   TestMath.cxx

@@ -18,9 +18,4 @@ set(Module_SRCS
   vtkStreamingStatistics.cxx
   )
 
-set_source_files_properties(
-  vtkStatisticsAlgorithm.cxx
-  ABSTRACT
-)
-
 vtk_module_library(vtkFiltersStatistics ${Module_SRCS})

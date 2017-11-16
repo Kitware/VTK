@@ -136,15 +136,6 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
-  vtkImageProcessingPass
-  vtkOpenGLRenderWindow
-  vtkPainter
-  vtkPolyDataPainter
-  vtkPrimitivePainter
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkLightingHelper
   vtkOpenGLState
   vtkOpenGLGL2PSHelper

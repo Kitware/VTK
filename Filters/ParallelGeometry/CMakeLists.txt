@@ -6,9 +6,4 @@ set(Module_SRCS
   vtkPUnstructuredGridGhostCellsGenerator.cxx
   )
 
-set_source_files_properties(
-  vtkPDataSetGhostGenerator
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersParallelGeometry ${Module_SRCS})

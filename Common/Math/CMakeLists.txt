@@ -31,10 +31,4 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     PROPERTIES COMPILE_FLAGS -O0)
 endif()
 
-set_source_files_properties(
-  vtkFunctionSet
-  vtkInitialValueProblemSolver
-  ABSTRACT
-  )
-
 vtk_module_library(vtkCommonMath ${Module_SRCS})

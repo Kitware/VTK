@@ -11,12 +11,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkAMRBaseReader
-  vtkAMRBaseParticlesReader
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkAMREnzoReaderInternal
   vtkAMRFlashReaderInternal
   PROPERTIES

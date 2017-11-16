@@ -6,9 +6,6 @@ include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
 include(VTKGenerateExportHeader)
 include(vtkWrapping)
 include(vtkTargetLinkLibrariesWithDynamicLookup)
-if(VTK_MAKE_INSTANTIATORS)
-  include(vtkMakeInstantiator)
-endif()
 if(UNIX AND VTK_BUILD_FORWARDING_EXECUTABLES)
   include(vtkForwardingExecutable)
 endif()
@@ -399,14 +396,8 @@ function(vtk_module_export sources)
 
         get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
         get_source_file_property(_wrap_exclude_python ${src} WRAP_EXCLUDE_PYTHON)
-        get_source_file_property(_abstract ${src} ABSTRACT)
 
         list(APPEND vtk-module-HEADERS ${_cls})
-
-        if(_abstract)
-          set(vtk-module-ABSTRACT
-            "${vtk-module-ABSTRACT}set(${vtk-module}_HEADER_${_cls}_ABSTRACT 1)\n")
-        endif()
 
         if(_wrap_exclude)
           set(vtk-module-WRAP_EXCLUDE
@@ -656,7 +647,6 @@ function(vtk_module_library name)
   vtk_module_impl()
 
   set(vtk-module-HEADERS)
-  set(vtk-module-ABSTRACT)
 
   # Collect header files matching sources.
   set(_hdrs ${${vtk-module}_HDRS})
@@ -677,15 +667,6 @@ function(vtk_module_library name)
   endforeach()
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
-
-  # The instantiators are off by default, and only work on wrapped modules.
-  if(VTK_MAKE_INSTANTIATORS AND NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
-    string(TOUPPER "${vtk-module}_EXPORT" _export_macro)
-    vtk_make_instantiator3(${vtk-module}Instantiator _instantiator_SRCS
-      "${ARGN}" ${_export_macro} ${CMAKE_CURRENT_BINARY_DIR}
-      ${vtk-module}Module.h)
-    list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Instantiator.h")
-  endif()
 
   # Add the vtkWrapHierarchy custom command output to the target, if any.
   # TODO: Re-order things so we do not need to duplicate this condition.
@@ -709,7 +690,7 @@ function(vtk_module_library name)
     # OBJECT libraries don't like this variable being set; clear it.
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
-  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_instantiator_SRCS} ${_hierarchy})
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_hierarchy})
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
     add_library(${vtk-module} INTERFACE)

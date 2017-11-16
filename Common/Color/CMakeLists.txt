@@ -4,7 +4,6 @@ set(Module_SRCS
 )
 
 #set_source_files_properties(
-#  ABSTRACT
 #  WRAP_EXCLUDE
 #)
 

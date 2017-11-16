@@ -216,8 +216,6 @@
     </node>
     <node id="vtkRungeKutta45">
     </node>
-    <node id="vtkInstantiator">
-    </node>
     <node id="vtkMath">
     </node>
     <node id="vtkMatrix4x4">

@@ -716,18 +716,6 @@ virtual double *Get##name() \
   } \
   public:
 
-#ifndef VTK_LEGACY_REMOVE
-// Macro to implement the instantiator's wrapper around the New()
-// method.  Use this macro if and only if vtkStandardNewMacro or
-// vtkObjectFactoryNewMacro is not used by the class.
-#define vtkInstantiatorNewMacro(thisClass) \
-  extern vtkObject* vtkInstantiator##thisClass##New(); \
-  vtkObject* vtkInstantiator##thisClass##New() \
-  { \
-    return thisClass::New(); \
-  }
-#endif
-
 // NOTE: This is no longer the prefer method for dispatching an array to a
 // worker template. See vtkArrayDispatch for the new approach.
 //

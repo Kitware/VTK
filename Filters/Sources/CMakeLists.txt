@@ -38,9 +38,4 @@ set(Module_SRCS
   vtkDiagonalMatrixSource.cxx
   )
 
-set_source_files_properties(
-  vtkButtonSource
-  ABSTRACT
-  )
-
 vtk_module_library(vtkFiltersSources ${Module_SRCS})

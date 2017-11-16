@@ -37,11 +37,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkVolumeReader
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkNIFTIPrivate.h
   PROPERTIES
     WRAP_EXCLUDE 1

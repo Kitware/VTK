@@ -288,11 +288,6 @@ SET(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
   )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkInstantiator.cxx)
-endif ()
-
 set(${vtk-module}_HDRS
   vtkABI.h
   vtkAngularPeriodicDataArray.h
@@ -541,47 +536,6 @@ endif()
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/vtkFloatingPointExceptionsConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
-  )
-
-set_source_files_properties(
-  # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
-  vtkAbstractArray
-  vtkArray
-  vtkArrayIterator
-  vtkCallbackCommand
-  vtkCommand
-  vtkCommonInformationKeyManager
-  vtkDataArray
-  vtkEventForwarderCommand
-  vtkFloatingPointExceptions
-  vtkFunctionSet
-  vtkGaussianRandomSequence
-  vtkInformationDataObjectKey
-  vtkInformationDoubleKey
-  vtkInformationDoubleVectorKey
-  vtkInformationIdTypeKey
-  vtkInformationInformationKey
-  vtkInformationInformationVectorKey
-  vtkInformationIntegerKey
-  vtkInformationIntegerPointerKey
-  vtkInformationIntegerVectorKey
-  vtkInformationKey
-  vtkInformationKeyVectorKey
-  vtkInformationObjectBaseKey
-  vtkInformationObjectBaseVectorKey
-  vtkInformationQuadratureSchemeDefinitionVectorKey
-  vtkInformationRequestKey
-  vtkInformationStringKey
-  vtkInformationStringVectorKey
-  vtkInformationUnsignedLongKey
-  vtkInformationVariantKey
-  vtkInformationVariantVectorKey
-  vtkObjectBase
-  vtkObjectFactory
-  vtkOldStyleCallbackCommand
-  vtkRandomSequence
-  vtkWindow
-  ABSTRACT
   )
 
 set_source_files_properties(

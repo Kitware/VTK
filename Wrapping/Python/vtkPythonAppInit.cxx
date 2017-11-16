@@ -27,11 +27,6 @@
 #include "vtkVersion.h"
 #include "vtkpythonmodules.h"
 
-// Include the instantiators, this will be an empty file when instantiators
-// are not turned on. It will contain all wrapped modules otherwise.
-// Commenting out for now, as in my tests it made things slower.
-//#include "vtkInstantiators.h"
-
 #include <sys/stat.h>
 
 #include <string>

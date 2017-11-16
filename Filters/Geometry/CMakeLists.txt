@@ -27,12 +27,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkAbstractGridConnectivity
-  vtkDataSetGhostGenerator
-  ABSTRACT
-  )
-
-set_source_files_properties(
   vtkStructuredAMRNeighbor
   vtkStructuredNeighbor
   WRAP_EXCLUDE

@@ -28,9 +28,4 @@ set(Module_SRCS
   vtkGeoAlignedImageRepresentation.cxx
   )
 
-set_source_files_properties(
-  vtkGeoSource
-  ABSTRACT
-  )
-
 vtk_module_library(vtkGeovisCore ${Module_SRCS})

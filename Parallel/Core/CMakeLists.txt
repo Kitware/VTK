@@ -35,11 +35,4 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-set_source_files_properties(
-  vtkCommunicator
-  vtkMultiProcessController
-  vtkProcess
-  ABSTRACT
-  )
-
 vtk_module_library(vtkParallelCore ${Module_SRCS})

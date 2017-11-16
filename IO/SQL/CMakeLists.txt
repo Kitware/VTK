@@ -18,13 +18,4 @@ set(SQLite_SRCS
   vtkTableToSQLiteWriter.cxx
   )
 
-set_source_files_properties(
-  vtkDatabaseToTableReader
-  vtkRowQuery
-  vtkSQLDatabase
-  vtkSQLQuery
-  vtkTableToDatabaseWriter
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOSQL ${Module_SRCS} ${SQLite_SRCS})

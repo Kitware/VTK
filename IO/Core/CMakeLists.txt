@@ -25,13 +25,4 @@ SET(Module_SRCS
   vtkArrayDataWriter.cxx
   )
 
-set_source_files_properties(
-  vtkAbstractParticleWriter
-  vtkDataCompressor
-  vtkTextCodec
-  vtkWriter
-  vtkAbstractPolyDataReader
-  ABSTRACT
-  )
-
 vtk_module_library(vtkIOCore ${Module_SRCS})
