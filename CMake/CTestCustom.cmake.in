@@ -256,6 +256,7 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "boost.*warning.*declaration of .* shadows a member of"
   "boost.*warning.*unused parameter"
   "boost.*warning.*comparison between signed and unsigned integer expressions"
+  "TestBoostAdapter.*warning.*edge_property.*may be used uninitialized"
 
   "Utilities.vtklibproj4.*warning.*defined but not used"
   "Utilities.vtklibproj4.*warning.*initialization discards qualifiers from pointer target type"
