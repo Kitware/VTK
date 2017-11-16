@@ -1,5 +1,5 @@
 import sys, os
-import vtkCommonCorePython
+from vtk.vtkCommonCore import vtkVersion
 
 def vtkLoadPythonTkWidgets(interp):
     """vtkLoadPythonTkWidgets(interp) -- load vtk-tk widget extensions
@@ -8,8 +8,8 @@ def vtkLoadPythonTkWidgets(interp):
     shared object file that contains the python-vtk-tk widgets.  Both
     the python path and the tcl path are searched.
     """
-    X = vtkCommonCorePython.vtkVersion.GetVTKMajorVersion()
-    Y = vtkCommonCorePython.vtkVersion.GetVTKMinorVersion()
+    X = vtkVersion.GetVTKMajorVersion()
+    Y = vtkVersion.GetVTKMinorVersion()
     modname = 'vtkRenderingPythonTkWidgets'
     name = '%s-%d.%d' % (modname,X,Y)
     pkgname = modname.lower().capitalize()
