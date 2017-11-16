@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface VTKViewController : UIViewController
+@interface VTKViewController : UIViewController<UIGestureRecognizerDelegate>
 
 @end
