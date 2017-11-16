@@ -1,7 +1,7 @@
 VTK Examples Directory
 ----------------------
 The following directory contains many well-commented examples showing how to
-use VTK. Examples are available in the C++, Tcl, Python and Java programming
+use VTK. Examples are available in the C++, Python and Java programming
 languages. In no way should these examples be considered comprehensive; VTK
 is a large system, we have tried to pick examples that demonstrate key
 features.
@@ -19,8 +19,7 @@ Annotation - Classes for 2D and 3D annotation such as text, scalar bar,
 DataManipulation - Examples show how to rearrange and manipulate data
                    in the visualization pipeline.
 
-GUI - Examples of interfacing to various GUI's including Motif, Windows,
-      and Tcl.
+GUI - Examples of interfacing to various GUI's including Motif, and Windows.
 
 IO - Examples how how to read and write data; and how to import and export
      scenes.

@@ -44,38 +44,13 @@ endif ()
 
 
 #
-# Wrap Tcl, Java, Python
+# Wrap Java, Python
 #
 # Rational: even if your VTK was wrapped, it does not mean that you want to
 # wrap your own local classes.
 # Default value is OFF as the VTK cache might have set them to ON but
 # the wrappers might not be present (or yet not found).
 #
-
-#
-# Tcl
-#
-
-if (VTK_WRAP_TCL)
-
-  option(VTKMY_WRAP_TCL
-         "Wrap classes into the TCL interpreted language."
-         ON)
-
-  if(VTKMY_WRAP_TCL)
-    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapTcl.cmake)
-  endif()
-
-else ()
-
-  if (VTKMY_WRAP_TCL)
-    message("Warning. VTKMY_WRAP_TCL is ON but the VTK version you have "
-            "chosen has not support for Tcl (VTK_WRAP_TCL is OFF).  "
-            "Please set VTKMY_WRAP_TCL to OFF.")
-    set (VTKMY_WRAP_TCL OFF)
-  endif ()
-
-endif ()
 
 #
 # Python

@@ -2,8 +2,8 @@ These examples demonstrate some basic VTK concepts. They are organized in
 increasing order of complexity. These examples are described in more detail
 in the textbook "The Visualization Toolkit An Object-Oriented Approach to 3D
 Graphics" Third Edition available for purchase from Kitware. The examples are
-implemented in the programming languages C++, Tcl, Python, and Java. (Note:
-in order to use Tcl, Python, and/or Java, you will need to compile with
+implemented in the programming languages C++, Python, and Java. (Note:
+in order to use Python, and/or Java, you will need to compile with
 wrapping on.)
 
 Step1 - A "Hello World" style example of a simple visualization pipeline
