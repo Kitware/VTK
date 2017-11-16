@@ -1,6 +1,4 @@
 vtk_module(vtkRenderingLICOpenGL2
-  TCL_NAME
-    vtkRenderingLICOpenGLII
   BACKEND
     OpenGL2
   TEST_DEPENDS

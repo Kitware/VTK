@@ -8,7 +8,6 @@ if (VTK_WRAP_PYTHON)
       vtkmpi4py
       vtkPython
     OPTIONAL_PYTHON_LINK
-    EXCLUDE_FROM_TCL_WRAPPING
     EXCLUDE_FROM_JAVA_WRAPPING
     KIT
       vtkWrapping

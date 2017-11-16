@@ -1,6 +1,4 @@
 vtk_module(vtkDomainsChemistryOpenGL2
-  TCL_NAME
-    vtkRenderingChemistryOpenGLII
   IMPLEMENTS
     vtkDomainsChemistry
   BACKEND

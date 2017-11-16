@@ -2,8 +2,6 @@ if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
   return()
 endif()
 vtk_module(vtkIOExportOpenGL2
-  TCL_NAME
-    vtkIOExportOpenGLII
   IMPLEMENTS
     vtkIOExport
   BACKEND
