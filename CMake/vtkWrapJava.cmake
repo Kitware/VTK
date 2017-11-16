@@ -79,14 +79,13 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
   # For each class
   FOREACH(FILE ${SOURCES})
     # should we wrap the file?
-    get_source_file_property(TMP_WRAP_EXCLUDE ${FILE} WRAP_EXCLUDE)
+    get_source_file_property(TMP_WRAP_EXCLUDE_PYTHON ${FILE} WRAP_EXCLUDE_PYTHON)
 
     # some wrapped files need to be compiled as objective C++
     get_source_file_property(TMP_WRAP_OBJC ${FILE} WRAP_JAVA_OBJC)
 
     # if we should wrap it
-    IF (NOT TMP_WRAP_EXCLUDE)
-
+    IF (NOT TMP_WRAP_EXCLUDE_PYTHON)
       # what is the filename without the extension
       GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
 
