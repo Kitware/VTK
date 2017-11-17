@@ -79,7 +79,7 @@ public:
     PyRun_SimpleString(const_cast<char*>(code));
 
     // Now get the reference to __vtkConsole and save the pointer.
-    PyObject* main_module = PyImport_AddModule((char*)"__main__");
+    PyObject* main_module = PyImport_AddModule("__main__");
     PyObject* global_dict = PyModule_GetDict(main_module);
     this->InteractiveConsole = PyDict_GetItemString(global_dict, "__vtkConsole");
     this->InteractiveConsoleLocals = PyDict_GetItemString(global_dict, "__vtkConsoleLocals");
@@ -193,7 +193,7 @@ bool vtkPythonInteractiveInterpreter::Push(const char* const code)
   if (res)
   {
     int status = 0;
-    if (PyArg_Parse(res, (char*)"i", &status))
+    if (PyArg_Parse(res, "i", &status))
     {
       ret_value = (status > 0);
     }
