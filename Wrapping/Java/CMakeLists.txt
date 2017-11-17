@@ -207,7 +207,6 @@ if(vtkRenderingCore_ENABLED)
   endif()
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     AxesActor
-    vtkRenderWindowPanel
     )
 endif()
 
@@ -215,6 +214,11 @@ if(vtkInteractionWidgets_ENABLED)
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     vtkCanvas
     )
+
+  if (vtkRenderingCore_ENABLED)
+    list(APPEND VTK_JAVA_DEPENDENCIES
+      vtkRenderWindowPanel)
+  endif ()
 endif()
 
 if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
