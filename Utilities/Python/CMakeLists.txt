@@ -36,9 +36,20 @@ if(NOT VTK_PYTHON_SITE_PACKAGES_SUFFIX)
   endif()
 endif()
 
-set(VTK_BUILD_PYTHON_MODULES_DIR
-  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
-  CACHE INTERNAL "Directory where python modules will be built")
+if(CMAKE_CONFIGURATION_TYPES)
+  # For build systems with configuration types e.g. Xcode/Visual Studio,
+  # we rely on generator expressions.
+  if(CMAKE_VERSION VERSION_LESS 3.4)
+    message(FATAL_ERROR "CMake 3.4 or newer if needed for your generator.")
+  endif()
+  set(VTK_BUILD_PYTHON_MODULES_DIR
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/$<CONFIG>/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    CACHE INTERNAL "Directory where python modules will be built")
+else()
+  set(VTK_BUILD_PYTHON_MODULES_DIR
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}"
+    CACHE INTERNAL "Directory where python modules will be built")
+endif()
 
 if(WIN32 AND NOT CYGWIN)
   set(VTK_INSTALL_PYTHON_MODULES_DIR

@@ -102,7 +102,7 @@ function(vtk_python_package name)
         set(_extra_args DEPENDS ${_depends})
       endif()
       copy_files_recursive("${_dir}"
-        DESTINATION "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
+        DESTINATION ${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}
         LABEL "Copying files for Python package '${_name}'"
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete"
         REGEX "^(.*\\.py)$"
@@ -111,8 +111,8 @@ function(vtk_python_package name)
 
       if (PYTHON_EXECUTABLE)
         add_custom_command(
-          COMMAND ${PYTHON_EXECUTABLE} -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
-          COMMAND ${PYTHON_EXECUTABLE} -O -m compileall "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}"
+          COMMAND ${PYTHON_EXECUTABLE} -m compileall ${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}
+          COMMAND ${PYTHON_EXECUTABLE} -O -m compileall ${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}
           COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
           DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${_name}.copy-complete"
           OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_name}.build-complete"
@@ -130,8 +130,8 @@ function(vtk_python_package name)
 
       # add install rules.
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
-        install(DIRECTORY "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}/"
-                DESTINATION "${VTK_INSTALL_PYTHON_MODULES_DIR}/${_name_target}"
+        install(DIRECTORY ${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}/
+                DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/${_name_target}
                 COMPONENT "Runtime"
                 # Add exclusions to avoid installing VTK's C++ Python modules
                 # These have their own install rules.
