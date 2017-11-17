@@ -37,9 +37,7 @@ function(vtk_add_svg_test)
     endif()
 
     # Unit test executable containing PNGCompare test:
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
-    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
       set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
     endif()
 

@@ -7,7 +7,7 @@ vtk_module(vtkImagingHybrid
     vtkCommonCore
     vtkCommonDataModel
     vtkImagingStencil
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   DEPENDS

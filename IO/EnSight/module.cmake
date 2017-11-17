@@ -2,7 +2,7 @@ vtk_module(vtkIOEnSight
   GROUPS
     StandAlone
   TEST_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkIO
   DEPENDS

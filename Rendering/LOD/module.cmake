@@ -3,7 +3,7 @@ vtk_module(vtkRenderingLOD
     Rendering
   TEST_DEPENDS
     vtkTestingRendering
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkInteractionStyle
   KIT
     vtkRendering

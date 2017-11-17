@@ -6,19 +6,8 @@ set (GenericVolumeTclTests
   TestFixedPointRayCasterNearest.tcl
   )
 
-# These tests are only built when the rendering backend is OpenGL
-set (VolumeOpenGLTclTests
-  TestBunykRayCastFunction.tcl
-  TestPTZSweep.tcl
-  )
-
 if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_tcl(
     ${GenericVolumeTclTests}
-    )
-else ()
-  vtk_add_test_tcl(
-    ${GenericVolumeTclTests}
-    ${VolumeOpenGLTclTests}
     )
 endif ()

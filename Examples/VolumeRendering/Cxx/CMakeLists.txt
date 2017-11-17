@@ -8,7 +8,7 @@ vtk_module_config(VTK
   vtkIOImage
   vtkIOXML
   vtkInteractionWidgets
-  vtkRenderingVolume${VTK_RENDERING_BACKEND}
+  vtkRenderingVolumeOpenGL2
 )
 include(${VTK_USE_FILE})
 

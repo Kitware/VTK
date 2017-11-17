@@ -7,7 +7,7 @@ vtk_module(vtkFiltersFlowPaths
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel

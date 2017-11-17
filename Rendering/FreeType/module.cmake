@@ -13,8 +13,8 @@ vtk_module(vtkRenderingFreeType
     ${optional_test_depends}
     vtkTestingRendering
     vtkViewsContext2D
-    vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
+    vtkRenderingContextOpenGL2
   KIT
     vtkRendering
   DEPENDS

@@ -10,7 +10,7 @@ vtk_module(vtkFiltersOpenTurns
     vtkFiltersCore
   TEST_DEPENDS
     vtkIOInfovis
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
     vtkTestingCore
     vtkTestingRendering
     vtkViewsContext2D

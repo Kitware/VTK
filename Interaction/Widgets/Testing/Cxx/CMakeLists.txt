@@ -116,13 +116,6 @@ if(NOT VTK_OPENGL_HAS_OSMESA)
     )
 endif()
 
-# These tests depend on volume rendering classes not build for OpenGL2
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    TestImageCroppingRegionsWidget.cxx
-    )
-endif()
-
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   vtk_add_test_cxx(${vtk-module}CxxTests tests
     TestImageTracerWidget.cxx

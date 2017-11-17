@@ -5,7 +5,7 @@ vtk_module(vtkRenderingLabel
     vtkIOXML
     vtkTestingCore
     vtkTestingRendering
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkInteractionStyle
   KIT
     vtkRendering

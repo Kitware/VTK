@@ -6,7 +6,7 @@ vtk_module(vtkImagingCore
     vtkFiltersModeling
     vtkFiltersGeneral
     vtkFiltersHybrid
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkInteractionImage

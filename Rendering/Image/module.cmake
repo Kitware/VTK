@@ -5,7 +5,7 @@ vtk_module(vtkRenderingImage
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkInteractionStyle
     vtkImagingSources
     vtkFiltersModeling

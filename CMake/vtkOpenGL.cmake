@@ -60,9 +60,6 @@ set(VTK_DEFAULT_EGL_DEVICE_INDEX "${default_egl_device_index}" CACHE STRING
 mark_as_advanced(VTK_DEFAULT_EGL_DEVICE_INDEX)
 
 # Some sanity checks for use of EGL.
-if (VTK_OPENGL_HAS_EGL AND VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-  message(FATAL_ERROR "You can use VTK_OPENGL_HAS_EGL only for `OpenGL2` rendering backend")
-endif()
 if (VTK_OPENGL_HAS_EGL AND ANDROID)
   message(FATAL_ERROR "You cannot use VTK_OPENGL_HAS_EGL on the ANDROID platform")
 endif()

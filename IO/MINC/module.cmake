@@ -2,7 +2,7 @@ vtk_module(vtkIOMINC
   GROUPS
     StandAlone
   TEST_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel

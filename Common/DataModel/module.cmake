@@ -16,8 +16,8 @@ vtk_module(vtkCommonDataModel
     vtkChartsCore
     vtkViewsContext2D
     vtkRenderingCore
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
+    vtkRenderingOpenGL2
   KIT
     vtkCommon
   DEPENDS

@@ -53,14 +53,6 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(shader_files
     vtkPSurfaceLICComposite_CompFS.glsl
     )
-else()
-  list(APPEND Module_SRCS
-    vtkPSurfaceLICPainter.cxx
-    )
-  vtk_add_override(vtkSurfaceLICPainter vtkPSurfaceLICPainter)
-  set(shader_files
-    vtkPSurfaceLICComposite_Comp.glsl
-    )
 endif()
 
 unset(shader_h_files)

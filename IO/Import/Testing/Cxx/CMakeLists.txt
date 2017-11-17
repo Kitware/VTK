@@ -29,7 +29,7 @@ if(NOT VTK_RENDERING_BACKEND STREQUAL "None")
   vtk_module_test_executable(vtkimportobj OBJImporter.cxx)
 #  add_executable(vtkimportobj MACOSX_BUNDLE OBJImporter.cxx)
 #  target_link_libraries(vtkimportobj LINK_PRIVATE
-#      vtkIOXML vtkIOImport vtkRendering${VTK_RENDERING_BACKEND})
+#      vtkIOXML vtkIOImport vtkRenderingOpenGL2)
   vtk_opengl_link(vtkimportobj)
 
   ExternalData_add_test(VTKData

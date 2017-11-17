@@ -1,7 +1,3 @@
-if(TARGET vtkRenderingOpenGL)
-  message(FATAL_ERROR "vtkRenderingOpenGL2 cannot be built with vtkRenderingOpenGL, please disable one of them.")
-endif()
-
 include(vtkOpenGL)
 include(vtkObjectFactory)
 

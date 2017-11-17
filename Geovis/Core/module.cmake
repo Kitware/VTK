@@ -5,7 +5,7 @@ vtk_module(vtkGeovisCore
     vtkViewsGeovis
     vtkViewsInfovis
     vtkRenderingCore
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   DEPENDS

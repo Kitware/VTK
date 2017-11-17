@@ -10,7 +10,7 @@ vtk_module_config(VTK
   vtkFiltersModeling
   vtkIOXML
   vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
   vtkTestingRendering
 )
 include(${VTK_USE_FILE})

@@ -9,15 +9,6 @@ set (GenericVolumePythonTests
      VolumePickerCrop.py
     )
 
-# These tests are only built when the rendering backend is OpenGL
-set (VolumeOpenGLPythonTests
-     TestBunykRayCastFunction.py
-     TestPTZSweep.py
-     TestLODProp3D.py
-     VolumeOutlineSourceClipped.py
-     VolumeOutlineSource.py
-)
-
 # These tests are only built when the rendering backend is OpenGL2
 set (VolumeOpenGL2PythonTests
      gaussian.py
@@ -31,10 +22,5 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_add_test_python(
     ${GenericVolumePythonTests}
     ${VolumeOpenGL2PythonTests}
-    )
-else ()
-  vtk_add_test_python(
-    ${GenericVolumePythonTests}
-    ${VolumeOpenGLPythonTests}
     )
 endif ()

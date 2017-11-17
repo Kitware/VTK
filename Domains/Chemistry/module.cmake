@@ -1,6 +1,3 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-    set(extra_opengl_depend  vtkDomainsChemistry${VTK_RENDERING_BACKEND})
-endif()
 vtk_module(vtkDomainsChemistry
   GROUPS
     StandAlone
@@ -10,8 +7,8 @@ vtk_module(vtkDomainsChemistry
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
-    ${extra_opengl_depend}
+    vtkRenderingOpenGL2
+    vtkDomainsChemistryOpenGL2
   DEPENDS
     vtkCommonCore
     vtkCommonDataModel

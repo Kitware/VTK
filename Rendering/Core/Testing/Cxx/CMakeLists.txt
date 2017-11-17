@@ -18,14 +18,6 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     TestValuePassFloatingPoint.cxx
     TestToggleOSWithInteractor.cxx,NO_DATA
     )
-else()
-  set(extra_opengl2_tests
-    TestCompositePolyDataMapper2.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2Scalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA,NO_VALID
-    )
 endif()
 
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)

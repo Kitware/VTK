@@ -17,7 +17,7 @@ vtk_module_config(VTK
   vtkGUISupportQt
   vtkIOInfovis
   vtkInfovisCore
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
   vtkViewsCore
   vtkViewsInfovis
   vtkViewsQt

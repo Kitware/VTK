@@ -7,8 +7,6 @@ if (VTK_WKHTMLTOIMAGE_EXECUTABLE AND VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     TestSVGContextShading.cxx,NO_DATA,NO_VALID
     TestSVGExporterContextPolyData.cxx,NO_VALID
     )
-else()
-  set(SVGTests)
 endif()
 
 # Only run GL2PS tests if GhostScript is available
@@ -44,10 +42,6 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
       TestPDFContextShading.cxx,NO_DATA
       TestPDFExporterContextPolyData.cxx
     )
-  else()
-    # The Context2D on OpenGL1 does not support many of the options used by
-    # these tests. Skip them on the legacy backend.
-    set(PDFTests)
   endif()
 endif()
 
@@ -120,11 +114,6 @@ if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   vtk_add_gl2ps_test_cxx(${GL2PSTests} ${GL2PSTestsPDFOpenGL1})
   # test postscript and pdf
   vtk_add_gl2ps_test_cxx(pdf ${GL2PSTestsPDFBothOpenGL})
-else()
-  # tests postscript
-  vtk_add_gl2ps_test_cxx(${GL2PSTests})
-  # test postscript and pdf
-  vtk_add_gl2ps_test_cxx(pdf ${GL2PSTestsPDF})
 endif()
 
 include(vtkTestingSVG)

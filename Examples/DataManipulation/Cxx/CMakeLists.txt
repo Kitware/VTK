@@ -8,7 +8,7 @@ vtk_module_config(VTK
   vtkCommonDataModel
   vtkFiltersGeometry
   vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
 )
 include(${VTK_USE_FILE})
 

@@ -51,9 +51,7 @@ function(vtk_add_gl2ps_test_cxx)
     endif()
 
     # Unit test executable containing PNGCompare test:
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
-    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
       set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
     endif()
 
@@ -128,9 +126,7 @@ function(vtk_add_pdf_test_cxx)
     endif()
 
     # Unit test executable containing PNGCompare test:
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
-    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
       set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
     endif()
 

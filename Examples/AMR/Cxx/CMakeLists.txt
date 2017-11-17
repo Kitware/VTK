@@ -16,7 +16,7 @@ find_package(VTK COMPONENTS
   vtkIOLegacy
   vtkIOXML
   vtkInteractionStyle
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
   vtkTestingCore
 )
 include(${VTK_USE_FILE})

@@ -41,13 +41,4 @@ if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
     )
 endif()
 
-# only some volume mappers are supported for the OpenGL2 backend
-if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(Module_SRCS ${Module_SRCS}
-    vtkHAVSVolumeMapper.cxx
-    vtkProjectedAAHexahedraMapper.cxx
-    )
-endif()
-
-
 vtk_module_library(vtkRenderingVolume ${Module_SRCS})
