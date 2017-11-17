@@ -284,7 +284,6 @@ include(vtkThirdParty)
 
 #-----------------------------------------------------------------------------
 include(vtkCompilerExtras)
-include(vtkBuildPath)
 
 #-----------------------------------------------------------------------------
 if(APPLE)
@@ -566,3 +565,7 @@ endif()
 #-----------------------------------------------------------------------------
 # Install the license file
 install(FILES ${VTK_SOURCE_DIR}/Copyright.txt DESTINATION ${VTK_INSTALL_DOC_DIR})
+
+#-----------------------------------------------------------------------------
+# Do this at the end so the all variables it uses are setup.
+include(vtkBuildPath)
