@@ -125,6 +125,16 @@ int TestGPURayCastUserShader(int argc, char* argv[])
     "\n                      (gl_DepthRange.far + gl_DepthRange.near)), 1.0);"
     "\n    }",
     false);
+  mapper->AddShaderReplacement(
+    vtkShader::Fragment,  // dummy replacement to test clear method
+    "//VTK::ComputeGradient::Dec",
+    true,
+    "VTK::ComputeGradient::Dec",
+    false);
+  mapper->ClearShaderReplacement(
+    vtkShader::Fragment, // clear the dummy replacement
+    "//VTK::ComputeGradient::Dec",
+    true);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper.GetPointer());
