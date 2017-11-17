@@ -365,8 +365,8 @@ void vtkControlPointsItem::TransformScreenToData(const vtkVector2f& in, vtkVecto
   out.SetX(static_cast<float>((out.GetX() / ss[2]) - ss[0]));
   out.SetY(static_cast<float>((out.GetY() / ss[3]) - ss[1]));
 
-  const bool logX = this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis()->GetLogScaleActive();
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
 
   if (logX)
   {
@@ -383,8 +383,8 @@ void vtkControlPointsItem::TransformDataToScreen(const vtkVector2f& in, vtkVecto
 {
   out = in;
 
-  const bool logX = this->GetXAxis()->GetLogScaleActive();
-  const bool logY = this->GetYAxis()->GetLogScaleActive();
+  const bool logX = this->GetXAxis() && this->GetXAxis()->GetLogScaleActive();
+  const bool logY = this->GetYAxis() && this->GetYAxis()->GetLogScaleActive();
 
   if (logX)
   {
