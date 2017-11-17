@@ -3049,6 +3049,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
+  vtkShader::Type shaderType)
+{
+  std::map<const vtkShader::ReplacementSpec,
+           vtkShader::ReplacementValue>::iterator rIter;
+  for (rIter = this->UserShaderReplacements.begin();
+       rIter != this->UserShaderReplacements.end();)
+  {
+    if (rIter->first.ShaderType == shaderType)
+    {
+      this->UserShaderReplacements.erase(rIter++);
+    }
+    else
+    {
+      ++rIter;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements()
+{
+  this->UserShaderReplacements.clear();
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::GetShaderTemplate(
   std::map<vtkShader::Type, vtkShader*>& shaders)
 {
