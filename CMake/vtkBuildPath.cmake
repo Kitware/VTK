@@ -7,7 +7,7 @@
 
 set(cfg_bit "")
 if (CMAKE_CONFIGURATION_TYPES)
-  set(cfg_bit ".$<CONFIGURATION>")
+  set(cfg_bit ".$<CONFIG>")
 endif ()
 
 if(WIN32)
@@ -32,7 +32,7 @@ set(PATH_FILENAME "${VTK_BINARY_DIR}/${VTK_PATH_SHELL_SCRIPT}")
 
 set(cfg_subdir "")
 if (CMAKE_CONFIGURATION_TYPES)
-  set(cfg_subdir "/$<CONFIGURATION>")
+  set(cfg_subdir "/$<CONFIG>")
 endif ()
 
 # FOR THE PATH VARIABLE
