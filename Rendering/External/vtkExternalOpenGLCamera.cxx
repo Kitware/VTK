@@ -14,10 +14,6 @@
 =========================================================================*/
 #include "vtkExternalOpenGLCamera.h"
 
-#ifndef VTK_OPENGL2
-#include "vtkgluPickMatrix.h"
-#endif
-
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
@@ -127,64 +123,6 @@ void vtkExternalOpenGLCamera::Render(vtkRenderer *ren)
   glViewport(lowerLeft[0], lowerLeft[1], usize, vsize);
   glEnable(GL_SCISSOR_TEST);
   glScissor(lowerLeft[0], lowerLeft[1], usize, vsize);
-
-#ifndef VTK_OPENGL2
-  // some renderer subclasses may have more complicated computations for the
-  // aspect ratio. So take that into account by computing the difference
-  // between our simple aspect ratio and what the actual renderer is reporting.
-  double aspect[2];
-  ren->ComputeAspect();
-  ren->GetAspect(aspect);
-  double aspect2[2];
-  ren->vtkViewport::ComputeAspect();
-  ren->vtkViewport::GetAspect(aspect2);
-  double aspectModification = aspect[0] * aspect2[1] / (aspect[1] * aspect2[0]);
-
-  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-
-  glMatrixMode(GL_PROJECTION);
-  if (usize && vsize)
-  {
-    matrix->DeepCopy(this->GetProjectionTransformMatrix(
-                       aspectModification * usize / vsize, -1, 1));
-    matrix->Transpose();
-  }
-  if (ren->GetIsPicking())
-  {
-    int size[2] = {usize, vsize};
-    glLoadIdentity();
-    vtkgluPickMatrix(ren->GetPickX(), ren->GetPickY(),
-                     ren->GetPickWidth(), ren->GetPickHeight(),
-                     lowerLeft, size);
-    glMultMatrixd(matrix->Element[0]);
-  }
-  else
-  {
-    // insert camera view transformation
-    glLoadMatrixd(matrix->Element[0]);
-  }
-
-  // push the model view matrix onto the stack, make sure we
-  // adjust the mode first
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-
-  matrix->DeepCopy(this->GetViewTransformMatrix());
-  matrix->Transpose();
-
-  // insert camera view transformation
-  if(this->UserProvidedViewTransform)
-  {
-    glLoadMatrixd(matrix->Element[0]);
-  }
-  else
-  {
-    glMultMatrixd(matrix->Element[0]);
-  }
-
-  matrix->Delete();
-
-#endif
 
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())

@@ -17,11 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkRenderingOpenGLConfigure.h"
-#ifdef VTK_OPENGL2
 #include "vtkCompositeDataDisplayAttributes.h"
-#else
-#include "vtkCompositeDataDisplayAttributesLegacy.h"
-#endif
 #include "vtkCompositePolyDataMapper2.h"
 #include "vtkCullerCollection.h"
 #include "vtkInformation.h"
@@ -64,13 +60,8 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
 
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
-#ifdef VTK_OPENGL2
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
-#else
-  vtkNew<vtkCompositeDataDisplayAttributesLegacy> cdsa;
-  mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
-#endif
 
 #ifdef syntheticData
 

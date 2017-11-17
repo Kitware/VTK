@@ -34,11 +34,4 @@ set(Module_SRCS
   vtkVolumeRayCastSpaceLeapingImageFilter.cxx
 )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set_source_files_properties(
-    vtkGPUVolumeRayCastMapper.cxx APPEND PROPERTIES
-    COMPILE_DEFINITIONS VTK_OPENGL2
-    )
-endif()
-
 vtk_module_library(vtkRenderingVolume ${Module_SRCS})

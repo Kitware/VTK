@@ -58,19 +58,10 @@ int RGrid( int argc, char *argv[] )
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     iren->SetRenderWindow(renWin);
 
-#ifdef VTK_OPENGL1
-  if (strcmp(renWin->GetRenderingBackend(),"OpenGL1"))
-  {
-    return vtkTesting::FAILED;
-  }
-#endif
-
-#ifdef VTK_OPENGL2
   if (strcmp(renWin->GetRenderingBackend(),"OpenGL2"))
   {
     return vtkTesting::FAILED;
   }
-#endif
 
   vtkFloatArray *xCoords = vtkFloatArray::New();
   for (i=0; i<47; i++) xCoords->InsertNextValue(x[i]);

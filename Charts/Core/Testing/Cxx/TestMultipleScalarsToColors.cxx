@@ -154,20 +154,10 @@ int TestMultipleScalarsToColors(int , char * [])
   // down to there. For now disable is < OpenGL 2, should fix Mesa segfaults.
   renwin->Render();
 
-#if defined(VTK_OPENGL2)
-  bool openGL2Backend = true;
-#else
-  bool openGL2Backend = false;
-#endif
-
-  if (openGL2Backend || actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+  if (actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
   {
     iren->Initialize();
     iren->Start();
-  }
-  else
-  {
-    cout << "GL version 2 or higher is required." << endl;
   }
 
   return EXIT_SUCCESS;

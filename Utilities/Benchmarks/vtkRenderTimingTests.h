@@ -256,9 +256,7 @@ Define a test for molecules
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
 
-#ifdef VTK_OPENGL2
 VTK_MODULE_INIT(vtkDomainsChemistryOpenGL2);
-#endif
 
 class moleculeTest : public vtkRTTest
 {
