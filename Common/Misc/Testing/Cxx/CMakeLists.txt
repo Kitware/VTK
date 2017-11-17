@@ -5,6 +5,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolygonBuilder3.cxx
   TestPolygonBuilder4.cxx
   TestResourceFileLocator.cxx
+  TestPolygonBuilder5.cxx
   UnitTestFunctionParser.cxx
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
