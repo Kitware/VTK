@@ -37,26 +37,10 @@ include_directories(
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5 COMPONENTS Widgets)
-  qt5_wrap_ui(UI_Srcs ${UIs})
+find_package(Qt5 COMPONENTS Widgets)
+qt5_wrap_ui(UI_Srcs ${UIs})
 
-  add_executable(qtevents
-    MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-  qt5_use_modules(qtevents Core Gui Widgets)
-  target_link_libraries(qtevents ${VTK_LIBRARIES})
-else()
-  find_package(Qt4 REQUIRED)
-  include(${QT_USE_FILE})
-  # Use what VTK built with
-  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-  qt4_wrap_ui(UI_Srcs ${UIs})
-
-  add_executable(qtevents MACOSX_BUNDLE ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-  target_link_libraries(qtevents
-    ${QT_LIBRARIES}
-    ${VTK_LIBRARIES}
-  )
-endif()
+add_executable(qtevents
+  MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
+qt5_use_modules(qtevents Core Gui Widgets)
+target_link_libraries(qtevents ${VTK_LIBRARIES})

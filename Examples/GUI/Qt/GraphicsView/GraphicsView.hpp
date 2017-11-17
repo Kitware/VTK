@@ -40,16 +40,12 @@ class GraphicsView : public QGraphicsView
 
     void drawBackground(QPainter* p, const QRectF& vtkNotUsed(r))
       {
-#if QT_VERSION >= 0x040600
       p->beginNativePainting();
-#endif
       mWidget->GetRenderWindow()->PushState();
       mWidget->GetRenderWindow()->OpenGLInitState();
       mWidget->GetRenderWindow()->Render();
       mWidget->GetRenderWindow()->PopState();
-#if QT_VERSION >= 0x040600
       p->endNativePainting();
-#endif
       }
 
     void resizeEvent(QResizeEvent *event)

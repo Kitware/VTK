@@ -186,22 +186,16 @@ void QVTKGraphicsItem::SupportsOpenGL(vtkObject*, unsigned long, void*, void* ca
 }
 
 
-#if QT_VERSION >= 0x040600
 void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
-#else
-void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*)
-#endif
 {
   if(!mWin)
     return;
 
  vtkOpenGLClearErrorMacro();
 
-#if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
   painter->beginNativePainting();
-#endif
 
   if(!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
   {
@@ -250,9 +244,7 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-#if QT_VERSION >= 0x040600
   painter->endNativePainting();
-#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }
