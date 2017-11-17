@@ -44,15 +44,10 @@ vtk_add_test_python(
   TestWindowToImageTransparency.py
   TexturedSphere.py
   cells.py,NO_RT
-  ${glsl_tests}
-  )
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-vtk_add_test_python(
 #  TestScalarMaterialMode.py
   pickCompositeData.py,NO_RT
-)
-endif()
+  ${glsl_tests}
+  )
 
 vtk_add_test_python(
   TestOutOfRangeDiscretizableColorTransferFunction.py --useBelowRangeColor --useAboveRangeColor

@@ -14,6 +14,7 @@ set(QVTKLibSrcs
   vtkQtDebugLeaksView.cxx
   vtkQtTableModelAdapter.cxx
   vtkQtTreeModelAdapter.cxx
+  QVTKOpenGLWidget.cxx
   )
 
 set(QVTKMocHeaders
@@ -28,12 +29,8 @@ set(QVTKMocHeaders
   vtkQtDebugLeaksView.h
   vtkQtTableModelAdapter.h
   vtkQtTreeModelAdapter.h
+  QVTKOpenGLWidget.h
   )
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  list(APPEND QVTKLibSrcs QVTKOpenGLWidget.cxx)
-  list(APPEND QVTKMocHeaders QVTKOpenGLWidget.h)
-endif()
 
 set(add_qvtkwidget FALSE)
 if(NOT VTK_LEGACY_REMOVE)

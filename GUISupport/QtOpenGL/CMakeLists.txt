@@ -12,9 +12,7 @@ if(NOT VTK_LEGACY_REMOVE)
   list(APPEND LibSrcs QVTKWidget2.cxx)
 endif()
 
-if (VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  add_definitions(-DVTK_OPENGL2)
-endif ()
+add_definitions(-DVTK_OPENGL2)
 
 find_package(Qt5 COMPONENTS OpenGL REQUIRED QUIET)
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})

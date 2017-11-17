@@ -5,20 +5,15 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestQtDebugLeaksView.cxx
   TestQtTableModelAdapter.cxx
   TestQtTreeModelAdapter.cxx
+  TestQVTKOpenGLWidgetPicking.cxx
+  TestQtSwapWindows.cxx
   )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    TestQVTKOpenGLWidget.cxx
-    TestQVTKOpenGLWidgetWithDisabledInteractor.cxx
-    TestQVTKOpenGLWidgetWithMSAA.cxx
-    )
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    NO_VALID
-    TestQVTKOpenGLWidgetPicking.cxx
-    TestQtSwapWindows.cxx
-    )
-endif()
+vtk_add_test_cxx(${vtk-module}CxxTests tests
+  TestQVTKOpenGLWidget.cxx
+  TestQVTKOpenGLWidgetWithDisabledInteractor.cxx
+  TestQVTKOpenGLWidgetWithMSAA.cxx
+  )
 
 if(NOT VTK_LEGACY_REMOVE)
   # tests use legacy QVTKWidget.

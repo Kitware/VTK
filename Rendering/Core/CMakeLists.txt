@@ -59,6 +59,7 @@ set(Module_SRCS
   vtkMapperCollection.cxx
   vtkMapper.cxx
   vtkObserverMediator.cxx
+  vtkPointGaussianMapper.cxx
   vtkPolyDataMapper2D.cxx
   vtkPolyDataMapper.cxx
   vtkProp3DCollection.cxx
@@ -138,16 +139,11 @@ set(Module_SRCS
   vtkRenderWidget.cxx
   )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  # needed as we do not have vtkRenderingOpenGLConfigure.h here
-  set_source_files_properties(
-    vtkRenderWindow.cxx  # dummy out painterdevice adapter
-    vtkHardwareSelector.cxx # dummy out painter device adapter
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-  list(APPEND Module_SRCS
-    vtkPointGaussianMapper.cxx
-    )
-endif()
+# needed as we do not have vtkRenderingOpenGLConfigure.h here
+set_source_files_properties(
+  vtkRenderWindow.cxx  # dummy out painterdevice adapter
+  vtkHardwareSelector.cxx # dummy out painter device adapter
+  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
 
 set(${vtk-module}_HDRS
   vtkGPUInfoListArray.h

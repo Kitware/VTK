@@ -50,12 +50,7 @@ vtk_add_test_python(
   pointsPrecisions.py,NO_OUTPUT,NO_DATA,NO_VALID,NO_RT
   tableBasedClip.py,NO_RT
   GreenLagrangeStrain.py.py,NO_OUTPUT,NO_DATA,NO_VALID
+  TestMultiBlockStreamer.py
+  TestSampleImplicitFunctionFilter.py
+  TestRectilinearGridToTetrahedra.py
   )
-
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_add_test_python(
-    TestMultiBlockStreamer.py
-    TestSampleImplicitFunctionFilter.py
-    TestRectilinearGridToTetrahedra.py
-    )
-endif()

@@ -108,17 +108,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestSphereHandleWidget.cxx
   TestSurfaceConstrainedHandleWidget.cxx
   TestTensorProbeWidget.cxx
+  TestImageTracerWidget.cxx
   )
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
   vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
     TestPickingManagerWidgets.cxx
-    )
-endif()
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    TestImageTracerWidget.cxx
     )
 endif()
 

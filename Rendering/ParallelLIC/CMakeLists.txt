@@ -7,6 +7,7 @@ set(Module_SRCS
   vtkPLineIntegralConvolution2D.cxx
   vtkPPainterCommunicator.cxx
   vtkPSurfaceLICComposite.cxx
+  vtkPSurfaceLICInterface.cxx
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingParallelLICObjectFactory.cxx
   )
 
@@ -45,15 +46,10 @@ if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
   add_definitions("-DvtkLineIntegralConvolution2DTIME")
 endif()
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  list(APPEND Module_SRCS
-    vtkPSurfaceLICInterface.cxx
-    )
-  vtk_add_override(vtkSurfaceLICInterface vtkPSurfaceLICInterface)
-  set(shader_files
-    vtkPSurfaceLICComposite_CompFS.glsl
-    )
-endif()
+vtk_add_override(vtkSurfaceLICInterface vtkPSurfaceLICInterface)
+set(shader_files
+  vtkPSurfaceLICComposite_CompFS.glsl
+  )
 
 unset(shader_h_files)
 foreach(file ${shader_files})

@@ -1,12 +1,5 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(extra_opengl2_tests
-    # the following produce incorrect results in OpenGL
-    TestConeLayoutStrategy.cxx
-    )
-endif()
-
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${extra_opengl2_tests}
+  TestConeLayoutStrategy.cxx
   TestCoincidentGraphLayoutView.cxx
   TestColumnTree.cxx
   TestDendrogramItem.cxx
