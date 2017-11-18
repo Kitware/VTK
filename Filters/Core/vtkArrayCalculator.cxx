@@ -433,7 +433,7 @@ int vtkArrayCalculator::RequestData(
   for (int cc=0; cc < this->NumberOfScalarArrays; cc++)
   {
     int idx = this->FunctionParser->GetScalarVariableIndex(
-      this->ScalarArrayNames[cc]);
+      this->ScalarVariableNames[cc]);
     if (idx >= 0)
     {
       if (this->FunctionParser->GetScalarVariableNeeded(idx))
@@ -447,7 +447,7 @@ int vtkArrayCalculator::RequestData(
   for (int cc=0; cc < this->NumberOfVectorArrays; cc++)
   {
     int idx = this->FunctionParser->GetVectorVariableIndex(
-      this->VectorArrayNames[cc]);
+      this->VectorVariableNames[cc]);
     if (idx >= 0)
     {
       if (this->FunctionParser->GetVectorVariableNeeded(idx))
