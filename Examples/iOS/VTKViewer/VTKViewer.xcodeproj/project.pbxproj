@@ -18,6 +18,7 @@
 		12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 12BFB1391EF83D2000EE3EE1 /* VTKView.mm */; };
 		12BFB13C1EF83DDB00EE3EE1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */; };
 		1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */; };
+		1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,8 @@
 		12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VTKViewer-Bridging-Header.h"; sourceTree = "<group>"; };
 		1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKLoader.h; sourceTree = "<group>"; };
+		1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKLoader.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +122,8 @@
 				12BFB1091EF834F100EE3EE1 /* Main.storyboard */,
 				1226BE8E1EF961BB00F51F9E /* VTKGestureHandler.h */,
 				1226BE8F1EF961BB00F51F9E /* VTKGestureHandler.mm */,
+				1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */,
+				1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */,
 				12BFB1381EF83D2000EE3EE1 /* VTKView.h */,
 				12BFB1391EF83D2000EE3EE1 /* VTKView.mm */,
 				12BFB1061EF834F100EE3EE1 /* VTKViewController.h */,
@@ -293,6 +298,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */,
+				1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */,
 				12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */,
 				12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */,
 				1226BE901EF961BB00F51F9E /* VTKGestureHandler.mm in Sources */,
