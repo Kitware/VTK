@@ -2449,6 +2449,22 @@ void vtkFunctionParser::UpdateNeededVariables()
 }
 
 //-----------------------------------------------------------------------------
+int vtkFunctionParser::GetScalarVariableIndex(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  for (int i = 0; i < static_cast<int>(this->ScalarVariableNames.size()); ++i)
+  {
+    if (this->ScalarVariableNames[i] == variableName)
+    {
+      delete [] variableName;
+      return i;
+    }
+  }
+  delete [] variableName;
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
 bool vtkFunctionParser::GetScalarVariableNeeded(int i)
 {
   if (i < 0 || i >= static_cast<int>(this->ScalarVariableNeeded.size()))
@@ -2465,9 +2481,9 @@ bool vtkFunctionParser::GetScalarVariableNeeded(const char* inVariableName)
   std::vector<std::string>::const_iterator iter = std::find(
     this->ScalarVariableNames.begin(), this->ScalarVariableNames.end(),
     std::string(variableName));
-  delete [] variableName;
   if (iter != this->ScalarVariableNames.end())
   {
+    delete [] variableName;
     return this->GetScalarVariableNeeded(
       static_cast<int>(iter - this->ScalarVariableNames.begin()));
   }
@@ -2475,8 +2491,25 @@ bool vtkFunctionParser::GetScalarVariableNeeded(const char* inVariableName)
   {
     vtkErrorMacro("GetScalarVariableNeeded: scalar variable name " << variableName
                    << " does not exist");
+    delete [] variableName;
     return false;
   }
+}
+
+//-----------------------------------------------------------------------------
+int vtkFunctionParser::GetVectorVariableIndex(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  for (int i = 0; i < static_cast<int>(this->VectorVariableNames.size()); ++i)
+  {
+    if (this->VectorVariableNames[i] == variableName)
+    {
+      delete [] variableName;
+      return i;
+    }
+  }
+  delete [] variableName;
+  return -1;
 }
 
 //-----------------------------------------------------------------------------
