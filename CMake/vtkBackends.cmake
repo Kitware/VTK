@@ -23,11 +23,13 @@ if (${_index} EQUAL -1)
 
   # if it is in the cache as a bad value we need to reset it
   if(DEFINED VTK_RENDERING_BACKEND)
-    message(WARNING "There are no modules for VTK_RENDERING_BACKEND: "
-      "'${VTK_RENDERING_BACKEND}', forcing it to the default value of "
-      "'${VTK_RENDERING_BACKEND_DEFAULT}'.")
-    set(VTK_RENDERING_BACKEND "${VTK_RENDERING_BACKEND_DEFAULT}" CACHE STRING
-        "Choose the rendering backend." FORCE)
+    if(NOT VTK_RENDERING_BACKEND STREQUAL VTK_RENDERING_BACKEND_DEFAULT)
+      message(WARNING "There are no modules for VTK_RENDERING_BACKEND: "
+        "'${VTK_RENDERING_BACKEND}', forcing it to the default value of "
+        "'${VTK_RENDERING_BACKEND_DEFAULT}'.")
+      set(VTK_RENDERING_BACKEND "${VTK_RENDERING_BACKEND_DEFAULT}" CACHE STRING
+          "Choose the rendering backend." FORCE)
+    endif()
   else()
     # otherwise just initialize it to the default determined above
     message(STATUS "Setting rendering backend to '${VTK_RENDERING_BACKEND_DEFAULT}' as none was specified.")
