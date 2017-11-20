@@ -78,11 +78,7 @@ public:
   void SetIndexedColorRGBA(unsigned int index, const double rgba[4])
     { this->SetIndexedColor(index, rgba[0], rgba[1], rgba[2], rgba[3]); }
   void SetIndexedColor(unsigned int index, double r, double g, double b, double a = 1.0);
-
-#ifndef VTK_LEGACY_REMOVE
-  VTK_LEGACY(void SetIndexedColor(unsigned int index, const double rgb[3])
-    { this->SetIndexedColorRGB(index, rgb); });
-#endif
+  VTK_LEGACY(void SetIndexedColor(unsigned int index, const double rgb[3]));
 
   /**
    * Get the "indexed color" assigned to an index.

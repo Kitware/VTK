@@ -96,6 +96,16 @@ unsigned int vtkDiscretizableColorTransferFunction::GetNumberOfIndexedColors()
 }
 
 //-----------------------------------------------------------------------------
+#if !defined(VTK_LEGACY_REMOVE)
+void vtkDiscretizableColorTransferFunction::SetIndexedColor(unsigned int index, const double rgb[3])
+{
+  VTK_LEGACY_REPLACED_BODY(
+    vtkDiscretizableColorTransferFunction, "VTK 8.1", "SetIndexedColorRGB");
+  this->SetIndexedColorRGB(index, rgb);
+}
+#endif
+
+//-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::SetIndexedColor(
   unsigned int index, double r, double g, double b, double a)
 {
