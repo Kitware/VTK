@@ -84,6 +84,14 @@ int TestGPURayCastUserShader2(int argc, char* argv[])
   vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SetUseJittering(0);
+  // Clear all custom shader tag replacements
+  // The following code is mainly for regression testing as we do not have any
+  // custom shader replacements.
+  mapper->ClearAllShaderReplacements(vtkShader::Vertex);
+  mapper->ClearAllShaderReplacements(vtkShader::Fragment);
+  mapper->ClearAllShaderReplacements(vtkShader::Geometry);
+  mapper->ClearAllShaderReplacements();
+
   // Tell the mapper to use the min and max of the color function nodes as the
   // lookup table range instead of the volume scalar range.
   mapper->SetColorRangeType(vtkGPUVolumeRayCastMapper::NATIVE);

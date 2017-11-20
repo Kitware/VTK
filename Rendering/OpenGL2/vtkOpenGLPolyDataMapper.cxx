@@ -221,6 +221,7 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
   this->Modified();
 }
 
+//-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::AddShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
@@ -240,6 +241,7 @@ void vtkOpenGLPolyDataMapper::AddShaderReplacement(
   this->UserShaderReplacements[spec] = values;
 }
 
+//-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
@@ -257,6 +259,32 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
   {
     this->UserShaderReplacements.erase(found);
   }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
+  vtkShader::Type shaderType)
+{
+  std::map<const vtkShader::ReplacementSpec,
+           vtkShader::ReplacementValue>::iterator rIter;
+  for (rIter = this->UserShaderReplacements.begin();
+       rIter != this->UserShaderReplacements.end();)
+  {
+    if (rIter->first.ShaderType == shaderType)
+    {
+      this->UserShaderReplacements.erase(rIter++);
+    }
+    else
+    {
+      ++rIter;
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
+{
+  this->UserShaderReplacements.clear();
 }
 
 //-----------------------------------------------------------------------------

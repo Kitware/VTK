@@ -157,6 +157,8 @@ public:
     vtkShader::Type shaderType, // vertex, fragment, etc
     const std::string& originalValue,
     bool replaceFirst);
+  void ClearAllShaderReplacements(vtkShader::Type shaderType);
+  void ClearAllShaderReplacements();
   //@}
 
   //@{

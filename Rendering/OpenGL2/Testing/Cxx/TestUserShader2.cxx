@@ -120,6 +120,14 @@ int TestUserShader2(int argc, char *argv[])
   actor->GetProperty()->SetSpecularPower(20.0);
   actor->GetProperty()->SetOpacity(1.0);
 
+  // Clear all custom shader tag replacements
+  // The following code is mainly for regression testing as we do not have any
+  // custom shader replacements.
+  mapper->ClearAllShaderReplacements(vtkShader::Vertex);
+  mapper->ClearAllShaderReplacements(vtkShader::Fragment);
+  mapper->ClearAllShaderReplacements(vtkShader::Geometry);
+  mapper->ClearAllShaderReplacements();
+
   // Use our own hardcoded shader code. Generally this is a bad idea in a
   // general purpose program as there are so many things VTK supports that
   // hardcoded shaders will not handle depth peeling, picking, etc, but if you
