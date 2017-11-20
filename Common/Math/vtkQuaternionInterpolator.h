@@ -72,6 +72,13 @@ public:
    */
   static vtkQuaternionInterpolator* New();
 
+  enum vtkQuaternionInterpolationSearchMethod
+  {
+    BinarySearch = 0,
+    LinearSearch = 1,
+    MaxEnum
+  };
+
   /**
    * Return the number of quaternions in the list of quaternions to be
    * interpolated.
@@ -122,6 +129,16 @@ public:
   void InterpolateQuaternion(double t, double q[4]);
   //@}
 
+  //@{
+  /**
+   * Set / Get the search type method. 0 is a binary search method O(log(N))
+   * 1 is a linear search method O(N). Linear search method is kept because
+   * it can be faster than the dichotomous search method in specific cases
+   */
+  int GetSearchMethod();
+  void SetSearchMethod(int type);
+  //@}
+
   /**
    * Enums to control the type of interpolation to use.
    */
@@ -136,7 +153,8 @@ public:
    * Specify which type of function to use for interpolation. By default
    * (SetInterpolationFunctionToSpline()), cubic spline interpolation using a
    * modified Kochanek basis is employed. Otherwise, if
-   * SetInterpolationFunctionToLinear() is invoked, linear spherical interpolation
+   * SetInterpolationFunctionToLinear() is invoked, linear spherical
+   * interpolation
    * is used between each pair of quaternions.
    */
   vtkSetClampMacro(InterpolationType, int, INTERPOLATION_TYPE_LINEAR, INTERPOLATION_TYPE_SPLINE);
@@ -151,6 +169,7 @@ protected:
 
   // Specify the type of interpolation to use
   int InterpolationType;
+  int SearchMethod;
 
   // Internal variables for interpolation functions
   vtkQuaternionList* QuaternionList; // used for linear quaternion interpolation
