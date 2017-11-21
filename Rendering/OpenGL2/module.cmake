@@ -6,8 +6,6 @@ vtk_module(vtkRenderingOpenGL2
   BACKEND
     OpenGL2
   IMPLEMENTATION_REQUIRED_BY_BACKEND
-  COMPILE_DEPENDS
-    vtkUtilitiesEncodeString
   TEST_DEPENDS
     vtkIOLegacy
     vtkRenderingImage

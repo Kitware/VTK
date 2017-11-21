@@ -257,19 +257,16 @@ set(shader_files
 
 unset(shader_h_files)
 foreach(file ${shader_files})
-  get_filename_component(file_we ${file} NAME_WE)
-  set(src  ${CMAKE_CURRENT_SOURCE_DIR}/${file})
-  set(res  ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.cxx)
-  set(resh ${CMAKE_CURRENT_BINARY_DIR}/${file_we}.h)
-  list(APPEND shader_h_files ${resh})
-  add_custom_command(
-    OUTPUT ${res} ${resh}
-    DEPENDS ${src} vtkEncodeString
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file_we} --build-header VTKRENDERINGOPENGL_EXPORT vtkRenderingOpenGLModule.h
-    )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${file_we}
+  vtk_encode_string(
+    INPUT         "${file}"
+    EXPORT_SYMBOL "VTKRENDERINGOPENGL_EXPORT"
+    EXPORT_HEADER "vtkRenderingOpenGLModule.h"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND Module_SRCS ${source})
+  set_source_files_properties(
+    ${header}
+    ${source}
     PROPERTIES
       WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1

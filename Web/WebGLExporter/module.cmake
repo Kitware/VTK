@@ -1,8 +1,6 @@
 vtk_module(vtkWebGLExporter
   GROUPS
     Web
-  COMPILE_DEPENDS
-    vtkUtilitiesEncodeString
   EXCLUDE_FROM_ALL
   DEPENDS
     vtkCommonCore

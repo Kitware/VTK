@@ -20,23 +20,24 @@ set(Module_SRCS
 set_source_files_properties(md5.cxx WRAP_EXCLUDE)
 
 set(JAVASCRIPT_SRCS
-  webglRenderer
-  glMatrix
+  webglRenderer.js
+  glMatrix.js
 )
 
 
 foreach(file ${JAVASCRIPT_SRCS})
-  set(src ${CMAKE_CURRENT_SOURCE_DIR}/${file}.js)
-  set(res ${CMAKE_CURRENT_BINARY_DIR}/${file}.h)
-  add_custom_command(
-    OUTPUT ${res}
-    DEPENDS ${src}
-    COMMAND vtkEncodeString
-    ARGS ${res} ${src} ${file}
+  vtk_encode_string(
+    INPUT         "${file}"
+    HEADER_OUTPUT header
+    SOURCE_OUTPUT source)
+  list(APPEND Module_SRCS ${source})
+  set_source_files_properties(
+    ${header}
+    ${source}
+    PROPERTIES
+      WRAP_EXCLUDE 1
+      WRAP_EXCLUDE_PYTHON 1
     )
-  list(APPEND Module_SRCS ${res})
-  set_source_files_properties(${res} WRAP_EXCLUDE)
-  set_source_files_properties(${res} PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 endforeach()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

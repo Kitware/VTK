@@ -7,7 +7,6 @@ vtk_module(vtkRenderingOpenGL
   IMPLEMENTATION_REQUIRED_BY_BACKEND
   COMPILE_DEPENDS
     vtkParseOGLExt
-    vtkUtilitiesEncodeString
   TEST_DEPENDS
     vtkInteractionStyle
     vtkTestingRendering
