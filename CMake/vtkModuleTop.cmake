@@ -511,6 +511,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkTclTkMacros.cmake
                 CMake/vtk-forward.c.in
                 CMake/vtkGroups.cmake
+                CMake/vtkEncodeString.cmake
                 CMake/vtkForwardingExecutable.cmake
                 CMake/vtkJavaWrapping.cmake
                 CMake/vtkModuleAPI.cmake
