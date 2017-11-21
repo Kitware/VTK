@@ -14,9 +14,11 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/constant/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/constant/polyMesh/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/system/,REGEX:.*}"
+  "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/cavity/system/,REGEX:.*}"
   )
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPOpenFOAMReader.cxx
+  TestBigEndianPlot3D.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
