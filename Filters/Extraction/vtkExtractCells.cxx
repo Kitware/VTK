@@ -25,8 +25,10 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkCell.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPointData.h"
+#include "vtkPointSet.h"
 #include "vtkCellData.h"
 #include "vtkIntArray.h"
 #include "vtkInformation.h"
@@ -43,19 +45,28 @@ vtkStandardNewMacro(vtkExtractCells);
 namespace {
 struct FastPointMap
 {
-  using IteratorType = std::vector<vtkIdType>::iterator;
-  using ConstIteratorType = std::vector<vtkIdType>::const_iterator;
+  using ConstIteratorType = const vtkIdType*;
 
-  std::vector<vtkIdType> Map;
+  vtkNew<vtkIdList> Map;
   vtkIdType LastInput;
   vtkIdType LastOutput;
+
+  ConstIteratorType CBegin() const
+  {
+    return this->Map->GetPointer(0);
+  }
+
+  ConstIteratorType CEnd() const
+  {
+    return this->Map->GetPointer(this->Map->GetNumberOfIds());
+  }
 
   vtkIdType* Reset(vtkIdType numValues)
   {
     this->LastInput = -1;
     this->LastOutput = -1;
-    this->Map.resize(static_cast<size_t>(numValues));
-    return this->Map.data();
+    this->Map->SetNumberOfIds(numValues);
+    return this->Map->GetPointer(0);
   }
 
   // Map inputId to the new PointId. If inputId is invalid, return -1.
@@ -78,7 +89,7 @@ struct FastPointMap
       vtkIdType offset = inputId - this->LastInput;
 
       // Our search range is from the last output location
-      first = this->Map.cbegin() + this->LastOutput;
+      first = this->CBegin() + this->LastOutput;
       last = first + offset;
 
       // Ensure these are correctly ordered (offset may be < 0):
@@ -91,13 +102,13 @@ struct FastPointMap
       ++last;
 
       // Clamp to map bounds:
-      first = std::max(first, this->Map.cbegin());
-      last = std::min(last, this->Map.cend());
+      first = std::max(first, this->CBegin());
+      last = std::min(last, this->CEnd());
     }
     else
     { // First run, use full range:
-      first = this->Map.cbegin();
-      last = this->Map.cend();
+      first = this->CBegin();
+      last = this->CEnd();
     }
 
     outputId = this->BinaryFind(first, last, inputId);
@@ -117,14 +128,12 @@ private:
   vtkIdType BinaryFind(ConstIteratorType first, ConstIteratorType last,
                        vtkIdType val) const
   {
-    using DistanceT = std::vector<vtkIdType>::size_type;
-
-    DistanceT len = last - first;
+    vtkIdType len = last - first;
 
     while (len > 0)
     {
       // Select median
-      DistanceT half = len / 2;
+      vtkIdType half = len / 2;
       ConstIteratorType middle = first + half;
 
       const vtkIdType &mVal = *middle;
@@ -140,7 +149,7 @@ private:
       }
       else
       { // This soup is juuuust right.
-        return middle - this->Map.cbegin();
+        return middle - this->Map->GetPointer(0);
       }
     }
 
@@ -342,13 +351,25 @@ int vtkExtractCells::RequestData(
   }
   pts->SetNumberOfPoints(numPoints);
 
-  for (vtkIdType newId =0; newId<numPoints; newId++)
-  {
-    vtkIdType oldId = this->CellList->PointMap.Map[newId];
+  // Copy points and point data:
+  vtkPointSet *pointSet;
+  if ((pointSet = vtkPointSet::SafeDownCast(input)))
+  { // Optimize when a vtkPoints object exists in the input:
+    vtkNew<vtkIdList> dstIds; // contiguous range [0, numPoints)
+    dstIds->SetNumberOfIds(numPoints);
+    std::iota(dstIds->GetPointer(0), dstIds->GetPointer(numPoints), 0);
 
-    pts->SetPoint(newId, input->GetPoint(oldId));
-
-    newPD->CopyData(PD, oldId, newId);
+    pts->InsertPoints(dstIds, this->CellList->PointMap.Map, pointSet->GetPoints());
+    newPD->CopyData(PD, this->CellList->PointMap.Map, dstIds);
+  }
+  else
+  { // Slow path if we have to query the dataset:
+    for (vtkIdType newId = 0; newId < numPoints; ++newId)
+    {
+      vtkIdType oldId = this->CellList->PointMap.Map->GetId(newId);
+      pts->SetPoint(newId, input->GetPoint(oldId));
+      newPD->CopyData(PD, oldId, newId);
+    }
   }
 
   output->SetPoints(pts);
