@@ -464,7 +464,20 @@ endif()
 
 # Now for Tcl wrapping.
 option(VTK_WRAP_TCL "Should VTK Tcl wrapping be built?" OFF)
+if (VTK_LEGACY_REMOVE)
+  set_property(CACHE VTK_WRAP_TCL
+    PROPERTY TYPE INTERNAL)
+  set(VTK_WRAP_TCL OFF)
+else ()
+  set_property(CACHE VTK_WRAP_TCL
+    PROPERTY TYPE BOOL)
+endif ()
 if(VTK_WRAP_TCL)
+  if (NOT VTK_LEGACY_SILENT)
+    message(WARNING
+      "Tcl wrapping support is deprecated as of VTK 8.1.")
+  endif ()
+
   set(VTK_WRAP_TCL_EXE vtkWrapTcl)
   set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
   set(VTK_TCL_EXE vtk)
