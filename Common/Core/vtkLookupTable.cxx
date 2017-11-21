@@ -553,7 +553,7 @@ inline vtkIdType vtkLinearIndexLookupMain(double v, const TableParameters & p)
     // lut value, to avoid extra work in this very hot function.
     // It should never be more than 1 off, assert to be sure.
     index = static_cast<vtkIdType>(dIndex);
-    assert(index >= 0 && dIndex <= p.NumColors);
+    assert(index >= 0 && index <= p.NumColors);
   }
 
   return index;
