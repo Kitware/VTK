@@ -31,24 +31,24 @@ extern VTKWRAPPINGJAVA_EXPORT bool vtkJavaUTFToString(JNIEnv *env, jstring in, s
 extern VTKWRAPPINGJAVA_EXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in);
 
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfFloatFromFloat(JNIEnv *env,
-             float *arr, int size);
+             const float *arr, int size);
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfDoubleFromFloat(JNIEnv *env,
-             float *arr, int size);
+             const float *arr, int size);
 extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfDoubleFromDouble(JNIEnv *env,
-              double *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, short *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, int *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, vtkIdType *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, long long *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, signed char *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, long *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, unsigned char *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromChar(JNIEnv *env, char *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, char *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env, unsigned char *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env, unsigned int *arr, int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env,unsigned short *ptr,int size);
-extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env, unsigned long *arr, int size);
+             const double *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfShortFromShort(JNIEnv *env, const short *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromInt(JNIEnv *env, const int *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromIdType(JNIEnv *env, const vtkIdType *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromLongLong(JNIEnv *env, const long long *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfIntFromSignedChar(JNIEnv *env, const signed char *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfLongFromLong(JNIEnv *env, const long *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromUnsignedChar(JNIEnv *env, const unsigned char *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfByteFromChar(JNIEnv *env, const char *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfCharFromChar(JNIEnv *env, const char *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedCharFromUnsignedChar(JNIEnv *env, const unsigned char *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedIntFromUnsignedInt(JNIEnv *env, const unsigned int *arr, int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedShortFromUnsignedShort(JNIEnv *env, const unsigned short *ptr,int size);
+extern VTKWRAPPINGJAVA_EXPORT jarray vtkJavaMakeJArrayOfUnsignedLongFromUnsignedLong(JNIEnv *env, const unsigned long *arr, int size);
 
 // this is the void pointer parameter passed to the vtk callback routines on
 // behalf of the Java interface for callbacks.

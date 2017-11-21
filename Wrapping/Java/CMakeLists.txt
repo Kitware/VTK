@@ -207,7 +207,6 @@ if(vtkRenderingCore_ENABLED)
   endif()
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     AxesActor
-    vtkRenderWindowPanel
     )
 endif()
 
@@ -215,6 +214,11 @@ if(vtkInteractionWidgets_ENABLED)
   set(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES}
     vtkCanvas
     )
+
+  if (vtkRenderingCore_ENABLED)
+    list(APPEND VTK_JAVA_DEPENDENCIES
+      vtkRenderWindowPanel)
+  endif ()
 endif()
 
 if(vtkRenderingCore_ENABLED AND vtkIOImage_ENABLED)
@@ -349,7 +353,6 @@ add_custom_command(
           -source ${VTK_JAVA_SOURCE_VERSION}
           -target ${VTK_JAVA_TARGET_VERSION}
           -classpath ${JAVA_COMPILATION_CLASSPATH}
-          -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java/
           -d ${VTK_BINARY_DIR}/java
           @${VTK_BINARY_DIR}/java/javac_stamp.rsp
   COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_stamp.txt
@@ -385,7 +388,6 @@ if(BUILD_TESTING)
             -classpath ${VTK_JAR_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
             -source ${VTK_JAVA_SOURCE_VERSION}
             -target ${VTK_JAVA_TARGET_VERSION}
-            -sourcepath ${VTK_SOURCE_DIR}/Wrapping/Java
             -d ${VTK_BINARY_DIR}/Wrapping/Java
             ${VTK_JAVA_TESTS}
     COMMAND ${CMAKE_COMMAND} -E touch ${VTK_BINARY_DIR}/java/javac_tests_stamp.txt

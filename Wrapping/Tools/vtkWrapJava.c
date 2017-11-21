@@ -782,7 +782,7 @@ static int isClassWrapped(const char *classname)
     entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
 
     if (entry == 0 ||
-        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON") ||
         !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObjectBase"))
     {
       return 0;
@@ -1269,7 +1269,22 @@ int main(int argc, char *argv[])
   if ((data = file_info->MainClass) == NULL)
   {
     fclose(fp);
-    exit(1);
+    exit(0);
+  }
+
+  if (data->Template)
+  {
+    fclose(fp);
+    exit(0);
+  }
+
+  for (i = 0; i < data->NumberOfSuperClasses; ++i)
+  {
+    if (strchr(data->SuperClasses[i], '<'))
+    {
+      fclose(fp);
+      exit(0);
+    }
   }
 
   /* get the hierarchy info for accurate typing */
@@ -1284,6 +1299,15 @@ int main(int argc, char *argv[])
 
       /* expand typedefs */
       vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
+    }
+  }
+
+  if (hierarchyInfo)
+  {
+    if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
+    {
+      fclose(fp);
+      exit(0);
     }
   }
 
