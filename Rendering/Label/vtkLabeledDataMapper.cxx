@@ -494,6 +494,8 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
         // don't use vtkTypeTraits::ParseFormat for character types as parse formats
           // aren't the same as print formats for these types.
           case VTK_BIT:
+          case VTK_SIGNED_CHAR:
+          case VTK_UNSIGNED_CHAR:
           case VTK_SHORT:
           case VTK_UNSIGNED_SHORT:
           case VTK_INT:
@@ -501,8 +503,6 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
             FormatString = "%d"; break;
 
           case VTK_CHAR:
-          case VTK_SIGNED_CHAR:
-          case VTK_UNSIGNED_CHAR:
             FormatString = "%c"; break;
 
           case VTK_LONG:
