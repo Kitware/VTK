@@ -49,7 +49,6 @@
 
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
-#include "vtkmConfig.h" //required for general vtkm setup
 
 class VTKACCELERATORSVTKM_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {

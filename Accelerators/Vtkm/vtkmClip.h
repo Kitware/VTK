@@ -27,11 +27,16 @@
 
 #include "vtkAcceleratorsVTKmModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
-#include "vtkmlib/ImplicitFunctionConverter.h" // For ImplicitFunctionConverter
 
-#include <memory> // For std::shared_ptr
+#include <memory> // For std::unique_ptr
 
 class vtkImplicitFunction;
+
+namespace tovtkm {
+
+class ImplicitFunctionConverter;
+
+} // namespace tovtkm
 
 class VTKACCELERATORSVTKM_EXPORT vtkmClip : public vtkUnstructuredGridAlgorithm
 {
@@ -77,7 +82,7 @@ protected:
   bool ComputeScalars;
 
   vtkImplicitFunction *ClipFunction;
-  tovtkm::ImplicitFunctionConverter ClipFunctionConverter;
+  std::unique_ptr<tovtkm::ImplicitFunctionConverter> ClipFunctionConverter;
 
 private:
   vtkmClip(const vtkmClip&) = delete;
