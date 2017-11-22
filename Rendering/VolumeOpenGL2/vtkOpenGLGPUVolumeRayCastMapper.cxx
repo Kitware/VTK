@@ -3633,6 +3633,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   geometryShader->Delete();
 
   this->Impl->ShaderBuildTime.Modified();
+  this->InvokeEvent(vtkCommand::UpdateShaderEvent, this->Impl->ShaderProgram);
 }
 
 //-----------------------------------------------------------------------------
