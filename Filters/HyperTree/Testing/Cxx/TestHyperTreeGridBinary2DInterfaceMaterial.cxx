@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridBinary2DVectorAxisReflectionXCenter.cxx
+  Module:    TestHyperTreeGridBinary2DInterfaceMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,21 +13,17 @@
 
 ===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay, 2016
-// This test was modified by Philippe Pebay, NexGen Analytics 2017
+// This test was written by Philippe Pebay,  NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeGridAxisReflection.h"
-#include "vtkHyperTreeGridCellCenters.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkGlyph2D.h"
-#include "vtkGlyphSource2D.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -36,7 +32,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridBinary2DVectorAxisReflectionXCenter( int argc, char* argv[] )
+int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
@@ -56,37 +52,21 @@ int TestHyperTreeGridBinary2DVectorAxisReflectionXCenter( int argc, char* argv[]
   char interceptsName[] = "Intercepts";
   H->SetInterfaceInterceptsName( interceptsName );
 
-  // Axis reflection
-  vtkNew<vtkHyperTreeGridAxisReflection> reflection;
-  reflection->SetInputConnection( htGrid->GetOutputPort() );
-  reflection->SetPlaneToX();
-  reflection->SetCenter( 1.5 );
-
-  // Cell centers
-  vtkNew<vtkHyperTreeGridCellCenters> centers;
-  centers->SetInputConnection( reflection->GetOutputPort() );
-  centers->VertexCellsOn();
-
-  // 2D glyph source
-  vtkNew<vtkGlyphSource2D> glyph;
-  glyph->SetGlyphTypeToArrow();
-  glyph->SetScale( .8 );
-  glyph->FilledOff();
-
-  // Glyphs
-  vtkNew<vtkGlyph2D> glypher;
-  glypher->SetInputConnection( centers->GetOutputPort() );
-  glypher->SetSourceConnection( glyph->GetOutputPort() );
-  glypher->SetScaleModeToScaleByVector();
-  glypher->OrientOn();
+  // Modify intercepts array
+  vtkDataArray* interArray = vtkDataSet::SafeDownCast( htGrid->GetOutput() )->GetPointData()->GetArray( "Intercepts" );
+  for ( vtkIdType i = 0; i < interArray->GetNumberOfTuples(); ++ i )
+  {
+    double* inter = interArray->GetTuple3( i );
+    interArray->SetTuple3( i, -.25, -.5, -1. );
+  }
 
   // Geometries
   vtkNew<vtkHyperTreeGridGeometry> geometry1;
-  geometry1->SetInputConnection( reflection->GetOutputPort() );
+  geometry1->SetInputConnection( htGrid->GetOutputPort() );
   geometry1->Update();
   vtkPolyData* pd = geometry1->GetPolyDataOutput();
   vtkNew<vtkHyperTreeGridGeometry> geometry2;
-  geometry2->SetInputConnection( reflection->GetOutputPort() );
+  geometry2->SetInputConnection( htGrid->GetOutputPort() );
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -96,9 +76,6 @@ int TestHyperTreeGridBinary2DVectorAxisReflectionXCenter( int argc, char* argv[]
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry2->GetOutputPort() );
   mapper2->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
-  vtkNew<vtkPolyDataMapper> mapper3;
-  mapper3->SetInputConnection( glypher->GetOutputPort() );
-  mapper3->ScalarVisibilityOff();
 
   // Actors
   vtkNew<vtkActor> actor1;
@@ -107,10 +84,6 @@ int TestHyperTreeGridBinary2DVectorAxisReflectionXCenter( int argc, char* argv[]
   actor1->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor2;
   actor2->SetMapper( mapper2 );
-  vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3 );
-  actor3->GetProperty()->SetColor( 0., 0., 0. );
-  actor3->GetProperty()->SetLineWidth( 1 );
 
   // Camera
   double bd[6];
@@ -126,7 +99,6 @@ int TestHyperTreeGridBinary2DVectorAxisReflectionXCenter( int argc, char* argv[]
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1 );
   renderer->AddActor( actor2 );
-  renderer->AddActor( actor3 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

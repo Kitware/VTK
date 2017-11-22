@@ -720,8 +720,8 @@ protected:
   bool InitPureMaterialMask;
 
   bool HasInterface;
-  char *InterfaceNormalsName;
-  char *InterfaceInterceptsName;
+  char* InterfaceNormalsName;
+  char* InterfaceInterceptsName;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;

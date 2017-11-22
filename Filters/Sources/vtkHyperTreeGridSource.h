@@ -164,13 +164,13 @@ public:
 
   //@{
   /**
-   * Set/get whether a cell-centered vector field
+   * Set/get whether cell-centered interface fields
    * should be generated.
    * Default: false
    */
-  vtkSetMacro(GenerateVectorField, bool);
-  vtkGetMacro(GenerateVectorField, bool);
-  vtkBooleanMacro(GenerateVectorField, bool);
+  vtkSetMacro(GenerateInterfaceFields, bool);
+  vtkGetMacro(GenerateInterfaceFields, bool);
+  vtkBooleanMacro(GenerateInterfaceFields, bool);
   //@}
 
   //@{
@@ -327,7 +327,7 @@ protected:
   unsigned int BlockSize;
   bool UseDescriptor;
   bool UseMaterialMask;
-  bool GenerateVectorField;
+  bool GenerateInterfaceFields;
 
   vtkDataArray* XCoordinates;
   vtkDataArray* YCoordinates;
