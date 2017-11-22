@@ -20,8 +20,8 @@ from . import dataset_adapter as dsa
 from . import internal_algorithms as algs
 import itertools
 try:
-    from vtk.vtkParallelCore import vtkMultiProcessController
-    from vtk.vtkParallelMPI4Py import vtkMPI4PyCommunicator
+    from ..vtkParallelCore import vtkMultiProcessController
+    from ..vtkParallelMPI4Py import vtkMPI4PyCommunicator
 except ImportError:
     vtkMultiProcessController = None
     vtkMPI4PyCommunicator = None
@@ -248,7 +248,7 @@ def make_point_mask_from_NaNs(dataset, array):
     have a corresponding value of vtk.vtkDataSetAttributes.HIDDENPOINT.
     These values are also combined with any ghost values that the
     dataset may have."""
-    from vtk import vtkDataSetAttributes
+    from ..vtkCommonDataModel import vtkDataSetAttributes
     ghosts = dataset.PointData[vtkDataSetAttributes.GhostArrayName()]
     return make_mask_from_NaNs(array, ghosts)
 
@@ -258,7 +258,7 @@ def make_cell_mask_from_NaNs(dataset, array):
     have a corresponding value of vtk.vtkDataSetAttributes.HIDDENCELL.
     These values are also combined with any ghost values that the
     dataset may have."""
-    from vtk import vtkDataSetAttributes
+    from ..vtkCommonDataModel import vtkDataSetAttributes
     ghosts = dataset.CellData[vtkDataSetAttributes.GhostArrayName()]
     return make_mask_from_NaNs(array, ghosts, True)
 
@@ -269,7 +269,7 @@ def make_mask_from_NaNs(array, ghost_array=dsa.NoneArray, is_cell=False):
     HIDDENCELL is the is_cell argument is true. If an input ghost_array
     is passed, the array is bitwise_or'ed with it, simply adding
     the new ghost values to it."""
-    from vtk import vtkDataSetAttributes
+    from ..vtkCommonDataModel import vtkDataSetAttributes
     if is_cell:
         mask_value = vtkDataSetAttributes.HIDDENCELL
     else:
@@ -406,7 +406,7 @@ def _global_per_block(impl, array, axis=None, controller=None):
 
     t = type(array)
     if t == dsa.VTKArray or t == numpy.ndarray:
-        from vtk.vtkCommonDataModel import vtkMultiBlockDataSet
+        from ..vtkCommonDataModel import vtkMultiBlockDataSet
         array = dsa.VTKCompositeDataArray([array])
         ds = vtkMultiBlockDataSet()
         ds.SetBlock(0, dataset.VTKObject)
@@ -952,8 +952,8 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
         comm.Allreduce([lownership, mpitype], [ownership, mpitype], MPI.MIN)
 
     # Iterate over blocks to produce points and arrays
-    from vtk.vtkCommonDataModel import vtkUnstructuredGrid
-    from vtk.vtkCommonCore import vtkDoubleArray, vtkPoints
+    from ..vtkCommonDataModel import vtkUnstructuredGrid
+    from ..vtkCommonCore import vtkDoubleArray, vtkPoints
     ugrid = vtkUnstructuredGrid()
     da = vtkDoubleArray()
     da.SetNumberOfComponents(3)

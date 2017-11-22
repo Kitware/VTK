@@ -69,10 +69,10 @@ sure that it is installed properly.")
 import itertools
 import operator
 import sys
-from vtk import buffer_shared
-from vtk.util import numpy_support
-from vtk.vtkCommonDataModel import vtkDataObject
-from vtk.vtkCommonCore import vtkWeakReference
+from ..vtkCommonCore import buffer_shared
+from ..util import numpy_support
+from ..vtkCommonDataModel import vtkDataObject
+from ..vtkCommonCore import vtkWeakReference
 import weakref
 
 if sys.hexversion < 0x03000000:
@@ -1037,7 +1037,7 @@ class PointSet(DataSet):
 
     def SetPoints(self, pts):
         """Given a VTKArray instance, sets the points of the dataset."""
-        from vtk.vtkCommonCore import vtkPoints
+        from ..vtkCommonCore import vtkPoints
         if isinstance(pts, vtkPoints):
             p = pts
         else:
@@ -1089,8 +1089,8 @@ class UnstructuredGrid(PointSet):
     def SetCells(self, cellTypes, cellLocations, cells):
         """Given cellTypes, cellLocations, cells as VTKArrays,
         populates the unstructured grid data structures."""
-        from vtk import VTK_ID_TYPE
-        from vtk.vtkCommonDataModel import vtkCellArray
+        from .. import VTK_ID_TYPE
+        from ..vtkCommonDataModel import vtkCellArray
         cellTypes = numpyTovtkDataArray(cellTypes)
         cellLocations = numpyTovtkDataArray(cellLocations, array_type=VTK_ID_TYPE)
         cells = numpyTovtkDataArray(cells, array_type=VTK_ID_TYPE)
