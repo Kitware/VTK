@@ -94,7 +94,7 @@ public:
 
 protected:
   vtkResourceFileLocator();
-  ~vtkResourceFileLocator();
+  ~vtkResourceFileLocator() override;
 
   bool PrintDebugInformation;
 
