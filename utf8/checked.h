@@ -31,6 +31,18 @@ DEALINGS IN THE SOFTWARE.
 #include "core.h"
 #include <stdexcept>
 
+#if __cplusplus >= 201103L
+#define VTKUTF8_NOEXCEPT noexcept
+#elif defined(_MSC_VER)
+#if _MSC_VER >= 1900
+#define VTKUTF8_NOEXCEPT noexcept
+#else
+#define VTKUTF8_NOEXCEPT throw()
+#endif
+#else
+#define VTKUTF8_NOEXCEPT throw()
+#endif
+
 namespace vtk_utf8
 {
     // Base for the exceptions that may be thrown from the library
@@ -42,7 +54,7 @@ namespace vtk_utf8
         uint32_t cp;
     public:
         invalid_code_point(uint32_t _cp) : cp(_cp) {}
-        virtual const char* what() const throw() { return "Invalid code point"; }
+        virtual const char* what() const VTKUTF8_NOEXCEPT { return "Invalid code point"; }
         uint32_t code_point() const {return cp;}
     };
 
@@ -50,7 +62,7 @@ namespace vtk_utf8
         uint8_t u8;
     public:
         invalid_utf8 (uint8_t u) : u8(u) {}
-        virtual const char* what() const throw() { return "Invalid UTF-8"; }
+        virtual const char* what() const VTKUTF8_NOEXCEPT { return "Invalid UTF-8"; }
         uint8_t utf8_octet() const {return u8;}
     };
 
@@ -58,13 +70,13 @@ namespace vtk_utf8
         uint16_t u16;
     public:
         invalid_utf16 (uint16_t u) : u16(u) {}
-        virtual const char* what() const throw() { return "Invalid UTF-16"; }
+        virtual const char* what() const VTKUTF8_NOEXCEPT { return "Invalid UTF-16"; }
         uint16_t utf16_word() const {return u16;}
     };
 
     class not_enough_room : public exception {
     public:
-        virtual const char* what() const throw() { return "Not enough space"; }
+        virtual const char* what() const VTKUTF8_NOEXCEPT { return "Not enough space"; }
     };
 
     /// The library API - functions intended to be called by the users
