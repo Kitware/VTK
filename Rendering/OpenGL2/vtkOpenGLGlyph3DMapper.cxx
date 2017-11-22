@@ -31,6 +31,7 @@
 #include "vtkTransform.h"
 #include "vtkOpenGLError.h"
 #include "vtkSmartPointer.h"
+#include "vtkQuaternion.h"
 
 #include <map>
 
@@ -620,11 +621,20 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   }
 
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
-  if (orientArray !=nullptr && orientArray->GetNumberOfComponents() != 3)
+  if (orientArray != nullptr)
   {
-    vtkErrorMacro(" expecting an orientation array with 3 component, getting "
-      << orientArray->GetNumberOfComponents() << " components.");
-    return;
+    if ((this->OrientationMode == ROTATION || this->OrientationMode == DIRECTION) && orientArray->GetNumberOfComponents() != 3)
+    {
+      vtkErrorMacro(" expecting an orientation array with 3 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
+    else if (this->OrientationMode == QUATERNION && orientArray->GetNumberOfComponents() != 4)
+    {
+      vtkErrorMacro(" expecting an orientation array with 4 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
   }
 
   double arrayVals[16];
@@ -796,7 +806,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       if (orientArray)
       {
-        double orientation[3];
+        double orientation[4];
         orientArray->GetTuple(inPtId, orientation);
         switch (this->OrientationMode)
         {
@@ -828,6 +838,15 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
             trans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
             normalTrans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
           }
+          break;
+
+        case QUATERNION:
+          vtkQuaterniond quaternion(orientation);
+          double axis[3];
+          float angle = quaternion.GetRotationAngleAndAxis(axis);
+          angle *= 180.0 / vtkMath::Pi();
+          trans->RotateWXYZ(angle, axis);
+          normalTrans->RotateWXYZ(angle, axis);
           break;
         }
       }

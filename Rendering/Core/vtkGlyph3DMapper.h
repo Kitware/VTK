@@ -172,19 +172,22 @@ public:
    * vector for the orientation or the rotations around each axes. Default is
    * DIRECTION
    */
-  vtkSetClampMacro(OrientationMode, int, DIRECTION, ROTATION);
+  vtkSetClampMacro(OrientationMode, int, DIRECTION, QUATERNION);
   vtkGetMacro(OrientationMode, int);
   void SetOrientationModeToDirection()
     { this->SetOrientationMode(vtkGlyph3DMapper::DIRECTION); }
   void SetOrientationModeToRotation()
     { this->SetOrientationMode(vtkGlyph3DMapper::ROTATION); }
+  void SetOrientationModeToQuaternion()
+    { this->SetOrientationMode(vtkGlyph3DMapper::QUATERNION); }
   const char* GetOrientationModeAsString();
   //@}
 
   enum OrientationModes
   {
     DIRECTION=0,
-    ROTATION=1
+    ROTATION=1,
+    QUATERNION=2
   };
 
   //@{
