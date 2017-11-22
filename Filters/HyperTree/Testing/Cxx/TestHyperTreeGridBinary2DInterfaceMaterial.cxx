@@ -43,6 +43,9 @@ int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
+  htGrid->UseMaterialMaskOn();
+  htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
+  htGrid->SetMaterialMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
   htGrid->GenerateInterfaceFieldsOn();
   htGrid->Update();
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() );

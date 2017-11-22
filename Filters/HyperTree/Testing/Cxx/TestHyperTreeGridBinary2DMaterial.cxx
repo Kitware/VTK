@@ -38,10 +38,10 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   vtkNew<vtkHyperTreeGridSource> htGrid;
   int maxLevel = 6;
   htGrid->SetMaximumLevel( maxLevel );
-  htGrid->SetGridSize( 2, 3, 1 );
-  htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetDimension( 2 );
   htGrid->SetOrientation( 2 ); // in xy plane
+  htGrid->SetGridSize( 2, 3, 1 );
+  htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetBranchFactor( 2 );
   htGrid->UseMaterialMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
