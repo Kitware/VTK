@@ -8,3 +8,4 @@ another source tree.
   * Rename the namespace to not conflict with external copies.
   * Add `.gitattributes` to pass VTK's commit checks.
   * Fix shadowing warnings.
+  * Use `noexcept` rather than `throw()` to avoid warnings in VTK.
