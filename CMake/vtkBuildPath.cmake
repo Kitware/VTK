@@ -7,7 +7,7 @@
 
 set(cfg_bit "")
 if (CMAKE_CONFIGURATION_TYPES)
-  set(cfg_bit ".$<CONFIGURATION>")
+  set(cfg_bit ".$<CONFIG>")
 endif ()
 
 if(WIN32)
@@ -32,7 +32,7 @@ set(PATH_FILENAME "${VTK_BINARY_DIR}/${VTK_PATH_SHELL_SCRIPT}")
 
 set(cfg_subdir "")
 if (CMAKE_CONFIGURATION_TYPES)
-  set(cfg_subdir "/$<CONFIGURATION>")
+  set(cfg_subdir "/$<CONFIG>")
 endif ()
 
 # FOR THE PATH VARIABLE
@@ -44,7 +44,7 @@ string(REPLACE "xxx_path_var" "${PATH_VARIABLE}" PATH_LINES "${PATH_TEMP}")
 if(VTK_WRAP_PYTHON)
   # FOR THE PYTHONPATH VARIABLE, if PYTHON is wrapped
   # replace the path to the python-specific files
-  string(REPLACE "xxx_add_path" "${VTK_BINARY_DIR}/Wrapping/Python${PATH_SEPARATOR}${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${cfg_subdir}" PATH_TEMP "${PATH_FORMAT}")
+  string(REPLACE "xxx_add_path" "${VTK_BUILD_PYTHON_MODULES_DIR}" PATH_TEMP "${PATH_FORMAT}")
   # replace pathvar by PYTHONPATH
   string(REPLACE "xxx_path_var" "PYTHONPATH" PATH_TEMP "${PATH_TEMP}")
   # apped the line to the file
