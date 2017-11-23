@@ -843,8 +843,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         case QUATERNION:
           vtkQuaterniond quaternion(orientation);
           double axis[3];
-          float angle = quaternion.GetRotationAngleAndAxis(axis);
-          angle *= 180.0 / vtkMath::Pi();
+          double angle = vtkMath::DegreesFromRadians(quaternion.GetRotationAngleAndAxis(axis));
           trans->RotateWXYZ(angle, axis);
           normalTrans->RotateWXYZ(angle, axis);
           break;
