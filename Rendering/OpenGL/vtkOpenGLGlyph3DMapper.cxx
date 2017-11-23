@@ -43,6 +43,7 @@
 #include "vtkTransform.h"
 #include "vtkHardwareSelectionPolyDataPainter.h"
 #include "vtkOpenGLError.h"
+#include "vtkQuaternion.h"
 
 #include <cassert>
 #include <vector>
