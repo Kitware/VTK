@@ -518,11 +518,20 @@ void vtkOpenGLGlyph3DMapper::Render(
     }
   }
 
-  if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
+  if (orientArray != nullptr)
   {
-    vtkErrorMacro(" expecting an orientation array with 3 component, getting "
-      << orientArray->GetNumberOfComponents() << " components.");
-    return;
+    if ((this->OrientationMode == ROTATION || this->OrientationMode == DIRECTION) && orientArray->GetNumberOfComponents() != 3)
+    {
+      vtkErrorMacro(" expecting an orientation array with 3 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
+    else if (this->OrientationMode == QUATERNION && orientArray->GetNumberOfComponents() != 4)
+    {
+      vtkErrorMacro(" expecting an orientation array with 4 components, getting "
+        << orientArray->GetNumberOfComponents() << " components.");
+      return;
+    }
   }
 
   this->ScalarsToColorsPainter->SetInput(dataset);
@@ -667,7 +676,7 @@ void vtkOpenGLGlyph3DMapper::Render(
           }
           break;
 
-       case QUATERNION:
+        case QUATERNION:
           vtkQuaterniond quaternion(orientation);
           double axis[3];
           double angle = vtkMath::DegreesFromRadians(quaternion.GetRotationAngleAndAxis(axis));
