@@ -637,7 +637,7 @@ void vtkOpenGLGlyph3DMapper::Render(
 
       if (orientArray)
       {
-        double orientation[3];
+        double orientation[4];
         orientArray->GetTuple(inPtId, orientation);
         switch (this->OrientationMode)
         {
@@ -664,6 +664,13 @@ void vtkOpenGLGlyph3DMapper::Render(
             vNew[2] = orientation[2] / 2.0;
             trans->RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
           }
+          break;
+
+       case QUATERNION:
+          vtkQuaterniond quaternion(orientation);
+          double axis[3];
+          double angle = vtkMath::DegreesFromRadians(quaternion.GetRotationAngleAndAxis(axis));
+          trans->RotateWXYZ(angle, axis);
           break;
         }
       }
