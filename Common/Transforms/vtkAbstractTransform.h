@@ -204,7 +204,10 @@ public:
                                              vtkDataArray *inNms,
                                              vtkDataArray *outNms,
                                              vtkDataArray *inVrs,
-                                             vtkDataArray *outVrs);
+                                             vtkDataArray *outVrs,
+                                             int nOptionalVectors = 0,
+                                             vtkDataArray** inVrsArr = nullptr,
+                                             vtkDataArray** outVrsArr = nullptr);
 
   /**
    * Get the inverse of this transform.  If you modify this transform,

@@ -64,7 +64,10 @@ public:
                                      vtkDataArray *inNms,
                                      vtkDataArray *outNms,
                                      vtkDataArray *inVrs,
-                                     vtkDataArray *outVrs) override;
+                                     vtkDataArray *outVrs,
+                                     int nOptionalVectors = 0,
+                                     vtkDataArray** inVrsArr = nullptr,
+                                     vtkDataArray** outVrsArr = nullptr) override;
 
   // Invert the transformation.  This doesn't do anything to the
   // identity transformation.

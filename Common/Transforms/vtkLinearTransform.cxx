@@ -203,7 +203,10 @@ void vtkLinearTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                        vtkDataArray *inNms,
                                                        vtkDataArray *outNms,
                                                        vtkDataArray *inVrs,
-                                                       vtkDataArray *outVrs)
+                                                       vtkDataArray *outVrs,
+                                                       int nOptionalVectors,
+                                                       vtkDataArray** inVrsArr,
+                                                       vtkDataArray** outVrsArr)
 {
   this->TransformPoints(inPts, outPts);
   if (inNms)
@@ -213,6 +216,13 @@ void vtkLinearTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   if (inVrs)
   {
     this->TransformVectors(inVrs, outVrs);
+  }
+  if (inVrsArr)
+  {
+    for(int iArr = 0; iArr < nOptionalVectors; iArr++)
+    {
+      this->TransformVectors(inVrsArr[iArr], outVrsArr[iArr]);
+    }
   }
 }
 
