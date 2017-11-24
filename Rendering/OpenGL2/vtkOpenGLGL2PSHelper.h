@@ -29,6 +29,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkObject.h"
+#include <string> // For string usage
 
 class vtkActor;
 class vtkImageData;
