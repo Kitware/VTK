@@ -373,6 +373,8 @@ const char* vtkGlyph3DMapper::GetOrientationModeAsString()
     return "Direction";
   case vtkGlyph3DMapper::ROTATION:
     return "Rotation";
+  case vtkGlyph3DMapper::QUATERNION:
+    return "Quaternion";
   }
   return "Invalid";
 }
