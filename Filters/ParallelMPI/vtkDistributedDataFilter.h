@@ -466,8 +466,8 @@ private:
   /**
    * ?
    */
-  char *MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &size);
-  vtkUnstructuredGrid *UnMarshallDataSet(char *buf, int size);
+  char* MarshallDataSet(vtkUnstructuredGrid* extractedGrid, vtkIdType& size);
+  vtkUnstructuredGrid* UnMarshallDataSet(char* buf, vtkIdType size);
   //@}
 
   //@{
