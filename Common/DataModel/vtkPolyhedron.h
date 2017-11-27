@@ -291,34 +291,9 @@ protected:
   vtkIdList      *CellIds;
   vtkGenericCell *Cell;
 
-  // This is the internal implementation of contouring a polyhedron. It is used
-  // by both Clip and Contour functions.
-  int InternalContour(double value,
-                      int insideOut,
-                      vtkIncrementalPointLocator *locator,
-                      vtkDataArray *inScalars,
-                      vtkDataArray *outScalars,
-                      vtkPointData *inPd,
-                      vtkPointData *outPd,
-                      vtkCellArray *contourPolys,
-                      vtkIdToIdVectorMapType & faceToPointsMap,
-                      vtkIdToIdVectorMapType & pointToFacesMap,
-                      vtkIdToIdMapType & pointIdMap);
-
-
-  // Check if the polyhedron cell intersect with the contour/clip function.
-  // If intersect, return 0. Otherwise return 1 or -1 when the polyhedron cell
-  // is on the positive or negative side of contour/clip function respectively.
-  int IntersectWithContour(double value,
-                           int insideOut,
-                           vtkDataArray *inScalars);
-
 private:
   vtkPolyhedron(const vtkPolyhedron&) = delete;
   void operator=(const vtkPolyhedron&) = delete;
-
-  class vtkInternal;
-  vtkInternal * Internal;
 
 };
 

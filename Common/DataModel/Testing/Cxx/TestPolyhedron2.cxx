@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPolyhedron1.cxx
+  Module:    TestPolyhedron2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -22,11 +22,15 @@
 #include "vtkCutter.h"
 #include "vtkPlane.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkXMLPolyDataWriter.h"
 
 // Test of contour/clip of vtkPolyhedron. uses input from https://gitlab.kitware.com/vtk/vtk/issues/14485
 int TestPolyhedron2( int argc, char* argv[] )
 {
   if (argc < 3) return 1; // test not run with data on the command line
+
+  vtkObject::GlobalWarningDisplayOff();
 
   const char* filename = argv[2];
   vtkNew<vtkXMLUnstructuredGridReader> reader;
@@ -49,9 +53,9 @@ int TestPolyhedron2( int argc, char* argv[] )
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if (output->GetNumberOfCells() != 2)
   {
-    std::cout << "Expected 2 but found " << output->GetNumberOfCells() << " in intersected polyhedron." << std::endl;
-    return 1;
+    std::cerr << "Expected 2 polygons but found " << output->GetNumberOfCells() << " polygons in sliced polyhedron." << std::endl;
+    return EXIT_FAILURE;
   }
 
-  return 0; // success
+  return EXIT_SUCCESS;
 }

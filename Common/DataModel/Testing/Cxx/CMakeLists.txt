@@ -82,7 +82,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestQuadraticPolygonFilters.cxx
   )
 # add to the list but don't define a test
-list(APPEND data_tests TestPolyhedron2.cxx)
+list(APPEND data_tests TestPolyhedron2.cxx TestPolyhedron6.cxx)
 
 vtk_add_test_cxx(${vtk-module}CxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
@@ -91,6 +91,11 @@ ExternalData_add_test(VTKData
   NAME TestPolyhedron2
   COMMAND ${vtk-module}CxxTests TestPolyhedron2
   -D DATA{../Data/polyhedron_mesh.vtu}
+  )
+ExternalData_add_test(VTKData
+  NAME TestPolyhedron6
+  COMMAND ${vtk-module}CxxTests TestPolyhedron6
+   DATA{../Data/cell_850113.vtu} DATA{../Data/cell_12851_26.vtu}
   )
 set(all_tests
   ${tests}
