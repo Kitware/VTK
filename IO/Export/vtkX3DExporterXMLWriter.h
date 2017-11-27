@@ -24,6 +24,7 @@
 
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkX3DExporterWriter.h"
+#include <string> // for std::string
 
 class vtkX3DExporterXMLNodeInfoStack;
 
