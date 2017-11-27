@@ -502,6 +502,8 @@ endif()
 option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
+include(vtkEncodeString)
+
 #----------------------------------------------------------------------
 # Load the module DAG, assess all modules etc.
 include(vtkModuleTop)
