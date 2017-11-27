@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPolyhedron1.cxx
+  Module:    TestPolyhedron3.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -64,15 +64,15 @@ int TestPolyhedron3(int argc, char *argv[])
   if (result->GetNumberOfCells() != 1)
   {
     std::cout << "Expected 1 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
-    return 1;
+    return EXIT_FAILURE;
   }
   vtkCell* clipped = result->GetCell(0);
   if (!clipped) return 1;
-  if (clipped->GetNumberOfFaces() != 7)
+  if (clipped->GetNumberOfFaces() != 7 )
   {
-    std::cout << "Expected 7 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
-    return 1;
+    std::cout << "Expected 7 but found " << clipped->GetNumberOfFaces() << " faces on in intersected polyhedron" << std::endl;
+    return EXIT_FAILURE;
   }
 
-  return 0; // success
+  return EXIT_SUCCESS;
 }
