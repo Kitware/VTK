@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-egrep-q() {
+egrep_q() {
   egrep "$@" >/dev/null 2>/dev/null
 }
 
@@ -21,7 +21,7 @@ ExternalData_stage_linked_content() {
 
   # Load and validate the hash stored in the staged blob.
   hash=$(git cat-file blob $dst_obj) || hash=""
-  echo "$hash" | egrep-q "$validate" ||
+  echo "$hash" | egrep_q "$validate" ||
   die "$file: invalid content link (does not match '$validate')"
 
   # Reject simultaneous raw file and content link.
@@ -89,7 +89,7 @@ ExternalData_STORE=".ExternalData"
 # Process content links created by/for the CMake ExternalData module.
 git diff-index --cached HEAD --diff-filter=AM |
 while read src_mode dst_mode src_obj dst_obj status file; do
-  if echo "$dst_mode $file" | egrep-q '^100644 .*\.(md5)$'; then
+  if echo "$dst_mode $file" | egrep_q '^100644 .*\.(md5)$'; then
     ExternalData_stage_linked_content
   else
     ExternalData_non_content_link
