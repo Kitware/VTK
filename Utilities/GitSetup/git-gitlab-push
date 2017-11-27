@@ -23,7 +23,8 @@ OPTIONS
     Show what would be pushed without actually updating the destination
 
 -f,--force
-    Force-push the topic HEAD to rewrite the destination branch
+    Force-push the topic HEAD to rewrite the destination branch (use twice
+    to ignore stale remote tracking branches)
 
 --keep-data
     Do not erase local data refs after pushing
@@ -117,7 +118,14 @@ set_upstream=true
 # Parse the command line options.
 while test $# != 0; do
 	case "$1" in
-		-f|--force)    force='+'; lease=true ;;
+		-f|--force)
+			if test -n "$force"; then
+				lease=false
+			else
+				lease=true
+			fi
+			force='+'
+			;;
 		--keep-data)   keep_data=1 ;;
 		--no-topic)    no_topic=1; set_upstream=false ;;
 		--no-data)     no_data=1 ;;
