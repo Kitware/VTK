@@ -325,15 +325,15 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   vtkIdType *newLocs = newUgrid->GetCellLocationsArray()->GetPointer(0);
   unsigned char *newTypes = newUgrid->GetCellTypesArray()->GetPointer(0);
 
-  int newNumCells = newUgrid->GetNumberOfCells();
-  int newNumConnections = newCellArray->GetData()->GetNumberOfTuples();
+  vtkIdType newNumCells = newUgrid->GetNumberOfCells();
+  vtkIdType newNumConnections = newCellArray->GetData()->GetNumberOfTuples();
 
   // If we are checking for duplicate cells, create a list now of
   // any cells in the new data set that we already have.
 
   vtkIdList *duplicateCellIds = nullptr;
-  int numDuplicateCells = 0;
-  int numDuplicateConnections = 0;
+  vtkIdType numDuplicateCells = 0;
+  vtkIdType numDuplicateConnections = 0;
 
   if (this->UseGlobalCellIds)
   {
@@ -363,9 +363,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
         {
           duplicateCellIds->InsertNextId(id);
           numDuplicateCells++;
-
-          int npoints = newCells[newLocs[id]];
-
+          auto npoints = newCells[newLocs[id]];
           numDuplicateConnections += (npoints + 1);
         }
       }
@@ -385,8 +383,8 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
   vtkIdType *locs = nullptr;
   unsigned char *types = nullptr;
 
-  int numCells = 0;
-  int numConnections = 0;
+  vtkIdType numCells = 0;
+  vtkIdType numConnections = 0;
 
   if (!firstSet)
   {
@@ -403,8 +401,8 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
 
   //           CELL ARRAY
 
-  int totalNumCells = numCells + newNumCells - numDuplicateCells;
-  int totalNumConnections =
+  vtkIdType totalNumCells = numCells + newNumCells - numDuplicateCells;
+  vtkIdType totalNumConnections =
       numConnections + newNumConnections - numDuplicateConnections;
 
   vtkIdTypeArray *mergedcells = vtkIdTypeArray::New();
@@ -451,7 +449,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet *set,
 
   vtkIdType oldPtId, finalPtId;
 
-  int nextDuplicateCellId = 0;
+  vtkIdType nextDuplicateCellId = 0;
 
   for (vtkIdType oldCellId=0; oldCellId < newNumCells; oldCellId++)
   {
