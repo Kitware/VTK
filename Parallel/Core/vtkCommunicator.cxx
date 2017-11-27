@@ -551,7 +551,7 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
     vtkGenericWarningMacro("Error detected while marshaling data object.");
     return 0;
   }
-  unsigned int size = writer->GetOutputStringLength();
+  const vtkIdType size = writer->GetOutputStringLength();
   if (object->GetExtentType() == VTK_3D_EXTENT)
   {
     // You would think that the extent information would be properly saved, but

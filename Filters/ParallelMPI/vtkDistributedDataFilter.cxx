@@ -1908,7 +1908,7 @@ vtkUnstructuredGrid *
 
   vtkUnstructuredGrid *mergedGrid = nullptr;
   int i;
-  int packedGridSendSize=0, packedGridRecvSize=0;
+  vtkIdType packedGridSendSize = 0, packedGridRecvSize = 0;
   char *packedGridSend=nullptr, *packedGridRecv=nullptr;
   int recvBufSize=0;
   int numReceivedGrids = 0;
@@ -2408,8 +2408,8 @@ vtkUnstructuredGrid *
   vtkUnstructuredGrid **grids = new vtkUnstructuredGrid * [nprocs];
   char **sendBufs = new char * [nprocs];
   char **recvBufs = new char * [nprocs];
-  int *sendSize = new int [nprocs];
-  int *recvSize = new int [nprocs];
+  vtkIdType* sendSize = new vtkIdType[nprocs];
+  vtkIdType* recvSize = new vtkIdType[nprocs];
 
   // create & pack all sub grids
 
@@ -2691,7 +2691,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
 }
 
 //-------------------------------------------------------------------------
-char *vtkDistributedDataFilter::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &len)
+char* vtkDistributedDataFilter::MarshallDataSet(vtkUnstructuredGrid* extractedGrid, vtkIdType& len)
 {
   TimeLog timer("MarshallDataSet", this->Timing);
   (void)timer;
@@ -2726,7 +2726,7 @@ char *vtkDistributedDataFilter::MarshallDataSet(vtkUnstructuredGrid *extractedGr
 }
 
 //-------------------------------------------------------------------------
-vtkUnstructuredGrid *vtkDistributedDataFilter::UnMarshallDataSet(char *buf, int size)
+vtkUnstructuredGrid* vtkDistributedDataFilter::UnMarshallDataSet(char* buf, vtkIdType size)
 {
   TimeLog timer("UnMarshallDataSet", this->Timing);
   (void)timer;

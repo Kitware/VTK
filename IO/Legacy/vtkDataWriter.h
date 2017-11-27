@@ -77,7 +77,7 @@ public:
    * and can be retrieved with these methods.  The string is deleted during
    * the next call to write ...
    */
-  vtkGetMacro(OutputStringLength, int);
+  vtkGetMacro(OutputStringLength, vtkIdType);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
   {
@@ -294,7 +294,7 @@ protected:
 
   int WriteToOutputString;
   char *OutputString;
-  int OutputStringLength;
+  vtkIdType OutputStringLength;
 
   void WriteData() override; //dummy method to allow this class to be instantiated and delegated to
 
