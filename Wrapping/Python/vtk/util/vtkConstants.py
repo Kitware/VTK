@@ -184,7 +184,6 @@ VTK_HIGHER_ORDER_PYRAMID     = 66
 VTK_HIGHER_ORDER_HEXAHEDRON  = 67
 
 # A macro to get the name of a type
-
 __vtkTypeNameDict = {VTK_VOID:"void",
                      VTK_DOUBLE:"double",
                      VTK_FLOAT:"float",
@@ -197,9 +196,10 @@ __vtkTypeNameDict = {VTK_VOID:"void",
                      VTK_CHAR:"char",
                      VTK_UNSIGNED_CHAR:"unsigned char",
                      VTK_SIGNED_CHAR:"signed char",
+                     VTK_LONG_LONG:"long long",
+                     VTK_UNSIGNED_LONG_LONG:"unsigned long long",
+                     VTK_ID_TYPE:"vtkIdType",
                      VTK_BIT:"bit"}
 
 def vtkImageScalarTypeNameMacro(type):
   return __vtkTypeNameDict[type]
-
-
