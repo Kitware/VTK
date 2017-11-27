@@ -11,6 +11,7 @@ vtk_module(vtkFiltersParallelMPI
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel
+    vtkCommonSystem
     vtkFiltersExtraction
     vtkImagingCore
   PRIVATE_DEPENDS

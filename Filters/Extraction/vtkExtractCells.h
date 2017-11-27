@@ -67,6 +67,8 @@ public:
 
   void AddCellRange(vtkIdType from, vtkIdType to);
 
+  vtkMTimeType GetMTime() override;
+
 protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
@@ -78,12 +80,11 @@ protected:
 private:
 
   void Copy(vtkDataSet *input, vtkUnstructuredGrid *output);
-  static vtkIdType findInSortedList(vtkIdList *idList, vtkIdType id);
-  vtkIdList *reMapPointIds(vtkDataSet *grid);
+  vtkIdType reMapPointIds(vtkDataSet *grid);
 
-  void CopyCellsDataSet(vtkIdList *ptMap, vtkDataSet *input,
+  void CopyCellsDataSet(vtkDataSet *input,
                         vtkUnstructuredGrid *output);
-  void CopyCellsUnstructuredGrid(vtkIdList *ptMap, vtkDataSet *input,
+  void CopyCellsUnstructuredGrid(vtkDataSet *input,
                                  vtkUnstructuredGrid *output);
 
   vtkExtractCellsSTLCloak *CellList;
