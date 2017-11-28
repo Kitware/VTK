@@ -30,10 +30,9 @@
 #include <sstream>
 #include <EGL/egl.h>
 
-#if ANDROID
+#ifdef ANDROID
 #include <android/native_window.h>
 #endif
-
 
 namespace
 {
@@ -143,9 +142,11 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   this->ScreenSize[1] = 1080;
   // this is initialized in vtkRenderWindow
   // so we don't need to initialize on else
+#ifdef VTK_USE_OFFSCREEN_EGL
   this->DeviceIndex = VTK_DEFAULT_EGL_DEVICE_INDEX;
+#endif
 
-#if ANDROID
+#ifdef ANDROID
   this->OffScreenRendering = false;
 #else
   // this is an offscreen-only window otherwise.
@@ -420,9 +421,15 @@ void vtkEGLRenderWindow::DestroyWindow()
 // Initialize the window for rendering.
 void vtkEGLRenderWindow::WindowInitialize (void)
 {
+  vtkInternals* impl = this->Internals;
   if (this->OwnWindow)
   {
     this->CreateAWindow();
+    }
+  else if (impl->Context == EGL_NO_CONTEXT)
+  {
+    // Get our current context from the EGL current context
+    impl->Context = eglGetCurrentContext();
   }
 
   this->MakeCurrent();
@@ -441,7 +448,9 @@ void vtkEGLRenderWindow::WindowInitialize (void)
   // for offscreen EGL always turn on point sprites
   if (this->OffScreenRendering)
   {
+#ifdef GL_POINT_SPRITE
     glEnable(GL_POINT_SPRITE);
+#endif
   }
 }
 
@@ -453,8 +462,9 @@ void vtkEGLRenderWindow::Initialize (void)
   {
     this->WindowInitialize();
   }
-  else
+  else if( this->OwnWindow )
   {
+    // We only need to resize the window if we own it
     int w, h;
     this->GetEGLSurfaceSize(&w, &h);
     if (w != this->Size[0] || h != this->Size[1])
