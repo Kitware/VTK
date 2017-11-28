@@ -99,6 +99,11 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
         SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
       ENDIF ()
 
+      # ensure that header exists
+      if(NOT EXISTS ${TMP_INPUT})
+        continue ()
+      endif()
+
       # use ".mm" suffix if file must be compiled with objective C++
       IF(TMP_WRAP_OBJC)
         SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
