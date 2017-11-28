@@ -18,12 +18,6 @@ set(Module_SRCS
   vtkXYZMolReader2.cxx
   )
 
-set_source_files_properties(
-  vtkBlueObeliskDataInternal.h
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 # Generate configured header file
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkChemistryConfigure.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkChemistryConfigure.h")

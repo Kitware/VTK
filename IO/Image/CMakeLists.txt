@@ -36,10 +36,4 @@ set(Module_SRCS
   vtkMRCReader.cxx
   )
 
-set_source_files_properties(
-  vtkNIFTIPrivate.h
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 vtk_module_library(vtkIOImage ${Module_SRCS})

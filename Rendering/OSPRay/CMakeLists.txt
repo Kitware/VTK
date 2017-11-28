@@ -25,12 +25,6 @@ vtk_add_override(vtkOSPRayVolumeInterface vtkOSPRayVolumeMapper)
 vtk_object_factory_configure("${vtk_module_overrides}")
 list(APPEND Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-set_source_files_properties(
-  ${vtk-module}ObjectFactory.cxx
-  vtkOSPRayMaterialHelpers.cxx
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
 
 vtk_module_library(vtkRenderingOSPRay ${Module_SRCS})
 

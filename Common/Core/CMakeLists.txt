@@ -538,34 +538,6 @@ configure_file(
   )
 
 set_source_files_properties(
-  vtkABI.h
-  vtkAOSDataArrayTemplate.txx
-  vtkArrayIteratorTemplateInstantiate.cxx
-  vtkAutoInit.h
-  vtkDataArrayPrivate.txx
-  vtkIOStream.cxx
-  vtkIOStreamFwd.h
-  vtkLargeInteger.cxx
-  vtkOldStyleCallbackCommand.cxx
-  vtkOStreamWrapper.cxx
-  vtkOStrStreamWrapper.cxx
-  vtkNew.h
-  vtkSetGet.h
-  vtkSmartPointer.h
-  vtkSmartPointerBase.h
-  vtkSOADataArrayTemplateInstantiate.cxx # Has no API
-  vtkStdString.cxx
-  vtkUnicodeString.cxx
-  vtkWeakPointer.h
-  vtkWeakPointerBase.cxx
-  vtkWin32Header.h
-  vtkWrappingHints.h
-  ${VTK_SMP_SOURCES}
-  ${VTK_SMP_HEADERS}
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1
-)
-
-set_source_files_properties(
   vtkDataArrayTemplate.h
   vtkDenseArray.h
   vtkSparseArray.h

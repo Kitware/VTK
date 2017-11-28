@@ -14,12 +14,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkExodusIIReaderVariableCheck
   PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-)
-
-set_source_files_properties(
-  vtkExodusIIReaderVariableCheck
-  PROPERTIES
     SKIP_HEADER_INSTALL 1
 )
 

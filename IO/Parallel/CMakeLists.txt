@@ -12,10 +12,4 @@ set(Module_SRCS
   vtkPSLACReader.cxx
   )
 
-set_source_files_properties(
-  vtkMultiBlockPLOT3DReaderInternals
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 vtk_module_library(vtkIOParallel ${Module_SRCS})

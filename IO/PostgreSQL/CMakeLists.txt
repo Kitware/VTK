@@ -9,12 +9,6 @@ set(PostgreSQL_SRCS
   vtkIOPostgreSQL_AutoInit.cxx
   )
 
-set_source_files_properties(
-  vtkIOPostgreSQL_AutoInit
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 include_directories(${PostgreSQL_INCLUDE_DIRS})
 
 vtk_module_library(vtkIOPostgreSQL ${PostgreSQL_SRCS})

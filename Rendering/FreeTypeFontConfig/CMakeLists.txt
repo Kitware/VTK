@@ -9,13 +9,6 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingFreeTypeFontConfigObjectFactory.cxx
 )
 
-set_source_files_properties(
-  vtkFontConfigFreeTypeTools
-  vtkRenderingFreeTypeFontConfigObjectFactory
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 # Setup overrides
 list(APPEND vtk_module_overrides "vtkFreeTypeTools")
 set(vtk_module_vtkFreeTypeTools_override "vtkFontConfigFreeTypeTools")

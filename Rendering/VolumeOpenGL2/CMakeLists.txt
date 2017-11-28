@@ -9,12 +9,6 @@ set(Module_SRCS
   vtkVolumeTexture.cxx
   )
 
-set_source_files_properties(
-  vtkVolumeTexture
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
@@ -31,12 +25,6 @@ foreach(file ${shader_files})
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND Module_SRCS ${source})
-  set_source_files_properties(
-    ${header}
-    ${source}
-    PROPERTIES
-      WRAP_EXCLUDE_PYTHON 1
-    )
 endforeach()
 
 # Now for the object factory.
@@ -53,11 +41,6 @@ vtk_object_factory_configure("${vtk_module_overrides}")
 
 list(APPEND Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-set_source_files_properties(
-  ${vtk-module}ObjectFactory.cxx
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
 
 vtk_module_library(vtkRenderingVolumeOpenGL2 ${Module_SRCS})
 include(vtkOpenGL)

@@ -235,9 +235,4 @@ set(${vtk-module}_HDRS
   vtkStaticCellLinksTemplate.h
   )
 
-set_source_files_properties(
-  vtkDispatcher_Private
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1
-)
-
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

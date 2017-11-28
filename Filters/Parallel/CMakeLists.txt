@@ -45,11 +45,4 @@ set_source_files_properties(
   HEADER_FILE_ONLY
   )
 
-set_source_files_properties(
-  ${vtk-module}ObjectFactory.cxx
-  vtkPOutlineFilterInternals.cxx
-  PROPERTIES
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 vtk_module_library(vtkFiltersParallel ${Module_SRCS})
