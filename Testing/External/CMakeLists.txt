@@ -17,6 +17,7 @@ set(ExternalData_SOURCE_ROOT ${VTK_TOP_DIR})
 list(APPEND CMAKE_MODULE_PATH ${VTK_TOP_DIR}/CMake)
 include(vtkModuleMacros)
 include(vtkExternalData)
+include(vtkEncodeString)
 include(vtkTestingMacros)
 
 # Find the VTK build or install tree.  Assume the version matches exactly.
