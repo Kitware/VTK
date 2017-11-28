@@ -78,92 +78,86 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
 
   # For each class
   FOREACH(FILE ${SOURCES})
-    # should we wrap the file?
-    get_source_file_property(TMP_WRAP_EXCLUDE_PYTHON ${FILE} WRAP_EXCLUDE_PYTHON)
-
     # some wrapped files need to be compiled as objective C++
     get_source_file_property(TMP_WRAP_OBJC ${FILE} WRAP_JAVA_OBJC)
 
-    # if we should wrap it
-    IF (NOT TMP_WRAP_EXCLUDE_PYTHON)
-      # what is the filename without the extension
-      GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
+    # what is the filename without the extension
+    GET_FILENAME_COMPONENT(TMP_FILENAME ${FILE} NAME_WE)
 
-      # the input file might be full path so handle that
-      GET_FILENAME_COMPONENT(TMP_FILEPATH ${FILE} PATH)
+    # the input file might be full path so handle that
+    GET_FILENAME_COMPONENT(TMP_FILEPATH ${FILE} PATH)
 
-      # compute the input filename
-      IF (TMP_FILEPATH)
-        SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
-      ELSE ()
-        SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
-      ENDIF ()
+    # compute the input filename
+    IF (TMP_FILEPATH)
+      SET(TMP_INPUT ${TMP_FILEPATH}/${TMP_FILENAME}.h)
+    ELSE ()
+      SET(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.h)
+    ENDIF ()
 
-      # ensure that header exists
-      if(NOT EXISTS ${TMP_INPUT})
-        continue ()
-      endif()
+    # ensure that header exists
+    if(NOT EXISTS ${TMP_INPUT})
+      continue ()
+    endif()
 
-      # use ".mm" suffix if file must be compiled with objective C++
-      IF(TMP_WRAP_OBJC)
-        SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
-      ELSE()
-        SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.cxx)
-      ENDIF()
+    # use ".mm" suffix if file must be compiled with objective C++
+    IF(TMP_WRAP_OBJC)
+      SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.mm)
+    ELSE()
+      SET(TMP_WRAPPED_FILENAME ${TMP_FILENAME}Java.cxx)
+    ENDIF()
 
-      # new source file is nameJava.cxx, add to resulting list
-      SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
-        ${TMP_WRAPPED_FILENAME})
+    # new source file is nameJava.cxx, add to resulting list
+    SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}}
+      ${TMP_WRAPPED_FILENAME})
 
-      # add custom command to output
-      ADD_CUSTOM_COMMAND(
-        OUTPUT ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-        DEPENDS ${VTK_PARSE_JAVA_EXE}
-                ${VTK_WRAP_HINTS}
-                ${TMP_INPUT}
-                ${_args_file}
-                ${KIT_HIERARCHY_FILE}
-        COMMAND ${VTK_PARSE_JAVA_EXE}
-                @${_args_file}
-                -o ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
-                ${TMP_INPUT}
-        COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
-        VERBATIM
+    # add custom command to output
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
+      DEPENDS ${VTK_PARSE_JAVA_EXE}
+              ${VTK_WRAP_HINTS}
+              ${TMP_INPUT}
+              ${_args_file}
+              ${KIT_HIERARCHY_FILE}
+      COMMAND ${VTK_PARSE_JAVA_EXE}
+              @${_args_file}
+              -o ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
+              ${TMP_INPUT}
+      COMMENT "Java Wrappings - generating ${TMP_FILENAME}.java"
+      VERBATIM
+      )
+
+    # add custom command to output
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
+      DEPENDS ${VTK_WRAP_JAVA_EXE}
+              ${VTK_WRAP_HINTS}
+              ${TMP_INPUT}
+              ${_args_file}
+              ${KIT_HIERARCHY_FILE}
+      COMMAND ${VTK_WRAP_JAVA_EXE}
+              @${_args_file}
+              -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
+              ${TMP_INPUT}
+      COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
+      VERBATIM
+      )
+
+    SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")
+    SET(VTK_JAVA_DEPENDENCIES_FILE
+      "${VTK_JAVA_DEPENDENCIES_FILE}\n  \"${VTK_JAVA_HOME}/${TMP_FILENAME}.java\"")
+
+    # Add this output to a custom target if needed.
+    IF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
+      SET(VTK_WRAP_JAVA_CUSTOM_LIST ${VTK_WRAP_JAVA_CUSTOM_LIST}
+        ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
         )
-
-      # add custom command to output
-      ADD_CUSTOM_COMMAND(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
-        DEPENDS ${VTK_WRAP_JAVA_EXE}
-                ${VTK_WRAP_HINTS}
-                ${TMP_INPUT}
-                ${_args_file}
-                ${KIT_HIERARCHY_FILE}
-        COMMAND ${VTK_WRAP_JAVA_EXE}
-                @${_args_file}
-                -o ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
-                ${TMP_INPUT}
-        COMMENT "Java Wrappings - generating ${TMP_WRAPPED_FILENAME}"
-        VERBATIM
-        )
-
-      SET(VTK_JAVA_DEPENDENCIES ${VTK_JAVA_DEPENDENCIES} "${VTK_JAVA_HOME}/${TMP_FILENAME}.java")
-      SET(VTK_JAVA_DEPENDENCIES_FILE
-        "${VTK_JAVA_DEPENDENCIES_FILE}\n  \"${VTK_JAVA_HOME}/${TMP_FILENAME}.java\"")
-
-      # Add this output to a custom target if needed.
-      IF(VTK_WRAP_JAVA_NEED_CUSTOM_TARGETS)
-        SET(VTK_WRAP_JAVA_CUSTOM_LIST ${VTK_WRAP_JAVA_CUSTOM_LIST}
-          ${CMAKE_CURRENT_BINARY_DIR}/${TMP_WRAPPED_FILENAME}
-          )
-        SET(VTK_WRAP_JAVA_CUSTOM_COUNT ${VTK_WRAP_JAVA_CUSTOM_COUNT}x)
-        IF(VTK_WRAP_JAVA_CUSTOM_COUNT MATCHES "^${VTK_WRAP_JAVA_CUSTOM_LIMIT}$")
-          SET(VTK_WRAP_JAVA_CUSTOM_NAME ${VTK_WRAP_JAVA_CUSTOM_NAME}Hack)
-          ADD_CUSTOM_TARGET(${VTK_WRAP_JAVA_CUSTOM_NAME} DEPENDS ${VTK_WRAP_JAVA_CUSTOM_LIST})
-          SET(KIT_JAVA_DEPS ${VTK_WRAP_JAVA_CUSTOM_NAME})
-          SET(VTK_WRAP_JAVA_CUSTOM_LIST)
-          SET(VTK_WRAP_JAVA_CUSTOM_COUNT)
-        ENDIF()
+      SET(VTK_WRAP_JAVA_CUSTOM_COUNT ${VTK_WRAP_JAVA_CUSTOM_COUNT}x)
+      IF(VTK_WRAP_JAVA_CUSTOM_COUNT MATCHES "^${VTK_WRAP_JAVA_CUSTOM_LIMIT}$")
+        SET(VTK_WRAP_JAVA_CUSTOM_NAME ${VTK_WRAP_JAVA_CUSTOM_NAME}Hack)
+        ADD_CUSTOM_TARGET(${VTK_WRAP_JAVA_CUSTOM_NAME} DEPENDS ${VTK_WRAP_JAVA_CUSTOM_LIST})
+        SET(KIT_JAVA_DEPS ${VTK_WRAP_JAVA_CUSTOM_NAME})
+        SET(VTK_WRAP_JAVA_CUSTOM_LIST)
+        SET(VTK_WRAP_JAVA_CUSTOM_COUNT)
       ENDIF()
     ENDIF ()
   ENDFOREACH()
