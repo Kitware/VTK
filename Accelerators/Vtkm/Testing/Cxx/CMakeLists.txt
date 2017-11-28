@@ -1,5 +1,3 @@
-include_directories(${VTKm_INCLUDE_DIRS})
-
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMClip.cxx
@@ -19,6 +17,3 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
   )
-
-# Allow vtkm_cont library to be used from tests
-target_link_libraries(vtkAcceleratorsVTKmCxxTests LINK_PRIVATE ${VTKm_LIBRARIES})

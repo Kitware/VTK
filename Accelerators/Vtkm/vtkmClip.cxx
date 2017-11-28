@@ -30,6 +30,7 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
+#include "vtkmlib/ImplicitFunctionConverter.h"
 #include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/Storage.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
@@ -61,7 +62,8 @@ void vtkmClip::PrintSelf(std::ostream &os, vtkIndent indent)
 vtkmClip::vtkmClip()
   : ClipValue(0.),
     ComputeScalars(true),
-    ClipFunction(nullptr)
+    ClipFunction(nullptr),
+    ClipFunctionConverter(new tovtkm::ImplicitFunctionConverter)
 {
   // Clip active point scalars by default
   this->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS,
@@ -90,7 +92,7 @@ void vtkmClip::SetClipFunction(vtkImplicitFunction *clipFunction)
   if (this->ClipFunction != clipFunction)
   {
     this->ClipFunction = clipFunction;
-    this->ClipFunctionConverter.Set(clipFunction);
+    this->ClipFunctionConverter->Set(clipFunction);
     this->Modified();
   }
 }
@@ -151,7 +153,7 @@ int vtkmClip::RequestData(vtkInformation *,
   vtkmInputFilterPolicy policy;
   if (this->ClipFunction)
   {
-    auto function = this->ClipFunctionConverter.Get();
+    auto function = this->ClipFunctionConverter->Get();
     if (function.GetValid())
     {
       functionFilter.SetImplicitFunction(function);
