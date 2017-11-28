@@ -49,6 +49,8 @@
 #include <list>
 #include <limits>
 #include <functional>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 
@@ -1992,6 +1994,13 @@ void MergeTriFacePolygons(vtkPolyhedron* cell,
   EdgeSet& originalEdges,
   vector<vector<vtkIdType>>& polygons)
 {
+  //// skip merging
+  //for (auto it = triFacePolygonMap.begin(); it != triFacePolygonMap.end(); ++it)
+  //{
+  //  polygons.push_back(it->second);
+  //}
+  //return;
+
   // for each *original* face, find the list of triangulated faces
   // and use these to get the list of polygons on the original face
   int nFaces = cell->GetNumberOfFaces();
@@ -2118,7 +2127,7 @@ void vtkPolyhedron::Clip(double value,
       }
       vtkIdType localId = localIdIt->second;
 
-      double val0 = pointScalars->GetTuple1(v0);
+      double val0 = pointScalars->GetTuple1(localId);
       if (c(val0, value))
       {
         vtkIdType id(-1);
@@ -2181,9 +2190,7 @@ void vtkPolyhedron::Clip(double value,
 
     // this list holds the ids in the polygons list of polyhedral faces that
     // belong to the polyhedron being built.
-    unordered_set<size_t> polyhedralFaceSet;
-    vector<size_t> polyhedralFaces;
-    polyhedralFaces.push_back(0); // we've added the first face, so add the 0 index
+    set<size_t> polyhedralFaceSet;
     polyhedralFaceSet.insert(0);
 
     bool add(true);
@@ -2213,7 +2220,6 @@ void vtkPolyhedron::Clip(double value,
         if (add)
         {
           polyhedralIdSet.insert(nextPolygon.begin(), nextPolygon.end());
-          polyhedralFaces.push_back(i);
           polyhedralFaceSet.insert(i);
           break; // for-loop
         }
@@ -2223,8 +2229,8 @@ void vtkPolyhedron::Clip(double value,
     // next, build the face stream for the polyhedron.
     vtkNew<vtkIdList> polyhedron;
     // first entry: # of faces:
-    polyhedron->InsertNextId(polyhedralFaces.size());
-    for (auto faceIt = polyhedralFaces.begin(); faceIt != polyhedralFaces.end(); ++faceIt)
+    polyhedron->InsertNextId(polyhedralFaceSet.size());
+    for (auto faceIt = polyhedralFaceSet.begin(); faceIt != polyhedralFaceSet.end(); ++faceIt)
     {
       const vector<vtkIdType>& polyFace = polygons[*faceIt];
 
@@ -2241,11 +2247,11 @@ void vtkPolyhedron::Clip(double value,
     // we've added a cell, so add cell data too
     outCd->CopyData(inCd, cellId, newCellId);
 
-    if (polyhedralFaces.size() == polygons.size())
+    if (polyhedralFaceSet.size() == polygons.size())
       break; // we're done here
 
-             // iterate from end to start and remove each polygon used from the list.
-    for (auto rIt = polyhedralFaces.rbegin(); rIt != polyhedralFaces.rend(); ++rIt)
+    // iterate from end to start and remove each polygon used from the list.
+    for (auto rIt = polyhedralFaceSet.rbegin(); rIt != polyhedralFaceSet.rend(); ++rIt)
     {
       polygons.erase(polygons.begin() + *rIt);
     }
