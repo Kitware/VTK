@@ -170,6 +170,7 @@ vtkDistributedDataFilter::vtkDistributedDataFilter()
   this->NumConvexSubRegions = 0;
   this->ConvexSubRegionBounds = nullptr;
 
+  this->MinimumGhostLevel = 0;
   this->GhostLevel = 0;
 
   this->RetainKdtree = 1;
@@ -497,6 +498,7 @@ int vtkDistributedDataFilter::RequestData(
 
   this->GhostLevel = outInfo->Get(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  this->GhostLevel = std::max(this->GhostLevel, this->MinimumGhostLevel);
 
   // get the input and output
   vtkDataSet *inputDS = vtkDataSet::GetData(inputVector[0], 0);
