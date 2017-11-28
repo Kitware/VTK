@@ -2994,8 +2994,8 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead( vtkExodusIICacheKey key 
         for ( i = 0; i < num_qa_rec; ++i )
         {
           for ( j = 0; j < 4 ; ++j )
-          {
-            qa_record[i][j] = (char *) calloc( ( maxNameLength + 1 ), sizeof(char) );
+          { // QA record string length is different than MaxNameLength
+            qa_record[i][j] = (char *) calloc( ( MAX_STR_LENGTH + 1 ), sizeof(char) );
           }
         }
 
