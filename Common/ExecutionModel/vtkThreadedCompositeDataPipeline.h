@@ -58,7 +58,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedCompositeDataPipeline : public v
                            int compositePort,
                            int connection,
                            vtkInformation* request,
-                           vtkCompositeDataSet* compositeOutput) override;
+                           std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput) override;
 
  private:
   vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) = delete;

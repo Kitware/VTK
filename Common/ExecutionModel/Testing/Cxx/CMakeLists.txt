@@ -9,4 +9,10 @@ vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
   TestTrivialConsumer.cxx
   UnitTestSimpleScalarTree.cxx
   )
+
+vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
+  NO_VALID
+  TestMultiOutputSimpleFilter.cxx
+  )
+
 vtk_test_cxx_executable(vtkCommonExecutionModelCxxTests tests)

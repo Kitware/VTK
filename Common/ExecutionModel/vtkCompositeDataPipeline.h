@@ -46,6 +46,9 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include <vtkSmartPointer.h> // smart pointer
+
+#include <vector> // for vector in return type
 
 class vtkCompositeDataSet;
 class vtkCompositeDataIterator;
@@ -145,10 +148,9 @@ protected:
                                 vtkInformationVector** inInfoVec,
                                 vtkInformationVector* outInfoVec) override;
 
-  // Check whether the data object in the pipeline information for an
-  // output port exists and has a valid type.
+  // Check whether the data object in the pipeline information exists
+  // and has a valid type.
   virtual int CheckCompositeData(vtkInformation *request,
-                                 int port,
                                  vtkInformationVector** inInfoVec,
                                  vtkInformationVector* outInfoVec);
 
@@ -168,13 +170,12 @@ protected:
                            int compositePort,
                            int connection,
                            vtkInformation* request,
-                           vtkCompositeDataSet* compositeOutput);
+                           std::vector<vtkSmartPointer<vtkCompositeDataSet>>& compositeOutput);
 
-  vtkDataObject* ExecuteSimpleAlgorithmForBlock(
+  std::vector<vtkDataObject*> ExecuteSimpleAlgorithmForBlock(
     vtkInformationVector** inInfoVec,
     vtkInformationVector* outInfoVec,
     vtkInformation* inInfo,
-    vtkInformation* outInfo,
     vtkInformation* request,
     vtkDataObject* dobj);
 
@@ -200,8 +201,8 @@ protected:
    * vtkUniformGrid given vtkUniformGrid inputs) or if it should be downgraded
    * to a vtkMultiBlockDataSet.
    */
-  vtkCompositeDataSet* CreateOutputCompositeDataSet(
-    vtkCompositeDataSet* input, int compositePort);
+  std::vector<vtkSmartPointer<vtkDataObject>> CreateOutputCompositeDataSet(
+    vtkCompositeDataSet* input, int compositePort, int numOutputPorts);
 
   // Override this to handle UPDATE_COMPOSITE_INDICES().
   void MarkOutputsGenerated(vtkInformation* request,
