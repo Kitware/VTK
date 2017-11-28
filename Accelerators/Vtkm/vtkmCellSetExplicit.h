@@ -19,6 +19,7 @@
 //============================================================================
 #ifndef vtkmCellSetExplicit_h
 #define vtkmCellSetExplicit_h
+#ifndef __VTK_WRAP__
 
 #include "vtkmTags.h"
 
@@ -208,5 +209,6 @@ extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 }
 }
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkmCellSetExplicit.h

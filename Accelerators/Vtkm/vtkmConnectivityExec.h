@@ -19,6 +19,7 @@
 //============================================================================
 #ifndef vtkmConnectivityExec_h
 #define vtkmConnectivityExec_h
+#ifndef __VTK_WRAP__
 
 #include "vtkmTags.h"
 
@@ -207,5 +208,6 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT ReverseConnectivityVTK
 }
 
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkmConnectivityExec.h

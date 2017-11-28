@@ -16,6 +16,7 @@
 
 #ifndef vtkmlib_Storage_h
 #define vtkmlib_Storage_h
+#ifndef __VTK_WRAP__
 
 #include "Portals.h"
 #include "vtkmTags.h"
@@ -375,4 +376,5 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 #endif // defined vtkmlib_Storage_cxx
 
 #include "Storage.hxx"
+#endif
 #endif // vtkmlib_Storage_h

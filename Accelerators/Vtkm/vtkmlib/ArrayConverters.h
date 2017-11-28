@@ -16,6 +16,7 @@
 
 #ifndef vtkmlib_ArrayConverters_h
 #define vtkmlib_ArrayConverters_h
+#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h" //required for correct implementation
 #include "vtkmConfig.h"                //required for general vtkm setup
@@ -81,4 +82,5 @@ inline tovtkm::FieldsFlag operator|(const tovtkm::FieldsFlag &a,
   return static_cast<tovtkm::FieldsFlag>(static_cast<T>(a) | static_cast<T>(b));
 }
 
+#endif
 #endif // vtkmlib_ArrayConverters_h
