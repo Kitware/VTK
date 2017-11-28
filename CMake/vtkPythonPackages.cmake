@@ -84,12 +84,13 @@ function(copy_files_recursive source-dir)
   unset(CMAKE_CONFIGURABLE_FILE_CONTENT)
 
   add_custom_command(OUTPUT ${output-file}
-    COMMAND ${CMAKE_COMMAND} -DOUTDIR="${dest-dir}"
-                             -DSRCDIR="${source-dir}/"
-                             -P "${CMAKE_CURRENT_BINARY_DIR}/${_name}.cfr.cmake"
+    COMMAND ${CMAKE_COMMAND} -DOUTDIR=${dest-dir}
+                             -DSRCDIR=${source-dir}/
+                             -P ${CMAKE_CURRENT_BINARY_DIR}/${_name}.cfr.cmake
     COMMAND ${CMAKE_COMMAND} -E touch ${output-file}
     DEPENDS ${all_files}
             "${CMAKE_CURRENT_BINARY_DIR}/${_name}.cfr.cmake"
             ${extra_depends}
-    COMMENT ${label})
+    COMMENT ${label}
+    VERBATIM)
 endfunction()
