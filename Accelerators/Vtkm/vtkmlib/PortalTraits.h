@@ -142,4 +142,4 @@ struct vtkPortalTraits< const vtkm::Vec< vtkm::Vec<T,N>, M> >
 
 } //namespace vtkmlib
 
-#endif // vtkmlib_Portals_h
+#endif // vtkmlib_PortalsTraits_h
