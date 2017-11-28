@@ -14,6 +14,7 @@
 
 #ifndef vtkLSDynaPart_h
 #define vtkLSDynaPart_h
+#ifndef __VTK_WRAP__
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "vtkObject.h"
@@ -194,4 +195,5 @@ private:
   void operator = ( const vtkLSDynaPart& ) = delete;
 };
 
+#endif
 #endif // VTKLSDYNAPART

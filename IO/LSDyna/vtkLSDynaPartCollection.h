@@ -14,6 +14,7 @@
 
 #ifndef vtkLSDynaPartCollection_h
 #define vtkLSDynaPartCollection_h
+#ifndef __VTK_WRAP__
 
 #include "vtkIOLSDynaModule.h" // For export macro
 #include "LSDynaMetaData.h" //needed for LSDynaMetaData::LSDYNA_TYPES enum
@@ -174,6 +175,5 @@ private:
   LSDynaPartStorage* Storage;
 };
 
-
-
+#endif
 #endif // LSDYNAPARTS_H
