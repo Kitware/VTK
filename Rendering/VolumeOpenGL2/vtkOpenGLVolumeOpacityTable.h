@@ -15,6 +15,7 @@
 
 #ifndef vtkOpenGLVolumeOpacityTable_h
 #define vtkOpenGLVolumeOpacityTable_h
+#ifndef __VTK_WRAP__
 
 #include <vector>
 
@@ -258,15 +259,14 @@ private:
     = delete;
 };
 
-vtkStandardNewMacro(vtkOpenGLVolumeOpacityTable);
-
-
 ////////////////////////////////////////////////////////////////////////////////
-class vtkOpenGLVolumeOpacityTables
+class vtkOpenGLVolumeOpacityTables : public vtkObject
 {
 public:
+  static vtkOpenGLVolumeOpacityTables* New();
+
   //--------------------------------------------------------------------------
-  vtkOpenGLVolumeOpacityTables(unsigned int numberOfTables)
+  void Create(unsigned int numberOfTables)
   {
     this->Tables.reserve(static_cast<size_t>(numberOfTables));
 
@@ -314,16 +314,18 @@ public:
       this->Tables[i]->ReleaseGraphicsResources(window);
     }
   }
+protected:
+  vtkOpenGLVolumeOpacityTables() = default;
 
 private:
   std::vector<vtkOpenGLVolumeOpacityTable*> Tables;
 
-  vtkOpenGLVolumeOpacityTables() = delete;
-
-  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other) = delete;
-
-  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other) = delete;
+  vtkOpenGLVolumeOpacityTables(
+    const vtkOpenGLVolumeOpacityTables &other) = delete;
+  vtkOpenGLVolumeOpacityTables &operator=(
+    const vtkOpenGLVolumeOpacityTables &other) = delete;
 };
 
+#endif
 #endif // vtkOpenGLVolumeOpacityTable_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeOpacityTable.h

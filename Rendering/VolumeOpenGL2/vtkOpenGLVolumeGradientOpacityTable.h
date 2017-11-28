@@ -15,6 +15,7 @@
 
 #ifndef vtkOpenGLVolumeGradientOpacityTable_h
 #define vtkOpenGLVolumeGradientOpacityTable_h
+#ifndef __VTK_WRAP__
 
 #include <vector>
 
@@ -211,15 +212,14 @@ private:
     const vtkOpenGLVolumeGradientOpacityTable&) = delete;
 };
 
-vtkStandardNewMacro(vtkOpenGLVolumeGradientOpacityTable);
-
-
 ////////////////////////////////////////////////////////////////////////////////
-class vtkOpenGLVolumeGradientOpacityTables
+class vtkOpenGLVolumeGradientOpacityTables : public vtkObject
 {
 public:
+  static vtkOpenGLVolumeGradientOpacityTables* New();
+
   //--------------------------------------------------------------------------
-  vtkOpenGLVolumeGradientOpacityTables(unsigned int numberOfTables)
+  void Create(unsigned int numberOfTables)
   {
     this->Tables.reserve(static_cast<size_t>(numberOfTables));
 
@@ -268,15 +268,18 @@ public:
       this->Tables[i]->ReleaseGraphicsResources(window);
     }
   }
+protected:
+  vtkOpenGLVolumeGradientOpacityTables() = default;
+
 private:
   std::vector<vtkOpenGLVolumeGradientOpacityTable*> Tables;
 
-  vtkOpenGLVolumeGradientOpacityTables() = delete;
-
-  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
-
-  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
+  vtkOpenGLVolumeGradientOpacityTables(
+    const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
+  vtkOpenGLVolumeGradientOpacityTables &operator=(
+    const vtkOpenGLVolumeGradientOpacityTables &other) = delete;
 };
 
+#endif
 #endif // vtkOpenGLVolumeGradientOpacityTable_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeGradientOpacityTable.h

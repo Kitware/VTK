@@ -52,7 +52,8 @@ public:
    */
   virtual void SetInputData( vtkImageData * );
   virtual void SetInputData( vtkDataSet * );
-  vtkImageData *GetInput();
+  virtual vtkImageData* GetInput();
+  virtual vtkImageData* GetInput(const int port);
   //@}
 
   //@{

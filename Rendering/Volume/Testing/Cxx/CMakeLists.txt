@@ -55,6 +55,10 @@ set (VolumeCxxTests
   TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMapperSampleDistance.cxx
+  TestGPURayCastMultiVolumeAddRemove.cxx
+  TestGPURayCastMultiVolumeCellData.cxx
+  TestGPURayCastMultiVolumeOverlapping.cxx
+  TestGPURayCastMultiVolumeTransfer2D.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx

@@ -52,19 +52,12 @@
 #include "vtkInformationObjectBaseKey.h"
 
 
+namespace {
 class VolumePickingCommand : public vtkCommand
 {
 public:
 
-  VolumePickingCommand()
-  : Renderer(nullptr)
-  , OutlineFilter(nullptr)
-  {
-  };
-
-  ~VolumePickingCommand() override
-  {
-  };
+  static VolumePickingCommand* New() { return new VolumePickingCommand; };
 
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(eventId),
     void* vtkNotUsed(callData)) override
@@ -131,12 +124,13 @@ public:
 
     result->Delete();
   };
-
   //////////////////////////////////////////////////////////////////////////////
 
   vtkSmartPointer<vtkRenderer> Renderer;
   vtkSmartPointer<vtkOutlineFilter> OutlineFilter;
 };
+}
+
 
 // =============================================================================
 int TestGPURayCastVolumePicking(int argc, char *argv[])
@@ -243,7 +237,7 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
   rwi->SetPicker(areaPicker);
 
   // Add selection observer
-  VolumePickingCommand* vpc = new VolumePickingCommand;
+  vtkNew<VolumePickingCommand> vpc;
   vpc->Renderer = ren;
   vpc->OutlineFilter = outlineFilter;
   rwi->AddObserver(vtkCommand::EndPickEvent, vpc);
@@ -263,7 +257,6 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
 
   areaPicker->Delete();
   rbp->Delete();
-  vpc->Delete();
 
   return !retVal;
 }

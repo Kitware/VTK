@@ -301,6 +301,87 @@ public:
 };
   //@}
 
+// .NAME vtkVector4 - templated base type for storage of 4D vectors.
+//
+template<typename T>
+class vtkVector4 : public vtkVector<T, 4>
+{
+public:
+  vtkVector4()
+  {
+  }
+
+  explicit vtkVector4(const T& scalar) : vtkVector<T, 4>(scalar)
+  {
+  }
+
+  explicit vtkVector4(const T* init) : vtkVector<T, 4>(init)
+  {
+  }
+
+  vtkVector4(const T& x, const T& y, const T& z, const T& w)
+  {
+    this->Data[0] = x;
+    this->Data[1] = y;
+    this->Data[2] = z;
+    this->Data[3] = w;
+  }
+
+  //@{
+  /**
+   * Set the x, y, z and w components of a 3D vector in homogeneous coodinates.
+   */
+  void Set(const T& x, const T& y, const T& z, const T& w)
+  {
+    this->Data[0] = x;
+    this->Data[1] = y;
+    this->Data[2] = z;
+    this->Data[3] = w;
+  }
+  //@}
+
+  /**
+   * Set the x component of the vector, i.e. element 0.
+   */
+  void SetX(const T& x) { this->Data[0] = x; }
+
+  /**
+   * Get the x component of the vector, i.e. element 0.
+   */
+  const T& GetX() const { return this->Data[0]; }
+
+  /**
+   * Set the y component of the vector, i.e. element 1.
+   */
+  void SetY(const T& y) { this->Data[1] = y; }
+
+  /**
+   * Get the y component of the vector, i.e. element 1.
+   */
+  const T& GetY() const { return this->Data[1]; }
+
+  /**
+   * Set the z component of the vector, i.e. element 2.
+   */
+  void SetZ(const T& z) { this->Data[2] = z; }
+
+  /**
+   * Get the z component of the vector, i.e. element 2.
+   */
+  const T& GetZ() const { return this->Data[2]; }
+
+  /**
+   * Set the w component of the vector, i.e. element 3.
+   */
+  void SetW(const T& w) { this->Data[3] = w; }
+
+  /**
+   * Get the w component of the vector, i.e. element 3.
+   */
+  const T& GetW() const { return this->Data[3]; }
+};
+  //@}
+
 /**
  * Some inline functions for the derived types.
  */
@@ -383,6 +464,16 @@ public:
   vtkVector3d(double x, double y, double z) : vtkVector3<double>(x, y, z) {}
   vtkVectorDerivedMacro(vtkVector3d, double, 3)
   vtkVector3Cross(vtkVector3d, double)
+};
+
+class vtkVector4d : public vtkVector4<double>
+{
+public:
+  using Superclass = vtkVector4<double>;
+  vtkVector4d() {}
+  vtkVector4d(double x, double y, double z, double w) :
+    vtkVector4<double>(x, y, z, w) {};
+  vtkVectorDerivedMacro(vtkVector4d, double, 4)
 };
 
 #endif // vtkVector_h

@@ -7,6 +7,11 @@ set(Module_SRCS
   vtkOpenGLRayCastImageDisplayHelper.cxx
   vtkSmartVolumeMapper.cxx
   vtkVolumeTexture.cxx
+  vtkVolumeInputHelper.cxx
+  vtkOpenGLVolumeRGBTable.cxx
+  vtkOpenGLVolumeOpacityTable.cxx
+  vtkOpenGLVolumeGradientOpacityTable.cxx
+  vtkOpenGLTransferFunction2D.cxx
   )
 
 set(shader_files

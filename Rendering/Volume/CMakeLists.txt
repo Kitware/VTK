@@ -12,6 +12,7 @@ set(Module_SRCS
   vtkFixedPointVolumeRayCastMIPHelper.cxx
   vtkFixedPointVolumeRayCastMapper.cxx
   vtkGPUVolumeRayCastMapper.cxx
+  vtkMultiVolume.cxx
   vtkOSPRayVolumeInterface.cxx
   vtkProjectedTetrahedraMapper.cxx
   vtkRayCastImageDisplayHelper.cxx

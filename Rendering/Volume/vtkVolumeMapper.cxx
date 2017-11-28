@@ -101,6 +101,17 @@ vtkImageData *vtkVolumeMapper::GetInput()
     this->GetExecutive()->GetInputData(0, 0));
 }
 
+vtkImageData* vtkVolumeMapper::GetInput(const int port)
+{
+  if (this->GetNumberOfInputConnections(0) < 1)
+  {
+    return nullptr;
+  }
+
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(port, 0));
+}
+
 
 // Print the vtkVolumeMapper
 void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)

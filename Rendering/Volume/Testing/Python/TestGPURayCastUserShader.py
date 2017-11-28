@@ -107,7 +107,7 @@ mapper.AddShaderReplacement(
     "\n  else"
     "\n    {"
     "\n    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *"
-    "\n                      in_volumeMatrix * in_textureDatasetMatrix *"
+    "\n                      in_volumeMatrix[0] * in_textureDatasetMatrix[0] *"
     "\n                      vec4(l_opaqueFragPos, 1.0);"
     "\n    depthValue /= depthValue.w;"
     "\n    fragOutput0 = vec4(vec3(0.5 * (gl_DepthRange.far -"
