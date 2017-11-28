@@ -124,7 +124,6 @@ bool vtkOSPRayMaterialLibrary::InternalParse
     return false;
   }
 
-  //todo: this reader is a lot more fragile then I'ld like, need to make it robust
   std::istream *doc;
   if (fromfile)
   {
@@ -132,7 +131,18 @@ bool vtkOSPRayMaterialLibrary::InternalParse
   } else {
     doc = new std::istringstream(filename);
   }
+  if (std::string(filename).rfind(".mtl") != std::string::npos)
+    {
+    return this->InternalParseMTL(filename, fromfile, doc);
+    }
+  return this->InternalParseJSON(filename, fromfile, doc);
+}
 
+// ----------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::InternalParseJSON
+  (const char *filename, bool fromfile, std::istream *doc)
+{
+  //todo: this reader is a lot more fragile then I'ld like, need to make it robust
   Json::Value root;
   *doc >> root;
   delete doc;
@@ -241,6 +251,198 @@ bool vtkOSPRayMaterialLibrary::InternalParse
         }
         this->AddShaderVariable(nickname, vname, nexttext.size(), vals);
         delete[] vals;
+      }
+    }
+  }
+
+  return true;
+}
+
+namespace {
+  static std::string trim(std::string s)
+  {
+    size_t start = 0;
+    while ((start < s.length()) && (isspace(s[start])))
+    {
+      start++;
+    }
+    size_t end = s.length();
+    while ((end > start) && (isspace(s[end-1])))
+    {
+      end--;
+    }
+    return s.substr(start, end-start);
+  }
+}
+
+// ----------------------------------------------------------------------------
+bool vtkOSPRayMaterialLibrary::InternalParseMTL
+  (const char *filename, bool fromfile, std::istream *doc)
+{
+  std::string str;
+  std::string nickname = "";
+  std::string implname = "OBJMaterial";
+
+  const std::vector<std::string> singles
+    {"d ", "Ks ", "alpha ", "roughness ", "eta ", "thickness "};
+  const std::vector<std::string> triples
+    {"Ka ", "color ", "Kd ", "Ks "};
+  const std::vector<std::string> textures
+    {"map_d ",
+     "map_Kd ", "map_kd ", "colorMap ",
+     "map_Ks ", "map_ks ",
+     "map_Ns ", "map_ns ", "map_Bump", "map_bump", "normalMap", "bumpMap"};
+
+  while(getline(*doc, str))
+  {
+    std::string tstr = trim(str);
+    std::string key;
+
+    //a new material
+    key = "newmtl ";
+    if (tstr.find(key) == 0)
+    {
+      nickname = trim(tstr.substr(key.size()));
+      this->Internal->NickNames.insert(nickname);
+      this->Internal->ImplNames[nickname] = "OBJMaterial";
+    }
+
+    //ospray type of the material, if not obj
+    key = "type ";
+    if (tstr.find(key) == 0)
+    {
+      //this non standard entry is a quick way to break out of
+      //objmaterial and use one of the ospray specific materials
+      implname = trim(tstr.substr(key.size()));
+      if (implname == "matte")
+      {
+        implname = "OBJMaterial";
+      }
+      if (implname == "glass")
+      {
+        implname = "ThinGlass";
+      }
+      if (implname == "metal")
+      {
+        implname = "Metal";
+      }
+      if (implname == "glass")
+      {
+        implname = "ThinGlass";
+      }
+      if (implname == "metallicPaint")
+      {
+        implname = "MetallicPaint";
+      }
+      this->Internal->ImplNames[nickname] = implname;
+    }
+
+    //grab all the single valued settings we see
+    std::vector<std::string>::const_iterator sit1 = singles.begin();
+    while (sit1 != singles.end())
+    {
+      std::string key = *sit1;
+      sit1++;
+      if (tstr.find(key) == 0)
+      {
+        std::string v = tstr.substr(key.size());
+        double dv;
+        bool OK = false;
+        try
+        {
+          dv = std::stod(v);
+          OK = true;
+        }
+        catch (const std::invalid_argument&) {}
+        catch (const std::out_of_range&) {}
+        if (OK)
+        {
+          double vals[1] = {dv};
+          this->AddShaderVariable(nickname, key.substr(0,key.size()-1).c_str(), 1, vals);
+        }
+      }
+    }
+
+    //grab all the triple valued settings we see
+    std::vector<std::string>::const_iterator sit3 = triples.begin();
+    while (sit3 != triples.end())
+    {
+      std::string key = *sit3;
+      sit3++;
+      if (tstr.find(key) == 0)
+      {
+        std::string vs = tstr.substr(key.size());
+        size_t loc1 = vs.find(" ");
+        size_t loc2 = vs.find(" ", loc1);
+        std::string v1 = vs.substr(0,loc1);
+        std::string v2 = vs.substr(loc1+1,loc2);
+        std::string v3 = vs.substr(loc2+1);
+        double d1, d2, d3;
+        bool OK = false;
+        try
+        {
+          d1 = std::stod(v1);
+          d2 = std::stod(v1);
+          d3 = std::stod(v1);
+          OK = true;
+        }
+        catch (const std::invalid_argument&) {}
+        catch (const std::out_of_range&) {}
+        if (OK)
+        {
+          double vals[3] = {d1, d2, d3};
+          this->AddShaderVariable(nickname, key.substr(0,key.size()-1).c_str(), 3, vals);
+        }
+      }
+    }
+
+    //grab all the textures we see
+    std::vector<std::string>::const_iterator tit = textures.begin();
+    while (tit != textures.end())
+    {
+      std::string key = *tit;
+      tit++;
+
+      std::string tfname = "";
+      if (tstr.find(key) == 0)
+      {
+        tfname = trim(tstr.substr(key.size()));
+      }
+      if (tfname != "")
+      {
+        vtkSmartPointer<vtkTexture> textr = vtkSmartPointer<vtkTexture>::New();
+        vtkSmartPointer<vtkJPEGReader> jpgReader = vtkSmartPointer<vtkJPEGReader>::New();
+        vtkSmartPointer<vtkPNGReader> pngReader = vtkSmartPointer<vtkPNGReader>::New();
+        if (fromfile)
+        {
+          std::string parentDir
+            = vtksys::SystemTools::GetParentDirectory(filename);
+          std::string tfullname = parentDir + "/" + tfname;
+          if (!vtksys::SystemTools::FileExists(tfullname.c_str(), true))
+          {
+            cerr << "No such texture file " << tfullname << " skipping" << endl;
+            continue;
+          }
+          if (tfullname.substr( tfullname.length() - 3 ) == "png")
+          {
+            pngReader->SetFileName(tfullname.c_str());
+            pngReader->Update();
+            textr->SetInputConnection(pngReader->GetOutputPort(0));
+          } else {
+            jpgReader->SetFileName(tfullname.c_str());
+            jpgReader->Update();
+            textr->SetInputConnection(jpgReader->GetOutputPort(0));
+          }
+        } else {
+          vtkSmartPointer<vtkXMLImageDataReader> reader =
+            vtkSmartPointer<vtkXMLImageDataReader>::New();
+          reader->ReadFromInputStringOn();
+          reader->SetInputString(tfname);
+          textr->SetInputConnection(reader->GetOutputPort(0));
+        }
+        textr->Update();
+
+        this->AddTexture(nickname, key.substr(0,key.size()-1).c_str(), textr);
       }
     }
   }

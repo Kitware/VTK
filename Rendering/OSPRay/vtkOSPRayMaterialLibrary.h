@@ -110,6 +110,8 @@ protected:
   virtual ~vtkOSPRayMaterialLibrary();
 
   bool InternalParse(const char *name, bool IsFile);
+  bool InternalParseJSON(const char *name, bool IsFile, std::istream *doc);
+  bool InternalParseMTL(const char *name, bool IsFile, std::istream *doc);
 
 private:
   vtkOSPRayMaterialLibrary(const vtkOSPRayMaterialLibrary&) = delete;
