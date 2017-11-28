@@ -19,6 +19,7 @@
 #include "vtkParseMain.h"
 #include "vtkParseMerge.h"
 #include "vtkParseString.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -102,29 +103,6 @@ int vtkWrap_IsPythonObject(ValueInfo *val)
   return (t == VTK_PARSE_UNKNOWN &&
           strncmp(val->Class, "Py", 2) == 0);
 }
-
-int vtkWrap_IsQtObject(ValueInfo *val)
-{
-  unsigned int t = (val->Type & VTK_PARSE_BASE_TYPE);
-  if (t == VTK_PARSE_QOBJECT &&
-      val->Class[0] == 'Q' && isupper(val->Class[1]))
-  {
-    return 1;
-  }
-  return 0;
-}
-
-int vtkWrap_IsQtEnum(ValueInfo *val)
-{
-  unsigned int t = (val->Type & VTK_PARSE_UNQUALIFIED_TYPE);
-  if ((t == VTK_PARSE_QOBJECT || t == VTK_PARSE_QOBJECT_REF) &&
-      val->Class[0] == 'Q' && strncmp("Qt::", val->Class, 4) == 0)
-  {
-    return 1;
-  }
-  return 0;
-}
-
 
 /* -------------------------------------------------------------------- */
 /* The base types, all are mutually exclusive. */
@@ -1082,8 +1060,7 @@ void vtkWrap_DeclareVariable(
         (!val->IsEnum &&
          (aType == VTK_PARSE_OBJECT_PTR ||
           aType == VTK_PARSE_OBJECT_REF ||
-          aType == VTK_PARSE_OBJECT ||
-          vtkWrap_IsQtObject(val))))
+          aType == VTK_PARSE_OBJECT)))
     {
       fprintf(fp, "*");
     }
@@ -1113,7 +1090,6 @@ void vtkWrap_DeclareVariable(
         aType != VTK_PARSE_CHAR_PTR &&
         aType != VTK_PARSE_VOID_PTR &&
         aType != VTK_PARSE_OBJECT_PTR &&
-        !vtkWrap_IsQtObject(val) &&
         val->CountHint == NULL &&
         !vtkWrap_IsPODPointer(val) &&
         !(vtkWrap_IsArray(val) && val->Value))
@@ -1141,8 +1117,7 @@ void vtkWrap_DeclareVariable(
              (!val->IsEnum &&
               (aType == VTK_PARSE_OBJECT_PTR ||
                aType == VTK_PARSE_OBJECT_REF ||
-               aType == VTK_PARSE_OBJECT ||
-               vtkWrap_IsQtObject(val))))
+               aType == VTK_PARSE_OBJECT)))
     {
       fprintf(fp, " = nullptr");
     }

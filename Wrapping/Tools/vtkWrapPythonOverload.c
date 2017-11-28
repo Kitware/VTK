@@ -265,11 +265,6 @@ static char *vtkWrapPython_ArgCheckString(
       c = 'W';
       vtkWrapText_PythonName(arg->Class, classname);
     }
-    else if (vtkWrap_IsQtEnum(arg) || vtkWrap_IsQtObject(arg))
-    {
-      c = 'Q';
-      vtkWrapText_PythonName(arg->Class, classname);
-    }
     else if (vtkWrap_IsFunction(arg))
     {
       c = 'F';

@@ -533,8 +533,6 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkWrapperInit.data.in
                 CMake/vtkWrapping.cmake
                 CMake/vtkWrapPython.cmake
-                CMake/vtkWrapPythonSIP.cmake
-                CMake/vtkWrapPython.sip.in
                 CMake/vtkWrapTcl.cmake
 
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR})

@@ -962,48 +962,6 @@ int vtkPythonArgs::GetArgAsEnum(
 
 
 //--------------------------------------------------------------------
-// Define the methods for SIP objects
-
-void *vtkPythonArgs::GetArgAsSIPObject(const char *classname, bool &valid)
-{
-  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-  void *r = vtkPythonArgs::GetArgAsSIPObject(o, classname, valid);
-  if (!valid)
-  {
-    this->RefineArgTypeError(this->I - this->M - 1);
-  }
-  return r;
-}
-
-void *vtkPythonArgs::GetArgAsSIPObject(
-  PyObject *o, const char *classname, bool &valid)
-{
-  void *r = vtkPythonUtil::SIPGetPointerFromObject(o, classname);
-  valid = (r || !PyErr_Occurred());
-  return (valid ? r : nullptr);
-}
-
-int vtkPythonArgs::GetArgAsSIPEnum(const char *classname, bool &valid)
-{
-  PyObject *o = PyTuple_GET_ITEM(this->Args, this->I++);
-  int i = vtkPythonArgs::GetArgAsSIPEnum(o, classname, valid);
-  if (!valid)
-  {
-    this->RefineArgTypeError(this->I - this->M - 1);
-  }
-  return i;
-}
-
-int vtkPythonArgs::GetArgAsSIPEnum(
-  PyObject *o, const char *classname, bool &valid)
-{
-  int i = 0;
-  valid = (vtkPythonUtil::SIPGetPointerFromObject(o, classname) &&
-           vtkPythonGetValue(o, i));
-  return (valid ? i : 0);
-}
-
-//--------------------------------------------------------------------
 // Define all the "GetValue" methods in the class.
 
 #define VTK_PYTHON_GET_ARG(T) \
