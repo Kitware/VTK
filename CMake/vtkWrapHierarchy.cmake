@@ -55,7 +55,6 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
   foreach(FILE ${SOURCES})
 
     # file properties to include in the hierarchy file
-    get_property(TMP_WRAP_EXCLUDE SOURCE ${FILE} PROPERTY WRAP_EXCLUDE)
     get_source_file_property(TMP_EXCLUDE_PYTHON ${FILE} WRAP_EXCLUDE_PYTHON)
 
     # what is the filename without the extension
@@ -78,7 +77,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     endif()
 
     # ensure that header exists (assume it exists if it is marked as wrapped)
-    if(TMP_WRAP_EXCLUDE)
+    if(TMP_EXCLUDE_PYTHON)
       if(NOT EXISTS ${TMP_INPUT})
         set(TMP_EXCLUDE_FROM_HIERARCHY ON)
       endif()
@@ -96,10 +95,6 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
       # add the info to the init file
       set(VTK_WRAPPER_INIT_DATA
         "${VTK_WRAPPER_INIT_DATA}${TMP_INPUT};${module_name}")
-
-      if(TMP_WRAP_EXCLUDE)
-        set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_EXCLUDE")
-      endif()
 
       if(TMP_EXCLUDE_PYTHON)
         set(VTK_WRAPPER_INIT_DATA "${VTK_WRAPPER_INIT_DATA};WRAP_EXCLUDE_PYTHON")

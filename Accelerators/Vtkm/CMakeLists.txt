@@ -121,7 +121,6 @@ set_source_files_properties(
   vtkmlib/ImplicitFunctionConverter
   PROPERTIES
     SKIP_HEADER_INSTALL 1
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 
@@ -135,7 +134,6 @@ set_source_files_properties(
   vtkmCellSetSingleType
   vtkmConnectivityExec
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

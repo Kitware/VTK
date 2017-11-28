@@ -352,7 +352,6 @@ if(WIN32)
     vtkWin32OutputWindowProcessEncoded.c
     vtkWin32ProcessOutputWindow.cxx
     )
-  set_property(SOURCE vtkWin32OutputWindowProcessEncoded.c PROPERTY WRAP_EXCLUDE 1)
 endif()
 
 if(ANDROID)
@@ -538,95 +537,6 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h
   )
 
-set_source_files_properties(
-  vtkAOSDataArrayTemplate.h
-  vtkAOSDataArrayTemplate.txx
-  vtkArrayCoordinates.cxx
-  vtkArrayExtents.cxx
-  vtkArrayExtentsList.cxx
-  vtkArrayIteratorTemplate.txx
-  vtkArrayIteratorTemplateInstantiate.cxx
-  vtkArrayRange.cxx
-  vtkArraySort.cxx
-  vtkArrayWeights.cxx
-  vtkBuffer.h
-  vtkBoundingBox.cxx
-  vtkBreakPoint.cxx
-  vtkCallbackCommand.cxx
-  vtkCommonInformationKeyManager.cxx
-  vtkDebugLeaksManager.cxx
-  vtkEventForwarderCommand.cxx
-  vtkFloatingPointExceptions
-  vtkGarbageCollectorManager.cxx
-  vtkIndent.cxx
-  vtkLargeInteger.cxx
-  vtkMersenneTwister_Private.cxx
-  vtkOStrStreamWrapper.cxx
-  vtkOStreamWrapper.cxx
-  vtkOldStyleCallbackCommand.cxx
-  vtkSimpleCriticalSection.cxx
-  vtkSmartPointerBase.cxx
-  vtkSOADataArrayTemplate.txx
-  vtkSOADataArrayTemplateInstantiate.cxx # Has no API
-  vtkStdString.cxx
-  vtkTimeStamp.cxx
-  vtkVariant.cxx
-  vtkWeakPointerBase.cxx
-  vtkUnicodeString.cxx
-  vtkDataArrayPrivate.txx
-
-  vtkABI.h
-  vtkAngularPeriodicDataArray.txx
-  vtkArrayInterpolate.h
-  vtkArrayInterpolate.txx
-  vtkArrayIteratorIncludes.h
-  vtkArrayIteratorTemplate.h
-  vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayPrint.h
-  vtkArrayPrint.txx
-  vtkAtomicTypeConcepts.h
-  vtkAtomicTypes.h
-  vtkAutoInit.h
-  vtkDenseArray.txx
-  vtkGenericDataArray.txx
-  vtkGenericDataArrayHelpers.h
-  vtkInformationInternals.h
-  vtkIOStream.h
-  vtkIOStreamFwd.h
-  vtkIOStreamFwd.h
-  vtkMathUtilities.h
-  vtkMappedDataArray.txx
-  vtkNew.h
-  vtkPeriodicDataArray.txx
-  vtkSetGet.h
-  vtkSmartPointer.h
-  vtkSparseArray.txx
-  vtkTemplateAliasMacro.h
-  vtkTypeTraits.h
-  vtkTypedArray.txx
-  vtkTypedDataArray.txx
-  vtkVariantCast.h
-  vtkVariantCreate.h
-  vtkVariantExtract.h
-  vtkVariantInlineOperators.h
-  vtkWeakPointer.h
-  vtkWin32Header.h
-  vtkWindows.h
-  vtkToolkits.h
-  vtkSystemIncludes.h
-  vtkType.h
-  vtkConfigure.h
-  vtkMathConfigure.h
-  vtkVersionMacros.h
-  vtkWrappingHints.h
-  ${VTK_SMP_SOURCES}
-  ${VTK_SMP_HEADERS}
-  "${VTK_TYPELISTMACROS_HEADER}"
-
-  WRAP_EXCLUDE
-  )
-
-# python uses WRAP_EXCLUDE_PYTHON and ignores WRAP_EXCLUDE
 set_source_files_properties(
   vtkABI.h
   vtkAOSDataArrayTemplate.txx

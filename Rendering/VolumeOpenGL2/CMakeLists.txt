@@ -10,14 +10,8 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkVolumeShader
-  WRAP_EXCLUDE
-  )
-
-set_source_files_properties(
   vtkVolumeTexture
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 
@@ -41,7 +35,6 @@ foreach(file ${shader_files})
     ${header}
     ${source}
     PROPERTIES
-      WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1
     )
 endforeach()
@@ -63,7 +56,6 @@ list(APPEND Module_SRCS
 set_source_files_properties(
   ${vtk-module}ObjectFactory.cxx
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

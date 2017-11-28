@@ -24,13 +24,4 @@ set(module_SRCS
   vtkTooltipItem.cxx
   )
 
-set_source_files_properties(
-  vtkContextDevice2D
-  vtkContextDevice3D
-  vtkContext3D
-  vtkContextKeyEvent
-  vtkContextMouseEvent
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkRenderingContext2D ${module_SRCS})

@@ -154,15 +154,6 @@ set(${vtk-module}_HDRS
   vtkTDxMotionEventInfo.h
   )
 
-set_source_files_properties(
-  vtkAbstractInteractionDevice
-  vtkAbstractRenderDevice
-  vtkCIEDE2000
-  vtkRenderState
-  vtkRenderWidget
-  WRAP_EXCLUDE
-  )
-
 # On OS X, vtkRenderWindowJava must be compiled with Objective C++
 if(APPLE)
   set_source_files_properties(

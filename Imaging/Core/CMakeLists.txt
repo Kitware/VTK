@@ -46,16 +46,9 @@ set(Module_SRCS
   )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkImagePointIterator
-  vtkImagePointDataIterator
-  WRAP_EXCLUDE
-)
-
-SET_SOURCE_FILES_PROPERTIES(
   vtkImageStencilIterator
   vtkImageBSplineInternals
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
 )
 

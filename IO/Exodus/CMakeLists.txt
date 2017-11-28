@@ -12,15 +12,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkCPExodusIINodalCoordinatesTemplate
-  vtkCPExodusIIResultsArrayTemplate
-  vtkExodusIIReaderParser
-  vtkExodusIIReaderVariableCheck
-  PROPERTIES
-    WRAP_EXCLUDE 1
-  )
-
-set_source_files_properties(
   vtkExodusIIReaderVariableCheck
   PROPERTIES
     WRAP_EXCLUDE_PYTHON 1

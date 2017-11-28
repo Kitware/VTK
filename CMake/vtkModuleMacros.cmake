@@ -384,15 +384,9 @@ function(vtk_module_export sources)
         get_filename_component(_filename "${hdr}" NAME)
         string(REGEX REPLACE "\\.h$" "" _cls "${_filename}")
 
-        get_source_file_property(_wrap_exclude ${src} WRAP_EXCLUDE)
         get_source_file_property(_wrap_exclude_python ${src} WRAP_EXCLUDE_PYTHON)
 
         list(APPEND vtk-module-HEADERS ${_cls})
-
-        if(_wrap_exclude)
-          set(vtk-module-WRAP_EXCLUDE
-            "${vtk-module-WRAP_EXCLUDE}set(${vtk-module}_HEADER_${_cls}_WRAP_EXCLUDE 1)\n")
-        endif()
 
         if(_wrap_exclude_python)
           set(vtk-module-WRAP_EXCLUDE_PYTHON

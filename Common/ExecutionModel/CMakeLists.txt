@@ -70,12 +70,4 @@ if (NOT VTK_LEGACY_REMOVE)
   )
 endif()
 
-set_source_files_properties(
-  vtkExecutionSchedulerManager
-  vtkFilteringInformationKeyManager
-  vtkImageProgressIterator
-  vtkSMPProgressObserver
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkCommonExecutionModel ${Module_SRCS})

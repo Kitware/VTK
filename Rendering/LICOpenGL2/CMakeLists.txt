@@ -19,7 +19,6 @@ set_source_files_properties(
   vtkSurfaceLICComposite.cxx
   vtkTextureIO.cxx
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 
@@ -57,7 +56,6 @@ foreach(file ${shader_files})
     ${header}
     ${source}
     PROPERTIES
-      WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1
     )
 endforeach()

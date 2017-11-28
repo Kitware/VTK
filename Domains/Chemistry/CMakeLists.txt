@@ -19,14 +19,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkBlueObeliskData.cxx
-  vtkBlueObeliskDataInternal.h
-  vtkBlueObeliskDataParser.cxx
-  PROPERTIES
-    WRAP_EXCLUDE 1
-  )
-
-set_source_files_properties(
   vtkBlueObeliskDataInternal.h
   PROPERTIES
     WRAP_EXCLUDE_PYTHON 1

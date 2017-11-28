@@ -29,7 +29,6 @@ set_source_files_properties(
   ${vtk-module}ObjectFactory.cxx
   vtkOSPRayMaterialHelpers.cxx
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

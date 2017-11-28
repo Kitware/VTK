@@ -17,7 +17,6 @@ set_source_files_properties(
   vtkOculusRenderWindow
   vtkOculusRenderWindowInteractor
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
 )
 

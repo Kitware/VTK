@@ -236,41 +236,8 @@ set(${vtk-module}_HDRS
   )
 
 set_source_files_properties(
-  vtkAMRBox
-  vtkArrayListTemplate.txx
-  vtkAtom
-  vtkBond
-  vtkBoundingBox
-  vtkCellType
-  vtkDataArrayDispatcher
-  vtkDispatcher_Private
-  vtkDispatcher
-  vtkDoubleDispatcher
-  vtkMappedUnstructuredGrid.txx
-  vtkMappedUnstructuredGridCellIterator.txx
-  vtkMarchingSquaresLineCases
-  vtkMarchingCubesTriangleCases
-  vtkImageIterator
-  vtkImageProgressIterator
-  vtkPixelExtent.cxx
-  vtkPixelTransfer.cxx
-  vtkStaticCellLinksTemplate.txx
-  vtkVector
-  vtkColor
-  vtkRect
-  vtkVectorOperators
-  vtkAMRDataInternals
-  WRAP_EXCLUDE
-  )
-
-set_source_files_properties(
   vtkDispatcher_Private
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
-)
-
-set_source_files_properties(
-  vtkLagrangeInterpolation.cxx
-  PROPERTIES WRAP_EXCLUDE 1
 )
 
 vtk_module_library(vtkCommonDataModel ${Module_SRCS})

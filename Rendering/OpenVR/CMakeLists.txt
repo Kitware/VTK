@@ -47,7 +47,6 @@ set_source_files_properties(
   vtkOpenVRRenderWindow
   vtkOpenVRRenderWindowInteractor
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
 )
 

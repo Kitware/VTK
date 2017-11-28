@@ -14,15 +14,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkMPIPixelTT.cxx
   vtkPPixelTransfer.cxx
-  vtkPLineIntegralConvolution2D.cxx
-  vtkPPainterCommunicator.cxx
-  vtkPSurfaceLICComposite.cxx
-  WRAP_EXCLUDE
-  )
-
-set_source_files_properties(
-  vtkMPIPixelTT.cxx
-  vtkPPixelTransfer.cxx
   vtkPSurfaceLICComposite.cxx
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
   )
@@ -64,7 +55,6 @@ foreach(file ${shader_files})
     ${header}
     ${source}
     PROPERTIES
-      WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1
     )
 endforeach()

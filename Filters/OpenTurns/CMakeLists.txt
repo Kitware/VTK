@@ -12,8 +12,6 @@ set(Module_SRCS
     ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
     vtkOTUtilities.cxx)
 
-set_source_files_properties(vtkOTUtilities WRAP_EXCLUDE)
-
 include(vtkObjectFactory)
 vtk_add_override(vtkScatterPlotMatrix vtkOTScatterPlotMatrix)
 vtk_object_factory_configure("${vtk_module_overrides}")

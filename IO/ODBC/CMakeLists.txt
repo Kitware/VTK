@@ -9,7 +9,6 @@ set(ODBC_SRCS
 set_source_files_properties(
   vtkIOODBC_AutoInit
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

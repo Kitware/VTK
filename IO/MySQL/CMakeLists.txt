@@ -11,7 +11,6 @@ set(MySQL_SRCS
 set_source_files_properties(
   vtkIOMySQL_AutoInit
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

@@ -103,27 +103,6 @@ set(${vtk-module}_HDRS
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkOpenGLFramebufferObject
-  vtkOpenGLBufferObject
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLGlyph3DHelper
-  vtkOpenGLGlyph3DMapper
-  vtkOpenGLHelper
-  vtkOpenGLIndexBufferObject
-  vtkOpenGLRenderTimer
-  vtkOpenGLShaderCache
-  vtkOpenGLVertexArrayObject
-  vtkOpenGLVertexBufferObject
-  vtkOpenGLVertexBufferObjectCache
-  vtkPixelBufferObject
-  vtkRenderbuffer
-  vtkTextureObject
-  vtkTextureUnitManager
-  vtkTransformFeedback
-  WRAP_EXCLUDE)
-
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
@@ -170,7 +149,6 @@ foreach(file ${shader_files})
     ${header}
     ${source}
     PROPERTIES
-      WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1
     )
 endforeach()
@@ -273,7 +251,6 @@ elseif(VTK_USE_COCOA)
   set_source_files_properties(
     vtkCocoaGLView
     PROPERTIES
-      WRAP_EXCLUDE 1
       WRAP_EXCLUDE_PYTHON 1
     )
 elseif(ANDROID)

@@ -26,11 +26,6 @@ set(Module_SRCS
   )
 
 set_source_files_properties(
-  vtkFreeTypeTools
-  WRAP_EXCLUDE
-)
-
-set_source_files_properties(
   fonts/face_arial_bold
   fonts/face_arial_bold_italic
   fonts/face_arial
@@ -45,7 +40,6 @@ set_source_files_properties(
   fonts/face_times_italic
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

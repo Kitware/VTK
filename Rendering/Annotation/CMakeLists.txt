@@ -32,7 +32,6 @@ set_source_files_properties(
   vtkScalarBarActorInternal.h
   PROPERTIES
     HEADER_FILE_ONLY 1
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

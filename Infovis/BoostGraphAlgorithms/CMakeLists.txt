@@ -22,7 +22,6 @@ set(Module_SRCS
 set_source_files_properties(
   vtkBoostGraphAdapter
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

@@ -13,7 +13,6 @@ set (${vtk-module}_HDRS
 set_source_files_properties(
   vtkOBJImporterInternals
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 

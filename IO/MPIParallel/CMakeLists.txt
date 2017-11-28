@@ -24,7 +24,6 @@ list(APPEND Module_SRCS
 set_source_files_properties(
   ${vtk-module}ObjectFactory
   PROPERTIES
-    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
   )
 vtk_module_library(${vtk-module} ${Module_SRCS})

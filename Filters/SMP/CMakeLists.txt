@@ -4,11 +4,6 @@ set(Module_SRCS
   vtkSMPMergePolyDataHelper.cxx
   )
 
-set_source_files_properties(
-  vtkSMPMergePolyDataHelper
-  WRAP_EXCLUDE
-  )
-
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND Module_SRCS
     vtkSMPContourGridManyPieces.cxx
