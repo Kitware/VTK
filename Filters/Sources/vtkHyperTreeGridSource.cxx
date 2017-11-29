@@ -686,7 +686,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
     switch ( c )
     {
       case ' ':
-        // Space is allowed as separator, verify mask consistenty if needed
+        // Space is allowed as separator, verify mask consistency if needed
         if ( this->UseMaterialMask && m != ' ' )
         {
           vtkErrorMacro(<<"Space separators do not match between "
@@ -696,7 +696,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
         break; // case ' '
 
       case '|':
-        //  A level is complete, verify mask consistenty if needed
+        //  A level is complete, verify mask consistency if needed
         if ( this->UseMaterialMask && m != '|' )
         {
           vtkErrorMacro(<<"Level separators do not match between "
@@ -753,7 +753,7 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
 
       case '1':
       case 'R':
-        //  Refined cell, verify mask consistenty if needed
+        //  Refined cell, verify mask consistency if needed
         if ( this->UseMaterialMask && m == '0' )
         {
           vtkErrorMacro(<<"A refined branch must contain material.");

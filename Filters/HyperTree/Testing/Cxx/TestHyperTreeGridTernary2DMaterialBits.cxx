@@ -14,7 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay and Joachim Pouderoux, Kitware 2013
-// This test was revised by Philippe Pebay, 2016
+// This test was revised by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGridGeometry.h"
@@ -48,7 +48,7 @@ int TestHyperTreeGridTernary2DMaterialBits( int argc, char* argv[] )
   htGrid->SetDimension( 2 );
   htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetBranchFactor( 3 );
-  const std::string descriptor = "_RRRR.|" // Level 0 refinement
+  const std::string descriptor = "RRRR.|" // Level 0 refinement
     "..R...... RRRRRRRRR R........ R........|..R...... ........R ......RRR ......RRR ..R..R..R RRRRRRRRR R..R..R.. ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........R ..R..R..R ......... ......RRR ......R.. ......... RRRRRRRRR R..R..R.. ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ......... RRRRRRRRR ......... ......... ......... ......... ......... ......... ......... ......... ......... .........|......... ......... ......... ......... ......... ......... ......... ......... ........." ;
   const std::string materialMask = // Level 0 materials are not needed, visible cells are described with LevelZeroMaterialIndex
     "111111111 111111111 111111111 111111111|111111111 000000001 000000111 011011111 001001001 111111111 100100100 001001001 111111111 111111111 111111111 001111111|111111111 001001001 111111111 111111111 111111111 111111111 111111111 111111111 001001111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111|111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111 111111111";
