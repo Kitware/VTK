@@ -57,9 +57,9 @@ public:
    * Specify whether the point search should be based on cell points or
    * directly on the point list.
    */
-  vtkSetMacro(UseCells, int);
-  vtkGetMacro(UseCells, int);
-  vtkBooleanMacro(UseCells, int);
+  vtkSetMacro(UseCells, vtkTypeBool);
+  vtkGetMacro(UseCells, vtkTypeBool);
+  vtkBooleanMacro(UseCells, vtkTypeBool);
   //@}
 
 protected:
@@ -67,7 +67,7 @@ protected:
   ~vtkPointPicker() override {}
 
   vtkIdType PointId; //picked point
-  int UseCells;  // Use cell points vs. points directly
+  vtkTypeBool UseCells;  // Use cell points vs. points directly
 
   double IntersectWithLine(double p1[3], double p2[3], double tol,
                           vtkAssemblyPath *path, vtkProp3D *p,

@@ -132,9 +132,9 @@ public:
    * (rather than renderer's actors). Make sure that the pick list contains
    * actors that referred to by the picker's renderer.
    */
-  vtkSetMacro(PickFromList,int);
-  vtkGetMacro(PickFromList,int);
-  vtkBooleanMacro(PickFromList,int);
+  vtkSetMacro(PickFromList,vtkTypeBool);
+  vtkGetMacro(PickFromList,vtkTypeBool);
+  vtkBooleanMacro(PickFromList,vtkTypeBool);
   //@}
 
   /**
@@ -168,7 +168,7 @@ protected:
   double PickPosition[3]; //selection point in world coordinates
 
   // use the following to control picking from a list
-  int PickFromList;
+  vtkTypeBool PickFromList;
   vtkPropCollection *PickList;
 private:
   vtkAbstractPicker(const vtkAbstractPicker&) = delete;

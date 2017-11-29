@@ -89,9 +89,9 @@ public:
    * Should the tetrahedra have scalar data
    * indicating which Voxel they came from in the vtkRectilinearGrid?
    */
-  vtkSetMacro(RememberVoxelId,int);
-  vtkGetMacro(RememberVoxelId,int);
-  vtkBooleanMacro(RememberVoxelId,int);
+  vtkSetMacro(RememberVoxelId,vtkTypeBool);
+  vtkGetMacro(RememberVoxelId,vtkTypeBool);
+  vtkBooleanMacro(RememberVoxelId,vtkTypeBool);
   //@}
 
   /**
@@ -120,7 +120,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int RememberVoxelId;
+  vtkTypeBool RememberVoxelId;
   int TetraPerCell;
 
   int FillInputPortInformation(int, vtkInformation*) override;

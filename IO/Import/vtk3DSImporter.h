@@ -52,9 +52,9 @@ public:
    * Set/Get the computation of normals. If on, imported geometry will
    * be run through vtkPolyDataNormals.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   /**
@@ -84,7 +84,7 @@ protected:
 
   char *FileName;
   FILE *FileFD;
-  int ComputeNormals;
+  vtkTypeBool ComputeNormals;
 private:
   vtk3DSImporter(const vtk3DSImporter&) = delete;
   void operator=(const vtk3DSImporter&) = delete;

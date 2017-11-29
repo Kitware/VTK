@@ -161,9 +161,9 @@ public:
    * will try to perform a handshake when connected.
    * It is on by default.
    */
-  vtkSetClampMacro(PerformHandshake, int, 0, 1);
-  vtkBooleanMacro(PerformHandshake, int);
-  vtkGetMacro(PerformHandshake, int);
+  vtkSetClampMacro(PerformHandshake, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(PerformHandshake, vtkTypeBool);
+  vtkGetMacro(PerformHandshake, vtkTypeBool);
   //@}
 
   //@{
@@ -257,7 +257,7 @@ protected:
   vtkClientSocket* Socket;
   int SwapBytesInReceivedData;
   int RemoteHas64BitIds;
-  int PerformHandshake;
+  vtkTypeBool PerformHandshake;
   int IsServer;
 
   int ReportErrors;

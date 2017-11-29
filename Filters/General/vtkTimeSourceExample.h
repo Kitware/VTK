@@ -43,9 +43,9 @@ public:
    * When off (the default) this source produces a discrete set of values.
    * When on, this source produces a value analytically for any queried time.
    */
-  vtkSetClampMacro(Analytic, int, 0, 1);
-  vtkGetMacro(Analytic, int);
-  vtkBooleanMacro(Analytic, int);
+  vtkSetClampMacro(Analytic, vtkTypeBool, 0, 1);
+  vtkGetMacro(Analytic, vtkTypeBool);
+  vtkBooleanMacro(Analytic, vtkTypeBool);
   //@}
 
   //@{
@@ -90,7 +90,7 @@ protected:
   double YFunction(double time);
   int NumCellsFunction(double time);
 
-  int Analytic;
+  vtkTypeBool Analytic;
   double XAmplitude;
   double YAmplitude;
   int Growing;

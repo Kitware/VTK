@@ -94,9 +94,9 @@ public:
 
    * The default is off to preserve backwards-compatibility.
    */
-  vtkSetMacro(ReportStatisticsOnly,int);
-  vtkGetMacro(ReportStatisticsOnly,int);
-  vtkBooleanMacro(ReportStatisticsOnly,int);
+  vtkSetMacro(ReportStatisticsOnly,vtkTypeBool);
+  vtkGetMacro(ReportStatisticsOnly,vtkTypeBool);
+  vtkBooleanMacro(ReportStatisticsOnly,vtkTypeBool);
   //@}
 
 protected:
@@ -141,7 +141,7 @@ protected:
 
   bool IsExecuting;
 
-  int ReportStatisticsOnly;
+  vtkTypeBool ReportStatisticsOnly;
 
   int Error;
 

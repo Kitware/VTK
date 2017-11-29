@@ -92,9 +92,9 @@ public:
    * the output. If InsideOut is on, then the points outside the surface
    * are marked inside.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
   //@}
 
   //@{
@@ -102,9 +102,9 @@ public:
    * Specify whether to check the surface for closure. If on, then the
    * algorithm first checks to see if the surface is closed and manifold.
    */
-  vtkSetMacro(CheckSurface,int);
-  vtkBooleanMacro(CheckSurface,int);
-  vtkGetMacro(CheckSurface,int);
+  vtkSetMacro(CheckSurface,vtkTypeBool);
+  vtkBooleanMacro(CheckSurface,vtkTypeBool);
+  vtkGetMacro(CheckSurface,vtkTypeBool);
   //@}
 
   /**
@@ -139,8 +139,8 @@ protected:
   vtkSelectEnclosedPoints();
   ~vtkSelectEnclosedPoints() override;
 
-  int    CheckSurface;
-  int    InsideOut;
+  vtkTypeBool    CheckSurface;
+  vtkTypeBool    InsideOut;
   double Tolerance;
 
   int IsSurfaceClosed(vtkPolyData *surface);

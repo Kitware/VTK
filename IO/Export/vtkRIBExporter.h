@@ -131,9 +131,9 @@ public:
    * all point data, field data, and cell data arrays will get
    * exported together with polygons. Default is Off (0).
    */
-  vtkSetClampMacro(ExportArrays, int, 0, 1);
-  vtkBooleanMacro(ExportArrays, int);
-  vtkGetMacro(ExportArrays, int);
+  vtkSetClampMacro(ExportArrays, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(ExportArrays, vtkTypeBool);
+  vtkGetMacro(ExportArrays, vtkTypeBool);
   //@}
 
 protected:
@@ -147,7 +147,7 @@ protected:
   /**
    * This variable defines whether the arrays are exported or not.
    */
-  int ExportArrays;
+  vtkTypeBool ExportArrays;
 
   //@{
   /**

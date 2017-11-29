@@ -72,9 +72,9 @@ public:
    * Turn on/off automatic sphere generation. This means it automatically
    * finds the sphere center.
    */
-  vtkSetMacro(AutomaticSphereGeneration,int);
-  vtkGetMacro(AutomaticSphereGeneration,int);
-  vtkBooleanMacro(AutomaticSphereGeneration,int);
+  vtkSetMacro(AutomaticSphereGeneration,vtkTypeBool);
+  vtkGetMacro(AutomaticSphereGeneration,vtkTypeBool);
+  vtkBooleanMacro(AutomaticSphereGeneration,vtkTypeBool);
   //@}
 
   //@{
@@ -96,7 +96,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Center[3];
-  int AutomaticSphereGeneration;
+  vtkTypeBool AutomaticSphereGeneration;
   int PreventSeam;
 
 private:

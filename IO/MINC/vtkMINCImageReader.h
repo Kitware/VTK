@@ -135,9 +135,9 @@ public:
    * RescaleSlope and RescaleIntercept will be set to 1 and 0
    * respectively.  This is off by default.
    */
-  vtkSetMacro(RescaleRealValues, int);
-  vtkBooleanMacro(RescaleRealValues, int);
-  vtkGetMacro(RescaleRealValues, int);
+  vtkSetMacro(RescaleRealValues, vtkTypeBool);
+  vtkBooleanMacro(RescaleRealValues, vtkTypeBool);
+  vtkGetMacro(RescaleRealValues, vtkTypeBool);
   //@}
 
   //@{
@@ -188,7 +188,7 @@ protected:
   vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
-  int RescaleRealValues;
+  vtkTypeBool RescaleRealValues;
   vtkMINCImageAttributes *ImageAttributes;
 
   int FileNameHasChanged;

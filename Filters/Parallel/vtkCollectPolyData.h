@@ -59,16 +59,16 @@ public:
   /**
    * To collect or just copy input to output. Off (collect) by default.
    */
-  vtkSetMacro(PassThrough, int);
-  vtkGetMacro(PassThrough, int);
-  vtkBooleanMacro(PassThrough, int);
+  vtkSetMacro(PassThrough, vtkTypeBool);
+  vtkGetMacro(PassThrough, vtkTypeBool);
+  vtkBooleanMacro(PassThrough, vtkTypeBool);
   //@}
 
 protected:
   vtkCollectPolyData();
   ~vtkCollectPolyData() override;
 
-  int PassThrough;
+  vtkTypeBool PassThrough;
 
   // Data generation method
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;

@@ -44,9 +44,9 @@ public:
    * If "HandleBoundariesOn" then boundary pixels are duplicated
    * So central differences can get values.
    */
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
+  vtkSetMacro(HandleBoundaries, vtkTypeBool);
+  vtkGetMacro(HandleBoundaries, vtkTypeBool);
+  vtkBooleanMacro(HandleBoundaries, vtkTypeBool);
   //@}
 
   //@{
@@ -61,7 +61,7 @@ protected:
   vtkImageGradientMagnitude();
   ~vtkImageGradientMagnitude() override {}
 
-  int HandleBoundaries;
+  vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
   int RequestInformation (vtkInformation*,

@@ -121,9 +121,9 @@ public:
   /**
    * Enable moving of handles. By default, the handle can be moved.
    */
-  vtkSetMacro(EnableTranslation, int);
-  vtkGetMacro(EnableTranslation, int);
-  vtkBooleanMacro(EnableTranslation, int);
+  vtkSetMacro(EnableTranslation, vtkTypeBool);
+  vtkGetMacro(EnableTranslation, vtkTypeBool);
+  vtkBooleanMacro(EnableTranslation, vtkTypeBool);
   //@}
 
   //@{
@@ -165,7 +165,7 @@ protected:
 
   int WidgetState;
   int EnableAxisConstraint;
-  int EnableTranslation;
+  vtkTypeBool EnableTranslation;
 
   // Allow resizing of handles.
   int AllowHandleResize;

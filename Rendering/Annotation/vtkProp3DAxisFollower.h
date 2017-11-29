@@ -67,9 +67,9 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
   * translation will be added to make sure the underlying
   * geometry has its pivot point at the center of its bounds.
   */
- vtkSetMacro(AutoCenter, int);
- vtkGetMacro(AutoCenter, int);
- vtkBooleanMacro(AutoCenter, int);
+ vtkSetMacro(AutoCenter, vtkTypeBool);
+ vtkGetMacro(AutoCenter, vtkTypeBool);
+ vtkBooleanMacro(AutoCenter, vtkTypeBool);
  //@}
 
  //@{
@@ -182,7 +182,7 @@ protected:
 
   bool IsTextUpsideDown(double* a, double* b);
 
-  int          AutoCenter;
+  vtkTypeBool          AutoCenter;
 
   int          EnableDistanceLOD;
   double       DistanceLODThreshold;

@@ -128,9 +128,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString, int);
-  vtkGetMacro(WriteToOutputString, int);
-  vtkBooleanMacro(WriteToOutputString, int);
+  vtkSetMacro(WriteToOutputString, vtkTypeBool);
+  vtkGetMacro(WriteToOutputString, vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString, vtkTypeBool);
   std::string GetOutputString() { return this->OutputString; }
   //@}
 
@@ -271,7 +271,7 @@ protected:
 
   // Whether this object is writing to a string or a file.
   // Default is 0: write to file.
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
 
   // The output string.
   std::string OutputString;

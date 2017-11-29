@@ -75,9 +75,9 @@ public:
    * point representation. (Note that the bounds can be scaled up using the
    * right mouse button.)
    */
-  vtkSetMacro(TranslationMode,int);
-  vtkGetMacro(TranslationMode,int);
-  vtkBooleanMacro(TranslationMode,int);
+  vtkSetMacro(TranslationMode,vtkTypeBool);
+  vtkGetMacro(TranslationMode,vtkTypeBool);
+  vtkBooleanMacro(TranslationMode,vtkTypeBool);
   //@}
 
   void SetSphereRadius(double);
@@ -177,7 +177,7 @@ protected:
   double CurrentHandleSize;
 
   // Control how translation works
-  int TranslationMode;
+  vtkTypeBool TranslationMode;
 
 private:
   vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&) = delete;

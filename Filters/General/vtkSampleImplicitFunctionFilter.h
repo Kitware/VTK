@@ -65,9 +65,9 @@ public:
   /**
    * Turn on/off the computation of gradients.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
@@ -98,7 +98,7 @@ protected:
   ~vtkSampleImplicitFunctionFilter() override;
 
   vtkImplicitFunction *ImplicitFunction;
-  int ComputeGradients;
+  vtkTypeBool ComputeGradients;
   char *ScalarArrayName;
   char *GradientArrayName;
 

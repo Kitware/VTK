@@ -54,9 +54,9 @@ public:
    * Set/Get the Absolute ivar. Turning Absolute on causes scale factor
    * of the new position to be one unit away from Position.
    */
-  vtkSetMacro(Absolute,int);
-  vtkGetMacro(Absolute,int);
-  vtkBooleanMacro(Absolute,int);
+  vtkSetMacro(Absolute,vtkTypeBool);
+  vtkGetMacro(Absolute,vtkTypeBool);
+  vtkBooleanMacro(Absolute,vtkTypeBool);
   //@}
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
@@ -73,7 +73,7 @@ protected:
                   vtkInformationVector *) override;
   double ScaleFactor;
   double Position[3];
-  int   Absolute;
+  vtkTypeBool   Absolute;
 private:
   vtkWarpTo(const vtkWarpTo&) = delete;
   void operator=(const vtkWarpTo&) = delete;

@@ -78,9 +78,9 @@ public:
    * Specify whether the button should always face the camera. If enabled,
    * the button reorients itself towards the camera as the camera moves.
    */
-  vtkSetMacro(FollowCamera,int);
-  vtkGetMacro(FollowCamera,int);
-  vtkBooleanMacro(FollowCamera,int);
+  vtkSetMacro(FollowCamera,vtkTypeBool);
+  vtkGetMacro(FollowCamera,vtkTypeBool);
+  vtkBooleanMacro(FollowCamera,vtkTypeBool);
   //@}
 
   /**
@@ -125,7 +125,7 @@ protected:
 
   // Follow the camera if requested
   vtkProp3DFollower *Follower;
-  int FollowCamera;
+  vtkTypeBool FollowCamera;
 
   // Keep track of the props associated with the N
   // states of the button. This is a PIMPLd stl map.

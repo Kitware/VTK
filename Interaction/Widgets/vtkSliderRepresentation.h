@@ -158,9 +158,9 @@ public:
    * Indicate whether the slider text label should be displayed. This is
    * a number corresponding to the current Value of this widget.
    */
-  vtkSetMacro(ShowSliderLabel,int);
-  vtkGetMacro(ShowSliderLabel,int);
-  vtkBooleanMacro(ShowSliderLabel,int);
+  vtkSetMacro(ShowSliderLabel,vtkTypeBool);
+  vtkGetMacro(ShowSliderLabel,vtkTypeBool);
+  vtkBooleanMacro(ShowSliderLabel,vtkTypeBool);
   //@}
 
   /**
@@ -203,7 +203,7 @@ protected:
   double PickedT;
 
   // both the title and label
-  int    ShowSliderLabel;
+  vtkTypeBool    ShowSliderLabel;
   char  *LabelFormat;
   double LabelHeight;
   double TitleHeight;

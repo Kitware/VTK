@@ -136,9 +136,9 @@ public:
    * By default, normals are automatically computed from the generating
    * polyline and camera.
    */
-  vtkSetMacro(UseDefaultNormal,int);
-  vtkGetMacro(UseDefaultNormal,int);
-  vtkBooleanMacro(UseDefaultNormal,int);
+  vtkSetMacro(UseDefaultNormal,vtkTypeBool);
+  vtkGetMacro(UseDefaultNormal,vtkTypeBool);
+  vtkBooleanMacro(UseDefaultNormal,vtkTypeBool);
   //@}
 
   //@{
@@ -181,7 +181,7 @@ protected:
   double     Height;
   double     Offset;
   float     DefaultNormal[3];
-  int       UseDefaultNormal;
+  vtkTypeBool       UseDefaultNormal;
   int       FieldDataArray;
 
 private:

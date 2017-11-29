@@ -82,18 +82,18 @@ public:
   /**
    * Control whether a polygon is produced. By default, GeneratePolygon is enabled.
    */
-  vtkSetMacro(GeneratePolygon,int);
-  vtkGetMacro(GeneratePolygon,int);
-  vtkBooleanMacro(GeneratePolygon,int);
+  vtkSetMacro(GeneratePolygon,vtkTypeBool);
+  vtkGetMacro(GeneratePolygon,vtkTypeBool);
+  vtkBooleanMacro(GeneratePolygon,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Control whether a polyline is produced. By default, GeneratePolyline is enabled.
    */
-  vtkSetMacro(GeneratePolyline,int);
-  vtkGetMacro(GeneratePolyline,int);
-  vtkBooleanMacro(GeneratePolyline,int);
+  vtkSetMacro(GeneratePolyline,vtkTypeBool);
+  vtkGetMacro(GeneratePolyline,vtkTypeBool);
+  vtkBooleanMacro(GeneratePolyline,vtkTypeBool);
   //@}
 
   //@{
@@ -116,8 +116,8 @@ protected:
   double Center[3];
   double Normal[3];
   double Radius;
-  int    GeneratePolygon;
-  int    GeneratePolyline;
+  vtkTypeBool    GeneratePolygon;
+  vtkTypeBool    GeneratePolyline;
   int    OutputPointsPrecision;
 
 private:

@@ -87,9 +87,9 @@ public:
    * only if they share points AND one of the cells scalar values falls in the
    * scalar range specified.
    */
-  vtkSetMacro(ScalarConnectivity,int);
-  vtkGetMacro(ScalarConnectivity,int);
-  vtkBooleanMacro(ScalarConnectivity,int);
+  vtkSetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkGetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkBooleanMacro(ScalarConnectivity,vtkTypeBool);
   //@}
 
   //@{
@@ -207,7 +207,7 @@ protected:
 
   double ClosestPoint[3];
 
-  int ScalarConnectivity;
+  vtkTypeBool ScalarConnectivity;
   double ScalarRange[2];
 
   void TraverseAndMark(vtkDataSet *input);

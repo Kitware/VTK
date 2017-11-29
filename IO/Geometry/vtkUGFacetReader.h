@@ -83,9 +83,9 @@ public:
   /**
    * Turn on/off merging of points/triangles.
    */
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
   //@}
 
   //@{
@@ -111,7 +111,7 @@ protected:
   char *FileName;
   vtkShortArray *PartColors;
   int PartNumber;
-  int Merging;
+  vtkTypeBool Merging;
   vtkIncrementalPointLocator *Locator;
 private:
   vtkUGFacetReader(const vtkUGFacetReader&) = delete;

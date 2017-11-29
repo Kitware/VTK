@@ -75,9 +75,9 @@ public:
   /**
    * Use fastest instead of best compression
    */
-  vtkSetClampMacro(Fastest, int, 0, 1);
-  vtkBooleanMacro(Fastest, int);
-  vtkGetMacro(Fastest, int);
+  vtkSetClampMacro(Fastest, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(Fastest, vtkTypeBool);
+  vtkGetMacro(Fastest, vtkTypeBool);
   //@}
 
 protected:
@@ -96,7 +96,7 @@ private:
   vtkX3DExporterFINodeInfoStack* InfoStack;
   vtkZLibDataCompressor* Compressor;
 
-  int Fastest;
+  vtkTypeBool Fastest;
 
   vtkX3DExporterFIWriter(const vtkX3DExporterFIWriter&) = delete;
   void operator=(const vtkX3DExporterFIWriter&) = delete;

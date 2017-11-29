@@ -155,9 +155,9 @@ public:
    * default use back buffer first, then try the front buffer if the
    * test fails when comparing to the back buffer.
    */
-  vtkBooleanMacro(FrontBuffer, int);
-  vtkGetMacro(FrontBuffer, int);
-  void SetFrontBuffer(int frontBuffer);
+  vtkBooleanMacro(FrontBuffer, vtkTypeBool);
+  vtkGetMacro(FrontBuffer, vtkTypeBool);
+  void SetFrontBuffer(vtkTypeBool frontBuffer);
   //@}
 
   /**
@@ -317,7 +317,7 @@ protected:
   static char* IncrementFileName(const char* fname, int count);
   static int LookForFile(const char* newFileName);
 
-  int FrontBuffer;
+  vtkTypeBool FrontBuffer;
   vtkRenderWindow* RenderWindow;
   char* ValidImageFileName;
   double ImageDifference;

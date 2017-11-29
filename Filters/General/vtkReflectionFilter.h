@@ -83,9 +83,9 @@ public:
    * If on (the default), copy the input geometry to the output. If off,
    * the output will only contain the reflection.
    */
-  vtkSetMacro(CopyInput, int);
-  vtkGetMacro(CopyInput, int);
-  vtkBooleanMacro(CopyInput, int);
+  vtkSetMacro(CopyInput, vtkTypeBool);
+  vtkGetMacro(CopyInput, vtkTypeBool);
+  vtkBooleanMacro(CopyInput, vtkTypeBool);
   //@}
 
   //@{
@@ -138,7 +138,7 @@ protected:
 
   int Plane;
   double Center;
-  int CopyInput;
+  vtkTypeBool CopyInput;
   bool FlipAllInputArrays;
 
 private:

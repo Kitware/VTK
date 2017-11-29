@@ -360,9 +360,9 @@ public:
    * When categorical data is present, only values in the lookup table will be
    * considered valid; all other values will be assigned \a NanColor.
    */
-  vtkSetMacro(IndexedLookup,int);
-  vtkGetMacro(IndexedLookup,int);
-  vtkBooleanMacro(IndexedLookup,int);
+  vtkSetMacro(IndexedLookup,vtkTypeBool);
+  vtkGetMacro(IndexedLookup,vtkTypeBool);
+  vtkBooleanMacro(IndexedLookup,vtkTypeBool);
   //@}
 
 
@@ -442,7 +442,7 @@ protected:
   class vtkInternalAnnotatedValueMap;
   vtkInternalAnnotatedValueMap* AnnotatedValueMap;
 
-  int IndexedLookup;
+  vtkTypeBool IndexedLookup;
 
   double Alpha;
 

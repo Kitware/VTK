@@ -140,9 +140,9 @@ public:
    * just a single scalar value satisfying the threshold criterion enables
    * will extract the cell.
    */
-  vtkSetMacro(AllScalars,int);
-  vtkGetMacro(AllScalars,int);
-  vtkBooleanMacro(AllScalars,int);
+  vtkSetMacro(AllScalars,vtkTypeBool);
+  vtkGetMacro(AllScalars,vtkTypeBool);
+  vtkBooleanMacro(AllScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -154,9 +154,9 @@ public:
    * not the same as the vertex scalar interval used here, so the
    * result will not be accurate.
    */
-  vtkSetMacro(UseContinuousCellRange,int);
-  vtkGetMacro(UseContinuousCellRange,int);
-  vtkBooleanMacro(UseContinuousCellRange,int);
+  vtkSetMacro(UseContinuousCellRange,vtkTypeBool);
+  vtkGetMacro(UseContinuousCellRange,vtkTypeBool);
+  vtkBooleanMacro(UseContinuousCellRange,vtkTypeBool);
   //@}
 
   //@{
@@ -193,14 +193,14 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 
-  int    AllScalars;
+  vtkTypeBool    AllScalars;
   double LowerThreshold;
   double UpperThreshold;
   int    AttributeMode;
   int    ComponentMode;
   int    SelectedComponent;
   int OutputPointsPrecision;
-  int UseContinuousCellRange;
+  vtkTypeBool UseContinuousCellRange;
 
   int (vtkThreshold::*ThresholdFunction)(double s);
 

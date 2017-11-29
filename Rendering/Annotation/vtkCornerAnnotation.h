@@ -189,9 +189,9 @@ public:
   /**
    * Even if there is an image actor, should `slice' and `image' be displayed?
    */
-  vtkBooleanMacro(ShowSliceAndImage, int);
-  vtkSetMacro(ShowSliceAndImage, int);
-  vtkGetMacro(ShowSliceAndImage, int);
+  vtkBooleanMacro(ShowSliceAndImage, vtkTypeBool);
+  vtkSetMacro(ShowSliceAndImage, vtkTypeBool);
+  vtkGetMacro(ShowSliceAndImage, vtkTypeBool);
   //@}
 
 protected:
@@ -222,7 +222,7 @@ protected:
   double LinearFontScaleFactor;
   double NonlinearFontScaleFactor;
 
-  int ShowSliceAndImage;
+  vtkTypeBool ShowSliceAndImage;
 
   /**
    * Search for replacable tokens and replace

@@ -86,9 +86,9 @@ public:
    * Turn on/off the variation of ribbon width with scalar value.
    * The default is Off
    */
-  vtkSetMacro(VaryWidth,int);
-  vtkGetMacro(VaryWidth,int);
-  vtkBooleanMacro(VaryWidth,int);
+  vtkSetMacro(VaryWidth,vtkTypeBool);
+  vtkGetMacro(VaryWidth,vtkTypeBool);
+  vtkBooleanMacro(VaryWidth,vtkTypeBool);
   //@}
 
   //@{
@@ -114,9 +114,9 @@ public:
    * Set a boolean to control whether to use default normals.
    * The default is Off
    */
-  vtkSetMacro(UseDefaultNormal,int);
-  vtkGetMacro(UseDefaultNormal,int);
-  vtkBooleanMacro(UseDefaultNormal,int);
+  vtkSetMacro(UseDefaultNormal,vtkTypeBool);
+  vtkGetMacro(UseDefaultNormal,vtkTypeBool);
+  vtkBooleanMacro(UseDefaultNormal,vtkTypeBool);
   //@}
 
   //@{
@@ -156,10 +156,10 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   double Width;
   double Angle;
-  int VaryWidth; //controls whether width varies with scalar data
+  vtkTypeBool VaryWidth; //controls whether width varies with scalar data
   double WidthFactor;
   double DefaultNormal[3];
-  int UseDefaultNormal;
+  vtkTypeBool UseDefaultNormal;
   int GenerateTCoords; //control texture coordinate generation
   double TextureLength; //this length is mapped to [0,1) texture space
 

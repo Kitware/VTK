@@ -164,9 +164,9 @@ public:
    * Set whether to automatically advance the buffer before each grab.
    * Default: on
    */
-  vtkBooleanMacro(AutoAdvance,int);
-  vtkSetMacro(AutoAdvance,int)
-  vtkGetMacro(AutoAdvance,int);
+  vtkBooleanMacro(AutoAdvance,vtkTypeBool);
+  vtkSetMacro(AutoAdvance,vtkTypeBool)
+  vtkGetMacro(AutoAdvance,vtkTypeBool);
   //@}
 
   //@{
@@ -320,7 +320,7 @@ protected:
   double StartTimeStamp;
   double FrameTimeStamp;
 
-  int AutoAdvance;
+  vtkTypeBool AutoAdvance;
   int NumberOfOutputFrames;
 
   float Opacity;

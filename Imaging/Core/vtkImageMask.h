@@ -81,9 +81,9 @@ public:
    * pixels where the input mask is zero, and replace the pixels
    * where the input value is non zero.
    */
-  vtkSetMacro(NotMask,int);
-  vtkGetMacro(NotMask,int);
-  vtkBooleanMacro(NotMask, int);
+  vtkSetMacro(NotMask,vtkTypeBool);
+  vtkGetMacro(NotMask,vtkTypeBool);
+  vtkBooleanMacro(NotMask, vtkTypeBool);
   //@}
 
   /**
@@ -98,7 +98,7 @@ protected:
 
   double *MaskedOutputValue;
   int MaskedOutputValueLength;
-  int NotMask;
+  vtkTypeBool NotMask;
   double MaskAlpha;
 
   int RequestInformation (vtkInformation *,

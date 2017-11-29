@@ -53,9 +53,9 @@ public:
   /**
    * Enable/disable the generation of vertex cells.
    */
-  vtkSetMacro(VertexCells,int);
-  vtkGetMacro(VertexCells,int);
-  vtkBooleanMacro(VertexCells,int);
+  vtkSetMacro(VertexCells,vtkTypeBool);
+  vtkGetMacro(VertexCells,vtkTypeBool);
+  vtkBooleanMacro(VertexCells,vtkTypeBool);
   //@}
 
 protected:
@@ -65,7 +65,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int VertexCells;
+  vtkTypeBool VertexCells;
 private:
   vtkEdgeCenters(const vtkEdgeCenters&) = delete;
   void operator=(const vtkEdgeCenters&) = delete;

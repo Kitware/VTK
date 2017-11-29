@@ -87,9 +87,9 @@ public:
    * Subclasses must override SetProcessEvents() to make sure
    * that they pass on the flag to all component widgets.
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro(ProcessEvents, int);
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro(ProcessEvents, vtkTypeBool);
   //@}
 
   /**
@@ -146,9 +146,9 @@ public:
    * composite widgets, and the parent widget takes over the cursor
    * management.
    */
-  vtkSetMacro(ManagesCursor,int);
-  vtkGetMacro(ManagesCursor,int);
-  vtkBooleanMacro(ManagesCursor,int);
+  vtkSetMacro(ManagesCursor,vtkTypeBool);
+  vtkGetMacro(ManagesCursor,vtkTypeBool);
+  vtkBooleanMacro(ManagesCursor,vtkTypeBool);
   //@}
 
   /**
@@ -174,7 +174,7 @@ protected:
   vtkWidgetRepresentation *WidgetRep;
 
   // helper methods for cursor management
-  int ManagesCursor;
+  vtkTypeBool ManagesCursor;
   virtual void SetCursor(int vtkNotUsed(state)) {}
 
   // For translating and invoking events
@@ -191,7 +191,7 @@ protected:
 
   // Flag indicating if the widget should handle interaction events.
   // On by default.
-  int ProcessEvents;
+  vtkTypeBool ProcessEvents;
 
 private:
   vtkAbstractWidget(const vtkAbstractWidget&) = delete;

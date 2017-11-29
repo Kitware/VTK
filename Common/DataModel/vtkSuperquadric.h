@@ -119,16 +119,16 @@ public:
   /**
    * Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
    */
-  vtkBooleanMacro(Toroidal,int);
-  vtkGetMacro(Toroidal,int);
-  vtkSetMacro(Toroidal,int);
+  vtkBooleanMacro(Toroidal,vtkTypeBool);
+  vtkGetMacro(Toroidal,vtkTypeBool);
+  vtkSetMacro(Toroidal,vtkTypeBool);
   //@}
 
 protected:
   vtkSuperquadric();
   ~vtkSuperquadric() override {}
 
-  int Toroidal;
+  vtkTypeBool Toroidal;
   double Thickness;
   double Size;
   double PhiRoundness;

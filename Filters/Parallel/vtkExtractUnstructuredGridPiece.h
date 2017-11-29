@@ -38,9 +38,9 @@ public:
   /**
    * Turn on/off creating ghost cells (on by default).
    */
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
   //@}
 
 protected:
@@ -58,7 +58,7 @@ protected:
 
   void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,int ghostLevel);
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
 private:
   void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
                          int piece, int numPieces);

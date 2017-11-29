@@ -87,9 +87,9 @@ public:
    * Implementation note: duplicating points is an easier method to implement
    * than a minimal number of points.
    */
-  vtkSetMacro(DuplicateSharedPoints, int);
-  vtkGetMacro(DuplicateSharedPoints, int);
-  vtkBooleanMacro(DuplicateSharedPoints, int);
+  vtkSetMacro(DuplicateSharedPoints, vtkTypeBool);
+  vtkGetMacro(DuplicateSharedPoints, vtkTypeBool);
+  vtkBooleanMacro(DuplicateSharedPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -161,7 +161,7 @@ protected:
 
   double Bounds[6];
   int Level;
-  int DuplicateSharedPoints;
+  vtkTypeBool DuplicateSharedPoints;
   int Quads;
   int OutputPointsPrecision;
 

@@ -48,9 +48,9 @@ public:
    * output into an unstructured grid, but instead to produce a vtkInsidedness
    * array and add it to the input dataset. Default value is false(0).
    */
-  vtkSetMacro(PreserveTopology, int);
-  vtkGetMacro(PreserveTopology, int);
-  vtkBooleanMacro(PreserveTopology, int);
+  vtkSetMacro(PreserveTopology, vtkTypeBool);
+  vtkGetMacro(PreserveTopology, vtkTypeBool);
+  vtkBooleanMacro(PreserveTopology, vtkTypeBool);
   //@}
 
 protected:
@@ -66,7 +66,7 @@ protected:
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int PreserveTopology;
+  vtkTypeBool PreserveTopology;
 private:
   vtkExtractSelectionBase(const vtkExtractSelectionBase&) = delete;
   void operator=(const vtkExtractSelectionBase&) = delete;

@@ -56,9 +56,9 @@ public:
    * Turns on buffer flushing for the output
    * to the log file.
    */
-  vtkSetMacro(Flush, int);
-  vtkGetMacro(Flush, int);
-  vtkBooleanMacro(Flush, int);
+  vtkSetMacro(Flush, vtkTypeBool);
+  vtkGetMacro(Flush, vtkTypeBool);
+  vtkBooleanMacro(Flush, vtkTypeBool);
   //@}
 
   //@{
@@ -68,9 +68,9 @@ public:
    * it will be overwritten each time the vtkFileOutputWindow
    * is created.
    */
-  vtkSetMacro(Append, int);
-  vtkGetMacro(Append, int);
-  vtkBooleanMacro(Append, int);
+  vtkSetMacro(Append, vtkTypeBool);
+  vtkGetMacro(Append, vtkTypeBool);
+  vtkBooleanMacro(Append, vtkTypeBool);
   //@}
 
 protected:
@@ -80,8 +80,8 @@ protected:
 
   char* FileName;
   ofstream* OStream;
-  int Flush;
-  int Append;
+  vtkTypeBool Flush;
+  vtkTypeBool Append;
 
 private:
   vtkFileOutputWindow(const vtkFileOutputWindow&) = delete;

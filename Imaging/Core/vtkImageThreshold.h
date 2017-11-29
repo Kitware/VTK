@@ -54,9 +54,9 @@ public:
   /**
    * Determines whether to replace the pixel in range with InValue
    */
-  vtkSetMacro(ReplaceIn, int);
-  vtkGetMacro(ReplaceIn, int);
-  vtkBooleanMacro(ReplaceIn, int);
+  vtkSetMacro(ReplaceIn, vtkTypeBool);
+  vtkGetMacro(ReplaceIn, vtkTypeBool);
+  vtkBooleanMacro(ReplaceIn, vtkTypeBool);
   //@}
 
   //@{
@@ -71,9 +71,9 @@ public:
   /**
    * Determines whether to replace the pixel out of range with OutValue
    */
-  vtkSetMacro(ReplaceOut, int);
-  vtkGetMacro(ReplaceOut, int);
-  vtkBooleanMacro(ReplaceOut, int);
+  vtkSetMacro(ReplaceOut, vtkTypeBool);
+  vtkGetMacro(ReplaceOut, vtkTypeBool);
+  vtkBooleanMacro(ReplaceOut, vtkTypeBool);
   //@}
 
   //@{
@@ -128,9 +128,9 @@ protected:
 
   double UpperThreshold;
   double LowerThreshold;
-  int ReplaceIn;
+  vtkTypeBool ReplaceIn;
   double InValue;
-  int ReplaceOut;
+  vtkTypeBool ReplaceOut;
   double OutValue;
 
   int OutputScalarType;

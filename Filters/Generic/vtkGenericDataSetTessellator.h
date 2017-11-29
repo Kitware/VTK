@@ -62,9 +62,9 @@ public:
    * cells).
    * The name of the data array is "OriginalIds". It is true by default.
    */
-  vtkSetMacro(KeepCellIds, int);
-  vtkGetMacro(KeepCellIds, int);
-  vtkBooleanMacro(KeepCellIds, int);
+  vtkSetMacro(KeepCellIds, vtkTypeBool);
+  vtkGetMacro(KeepCellIds, vtkTypeBool);
+  vtkBooleanMacro(KeepCellIds, vtkTypeBool);
   //@}
 
 
@@ -74,9 +74,9 @@ public:
    * on, points with different point attributes (e.g., normals) are merged,
    * which may cause rendering artifacts.
    */
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
   //@}
 
   //@{
@@ -107,12 +107,12 @@ protected:
   int FillInputPortInformation(int, vtkInformation*) override;
 
   // See Set/Get KeepCellIds() for explanations.
-  int KeepCellIds;
+  vtkTypeBool KeepCellIds;
 
   // Used internal by vtkGenericAdaptorCell::Tessellate()
   vtkPointData *InternalPD;
 
-  int Merging;
+  vtkTypeBool Merging;
   vtkIncrementalPointLocator *Locator;
 
 private:

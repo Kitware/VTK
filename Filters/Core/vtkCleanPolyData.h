@@ -183,9 +183,9 @@ public:
   // This flag allows the user to select whether strict piece invariance
   // is required.  By default it is on.  When off, the filter can stream,
   // but results may change.
-  vtkSetMacro(PieceInvariant, int);
-  vtkGetMacro(PieceInvariant, int);
-  vtkBooleanMacro(PieceInvariant, int);
+  vtkSetMacro(PieceInvariant, vtkTypeBool);
+  vtkGetMacro(PieceInvariant, vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
 
   //@{
   /**
@@ -214,7 +214,7 @@ protected:
   int ToleranceIsAbsolute;
   vtkIncrementalPointLocator *Locator;
 
-  int PieceInvariant;
+  vtkTypeBool PieceInvariant;
   int OutputPointsPrecision;
 private:
   vtkCleanPolyData(const vtkCleanPolyData&) = delete;

@@ -82,9 +82,9 @@ public:
    * Determines whether the vector components will be put
    * in separate outputs or in the first output's field data
    */
-  vtkSetMacro(ExtractToFieldData, int);
-  vtkGetMacro(ExtractToFieldData, int);
-  vtkBooleanMacro(ExtractToFieldData, int);
+  vtkSetMacro(ExtractToFieldData, vtkTypeBool);
+  vtkGetMacro(ExtractToFieldData, vtkTypeBool);
+  vtkBooleanMacro(ExtractToFieldData, vtkTypeBool);
   //@}
 
 protected:
@@ -92,7 +92,7 @@ protected:
   ~vtkExtractVectorComponents() override;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
-  int ExtractToFieldData;
+  vtkTypeBool ExtractToFieldData;
   int OutputsInitialized;
 private:
   vtkExtractVectorComponents(const vtkExtractVectorComponents&) = delete;

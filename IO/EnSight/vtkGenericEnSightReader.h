@@ -167,9 +167,9 @@ public:
   /**
    * Set/get the flag for whether to read all the variables
    */
-  vtkBooleanMacro(ReadAllVariables, int);
-  vtkSetMacro(ReadAllVariables, int);
-  vtkGetMacro(ReadAllVariables, int);
+  vtkBooleanMacro(ReadAllVariables, vtkTypeBool);
+  vtkSetMacro(ReadAllVariables, vtkTypeBool);
+  vtkGetMacro(ReadAllVariables, vtkTypeBool);
   //@}
 
   //@{
@@ -260,9 +260,9 @@ public:
    * Warning, if the Points are listed in non sequential order
    * then setting this flag will reorder them.
    */
-  vtkSetMacro(ParticleCoordinatesByIndex, int);
-  vtkGetMacro(ParticleCoordinatesByIndex, int);
-  vtkBooleanMacro(ParticleCoordinatesByIndex, int);
+  vtkSetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkGetMacro(ParticleCoordinatesByIndex, vtkTypeBool);
+  vtkBooleanMacro(ParticleCoordinatesByIndex, vtkTypeBool);
   //@}
 
   /**
@@ -412,10 +412,10 @@ protected:
   vtkDataArrayCollection *TimeSets;
   virtual void SetTimeSets(vtkDataArrayCollection*);
 
-  int ReadAllVariables;
+  vtkTypeBool ReadAllVariables;
 
   int ByteOrder;
-  int ParticleCoordinatesByIndex;
+  vtkTypeBool ParticleCoordinatesByIndex;
 
   // The EnSight file version being read.  Valid after
   // UpdateInformation.  Value is -1 for unknown version.

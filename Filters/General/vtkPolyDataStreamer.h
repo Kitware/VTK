@@ -62,9 +62,9 @@ public:
    * By default, this option is off.  When it is on, cell scalars are generated
    * based on which piece they are in.
    */
-  vtkSetMacro(ColorByPiece, int);
-  vtkGetMacro(ColorByPiece, int);
-  vtkBooleanMacro(ColorByPiece, int);
+  vtkSetMacro(ColorByPiece, vtkTypeBool);
+  vtkGetMacro(ColorByPiece, vtkTypeBool);
+  vtkBooleanMacro(ColorByPiece, vtkTypeBool);
   //@}
 
 
@@ -84,7 +84,7 @@ protected:
   int PostExecute(vtkInformationVector **inputVector,
                   vtkInformationVector *outputVector) override;
 
-  int ColorByPiece;
+  vtkTypeBool ColorByPiece;
 private:
   vtkPolyDataStreamer(const vtkPolyDataStreamer&) = delete;
   void operator=(const vtkPolyDataStreamer&) = delete;

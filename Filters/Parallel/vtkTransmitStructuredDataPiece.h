@@ -51,9 +51,9 @@ public:
   /**
    * Turn on/off creating ghost cells (on by default).
    */
-  vtkSetMacro(CreateGhostCells, int);
-  vtkGetMacro(CreateGhostCells, int);
-  vtkBooleanMacro(CreateGhostCells, int);
+  vtkSetMacro(CreateGhostCells, vtkTypeBool);
+  vtkGetMacro(CreateGhostCells, vtkTypeBool);
+  vtkBooleanMacro(CreateGhostCells, vtkTypeBool);
   //@}
 
 protected:
@@ -69,7 +69,7 @@ protected:
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int CreateGhostCells;
+  vtkTypeBool CreateGhostCells;
   vtkMultiProcessController *Controller;
 
 private:

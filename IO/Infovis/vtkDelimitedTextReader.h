@@ -104,9 +104,9 @@ public:
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
    */
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  vtkSetMacro(ReadFromInputString,vtkTypeBool);
+  vtkGetMacro(ReadFromInputString,vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString,vtkTypeBool);
   //@}
 
   //@{
@@ -338,7 +338,7 @@ protected:
     vtkInformationVector*) override;
 
   char* FileName;
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
   char *InputString;
   int InputStringLength;
   char* UnicodeCharacterSet;

@@ -40,16 +40,16 @@ public:
   /**
    * Generate solid faces for the box. This is off by default.
    */
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
   //@}
 
 protected:
   vtkOutlineFilter();
   ~vtkOutlineFilter() override;
 
-  int GenerateFaces;
+  vtkTypeBool GenerateFaces;
   vtkOutlineSource *OutlineSource;
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;

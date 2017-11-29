@@ -63,9 +63,9 @@ public:
    * Turn on/off use of user specified normal. If on, data normals
    * will be ignored and instance variable Normal will be used instead.
    */
-  vtkSetMacro(UseNormal,int);
-  vtkGetMacro(UseNormal,int);
-  vtkBooleanMacro(UseNormal,int);
+  vtkSetMacro(UseNormal,vtkTypeBool);
+  vtkGetMacro(UseNormal,vtkTypeBool);
+  vtkBooleanMacro(UseNormal,vtkTypeBool);
   //@}
 
   //@{
@@ -83,9 +83,9 @@ public:
    * then the z value is used to warp the surface in the z-axis direction
    * (times the scale factor) and scalars are used to color the surface.
    */
-  vtkSetMacro(XYPlane,int);
-  vtkGetMacro(XYPlane,int);
-  vtkBooleanMacro(XYPlane,int);
+  vtkSetMacro(XYPlane,vtkTypeBool);
+  vtkGetMacro(XYPlane,vtkTypeBool);
+  vtkBooleanMacro(XYPlane,vtkTypeBool);
   //@}
 
   int FillInputPortInformation(int port, vtkInformation *info) override;
@@ -102,9 +102,9 @@ protected:
                   vtkInformationVector *) override;
 
   double ScaleFactor;
-  int UseNormal;
+  vtkTypeBool UseNormal;
   double Normal[3];
-  int XYPlane;
+  vtkTypeBool XYPlane;
 
   double *(vtkWarpScalar::*PointNormal)(vtkIdType id, vtkDataArray *normals);
   double *DataNormal(vtkIdType id, vtkDataArray *normals=nullptr);

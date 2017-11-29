@@ -123,9 +123,9 @@ public:
    * some extents with a vtkMergeFilter.
    * By default, the filter is off and vertices will not be shared.
    */
-  vtkGetMacro(MergePoints,int);
-  vtkSetMacro(MergePoints,int);
-  vtkBooleanMacro(MergePoints,int);
+  vtkGetMacro(MergePoints,vtkTypeBool);
+  vtkSetMacro(MergePoints,vtkTypeBool);
+  vtkBooleanMacro(MergePoints,vtkTypeBool);
   //@}
 
 protected:
@@ -161,7 +161,7 @@ protected:
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;
   int OutputDimension;
-  int MergePoints;
+  vtkTypeBool MergePoints;
   vtkPointLocator* Locator;
 
   //@{

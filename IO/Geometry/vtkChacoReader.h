@@ -58,9 +58,9 @@ public:
    * Default is ON.
    */
 
-  vtkSetMacro(GenerateGlobalElementIdArray, int);
-  vtkGetMacro(GenerateGlobalElementIdArray, int);
-  vtkBooleanMacro(GenerateGlobalElementIdArray, int);
+  vtkSetMacro(GenerateGlobalElementIdArray, vtkTypeBool);
+  vtkGetMacro(GenerateGlobalElementIdArray, vtkTypeBool);
+  vtkBooleanMacro(GenerateGlobalElementIdArray, vtkTypeBool);
 
   static const char *GetGlobalElementIdArrayName() { return "GlobalElementId"; }
 
@@ -72,9 +72,9 @@ public:
    * Default is ON.
    */
 
-  vtkSetMacro(GenerateGlobalNodeIdArray, int);
-  vtkGetMacro(GenerateGlobalNodeIdArray, int);
-  vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
+  vtkSetMacro(GenerateGlobalNodeIdArray, vtkTypeBool);
+  vtkGetMacro(GenerateGlobalNodeIdArray, vtkTypeBool);
+  vtkBooleanMacro(GenerateGlobalNodeIdArray, vtkTypeBool);
 
   static const char *GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
 
@@ -84,9 +84,9 @@ public:
    * Default is OFF.
    */
 
-  vtkSetMacro(GenerateVertexWeightArrays, int);
-  vtkGetMacro(GenerateVertexWeightArrays, int);
-  vtkBooleanMacro(GenerateVertexWeightArrays, int);
+  vtkSetMacro(GenerateVertexWeightArrays, vtkTypeBool);
+  vtkGetMacro(GenerateVertexWeightArrays, vtkTypeBool);
+  vtkBooleanMacro(GenerateVertexWeightArrays, vtkTypeBool);
 
   /**
    * Returns the number of weights per vertex in the Chaco file, whether or
@@ -114,9 +114,9 @@ public:
    * Default is OFF.
    */
 
-  vtkSetMacro(GenerateEdgeWeightArrays, int);
-  vtkGetMacro(GenerateEdgeWeightArrays, int);
-  vtkBooleanMacro(GenerateEdgeWeightArrays, int);
+  vtkSetMacro(GenerateEdgeWeightArrays, vtkTypeBool);
+  vtkGetMacro(GenerateEdgeWeightArrays, vtkTypeBool);
+  vtkBooleanMacro(GenerateEdgeWeightArrays, vtkTypeBool);
 
   /**
    * Returns the number of weights per edge in the Chaco file, whether or
@@ -188,11 +188,11 @@ protected:
 
   // Parameters for controlling what is read in.
   char *BaseName;
-  int GenerateGlobalElementIdArray;
-  int GenerateGlobalNodeIdArray;
+  vtkTypeBool GenerateGlobalElementIdArray;
+  vtkTypeBool GenerateGlobalNodeIdArray;
 
-  int GenerateVertexWeightArrays;
-  int GenerateEdgeWeightArrays;
+  vtkTypeBool GenerateVertexWeightArrays;
+  vtkTypeBool GenerateEdgeWeightArrays;
 
   FILE *CurrentGeometryFP;
   FILE *CurrentGraphFP;

@@ -109,9 +109,9 @@ public:
   /**
    * Turn on/off automatic plane generation.
    */
-  vtkSetMacro(AutomaticPlaneGeneration,int);
-  vtkGetMacro(AutomaticPlaneGeneration,int);
-  vtkBooleanMacro(AutomaticPlaneGeneration,int);
+  vtkSetMacro(AutomaticPlaneGeneration,vtkTypeBool);
+  vtkGetMacro(AutomaticPlaneGeneration,vtkTypeBool);
+  vtkBooleanMacro(AutomaticPlaneGeneration,vtkTypeBool);
   //@}
 
 protected:
@@ -127,7 +127,7 @@ protected:
   double Normal[3];
   double SRange[2];
   double TRange[2];
-  int AutomaticPlaneGeneration;
+  vtkTypeBool AutomaticPlaneGeneration;
 
 private:
   vtkTextureMapToPlane(const vtkTextureMapToPlane&) = delete;

@@ -59,9 +59,9 @@ public:
    * When set, the output mutliblock dataset will be pruned to remove empty
    * nodes. On by default.
    */
-  vtkSetMacro(PruneOutput, int);
-  vtkGetMacro(PruneOutput, int);
-  vtkBooleanMacro(PruneOutput, int);
+  vtkSetMacro(PruneOutput, vtkTypeBool);
+  vtkGetMacro(PruneOutput, vtkTypeBool);
+  vtkBooleanMacro(PruneOutput, vtkTypeBool);
   //@}
 
   //@{
@@ -71,9 +71,9 @@ public:
    * then that node is removed. To preserve these parent nodes, set this flag to
    * true. Off by default.
    */
-  vtkSetMacro(MaintainStructure, int);
-  vtkGetMacro(MaintainStructure, int);
-  vtkBooleanMacro(MaintainStructure, int);
+  vtkSetMacro(MaintainStructure, vtkTypeBool);
+  vtkGetMacro(MaintainStructure, vtkTypeBool);
+  vtkBooleanMacro(MaintainStructure, vtkTypeBool);
   //@}
 
 protected:
@@ -98,8 +98,8 @@ protected:
   bool Prune(vtkMultiPieceDataSet* mblock);
   bool Prune(vtkDataObject* mblock);
 
-  int PruneOutput;
-  int MaintainStructure;
+  vtkTypeBool PruneOutput;
+  vtkTypeBool MaintainStructure;
 private:
   vtkExtractBlock(const vtkExtractBlock&) = delete;
   void operator=(const vtkExtractBlock&) = delete;

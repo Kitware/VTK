@@ -258,9 +258,9 @@ public:
   /**
    * Turn this on to request creation of the ExtractedRegionExtents array.
    */
-  vtkSetMacro(GenerateRegionExtents, int);
-  vtkBooleanMacro(GenerateRegionExtents, int);
-  vtkGetMacro(GenerateRegionExtents, int);
+  vtkSetMacro(GenerateRegionExtents, vtkTypeBool);
+  vtkBooleanMacro(GenerateRegionExtents, vtkTypeBool);
+  vtkGetMacro(GenerateRegionExtents, vtkTypeBool);
   //@}
 
   //@{
@@ -305,7 +305,7 @@ protected:
   int LabelConstantValue;
   int ActiveComponent;
   int LabelScalarType;
-  int GenerateRegionExtents;
+  vtkTypeBool GenerateRegionExtents;
 
   vtkIdTypeArray *ExtractedRegionLabels;
   vtkIdTypeArray *ExtractedRegionSizes;

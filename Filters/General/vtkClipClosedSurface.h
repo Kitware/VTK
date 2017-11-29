@@ -99,9 +99,9 @@ public:
    * Pass the point data to the output.  Point data will be interpolated
    * when new points are generated.  This is off by default.
    */
-  vtkSetMacro(PassPointData, int);
-  vtkBooleanMacro(PassPointData, int);
-  vtkGetMacro(PassPointData, int);
+  vtkSetMacro(PassPointData, vtkTypeBool);
+  vtkBooleanMacro(PassPointData, vtkTypeBool);
+  vtkGetMacro(PassPointData, vtkTypeBool);
   //@}
 
   //@{
@@ -109,9 +109,9 @@ public:
    * Set whether to generate an outline wherever an input face was
    * cut by a plane.  This is off by default.
    */
-  vtkSetMacro(GenerateOutline, int);
-  vtkBooleanMacro(GenerateOutline, int);
-  vtkGetMacro(GenerateOutline, int);
+  vtkSetMacro(GenerateOutline, vtkTypeBool);
+  vtkBooleanMacro(GenerateOutline, vtkTypeBool);
+  vtkGetMacro(GenerateOutline, vtkTypeBool);
   //@}
 
   //@{
@@ -119,9 +119,9 @@ public:
    * Set whether to generate polygonal faces for the output.  This is
    * on by default.  If it is off, then the output will have no polys.
    */
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
   //@}
 
   //@{
@@ -194,9 +194,9 @@ public:
    * a surface that is not watertight.  This option has no impact
    * on performance.
    */
-  vtkSetMacro(TriangulationErrorDisplay, int);
-  vtkBooleanMacro(TriangulationErrorDisplay, int);
-  vtkGetMacro(TriangulationErrorDisplay, int);
+  vtkSetMacro(TriangulationErrorDisplay, vtkTypeBool);
+  vtkBooleanMacro(TriangulationErrorDisplay, vtkTypeBool);
+  vtkGetMacro(TriangulationErrorDisplay, vtkTypeBool);
   //@}
 
 protected:
@@ -207,16 +207,16 @@ protected:
 
   double Tolerance;
 
-  int PassPointData;
-  int GenerateOutline;
-  int GenerateFaces;
+  vtkTypeBool PassPointData;
+  vtkTypeBool GenerateOutline;
+  vtkTypeBool GenerateFaces;
   int ActivePlaneId;
   int ScalarMode;
   double BaseColor[3];
   double ClipColor[3];
   double ActivePlaneColor[3];
 
-  int TriangulationErrorDisplay;
+  vtkTypeBool TriangulationErrorDisplay;
 
   vtkIdList *IdList;
 
