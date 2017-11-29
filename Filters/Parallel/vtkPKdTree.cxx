@@ -80,6 +80,11 @@ public:
       vtkTimerLog::MarkEndEvent(event);
     }
   }
+
+private:
+  // Explicit disable copy/assignment to prevent MSVC from complaining (C4512)
+  TimeLog(const TimeLog&) = delete;
+  TimeLog& operator=(const TimeLog&) = delete;
 };
 }
 
