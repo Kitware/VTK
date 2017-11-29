@@ -376,7 +376,7 @@ static char **append_class_contents(
 
       line = append_scope_to_line(line, &m, &maxlen, scope);
       line = append_class_to_line(line, &m, &maxlen, class_info);
-      tmpflags = "WRAP_EXCLUDE";
+      tmpflags = "WRAP_EXCLUDE_PYTHON";
     }
     else if (data->Items[i].Type == VTK_ENUM_INFO)
     {
@@ -488,7 +488,7 @@ static char **append_namespace_contents(
         data->Classes[data->Items[i].Index];
 
       /* all but the main class in each file is excluded from wrapping */
-      tmpflags = "WRAP_EXCLUDE";
+      tmpflags = "WRAP_EXCLUDE_PYTHON";
       if (class_info == main_class)
       {
         tmpflags = flags;
@@ -541,7 +541,7 @@ static char **append_namespace_contents(
     {
       lines = append_namespace_contents(lines, np,
         data->Namespaces[data->Items[i].Index], 0,
-        scope, header_file, module_name, "WRAP_EXCLUDE");
+        scope, header_file, module_name, "WRAP_EXCLUDE_PYTHON");
     }
   }
 

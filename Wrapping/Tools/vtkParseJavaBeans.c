@@ -283,7 +283,7 @@ static int isClassWrapped(const char *classname)
     entry = vtkParseHierarchy_FindEntry(hierarchyInfo, classname);
 
     if (entry == 0 ||
-        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE") ||
+        vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON") ||
         !vtkParseHierarchy_IsTypeOf(hierarchyInfo, entry, "vtkObjectBase"))
     {
       return 0;
