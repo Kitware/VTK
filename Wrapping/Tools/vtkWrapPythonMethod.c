@@ -294,16 +294,6 @@ void vtkWrapPython_GetSingleArgument(
     fprintf(fp, "%sGetSpecialObject(%stemp%d, \"%s\")",
             prefix, argname, i, pythonname);
   }
-  else if (vtkWrap_IsQtEnum(arg))
-  {
-    fprintf(fp, "%sGetSIPEnumValue(%stemp%d, \"%s\")",
-            prefix, argname, i, arg->Class);
-  }
-  else if (vtkWrap_IsQtObject(arg))
-  {
-    fprintf(fp, "%sGetSIPObject(%stemp%d, \"%s\")",
-            prefix, argname, i, arg->Class);
-  }
   else if (vtkWrap_IsFunction(arg))
   {
     fprintf(fp, "%sGetFunction(%stemp%d)",
@@ -658,26 +648,6 @@ void vtkWrapPython_ReturnValue(
             "      result = %sBuildSpecialObject(&tempr, \"%s\");\n",
             prefix, pythonname);
   }
-  else if (vtkWrap_IsQtObject(val) &&
-           (vtkWrap_IsRef(val) || vtkWrap_IsPointer(val)))
-  {
-    fprintf(fp,
-            "      result = %sBuildSIPObject(tempr, \"%s\", false);\n",
-            prefix, val->Class);
-  }
-  else if (vtkWrap_IsQtObject(val) &&
-           !vtkWrap_IsRef(val) && !vtkWrap_IsPointer(val))
-  {
-    fprintf(fp,
-            "      result = %sBuildSIPObject(new %s(tempr), \"%s\", false);\n",
-            prefix, val->Class, val->Class);
-  }
-  else if (vtkWrap_IsQtEnum(val))
-  {
-    fprintf(fp,
-            "      result = %sBuildSIPEnumValue(tempr, \"%s\");\n",
-            prefix, val->Class);
-  }
   else if (vtkWrap_IsCharPointer(val))
   {
     fprintf(fp,
@@ -952,8 +922,7 @@ static void vtkWrapPython_GenerateMethodCall(
         fprintf(fp,", ");
       }
 
-      if ((vtkWrap_IsSpecialObject(arg) ||
-           vtkWrap_IsQtObject(arg)) &&
+      if (vtkWrap_IsSpecialObject(arg) &&
           !vtkWrap_IsPointer(arg))
       {
         fprintf(fp, "*temp%i", i);

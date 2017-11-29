@@ -51,8 +51,6 @@ int vtkWrap_IsZeroCopyPointer(ValueInfo *val);
 int vtkWrap_IsVTKObject(ValueInfo *val);
 int vtkWrap_IsSpecialObject(ValueInfo *val);
 int vtkWrap_IsPythonObject(ValueInfo *val);
-int vtkWrap_IsQtObject(ValueInfo *val);
-int vtkWrap_IsQtEnum(ValueInfo *val);
 /*@}*/
 
 /**

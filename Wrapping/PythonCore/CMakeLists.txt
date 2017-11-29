@@ -32,11 +32,7 @@ include_directories(
   ${VTK_SOURCE_DIR}/Utilities
   )
 
-# SIP directory will be searched before other python dirs
 set(PYTHON_WRAPPING_INCLUDE_DIRS)
-if(VTK_WRAP_PYTHON_SIP)
-  list(APPEND PYTHON_WRAPPING_INCLUDE_DIRS "${SIP_INCLUDE_DIR}")
-endif()
 set(${vtk-module}_SYSTEM_INCLUDE_DIRS ${PYTHON_WRAPPING_INCLUDE_DIRS})
 
 set(${vtk-module}_NO_HeaderTest 1)

@@ -226,38 +226,6 @@ public:
 
   //@{
   /**
-   * Get the next argument as a SIP object.
-   */
-  template<class T>
-  bool GetSIPObject(T *&v, const char *classname) {
-    bool r;
-    v = (T *)this->GetArgAsSIPObject(classname, r);
-    return r; }
-  template<class T>
-  static bool GetSIPObject(PyObject *o, T *&v, const char *classname) {
-    bool r;
-    v = (T *)vtkPythonArgs::GetArgAsSIPObject(o, classname, r);
-    return r; }
-  //@}
-
-  //@{
-  /**
-   * Get the next argument as a SIP enum value.
-   */
-  template<class T>
-  bool GetSIPEnumValue(T &v, const char *enumname) {
-    bool r;
-    v = static_cast<T>(this->GetArgAsSIPEnum(enumname, r));
-    return r; }
-  template<class T>
-  static bool GetSIPEnumValue(PyObject *o, T &v, const char *enumname) {
-    bool r;
-    v = static_cast<T>(vtkPythonArgs::GetArgAsSIPEnum(o, enumname, r));
-    return r; }
-  //@}
-
-  //@{
-  /**
    * Get the arguments needed for a SetExecuteMethod or a similar
    * method that requires a function-pointer argument.
    */
@@ -520,18 +488,6 @@ public:
   static PyObject *BuildEnumValue(int v, const char *enumname);
 
   /**
-   * Build a SIP object of the specified type.  Set "created" to true
-   * if the object was just created with new.
-   */
-  static PyObject *BuildSIPObject(
-    const void *v, const char *classname, bool created);
-
-  /**
-   * Build a SIP enum object.
-   */
-  static PyObject *BuildSIPEnumValue(int v, const char *classname);
-
-  /**
    * Create a mangled string containing a memory address.
    */
   static PyObject *BuildValue(const void *v);
@@ -692,24 +648,6 @@ protected:
     PyObject *o, const char *enumname, bool &valid);
   //@}
 
-  //@{
-  /**
-   * Get the next argument as an object of the given type.
-   */
-  void *GetArgAsSIPObject(const char *classname, bool &valid);
-  static void *GetArgAsSIPObject(
-    PyObject *o, const char *classname, bool &valid);
-  //@}
-
-  //@{
-  /**
-   * Get the next argument as an object of the given type.
-   */
-  int GetArgAsSIPEnum(const char *classname, bool &valid);
-  static int GetArgAsSIPEnum(
-    PyObject *o, const char *classname, bool &valid);
-  //@}
-
   /**
    * Raise a TypeError if a virtual method call was called.
    */
@@ -858,20 +796,6 @@ PyObject *vtkPythonArgs::BuildSpecialObject(const void *v,
 
 inline
 PyObject *vtkPythonArgs::BuildEnumValue(int, const char *)
-{
-  /* not implemented */
-  return nullptr;
-}
-
-inline
-PyObject *vtkPythonArgs::BuildSIPObject(
-  const void *v, const char *classname, bool created)
-{
-  return vtkPythonUtil::SIPGetObjectFromPointer(v, classname, created);
-}
-
-inline
-PyObject *vtkPythonArgs::BuildSIPEnumValue(int, const char *)
 {
   /* not implemented */
   return nullptr;

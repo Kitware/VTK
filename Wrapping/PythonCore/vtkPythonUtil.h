@@ -100,20 +100,6 @@ public:
   static PyObject *GetObjectFromPointer(vtkObjectBase *ptr);
 
   /**
-   * Extract the SIP wrapped object from a PyObject.  If the conversion cannot
-   * be done, an error indicator is set.
-   * Special behavior: Py_None is converted to NULL without no error.
-   */
-  static void *SIPGetPointerFromObject(PyObject *obj, const char *classname);
-
-  /**
-   * Convert a SIP wrapped object to a PyObject.
-   * Special behaviour: NULL is converted to Py_None.
-   */
-  static PyObject *SIPGetObjectFromPointer(
-    const void *ptr, const char* classname, bool is_new);
-
-  /**
    * Try to convert some PyObject into a PyVTKObject, currently conversion
    * is supported for SWIG-style mangled pointer strings.
    */

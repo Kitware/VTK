@@ -513,9 +513,7 @@ static int vtkWrapPython_IsValueWrappable(
     if (vtkWrap_IsObject(val))
     {
       if (vtkWrap_IsSpecialType(hinfo, aClass) ||
-          vtkWrapPython_HasWrappedSuperClass(hinfo, aClass, NULL) ||
-          vtkWrap_IsQtObject(val) ||
-          vtkWrap_IsQtEnum(val))
+          vtkWrapPython_HasWrappedSuperClass(hinfo, aClass, NULL))
       {
         return 1;
       }
@@ -543,8 +541,7 @@ static int vtkWrapPython_IsValueWrappable(
     }
     else if (vtkWrap_IsObject(val))
     {
-      if (vtkWrap_IsVTKObjectBaseType(hinfo, aClass) ||
-          vtkWrap_IsQtObject(val))
+      if (vtkWrap_IsVTKObjectBaseType(hinfo, aClass))
       {
         return 1;
       }
