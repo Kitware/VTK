@@ -34,6 +34,8 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTestUtilities.h"
 #include "vtkTrivialProducer.h"
 #include "vtkXMLUnstructuredGridReader.h"
+#include "vtkXMLUnstructuredGridWriter.h"
+#include "vtkXMLPolyDataWriter.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <utility>
@@ -288,12 +290,6 @@ int TestPolyhedron6(int argc, char *argv[])
 
     ba->InsertNextCell(VTK_POLYHEDRON, 8, faceStream);
 
-
-    /*vtkNew<vtkXMLUnstructuredGridWriter> uw;
-    uw->SetInputData(ba);
-    uw->SetFileName("Z:/ba.vtu");
-    uw->Update();
-    */
     cf->SetInputArrayToProcess(0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "AirVolumeFraction");
     cf->SetInputData(ba);
     cf->SetValue(0, 0.5);
@@ -306,9 +302,10 @@ int TestPolyhedron6(int argc, char *argv[])
       return EXIT_FAILURE;
     }
     vtkCell* contourCell = result->GetCell(0);
-    if (contourCell->GetNumberOfPoints() != 5)
+
+    if (contourCell->GetNumberOfPoints() != 7)
     {
-      cerr << "Expected contour with 5 points, got " << contourCell->GetNumberOfPoints() << endl;
+      cerr << "Expected contour with 7 points, got " << contourCell->GetNumberOfPoints() << endl;
       return EXIT_FAILURE;
     }
   }
