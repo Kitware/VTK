@@ -147,7 +147,7 @@ public:
    * Map one value through the lookup table and return a color defined
    * as a RGBA unsigned char tuple (4 bytes).
    */
-  unsigned char *MapValue(double v) override;
+  const unsigned char *MapValue(double v) override;
 
   /**
    * Map one value through the lookup table and return the color as

@@ -737,7 +737,7 @@ unsigned char* vtkLookupTable::GetNanColorAsUnsignedChars()
 
 //----------------------------------------------------------------------------
 // Given a scalar value v, return an RGBA color value from lookup table.
-unsigned char* vtkLookupTable::MapValue(double v)
+const unsigned char* vtkLookupTable::MapValue(double v)
 {
   vtkIdType index = this->GetIndex(v);
   if (index < 0)
