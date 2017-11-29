@@ -1,8 +1,7 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+set(test_sources
   TestClipHyperOctree.cxx
   TestHyperOctreeContourFilter.cxx
   TestHyperOctreeCutter.cxx
-  TestHyperOctreeDual.cxx
   TestHyperOctreeSurfaceFilter.cxx
   TestHyperOctreeToUniformGrid.cxx
   TestHyperTreeGridBinary2D.cxx
@@ -68,4 +67,13 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND test_sources
+    TestHyperOctreeDual.cxx #deprecated due to vtkHyperOctreeFractalSource use
+  )
+endif()
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests ${test_sources})
+
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
