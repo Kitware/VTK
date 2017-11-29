@@ -3052,6 +3052,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
 void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
   vtkShader::Type shaderType)
 {
+  // First clear all shader code
+  if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
+  {
+    this->SetVertexShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
+  {
+    this->SetFragmentShaderCode(nullptr);
+  }
+
+  // Now clear custom tag replacements
   std::map<const vtkShader::ReplacementSpec,
            vtkShader::ReplacementValue>::iterator rIter;
   for (rIter = this->UserShaderReplacements.begin();
@@ -3071,6 +3082,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
 //-----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements()
 {
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
   this->UserShaderReplacements.clear();
 }
 

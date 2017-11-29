@@ -265,6 +265,21 @@ void vtkOpenGLPolyDataMapper::ClearShaderReplacement(
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
   vtkShader::Type shaderType)
 {
+  // First clear all shader code
+  if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
+  {
+    this->SetVertexShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
+  {
+    this->SetFragmentShaderCode(nullptr);
+  }
+  else if ((shaderType == vtkShader::Geometry) && this->GeometryShaderCode)
+  {
+    this->SetGeometryShaderCode(nullptr);
+  }
+
+  // Now clear custom tag replacements
   std::map<const vtkShader::ReplacementSpec,
            vtkShader::ReplacementValue>::iterator rIter;
   for (rIter = this->UserShaderReplacements.begin();
@@ -284,6 +299,9 @@ void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements(
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ClearAllShaderReplacements()
 {
+  this->SetVertexShaderCode(nullptr);
+  this->SetFragmentShaderCode(nullptr);
+  this->SetGeometryShaderCode(nullptr);
   this->UserShaderReplacements.clear();
 }
 
