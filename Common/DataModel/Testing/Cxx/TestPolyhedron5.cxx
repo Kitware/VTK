@@ -168,7 +168,7 @@ void BuildPoints(vtkPoints* pts)
   }
 }
 
-int TestPolyhedron5(int argc, char *argv[])
+int TestPolyhedron5(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   vtkNew<vtkPoints> pts;
   BuildPoints(pts);
@@ -176,6 +176,9 @@ int TestPolyhedron5(int argc, char *argv[])
   vtkNew<vtkUnstructuredGrid> g;
   g->Allocate(1);
   vtkNew<vtkIdList> ptIds;
+
+  vtkNew<vtkXMLUnstructuredGridWriter> gw;
+  vtkNew<vtkXMLPolyDataWriter> pw;
 
   vtkNew<vtkDoubleArray> data;
   data->SetName("AirVolumeFraction");
@@ -248,9 +251,6 @@ int TestPolyhedron5(int argc, char *argv[])
       cerr << "Case " << aCase << " has no 'more' clip result" << endl;
       return EXIT_FAILURE;
     }
-#ifdef _DEBUG
-    cout << bitset<EDGES+CORNERS>(aCase) << " (" << aCase << ")" << endl;
-#endif
   }
 
   return EXIT_SUCCESS;
