@@ -374,11 +374,9 @@ vtkDataArray* vtkTransformFilter::CreateNewDataArray()
   {
     case vtkAlgorithm::DOUBLE_PRECISION:
       return vtkDoubleArray::New();
-      break;
     case vtkAlgorithm::SINGLE_PRECISION:
     default:
       return vtkFloatArray::New();
-      break;
   }
 }
 
