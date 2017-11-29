@@ -30,6 +30,7 @@
 
 class vtkImplicitFunction;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSSOURCES_EXPORT vtkHyperOctreeFractalSource : public vtkHyperOctreeAlgorithm
 {
 public:
@@ -165,5 +166,6 @@ private:
   vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&) = delete;
   void operator=(const vtkHyperOctreeFractalSource&) = delete;
 };
+#endif //VTK_LEGACY_REMOVE
 
 #endif
