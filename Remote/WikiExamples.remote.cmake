@@ -6,8 +6,8 @@
 
 # If the environement var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
-  # November 28, 2017
-  set(GIT_TAG 7ec07b876267ec2e9ccf1496f70845aacd95d620)
+  # November 30, 2017 Enable git lfs
+  set(GIT_TAG 9546e10dc7b2f9ada10a1268a39b1f20bd637483)
 else()
   set(GIT_TAG $ENV{WikiExamplesTag})
 endif()
