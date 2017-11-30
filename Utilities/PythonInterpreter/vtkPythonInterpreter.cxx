@@ -533,6 +533,14 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 {
   using systools = vtksys::SystemTools;
 
+  // Check Py_FrozenFlag global variable defined by Python to see if we're using
+  // frozen Python.
+  if (Py_FrozenFlag)
+  {
+    VTKPY_DEBUG_MESSAGE("`Py_FrozenFlag` is set. Skipping setting up of program path.");
+    return;
+  }
+
   if (Py_GetPythonHome() != nullptr)
   {
     // if PYTHONHOME is set, we do nothing. Don't override an already
@@ -583,6 +591,14 @@ void vtkPythonInterpreter::SetupPythonPrefix()
 //----------------------------------------------------------------------------
 void vtkPythonInterpreter::SetupVTKPythonPaths()
 {
+  // Check Py_FrozenFlag global variable defined by Python to see if we're using
+  // frozen Python.
+  if (Py_FrozenFlag)
+  {
+    VTKPY_DEBUG_MESSAGE("`Py_FrozenFlag` is set. Skipping locating of `vtk` package.");
+    return;
+  }
+
   using systools = vtksys::SystemTools;
   std::string vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())
