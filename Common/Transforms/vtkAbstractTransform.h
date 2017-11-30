@@ -59,14 +59,14 @@ public:
    * array to store both the input and output point.
    */
   void TransformPoint(const float in[3], float out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); };
+    this->Update(); this->InternalTransformPoint(in,out); }
 
   /**
    * Apply the transformation to a double-precision coordinate.
    * You can use the same array to store both the input and output point.
    */
   void TransformPoint(const double in[3], double out[3]) {
-    this->Update(); this->InternalTransformPoint(in,out); };
+    this->Update(); this->InternalTransformPoint(in,out); }
 
   /**
    * Apply the transformation to a double-precision coordinate.
@@ -75,7 +75,7 @@ public:
   double *TransformPoint(double x, double y, double z) {
     return this->TransformDoublePoint(x,y,z); }
   double *TransformPoint(const double point[3]) {
-    return this->TransformPoint(point[0],point[1],point[2]); };
+    return this->TransformPoint(point[0],point[1],point[2]); }
 
   //@{
   /**
@@ -87,9 +87,9 @@ public:
       this->InternalFloatPoint[1] = y;
       this->InternalFloatPoint[2] = z;
       this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
-      return this->InternalFloatPoint; };
+      return this->InternalFloatPoint; }
   float *TransformFloatPoint(const float point[3]) {
-    return this->TransformFloatPoint(point[0],point[1],point[2]); };
+    return this->TransformFloatPoint(point[0],point[1],point[2]); }
   //@}
 
   //@{
@@ -102,9 +102,9 @@ public:
     this->InternalDoublePoint[1] = y;
     this->InternalDoublePoint[2] = z;
     this->TransformPoint(this->InternalDoublePoint,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
   double *TransformDoublePoint(const double point[3]) {
-    return this->TransformDoublePoint(point[0],point[1],point[2]); };
+    return this->TransformDoublePoint(point[0],point[1],point[2]); }
   //@}
 
   //@{
@@ -120,9 +120,11 @@ public:
   //@}
 
   double *TransformNormalAtPoint(const double point[3],
-                                 const double normal[3]) {
+                                 const double normal[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
 
   //@{
   /**
@@ -133,7 +135,7 @@ public:
   double *TransformDoubleNormalAtPoint(const double point[3],
                                        const double normal[3]) {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
   //@}
 
   //@{
@@ -145,7 +147,7 @@ public:
   float *TransformFloatNormalAtPoint(const float point[3],
                                      const float normal[3]) {
     this->TransformNormalAtPoint(point,normal,this->InternalFloatPoint);
-    return this->InternalFloatPoint; };
+    return this->InternalFloatPoint; }
   //@}
 
   //@{
@@ -163,7 +165,7 @@ public:
   double *TransformVectorAtPoint(const double point[3],
                                  const double vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
 
   //@{
   /**
@@ -174,7 +176,7 @@ public:
   double *TransformDoubleVectorAtPoint(const double point[3],
                                        const double vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
-    return this->InternalDoublePoint; };
+    return this->InternalDoublePoint; }
   //@}
 
   //@{
@@ -186,7 +188,7 @@ public:
   float *TransformFloatVectorAtPoint(const float point[3],
                                      const float vector[3]) {
     this->TransformVectorAtPoint(point,vector,this->InternalFloatPoint);
-    return this->InternalFloatPoint; };
+    return this->InternalFloatPoint; }
   //@}
 
   /**
@@ -348,7 +350,7 @@ public:
   void SwapForwardInverse() {
     vtkAbstractTransform *tmp = this->ForwardTransform;
     this->ForwardTransform = this->InverseTransform;
-    this->InverseTransform = tmp; };
+    this->InverseTransform = tmp; }
 };
 
 // .NAME vtkTransformConcatenation - store a series of transformations.
@@ -359,8 +361,8 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransformConcatenation
 {
 public:
   static vtkTransformConcatenation *New() {
-    return new vtkTransformConcatenation(); };
-  void Delete() { delete this; };
+    return new vtkTransformConcatenation(); }
+  void Delete() { delete this; }
 
   /**
    * add a transform to the list according to Pre/PostMultiply semantics
@@ -376,8 +378,8 @@ public:
   /**
    * set/get the PreMultiply flag
    */
-  void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; };
-  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; };
+  void SetPreMultiplyFlag(int flag) { this->PreMultiplyFlag = flag; }
+  int GetPreMultiplyFlag() { return this->PreMultiplyFlag; }
   //@}
 
   //@{
@@ -397,7 +399,7 @@ public:
   /**
    * get the inverse flag
    */
-  int GetInverseFlag() { return this->InverseFlag; };
+  int GetInverseFlag() { return this->InverseFlag; }
 
   /**
    * identity simply clears the transform list
@@ -410,20 +412,20 @@ public:
   /**
    * the number of stored transforms
    */
-  int GetNumberOfTransforms() { return this->NumberOfTransforms; };
+  int GetNumberOfTransforms() { return this->NumberOfTransforms; }
 
   /**
    * the number of transforms that were pre-concatenated (note that
    * whenever Iverse() is called, the pre-concatenated and
    * post-concatenated transforms are switched)
    */
-  int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; };
+  int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; }
 
   /**
    * the number of transforms that were post-concatenated.
    */
   int GetNumberOfPostTransforms() {
-    return this->NumberOfTransforms-this->NumberOfPreTransforms; };
+    return this->NumberOfTransforms-this->NumberOfPreTransforms; }
 
   /**
    * get one of the transforms
