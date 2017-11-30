@@ -26,6 +26,7 @@
 
 #ifndef vtkOStreamWrapper_h
 #define vtkOStreamWrapper_h
+#ifndef __VTK_WRAP__
 
 #include "vtkCommonCoreModule.h"
 
@@ -155,5 +156,6 @@ private:
 };
   //@}
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkOStreamWrapper.h
