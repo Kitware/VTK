@@ -72,24 +72,36 @@ public:
    * Apply the transformation to a double-precision coordinate.
    * Use this if you are programming in Python or Java.
    */
-  double *TransformPoint(double x, double y, double z) {
-    return this->TransformDoublePoint(x,y,z); }
-  double *TransformPoint(const double point[3]) {
-    return this->TransformPoint(point[0],point[1],point[2]); }
+  double *TransformPoint(double x, double y, double z)
+    VTK_SIZEHINT(3)
+  {
+    return this->TransformDoublePoint(x,y,z);
+  }
+  double *TransformPoint(const double point[3])
+    VTK_SIZEHINT(3)
+  {
+    return this->TransformPoint(point[0],point[1],point[2]);
+  }
 
   //@{
   /**
    * Apply the transformation to an (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
    */
-  float *TransformFloatPoint(float x, float y, float z) {
+  float *TransformFloatPoint(float x, float y, float z)
+    VTK_SIZEHINT(3)
+  {
       this->InternalFloatPoint[0] = x;
       this->InternalFloatPoint[1] = y;
       this->InternalFloatPoint[2] = z;
       this->TransformPoint(this->InternalFloatPoint,this->InternalFloatPoint);
-      return this->InternalFloatPoint; }
-  float *TransformFloatPoint(const float point[3]) {
-    return this->TransformFloatPoint(point[0],point[1],point[2]); }
+      return this->InternalFloatPoint;
+  }
+  float *TransformFloatPoint(const float point[3])
+    VTK_SIZEHINT(3)
+  {
+    return this->TransformFloatPoint(point[0],point[1],point[2]);
+  }
   //@}
 
   //@{
@@ -97,14 +109,20 @@ public:
    * Apply the transformation to a double-precision (x,y,z) coordinate.
    * Use this if you are programming in Python or Java.
    */
-  double *TransformDoublePoint(double x, double y, double z) {
+  double *TransformDoublePoint(double x, double y, double z)
+    VTK_SIZEHINT(3)
+  {
     this->InternalDoublePoint[0] = x;
     this->InternalDoublePoint[1] = y;
     this->InternalDoublePoint[2] = z;
     this->TransformPoint(this->InternalDoublePoint,this->InternalDoublePoint);
-    return this->InternalDoublePoint; }
-  double *TransformDoublePoint(const double point[3]) {
-    return this->TransformDoublePoint(point[0],point[1],point[2]); }
+    return this->InternalDoublePoint;
+  }
+  double *TransformDoublePoint(const double point[3])
+    VTK_SIZEHINT(3)
+  {
+    return this->TransformDoublePoint(point[0],point[1],point[2]);
+  }
   //@}
 
   //@{
@@ -124,7 +142,8 @@ public:
     VTK_SIZEHINT(3)
   {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
-    return this->InternalDoublePoint; }
+    return this->InternalDoublePoint;
+  }
 
   //@{
   /**
@@ -133,9 +152,12 @@ public:
    * TransformDoubleNormal() instead.
    */
   double *TransformDoubleNormalAtPoint(const double point[3],
-                                       const double normal[3]) {
+                                       const double normal[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformNormalAtPoint(point,normal,this->InternalDoublePoint);
-    return this->InternalDoublePoint; }
+    return this->InternalDoublePoint;
+  }
   //@}
 
   //@{
@@ -145,9 +167,12 @@ public:
    * TransformFloatNormal() instead.
    */
   float *TransformFloatNormalAtPoint(const float point[3],
-                                     const float normal[3]) {
+                                     const float normal[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformNormalAtPoint(point,normal,this->InternalFloatPoint);
-    return this->InternalFloatPoint; }
+    return this->InternalFloatPoint;
+  }
   //@}
 
   //@{
@@ -163,9 +188,12 @@ public:
   //@}
 
   double *TransformVectorAtPoint(const double point[3],
-                                 const double vector[3]) {
+                                 const double vector[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
-    return this->InternalDoublePoint; }
+    return this->InternalDoublePoint;
+  }
 
   //@{
   /**
@@ -174,9 +202,12 @@ public:
    * TransformDoubleVector() instead.
    */
   double *TransformDoubleVectorAtPoint(const double point[3],
-                                       const double vector[3]) {
+                                       const double vector[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformVectorAtPoint(point,vector,this->InternalDoublePoint);
-    return this->InternalDoublePoint; }
+    return this->InternalDoublePoint;
+  }
   //@}
 
   //@{
@@ -186,9 +217,12 @@ public:
    * TransformFloatVector() instead.
    */
   float *TransformFloatVectorAtPoint(const float point[3],
-                                     const float vector[3]) {
+                                     const float vector[3])
+    VTK_SIZEHINT(3)
+  {
     this->TransformVectorAtPoint(point,vector,this->InternalFloatPoint);
-    return this->InternalFloatPoint; }
+    return this->InternalFloatPoint;
+  }
   //@}
 
   /**
