@@ -118,15 +118,20 @@ public:
   double GetTuple1(vtkIdType tupleIdx)
     VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
   double* GetTuple2(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(2);
   double* GetTuple3(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(3);
   double* GetTuple4(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(4);
   double* GetTuple6(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(6);
   double* GetTuple9(vtkIdType tupleIdx)
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
+    VTK_SIZEHINT(9);
   //@}
 
   void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
@@ -380,7 +385,7 @@ public:
    * modified or the requested component changes.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetRange(int comp)
+  double* GetRange(int comp) VTK_SIZEHINT(2)
   {
     this->GetRange(this->Range, comp);
     return this->Range;
@@ -394,7 +399,7 @@ public:
    * on subsequent calls to GetRange() unless the array is modified.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double* GetRange()
+  double* GetRange() VTK_SIZEHINT(2)
   {
     return this->GetRange(0);
   }
@@ -435,7 +440,7 @@ public:
    * modified or the requested component changes.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetFiniteRange(int comp)
+  double *GetFiniteRange(int comp) VTK_SIZEHINT(2)
   {
     this->GetFiniteRange(this->FiniteRange, comp);
     return this->FiniteRange;
@@ -449,7 +454,7 @@ public:
    * on subsequent calls to GetRange() unless the array is modified.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetFiniteRange()
+  double *GetFiniteRange() VTK_SIZEHINT(2)
   {
     return this->GetFiniteRange(0);
   }

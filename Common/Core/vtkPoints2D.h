@@ -131,7 +131,7 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType id) { return this->Data->GetTuple(id);}
+  double *GetPoint(vtkIdType id) VTK_SIZEHINT(2) { return this->Data->GetTuple(id);}
 
   /**
    * Copy point components into user provided array v[2] for specified id.
@@ -197,7 +197,7 @@ public:
   /**
    * Return the bounds of the points.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(4);
 
   /**
    * Return the bounds of the points.

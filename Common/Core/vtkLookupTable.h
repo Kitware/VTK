@@ -316,7 +316,7 @@ public:
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
-  double *GetTableValue(vtkIdType id);
+  double *GetTableValue(vtkIdType id) VTK_SIZEHINT(4);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
@@ -348,7 +348,7 @@ public:
    * Sets/Gets the range of scalars which will be mapped.  This is a duplicate
    * of Get/SetTableRange.
    */
-  double *GetRange() override
+  double *GetRange() VTK_SIZEHINT(2) override
     { return this->GetTableRange(); }
   void SetRange(double min, double max) override
     { this->SetTableRange(min, max); }
