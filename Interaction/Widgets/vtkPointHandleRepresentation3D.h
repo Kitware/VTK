@@ -180,7 +180,7 @@ public:
   /**
    * Methods to make this class properly act like a vtkWidgetRepresentation.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;

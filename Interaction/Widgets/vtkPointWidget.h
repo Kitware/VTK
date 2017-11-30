@@ -113,7 +113,7 @@ public:
     {this->Cursor3D->SetFocalPoint(x,y,z);}
   void SetPosition(double x[3])
     {this->SetPosition(x[0],x[1],x[2]);}
-  double* GetPosition()
+  double* GetPosition() VTK_SIZEHINT(3)
     {return this->Cursor3D->GetFocalPoint();}
   void GetPosition(double xyz[3])
     {this->Cursor3D->GetFocalPoint(xyz);}

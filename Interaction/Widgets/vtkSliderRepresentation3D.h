@@ -157,7 +157,7 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetActors(vtkPropCollection*) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;

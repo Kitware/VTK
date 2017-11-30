@@ -122,7 +122,7 @@ public:
   void SetPoint1(double x, double y, double z);
   void SetPoint1(double x[3])
     {this->SetPoint1(x[0], x[1], x[2]); }
-  double* GetPoint1()
+  double* GetPoint1() VTK_SIZEHINT(3)
     {return this->LineSource->GetPoint1();}
   void GetPoint1(double xyz[3])
     {this->LineSource->GetPoint1(xyz);}
@@ -133,7 +133,7 @@ public:
   void SetPoint2(double x, double y, double z);
   void SetPoint2(double x[3])
     {this->SetPoint2(x[0], x[1], x[2]);}
-  double* GetPoint2()
+  double* GetPoint2() VTK_SIZEHINT(3)
     {return this->LineSource->GetPoint2();}
   void GetPoint2(double xyz[3])
     {this->LineSource->GetPoint2(xyz);}

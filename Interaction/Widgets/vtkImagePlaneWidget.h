@@ -162,7 +162,7 @@ public:
    */
   void SetOrigin(double x, double y, double z);
   void SetOrigin(double xyz[3]);
-  double* GetOrigin();
+  double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
   //@}
 
@@ -172,7 +172,7 @@ public:
    */
   void SetPoint1(double x, double y, double z);
   void SetPoint1(double xyz[3]);
-  double* GetPoint1();
+  double* GetPoint1() VTK_SIZEHINT(3);
   void GetPoint1(double xyz[3]);
   //@}
 
@@ -182,7 +182,7 @@ public:
    */
   void SetPoint2(double x, double y, double z);
   void SetPoint2(double xyz[3]);
-  double* GetPoint2();
+  double* GetPoint2() VTK_SIZEHINT(3);
   void GetPoint2(double xyz[3]);
   //@}
 
@@ -190,7 +190,7 @@ public:
   /**
    * Get the center of the plane.
    */
-  double* GetCenter();
+  double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double xyz[3]);
   //@}
 
@@ -198,7 +198,7 @@ public:
   /**
    * Get the normal to the plane.
    */
-  double* GetNormal();
+  double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
   //@}
 

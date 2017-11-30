@@ -89,7 +89,7 @@ public:
    * methods. These are the methods that the widget and its representation
    * use to communicate with each other.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void BuildRepresentation() override;
   void StartWidgetInteraction(double eventPos[2]) override;
   void WidgetInteraction(double eventPos[2]) override;

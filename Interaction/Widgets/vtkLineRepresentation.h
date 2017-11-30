@@ -78,15 +78,15 @@ public:
    * display and world coordinates.
    */
   void GetPoint1WorldPosition(double pos[3]);
-  double* GetPoint1WorldPosition();
+  double* GetPoint1WorldPosition() VTK_SIZEHINT(3);
   void GetPoint1DisplayPosition(double pos[3]);
-  double* GetPoint1DisplayPosition();
+  double* GetPoint1DisplayPosition() VTK_SIZEHINT(3);
   void SetPoint1WorldPosition(double pos[3]);
   void SetPoint1DisplayPosition(double pos[3]);
   void GetPoint2DisplayPosition(double pos[3]);
-  double* GetPoint2DisplayPosition();
+  double* GetPoint2DisplayPosition() VTK_SIZEHINT(3);
   void GetPoint2WorldPosition(double pos[3]);
-  double* GetPoint2WorldPosition();
+  double* GetPoint2WorldPosition() VTK_SIZEHINT(3);
   void SetPoint2WorldPosition(double pos[3]);
   void SetPoint2DisplayPosition(double pos[3]);
   //@}
@@ -181,7 +181,7 @@ public:
   int ComputeInteractionState(int X, int Y, int modify=0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   //@}
 
   //@{
@@ -273,7 +273,7 @@ public:
     this->SetDistanceAnnotationScale(scale);
   }
   virtual void SetDistanceAnnotationScale( double scale[3] );
-  virtual double * GetDistanceAnnotationScale();
+  virtual double * GetDistanceAnnotationScale() VTK_SIZEHINT(3);
   //@}
 
   /**

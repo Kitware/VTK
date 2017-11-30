@@ -156,7 +156,7 @@ public:
   {
     this->SetCenter(x[0], x[1], x[2]);
   }
-  double* GetCenter()
+  double* GetCenter() VTK_SIZEHINT(3)
     {return this->SphereSource->GetCenter();}
   void GetCenter(double xyz[3])
     {this->SphereSource->GetCenter(xyz);}

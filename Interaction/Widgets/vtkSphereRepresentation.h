@@ -130,7 +130,7 @@ public:
   void SetCenter(double c[3]);
   void SetCenter(double x, double y, double z)
     {double c[3]; c[0]=x; c[1]=y; c[2]=z; this->SetCenter(c);}
-  double* GetCenter()
+  double* GetCenter() VTK_SIZEHINT(3)
     {return this->SphereSource->GetCenter();}
   void GetCenter(double xyz[3])
     {this->SphereSource->GetCenter(xyz);}

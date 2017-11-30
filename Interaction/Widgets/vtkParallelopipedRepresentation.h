@@ -113,7 +113,7 @@ public:
   /**
    * The parallelopiped polydata.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
 
   //@{
   /**

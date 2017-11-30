@@ -237,7 +237,7 @@ public:
   void SetHandlePosition(int handle, double x, double y, double z);
   void SetHandlePosition(int handle, double xyz[3]);
   void GetHandlePosition(int handle, double xyz[3]);
-  double* GetHandlePosition(int handle);
+  double* GetHandlePosition(int handle) VTK_SIZEHINT(3);
   //@}
 
   //@{
