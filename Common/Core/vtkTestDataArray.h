@@ -31,6 +31,7 @@
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkGenericDataArray.h"
+#include "vtkObjectFactory.h" // For VTK_STANDARD_NEW_BODY
 
 template <class ArrayT>
 class vtkTestDataArray : public vtkGenericDataArray<vtkTestDataArray<ArrayT>,
