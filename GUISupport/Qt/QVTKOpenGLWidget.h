@@ -131,6 +131,8 @@ public:
   //@{
   /**
    * Get/Set the currently used vtkGenericOpenGLRenderWindow.
+   * GetRenderWindow() creates and returns a new vtkGenericOpenGLRenderWindow
+   * if it is not already provided.
    */
   void SetRenderWindow(vtkGenericOpenGLRenderWindow* win);
   void SetRenderWindow(vtkRenderWindow* win);

@@ -226,6 +226,13 @@ void QVTKOpenGLWidget::startEventCallback()
 //-----------------------------------------------------------------------------
 vtkRenderWindow* QVTKOpenGLWidget::GetRenderWindow()
 {
+  if (!this->RenderWindow)
+  {
+    // create a default
+    vtkGenericOpenGLRenderWindow* win = vtkGenericOpenGLRenderWindow::New();
+    this->SetRenderWindow(win);
+    win->Delete();
+  }
   return this->RenderWindow;
 }
 

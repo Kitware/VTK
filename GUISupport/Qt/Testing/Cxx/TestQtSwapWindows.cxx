@@ -1,24 +1,25 @@
-#include <QVTKWidget.h>
 #include <QApplication>
-#include <QWidget>
 #include <QBoxLayout>
+#include <QVTKOpenGLWidget.h>
+#include <QWidget>
+#include <vtkNew.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkNew.h>
 
 int TestQtSwapWindows(int argc, char* argv[])
 {
+  QSurfaceFormat::setDefaultFormat(QVTKOpenGLWidget::defaultFormat());
   QApplication app(argc, argv);
 
   // Set up frame with two horizontally stacked panels,
-  // Each containg a QVTKWidget
+  // Each containg a QVTKOpenGLWidget
   QWidget frame;
   QHBoxLayout *layout = new QHBoxLayout(&frame);
 
   QWidget *leftPanel = new QWidget(&frame);
   QVBoxLayout *leftLayout = new QVBoxLayout(leftPanel);
-  QVTKWidget *leftVTKWidget = new QVTKWidget(leftPanel);
+  QVTKOpenGLWidget *leftVTKWidget = new QVTKOpenGLWidget(leftPanel);
   vtkSmartPointer<vtkRenderer> leftRenderer = vtkSmartPointer<vtkRenderer>::New();
   leftRenderer->SetBackground(1, 0, 0);
   leftVTKWidget->GetRenderWindow()->AddRenderer(leftRenderer);
@@ -26,7 +27,7 @@ int TestQtSwapWindows(int argc, char* argv[])
 
   QWidget *rightPanel = new QWidget(&frame);
   QVBoxLayout *rightLayout = new QVBoxLayout(rightPanel);
-  QVTKWidget *rightVTKWidget = new QVTKWidget(rightPanel);
+  QVTKOpenGLWidget *rightVTKWidget = new QVTKOpenGLWidget(rightPanel);
   vtkSmartPointer<vtkRenderer> rightRenderer = vtkSmartPointer<vtkRenderer>::New();
   rightRenderer->SetBackground(0, 1, 0);
   rightVTKWidget->GetRenderWindow()->AddRenderer(rightRenderer);
