@@ -660,11 +660,11 @@ public:
    * use 3D extents. Where port is not specified, it is assumed to
    * be 0.
    */
-  int* GetUpdateExtent()
+  int* GetUpdateExtent() VTK_SIZEHINT(6)
   {
     return this->GetUpdateExtent(0);
   }
-  int* GetUpdateExtent(int port);
+  int* GetUpdateExtent(int port) VTK_SIZEHINT(6);
   void GetUpdateExtent(int& x0, int& x1, int& y0, int& y1,
                        int& z0, int& z1)
   {

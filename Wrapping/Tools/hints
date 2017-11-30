@@ -1,4 +1,3 @@
-vtkAlgorithm                          GetUpdateExtent                   304  6
 vtkAMRVolumeMapper                    GetCroppingRegionPlanes           307  6
 vtkAnnotatedCubeActor                 GetBounds                         307  6
 vtkAxesActor                          GetBounds                         307  6
@@ -38,7 +37,6 @@ vtkEGLRenderWindow                    GetPosition                       304  2
 vtkEGLRenderWindow                    GetScreenSize                     304  2
 vtkEGLRenderWindow                    GetSize                           304  2
 vtkExodusIIReader                     GetModeShapesRange                304  2
-vtkExtentSplitter                     GetSubExtent                      304  6
 vtkExtractUnstructuredGrid            GetExtent                         307  6
 vtkFloatArray                         GetValueRange                     301  2
 vtkFunctionParser                     GetVectorResult                   307  3
@@ -197,7 +195,6 @@ vtkSphereWidget                       GetCenter                         307  3
 vtkSphericalDirectionEncoder          GetDecodedGradient                301  3
 vtkSplineWidget                       GetHandlePosition                 307  3
 vtkStreamer                           GetStartPosition                  307  3
-vtkStreamingDemandDrivenPipeline      GetWholeExtent                    304  6
 vtkStructuredGrid                     GetDimensions                     304  3
 vtkStructuredGrid                     GetExtent                         304  6
 vtkStructuredGrid                     GetPoint                          307  3
