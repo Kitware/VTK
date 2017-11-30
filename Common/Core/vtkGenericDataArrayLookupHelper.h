@@ -69,8 +69,8 @@ public:
 
   // Constructor.
   vtkGenericDataArrayLookupHelper()
-    : AssociatedArray{nullptr}, SortedArray(nullptr),
-    FirstValue{nullptr}, SortedArraySize{0}
+    : AssociatedArray(nullptr), SortedArray(nullptr),
+    FirstValue(nullptr), SortedArraySize(0)
   {
   }
   ~vtkGenericDataArrayLookupHelper()
