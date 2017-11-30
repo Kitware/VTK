@@ -127,8 +127,8 @@
     }                                                                    \
     else                                                                   \
     {                                                                    \
-      /* This is not ideal, as no explicit iterator has been declared.     \
-       * Cast the void pointer and hope for the best! */                   \
+      /* This is not ideal, as no explicit iterator has been declared. */  \
+      /* Cast the void pointer and hope for the best!                  */  \
       typedef VTK_TT vtkDAValueType;                                       \
       typedef vtkAbstractArray vtkDAContainerType _vtkDAIMUnused;          \
       typedef vtkDAValueType* vtkDAIteratorType;                           \
