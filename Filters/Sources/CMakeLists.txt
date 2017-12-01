@@ -11,7 +11,6 @@ set(Module_SRCS
   vtkEllipticalButtonSource.cxx
   vtkFrustumSource.cxx
   vtkGlyphSource2D.cxx
-  vtkHyperOctreeFractalSource.cxx
   vtkHyperTreeGridSource.cxx
   vtkLineSource.cxx
   vtkOutlineCornerFilter.cxx
@@ -37,5 +36,11 @@ set(Module_SRCS
   vtkGraphToPolyData.cxx
   vtkDiagonalMatrixSource.cxx
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkHyperOctreeFractalSource.cxx
+  )
+endif()
 
 vtk_module_library(vtkFiltersSources ${Module_SRCS})
