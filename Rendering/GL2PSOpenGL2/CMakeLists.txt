@@ -8,14 +8,10 @@ set(Module_SRCS
 )
 
 set_source_files_properties(
-  vtkOpenGLGL2PSHelperImpl
-  WRAP_EXCLUDE
-)
-
-set_source_files_properties(
   vtkOpenGLGL2PSHelperImpl.h
   vtkOpenGLGL2PSHelperImpl.cxx
   PROPERTIES
+    WRAP_EXCLUDE 1
     WRAP_EXCLUDE_PYTHON 1
 )
 
