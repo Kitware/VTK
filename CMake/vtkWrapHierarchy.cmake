@@ -166,5 +166,8 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
             ${INPUT_FILES}
     VERBATIM
     )
+  add_custom_target(${module_name}Hierarchy
+    DEPENDS
+      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt)
 
 endmacro()

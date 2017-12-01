@@ -20,7 +20,7 @@ include(vtkWrapHierarchy)
 function(vtk_add_wrapping module_name module_srcs module_hdrs)
   if(NOT ${module_name}_EXCLUDE_FROM_WRAPPING)
     set(_wrap_module FALSE)
-    if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+    if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
       set(_wrap_module TRUE)
     endif()
 

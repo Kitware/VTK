@@ -493,7 +493,9 @@ else()
     FORCE)
 endif()
 
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+option(VTK_WRAP_HIERARCHY "Create wrap hierarchy even if languages are disabled." OFF)
+mark_as_advanced(VTK_WRAP_HIERARCHY)
+if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
   set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
 endif()
 
