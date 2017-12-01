@@ -64,7 +64,7 @@ test -n "$remote" || remote="gitlab"
 # Identify and validate the topic branch name.
 head="$(git symbolic-ref HEAD)" && topic="${head#refs/heads/}" || topic=''
 if test -z "$topic" -o "$topic" = "master"; then
-  die 'You cant sync the master branch, please checkout the correct a branch with:
+  die 'You cannot sync the master branch.  Please checkout the correct branch with:
   git checkout <branch>'
 fi
 
