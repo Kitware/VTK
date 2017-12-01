@@ -120,7 +120,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
   if (ghostGenerator->GetOutput()->GetCellGhostArray() == nullptr)
   {
-    cerr << "Ghost were not generated but were explicitely requested on process "
+    cerr << "Ghost were not generated but were explicitly requested on process "
          << controller->GetLocalProcessId() << endl;
     ret = EXIT_FAILURE;
   }

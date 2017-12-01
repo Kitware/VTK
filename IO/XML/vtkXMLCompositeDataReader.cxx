@@ -388,7 +388,7 @@ bool vtkXMLCompositeDataReader::DataSetIsValidForBlockStrategy(unsigned int idx)
   {
     // Account for earlier blocks that have an overflowed dataset:
     const unsigned int overflowOffset = blockSizeOverflow * overflowBlocks;
-    // Number of preceeding blocks that don't overflow:
+    // Number of preceding blocks that don't overflow:
     const unsigned int regularBlocks = this->Internal->Piece - overflowBlocks;
     // Offset due to regular blocks:
     const unsigned int regularOffset = blockSize * regularBlocks;

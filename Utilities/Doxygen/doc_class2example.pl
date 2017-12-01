@@ -201,7 +201,7 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon f
   --baselinelink l: use 'l' as baseline link to picture
   --baselinelinksuffix s : suffix string to append to --baselinelink + filename
   --datamatch s   : use string s to match any usage of data files
-  --dataicon f    : use 'f  as icon file to report that file makes use of data files
+  --dataicon f    : use 'f' as icon file to report that file makes use of data files
   --dirmatch str  : use string to match the directory name holding files (default: $default{dirmatch})
   --label str     : use string as label in class page (default: $default{label})
   --limit n       : limit the number of examples per parser type (default: $default{limit})

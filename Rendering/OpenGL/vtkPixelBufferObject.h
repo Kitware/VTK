@@ -26,7 +26,7 @@
  * OpenGL Pixel Buffer Object Extension Spec (ARB_pixel_buffer_object):
  * http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
  * @warning
- * Since most PBO mappeds don't support double format all double data is converted to
+ * Since most PBO mapped don't support double format all double data is converted to
  * float and then uploaded.
 */
 
@@ -83,7 +83,7 @@ public:
    * - StreamRead specified once by R, queried a few times by A
    * - StreamCopy specified once by R, used a few times S
    * - StaticDraw specified once by A, used many times S
-   * - StaticRead specificed once by R, queried many times by A
+   * - StaticRead specified once by R, queried many times by A
    * - StaticCopy specified once by R, used many times S
    * - DynamicDraw respecified repeatedly by A, used many times S
    * - DynamicRead respecified repeatedly by R, queried many times by A

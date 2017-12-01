@@ -761,7 +761,7 @@ void vtkTecplotReader::GetArraysFromPointPackingZone
   pointers.clear();
   zoneData.clear();
 
-  // geoemtry: 3D point coordinates (note that this array must be initialized
+  // geometry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints( numNodes );
   float * cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );
@@ -891,7 +891,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
 
   zoneData.clear();
 
-  // geoemtry: 3D point coordinates (note that this array must be initialized
+  // geometry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints( numNodes );
   float * cordsPtr = static_cast< float * > (  theNodes->GetVoidPointer( 0 )  );

@@ -123,7 +123,7 @@ public:
    */
   void SetRepresentation( vtkImplicitPlaneRepresentation *rep );
 
-  // Descritpion:
+  // Description:
   // Disable/Enable the widget if needed.
   // Unobserved the camera if the widget is disabled.
   void SetEnabled(int enabling) override;

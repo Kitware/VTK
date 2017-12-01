@@ -103,7 +103,7 @@ protected:
    * was modified, it assumes the buffers will be rebuilt, so it updates
    * the modified time of the last build. Override this function if you have
    * a subclass that uses any information in addition to the vtkGraph to determine
-   * visual propeties that may be dynamic.
+   * visual properties that may be dynamic.
    */
   virtual bool IsDirty();
 

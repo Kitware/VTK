@@ -221,7 +221,7 @@ protected:
   // Does not allocate.
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
 
-  // Create a vtkInformationKey from its coresponding XML representation.
+  // Create a vtkInformationKey from its corresponding XML representation.
   // Stores it in the instance of vtkInformationProvided. Does not allocate.
   int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
 

@@ -136,7 +136,7 @@ protected:
 
   //@{
   /**
-   * convienience method to add node or nodes
+   * convenience method to add node or nodes
    * if missing from our current list
    */
   void AddMissingNode(vtkObject *obj);

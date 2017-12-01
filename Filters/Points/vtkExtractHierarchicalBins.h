@@ -33,7 +33,7 @@
  *
  * @sa
  * vtkFiltersPointsFilter vtkRadiusOutlierRemoval vtkStatisticalOutlierRemoval
- * vtkThresholdPoints vtkImplicitFunction vtkExtractGeoemtry
+ * vtkThresholdPoints vtkImplicitFunction vtkExtractGeometry
  * vtkFitImplicitFunction
 */
 

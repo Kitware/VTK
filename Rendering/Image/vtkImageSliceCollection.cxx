@@ -28,7 +28,7 @@ void vtkImageSliceCollection::DeleteElement(vtkCollectionElement *e)
 }
 
 //----------------------------------------------------------------------------
-// Desctructor for the vtkImageSliceCollection class. This removes all
+// Destructor for the vtkImageSliceCollection class. This removes all
 // objects from the collection.
 vtkImageSliceCollection::~vtkImageSliceCollection()
 {

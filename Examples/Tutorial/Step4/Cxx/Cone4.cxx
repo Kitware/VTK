@@ -77,7 +77,7 @@ int main()
   // manipulated and then assigned to the actor. In this way, a single
   // property can be shared among many actors. Note also that we use the
   // same mapper as the first actor did. This way we avoid duplicating
-  // geometry, which may save lots of memory if the geoemtry is large.
+  // geometry, which may save lots of memory if the geometry is large.
   vtkActor *coneActor2 = vtkActor::New();
   coneActor2->SetMapper(coneMapper);
   coneActor2->GetProperty()->SetColor(0.2, 0.63, 0.79);

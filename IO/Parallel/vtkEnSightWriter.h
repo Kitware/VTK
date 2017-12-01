@@ -100,7 +100,7 @@ public:
 
   //@{
   /**
-   * Specify whether the geoemtry changes each timestep
+   * Specify whether the geometry changes each timestep
    * if false, geometry is only written at timestep 0
    */
   vtkSetMacro(TransientGeometry,bool);

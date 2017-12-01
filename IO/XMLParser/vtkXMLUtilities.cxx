@@ -78,7 +78,7 @@ void vtkXMLUtilities::EncodeString(const char *input, int input_encoding,
   }
 
   // If either the input or output encoding is not specified,
-  // or they are the same, dump as is (if no entites had to be converted)
+  // or they are the same, dump as is (if no entities had to be converted)
 
   int no_input_encoding = (input_encoding <= VTK_ENCODING_NONE ||
                            input_encoding >= VTK_ENCODING_UNKNOWN);
