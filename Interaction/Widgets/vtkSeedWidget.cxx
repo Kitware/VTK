@@ -155,6 +155,8 @@ void vtkSeedWidget::AddPointAction(vtkAbstractWidget *w)
     return;
   }
 
+  self->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
