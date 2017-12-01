@@ -39,19 +39,22 @@
 #define vtkProgrammableSource_h
 
 #include "vtkFiltersSourcesModule.h" // For export macro
-#include "vtkDataSetAlgorithm.h"
+#include "vtkDataObjectAlgorithm.h"
 
+class vtkGraph;
+class vtkMolecule;
 class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
+class vtkStructuredGrid;
+class vtkStructuredPoints;
+class vtkTable;
+class vtkUnstructuredGrid;
 
-class VTKFILTERSSOURCES_EXPORT vtkProgrammableSource : public vtkDataSetAlgorithm
+class VTKFILTERSSOURCES_EXPORT vtkProgrammableSource : public vtkDataObjectAlgorithm
 {
 public:
   static vtkProgrammableSource *New();
-  vtkTypeMacro(vtkProgrammableSource,vtkDataSetAlgorithm);
+  vtkTypeMacro(vtkProgrammableSource,vtkDataObjectAlgorithm);
 
   /**
    * Signature definition for programmable method callbacks. Methods passed
@@ -80,6 +83,7 @@ public:
    */
   void SetRequestInformationMethod(void (*f)(void *));
 
+  //@{
   /**
    * Get the output as a concrete type. This method is typically used by the
    * writer of the source function to get the output as a particular type
@@ -87,26 +91,14 @@ public:
    * to know the correct type of the output data.
    */
   vtkPolyData *GetPolyDataOutput();
-
-  /**
-   * Get the output as a concrete type.
-   */
   vtkStructuredPoints *GetStructuredPointsOutput();
-
-  /**
-   * Get the output as a concrete type.
-   */
   vtkStructuredGrid *GetStructuredGridOutput();
-
-  /**
-   * Get the output as a concrete type.
-   */
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  /**
-   * Get the output as a concrete type.
-   */
   vtkRectilinearGrid *GetRectilinearGridOutput();
+  vtkGraph *GetGraphOutput();
+  vtkMolecule *GetMoleculeOutput();
+  vtkTable *GetTableOutput();
+  //@}
 
 protected:
   vtkProgrammableSource();

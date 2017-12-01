@@ -18,6 +18,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPlatonicSolidSource.cxx,NO_VALID
   TestPointSource.cxx,NO_VALID
   TestPolyLineSource.cxx,NO_VALID
+  TestProgrammableSource.cxx,NO_VALID
   TestRectangularButtonSource.cxx,NO_VALID
   TestRegularPolygonSource.cxx,NO_VALID
   TestSphereSource.cxx,NO_VALID
