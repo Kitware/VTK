@@ -164,6 +164,9 @@ function(_vtk_add_python_module name)
       # when building shared on Windows, the python module files need to be
       # named as *.pyd
       set_target_properties(${name} PROPERTIES SUFFIX ".pyd")
+      if (PYTHON_DEBUG_LIBRARY)
+        set_target_properties(${name} PROPERTIES OUTPUT_NAME_DEBUG "${name}_d")
+      endif()
     endif()
     # build python module libraries under the ${VTK_BUILD_PYTHON_MODULES_DIR} dir.
     set_target_properties(${name}
