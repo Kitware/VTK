@@ -43,8 +43,6 @@
 #include "vtkFiltersProgrammableModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-class vtkGraph;
-class vtkTable;
 
 class VTKFILTERSPROGRAMMABLE_EXPORT vtkProgrammableFilter : public vtkPassInputTypeAlgorithm
 {
@@ -75,6 +73,7 @@ public:
    */
   void SetExecuteMethodArgDelete(void (*f)(void *));
 
+  //@{
   /**
    * Get the input as a concrete type. This method is typically used by the
    * writer of the filter function to get the input as a particular type (i.e.,
@@ -82,37 +81,14 @@ public:
    * the correct type of the input data.
    */
   vtkPolyData *GetPolyDataInput();
-
-  /**
-   * Get the input as a concrete type.
-   */
   vtkStructuredPoints *GetStructuredPointsInput();
-
-  /**
-   * Get the input as a concrete type.
-   */
   vtkStructuredGrid *GetStructuredGridInput();
-
-  /**
-   * Get the input as a concrete type.
-   */
   vtkUnstructuredGrid *GetUnstructuredGridInput();
-
-  /**
-   * Get the input as a concrete type.
-   */
   vtkRectilinearGrid *GetRectilinearGridInput();
-
-  /**
-   * Get the input as a concrete type.
-   */
   vtkGraph *GetGraphInput();
-
-
-  /**
-   * Get the input as a concrete type.
-   */
+  vtkMolecule *GetMoleculeInput();
   vtkTable *GetTableInput();
+  //@}
 
   //@{
   /**

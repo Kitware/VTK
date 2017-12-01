@@ -19,6 +19,7 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -94,17 +95,24 @@ vtkRectilinearGrid *vtkPassInputTypeAlgorithm::GetRectilinearGridOutput()
 }
 
 //----------------------------------------------------------------------------
-// Get the output as vtkTable.
-vtkTable *vtkPassInputTypeAlgorithm::GetTableOutput()
-{
-  return vtkTable::SafeDownCast(this->GetOutput());
-}
-
-//----------------------------------------------------------------------------
 // Get the output as vtkGraph.
 vtkGraph *vtkPassInputTypeAlgorithm::GetGraphOutput()
 {
   return vtkGraph::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkMolecule.
+vtkMolecule *vtkPassInputTypeAlgorithm::GetMoleculeOutput()
+{
+  return vtkMolecule::SafeDownCast(this->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+// Get the output as vtkTable.
+vtkTable *vtkPassInputTypeAlgorithm::GetTableOutput()
+{
+  return vtkTable::SafeDownCast(this->GetOutput());
 }
 
 //----------------------------------------------------------------------------

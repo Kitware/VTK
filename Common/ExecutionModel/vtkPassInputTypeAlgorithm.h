@@ -40,12 +40,13 @@
 class vtkDataObject;
 class vtkGraph;
 class vtkImageData;
+class vtkMolecule;
 class vtkPolyData;
-class vtkStructuredPoints;
-class vtkStructuredGrid;
-class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
+class vtkStructuredGrid;
+class vtkStructuredPoints;
 class vtkTable;
+class vtkUnstructuredGrid;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgorithm
 {
@@ -62,45 +63,20 @@ public:
   vtkDataObject* GetOutput(int);
   //@}
 
+  //@{
   /**
-   * Get the output as vtkPolyData.
+   * Get the output as a concrete type.
    */
   vtkPolyData *GetPolyDataOutput();
-
-  /**
-   * Get the output as vtkStructuredPoints.
-   */
   vtkStructuredPoints *GetStructuredPointsOutput();
-
-  /**
-   * Get the output as vtkStructuredPoints.
-   */
   vtkImageData *GetImageDataOutput();
-
-  /**
-   * Get the output as vtkStructuredGrid.
-   */
   vtkStructuredGrid *GetStructuredGridOutput();
-
-  /**
-   * Get the output as vtkUnstructuredGrid.
-   */
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
-
-  /**
-   * Get the output as vtkRectilinearGrid.
-   */
   vtkRectilinearGrid *GetRectilinearGridOutput();
-
-  /**
-   * Get the output as vtkTable.
-   */
-  vtkTable *GetTableOutput();
-
-  /**
-   * Get the output as vtkGraph.
-   */
   vtkGraph *GetGraphOutput();
+  vtkMolecule* GetMoleculeOutput();
+  vtkTable *GetTableOutput();
+  //@}
 
   /**
    * Get the input data object. This method is not recommended for use, but
