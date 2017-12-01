@@ -59,7 +59,6 @@ int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
   vtkDataArray* interArray = vtkDataSet::SafeDownCast( htGrid->GetOutput() )->GetPointData()->GetArray( "Intercepts" );
   for ( vtkIdType i = 0; i < interArray->GetNumberOfTuples(); ++ i )
   {
-    double* inter = interArray->GetTuple3( i );
     interArray->SetTuple3( i, -.25, -.5, -1. );
   }
 
