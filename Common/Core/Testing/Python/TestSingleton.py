@@ -12,7 +12,11 @@ class TestSingleton(Testing.vtkTest):
     def testOutputWindow(self):
         a = vtk.vtkOutputWindow()
         b = vtk.vtkOutputWindow()
-        self.assertIs(a, b)
+        self.assertNotEqual(a, b)
+
+        c = vtk.vtkOutputWindow.GetInstance()
+        d = vtk.vtkOutputWindow.GetInstance()
+        self.assertIs(c, d)
 
     def testObject(self):
         a = vtk.vtkObject()
