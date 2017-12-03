@@ -13,7 +13,6 @@ PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkPolyhedron.h"
-
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkDoubleArray.h"
@@ -55,7 +54,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 using namespace std;
 
-vtkStandardNewMacro(vtkPolyhedron);
+vtkStandardNewMacro(vtkPolyhedron)
 
 // Special typedef
 typedef vector<vtkIdType> vtkIdVectorType;
@@ -81,8 +80,8 @@ struct hash_fn
 {
   size_t operator()(Edge const& p) const
   {
-    vtkIdType i = p.first;
-    vtkIdType j = p.second;
+    size_t i = (size_t)p.first;
+    size_t j = (size_t)p.second;
 
     // first make order-independent, i.e. hash(i,j) == hash(j,i)
     if (i < j)
@@ -1479,12 +1478,12 @@ void TriangulatePolyhedralFaces(vtkPolyhedron *cell, FaceVector& tris, vector<ve
   vector<vtkIdType> matches;
   vtkIdType* faceStream = cell->GetFaces();
   vtkIdType nFaces = *faceStream++;
-  for (int i = 0; i < nFaces; ++i)
+  for (vtkIdType i = 0; i < nFaces; ++i)
   {
     vtkIdType nFacePoints = *faceStream++;
 
     vector<vtkIdType> triFaces;
-    for (int j = 0; j < tris.size(); ++j)
+    for (size_t j = 0; j < tris.size(); ++j)
     {
       const Face& outsideTri = tris[j];
 
@@ -1637,7 +1636,7 @@ void CalculateAngles(const vtkIdType* tri, vtkPoints* phPoints, const vtkPointId
   }
 }
 
-void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, vtkPoints* triPts, vtkPoints* phPoints, vtkPointIdMap* pointIdMap)
+void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, vtkPoints* phPoints, vtkPointIdMap* pointIdMap)
 {
   // attempt a fan triangulation for each point on the polygon and choose the
   // fan triangulation with the lowest range in internal angles differing from 60 degrees
@@ -1682,7 +1681,7 @@ void TriangulatePolygon(vtkCell* polygon, FaceVector& faces, vtkIdList* triIds, 
   }
 }
 
-void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoints* triPts, vtkPoints* phPoints, vtkPointIdMap* pointIdMap)
+void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoints* phPoints, vtkPointIdMap* pointIdMap)
 {
   switch (face->GetCellType())
   {
@@ -1703,7 +1702,7 @@ void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoi
   }
   case VTK_POLYGON:
   {
-    TriangulatePolygon(face, faces, triIds, triPts, phPoints, pointIdMap);
+    TriangulatePolygon(face, faces, triIds, phPoints, pointIdMap);
     break;
   }
   default:
@@ -1727,7 +1726,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
   vtkPointData* outPd)
 {
 
-  size_t nFaces = cell->GetNumberOfFaces();
+  vtkIdType nFaces = cell->GetNumberOfFaces();
 
   // this will contain the (possibly triangulated) faces
   // that will be contoured.
@@ -1740,9 +1739,8 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
   // temporaries for triangulation
   vtkNew<vtkIdList> triIds;
-  vtkNew<vtkPoints> triPts;
 
-  for (int i = 0; i < nFaces; ++i)
+  for (vtkIdType i = 0; i < nFaces; ++i)
   {
     vtkCell* face = cell->GetFace(i);
     if (!face)
@@ -1751,11 +1749,11 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
     }
 
     size_t nTris = faces.size();
-    TriangulateFace(face, faces, triIds, triPts, cell->GetPoints(), pointIdMap);
+    TriangulateFace(face, faces, triIds, cell->GetPoints(), pointIdMap);
     vector<vtkIdType> trisOfFace;
     for (size_t j = nTris; j < faces.size(); ++j)
     {
-      trisOfFace.push_back(j);
+      trisOfFace.push_back((vtkIdType)j);
     }
     oririginalFaceTriFaceMap.push_back(trisOfFace);
   }
@@ -1891,8 +1889,8 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap,
   vtkNew<vtkIdList> visited;
   while (availableContourPoints.size() > 0)
   {
-    size_t start(*availableContourPoints.begin());
-    size_t cp(start);
+    vtkIdType start(*availableContourPoints.begin());
+    vtkIdType cp(start);
     vtkIdType lastFace(-1);
 
     // this next part is the contourpoint->edge->face->otherEdge->otherContourPoint walk
@@ -2032,7 +2030,7 @@ void vtkPolyhedron::Contour(double value,
 
 void PolygonAsEdges(vector<vtkIdType>& polygon, vector<Edge>& edges, unordered_map<Edge, int, hash_fn, equal_fn>& edgeCount)
 {
-  for (int i = 0; i < polygon.size(); ++i)
+  for (size_t i = 0; i < polygon.size(); ++i)
   {
     Edge e(polygon[i], polygon[(i + 1) % polygon.size()]);
     edges.push_back(e);
@@ -2290,7 +2288,7 @@ void vtkPolyhedron::Clip(double value,
     for (int i = 0; i < nFaces; ++i)
     {
       vtkCell* face = this->GetFace(i);
-      int nFacePoints = face->GetNumberOfPoints();
+      int nFacePoints = (int) face->GetNumberOfPoints();
       faceStream->InsertNextId(nFacePoints);
       for (int j = 0; j < nFacePoints; ++j)
       {
@@ -2337,7 +2335,7 @@ void vtkPolyhedron::Clip(double value,
 
   // for all (triangulated) faces, walk the edges and insert (+) points and contour points
   // note: the edges are oriented head-to-tail and neighbor-to-neighbor, i.e. [0-1][1-2][2-0]
-  for (int i = 0; i < faceEdgesVector.size(); ++i)
+  for (size_t i = 0; i < faceEdgesVector.size(); ++i)
   {
     const EdgeVector& edges = faceEdgesVector[i];
 
@@ -2428,7 +2426,7 @@ void vtkPolyhedron::Clip(double value,
       // skipped earlier be valid candidates now. At a certain point, no
       // faces can be added anymore, and the polyhedron is finished.
       add = false;
-      for (int i = 1; i < polygons.size(); ++i)
+      for (size_t i = 1; i < polygons.size(); ++i)
       {
         if (polyhedralFaceSet.find(i) != polyhedralFaceSet.end())
         {
@@ -2456,13 +2454,13 @@ void vtkPolyhedron::Clip(double value,
     // next, build the face stream for the polyhedron.
     vtkNew<vtkIdList> polyhedron;
     // first entry: # of faces:
-    polyhedron->InsertNextId(polyhedralFaceSet.size());
+    polyhedron->InsertNextId((vtkIdType)polyhedralFaceSet.size());
     for (auto faceIt = polyhedralFaceSet.begin(); faceIt != polyhedralFaceSet.end(); ++faceIt)
     {
-      const vector<vtkIdType>& polyFace = polygons[*faceIt];
+      const vector<vtkIdType>& polyFace = polygons[(size_t)*faceIt];
 
       // each face entry starts with # points in that face
-      polyhedron->InsertNextId(polyFace.size());
+      polyhedron->InsertNextId((vtkIdType)polyFace.size());
       for (auto it = polyFace.begin(); it != polyFace.end(); ++it)
       {
         // then all global face point ids
