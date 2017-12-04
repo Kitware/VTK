@@ -181,11 +181,19 @@ OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
     OSPSET1F(ns);//aka "Ns", default 10.0
     OSPSET1F(Ns);//aka "Ns", default 10.0
     OSPSET3F(tf);//aka "Tf", default (0.0,0.0,0.0)
+    OSPSET3F(Tf);//aka "Tf", default (0.0,0.0,0.0)
     OSPSETTEXTURE(map_d);
     OSPSETTEXTURE(map_kd);
+    OSPSETTEXTURE(map_Kd);
+    OSPSETTEXTURE(colorMap);
     OSPSETTEXTURE(map_ks);
+    OSPSETTEXTURE(map_Ks);
     OSPSETTEXTURE(map_ns);
+    OSPSETTEXTURE(map_Ns);
     OSPSETTEXTURE(map_bump);
+    OSPSETTEXTURE(map_Bump);
+    OSPSETTEXTURE(normalmap);
+    OSPSETTEXTURE(BumpMap);
 
     /*
     //todo hookup these texture transforms up, for now could be just in 9 long double vectors, but should really be a 3x3
