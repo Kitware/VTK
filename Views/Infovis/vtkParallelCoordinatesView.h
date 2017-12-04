@@ -32,7 +32,7 @@ PURPOSE.  See the above copyright notice for more information.
  * function selection.  Lasso selection lets the user brush a line and select all PC lines
  * that pass nearby.  Angle selection lets the user draw a representative line between axes
  * and select all lines that have similar orientation.  Function selection lets the user
- * draw two  representative lines between a pair of axes and select all lines that match
+ * draw two representative lines between a pair of axes and select all lines that match
  * the linear interpolation of those lines.
  *
  * There are several self-explanatory operators for combining selections: ADD, SUBTRACT

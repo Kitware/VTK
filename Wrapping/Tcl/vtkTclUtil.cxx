@@ -329,7 +329,7 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
       command = cs->CommandFunction;
     }
   }
-  // if the class command wasn;t found try the target return type command
+  // if the class command wasn't found try the target return type command
   if (!command && targetType)
   {
     if (tstr)

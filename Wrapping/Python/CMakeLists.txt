@@ -191,7 +191,7 @@ vtk_write_python_modules_header_for_wrapped_modules(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h"
   py_module_dependencies)
 
-# Create the VTK/Python  executable
+# Create the VTK/Python executable
 add_executable(vtkpython vtkPythonAppInit.cxx ${extra_srcs})
 
 if (WIN32)

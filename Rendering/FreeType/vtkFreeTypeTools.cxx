@@ -1568,8 +1568,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   T heightString;
   if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
   {
-    // Calculate line hight from actual characters. This works only for single line text
-    // and may result in a hight that does not include descent. It is used to get
+    // Calculate line height from actual characters. This works only for single line text
+    // and may result in a height that does not include descent. It is used to get
     // a centered label.
     heightString = str;
   }

@@ -89,7 +89,7 @@ vtkImageAppendComponents iac3
 iac3 AddInputConnection [iac2 GetOutputPort]
 iac3 AddInputConnection [gs4 GetOutputPort]
 
-# create the four component dependend -
+# create the four component dependent -
 # use lines in x, y, z for colors
 vtkImageGridSource gridR
 gridR SetDataScalarTypeToUnsignedChar

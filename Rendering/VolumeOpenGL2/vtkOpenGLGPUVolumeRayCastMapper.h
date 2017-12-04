@@ -104,7 +104,7 @@ public:
    *  lazily (at render time), so it is most commonly not necessary to call
    *  this function.  This method is only exposed in order to support on-site
    *  loading which is useful in cases where the user needs to know a-priori
-   *  whether loading will succeed  or not.
+   *  whether loading will succeed or not.
    */
   bool PreLoadData(vtkRenderer* ren, vtkVolume* vol);
 

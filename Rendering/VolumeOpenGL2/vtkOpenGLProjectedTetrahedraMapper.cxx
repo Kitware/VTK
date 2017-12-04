@@ -528,7 +528,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(
 
   vtkOpenGLFramebufferObject *fo = nullptr;
 
-  // Copy existing Depth/Color  buffers to FO
+  // Copy existing Depth/Color buffers to FO
   if (this->UseFloatingPointFrameBuffer
     && this->CanDoFloatingPointFrameBuffer)
   {

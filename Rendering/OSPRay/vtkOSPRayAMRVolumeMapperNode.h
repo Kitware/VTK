@@ -37,7 +37,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-  * Traverse graph in ospray's prefered order and render
+  * Traverse graph in ospray's preferred order and render
   */
   virtual void Render(bool prepass) override;
 protected:

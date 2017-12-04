@@ -76,7 +76,7 @@ set(DATA_ROOT "@VTK_DATA_ROOT@")
 # GITWEB, GITWEB_SUFFIX, GITWEB_CHECKOUT,
 # GITWEB_DATA, GITWEB_DATA_SUFFIX, GITWEB_DATA_CHECKOUT:
 # URL to the GITWeb of the project + same in checkout mode (i.e. appending a
-# file  name to this URL will retrieve the contents of the file). In the same way
+# file name to this URL will retrieve the contents of the file). In the same way
 # GITWEB_SUFFIX will be appended to the result.
 # Same applies to GITWEB_DATA, which is the URL to the GITWeb
 # of the Data's project.

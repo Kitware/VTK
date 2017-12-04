@@ -64,7 +64,7 @@ float getNoise(vec2 vectc)
 }
 
 // fourth-order Runge-Kutta streamline integration
-// no bounds checks are made, therefor it's essential
+// no bounds checks are made, therefore it's essential
 // to have the entire texture initialized to 0
 // and set clamp to border and have border color 0
 // an integer is set if the step was taken, keeping

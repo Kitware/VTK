@@ -150,7 +150,7 @@ public:
   //@{
   /**
    * All the data sets stored in the multiblock output share the same point
-   * data.  For convienience, the point coordinates (vtkPoints) and point data
+   * data.  For convenience, the point coordinates (vtkPoints) and point data
    * (vtkPointData) are saved under these keys in the vtkInformation of the
    * output data set.
    */

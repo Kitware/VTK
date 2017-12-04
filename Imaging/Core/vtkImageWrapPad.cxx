@@ -103,7 +103,7 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
 
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
-  // initialize pointers to coresponding pixels.
+  // initialize pointers to corresponding pixels.
   start0 = ((outExt[0] - imageMin0) % (imageMax0-imageMin0+1)) + imageMin0;
   if (start0 < 0)
   {

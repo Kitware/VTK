@@ -351,7 +351,7 @@ void vtkOpenVRControlsHelper::UpdateRepresentation(vtkEventDataDevice3D *ed)
     this->TextActor->SetOrientation(tr->GetOrientation());
 
     //Update Line Actor
-    //WARNING: Transforming the Actor is cheaper than seting the geometry
+    //WARNING: Transforming the Actor is cheaper than setting the geometry
     double lineAnchor[3] = {
       framePosition[0] - frameOrigin[0],
       framePosition[1] - frameOrigin[1],
