@@ -25,8 +25,8 @@
  *
  * @warning
  *  <ul>
- *    <li> A step of 'all reduce' (each processor send/receive data to/from
- *         all other processors.
+ *    <li> A step of 'all reduce' (each process send/receive grid bounds to/from
+ *         all other processes).
  *    <li> The code currently assumes one grid per rank. </li>
  *    <li> PointData and CellData must match across partitions/processes. </li>
  *  </ul>
@@ -40,6 +40,11 @@
  * @par Thanks:
  * This filter was expanded to compute multiple ghost layers by Boonthanome
  * Nouanesengsy and John Patchett, Los Alamos National Laboratory 2016.
+ * These changes are based on the paper: M. Patchett, John & Nouanesengesy,
+ * Boonthanome & Pouderoux, Joachim & Ahrens, James & Hagen, Hans. (2017).
+ * "Parallel Multi-Level Ghost Cell Generation for Distributed Unstructured Grids"
+ * which was presented at LDAV 2017 (The 7th IEEE Symposium on Large Data
+ * Analysis and Visualization), At Phoenix, AZ, USA.
  *
  * @par Thanks:
  * ************************************************
@@ -51,8 +56,9 @@
  * @par Thanks:
  * First ghost cell layer algorithm:
  *   - each proc obtains surface points using the surface filter
- *   - perform an all-to-all to share surface points with each other
- *   - for each other proc, look at their points, and see if any points
+ *   - share bounds to determine potential neighbor processes
+ *   - share surface points with each potential neighbors
+ *   - for each neighbor proc, look at their points, and see if any points
  *     match any of your local points
  *   - for each matching point, find all local cells which use those points,
  *     and send those cells to that proc. mark the cells that were sent
@@ -75,6 +81,7 @@
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include <vector> // For passing data between methods
 
 class vtkMultiProcessController;
 class vtkUnstructuredGrid;
@@ -164,29 +171,6 @@ public:
   vtkGetMacro(MinimumNumberOfGhostLevels, int);
   //@}
 
-  //@{
-  /**
-   * Remember cells that have been sent to specific processors and don't
-   * send again.
-   * If False, no effort made not to resend
-   * If True, cell lists will be maintained
-   */
-  vtkSetMacro(SendOnlyOnce, bool);
-  vtkGetMacro(SendOnlyOnce, bool);
-  vtkBooleanMacro(SendOnlyOnce, bool);
-  //@}
-
-  //@{
-  /**
-   * Remember cells received from processors and don't send them back
-   * If False, sendbacks can occur
-   * If True, lists will be maintained to avoid send backs
-   */
-  vtkSetMacro(NoSendBacks, bool);
-  vtkGetMacro(NoSendBacks, bool);
-  vtkBooleanMacro(NoSendBacks, bool);
-  //@}
-
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();
   ~vtkPUnstructuredGridGhostCellsGenerator();
@@ -196,8 +180,8 @@ protected:
 
   void GetFirstGhostLayer(int, vtkUnstructuredGrid *);
 
-  void ExchangeBoundsAndDetermineNeighbors();
-  void ExtractAndReduceSurfacePointsShareExtents();
+  void ExchangeBoundsAndDetermineNeighbors(std::vector<double>&);
+  void ExtractAndReduceSurfacePointsShareData(std::vector<double>&);
   void ComputeSharedPoints();
 
   void ExtractAndSendGhostCells(vtkUnstructuredGridBase *);
@@ -222,9 +206,6 @@ protected:
   bool HasGlobalCellIds;
   bool BuildIfRequired;
   int MinimumNumberOfGhostLevels;
-
-  bool SendOnlyOnce;
-  bool NoSendBacks;
 
 private:
   struct vtkInternals;
