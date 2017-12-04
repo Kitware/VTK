@@ -100,7 +100,7 @@ foreach (HDR_FILE ${VTK_SMP_HEADERS_TO_CONFIG})
   list(APPEND VTK_SMP_HEADERS ${CMAKE_CURRENT_BINARY_DIR}/${HDR_FILE})
 endforeach()
 
-list(APPEND VTK_SMP_HEADERS vtkSMPThreadLocalObject.h)
+list(APPEND VTK_SMP_HEADERS vtkSMPTools.h vtkSMPThreadLocalObject.h)
 
 #-------------------------------------------------------------------------------
 # Generate the vtkTypeList_Create macros:
@@ -282,7 +282,6 @@ SET(Module_SRCS
   vtkSystemIncludes.h
   vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
-  ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkVersionMacros.h
@@ -334,6 +333,7 @@ set(${vtk-module}_HDRS
   vtkWeakReference.h
   vtkWin32Header.h
   vtkWindows.h
+  ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkToolkits.h
   ${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h
