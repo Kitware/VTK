@@ -20,6 +20,7 @@
 #ifndef vtkmCellSetSingleType_h
 #define vtkmCellSetSingleType_h
 #ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include "vtkmTags.h"
 
@@ -218,6 +219,7 @@ extern template VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 }
 } // namespace vtkm::cont
 
+#endif
 #endif
 #endif // vtkmlib_vtkmCellSetSingleType_h
 // VTK-HeaderTest-Exclude: vtkmCellSetSingleType.h
