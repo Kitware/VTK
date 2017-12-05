@@ -14,6 +14,7 @@
 =========================================================================*/
 #ifndef __ADIOSDefs_h
 #define __ADIOSDefs_h
+#ifndef __VTK_WRAP__
 
 #include <string>
 
@@ -55,5 +56,6 @@ enum ReadMethod
 };
 
 } // end namespace
+#endif
 #endif //__ADIOSDefs_h
 // VTK-HeaderTest-Exclude: ADIOSDefs.h

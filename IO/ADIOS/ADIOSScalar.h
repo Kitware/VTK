@@ -16,6 +16,7 @@
 
 #ifndef _ADIOSScalar_h
 #define _ADIOSScalar_h
+#ifndef __VTK_WRAP__
 
 #include <string>
 #include <vector>
@@ -50,5 +51,6 @@ protected:
 };
 
 } // End namespace ADIOS
+#endif
 #endif // _ADIOSScalar_h
 // VTK-HeaderTest-Exclude: ADIOSScalar.h
