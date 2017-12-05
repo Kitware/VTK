@@ -15,6 +15,7 @@
 #ifndef _ADIOSAttribute_h
 #define _ADIOSAttribute_h
 #ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <string>
 #include <vector>
@@ -53,6 +54,7 @@ protected:
 template<> const std::string Attribute::GetValue<std::string>() const;
 
 } // End namespace ADIOS
+#endif
 #endif
 #endif // _ADIOSAttribute_h
 // VTK-HeaderTest-Exclude: ADIOSAttribute.h

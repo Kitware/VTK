@@ -17,6 +17,7 @@
 #ifndef _ADIOSReader_h
 #define _ADIOSReader_h
 #ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <stdexcept>
 #include <string>
@@ -90,6 +91,7 @@ private:
 };
 
 } // End anmespace ADIOS
+#endif
 #endif
 #endif
 // VTK-HeaderTest-Exclude: ADIOSReader.h

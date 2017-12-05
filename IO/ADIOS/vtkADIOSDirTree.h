@@ -19,6 +19,8 @@
 
 #ifndef vtkADIOSDirTree_h
 #define vtkADIOSDirTree_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <map>
 #include <string>
@@ -74,5 +76,7 @@ private:
   std::map<std::string, vtkADIOSDirTree*> SubDirs;
 };
 
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkADIOSDirTree.h
