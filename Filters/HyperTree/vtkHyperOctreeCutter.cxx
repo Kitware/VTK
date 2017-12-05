@@ -52,6 +52,8 @@ vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 // set to 0.0; and generate cut scalars turned off.
 vtkHyperOctreeCutter::vtkHyperOctreeCutter(vtkImplicitFunction *cf)
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeCutter, "VTK 8.2");
+
   this->ContourValues = vtkContourValues::New();
   this->SortBy = VTK_SORT_BY_VALUE;
 

@@ -960,6 +960,8 @@ vtkStandardNewMacro(vtkHyperOctree);
 // Default constructor.
 vtkHyperOctree::vtkHyperOctree()
 {
+  VTK_LEGACY_BODY(vtkHyperOctree, "VTK 8.2");
+
   this->DualGridFlag = 1;
   this->Dimension=3;
 

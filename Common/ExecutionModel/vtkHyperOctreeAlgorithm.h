@@ -35,6 +35,7 @@
 #include "vtkAlgorithm.h"
 #include "vtkHyperOctree.h" // makes things a bit easier
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkDataSet;
 class vtkHyperOctree;
 
@@ -119,5 +120,6 @@ private:
   vtkHyperOctreeAlgorithm(const vtkHyperOctreeAlgorithm&) = delete;
   void operator=(const vtkHyperOctreeAlgorithm&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

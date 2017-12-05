@@ -43,6 +43,7 @@
 #include "vtkContourValues.h" // Needed for inline methods
 #include "vtkCutter.h" // for VTK_SORT_BY_VALUE
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkHyperOctree;
 class vtkTetra;
 class vtkHyperOctreeCursor;
@@ -216,4 +217,6 @@ private:
   vtkHyperOctreeDualGridContourFilter(const vtkHyperOctreeDualGridContourFilter&) = delete;
   void operator=(const vtkHyperOctreeDualGridContourFilter&) = delete;
 };
+#endif // LEGACY remove
+
 #endif

@@ -33,6 +33,8 @@ vtkCxxSetObjectMacro(vtkHyperOctreeSampleFunction,ImplicitFunction,
 //----------------------------------------------------------------------------
 vtkHyperOctreeSampleFunction::vtkHyperOctreeSampleFunction()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeSampleFunction, "VTK 8.2");
+
   this->SetNumberOfInputPorts(0);
   this->Dimension=3;
   int i=0;

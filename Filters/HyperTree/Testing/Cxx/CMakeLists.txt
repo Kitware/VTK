@@ -1,9 +1,13 @@
 set(test_sources
-  TestClipHyperOctree.cxx
-  TestHyperOctreeContourFilter.cxx
-  TestHyperOctreeCutter.cxx
-  TestHyperOctreeSurfaceFilter.cxx
-  TestHyperOctreeToUniformGrid.cxx
+  # All things HyperOctree-related have been deprecated, so these now emit lots
+  # of warnings:
+  #TestClipHyperOctree.cxx
+  #TestHyperOctreeContourFilter.cxx
+  #TestHyperOctreeCutter.cxx
+  #TestHyperOctreeDual.cxx
+  #TestHyperOctreeSurfaceFilter.cxx
+  #TestHyperOctreeToUniformGrid.cxx
+
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinary2DAxisClipBox.cxx
   TestHyperTreeGridBinary2DAxisClipEllipse.cxx
@@ -70,7 +74,6 @@ set(test_sources
 
 if (NOT VTK_LEGACY_REMOVE)
   list(APPEND test_sources
-    TestHyperOctreeDual.cxx #deprecated due to vtkHyperOctreeFractalSource use
   )
 endif()
 
