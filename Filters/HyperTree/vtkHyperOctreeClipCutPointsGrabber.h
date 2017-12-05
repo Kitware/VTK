@@ -28,10 +28,10 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkHyperOctreePointsGrabber.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkHyperOctreeIdSet; // Pimpl idiom
 class vtkPolygon;
 class vtkOrderedTriangulator;
-
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeClipCutPointsGrabber : public vtkHyperOctreePointsGrabber
 {
@@ -107,5 +107,6 @@ private:
   vtkHyperOctreeClipCutPointsGrabber(const vtkHyperOctreeClipCutPointsGrabber&) = delete;
   void operator=(const vtkHyperOctreeClipCutPointsGrabber&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

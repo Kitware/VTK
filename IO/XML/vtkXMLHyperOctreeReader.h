@@ -32,6 +32,7 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkHyperOctree;
 class vtkHyperOctreeCursor;
 class vtkIntArray;
@@ -92,5 +93,6 @@ private:
   vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) = delete;
   void operator=(const vtkXMLHyperOctreeReader&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

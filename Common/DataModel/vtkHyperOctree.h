@@ -140,6 +140,7 @@ class vtkPixel;
 class vtkVoxel;
 class vtkCellLinks;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctree : public vtkDataSet
 {
 public:
@@ -631,5 +632,6 @@ private:
   unsigned short IsLeaf;
   unsigned short Level;
 };
+#endif // LEGACY remove
 
 #endif

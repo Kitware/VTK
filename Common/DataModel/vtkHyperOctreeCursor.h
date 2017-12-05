@@ -28,6 +28,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 enum
 {
   VTK_OCTREE_CHILD_ZMIN_YMIN_XMIN=0,
@@ -182,4 +183,6 @@ private:
   vtkHyperOctreeCursor(const vtkHyperOctreeCursor&) = delete;
   void operator=(const vtkHyperOctreeCursor&) = delete;
 };
+#endif // LEGACY remove
+
 #endif

@@ -59,6 +59,7 @@
 // fix until this filter can be converted to geernate unstructured grids.
 //#define VTK_NUMBER_OF_CELL_TYPES 68
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
 class vtkHyperOctree;
@@ -280,5 +281,6 @@ private:
   vtkHyperOctreeCutter(const vtkHyperOctreeCutter&) = delete;
   void operator=(const vtkHyperOctreeCutter&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

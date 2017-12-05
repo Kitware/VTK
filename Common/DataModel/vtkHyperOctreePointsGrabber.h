@@ -32,6 +32,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreePointsGrabber : public vtkObject
 {
 public:
@@ -97,5 +98,6 @@ private:
   vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) = delete;
   void operator=(const vtkHyperOctreePointsGrabber&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

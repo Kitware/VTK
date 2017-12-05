@@ -34,6 +34,8 @@ vtkStandardNewMacro(vtkHyperOctreeToUniformGridFilter);
 //----------------------------------------------------------------------------
 vtkHyperOctreeToUniformGridFilter::vtkHyperOctreeToUniformGridFilter()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeToUniformGridFilter, "VTK 8.2");
+
   this->InputCD=nullptr;
   this->OutputCD=nullptr;
   this->Cursor=nullptr;

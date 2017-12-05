@@ -29,6 +29,8 @@ vtkStandardNewMacro(vtkHyperOctreeDepth);
 //----------------------------------------------------------------------------
 vtkHyperOctreeDepth::vtkHyperOctreeDepth()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeDepth, "VTK 8.2");
+
   this->GeneratedDepths = nullptr;
 }
 
