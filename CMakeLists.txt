@@ -218,10 +218,6 @@ endif()
 if(NOT VTK_INSTALL_DOXYGEN_DIR)
   set(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_DOC_DIR}/doxygen)
 endif()
-if(NOT VTK_INSTALL_TCL_DIR)
-  # tclsh searches <prefix>/lib/tcltk and its subdirectories for pkgIndex.tcl files
-  set(VTK_INSTALL_TCL_DIR lib/tcltk/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-endif()
 if(NOT VTK_INSTALL_EXPORT_NAME)
   set(VTK_INSTALL_EXPORT_NAME VTKTargets)
 endif()
@@ -463,39 +459,9 @@ else()
     FORCE)
 endif()
 
-# Now for Tcl wrapping.
-option(VTK_WRAP_TCL "Should VTK Tcl wrapping be built?" OFF)
-if (VTK_LEGACY_REMOVE)
-  set_property(CACHE VTK_WRAP_TCL
-    PROPERTY TYPE INTERNAL)
-  set(VTK_WRAP_TCL OFF)
-else ()
-  set_property(CACHE VTK_WRAP_TCL
-    PROPERTY TYPE BOOL)
-endif ()
-if(VTK_WRAP_TCL)
-  if (NOT VTK_LEGACY_SILENT)
-    message(WARNING
-      "Tcl wrapping support is deprecated as of VTK 8.1.")
-  endif ()
-
-  set(VTK_WRAP_TCL_EXE vtkWrapTcl)
-  set(VTK_WRAP_TCL_INIT_EXE vtkWrapTclInit)
-  set(VTK_TCL_EXE vtk)
-  # Tcl package location.
-  set(VTK_TCL_HOME ${VTK_BINARY_DIR}/Wrapping/Tcl)
-  # Force the WrappingTcl module to on if wrapping is on
-  set(Module_vtkWrappingTcl ON CACHE BOOL "Core Tcl wrapping library"
-    FORCE)
-else()
-  # if wrapping is not on then force WrappingTcl module to be off
-  set(Module_vtkWrappingTcl OFF CACHE BOOL "Core Tcl wrapping library"
-    FORCE)
-endif()
-
 option(VTK_WRAP_HIERARCHY "Create wrap hierarchy even if languages are disabled." OFF)
 mark_as_advanced(VTK_WRAP_HIERARCHY)
-if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
+if(VTK_WRAP_PYTHON OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
   set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)
 endif()
 

@@ -34,13 +34,6 @@
  * Companion", ISBN 0-201-50868, 1989 for details on writing shaders.
  * vtkRIBProperty specifies the declarations and parameter settings for
  * custom shaders.
- * Tcl Example: generate a rib file for the current rendering.
- * vtkRIBExporter myRIB
- *   myRIB SetInput $renWin
- *   myRIB SetFilePrefix mine
- *   myRIB Write
- * This will create a file mine.rib. After running this file through
- * a Renderman renderer a file mine.tif will contain the rendered image.
  *
  * @sa
  * vtkExporter vtkRIBProperty vtkRIBLight

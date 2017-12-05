@@ -1,7 +1,0 @@
-package require -exact vtkcommoncore @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@
-
-foreach s {colors mccases backdrop grab} {
-  source [file join [file dirname [info script]] "${s}.tcl"]
-}
-
-package provide vtktesting @VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@

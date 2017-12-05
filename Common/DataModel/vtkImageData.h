@@ -269,7 +269,7 @@ public:
 
   //@{
   /**
-   * For access to data from tcl
+   * For access to data from wrappers
    */
   virtual float GetScalarComponentAsFloat(int x, int y, int z, int component);
   virtual void SetScalarComponentFromFloat(

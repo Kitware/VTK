@@ -2,7 +2,6 @@ if(ANDROID OR APPLE_IOS) # No GL2PS on mobile
   return()
 endif()
 vtk_module(vtkRenderingGL2PSOpenGL2
-  TCL_NAME vtkRenderingGLtoPSOpenGLII
   IMPLEMENTS
     vtkRenderingOpenGL2
   BACKEND

@@ -1,6 +1,4 @@
 vtk_module(vtkRenderingOpenGL2
-  TCL_NAME
-    vtkRenderingOpenGLII
   IMPLEMENTS
     vtkRenderingCore
   BACKEND

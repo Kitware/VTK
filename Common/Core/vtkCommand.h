@@ -108,7 +108,6 @@
  *  - GUISupport/Qt/QVTKOpenGLWidget returns a QKeyEvent *
  * - vtkCommand::TimerEvent
  *  - most of the objects return a to an int representing a timer id
- *  - Rendering/vtkXRenderWindowTclInteractor returns nullptr
  *  - Widgets/vtkHoverWidget returns nullptr
  * - vtkCommand::CreateTimerEvent
  *  - Rendering/vtkGenericRenderWindowInteractor returns a to an int

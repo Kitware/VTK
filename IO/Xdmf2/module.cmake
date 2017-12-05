@@ -1,5 +1,4 @@
 vtk_module(vtkIOXdmf2
-  TCL_NAME vtkIOXdmfII
   GROUPS
   TEST_DEPENDS
     vtkFiltersGeneral

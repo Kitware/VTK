@@ -1,5 +1,4 @@
 vtk_module(vtkImagingOpenGL2
-  TCL_NAME vtkImagingOpenGLII
   BACKEND
     OpenGL2
   TEST_DEPENDS

@@ -27,7 +27,7 @@
  * Example use of this include writing a function to read a data file or
  * interface to another system. (You might want to do this in favor of
  * deriving a new class.) Another important use of this class is that it
- * allows users of interpreters (e.g., Tcl or Java) the ability to write
+ * allows users of interpreters (e.g., Java) the ability to write
  * source objects without having to recompile C++ code or generate new
  * libraries.
  * @sa

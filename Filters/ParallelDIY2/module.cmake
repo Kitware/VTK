@@ -1,6 +1,5 @@
 if (NOT WIN32)
   vtk_module(vtkFiltersParallelDIY2
-    TCL_NAME vtkFiltersParallelDIYII
     IMPLEMENTS
       vtkFiltersCore
     GROUPS

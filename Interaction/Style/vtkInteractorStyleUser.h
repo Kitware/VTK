@@ -22,7 +22,7 @@
  * of vtkInteractorStyle: vtkInteractorStyleUser allows you to customize
  * the interaction to without subclassing vtkInteractorStyle.  This is
  * particularly useful for setting up custom interaction modes in
- * scripting languages such as Tcl and Python.  This class allows you
+ * scripting languages such as Python.  This class allows you
  * to hook into the MouseMove, ButtonPress/Release, KeyPress/Release,
  * etc. events.  If you want to hook into just a single mouse button,
  * but leave the interaction modes for the others unchanged, you

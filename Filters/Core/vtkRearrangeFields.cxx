@@ -224,7 +224,7 @@ void vtkRearrangeFields::ApplyOperation(Operation* op, vtkDataSet* input,
   }
 }
 
-// Helper method used by the Tcl bindings. Allows the caller to
+// Helper method used by the bindings. Allows the caller to
 // specify arguments as strings instead of enums.Returns an operation id
 // which can later be used to remove the operation.
 int vtkRearrangeFields::AddOperation(const char* operationType,
@@ -400,7 +400,7 @@ int vtkRearrangeFields::AddOperation(int operationType, int attributeType,
   return op->Id;
 }
 
-// Helper method used by the Tcl bindings. Allows the caller to
+// Helper method used by the bindings. Allows the caller to
 // specify arguments as strings instead of enums.Returns an operation id
 // which can later be used to remove the operation.
 int vtkRearrangeFields::RemoveOperation(const char* operationType,

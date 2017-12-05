@@ -3,7 +3,7 @@ Introduction:
 
 This directory demonstrates how to organize a local source repository
 where local VTK classes can be compiled and wrapped into
-C++/Tcl/Java/Python libraries without interferring with the main VTK
+C++/Java/Python libraries without interferring with the main VTK
 source dir.
 
 It might be good thing to sort local classes into different 'package'
@@ -42,13 +42,7 @@ What you should do:
 
 - Add the path to your build-dir bin/ directory to your PATH
   environment variable (as well as LD_LIBRARY_PATH for Unix users), so
-  these C++ and Tcl DLL can be found (if any).
-
-- Add the path to your vtkMy/Wrapping/Tcl directory to your TCLLIBPATH
-  environment variable. TCLLIBPATH is a space separated set of paths to
-  Tcl libraries. Windows users should use forward slashes (/) instead of
-  the usual backward slashes (\), and should surround the path by quotes
-  (") if it contains any space.
+  these C++ DLL can be found (if any).
 
 Distribute or exchange your modules:
 ------------------------------------

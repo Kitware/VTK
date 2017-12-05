@@ -82,7 +82,7 @@ public:
    * Methods to set the default exit method for the class. This method is
    * only used if no instance level ExitMethod has been defined.  It is
    * provided as a means to control how an interactor is exited given
-   * the various language bindings (tcl, Cocoa, etc.).
+   * the various language bindings (Cocoa, etc.).
    */
   static void SetClassExitMethod(void (*f)(void *), void *arg);
   static void SetClassExitMethodArgDelete(void (*f)(void *));
@@ -112,7 +112,7 @@ protected:
   /**
    * Class variables so an exit method can be defined for this class
    * (used to set different exit methods for various language bindings,
-   * i.e. tcl, java, Cocoa)
+   * i.e. java, Cocoa)
    */
   static void (*ClassExitMethod)(void *);
   static void (*ClassExitMethodArgDelete)(void *);
