@@ -17,10 +17,8 @@ endif()
 
 set( Srcs main.cxx )
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5 COMPONENTS Core REQUIRED QUIET)
+find_package(Qt5 COMPONENTS Core REQUIRED QUIET)
 
-  add_executable(qtimageviewer ${Srcs})
-  qt5_use_modules(qtimageviewer Core Gui Widgets)
-  target_link_libraries(qtimageviewer ${VTK_LIBRARIES})
-endif()
+add_executable(qtimageviewer ${Srcs})
+qt5_use_modules(qtimageviewer Core Gui Widgets)
+target_link_libraries(qtimageviewer ${VTK_LIBRARIES})

@@ -291,11 +291,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
     iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
-#if QT_VERSION >= 0x050000
     this->AccumulatedDelta += e2->angleDelta().y();
-#else
-    this->AccumulatedDelta += e2->delta();
-#endif
     const int threshold = 120;
 
     // invoke vtk event when accumulated delta passes the threshold
