@@ -10,11 +10,11 @@ vtk_module(vtkUtilitiesBenchmarks
     vtkFiltersCore
     vtkFiltersSources
     vtkImagingCore
-    vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
+    vtkRenderingContextOpenGL2
     vtkRenderingCore
     vtkRenderingVolume
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingVolumeOpenGL2
     vtksys
   PRIVATE_DEPENDS
     vtkChartsCore

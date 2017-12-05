@@ -17,11 +17,7 @@ set_property(TARGET TimingTests APPEND PROPERTY
 
 # Chemistry target
 if(TARGET vtkDomainsChemistry)
-  if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-    list(APPEND extra_deps vtkDomainsChemistryOpenGL2)
-  else()
-    list(APPEND extra_deps vtkDomainsChemistry)
-  endif()
+  list(APPEND extra_deps vtkDomainsChemistryOpenGL2)
   list(APPEND compile_defs HAVE_CHEMISTRY)
   include_directories(${VTK_SOURCE_DIR}/Domains/Chemistry
     ${VTK_BINARY_DIR}/Domains/Chemistry)

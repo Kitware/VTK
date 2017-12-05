@@ -1,6 +1,4 @@
-# These tests are built under all conditions
-set (GenericVolumeCxxTests
-  #  TestGPURayCastCompositeShadeMask.cxx
+set (VolumeCxxTests
   ProjectedTetrahedraZoomIn.cxx,NO_VALID
   TestFinalColorWindowLevel.cxx
   TestFixedPointRayCastLightComponents.cxx
@@ -29,23 +27,6 @@ set (GenericVolumeCxxTests
   TestSmartVolumeMapper.cxx
   TestSmartVolumeMapperWindowLevel.cxx
   TestGPURayCastCompositeBinaryMask1.cxx
-  )
-
-# These tests are built for the OpenGL backend
-set (VolumeOpenGLCxxTests
-  HomogeneousRayIntegration.cxx
-  LinearRayIntegration.cxx
-  PartialPreIntegration.cxx
-  PreIntegrationIncremental.cxx
-  PreIntegrationNonIncremental.cxx
-  TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
-  TestHAVSVolumeMapper.cxx
-  TestProjectedHexahedra.cxx
-  ZsweepConcavities.cxx
-  )
-
-# These tests are only built for the OpenGL2 backend
-set (VolumeOpenGL2CxxTests
   TestGPURayCastAverageIP.cxx
   TestGPURayCastBlendModes.cxx
   TestGPURayCastCameraInside.cxx
@@ -117,28 +98,10 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # everyone gets these tests
 vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${GenericVolumeCxxTests}
-  )
-
-# If OpenGL2 backend, add all VolumeOpenGL2CxxTests
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
-    ${VolumeOpenGL2CxxTests}
-    )
-endif ()
-
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests
-    RENDERING_FACTORY
-    ${shader_c_files}
-    )
-  return()
-endif ()
-
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-  ${VolumeOpenGLCxxTests}
+  ${VolumeCxxTests}
   )
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
-  ExerciseUnstructuredGridRayCastMapper.cxx)
+  ${shader_c_files}
+  )

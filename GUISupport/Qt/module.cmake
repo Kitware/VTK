@@ -7,7 +7,7 @@ vtk_module(vtkGUISupportQt
   EXCLUDE_FROM_WRAPPING
   DEPENDS
     vtkCommonCore
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingCore
   PRIVATE_DEPENDS
     vtkCommonDataModel

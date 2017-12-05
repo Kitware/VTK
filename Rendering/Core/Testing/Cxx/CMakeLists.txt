@@ -1,39 +1,27 @@
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(extra_opengl2_tests
-    TestBlockOpacity.cxx
-    TestCompositePolyDataMapper2.cxx,NO_DATA
-    TestCompositePolyDataMapper2Picking.cxx,NO_DATA
-    TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
-    TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
-    TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
-    TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
-    # composite glyphs are only supported on OpenGL2.
-    TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
-    TestMultiBlockPartialArrayPointData.cxx
-    TestMultiBlockPartialArrayFieldData.cxx
-    # the following produce incorrect results in OpenGL
-    TestTranslucentLUTAlphaBlending.cxx
-    TestTranslucentLUTTextureAlphaBlending.cxx
-    TestAreaSelections.cxx
-    TestValuePassFloatingPoint.cxx
-    TestToggleOSWithInteractor.cxx,NO_DATA
-    )
-else()
-  set(extra_opengl2_tests
-    TestCompositePolyDataMapper2.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2Scalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA,NO_VALID
-    TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA,NO_VALID
-    )
-endif()
-
+set(extra_opengl2_tests)
 if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
+  TestBlockOpacity.cxx
+  TestCompositePolyDataMapper2.cxx,NO_DATA
+  TestCompositePolyDataMapper2Picking.cxx,NO_DATA
+  TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
+  TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
+  # composite glyphs are only supported on OpenGL2.
+  TestGlyph3DMapperTreeIndexingCompositeGlyphs.cxx,NO_DATA
+  TestMultiBlockPartialArrayPointData.cxx
+  TestMultiBlockPartialArrayFieldData.cxx
+  # the following produce incorrect results in OpenGL
+  TestTranslucentLUTAlphaBlending.cxx
+  TestTranslucentLUTTextureAlphaBlending.cxx
+  TestAreaSelections.cxx
+  TestValuePassFloatingPoint.cxx
+  TestToggleOSWithInteractor.cxx,NO_DATA
   otherCoordinate.cxx,NO_DATA,NO_VALID
   FrustumClip.cxx
   Mace.cxx
@@ -111,10 +99,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   # TestHierarchicalBoxPipeline.cxx  # legacy code
   )
 
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set_source_files_properties(
-   TestEdgeFlags.cxx # fails on OpenGL Mesa
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-endif()
+set_source_files_properties(
+  TestEdgeFlags.cxx # fails on OpenGL Mesa
+  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
 
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

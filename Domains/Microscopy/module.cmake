@@ -4,7 +4,7 @@ vtk_module(vtkDomainsMicroscopy
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionImage
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
   EXCLUDE_FROM_ALL
   DEPENDS
     vtkIOImage

@@ -399,7 +399,7 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_ENABLED)
 
     # Require Rendering
-    if(vtkRendering${VTK_RENDERING_BACKEND}_ENABLED)
+    if(vtkRenderingOpenGL2_ENABLED)
       # If JAVA_DATAMODEL_FLAG is set, pass it as first argument. Otherwise, it's empty.
       # For example, use "-d64" to force 64-bit java jvm.
       #

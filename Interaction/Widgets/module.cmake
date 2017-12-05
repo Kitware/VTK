@@ -5,7 +5,7 @@ vtk_module(vtkInteractionWidgets
     vtkIOLegacy
     vtkIOXML
     vtkIOParallel
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingVolumeOpenGL2
     vtkTestingRendering
     vtkInteractionImage
     vtkInteractionStyle

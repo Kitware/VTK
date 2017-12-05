@@ -1,14 +1,5 @@
 include(vtkMPI)
 
-if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  # all these tests use shadow maps for some odd reason
-  set(extra_opengl_tests
-    TestPCompositeZPass.cxx
-    TestPShadowMapPass.cxx
-    TestDistributedDataCompositeZPass.cxx
-    )
-endif()
-
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   PrmMagnify.cxx
   )
@@ -17,7 +8,6 @@ vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   TestSimplePCompositeZPass.cxx,TESTING_DATA
   TestParallelRendering.cxx,TESTING_DATA
-  ${extra_opengl_tests}
   )
 
 set(all_tests

@@ -3,7 +3,7 @@ vtk_module(vtkInfovisLayout
     StandAlone
   TEST_DEPENDS
     vtkRenderingLabel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOInfovis

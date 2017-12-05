@@ -5,7 +5,7 @@ vtk_module(vtkChartsCore
     vtkTestingCore
     vtkTestingRendering
     vtkViewsContext2D
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
     #vtkIOExport
     vtkIOInfovis
   DEPENDS

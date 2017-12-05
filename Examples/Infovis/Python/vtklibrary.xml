@@ -1056,8 +1056,6 @@
     </node>
     <node id="vtkOpenGLScalarsToColorsPainter">
     </node>
-    <node id="vtkPainterDeviceAdapter">
-    </node>
     <node id="vtkOpenGLPainterDeviceAdapter">
     </node>
     <node id="vtkProperty">

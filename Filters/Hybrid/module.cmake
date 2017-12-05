@@ -3,7 +3,7 @@ vtk_module(vtkFiltersHybrid
     StandAlone
   TEST_DEPENDS
     vtkIOXML
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkImagingCore
     vtkImagingStencil
     vtkTestingRendering

@@ -18,8 +18,6 @@ vtk_module_library(vtkRenderingExternal ${Module_SRCS})
 include(vtkOpenGL)
 vtk_opengl_link(${vtk-module})
 
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  set_target_properties(
-    vtkRenderingExternal
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
-endif ()
+set_target_properties(
+  vtkRenderingExternal
+  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)

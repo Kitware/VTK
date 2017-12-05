@@ -3,7 +3,7 @@ vtk_module(vtkIONetCDF
     StandAlone
   TEST_DEPENDS
     vtkCommonExecutionModel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   KIT

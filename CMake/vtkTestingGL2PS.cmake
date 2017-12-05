@@ -50,17 +50,10 @@ function(vtk_add_gl2ps_test_cxx)
       set(_error_threshold 15)
     endif()
 
-    # Unit test executable containing PNGCompare test:
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
-    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-      set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
-    endif()
-
     # Image diff rasterized png produced from a PS with baseline
     ExternalData_add_test(VTKData
       NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
-      COMMAND "${PNGCompareTest}" PNGCompare
+      COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
         -D "${VTK_TEST_DATA_DIR}"
         -T "${VTK_TEST_OUTPUT_DIR}"
         -E "${_error_threshold}"
@@ -77,7 +70,7 @@ function(vtk_add_gl2ps_test_cxx)
     if(${RASTERIZE_PDF})
       ExternalData_add_test(VTKData
         NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG
-        COMMAND "${PNGCompareTest}" PNGCompare
+        COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
         -D "${VTK_TEST_DATA_DIR}"
         -T "${VTK_TEST_OUTPUT_DIR}"
         -E "${_error_threshold}"
@@ -127,17 +120,10 @@ function(vtk_add_pdf_test_cxx)
       set(_error_threshold 15)
     endif()
 
-    # Unit test executable containing PNGCompare test:
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL")
-      set(PNGCompareTest vtkRenderingGL2PSCxxTests)
-    elseif(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-      set(PNGCompareTest vtkRenderingGL2PSOpenGL2CxxTests)
-    endif()
-
     # Image diff rasterized png produced from a PS with baseline
     ExternalData_add_test(VTKData
       NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPDFPNG
-      COMMAND "${PNGCompareTest}" PNGCompare
+      COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
       -D "${VTK_TEST_DATA_DIR}"
       -T "${VTK_TEST_OUTPUT_DIR}"
       -E "${_error_threshold}"

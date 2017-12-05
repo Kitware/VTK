@@ -5,7 +5,7 @@ vtk_module(vtkParallelCore
     vtkUtilitiesHashSource
   TEST_DEPENDS
     vtkTestingRendering
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkParallel
   DEPENDS

@@ -1,11 +1,5 @@
 include(vtkMPI)
 
-if(NOT VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set(extra_opengl_tests
-    TestDistributedDataShadowMapPass.cxx
-    )
-endif()
-
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   TESTING_DATA
   TestPProbe.cxx

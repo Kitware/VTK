@@ -12,12 +12,7 @@ vtk_add_test_python(
   TestChacoReader.py
   TestSimplePointsReader.py
   TestPlot3DMeta.py
-  )
-
-if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-vtk_add_test_python(
   TestXYZMol.py
   caffeine.py
   caffeine_notrailingwhitespaces.py
-)
-endif()
+  )

@@ -2512,10 +2512,6 @@
             </class>
          </class>
       </class>
-      <class id="vtkPainterDeviceAdapter" library="Rendering">
-         <class id="vtkOpenGLPainterDeviceAdapter" library="Rendering">
-         </class>
-      </class>
       <class id="vtkProperty" library="Rendering">
          <class id="vtkRIBProperty" library="Hybrid">
          </class>

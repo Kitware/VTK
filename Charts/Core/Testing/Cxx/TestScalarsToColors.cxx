@@ -77,20 +77,10 @@ int TestScalarsToColors(int ,  char * [])
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(1);
 
-#if defined(VTK_OPENGL2)
-  bool openGL2Backend = true;
-#else
-  bool openGL2Backend = false;
-#endif
-
-  if (openGL2Backend || view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+  if (view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
   {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-  }
-  else
-  {
-    cout << "GL version 2 or higher is required." << endl;
   }
 
   return EXIT_SUCCESS;

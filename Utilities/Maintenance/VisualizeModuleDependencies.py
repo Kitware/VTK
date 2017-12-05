@@ -6,7 +6,7 @@ directed graph of the modules and their dependencies. Arrows on the
 directed graph point to the dependent module.
 
 Typical usage would be as follows:
- VisualizeModuleDependencies.py VTKSourceDir vtkFiltersSources,vtkInteractionStyle,vtkRenderingOpenGL
+ VisualizeModuleDependencies.py VTKSourceDir vtkFiltersSources,vtkInteractionStyle,vtkRenderingOpenGL2
 
 '''
 

@@ -41,9 +41,7 @@ set_source_files_properties(
   WRAP_EXCLUDE
   )
 
-if("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  add_definitions(-DVTK_OPENGL2)
-endif()
+add_definitions(-DVTK_OPENGL2)
 
 vtk_module_library(vtkRenderingParallel ${Module_SRCS})
 include(vtkOpenGL)

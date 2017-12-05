@@ -3,7 +3,7 @@ vtk_module(vtkRenderingContext2D
   GROUPS
     Rendering
   TEST_DEPENDS
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
     vtkTestingRendering
     vtkViewsContext2D
     vtkChartsCore

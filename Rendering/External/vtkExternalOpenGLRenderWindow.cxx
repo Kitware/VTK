@@ -13,9 +13,7 @@
 
 =========================================================================*/
 
-#ifdef VTK_OPENGL2
-  #include "vtk_glew.h"
-#endif
+#include "vtk_glew.h"
 
 #include "vtkExternalOpenGLRenderWindow.h"
 #include "vtkObjectFactory.h"
