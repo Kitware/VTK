@@ -151,7 +151,7 @@ install(TARGETS tiff
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
 endif ()
 
-if (NOT_VTK_INSTALL_NO_DEVELOPMENT) # XXX(kitware): install headers when VTK does
+if (NOT VTK_INSTALL_NO_DEVELOPMENT) # XXX(kitware): install headers when VTK does
 install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif ()
