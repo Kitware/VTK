@@ -75,7 +75,6 @@ public:
   friend ostream& operator<< (ostream& stream, const Edge& e) { stream << e.first << " - " << e.second; return stream; }
 };
 
-
 struct hash_fn
 {
   size_t operator()(Edge const& p) const
@@ -86,7 +85,7 @@ struct hash_fn
     // first make order-independent, i.e. hash(i,j) == hash(j,i)
     if (i < j)
     {
-      vtkIdType tmp = i;
+      size_t tmp = i;
       i = j;
       j = tmp;
     }
@@ -1497,9 +1496,10 @@ void TriangulatePolyhedralFaces(vtkPolyhedron *cell, FaceVector& tris, vector<ve
       if (matches.size() == 3)
       {
         // the tri-face 'j' belongs to the original face 'i'
-        triFaces.push_back(j);
+        triFaces.push_back((vtkIdType)j);
       }
     }
+
     // add tri-faces list to the map
     originalFaceTriFaceMap.push_back(triFaces);
 
@@ -1764,7 +1764,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
   // this enables the walking of edge-face-contourpoint tuples to give closed contour polygon(s)
 
   // make the edge-face map and the face edges list
-  nFaces = faces.size();
+  nFaces = (vtkIdType)faces.size();
   for (int i = 0; i < nFaces; ++i)
   {
     Face& face = faces[i];
