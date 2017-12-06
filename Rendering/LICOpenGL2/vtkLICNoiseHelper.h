@@ -19,6 +19,7 @@
 
 #ifndef vtkLICNoiseHelper_h
 #define vtkLICNoiseHelper_h
+#ifndef __VTK_WRAP__
 
 #include "vtkRenderingLICOpenGL2Module.h" // for export
 
@@ -184,5 +185,6 @@ private:
   vtkLICRandomNumberGeneratorInterface ProbGen;
 };
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkLICNoiseHelper.h

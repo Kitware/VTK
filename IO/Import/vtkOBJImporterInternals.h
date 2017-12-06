@@ -12,6 +12,7 @@
 
 #ifndef vtkOBJImporterInternals_h
 #define vtkOBJImporterInternals_h
+#ifndef __VTK_WRAP__
 
 #include <string>
 #include "vtkOBJImporter.h"
@@ -172,5 +173,6 @@ void  bindTexturedPolydataToRenderWindow( vtkRenderWindow* renderWindow,
                                           vtkRenderer* renderer,
                                           vtkOBJPolyDataProcessor* reader );
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkOBJImporterInternals.h

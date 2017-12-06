@@ -19,6 +19,8 @@
 
 #ifndef vtkXdmfReaderInternal_h
 #define vtkXdmfReaderInternal_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 // NAMING CONVENTION *********************************************************
 // * all member variables of the type XdmfXml* begin with XML eg. XMLNode
@@ -365,5 +367,7 @@ private:
 };
   //@}
 
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h
