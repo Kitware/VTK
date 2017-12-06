@@ -84,7 +84,6 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   // so don't redefine it
   std::string replacement =
     "uniform float invertedDepth;\n"
-    "uniform int cameraParallel;\n"
     "varying float radiusVCVSOutput;\n"
     "varying vec3 centerVCVSOutput;\n"
     "uniform mat4 VCDCMatrix;\n";

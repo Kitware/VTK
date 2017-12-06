@@ -85,7 +85,6 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
   std::string replacement =
-    "uniform int cameraParallel;\n"
     "varying float radiusVCVSOutput;\n"
     "varying vec3 orientVCVSOutput;\n"
     "varying float lengthVCVSOutput;\n"

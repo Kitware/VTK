@@ -411,6 +411,7 @@ void vtkGeoTerrain::AddActors(
           cur->GetModel()->GetPointData()->SetActiveTCoords("LatLong");
           actor->SetTexture(textureNode1->GetTexture());
         }
+        actor->GetProperty()->SetDiffuse(0);
         actor->GetProperty()->SetAmbient(1);
         assembly->AddPart(actor);
       }
