@@ -20,6 +20,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridBinary2DContourMaterial.cxx
   TestHyperTreeGridBinary2DDepthLimiter.cxx
   TestHyperTreeGridBinary2DDepthLimiterMaterial.cxx
+  TestHyperTreeGridBinary2DInterfaceMaterial.cxx
   TestHyperTreeGridBinary2DMaterial.cxx
   TestHyperTreeGridBinary2DMaterialIJK.cxx
   TestHyperTreeGridBinary2DThreshold.cxx

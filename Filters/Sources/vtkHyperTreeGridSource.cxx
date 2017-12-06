@@ -83,8 +83,8 @@ vtkHyperTreeGridSource::vtkHyperTreeGridSource()
   // By default do not use the material mask
   this->UseMaterialMask = false;
 
-  // By default do not generate a vector field
-  this->GenerateVectorField = false;
+  // By default do not generate interface vector fields
+  this->GenerateInterfaceFields = false;
 
   // Grid description & material mask as strings
   this->Descriptor = new char[2];
@@ -204,7 +204,7 @@ void vtkHyperTreeGridSource::PrintSelf( ostream& os, vtkIndent indent )
 
   os << indent << "UseDescriptor: " << this->UseDescriptor << endl;
   os << indent << "UseMaterialMask: " << this->UseMaterialMask << endl;
-  os << indent << "GenerateVectorField:" << this->GenerateVectorField << endl;
+  os << indent << "GenerateInterfaceFields:" << this->GenerateInterfaceFields << endl;
 
   os << indent << "LevelZeroMaterialIndex: " << this->LevelZeroMaterialIndex << endl;
   os << indent << "Descriptor: " << this->Descriptor << endl;
@@ -527,13 +527,18 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   depthArray->SetNumberOfComponents( 1 );
   outData->SetScalars( depthArray );
 
-  if ( this->GenerateVectorField )
+  if ( this->GenerateInterfaceFields )
   {
-    // Prepare array of triples of doubles for vector field
-    vtkNew<vtkDoubleArray> vectorArray;
-    vectorArray->SetName( "Vector" );
-    vectorArray->SetNumberOfComponents( 3 );
-    outData->SetVectors( vectorArray );
+    // Prepare arrays of triples for interface surrogates
+    vtkNew<vtkDoubleArray> normalsArray;
+    normalsArray->SetName( "Normals" );
+    normalsArray->SetNumberOfComponents( 3 );
+    outData->SetVectors( normalsArray );
+
+    vtkNew<vtkDoubleArray> interceptsArray;
+    interceptsArray->SetName( "Intercepts" );
+    interceptsArray->SetNumberOfComponents( 3 );
+    outData->AddArray( interceptsArray );
   }
 
   if ( ! this->UseDescriptor )
@@ -864,11 +869,12 @@ void vtkHyperTreeGridSource::SubdivideFromStringDescriptor( vtkHyperTreeGrid* ou
   // Set depth array value
   outData->GetArray( "Depth" )->InsertTuple1( id, level );
 
-  if ( this->GenerateVectorField )
+  if ( this->GenerateInterfaceFields )
   {
-    // Set vector array value
+    // Set interface arrays values
     double v = 1. / ( 1 << level );
-    outData->GetArray( "Vector" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Normals" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Intercepts" )->InsertTuple3( id, v, 0., 3. );
   }
 
   // Initialize global index of tree
@@ -1082,11 +1088,12 @@ void vtkHyperTreeGridSource::SubdivideFromBitsDescriptor( vtkHyperTreeGrid* outp
   // Set depth array value
   outData->GetArray( "Depth" )->InsertTuple1( id, level );
 
-  if ( this->GenerateVectorField )
+  if ( this->GenerateInterfaceFields )
   {
-    // Set vector array value
+    // Set interface arrays values
     double v = 1. / ( 1 << level );
-    outData->GetArray( "Vector" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Normals" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Intercepts" )->InsertTuple3( id, v, 0., 3. );
   }
 
   // Initialize global index of tree
@@ -1303,11 +1310,12 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeGrid* output,
   // Set depth array value
   outData->GetArray( "Depth" )->InsertTuple1( id, level );
 
-  if ( this->GenerateVectorField )
+  if ( this->GenerateInterfaceFields )
   {
-    // Set vector array value
+    // Set interface arrays values
     double v = 1. / ( 1 << level );
-    outData->GetArray( "Vector" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Normals" )->InsertTuple3( id, v, v, v );
+    outData->GetArray( "Intercepts" )->InsertTuple3( id, v, 0., 3. );
   }
 
   // Subdivide further or stop recursion with terminal leaf
@@ -1426,11 +1434,12 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric( vtkHyperTreeGrid* output,
 
     // Cell values
     outData->GetArray( "Depth" )->InsertTuple1( id, level );
-    if ( this->GenerateVectorField )
+    if ( this->GenerateInterfaceFields )
     {
-      // Set vector array value
+      // Set interface arrays values
       double v = 1. / ( 1 << level );
-      outData->GetArray( "Vector" )->InsertTuple3( id, v, v, v );
+      outData->GetArray( "Normals" )->InsertTuple3( id, v, v, v );
+      outData->GetArray( "Intercepts" )->InsertTuple3( id, v, 0., 3. );
     }
     outData->GetArray( "Quadric" )->InsertTuple1( id, sum );
   } // else

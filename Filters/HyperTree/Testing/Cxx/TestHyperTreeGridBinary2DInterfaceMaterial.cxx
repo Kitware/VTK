@@ -1,7 +1,7 @@
 /*==================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestHyperTreeGridBinary2DMaterial.cxx
+  Module:    TestHyperTreeGridBinary2DInterfaceMaterial.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,18 +13,18 @@
 
 ===================================================================*/
 // .SECTION Thanks
-// This test was written by Philippe Pebay, Kitware 2012
-// This test was revised by Philippe Pebay, 2016
+// This test was written by Philippe Pebay,  NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
+#include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGeometry.h"
 #include "vtkHyperTreeGridSource.h"
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkContourFilter.h"
-#include "vtkDataSetMapper.h"
 #include "vtkNew.h"
+#include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -32,69 +32,60 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
+int TestHyperTreeGridBinary2DInterfaceMaterial( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 6;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 6 );
   htGrid->SetDimension( 2 );
   htGrid->SetOrientation( 2 ); // in xy plane
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetBranchFactor( 2 );
+  htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
   htGrid->UseMaterialMaskOn();
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
   htGrid->SetMaterialMask( "111111|0000 1111 1111 1111 1111|1111 0001 0111 0101 1011 1111 0111|1111 0111 1111 1111 1111 1111|1111 1111 1111 1111|1111" );
+  htGrid->GenerateInterfaceFieldsOn();
+  htGrid->Update();
+  vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() );
+  H->SetHasInterface( 1 );
+  char normalsName[] = "Normals";
+  H->SetInterfaceNormalsName( normalsName );
+  char interceptsName[] = "Intercepts";
+  H->SetInterfaceInterceptsName( interceptsName );
 
-  // Geometry
-  vtkNew<vtkHyperTreeGridGeometry> geometry;
-  geometry->SetInputConnection( htGrid->GetOutputPort() );
-  geometry->Update();
-  vtkPolyData* pd = geometry->GetPolyDataOutput();
-
-  // Contour
-  vtkNew<vtkContourFilter> contour;
-  int nContours = 3;
-  contour->SetNumberOfContours( nContours );
-  contour->SetInputConnection( htGrid->GetOutputPort() );
-  double resolution = ( maxLevel - 1 ) / ( nContours + 1. );
-  double isovalue = resolution;
-  for ( int i = 0; i < nContours; ++ i, isovalue += resolution )
+  // Modify intercepts array
+  vtkDataArray* interArray = vtkDataSet::SafeDownCast( htGrid->GetOutput() )->GetPointData()->GetArray( "Intercepts" );
+  for ( vtkIdType i = 0; i < interArray->GetNumberOfTuples(); ++ i )
   {
-    contour->SetValue( i, isovalue );
+    interArray->SetTuple3( i, -.25, -.5, -1. );
   }
+
+  // Geometries
+  vtkNew<vtkHyperTreeGridGeometry> geometry1;
+  geometry1->SetInputConnection( htGrid->GetOutputPort() );
+  geometry1->Update();
+  vtkPolyData* pd = geometry1->GetPolyDataOutput();
+  vtkNew<vtkHyperTreeGridGeometry> geometry2;
+  geometry2->SetInputConnection( htGrid->GetOutputPort() );
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
   vtkNew<vtkPolyDataMapper> mapper1;
-  mapper1->SetInputConnection( geometry->GetOutputPort() );
-  mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
+  mapper1->SetInputConnection( geometry1->GetOutputPort() );
+  mapper1->ScalarVisibilityOff();
   vtkNew<vtkPolyDataMapper> mapper2;
-  mapper2->SetInputConnection( geometry->GetOutputPort() );
-  mapper2->ScalarVisibilityOff();
-  vtkNew<vtkPolyDataMapper> mapper3;
-  mapper3->SetInputConnection( contour->GetOutputPort() );
-  mapper3->ScalarVisibilityOff();
-  vtkNew<vtkDataSetMapper> mapper4;
-  mapper4->SetInputConnection( htGrid->GetOutputPort() );
-  mapper4->ScalarVisibilityOff();
+  mapper2->SetInputConnection( geometry2->GetOutputPort() );
+  mapper2->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
 
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1 );
+  actor1->GetProperty()->SetRepresentationToWireframe();
+  actor1->GetProperty()->SetColor( .7, .7, .7 );
   vtkNew<vtkActor> actor2;
   actor2->SetMapper( mapper2 );
-  actor2->GetProperty()->SetRepresentationToWireframe();
-  actor2->GetProperty()->SetColor( .7, .7, .7 );
-  vtkNew<vtkActor> actor3;
-  actor3->SetMapper( mapper3 );
-  actor3->GetProperty()->SetColor( .8, .4, .3 );
-  actor3->GetProperty()->SetLineWidth( 3 );
-  vtkNew<vtkActor> actor4;
-  actor4->SetMapper( mapper4 );
-  actor4->GetProperty()->SetRepresentationToWireframe();
-  actor4->GetProperty()->SetColor( .0, .0, .0 );
 
   // Camera
   double bd[6];
@@ -110,8 +101,6 @@ int TestHyperTreeGridBinary2DMaterial( int argc, char* argv[] )
   renderer->SetBackground( 1., 1., 1. );
   renderer->AddActor( actor1 );
   renderer->AddActor( actor2 );
-  renderer->AddActor( actor3 );
-  renderer->AddActor( actor4 );
 
   // Render window
   vtkNew<vtkRenderWindow> renWin;

@@ -14,6 +14,7 @@
 ===================================================================*/
 // .SECTION Thanks
 // This test was written by Philippe Pebay, 2016
+// This test was modified by Philippe Pebay, NexGen Analytics 2017
 // This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 
 #include "vtkHyperTreeGrid.h"
@@ -38,21 +39,20 @@ int TestHyperTreeGridBinary2DVector( int argc, char* argv[] )
 {
   // Hyper tree grid
   vtkNew<vtkHyperTreeGridSource> htGrid;
-  int maxLevel = 6;
-  htGrid->SetMaximumLevel( maxLevel );
+  htGrid->SetMaximumLevel( 6 );
+  htGrid->SetOrientation( 2 ); // in xy plane
+  htGrid->SetBranchFactor( 2 );
   htGrid->SetGridSize( 2, 3, 1 );
   htGrid->SetGridScale( 1.5, 1., 10. );  // this is to test that orientation fixes scale
   htGrid->SetDimension( 2 );
-  htGrid->SetOrientation( 2 ); // in xy plane
-  htGrid->SetBranchFactor( 2 );
   htGrid->SetDescriptor( "RRRRR.|.... .R.. RRRR R... R...|.R.. ...R ..RR .R.. R... .... ....|.... ...R ..R. .... .R.. R...|.... .... .R.. ....|...." );
-  htGrid->GenerateVectorFieldOn();
+  htGrid->GenerateInterfaceFieldsOn();
   htGrid->Update();
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast( htGrid->GetOutput() );
   H->SetHasInterface( 1 );
-  char normalsName[] = "Vector";
+  char normalsName[] = "Normals";
   H->SetInterfaceNormalsName( normalsName );
-  char interceptsName[] = "Depth";
+  char interceptsName[] = "Intercepts";
   H->SetInterfaceInterceptsName( interceptsName );
 
   // Cell centers
