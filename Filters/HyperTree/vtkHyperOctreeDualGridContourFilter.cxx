@@ -80,6 +80,8 @@ vtkStandardNewMacro(vtkHyperOctreeDualGridContourFilter);
 // set to 0.0; and generate cut scalars turned off.
 vtkHyperOctreeDualGridContourFilter::vtkHyperOctreeDualGridContourFilter()
 {
+  VTK_LEGACY_BODY(vtkHyperOctree, "VTK 8.2");
+
   this->ContourValues = vtkContourValues::New();
 
   this->Locator = nullptr;

@@ -68,9 +68,6 @@ set(Module_SRCS
   vtkHexahedron.cxx
   vtkHierarchicalBoxDataIterator.cxx
   vtkHierarchicalBoxDataSet.cxx
-  vtkHyperOctreeCursor.cxx
-  vtkHyperOctree.cxx
-  vtkHyperOctreePointsGrabber.cxx
   vtkHyperTree.cxx
   vtkHyperTreeCursor.cxx
   vtkHyperTreeGrid.cxx
@@ -221,6 +218,14 @@ set(Module_SRCS
   vtkUniformGridAMR.cxx
   vtkUniformGridAMRDataIterator.cxx
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND Module_SRCS
+    vtkHyperOctree.cxx
+    vtkHyperOctreeCursor.cxx
+    vtkHyperOctreePointsGrabber.cxx
+  )
+endif()
 
 set(${vtk-module}_HDRS
   vtkArrayListTemplate.h
