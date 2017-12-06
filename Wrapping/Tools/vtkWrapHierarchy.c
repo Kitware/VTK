@@ -984,6 +984,11 @@ int main(int argc, char *argv[])
     free(lines[j]);
   }
 
+  for(j = 0; files[j] != NULL; j++)
+  {
+    free(files[j]);
+  }
+
   free(files);
   free(lines);
   return 0;
