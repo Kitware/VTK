@@ -147,7 +147,7 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   this->SelectionPoint[2] = pos[2];
 
   // Invoke start pick method if defined
-  this->InvokeEvent(vtkCommand::StartPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::StartPickEvent, nullptr);
 
   // for each prop, that is packable
   // find the prop whose bounds
@@ -156,10 +156,10 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   // TODO need to handle AssemblyPaths
   vtkPropCollection *props = renderer->GetViewProps();
 
-  vtkAssemblyPath *result = NULL;
+  vtkAssemblyPath *result = nullptr;
   vtkCollectionSimpleIterator pit;
   props->InitTraversal(pit);
-  vtkProp *prop = NULL;
+  vtkProp *prop = nullptr;
   while ( (prop = props->GetNextProp(pit)) )
   {
     if (prop->GetPickable())
@@ -181,11 +181,11 @@ int vtkPropPicker::PickProp3DPoint(double pos[3], vtkRenderer *renderer)
   if (result)
   {
     result->GetFirstNode()->GetViewProp()->Pick();
-    this->InvokeEvent(vtkCommand::PickEvent,NULL);
+    this->InvokeEvent(vtkCommand::PickEvent,nullptr);
   }
   this->SetPath(result);
 
-  this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
+  this->InvokeEvent(vtkCommand::EndPickEvent,nullptr);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( result )

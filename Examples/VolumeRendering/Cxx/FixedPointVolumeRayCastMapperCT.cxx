@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
   // Parse the parameters
 
   int count = 1;
-  char *dirname = NULL;
+  char *dirname = nullptr;
   double opacityWindow = 4096;
   double opacityLevel = 2048;
   int blendType = 0;

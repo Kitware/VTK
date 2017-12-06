@@ -2090,7 +2090,7 @@ int vtkTextureObject::GetMaximumTextureSize3D(vtkOpenGLRenderWindow* context)
 //----------------------------------------------------------------------------
 int vtkTextureObject::GetMaximumTextureSize3D()
 {
-  assert("Context == NULL" && this->Context);
+  assert("Context == nullptr" && this->Context);
   return vtkTextureObject::GetMaximumTextureSize3D(this->Context);
 }
 

@@ -66,8 +66,8 @@ vtkOptiXRendererNode::vtkOptiXRendererNode()
   , OptiXPtxLoader(vtkOptiXPtxLoader::New())
   , ContextValidated(false)
 {
-  this->Buffer = NULL;
-  this->ZBuffer = NULL;
+  this->Buffer = nullptr;
+  this->ZBuffer = nullptr;
   this->NumActors = 0;
   this->ImageX = this->ImageY = -1;
 }
