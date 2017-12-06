@@ -20,9 +20,10 @@
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm
  *
  * @par Thanks:
- * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
- * This class was modified by Guénolé Harel and Jacques-Bernard Lekien, 2014
- * This class was rewritten by Philippe Pebay, 2016
+ * This class was written by Philippe Pebay, Joachim Pouderoux,
+ * and Charles Law, Kitware 2013
+ * This class was modified by Guenole Harel and Jacques-Bernard Lekien, 2014
+ * This class was rewritten by Philippe Pebay, NexGen Analytics 2017
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
@@ -34,8 +35,11 @@
 
 class vtkBitArray;
 class vtkCellArray;
+class vtkDoubleArray;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridCursor;
+class vtkIdList;
+class vtkIdTypeArray;
 class vtkPoints;
 
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperTreeGridGeometry : public vtkHyperTreeGridAlgorithm
@@ -82,7 +86,7 @@ protected:
   /**
    * Helper method to generate a face based on its normal and offset from cursor origin
    */
-  void AddFace( vtkIdType, double*, double*, int, unsigned int );
+  void AddFace( vtkIdType, double*, double*, int, unsigned int, bool create = true );
 
   /**
    * Dimension of input grid
@@ -103,6 +107,47 @@ protected:
    * Storage for cells of output unstructured mesh
    */
   vtkCellArray* Cells;
+
+  //@{
+  /**
+   * Keep track of input interface parameters
+   */
+  bool HasInterface;
+  vtkDoubleArray* Normals;
+  vtkDoubleArray* Intercepts;
+  //@}
+
+  //@{
+  /**
+   * Storage for interface points
+   */
+  vtkPoints* FacePoints;
+  vtkIdList* FaceIDs;
+  //@}
+
+  //@{
+  /**
+   * Storage for interface edges
+   */
+  vtkIdType EdgesA[12];
+  vtkIdType EdgesB[12];
+  //@}
+
+  //@{
+  /**
+   * Storage for interface faces
+   */
+  vtkIdTypeArray* FacesA;
+  vtkIdTypeArray* FacesB;
+  //@}
+
+  //@{
+  /**
+   * Storage for interface scalars
+   */
+  vtkDoubleArray* FaceScalarsA;
+  vtkDoubleArray* FaceScalarsB;
+  //@}
 
 private:
   vtkHyperTreeGridGeometry(const vtkHyperTreeGridGeometry&) = delete;
