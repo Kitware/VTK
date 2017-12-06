@@ -492,7 +492,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     // get all sizes from neighbors
     // first set up the receives
     std::vector<int>::iterator iter = this->Internals->Neighbors.begin();
-    for (; iter != this->Internals->Neighbors.end(); iter++)
+    for (; iter != this->Internals->Neighbors.end(); ++iter)
     {
       CommDataInfo& c = this->Internals->CommData[*iter];
       this->Internals->SubController->NoBlockReceive(&c.RecvSize, 1, *iter, UGGCG_SIZE_EXCHANGE_TAG,
@@ -503,7 +503,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     // of the receiving process) to send
     this->Internals->ProcessIdToSurfacePointIds.clear();
 
-    for ( iter = this->Internals->Neighbors.begin(); iter!=this->Internals->Neighbors.end();iter++)
+    for ( iter = this->Internals->Neighbors.begin(); iter!=this->Internals->Neighbors.end();++iter)
     {
       std::vector<vtkIdType>& sendIds = this->Internals->SendIds[*iter];
       sendIds.clear();
@@ -524,7 +524,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     // send surface point ids to each neighbor
     int reqidx = 0;
     for (iter = this->Internals->Neighbors.begin();
-         iter != this->Internals->Neighbors.end(); iter++)
+         iter != this->Internals->Neighbors.end(); ++iter)
     {
       std::vector<vtkIdType>& sendIds = this->Internals->SendIds[*iter];
       // send size of vector
@@ -545,7 +545,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     while(counter != numNeighbors)
     {
       iter = this->Internals->Neighbors.begin();
-      for (; iter != this->Internals->Neighbors.end(); iter++)
+      for (; iter != this->Internals->Neighbors.end(); ++iter)
       {
         CommDataInfo& c = this->Internals->CommData[*iter];
         if (!c.RecvReqs[0].Test() || c.CommStep != 0)
@@ -559,7 +559,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
 
     // create receive requests for the ids
     iter = this->Internals->Neighbors.begin();
-    for (; iter != this->Internals->Neighbors.end(); iter++)
+    for (; iter != this->Internals->Neighbors.end(); ++iter)
     {
       CommDataInfo& c = this->Internals->CommData[*iter];
       this->Internals->ProcessIdToSurfacePointIds[*iter].resize(c.RecvSize);
@@ -574,7 +574,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     while(counter != numNeighbors)
     {
       iter = this->Internals->Neighbors.begin();
-      for (; iter != this->Internals->Neighbors.end(); iter++)
+      for (; iter != this->Internals->Neighbors.end(); ++iter)
       {
         CommDataInfo& c = this->Internals->CommData[*iter];
         if (!c.RecvReqs[1].Test() || c.CommStep != 1)
@@ -600,7 +600,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     std::vector<int>::iterator iter = this->Internals->Neighbors.begin();
     // get all sizes from neighbors
     // first set up the receives
-    for (; iter != this->Internals->Neighbors.end(); iter++)
+    for (; iter != this->Internals->Neighbors.end(); ++iter)
     {
       CommDataInfo& c = this->Internals->CommData[*iter];
       this->Internals->SubController->NoBlockReceive(&c.RecvSize, 1, *iter, UGGCG_SIZE_EXCHANGE_TAG,
@@ -612,7 +612,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
 
     // store the global point arrays unique to each process (based on bounding box
     // of the receiving process) to send
-    for (iter=this->Internals->Neighbors.begin(); iter!=this->Internals->Neighbors.end(); iter++)
+    for (iter=this->Internals->Neighbors.begin(); iter!=this->Internals->Neighbors.end(); ++iter)
     {
       std::vector<double>& sendPoints = this->Internals->SendPoints[*iter];
       sendPoints.clear();
@@ -630,7 +630,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     // now go through and send the data
     int reqidx = 0;
     for (iter = this->Internals->Neighbors.begin();
-         iter != this->Internals->Neighbors.end(); iter++)
+         iter != this->Internals->Neighbors.end(); ++iter)
     {
       // Send data length
       std::vector<double>& sendPoints = this->Internals->SendPoints[*iter];
@@ -651,7 +651,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     while(counter != numNeighbors)
     {
       for (iter = this->Internals->Neighbors.begin();
-           iter != this->Internals->Neighbors.end(); iter++)
+           iter != this->Internals->Neighbors.end(); ++iter)
       {
         CommDataInfo& c = this->Internals->CommData[*iter];
         if (!c.RecvReqs[0].Test() || c.CommStep != 0)
@@ -664,7 +664,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     }
 
     // create receive requests for point data
-    for (iter=this->Internals->Neighbors.begin(); iter != this->Internals->Neighbors.end(); iter++)
+    for (iter=this->Internals->Neighbors.begin(); iter != this->Internals->Neighbors.end(); ++iter)
     {
       CommDataInfo& c = this->Internals->CommData[*iter];
       std::vector<double>& incomingPoints = this->Internals->ProcessIdToSurfacePoints[*iter];
@@ -678,7 +678,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePointsShare
     while(counter != numNeighbors)
     {
       iter = this->Internals->Neighbors.begin();
-      for (; iter != this->Internals->Neighbors.end(); iter++)
+      for (; iter != this->Internals->Neighbors.end(); ++iter)
       {
         CommDataInfo& c = this->Internals->CommData[*iter];
         if (!c.RecvReqs[1].Test() || c.CommStep != 1)
@@ -707,12 +707,12 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
   if (this->Internals->InputGlobalPointIds)
   {
     for (std::vector<int>::iterator iter = this->Internals->Neighbors.begin();
-         iter != this->Internals->Neighbors.end(); iter++)
+         iter != this->Internals->Neighbors.end(); ++iter)
     {
       std::vector<vtkIdType>& surfaceIds =
         this->Internals->ProcessIdToSurfacePointIds[*iter];
       for (std::vector<vtkIdType>::const_iterator id_iter=surfaceIds.begin();
-           id_iter!=surfaceIds.end();id_iter++)
+           id_iter!=surfaceIds.end();++id_iter)
       {
         vtkIdType localPointId = -1;
         // Check if this point exists locally from its global ids, if so
@@ -757,7 +757,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ComputeSharedPoints()
 
     for(std::map<int, std::vector<double> >::iterator iter=
           this->Internals->ProcessIdToSurfacePoints.begin();
-        iter!=this->Internals->ProcessIdToSurfacePoints.end();iter++)
+        iter!=this->Internals->ProcessIdToSurfacePoints.end();++iter)
     {
       if (iter->first == myRank)
       {
@@ -805,7 +805,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndSendGhostCells(
   extractCells->SetInputData(input);
 
   for (std::vector<int>::iterator iter=this->Internals->Neighbors.begin();
-       iter!=this->Internals->Neighbors.end();iter++)
+       iter!=this->Internals->Neighbors.end();++iter)
   {
     int toRank = *iter;
     CommDataInfo& c = this->Internals->CommData[toRank];
@@ -1042,7 +1042,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ReceiveAndMergeGhostCells(
   counter = 0;
   while (counter != nbNeighbors)
   {
-    for (iter=this->Internals->Neighbors.begin();iter!=this->Internals->Neighbors.end();iter++)
+    for (iter=this->Internals->Neighbors.begin();iter!=this->Internals->Neighbors.end();++iter)
     {
       int toRank = *iter;
       CommDataInfo& c = this->Internals->CommData[toRank];
