@@ -759,14 +759,14 @@ extern "C"
 //----------------------------------------------------------------------------
 // vtkTkRenderWidget_Init
 // Called upon system startup to create vtkTkRenderWidget command.
-extern "C" {VTK_TK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
 
 #define VTKTK_TO_STRING(x) VTKTK_TO_STRING0(x)
 #define VTKTK_TO_STRING0(x) VTKTK_TO_STRING1(x)
 #define VTKTK_TO_STRING1(x) #x
 #define VTKTK_VERSION VTKTK_TO_STRING(VTK_MAJOR_VERSION) "." VTKTK_TO_STRING(VTK_MINOR_VERSION)
 
-int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
+int VTK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
   // This widget requires Tk to function.
   Tcl_PkgRequire(interp, (char *)"Tk", (char*)TK_VERSION, 0);

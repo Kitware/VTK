@@ -1,0 +1,17 @@
+vtk_module(vtkRenderingTk
+  GROUPS
+    Tk
+  COMPILE_DEPENDS
+    vtkTclTk
+  TEST_DEPENDS
+    vtkRenderingVolume
+  EXCLUDE_FROM_WRAPPING
+  DEPENDS
+    vtkCommonCore
+    vtkInteractionImage
+    vtkRenderingOpenGL2
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+  )
