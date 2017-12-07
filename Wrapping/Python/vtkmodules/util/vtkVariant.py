@@ -235,4 +235,3 @@ def vtkVariantEqual(s1, s2):
     Return true if s1 == s2.
     """
     return (vtk.vtkVariant(s1) == vtk.vtkVariant(s2))
-

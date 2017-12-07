@@ -703,4 +703,3 @@ def wxVTKRenderWindowInteractorConeExample():
 
 if __name__ == "__main__":
     wxVTKRenderWindowInteractorConeExample()
-

@@ -470,4 +470,3 @@ def vtkRenderWidgetConeExample():
 
 if __name__ == "__main__":
     vtkRenderWidgetConeExample()
-

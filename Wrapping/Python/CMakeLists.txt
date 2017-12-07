@@ -276,21 +276,21 @@ unset(configured_py_files)
 foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
   set(VTK_PYTHON_IMPORT_ALL
     "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
-  configure_file(vtk/module.py.in
-    "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py" @ONLY)
-  list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/${module}.py")
+  configure_file(vtkmodules/module.py.in
+    "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${module}.py" @ONLY)
+  list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${module}.py")
 endforeach()
-configure_file(vtk/__init__.py.in
-  "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py" @ONLY)
-list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/__init__.py")
+configure_file(vtkmodules/all.py.in
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/all.py" @ONLY)
+list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/all.py")
 
 # Kit module adapters
 foreach(kit IN LISTS vtk_kits)
   set(_module_kit ${kit}${VTK_KIT_SUFFIX})
   foreach(dep IN LISTS _${kit}_modules)
-    configure_file(vtk/kit_module__init__.py.in
-      "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}.py" @ONLY)
-    list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtk/${dep}.py")
+    configure_file(vtkmodules/kit_module.py.in
+      "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${dep}.py" @ONLY)
+    list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${dep}.py")
   endforeach()
   unset(_module_kit)
 endforeach()
@@ -298,14 +298,15 @@ endforeach()
 # Now copy configured files to build-cfg specific dir.
 add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
   COMMAND ${CMAKE_COMMAND}
-          -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/vtk" "${VTK_BUILD_PYTHON_MODULES_DIR}/vtk"
+          -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules" "${VTK_BUILD_PYTHON_MODULES_DIR}/vtkmodules"
   COMMAND ${CMAKE_COMMAND}
           -E touch "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
   DEPENDS ${configured_py_files})
 
 
 # Build all py files that form the `vtk` package.
-vtk_python_package(vtkpython_pyc vtk DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/copy-complete")
+vtk_python_package(vtkpython_pyc vtkmodules DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/copy-complete")
+vtk_python_module(vtk_python_module vtk.py)
 
 # Let's add a target that generates the `vtk` python package
 # including all the platform dependent and independent modules.

@@ -400,4 +400,3 @@ def vtkRenderWindowInteractorConeExample():
 
 if __name__ == "__main__":
     vtkRenderWindowInteractorConeExample()
-
