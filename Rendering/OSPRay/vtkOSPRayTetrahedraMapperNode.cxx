@@ -35,8 +35,8 @@ vtkOSPRayTetrahedraMapperNode::vtkOSPRayTetrahedraMapperNode()
 {
   this->SamplingRate=0.0f;
   this->NumColors = 128;
-  this->OSPRayVolume = NULL;
-  this->TransferFunction = NULL;
+  this->OSPRayVolume = nullptr;
+  this->TransferFunction = nullptr;
 }
 
 vtkOSPRayTetrahedraMapperNode::~vtkOSPRayTetrahedraMapperNode()

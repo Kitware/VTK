@@ -36,7 +36,7 @@ vtkImageFoo::~vtkImageFoo()
   if (this->Bar)
   {
     this->Bar->Delete();
-    this->Bar = NULL;
+    this->Bar = nullptr;
   }
 }
 

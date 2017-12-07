@@ -164,7 +164,7 @@ const char *DefaultFilters[] =
   "histogram:stencil",
   "bspline:degree=3",
 
-  NULL
+  nullptr
 };
 
 bool Verbose = false;
@@ -373,14 +373,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
           args.size() > 2)
       {
         std::cerr << "median options: kernelsize=N\n";
-        return NULL;
+        return nullptr;
       }
       std::string num = args[1].substr(n+1);
       kernelsize = std::atoi(num.c_str());
     }
 
     filter->SetKernelSize(kernelsize, kernelsize, kernelsize);
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -403,7 +403,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
         if (n != std::string::npos)
         {
           std::cerr << "reslice stencil option takes no args\n";
-          return NULL;
+          return nullptr;
         }
         mask = true;
       }
@@ -412,7 +412,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
         if (n == std::string::npos || n + 1 == args[k].size())
         {
           std::cerr << "reslice kernel should be kernel=name\n";
-          return NULL;
+          return nullptr;
         }
         kernel = args[k].substr(n+1);
       }
@@ -422,14 +422,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
             args[k][n+1] < '0' || args[k][n+1] > '9')
         {
           std::cerr << "reslice kernelsize should be kernelsize=N\n";
-          return NULL;
+          return nullptr;
         }
         std::string num = args[k].substr(n+1);
         kernelsize = std::atoi(num.c_str());
         if (kernelsize < 1 || kernelsize > 10)
         {
           std::cerr << "reslice kernelsize must be between 1 and 10\n";
-          return NULL;
+          return nullptr;
         }
       }
       else if (key == "rotation")
@@ -446,13 +446,13 @@ static vtkThreadedImageAlgorithm *CreateFilter(
         if (n != std::string::npos || j != 4)
         {
           std::cerr << "reslice rotation format: rotation=degrees/x/y/z\n";
-          return NULL;
+          return nullptr;
         }
       }
       else
       {
         std::cerr << "reslice does not take option " << key << "\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -505,7 +505,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
       if (kernelsize % 2 != 0)
       {
         std::cerr << "reslice sinc kernelsize must be even\n";
-        return NULL;
+        return nullptr;
       }
       if (kernelsize == 0)
       {
@@ -527,7 +527,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
     else if (kernel != "nearest" && !kernel.empty())
     {
       std::cerr << "reslice kernel " << kernel << " not recognized\n";
-      return NULL;
+      return nullptr;
     }
 
     // create the transform
@@ -565,7 +565,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
 
     filter->SetOutputExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1);
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -586,20 +586,20 @@ static vtkThreadedImageAlgorithm *CreateFilter(
             args[k][n+1] < '0' || args[k][n+1] > '9')
         {
           std::cerr << "resize kernelsize should be kernelsize=N\n";
-          return NULL;
+          return nullptr;
         }
         std::string num = args[k].substr(n+1);
         kernelsize = std::atoi(num.c_str());
         if (kernelsize < 1 || kernelsize > 10)
         {
           std::cerr << "resize kernelsize must be between 1 and 10\n";
-          return NULL;
+          return nullptr;
         }
       }
       else
       {
         std::cerr << "resize does not take option " << key << "\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -615,7 +615,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
       filter->InterpolateOff();
     }
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -635,14 +635,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
           args.size() > 2)
       {
         std::cerr << "convolve options: kernelsize=N\n";
-        return NULL;
+        return nullptr;
       }
       std::string num = args[1].substr(n+1);
       kernelsize = std::atoi(num.c_str());
       if (kernelsize != 3 && kernelsize != 5 && kernelsize != 7)
       {
         std::cerr << "convolve kernelsize must be 3, 5, or 7\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -708,7 +708,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
       }
     }
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -728,14 +728,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
           args.size() > 2)
       {
         std::cerr << "separable options: kernelsize=N\n";
-        return NULL;
+        return nullptr;
       }
       std::string num = args[1].substr(n+1);
       kernelsize = std::atoi(num.c_str());
       if (kernelsize % 2 != 1)
       {
         std::cerr << "separable kernelsize must be odd\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -772,7 +772,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
       filter->SetZKernel(kernel2);
     }
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -792,14 +792,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
           args.size() > 2)
       {
         std::cerr << "gaussian options: kernelsize=N\n";
-        return NULL;
+        return nullptr;
       }
       std::string num = args[1].substr(n+1);
       kernelsize = std::atoi(num.c_str());
       if (kernelsize % 2 != 1)
       {
         std::cerr << "gaussian kernelsize must be odd\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -814,7 +814,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
     }
     filter->SetRadiusFactors(2.0, 2.0, 2.0);
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -835,7 +835,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
             args[k][n+1] < '1' || args[k][n+1] > '4')
         {
           std::cerr << "colormap components=N where N = 1, 2, 3, or 4\n";
-          return NULL;
+          return nullptr;
         }
         std::string num = args[k].substr(n+1);
         comps = std::atoi(num.c_str());
@@ -847,7 +847,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
       else
       {
         std::cerr << "colormap options: greyscale, components=N\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -867,7 +867,7 @@ static vtkThreadedImageAlgorithm *CreateFilter(
     }
     filter->SetOutputFormat(comps);
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -885,13 +885,13 @@ static vtkThreadedImageAlgorithm *CreateFilter(
           args.size() > 2)
       {
         std::cerr << "bspline options: degree=N\n";
-        return NULL;
+        return nullptr;
       }
       std::string num = args[1].substr(n+1);
       filter->SetSplineDegree(std::atoi(num.c_str()));
     }
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -903,10 +903,10 @@ static vtkThreadedImageAlgorithm *CreateFilter(
     if (args.size() > 1)
     {
       std::cerr << "fft takes no options\n";
-      return NULL;
+      return nullptr;
     }
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
   //-----
@@ -926,14 +926,14 @@ static vtkThreadedImageAlgorithm *CreateFilter(
         if (n != std::string::npos)
         {
           std::cerr << "histogram stencil option takes no args\n";
-          return NULL;
+          return nullptr;
         }
         mask = true;
       }
       else
       {
         std::cerr << "histogram options: stencil\n";
-        return NULL;
+        return nullptr;
       }
     }
 
@@ -969,20 +969,20 @@ static vtkThreadedImageAlgorithm *CreateFilter(
     filter->SetBinOrigin(0.0);
     filter->SetBinSpacing(1.0);
 
-    filter->Register(NULL);
+    filter->Register(nullptr);
     return filter;
   }
 
   cerr << "unrecognized option for --filter\n";
 
-  return NULL;
+  return nullptr;
 }
 
 // create the source data
 static vtkImageData *CreateData(
   const std::string& sourceName, const int scalarType, const int size[3])
 {
-  vtkImageData *output = NULL;
+  vtkImageData *output = nullptr;
 
   if (sourceName == "gaussian")
   {
@@ -1002,7 +1002,7 @@ static vtkImageData *CreateData(
     cast->Update();
 
     output = cast->GetOutput();
-    output->Register(NULL);
+    output->Register(nullptr);
   }
   else if (sourceName == "noise")
   {
@@ -1019,7 +1019,7 @@ static vtkImageData *CreateData(
     cast->Update();
 
     output = cast->GetOutput();
-    output->Register(NULL);
+    output->Register(nullptr);
   }
   else if (sourceName == "mandelbrot")
   {
@@ -1034,7 +1034,7 @@ static vtkImageData *CreateData(
     cast->Update();
 
     output = cast->GetOutput();
-    output->Register(NULL);
+    output->Register(nullptr);
   }
   else if (sourceName == "grid")
   {
@@ -1046,12 +1046,12 @@ static vtkImageData *CreateData(
     source->SetDataScalarType(scalarType);
     source->Update();
     output = source->GetOutput();
-    output->Register(NULL);
+    output->Register(nullptr);
   }
   else
   {
     cerr << "unrecognized option for --source\n";
-    return NULL;
+    return nullptr;
   }
 
   // standardize the geometry of the output
@@ -1063,7 +1063,7 @@ static vtkImageData *CreateData(
   change->Update();
   output->Delete();
   output = change->GetOutput();
-  output->Register(NULL);
+  output->Register(nullptr);
 
   return output;
 }
@@ -1700,7 +1700,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char *argv[])
         }
       }
       commandLine.push_back("--slave");
-      commandLine.push_back(NULL);
+      commandLine.push_back(nullptr);
 
       // create and run the subprocess
       vtksysProcess *process = vtksysProcess_New();
@@ -1712,7 +1712,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char *argv[])
       {
         char *cp;
         int length;
-        pipe = vtksysProcess_WaitForData(process, &cp, &length, NULL);
+        pipe = vtksysProcess_WaitForData(process, &cp, &length, nullptr);
         switch (pipe)
         {
           case vtksysProcess_Pipe_STDOUT:
@@ -1726,7 +1726,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char *argv[])
       }
       while (pipe != vtksysProcess_Pipe_None);
 
-      vtksysProcess_WaitForExit(process, NULL);
+      vtksysProcess_WaitForExit(process, nullptr);
       int rval = vtksysProcess_GetExitValue(process);
       if (rval != 0)
       {
@@ -1749,7 +1749,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char *argv[])
   }
 
   const char *requestedFilters[] = {
-    filterName.c_str(), NULL
+    filterName.c_str(), nullptr
   };
   const char **filters =
     (filterName.empty() ? DefaultFilters : requestedFilters);

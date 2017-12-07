@@ -159,7 +159,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   if ( (file = fopen(filename,"r")) == 0 )
   {
     std::cerr << "ERROR: Can't open file: " << filename << std::endl;
-    return NULL;
+    return nullptr;
   }
 
   int n = fscanf (file, "%s %d", tag, &npts); // read number of points
@@ -167,21 +167,21 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
   {
     std::cerr << "ERROR: Can't read file: " << filename << std::endl;
     fclose(file);
-    return NULL;
+    return nullptr;
   }
   // Check for a reasonable npts
   if (npts <= 0)
   {
     std::cerr << "ERROR: Number of points must be greater that 0" << std::endl;
     fclose(file);
-    return NULL;
+    return nullptr;
   }
   // We arbitrarily pick a large upper limit on npts
   if (npts > VTK_INT_MAX / 10)
   {
     std::cerr << "ERROR: npts (" << npts << ") is unreasonably large" << std::endl;
     fclose(file);
-    return NULL;
+    return nullptr;
   }
   vtkSmartPointer<vtkUnstructuredGrid> dataSet =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -199,7 +199,7 @@ static vtkSmartPointer<vtkDataSet> ReadFinancialData(const char* filename, const
     delete [] zV;
     delete [] sV;
     fclose(file);
-    return NULL;
+    return nullptr;
   }
 
   vtkSmartPointer<vtkPoints> newPts =
@@ -234,7 +234,7 @@ static int ParseFile(FILE *file, const char *label, float *data)
   float min=VTK_FLOAT_MAX;
   float max=(-VTK_FLOAT_MAX);
 
-  if ( file == NULL || label == NULL ) return 0;
+  if ( file == nullptr || label == nullptr ) return 0;
 
   rewind(file);
 

@@ -872,7 +872,7 @@ void vtkRenderer::SetLightCollection(vtkLightCollection *lights)
 {
   assert("pre lights_exist" && lights!=nullptr);
 
-  this->Lights->Delete(); // this->Lights is always not NULL.
+  this->Lights->Delete(); // this->Lights is always not nullptr
   this->Lights=lights;
   this->Lights->Register(this);
   this->Modified();
