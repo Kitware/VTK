@@ -162,9 +162,9 @@ void vtkVolumeTexture::CreateBlocks(unsigned int const format,
   this->FullSize[2] = this->FullExtent[5] - this->FullExtent[4] + 1;
   // Cell adjusted size. Offset is 1 if current data array is cell data (see
   // vtkAbstractMapper::GetAbstractScalars)
-  this->FullSizeAdjusted[0] = this->FullSize[0] - this->Mapper->CellFlag;
-  this->FullSizeAdjusted[1] = this->FullSize[1] - this->Mapper->CellFlag;
-  this->FullSizeAdjusted[2] = this->FullSize[2] - this->Mapper->CellFlag;
+  this->FullSizeAdjusted[0] = this->FullSize[0];
+  this->FullSizeAdjusted[1] = this->FullSize[1];
+  this->FullSizeAdjusted[2] = this->FullSize[2];
 
   size_t const numBlocks = this->ImageDataBlocks.size();
   for (size_t i = 0; i < numBlocks; i++)
