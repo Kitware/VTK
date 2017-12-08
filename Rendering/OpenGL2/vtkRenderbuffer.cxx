@@ -173,7 +173,8 @@ int vtkRenderbuffer::Create(
   {
     glRenderbufferStorage(GL_RENDERBUFFER, (GLenum)format, width, height);
   }
-  vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage");
+  vtkOpenGLCheckErrorMacro("failed at glRenderbufferStorage with format: "
+   << format << " and size " << width << " by " << height);
 
   this->Width = width;
   this->Height = height;

@@ -21,6 +21,9 @@ uniform int PrimitiveIDOffset;
 // VC position of this fragment
 //VTK::PositionVC::Dec
 
+// Camera prop
+//VTK::Camera::Dec
+
 // optional color passed in from the vertex shader, vertexColor
 //VTK::Color::Dec
 
