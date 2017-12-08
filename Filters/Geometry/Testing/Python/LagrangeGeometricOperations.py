@@ -128,8 +128,8 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Contour.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
-        vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
-        # vtk.test.Testing.interact()
+        Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
+        # Testing.interact()
 
         ## Write the contours out
         # wri = vtkXMLPolyDataWriter()
@@ -172,8 +172,8 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Boundary.png'
         #events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
-        vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
-        # vtk.test.Testing.interact()
+        Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
+        # Testing.interact()
 
     @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
     def testClip(self):
@@ -223,8 +223,8 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Clip.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
-        vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
-        # vtk.test.Testing.interact()
+        Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
+        # Testing.interact()
 
         # ri.Start()
 
@@ -274,8 +274,8 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         self.rw.Render()
         image = 'LagrangeGeometricOperations-Cut.png'
         # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
-        vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
-        # vtk.test.Testing.interact()
+        Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
+        # Testing.interact()
 
     @unittest.skipIf(numpyMissing, 'Numpy unavailable')
     @unittest.skipIf(renderWindowTooSmall(), 'Cannot render at requested size')
@@ -319,8 +319,9 @@ class LagrangeGeometricOperations(Testing.vtkTest):
         # al.GetProperty().SetColor(0.5, 0.5, 0.5)
 
         ug = self.rdr.GetOutputDataObject(0)
-        tt = vtk.mutable(0)
-        subId = vtk.mutable(-1)
+        from vtkmodules.vtkCommonCore import mutable
+        tt = mutable(0)
+        subId = mutable(-1)
         xx = [0,0,0]
         rr = [0,0,0]
         ipt = vtkPoints()
@@ -407,7 +408,7 @@ class LagrangeGeometricOperations(Testing.vtkTest):
           self.rw.Render()
           image = 'LagrangeGeometricOperations-Stab{c}.png'.format(c=color)
           # events = self.prepareTestImage(self.ri, filename=os.path.join('/tmp', image))
-          vtk.test.Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
+          Testing.compareImage(self.rw, self.pathToValidatedOutput(image))
 
 if __name__ == "__main__":
     Testing.main([(LagrangeGeometricOperations, 'test')])
