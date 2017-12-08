@@ -648,8 +648,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   this->ColorMapper->SetInputDataObject(dataset);
   this->ColorMapper->MapScalars(actor->GetProperty()->GetOpacity());
   vtkUnsignedCharArray* colors = ((vtkOpenGLGlyph3DMappervtkColorMapper *)this->ColorMapper)->GetColors();
-  //  bool multiplyWithAlpha =
-  //    (this->ScalarsToColorsPainter->GetPremultiplyColorsWithAlpha(actor) == 1);
   // Traverse all Input points, transforming Source points
 
   int numEntries = (int)subarray->Entries.size();

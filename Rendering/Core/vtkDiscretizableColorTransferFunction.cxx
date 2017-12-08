@@ -96,16 +96,6 @@ unsigned int vtkDiscretizableColorTransferFunction::GetNumberOfIndexedColors()
 }
 
 //-----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkDiscretizableColorTransferFunction::SetIndexedColor(unsigned int index, const double rgb[3])
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkDiscretizableColorTransferFunction, "VTK 8.1", "SetIndexedColorRGB");
-  this->SetIndexedColorRGB(index, rgb);
-}
-#endif
-
-//-----------------------------------------------------------------------------
 void vtkDiscretizableColorTransferFunction::SetIndexedColor(
   unsigned int index, double r, double g, double b, double a)
 {
@@ -423,19 +413,6 @@ void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void *input,
     }
   }
 }
-
-#ifndef VTK_LEGACY_REMOVE
-//-----------------------------------------------------------------------------
-double* vtkDiscretizableColorTransferFunction::GetRGBPoints()
-{
-  // This method is redundant with
-  // vtkColorTransferFunction::GetDataPointer(), so we simply call
-  // that method here.
-  VTK_LEGACY_REPLACED_BODY(vtkDiscretizableColorTransferFunction::GetRGBPoints,
-    "VTK 6.2", "vtkDiscretizableColorTransferFunction::GetDataPointer()" );
-  return this->Superclass::GetDataPointer();
-}
-#endif
 
 //----------------------------------------------------------------------------
 vtkIdType vtkDiscretizableColorTransferFunction::GetNumberOfAvailableColors()

@@ -99,17 +99,6 @@ public:
   //@}
 
   //@{
-  // @deprecated in VTK 8.1. FXAA state and options are now directly obtained
-  // from the renderer.
-  VTK_LEGACY(void SetUseFXAA(bool));
-  VTK_LEGACY(bool GetUseFXAA());
-  VTK_LEGACY(void UseFXAAOn());
-  VTK_LEGACY(void UseFXAAOff());
-  VTK_LEGACY(vtkFXAAOptions* GetFXAAOptions());
-  VTK_LEGACY(void SetFXAAOptions(vtkFXAAOptions*));
-  //@}
-
-  //@{
   /**
    * Get/Set the root-process id. This is required when the ParallelController
    * is a vtkSocketController. Set to 0 by default (which will not work when

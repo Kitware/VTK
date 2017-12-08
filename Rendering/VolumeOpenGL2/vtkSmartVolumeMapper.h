@@ -137,17 +137,11 @@ public:
   enum
   {
     DefaultRenderMode=0,
-#if !defined(VTK_LEGACY_REMOVE)
-    RayCastAndTextureRenderMode=1,
-#endif // !VTK_LEGACY_REMOVE
-    RayCastRenderMode=2,
-#if !defined(VTK_LEGACY_REMOVE)
-    TextureRenderMode=3,
-#endif // !VTK_LEGACY_REMOVE
-    GPURenderMode=4,
-    OSPRayRenderMode=5,
-    UndefinedRenderMode=6,
-    InvalidRenderMode=7
+    RayCastRenderMode=1,
+    GPURenderMode=2,
+    OSPRayRenderMode=3,
+    UndefinedRenderMode=4,
+    InvalidRenderMode=5
   };
 
   /**

@@ -203,50 +203,6 @@ public:
   vtkGetVectorMacro(ScalarRange, double, 2);
   //@}
 
-  //@{
-  /**
-   * Turn on/off flag to control whether data is rendered using
-   * immediate mode or note. Immediate mode rendering
-   * tends to be slower but it can handle larger datasets.
-   * The default value is immediate mode off. If you are
-   * having problems rendering a large dataset you might
-   * want to consider using immediate more rendering.
-   */
-  VTK_LEGACY(void SetImmediateModeRendering(int));
-  VTK_LEGACY(int GetImmediateModeRendering());
-  VTK_LEGACY(void ImmediateModeRenderingOn());
-  VTK_LEGACY(void ImmediateModeRenderingOff());
-  //@}
-
-  //@{
-  /**
-   * Turn on/off flag to control whether data is rendered using
-   * immediate mode or note. Immediate mode rendering
-   * tends to be slower but it can handle larger datasets.
-   * The default value is immediate mode off. If you are
-   * having problems rendering a large dataset you might
-   * want to consider using immediate more rendering.
-   */
-  VTK_LEGACY(static void SetGlobalImmediateModeRendering(int val));
-  VTK_LEGACY(static void GlobalImmediateModeRenderingOn());
-  VTK_LEGACY(static void GlobalImmediateModeRenderingOff());
-  VTK_LEGACY(static int  GetGlobalImmediateModeRendering());
-  //@}
-
-  //@{
-  /**
-   * Force compile only mode in case display lists are used
-   * (ImmediateModeRendering is false). If ImmediateModeRendering is true,
-   * no rendering happens. Changing the value of this flag does not change
-   * modified time of the mapper. Initial value is false.
-   * This can be used by another rendering class which also uses display lists
-   * (call of display lists can be nested but not their creation.)
-   * There is no good reason to expose it to wrappers.
-   */
-  VTK_LEGACY(int GetForceCompileOnly());
-  VTK_LEGACY(void SetForceCompileOnly(int value));
-  //@}
-
   /**
    * Control how the filter works with scalar point data and cell attribute
    * data.  By default (ScalarModeToDefault), the filter will use point data,
@@ -507,23 +463,6 @@ public:
                                            int &cellFlag);
   //@}
 
-  //@{
-  /**
-   * Set/Get the light-model color mode.
-   */
-  VTK_LEGACY(void SetScalarMaterialMode(int val));
-  VTK_LEGACY(int GetScalarMaterialMode());
-  VTK_LEGACY(void SetScalarMaterialModeToDefault());
-  VTK_LEGACY(void SetScalarMaterialModeToAmbient());
-  VTK_LEGACY(void SetScalarMaterialModeToDiffuse());
-  VTK_LEGACY(void SetScalarMaterialModeToAmbientAndDiffuse());
-  //@}
-
-  /**
-   * Return the light-model color mode.
-   */
-  VTK_LEGACY(const char *GetScalarMaterialModeAsString());
-
   /**
    * Returns if the mapper does not expect to have translucent geometry. This
    * may happen when using ColorMode is set to not map scalars i.e. render the
@@ -594,11 +533,6 @@ protected:
   vtkTimeStamp BuildTime;
   double ScalarRange[2];
   int UseLookupTableScalarRange;
-
-#ifndef VTK_LEGACY_REMOVE
-  int ImmediateModeRendering;
-  int ForceCompileOnly;
-#endif
 
   int ColorMode;
   int ScalarMode;

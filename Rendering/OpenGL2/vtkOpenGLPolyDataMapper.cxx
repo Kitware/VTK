@@ -3401,7 +3401,6 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
 //-----------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetIsOpaque()
 {
-  // Straight copy of what the vtkPainterPolyDataMapper was doing.
   if (this->ScalarVisibility &&
       (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))

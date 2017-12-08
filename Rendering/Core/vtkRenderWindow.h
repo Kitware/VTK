@@ -461,53 +461,6 @@ public:
 
   //@{
   /**
-   * Set the number of frames for doing antialiasing. The default is
-   * zero. Typically five or six will yield reasonable results without
-   * taking too long.
-   */
-  VTK_LEGACY(virtual void SetAAFrames(int));
-  VTK_LEGACY(virtual int GetAAFrames());
-  //@}
-
-  //@{
-  /**
-   * Set the number of frames for doing focal depth. The default is zero.
-   * Depending on how your scene is organized you can get away with as
-   * few as four frames for focal depth or you might need thirty.
-   * One thing to note is that if you are using focal depth frames,
-   * then you will not need many (if any) frames for antialiasing.
-   */
-  VTK_LEGACY(virtual int GetFDFrames());
-  VTK_LEGACY(virtual void SetFDFrames(int fdFrames));
-  //@}
-
-  //@{
-  /**
-   * Turn on/off using constant offsets for focal depth rendering.
-   * The default is off. When constants offsets are used, re-rendering
-   * the same scene using the same camera yields the same image; otherwise
-   * offsets are random numbers at each rendering that yields
-   * slightly different images.
-   */
-  VTK_LEGACY(virtual int GetUseConstantFDOffsets());
-  VTK_LEGACY(virtual void SetUseConstantFDOffsets(int));
-  //@}
-
-  //@{
-  /**
-   * Set the number of sub frames for doing motion blur. The default is zero.
-   * Once this is set greater than one, you will no longer see a new frame
-   * for every Render().  If you set this to five, you will need to do
-   * five Render() invocations before seeing the result. This isn't
-   * very impressive unless something is changing between the Renders.
-   * Changing this value may reset the current subframe count.
-   */
-  VTK_LEGACY(virtual int GetSubFrames());
-  VTK_LEGACY(virtual void SetSubFrames(int subFrames));
-  //@}
-
-  //@{
-  /**
    * This flag is set if the window hasn't rendered since it was created
    */
   vtkGetMacro(NeverRendered,int);
@@ -729,8 +682,6 @@ protected:
   ~vtkRenderWindow() override;
 
   virtual void DoStereoRender();
-  virtual void DoFDRender();
-  virtual void DoAARender();
 
   vtkRendererCollection *Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
@@ -748,13 +699,7 @@ protected:
   unsigned char* StereoBuffer; // used for red blue stereo
   float *AccumulationBuffer;   // used for many techniques
   unsigned int AccumulationBufferSize;
-  int AAFrames;
-  int FDFrames;
-  int UseConstantFDOffsets; // to use the same offsets at each rendering
-  double *ConstantFDOffsets[2];
-  int SubFrames;               // number of sub frames
-  int CurrentSubFrame;         // what one are we on
-  unsigned char *ResultFrame;  // used for any non immediate rendering
+  unsigned char *ResultFrame;
   int   SwapBuffers;
   double DesiredUpdateRate;
   int   AbortRender;

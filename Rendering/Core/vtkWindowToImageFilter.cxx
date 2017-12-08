@@ -745,19 +745,3 @@ void vtkWindowToImageFilter::Render()
     }
   }
 }
-
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkWindowToImageFilter::SetMagnification(int mag)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkWindowToImageFilter::SetMagnification, "VTK 8.1",
-      vtkWindowToImageFilter::SetScale);
-  this->SetScale(mag, mag);
-}
-
-int vtkWindowToImageFilter::GetMagnification()
-{
-  VTK_LEGACY_REPLACED_BODY(vtkWindowToImageFilter::GetMagnification, "VTK 8.1",
-      vtkWindowToImageFilter::GetScale);
-  return std::max(this->Scale[0], this->Scale[1]);
-}
-#endif // VTK_LEGACY_REMOVE

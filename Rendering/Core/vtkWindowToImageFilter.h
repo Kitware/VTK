@@ -89,15 +89,6 @@ public:
   vtkGetObjectMacro(Input,vtkWindow);
   //@}
 
-
-  //@{
-  /**
-   * @deprecated Replaced by SetScale/GetScale as of VTK 8.1.
-   */
-  VTK_LEGACY(void SetMagnification(int));
-  VTK_LEGACY(int GetMagnification());
-  //@}
-
   //@{
   /**
    * Get/Set the scale (or magnification) factors in X and Y.
