@@ -30,6 +30,7 @@
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -137,6 +138,23 @@ int TestGPURayCastIndependentVectorMode(int argc, char *argv[])
   volumeMag->SetPosition(20.0, 20.0, 0.0);
   ren->ResetCamera();
 
+  // Mapper 3 (final render as magnitude - cell data)
+  vtkNew<vtkPointDataToCellData> pointsToCells;
+  pointsToCells->SetInputData(image);
+  pointsToCells->Update();
+
+  vtkNew<vtkSmartVolumeMapper> mapperMagCells;
+  mapperMagCells->AutoAdjustSampleDistancesOff();
+  mapperMagCells->SetSampleDistance(0.5);
+  mapperMagCells->SetInputData(pointsToCells->GetOutput());
+
+  vtkNew<vtkVolume> volumeMagCells;
+  volumeMagCells->SetMapper(mapperMagCells);
+  volumeMagCells->SetProperty(propertyMag);
+  ren->AddVolume(volumeMagCells);
+  volumeMagCells->SetPosition(20.0, 0.0, 0.0);
+  ren->ResetCamera();
+
   // Switch between components and magnitude to ensure no errors
   // are generated
   mapper->SetVectorMode(vtkSmartVolumeMapper::COMPONENT);
@@ -152,6 +170,13 @@ int TestGPURayCastIndependentVectorMode(int argc, char *argv[])
   mapper->SetVectorMode(vtkSmartVolumeMapper::COMPONENT);
   mapper->SetVectorComponent(1);
   mapperMag->SetVectorMode(vtkSmartVolumeMapper::MAGNITUDE);
+  renWin->Render();
+
+  mapperMagCells->SetVectorMode(vtkSmartVolumeMapper::COMPONENT);
+  mapperMagCells->SetVectorComponent(2);
+  renWin->Render();
+
+  mapperMagCells->SetVectorMode(vtkSmartVolumeMapper::MAGNITUDE);
   renWin->Render();
 
   int retVal = vtkRegressionTestImage(renWin);

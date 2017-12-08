@@ -499,11 +499,20 @@ protected:
   //@}
 
 private:
+  //@{
   /**
    * Adjust the GPUMapper's parameters (ColorTable, Weights, etc.) to render
    * a single component of a dataset.
    */
   void SetupVectorMode(vtkVolume* vol);
+  /**
+   * vtkImageMagnitude is used to compute the norm of the input multi-component
+   * array. vtkImageMagnitude can only process point data, so in the case of cell
+   * data it is first transformed to points.
+   */
+  void ComputeMagnitudeCellData(vtkImageData* input, vtkDataArray* arr);
+  void ComputeMagnitudePointData(vtkImageData* input, vtkDataArray* arr);
+  //@}
 
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) = delete;
   void operator=(const vtkSmartVolumeMapper&) = delete;
