@@ -26,7 +26,8 @@
 #include "vtkPolyData.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
-#include <vtksys/hash_set.hxx> // keep track of inserted triangles
+
+#include <unordered_set> // keep track of inserted triangles
 
 vtkStandardNewMacro(vtkQuadricClustering);
 
@@ -35,7 +36,7 @@ vtkStandardNewMacro(vtkQuadricClustering);
 struct vtkQuadricClusteringIdTypeHash {
   size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
 };
-class vtkQuadricClusteringCellSet : public vtksys::hash_set<vtkIdType, vtkQuadricClusteringIdTypeHash> {};
+class vtkQuadricClusteringCellSet : public std::unordered_set<vtkIdType, vtkQuadricClusteringIdTypeHash> {};
 typedef vtkQuadricClusteringCellSet::iterator vtkQuadricClusteringCellSetIterator;
 
 
