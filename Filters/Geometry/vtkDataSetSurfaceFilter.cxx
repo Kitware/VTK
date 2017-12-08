@@ -49,9 +49,8 @@
 #include "vtkStructuredData.h"
 
 #include <algorithm>
-#include <vtksys/hash_map.hxx>
-
 #include <cassert>
+#include <unordered_map>
 
 static inline int sizeofFastQuad(int numPts)
 {
@@ -97,8 +96,8 @@ protected:
       return static_cast<size_t>(edge.first + edge.second);
     }
   };
-  typedef vtksys::hash_map<std::pair<vtkIdType, vtkIdType>, vtkIdType,
-                           HashFunction> MapType;
+  typedef std::unordered_map<std::pair<vtkIdType, vtkIdType>, vtkIdType,
+                             HashFunction> MapType;
   MapType Map;
 };
 

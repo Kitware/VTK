@@ -50,12 +50,13 @@
 #include "vtk_netcdf.h"
 
 #include <algorithm>
+#include <cmath>
 #include <map>
+#include <unordered_map>
 #include <vector>
-#include <vtksys/hash_map.hxx>
+
 #include <vtksys/RegularExpression.hxx>
 
-#include <cmath>
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \
@@ -325,7 +326,7 @@ public:
 class vtkSLACReader::MidpointCoordinateMap::vtkInternal
 {
 public:
-  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints,
+  typedef std::unordered_map<vtkSLACReader::EdgeEndpoints,
                            vtkSLACReader::MidpointCoordinates,
                            vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
@@ -386,7 +387,7 @@ vtkSLACReader::MidpointCoordinateMap::FindMidpoint(const EdgeEndpoints &edge)
 class vtkSLACReader::MidpointIdMap::vtkInternal
 {
 public:
-  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints, vtkIdType,
+  typedef std::unordered_map<vtkSLACReader::EdgeEndpoints, vtkIdType,
                            vtkSLACReaderEdgeEndpointsHash> MapType;
   MapType Map;
   MapType::iterator Iterator;
