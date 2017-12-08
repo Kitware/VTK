@@ -63,9 +63,9 @@ public:
    * These methods can make the positioning look for a target scalar value
    * instead of looking for a maximum.
    */
-  vtkSetMacro(TargetFlag, int);
-  vtkGetMacro(TargetFlag, int);
-  vtkBooleanMacro(TargetFlag, int);
+  vtkSetMacro(TargetFlag, vtkTypeBool);
+  vtkGetMacro(TargetFlag, vtkTypeBool);
+  vtkBooleanMacro(TargetFlag, vtkTypeBool);
   vtkSetMacro(TargetValue, double);
   vtkGetMacro(TargetValue, double);
   //@}
@@ -85,7 +85,7 @@ protected:
             double *img, vtkDataArray *inVecs,
             double *result, int z, double *aspect, double *resultNormal);
   // extension for target instead of maximum
-  int TargetFlag;
+  vtkTypeBool TargetFlag;
   double TargetValue;
 private:
   vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&) = delete;

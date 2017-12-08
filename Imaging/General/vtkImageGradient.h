@@ -51,16 +51,16 @@ public:
    * works for the boundary pixels.  If disabled, the output whole
    * extent of the image is reduced by one pixel.
    */
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
+  vtkSetMacro(HandleBoundaries, vtkTypeBool);
+  vtkGetMacro(HandleBoundaries, vtkTypeBool);
+  vtkBooleanMacro(HandleBoundaries, vtkTypeBool);
   //@}
 
 protected:
   vtkImageGradient();
   ~vtkImageGradient() override {}
 
-  int HandleBoundaries;
+  vtkTypeBool HandleBoundaries;
   int Dimensionality;
 
   int RequestInformation (vtkInformation*,

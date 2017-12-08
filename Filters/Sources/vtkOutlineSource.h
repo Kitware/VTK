@@ -77,9 +77,9 @@ public:
   /**
    * Generate solid faces for the box. This is off by default.
    */
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
   //@}
 
   //@{
@@ -98,7 +98,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int    BoxType;
-  int    GenerateFaces;
+  vtkTypeBool    GenerateFaces;
   int    OutputPointsPrecision;
   double Bounds[6];
   double Corners[24];

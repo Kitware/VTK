@@ -87,9 +87,9 @@ public:
    * to the default midpoint integration that weighs all slices equally.
    * It is off by default.
    */
-  vtkSetMacro(TrapezoidIntegration, int);
-  vtkBooleanMacro(TrapezoidIntegration, int);
-  vtkGetMacro(TrapezoidIntegration, int);
+  vtkSetMacro(TrapezoidIntegration, vtkTypeBool);
+  vtkBooleanMacro(TrapezoidIntegration, vtkTypeBool);
+  vtkGetMacro(TrapezoidIntegration, vtkTypeBool);
   //@}
 
   //@{
@@ -100,9 +100,9 @@ public:
    * be a projection through slices 'i' through '3+i' of the input.
    * This flag is off by default.
    */
-  vtkSetMacro(MultiSliceOutput, int);
-  vtkBooleanMacro(MultiSliceOutput, int);
-  vtkGetMacro(MultiSliceOutput, int);
+  vtkSetMacro(MultiSliceOutput, vtkTypeBool);
+  vtkBooleanMacro(MultiSliceOutput, vtkTypeBool);
+  vtkGetMacro(MultiSliceOutput, vtkTypeBool);
   //@}
 
   //@{
@@ -141,8 +141,8 @@ protected:
   int Orientation;
   int SliceRange[2];
   int OutputScalarType;
-  int MultiSliceOutput;
-  int TrapezoidIntegration;
+  vtkTypeBool MultiSliceOutput;
+  vtkTypeBool TrapezoidIntegration;
 
 private:
   vtkImageSlab(const vtkImageSlab&) = delete;

@@ -39,9 +39,9 @@ public:
   vtkTypeMacro(vtkRIBLight,vtkLight);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  vtkBooleanMacro(Shadows,int);
-  vtkSetMacro(Shadows,int);
-  vtkGetMacro(Shadows,int);
+  vtkBooleanMacro(Shadows,vtkTypeBool);
+  vtkSetMacro(Shadows,vtkTypeBool);
+  vtkGetMacro(Shadows,vtkTypeBool);
 
   void Render(vtkRenderer *ren, int index) override;
 protected:
@@ -49,7 +49,7 @@ protected:
   ~vtkRIBLight() override;
 
   vtkLight *Light;
-  int Shadows;
+  vtkTypeBool Shadows;
 private:
   vtkRIBLight(const vtkRIBLight&) = delete;
   void operator=(const vtkRIBLight&) = delete;

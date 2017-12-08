@@ -80,9 +80,9 @@ public:
    * only lines are generated.  The faces will form a closed, watertight
    * surface.
    */
-  vtkSetMacro(GenerateFaces, int);
-  vtkBooleanMacro(GenerateFaces, int);
-  vtkGetMacro(GenerateFaces, int);
+  vtkSetMacro(GenerateFaces, vtkTypeBool);
+  vtkBooleanMacro(GenerateFaces, vtkTypeBool);
+  vtkGetMacro(GenerateFaces, vtkTypeBool);
   //@}
 
   //@{
@@ -121,7 +121,7 @@ protected:
   vtkVolumeMapper *VolumeMapper;
   int GenerateScalars;
   int GenerateOutline;
-  int GenerateFaces;
+  vtkTypeBool GenerateFaces;
   int ActivePlaneId;
   double Color[3];
   double ActivePlaneColor[3];

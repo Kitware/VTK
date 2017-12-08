@@ -61,9 +61,9 @@ public:
    * filled polygons. Recommend you use OutlienOn (i.e., disable filled polygons)
    * for now.
    */
-  vtkSetMacro(Outline,int);
-  vtkGetMacro(Outline,int);
-  vtkBooleanMacro(Outline,int);
+  vtkSetMacro(Outline,vtkTypeBool);
+  vtkGetMacro(Outline,vtkTypeBool);
+  vtkBooleanMacro(Outline,vtkTypeBool);
   //@}
 
 protected:
@@ -74,7 +74,7 @@ protected:
 
   double Radius;
   int OnRatio;
-  int Outline;
+  vtkTypeBool Outline;
 private:
   vtkEarthSource(const vtkEarthSource&) = delete;
   void operator=(const vtkEarthSource&) = delete;

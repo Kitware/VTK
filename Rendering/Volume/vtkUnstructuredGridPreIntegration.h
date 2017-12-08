@@ -99,9 +99,9 @@ public:
    * error due to numerical imprecision.  Under most circumstances, the
    * error is not noticeable.
    */
-  vtkGetMacro(IncrementalPreIntegration, int);
-  vtkSetMacro(IncrementalPreIntegration, int);
-  vtkBooleanMacro(IncrementalPreIntegration, int);
+  vtkGetMacro(IncrementalPreIntegration, vtkTypeBool);
+  vtkSetMacro(IncrementalPreIntegration, vtkTypeBool);
+  vtkBooleanMacro(IncrementalPreIntegration, vtkTypeBool);
   //@}
 
   /**
@@ -152,7 +152,7 @@ protected:
   int IntegrationTableScalarResolution;
   int IntegrationTableLengthResolution;
 
-  int IncrementalPreIntegration;
+  vtkTypeBool IncrementalPreIntegration;
 
   virtual void BuildPreIntegrationTables(vtkDataArray *scalars);
 

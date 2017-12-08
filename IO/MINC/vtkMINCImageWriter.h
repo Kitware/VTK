@@ -155,9 +155,9 @@ public:
    * Set whether to validate that all variable attributes that
    * have been set are ones that are listed in the MINC standard.
    */
-  vtkSetMacro(StrictValidation, int);
-  vtkBooleanMacro(StrictValidation, int);
-  vtkGetMacro(StrictValidation, int);
+  vtkSetMacro(StrictValidation, vtkTypeBool);
+  vtkBooleanMacro(StrictValidation, vtkTypeBool);
+  vtkGetMacro(StrictValidation, vtkTypeBool);
   //@}
 
   //@{
@@ -180,7 +180,7 @@ protected:
   vtkMatrix4x4 *DirectionCosines;
   double RescaleSlope;
   double RescaleIntercept;
-  int StrictValidation;
+  vtkTypeBool StrictValidation;
   int DataUpdateExtent[6];
 
   int FileDataType;

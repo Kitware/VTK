@@ -125,9 +125,9 @@ public:
    * except at the poles. This can be useful for generating a wireframe
    * sphere with natural latitude and longitude lines.
    */
-  vtkSetMacro(LatLongTessellation,int);
-  vtkGetMacro(LatLongTessellation,int);
-  vtkBooleanMacro(LatLongTessellation,int);
+  vtkSetMacro(LatLongTessellation,vtkTypeBool);
+  vtkGetMacro(LatLongTessellation,vtkTypeBool);
+  vtkBooleanMacro(LatLongTessellation,vtkTypeBool);
   //@}
 
   //@{
@@ -155,7 +155,7 @@ protected:
   double EndTheta;
   double StartPhi;
   double EndPhi;
-  int LatLongTessellation;
+  vtkTypeBool LatLongTessellation;
   int OutputPointsPrecision;
 
 private:

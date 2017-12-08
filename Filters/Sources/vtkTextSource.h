@@ -62,9 +62,9 @@ public:
   /**
    * Controls whether or not a background is drawn with the text.
    */
-  vtkSetMacro(Backing,int);
-  vtkGetMacro(Backing,int);
-  vtkBooleanMacro(Backing,int);
+  vtkSetMacro(Backing,vtkTypeBool);
+  vtkGetMacro(Backing,vtkTypeBool);
+  vtkBooleanMacro(Backing,vtkTypeBool);
   //@}
 
   //@{
@@ -99,7 +99,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   char *Text;
-  int  Backing;
+  vtkTypeBool  Backing;
   double ForegroundColor[4];
   double BackgroundColor[4];
   int OutputPointsPrecision;

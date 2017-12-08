@@ -57,9 +57,9 @@ public:
    * data. By default, MapScalars is enabled, and the output scalar
    * values will fall into the range ScalarRange.
    */
-  vtkSetMacro(MapScalars,int);
-  vtkGetMacro(MapScalars,int);
-  vtkBooleanMacro(MapScalars,int);
+  vtkSetMacro(MapScalars,vtkTypeBool);
+  vtkGetMacro(MapScalars,vtkTypeBool);
+  vtkBooleanMacro(MapScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -83,7 +83,7 @@ protected:
   vtkVectorDot();
   ~vtkVectorDot() override {}
 
-  int MapScalars;
+  vtkTypeBool MapScalars;
   double ScalarRange[2];
   double ActualRange[2];
 

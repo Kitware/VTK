@@ -59,9 +59,9 @@ public:
    * triangle strips.  This should render faster and use less memory, but no
    * cell data is copied.  By default, UseStrips is Off.
    */
-  vtkSetMacro(UseStrips, int);
-  vtkGetMacro(UseStrips, int);
-  vtkBooleanMacro(UseStrips, int);
+  vtkSetMacro(UseStrips, vtkTypeBool);
+  vtkGetMacro(UseStrips, vtkTypeBool);
+  vtkBooleanMacro(UseStrips, vtkTypeBool);
   //@}
 
   //@{
@@ -174,7 +174,7 @@ protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter() override;
 
-  int UseStrips;
+  vtkTypeBool UseStrips;
 
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 

@@ -94,16 +94,16 @@ public:
    * output not covered by the inputs is set to zero.  The origin and
    * spacing is taken from the first input.
    */
-  vtkSetMacro(PreserveExtents, int);
-  vtkGetMacro(PreserveExtents, int);
-  vtkBooleanMacro(PreserveExtents, int);
+  vtkSetMacro(PreserveExtents, vtkTypeBool);
+  vtkGetMacro(PreserveExtents, vtkTypeBool);
+  vtkBooleanMacro(PreserveExtents, vtkTypeBool);
   //@}
 
 protected:
   vtkImageAppend();
   ~vtkImageAppend() override;
 
-  int PreserveExtents;
+  vtkTypeBool PreserveExtents;
   int AppendAxis;
   // Array holds the AppendAxisExtent shift for each input.
   int *Shifts;

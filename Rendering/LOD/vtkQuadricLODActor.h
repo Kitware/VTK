@@ -80,9 +80,9 @@ public:
    * or to wait until the LOD is requested in a subsequent render. By default,
    * LOD construction is not deferred (DeferLODConstruction is false).
    */
-  vtkSetMacro(DeferLODConstruction, int);
-  vtkGetMacro(DeferLODConstruction, int);
-  vtkBooleanMacro(DeferLODConstruction, int);
+  vtkSetMacro(DeferLODConstruction, vtkTypeBool);
+  vtkGetMacro(DeferLODConstruction, vtkTypeBool);
+  vtkBooleanMacro(DeferLODConstruction, vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * off because trying to debug this is tricky, and you should only use it
    * when you know what you are doing.
    */
-  vtkSetMacro(Static, int);
-  vtkGetMacro(Static, int);
-  vtkBooleanMacro(Static, int);
+  vtkSetMacro(Static, vtkTypeBool);
+  vtkGetMacro(Static, vtkTypeBool);
+  vtkBooleanMacro(Static, vtkTypeBool);
   //@}
 
   enum DataConfigurationEnum
@@ -243,7 +243,7 @@ protected:
   vtkQuadricClustering *LODFilter;
 
   // Specify whether the mapper's should be set in to Static mode.
-  int Static;
+  vtkTypeBool Static;
 
   // The dimension of the data
   double CollapseDimensionRatio;
@@ -258,7 +258,7 @@ protected:
   int MaximumDisplayListSize;
 
   // Specify to defer construction of the LOD.
-  int DeferLODConstruction;
+  vtkTypeBool DeferLODConstruction;
 
   // Keep track of building
   vtkTimeStamp BuildTime;

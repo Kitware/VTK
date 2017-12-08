@@ -98,9 +98,9 @@ public:
    * If SkipEmptyNodes is true, then nullptr datasets will be skipped. Default is
    * true.
    */
-  vtkSetMacro(SkipEmptyNodes, int);
-  vtkGetMacro(SkipEmptyNodes, int);
-  vtkBooleanMacro(SkipEmptyNodes, int);
+  vtkSetMacro(SkipEmptyNodes, vtkTypeBool);
+  vtkGetMacro(SkipEmptyNodes, vtkTypeBool);
+  vtkBooleanMacro(SkipEmptyNodes, vtkTypeBool);
   //@}
 
   /**
@@ -118,7 +118,7 @@ public:
 protected:
   vtkCompositeDataIterator();
   ~vtkCompositeDataIterator() override;
-  int SkipEmptyNodes;
+  vtkTypeBool SkipEmptyNodes;
   int Reverse;
   vtkCompositeDataSet* DataSet;
 

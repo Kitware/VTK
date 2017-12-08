@@ -53,9 +53,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString,vtkTypeBool);
+  vtkGetMacro(WriteToOutputString,vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
   //@}
 
   //@{
@@ -193,7 +193,7 @@ protected:
 
   char *OutputString;
   int OutputStringLength;
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
 
 private:
   vtkX3DExporterWriter(const vtkX3DExporterWriter&) = delete;

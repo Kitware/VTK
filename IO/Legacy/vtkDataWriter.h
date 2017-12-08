@@ -66,9 +66,9 @@ public:
   /**
    * Enable writing to an OutputString instead of the default, a file.
    */
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString,vtkTypeBool);
+  vtkGetMacro(WriteToOutputString,vtkTypeBool);
+  vtkBooleanMacro(WriteToOutputString,vtkTypeBool);
   //@}
 
   //@{
@@ -292,7 +292,7 @@ protected:
   vtkDataWriter();
   ~vtkDataWriter() override;
 
-  int WriteToOutputString;
+  vtkTypeBool WriteToOutputString;
   char *OutputString;
   vtkIdType OutputStringLength;
 

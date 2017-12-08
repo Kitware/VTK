@@ -84,9 +84,9 @@ public:
    * SetOutputOrigin.  This is often a useful operation to apply
    * before using vtkImageReslice to apply a transformation to an image.
    */
-  vtkSetMacro(CenterImage, int);
-  vtkBooleanMacro(CenterImage, int);
-  vtkGetMacro(CenterImage, int);
+  vtkSetMacro(CenterImage, vtkTypeBool);
+  vtkBooleanMacro(CenterImage, vtkTypeBool);
+  vtkGetMacro(CenterImage, vtkTypeBool);
   //@}
 
   //@{
@@ -126,7 +126,7 @@ protected:
   vtkImageChangeInformation();
   ~vtkImageChangeInformation() override;
 
-  int CenterImage;
+  vtkTypeBool CenterImage;
 
   int OutputExtentStart[3];
   int ExtentTranslation[3];

@@ -78,9 +78,9 @@ public:
    * Use the specified CroppingRegion.  The default is to display
    * the full slice.
    */
-  vtkSetMacro(Cropping, int);
-  vtkBooleanMacro(Cropping, int);
-  vtkGetMacro(Cropping, int);
+  vtkSetMacro(Cropping, vtkTypeBool);
+  vtkBooleanMacro(Cropping, vtkTypeBool);
+  vtkGetMacro(Cropping, vtkTypeBool);
   //@}
 
   //@{
@@ -194,7 +194,7 @@ protected:
   int SliceNumberMinValue;
   int SliceNumberMaxValue;
   int Orientation;
-  int Cropping;
+  vtkTypeBool Cropping;
   int CroppingRegion[6];
   int DisplayExtent[6];
   int ExactPixelMatch;

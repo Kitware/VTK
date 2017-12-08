@@ -59,9 +59,9 @@ public:
    * the size specification provided, and the parent node sizes are
    * calculated by the algorithm.
    */
-  vtkSetMacro(SizeLeafNodesOnly,int);
-  vtkGetMacro(SizeLeafNodesOnly,int);
-  vtkBooleanMacro(SizeLeafNodesOnly,int);
+  vtkSetMacro(SizeLeafNodesOnly,vtkTypeBool);
+  vtkGetMacro(SizeLeafNodesOnly,vtkTypeBool);
+  vtkBooleanMacro(SizeLeafNodesOnly,vtkTypeBool);
   //@}
 
   //@{
@@ -150,7 +150,7 @@ protected:
    */
   vtkDoubleArray* CreateScaleFactors( vtkIdType numVertices );
 
-  int SizeLeafNodesOnly;
+  vtkTypeBool SizeLeafNodesOnly;
   int LayoutDepth;
   vtkIdType LayoutRoot;
   char* NodeSizeArrayName;

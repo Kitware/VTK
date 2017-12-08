@@ -109,9 +109,9 @@ public:
   /**
    * Turn on/off whether to cap the base of the cone with a polygon.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -134,7 +134,7 @@ protected:
   double Height;
   double Radius;
   int Resolution;
-  int Capping;
+  vtkTypeBool Capping;
   double Center[3];
   double Direction[3];
   int OutputPointsPrecision;

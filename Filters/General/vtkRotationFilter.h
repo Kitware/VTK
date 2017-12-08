@@ -88,9 +88,9 @@ public:
    * If on (the default), copy the input geometry to the output. If off,
    * the output will only contain the rotation.
    */
-  vtkSetMacro(CopyInput, int);
-  vtkGetMacro(CopyInput, int);
-  vtkBooleanMacro(CopyInput, int);
+  vtkSetMacro(CopyInput, vtkTypeBool);
+  vtkGetMacro(CopyInput, vtkTypeBool);
+  vtkBooleanMacro(CopyInput, vtkTypeBool);
   //@}
 
 
@@ -105,7 +105,7 @@ protected:
   double Angle;
   double Center[3];
   int NumberOfCopies;
-  int CopyInput;
+  vtkTypeBool CopyInput;
 
 private:
   vtkRotationFilter(const vtkRotationFilter&) = delete;

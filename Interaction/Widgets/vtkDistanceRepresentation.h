@@ -132,9 +132,9 @@ public:
    * are separated by the amount specified by RulerDistance. Otherwise, the ivar
    * NumberOfRulerTicks is used to draw the tick marks.
    */
-  vtkSetMacro(RulerMode,int);
-  vtkGetMacro(RulerMode,int);
-  vtkBooleanMacro(RulerMode,int);
+  vtkSetMacro(RulerMode,vtkTypeBool);
+  vtkGetMacro(RulerMode,vtkTypeBool);
+  vtkBooleanMacro(RulerMode,vtkTypeBool);
   //@}
 
   //@{
@@ -203,7 +203,7 @@ protected:
   double Scale;
 
   // Ruler related stuff
-  int RulerMode;
+  vtkTypeBool RulerMode;
   double RulerDistance;
   int NumberOfRulerTicks;
 

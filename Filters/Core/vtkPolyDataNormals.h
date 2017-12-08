@@ -117,27 +117,27 @@ public:
    * flag, and if both are set, all the normals in the output will
    * point "inward".
    */
-  vtkSetMacro(AutoOrientNormals, int);
-  vtkGetMacro(AutoOrientNormals, int);
-  vtkBooleanMacro(AutoOrientNormals, int);
+  vtkSetMacro(AutoOrientNormals, vtkTypeBool);
+  vtkGetMacro(AutoOrientNormals, vtkTypeBool);
+  vtkBooleanMacro(AutoOrientNormals, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the computation of point normals.
    */
-  vtkSetMacro(ComputePointNormals,int);
-  vtkGetMacro(ComputePointNormals,int);
-  vtkBooleanMacro(ComputePointNormals,int);
+  vtkSetMacro(ComputePointNormals,vtkTypeBool);
+  vtkGetMacro(ComputePointNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputePointNormals,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the computation of cell normals.
    */
-  vtkSetMacro(ComputeCellNormals,int);
-  vtkGetMacro(ComputeCellNormals,int);
-  vtkBooleanMacro(ComputeCellNormals,int);
+  vtkSetMacro(ComputeCellNormals,vtkTypeBool);
+  vtkGetMacro(ComputeCellNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeCellNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -147,9 +147,9 @@ public:
    * culling in vtkProperty.  Flipping modifies both the normal
    * direction and the order of a cell's points.
    */
-  vtkSetMacro(FlipNormals,int);
-  vtkGetMacro(FlipNormals,int);
-  vtkBooleanMacro(FlipNormals,int);
+  vtkSetMacro(FlipNormals,vtkTypeBool);
+  vtkGetMacro(FlipNormals,vtkTypeBool);
+  vtkBooleanMacro(FlipNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -158,9 +158,9 @@ public:
    * problems where the consistency of polygonal ordering is corrupted due
    * to topological loops.
    */
-  vtkSetMacro(NonManifoldTraversal,int);
-  vtkGetMacro(NonManifoldTraversal,int);
-  vtkBooleanMacro(NonManifoldTraversal,int);
+  vtkSetMacro(NonManifoldTraversal,vtkTypeBool);
+  vtkGetMacro(NonManifoldTraversal,vtkTypeBool);
+  vtkBooleanMacro(NonManifoldTraversal,vtkTypeBool);
   //@}
 
   //@{
@@ -183,11 +183,11 @@ protected:
   double FeatureAngle;
   int Splitting;
   int Consistency;
-  int FlipNormals;
-  int AutoOrientNormals;
-  int NonManifoldTraversal;
-  int ComputePointNormals;
-  int ComputeCellNormals;
+  vtkTypeBool FlipNormals;
+  vtkTypeBool AutoOrientNormals;
+  vtkTypeBool NonManifoldTraversal;
+  vtkTypeBool ComputePointNormals;
+  vtkTypeBool ComputeCellNormals;
   int NumFlips;
   int OutputPointsPrecision;
 

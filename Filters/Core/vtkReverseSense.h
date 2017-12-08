@@ -50,18 +50,18 @@ public:
   /**
    * Flag controls whether to reverse cell ordering.
    */
-  vtkSetMacro(ReverseCells,int);
-  vtkGetMacro(ReverseCells,int);
-  vtkBooleanMacro(ReverseCells,int);
+  vtkSetMacro(ReverseCells,vtkTypeBool);
+  vtkGetMacro(ReverseCells,vtkTypeBool);
+  vtkBooleanMacro(ReverseCells,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Flag controls whether to reverse normal orientation.
    */
-  vtkSetMacro(ReverseNormals,int);
-  vtkGetMacro(ReverseNormals,int);
-  vtkBooleanMacro(ReverseNormals,int);
+  vtkSetMacro(ReverseNormals,vtkTypeBool);
+  vtkGetMacro(ReverseNormals,vtkTypeBool);
+  vtkBooleanMacro(ReverseNormals,vtkTypeBool);
   //@}
 
 
@@ -72,8 +72,8 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int ReverseCells;
-  int ReverseNormals;
+  vtkTypeBool ReverseCells;
+  vtkTypeBool ReverseNormals;
 private:
   vtkReverseSense(const vtkReverseSense&) = delete;
   void operator=(const vtkReverseSense&) = delete;

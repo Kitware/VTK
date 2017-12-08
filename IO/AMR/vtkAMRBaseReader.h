@@ -55,9 +55,9 @@ public:
   /**
    * Set/Get Reader caching property
    */
-  vtkSetMacro( EnableCaching, int );
-  vtkGetMacro( EnableCaching, int );
-  vtkBooleanMacro( EnableCaching, int );
+  vtkSetMacro( EnableCaching, vtkTypeBool );
+  vtkGetMacro( EnableCaching, vtkTypeBool );
+  vtkBooleanMacro( EnableCaching, vtkTypeBool );
   bool IsCachingEnabled() const
   {
      return( (this->EnableCaching)?true:false);
@@ -297,7 +297,7 @@ protected:
   char *FileName;
   vtkMultiProcessController *Controller;
 
-  int EnableCaching;
+  vtkTypeBool EnableCaching;
   vtkAMRDataSetCache *Cache;
   int NumBlocksFromFile;
   int NumBlocksFromCache;

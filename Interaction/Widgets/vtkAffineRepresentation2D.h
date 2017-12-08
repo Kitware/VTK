@@ -127,9 +127,9 @@ public:
    * transformation. Rotation and shear are expressed in degrees; translation
    * the distance in world coordinates; and scale normalized (sx,sy) values.
    */
-  vtkSetMacro(DisplayText,int);
-  vtkGetMacro(DisplayText,int);
-  vtkBooleanMacro(DisplayText,int);
+  vtkSetMacro(DisplayText,vtkTypeBool);
+  vtkGetMacro(DisplayText,vtkTypeBool);
+  vtkBooleanMacro(DisplayText,vtkTypeBool);
   //@}
 
   //@{
@@ -176,7 +176,7 @@ protected:
   int AxesWidth;
 
   // Display text
-  int DisplayText;
+  vtkTypeBool DisplayText;
 
   // Internal variables for bookkeeping (in display coordinates unless noted)
   double CurrentWidth;

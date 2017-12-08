@@ -79,9 +79,9 @@ public:
    * actually the spanning tree of a graph.  For "real" trees,
    * non-compressed layout is best, and is the default.
    */
-  vtkSetMacro(Compression, int);
-  vtkGetMacro(Compression, int);
-  vtkBooleanMacro(Compression, int);
+  vtkSetMacro(Compression, vtkTypeBool);
+  vtkGetMacro(Compression, vtkTypeBool);
+  vtkBooleanMacro(Compression, vtkTypeBool);
   //@}
 
   //@{
@@ -124,7 +124,7 @@ protected:
     double level );      // derived from level.
 
   float Compactness;     // factor used in mapping layer to Z
-  int   Compression;     // force a compact layout?
+  vtkTypeBool   Compression;     // force a compact layout?
   float Spacing;         // Scale vertical spacing of cones.
 
   // Values accumulated for possible statistical use

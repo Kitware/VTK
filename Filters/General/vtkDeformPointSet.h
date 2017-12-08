@@ -107,16 +107,16 @@ public:
    * between executions. Thus flag is used to force reexecution and
    * recomputation of weights.
    */
-  vtkSetMacro(InitializeWeights, int);
-  vtkGetMacro(InitializeWeights, int);
-  vtkBooleanMacro(InitializeWeights, int);
+  vtkSetMacro(InitializeWeights, vtkTypeBool);
+  vtkGetMacro(InitializeWeights, vtkTypeBool);
+  vtkBooleanMacro(InitializeWeights, vtkTypeBool);
   //@}
 
 protected:
   vtkDeformPointSet();
   ~vtkDeformPointSet() override;
 
-  int InitializeWeights;
+  vtkTypeBool InitializeWeights;
 
   // Keep track of information between execution passes
   vtkIdType InitialNumberOfControlMeshPoints;

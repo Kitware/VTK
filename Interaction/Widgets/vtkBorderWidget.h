@@ -102,9 +102,9 @@ public:
    * "move" the widget, and no selection is possible. Otherwise the
    * SelectRegion() method is invoked.
    */
-  vtkSetMacro(Selectable,int);
-  vtkGetMacro(Selectable,int);
-  vtkBooleanMacro(Selectable,int);
+  vtkSetMacro(Selectable,vtkTypeBool);
+  vtkGetMacro(Selectable,vtkTypeBool);
+  vtkBooleanMacro(Selectable,vtkTypeBool);
   //@}
 
 
@@ -114,9 +114,9 @@ public:
    * If not, the cursor will not change to "resize" type when mouse
    * over the boundary.
    */
-  vtkSetMacro(Resizable,int);
-  vtkGetMacro(Resizable,int);
-  vtkBooleanMacro(Resizable,int);
+  vtkSetMacro(Resizable,vtkTypeBool);
+  vtkGetMacro(Resizable,vtkTypeBool);
+  vtkBooleanMacro(Resizable,vtkTypeBool);
   //@}
 
 
@@ -151,8 +151,8 @@ protected:
   virtual void SelectRegion(double eventPos[2]);
 
   //enable the selection of the region interior to the widget
-  int Selectable;
-  int Resizable;
+  vtkTypeBool Selectable;
+  vtkTypeBool Resizable;
 
   //processes the registered events
   static void SelectAction(vtkAbstractWidget*);

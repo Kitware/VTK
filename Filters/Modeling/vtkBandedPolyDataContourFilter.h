@@ -91,9 +91,9 @@ public:
    * Clipping means all cells outside of the range specified are not
    * sent to the output.
    */
-  vtkSetMacro(Clipping,int);
-  vtkGetMacro(Clipping,int);
-  vtkBooleanMacro(Clipping,int);
+  vtkSetMacro(Clipping,vtkTypeBool);
+  vtkGetMacro(Clipping,vtkTypeBool);
+  vtkBooleanMacro(Clipping,vtkTypeBool);
   //@}
 
   //@{
@@ -118,9 +118,9 @@ public:
    * generated from polygons/triangle strips and placed into the second
    * output (the ContourEdgesOutput).
    */
-  vtkSetMacro(GenerateContourEdges,int);
-  vtkGetMacro(GenerateContourEdges,int);
-  vtkBooleanMacro(GenerateContourEdges,int);
+  vtkSetMacro(GenerateContourEdges,vtkTypeBool);
+  vtkGetMacro(GenerateContourEdges,vtkTypeBool);
+  vtkBooleanMacro(GenerateContourEdges,vtkTypeBool);
   //@}
 
   //@{
@@ -175,7 +175,7 @@ protected:
   // data members
   vtkContourValues *ContourValues;
 
-  int Clipping;
+  vtkTypeBool Clipping;
   int ScalarMode;
   int Component;
 
@@ -187,7 +187,7 @@ protected:
   double InternalClipTolerance; //used to clean up numerical problems
 
   //the second output
-  int GenerateContourEdges;
+  vtkTypeBool GenerateContourEdges;
 
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&) = delete;

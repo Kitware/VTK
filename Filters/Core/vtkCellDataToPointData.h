@@ -66,9 +66,9 @@ public:
    * on, then the input cell data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassCellData,int);
-  vtkGetMacro(PassCellData,int);
-  vtkBooleanMacro(PassCellData,int);
+  vtkSetMacro(PassCellData,vtkTypeBool);
+  vtkGetMacro(PassCellData,vtkTypeBool);
+  vtkBooleanMacro(PassCellData,vtkTypeBool);
   //@}
 
   //@{
@@ -103,7 +103,7 @@ protected:
   /**
    * Option to pass cell data arrays through to the output. Default is 0/off.
    */
-  int PassCellData;
+  vtkTypeBool PassCellData;
   //@}
 
   //@{

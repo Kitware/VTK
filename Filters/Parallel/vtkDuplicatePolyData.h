@@ -55,9 +55,9 @@ public:
    * I want to see if it makes a difference in performance.
    * The flag is on by default.
    */
-  vtkSetMacro(Synchronous, int);
-  vtkGetMacro(Synchronous, int);
-  vtkBooleanMacro(Synchronous, int);
+  vtkSetMacro(Synchronous, vtkTypeBool);
+  vtkGetMacro(Synchronous, vtkTypeBool);
+  vtkBooleanMacro(Synchronous, vtkTypeBool);
   //@}
 
   //@{
@@ -92,7 +92,7 @@ protected:
   void ClientExecute(vtkPolyData *output);
 
   vtkMultiProcessController *Controller;
-  int Synchronous;
+  vtkTypeBool Synchronous;
 
   int NumberOfProcesses;
   int ScheduleLength;

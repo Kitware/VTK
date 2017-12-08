@@ -120,9 +120,9 @@ public:
    * A label may be associated with the seed. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
    */
-  vtkSetMacro( LabelVisibility, int );
-  vtkGetMacro( LabelVisibility, int );
-  vtkBooleanMacro( LabelVisibility, int );
+  vtkSetMacro( LabelVisibility, vtkTypeBool );
+  vtkGetMacro( LabelVisibility, vtkTypeBool );
+  vtkBooleanMacro( LabelVisibility, vtkTypeBool );
   virtual void SetLabelText( const char * label );
   virtual char * GetLabelText();
   //@}
@@ -158,9 +158,9 @@ public:
   /**
    * Toogle the visibility of the handle on and off
    */
-  vtkSetMacro( HandleVisibility, int );
-  vtkGetMacro( HandleVisibility, int );
-  vtkBooleanMacro( HandleVisibility, int );
+  vtkSetMacro( HandleVisibility, vtkTypeBool );
+  vtkGetMacro( HandleVisibility, vtkTypeBool );
+  vtkBooleanMacro( HandleVisibility, vtkTypeBool );
   //@}
 
   void Highlight(int highlight) override;
@@ -177,9 +177,9 @@ public:
    * inherent restrictions on handle placement might conflict with a request
    * for smooth motion of the handles.
    */
-  vtkSetMacro( SmoothMotion, int );
-  vtkGetMacro( SmoothMotion, int );
-  vtkBooleanMacro( SmoothMotion, int );
+  vtkSetMacro( SmoothMotion, vtkTypeBool );
+  vtkGetMacro( SmoothMotion, vtkTypeBool );
+  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
   //@}
 
 protected:
@@ -199,7 +199,7 @@ protected:
   vtkProperty                * SelectedProperty;
   int                          WaitingForMotion;
   int                          WaitCount;
-  int                          HandleVisibility;
+  vtkTypeBool                  HandleVisibility;
 
   // Register internal Pickers within PickingManager
   void RegisterPickers() override;
@@ -242,12 +242,12 @@ protected:
   virtual void UpdateLabel();
 
   // Handle the label.
-  int                LabelVisibility;
+  vtkTypeBool        LabelVisibility;
   vtkFollower       *LabelTextActor;
   vtkPolyDataMapper *LabelTextMapper;
   vtkVectorText     *LabelTextInput;
   bool               LabelAnnotationTextScaleInitialized;
-  int                SmoothMotion;
+  vtkTypeBool        SmoothMotion;
 
 private:
   vtkAbstractPolygonalHandleRepresentation3D(const vtkAbstractPolygonalHandleRepresentation3D&) = delete;

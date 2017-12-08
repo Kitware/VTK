@@ -125,9 +125,9 @@ public:
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
-  vtkSetClampMacro(Cropping,int,0,1);
-  vtkGetMacro(Cropping,int);
-  vtkBooleanMacro(Cropping,int);
+  vtkSetClampMacro(Cropping,vtkTypeBool,0,1);
+  vtkGetMacro(Cropping,vtkTypeBool);
+  vtkBooleanMacro(Cropping,vtkTypeBool);
   //@}
 
   //@{
@@ -255,7 +255,7 @@ protected:
    * Cropping variables, and a method for converting the world
    * coordinate cropping region planes to voxel coordinates
    */
-  int                  Cropping;
+  vtkTypeBool                  Cropping;
   double               CroppingRegionPlanes[6];
   double               VoxelCroppingRegionPlanes[6];
   int                  CroppingRegionFlags;

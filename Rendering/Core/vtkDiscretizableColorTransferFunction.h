@@ -119,9 +119,9 @@ public:
    * Not set by default, i.e. color value is determined by
    * interpolating at the scalar value.
    */
-  vtkSetMacro(Discretize, int);
-  vtkGetMacro(Discretize, int);
-  vtkBooleanMacro(Discretize, int);
+  vtkSetMacro(Discretize, vtkTypeBool);
+  vtkGetMacro(Discretize, vtkTypeBool);
+  vtkBooleanMacro(Discretize, vtkTypeBool);
   //@}
 
   //@{
@@ -239,7 +239,7 @@ protected:
   /**
    * Flag indicating whether transfer function is discretized.
    */
-  int Discretize;
+  vtkTypeBool Discretize;
 
   /**
    * Flag indicating whether log scaling is to be used.

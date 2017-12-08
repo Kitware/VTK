@@ -74,9 +74,9 @@ public:
    * If AppendFieldData is non-zero, then field data arrays from all the inputs are added
    * to the output. If there are duplicates, the array on the first input encountered is taken.
    */
-  vtkSetMacro(AppendFieldData,int);
-  vtkGetMacro(AppendFieldData,int);
-  vtkBooleanMacro(AppendFieldData,int);
+  vtkSetMacro(AppendFieldData,vtkTypeBool);
+  vtkGetMacro(AppendFieldData,vtkTypeBool);
+  vtkBooleanMacro(AppendFieldData,vtkTypeBool);
   //@}
 
 protected:
@@ -120,7 +120,7 @@ protected:
   virtual void AppendFieldDataArrays(vtkInformationVector* inputVector,
     int i, int numInputs, vtkCompositeDataIterator* iter, vtkDataSet* dset );
 
-  int AppendFieldData;
+  vtkTypeBool AppendFieldData;
 
 private:
   vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) = delete;

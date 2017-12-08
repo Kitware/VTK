@@ -216,18 +216,18 @@ public:
    * If off, the center can be freely moved and the radius can be set to
    * arbitrary values. The widget outline will change accordingly.
    */
-  vtkSetMacro(ConstrainToWidgetBounds, int);
-  vtkGetMacro(ConstrainToWidgetBounds, int);
-  vtkBooleanMacro(ConstrainToWidgetBounds, int);
+  vtkSetMacro(ConstrainToWidgetBounds, vtkTypeBool);
+  vtkGetMacro(ConstrainToWidgetBounds, vtkTypeBool);
+  vtkBooleanMacro(ConstrainToWidgetBounds, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
-  vtkSetMacro(ScaleEnabled,int);
-  vtkGetMacro(ScaleEnabled,int);
-  vtkBooleanMacro(ScaleEnabled,int);
+  vtkSetMacro(ScaleEnabled, vtkTypeBool);
+  vtkGetMacro(ScaleEnabled, vtkTypeBool);
+  vtkBooleanMacro(ScaleEnabled, vtkTypeBool);
   //@}
 
   /**
@@ -411,7 +411,7 @@ protected:
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
   int  OutlineTranslation; //whether the outline can be moved
-  int  ScaleEnabled; //whether the widget can be scaled
+  vtkTypeBool  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
   int ConstrainToWidgetBounds;

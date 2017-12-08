@@ -60,9 +60,9 @@ public:
    * Note that triangulation failures are often minor, because they involve
    * tiny triangles that are too small to see.
    */
-  vtkSetMacro(TriangulationErrorDisplay, int);
-  vtkBooleanMacro(TriangulationErrorDisplay, int);
-  vtkGetMacro(TriangulationErrorDisplay, int);
+  vtkSetMacro(TriangulationErrorDisplay, vtkTypeBool);
+  vtkBooleanMacro(TriangulationErrorDisplay, vtkTypeBool);
+  vtkGetMacro(TriangulationErrorDisplay, vtkTypeBool);
   //@}
 
   /**
@@ -92,7 +92,7 @@ protected:
     vtkInformationVector* outputVector) override;
 
   int TriangulationError;
-  int TriangulationErrorDisplay;
+  vtkTypeBool TriangulationErrorDisplay;
 
 private:
   vtkContourTriangulator(const vtkContourTriangulator&) = delete;

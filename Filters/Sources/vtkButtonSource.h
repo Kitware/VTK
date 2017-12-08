@@ -103,9 +103,9 @@ public:
    * A single-sided button is meant to viewed from a single side; it looks
    * like a "clam-shell."
    */
-  vtkSetMacro(TwoSided,int);
-  vtkGetMacro(TwoSided,int);
-  vtkBooleanMacro(TwoSided,int);
+  vtkSetMacro(TwoSided,vtkTypeBool);
+  vtkGetMacro(TwoSided,vtkTypeBool);
+  vtkBooleanMacro(TwoSided,vtkTypeBool);
   //@}
 
 protected:
@@ -116,7 +116,7 @@ protected:
   double ShoulderTextureCoordinate[2];
   int    TextureStyle;
   int    TextureDimensions[2];
-  int    TwoSided;
+  vtkTypeBool    TwoSided;
 
 private:
   vtkButtonSource(const vtkButtonSource&) = delete;

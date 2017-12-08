@@ -90,9 +90,9 @@ public:
    * of the data type.  On the other hand, clamping is slower.
    * By default, ClampOverflow is off.
    */
-  vtkSetMacro(ClampOverflow, int);
-  vtkGetMacro(ClampOverflow, int);
-  vtkBooleanMacro(ClampOverflow, int);
+  vtkSetMacro(ClampOverflow, vtkTypeBool);
+  vtkGetMacro(ClampOverflow, vtkTypeBool);
+  vtkBooleanMacro(ClampOverflow, vtkTypeBool);
   //@}
 
 protected:
@@ -102,7 +102,7 @@ protected:
   double Shift;
   double Scale;
   int OutputScalarType;
-  int ClampOverflow;
+  vtkTypeBool ClampOverflow;
 
   int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,

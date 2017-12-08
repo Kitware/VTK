@@ -61,9 +61,9 @@ public:
    * Turn on/off the passing of point and cell non-field attribute data to the
    * output of the filter.
    */
-  vtkSetMacro(PassAttributeData,int);
-  vtkGetMacro(PassAttributeData,int);
-  vtkBooleanMacro(PassAttributeData,int);
+  vtkSetMacro(PassAttributeData,vtkTypeBool);
+  vtkGetMacro(PassAttributeData,vtkTypeBool);
+  vtkBooleanMacro(PassAttributeData,vtkTypeBool);
   //@}
 
 protected:
@@ -72,7 +72,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override; //generate output data
 
-  int PassAttributeData;
+  vtkTypeBool PassAttributeData;
 private:
   vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&) = delete;
   void operator=(const vtkAttributeDataToFieldDataFilter&) = delete;

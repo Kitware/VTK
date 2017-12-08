@@ -169,9 +169,9 @@ public:
    * ColumnRanges[3]-ColumnRanges[2] = 1.0.  Used for scatter plot distance
    * calculations.  Be sure to set DistanceThreshold accordingly, when used.
    */
-  vtkSetMacro(UseNormalizedDistance,int);
-  vtkGetMacro(UseNormalizedDistance,int);
-  vtkBooleanMacro(UseNormalizedDistance,int);
+  vtkSetMacro(UseNormalizedDistance,vtkTypeBool);
+  vtkGetMacro(UseNormalizedDistance,vtkTypeBool);
+  vtkBooleanMacro(UseNormalizedDistance,vtkTypeBool);
   //@}
 
   /**
@@ -193,7 +193,7 @@ protected:
   int Inclusive;
   int LinearThresholdType;
   int NumberOfLineEquations;
-  int UseNormalizedDistance;
+  vtkTypeBool UseNormalizedDistance;
 
   vtkSmartPointer<vtkDoubleArray> LineEquations;
   class Internals;

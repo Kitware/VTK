@@ -43,9 +43,9 @@ public:
   /**
    * Set/Get whether data should be converted to CGS
    */
-  vtkSetMacro( ConvertToCGS, int );
-  vtkGetMacro( ConvertToCGS, int );
-  vtkBooleanMacro( ConvertToCGS, int );
+  vtkSetMacro( ConvertToCGS, vtkTypeBool );
+  vtkGetMacro( ConvertToCGS, vtkTypeBool );
+  vtkBooleanMacro( ConvertToCGS, vtkTypeBool );
   //@}
 
   /**
@@ -138,7 +138,7 @@ protected:
    */
   void SetUpDataArraySelections() override;
 
-  int ConvertToCGS;
+  vtkTypeBool ConvertToCGS;
   bool IsReady;
 
 private:

@@ -83,9 +83,9 @@ public:
    * Set/Get ClampValue. If On, results of the interpolation will be
    * clamped to the min/max of the input data.
    */
-  vtkSetMacro(ClampValue,int);
-  vtkGetMacro(ClampValue,int);
-  vtkBooleanMacro(ClampValue,int);
+  vtkSetMacro(ClampValue,vtkTypeBool);
+  vtkGetMacro(ClampValue,vtkTypeBool);
+  vtkBooleanMacro(ClampValue,vtkTypeBool);
   //@}
 
   /**
@@ -124,9 +124,9 @@ public:
    * a continuous loop: the first and last points are the same, and
    * derivatives are continuous.
    */
-  vtkSetMacro(Closed,int);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
+  vtkSetMacro(Closed,vtkTypeBool);
+  vtkGetMacro(Closed,vtkTypeBool);
+  vtkBooleanMacro(Closed,vtkTypeBool);
   //@}
 
   //@{
@@ -178,7 +178,7 @@ protected:
   ~vtkSpline() override;
 
   vtkMTimeType ComputeTime;
-  int ClampValue;
+  vtkTypeBool ClampValue;
   double *Intervals;
   double *Coefficients;
   int LeftConstraint;
@@ -186,7 +186,7 @@ protected:
   int RightConstraint;
   double RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
-  int Closed;
+  vtkTypeBool Closed;
 
   // Explicitly specify the parametric range.
   double ParametricRange[2];

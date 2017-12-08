@@ -142,9 +142,9 @@ public:
   /**
    * Set/Get the flag that controls whether the minor ticks are visible.
    */
-  vtkSetMacro(MinorTicksVisible, int);
-  vtkGetMacro(MinorTicksVisible, int);
-  vtkBooleanMacro(MinorTicksVisible, int);
+  vtkSetMacro(MinorTicksVisible, vtkTypeBool);
+  vtkGetMacro(MinorTicksVisible, vtkTypeBool);
+  vtkBooleanMacro(MinorTicksVisible, vtkTypeBool);
   //@}
 
   //@{
@@ -204,36 +204,36 @@ public:
   /**
    * Set/Get visibility of the axis line.
    */
-  vtkSetMacro(AxisVisibility, int);
-  vtkGetMacro(AxisVisibility, int);
-  vtkBooleanMacro(AxisVisibility, int);
+  vtkSetMacro(AxisVisibility, vtkTypeBool);
+  vtkGetMacro(AxisVisibility, vtkTypeBool);
+  vtkBooleanMacro(AxisVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis major tick marks.
    */
-  vtkSetMacro(TickVisibility, int);
-  vtkGetMacro(TickVisibility, int);
-  vtkBooleanMacro(TickVisibility, int);
+  vtkSetMacro(TickVisibility, vtkTypeBool);
+  vtkGetMacro(TickVisibility, vtkTypeBool);
+  vtkBooleanMacro(TickVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis labels.
    */
-  vtkSetMacro(LabelVisibility, int);
-  vtkGetMacro(LabelVisibility, int);
-  vtkBooleanMacro(LabelVisibility, int);
+  vtkSetMacro(LabelVisibility, vtkTypeBool);
+  vtkGetMacro(LabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(LabelVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis title.
    */
-  vtkSetMacro(TitleVisibility, int);
-  vtkGetMacro(TitleVisibility, int);
-  vtkBooleanMacro(TitleVisibility, int);
+  vtkSetMacro(TitleVisibility, vtkTypeBool);
+  vtkGetMacro(TitleVisibility, vtkTypeBool);
+  vtkBooleanMacro(TitleVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -356,9 +356,9 @@ public:
   /**
    * Set/Get whether gridlines should be drawn.
    */
-  vtkSetMacro(DrawGridlines, int);
-  vtkGetMacro(DrawGridlines, int);
-  vtkBooleanMacro(DrawGridlines, int);
+  vtkSetMacro(DrawGridlines, vtkTypeBool);
+  vtkGetMacro(DrawGridlines, vtkTypeBool);
+  vtkBooleanMacro(DrawGridlines, vtkTypeBool);
   //@}
 
   //@{
@@ -367,9 +367,9 @@ public:
    * This will only draw GridLines and will skip any other part of the rendering
    * such as Axis/Tick/Title/...
    */
-  vtkSetMacro(DrawGridlinesOnly, int);
-  vtkGetMacro(DrawGridlinesOnly, int);
-  vtkBooleanMacro(DrawGridlinesOnly, int);
+  vtkSetMacro(DrawGridlinesOnly, vtkTypeBool);
+  vtkGetMacro(DrawGridlinesOnly, vtkTypeBool);
+  vtkBooleanMacro(DrawGridlinesOnly, vtkTypeBool);
   //@}
 
   vtkSetMacro(DrawGridlinesLocation, int);
@@ -379,9 +379,9 @@ public:
   /**
    * Set/Get whether inner gridlines should be drawn.
    */
-  vtkSetMacro(DrawInnerGridlines, int);
-  vtkGetMacro(DrawInnerGridlines, int);
-  vtkBooleanMacro(DrawInnerGridlines, int);
+  vtkSetMacro(DrawInnerGridlines, vtkTypeBool);
+  vtkGetMacro(DrawInnerGridlines, vtkTypeBool);
+  vtkBooleanMacro(DrawInnerGridlines, vtkTypeBool);
   //@}
 
   //@{
@@ -400,9 +400,9 @@ public:
   /**
    * Set/Get whether gridpolys should be drawn.
    */
-  vtkSetMacro(DrawGridpolys, int);
-  vtkGetMacro(DrawGridpolys, int);
-  vtkBooleanMacro(DrawGridpolys, int);
+  vtkSetMacro(DrawGridpolys, vtkTypeBool);
+  vtkGetMacro(DrawGridpolys, vtkTypeBool);
+  vtkBooleanMacro(DrawGridpolys, vtkTypeBool);
   //@}
 
   enum AxisType
@@ -585,9 +585,9 @@ public:
    * Set/Get flag whether to calculate title offset.
    * Default is true.
    */
-  vtkSetMacro(CalculateTitleOffset, int);
-  vtkGetMacro(CalculateTitleOffset, int);
-  vtkBooleanMacro(CalculateTitleOffset, int);
+  vtkSetMacro(CalculateTitleOffset, vtkTypeBool);
+  vtkGetMacro(CalculateTitleOffset, vtkTypeBool);
+  vtkBooleanMacro(CalculateTitleOffset, vtkTypeBool);
   //@}
 
   //@{
@@ -595,9 +595,9 @@ public:
    * Set/Get flag whether to calculate label offset.
    * Default is true.
    */
-  vtkSetMacro(CalculateLabelOffset, int);
-  vtkGetMacro(CalculateLabelOffset, int);
-  vtkBooleanMacro(CalculateLabelOffset, int);
+  vtkSetMacro(CalculateLabelOffset, vtkTypeBool);
+  vtkGetMacro(CalculateLabelOffset, vtkTypeBool);
+  vtkBooleanMacro(CalculateLabelOffset, vtkTypeBool);
   //@}
 
   //@{
@@ -689,7 +689,7 @@ protected:
   char* LabelFormat;
   int UseTextActor3D;
   int NumberOfLabelsBuilt;
-  int MinorTicksVisible;
+  vtkTypeBool MinorTicksVisible;
   int LastMinorTicksVisible;
 
   /**
@@ -711,8 +711,8 @@ protected:
    */
   int ExponentLocation;
 
-  int DrawGridlines;
-  int DrawGridlinesOnly;
+  vtkTypeBool DrawGridlines;
+  vtkTypeBool DrawGridlinesOnly;
   int LastDrawGridlines;
   int DrawGridlinesLocation;     // 0: all | 1: closest | 2: farest
   int LastDrawGridlinesLocation; // 0: all | 1: closest | 2: farest
@@ -720,17 +720,17 @@ protected:
   double GridlineYLength;
   double GridlineZLength;
 
-  int DrawInnerGridlines;
+  vtkTypeBool DrawInnerGridlines;
   int LastDrawInnerGridlines;
 
-  int DrawGridpolys;
+  vtkTypeBool DrawGridpolys;
   int LastDrawGridpolys;
 
-  int AxisVisibility;
-  int TickVisibility;
+  vtkTypeBool AxisVisibility;
+  vtkTypeBool TickVisibility;
   int LastTickVisibility;
-  int LabelVisibility;
-  int TitleVisibility;
+  vtkTypeBool LabelVisibility;
+  vtkTypeBool TitleVisibility;
   bool ExponentVisibility;
   bool LastMajorTickPointCorrection;
 
@@ -910,8 +910,8 @@ private:
 
   int AxisHasZeroLength;
 
-  int CalculateTitleOffset;
-  int CalculateLabelOffset;
+  vtkTypeBool CalculateTitleOffset;
+  vtkTypeBool CalculateLabelOffset;
 
   /**
    * Use xy-axis only when Use2DMode=1:

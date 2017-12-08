@@ -76,9 +76,9 @@ public:
   /**
    * Turn on/off whether to cap cylinder with polygons. Initial value is true.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -100,7 +100,7 @@ protected:
   double Radius;
   double Center[3];
   int Resolution;
-  int Capping;
+  vtkTypeBool Capping;
   int OutputPointsPrecision;
 
 private:

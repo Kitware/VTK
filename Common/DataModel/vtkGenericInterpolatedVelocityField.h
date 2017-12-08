@@ -100,9 +100,9 @@ public:
   /**
    * Turn caching on/off.
    */
-  vtkGetMacro(Caching, int);
-  vtkSetMacro(Caching, int);
-  vtkBooleanMacro(Caching, int);
+  vtkGetMacro(Caching, vtkTypeBool);
+  vtkSetMacro(Caching, vtkTypeBool);
+  vtkBooleanMacro(Caching, vtkTypeBool);
   //@}
 
   //@{
@@ -150,7 +150,7 @@ protected:
   double LastPCoords[3]; // last local coordinates
   int CacheHit;
   int CacheMiss;
-  int Caching;
+  vtkTypeBool Caching;
 
   vtkGenericDataSet* LastDataSet;
 

@@ -71,9 +71,9 @@ public:
    * Strahler values are scaled into the range [0..1].
    * Default is for normalization to be OFF.
    */
-  vtkSetMacro(Normalize, int);
-  vtkGetMacro(Normalize, int);
-  vtkBooleanMacro(Normalize, int);
+  vtkSetMacro(Normalize, vtkTypeBool);
+  vtkGetMacro(Normalize, vtkTypeBool);
+  vtkBooleanMacro(Normalize, vtkTypeBool);
   //@}
 
   //@{
@@ -89,7 +89,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int Normalize;
+  vtkTypeBool Normalize;
   float MaxStrahler;
   char *MetricArrayName;
 

@@ -328,15 +328,15 @@ protected:
   float GeometryTimeValue;
   float MeasuredTimeValue;
 
-  int UseTimeSets;
-  vtkSetMacro(UseTimeSets, int);
-  vtkGetMacro(UseTimeSets, int);
-  vtkBooleanMacro(UseTimeSets, int);
+  vtkTypeBool UseTimeSets;
+  vtkSetMacro(UseTimeSets, vtkTypeBool);
+  vtkGetMacro(UseTimeSets, vtkTypeBool);
+  vtkBooleanMacro(UseTimeSets, vtkTypeBool);
 
-  int UseFileSets;
-  vtkSetMacro(UseFileSets, int);
-  vtkGetMacro(UseFileSets, int);
-  vtkBooleanMacro(UseFileSets, int);
+  vtkTypeBool UseFileSets;
+  vtkSetMacro(UseFileSets, vtkTypeBool);
+  vtkGetMacro(UseFileSets, vtkTypeBool);
+  vtkBooleanMacro(UseFileSets, vtkTypeBool);
 
   int NumberOfGeometryParts;
 

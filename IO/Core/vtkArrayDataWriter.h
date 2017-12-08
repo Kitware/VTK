@@ -77,9 +77,9 @@ public:
   /**
    * Get / set whether data will be written in binary format (when used as a filter).
    */
-  vtkSetMacro(Binary, int);
-  vtkGetMacro(Binary, int);
-  vtkBooleanMacro(Binary, int);
+  vtkSetMacro(Binary, vtkTypeBool);
+  vtkGetMacro(Binary, vtkTypeBool);
+  vtkBooleanMacro(Binary, vtkTypeBool);
   //@}
 
   /**
@@ -140,7 +140,7 @@ protected:
   void WriteData() override;
 
   char* FileName;
-  int Binary;
+  vtkTypeBool Binary;
   bool WriteToOutputString;
   vtkStdString OutputString;
 

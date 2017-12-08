@@ -254,9 +254,9 @@ public:
    * Set/Get whether the data comes from the file starting in the lower left
    * corner or upper left corner.
    */
-  vtkBooleanMacro(FileLowerLeft, int);
-  vtkGetMacro(FileLowerLeft, int);
-  vtkSetMacro(FileLowerLeft, int);
+  vtkBooleanMacro(FileLowerLeft, vtkTypeBool);
+  vtkGetMacro(FileLowerLeft, vtkTypeBool);
+  vtkSetMacro(FileLowerLeft, vtkTypeBool);
   //@}
 
   //@{
@@ -311,7 +311,7 @@ protected:
   char *FilePrefix;
   char *FilePattern;
   int NumberOfScalarComponents;
-  int FileLowerLeft;
+  vtkTypeBool FileLowerLeft;
 
   void *MemoryBuffer;
   vtkIdType MemoryBufferLength;

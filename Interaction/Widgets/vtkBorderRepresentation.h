@@ -138,9 +138,9 @@ public:
    * representation will be placed in the rectangle in such a way as to
    * preserve the aspect ratio of the representation.
    */
-  vtkSetMacro(ProportionalResize,int);
-  vtkGetMacro(ProportionalResize,int);
-  vtkBooleanMacro(ProportionalResize,int);
+  vtkSetMacro(ProportionalResize,vtkTypeBool);
+  vtkGetMacro(ProportionalResize,vtkTypeBool);
+  vtkBooleanMacro(ProportionalResize,vtkTypeBool);
   //@}
 
   //@{
@@ -179,9 +179,9 @@ public:
    * allows the border (and stuff inside of it) to be translated with mouse
    * motion.
    */
-  vtkSetMacro(Moving,int);
-  vtkGetMacro(Moving,int);
-  vtkBooleanMacro(Moving,int);
+  vtkSetMacro(Moving,vtkTypeBool);
+  vtkGetMacro(Moving,vtkTypeBool);
+  vtkBooleanMacro(Moving,vtkTypeBool);
   //@}
 
   /**
@@ -241,9 +241,9 @@ protected:
   int           ShowVerticalBorder;
   int           ShowHorizontalBorder;
   vtkProperty2D *BorderProperty;
-  int           ProportionalResize;
+  vtkTypeBool           ProportionalResize;
   int           Tolerance;
-  int           Moving;
+  vtkTypeBool           Moving;
   double        SelectionPoint[2];
 
   // Layout (position of lower left and upper right corners of border)

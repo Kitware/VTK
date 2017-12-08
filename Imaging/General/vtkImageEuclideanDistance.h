@@ -65,9 +65,9 @@ public:
    * value in the input image as starting point. This allows to superimpose
    * several distance maps.
    */
-  vtkSetMacro(Initialize, int);
-  vtkGetMacro(Initialize, int);
-  vtkBooleanMacro(Initialize, int);
+  vtkSetMacro(Initialize, vtkTypeBool);
+  vtkGetMacro(Initialize, vtkTypeBool);
+  vtkBooleanMacro(Initialize, vtkTypeBool);
   //@}
 
   //@{
@@ -75,9 +75,9 @@ public:
    * Used to define whether Spacing should be used in the computation of the
    * distances
    */
-  vtkSetMacro(ConsiderAnisotropy, int);
-  vtkGetMacro(ConsiderAnisotropy, int);
-  vtkBooleanMacro(ConsiderAnisotropy, int);
+  vtkSetMacro(ConsiderAnisotropy, vtkTypeBool);
+  vtkGetMacro(ConsiderAnisotropy, vtkTypeBool);
+  vtkBooleanMacro(ConsiderAnisotropy, vtkTypeBool);
   //@}
 
   //@{
@@ -113,8 +113,8 @@ protected:
   ~vtkImageEuclideanDistance() override {}
 
   double MaximumDistance;
-  int Initialize;
-  int ConsiderAnisotropy;
+  vtkTypeBool Initialize;
+  vtkTypeBool ConsiderAnisotropy;
   int Algorithm;
 
   // Replaces "EnlargeOutputUpdateExtent"

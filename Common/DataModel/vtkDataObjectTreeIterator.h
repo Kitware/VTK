@@ -95,9 +95,9 @@ public:
    * VisitOnlyLeaves is false, GetCurrentDataObject() may return
    * vtkCompositeDataSet. By default, VisitOnlyLeaves is 1.
    */
-  vtkSetMacro(VisitOnlyLeaves, int);
-  vtkGetMacro(VisitOnlyLeaves, int);
-  vtkBooleanMacro(VisitOnlyLeaves, int);
+  vtkSetMacro(VisitOnlyLeaves, vtkTypeBool);
+  vtkGetMacro(VisitOnlyLeaves, vtkTypeBool);
+  vtkBooleanMacro(VisitOnlyLeaves, vtkTypeBool);
   //@}
 
   //@{
@@ -106,9 +106,9 @@ public:
    * structure, otherwise it only visits the first level children. Set to 1 by
    * default.
    */
-  vtkSetMacro(TraverseSubTree, int);
-  vtkGetMacro(TraverseSubTree, int);
-  vtkBooleanMacro(TraverseSubTree, int);
+  vtkSetMacro(TraverseSubTree, vtkTypeBool);
+  vtkGetMacro(TraverseSubTree, vtkTypeBool);
+  vtkBooleanMacro(TraverseSubTree, vtkTypeBool);
   //@}
 
 protected:
@@ -142,8 +142,8 @@ private:
   vtkInternals* Internals;
   friend class vtkInternals;
 
-  int TraverseSubTree;
-  int VisitOnlyLeaves;
+  vtkTypeBool TraverseSubTree;
+  vtkTypeBool VisitOnlyLeaves;
 
   /**
    * Helper method used by vtkInternals to get access to the internals of

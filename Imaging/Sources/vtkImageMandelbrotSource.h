@@ -56,9 +56,9 @@ public:
    * a data set remain constant (when extent is changed).
    * By default, size remains constant.
    */
-  vtkSetMacro(ConstantSize, int);
-  vtkGetMacro(ConstantSize, int);
-  vtkBooleanMacro(ConstantSize, int);
+  vtkSetMacro(ConstantSize, vtkTypeBool);
+  vtkGetMacro(ConstantSize, vtkTypeBool);
+  vtkBooleanMacro(ConstantSize, vtkTypeBool);
   //@}
 
   //@{
@@ -157,7 +157,7 @@ protected:
   double SizeCX[4];
 
   // A flag for keeping size constant (vs. keeping the spacing).
-  int ConstantSize;
+  vtkTypeBool ConstantSize;
 
   int SubsampleRate;
 
