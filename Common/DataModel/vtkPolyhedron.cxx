@@ -1629,6 +1629,11 @@ void CalculateAngles(const vtkIdType* tri, vtkPoints* phPoints, const vtkPointId
 #define TO_DEGREES (180.0/PI);
 
     double dot = left.Dot(right);
+    // rounding errors can occur in the vtkVector3d::Dot function,
+    // clamp to [-1, 1] (i.e. the input range for the acos function)
+    dot = min( 1.0, dot);
+    dot = max(-1.0, dot);
+
     double angle = acos(dot)*TO_DEGREES;
 
     minAngle = min(angle, minAngle);
@@ -1712,6 +1717,18 @@ void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoi
   }
 }
 
+bool CheckNonManifoldTriangulation(EdgeFaceSetMap& edgeFaceMap)
+{
+  for (auto it = edgeFaceMap.begin(); it != edgeFaceMap.end(); ++it)
+  {
+    if (it->second.size() != 2)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
 bool GetContourPoints(double value, vtkPolyhedron* cell,
   vtkPointIdMap* pointIdMap, // from global id to local cell id
   FaceEdgesVector& faceEdgesVector,
@@ -1792,6 +1809,12 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
     }
 
     faceEdgesVector.push_back(edges);
+  }
+
+  if (!CheckNonManifoldTriangulation(edgeFaceMap))
+  {
+    cerr << "Despite the developer's best efforts, a cell with a non-manifold triangulation has been encountered. This cell cannot be contoured." << endl;
+    return false;
   }
 
   vtkPoints* cellPoints = cell->GetPoints();
