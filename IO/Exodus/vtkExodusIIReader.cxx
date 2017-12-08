@@ -386,6 +386,8 @@ vtkExodusIIReaderPrivate::vtkExodusIIReaderPrivate()
   this->ModeShapeTime = -1.;
   this->AnimateModeShapes = 1;
 
+  this->IgnoreFileTime = false;
+
   this->GenerateObjectIdArray = 1;
   this->GenerateGlobalElementIdArray = 0;
   this->GenerateGlobalNodeIdArray = 0;
@@ -3724,6 +3726,7 @@ void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
   os << indent << "TimeStepRange: [" << this->TimeStepRange[0] << ", " << this->TimeStepRange[1] << "]\n";
   os << indent << "ModeShapesRange:  [ "
     << this->GetModeShapesRange()[0] << ", " << this->GetModeShapesRange()[1] << "]\n";
+  os << indent << "IgnoreFileTime: " << this->GetIgnoreFileTime() << "\n";
   os << indent << "SILUpdateStamp: " << this->SILUpdateStamp << "\n";
   if ( this->Metadata )
   {
@@ -3925,13 +3928,13 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
     this->Times.resize( num_timesteps );
 
     int exo_err = ex_get_all_times( this->Exoid, &this->Times[0] );
-    if ( exo_err < 0)
+    if ( exo_err < 0 || this->IgnoreFileTime)
     {
       for ( i = 0; i < num_timesteps; ++i )
       {
           this->Times[i] = i;
       }
-      vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
+      //vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
     }
   }
   return 0;
@@ -5647,6 +5650,22 @@ int vtkExodusIIReader::GetAnimateModeShapes()
   return this->Metadata->GetAnimateModeShapes();
 }
 
+void vtkExodusIIReader::SetIgnoreFileTime(bool value)
+{
+  if (this->Metadata->GetIgnoreFileTime() == value)
+  {
+    return;
+  }
+
+  this->Metadata->SetIgnoreFileTime(value);
+  this->Modified();
+}
+
+bool vtkExodusIIReader::GetIgnoreFileTime()
+{
+  return this->Metadata->GetIgnoreFileTime();
+}
+
 const char* vtkExodusIIReader::GetTitle() { return this->Metadata->ModelParameters.title; }
 int vtkExodusIIReader::GetDimensionality() { return this->Metadata->ModelParameters.num_dim; }
 int vtkExodusIIReader::GetNumberOfTimeSteps() { return (int) this->Metadata->Times.size(); }
@@ -6436,13 +6455,29 @@ void vtkExodusIIReader::AdvertiseTimeSteps( vtkInformation* outInfo )
 
   if ( ! this->GetHasModeShapes() )
   {
-    double timeRange[2];
-    if ( nTimes )
+    if (this->GetIgnoreFileTime())
     {
-      timeRange[0] = this->Metadata->Times[0];
-      timeRange[1] = this->Metadata->Times[nTimes - 1];
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
-      outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      std::vector<double> times(nTimes);
+      for (size_t i = 0; i < times.size(); ++i)
+      {
+        times[i] = i;
+      }
+      double timeRange[2];
+      timeRange[0] = 0;
+      timeRange[1] = nTimes - 1;
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &times[0], nTimes);
+      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2);
+    }
+    else
+    {
+      if ( nTimes )
+      {
+        double timeRange[2];
+        timeRange[0] = this->Metadata->Times[0];
+        timeRange[1] = this->Metadata->Times[nTimes - 1];
+        outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &this->Metadata->Times[0], nTimes );
+        outInfo->Set( vtkStreamingDemandDrivenPipeline::TIME_RANGE(), timeRange, 2 );
+      }
     }
   }
   else if (this->GetAnimateModeShapes())

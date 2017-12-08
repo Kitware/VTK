@@ -17,6 +17,7 @@ endif()
 
 vtk_add_test_cxx(vtkIOExodusCxxTests tests
   TestExodusAttributes.cxx,NO_VALID,NO_OUTPUT
+  TestExodusIgnoreFileTime.cxx,NO_VALID,NO_OUTPUT
   TestExodusSideSets.cxx,NO_VALID,NO_OUTPUT
   ${extra_tests}
   )
