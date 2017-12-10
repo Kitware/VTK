@@ -57,18 +57,18 @@ public:
   /**
    * Progressive JPEG generation.
    */
-  vtkSetMacro(Progressive, unsigned int);
-  vtkGetMacro(Progressive, unsigned int);
-  vtkBooleanMacro(Progressive, unsigned int);
+  vtkSetMacro(Progressive, vtkTypeUBool);
+  vtkGetMacro(Progressive, vtkTypeUBool);
+  vtkBooleanMacro(Progressive, vtkTypeUBool);
   //@}
 
   //@{
   /**
    * Write the image to memory (a vtkUnsignedCharArray)
    */
-  vtkSetMacro(WriteToMemory, unsigned int);
-  vtkGetMacro(WriteToMemory, unsigned int);
-  vtkBooleanMacro(WriteToMemory, unsigned int);
+  vtkSetMacro(WriteToMemory, vtkTypeUBool);
+  vtkGetMacro(WriteToMemory, vtkTypeUBool);
+  vtkBooleanMacro(WriteToMemory, vtkTypeUBool);
   //@}
 
   //@{
@@ -88,7 +88,7 @@ protected:
 
 private:
   int Quality;
-  unsigned int Progressive;
+  vtkTypeUBool Progressive;
   vtkUnsignedCharArray *Result;
   FILE *TempFP;
 

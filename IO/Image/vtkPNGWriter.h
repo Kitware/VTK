@@ -60,9 +60,9 @@ public:
   /**
    * Write the image to memory (a vtkUnsignedCharArray)
    */
-  vtkSetMacro(WriteToMemory, unsigned int);
-  vtkGetMacro(WriteToMemory, unsigned int);
-  vtkBooleanMacro(WriteToMemory, unsigned int);
+  vtkSetMacro(WriteToMemory, vtkTypeUBool);
+  vtkGetMacro(WriteToMemory, vtkTypeUBool);
+  vtkBooleanMacro(WriteToMemory, vtkTypeUBool);
   //@}
 
   //@{

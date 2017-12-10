@@ -60,15 +60,17 @@
 
 /*--------------------------------------------------------------------------*/
 /* If not already defined, define vtkTypeBool. When VTK was started, some   */
-/* compilers did not yet support the bool type, and so VTK often used int   */
-/* where it should have used bool. Eventually vtkTypeBool will switch to    */
-/* real bool. */
+/* compilers did not yet support the bool type, and so VTK often used int,  */
+/* or more rarely unsigned int, where it should have used bool.             */
+/* Eventually vtkTypeBool will switch to real bool.                         */
 #ifndef VTK_TYPE_BOOL_TYPEDEFED
 # define VTK_TYPE_BOOL_TYPEDEFED
 # if 1
    typedef int vtkTypeBool;
+   typedef unsigned int vtkTypeUBool;
 # else
    typedef bool vtkTypeBool;
+   typedef bool vtkTypeUBool;
 # endif
 #endif
 

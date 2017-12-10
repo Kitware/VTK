@@ -117,7 +117,7 @@ protected:
   // Required for subclasses that need to prevent the writer
   // from touching the file system. The getter/setter are only
   // available in these subclasses.
-  unsigned int WriteToMemory;
+  vtkTypeUBool WriteToMemory;
 
   // subclasses that do write to memory can override this
   // to implement the simple case
