@@ -132,9 +132,9 @@ public:
   /**
    * Force handles to be on a specific ortho plane. Default is Off.
    */
-  vtkSetMacro(ProjectToPlane,int);
-  vtkGetMacro(ProjectToPlane,int);
-  vtkBooleanMacro(ProjectToPlane,int);
+  vtkSetMacro(ProjectToPlane,vtkTypeBool);
+  vtkGetMacro(ProjectToPlane,vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
   //@}
 
   //@{
@@ -170,9 +170,9 @@ public:
    /**
     * Force snapping to image data while tracing. Default is Off.
     */
-  void SetSnapToImage(int snap);
-  vtkGetMacro(SnapToImage,int);
-  vtkBooleanMacro(SnapToImage,int);
+  void SetSnapToImage(vtkTypeBool snap);
+  vtkGetMacro(SnapToImage,vtkTypeBool);
+  vtkBooleanMacro(SnapToImage,vtkTypeBool);
    //@}
 
   //@{
@@ -181,9 +181,9 @@ public:
    * form a closed path by connecting first to last path points.
    * Default is Off.
    */
-  vtkSetMacro(AutoClose,int);
-  vtkGetMacro(AutoClose,int);
-  vtkBooleanMacro(AutoClose,int);
+  vtkSetMacro(AutoClose,vtkTypeBool);
+  vtkGetMacro(AutoClose,vtkTypeBool);
+  vtkBooleanMacro(AutoClose,vtkTypeBool);
   //@}
 
   //@{
@@ -240,9 +240,9 @@ public:
   /**
    * Enable/disable mouse interaction when the widget is visible.
    */
-  void SetInteraction(int interact);
-  vtkGetMacro(Interaction,int);
-  vtkBooleanMacro(Interaction,int);
+  void SetInteraction(vtkTypeBool interact);
+  vtkGetMacro(Interaction,vtkTypeBool);
+  vtkBooleanMacro(Interaction,vtkTypeBool);
   //@}
 
   /**
@@ -261,15 +261,15 @@ public:
   /**
    * Enable/Disable mouse button events
    */
-  vtkSetMacro(HandleLeftMouseButton,int);
-  vtkGetMacro(HandleLeftMouseButton,int);
-  vtkBooleanMacro(HandleLeftMouseButton,int);
-  vtkSetMacro(HandleMiddleMouseButton,int);
-  vtkGetMacro(HandleMiddleMouseButton,int);
-  vtkBooleanMacro(HandleMiddleMouseButton,int);
-  vtkSetMacro(HandleRightMouseButton,int);
-  vtkGetMacro(HandleRightMouseButton,int);
-  vtkBooleanMacro(HandleRightMouseButton,int);
+  vtkSetMacro(HandleLeftMouseButton,vtkTypeBool);
+  vtkGetMacro(HandleLeftMouseButton,vtkTypeBool);
+  vtkBooleanMacro(HandleLeftMouseButton,vtkTypeBool);
+  vtkSetMacro(HandleMiddleMouseButton,vtkTypeBool);
+  vtkGetMacro(HandleMiddleMouseButton,vtkTypeBool);
+  vtkBooleanMacro(HandleMiddleMouseButton,vtkTypeBool);
+  vtkSetMacro(HandleRightMouseButton,vtkTypeBool);
+  vtkGetMacro(HandleRightMouseButton,vtkTypeBool);
+  vtkBooleanMacro(HandleRightMouseButton,vtkTypeBool);
   //@}
 
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
@@ -318,14 +318,14 @@ protected:
   void AddObservers();
 
   // Controlling ivars
-  int    Interaction;
+  vtkTypeBool    Interaction;
   int    ProjectionNormal;
   double ProjectionPosition;
-  int    ProjectToPlane;
+  vtkTypeBool    ProjectToPlane;
   int    ImageSnapType;
-  int    SnapToImage;
+  vtkTypeBool    SnapToImage;
   double CaptureRadius; // tolerance for auto path close
-  int    AutoClose;
+  vtkTypeBool    AutoClose;
   int    IsSnapping;
   int    LastX;
   int    LastY;
@@ -392,9 +392,9 @@ protected:
   void CreateDefaultProperties();
 
   // Enable/Disable mouse button events
-  int HandleLeftMouseButton;
-  int HandleMiddleMouseButton;
-  int HandleRightMouseButton;
+  vtkTypeBool HandleLeftMouseButton;
+  vtkTypeBool HandleMiddleMouseButton;
+  vtkTypeBool HandleRightMouseButton;
 
 private:
   vtkImageTracerWidget(const vtkImageTracerWidget&) = delete;

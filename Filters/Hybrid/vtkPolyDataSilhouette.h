@@ -79,9 +79,9 @@ public:
    * Enables or Disables generation of border edges. Note: borders exist only
    * in case of non closed surface
    */
-  vtkSetMacro(BorderEdges,int);
-  vtkGetMacro(BorderEdges,int);
-  vtkBooleanMacro(BorderEdges,int);
+  vtkSetMacro(BorderEdges,vtkTypeBool);
+  vtkGetMacro(BorderEdges,vtkTypeBool);
+  vtkBooleanMacro(BorderEdges,vtkTypeBool);
   //@}
 
   //@{
@@ -89,9 +89,9 @@ public:
    * Enables or Disables piece invariance. This is useful when dealing with
    * multi-block data sets. Note: requires one level of ghost cells
    */
-  vtkSetMacro(PieceInvariant,int);
-  vtkGetMacro(PieceInvariant,int);
-  vtkBooleanMacro(PieceInvariant,int);
+  vtkSetMacro(PieceInvariant,vtkTypeBool);
+  vtkGetMacro(PieceInvariant,vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant,vtkTypeBool);
   //@}
 
   enum Directions
@@ -184,8 +184,8 @@ protected:
   int EnableFeatureAngle;
   double FeatureAngle;
 
-  int BorderEdges;
-  int PieceInvariant;
+  vtkTypeBool BorderEdges;
+  vtkTypeBool PieceInvariant;
 
   vtkPolyDataEdges* PreComp; // precomputed data for a given point of view
 

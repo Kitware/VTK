@@ -84,9 +84,9 @@ public:
   /**
    * Enable/Disable the display of a plot title.
    */
-  vtkSetMacro(TitleVisibility, int);
-  vtkGetMacro(TitleVisibility, int);
-  vtkBooleanMacro(TitleVisibility, int);
+  vtkSetMacro(TitleVisibility, vtkTypeBool);
+  vtkGetMacro(TitleVisibility, vtkTypeBool);
+  vtkBooleanMacro(TitleVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -110,9 +110,9 @@ public:
   /**
    * Enable/Disable the display of pie piece labels.
    */
-  vtkSetMacro(LabelVisibility, int);
-  vtkGetMacro(LabelVisibility, int);
-  vtkBooleanMacro(LabelVisibility, int);
+  vtkSetMacro(LabelVisibility, vtkTypeBool);
+  vtkGetMacro(LabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(LabelVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -150,9 +150,9 @@ public:
    * be created automatically unless the per plot legend symbol has been
    * set.
    */
-  vtkSetMacro(LegendVisibility, int);
-  vtkGetMacro(LegendVisibility, int);
-  vtkBooleanMacro(LegendVisibility, int);
+  vtkSetMacro(LegendVisibility, vtkTypeBool);
+  vtkGetMacro(LegendVisibility, vtkTypeBool);
+  vtkBooleanMacro(LegendVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -194,13 +194,13 @@ private:
 
   vtkIdType ArrayNumber;
   vtkIdType ComponentNumber;
-  int TitleVisibility;         // Should I see the title?
+  vtkTypeBool TitleVisibility;         // Should I see the title?
   char *Title;                 // The title string
   vtkTextProperty *TitleTextProperty;
-  int LabelVisibility;
+  vtkTypeBool LabelVisibility;
   vtkTextProperty *LabelTextProperty;
   vtkPieceLabelArray *Labels;
-  int LegendVisibility;
+  vtkTypeBool LegendVisibility;
   vtkLegendBoxActor *LegendActor;
   vtkGlyphSource2D *GlyphSource;
 

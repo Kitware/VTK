@@ -135,9 +135,9 @@ public:
     * you do want to include this array, set WriteOutBlockIdArray to ON.
     */
 
-  vtkSetMacro(WriteOutBlockIdArray, int);
-  vtkGetMacro(WriteOutBlockIdArray, int);
-  vtkBooleanMacro(WriteOutBlockIdArray, int);
+  vtkSetMacro(WriteOutBlockIdArray, vtkTypeBool);
+  vtkGetMacro(WriteOutBlockIdArray, vtkTypeBool);
+  vtkBooleanMacro(WriteOutBlockIdArray, vtkTypeBool);
 
   /**
    * By default, the integer array containing the global Node Ids
@@ -145,9 +145,9 @@ public:
    * you do want to include this array, set WriteOutGlobalNodeIdArray to ON.
    */
 
-  vtkSetMacro(WriteOutGlobalNodeIdArray, int);
-  vtkGetMacro(WriteOutGlobalNodeIdArray, int);
-  vtkBooleanMacro(WriteOutGlobalNodeIdArray, int);
+  vtkSetMacro(WriteOutGlobalNodeIdArray, vtkTypeBool);
+  vtkGetMacro(WriteOutGlobalNodeIdArray, vtkTypeBool);
+  vtkBooleanMacro(WriteOutGlobalNodeIdArray, vtkTypeBool);
 
   /**
    * By default, the integer array containing the global Element Ids
@@ -155,18 +155,18 @@ public:
    * do want to include this array, set WriteOutGlobalElementIdArray to ON.
    */
 
-  vtkSetMacro(WriteOutGlobalElementIdArray, int);
-  vtkGetMacro(WriteOutGlobalElementIdArray, int);
-  vtkBooleanMacro(WriteOutGlobalElementIdArray, int);
+  vtkSetMacro(WriteOutGlobalElementIdArray, vtkTypeBool);
+  vtkGetMacro(WriteOutGlobalElementIdArray, vtkTypeBool);
+  vtkBooleanMacro(WriteOutGlobalElementIdArray, vtkTypeBool);
 
   /**
    * When WriteAllTimeSteps is turned ON, the writer is executed once for
    * each timestep available from the reader.
    */
 
-  vtkSetMacro(WriteAllTimeSteps, int);
-  vtkGetMacro(WriteAllTimeSteps, int);
-  vtkBooleanMacro(WriteAllTimeSteps, int);
+  vtkSetMacro(WriteAllTimeSteps, vtkTypeBool);
+  vtkGetMacro(WriteAllTimeSteps, vtkTypeBool);
+  vtkBooleanMacro(WriteAllTimeSteps, vtkTypeBool);
 
   vtkSetStringMacro(BlockIdArrayName);
   vtkGetStringMacro(BlockIdArrayName);
@@ -198,10 +198,10 @@ protected:
 
   int StoreDoubles;
   int GhostLevel;
-  int WriteOutBlockIdArray;
-  int WriteOutGlobalNodeIdArray;
-  int WriteOutGlobalElementIdArray;
-  int WriteAllTimeSteps;
+  vtkTypeBool WriteOutBlockIdArray;
+  vtkTypeBool WriteOutGlobalNodeIdArray;
+  vtkTypeBool WriteOutGlobalElementIdArray;
+  vtkTypeBool WriteAllTimeSteps;
   int NumberOfTimeSteps;
 
   int CurrentTimeIndex;

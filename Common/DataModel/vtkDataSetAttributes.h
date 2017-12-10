@@ -349,39 +349,39 @@ public:
   int GetCopyAttribute (int index, int ctype);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyScalars(int i, int ctype=ALLCOPY);
-  int GetCopyScalars(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyScalars, int);
+  void SetCopyScalars(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyScalars(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyScalars, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyVectors(int i, int ctype=ALLCOPY);
-  int GetCopyVectors(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyVectors, int);
+  void SetCopyVectors(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyVectors(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyVectors, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyNormals(int i, int ctype=ALLCOPY);
-  int GetCopyNormals(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyNormals, int);
+  void SetCopyNormals(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyNormals(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyNormals, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyTCoords(int i, int ctype=ALLCOPY);
-  int GetCopyTCoords(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyTCoords, int);
+  void SetCopyTCoords(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyTCoords(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyTCoords, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyTensors(int i, int ctype=ALLCOPY);
-  int GetCopyTensors(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyTensors, int);
+  void SetCopyTensors(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyTensors(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyTensors, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyGlobalIds(int i, int ctype=ALLCOPY);
-  int GetCopyGlobalIds(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyGlobalIds, int);
+  void SetCopyGlobalIds(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyGlobalIds(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyGlobalIds, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  void SetCopyPedigreeIds(int i, int ctype=ALLCOPY);
-  int GetCopyPedigreeIds(int ctype=ALLCOPY);
-  vtkBooleanMacro(CopyPedigreeIds, int);
+  void SetCopyPedigreeIds(vtkTypeBool i, int ctype=ALLCOPY);
+  vtkTypeBool GetCopyPedigreeIds(int ctype=ALLCOPY);
+  vtkBooleanMacro(CopyPedigreeIds, vtkTypeBool);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void CopyAllOn(int ctype=ALLCOPY) override;

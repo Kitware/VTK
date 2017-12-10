@@ -91,24 +91,24 @@ public:
   /**
    * Choose neighbors to diffuse (6 faces, 12 edges, 8 corners).
    */
-  vtkSetMacro(Faces,int);
-  vtkGetMacro(Faces,int);
-  vtkBooleanMacro(Faces,int);
-  vtkSetMacro(Edges,int);
-  vtkGetMacro(Edges,int);
-  vtkBooleanMacro(Edges,int);
-  vtkSetMacro(Corners,int);
-  vtkGetMacro(Corners,int);
-  vtkBooleanMacro(Corners,int);
+  vtkSetMacro(Faces,vtkTypeBool);
+  vtkGetMacro(Faces,vtkTypeBool);
+  vtkBooleanMacro(Faces,vtkTypeBool);
+  vtkSetMacro(Edges,vtkTypeBool);
+  vtkGetMacro(Edges,vtkTypeBool);
+  vtkBooleanMacro(Edges,vtkTypeBool);
+  vtkSetMacro(Corners,vtkTypeBool);
+  vtkGetMacro(Corners,vtkTypeBool);
+  vtkBooleanMacro(Corners,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Switch between gradient magnitude threshold and pixel gradient threshold.
    */
-  vtkSetMacro(GradientMagnitudeThreshold,int);
-  vtkGetMacro(GradientMagnitudeThreshold,int);
-  vtkBooleanMacro(GradientMagnitudeThreshold,int);
+  vtkSetMacro(GradientMagnitudeThreshold,vtkTypeBool);
+  vtkGetMacro(GradientMagnitudeThreshold,vtkTypeBool);
+  vtkBooleanMacro(GradientMagnitudeThreshold,vtkTypeBool);
   //@}
 
 protected:
@@ -119,11 +119,11 @@ protected:
   double DiffusionThreshold;
   double DiffusionFactor;
   // to determine which neighbors to diffuse
-  int Faces;
-  int Edges;
-  int Corners;
+  vtkTypeBool Faces;
+  vtkTypeBool Edges;
+  vtkTypeBool Corners;
   // What threshold to use
-  int GradientMagnitudeThreshold;
+  vtkTypeBool GradientMagnitudeThreshold;
 
   void ThreadedRequestData(vtkInformation *request,
                            vtkInformationVector **inputVector,

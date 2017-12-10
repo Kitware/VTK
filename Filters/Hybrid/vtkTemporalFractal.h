@@ -79,9 +79,9 @@ public:
   /**
    * For testing ghost levels.
    */
-  vtkSetMacro(GhostLevels, int);
-  vtkGetMacro(GhostLevels, int);
-  vtkBooleanMacro(GhostLevels, int);
+  vtkSetMacro(GhostLevels, vtkTypeBool);
+  vtkGetMacro(GhostLevels, vtkTypeBool);
+  vtkBooleanMacro(GhostLevels, vtkTypeBool);
   //@}
 
   //@{
@@ -89,9 +89,9 @@ public:
    * Generate either rectilinear grids either uniform grids.
    * Default is false.
    */
-  vtkSetMacro(GenerateRectilinearGrids, int);
-  vtkGetMacro(GenerateRectilinearGrids, int);
-  vtkBooleanMacro(GenerateRectilinearGrids, int);
+  vtkSetMacro(GenerateRectilinearGrids, vtkTypeBool);
+  vtkGetMacro(GenerateRectilinearGrids, vtkTypeBool);
+  vtkBooleanMacro(GenerateRectilinearGrids, vtkTypeBool);
   //@}
 
   //@{
@@ -99,18 +99,18 @@ public:
    * Limit this source to discrete integer time steps
    * Default is off (continuous)
    */
-  vtkSetMacro(DiscreteTimeSteps, int);
-  vtkGetMacro(DiscreteTimeSteps, int);
-  vtkBooleanMacro(DiscreteTimeSteps, int);
+  vtkSetMacro(DiscreteTimeSteps, vtkTypeBool);
+  vtkGetMacro(DiscreteTimeSteps, vtkTypeBool);
+  vtkBooleanMacro(DiscreteTimeSteps, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Make a 2D data set to test.
    */
-  vtkSetMacro(TwoDimensional, int);
-  vtkGetMacro(TwoDimensional, int);
-  vtkBooleanMacro(TwoDimensional, int);
+  vtkSetMacro(TwoDimensional, vtkTypeBool);
+  vtkGetMacro(TwoDimensional, vtkTypeBool);
+  vtkBooleanMacro(TwoDimensional, vtkTypeBool);
   //@}
 
   //@{
@@ -126,9 +126,9 @@ public:
   /**
    * Make the division adaptive or not, defaults to Adaptive
    */
-  vtkSetMacro(AdaptiveSubdivision, int);
-  vtkGetMacro(AdaptiveSubdivision, int);
-  vtkBooleanMacro(AdaptiveSubdivision, int);
+  vtkSetMacro(AdaptiveSubdivision, vtkTypeBool);
+  vtkGetMacro(AdaptiveSubdivision, vtkTypeBool);
+  vtkBooleanMacro(AdaptiveSubdivision, vtkTypeBool);
   //@}
 
 
@@ -233,20 +233,20 @@ protected:
   int MaximumLevel;
   int Dimensions;
   float FractalValue;
-  int GhostLevels;
+  vtkTypeBool GhostLevels;
   vtkIntArray *Levels;
-  int TwoDimensional;
-  int DiscreteTimeSteps;
+  vtkTypeBool TwoDimensional;
+  vtkTypeBool DiscreteTimeSteps;
 
   // New method of specifing blocks.
   double TopLevelSpacing[3];
   double TopLevelOrigin[3];
 
-  int GenerateRectilinearGrids;
+  vtkTypeBool GenerateRectilinearGrids;
 
   double CurrentTime;
 
-  int AdaptiveSubdivision;
+  vtkTypeBool AdaptiveSubdivision;
   vtkSmartPointer<TemporalFractalOutputUtil> OutputUtil;
 
 private:

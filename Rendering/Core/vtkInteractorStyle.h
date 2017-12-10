@@ -169,9 +169,9 @@ public:
    * will be made per render, but the camera clipping range will still
    * be reset when the camera is reset.
    */
-  vtkSetClampMacro(AutoAdjustCameraClippingRange, int, 0, 1 );
-  vtkGetMacro(AutoAdjustCameraClippingRange, int );
-  vtkBooleanMacro(AutoAdjustCameraClippingRange, int );
+  vtkSetClampMacro(AutoAdjustCameraClippingRange, vtkTypeBool, 0, 1 );
+  vtkGetMacro(AutoAdjustCameraClippingRange, vtkTypeBool );
+  vtkBooleanMacro(AutoAdjustCameraClippingRange, vtkTypeBool );
   //@}
 
   /**
@@ -192,9 +192,9 @@ public:
   /**
    * Set/Get timer hint
    */
-  vtkGetMacro(UseTimers,int);
-  vtkSetMacro(UseTimers,int);
-  vtkBooleanMacro(UseTimers,int);
+  vtkGetMacro(UseTimers,vtkTypeBool);
+  vtkSetMacro(UseTimers,vtkTypeBool);
+  vtkBooleanMacro(UseTimers,vtkTypeBool);
   //@}
 
   //@{
@@ -212,9 +212,9 @@ public:
   /**
    * Does ProcessEvents handle observers on this class or not
    */
-  vtkSetMacro(HandleObservers,int);
-  vtkGetMacro(HandleObservers,int);
-  vtkBooleanMacro(HandleObservers,int);
+  vtkSetMacro(HandleObservers,vtkTypeBool);
+  vtkGetMacro(HandleObservers,vtkTypeBool);
+  vtkBooleanMacro(HandleObservers,vtkTypeBool);
   //@}
 
   /**
@@ -399,11 +399,11 @@ protected:
   int AnimState;
 
   // Should observers be handled here, should we fire timers
-  int HandleObservers;
-  int UseTimers;
+  vtkTypeBool HandleObservers;
+  vtkTypeBool UseTimers;
   int TimerId; //keep track of the timers that are created/destroyed
 
-  int AutoAdjustCameraClippingRange;
+  vtkTypeBool AutoAdjustCameraClippingRange;
 
   // For picking and highlighting props
   vtkOutlineSource   *Outline;

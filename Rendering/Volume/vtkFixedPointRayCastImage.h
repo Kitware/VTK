@@ -151,9 +151,9 @@ public:
    * is on in the mapper, and when there are props that have been
    * rendered before the current volume.
    */
-  vtkSetClampMacro( UseZBuffer, int, 0, 1 );
-  vtkGetMacro( UseZBuffer, int );
-  vtkBooleanMacro( UseZBuffer, int );
+  vtkSetClampMacro( UseZBuffer, vtkTypeBool, 0, 1 );
+  vtkGetMacro( UseZBuffer, vtkTypeBool );
+  vtkBooleanMacro( UseZBuffer, vtkTypeBool );
   //@}
 
   /**
@@ -218,7 +218,7 @@ protected:
   int             ZBufferOrigin[2];
 
   // This is the flag that indicate whether the ZBuffer is in use
-  int             UseZBuffer;
+  vtkTypeBool             UseZBuffer;
 
   // This is the actual ZBuffer data in floats
   float          *ZBuffer;

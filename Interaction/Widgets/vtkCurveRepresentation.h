@@ -81,9 +81,9 @@ public:
    * 3 for arbitrary oblique planes when the widget is tied to a
    * vtkPlaneSource.
    */
-  vtkSetMacro(ProjectToPlane,int);
-  vtkGetMacro(ProjectToPlane,int);
-  vtkBooleanMacro(ProjectToPlane,int);
+  vtkSetMacro(ProjectToPlane,vtkTypeBool);
+  vtkGetMacro(ProjectToPlane,vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
   //@}
 
   /**
@@ -168,9 +168,9 @@ public:
    * continuous loop: the first and last points are the same.  A
    * minimum of 3 handles are required to form a closed loop.
    */
-  void SetClosed(int closed);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
+  void SetClosed(vtkTypeBool closed);
+  vtkGetMacro(Closed,vtkTypeBool);
+  vtkBooleanMacro(Closed,vtkTypeBool);
   //@}
 
   /**
@@ -178,7 +178,7 @@ public:
    * closed in a geometric sense.  The widget may be set "closed" but still
    * be geometrically open (e.g., a straight line).
    */
-  int IsClosed();
+  vtkTypeBool IsClosed();
 
   /**
    * Get the approximate vs. the true arc length of the curve. Calculated as
@@ -236,7 +236,7 @@ protected:
   // Controlling vars
   int             ProjectionNormal;
   double          ProjectionPosition;
-  int             ProjectToPlane;
+  vtkTypeBool             ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
   // Projection capabilities
@@ -245,7 +245,7 @@ protected:
   void ProjectPointsToObliquePlane();
 
   int NumberOfHandles;
-  int Closed;
+  vtkTypeBool Closed;
 
   // The line segments
   vtkActor           *LineActor;

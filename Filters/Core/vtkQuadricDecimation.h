@@ -88,9 +88,9 @@ public:
    * then only geometric error is used to control the decimation. By default
    * the attribute errors are off.
    */
-  vtkSetMacro(AttributeErrorMetric, int);
-  vtkGetMacro(AttributeErrorMetric, int);
-  vtkBooleanMacro(AttributeErrorMetric, int);
+  vtkSetMacro(AttributeErrorMetric, vtkTypeBool);
+  vtkGetMacro(AttributeErrorMetric, vtkTypeBool);
+  vtkBooleanMacro(AttributeErrorMetric, vtkTypeBool);
   //@}
 
   //@{
@@ -101,9 +101,9 @@ public:
    * By default VolumePreservation is off
    * the attribute errors are off.
    */
-  vtkSetMacro(VolumePreservation, int);
-  vtkGetMacro(VolumePreservation, int);
-  vtkBooleanMacro(VolumePreservation, int);
+  vtkSetMacro(VolumePreservation, vtkTypeBool);
+  vtkGetMacro(VolumePreservation, vtkTypeBool);
+  vtkBooleanMacro(VolumePreservation, vtkTypeBool);
   //@}
 
   //@{
@@ -113,21 +113,21 @@ public:
    * attributes are to be included in the error calculation. By default all
    * of these are on.
    */
-  vtkSetMacro(ScalarsAttribute, int);
-  vtkGetMacro(ScalarsAttribute, int);
-  vtkBooleanMacro(ScalarsAttribute, int);
-  vtkSetMacro(VectorsAttribute, int);
-  vtkGetMacro(VectorsAttribute, int);
-  vtkBooleanMacro(VectorsAttribute, int);
-  vtkSetMacro(NormalsAttribute, int);
-  vtkGetMacro(NormalsAttribute, int);
-  vtkBooleanMacro(NormalsAttribute, int);
-  vtkSetMacro(TCoordsAttribute, int);
-  vtkGetMacro(TCoordsAttribute, int);
-  vtkBooleanMacro(TCoordsAttribute, int);
-  vtkSetMacro(TensorsAttribute, int);
-  vtkGetMacro(TensorsAttribute, int);
-  vtkBooleanMacro(TensorsAttribute, int);
+  vtkSetMacro(ScalarsAttribute, vtkTypeBool);
+  vtkGetMacro(ScalarsAttribute, vtkTypeBool);
+  vtkBooleanMacro(ScalarsAttribute, vtkTypeBool);
+  vtkSetMacro(VectorsAttribute, vtkTypeBool);
+  vtkGetMacro(VectorsAttribute, vtkTypeBool);
+  vtkBooleanMacro(VectorsAttribute, vtkTypeBool);
+  vtkSetMacro(NormalsAttribute, vtkTypeBool);
+  vtkGetMacro(NormalsAttribute, vtkTypeBool);
+  vtkBooleanMacro(NormalsAttribute, vtkTypeBool);
+  vtkSetMacro(TCoordsAttribute, vtkTypeBool);
+  vtkGetMacro(TCoordsAttribute, vtkTypeBool);
+  vtkBooleanMacro(TCoordsAttribute, vtkTypeBool);
+  vtkSetMacro(TensorsAttribute, vtkTypeBool);
+  vtkGetMacro(TensorsAttribute, vtkTypeBool);
+  vtkBooleanMacro(TensorsAttribute, vtkTypeBool);
   //@}
 
   //@{
@@ -232,14 +232,14 @@ protected:
 
   double TargetReduction;
   double ActualReduction;
-  int   AttributeErrorMetric;
-  int   VolumePreservation;
+  vtkTypeBool   AttributeErrorMetric;
+  vtkTypeBool   VolumePreservation;
 
-  int ScalarsAttribute;
-  int VectorsAttribute;
-  int NormalsAttribute;
-  int TCoordsAttribute;
-  int TensorsAttribute;
+  vtkTypeBool ScalarsAttribute;
+  vtkTypeBool VectorsAttribute;
+  vtkTypeBool NormalsAttribute;
+  vtkTypeBool TCoordsAttribute;
+  vtkTypeBool TensorsAttribute;
 
   double ScalarsWeight;
   double VectorsWeight;

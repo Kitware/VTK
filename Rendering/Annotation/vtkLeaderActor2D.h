@@ -169,9 +169,9 @@ public:
    * if a curved leader is being generated, the angle in degrees between the
    * two points.
    */
-  vtkSetMacro(AutoLabel,int);
-  vtkGetMacro(AutoLabel,int);
-  vtkBooleanMacro(AutoLabel,int);
+  vtkSetMacro(AutoLabel,vtkTypeBool);
+  vtkGetMacro(AutoLabel,vtkTypeBool);
+  vtkBooleanMacro(AutoLabel,vtkTypeBool);
   //@}
 
   //@{
@@ -228,7 +228,7 @@ protected:
   double Length;
   double Angle;
 
-  int              AutoLabel;
+  vtkTypeBool              AutoLabel;
   char            *LabelFormat;
   char            *Label;
   double           LabelFactor;

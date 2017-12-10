@@ -108,9 +108,9 @@ public:
      * To get around problems with the Paraview Animation controls
      * we can just animate the time step and ignore the TIME_ requests
      */
-    vtkSetMacro(IgnorePipelineTime, int);
-    vtkGetMacro(IgnorePipelineTime, int);
-    vtkBooleanMacro(IgnorePipelineTime, int);
+    vtkSetMacro(IgnorePipelineTime, vtkTypeBool);
+    vtkGetMacro(IgnorePipelineTime, vtkTypeBool);
+    vtkBooleanMacro(IgnorePipelineTime, vtkTypeBool);
     //@}
 
     //@{
@@ -178,9 +178,9 @@ public:
      * If StaticSeeds is set and a moving seed source is specified
      * the motion will be ignored and results will not be as expected.
      */
-    vtkSetMacro(StaticSeeds,int);
-    vtkGetMacro(StaticSeeds,int);
-    vtkBooleanMacro(StaticSeeds,int);
+    vtkSetMacro(StaticSeeds,vtkTypeBool);
+    vtkGetMacro(StaticSeeds,vtkTypeBool);
+    vtkBooleanMacro(StaticSeeds,vtkTypeBool);
     //@}
 
     //@{
@@ -192,9 +192,9 @@ public:
      * Do not Set StaticMesh to true if a dynamic mesh is being used
      * as this will invalidate all results.
      */
-    vtkSetMacro(StaticMesh,int);
-    vtkGetMacro(StaticMesh,int);
-    vtkBooleanMacro(StaticMesh,int);
+    vtkSetMacro(StaticMesh,vtkTypeBool);
+    vtkGetMacro(StaticMesh,vtkTypeBool);
+    vtkBooleanMacro(StaticMesh,vtkTypeBool);
     //@}
 
     //@{
@@ -222,9 +222,9 @@ public:
      * Set/Get the filename to be used with the particle writer when
      * dumping particles to disk
      */
-    vtkSetMacro(EnableParticleWriting,int);
-    vtkGetMacro(EnableParticleWriting,int);
-    vtkBooleanMacro(EnableParticleWriting,int);
+    vtkSetMacro(EnableParticleWriting,vtkTypeBool);
+    vtkGetMacro(EnableParticleWriting,vtkTypeBool);
+    vtkBooleanMacro(EnableParticleWriting,vtkTypeBool);
     //@}
 
     //@{
@@ -381,13 +381,13 @@ public:
 
     // Important for Caching of Cells/Ids/Weights etc
     int           AllFixedGeometry;
-    int           StaticMesh;
-    int           StaticSeeds;
+    vtkTypeBool           StaticMesh;
+    vtkTypeBool           StaticSeeds;
 
     // Support 'pipeline' time or manual SetTimeStep
     unsigned int  TimeStep;
     unsigned int  ActualTimeStep;
-    int           IgnorePipelineTime;
+    vtkTypeBool           IgnorePipelineTime;
     unsigned int  NumberOfInputTimeSteps;
 
     std::vector<double>  InputTimeValues;
@@ -411,7 +411,7 @@ public:
     // Particle writing to disk
     vtkAbstractParticleWriter *ParticleWriter;
     char                      *ParticleFileName;
-    int                        EnableParticleWriting;
+    vtkTypeBool                        EnableParticleWriting;
 
     // The main lists which are held during operation- between time step updates
     unsigned int                                        NumberOfParticles;

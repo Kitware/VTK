@@ -127,9 +127,9 @@ public:
    * Enable reading from an InputString or InputArray instead of the default,
    * a file.
    */
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  vtkSetMacro(ReadFromInputString,vtkTypeBool);
+  vtkGetMacro(ReadFromInputString,vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString,vtkTypeBool);
   //@}
 
   //@{
@@ -241,63 +241,63 @@ public:
   /**
    * Enable reading all scalars.
    */
-  vtkSetMacro(ReadAllScalars,int);
-  vtkGetMacro(ReadAllScalars,int);
-  vtkBooleanMacro(ReadAllScalars,int);
+  vtkSetMacro(ReadAllScalars,vtkTypeBool);
+  vtkGetMacro(ReadAllScalars,vtkTypeBool);
+  vtkBooleanMacro(ReadAllScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all vectors.
    */
-  vtkSetMacro(ReadAllVectors,int);
-  vtkGetMacro(ReadAllVectors,int);
-  vtkBooleanMacro(ReadAllVectors,int);
+  vtkSetMacro(ReadAllVectors,vtkTypeBool);
+  vtkGetMacro(ReadAllVectors,vtkTypeBool);
+  vtkBooleanMacro(ReadAllVectors,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all normals.
    */
-  vtkSetMacro(ReadAllNormals,int);
-  vtkGetMacro(ReadAllNormals,int);
-  vtkBooleanMacro(ReadAllNormals,int);
+  vtkSetMacro(ReadAllNormals,vtkTypeBool);
+  vtkGetMacro(ReadAllNormals,vtkTypeBool);
+  vtkBooleanMacro(ReadAllNormals,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all tensors.
    */
-  vtkSetMacro(ReadAllTensors,int);
-  vtkGetMacro(ReadAllTensors,int);
-  vtkBooleanMacro(ReadAllTensors,int);
+  vtkSetMacro(ReadAllTensors,vtkTypeBool);
+  vtkGetMacro(ReadAllTensors,vtkTypeBool);
+  vtkBooleanMacro(ReadAllTensors,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all color scalars.
    */
-  vtkSetMacro(ReadAllColorScalars,int);
-  vtkGetMacro(ReadAllColorScalars,int);
-  vtkBooleanMacro(ReadAllColorScalars,int);
+  vtkSetMacro(ReadAllColorScalars,vtkTypeBool);
+  vtkGetMacro(ReadAllColorScalars,vtkTypeBool);
+  vtkBooleanMacro(ReadAllColorScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all tcoords.
    */
-  vtkSetMacro(ReadAllTCoords,int);
-  vtkGetMacro(ReadAllTCoords,int);
-  vtkBooleanMacro(ReadAllTCoords,int);
+  vtkSetMacro(ReadAllTCoords,vtkTypeBool);
+  vtkGetMacro(ReadAllTCoords,vtkTypeBool);
+  vtkBooleanMacro(ReadAllTCoords,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable reading all fields.
    */
-  vtkSetMacro(ReadAllFields,int);
-  vtkGetMacro(ReadAllFields,int);
-  vtkBooleanMacro(ReadAllFields,int);
+  vtkSetMacro(ReadAllFields,vtkTypeBool);
+  vtkGetMacro(ReadAllFields,vtkTypeBool);
+  vtkBooleanMacro(ReadAllFields,vtkTypeBool);
   //@}
 
   /**
@@ -462,7 +462,7 @@ protected:
   char *FieldDataName;
   char *ScalarLut;
 
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
   char *InputString;
   int InputStringLength;
   int InputStringPos;
@@ -511,13 +511,13 @@ protected:
   int FieldDataNameAllocSize;
   vtkTimeStamp CharacteristicsTime;
 
-  int ReadAllScalars;
-  int ReadAllVectors;
-  int ReadAllNormals;
-  int ReadAllTensors;
-  int ReadAllColorScalars;
-  int ReadAllTCoords;
-  int ReadAllFields;
+  vtkTypeBool ReadAllScalars;
+  vtkTypeBool ReadAllVectors;
+  vtkTypeBool ReadAllNormals;
+  vtkTypeBool ReadAllTensors;
+  vtkTypeBool ReadAllColorScalars;
+  vtkTypeBool ReadAllTCoords;
+  vtkTypeBool ReadAllFields;
   int FileMajorVersion;
   int FileMinorVersion;
 

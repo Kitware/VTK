@@ -222,9 +222,9 @@ public:
    * be supported for every type of window and on some windows you may
    * need to invoke this prior to the first render.
    */
-  virtual void SetOffScreenRendering(int);
-  virtual int GetOffScreenRendering();
-  vtkBooleanMacro(OffScreenRendering,int);
+  virtual void SetOffScreenRendering(vtkTypeBool);
+  virtual vtkTypeBool GetOffScreenRendering();
+  vtkBooleanMacro(OffScreenRendering,vtkTypeBool);
   //@}
 
 protected:

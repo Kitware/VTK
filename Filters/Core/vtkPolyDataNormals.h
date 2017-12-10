@@ -91,18 +91,18 @@ public:
   /**
    * Turn on/off the splitting of sharp edges.
    */
-  vtkSetMacro(Splitting,int);
-  vtkGetMacro(Splitting,int);
-  vtkBooleanMacro(Splitting,int);
+  vtkSetMacro(Splitting,vtkTypeBool);
+  vtkGetMacro(Splitting,vtkTypeBool);
+  vtkBooleanMacro(Splitting,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the enforcement of consistent polygon ordering.
    */
-  vtkSetMacro(Consistency,int);
-  vtkGetMacro(Consistency,int);
-  vtkBooleanMacro(Consistency,int);
+  vtkSetMacro(Consistency,vtkTypeBool);
+  vtkGetMacro(Consistency,vtkTypeBool);
+  vtkBooleanMacro(Consistency,vtkTypeBool);
   //@}
 
   //@{
@@ -181,8 +181,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double FeatureAngle;
-  int Splitting;
-  int Consistency;
+  vtkTypeBool Splitting;
+  vtkTypeBool Consistency;
   vtkTypeBool FlipNormals;
   vtkTypeBool AutoOrientNormals;
   vtkTypeBool NonManifoldTraversal;

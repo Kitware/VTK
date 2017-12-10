@@ -125,9 +125,9 @@ public:
    * scaled up using the right mouse button, and the bounds can be manually
    * set with the SetBounds() method.)
    */
-  void SetTranslationMode(int mode);
-  vtkGetMacro(TranslationMode,int);
-  vtkBooleanMacro(TranslationMode,int);
+  void SetTranslationMode(vtkTypeBool mode);
+  vtkGetMacro(TranslationMode,vtkTypeBool);
+  vtkBooleanMacro(TranslationMode,vtkTypeBool);
   //@}
 
   //@{
@@ -227,9 +227,9 @@ public:
    * inherent restrictions on handle placement might conflict with a request
    * for smooth motion of the handles.
    */
-  vtkSetMacro( SmoothMotion, int );
-  vtkGetMacro( SmoothMotion, int );
-  vtkBooleanMacro( SmoothMotion, int );
+  vtkSetMacro( SmoothMotion, vtkTypeBool );
+  vtkGetMacro( SmoothMotion, vtkTypeBool );
+  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
   //@}
 
 protected:
@@ -285,9 +285,9 @@ protected:
   double CurrentHandleSize;
 
   // Control how translation works
-  int TranslationMode;
+  vtkTypeBool TranslationMode;
 
-  int SmoothMotion;
+  vtkTypeBool SmoothMotion;
 
 private:
   vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&) = delete;

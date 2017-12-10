@@ -89,9 +89,9 @@ public:
    * This process does not otherwise normalize the gradient vector.
    * By default, NormalizeByWeight is off.
    */
-  vtkSetMacro(NormalizeByWeight, int);
-  vtkGetMacro(NormalizeByWeight, int);
-  vtkBooleanMacro(NormalizeByWeight, int);
+  vtkSetMacro(NormalizeByWeight, vtkTypeBool);
+  vtkGetMacro(NormalizeByWeight, vtkTypeBool);
+  vtkBooleanMacro(NormalizeByWeight, vtkTypeBool);
   //@}
 
 protected:
@@ -103,7 +103,7 @@ protected:
   double TotalWeight;
 
   void CalculateTotalWeight(void);
-  int NormalizeByWeight;
+  vtkTypeBool NormalizeByWeight;
 
 private:
   vtkImplicitSum(const vtkImplicitSum&) = delete;

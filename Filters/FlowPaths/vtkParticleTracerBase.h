@@ -140,9 +140,9 @@ public:
    * To get around problems with the Paraview Animation controls
    * we can just animate the time step and ignore the TIME_ requests
    */
-  vtkSetMacro(IgnorePipelineTime, int);
-  vtkGetMacro(IgnorePipelineTime, int);
-  vtkBooleanMacro(IgnorePipelineTime, int);
+  vtkSetMacro(IgnorePipelineTime, vtkTypeBool);
+  vtkGetMacro(IgnorePipelineTime, vtkTypeBool);
+  vtkBooleanMacro(IgnorePipelineTime, vtkTypeBool);
   //@}
 
   //@{
@@ -238,9 +238,9 @@ public:
    * Set/Get the filename to be used with the particle writer when
    * dumping particles to disk
    */
-  vtkSetMacro(EnableParticleWriting,int);
-  vtkGetMacro(EnableParticleWriting,int);
-  vtkBooleanMacro(EnableParticleWriting,int);
+  vtkSetMacro(EnableParticleWriting,vtkTypeBool);
+  vtkGetMacro(EnableParticleWriting,vtkTypeBool);
+  vtkBooleanMacro(EnableParticleWriting,vtkTypeBool);
   //@}
 
   //@{
@@ -249,9 +249,9 @@ public:
    * This is off by default and turned on in special circumstances
    * such as in a coprocessing workflow
    */
-  vtkSetMacro(DisableResetCache,int);
-  vtkGetMacro(DisableResetCache,int);
-  vtkBooleanMacro(DisableResetCache,int);
+  vtkSetMacro(DisableResetCache,vtkTypeBool);
+  vtkGetMacro(DisableResetCache,vtkTypeBool);
+  vtkBooleanMacro(DisableResetCache,vtkTypeBool);
   //@}
 
   //@{
@@ -275,8 +275,8 @@ public:
   vtkSmartPointer<vtkPointData>     ParticlePointData; //the current particle point data consistent
                                                        //with particle history
   //Everything related to time
-  int IgnorePipelineTime; //whether to use the pipeline time for termination
-  int DisableResetCache; //whether to enable ResetCache() method
+  vtkTypeBool IgnorePipelineTime; //whether to use the pipeline time for termination
+  vtkTypeBool DisableResetCache; //whether to enable ResetCache() method
   //@}
 
   vtkParticleTracerBase();
@@ -531,7 +531,7 @@ public:
   // Particle writing to disk
   vtkAbstractParticleWriter *ParticleWriter;
   char                      *ParticleFileName;
-  int                        EnableParticleWriting;
+  vtkTypeBool                        EnableParticleWriting;
 
 
   // The main lists which are held during operation- between time step updates

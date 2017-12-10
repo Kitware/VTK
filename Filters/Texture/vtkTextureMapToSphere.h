@@ -84,9 +84,9 @@ public:
    * theta angle variation between 0->180 and 180->0 degrees. Otherwise, the
    * s-coordinate ranges from 0->1 between 0->360 degrees.
    */
-  vtkSetMacro(PreventSeam,int);
-  vtkGetMacro(PreventSeam,int);
-  vtkBooleanMacro(PreventSeam,int);
+  vtkSetMacro(PreventSeam,vtkTypeBool);
+  vtkGetMacro(PreventSeam,vtkTypeBool);
+  vtkBooleanMacro(PreventSeam,vtkTypeBool);
   //@}
 
 protected:
@@ -97,7 +97,7 @@ protected:
 
   double Center[3];
   vtkTypeBool AutomaticSphereGeneration;
-  int PreventSeam;
+  vtkTypeBool PreventSeam;
 
 private:
   vtkTextureMapToSphere(const vtkTextureMapToSphere&) = delete;

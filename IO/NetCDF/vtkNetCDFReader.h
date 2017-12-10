@@ -126,9 +126,9 @@ public:
    * this option should be used with caution as VTK does not fully support NaN
    * values and therefore odd calculations may occur.  By default this is off.
    */
-  vtkGetMacro(ReplaceFillValueWithNan, int);
-  vtkSetMacro(ReplaceFillValueWithNan, int);
-  vtkBooleanMacro(ReplaceFillValueWithNan, int);
+  vtkGetMacro(ReplaceFillValueWithNan, vtkTypeBool);
+  vtkSetMacro(ReplaceFillValueWithNan, vtkTypeBool);
+  vtkBooleanMacro(ReplaceFillValueWithNan, vtkTypeBool);
   //@}
 
   //@{
@@ -173,7 +173,7 @@ protected:
    */
   vtkStringArray *AllDimensions;
 
-  int ReplaceFillValueWithNan;
+  vtkTypeBool ReplaceFillValueWithNan;
 
   int WholeExtent[6];
 

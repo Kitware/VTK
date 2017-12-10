@@ -128,8 +128,8 @@ public:
   /**
    * Method for activating and deactivating all widgets in the group.
    */
-  virtual void SetEnabled(int);
-  vtkBooleanMacro(Enabled, int);
+  virtual void SetEnabled(vtkTypeBool);
+  vtkBooleanMacro(Enabled, vtkTypeBool);
   //@}
 
   /**

@@ -200,9 +200,9 @@ public:
    * Some subclasses use this data member to keep track of whether to render
    * or not (i.e., to minimize the total number of renders).
    */
-  vtkGetMacro( NeedToRender, int );
-  vtkSetClampMacro( NeedToRender, int, 0, 1 );
-  vtkBooleanMacro( NeedToRender, int );
+  vtkGetMacro( NeedToRender, vtkTypeBool );
+  vtkSetClampMacro( NeedToRender, vtkTypeBool, 0, 1 );
+  vtkBooleanMacro( NeedToRender, vtkTypeBool );
   //@}
 
   /**
@@ -298,7 +298,7 @@ protected:
   double SizeHandlesInPixels(double factor,double pos[3]);
 
   // Try and reduce multiple renders
-  int NeedToRender;
+  vtkTypeBool NeedToRender;
 
   // This is the time that the representation was built. This data member
   // can be used to reduce the time spent building the widget.

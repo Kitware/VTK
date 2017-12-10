@@ -97,9 +97,9 @@ public:
    * value is less than or equal to the Value ivar.  InsideOut is off
    * by default.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   //@{
@@ -120,9 +120,9 @@ public:
    * implicit function an error will be reported.
    * GenerateClipScalars is off by default.
    */
-  vtkSetMacro(GenerateClipScalars,int);
-  vtkGetMacro(GenerateClipScalars,int);
-  vtkBooleanMacro(GenerateClipScalars,int);
+  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -131,9 +131,9 @@ public:
    * contains the polygonal data that's been clipped away.
    * GenerateClippedOutput is off by default.
    */
-  vtkSetMacro(GenerateClippedOutput,int);
-  vtkGetMacro(GenerateClippedOutput,int);
-  vtkBooleanMacro(GenerateClippedOutput,int);
+  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
   //@}
 
   /**
@@ -188,10 +188,10 @@ protected:
   vtkImplicitFunction *ClipFunction;
 
   vtkIncrementalPointLocator *Locator;
-  int InsideOut;
+  vtkTypeBool InsideOut;
   double Value;
-  int GenerateClipScalars;
-  int GenerateClippedOutput;
+  vtkTypeBool GenerateClipScalars;
+  vtkTypeBool GenerateClippedOutput;
   int OutputPointsPrecision;
 
 private:

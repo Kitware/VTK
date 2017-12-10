@@ -90,9 +90,9 @@ public:
   /**
    * Recurse into subdirectories.
    */
-  vtkSetMacro(Recurse, int);
-  vtkBooleanMacro(Recurse, int);
-  vtkGetMacro(Recurse, int);
+  vtkSetMacro(Recurse, vtkTypeBool);
+  vtkBooleanMacro(Recurse, vtkTypeBool);
+  vtkGetMacro(Recurse, vtkTypeBool);
   //@}
 
   /**
@@ -127,7 +127,7 @@ protected:
 private:
   char* Directory;          // Directory for search.
   char* Pattern;            // Wildcard pattern
-  int Recurse;              // Recurse into subdirectories
+  vtkTypeBool Recurse;              // Recurse into subdirectories
   vtkStringArray *FileNames;    // VTK array of files
 
 private:

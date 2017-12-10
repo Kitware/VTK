@@ -82,18 +82,18 @@ public:
    * Use the entire RenderWindow as a data source or just the Renderer.
    * The default is zero, just the Renderer.
    */
-  vtkSetMacro(WholeWindow, int);
-  vtkGetMacro(WholeWindow, int);
-  vtkBooleanMacro(WholeWindow, int);
+  vtkSetMacro(WholeWindow, vtkTypeBool);
+  vtkGetMacro(WholeWindow, vtkTypeBool);
+  vtkBooleanMacro(WholeWindow, vtkTypeBool);
   //@}
 
   //@{
   /**
    * If this flag is on, then filter execution causes a render first.
    */
-  vtkSetMacro(RenderFlag, int);
-  vtkGetMacro(RenderFlag, int);
-  vtkBooleanMacro(RenderFlag, int);
+  vtkSetMacro(RenderFlag, vtkTypeBool);
+  vtkGetMacro(RenderFlag, vtkTypeBool);
+  vtkBooleanMacro(RenderFlag, vtkTypeBool);
   //@}
 
   //@{
@@ -102,9 +102,9 @@ public:
    * (i.e., depth values) along with the image data. The z-buffer data
    * is placed into a field data attributes named "ZBuffer" .
    */
-  vtkSetMacro(DepthValues, int);
-  vtkGetMacro(DepthValues, int);
-  vtkBooleanMacro(DepthValues, int);
+  vtkSetMacro(DepthValues, vtkTypeBool);
+  vtkGetMacro(DepthValues, vtkTypeBool);
+  vtkBooleanMacro(DepthValues, vtkTypeBool);
   //@}
 
   //@{
@@ -114,9 +114,9 @@ public:
    * is placed in the scalars as a fourth Z component (shift and scaled
    * to map the full 0..255 range).
    */
-  vtkSetMacro(DepthValuesInScalars, int);
-  vtkGetMacro(DepthValuesInScalars, int);
-  vtkBooleanMacro(DepthValuesInScalars, int);
+  vtkSetMacro(DepthValuesInScalars, vtkTypeBool);
+  vtkGetMacro(DepthValuesInScalars, vtkTypeBool);
+  vtkBooleanMacro(DepthValuesInScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -128,9 +128,9 @@ public:
    * disabled. Note that if enabled, then the DepthValues and
    * DepthValuesInScalars are ignored.
    */
-  vtkSetMacro(DepthValuesOnly, int);
-  vtkGetMacro(DepthValuesOnly, int);
-  vtkBooleanMacro(DepthValuesOnly, int);
+  vtkSetMacro(DepthValuesOnly, vtkTypeBool);
+  vtkGetMacro(DepthValuesOnly, vtkTypeBool);
+  vtkBooleanMacro(DepthValuesOnly, vtkTypeBool);
   //@}
 
   /**
@@ -157,11 +157,11 @@ protected:
                                   vtkInformationVector*);
 
   vtkRenderer *Input;
-  int WholeWindow;
-  int RenderFlag;
-  int DepthValues;
-  int DepthValuesInScalars;
-  int DepthValuesOnly;
+  vtkTypeBool WholeWindow;
+  vtkTypeBool RenderFlag;
+  vtkTypeBool DepthValues;
+  vtkTypeBool DepthValuesInScalars;
+  vtkTypeBool DepthValuesOnly;
 
   // see algorithm for more info
   int FillOutputPortInformation(int port, vtkInformation* info) override;

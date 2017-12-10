@@ -152,9 +152,9 @@ public:
    * Indicate whether the generating lines are to be passed to the output.
    * By default lines are not passed to the output.
    */
-  vtkSetMacro(PassLines,int);
-  vtkGetMacro(PassLines,int);
-  vtkBooleanMacro(PassLines,int);
+  vtkSetMacro(PassLines,vtkTypeBool);
+  vtkGetMacro(PassLines,vtkTypeBool);
+  vtkBooleanMacro(PassLines,vtkTypeBool);
   //@}
 
   //@{
@@ -164,9 +164,9 @@ public:
    * always connected
    * By default the loops are not oriented.
    */
-  vtkSetMacro(OrientLoops,int);
-  vtkGetMacro(OrientLoops,int);
-  vtkBooleanMacro(OrientLoops,int);
+  vtkSetMacro(OrientLoops,vtkTypeBool);
+  vtkGetMacro(OrientLoops,vtkTypeBool);
+  vtkBooleanMacro(OrientLoops,vtkTypeBool);
   //@}
 
 protected:
@@ -182,8 +182,8 @@ protected:
   vtkTypeBool   CloseSurface;
   int   RuledMode;
   int   Resolution[2];
-  int   PassLines;
-  int   OrientLoops;
+  vtkTypeBool   PassLines;
+  vtkTypeBool   OrientLoops;
 
 private:
   vtkIdList *Ids;

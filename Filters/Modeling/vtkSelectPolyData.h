@@ -110,9 +110,9 @@ public:
    * If off, the filter outputs the cells laying inside the loop, and
    * does not generate scalars.
    */
-  vtkSetMacro(GenerateSelectionScalars,int);
-  vtkGetMacro(GenerateSelectionScalars,int);
-  vtkBooleanMacro(GenerateSelectionScalars,int);
+  vtkSetMacro(GenerateSelectionScalars,vtkTypeBool);
+  vtkGetMacro(GenerateSelectionScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateSelectionScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -120,9 +120,9 @@ public:
    * Set/Get the InsideOut flag. When off, the mesh within the loop is
    * extracted. When on, the mesh outside the loop is extracted.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   //@{
@@ -163,9 +163,9 @@ public:
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's not been selected.
    */
-  vtkSetMacro(GenerateUnselectedOutput,int);
-  vtkGetMacro(GenerateUnselectedOutput,int);
-  vtkBooleanMacro(GenerateUnselectedOutput,int);
+  vtkSetMacro(GenerateUnselectedOutput,vtkTypeBool);
+  vtkGetMacro(GenerateUnselectedOutput,vtkTypeBool);
+  vtkBooleanMacro(GenerateUnselectedOutput,vtkTypeBool);
   //@}
 
   /**
@@ -188,12 +188,12 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int GenerateSelectionScalars;
-  int InsideOut;
+  vtkTypeBool GenerateSelectionScalars;
+  vtkTypeBool InsideOut;
   vtkPoints *Loop;
   int SelectionMode;
   double ClosestPoint[3];
-  int GenerateUnselectedOutput;
+  vtkTypeBool GenerateUnselectedOutput;
 
 private:
   vtkPolyData *Mesh;

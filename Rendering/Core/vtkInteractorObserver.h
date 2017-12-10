@@ -122,9 +122,9 @@ public:
    * observer".)  Set the KeyPressActivationValue to change which key
    * activates the widget.)
    */
-  vtkSetMacro(KeyPressActivation,int);
-  vtkGetMacro(KeyPressActivation,int);
-  vtkBooleanMacro(KeyPressActivation,int);
+  vtkSetMacro(KeyPressActivation,vtkTypeBool);
+  vtkGetMacro(KeyPressActivation,vtkTypeBool);
+  vtkBooleanMacro(KeyPressActivation,vtkTypeBool);
   //@}
 
   //@{
@@ -277,7 +277,7 @@ protected:
                                    vtkAbstractPropPicker* picker);
 
   // Keypress activation controls
-  int KeyPressActivation;
+  vtkTypeBool KeyPressActivation;
   char KeyPressActivationValue;
 
   // Used to associate observers with the interactor

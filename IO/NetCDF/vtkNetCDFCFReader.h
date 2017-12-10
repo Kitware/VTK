@@ -57,9 +57,9 @@ public:
    * will be read in as curvilinear data shaped like spherical coordinates.
    * If false, then the data will always be read in Cartesian coordinates.
    */
-  vtkGetMacro(SphericalCoordinates, int);
-  vtkSetMacro(SphericalCoordinates, int);
-  vtkBooleanMacro(SphericalCoordinates, int);
+  vtkGetMacro(SphericalCoordinates, vtkTypeBool);
+  vtkSetMacro(SphericalCoordinates, vtkTypeBool);
+  vtkBooleanMacro(SphericalCoordinates, vtkTypeBool);
   //@}
 
   //@{
@@ -108,7 +108,7 @@ protected:
   vtkNetCDFCFReader();
   ~vtkNetCDFCFReader() override;
 
-  int SphericalCoordinates;
+  vtkTypeBool SphericalCoordinates;
 
   double VerticalScale;
   double VerticalBias;

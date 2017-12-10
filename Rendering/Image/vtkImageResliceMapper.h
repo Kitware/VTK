@@ -65,9 +65,9 @@ public:
    * where a new slice is interpolated between the original slices.  This
    * flag is ignored if the slicing is oblique to the original slices.
    */
-  vtkSetMacro(JumpToNearestSlice, int);
-  vtkBooleanMacro(JumpToNearestSlice, int);
-  vtkGetMacro(JumpToNearestSlice, int);
+  vtkSetMacro(JumpToNearestSlice, vtkTypeBool);
+  vtkBooleanMacro(JumpToNearestSlice, vtkTypeBool);
+  vtkGetMacro(JumpToNearestSlice, vtkTypeBool);
   //@}
 
   //@{
@@ -127,9 +127,9 @@ public:
    * Automatically reduce the rendering quality for greater speed
    * when doing an interactive render.  This is on by default.
    */
-  vtkSetMacro(AutoAdjustImageQuality, int);
-  vtkBooleanMacro(AutoAdjustImageQuality, int);
-  vtkGetMacro(AutoAdjustImageQuality, int);
+  vtkSetMacro(AutoAdjustImageQuality, vtkTypeBool);
+  vtkBooleanMacro(AutoAdjustImageQuality, vtkTypeBool);
+  vtkGetMacro(AutoAdjustImageQuality, vtkTypeBool);
   //@}
 
   //@{
@@ -139,9 +139,9 @@ public:
    * slower and uses more memory, but provides high-quality results.
    * It is On by default.
    */
-  vtkSetMacro(ResampleToScreenPixels, int);
-  vtkBooleanMacro(ResampleToScreenPixels, int);
-  vtkGetMacro(ResampleToScreenPixels, int);
+  vtkSetMacro(ResampleToScreenPixels, vtkTypeBool);
+  vtkBooleanMacro(ResampleToScreenPixels, vtkTypeBool);
+  vtkGetMacro(ResampleToScreenPixels, vtkTypeBool);
   //@}
 
   //@{
@@ -151,9 +151,9 @@ public:
    * window/level operations, but it uses more memory and might slow down
    * interactive slicing operations.  On by default.
    */
-  vtkSetMacro(SeparateWindowLevelOperation, int);
-  vtkBooleanMacro(SeparateWindowLevelOperation, int);
-  vtkGetMacro(SeparateWindowLevelOperation, int);
+  vtkSetMacro(SeparateWindowLevelOperation, vtkTypeBool);
+  vtkBooleanMacro(SeparateWindowLevelOperation, vtkTypeBool);
+  vtkGetMacro(SeparateWindowLevelOperation, vtkTypeBool);
   //@}
 
   //@{
@@ -263,14 +263,14 @@ protected:
 
   vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 
-  int JumpToNearestSlice; // Adjust SliceAtFocalPoint
-  int AutoAdjustImageQuality; // LOD-style behavior
-  int SeparateWindowLevelOperation; // Do window/level as a separate step
+  vtkTypeBool JumpToNearestSlice; // Adjust SliceAtFocalPoint
+  vtkTypeBool AutoAdjustImageQuality; // LOD-style behavior
+  vtkTypeBool SeparateWindowLevelOperation; // Do window/level as a separate step
   double SlabThickness; // Current slab thickness
   int SlabType; // Current slab mode
   int SlabSampleFactor; // Sampling factor for slab mode
   int ImageSampleFactor; // Sampling factor for image pixels
-  int ResampleToScreenPixels; // Use software interpolation only
+  vtkTypeBool ResampleToScreenPixels; // Use software interpolation only
   int InternalResampleToScreenPixels; // Use software interpolation only
   int ResliceNeedUpdate; // Execute reslice on next render
   vtkImageResliceToColors *ImageReslice; // For software interpolation

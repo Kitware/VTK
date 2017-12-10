@@ -117,12 +117,12 @@ public:
    * A label may be associated with the cube. The string can be set via
    * SetLabelText. The visibility of the label can be turned on / off.
    */
-  vtkSetMacro( LabelVisibility, int );
-  vtkGetMacro( LabelVisibility, int );
-  vtkBooleanMacro( LabelVisibility, int );
-  vtkSetMacro( SelectedLabelVisibility, int );
-  vtkGetMacro( SelectedLabelVisibility, int );
-  vtkBooleanMacro( SelectedLabelVisibility, int );
+  vtkSetMacro( LabelVisibility, vtkTypeBool );
+  vtkGetMacro( LabelVisibility, vtkTypeBool );
+  vtkBooleanMacro( LabelVisibility, vtkTypeBool );
+  vtkSetMacro( SelectedLabelVisibility, vtkTypeBool );
+  vtkGetMacro( SelectedLabelVisibility, vtkTypeBool );
+  vtkBooleanMacro( SelectedLabelVisibility, vtkTypeBool );
 
   virtual void SetLabelTextInput( const char * label );
   virtual char * GetLabelTextInput();
@@ -139,9 +139,9 @@ public:
   /**
    * Toggle the visibility of the handle on and off
    */
-  vtkSetMacro( HandleVisibility, int );
-  vtkGetMacro( HandleVisibility, int );
-  vtkBooleanMacro( HandleVisibility, int );
+  vtkSetMacro( HandleVisibility, vtkTypeBool );
+  vtkGetMacro( HandleVisibility, vtkTypeBool );
+  vtkBooleanMacro( HandleVisibility, vtkTypeBool );
   //@}
 
   //@{
@@ -162,9 +162,9 @@ public:
    * handle placement might conflict with a request for smooth motion of the
    * handles.
    */
-  vtkSetMacro( SmoothMotion, int );
-  vtkGetMacro( SmoothMotion, int );
-  vtkBooleanMacro( SmoothMotion, int );
+  vtkSetMacro( SmoothMotion, vtkTypeBool );
+  vtkGetMacro( SmoothMotion, vtkTypeBool );
+  vtkBooleanMacro( SmoothMotion, vtkTypeBool );
   //@}
 
   //@{
@@ -179,9 +179,9 @@ public:
   /**
    * Turn on/off adaptive scaling for the cube.
    */
-  vtkSetMacro( AdaptiveScaling, int );
-  vtkGetMacro( AdaptiveScaling, int );
-  vtkBooleanMacro( AdaptiveScaling, int );
+  vtkSetMacro( AdaptiveScaling, vtkTypeBool );
+  vtkGetMacro( AdaptiveScaling, vtkTypeBool );
+  vtkBooleanMacro( AdaptiveScaling, vtkTypeBool );
   //@}
 
   //@{
@@ -231,9 +231,9 @@ protected:
   vtkProperty                * SelectedProperty;
   int                          WaitingForMotion;
   int                          WaitCount;
-  int                          HandleVisibility;
+  vtkTypeBool                          HandleVisibility;
   double                       Offset[3];
-  int                          AdaptiveScaling;
+  vtkTypeBool                          AdaptiveScaling;
   double                       RescaleFactor;
   double                       MinRelativeCubeScreenArea;
   double                       MaxRelativeCubeScreenArea;
@@ -295,11 +295,11 @@ protected:
   virtual void UpdateLabel();
 
   // Handle the label.
-  int LabelVisibility;
-  int SelectedLabelVisibility;
+  vtkTypeBool LabelVisibility;
+  vtkTypeBool SelectedLabelVisibility;
   vtkBillboardTextActor3D *LabelText;
   bool LabelAnnotationTextScaleInitialized;
-  int SmoothMotion;
+  vtkTypeBool SmoothMotion;
 
 private:
   vtkMeasurementCubeHandleRepresentation3D(

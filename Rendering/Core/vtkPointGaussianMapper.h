@@ -89,9 +89,9 @@ public:
   /**
    * Treat the points/splats as emissive light sources. The default is true.
    */
-  vtkSetMacro(Emissive, int);
-  vtkGetMacro(Emissive, int);
-  vtkBooleanMacro(Emissive, int);
+  vtkSetMacro(Emissive, vtkTypeBool);
+  vtkGetMacro(Emissive, vtkTypeBool);
+  vtkBooleanMacro(Emissive, vtkTypeBool);
   //@}
 
   //@{
@@ -178,7 +178,7 @@ protected:
   int OpacityTableSize;
 
   double ScaleFactor;
-  int Emissive;
+  vtkTypeBool Emissive;
 
   float TriangleScale;
 

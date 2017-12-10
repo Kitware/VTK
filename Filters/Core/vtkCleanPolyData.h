@@ -83,9 +83,9 @@ public:
    * a fraction of Bounding box diagonal, if true, AbsoluteTolerance is
    * used when adding points to locator (merging)
    */
-  vtkSetMacro(ToleranceIsAbsolute,int);
-  vtkBooleanMacro(ToleranceIsAbsolute,int);
-  vtkGetMacro(ToleranceIsAbsolute,int);
+  vtkSetMacro(ToleranceIsAbsolute,vtkTypeBool);
+  vtkBooleanMacro(ToleranceIsAbsolute,vtkTypeBool);
+  vtkGetMacro(ToleranceIsAbsolute,vtkTypeBool);
   //@}
 
   //@{
@@ -109,27 +109,27 @@ public:
   /**
    * Turn on/off conversion of degenerate lines to points. Default is On.
    */
-  vtkSetMacro(ConvertLinesToPoints,int);
-  vtkBooleanMacro(ConvertLinesToPoints,int);
-  vtkGetMacro(ConvertLinesToPoints,int);
+  vtkSetMacro(ConvertLinesToPoints,vtkTypeBool);
+  vtkBooleanMacro(ConvertLinesToPoints,vtkTypeBool);
+  vtkGetMacro(ConvertLinesToPoints,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate polys to lines. Default is On.
    */
-  vtkSetMacro(ConvertPolysToLines,int);
-  vtkBooleanMacro(ConvertPolysToLines,int);
-  vtkGetMacro(ConvertPolysToLines,int);
+  vtkSetMacro(ConvertPolysToLines,vtkTypeBool);
+  vtkBooleanMacro(ConvertPolysToLines,vtkTypeBool);
+  vtkGetMacro(ConvertPolysToLines,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off conversion of degenerate strips to polys. Default is On.
    */
-  vtkSetMacro(ConvertStripsToPolys,int);
-  vtkBooleanMacro(ConvertStripsToPolys,int);
-  vtkGetMacro(ConvertStripsToPolys,int);
+  vtkSetMacro(ConvertStripsToPolys,vtkTypeBool);
+  vtkBooleanMacro(ConvertStripsToPolys,vtkTypeBool);
+  vtkGetMacro(ConvertStripsToPolys,vtkTypeBool);
   //@}
 
   //@{
@@ -139,9 +139,9 @@ public:
    * the appropriate tolerance may be merged. If off, points are never
    * merged. By default, merging is on.
    */
-  vtkSetMacro(PointMerging,int);
-  vtkGetMacro(PointMerging,int);
-  vtkBooleanMacro(PointMerging,int);
+  vtkSetMacro(PointMerging,vtkTypeBool);
+  vtkGetMacro(PointMerging,vtkTypeBool);
+  vtkBooleanMacro(PointMerging,vtkTypeBool);
   //@}
 
   //@{
@@ -205,13 +205,13 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int   PointMerging;
+  vtkTypeBool   PointMerging;
   double Tolerance;
   double AbsoluteTolerance;
-  int ConvertLinesToPoints;
-  int ConvertPolysToLines;
-  int ConvertStripsToPolys;
-  int ToleranceIsAbsolute;
+  vtkTypeBool ConvertLinesToPoints;
+  vtkTypeBool ConvertPolysToLines;
+  vtkTypeBool ConvertStripsToPolys;
+  vtkTypeBool ToleranceIsAbsolute;
   vtkIncrementalPointLocator *Locator;
 
   vtkTypeBool PieceInvariant;

@@ -150,9 +150,9 @@ public:
    * of the handle can be retrieved, this is useful for positioning cameras
    * and lights. By default, the handle is turned off.
    */
-  vtkSetMacro(HandleVisibility,int);
-  vtkGetMacro(HandleVisibility,int);
-  vtkBooleanMacro(HandleVisibility,int);
+  vtkSetMacro(HandleVisibility,vtkTypeBool);
+  vtkGetMacro(HandleVisibility,vtkTypeBool);
+  vtkBooleanMacro(HandleVisibility,vtkTypeBool);
   //@}
 
   //@{
@@ -186,9 +186,9 @@ public:
    * north pole down towards the equator; and theta is the angle around
    * the north/south axis.
    */
-  vtkSetMacro(HandleText,int);
-  vtkGetMacro(HandleText,int);
-  vtkBooleanMacro(HandleText,int);
+  vtkSetMacro(HandleText,vtkTypeBool);
+  vtkGetMacro(HandleText,vtkTypeBool);
+  vtkBooleanMacro(HandleText,vtkTypeBool);
   //@}
 
   //@{
@@ -196,9 +196,9 @@ public:
    * Enable/disable a radial line segment that joins the center of the
    * outer sphere and the handle.
    */
-  vtkSetMacro(RadialLine,int);
-  vtkGetMacro(RadialLine,int);
-  vtkBooleanMacro(RadialLine,int);
+  vtkSetMacro(RadialLine,vtkTypeBool);
+  vtkGetMacro(RadialLine,vtkTypeBool);
+  vtkBooleanMacro(RadialLine,vtkTypeBool);
   //@}
 
   //@{
@@ -347,18 +347,18 @@ protected:
   vtkPolyDataMapper *HandleMapper;
   vtkSphereSource   *HandleSource;
   void HighlightHandle(int);
-  int HandleVisibility;
+  vtkTypeBool HandleVisibility;
   double HandleDirection[3];
   double HandlePosition[3];
 
   // Manage the handle label
-  int              HandleText;
+  vtkTypeBool              HandleText;
   vtkTextProperty *HandleTextProperty;
   vtkTextMapper   *HandleTextMapper;
   vtkActor2D      *HandleTextActor;
 
   // Manage the radial line segment
-  int RadialLine;
+  vtkTypeBool RadialLine;
   vtkProperty       *RadialLineProperty;
   vtkLineSource     *RadialLineSource;
   vtkPolyDataMapper *RadialLineMapper;

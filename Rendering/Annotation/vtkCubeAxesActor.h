@@ -303,103 +303,103 @@ public:
   /**
    * Turn on and off the visibility of each axis.
    */
-  vtkSetMacro(XAxisVisibility,int);
-  vtkGetMacro(XAxisVisibility,int);
-  vtkBooleanMacro(XAxisVisibility,int);
-  vtkSetMacro(YAxisVisibility,int);
-  vtkGetMacro(YAxisVisibility,int);
-  vtkBooleanMacro(YAxisVisibility,int);
-  vtkSetMacro(ZAxisVisibility,int);
-  vtkGetMacro(ZAxisVisibility,int);
-  vtkBooleanMacro(ZAxisVisibility,int);
+  vtkSetMacro(XAxisVisibility,vtkTypeBool);
+  vtkGetMacro(XAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(XAxisVisibility,vtkTypeBool);
+  vtkSetMacro(YAxisVisibility,vtkTypeBool);
+  vtkGetMacro(YAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(YAxisVisibility,vtkTypeBool);
+  vtkSetMacro(ZAxisVisibility,vtkTypeBool);
+  vtkGetMacro(ZAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(ZAxisVisibility,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on and off the visibility of labels for each axis.
    */
-  vtkSetMacro(XAxisLabelVisibility,int);
-  vtkGetMacro(XAxisLabelVisibility,int);
-  vtkBooleanMacro(XAxisLabelVisibility,int);
+  vtkSetMacro(XAxisLabelVisibility,vtkTypeBool);
+  vtkGetMacro(XAxisLabelVisibility,vtkTypeBool);
+  vtkBooleanMacro(XAxisLabelVisibility,vtkTypeBool);
   //@}
 
-  vtkSetMacro(YAxisLabelVisibility,int);
-  vtkGetMacro(YAxisLabelVisibility,int);
-  vtkBooleanMacro(YAxisLabelVisibility,int);
+  vtkSetMacro(YAxisLabelVisibility,vtkTypeBool);
+  vtkGetMacro(YAxisLabelVisibility,vtkTypeBool);
+  vtkBooleanMacro(YAxisLabelVisibility,vtkTypeBool);
 
-  vtkSetMacro(ZAxisLabelVisibility,int);
-  vtkGetMacro(ZAxisLabelVisibility,int);
-  vtkBooleanMacro(ZAxisLabelVisibility,int);
+  vtkSetMacro(ZAxisLabelVisibility,vtkTypeBool);
+  vtkGetMacro(ZAxisLabelVisibility,vtkTypeBool);
+  vtkBooleanMacro(ZAxisLabelVisibility,vtkTypeBool);
 
   //@{
   /**
    * Turn on and off the visibility of ticks for each axis.
    */
-  vtkSetMacro(XAxisTickVisibility,int);
-  vtkGetMacro(XAxisTickVisibility,int);
-  vtkBooleanMacro(XAxisTickVisibility,int);
+  vtkSetMacro(XAxisTickVisibility,vtkTypeBool);
+  vtkGetMacro(XAxisTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(XAxisTickVisibility,vtkTypeBool);
   //@}
 
-  vtkSetMacro(YAxisTickVisibility,int);
-  vtkGetMacro(YAxisTickVisibility,int);
-  vtkBooleanMacro(YAxisTickVisibility,int);
+  vtkSetMacro(YAxisTickVisibility,vtkTypeBool);
+  vtkGetMacro(YAxisTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(YAxisTickVisibility,vtkTypeBool);
 
-  vtkSetMacro(ZAxisTickVisibility,int);
-  vtkGetMacro(ZAxisTickVisibility,int);
-  vtkBooleanMacro(ZAxisTickVisibility,int);
+  vtkSetMacro(ZAxisTickVisibility,vtkTypeBool);
+  vtkGetMacro(ZAxisTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(ZAxisTickVisibility,vtkTypeBool);
 
   //@{
   /**
    * Turn on and off the visibility of minor ticks for each axis.
    */
-  vtkSetMacro(XAxisMinorTickVisibility,int);
-  vtkGetMacro(XAxisMinorTickVisibility,int);
-  vtkBooleanMacro(XAxisMinorTickVisibility,int);
+  vtkSetMacro(XAxisMinorTickVisibility,vtkTypeBool);
+  vtkGetMacro(XAxisMinorTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(XAxisMinorTickVisibility,vtkTypeBool);
   //@}
 
-  vtkSetMacro(YAxisMinorTickVisibility,int);
-  vtkGetMacro(YAxisMinorTickVisibility,int);
-  vtkBooleanMacro(YAxisMinorTickVisibility,int);
+  vtkSetMacro(YAxisMinorTickVisibility,vtkTypeBool);
+  vtkGetMacro(YAxisMinorTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(YAxisMinorTickVisibility,vtkTypeBool);
 
-  vtkSetMacro(ZAxisMinorTickVisibility,int);
-  vtkGetMacro(ZAxisMinorTickVisibility,int);
-  vtkBooleanMacro(ZAxisMinorTickVisibility,int);
+  vtkSetMacro(ZAxisMinorTickVisibility,vtkTypeBool);
+  vtkGetMacro(ZAxisMinorTickVisibility,vtkTypeBool);
+  vtkBooleanMacro(ZAxisMinorTickVisibility,vtkTypeBool);
 
-  vtkSetMacro(DrawXGridlines,int);
-  vtkGetMacro(DrawXGridlines,int);
-  vtkBooleanMacro(DrawXGridlines,int);
+  vtkSetMacro(DrawXGridlines,vtkTypeBool);
+  vtkGetMacro(DrawXGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawXGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawYGridlines,int);
-  vtkGetMacro(DrawYGridlines,int);
-  vtkBooleanMacro(DrawYGridlines,int);
+  vtkSetMacro(DrawYGridlines,vtkTypeBool);
+  vtkGetMacro(DrawYGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawYGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawZGridlines,int);
-  vtkGetMacro(DrawZGridlines,int);
-  vtkBooleanMacro(DrawZGridlines,int);
+  vtkSetMacro(DrawZGridlines,vtkTypeBool);
+  vtkGetMacro(DrawZGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawZGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawXInnerGridlines,int);
-  vtkGetMacro(DrawXInnerGridlines,int);
-  vtkBooleanMacro(DrawXInnerGridlines,int);
+  vtkSetMacro(DrawXInnerGridlines,vtkTypeBool);
+  vtkGetMacro(DrawXInnerGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawXInnerGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawYInnerGridlines,int);
-  vtkGetMacro(DrawYInnerGridlines,int);
-  vtkBooleanMacro(DrawYInnerGridlines,int);
+  vtkSetMacro(DrawYInnerGridlines,vtkTypeBool);
+  vtkGetMacro(DrawYInnerGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawYInnerGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawZInnerGridlines,int);
-  vtkGetMacro(DrawZInnerGridlines,int);
-  vtkBooleanMacro(DrawZInnerGridlines,int);
+  vtkSetMacro(DrawZInnerGridlines,vtkTypeBool);
+  vtkGetMacro(DrawZInnerGridlines,vtkTypeBool);
+  vtkBooleanMacro(DrawZInnerGridlines,vtkTypeBool);
 
-  vtkSetMacro(DrawXGridpolys,int);
-  vtkGetMacro(DrawXGridpolys,int);
-  vtkBooleanMacro(DrawXGridpolys,int);
+  vtkSetMacro(DrawXGridpolys,vtkTypeBool);
+  vtkGetMacro(DrawXGridpolys,vtkTypeBool);
+  vtkBooleanMacro(DrawXGridpolys,vtkTypeBool);
 
-  vtkSetMacro(DrawYGridpolys,int);
-  vtkGetMacro(DrawYGridpolys,int);
-  vtkBooleanMacro(DrawYGridpolys,int);
+  vtkSetMacro(DrawYGridpolys,vtkTypeBool);
+  vtkGetMacro(DrawYGridpolys,vtkTypeBool);
+  vtkBooleanMacro(DrawYGridpolys,vtkTypeBool);
 
-  vtkSetMacro(DrawZGridpolys,int);
-  vtkGetMacro(DrawZGridpolys,int);
-  vtkBooleanMacro(DrawZGridpolys,int);
+  vtkSetMacro(DrawZGridpolys,vtkTypeBool);
+  vtkGetMacro(DrawZGridpolys,vtkTypeBool);
+  vtkBooleanMacro(DrawZGridpolys,vtkTypeBool);
 
   /**
    * Returns the text property for the title on an axis.
@@ -578,9 +578,9 @@ public:
    * be visible in the viewport unless the original bounds of the axes are entirely
    * outside the viewport. Defaults to off.
    */
-  vtkSetMacro(StickyAxes,int);
-  vtkGetMacro(StickyAxes,int);
-  vtkBooleanMacro(StickyAxes,int);
+  vtkSetMacro(StickyAxes,vtkTypeBool);
+  vtkGetMacro(StickyAxes,vtkTypeBool);
+  vtkBooleanMacro(StickyAxes,vtkTypeBool);
   //@}
 
   //@{
@@ -591,9 +591,9 @@ public:
    * horizontal or verical directions of the viewport to follow the
    * data. Defaults to on.
    */
-  vtkSetMacro(CenterStickyAxes,int);
-  vtkGetMacro(CenterStickyAxes,int);
-  vtkBooleanMacro(CenterStickyAxes,int);
+  vtkSetMacro(CenterStickyAxes,vtkTypeBool);
+  vtkGetMacro(CenterStickyAxes,vtkTypeBool);
+  vtkBooleanMacro(CenterStickyAxes,vtkTypeBool);
   //@}
 
   enum GridVisibility
@@ -677,12 +677,12 @@ protected:
   /**
    * Flag for axes stickiness
    */
-  int StickyAxes;
+  vtkTypeBool StickyAxes;
 
   /**
    * Flag for centering sticky axes
    */
-  int CenterStickyAxes;
+  vtkTypeBool CenterStickyAxes;
 
   /**
    * If enabled the actor will not be visible at a certain distance from the camera.
@@ -738,33 +738,33 @@ protected:
 
   int TickLocation;
 
-  int XAxisVisibility;
-  int YAxisVisibility;
-  int ZAxisVisibility;
+  vtkTypeBool XAxisVisibility;
+  vtkTypeBool YAxisVisibility;
+  vtkTypeBool ZAxisVisibility;
 
-  int XAxisTickVisibility;
-  int YAxisTickVisibility;
-  int ZAxisTickVisibility;
+  vtkTypeBool XAxisTickVisibility;
+  vtkTypeBool YAxisTickVisibility;
+  vtkTypeBool ZAxisTickVisibility;
 
-  int XAxisMinorTickVisibility;
-  int YAxisMinorTickVisibility;
-  int ZAxisMinorTickVisibility;
+  vtkTypeBool XAxisMinorTickVisibility;
+  vtkTypeBool YAxisMinorTickVisibility;
+  vtkTypeBool ZAxisMinorTickVisibility;
 
-  int XAxisLabelVisibility;
-  int YAxisLabelVisibility;
-  int ZAxisLabelVisibility;
+  vtkTypeBool XAxisLabelVisibility;
+  vtkTypeBool YAxisLabelVisibility;
+  vtkTypeBool ZAxisLabelVisibility;
 
-  int DrawXGridlines;
-  int DrawYGridlines;
-  int DrawZGridlines;
+  vtkTypeBool DrawXGridlines;
+  vtkTypeBool DrawYGridlines;
+  vtkTypeBool DrawZGridlines;
 
-  int DrawXInnerGridlines;
-  int DrawYInnerGridlines;
-  int DrawZInnerGridlines;
+  vtkTypeBool DrawXInnerGridlines;
+  vtkTypeBool DrawYInnerGridlines;
+  vtkTypeBool DrawZInnerGridlines;
 
-  int DrawXGridpolys;
-  int DrawYGridpolys;
-  int DrawZGridpolys;
+  vtkTypeBool DrawXGridpolys;
+  vtkTypeBool DrawYGridpolys;
+  vtkTypeBool DrawZGridpolys;
 
   char  *XLabelFormat;
   char  *YLabelFormat;

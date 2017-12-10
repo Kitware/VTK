@@ -125,9 +125,9 @@ public:
    * inside (the implicit function or the isosurface) if the (function or scalar)
    * value is less than or equal to IVAR Value. This flag is off by default.
    */
-  vtkSetMacro( InsideOut, int );
-  vtkGetMacro( InsideOut, int );
-  vtkBooleanMacro( InsideOut, int );
+  vtkSetMacro( InsideOut, vtkTypeBool );
+  vtkGetMacro( InsideOut, vtkTypeBool );
+  vtkBooleanMacro( InsideOut, vtkTypeBool );
   //@}
 
   //@{
@@ -169,9 +169,9 @@ public:
    * function will be exported to the output. Note that this flag requries that
    * an implicit function be provided.
    */
-  vtkSetMacro( GenerateClipScalars, int );
-  vtkGetMacro( GenerateClipScalars, int );
-  vtkBooleanMacro( GenerateClipScalars, int );
+  vtkSetMacro( GenerateClipScalars, vtkTypeBool );
+  vtkGetMacro( GenerateClipScalars, vtkTypeBool );
+  vtkBooleanMacro( GenerateClipScalars, vtkTypeBool );
   //@}
 
   //@{
@@ -208,9 +208,9 @@ public:
    * Set/Get whether a second output is generated. The second output contains the
    * polygonal data that is clipped away by the iso-surface.
    */
-  vtkSetMacro( GenerateClippedOutput, int );
-  vtkGetMacro( GenerateClippedOutput, int );
-  vtkBooleanMacro( GenerateClippedOutput, int );
+  vtkSetMacro( GenerateClippedOutput, vtkTypeBool );
+  vtkGetMacro( GenerateClippedOutput, vtkTypeBool );
+  vtkBooleanMacro( GenerateClippedOutput, vtkTypeBool );
   //@}
 
   /**
@@ -300,9 +300,9 @@ protected:
   void InternalProgressCallback( vtkAlgorithm * algorithm );
 
 
-  int    InsideOut;
-  int    GenerateClipScalars;
-  int    GenerateClippedOutput;
+  vtkTypeBool    InsideOut;
+  vtkTypeBool    GenerateClipScalars;
+  vtkTypeBool    GenerateClippedOutput;
   bool   UseValueAsOffset;
   double Value;
   double MergeTolerance;

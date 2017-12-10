@@ -95,9 +95,9 @@ public:
    * angle variation from 0->180 and 180->0. Otherwise, the s-coordinate
    * ranges from 0->1 from 0->360 degrees.
    */
-  vtkSetMacro(PreventSeam,int);
-  vtkGetMacro(PreventSeam,int);
-  vtkBooleanMacro(PreventSeam,int);
+  vtkSetMacro(PreventSeam,vtkTypeBool);
+  vtkGetMacro(PreventSeam,vtkTypeBool);
+  vtkBooleanMacro(PreventSeam,vtkTypeBool);
   //@}
 
 protected:
@@ -109,7 +109,7 @@ protected:
   double Point1[3];
   double Point2[3];
   vtkTypeBool AutomaticCylinderGeneration;
-  int PreventSeam;
+  vtkTypeBool PreventSeam;
 
 private:
   vtkTextureMapToCylinder(const vtkTextureMapToCylinder&) = delete;

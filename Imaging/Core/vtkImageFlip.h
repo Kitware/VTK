@@ -79,9 +79,9 @@ public:
    * implementation was broken.  It is deprecated now and it has
    * no effect (i.e. the ImageExtent is always preserved).
    */
-  vtkSetMacro(PreserveImageExtent, int);
-  vtkGetMacro(PreserveImageExtent, int);
-  vtkBooleanMacro(PreserveImageExtent, int);
+  vtkSetMacro(PreserveImageExtent, vtkTypeBool);
+  vtkGetMacro(PreserveImageExtent, vtkTypeBool);
+  vtkBooleanMacro(PreserveImageExtent, vtkTypeBool);
   //@}
 
 protected:
@@ -94,7 +94,7 @@ protected:
 
   int FilteredAxis;
   vtkTypeBool FlipAboutOrigin;
-  int PreserveImageExtent;
+  vtkTypeBool PreserveImageExtent;
 
 private:
   vtkImageFlip(const vtkImageFlip&) = delete;

@@ -202,9 +202,9 @@ public:
   /**
    * How to handle divide by zero. Default is 0.
    */
-  vtkSetMacro(DivideByZeroToC,int);
-  vtkGetMacro(DivideByZeroToC,int);
-  vtkBooleanMacro(DivideByZeroToC,int);
+  vtkSetMacro(DivideByZeroToC,vtkTypeBool);
+  vtkGetMacro(DivideByZeroToC,vtkTypeBool);
+  vtkBooleanMacro(DivideByZeroToC,vtkTypeBool);
   //@}
 
   /**
@@ -221,7 +221,7 @@ protected:
   int Operation;
   double ConstantK;
   double ConstantC;
-  int DivideByZeroToC;
+  vtkTypeBool DivideByZeroToC;
 
   int RequestInformation (vtkInformation *,
                                   vtkInformationVector **,

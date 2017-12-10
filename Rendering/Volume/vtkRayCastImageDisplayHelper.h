@@ -63,9 +63,9 @@ public:
                               vtkFixedPointRayCastImage *image,
                               float requestedDepth ) = 0;
 
-  vtkSetClampMacro( PreMultipliedColors, int, 0, 1 );
-  vtkGetMacro( PreMultipliedColors, int );
-  vtkBooleanMacro( PreMultipliedColors, int );
+  vtkSetClampMacro( PreMultipliedColors, vtkTypeBool, 0, 1 );
+  vtkGetMacro( PreMultipliedColors, vtkTypeBool );
+  vtkBooleanMacro( PreMultipliedColors, vtkTypeBool );
 
 
   //@{
@@ -91,7 +91,7 @@ protected:
   /**
    * Have the colors already been multiplied by alpha?
    */
-  int PreMultipliedColors;
+  vtkTypeBool PreMultipliedColors;
 
   float PixelScale;
 

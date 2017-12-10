@@ -80,18 +80,18 @@ public:
   /**
    * Whether to use the histogram rendering mode or the superclass's line rendering mode
    */
-  virtual void SetUseHistograms(int);
-  vtkGetMacro(UseHistograms,int);
-  vtkBooleanMacro(UseHistograms,int);
+  virtual void SetUseHistograms(vtkTypeBool);
+  vtkGetMacro(UseHistograms,vtkTypeBool);
+  vtkBooleanMacro(UseHistograms,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Whether to compute and show outlier lines
    */
-  virtual void SetShowOutliers(int);
-  vtkGetMacro(ShowOutliers,int);
-  vtkBooleanMacro(ShowOutliers,int);
+  virtual void SetShowOutliers(vtkTypeBool);
+  vtkGetMacro(ShowOutliers,vtkTypeBool);
+  vtkBooleanMacro(ShowOutliers,vtkTypeBool);
   //@}
 
   //@{
@@ -147,7 +147,7 @@ protected:
   /**
    * Flag deciding if histograms will be drawn.
    */
-  int UseHistograms;
+  vtkTypeBool UseHistograms;
 
   /**
    * The range applied to the lookup table used to draw histogram quads
@@ -165,7 +165,7 @@ protected:
   /**
    * Whether or not to draw outlier lines
    */
-  int ShowOutliers;
+  vtkTypeBool ShowOutliers;
 
   /**
    * How many outlier lines to draw, approximately.

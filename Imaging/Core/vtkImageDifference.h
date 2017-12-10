@@ -92,9 +92,9 @@ public:
    * Otherwise, the difference is computed directly between pixels
    * of identical row/column values.
    */
-  vtkSetMacro(AllowShift,int);
-  vtkGetMacro(AllowShift,int);
-  vtkBooleanMacro(AllowShift,int);
+  vtkSetMacro(AllowShift,vtkTypeBool);
+  vtkGetMacro(AllowShift,vtkTypeBool);
+  vtkBooleanMacro(AllowShift,vtkTypeBool);
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * you normally would leave this on. For imaging operations it
    * should be off.
    */
-  vtkSetMacro(Averaging,int);
-  vtkGetMacro(Averaging,int);
-  vtkBooleanMacro(Averaging,int);
+  vtkSetMacro(Averaging,vtkTypeBool);
+  vtkGetMacro(Averaging,vtkTypeBool);
+  vtkBooleanMacro(Averaging,vtkTypeBool);
   //@}
 
 protected:
@@ -114,9 +114,9 @@ protected:
   ~vtkImageDifference() override {}
 
   // Parameters
-  int AllowShift;
+  vtkTypeBool AllowShift;
   int Threshold;
-  int Averaging;
+  vtkTypeBool Averaging;
 
   // Outputs
   const char *ErrorMessage;

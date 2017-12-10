@@ -151,9 +151,9 @@ protected:
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    * Not used when reading text files.
    */
-  vtkSetMacro(SwapBytes,int);
-  int GetSwapBytes() {return this->SwapBytes;}
-  vtkBooleanMacro(SwapBytes,int);
+  vtkSetMacro(SwapBytes,vtkTypeBool);
+  vtkTypeBool GetSwapBytes() {return this->SwapBytes;}
+  vtkBooleanMacro(SwapBytes,vtkTypeBool);
   //@}
 
   vtkDataArraySelection* CellDataArraySelection;
@@ -243,7 +243,7 @@ protected:
   stringVector *VectorVariableNames;
   intVector *VectorSubSectionIds;
 
-  int SwapBytes;
+  vtkTypeBool SwapBytes;
   int GridDimension;
   int DataPass;
   int NumberOfScalars;

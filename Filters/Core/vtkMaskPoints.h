@@ -70,9 +70,9 @@ public:
   /**
    * Special flag causes randomization of point selection.
    */
-  vtkSetMacro(RandomMode,int);
-  vtkGetMacro(RandomMode,int);
-  vtkBooleanMacro(RandomMode,int);
+  vtkSetMacro(RandomMode,vtkTypeBool);
+  vtkGetMacro(RandomMode,vtkTypeBool);
+  vtkBooleanMacro(RandomMode,vtkTypeBool);
   //@}
 
   //@{
@@ -115,9 +115,9 @@ public:
    * number of processors.  In the second case, the total number of
    * points = maximum number of points.
    */
-  vtkSetMacro(ProportionalMaximumNumberOfPoints, int);
-  vtkGetMacro(ProportionalMaximumNumberOfPoints, int);
-  vtkBooleanMacro(ProportionalMaximumNumberOfPoints, int);
+  vtkSetMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
+  vtkGetMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
+  vtkBooleanMacro(ProportionalMaximumNumberOfPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -126,9 +126,9 @@ public:
    * convenience method because vertices are drawn (they are topology) while
    * points are not (they are geometry). By default this method is off.
    */
-  vtkSetMacro(GenerateVertices,int);
-  vtkGetMacro(GenerateVertices,int);
-  vtkBooleanMacro(GenerateVertices,int);
+  vtkSetMacro(GenerateVertices,vtkTypeBool);
+  vtkGetMacro(GenerateVertices,vtkTypeBool);
+  vtkBooleanMacro(GenerateVertices,vtkTypeBool);
   //@}
 
   //@{
@@ -137,9 +137,9 @@ public:
    * as multi-vertex cells (more than one per cell), if you wish to have
    * a single vertex per cell, enable this flag.
    */
-  vtkSetMacro(SingleVertexPerCell,int);
-  vtkGetMacro(SingleVertexPerCell,int);
-  vtkBooleanMacro(SingleVertexPerCell,int);
+  vtkSetMacro(SingleVertexPerCell,vtkTypeBool);
+  vtkGetMacro(SingleVertexPerCell,vtkTypeBool);
+  vtkBooleanMacro(SingleVertexPerCell,vtkTypeBool);
   //@}
 
   //@{
@@ -164,10 +164,10 @@ protected:
   vtkIdType Offset;      // offset (or starting point id)
   int RandomMode;  // turn on/off randomization
   vtkIdType MaximumNumberOfPoints;
-  int GenerateVertices; //generate polydata verts
-  int SingleVertexPerCell;
-  int RandomModeType; // choose the random sampling mode
-  int ProportionalMaximumNumberOfPoints;
+  vtkTypeBool GenerateVertices; //generate polydata verts
+  vtkTypeBool SingleVertexPerCell;
+  vtkTypeBool RandomModeType; // choose the random sampling mode
+  vtkTypeBool ProportionalMaximumNumberOfPoints;
   int OutputPointsPrecision;
 
   virtual void InternalScatter(unsigned long*, unsigned long *, int, int) {}

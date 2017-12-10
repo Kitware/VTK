@@ -107,9 +107,9 @@ public:
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
-  vtkSetMacro(ScalarVisibility,int);
-  vtkGetMacro(ScalarVisibility,int);
-  vtkBooleanMacro(ScalarVisibility,int);
+  vtkSetMacro(ScalarVisibility,vtkTypeBool);
+  vtkGetMacro(ScalarVisibility,vtkTypeBool);
+  vtkBooleanMacro(ScalarVisibility,vtkTypeBool);
   //@}
 
   //@{
@@ -280,7 +280,7 @@ protected:
    */
   vtkScalarsToColors *LookupTable;
   vtkUnsignedCharArray *Colors;
-  int ScalarVisibility;
+  vtkTypeBool ScalarVisibility;
   vtkStdString ColorArrayName;
   //@}
 

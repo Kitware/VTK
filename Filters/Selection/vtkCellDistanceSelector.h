@@ -102,18 +102,18 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
   /**
    * If set, seed cells passed with SetSeedCells will be included in the final selection
    */
-  vtkSetMacro(IncludeSeed,int);
-  vtkGetMacro(IncludeSeed,int);
-  vtkBooleanMacro(IncludeSeed,int);
+  vtkSetMacro(IncludeSeed,vtkTypeBool);
+  vtkGetMacro(IncludeSeed,vtkTypeBool);
+  vtkBooleanMacro(IncludeSeed,vtkTypeBool);
   //@}
 
   //@{
   /**
    * If set, intermediate cells (between seed cells and the selection boundary) will be included in the final selection
    */
-  vtkSetMacro(AddIntermediate,int);
-  vtkGetMacro(AddIntermediate,int);
-  vtkBooleanMacro(AddIntermediate,int);
+  vtkSetMacro(AddIntermediate,vtkTypeBool);
+  vtkGetMacro(AddIntermediate,vtkTypeBool);
+  vtkBooleanMacro(AddIntermediate,vtkTypeBool);
   //@}
 
  protected:
@@ -135,13 +135,13 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
    * Decide whether seed cells are included in selection
    * Default: 1
    */
-  int IncludeSeed;
+  vtkTypeBool IncludeSeed;
 
   /**
    * Decide whether at distance between 1 and Distance-1 are included in selection
    * Default: 1
    */
-  int AddIntermediate;
+  vtkTypeBool AddIntermediate;
 
  private:
   vtkCellDistanceSelector(const vtkCellDistanceSelector &) = delete;

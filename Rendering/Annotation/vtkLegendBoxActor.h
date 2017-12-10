@@ -115,9 +115,9 @@ public:
    * Set/Get the flag that controls whether a border will be drawn
    * around the legend box.
    */
-  vtkSetMacro(Border, int);
-  vtkGetMacro(Border, int);
-  vtkBooleanMacro(Border, int);
+  vtkSetMacro(Border, vtkTypeBool);
+  vtkGetMacro(Border, vtkTypeBool);
+  vtkBooleanMacro(Border, vtkTypeBool);
   //@}
 
   //@{
@@ -129,9 +129,9 @@ public:
    * Note: the legend box is guaranteed to lie within the original border
    * definition.
    */
-  vtkSetMacro(LockBorder, int);
-  vtkGetMacro(LockBorder, int);
-  vtkBooleanMacro(LockBorder, int);
+  vtkSetMacro(LockBorder, vtkTypeBool);
+  vtkGetMacro(LockBorder, vtkTypeBool);
+  vtkBooleanMacro(LockBorder, vtkTypeBool);
   //@}
 
   //@{
@@ -139,9 +139,9 @@ public:
    * Set/Get the flag that controls whether a box will be drawn/filled
    * corresponding to the legend box.
    */
-  vtkSetMacro(Box, int);
-  vtkGetMacro(Box, int);
-  vtkBooleanMacro(Box, int);
+  vtkSetMacro(Box, vtkTypeBool);
+  vtkGetMacro(Box, vtkTypeBool);
+  vtkBooleanMacro(Box, vtkTypeBool);
   //@}
 
   /**
@@ -164,18 +164,18 @@ public:
    * is used to color the symbol. If off, the color of the
    * vtkLegendBoxActor is used.
    */
-  vtkSetMacro(ScalarVisibility,int);
-  vtkGetMacro(ScalarVisibility,int);
-  vtkBooleanMacro(ScalarVisibility,int);
+  vtkSetMacro(ScalarVisibility,vtkTypeBool);
+  vtkGetMacro(ScalarVisibility,vtkTypeBool);
+  vtkBooleanMacro(ScalarVisibility,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off background.
    */
-  vtkSetMacro(UseBackground, int);
-  vtkGetMacro(UseBackground, int);
-  vtkBooleanMacro(UseBackground, int);
+  vtkSetMacro(UseBackground, vtkTypeBool);
+  vtkGetMacro(UseBackground, vtkTypeBool);
+  vtkBooleanMacro(UseBackground, vtkTypeBool);
   //@}
 
   //@{
@@ -235,11 +235,11 @@ protected:
 
   vtkPolyData createTexturedPlane();
 
-  int   Border;
-  int   Box;
+  vtkTypeBool   Border;
+  vtkTypeBool   Box;
   int   Padding;
-  int   LockBorder;
-  int   ScalarVisibility;
+  vtkTypeBool   LockBorder;
+  vtkTypeBool   ScalarVisibility;
   double BoxOpacity;
 
   // Internal actors, mappers, data to represent the legend
@@ -271,7 +271,7 @@ protected:
   vtkTextProperty            *EntryTextProperty;
 
   // Background plane.
-  int                         UseBackground;
+  vtkTypeBool                         UseBackground;
   double                      BackgroundOpacity;
   double                      BackgroundColor[3];
   vtkPlaneSource             *Background;

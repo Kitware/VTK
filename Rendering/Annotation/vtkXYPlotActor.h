@@ -288,13 +288,13 @@ public:
   // Allow per-curve specification of line and point rendering.  These override
   // global settings PlotPoints and PlotLines.  If not on, the default behavior
   // is governed by PlotPoints and PlotLines ivars.
-  vtkGetMacro(PlotCurvePoints, int);
-  vtkSetMacro(PlotCurvePoints, int);
-  vtkBooleanMacro(PlotCurvePoints, int);
+  vtkGetMacro(PlotCurvePoints, vtkTypeBool);
+  vtkSetMacro(PlotCurvePoints, vtkTypeBool);
+  vtkBooleanMacro(PlotCurvePoints, vtkTypeBool);
 
-  vtkGetMacro(PlotCurveLines, int);
-  vtkSetMacro(PlotCurveLines, int);
-  vtkBooleanMacro(PlotCurveLines, int);
+  vtkGetMacro(PlotCurveLines, vtkTypeBool);
+  vtkSetMacro(PlotCurveLines, vtkTypeBool);
+  vtkBooleanMacro(PlotCurveLines, vtkTypeBool);
 
   void SetPlotLines(int i, int);
   int GetPlotLines(int i);
@@ -308,9 +308,9 @@ public:
    * Enable/Disable exchange of the x-y axes (i.e., what was x becomes y, and
    * vice-versa). Exchanging axes affects the labeling as well.
    */
-  vtkSetMacro(ExchangeAxes, int);
-  vtkGetMacro(ExchangeAxes, int);
-  vtkBooleanMacro(ExchangeAxes, int);
+  vtkSetMacro(ExchangeAxes, vtkTypeBool);
+  vtkGetMacro(ExchangeAxes, vtkTypeBool);
+  vtkBooleanMacro(ExchangeAxes, vtkTypeBool);
   //@}
 
   //@{
@@ -319,9 +319,9 @@ public:
    * variable causes the x-axis to be plotted from maximum to minimum. Note that
    * boolean always applies to the x-axis even if ExchangeAxes is set.
    */
-  vtkSetMacro(ReverseXAxis, int);
-  vtkGetMacro(ReverseXAxis, int);
-  vtkBooleanMacro(ReverseXAxis, int);
+  vtkSetMacro(ReverseXAxis, vtkTypeBool);
+  vtkGetMacro(ReverseXAxis, vtkTypeBool);
+  vtkBooleanMacro(ReverseXAxis, vtkTypeBool);
   //@}
 
   //@{
@@ -330,9 +330,9 @@ public:
    * variable causes the y-axis to be plotted from maximum to minimum. Note that
    * boolean always applies to the y-axis even if ExchangeAxes is set.
    */
-  vtkSetMacro(ReverseYAxis, int);
-  vtkGetMacro(ReverseYAxis, int);
-  vtkBooleanMacro(ReverseYAxis, int);
+  vtkSetMacro(ReverseYAxis, vtkTypeBool);
+  vtkGetMacro(ReverseYAxis, vtkTypeBool);
+  vtkBooleanMacro(ReverseYAxis, vtkTypeBool);
   //@}
 
   //@{
@@ -447,9 +447,9 @@ public:
    * be created automatically unless the per plot legend symbol has been
    * set.
    */
-  vtkSetMacro(Legend, int);
-  vtkGetMacro(Legend, int);
-  vtkBooleanMacro(Legend, int);
+  vtkSetMacro(Legend, vtkTypeBool);
+  vtkGetMacro(Legend, vtkTypeBool);
+  vtkBooleanMacro(Legend, vtkTypeBool);
   //@}
 
   //@{
@@ -466,9 +466,9 @@ public:
    * If true, the xyplot actor will adjust the position of the title
    * automatically to be upper-middle. Default is true.
    */
-  vtkSetMacro(AdjustTitlePosition, int);
-  vtkGetMacro(AdjustTitlePosition, int);
-  vtkBooleanMacro(AdjustTitlePosition, int);
+  vtkSetMacro(AdjustTitlePosition, vtkTypeBool);
+  vtkGetMacro(AdjustTitlePosition, vtkTypeBool);
+  vtkBooleanMacro(AdjustTitlePosition, vtkTypeBool);
   //@}
 
 enum Alignment {
@@ -543,9 +543,9 @@ enum Alignment {
   /**
    * Enable/Disable plotting of Log of x-values.
    */
-  vtkSetMacro(Logx, int);
-  vtkGetMacro(Logx, int);
-  vtkBooleanMacro(Logx, int);
+  vtkSetMacro(Logx, vtkTypeBool);
+  vtkGetMacro(Logx, vtkTypeBool);
+  vtkBooleanMacro(Logx, vtkTypeBool);
   //@}
 
   //@{
@@ -591,9 +591,9 @@ enum Alignment {
    * the property object. This is a global flag which affects the plot only
    * if per curve symbols are not defined.
    */
-  vtkGetMacro(PlotPoints, int);
-  vtkSetMacro(PlotPoints, int);
-  vtkBooleanMacro(PlotPoints, int);
+  vtkGetMacro(PlotPoints, vtkTypeBool);
+  vtkSetMacro(PlotPoints, vtkTypeBool);
+  vtkBooleanMacro(PlotPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -601,9 +601,9 @@ enum Alignment {
    * Set/Get whether the lines are rendered.  The line width can be set in
    * the property object.
    */
-  vtkGetMacro(PlotLines, int);
-  vtkSetMacro(PlotLines, int);
-  vtkBooleanMacro(PlotLines, int);
+  vtkGetMacro(PlotLines, vtkTypeBool);
+  vtkSetMacro(PlotLines, vtkTypeBool);
+  vtkBooleanMacro(PlotLines, vtkTypeBool);
   //@}
 
   //@{
@@ -661,9 +661,9 @@ enum Alignment {
    * Set/Get the flag that controls whether a box will be drawn/filled
    * corresponding to the chart box.
    */
-  vtkSetMacro(ChartBox, int);
-  vtkGetMacro(ChartBox, int);
-  vtkBooleanMacro(ChartBox, int);
+  vtkSetMacro(ChartBox, vtkTypeBool);
+  vtkGetMacro(ChartBox, vtkTypeBool);
+  vtkBooleanMacro(ChartBox, vtkTypeBool);
   //@}
 
   //@{
@@ -671,9 +671,9 @@ enum Alignment {
    * Set/Get the flag that controls whether a box will be drawn/filled
    * corresponding to the legend box.
    */
-  vtkSetMacro(ChartBorder, int);
-  vtkGetMacro(ChartBorder, int);
-  vtkBooleanMacro(ChartBorder, int);
+  vtkSetMacro(ChartBorder, vtkTypeBool);
+  vtkGetMacro(ChartBorder, vtkTypeBool);
+  vtkBooleanMacro(ChartBorder, vtkTypeBool);
   //@}
 
   /**
@@ -685,9 +685,9 @@ enum Alignment {
   /**
    * Set/Get if the X reference line is visible. hidden by default
    */
-  vtkSetMacro(ShowReferenceXLine, int);
-  vtkGetMacro(ShowReferenceXLine, int);
-  vtkBooleanMacro(ShowReferenceXLine, int);
+  vtkSetMacro(ShowReferenceXLine, vtkTypeBool);
+  vtkGetMacro(ShowReferenceXLine, vtkTypeBool);
+  vtkBooleanMacro(ShowReferenceXLine, vtkTypeBool);
   //@}
 
   //@{
@@ -702,9 +702,9 @@ enum Alignment {
   /**
    * Set/Get if the Y reference line is visible. hidden by default
    */
-  vtkSetMacro(ShowReferenceYLine, int);
-  vtkGetMacro(ShowReferenceYLine, int);
-  vtkBooleanMacro(ShowReferenceYLine, int);
+  vtkSetMacro(ShowReferenceYLine, vtkTypeBool);
+  vtkGetMacro(ShowReferenceYLine, vtkTypeBool);
+  vtkBooleanMacro(ShowReferenceYLine, vtkTypeBool);
   //@}
 
   //@{
@@ -860,7 +860,7 @@ protected:
   int   XValues;
   int   NumberOfXLabels;
   int   NumberOfYLabels;
-  int   Logx;
+  vtkTypeBool   Logx;
   char* XLabelFormat;
   char* YLabelFormat;
   double XRange[2];
@@ -868,16 +868,16 @@ protected:
   double XComputedRange[2];  //range actually used by plot
   double YComputedRange[2];  //range actually used by plot
   int Border;
-  int PlotLines;
-  int PlotPoints;
-  int PlotCurveLines;
-  int PlotCurvePoints;
-  int ExchangeAxes;
-  int ReverseXAxis;
-  int ReverseYAxis;
+  vtkTypeBool PlotLines;
+  vtkTypeBool PlotPoints;
+  vtkTypeBool PlotCurveLines;
+  vtkTypeBool PlotCurvePoints;
+  vtkTypeBool ExchangeAxes;
+  vtkTypeBool ReverseXAxis;
+  vtkTypeBool ReverseYAxis;
   int AdjustXLabels;
   int AdjustYLabels;
-  int AdjustTitlePosition;
+  vtkTypeBool AdjustTitlePosition;
   double TitlePosition[2];
   int AdjustTitlePositionMode;
 
@@ -914,7 +914,7 @@ protected:
 
   // Legends and plot symbols. The legend also keeps track of
   // the symbols and such.
-  int Legend;
+  vtkTypeBool Legend;
   double LegendPosition[2];
   double LegendPosition2[2];
   vtkLegendBoxActor *LegendActor;
@@ -923,18 +923,18 @@ protected:
   double GlyphSize;
 
   // Background box
-  int ChartBox;
+  vtkTypeBool ChartBox;
   vtkPolyData                *ChartBoxPolyData;
   vtkPolyDataMapper2D        *ChartBoxMapper;
   vtkActor2D                 *ChartBoxActor;
-  int ChartBorder;
+  vtkTypeBool ChartBorder;
   vtkPolyData                *ChartBorderPolyData;
   vtkPolyDataMapper2D        *ChartBorderMapper;
   vtkActor2D                 *ChartBorderActor;
 
   // Reference lines
-  int ShowReferenceXLine;
-  int ShowReferenceYLine;
+  vtkTypeBool ShowReferenceXLine;
+  vtkTypeBool ShowReferenceYLine;
   double ReferenceXValue;
   double ReferenceYValue;
 

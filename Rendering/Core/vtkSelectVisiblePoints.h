@@ -104,9 +104,9 @@ public:
    * Set/Get the flag which enables inverse selection; i.e., invisible points
    * are selected.
    */
-  vtkSetMacro(SelectInvisible, int);
-  vtkGetMacro(SelectInvisible, int);
-  vtkBooleanMacro(SelectInvisible, int);
+  vtkSetMacro(SelectInvisible, vtkTypeBool);
+  vtkGetMacro(SelectInvisible, vtkTypeBool);
+  vtkBooleanMacro(SelectInvisible, vtkTypeBool);
   //@}
 
   //@{
@@ -149,7 +149,7 @@ protected:
   vtkTypeBool SelectionWindow;
   int Selection[4];
   int InternalSelection[4];
-  int SelectInvisible;
+  vtkTypeBool SelectInvisible;
   double Tolerance;
 
 private:

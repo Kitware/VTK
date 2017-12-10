@@ -92,9 +92,9 @@ public:
   /**
    * Disable motion (temporarily - for viewing etc)
    */
-  vtkSetMacro(DisableMotion,int);
-  vtkGetMacro(DisableMotion,int);
-  vtkBooleanMacro(DisableMotion,int);
+  vtkSetMacro(DisableMotion,vtkTypeBool);
+  vtkGetMacro(DisableMotion,vtkTypeBool);
+  vtkBooleanMacro(DisableMotion,vtkTypeBool);
   //@}
 
   //@{
@@ -105,9 +105,9 @@ public:
    * when viewing from arbitrary angles, but keep the horizon level when
    * the user is flying over terrain.
    */
-  vtkSetMacro(RestoreUpVector,int);
-  vtkGetMacro(RestoreUpVector,int);
-  vtkBooleanMacro(RestoreUpVector,int);
+  vtkSetMacro(RestoreUpVector,vtkTypeBool);
+  vtkGetMacro(RestoreUpVector,vtkTypeBool);
+  vtkBooleanMacro(RestoreUpVector,vtkTypeBool);
   //@}
 
   // Specify "up" (by default {0,0,1} but can be changed)
@@ -164,8 +164,8 @@ protected:
   //
   //
   unsigned char KeysDown;
-  int           DisableMotion;
-  int           RestoreUpVector;
+  vtkTypeBool           DisableMotion;
+  vtkTypeBool           RestoreUpVector;
   double        DiagonalLength;
   double        MotionStepSize;
   double        MotionUserScale;

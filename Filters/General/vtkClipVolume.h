@@ -110,9 +110,9 @@ public:
    * function if its implicit function value is less than or equal to the
    * Value ivar.  InsideOut is off by default.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   //@{
@@ -132,9 +132,9 @@ public:
    * input scalar data. If you enable this flag but do not provide an
    * implicit function an error will be reported.
    */
-  vtkSetMacro(GenerateClipScalars,int);
-  vtkGetMacro(GenerateClipScalars,int);
-  vtkBooleanMacro(GenerateClipScalars,int);
+  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -142,9 +142,9 @@ public:
    * Control whether a second output is generated. The second output
    * contains the unstructured grid that's been clipped away.
    */
-  vtkSetMacro(GenerateClippedOutput,int);
-  vtkGetMacro(GenerateClippedOutput,int);
-  vtkBooleanMacro(GenerateClippedOutput,int);
+  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
   //@}
 
   /**
@@ -159,9 +159,9 @@ public:
    * cells (e.g., tetrahedra and wedges) is produced. (Note: mixed type
    * generation is faster and less overall data is generated.)
    */
-  vtkSetMacro(Mixed3DCellGeneration,int);
-  vtkGetMacro(Mixed3DCellGeneration,int);
-  vtkBooleanMacro(Mixed3DCellGeneration,int);
+  vtkSetMacro(Mixed3DCellGeneration,vtkTypeBool);
+  vtkGetMacro(Mixed3DCellGeneration,vtkTypeBool);
+  vtkBooleanMacro(Mixed3DCellGeneration,vtkTypeBool);
   //@}
 
   //@{
@@ -216,12 +216,12 @@ protected:
 
   vtkImplicitFunction *ClipFunction;
   vtkIncrementalPointLocator     *Locator;
-  int                  InsideOut;
+  vtkTypeBool                  InsideOut;
   double                Value;
-  int                  GenerateClipScalars;
+  vtkTypeBool                  GenerateClipScalars;
   double                MergeTolerance;
-  int                  Mixed3DCellGeneration;
-  int                  GenerateClippedOutput;
+  vtkTypeBool                  Mixed3DCellGeneration;
+  vtkTypeBool                  GenerateClippedOutput;
   vtkUnstructuredGrid *ClippedOutput;
 
 private:

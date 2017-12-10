@@ -78,18 +78,18 @@ public:
   /**
    * Turn on/off the reading of the displacement file.
    */
-  vtkSetMacro(ReadDisplacement,int);
-  vtkGetMacro(ReadDisplacement,int);
-  vtkBooleanMacro(ReadDisplacement,int);
+  vtkSetMacro(ReadDisplacement,vtkTypeBool);
+  vtkGetMacro(ReadDisplacement,vtkTypeBool);
+  vtkBooleanMacro(ReadDisplacement,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the reading of the scalar file.
    */
-  vtkSetMacro(ReadScalar,int);
-  vtkGetMacro(ReadScalar,int);
-  vtkBooleanMacro(ReadScalar,int);
+  vtkSetMacro(ReadScalar,vtkTypeBool);
+  vtkGetMacro(ReadScalar,vtkTypeBool);
+  vtkBooleanMacro(ReadScalar,vtkTypeBool);
   //@}
 
   //@{
@@ -97,9 +97,9 @@ public:
    * Turn on/off the reading of the texture coordinate file.
    * Specify name of geometry FileName.
    */
-  vtkSetMacro(ReadTexture,int);
-  vtkGetMacro(ReadTexture,int);
-  vtkBooleanMacro(ReadTexture,int);
+  vtkSetMacro(ReadTexture,vtkTypeBool);
+  vtkGetMacro(ReadTexture,vtkTypeBool);
+  vtkBooleanMacro(ReadTexture,vtkTypeBool);
   //@}
 
   //@{
@@ -131,9 +131,9 @@ protected:
   char *DisplacementFileName;
   char *ScalarFileName;
   char *TextureFileName;
-  int ReadDisplacement;
-  int ReadScalar;
-  int ReadTexture;
+  vtkTypeBool ReadDisplacement;
+  vtkTypeBool ReadScalar;
+  vtkTypeBool ReadTexture;
   int PartNumber;
 
   void ReadGeometryFile(FILE *fp, int &numPts, vtkInformation *outInfo);

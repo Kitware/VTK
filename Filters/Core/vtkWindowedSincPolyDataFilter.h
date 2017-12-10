@@ -184,18 +184,18 @@ public:
    * be rescaled to the original coordinate system after smoothing has
    * completed.
    */
-  vtkSetMacro(NormalizeCoordinates, int);
-  vtkGetMacro(NormalizeCoordinates, int);
-  vtkBooleanMacro(NormalizeCoordinates, int);
+  vtkSetMacro(NormalizeCoordinates, vtkTypeBool);
+  vtkGetMacro(NormalizeCoordinates, vtkTypeBool);
+  vtkBooleanMacro(NormalizeCoordinates, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off smoothing along sharp interior edges.
    */
-  vtkSetMacro(FeatureEdgeSmoothing,int);
-  vtkGetMacro(FeatureEdgeSmoothing,int);
-  vtkBooleanMacro(FeatureEdgeSmoothing,int);
+  vtkSetMacro(FeatureEdgeSmoothing,vtkTypeBool);
+  vtkGetMacro(FeatureEdgeSmoothing,vtkTypeBool);
+  vtkBooleanMacro(FeatureEdgeSmoothing,vtkTypeBool);
   //@}
 
   //@{
@@ -219,36 +219,36 @@ public:
   /**
    * Turn on/off the smoothing of vertices on the boundary of the mesh.
    */
-  vtkSetMacro(BoundarySmoothing,int);
-  vtkGetMacro(BoundarySmoothing,int);
-  vtkBooleanMacro(BoundarySmoothing,int);
+  vtkSetMacro(BoundarySmoothing,vtkTypeBool);
+  vtkGetMacro(BoundarySmoothing,vtkTypeBool);
+  vtkBooleanMacro(BoundarySmoothing,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Smooth non-manifold vertices.
    */
-  vtkSetMacro(NonManifoldSmoothing,int);
-  vtkGetMacro(NonManifoldSmoothing,int);
-  vtkBooleanMacro(NonManifoldSmoothing,int);
+  vtkSetMacro(NonManifoldSmoothing,vtkTypeBool);
+  vtkGetMacro(NonManifoldSmoothing,vtkTypeBool);
+  vtkBooleanMacro(NonManifoldSmoothing,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of scalar distance values.
    */
-  vtkSetMacro(GenerateErrorScalars,int);
-  vtkGetMacro(GenerateErrorScalars,int);
-  vtkBooleanMacro(GenerateErrorScalars,int);
+  vtkSetMacro(GenerateErrorScalars,vtkTypeBool);
+  vtkGetMacro(GenerateErrorScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of error vectors.
    */
-  vtkSetMacro(GenerateErrorVectors,int);
-  vtkGetMacro(GenerateErrorVectors,int);
-  vtkBooleanMacro(GenerateErrorVectors,int);
+  vtkSetMacro(GenerateErrorVectors,vtkTypeBool);
+  vtkGetMacro(GenerateErrorVectors,vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorVectors,vtkTypeBool);
   //@}
 
  protected:
@@ -259,14 +259,14 @@ public:
 
   int NumberOfIterations;
   double PassBand;
-  int FeatureEdgeSmoothing;
+  vtkTypeBool FeatureEdgeSmoothing;
   double FeatureAngle;
   double EdgeAngle;
-  int BoundarySmoothing;
-  int NonManifoldSmoothing;
-  int GenerateErrorScalars;
-  int GenerateErrorVectors;
-  int NormalizeCoordinates;
+  vtkTypeBool BoundarySmoothing;
+  vtkTypeBool NonManifoldSmoothing;
+  vtkTypeBool GenerateErrorScalars;
+  vtkTypeBool GenerateErrorVectors;
+  vtkTypeBool NormalizeCoordinates;
 private:
   vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&) = delete;
   void operator=(const vtkWindowedSincPolyDataFilter&) = delete;

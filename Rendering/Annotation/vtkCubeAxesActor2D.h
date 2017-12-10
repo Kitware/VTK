@@ -148,9 +148,9 @@ public:
    * or the ranges set by SetRanges. By default the axes use the data
    * ranges.
    */
-  vtkSetMacro(UseRanges,int);
-  vtkGetMacro(UseRanges,int);
-  vtkBooleanMacro(UseRanges,int);
+  vtkSetMacro(UseRanges,vtkTypeBool);
+  vtkGetMacro(UseRanges,vtkTypeBool);
+  vtkBooleanMacro(UseRanges,vtkTypeBool);
   //@}
 
   //@{
@@ -192,9 +192,9 @@ public:
    * size of the bounding box). By default scaling is on so the axes are
    * scaled to fit inside the viewport.
    */
-  vtkSetMacro(Scaling,int);
-  vtkGetMacro(Scaling,int);
-  vtkBooleanMacro(Scaling,int);
+  vtkSetMacro(Scaling,vtkTypeBool);
+  vtkGetMacro(Scaling,vtkTypeBool);
+  vtkBooleanMacro(Scaling,vtkTypeBool);
   //@}
 
   //@{
@@ -311,15 +311,15 @@ public:
   /**
    * Turn on and off the visibility of each axis.
    */
-  vtkSetMacro(XAxisVisibility,int);
-  vtkGetMacro(XAxisVisibility,int);
-  vtkBooleanMacro(XAxisVisibility,int);
-  vtkSetMacro(YAxisVisibility,int);
-  vtkGetMacro(YAxisVisibility,int);
-  vtkBooleanMacro(YAxisVisibility,int);
-  vtkSetMacro(ZAxisVisibility,int);
-  vtkGetMacro(ZAxisVisibility,int);
-  vtkBooleanMacro(ZAxisVisibility,int);
+  vtkSetMacro(XAxisVisibility,vtkTypeBool);
+  vtkGetMacro(XAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(XAxisVisibility,vtkTypeBool);
+  vtkSetMacro(YAxisVisibility,vtkTypeBool);
+  vtkGetMacro(YAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(YAxisVisibility,vtkTypeBool);
+  vtkSetMacro(ZAxisVisibility,vtkTypeBool);
+  vtkGetMacro(ZAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(ZAxisVisibility,vtkTypeBool);
   //@}
 
   /**
@@ -336,11 +336,11 @@ protected:
   vtkProp    *ViewProp;     //Define bounds from actor/assembly, or
   double      Bounds[6]; //Define bounds explicitly
   double      Ranges[6]; //Define ranges explicitly
-  int        UseRanges; //Flag to use ranges or not
+  vtkTypeBool        UseRanges; //Flag to use ranges or not
 
   vtkCamera *Camera;
   int FlyMode;
-  int Scaling;
+  vtkTypeBool Scaling;
 
   vtkAxisActor2D *XAxis;
   vtkAxisActor2D *YAxis;
@@ -357,9 +357,9 @@ protected:
   char *ZLabel;
   char *Labels[3];
 
-  int XAxisVisibility;
-  int YAxisVisibility;
-  int ZAxisVisibility;
+  vtkTypeBool XAxisVisibility;
+  vtkTypeBool YAxisVisibility;
+  vtkTypeBool ZAxisVisibility;
 
   char  *LabelFormat;
   double FontFactor;

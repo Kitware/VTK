@@ -250,9 +250,9 @@ public:
    * possible to render the edges of geometric primitives separately
    * from the interior.
    */
-  vtkGetMacro(EdgeVisibility, int);
-  vtkSetMacro(EdgeVisibility, int);
-  vtkBooleanMacro(EdgeVisibility, int);
+  vtkGetMacro(EdgeVisibility, vtkTypeBool);
+  vtkSetMacro(EdgeVisibility, vtkTypeBool);
+  vtkBooleanMacro(EdgeVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -269,9 +269,9 @@ public:
    * possible to render the vertices of geometric primitives separately
    * from the interior.
    */
-  vtkGetMacro(VertexVisibility, int);
-  vtkSetMacro(VertexVisibility, int);
-  vtkBooleanMacro(VertexVisibility, int);
+  vtkGetMacro(VertexVisibility, vtkTypeBool);
+  vtkSetMacro(VertexVisibility, vtkTypeBool);
+  vtkBooleanMacro(VertexVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -326,9 +326,9 @@ public:
    * with respect to camera. If backface culling is on, polygons facing
    * away from camera are not drawn.
    */
-  vtkGetMacro(BackfaceCulling, int);
-  vtkSetMacro(BackfaceCulling, int);
-  vtkBooleanMacro(BackfaceCulling, int);
+  vtkGetMacro(BackfaceCulling, vtkTypeBool);
+  vtkSetMacro(BackfaceCulling, vtkTypeBool);
+  vtkBooleanMacro(BackfaceCulling, vtkTypeBool);
   //@}
 
   //@{
@@ -337,9 +337,9 @@ public:
    * with respect to camera. If frontface culling is on, polygons facing
    * towards camera are not drawn.
    */
-  vtkGetMacro(FrontfaceCulling, int);
-  vtkSetMacro(FrontfaceCulling, int);
-  vtkBooleanMacro(FrontfaceCulling, int);
+  vtkGetMacro(FrontfaceCulling, vtkTypeBool);
+  vtkSetMacro(FrontfaceCulling, vtkTypeBool);
+  vtkBooleanMacro(FrontfaceCulling, vtkTypeBool);
   //@}
 
   //@{
@@ -355,9 +355,9 @@ public:
    * Enable/Disable shading. When shading is enabled, the
    * Material must be set.
    */
-  vtkSetMacro(Shading, int);
-  vtkGetMacro(Shading, int);
-  vtkBooleanMacro(Shading, int);
+  vtkSetMacro(Shading, vtkTypeBool);
+  vtkGetMacro(Shading, vtkTypeBool);
+  vtkBooleanMacro(Shading, vtkTypeBool);
   //@}
 
   /**
@@ -521,15 +521,15 @@ protected:
   int LineStippleRepeatFactor;
   int Interpolation;
   int Representation;
-  int EdgeVisibility;
-  int VertexVisibility;
-  int BackfaceCulling;
-  int FrontfaceCulling;
+  vtkTypeBool EdgeVisibility;
+  vtkTypeBool VertexVisibility;
+  vtkTypeBool BackfaceCulling;
+  vtkTypeBool FrontfaceCulling;
   bool Lighting;
   bool RenderPointsAsSpheres;
   bool RenderLinesAsTubes;
 
-  int Shading;
+  vtkTypeBool Shading;
 
   char* MaterialName;
 

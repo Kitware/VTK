@@ -111,9 +111,9 @@ public:
    * there will be an explicit method to control the construction of the
    * locator (found in the subclass).
    */
-  vtkSetMacro(Automatic,int);
-  vtkGetMacro(Automatic,int);
-  vtkBooleanMacro(Automatic,int);
+  vtkSetMacro(Automatic,vtkTypeBool);
+  vtkGetMacro(Automatic,vtkTypeBool);
+  vtkBooleanMacro(Automatic,vtkTypeBool);
   //@}
 
   //@{
@@ -174,7 +174,7 @@ protected:
   ~vtkLocator() override;
 
   vtkDataSet *DataSet;
-  int Automatic; // boolean controls automatic subdivision (or uses user spec.)
+  vtkTypeBool Automatic; // boolean controls automatic subdivision (or uses user spec.)
   double Tolerance; // for performing merging
   int MaxLevel;
   int Level;

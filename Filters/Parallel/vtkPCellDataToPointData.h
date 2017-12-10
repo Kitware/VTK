@@ -42,9 +42,9 @@ public:
    * To get piece invariance, this filter has to request an
    * extra ghost level.  By default piece invariance is on.
    */
-  vtkSetMacro(PieceInvariant, int);
-  vtkGetMacro(PieceInvariant, int);
-  vtkBooleanMacro(PieceInvariant, int);
+  vtkSetMacro(PieceInvariant, vtkTypeBool);
+  vtkGetMacro(PieceInvariant, vtkTypeBool);
+  vtkBooleanMacro(PieceInvariant, vtkTypeBool);
   //@}
 
 protected:
@@ -59,7 +59,7 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*) override;
 
-  int PieceInvariant;
+  vtkTypeBool PieceInvariant;
 private:
   vtkPCellDataToPointData(const vtkPCellDataToPointData&) = delete;
   void operator=(const vtkPCellDataToPointData&) = delete;

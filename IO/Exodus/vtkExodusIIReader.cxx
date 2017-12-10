@@ -5554,23 +5554,23 @@ int vtkExodusIIReader::GetMaxNameLength()
   return ex_inquire_int(this->Metadata->Exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
 }
 
-void vtkExodusIIReader::SetGenerateObjectIdCellArray( int x ) { this->Metadata->SetGenerateObjectIdArray( x ); }
-int vtkExodusIIReader::GetGenerateObjectIdCellArray() { return this->Metadata->GetGenerateObjectIdArray(); }
+void vtkExodusIIReader::SetGenerateObjectIdCellArray( vtkTypeBool x ) { this->Metadata->SetGenerateObjectIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateObjectIdCellArray() { return this->Metadata->GetGenerateObjectIdArray(); }
 
-void vtkExodusIIReader::SetGenerateGlobalElementIdArray( int x ) { this->Metadata->SetGenerateGlobalElementIdArray( x ); }
-int vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata->GetGenerateGlobalElementIdArray(); }
+void vtkExodusIIReader::SetGenerateGlobalElementIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateGlobalElementIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateGlobalElementIdArray() { return this->Metadata->GetGenerateGlobalElementIdArray(); }
 
-void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( int x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
-int vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
+void vtkExodusIIReader::SetGenerateGlobalNodeIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateGlobalNodeIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateGlobalNodeIdArray() { return this->Metadata->GetGenerateGlobalNodeIdArray(); }
 
-void vtkExodusIIReader::SetGenerateImplicitElementIdArray( int x ) { this->Metadata->SetGenerateImplicitElementIdArray( x ); }
-int vtkExodusIIReader::GetGenerateImplicitElementIdArray() { return this->Metadata->GetGenerateImplicitElementIdArray(); }
+void vtkExodusIIReader::SetGenerateImplicitElementIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateImplicitElementIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateImplicitElementIdArray() { return this->Metadata->GetGenerateImplicitElementIdArray(); }
 
-void vtkExodusIIReader::SetGenerateImplicitNodeIdArray( int x ) { this->Metadata->SetGenerateImplicitNodeIdArray( x ); }
-int vtkExodusIIReader::GetGenerateImplicitNodeIdArray() { return this->Metadata->GetGenerateImplicitNodeIdArray(); }
+void vtkExodusIIReader::SetGenerateImplicitNodeIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateImplicitNodeIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateImplicitNodeIdArray() { return this->Metadata->GetGenerateImplicitNodeIdArray(); }
 
-void vtkExodusIIReader::SetGenerateFileIdArray( int x ) { this->Metadata->SetGenerateFileIdArray( x ); }
-int vtkExodusIIReader::GetGenerateFileIdArray() { return this->Metadata->GetGenerateFileIdArray(); }
+void vtkExodusIIReader::SetGenerateFileIdArray( vtkTypeBool x ) { this->Metadata->SetGenerateFileIdArray( x ); }
+vtkTypeBool vtkExodusIIReader::GetGenerateFileIdArray() { return this->Metadata->GetGenerateFileIdArray(); }
 
 void vtkExodusIIReader::SetFileId( int x ) { this->Metadata->SetFileId( x ); }
 int vtkExodusIIReader::GetFileId() { return this->Metadata->GetFileId(); }

@@ -83,12 +83,12 @@ public:
    * since in that case each tringle strip can represent more than on of the
    * input cells.
    */
-  vtkSetMacro(PassThroughCellIds,int);
-  vtkGetMacro(PassThroughCellIds,int);
-  vtkBooleanMacro(PassThroughCellIds,int);
-  vtkSetMacro(PassThroughPointIds,int);
-  vtkGetMacro(PassThroughPointIds,int);
-  vtkBooleanMacro(PassThroughPointIds,int);
+  vtkSetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds,vtkTypeBool);
+  vtkSetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkGetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughPointIds,vtkTypeBool);
   //@}
 
   //@{
@@ -253,13 +253,13 @@ protected:
 
   int PieceInvariant;
 
-  int PassThroughCellIds;
+  vtkTypeBool PassThroughCellIds;
   void RecordOrigCellId(vtkIdType newIndex, vtkIdType origId);
   virtual void RecordOrigCellId(vtkIdType newIndex, vtkFastGeomQuad *quad);
   vtkIdTypeArray *OriginalCellIds;
   char *OriginalCellIdsName;
 
-  int PassThroughPointIds;
+  vtkTypeBool PassThroughPointIds;
   void RecordOrigPointId(vtkIdType newIndex, vtkIdType origId);
   vtkIdTypeArray *OriginalPointIds;
   char *OriginalPointIdsName;

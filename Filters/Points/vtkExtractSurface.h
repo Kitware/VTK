@@ -148,9 +148,9 @@ public:
    * by filters that modify topology or geometry, it may be wise to turn
    * Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -162,9 +162,9 @@ public:
    * modify topology or geometry, it may be wise to turn Normals and
    * Gradients off.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
 protected:
@@ -173,8 +173,8 @@ protected:
 
   double Radius;
   bool HoleFilling;
-  int ComputeNormals;
-  int ComputeGradients;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) override;

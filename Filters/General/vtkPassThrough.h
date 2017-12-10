@@ -45,9 +45,9 @@ public:
    * this filter's input connections and it will act like a source.
    * Defaults to OFF.
    */
-  vtkSetMacro(DeepCopyInput, int);
-  vtkGetMacro(DeepCopyInput, int);
-  vtkBooleanMacro(DeepCopyInput, int);
+  vtkSetMacro(DeepCopyInput, vtkTypeBool);
+  vtkGetMacro(DeepCopyInput, vtkTypeBool);
+  vtkBooleanMacro(DeepCopyInput, vtkTypeBool);
   //@}
 
   /**
@@ -74,7 +74,7 @@ protected:
     vtkInformationVector**,
     vtkInformationVector*) override;
 
-  int DeepCopyInput;
+  vtkTypeBool DeepCopyInput;
   bool AllowNullInput;
 
 private:

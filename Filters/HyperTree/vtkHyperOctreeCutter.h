@@ -157,9 +157,9 @@ public:
    * interpolated from the implicit function values, and not the input scalar
    * data.
    */
-  vtkSetMacro(GenerateCutScalars,int);
-  vtkGetMacro(GenerateCutScalars,int);
-  vtkBooleanMacro(GenerateCutScalars,int);
+  vtkSetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -241,7 +241,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
   int SortBy;
   vtkContourValues *ContourValues;
-  int GenerateCutScalars;
+  vtkTypeBool GenerateCutScalars;
 
   vtkHyperOctree *Input;
   vtkPolyData *Output;

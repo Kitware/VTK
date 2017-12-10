@@ -133,9 +133,9 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
      * surface.
      * Default is 1.
      */
-    vtkSetClampMacro(AllowRandomGeneration, int, 0, 1);
-    vtkGetMacro(AllowRandomGeneration, int);
-    vtkBooleanMacro(AllowRandomGeneration, int);
+    vtkSetClampMacro(AllowRandomGeneration, vtkTypeBool, 0, 1);
+    vtkGetMacro(AllowRandomGeneration, vtkTypeBool);
+    vtkBooleanMacro(AllowRandomGeneration, vtkTypeBool);
     //@}
 
     //@{
@@ -204,7 +204,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
     double XVarianceScaleFactor;
     double YVarianceScaleFactor;
     double AmplitudeScaleFactor;
-    int AllowRandomGeneration;
+    vtkTypeBool AllowRandomGeneration;
 
     // These variables store the previous values of the above ones.
     int previousNumberOfHills;

@@ -95,9 +95,9 @@ public:
    * Force the algorithm to check the mean distance between two iterations.
    * Default is Off.
    */
-  vtkSetMacro(CheckMeanDistance, int);
-  vtkGetMacro(CheckMeanDistance, int);
-  vtkBooleanMacro(CheckMeanDistance, int);
+  vtkSetMacro(CheckMeanDistance, vtkTypeBool);
+  vtkGetMacro(CheckMeanDistance, vtkTypeBool);
+  vtkBooleanMacro(CheckMeanDistance, vtkTypeBool);
   //@}
 
   //@{
@@ -150,9 +150,9 @@ public:
    * Starts the process by translating source centroid to target centroid.
    * The default is Off.
    */
-  vtkSetMacro(StartByMatchingCentroids, int);
-  vtkGetMacro(StartByMatchingCentroids, int);
-  vtkBooleanMacro(StartByMatchingCentroids, int);
+  vtkSetMacro(StartByMatchingCentroids, vtkTypeBool);
+  vtkGetMacro(StartByMatchingCentroids, vtkTypeBool);
+  vtkBooleanMacro(StartByMatchingCentroids, vtkTypeBool);
   //@}
 
   //@{
@@ -213,11 +213,11 @@ protected:
   vtkDataSet* Target;
   vtkCellLocator *Locator;
   int MaximumNumberOfIterations;
-  int CheckMeanDistance;
+  vtkTypeBool CheckMeanDistance;
   int MeanDistanceMode;
   double MaximumMeanDistance;
   int MaximumNumberOfLandmarks;
-  int StartByMatchingCentroids;
+  vtkTypeBool StartByMatchingCentroids;
 
   int NumberOfIterations;
   double MeanDistance;

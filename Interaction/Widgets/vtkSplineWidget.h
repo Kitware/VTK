@@ -280,9 +280,9 @@ public:
    * Turn on / off event processing for this widget. If off, the widget will
    * not respond to user interaction
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro( ProcessEvents, int );
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro( ProcessEvents, vtkTypeBool );
   //@}
 
 protected:
@@ -378,7 +378,7 @@ protected:
   // For efficient spinning
   double Centroid[3];
   void CalculateCentroid();
-  int  ProcessEvents;
+  vtkTypeBool  ProcessEvents;
 
 private:
   vtkSplineWidget(const vtkSplineWidget&) = delete;

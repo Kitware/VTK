@@ -160,9 +160,9 @@ public:
    * otherwise it will not be altered (a binary decision, as opposed
    * to the ImageSampleDistance which will vary continuously).
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, int );
-  vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
+  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
   //@}
 
   //@{
@@ -174,9 +174,9 @@ public:
    * voxels is 1E6. Note that ScalarOpacityUnitDistance is still taken into
    * account and if different than 1, will effect the sample distance.
    */
-  vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
-  vtkGetMacro( LockSampleDistanceToInputSpacing, int );
-  vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
+  vtkSetClampMacro( LockSampleDistanceToInputSpacing, vtkTypeBool, 0, 1 );
+  vtkGetMacro( LockSampleDistanceToInputSpacing, vtkTypeBool );
+  vtkBooleanMacro( LockSampleDistanceToInputSpacing, vtkTypeBool );
   //@}
 
   //@{
@@ -194,9 +194,9 @@ public:
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
    */
-  vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
-  vtkGetMacro( IntermixIntersectingGeometry, int );
-  vtkBooleanMacro( IntermixIntersectingGeometry, int );
+  vtkSetClampMacro( IntermixIntersectingGeometry, vtkTypeBool, 0, 1 );
+  vtkGetMacro( IntermixIntersectingGeometry, vtkTypeBool );
+  vtkBooleanMacro( IntermixIntersectingGeometry, vtkTypeBool );
   //@}
 
   //@{
@@ -369,8 +369,8 @@ protected:
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;
   float                        MaximumImageSampleDistance;
-  int                          AutoAdjustSampleDistances;
-  int                          LockSampleDistanceToInputSpacing;
+  vtkTypeBool                          AutoAdjustSampleDistances;
+  vtkTypeBool                          LockSampleDistanceToInputSpacing;
 
   // Saved values used to restore
   float                        OldSampleDistance;
@@ -424,7 +424,7 @@ protected:
   float            RetrieveRenderTime( vtkRenderer *ren, vtkVolume *vol );
   float            RetrieveRenderTime( vtkRenderer *ren );
 
-  int              IntermixIntersectingGeometry;
+  vtkTypeBool              IntermixIntersectingGeometry;
 
   float            MinimumViewDistance;
 

@@ -51,9 +51,9 @@ public:
    * on, then the input point data is passed through to the output; otherwise,
    * only generated point data is placed into the output.
    */
-  vtkSetMacro(PassPointData,int);
-  vtkGetMacro(PassPointData,int);
-  vtkBooleanMacro(PassPointData,int);
+  vtkSetMacro(PassPointData,vtkTypeBool);
+  vtkGetMacro(PassPointData,vtkTypeBool);
+  vtkBooleanMacro(PassPointData,vtkTypeBool);
   //@}
 
   //@{
@@ -62,9 +62,9 @@ public:
    * the data is categorical, then the resultant cell data will be determined by
    * a "majority rules" vote, with ties going to the smaller value.
    */
-  vtkSetMacro(CategoricalData,int);
-  vtkGetMacro(CategoricalData,int);
-  vtkBooleanMacro(CategoricalData,int);
+  vtkSetMacro(CategoricalData,vtkTypeBool);
+  vtkGetMacro(CategoricalData,vtkTypeBool);
+  vtkBooleanMacro(CategoricalData,vtkTypeBool);
   //@}
 
 protected:
@@ -75,8 +75,8 @@ protected:
                   vtkInformationVector** inputVector,
                   vtkInformationVector* outputVector) override;
 
-  int PassPointData;
-  int CategoricalData;
+  vtkTypeBool PassPointData;
+  vtkTypeBool CategoricalData;
 private:
   vtkPointDataToCellData(const vtkPointDataToCellData&) = delete;
   void operator=(const vtkPointDataToCellData&) = delete;

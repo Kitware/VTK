@@ -98,9 +98,9 @@ public:
    * Use the extents in CustomHistogramExtents when computing the
    * histogram, rather than the simple range of the input columns.
    */
-  vtkSetMacro(UseCustomHistogramExtents,int);
-  vtkGetMacro(UseCustomHistogramExtents,int);
-  vtkBooleanMacro(UseCustomHistogramExtents,int);
+  vtkSetMacro(UseCustomHistogramExtents,vtkTypeBool);
+  vtkGetMacro(UseCustomHistogramExtents,vtkTypeBool);
+  vtkBooleanMacro(UseCustomHistogramExtents,vtkTypeBool);
   //@}
 
   //@{
@@ -163,9 +163,9 @@ public:
    */
   double* GetHistogramExtents();
 
-  vtkSetMacro(SwapColumns,int);
-  vtkGetMacro(SwapColumns,int);
-  vtkBooleanMacro(SwapColumns,int);
+  vtkSetMacro(SwapColumns,vtkTypeBool);
+  vtkGetMacro(SwapColumns,vtkTypeBool);
+  vtkBooleanMacro(SwapColumns,vtkTypeBool);
 
   //@{
   /**
@@ -184,11 +184,11 @@ protected:
   vtkExtractHistogram2D();
   ~vtkExtractHistogram2D() override;
 
-  int SwapColumns;
+  vtkTypeBool SwapColumns;
   int NumberOfBins[2];
   double HistogramExtents[4];
   double CustomHistogramExtents[4];
-  int UseCustomHistogramExtents;
+  vtkTypeBool UseCustomHistogramExtents;
   int ComponentsToProcess[2];
   double MaximumBinCount;
   int ScalarType;

@@ -84,9 +84,9 @@ public:
   /**
    * Turn on timing of the k-d tree build
    */
-  vtkBooleanMacro(Timing, int);
-  vtkSetMacro(Timing, int);
-  vtkGetMacro(Timing, int);
+  vtkBooleanMacro(Timing, vtkTypeBool);
+  vtkSetMacro(Timing, vtkTypeBool);
+  vtkGetMacro(Timing, vtkTypeBool);
   //@}
 
   //@{
@@ -316,9 +316,9 @@ public:
    * to the region.  These lists are obtained with
    * GetBoundaryCellList().  Default is OFF.
    */
-  vtkSetMacro(IncludeRegionBoundaryCells, int);
-  vtkGetMacro(IncludeRegionBoundaryCells, int);
-  vtkBooleanMacro(IncludeRegionBoundaryCells, int);
+  vtkSetMacro(IncludeRegionBoundaryCells, vtkTypeBool);
+  vtkGetMacro(IncludeRegionBoundaryCells, vtkTypeBool);
+  vtkBooleanMacro(IncludeRegionBoundaryCells, vtkTypeBool);
   //@}
 
   /**
@@ -590,9 +590,9 @@ public:
    * the regions may not occupy the entire space.  To draw just the
    * bounds of the data in the regions, set this variable ON.
    */
-  vtkBooleanMacro(GenerateRepresentationUsingDataBounds, int);
-  vtkSetMacro(GenerateRepresentationUsingDataBounds, int);
-  vtkGetMacro(GenerateRepresentationUsingDataBounds, int);
+  vtkBooleanMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
+  vtkSetMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
+  vtkGetMacro(GenerateRepresentationUsingDataBounds, vtkTypeBool);
   //@}
 
   /**
@@ -878,10 +878,10 @@ protected:
   int NumberOfRegionsOrLess;
   int NumberOfRegionsOrMore;
 
-  int IncludeRegionBoundaryCells;
+  vtkTypeBool IncludeRegionBoundaryCells;
   double CellBoundsCache[6];       // to optimize IntersectsCell()
 
-  int GenerateRepresentationUsingDataBounds;
+  vtkTypeBool GenerateRepresentationUsingDataBounds;
 
   struct _cellList CellList;
 
@@ -893,7 +893,7 @@ protected:
   int MinCells;
   int NumberOfRegions;              // number of leaf nodes
 
-  int Timing;
+  vtkTypeBool Timing;
   double FudgeFactor;   // a very small distance, relative to the dataset's size
 
   // These instance variables are used by the special locator created

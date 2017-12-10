@@ -146,9 +146,9 @@ public:
   /**
    * Turn on/off smoothing along sharp interior edges.
    */
-  vtkSetMacro(FeatureEdgeSmoothing,int);
-  vtkGetMacro(FeatureEdgeSmoothing,int);
-  vtkBooleanMacro(FeatureEdgeSmoothing,int);
+  vtkSetMacro(FeatureEdgeSmoothing,vtkTypeBool);
+  vtkGetMacro(FeatureEdgeSmoothing,vtkTypeBool);
+  vtkBooleanMacro(FeatureEdgeSmoothing,vtkTypeBool);
   //@}
 
   //@{
@@ -172,27 +172,27 @@ public:
   /**
    * Turn on/off the smoothing of vertices on the boundary of the mesh.
    */
-  vtkSetMacro(BoundarySmoothing,int);
-  vtkGetMacro(BoundarySmoothing,int);
-  vtkBooleanMacro(BoundarySmoothing,int);
+  vtkSetMacro(BoundarySmoothing,vtkTypeBool);
+  vtkGetMacro(BoundarySmoothing,vtkTypeBool);
+  vtkBooleanMacro(BoundarySmoothing,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of scalar distance values.
    */
-  vtkSetMacro(GenerateErrorScalars,int);
-  vtkGetMacro(GenerateErrorScalars,int);
-  vtkBooleanMacro(GenerateErrorScalars,int);
+  vtkSetMacro(GenerateErrorScalars,vtkTypeBool);
+  vtkGetMacro(GenerateErrorScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the generation of error vectors.
    */
-  vtkSetMacro(GenerateErrorVectors,int);
-  vtkGetMacro(GenerateErrorVectors,int);
-  vtkBooleanMacro(GenerateErrorVectors,int);
+  vtkSetMacro(GenerateErrorVectors,vtkTypeBool);
+  vtkGetMacro(GenerateErrorVectors,vtkTypeBool);
+  vtkBooleanMacro(GenerateErrorVectors,vtkTypeBool);
   //@}
 
   //@{
@@ -225,12 +225,12 @@ protected:
   double Convergence;
   int NumberOfIterations;
   double RelaxationFactor;
-  int FeatureEdgeSmoothing;
+  vtkTypeBool FeatureEdgeSmoothing;
   double FeatureAngle;
   double EdgeAngle;
-  int BoundarySmoothing;
-  int GenerateErrorScalars;
-  int GenerateErrorVectors;
+  vtkTypeBool BoundarySmoothing;
+  vtkTypeBool GenerateErrorScalars;
+  vtkTypeBool GenerateErrorVectors;
   int OutputPointsPrecision;
 
   vtkSmoothPoints *SmoothPoints;

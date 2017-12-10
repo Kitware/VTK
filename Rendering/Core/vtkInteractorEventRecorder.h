@@ -84,9 +84,9 @@ public:
    * Enable reading from an InputString as compared to the default
    * behavior, which is to read from a file.
    */
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  vtkSetMacro(ReadFromInputString,vtkTypeBool);
+  vtkGetMacro(ReadFromInputString,vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString,vtkTypeBool);
   //@}
 
   //@{
@@ -108,7 +108,7 @@ protected:
   vtkCallbackCommand* DeleteEventCallbackCommand;
 
   // control whether to read from string
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
   char *InputString;
 
   // for reading and writing

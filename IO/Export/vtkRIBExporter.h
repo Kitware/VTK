@@ -113,9 +113,9 @@ public:
    * off. Otherwise, try setting BackGroundOn and see if you get the
    * desired results.
    */
-  vtkSetMacro(Background,int);
-  vtkGetMacro(Background,int);
-  vtkBooleanMacro(Background,int);
+  vtkSetMacro(Background,vtkTypeBool);
+  vtkGetMacro(Background,vtkTypeBool);
+  vtkBooleanMacro(Background,vtkTypeBool);
   //@}
 
   //@{
@@ -133,7 +133,7 @@ protected:
   vtkRIBExporter();
   ~vtkRIBExporter() override;
 
-  int Background;
+  vtkTypeBool Background;
   int Size[2];
   int PixelSamples[2];
 

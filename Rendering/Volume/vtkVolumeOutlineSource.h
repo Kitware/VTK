@@ -59,9 +59,9 @@ public:
    * the output has no scalars and the color must be set in the
    * property of the actor.
    */
-  vtkSetMacro(GenerateScalars, int);
-  vtkBooleanMacro(GenerateScalars, int);
-  vtkGetMacro(GenerateScalars, int);
+  vtkSetMacro(GenerateScalars, vtkTypeBool);
+  vtkBooleanMacro(GenerateScalars, vtkTypeBool);
+  vtkGetMacro(GenerateScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -69,9 +69,9 @@ public:
    * Set whether to generate an outline wherever an input face was
    * cut by a plane.  This is on by default.
    */
-  vtkSetMacro(GenerateOutline, int);
-  vtkBooleanMacro(GenerateOutline, int);
-  vtkGetMacro(GenerateOutline, int);
+  vtkSetMacro(GenerateOutline, vtkTypeBool);
+  vtkBooleanMacro(GenerateOutline, vtkTypeBool);
+  vtkGetMacro(GenerateOutline, vtkTypeBool);
   //@}
 
   //@{
@@ -119,8 +119,8 @@ protected:
   ~vtkVolumeOutlineSource() override;
 
   vtkVolumeMapper *VolumeMapper;
-  int GenerateScalars;
-  int GenerateOutline;
+  vtkTypeBool GenerateScalars;
+  vtkTypeBool GenerateOutline;
   vtkTypeBool GenerateFaces;
   int ActivePlaneId;
   double Color[3];

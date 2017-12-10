@@ -60,27 +60,27 @@ public:
   /**
    * Turn on/off selection of geometry by point id.
    */
-  vtkSetMacro(PointClipping,int);
-  vtkGetMacro(PointClipping,int);
-  vtkBooleanMacro(PointClipping,int);
+  vtkSetMacro(PointClipping,vtkTypeBool);
+  vtkGetMacro(PointClipping,vtkTypeBool);
+  vtkBooleanMacro(PointClipping,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off selection of geometry by cell id.
    */
-  vtkSetMacro(CellClipping,int);
-  vtkGetMacro(CellClipping,int);
-  vtkBooleanMacro(CellClipping,int);
+  vtkSetMacro(CellClipping,vtkTypeBool);
+  vtkGetMacro(CellClipping,vtkTypeBool);
+  vtkBooleanMacro(CellClipping,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off selection of geometry via bounding box.
    */
-  vtkSetMacro(ExtentClipping,int);
-  vtkGetMacro(ExtentClipping,int);
-  vtkBooleanMacro(ExtentClipping,int);
+  vtkSetMacro(ExtentClipping,vtkTypeBool);
+  vtkGetMacro(ExtentClipping,vtkTypeBool);
+  vtkBooleanMacro(ExtentClipping,vtkTypeBool);
   //@}
 
   //@{
@@ -88,9 +88,9 @@ public:
    * Turn on/off clipping of ghost cells with type
    * vtkDataSetAttributes::DUPLICATECELL. Defaults to on.
    */
-  vtkSetMacro(DuplicateGhostCellClipping,int);
-  vtkGetMacro(DuplicateGhostCellClipping,int);
-  vtkBooleanMacro(DuplicateGhostCellClipping,int);
+  vtkSetMacro(DuplicateGhostCellClipping,vtkTypeBool);
+  vtkGetMacro(DuplicateGhostCellClipping,vtkTypeBool);
+  vtkBooleanMacro(DuplicateGhostCellClipping,vtkTypeBool);
   //@}
 
   //@{
@@ -145,9 +145,9 @@ public:
    * on, points with different point attributes (e.g., normals) are merged,
    * which may cause rendering artifacts.
    */
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
   //@}
 
   //@{
@@ -159,12 +159,12 @@ public:
    * since in that case each tringle strip can represent more than on of the
    * input cells.
    */
-  vtkSetMacro(PassThroughCellIds,int);
-  vtkGetMacro(PassThroughCellIds,int);
-  vtkBooleanMacro(PassThroughCellIds,int);
-  vtkSetMacro(PassThroughPointIds,int);
-  vtkGetMacro(PassThroughPointIds,int);
-  vtkBooleanMacro(PassThroughPointIds,int);
+  vtkSetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds,vtkTypeBool);
+  vtkSetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkGetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughPointIds,vtkTypeBool);
   //@}
 
   //@{
@@ -219,17 +219,17 @@ protected:
   vtkIdType CellMinimum;
   vtkIdType CellMaximum;
   double Extent[6];
-  int PointClipping;
-  int CellClipping;
-  int ExtentClipping;
-  int DuplicateGhostCellClipping;
+  vtkTypeBool PointClipping;
+  vtkTypeBool CellClipping;
+  vtkTypeBool ExtentClipping;
+  vtkTypeBool DuplicateGhostCellClipping;
 
-  int PassThroughCellIds;
-  int PassThroughPointIds;
+  vtkTypeBool PassThroughCellIds;
+  vtkTypeBool PassThroughPointIds;
   char *OriginalCellIdsName;
   char *OriginalPointIdsName;
 
-  int Merging;
+  vtkTypeBool Merging;
   vtkIncrementalPointLocator *Locator;
 
   vtkHashTableOfSurfels *HashTable;

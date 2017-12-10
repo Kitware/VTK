@@ -87,9 +87,9 @@ public:
    * Set/Get the computation of normals. The normal generated is simply the
    * cut plane normal. By default this is disabled.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -98,9 +98,9 @@ public:
    * scalars (which are required). That is, as the isosurface is generated,
    * interpolate all other point attribute data across intersected edges.
    */
-  vtkSetMacro(InterpolateAttributes,int);
-  vtkGetMacro(InterpolateAttributes,int);
-  vtkBooleanMacro(InterpolateAttributes,int);
+  vtkSetMacro(InterpolateAttributes,vtkTypeBool);
+  vtkGetMacro(InterpolateAttributes,vtkTypeBool);
+  vtkBooleanMacro(InterpolateAttributes,vtkTypeBool);
   //@}
 
   //@{
@@ -116,8 +116,8 @@ protected:
   ~vtkFlyingEdgesPlaneCutter() override;
 
   vtkPlane *Plane;
-  int ComputeNormals;
-  int InterpolateAttributes;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool InterpolateAttributes;
   int ArrayComponent;
 
   int RequestData(vtkInformation *, vtkInformationVector **,

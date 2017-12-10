@@ -239,9 +239,9 @@ public:
    * Turn on/off logarithmic scaling. If scaling is on, the log base 10
    * of the computed eigenvalues are used to scale the cross section radii.
    */
-  vtkSetMacro(LogScaling,int);
-  vtkGetMacro(LogScaling,int);
-  vtkBooleanMacro(LogScaling,int);
+  vtkSetMacro(LogScaling,vtkTypeBool);
+  vtkGetMacro(LogScaling,vtkTypeBool);
+  vtkBooleanMacro(LogScaling,vtkTypeBool);
   //@}
 
 protected:
@@ -291,7 +291,7 @@ protected:
   double Radius;
 
   // boolean controls whether scaling is clamped
-  int LogScaling;
+  vtkTypeBool LogScaling;
 
   // which eigenvector to use as integration vector field
   int IntegrationEigenvector;

@@ -238,9 +238,9 @@ public:
   /**
    * Set whether the below range color should be used.
    */
-  vtkSetMacro(UseBelowRangeColor, int);
-  vtkGetMacro(UseBelowRangeColor, int);
-  vtkBooleanMacro(UseBelowRangeColor, int);
+  vtkSetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkGetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseBelowRangeColor, vtkTypeBool);
   //@}
 
   //@{
@@ -256,9 +256,9 @@ public:
   /**
    * Set whether the above range color should be used.
    */
-  vtkSetMacro(UseAboveRangeColor, int);
-  vtkGetMacro(UseAboveRangeColor, int);
-  vtkBooleanMacro(UseAboveRangeColor, int);
+  vtkSetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkGetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseAboveRangeColor, vtkTypeBool);
   //@}
 
   /**
@@ -443,9 +443,9 @@ protected:
   double AlphaRange[2];
   double NanColor[4];
   double BelowRangeColor[4];
-  int    UseBelowRangeColor;
+  vtkTypeBool    UseBelowRangeColor;
   double AboveRangeColor[4];
-  int    UseAboveRangeColor;
+  vtkTypeBool    UseAboveRangeColor;
 
   int Scale;
   int Ramp;

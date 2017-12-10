@@ -109,9 +109,9 @@ public:
    * Set/get whether to allow this widget to be interactively moved/scaled.
    * Default is On.
    */
-  void SetInteractive(int state);
-  vtkGetMacro(Interactive, int);
-  vtkBooleanMacro(Interactive, int);
+  void SetInteractive(vtkTypeBool state);
+  vtkGetMacro(Interactive, vtkTypeBool);
+  vtkBooleanMacro(Interactive, vtkTypeBool);
   //@}
 
   //@{
@@ -181,7 +181,7 @@ protected:
   // observer to update the renderer's camera
   vtkOrientationMarkerWidgetObserver *Observer;
 
-  int Interactive;
+  vtkTypeBool Interactive;
   int Tolerance;
   int Moving;
 

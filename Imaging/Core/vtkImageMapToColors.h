@@ -75,9 +75,9 @@ public:
    * Use the alpha component of the input when computing the alpha component
    * of the output (useful when converting monochrome+alpha data to RGBA)
    */
-  vtkSetMacro(PassAlphaToOutput,int);
-  vtkBooleanMacro(PassAlphaToOutput,int);
-  vtkGetMacro(PassAlphaToOutput,int);
+  vtkSetMacro(PassAlphaToOutput,vtkTypeBool);
+  vtkBooleanMacro(PassAlphaToOutput,vtkTypeBool);
+  vtkGetMacro(PassAlphaToOutput,vtkTypeBool);
   //@}
 
   /**
@@ -116,7 +116,7 @@ protected:
   int OutputFormat;
 
   int ActiveComponent;
-  int PassAlphaToOutput;
+  vtkTypeBool PassAlphaToOutput;
 
   int DataWasPassed;
 

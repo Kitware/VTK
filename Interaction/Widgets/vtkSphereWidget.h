@@ -167,12 +167,12 @@ public:
    * Enable translation and scaling of the widget. By default, the widget
    * can be translated and rotated.
    */
-  vtkSetMacro(Translation,int);
-  vtkGetMacro(Translation,int);
-  vtkBooleanMacro(Translation,int);
-  vtkSetMacro(Scale,int);
-  vtkGetMacro(Scale,int);
-  vtkBooleanMacro(Scale,int);
+  vtkSetMacro(Translation,vtkTypeBool);
+  vtkGetMacro(Translation,vtkTypeBool);
+  vtkBooleanMacro(Translation,vtkTypeBool);
+  vtkSetMacro(Scale,vtkTypeBool);
+  vtkGetMacro(Scale,vtkTypeBool);
+  vtkBooleanMacro(Scale,vtkTypeBool);
   //@}
 
   //@{
@@ -182,9 +182,9 @@ public:
    * of the handle can be retrieved, this is useful for positioning cameras
    * and lights. By default, the handle is turned off.
    */
-  vtkSetMacro(HandleVisibility,int);
-  vtkGetMacro(HandleVisibility,int);
-  vtkBooleanMacro(HandleVisibility,int);
+  vtkSetMacro(HandleVisibility,vtkTypeBool);
+  vtkGetMacro(HandleVisibility,vtkTypeBool);
+  vtkBooleanMacro(HandleVisibility,vtkTypeBool);
   //@}
 
   //@{
@@ -285,8 +285,8 @@ protected:
   void RegisterPickers() override;
 
   // Methods to manipulate the sphere widget
-  int Translation;
-  int Scale;
+  vtkTypeBool Translation;
+  vtkTypeBool Scale;
   void Translate(double *p1, double *p2);
   void ScaleSphere(double *p1, double *p2, int X, int Y);
   void MoveHandle(double *p1, double *p2, int X, int Y);
@@ -305,7 +305,7 @@ protected:
   vtkPolyDataMapper *HandleMapper;
   vtkSphereSource   *HandleSource;
   void HighlightHandle(int);
-  int HandleVisibility;
+  vtkTypeBool HandleVisibility;
   double HandleDirection[3];
   double HandlePosition[3];
   void SizeHandles() override;

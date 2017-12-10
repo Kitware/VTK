@@ -134,36 +134,36 @@ public:
   /**
    * Boolean controls whether tetrahedra are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaTets,int);
-  vtkGetMacro(AlphaTets,int);
-  vtkBooleanMacro(AlphaTets,int);
+  vtkSetMacro(AlphaTets,vtkTypeBool);
+  vtkGetMacro(AlphaTets,vtkTypeBool);
+  vtkBooleanMacro(AlphaTets,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Boolean controls whether triangles are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaTris,int);
-  vtkGetMacro(AlphaTris,int);
-  vtkBooleanMacro(AlphaTris,int);
+  vtkSetMacro(AlphaTris,vtkTypeBool);
+  vtkGetMacro(AlphaTris,vtkTypeBool);
+  vtkBooleanMacro(AlphaTris,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Boolean controls whether lines are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaLines,int);
-  vtkGetMacro(AlphaLines,int);
-  vtkBooleanMacro(AlphaLines,int);
+  vtkSetMacro(AlphaLines,vtkTypeBool);
+  vtkGetMacro(AlphaLines,vtkTypeBool);
+  vtkBooleanMacro(AlphaLines,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Boolean controls whether vertices are output for non-zero alpha values.
    */
-  vtkSetMacro(AlphaVerts,int);
-  vtkGetMacro(AlphaVerts,int);
-  vtkBooleanMacro(AlphaVerts,int);
+  vtkSetMacro(AlphaVerts,vtkTypeBool);
+  vtkGetMacro(AlphaVerts,vtkTypeBool);
+  vtkBooleanMacro(AlphaVerts,vtkTypeBool);
   //@}
 
   //@{
@@ -192,9 +192,9 @@ public:
    * initial triangulation to begin the triangulation process. This feature
    * is nice for debugging output.)
    */
-  vtkSetMacro(BoundingTriangulation,int);
-  vtkGetMacro(BoundingTriangulation,int);
-  vtkBooleanMacro(BoundingTriangulation,int);
+  vtkSetMacro(BoundingTriangulation,vtkTypeBool);
+  vtkGetMacro(BoundingTriangulation,vtkTypeBool);
+  vtkBooleanMacro(BoundingTriangulation,vtkTypeBool);
   //@}
 
   //@{
@@ -270,12 +270,12 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   double Alpha;
-  int AlphaTets;
-  int AlphaTris;
-  int AlphaLines;
-  int AlphaVerts;
+  vtkTypeBool AlphaTets;
+  vtkTypeBool AlphaTris;
+  vtkTypeBool AlphaLines;
+  vtkTypeBool AlphaVerts;
   double Tolerance;
-  int BoundingTriangulation;
+  vtkTypeBool BoundingTriangulation;
   double Offset;
   int OutputPointsPrecision;
 

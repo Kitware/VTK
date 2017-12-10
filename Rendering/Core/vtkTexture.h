@@ -101,9 +101,9 @@ public:
    * Turn on/off the repetition of the texture map when the texture
    * coords extend beyond the [0,1] range.
    */
-  vtkGetMacro(Repeat, int);
-  vtkSetMacro(Repeat, int);
-  vtkBooleanMacro(Repeat, int);
+  vtkGetMacro(Repeat, vtkTypeBool);
+  vtkSetMacro(Repeat, vtkTypeBool);
+  vtkBooleanMacro(Repeat, vtkTypeBool);
   //@}
 
   //@{
@@ -113,18 +113,18 @@ public:
    * Only used when Repeat is off, and edge clamping is supported by
    * the graphics card.
    */
-  vtkGetMacro(EdgeClamp, int);
-  vtkSetMacro(EdgeClamp, int);
-  vtkBooleanMacro(EdgeClamp, int);
+  vtkGetMacro(EdgeClamp, vtkTypeBool);
+  vtkSetMacro(EdgeClamp, vtkTypeBool);
+  vtkBooleanMacro(EdgeClamp, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off linear interpolation of the texture map when rendering.
    */
-  vtkGetMacro(Interpolate, int);
-  vtkSetMacro(Interpolate, int);
-  vtkBooleanMacro(Interpolate, int);
+  vtkGetMacro(Interpolate, vtkTypeBool);
+  vtkSetMacro(Interpolate, vtkTypeBool);
+  vtkBooleanMacro(Interpolate, vtkTypeBool);
   //@}
 
   //@{
@@ -249,9 +249,9 @@ public:
    * 1 (or ON) with force the new image's dimensions to be less than or equal
    * to with respects to the original.
    */
-  vtkGetMacro(RestrictPowerOf2ImageSmaller, int);
-  vtkSetMacro(RestrictPowerOf2ImageSmaller, int);
-  vtkBooleanMacro(RestrictPowerOf2ImageSmaller, int);
+  vtkGetMacro(RestrictPowerOf2ImageSmaller, vtkTypeBool);
+  vtkSetMacro(RestrictPowerOf2ImageSmaller, vtkTypeBool);
+  vtkBooleanMacro(RestrictPowerOf2ImageSmaller, vtkTypeBool);
   //@}
 
   /**
@@ -302,9 +302,9 @@ protected:
   }
 
   bool Mipmap;
-  int Repeat;
-  int EdgeClamp;
-  int Interpolate;
+  vtkTypeBool Repeat;
+  vtkTypeBool EdgeClamp;
+  vtkTypeBool Interpolate;
   int Quality;
   int ColorMode;
   vtkScalarsToColors* LookupTable;
@@ -312,7 +312,7 @@ protected:
   vtkTransform * Transform;
 
   int BlendingMode;
-  int RestrictPowerOf2ImageSmaller;
+  vtkTypeBool RestrictPowerOf2ImageSmaller;
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;
   bool PremultipliedAlpha;

@@ -97,9 +97,9 @@ public:
    * Flag to tell the source to generate either a quad or two triangle for a
    * set of four points. Initial value is false (generate triangles).
    */
-  vtkSetMacro(Quads, int);
-  vtkGetMacro(Quads, int);
-  vtkBooleanMacro(Quads, int);
+  vtkSetMacro(Quads, vtkTypeBool);
+  vtkGetMacro(Quads, vtkTypeBool);
+  vtkBooleanMacro(Quads, vtkTypeBool);
   //@}
 
   //@{
@@ -162,7 +162,7 @@ protected:
   double Bounds[6];
   int Level;
   vtkTypeBool DuplicateSharedPoints;
-  int Quads;
+  vtkTypeBool Quads;
   int OutputPointsPrecision;
 
 private:

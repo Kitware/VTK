@@ -140,18 +140,18 @@ public:
   /**
    * Turn the light on or off.
    */
-  vtkSetMacro(Switch,int);
-  vtkGetMacro(Switch,int);
-  vtkBooleanMacro(Switch,int);
+  vtkSetMacro(Switch,vtkTypeBool);
+  vtkGetMacro(Switch,vtkTypeBool);
+  vtkBooleanMacro(Switch,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn positional lighting on or off.
    */
-  vtkSetMacro(Positional,int);
-  vtkGetMacro(Positional,int);
-  vtkBooleanMacro(Positional,int);
+  vtkSetMacro(Positional,vtkTypeBool);
+  vtkGetMacro(Positional,vtkTypeBool);
+  vtkBooleanMacro(Positional,vtkTypeBool);
   //@}
 
   //@{
@@ -298,8 +298,8 @@ protected:
   double AmbientColor[3];
   double DiffuseColor[3];
   double SpecularColor[3];
-  int    Switch;
-  int    Positional;
+  vtkTypeBool    Switch;
+  vtkTypeBool    Positional;
   double Exponent;
   double ConeAngle;
   double AttenuationValues[3];

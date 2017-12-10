@@ -131,15 +131,15 @@ public:
    * This can be used to snap the cylinder to the axes if it is originally
    * not aligned.
    */
-  void SetAlongXAxis(int);
-  vtkGetMacro(AlongXAxis,int);
-  vtkBooleanMacro(AlongXAxis,int);
-  void SetAlongYAxis(int);
-  vtkGetMacro(AlongYAxis,int);
-  vtkBooleanMacro(AlongYAxis,int);
-  void SetAlongZAxis(int);
-  vtkGetMacro(AlongZAxis,int);
-  vtkBooleanMacro(AlongZAxis,int);
+  void SetAlongXAxis(vtkTypeBool);
+  vtkGetMacro(AlongXAxis,vtkTypeBool);
+  vtkBooleanMacro(AlongXAxis,vtkTypeBool);
+  void SetAlongYAxis(vtkTypeBool);
+  vtkGetMacro(AlongYAxis,vtkTypeBool);
+  vtkBooleanMacro(AlongYAxis,vtkTypeBool);
+  void SetAlongZAxis(vtkTypeBool);
+  vtkGetMacro(AlongZAxis,vtkTypeBool);
+  vtkBooleanMacro(AlongZAxis,vtkTypeBool);
   //@}
 
   //@{
@@ -149,9 +149,9 @@ public:
    * cylinder interferes with the cut surface it produces resulting in
    * z-buffer artifacts.) By default it is off.
    */
-  void SetDrawCylinder(int drawCyl);
-  vtkGetMacro(DrawCylinder,int);
-  vtkBooleanMacro(DrawCylinder,int);
+  void SetDrawCylinder(vtkTypeBool drawCyl);
+  vtkGetMacro(DrawCylinder,vtkTypeBool);
+  vtkBooleanMacro(DrawCylinder,vtkTypeBool);
   //@}
 
   //@{
@@ -171,9 +171,9 @@ public:
    * intersecton (against the bounding box). The tube thickens the
    * line by wrapping with a vtkTubeFilter.
    */
-  vtkSetMacro(Tubing,int);
-  vtkGetMacro(Tubing,int);
-  vtkBooleanMacro(Tubing,int);
+  vtkSetMacro(Tubing,vtkTypeBool);
+  vtkGetMacro(Tubing,vtkTypeBool);
+  vtkBooleanMacro(Tubing,vtkTypeBool);
   //@}
 
   //@{
@@ -181,9 +181,9 @@ public:
    * Turn on/off the ability to translate the bounding box by moving it
    * with the mouse.
    */
-  vtkSetMacro(OutlineTranslation,int);
-  vtkGetMacro(OutlineTranslation,int);
-  vtkBooleanMacro(OutlineTranslation,int);
+  vtkSetMacro(OutlineTranslation,vtkTypeBool);
+  vtkGetMacro(OutlineTranslation,vtkTypeBool);
+  vtkBooleanMacro(OutlineTranslation,vtkTypeBool);
   //@}
 
   //@{
@@ -191,9 +191,9 @@ public:
    * Turn on/off the ability to move the widget outside of the bounds
    * specified in the PlaceWidget() invocation.
    */
-  vtkSetMacro(OutsideBounds,int);
-  vtkGetMacro(OutsideBounds,int);
-  vtkBooleanMacro(OutsideBounds,int);
+  vtkSetMacro(OutsideBounds,vtkTypeBool);
+  vtkGetMacro(OutsideBounds,vtkTypeBool);
+  vtkBooleanMacro(OutsideBounds,vtkTypeBool);
   //@}
 
   //@{
@@ -394,9 +394,9 @@ protected:
   double BumpDistance;
 
   // Controlling ivars
-  int AlongXAxis;
-  int AlongYAxis;
-  int AlongZAxis;
+  vtkTypeBool AlongXAxis;
+  vtkTypeBool AlongYAxis;
+  vtkTypeBool AlongZAxis;
 
   // The actual cylinder which is being manipulated
   vtkCylinder *Cylinder;
@@ -410,9 +410,9 @@ protected:
   vtkPolyDataMapper *OutlineMapper;
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
-  int  OutlineTranslation; //whether the outline can be moved
+  vtkTypeBool  OutlineTranslation; //whether the outline can be moved
   vtkTypeBool  ScaleEnabled; //whether the widget can be scaled
-  int  OutsideBounds; //whether the widget can be moved outside input's bounds
+  vtkTypeBool  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
   int ConstrainToWidgetBounds;
 
@@ -420,7 +420,7 @@ protected:
   vtkPolyData       *Cyl;
   vtkPolyDataMapper *CylMapper;
   vtkActor          *CylActor;
-  int                DrawCylinder;
+  vtkTypeBool                DrawCylinder;
   void HighlightCylinder(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
@@ -428,7 +428,7 @@ protected:
   vtkTubeFilter     *EdgesTuber;
   vtkPolyDataMapper *EdgesMapper;
   vtkActor          *EdgesActor;
-  int                Tubing; //control whether tubing is on
+  vtkTypeBool                Tubing; //control whether tubing is on
 
   // The + normal cone (i.e., in positive direction along normal)
   vtkConeSource     *ConeSource;

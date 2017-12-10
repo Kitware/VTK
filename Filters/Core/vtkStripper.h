@@ -85,9 +85,9 @@ public:
    * Enable/Disable passing of the CellData in the input to
    * the output as FieldData. Note the field data is transformed.
    */
-  vtkBooleanMacro(PassCellDataAsFieldData, int);
-  vtkSetMacro(PassCellDataAsFieldData, int);
-  vtkGetMacro(PassCellDataAsFieldData, int);
+  vtkBooleanMacro(PassCellDataAsFieldData, vtkTypeBool);
+  vtkSetMacro(PassCellDataAsFieldData, vtkTypeBool);
+  vtkGetMacro(PassCellDataAsFieldData, vtkTypeBool);
   //@}
 
   //@{
@@ -97,9 +97,9 @@ public:
    * cell. This is useful for picking. The default is off to conserve
    * memory.
    */
-  vtkSetMacro(PassThroughCellIds,int);
-  vtkGetMacro(PassThroughCellIds,int);
-  vtkBooleanMacro(PassThroughCellIds,int);
+  vtkSetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds,vtkTypeBool);
   //@}
 
   //@{
@@ -109,9 +109,9 @@ public:
    * vertex. This is useful for picking. The default is off to conserve
    * memory.
    */
-  vtkSetMacro(PassThroughPointIds,int);
-  vtkGetMacro(PassThroughPointIds,int);
-  vtkBooleanMacro(PassThroughPointIds,int);
+  vtkSetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkGetMacro(PassThroughPointIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughPointIds,vtkTypeBool);
   //@}
 
   //@{
@@ -120,9 +120,9 @@ public:
    * contiguous. This is useful after slicing a surface. The default
    * is off.
    */
-  vtkSetMacro(JoinContiguousSegments,int);
-  vtkGetMacro(JoinContiguousSegments,int);
-  vtkBooleanMacro(JoinContiguousSegments,int);
+  vtkSetMacro(JoinContiguousSegments,vtkTypeBool);
+  vtkGetMacro(JoinContiguousSegments,vtkTypeBool);
+  vtkBooleanMacro(JoinContiguousSegments,vtkTypeBool);
   //@}
 
 protected:
@@ -133,10 +133,10 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   int MaximumLength;
-  int PassCellDataAsFieldData;
-  int PassThroughCellIds;
-  int PassThroughPointIds;
-  int JoinContiguousSegments;
+  vtkTypeBool PassCellDataAsFieldData;
+  vtkTypeBool PassThroughCellIds;
+  vtkTypeBool PassThroughPointIds;
+  vtkTypeBool JoinContiguousSegments;
 
 private:
   vtkStripper(const vtkStripper&) = delete;

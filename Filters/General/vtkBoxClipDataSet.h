@@ -98,9 +98,9 @@ public:
    * If this flag is enabled, then the output scalar values will be
    * interpolated, and not the input scalar data.
    */
-  vtkSetMacro(GenerateClipScalars,int);
-  vtkGetMacro(GenerateClipScalars,int);
-  vtkBooleanMacro(GenerateClipScalars,int);
+  vtkSetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkGetMacro(GenerateClipScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateClipScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -108,9 +108,9 @@ public:
    * Control whether a second output is generated. The second output
    * contains the polygonal data that's been clipped away.
    */
-  vtkSetMacro(GenerateClippedOutput,int);
-  vtkGetMacro(GenerateClippedOutput,int);
-  vtkBooleanMacro(GenerateClippedOutput,int);
+  vtkSetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkGetMacro(GenerateClippedOutput,vtkTypeBool);
+  vtkBooleanMacro(GenerateClippedOutput,vtkTypeBool);
   //@}
 
   /**
@@ -258,9 +258,9 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkIncrementalPointLocator *Locator;
-  int GenerateClipScalars;
+  vtkTypeBool GenerateClipScalars;
 
-  int GenerateClippedOutput;
+  vtkTypeBool GenerateClippedOutput;
 
   //double MergeTolerance;
 

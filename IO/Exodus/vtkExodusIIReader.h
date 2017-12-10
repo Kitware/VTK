@@ -140,31 +140,32 @@ public:
    * representing faces from an Exodus face block. The same holds
    * for cells representing entries of node, edge, face, side, and element sets.
    */
-  virtual void SetGenerateObjectIdCellArray( int g );
-  int GetGenerateObjectIdCellArray();
-  vtkBooleanMacro(GenerateObjectIdCellArray, int);
+  virtual void SetGenerateObjectIdCellArray( vtkTypeBool g );
+  vtkTypeBool GetGenerateObjectIdCellArray();
+  vtkBooleanMacro(GenerateObjectIdCellArray, vtkTypeBool);
   static const char *GetObjectIdArrayName() { return "ObjectId"; }
   //@}
 
-  virtual void SetGenerateGlobalElementIdArray( int g );
-  int GetGenerateGlobalElementIdArray();
-  vtkBooleanMacro(GenerateGlobalElementIdArray, int);
+  virtual void SetGenerateGlobalElementIdArray( vtkTypeBool g );
+  vtkTypeBool GetGenerateGlobalElementIdArray();
+  vtkBooleanMacro(GenerateGlobalElementIdArray, vtkTypeBool);
 
-  virtual void SetGenerateGlobalNodeIdArray( int g );
-  int GetGenerateGlobalNodeIdArray();
-  vtkBooleanMacro(GenerateGlobalNodeIdArray, int);
+  virtual void SetGenerateGlobalNodeIdArray( vtkTypeBool g );
+  vtkTypeBool GetGenerateGlobalNodeIdArray();
+  vtkBooleanMacro(GenerateGlobalNodeIdArray, vtkTypeBool);
 
-  virtual void SetGenerateImplicitElementIdArray( int g );
-  int GetGenerateImplicitElementIdArray();
-  vtkBooleanMacro(GenerateImplicitElementIdArray, int);
+  virtual void SetGenerateImplicitElementIdArray( vtkTypeBool g );
+  vtkTypeBool GetGenerateImplicitElementIdArray();
+  vtkBooleanMacro(GenerateImplicitElementIdArray, vtkTypeBool);
 
-  virtual void SetGenerateImplicitNodeIdArray( int g );
-  int GetGenerateImplicitNodeIdArray();
-  vtkBooleanMacro(GenerateImplicitNodeIdArray, int);
+  virtual void SetGenerateImplicitNodeIdArray( vtkTypeBool g );
+  vtkTypeBool GetGenerateImplicitNodeIdArray();
+  vtkBooleanMacro(GenerateImplicitNodeIdArray, vtkTypeBool);
 
-  virtual void SetGenerateFileIdArray( int f );
-  int GetGenerateFileIdArray();
-  vtkBooleanMacro(GenerateFileIdArray, int);
+  virtual void SetGenerateFileIdArray( vtkTypeBool f );
+  vtkTypeBool GetGenerateFileIdArray();
+  vtkBooleanMacro(GenerateFileIdArray, vtkTypeBool);
+
   virtual void SetFileId( int f );
   int GetFileId();
 
@@ -294,9 +295,9 @@ public:
    * are turned 'off', the user can explicitly add them by
    * applying a warp filter.
    */
-  virtual void SetApplyDisplacements( int d );
-  int GetApplyDisplacements();
-  vtkBooleanMacro(ApplyDisplacements, int);
+  virtual void SetApplyDisplacements( vtkTypeBool d );
+  vtkTypeBool GetApplyDisplacements();
+  vtkBooleanMacro(ApplyDisplacements, vtkTypeBool);
   virtual void SetDisplacementMagnitude( float s );
   float GetDisplacementMagnitude();
   //@}
@@ -307,9 +308,9 @@ public:
    * By default, HasModeShapes is false unless two time values in the Exodus file are identical,
    * in which case it is true.
    */
-  virtual void SetHasModeShapes( int ms );
-  int GetHasModeShapes();
-  vtkBooleanMacro(HasModeShapes,int);
+  virtual void SetHasModeShapes( vtkTypeBool ms );
+  vtkTypeBool GetHasModeShapes();
+  vtkBooleanMacro(HasModeShapes,vtkTypeBool);
   //@}
 
   //@{
@@ -332,9 +333,9 @@ public:
    * HasModeShapes is on, this reader ignores time.  This flag has no effect if
    * HasModeShapes is off.
    */
-  virtual void SetAnimateModeShapes(int flag);
-  int GetAnimateModeShapes();
-  vtkBooleanMacro(AnimateModeShapes, int);
+  virtual void SetAnimateModeShapes(vtkTypeBool flag);
+  vtkTypeBool GetAnimateModeShapes();
+  vtkBooleanMacro(AnimateModeShapes, vtkTypeBool);
   //@}
 
   //@{

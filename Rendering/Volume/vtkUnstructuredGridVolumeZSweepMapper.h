@@ -112,9 +112,9 @@ public:
    * prop (controlled by the desired update rate and any culling in
    * use).
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, int );
-  vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
+  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
   //@}
 
   //@{
@@ -122,9 +122,9 @@ public:
    * If IntermixIntersectingGeometry is turned on, the zbuffer will be
    * captured and used to limit the traversal of the rays.
    */
-  vtkSetClampMacro( IntermixIntersectingGeometry, int, 0, 1 );
-  vtkGetMacro( IntermixIntersectingGeometry, int );
-  vtkBooleanMacro( IntermixIntersectingGeometry, int );
+  vtkSetClampMacro( IntermixIntersectingGeometry, vtkTypeBool, 0, 1 );
+  vtkGetMacro( IntermixIntersectingGeometry, vtkTypeBool );
+  vtkBooleanMacro( IntermixIntersectingGeometry, vtkTypeBool );
   //@}
 
   /**
@@ -286,7 +286,7 @@ protected:
   float ImageSampleDistance;
   float MinimumImageSampleDistance;
   float MaximumImageSampleDistance;
-  int AutoAdjustSampleDistances;
+  vtkTypeBool AutoAdjustSampleDistances;
 
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
 
@@ -321,7 +321,7 @@ protected:
   int RenderTableSize;
   int RenderTableEntries;
 
-  int IntermixIntersectingGeometry;
+  vtkTypeBool IntermixIntersectingGeometry;
 
   float *ZBuffer;
   int ZBufferSize[2];

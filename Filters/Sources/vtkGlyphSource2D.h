@@ -105,9 +105,9 @@ public:
    * closed polygon defined by line segments). This only applies
    * to 2D closed glyphs.
    */
-  vtkSetMacro(Filled,int);
-  vtkGetMacro(Filled,int);
-  vtkBooleanMacro(Filled,int);
+  vtkSetMacro(Filled,vtkTypeBool);
+  vtkGetMacro(Filled,vtkTypeBool);
+  vtkBooleanMacro(Filled,vtkTypeBool);
   //@}
 
   //@{
@@ -116,9 +116,9 @@ public:
    * glyph. (This is in addition to the glyph. If the glyph type
    * is set to "Dash" there is no need to enable this flag.)
    */
-  vtkSetMacro(Dash,int);
-  vtkGetMacro(Dash,int);
-  vtkBooleanMacro(Dash,int);
+  vtkSetMacro(Dash,vtkTypeBool);
+  vtkGetMacro(Dash,vtkTypeBool);
+  vtkBooleanMacro(Dash,vtkTypeBool);
   //@}
 
   //@{
@@ -127,9 +127,9 @@ public:
    * is in addition to the glyph. If the glyph type is set to
    * "Cross" there is no need to enable this flag.)
    */
-  vtkSetMacro(Cross,int);
-  vtkGetMacro(Cross,int);
-  vtkBooleanMacro(Cross,int);
+  vtkSetMacro(Cross,vtkTypeBool);
+  vtkGetMacro(Cross,vtkTypeBool);
+  vtkBooleanMacro(Cross,vtkTypeBool);
   //@}
 
   //@{
@@ -191,9 +191,9 @@ protected:
   double Scale;
   double Scale2;
   double Color[3];
-  int    Filled;
-  int    Dash;
-  int    Cross;
+  vtkTypeBool    Filled;
+  vtkTypeBool    Dash;
+  vtkTypeBool    Cross;
   int    GlyphType;
   double RotationAngle;
   int    Resolution;
