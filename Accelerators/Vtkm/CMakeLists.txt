@@ -159,7 +159,7 @@ math(EXPR vtkm_pool_size "(${vtkm_mem_}/2)/2048")
 if(vtkm_pool_size EQUAL 0)
   set(vtkm_pool_size 1)
 endif()
-set_property(GLOBAL PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
 
 #we are building with CUDA support
 if(VTKm_ENABLE_CUDA)
