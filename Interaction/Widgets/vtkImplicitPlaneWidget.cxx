@@ -1133,7 +1133,7 @@ void vtkImplicitPlaneWidget::GetNormal(double xyz[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::SetDrawPlane(int drawPlane)
+void vtkImplicitPlaneWidget::SetDrawPlane(vtkTypeBool drawPlane)
 {
   if ( drawPlane == this->DrawPlane )
   {
@@ -1157,7 +1157,7 @@ void vtkImplicitPlaneWidget::SetDrawPlane(int drawPlane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::SetNormalToXAxis (int var)
+void vtkImplicitPlaneWidget::SetNormalToXAxis (vtkTypeBool var)
 {
   if (this->NormalToXAxis != var)
   {
@@ -1172,7 +1172,7 @@ void vtkImplicitPlaneWidget::SetNormalToXAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::SetNormalToYAxis (int var)
+void vtkImplicitPlaneWidget::SetNormalToYAxis (vtkTypeBool var)
 {
   if (this->NormalToYAxis != var)
   {
@@ -1187,7 +1187,7 @@ void vtkImplicitPlaneWidget::SetNormalToYAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneWidget::SetNormalToZAxis (int var)
+void vtkImplicitPlaneWidget::SetNormalToZAxis (vtkTypeBool var)
 {
   if (this->NormalToZAxis != var)
   {

@@ -1169,7 +1169,7 @@ double vtkImplicitCylinderRepresentation::GetRadius()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitCylinderRepresentation::SetDrawCylinder(int drawCyl)
+void vtkImplicitCylinderRepresentation::SetDrawCylinder(vtkTypeBool drawCyl)
 {
   if ( drawCyl == this->DrawCylinder )
   {
@@ -1182,7 +1182,7 @@ void vtkImplicitCylinderRepresentation::SetDrawCylinder(int drawCyl)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitCylinderRepresentation::SetAlongXAxis (int var)
+void vtkImplicitCylinderRepresentation::SetAlongXAxis (vtkTypeBool var)
 {
   if (this->AlongXAxis != var)
   {
@@ -1197,7 +1197,7 @@ void vtkImplicitCylinderRepresentation::SetAlongXAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitCylinderRepresentation::SetAlongYAxis (int var)
+void vtkImplicitCylinderRepresentation::SetAlongYAxis (vtkTypeBool var)
 {
   if (this->AlongYAxis != var)
   {
@@ -1212,7 +1212,7 @@ void vtkImplicitCylinderRepresentation::SetAlongYAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitCylinderRepresentation::SetAlongZAxis (int var)
+void vtkImplicitCylinderRepresentation::SetAlongZAxis (vtkTypeBool var)
 {
   if (this->AlongZAxis != var)
   {

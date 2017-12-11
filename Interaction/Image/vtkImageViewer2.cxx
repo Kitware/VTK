@@ -702,13 +702,13 @@ const char* vtkImageViewer2::GetWindowName()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetOffScreenRendering(int i)
+void vtkImageViewer2::SetOffScreenRendering(vtkTypeBool i)
 {
   this->RenderWindow->SetOffScreenRendering(i);
 }
 
 //----------------------------------------------------------------------------
-int vtkImageViewer2::GetOffScreenRendering()
+vtkTypeBool vtkImageViewer2::GetOffScreenRendering()
 {
   return this->RenderWindow->GetOffScreenRendering();
 }

@@ -384,7 +384,7 @@ void vtkImageTracerWidget::AddObservers(void)
   }
 }
 
-void vtkImageTracerWidget::SetInteraction(int interact)
+void vtkImageTracerWidget::SetInteraction(vtkTypeBool interact)
 {
   if ( this->Interactor && this->Enabled )
   {
@@ -1399,7 +1399,7 @@ void vtkImageTracerWidget::GetPath(vtkPolyData *pd)
   pd->ShallowCopy(this->LineData);
 }
 
-void vtkImageTracerWidget::SetSnapToImage(int snap)
+void vtkImageTracerWidget::SetSnapToImage(vtkTypeBool snap)
 {
   if ( this->GetInput() )
   {

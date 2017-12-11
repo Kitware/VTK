@@ -160,7 +160,7 @@ vtkCurveRepresentation::~vtkCurveRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkCurveRepresentation::SetClosed(int closed)
+void vtkCurveRepresentation::SetClosed(vtkTypeBool closed)
 {
   if ( this->Closed == closed )
   {
@@ -674,7 +674,7 @@ void vtkCurveRepresentation::EraseHandle(const int& index)
 }
 
 //----------------------------------------------------------------------------
-int vtkCurveRepresentation::IsClosed()
+vtkTypeBool vtkCurveRepresentation::IsClosed()
 {
   if ( this->NumberOfHandles < 3 || !this->Closed ) { return 0; }
 

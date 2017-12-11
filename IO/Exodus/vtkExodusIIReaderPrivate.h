@@ -244,8 +244,8 @@ public:
   static const char *GetGlobalVariableNamesArrayName()
     { return "GlobalVariableNames"; }
 
-  virtual void SetApplyDisplacements( int d );
-  vtkGetMacro(ApplyDisplacements,int);
+  virtual void SetApplyDisplacements( vtkTypeBool d );
+  vtkGetMacro(ApplyDisplacements,vtkTypeBool);
 
   virtual void SetDisplacementMagnitude( double s );
   vtkGetMacro(DisplacementMagnitude,double);

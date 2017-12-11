@@ -187,7 +187,7 @@ void vtkGenericOpenGLRenderWindow::ShowCursor()
 {
 }
 
-void vtkGenericOpenGLRenderWindow::SetFullScreen(int)
+void vtkGenericOpenGLRenderWindow::SetFullScreen(vtkTypeBool)
 {
 }
 
@@ -245,7 +245,7 @@ void vtkGenericOpenGLRenderWindow::Render()
   }
 }
 
-void vtkGenericOpenGLRenderWindow::SetIsPicking(int isPicking)
+void vtkGenericOpenGLRenderWindow::SetIsPicking(vtkTypeBool isPicking)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting IsPicking to " << isPicking); \
   if (this->IsPicking != isPicking)

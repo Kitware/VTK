@@ -175,7 +175,7 @@ void vtkRenderWindow::SetDesiredUpdateRate(double rate)
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkRenderWindow::SetStereoCapableWindow(int capable)
+void vtkRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (this->StereoCapableWindow != capable)
   {
@@ -186,7 +186,7 @@ void vtkRenderWindow::SetStereoCapableWindow(int capable)
 
 //----------------------------------------------------------------------------
 // Turn on stereo rendering
-void vtkRenderWindow::SetStereoRender(int stereo)
+void vtkRenderWindow::SetStereoRender(vtkTypeBool stereo)
 {
   if (stereo == this->StereoRender)
   {

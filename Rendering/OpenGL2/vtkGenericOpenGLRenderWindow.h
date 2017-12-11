@@ -100,7 +100,7 @@ public:
   void Start() override;
   void HideCursor() override;
   void ShowCursor() override;
-  void SetFullScreen(int) override;
+  void SetFullScreen(vtkTypeBool) override;
   void WindowRemap() override;
   int  GetEventPending() override;
   void SetNextWindowId(void*) override;
@@ -160,7 +160,7 @@ public:
   * Overridden to invoke vtkCommand::StartPickEvent and
   * vtkCommand::EndPickEvent.
   */
-  void SetIsPicking(int isPicking) override;
+  void SetIsPicking(vtkTypeBool isPicking) override;
 
 protected:
   int DirectStatus;

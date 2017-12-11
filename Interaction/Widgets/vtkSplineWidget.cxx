@@ -198,7 +198,7 @@ vtkSplineWidget::~vtkSplineWidget()
   this->Transform->Delete();
 }
 
-void vtkSplineWidget::SetClosed(int closed)
+void vtkSplineWidget::SetClosed(vtkTypeBool closed)
 {
   if ( this->Closed == closed )
   {

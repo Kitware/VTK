@@ -350,7 +350,7 @@ void vtkLineWidget2::CreateDefaultRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkLineWidget2::SetProcessEvents(int pe)
+void vtkLineWidget2::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

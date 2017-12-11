@@ -664,7 +664,7 @@ void vtkContourWidget::Initialize( vtkPolyData * pd,
 }
 
 //----------------------------------------------------------------------
-void vtkContourWidget::SetAllowNodePicking( int val )
+void vtkContourWidget::SetAllowNodePicking( vtkTypeBool val )
 {
   if ( this->AllowNodePicking == val )
   {

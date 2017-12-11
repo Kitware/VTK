@@ -259,7 +259,7 @@ vtkImplicitPlaneRepresentation::~vtkImplicitPlaneRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(int lock)
+void vtkImplicitPlaneRepresentation::SetLockNormalToCamera(vtkTypeBool lock)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
                 << LockNormalToCamera << " to " << lock);
@@ -1413,7 +1413,7 @@ void vtkImplicitPlaneRepresentation::GetNormal(double xyz[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetDrawPlane(int drawPlane)
+void vtkImplicitPlaneRepresentation::SetDrawPlane(vtkTypeBool drawPlane)
 {
   if ( drawPlane == this->DrawPlane )
   {
@@ -1426,7 +1426,7 @@ void vtkImplicitPlaneRepresentation::SetDrawPlane(int drawPlane)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetDrawOutline(int val)
+void vtkImplicitPlaneRepresentation::SetDrawOutline(vtkTypeBool val)
 {
   if ( val == this->DrawOutline )
   {
@@ -1447,7 +1447,7 @@ void vtkImplicitPlaneRepresentation::SetDrawOutline(int val)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToXAxis (int var)
+void vtkImplicitPlaneRepresentation::SetNormalToXAxis (vtkTypeBool var)
 {
   if (this->NormalToXAxis != var)
   {
@@ -1462,7 +1462,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToXAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToYAxis (int var)
+void vtkImplicitPlaneRepresentation::SetNormalToYAxis (vtkTypeBool var)
 {
   if (this->NormalToYAxis != var)
   {
@@ -1477,7 +1477,7 @@ void vtkImplicitPlaneRepresentation::SetNormalToYAxis (int var)
 }
 
 //----------------------------------------------------------------------------
-void vtkImplicitPlaneRepresentation::SetNormalToZAxis (int var)
+void vtkImplicitPlaneRepresentation::SetNormalToZAxis (vtkTypeBool var)
 {
   if (this->NormalToZAxis != var)
   {

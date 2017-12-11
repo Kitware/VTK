@@ -117,7 +117,7 @@ public:
    * Cropping API from vtkVolumeMapper
    * \sa vtkVolumeMapper::SetCropping
    */
-  void SetCropping(int mode) override;
+  void SetCropping(vtkTypeBool mode) override;
 
   /**
    * \sa vtkVolumeMapper::SetCroppingRegionPlanes

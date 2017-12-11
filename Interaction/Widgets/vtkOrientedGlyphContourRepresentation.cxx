@@ -950,7 +950,7 @@ void vtkOrientedGlyphContourRepresentation::SetLineColor(
 }
 
 //----------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(int flag)
+void vtkOrientedGlyphContourRepresentation::SetShowSelectedNodes(vtkTypeBool flag)
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this
     << "): setting ShowSelectedNodes to " << flag);

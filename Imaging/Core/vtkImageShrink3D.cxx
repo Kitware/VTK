@@ -36,7 +36,7 @@ vtkImageShrink3D::vtkImageShrink3D()
   this->Minimum = 0;
 }
 
-void vtkImageShrink3D::SetMean (int value)
+void vtkImageShrink3D::SetMean (vtkTypeBool value)
 {
   if (value != this->Mean)
   {
@@ -51,7 +51,7 @@ void vtkImageShrink3D::SetMean (int value)
   }
 }
 
-void vtkImageShrink3D::SetMinimum (int value)
+void vtkImageShrink3D::SetMinimum (vtkTypeBool value)
 {
   if (value != this->Minimum)
   {
@@ -66,7 +66,7 @@ void vtkImageShrink3D::SetMinimum (int value)
   }
 }
 
-void vtkImageShrink3D::SetMaximum (int value)
+void vtkImageShrink3D::SetMaximum (vtkTypeBool value)
 {
   if (value != this->Maximum)
   {
@@ -81,7 +81,7 @@ void vtkImageShrink3D::SetMaximum (int value)
   }
 }
 
-void vtkImageShrink3D::SetMedian (int value)
+void vtkImageShrink3D::SetMedian (vtkTypeBool value)
 {
   if (value != this->Median)
   {
@@ -96,7 +96,7 @@ void vtkImageShrink3D::SetMedian (int value)
   }
 }
 
-void vtkImageShrink3D::SetAveraging (int value)
+void vtkImageShrink3D::SetAveraging (vtkTypeBool value)
 {
   this->SetMean(value);
 }

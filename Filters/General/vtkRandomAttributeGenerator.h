@@ -340,7 +340,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) override;
-  vtkTypeBool FillInputPortInformation(int port, vtkInformation* info) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
   int       DataType;
   int       NumberOfComponents;

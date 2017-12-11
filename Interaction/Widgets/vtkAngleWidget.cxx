@@ -538,7 +538,7 @@ void vtkAngleWidget::EndAngleInteraction(int)
 }
 
 //----------------------------------------------------------------------
-void vtkAngleWidget::SetProcessEvents(int pe)
+void vtkAngleWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

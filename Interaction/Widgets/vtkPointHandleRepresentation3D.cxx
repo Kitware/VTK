@@ -647,7 +647,7 @@ void vtkPointHandleRepresentation3D::MoveFocus(double *p1, double *p2)
 }
 
 //----------------------------------------------------------------------
-void vtkPointHandleRepresentation3D::SetTranslationMode(int mode)
+void vtkPointHandleRepresentation3D::SetTranslationMode(vtkTypeBool mode)
 {
   if (this->TranslationMode != mode)
   {

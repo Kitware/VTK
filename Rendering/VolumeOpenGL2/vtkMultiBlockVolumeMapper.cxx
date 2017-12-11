@@ -460,7 +460,7 @@ void vtkMultiBlockVolumeMapper::SetBlendMode(int mode)
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiBlockVolumeMapper::SetCropping(int mode)
+void vtkMultiBlockVolumeMapper::SetCropping(vtkTypeBool mode)
 {
   MapperVec::const_iterator end = this->Mappers.end();
   for (MapperVec::const_iterator it = this->Mappers.begin(); it != end; ++it)

@@ -351,7 +351,7 @@ protected:
   ~vtkGL2PSExporter() override;
 
   int GetGL2PSOptions();
-  vtkTypeBool GetGL2PSSort();
+  int GetGL2PSSort();
   int GetGL2PSFormat();
   const char *GetFileExtension();
 

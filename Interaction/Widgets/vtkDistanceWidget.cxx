@@ -551,7 +551,7 @@ void vtkDistanceWidget::EndDistanceInteraction(int)
 }
 
 //----------------------------------------------------------------------
-void vtkDistanceWidget::SetProcessEvents(int pe)
+void vtkDistanceWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

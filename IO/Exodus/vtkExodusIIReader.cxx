@@ -5210,7 +5210,7 @@ void vtkExodusIIReaderPrivate::SetObjectAttributeStatus( int otyp, int oi, int a
     " (" << objtype_names[this->GetObjectTypeIndexFromObjectType(otyp)] << ")." );
 }
 
-void vtkExodusIIReaderPrivate::SetApplyDisplacements( int d )
+void vtkExodusIIReaderPrivate::SetApplyDisplacements( vtkTypeBool d )
 {
   if ( this->ApplyDisplacements == d )
     return;
@@ -5596,11 +5596,11 @@ int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID )
 int vtkExodusIIReader::GetGlobalNodeID( vtkDataSet* data, int localID, int searchType )
 { (void)data; (void)localID; (void)searchType; return ID_NOT_FOUND; }
 
-void vtkExodusIIReader::SetApplyDisplacements( int d )
+void vtkExodusIIReader::SetApplyDisplacements( vtkTypeBool d )
 {
   this->Metadata->SetApplyDisplacements( d );
 }
-int vtkExodusIIReader::GetApplyDisplacements()
+vtkTypeBool vtkExodusIIReader::GetApplyDisplacements()
 {
   return this->Metadata->GetApplyDisplacements();
 }
@@ -5614,12 +5614,12 @@ float vtkExodusIIReader::GetDisplacementMagnitude()
   return this->Metadata->GetDisplacementMagnitude();
 }
 
-void vtkExodusIIReader::SetHasModeShapes( int ms )
+void vtkExodusIIReader::SetHasModeShapes( vtkTypeBool ms )
 {
   this->Metadata->SetHasModeShapes(ms);
 }
 
-int vtkExodusIIReader::GetHasModeShapes()
+vtkTypeBool vtkExodusIIReader::GetHasModeShapes()
 {
   return this->Metadata->GetHasModeShapes();
 }
@@ -5637,12 +5637,12 @@ double vtkExodusIIReader::GetModeShapeTime()
   return this->Metadata->GetModeShapeTime();
 }
 
-void vtkExodusIIReader::SetAnimateModeShapes(int flag)
+void vtkExodusIIReader::SetAnimateModeShapes(vtkTypeBool flag)
 {
   this->Metadata->SetAnimateModeShapes(flag);
 }
 
-int vtkExodusIIReader::GetAnimateModeShapes()
+vtkTypeBool vtkExodusIIReader::GetAnimateModeShapes()
 {
   return this->Metadata->GetAnimateModeShapes();
 }
