@@ -80,7 +80,7 @@ FileInfo *vtkParse_Main(int argc, char *argv[]);
  * A main function that can take multiple input files.
  * It does not parse the files.  It will exit on error.
  */
-void vtkParse_MainMulti(int argc, char *argv[]);
+StringCache *vtkParse_MainMulti(int argc, char *argv[]);
 
 #ifdef __cplusplus
 } /* extern "C" */

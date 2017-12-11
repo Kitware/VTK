@@ -934,7 +934,7 @@ int main(int argc, char *argv[])
   char *module_name;
 
   /* parse command-line options */
-  vtkParse_MainMulti(argc, argv);
+  StringCache *string_cache = vtkParse_MainMulti(argc, argv);
   options = vtkParse_GetCommandLineOptions();
 
   /* make sure than an output file was given on the command line */
@@ -989,6 +989,8 @@ int main(int argc, char *argv[])
     free(files[j]);
   }
 
+  vtkParse_FreeStringCache(string_cache);
+  free(string_cache);
   free(files);
   free(lines);
   return 0;
