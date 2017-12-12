@@ -7,7 +7,7 @@ vtk_module(vtkIOImage
     vtkImagingMath
     vtkInteractionImage
     vtkInteractionStyle
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
     vtkTestingCore
     vtkTestingRendering
     vtkIOLegacy

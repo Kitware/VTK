@@ -117,9 +117,9 @@ public:
    * will render the image into the rectangle supplied by the Actor2D's
    * PositionCoordinate and Position2Coordinate
    */
-  vtkSetMacro(RenderToRectangle, int);
-  vtkGetMacro(RenderToRectangle, int);
-  vtkBooleanMacro(RenderToRectangle, int);
+  vtkSetMacro(RenderToRectangle, vtkTypeBool);
+  vtkGetMacro(RenderToRectangle, vtkTypeBool);
+  vtkBooleanMacro(RenderToRectangle, vtkTypeBool);
   //@}
 
   //@{
@@ -130,9 +130,9 @@ public:
    * Note that the Custom extents are x,y only and the zslice is still
    * applied
    */
-  vtkSetMacro(UseCustomExtents, int);
-  vtkGetMacro(UseCustomExtents, int);
-  vtkBooleanMacro(UseCustomExtents, int);
+  vtkSetMacro(UseCustomExtents, vtkTypeBool);
+  vtkGetMacro(UseCustomExtents, vtkTypeBool);
+  vtkBooleanMacro(UseCustomExtents, vtkTypeBool);
   //@}
 
   //@{
@@ -154,9 +154,9 @@ protected:
 
   int PositionAdjustment[2];
   int ZSlice;
-  int UseCustomExtents;
+  vtkTypeBool UseCustomExtents;
   int CustomDisplayExtents[4];
-  int RenderToRectangle;
+  vtkTypeBool RenderToRectangle;
 
   int FillInputPortInformation(int, vtkInformation*) override;
 private:

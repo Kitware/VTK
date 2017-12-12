@@ -210,9 +210,9 @@ public:
   void SetColorSpaceToLabCIEDE2000() { this->SetColorSpace(VTK_CTF_LAB_CIEDE2000); }
   void SetColorSpaceToDiverging(){this->SetColorSpace(VTK_CTF_DIVERGING);}
   vtkGetMacro( ColorSpace, int );
-  vtkSetMacro(HSVWrap, int);
-  vtkGetMacro(HSVWrap, int);
-  vtkBooleanMacro(HSVWrap, int);
+  vtkSetMacro(HSVWrap, vtkTypeBool);
+  vtkGetMacro(HSVWrap, vtkTypeBool);
+  vtkBooleanMacro(HSVWrap, vtkTypeBool);
   //@}
 
   //@{
@@ -250,9 +250,9 @@ public:
   /**
    * Set whether the below range color should be used.
    */
-  vtkSetMacro(UseBelowRangeColor, int);
-  vtkGetMacro(UseBelowRangeColor, int);
-  vtkBooleanMacro(UseBelowRangeColor, int);
+  vtkSetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkGetMacro(UseBelowRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseBelowRangeColor, vtkTypeBool);
   //@}
 
   //@{
@@ -268,9 +268,9 @@ public:
   /**
    * Set whether the below range color should be used.
    */
-  vtkSetMacro(UseAboveRangeColor, int);
-  vtkGetMacro(UseAboveRangeColor, int);
-  vtkBooleanMacro(UseAboveRangeColor, int);
+  vtkSetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkGetMacro(UseAboveRangeColor, vtkTypeBool);
+  vtkBooleanMacro(UseAboveRangeColor, vtkTypeBool);
   //@}
 
   /**
@@ -301,9 +301,9 @@ public:
    * Toggle whether to allow duplicate scalar values in the color transfer
    * function (off by default).
    */
-  vtkSetMacro(AllowDuplicateScalars, int);
-  vtkGetMacro(AllowDuplicateScalars, int);
-  vtkBooleanMacro(AllowDuplicateScalars, int);
+  vtkSetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkGetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkBooleanMacro(AllowDuplicateScalars, vtkTypeBool);
   //@}
 
   /**
@@ -347,7 +347,7 @@ protected:
   /**
    * Specify if HSV is wrap or not
    */
-  int HSVWrap;
+  vtkTypeBool HSVWrap;
 
   /**
    * The color interpolation scale (linear or logarithmic).
@@ -367,7 +367,7 @@ protected:
   /**
    * Flag indicating whether below-range color should be used.
    */
-  int UseBelowRangeColor;
+  vtkTypeBool UseBelowRangeColor;
 
   /**
    * The above-range color.
@@ -377,7 +377,7 @@ protected:
   /**
    * Flag indicating whether below-range color should be used.
    */
-  int UseAboveRangeColor;
+  vtkTypeBool UseAboveRangeColor;
 
   /**
    * Temporary array to store data from the nodes.
@@ -397,7 +397,7 @@ protected:
   /**
    * If on, the same scalar value may have more than one node assigned to it.
    */
-  int AllowDuplicateScalars;
+  vtkTypeBool AllowDuplicateScalars;
 
   vtkTimeStamp BuildTime;
   unsigned char *Table;

@@ -89,9 +89,9 @@ public:
    * the data will be kept as unsigned chars and a lookuptable will be
    * exported
    */
-  vtkSetMacro(Allow8BitBMP,int);
-  vtkGetMacro(Allow8BitBMP,int);
-  vtkBooleanMacro(Allow8BitBMP,int);
+  vtkSetMacro(Allow8BitBMP,vtkTypeBool);
+  vtkGetMacro(Allow8BitBMP,vtkTypeBool);
+  vtkBooleanMacro(Allow8BitBMP,vtkTypeBool);
   //@}
 
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
@@ -109,7 +109,7 @@ protected:
 
   unsigned char *Colors;
   short Depth;
-  int Allow8BitBMP;
+  vtkTypeBool Allow8BitBMP;
   vtkLookupTable *LookupTable;
 
   void ComputeDataIncrements() override;

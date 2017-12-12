@@ -172,15 +172,15 @@ public:
    * offset from the input values.  The effect is exactly equivalent to
    * having an identity transform of weight 1 added into each output point.
    */
-  vtkBooleanMacro(AddInputValues, int);
-  vtkSetMacro(AddInputValues, int);
-  vtkGetMacro(AddInputValues, int);
+  vtkBooleanMacro(AddInputValues, vtkTypeBool);
+  vtkSetMacro(AddInputValues, vtkTypeBool);
+  vtkGetMacro(AddInputValues, vtkTypeBool);
   //@}
 
 protected:
   vtkAbstractTransform **Transforms;
   int NumberOfTransforms;
-  int AddInputValues;
+  vtkTypeBool AddInputValues;
 
   char *CellDataWeightArray;
   char *WeightArray;

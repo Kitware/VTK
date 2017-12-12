@@ -144,19 +144,6 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
   vtkDoubleArray* outCoords = vtkDoubleArray::New();
   outCoords->SetNumberOfTuples( size );
 
-  // Create arrays for reflected interface if present
-  vtkDoubleArray* outNormals = 0;
-  vtkDoubleArray* outIntercepts = 0;
-  if ( hasInterface )
-  {
-    vtkIdType nTuples = inNormals->GetNumberOfTuples();
-    outNormals = vtkDoubleArray::New();
-    outNormals->SetNumberOfComponents( 3 );
-    outNormals->SetNumberOfTuples( nTuples );
-    outIntercepts = vtkDoubleArray::New();
-    outIntercepts->SetNumberOfTuples( nTuples );
-  }
-
   // Reflect point coordinate
   double coord;
   for ( unsigned int i = 0; i < size; ++ i )
@@ -186,29 +173,19 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
     for ( vtkIdType i = 0; i < nTuples; ++ i )
     {
       // Compute and stored reflected normal
-      double norm[3];
-      memcpy( norm, inNormals->GetTuple3( i ) , 3 * sizeof( double ) );
+      double* norm = inNormals->GetTuple3( i );
       norm[direction] = - norm[direction];
-      outNormals->SetTuple3( i, norm[0], norm[1], norm[2] );
+      inNormals->SetTuple3( i, norm[0], norm[1], norm[2] );
 
       // Compute and store reflected intercept
-      double inter = inIntercepts->GetTuple1( i );
-      inter -= 2. * offset * norm[direction];
-      outIntercepts->SetTuple1( i, inter );
+      double* inter = inIntercepts->GetTuple3( i );
+      inter[0] -= 2. * offset * norm[direction];
+      inIntercepts->SetTuple3( i, inter[0], inter[1], inter[2] );
     } // i
-
-    // Assign new interface arrays if available
-    this->OutData->SetVectors( outNormals );
-    this->OutData->AddArray( outIntercepts );
   } // if ( hasInterface )
 
   // Clean up
   outCoords->Delete();
-  if ( hasInterface )
-  {
-    outNormals->Delete();
-    outIntercepts->Delete();
-  }
 
   return 1;
 }

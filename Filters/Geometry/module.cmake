@@ -3,7 +3,7 @@ vtk_module(vtkFiltersGeometry
     StandAlone
   TEST_DEPENDS
     vtkIOXML
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   KIT

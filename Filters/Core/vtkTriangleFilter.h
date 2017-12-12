@@ -42,9 +42,9 @@ public:
    * into individual vertex cells (one point per cell).  If it
    * is off, the input vertex cells will be ignored.
    */
-  vtkBooleanMacro(PassVerts,int);
-  vtkSetMacro(PassVerts,int);
-  vtkGetMacro(PassVerts,int);
+  vtkBooleanMacro(PassVerts,vtkTypeBool);
+  vtkSetMacro(PassVerts,vtkTypeBool);
+  vtkGetMacro(PassVerts,vtkTypeBool);
   //@}
 
   //@{
@@ -54,9 +54,9 @@ public:
    * into line segments.  If it is off, then the input lines
    * will be ignored and the output will have no lines.
    */
-  vtkBooleanMacro(PassLines,int);
-  vtkSetMacro(PassLines,int);
-  vtkGetMacro(PassLines,int);
+  vtkBooleanMacro(PassLines,vtkTypeBool);
+  vtkSetMacro(PassLines,vtkTypeBool);
+  vtkGetMacro(PassLines,vtkTypeBool);
   //@}
 
 protected:
@@ -66,8 +66,8 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int PassVerts;
-  int PassLines;
+  vtkTypeBool PassVerts;
+  vtkTypeBool PassLines;
 private:
   vtkTriangleFilter(const vtkTriangleFilter&) = delete;
   void operator=(const vtkTriangleFilter&) = delete;

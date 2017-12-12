@@ -181,6 +181,7 @@ public:
   std::vector<int> ShadowTextureUnits;
   std::vector<double> ShadowTransforms;
   std::vector<float> ShadowAttenuation;
+  std::vector<int> ShadowParallel;
 
 private:
   vtkShadowMapPass(const vtkShadowMapPass&) = delete;

@@ -25,7 +25,7 @@
  * as vtkFieldData. You can then use filters like vtkDataObjectToDataSetFilter
  * to convert the data object to a dataset and then visualize it.  Another
  * important use of this class is that it allows users of interpreters (e.g.,
- * Tcl or Java) the ability to write source objects without having to
+ * Java) the ability to write source objects without having to
  * recompile C++ code or generate new libraries.
  *
  * @sa

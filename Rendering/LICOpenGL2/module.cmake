@@ -1,6 +1,4 @@
 vtk_module(vtkRenderingLICOpenGL2
-  TCL_NAME
-    vtkRenderingLICOpenGLII
   BACKEND
     OpenGL2
   TEST_DEPENDS
@@ -13,7 +11,7 @@ vtk_module(vtkRenderingLICOpenGL2
     vtkCommonCore
     vtkCommonDataModel
     vtkCommonExecutionModel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   PRIVATE_DEPENDS
     vtkCommonMath
     vtkCommonSystem

@@ -29,21 +29,12 @@
  *            vtkAssignAttribute::POINT_DATA);
  * @endverbatim
  * tells vtkAssignAttribute to make the active vectors also the active
- * scalars. The same can be done more easily from Tcl by using the Assign()
- * method which takes strings:
- * @verbatim
- * aa Assign "foo" SCALARS POINT_DATA
- * or
- * aa Assign SCALARS VECTORS POINT_DATA
- *
- * AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
- * Attribute locations: POINT_DATA, CELL_DATA
- * @endverbatim
+ * scalars.
  *
  * @warning
- * When using Tcl, Java, Python or Visual Basic bindings, the array name
+ * When using Java, Python or Visual Basic bindings, the array name
  * can not be one of the  AttributeTypes when calling Assign() which takes
- * strings as arguments. The Tcl (Java etc.) command will
+ * strings as arguments. The wrapped command will
  * always assume the string corresponds to an attribute type when
  * the argument is one of the AttributeTypes. In this situation,
  * use the Assign() which takes enums.

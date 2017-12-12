@@ -87,9 +87,9 @@ public:
   /**
    * Turn on/off the capping of the skirt.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -122,7 +122,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int Resolution;
-  int Capping;
+  vtkTypeBool Capping;
   double Angle;
   double Translation;
   double DeltaRadius;

@@ -38,7 +38,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
-  vtkCellData() {} //make sure constructor and desctructor are protected
+  vtkCellData() {} //make sure constructor and destructor are protected
   ~vtkCellData() override {}
 
 private:

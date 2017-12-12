@@ -57,9 +57,9 @@ public:
   /**
    * Reverse the stencil.
    */
-  vtkSetMacro(ReverseStencil, int);
-  vtkBooleanMacro(ReverseStencil, int);
-  vtkGetMacro(ReverseStencil, int);
+  vtkSetMacro(ReverseStencil, vtkTypeBool);
+  vtkBooleanMacro(ReverseStencil, vtkTypeBool);
+  vtkGetMacro(ReverseStencil, vtkTypeBool);
   //@}
 
   //@{
@@ -101,7 +101,7 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int extent[6], int id) override;
 
-  int ReverseStencil;
+  vtkTypeBool ReverseStencil;
   double BackgroundColor[4];
 
   int FillInputPortInformation(int, vtkInformation*) override;

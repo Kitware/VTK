@@ -54,9 +54,9 @@ public:
    * SetNumberOfInputs/SetInputConnectionByNumber should not be mixed with calls
    * to AddInput/RemoveInput. By default, UserManagedInputs is false.
    */
-  vtkSetMacro(UserManagedInputs,int);
-  vtkGetMacro(UserManagedInputs,int);
-  vtkBooleanMacro(UserManagedInputs,int);
+  vtkSetMacro(UserManagedInputs,vtkTypeBool);
+  vtkGetMacro(UserManagedInputs,vtkTypeBool);
+  vtkBooleanMacro(UserManagedInputs,vtkTypeBool);
   //@}
 
   /**
@@ -100,9 +100,9 @@ public:
    * data parallelism at a course scale.  Each of the inputs
    * can be generated in a different process at the same time.
    */
-  vtkSetMacro(ParallelStreaming, int);
-  vtkGetMacro(ParallelStreaming, int);
-  vtkBooleanMacro(ParallelStreaming, int);
+  vtkSetMacro(ParallelStreaming, vtkTypeBool);
+  vtkGetMacro(ParallelStreaming, vtkTypeBool);
+  vtkBooleanMacro(ParallelStreaming, vtkTypeBool);
   //@}
 
   //@{
@@ -123,7 +123,7 @@ protected:
   ~vtkAppendPolyData() override;
 
   // Flag for selecting parallel streaming behavior
-  int ParallelStreaming;
+  vtkTypeBool ParallelStreaming;
   int OutputPointsPrecision;
 
   // Usual data generation method
@@ -146,7 +146,7 @@ protected:
   void AddInputData(vtkDataObject *)
     { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
 
-  int UserManagedInputs;
+  vtkTypeBool UserManagedInputs;
 
 private:
   vtkAppendPolyData(const vtkAppendPolyData&) = delete;

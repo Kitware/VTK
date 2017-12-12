@@ -134,9 +134,9 @@ public:
    * planes respectively and 3 for arbitrary oblique planes when the widget
    * is tied to a vtkPlaneSource.
    */
-  vtkSetMacro(ProjectToPlane,int);
-  vtkGetMacro(ProjectToPlane,int);
-  vtkBooleanMacro(ProjectToPlane,int);
+  vtkSetMacro(ProjectToPlane,vtkTypeBool);
+  vtkGetMacro(ProjectToPlane,vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
   //@}
 
   /**
@@ -248,9 +248,9 @@ public:
    * form a closed loop.  This method enforces consistency with
    * user supplied subclasses of vtkSpline.
    */
-  void SetClosed(int closed);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
+  void SetClosed(vtkTypeBool closed);
+  vtkGetMacro(Closed,vtkTypeBool);
+  vtkBooleanMacro(Closed,vtkTypeBool);
   //@}
 
   /**
@@ -320,7 +320,7 @@ protected:
   // Controlling vars
   int   ProjectionNormal;
   double ProjectionPosition;
-  int   ProjectToPlane;
+  vtkTypeBool   ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
   // Projection capabilities
@@ -332,7 +332,7 @@ protected:
   vtkParametricSpline *ParametricSpline;
   vtkParametricFunctionSource *ParametricFunctionSource;
   int NumberOfHandles;
-  int Closed;
+  vtkTypeBool Closed;
   void BuildRepresentation();
 
   // The line segments

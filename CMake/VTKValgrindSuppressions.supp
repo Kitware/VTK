@@ -31,21 +31,6 @@
    Memcheck:Cond
    fun:__stpcpy
    obj:/lib/libc-2.3.3.so
-   fun:setlocale
-   fun:TclpSetInitialEncodings
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:__stpcpy
-   fun:setlocale
-   fun:TclpSetInitialEncodings
-}
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:__stpcpy
-   obj:/lib/libc-2.3.3.so
    fun:__pthread_once
 }
 {
@@ -226,19 +211,6 @@
 }
 {
    <insert a suppression name here>
-   Memcheck:Addr4
-   obj:/lib/libc-2.3.3.so
-   obj:/lib/libc-2.3.3.so
-   obj:/lib/libc-2.3.3.so
-   obj:/lib/libc-2.3.3.so
-   obj:/lib/libc-2.3.3.so
-   fun:__libc_freeres
-   fun:vgPlain___libc_freeres_wrapper
-   fun:exit
-   fun:Tcl_Exit
-}
-{
-   <insert a suppression name here>
    Memcheck:Leak
    fun:malloc
    obj:/usr/X11R6/lib/libX11.so.6.2
@@ -397,29 +369,6 @@
    fun:_XtAppCreateShell
    fun:XtVaAppCreateShell
 }
-{
-   <insert a suppression name here>
-   Memcheck:Cond
-   fun:strlen
-   obj:/lib/libc-2.3.3.so
-   fun:_dl_catch_error_internal
-   fun:_dl_open
-   obj:/lib/libdl-2.3.3.so
-   fun:_dl_catch_error_internal
-   obj:/lib/libdl-2.3.3.so
-   fun:dlopen
-   obj:/usr/X11R6/lib/libX11.so.6.2
-   fun:_XlcDynamicLoad
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   obj:/usr/X11R6/lib/libX11.so.6.2
-   fun:XrmGetStringDatabase
-   obj:/usr/X11R6/lib/libXt.so.6.0
-   obj:/usr/X11R6/lib/libXt.so.6.0
-   fun:_XtDisplayInitialize
-   fun:XtDisplayInitialize
-   fun:_ZN29vtkXRenderWindowTclInteractor10InitializeEv
-}
 
 {
    <insert a suppression name here>
@@ -475,33 +424,6 @@
    fun:Tk_Init
 }
 
-{
-   <insert a suppression name here>
-   Memcheck:Leak
-   fun:malloc
-   fun:_dl_map_object_deps_internal
-   obj:/lib/tls/libc-2.3.3.so
-   fun:_dl_catch_error_internal
-   fun:_dl_open
-   obj:/lib/libdl-2.3.3.so
-   fun:_dl_catch_error_internal
-   obj:/lib/libdl-2.3.3.so
-   fun:dlopen
-   obj:/usr/X11R6/lib/libX11.so.6.2
-   fun:_XNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:GetBitmap
-   fun:Tk_GetBitmap
-   fun:TkButtonWorldChanged
-   fun:ConfigureButton
-   fun:ButtonCreate
-   fun:Tk_ButtonObjCmd
-   fun:TclEvalObjvInternal
-   fun:TclExecuteByteCode
-   fun:TclCompEvalObj
-   fun:TclObjInterpProc
-}
 
 {
    <insert a suppression name here>
@@ -834,15 +756,6 @@
    fun:TkGetCursorByName
 }
 
-{
-   <insert a suppression name here>
-   Memcheck:Leak
-   fun:calloc
-   obj:/lib/libdl-2.3.3.so
-   fun:dlsym
-   fun:fcntl
-   fun:TclpOpenFileChannel
-}
 
 {
    <insert a suppression name here>

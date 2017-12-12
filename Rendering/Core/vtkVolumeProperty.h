@@ -99,9 +99,9 @@ public:
    * fourth component. When using gradient based opacity modulation, the
    * gradients are computed off of the fourth component.
    */
-  vtkSetClampMacro(IndependentComponents, int, 0, 1);
-  vtkGetMacro(IndependentComponents, int);
-  vtkBooleanMacro(IndependentComponents, int);
+  vtkSetClampMacro(IndependentComponents, vtkTypeBool, 0, 1);
+  vtkGetMacro(IndependentComponents, vtkTypeBool);
+  vtkBooleanMacro(IndependentComponents, vtkTypeBool);
   //@}
 
   //@{
@@ -443,7 +443,7 @@ protected:
 
   virtual void CreateDefaultGradientOpacity(int index);
 
-  int IndependentComponents;
+  vtkTypeBool IndependentComponents;
   double ComponentWeight[VTK_MAX_VRCOMP];
 
   int InterpolationType;

@@ -46,9 +46,6 @@
 #include "vtkNew.h" // For vtkNew
 
 class vtkFloatArray;
-#ifndef VTK_LEGACY_REMOVE
-class vtkPainterDeviceAdapter;
-#endif
 class vtkProp;
 class vtkCollection;
 class vtkRenderTimerLog;
@@ -672,15 +669,6 @@ public:
 
   //@{
   /**
-   * Get the vtkPainterDeviceAdapter which can be used to paint on
-   * this render window.  Note the old OpenGL backend requires this
-   * method.
-   */
-  VTK_LEGACY(vtkPainterDeviceAdapter *GetPainterDeviceAdapter());
-  //@}
-
-  //@{
-  /**
    * Set / Get the number of multisamples to use for hardware antialiasing.
    */
   vtkSetMacro(MultiSamples,int);
@@ -744,9 +732,6 @@ protected:
   virtual void DoFDRender();
   virtual void DoAARender();
 
-#ifndef VTK_LEGACY_REMOVE
-  vtkPainterDeviceAdapter* PainterDeviceAdapter;
-#endif
   vtkRendererCollection *Renderers;
   vtkNew<vtkRenderTimerLog> RenderTimer;
   int Borders;

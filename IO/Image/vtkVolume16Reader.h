@@ -121,9 +121,9 @@ public:
   /**
    * Turn on/off byte swapping.
    */
-  vtkSetMacro(SwapBytes,int);
-  vtkGetMacro(SwapBytes,int);
-  vtkBooleanMacro(SwapBytes,int);
+  vtkSetMacro(SwapBytes,vtkTypeBool);
+  vtkGetMacro(SwapBytes,vtkTypeBool);
+  vtkBooleanMacro(SwapBytes,vtkTypeBool);
   //@}
 
   //@{
@@ -149,7 +149,7 @@ protected:
   int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int   DataDimensions[2];
   unsigned short DataMask;
-  int   SwapBytes;
+  vtkTypeBool   SwapBytes;
   int   HeaderSize;
   vtkTransform *Transform;
 

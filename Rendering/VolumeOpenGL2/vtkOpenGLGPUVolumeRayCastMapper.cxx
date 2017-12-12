@@ -510,6 +510,7 @@ public:
   std::map<int, std::string> TransferFunctions2DMap;
   vtkTimeStamp Transfer2DTime;
 
+  vtkTimeStamp ShaderReplacementTime;
   vtkTimeStamp ShaderBuildTime;
 
   vtkNew<vtkMatrix4x4> TextureToDataSetMat;
@@ -3026,6 +3027,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::AddShaderReplacement(
   values.ReplaceAll = replaceAll;
 
   this->UserShaderReplacements[spec] = values;
+  this->Impl->ShaderReplacementTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -3045,6 +3047,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
   if (found != this->UserShaderReplacements.end())
   {
     this->UserShaderReplacements.erase(found);
+    this->Impl->ShaderReplacementTime.Modified();
   }
 }
 
@@ -3052,14 +3055,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearShaderReplacement(
 void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
   vtkShader::Type shaderType)
 {
+  bool modified = false;
   // First clear all shader code
   if ((shaderType == vtkShader::Vertex) && this->VertexShaderCode)
   {
     this->SetVertexShaderCode(nullptr);
+    modified = true;
   }
   else if ((shaderType == vtkShader::Fragment) && this->FragmentShaderCode)
   {
     this->SetFragmentShaderCode(nullptr);
+    modified = true;
   }
 
   // Now clear custom tag replacements
@@ -3071,11 +3077,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements(
     if (rIter->first.ShaderType == shaderType)
     {
       this->UserShaderReplacements.erase(rIter++);
+      modified = true;
     }
     else
     {
       ++rIter;
     }
+  }
+  if (modified)
+  {
+    this->Impl->ShaderReplacementTime.Modified();
   }
 }
 
@@ -3084,7 +3095,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClearAllShaderReplacements()
 {
   this->SetVertexShaderCode(nullptr);
   this->SetFragmentShaderCode(nullptr);
-  this->UserShaderReplacements.clear();
+  if (!this->UserShaderReplacements.empty())
+  {
+    this->UserShaderReplacements.clear();
+    this->Impl->ShaderReplacementTime.Modified();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3215,7 +3230,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderShading(
   vtkShader* vertexShader = shaders[vtkShader::Vertex];
   vtkShader* fragmentShader = shaders[vtkShader::Fragment];
 
-  // Every volume should have a property (cannot be NULL);
+  // Every volume should have a property (cannot be nullptr);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
   int independentComponents = volumeProperty->GetIndependentComponents();
 
@@ -3256,7 +3271,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderCompute(
 {
   vtkShader* fragmentShader = shaders[vtkShader::Fragment];
 
-  // Every volume should have a property (cannot be NULL);
+  // Every volume should have a property (cannot be nullptr);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
   int independentComponents = volumeProperty->GetIndependentComponents();
 
@@ -3520,7 +3535,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
   vtkVolume* vol,
   int noOfComponents)
 {
-  // Every volume should have a property (cannot be NULL);
+  // Every volume should have a property (cannot be nullptr);
   vtkVolumeProperty* volumeProperty = vol->GetProperty();
 
   if (volumeProperty->GetShade())
@@ -3900,7 +3915,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
       this->Impl->SelectionStateTime.GetMTime() >
         this->Impl->ShaderBuildTime.GetMTime() ||
-      renderPassTime > this->Impl->ShaderBuildTime)
+      renderPassTime > this->Impl->ShaderBuildTime ||
+      this->Impl->ShaderReplacementTime > this->Impl->ShaderBuildTime)
     {
       this->Impl->LastProjectionParallel = cam->GetParallelProjection();
 
@@ -4006,7 +4022,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       cam->GetParallelProjection() != this->Impl->LastProjectionParallel ||
       this->Impl->SelectionStateTime.GetMTime() >
         this->Impl->ShaderBuildTime.GetMTime() ||
-      renderPassTime > this->Impl->ShaderBuildTime)
+      renderPassTime > this->Impl->ShaderBuildTime ||
+      this->Impl->ShaderReplacementTime > this->Impl->ShaderBuildTime)
     {
       this->Impl->LastProjectionParallel = cam->GetParallelProjection();
       this->BuildShader(ren, vol, noOfComponents);

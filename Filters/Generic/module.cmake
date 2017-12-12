@@ -4,7 +4,7 @@ vtk_module(vtkFiltersGeneric
   TEST_DEPENDS
     vtkIOXML
     vtkIOLegacy
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkFiltersModeling
     vtkRenderingLabel
     vtkTestingRendering

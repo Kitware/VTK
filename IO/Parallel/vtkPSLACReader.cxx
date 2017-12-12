@@ -45,7 +45,7 @@
 
 #include "vtk_netcdf.h"
 
-#include <vtksys/hash_map.hxx>
+#include <unordered_map>
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \
@@ -228,7 +228,7 @@ namespace vtkPSLACReaderTypes
     midpointPositionType *position;
     midpointTopologyType *topology;
   } midpointPointersType;
-  typedef vtksys::hash_map<vtkSLACReader::EdgeEndpoints,
+  typedef std::unordered_map<vtkSLACReader::EdgeEndpoints,
                            midpointPointersType,
                            EdgeEndpointsHash> MidpointsAvailableType;
 
@@ -327,7 +327,7 @@ vtkCxxSetObjectMacro(vtkPSLACReader, Controller, vtkMultiProcessController);
 class vtkPSLACReader::vtkInternal
 {
 public:
-  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash>
+  typedef std::unordered_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash>
     GlobalToLocalIdType;
   GlobalToLocalIdType GlobalToLocalIds;
 
@@ -1107,7 +1107,7 @@ int vtkPSLACReader::ReadMidpointCoordinates (
 
   // finally, we have all midpoints that correspond to edges we know about
   // convert their edge points to localId and insert into the map and return.
-  typedef vtksys::hash_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash> localMapType;
+  typedef std::unordered_map<vtkIdType, vtkIdType, vtkPSLACReaderIdTypeHash> localMapType;
   localMapType localMap;
   for (posIter = midpointsToReceive.position.begin(),
          topIter = midpointsToReceive.topology.begin();

@@ -34,6 +34,8 @@ vtkStandardNewMacro(vtkHyperOctreeLimiter);
 //----------------------------------------------------------------------------
 vtkHyperOctreeLimiter::vtkHyperOctreeLimiter()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeLimiter, "VTK 8.2");
+
   this->MaximumLevel = 5;
   this->AccumScratch =  new double[1024];
 }

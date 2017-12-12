@@ -295,7 +295,7 @@ void vtkBorderRepresentation::NegotiateLayout()
   double size[2];
   this->GetSize(size);
 
-  // Update the initial border geoemtry
+  // Update the initial border geometry
   this->BWPoints->SetPoint(0, 0.0, 0.0, 0.0); //may be updated by the subclass
   this->BWPoints->SetPoint(1, size[0], 0.0, 0.0);
   this->BWPoints->SetPoint(2, size[0], size[1], 0.0);

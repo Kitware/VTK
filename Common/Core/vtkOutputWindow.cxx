@@ -66,6 +66,7 @@ vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
   }
 }
 
+vtkObjectFactoryNewMacro(vtkOutputWindow);
 vtkOutputWindow::vtkOutputWindow()
 {
   this->PromptUser = 0;
@@ -130,15 +131,6 @@ void vtkOutputWindow::DisplayDebugText(const char* txt)
   this->DisplayText(txt);
 }
 
-// Up the reference count so it behaves like New
-vtkOutputWindow* vtkOutputWindow::New()
-{
-  vtkOutputWindow* ret = vtkOutputWindow::GetInstance();
-  ret->Register(nullptr);
-  return ret;
-}
-
-
 // Return the single instance of the vtkOutputWindow
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
@@ -152,13 +144,10 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
     {
 #if defined( _WIN32 ) && !defined( VTK_USE_X )
       vtkOutputWindow::Instance = vtkWin32OutputWindow::New();
-#else
-#if defined( ANDROID )
+#elif defined( ANDROID )
       vtkOutputWindow::Instance = vtkAndroidOutputWindow::New();
 #else
-      vtkOutputWindow::Instance = new vtkOutputWindow;
-      vtkOutputWindow::Instance->InitializeObjectBase();
-#endif
+      vtkOutputWindow::Instance = vtkOutputWindow::New();
 #endif
     }
   }

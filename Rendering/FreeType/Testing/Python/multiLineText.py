@@ -7,8 +7,8 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 # vtkTextMappers.  It shows several justifications as well as single-line
 # and multiple-line text inputs.
 #
-# First we include the VTK Tcl packages which will make available
-# all of the vtk commands to Tcl
+# First we include the VTK Python packages which will make available
+# all of the vtk commands to Python
 #
 font_size = 14
 # Create the text mappers and the associated Actor2Ds.

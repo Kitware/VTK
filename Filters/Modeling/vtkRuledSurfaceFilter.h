@@ -112,9 +112,9 @@ public:
    * direction, repeat the first point in the polyline as the last
    * point in the polyline.)
    */
-  vtkSetMacro(CloseSurface,int);
-  vtkGetMacro(CloseSurface,int);
-  vtkBooleanMacro(CloseSurface,int);
+  vtkSetMacro(CloseSurface,vtkTypeBool);
+  vtkGetMacro(CloseSurface,vtkTypeBool);
+  vtkBooleanMacro(CloseSurface,vtkTypeBool);
   //@}
 
   //@{
@@ -179,7 +179,7 @@ protected:
   double DistanceFactor;
   int   OnRatio;
   int   Offset;
-  int   CloseSurface;
+  vtkTypeBool   CloseSurface;
   int   RuledMode;
   int   Resolution[2];
   int   PassLines;

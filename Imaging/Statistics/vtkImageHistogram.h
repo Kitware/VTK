@@ -78,9 +78,9 @@ public:
    * The BinOrigin and BinSpacing will be set so that they provide a mapping
    * from bin index to scalar value.
    */
-  vtkSetMacro(AutomaticBinning, int);
-  vtkBooleanMacro(AutomaticBinning, int);
-  vtkGetMacro(AutomaticBinning, int);
+  vtkSetMacro(AutomaticBinning, vtkTypeBool);
+  vtkBooleanMacro(AutomaticBinning, vtkTypeBool);
+  vtkGetMacro(AutomaticBinning, vtkTypeBool);
   //@}
 
   //@{
@@ -142,9 +142,9 @@ public:
    * Regardless of this setting, the histogram is always available as a
    * vtkIdTypeArray from the GetHistogram method.
    */
-  vtkSetMacro(GenerateHistogramImage, int);
-  vtkBooleanMacro(GenerateHistogramImage, int);
-  vtkGetMacro(GenerateHistogramImage, int);
+  vtkSetMacro(GenerateHistogramImage, vtkTypeBool);
+  vtkBooleanMacro(GenerateHistogramImage, vtkTypeBool);
+  vtkGetMacro(GenerateHistogramImage, vtkTypeBool);
   //@}
 
   //@{
@@ -220,12 +220,12 @@ protected:
   void ComputeImageScalarRange(vtkImageData *data, double range[2]);
 
   int ActiveComponent;
-  int AutomaticBinning;
+  vtkTypeBool AutomaticBinning;
   int MaximumNumberOfBins;
 
   int HistogramImageSize[2];
   int HistogramImageScale;
-  int GenerateHistogramImage;
+  vtkTypeBool GenerateHistogramImage;
 
   int NumberOfBins;
   double BinOrigin;

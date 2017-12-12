@@ -1,5 +1,4 @@
 vtk_module(vtkIOParallelXdmf3
-  TCL_NAME vtkIOParallelXdmfIII
   IMPLEMENTS
     vtkIOXdmf3
   DEPENDS

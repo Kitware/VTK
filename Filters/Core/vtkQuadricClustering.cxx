@@ -26,7 +26,8 @@
 #include "vtkPolyData.h"
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
-#include <vtksys/hash_set.hxx> // keep track of inserted triangles
+
+#include <unordered_set> // keep track of inserted triangles
 
 vtkStandardNewMacro(vtkQuadricClustering);
 
@@ -35,7 +36,7 @@ vtkStandardNewMacro(vtkQuadricClustering);
 struct vtkQuadricClusteringIdTypeHash {
   size_t operator()(vtkIdType val) const { return static_cast<size_t>(val); }
 };
-class vtkQuadricClusteringCellSet : public vtksys::hash_set<vtkIdType, vtkQuadricClusteringIdTypeHash> {};
+class vtkQuadricClusteringCellSet : public std::unordered_set<vtkIdType, vtkQuadricClusteringIdTypeHash> {};
 typedef vtkQuadricClusteringCellSet::iterator vtkQuadricClusteringCellSetIterator;
 
 
@@ -504,7 +505,7 @@ void vtkQuadricClustering::AddTriangle(vtkIdType *binIds, double *pt0, double *p
       this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
     }
     if (this->QuadricArray[binIds[i]].Dimension == 2)
-    { // Points and segments supercede triangles.
+    { // Points and segments supersede triangles.
       this->AddQuadric(binIds[i], quadric);
     }
   }
@@ -647,7 +648,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
   vtkIdType edgePtIds[2];
   double length2, tmp;
   double d[3];
-  double m[3];  // The mid point of the segement.(p1 or p2 could be used also).
+  double m[3];  // The mid point of the segment.(p1 or p2 could be used also).
   double md;    // The dot product of m and d.
   double q[9];
 
@@ -658,7 +659,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
   d[1] = pt1[1] - pt0[1];
   d[2] = pt1[2] - pt0[2];
 
-  // Compute the length^2 of the line segement.
+  // Compute the length^2 of the line segment.
   length2 = d[0]*d[0] + d[1]*d[1] + d[2]*d[2];
 
   if (length2 == 0.0)
@@ -711,7 +712,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
       this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
     }
     if (this->QuadricArray[binIds[i]].Dimension == 1)
-    { // Points supercede segements.
+    { // Points supersede segements.
       this->AddQuadric(binIds[i], q);
     }
   }
@@ -828,7 +829,7 @@ void vtkQuadricClustering::AddVertex(vtkIdType binId, double *pt,
     this->InitializeQuadric(this->QuadricArray[binId].Quadric);
   }
   if (this->QuadricArray[binId].Dimension == 0)
-  { // Points supercede all other types of quadrics.
+  { // Points supersede all other types of quadrics.
     this->AddQuadric(binId, q);
   }
 

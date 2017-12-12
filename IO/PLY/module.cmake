@@ -2,7 +2,7 @@ vtk_module(vtkIOPLY
   GROUPS
     StandAlone
   TEST_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkIOImage
     vtkTestingRendering
     vtkInteractionStyle

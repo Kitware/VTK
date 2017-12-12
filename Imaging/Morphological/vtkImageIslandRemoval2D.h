@@ -60,9 +60,9 @@ public:
   /**
    * Set/Get whether to use 4 or 8 neighbors
    */
-  vtkSetMacro(SquareNeighborhood, int);
-  vtkGetMacro(SquareNeighborhood, int);
-  vtkBooleanMacro(SquareNeighborhood, int);
+  vtkSetMacro(SquareNeighborhood, vtkTypeBool);
+  vtkGetMacro(SquareNeighborhood, vtkTypeBool);
+  vtkBooleanMacro(SquareNeighborhood, vtkTypeBool);
   //@}
 
   //@{
@@ -86,7 +86,7 @@ protected:
   ~vtkImageIslandRemoval2D() override {}
 
   int AreaThreshold;
-  int SquareNeighborhood;
+  vtkTypeBool SquareNeighborhood;
   double IslandValue;
   double ReplaceValue;
 

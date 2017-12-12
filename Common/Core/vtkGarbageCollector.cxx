@@ -27,8 +27,8 @@
 #define VTK_GARBAGE_COLLECTOR_HASH 0
 
 #if VTK_GARBAGE_COLLECTOR_HASH
-# include <vtksys/hash_set.hxx>
-# include <vtksys/hash_map.hxx>
+# include <unordered_set>
+# include <unordered_map>
 #else
 # include <map>
 # include <set>
@@ -174,7 +174,7 @@ public:
 
   // Map from object to number of stored references.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+  typedef std::unordered_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
   typedef std::map<vtkObjectBase*, int> ReferencesType;
@@ -218,7 +218,7 @@ public:
   // Internal data structure types.
 
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+  typedef std::unordered_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
     ReferencesType;
 #else
   typedef std::map<vtkObjectBase*, int> ReferencesType;
@@ -307,7 +307,7 @@ public:
 
   // The set of objects that have been visited.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_set<Entry*, EntryHash, EntryCompare> VisitedType;
+  typedef std::unordered_set<Entry*, EntryHash, EntryCompare> VisitedType;
 #else
   typedef std::set<Entry*, EntryCompare> VisitedType;
 #endif
@@ -319,7 +319,7 @@ public:
 
   // The set of components found that have not yet leaked.
 #if VTK_GARBAGE_COLLECTOR_HASH
-  typedef vtksys::hash_set<ComponentType*, vtkGarbageCollectorHash>
+  typedef std::unordered_set<ComponentType*, vtkGarbageCollectorHash>
     ComponentsType;
 #else
   typedef std::set<ComponentType*> ComponentsType;

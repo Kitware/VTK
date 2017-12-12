@@ -31,7 +31,8 @@
 #include "vtkUndirectedGraph.h"
 #include "vtkDirectedGraph.h"
 #include "vtkType.h"
-#include <vtksys/hash_map.hxx>
+
+#include <unordered_map>
 
 vtkStandardNewMacro(vtkKCoreDecomposition);
 
@@ -381,7 +382,7 @@ int vtkKCoreDecomposition::RequestData(vtkInformation *vtkNotUsed(request),
     // <source, target> pair.  This unique integer is used as a key in a hash map
     // to keep track of all of the unique edges we have seen so far.
     vtkEdgeListIterator* it = vtkEdgeListIterator::New();
-    vtksys::hash_map<unsigned long int, bool> hmap;
+    std::unordered_map<unsigned long int, bool> hmap;
     input->GetEdges(it);
     bool foundParallelEdges = false;
     bool foundLoops = false;

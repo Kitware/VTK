@@ -113,9 +113,9 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   /**
    * Turn on/off the capping of the skirt.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -167,7 +167,7 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
                         vtkPointData* );
   int Axis;
   int Resolution;
-  int Capping;
+  vtkTypeBool Capping;
   double DefaultAngle;
   double Translation;
   double DeltaRadius;

@@ -34,13 +34,6 @@
  * Companion", ISBN 0-201-50868, 1989 for details on writing shaders.
  * vtkRIBProperty specifies the declarations and parameter settings for
  * custom shaders.
- * Tcl Example: generate a rib file for the current rendering.
- * vtkRIBExporter myRIB
- *   myRIB SetInput $renWin
- *   myRIB SetFilePrefix mine
- *   myRIB Write
- * This will create a file mine.rib. After running this file through
- * a Renderman renderer a file mine.tif will contain the rendered image.
  *
  * @sa
  * vtkExporter vtkRIBProperty vtkRIBLight
@@ -131,9 +124,9 @@ public:
    * all point data, field data, and cell data arrays will get
    * exported together with polygons. Default is Off (0).
    */
-  vtkSetClampMacro(ExportArrays, int, 0, 1);
-  vtkBooleanMacro(ExportArrays, int);
-  vtkGetMacro(ExportArrays, int);
+  vtkSetClampMacro(ExportArrays, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(ExportArrays, vtkTypeBool);
+  vtkGetMacro(ExportArrays, vtkTypeBool);
   //@}
 
 protected:
@@ -147,7 +140,7 @@ protected:
   /**
    * This variable defines whether the arrays are exported or not.
    */
-  int ExportArrays;
+  vtkTypeBool ExportArrays;
 
   //@{
   /**

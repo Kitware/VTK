@@ -74,9 +74,9 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
     /**
      * On/Off DuplicateNodes between partitions. Default is On.
      */
-    vtkSetMacro(DuplicateNodes,int);
-    vtkGetMacro(DuplicateNodes,int);
-    vtkBooleanMacro(DuplicateNodes,int);
+    vtkSetMacro(DuplicateNodes,vtkTypeBool);
+    vtkGetMacro(DuplicateNodes,vtkTypeBool);
+    vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
     //@}
 
     //@{
@@ -209,7 +209,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      int NumberOfPartitions;
      int NumExtents;
 
-     int DuplicateNodes; // indicates whether nodes are duplicated between
+     vtkTypeBool DuplicateNodes; // indicates whether nodes are duplicated between
                          // partitions, so that they are abutting. This is
                          // set to true by default. If disabled, the resulting
                          // partitions will have gaps.

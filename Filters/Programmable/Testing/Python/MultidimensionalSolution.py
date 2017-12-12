@@ -66,7 +66,7 @@ pressureGradient.SetInputConnection(probe_gradient.GetOutputPort())
 pressureGradient.SetScaleFactor(0.00002)
 def ExecuteDot (__vtk__temp0=0,__vtk__temp1=0):
     # proc for ProgrammableAttributeDataFilter.  Note the use of "double()"
-    # in the calculations.  This protects us from Tcl using ints and
+    # in the calculations.  This protects us from Python using ints and
     # overflowing.
     inputs = dotProduct.GetInputList()
     input0 = inputs.GetDataSet(0)

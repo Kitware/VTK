@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkEnSightMasterServerReader
- * @brief   reader for compund EnSight files
+ * @brief   reader for compound EnSight files
 */
 
 #ifndef vtkEnSightMasterServerReader_h

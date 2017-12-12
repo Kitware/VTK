@@ -27,20 +27,12 @@
  * tells vtkSplitField to extract the first component of the field
  * called gradient and create an array called firstcomponent (the
  * new field will be in the output's point data).
- * The same can be done from Tcl:
- * @verbatim
- * sf SetInputField gradient POINT_DATA
- * sf Split 0 firstcomponent
- *
- * AttributeTypes: SCALARS, VECTORS, NORMALS, TCOORDS, TENSORS
- * Field locations: DATA_OBJECT, POINT_DATA, CELL_DATA
- * @endverbatim
  * Note that, by default, the original array is also passed through.
  *
  * @warning
- * When using Tcl, Java, Python or Visual Basic bindings, the array name
+ * When using Java, Python or Visual Basic bindings, the array name
  * can not be one of the  AttributeTypes when calling Split() which takes
- * strings as arguments. The Tcl (Java etc.) command will
+ * strings as arguments. The wrapped command will
  * always assume the string corresponds to an attribute type when
  * the argument is one of the AttributeTypes. In this situation,
  * use the Split() which takes enums.

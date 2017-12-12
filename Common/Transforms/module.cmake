@@ -3,7 +3,7 @@ vtk_module(vtkCommonTransforms
     StandAlone
   TEST_DEPENDS
     vtkTestingCore
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkCommon
   DEPENDS

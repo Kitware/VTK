@@ -142,7 +142,7 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     this->RConn.Allocate(rconnSize);
 
     vtkm::worklet::DispatcherMapField<ComputeReverseMapping, Device> dispatcher;
-    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting(0, 1, numberOfCells),
+    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting<vtkm::Id>(0, 1, numberOfCells),
       this->IndexOffsets, this->Connectivity, pointIdKey, this->RConn);
     Algorithm::SortByKey(pointIdKey, this->RConn);
 

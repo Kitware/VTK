@@ -121,8 +121,8 @@ public:
                             const double in[4], double out[4]);
 
   /**
-   * For use in Java, Python or Tcl.  The default MultiplyPoint() uses
-   * a single-precision point.
+   * For use in Java or Python.  The default MultiplyPoint() uses a
+   * single-precision point.
    */
   float *MultiplyPoint(const float in[4])
     {return this->MultiplyFloatPoint(in); }

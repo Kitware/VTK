@@ -51,7 +51,7 @@ public:
 
   /**
    * Synonymous with TransformDoubleNormal(x,y,z).
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformNormal(double x, double y, double z) {
     return this->TransformDoubleNormal(x,y,z); }
@@ -61,7 +61,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) normal.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   float *TransformFloatNormal(float x, float y, float z) {
     this->InternalFloatPoint[0] = x;
@@ -76,7 +76,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) normal.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformDoubleNormal(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;
@@ -90,7 +90,7 @@ public:
 
   /**
    * Synonymous with TransformDoubleVector(x,y,z).
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformVector(double x, double y, double z) {
     return this->TransformDoubleVector(x,y,z); }
@@ -114,7 +114,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) vector.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   float *TransformFloatVector(float x, float y, float z) {
       this->InternalFloatPoint[0] = x;
@@ -129,7 +129,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) vector.
-   * Use this if you are programming in python, tcl or Java.
+   * Use this if you are programming in python or Java.
    */
   double *TransformDoubleVector(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;

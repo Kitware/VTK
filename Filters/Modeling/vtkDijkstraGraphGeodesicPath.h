@@ -74,27 +74,27 @@ public:
    * Stop when the end vertex is reached
    * or calculate shortest path to all vertices
    */
-  vtkSetMacro(StopWhenEndReached, int);
-  vtkGetMacro(StopWhenEndReached, int);
-  vtkBooleanMacro(StopWhenEndReached, int);
+  vtkSetMacro(StopWhenEndReached, vtkTypeBool);
+  vtkGetMacro(StopWhenEndReached, vtkTypeBool);
+  vtkBooleanMacro(StopWhenEndReached, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Use scalar values in the edge weight (experimental)
    */
-  vtkSetMacro(UseScalarWeights, int);
-  vtkGetMacro(UseScalarWeights, int);
-  vtkBooleanMacro(UseScalarWeights, int);
+  vtkSetMacro(UseScalarWeights, vtkTypeBool);
+  vtkGetMacro(UseScalarWeights, vtkTypeBool);
+  vtkBooleanMacro(UseScalarWeights, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Use the input point to repel the path by assigning high costs.
    */
-  vtkSetMacro(RepelPathFromVertices, int);
-  vtkGetMacro(RepelPathFromVertices, int);
-  vtkBooleanMacro(RepelPathFromVertices, int);
+  vtkSetMacro(RepelPathFromVertices, vtkTypeBool);
+  vtkGetMacro(RepelPathFromVertices, vtkTypeBool);
+  vtkBooleanMacro(RepelPathFromVertices, vtkTypeBool);
   //@}
 
   //@{
@@ -153,9 +153,9 @@ protected:
   //Internalized STL containers.
   vtkDijkstraGraphInternals *Internals;
 
-  int StopWhenEndReached;
-  int UseScalarWeights;
-  int RepelPathFromVertices;
+  vtkTypeBool StopWhenEndReached;
+  vtkTypeBool UseScalarWeights;
+  vtkTypeBool RepelPathFromVertices;
 
   vtkPoints* RepelVertices;
 

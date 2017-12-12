@@ -443,6 +443,14 @@ bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
         {
           throw Plot3DException();
         }
+        if (settings.ByteOrder == vtkMultiBlockPLOT3DReader::FILE_LITTLE_ENDIAN)
+        {
+          vtkByteSwap::Swap4LE(&leadingLengthField);
+        }
+        else
+        {
+          vtkByteSwap::Swap4BE(&leadingLengthField);
+        }
         signBit = (0x80000000 & leadingLengthField)? 1 : 0;
         if (signBit)
         {

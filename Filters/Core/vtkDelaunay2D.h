@@ -212,9 +212,9 @@ public:
    * initial triangulation to begin the triangulation process. This feature
    * is nice for debugging output.)
    */
-  vtkSetMacro(BoundingTriangulation,int);
-  vtkGetMacro(BoundingTriangulation,int);
-  vtkBooleanMacro(BoundingTriangulation,int);
+  vtkSetMacro(BoundingTriangulation,vtkTypeBool);
+  vtkGetMacro(BoundingTriangulation,vtkTypeBool);
+  vtkBooleanMacro(BoundingTriangulation,vtkTypeBool);
   //@}
 
   //@{
@@ -251,7 +251,7 @@ protected:
 
   double Alpha;
   double Tolerance;
-  int BoundingTriangulation;
+  vtkTypeBool BoundingTriangulation;
   double Offset;
 
   vtkAbstractTransform *Transform;

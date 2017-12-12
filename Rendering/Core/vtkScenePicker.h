@@ -98,9 +98,9 @@ public:
    * additional resources and can slow down still render time by
    * 5-10%. Enabled by default.
    */
-  vtkSetMacro(EnableVertexPicking, int);
-  vtkGetMacro(EnableVertexPicking, int);
-  vtkBooleanMacro(EnableVertexPicking, int);
+  vtkSetMacro(EnableVertexPicking, vtkTypeBool);
+  vtkGetMacro(EnableVertexPicking, vtkTypeBool);
+  vtkBooleanMacro(EnableVertexPicking, vtkTypeBool);
   //@}
 
 protected:
@@ -122,7 +122,7 @@ protected:
   // RenderWindowInteractor for start and end interaction events.
   void SetInteractor(vtkRenderWindowInteractor *);
 
-  int EnableVertexPicking;
+  vtkTypeBool EnableVertexPicking;
   vtkHardwareSelector* Selector;
   vtkRenderer* Renderer;
   vtkRenderWindowInteractor* Interactor;

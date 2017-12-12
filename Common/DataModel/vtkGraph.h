@@ -45,7 +45,7 @@
  * be used to look up values in assiciated edge data arrays. Source and Target
  * store the ids of the source and target vertices of the edge. Note that the
  * edge list iterator DOES NOT necessarily iterate over edges in order of ascending
- * id. To traverse edges from wrapper code (Python, Tcl, Java), use
+ * id. To traverse edges from wrapper code (Python, Java), use
  * it->NextGraphEdge() instead of it->Next().  This will return a heavyweight,
  * wrappable vtkGraphEdge object, which has the same fields as vtkEdgeType
  * accessible through getter methods.

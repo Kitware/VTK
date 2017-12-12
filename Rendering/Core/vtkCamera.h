@@ -178,9 +178,9 @@ public:
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  void SetParallelProjection(int flag);
-  vtkGetMacro(ParallelProjection, int);
-  vtkBooleanMacro(ParallelProjection, int);
+  void SetParallelProjection(vtkTypeBool flag);
+  vtkGetMacro(ParallelProjection, vtkTypeBool);
+  vtkBooleanMacro(ParallelProjection, vtkTypeBool);
   //@}
 
   //@{
@@ -194,9 +194,9 @@ public:
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  void SetUseHorizontalViewAngle(int flag);
-  vtkGetMacro(UseHorizontalViewAngle, int);
-  vtkBooleanMacro(UseHorizontalViewAngle, int);
+  void SetUseHorizontalViewAngle(vtkTypeBool flag);
+  vtkGetMacro(UseHorizontalViewAngle, vtkTypeBool);
+  vtkBooleanMacro(UseHorizontalViewAngle, vtkTypeBool);
   //@}
 
   //@{
@@ -359,9 +359,9 @@ public:
    * @note This setting is ignored when UseExplicitProjectionTransformMatrix
    * is true.
    */
-  vtkSetMacro(UseOffAxisProjection, int);
-  vtkGetMacro(UseOffAxisProjection, int);
-  vtkBooleanMacro(UseOffAxisProjection, int);
+  vtkSetMacro(UseOffAxisProjection, vtkTypeBool);
+  vtkGetMacro(UseOffAxisProjection, vtkTypeBool);
+  vtkBooleanMacro(UseOffAxisProjection, vtkTypeBool);
   //@}
 
   //@{
@@ -742,7 +742,7 @@ protected:
   double ViewAngle;
   double ClippingRange[2];
   double EyeAngle;
-  int    ParallelProjection;
+  vtkTypeBool    ParallelProjection;
   double ParallelScale;
   int    Stereo;
   int    LeftEye;
@@ -751,9 +751,9 @@ protected:
   double DirectionOfProjection[3];
   double ViewPlaneNormal[3];
   double ViewShear[3];
-  int    UseHorizontalViewAngle;
+  vtkTypeBool    UseHorizontalViewAngle;
 
-  int    UseOffAxisProjection;
+  vtkTypeBool    UseOffAxisProjection;
 
   double ScreenBottomLeft[3];
   double ScreenBottomRight[3];

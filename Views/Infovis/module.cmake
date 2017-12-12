@@ -5,7 +5,7 @@ vtk_module(vtkViewsInfovis
     vtkTestingRendering
     vtkIOInfovis
     vtkIOSQL
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContextOpenGL2
     vtkViewsContext2D
   DEPENDS
     vtkCommonCore

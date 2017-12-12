@@ -27,14 +27,6 @@
  * @endverbatim
  * will tell vtkMergeFields to use the 2nd component of array1 and
  * the 1st component of array2 to create a 2 component field called foo.
- * The same can be done using Tcl:
- * @verbatim
- * mf SetOutputField foo POINT_DATA
- * mf Merge 0 array1 1
- * mf Merge 1 array2 0
- *
- * Field locations: DATA_OBJECT, POINT_DATA, CELL_DATA
- * @endverbatim
  *
  * @sa
  * vtkFieldData vtkDataSet vtkDataObjectToDataSetFilter

@@ -1054,7 +1054,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   if (!this->InterpolateScalarsBeforeMapping || !this->ColorCoordinates)
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
-      tCoordImpFS + "gl_FragData[0] = clamp(gl_FragData[0],0.0,1.0) * tcolor;");
+      tCoordImpFS + "gl_FragData[0] = gl_FragData[0] * tcolor;");
   }
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
@@ -1191,7 +1191,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "//VTK::Normal::Dec",
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n"
-      "uniform int cameraParallel;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
@@ -1237,7 +1236,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       "varying vec3 tubeBasis2;\n"
       "uniform float ZCalcS;\n"
       "uniform float ZCalcR;\n"
-      "uniform int cameraParallel;\n"
       );
     vtkShaderProgram::Substitute(FSSource,
       "//VTK::Normal::Impl",
@@ -1386,10 +1384,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
     }
     else // not lines, so surface
     {
-      vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Normal::Dec",
-        "uniform int cameraParallel;");
-
       vtkShaderProgram::Substitute(
             FSSource,"//VTK::UniformFlow::Impl",
             "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
@@ -1417,6 +1411,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPositionVC(
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkShaderProgram::Substitute(FSSource,
+    "//VTK::Camera::Dec",
+    "uniform int cameraParallel;\n",
+    false);
 
  // do we need the vertex in the shader in View Coordinates
   if (this->LastLightComplexity[this->LastBoundBO] > 0)

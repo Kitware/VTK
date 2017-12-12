@@ -10,9 +10,9 @@ vtk_module(vtkFiltersPoints
     vtkFiltersGeneral
     vtkViewsContext2D
     vtkChartsCore
-    vtkRendering${VTK_RENDERING_BACKEND}
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
-    vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
+    vtkRenderingVolumeOpenGL2
+    vtkRenderingContextOpenGL2
     vtkRenderingContext2D
   KIT
     vtkFilters

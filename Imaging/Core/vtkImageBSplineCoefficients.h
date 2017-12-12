@@ -113,9 +113,9 @@ public:
    * is useful a downstream filter sometimes uses b-spline interpolation
    * and sometimes uses other forms of interpolation.
    */
-  vtkSetMacro(Bypass, int);
-  vtkBooleanMacro(Bypass, int);
-  vtkGetMacro(Bypass, int);
+  vtkSetMacro(Bypass, vtkTypeBool);
+  vtkBooleanMacro(Bypass, vtkTypeBool);
+  vtkGetMacro(Bypass, vtkTypeBool);
   //@}
 
   /**
@@ -161,7 +161,7 @@ protected:
   int SplineDegree;
   int BorderMode;
   int OutputScalarType;
-  int Bypass;
+  vtkTypeBool Bypass;
   int DataWasPassed;
   int Iteration;
 

@@ -32,6 +32,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkHyperOctreeCursor;
 class vtkCellData;
 class vtkDataSetAttributes;
@@ -69,5 +70,6 @@ private:
   vtkHyperOctreeToUniformGridFilter(const vtkHyperOctreeToUniformGridFilter&) = delete;
   void operator=(const vtkHyperOctreeToUniformGridFilter&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

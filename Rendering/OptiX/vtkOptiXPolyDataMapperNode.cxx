@@ -910,15 +910,15 @@ void vtkOptiXPolyDataMapperNode::RenderPoly(
 
   //Colors from point and cell arrays
   unsigned int numPointColors = 0;
-  optix::float4* pointColors = NULL;
+  optix::float4* pointColors = nullptr;
   unsigned int numCellColors = 0;
-  optix::float3* cellColors = NULL;
+  optix::float3* cellColors = nullptr;
   unsigned int numPointValueTextureCoords = 0;
-  float *pointValueTextureCoords = NULL;
+  float *pointValueTextureCoords = nullptr;
 
-  vtkUnsignedCharArray *vColors = NULL;
-  vtkFloatArray *vColorCoordinates = NULL;
-  vtkImageData* pColorTextureMap = NULL;
+  vtkUnsignedCharArray *vColors = nullptr;
+  vtkFloatArray *vColorCoordinates = nullptr;
+  vtkImageData* pColorTextureMap = nullptr;
   int cellFlag = -1; //mapper tells us which
 
   if (mapper)
@@ -1253,7 +1253,7 @@ void vtkOptiXPolyDataMapperNode::Render(bool prepass)
     //something changed so make new meshes
     this->CreateNewMeshes();
 
-    vtkPolyData* poly = NULL;
+    vtkPolyData* poly = nullptr;
     vtkMapper* mapper = act->GetMapper();
     if (mapper)
     {

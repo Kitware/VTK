@@ -61,9 +61,9 @@ public:
   /**
    * Set & Get for filter location and boolean macro
    */
-  vtkSetMacro(FilterLocation,int);
-  vtkGetMacro(FilterLocation,int);
-  vtkBooleanMacro(FilterLocation,int);
+  vtkSetMacro(FilterLocation,vtkTypeBool);
+  vtkGetMacro(FilterLocation,vtkTypeBool);
+  vtkBooleanMacro(FilterLocation,vtkTypeBool);
   //@}
 
 
@@ -221,7 +221,7 @@ protected:
 
   int NumberOfBlocks;
 
-  int FilterLocation;
+  vtkTypeBool FilterLocation;
   double MinLocation[3];
   double MaxLocation[3];
 

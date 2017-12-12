@@ -126,9 +126,9 @@ public:
    * opacity. This parameter is only relevant to volume picking and
    * is off by default.
    */
-  vtkSetMacro(UseVolumeGradientOpacity, int);
-  vtkBooleanMacro(UseVolumeGradientOpacity, int);
-  vtkGetMacro(UseVolumeGradientOpacity, int);
+  vtkSetMacro(UseVolumeGradientOpacity, vtkTypeBool);
+  vtkBooleanMacro(UseVolumeGradientOpacity, vtkTypeBool);
+  vtkGetMacro(UseVolumeGradientOpacity, vtkTypeBool);
   //@}
 
   //@{
@@ -144,9 +144,9 @@ public:
    * plane so that you can retrieve it from the mapper, or -1 if no
    * clipping plane was picked.
    */
-  vtkSetMacro(PickClippingPlanes, int);
-  vtkBooleanMacro(PickClippingPlanes, int);
-  vtkGetMacro(PickClippingPlanes, int);
+  vtkSetMacro(PickClippingPlanes, vtkTypeBool);
+  vtkBooleanMacro(PickClippingPlanes, vtkTypeBool);
+  vtkGetMacro(PickClippingPlanes, vtkTypeBool);
   //@}
 
   //@{
@@ -244,9 +244,9 @@ public:
    * related to the mapper's data.  The default value of PickTextureData
    * is "Off".
    */
-  vtkSetMacro(PickTextureData, int);
-  vtkBooleanMacro(PickTextureData, int);
-  vtkGetMacro(PickTextureData, int);
+  vtkSetMacro(PickTextureData, vtkTypeBool);
+  vtkBooleanMacro(PickTextureData, vtkTypeBool);
+  vtkGetMacro(PickTextureData, vtkTypeBool);
   //@}
 
 protected:
@@ -325,8 +325,8 @@ protected:
   vtkCollection *Locators;
 
   double VolumeOpacityIsovalue;
-  int UseVolumeGradientOpacity;
-  int PickClippingPlanes;
+  vtkTypeBool UseVolumeGradientOpacity;
+  vtkTypeBool PickClippingPlanes;
   int ClippingPlaneId;
 
   vtkIdType PointId;
@@ -341,7 +341,7 @@ protected:
   double MapperNormal[3];
 
   vtkTexture *Texture;
-  int PickTextureData;
+  vtkTypeBool PickTextureData;
 
 private:
   void ResetCellPickerInfo();

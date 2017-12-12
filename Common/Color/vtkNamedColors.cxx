@@ -299,7 +299,7 @@ static const char *colorTable[] =
     {
     // Name, R, G, B, A
     // These colors should be exactly the same as the ones defined in
-    // colors.tcl.
+    // colors.py.
     //  Whites
     "antique_white,250,235,215,255",
     "azure,240,255,255,255",

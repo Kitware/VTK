@@ -23,10 +23,10 @@
 # include "vtkMPIController.h"
 #endif // VTK_COMPILED_USING_MPI
 
+#include "vtkOutputWindow.h"
 #include "vtkPythonInterpreter.h"
 #include "vtkVersion.h"
 #include "vtkpythonmodules.h"
-
 #include <sys/stat.h>
 
 #include <string>
@@ -87,5 +87,14 @@ int main(int argc, char **argv)
    * This registers any Python modules for VTK for static builds.
    */
   CMakeLoadAllPythonModules();
+
+  // Setup the output window to be vtkOutputWindow, rather than platform
+  // specific one. This avoids creating vtkWin32OutputWindow on Windows, for
+  // example, which puts all Python errors in a window rather than the terminal
+  // as one would expect.
+  auto opwindow = vtkOutputWindow::New();;
+  vtkOutputWindow::SetInstance(opwindow);
+  opwindow->Delete();
+
   return vtkPythonInterpreter::PyMain(argc, argv);
 }

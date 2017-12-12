@@ -24,7 +24,8 @@
  * vtkHyperTreeGrid vtkHyperTreeGridAlgorithm vtkReflectionFilter
  *
  * @par Thanks:
- * This class was written by Philippe Pebay on a idea of Guénolé Harel and Jacques-Bernard Lekien, 2016
+ * This class was written by Philippe Pebay based on a idea of Guenole
+ * Harel and Jacques-Bernard Lekien, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 */
 
@@ -114,6 +115,5 @@ private:
   vtkHyperTreeGridAxisReflection(const vtkHyperTreeGridAxisReflection&) = delete;
   void operator=(const vtkHyperTreeGridAxisReflection&) = delete;
 };
-
 
 #endif /* vtkHyperTreeGridAxisReflection */

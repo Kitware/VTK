@@ -19,9 +19,7 @@ endif()
 vtk_dependent_option(VTK_USE_TK "Build VTK with Tk support"
                      ${VTK_USE_TK_DEFAULT} "VTK_CAN_USE_TK" OFF)
 
-# The cmake code to find the libs is in vtkWrapTcl
-set(VTK_WRAP_TCL_FIND_LIBS 1)
-include(vtkWrapTcl)
+include(vtkTclTkMacros)
 
 # Subdirs
 ADD_SUBDIRECTORY(internals)

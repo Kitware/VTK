@@ -58,7 +58,7 @@ static BenchOption FilterList[] =
   { "Reslice2D",      "reslice:kernel=linear:rotation=45/0/0/1" },
   { "Reslice3D",      "reslice:kernel=linear:rotation=60/0/1/1" },
   { "Colors4",        "colormap:components=4" },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 static BenchOption SplitModeList[] =
@@ -66,7 +66,7 @@ static BenchOption SplitModeList[] =
   { "Slab", "slab" },
   { "Beam", "beam" },
   { "Block", "block" },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 // These are only for --enable-smp on
@@ -80,14 +80,14 @@ static BenchOption BlockByteList[] =
   { "1MiB",   "1048576" },
   { "4MiB",   "4194304" },
   { "16MiB",  "16777216" },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 static BenchOption ImageSizeList[] =
 {
   { "4096x4096",   "4096x4096x1" },
   { "256x256x256", "256x256x256" },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 static BenchParameter Parameters[] =
@@ -96,7 +96,7 @@ static BenchParameter Parameters[] =
   { "--split-mode", SplitModeList },
   { "--bytes-per-piece", BlockByteList },
   { "--size", ImageSizeList },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 int main(int argc, char *argv[])
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
     }
 
     commandLine.push_back("--slave");
-    commandLine.push_back(NULL);
+    commandLine.push_back(nullptr);
 
     filename += ".csv";
     std::ofstream outfile(filename.c_str());
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
     {
       char *cp;
       int length;
-      pipe = vtksysProcess_WaitForData(process, &cp, &length, NULL);
+      pipe = vtksysProcess_WaitForData(process, &cp, &length, nullptr);
       switch (pipe)
       {
         case vtksysProcess_Pipe_STDOUT:
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     }
     while (pipe != vtksysProcess_Pipe_None);
 
-    vtksysProcess_WaitForExit(process, NULL);
+    vtksysProcess_WaitForExit(process, nullptr);
     int rval = vtksysProcess_GetExitValue(process);
     if (rval != 0)
     {

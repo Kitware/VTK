@@ -76,9 +76,9 @@ public:
 
    * TODO: This functionality should probably be moved to the superclass.
    */
-  vtkSetMacro(Repositionable, int);
-  vtkGetMacro(Repositionable, int);
-  vtkBooleanMacro(Repositionable, int);
+  vtkSetMacro(Repositionable, vtkTypeBool);
+  vtkGetMacro(Repositionable, vtkTypeBool);
+  vtkBooleanMacro(Repositionable, vtkTypeBool);
   //@}
 
   /**
@@ -90,7 +90,7 @@ protected:
   vtkScalarBarWidget();
   ~vtkScalarBarWidget() override;
 
-  int Repositionable;
+  vtkTypeBool Repositionable;
 
   // Handle the case of Repositionable == 0
   static void MoveAction(vtkAbstractWidget*);

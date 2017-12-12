@@ -65,9 +65,9 @@ public:
    * generated the data are integer numbers indicating which piece a
    * particular point belongs to.
    */
-  vtkSetMacro(FieldData,int);
-  vtkGetMacro(FieldData,int);
-  vtkBooleanMacro(FieldData,int);
+  vtkSetMacro(FieldData,vtkTypeBool);
+  vtkGetMacro(FieldData,vtkTypeBool);
+  vtkBooleanMacro(FieldData,vtkTypeBool);
   //@}
 
   //@{
@@ -138,7 +138,7 @@ protected:
   int           NumberOfPieces;
   unsigned long MemoryLimit;
   int           NumberOfActualPieces;
-  int           FieldData;
+  vtkTypeBool           FieldData;
   int           DiceMode;
 
 private:

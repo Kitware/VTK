@@ -155,9 +155,9 @@ public:
    * if the AttributeMode is AttributeModeToUsePointData.
    * If a valid output can't be made, an error will occur.
    */
-  vtkGetMacro(CoordinateResults, int);
-  vtkSetMacro(CoordinateResults, int);
-  vtkBooleanMacro(CoordinateResults, int);
+  vtkGetMacro(CoordinateResults, vtkTypeBool);
+  vtkSetMacro(CoordinateResults, vtkTypeBool);
+  vtkBooleanMacro(CoordinateResults, vtkTypeBool);
   //@}
 
   //@{
@@ -291,9 +291,9 @@ public:
    * numbers) will be replaced by ReplacementValue. Otherwise an
    * error will be reported
    */
-  vtkSetMacro(ReplaceInvalidValues,int);
-  vtkGetMacro(ReplaceInvalidValues,int);
-  vtkBooleanMacro(ReplaceInvalidValues,int);
+  vtkSetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkGetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkBooleanMacro(ReplaceInvalidValues,vtkTypeBool);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
   //@}
@@ -325,10 +325,10 @@ protected:
   int  ** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
 
-  int     ReplaceInvalidValues;
+  vtkTypeBool     ReplaceInvalidValues;
   double  ReplacementValue;
 
-  int     CoordinateResults;
+  vtkTypeBool     CoordinateResults;
   bool    ResultNormals;
   bool    ResultTCoords;
   char ** CoordinateScalarVariableNames;

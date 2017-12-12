@@ -39,7 +39,7 @@ public:
   vtkPixelTransfer(){}
 
   /**
-   * for  memory to memory transfers. Conveinience api for working
+   * for memory to memory transfers. Convenience api for working
    * with vtk type enum rather than c-data types and simple extents.
    */
   static
@@ -52,7 +52,7 @@ public:
          void *destData);
 
   /**
-   * for  memory to memory transfers. Conveinience api for working
+   * for memory to memory transfers. Convenience api for working
    * with vtk type enum rather than c-data types.
    */
   static

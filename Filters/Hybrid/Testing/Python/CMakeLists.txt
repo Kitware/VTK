@@ -21,10 +21,5 @@ vtk_add_test_python(
   largeImageOffset.py
   largeImageParallel.py
   TestProcrustesRigidCentroid.py
+  TestFacetReader.py
   )
-
-if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
-  vtk_add_test_python(
-    TestFacetReader.py
-  )
-endif()

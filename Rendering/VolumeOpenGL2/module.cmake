@@ -1,6 +1,4 @@
 vtk_module(vtkRenderingVolumeOpenGL2
-  TCL_NAME
-    vtkRenderingVolumeOpenGLII
   IMPLEMENTS
     vtkRenderingVolume
   BACKEND

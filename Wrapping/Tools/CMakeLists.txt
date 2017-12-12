@@ -66,12 +66,6 @@ if(NOT VTK_COMPILE_TOOLS_IMPORTED)
   target_link_libraries(vtkWrapHierarchy vtkWrappingTools)
   vtk_compile_tools_target(vtkWrapHierarchy)
 
-  add_executable(vtkWrapTcl vtkWrapTcl.c)
-  target_link_libraries(vtkWrapTcl vtkWrappingTools)
-  add_executable(vtkWrapTclInit vtkWrapTclInit.c)
-  vtk_compile_tools_target(vtkWrapTcl)
-  vtk_compile_tools_target(vtkWrapTclInit)
-
   add_executable(vtkWrapPython
     vtkWrapPython.c
     vtkWrapPythonClass.c

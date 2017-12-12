@@ -99,9 +99,9 @@ public:
    * WARNING: this flag is used only with the Export() method,
    * it is ignored by GetPointerToData().
    */
-  vtkBooleanMacro(ImageLowerLeft, int);
-  vtkGetMacro(ImageLowerLeft, int);
-  vtkSetMacro(ImageLowerLeft, int);
+  vtkBooleanMacro(ImageLowerLeft, vtkTypeBool);
+  vtkGetMacro(ImageLowerLeft, vtkTypeBool);
+  vtkSetMacro(ImageLowerLeft, vtkTypeBool);
   //@}
 
   //@{
@@ -194,7 +194,7 @@ protected:
   virtual int* DataExtentCallback();
   virtual void* BufferPointerCallback();
 
-  int ImageLowerLeft;
+  vtkTypeBool ImageLowerLeft;
   int DataDimensions[3];
   void *ExportVoidPointer;
 

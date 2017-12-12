@@ -4,7 +4,7 @@ vtk_module(vtkRenderingAnnotation
   TEST_DEPENDS
     vtkIOGeometry
     vtkIOParallel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
     vtkRenderingLOD

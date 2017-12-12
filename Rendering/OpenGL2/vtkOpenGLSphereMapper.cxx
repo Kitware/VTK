@@ -84,7 +84,6 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   // so don't redefine it
   std::string replacement =
     "uniform float invertedDepth;\n"
-    "uniform int cameraParallel;\n"
     "varying float radiusVCVSOutput;\n"
     "varying vec3 centerVCVSOutput;\n"
     "uniform mat4 VCDCMatrix;\n";
@@ -333,12 +332,14 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   else
   {
     double *ac = act->GetProperty()->GetColor();
-    c = new unsigned char[3];
+    double opac = act->GetProperty()->GetOpacity();
+    c = new unsigned char[4];
     c[0] = (unsigned char) (ac[0] *255.0);
     c[1] = (unsigned char) (ac[1] *255.0);
     c[2] = (unsigned char) (ac[2] *255.0);
+    c[3] = (unsigned char) (opac *255.0);
     nc = 1;
-    cc = 3;
+    cc = 4;
   }
 
   float *scales;

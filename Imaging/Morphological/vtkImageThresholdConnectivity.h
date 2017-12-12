@@ -77,9 +77,9 @@ public:
   /**
    * Replace the filled region by the value set by SetInValue().
    */
-  vtkSetMacro(ReplaceIn, int);
-  vtkGetMacro(ReplaceIn, int);
-  vtkBooleanMacro(ReplaceIn, int);
+  vtkSetMacro(ReplaceIn, vtkTypeBool);
+  vtkGetMacro(ReplaceIn, vtkTypeBool);
+  vtkBooleanMacro(ReplaceIn, vtkTypeBool);
   //@}
 
   //@{
@@ -94,9 +94,9 @@ public:
   /**
    * Replace the filled region by the value set by SetInValue().
    */
-  vtkSetMacro(ReplaceOut, int);
-  vtkGetMacro(ReplaceOut, int);
-  vtkBooleanMacro(ReplaceOut, int);
+  vtkSetMacro(ReplaceOut, vtkTypeBool);
+  vtkGetMacro(ReplaceOut, vtkTypeBool);
+  vtkBooleanMacro(ReplaceOut, vtkTypeBool);
   //@}
 
   //@{
@@ -186,8 +186,8 @@ protected:
   double LowerThreshold;
   double InValue;
   double OutValue;
-  int ReplaceIn;
-  int ReplaceOut;
+  vtkTypeBool ReplaceIn;
+  vtkTypeBool ReplaceOut;
 
   double NeighborhoodRadius[3];
   double NeighborhoodFraction;

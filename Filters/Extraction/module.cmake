@@ -7,7 +7,7 @@ vtk_module(vtkFiltersExtraction
     vtkIOLegacy
     vtkIOXML
     vtkIOExodus
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
   KIT
     vtkFilters

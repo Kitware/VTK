@@ -139,7 +139,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::GetTransferFunctionTables(vtkD
                  this->AttenuationTable[c]);
 
     // Adjust attenuation by scalar unit length.  This will make the unit
-    // lenth the same as the model.
+    // length the same as the model.
     float unitlength = this->Property->GetScalarOpacityUnitDistance(c);
     for (int i = 0; i < this->TransferFunctionTableSize; i++)
     {

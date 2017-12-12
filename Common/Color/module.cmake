@@ -2,7 +2,7 @@ vtk_module(vtkCommonColor
   TEST_DEPENDS
     vtkIOImage
     vtkCommonExecutionModel
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle

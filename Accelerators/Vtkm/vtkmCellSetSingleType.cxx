@@ -139,8 +139,10 @@ typename vtkm::exec::ReverseConnectivityVTK<Device>
     pointIdKey.Allocate(rconnSize);
     this->RConn.Allocate(rconnSize);
 
-    vtkm::worklet::DispatcherMapField<ComputeSingleTypeReverseMapping, Device> dispatcher( ComputeSingleTypeReverseMapping(this->DetermineNumberOfPoints()));
-    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting(0, 1, numberOfCells),
+    vtkm::worklet::DispatcherMapField<ComputeSingleTypeReverseMapping, Device>
+        dispatcher(
+            ComputeSingleTypeReverseMapping(this->DetermineNumberOfPoints()));
+    dispatcher.Invoke(vtkm::cont::make_ArrayHandleCounting<vtkm::Id>(0, 1, numberOfCells),
                       this->Connectivity, pointIdKey, this->RConn);
     Algorithm::SortByKey(pointIdKey, this->RConn);
 

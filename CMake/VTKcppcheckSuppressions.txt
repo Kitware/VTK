@@ -73,7 +73,6 @@ memleak:Imaging/Hybrid/vtkSurfaceReconstructionFilter.cxx
 memleak:IO/Image/vtkJPEGReader.cxx
 memleak:Rendering/OpenGL2/vtkOpenGLRenderTimerLog.cxx
 operatorEqVarError:Filters/General/vtkHyperStreamline.cxx
-redundantAssignment:Wrapping/Tcl/vtkTclUtil.cxx
 redundantAssignment:Wrapping/Tools/vtkParsePreprocess.c
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
 stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx

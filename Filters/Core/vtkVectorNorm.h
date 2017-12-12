@@ -59,9 +59,9 @@ public:
 
   // Specify whether to normalize scalar values. If the data is normalized,
   // then it will fall in the range [0,1].
-  vtkSetMacro(Normalize,int);
-  vtkGetMacro(Normalize,int);
-  vtkBooleanMacro(Normalize,int);
+  vtkSetMacro(Normalize,vtkTypeBool);
+  vtkGetMacro(Normalize,vtkTypeBool);
+  vtkBooleanMacro(Normalize,vtkTypeBool);
 
   //@{
   /**
@@ -90,7 +90,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int Normalize;  // normalize 0<=n<=1 if true.
+  vtkTypeBool Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both
 
 private:

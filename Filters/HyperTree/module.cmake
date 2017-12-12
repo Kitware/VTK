@@ -9,7 +9,7 @@ vtk_module(vtkFiltersHyperTree
     vtkRenderingAnnotation
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkFilters
   DEPENDS

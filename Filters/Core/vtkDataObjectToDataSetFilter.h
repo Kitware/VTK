@@ -222,9 +222,9 @@ public:
    * Set the default Normalize() flag for those methods setting a default
    * Normalize value (e.g., SetPointComponent).
    */
-  vtkSetMacro(DefaultNormalize,int);
-  vtkGetMacro(DefaultNormalize,int);
-  vtkBooleanMacro(DefaultNormalize,int);
+  vtkSetMacro(DefaultNormalize,vtkTypeBool);
+  vtkGetMacro(DefaultNormalize,vtkTypeBool);
+  vtkBooleanMacro(DefaultNormalize,vtkTypeBool);
   //@}
 
   //@{
@@ -331,7 +331,7 @@ protected:
                                    vtkIdType compRange[2]);
 
   // Default value for normalization
-  int DefaultNormalize;
+  vtkTypeBool DefaultNormalize;
 
   // Couple of different ways to specify dimensions, spacing, and origin.
   int Dimensions[3];

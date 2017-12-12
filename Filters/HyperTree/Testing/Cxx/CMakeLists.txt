@@ -1,10 +1,13 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
-  TestClipHyperOctree.cxx
-  TestHyperOctreeContourFilter.cxx
-  TestHyperOctreeCutter.cxx
-  TestHyperOctreeDual.cxx
-  TestHyperOctreeSurfaceFilter.cxx
-  TestHyperOctreeToUniformGrid.cxx
+set(test_sources
+  # All things HyperOctree-related have been deprecated, so these now emit lots
+  # of warnings:
+  #TestClipHyperOctree.cxx
+  #TestHyperOctreeContourFilter.cxx
+  #TestHyperOctreeCutter.cxx
+  #TestHyperOctreeDual.cxx
+  #TestHyperOctreeSurfaceFilter.cxx
+  #TestHyperOctreeToUniformGrid.cxx
+
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinary2DAxisClipBox.cxx
   TestHyperTreeGridBinary2DAxisClipEllipse.cxx
@@ -20,6 +23,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridBinary2DContourMaterial.cxx
   TestHyperTreeGridBinary2DDepthLimiter.cxx
   TestHyperTreeGridBinary2DDepthLimiterMaterial.cxx
+  TestHyperTreeGridBinary2DInterfaceMaterial.cxx
   TestHyperTreeGridBinary2DMaterial.cxx
   TestHyperTreeGridBinary2DMaterialIJK.cxx
   TestHyperTreeGridBinary2DThreshold.cxx
@@ -68,4 +72,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list(APPEND test_sources
+  )
+endif()
+
+vtk_add_test_cxx(${vtk-module}CxxTests tests ${test_sources})
+
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)

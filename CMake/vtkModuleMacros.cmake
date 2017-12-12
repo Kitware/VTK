@@ -23,7 +23,6 @@ endif()
 #  OPTIONAL_PYTHON_LINK = Optionally link the python library to this module
 #  TEST_DEPENDS = Modules that are needed by this modules testing executables
 #  DESCRIPTION = Free text description of the module
-#  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
 #  IMPLEMENTS = Modules that this module implements, using the auto init feature
 #  BACKEND = An implementation backend that this module belongs (valid with
 #            IMPLEMENTS only)
@@ -65,7 +64,6 @@ macro(vtk_module _name)
   set(${vtk-module}_IMPLEMENTATION_REQUIRED_BY_BACKEND 0)
   set(${vtk-module}_BACKEND "")
   set(${vtk-module}_DESCRIPTION "description")
-  set(${vtk-module}_TCL_NAME "${vtk-module}")
   set(${vtk-module}_EXCLUDE_FROM_ALL 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAPPING 0)
   set(${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY 0)
@@ -74,7 +72,7 @@ macro(vtk_module _name)
   foreach(arg ${ARGN})
     # XXX: Adding a new keyword? Update Utilities/Maintenance/WhatModulesVTK.py
     # and Utilities/Maintenance/VisualizeModuleDependencies.py as well.
-    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|TCL_NAME|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT|LEGACY)$")
+    if("${arg}" MATCHES "^((|COMPILE_|PRIVATE_|TEST_|)DEPENDS|DESCRIPTION|IMPLEMENTS|BACKEND|DEFAULT|GROUPS|TEST_LABELS|KIT|LEGACY)$")
       set(_doing "${arg}")
     elseif("${arg}" STREQUAL "EXCLUDE_FROM_ALL")
       set(_doing "")
@@ -111,9 +109,6 @@ macro(vtk_module _name)
     elseif("${_doing}" STREQUAL "DESCRIPTION")
       set(_doing "")
       set(${vtk-module}_DESCRIPTION "${arg}")
-    elseif("${_doing}" STREQUAL "TCL_NAME")
-      set(_doing "")
-      set(${vtk-module}_TCL_NAME "${arg}")
     elseif("${_doing}" STREQUAL "IMPLEMENTS")
       list(APPEND ${vtk-module}_DEPENDS "${arg}")
       list(APPEND ${vtk-module}_IMPLEMENTS "${arg}")
@@ -162,11 +157,6 @@ macro(vtk_module _name)
   list(SORT ${vtk-module}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module-test}_DEPENDS) # Deterministic order.
   list(SORT ${vtk-module}_IMPLEMENTS) # Deterministic order.
-  if(NOT (${vtk-module}_EXCLUDE_FROM_WRAPPING OR
-          ${vtk-module}_EXCLUDE_FROM_TCL_WRAPPING) AND
-      "${${vtk-module}_TCL_NAME}" MATCHES "[0-9]")
-    message(AUTHOR_WARNING "Specify a TCL_NAME with no digits.")
-  endif()
   endif()
 endmacro()
 
@@ -359,7 +349,7 @@ macro(vtk_module_export_info)
       DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
       COMPONENT Development)
     if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING)
-      if(VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA)
+      if(VTK_WRAP_PYTHON OR VTK_WRAP_JAVA)
         install(FILES ${${vtk-module}_WRAP_HIERARCHY_FILE}
           DESTINATION ${VTK_INSTALL_PACKAGE_DIR}/Modules
           COMPONENT Development)
@@ -672,7 +662,7 @@ function(vtk_module_library name)
   # TODO: Re-order things so we do not need to duplicate this condition.
   if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
       NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
-      ( VTK_WRAP_PYTHON OR VTK_WRAP_TCL OR VTK_WRAP_JAVA ))
+      ( VTK_WRAP_PYTHON OR VTK_WRAP_JAVA ))
     set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt)
   else()
     set(_hierarchy "")
@@ -805,27 +795,6 @@ VTK_AUTOINIT(${vtk-module})
                                    ${CMAKE_CURRENT_SOURCE_DIR} ${MOD}_EXPORT
       )
     set_tests_properties(${vtk-module}-HeaderTest
-      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
-      )
-  endif()
-
-  if(BUILD_TESTING AND TCL_TCLSH)
-    add_test(NAME ${vtk-module}-TestSetObjectMacro
-      COMMAND ${TCL_TCLSH}
-      ${VTK_SOURCE_DIR}/Testing/Core/FindString.tcl
-      "${${vtk-module}_SOURCE_DIR}/vtk\\\\*.h"
-      # "${CMAKE_CURRENT_SOURCE_DIR}/vtk\\\\*.h"
-      "vtkSetObjectMacro"
-      ${VTK_SOURCE_DIR}/Common/Core/vtkSetGet.h
-      )
-    add_test(NAME ${vtk-module}-TestPrintSelf
-      COMMAND ${TCL_TCLSH}
-      ${VTK_SOURCE_DIR}/Testing/Core/PrintSelfCheck.tcl
-      ${${vtk-module}_SOURCE_DIR})
-    set_tests_properties(${vtk-module}-TestSetObjectMacro
-      PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
-      )
-    set_tests_properties(${vtk-module}-TestPrintSelf
       PROPERTIES LABELS "${${vtk-module}_TEST_LABELS}"
       )
   endif()

@@ -636,14 +636,12 @@ int TestSmartVolumeMapperWindowLevel(int argc,
   mapper3->SetInputConnection(reader->GetOutputPort());
   mapper3->SetRequestedRenderModeToRayCast();
 
-#ifdef VTK_OPENGL2
   mapper1->SetAutoAdjustSampleDistances(0);
   mapper1->SetInteractiveAdjustSampleDistances(0);
   mapper2->SetAutoAdjustSampleDistances(0);
   mapper2->SetInteractiveAdjustSampleDistances(0);
   mapper3->SetAutoAdjustSampleDistances(0);
   mapper3->SetInteractiveAdjustSampleDistances(0);
-#endif
 
   vtkNew<vtkColorTransferFunction> ctf;
   ctf->AddHSVPoint(1.0, 0.65, 1.0, 1.0);

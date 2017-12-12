@@ -44,9 +44,9 @@ public:
   /**
    * When prune is on, only closed loops are left unchanged.
    */
-  vtkSetMacro(Prune,int);
-  vtkGetMacro(Prune,int);
-  vtkBooleanMacro(Prune,int);
+  vtkSetMacro(Prune,vtkTypeBool);
+  vtkGetMacro(Prune,vtkTypeBool);
+  vtkBooleanMacro(Prune,vtkTypeBool);
   //@}
 
   /**
@@ -58,7 +58,7 @@ protected:
   vtkImageSkeleton2D();
   ~vtkImageSkeleton2D() override {}
 
-  int Prune;
+  vtkTypeBool Prune;
 
   int IterativeRequestUpdateExtent(vtkInformation* in,
                                            vtkInformation* out) override;

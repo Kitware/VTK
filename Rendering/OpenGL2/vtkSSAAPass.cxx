@@ -149,8 +149,8 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
     this->FrameBufferObject->GetBothMode(), 0,this->Pass1);
   this->FrameBufferObject->ActivateDrawBuffer(0);
 
-  // this->FrameBufferObject->AddDepthAttachment(
-  //   this->FrameBufferObject->GetBothMode());
+  this->FrameBufferObject->AddDepthAttachment(
+    this->FrameBufferObject->GetBothMode());
   this->FrameBufferObject->StartNonOrtho(w,h);
   glViewport(0, 0, w, h);
   glScissor(0, 0, w, h);
@@ -264,6 +264,7 @@ void vtkSSAAPass::Render(const vtkRenderState *s)
                                 this->SSAAProgram->VAO);
 
   this->Pass2->Deactivate();
+  glEnable(GL_DEPTH_TEST);
 
   // restore GL state
   if (savedBlend)

@@ -135,9 +135,9 @@ public:
    * planes respectively and 3 for arbitrary oblique planes when the widget
    * is tied to a vtkPlaneSource.
    */
-  vtkSetMacro(ProjectToPlane,int);
-  vtkGetMacro(ProjectToPlane,int);
-  vtkBooleanMacro(ProjectToPlane,int);
+  vtkSetMacro(ProjectToPlane,vtkTypeBool);
+  vtkGetMacro(ProjectToPlane,vtkTypeBool);
+  vtkBooleanMacro(ProjectToPlane,vtkTypeBool);
   //@}
 
   /**
@@ -284,7 +284,7 @@ protected:
   // Controlling vars
   int   ProjectionNormal;
   double ProjectionPosition;
-  int   ProjectToPlane;
+  vtkTypeBool   ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
   // Projection capabilities

@@ -105,7 +105,7 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
   }
 
   /**
-   * Set a callback that get's called once the window is properly created and can be
+   * Set a callback that gets called once the window is properly created and can be
    * customized in its settings.
    *
    * Once called the callback will be released.

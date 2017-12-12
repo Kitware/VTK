@@ -64,18 +64,18 @@ public:
   /**
    * Turn on/off merging of points/triangles.
    */
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off tagging of solids with scalars.
    */
-  vtkSetMacro(ScalarTags,int);
-  vtkGetMacro(ScalarTags,int);
-  vtkBooleanMacro(ScalarTags,int);
+  vtkSetMacro(ScalarTags,vtkTypeBool);
+  vtkGetMacro(ScalarTags,vtkTypeBool);
+  vtkBooleanMacro(ScalarTags,vtkTypeBool);
   //@}
 
   //@{
@@ -96,8 +96,8 @@ protected:
    */
   vtkIncrementalPointLocator* NewDefaultLocator();
 
-  int Merging;
-  int ScalarTags;
+  vtkTypeBool Merging;
+  vtkTypeBool ScalarTags;
   vtkIncrementalPointLocator *Locator;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;

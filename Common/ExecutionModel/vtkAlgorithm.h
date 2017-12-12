@@ -200,9 +200,9 @@ public:
    * Set/Get the AbortExecute flag for the process object. Process objects
    * may handle premature termination of execution in different ways.
    */
-  vtkSetMacro(AbortExecute,int);
-  vtkGetMacro(AbortExecute,int);
-  vtkBooleanMacro(AbortExecute,int);
+  vtkSetMacro(AbortExecute,vtkTypeBool);
+  vtkGetMacro(AbortExecute,vtkTypeBool);
+  vtkBooleanMacro(AbortExecute,vtkTypeBool);
   //@}
 
   //@{
@@ -241,7 +241,7 @@ public:
   //@}
 
   // left public for performance since it is used in inner loops
-  int AbortExecute;
+  vtkTypeBool AbortExecute;
 
   /**
    * Keys used to specify input port requirements.

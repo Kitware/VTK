@@ -165,9 +165,9 @@ public:
    * range and number of labels. Note that if RulerMode is on, then the
    * number of labels is a function of the range and ruler distance.
    */
-  vtkSetMacro(AdjustLabels, int);
-  vtkGetMacro(AdjustLabels, int);
-  vtkBooleanMacro(AdjustLabels, int);
+  vtkSetMacro(AdjustLabels, vtkTypeBool);
+  vtkGetMacro(AdjustLabels, vtkTypeBool);
+  vtkBooleanMacro(AdjustLabels, vtkTypeBool);
   virtual double *GetAdjustedRange()
   {
       this->UpdateAdjustedRange();
@@ -255,36 +255,36 @@ public:
   /**
    * Set/Get visibility of the axis line.
    */
-  vtkSetMacro(AxisVisibility, int);
-  vtkGetMacro(AxisVisibility, int);
-  vtkBooleanMacro(AxisVisibility, int);
+  vtkSetMacro(AxisVisibility, vtkTypeBool);
+  vtkGetMacro(AxisVisibility, vtkTypeBool);
+  vtkBooleanMacro(AxisVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis tick marks.
    */
-  vtkSetMacro(TickVisibility, int);
-  vtkGetMacro(TickVisibility, int);
-  vtkBooleanMacro(TickVisibility, int);
+  vtkSetMacro(TickVisibility, vtkTypeBool);
+  vtkGetMacro(TickVisibility, vtkTypeBool);
+  vtkBooleanMacro(TickVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis labels.
    */
-  vtkSetMacro(LabelVisibility, int);
-  vtkGetMacro(LabelVisibility, int);
-  vtkBooleanMacro(LabelVisibility, int);
+  vtkSetMacro(LabelVisibility, vtkTypeBool);
+  vtkGetMacro(LabelVisibility, vtkTypeBool);
+  vtkBooleanMacro(LabelVisibility, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get visibility of the axis title.
    */
-  vtkSetMacro(TitleVisibility, int);
-  vtkGetMacro(TitleVisibility, int);
-  vtkBooleanMacro(TitleVisibility, int);
+  vtkSetMacro(TitleVisibility, vtkTypeBool);
+  vtkGetMacro(TitleVisibility, vtkTypeBool);
+  vtkBooleanMacro(TitleVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -372,9 +372,9 @@ public:
    * Specify whether to size the fonts relative to the viewport or relative to
    * length of the axis. By default, fonts are resized relative to the viewport.
    */
-  vtkSetMacro(SizeFontRelativeToAxis,int);
-  vtkGetMacro(SizeFontRelativeToAxis,int);
-  vtkBooleanMacro(SizeFontRelativeToAxis,int);
+  vtkSetMacro(SizeFontRelativeToAxis,vtkTypeBool);
+  vtkGetMacro(SizeFontRelativeToAxis,vtkTypeBool);
+  vtkBooleanMacro(SizeFontRelativeToAxis,vtkTypeBool);
   //@}
 
   /**
@@ -396,7 +396,7 @@ protected:
   double RulerDistance;
   int   NumberOfLabels;
   char  *LabelFormat;
-  int   AdjustLabels;
+  vtkTypeBool   AdjustLabels;
   double FontFactor;
   double LabelFactor;
   int   TickLength;
@@ -408,10 +408,10 @@ protected:
   int   AdjustedNumberOfLabels;
   int   NumberOfLabelsBuilt;
 
-  int   AxisVisibility;
-  int   TickVisibility;
-  int   LabelVisibility;
-  int   TitleVisibility;
+  vtkTypeBool   AxisVisibility;
+  vtkTypeBool   TickVisibility;
+  vtkTypeBool   LabelVisibility;
+  vtkTypeBool   TitleVisibility;
 
   int   LastPosition[2];
   int   LastPosition2[2];

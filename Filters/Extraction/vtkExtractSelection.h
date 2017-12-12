@@ -67,9 +67,9 @@ public:
    * content type vtkSelection::LOCATIONS. Default is off and then
    * vtkExtractSelectedLocations is used.
    */
-  vtkSetMacro(UseProbeForLocations, int);
-  vtkGetMacro(UseProbeForLocations, int);
-  vtkBooleanMacro(UseProbeForLocations, int);
+  vtkSetMacro(UseProbeForLocations, vtkTypeBool);
+  vtkGetMacro(UseProbeForLocations, vtkTypeBool);
+  vtkBooleanMacro(UseProbeForLocations, vtkTypeBool);
   //@}
 
 protected:
@@ -115,7 +115,7 @@ protected:
   vtkExtractSelectedThresholds* ThresholdsFilter;
   vtkProbeSelectedLocations* ProbeFilter;
 
-  int UseProbeForLocations;
+  vtkTypeBool UseProbeForLocations;
   int ShowBounds;
 private:
   vtkExtractSelection(const vtkExtractSelection&) = delete;

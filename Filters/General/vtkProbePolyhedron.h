@@ -93,9 +93,9 @@ public:
    * interpolated point data of the source will produce the output
    * point data (output points are passed from the input points).
    */
-  vtkSetMacro(ProbePointData, int);
-  vtkGetMacro(ProbePointData, int);
-  vtkBooleanMacro(ProbePointData, int);
+  vtkSetMacro(ProbePointData, vtkTypeBool);
+  vtkGetMacro(ProbePointData, vtkTypeBool);
+  vtkBooleanMacro(ProbePointData, vtkTypeBool);
   //@}
 
   //@{
@@ -106,17 +106,17 @@ public:
    * that the probing of the input uses the centers of the cells as
    * the probe position.
    */
-  vtkSetMacro(ProbeCellData, int);
-  vtkGetMacro(ProbeCellData, int);
-  vtkBooleanMacro(ProbeCellData, int);
+  vtkSetMacro(ProbeCellData, vtkTypeBool);
+  vtkGetMacro(ProbeCellData, vtkTypeBool);
+  vtkBooleanMacro(ProbeCellData, vtkTypeBool);
   //@}
 
 protected:
   vtkProbePolyhedron();
   ~vtkProbePolyhedron() override;
 
-  int ProbePointData;
-  int ProbeCellData;
+  vtkTypeBool ProbePointData;
+  vtkTypeBool ProbeCellData;
 
   int RequestData(vtkInformation *, vtkInformationVector **,
     vtkInformationVector *) override;

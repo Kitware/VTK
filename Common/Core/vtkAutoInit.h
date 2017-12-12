@@ -78,11 +78,11 @@
 //
 // @code{.cpp}
 // #include "vtkAutoInit.h"
-// VTK_MODULE_INIT(vtkRenderingOpenGL);
+// VTK_MODULE_INIT(vtkRenderingOpenGL2);
 // @endcode
 //
 // The above snippet if included in the global scope will ensure the object
-// factories for vtkRenderingOpenGL are correctly registered and unregistered.
+// factories for vtkRenderingOpenGL2 are correctly registered and unregistered.
 #define VTK_MODULE_INIT(M) \
   VTK_AUTOINIT_DECLARE(M) \
   static struct M##_ModuleInit {                                           \

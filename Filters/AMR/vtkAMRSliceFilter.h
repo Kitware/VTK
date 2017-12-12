@@ -53,18 +53,18 @@ public:
   /**
    * Set/Get ForwardUpstream property
    */
-  vtkSetMacro( ForwardUpstream, int );
-  vtkGetMacro( ForwardUpstream, int );
-  vtkBooleanMacro( ForwardUpstream, int );
+  vtkSetMacro( ForwardUpstream, vtkTypeBool );
+  vtkGetMacro( ForwardUpstream, vtkTypeBool );
+  vtkBooleanMacro( ForwardUpstream, vtkTypeBool );
   //@}
 
   //@{
   /**
    * Set/Get EnablePrefetching property
    */
-  vtkSetMacro( EnablePrefetching, int );
-  vtkGetMacro( EnablePrefetching, int );
-  vtkBooleanMacro( EnablePrefetching, int );
+  vtkSetMacro( EnablePrefetching, vtkTypeBool );
+  vtkGetMacro( EnablePrefetching, vtkTypeBool );
+  vtkBooleanMacro( EnablePrefetching, vtkTypeBool );
   //@}
 
   //@{
@@ -184,8 +184,8 @@ protected:
   int    MaxResolution;
   vtkMultiProcessController *Controller;
 
-  int ForwardUpstream;
-  int EnablePrefetching;
+  vtkTypeBool ForwardUpstream;
+  vtkTypeBool EnablePrefetching;
 
   std::vector< int > BlocksToLoad;
 

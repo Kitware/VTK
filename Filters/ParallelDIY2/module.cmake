@@ -1,6 +1,5 @@
 if (NOT WIN32)
   vtk_module(vtkFiltersParallelDIY2
-    TCL_NAME vtkFiltersParallelDIYII
     IMPLEMENTS
       vtkFiltersCore
     GROUPS
@@ -8,7 +7,7 @@ if (NOT WIN32)
     TEST_DEPENDS
       vtkFiltersParallelMPI
       vtkInteractionStyle
-      vtkRendering${VTK_RENDERING_BACKEND}
+      vtkRenderingOpenGL2
       vtkRenderingParallel
       vtkTestingCore
       vtkTestingRendering

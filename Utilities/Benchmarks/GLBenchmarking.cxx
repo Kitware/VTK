@@ -15,13 +15,8 @@
 
 #include "vtkAutoInit.h"
 //VTK_MODULE_INIT(vtkRenderingFreeType)
-#ifdef VTK_OPENGL2
 //VTK_MODULE_INIT(vtkRenderingOpenGL2)
 //VTK_MODULE_INIT(vtkRenderingContextOpenGL2)
-#else
-//VTK_MODULE_INIT(vtkRenderingOpenGL)
-//VTK_MODULE_INIT(vtkRenderingContextOpenGL)
-#endif
 
 #include "vtkActor.h"
 #include "vtkAxis.h"

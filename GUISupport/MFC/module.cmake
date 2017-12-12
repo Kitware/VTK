@@ -4,6 +4,6 @@ if(WIN32)
     GROUPS
     EXCLUDE_FROM_WRAPPING
     DEPENDS
-      vtkRendering${VTK_RENDERING_BACKEND}
+      vtkRenderingOpenGL2
     )
 endif()

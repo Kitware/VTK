@@ -9,7 +9,7 @@ vtk_module(vtkFiltersGeneral
     vtkIOXML
     vtkImagingMath
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingAnnotation
     vtkRenderingLabel
     vtkTestingRendering

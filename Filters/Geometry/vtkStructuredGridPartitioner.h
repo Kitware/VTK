@@ -65,9 +65,9 @@ public:
   /**
    * Set/Get & boolean macro for the DuplicateNodes property.
    */
-  vtkGetMacro(DuplicateNodes,int);
-  vtkSetMacro(DuplicateNodes,int);
-  vtkBooleanMacro(DuplicateNodes,int);
+  vtkGetMacro(DuplicateNodes,vtkTypeBool);
+  vtkSetMacro(DuplicateNodes,vtkTypeBool);
+  vtkBooleanMacro(DuplicateNodes,vtkTypeBool);
   //@}
 
 protected:
@@ -87,7 +87,7 @@ protected:
 
   int NumberOfPartitions;
   int NumberOfGhostLayers;
-  int DuplicateNodes;
+  vtkTypeBool DuplicateNodes;
 
 private:
   vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) = delete;

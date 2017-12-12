@@ -146,6 +146,21 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkmConfig.h
   )
 
+
+# The VTK-m project uses large amounts of memory to compile as it does lots
+# of template expansion. To reduce the amount of tension on the machine when
+# using generators such as ninja we restrict the number of VTK-m enabled
+# compilation units to be built at the same time.
+# The logic we use is that no more than half the system memory should be used
+# on VTK-m compilation units, where we expect each compilation unit to use
+# 2GB of memory.
+cmake_host_system_information(RESULT vtkm_mem_ QUERY TOTAL_PHYSICAL_MEMORY)
+math(EXPR vtkm_pool_size "(${vtkm_mem_}/2)/2048")
+if(vtkm_pool_size EQUAL 0)
+  set(vtkm_pool_size 1)
+endif()
+set_property(GLOBAL APPEND PROPERTY JOB_POOLS vtkm_pool=${vtkm_pool_size})
+
 #we are building with CUDA support
 if(VTKm_ENABLE_CUDA)
 
@@ -208,8 +223,9 @@ if(VTKm_ENABLE_CUDA)
                    )
 
   set_target_properties(vtkAcceleratorsVTKmCuda
-                        PROPERTIES POSITION_INDEPENDENT_CODE True)
-
+                        PROPERTIES POSITION_INDEPENDENT_CODE True
+                        JOB_POOL_COMPILE vtkm_pool
+                        )
   vtk_module_library(vtkAcceleratorsVTKm
                      ${headers}
                      ${lib_srcs}
@@ -231,6 +247,7 @@ else()
                      ${lib_srcs}
                      ${cpu_accelerator_srcs}
                      )
+  set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
 endif()
 
 target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})

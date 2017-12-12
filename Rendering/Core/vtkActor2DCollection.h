@@ -39,7 +39,7 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
 {
  public:
   /**
-   * Desctructor for the vtkActor2DCollection class. This removes all
+   * Destructor for the vtkActor2DCollection class. This removes all
    * objects from the collection.
    */
   static vtkActor2DCollection *New();

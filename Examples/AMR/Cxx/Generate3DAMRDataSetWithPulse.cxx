@@ -77,7 +77,7 @@ int main( int argc, char **argv )
 
   // STEP 1: Get the AMR dataset
   vtkOverlappingAMR *amrDataSet = GetAMRDataSet();
-  assert( "pre: NULL AMR dataset" && ( amrDataSet != NULL ) );
+  assert( "pre: nullptr AMR dataset" && ( amrDataSet != nullptr ) );
 
   AMRCommon::WriteAMRData( amrDataSet, "Gaussian3D" );
   amrDataSet->Delete();
@@ -98,7 +98,7 @@ void SetPulse()
 //------------------------------------------------------------------------------
 void AttachPulseToGrid( vtkUniformGrid *grid )
 {
-  assert( "pre: grid is NULL!" && (grid != NULL) );
+  assert( "pre: grid is nullptr!" && (grid != nullptr) );
 
   vtkDoubleArray* xyz = vtkDoubleArray::New( );
   xyz->SetName( "GaussianPulse" );

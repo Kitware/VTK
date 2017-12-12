@@ -236,7 +236,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
             block, (block % 2) ? nullptr : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
-          // test not seting it on some
+          // test not setting it on some
           if (block % 11)
           {
             mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);

@@ -4,9 +4,6 @@ if(BUILD_TESTING)
   if(VTK_WRAP_PYTHON)
     list(APPEND _test_languages "Python")
   endif()
-  if(VTK_WRAP_TCL)
-    list(APPEND _test_languages "Tcl")
-  endif()
   if(VTK_WRAP_JAVA)
     list(APPEND _test_languages "Java")
   endif()
@@ -415,6 +412,9 @@ foreach(kit IN LISTS vtk_modules_and_kits)
   else()
     if(VTK_ENABLE_KITS)
       set(_vtk_build_as_kit ${${kit}_KIT})
+      if(${kit} STREQUAL "vtkRenderingOpenGL2")
+        include(vtkOpenGL)
+      endif()
     else()
       set(_vtk_build_as_kit)
     endif()
@@ -506,9 +506,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkInitializeBuildType.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
-                CMake/FindTCL.cmake
                 CMake/TopologicalSort.cmake
-                CMake/vtkTclTkMacros.cmake
                 CMake/vtk-forward.c.in
                 CMake/vtkGroups.cmake
                 CMake/vtkEncodeString.cmake
@@ -526,14 +524,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
                 CMake/vtkTargetLinkLibrariesWithDynamicLookup.cmake
-                CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
                 CMake/vtkWrapHierarchy.cmake
                 CMake/vtkWrapJava.cmake
                 CMake/vtkWrapperInit.data.in
                 CMake/vtkWrapping.cmake
                 CMake/vtkWrapPython.cmake
-                CMake/vtkWrapTcl.cmake
 
     DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   get_property(VTK_TARGETS GLOBAL PROPERTY VTK_TARGETS)

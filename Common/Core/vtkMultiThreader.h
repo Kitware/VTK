@@ -136,7 +136,7 @@ public:
   static int  GetGlobalDefaultNumberOfThreads();
   //@}
 
-  // These methods are excluded from Tcl wrapping 1) because the
+  // These methods are excluded from wrapping 1) because the
   // wrapper gives up on them and 2) because they really shouldn't be
   // called from a script anyway.
 

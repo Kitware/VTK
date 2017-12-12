@@ -352,7 +352,7 @@ void QtVTKRenderWindows::AddDistanceMeasurementToView(int i)
   if (this->DistanceWidget[i])
   {
     this->DistanceWidget[i]->SetEnabled(0);
-    this->DistanceWidget[i] = NULL;
+    this->DistanceWidget[i] = nullptr;
   }
 
   // add new widget

@@ -109,9 +109,9 @@ public:
   /**
    * Reverse the stencil. Initial value is false.
    */
-  vtkSetClampMacro(ReverseStencil, int, 0, 1);
-  vtkBooleanMacro(ReverseStencil, int);
-  vtkGetMacro(ReverseStencil, int);
+  vtkSetClampMacro(ReverseStencil, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(ReverseStencil, vtkTypeBool);
+  vtkGetMacro(ReverseStencil, vtkTypeBool);
   //@}
 
   //@{
@@ -131,9 +131,9 @@ public:
   /**
    * Should the data with value 0 be ignored? Initial value is false.
    */
-  vtkSetClampMacro(IgnoreZero, int, 0, 1);
-  vtkGetMacro(IgnoreZero, int);
-  vtkBooleanMacro(IgnoreZero, int);
+  vtkSetClampMacro(IgnoreZero, vtkTypeBool, 0, 1);
+  vtkGetMacro(IgnoreZero, vtkTypeBool);
+  vtkBooleanMacro(IgnoreZero, vtkTypeBool);
   //@}
 
 protected:
@@ -154,14 +154,14 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector) override;
 
-  int    IgnoreZero;
+  vtkTypeBool    IgnoreZero;
   double Min[3];
   double Max[3];
   double Mean[3];
   double StandardDeviation[3];
   vtkIdType VoxelCount;
 
-  int ReverseStencil;
+  vtkTypeBool ReverseStencil;
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

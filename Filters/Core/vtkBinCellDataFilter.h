@@ -63,7 +63,7 @@ public:
   void SetNumberOfBins(int numBins);
   int GetNumberOfBins();
   void GenerateValues(int numBins, double range[2]);
-  void GenerateValues(int numBins, double rangeStart, double rangeEnd);
+  void GenerateValues(vtkTypeBool numBins, double rangeStart, double rangeEnd);
   //@}
 
   //@{
@@ -96,9 +96,9 @@ public:
    * m of n is requested for update by the user, then only n of m needs to
    * be requested of the source.
    */
-  vtkSetMacro(SpatialMatch, int);
-  vtkGetMacro(SpatialMatch, int);
-  vtkBooleanMacro(SpatialMatch, int);
+  vtkSetMacro(SpatialMatch, vtkTypeBool);
+  vtkGetMacro(SpatialMatch, vtkTypeBool);
+  vtkBooleanMacro(SpatialMatch, vtkTypeBool);
   //@}
 
   //@{
@@ -179,7 +179,7 @@ protected:
   vtkBinCellDataFilter();
   ~vtkBinCellDataFilter() override;
 
-  int SpatialMatch;
+  vtkTypeBool SpatialMatch;
 
   bool StoreNumberOfNonzeroBins;
   double Tolerance;

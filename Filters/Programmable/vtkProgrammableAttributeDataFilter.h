@@ -40,7 +40,7 @@
  * operating on it (creating new point and cell attributes such as scalars,
  * vectors, etc.), and then setting the point and/or cell attributes in the
  * output dataset (you'll need to use GetOutput() to access the output).
- * (Note: besides C++, it is possible to do the same thing in Tcl, Java, or
+ * (Note: besides C++, it is possible to do the same thing in Java or
  * other languages that wrap the C++ core.) Remember, proper filter protocol
  * requires that you don't modify the input data - you create new output data
  * from the input.

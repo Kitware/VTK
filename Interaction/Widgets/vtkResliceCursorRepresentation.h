@@ -86,9 +86,9 @@ public:
    * Make sure that the resliced image remains within the volume.
    * Default is On.
    */
-  vtkSetMacro(RestrictPlaneToVolume,int);
-  vtkGetMacro(RestrictPlaneToVolume,int);
-  vtkBooleanMacro(RestrictPlaneToVolume,int);
+  vtkSetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkGetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkBooleanMacro(RestrictPlaneToVolume,vtkTypeBool);
   //@}
 
   //@{
@@ -184,9 +184,9 @@ public:
    * Enable/disable text display of window-level, image coordinates and
    * scalar values in a render window.
    */
-  vtkSetMacro(DisplayText,int);
-  vtkGetMacro(DisplayText,int);
-  vtkBooleanMacro(DisplayText,int);
+  vtkSetMacro(DisplayText,vtkTypeBool);
+  vtkGetMacro(DisplayText,vtkTypeBool);
+  vtkBooleanMacro(DisplayText,vtkTypeBool);
   //@}
 
   //@{
@@ -307,7 +307,7 @@ protected:
 
   vtkImageAlgorithm       * Reslice;
   vtkPlaneSource          * PlaneSource;
-  int                       RestrictPlaneToVolume;
+  vtkTypeBool                       RestrictPlaneToVolume;
   int                       ShowReslicedImage;
   vtkTextProperty         * ThicknessTextProperty;
   vtkTextMapper           * ThicknessTextMapper;
@@ -329,7 +329,7 @@ protected:
   double                    LastEventPosition[2];
   int                       UseImageActor;
   char                      TextBuff[VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF];
-  int                       DisplayText;
+  vtkTypeBool                       DisplayText;
 
   vtkScalarsToColors      * CreateDefaultLookupTable();
   void                      GenerateText();

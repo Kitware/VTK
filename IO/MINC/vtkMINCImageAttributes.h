@@ -255,9 +255,9 @@ public:
    * Set this to Off if you do not want to automatically validate
    * every attribute that is set.
    */
-  vtkSetMacro(ValidateAttributes, int);
-  vtkBooleanMacro(ValidateAttributes, int);
-  vtkGetMacro(ValidateAttributes, int);
+  vtkSetMacro(ValidateAttributes, vtkTypeBool);
+  vtkBooleanMacro(ValidateAttributes, vtkTypeBool);
+  vtkGetMacro(ValidateAttributes, vtkTypeBool);
   //@}
 
   /**
@@ -337,7 +337,7 @@ protected:
   int DataType;
   char *Name;
 
-  int ValidateAttributes;
+  vtkTypeBool ValidateAttributes;
 
 private:
   vtkMINCImageAttributes(const vtkMINCImageAttributes&) = delete;

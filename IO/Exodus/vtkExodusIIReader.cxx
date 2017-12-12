@@ -3713,7 +3713,7 @@ void vtkExodusIIReaderPrivate::SetAssemblyStatus(const vtkStdString& name, int f
 
 //-----------------------------------------------------------------------------
 // Normally, this would be below with all the other vtkExodusIIReader member definitions,
-// but the Tcl PrintSelf test script is really lame.
+// but the PrintSelf test script is really lame.
 void vtkExodusIIReader::PrintSelf( ostream& os, vtkIndent indent )
 {
   this->Superclass::PrintSelf( os, indent );

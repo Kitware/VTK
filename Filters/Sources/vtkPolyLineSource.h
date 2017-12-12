@@ -65,9 +65,9 @@ public:
   /**
    * Set whether to close the poly line by connecting the last and first points.
    */
-  vtkSetMacro(Closed, int);
-  vtkGetMacro(Closed, int);
-  vtkBooleanMacro(Closed, int);
+  vtkSetMacro(Closed, vtkTypeBool);
+  vtkGetMacro(Closed, vtkTypeBool);
+  vtkBooleanMacro(Closed, vtkTypeBool);
   //@}
 
 protected:
@@ -78,7 +78,7 @@ protected:
 
   vtkPoints* Points;
 
-  int Closed;
+  vtkTypeBool Closed;
 
 private:
   vtkPolyLineSource(const vtkPolyLineSource&) = delete;

@@ -82,9 +82,9 @@ public:
    * Set inverse video on or off.  You can achieve the same effect by
    * switching the MinimumTableValue and the MaximumTableValue.
    */
-  void SetInverseVideo(int iv);
-  vtkGetMacro(InverseVideo,int);
-  vtkBooleanMacro(InverseVideo,int);
+  void SetInverseVideo(vtkTypeBool iv);
+  vtkGetMacro(InverseVideo,vtkTypeBool);
+  vtkBooleanMacro(InverseVideo,vtkTypeBool);
   //@}
 
   //@{
@@ -113,7 +113,7 @@ protected:
 
   double Window;
   double Level;
-  int InverseVideo;
+  vtkTypeBool InverseVideo;
   double MaximumTableValue[4];
   double MinimumTableValue[4];
 private:

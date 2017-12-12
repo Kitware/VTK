@@ -39,11 +39,7 @@ class vtkMultiProcessController;
 class vtkPixelBufferObject;
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
-#ifdef VTK_OPENGL2
 class vtkOpenGLHelper;
-#else
-class vtkShaderProgram2;
-#endif
 
 class VTKRENDERINGPARALLEL_EXPORT vtkCompositeZPass : public vtkRenderPass
 {
@@ -103,11 +99,7 @@ public:
 
   vtkPixelBufferObject *PBO;
   vtkTextureObject *ZTexture;
-#ifdef VTK_OPENGL2
   vtkOpenGLHelper *Program;
-#else
-  vtkShaderProgram2 *Program;
-#endif
   float *RawZBuffer;
   size_t RawZBufferSize;
 

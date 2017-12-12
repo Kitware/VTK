@@ -393,7 +393,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
 
   int numberOfComponents = goodSoFar ? scalars->GetNumberOfComponents() : 0;
 
-#ifdef VTK_OPENGL2
   // This mapper supports anywhere from 1-4 components. Number of components
   // outside this range is not supported.
   if( goodSoFar )
@@ -423,37 +422,6 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
                     << " component(s).");
     }
   }
-#else
-  // This mapper supports 1 component data, or 4 component if it is not independent
-  // component (i.e. the four components define RGBA)
-  if ( goodSoFar )
-  {
-    if( !(numberOfComponents == 1 ||
-          numberOfComponents == 4) )
-    {
-      goodSoFar = 0;
-      vtkErrorMacro(<< "Only one component scalars, or four "
-                    << "component with non-independent components, "
-                    << "are supported by this mapper.");
-    }
-  }
-
-  // If this is four component data, then it better be unsigned char (RGBA).
-  if( goodSoFar &&
-      numberOfComponents == 4 &&
-      scalars->GetDataType() != VTK_UNSIGNED_CHAR)
-  {
-    goodSoFar = 0;
-    vtkErrorMacro("Only unsigned char is supported for 4-component scalars!");
-  }
-
-  if(goodSoFar && numberOfComponents!=1 &&
-     this->BlendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-  {
-    goodSoFar=0;
-    vtkErrorMacro("Additive mode only works with 1-component scalars!");
-  }
-#endif
   // return our status
   return goodSoFar;
 }

@@ -5,10 +5,10 @@ vtk_module(vtkRenderingExternal
   EXCLUDE_FROM_ALL
   DEPENDS
     vtkCommonCore
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingCore
   PRIVATE_DEPENDS
     vtkCommonMath
     vtkCommonTransforms
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   )

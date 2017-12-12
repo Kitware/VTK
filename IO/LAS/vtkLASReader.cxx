@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkLASReader)
 //----------------------------------------------------------------------------
 vtkLASReader::vtkLASReader()
 {
-  this->FileName = NULL;
+  this->FileName = nullptr;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);

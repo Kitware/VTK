@@ -9,7 +9,7 @@ vtk_module(vtkRenderingTk
   DEPENDS
     vtkCommonCore
     vtkInteractionImage
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkRenderingCore
   PRIVATE_DEPENDS
     vtkCommonDataModel

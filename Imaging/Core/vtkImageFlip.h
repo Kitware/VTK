@@ -61,9 +61,9 @@ public:
    * it does not refer to the Origin ivar that is associated with a
    * vtkImageData.
    */
-  vtkSetMacro(FlipAboutOrigin, int);
-  vtkGetMacro(FlipAboutOrigin, int);
-  vtkBooleanMacro(FlipAboutOrigin, int);
+  vtkSetMacro(FlipAboutOrigin, vtkTypeBool);
+  vtkGetMacro(FlipAboutOrigin, vtkTypeBool);
+  vtkBooleanMacro(FlipAboutOrigin, vtkTypeBool);
   //@}
 
   /**
@@ -93,7 +93,7 @@ protected:
                                  vtkInformationVector *) override;
 
   int FilteredAxis;
-  int FlipAboutOrigin;
+  vtkTypeBool FlipAboutOrigin;
   int PreserveImageExtent;
 
 private:

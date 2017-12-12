@@ -6,7 +6,7 @@ vtk_module_load(
   vtkCommonCore
   vtkFiltersSources
   vtkInteractionWidgets
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkRenderingOpenGL2
   vtkTestingRendering
 )
 include(${VTK_USE_FILE})

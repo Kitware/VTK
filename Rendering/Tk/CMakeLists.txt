@@ -1,8 +1,6 @@
 vtk_module_export_info()
 
-# The cmake code to find the libs is in vtkWrapTcl
-set(VTK_WRAP_TCL_FIND_LIBS 1)
-include(vtkWrapTcl)
+find_package(TCL)
 
 if(TK_FOUND AND VTK_USE_TK)
 
@@ -31,6 +29,8 @@ if(TK_FOUND AND VTK_USE_TK)
     set(try_paths "${TK_INCLUDE_PATH_PARENT}/PrivateHeaders")
   endif()
   if(try_file)
+    include(vtkTclTkMacros)
+
     VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
     set(TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
     set(try_paths ${try_paths}
@@ -50,53 +50,17 @@ if(TK_FOUND AND VTK_USE_TK)
     ${TK_INCLUDE_PATH}
     ${TK_INTERNAL_PATH}
     ${TK_XLIB_PATH}
-    ${TCL_INCLUDE_PATH}
-    ${VTK_SOURCE_DIR}/Wrapping/Tcl
-    ${VTK_BINARY_DIR}/Wrapping/Tcl)
+    ${TCL_INCLUDE_PATH})
 
   if(VTK_USE_X)
     include_directories(${VTK_BINARY_DIR}/Utilities/KWSys)
   endif()
 
-  if (VTK_WRAP_TCL)
-    set(Module_TCL_SRCS
-      vtkTclTkWidgetsInit.cxx
-      vtkTkRenderWidget.cxx
-      vtkTkImageViewerWidget.cxx)
-
-    if(VTK_USE_COCOA)
-      set(Module_TCL_SRCS ${Module_TCL_SRCS} vtkCocoaTkUtilities.mm)
-
-      # Set specified Objective-C++ flags, if any.
-      if(VTK_REQUIRED_OBJCXX_FLAGS)
-        set_source_files_properties(vtkCocoaTkUtilities.mm
-          PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
-      endif()
-    endif()
-
-    set(Module_TCL_LIBS ${VTK_TK_LIBRARIES})
-    # Use special interactor for X and Tk.
-    if(VTK_USE_X)
-      find_package(X11 REQUIRED)
-      if(NOT X11_Xt_FOUND)
-        message(FATAL_ERROR "X11_Xt_LIB could not be found. Required for VTK X lib.")
-      endif()
-      set(Module_TCL_SRCS ${Module_TCL_SRCS} vtkXRenderWindowTclInteractor.cxx)
-      set(Module_TCL_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${TK_LIBRARY} ${X11_LIBRARIES})
-    endif()
-
-    vtk_add_library(vtkRenderingTkTCL ${Module_TCL_SRCS})
-
-    vtk_module_link_libraries(vtkRenderingTkTCL
-          vtkRenderingCore vtkCommonDataModel vtkCommonCoreTCL
-          vtkInteractionImage
-          ${Module_TCL_LIBS})
-
-    set_property(GLOBAL APPEND PROPERTY VTK_TCL_WRAPPED vtkRenderingTk)
-
-  endif()
-
   if (VTK_WRAP_PYTHON)
+    configure_file(
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkTkAppInitConfigure.h.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/vtkTkAppInitConfigure.h")
+
     set(Module_PYTHON_SRCS
       vtkPythonTkWidgetsInit.cxx
       vtkTkRenderWidgetPython.cxx
@@ -122,13 +86,15 @@ if(TK_FOUND AND VTK_USE_TK)
 
     set(Module_PYTHON_LIBS ${VTK_TK_LIBRARIES})
     if(VTK_USE_X)
-      set(Module_PYTHON_LIBS vtksys vtkRendering${VTK_RENDERING_BACKEND} ${Module_PYTHON_LIBS}
+      set(Module_PYTHON_LIBS vtksys vtkRenderingOpenGL2 ${Module_PYTHON_LIBS}
           ${X11_LIBRARIES})
     endif()
 
     vtk_module_link_libraries(vtkRenderingPythonTkWidgets
                           vtkRenderingCore vtkCommonDataModel
                           vtkInteractionImage
-                          ${Module_PYTHON_LIBS})
+                          ${Module_PYTHON_LIBS}
+                          ${TCL_LIBRARY}
+                          ${TK_LIBRARY})
   endif()
 endif()

@@ -70,7 +70,7 @@ public:
 
   /**
    * Apply the transformation to a double-precision coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   double *TransformPoint(double x, double y, double z) {
     return this->TransformDoublePoint(x,y,z); }
@@ -80,7 +80,7 @@ public:
   //@{
   /**
    * Apply the transformation to an (x,y,z) coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   float *TransformFloatPoint(float x, float y, float z) {
       this->InternalFloatPoint[0] = x;
@@ -95,7 +95,7 @@ public:
   //@{
   /**
    * Apply the transformation to a double-precision (x,y,z) coordinate.
-   * Use this if you are programming in Python, tcl or Java.
+   * Use this if you are programming in Python or Java.
    */
   double *TransformDoublePoint(double x, double y, double z) {
     this->InternalDoublePoint[0] = x;

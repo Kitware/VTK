@@ -275,7 +275,7 @@ double vtkLODProp3D::GetLODIndexEstimatedRenderTime(int index)
 }
 
 // Convenience method to set an actor LOD without a texture, or a
-// backface property.  Needed from tcl (for example) where null pointers
+// backface property.  Needed from wrappers where null pointers
 // are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p, double time)
 {
@@ -283,7 +283,7 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p, double time)
 }
 
 // Convenience method to set an actor LOD without a texture.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
                          vtkProperty *back, double time)
 {
@@ -291,7 +291,7 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
 }
 
 // Convenience method to set an actor LOD without a backface property.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
                          vtkTexture *t, double time)
 {
@@ -299,14 +299,14 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
 }
 
 // Convenience method to set an actor LOD without a property.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, vtkTexture *t, double time)
 {
   return this->AddLOD(m, nullptr, nullptr, t, time);
 }
 
 // Convenience method to set an actor LOD without a texture or a property.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkMapper *m, double time)
 {
   return this->AddLOD(m, nullptr, nullptr, nullptr, time);
@@ -356,7 +356,7 @@ int vtkLODProp3D::AddLOD(vtkMapper *m, vtkProperty *p,
 }
 
 // Convenience method to set a volume LOD without a property.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkAbstractVolumeMapper *m, double time)
 {
   return this->AddLOD(m, nullptr, time);
@@ -396,7 +396,7 @@ int vtkLODProp3D::AddLOD(vtkAbstractVolumeMapper *m, vtkVolumeProperty *p,
 }
 
 // Convenience method to set a volume LOD without a property.
-// Needed from tcl (for example) where null pointers are not possible
+// Needed from wrappers where null pointers are not possible
 int vtkLODProp3D::AddLOD(vtkImageMapper3D *m, double time)
 {
   return this->AddLOD(m, nullptr, time);

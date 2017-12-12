@@ -76,9 +76,9 @@ public:
    * Subclasses must override SetProcessEvents() to make sure
    * that they pass on the flag to all component widgets.
    */
-  vtkSetClampMacro(ProcessEvents, int, 0, 1);
-  vtkGetMacro(ProcessEvents, int);
-  vtkBooleanMacro(ProcessEvents, int);
+  vtkSetClampMacro(ProcessEvents, vtkTypeBool, 0, 1);
+  vtkGetMacro(ProcessEvents, vtkTypeBool);
+  vtkBooleanMacro(ProcessEvents, vtkTypeBool);
   //@}
 
   //@{
@@ -136,7 +136,7 @@ protected:
 
   // Flag indicating if we should handle events.
   // On by default.
-  int ProcessEvents;
+  vtkTypeBool ProcessEvents;
 
   // Tolerance for Point-in-plane computation
   double Tolerance;

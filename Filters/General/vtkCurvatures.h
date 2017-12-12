@@ -107,9 +107,9 @@ public:
    * Set/Get the flag which inverts the mean curvature calculation for
    * meshes with inward pointing normals (default false)
    */
-  vtkSetMacro(InvertMeanCurvature,int);
-  vtkGetMacro(InvertMeanCurvature,int);
-  vtkBooleanMacro(InvertMeanCurvature,int);
+  vtkSetMacro(InvertMeanCurvature,vtkTypeBool);
+  vtkGetMacro(InvertMeanCurvature,vtkTypeBool);
+  vtkBooleanMacro(InvertMeanCurvature,vtkTypeBool);
   //@}
 
 protected:
@@ -141,7 +141,7 @@ protected:
 
   // Vars
   int CurvatureType;
-  int InvertMeanCurvature;
+  vtkTypeBool InvertMeanCurvature;
 
 private:
   vtkCurvatures(const vtkCurvatures&) = delete;

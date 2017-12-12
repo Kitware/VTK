@@ -57,7 +57,7 @@ public:
    * Note: The filter will only merge points if the ghost cell array doesn't exist
    * Defaults to Off
    */
-  vtkGetMacro(MergePoints,int);
+  vtkGetMacro(MergePoints,vtkTypeBool);
   //@}
 
   //@{
@@ -66,10 +66,10 @@ public:
    * Note: The filter will only merge points if the ghost cell array doesn't exist
    * Defaults to Off
    */
-  vtkSetMacro(MergePoints,int);
+  vtkSetMacro(MergePoints,vtkTypeBool);
   //@}
 
-  vtkBooleanMacro(MergePoints,int);
+  vtkBooleanMacro(MergePoints,vtkTypeBool);
 
   /**
    * Remove a dataset from the list of data to append.
@@ -108,7 +108,7 @@ protected:
 
   //If true we will attempt to merge points. Must also not have
   //ghost cells defined.
-  int MergePoints;
+  vtkTypeBool MergePoints;
 
   int OutputPointsPrecision;
 

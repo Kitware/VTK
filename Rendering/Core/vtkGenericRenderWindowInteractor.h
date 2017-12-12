@@ -56,9 +56,9 @@ public:
    * additional work. Also, "natively repeating" timers still work with the
    * default setting, but with potentially many create and destroy calls.
    */
-  vtkSetMacro(TimerEventResetsTimer, int);
-  vtkGetMacro(TimerEventResetsTimer, int);
-  vtkBooleanMacro(TimerEventResetsTimer, int);
+  vtkSetMacro(TimerEventResetsTimer, vtkTypeBool);
+  vtkGetMacro(TimerEventResetsTimer, vtkTypeBool);
+  vtkBooleanMacro(TimerEventResetsTimer, vtkTypeBool);
   //@}
 
 protected:
@@ -74,7 +74,7 @@ protected:
   int InternalDestroyTimer(int platformTimerId) override;
   //@}
 
-  int TimerEventResetsTimer;
+  vtkTypeBool TimerEventResetsTimer;
 
 private:
   vtkGenericRenderWindowInteractor(const vtkGenericRenderWindowInteractor&) = delete;

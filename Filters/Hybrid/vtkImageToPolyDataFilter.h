@@ -139,9 +139,9 @@ public:
    * If the output style is set to polygonalize, then you can control
    * whether to smooth boundaries.
    */
-  vtkSetMacro(Smoothing, int);
-  vtkGetMacro(Smoothing, int);
-  vtkBooleanMacro(Smoothing, int);
+  vtkSetMacro(Smoothing, vtkTypeBool);
+  vtkGetMacro(Smoothing, vtkTypeBool);
+  vtkBooleanMacro(Smoothing, vtkTypeBool);
   //@}
 
   //@{
@@ -158,9 +158,9 @@ public:
    * Turn on/off whether the final polygons should be decimated.
    * whether to smooth boundaries.
    */
-  vtkSetMacro(Decimation, int);
-  vtkGetMacro(Decimation, int);
-  vtkBooleanMacro(Decimation, int);
+  vtkSetMacro(Decimation, vtkTypeBool);
+  vtkGetMacro(Decimation, vtkTypeBool);
+  vtkBooleanMacro(Decimation, vtkTypeBool);
   //@}
 
   //@{
@@ -205,9 +205,9 @@ protected:
 
   int OutputStyle;
   int ColorMode;
-  int Smoothing;
+  vtkTypeBool Smoothing;
   int NumberOfSmoothingIterations;
-  int Decimation;
+  vtkTypeBool Decimation;
   double DecimationError;
   int Error;
   int SubImageSize;

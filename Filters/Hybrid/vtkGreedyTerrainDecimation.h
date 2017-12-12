@@ -172,9 +172,9 @@ public:
   /**
    * Compute normals based on the input image. Off by default.
    */
-  vtkSetMacro(ComputeNormals, int);
-  vtkGetMacro(ComputeNormals, int);
-  vtkBooleanMacro(ComputeNormals, int);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
 protected:
@@ -184,7 +184,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int ComputeNormals;
+  vtkTypeBool ComputeNormals;
   vtkFloatArray* Normals;
   void ComputePointNormal(int i, int j, float n[3]);
 

@@ -4,7 +4,7 @@ vtk_module(vtkRenderingVolumeAMR
   DEPENDS
     vtkImagingCore
     vtkRenderingVolume
-    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkRenderingVolumeOpenGL2
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkCommonDataModel

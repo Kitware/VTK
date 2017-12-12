@@ -47,9 +47,9 @@ public:
    * Set/Get if the filter should use Input bounds to sub-sample the data.
    * By default it is set to 1.
    */
-  vtkSetMacro(UseInputBounds, int);
-  vtkGetMacro(UseInputBounds, int);
-  vtkBooleanMacro(UseInputBounds, int);
+  vtkSetMacro(UseInputBounds, vtkTypeBool);
+  vtkGetMacro(UseInputBounds, vtkTypeBool);
+  vtkBooleanMacro(UseInputBounds, vtkTypeBool);
   //@}
 
   //@{
@@ -82,7 +82,7 @@ protected:
   double* CalculateBounds(vtkDataSet* input);
 
   vtkMultiProcessController* Controller;
-  int UseInputBounds;
+  vtkTypeBool UseInputBounds;
   double CustomSamplingBounds[6];
   int SamplingDimension[3];
   double Bounds[6];

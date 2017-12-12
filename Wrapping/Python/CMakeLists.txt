@@ -191,7 +191,7 @@ vtk_write_python_modules_header_for_wrapped_modules(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkpythonmodules.h"
   py_module_dependencies)
 
-# Create the VTK/Python  executable
+# Create the VTK/Python executable
 add_executable(vtkpython vtkPythonAppInit.cxx ${extra_srcs})
 
 if (WIN32)
@@ -224,12 +224,6 @@ if(CMAKE_SYSTEM MATCHES "SunOS.*" AND NOT CMAKE_COMPILER_IS_GNUCXX)
   if(VTK_SUNCC_RT_LIBRARY)
     set(VTKPYTHON_LINK_LIBS ${VTKPYTHON_LINK_LIBS} ${VTK_SUNCC_RT_LIBRARY})
   endif()
-endif()
-
-# If we are wrapping Tcl then the Tk libraries are available and should be used
-# in the Python wrapping too.
-if(VTK_WRAP_TCL)
-  list(APPEND VTKPYTHON_LINK_LIBS ${VTK_TK_LIBRARIES})
 endif()
 
 if(HAVE_PTHREAD_H AND CMAKE_USE_PTHREADS)

@@ -262,9 +262,9 @@ public:
    * Turn on/off the automatic repositioning of lights as the camera moves.
    * Default is On.
    */
-  vtkSetMacro(LightFollowCamera,int);
-  vtkGetMacro(LightFollowCamera,int);
-  vtkBooleanMacro(LightFollowCamera,int);
+  vtkSetMacro(LightFollowCamera,vtkTypeBool);
+  vtkGetMacro(LightFollowCamera,vtkTypeBool);
+  vtkBooleanMacro(LightFollowCamera,vtkTypeBool);
   //@}
 
   //@{
@@ -806,7 +806,7 @@ protected:
   int    Enabled;
   bool   EnableRender;
   int    Style;
-  int    LightFollowCamera;
+  vtkTypeBool    LightFollowCamera;
   int    ActorMode;
   double DesiredUpdateRate;
   double StillUpdateRate;

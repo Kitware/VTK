@@ -66,9 +66,9 @@ public:
   /**
    * Enable reading from an InputString instead of the default, a file.
    */
-  vtkSetMacro(ReadFromInputString, int);
-  vtkGetMacro(ReadFromInputString, int);
-  vtkBooleanMacro(ReadFromInputString, int);
+  vtkSetMacro(ReadFromInputString, vtkTypeBool);
+  vtkGetMacro(ReadFromInputString, vtkTypeBool);
+  vtkBooleanMacro(ReadFromInputString, vtkTypeBool);
   void SetInputString(const std::string& s) { this->InputString = s; }
   //@}
 
@@ -221,7 +221,7 @@ protected:
   // Does not allocate.
   vtkAbstractArray* CreateArray(vtkXMLDataElement* da);
 
-  // Create a vtkInformationKey from its coresponding XML representation.
+  // Create a vtkInformationKey from its corresponding XML representation.
   // Stores it in the instance of vtkInformationProvided. Does not allocate.
   int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
 
@@ -310,7 +310,7 @@ protected:
 
   // Whether this object is reading from a string or a file.
   // Default is 0: read from file.
-  int ReadFromInputString;
+  vtkTypeBool ReadFromInputString;
 
   // The input string.
   std::string InputString;

@@ -60,9 +60,9 @@ public:
    * This process does not otherwise normalize the weighted sum
    * By default, NormalizeByWeight is on.
    */
-  vtkGetMacro(NormalizeByWeight, int);
-  vtkSetClampMacro(NormalizeByWeight, int, 0, 1);
-  vtkBooleanMacro(NormalizeByWeight, int);
+  vtkGetMacro(NormalizeByWeight, vtkTypeBool);
+  vtkSetClampMacro(NormalizeByWeight, vtkTypeBool, 0, 1);
+  vtkBooleanMacro(NormalizeByWeight, vtkTypeBool);
   //@}
 
   /**
@@ -78,7 +78,7 @@ protected:
   vtkDoubleArray *Weights;
 
   // Boolean flag to divide by sum or not
-  int NormalizeByWeight;
+  vtkTypeBool NormalizeByWeight;
 
   int RequestInformation (vtkInformation * vtkNotUsed(request),
     vtkInformationVector** vtkNotUsed( inputVector ),

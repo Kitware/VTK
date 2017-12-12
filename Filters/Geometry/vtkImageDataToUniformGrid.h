@@ -49,9 +49,9 @@ class VTKFILTERSGEOMETRY_EXPORT vtkImageDataToUniformGrid
    * 1 to make points or cells to not be blanked for array values
    * of 0.
    */
-  vtkSetClampMacro(Reverse, int, 0, 1);
-  vtkGetMacro(Reverse, int);
-  vtkBooleanMacro(Reverse, int);
+  vtkSetClampMacro(Reverse, vtkTypeBool, 0, 1);
+  vtkGetMacro(Reverse, vtkTypeBool);
+  vtkBooleanMacro(Reverse, vtkTypeBool);
   //@}
 
 protected:
@@ -75,7 +75,7 @@ private:
   vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&) = delete;
   void operator=(const vtkImageDataToUniformGrid&) = delete;
 
-  int Reverse;
+  vtkTypeBool Reverse;
 };
 
 #endif

@@ -1,7 +1,3 @@
-if(TARGET vtkRenderingOpenGL)
-  message(FATAL_ERROR "vtkChemistyOpenGL2 cannot be built with vtkRenderingOpenGL, please disable one of them.")
-endif()
-
 include(vtkObjectFactory)
 
 set(Module_SRCS

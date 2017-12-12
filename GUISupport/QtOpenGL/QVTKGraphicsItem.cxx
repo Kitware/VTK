@@ -18,9 +18,7 @@
   the U.S. Government retains certain rights in this software.
 -------------------------------------------------------------------------*/
 
-#ifdef VTK_OPENGL2
 #include "vtk_glew.h"
-#endif
 
 #include "QVTKGraphicsItem.h"
 #include <QGLFramebufferObject>
@@ -31,9 +29,6 @@
 #include "QVTKInteractorAdapter.h"
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkEventQtSlotConnect.h"
-#ifndef VTK_OPENGL2
-#include "vtkgl.h"
-#endif
 #include "vtkOpenGLError.h"
 
 QVTKGraphicsItem::QVTKGraphicsItem(QGLContext* ctx, QGraphicsItem* p)
@@ -83,17 +78,10 @@ void QVTKGraphicsItem::SetRenderWindow(vtkGenericOpenGLRenderWindow* win)
   {
     mWin->SetMapped(1);
     mWin->SetDoubleBuffer(0);
-#ifdef VTK_OPENGL2
     mWin->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetBackBuffer(GL_COLOR_ATTACHMENT0);
     mWin->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
-#else
-    mWin->SetFrontBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetFrontLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-    mWin->SetBackLeftBuffer(vtkgl::COLOR_ATTACHMENT0_EXT);
-#endif
 
     mConnect->Connect(mWin, vtkCommand::StartEvent, this, SLOT(Start()));
     mConnect->Connect(mWin, vtkCommand::WindowMakeCurrentEvent, this, SLOT(MakeCurrent()));
@@ -186,22 +174,16 @@ void QVTKGraphicsItem::SupportsOpenGL(vtkObject*, unsigned long, void*, void* ca
 }
 
 
-#if QT_VERSION >= 0x040600
 void QVTKGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem*, QWidget*)
-#else
-void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget*)
-#endif
 {
   if(!mWin)
     return;
 
  vtkOpenGLClearErrorMacro();
 
-#if QT_VERSION >= 0x040600
   // tell Qt we're doing our own GL calls
   // if necessary, it'll put us in an OpenGL 1.x compatible state.
   painter->beginNativePainting();
-#endif
 
   if(!mFBO || this->size().toSize() != mFBO->size() || mWin->GetNeverRendered())
   {
@@ -250,9 +232,7 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-#if QT_VERSION >= 0x040600
   painter->endNativePainting();
-#endif
 
   vtkOpenGLStaticCheckErrorMacro("failed after paint");
 }

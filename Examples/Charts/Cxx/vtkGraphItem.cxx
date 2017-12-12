@@ -110,7 +110,7 @@ vtkGraphItem::vtkGraphItem()
 {
   this->Impl = new Implementation();
   this->Impl->Item = this;
-  this->Graph = NULL;
+  this->Graph = nullptr;
   this->MouseOver = false;
   this->MouseButtonPressed = -1;
   this->HitVertex = 0;

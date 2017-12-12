@@ -97,8 +97,7 @@
  * `QVTKOpenGLWidget::renderVTK`.
  *
  * @section Caveats
- * QVTKOpenGLWidget only supports **OpenGL2** rendering backend. Thus is not available
- * if VTK is built with **VTK_RENDERING_BACKEND** set to **OpenGL**.
+ * QVTKOpenGLWidget only supports **OpenGL2** rendering backend.
  *
  * QVTKOpenGLWidget is targeted for Qt version 5.5 and above.
  *

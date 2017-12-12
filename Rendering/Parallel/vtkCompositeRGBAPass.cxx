@@ -48,13 +48,7 @@
 # include "vtkOpenGLState.h"
 #endif
 
-#ifdef VTK_OPENGL2
-# include "vtk_glew.h"
-#else
-# include "vtkFrameBufferObject.h"
-# include "vtkgl.h"
-# include "vtkOpenGLExtensionManager.h"
-#endif
+#include "vtk_glew.h"
 
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass,Controller,vtkMultiProcessController);
@@ -126,18 +120,7 @@ void vtkCompositeRGBAPass::PrintSelf(ostream& os, vtkIndent indent)
 // ----------------------------------------------------------------------------
 bool vtkCompositeRGBAPass::IsSupported(vtkOpenGLRenderWindow *context)
 {
-#ifdef VTK_OPENGL2
   return (context != nullptr);
-#else
-  vtkOpenGLExtensionManager *extmgr = context->GetExtensionManager();
-
-  bool fbo_support=vtkFrameBufferObject::IsSupported(context);
-  bool texture_support
-     =  vtkTextureObject::IsSupported(context)
-       && (extmgr->ExtensionSupported("GL_ARB_texture_float")==1);
-
-  return fbo_support && texture_support;
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -357,7 +340,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
 
   // framebuffers have their color premultiplied by alpha.
 
-#ifdef VTK_OPENGL2
     // save off current state of src / dst blend functions
     GLint blendSrcA;
     GLint blendDstA;
@@ -375,28 +357,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     glDisable(GL_BLEND);
     glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA,
                         GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-#else
-    glPushAttrib(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_LIGHTING);
-    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-
-    // per-fragment operations
-    glDisable(GL_STENCIL_TEST);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
-
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_INDEX_LOGIC_OP);
-    glDisable(GL_COLOR_LOGIC_OP);
-    vtkgl::BlendFuncSeparate(GL_ONE,GL_ONE_MINUS_SRC_ALPHA,
-                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
-    // fixed vertex shader
-    glDisable(GL_LIGHTING);
-
-    // fixed fragment shader
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_FOG);
-    glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_REPLACE);
-#endif
 
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);// client to server
 
@@ -450,7 +410,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
         glEnable(GL_BLEND);
         blendingEnabled=true;
       }
-#ifdef VTK_OPENGL2
       to->Activate();
       to->CopyToFrameBuffer(0, 0, w - 1, h - 1, 0, 0, w, h, nullptr, nullptr);
       to->Deactivate();
@@ -458,16 +417,6 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
     }
     // restore blend func
     glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
-#else
-      vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-      // fixed-pipeline for vertex and fragment shaders.
-      to->Bind();
-      to->CopyToFrameBuffer(0,0,w-1,h-1,0,0,w,h);
-      to->UnBind();
-      --procIndex;
-    }
-    glPopAttrib();
-#endif
     frontToBackList->Delete();
 
 #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG

@@ -54,9 +54,9 @@ public:
    * necessary, but prevents many short reads from interacting poorly
    * with the compression and encoding schemes.
    */
-  vtkSetMacro(WholeSlices, int);
-  vtkGetMacro(WholeSlices, int);
-  vtkBooleanMacro(WholeSlices, int);
+  vtkSetMacro(WholeSlices, vtkTypeBool);
+  vtkGetMacro(WholeSlices, vtkTypeBool);
+  vtkBooleanMacro(WholeSlices, vtkTypeBool);
   //@}
 
   /**
@@ -86,7 +86,7 @@ protected:
   vtkIdType* PieceCellIncrements;
 
   // Whether to read in whole slices mode.
-  int WholeSlices;
+  vtkTypeBool WholeSlices;
 
   // The update extent and corresponding increments and dimensions.
   int UpdateExtent[6];

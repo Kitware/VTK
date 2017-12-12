@@ -4,7 +4,7 @@ vtk_module(vtkIOParallelLSDyna
     vtkRenderingParallel
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
   KIT
     vtkParallel
   DEPENDS

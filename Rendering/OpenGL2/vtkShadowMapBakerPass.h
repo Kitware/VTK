@@ -44,7 +44,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // for ivars
 #include <vector> // STL Header
-#include "vtkRenderPass.h"
+#include "vtkOpenGLRenderPass.h"
 
 class vtkOpenGLRenderWindow;
 class vtkInformationIntegerKey;
@@ -53,11 +53,11 @@ class vtkLight;
 class vtkOpenGLFramebufferObject;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkShadowMapBakerPass : public vtkOpenGLRenderPass
 {
 public:
   static vtkShadowMapBakerPass *New();
-  vtkTypeMacro(vtkShadowMapBakerPass,vtkRenderPass);
+  vtkTypeMacro(vtkShadowMapBakerPass,vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -169,6 +169,16 @@ public:
    */
   ~vtkShadowMapBakerPass() override;
 
+  // vtkOpenGLRenderPass virtuals:
+  bool PreReplaceShaderValues(std::string &vertexShader,
+                                   std::string &geometryShader,
+                                   std::string &fragmentShader,
+                                   vtkAbstractMapper *mapper,
+                                   vtkProp *prop) VTK_OVERRIDE;
+  bool SetShaderParameters(vtkShaderProgram *program,
+                          vtkAbstractMapper *mapper, vtkProp *prop,
+                          vtkOpenGLVertexArrayObject* VAO = nullptr) VTK_OVERRIDE;
+
   /**
    * Helper method to compute the mNearest point in a given direction.
    * To be called several times, with initialized = false the first time.
@@ -229,6 +239,8 @@ public:
 
   vtkTimeStamp LastRenderTime;
   bool NeedUpdate;
+  size_t CurrentLightIndex;
+
 
 private:
   vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) = delete;

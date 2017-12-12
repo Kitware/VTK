@@ -50,61 +50,29 @@ if(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
   set(Srcs ${Srcs} ${UIs})
 endif(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
 
-if(VTK_QT_VERSION VERSION_GREATER "4")
-  # We have ui files, this will bring in the macro: qt5_wrap_ui
-  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
-  qt5_wrap_ui(UI_Srcs ${UIs})
-  qt5_add_resources(Rcs_Srcs ${Rcs})
+# We have ui files, this will bring in the macro: qt5_wrap_ui
+find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+qt5_wrap_ui(UI_Srcs ${UIs})
+qt5_add_resources(Rcs_Srcs ${Rcs})
 
-  source_group("Resources" FILES
-    ${UIs}
-    ${Rcs}
-    ${EXE_ICON} # Not present
-  )
+source_group("Resources" FILES
+  ${UIs}
+  ${Rcs}
+  ${EXE_ICON} # Not present
+)
 
-  source_group("Generated" FILES
-    ${UI_Srcs}
-    ${MOC_Srcs}
-    ${Rcs_Srcs}
-  )
+source_group("Generated" FILES
+  ${UI_Srcs}
+  ${MOC_Srcs}
+  ${Rcs_Srcs}
+)
 
-  #  set_source_files_PROPERTIES(${Srcs} PROPERTIES
-  #                              OBJECT_DEPENDS "${UI_Srcs}")
+#  set_source_files_PROPERTIES(${Srcs} PROPERTIES
+#                              OBJECT_DEPENDS "${UI_Srcs}")
 
-  add_executable(EasyView
-    MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
+add_executable(EasyView
+  MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
 
-  qt5_use_modules(EasyView Core Gui Widgets)
+qt5_use_modules(EasyView Core Gui Widgets)
 
-  target_link_libraries(EasyView ${VTK_LIBRARIES})
-else()
-  find_package(Qt4 REQUIRED)
-
-  include(${QT_USE_FILE})
-
-  # Use what VTK built with
-  set(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
-  set(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
-  qt4_wrap_ui(UI_Srcs ${UIs})
-
-  # Use the include path and library for Qt that is used by VTK.
-  include_directories(
-    ${QT_INCLUDE_DIR}
-  )
-
-  qt4_wrap_ui(UI_Srcs ${UIs})
-  qt4_add_resources(Rcs_Srcs ${Rcs})
-
-  add_definitions(-DQT_GUI_LIBS -DQT_CORE_LIB -DQT3_SUPPORT)
-  set_source_files_PROPERTIES(${Srcs} PROPERTIES
-                              OBJECT_DEPENDS "${UI_Srcs}")
-
-  add_executable(EasyView
-    MACOSX_BUNDLE ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})
-
-  target_link_libraries(EasyView
-    ${QT_LIBRARIES}
-    ${VTK_LIBRARIES}
-  )
-endif()
+target_link_libraries(EasyView ${VTK_LIBRARIES})

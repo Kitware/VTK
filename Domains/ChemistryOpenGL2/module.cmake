@@ -1,6 +1,4 @@
 vtk_module(vtkDomainsChemistryOpenGL2
-  TCL_NAME
-    vtkRenderingChemistryOpenGLII
   IMPLEMENTS
     vtkDomainsChemistry
   BACKEND
@@ -13,8 +11,7 @@ vtk_module(vtkDomainsChemistryOpenGL2
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
-    vtkRendering${VTK_RENDERING_BACKEND}
-    ${extra_opengl_depend}
+    vtkRenderingOpenGL2
   DEPENDS
     vtkCommonCore
     vtkDomainsChemistry

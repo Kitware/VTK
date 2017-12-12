@@ -1,7 +1,7 @@
 vtk_module(vtkIOGDAL
   TEST_DEPENDS
     vtkTestingCore
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   KIT

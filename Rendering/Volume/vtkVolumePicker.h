@@ -51,9 +51,9 @@ public:
    * the index of the cropping plane of the volume that was picked.  This
    * setting is only relevant to the picking of volumes.
    */
-  vtkSetMacro(PickCroppingPlanes, int);
-  vtkBooleanMacro(PickCroppingPlanes, int);
-  vtkGetMacro(PickCroppingPlanes, int);
+  vtkSetMacro(PickCroppingPlanes, vtkTypeBool);
+  vtkBooleanMacro(PickCroppingPlanes, vtkTypeBool);
+  vtkGetMacro(PickCroppingPlanes, vtkTypeBool);
   //@}
 
   //@{
@@ -87,7 +87,7 @@ protected:
                                         double *t1List, double *t2List,
                                         double *s1List, int *planeIdList);
 
-  int PickCroppingPlanes;
+  vtkTypeBool PickCroppingPlanes;
   int CroppingPlaneId;
 
 private:

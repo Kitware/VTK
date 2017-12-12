@@ -44,10 +44,6 @@ else()
       add_subdirectory(VolumeRendering/Cxx)
     endif ()
 
-    if(VTK_RENDERING_BACKEND STREQUAL "OpenGL" AND vtkTestingCore_LOADED)
-      add_subdirectory(LIC/Cxx)
-    endif()
-
     if(vtkParallelMPI_LOADED AND vtkRenderingParallel_LOADED)
       add_subdirectory(ParallelProcessing/Generic)
     endif()

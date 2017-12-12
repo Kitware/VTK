@@ -128,9 +128,9 @@ public:
    * Set/Get the flag that determines which buffer to read from.
    * The default is to read from the front buffer.
    */
-  vtkBooleanMacro(ReadFrontBuffer, int);
-  vtkGetMacro(ReadFrontBuffer, int);
-  vtkSetMacro(ReadFrontBuffer, int);
+  vtkBooleanMacro(ReadFrontBuffer, vtkTypeBool);
+  vtkGetMacro(ReadFrontBuffer, vtkTypeBool);
+  vtkSetMacro(ReadFrontBuffer, vtkTypeBool);
   //@}
 
   //@{
@@ -138,9 +138,9 @@ public:
    * Set/get whether to re-render the input window. Initial value is true.
    * (This option makes no difference if scale factor > 1.)
    */
-  vtkBooleanMacro(ShouldRerender, int);
-  vtkSetMacro(ShouldRerender, int);
-  vtkGetMacro(ShouldRerender, int);
+  vtkBooleanMacro(ShouldRerender, vtkTypeBool);
+  vtkSetMacro(ShouldRerender, vtkTypeBool);
+  vtkGetMacro(ShouldRerender, vtkTypeBool);
   //@}
 
   //@{
@@ -187,8 +187,8 @@ protected:
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
   vtkWindow *Input;
   int Scale[2];
-  int ReadFrontBuffer;
-  int ShouldRerender;
+  vtkTypeBool ReadFrontBuffer;
+  vtkTypeBool ShouldRerender;
   double Viewport[4];
   int InputBufferType;
   bool FixBoundary;

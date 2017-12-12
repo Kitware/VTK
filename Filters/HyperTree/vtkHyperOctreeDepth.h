@@ -29,6 +29,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkDataSetAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkHyperOctree;
 class vtkHyperOctreeCursor;
 class vtkIntArray;
@@ -59,5 +60,6 @@ private:
   vtkHyperOctreeDepth(const vtkHyperOctreeDepth&) = delete;
   void operator=(const vtkHyperOctreeDepth&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

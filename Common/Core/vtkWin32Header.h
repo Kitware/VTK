@@ -143,8 +143,5 @@ Do_not_include_vtkWin32Header_directly_vtkSystemIncludes_includes_it;
 # define VTK_EXPORT
 #endif
 
-// this is exclusively for the tcl Init functions
-#define VTK_TK_EXPORT VTK_ABI_EXPORT
-
 #endif
 // VTK-HeaderTest-Exclude: vtkWin32Header.h

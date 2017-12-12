@@ -119,15 +119,15 @@ public:
    * Special methods for turning off the rays and arc that define the cone
    * and arc of the angle.
    */
-  vtkSetMacro(Ray1Visibility,int);
-  vtkGetMacro(Ray1Visibility,int);
-  vtkBooleanMacro(Ray1Visibility,int);
-  vtkSetMacro(Ray2Visibility,int);
-  vtkGetMacro(Ray2Visibility,int);
-  vtkBooleanMacro(Ray2Visibility,int);
-  vtkSetMacro(ArcVisibility,int);
-  vtkGetMacro(ArcVisibility,int);
-  vtkBooleanMacro(ArcVisibility,int);
+  vtkSetMacro(Ray1Visibility,vtkTypeBool);
+  vtkGetMacro(Ray1Visibility,vtkTypeBool);
+  vtkBooleanMacro(Ray1Visibility,vtkTypeBool);
+  vtkSetMacro(Ray2Visibility,vtkTypeBool);
+  vtkGetMacro(Ray2Visibility,vtkTypeBool);
+  vtkBooleanMacro(Ray2Visibility,vtkTypeBool);
+  vtkSetMacro(ArcVisibility,vtkTypeBool);
+  vtkGetMacro(ArcVisibility,vtkTypeBool);
+  vtkBooleanMacro(ArcVisibility,vtkTypeBool);
   //@}
 
   // Used to communicate about the state of the representation
@@ -158,9 +158,9 @@ protected:
   int Tolerance;
 
   // Visibility of the various pieces of the representation
-  int Ray1Visibility;
-  int Ray2Visibility;
-  int ArcVisibility;
+  vtkTypeBool Ray1Visibility;
+  vtkTypeBool Ray2Visibility;
+  vtkTypeBool ArcVisibility;
 
   // Format for the label
   char *LabelFormat;

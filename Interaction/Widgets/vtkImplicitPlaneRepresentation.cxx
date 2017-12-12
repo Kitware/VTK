@@ -397,21 +397,7 @@ int vtkImplicitPlaneRepresentation::ComputeComplexInteractionState(
   {
     double pos[3];
     edd->GetWorldPosition(pos);
-
-
-    if (this->DrawOutline)
-    {
-      this->Picker->DeletePickList(this->OutlineActor);
-    }
     vtkAssemblyPath* path = this->GetAssemblyPath3DPoint(pos, this->Picker);
-    if (this->DrawOutline)
-    {
-      this->Picker->AddPickList(this->OutlineActor);
-      if (path == nullptr)
-      {
-        path = this->GetAssemblyPath3DPoint(pos, this->Picker);
-      }
-    }
 
     if ( path == nullptr ) // Not picking this widget
     {

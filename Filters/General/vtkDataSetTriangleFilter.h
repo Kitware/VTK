@@ -51,9 +51,9 @@ public:
    * When On this filter will cull all 1D and 2D cells from the output.
    * The default is Off.
    */
-  vtkSetMacro(TetrahedraOnly, int);
-  vtkGetMacro(TetrahedraOnly, int);
-  vtkBooleanMacro(TetrahedraOnly, int);
+  vtkSetMacro(TetrahedraOnly, vtkTypeBool);
+  vtkGetMacro(TetrahedraOnly, vtkTypeBool);
+  vtkBooleanMacro(TetrahedraOnly, vtkTypeBool);
   //@}
 
 protected:
@@ -72,7 +72,7 @@ protected:
   void StructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
   void UnstructuredExecute(vtkDataSet *, vtkUnstructuredGrid *);
 
-  int TetrahedraOnly;
+  vtkTypeBool TetrahedraOnly;
 
 private:
   vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) = delete;

@@ -24,7 +24,7 @@ void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
   vtkCollection::DeleteElement(e);
 }
 
-// Desctructor for the vtkActor2DCollection class. This removes all
+// Destructor for the vtkActor2DCollection class. This removes all
 // objects from the collection.
 vtkActor2DCollection::~vtkActor2DCollection()
 {

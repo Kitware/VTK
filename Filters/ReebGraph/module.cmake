@@ -1,6 +1,6 @@
 vtk_module(vtkFiltersReebGraph
   TEST_DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingOpenGL2
     vtkTestingRendering
     vtkInteractionStyle
   KIT

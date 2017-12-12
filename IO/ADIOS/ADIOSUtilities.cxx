@@ -102,5 +102,5 @@ bool IsInt(ADIOS_DATATYPES ta)
          ta == adios_unsigned_integer || ta == adios_unsigned_long;
 }
 
-} // End namespace Tye
+} // End namespace Type
 } // End namespace ADIOS
