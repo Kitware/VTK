@@ -32,7 +32,7 @@ vtkStandardNewMacro(vtkHyperOctreeFractalSource);
 //----------------------------------------------------------------------------
 vtkHyperOctreeFractalSource::vtkHyperOctreeFractalSource()
 {
-  VTK_LEGACY_BODY(vtkHyperOctreeFractalSource, "VTK 8.2");
+  VTK_LEGACY_BODY(vtkHyperOctreeFractalSource, "VTK 8.1");
 
   this->SetNumberOfInputPorts(0);
 
