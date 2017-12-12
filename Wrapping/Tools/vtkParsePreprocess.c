@@ -3188,9 +3188,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #ifdef __INT32_MAX__
     PREPROC_ADD_MACRO(info, __INT32_MAX__);
 #endif
-#ifdef __INT32_MAX__
-    PREPROC_ADD_MACRO(info, __INT32_MAX__);
-#endif
 #ifdef __INT32_TYPE__
     PREPROC_ADD_MACRO(info, __INT32_TYPE__);
 #endif
@@ -3206,9 +3203,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #ifdef __INT64_MAX__
     PREPROC_ADD_MACRO(info, __INT64_MAX__);
 #endif
-#ifdef __INT64_MAX__
-    PREPROC_ADD_MACRO(info, __INT64_MAX__);
-#endif
 #ifdef __INT64_TYPE__
     PREPROC_ADD_MACRO(info, __INT64_TYPE__);
 #endif
@@ -3220,9 +3214,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #endif
 #ifdef __INT8_FMTi__
     PREPROC_ADD_MACRO(info, __INT8_FMTi__);
-#endif
-#ifdef __INT8_MAX__
-    PREPROC_ADD_MACRO(info, __INT8_MAX__);
 #endif
 #ifdef __INT8_MAX__
     PREPROC_ADD_MACRO(info, __INT8_MAX__);
@@ -3272,12 +3263,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #ifdef __INT_FAST16_MAX__
     PREPROC_ADD_MACRO(info, __INT_FAST16_MAX__);
 #endif
-#ifdef __INT_FAST16_MAX__
-    PREPROC_ADD_MACRO(info, __INT_FAST16_MAX__);
-#endif
-#ifdef __INT_FAST16_TYPE__
-    PREPROC_ADD_MACRO(info, __INT_FAST16_TYPE__);
-#endif
 #ifdef __INT_FAST16_TYPE__
     PREPROC_ADD_MACRO(info, __INT_FAST16_TYPE__);
 #endif
@@ -3310,9 +3295,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #endif
 #ifdef __INT_FAST8_FMTi__
     PREPROC_ADD_MACRO(info, __INT_FAST8_FMTi__);
-#endif
-#ifdef __INT_FAST8_MAX__
-    PREPROC_ADD_MACRO(info, __INT_FAST8_MAX__);
 #endif
 #ifdef __INT_FAST8_MAX__
     PREPROC_ADD_MACRO(info, __INT_FAST8_MAX__);
@@ -3511,9 +3493,6 @@ void vtkParsePreprocess_AddStandardMacros(
 #endif
 #ifdef __UINT16_FMTx__
     PREPROC_ADD_MACRO(info, __UINT16_FMTx__);
-#endif
-#ifdef __UINT16_MAX__
-    PREPROC_ADD_MACRO(info, __UINT16_MAX__);
 #endif
 #ifdef __UINT16_MAX__
     PREPROC_ADD_MACRO(info, __UINT16_MAX__);
