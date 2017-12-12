@@ -371,7 +371,8 @@ bool Convert(const vtkm::cont::DynamicCellSet& toConvert, vtkCellArray* cells,
   vtkmOutputFilterPolicy policy;
   bool didConversion = false;
   CellSetConverter cConverter(&didConversion, cells, types, locations);
-  vtkm::filter::ApplyPolicy(toConvert, policy).CastAndCall(cConverter);
+  vtkm::cont::CastAndCall(vtkm::filter::ApplyPolicy(toConvert, policy),
+                          cConverter);
   return didConversion;
 }
 }
