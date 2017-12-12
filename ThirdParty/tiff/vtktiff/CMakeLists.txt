@@ -210,7 +210,7 @@ VERS_2 {
 } VERS_1;
 ")
 set(CMAKE_REQUIRED_FLAGS_SAVE ${CMAKE_REQUIRED_FLAGS})
-set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Werror -Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
+set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Werror -Wl,--version-script=\"${CMAKE_CURRENT_BINARY_DIR}/conftest.map\"")
 check_c_source_compiles("int main(void){return 0;}" HAVE_LD_VERSION_SCRIPT)
 set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS_SAVE})
 file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
