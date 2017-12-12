@@ -141,7 +141,7 @@ if(HAVE_LD_VERSION_SCRIPT)
                         "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
   endif ()
   set_target_properties(vtktiff PROPERTIES LINK_FLAGS
-                        "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
+                        "-Wl,--version-script=\"${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map\"")
 endif()
 
 if (FALSE) # XXX(kitware): mangle library name
