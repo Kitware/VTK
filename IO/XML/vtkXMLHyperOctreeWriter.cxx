@@ -38,7 +38,7 @@ vtkStandardNewMacro(vtkXMLHyperOctreeWriter);
 //----------------------------------------------------------------------------
 vtkXMLHyperOctreeWriter::vtkXMLHyperOctreeWriter()
 {
-  VTK_LEGACY_BODY(vtkXMLHyperOctreeWriter, "VTK 8.2");
+  VTK_LEGACY_BODY(vtkXMLHyperOctreeWriter, "VTK 8.1");
 
   this->TopologyArray = nullptr;
   this->TopologyOM = new OffsetsManagerGroup;

@@ -52,7 +52,7 @@ vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 // set to 0.0; and generate clip scalars turned off.
 vtkClipHyperOctree::vtkClipHyperOctree(vtkImplicitFunction *cf)
 {
-  VTK_LEGACY_BODY(vtkClipHyperOctree, "VTK 8.2");
+  VTK_LEGACY_BODY(vtkClipHyperOctree, "VTK 8.1");
 
   this->ClipFunction = cf;
   this->InsideOut = 0;
