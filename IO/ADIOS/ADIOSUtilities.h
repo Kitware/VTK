@@ -14,6 +14,8 @@
 =========================================================================*/
 #ifndef __ADIOSUtilities_h
 #define __ADIOSUtilities_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include <stdint.h>
 
@@ -145,5 +147,7 @@ bool IsInt(ADIOS_DATATYPES ta);
 
 } // End namespace Type
 } // End namespace ADIOS
+#endif
+#endif
 #endif
 // VTK-HeaderTest-Exclude: ADIOSUtilities.h

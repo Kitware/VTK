@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef vtkDispatcher_Private_h
 #define vtkDispatcher_Private_h
+#ifndef __VTK_WRAP__
 
 #include <typeinfo>
 #include <cassert>
@@ -446,5 +447,6 @@ inline bool operator>=(const TypeInfo& lhs, const TypeInfo& rhs)
 
 }
 
+#endif
 #endif // vtkDispatcherPrivate_h
 // VTK-HeaderTest-Exclude: vtkDispatcher_Private.h

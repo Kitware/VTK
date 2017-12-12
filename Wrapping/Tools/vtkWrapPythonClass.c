@@ -96,7 +96,6 @@ int vtkWrapPython_HasWrappedSuperClass(
 {
   HierarchyEntry *entry;
   const char *module;
-  const char *header;
   const char *name;
   const char *supername;
   int result = 0;
@@ -120,7 +119,6 @@ int vtkWrapPython_HasWrappedSuperClass(
   }
 
   module = entry->Module;
-  header = entry->HeaderFile;
   while (entry->NumberOfSuperClasses == 1)
   {
     supername = vtkParseHierarchy_TemplatedSuperClass(entry, name, 0);
@@ -151,13 +149,9 @@ int vtkWrapPython_HasWrappedSuperClass(
     {
       break;
     }
-    else if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON"))
+    else
     {
       result = 1;
-      break;
-    }
-    else if (strcmp(entry->HeaderFile, header) != 0)
-    {
       break;
     }
   }

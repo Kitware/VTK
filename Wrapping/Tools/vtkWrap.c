@@ -537,10 +537,7 @@ int vtkWrap_IsClassWrapped(
 
     if (entry)
     {
-      if (!vtkParseHierarchy_GetProperty(entry, "WRAP_EXCLUDE_PYTHON"))
-      {
-        return 1;
-      }
+      return 1;
     }
   }
   else if (strncmp("vtk", classname, 3) == 0)

@@ -29,28 +29,6 @@ set(Module_SRCS
   vtkOpenVRRenderWindowInteractor.cxx
   )
 
-set_source_files_properties(
-  vtkOpenVRCamera
-  vtkOpenVRControlsHelper
-  vtkOpenVRDefaultOverlay
-  vtkOpenVRFollower
-  vtkOpenVRHardwarePicker
-  vtkOpenVRInteractorStyle
-  vtkOpenVRMenuRepresentation
-  vtkOpenVRMenuWidget
-  vtkOpenVRModel
-  vtkOpenVROverlay
-  vtkOpenVRPanelRepresentation
-  vtkOpenVRPanelWidget
-  vtkOpenVRPropPicker
-  vtkOpenVRRenderer
-  vtkOpenVRRenderWindow
-  vtkOpenVRRenderWindowInteractor
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-)
-
 # This option determines if the VR rendering code will become
 # the default renderer
 option(VTK_OPENVR_OBJECT_FACTORY

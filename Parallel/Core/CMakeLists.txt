@@ -29,10 +29,4 @@ list(APPEND Module_SRCS
   ${VTK_BINARY_DIR}/Parallel/Core/vtkSocketCommunicatorHash.h
   )
 
-set_source_files_properties(
-  vtkMultiProcessStream
-  vtkSocketCommunicatorHash
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkParallelCore ${Module_SRCS})

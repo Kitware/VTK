@@ -47,6 +47,7 @@ SOFTWARE.
  */
 #ifndef vtkCIEDE2000_h
 #define vtkCIEDE2000_h
+#ifndef __VTK_WRAP__
 
 #include <vector> // needed for std::vector
 
@@ -74,5 +75,6 @@ double GetCIEDeltaE2000(const double lab1[3], const double lab2[3]);
 double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node>& path);
 }
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkCIEDE2000.h

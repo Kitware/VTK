@@ -24,13 +24,6 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   )
 
-set_source_files_properties(
-  ${vtk-module}ObjectFactory
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 # Now to generate our object factory.
 set(vtk_module_overrides "vtkInteractorStyleSwitchBase")
 if (ANDROID OR APPLE_IOS)

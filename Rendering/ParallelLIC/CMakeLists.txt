@@ -11,22 +11,6 @@ set(Module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingParallelLICObjectFactory.cxx
   )
 
-set_source_files_properties(
-  vtkMPIPixelTT.cxx
-  vtkPPixelTransfer.cxx
-  vtkPLineIntegralConvolution2D.cxx
-  vtkPPainterCommunicator.cxx
-  vtkPSurfaceLICComposite.cxx
-  WRAP_EXCLUDE
-  )
-
-set_source_files_properties(
-  vtkMPIPixelTT.cxx
-  vtkPPixelTransfer.cxx
-  vtkPSurfaceLICComposite.cxx
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1
-  )
-
 option(
   VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER
   "enable parallel timers for the surface lic painter"
@@ -60,13 +44,6 @@ foreach(file ${shader_files})
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND Module_SRCS ${source})
-  set_source_files_properties(
-    ${header}
-    ${source}
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 endforeach()
 
 vtk_add_override(vtkLineIntegralConvolution2D vtkPLineIntegralConvolution2D)

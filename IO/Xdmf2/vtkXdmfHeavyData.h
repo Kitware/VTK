@@ -16,6 +16,8 @@
 
 #ifndef vtkXdmfHeavyData_h
 #define vtkXdmfHeavyData_h
+#ifndef __VTK_WRAP__
+#ifndef VTK_WRAPPING_CXX
 
 #include "XdmfDataItem.h"
 #include "XdmfGrid.h" //won't compile without it
@@ -159,4 +161,6 @@ private:
   vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 };
 
+#endif
+#endif
 #endif

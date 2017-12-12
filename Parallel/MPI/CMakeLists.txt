@@ -17,14 +17,6 @@ set_source_files_properties(
   HEADER_FILE_ONLY
   )
 
-set_source_files_properties(
-  vtkMPI
-  vtkMPIUtilities
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 # Needed for mpich 2
 add_definitions("-DMPICH_IGNORE_CXX_SEEK")
 

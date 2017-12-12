@@ -8,14 +8,6 @@ set(module_SRCS
   vtkOpenGLPropItem.cxx
   )
 
-set_source_files_properties(
-  vtkOpenGLContextBufferId
-  vtkOpenGLContextDevice2D
-  vtkOpenGLContextDevice3D
-  vtkOpenGLPropItem
-  WRAP_EXCLUDE
-  )
-
 set(_opengl_overrides
   "ContextActor"
   "ContextDevice2D"
@@ -30,12 +22,6 @@ vtk_object_factory_configure("${vtk_module_overrides}")
 
 list(APPEND module_SRCS
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-set_source_files_properties(
-  ${vtk-module}ObjectFactory
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
 
 vtk_module_library(${vtk-module} ${module_SRCS})
 vtk_module_link_libraries(${vtk-module}

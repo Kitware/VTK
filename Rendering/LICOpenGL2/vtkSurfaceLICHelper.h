@@ -19,6 +19,7 @@
 
 #ifndef vtkSurfaceLICHelper_h
 #define vtkSurfaceLICHelper_h
+#ifndef __VTK_WRAP__
 
 #include "vtkRenderingLICOpenGL2Module.h" // for export
 #include "vtkPixelExtent.h"
@@ -254,5 +255,6 @@ protected:
 
 };
 
+#endif
 #endif
 // VTK-HeaderTest-Exclude: vtkSurfaceLICHelper.h

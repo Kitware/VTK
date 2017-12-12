@@ -80,8 +80,6 @@ endmacro()
 #  <module>_HEADERS_LOADED      = True if the module header info has been loaded
 #  <module>_HEADERS             = List of headers
 #  <module>_HEADER_<header>_EXISTS
-#  <module>_HEADER_<header>_WRAP_EXCLUDE
-#  <module>_HEADER_<header>_WRAP_EXCLUDE_PYTHON
 macro(vtk_module_headers_load mod)
   if(NOT ${mod}_HEADERS_LOADED)
     include("${VTK_MODULES_DIR}/${mod}-Headers.cmake"

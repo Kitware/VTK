@@ -8,9 +8,4 @@ set(Module_SRCS
   vtkParallelAMRUtilities.cxx
   )
 
-set_source_files_properties(
-  vtkAMRUtilities
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkFiltersAMR ${Module_SRCS})

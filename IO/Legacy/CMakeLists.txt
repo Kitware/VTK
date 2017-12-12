@@ -30,9 +30,4 @@ SET(Module_SRCS
   vtkUnstructuredGridWriter.cxx
   )
 
-set_source_files_properties(
-  vtkPixelExtentIO.cxx
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkIOLegacy ${Module_SRCS})

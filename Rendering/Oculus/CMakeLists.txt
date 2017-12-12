@@ -11,16 +11,6 @@ set(Module_SRCS
   vtkOculusRenderWindowInteractor.cxx
   )
 
-set_source_files_properties(
-  vtkOculusCamera
-  vtkOculusRenderer
-  vtkOculusRenderWindow
-  vtkOculusRenderWindowInteractor
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-)
-
 if (Module_vtkRenderingOculus)
    message(SEND_ERROR "The oculus module is currently under construction due to changes in the Oculus SDK. Please disable this module.")
 endif()

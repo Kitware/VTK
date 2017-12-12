@@ -45,18 +45,4 @@ set(Module_SRCS
   vtkImageStencilSource.cxx # Needed by vtkImageStencilData
   )
 
-SET_SOURCE_FILES_PROPERTIES(
-  vtkImagePointIterator
-  vtkImagePointDataIterator
-  WRAP_EXCLUDE
-)
-
-SET_SOURCE_FILES_PROPERTIES(
-  vtkImageStencilIterator
-  vtkImageBSplineInternals
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-)
-
 vtk_module_library(vtkImagingCore ${Module_SRCS})

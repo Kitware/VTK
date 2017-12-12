@@ -5,6 +5,8 @@ vtk_module(vtkCommonCore
     vtkTestingCore
     vtkCommonSystem
     vtkCommonTransforms
+    vtkFiltersProgrammable
+    vtkFiltersVerdict
     vtksys
   KIT
     vtkCommon

@@ -14,6 +14,4 @@ set(module_SRCS
   vtkBridgePointIteratorOnDataSet.cxx
   vtkBridgePointIteratorOne.cxx)
 
-# set_source_files_properties(vtkRegressionTestImage WRAP_EXCLUDE)
-
 vtk_module_library(vtkTestingGenericBridge ${module_SRCS})

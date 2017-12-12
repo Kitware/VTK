@@ -15,12 +15,6 @@ set(Module_SRCS
   vtkTuple.h
   )
 
-set_source_files_properties(
-  vtkQuaternion
-  vtkTuple
-  WRAP_EXCLUDE
-  )
-
 set(
   ${vtk-module}_HDRS
   vtkQuaternion.txx

@@ -101,35 +101,6 @@ set(${vtk-module}_HDRS
   ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h
   )
 
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkOpenGLFramebufferObject
-  vtkOpenGLBufferObject
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLGlyph3DHelper
-  vtkOpenGLGlyph3DMapper
-  vtkOpenGLHelper
-  vtkOpenGLIndexBufferObject
-  vtkOpenGLRenderTimer
-  vtkOpenGLShaderCache
-  vtkOpenGLVertexArrayObject
-  vtkOpenGLVertexBufferObject
-  vtkOpenGLVertexBufferObjectCache
-  vtkPixelBufferObject
-  vtkRenderbuffer
-  vtkTextureObject
-  vtkTextureUnitManager
-  vtkTransformFeedback
-  WRAP_EXCLUDE)
-
-set_source_files_properties(
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  vtkOpenGLGL2PSHelper
-  vtkOpenGLGlyph3DHelper
-  vtkOpenGLHelper
-  vtkOpenGLRenderTimer
-  PROPERTIES WRAP_EXCLUDE_PYTHON 1)
-
 set(shader_files
   glsl/vtkDepthOfFieldPassFS.glsl
   glsl/vtkDepthPeelingPassFinalFS.glsl
@@ -166,13 +137,6 @@ foreach(file ${shader_files})
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND Module_SRCS ${source})
-  set_source_files_properties(
-    ${header}
-    ${source}
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 endforeach()
 
 if(VTK_USE_X)
@@ -270,12 +234,6 @@ elseif(VTK_USE_COCOA)
                                 vtkCocoaGLView.mm
                                 PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-  set_source_files_properties(
-    vtkCocoaGLView
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 elseif(ANDROID)
   # Add some custom overrides
   vtk_add_override("vtkRenderWindowInteractor" "vtkAndroidRenderWindowInteractor")

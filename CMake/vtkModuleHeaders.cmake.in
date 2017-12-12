@@ -4,6 +4,3 @@ set(@vtk-module@_HEADERS "@vtk-module-HEADERS@")
 foreach(header ${@vtk-module@_HEADERS})
   set(@vtk-module@_HEADER_${header}_EXISTS 1)
 endforeach()
-
-@vtk-module-WRAP_EXCLUDE@
-@vtk-module-WRAP_EXCLUDE_PYTHON@

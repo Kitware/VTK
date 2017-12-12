@@ -106,8 +106,6 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkmConfig.h.in"
 #  - SKIP_HEADER_INSTALL is enabled as we need to install these headers
 #    to the vtkmlib directory and not the root include directory as vtk
 #    normally does
-#  - WRAP_EXCLUDE* are enabled as we don't want any vtkmlib private classes
-#    being used as public api
 # ====================
 set_source_files_properties(
   vtkmlib/PolyDataConverter
@@ -121,24 +119,7 @@ set_source_files_properties(
   vtkmlib/ImplicitFunctionConverter
   PROPERTIES
     SKIP_HEADER_INSTALL 1
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
   )
-
-# ====================
-# Important for wrapping and install rules for vtkmlib
-#  - WRAP_EXCLUDE* are enabled as we don't want any vtkm private classes
-#    being used as public api
-# ====================
-set_source_files_properties(
-  vtkmCellSetExplicit
-  vtkmCellSetSingleType
-  vtkmConnectivityExec
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 
 set(${vtk-module}_HDRS
   vtkmTags.h

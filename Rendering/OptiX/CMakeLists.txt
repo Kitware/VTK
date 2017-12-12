@@ -30,13 +30,6 @@ set(OPTIX_SRCS
 
 CUDA_COMPILE_PTX( ptx_files ${OPTIX_SRCS} )
 
-set_source_files_properties(
-  ${ptx_files}
-  vtkOptiXPtxLoader.cxx
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1)
-
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/vtkOptiXConfig.h.in"
   "${CMAKE_BINARY_DIR}/include/vtkOptiXConfig.h"
   )

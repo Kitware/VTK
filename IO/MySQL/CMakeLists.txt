@@ -8,13 +8,6 @@ set(MySQL_SRCS
   vtkIOMySQL_AutoInit.cxx
   )
 
-set_source_files_properties(
-  vtkIOMySQL_AutoInit
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 include_directories(${MYSQL_INCLUDE_DIRECTORIES})
 
 vtk_module_library(vtkIOMySQL ${MySQL_SRCS})

@@ -20,9 +20,4 @@ set(Module_SRCS
   vtkTemporalStreamTracer.cxx
   )
 
-set_source_files_properties(
-  vtkLagrangianParticle.cxx
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkFiltersFlowPaths ${Module_SRCS})

@@ -21,16 +21,6 @@ set(Module_SRCS
   vtkX3DExporterXMLWriter.cxx
   )
 
-set_source_files_properties(
-  vtkPDFContextDevice2D
-  vtkSVGContextDevice2D
-  vtkX3D
-  vtkX3DExporterWriter
-  vtkX3DExporterFIWriter
-  vtkX3DExporterXMLWriter
-  WRAP_EXCLUDE
-  )
-
 vtk_module_library(vtkIOExport ${Module_SRCS})
 include(vtkOpenGL)
 vtk_opengl_link(vtkIOExport)

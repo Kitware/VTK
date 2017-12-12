@@ -33,6 +33,5 @@ IF(WIN32)
            -DVTK_OWP_OUTPUT=${VTK_OWP_ENCODED_C}
       DEPENDS ${VTK_SOURCE_DIR}/Utilities/OutputWindowProcess/vtkWin32OutputWindowProcess.c
       )
-    SET_SOURCE_FILES_PROPERTIES(${VTK_OWP_ENCODED_C} PROPERTIES WRAP_EXCLUDE 1)
   ENDIF ()
 ENDIF()

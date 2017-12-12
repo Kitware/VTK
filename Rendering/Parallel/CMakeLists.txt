@@ -26,20 +26,7 @@ foreach(file ${shader_files})
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND Module_SRCS ${source})
-  set_source_files_properties(
-    ${header}
-    ${source}
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 endforeach()
-
-set_source_files_properties(
-  vtkCompositeRGBAPass
-  vtkCompositeZPass
-  WRAP_EXCLUDE
-  )
 
 add_definitions(-DVTK_OPENGL2)
 

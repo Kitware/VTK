@@ -25,28 +25,6 @@ set(Module_SOURCES
   vtkADIOSReader.cxx
   )
 
-set_source_files_properties(
-  ADIOSDefs.cxx
-  ADIOSUtilities.cxx
-
-  ADIOSWriter.cxx
-
-  ADIOSAttribute.cxx
-  ADIOSVarInfo.cxx
-  ADIOSScalar.cxx
-  ADIOSReader.cxx
-
-  vtkADIOSUtilities.cxx
-
-  vtkADIOSWriterDefine.cxx
-  vtkADIOSWriterWrite.cxx
-
-  vtkADIOSDirTree.cxx
-  PROPERTIES
-    WRAP_EXCLUDE 1
-    WRAP_EXCLUDE_PYTHON 1
-  )
-
 vtk_module_library(vtkIOADIOS ${Module_SOURCES})
 target_link_libraries(vtkIOADIOS
   LINK_PRIVATE ${ADIOS_LIBRARIES} ${MPI_C_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT}

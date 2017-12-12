@@ -17,8 +17,6 @@ set(Module_SRCS
   vtkWebGLWidget.cxx
 )
 
-set_source_files_properties(md5.cxx WRAP_EXCLUDE)
-
 set(JAVASCRIPT_SRCS
   webglRenderer.js
   glMatrix.js
@@ -31,13 +29,6 @@ foreach(file ${JAVASCRIPT_SRCS})
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
   list(APPEND Module_SRCS ${source})
-  set_source_files_properties(
-    ${header}
-    ${source}
-    PROPERTIES
-      WRAP_EXCLUDE 1
-      WRAP_EXCLUDE_PYTHON 1
-    )
 endforeach()
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

@@ -19,6 +19,7 @@
 
 #ifndef vtkLargeInteger_h
 #define vtkLargeInteger_h
+#ifndef __VTK_WRAP__
 
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
@@ -107,6 +108,7 @@ private:
   void Minus(const vtkLargeInteger& n); // unsigned
 };
 
+#endif
 #endif
 
 
