@@ -217,6 +217,7 @@ static int read_option_file(
     }
   }
 
+  free(line);
   fclose(fp);
   return 1;
 }
@@ -509,12 +510,12 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
 }
 
 /* Command-line argument handler for wrapper tools */
-void vtkParse_MainMulti(int argc, char *argv[])
+StringCache *vtkParse_MainMulti(int argc, char *argv[])
 {
   int argi;
   int argn;
   char **args;
-  StringCache strings;
+  StringCache *strings = (StringCache *)malloc(sizeof(StringCache));
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
@@ -523,8 +524,8 @@ void vtkParse_MainMulti(int argc, char *argv[])
   vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
-  vtkParse_InitStringCache(&strings);
-  parse_expand_args(&strings, argc, argv, &argn, &args);
+  vtkParse_InitStringCache(strings);
+  parse_expand_args(strings, argc, argv, &argn, &args);
 
   /* read the args into the static OptionInfo struct */
   argi = parse_check_options(argn, args, 1);
@@ -542,4 +543,5 @@ void vtkParse_MainMulti(int argc, char *argv[])
 
   /* the input file */
   options.InputFileName = options.Files[0];
+  return strings;
 }
