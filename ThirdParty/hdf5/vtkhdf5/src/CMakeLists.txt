@@ -626,7 +626,7 @@ ENDIF ()
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
-    COMMAND $<TARGET_FILE:H5detect>
+    COMMAND H5detect
     ARGS > ${HDF5_BINARY_DIR}/H5Tinit.c
     DEPENDS H5detect
 )
@@ -641,7 +641,7 @@ ENDIF ()
 
 add_custom_command (
     OUTPUT ${HDF5_BINARY_DIR}/H5lib_settings.c
-    COMMAND $<TARGET_FILE:H5make_libsettings>
+    COMMAND H5make_libsettings
     ARGS > ${HDF5_BINARY_DIR}/H5lib_settings.c
     DEPENDS H5make_libsettings
     WORKING_DIRECTORY ${HDF5_BINARY_DIR}
