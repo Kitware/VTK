@@ -233,6 +233,11 @@ protected:
 private:
   vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&) = delete;
   void operator=(const vtkOrientationMarkerWidget&) = delete;
+
+  //set up the actors and observers created by this widget
+  void SetupWindowInteraction();
+  //tear down up the actors and observers created by this widget
+  void TearDownWindowInteraction();
 };
 
 #endif
