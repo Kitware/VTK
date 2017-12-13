@@ -14,23 +14,26 @@
 =========================================================================*/
 #include <cassert>
 
-#include "vtkSmartVolumeMapper.h"
-#include "vtkObjectFactory.h"
+#include "vtkCellData.h"
+#include "vtkCellDataToPointData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
-#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkEventForwarderCommand.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
+#include "vtkImageMagnitude.h"
 #include "vtkImageResample.h"
+#include "vtkObjectFactory.h"
 #include "vtkOSPRayVolumeInterface.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
+#include "vtkPointDataToCellData.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkSmartVolumeMapper.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageMagnitude.h"
-#include "vtkPointData.h"
 
 
 vtkStandardNewMacro( vtkSmartVolumeMapper );
@@ -509,6 +512,61 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 }
 
 // ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ComputeMagnitudeCellData(vtkImageData* input,
+  vtkDataArray* arr)
+{
+  vtkNew<vtkImageData> tempInput;
+  tempInput->ShallowCopy(input);
+
+  tempInput->GetCellData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+
+  // vtkImageMagnitude can only process point data so, data is transformed first
+  // to points and then back to cells.
+  vtkNew<vtkCellDataToPointData> cellToPoints;
+  cellToPoints->SetInputData(tempInput);
+  cellToPoints->Update();
+  tempInput->ShallowCopy(cellToPoints->GetOutput());
+
+  const int id = tempInput->GetPointData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+  if (id < 0)
+  {
+    vtkErrorMacro("Failed to set the active attribute in vtkImageMagnitude's input"
+      " (from cellToPoints)!");
+    return;
+  }
+
+  this->ImageMagnitude->SetInputData(tempInput);
+  this->ImageMagnitude->Update();
+
+  vtkNew<vtkPointDataToCellData> pointsToCells;
+  pointsToCells->SetInputConnection(this->ImageMagnitude->GetOutputPort());
+  pointsToCells->Update();
+  this->InputDataMagnitude->ShallowCopy(pointsToCells->GetOutput());
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ComputeMagnitudePointData(vtkImageData* input,
+  vtkDataArray* arr)
+{
+  vtkNew<vtkImageData> tempInput;
+  tempInput->ShallowCopy(input);
+
+  const int id = tempInput->GetPointData()->SetActiveAttribute(arr->GetName(),
+    vtkDataSetAttributes::SCALARS);
+  if (id < 0)
+  {
+    vtkErrorMacro("Failed to set the active attribute in vtkImageMagnitude's input!");
+    return;
+  }
+
+  this->ImageMagnitude->SetInputData(tempInput);
+  this->ImageMagnitude->Update();
+  this->InputDataMagnitude->ShallowCopy(this->ImageMagnitude->GetOutput());
+}
+
+// ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
 {
   vtkImageData* input = this->GetInput();
@@ -517,9 +575,9 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
     vtkErrorMacro("Failed to setup vector rendering mode! No input.");
   }
 
-  int cellFlag = 0;
+  int isCellData = 0;
   vtkDataArray* dataArray  = this->GetScalars(input, this->ScalarMode,
-    this->ArrayAccessMode, this->ArrayId, this->ArrayName, cellFlag);
+    this->ArrayAccessMode, this->ArrayId, this->ArrayName, isCellData);
   int const numComponents = dataArray->GetNumberOfComponents();
 
   switch (this->VectorMode)
@@ -540,21 +598,14 @@ void vtkSmartVolumeMapper::SetupVectorMode(vtkVolume* vol)
           }
 
           // Proxy dataset (set the active attribute for the magnitude filter)
-          vtkImageData* tempInput = vtkImageData::New();
-          tempInput->ShallowCopy(input);
-          int const id = tempInput->GetPointData()->SetActiveAttribute(
-            dataArray->GetName(), vtkDataSetAttributes::SCALARS);
-
-          if (id < 0)
+          if (isCellData)
           {
-            vtkErrorMacro("Failed to set the active attribute in magnitude"
-              " filter!");
+            this->ComputeMagnitudeCellData(input, dataArray);
           }
-
-          this->ImageMagnitude->SetInputData(tempInput);
-          this->ImageMagnitude->Update();
-          this->InputDataMagnitude->ShallowCopy(this->ImageMagnitude->GetOutput());
-          tempInput->Delete();
+          else
+          {
+            this->ComputeMagnitudePointData(input, dataArray);
+          }
         }
 
         if (this->InputDataMagnitude->GetMTime() > this->MagnitudeUploadTime)
