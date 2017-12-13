@@ -127,18 +127,10 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
     ${_other_hierarchy_args_file} @ONLY)
 
-  # Ninja does not wait for order-only dependencies before enforcing the
-  # existence of explicit dependencies that those order-only dependencies
-  # might have produced.  Specify the real output to help it out.
-  if(CMAKE_GENERATOR MATCHES "Ninja")
-    set(help_ninja ${OUTPUT_DIR}/${module_name}Hierarchy.txt)
-  else()
-    set(help_ninja "")
-  endif()
 
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
-           ${help_ninja}
+           "${OUTPUT_DIR}/${module_name}Hierarchy.txt"
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
             @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
             ${module_name}Hierarchy.data
