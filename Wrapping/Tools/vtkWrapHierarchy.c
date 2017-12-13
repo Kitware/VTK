@@ -746,6 +746,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
 
     if (lines[i] == NULL)
     {
+      free(line);
       free(matched);
       return 0;
     }
@@ -757,6 +758,7 @@ static int vtkWrapHierarchy_CompareHierarchyFile(FILE *fp, char *lines[])
   {
     if (matched[i] == 0)
     {
+      free(line);
       free(matched);
       return 0;
     }
