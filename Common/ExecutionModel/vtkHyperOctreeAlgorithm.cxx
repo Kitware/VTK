@@ -25,6 +25,7 @@
 //----------------------------------------------------------------------------
 vtkHyperOctreeAlgorithm::vtkHyperOctreeAlgorithm()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeAlgorithm, "VTK 8.1");
   // by default assume filters have one input and one output
   // subclasses that deviate should modify this setting
   this->SetNumberOfInputPorts(1);

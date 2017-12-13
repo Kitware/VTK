@@ -34,6 +34,7 @@
 
 class vtkImplicitFunction;
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKFILTERSHYPERTREE_EXPORT vtkHyperOctreeSampleFunction : public vtkHyperOctreeAlgorithm
 {
 public:
@@ -239,5 +240,6 @@ private:
   vtkHyperOctreeSampleFunction(const vtkHyperOctreeSampleFunction&) = delete;
   void operator=(const vtkHyperOctreeSampleFunction&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

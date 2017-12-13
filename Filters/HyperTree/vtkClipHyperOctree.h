@@ -63,6 +63,7 @@
 #include "vtkFiltersHyperTreeModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
 class vtkHyperOctreeCursor;
@@ -231,5 +232,6 @@ private:
   vtkClipHyperOctree(const vtkClipHyperOctree&) = delete;
   void operator=(const vtkClipHyperOctree&) = delete;
 };
+#endif // LEGACY remove
 
 #endif

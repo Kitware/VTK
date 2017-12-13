@@ -35,6 +35,7 @@ vtkStandardNewMacro(vtkXMLHyperOctreeReader);
 //----------------------------------------------------------------------------
 vtkXMLHyperOctreeReader::vtkXMLHyperOctreeReader()
 {
+  VTK_LEGACY_BODY(vtkXMLHyperOctreeReader, "VTK 8.1");
 }
 
 //----------------------------------------------------------------------------

@@ -62,7 +62,9 @@ public:
    * getting the output.)
    */
   vtkHierarchicalBoxDataSet *GetHierarchicalBoxDataSetOutput();
+#if !defined(VTK_LEGACY_REMOVE)
   vtkHyperOctree *GetHyperOctreeOutput();
+#endif // LEGACY remove
   vtkImageData *GetImageDataOutput();
   vtkMultiBlockDataSet *GetMultiBlockDataSetOutput();
   vtkPolyData *GetPolyDataOutput();

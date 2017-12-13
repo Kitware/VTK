@@ -19,6 +19,7 @@
 // Constructor.
 vtkHyperOctreeCursor::vtkHyperOctreeCursor()
 {
+  VTK_LEGACY_BODY(vtkHyperOctreeCursor, "VTK 8.1");
 }
 
 //-----------------------------------------------------------------------------

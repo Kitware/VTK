@@ -54,6 +54,7 @@
 #include "vtkContourValues.h" // Needed for inline methods
 #include "vtkCutter.h" // for VTK_SORT_BY_VALUE
 
+#if !defined(VTK_LEGACY_REMOVE)
 class vtkIncrementalPointLocator;
 class vtkHyperOctree;
 class vtkOrderedTriangulator;
@@ -80,6 +81,7 @@ public:
 
   /**
    * Methods to set / get contour values.
+#if !defined(VTK_LEGACY_REMOVE)
    */
 
   /**
@@ -251,4 +253,6 @@ private:
   vtkHyperOctreeContourFilter(const vtkHyperOctreeContourFilter&) = delete;
   void operator=(const vtkHyperOctreeContourFilter&) = delete;
 };
+#endif // LEGACY remove
+
 #endif
