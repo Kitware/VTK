@@ -292,7 +292,7 @@ bool vtkShadowMapPass::SetShaderParameters(vtkShaderProgram *program,
   float transform[16];
   std::ostringstream toString;
 
-  program->SetUniformf("depthC", 60.0);
+  program->SetUniformf("depthC", 11.0);
   for (size_t i = 0; i < numLights; i++)
   {
     if (this->ShadowTextureUnits[i] >= 0)
