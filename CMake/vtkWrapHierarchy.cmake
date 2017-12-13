@@ -129,13 +129,11 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
 
 
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
-           "${OUTPUT_DIR}/${module_name}Hierarchy.txt"
+    OUTPUT  "${OUTPUT_DIR}/${module_name}Hierarchy.txt"
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
             @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
             ${module_name}Hierarchy.data
             @${_other_hierarchy_args_file}
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
     COMMENT "For ${module_name} - updating ${module_name}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
             ${CMAKE_CURRENT_BINARY_DIR}/${_args_file}
@@ -146,6 +144,6 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     )
   add_custom_target(${module_name}Hierarchy
     DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt)
+      ${OUTPUT_DIR}/${module_name}Hierarchy.txt)
 
 endmacro()
