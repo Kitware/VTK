@@ -105,6 +105,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
 
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
+  set(OTHER_HIERARCHY_TARGETS)
   # Don't use ${module_name}_DEPENDS. That list also includes COMPILE_DEPENDS,
   # which aren't library dependencies, merely dependencies for generators and
   # such. Instead, use _WRAP_DEPENDS which includes the DEPENDS and the
@@ -113,6 +114,9 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     if(NOT "${module_name}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES "${${dep}_WRAP_HIERARCHY_FILE}")
+        if (TARGET "${dep}Hierarchy")
+          list(APPEND OTHER_HIERARCHY_TARGETS "${dep}Hierarchy")
+        endif ()
       endif()
     endif()
   endforeach()
@@ -127,33 +131,28 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
     ${_other_hierarchy_args_file} @ONLY)
 
-  # Ninja does not wait for order-only dependencies before enforcing the
-  # existence of explicit dependencies that those order-only dependencies
-  # might have produced.  Specify the real output to help it out.
-  if(CMAKE_GENERATOR MATCHES "Ninja")
-    set(help_ninja ${OUTPUT_DIR}/${module_name}Hierarchy.txt)
-  else()
-    set(help_ninja "")
-  endif()
+  if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(hierarchy_depends ${OTHER_HIERARCHY_FILES})
+  else ()
+    set(hierarchy_depends ${OTHER_HIERARCHY_TARGETS})
+  endif ()
 
   add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
-           ${help_ninja}
+    OUTPUT  "${OUTPUT_DIR}/${module_name}Hierarchy.txt"
     COMMAND ${VTK_WRAP_HIERARCHY_EXE}
             @${_args_file} -o ${OUTPUT_DIR}/${module_name}Hierarchy.txt
             ${module_name}Hierarchy.data
             @${_other_hierarchy_args_file}
-    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt
     COMMENT "For ${module_name} - updating ${module_name}Hierarchy.txt"
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
             ${CMAKE_CURRENT_BINARY_DIR}/${_args_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.data
-            ${OTHER_HIERARCHY_FILES}
+            ${hierarchy_depends}
             ${INPUT_FILES}
     VERBATIM
     )
   add_custom_target(${module_name}Hierarchy
     DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.stamp.txt)
+      ${OUTPUT_DIR}/${module_name}Hierarchy.txt)
 
 endmacro()
