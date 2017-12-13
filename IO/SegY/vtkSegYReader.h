@@ -15,6 +15,7 @@
 
 #ifndef vtkSegYReader_h
 #define vtkSegYReader_h
+#ifndef __VTK_WRAP__
 
 #include <fstream>
 #include <string>
@@ -52,5 +53,6 @@ private:
   int VerticalCRS;
 };
 
+#endif
 #endif // vtkSegYReader_h
 // VTK-HeaderTest-Exclude: vtkSegYReader.h
