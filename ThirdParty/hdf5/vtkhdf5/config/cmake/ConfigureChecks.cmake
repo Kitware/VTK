@@ -1,17 +1,17 @@
 #-----------------------------------------------------------------------------
 # Include all the necessary files for macros
 #-----------------------------------------------------------------------------
-include (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
-include (${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
-include (${CMAKE_ROOT}/Modules/CheckIncludeFileCXX.cmake)
-include (${CMAKE_ROOT}/Modules/CheckIncludeFiles.cmake)
-include (${CMAKE_ROOT}/Modules/CheckLibraryExists.cmake)
-include (${CMAKE_ROOT}/Modules/CheckSymbolExists.cmake)
-include (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
-include (${CMAKE_ROOT}/Modules/CheckVariableExists.cmake)
-include (${CMAKE_ROOT}/Modules/CheckFortranFunctionExists.cmake)
-include (${CMAKE_ROOT}/Modules/TestBigEndian.cmake)
-include (${CMAKE_ROOT}/Modules/TestForSTDNamespace.cmake)
+include (CheckFunctionExists)
+include (CheckIncludeFile)
+include (CheckIncludeFileCXX)
+include (CheckIncludeFiles)
+include (CheckLibraryExists)
+include (CheckSymbolExists)
+include (CheckTypeSize)
+include (CheckVariableExists)
+include (CheckFortranFunctionExists)
+include (TestBigEndian)
+include (TestForSTDNamespace)
 
 #-----------------------------------------------------------------------------
 # APPLE/Darwin setup
