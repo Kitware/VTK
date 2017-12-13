@@ -21,7 +21,7 @@
 // Default constructor.
 vtkHyperOctreePointsGrabber::vtkHyperOctreePointsGrabber()
 {
-  VTK_LEGACY_BODY(vtkHyperOctreePointsGrabber, "VTK 8.2");
+  VTK_LEGACY_BODY(vtkHyperOctreePointsGrabber, "VTK 8.1");
   this->Dimension=3;
 }
 

@@ -34,7 +34,7 @@ public:
 // Default constructor.
 vtkHyperOctreeClipCutPointsGrabber::vtkHyperOctreeClipCutPointsGrabber()
 {
-  VTK_LEGACY_BODY(vtkHyperOctreeClipCutPointsGrabber, "VTK 8.2");
+  VTK_LEGACY_BODY(vtkHyperOctreeClipCutPointsGrabber, "VTK 8.1");
 
   this->Triangulator=vtkOrderedTriangulator::New();
   this->IdSet=new vtkHyperOctreeIdSet;
