@@ -645,16 +645,6 @@ function(vtk_module_library name)
   list(APPEND _hdrs "${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Module.h")
   list(REMOVE_DUPLICATES _hdrs)
 
-  # Add the vtkWrapHierarchy custom command output to the target, if any.
-  # TODO: Re-order things so we do not need to duplicate this condition.
-  if(NOT ${vtk-module}_EXCLUDE_FROM_WRAPPING AND
-      NOT ${vtk-module}_EXCLUDE_FROM_WRAP_HIERARCHY AND
-      ( VTK_WRAP_PYTHON OR VTK_WRAP_JAVA ))
-    set(_hierarchy ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}Hierarchy.stamp.txt)
-  else()
-    set(_hierarchy "")
-  endif()
-
   set(target_suffix)
   set(force_object)
   set(export_symbol_object)
@@ -667,7 +657,15 @@ function(vtk_module_library name)
     # OBJECT libraries don't like this variable being set; clear it.
     unset(${vtk-module}_LIB_DEPENDS CACHE)
   endif()
-  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs} ${_hierarchy})
+  vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs})
+
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if (TARGET "${vtk-module}Hierarchy")
+    add_dependencies("${vtk-module}${force_object}"
+      "${vtk-module}Hierarchy")
+  endif ()
+
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
     add_library(${vtk-module} INTERFACE)
