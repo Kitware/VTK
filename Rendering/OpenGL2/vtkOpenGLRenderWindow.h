@@ -522,14 +522,6 @@ protected:
   unsigned int BackBuffer;
   unsigned int DefaultFrameBufferId;
 
-  #ifndef VTK_LEGACY_REMOVE
-  /**
-   * @deprecated Replaced by
-   * vtkOpenGLCheckErrorMacro
-   */
-  unsigned int LastGraphicError;
-  #endif
-
   /**
    * Flag telling if the context has been created here or was inherited.
    */

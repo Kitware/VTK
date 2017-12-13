@@ -56,15 +56,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->AlphaBitPlanes = 0;
   this->StencilCapable = 0;
   this->Interactor = nullptr;
-  this->AAFrames = 0;
-  this->FDFrames = 0;
-  this->UseConstantFDOffsets = 0;
-  this->ConstantFDOffsets[0] = nullptr;
-  this->ConstantFDOffsets[1] = nullptr;
-  this->SubFrames = 0;
   this->AccumulationBuffer = nullptr;
   this->AccumulationBufferSize = 0;
-  this->CurrentSubFrame = 0;
   this->DesiredUpdateRate = 0.0001;
   this->ResultFrame = nullptr;
   this->SwapBuffers = 1;
@@ -101,12 +94,6 @@ vtkRenderWindow::~vtkRenderWindow()
 
   delete [] this->ResultFrame;
   this->ResultFrame = nullptr;
-
-  for (int i = 0; i < 2; ++i)
-  {
-    delete [] this->ConstantFDOffsets[i];
-    this->ConstantFDOffsets[i] = nullptr;
-  }
 
   if (this->Renderers)
   {
@@ -162,54 +149,6 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
     }
   }
 }
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkRenderWindow::SetFDFrames(int fdFrames)
-{
-  VTK_LEGACY_BODY(SetFDFrames, "VTK 8.1");
-  if (this->FDFrames != fdFrames)
-  {
-    this->FDFrames = fdFrames;
-
-    for (int i = 0; i < 2; i++)
-    {
-      delete [] this->ConstantFDOffsets[i];
-      this->ConstantFDOffsets[i] = nullptr;
-
-      if (this->FDFrames > 0)
-      {
-        this->ConstantFDOffsets[i] = new double[this->FDFrames];
-        for (int fi = 0; fi < this->FDFrames; fi++)
-        {
-          this->ConstantFDOffsets[i][fi] = vtkMath::Random();
-        }
-      }
-    }
-
-    vtkDebugMacro(<< this->GetClassName() << " (" << this
-      << "): setting FDFrames to " << fdFrames);
-    this->Modified();
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkRenderWindow::SetSubFrames(int subFrames)
-{
-  VTK_LEGACY_BODY(SetSubFrames, "VTK 8.1");
-  if (this->SubFrames != subFrames)
-  {
-    this->SubFrames = subFrames;
-    if (this->CurrentSubFrame >= this->SubFrames)
-    {
-      this->CurrentSubFrame = 0;
-    }
-    vtkDebugMacro(<< this->GetClassName() << " (" << this
-      << "): setting SubFrames to " << subFrames);
-    this->Modified();
-  }
-}
-#endif
 
 //----------------------------------------------------------------------------
 void vtkRenderWindow::SetDesiredUpdateRate(double rate)
@@ -273,10 +212,6 @@ void vtkRenderWindow::SetStereoRender(int stereo)
 // synchronize this process.
 void vtkRenderWindow::Render()
 {
-  int *size;
-  int x,y;
-  float *p1;
-
   // if we are in the middle of an abort check then return now
   if (this->InAbortCheck)
   {
@@ -319,159 +254,8 @@ void vtkRenderWindow::Render()
     event = this->RenderTimer->StartScopedEvent("vtkRenderWindow::Render");
   }
 
-  // CAUTION:
-  // This method uses this->GetSize() and allocates buffers using that size.
-  // Remember that GetSize() will returns a size scaled by the TileScale factor.
-  // We should use GetActualSize() when we don't want the size to be scaled.
-
-  // if there is a reason for an AccumulationBuffer
-  if ( this->SubFrames || this->AAFrames || this->FDFrames)
-  {
-    // check the current size
-    size = this->GetSize();
-    unsigned int bufferSize = 3*size[0]*size[1];
-    // If there is not a buffer or the size is too small
-    // re-allocate it
-    if( !this->AccumulationBuffer
-        || bufferSize > this->AccumulationBufferSize)
-    {
-      // it is OK to delete null, no sense in two if's
-      delete [] this->AccumulationBuffer;
-      // Save the size of the buffer
-      this->AccumulationBufferSize = 3*size[0]*size[1];
-      this->AccumulationBuffer = new float [this->AccumulationBufferSize];
-      memset(this->AccumulationBuffer,0,this->AccumulationBufferSize*sizeof(float));
-    }
-  }
-
-  // handle any sub frames
-  if (this->SubFrames)
-  {
-    // get the size
-    size = this->GetSize();
-
-    // draw the images
-    this->DoAARender();
-
-    // now accumulate the images
-    if ((!this->AAFrames) && (!this->FDFrames))
-    {
-      p1 = this->AccumulationBuffer;
-      unsigned char *p2;
-      unsigned char *p3 = nullptr;
-      if (this->ResultFrame)
-      {
-        p2 = this->ResultFrame;
-      }
-      else
-      {
-        p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-        p3 = p2;
-      }
-      for (y = 0; y < size[1]; y++)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p1 += *p2; p1++; p2++;
-          *p1 += *p2; p1++; p2++;
-          *p1 += *p2; p1++; p2++;
-        }
-      }
-      delete [] p3;
-    }
-
-    // if this is the last sub frame then convert back into unsigned char
-    this->CurrentSubFrame++;
-    if (this->CurrentSubFrame >= this->SubFrames)
-    {
-      double num;
-      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
-
-      num = this->SubFrames;
-      if (this->AAFrames)
-      {
-        num *= this->AAFrames;
-      }
-      if (this->FDFrames)
-      {
-        num *= this->FDFrames;
-      }
-
-      this->ResultFrame = p2;
-      p1 = this->AccumulationBuffer;
-      for (y = 0; y < size[1]; y++)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-        }
-      }
-
-      this->CurrentSubFrame = 0;
-      this->CopyResultFrame();
-
-      // free any memory
-      delete [] this->AccumulationBuffer;
-      this->AccumulationBuffer = nullptr;
-    }
-  }
-  else // no subframes
-  {
-    // get the size
-    size = this->GetSize();
-
-    this->DoAARender();
-    // if we had some accumulation occur
-    if (this->AccumulationBuffer)
-    {
-      double num;
-      unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
-
-      if (this->AAFrames)
-      {
-        num = this->AAFrames;
-      }
-      else
-      {
-        num = 1;
-      }
-      if (this->FDFrames)
-      {
-        num *= this->FDFrames;
-      }
-
-      this->ResultFrame = p2;
-      p1 = this->AccumulationBuffer;
-      for (y = 0; y < size[1]; y++)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-          *p2 = static_cast<unsigned char>(*p1/num);
-          p1++;
-          p2++;
-        }
-      }
-
-      delete [] this->AccumulationBuffer;
-      this->AccumulationBuffer = nullptr;
-    }
-
-    this->CopyResultFrame();
-  }
+  this->DoStereoRender();
+  this->CopyResultFrame();
 
   delete [] this->ResultFrame;
   this->ResultFrame = nullptr;
@@ -482,264 +266,6 @@ void vtkRenderWindow::Render()
   this->InRender = 0;
   this->InvokeEvent(vtkCommand::EndEvent,nullptr);
 }
-
-//----------------------------------------------------------------------------
-// Handle rendering any antialiased frames.
-void vtkRenderWindow::DoAARender()
-{
-  int i;
-
-  // handle any anti aliasing
-  if (this->AAFrames)
-  {
-    int *size;
-    int x,y;
-    float *p1;
-    vtkRenderer *aren;
-    vtkCamera *acam;
-    double *dpoint;
-    double offsets[2];
-    double origfocus[4];
-    double worldOffset[3];
-
-    // get the size
-    size = this->GetSize();
-
-    origfocus[3] = 1.0;
-
-    for (i = 0; i < this->AAFrames; i++)
-    {
-      // jitter the cameras
-      offsets[0] = vtkMath::Random() - 0.5;
-      offsets[1] = vtkMath::Random() - 0.5;
-
-      vtkCollectionSimpleIterator rsit;
-      for (this->Renderers->InitTraversal(rsit);
-           (aren = this->Renderers->GetNextRenderer(rsit)); )
-      {
-        acam = aren->GetActiveCamera();
-
-        // calculate the amount to jitter
-        acam->GetFocalPoint(origfocus);
-        aren->SetWorldPoint(origfocus);
-        aren->WorldToDisplay();
-        dpoint = aren->GetDisplayPoint();
-        aren->SetDisplayPoint(dpoint[0] + offsets[0],
-                              dpoint[1] + offsets[1],
-                              dpoint[2]);
-        aren->DisplayToWorld();
-        dpoint = aren->GetWorldPoint();
-        dpoint[0] /= dpoint[3];
-        dpoint[1] /= dpoint[3];
-        dpoint[2] /= dpoint[3];
-        acam->SetFocalPoint(dpoint);
-
-        worldOffset[0] = dpoint[0] - origfocus[0];
-        worldOffset[1] = dpoint[1] - origfocus[1];
-        worldOffset[2] = dpoint[2] - origfocus[2];
-
-        acam->GetPosition(dpoint);
-        acam->SetPosition(dpoint[0]+worldOffset[0],
-                          dpoint[1]+worldOffset[1],
-                          dpoint[2]+worldOffset[2]);
-      }
-
-      // draw the images
-      this->DoFDRender();
-
-      // restore the jitter to normal
-      for (this->Renderers->InitTraversal(rsit);
-           (aren = this->Renderers->GetNextRenderer(rsit)); )
-      {
-        acam = aren->GetActiveCamera();
-
-        // calculate the amount to jitter
-        acam->GetFocalPoint(origfocus);
-        aren->SetWorldPoint(origfocus);
-        aren->WorldToDisplay();
-        dpoint = aren->GetDisplayPoint();
-        aren->SetDisplayPoint(dpoint[0] - offsets[0],
-                              dpoint[1] - offsets[1],
-                              dpoint[2]);
-        aren->DisplayToWorld();
-        dpoint = aren->GetWorldPoint();
-        dpoint[0] /= dpoint[3];
-        dpoint[1] /= dpoint[3];
-        dpoint[2] /= dpoint[3];
-        acam->SetFocalPoint(dpoint);
-
-        worldOffset[0] = dpoint[0] - origfocus[0];
-        worldOffset[1] = dpoint[1] - origfocus[1];
-        worldOffset[2] = dpoint[2] - origfocus[2];
-
-        acam->GetPosition(dpoint);
-        acam->SetPosition(dpoint[0]+worldOffset[0],
-                          dpoint[1]+worldOffset[1],
-                          dpoint[2]+worldOffset[2]);
-      }
-
-
-      // now accumulate the images
-      p1 = this->AccumulationBuffer;
-      if (!this->FDFrames)
-      {
-        unsigned char *p2;
-        unsigned char *p3;
-        if (this->ResultFrame)
-        {
-          p2 = this->ResultFrame;
-        }
-        else
-        {
-          p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-        }
-        p3 = p2;
-        for (y = 0; y < size[1]; y++)
-        {
-          for (x = 0; x < size[0]; x++)
-          {
-            *p1 += static_cast<float>(*p2);
-            p1++;
-            p2++;
-            *p1 += static_cast<float>(*p2);
-            p1++;
-            p2++;
-            *p1 += static_cast<float>(*p2);
-            p1++;
-            p2++;
-          }
-        }
-        delete [] p3;
-      }
-    }
-  }
-  else
-  {
-    this->DoFDRender();
-  }
-}
-
-//----------------------------------------------------------------------------
-// Handle rendering any focal depth frames.
-void vtkRenderWindow::DoFDRender()
-{
-  int i;
-
-  // handle any focal depth
-  if (this->FDFrames)
-  {
-    int *size;
-    int x,y;
-    unsigned char *p2;
-    unsigned char *p3;
-    float *p1;
-    vtkRenderer *aren;
-    vtkCamera *acam;
-    double focalDisk;
-    double *vpn, *dpoint;
-    double vec[3];
-    vtkTransform *aTrans = vtkTransform::New();
-    double offsets[2];
-    double *orig;
-    vtkCollectionSimpleIterator rsit;
-
-    // get the size
-    size = this->GetSize();
-
-    orig = new double [3*this->Renderers->GetNumberOfItems()];
-
-    for (i = 0; i < this->FDFrames; i++)
-    {
-      int j = 0;
-
-      if (this->UseConstantFDOffsets)
-      {
-        offsets[0] = this->ConstantFDOffsets[0][i]; // radius
-        offsets[1] = this->ConstantFDOffsets[1][i]*360.0; // angle
-      }
-      else
-      {
-        offsets[0] = vtkMath::Random(); // radius
-        offsets[1] = vtkMath::Random()*360.0; // angle
-      }
-
-      // store offsets for each renderer
-      for (this->Renderers->InitTraversal(rsit);
-           (aren = this->Renderers->GetNextRenderer(rsit)); )
-      {
-        acam = aren->GetActiveCamera();
-        focalDisk = acam->GetFocalDisk()*offsets[0];
-
-        vpn = acam->GetViewPlaneNormal();
-        aTrans->Identity();
-        aTrans->Scale(focalDisk,focalDisk,focalDisk);
-        aTrans->RotateWXYZ(-offsets[1],vpn[0],vpn[1],vpn[2]);
-        aTrans->TransformVector(acam->GetViewUp(),vec);
-
-        dpoint = acam->GetPosition();
-
-        // store the position for later
-        memcpy(orig + j*3,dpoint,3 * sizeof (double));
-        j++;
-
-        acam->SetPosition(dpoint[0]+vec[0],
-                          dpoint[1]+vec[1],
-                          dpoint[2]+vec[2]);
-      }
-
-      // draw the images
-      this->DoStereoRender();
-
-      // restore the jitter to normal
-      j = 0;
-      for (this->Renderers->InitTraversal(rsit);
-           (aren = this->Renderers->GetNextRenderer(rsit)); )
-      {
-        acam = aren->GetActiveCamera();
-        acam->SetPosition(orig + j*3);
-        j++;
-      }
-
-      // get the pixels for accumulation
-      // now accumulate the images
-      p1 = this->AccumulationBuffer;
-      if (this->ResultFrame)
-      {
-        p2 = this->ResultFrame;
-      }
-      else
-      {
-        p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-      }
-      p3 = p2;
-      for (y = 0; y < size[1]; y++)
-      {
-        for (x = 0; x < size[0]; x++)
-        {
-          *p1 += static_cast<float>(*p2);
-          p1++;
-          p2++;
-          *p1 += static_cast<float>(*p2);
-          p1++;
-          p2++;
-          *p1 += static_cast<float>(*p2);
-          p1++;
-          p2++;
-        }
-      }
-      delete [] p3;
-    }
-
-    // free memory
-    delete [] orig;
-    aTrans->Delete();
-  }
-  else
-  {
-    this->DoStereoRender();
-  }
-}
-
 
 //----------------------------------------------------------------------------
 // Handle rendering the two different views for stereo rendering.
@@ -880,15 +406,12 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
      << (this->LineSmoothing ? "On\n":"Off\n");
   os << indent << "Polygon Smoothing: "
      << (this->PolygonSmoothing ? "On\n":"Off\n");
-  os << indent << "Anti Aliased Frames: " << this->AAFrames << "\n";
   os << indent << "Abort Render: " << this->AbortRender << "\n";
   os << indent << "Current Cursor: " << this->CurrentCursor << "\n";
   os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
-  os << indent << "Focal Depth Frames: " << this->FDFrames << "\n";
   os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
   os << indent << "NeverRendered: " << this->NeverRendered << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
-  os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
   os << indent << "Swap Buffers: " << (this->SwapBuffers ? "On\n":"Off\n");
   os << indent << "Stereo Type: " << this->GetStereoTypeAsString() << "\n";
   os << indent << "Number of Layers: " << this->NumberOfLayers << "\n";
@@ -1440,48 +963,3 @@ const char *vtkRenderWindow::GetStereoTypeAsString()
       return "";
   }
 }
-
-//----------------------------------------------------------------------------
-#if !defined(VTK_LEGACY_REMOVE)
-int vtkRenderWindow::GetAAFrames()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetAAFrames, "VTK 8.1");
-  return this->AAFrames;
-}
-
-void vtkRenderWindow::SetAAFrames(int val)
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::SetAAFrames, "VTK 8.1");
-  if (this->AAFrames != val)
-  {
-    this->AAFrames = val;
-    this->Modified();
-  }
-}
-int vtkRenderWindow::GetFDFrames()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetFDFrames, "VTK 8.1");
-  return this->FDFrames;
-}
-
-int vtkRenderWindow::GetUseConstantFDOffsets()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetUseConstantFDOffsets, "VTK 8.1");
-  return this->UseConstantFDOffsets;
-}
-
-void vtkRenderWindow::SetUseConstantFDOffsets(int val)
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::SetUseConstantFDOffsets, "VTK 8.1");
-  if (this->UseConstantFDOffsets != val)
-  {
-    this->UseConstantFDOffsets = val;
-    this->Modified();
-  }
-}
-int vtkRenderWindow::GetSubFrames()
-{
-  VTK_LEGACY_BODY(vtkRenderWindow::GetSubFrames, "VTK 8.1");
-  return this->SubFrames;
-}
-#endif

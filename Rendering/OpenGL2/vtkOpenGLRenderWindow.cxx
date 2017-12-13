@@ -224,10 +224,6 @@ vtkOpenGLRenderWindow::vtkOpenGLRenderWindow()
   this->FrontBuffer = static_cast<unsigned int>(GL_FRONT);
   this->DefaultFrameBufferId = 0;
 
-  #ifndef VTK_LEGACY_REMOVE
-  this->LastGraphicError = static_cast<unsigned int>(GL_NO_ERROR);
-  #endif
-
   this->DrawPixelsTextureObject = nullptr;
 
   this->OwnContext = 1;

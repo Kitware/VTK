@@ -778,37 +778,3 @@ vtkRenderer* vtkSynchronizedRenderers::GetRenderer()
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning Render of " << this->Renderer );
   return this->Renderer;
 }
-
-#if !defined(VTK_LEGACY_REMOVE)
-void vtkSynchronizedRenderers::SetUseFXAA(bool)
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::SetUseFXAA, "VTK 8.1");
-}
-
-bool vtkSynchronizedRenderers::GetUseFXAA()
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::GetUseFXAA, "VTK 8.1");
-  return false;
-}
-
-void vtkSynchronizedRenderers::UseFXAAOn()
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::UseFXAAOn, "VTK 8.1");
-}
-
-void vtkSynchronizedRenderers::UseFXAAOff()
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::UseFXAAOff, "VTK 8.1");
-}
-
-vtkFXAAOptions* vtkSynchronizedRenderers::GetFXAAOptions()
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::GetFXAAOptions, "VTK 8.1");
-  return nullptr;
-}
-
-void vtkSynchronizedRenderers::SetFXAAOptions(vtkFXAAOptions*)
-{
-  VTK_LEGACY_BODY(vtkSynchronizedRenderers::SetFXAAOptions, "VTK 8.1");
-}
-#endif

@@ -130,10 +130,6 @@ void vtkDataSetMapper::Render(vtkRenderer *ren, vtkActor *act)
     this->GetUseLookupTableScalarRange());
   this->PolyDataMapper->SetScalarRange(this->GetScalarRange());
 
-  #ifdef VTK_LEGACY_SILENT
-  this->PolyDataMapper->SetImmediateModeRendering(
-    this->GetImmediateModeRendering());
-  #endif
   this->PolyDataMapper->SetColorMode(this->GetColorMode());
   this->PolyDataMapper->SetInterpolateScalarsBeforeMapping(
                                this->GetInterpolateScalarsBeforeMapping());

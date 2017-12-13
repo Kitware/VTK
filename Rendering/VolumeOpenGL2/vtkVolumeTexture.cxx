@@ -566,10 +566,6 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
       break;
     case VTK_INT:
     case VTK_DOUBLE:
-#if !defined(VTK_LEGACY_REMOVE)
-    case VTK___INT64:
-    case VTK_UNSIGNED___INT64:
-#endif
     case VTK_LONG:
     case VTK_LONG_LONG:
     case VTK_UNSIGNED_INT:

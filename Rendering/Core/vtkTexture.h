@@ -153,24 +153,6 @@ public:
 
   //@{
   /**
-   * Turn on/off the mapping of color scalars through the lookup table.
-   * The default is Off. If Off, unsigned char scalars will be used
-   * directly as texture. If On, scalars will be mapped through the
-   * lookup table to generate 4-component unsigned char scalars.
-   * This ivar does not affect other scalars like unsigned short, float,
-   * etc. These scalars are always mapped through lookup tables.
-   *
-   * @deprecated Use SetColorMode, SetColorModeToDefault,
-   * SetColorModeToMapScalars, and SetColorModeToDirectScalars instead.
-   */
-  VTK_LEGACY(void SetMapColorScalarsThroughLookupTable(int val));
-  VTK_LEGACY(int GetMapColorScalarsThroughLookupTable());
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOn());
-  VTK_LEGACY(void MapColorScalarsThroughLookupTableOff());
-  //@}
-
-  //@{
-  /**
    * Default: ColorModeToDefault. unsigned char scalars are treated
    * as colors, and NOT mapped through the lookup table (set with SetLookupTable),
    * while other kinds of scalars are. ColorModeToDirectScalar extends

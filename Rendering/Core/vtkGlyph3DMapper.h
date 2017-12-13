@@ -248,23 +248,6 @@ public:
 
   //@{
   /**
-   * If immediate mode is off, if NestedDisplayLists is false,
-   * only the mappers of each glyph use display lists. If true,
-   * in addition, matrices transforms and color per glyph are also
-   * in a parent display list.
-   * Not relevant if immediate mode is on.
-   * For debugging/profiling purpose. Initial value is true.
-   * @deprecated in 8.1. Only applicable for legacy OpenGL rendering
-   * backend which is also deprecated.
-   */
-  VTK_LEGACY(void SetNestedDisplayLists(bool));
-  VTK_LEGACY(bool GetNestedDisplayLists());
-  VTK_LEGACY(void NestedDisplayListsOn());
-  VTK_LEGACY(void NestedDisplayListsOff());
-  //@}
-
-  //@{
-  /**
    * Tells the mapper to skip glyphing input points that haves false values
    * in the mask array. If there is no mask array (id access mode is set
    * and there is no such id, or array name access mode is set and
@@ -461,9 +444,6 @@ protected:
   bool UseSelectionIds; // Enable/disable custom pick ids
   bool Masking; // Enable/disable masking.
   int OrientationMode;
-#if !defined(VTK_LEGACY_REMOVE)
-  bool NestedDisplayLists; // boolean
-#endif
 
   bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 

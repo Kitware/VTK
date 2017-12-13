@@ -32,9 +32,6 @@
 #include "vtkVariantArray.h"
 
 
-// Initialize static member that controls global immediate mode rendering
-static int vtkMapperGlobalImmediateModeRendering = 0;
-
 // Initialize static member that controls global coincidence resolution
 static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
@@ -57,11 +54,6 @@ vtkMapper::vtkMapper()
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
   this->UseLookupTableScalarRange = 0;
-
-#ifndef VTK_LEGACY_REMOVE
-  this->ImmediateModeRendering = 0;
-  this->ForceCompileOnly=0;
-#endif
 
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
@@ -140,100 +132,6 @@ vtkDataSet *vtkMapper::GetInput()
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
-
-#ifndef VTK_LEGACY_REMOVE
-void vtkMapper::SetForceCompileOnly(int value)
-{
-  VTK_LEGACY_BODY(vtkMapper::SetForceCompileOnly, "VTK 8.1");
-  if(this->ForceCompileOnly!=value)
-  {
-      this->ForceCompileOnly=value;
-      // make sure we don't call this->Modified();
-      //      this->Modified();
-  }
-}
-
-int vtkMapper::GetForceCompileOnly()
-{
-  VTK_LEGACY_BODY(vtkMapper::GetForceCompileOnly, "VTK 8.1");
-  return this->ForceCompileOnly;
-}
-
-void vtkMapper::SetImmediateModeRendering(int val)
-{
-  VTK_LEGACY_BODY(vtkMapper::SetImmediateModeRendering, "VTK 8.1");
-  if (val == this->ImmediateModeRendering)
-  {
-    return;
-  }
-  this->ImmediateModeRendering = val;
-  this->Modified();
-}
-
-void vtkMapper::ImmediateModeRenderingOn()
-{
-  VTK_LEGACY_BODY(vtkMapper::ImmediateModeRenderingOn, "VTK 8.1");
-  if (this->ImmediateModeRendering == 1)
-  {
-    return;
-  }
-  this->ImmediateModeRendering = 1;
-  this->Modified();
-}
-
-void vtkMapper::ImmediateModeRenderingOff()
-{
-  VTK_LEGACY_BODY(vtkMapper::ImmediateModeRenderingOff, "VTK 8.1");
-  if (this->ImmediateModeRendering == 0)
-  {
-    return;
-  }
-  this->ImmediateModeRendering = 0;
-  this->Modified();
-}
-
-int vtkMapper::GetImmediateModeRendering()
-{
-  VTK_LEGACY_BODY(vtkMapper::GetImmediateModeRendering, "VTK 8.1");
-  return this->ImmediateModeRendering;
-}
-
-void vtkMapper::SetGlobalImmediateModeRendering(int val)
-{
-  VTK_LEGACY_BODY(vtkMapper::SetImmediateModeRendering, "VTK 8.1");
-  if (val == vtkMapperGlobalImmediateModeRendering)
-  {
-    return;
-  }
-  vtkMapperGlobalImmediateModeRendering = val;
-}
-
-void vtkMapper::GlobalImmediateModeRenderingOn()
-{
-  VTK_LEGACY_BODY(vtkMapper::GlobalImmediateModeRenderingOn, "VTK 8.1");
-  if (vtkMapperGlobalImmediateModeRendering == 1)
-  {
-    return;
-  }
-  vtkMapperGlobalImmediateModeRendering = 1;
-}
-
-void vtkMapper::GlobalImmediateModeRenderingOff()
-{
-  VTK_LEGACY_BODY(vtkMapper::GlobalImmediateModeRenderingOff, "VTK 8.1");
-  if (vtkMapperGlobalImmediateModeRendering == 0)
-  {
-    return;
-  }
-  vtkMapperGlobalImmediateModeRendering = 0;
-}
-
-int vtkMapper::GetGlobalImmediateModeRendering()
-{
-  VTK_LEGACY_BODY(vtkMapper::GetGlobalImmediateModeRendering, "VTK 8.1");
-  return vtkMapperGlobalImmediateModeRendering;
-}
-#endif
 
 void vtkMapper::SetResolveCoincidentTopology(int val)
 {
@@ -437,11 +335,6 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
     this->SetScalarRange(m->GetScalarRange());
     this->SetColorMode(m->GetColorMode());
     this->SetScalarMode(m->GetScalarMode());
-
-#ifdef VTK_LEGACY_SILENT
-    this->SetImmediateModeRendering(m->GetImmediateModeRendering());
-#endif
-
     this->SetUseLookupTableScalarRange(m->GetUseLookupTableScalarRange());
     this->SetInterpolateScalarsBeforeMapping(
       m->GetInterpolateScalarsBeforeMapping());
@@ -810,40 +703,6 @@ const char *vtkMapper::GetScalarModeAsString(void)
   }
 }
 
-#ifndef VTK_LEGACY_REMOVE
-
-void vtkMapper::SetScalarMaterialMode(int)
-{
-  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialMode, "VTK 8.1");
-}
-int vtkMapper::GetScalarMaterialMode()
-{
-  VTK_LEGACY_BODY(vtkMapper::GetScalarMaterialMode, "VTK 8.1");
-  return VTK_MATERIALMODE_AMBIENT_AND_DIFFUSE;
-}
-void vtkMapper::SetScalarMaterialModeToDefault()
-{
-  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToDefault, "VTK 8.1");
-}
-void vtkMapper::SetScalarMaterialModeToAmbient()
-{
-  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToambient, "VTK 8.1");
-}
-void vtkMapper::SetScalarMaterialModeToDiffuse()
-{
-  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToDiffuse, "VTK 8.1");
-}
-void vtkMapper::SetScalarMaterialModeToAmbientAndDiffuse()
-{
-  VTK_LEGACY_BODY(vtkMapper::SetScalarMaterialModeToAmbientAndDiffuse, "VTK 8.1");
-}
-const char *vtkMapper::GetScalarMaterialModeAsString(void)
-{
-  VTK_LEGACY_BODY(vtkMapper::GetScalarMaterialModeAsString, "VTK 8.1");
-  return "Ambient and Diffuse";
-}
-#endif
-
 //-----------------------------------------------------------------------------
 bool vtkMapper::GetIsOpaque()
 {
@@ -1122,16 +981,6 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "Lookup Table: (none)\n";
   }
-
-#ifdef VTK_LEGACY_SILENT
-  os << indent << "Immediate Mode Rendering: "
-    << (this->ImmediateModeRendering ? "On\n" : "Off\n");
-   os << indent << "Force compile only for display lists: "
-    << (this->ForceCompileOnly ? "On\n" : "Off\n");
-#endif
-
-  os << indent << "Global Immediate Mode Rendering: " <<
-    (vtkMapperGlobalImmediateModeRendering ? "On\n" : "Off\n");
 
   os << indent << "Scalar Visibility: "
     << (this->ScalarVisibility ? "On\n" : "Off\n");
