@@ -105,6 +105,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
 
   # search through the deps to find modules we depend on
   set(OTHER_HIERARCHY_FILES)
+  set(OTHER_HIERARCHY_TARGETS)
   # Don't use ${module_name}_DEPENDS. That list also includes COMPILE_DEPENDS,
   # which aren't library dependencies, merely dependencies for generators and
   # such. Instead, use _WRAP_DEPENDS which includes the DEPENDS and the
@@ -113,6 +114,9 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     if(NOT "${module_name}" STREQUAL "${dep}")
       if(NOT ${dep}_EXCLUDE_FROM_WRAPPING)
         list(APPEND OTHER_HIERARCHY_FILES "${${dep}_WRAP_HIERARCHY_FILE}")
+        if (TARGET "${dep}Hierarchy")
+          list(APPEND OTHER_HIERARCHY_TARGETS "${dep}Hierarchy")
+        endif ()
       endif()
     endif()
   endforeach()
@@ -127,6 +131,11 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
   configure_file(${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in
     ${_other_hierarchy_args_file} @ONLY)
 
+  if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(hierarchy_depends ${OTHER_HIERARCHY_FILES})
+  else ()
+    set(hierarchy_depends ${OTHER_HIERARCHY_TARGETS})
+  endif ()
 
   add_custom_command(
     OUTPUT  "${OUTPUT_DIR}/${module_name}Hierarchy.txt"
@@ -138,7 +147,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${module_name},INCLUDE_DIRECTORIES>>:
     DEPENDS ${VTK_WRAP_HIERARCHY_EXE}
             ${CMAKE_CURRENT_BINARY_DIR}/${_args_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${module_name}Hierarchy.data
-            ${OTHER_HIERARCHY_FILES}
+            ${hierarchy_depends}
             ${INPUT_FILES}
     VERBATIM
     )
