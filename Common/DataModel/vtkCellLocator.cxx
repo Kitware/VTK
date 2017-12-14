@@ -150,7 +150,16 @@ void vtkCellLocator::ComputeOctantBounds(int i, int j, int k)
 
 //----------------------------------------------------------------------------
 // Return intersection point (if any) AND the cell which was intersected by
-// finite line
+// finite line.
+//
+// NOTE: This method is not thread safe (i.e., when invoking this method on
+// the same instance of vtkCellLocator). This is the due to the use of the
+// data members QueryNumber and CellHasBeenVisited. These should be pulled
+// out of the class and made local to the appropriate methods that use
+// them. Since there may be a performance cost and possible effects on
+// output, this will be done TODO when more time is available. To see an
+// alternative implementation, see vtkStaticCellLocator which is thread safe.
+//
 int vtkCellLocator::IntersectWithLine(double a0[3], double a1[3], double tol,
                                       double& t, double x[3], double pcoords[3],
                                       int &subId, vtkIdType &cellId,

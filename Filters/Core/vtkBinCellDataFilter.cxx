@@ -17,7 +17,8 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkCellLocator.h"
+#include "vtkAbstractCellLocator.h"
+#include "vtkStaticCellLocator.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
@@ -34,8 +35,14 @@
 
 vtkStandardNewMacro(vtkBinCellDataFilter);
 
+//---------------------------------------------------------------------------
+// Specify a spatial locator for speeding the search process. By
+// default an instance of vtkStaticCellLocator is used.
+vtkCxxSetObjectMacro(vtkBinCellDataFilter, CellLocator, vtkAbstractCellLocator);
+
 #define CELL_TOLERANCE_FACTOR_SQR  1e-6
 
+//----------------------------------------------------------------------------
 namespace
 {
 typedef std::map<vtkIdType, vtkIdType> IdMap;
@@ -68,12 +75,7 @@ int GetBinId(double value, double* binValues, int nBins)
   double* lb = std::lower_bound(binValues, binValues + nBins, value);
   return (lb - binValues);
 }
-}
-
-//---------------------------------------------------------------------------
-// Specify a spatial locator for speeding the search process. By
-// default an instance of vtkCellLocator is used.
-vtkCxxSetObjectMacro(vtkBinCellDataFilter, CellLocator, vtkCellLocator);
+}//namespace
 
 //----------------------------------------------------------------------------
 vtkBinCellDataFilter::vtkBinCellDataFilter()
@@ -192,7 +194,7 @@ int vtkBinCellDataFilter::RequestData(
   double weights[VTK_CELL_SIZE];
   vtkIdType inputIds[VTK_CELL_SIZE];
 
-  if (!this->CellLocator)
+  if ( !this->CellLocator )
   {
     this->CreateDefaultLocator();
   }
@@ -439,9 +441,7 @@ int vtkBinCellDataFilter::RequestUpdateExtent(
 void vtkBinCellDataFilter::CreateDefaultLocator()
 {
   this->SetCellLocator(nullptr);
-  this->CellLocator = vtkCellLocator::New();
-  this->CellLocator->Register(this);
-  this->CellLocator->Delete();
+  this->CellLocator = vtkStaticCellLocator::New();
 }
 
 //----------------------------------------------------------------------------
@@ -451,6 +451,21 @@ void vtkBinCellDataFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Source: " << source << "\n";
-  os << indent << "SpatialMatch: " << ( this->SpatialMatch ? "On" : "Off" )
+
+  os << indent << "Spatial Match: " << ( this->SpatialMatch ? "On" : "Off" )
      << "\n";
+
+  os << indent << "Store Number Of Nonzero Bins: "
+     << ( this->StoreNumberOfNonzeroBins ? "On" : "Off" ) << "\n";
+
+  os << indent << "Tolerance: " << this->Tolerance << "\n";
+  os << indent << "Compute Tolerance: "
+     << ( this->ComputeTolerance ? "On" : "Off" ) << "\n";
+
+  os << indent << "Array Component: " << this->ArrayComponent << "\n";
+
+  os << indent << "Cell Overlap Method: " << this->CellOverlapMethod << "\n";
+
+  os << indent << "Cell Locator: " << this->CellLocator << "\n";
+
 }

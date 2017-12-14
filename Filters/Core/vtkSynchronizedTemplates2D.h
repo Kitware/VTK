@@ -24,7 +24,8 @@
  * This filter is specialized to 2D images.
  *
  * @sa
- * vtkContourFilter vtkSynchronizedTemplates3D
+ * vtkContourFilter vtkFlyingEdges2D vtkMarchingSquares
+ * vtkSynchronizedTemplates3D vtkDiscreteFlyingEdges2D
 */
 
 #ifndef vtkSynchronizedTemplates2D_h
@@ -138,4 +139,3 @@ private:
 
 
 #endif
-

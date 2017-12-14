@@ -129,7 +129,8 @@ public:
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. The cell is returned as a cell id and as a generic cell.
+   * the finite line. The cell is returned as a cell id and as a generic
+   * cell.
    */
   virtual int IntersectWithLine(
     double p1[3], double p2[3], double tol, double& t, double x[3],
@@ -145,7 +146,7 @@ public:
    * lies outside the closed surface.
    * Either 'points' or 'cellIds' can be set to nullptr if you don't want
    * to receive that information. This method is currently only implemented
-   * in vtkOBBTree
+   * in vtkOBBTree.
    */
   virtual int IntersectWithLine(
     const double p1[3], const double p2[3],
@@ -300,5 +301,3 @@ private:
 };
 
 #endif
-
-

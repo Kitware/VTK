@@ -17,6 +17,7 @@ vtk_add_test_python(
   TestRuledSurface2.py
   TestSpherePuzzle.py
   TestSpherePuzzleArrows.py
+  TestTrimmedExtrusionFilter.py
   camera.py
   eleState.py
   extrudeCopyCD.py
