@@ -16,6 +16,8 @@ PURPOSE.  See the above copyright notice for more information.
 * @class   vtkOpenVRMenuWidget
 * @brief   3D widget to display a menu in VR
 *
+* @sa
+* vtkOpenVRMenuRepresentation
 */
 
 #ifndef vtkOpenVRMenuWidget_h
@@ -68,14 +70,6 @@ public:
 
   // Manage the state of the widget
   enum _WidgetState {Start=0,Active};
-
-  /**
-  * Create a tooltip associated to a prop.
-  * Note that if the tooltip is already assigned to this prop,
-  * its text will be replaced
-  */
-  void AddTooltip(vtkProp *prop, vtkStdString* str);
-  void AddTooltip(vtkProp *prop, const char* str);
 
   //@{
   /**

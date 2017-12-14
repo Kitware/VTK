@@ -14,15 +14,12 @@ PURPOSE.  See the above copyright notice for more information.
 =========================================================================*/
 /**
 * @class   vtkOpenVRPanelWidget
-* @brief   3D widget to popup a tooltip when a prop is hovered by a controller.
-* This widget checks on every Move3DEvent if the openVR interactor style picker
-* is returning a prop3D. If so, it tries to find the corresponding
-* tooltip in its map of (vtkProp, vtkStdString) and build its representation.
-* Use AddTooltip(vtkProp *prop, vtkStdString* str) to associate a tooltip to a
-* vtkProp.
+* @brief   3D widget to display a panel/billboard
+*
+* Handles events for a PanelRepresentation.
 *
 * @sa
-* vtkBalloonWidget vtkOpenVRPanelRepresentation vtkOpenVRPropPicker
+* vtkOpenVRPanelRepresentation
 */
 
 #ifndef vtkOpenVRPanelWidget_h
@@ -62,16 +59,6 @@ public:
   * Create the default widget representation if one is not set.
   */
   void CreateDefaultRepresentation() override;
-
-  //@{
-  /**
-  * Create a tooltip associated to a prop.
-  * Note that if the tooltip is already assigned to this prop,
-  * its text will be replaced
-  */
-  void AddTooltip(vtkProp *prop, vtkStdString* str);
-  void AddTooltip(vtkProp *prop, const char* str);
-  //@}
 
 protected:
   vtkOpenVRPanelWidget();
