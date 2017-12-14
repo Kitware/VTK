@@ -44,9 +44,6 @@ vtkLinearTransform                    TransformFloatNormal              301  3
 vtkLinearTransform                    TransformFloatVector              301  3
 vtkLinearTransform                    TransformNormal                   307  3
 vtkLinearTransform                    TransformVector                   307  3
-vtkMatrix4x4                          MultiplyDoublePoint               307  4
-vtkMatrix4x4                          MultiplyFloatPoint                301  4
-vtkMatrix4x4                          MultiplyPoint                     301  4
 vtkMedicalImageProperties             GetNthWindowLevelPreset           307  2
 vtkMedicalImageProperties             GetWindowLevelPreset              307  2
 vtkMINCImageReader                    GetDataRange                      307  2
