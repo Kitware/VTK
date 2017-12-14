@@ -165,7 +165,7 @@ public:
   /**
    * Get the minimum point of the bounding box.
    */
-  const double *GetMinPoint() const;
+  const double *GetMinPoint() const VTK_SIZEHINT(3);
   void GetMinPoint(double &x, double &y, double &z) const;
   //@}
 
@@ -173,7 +173,7 @@ public:
   /**
    * Get the maximum point of the bounding box.
    */
-  const double *GetMaxPoint() const;
+  const double *GetMaxPoint() const VTK_SIZEHINT(3);
   void GetMaxPoint(double &x, double &y, double &z) const;
   //@}
 

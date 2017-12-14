@@ -77,7 +77,7 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
-  double *GetPoint(vtkIdType ptId) override
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
     {return this->Points->GetPoint(ptId);};
 
   /**

@@ -61,7 +61,7 @@ public:
    */
   vtkIdType GetNumberOfCells() override;
   vtkIdType GetNumberOfPoints() override;
-  double *GetPoint(vtkIdType ptId) override;
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
   void GetPoint(vtkIdType id, double x[3]) override;
   vtkCell *GetCell(vtkIdType cellId) override;
   vtkCell *GetCell(int i, int j, int k) override;
@@ -113,7 +113,7 @@ public:
    * Dimensions are computed from Extents during this call.
    * \warning Non thread-safe, use second signature if you want it to be.
    */
-  virtual int *GetDimensions();
+  virtual int *GetDimensions() VTK_SIZEHINT(3);
 
   /**
    * Get dimensions of this structured points dataset.
@@ -228,10 +228,10 @@ public:
    * up to date.  The first three methods compute the increments based on the
    * active scalar field while the next three, the scalar field is passed in.
    */
-  virtual vtkIdType *GetIncrements();
+  virtual vtkIdType *GetIncrements() VTK_SIZEHINT(3);
   virtual void GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   virtual void GetIncrements(vtkIdType inc[3]);
-  virtual vtkIdType *GetIncrements(vtkDataArray *scalars);
+  virtual vtkIdType *GetIncrements(vtkDataArray *scalars) VTK_SIZEHINT(3);
   virtual void GetIncrements(vtkDataArray *scalars,
                              vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   virtual void GetIncrements(vtkDataArray *scalars, vtkIdType inc[3]);

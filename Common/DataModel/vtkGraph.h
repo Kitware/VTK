@@ -559,7 +559,7 @@ public:
   /**
    * Get the x,y,z location of a point along edge e.
    */
-  double* GetEdgePoint(vtkIdType e, vtkIdType i);
+  double* GetEdgePoint(vtkIdType e, vtkIdType i) VTK_SIZEHINT(3);
 
   /**
    * Clear all points associated with an edge.
