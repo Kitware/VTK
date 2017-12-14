@@ -54,6 +54,15 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
 -I\">\">
 ")
 
+  if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(hierarchy_depend ${KIT_HIERARCHY_FILE})
+  else ()
+    string(LENGTH "${TARGET}" target_length)
+    math(EXPR target_length "${target_length} - 6")
+    string(SUBSTRING "${TARGET}" 0 "${target_length}" target_basename)
+    set(hierarchy_depend "${target_basename}Hierarchy")
+  endif ()
+
   # for each class
   foreach(FILE ${SOURCES})
     # what is the filename without the extension
@@ -83,7 +92,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
               ${VTK_WRAP_HINTS}
               ${TMP_INPUT}
               ${_args_file}
-              ${KIT_HIERARCHY_FILE}
+              ${hierarchy_depend}
       IMPLICIT_DEPENDS CXX ${TMP_INPUT}
       COMMAND ${VTK_WRAP_PYTHON_EXE}
               @${_args_file}

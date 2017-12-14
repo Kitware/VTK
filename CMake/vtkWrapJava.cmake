@@ -76,6 +76,15 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
   SET(VTK_JAVA_DEPENDENCIES)
   SET(VTK_JAVA_DEPENDENCIES_FILE)
 
+  if (CMAKE_GENERATOR MATCHES "Ninja")
+    set(hierarchy_depend ${KIT_HIERARCHY_FILE})
+  else ()
+    string(LENGTH "${TARGET}" target_length)
+    math(EXPR target_length "${target_length} - 4")
+    string(SUBSTRING "${TARGET}" 0 "${target_length}" target_basename)
+    set(hierarchy_depend "${target_basename}Hierarchy")
+  endif ()
+
   # For each class
   FOREACH(FILE ${SOURCES})
     # some wrapped files need to be compiled as objective C++
@@ -117,7 +126,7 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
               ${VTK_WRAP_HINTS}
               ${TMP_INPUT}
               ${_args_file}
-              ${KIT_HIERARCHY_FILE}
+              ${hierarchy_depend}
       COMMAND ${VTK_PARSE_JAVA_EXE}
               @${_args_file}
               -o ${VTK_JAVA_HOME}/${TMP_FILENAME}.java
