@@ -22,6 +22,8 @@
 
 @interface VTKViewController ()
 
+@property (strong, nonatomic) NSURL *initialUrl;
+
 // Views
 @property (strong, nonatomic) IBOutlet VTKView *vtkView;
 @property (strong, nonatomic) IBOutlet UIVisualEffectView *headerContainer;
@@ -65,14 +67,23 @@
     self.renderer->GradientBackgroundOn();
     self.vtkView.renderWindow->AddRenderer(self.renderer);
 
-    // Add dummy cube
-    auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
-    auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper->SetInputConnection(cubeSource->GetOutputPort());
-    auto actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
-    self.renderer->AddActor(actor);
-    self.renderer->ResetCamera();
+    // Load initial data
+    if (self.initialUrl) {
+        // If URL given when lauching app,
+        // load that file
+        [self loadFileAtURL:self.initialUrl];
+        self.initialUrl = nil;
+    } else {
+        // If not data is explicitely requested,
+        // add dummy cube
+        auto cubeSource = vtkSmartPointer<vtkCubeSource>::New();
+        auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+        mapper->SetInputConnection(cubeSource->GetOutputPort());
+        auto actor = vtkSmartPointer<vtkActor>::New();
+        actor->SetMapper(mapper);
+        self.renderer->AddActor(actor);
+        self.renderer->ResetCamera();
+    }
 }
 
 // MARK: Gestures
@@ -114,6 +125,13 @@
 }
 
 - (void)loadFileAtURL:(NSURL *)url {
+    // If the view is not yet loaded, keep track of the url
+    // and load it after everything is initialized
+    if (!self.isViewLoaded) {
+        self.initialUrl = url;
+        return;
+    }
+
     vtkSmartPointer<vtkActor> actor = [VTKLoader loadFromURL:url];
 
     NSString *alertTitle;

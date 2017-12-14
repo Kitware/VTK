@@ -19,6 +19,7 @@
 		12BFB13C1EF83DDB00EE3EE1 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12BFB13B1EF83DDB00EE3EE1 /* GLKit.framework */; };
 		1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */; };
 		1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */; };
+		4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +63,7 @@
 		1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKLoader.h; sourceTree = "<group>"; };
 		1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKLoader.mm; sourceTree = "<group>"; };
+		4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VTKViewerDocument.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +131,7 @@
 				12BFB1061EF834F100EE3EE1 /* VTKViewController.h */,
 				12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */,
 				1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */,
+				4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */,
 			);
 			path = VTKViewer;
 			sourceTree = "<group>";
@@ -297,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */,
 				1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */,
 				1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */,
 				12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */,
