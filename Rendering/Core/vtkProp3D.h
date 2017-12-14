@@ -181,28 +181,28 @@ public:
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
   void GetBounds(double bounds[6]);
-  double *GetBounds() override = 0;
+  double *GetBounds() VTK_SIZEHINT(6) override = 0;
   //@}
 
   /**
    * Get the center of the bounding box in world coordinates.
    */
-  double *GetCenter();
+  double *GetCenter() VTK_SIZEHINT(3);
 
   /**
    * Get the Prop3D's x range in world coordinates.
    */
-  double *GetXRange();
+  double *GetXRange() VTK_SIZEHINT(2);
 
   /**
    * Get the Prop3D's y range in world coordinates.
    */
-  double *GetYRange();
+  double *GetYRange() VTK_SIZEHINT(2);
 
   /**
    * Get the Prop3D's z range in world coordinates.
    */
-  double *GetZRange();
+  double *GetZRange() VTK_SIZEHINT(2);
 
   /**
    * Get the length of the diagonal of the bounding box.
@@ -265,14 +265,14 @@ public:
    * same matrix is RotateZ, RotateX, and finally RotateY. See also
    * SetOrientation.
    */
-  double *GetOrientation();
+  double *GetOrientation() VTK_SIZEHINT(3);
   void GetOrientation(double orentation[3]);
   //@}
 
   /**
    * Returns the WXYZ orientation of the Prop3D.
    */
-  double *GetOrientationWXYZ();
+  double *GetOrientationWXYZ() VTK_SIZEHINT(4);
 
   /**
    * Add to the current orientation. See SetOrientation and

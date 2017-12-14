@@ -121,7 +121,7 @@ public:
    * Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    * in world coordinates. NULL means that the bounds are not defined.
    */
-  virtual double *GetBounds()
+  virtual double *GetBounds() VTK_SIZEHINT(6)
     { return nullptr; }
 
   /**

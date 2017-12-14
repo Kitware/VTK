@@ -187,7 +187,7 @@ public:
   /**
    * Return the center of this viewport in display coordinates.
    */
-  virtual double *GetCenter();
+  virtual double *GetCenter() VTK_SIZEHINT(2);
 
   /**
    * Is a given display point in this Viewport's viewport.
@@ -257,8 +257,8 @@ public:
    * if the window has not yet been realized, GetSize() and GetOrigin()
    * return (0,0).
    */
-  virtual int *GetSize();
-  virtual int *GetOrigin();
+  virtual int *GetSize() VTK_SIZEHINT(2);
+  virtual int *GetOrigin() VTK_SIZEHINT(2);
   void GetTiledSize(int *width, int *height);
   virtual void GetTiledSizeAndOrigin(int *width, int *height,
                                      int *lowerLeftX, int *lowerLeftY);

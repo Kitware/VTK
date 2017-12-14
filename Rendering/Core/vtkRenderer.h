@@ -338,7 +338,7 @@ public:
   /**
    * Wrapper-friendly version of ComputeVisiblePropBounds
    */
-  double *ComputeVisiblePropBounds();
+  double *ComputeVisiblePropBounds() VTK_SIZEHINT(6);
 
   /**
    * Reset the camera clipping range based on the bounds of the

@@ -251,7 +251,7 @@ public:
    * Return bounding box (array of six doubles) of data expressed as
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double* bounds) override
     { Superclass::GetBounds(bounds); }
 

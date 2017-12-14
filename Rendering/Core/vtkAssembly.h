@@ -149,7 +149,7 @@ public:
    */
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds( bounds ); }
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
 
   /**
    * Override default GetMTime method to also consider all of the
