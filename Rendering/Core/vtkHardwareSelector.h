@@ -37,17 +37,6 @@
  * Antialiasing will break this class. If your graphics card settings force
  * their use this class will return invalid results.
  *
- * Currently only cells from PolyDataMappers can be selected from. When
- * vtkRenderer::Selector is non-null vtkPainterPolyDataMapper uses the
- * vtkHardwareSelectionPolyDataPainter which make appropriate calls to
- * BeginRenderProp(), EndRenderProp(), RenderProcessId(),
- * RenderAttributeId() to render colors
- * correctly. Until alternatives to vtkHardwareSelectionPolyDataPainter
- * exist that can do a similar coloration of other vtkDataSet types, only
- * polygonal data can be selected. If you need to select other data types,
- * consider using vtkDataSetMapper and turning on it's PassThroughCellIds
- * feature, or using vtkFrustumExtractor.
- *
  * Only Opaque geometry in Actors is selected from. Assemblies and LODMappers
  * are not currently supported.
  *
@@ -55,7 +44,7 @@
  * temporarily hidden so as not to produce invalid indices from their colors.
  *
  * @sa
- * vtkIdentColoredPainter
+ * vtkOpenGLHardwareSelector
 */
 
 #ifndef vtkHardwareSelector_h

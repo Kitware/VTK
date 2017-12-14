@@ -222,7 +222,6 @@ void vtkOpenGLHardwareSelector::BeginSelection()
     this->Internals->OriginalBlending = this->Internals->QueryBlending();
     this->Internals->EnableBlending(false);
 
-    rwin->SwapBuffersOff();
     rwin->Render();
     this->Renderer->PreserveDepthBufferOn();
 
@@ -232,6 +231,18 @@ void vtkOpenGLHardwareSelector::BeginSelection()
   }
 
   return this->Superclass::BeginSelection();
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLHardwareSelector::EndSelection()
+{
+  // render normally to set the zbuffer
+  if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  {
+    this->Renderer->PreserveDepthBufferOff();
+  }
+
+  return this->Superclass::EndSelection();
 }
 
 //----------------------------------------------------------------------------
@@ -282,14 +293,6 @@ void vtkOpenGLHardwareSelector::BeginRenderProp(vtkRenderWindow *)
 }
 
 //----------------------------------------------------------------------------
-void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow *)
-{
-  #ifdef vtkOpenGLHardwareSelectorDEBUG
-  cerr << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
-  #endif
-}
-
-//----------------------------------------------------------------------------
 void vtkOpenGLHardwareSelector::BeginRenderProp()
 {
   this->InPropRender++;
@@ -325,6 +328,20 @@ void vtkOpenGLHardwareSelector::BeginRenderProp()
     vtkHardwareSelector::Convert(this->ProcessID + 1, color);
     this->SetPropColorValue(color);
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLHardwareSelector::EndRenderProp(vtkRenderWindow *)
+{
+  #ifdef vtkOpenGLHardwareSelectorDEBUG
+  cerr << "=====vtkOpenGLHardwareSelector::EndRenderProp" << endl;
+  #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkOpenGLHardwareSelector::EndRenderProp()
+{
+  this->Superclass::EndRenderProp();
 }
 
 //----------------------------------------------------------------------------
