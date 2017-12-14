@@ -1,6 +1,5 @@
 vtkDataObject                         GetUpdateExtent                   304  6
 vtkDataObject                         GetWholeExtent                    304  6
-vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkExodusIIReader                     GetModeShapesRange                304  2
 vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
 vtkImageButterworthHighPass           GetCutOff                         307  3
@@ -21,8 +20,6 @@ vtkPolyLine                           FitEllipse                        307  6
 vtkProjectedPolyDataRayBounder        GetRayBounds                      301  2
 vtkRayCaster                          GetParallelIncrements             301  2
 vtkRayCaster                          GetParallelStartPosition          301  3
-vtkRecursiveSphereDirectionEncoder    GetDecodedGradient                301  3
-vtkSphericalDirectionEncoder          GetDecodedGradient                301  3
 vtkStreamer                           GetStartPosition                  307  3
 vtkStructuredPointsGeometryFilter     GetExtent                         304  6
 vtkSynchronizedTemplates3D            GetExecuteExtent                  304  6
