@@ -11,7 +11,7 @@ file(REMOVE_RECURSE ${BUILD_DIR})
 file(REMOVE_RECURSE ${INSTALL_DIR})
 
 # Define default architectures to compile for
-set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
+set(IOS_SIMULATOR_ARCHITECTURES "x86_64"
     CACHE STRING "iOS Simulator Architectures")
 set(IOS_DEVICE_ARCHITECTURES "arm64;armv7"
     CACHE STRING "iOS Device Architectures")
