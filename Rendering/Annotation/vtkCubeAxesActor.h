@@ -104,7 +104,7 @@ public:
    */
   vtkSetVector6Macro(Bounds,double);
   using Superclass::GetBounds;
-  double *GetBounds() override { return this->Bounds; }
+  double *GetBounds() VTK_SIZEHINT(6) override { return this->Bounds; }
   //@}
 
   //@{

@@ -108,7 +108,7 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   void GetBounds(double bounds[6]);
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   //@}
 
   /**

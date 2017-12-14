@@ -100,7 +100,7 @@ public:
   vtkPolyData*  GetEntrySymbol(int i);
   vtkImageData* GetEntryIcon(int i);
   const char*   GetEntryString(int i);
-  double*       GetEntryColor(int i);
+  double*       GetEntryColor(int i) VTK_SIZEHINT(3);
 
   //@{
   /**
