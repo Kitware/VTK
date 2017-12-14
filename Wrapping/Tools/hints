@@ -6,9 +6,6 @@ vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
 vtkImageAccumulate                    GetComponentExtent                304  6
 vtkImageButterworthHighPass           GetCutOff                         307  3
 vtkImageButterworthLowPass            GetCutOff                         307  3
-vtkImageConvolve                      GetKernel3x3                      301  9
-vtkImageConvolve                      GetKernel3x3x3                    301  27
-vtkImageConvolve                      GetKernel5x5                      301  25
 vtkImageEllipsoidSource               GetWholeExtent                    304  6
 vtkImageMandelbrotSource              GetSizeCX                         307  4
 vtkImageSource                        GetExecuteExtent                  304  6

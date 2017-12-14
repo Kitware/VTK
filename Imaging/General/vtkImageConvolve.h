@@ -60,13 +60,13 @@ public:
   /**
    * Return an array that contains the kernel.
    */
-  double* GetKernel3x3();
+  double* GetKernel3x3() VTK_SIZEHINT(9);
   void GetKernel3x3(double kernel[9]);
-  double* GetKernel5x5();
+  double* GetKernel5x5() VTK_SIZEHINT(25);
   void GetKernel5x5(double kernel[25]);
   //@}
 
-  double* GetKernel7x7();
+  double* GetKernel7x7() VTK_SIZEHINT(49);
   void GetKernel7x7(double kernel[49]);
 
   /**
@@ -81,13 +81,13 @@ public:
   /**
    * Return an array that contains the kernel
    */
-  double* GetKernel3x3x3();
+  double* GetKernel3x3x3() VTK_SIZEHINT(27);
   void GetKernel3x3x3(double kernel[27]);
   //@}
 
-  double* GetKernel5x5x5();
+  double* GetKernel5x5x5() VTK_SIZEHINT(125);
   void GetKernel5x5x5(double kernel[125]);
-  double* GetKernel7x7x7();
+  double* GetKernel7x7x7() VTK_SIZEHINT(343);
   void GetKernel7x7x7(double kernel[343]);
 
 protected:
