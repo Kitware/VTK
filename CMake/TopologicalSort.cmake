@@ -19,11 +19,11 @@
 # my_list contains a, b, and c, one could provide a dependency graph
 # using the following variables:
 #
-#     MY_A_EDGES     b
-#     MY_B_EDGES
-#     MY_C_EDGES     a b
+#     MY_a_EDGES     b
+#     MY_b_EDGES
+#     MY_c_EDGES     a b
 #
-#  With the involcation of topological_sort shown above and these
+#  With the invocation of topological_sort shown above and these
 #  variables, the resulting reverse topological ordering will be b, a,
 #  c.
 

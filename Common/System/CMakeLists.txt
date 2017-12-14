@@ -8,11 +8,22 @@ set(Module_SRCS
   vtkTimerLog.cxx
   )
 
-if(NOT HAVE_SOCKETS)
-  # Tell vtkSocket.cxx that there are no sockets on this platform.
-  set_source_files_properties(vtkSocket.cxx PROPERTIES
-    COMPILE_FLAGS -DVTK_SOCKET_FAKE_API)
+include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTestSocketFeatures.cmake")
+
+set(vtkSocket_defines)
+if (VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T)
+  list(APPEND vtkSocket_defines "VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T")
+endif ()
+if (VTK_HAVE_SO_REUSEADDR)
+  list(APPEND vtkSocket_defines "VTK_HAVE_SO_REUSEADDR")
+endif ()
+if(VTK_NO_PLATFORM_SOCKETS)
+  list(APPEND vtkSocket_defines "VTK_SOCKET_FAKE_API")
 endif()
+
+set_source_files_properties(vtkSocket.cxx
+  PROPERTIES
+    COMPILE_DEFINITIONS "${vtkSocket_defines}")
 
 if(WIN32 AND NOT BORLAND)
   set(KIT_LIBS ${KIT_LIBS} wsock32)

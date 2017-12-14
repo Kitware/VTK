@@ -43,6 +43,7 @@
 
 #include <cstddef>
 
+#cmakedefine VTK_HAVE_SYNC_BUILTINS
 
 // Assume 64-bit atomic operations are not available on 32 bit platforms
 #if defined(VTK_HAVE_SYNC_BUILTINS)

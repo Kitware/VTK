@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkAdjacentVertexIterator.cxx
   vtkAMRBox.cxx
   vtkAMRUtilities.cxx
+  vtkAngularPeriodicDataArray.txx
   vtkAnimationScene.cxx
   vtkAnnotation.cxx
   vtkAnnotationLayers.cxx
@@ -119,6 +120,7 @@ set(Module_SRCS
   vtkOutEdgeIterator.cxx
   vtkPath.cxx
   vtkPentagonalPrism.cxx
+  vtkPeriodicDataArray.txx
   vtkPerlinNoise.cxx
   vtkPiecewiseFunction.cxx
   vtkPixel.cxx
@@ -228,10 +230,12 @@ if (NOT VTK_LEGACY_REMOVE)
 endif()
 
 set(${vtk-module}_HDRS
+  vtkAngularPeriodicDataArray.h
   vtkArrayListTemplate.h
   vtkCellType.h
   vtkMappedUnstructuredGrid.h
   vtkMappedUnstructuredGridCellIterator.h
+  vtkPeriodicDataArray.h
   vtkStaticCellLinksTemplate.h
   )
 
