@@ -183,7 +183,7 @@ namespace vtkosp {
   }
 
   //----------------------------------------------------------------------------
-  OSPGeometry RenderAsSpheres(osp::vec3fa *vertices,
+  OSPGeometry RenderAsSpheres(osp::vec3f *vertices,
                               std::vector<unsigned int> &indexArray,
                               std::vector<unsigned int> &rIndexArray,
                               double pointSize,
@@ -329,7 +329,7 @@ namespace vtkosp {
   }
 
   //----------------------------------------------------------------------------
-  OSPGeometry RenderAsCylinders(osp::vec3fa *vertices,
+  OSPGeometry RenderAsCylinders(osp::vec3f *vertices,
                                 std::vector<unsigned int> &indexArray,
                                 std::vector<unsigned int> &rIndexArray,
                                 double lineWidth,
@@ -776,15 +776,15 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   std::vector<double> _vertices;
   vtkPolyDataMapperNode::TransformPoints(act, poly, _vertices);
   size_t numPositions = _vertices.size()/3;
-  osp::vec3fa *vertices = new osp::vec3fa[numPositions];
+  osp::vec3f *vertices = new osp::vec3f[numPositions];
   for (size_t i = 0; i < numPositions; i++)
   {
     vertices[i] =
-      osp::vec3fa{static_cast<float>(_vertices[i*3+0]),
-                  static_cast<float>(_vertices[i*3+1]),
-                  static_cast<float>(_vertices[i*3+2])};
+      osp::vec3f{static_cast<float>(_vertices[i*3+0]),
+                 static_cast<float>(_vertices[i*3+1]),
+                 static_cast<float>(_vertices[i*3+2])};
   }
-  OSPData position = ospNewData(numPositions, OSP_FLOAT3A, &vertices[0]);
+  OSPData position = ospNewData(numPositions, OSP_FLOAT3, &vertices[0]);
   ospCommit(position);
   _vertices.clear();
 

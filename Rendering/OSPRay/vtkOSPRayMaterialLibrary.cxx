@@ -296,24 +296,24 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
   while(getline(*doc, str))
   {
     std::string tstr = trim(str);
-    std::string key;
+    std::string lkey;
 
     //a new material
-    key = "newmtl ";
-    if (tstr.find(key) == 0)
+    lkey = "newmtl ";
+    if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
-      nickname = trim(tstr.substr(key.size()));
+      nickname = trim(tstr.substr(lkey.size()));
       this->Internal->NickNames.insert(nickname);
       this->Internal->ImplNames[nickname] = "OBJMaterial";
     }
 
     //ospray type of the material, if not obj
-    key = "type ";
-    if (tstr.find(key) == 0)
+    lkey = "type ";
+    if (tstr.compare(0, lkey.size(), lkey) == 0)
     {
       //this non standard entry is a quick way to break out of
       //objmaterial and use one of the ospray specific materials
-      implname = trim(tstr.substr(key.size()));
+      implname = trim(tstr.substr(lkey.size()));
       if (implname == "matte")
       {
         implname = "OBJMaterial";
@@ -342,8 +342,8 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
     while (sit1 != singles.end())
     {
       std::string key = *sit1;
-      sit1++;
-      if (tstr.find(key) == 0)
+      ++sit1;
+      if (tstr.compare(0, key.size(), key) == 0)
       {
         std::string v = tstr.substr(key.size());
         double dv;
@@ -368,8 +368,8 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
     while (sit3 != triples.end())
     {
       std::string key = *sit3;
-      sit3++;
-      if (tstr.find(key) == 0)
+      ++sit3;
+      if (tstr.compare(0, key.size(), key) == 0)
       {
         std::string vs = tstr.substr(key.size());
         size_t loc1 = vs.find(" ");
@@ -401,10 +401,10 @@ bool vtkOSPRayMaterialLibrary::InternalParseMTL
     while (tit != textures.end())
     {
       std::string key = *tit;
-      tit++;
+      ++tit;
 
       std::string tfname = "";
-      if (tstr.find(key) == 0)
+      if (tstr.compare(0, key.size(), key) == 0)
       {
         tfname = trim(tstr.substr(key.size()));
       }
@@ -480,7 +480,7 @@ const char * vtkOSPRayMaterialLibrary::WriteBuffer()
         std::string vname = vit->first;
         std::vector<double> vvals = vit->second;
         Json::Value jvvals;
-        for (size_t i = 0; i < vvals.size(); i++)
+        for (size_t i = 0; i < vvals.size(); ++i)
         {
           jvvals.append(vvals[i]);
         }

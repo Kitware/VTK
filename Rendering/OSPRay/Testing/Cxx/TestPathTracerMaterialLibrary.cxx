@@ -40,7 +40,7 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
   while (it != mats.end())
     {
     cout << *it << endl;
-    it++;
+    ++it;
     }
   if (mats.find("Water") == mats.end())
   {
@@ -81,7 +81,7 @@ int TestPathTracerMaterialLibrary(int argc, char* argv[])
   while (it != mats.end())
     {
     cout << *it << endl;
-    it++;
+    ++it;
     }
   if (mats.find("mat2") == mats.end())
   {
