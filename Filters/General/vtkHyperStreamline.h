@@ -112,7 +112,7 @@ public:
   /**
    * Get the start position of the hyperstreamline in global x-y-z coordinates.
    */
-  double *GetStartPosition();
+  double *GetStartPosition() VTK_SIZEHINT(3);
 
   //@{
   /**

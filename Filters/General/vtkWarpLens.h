@@ -48,7 +48,7 @@ public:
    * This is obsoleted by newer instance variables.
    */
   void SetCenter(double centerX, double centerY);
-  double *GetCenter();
+  double *GetCenter() VTK_SIZEHINT(2);
   //@}
 
   //@{

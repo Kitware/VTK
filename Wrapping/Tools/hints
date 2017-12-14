@@ -7,7 +7,6 @@ vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkExodusIIReader                     GetModeShapesRange                304  2
 vtkGeometryFilter                     GetExtent                         307  6
 vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
-vtkHyperStreamline                    GetStartPosition                  307  3
 vtkImageAccumulate                    GetComponentExtent                304  6
 vtkImageButterworthHighPass           GetCutOff                         307  3
 vtkImageButterworthLowPass            GetCutOff                         307  3
@@ -57,6 +56,5 @@ vtkUnstructuredGrid                   GetUpdateExtent                   304  6
 vtkViewRays                           GetParallelIncrements             301  2
 vtkViewRays                           GetParallelStartPosition          301  3
 vtkVolumeMapper                       GetBounds                         307  6
-vtkWarpLens                           GetCenter                         307  2
 vtkWindowLevelLookupTable             GetMaximumTableValue              307  4
 vtkWindowLevelLookupTable             GetMinimumTableValue              307  4
