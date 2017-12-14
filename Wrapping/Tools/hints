@@ -5,7 +5,6 @@ vtkDICOMImageReader                   GetImagePositionPatient           301  3
 vtkDICOMImageReader                   GetPixelSpacing                   307  3
 vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkExodusIIReader                     GetModeShapesRange                304  2
-vtkGeometryFilter                     GetExtent                         307  6
 vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
 vtkImageAccumulate                    GetComponentExtent                304  6
 vtkImageButterworthHighPass           GetCutOff                         307  3
