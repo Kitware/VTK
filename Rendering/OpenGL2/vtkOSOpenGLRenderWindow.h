@@ -88,12 +88,12 @@ public:
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize();
+  virtual int     *GetScreenSize() VTK_SIZEHINT(2);
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
    */
-  virtual int     *GetPosition();
+  virtual int     *GetPosition() VTK_SIZEHINT(2);
 
   //@{
   /**

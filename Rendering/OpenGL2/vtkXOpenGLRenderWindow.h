@@ -160,12 +160,12 @@ public:
   /**
    * Get the current size of the screen in pixels.
    */
-  int *GetScreenSize() override;
+  int *GetScreenSize() VTK_SIZEHINT(2) override;
 
   /**
    * Get the position in screen coordinates (pixels) of the window.
    */
-  int *GetPosition() override;
+  int *GetPosition() VTK_SIZEHINT(2) override;
 
   /**
    * Get this RenderWindow's X display id.
