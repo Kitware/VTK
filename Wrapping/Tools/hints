@@ -36,12 +36,6 @@ vtkImageSpatialFilter                 GetKernelSize                     304  3
 vtkImageVectorConvolve                GetKernel                         301  3
 vtkImageViewer                        GetPosition                       304  2
 vtkImageViewer                        GetSize                           304  2
-vtkLinearTransform                    TransformDoubleNormal             307  3
-vtkLinearTransform                    TransformDoubleVector             307  3
-vtkLinearTransform                    TransformFloatNormal              301  3
-vtkLinearTransform                    TransformFloatVector              301  3
-vtkLinearTransform                    TransformNormal                   307  3
-vtkLinearTransform                    TransformVector                   307  3
 vtkMedicalImageProperties             GetNthWindowLevelPreset           307  2
 vtkMedicalImageProperties             GetWindowLevelPreset              307  2
 vtkMINCImageReader                    GetDataRange                      307  2
@@ -61,12 +55,6 @@ vtkSphericalDirectionEncoder          GetDecodedGradient                301  3
 vtkStreamer                           GetStartPosition                  307  3
 vtkStructuredPointsGeometryFilter     GetExtent                         304  6
 vtkSynchronizedTemplates3D            GetExecuteExtent                  304  6
-vtkTransform                          GetDoublePoint                    307  4
-vtkTransform                          GetOrientation                    307  3
-vtkTransform                          GetOrientationWXYZ                307  4
-vtkTransform                          GetPoint                          307  4
-vtkTransform                          GetPosition                       307  3
-vtkTransform                          GetScale                          307  3
 vtkUnstructuredGrid                   GetUpdateExtent                   304  6
 vtkViewRays                           GetParallelIncrements             301  2
 vtkViewRays                           GetParallelStartPosition          301  3
