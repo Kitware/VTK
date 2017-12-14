@@ -270,7 +270,7 @@ void Set##name (type _arg[2]) \
 }
 
 #define vtkGetVector2Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(2) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -304,7 +304,7 @@ virtual void Set##name (type _arg[3]) \
 }
 
 #define vtkGetVector3Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(3) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -341,7 +341,7 @@ virtual void Set##name (type _arg[4]) \
 
 
 #define vtkGetVector4Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(4) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
@@ -380,7 +380,7 @@ virtual void Set##name (type _arg[6]) \
 }
 
 #define vtkGetVector6Macro(name,type) \
-virtual type *Get##name () \
+virtual type *Get##name () VTK_SIZEHINT(6) \
 { \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
   return this->name; \
