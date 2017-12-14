@@ -3,7 +3,6 @@ vtkDataObject                         GetWholeExtent                    304  6
 vtkDirectionEncoder                   GetDecodedGradient                301  3
 vtkExodusIIReader                     GetModeShapesRange                304  2
 vtkGridSynchronizedTemplates3D        GetExecuteExtent                  304  6
-vtkImageAccumulate                    GetComponentExtent                304  6
 vtkImageButterworthHighPass           GetCutOff                         307  3
 vtkImageButterworthLowPass            GetCutOff                         307  3
 vtkImageSource                        GetExecuteExtent                  304  6

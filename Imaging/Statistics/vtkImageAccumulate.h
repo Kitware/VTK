@@ -90,7 +90,7 @@ public:
   void SetComponentExtent(int minX, int maxX, int minY, int maxY,
         int minZ, int maxZ);
   void GetComponentExtent(int extent[6]);
-  int *GetComponentExtent() {return this->ComponentExtent;}
+  int *GetComponentExtent() VTK_SIZEHINT(6) {return this->ComponentExtent;}
   //@}
 
 
