@@ -111,7 +111,7 @@ public:
   /**
    * Get the index at the beginning of the current span.
    */
-  const int *GetIndex()
+  const int *GetIndex() VTK_SIZEHINT(3)
   {
     return this->Index;
   }

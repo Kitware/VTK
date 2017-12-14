@@ -110,7 +110,7 @@ public:
   /**
    * Get the current position.
    */
-  double *GetPosition()
+  double *GetPosition() VTK_SIZEHINT(3)
   {
     return this->Position;
   }
