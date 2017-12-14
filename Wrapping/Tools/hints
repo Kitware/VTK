@@ -47,7 +47,6 @@ vtkPolyLine                           ConvertEllipseToImplicit          307  5
 vtkPolyLine                           EllipseToImplicit                 307  3
 vtkPolyLine                           FitEllipse                        307  6
 vtkProjectedPolyDataRayBounder        GetRayBounds                      301  2
-vtkQuadricClustering                  GetNumberOfDivisions              304  3
 vtkRayCaster                          GetParallelIncrements             301  2
 vtkRayCaster                          GetParallelStartPosition          301  3
 vtkRecursiveSphereDirectionEncoder    GetDecodedGradient                301  3
