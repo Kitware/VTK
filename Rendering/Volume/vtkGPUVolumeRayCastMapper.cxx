@@ -382,7 +382,8 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
        this->BlendMode!=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND &&
        this->BlendMode!=vtkVolumeMapper::MINIMUM_INTENSITY_BLEND &&
        this->BlendMode!=vtkVolumeMapper::AVERAGE_INTENSITY_BLEND &&
-       this->BlendMode!=vtkVolumeMapper::ADDITIVE_BLEND)
+       this->BlendMode!=vtkVolumeMapper::ADDITIVE_BLEND &&
+       this->BlendMode!=vtkVolumeMapper::ISOSURFACE_BLEND)
     {
       goodSoFar = 0;
       vtkErrorMacro(<< "Selected blend mode not supported. "

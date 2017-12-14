@@ -50,6 +50,7 @@ set (VolumeCxxTests
   TestGPURayCastImageSampleXY.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
   TestGPURayCastIndependentVectorMode.cxx
+  TestGPURayCastIsosurface.cxx
   TestGPURayCastJittering.cxx
   TestGPURayCastJitteringCustom.cxx
   TestGPURayCastLargeColorTransferFunction.cxx

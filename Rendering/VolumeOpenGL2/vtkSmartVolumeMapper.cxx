@@ -17,6 +17,7 @@
 #include "vtkCellData.h"
 #include "vtkCellDataToPointData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkContourValues.h"
 #include "vtkDataArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"

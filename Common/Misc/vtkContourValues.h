@@ -90,6 +90,11 @@ public:
    */
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
+  /**
+   * Copy contours.
+   */
+  void DeepCopy(vtkContourValues* other);
+
 
 protected:
   vtkContourValues();

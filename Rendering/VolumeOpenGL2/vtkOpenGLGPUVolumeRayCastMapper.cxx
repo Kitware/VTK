@@ -3613,6 +3613,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
   //---------------------------------------------------------------------------
   this->ReplaceShaderRTT(shaders, ren, vol, noOfComponents);
 
+  // Set number of isosurfaces
+  if (this->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+  {
+    vtkShaderProgram::Substitute(shaders[vtkShader::Fragment],
+      "NUMBER_OF_CONTOURS",
+      std::to_string(volumeProperty->GetIsoSurfaceValues()->GetNumberOfContours()));
+  }
+
   // Render pass post replacements
   //---------------------------------------------------------------------------
   this->ReplaceShaderRenderPass(shaders, vol, false);
@@ -4402,6 +4410,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     if (this->Impl->CurrentSelectionPass < vtkHardwareSelector::ID_LOW24)
     {
       this->Impl->SetPickingId(ren);
+    }
+
+    // Set contour values for isosurface blend mode
+    //--------------------------------------------------------------------------
+    if (this->BlendMode == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      int nbContours = volumeProperty->GetIsoSurfaceValues()->GetNumberOfContours();
+
+      std::vector<float> values(nbContours);
+      for (int i = 0; i < nbContours; i++)
+      {
+        values[i] = static_cast<float>(volumeProperty->GetIsoSurfaceValues()->GetValue(i));
+      }
+
+      // The shader expect (for efficiency purposes) the isovalues to be sorted.
+      std::sort(values.begin(), values.end());
+
+      prog->SetUniform1fv("in_isosurfacesValues", nbContours, values.data());
     }
 
     // Set the scalar range to be considered for average ip blend
