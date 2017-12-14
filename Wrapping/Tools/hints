@@ -1,4 +1,3 @@
-vtkAMRVolumeMapper                    GetCroppingRegionPlanes           307  6
 vtkBoundingBox                        GetMinPoint                       307  3
 vtkBoundingBox                        GetMaxPoint                       307  3
 vtkBox                                GetBounds                         307  6

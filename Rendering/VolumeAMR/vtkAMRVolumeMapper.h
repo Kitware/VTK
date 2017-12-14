@@ -135,7 +135,7 @@ public:
         planes[0],planes[1],planes[2],
         planes[3],planes[4],planes[5]);}
   void GetCroppingRegionPlanes(double *planes) override;
-  double *GetCroppingRegionPlanes() override;
+  double *GetCroppingRegionPlanes() VTK_SIZEHINT(6) override;
   //@}
   //@{
   /**
