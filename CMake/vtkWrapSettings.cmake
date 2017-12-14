@@ -10,12 +10,9 @@ set_property(CACHE VTK_PYTHON_VERSION
 
 # Force reset of hints file location in cache if it was moved
 if(VTK_WRAP_HINTS AND NOT EXISTS ${VTK_WRAP_HINTS})
-  set(VTK_WRAP_HINTS "VTK_WRAP_HINTS-NOTFOUND")
+  unset(VTK_WRAP_HINTS CACHE)
+  unset(VTK_WRAP_HINTS)
 endif()
-
-find_file(VTK_WRAP_HINTS hints ${VTK_SOURCE_DIR}/Wrapping/Tools
-  NO_CMAKE_FIND_ROOT_PATH)
-mark_as_advanced(VTK_WRAP_HINTS)
 
 if(BUILD_TESTING OR VTK_WRAP_PYTHON)
   # Need PYTHON_EXECUTABLE for HeaderTesting or python wrapping
