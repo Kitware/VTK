@@ -26,7 +26,6 @@ vtkImageSpatialFilter                 GetKernelSize                     304  3
 vtkImageVectorConvolve                GetKernel                         301  3
 vtkImageViewer                        GetPosition                       304  2
 vtkImageViewer                        GetSize                           304  2
-vtkMINCImageReader                    GetDataRange                      307  2
 vtkPainterPolyDataMapper              GetBounds                         307  6
 vtkPolyData                           GetUpdateExtent                   304  6
 vtkPolygon                            ConvertEllipseToImplicit          307  5

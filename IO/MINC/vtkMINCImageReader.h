@@ -147,7 +147,7 @@ public:
    * scalar range, but in some cases the MINC file stores an
    * incorrect valid_range and the DataRange will be incorrect.
    */
-  virtual double *GetDataRange();
+  virtual double *GetDataRange() VTK_SIZEHINT(2);
   virtual void GetDataRange(double range[2]) {
     double *r = this->GetDataRange();
     range[0] = r[0]; range[1] = r[1]; };
