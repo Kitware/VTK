@@ -3,7 +3,6 @@
   * [AutobahnPython](AutobahnPython/update.sh)
   * [diy2](diy2/update.sh)
   * [expat](expat/update.sh)
-  * [hyperlink](hyperlink/update.sh)
   * [incremental](incremental/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
   * [kwiml](../Utilities/KWIML/update.sh)
