@@ -651,7 +651,7 @@ void vtkPythonInterpreter::SetupVTKPythonPaths()
 
   vtkNew<vtkResourceFileLocator> locator;
   locator->SetPrintDebugInformation(vtkPythonInterpreter::GetPythonVerboseFlag() > 1);
-  std::string path = locator->Locate(vtkdir, prefixes, "vtk/__init__.py");
+  std::string path = locator->Locate(vtkdir, prefixes, "vtkmodules/__init__.py");
   if (!path.empty())
   {
     vtkSafePrependPythonPath(path);

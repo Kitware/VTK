@@ -170,11 +170,11 @@ function(_vtk_add_python_module name)
     endif()
     # build python module libraries under the ${VTK_BUILD_PYTHON_MODULES_DIR} dir.
     set_target_properties(${name}
-      PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${VTK_BUILD_PYTHON_MODULES_DIR}/vtk)
+      PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${VTK_BUILD_PYTHON_MODULES_DIR}/vtkmodules)
     if (NOT VTK_INSTALL_NO_RUNTIME)
       install(TARGETS ${name}
-        RUNTIME DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/vtk COMPONENT RuntimeLibraries
-        LIBRARY DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/vtk COMPONENT RuntimeLibraries
+        RUNTIME DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/vtkmodules COMPONENT RuntimeLibraries
+        LIBRARY DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/vtkmodules COMPONENT RuntimeLibraries
         ARCHIVE DESTINATION ${VTK_INSTALL_ARCHIVE_DIR} COMPONENT Development
         )
     endif()

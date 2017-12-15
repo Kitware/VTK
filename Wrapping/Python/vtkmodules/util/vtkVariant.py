@@ -2,68 +2,68 @@
 Utility functions to mimic the template support functions for vtkVariant
 """
 
-import vtk
+from .. import vtkCommonCore
 import sys
 
 _variant_type_map = {
-    'void' : vtk.VTK_VOID,
-    'char' : vtk.VTK_CHAR,
-    'unsigned char' : vtk.VTK_UNSIGNED_CHAR,
-    'signed char' : vtk.VTK_SIGNED_CHAR,
-    'short' : vtk.VTK_SHORT,
-    'unsigned short' : vtk.VTK_UNSIGNED_SHORT,
-    'int' : vtk.VTK_INT,
-    'unsigned int' : vtk.VTK_UNSIGNED_INT,
-    'long' : vtk.VTK_LONG,
-    'unsigned long' : vtk.VTK_UNSIGNED_LONG,
-    'long long' : vtk.VTK_LONG_LONG,
-    'unsigned long long' : vtk.VTK_UNSIGNED_LONG_LONG,
-    'float' : vtk.VTK_FLOAT,
-    'double' : vtk.VTK_DOUBLE,
-    'string' : vtk.VTK_STRING,
-    'unicode string' : vtk.VTK_UNICODE_STRING,
-    'vtkObjectBase' : vtk.VTK_OBJECT,
-    'vtkObject' : vtk.VTK_OBJECT,
+    'void' : vtkCommonCore.VTK_VOID,
+    'char' : vtkCommonCore.VTK_CHAR,
+    'unsigned char' : vtkCommonCore.VTK_UNSIGNED_CHAR,
+    'signed char' : vtkCommonCore.VTK_SIGNED_CHAR,
+    'short' : vtkCommonCore.VTK_SHORT,
+    'unsigned short' : vtkCommonCore.VTK_UNSIGNED_SHORT,
+    'int' : vtkCommonCore.VTK_INT,
+    'unsigned int' : vtkCommonCore.VTK_UNSIGNED_INT,
+    'long' : vtkCommonCore.VTK_LONG,
+    'unsigned long' : vtkCommonCore.VTK_UNSIGNED_LONG,
+    'long long' : vtkCommonCore.VTK_LONG_LONG,
+    'unsigned long long' : vtkCommonCore.VTK_UNSIGNED_LONG_LONG,
+    'float' : vtkCommonCore.VTK_FLOAT,
+    'double' : vtkCommonCore.VTK_DOUBLE,
+    'string' : vtkCommonCore.VTK_STRING,
+    'unicode string' : vtkCommonCore.VTK_UNICODE_STRING,
+    'vtkObjectBase' : vtkCommonCore.VTK_OBJECT,
+    'vtkObject' : vtkCommonCore.VTK_OBJECT,
 }
 
 _variant_method_map = {
-    vtk.VTK_VOID : '',
-    vtk.VTK_CHAR : 'ToChar',
-    vtk.VTK_UNSIGNED_CHAR : 'ToUnsignedChar',
-    vtk.VTK_SIGNED_CHAR : 'ToSignedChar',
-    vtk.VTK_SHORT : 'ToShort',
-    vtk.VTK_UNSIGNED_SHORT : 'ToUnsignedShort',
-    vtk.VTK_INT : 'ToInt',
-    vtk.VTK_UNSIGNED_INT : 'ToUnsignedInt',
-    vtk.VTK_LONG : 'ToLong',
-    vtk.VTK_UNSIGNED_LONG : 'ToUnsignedLong',
-    vtk.VTK_LONG_LONG : 'ToLongLong',
-    vtk.VTK_UNSIGNED_LONG_LONG : 'ToUnsignedLongLong',
-    vtk.VTK_FLOAT : 'ToFloat',
-    vtk.VTK_DOUBLE : 'ToDouble',
-    vtk.VTK_STRING : 'ToString',
-    vtk.VTK_UNICODE_STRING : 'ToUnicodeString',
-    vtk.VTK_OBJECT : 'ToVTKObject',
+    vtkCommonCore.VTK_VOID : '',
+    vtkCommonCore.VTK_CHAR : 'ToChar',
+    vtkCommonCore.VTK_UNSIGNED_CHAR : 'ToUnsignedChar',
+    vtkCommonCore.VTK_SIGNED_CHAR : 'ToSignedChar',
+    vtkCommonCore.VTK_SHORT : 'ToShort',
+    vtkCommonCore.VTK_UNSIGNED_SHORT : 'ToUnsignedShort',
+    vtkCommonCore.VTK_INT : 'ToInt',
+    vtkCommonCore.VTK_UNSIGNED_INT : 'ToUnsignedInt',
+    vtkCommonCore.VTK_LONG : 'ToLong',
+    vtkCommonCore.VTK_UNSIGNED_LONG : 'ToUnsignedLong',
+    vtkCommonCore.VTK_LONG_LONG : 'ToLongLong',
+    vtkCommonCore.VTK_UNSIGNED_LONG_LONG : 'ToUnsignedLongLong',
+    vtkCommonCore.VTK_FLOAT : 'ToFloat',
+    vtkCommonCore.VTK_DOUBLE : 'ToDouble',
+    vtkCommonCore.VTK_STRING : 'ToString',
+    vtkCommonCore.VTK_UNICODE_STRING : 'ToUnicodeString',
+    vtkCommonCore.VTK_OBJECT : 'ToVTKObject',
 }
 
 _variant_check_map = {
-    vtk.VTK_VOID : 'IsValid',
-    vtk.VTK_CHAR : 'IsChar',
-    vtk.VTK_UNSIGNED_CHAR : 'IsUnsignedChar',
-    vtk.VTK_SIGNED_CHAR : 'IsSignedChar',
-    vtk.VTK_SHORT : 'IsShort',
-    vtk.VTK_UNSIGNED_SHORT : 'IsUnsignedShort',
-    vtk.VTK_INT : 'IsInt',
-    vtk.VTK_UNSIGNED_INT : 'IsUnsignedInt',
-    vtk.VTK_LONG : 'IsLong',
-    vtk.VTK_UNSIGNED_LONG : 'IsUnsignedLong',
-    vtk.VTK_LONG_LONG : 'IsLongLong',
-    vtk.VTK_UNSIGNED_LONG_LONG : 'IsUnsignedLongLong',
-    vtk.VTK_FLOAT : 'IsFloat',
-    vtk.VTK_DOUBLE : 'IsDouble',
-    vtk.VTK_STRING : 'IsString',
-    vtk.VTK_UNICODE_STRING : 'IsUnicodeString',
-    vtk.VTK_OBJECT : 'IsVTKObject',
+    vtkCommonCore.VTK_VOID : 'IsValid',
+    vtkCommonCore.VTK_CHAR : 'IsChar',
+    vtkCommonCore.VTK_UNSIGNED_CHAR : 'IsUnsignedChar',
+    vtkCommonCore.VTK_SIGNED_CHAR : 'IsSignedChar',
+    vtkCommonCore.VTK_SHORT : 'IsShort',
+    vtkCommonCore.VTK_UNSIGNED_SHORT : 'IsUnsignedShort',
+    vtkCommonCore.VTK_INT : 'IsInt',
+    vtkCommonCore.VTK_UNSIGNED_INT : 'IsUnsignedInt',
+    vtkCommonCore.VTK_LONG : 'IsLong',
+    vtkCommonCore.VTK_UNSIGNED_LONG : 'IsUnsignedLong',
+    vtkCommonCore.VTK_LONG_LONG : 'IsLongLong',
+    vtkCommonCore.VTK_UNSIGNED_LONG_LONG : 'IsUnsignedLongLong',
+    vtkCommonCore.VTK_FLOAT : 'IsFloat',
+    vtkCommonCore.VTK_DOUBLE : 'IsDouble',
+    vtkCommonCore.VTK_STRING : 'IsString',
+    vtkCommonCore.VTK_UNICODE_STRING : 'IsUnicodeString',
+    vtkCommonCore.VTK_OBJECT : 'IsVTKObject',
 }
 
 
@@ -77,7 +77,7 @@ def vtkVariantCreate(v, t):
     if not issubclass(type(t), int):
         t = _variant_type_map[t]
 
-    return vtk.vtkVariant(v, t)
+    return vtkCommonCore.vtkVariant(v, t)
 
 
 def vtkVariantExtract(v, t=None):
@@ -88,7 +88,7 @@ def vtkVariantExtract(v, t=None):
     integer VTK type constant for the type.  Set the type to 'None" to
     extract the value in its native type.
     """
-    v = vtk.vtkVariant(v)
+    v = vtkCommonCore.vtkVariant(v)
 
     if t == None:
         t = v.GetType()
@@ -111,7 +111,7 @@ def vtkVariantCast(v, t):
     if not issubclass(type(t), int):
         t = _variant_type_map[t]
 
-    v = vtk.vtkVariant(v, t)
+    v = vtkCommonCore.vtkVariant(v, t)
 
     if v.IsValid():
         return getattr(v, _variant_method_map[t])()
@@ -127,8 +127,8 @@ def vtkVariantStrictWeakOrder(s1, s2):
     This is in contrast with the Python 3 version of this method (and the
     VTK C++ version), which return true or false.
     """
-    s1 = vtk.vtkVariant(s1)
-    s2 = vtk.vtkVariant(s2)
+    s1 = vtkCommonCore.vtkVariant(s1)
+    s2 = vtkCommonCore.vtkVariant(s2)
 
     t1 = s1.GetType()
     t2 = s2.GetType()
@@ -156,7 +156,7 @@ def vtkVariantStrictWeakOrder(s1, s2):
     r2 = getattr(s2, _variant_method_map[t2])()
 
     # compare vtk objects by classname, then address
-    if t1 == vtk.VTK_OBJECT:
+    if t1 == vtkCommonCore.VTK_OBJECT:
         c1 = r1.GetClassName()
         c2 = r2.GetClassName()
         if c1 != c2:
@@ -197,8 +197,8 @@ def vtkVariantStrictEquality(s1, s2):
     """
     Check two variants for strict equality of type and value.
     """
-    s1 = vtk.vtkVariant(s1)
-    s2 = vtk.vtkVariant(s2)
+    s1 = vtkCommonCore.vtkVariant(s1)
+    s2 = vtkCommonCore.vtkVariant(s2)
 
     t1 = s1.GetType()
     t2 = s2.GetType()
@@ -227,12 +227,11 @@ def vtkVariantLessThan(s1, s2):
     """
     Return true if s1 < s2.
     """
-    return (vtk.vtkVariant(s1) < vtk.vtkVariant(s2))
+    return (vtkCommonCore.vtkVariant(s1) < vtkCommonCore.vtkVariant(s2))
 
 
 def vtkVariantEqual(s1, s2):
     """
     Return true if s1 == s2.
     """
-    return (vtk.vtkVariant(s1) == vtk.vtkVariant(s2))
-
+    return (vtkCommonCore.vtkVariant(s1) == vtkCommonCore.vtkVariant(s2))

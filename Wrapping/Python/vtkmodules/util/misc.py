@@ -1,7 +1,7 @@
 """Miscellaneous functions and classes that don't fit into specific
 categories."""
 
-import sys, os, vtk
+import sys, os
 
 def calldata_type(type):
     """set_call_data_type(type) -- convenience decorator to easily set the CallDataType attribute
@@ -18,7 +18,10 @@ def calldata_type(type):
     lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
     lt.SetTableRange(2,1)
     """
-    supported_call_data_types = ['string0', vtk.VTK_STRING, vtk.VTK_OBJECT, vtk.VTK_INT, vtk.VTK_LONG, vtk.VTK_DOUBLE, vtk.VTK_FLOAT]
+    from vtk import vtkCommonCore
+    supported_call_data_types = ['string0', vtkCommonCore.VTK_STRING,
+            vtkCommonCore.VTK_OBJECT, vtkCommonCore.VTK_INT,
+            vtkCommonCore.VTK_LONG, vtkCommonCore.VTK_DOUBLE, vtkCommonCore.VTK_FLOAT]
     if type not in supported_call_data_types:
         raise TypeError("'%s' is not a supported VTK call data type. Supported types are: %s" % (type, supported_call_data_types))
     def wrap(f):
@@ -69,6 +72,10 @@ def vtkRegressionTestImage( renWin ):
     This function writes out a regression .png file for a vtkWindow.
     Does anyone involved in testing care to elaborate?
     """
+    from vtkmodules.vtkRenderingCore import vtkWindowToImageFilter
+    from vtkmodules.vtkIOImage import vtkPNGReader
+    from vtkmodules.vtkImagingCore import vtkImageDifference
+
     imageIndex=-1;
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == '-V' and i < len(sys.argv)-1:
@@ -77,22 +84,22 @@ def vtkRegressionTestImage( renWin ):
     if imageIndex != -1:
         fname = os.path.join(vtkGetDataRoot(), sys.argv[imageIndex])
 
-        rt_w2if = vtk.vtkWindowToImageFilter()
+        rt_w2if = vtkWindowToImageFilter()
         rt_w2if.SetInput(renWin)
 
         if os.path.isfile(fname):
             pass
         else:
-            rt_pngw = vtk.vtkPNGWriter()
+            rt_pngw = vtkPNGWriter()
             rt_pngw.SetFileName(fname)
             rt_pngw.SetInputConnection(rt_w2if.GetOutputPort())
             rt_pngw.Write()
             rt_pngw = None
 
-        rt_png = vtk.vtkPNGReader()
+        rt_png = vtkPNGReader()
         rt_png.SetFileName(fname)
 
-        rt_id = vtk.vtkImageDifference()
+        rt_id = vtkImageDifference()
         rt_id.SetInputConnection(rt_w2if.GetOutputPort())
         rt_id.SetImageConnection(rt_png.GetOutputPort())
         rt_id.Update()

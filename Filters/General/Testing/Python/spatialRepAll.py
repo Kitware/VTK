@@ -53,7 +53,7 @@ class spatialRepAll(vtk.test.Testing.vtkTest):
             locator[idx].AutomaticOff()
             locator[idx].SetMaxLevel(3)
 
-            boxes.append(vtk.vtk.vtkSpatialRepresentationFilter())
+            boxes.append(vtk.vtkSpatialRepresentationFilter())
             boxes[idx].SetInputConnection(asource.GetOutputPort())
             boxes[idx].SetSpatialRepresentation(locator[idx])
             boxes[idx].SetGenerateLeaves(1)

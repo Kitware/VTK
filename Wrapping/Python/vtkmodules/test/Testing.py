@@ -681,4 +681,3 @@ if __name__ == "__main__":
 
     # Test with the above trivial sample test.
     main( [ (SampleTest, 'test') ] )
-

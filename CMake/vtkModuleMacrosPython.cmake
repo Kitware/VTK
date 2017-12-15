@@ -173,10 +173,12 @@ function (vtk_module_python_module name)
   if(NOT "${name}" STREQUAL "${vtk-module}")
     message(FATAL_ERROR "vtk_module_library must be invoked with module name")
   endif()
-
   vtk_module_impl()
   vtk_module_export("")
+  vtk_python_module(${name} ${ARGN})
+endfunction()
 
+function(vtk_python_module name)
   set(_modules)
   set(_no_install)
   set(_can_use_system)
