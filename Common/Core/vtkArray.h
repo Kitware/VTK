@@ -140,7 +140,7 @@ public:
    * Returns the number of values stored in the array.  Note that this is
    * the same as calling GetExtents().GetSize(), and represents the
    * maximum number of values that could ever be stored using the current
-   * extents.  This is equal to the number of values stored in a  dense
+   * extents.  This is equal to the number of values stored in a dense
    * array, but may be larger than the number of values stored in a
    * sparse array.
    */

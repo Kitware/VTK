@@ -329,7 +329,7 @@ protected:
 
   //@{
   /**
-   * This method will rep[lace the quadric  generated points with the
+   * This method will rep[lace the quadric generated points with the
    * input points with the lowest error.
    */
   void EndAppendUsingPoints(vtkPolyData *input, vtkPolyData *output);

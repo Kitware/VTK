@@ -78,7 +78,7 @@ camera.SetViewUp(0, 1, 0)
 
 ren1.SetActiveCamera(camera)
 
-#  now  make a renderer and tell it about lights and actors
+#  now make a renderer and tell it about lights and actors
 
 renWin.SetSize(300, 350)
 

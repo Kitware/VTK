@@ -77,7 +77,7 @@ public:
 
   //@{
   /**
-   * Set/Get the  maximum number of iterations. Default is 50.
+   * Set/Get the maximum number of iterations. Default is 50.
    */
   vtkSetMacro(MaximumNumberOfIterations, int);
   vtkGetMacro(MaximumNumberOfIterations, int);

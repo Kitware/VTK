@@ -1483,7 +1483,7 @@ void vtkPolyhedron::ConstructLocator()
 
   this->ConstructPolyData();
 
-  // With the polydata set up, we can assign it to the  locator
+  // With the polydata set up, we can assign it to the locator
   this->CellLocator->Initialize();
   this->CellLocator->SetDataSet(this->PolyData);
   this->CellLocator->BuildLocator();

@@ -52,7 +52,7 @@ public:
 
   /**
    * Given, a long, lat position, return altitude in meters
-   * relative to  sea level.
+   * relative to sea level.
    */
   double GetAltitude(double longitude, double latitude);
 

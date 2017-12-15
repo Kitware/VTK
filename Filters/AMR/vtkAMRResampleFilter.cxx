@@ -1297,7 +1297,7 @@ bool vtkAMRResampleFilter::IsParallel()
 vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(
     vtkOverlappingAMR *amrds)
 {
-  assert( "pre:AMR dataset is  nullptr" && (amrds != nullptr) );
+  assert( "pre:AMR dataset is nullptr" && (amrds != nullptr) );
 
   unsigned int numLevels = amrds->GetNumberOfLevels();
   for(unsigned int l=0; l < numLevels; ++l )

@@ -112,7 +112,7 @@ private:
   void operator=(const vtkBooleanOperationPolyDataFilter&) = delete;
 
   /**
-   * Copies cells with indices given by  from one vtkPolyData to
+   * Copies cells with indices given by from one vtkPolyData to
    * another. The point and cell field lists are used to determine
    * which fields should be copied.
    */

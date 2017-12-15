@@ -60,7 +60,7 @@ int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,
       outputPD->CopyData (inputPD, p1, p1);
       outputPD->CopyData (inputPD, p2, p2);
 
-      // Do we need to  create a point on this edge?
+      // Do we need to create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
       {
         edgeTable->InsertEdge (p1, p2);

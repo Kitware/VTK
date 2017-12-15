@@ -143,7 +143,7 @@ int TestPolyDataRemoveCell(int , char *[])
     {
       if(pts[j] != data[j+1])
       {
-        cout << "Problem with  point " << j << " for cell " << i << endl;
+        cout << "Problem with point " << j << " for cell " << i << endl;
         return 1;
       }
     }

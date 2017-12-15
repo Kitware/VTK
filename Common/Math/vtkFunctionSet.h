@@ -19,7 +19,7 @@
  * vtkFunctionSet specifies an abstract interface for set of functions
  * of the form F_i = F_i(x_j) where F (with i=1..m) are the functions
  * and x (with j=1..n) are the independent variables.
- * The only supported operation is the  function evaluation at x_j.
+ * The only supported operation is the function evaluation at x_j.
  *
  * @sa
  * vtkImplicitDataSet vtkInterpolatedVelocityField

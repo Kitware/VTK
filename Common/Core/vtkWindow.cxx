@@ -18,7 +18,7 @@
 
 
 //-----------------------------------------------------------------------------
-// Construct an instance of  vtkRenderWindow with its screen size
+// Construct an instance of vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
 // buffering turned on.
 vtkWindow::vtkWindow()

@@ -270,7 +270,7 @@ public:
    * Return the id of the already inserted point if true, otherwise return -1.
    * InitPointInsertion() should have been called in advance.
    */
-  vtkIdType IsInsertedPoint( double x, double  y, double z ) override;
+  vtkIdType IsInsertedPoint( double x, double y, double z ) override;
 
   /**
    * Insert a point to the octree unless there has been a duplciate point.

@@ -96,7 +96,7 @@ int TestAppendPolyData(int, char *[])
   if(outputPolyData->GetNumberOfCells()
     != inputPolyData0->GetNumberOfCells() + inputPolyData1->GetNumberOfCells())
   {
-    std::cerr << "ERROR: The output number of cells  should be "
+    std::cerr << "ERROR: The output number of cells should be "
               << inputPolyData0->GetNumberOfCells() + inputPolyData1->GetNumberOfCells()
               << " but is " << outputPolyData->GetNumberOfCells()
               << std::endl;

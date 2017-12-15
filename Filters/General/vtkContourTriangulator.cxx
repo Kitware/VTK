@@ -1079,7 +1079,7 @@ int vtkCCSVectorProgression(
 // ---------------------------------------------------
 // Simple utility method for computing polygon bounds.
 // Returns the sum of the squares of the dimensions.
-// Requires a poly with at least one  point.
+// Requires a poly with at least one point.
 double vtkCCSPolygonBounds(
   const vtkCCSPoly &poly, vtkPoints *points, double bounds[6])
 {

@@ -268,7 +268,7 @@ int TestDegreesFromRadians()
           result, floatDegrees,
           std::numeric_limits<float>::epsilon()*128.0f))
     {
-      std::cout << "Float  Expected " << floatDegrees
+      std::cout << "Float Expected " << floatDegrees
                 << " but got " << result
                 << " difference is " << result - floatDegrees << " ";
       std::cout << "eps ratio is: " << (result - floatDegrees)
@@ -1127,7 +1127,7 @@ int Norm()
           unitNorm, (T) 1.0,
           std::numeric_limits<T>::epsilon()*(T)128.0))
     {
-      std::cout << "Norm  Expected " << 1.0
+      std::cout << "Norm Expected " << 1.0
                 << " but got " << unitNorm;
       std::cout << " eps ratio is: " <<  ((T) 1.0 - unitNorm)
         / std::numeric_limits<T>::epsilon() << std::endl;

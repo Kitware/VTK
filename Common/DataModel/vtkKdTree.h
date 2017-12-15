@@ -298,7 +298,7 @@ public:
    * the cell lists for all regions are created.
 
    * When CreateCellLists is called again, the lists created
-   * on the previous call  are deleted.
+   * on the previous call are deleted.
    */
 
   void CreateCellLists(int dataSetIndex, int *regionReqList,
@@ -348,7 +348,7 @@ public:
   /**
 
    * For a list of regions, get two cell lists.  The first lists
-   * the IDs  all cells whose centroids lie in one of the regions.
+   * the IDs all cells whose centroids lie in one of the regions.
    * The second lists the IDs of all cells that intersect the regions,
    * but whose centroid lies in a region not on the list.
 

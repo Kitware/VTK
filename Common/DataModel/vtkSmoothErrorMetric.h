@@ -63,7 +63,7 @@ public:
    * Set the flatness threshold with an angle in degrees. Internally
    * compute the cosine. value is supposed to be in ]90,180[, if not
    * it is clamped in [90.1,179.9].
-   * For instance 178  will give better result than 150.
+   * For instance 178 will give better result than 150.
    */
   void SetAngleTolerance(double value);
 

@@ -794,7 +794,7 @@ protected:
    * this signature. This will override the connection id that the
    * user set in SetInputArrayToProcess() with the connection id
    * passed. This way, the user specifies one array to process and
-   * that information is  used to obtain arrays for all the connection
+   * that information is used to obtain arrays for all the connection
    * on the port with the appropriate connection id substituted.
    */
   vtkDataArray *GetInputArrayToProcess(int idx,
@@ -828,7 +828,7 @@ protected:
    * this signature. This will override the connection id that the
    * user set in SetInputArrayToProcess() with the connection id
    * passed. This way, the user specifies one array to process and
-   * that information is  used to obtain arrays for all the connection
+   * that information is used to obtain arrays for all the connection
    * on the port with the appropriate connection id substituted.
    */
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,

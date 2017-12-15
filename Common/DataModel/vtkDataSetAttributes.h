@@ -454,7 +454,7 @@ public:
    * has been invoked before using this method. When copying a field,
    * the following copying rules are
    * followed: 1) Check if a field is an attribute, if yes and if there
-   * is a COPYTUPLE copy flag for that attribute (on or off), obey the  flag
+   * is a COPYTUPLE copy flag for that attribute (on or off), obey the flag
    * for that attribute, ignore (2) and (3), 2) if there is a copy field for
    * that field (on or off), obey the flag, ignore (3) 3) obey
    * CopyAllOn/Off

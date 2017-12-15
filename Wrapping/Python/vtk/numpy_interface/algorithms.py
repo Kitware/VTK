@@ -1150,7 +1150,7 @@ eigenvector = _make_ufunc(algs.eigenvector)
 eigenvector.__doc__ = "Returns the eigenvectors of 3x3 matrices. Currently only works with symmetric matrices."
 
 gradient = _make_dsfunc(algs.gradient)
-gradient.__doc__ = "Returns the gradient of  scalars or vectors."
+gradient.__doc__ = "Returns the gradient of scalars or vectors."
 
 inv = _make_ufunc(algs.inv)
 inv.__doc__ = "Returns the inverse of 3x3 matrices."

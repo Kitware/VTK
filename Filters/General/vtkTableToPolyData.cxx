@@ -98,7 +98,7 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (!xarray || !yarray)
     {
-      vtkErrorMacro("Failed to locate  the columns to use for the point"
+      vtkErrorMacro("Failed to locate the columns to use for the point"
         " coordinates");
       return 0;
     }
@@ -107,7 +107,7 @@ int vtkTableToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (!xarray || !yarray || !zarray)
     {
-      vtkErrorMacro("Failed to locate  the columns to use for the point"
+      vtkErrorMacro("Failed to locate the columns to use for the point"
         " coordinates");
       return 0;
     }

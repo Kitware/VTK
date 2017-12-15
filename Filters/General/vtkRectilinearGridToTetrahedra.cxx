@@ -272,7 +272,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // Form the Mesh
   //
 
-  // Need to tell the tet mesh that every cell  is a Tetrahedron
+  // Need to tell the tet mesh that every cell is a Tetrahedron
   int numTet = TetList->GetNumberOfCells();
   int *CellTypes = new int[numTet];
   for(i=0;i<numTet;i++)

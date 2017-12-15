@@ -576,7 +576,7 @@ public:
                                          unsigned int& );
 
   /**
-   * Convert the Cartesian coordinates of a root in the grid  to its global index.
+   * Convert the Cartesian coordinates of a root in the grid to its global index.
    */
   void GetIndexFromLevelZeroCoordinates( vtkIdType&,
                                          unsigned int,

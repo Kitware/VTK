@@ -95,7 +95,7 @@ bool vtkPolygon::IsConvex()
 // Compute the polygon normal from a points list, and a list of point ids
 // that index into the points list. Parameter pts can be nullptr, indicating that
 // the polygon indexing is {0, 1, ..., numPts-1}. This version will handle
-// non-convex  polygons.
+// non-convex polygons.
 void vtkPolygon::ComputeNormal(vtkPoints *p, int numPts, vtkIdType *pts,
                                double *n)
 {
@@ -1725,7 +1725,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 // system and projects vectors into 3D model coordinate system.
 // Note that the results are usually inaccurate because
 // this method actually returns the derivative of the interpolation
-// function  which  is obtained using 1/r**2 normalized sum.
+// function which is obtained using 1/r**2 normalized sum.
 #define VTK_SAMPLE_DISTANCE 0.01
 void vtkPolygon::Derivatives(int vtkNotUsed(subId), double pcoords[3],
                              double *values, int dim, double *derivs)

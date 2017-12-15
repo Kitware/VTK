@@ -3521,9 +3521,9 @@ void vtkUnstructuredGridVolumeZSweepMapper::SavePixelListFrame()
 void vtkUnstructuredGridVolumeZSweepMapper::RasterizeFace(vtkIdType faceIds[3],
                                                           int externalSide)
 {
-  // The triangle is splitted by an horizontal line passing through the
+  // The triangle is split by a horizontal line passing through the
   // second vertex v1 (y-order)
-  // Hence, on one side there one edge (v0v2), on the other side there are two
+  // Hence, on one side there's one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
 
   vtkVertexEntry *v0=&(this->Vertices->Vector[faceIds[0]]);
@@ -3538,7 +3538,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::RasterizeFace(vtkIdType faceIds[3],
   {
     // To find the "winding" of the triangle as projected in screen space, we
     // perform the cross section.  The result trivially points along the Z axis.
-    // It's magnitude is proportional to the triangle area and its direction
+    // Its magnitude is proportional to the triangle area and its direction
     // points away from the "front" face (what we are really interested in).
     // Since we know the cross product points in the Z direction, we only need
     // the Z component.
@@ -3601,9 +3601,9 @@ void  vtkUnstructuredGridVolumeZSweepMapper::RasterizeTriangle(
   vtkVertexEntry *v1=ve1;
   vtkVertexEntry *v2=ve2;
 
-  // The triangle is splitted by an horizontal line passing through the
+  // The triangle is split by a horizontal line passing through the
   // second vertex v1 (y-order)
-  // Hence, on one side there one edge (v0v2), on the other side there are two
+  // Hence, on one side there's one edge (v0v2), on the other side there are two
   // edges (v0v1 and v1v2).
 
   // Order vertices by y screen.
@@ -4390,7 +4390,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
 
 //-----------------------------------------------------------------------------
 // Description:
-// Convert and clamp a float color component into a unsigned char.
+// Convert and clamp a float color component into an unsigned char.
 unsigned char vtkUnstructuredGridVolumeZSweepMapper::ColorComponentRealToByte(
   float color)
 {

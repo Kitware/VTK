@@ -17,7 +17,7 @@
 //
 // .SECTION Description
 // CustomLinkView shows an alternate way to link various views using
-// vtkEventQtSlotConnect where selection  in a particular view sets
+// vtkEventQtSlotConnect where selection in a particular view sets
 // the same selection in all other views associated.
 
 // Other way to get the same functionality is by using vtkAnnotationLink

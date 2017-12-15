@@ -187,7 +187,7 @@ int TestQuaternionConjugationAndInversion() //this test uses vtkQuaternionf
   int retVal = 0;
 
   //
-  // Test conjugate and inverse  at the same time.
+  // Test conjugate and inverse at the same time.
   // [inv(q) = conj(q)/norm2(q)]
   vtkQuaternionf toConjugate(2.0f);
   vtkQuaternionf conjugate = toConjugate.Conjugated();

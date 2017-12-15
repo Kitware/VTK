@@ -19,7 +19,7 @@
  *
  * vtkMultiBlockDataSet is a vtkCompositeDataSet that stores
  * a hierarchy of datasets. The dataset collection consists of
- * multiple blocks. Each  block can itself be a vtkMultiBlockDataSet, thus
+ * multiple blocks. Each block can itself be a vtkMultiBlockDataSet, thus
  * providing for a full tree structure.
  * Sub-blocks are usually used to distribute blocks across processors.
  * For example, a 1 block dataset can be distributed as following:

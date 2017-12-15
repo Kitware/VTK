@@ -30,7 +30,7 @@
  *
  * If the boolean variable ThreeGlyphs is not set the major eigenvalue
  * scales the glyph in the x-direction, the medium in the y-direction,
- * and the minor in the  z-direction. Then, the glyph is rotated so
+ * and the minor in the z-direction. Then, the glyph is rotated so
  * that the glyph's local x-axis lies along the major eigenvector,
  * y-axis along the medium eigenvector, and z-axis along the minor.
  *

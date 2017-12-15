@@ -62,7 +62,7 @@ public:
   int Receive(void* data, int length, int readFully=1);
 
   /**
-   * Provides access to  the internal socket descriptor. This is valid only when
+   * Provides access to the internal socket descriptor. This is valid only when
    * GetConnected() returns true.
    */
   vtkGetMacro(SocketDescriptor, int);

@@ -100,7 +100,7 @@ int vtkDataSetGradient::RequestData(vtkInformation * vtkNotUsed(request),
 
   if( inArray==nullptr )
   {
-    vtkErrorMacro(<<"no  input array to process\n");
+    vtkErrorMacro(<<"no input array to process\n");
     return 0;
   }
 

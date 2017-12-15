@@ -266,7 +266,7 @@ protected:
   void GetWholeExtentAtLevel(const int level, int ext[6]);
 
   /**
-   * Establishes neighboring relationship between grids i,j  wheren i,j are
+   * Establishes neighboring relationship between grids i,j wheren i,j are
    * global indices.
    */
   void EstablishNeighbors(const int i, const int j);
@@ -326,7 +326,7 @@ protected:
   /**
    * Checks if the block corresponding to the given grid ID has a block
    * adjacent to it in the given block direction.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -358,7 +358,7 @@ protected:
   /**
    * Removes a block connection along the given direction for the block
    * corresponding to the given gridID.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -374,7 +374,7 @@ protected:
   /**
    * Adds a block connection along the given direction for the block
    * corresponding to the given gridID.
-   * NOTE: The block direction is essentially one of the 6 faces  of the
+   * NOTE: The block direction is essentially one of the 6 faces of the
    * block defined as follows:
    * <ul>
    * <li> FRONT  = 0 (+k diretion)  </li>
@@ -388,7 +388,7 @@ protected:
   void AddBlockConnection(const int gridID, const int blockDirection);
 
   /**
-   * Clears all block connections for the  block corresponding to the given
+   * Clears all block connections for the block corresponding to the given
    * grid ID.
    */
   void ClearBlockConnections( const int gridID );

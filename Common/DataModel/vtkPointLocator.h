@@ -153,7 +153,7 @@ public:
    * Return id of previously inserted point if this is true, otherwise return
    * -1. This method is thread safe.
    */
-  vtkIdType IsInsertedPoint(double x, double  y, double z) override
+  vtkIdType IsInsertedPoint(double x, double y, double z) override
   {
     double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;

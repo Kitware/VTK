@@ -428,7 +428,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::Initialize()
       return;
     }
 
-    //Get the number of Polys for scalar  allocation
+    //Get the number of Polys for scalar allocation
     int numPolys = this->Mesh[i]->GetNumberOfPolys();
     int numPts = this->Mesh[i]->GetNumberOfPoints();
     int numLinePts = this->IntersectionLines->GetNumberOfPoints();
@@ -777,7 +777,7 @@ void vtkLoopBooleanPolyDataFilter::Impl::SetCheckArrays()
 {
   for (int i =0;i<2;i++)
   {
-    //Get the number of Polys for scalar  allocation
+    //Get the number of Polys for scalar allocation
     int numPolys = this->Mesh[i]->GetNumberOfPolys();
 
     for (int j=0;j < numPolys;j++)
@@ -898,7 +898,7 @@ int vtkLoopBooleanPolyDataFilter::RequestData(
     {
       for (int i =0;i<2;i++)
       {
-        //Get the number of Polys for scalar  allocation
+        //Get the number of Polys for scalar allocation
         int numPolys = impl->Mesh[i]->GetNumberOfPolys();
         int numPts = impl->Mesh[i]->GetNumberOfPoints();
         for (int j=0;j<numPts;j++)
