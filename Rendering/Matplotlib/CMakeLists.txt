@@ -11,3 +11,7 @@ set(vtk_module_vtkMathTextUtilities_override "vtkMatplotlibMathTextUtilities")
 vtk_object_factory_configure("${vtk_module_overrides}")
 
 vtk_module_library(${vtk-module} ${Module_SRCS})
+
+set_property(GLOBAL APPEND
+  PROPERTY
+    vtk_required_python_modules "matplotlib>=2.0.0")
