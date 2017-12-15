@@ -117,6 +117,8 @@ void vtkParse_FreeTemplate(TemplateInfo *template_info)
     vtkParse_FreeValue(template_info->Parameters[j]);
   }
 
+  if (m > 0) { free(template_info->Parameters); }
+
   free(template_info);
 }
 
