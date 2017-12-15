@@ -16,6 +16,9 @@ set_property(GLOBAL APPEND
 set_property(GLOBAL APPEND
   PROPERTY
     vtk_required_python_modules "Twisted>=17.5.0")
+set_property(GLOBAL APPEND
+  PROPERTY
+    vtk_required_python_modules "autobahn>=17.7.1")
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)
