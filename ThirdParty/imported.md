@@ -17,7 +17,6 @@
   * [tiff](tiff/update.sh)
   * [Twisted](Twisted/update.sh)
   * [txaio](txaio/update.sh)
-  * [wslink](wslink/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)
   * [zlib](zlib/update.sh)
