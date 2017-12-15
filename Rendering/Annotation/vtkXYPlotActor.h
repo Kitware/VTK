@@ -279,7 +279,7 @@ public:
   void SetPlotColor(int i, double r, double g, double b);
   void SetPlotColor(int i, const double color[3]) {
     this->SetPlotColor(i, color[0], color[1], color[2]); };
-  double *GetPlotColor(int i);
+  double *GetPlotColor(int i) VTK_SIZEHINT(3);
   void SetPlotSymbol(int i,vtkPolyData *input);
   vtkPolyData *GetPlotSymbol(int i);
   void SetPlotLabel(int i, const char *label);

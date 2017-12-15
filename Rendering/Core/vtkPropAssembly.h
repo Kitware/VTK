@@ -101,7 +101,7 @@ public:
    * Get the bounds for this prop assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    * May return NULL in some cases (meaning the bounds is undefined).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
 
   /**
    * Shallow copy of this vtkPropAssembly.

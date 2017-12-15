@@ -77,7 +77,7 @@ public:
    */
   vtkIdType GetNumberOfCells() override;
   vtkIdType GetNumberOfPoints() override;
-  double *GetPoint(vtkIdType ptId) override;
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
   void GetPoint(vtkIdType id, double x[3]) override;
   vtkCell *GetCell(vtkIdType cellId) override;
   vtkCell *GetCell(int i, int j, int k) override;

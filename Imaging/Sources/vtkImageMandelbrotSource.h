@@ -100,7 +100,7 @@ public:
    * Size is ignored when a dimension i 0 (collapsed).
    */
   void SetSizeCX(double cReal, double cImag, double xReal, double xImag);
-  double *GetSizeCX();
+  double *GetSizeCX() VTK_SIZEHINT(4);
   void GetSizeCX(double s[4]);
   //@}
 

@@ -112,7 +112,7 @@ public:
    * sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Bounds,double);
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax,
                  double& zmin, double& zmax);
   void GetBounds(double bounds[6]);
@@ -125,7 +125,7 @@ public:
    * making sure that the min's are less than the max's.
    */
   vtkSetVector6Macro(Ranges,double);
-  double *GetRanges();
+  double *GetRanges() VTK_SIZEHINT(6);
   void GetRanges(double& xmin, double& xmax, double& ymin, double& ymax,
                  double& zmin, double& zmax);
   void GetRanges(double ranges[6]);

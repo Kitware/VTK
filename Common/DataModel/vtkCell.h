@@ -297,7 +297,7 @@ public:
    * Compute cell bounding box (xmin,xmax,ymin,ymax,zmin,zmax). Return pointer
    * to array of six double values.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(6);
 
 
   /**

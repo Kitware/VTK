@@ -99,7 +99,7 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
    * thickness. If there is more than one slice, it is set to the distance
    * between the first two slices.
    */
-  double* GetPixelSpacing();
+  double* GetPixelSpacing() VTK_SIZEHINT(3);
 
   /**
    * Returns the image width.
@@ -116,14 +116,14 @@ class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
    * image (upper left hand corner) of the last image processed by the
    * DICOMParser
    */
-  float* GetImagePositionPatient();
+  float* GetImagePositionPatient() VTK_SIZEHINT(3);
 
   /**
    * Get the (DICOM) directions cosines. It consist of the components
    * of the first two vectors. The third vector needs to be computed
    * to form an orthonormal basis.
    */
-  float* GetImageOrientationPatient();
+  float* GetImageOrientationPatient() VTK_SIZEHINT(6);
 
   /**
    * Get the number of bits allocated for each pixel in the file.

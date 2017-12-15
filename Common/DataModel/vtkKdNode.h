@@ -104,8 +104,8 @@ public:
    * Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the
    * 3 bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
-  double *GetMinBounds() {return this->Min;}
-  double *GetMaxBounds() {return this->Max;}
+  double *GetMinBounds() VTK_SIZEHINT(3) {return this->Min;}
+  double *GetMaxBounds() VTK_SIZEHINT(3) {return this->Max;}
 
   /**
    * Set the xmin, ymin and zmin value of the bounds of this region
@@ -121,8 +121,8 @@ public:
    * Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
    * 3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
    */
-  double *GetMinDataBounds() {return this->MinVal;}
-  double *GetMaxDataBounds() {return this->MaxVal;}
+  double *GetMinDataBounds() VTK_SIZEHINT(3) {return this->MinVal;}
+  double *GetMaxDataBounds() VTK_SIZEHINT(3) {return this->MaxVal;}
 
   /**
    * Set the xmin, ymin and zmin value of the bounds of this

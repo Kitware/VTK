@@ -85,7 +85,7 @@ public:
    * sub-extent should be read.  Valid after a call to
    * ComputeSubExtents.
    */
-  int* GetSubExtent(int index);
+  int* GetSubExtent(int index) VTK_SIZEHINT(6);
   void GetSubExtent(int index, int* extent);
   //@}
 

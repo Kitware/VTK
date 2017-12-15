@@ -81,7 +81,7 @@ public:
   /**
    * Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );}
 
   /**

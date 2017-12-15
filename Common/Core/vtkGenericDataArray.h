@@ -222,14 +222,14 @@ public:
    * native data type.
    */
   void GetValueRange(ValueType range[2], int comp);
-  ValueType *GetValueRange(int comp);
+  ValueType *GetValueRange(int comp) VTK_SIZEHINT(2);
   //@}
 
   /**
    * Get the range of array values for the 0th component in the
    * native data type.
    */
-  ValueType *GetValueRange() { return this->GetValueRange(0); }
+  ValueType *GetValueRange() VTK_SIZEHINT(2) { return this->GetValueRange(0); }
   void GetValueRange(ValueType range[2]) { this->GetValueRange(range, 0); }
 
   /**

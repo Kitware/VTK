@@ -119,7 +119,7 @@ public:
   void GetResliceAxesDirectionCosines(double x[3], double y[3], double z[3]);
   void GetResliceAxesDirectionCosines(double xyz[9]) {
     this->GetResliceAxesDirectionCosines(&xyz[0], &xyz[3], &xyz[6]); };
-  double *GetResliceAxesDirectionCosines() {
+  double *GetResliceAxesDirectionCosines() VTK_SIZEHINT(9) {
     this->GetResliceAxesDirectionCosines(this->ResliceAxesDirectionCosines);
     return this->ResliceAxesDirectionCosines; };
   //@}
@@ -135,7 +135,7 @@ public:
   void SetResliceAxesOrigin(const double xyz[3]) {
     this->SetResliceAxesOrigin(xyz[0], xyz[1], xyz[2]); };
   void GetResliceAxesOrigin(double xyz[3]);
-  double *GetResliceAxesOrigin() {
+  double *GetResliceAxesOrigin() VTK_SIZEHINT(3) {
     this->GetResliceAxesOrigin(this->ResliceAxesOrigin);
     return this->ResliceAxesOrigin; };
   //@}

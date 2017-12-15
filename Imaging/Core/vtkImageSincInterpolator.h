@@ -148,7 +148,7 @@ public:
     f[0] = this->BlurFactors[0];
     f[1] = this->BlurFactors[1];
     f[2] = this->BlurFactors[2]; }
-  double *GetBlurFactors() { return this->BlurFactors; }
+  double *GetBlurFactors() VTK_SIZEHINT(3) { return this->BlurFactors; }
   //@}
 
   /**

@@ -114,7 +114,7 @@ public:
    */
   static int SetWholeExtent(vtkInformation *, int extent[6]);
   static void GetWholeExtent(vtkInformation *, int extent[6]);
-  static int* GetWholeExtent(vtkInformation *);
+  static int* GetWholeExtent(vtkInformation *) VTK_SIZEHINT(6);
   //@}
 
   //@{

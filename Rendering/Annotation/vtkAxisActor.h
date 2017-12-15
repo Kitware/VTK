@@ -114,7 +114,7 @@ public:
    */
   void SetBounds(const double bounds[6]);
   void SetBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-  double* GetBounds(void) override;
+  double* GetBounds(void) VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]);
   //@}
 

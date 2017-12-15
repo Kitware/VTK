@@ -91,7 +91,7 @@ public:
   void SetDisplayExtent(int minX, int maxX, int minY, int maxY,
                         int minZ, int maxZ);
   void GetDisplayExtent(int extent[6]);
-  int *GetDisplayExtent() {return this->DisplayExtent;}
+  int *GetDisplayExtent() VTK_SIZEHINT(6) {return this->DisplayExtent;}
   //@}
 
   //@{
@@ -101,7 +101,7 @@ public:
    * In either case the bounds is expressed as a 6-vector
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) { this->Superclass::GetBounds(bounds); };
   //@}
 

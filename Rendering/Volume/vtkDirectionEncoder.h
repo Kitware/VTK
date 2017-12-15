@@ -55,7 +55,7 @@ public:
   /**
    * / Given an encoded value, return a pointer to the normal vector
    */
-  virtual float *GetDecodedGradient( int value )=0;
+  virtual float *GetDecodedGradient( int value ) VTK_SIZEHINT(3) = 0;
 
   /**
    * Return the number of encoded directions

@@ -83,7 +83,7 @@ public:
    */
   void SetOrigin(double x, double y, double z);
   void SetOrigin(double x[3]);
-  double* GetOrigin();
+  double* GetOrigin() VTK_SIZEHINT(3);
   void GetOrigin(double xyz[3]);
   //@}
 
@@ -94,7 +94,7 @@ public:
   void SetNormal(double x, double y, double z);
   void SetNormal(double x[3]);
   void SetNormalToCamera();
-  double* GetNormal();
+  double* GetNormal() VTK_SIZEHINT(3);
   void GetNormal(double xyz[3]);
   //@}
 
@@ -347,7 +347,7 @@ public:
   /**
    * Methods supporting the rendering process.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetActors(vtkPropCollection *pc) override;
   void ReleaseGraphicsResources(vtkWindow*) override;
   int RenderOpaqueGeometry(vtkViewport*) override;

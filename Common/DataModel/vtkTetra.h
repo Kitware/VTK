@@ -182,8 +182,8 @@ public:
    * Return the ids of the vertices defining edge/face (`edgeId`/`faceId').
    * Ids are related to the cell, not to the dataset.
    */
-  static int *GetEdgeArray(int edgeId);
-  static int *GetFaceArray(int faceId);
+  static int *GetEdgeArray(int edgeId) VTK_SIZEHINT(2);
+  static int *GetFaceArray(int faceId) VTK_SIZEHINT(3);
   //@}
 
 protected:

@@ -50,7 +50,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * Update this->Bounds as a side effect.
    */
-  virtual double *GetBounds() = 0;
+  virtual double *GetBounds() VTK_SIZEHINT(6) = 0;
 
   /**
    * Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -61,7 +61,7 @@ public:
   /**
    * Return the Center of this mapper's data.
    */
-  double *GetCenter();
+  double *GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double center[3])
   {
       double *rc = this->GetCenter();

@@ -228,7 +228,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     orient[0] = static_cast<float>(temp[0]);
     orient[1] = static_cast<float>(temp[1]);
     orient[2] = static_cast<float>(temp[2]); };
-  double *GetOrientation() {
+  double *GetOrientation() VTK_SIZEHINT(3) {
     this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
   //@}
 
@@ -250,7 +250,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     wxyz[1]=static_cast<float>(temp[1]);
     wxyz[2]=static_cast<float>(temp[2]);
     wxyz[3]=static_cast<float>(temp[3]);};
-  double *GetOrientationWXYZ() {
+  double *GetOrientationWXYZ() VTK_SIZEHINT(4) {
     this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
   //@}
 
@@ -266,7 +266,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     pos[0] = static_cast<float>(temp[0]);
     pos[1] = static_cast<float>(temp[1]);
     pos[2] = static_cast<float>(temp[2]); };
-  double *GetPosition() {
+  double *GetPosition() VTK_SIZEHINT(3) {
     this->GetPosition(this->ReturnValue); return this->ReturnValue; };
   //@}
 
@@ -283,7 +283,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
     scale[0] = static_cast<float>(temp[0]);
     scale[1] = static_cast<float>(temp[1]);
     scale[2] = static_cast<float>(temp[2]); };
-  double *GetScale() {
+  double *GetScale() VTK_SIZEHINT(3) {
     this->GetScale(this->ReturnValue); return this->ReturnValue; };
   //@}
 

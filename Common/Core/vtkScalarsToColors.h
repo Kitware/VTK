@@ -80,7 +80,7 @@ public:
   /**
    * Sets/Gets the range of scalars that will be mapped.
    */
-  virtual double *GetRange();
+  virtual double *GetRange() VTK_SIZEHINT(2);
   virtual void SetRange(double min, double max);
   virtual void SetRange(const double rng[2])
     {this->SetRange(rng[0],rng[1]);}
@@ -102,7 +102,7 @@ public:
    * Map one value through the lookup table and return the color as
    * an RGB array of doubles between 0 and 1.
    */
-  double *GetColor(double v)
+  double *GetColor(double v) VTK_SIZEHINT(3)
     {this->GetColor(v,this->RGB); return this->RGB;}
 
   /**

@@ -87,7 +87,7 @@ public:
    * Get the bounds - either all six at once
    * (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6])
     { this->vtkProp3D::GetBounds(bounds); }
   double GetMinXBound();

@@ -43,7 +43,7 @@ public:
   void SetOutputWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetOutputWholeExtent(int extent[6]);
-  int *GetOutputWholeExtent() {return this->OutputWholeExtent;}
+  int *GetOutputWholeExtent() VTK_SIZEHINT(6) {return this->OutputWholeExtent;}
   //@}
 
   //@{

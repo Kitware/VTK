@@ -177,7 +177,7 @@ public:
   /**
    * Set/Get the position in screen coordinates of the rendering window.
    */
-  virtual int* GetPosition();
+  virtual int* GetPosition() VTK_SIZEHINT(2);
   virtual void SetPosition(int a,int b);
   virtual void SetPosition(int a[2]) { this->SetPosition(a[0],a[1]); }
   //@}
@@ -186,7 +186,7 @@ public:
   /**
    * Set/Get the size of the window in screen coordinates in pixels.
    */
-  virtual int* GetSize();
+  virtual int* GetSize() VTK_SIZEHINT(2);
   virtual void SetSize(int a, int b);
   virtual void SetSize(int a[2]) { this->SetSize(a[0],a[1]); }
   //@}

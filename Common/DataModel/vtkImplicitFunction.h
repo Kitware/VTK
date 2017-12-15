@@ -86,10 +86,10 @@ public:
    * x[3] is transformed through transform (if provided).
    */
   void FunctionGradient(const double x[3], double g[3]);
-  double *FunctionGradient(const double x[3]) {
+  double *FunctionGradient(const double x[3]) VTK_SIZEHINT(3) {
     this->FunctionGradient(x,this->ReturnValue);
     return this->ReturnValue; };
-  double *FunctionGradient(double x, double y, double z) {
+  double *FunctionGradient(double x, double y, double z) VTK_SIZEHINT(3) {
     double xyz[3] = {x, y, z}; return this->FunctionGradient(xyz); };
   //@}
 

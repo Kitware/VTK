@@ -42,7 +42,7 @@ public:
   void SetWholeExtent(int minX, int maxX, int minY, int maxY,
                             int minZ, int maxZ);
   void GetWholeExtent(int extent[6]);
-  int *GetWholeExtent() {return this->WholeExtent;}
+  int *GetWholeExtent() VTK_SIZEHINT(6) {return this->WholeExtent;}
   //@}
 
   //@{

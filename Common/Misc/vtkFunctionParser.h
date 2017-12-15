@@ -171,7 +171,7 @@ public:
   /**
    * Get a vector result from evaluating the input function.
    */
-  double* GetVectorResult();
+  double* GetVectorResult() VTK_SIZEHINT(3);
   void GetVectorResult(double result[3]) {
     double *r = this->GetVectorResult();
     result[0] = r[0]; result[1] = r[1]; result[2] = r[2]; };
@@ -218,11 +218,11 @@ public:
   /**
    * Get the value of a vector variable.
    */
-  double* GetVectorVariableValue(const char* variableName);
+  double* GetVectorVariableValue(const char* variableName) VTK_SIZEHINT(3);
   void GetVectorVariableValue(const char* variableName, double value[3]) {
     double *r = this->GetVectorVariableValue(variableName);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };
-  double* GetVectorVariableValue(int i);
+  double* GetVectorVariableValue(int i) VTK_SIZEHINT(3);
   void GetVectorVariableValue(int i, double value[3]) {
     double *r = this->GetVectorVariableValue(i);
     value[0] = r[0]; value[1] = r[1]; value[2] = r[2]; };

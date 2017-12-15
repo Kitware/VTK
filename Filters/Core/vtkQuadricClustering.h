@@ -123,7 +123,7 @@ public:
   void SetNumberOfDivisions(int div[3])
     { this->SetNumberOfDivisions(div[0], div[1], div[2]); }
   void SetNumberOfDivisions(int div0, int div1, int div2);
-  int *GetNumberOfDivisions();
+  int *GetNumberOfDivisions() VTK_SIZEHINT(3);
   void GetNumberOfDivisions(int div[3]);
   //@}
 

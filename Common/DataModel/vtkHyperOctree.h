@@ -302,7 +302,7 @@ public:
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetPoint(vtkIdType ptId) override;
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified

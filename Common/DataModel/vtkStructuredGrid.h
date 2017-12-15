@@ -78,7 +78,7 @@ public:
    */
   vtkIdType GetNumberOfPoints() override
     {return vtkPointSet::GetNumberOfPoints();}
-  double *GetPoint(vtkIdType ptId) override
+  double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) override
     {return this->vtkPointSet::GetPoint(ptId);}
   void GetPoint(vtkIdType ptId, double p[3]) override
     {this->vtkPointSet::GetPoint(ptId,p);}
@@ -113,7 +113,7 @@ public:
   /**
    * Get dimensions of this structured points dataset.
    */
-  virtual int *GetDimensions ();
+  virtual int *GetDimensions () VTK_SIZEHINT(3);
   virtual void GetDimensions (int dim[3]);
   //@}
 

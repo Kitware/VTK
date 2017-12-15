@@ -96,7 +96,7 @@ public:
   void* GetGenericDrawable() override;
   void SetWindowInfo(char*) override;
   void SetParentInfo(char*) override;
-  int* GetScreenSize() override;
+  int* GetScreenSize() VTK_SIZEHINT(2) override;
   void Start() override;
   void HideCursor() override;
   void ShowCursor() override;

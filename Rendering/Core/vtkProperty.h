@@ -171,7 +171,7 @@ public:
    */
   virtual void SetColor(double r, double g, double b);
   virtual void SetColor(double a[3]);
-  double *GetColor();
+  double *GetColor() VTK_SIZEHINT(3);
   void GetColor(double rgb[3]);
   void GetColor(double &r, double &g, double &b);
   //@}

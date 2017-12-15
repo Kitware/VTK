@@ -441,7 +441,7 @@ public:
   virtual int HasWindowLevelPreset(double w, double l);
   virtual int GetWindowLevelPresetIndex(double w, double l);
   virtual int GetNthWindowLevelPreset(int idx, double *w, double *l);
-  virtual double* GetNthWindowLevelPreset(int idx);
+  virtual double* GetNthWindowLevelPreset(int idx) VTK_SIZEHINT(2);
   virtual void SetNthWindowLevelPresetComment(int idx, const char *comment);
   virtual const char* GetNthWindowLevelPresetComment(int idx);
   //@}

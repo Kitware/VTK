@@ -194,7 +194,7 @@ public:
   int  ComputeInteractionState(int X, int Y, int modify=0) override;
   void StartWidgetInteraction(double e[2]) override;
   void WidgetInteraction(double e[2]) override;
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   //@}
 
   //@{

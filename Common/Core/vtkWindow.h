@@ -59,7 +59,7 @@ public:
    * Set/Get the position in screen coordinates of the rendering window.
    * Measured in pixels.
    */
-  virtual int *GetPosition();
+  virtual int *GetPosition() VTK_SIZEHINT(2);
   virtual void SetPosition(int,int);
   virtual void SetPosition(int a[2]);
   //@}
@@ -68,7 +68,7 @@ public:
   /**
    * Set/Get the size of the window in screen coordinates in pixels.
    */
-  virtual int *GetSize();
+  virtual int *GetSize() VTK_SIZEHINT(2);
   virtual void SetSize(int,int);
   virtual void SetSize(int a[2]);
   //@}
@@ -77,12 +77,12 @@ public:
    * GetSize() returns the size * this->TileScale, whereas this method returns
    * the size without multiplying with the tile scale. Measured in pixels.
    */
-  int *GetActualSize();
+  int *GetActualSize() VTK_SIZEHINT(2);
 
   /**
    * Get the current size of the screen in pixels.
    */
-  virtual int     *GetScreenSize() = 0;
+  virtual int     *GetScreenSize() VTK_SIZEHINT(2) = 0;
 
   //@{
   /**

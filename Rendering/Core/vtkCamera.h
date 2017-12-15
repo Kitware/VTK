@@ -609,8 +609,8 @@ public:
   /**
    * Get the orientation of the camera.
    */
-  double *GetOrientation();
-  double *GetOrientationWXYZ();
+  double *GetOrientation() VTK_SIZEHINT(3);
+  double *GetOrientationWXYZ() VTK_SIZEHINT(4);
   //@}
 
   /**

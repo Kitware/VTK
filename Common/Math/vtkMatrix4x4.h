@@ -124,11 +124,11 @@ public:
    * For use in Java or Python.  The default MultiplyPoint() uses a
    * single-precision point.
    */
-  float *MultiplyPoint(const float in[4])
+  float *MultiplyPoint(const float in[4]) VTK_SIZEHINT(4)
     {return this->MultiplyFloatPoint(in); }
-  float *MultiplyFloatPoint(const float in[4])
+  float *MultiplyFloatPoint(const float in[4]) VTK_SIZEHINT(4)
     {this->MultiplyPoint(in,this->FloatPoint); return this->FloatPoint; }
-  double *MultiplyDoublePoint(const double in[4])
+  double *MultiplyDoublePoint(const double in[4]) VTK_SIZEHINT(4)
     {this->MultiplyPoint(in,this->DoublePoint); return this->DoublePoint; }
 
   //@{

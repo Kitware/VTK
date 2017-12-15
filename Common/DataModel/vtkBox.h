@@ -80,7 +80,7 @@ public:
                  double &yMin, double &yMax,
                  double &zMin, double &zMax);
   void GetBounds(double bounds[6]);
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(6);
 
   /**
    * A special method that allows union set operation on bounding boxes.

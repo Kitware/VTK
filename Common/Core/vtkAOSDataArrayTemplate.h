@@ -324,8 +324,8 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
   void InsertValue(vtkIdType id, T f) \
     VTK_EXPECTS(0 <= id); \
   vtkIdType InsertNextValue(T f); \
-  T *GetValueRange(int comp); \
-  T *GetValueRange(); \
+  T *GetValueRange(int comp) VTK_SIZEHINT(2); \
+  T *GetValueRange() VTK_SIZEHINT(2); \
   T* WritePointer(vtkIdType id, vtkIdType number); \
   T* GetPointer(vtkIdType id); \
   void SetArray(VTK_ZEROCOPY T* array, vtkIdType size, int save); \

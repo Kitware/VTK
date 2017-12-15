@@ -85,7 +85,7 @@ public:
    */
   void SetCenter(double x, double y, double z);
   void SetCenter(double x[3]);
-  double* GetCenter();
+  double* GetCenter() VTK_SIZEHINT(3);
   void GetCenter(double xyz[3]);
   //@}
 
@@ -96,7 +96,7 @@ public:
    */
   void SetAxis(double x, double y, double z);
   void SetAxis(double a[3]);
-  double* GetAxis();
+  double* GetAxis() VTK_SIZEHINT(3);
   void GetAxis(double a[3]);
   //@}
 

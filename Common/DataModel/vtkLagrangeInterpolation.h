@@ -66,8 +66,8 @@ public:
   static int GetVaryingParameterOfHexEdge(int edgeId);
   static vtkVector2i GetFixedParametersOfHexEdge(int edgeId);
 
-  static const int* GetPointIndicesBoundingHexFace(int faceId);
-  static const int* GetEdgeIndicesBoundingHexFace(int faceId);
+  static const int* GetPointIndicesBoundingHexFace(int faceId) VTK_SIZEHINT(4);
+  static const int* GetEdgeIndicesBoundingHexFace(int faceId) VTK_SIZEHINT(4);
   static vtkVector2i GetVaryingParametersOfHexFace(int faceId);
   static int GetFixedParameterOfHexFace(int faceId);
 
@@ -76,8 +76,8 @@ public:
   static int GetVaryingParameterOfWedgeEdge(int edgeId);
   static vtkVector2i GetFixedParametersOfWedgeEdge(int edgeId);
 
-  static const int* GetPointIndicesBoundingWedgeFace(int faceId);
-  static const int* GetEdgeIndicesBoundingWedgeFace(int faceId);
+  static const int* GetPointIndicesBoundingWedgeFace(int faceId) VTK_SIZEHINT(4);
+  static const int* GetEdgeIndicesBoundingWedgeFace(int faceId) VTK_SIZEHINT(4);
   static vtkVector2i GetVaryingParametersOfWedgeFace(int faceId);
   static int GetFixedParameterOfWedgeFace(int faceId);
 

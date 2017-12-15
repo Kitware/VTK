@@ -119,6 +119,3 @@ else ()
   endif ()
 
 endif ()
-
-# Setup our local hints file in case wrappers need them.
-set(VTK_WRAP_HINTS ${VTKMY_SOURCE_DIR}/Wrapping/hints)

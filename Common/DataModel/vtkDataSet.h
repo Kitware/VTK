@@ -90,7 +90,7 @@ public:
    * Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  virtual double *GetPoint(vtkIdType ptId) = 0;
+  virtual double *GetPoint(vtkIdType ptId) VTK_SIZEHINT(3) = 0;
 
   /**
    * Copy point coordinates into user provided array x[3] for specified
@@ -271,7 +271,7 @@ public:
    * (xmin,xmax, ymin,ymax, zmin,zmax).
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetBounds();
+  double *GetBounds() VTK_SIZEHINT(6);
 
   /**
    * Return a pointer to the geometry bounding box in the form
@@ -285,7 +285,7 @@ public:
    * Get the center of the bounding box.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetCenter();
+  double *GetCenter() VTK_SIZEHINT(3);
 
   /**
    * Get the center of the bounding box.
@@ -328,7 +328,7 @@ public:
    * Update to create or refresh the scalars before calling this method.
    * THIS METHOD IS NOT THREAD SAFE.
    */
-  double *GetScalarRange();
+  double *GetScalarRange() VTK_SIZEHINT(2);
 
   /**
    * Convenience method returns largest cell size in dataset. This is generally

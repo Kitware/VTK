@@ -55,7 +55,7 @@ public:
   /**
    * Standard vtkProp method to get 3D bounds of a 3D prop
    */
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override { this->Superclass::GetBounds( bounds ); };
   //@}
 

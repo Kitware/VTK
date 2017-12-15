@@ -200,7 +200,7 @@ public:
    */
   void GetTransformedPosition(double &a0, double &a1, double &a2);
   void GetTransformedPosition(double a[3]);
-  double *GetTransformedPosition();
+  double *GetTransformedPosition() VTK_SIZEHINT(3);
   //@}
 
   //@{
@@ -210,7 +210,7 @@ public:
    */
   void GetTransformedFocalPoint(double &a0, double &a1, double &a2);
   void GetTransformedFocalPoint(double a[3]);
-  double *GetTransformedFocalPoint();
+  double *GetTransformedFocalPoint() VTK_SIZEHINT(3);
   //@}
 
   //@{

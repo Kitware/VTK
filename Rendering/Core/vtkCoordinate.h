@@ -142,22 +142,22 @@ public:
   /**
    * Return the computed value in a specified coordinate system.
    */
-  double *GetComputedWorldValue(vtkViewport *);
-  int *GetComputedViewportValue(vtkViewport *);
-  int *GetComputedDisplayValue(vtkViewport *);
-  int *GetComputedLocalDisplayValue(vtkViewport *);
+  double *GetComputedWorldValue(vtkViewport *) VTK_SIZEHINT(3);
+  int *GetComputedViewportValue(vtkViewport *) VTK_SIZEHINT(2);
+  int *GetComputedDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
+  int *GetComputedLocalDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
   //@}
 
-  double *GetComputedDoubleViewportValue(vtkViewport *);
-  double *GetComputedDoubleDisplayValue(vtkViewport *);
+  double *GetComputedDoubleViewportValue(vtkViewport *) VTK_SIZEHINT(2);
+  double *GetComputedDoubleDisplayValue(vtkViewport *) VTK_SIZEHINT(2);
 
   /**
    * GetComputedValue() will return either World, Viewport or
    * Display based on what has been set as the coordinate system.
    * This is good for objects like vtkLineSource, where the
-   * user might want to use them as World or Viewport coordinates
+   * user might want to use them as World or Viewport coordinates.
    */
-  double *GetComputedValue(vtkViewport *);
+  double *GetComputedValue(vtkViewport *) VTK_SIZEHINT(3);
 
   /**
    * GetComputedUserDefinedValue() is to be used only when
@@ -166,7 +166,7 @@ public:
    * when set as the TransformCoordinate in 2D-Mappers, the user
    * can customize display of 2D polygons
    */
-  virtual double *GetComputedUserDefinedValue(vtkViewport *)
+  virtual double *GetComputedUserDefinedValue(vtkViewport *) VTK_SIZEHINT(3)
     { return this->Value; }
 
 protected:

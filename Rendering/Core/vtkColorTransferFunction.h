@@ -103,7 +103,7 @@ public:
   /**
    * Returns an RGB color for the specified scalar value
    */
-  double *GetColor(double x) {
+  double *GetColor(double x) VTK_SIZEHINT(3) {
     return vtkScalarsToColors::GetColor(x); }
   void GetColor(double x, double rgb[3]) override;
 
@@ -135,7 +135,7 @@ public:
   /**
    * Returns min and max position of all function points.
    */
-  double* GetRange() override { return this->Range; }
+  double* GetRange() VTK_SIZEHINT(2) override { return this->Range; }
   virtual void GetRange(double& arg1, double& arg2)
   {
     arg1 = this->Range[0];

@@ -155,7 +155,7 @@ public:
    * method GetBounds(double bounds[6]) is available from the superclass.)
    */
   using Superclass::GetBounds;
-  double *GetBounds() override;
+  double *GetBounds() VTK_SIZEHINT(6) override;
 
   /**
    * Apply the current properties to all parts that compose this actor.
