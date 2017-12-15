@@ -132,7 +132,7 @@ function(vtk_python_package name)
       if (NOT _no_install AND NOT VTK_INSTALL_NO_RUNTIME)
         install(DIRECTORY ${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_target}/
                 DESTINATION ${VTK_INSTALL_PYTHON_MODULES_DIR}/${_name_target}
-                COMPONENT "Runtime"
+                COMPONENT RuntimeLibraries
                 # Add exclusions to avoid installing VTK's C++ Python modules
                 # These have their own install rules.
                 PATTERN "vtk*Python.so" EXCLUDE
@@ -228,16 +228,16 @@ function (vtk_module_python_module name)
                         "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_we}.pyc"
                         "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name_we}.pyo"
                   DESTINATION "${VTK_INSTALL_PYTHON_MODULES_DIR}"
-                  COMPONENT "Runtime")
+                  COMPONENT RuntimeLibraries)
         else()
           # python 3 uses a different directory for .pyc files, and .pyo files are gone.
           install(FILES "${VTK_BUILD_PYTHON_MODULES_DIR}/${_name}"
                   DESTINATION "${VTK_INSTALL_PYTHON_MODULES_DIR}"
-                  COMPONENT "Runtime")
+                  COMPONENT RuntimeLibraries)
           file(GLOB file_matches "${VTK_BUILD_PYTHON_MODULES_DIR}/__pycache__/${_name_we}.*.pyc")
           install(FILES ${file_matches}
                   DESTINATION "${VTK_INSTALL_PYTHON_MODULES_DIR}/__pycache__"
-                  COMPONENT "Runtime")
+                  COMPONENT RuntimeLibraries)
         endif()
       endif()
     endif() # NOT _use_system
