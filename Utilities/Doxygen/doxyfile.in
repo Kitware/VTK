@@ -37,8 +37,9 @@ MAX_DOT_GRAPH_DEPTH  = 3
 ALLEXTERNALS         = NO
 
 IMAGE_PATH           = "@VTK_SOURCE_DIR@/Utilities/Doxygen" "@VTK_BINARY_DIR@/Utilities/Doxygen/contrib" \
-                       "@VTK_SOURCE_DIR@/Rendering" \
-                       "@VTK_SOURCE_DIR@/Geovis"
+                       "@VTK_SOURCE_DIR@/Filters" \
+                       "@VTK_SOURCE_DIR@/Geovis" \
+                       "@VTK_SOURCE_DIR@/Rendering"
 
 OUTPUT_DIRECTORY     = "@VTK_BINARY_DIR@/Utilities/Doxygen/doc"
 
