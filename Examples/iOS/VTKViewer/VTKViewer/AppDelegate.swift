@@ -17,6 +17,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Hide status bar for App
         application.isStatusBarHidden = true
 
+        // Check if any example data can be downloaded
+        ExampleDataManager.downloadExampleData()
+
         return true
     }
 

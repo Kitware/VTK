@@ -20,6 +20,7 @@
 		1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1AB77C1FBE4F300096A0DB /* AppDelegate.swift */; };
 		1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */; };
 		4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */; };
+		438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		1A30DA3E1FBF7B9A00B5ACF2 /* VTKLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VTKLoader.h; sourceTree = "<group>"; };
 		1A30DA3F1FBF7B9A00B5ACF2 /* VTKLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VTKLoader.mm; sourceTree = "<group>"; };
 		4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VTKViewerDocument.swift; sourceTree = "<group>"; };
+		438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExampleDataManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +134,7 @@
 				12BFB1071EF834F100EE3EE1 /* VTKViewController.mm */,
 				1A1AB7751FBDF8F00096A0DB /* VTKViewer-Bridging-Header.h */,
 				4304BED31FC81FE000326FC2 /* VTKViewerDocument.swift */,
+				438EE6B01FD14BA4008682A3 /* ExampleDataManager.swift */,
 			);
 			path = VTKViewer;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 			files = (
 				4304BED41FC81FE000326FC2 /* VTKViewerDocument.swift in Sources */,
 				1A1AB77D1FBE4F300096A0DB /* AppDelegate.swift in Sources */,
+				438EE6B11FD14BA4008682A3 /* ExampleDataManager.swift in Sources */,
 				1A30DA401FBF7B9A00B5ACF2 /* VTKLoader.mm in Sources */,
 				12BFB1081EF834F100EE3EE1 /* VTKViewController.mm in Sources */,
 				12BFB13A1EF83D2000EE3EE1 /* VTKView.mm in Sources */,
