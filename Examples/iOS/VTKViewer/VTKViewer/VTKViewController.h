@@ -11,6 +11,6 @@
 @interface VTKViewController : UIViewController<UIGestureRecognizerDelegate,
                                                 UIDocumentPickerDelegate>
 
-- (void)loadFileAtURL:(NSURL *)url;
+- (void)loadFiles:(nonnull NSArray<NSURL *>*)urls;
 
 @end

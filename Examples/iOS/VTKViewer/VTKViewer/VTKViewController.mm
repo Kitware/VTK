@@ -22,7 +22,7 @@
 
 @interface VTKViewController ()
 
-@property (strong, nonatomic) NSURL *initialUrl;
+@property (strong, nonatomic) NSArray<NSURL *>* initialUrls;
 
 // Views
 @property (strong, nonatomic) IBOutlet VTKView *vtkView;
@@ -68,11 +68,11 @@
     self.vtkView.renderWindow->AddRenderer(self.renderer);
 
     // Load initial data
-    if (self.initialUrl) {
+    if (self.initialUrls) {
         // If URL given when lauching app,
         // load that file
-        [self loadFileAtURL:self.initialUrl];
-        self.initialUrl = nil;
+        [self loadFiles:self.initialUrls];
+        self.initialUrls = nil;
     } else {
         // If not data is explicitely requested,
         // add dummy cube
@@ -116,28 +116,66 @@
     UIDocumentPickerViewController *documentPicker = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:[self supportedFileTypes]
                                                                                                             inMode:UIDocumentPickerModeImport];
     documentPicker.delegate = self;
+    documentPicker.allowsMultipleSelection = true;
     documentPicker.modalPresentationStyle = UIModalPresentationFormSheet;
     [self presentViewController:documentPicker animated:YES completion:nil];
 }
 
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentAtURL:(NSURL *)url {
-    [self loadFileAtURL:url];
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(nonnull NSArray<NSURL *> *)urls {
+    [self loadFiles:urls];
 }
 
-- (void)loadFileAtURL:(NSURL *)url {
+- (void)loadFiles:(nonnull NSArray<NSURL *>*)urls {
     // If the view is not yet loaded, keep track of the url
     // and load it after everything is initialized
     if (!self.isViewLoaded) {
-        self.initialUrl = url;
+        self.initialUrls = urls;
         return;
     }
 
+    // First Check if scene is empty.
+    if (self.renderer->GetViewProps()->GetNumberOfItems() == 0) {
+        // Directly load the file. Not necessary to reset the scene as there's nothing to reset.
+        [self loadFilesInternal:urls];
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIAlertController *alertController = [UIAlertController
+                                                  alertControllerWithTitle:@"Import"
+                                                  message:@"There are other objects in the scene."
+                                                  preferredStyle:UIAlertControllerStyleAlert];
+
+            // Completion handler for selected action in alertController.
+            void (^onSelectedAction)(UIAlertAction*) =
+            ^(UIAlertAction* action) {
+                // Reset the scene if "Replace" was selected.
+                if (action.style == UIAlertActionStyleCancel) {
+                    self.renderer->RemoveAllViewProps();
+                }
+                [self loadFilesInternal:urls];
+            };
+
+            // Two actions : Insert file in scene and Reset the scene.
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Add" style:UIAlertActionStyleDefault handler:onSelectedAction]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Replace" style:UIAlertActionStyleCancel handler:onSelectedAction]];
+
+            [self presentViewController:alertController animated:YES completion:nil];
+        });
+    }
+}
+
+- (void)loadFilesInternal:(nonnull NSArray<NSURL *>*)urls {
+    for (NSURL* url in urls) {
+        [self loadFileInternal:url];
+    }
+}
+
+- (void)loadFileInternal:(NSURL *)url {
     vtkSmartPointer<vtkActor> actor = [VTKLoader loadFromURL:url];
 
     NSString *alertTitle;
     NSString *alertMessage;
     if (actor) {
-        self.renderer->RemoveAllViewProps();
         self.renderer->AddActor(actor);
         self.renderer->ResetCamera();
         [self.vtkView setNeedsDisplay];

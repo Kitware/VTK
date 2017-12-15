@@ -58,7 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let fileExists = FileManager.default.fileExists(atPath: url.path)
         if (fileExists) {
             // File exists, it can be loaded directly.
-            mainViewController?.loadFile(at: url)
+            mainViewController?.loadFiles([url])
         }
         else {
             // Otherwise, a UIDocument is required.
@@ -79,7 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             // Save document locally in the app's temporary directory.
             document.save(to: localDocumentPath, for: UIDocumentSaveOperation.forOverwriting, completionHandler: { _ in
-                mainViewController?.loadFile(at: document.fileURL)
+                mainViewController?.loadFiles([document.fileURL])
             })
         }
     }
