@@ -1,7 +1,6 @@
 # Converted projects
 
   * [AutobahnPython](AutobahnPython/update.sh)
-  * [constantly](constantly/update.sh)
   * [diy2](diy2/update.sh)
   * [expat](expat/update.sh)
   * [hyperlink](hyperlink/update.sh)
