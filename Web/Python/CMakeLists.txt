@@ -13,6 +13,9 @@ vtk_module_python_package(${vtk-module} "vtkmodules/web"
 set_property(GLOBAL APPEND
   PROPERTY
     vtk_required_python_modules "wslink>=0.1.3")
+set_property(GLOBAL APPEND
+  PROPERTY
+    vtk_required_python_modules "Twisted>=17.5.0")
 
 if(BUILD_TESTING)
   add_subdirectory(Testing)

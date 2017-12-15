@@ -15,7 +15,6 @@
   * [metaio](../Utilities/MetaIO/update.sh)
   * [png](png/update.sh)
   * [tiff](tiff/update.sh)
-  * [Twisted](Twisted/update.sh)
   * [txaio](txaio/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)
