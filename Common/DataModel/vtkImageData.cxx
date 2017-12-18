@@ -1253,10 +1253,10 @@ void vtkImageData::GetIncrements(vtkIdType inc[3])
 
 
 //----------------------------------------------------------------------------
-void vtkImageData::GetIncrements(vtkDataArray* vtkNotUsed(scalars),
+void vtkImageData::GetIncrements(vtkDataArray* scalars,
                                  vtkIdType inc[3])
 {
-  this->ComputeIncrements(inc);
+  this->ComputeIncrements(scalars, inc);
 }
 
 
