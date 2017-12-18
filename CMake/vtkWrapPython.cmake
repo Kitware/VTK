@@ -60,7 +60,20 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
     string(LENGTH "${TARGET}" target_length)
     math(EXPR target_length "${target_length} - 6")
     string(SUBSTRING "${TARGET}" 0 "${target_length}" target_basename)
-    set(hierarchy_depend "${target_basename}Hierarchy")
+    get_property(is_kit GLOBAL
+      PROPERTY "_vtk_${target_basename}_is_kit")
+    if (is_kit)
+      set(hierarchy_depend)
+      get_property(kit_modules GLOBAL
+        PROPERTY "_vtk_${target_basename}_kit_modules")
+      message("depends for ${TARGET}: ${kit_modules}")
+      foreach (depend IN LISTS kit_modules)
+        list(APPEND hierarchy_depend
+          "${depend}Hierarchy")
+      endforeach ()
+    else ()
+      set(hierarchy_depend "${target_basename}Hierarchy")
+    endif ()
   endif ()
 
   # for each class
