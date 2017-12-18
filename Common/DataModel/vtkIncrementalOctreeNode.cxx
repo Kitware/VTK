@@ -243,7 +243,7 @@ void vtkIncrementalOctreeNode::SeperateExactlyDuplicatePointsFromNewInsertion
 {
   // the number of points already maintained in this leaf node
   // >= maxPts AND all of them are exactly duplicate with one another
-  //           BUT the new point is  not a duplicate of them any more
+  //           BUT the new point is not a duplicate of them any more
 
   int         i;
   double      dupPnt[3];
@@ -333,10 +333,10 @@ int vtkIncrementalOctreeNode::CreateChildNodes
   //
   // (1) the number of points already maintained in this leaf node
   //     == maxPts AND not all of them are exactly duplicate
-  //               AND the new point is  not a duplicate of them all
+  //               AND the new point is not a duplicate of them all
   // (2) the number of points already maintained in this leaf node
   //     >= maxPts AND all of them are exactly duplicate with one another
-  //               BUT the new point is  not a duplicate of them any more
+  //               BUT the new point is not a duplicate of them any more
 
   // address case (2) first if necessary
   double    sample[3];

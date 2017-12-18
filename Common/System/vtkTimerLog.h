@@ -116,7 +116,7 @@ public:
   //@{
   /**
    * Write the timing table out to a file.  Calculate some helpful
-   * statistics (deltas and  percentages) in the process.
+   * statistics (deltas and percentages) in the process.
    */
   static void DumpLog(const char *filename);
   //@}

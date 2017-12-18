@@ -81,7 +81,7 @@ int TestAssertion(ostream &strm,
 
 //-----------------------------------------------------------------------------
 // Description:
-// Call TestAssertion() and return with 1 if it fails, do nothing oterwise.
+// Call TestAssertion() and return with 1 if it fails, do nothing otherwise.
 // void TestAssertion(ostream &strm,
 //                    vtkIndent indent,
 //                    const *char label,

@@ -85,7 +85,7 @@ public:
   //@{
   /**
    * Set the maximum point of the bounding box - if the max point
-   * is less than the min point then the  min point will also be changed.
+   * is less than the min point then the min point will also be changed.
    */
   void SetMaxPoint(double x, double y, double z);
   void SetMaxPoint(double p[3]);

@@ -99,7 +99,7 @@ public:
   vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx);
 
   // Description:
-  // Retrieves the composite index  associated with the data at the given
+  // Retrieves the composite index associated with the data at the given
   // (level,index) pair.
   int GetCompositeIndex( const unsigned int level, const unsigned int index );
 

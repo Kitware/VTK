@@ -196,7 +196,7 @@ int TestFilter(int columns, int rows)
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::OR, 2, intersection));
   expectedCellCounts.push_back(rows + columns - 1);
 
-  // 6: Row x or Column y but not both  expect rows + columns - 2
+  // 6: Row x or Column y but not both expect rows + columns - 2
   intervalSets.push_back(threshold->AddBooleanSet(vtkMultiThreshold::XOR, 2, intersection));
   expectedCellCounts.push_back(rows + columns - 2);
 

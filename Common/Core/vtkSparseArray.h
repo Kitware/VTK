@@ -29,7 +29,7 @@
  * complete set of coordinates and the value for each non-null value in the array.
  * While this approach requires slightly more storage than other sparse storage
  * schemes (such as Compressed-Row or Compressed-Column), it is easier and more
- * efficient to work with when implementing algorithms, and  it generalizes well
+ * efficient to work with when implementing algorithms, and it generalizes well
  * for arbitrary numbers of dimensions.
  *
  * In addition to the value retrieval and update methods provided by vtkTypedArray,

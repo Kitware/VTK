@@ -1546,7 +1546,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 // The callForAnyType is used to write generic code that works with any
 // vtkDataArray derived types.
 //
-// This  macro calls a template function (on the data type stored in the
+// This macro calls a template function (on the data type stored in the
 // array).  Example usage:
 //   callForAnyType(array, myFunc(static_cast<VTK_TT*>(data), arg2));
 // where 'array' is a vtkDataArray and

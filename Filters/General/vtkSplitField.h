@@ -65,7 +65,7 @@ public:
   static vtkSplitField *New();
 
   /**
-   * Use the  given attribute in the field data given
+   * Use the given attribute in the field data given
    * by fieldLoc as input.
    */
   void SetInputField(int attributeType, int fieldLoc);

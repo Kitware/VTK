@@ -95,7 +95,7 @@ public:
 
   /**
    * Boundaries of dimension `dim' (or all dimensions if -1) of the dataset.
-   * If `exteriorOnly' is true, only  the exterior boundaries of the dataset
+   * If `exteriorOnly' is true, only the exterior boundaries of the dataset
    * will be returned, otherwise it will return exterior and interior
    * boundaries.
    * \pre valid_dim_range: (dim>=-1) && (dim<=2)

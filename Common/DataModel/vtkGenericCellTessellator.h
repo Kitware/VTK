@@ -116,7 +116,7 @@ public:
   //@{
   /**
    * Specify the list of error metrics used to decide if an edge has to be
-   * splitted or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
+   * split or not. It is a collection of vtkGenericSubdivisionErrorMetric-s.
    */
   virtual void SetErrorMetrics(vtkCollection *someErrorMetrics);
   vtkGetObjectMacro(ErrorMetrics,vtkCollection);

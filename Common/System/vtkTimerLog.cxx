@@ -376,7 +376,7 @@ vtkTimerLogEntry::LogEntryType vtkTimerLog::GetEventType(int idx)
 
 //----------------------------------------------------------------------------
 // Write the timing table out to a file.  Calculate some helpful
-// statistics (deltas and  percentages) in the process.
+// statistics (deltas and percentages) in the process.
 void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
 {
 #ifndef _WIN32_WCE

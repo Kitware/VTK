@@ -126,7 +126,7 @@
  *
  * @par Thanks:
  * This class was written by Philippe Pebay, Joachim Pouderoux, and Charles Law, Kitware 2013
- * This class was modified by Guenole Harel and  Jacques-Bernard Lekien 2014
+ * This class was modified by Guenole Harel and Jacques-Bernard Lekien 2014
  * This class was modified by Philippe Pebay, 2016
  * This work was supported by Commissariat a l'Energie Atomique (CEA/DIF)
 */

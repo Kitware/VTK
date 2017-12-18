@@ -337,7 +337,7 @@ inline double vtkNormalizePolyCoeff( double d, double* div = nullptr )
 // Does not store Q and stores -R instead of R. This premultiplies Ai by mul and
 // then divides mR by div. mR MUST have at least the size of m+1, because it is
 // used as temporary storage besides as the return value.
-// This shouldn't be too  much slower than the version without mul and div. It
+// This shouldn't be too much slower than the version without mul and div. It
 // has to copy mul*Ai into mR at the beginning. So it has m+1 extra
 // multiplications and assignments. When it assigns final values into mR it
 // divides by div. So it has deg(mR) extra divisions.

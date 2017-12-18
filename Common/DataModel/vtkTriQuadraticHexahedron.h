@@ -64,7 +64,7 @@
  * vtkBiQuadraticQuad
  *
  * @par Thanks:
- * Thanks to Soeren Gebbert  who developed this class and
+ * Thanks to Soeren Gebbert who developed this class and
  * integrated it into VTK 5.0.
 */
 

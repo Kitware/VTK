@@ -768,7 +768,7 @@ public:
     // Compute memory used in kibibytes (1024 bytes)
     unsigned int mem = static_cast<unsigned int>( size / 1024 );
 
-    // Return  upper bound of 1 kiB if footprint is smaller
+    // Return upper bound of 1 kiB if footprint is smaller
     return ( mem ? mem : 1 );
   }
 

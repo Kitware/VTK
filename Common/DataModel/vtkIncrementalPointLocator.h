@@ -97,7 +97,7 @@ public:
    * the already inserted point if true, else return -1. InitPointInsertion()
    * should have been called in advance.
    */
-  virtual vtkIdType IsInsertedPoint( double x, double  y, double z ) = 0;
+  virtual vtkIdType IsInsertedPoint( double x, double y, double z ) = 0;
 
   /**
    * Determine whether or not a given point has been inserted. Return the id of

@@ -265,7 +265,7 @@ protected:
   // Helper methods for triangulation------------------------------
   /**
    * A fast triangulation method. Uses recursive divide and
-   * conquer based on plane splitting  to reduce loop into triangles.
+   * conquer based on plane splitting to reduce loop into triangles.
    * The cell (e.g., triangle) is presumed properly initialized (i.e.,
    * Points and PointIds).
    */
@@ -273,7 +273,7 @@ protected:
 
   /**
    * A fast triangulation method. Uses recursive divide and
-   * conquer based on plane splitting  to reduce loop into triangles.
+   * conquer based on plane splitting to reduce loop into triangles.
    * The cell (e.g., triangle) is presumed properly initialized (i.e.,
    * Points and PointIds). Unlike EarCutTriangulation(), vertices are visited
    * sequentially without preference to angle.

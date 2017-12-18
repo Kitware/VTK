@@ -36,7 +36,7 @@
 #include <functional>
 
 //
-// This test is intended  to test the ability of the temporal pipeline
+// This test is intended to test the ability of the temporal pipeline
 // to loop a simple source over T and pass Temporal data downstream.
 //
 

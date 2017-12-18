@@ -834,7 +834,7 @@ void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
 // CellGrid: Subdivide cells in consistent tetrahedra.
 //
 // Case : Voxel or Hexahedron:
-//       if ( subdivide voxel  in 6 tetrahedra)
+//       if ( subdivide voxel in 6 tetrahedra)
 //           voxel : 2 wedges (*)
 //       else
 //           voxel : 5 tetrahedra
@@ -843,7 +843,7 @@ void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
 //
 // ------------------------------------------------
 //
-//(*) WedgeToTetra: subdivide one wedge in  3 tetrahedra
+//(*) WedgeToTetra: subdivide one wedge in 3 tetrahedra
 //
 //        wedge : 1 tetrahedron + 1 pyramid = 3 tetrahedra.
 //
@@ -915,7 +915,7 @@ void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
   unsigned int i,j,idpy;
   vtkIdType tab[4];
 
-  // the table 'vpy' set  3  possibilities of the smallest index
+  // the table 'vpy' set 3 possibilities of the smallest index
   // vertices{v0,v1,v2,v3,v4}. {v0,v1,v2,v3} is a square face of pyramid
   //
   //                v4
@@ -1022,7 +1022,7 @@ void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
 //               and 1 pyramid-> vert[0] : {v1,v2,v5,v4,v0}
 //
 //  Case Pyramid (14):
-//       the table 'vpy' set  3  possibilities of the smallest index
+//       the table 'vpy' set 3 possibilities of the smallest index
 //       vertices{v0,v1,v2,v3,v4}. {v0,v1,v2,v3} is a square face of pyramid
 //
 //                v4  (opposite vertex of face with 4 vertices)
@@ -1522,8 +1522,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 }
 
 //----------------------------------------------------------------------------
-// The new cell  created in  intersection between tetrahedron and plane
-// are tetrahedron or wedges or pyramides.
+// The new cell created in intersection between tetrahedron and plane
+// are tetrahedron or wedges or pyramids.
 //
 // CreateTetra is used to subdivide wedges and pyramids in tetrahedron.  The
 // proper vertex ordering for wedges and pyramids can be found in "The

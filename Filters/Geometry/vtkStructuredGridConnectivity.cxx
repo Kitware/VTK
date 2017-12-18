@@ -726,7 +726,7 @@ void vtkStructuredGridConnectivity::EstablishNeighbors(const int i,const int j)
 
   // A 3-tuple that defines the grid orientation of the form {i,j,k} where
   // i=0;, j=1, k=2. For example, let's say that we want to define the
-  // orientation to be in the XZ plane, then, orientation  array would be
+  // orientation to be in the XZ plane, then, orientation array would be
   // constructed as follows: {0,2 -1}, where -1 indicates a NIL value.
   int orientation[3];
 

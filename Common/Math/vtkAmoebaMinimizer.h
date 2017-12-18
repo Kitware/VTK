@@ -175,7 +175,7 @@ public:
 
   //@{
   /**
-   * Return the number of interations that have been performed.  This
+   * Return the number of iterations that have been performed.  This
    * is not necessarily the same as the number of function evaluations.
    */
   vtkGetMacro(Iterations,int);

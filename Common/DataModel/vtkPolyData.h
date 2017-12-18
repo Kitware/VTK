@@ -249,7 +249,7 @@ public:
 
   /**
    * Create data structure that allows random access of cells. BuildCells is
-   * expensive but necessary to make use of the faster  non-virtual implementations
+   * expensive but necessary to make use of the faster non-virtual implementations
    * of GetCell/GetCellPoints. One may check if cells need to be built via
    * NeedToBuilds before invoking. Cells always need to be built/re-built after
    * low level direct modifications to verts, lines, polys or strips cell arrays.

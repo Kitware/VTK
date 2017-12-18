@@ -119,7 +119,7 @@ protected:
   // preorder fashion.
   // If the current location is a composite dataset, next is its 1st child dataset.
   // If the current is not a composite dataset, then next is the next dataset.
-  // This method gives no guarantees  whether the current dataset will be
+  // This method gives no guarantees whether the current dataset will be
   // non-null or leaf.
   void NextInternal();
 

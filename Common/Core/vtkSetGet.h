@@ -460,7 +460,7 @@ extern VTKCOMMONCORE_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
       vtkmsg.rdbuf()->freeze(0);}}
 
 //
-// This macro is used for  debug statements in instance methods
+// This macro is used for debug statements in instance methods
 // vtkDebugMacro(<< "this is debug info" << this->SomeVariable);
 //
 #define vtkDebugMacro(x) \

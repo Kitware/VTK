@@ -107,7 +107,7 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     input->GetColumnByName(this->ZColumn));
   if (!xarray || !yarray || !zarray)
   {
-    vtkErrorMacro("Failed to locate  the columns to use for the point"
+    vtkErrorMacro("Failed to locate the columns to use for the point"
       " coordinates");
     return 0;
   }

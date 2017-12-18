@@ -416,7 +416,7 @@ int vtkCurvatures::RequestData(
   output->GetFieldData()->PassData(input->GetFieldData());
 
   //-------------------------------------------------------//
-  //    Set Curvatures as PointData  Scalars               //
+  //    Set Curvatures as PointData Scalars                //
   //-------------------------------------------------------//
 
   if ( this->CurvatureType == VTK_CURVATURE_GAUSS )

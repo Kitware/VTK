@@ -22,7 +22,7 @@
  * vtkReebGraph (port 1).
  * The filter samples each arc of the Reeb graph and embeds the samples on the
  * barycenter of the corresponding field contour.
- * The number of (evenly distributed) arc samples  can be defined with
+ * The number of (evenly distributed) arc samples can be defined with
  * SetNumberOfSamples() (default value: 10).
  * The skeleton can be optionally smoothed with SetNumberOfSmoothingIterations()
  * (default value: 10).

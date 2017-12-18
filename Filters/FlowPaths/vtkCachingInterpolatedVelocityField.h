@@ -108,7 +108,7 @@ public:
 
   /**
    * Set LastCellId to -1 and Cache to nullptr so that the next
-   * search does not  start from the previous cell.
+   * search does not start from the previous cell.
    */
   void ClearLastCellInfo();
 

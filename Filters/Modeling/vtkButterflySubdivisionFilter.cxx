@@ -67,7 +67,7 @@ int vtkButterflySubdivisionFilter::GenerateSubdivisionPoints(
 
     for (edgeId=0; edgeId < 3; edgeId++)
     {
-      // Do we need to  create a point on this edge?
+      // Do we need to create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
       {
         outputPD->CopyData (inputPD, p1, p1);

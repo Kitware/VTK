@@ -262,7 +262,7 @@ public:
   static double Random();
 
   /**
-   * Generate  pseudo-random numbers distributed according to the uniform
+   * Generate pseudo-random numbers distributed according to the uniform
    * distribution between \a min and \a max.
 
    * DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()
@@ -290,7 +290,7 @@ public:
   static double Gaussian();
 
   /**
-   * Generate  pseudo-random numbers distributed according to the Gaussian
+   * Generate pseudo-random numbers distributed according to the Gaussian
    * distribution with mean \a mean and standard deviation \a std.
 
    * DON'T USE Random(), RandomSeed(), GetSeed(), Gaussian()

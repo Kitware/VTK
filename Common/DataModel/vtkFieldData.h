@@ -348,7 +348,7 @@ public:
   void InsertTuple(const vtkIdType i, const vtkIdType j, vtkFieldData* source);
 
   /**
-   * Insert the jth tuple in source field data  at the end of the
+   * Insert the jth tuple in source field data at the end of the
    * tuple matrix. Range checking is performed and memory is allocated
    * as necessary.
    */

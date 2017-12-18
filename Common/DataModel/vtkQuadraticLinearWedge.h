@@ -32,7 +32,7 @@
  * vtkQuadraticHexahedron vtkQuadraticQuad vtkQuadraticPyramid
  *
  * @par Thanks:
- * Thanks to Soeren Gebbert  who developed this class and
+ * Thanks to Soeren Gebbert who developed this class and
  * integrated it into VTK 5.0.
 */
 
@@ -73,7 +73,7 @@ public:
 
   //@{
   /**
-   * The quadratic linear wege is splitted into 4 linear wedges,
+   * The quadratic linear wedge is split into 4 linear wedges,
    * each of them is contoured by a provided scalar value
    */
   void Contour (double value, vtkDataArray * cellScalars,
