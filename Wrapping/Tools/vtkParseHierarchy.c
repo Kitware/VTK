@@ -194,8 +194,7 @@ HierarchyInfo *vtkParseHierarchy_ReadFiles(int n, char **filenames)
     if (!vtkParseHierarchy_ReadFileIntoInfo(info, filenames[currentFile]))
     {
       vtkParseHierarchy_Free(info);
-      info = NULL;
-      break;
+      exit(1);
     }
   }
 
@@ -227,6 +226,7 @@ static int vtkParseHierarchy_ReadFileIntoInfo(
 
   if (fp == NULL)
   {
+    fprintf(stderr, "Error opening hierarchy file %s\n", filename);
     return 0;
   }
 
