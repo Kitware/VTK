@@ -1331,7 +1331,7 @@ bool CheckWatertightNonManifoldPolyhedron(vtkPolyhedron* cell, EdgeSet& original
   size_t sizeMap = directMap.size();
   if (sizeMap != nEdges)
   {
-    cerr << "The number of edges in the edge>face map does not match the number of edges of the cell" << endl;
+    vtkGenericWarningMacro(<< "The number of edges in the edge>face map does not match the number of edges of the cell");
     return false;
   }
 
@@ -1341,8 +1341,7 @@ bool CheckWatertightNonManifoldPolyhedron(vtkPolyhedron* cell, EdgeSet& original
     const set<vtkIdType>& facesOfEdge = it->second;
     if (facesOfEdge.size() != 2)
     {
-      cerr << "The number of faces of edge " << it->first.first << "-" << it->first.second << " is not 2 but " << facesOfEdge.size() << endl;
-      cerr << "The polyhedron is not watertight or non-manifold" << endl;
+      vtkGenericWarningMacro(<< "The polyhedron is not watertight or non-manifold because the number of faces of edge " << it->first.first << "-" << it->first.second << " is not 2 but " << facesOfEdge.size());
       ok = false;
     }
   }
@@ -1373,140 +1372,17 @@ the *unwanted* triangulation instead of the desired one because it prioritizes t
 inner angles close to 60 degrees, even though it then ends with a triangle with a very large
 internal angle (up to 180 degrees).
 
-Therefore, we don't triangulate the faces themselves, but tetrahedralize the polyhedron and look for unique
-tetrahedron faces. Shared tetrahedron faces are on the inside, whereas unique faces are on the outside.
-
-Update: tetrahedralization gives triangulations that are less desirable (not inherently wrong) for slightly
-        concave polyhedra. For reference, the function TriangulatePolyhedralFaces is still here, but
-        the current approach is to triangulate a polygon using a fan triangulation that gives the smallest
-        range of internal angles. This approach will always choose to triangulate starting at (6) in the
-        example given above. If (6) is moved out-of-plane as it were (see TestPolyhedron5.cxx) then the
-        tetrahedralization gives a face triangulation that includes the edge (1)-(4), but triangulates the face
-        as (1-4-2)-(2-4-5). The now preferred method triangulates it as (6-2-1)-(6-2-5)-(6-5-4), thereby
-        preserving the original shape of the polygon, even if it is slightly convex. Note that extremely
-        convex polygonds will give completely incorrect triangulations with this method, but that would also
-        be problematic for the tetrahedralization approach.
+Therefore the preffered approach is to triangulate a polygon using a fan triangulation that gives the smallest
+range of internal angles. This approach will always choose to triangulate starting at (6) in the
+example given above. If (6) is moved out-of-plane as it were (see TestPolyhedron5.cxx) then the
+tetrahedralization gives a face triangulation that includes the edge (1)-(4), but triangulates the face
+as (1-4-2)-(2-4-5). The now preferred method triangulates it as (6-2-1)-(6-2-5)-(6-5-4), thereby
+preserving the original shape of the polygon, even if it is slightly concave. Note that extremely
+concave polygons will give completely incorrect triangulations with this method, but that would also
+be problematic for the tetrahedralization approach.
 
 */
 // by using an *ordered* set, the triangles are consistently ordered, independent of face normal
-typedef set<vtkIdType> Triangle;
-
-struct tri_equal_fn
-{
-  bool operator()(Triangle const& t1, Triangle const& t2) const
-  {
-    if (t1.size() != t2.size() || t1.size() != 3)
-    {
-      return false;
-    }
-
-    vector<vtkIdType> intersection;
-    set_intersection(t1.begin(), t1.end(), t2.begin(), t2.end(), back_inserter(intersection));
-
-    // return true if the intersection between the two sets contains the full set.
-    return intersection.size() == 3;
-  }
-};
-
-struct tri_hash_fn
-{
-  size_t operator()(Triangle const& t) const
-  {
-    size_t seed(31);
-    for (auto it = t.begin(); it != t.end(); ++it)
-    {
-      vtkIdType item = *it;
-      seed ^= (17 * item);
-    }
-    return seed;
-  }
-};
-
-typedef unordered_map<Triangle, size_t, tri_hash_fn, tri_equal_fn> TriangleCounter;
-
-// copied from vtkTetra.cxx:224 "faces"
-static int TetraTriIndex[4][4] = { { 0,1,3,-1 },{ 1,2,3,-1 },{ 2,0,3,-1 },{ 0,2,1,-1 } };
-
-void TriangulatePolyhedralFaces(vtkPolyhedron *cell, FaceVector& tris, vector<vector<vtkIdType>>& originalFaceTriFaceMap)
-{
-  vtkNew<vtkIdList> tetIds;
-  vtkNew<vtkPoints> tetPoints;
-  int notUsed(-1);
-  cell->Triangulate(notUsed, tetIds, tetPoints);
-
-  vtkIdType tri[] = { 0,0,0,-1 }; // the last element is needed because we pass that as the 'end' iterator
-  TriangleCounter c;
-  int nTets = tetIds->GetNumberOfIds() / 4;
-  for (int i = 0; i < nTets; ++i)
-  {
-    for (int j = 0; j < 4; ++j)
-    {
-      const int *triIndex = TetraTriIndex[j];
-      for (int k = 0; k < 3; ++k)
-      {
-        tri[k] = tetIds->GetId(i * 4 + triIndex[k]);
-      }
-
-      Triangle t(tri, tri + 3); // tri + 3 is the 'end' iterator
-
-      auto at = c.find(t);
-      if (at == c.end())
-      {
-        c.insert(make_pair(t, 1));
-      }
-      else
-      {
-        size_t& counter = at->second;
-        counter++;
-      }
-    }
-  }
-
-  for (auto it = c.begin(); it != c.end(); ++it)
-  {
-    if (it->second > 1)
-    {
-      // the triangle is counted more than once, so it is not on the outside
-      continue;
-    }
-
-    Face triFace(it->first.begin(), it->first.end());
-    tris.push_back(triFace);
-  }
-
-  vector<vtkIdType> matches;
-  vtkIdType* faceStream = cell->GetFaces();
-  vtkIdType nFaces = *faceStream++;
-  for (vtkIdType i = 0; i < nFaces; ++i)
-  {
-    vtkIdType nFacePoints = *faceStream++;
-
-    vector<vtkIdType> triFaces;
-    for (size_t j = 0; j < tris.size(); ++j)
-    {
-      const Face& outsideTri = tris[j];
-
-      matches.clear();
-      set<vtkIdType> faceOrdered(faceStream, faceStream + nFacePoints);
-
-      set_intersection(outsideTri.begin(), outsideTri.end(),
-        faceOrdered.begin(), faceOrdered.end(),
-        back_inserter(matches));
-
-      if (matches.size() == 3)
-      {
-        // the tri-face 'j' belongs to the original face 'i'
-        triFaces.push_back((vtkIdType)j);
-      }
-    }
-
-    // add tri-faces list to the map
-    originalFaceTriFaceMap.push_back(triFaces);
-
-    // advance the face stream
-    faceStream += nFacePoints;
-  }
-}
 
 int FindLowestIndex(vtkIdType n, vtkIdType *arr)
 {
@@ -1712,7 +1588,7 @@ void TriangulateFace(vtkCell* face, FaceVector& faces, vtkIdList* triIds, vtkPoi
   }
   default:
   {
-    cerr << "Unable to triangulate face cell type " << face->GetCellType();
+    vtkGenericWarningMacro(<< "Unable to triangulate face cell type " << face->GetCellType() );
   }
   }
 }
@@ -1813,7 +1689,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
   if (!CheckNonManifoldTriangulation(edgeFaceMap))
   {
-    cerr << "Despite the developer's best efforts, a cell with a non-manifold triangulation has been encountered. This cell cannot be contoured." << endl;
+    vtkGenericWarningMacro(<< "A cell with a non-manifold triangulation has been encountered. This cell cannot be contoured.");
     return false;
   }
 
@@ -1830,7 +1706,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
     auto at1 = pointIdMap->find(edge.second);
     if (at0 == pointIdMap->end() || at1 == pointIdMap->end())
     {
-      cerr << "Could not find global id " << edge.first << " or " << edge.second << endl;
+      vtkGenericWarningMacro(<< "Could not find global id " << edge.first << " or " << edge.second);
       continue;
     }
 
@@ -1948,7 +1824,7 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap,
       }
       if (face == lastFace)
       {
-        cerr << "Face navigation failed in polyhedral contouring" << endl;
+        vtkGenericWarningMacro(<< "Face navigation failed in polyhedral contouring");
         return EXIT_FAILURE;
       }
       // set the last face to the current face for the next iteration
@@ -2006,8 +1882,8 @@ int CreateContours(EdgeFaceSetMap& edgeFaceMap,
 void vtkPolyhedron::Contour(double value,
   vtkDataArray *pointScalars,
   vtkIncrementalPointLocator *locator,
-  vtkCellArray *vtkNotUsed(verts),
-  vtkCellArray *vtkNotUsed(lines),
+  vtkCellArray *verts,
+  vtkCellArray *lines,
   vtkCellArray *polys,
   vtkPointData *inPd,
   vtkPointData *outPd,
@@ -2031,6 +1907,16 @@ void vtkPolyhedron::Contour(double value,
     return;
   }
 
+  vtkIdType offset(0);
+  if (verts)
+  {
+    offset += verts->GetNumberOfCells();
+  }
+  if (lines)
+  {
+    offset += lines->GetNumberOfCells();
+  }
+
   if (contourPointEdgeMap.size() == 0)
   {
     return; // no contours made
@@ -2041,7 +1927,7 @@ void vtkPolyhedron::Contour(double value,
   {
     if (!poly) return;
 
-    vtkIdType newCellId = polys->InsertNextCell(poly->GetNumberOfIds(), poly->GetPointer(0));
+    vtkIdType newCellId = offset + polys->InsertNextCell(poly->GetNumberOfIds(), poly->GetPointer(0));
     outCd->CopyData(inCd, cellId, newCellId);
   };
 
@@ -2370,7 +2256,7 @@ void vtkPolyhedron::Clip(double value,
       auto localIdIt = this->PointIdMap->find(v0);
       if (localIdIt == this->PointIdMap->end())
       {
-        cerr << "Could not find global id " << v0 << endl;
+        vtkGenericWarningMacro(<< "Could not find global id " << v0);
         continue;
       }
       vtkIdType localId = localIdIt->second;
