@@ -1102,6 +1102,35 @@ class UnstructuredGrid(PointSet):
     CellLocations = property(GetCellLocations, None, None, "This property returns the locations of cells.")
     Cells = property(GetCells, None, None, "This property returns the connectivity of cells.")
 
+class Graph(DataObject):
+    """This is a python friendly wrapper of a vtkGraph that defines
+    a few useful properties."""
+
+    def GetVertexData(self):
+        "Returns the vertex data as a DataSetAttributes instance."
+        return self.GetAttributes(ArrayAssociation.VERTEX)
+
+    def GetEdgeData(self):
+        "Returns the edge data as a DataSetAttributes instance."
+        return self.GetAttributes(ArrayAssociation.EDGE)
+
+    VertexData = property(GetVertexData, None, None, "This property returns the vertex data of the graph.")
+    EdgeData = property(GetEdgeData, None, None, "This property returns the edge data of the graph.")
+
+class Molecule(DataObject):
+    """This is a python friendly wrapper of a vtkMolecule that defines
+    a few useful properties."""
+    def GetAtomData(self):
+        "Returns the atom data as a DataSetAttributes instance."
+        return self.GetVertexData()
+
+    def GetBondData(self):
+        "Returns the bond data as a DataSetAttributes instance."
+        return self.GetEdgeData()
+
+    AtomData = property(GetAtomData, None, None, "This property returns the atom data of the molecule.")
+    BondData = property(GetBondData, None, None, "This property returns the bond data of the molecule.")
+
 def WrapDataObject(ds):
     """Returns a Numpy friendly wrapper of a vtkDataObject."""
     if ds.IsA("vtkPolyData"):
@@ -1116,3 +1145,9 @@ def WrapDataObject(ds):
         return CompositeDataSet(ds)
     elif ds.IsA("vtkTable"):
         return Table(ds)
+    elif ds.IsA("vtkMolecule"):
+        return Molecule(ds)
+    elif ds.IsA("vtkGraph"):
+        return Table(ds)
+    elif ds.IsA("vtkDataObject"):
+        return DataObject(ds)
