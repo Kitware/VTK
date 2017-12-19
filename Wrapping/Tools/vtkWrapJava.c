@@ -1255,6 +1255,13 @@ int main(int argc, char *argv[])
   /* get the command-line options */
   options = vtkParse_GetCommandLineOptions();
 
+  /* get the hierarchy info for accurate typing */
+  if (options->HierarchyFileNames)
+  {
+    hierarchyInfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
+  }
+
   /* get the output file */
   fp = fopen(options->OutputFileName, "w");
 
@@ -1286,21 +1293,6 @@ int main(int argc, char *argv[])
     }
   }
 
-  /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileNames)
-  {
-    hierarchyInfo = vtkParseHierarchy_ReadFiles(
-      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
-    if (hierarchyInfo)
-    {
-      /* resolve using declarations within the header files */
-      vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
-
-      /* expand typedefs */
-      vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
-    }
-  }
-
   if (hierarchyInfo)
   {
     if (!vtkWrap_IsTypeOf(hierarchyInfo, data->Name, "vtkObjectBase"))
@@ -1308,6 +1300,12 @@ int main(int argc, char *argv[])
       fclose(fp);
       exit(0);
     }
+
+    /* resolve using declarations within the header files */
+    vtkWrap_ApplyUsingDeclarations(data, file_info, hierarchyInfo);
+
+    /* expand typedefs */
+    vtkWrap_ExpandTypedefs(data, file_info, hierarchyInfo);
   }
 
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);
