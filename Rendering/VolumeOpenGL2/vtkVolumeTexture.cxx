@@ -522,19 +522,19 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
         switch(noOfComponents)
         {
           case 1:
-            internalFormat = GL_R16F;
+            internalFormat = GL_R32F;
             format = GL_RED;
             break;
           case 2:
-            internalFormat = GL_RG16F;
+            internalFormat = GL_RG32F;
             format = GL_RG;
             break;
           case 3:
-            internalFormat = GL_RGB16F;
+            internalFormat = GL_RGB32F;
             format = GL_RGB;
             break;
           case 4:
-            internalFormat = GL_RGBA16F;
+            internalFormat = GL_RGBA32F;
             format = GL_RGBA;
             break;
         }
@@ -582,7 +582,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
         case 1:
           if (supportsFloat)
           {
-            internalFormat = GL_R16F;
+            internalFormat = GL_R32F;
           }
           else
           {
