@@ -5,7 +5,7 @@ endif()
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   ${extra_opengl2_tests}
-  TestBlockOpacity.cxx
+  TestBlockOpacity.cxx TestBlockVisibility.cxx
   TestCompositePolyDataMapper2.cxx,NO_DATA
   TestCompositePolyDataMapper2Picking.cxx,NO_DATA
   TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
