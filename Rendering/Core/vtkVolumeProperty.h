@@ -55,10 +55,12 @@
 #ifndef vtkVolumeProperty_h
 #define vtkVolumeProperty_h
 
+#include "vtkNew.h" // Needed for vtkNew
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
 
 class vtkColorTransferFunction;
+class vtkContourValues;
 class vtkImageData;
 class vtkPiecewiseFunction;
 class vtkTimeStamp;
@@ -387,6 +389,12 @@ public:
   //@}
 
   /**
+   * Get contour values for isosurface blending mode.
+   * Do not affect other blending modes.
+   */
+  vtkContourValues* GetIsoSurfaceValues();
+
+  /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * UpdateMTimes performs a Modified() on all TimeStamps.
    * This is used by vtkVolume when the property is set, so
@@ -475,6 +483,11 @@ protected:
   double Diffuse[VTK_MAX_VRCOMP];
   double Specular[VTK_MAX_VRCOMP];
   double SpecularPower[VTK_MAX_VRCOMP];
+
+  /**
+   * Contour values for isosurface blend mode
+   */
+  vtkNew<vtkContourValues> IsoSurfaceValues;
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&) = delete;

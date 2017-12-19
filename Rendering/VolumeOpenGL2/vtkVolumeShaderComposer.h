@@ -236,6 +236,20 @@ namespace vtkvolume
         \nuniform sampler2D in_depthPassSampler;");
     }
 
+    if (glMapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      shaderStr += std::string("\
+        \nuniform float in_isosurfacesValues[NUMBER_OF_CONTOURS];\
+        \n\
+        \nint findIsoSurfaceIndex(float scalar, float array[NUMBER_OF_CONTOURS+2])\
+        \n{\
+        \n  int index = NUMBER_OF_CONTOURS >> 1;\
+        \n  while (scalar > array[index]) ++index;\
+        \n  while (scalar < array[index]) --index;\
+        \n  return index;\
+        \n}");
+    }
+
     return shaderStr;
   }
 
@@ -554,7 +568,8 @@ namespace vtkvolume
 
     // Shading for composite blending only
     int const shadeReqd = volProperty->GetShade() &&
-                  (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND);
+                  (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND ||
+                   mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND);
 
     int const transferMode = volProperty->GetTransferFunctionMode();
 
@@ -1145,6 +1160,12 @@ namespace vtkvolume
       return std::string("\
         \n  vec4 l_sumValue;");
     }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      return std::string("\
+        \n  int l_initialIndex = 0;\
+        \n  float l_normValues[NUMBER_OF_CONTOURS+2];");
+    }
     else
     {
       return std::string();
@@ -1188,6 +1209,18 @@ namespace vtkvolume
         \n  //We get data between 0.0 - 1.0 range\
         \n  l_sumValue = vec4(0.0);"
       );
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      return std::string("\
+        \n  l_normValues[0] = -1e20; //-infinity\
+        \n  l_normValues[NUMBER_OF_CONTOURS+1] = +1e20; //+infinity\
+        \n  for (int i = 0; i < NUMBER_OF_CONTOURS; i++)\
+        \n  {\
+        \n    l_normValues[i+1] = (in_isosurfacesValues[i] - in_scalarsRange[0].x) / \
+        \n                        (in_scalarsRange[0].y - in_scalarsRange[0].x);\
+        \n  }\
+        ");
     }
     else
     {
@@ -1457,6 +1490,40 @@ namespace vtkvolume
           \n      l_sumValue.x = l_sumValue.x + opacity * scalar.x;"
         );
       }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
+    {
+      shaderStr += std::string("\
+        \n    if (g_currentT == 0)\
+        \n    {\
+        \n      l_initialIndex = findIsoSurfaceIndex(scalar.r, l_normValues);\
+        \n    }\
+        \n    else\
+        \n    {\
+        \n      float s;\
+        \n      bool shade = false;\
+        \n      l_initialIndex = clamp(l_initialIndex, 0, NUMBER_OF_CONTOURS);\
+        \n      if (scalar.r < l_normValues[l_initialIndex])\
+        \n      {\
+        \n        s = l_normValues[l_initialIndex];\
+        \n        l_initialIndex--;\
+        \n        shade = true;\
+        \n      }\
+        \n      if (scalar.r > l_normValues[l_initialIndex+1])\
+        \n      {\
+        \n        s = l_normValues[l_initialIndex+1];\
+        \n        l_initialIndex++;\
+        \n        shade = true;\
+        \n      }\
+        \n      if (shade == true)\
+        \n      {\
+        \n        vec4 vs = vec4(s);\
+        \n        g_srcColor.a = computeOpacity(vs);\
+        \n        g_srcColor = computeColor(vs, g_srcColor.a);\
+        \n        g_srcColor.rgb *= g_srcColor.a;\
+        \n        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
+        \n      }\
+        \n    }");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
     {

@@ -174,3 +174,8 @@ void vtkContourValues::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "  Value " << i << ": " << this->Contours->GetValue(i) << "\n";
   }
 }
+
+void vtkContourValues::DeepCopy(vtkContourValues* other)
+{
+  this->Contours->DeepCopy(other->Contours);
+}

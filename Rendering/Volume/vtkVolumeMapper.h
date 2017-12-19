@@ -89,9 +89,14 @@ public:
    * resultant value is a derived value and not a real data value along
    * the sampling ray.
    *
-   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND is only supported by the
-   * vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
+   * IsoSurface blend mode uses contour values defined by the user in order
+   * to display scalar values only when the ray crosses the contour. It supports
+   * opacity the same way composite blend mode does.
+   *
+   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND and ISOSURFACE_BLEND are
+   * only supported by the vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
    * \sa SetAverageIPScalarRange()
+   * \sa GetIsosurfaceValues()
    */
   vtkSetMacro( BlendMode, int );
   void SetBlendModeToComposite()
@@ -104,6 +109,8 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::AVERAGE_INTENSITY_BLEND ); }
   void SetBlendModeToAdditive()
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
+  void SetBlendModeToIsoSurface()
+    { this->SetBlendMode( vtkVolumeMapper::ISOSURFACE_BLEND ); }
   vtkGetMacro( BlendMode, int );
   //@}
 
@@ -213,14 +220,23 @@ public:
    * the scalar values are multiplied by opacity calculated from the opacity
    * transfer function and then added. The additional step here is to
    * divide the sum by the number of samples taken through the volume.
+   * One can control the scalar range by setting the AverageIPScalarRange ivar
+   * to disregard scalar values, not in the range of interest, from the average
+   * computation.
    * As is the case with the additive intensity projection, the final
    * image will always be grayscale i.e. the aggregated values are not
    * passed through the color transfer function. This is because the
    * resultant value is a derived value and not a real data value along
    * the sampling ray.
    *
-   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND is only supported by the
-   * vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
+   * IsoSurface blend mode uses contour values defined by the user in order
+   * to display scalar values only when the ray crosses the contour. It supports
+   * opacity the same way composite blend mode does.
+   *
+   * \note vtkVolumeMapper::AVERAGE_INTENSITY_BLEND and ISOSURFACE_BLEND are
+   * only supported by the vtkGPUVolumeRayCastMapper with the OpenGL2 backend.
+   * \sa SetAverageIPScalarRange()
+   * \sa GetIsoSurfaceValues()
    */
   enum BlendModes
   {
@@ -228,7 +244,8 @@ public:
     MAXIMUM_INTENSITY_BLEND,
     MINIMUM_INTENSITY_BLEND,
     AVERAGE_INTENSITY_BLEND,
-    ADDITIVE_BLEND
+    ADDITIVE_BLEND,
+    ISOSURFACE_BLEND
   };
 
 protected:
