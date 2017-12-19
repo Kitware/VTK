@@ -26,6 +26,7 @@
 
 #ifndef vtkCompositeDataDisplayAttributes_h
 #define vtkCompositeDataDisplayAttributes_h
+#include <functional>               // for std::function
 #include <unordered_map>            // for std::unordered_map
 
 #include "vtkColor.h"               // for vtkColor3d
@@ -209,6 +210,16 @@ public:
   static vtkDataObject* DataObjectFromIndex(const unsigned int flat_index,
     vtkDataObject* parent_obj, unsigned int& current_flat_index);
 
+  void VisitVisibilities(std::function<bool(vtkDataObject*, bool)> visitor)
+  {
+    for (auto entry : this->BlockVisibilities)
+    {
+      if (visitor(entry.first, entry.second))
+      {
+        break;
+      }
+    }
+  }
 protected:
   vtkCompositeDataDisplayAttributes();
   ~vtkCompositeDataDisplayAttributes() override;
