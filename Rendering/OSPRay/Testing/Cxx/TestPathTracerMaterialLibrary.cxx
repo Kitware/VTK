@@ -23,6 +23,8 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
+#include <string>
+
 int TestPathTracerMaterialLibrary(int argc, char* argv[])
 {
   // read an ospray material file
