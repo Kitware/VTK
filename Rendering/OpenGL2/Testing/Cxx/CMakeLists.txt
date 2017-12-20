@@ -17,6 +17,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperEdges.cxx
   TestGlyph3DMapperCellPicking.cxx
+  TestGlyph3DMapperCulling.cxx
   TestGlyph3DMapperPickability.cxx,NO_DATA
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx

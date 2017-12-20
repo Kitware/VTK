@@ -838,3 +838,9 @@ void vtkGlyph3DMapper::SetInputData(vtkDataObject* input)
 {
   this->SetInputDataInternal(0, input);
 }
+
+//---------------------------------------------------------------------------
+vtkIdType vtkGlyph3DMapper::GetMaxNumberOfLOD()
+{
+  return 0;
+}

@@ -71,7 +71,7 @@ public:
                          vtkOpenGLBufferObject *buffer,
                          const std::string &name, int offset, size_t stride,
                          int elementType, int elementTupleSize, bool normalize,
-                         int divisor);
+                         int divisor, int tupleOffset);
 
   bool RemoveAttributeArray(const std::string &name);
 

@@ -391,7 +391,8 @@ bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(
   int offset, size_t stride,
   int elementType, int elementTupleSize,
   bool normalize,
-  int divisor)
+  int divisor,
+  int tupleOffset)
 {
   // bind the first row of values
   bool result =
@@ -412,7 +413,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeMatrixWithDivisor(
     glEnableVertexAttribArray(attribs.Index+i);
     glVertexAttribPointer(attribs.Index + i, elementTupleSize, convertTypeToGL(elementType),
                           normalize, static_cast<GLsizei>(stride),
-                          BUFFER_OFFSET(offset + stride*i/elementTupleSize));
+                          BUFFER_OFFSET(offset + tupleOffset * i));
     if (divisor > 0)
     {
 #if GL_ES_VERSION_3_0 == 1

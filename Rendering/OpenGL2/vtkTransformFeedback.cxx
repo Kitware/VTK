@@ -18,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
 #include "vtkShaderProgram.h"
+#include "vtkOpenGLBufferObject.h"
 
 #include "vtk_glew.h"
 
@@ -136,7 +137,26 @@ void vtkTransformFeedback::BindVaryings(vtkShaderProgram *prog)
 }
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::BindBuffer()
+void vtkTransformFeedback::Allocate(int nbBuffers, size_t size, unsigned int hint)
+{
+  vtkOpenGLClearErrorMacro();
+  this->ReleaseGraphicsResources();
+
+  this->Buffers.resize(nbBuffers);
+
+  for (int i=0; i<nbBuffers; i++)
+  {
+    this->Buffers[i] = vtkOpenGLBufferObject::New();
+    this->Buffers[i]->GenerateBuffer(vtkOpenGLBufferObject::ArrayBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, this->Buffers[i]->GetHandle());
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
+                nullptr, static_cast<GLenum>(hint));
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, i, this->Buffers[i]->GetHandle());
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkTransformFeedback::BindBuffer(bool allocateOneBuffer)
 {
   if (!this->VaryingsBound)
   {
@@ -145,55 +165,76 @@ void vtkTransformFeedback::BindBuffer()
   }
 
   vtkOpenGLClearErrorMacro();
-  this->ReleaseGraphicsResources();
 
-  GLuint tbo;
-  glGenBuffers(1, &tbo);
-  this->BufferHandle = static_cast<int>(tbo);
-  glBindBuffer(GL_ARRAY_BUFFER, tbo);
-  glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(this->GetBufferSize()),
-               nullptr, GL_STATIC_READ);
-  glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
+  if (allocateOneBuffer)
+  {
+    this->Allocate(1, this->GetBufferSize(), GL_STATIC_READ);
+  }
+
+  for (size_t i=0; i<this->Buffers.size(); i++)
+  {
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, static_cast<GLuint>(i), this->Buffers[i]->GetHandle());
+  }
+
   glBeginTransformFeedback(static_cast<GLenum>(this->PrimitiveMode));
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
 }
 
 //------------------------------------------------------------------------------
-void vtkTransformFeedback::ReadBuffer()
+void vtkTransformFeedback::ReadBuffer(int index)
 {
-  if (this->BufferHandle == 0)
+  if (this->Buffers.size() == 0)
   {
-    vtkErrorMacro("BufferHandle not set by BindBuffer().");
+    vtkErrorMacro("Buffers not set by BindBuffer().");
     return;
   }
 
   glEndTransformFeedback();
 
-  size_t bufferSize = this->GetBufferSize();
-  this->ReleaseBufferData();
-  this->BufferData = new unsigned char[bufferSize];
+  if (index >= 0)
+  {
+    size_t bufferSize = this->GetBufferSize();
+    this->ReleaseBufferData();
+    this->BufferData = new unsigned char[bufferSize];
 
-  unsigned char *glBuffer(nullptr);
-  glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
-                   GL_MAP_READ_BIT);
-  glGetBufferPointerv(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER,
-                      reinterpret_cast<GLvoid**>(&glBuffer));
-  std::copy(glBuffer, glBuffer + bufferSize, this->BufferData);
-  glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
-  this->ReleaseGraphicsResources();
+    unsigned char *glBuffer(nullptr);
+    glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, this->Buffers[index]->GetHandle());
+    glMapBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, bufferSize,
+                    GL_MAP_READ_BIT);
+    glGetBufferPointerv(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_MAP_POINTER,
+                        reinterpret_cast<GLvoid**>(&glBuffer));
+    std::copy(glBuffer, glBuffer + bufferSize, this->BufferData);
+    glUnmapBuffer(GL_TRANSFORM_FEEDBACK_BUFFER);
+  }
 
   vtkOpenGLCheckErrorMacro("OpenGL errors detected.");
 }
 
 //------------------------------------------------------------------------------
+vtkOpenGLBufferObject* vtkTransformFeedback::GetBuffer(int index)
+{
+  return this->Buffers[index];
+}
+
+//------------------------------------------------------------------------------
+int vtkTransformFeedback::GetBufferHandle(int index)
+{
+  return this->Buffers[index]->GetHandle();
+}
+
+//------------------------------------------------------------------------------
 void vtkTransformFeedback::ReleaseGraphicsResources()
 {
-  if (this->BufferHandle)
+  if (this->Buffers.size() > 0)
   {
-    GLuint tbo = static_cast<GLuint>(this->BufferHandle);
-    glDeleteBuffers(1, &tbo);
-    this->BufferHandle = 0;
+    std::vector<GLuint> tbo;
+    for (auto v : this->Buffers)
+    {
+      v->ReleaseGraphicsResources();
+      v->Delete();
+    }
+    this->Buffers.clear();
   }
 }
 
@@ -213,7 +254,6 @@ vtkTransformFeedback::vtkTransformFeedback()
     Varyings(),
     NumberOfVertices(0),
     BufferMode(GL_INTERLEAVED_ATTRIBS),
-    BufferHandle(0),
     PrimitiveMode(GL_POINTS),
     BufferData(nullptr)
 {

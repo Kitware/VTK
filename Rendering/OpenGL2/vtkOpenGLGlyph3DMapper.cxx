@@ -205,6 +205,17 @@ void vtkOpenGLGlyph3DMapper::CopyInformationToSubMapper(
   // ResolveCoincidentTopologyPolygonOffsetParameters is static
   mapper->SetResolveCoincidentTopologyPolygonOffsetFaces(
     this->GetResolveCoincidentTopologyPolygonOffsetFaces());
+
+  if (static_cast<vtkIdType>(this->LODs.size()) > this->GetMaxNumberOfLOD())
+  {
+    vtkWarningMacro(<< "too many LODs are defined, "
+                    << (static_cast<vtkIdType>(this->LODs.size()) - this->GetMaxNumberOfLOD())
+                    << " last defined LODs are discarded.");
+    this->LODs.resize(this->GetMaxNumberOfLOD());
+  }
+
+  mapper->SetLODs(this->LODs);
+  mapper->SetLODColoring(this->LODColoring);
 }
 
 void vtkOpenGLGlyph3DMapper::SetupColorMapper()
@@ -575,7 +586,7 @@ void vtkOpenGLGlyph3DMapper::Render(
         gh->CurrentInput = pd;
         gh->GlyphRender(ren, actor, entry->NumberOfPoints,
                         entry->Colors, entry->Matrices, entry->NormalMatrices,
-                        entry->PickIds, subarray->BuildTime);
+                        entry->PickIds, subarray->BuildTime, this->CullingAndLOD);
       }
 
       if (!cdsIter || cdsIter->IsDoneWithTraversal())
@@ -978,6 +989,34 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
         }
       }
     }
+  }
+}
+
+//---------------------------------------------------------------------------
+vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
+{
+  if (!GLEW_ARB_gpu_shader5 || !GLEW_ARB_enhanced_layouts)
+  {
+    return 0;
+  }
+
+  GLint streams;
+  glGetIntegerv(GL_MAX_VERTEX_STREAMS, &streams);
+  return static_cast<vtkIdType>(streams) - 1;
+}
+
+//---------------------------------------------------------------------------
+void vtkOpenGLGlyph3DMapper::SetNumberOfLOD(vtkIdType nb)
+{
+  this->LODs.resize(nb, {0.f, 0.f});
+}
+
+//---------------------------------------------------------------------------
+void vtkOpenGLGlyph3DMapper::SetLODDistanceAndTargetReduction(vtkIdType index, float distance, float targetReduction)
+{
+  if (index < static_cast<vtkIdType>(this->LODs.size()))
+  {
+    this->LODs[index] = {vtkMath::Max(0.f, distance), vtkMath::ClampValue(targetReduction, 0.f, 1.f)};
   }
 }
 

@@ -56,6 +56,29 @@ public:
    */
   void ReleaseGraphicsResources(vtkWindow *window) override;
 
+  //@{
+  /**
+   * Get the maximum number of LOD. OpenGL context must be bound.
+   * The maximum number of LOD depends on GPU capabilities.
+   */
+  virtual vtkIdType GetMaxNumberOfLOD() override;
+
+  /**
+   * Set the number of LOD.
+   */
+  virtual void SetNumberOfLOD(vtkIdType nb) override;
+
+  /**
+   * Configure LODs. Culling must be enabled.
+   * distance have to be a positive value, it is the distance to the camera scaled by
+   * the instanced geometry bounding box.
+   * targetReduction have to be between 0 and 1, 0 disable decimation, 1 draw a point.
+   *
+   * @sa vtkDecimatePro::SetTargetReduction
+   */
+  virtual void SetLODDistanceAndTargetReduction(vtkIdType index, float distance, float targetReduction) override;
+  //@}
+
 protected:
   vtkOpenGLGlyph3DMapper();
   ~vtkOpenGLGlyph3DMapper() override;

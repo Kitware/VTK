@@ -398,6 +398,52 @@ public:
   vtkGetObjectMacro(BlockAttributes, vtkCompositeDataDisplayAttributes);
   //@}
 
+  //@{
+  /**
+   * Enable or disable frustum culling and LOD of the instances.
+   * When enabled, an OpenGL driver supporting GL_ARB_gpu_shader5 extension is mandatory.
+   */
+  vtkSetMacro(CullingAndLOD, bool);
+  vtkGetMacro(CullingAndLOD, bool);
+
+  /**
+   * Get the maximum number of LOD. OpenGL context must be bound.
+   * The maximum number of LOD depends on GPU capabilities.
+   * This method is intended to be reimplemented in inherited classes, current implementation
+   * always returns zero.
+   */
+  virtual vtkIdType GetMaxNumberOfLOD();
+
+  /**
+   * Set the number of LOD.
+   * This method is intended to be reimplemented in inherited classes, current implementation
+   * does nothing.
+   */
+  virtual void SetNumberOfLOD(vtkIdType vtkNotUsed(nb)) {}
+
+  /**
+   * Configure LODs. Culling must be enabled.
+   * distance have to be a positive value, it is the distance to the camera scaled by
+   * the instanced geometry bounding box.
+   * targetReduction have to be between 0 and 1, 0 disable decimation, 1 draw a point.
+   * This method is intended to be reimplemented in inherited classes, current implementation
+   * does nothing.
+   *
+   * @sa vtkDecimatePro::SetTargetReduction
+   */
+  virtual void SetLODDistanceAndTargetReduction(
+    vtkIdType vtkNotUsed(index),
+    float vtkNotUsed(distance),
+    float vtkNotUsed(targetReduction)) {}
+
+  /**
+   * Enable LOD coloring. It can be useful to configure properly the LODs.
+   * Each LOD have a unique color, based on its index.
+   */
+  vtkSetMacro(LODColoring, bool);
+  vtkGetMacro(LODColoring, bool);
+  //@}
+
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
    * DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -448,6 +494,10 @@ protected:
   bool UseSourceTableTree; // Map DataObjectTree glyph source into table
 
   unsigned int SelectionColorId;
+
+  bool CullingAndLOD = false; // Disable culling
+  std::vector<std::pair<float, float> > LODs;
+  bool LODColoring = false;
 
 private:
   vtkGlyph3DMapper(const vtkGlyph3DMapper&) = delete;
