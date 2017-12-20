@@ -4836,6 +4836,8 @@ void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
 /* reject the function, do not output it */
 void reject_function()
 {
+  vtkParse_FreeFunction(currentFunction);
+  currentFunction = (FunctionInfo *)malloc(sizeof(FunctionInfo));
   vtkParse_InitFunction(currentFunction);
   startSig();
   getMacro();
