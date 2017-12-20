@@ -11,7 +11,7 @@ endfunction()
 add_vtk_las_reader_test(test_1.las 0)
 add_vtk_las_reader_test(test_2.las -90)
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOLASCxxTests tests
   ${VTK_LAS_READER_TESTS}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOLASCxxTests tests)

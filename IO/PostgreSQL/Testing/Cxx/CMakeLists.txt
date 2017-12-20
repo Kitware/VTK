@@ -11,11 +11,11 @@ if(VTK_PSQL_TEST_URL)
     set(TestPostgreSQLTableReadWrite_ARGS
       DATA{../Data/Input/simple_table.vtk})
   endif()
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOPostgreSQLCxxTests tests
     NO_DATA NO_VALID
     TestPostgreSQLDatabase.cxx
     TestPostgreSQLTableReadWrite.cxx
     )
 
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+  vtk_test_cxx_executable(vtkIOPostgreSQLCxxTests tests)
 endif()

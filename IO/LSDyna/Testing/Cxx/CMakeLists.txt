@@ -7,7 +7,7 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/LSDyna/impact/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOLSDynaCxxTests tests
     TestLSDynaReader.cxx
     TestLSDynaReaderDeflection.cxx
     #TestLSDynaReaderNoDefl.cxx
@@ -15,4 +15,4 @@ if(VTK_USE_LARGE_DATA)
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOLSDynaCxxTests tests)

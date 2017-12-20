@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersGenericCxxTests tests
   TestGenericStreamTracer.cxx
   TestGenericClip.cxx
   TestGenericContourFilter.cxx
@@ -11,4 +11,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestGenericGeometryFilter.cxx,NO_VALID,NO_DATA
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersGenericCxxTests tests)

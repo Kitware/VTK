@@ -8,9 +8,9 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/VPIC/hydro/T.100/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOVPICCxxTests tests
     TestVPICReader.cxx
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOVPICCxxTests tests)

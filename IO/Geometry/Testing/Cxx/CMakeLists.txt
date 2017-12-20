@@ -21,7 +21,7 @@ ExternalData_Expand_Arguments(VTKData _
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/constant/polyMesh/,REGEX:.*}"
   "DATA{${VTK_TEST_INPUT_DIR}/OpenFOAM/64BitFloats/system/,REGEX:.*}"
   )
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestDataObjectIO.cxx,NO_VALID
   TestIncrementalOctreePointLocator.cxx,NO_VALID
   UnstructuredGridCellGradients.cxx
@@ -42,25 +42,25 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestSTLWriter.cxx,NO_VALID
   )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestSTLReaderSinglePatch,TestSTLReader.cxx DATA{${VTK_TEST_INPUT_DIR}/42400-IDGH.stl}
 )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestSTLReaderMultiplePatches,TestSTLReader.cxx DATA{${VTK_TEST_INPUT_DIR}/multiple_patches.stl}
 )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestPTSReader,TestPTSReader.cxx DATA{${VTK_TEST_INPUT_DIR}/samplePTS.pts}
 )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestAVSucdReaderContiguousASCII,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.ascii.inp}
 )
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestAVSucdReaderNonContiguousASCII,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.noncontiguous.ascii.inp}
 )
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestAVSucdReaderBinary,TestAVSucdReader.cxx DATA{${VTK_TEST_INPUT_DIR}/cellsnd.bin.inp}
 )
 
@@ -79,7 +79,7 @@ if(VTK_USE_LARGE_DATA AND _known_little_endian)
     "DATA{${VTK_TEST_INPUT_DIR}/MFIXReader/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(${vtk-module}CxxTests large_data_tests
+  vtk_add_test_cxx(vtkIOGeometryCxxTests large_data_tests
     TestWindBladeReader.cxx
     TestMFIXReader.cxx,NO_VALID
     )
@@ -88,4 +88,4 @@ if(VTK_USE_LARGE_DATA AND _known_little_endian)
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOGeometryCxxTests tests)

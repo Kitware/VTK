@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersStatisticsCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   TestAutoCorrelativeStatistics.cxx
   TestComputeQuartiles.cxx
@@ -12,4 +12,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOrderStatistics.cxx
   TestPCAStatistics.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersStatisticsCxxTests tests)

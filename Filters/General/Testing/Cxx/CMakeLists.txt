@@ -2,7 +2,7 @@ set(TestDensifyPolyData_ARGS -E 15)
 set(TestDataSetGradient_ARGS -E 25)
 set(TestDataSetGradientPrecompute_ARGS -E 25)
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   ArrayExtractFactoredArray.cxx,NO_VALID
   ArrayMatricizeArray.cxx,NO_VALID
   ArrayNormalizeMatrixVectors.cxx,NO_VALID
@@ -42,7 +42,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestMultiThreshold.cxx,NO_VALID
   )
 # Tests with data
-vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+vtk_add_test_cxx(vtkFiltersGeneralCxxTests data_tests
   BoxClipPointData.cxx
   BoxClipOrientedPointData.cxx
   TestDataSetGradient.cxx
@@ -58,12 +58,12 @@ set(all_tests
   ${data_tests}
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
+vtk_test_cxx_executable(vtkFiltersGeneralCxxTests all_tests
   RENDERING_FACTORY)
 
 # On some machines this test takes some extra time
 if(NOT VTK_TEST_TIMEOUT_TestYoungsMaterialInterface)
   set(VTK_TEST_TIMEOUT_TestYoungsMaterialInterface 300)
 endif()
-set_tests_properties(${vtk-module}Cxx-TestYoungsMaterialInterface
+set_tests_properties(vtkFiltersGeneralCxx-TestYoungsMaterialInterface
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestYoungsMaterialInterface})

@@ -4,9 +4,9 @@ if(VTK_ODBC_TEST_DSN)
 
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOODBCCxxTests tests
     NO_DATA NO_VALID
     TestODBCDatabase.cxx
     )
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+  vtk_test_cxx_executable(vtkIOODBCCxxTests tests)
 endif()

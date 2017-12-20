@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOCoreCxxTests tests
   NO_VALID
   TestArrayDataWriter.cxx
   TestArrayDenormalized.cxx
@@ -6,4 +6,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestCompressLZ4.cxx
   TestCompressZLib.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOCoreCxxTests tests)

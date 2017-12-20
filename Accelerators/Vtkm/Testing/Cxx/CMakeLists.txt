@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkAcceleratorsVtkmCxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMClip.cxx
   TestVTKMClipWithImplicitFunction.cxx
@@ -14,6 +14,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVTKMThreshold2.cxx
   TestVTKMTriangleMeshPointNormals.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkAcceleratorsVtkmCxxTests tests
   RENDERING_FACTORY
   )

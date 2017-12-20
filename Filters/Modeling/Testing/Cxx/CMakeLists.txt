@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersModelingCxxTests tests
   TestButterflyScalars.cxx
   TestNamedColorsIntegration.cxx
   TestPolyDataPointSampler.cxx
@@ -9,4 +9,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestVolumeOfRevolutionFilter.cxx
   UnitTestSubdivisionFilters.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersModelingCxxTests tests)

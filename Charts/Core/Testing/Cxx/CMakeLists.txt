@@ -36,7 +36,7 @@ set(TestParallelCoordinatesDouble_ARGS
   -E 15
   )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestContextScene.cxx,NO_DATA,NO_VALID
   TestControlPointsItem.cxx,NO_DATA,NO_VALID
   TestControlPointsItemEvents.cxx,NO_DATA,NO_VALID
@@ -101,6 +101,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSurfacePlot.cxx
   TestZoomAxis.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkChartsCoreCxxTests tests
   RENDERING_FACTORY
   )

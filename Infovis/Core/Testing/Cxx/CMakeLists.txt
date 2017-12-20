@@ -3,7 +3,7 @@ set(NEEDS_DATA
   TestMergeTables.cxx,NO_VALID
   )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkInfovisCoreCxxTests tests
   ${NEEDS_DATA}
   ArrayDotProductSimilarity.cxx,NO_VALID,NO_DATA
   ArraySparseArrayToTable.cxx,NO_VALID
@@ -28,4 +28,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTreeDifferenceFilter.cxx,NO_VALID
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkInfovisCoreCxxTests tests)

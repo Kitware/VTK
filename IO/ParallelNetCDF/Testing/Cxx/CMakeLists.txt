@@ -4,9 +4,9 @@ if(VTK_USE_LARGE_DATA)
     "DATA{${VTK_TEST_INPUT_DIR}/NetCDF/,REGEX:.*}"
     )
 
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkIOParallelNetCDFCxxTests tests
     TestPNetCDFPOPReader.cxx
     )
 endif()
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOParallelNetCDFCxxTests tests)

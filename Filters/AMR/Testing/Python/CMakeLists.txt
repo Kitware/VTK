@@ -14,7 +14,7 @@ if(VTK_PYTHON_EXE)
     ${test_files}
     )
   foreach(test IN LISTS python_tests)
-    set_tests_properties(${vtk-module}Python-${test}
+    set_tests_properties(vtkFiltersAMRPython-${test}
       PROPERTIES
         FAIL_REGULAR_EXPRESSION "Error"
     )
