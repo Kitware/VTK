@@ -235,6 +235,15 @@ if(VTK_ENABLE_KITS)
     endforeach()
   endforeach()
 
+  foreach (kit IN LISTS vtk_kits)
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_${kit}Kit_is_kit" TRUE)
+    set_property(GLOBAL
+      PROPERTY
+        "_vtk_${kit}Kit_kit_modules" "${_${kit}_modules}")
+  endforeach ()
+
   list(REMOVE_DUPLICATES vtk_kits)
 
   # Put all kits in the list (if they are not dependencies of any module, they
