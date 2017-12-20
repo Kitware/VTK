@@ -20,6 +20,8 @@
 #include "vtkProperty.h"
 #include "vtkTexture.h"
 
+#include "ospray/ospray.h"
+
 //------------------------------------------------------------------------------
 osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
   (vtkImageData *vColorTextureMap)
@@ -56,8 +58,8 @@ osp::Texture2D *vtkOSPRayMaterialHelpers::VTKToOSPTexture
 //------------------------------------------------------------------------------
 void vtkOSPRayMaterialHelpers::MakeMaterials
   (vtkOSPRayRendererNode *orn,
-   OSPRenderer oRenderer,
-   std::map<std::string, OSPMaterial> &mats)
+   osp::Renderer *oRenderer,
+   std::map<std::string, osp::Material*> &mats)
 {
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
@@ -69,7 +71,7 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   std::set<std::string >::iterator it = nicknames.begin();
   while (it != nicknames.end())
   {
-    OSPMaterial newmat = vtkOSPRayMaterialHelpers::MakeMaterial
+    osp::Material* newmat = vtkOSPRayMaterialHelpers::MakeMaterial
       (orn, oRenderer, *it);
     mats[*it] = newmat;
     ++it;
@@ -121,11 +123,11 @@ void vtkOSPRayMaterialHelpers::MakeMaterials
   }
 
 //------------------------------------------------------------------------------
-OSPMaterial vtkOSPRayMaterialHelpers::MakeMaterial
+osp::Material* vtkOSPRayMaterialHelpers::MakeMaterial
   (vtkOSPRayRendererNode *orn,
-  OSPRenderer oRenderer, std::string nickname)
+  osp::Renderer* oRenderer, std::string nickname)
 {
-  OSPMaterial oMaterial;
+  osp::Material* oMaterial;
   vtkOSPRayMaterialLibrary *ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
     {
