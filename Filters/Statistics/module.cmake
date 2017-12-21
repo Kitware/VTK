@@ -8,9 +8,9 @@ vtk_module(vtkFiltersStatistics
   DEPENDS
     vtkCommonCore
     vtkCommonExecutionModel
-    vtkalglib
   PRIVATE_DEPENDS
     vtkCommonDataModel
     vtkCommonMisc
     vtkImagingFourier
+    vtkeigen
   )
