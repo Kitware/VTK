@@ -68,7 +68,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTuple.h"
 
-#include <Eigen/Dense>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
 #include <vector>
 
 /**

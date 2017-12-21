@@ -77,8 +77,9 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __VTK_WRAP__
 #ifndef VTK_WRAPPING_CXX
 
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
+#include VTK_EIGEN(Eigenvalues)
 
 #include <vtkMath.h>
 

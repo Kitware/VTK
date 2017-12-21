@@ -68,7 +68,8 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMomentsHelper.h"
 #include "vtkMomentsTensor.h"
 
-#include <Eigen/Dense>
+#include "vtk_eigen.h"
+#include VTK_EIGEN(Dense)
 #include <vector>
 
 #define REAL 0

@@ -8,6 +8,3 @@ set(Module_SRCS
   )
 
 vtk_module_library(vtkFiltersMomentInvariants ${Module_SRCS})
-
-find_package (Eigen3 REQUIRED)
-target_include_directories(vtkFiltersMomentInvariants PRIVATE ${EIGEN3_INCLUDE_DIR})

@@ -4,4 +4,6 @@ vtk_module(vtkFiltersMomentInvariants
   DEPENDS
     vtkFiltersCore
     vtkImagingCore
+  PRIVATE_DEPENDS
+    vtkeigen
   )
