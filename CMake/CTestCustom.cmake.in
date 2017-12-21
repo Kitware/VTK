@@ -191,6 +191,9 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "/openmpi/.*request_inln.h.*warning: declaration .struct MPI::Grequest_intercept_t. does not declare anything"
   "openmpi.*comm_inln.h.*warning: unused parameter"
 
+  # warnings from some Eigen headers:
+  "Eigen/src/.* warning: enum constant in boolean context"
+
   # warnings from some python headers/libs, cannot fix:
   "warning: the use of .tmpnam_r. is dangerous, better use .mkstemp."
   "warning: the use of .tempnam. is dangerous, better use .mkstemp."
