@@ -44,8 +44,8 @@ class VTKGUISUPPORTQT_EXPORT vtkQtAnnotationLayersModelAdapter : public vtkQtAbs
   Q_OBJECT
 
 public:
-  vtkQtAnnotationLayersModelAdapter(QObject *parent = 0);
-  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = 0);
+  vtkQtAnnotationLayersModelAdapter(QObject *parent = nullptr);
+  vtkQtAnnotationLayersModelAdapter(vtkAnnotationLayers* ann, QObject *parent = nullptr);
   ~vtkQtAnnotationLayersModelAdapter() override;
 
   //@{

@@ -52,7 +52,7 @@ vtkQtTreeModelAdapter::vtkQtTreeModelAdapter(QObject* p, vtkTree* t)
   : vtkQtAbstractModelAdapter(p)
 {
   this->TreeMTime = 0;
-  this->Tree = 0;
+  this->Tree = nullptr;
   this->setTree(t);
   this->ChildIterator = vtkAdjacentVertexIterator::New();
 }
@@ -68,7 +68,7 @@ vtkQtTreeModelAdapter::~vtkQtTreeModelAdapter()
 
 void vtkQtTreeModelAdapter::SetColorColumnName(const char* name)
 {
-  if (name == 0)
+  if (name == nullptr)
   {
     this->ColorColumn = -1;
   }
@@ -88,7 +88,7 @@ void vtkQtTreeModelAdapter::SetColorColumnName(const char* name)
 
 void vtkQtTreeModelAdapter::SetKeyColumnName(const char* name)
 {
-  if (name == 0)
+  if (name == nullptr)
   {
     this->KeyColumn = -1;
   }
@@ -137,7 +137,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
     this->Tree = t;
     if (this->Tree != nullptr)
     {
-      this->Tree->Register(0);
+      this->Tree->Register(nullptr);
       vtkIdType root = this->Tree->GetRoot();
       this->VTKIndexToQtModelIndex.clear();
       this->VTKIndexToQtModelIndex.resize(this->Tree->GetNumberOfVertices());
@@ -150,7 +150,7 @@ void vtkQtTreeModelAdapter::setTree(vtkTree* t)
     }
     if (tempSGMacroVar != nullptr)
     {
-      tempSGMacroVar->UnRegister(0);
+      tempSGMacroVar->UnRegister(nullptr);
     }
     emit reset();
   }
@@ -556,7 +556,7 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
 
   if(indexes.size() == 0)
   {
-    return 0;
+    return nullptr;
   }
 
   vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::New();
@@ -565,9 +565,9 @@ QMimeData *vtkQtTreeModelAdapter::mimeData(const QModelIndexList &indexes) const
   vtkSmartPointer<vtkSelection> pedigreeIdSelection = vtkSmartPointer<vtkSelection>::New();
   pedigreeIdSelection.TakeReference(vtkConvertSelection::ToSelectionType(indexSelection, this->Tree, vtkSelectionNode::PEDIGREEIDS));
 
-  if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
+  if(pedigreeIdSelection->GetNode(0) == nullptr || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
   {
-    return 0;
+    return nullptr;
   }
 
   std::ostringstream buffer;

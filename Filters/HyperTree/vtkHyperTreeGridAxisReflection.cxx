@@ -79,7 +79,7 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve reflection direction and coordinates to be reflected
   unsigned int direction = 0;
-  vtkDataArray* inCoords = 0;
+  vtkDataArray* inCoords = nullptr;
   unsigned int pmod3 = this->Plane % 3;
   if ( ! pmod3 )
   {
@@ -98,8 +98,8 @@ int vtkHyperTreeGridAxisReflection::ProcessTrees( vtkHyperTreeGrid* input,
   }
 
   // Retrieve interface arrays if available
-  vtkDataArray* inNormals = 0;
-  vtkDataArray* inIntercepts = 0;
+  vtkDataArray* inNormals = nullptr;
+  vtkDataArray* inIntercepts = nullptr;
   bool hasInterface = input->GetHasInterface() ? true : false;
   if ( hasInterface )
   {

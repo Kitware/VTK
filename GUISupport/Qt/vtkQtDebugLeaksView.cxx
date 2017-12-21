@@ -119,8 +119,8 @@ vtkQtDebugLeaksView::vtkQtDebugLeaksView(QWidget *p) : QWidget(p)
 //-----------------------------------------------------------------------------
 vtkQtDebugLeaksView::~vtkQtDebugLeaksView()
 {
-  this->Internal->ReferenceTableView->setModel(0);
-  this->Internal->TableView->setModel(0);
+  this->Internal->ReferenceTableView->setModel(nullptr);
+  this->Internal->TableView->setModel(nullptr);
   delete this->Internal->Model;
   delete this->Internal;
 }
@@ -140,7 +140,7 @@ void vtkQtDebugLeaksView::onFilterHelp()
 //-----------------------------------------------------------------------------
 void vtkQtDebugLeaksView::onCurrentRowChanged(const QModelIndex& current)
 {
-  QStandardItemModel* newModel = 0;
+  QStandardItemModel* newModel = nullptr;
   QAbstractItemModel* previousModel = this->Internal->ReferenceTableView->model();
 
   QModelIndex index = this->Internal->ProxyModel->mapToSource(current);

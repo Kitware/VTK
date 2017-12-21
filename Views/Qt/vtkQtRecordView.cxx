@@ -127,7 +127,7 @@ void vtkQtRecordView::Update()
   vtkSmartPointer<vtkSelection> cs;
   cs.TakeReference(vtkConvertSelection::ToSelectionType(
     rep->GetAnnotationLink()->GetCurrentSelection(),
-    table, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
+    table, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
   vtkSelectionNode *node = cs->GetNode(0);
   const vtkIdType column_count = table->GetNumberOfColumns();
 

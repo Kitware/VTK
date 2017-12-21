@@ -95,7 +95,7 @@ vtkQtTableModelAdapter::vtkQtTableModelAdapter(vtkTable* t, QObject* p)
   this->IconSize[0] = this->IconSize[1] = 0;
   if (this->Table != nullptr)
   {
-    this->Table->Register(0);
+    this->Table->Register(nullptr);
   }
 }
 
@@ -113,7 +113,7 @@ vtkQtTableModelAdapter::~vtkQtTableModelAdapter()
 void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
 {
   int color_column = this->ColorColumn;
-  if (name == 0 || !this->Table)
+  if (name == nullptr || !this->Table)
   {
     this->ColorColumn = -1;
   }
@@ -153,7 +153,7 @@ void vtkQtTableModelAdapter::SetColorColumnName(const char* name)
 void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
 {
   int color_column = this->IconIndexColumn;
-  if (name == 0 || !this->Table)
+  if (name == nullptr || !this->Table)
   {
     this->IconIndexColumn = -1;
   }
@@ -193,7 +193,7 @@ void vtkQtTableModelAdapter::SetIconIndexColumnName(const char* name)
 void vtkQtTableModelAdapter::SetKeyColumnName(const char* name)
 {
   int key_column = this->KeyColumn;
-  if (name == 0 || !this->Table)
+  if (name == nullptr || !this->Table)
   {
     this->KeyColumn = -1;
   }
@@ -345,7 +345,7 @@ void vtkQtTableModelAdapter::setTable(vtkTable* t)
   this->Table = t;
   if (this->Table != nullptr)
   {
-    this->Table->Register(0);
+    this->Table->Register(nullptr);
 
     // When setting a table, update the QHash tables for column mapping.
     // If SplitMultiComponentColumns is disabled, this call will just clear
@@ -744,7 +744,7 @@ bool vtkQtTableModelAdapter::dropMimeData(const QMimeData *d,
   if (!d->hasFormat("vtk/selection"))
     return false;
 
-  void* temp = 0;
+  void* temp = nullptr;
   std::istringstream buffer(d->data("vtk/selection").data());
   buffer >> temp;
   vtkSelection* s = reinterpret_cast<vtkSelection*>(temp);
@@ -772,7 +772,7 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
 
   if(indexes.size() == 0)
   {
-    return 0;
+    return nullptr;
   }
 
   vtkSmartPointer<vtkSelection> indexSelection = vtkSmartPointer<vtkSelection>::Take(QModelIndexListToVTKIndexSelection(indexes));
@@ -781,9 +781,9 @@ QMimeData *vtkQtTableModelAdapter::mimeData(const QModelIndexList &indexes) cons
   // This is a memory-leak, we need to serialize its contents as a string, instead of serializing a pointer to the object
   vtkSelection* pedigreeIdSelection = vtkConvertSelection::ToSelectionType(indexSelection, this->Table, vtkSelectionNode::PEDIGREEIDS);
 
-  if(pedigreeIdSelection->GetNode(0) == 0 || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
+  if(pedigreeIdSelection->GetNode(0) == nullptr || pedigreeIdSelection->GetNode(0)->GetSelectionList()->GetNumberOfTuples() == 0)
   {
-    return 0;
+    return nullptr;
   }
 
   std::ostringstream buffer;

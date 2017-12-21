@@ -170,13 +170,13 @@ public:
    * Compute the origin of the cursor.
    * NB: The basic hyper tree grid cursor does not have an origin.
    */
-  virtual double* GetOrigin() { return 0; }
+  virtual double* GetOrigin() { return nullptr; }
 
   /**
    * Compute the size of the cursor.
    * NB: The basic hyper tree grid cursor does not have a size.
    */
-  virtual double* GetSize() { return 0; }
+  virtual double* GetSize() { return nullptr; }
 
   /**
    * Compute the bounds of the cursor.
@@ -204,7 +204,7 @@ public:
    * NB: Only super cursors keep track of neighborhoods.
    */
   virtual vtkHyperTreeGridCursor* GetCursor( unsigned int )
-    { return 0; }
+    { return nullptr; }
 
   /**
    * Return the list of cursors pointing to the leaves touching a

@@ -120,7 +120,7 @@ vtkGraphItem::vtkGraphItem()
 vtkGraphItem::~vtkGraphItem()
 {
   delete this->Impl;
-  this->SetGraph(0);
+  this->SetGraph(nullptr);
 }
 
 //-----------------------------------------------------------------------------

@@ -325,7 +325,7 @@ int vtkLagrangeTriangle::EvaluatePosition(double* x, double* closestPoint,
          : 0.);
       }
 
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
       {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);

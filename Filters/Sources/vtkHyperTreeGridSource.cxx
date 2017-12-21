@@ -551,7 +551,7 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   }
 
   // Iterate over constituting hypertrees
-  if ( ! this->ProcessTrees( 0, outputDO ) )
+  if ( ! this->ProcessTrees( nullptr, outputDO ) )
   {
     return 0;
   }

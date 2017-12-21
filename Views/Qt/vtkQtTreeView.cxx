@@ -85,7 +85,7 @@ vtkQtTreeView::vtkQtTreeView()
   this->SetAlternatingRowColors(false);
   this->SetShowRootNode(false);
   this->CurrentSelectionMTime = 0;
-  this->ColorArrayNameInternal = 0;
+  this->ColorArrayNameInternal = nullptr;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -270,7 +270,7 @@ void vtkQtTreeView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
 
   this->ApplyColors->RemoveInputConnection(0, conn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
-  this->TreeAdapter->SetVTKDataObject(0);
+  this->TreeAdapter->SetVTKDataObject(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -369,7 +369,7 @@ void vtkQtTreeView::SetVTKSelection()
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
-    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::VERTEX));
+    s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::VERTEX));
 
   QItemSelection qisList = this->TreeAdapter->
     VTKIndexSelectionToQItemSelection(selection);
@@ -403,7 +403,7 @@ void vtkQtTreeView::Update()
   if (!rep)
   {
     // Remove VTK data from the adapter
-    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeAdapter->SetVTKDataObject(nullptr);
     this->View->update();
     return;
   }
@@ -432,7 +432,7 @@ void vtkQtTreeView::Update()
   if (tree->GetMTime() > this->LastInputMTime)
   {
     // Reset the model
-    this->TreeAdapter->SetVTKDataObject(0);
+    this->TreeAdapter->SetVTKDataObject(nullptr);
     this->TreeAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
 
     if (this->GetColorByArray())

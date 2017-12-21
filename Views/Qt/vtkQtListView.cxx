@@ -85,8 +85,8 @@ vtkQtListView::vtkQtListView()
   this->VisibleColumn = 0;
   this->TableAdapter->SetDecorationStrategy(vtkQtTableModelAdapter::NONE);
 
-  this->ColorArrayNameInternal = 0;
-  this->IconIndexArrayNameInternal = 0;
+  this->ColorArrayNameInternal = nullptr;
+  this->IconIndexArrayNameInternal = nullptr;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -219,7 +219,7 @@ void vtkQtListView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
 
   this->DataObjectToTable->RemoveInputConnection(0, conn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
-  this->TableAdapter->SetVTKDataObject(0);
+  this->TableAdapter->SetVTKDataObject(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -245,7 +245,7 @@ void vtkQtListView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1),
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, rep->GetSelectionType(), 0));
+    VTKIndexSelectList, data, rep->GetSelectionType(), nullptr));
 
   // Call select on the representation
   rep->Select(this, converted);
@@ -267,7 +267,7 @@ void vtkQtListView::SetVTKSelection()
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
-    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
+    s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
 
   if(!selection || selection->GetNumberOfNodes() == 0)
   {
@@ -302,7 +302,7 @@ void vtkQtListView::Update()
   if (!rep)
   {
     // Remove VTK data from the adapter
-    this->TableAdapter->SetVTKDataObject(0);
+    this->TableAdapter->SetVTKDataObject(nullptr);
     this->ListView->update();
     return;
   }
@@ -325,7 +325,7 @@ void vtkQtListView::Update()
   {
     this->DataObjectToTable->Update();
     this->ApplyColors->Update();
-    this->TableAdapter->SetVTKDataObject(0);
+    this->TableAdapter->SetVTKDataObject(nullptr);
     this->TableAdapter->SetVTKDataObject(this->ApplyColors->GetOutput());
 
     this->TableAdapter->SetColorColumnName("vtkApplyColors color");

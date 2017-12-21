@@ -103,7 +103,7 @@ public:
     // Call superclass
     vtkGeometricCursor<N>* clone
       = static_cast<vtkGeometricCursor<N>*>( this->Superclass::Clone() );
-    assert( "post: clone_exists" && clone != 0 );
+    assert( "post: clone_exists" && clone != nullptr );
 
     // Copy iVars specific to this subclass
     clone->Grid      = this->Grid;
@@ -287,7 +287,7 @@ protected:
   vtkGeometricCursor<N>()
   {
     // No grid by default
-    this->Grid      = 0;
+    this->Grid      = nullptr;
 
     // Default origin
     this->Origin[0] = 0.;
@@ -358,7 +358,7 @@ public:
     // Call superclass
     vtkSuperCursor<N>* clone
       = static_cast<vtkSuperCursor<N>*>( this->Superclass::Clone() );
-    assert( "post: clone_exists" && clone != 0 );
+    assert( "post: clone_exists" && clone != nullptr );
 
     // Return clone
     return clone;
@@ -652,12 +652,12 @@ public:
         if ( this->Cursors[i] )
         {
           this->Cursors[i]->Delete();
-          this->Cursors[i] = 0;
+          this->Cursors[i] = nullptr;
         }
       }
 
       delete [] this->Cursors;
-      this->Cursors = 0;
+      this->Cursors = nullptr;
     } // if ( this->Cursors )
   }
 
@@ -667,7 +667,7 @@ public:
     // Call superclass
     vtkVonNeumannSuperCursor<N>* clone
       = static_cast<vtkVonNeumannSuperCursor<N>*>( this->Superclass::Clone() );
-    assert( "post: clone_exists" && clone != 0 );
+    assert( "post: clone_exists" && clone != nullptr );
 
     // Copy iVars specific to this subclass
     for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
@@ -1120,12 +1120,12 @@ public:
         if ( this->Cursors[i] )
         {
           this->Cursors[i]->Delete();
-          this->Cursors[i] = 0;
+          this->Cursors[i] = nullptr;
         }
       }
 
       delete [] this->Cursors;
-      this->Cursors = 0;
+      this->Cursors = nullptr;
     } // if ( this->Cursors )
   }
 
@@ -1135,7 +1135,7 @@ public:
     // Call superclass
     vtkMooreSuperCursor<N>* clone
       = static_cast<vtkMooreSuperCursor<N>*>( this->Superclass::Clone() );
-    assert( "post: clone_exists" && clone != 0 );
+    assert( "post: clone_exists" && clone != nullptr );
 
     // Copy iVars specific to this subclass
     for ( unsigned int i = 0; i < this->NumberOfCursors; ++ i )
@@ -1489,19 +1489,19 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
   if ( this->Points )
   {
     this->Points->Delete();
-    this->Points = 0;
+    this->Points = nullptr;
   }
 
   if ( this->Connectivity )
   {
     this->Connectivity->Delete();
-    this->Connectivity = 0;
+    this->Connectivity = nullptr;
   }
 
   if ( this->Links )
   {
     this->Links->Delete();
-    this->Links = 0;
+    this->Links = nullptr;
   }
 
   if ( this->MaterialMask )
@@ -2933,7 +2933,7 @@ vtkIdType vtkHyperTreeGrid::FindCell( double x[3],
                                       double pcoords[3],
                                       double* weights )
 {
-  return this->FindCell( x, cell, 0, cellId, tol2, subId, pcoords, weights );
+  return this->FindCell( x, cell, nullptr, cellId, tol2, subId, pcoords, weights );
 }
 
 //----------------------------------------------------------------------------
@@ -3198,7 +3198,7 @@ void vtkHyperTreeGrid::ComputeDualGrid()
   } // p
 
   // Retrieve material mask
-  vtkBitArray* mask = this->HasMaterialMask() ? this->GetMaterialMask() : 0;
+  vtkBitArray* mask = this->HasMaterialMask() ? this->GetMaterialMask() : nullptr;
 
   // Iterate over all hyper trees
   vtkIdType index;
@@ -3276,7 +3276,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridCursor* cursor )
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // else
 }
@@ -3333,7 +3333,7 @@ void vtkHyperTreeGrid::TraverseDualRecursively( vtkHyperTreeGridCursor* cursor,
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // child
   } // else
 }

@@ -82,12 +82,12 @@ vtkQtTableView::vtkQtTableView()
   this->LastInputMTime = 0;
   this->LastMTime = 0;
   this->ShowAll = true;
-  this->ColumnName = 0;
+  this->ColumnName = nullptr;
   this->InSelectionChanged = false;
   this->ApplyRowColors = false;
   this->SortSelectionToTop = false;
 
-  this->ColorArrayNameInternal = 0;
+  this->ColorArrayNameInternal = nullptr;
   double defCol[3] = {0.827,0.827,0.827};
   this->ApplyColors->SetDefaultPointColor(defCol);
   this->ApplyColors->SetUseCurrentAnnotationColor(true);
@@ -104,7 +104,7 @@ vtkQtTableView::~vtkQtTableView()
   delete this->TableView;
   delete this->TableAdapter;
   delete this->TableSorter;
-  this->SetColumnName(0);
+  this->SetColumnName(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -288,7 +288,7 @@ void vtkQtTableView::RemoveRepresentationInternal(vtkDataRepresentation* rep)
   this->AddSelectedColumn->RemoveInputConnection(1, selConn);
   this->ApplyColors->RemoveInputConnection(1, annConn);
   this->AddSelectedColumn->RemoveInputConnection(2, annConn);
-  this->TableAdapter->SetVTKDataObject(0);
+  this->TableAdapter->SetVTKDataObject(nullptr);
 }
 
 void vtkQtTableView::SetColorByArray(bool b)
@@ -339,7 +339,7 @@ void vtkQtTableView::slotQtSelectionChanged(const QItemSelection& vtkNotUsed(s1)
   vtkDataRepresentation* rep = this->GetRepresentation();
   vtkSmartPointer<vtkSelection> converted;
   converted.TakeReference(vtkConvertSelection::ToSelectionType(
-    VTKIndexSelectList, data, rep->GetSelectionType(), 0));
+    VTKIndexSelectList, data, rep->GetSelectionType(), nullptr));
 
   // Call select on the representation
   rep->Select(this, converted);
@@ -370,7 +370,7 @@ void vtkQtTableView::SetVTKSelection()
 
   vtkSmartPointer<vtkSelection> selection;
   selection.TakeReference(vtkConvertSelection::ToSelectionType(
-    s, d, vtkSelectionNode::INDICES, 0, vtkSelectionNode::ROW));
+    s, d, vtkSelectionNode::INDICES, nullptr, vtkSelectionNode::ROW));
 
   if(!selection || selection->GetNumberOfNodes() == 0)
   {
@@ -442,7 +442,7 @@ void vtkQtTableView::Update()
     annConn->GetProducer()->Update();
     selConn->GetProducer()->Update();
 
-    this->TableAdapter->SetVTKDataObject(0);
+    this->TableAdapter->SetVTKDataObject(nullptr);
 
     if(this->ApplyRowColors)
     {

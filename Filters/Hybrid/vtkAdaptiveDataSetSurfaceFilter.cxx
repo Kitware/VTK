@@ -252,7 +252,7 @@ void vtkAdaptiveDataSetSurfaceFilter::ProcessTrees( vtkHyperTreeGrid* input,
   this->Cells = vtkCellArray::New();
 
   // Retrieve material mask
-  vtkBitArray* mask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  vtkBitArray* mask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   //
   vtkUnsignedCharArray* ghost = input->GetPointGhostArray();

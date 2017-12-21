@@ -84,7 +84,7 @@
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -139,8 +139,8 @@
 //----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacCharCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
   "space", "exclam", "quotedbl", "numbersign",
   "dollar", "percent", "ampersand", "quoteright",
   "parenleft", "parenright", "asterisk", "plus",
@@ -161,19 +161,19 @@ static const char *vtkMacCharCodeToKeySymTable[128] = {
 //----------------------------------------------------------------------------
 // For generating keysyms that are compatible with other VTK interactors
 static const char *vtkMacKeyCodeToKeySymTable[128] = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, "Return", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  "Tab", 0, 0, "Backspace", 0, "Escape", 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0,
-  0, "period", 0, "asterisk", 0, "plus", 0, "Clear",
-  0, 0, 0, "slash", "KP_Enter", 0, "minus", 0,
-  0, 0, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5",
-  "KP_6", "KP_7", 0, "KP_8", "KP_9", 0, 0, 0,
-  "F5", "F6", "F7", "F3", "F8", 0, 0, 0,
-  0, "Snapshot", 0, 0, 0, 0, 0, 0,
-  0, 0, "Help", "Home", "Prior", "Delete", "F4", "End",
-  "F2", "Next", "F1", "Left", "Right", "Down", "Up", 0,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, "Return", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  "Tab", nullptr, nullptr, "Backspace", nullptr, "Escape", nullptr, nullptr,
+  nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, "period", nullptr, "asterisk", nullptr, "plus", nullptr, "Clear",
+  nullptr, nullptr, nullptr, "slash", "KP_Enter", nullptr, "minus", nullptr,
+  nullptr, nullptr, "KP_0", "KP_1", "KP_2", "KP_3", "KP_4", "KP_5",
+  "KP_6", "KP_7", nullptr, "KP_8", "KP_9", nullptr, nullptr, nullptr,
+  "F5", "F6", "F7", "F3", "F8", nullptr, nullptr, nullptr,
+  nullptr, "Snapshot", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+  nullptr, nullptr, "Help", "Home", "Prior", "Delete", "F4", "End",
+  "F2", "Next", "F1", "Left", "Right", "Down", "Up", nullptr,
 };
 
 //----------------------------------------------------------------------------
@@ -210,7 +210,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
   unsigned char charCode = '\0';
-  const char *keySym = 0;
+  const char *keySym = nullptr;
 
   NSEventType type = [theEvent type];
   BOOL isPress = (type == NSEventTypeKeyDown);
@@ -229,7 +229,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     {
       keySym = vtkMacKeyCodeToKeySymTable[macKeyCode];
     }
-    if (keySym == 0 && charCode < 128)
+    if (keySym == nullptr && charCode < 128)
     {
       keySym = vtkMacCharCodeToKeySymTable[charCode];
     }
@@ -266,7 +266,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     return;
   }
 
-  if (keySym == 0)
+  if (keySym == nullptr)
   {
     keySym = "None";
   }
@@ -277,10 +277,10 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
                                   charCode, 1, keySym);
   interactor->SetAltKey(altDown);
 
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
   if (isPress && charCode != '\0')
   {
-    interactor->InvokeEvent(vtkCommand::CharEvent, NULL);
+    interactor->InvokeEvent(vtkCommand::CharEvent, nullptr);
   }
 }
 
@@ -313,7 +313,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
                                   static_cast<int>(backingLoc.y),
                                   controlDown, shiftDown);
   interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -349,7 +349,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
                                   controlDown, shiftDown,
                                   0, repeatCount);
   interactor->SetAltKey(altDown);
-  interactor->InvokeEvent(theEventId, NULL);
+  interactor->InvokeEvent(theEventId, nullptr);
 }
 
 //----------------------------------------------------------------------------

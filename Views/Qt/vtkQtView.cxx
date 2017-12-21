@@ -51,5 +51,5 @@ void vtkQtView::ProcessQtEventsNoUserInput()
 //----------------------------------------------------------------------------
 bool vtkQtView::SaveImage(const char* filename)
 {
-  return this->GetWidget() != 0 ? this->GetWidget()->grab().save(filename) : false;
+  return this->GetWidget() != nullptr ? this->GetWidget()->grab().save(filename) : false;
 }

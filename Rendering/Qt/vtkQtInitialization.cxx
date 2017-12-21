@@ -31,7 +31,7 @@ vtkQtInitialization::vtkQtInitialization()
   if(!QApplication::instance())
   {
     int argc = 0;
-    this->Application = new QApplication(argc, 0);
+    this->Application = new QApplication(argc, nullptr);
   }
 }
 

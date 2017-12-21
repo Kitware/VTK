@@ -428,10 +428,10 @@ void vtkDebugLeaks::ClassInitialize()
   vtkDebugLeaks::ExitError = 1;
   vtkDebugLeaks::Observer = nullptr;
 #else
-  vtkDebugLeaks::MemoryTable = 0;
-  vtkDebugLeaks::CriticalSection = 0;
+  vtkDebugLeaks::MemoryTable = nullptr;
+  vtkDebugLeaks::CriticalSection = nullptr;
   vtkDebugLeaks::ExitError = 0;
-  vtkDebugLeaks::Observer = 0;
+  vtkDebugLeaks::Observer = nullptr;
 #endif
 }
 

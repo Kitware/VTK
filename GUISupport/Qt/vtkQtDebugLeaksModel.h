@@ -36,7 +36,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtDebugLeaksModel : public QStandardItemModel
 
 public:
 
-  vtkQtDebugLeaksModel(QObject* p=0);
+  vtkQtDebugLeaksModel(QObject* p=nullptr);
   ~vtkQtDebugLeaksModel() override;
 
   /**
@@ -81,7 +81,7 @@ class ReferenceCountModel : public QStandardItemModel
   Q_OBJECT
 
 public:
-  ReferenceCountModel(QObject* p=0);
+  ReferenceCountModel(QObject* p=nullptr);
   ~ReferenceCountModel() override;
   void addObject(vtkObjectBase* obj);
   void removeObject(vtkObjectBase* obj);

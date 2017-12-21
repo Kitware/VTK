@@ -51,7 +51,7 @@ vtkQtAnnotationLayersModelAdapter::vtkQtAnnotationLayersModelAdapter(vtkAnnotati
 {
   if (this->Annotations != nullptr)
   {
-    this->Annotations->Register(0);
+    this->Annotations->Register(nullptr);
   }
 }
 
@@ -124,7 +124,7 @@ void vtkQtAnnotationLayersModelAdapter::setAnnotationLayers(vtkAnnotationLayers*
   this->Annotations = t;
   if (this->Annotations != nullptr)
   {
-    this->Annotations->Register(0);
+    this->Annotations->Register(nullptr);
 
     // When setting a table, update the QHash tables for column mapping.
     // If SplitMultiComponentColumns is disabled, this call will just clear
@@ -224,7 +224,7 @@ vtkSelection* vtkQtAnnotationLayersModelAdapter::QModelIndexListToVTKIndexSelect
     }
   return IndexSelection;
   */
-  return 0;
+  return nullptr;
 }
 
 //----------------------------------------------------------------------------

@@ -150,7 +150,7 @@ void vtkOrientationMarkerWidget::SetEnabled(int value)
         int *pos = this->Interactor->GetLastEventPosition();
         this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(pos[0], pos[1]));
 
-        if (this->CurrentRenderer == NULL)
+        if (this->CurrentRenderer == nullptr)
         {
           return;
         }
@@ -160,14 +160,14 @@ void vtkOrientationMarkerWidget::SetEnabled(int value)
 
       this->SetupWindowInteraction();
       this->Enabled = 1;
-      this->InvokeEvent(vtkCommand::EnableEvent, NULL);
+      this->InvokeEvent(vtkCommand::EnableEvent, nullptr);
     }
     else
     {
-      this->InvokeEvent(vtkCommand::DisableEvent, NULL);
+      this->InvokeEvent(vtkCommand::DisableEvent, nullptr);
       this->Enabled = 0;
       this->TearDownWindowInteraction();
-      this->SetCurrentRenderer(NULL);
+      this->SetCurrentRenderer(nullptr);
     }
   }
 }

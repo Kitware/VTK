@@ -33,7 +33,7 @@ public:
 
   ~qObserver() override
   {
-    vtkDebugLeaks::SetDebugLeaksObserver(0);
+    vtkDebugLeaks::SetDebugLeaksObserver(nullptr);
   }
 
   void ConstructingObject(vtkObjectBase* object) override
@@ -106,7 +106,7 @@ vtkQtDebugLeaksModel::~vtkQtDebugLeaksModel()
 void vtkQtDebugLeaksModel::onAboutToQuit()
 {
   delete this->Observer;
-  this->Observer = 0;
+  this->Observer = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -153,7 +153,7 @@ void vtkQtDebugLeaksModel::registerObject(vtkObjectBase* object)
   this->Internal->ObjectMap[object] = &classInfo;
   this->setData(this->index(indexOf, 1), classInfo.Count);
 
-  ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, 0);
+  ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, nullptr);
   if (model)
   {
     model->addObject(object);
@@ -183,7 +183,7 @@ void vtkQtDebugLeaksModel::removeObject(vtkObjectBase* object)
       this->setData(this->index(row, 1), classInfo->Count);
     }
 
-    ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, 0);
+    ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, nullptr);
     if (model)
     {
       model->removeObject(object);
@@ -213,7 +213,7 @@ QList<vtkObjectBase*> vtkQtDebugLeaksModel::getObjects(const QString& className)
 //----------------------------------------------------------------------------
 QStandardItemModel* vtkQtDebugLeaksModel::referenceCountModel(const QString& className)
 {
-  ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, 0);
+  ReferenceCountModel* model = this->Internal->ReferenceModels.value(className, nullptr);
   if (!model)
   {
     model = new ReferenceCountModel(this);
