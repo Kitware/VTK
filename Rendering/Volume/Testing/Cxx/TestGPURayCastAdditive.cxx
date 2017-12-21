@@ -81,7 +81,7 @@ int TestGPURayCastAdditive(int argc,
   renWin->AddRenderer(ren1);
   ren1->Delete();
 
-  // intentional odd and NPOT  width/height
+  // intentional odd and NPOT width/height
   renWin->SetSize(301,300);
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();

@@ -41,7 +41,7 @@
 //#define DEBUG_ON
 
 //------------------------------------------------------------------------------
-// Debugging utilites. Must link vtkIOXML to work
+// Debugging utilities. Must link vtkIOXML to work
 #ifdef DEBUG_ON
 #include "vtkXMLImageDataWriter.h"
 void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )

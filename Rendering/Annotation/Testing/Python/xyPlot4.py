@@ -4,7 +4,7 @@ from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
 # This version of the script
-# test ploting arbitrary array components (Momentum)
+# test plotting arbitrary array components (Momentum)
 # without using the dataset to data object filter
 # and its cryptic indexing of arrays.
 # create pipeline

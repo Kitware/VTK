@@ -109,7 +109,7 @@ public:
     double min, double max, double *u);
 
   /**
-   * Compute interesection factor
+   * Compute intersection factor
    */
   static double ComputeIntersectionFactor(const vtkVector3d& dir, const vtkVector3d& orig,
     const vtkVector3d& srfpos);
@@ -698,7 +698,7 @@ int vtkLagrangianBasicIntegrationModel::FunctionValues(double* x, double* f)
   vtkIdType cellId;
   if (this->FindInLocators(x, ds, cellId, loc, this->LastWeights))
   {
-    // Evalute integration model velocity field with the found cell
+    // Evaluate integration model velocity field with the found cell
     if (this->FunctionValues(ds, cellId, this->LastWeights, x, f) != 0)
     {
       this->LastDataSet = ds;

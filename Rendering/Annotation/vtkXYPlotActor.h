@@ -63,7 +63,7 @@
  * There are several advanced features as well. You can assign per curve
  * properties (such as color and a plot symbol). (Note that each input
  * dataset and/or data object creates a single curve.) Another option is to
- * add a plot legend that graphically indicates the correspondance between
+ * add a plot legend that graphically indicates the correspondence between
  * the curve, curve symbols, and the data source. You can also exchange the
  * x and y axes if you prefer you plot orientation that way.
  *

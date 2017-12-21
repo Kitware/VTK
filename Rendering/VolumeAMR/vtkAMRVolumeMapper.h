@@ -17,7 +17,7 @@
  * @brief   AMR class for a volume mapper
  *
  *
- * vtkAMRVolumeMapper is the  definition of a volume mapper.
+ * vtkAMRVolumeMapper is the definition of a volume mapper.
  * for AMR Structured Data
  *
  *

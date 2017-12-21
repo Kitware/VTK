@@ -151,7 +151,7 @@ public:
   //@{
   /**
    * Set whether to output results as coordinates.  ResultArrayName will be
-   * ignored.  Outputing as coordinates is only valid with vector results and
+   * ignored.  Outputting as coordinates is only valid with vector results and
    * if the AttributeMode is AttributeModeToUsePointData.
    * If a valid output can't be made, an error will occur.
    */
@@ -162,7 +162,7 @@ public:
 
   //@{
   /**
-   * Set whether to output results as point/cell normals. Outputing as
+   * Set whether to output results as point/cell normals. Outputting as
    * normals is only valid with vector results. Point or cell normals are
    * selected using AttributeMode.
    */

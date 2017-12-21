@@ -72,7 +72,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * can see how well the subset of points, on which the moments were computed,
  * actually represents the field For the reconstruction, we need to
  * orthonormalize the moments first. Then, we multiply the coefficients with
- * their coresponding basis function and add them up.
+ * their corresponding basis function and add them up.
  * @par Thanks:
  * Developed by Roxana Bujack at Los Alamos National Laboratory.
  */

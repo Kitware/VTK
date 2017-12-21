@@ -24,7 +24,7 @@
 
 /**
  * @class   vtkUnstructuredGridHomogeneousRayIntegrator
- * @brief   performs peicewise constant ray integration.
+ * @brief   performs piecewise constant ray integration.
  *
  *
  *

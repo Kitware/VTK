@@ -18,7 +18,7 @@
  *
  * vtkAnnotatedCubeActor is a hybrid 3D actor used to represent an anatomical
  * orientation marker in a scene.  The class consists of a 3D unit cube centered
- * on the origin with each face labelled in correspondance to a particular
+ * on the origin with each face labelled in correspondence to a particular
  * coordinate direction.  For example, with Cartesian directions, the user
  * defined text labels could be: +X, -X, +Y, -Y, +Z, -Z, while for anatomical
  * directions: A, P, L, R, S, I.  Text is automatically centered on each cube

@@ -91,7 +91,7 @@ int vtkCenterOfMass::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* vtkNotUsed(outputVector) )
 {
-  // Get the input and ouptut
+  // Get the input and output
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkPointSet* input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));

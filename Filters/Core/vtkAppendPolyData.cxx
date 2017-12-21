@@ -581,7 +581,7 @@ int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
                                    vtkInformationVector *outputVector)
 {
   // get the info object
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::GetData(outputVector, 0);
 
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();

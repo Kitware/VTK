@@ -48,7 +48,7 @@
  * error to produce the output triangles or 2) compute an optimal position in
  * each bin to produce the output triangles (recommended and default behavior).
  *
- * This filter can take multiple inputs.  To do this, the user must explicity
+ * This filter can take multiple inputs.  To do this, the user must explicitly
  * call StartAppend, Append (once for each input), and EndAppend.  StartAppend
  * sets up the data structure to hold the quadric matrices.  Append processes
  * each triangle in the input poly data it was called on, hashes its vertices
@@ -76,7 +76,7 @@
  * @warning
  * Note that for certain types of geometry (e.g., a mostly 2D plane with
  * jitter in the normal direction), the decimator can perform badly. In this
- * sitation, set the number of bins in the normal direction to one.
+ * situation, set the number of bins in the normal direction to one.
  *
  * @sa
  * vtkQuadricDecimation vtkDecimatePro vtkDecimate vtkQuadricLODActor
@@ -361,7 +361,7 @@ protected:
   // can be smaller than user values when input numb er of points is small.
   int NumberOfDivisions[3];
 
-  // Since there are two was of specifing the grid, we have this flag
+  // Since there are two was of specifying the grid, we have this flag
   // to indicate which the user has set.  When this flag is on,
   // the bin sizes are computed from the DivisionOrigin and DivisionSpacing.
   int ComputeNumberOfDivisions;

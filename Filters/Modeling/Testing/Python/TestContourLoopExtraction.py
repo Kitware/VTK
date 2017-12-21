@@ -33,7 +33,7 @@ contours = vtk.vtkFlyingEdges2D()
 contours.SetInputConnection(demReader.GetOutputPort())
 contours.SetValue(0, (hi + lo)/2.0)
 
-# Contruct loops
+# Construct loops
 loops = vtk.vtkContourLoopExtraction()
 loops.SetInputConnection(contours.GetOutputPort())
 loops.Update()

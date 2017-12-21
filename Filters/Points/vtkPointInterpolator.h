@@ -21,7 +21,7 @@
  * set of points P (the filter Input), interpolating the data values from Pc
  * onto P. Note however that the descriptive phrase "point cloud" is a
  * misnomer: Pc can be represented by any vtkDataSet type, with the points of
- * the dataset forming Pc. Similary, the output P can also be represented by
+ * the dataset forming Pc. Similarly, the output P can also be represented by
  * any vtkDataSet type; and the topology/geometry structure of P is passed
  * through to the output along with the newly interpolated arrays.
  *

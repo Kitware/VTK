@@ -66,7 +66,7 @@ struct ComputeMeanDistance
     threadCount = 0;
   }
 
-  // Compute average distance for each point, plus accumlate summation of
+  // Compute average distance for each point, plus accumulate summation of
   // mean distances and count (for averaging in the Reduce() method).
   void operator() (vtkIdType ptId, vtkIdType endPtId)
   {

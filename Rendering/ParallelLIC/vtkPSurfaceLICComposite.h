@@ -118,7 +118,7 @@ private:
 
   /**
    * The efficiency of a decomposition is the ratio of useful pixels
-   * to guard pixels. If this factor shrinks bellow 1 there may be
+   * to guard pixels. If this factor shrinks below 1 there may be
    * an issue.
    */
   double EstimateDecompEfficiency(

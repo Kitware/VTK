@@ -39,7 +39,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Give a functin pointer to a class that will manufacture a
+   * Give a function pointer to a class that will manufacture a
    * vtkViewNode when given a class name string.
    */
   void RegisterOverride(const char *name, vtkViewNode *(*func)());

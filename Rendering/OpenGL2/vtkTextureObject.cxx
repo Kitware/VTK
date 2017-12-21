@@ -1045,7 +1045,7 @@ bool vtkTextureObject::Create1D(int numComps,
 
   GLenum target = GL_TEXTURE_1D;
 
-  // Now, detemine texture parameters using the information from the pbo.
+  // Now, determine texture parameters using the information from the pbo.
 
   // * internalFormat depends on number of components and the data type.
   GLenum internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
@@ -1060,7 +1060,7 @@ bool vtkTextureObject::Create1D(int numComps,
 
   if (!internalFormat || !format || !type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1144,14 +1144,14 @@ bool vtkTextureObject::CreateTextureBuffer(unsigned int numValues, int numComps,
 {
   assert(this->Context);
 
-  // Now, detemine texture parameters using the arguments.
+  // Now, determine texture parameters using the arguments.
   this->GetDataType(dataType);
   this->GetInternalFormat(dataType, numComps, false);
   this->GetFormat(dataType, numComps, false);
 
   if (!this->InternalFormat || !this->Format || !this->Type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1210,7 +1210,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
     return false;
   }
 
-  // Now, detemine texture parameters using the information from the pbo.
+  // Now, determine texture parameters using the information from the pbo.
   // * internalFormat depends on number of components and the data type.
   // * format depends on the number of components.
   // * type if the data type in the pbo
@@ -1226,7 +1226,7 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1330,7 +1330,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   GLenum target = GL_TEXTURE_3D;
 
-  // Now, detemine texture parameters using the information from the pbo.
+  // Now, determine texture parameters using the information from the pbo.
 
   // * internalFormat depends on number of components and the data type.
   GLenum internalFormat = this->GetInternalFormat(pbo->GetType(), numComps,
@@ -1345,7 +1345,7 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
 
   if (!internalFormat || !format || !type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1436,14 +1436,14 @@ bool vtkTextureObject::Create3DFromRaw(unsigned int width, unsigned int height,
   assert(this->Context);
   vtkOpenGLClearErrorMacro();
 
-  // Now, detemine texture parameters using the arguments.
+  // Now, determine texture parameters using the arguments.
   this->GetDataType(dataType);
   this->GetInternalFormat(dataType, numComps, false);
   this->GetFormat(dataType, numComps, false);
 
   if (!this->InternalFormat || !this->Format || !this->Type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1492,7 +1492,7 @@ bool vtkTextureObject::AllocateProxyTexture3D(unsigned int const width,
 
   if (!this->InternalFormat || !this->Format || !this->Type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 
@@ -1639,7 +1639,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
   assert("pre: valid_internalFormat" && internalFormat>=0
          && internalFormat<NumberOfDepthFormats);
 
-  // Now, detemine texture parameters using the arguments.
+  // Now, determine texture parameters using the arguments.
   this->GetDataType(rawType);
 
   if (!this->InternalFormat)
@@ -1650,7 +1650,7 @@ bool vtkTextureObject::CreateDepthFromRaw(unsigned int width,
 
   if (!this->InternalFormat || !this->Type)
   {
-    vtkErrorMacro("Failed to detemine texture parameters.");
+    vtkErrorMacro("Failed to determine texture parameters.");
     return false;
   }
 

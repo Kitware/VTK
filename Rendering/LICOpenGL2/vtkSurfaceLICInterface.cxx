@@ -591,7 +591,7 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     {
       vtkErrorMacro(
         << comm->GetRank()
-        << ": Invalid  range " << LMin << ", " << LMax
+        << ": Invalid range " << LMin << ", " << LMax
         << " for color contrast enhancement");
       LMin = 0.0;
       LMax = 1.0;
@@ -1061,7 +1061,7 @@ bool vtkSurfaceLICInterface::IsSupported(vtkRenderWindow *renWin)
 //----------------------------------------------------------------------------
 bool vtkSurfaceLICInterface::CanRenderSurfaceLIC(vtkActor *actor)
 {
-  // check the render context for GL fetaure support
+  // check the render context for GL feature support
   // note this also handles non-opengl render window
   if ( this->Internals->ContextNeedsUpdate
     && !vtkSurfaceLICInterface::IsSupported(this->Internals->Context) )
@@ -1193,7 +1193,7 @@ void vtkSurfaceLICInterface::InitializeResources()
 //----------------------------------------------------------------------------
 bool vtkSurfaceLICInterface::NeedToUpdateCommunicator()
 {
-  // no comm or externally modfied parameters
+  // no comm or externally modified parameters
   if ( this->Internals->CommunicatorNeedsUpdate
     || this->Internals->ContextNeedsUpdate
     || !this->Internals->Communicator
@@ -1240,7 +1240,7 @@ void vtkSurfaceLICInterface::ValidateContext(vtkRenderer *renderer)
   {
     modified = true;
 
-    // udpate view size
+    // update view size
     this->Internals->Viewsize[0] = viewsize[0];
     this->Internals->Viewsize[1] = viewsize[1];
 

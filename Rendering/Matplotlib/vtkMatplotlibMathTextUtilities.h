@@ -86,7 +86,7 @@ public:
 
   //@{
   /**
-   * Set to true if the graphics implmentation requires texture image dimensions
+   * Set to true if the graphics implementation requires texture image dimensions
    * to be a power of two. Default is true, but this member will be set
    * appropriately when GL is inited.
    */

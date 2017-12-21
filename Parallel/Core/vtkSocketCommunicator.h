@@ -18,7 +18,7 @@
  *
  * This is a concrete implementation of vtkCommunicator which supports
  * interprocess communication using BSD style sockets.
- * It supports byte swapping for the communication of  machines
+ * It supports byte swapping for the communication of machines
  * with different endianness.
  *
  * @warning

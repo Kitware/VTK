@@ -23,7 +23,7 @@ vtkCxxSetObjectMacro(vtkCoordinate,ReferenceCoordinate,vtkCoordinate);
 
 //----------------------------------------------------------------------------
 // Creates an Coordinate with the following defaults:
-// value of  0, 0, 0 in world  coordinates
+// value of  0, 0, 0 in world coordinates
 vtkCoordinate::vtkCoordinate()
 {
   this->CoordinateSystem = VTK_WORLD;

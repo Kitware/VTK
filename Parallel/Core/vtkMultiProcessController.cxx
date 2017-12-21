@@ -521,7 +521,7 @@ int vtkMultiProcessController::BroadcastProcessRMIs(
     this->RMICommunicator->Broadcast(triggerMessage,128,0);
 
 #ifdef VTK_WORDS_BIGENDIAN
-    // Header is sent in little-endian form. We need to convert it to  big
+    // Header is sent in little-endian form. We need to convert it to big
     // endian.
     vtkByteSwap::SwapLERange(triggerMessage, 2);
 #endif
@@ -669,7 +669,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors, int dont_loop)
       break;
     }
 #ifdef VTK_WORDS_BIGENDIAN
-    // Header is sent in little-endian form. We need to convert it to  big
+    // Header is sent in little-endian form. We need to convert it to big
     // endian.
     vtkByteSwap::SwapLERange(triggerMessage, 4);
 #endif

@@ -94,7 +94,7 @@ int vtkTkImageViewerWidget_Configure(Tcl_Interp *interp,
     return(TCL_ERROR);
   }
 
-  // Get the new  width and height of the widget
+  // Get the new width and height of the widget
   Tk_GeometryRequest(self->TkWin, self->Width, self->Height);
 
   // Make sure the ImageViewer window has been set.  If not, create one.

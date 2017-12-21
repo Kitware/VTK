@@ -68,7 +68,7 @@ protected:
 
   //@{
   /**
-   * Perform string replacments on the shader templates
+   * Perform string replacements on the shader templates
    */
   void ReplaceShaderPicking(
     std::map<vtkShader::Type, vtkShader *> shaders,

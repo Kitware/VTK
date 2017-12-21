@@ -411,7 +411,7 @@ int vtkPSurfaceLICComposite::AllGatherExtents(
         MPI_INT,
         comm);
 
-  // allocate a bufffer to receive the remote exts
+  // allocate a buffer to receive the remote exts
   int *recvCounts = static_cast<int*>(malloc(this->CommSize*sizeof(int)));
   int *recvDispls = static_cast<int*>(malloc(this->CommSize*sizeof(int)));
   int bufSize = 0;
@@ -945,7 +945,7 @@ double vtkPSurfaceLICComposite::EstimateCommunicationCost(
       const deque<deque<vtkPixelExtent> > &srcExts,
       const deque<deque<vtkPixelExtent> > &destExts)
 {
-  // compute the number off rank overlaping pixels, this is the
+  // compute the number off rank overlapping pixels, this is the
   // the number of pixels that need to be communicated. This is
   // not the number of pixels to be composited since some of those
   // may be on-rank.

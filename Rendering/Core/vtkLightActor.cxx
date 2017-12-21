@@ -261,7 +261,7 @@ void vtkLightActor::UpdateViewProps()
     this->CameraLight->SetFocalPoint(this->Light->GetFocalPoint());
     this->CameraLight->SetViewUp(0.0,1.0,0.0);
     // view angle is an aperture, but cone (or light) angle is between
-    // the axis of the cone and a ray along the edge  of the cone.
+    // the axis of the cone and a ray along the edge of the cone.
     this->CameraLight->SetViewAngle(angle*2.0);
     // initial clip=(0.1,1000). near>0, far>near);
     this->CameraLight->SetClippingRange(this->ClippingRange);

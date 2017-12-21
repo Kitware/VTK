@@ -139,7 +139,7 @@ void vtkContourImage(T *scalars, vtkDataArray *newScalars, int roi[6], int dir[3
   //assign coordinate value to non-varying coordinate direction
   x[dir[2]] = origin[dir[2]] + roi[dir[2]*2]*ar[dir[2]];
 
-  // Traverse all pixel cells, generating line segements using marching squares.
+  // Traverse all pixel cells, generating line segments using marching squares.
   for ( j=roi[start[1]]; j < roi[end[1]]; j++ )
   {
 

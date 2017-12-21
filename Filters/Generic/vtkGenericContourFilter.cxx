@@ -93,7 +93,7 @@ vtkMTimeType vtkGenericContourFilter::GetMTime()
     mTime = ( time > mTime ? time : mTime );
   }
 
-  // mTime should also take into account the fact that tesselator is view
+  // mTime should also take into account the fact that tessellator is view
   // dependent
 
   return mTime;

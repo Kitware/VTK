@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkTkRenderWidget
- * @brief   a Tk Widget for vtk renderering
+ * @brief   a Tk Widget for vtk rendering
  *
  *
  * vtkTkRenderWidget is a Tk widget that you can render into. It has a

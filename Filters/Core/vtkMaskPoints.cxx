@@ -325,7 +325,7 @@ int vtkMaskPoints::RequestData(
 
   // figure out how many sample points per process
   vtkIdType localMaxPts;
-  // Make sure this does not exceed the number of points in the imput array
+  // Make sure this does not exceed the number of points in the input array
   localMaxPts = this->MaximumNumberOfPoints > numPts ? numPts : this->MaximumNumberOfPoints;
   if(this->InternalGetNumberOfProcesses() > 1 && this->ProportionalMaximumNumberOfPoints)
   {

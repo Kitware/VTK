@@ -4164,7 +4164,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
 
 // Activate/bind DepthTextureObject to a texture unit first as it was already
 // activated in CaptureDepthTexture. Certain APPLE implementations seem to be
-// sensitive to swaping the activation order (causing GL_INVALID_OPERATION after
+// sensitive to swapping the activation order (causing GL_INVALID_OPERATION after
 // the glDraw call).
 #if GL_ES_VERSION_3_0 != 1
     // currently broken on ES

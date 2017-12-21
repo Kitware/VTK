@@ -249,7 +249,7 @@ public:
 
   //@{
   /**
-   * Set the id of the LOD that is to be used for picking when  automatic
+   * Set the id of the LOD that is to be used for picking when automatic
    * LOD pick selection is turned off.
    */
   void SetSelectedPickLODID(int id);

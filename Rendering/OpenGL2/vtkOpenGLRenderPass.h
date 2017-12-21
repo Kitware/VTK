@@ -43,7 +43,7 @@ public:
 
   /**
    * Use vtkShaderProgram::Substitute to replace //VTK::XXX:YYY declarations in
-   * the shader sources. Gets called before other mapper shader replacments
+   * the shader sources. Gets called before other mapper shader replacements
    * Return false on error.
    */
   virtual bool PreReplaceShaderValues(std::string &vertexShader,

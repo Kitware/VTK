@@ -611,7 +611,7 @@ void vtkQuadricClustering::AddEdges(vtkCellArray *edges, vtkPoints *points,
   double pt0[3], pt1[3];
   vtkIdType binIds[2];
 
-  // Add the edges to the error fuction.
+  // Add the edges to the error function.
   numCells = edges->GetNumberOfCells();
   edges->InitTraversal();
   for (vtkIdType i = 0; i < numCells; ++i)
@@ -712,7 +712,7 @@ void vtkQuadricClustering::AddEdge(vtkIdType *binIds, double *pt0, double *pt1,
       this->InitializeQuadric(this->QuadricArray[binIds[i]].Quadric);
     }
     if (this->QuadricArray[binIds[i]].Dimension == 1)
-    { // Points supersede segements.
+    { // Points supersede segments.
       this->AddQuadric(binIds[i], q);
     }
   }

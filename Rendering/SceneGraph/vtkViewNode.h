@@ -105,7 +105,7 @@ public:
   vtkViewNode *GetFirstAncestorOfType(const char *type);
 
   /**
-   * Alow explicit setting of the renderable for a
+   * Allow explicit setting of the renderable for a
    * view node.
    */
   virtual void SetRenderable(vtkObject *);

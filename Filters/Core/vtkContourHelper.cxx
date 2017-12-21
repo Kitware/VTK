@@ -89,7 +89,7 @@ void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellSc
       {
         this->PolyBuilder.InsertTriangle(cellVerts);
       }
-      else //for whatever reason, the cell contouring is already outputing polys
+      else //for whatever reason, the cell contouring is already outputting polys
       {
         vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
         this->OutCd->CopyData(this->InCd, cellId, outCellId);

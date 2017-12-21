@@ -237,7 +237,7 @@ double GetColorPath(const double rgb1[3], const double rgb2[3], std::vector<Node
   getPosition(rgb1, pos1);
   getPosition(rgb2, pos2);
 
-  // Use Dijkstra's algorith backwards to calculate the shortest distances from
+  // Use Dijkstra's algorithm backwards to calculate the shortest distances from
   // the second color
 
   std::deque<Distance> distances(COLORSPACE_SIZE_X * COLORSPACE_SIZE_Y * COLORSPACE_SIZE_Z,

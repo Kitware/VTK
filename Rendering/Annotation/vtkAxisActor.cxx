@@ -2575,8 +2575,8 @@ bool vtkAxisActor::BuildTickPoints(double p1[3], double p2[3], bool force)
   this->InnerGridlinePts->Reset();
   this->GridpolyPts->Reset();
 
-  // As we assume that the Axis is not necessery alined to the absolute X/Y/Z
-  // axis, we will convert the absolut XYZ information to relative one
+  // As we assume that the Axis is not necessary aligned to the absolute X/Y/Z
+  // axis, we will convert the absolute XYZ information to relative one
   // using a base composed as follow (axis, u, v)
 
   double coordSystem[3][3]; // axisVector, uVector, vVector

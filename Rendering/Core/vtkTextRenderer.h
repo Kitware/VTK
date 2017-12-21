@@ -27,7 +27,7 @@
  * the string does not meet this criteria, or if no MathText implementation is
  * available, the faster FreeType rendering facilities are used. Literal $
  * symbols can be used by escaping them with backslashes, "\$" (or "\\$" if the
- * string is set programatically).
+ * string is set programmatically).
  *
  * For example, "Acceleration ($\\frac{m}{s^2}$)" will use MathText, but
  * "\\$500, \\$100" will use FreeType.
@@ -282,7 +282,7 @@ public:
   //@}
 
   /**
-   * Set to true if the graphics implmentation requires texture image dimensions
+   * Set to true if the graphics implementation requires texture image dimensions
    * to be a power of two. Default is true, but this member will be set
    * appropriately by vtkOpenGLRenderWindow::OpenGLInitContext when GL is
    * inited.

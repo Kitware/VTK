@@ -954,7 +954,7 @@ bool vtkOpenGLRenderer::IsDualDepthPeelingSupported()
     }
   }
 
-  // The old implemention can be forced by defining the environment var
+  // The old implementation can be forced by defining the environment var
   // "VTK_USE_LEGACY_DEPTH_PEELING":
   if (dualDepthPeelingSupported)
   {

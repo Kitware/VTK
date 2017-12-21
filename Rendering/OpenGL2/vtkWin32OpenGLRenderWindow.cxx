@@ -562,7 +562,7 @@ void vtkWin32OpenGLRenderWindow::SetupPixelFormatPaletteAndContext(
   HGLRC tempContext = wglCreateContext(tempDC);
   if (!wglMakeCurrent(tempDC, tempContext))
   {
-    vtkErrorMacro("failed to create temporary windows OpenGL context with errror: " << GetLastError());
+    vtkErrorMacro("failed to create temporary windows OpenGL context with error: " << GetLastError());
   }
 
   // make sure glew is initialized with fake window

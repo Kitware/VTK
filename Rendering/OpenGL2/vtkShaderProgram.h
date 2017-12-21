@@ -282,7 +282,7 @@ public:
    * If the file exists, then the shader is recompiled to use the contents of that file.
    * Thus, after the files have been dumped in the first render, you can open the files
    * in a text editor and update as needed. On following render, the modified
-   * contexts from  the file will be used.
+   * contexts from the file will be used.
    *
    * This is only intended for debugging during development and should not be
    * used in production.

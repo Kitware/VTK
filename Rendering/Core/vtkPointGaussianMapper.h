@@ -16,9 +16,9 @@
  * @brief   draw PointGaussians using imposters
  *
  *
- * An  mapper that uses imposters to draw gaussian splats or other shapes if
+ * A mapper that uses imposters to draw gaussian splats or other shapes if
  * custom shader code is set. Supports transparency and picking as well. It
- * draws all the points and does not require cell arrays.  If cell arrays are
+ * draws all the points and does not require cell arrays. If cell arrays are
  * provided it will only draw the points used by the Verts cell array. The shape
  * of the imposter is a triangle.
 */

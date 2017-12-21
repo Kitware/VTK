@@ -352,7 +352,7 @@ public:
   //@{
   /**
    * Set/Get use offaxis frustum.
-   * OffAxis frustum is used for off-axis frustum calculations specificly
+   * OffAxis frustum is used for off-axis frustum calculations specifically
    * for stereo rendering.
    * For reference see "High Resolution Virtual Reality", in Proc.
    * SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.

@@ -26,7 +26,7 @@
  * polyline point. The uncertainty tubes can be envisioned as the
  * interpolation of these ellipsoids between the points defining the
  * polyline (or rather, the interpolation of the cross section of the
- * ellipsoids alog the polyline).
+ * ellipsoids along the polyline).
  *
  * @sa
  * vtkTensorGlyph vtkStreamTracer

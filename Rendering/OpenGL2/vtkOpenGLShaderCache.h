@@ -79,7 +79,7 @@ protected:
   vtkOpenGLShaderCache();
   ~vtkOpenGLShaderCache() override;
 
-  // perform System and Output replacments in place. Returns
+  // perform System and Output replacements in place. Returns
   // the number of outputs
   virtual unsigned int ReplaceShaderValues(
     std::string &VSSource,

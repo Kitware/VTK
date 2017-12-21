@@ -61,7 +61,7 @@ int vtkExtractSelectedThresholds::RequestData(
 
   vtkDataObject* inputDO = vtkDataObject::GetData(inInfo);
 
-  // verify the input, selection and ouptut
+  // verify the input, selection and output
   if ( ! selInfo )
   {
     //When not given a selection, quietly select nothing.

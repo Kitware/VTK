@@ -22,7 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
  * relation to the bounding box, the bounding box, the number of labels, and
  * the data range (min,max). You can also control what parts of the axis are
  * visible including the line, the tick marks, the labels, and the title. It
- * is also possible to control gridlines, and specifiy on which 'side' the
+ * is also possible to control gridlines, and specify on which 'side' the
  * tickmarks are drawn (again with respect to the underlying assumed
  * bounding box). You can also specify the label format (a printf style format).
  *

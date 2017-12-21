@@ -167,7 +167,7 @@ protected:
   double Times[2];
   double LastGoodVelocity[3];
 
-  // The weight (0.0->1.0) of the value of T between the two avaiable
+  // The weight (0.0->1.0) of the value of T between the two available
   // time values for the current computation
   double CurrentWeight;
   // One minus the CurrentWeight

@@ -14,7 +14,7 @@ All rights reserve
 =========================================================================*/
 /**
  * @class   vtkCubeAxesActor
- * @brief   create a  plot of a bounding box edges -
+ * @brief   create a plot of a bounding box edges -
  * used for navigation
  *
  * vtkCubeAxesActor is a composite actor that draws axes of the
@@ -550,7 +550,7 @@ public:
   //@{
   /**
    * Provide a custom AxisOrigin. This point must be inside the bounding box and
-   * will represent the point where the 3 axes will interesect
+   * will represent the point where the 3 axes will intersect
    */
   vtkSetVector3Macro(AxisOrigin,double);
   vtkGetVector3Macro(AxisOrigin, double);

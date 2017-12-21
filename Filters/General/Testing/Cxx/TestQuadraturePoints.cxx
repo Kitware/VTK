@@ -13,7 +13,7 @@
 
 =========================================================================*/
 // This example demonstrates the capabilities of vtkQuadraturePointInterpolator
-// vtkQuadraturePointsGenerator and the class required to suppport their
+// vtkQuadraturePointsGenerator and the class required to support their
 // addition.
 //
 // The command line arguments are:

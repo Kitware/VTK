@@ -177,7 +177,7 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, vtkIdType tetraId,
                                 vtkIdType& nei);
 
 //--------------------------------------------------------------------------
-// Find all faces that enclose a point. (Enclosure means not satifying
+// Find all faces that enclose a point. (Enclosure means not satisfying
 // Delaunay criterion.) This method works in two distinct parts. First, the
 // tetrahedra containing the point are found (there may be more than one if
 // the point falls on an edge or face). Next, face neighbors of these points

@@ -17,8 +17,8 @@
  * @brief   Return a piece of a point cloud
  *
  * This filter takes the output of a vtkHierarchicalBinningFilter and allows
- * the pipeline to stream it. Pieces are detemined from an offset integral
- * array is associated with the field data of the input.
+ * the pipeline to stream it. Pieces are determined from an offset integral
+ * array associated with the field data of the input.
 */
 
 #ifndef vtkExtractPointCloudPiece_h

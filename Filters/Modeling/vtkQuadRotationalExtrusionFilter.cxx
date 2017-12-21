@@ -200,7 +200,7 @@ int vtkQuadRotationalExtrusionFilter::RequestData( vtkInformation* vtkNotUsed( r
 
   while ( inputIterator->IsDoneWithTraversal() == 0 )
   {
-    // get the input and ouptut
+    // get the input and output
     int blockId = inputIterator->GetCurrentFlatIndex();
     vtkPolyData *input = vtkPolyData::SafeDownCast( inputIterator->GetCurrentDataObject() );
     inputIterator->GoToNextItem();

@@ -438,7 +438,7 @@ std::vector<vtkMomentsTensor> orthonormalizeMoments(int dimension,
 
 /**
  * this functions uses the moments, weighs them with their corresponding basis function and adds
- * them up to approximate the value of the orignal function. The more moments are given, the better
+ * them up to approximate the value of the original function. The more moments are given, the better
  * the approximation, like in a taylor series
  * @param p: the location (3D point) at which the reconstructed field is evaluated
  * @param moments: the moments at a given location, which is used for the reconstruction

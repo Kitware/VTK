@@ -224,7 +224,7 @@ public:
   virtual int RemoveFirstRMI(int tag);
 
   /**
-   * Remove the  RMI matching the id. The id is the same id returned by
+   * Remove the RMI matching the id. The id is the same id returned by
    * AddRMI().
    */
   virtual int RemoveRMI(unsigned long id);

@@ -23,7 +23,7 @@
  * @class   vtkExtractArray
  * @brief   Given a vtkArrayData object containing one-or-more
  * vtkArray instances, produces a vtkArrayData containing just one vtkArray,
- * indentified by index.
+ * identified by index.
  *
  * @par Thanks:
  * Developed by Timothy M. Shead (tshead@sandia.gov) at Sandia National Laboratories.

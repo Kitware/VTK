@@ -182,7 +182,7 @@ protected:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor() override;
 
-  //Using static here to avoid detroying context when many apps are open:
+  //Using static here to avoid destroying context when many apps are open:
   static XtAppContext App;
   static int NumAppInitialized;
 

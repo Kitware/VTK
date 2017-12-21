@@ -74,7 +74,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * its extent is a multiple of the first input's. Then, the circles are
  * centered nicely. The spheres/circles are good for 2D visualization The
  * balls are good for 3D volume rendering or steering seeding of visualization
- * elements The theory and the algorithm is decribed in Roxana Bujack, Jens
+ * elements The theory and the algorithm is described in Roxana Bujack, Jens
  * Kasten, Ingrid Hotz, Gerik Scheuermann, and Eckhard Hitzer: "Moment
  * Invariants for 2D Flow Fields via Normalization in Detail."
  * http://www.informatik.uni-leipzig.de/~bujack/bujackTVCGSmall.pdf

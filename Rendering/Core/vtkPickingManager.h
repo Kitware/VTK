@@ -52,7 +52,7 @@
  * * at the widget level, the "ManagesPicking" variable can be changed
  * from the widget/representation class to tell
  * whether to use the manager or not.
- * * Directly disable the picking manager itself  with the boolean variable
+ * * Directly disable the picking manager itself with the boolean variable
  * \sa Enabled using vtkPickingManager::EnabledOn(), EnabledOff(),
  * SetEnabled(bool).
  * @par Important:

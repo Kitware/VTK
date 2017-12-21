@@ -16,7 +16,7 @@
  * @class   vtkOSPRayTetrahedraMapperNode
  * @brief   Unstructured grid volume renderer.
  *
- * vtkOSPRayTetrahedraMapperNode impliments a volume rendering
+ * vtkOSPRayTetrahedraMapperNode implements a volume rendering
  * that directly samples the AMR structure using OSPRay.
  *
 */

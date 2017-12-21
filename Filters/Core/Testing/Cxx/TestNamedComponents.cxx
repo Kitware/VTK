@@ -147,7 +147,7 @@ int TestNamedComponents(int , char *[])
   //confirm component names are intact
   if (strcmp(cellIndex->GetComponentName(0),"index") != 0)
   {
-    vtkGenericWarningMacro("threshold failed to mantain component name on cell scalars.");
+    vtkGenericWarningMacro("threshold failed to maintain component name on cell scalars.");
     return 1;
   }
 
@@ -156,7 +156,7 @@ int TestNamedComponents(int , char *[])
       strcmp(cellPoints->GetComponentName(2),"Y_ID")  != 0 ||
       strcmp(cellPoints->GetComponentName(3),"Z_ID")  != 0)
   {
-    vtkGenericWarningMacro("threshold failed to mantain component names on point property.");
+    vtkGenericWarningMacro("threshold failed to maintain component names on point property.");
     return 1;
   }
 

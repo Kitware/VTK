@@ -33,7 +33,7 @@
  * directions, as well as a domain bounds. By default the model bounds are
  * defined from the input points, but the user can also manually specify
  * them. Finally, because the radius data member limits the influence of the
- * distance calulation, some voxels may receive no contribution. These voxel
+ * distance calculation, some voxels may receive no contribution. These voxel
  * values are set to the CapValue.
  *
  * This filter has one other unusual capability: it is possible to append

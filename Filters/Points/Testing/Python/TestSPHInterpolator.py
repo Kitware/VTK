@@ -38,7 +38,7 @@ plane.Push(1.15)
 plane.Update()
 
 # SPH kernel------------------------------------------------
-# Start with somethign weird: process an empty input
+# Start with something weird: process an empty input
 emptyPts = vtk.vtkPoints()
 emptyData = vtk.vtkPolyData()
 emptyData.SetPoints(emptyPts)

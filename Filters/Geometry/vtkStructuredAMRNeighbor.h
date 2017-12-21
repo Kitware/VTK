@@ -95,7 +95,7 @@ public:
   void GetReceiveExtentOnGrid(const int ng,int gridExtent[6],int ext[6]);
 
   /**
-   * Returns the neighbor relationship as a string (usefule for debugging).
+   * Returns the neighbor relationship as a string (useful for debugging).
    */
   std::string GetRelationShipString();
 

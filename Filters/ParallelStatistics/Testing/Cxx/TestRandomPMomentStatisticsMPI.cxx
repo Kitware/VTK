@@ -383,7 +383,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       }
     }
 
-    // Verify that the DISTRIBUTED standard normal samples indeed statisfy the 68-95-99.7 rule
+    // Verify that the DISTRIBUTED standard normal samples indeed satisfy the 68-95-99.7 rule
     if ( myRank == args->ioRank )
     {
       cout << "\n## Verifying whether the distributed standard normal samples satisfy the 68-95-99.7 rule:\n";

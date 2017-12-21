@@ -107,14 +107,14 @@ vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
   delete this->Internal;
 }
 
-// perform System and Output replacments
+// perform System and Output replacements
 unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   std::string &VSSource,
   std::string &FSSource,
   std::string &GSSource)
 {
   // first handle renaming any Fragment shader inputs
-  // if we have a geometry shader. By deafult fragment shaders
+  // if we have a geometry shader. By default fragment shaders
   // assume their inputs come from a Vertex Shader. When we
   // have a Geometry shader we rename the frament shader inputs
   // to come from the geometry shader
@@ -393,7 +393,7 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
   // NOTE:
   // In the current implementation as of October 26th, if a shader
   // program is created by ShaderCache then it should make sure
-  // that it releases the graphics resouces used by these programs.
+  // that it releases the graphics resources used by these programs.
   // It is not wisely for callers to do that since then they would
   // have to loop over all the programs were in use and invoke
   // release graphics resources individually.

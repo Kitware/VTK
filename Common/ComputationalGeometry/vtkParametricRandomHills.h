@@ -178,7 +178,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills :
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
 
-     * uvw are the parameters with Pt being the the Cartesian point,
+     * uvw are the parameters with Pt being the Cartesian point,
      * Duvw are the derivatives of this point with respect to u, v and w.
      * Pt, Duvw are obtained from Evaluate().
 

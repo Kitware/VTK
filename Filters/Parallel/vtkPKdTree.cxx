@@ -1450,7 +1450,7 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
 // the second value returned will be R+1.
 //
 // This function is different than PartitionAboutMyValue, because in
-// that functin we know that "T" appears in the array.  In this
+// that function we know that "T" appears in the array.  In this
 // function, "T" may or may not appear in the array.
 
 int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)

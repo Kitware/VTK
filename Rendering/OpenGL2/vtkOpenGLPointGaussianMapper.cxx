@@ -69,7 +69,7 @@ protected:
     vtkRenderer *, vtkActor *) override;
 
   // Description:
-  // Perform string replacments on the shader templates
+  // Perform string replacements on the shader templates
   void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *, vtkActor *) override;

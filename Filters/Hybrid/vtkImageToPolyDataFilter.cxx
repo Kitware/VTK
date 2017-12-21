@@ -780,7 +780,7 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
         wave = wave2;
         wave2 = tmpWave;
         wave2->Reset();
-      }//while still propogating
+      }//while still propagating
     }//if not, start wave
   }//for all pixels
 

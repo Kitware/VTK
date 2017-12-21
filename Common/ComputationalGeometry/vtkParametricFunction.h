@@ -94,7 +94,7 @@ public:
    * This is a pure virtual function that must be instantiated in
    * a derived class.
 
-   * uvw are the parameters with Pt being the the cartesian point,
+   * uvw are the parameters with Pt being the cartesian point,
    * Duvw are the derivatives of this point with respect to u, v, and w.
    * Pt, Duvw are obtained from Evaluate().
    */
@@ -159,7 +159,7 @@ public:
 
   //@{
   /**
-   * Set/Get the flag which joins the the ends of the triangle strips.
+   * Set/Get the flag which joins the ends of the triangle strips.
    */
   vtkSetClampMacro(JoinV, int, 0, 1);
   vtkGetMacro(JoinV, int);
@@ -168,7 +168,7 @@ public:
 
   //@{
   /**
-   * Set/Get the flag which joins the the ends of the triangle strips.
+   * Set/Get the flag which joins the ends of the triangle strips.
    */
   vtkSetClampMacro(JoinW, int, 0, 1);
   vtkGetMacro(JoinW, int);
@@ -213,7 +213,7 @@ public:
 
   //@{
   /**
-   * Set/Get the flag which determines the ordering of the the
+   * Set/Get the flag which determines the ordering of the
    * vertices forming the triangle strips. The ordering of the
    * points being inserted into the triangle strip is important
    * because it determines the direction of the normals for the

@@ -645,7 +645,7 @@ int vtkParallelTimer::Write()
       vtkErrorMacro(
         << "Failed to open "
         << this->FileName
-        << " for  writing.");
+        << " for writing.");
       return -1;
     }
     time_t t;

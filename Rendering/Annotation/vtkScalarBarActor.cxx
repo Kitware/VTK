@@ -2642,7 +2642,7 @@ struct vtkScalarBarHLabelPlacer
  * The vertical displacement is then computed by either copying the medial
  * neighbor's displacement (if no interference with the neighbor was required)
  * or incrementing the displacement beyond its immediate
- * neighbor and checking all other relevant labels for intereference.
+ * neighbor and checking all other relevant labels for interference.
  */
 int vtkScalarBarActor::PlaceAnnotationsHorizontally(
   double barX, double barY,

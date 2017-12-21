@@ -278,7 +278,7 @@ void ComputeGridPointGradient(int i, int j, int k, int inExt[6],
   }
 
   // compute transpose(N)N.
-  // since this will be a symetric matrix, we could make the
+  // since this will be a symmetric matrix, we could make the
   // computation a little more efficient.
   for (i = 0; i < 3; ++i)
   {

@@ -19,7 +19,7 @@
  *
  *
  * The vtkChartLegend is drawn in screen coordinates. It is usually one of the
- * last elements of a chart to be drawn. It renders the the mark/line for each
+ * last elements of a chart to be drawn. It renders the mark/line for each
  * plot, and the plot labels.
 */
 

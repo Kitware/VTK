@@ -107,7 +107,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // get the ouptut
+  // get the output
   vtkPolyData* output
     = vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 

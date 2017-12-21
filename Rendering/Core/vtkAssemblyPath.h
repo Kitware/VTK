@@ -110,7 +110,7 @@ protected:
   ~vtkAssemblyPath() override;
 
   void AddNode(vtkAssemblyNode *n); //Internal method adds assembly node
-  vtkTransform *Transform; //Used to perform matrix concatentation
+  vtkTransform *Transform; //Used to perform matrix concatenation
   vtkProp *TransformedProp; //A transformed prop used to do the rendering
 
 private:

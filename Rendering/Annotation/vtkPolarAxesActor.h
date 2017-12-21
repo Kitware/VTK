@@ -189,7 +189,7 @@ public:
   //@{
   /**
    * Explicitly specify the screen size of title and label text.
-   * ScreenSize detemines the size of the text in terms of screen
+   * ScreenSize determines the size of the text in terms of screen
    * pixels.
    * Default: 10.0.
    */

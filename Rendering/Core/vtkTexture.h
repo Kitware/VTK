@@ -244,7 +244,7 @@ public:
   //@{
   /**
    * When the texture is forced to be a power of 2, the default behavior is
-   * for the "new" image's dimensions  to be greater than or equal to with
+   * for the "new" image's dimensions to be greater than or equal to with
    * respects to the original.  Setting RestrictPowerOf2ImageSmaller to be
    * 1 (or ON) with force the new image's dimensions to be less than or equal
    * to with respects to the original.

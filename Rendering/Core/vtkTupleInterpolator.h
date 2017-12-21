@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkTupleInterpolator
- * @brief   interpolate a tuple of arbitray size
+ * @brief   interpolate a tuple of arbitrary size
  *
  * This class is used to interpolate a tuple which may have an arbitrary
  * number of components (but at least one component). The interpolation may

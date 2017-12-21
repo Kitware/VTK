@@ -1076,13 +1076,13 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachments()
     int i=0;
     while(i<maxColorAttachments)
     {
-      cout<<"color attachement "<<i<<":"<<endl;
+      cout<<"color attachment "<<i<<":"<<endl;
       this->DisplayFrameBufferAttachment(GL_COLOR_ATTACHMENT0+i);
       ++i;
     }
-    cout<<"depth attachement :"<<endl;
+    cout<<"depth attachment :"<<endl;
     this->DisplayFrameBufferAttachment(GL_DEPTH_ATTACHMENT);
-    cout<<"stencil attachement :"<<endl;
+    cout<<"stencil attachment :"<<endl;
     this->DisplayFrameBufferAttachment(GL_STENCIL_ATTACHMENT);
   }
 }

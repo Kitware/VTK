@@ -91,7 +91,7 @@ int TestPathTracerBackground(int argc, char* argv[])
   vtkOSPRayRendererNode::SetNorthPole(up, renderer);
   double east[3] = {1.,0.,0.};
   vtkOSPRayRendererNode::SetEastPole(east, renderer);
-  //spin up aroung x axis
+  //spin up around x axis
   for (double i = 0.; i < 6.28; i+=1.)
     {
     up[0] = 0.0;

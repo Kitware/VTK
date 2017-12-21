@@ -63,14 +63,14 @@ arcActor3 = vtk.vtkActor()
 arcActor3.SetMapper(mapArc3)
 arcActor3.GetProperty().SetColor(1,0,1)
 # Create graphics objects
-# Create the rendering window  renderer  and interactive renderer
+# Create the rendering window renderer and interactive renderer
 ren1 = vtk.vtkRenderer()
 ren1.SetActiveCamera(camera)
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren1)
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
-# Add the actors to the renderer  set the background and size
+# Add the actors to the renderer set the background and size
 ren1.AddActor(boreActor)
 ren1.AddActor(arcActor)
 ren1.AddActor(arcActor2)

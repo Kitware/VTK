@@ -1209,7 +1209,7 @@ double vtkCellPicker::IntersectProp3DWithLine(const double *, const double *,
 //----------------------------------------------------------------------------
 // Clip a line with a collection of clipping planes, or return zero if
 // the line does not intersect the volume enclosed by the planes.
-// The result of the clipping is retured in t1 and t2, which will have
+// The result of the clipping is returned in t1 and t2, which will have
 // values between 0 and 1.  The index of the frontmost intersected plane is
 // returned in planeId.
 

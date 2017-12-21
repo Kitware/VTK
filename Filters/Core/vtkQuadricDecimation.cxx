@@ -26,7 +26,7 @@
 // topological manifold check?
 
 // ISSUE: I know I use to think that there was an error in the way Hugues
-// desribed the area coefficient, but it now seems wrong to me and seems to
+// described the area coefficient, but it now seems wrong to me and seems to
 // produce better results with it not squared, may be this should be some
 // kind of user parameter? Both seem useful ie uniform area vs. more
 // curvature dependent
@@ -1213,7 +1213,7 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 
 
 // triangle t0, t1, t2 and point x
-// determins if t0 and x are on the same side of the plane defined by
+// determines if t0 and x are on the same side of the plane defined by
 // t1 and t2, and parallel to the normal of the triangle
 int vtkQuadricDecimation::TrianglePlaneCheck(const double t0[3],
                                              const double t1[3],
