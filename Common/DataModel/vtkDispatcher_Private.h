@@ -126,11 +126,11 @@ public:
   typedef typename Base::Parm1 Parm1;
 
   FunctorHandler(Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler() {}
+  ~FunctorHandler() override {}
 
-  ResultType operator()(Parm1& p1)
+  ResultType operator()(Parm1& p1) override
   { return f_(p1); }
-  virtual FunctorHandler* DoClone() const { return new FunctorHandler(*this); }
+  FunctorHandler* DoClone() const override { return new FunctorHandler(*this); }
 
 private:
   Fun f_;
@@ -282,12 +282,12 @@ public:
   typedef typename Base::Parm2 Parm2;
 
   FunctorHandler(const Fun& fun) : f_(fun) {}
-  virtual ~FunctorHandler() {}
+  ~FunctorHandler() override {}
 
-  ResultType operator()(Parm1& p1,Parm2& p2)
+  ResultType operator()(Parm1& p1,Parm2& p2) override
   { return f_(p1,p2); }
 
-  virtual FunctorHandler* DoClone() const { return new FunctorHandler(*this); }
+  FunctorHandler* DoClone() const override { return new FunctorHandler(*this); }
 
 private:
   Fun f_;

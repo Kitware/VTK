@@ -18,7 +18,7 @@ public:
 
   // Constructor/Destructor
   QtVTKRenderWindows(int argc, char *argv[]);
-  ~QtVTKRenderWindows() {}
+  ~QtVTKRenderWindows() override {}
 
 public slots:
 

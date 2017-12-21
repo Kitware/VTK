@@ -85,7 +85,7 @@ public:
   /**
    * See vtkAlgorithm for details
    */
-  virtual int ProcessRequest( vtkInformation*,
+  int ProcessRequest( vtkInformation*,
                               vtkInformationVector**,
                               vtkInformationVector*) override;
 

@@ -387,8 +387,8 @@ public:
 
 protected:
   vtkFiberSurface();
-  virtual int FillInputPortInformation(int port, vtkInformation* info) override;
-  virtual int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+  int FillInputPortInformation(int port, vtkInformation* info) override;
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   // name of the input array names.
   char* Fields[2];

@@ -162,7 +162,7 @@ class ComputeTemperatureFunctor : public ComputeFunctor
 public:
   ComputeTemperatureFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, rr, u, v, w, v2, p, d, rrgas, m[3];
     rrgas = 1.0 / Reader->R;
@@ -193,7 +193,7 @@ class ComputePressureFunctor : public ComputeFunctor
 public:
   ComputePressureFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, rr, u, v, w, v2, p, d, m[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -223,7 +223,7 @@ class ComputePressureCoefficientFunctor : public ComputeFunctor
 public:
   ComputePressureCoefficientFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, u, v, w, v2, p, d, rr, pc, gi, pi, fsm, den, m[3];
     gi = Properties->GetComponent(0,4);
@@ -258,7 +258,7 @@ class ComputeMachNumberFunctor : public ComputeFunctor
 public:
   ComputeMachNumberFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, u, v, w, v2, a2, d, g, rr, m[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -289,7 +289,7 @@ class ComputeSoundSpeedFunctor : public ComputeFunctor
 public:
   ComputeSoundSpeedFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, u, v, w, v2, p, d, g, rr, m[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -320,7 +320,7 @@ class ComputeEnthalpyFunctor : public ComputeFunctor
 public:
   ComputeEnthalpyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double e, u, v, w, v2, d, rr, m[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -349,7 +349,7 @@ class ComputeKineticEnergyFunctor : public ComputeFunctor
 public:
   ComputeKineticEnergyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double u, v, w, v2, d, rr, m[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -377,7 +377,7 @@ class ComputeVelocityMagnitudeFunctor : public ComputeFunctor
 public:
   ComputeVelocityMagnitudeFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double m[3], u, v, w, v2, d, rr;
     for (vtkIdType i = begin; i < end; ++i)
@@ -405,7 +405,7 @@ class ComputeEntropyFunctor : public ComputeFunctor
 public:
   ComputeEntropyFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double u, v, w, v2, d, rr, s, p, e, m[3];
     double rhoinf = 1.0;
@@ -440,7 +440,7 @@ class ComputeSwirlFunctor : public ComputeFunctor
 public:
   ComputeSwirlFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double d, rr, u, v, w, v2, s, m[3], vort[3];
     for (vtkIdType i = begin; i < end; ++i)
@@ -478,7 +478,7 @@ class ComputeVelocityFunctor : public ComputeFunctor
 public:
   ComputeVelocityFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     double m[3], v[3], d, rr;
     for (vtkIdType i = begin; i < end; ++i)
@@ -505,7 +505,7 @@ class ComputeVorticityMagnitudeFunctor : public ComputeFunctor
 public:
   ComputeVorticityMagnitudeFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     vtkDataArray* Vorticity = Grid->GetPointData()->GetArray("Vorticity");
     double vort[3];
@@ -529,7 +529,7 @@ class ComputePressureGradientFunctor : public ComputeFunctor
 public:
   ComputePressureGradientFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     int dims[3], ijsize;
     int i, j, k, idx, idx2, ii, temp;
@@ -739,7 +739,7 @@ class ComputeVorticityFunctor : public ComputeFunctor
 public:
   ComputeVorticityFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     int dims[3], ijsize;
     int i, j, k, idx, idx2, ii, temp;
@@ -956,7 +956,7 @@ class ComputeStrainRateFunctor : public ComputeFunctor
 public:
   ComputeStrainRateFunctor(vtkMultiBlockPLOT3DReader* reader, vtkStructuredGrid* grid) : ComputeFunctor(reader, grid) {}
 
-  void operator()(vtkIdType begin, vtkIdType end)
+  void operator()(vtkIdType begin, vtkIdType end) override
   {
     int dims[3], ijsize;
     int i, j, k, idx, idx2, ii, temp;

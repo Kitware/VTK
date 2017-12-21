@@ -975,7 +975,7 @@ public:
   {
     return new vtkButtonWidgetMultipleViewportsCallback;
   }
-  virtual void Execute(vtkObject* caller, unsigned long, void*)
+  void Execute(vtkObject* caller, unsigned long, void*) override
   {
     vtkButtonWidget* buttonWidget = reinterpret_cast<vtkButtonWidget*>(caller);
     vtkTexturedButtonRepresentation* rep =

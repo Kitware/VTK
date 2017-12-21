@@ -52,7 +52,7 @@ public:
 
   // Constructor/Destructor
   EasyView();
-  ~EasyView();
+  ~EasyView() override;
 
 public slots:
 

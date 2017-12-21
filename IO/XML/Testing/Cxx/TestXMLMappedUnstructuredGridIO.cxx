@@ -48,20 +48,20 @@ public:
 
   void SetMappedUnstructuredGrid(vtkMappedUnstructuredGrid<I, ThisType> *grid);
 
-  virtual void PrintSelf(std::ostream& os, vtkIndent id) override;
+  void PrintSelf(std::ostream& os, vtkIndent id) override;
 
-  virtual bool IsDoneWithTraversal() override;
-  virtual vtkIdType GetCellId() override;
+  bool IsDoneWithTraversal() override;
+  vtkIdType GetCellId() override;
 
 protected:
   MappedCellIterator();
   ~MappedCellIterator() override;
-  virtual void ResetToFirstCell() override { this->CellId = 0; }
-  virtual void IncrementToNextCell() override { this->CellId++; }
-  virtual void FetchCellType() override;
-  virtual void FetchPointIds() override;
-  virtual void FetchPoints() override;
-  virtual void FetchFaces() override;
+  void ResetToFirstCell() override { this->CellId = 0; }
+  void IncrementToNextCell() override { this->CellId++; }
+  void FetchCellType() override;
+  void FetchPointIds() override;
+  void FetchPoints() override;
+  void FetchFaces() override;
 
 private:
   MappedCellIterator(const MappedCellIterator&) VTK_DELETE_FUNCTION;
@@ -184,7 +184,7 @@ public:
 
 protected:
   MappedGridImpl(){}
-  virtual ~MappedGridImpl() override { _grid->UnRegister(this); }
+  ~MappedGridImpl() override { _grid->UnRegister(this); }
 
 private:
   vtkUnstructuredGrid* _grid;

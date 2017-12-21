@@ -75,8 +75,8 @@ public:
   static SamplingDistanceCallback *New()
     { return new SamplingDistanceCallback; }
 
-  virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
-    void* vtkNotUsed(data))
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long event,
+    void* vtkNotUsed(data)) override
   {
     switch (event)
     {

@@ -313,7 +313,7 @@ struct PointSetFunctor : public CuttingFunctor
   {
   }
 
-  ~PointSetFunctor()
+  ~PointSetFunctor() override
   {
     if(this->Interpolate)
     {
