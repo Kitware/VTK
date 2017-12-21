@@ -142,7 +142,7 @@ void vtkQtAnnotationView::Update()
   {
     this->LastInputMTime = a->GetMTime();
 
-    this->Adapter->SetVTKDataObject(0);
+    this->Adapter->SetVTKDataObject(nullptr);
     this->Adapter->SetVTKDataObject(a);
   }
 

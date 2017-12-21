@@ -986,7 +986,7 @@ public:
     this->Glyph->SetScaleFactor(0.05 * (1 + state));
   }
   vtkButtonWidgetMultipleViewportsCallback()
-    : Glyph(0)
+    : Glyph(nullptr)
   {
   }
   vtkGlyph3D* Glyph;

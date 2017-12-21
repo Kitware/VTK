@@ -83,7 +83,7 @@ class VTKGUISUPPORTQT_EXPORT vtkEventQtSlotConnect : public vtkObject
      */
     virtual void Disconnect(
       vtkObject* vtk_obj=nullptr, unsigned long event=vtkCommand::NoEvent,
-      const QObject* qt_obj=nullptr, const char* slot = 0, void* client_data=nullptr);
+      const QObject* qt_obj=nullptr, const char* slot = nullptr, void* client_data=nullptr);
 
     /**
      * Allow to query vtkEventQtSlotConnect to know if some Connect() have been

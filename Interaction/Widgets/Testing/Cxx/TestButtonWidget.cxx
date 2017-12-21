@@ -474,7 +474,7 @@ public:
     this->Glyph->SetScaleFactor(0.05 * (1 + state));
   }
   vtkButtonCallback()
-    : Glyph(0)
+    : Glyph(nullptr)
   {
   }
   vtkGlyph3D* Glyph;

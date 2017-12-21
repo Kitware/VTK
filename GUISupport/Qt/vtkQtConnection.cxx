@@ -38,9 +38,9 @@ vtkQtConnection::vtkQtConnection(vtkEventQtSlotConnect* owner)
   this->Callback = vtkCallbackCommand::New();
   this->Callback->SetCallback(vtkQtConnection::DoCallback);
   this->Callback->SetClientData(this);
-  this->VTKObject = 0;
-  this->QtObject = 0;
-  this->ClientData = 0;
+  this->VTKObject = nullptr;
+  this->QtObject = nullptr;
+  this->ClientData = nullptr;
   this->VTKEvent = vtkCommand::NoEvent;
 }
 

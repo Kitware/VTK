@@ -1754,7 +1754,7 @@ int IMAGE_BENCHMARK_MAIN(int argc, char *argv[])
   const char **filters =
     (filterName.empty() ? DefaultFilters : requestedFilters);
 
-  for (int k = 0; filters[k] != 0; k++)
+  for (int k = 0; filters[k] != nullptr; k++)
   {
     if (!RunBenchmark(filters[k], sourceName, size, scalarType,
                       splitMode, useSMP, bytesPerPiece, minPieceSize,

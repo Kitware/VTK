@@ -51,7 +51,7 @@ QTestApp::QTestApp(int _argc, char* _argv[])
 QTestApp::~QTestApp()
 {
   delete App;
-  qInstallMessageHandler(0);
+  qInstallMessageHandler(nullptr);
 }
 
 int QTestApp::exec()

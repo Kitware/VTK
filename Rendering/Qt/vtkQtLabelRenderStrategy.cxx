@@ -468,7 +468,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   double pixelPaddingY = pixelPadding - shOff[1];
 
   // Get image from cache
-  QImage* img = 0;
+  QImage* img = nullptr;
   QRectF bounds;
   vtkQtLabelMapEntry key;
   key.Font = fontSpec;

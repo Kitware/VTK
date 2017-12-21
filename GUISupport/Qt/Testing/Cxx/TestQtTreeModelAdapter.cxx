@@ -54,7 +54,7 @@ int TestQtTreeModelAdapter(int, char*[])
   }
   tree->GetVertexData()->AddArray(intArr);
   tree->GetVertexData()->AddArray(doubleArr);
-  vtkQtTreeModelAdapter adapter(0, tree);
+  vtkQtTreeModelAdapter adapter(nullptr, tree);
   if (adapter.rowCount(QModelIndex()) != 1)
   {
     cerr << "ERROR: Wrong number of rows." << endl;

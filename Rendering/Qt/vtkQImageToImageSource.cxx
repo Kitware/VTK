@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkQImageToImageSource);
 //----------------------------------------------------------------------------
 vtkQImageToImageSource::vtkQImageToImageSource()
 {
-  this->QtImage = 0;
+  this->QtImage = nullptr;
   this->SetNumberOfInputPorts(0);
   this->DataExtent[0] = 0;
   this->DataExtent[1] = 0;
@@ -61,7 +61,7 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if( this->QtImage == 0 )
+  if( this->QtImage == nullptr )
   {
     vtkErrorMacro( "Qt Image was not set." );
     return 0;
@@ -129,7 +129,7 @@ int vtkQImageToImageSource::RequestInformation (
 {
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if( this->QtImage == 0 )
+  if( this->QtImage == nullptr )
   {
     vtkErrorMacro( "Qt Image was not set." );
     return 0;

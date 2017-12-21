@@ -39,7 +39,7 @@ public:
     this->SphereSource->SetPhiResolution(value/2);
     this->SphereSource->SetThetaResolution(value);
   }
-  vtkSliderCallback():SphereSource(0) {}
+  vtkSliderCallback():SphereSource(nullptr) {}
   vtkSphereSource *SphereSource;
 };
 

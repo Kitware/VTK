@@ -44,7 +44,7 @@ class VTKGUISUPPORTQT_EXPORT QFilterTreeProxyModel : public QSortFilterProxyMode
 
 public:
 
-  QFilterTreeProxyModel(QObject* p = 0);
+  QFilterTreeProxyModel(QObject* p = nullptr);
   ~QFilterTreeProxyModel() override;
 
   // Description:

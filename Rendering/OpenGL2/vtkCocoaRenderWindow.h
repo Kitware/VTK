@@ -141,7 +141,7 @@ public:
   void* GetGenericDrawable() override
   {
       vtkWarningMacro("Method not implemented.");
-      return 0;
+      return nullptr;
   }
   void SetDisplayId(void*) override
   {
@@ -150,7 +150,7 @@ public:
   void *GetGenericDisplayId() override
   {
       vtkWarningMacro("Method not implemented.");
-      return 0;
+      return nullptr;
   }
 
   /**

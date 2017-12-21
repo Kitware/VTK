@@ -348,7 +348,7 @@ int vtkHyperTreeGridAxisClip::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+    = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Storage for Cartesian indices
   unsigned int cart[3];
@@ -540,7 +540,7 @@ void vtkHyperTreeGridAxisClip::RecursivelyProcessTree( vtkHyperTreeGridCursor* i
 
       // Clean up
       childCursor->Delete();
-      childCursor = 0;
+      childCursor = nullptr;
     } // inChild
   } // if ( ! cursor->IsLeaf() && ! clipped )
   else if ( ! clipped && mask && mask->GetValue( inId ) )

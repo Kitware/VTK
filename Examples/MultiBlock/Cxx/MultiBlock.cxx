@@ -144,7 +144,7 @@ int main(int argc, char* argv[])
   iren->Start();
 
   // Cleanup
-  vtkAlgorithm::SetDefaultExecutivePrototype(0);
+  vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
   of->Delete();
   geom1->Delete();
   geoMapper->Delete();

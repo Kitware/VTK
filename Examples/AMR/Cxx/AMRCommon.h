@@ -47,7 +47,7 @@ namespace AMRCommon {
 // Writes a uniform grid as a structure grid
 void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 {
-  assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
+  assert( "pre: Uniform grid (g) is NULL!" && (g != nullptr) );
 
   vtkXMLImageDataWriter *imgWriter = vtkXMLImageDataWriter::New();
 
@@ -66,7 +66,7 @@ void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 void WriteAMRData( vtkOverlappingAMR *amrData, const std::string &prefix )
 {
   // Sanity check
-  assert( "pre: AMR dataset is NULL!" && (amrData != NULL) );
+  assert( "pre: AMR dataset is NULL!" && (amrData != nullptr) );
 
   vtkCompositeDataWriter *writer = vtkCompositeDataWriter::New();
 
@@ -88,7 +88,7 @@ vtkHierarchicalBoxDataSet* ReadAMRData( const std::string &file )
 
   vtkXMLHierarchicalBoxDataReader *myAMRReader=
    vtkXMLHierarchicalBoxDataReader::New();
-  assert( "pre: AMR Reader is NULL!" && (myAMRReader != NULL) );
+  assert( "pre: AMR Reader is NULL!" && (myAMRReader != nullptr) );
 
   std::ostringstream oss;
   oss.str("");
@@ -103,7 +103,7 @@ vtkHierarchicalBoxDataSet* ReadAMRData( const std::string &file )
 
   vtkHierarchicalBoxDataSet *amrData =
    vtkHierarchicalBoxDataSet::SafeDownCast( myAMRReader->GetOutput() );
-  assert( "post: AMR data read is NULL!" && (amrData != NULL) );
+  assert( "post: AMR data read is NULL!" && (amrData != nullptr) );
   return( amrData );
 }
 
@@ -113,7 +113,7 @@ vtkHierarchicalBoxDataSet* ReadAMRData( const std::string &file )
 void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
   // Sanity check
-  assert( "pre: Multi-block dataset is NULL" && (mbds != NULL) );
+  assert( "pre: Multi-block dataset is NULL" && (mbds != nullptr) );
   vtkXMLMultiBlockDataWriter *writer = vtkXMLMultiBlockDataWriter::New();
 
   std::ostringstream oss;
@@ -143,13 +143,13 @@ vtkUniformGrid* GetGrid( double* origin,double* h,int* ndim )
 // the given grid. The cell center is stored in the supplied buffer c.
 void ComputeCellCenter( vtkUniformGrid *grid, const int cellIdx, double c[3] )
 {
-  assert( "pre: grid != NULL" && (grid != NULL) );
-  assert( "pre: Null cell center buffer" && (c != NULL)  );
+  assert( "pre: grid != NULL" && (grid != nullptr) );
+  assert( "pre: Null cell center buffer" && (c != nullptr)  );
   assert( "pre: cellIdx in bounds" &&
           (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells() ) );
 
   vtkCell *myCell = grid->GetCell( cellIdx );
-  assert( "post: cell is NULL" && (myCell != NULL) );
+  assert( "post: cell is NULL" && (myCell != nullptr) );
 
   double pCenter[3];
   double *weights = new double[ myCell->GetNumberOfPoints() ];

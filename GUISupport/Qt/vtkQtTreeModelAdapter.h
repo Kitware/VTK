@@ -50,7 +50,7 @@ class VTKGUISUPPORTQT_EXPORT vtkQtTreeModelAdapter : public vtkQtAbstractModelAd
   Q_OBJECT
 
 public:
-  vtkQtTreeModelAdapter(QObject *parent = 0, vtkTree* tree = 0);
+  vtkQtTreeModelAdapter(QObject *parent = nullptr, vtkTree* tree = nullptr);
   ~vtkQtTreeModelAdapter() override;
 
   //@{

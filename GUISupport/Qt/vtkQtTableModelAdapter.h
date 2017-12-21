@@ -48,8 +48,8 @@ class VTKGUISUPPORTQT_EXPORT vtkQtTableModelAdapter : public vtkQtAbstractModelA
   Q_OBJECT
 
 public:
-  vtkQtTableModelAdapter(QObject *parent = 0);
-  vtkQtTableModelAdapter(vtkTable* table, QObject *parent = 0);
+  vtkQtTableModelAdapter(QObject *parent = nullptr);
+  vtkQtTableModelAdapter(vtkTable* table, QObject *parent = nullptr);
   ~vtkQtTableModelAdapter() override;
 
   //@{

@@ -151,7 +151,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   [self stopObservations];
 
   // The NSWindow is closing, so prevent anyone from accidentally using it.
-  _renWin->SetRootWindow(NULL);
+  _renWin->SetRootWindow(nullptr);
 
   // Tell interactor to stop the NSApplication's run loop
   vtkRenderWindowInteractor *interactor = _renWin->GetInteractor();
@@ -198,7 +198,7 @@ vtkStandardNewMacro(vtkCocoaRenderWindow);
   {
     // Send ConfigureEvent from the Interactor.
     interactor->UpdateSize(newWidth, newHeight);
-    interactor->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
+    interactor->InvokeEvent(vtkCommand::ConfigureEvent, nullptr);
   }
 }
 
@@ -213,7 +213,7 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 
   // SetCocoaManager works like an Obj-C setter, so do like Obj-C and
   // init the ivar to null first.
-  this->CocoaManager = NULL;
+  this->CocoaManager = nullptr;
   this->SetCocoaManager(reinterpret_cast<void *>(cocoaManager));
   [cocoaManager self]; // prevent premature collection under GC.
 
@@ -241,18 +241,18 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
   {
-    ren->SetRenderWindow(NULL);
+    ren->SetRenderWindow(nullptr);
   }
 
-  this->SetContextId(NULL);
-  this->SetPixelFormat(NULL);
-  this->SetCocoaServer(NULL);
-  this->SetRootWindow(NULL);
-  this->SetWindowId(NULL);
-  this->SetParentId(NULL);
+  this->SetContextId(nullptr);
+  this->SetPixelFormat(nullptr);
+  this->SetCocoaServer(nullptr);
+  this->SetRootWindow(nullptr);
+  this->SetWindowId(nullptr);
+  this->SetParentId(nullptr);
 
   // Release the cocoa object manager.
-  this->SetCocoaManager(NULL);
+  this->SetCocoaManager(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -279,12 +279,12 @@ void vtkCocoaRenderWindow::DestroyWindow()
     this->MakeCurrent();
     this->ReleaseGraphicsResources(this);
   }
-  this->SetContextId(NULL);
-  this->SetPixelFormat(NULL);
+  this->SetContextId(nullptr);
+  this->SetPixelFormat(nullptr);
 
   vtkCocoaServer *server = (vtkCocoaServer *)this->GetCocoaServer();
   [server stopObservations];
-  this->SetCocoaServer(NULL);
+  this->SetCocoaServer(nullptr);
 
   // If we created it, close the NSWindow.
   if (this->WindowCreated)
@@ -293,9 +293,9 @@ void vtkCocoaRenderWindow::DestroyWindow()
     [window close];
   }
 
-  this->SetWindowId(NULL);
-  this->SetParentId(NULL);
-  this->SetRootWindow(NULL);
+  this->SetWindowId(nullptr);
+  this->SetParentId(nullptr);
+  this->SetRootWindow(nullptr);
   this->WindowCreated = 0;
   this->ViewCreated = 0;
 }
@@ -316,10 +316,10 @@ void vtkCocoaRenderWindow::SetWindowName( const char * _arg )
 bool vtkCocoaRenderWindow::InitializeFromCurrentContext()
 {
   NSOpenGLContext *currentContext = [NSOpenGLContext currentContext];
-  if (currentContext != NULL)
+  if (currentContext != nullptr)
   {
     NSView *currentView = [currentContext view];
-    if (currentView != NULL)
+    if (currentView != nullptr)
     {
       NSWindow *window = [currentView window];
       this->SetWindowId(currentView);
@@ -385,7 +385,7 @@ void vtkCocoaRenderWindow::PopContext()
 bool vtkCocoaRenderWindow::IsCurrent()
 {
   bool result=false;
-  if(this->GetContextId()!=0)
+  if(this->GetContextId()!=nullptr)
   {
     result=static_cast<NSOpenGLContext *>(this->GetContextId())==
       [NSOpenGLContext currentContext];
@@ -904,13 +904,13 @@ void vtkCocoaRenderWindow::CreateAWindow()
   this->MakeCurrent();
 
   // wipe out any existing display lists
-  vtkRenderer *renderer = NULL;
+  vtkRenderer *renderer = nullptr;
   vtkCollectionSimpleIterator rsit;
 
   for ( this->Renderers->InitTraversal(rsit);
         (renderer = this->Renderers->GetNextRenderer(rsit));)
   {
-    renderer->SetRenderWindow(0);
+    renderer->SetRenderWindow(nullptr);
     renderer->SetRenderWindow(this);
   }
   this->OpenGLInit();
@@ -1266,7 +1266,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
 //
 void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
 {
-  if (this->GetContextId() == 0)
+  if (this->GetContextId() == nullptr)
   {
     vtkRenderWindow::SetStereoCapableWindow(capable);
   }
@@ -1326,7 +1326,7 @@ void *vtkCocoaRenderWindow::GetRootWindow()
 // Sets the NSWindow* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetRootWindow(void *arg)
 {
-  if (arg != NULL)
+  if (arg != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1354,7 +1354,7 @@ void *vtkCocoaRenderWindow::GetWindowId()
 // Sets the NSView* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetWindowId(void *arg)
 {
-  if (arg != NULL)
+  if (arg != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1382,7 +1382,7 @@ void *vtkCocoaRenderWindow::GetParentId()
 // Sets the NSView* that this vtkRenderWindow should use as a parent.
 void vtkCocoaRenderWindow::SetParentId(void *arg)
 {
-  if (arg != NULL)
+  if (arg != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1401,7 +1401,7 @@ void vtkCocoaRenderWindow::SetParentId(void *arg)
 // Sets the NSOpenGLContext* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetContextId(void *contextId)
 {
-  if (contextId != NULL)
+  if (contextId != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1429,7 +1429,7 @@ void *vtkCocoaRenderWindow::GetContextId()
 // Sets the NSOpenGLPixelFormat* associated with this vtkRenderWindow.
 void vtkCocoaRenderWindow::SetPixelFormat(void *pixelFormat)
 {
-  if (pixelFormat != NULL)
+  if (pixelFormat != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1456,7 +1456,7 @@ void *vtkCocoaRenderWindow::GetPixelFormat()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindow::SetCocoaServer(void *server)
 {
-  if (server != NULL)
+  if (server != nullptr)
   {
     NSMutableDictionary *manager =
       reinterpret_cast<NSMutableDictionary *>(this->GetCocoaManager());
@@ -1505,7 +1505,7 @@ void vtkCocoaRenderWindow::SetCocoaManager(void *manager)
     }
     else
     {
-      this->CocoaManager = NULL;
+      this->CocoaManager = nullptr;
     }
   }
 }

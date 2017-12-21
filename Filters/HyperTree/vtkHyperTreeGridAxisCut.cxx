@@ -162,7 +162,7 @@ int vtkHyperTreeGridAxisCut::ProcessTrees( vtkHyperTreeGrid* input,
 
   // Retrieve material mask
   vtkBitArray* mask
-    = this->MaterialMask ? input->GetMaterialMask() : 0;
+    = this->MaterialMask ? input->GetMaterialMask() : nullptr;
 
   // Storage for root cell Cartesian coordinates
   unsigned int i,j,k;

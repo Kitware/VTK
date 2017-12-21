@@ -29,10 +29,10 @@ vtkCxxSetObjectMacro(vtkHyperTreeGridCursor,Tree,vtkHyperTree);
 vtkHyperTreeGridCursor::vtkHyperTreeGridCursor()
 {
   // No grid is given by default
-  this->Grid  = 0;
+  this->Grid  = nullptr;
 
   // No tree is given by default
-  this->Tree  = 0;
+  this->Tree  = nullptr;
 
   // Default cursor level
   this->Level = 0;
@@ -53,7 +53,7 @@ vtkHyperTreeGridCursor::~vtkHyperTreeGridCursor()
 vtkHyperTreeGridCursor* vtkHyperTreeGridCursor::Clone()
 {
   vtkHyperTreeGridCursor* clone = this->NewInstance();
-  assert( "post: clone_exists" && clone != 0 );
+  assert( "post: clone_exists" && clone != nullptr );
 
   // Copy iVars
   clone->Grid = this->Grid;

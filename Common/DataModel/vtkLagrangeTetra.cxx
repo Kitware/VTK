@@ -553,7 +553,7 @@ int vtkLagrangeTetra::EvaluatePosition(double* x, double* closestPoint,
                    pcoordsMin[2]*(minBIndices[3][i] - minBIndices[0][i]))/order;
       }
 
-    if(closestPoint!=0)
+    if(closestPoint!=nullptr)
       {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);

@@ -72,7 +72,7 @@ vtkQtTreeRingLabelMapper::vtkQtTreeRingLabelMapper()
   this->FieldDataArray = 0;
   this->FieldDataName = nullptr;
 
-  this->TextRotationArrayName = 0;
+  this->TextRotationArrayName = nullptr;
   this->SetTextRotationArrayName("TextRotation");
   this->SetSectorsArrayName("area");
 
@@ -121,7 +121,7 @@ vtkQtTreeRingLabelMapper::~vtkQtTreeRingLabelMapper()
   this->SetLabelTextProperty(nullptr);
   this->SetFieldDataName(nullptr);
 
-  this->SetTextRotationArrayName( 0 );
+  this->SetTextRotationArrayName( nullptr );
 
   this->VCoord->Delete();
   this->PlaneSource->Delete();
@@ -509,7 +509,7 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
 
   this->VCoord->SetViewport(viewport);
   this->VCoord->SetValue(x, y, 0.);
-  int *dc = VCoord->GetComputedDisplayValue(0);
+  int *dc = VCoord->GetComputedDisplayValue(nullptr);
   textPosDC[0] = dc[0];
   textPosDC[1] = dc[1];
 
@@ -528,11 +528,11 @@ bool vtkQtTreeRingLabelMapper::PointInWindow(double *sinfo, double *newDim,
   double ylc = sinfo[2] * sin( vtkMath::RadiansFromDegrees(sinfo[0]) );
   double yuc = sinfo[3] * sin( vtkMath::RadiansFromDegrees(sinfo[0]) );
   this->VCoord->SetValue(xlc, ylc, 0.);
-  int *dc1 = VCoord->GetComputedDisplayValue(0);
+  int *dc1 = VCoord->GetComputedDisplayValue(nullptr);
   double dc1x = dc1[0];
   double dc1y = dc1[1];
   this->VCoord->SetValue(xuc, yuc, 0.);
-  int *dc2 = VCoord->GetComputedDisplayValue(0);
+  int *dc2 = VCoord->GetComputedDisplayValue(nullptr);
   double dc2x = dc2[0];
   double dc2y = dc2[1];
   double height = sqrt( ((dc2x-dc1x)*(dc2x-dc1x)) + ((dc2y-dc1y)*(dc2y-dc1y)) );

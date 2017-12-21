@@ -156,7 +156,7 @@ public:
         ->GetValue());
   }
   vtkSliderMultipleViewportsCallback()
-    : Glyph(0)
+    : Glyph(nullptr)
   {
   }
   vtkGlyph3D* Glyph;

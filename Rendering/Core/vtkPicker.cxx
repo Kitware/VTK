@@ -143,7 +143,7 @@ int vtkPicker::Pick3DPoint(
   vtkActor *actor;
   vtkLODProp3D *prop3D;
   vtkVolume *volume;
-  vtkImageSlice *imageSlice = 0;
+  vtkImageSlice *imageSlice = nullptr;
   vtkAssemblyPath *path;
   vtkProperty *tempProperty;
   vtkCollectionSimpleIterator pit;

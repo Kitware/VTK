@@ -198,7 +198,7 @@ int vtkHyperTreeGridPlaneCutter::ProcessTrees( vtkHyperTreeGrid* input,
   this->InData  = input->GetPointData();
 
   // Retrieve material mask
-  vtkBitArray* mask = input->HasMaterialMask() ? input->GetMaterialMask() : 0;
+  vtkBitArray* mask = input->HasMaterialMask() ? input->GetMaterialMask() : nullptr;
 
   // Compute cut on dual or primal input depending on specification
   if ( this->Dual )

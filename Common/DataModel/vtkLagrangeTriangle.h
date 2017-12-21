@@ -47,7 +47,7 @@ public:
   int GetNumberOfEdges() override { return 3; }
   int GetNumberOfFaces() override { return 0; }
   vtkCell *GetEdge(int edgeId) override;
-  vtkCell *GetFace(int) override { return 0; }
+  vtkCell *GetFace(int) override { return nullptr; }
 
   void Initialize() override;
 
