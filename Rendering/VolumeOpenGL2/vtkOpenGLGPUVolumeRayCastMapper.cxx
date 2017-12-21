@@ -3616,9 +3616,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReplaceShaderValues(
   // Set number of isosurfaces
   if (this->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
   {
-    vtkShaderProgram::Substitute(shaders[vtkShader::Fragment],
-      "NUMBER_OF_CONTOURS",
-      std::to_string(volumeProperty->GetIsoSurfaceValues()->GetNumberOfContours()));
+    std::ostringstream ss;
+    ss << volumeProperty->GetIsoSurfaceValues()->GetNumberOfContours();
+    vtkShaderProgram::Substitute(
+      shaders[vtkShader::Fragment], "NUMBER_OF_CONTOURS", ss.str());
   }
 
   // Render pass post replacements
