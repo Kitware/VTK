@@ -75,10 +75,12 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef vtkComputeMoments_h
 #define vtkComputeMoments_h
 
-#include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersMomentInvariantsModule.h" // For export macro
 
-#include <vector> // For internal vector API
+#include "vtkDataSetAlgorithm.h"
+
+#include <string>    // for std::string
+#include <vector>    // for std::vector
 
 class VTKFILTERSMOMENTINVARIANTS_EXPORT vtkComputeMoments : public vtkDataSetAlgorithm
 {

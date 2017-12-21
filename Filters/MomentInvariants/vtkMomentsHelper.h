@@ -73,8 +73,11 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __VTK_WRAP__
 
 #include "vtkFiltersMomentInvariantsModule.h" // For export macro
-#include <vector>                             // Needed for internal API
-#include <vtkType.h>                          // Needed for vtkIdType
+
+#include "vtkType.h" // for vtkIdType
+
+#include <string>    // for std::string
+#include <vector>    // for std::vector
 
 class vtkCell;
 class vtkDataSet;
