@@ -24,7 +24,7 @@ int TestPolyhedron4(int argc, char *argv[])
 {
   // Test that a nonwatertight polyhedron does no make vtkPolyhedron segfault
   char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv,
-    "Data/nonWatertightPolyhedron.vtu");
+    "Data/nonWatertightPolyhedron.vtu"); // this is in fact a bad name; the grid *is* watertight
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(filename);
