@@ -142,6 +142,16 @@ public:
 
   //@{
   /**
+   * Set/Get whether or not to use PolyVertex cell type
+   * for the interaction output
+   * Default is false
+   */
+  vtkSetMacro(GeneratePolyVertexInteractionOutput, bool);
+  vtkGetMacro(GeneratePolyVertexInteractionOutput, bool);
+  //@}
+
+  //@{
+  /**
    * Set/Get the cell length computation mode.
    * Available modes are :
    * - STEP_LAST_CELL_LENGTH :
@@ -339,6 +349,7 @@ protected:
     vtkDataObject* interractionOutput);
 
   static void InsertPolyVertexCell(vtkPolyData* polydata);
+  static void InsertVertexCells(vtkPolyData* polydata);
 
   virtual void GetParticleFeed(std::queue<vtkLagrangianParticle*>& particleQueue);
 
@@ -378,6 +389,7 @@ protected:
   int MaximumNumberOfSteps;
   bool AdaptiveStepReintegration;
   bool UseParticlePathsRenderingThreshold;
+  bool GeneratePolyVertexInteractionOutput;
   int ParticlePathsRenderingPointsThreshold;
   bool CreateOutOfDomainParticle;
   vtkIdType ParticleCounter;
