@@ -45,7 +45,7 @@ class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBrandesCentrality : public v
 public:
   static vtkBoostBrandesCentrality *New();
   vtkTypeMacro(vtkBoostBrandesCentrality, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -73,7 +73,7 @@ protected:
   ~vtkBoostBrandesCentrality();
 
   int RequestData(vtkInformation *, vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
 
 private:

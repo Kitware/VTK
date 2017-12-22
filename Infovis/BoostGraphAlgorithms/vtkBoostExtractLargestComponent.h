@@ -35,7 +35,7 @@ class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostExtractLargestComponent : pu
 {
 public:
   vtkTypeMacro(vtkBoostExtractLargestComponent, vtkGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Construct an instance of vtkBoostExtractLargestComponent with
@@ -55,7 +55,7 @@ protected:
   vtkBoostExtractLargestComponent();
   ~vtkBoostExtractLargestComponent(){}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   /**
    * Store the choice of whether or not to invert the selection.

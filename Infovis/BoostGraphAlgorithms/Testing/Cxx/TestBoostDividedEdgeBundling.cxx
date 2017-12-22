@@ -135,8 +135,8 @@ protected:
   vtkBundledGraphItem() { }
   ~vtkBundledGraphItem() { }
 
-  virtual vtkColor4ub EdgeColor(vtkIdType line, vtkIdType point);
-  virtual float EdgeWidth(vtkIdType line, vtkIdType point);
+  virtual vtkColor4ub EdgeColor(vtkIdType line, vtkIdType point) override;
+  virtual float EdgeWidth(vtkIdType line, vtkIdType point) override;
 };
 
 //----------------------------------------------------------------------------

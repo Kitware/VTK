@@ -64,7 +64,7 @@ protected:
    * Core implementation of the data set reader
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
 
   /**
    * Read point record data i.e. position and visualisation data
