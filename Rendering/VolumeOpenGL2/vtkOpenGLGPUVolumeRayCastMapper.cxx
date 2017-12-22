@@ -3403,6 +3403,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 {
   vtkOpenGLClearErrorMacro();
 
+  vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
+
+  if (this->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND &&
+    vol->GetProperty()->GetIsoSurfaceValues()->GetNumberOfContours() == 0)
+  {
+    // Early exit: nothing to render.
+    return;
+  }
+
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(
     ren->GetRenderWindow());
   this->ResourceCallback->RegisterGraphicsResources(
@@ -3463,8 +3472,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     ren->GetRenderWindow())->GetShaderCache();
 
   this->Impl->CheckPickingState(ren);
-
-  vtkOpenGLCamera* cam = vtkOpenGLCamera::SafeDownCast(ren->GetActiveCamera());
 
   if (this->UseDepthPass && this->GetBlendMode() ==
       vtkVolumeMapper::COMPOSITE_BLEND)
@@ -3848,7 +3855,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCameraShaderParameters(
                        1.0 / this->WindowSize[1], fvalue2);
   prog->SetUniform2fv("in_inverseWindowSize", 1, &fvalue2);
 }
-
 
 //----------------------------------------------------------------------------
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetMaskShaderParameters(

@@ -36,12 +36,9 @@ int TestGPURayCastIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vtkNew<vtkVolumeProperty> volumeProperty;
   volumeProperty->ShadeOn();
+  volumeProperty->SetInterpolationTypeToLinear();
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(scalarOpacity);
-  volumeProperty->SetInterpolationTypeToLinear();
-  volumeProperty->GetIsoSurfaceValues()->SetValue(0, 220.0);
-  volumeProperty->GetIsoSurfaceValues()->SetValue(1, 150.0);
-  volumeProperty->GetIsoSurfaceValues()->SetValue(2, 190.0);
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(mapper);
@@ -61,6 +58,20 @@ int TestGPURayCastIsosurface(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
   renderWindowInteractor->SetInteractorStyle(style);
+
+  // Check that no errors is created when no contour values are set
+  renderWindow->Render();
+  volumeProperty->GetIsoSurfaceValues()->SetValue(0, 220.0);
+  renderWindow->Render();
+  volumeProperty->GetIsoSurfaceValues()->SetNumberOfContours(0);
+  renderWindow->Render();
+
+  // Now add some contour values to draw iso surfaces
+  volumeProperty->GetIsoSurfaceValues()->SetValue(0, 220.0);
+  volumeProperty->GetIsoSurfaceValues()->SetValue(1, 150.0);
+  volumeProperty->GetIsoSurfaceValues()->SetValue(2, 190.0);
+
+  renderWindow->Render();
 
   renderWindowInteractor->Start();
 

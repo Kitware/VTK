@@ -272,6 +272,7 @@ namespace vtkvolume
     if (glMapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
     {
       toShaderStr <<
+        "#if NUMBER_OF_CONTOURS\n"
         "uniform float in_isosurfacesValues[NUMBER_OF_CONTOURS];\n"
         "\n"
         "int findIsoSurfaceIndex(float scalar, float array[NUMBER_OF_CONTOURS+2])\n"
@@ -280,7 +281,8 @@ namespace vtkvolume
         "  while (scalar > array[index]) ++index;\n"
         "  while (scalar < array[index]) --index;\n"
         "  return index;\n"
-        "}\n";
+        "}\n"
+        "#endif\n";
     }
 
     return toShaderStr.str();
@@ -1279,6 +1281,7 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
     {
       return std::string("\
+        \n#if NUMBER_OF_CONTOURS\
         \n  l_normValues[0] = -1e20; //-infinity\
         \n  l_normValues[NUMBER_OF_CONTOURS+1] = +1e20; //+infinity\
         \n  for (int i = 0; i < NUMBER_OF_CONTOURS; i++)\
@@ -1286,6 +1289,7 @@ namespace vtkvolume
         \n    l_normValues[i+1] = (in_isosurfacesValues[i] - in_scalarsRange[0].x) / \
         \n                        (in_scalarsRange[0].y - in_scalarsRange[0].x);\
         \n  }\
+        \n#endif\
         ");
     }
     else
@@ -1630,6 +1634,7 @@ namespace vtkvolume
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ISOSURFACE_BLEND)
     {
       shaderStr += std::string("\
+        \n#if NUMBER_OF_CONTOURS\
         \n    if (g_currentT == 0)\
         \n    {\
         \n      l_initialIndex = findIsoSurfaceIndex(scalar.r, l_normValues);\
@@ -1659,7 +1664,8 @@ namespace vtkvolume
         \n        g_srcColor.rgb *= g_srcColor.a;\
         \n        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
         \n      }\
-        \n    }");
+        \n    }\
+        \n#endif");
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::COMPOSITE_BLEND)
     {

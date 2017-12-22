@@ -233,6 +233,9 @@ vtkMTimeType vtkVolumeProperty::GetMTime()
     }
   }
 
+  time = this->IsoSurfaceValues->GetMTime();
+  mTime = vtkMath::Max(mTime, time);
+
   return mTime;
 }
 
