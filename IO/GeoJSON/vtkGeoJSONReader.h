@@ -34,7 +34,7 @@ class VTKIOGEOJSON_EXPORT vtkGeoJSONReader: public vtkPolyDataAlgorithm
 public:
   static vtkGeoJSONReader* New();
   vtkTypeMacro(vtkGeoJSONReader,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
 
   //@{
   /**
@@ -109,7 +109,7 @@ protected:
    * Core implementation of the
    */
   int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
-                  vtkInformationVector* outputVector);
+                  vtkInformationVector* outputVector) override;
   char *FileName;
   char *StringInput;
   bool StringInputMode;

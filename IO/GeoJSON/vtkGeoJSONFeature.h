@@ -43,7 +43,7 @@ class VTKIOGEOJSON_EXPORT vtkGeoJSONFeature : public vtkDataObject
 {
 public:
   static vtkGeoJSONFeature *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
   vtkTypeMacro(vtkGeoJSONFeature,vtkDataObject);
 
   //@{

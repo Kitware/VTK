@@ -57,7 +57,7 @@ class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostPrimMinimumSpanningTree : pu
 public:
   static vtkBoostPrimMinimumSpanningTree *New();
   vtkTypeMacro(vtkBoostPrimMinimumSpanningTree, vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -115,10 +115,10 @@ protected:
   int RequestData(
     vtkInformation *,
     vtkInformationVector **,
-    vtkInformationVector *);
+    vtkInformationVector *) override;
 
   int FillInputPortInformation(
-    int port, vtkInformation* info);
+    int port, vtkInformation* info) override;
 
 private:
   char* EdgeWeightArrayName;

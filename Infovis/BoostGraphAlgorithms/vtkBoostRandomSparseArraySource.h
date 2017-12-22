@@ -39,7 +39,7 @@ class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostRandomSparseArraySource : pu
 public:
   static vtkBoostRandomSparseArraySource* New();
   vtkTypeMacro(vtkBoostRandomSparseArraySource, vtkArrayDataAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Sets the extents (dimensionality and size) of the output array
@@ -100,7 +100,7 @@ protected:
   int RequestData(
     vtkInformation*,
     vtkInformationVector**,
-    vtkInformationVector*);
+    vtkInformationVector*) override;
 
 private:
   vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&) = delete;

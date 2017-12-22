@@ -32,7 +32,7 @@ class VTKIOGEOJSON_EXPORT vtkGeoJSONWriter : public vtkWriter
 {
 public:
   static vtkGeoJSONWriter* New();
-  virtual void PrintSelf( ostream& os, vtkIndent indent );
+  virtual void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkGeoJSONWriter,vtkWriter);
 
   //@{
@@ -103,10 +103,10 @@ protected:
   virtual ~vtkGeoJSONWriter();
 
   // Only accepts vtkPolyData
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  virtual int FillInputPortInformation(int port, vtkInformation *info) override;
 
   // Implementation of Write()
-  void WriteData();
+  void WriteData() override;
 
   // Helper for Write that writes attributes out
   void WriteScalar(vtkDataArray *da, vtkIdType ptId);

@@ -51,13 +51,13 @@ public:
   static vtkBoostDividedEdgeBundling *New();
 
   vtkTypeMacro(vtkBoostDividedEdgeBundling,vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
   vtkBoostDividedEdgeBundling();
   ~vtkBoostDividedEdgeBundling() {}
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
   vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&) = delete;
