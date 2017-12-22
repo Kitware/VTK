@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkFlyingEdges3D.h
+  Module:    vtkDiscreteFlyingEdges3D.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,33 +13,23 @@
 
 =========================================================================*/
 /**
- * @class   vtkFlyingEdges3D
+ * @class   vtkDiscreteFlyingEdges3D
  * @brief   generate isosurface from 3D image data (volume)
  *
- * vtkFlyingEdges3D is a reference implementation of the 3D version of the
- * flying edges algorithm. It is designed to be highly scalable (i.e.,
- * parallelizable) for large data. It implements certain performance
- * optimizations including computational trimming to rapidly eliminate
- * processing of data regions, packed bit representation of case table
- * values, single edge intersection, elimination of point merging, and
- * elimination of any reallocs (due to dynamic data insertion). Note that
- * computational trimming is a method to reduce total computational cost in
- * which partial computational results can be used to eliminate future
- * computations.
+ * vtkDiscreteFlyingEdges3D creates output representations of label maps
+ * (e.g., segmented volumes) using a variation of the flying edges
+ * algorithm. The input is a 3D image (volume( where each point is labeled
+ * (integer labels are preferred to real values), and the output data is
+ * polygonal data representing labeled regions. (Note that on output each
+ * region [corresponding to a different contour value] is represented
+ * independently; i.e., points are not shared between regions even if they
+ * are coincident.)
  *
- * This is a four-pass algorithm. The first pass processes all x-edges and
- * builds x-edge case values (which, when the four x-edges defining a voxel
- * are combined, are equivalent to vertex-based case table except edge-based
- * approaches are separable in support of parallel computing). Next x-voxel
- * rows are processed to gather information from yz-edges (basically to count
- * the number of y-z edge intersections and triangles generated). In the third
- * pass a prefix sum is used to count and allocate memory for the output
- * primitives. Finally in the fourth pass output primitives are generated into
- * pre-allocated arrays. This implementation uses voxel cell axes (a x-y-z
- * triad located at the voxel origin) to ensure that each edge is intersected
- * at most one time. Note that this implementation also reuses the VTK
- * Marching Cubes case table, although the vertex-based MC table is
- * transformed into an edge-based table on object instantiation.
+ * This filter is similar to but produces different results than the filter
+ * vtkDiscreteMarchingCubes. This filter can produce output normals, and each
+ * labeled region is completely disconnected from neighboring regions
+ * (coincident points are not merged). Both algorithms interpolate edges at
+ * the halfway point between vertices with different segmentation labels.
  *
  * See the paper "Flying Edges: A High-Performance Scalable Isocontouring
  * Algorithm" by Schroeder, Maynard, Geveci. Proc. of LDAV 2015. Chicago, IL.
@@ -54,24 +44,23 @@
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkContourFilter vtkFlyingEdges2D vtkSynchronizedTemplates3D
- * vtkMarchingCubes vtkDiscreteFlyingEdges3D
-*/
+ * vtkDiscreteMarchingCubes vtkDiscreteFlyingEdges2D vtkDiscreteFlyingEdges3D
+ */
 
-#ifndef vtkFlyingEdges3D_h
-#define vtkFlyingEdges3D_h
+#ifndef vtkDiscreteFlyingEdges3D_h
+#define vtkDiscreteFlyingEdges3D_h
 
-#include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkFlyingEdges3D : public vtkPolyDataAlgorithm
+class VTKFILTERSGENERAL_EXPORT vtkDiscreteFlyingEdges3D : public vtkPolyDataAlgorithm
 {
 public:
-  static vtkFlyingEdges3D *New();
-  vtkTypeMacro(vtkFlyingEdges3D,vtkPolyDataAlgorithm);
+  static vtkDiscreteFlyingEdges3D *New();
+  vtkTypeMacro(vtkDiscreteFlyingEdges3D,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -188,8 +177,8 @@ public:
   //@}
 
 protected:
-  vtkFlyingEdges3D();
-  ~vtkFlyingEdges3D() override;
+  vtkDiscreteFlyingEdges3D();
+  ~vtkDiscreteFlyingEdges3D() override;
 
   int ComputeNormals;
   int ComputeGradients;
@@ -205,8 +194,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
 private:
-  vtkFlyingEdges3D(const vtkFlyingEdges3D&) = delete;
-  void operator=(const vtkFlyingEdges3D&) = delete;
+  vtkDiscreteFlyingEdges3D(const vtkDiscreteFlyingEdges3D&) = delete;
+  void operator=(const vtkDiscreteFlyingEdges3D&) = delete;
 };
 
 #endif

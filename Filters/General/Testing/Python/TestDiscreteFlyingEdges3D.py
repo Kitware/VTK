@@ -72,7 +72,7 @@ while i < n:
 
     i += 1
 
-discrete = vtk.vtkDiscreteMarchingCubes()
+discrete = vtk.vtkDiscreteFlyingEdges3D()
 discrete.SetInputData(blobImage)
 discrete.GenerateValues(n, 1, n)
 
