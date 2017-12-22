@@ -1040,7 +1040,8 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
       vtkInitialValueProblemSolver::OUT_OF_DOMAIN && stagnating;
 
     // Simpler Adaptive Step Reintegration code
-    if (this->AdaptiveStepReintegration)
+    if (this->AdaptiveStepReintegration &&
+        this->IntegrationModel->CheckAdaptiveStepReintegration(particle))
     {
       double stepLengthCurr2 = vtkMath::Distance2BetweenPoints(
         particle->GetPosition(), particle->GetNextPosition());
