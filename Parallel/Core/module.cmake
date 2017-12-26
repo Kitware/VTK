@@ -1,8 +1,6 @@
 vtk_module(vtkParallelCore
   GROUPS
     StandAlone
-  COMPILE_DEPENDS
-    vtkUtilitiesHashSource
   TEST_DEPENDS
     vtkTestingRendering
     vtkRenderingOpenGL2
