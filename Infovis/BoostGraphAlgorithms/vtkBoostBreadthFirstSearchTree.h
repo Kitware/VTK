@@ -47,7 +47,7 @@ class VTKINFOVISBOOSTGRAPHALGORITHMS_EXPORT vtkBoostBreadthFirstSearchTree : pub
 public:
   static vtkBoostBreadthFirstSearchTree *New();
   vtkTypeMacro(vtkBoostBreadthFirstSearchTree, vtkTreeAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Set the index (into the vertex array) of the
@@ -87,9 +87,9 @@ protected:
   vtkBoostBreadthFirstSearchTree();
   ~vtkBoostBreadthFirstSearchTree();
 
-  int FillInputPortInformation(int port, vtkInformation* info);
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
-  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
 private:
 
