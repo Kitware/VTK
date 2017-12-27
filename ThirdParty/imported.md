@@ -2,6 +2,7 @@
 
   * [diy2](diy2/update.sh)
   * [expat](expat/update.sh)
+  * [gl2ps](gl2ps/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
   * [kwiml](../Utilities/KWIML/update.sh)
   * [kwsys](../Utilities/KWSys/update.sh)
