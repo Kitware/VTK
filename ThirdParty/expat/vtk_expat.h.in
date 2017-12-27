@@ -16,8 +16,9 @@
 #define vtk_expat_h
 
 /* Use the expat library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_EXPAT
-#ifdef VTK_USE_SYSTEM_EXPAT
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkexpat
+
+#if VTK_MODULE_USE_EXTERNAL_vtkexpat
 # include <expat.h>
 #else
 #cmakedefine XML_STATIC
