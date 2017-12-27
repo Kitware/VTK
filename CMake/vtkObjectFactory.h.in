@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    @vtk-module@ObjectFactory.h
+  Module:    @_vtk_object_factory_library_name@ObjectFactory.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,30 +13,30 @@
 
 =========================================================================*/
 
-#ifndef @vtk-module@ObjectFactory_h
-#define @vtk-module@ObjectFactory_h
+#ifndef @_vtk_object_factory_library_name@ObjectFactory_h
+#define @_vtk_object_factory_library_name@ObjectFactory_h
 
-#include "@vtk-module@Module.h" // For export macro
+#include "@_vtk_object_factory_library_name@Module.h" // For export macro
 #include "vtkObjectFactory.h"
 
-class @VTK-MODULE@_EXPORT @vtk-module@ObjectFactory : public vtkObjectFactory
+class @_vtk_object_factory_configure_EXPORT_MACRO@ @_vtk_object_factory_library_name@ObjectFactory : public vtkObjectFactory
 {
 public:
-  static @vtk-module@ObjectFactory * New();
-  vtkTypeMacro(@vtk-module@ObjectFactory, vtkObjectFactory)
+  static @_vtk_object_factory_library_name@ObjectFactory * New();
+  vtkTypeMacro(@_vtk_object_factory_library_name@ObjectFactory, vtkObjectFactory)
 
-  const char * GetDescription() override { return "@vtk-module@ factory overrides."; }
+  const char * GetDescription() override { return "@_vtk_object_factory_library_name@ factory overrides."; }
 
   const char * GetVTKSourceVersion() override;
 
   void PrintSelf(ostream &os, vtkIndent indent) override;
 
 protected:
-  @vtk-module@ObjectFactory();
+  @_vtk_object_factory_library_name@ObjectFactory();
 
 private:
-  @vtk-module@ObjectFactory(const @vtk-module@ObjectFactory&) = delete;
-  void operator=(const @vtk-module@ObjectFactory&) = delete;
+  @_vtk_object_factory_library_name@ObjectFactory(const @_vtk_object_factory_library_name@ObjectFactory&) = delete;
+  void operator=(const @_vtk_object_factory_library_name@ObjectFactory&) = delete;
 };
 
-#endif // @vtk-module@ObjectFactory_h
+#endif // @_vtk_object_factory_library_name@ObjectFactory_h

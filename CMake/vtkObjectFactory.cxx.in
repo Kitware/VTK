@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    @vtk-module@ObjectFactory.cxx
+  Module:    @_vtk_object_factory_library_name@ObjectFactory.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,55 +13,56 @@
 
 =========================================================================*/
 
-#include "@vtk-module@ObjectFactory.h"
+#include "@_vtk_object_factory_library_name@ObjectFactory.h"
 #include "vtkVersion.h"
 
 // Include all of the classes we want to create overrides for.
-@_vtk_override_includes@
+@_vtk_object_factory_includes@
 
-vtkStandardNewMacro(@vtk-module@ObjectFactory)
+vtkStandardNewMacro(@_vtk_object_factory_library_name@ObjectFactory)
 
 // Now create the functions to create overrides with.
-@_vtk_override_creates@
+@_vtk_object_factory_functions@
 
-@vtk-module@ObjectFactory::@vtk-module@ObjectFactory()
+@_vtk_object_factory_library_name@ObjectFactory::@_vtk_object_factory_library_name@ObjectFactory()
 {
-@_vtk_override_do@
+@_vtk_object_factory_calls@
 }
 
-const char * @vtk-module@ObjectFactory::GetVTKSourceVersion()
+const char * @_vtk_object_factory_library_name@ObjectFactory::GetVTKSourceVersion()
 {
   return VTK_SOURCE_VERSION;
 }
 
-void @vtk-module@ObjectFactory::PrintSelf(ostream &os, vtkIndent indent)
+void @_vtk_object_factory_library_name@ObjectFactory::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 // Registration of object factories.
-static unsigned int @vtk-module@Count;
+static unsigned int @_vtk_object_factory_library_name@Count;
 
-@VTK-MODULE@_EXPORT void @vtk-module@_AutoInit_Construct()
+@_vtk_object_factory_configure_EXPORT_MACRO@ void @_vtk_object_factory_library_name@_AutoInit_Construct()
 {
-  if(++@vtk-module@Count == 1)
-    {
-    @vtk-object-factory-extra-init@
-    @vtk-module@ObjectFactory* factory = @vtk-module@ObjectFactory::New();
+  if(++@_vtk_object_factory_library_name@Count == 1)
+  {
+@_vtk_object_factory_configure_INITIAL_CODE@
+
+    @_vtk_object_factory_library_name@ObjectFactory* factory = @_vtk_object_factory_library_name@ObjectFactory::New();
     if (factory)
-      {
+    {
       // vtkObjectFactory keeps a reference to the "factory",
       vtkObjectFactory::RegisterFactory(factory);
       factory->Delete();
-      }
     }
+  }
 }
 
-@VTK-MODULE@_EXPORT void @vtk-module@_AutoInit_Destruct()
+@_vtk_object_factory_configure_EXPORT_MACRO@ void @_vtk_object_factory_library_name@_AutoInit_Destruct()
 {
-  if(--@vtk-module@Count == 0)
-    {
+  if(--@_vtk_object_factory_library_name@Count == 0)
+  {
     // Do not call vtkObjectFactory::UnRegisterFactory because
     // vtkObjectFactory.cxx statically unregisters all factories.
-    }
+  }
 }

@@ -52,6 +52,7 @@ include(vtkCrossCompiling)
 include(vtkThirdParty)
 include(vtkThreads)
 include(vtkWrapSettings)
+include(vtkObjectFactory)
 
 # Setup compiler flags for dynamic analysis
 # Should be included after vtkTesting
