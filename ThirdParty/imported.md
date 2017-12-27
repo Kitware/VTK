@@ -2,6 +2,7 @@
 
   * [diy2](diy2/update.sh)
   * [eigen](eigen/update.sh)
+  * [exodusII](exodusII/update.sh)
   * [expat](expat/update.sh)
   * [jpeg](jpeg/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
