@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TemporalStatistics.cxx
   TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilter.cxx
   TestHyperTreeGridBinary2DAdaptiveDataSetSurfaceFilterMaterial.cxx
@@ -15,6 +15,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTemporalCacheTemporal.cxx,NO_VALID
   TestTemporalFractal.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkFiltersHybridCxxTests tests
   RENDERING_FACTORY
   )

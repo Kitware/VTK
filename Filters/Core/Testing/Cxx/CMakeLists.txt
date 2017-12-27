@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestAppendArcLength.cxx,NO_VALID
   TestAppendFilter.cxx,NO_VALID
   TestAppendPolyData.cxx,NO_VALID
@@ -50,4 +50,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestMergeFilter.cxx,NO_VALID
   )
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersCoreCxxTests tests)

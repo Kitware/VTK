@@ -10,7 +10,7 @@ endif()
 
 if(MATPLOTLIB_FOUND)
   # add tests that require data
-  vtk_add_test_cxx(${vtk-module}CxxTests tests
+  vtk_add_test_cxx(vtkRenderingMatplotlibCxxTests tests
     TestContextMathTextImage.cxx
     TestMathTextActor.cxx
     TestMathTextActor3D.cxx
@@ -22,7 +22,7 @@ if(MATPLOTLIB_FOUND)
 
   if(VTK_GHOSTSCRIPT_EXECUTABLE)
     set(TestGL2PSFontDPIScaling_ARGS DATA{../Data/Fonts/DejaVuSans.ttf})
-    vtk_add_test_cxx(${vtk-module}CxxTests GL2PSTests
+    vtk_add_test_cxx(vtkRenderingMatplotlibCxxTests GL2PSTests
       TestGL2PSFontDPIScaling.cxx
       TestGL2PSMathTextActor.cxx
       TestGL2PSMathTextActor3D.cxx
@@ -33,7 +33,7 @@ if(MATPLOTLIB_FOUND)
       ${GL2PSTests})
   endif()
 
-  vtk_test_cxx_executable(${vtk-module}CxxTests tests
+  vtk_test_cxx_executable(vtkRenderingMatplotlibCxxTests tests
     RENDERING_FACTORY)
 endif()
 

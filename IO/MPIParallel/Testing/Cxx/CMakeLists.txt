@@ -16,9 +16,9 @@ if (VTK_USE_LARGE_DATA AND _known_little_endian AND NOT WIN32)
     )
 
   set(TestPWindBladeReader_NUMPROCS 1)
-  vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+  vtk_add_test_mpi(vtkIOMPIParallelCxxTests-MPI tests
     TESTING_DATA
     TestPWindBladeReader.cxx
     )
-  vtk_test_mpi_executable(${vtk-module}CxxTests-MPI tests)
+  vtk_test_mpi_executable(vtkIOMPIParallelCxxTests-MPI tests)
 endif()

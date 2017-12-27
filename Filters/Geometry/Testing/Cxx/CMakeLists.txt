@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersGeometryCxxTests tests
   TestExtractSurfaceNonLinearSubdivision.cxx
   TestDataSetSurfaceFieldData.cxx,NO_VALID
   TestDataSetSurfaceFilterQuadraticTetsGhostCells.cxx,NO_VALID
@@ -12,7 +12,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestUnstructuredGridGeometryFilter.cxx
   TestUnstructuredGridGeometryFilterGhostCells.cxx,NO_VALID
   )
-vtk_add_test_cxx(${vtk-module}CxxTests no_data_tests
+vtk_add_test_cxx(vtkFiltersGeometryCxxTests no_data_tests
   NO_DATA NO_VALID NO_OUTPUT
   TestGeometryFilterCellData.cxx
   TestStructuredAMRGridConnectivity.cxx
@@ -26,4 +26,4 @@ set(all_tests
   ${tests}
   ${no_data_tests}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
+vtk_test_cxx_executable(vtkFiltersGeometryCxxTests all_tests)

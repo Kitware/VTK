@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   LagrangeHexahedron.cxx
   TestAngularPeriodicDataArray.cxx
@@ -71,7 +71,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestPlanesIntersection.cxx
   UnitTestTriangleIntersection.cxx
   )
-vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestLagrangeTriangle.cxx
   TestLagrangeTetra.cxx
   quadraticIntersection.cxx
@@ -86,12 +86,12 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
 # add to the list but don't define a test
 list(APPEND data_tests TestPolyhedron2.cxx TestPolyhedron6.cxx)
 
-vtk_add_test_cxx(${vtk-module}CxxTests output_tests
+vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
   )
 ExternalData_add_test(VTKData
   NAME TestPolyhedron2
-  COMMAND ${vtk-module}CxxTests TestPolyhedron2
+  COMMAND vtkCommonDataModelCxxTests TestPolyhedron2
   -D DATA{../Data/polyhedron_mesh.vtu}
   )
 ExternalData_add_test(VTKData
@@ -105,4 +105,4 @@ set(all_tests
   ${output_tests}
   ${custom_tests}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests all_tests)
+vtk_test_cxx_executable(vtkCommonDataModelCxxTests all_tests)

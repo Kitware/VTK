@@ -10,14 +10,14 @@ foreach(test IN LISTS cxx_tests)
     ${test}.cxx)
 endforeach()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersAMRCxxTests tests
   NO_VALID NO_OUTPUT
   ${test_files}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersAMRCxxTests tests)
 
 foreach(test IN LISTS cxx_tests)
-  set_tests_properties(${vtk-module}Cxx-${test}
+  set_tests_properties(vtkFiltersAMRCxx-${test}
     PROPERTIES
       FAIL_REGULAR_EXPRESSION "Error"
   )

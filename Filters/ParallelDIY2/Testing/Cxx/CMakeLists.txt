@@ -1,7 +1,7 @@
 include(vtkMPI)
 
-set (${vtk-module}CxxTests-MPI_NUMPROCS 2)
-vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+set (vtkFiltersParallelDIY2CxxTests-MPI_NUMPROCS 2)
+vtk_add_test_mpi(vtkFiltersParallelDIY2CxxTests-MPI tests
   TESTING_DATA
   TestPResampleToImage.cxx
   TestPResampleToImageCompositeDataSet.cxx
@@ -9,4 +9,4 @@ vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
   TestPResampleWithDataSet2.cxx
 )
 
-vtk_test_mpi_executable(${vtk-module}CxxTests-MPI tests)
+vtk_test_mpi_executable(vtkFiltersParallelDIY2CxxTests-MPI tests)

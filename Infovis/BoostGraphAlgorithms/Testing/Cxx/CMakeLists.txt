@@ -1,7 +1,7 @@
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkInfovisBoostGraphAlgorithmsCxxTests tests
   # BoostArrayLogWeighting.cxx    # todo (unsatisfied deps)
   BoostArrayRandomSparseArraySource.cxx,NO_VALID
   TestBoostAdapter.cxx,NO_VALID
@@ -12,4 +12,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBoostExtractLargestComponent.cxx,NO_VALID
   TestBoostSplitTableField.cxx,NO_VALID
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkInfovisBoostGraphAlgorithmsCxxTests tests)

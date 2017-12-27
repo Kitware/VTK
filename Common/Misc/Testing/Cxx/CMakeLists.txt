@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkCommonMiscCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
   TestPolygonBuilder.cxx
   TestPolygonBuilder2.cxx
@@ -8,4 +8,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPolygonBuilder5.cxx
   UnitTestFunctionParser.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkCommonMiscCxxTests tests)

@@ -9,9 +9,9 @@ if(VTK_GHOSTSCRIPT_EXECUTABLE)
   )
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests ${GL2PSTests})
+vtk_add_test_cxx(vtkIOExportOpenGL2CxxTests tests ${GL2PSTests})
 
 # Create rasterize/verify tests to check generated postscript:
 vtk_add_gl2ps_test_cxx(${GL2PSTests})
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY)
+vtk_test_cxx_executable(vtkIOExportOpenGL2CxxTests tests RENDERING_FACTORY)

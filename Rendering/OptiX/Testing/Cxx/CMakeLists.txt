@@ -7,7 +7,7 @@ include_directories(
     "${CUDA_INCLUDE_DIRS}"
     )
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingOptiXCxxTests tests
   TestOptiXCompositePolyDataMapper2.cxx,
   TestOptiXDynamicObject.cxx,
   TestOptiXDynamicScene.cxx,
@@ -22,7 +22,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOptiXTime.cxx,
   TestOptiXWindow.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
+vtk_test_cxx_executable(vtkRenderingOptiXCxxTests tests RENDERING_FACTORY
   vtkOptiXTestInteractor.cxx
   )
 
@@ -38,16 +38,16 @@ if (${Module_vtkRenderingParallel} AND ${Module_vtkParallelMPI})
     )
 
   include(vtkMPI)
-  set(${vtk-module}Cxx-MPI_NUMPROCS 2)
-  vtk_add_test_mpi(${vtk-module}Cxx-MPI tests
+  set(vtkRenderingOptiXCxx-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkRenderingOptiXCxx-MPI tests
     TESTING_DATA
     TestOptiXComposite.cxx
     )
-  vtk_test_mpi_executable(${vtk-module}Cxx-MPI tests RENDERING_FACTORY
+  vtk_test_mpi_executable(vtkRenderingOptiXCxx-MPI tests RENDERING_FACTORY
     vtkOptiXTestInteractor.cxx
     )
 
-  target_link_libraries(${vtk-module}Cxx-MPI PRIVATE
+  target_link_libraries(vtkRenderingOptiXCxx-MPI PRIVATE
     ${vtkRenderingParallel_LIBRARIES}
     ${vtkParallelMPI_LIBRARIES}
     )

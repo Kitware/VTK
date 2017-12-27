@@ -6,7 +6,7 @@ vtk_add_test_python(TestImageStreamer.py)
 vtk_add_test_python(TestRemoveGhosts.py NO_DATA NO_OUTPUT NO_VALID NO_RT)
 
 if(TARGET pvtkpython)
-  add_test(NAME ${vtk-module}Python-testTransmit
+  add_test(NAME vtkFiltersParallelPython-testTransmit
     COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${MPIEXEC_PREFLAGS}
       $<TARGET_FILE:pvtkpython> ${CMAKE_CURRENT_SOURCE_DIR}/testTransmit.py
       ${VTK_MPI_POSTFLAGS})

@@ -3,7 +3,7 @@ if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
   list(APPEND extra_opengl2_tests TestOffscreenIsOffscreen.cxx,NO_DATA,NO_VALID)
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   ${extra_opengl2_tests}
   TestBlockOpacity.cxx TestBlockVisibility.cxx
   TestCompositePolyDataMapper2.cxx,NO_DATA
@@ -103,4 +103,4 @@ set_source_files_properties(
   TestEdgeFlags.cxx # fails on OpenGL Mesa
   PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)

@@ -1,6 +1,6 @@
 # basic tests on the legacy filters
 # exercises line integral convolution 2d
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
   TestImageDataLIC2D.cxx
   TestStructuredGridLIC2DXSlice.cxx
   TestStructuredGridLIC2DYSlice.cxx
@@ -16,22 +16,22 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 list(APPEND tests
   TestSurfaceLIC
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkRenderingLICOpenGL2CxxTests tests
   RENDERING_FACTORY
   vtkStructuredGridLIC2DTestDriver.cxx
   vtkSurfaceLICTestDriver.cxx
   )
 # vtkSurfaceLICTestDriver needs OpenGL
 include(vtkOpenGL)
-vtk_opengl_link(${vtk-module}CxxTests)
+vtk_opengl_link(vtkRenderingLICOpenGL2CxxTests)
 
 # surface lic on a curved surface
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedDefaults
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedDefaults
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedDefaults.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedDefaults.png,:}"
     --step-size=0.4
     --num-steps=40
     --camera-config=1
@@ -39,11 +39,11 @@ ExternalData_add_test(VTKData
     --vectors=V
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedBlended
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlended
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedBlended.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedBlended.png,:}"
     --step-size=0.4
     --num-steps=40
     --camera-config=1
@@ -53,11 +53,11 @@ ExternalData_add_test(VTKData
     --lic-intensity=0.8
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedMapped
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMapped
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMapped.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMapped.png,:}"
     --step-size=0.4
     --num-steps=40
     --camera-config=1
@@ -67,11 +67,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedEnhancedVectorNormalizeOff
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedEnhancedVectorNormalizeOff
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedEnhancedVectorNormalizeOff.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedEnhancedVectorNormalizeOff.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --camera-config=1
     --vectors=V
@@ -82,11 +82,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedBlendedSmallGrain
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedBlendedSmallGrain
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedBlendedSmallGrain.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedBlendedSmallGrain.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -101,11 +101,11 @@ ExternalData_add_test(VTKData
     --lic-intensity=0.8
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallGrain
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallGrain
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMappedSmallGrain.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMappedSmallGrain.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -119,11 +119,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedMappedSmallVectorNormalizeOff.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --camera-config=1
     --vectors=V
@@ -139,11 +139,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedDefaultsColor
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedDefaultsColor
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedDefaultsColor.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedDefaultsColor.png,:}"
     --step-size=0.4
     --num-steps=40
     --camera-config=1
@@ -152,11 +152,11 @@ ExternalData_add_test(VTKData
     --color-by-mag=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorBlendedSmallGrain.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -172,11 +172,11 @@ ExternalData_add_test(VTKData
     --lic-intensity=0.6
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrain
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrain
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorMappedSmallGrain.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorMappedSmallGrain.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -191,11 +191,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorBlendedSmallGrainMask.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -213,11 +213,11 @@ ExternalData_add_test(VTKData
     --mask-color 1.0 1.0 1.0
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedColorMappedSmallGrainMask.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -236,11 +236,11 @@ ExternalData_add_test(VTKData
     --mask-color 1.0 1.0 1.0
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICCurvedContrastEnhancedSmallGrainMask
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICCurvedContrastEnhancedSmallGrainMask
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICCurvedContrastEnhancedSmallGrainMask.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICCurvedContrastEnhancedSmallGrainMask.png,:}"
     --camera-config=1
     --data=${VTK_TEST_DATA_DIR}/Data/disk_out_ref_surface.vtp
     --vectors=V
@@ -259,11 +259,11 @@ ExternalData_add_test(VTKData
     )
 # surface lic on a slice
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICPlanarDefaults
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICPlanarDefaults
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICPlanarDefaults.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICPlanarDefaults.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/SurfaceVectors.vtk
     --camera-config=3
     --vectors=V
@@ -272,11 +272,11 @@ ExternalData_add_test(VTKData
     --lic-intensity=0.8
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICPlanarContrastEnhanced
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICPlanarContrastEnhanced
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICPlanarContrastEnhanced.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICPlanarContrastEnhanced.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/SurfaceVectors.vtk
     --camera-config=3
     --vectors=V
@@ -286,11 +286,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICPlanarVectorNormalizeOff
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOff
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOff.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOff.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/SurfaceVectors.vtk
     --camera-config=3
     --vectors=V
@@ -307,11 +307,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainUniform
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainUniform
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOffMediumGrainUniform.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOffMediumGrainUniform.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/SurfaceVectors.vtk
     --camera-config=3
     --vectors=V
@@ -329,11 +329,11 @@ ExternalData_add_test(VTKData
     --color-mode=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICPlanarVectorNormalizeOffMediumGrainPerlin.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/SurfaceVectors.vtk
     --camera-config=3
     --vectors=V
@@ -351,11 +351,11 @@ ExternalData_add_test(VTKData
     --anti-alias=1
     )
 ExternalData_add_test(VTKData
-  NAME ${vtk-module}Cxx-SurfaceLICMultiBlockContrastEnhancedPerlin
-  COMMAND ${vtk-module}CxxTests TestSurfaceLIC
+  NAME vtkRenderingLICOpenGL2Cxx-SurfaceLICMultiBlockContrastEnhancedPerlin
+  COMMAND vtkRenderingLICOpenGL2CxxTests TestSurfaceLIC
     -D ${VTK_TEST_DATA_DIR}
     -T ${VTK_TEST_OUTPUT_DIR}
-    -V "DATA{${${vtk-module}_SOURCE_DIR}/Testing/Data/Baseline/TestSurfaceLICMultiBlockContrastEnhancedPerlin.png,:}"
+    -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestSurfaceLICMultiBlockContrastEnhancedPerlin.png,:}"
     --data=${VTK_TEST_DATA_DIR}/Data/ex-blow_5.vtm
     --camera-config=4
     --vectors=DISPLACEMENT_

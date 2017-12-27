@@ -1,10 +1,10 @@
 include(vtkMPI)
 
-vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
+vtk_add_test_mpi(vtkParallelMPICxxTests-MPI tests
   TESTING_DATA
   TestPProbe.cxx
   )
-vtk_add_test_mpi(${vtk-module}CxxTests-MPI no_data_tests
+vtk_add_test_mpi(vtkParallelMPICxxTests-MPI no_data_tests
   GenericCommunicator.cxx
   MPIController.cxx
   PDirectory.cxx
@@ -18,6 +18,6 @@ set(all_tests
   ${tests}
   ${no_data_tests}
   )
-vtk_test_mpi_executable(${vtk-module}CxxTests-MPI all_tests
+vtk_test_mpi_executable(vtkParallelMPICxxTests-MPI all_tests
   ExerciseMultiProcessController.cxx
   )

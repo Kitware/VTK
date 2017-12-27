@@ -15,10 +15,10 @@ if(VTK_DISPATCH_TYPED_ARRAYS)
   )
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOExodusCxxTests tests
   TestExodusAttributes.cxx,NO_VALID,NO_OUTPUT
   TestExodusSideSets.cxx,NO_VALID,NO_OUTPUT
   ${extra_tests}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkIOExodusCxxTests tests
   RENDERING_FACTORY)

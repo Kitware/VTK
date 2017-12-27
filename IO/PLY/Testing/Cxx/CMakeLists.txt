@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOPLYCxxTests tests
   TestPLYReader.cxx
   TestPLYReaderIntensity.cxx
   TestPLYReaderPointCloud.cxx
@@ -6,4 +6,4 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPLYWriterAlpha.cxx
   TestPLYWriter.cxx,NO_VALID
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOPLYCxxTests tests)

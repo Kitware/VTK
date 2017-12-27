@@ -12,7 +12,7 @@ endfunction()
 add_vtk_pdal_reader_test(test_1.las 0)
 add_vtk_pdal_reader_test(test_2.las -90)
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkIOPDALCxxTests tests
   ${VTK_PDAL_READER_TESTS}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkIOPDALCxxTests tests)

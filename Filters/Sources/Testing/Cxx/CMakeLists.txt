@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersSourcesCxxTests tests
   TestArcSource.cxx,NO_VALID
   TestCellTypeSource.cxx,NO_VALID
   TestConeSource.cxx,NO_VALID
@@ -28,5 +28,5 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTexturedSphereSource.cxx,NO_VALID
   TestGlyphSource2DResolution.cxx,
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkFiltersSourcesCxxTests tests
   RENDERING_FACTORY)

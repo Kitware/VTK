@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkRenderingOSPRayCxxTests tests
   # Surface rendering tests
   TestOSPRayAmbient.cxx
   TestOSPRayAMRVolumeRenderer.cxx
@@ -43,7 +43,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPathTracerShadows.cxx
   TestOSPRayTetrahedraMapper.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests RENDERING_FACTORY
+vtk_test_cxx_executable(vtkRenderingOSPRayCxxTests tests RENDERING_FACTORY
   vtkOSPRayTestInteractor.cxx
   )
 
@@ -60,16 +60,16 @@ if (${Module_vtkRenderingParallel} AND ${Module_vtkParallelMPI})
     )
 
   include(vtkMPI)
-  set(${vtk-module}Cxx-MPI_NUMPROCS 2)
-  vtk_add_test_mpi(${vtk-module}Cxx-MPI tests
+  set(vtkRenderingOSPRayCxx-MPI_NUMPROCS 2)
+  vtk_add_test_mpi(vtkRenderingOSPRayCxx-MPI tests
     TESTING_DATA
     TestOSPRayComposite.cxx
     )
-  vtk_test_mpi_executable(${vtk-module}Cxx-MPI tests RENDERING_FACTORY
+  vtk_test_mpi_executable(vtkRenderingOSPRayCxx-MPI tests RENDERING_FACTORY
     vtkOSPRayTestInteractor.cxx
     )
 
-  target_link_libraries(${vtk-module}Cxx-MPI PRIVATE
+  target_link_libraries(vtkRenderingOSPRayCxx-MPI PRIVATE
     ${vtkRenderingParallel_LIBRARIES}
     ${vtkParallelMPI_LIBRARIES}
     )

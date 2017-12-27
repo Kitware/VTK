@@ -78,6 +78,6 @@ if (NOT VTK_LEGACY_REMOVE)
   )
 endif()
 
-vtk_add_test_cxx(${vtk-module}CxxTests tests ${test_sources})
+vtk_add_test_cxx(vtkFiltersHyperTreeCxxTests tests ${test_sources})
 
-vtk_test_cxx_executable(${vtk-module}CxxTests tests)
+vtk_test_cxx_executable(vtkFiltersHyperTreeCxxTests tests)

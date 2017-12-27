@@ -1,4 +1,4 @@
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkFiltersFlowPathsCxxTests tests
   TestBSPTree.cxx
   TestEvenlySpacedStreamlines2D.cxx
   TestStreamTracer.cxx,NO_VALID
@@ -9,7 +9,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLagrangianParticle.cxx,NO_VALID
   TestLagrangianParticleTracker.cxx
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests tests
+vtk_test_cxx_executable(vtkFiltersFlowPathsCxxTests tests
   RENDERING_FACTORY
   )
 ExternalData_Expand_Arguments(VTKData _

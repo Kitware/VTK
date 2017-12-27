@@ -1,6 +1,6 @@
 set(TestOrientedGlyphContour_ARGS "--PlaybackFile" "DATA{../Data/Input/TestOrientedGlyphContourEventLog.txt}")
 set(TerrainPolylineEditor_ARGS -ProjectionMode 2 -HeightOffset 100)
-vtk_add_test_cxx(${vtk-module}CxxTests tests
+vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
   BoxWidget.cxx
   BoxWidget2.cxx
   ImagePlaneWidget.cxx
@@ -65,7 +65,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSplineWidget.cxx
   TestTextWidget.cxx
   )
-vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
+vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   NO_VALID
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
@@ -92,7 +92,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
   )
 
 # Tests with data
-vtk_add_test_cxx(${vtk-module}CxxTests data_tests
+vtk_add_test_cxx(vtkInteractionWidgetsCxxTests data_tests
   TestButtonWidget.cxx
   TestButtonWidgetMultipleViewports.cxx
   TestDijkstraGraphGeodesicPath.cxx
@@ -112,7 +112,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   )
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
-  vtk_add_test_cxx(${vtk-module}CxxTests ogl_tests
+  vtk_add_test_cxx(vtkInteractionWidgetsCxxTests ogl_tests
     TestPickingManagerWidgets.cxx
     )
 endif()
@@ -123,7 +123,7 @@ set(all_tests
   ${data_tests}
   ${ogl_tests}
   )
-vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
+vtk_test_cxx_executable(vtkInteractionWidgetsCxxTests all_tests
   RENDERING_FACTORY
   )
 
@@ -131,7 +131,7 @@ vtk_test_cxx_executable(${vtk-module}CxxTests all_tests
 if(NOT VTK_TEST_TIMEOUT_TerrainPolylineEditor)
   set(VTK_TEST_TIMEOUT_TerrainPolylineEditor 90)
 endif()
-set_tests_properties(${vtk-module}Cxx-TerrainPolylineEditor
+set_tests_properties(vtkInteractionWidgetsCxx-TerrainPolylineEditor
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TerrainPolylineEditor})
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
@@ -139,7 +139,7 @@ if(NOT VTK_OPENGL_HAS_OSMESA)
   if(NOT VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget)
     set(VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget 60)
   endif()
-  set_tests_properties(${vtk-module}Cxx-TestPickingManagerSeedWidget
+  set_tests_properties(vtkInteractionWidgetsCxx-TestPickingManagerSeedWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget})
 endif()
 
@@ -148,6 +148,6 @@ endif()
 if(NOT VTK_TEST_TIMEOUT_TestSphereHandleWidget)
   set(VTK_TEST_TIMEOUT_TestSphereHandleWidget 300)
 endif()
-set_tests_properties(${vtk-module}Cxx-TestSphereHandleWidget
+set_tests_properties(vtkInteractionWidgetsCxx-TestSphereHandleWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget}
                RUN_SERIAL ON)
