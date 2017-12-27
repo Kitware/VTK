@@ -1,5 +1,0 @@
-/* src/H5cxx_config.h.in Created manually. */
-
-/* Define if offsetof extension is present */
-#cmakedefine HAVE_OFFSETOF ${HAVE_OFFSETOF}
-
