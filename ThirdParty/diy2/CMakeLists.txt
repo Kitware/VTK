@@ -1,7 +1,12 @@
-# Diy2 does not work on windows
-if (NOT WIN32)
-  vtk_module_third_party(diy2
-    INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/vtkdiy2/include"
-    NO_LIBRARIES
-    )
-endif()
+vtk_module_third_party_internal(
+  HEADER_ONLY
+  LICENSE_FILES "vtkdiy2/LICENSE.txt"
+                "vtkdiy2/LEGAL.txt"
+  VERSION       "3.5.0")
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_diy2.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_diy2.h")
+
+vtk_module_install_headers(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_diy2.h")
