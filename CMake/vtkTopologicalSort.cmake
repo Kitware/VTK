@@ -1,6 +1,6 @@
 # Perform a reverse topological sort on the given LIST.
 #
-#   topological_sort(my_list "MY_" "_EDGES")
+#   vtk_topological_sort(my_list "MY_" "_EDGES")
 #
 # LIST is the name of a variable containing a list of elements to be
 # sorted in reverse topological order. Each element in the list has a
@@ -23,7 +23,7 @@
 #     MY_b_EDGES
 #     MY_c_EDGES     a b
 #
-#  With the invocation of topological_sort shown above and these
+#  With the invocation of vtk_topological_sort shown above and these
 #  variables, the resulting reverse topological ordering will be b, a,
 #  c.
 
@@ -62,7 +62,7 @@
 # DEALINGS IN THE SOFTWARE.
 ##############################################################################
 
-function(topological_sort LIST PREFIX SUFFIX)
+function(vtk_topological_sort LIST PREFIX SUFFIX)
   # Clear the stack and output variable
   set(VERTICES "${${LIST}}")
   set(STACK)
