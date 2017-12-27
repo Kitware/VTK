@@ -24,9 +24,6 @@ if(VTK_WRAP_PYTHON)
   set(VTK_WRAP_PYTHON_EXE vtkWrapPython)
   set(VTK_WRAP_PYTHON_INIT_EXE vtkWrapPythonInit)
 endif()
-# Force the WrappingPythonCore module to on if wrapping is on
-set(Module_vtkWrappingPythonCore ${VTK_WRAP_PYTHON}
-  CACHE BOOL "Core Python wrapping library" FORCE)
 
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
 if(VTK_WRAP_JAVA)
@@ -40,8 +37,6 @@ if(VTK_WRAP_JAVA)
   set(VTK_JAVA_HOME ${VTK_BINARY_DIR}/java/vtk)
   file(MAKE_DIRECTORY ${VTK_JAVA_HOME})
 endif()
-set(Module_vtkWrappingJava ${VTK_WRAP_JAVA}
-  CACHE BOOL "Core Java wrapping library" FORCE)
 
 if(VTK_WRAP_PYTHON OR VTK_WRAP_JAVA OR VTK_WRAP_HIERARCHY)
   set(VTK_WRAP_HIERARCHY_EXE vtkWrapHierarchy)

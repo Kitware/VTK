@@ -57,7 +57,7 @@ include(vtkWrapSettings)
 # Should be included after vtkTesting
 include(vtkCompilerDynamicAnalysisFlags)
 
-include(vtkModuleMacros)
+#include(vtkModuleMacros)
 
 #-----------------------------------------------------------------------------
 # Do we want examples built?
@@ -67,7 +67,7 @@ set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory
-add_subdirectory(Remote)
+#add_subdirectory(Remote)
 
 #-----------------------------------------------------------------------------
 # Does VTK require support for 64 bit file systems
@@ -95,6 +95,8 @@ option(VTK_ENABLE_KITS "Build VTK using kits instead of modules." OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
 include(vtkEncodeString)
+
+if (FALSE)
 
 #----------------------------------------------------------------------
 # Load the module DAG, assess all modules etc.
@@ -168,6 +170,8 @@ if(VTK_DATA_EXCLUDE_FROM_ALL)
       "without manually building the 'VTKData' target.")
   endif()
 endif()
+
+endif ()
 
 #-----------------------------------------------------------------------------
 # Install the license file
