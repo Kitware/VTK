@@ -520,6 +520,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkGroups.cmake
                 CMake/vtkEncodeString.cmake
                 CMake/vtkForwardingExecutable.cmake
+                CMake/vtkHashSource.cmake
                 CMake/vtkJavaWrapping.cmake
                 CMake/vtkModuleAPI.cmake
                 CMake/vtkModuleHeaders.cmake.in
