@@ -1,31 +1,27 @@
-# The targets exported by HDF5 in its config mode do not work with the module
-# system as-is.
-set(HDF5_NO_FIND_PACKAGE_CONFIG_FILE ON)
+set(HDF5_EXTERNALLY_CONFIGURED 1)
 
-vtk_module_third_party(HDF5
-  LIBRARIES vtkhdf5_src vtkhdf5_hl_src
-  INCLUDE_DIRS
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkhdf5
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkhdf5/hl/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/vtkhdf5/src
-  COMPONENTS C HL
-  )
+vtk_module_third_party(
+  INTERNAL
+    LICENSE_FILES "vtkhdf5/COPYING"
+                  "vtkhdf5/COPYING_LBNL_HDF5"
+    VERSION       "1.10.3"
+    STANDARD_INCLUDE_DIRS
+    INTERFACE
+  EXTERNAL
+    PACKAGE     HDF5
+    COMPONENTS  C HL
+    TARGETS     hdf5::hdf5
+                hdf5::hdf5_hl
+    STANDARD_INCLUDE_DIRS)
 
-include(CMakeDependentOption)
-cmake_dependent_option(VTK_MODULE_vtkhdf5_IS_SHARED "Whether the HDF5 in use is shared or not" ON
-  VTK_USE_SYSTEM_HDF5 OFF)
-mark_as_advanced(VTK_MODULE_vtkhdf5_IS_SHARED)
-if (VTK_MODULE_vtkhdf5_IS_SHARED)
-  set(H5_BUILT_AS_DYNAMIC_LIB 1)
-endif ()
+include(vtkDetectLibraryType)
+vtk_detect_library_shared(vtkhdf5 hdf5::hdf5)
+
+set(H5_BUILT_AS_DYNAMIC_LIB "${vtkhdf5_is_shared}")
 
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_hdf5.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
 
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
-    COMPONENT Development)
-endif()
+vtk_module_install_headers(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
