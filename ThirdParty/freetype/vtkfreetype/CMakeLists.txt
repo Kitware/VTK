@@ -93,10 +93,15 @@ IF (APPLE AND NOT VTK_USE_X)
   SET (VTKFREETYPE_MAC_FONT_SUPPORT 1)
 ENDIF ()
 
-#
-# Define the library (and install it)
-#
-VTK_ADD_LIBRARY (vtkfreetype ${FREETYPE_SRCS})
+vtk_module_add_module(VTK::freetype
+  SOURCES ${sources})
+target_compile_definitions(freetype
+  PRIVATE
+    FT2_BUILD_LIBRARY)
+target_include_directories(freetype
+  PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 #
 # Link to vtkzlib
@@ -106,37 +111,10 @@ TARGET_LINK_LIBRARIES(vtkfreetype ${vtkzlib_LIBRARIES})
 #
 # If we want freetype's Mac font support we need to link against
 # a couple of Mac OS X frameworks.
-#
-IF (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
-    TARGET_LINK_LIBRARIES (vtkfreetype "-framework ApplicationServices -framework CoreServices")
-ENDIF ()
-
-#
-# Create the configuration file
-#
-ADD_DEFINITIONS (-DFT2_BUILD_LIBRARY)
-CONFIGURE_FILE (${VTKFREETYPE_SOURCE_DIR}/include/vtkFreeTypeConfig.h.in
-                ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h)
-
-
-#
-# Install headers
-#
-#
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${VTKFREETYPE_SOURCE_DIR}/include/ft2build.h
-    ${VTKFREETYPE_SOURCE_DIR}/include/vtk_freetype_mangle.h
-    ${VTKFREETYPE_SOURCE_DIR}/include/vtk_ftmodule.h
-    ${VTKFREETYPE_BINARY_DIR}/include/vtkFreeTypeConfig.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include
-    COMPONENT Development)
-
-  file(GLOB freetype_headers 
-    "${VTKFREETYPE_SOURCE_DIR}/include/freetype/*.h")
-  INSTALL(FILES ${freetype_headers}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkfreetype/include/freetype
-    COMPONENT Development)
+if (APPLE AND VTKFREETYPE_MAC_FONT_SUPPORT)
+  target_link_libraries(freetype
+    "-framework ApplicationServices -framework CoreServices")
+endif ()
 
   file(GLOB freetype_config_headers 
     "${VTKFREETYPE_SOURCE_DIR}/include/freetype/config/*.h")
