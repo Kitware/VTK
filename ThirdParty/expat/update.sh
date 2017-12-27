@@ -15,6 +15,7 @@ expat/CMakeLists.txt
 expat/COPYING
 expat/ConfigureChecks.cmake
 expat/README.md
+expat/README.kitware.md
 expat/expat_config.h.cmake
 expat/lib/*.c
 expat/lib/*.h
