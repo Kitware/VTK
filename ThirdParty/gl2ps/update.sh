@@ -14,6 +14,7 @@ gl2ps.c
 gl2ps.h
 vtk_gl2ps_mangle.h
 
+.gitattributes
 CMakeLists.vtk.txt
 COPYING.GL2PS
 COPYING.LGPL
