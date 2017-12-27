@@ -4,6 +4,7 @@
   * [eigen](eigen/update.sh)
   * [exodusII](exodusII/update.sh)
   * [expat](expat/update.sh)
+  * [freetype](freetype/update.sh)
   * [gl2ps](gl2ps/update.sh)
   * [glew](glew/update.sh)
   * [jpeg](jpeg/update.sh)
