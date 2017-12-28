@@ -1,1 +1,0 @@
-vtk_module(vtkzfp EXCLUDE_FROM_WRAPPING)
