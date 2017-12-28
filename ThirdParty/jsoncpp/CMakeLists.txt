@@ -1,11 +1,15 @@
-include(CMakeDependentOption)
+vtk_module_third_party(
+  INTERNAL
+    LICENSE_FILES "vtkjsoncpp/LICENSE"
+    VERSION       "1.8.4"
+    STANDARD_INCLUDE_DIRS
+  EXTERNAL
+    PACKAGE JsonCpp
+    VERSION 0.7.0
+    TARGETS JsonCpp::JsonCpp
+    STANDARD_INCLUDE_DIRS)
 
-vtk_module_third_party(JsonCpp
-  VERSION 0.7.0)
-
-cmake_dependent_option(VTK_SYSTEM_JSONCPP_SHARED "Whether the system jsoncpp is shared or not" ON VTK_USE_SYSTEM_JSONCPP "${BUILD_SHARED_LIBS}")
-
-if (VTK_USE_SYSTEM_JSONCPP)
+if (VTK_MODULE_USE_EXTERNAL_vtkjsoncpp)
   if (EXISTS "${JsonCpp_INCLUDE_DIR}/json/json_forwards.h")
     set (JsonCpp_FORWARDING_HEADER_NAME "json_forwards.h")
   else ()
@@ -13,12 +17,18 @@ if (VTK_USE_SYSTEM_JSONCPP)
   endif ()
 endif ()
 
+include(vtkDetectLibraryType)
+vtk_detect_library_shared(vtkjsoncpp JsonCpp::JsonCpp)
+
+set(VTK_JSONCPP_SHARED "${vtkjsoncpp_is_shared}")
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtk_jsoncpp.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp.h")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_jsoncpp_fwd.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp_fwd.h")
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(
-    FILES       "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp_fwd.h"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
-    COMPONENT   Development)
-endif ()
+
+vtk_module_install_headers(
+  FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp.h"
+        "${CMAKE_CURRENT_BINARY_DIR}/vtk_jsoncpp_fwd.h")
