@@ -8,7 +8,7 @@ readonly name="utf8"
 readonly ownership="utf8cpp Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/utfcpp.git"
-readonly tag="for/vtk-old"
+readonly tag="for/vtk-20181015-2.3.4"
 readonly paths="
 v2_0/.gitattributes
 v2_0/LICENSE
