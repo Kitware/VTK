@@ -16,8 +16,9 @@
 #define vtk_jpeg_h
 
 /* Use the jpeg library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_JPEG
-#ifdef VTK_USE_SYSTEM_JPEG
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkjpeg
+
+#if VTK_MODULE_USE_EXTERNAL_vtkjpeg
   /* Work-around for a conflict between windows.h and jpeglib.h in cygwin.
      If ADDRESS_TAG_BIT is defined then BaseTsd.h has been included and
      INT32 has been defined with a typedef, so we must define XMD_H to
