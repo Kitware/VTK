@@ -13,6 +13,7 @@
   * [kwsys](../Utilities/KWSys/update.sh)
   * [libproj](libproj/update.sh)
   * [libharu](libharu/update.sh)
+  * [libxml2](libxml2/update.sh)
   * [lz4](lz4/update.sh)
   * [metaio](../Utilities/MetaIO/update.sh)
   * [mpi4py](mpi4py/update.sh)
