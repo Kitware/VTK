@@ -16,18 +16,9 @@
 #define vtk_libxml2_h
 
 /* Use the libxml2 library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_LIBXML2
-#ifdef VTK_USE_SYSTEM_LIBXML2
-# define VTKLIBXML2_HEADER_DIR libxml
-#else
-# define VTKLIBXML2_HEADER_DIR vtklibxml2/libxml
-# include "vtkConfigure.h"
-# ifndef VTK_BUILD_SHARED_LIBS
-#  ifndef LIBXML_STATIC
-#   define LIBXML_STATIC
-#  endif
-# endif
-#endif
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtklibxml2
+
+#cmakedefine LIBXML_STATIC
 
 /* Macro to help include a header file from the libxml2 configured for
    VTK.  Since libxml2 has many public header files we cannot just
@@ -38,11 +29,12 @@
    #include "vtk_libxml2.h"
    #include VTKLIBXML2_HEADER(xmlstring.h)
 */
-#define VTKLIBXML2_HEADER(x)  VTKLIBXML2_HEADER0(VTKLIBXML2_HEADER_DIR/x)
-#define VTKLIBXML2_HEADER0(x) VTKLIBXML2_HEADER1(x)
-#define VTKLIBXML2_HEADER1(x) <x>
+#if VTK_MODULE_USE_EXTERNAL_vtklibxml2
+#define VTKLIBXML2_HEADER(x)  <libxml/x>
+#else
+#define VTKLIBXML2_HEADER(x)  <vtklibxml2/include/libxml/x>
+#endif
 
-/* Include the top-level header here.  */
 #include VTKLIBXML2_HEADER(xmlversion.h)
 
 #endif

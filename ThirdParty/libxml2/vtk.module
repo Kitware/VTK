@@ -1,0 +1,7 @@
+NAME
+  VTK::libxml2
+LIBRARY_NAME
+  vtklibxml2
+DEPENDS
+  VTK::zlib
+THIRD_PARTY
