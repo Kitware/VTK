@@ -20,6 +20,7 @@
   * [png](png/update.sh)
   * [sqlite](sqlite/update.sh)
   * [tiff](tiff/update.sh)
+  * [theora](theora/update.sh)
   * [xdmf3](xdmf3/update.sh)
   * [zfp](zfp/update.sh)
   * [zlib](zlib/update.sh)
