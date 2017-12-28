@@ -20,6 +20,7 @@ extract_source () {
     python amalgamate.py
     [ -n "$paths" ] && \
         mv -v $paths "dist"
+    mv "json/vtkjsoncpp_config.h.in" "dist/json"
     mv "dist/CMakeLists.vtk.txt" "dist/CMakeLists.txt"
     mv "dist" "$name-reduced"
     tar -cv "$name-reduced/" | \
