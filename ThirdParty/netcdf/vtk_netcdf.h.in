@@ -16,9 +16,9 @@
 #define vtk_netcdf_h
 
 /* Use the netcdf library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_NETCDF
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtknetcdf
 
-#ifdef VTK_USE_SYSTEM_NETCDF
+#if VTK_MODULE_USE_EXTERNAL_vtknetcdf
 # include <netcdf.h>
 #else
 # include <vtknetcdf/include/netcdf.h>

@@ -1,0 +1,7 @@
+NAME
+  VTK::netcdf
+LIBRARY_NAME
+  vtknetcdf
+DEPENDS
+  VTK::hdf5
+THIRD_PARTY
