@@ -11,14 +11,15 @@ readonly repo="https://gitlab.kitware.com/third-party/lz4.git"
 readonly tag="for/vtk"
 
 readonly paths="
-lib/LICENSE
-lib/README.md
-lib/*.h
 lib/*.c
-README.md
-CMakeLists.txt
+lib/*.h
 
 .gitattributes
+lib/LICENSE
+lib/README.md
+README.md
+README.kitware.md
+CMakeLists.txt
 "
 
 extract_source () {
