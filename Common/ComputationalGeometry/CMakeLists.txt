@@ -1,29 +1,29 @@
-set(Module_SRCS
-  vtkCardinalSpline.cxx
-  vtkKochanekSpline.cxx
-  vtkParametricBoy.cxx
-  vtkParametricConicSpiral.cxx
-  vtkParametricCrossCap.cxx
-  vtkParametricDini.cxx
-  vtkParametricEllipsoid.cxx
-  vtkParametricEnneper.cxx
-  vtkParametricFigure8Klein.cxx
-  vtkParametricFunction.cxx
-  vtkParametricKlein.cxx
-  vtkParametricMobius.cxx
-  vtkParametricRandomHills.cxx
-  vtkParametricRoman.cxx
-  vtkParametricSpline.cxx
-  vtkParametricSuperEllipsoid.cxx
-  vtkParametricSuperToroid.cxx
-  vtkParametricTorus.cxx
-  vtkParametricKuen.cxx
-  vtkParametricPseudosphere.cxx
-  vtkParametricBohemianDome.cxx
-  vtkParametricHenneberg.cxx
-  vtkParametricCatalanMinimal.cxx
-  vtkParametricBour.cxx
-  vtkParametricPluckerConoid.cxx
-  )
+set(classes
+  vtkCardinalSpline
+  vtkKochanekSpline
+  vtkParametricBohemianDome
+  vtkParametricBour
+  vtkParametricBoy
+  vtkParametricCatalanMinimal
+  vtkParametricConicSpiral
+  vtkParametricCrossCap
+  vtkParametricDini
+  vtkParametricEllipsoid
+  vtkParametricEnneper
+  vtkParametricFigure8Klein
+  vtkParametricFunction
+  vtkParametricHenneberg
+  vtkParametricKlein
+  vtkParametricKuen
+  vtkParametricMobius
+  vtkParametricPluckerConoid
+  vtkParametricPseudosphere
+  vtkParametricRandomHills
+  vtkParametricRoman
+  vtkParametricSpline
+  vtkParametricSuperEllipsoid
+  vtkParametricSuperToroid
+  vtkParametricTorus)
 
-vtk_module_library(vtkCommonComputationalGeometry ${Module_SRCS})
+vtk_module_add_module(VTK::CommonComputationalGeometry
+  CLASSES ${classes})
