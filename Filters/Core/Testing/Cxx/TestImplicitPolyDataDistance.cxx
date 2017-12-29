@@ -25,29 +25,21 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkTesting.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
 #include <vector>
 
 int TestImplicitPolyDataDistance(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkTesting> testHelper =
-    vtkSmartPointer<vtkTesting>::New();
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified.";
-    return EXIT_FAILURE;
-  }
-
-  std::string dataRoot = testHelper->GetDataRoot();
-  std::string fileName = dataRoot + "/Data/CuspySurface.vtp";
+  char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CuspySurface.vtp");
   std::cout << fileName << std::endl;
 
   // Set up reader
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName(fileName.c_str());
+  reader->SetFileName(fileName);
+  delete[] fileName;
   reader->Update();
 
   // Set up distance calculator

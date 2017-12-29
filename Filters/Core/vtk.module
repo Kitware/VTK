@@ -1,0 +1,35 @@
+NAME
+  VTK::FiltersCore
+LIBRARY_NAME
+  vtkFiltersCore
+DESCRIPTION
+  Common filters for VTK data types
+IMPLEMENTABLE
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::IOExodus
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingRendering

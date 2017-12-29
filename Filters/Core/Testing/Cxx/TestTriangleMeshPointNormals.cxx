@@ -23,29 +23,21 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTesting.h"
+#include "vtkTestUtilities.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTriangleMeshPointNormals.h"
 #include "vtkXMLPolyDataReader.h"
 
 int TestTriangleMeshPointNormals(int argc, char* argv[])
 {
-  vtkSmartPointer<vtkTesting> testHelper =
-    vtkSmartPointer<vtkTesting>::New();
-  testHelper->AddArguments(argc, argv);
-  if (!testHelper->IsFlagSpecified("-D"))
-  {
-    std::cerr << "Error: -D /path/to/data was not specified.";
-    return EXIT_FAILURE;
-  }
-
-  std::string dataRoot = testHelper->GetDataRoot();
-  std::string fileName = dataRoot + "/Data/cow.vtp";
+  char* fileName =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
   std::cout << fileName << std::endl;
 
   // reader
   vtkNew<vtkXMLPolyDataReader> reader;
-  reader->SetFileName(fileName.c_str());
+  reader->SetFileName(fileName);
+  delete[] fileName;
 
   // triangle filter
   vtkNew<vtkTriangleFilter> triFilter;
