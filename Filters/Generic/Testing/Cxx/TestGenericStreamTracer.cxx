@@ -67,7 +67,6 @@ int TestGenericStreamTracer(int argc, char* argv[])
   // Load the mesh geometry and data from a file
   vtkStructuredGridReader *reader = vtkStructuredGridReader::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/office.binary.vtk");
-  //char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
   reader->SetFileName( cfname );
   delete[] cfname;
 
