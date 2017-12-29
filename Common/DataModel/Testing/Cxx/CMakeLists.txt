@@ -92,19 +92,19 @@ list(APPEND data_tests TestPolyhedron2.cxx TestPolyhedronContouring.cxx TestPoly
 vtk_add_test_cxx(vtkCommonDataModelCxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
   )
-ExternalData_add_test(VTKData
-  NAME TestPolyhedron2
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::CommonDataModelCxxTests-TestPolyhedron2
   COMMAND vtkCommonDataModelCxxTests TestPolyhedron2
   -D DATA{../Data/polyhedron_mesh.vtu}
   )
-ExternalData_add_test(VTKData
-  NAME TestPolyhedronContouring
-  COMMAND ${vtk-module}CxxTests TestPolyhedronContouring
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::CommonDataModelCxxTests-TestPolyhedronContouring
+  COMMAND vtkCommonDataModelCxxTests TestPolyhedronContouring
    DATA{../Data/cell_850113.vtu} DATA{../Data/cell_12851_26.vtu}
   )
-ExternalData_add_test(VTKData
-  NAME TestPolyhedronCutter
-  COMMAND ${vtk-module}CxxTests TestPolyhedronCutter
+ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
+  NAME VTK::CommonDataModelCxxTests-TestPolyhedronCutter
+  COMMAND vtkCommonDataModelCxxTests TestPolyhedronCutter
   DATA{../Data/onePolyhedron.vtu} DATA{../Data/sliceOfPolyhedron.vtu}
   )
 

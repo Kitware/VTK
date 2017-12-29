@@ -75,10 +75,6 @@ int TestSmoothErrorMetric(int argc, char* argv[])
   vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
     vtkSmartPointer< vtkXMLUnstructuredGridReader>::New();
   char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadraticTetra01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadTet2.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Test2_Volume.vtu");
-// char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadHexa01.vtu");
-//  char *cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/quadQuad01.vtu");
 
   reader->SetFileName( cfname );
   delete[] cfname;
