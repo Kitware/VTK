@@ -1,0 +1,27 @@
+NAME
+  VTK::RenderingContext2D
+LIBRARY_NAME
+  vtkRenderingContext2D
+IMPLEMENTABLE
+KIT
+  VTK::Rendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::RenderingFreeType
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::FiltersModeling
+  VTK::IOXML
+  VTK::RenderingContextOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D
