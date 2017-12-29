@@ -67,5 +67,5 @@ vtk_test_cxx_executable(vtkFiltersGeneralCxxTests all_tests
 if(NOT VTK_TEST_TIMEOUT_TestYoungsMaterialInterface)
   set(VTK_TEST_TIMEOUT_TestYoungsMaterialInterface 300)
 endif()
-set_tests_properties(vtkFiltersGeneralCxx-TestYoungsMaterialInterface
+set_tests_properties(VTK::FiltersGeneralCxx-TestYoungsMaterialInterface
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestYoungsMaterialInterface})
