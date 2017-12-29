@@ -1,3 +1,4 @@
+if (FALSE)
 # Copyright (c) 2003,2006 Sandia National Laboratories <cubit@sandia.gov>
 cmake_minimum_required(VERSION 2.8.2)
 
@@ -11,6 +12,7 @@ foreach(p
     cmake_policy(SET ${p} NEW)
   endif()
 endforeach()
+endif ()
 
 project(verdict)
 
@@ -20,11 +22,20 @@ set( verdict_BUILD_VERSION "0")
 set( verdict_VERSION_FLAT "${verdict_MAJOR_VERSION}${verdict_MINOR_VERSION}${verdict_BUILD_VERSION}" )
 set( verdict_VERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}.${verdict_BUILD_VERSION}" )
 
+if (FALSE)
 option(VERDICT_BUILD_DOC "Build the 2007 Verdict User Manual" OFF)
 option(VERDICT_MANGLE "Mangle verdict names for inclusion in a larger library?" OFF)
+else ()
+set(VERDICT_BUILD_DOC OFF)
+set(VERDICT_MANGLE ON)
+endif ()
 if ( VERDICT_MANGLE )
+  if (FALSE)
   set( VERDICT_MANGLE_PREFIX "" CACHE STRING "A string to prepend to all verdict function names and classes." )
   mark_as_advanced( VERDICT_MANGLE_PREFIX )
+  else ()
+  set(VERDICT_MANGLE_PREFIX "vtkverdict_")
+  endif ()
   configure_file(
     ${verdict_SOURCE_DIR}/verdict_mangle.h.in
     ${verdict_BINARY_DIR}/verdict_mangle.h
@@ -32,8 +43,12 @@ if ( VERDICT_MANGLE )
 endif ()
 mark_as_advanced( VERDICT_MANGLE )
 
+if (FALSE)
 option( VERDICT_ENABLE_TESTING "Should tests of the VERDICT library be built?" OFF )
 mark_as_advanced(VERDICT_BUILD_DOC VERDICT_ENABLE_TESTING)
+else ()
+set(VERDICT_ENABLE_TESTING OFF)
+endif ()
 
 include_directories(
   ${verdict_BINARY_DIR}
@@ -59,6 +74,7 @@ configure_file(
   @ONLY
 )
 
+if (FALSE)
 if ( VERDICT_MANGLE )
   set( verdict_LIBRARY "${VERDICT_MANGLE_PREFIX}verdict" )
 else ()
@@ -76,10 +92,18 @@ if ( NOT VERDICT_NO_LIBRARY_VERSION )
     SOVERSION "${verdict_MAJOR_VERSION}.${verdict_MINOR_VERSION}"
   )
 endif ()
+endif ()
 
+if (FALSE)
 add_library( ${verdict_LIBRARY} ${verdict_SRCS} )
+else ()
+set(verdict_LIBRARY verdict)
+vtk_module_add_module(VTK::verdict
+  SOURCES ${verdict_SRCS})
+endif ()
 set_target_properties( ${verdict_LIBRARY} PROPERTIES DEFINE_SYMBOL verdict_EXPORTS)
 
+if (FALSE)
 # Apply user-defined properties to the library targets.
 if ( VERDICT_LIBRARY_PROPERTIES )
   set_target_properties( ${verdict_LIBRARY}
@@ -127,7 +151,7 @@ endif ()
 #
 # Installation stuff
 #
-IF(NOT verdict_INSTALL_NO_DEVELOPMENT)
+IF(NOT verdict_INSTALL_NO_DEVELOPMENT AND FALSE)
   install(FILES
     README
     Verdict.htm
@@ -202,4 +226,6 @@ if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
     #set (CPACK_PACKAGE_EXECUTABLES "")
   endif ()
   include(CPack)
+endif ()
+
 endif ()

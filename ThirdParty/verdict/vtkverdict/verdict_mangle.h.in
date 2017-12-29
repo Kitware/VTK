@@ -97,6 +97,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define v_tet_condition @VERDICT_MANGLE_PREFIX@_v_tet_condition
 #define v_tet_distortion @VERDICT_MANGLE_PREFIX@_v_tet_distortion
 #define v_tet_edge_ratio @VERDICT_MANGLE_PREFIX@_v_tet_edge_ratio
+#define v_tet_equivolume_skew @VERDICT_MANGLE_PREFIX@_v_tet_equivolume_skew
 #define v_tet_jacobian @VERDICT_MANGLE_PREFIX@_v_tet_jacobian
 #define v_tet_minimum_angle @VERDICT_MANGLE_PREFIX@_v_tet_minimum_angle
 #define v_tet_quality @VERDICT_MANGLE_PREFIX@_v_tet_quality
@@ -105,6 +106,7 @@ used when the shared library is loaded/unloaded from an executable.
 #define v_tet_scaled_jacobian @VERDICT_MANGLE_PREFIX@_v_tet_scaled_jacobian
 #define v_tet_shape @VERDICT_MANGLE_PREFIX@_v_tet_shape
 #define v_tet_shape_and_size @VERDICT_MANGLE_PREFIX@_v_tet_shape_and_size
+#define v_tet_squish_index @VERDICT_MANGLE_PREFIX@_v_tet_squish_index
 #define v_tet_volume @VERDICT_MANGLE_PREFIX@_v_tet_volume
 #define v_tri_area @VERDICT_MANGLE_PREFIX@_v_tri_area
 #define v_tri_aspect_frobenius @VERDICT_MANGLE_PREFIX@_v_tri_aspect_frobenius
