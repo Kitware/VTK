@@ -1,9 +1,3 @@
-if(VTK_VPIC_USE_MPI)
-  find_package(MPI REQUIRED)
-  include_directories(SYSTEM ${MPI_INCLUDE_PATH})
-  add_definitionS("-DMPICH_IGNORE_CXX_SEEK")
-endif()
-
 set(Module_SRCS
   vtkVPICReader.cxx
   )

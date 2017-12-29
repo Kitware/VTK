@@ -7,7 +7,7 @@ vtk_module(vtkIOVPIC
     vtkParallel
   DEPENDS
     vtkCommonExecutionModel
-    vtkVPIC
+    vtkvpic
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkCommonDataModel
