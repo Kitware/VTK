@@ -1,0 +1,16 @@
+NAME
+  VTK::CommonSystem
+LIBRARY_NAME
+  vtkCommonSystem
+DESCRIPTION
+  Filesystem and networking support
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
