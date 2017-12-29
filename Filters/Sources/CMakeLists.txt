@@ -1,42 +1,40 @@
-set(Module_SRCS
-  vtkArcSource.cxx
-  vtkArrowSource.cxx
-  vtkButtonSource.cxx
-  vtkCellTypeSource.cxx
-  vtkConeSource.cxx
-  vtkCubeSource.cxx
-  vtkCylinderSource.cxx
-  vtkDiskSource.cxx
-  vtkEllipseArcSource.cxx
-  vtkEllipticalButtonSource.cxx
-  vtkFrustumSource.cxx
-  vtkGlyphSource2D.cxx
-  vtkHyperTreeGridSource.cxx
-  vtkLineSource.cxx
-  vtkOutlineCornerFilter.cxx
-  vtkOutlineCornerSource.cxx
-  vtkOutlineSource.cxx
-  vtkParametricFunctionSource.cxx
-  vtkPlaneSource.cxx
-  vtkPlatonicSolidSource.cxx
-  vtkPointSource.cxx
-  vtkPolyLineSource.cxx
-  vtkProgrammableDataObjectSource.cxx
-  vtkProgrammableSource.cxx
-  vtkRandomHyperTreeGridSource.cxx
-  vtkRectangularButtonSource.cxx
-  vtkRegularPolygonSource.cxx
-  #vtkRRandomTableSource.cxx # Should be in R kit
-  #vtkSectorSource.cxx # Needs vtkRotationalExtrusionFilter
-  vtkSelectionSource.cxx
-  vtkSphereSource.cxx
-  vtkSuperquadricSource.cxx
-  vtkTessellatedBoxSource.cxx
-  vtkTextSource.cxx
-  vtkTexturedSphereSource.cxx
-  vtkUniformHyperTreeGridSource.cxx
-  vtkGraphToPolyData.cxx
-  vtkDiagonalMatrixSource.cxx
-  )
+set(classes
+  vtkArcSource
+  vtkArrowSource
+  vtkButtonSource
+  vtkCellTypeSource
+  vtkConeSource
+  vtkCubeSource
+  vtkCylinderSource
+  vtkDiagonalMatrixSource
+  vtkDiskSource
+  vtkEllipseArcSource
+  vtkEllipticalButtonSource
+  vtkFrustumSource
+  vtkGlyphSource2D
+  vtkGraphToPolyData
+  vtkHyperTreeGridSource
+  vtkLineSource
+  vtkOutlineCornerFilter
+  vtkOutlineCornerSource
+  vtkOutlineSource
+  vtkParametricFunctionSource
+  vtkPlaneSource
+  vtkPlatonicSolidSource
+  vtkPointSource
+  vtkPolyLineSource
+  vtkProgrammableDataObjectSource
+  vtkProgrammableSource
+  vtkRandomHyperTreeGridSource
+  vtkRectangularButtonSource
+  vtkRegularPolygonSource
+  vtkSelectionSource
+  vtkSphereSource
+  vtkSuperquadricSource
+  vtkTessellatedBoxSource
+  vtkTextSource
+  vtkTexturedSphereSource
+  vtkUniformHyperTreeGridSource)
 
-vtk_module_library(vtkFiltersSources ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersSources
+  CLASSES ${classes})
