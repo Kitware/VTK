@@ -41,6 +41,7 @@ zutil.h
 
 zconf.h.cmakein
 
+.gitattributes
 ChangeLog
 README
 README.kitware.md
