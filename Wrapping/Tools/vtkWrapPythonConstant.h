@@ -31,3 +31,4 @@ void vtkWrapPython_AddPublicConstants(
   NamespaceInfo *data);
 
 #endif /* vtkWrapPythonConstant_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonConstant.h */

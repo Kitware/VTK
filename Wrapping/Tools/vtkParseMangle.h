@@ -51,3 +51,4 @@ size_t vtkParse_MangledLiteral(const char *name, char *new_name);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseMangle.h */

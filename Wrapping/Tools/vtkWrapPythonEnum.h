@@ -43,3 +43,4 @@ void vtkWrapPython_AddPublicEnumTypes(
   NamespaceInfo *data);
 
 #endif /* vtkWrapPythonEnum_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonEnum.h */

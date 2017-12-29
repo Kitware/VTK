@@ -281,3 +281,4 @@
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseType.h */

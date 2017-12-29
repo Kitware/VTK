@@ -28,3 +28,4 @@ int vtkWrapPython_WrapTemplatedClass(
   FILE *fp, ClassInfo *data, FileInfo *file_info, HierarchyInfo *hinfo);
 
 #endif /* vtkWrapPythonTemplate_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonTemplate.h */

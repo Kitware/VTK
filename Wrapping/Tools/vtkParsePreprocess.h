@@ -253,3 +253,4 @@ void vtkParsePreprocess_Free(PreprocessInfo *info);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParsePreprocess.h */

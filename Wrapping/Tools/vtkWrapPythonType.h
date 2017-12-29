@@ -29,3 +29,4 @@ void vtkWrapPython_GenerateSpecialType(
   ClassInfo *data, FileInfo *finfo, HierarchyInfo *hinfo);
 
 #endif /* vtkWrapPythonType_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonType.h */

@@ -224,3 +224,4 @@ const char **vtkParse_GetArrayTypes(void);
 #endif
 
 #endif
+/* VTK-HeaderTest-Exclude: vtkParseExtras.h */

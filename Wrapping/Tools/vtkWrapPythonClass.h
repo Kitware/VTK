@@ -40,3 +40,4 @@ void vtkWrapPython_ClassDoc(
   int is_vtkobject);
 
 #endif /* vtkWrapPythonClass_h */
+/* VTK-HeaderTest-Exclude: vtkWrapPythonClass.h */
