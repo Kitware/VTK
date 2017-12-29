@@ -62,7 +62,9 @@ foreach(vtk_type IN ITEMS Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Floa
       "${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.cxx.in"
       "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx"
       @ONLY)
-    list(APPEND Module_SRCS
+    list(APPEND sources
       "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx")
+    list(APPEND headers
+      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.h")
   endif()
 endforeach()

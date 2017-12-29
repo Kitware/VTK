@@ -49,7 +49,6 @@ include(vtkTesting)
 include(vtkDirectories)
 include(vtkMobileDevices)
 include(vtkCrossCompiling)
-include(vtkThreads)
 include(vtkWrapSettings)
 include(vtkObjectFactory)
 

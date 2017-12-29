@@ -3,7 +3,7 @@ if(NOT WIN32)
   if(NOT DEFINED VTK_HAVE_SYNC_BUILTINS)
     message(STATUS "Checking for builtin __sync_add_and_fetch")
     try_compile(VTK_TEST_SYNC_BUILTINS_COMPILED
-      ${VTK_BINARY_DIR}/CMakeTmp/Sync
+      ${CMAKE_CURRENT_BINARY_DIR}/CMakeTmp/Sync
       ${CMAKE_CURRENT_SOURCE_DIR}/vtkTestSyncBuiltins.cxx
       OUTPUT_VARIABLE OUTPUT)
     if(VTK_TEST_SYNC_BUILTINS_COMPILED)
