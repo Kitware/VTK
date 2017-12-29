@@ -255,6 +255,10 @@ if (VTK_WRAP_PYTHON)
   add_subdirectory(Wrapping/Python)
 endif ()
 
+if (VTK_WRAP_JAVA)
+  add_subdirectory(Wrapping/Java)
+endif ()
+
 set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 

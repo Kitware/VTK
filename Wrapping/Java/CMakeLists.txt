@@ -1,5 +1,89 @@
-find_package(Java REQUIRED)
-find_package(JNI REQUIRED)
+include(vtkModuleWrapJava)
+vtk_module_wrap_java(
+  JAVA_OUTPUT     "${CMAKE_CURRENT_BINARY_DIR}/src/vtk"
+  MODULES         ${vtk_modules}
+  WRAPPED_MODULES vtk_java_wrapped_modules)
+
+option(VTK_JAVA_SWT_COMPONENT "Enable the SWT component for Java" OFF)
+if (VTK_JAVA_SWT_COMPONENT)
+  find_package(SWT REQUIRED)
+endif ()
+
+find_package(Java REQUIRED COMPONENTS Development)
+
+set(java_sources
+  vtk/CellType
+  vtk/vtkJavaGarbageCollector
+  vtk/vtkJavaMemoryManager
+  vtk/vtkJavaMemoryManagerImpl
+  vtk/vtkReferenceInformation)
+
+if (TARGET VTK::RenderingCore)
+  list(APPEND java_sources
+    vtk/AxesActor)
+
+  if (TARGET VTK::RenderingTesting)
+    list(APPEND java_sources
+      vtk/vtkJavaTesting)
+  endif ()
+
+  if (TARGET VTK::IOImage)
+    list(APPEND java_sources
+      vtk/vtkPanel
+
+      vtk/rendering/vtkAbstractComponent
+      vtk/rendering/vtkAbstractEventInterceptor
+      vtk/rendering/vtkComponent
+      vtk/rendering/vtkEventInterceptor
+      vtk/rendering/vtkInteractorForwarder
+
+      vtk/rendering/awt/vtkAwtComponent
+      vtk/rendering/awt/vtkInternalAwtComponent
+      vtk/rendering/awt/vtkPanelComponent
+
+      vtk/sample/Demo
+      vtk/sample/InternalFrames
+      vtk/sample/ReleaseVtkPanel
+      vtk/sample/SimpleVTK
+      vtk/sample/VTKCanvas
+
+      vtk/sample/rendering/AwtConeRendering
+      vtk/sample/rendering/annotation/LabeledCubeAxesActor)
+
+    if (VTK_JAVA_SWT_COMPONENT)
+      list(APPEND java_sources
+        vtk/rendering/swt/vtkInternalSwtComponent
+        vtk/rendering/swt/vtkSwtComponent
+        vtk/rendering/swt/vtkSwtInteractorForwarderDecorator
+
+        vtk/sample/rendering/SwtConeRendering)
+    endif ()
+
+    if (VTK_JAVA_JOGL_COMPONENT)
+      list(APPEND java_sources
+        vtk/rendering/jogl/vtkAbstractJoglComponent
+        vtk/rendering/jogl/vtkJoglCanvasComponent
+        vtk/rendering/jogl/vtkJoglPanelComponent
+
+        vtk/sample/rendering/JoglConeRendering)
+    endif ()
+  endif ()
+endif ()
+
+if (TARGET VTK::InteractionWidgets)
+  list(APPEND java_sources
+    vtk/vtkCanvas)
+
+  if (TARGET VTK::RenderingCore)
+    list(APPEND java_sources
+      vtk/vtkRenderWindowPanel)
+  endif ()
+endif ()
+
+if (TARGET VTK::FiltersModeling AND TARGET VTK::IOImage)
+  list(APPEND java_sources
+    vtk/sample/ImagePlaneWidget)
+endif ()
 
 include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
