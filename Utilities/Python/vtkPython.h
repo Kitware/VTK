@@ -159,3 +159,4 @@ private:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPython.h
