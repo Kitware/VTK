@@ -1,0 +1,16 @@
+NAME
+  VTK::CommonMath
+LIBRARY_NAME
+  vtkCommonMath
+DESCRIPTION
+  Linear algebra types
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::TestingCore
