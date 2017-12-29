@@ -1,20 +1,20 @@
-set(Module_SRCS
-  vtkAbstractTransform.cxx
-  vtkCylindricalTransform.cxx
-  vtkGeneralTransform.cxx
-  vtkHomogeneousTransform.cxx
-  vtkIdentityTransform.cxx
-  vtkLinearTransform.cxx
-  vtkMatrixToHomogeneousTransform.cxx
-  vtkMatrixToLinearTransform.cxx
-  vtkPerspectiveTransform.cxx
-  vtkSphericalTransform.cxx
-  vtkThinPlateSplineTransform.cxx
-  vtkTransform2D.cxx
-  vtkTransformCollection.cxx
-  vtkTransform.cxx
-  vtkWarpTransform.cxx
-  vtkLandmarkTransform.cxx
-  )
+set(classes
+  vtkAbstractTransform
+  vtkCylindricalTransform
+  vtkGeneralTransform
+  vtkHomogeneousTransform
+  vtkIdentityTransform
+  vtkLandmarkTransform
+  vtkLinearTransform
+  vtkMatrixToHomogeneousTransform
+  vtkMatrixToLinearTransform
+  vtkPerspectiveTransform
+  vtkSphericalTransform
+  vtkThinPlateSplineTransform
+  vtkTransform
+  vtkTransform2D
+  vtkTransformCollection
+  vtkWarpTransform)
 
-vtk_module_library(vtkCommonTransforms ${Module_SRCS})
+vtk_module_add_module(VTK::CommonTransforms
+  CLASSES ${classes})

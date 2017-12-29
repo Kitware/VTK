@@ -1,0 +1,20 @@
+NAME
+  VTK::CommonTransforms
+LIBRARY_NAME
+  vtkCommonTransforms
+DESCRIPTION
+  Linear algebra transformations
+KIT
+  VTK::Common
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonMath
+PRIVATE_DEPENDS
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::InteractionImage
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
