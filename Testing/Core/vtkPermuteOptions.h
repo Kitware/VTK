@@ -13,6 +13,9 @@
 
 =========================================================================*/
 
+#ifndef vtkPermuteOptions_h
+#define vtkPermuteOptions_h
+
 #include <vtkTimeStamp.h>
 
 #include <cassert>
@@ -313,3 +316,6 @@ public:
     return this->NamePermutation(this->Permutations[this->CurrentPermutation]);
   }
 };
+
+#endif
+// VTK-HeaderTest-Exclude: vtkPermuteOptions.h

@@ -216,3 +216,4 @@ static float vtk_violet_red_medium[3] = { 0.7804, 0.0824, 0.5216 };
 static float vtk_violet_red_pale[3] = { 0.8588, 0.4392, 0.5765 };
 
 #endif // vtkTestingColors_h
+// VTK-HeaderTest-Exclude: vtkTestingColors.h

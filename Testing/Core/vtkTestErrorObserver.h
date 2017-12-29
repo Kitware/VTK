@@ -137,3 +137,4 @@ private:
 };
 }
 #endif
+// VTK-HeaderTest-Exclude: vtkTestErrorObserver.h

@@ -24,3 +24,4 @@
 
 #include <vtksys/SystemInformation.hxx> // for stacktrace
 #endif
+// VTK-HeaderTest-Exclude: vtkTestDriver.h

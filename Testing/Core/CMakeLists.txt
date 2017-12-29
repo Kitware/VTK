@@ -1,44 +1,36 @@
-vtk_module_export_info()
-set(Module_HDRS
+set(headers
   vtkPermuteOptions.h
-  vtkTestConditionals.txx
   vtkTestDriver.h
   vtkTestErrorObserver.h
   vtkTestingColors.h
-  vtkTestUtilities.h
-  )
-if(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  install(FILES ${Module_HDRS}
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}
-    COMPONENT Development
-    )
-endif()
+  vtkTestUtilities.h)
 
-include(vtkTestingMacros)
+set(templates
+  vtkTestConditionals.txx)
 
-########################################################################
-#gather and package information for a test (TestSystemInformation)
-#so that we can inspect the dashboard and see what each submitter
-#was testing exactly
-set(_modules ${VTK_MODULES_ENABLED})
-set(_modules_not_tests)
-list(SORT _modules)
-foreach(vtk-module ${_modules})
-  if(NOT ${vtk-module}_IS_TEST)
-    set(_modules_not_tests "${_modules_not_tests}\"${vtk-module}\",\n")
-  endif()
-endforeach()
+vtk_module_add_module(VTK::TestingCore
+  HEADERS   ${headers}
+  TEMPLATES ${templates}
+  HEADER_ONLY)
 
-set(_modules ${VTK_MODULES_ENABLED})
-set(_modules_system)
-set(_modules_system_libs)
-list(SORT _modules)
-foreach(vtk-module ${_modules})
-  string(TOUPPER "${vtk-module}" _upper)
-  if(${VTK_USE_SYSTEM_${_upper}})
-     set(_modules_system "${_modules_system}VTK_USE_SYSTEM_${_upper},\n")
-     set(_modules_system_libs "${_modules_system_libs}\"${_upper}_LIBRARY\",\n")
-   endif()
-endforeach()
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ConfigSummary.txt.in ${PROJECT_BINARY_DIR}/Testing/Temporary/ConfigSummary.txt)
+# Write out a summary of the configuration for use in the
+# `TestSystemInformation` test.
+set(system_info_file "${CMAKE_BINARY_DIR}/Testing/Temporary/ConfigSummary.txt")
+file(WRITE "${system_info_file}")
+set(built_modules "${vtk_modules}")
+list(SORT built_modules)
+foreach (module IN LISTS built_modules)
+  get_property(is_third_party GLOBAL
+    PROPERTY "_vtk_module_${module}_third_party")
+  if (is_third_party)
+    if (VTK_MODULE_USE_EXTERNAL_${module})
+      set(module_text "${module} (external)")
+    else ()
+      set(module_text "${module} (internal)")
+    endif ()
+  else ()
+    set(module_text "${module}")
+  endif ()
+  file(APPEND "${system_info_file}"
+    "${module_text}\n")
+endforeach ()
