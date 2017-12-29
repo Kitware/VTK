@@ -1,29 +1,27 @@
-set(Module_SRCS
-  vtkCompositeDataGeometryFilter.cxx
-  vtkGeometryFilter.cxx
-  vtkHierarchicalDataSetGeometryFilter.cxx
-  vtkImageDataGeometryFilter.cxx
-  vtkImageDataToUniformGrid.cxx
-  vtkLinearToQuadraticCellsFilter.cxx
-  vtkProjectSphereFilter.cxx
-  vtkRectilinearGridGeometryFilter.cxx
-  vtkStructuredGridGeometryFilter.cxx
-  vtkStructuredPointsGeometryFilter.cxx
-  vtkUnstructuredGridGeometryFilter.cxx
+set(classes
+  vtkAbstractGridConnectivity
+  vtkCompositeDataGeometryFilter
+  vtkDataSetGhostGenerator
+  vtkDataSetRegionSurfaceFilter
+  vtkDataSetSurfaceFilter
+  vtkGeometryFilter
+  vtkHierarchicalDataSetGeometryFilter
+  vtkImageDataGeometryFilter
+  vtkImageDataToUniformGrid
+  vtkLinearToQuadraticCellsFilter
+  vtkProjectSphereFilter
+  vtkRectilinearGridGeometryFilter
+  vtkRectilinearGridPartitioner
+  vtkStructuredAMRGridConnectivity
+  vtkStructuredAMRNeighbor
+  vtkStructuredGridConnectivity
+  vtkStructuredGridGeometryFilter
+  vtkStructuredGridGhostDataGenerator
+  vtkStructuredGridPartitioner
+  vtkStructuredNeighbor
+  vtkStructuredPointsGeometryFilter
+  vtkUniformGridGhostDataGenerator
+  vtkUnstructuredGridGeometryFilter)
 
-  vtkDataSetSurfaceFilter.cxx
-  vtkDataSetRegionSurfaceFilter.cxx
-
-  vtkAbstractGridConnectivity.cxx
-  vtkDataSetGhostGenerator.cxx
-  vtkRectilinearGridPartitioner.cxx
-  vtkStructuredAMRNeighbor.cxx
-  vtkStructuredAMRGridConnectivity.cxx
-  vtkStructuredGridConnectivity.cxx
-  vtkStructuredGridGhostDataGenerator.cxx
-  vtkStructuredGridPartitioner.cxx
-  vtkStructuredNeighbor.cxx
-  vtkUniformGridGhostDataGenerator.cxx
-  )
-
-vtk_module_library(vtkFiltersGeometry ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersGeometry
+  CLASSES ${classes})

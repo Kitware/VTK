@@ -1,0 +1,28 @@
+NAME
+  VTK::FiltersGeometry
+LIBRARY_NAME
+  vtkFiltersGeometry
+DESCRIPTION
+  Geometric transformation filters
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
