@@ -230,3 +230,4 @@ extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFunc(void *);
 extern VTKWRAPPINGPYTHONCORE_EXPORT void vtkPythonVoidFuncArgDelete(void *);
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonUtil.h

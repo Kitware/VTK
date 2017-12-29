@@ -977,3 +977,4 @@ vtkPythonArgsTemplateMacro(
 #endif
 
 #endif
+// VTK-HeaderTest-Exclude: vtkPythonArgs.h
