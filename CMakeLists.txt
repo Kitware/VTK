@@ -208,6 +208,12 @@ if (vtk_required_modules OR vtk_unrecognized_modules)
     "${vtk_required_modules};${vtk_unrecognized_modules}.")
 endif ()
 
+list(FIND vtk_modules "VTK::Python" vtk_python_idx)
+if (NOT vtk_python_idx EQUAL "-1")
+  include(vtkModuleWrapPython)
+  vtk_module_python_default_destination(VTK_PYTHON_SITE_PACKAGES_SUFFIX)
+endif ()
+
 option(VTK_ENABLE_KITS "Enable kits compilation" OFF)
 mark_as_advanced(VTK_ENABLE_KITS)
 
@@ -242,7 +248,6 @@ vtk_module_graphviz(
 ExternalData_Add_Target(VTKData)
 
 if (VTK_WRAP_PYTHON)
-  include(vtkModuleWrapPython)
   vtk_module_wrap_python(
     MODULES         ${vtk_modules}
     INSTALL_EXPORT  VTK

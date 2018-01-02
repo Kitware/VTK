@@ -43,83 +43,79 @@ if (TARGET VTK::ParallelMPI)
   endif ()
 endif ()
 
-if (FALSE)
-# "Configure" files that need to be configured, including generation of the *.py
-# files for each of the enabled VTK modules.
-# We don't directly configure to `VTK_BUILD_PYTHON_MODULES_DIR` since of VS generator, the
-# `VTK_BUILD_PYTHON_MODULES_DIR` depends on build configuration not known at configure time.
-# So we configure into a temporary location and then copy those files over to
-# `VTK_BUILD_PYTHON_MODULES_DIR` using a custom_command.
+set(_vtk_python_imports)
+foreach (_vtk_python_module IN LISTS vtk_python_wrapped_modules)
+  get_property(_vtk_python_library_name
+    TARGET    "${_vtk_python_module}"
+    PROPERTY  "INTERFACE_vtk_module_library_name")
+  string(APPEND _vtk_python_imports
+    "from .${_vtk_python_library_name} import *\n")
+endforeach ()
 
-# Wrapping/Python/vtk/*.py
-unset(VTK_PYTHON_IMPORT_ALL)
-unset(configured_py_files)
-foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
-  set(VTK_PYTHON_IMPORT_ALL
-    "${VTK_PYTHON_IMPORT_ALL}from .${module} import *\n")
-  configure_file(vtkmodules/module.py.in
-    "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${module}.py" @ONLY)
-  list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${module}.py")
-endforeach()
-configure_file(vtkmodules/all.py.in
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/all.py" @ONLY)
-list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/all.py")
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkmodules/all.py.in"
+  "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
+  @ONLY)
+install(
+  FILES       "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules/all.py"
+  DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/vtkmodules")
 
-# Kit module adapters
-foreach(kit IN LISTS vtk_kits)
-  set(_module_kit ${kit}${VTK_KIT_SUFFIX})
-  foreach(dep IN LISTS _${kit}_modules)
-    configure_file(vtkmodules/kit_module.py.in
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${dep}.py" @ONLY)
-    list(APPEND configured_py_files "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules/${dep}.py")
-  endforeach()
-  unset(_module_kit)
-endforeach()
+set(python_files
+  vtk.py
+  vtkmodules/__init__.py
+  vtkmodules/gtk/GtkGLExtVTKRenderWindow.py
+  vtkmodules/gtk/GtkGLExtVTKRenderWindowInteractor.py
+  vtkmodules/gtk/GtkVTKRenderWindow.py
+  vtkmodules/gtk/GtkVTKRenderWindowInteractor.py
+  vtkmodules/gtk/__init__.py
+  vtkmodules/numpy_interface/__init__.py
+  vtkmodules/numpy_interface/algorithms.py
+  vtkmodules/numpy_interface/dataset_adapter.py
+  vtkmodules/numpy_interface/internal_algorithms.py
+  vtkmodules/qt/QVTKRenderWindowInteractor.py
+  vtkmodules/qt/__init__.py
+  vtkmodules/test/BlackBox.py
+  vtkmodules/test/Testing.py
+  vtkmodules/test/__init__.py
+  vtkmodules/tk/__init__.py
+  vtkmodules/tk/vtkLoadPythonTkWidgets.py
+  vtkmodules/tk/vtkTkImageViewerWidget.py
+  vtkmodules/tk/vtkTkPhotoImage.py
+  vtkmodules/tk/vtkTkRenderWidget.py
+  vtkmodules/tk/vtkTkRenderWindowInteractor.py
+  vtkmodules/util/__init__.py
+  vtkmodules/util/colors.py
+  vtkmodules/util/keys.py
+  vtkmodules/util/misc.py
+  vtkmodules/util/numpy_support.py
+  vtkmodules/util/vtkAlgorithm.py
+  vtkmodules/util/vtkConstants.py
+  vtkmodules/util/vtkImageExportToArray.py
+  vtkmodules/util/vtkImageImportFromArray.py
+  vtkmodules/util/vtkMethodParser.py
+  vtkmodules/util/vtkVariant.py
+  vtkmodules/wx/wxVTKRenderWindow.py
+  vtkmodules/wx/wxVTKRenderWindowInteractor.py)
 
-# Now copy configured files to build-cfg specific dir.
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
-  COMMAND ${CMAKE_COMMAND}
-          -E copy_directory "${CMAKE_CURRENT_BINARY_DIR}/vtkmodules" "${VTK_BUILD_PYTHON_MODULES_DIR}/vtkmodules"
-  COMMAND ${CMAKE_COMMAND}
-          -E touch "${CMAKE_CURRENT_BINARY_DIR}/copy-complete"
-  DEPENDS ${configured_py_files})
-
-
-# Build all py files that form the `vtk` package.
-vtk_python_package(vtkpython_pyc vtkmodules DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/copy-complete")
-vtk_python_module(vtk_python_module vtk.py)
-
-# Let's add a target that generates the `vtk` python package
-# including all the platform dependent and independent modules.
-set(module_Python_libs)
-foreach(module IN LISTS VTK_PYTHON_MODULES_AND_KITS)
-  list(APPEND module_Python_libs ${module}Python)
-endforeach()
-
-add_custom_target(vtk_python_package)
-add_dependencies(vtk_python_package vtkpython_pyc ${module_Python_libs})
-unset(module_Python_libs)
-
-if(TARGET vtkpython)
-  add_dependencies(vtkpython vtk_python_package)
-endif()
-if(TARGET pvtkpython)
-  add_dependencies(pvtkpython vtk_python_package)
-endif()
-
-# If no runtime is to be installed then do not install python modules.
-if(NOT VTK_INSTALL_NO_RUNTIME)
-  # Install the conveniently configured python interpretters
-  if(NOT VTK_INSTALL_NO_PYTHON_EXES AND VTK_ENABLE_VTKPYTHON)
-    # Install the vtkpython executable
-    install(TARGETS vtkpython
-      DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
-
-    if(PVTKPYTHON_EXECUTABLE)
-      # Install the mpi enabled vtkpython executable
-      install(TARGETS pvtkpython
-        DESTINATION ${VTK_INSTALL_RUNTIME_DIR})
-    endif()
-  endif()
-endif()
-endif ()
+set(python_copied_modules)
+foreach (python_file IN LISTS python_files)
+  set(output_python_file
+    "${CMAKE_BINARY_DIR}/${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/${python_file}")
+  add_custom_command(
+    OUTPUT  "${output_python_file}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/${python_file}"
+            "${output_python_file}"
+    COMMENT "Copying ${python_file} to the binary directory")
+  get_filename_component(python_file_directory "${python_file}" DIRECTORY)
+  install(
+    FILES       "${python_file}"
+    DESTINATION "${VTK_PYTHON_SITE_PACKAGES_SUFFIX}/${python_file_directory}"
+    COMPONENT   "python")
+  list(APPEND python_copied_modules
+    "${output_python_file}")
+endforeach ()
+add_custom_target(vtk_python_copy ALL
+  DEPENDS
+    ${python_copied_modules})
