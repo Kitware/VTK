@@ -69,7 +69,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 1. the normalized moments of the field
  * 2. the moments of the pattern
  * 1. the normalized moments of the pattern
- * the theory and the algorithm is decribed in Roxana Bujack and Hans Hagen:
+ * the theory and the algorithm is described in Roxana Bujack and Hans Hagen:
  * "Moment Invariants for Multi-Dimensional Data"
  * http://www.informatik.uni-leipzig.de/~bujack/2017TensorDagstuhl.pdf
  * @par Thanks:
@@ -362,7 +362,7 @@ private:
 
   /**
    * if the algorithm is not able to find dominant contractions for the normalization w.r.t.
-   * rotation, it has to default back to looking "everywhere". This paramter determines how fine
+   * rotation, it has to default back to looking "everywhere". This parameter determines how fine
    * this is performed in 2D, we divide phi=[0,...,2Pi] into that many equidistant steps in 3D, we
    * divide phi=[0,...,2Pi] into that many equidistant steps and theta=[0,...,Pi] in half that many
    * steps to determine the rotation axis. Then, we use anther AngleResolution different rotation
@@ -466,7 +466,7 @@ private:
    * main part of the pattern detetction
    * the moments of the field at each point are normalized and compared to the moments of the
    * pattern
-   * @param dominantContractions: the dominant contractions, i.e. vectors for the normailzation
+   * @param dominantContractions: the dominant contractions, i.e. vectors for the normalization
    * w.r.t. rotation
    * @param moments: the moments of the field
    * @param normalizedMoments: the moment invariants of the field
@@ -542,7 +542,7 @@ private:
     double radius);
 
   /** normalization of the pattern with respect to rotation and reflection
-   * @param dominantContractions: the vectors used for the normailzation
+   * @param dominantContractions: the vectors used for the normalization
    * @param isRotation: if the user wants normalization w.r.t rotation
    * @param isReflection: if the user wants normalization w.r.t reflection
    * @param moments: the moments at a given point
@@ -577,9 +577,9 @@ private:
     std::vector<vtkMomentsTensor>& dominantContractions,
     std::vector<vtkMomentsTensor>& moments);
 
-  /** if no dominant contractions could be found to be non-zero, the algorith defaults back to
-   * looking for all possible orientations of the given template the paramter AngleResolution
-   * determineswhat "everywhere" means in 2D, we divide phi=[0,...,2Pi] into that many equidistant
+  /** if no dominant contractions could be found to be non-zero, the algorithm defaults back to
+   * looking for all possible orientations of the given template the parameter AngleResolution
+   * determines what "everywhere" means in 2D, we divide phi=[0,...,2Pi] into that many equidistant
    * steps in 3D, we divide phi=[0,...,2Pi] into that many equidistant steps and theta=[0,...,Pi] in
    * half that many steps to determine the rotation axis. Then, we use anther AngleResolution
    * different rotation angles in [0,...,2Pi] to cover all positions
@@ -595,7 +595,7 @@ private:
   /** if only one dominant contraction could be found to be non-zero, but no second one to be
    * linearly independent from the first one, the algorithm, will rotate the first contraction to
    * the x-axis and the look for all possible orientations of the given template around this axis.
-   * In pricipal, it reduces the 3D problem to a 2D problem. the paramter AngleResolution determines
+   * In principal, it reduces the 3D problem to a 2D problem. the parameter AngleResolution determines
    * what "everywhere" means we divide phi=[0,...,2Pi] into that many equidistant steps
    * @param dominantContractions: the vectors used for the normalization
    * @param momentsPatternNormal: this contains all orientations of the moments of the pattern.
@@ -607,7 +607,7 @@ private:
 
   /**
    * this functions uses the moments, weighs them with their corresponding basis function and adds
-   * them up to approximate the value of the orignal function. The more moments are given, the
+   * them up to approximate the value of the original function. The more moments are given, the
    * better the approximation, like in a taylor series
    * @param p: the location (3D point) at which the reconstructed field is evaluated
    * @param moments: the moments at a given location, which is used for the reconstruction

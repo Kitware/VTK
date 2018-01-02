@@ -383,7 +383,7 @@ namespace {
   // Classify polyline segments----------------------------------------------
   // Entering this function the points are classified as either VERTEX,
   // INTERSECTION, MULT_INTS, or ON. Combine this information to classify each
-  // segment of the polyline. Note that whenever possible a pervious segment
+  // segment of the polyline. Note that whenever possible a previous segment
   // classification is propagated to the next segment to avoid extra in/out tests.
   int ClassifyPolyline(SortedPointsType &sortedPoints, vtkIdType npts, double *p,
                        double bds[6], double n[3])
@@ -447,7 +447,7 @@ namespace {
   // Classify polygon segments----------------------------------------------
   // Entering this function the points are classified as either VERTEX,
   // INTERSECTION, MULT_INTS, or ON. Combine this information to classify each
-  // segment of the polygon. Note that whenever possible a pervious segment
+  // segment of the polygon. Note that whenever possible a previous segment
   // classification is propagated to the next segment to avoid extra in/out tests.
   // This deals with closed, modulo processing. Return a non-zero value if the
   // loop is complex, i.e., has a "ON" segment classification.

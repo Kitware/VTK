@@ -43,7 +43,7 @@ public:
   const double *V;
   double L2;
 
-  // Contructor
+  // Constructor
   vtkElevationAlgorithm();
 
   // Interface between VTK and templated functions

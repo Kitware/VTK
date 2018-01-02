@@ -79,7 +79,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
     return 0;
   }
 
-  // get the ouptut
+  // get the output
   vtkInformation *outTableInfo = outputVector->GetInformationObject(OUTPUT_SELECTED_TABLE_DATA);
   vtkTable* outputTable = vtkTable::SafeDownCast(
     outTableInfo->Get(vtkDataObject::DATA_OBJECT()));

@@ -77,7 +77,7 @@ public:
 
   /**
    * Creates an instance of this class with the following defaults:
-   * value of  (0,0,0) in world  coordinates.
+   * value of  (0,0,0) in world coordinates.
    */
   static vtkCoordinate* New();
 

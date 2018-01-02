@@ -65,7 +65,7 @@ protected:
     vtkRenderer *ren, vtkActor *act) override;
 
   /**
-   * Perform string replacments on the shader templates
+   * Perform string replacements on the shader templates
    */
   void ReplaceShaderValues(
     std::map<vtkShader::Type, vtkShader *> shaders,

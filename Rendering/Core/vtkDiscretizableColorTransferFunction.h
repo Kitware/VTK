@@ -86,7 +86,7 @@ public:
    * the annotations were set).
    * Subclasses must implement this and interpret how to treat the index.
    * vtkLookupTable simply returns GetTableValue(\a index % \a this->GetNumberOfTableValues()).
-   * vtkColorTransferFunction returns the color assocated with node \a index % \a this->GetSize().
+   * vtkColorTransferFunction returns the color associated with node \a index % \a this->GetSize().
 
    * Note that implementations *must* set the opacity (alpha) component of the color, even if they
    * do not provide opacity values in their colormaps. In that case, alpha = 1 should be used.

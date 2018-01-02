@@ -262,7 +262,7 @@ elseif(APPLE_IOS)
 endif()
 
 # If no overrides were defined for vtkRenderWindow and any of the offscreen
-# features were available, make the approriate render window the default.
+# features were available, make the appropriate render window the default.
 if(VTK_DEFAULT_RENDER_WINDOW_HEADLESS OR NOT DEFINED vtk_module_vtkRenderWindow_override)
   if(VTK_OPENGL_HAS_EGL)
     vtk_add_override("vtkRenderWindow" "vtkEGLRenderWindow")

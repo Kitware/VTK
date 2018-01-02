@@ -268,7 +268,7 @@ public:
   /**
    * A convenience method (in particular for access from other applications) to
    * set parameter values of Learn mode.
-   * Return true if setting of requested parameter name was excuted, false otherwise.
+   * Return true if setting of requested parameter name was executed, false otherwise.
    * NB: default method (which is sufficient for most statistics algorithms) does not
    * have any Learn parameters to set and always returns false.
    */

@@ -874,7 +874,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
         }
         if (ef && !ef->IsA("vtkUnsignedCharArray"))
         {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
           ef = nullptr;
         }
       }
@@ -918,7 +918,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       }
       if (!ef->IsA("vtkUnsignedCharArray"))
       {
-        vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+        vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
         ef = nullptr;
       }
     }

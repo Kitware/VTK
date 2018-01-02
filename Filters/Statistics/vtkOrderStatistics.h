@@ -108,7 +108,7 @@ public:
   /**
    * A convenience method (in particular for access from other applications) to
    * set parameter values.
-   * Return true if setting of requested parameter name was excuted, false otherwise.
+   * Return true if setting of requested parameter name was executed, false otherwise.
    */
   bool SetParameter( const char* parameter,
                      int index,

@@ -17,7 +17,7 @@
  *
  *
  *  GPU implementation of a Line Integral Convolution, a technique for
- *  imaging  vector fields.
+ *  imaging vector fields.
  *
  *  The input on port 0 is an vtkImageData with extents of a 2D image. It needs
  *  a vector field on point data. This filter only works on point vectors. One

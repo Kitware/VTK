@@ -144,7 +144,7 @@ public:
   //@}
 
   /**
-   * Perform the selection. Returns  a new instance of vtkSelection containing
+   * Perform the selection. Returns a new instance of vtkSelection containing
    * the selection on success.
    */
   vtkSelection* Select();

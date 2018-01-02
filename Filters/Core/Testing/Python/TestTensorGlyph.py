@@ -85,7 +85,7 @@ class TestTensorGlyph(Testing.vtkTest):
         g4.Update()
         g4.SetPosition((2.0, 2.0, 0.0))
 
-        # 6Components symetric tensor
+        # 6Components symmetric tensor
         g5 = SimpleGlyph(reader)
         g5.glyph.SetInputArrayToProcess(0, 0, 0, 0, "symTensors1")
         g5.SetPosition((4.0, 2.0, 0.0))

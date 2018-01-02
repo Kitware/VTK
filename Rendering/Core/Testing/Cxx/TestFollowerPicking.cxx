@@ -297,7 +297,7 @@ int TestFollowerPicking( int argc, char* argv[] )
   VTK_CREATE(vtkCellPicker,picker);
   picker->AddObserver(vtkCommand::EndPickEvent,myCallback);
 
-  // Create the rendering machinary
+  // Create the rendering machinery
   //
   VTK_CREATE(vtkRenderer, ren1);
   follower->SetCamera(ren1->GetActiveCamera());

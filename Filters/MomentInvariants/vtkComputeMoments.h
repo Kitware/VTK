@@ -65,7 +65,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * scalar fields at the points of grid. Each scalar field corresponds to a
  * different component of the moment tensor up to Order. The respective
  * indices that identify each scalar field are stored in their respective
- * information the theory and the algorithm is decribed in Roxana Bujack and
+ * information the theory and the algorithm is described in Roxana Bujack and
  * Hans Hagen: "Moment Invariants for Multi-Dimensional Data"
  * http://www.informatik.uni-leipzig.de/~bujack/2017TensorDagstuhl.pdf
  * @par Thanks:

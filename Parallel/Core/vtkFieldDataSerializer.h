@@ -61,7 +61,7 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
      * corresponds to the name of array i.
      * (2) datatypes -- an array of ints where each element corresponds
      * to the actual primitive type of each array, e.g.,VTK_DOUBLE,VTK_INT, etc.
-     * (3) dimensions -- a 2-component array of  integers where the first
+     * (3) dimensions -- a 2-component array of integers where the first
      * component corresponds to the number of tuples of and the second component
      * corresponds to the number components of array i.
      */
@@ -78,7 +78,7 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
         vtkFieldData *fieldData, vtkMultiProcessStream& bytestream);
 
     /**
-     * Serializes the selected tuples from the the field data in a byte-stream.
+     * Serializes the selected tuples from the field data in a byte-stream.
      */
     static void SerializeTuples(
         vtkIdList *tupleIds, vtkFieldData *fieldData,

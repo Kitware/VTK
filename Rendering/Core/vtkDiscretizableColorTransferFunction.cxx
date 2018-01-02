@@ -199,7 +199,7 @@ void vtkDiscretizableColorTransferFunction::Build()
   rgba[3] = 1.0;
   this->LookupTable->SetAboveRangeColor(rgba);
 
-  // this  is essential since other the LookupTable doesn't update the
+  // this is essential since other the LookupTable doesn't update the
   // annotations map. That's a bug in the implementation of
   // vtkScalarsToColors::SetAnnotations(..,..);
   this->LookupTable->SetAnnotations(nullptr, nullptr);

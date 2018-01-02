@@ -16,7 +16,7 @@
  * @class   vtkCompositedSynchronizedRenderers
  *
  * vtkCompositedSynchronizedRenderers is vtkSynchronizedRenderers that uses
- * vtkCompositer to composite the images on  the root node.
+ * vtkCompositer to composite the images on the root node.
 */
 
 #ifndef vtkCompositedSynchronizedRenderers_h

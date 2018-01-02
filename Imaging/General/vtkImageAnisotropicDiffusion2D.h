@@ -17,7 +17,7 @@
  * @brief   edge preserving smoothing.
  *
  *
- * vtkImageAnisotropicDiffusion2D  diffuses a 2d image iteratively.
+ * vtkImageAnisotropicDiffusion2D diffuses a 2d image iteratively.
  * The neighborhood of the diffusion is determined by the instance
  * flags. If "Edges" is on the 4 edge connected voxels
  * are included, and if "Corners" is on, the 4 corner connected voxels
@@ -51,8 +51,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * This method sets the number of interations which also affects the
-   * input neighborhood needed to compute one output pixel.  Each iterations
+   * This method sets the number of iterations which also affects the
+   * input neighborhood needed to compute one output pixel.  Each iteration
    * requires an extra pixel layer on the neighborhood.  This is only relavent
    * when you are trying to stream or are requesting a sub extent of the "wholeExtent".
    */
@@ -79,7 +79,7 @@ public:
 
   //@{
   /**
-   * The diffusion factor specifies  how much neighboring pixels effect each other.
+   * The diffusion factor specifies how much neighboring pixels effect each other.
    * No diffusion occurs with a factor of 0, and a diffusion factor of 1 causes
    * the pixel to become the average of all its neighbors.
    */

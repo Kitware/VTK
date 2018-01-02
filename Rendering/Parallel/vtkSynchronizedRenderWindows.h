@@ -15,7 +15,7 @@
 /**
  * @class   vtkSynchronizedRenderWindows
  * @brief   synchronizes render windows across
- * processess.
+ * processes.
  *
  * vtkSynchronizedRenderWindows is used to synchronize render windows across
  * processes for parallel rendering.

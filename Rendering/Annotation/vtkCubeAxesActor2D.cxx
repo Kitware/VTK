@@ -419,7 +419,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   double AxisFontFactor = this->FontFactor*.75;
 
 
-  // Upate axes
+  // Update axes
   this->Labels[0] = this->XLabel;
   this->Labels[1] = this->YLabel;
   this->Labels[2] = this->ZLabel;
@@ -953,7 +953,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, double pts[8][3],
     return 0; //couldn't find a point inside
   }
 
-  // Now  iteratively scale the bounding box until all points are inside
+  // Now iteratively scale the bounding box until all points are inside
   // the frustrum. Use bisection method.
   scale = 1.0;
   scale2 = 0.00001;

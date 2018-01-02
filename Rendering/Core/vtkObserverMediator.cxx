@@ -89,7 +89,7 @@ void vtkObserverMediator::SetInteractor(vtkRenderWindowInteractor* i)
 }
 
 //----------------------------------------------------------------------------
-// This  mediation process works by keeping track of non-default cursor
+// This mediation process works by keeping track of non-default cursor
 // requests.
 // Ties are broken based on widget priority (hence the priority queue).
 int vtkObserverMediator::RequestCursorShape(vtkInteractorObserver *w, int requestedShape)

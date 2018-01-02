@@ -6823,7 +6823,7 @@ int vtkEarthSource::RequestData(
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 

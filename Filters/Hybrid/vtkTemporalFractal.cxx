@@ -557,7 +557,7 @@ int vtkTemporalFractal::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
 
-  // get how many time steps were requsted
+  // get how many time steps were requested
   double timeStep =
     info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 

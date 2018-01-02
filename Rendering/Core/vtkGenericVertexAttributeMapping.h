@@ -67,7 +67,7 @@ public:
   void RemoveAllMappings();
 
   /**
-   * Get number of mapppings.
+   * Get number of mappings.
    */
   unsigned int GetNumberOfMappings();
 

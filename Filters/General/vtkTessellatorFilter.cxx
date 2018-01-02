@@ -244,7 +244,7 @@ void vtkTessellatorFilter::OutputPoint( const double* a )
 vtkTessellatorFilter::vtkTessellatorFilter()
   : Tessellator( nullptr ), Subdivider( nullptr )
 {
-  this->OutputDimension = 3; // Tesselate elements directly, not boundaries
+  this->OutputDimension = 3; // Tessellate elements directly, not boundaries
   this->SetTessellator( vtkStreamingTessellator::New() );
   this->Tessellator->Delete();
   this->SetSubdivider( vtkDataSetEdgeSubdivisionCriterion::New() );

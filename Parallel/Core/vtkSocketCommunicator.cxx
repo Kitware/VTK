@@ -823,7 +823,7 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
     }
     else if (this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapNotSet)
     {
-      // Clearly, we still haven;t determined our endianness. In  that case, the
+      // Clearly, we still haven't determined our endianness. In that case, the
       // only legal communication should be vtkSocketController::ENDIAN_TAG.
       // However, I am not flagging an error since applications may used socket
       // communicator without the handshake part (where it's assumed that the

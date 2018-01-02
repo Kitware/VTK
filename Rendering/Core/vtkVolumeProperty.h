@@ -24,7 +24,7 @@
  * shading parameters of a volume.
  *
  * Color, scalar opacity and gradient magnitude opacity transfer functions
- * can be set as either 3 separate 1D functions  or as a single 2D transfer
+ * can be set as either 3 separate 1D functions or as a single 2D transfer
  * function.
  *
  * - 1D Transfer functions (vtkVolumeProperty::TF_1D)

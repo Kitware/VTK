@@ -85,7 +85,7 @@
  *\endcode
  *
  * If you will be using a FO repeatedly then it is best to create it
- * attach the bufffers and then use as needed for example
+ * attach the buffers and then use as needed for example
  *
  * Typical use case:
  *\code{.cpp}
@@ -362,7 +362,7 @@ public:
 
   /**
    * Returns the maximum number of render targets available. This limits the
-   * available attachement points for SetColorAttachment().
+   * available attachment points for SetColorAttachment().
    * The return value is valid only if GetContext is non-null.
    */
   unsigned int GetMaximumNumberOfRenderTargets();

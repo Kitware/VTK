@@ -627,7 +627,7 @@ void vtkGPUVolumeRayCastMapper::ClipCroppingRegionPlanes()
 //                        this->CroppingRegionPlanes[2]>=this->CroppingRegionPlanes[3] ||
 //                        this->CroppingRegionPlanes[4]>=this->CroppingRegionPlanes[5]))
 //    {
-//    // silentely  stop because the cropping is not valid.
+//    // silently stop because the cropping is not valid.
 //    return;
 //    }
 

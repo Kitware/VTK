@@ -197,7 +197,7 @@ public:
     unsigned int& interactedSurfaceFlatIndex, PassThroughParticlesType& passThroughParticles);
 
   /**
-   * Set a input array to process at a specific index, indentified by a port,
+   * Set a input array to process at a specific index, identified by a port,
    * connection, fieldAssociation and a name.
    * Each inherited class can specify their own input array to process
    */
@@ -466,7 +466,7 @@ protected:
   /**
    * Methods used by ParaView surface helper to get default
    * values for each leaf of each dataset of surface
-   * nComponents could be retrived with arrayName but is
+   * nComponents could be retrieved with arrayName but is
    * given for simplication purposes.
    * it is your responsibility to initialize all components of
    * defaultValues[nComponent]

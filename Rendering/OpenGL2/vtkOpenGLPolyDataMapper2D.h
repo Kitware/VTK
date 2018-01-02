@@ -116,7 +116,7 @@ protected:
   void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   /**
-   * Perform string replacments on the shader templates, called from
+   * Perform string replacements on the shader templates, called from
    * ReplaceShaderValues
    */
   virtual void ReplaceShaderPicking(

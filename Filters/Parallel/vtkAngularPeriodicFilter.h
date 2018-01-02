@@ -69,7 +69,7 @@ public:
   //@{
   /**
    * Set/Get The rotation mode.
-   * VTK_ROTATION_MODE_DIRECT_ANGLE to specifiy a angle value (default),
+   * VTK_ROTATION_MODE_DIRECT_ANGLE to specify an angle value (default),
    * VTK_ROTATION_MODE_ARRAY_VALUE to use value from an array in the input dataset.
    */
   vtkSetClampMacro(RotationMode, int,

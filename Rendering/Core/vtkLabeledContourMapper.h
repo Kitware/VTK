@@ -124,7 +124,7 @@ public:
   //@{
   /**
    * Ensure that there are at least SkipDistance pixels between labels. This
-   * is only enforced on labels along the the same line. The default is 0.
+   * is only enforced on labels along the same line. The default is 0.
    */
   vtkSetMacro(SkipDistance, double)
   vtkGetMacro(SkipDistance, double)

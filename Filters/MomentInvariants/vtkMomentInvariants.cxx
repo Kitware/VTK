@@ -91,7 +91,7 @@ Eigen::MatrixXd getRotMat(double angle)
 
 /** this function generates the rotation matrix that rotates the first dominantContraction into the
  * x-axis and if applicable, the second one into the x-y-halfplane with positive z
- * @param dominantContractions: the vectors used for the normailzation
+ * @param dominantContractions: the vectors used for the normalization
  * @return 2D or 3D rotation matrix
  */
 Eigen::MatrixXd getRotMat(std::vector<vtkMomentsTensor>& dominantContractions,
@@ -864,7 +864,7 @@ std::vector<vtkMomentsTensor> vtkMomentInvariants::ReproduceContractions(
 }
 
 /** normalization of the pattern with respect to rotation and reflection
- * @param dominantContractions: the vectors used for the normailzation
+ * @param dominantContractions: the vectors used for the normalization
  * @param isRotation: if the user wants normalization w.r.t rotation
  * @param isReflection: if the user wants normalization w.r.t reflection
  * @param moments: the moments at a given point
@@ -896,8 +896,8 @@ std::vector<vtkMomentsTensor> vtkMomentInvariants::NormalizeR(
   }
 }
 
-/** if no dominant contractions could be found to be non-zero, the algorith defaults back to looking
- * for all possible orientations of the given template the paramter AngleResolution determineswhat
+/** if no dominant contractions could be found to be non-zero, the algorithm defaults back to looking
+ * for all possible orientations of the given template the parameter AngleResolution determines what
  * "everywhere" means in 2D, we divide phi=[0,...,2Pi] into that many equidistant steps in 3D, we
  * divide phi=[0,...,2Pi] into that many equidistant steps and theta=[0,...,Pi] in half that many
  * steps to determine the rotation axis. Then, we use anther AngleResolution different rotation
@@ -955,8 +955,8 @@ void vtkMomentInvariants::LookEverywhere(
 
 /** if only one dominant contraction could be found to be non-zero, but no second one to be linearly
  * independent from the first one, the algorithm, will rotate the first contraction to the x-axis
- * and the look for all possible orientations of the given template around this axis. In pricipal,
- * it reduces the 3D problem to a 2D problem. the paramter AngleResolution determines what
+ * and the look for all possible orientations of the given template around this axis. In principal,
+ * it reduces the 3D problem to a 2D problem. the parameter AngleResolution determines what
  * "everywhere" means we divide phi=[0,...,2Pi] into that many equidistant steps
  * @param dominantContractions: the vectors used for the normalization
  * @param momentsPatternNormal: this contains all orientations of the moments of the pattern. during
@@ -1046,7 +1046,7 @@ void vtkMomentInvariants::HandlePattern(
   {
     // calculation of the dominant contraction
     dominantContractions = this->CalculateDominantContractions(this->MomentsPatternTSNormal);
-    // no dominant contraction cound be found?
+    // no dominant contraction could be found?
     if (dominantContractions.size() == 0)
     {
       this->LookEverywhere(this->MomentsPatternNormal, this->MomentsPatternTSNormal);
@@ -1071,7 +1071,7 @@ void vtkMomentInvariants::HandlePattern(
           this->IsReflection,
           this->MomentsPatternTSNormal));
       }
-      // 3D and only one dominant contraction cound be found
+      // 3D and only one dominant contraction could be found
       if (this->Dimension == 3 && dominantContractions.at(0).size() == 1)
       {
         this->LookEverywhere(dominantContractions, this->MomentsPatternNormal);
@@ -1173,7 +1173,7 @@ void vtkMomentInvariants::HandlePattern(
 
 /** main part of the pattern detection
  * the moments of the field at each point are normalized and compared to the moments of the pattern
- * @param dominantContractions: the dominant contractions, i.e. vectors for the normailzation w.r.t.
+ * @param dominantContractions: the dominant contractions, i.e. vectors for the normalization w.r.t.
  * rotation
  * @param moments: the moments of the field
  * @param normalizedMoments: the moment invariants of the field

@@ -647,7 +647,7 @@ void vtkShadowMapBakerPass::BuildCameraLight(vtkLight *light,
 
     lcamera->SetParallelProjection(0);
     // view angle is an aperture, but cone (or light) angle is between
-    // the axis of the cone and a ray along the edge  of the cone.
+    // the axis of the cone and a ray along the edge of the cone.
     lcamera->SetViewAngle(light->GetConeAngle()*2.0);
     // initial clip=(0.1,1000). mNear>0, mFar>mNear);
     double mNearmin = (mFar - mNear) / 100.0;

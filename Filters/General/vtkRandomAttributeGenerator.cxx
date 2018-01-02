@@ -142,7 +142,7 @@ void vtkRandomAttributeGenerator::GenerateRandomTuples(T *data,
   GenerateRandomTuple(data, 0, numComp, minComp, maxComp, min, max);
   for ( vtkIdType i=1; i < numTuples; i++ )
   {
-    // update progess and check for aborts
+    // update progress and check for aborts
     if ( ! (i % tenth) )
     {
       this->UpdateProgress(static_cast<double>(i)/total);
@@ -302,7 +302,7 @@ vtkDataArray *vtkRandomAttributeGenerator::GenerateData(int dataType,
       GenerateRandomTupleBit (dataArray, 0, minComp, maxComp);
       for ( vtkIdType i=1; i < numTuples; i++ )
       {
-        // update progess and check for aborts
+        // update progress and check for aborts
         if ( ! (i % tenth) )
         {
           this->UpdateProgress(static_cast<double>(i)/total);

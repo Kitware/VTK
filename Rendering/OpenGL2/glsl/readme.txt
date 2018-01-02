@@ -7,7 +7,7 @@ results for performance.
 
 When writing your own shaders you can use any approach you want. In the end they
 are just strings of code. For vtkOpenGLPolyDataMapper we make use of heavy
-string replacments.  In other classes we do very little processing as the shader
+string replacements.  In other classes we do very little processing as the shader
 has far fewer options. Regardless there are a few conventions you should be
 aware of.
 

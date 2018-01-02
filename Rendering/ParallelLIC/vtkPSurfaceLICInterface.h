@@ -68,7 +68,7 @@ protected:
   virtual vtkPainterCommunicator *CreateCommunicator(int include) override;
 
   /**
-   * Ensure that if any rank udpates the communicator they all
+   * Ensure that if any rank updates the communicator they all
    * do. This is a global collective operation.
    */
   virtual bool NeedToUpdateCommunicator() override;

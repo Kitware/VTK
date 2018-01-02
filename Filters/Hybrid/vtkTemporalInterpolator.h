@@ -132,7 +132,7 @@ protected:
 
   /**
    * General interpolation routine for any type on input data. This is
-   * called recursively when heirarchical/multiblock data is encountered
+   * called recursively when hierarchical/multiblock data is encountered
    */
   vtkDataObject *InterpolateDataObject(vtkDataObject *in1,
                                        vtkDataObject *in2,

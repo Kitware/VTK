@@ -86,7 +86,7 @@ int TestFixedPointRayCastLightComponents(int argc,
 
   renWin->AddRenderer(ren1);
   ren1->Delete();
-  renWin->SetSize(301,300); // intentional odd and NPOT  width/height
+  renWin->SetSize(301,300); // intentional odd and NPOT width/height
 
   vtkRenderWindowInteractor *iren=vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);

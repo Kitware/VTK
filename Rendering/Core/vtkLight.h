@@ -90,7 +90,7 @@ public:
    * Set/Get the color of the light. It is possible to set the ambient,
    * diffuse and specular colors separately. The SetColor() method sets
    * the diffuse and specular colors to the same color (this is a feature
-   * to preserve backward compatbility.)
+   * to preserve backward compatibility.)
    */
   vtkSetVector3Macro(AmbientColor,double);
   vtkGetVectorMacro(AmbientColor,double,3);

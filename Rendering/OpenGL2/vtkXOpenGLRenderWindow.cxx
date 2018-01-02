@@ -211,7 +211,7 @@ GLXFBConfig vtkXOpenGLRenderWindowGetDesiredFBConfig(
   int           multi;
   int           stereo = 0;
 
-  // try every possibility stoping when we find one that works
+  // try every possibility stopping when we find one that works
   // start by adjusting stereo and multisamples
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
   {

@@ -180,7 +180,7 @@ public:
    * Old OpenGL was a state machine where you would push or pop
    * items. The new OpenGL design is more mapper centric. Some
    * classes push a texture and then assume a mapper will use it.
-   * The new design wants explicit comunication of when a texture
+   * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */
@@ -191,7 +191,7 @@ public:
    * Old OpenGL was a state machine where you would push or pop
    * items. The new OpenGL design is more mapper centric. Some
    * classes push a texture and then assume a mapper will use it.
-   * The new design wants explicit comunication of when a texture
+   * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
    */

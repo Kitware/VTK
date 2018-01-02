@@ -62,7 +62,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * A tensor in general is a multidimensional array its rank gives the number
  * of indices to reference its entries the number of entries is
  * dimension^rank the application of this class is the moment invariant
- * pattern detection the theory and the algorithm is decribed in Roxana
+ * pattern detection the theory and the algorithm is described in Roxana
  * Bujack and Hans Hagen: "Moment Invariants for Multi-Dimensional Data"
  * http://www.informatik.uni-leipzig.de/~bujack/2017TensorDagstuhl.pdf for
  * this purpose, we split the rank into fieldrank and moment rank the class

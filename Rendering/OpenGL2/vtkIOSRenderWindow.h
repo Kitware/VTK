@@ -160,7 +160,7 @@ public:
   void SetWindowInfo(char*) override;
 
   /**
-   * See the documenation for SetParentId().  This method allows the ParentId
+   * See the documentation for SetParentId().  This method allows the ParentId
    * to be set as an ASCII string of a decimal number that is the memory
    * address of the parent UIView.
    */

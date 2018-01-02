@@ -39,7 +39,7 @@ struct SampleDataSet
   vtkImplicitFunction *Function;
   float *Scalars;
 
-  // Contructor
+  // Constructor
   SampleDataSet(vtkDataSet *input, vtkImplicitFunction *imp, float *s) :
     Input(input), Function(imp), Scalars(s)
   {
@@ -64,7 +64,7 @@ struct SampleDataSetWithGradients
   float *Scalars;
   float *Gradients;
 
-  // Contructor
+  // Constructor
   SampleDataSetWithGradients(vtkDataSet *input, vtkImplicitFunction *imp, float *s, float *g) :
     Input(input), Function(imp), Scalars(s), Gradients(g)
   {

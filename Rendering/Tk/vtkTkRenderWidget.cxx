@@ -273,8 +273,8 @@ extern "C" {
     // handle the vtk data types and window/level
     // For reference:
     // pitch - address difference between two vertically adjacent pixels
-    // pixelSize - address  difference  between  two
-    //             horizontally  adjacent pixels
+    // pixelSize - address difference between two
+    //             horizontally adjacent pixels
     Tk_PhotoImageBlock block;
     block.width = 0;
     block.height = 0;

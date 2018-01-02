@@ -94,7 +94,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public
     /**
      * Calculate a user defined scalar using one or all of uvw, Pt, Duvw.
 
-     * uvw are the parameters with Pt being the the cartesian point,
+     * uvw are the parameters with Pt being the cartesian point,
      * Duvw are the derivatives of this point with respect to u, v and w.
      * Pt, Duvw are obtained from Evaluate().
 

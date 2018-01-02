@@ -14,12 +14,12 @@
 =========================================================================*/
 /**
  * @class   vtkUnstructuredGridVolumeMapper
- * @brief   Abstract class for a unstructured grid volume mapper
+ * @brief   Abstract class for an unstructured grid volume mapper
  *
  *
  * vtkUnstructuredGridVolumeMapper is the abstract definition of a volume mapper for
- * unstructured data (vtkUnstructuredGrid).  Several  basic types of volume mappers
- * are supported as subclasses
+ * unstructured data (vtkUnstructuredGrid). Several basic types of volume mappers
+ * are supported as subclasses.
  *
  * @sa
  * vtkUnstructuredGridVolumeRayCastMapper

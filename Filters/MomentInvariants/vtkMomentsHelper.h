@@ -61,7 +61,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * vtkMomentsHelper is a helper class that contains functions that will
  * be used by more than one algorithm in the moments module the theory and
- * the algorithm is decribed in Roxana Bujack and Hans Hagen: "Moment
+ * the algorithm is described in Roxana Bujack and Hans Hagen: "Moment
  * Invariants for Multi-Dimensional Data"
  * http://www.informatik.uni-leipzig.de/~bujack/2017TensorDagstuhl.pdf
  * @par Thanks:
@@ -124,7 +124,7 @@ struct VTKFILTERSMOMENTINVARIANTS_EXPORT vtkMomentsHelper
    * This function approximates the volume of a cell
    * for unstructured grids
    * @param cell: the cell
-   * @param source: the dataset that contans the cell.
+   * @param source: the dataset that contains the cell.
    * @return the volume
    */
   static double getVolume(vtkCell* cell, vtkDataSet* source);

@@ -225,7 +225,7 @@ protected:
   vtkTypeBool ShowSliceAndImage;
 
   /**
-   * Search for replacable tokens and replace
+   * Search for replaceable tokens and replace
    */
   virtual void TextReplace(
     vtkImageActor *ia, vtkImageMapToWindowLevelColors *wl);

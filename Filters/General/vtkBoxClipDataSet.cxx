@@ -1001,7 +1001,7 @@ void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
 //     (II)Case 5 tetrahedra:
 //       - search the smallest vertex vi
 //       - verify if the opposite vertices of vi do not belong to any diagonal edges Edg_f
-//       - 2 possibilites: create 5 tetraedra
+//       - 2 possibilities: create 5 tetraedra
 //           - if vi is ( 0 or 3 or 5 or 6)
 //             vtetra[]={v0,v5,v3,v6},{v0,v4,v5,v6},{v0,v1,v3,v5},{v5,v3,v6,v7},{v0,v3,v2,v6}};
 //           - if vi is ( 1 or 2 or 4 or 7)

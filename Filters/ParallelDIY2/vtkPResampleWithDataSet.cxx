@@ -60,7 +60,7 @@ VTKDIY2_POST_INCLUDE
 //    neighbors of each node.
 // 4) Find and send the Input points that lie inside a neighbor's Source bounds.
 //    The search is made faster by using a point lookup structure
-//    (RegularPartition or BalancedPartition bellow).
+//    (RegularPartition or BalancedPartition below).
 // 5) Perform resampling on local Input blocks.
 // 6) Perform resampling on points received from neighbors.
 // 7) Send the resampled points back to the neighbors they were received from.

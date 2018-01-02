@@ -157,7 +157,7 @@ int vtkExtractBlock::RequestData(
   // Since in case multiple processes are involved, this process may have some
   // data-set pointers nullptr. Hence, pruning cannot simply trim nullptr ptrs, since
   // in that case we may end up with different structures on different
-  // processess, which is a big NO-NO. Hence, we first flag nodes based on
+  // processes, which is a big NO-NO. Hence, we first flag nodes based on
   // whether they are being pruned or not.
 
   iter = output->NewTreeIterator();

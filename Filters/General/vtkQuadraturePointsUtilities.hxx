@@ -93,7 +93,7 @@ int Interpolate(
 }
 
 // Description:
-// Dispatch helper, descides what type of indices we are working with
+// Dispatch helper, decides what type of indices we are working with
 template<class TV>
 int Interpolate(
         vtkUnstructuredGrid *usg,

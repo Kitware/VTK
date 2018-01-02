@@ -587,7 +587,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
             default:
               assert("check: impossible case" && 0);
               cellType=0; // useless, only for removing warning about
-              // unitialized function.
+              // uninitialized function.
               break;
           } //switch
 

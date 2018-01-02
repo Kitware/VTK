@@ -115,7 +115,7 @@ vtkSmoothPoint *vtkSmoothPoints::Resize(vtkIdType sz)
 // convergence criterion is 0.0 of the bounding box diagonal.
 vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 {
-  this->Convergence = 0.0; //goes to number of specied iterations
+  this->Convergence = 0.0; //goes to number of specified iterations
   this->NumberOfIterations = 20;
 
   this->RelaxationFactor = .01;

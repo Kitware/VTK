@@ -23,7 +23,7 @@
  * (33-126) inclusive.) The only control character supported is the line feed
  * character "\n", which advances to a new line.
  *
- * To use thie class, you normally couple it with a vtkPolyDataMapper and a
+ * To use this class, you normally couple it with a vtkPolyDataMapper and a
  * vtkActor. In this case you would use the vtkActor's transformation methods
  * to position, orient, and scale the text. You may also wish to use a
  * vtkFollower to orient the text so that it always faces the camera.

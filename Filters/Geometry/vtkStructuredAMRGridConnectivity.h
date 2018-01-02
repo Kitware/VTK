@@ -527,7 +527,7 @@ protected:
   /**
    * Loops through all arrays in the source and for each array, it copies the
    * tuples from sourceIdx to the target at targetIdx. This method assumes
-   * that the source and target have a one-to-one array correspondance, that
+   * that the source and target have a one-to-one array correspondence, that
    * is array i in the source corresponds to array i in the target.
    */
   void CopyFieldData(

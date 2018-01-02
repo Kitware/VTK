@@ -62,7 +62,7 @@ public:
     { this->ShaderProgram = program; }
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2)
 
-  // Descrition:
+  // Description:
   // This method is called before rendering. This gives the shader device
   // adapter an opportunity to collect information, such as attribute indices
   // that it will need while rendering.

@@ -27,7 +27,7 @@
  *
  * Triangle subdivision is controlled by specifying a maximum edge length
  * and/or triangle area that any given triangle may have. Subdivision
- * proceeds until there criteria are satisified. Note that using excessively
+ * proceeds until their criteria are satisfied. Note that using excessively
  * small criteria values can produce enormous meshes with the possibility of
  * exhausting system memory. Also, if you want to ignore a particular
  * criterion value (e.g., triangle area) then simply set the criterion value

@@ -37,7 +37,7 @@ public:
   const TP *Points;
   float *Scalars;
 
-  // Contructor
+  // Constructor
   vtkSimpleElevationAlgorithm();
 
   // Interface between VTK and templated functions

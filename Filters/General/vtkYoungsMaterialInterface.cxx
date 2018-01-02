@@ -618,7 +618,7 @@ int vtkYoungsMaterialInterface::RequestData(
     return 0;
   }
 
-  // alocate composite iterator
+  // allocate composite iterator
   vtkSmartPointer<vtkCompositeDataIterator> inputIterator;
   inputIterator.TakeReference(compositeInput->NewIterator());
   inputIterator->SkipEmptyNodesOn();
@@ -2670,7 +2670,7 @@ namespace vtkYoungsMaterialInterfaceCellCutInternals
 
 
   /*
-    compute the derivatives of the piecewise cubic function of the volume behind the cutting cone ( axis symetric 2D plane)
+    compute the derivatives of the piecewise cubic function of the volume behind the cutting cone (axis symmetric 2D plane)
   */
   FUNC_DECL
   void makeConeVolumeDerivatives(

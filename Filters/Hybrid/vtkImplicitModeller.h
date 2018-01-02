@@ -194,7 +194,7 @@ public:
    * unless modified by the user).  For example, if ScaleToMaximumDistance
    * is On and the OutputScalarType is UnsignedChar the distances saved in the
    * output would be linearly scaled between 0 (for distances "very close" to
-   * the surface) and 255 (at the specifed maximum distance)... assuming the
+   * the surface) and 255 (at the specified maximum distance)... assuming the
    * CapValue is not changed from 255.
    */
   vtkSetMacro(ScaleToMaximumDistance, int);

@@ -70,7 +70,7 @@ double* vtkPResampleFilter::CalculateBounds(vtkDataSet* input)
     double localBoundsMax[3], globalBoundsMax[3];
     for (int i=0; i<3; i++)
     {
-      // Change unitialized bounds to something that will work
+      // Change uninitialized bounds to something that will work
       // with collective MPI calls.
       if (localBounds[2*i] > localBounds[2*i+1])
       {

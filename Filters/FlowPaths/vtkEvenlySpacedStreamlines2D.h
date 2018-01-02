@@ -216,7 +216,7 @@ public:
 
   //@{
   /**
-   * Streamline integration is stoped if streamlines are closer than
+   * Streamline integration is stopped if streamlines are closer than
    * SeparatingDistance*SeparatingDistanceRatio to other streamlines.
    */
   vtkSetMacro(SeparatingDistanceRatio, double);

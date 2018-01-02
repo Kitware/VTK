@@ -394,7 +394,7 @@ void vtkPCAAnalysisFilter::GetParameterisedShape(vtkFloatArray *b, vtkPointSet* 
   double *shapevec = NewVector(n*3);
 
   // b is weighted by the eigenvals
-  // make weigth vector for speed reasons
+  // make weight vector for speed reasons
   double *w = NewVector(bsize);
   for (i = 0; i < bsize; i++) {
     w[i] =sqrt(this->Evals->GetValue(i)) * b->GetValue(i);

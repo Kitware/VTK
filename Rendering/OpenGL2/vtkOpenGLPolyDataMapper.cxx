@@ -3340,7 +3340,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
           }
           if (!ef->IsA("vtkUnsignedCharArray"))
           {
-            vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+            vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
             ef = nullptr;
           }
         }
@@ -3373,7 +3373,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
         else if (!ef->IsA("vtkUnsignedCharArray"))
         {
-          vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
+          vtkDebugMacro(<< "Currently only unsigned char edge flags are supported.");
           ef = nullptr;
         }
       }

@@ -75,7 +75,7 @@ public:
 
    * INPLACE_DISJOINT
    * use a disjoint version of the block decomp. This will leave
-   * non-overlapping data in place, reasigning overlaping regions
+   * non-overlapping data in place, reasigning overlapping regions
    * so that LIC is computed once for each pixel on the screen.
    * An unshuffle step to move data in overlapping region to all
    * processes that overlap.

@@ -18,7 +18,7 @@
  *
  *
  * vtkVolumeMapper is the abstract definition of a volume mapper for regular
- * rectilinear data (vtkImageData).  Several  basic types of volume mappers
+ * rectilinear data (vtkImageData). Several basic types of volume mappers
  * are supported.
 */
 
@@ -64,7 +64,7 @@ public:
    * transfer functions.
    *
    * Maximum and minimum intensity blend modes use the maximum and minimum
-   * scalar values, respectively,  along the sampling ray. The final color and
+   * scalar values, respectively, along the sampling ray. The final color and
    * opacity is determined by passing the resultant value through the color and
    * opacity transfer functions.
    *

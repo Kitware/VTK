@@ -403,7 +403,7 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
 
     if (!scalars)
     {
-      // no scalars on  this dataset, we don't care if texture is used at all.
+      // no scalars on this dataset, we don't care if texture is used at all.
       return 1;
     }
 
@@ -490,7 +490,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
     this->LookupTable->SetRange(this->ScalarRange);
   }
 
-  // Decide betweeen texture color or vertex color.
+  // Decide between texture color or vertex color.
   // Cell data always uses vertex color.
   // Only point data can use both texture and vertex coloring.
   if (this->CanUseTextureMapForColoring(input))
@@ -914,7 +914,7 @@ void vtkMapper::MapScalarsToTexture(vtkAbstractArray* scalars, double alpha)
   }
 
   // Create new coordinates if necessary.
-  // Need to compare lookup table incase the range has changed.
+  // Need to compare lookup table in case the range has changed.
   if (this->ColorCoordinates == nullptr ||
       this->GetMTime() > this->ColorCoordinates->GetMTime() ||
       this->GetExecutive()->GetInputData(0, 0)->GetMTime() >

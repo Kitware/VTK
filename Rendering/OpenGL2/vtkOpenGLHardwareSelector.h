@@ -62,7 +62,7 @@ public:
    */
   void RenderProcessId(unsigned int processid) override;
 
-  // we need to initialze the depth buffer
+  // we need to initialize the depth buffer
   void BeginSelection() override;
 
 protected:

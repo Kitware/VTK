@@ -261,7 +261,7 @@ int vtkClipVolume::RequestData(
     this->ClippedTypes->Allocate(estimatedSize);
   }
 
-  // perform clipping on voxels - compute approriate numbers
+  // perform clipping on voxels - compute appropriate numbers
   value = this->Value;
   numICells = dims[0] - 1;
   numJCells = dims[1] - 1;
@@ -566,7 +566,7 @@ void vtkClipVolume::ClipVoxel(double value, vtkDataArray *cellScalars,
 
   // For each edge intersection point, insert into triangulation. Edge
   // intersections come from clipping value. Have to be careful of
-  // intersections near exisiting points (causes bad Delaunay behavior).
+  // intersections near existing points (causes bad Delaunay behavior).
   for (edgeNum=0; edgeNum < 12; edgeNum++)
   {
     s1 = cellScalars->GetComponent(edges[edgeNum][0],0);

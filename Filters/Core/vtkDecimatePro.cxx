@@ -497,7 +497,7 @@ void vtkDecimatePro::SplitMesh()
 #define VTK_FEATURE_ANGLE(tri1,tri2) \
                       vtkMath::Dot(this->T->Array[tri1].n, this->T->Array[tri2].n)
 //----------------------------------------------------------------------------
-// Evalute the local topology/geometry of a vertex. This is a two-pass
+// Evaluate the local topology/geometry of a vertex. This is a two-pass
 // process: first topology is examined, and then the geometry.
 //
 int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
@@ -758,7 +758,7 @@ int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
   }
   //
   //  Compute "average" plane normal and plane center.  Use an area
-  //  averaged normal calulation
+  //  averaged normal calculation
   //
   if ( !numNormals || this->LoopArea == 0.0 )
   {

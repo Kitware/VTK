@@ -124,7 +124,7 @@ public:
   vtkActorCollection *GetActors();
 
   /**
-   * Return a list of the points the the actors returned by GetProp3Ds
+   * Return a list of the points the actors returned by GetProp3Ds
    * were intersected at. The order of this list will match the order of
    * GetProp3Ds.
    */

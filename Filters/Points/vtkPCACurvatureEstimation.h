@@ -25,7 +25,7 @@
  * introductory reference is Hoppe's "Surface reconstruction from
  * unorganized points."
  *
- * To use this filter, sepcify a neighborhood size. This may have to be set
+ * To use this filter, specify a neighborhood size. This may have to be set
  * via experimentation. Optionally a point locator can be specified (instead
  * of the default locator), which is used to accelerate searches around a
  * sample point. Finally, the user should specify how to generate

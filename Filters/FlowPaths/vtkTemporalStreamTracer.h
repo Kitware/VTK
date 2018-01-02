@@ -149,7 +149,7 @@ public:
     /**
      * Setting TerminationTime to a positive value will cause particles
      * to terminate when the time is reached. Use a vlue of zero to
-     * diable termination. The units of time should be consistent with the
+     * disable termination. The units of time should be consistent with the
      * primary time variable.
      */
     vtkSetMacro(TerminationTime,double);

@@ -209,7 +209,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 
     value = values[vidx];
 
-    // Traverse all pixel cells, generating line segements using templates
+    // Traverse all pixel cells, generating line segments using templates
     for (j = min1; j <= max1; j++)
     {
       inPtr = rowPtr;
