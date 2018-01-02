@@ -128,7 +128,7 @@ public:
   {
   public:
     StaticMemoryBlock(T* const storage);
-    virtual T* GetAddress();
+    T* GetAddress() override;
   //@}
 
   private:

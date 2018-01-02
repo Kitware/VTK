@@ -39,7 +39,7 @@ public:
   { return new vtkResliceCursorCallback; }
 
   void Execute( vtkObject *caller, unsigned long ev,
-                void *callData )
+                void *callData ) override
   {
 
     if (ev == vtkResliceCursorWidget::WindowLevelEvent ||

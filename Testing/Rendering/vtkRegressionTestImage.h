@@ -26,7 +26,7 @@ class vtkRegressionTester : public vtkTesting
 {
 protected:
   vtkRegressionTester() {}
-  ~vtkRegressionTester() {}
+  ~vtkRegressionTester() override {}
 private:
   vtkRegressionTester(const vtkRegressionTester&) = delete;
   void operator=(const vtkRegressionTester&) = delete;

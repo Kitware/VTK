@@ -34,7 +34,7 @@ public:
 
   // Constructor/Destructor
   StatsView();
-  ~StatsView();
+  ~StatsView() override;
 
 public slots:
 

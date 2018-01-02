@@ -34,7 +34,7 @@ class vtkGraphItem : public vtkContextItem
 {
 public:
   vtkTypeMacro(vtkGraphItem, vtkContextItem);
-  virtual void PrintSelf(ostream &os, vtkIndent indent) override;
+  void PrintSelf(ostream &os, vtkIndent indent) override;
 
   static vtkGraphItem *New();
 
@@ -44,37 +44,37 @@ public:
   /**
    * Paint event for the item.
    */
-  virtual bool Paint(vtkContext2D *painter) override;
+  bool Paint(vtkContext2D *painter) override;
 
   /**
    * Returns true if the supplied x, y coordinate is inside the item.
    */
-  virtual bool Hit(const vtkContextMouseEvent &mouse) override;
+  bool Hit(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse enter event.
    */
-  virtual bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseEnterEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse move event.
    */
-  virtual bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseMoveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse leave event.
    */
-  virtual bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseLeaveEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button down event.
    */
-  virtual bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonPressEvent(const vtkContextMouseEvent &mouse) override;
 
   /**
    * Mouse button release event.
    */
-  virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
+  bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse) override;
 
   void UpdatePositions();
 

@@ -33,7 +33,7 @@ public:
 
   // Constructor/Destructor
   SimpleView();
-  ~SimpleView();
+  ~SimpleView() override;
 
 public slots:
 

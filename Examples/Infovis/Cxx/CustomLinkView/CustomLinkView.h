@@ -53,7 +53,7 @@ public:
 
   // Constructor/Destructor
   CustomLinkView();
-  ~CustomLinkView();
+  ~CustomLinkView() override;
 
 public slots:
 

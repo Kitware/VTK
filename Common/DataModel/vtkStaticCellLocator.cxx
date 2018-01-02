@@ -290,7 +290,7 @@ struct CellProcessor : public vtkCellProcessor
     this->Offsets[this->NumBins] = this->NumFragments;
   }
 
-  virtual ~CellProcessor()
+  ~CellProcessor() override
   {
     delete [] this->Map;
     delete [] this->Offsets;
@@ -336,14 +336,14 @@ struct CellProcessor : public vtkCellProcessor
   }
 
   // Methods to satisfy vtkCellProcessor virtual API
-  virtual vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
-                             double pcoords[3], double* weights );
-  virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
-  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
+  vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
+                             double pcoords[3], double* weights ) override;
+  void FindCellsWithinBounds(double *bbox, vtkIdList *cells) override;
+  int IntersectWithLine(double a0[3], double a1[3], double tol,
                                 double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
-                                vtkGenericCell *cell);
-  virtual int IsEmpty(vtkIdType binId)
+                                vtkGenericCell *cell) override;
+  int IsEmpty(vtkIdType binId) override
   {
     return ( this->GetNumberOfIds(static_cast<T>(binId)) > 0 ? 0 : 1 );
   }
