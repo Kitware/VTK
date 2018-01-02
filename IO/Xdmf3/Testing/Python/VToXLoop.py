@@ -18,10 +18,7 @@ try:
 except ImportError:
   hasresource = False
 
-try:
-  import argparse
-except ImportError:
-  from vtk.util import _argparse as argparse
+import argparse
 
 
 CleanUpGood = True
