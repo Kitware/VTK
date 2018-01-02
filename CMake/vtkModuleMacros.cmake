@@ -659,13 +659,6 @@ function(vtk_module_library name)
   endif()
   vtk_add_library(${vtk-module}${force_object} ${ARGN} ${_hdrs})
 
-  # Add the vtkWrapHierarchy custom command output to the target, if any.
-  # TODO: Re-order things so we do not need to duplicate this condition.
-  if (TARGET "${vtk-module}Hierarchy")
-    add_dependencies("${vtk-module}${force_object}"
-      "${vtk-module}Hierarchy")
-  endif ()
-
   if(_vtk_build_as_kit)
     # Make an interface library to link with for libraries.
     add_library(${vtk-module} INTERFACE)
@@ -786,6 +779,13 @@ VTK_AUTOINIT(${vtk-module})
 
   # Add the module to the list of wrapped modules if necessary
   vtk_add_wrapping(${vtk-module} "${ARGN}" "${${vtk-module}_HDRS}")
+
+  # Add the vtkWrapHierarchy custom command output to the target, if any.
+  # TODO: Re-order things so we do not need to duplicate this condition.
+  if (TARGET "${vtk-module}Hierarchy")
+    add_dependencies("${vtk-module}${target_suffix}"
+      "${vtk-module}Hierarchy")
+  endif ()
 
   # Export the module information.
   vtk_module_export("${ARGN}")
