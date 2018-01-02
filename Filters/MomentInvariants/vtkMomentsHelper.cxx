@@ -711,9 +711,6 @@ bool vtkMomentsHelper::CenterStencil(double center[3],
   //            return( false );
   //        }
 
-  // whatever that is good for ?
-  vtkDataSetAttributes::FieldList* pointList = new vtkDataSetAttributes::FieldList(1);
-  pointList->InitializeFieldList(source->GetPointData());
   int subId = 0;
 
   // interpolation of the source data at the integration points
