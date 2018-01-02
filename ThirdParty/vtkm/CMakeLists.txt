@@ -34,10 +34,13 @@ if (WIN32)
   # don't need to set path on Windows
   set(VTKm_EXECUTABLE_OUTPUT_PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" CACHE PATH "Set to match VTK" FORCE)
 endif()
+
+set(VTKm_INSTALL_LIB_DIR "${VTK_INSTALL_LIBRARY_DIR}")
 set(VTKm_INSTALL_INCLUDE_DIR "${VTK_INSTALL_INCLUDE_DIR}")
 set(VTKm_INSTALL_CMAKE_MODULE_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
 set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
 set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
+set(VTKm_NO_ASSERT "ON") #helps improve performance in debug mode
 
 set(vtkm_LIBRARIES vtkm vtkm_cont)
 
