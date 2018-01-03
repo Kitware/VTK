@@ -1,0 +1,19 @@
+NAME
+  VTK::ParallelCore
+LIBRARY_NAME
+  vtkParallelCore
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::IOLegacy
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
