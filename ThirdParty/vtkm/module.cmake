@@ -1,1 +1,1 @@
-vtk_module(vtkm EXCLUDE_FROM_WRAPPING)
+vtk_module(vtkVTKm EXCLUDE_FROM_WRAPPING)

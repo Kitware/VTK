@@ -42,18 +42,16 @@ set(VTKm_INSTALL_CONFIG_DIR "${VTK_INSTALL_PACKAGE_DIR}/vtkm")
 set(VTKm_CUSTOM_LIBRARY_SUFFIX "${lib_suffix}")
 set(VTKm_NO_ASSERT "ON") #helps improve performance in debug mode
 
-set(vtkm_LIBRARIES vtkm vtkm_cont)
-
 # These need to be explicitly set as the wrapping code doesn't properly handle
 # grabbing include directories from dependent interface libraries
-set(vtkm_INCLUDE_DIRS
+set(vtkVTKm
     ${CMAKE_CURRENT_BINARY_DIR}/vtk-m/include
     ${CMAKE_CURRENT_SOURCE_DIR}/vtk-m
     )
+
+add_library(vtkVTKm INTERFACE)
 vtk_module_export_info()
 add_subdirectory(vtk-m)
 
-vtk_target_export(vtkm)
-vtk_target_export(vtkm_cont)
-
-set_target_properties(vtkm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
+set_target_properties(vtkVTKm PROPERTIES INTERFACE_LINK_LIBRARIES vtkm_cont)
+vtk_target_export(vtkVTKm)
