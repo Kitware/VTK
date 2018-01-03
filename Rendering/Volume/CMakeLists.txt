@@ -1,38 +1,38 @@
-set(Module_SRCS
-  vtkDirectionEncoder.cxx
-  vtkEncodedGradientEstimator.cxx
-  vtkEncodedGradientShader.cxx
-  vtkFiniteDifferenceGradientEstimator.cxx
-  vtkFixedPointRayCastImage.cxx
-  vtkFixedPointVolumeRayCastCompositeGOHelper.cxx
-  vtkFixedPointVolumeRayCastCompositeGOShadeHelper.cxx
-  vtkFixedPointVolumeRayCastCompositeHelper.cxx
-  vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
-  vtkFixedPointVolumeRayCastHelper.cxx
-  vtkFixedPointVolumeRayCastMIPHelper.cxx
-  vtkFixedPointVolumeRayCastMapper.cxx
-  vtkGPUVolumeRayCastMapper.cxx
-  vtkMultiVolume.cxx
-  vtkOSPRayVolumeInterface.cxx
-  vtkProjectedTetrahedraMapper.cxx
-  vtkRayCastImageDisplayHelper.cxx
-  vtkRecursiveSphereDirectionEncoder.cxx
-  vtkSphericalDirectionEncoder.cxx
-  vtkUnstructuredGridBunykRayCastFunction.cxx
-  vtkUnstructuredGridHomogeneousRayIntegrator.cxx
-  vtkUnstructuredGridLinearRayIntegrator.cxx
-  vtkUnstructuredGridPartialPreIntegration.cxx
-  vtkUnstructuredGridPreIntegration.cxx
-  vtkUnstructuredGridVolumeMapper.cxx
-  vtkUnstructuredGridVolumeRayCastFunction.cxx
-  vtkUnstructuredGridVolumeRayCastIterator.cxx
-  vtkUnstructuredGridVolumeRayCastMapper.cxx
-  vtkUnstructuredGridVolumeRayIntegrator.cxx
-  vtkUnstructuredGridVolumeZSweepMapper.cxx
-  vtkVolumeMapper.cxx
-  vtkVolumeOutlineSource.cxx
-  vtkVolumePicker.cxx
-  vtkVolumeRayCastSpaceLeapingImageFilter.cxx
-)
+set(classes
+  vtkDirectionEncoder
+  vtkEncodedGradientEstimator
+  vtkEncodedGradientShader
+  vtkFiniteDifferenceGradientEstimator
+  vtkFixedPointRayCastImage
+  vtkFixedPointVolumeRayCastCompositeGOHelper
+  vtkFixedPointVolumeRayCastCompositeGOShadeHelper
+  vtkFixedPointVolumeRayCastCompositeHelper
+  vtkFixedPointVolumeRayCastCompositeShadeHelper
+  vtkFixedPointVolumeRayCastHelper
+  vtkFixedPointVolumeRayCastMapper
+  vtkFixedPointVolumeRayCastMIPHelper
+  vtkGPUVolumeRayCastMapper
+  vtkMultiVolume
+  vtkOSPRayVolumeInterface
+  vtkProjectedTetrahedraMapper
+  vtkRayCastImageDisplayHelper
+  vtkRecursiveSphereDirectionEncoder
+  vtkSphericalDirectionEncoder
+  vtkUnstructuredGridBunykRayCastFunction
+  vtkUnstructuredGridHomogeneousRayIntegrator
+  vtkUnstructuredGridLinearRayIntegrator
+  vtkUnstructuredGridPartialPreIntegration
+  vtkUnstructuredGridPreIntegration
+  vtkUnstructuredGridVolumeMapper
+  vtkUnstructuredGridVolumeRayCastFunction
+  vtkUnstructuredGridVolumeRayCastIterator
+  vtkUnstructuredGridVolumeRayCastMapper
+  vtkUnstructuredGridVolumeRayIntegrator
+  vtkUnstructuredGridVolumeZSweepMapper
+  vtkVolumeMapper
+  vtkVolumeOutlineSource
+  vtkVolumePicker
+  vtkVolumeRayCastSpaceLeapingImageFilter)
 
-vtk_module_library(vtkRenderingVolume ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingVolume
+  CLASSES ${classes})
