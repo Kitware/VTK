@@ -1,12 +1,12 @@
-set(Module_SRCS
-  vtkTextureMapToCylinder.cxx
-  vtkTextureMapToPlane.cxx
-  vtkTextureMapToSphere.cxx
-  vtkImplicitTextureCoords.cxx
-  vtkThresholdTextureCoords.cxx
-  vtkTransformTextureCoords.cxx
-  vtkTriangularTCoords.cxx
-  vtkScalarsToTextureFilter.cxx
-  )
+set(classes
+  vtkImplicitTextureCoords
+  vtkScalarsToTextureFilter
+  vtkTextureMapToCylinder
+  vtkTextureMapToPlane
+  vtkTextureMapToSphere
+  vtkThresholdTextureCoords
+  vtkTransformTextureCoords
+  vtkTriangularTCoords)
 
-vtk_module_library(vtkFiltersTexture ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersTexture
+  CLASSES ${classes})
