@@ -23,7 +23,7 @@ vtk_test_cxx_executable(vtkIOExodusCxxTests tests
   RENDERING_FACTORY)
 
 ExternalData_add_test(VTKData
-  NAME vtkIOExodusCxx-Tetra15
+  NAME VTK::IOExodusCxx-Tetra15
   COMMAND vtkIOExodusCxxTests TestExodusTetra15
     -D ${VTK_TEST_DATA_DIR}
     -V DATA{../Data/Baseline/TestExodusTetra15.png}
@@ -32,7 +32,7 @@ ExternalData_add_test(VTKData
 )
 
 ExternalData_add_test(VTKData
-  NAME vtkIOExodusCxx-Wedge21
+  NAME VTK::IOExodusCxx-Wedge21
   COMMAND vtkIOExodusCxxTests TestExodusWedge21
     -D ${VTK_TEST_DATA_DIR}
     -V DATA{../Data/Baseline/TestExodusWedge21.png}

@@ -1,0 +1,25 @@
+NAME
+  VTK::IOExodus
+LIBRARY_NAME
+  vtkIOExodus
+IMPLEMENTABLE
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::IOCore
+  VTK::IOXMLParser
+  VTK::exodusII
+PRIVATE_DEPENDS
+  VTK::FiltersCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeometry
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
