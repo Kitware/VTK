@@ -1,7 +1,7 @@
-set(Module_SRCS
-  vtkPLY.cxx
-  vtkPLYReader.cxx
-  vtkPLYWriter.cxx
-)
+set(classes
+  vtkPLY
+  vtkPLYReader
+  vtkPLYWriter)
 
-vtk_module_library(vtkIOPLY ${Module_SRCS})
+vtk_module_add_module(VTK::IOPLY
+  CLASSES ${classes})

@@ -1,0 +1,21 @@
+NAME
+  VTK::IOPLY
+LIBRARY_NAME
+  vtkIOPLY
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
