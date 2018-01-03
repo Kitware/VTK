@@ -1,0 +1,27 @@
+NAME
+  VTK::IOMPIImage
+LIBRARY_NAME
+  vtkIOMPIImage
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+IMPLEMENTS
+  VTK::IOImage
+DEPENDS
+  VTK::IOImage
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+  VTK::ParallelCore
+  VTK::ParallelMPI
+  VTK::mpi
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
