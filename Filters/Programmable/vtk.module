@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersProgrammable
+LIBRARY_NAME
+  vtkFiltersProgrammable
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonTransforms
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
