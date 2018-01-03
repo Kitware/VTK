@@ -1,23 +1,12 @@
-set(Module_SRCS
-  ExternalVTKWidget.cxx
-  vtkExternalLight.cxx
-  vtkExternalOpenGLCamera.cxx
-  vtkExternalOpenGLRenderer.cxx
-  vtkExternalOpenGLRenderWindow.cxx
-  )
+set(classes
+  ExternalVTKWidget
+  vtkExternalLight
+  vtkExternalOpenGLCamera
+  vtkExternalOpenGLRenderWindow
+  vtkExternalOpenGLRenderer)
 
-set(${vtk-module}_HDRS
-  ExternalVTKWidget.h
-  vtkExternalLight.h
-  vtkExternalOpenGLCamera.h
-  vtkExternalOpenGLRenderer.h
-  vtkExternalOpenGLRenderWindow.h
-  )
-
-vtk_module_library(vtkRenderingExternal ${Module_SRCS})
-include(vtkOpenGL)
-vtk_opengl_link(${vtk-module})
-
-set_target_properties(
-  vtkRenderingExternal
-  PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
+vtk_module_add_module(VTK::RenderingExternal
+  CLASSES ${classes})
+vtk_module_definitions(VTK::RenderingExternal
+  PRIVATE
+    VTK_OPENGL2)
