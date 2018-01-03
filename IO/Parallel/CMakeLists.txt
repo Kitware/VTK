@@ -1,15 +1,21 @@
-set(Module_SRCS
-  vtkEnSightWriter.cxx
-  # vtkExodusIIWriter.cxx needs vtkMultiProcessController
-  vtkMultiBlockPLOT3DReader.cxx
-  vtkMultiBlockPLOT3DReaderInternals.cxx
-  vtkPlot3DMetaReader.cxx
-  vtkPChacoReader.cxx
-  vtkPDataSetReader.cxx
-  vtkPDataSetWriter.cxx
-  vtkPImageWriter.cxx
-  vtkPOpenFOAMReader.cxx
-  vtkPSLACReader.cxx
-  )
+set(classes
+  vtkEnSightWriter
+  vtkMultiBlockPLOT3DReader
+  vtkPlot3DMetaReader
+  vtkPChacoReader
+  vtkPDataSetReader
+  vtkPDataSetWriter
+  vtkPImageWriter
+  vtkPOpenFOAMReader
+  vtkPSLACReader)
 
-vtk_module_library(vtkIOParallel ${Module_SRCS})
+set(sources
+  vtkMultiBlockPLOT3DReaderInternals.cxx)
+
+set(private_headers
+  vtkMultiBlockPLOT3DReaderInternals.h)
+
+vtk_module_add_module(VTK::IOParallel
+  CLASSES ${classes}
+  SOURCES ${sources}
+  PRIVATE_HEADERS ${private_headers})
