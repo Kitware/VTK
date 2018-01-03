@@ -1,30 +1,29 @@
-set(Module_SRCS
-  vtkAdaptiveDataSetSurfaceFilter.cxx
-  vtkBSplineTransform.cxx
-  vtkDepthSortPolyData.cxx
-  vtkDSPFilterDefinition.cxx
-  vtkDSPFilterGroup.cxx
-  vtkEarthSource.cxx
-  vtkFacetReader.cxx
-  vtkForceTime.cxx
-  vtkGreedyTerrainDecimation.cxx
-  vtkGridTransform.cxx
-  vtkImageToPolyDataFilter.cxx
-  vtkImplicitModeller.cxx
-  vtkPCAAnalysisFilter.cxx
-  vtkPolyDataSilhouette.cxx
-  #vtkPolyDataToImageStencil.cxx
-  vtkProcrustesAlignmentFilter.cxx
-  vtkProjectedTerrainPath.cxx
-  vtkRenderLargeImage.cxx
-  vtkTemporalArrayOperatorFilter.cxx
-  vtkTemporalDataSetCache.cxx
-  vtkTemporalFractal.cxx
-  vtkTemporalInterpolator.cxx
-  vtkTemporalShiftScale.cxx
-  vtkTemporalSnapToTimeStep.cxx
-  vtkTransformToGrid.cxx
-  vtkWeightedTransformFilter.cxx
-  )
+set(classes
+  vtkAdaptiveDataSetSurfaceFilter
+  vtkBSplineTransform
+  vtkDepthSortPolyData
+  vtkDSPFilterDefinition
+  vtkDSPFilterGroup
+  vtkEarthSource
+  vtkFacetReader
+  vtkForceTime
+  vtkGreedyTerrainDecimation
+  vtkGridTransform
+  vtkImageToPolyDataFilter
+  vtkImplicitModeller
+  vtkPCAAnalysisFilter
+  vtkPolyDataSilhouette
+  vtkProcrustesAlignmentFilter
+  vtkProjectedTerrainPath
+  vtkRenderLargeImage
+  vtkTemporalArrayOperatorFilter
+  vtkTemporalDataSetCache
+  vtkTemporalFractal
+  vtkTemporalInterpolator
+  vtkTemporalShiftScale
+  vtkTemporalSnapToTimeStep
+  vtkTransformToGrid
+  vtkWeightedTransformFilter)
 
-vtk_module_library(vtkFiltersHybrid ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersHybrid
+  CLASSES ${classes})

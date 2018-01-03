@@ -1,0 +1,32 @@
+NAME
+  VTK::FiltersHybrid
+LIBRARY_NAME
+  vtkFiltersHybrid
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::FiltersGeometry
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::RenderingCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersHyperTree
+  VTK::FiltersSources
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingCore
+  VTK::ImagingStencil
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
