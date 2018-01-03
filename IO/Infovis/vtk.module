@@ -1,0 +1,24 @@
+NAME
+  VTK::IOInfovis
+LIBRARY_NAME
+  vtkIOInfovis
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOLegacy
+  VTK::IOXML
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::IOCore
+  VTK::IOXMLParser
+  VTK::InfovisCore
+  VTK::libxml2
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::InfovisCore
+  VTK::InfovisLayout
+  VTK::RenderingCore
+  VTK::TestingRendering
