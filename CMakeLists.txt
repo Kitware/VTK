@@ -121,10 +121,10 @@ endif()
 add_custom_target(vtkCompileTools)
 if (_vtk_compiletools_targets)
   list(REMOVE_DUPLICATES _vtk_compiletools_targets)
-  export(TARGETS ${_vtk_compiletools_targets}
-         FILE ${VTK_BINARY_DIR}/VTKCompileToolsConfig.cmake)
   add_dependencies(vtkCompileTools ${_vtk_compiletools_targets})
 endif()
+export(TARGETS ${_vtk_compiletools_targets}
+  FILE ${VTK_BINARY_DIR}/VTKCompileToolsConfig.cmake)
 
 unset(_vtk_targets)
 unset(_vtk_compiletools_targets)
