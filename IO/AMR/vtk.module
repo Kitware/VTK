@@ -1,0 +1,22 @@
+NAME
+  VTK::IOAMR
+LIBRARY_NAME
+  vtkIOAMR
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersAMR
+  VTK::ParallelCore
+  VTK::hdf5
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::IOXML
+  VTK::TestingCore
+  VTK::TestingRendering
