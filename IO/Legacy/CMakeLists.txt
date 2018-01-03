@@ -1,33 +1,33 @@
-SET(Module_SRCS
-  vtkCompositeDataReader.cxx
-  vtkCompositeDataWriter.cxx
-  vtkDataObjectReader.cxx
-  vtkDataObjectWriter.cxx
-  vtkDataReader.cxx
-  vtkDataSetReader.cxx
-  vtkDataSetWriter.cxx
-  vtkDataWriter.cxx
-  vtkGenericDataObjectReader.cxx
-  vtkGenericDataObjectWriter.cxx
-  vtkGraphReader.cxx
-  vtkGraphWriter.cxx
-  vtkPixelExtentIO.cxx
-  vtkPolyDataReader.cxx
-  vtkPolyDataWriter.cxx
-  vtkRectilinearGridReader.cxx
-  vtkRectilinearGridWriter.cxx
-  vtkSimplePointsReader.cxx
-  vtkSimplePointsWriter.cxx
-  vtkStructuredGridReader.cxx
-  vtkStructuredGridWriter.cxx
-  vtkStructuredPointsReader.cxx
-  vtkStructuredPointsWriter.cxx
-  vtkTableReader.cxx
-  vtkTableWriter.cxx
-  vtkTreeReader.cxx
-  vtkTreeWriter.cxx
-  vtkUnstructuredGridReader.cxx
-  vtkUnstructuredGridWriter.cxx
-  )
+set(classes
+  vtkCompositeDataReader
+  vtkCompositeDataWriter
+  vtkDataObjectReader
+  vtkDataObjectWriter
+  vtkDataReader
+  vtkDataSetReader
+  vtkDataSetWriter
+  vtkDataWriter
+  vtkGenericDataObjectReader
+  vtkGenericDataObjectWriter
+  vtkGraphReader
+  vtkGraphWriter
+  vtkPixelExtentIO
+  vtkPolyDataReader
+  vtkPolyDataWriter
+  vtkRectilinearGridReader
+  vtkRectilinearGridWriter
+  vtkSimplePointsReader
+  vtkSimplePointsWriter
+  vtkStructuredGridReader
+  vtkStructuredGridWriter
+  vtkStructuredPointsReader
+  vtkStructuredPointsWriter
+  vtkTableReader
+  vtkTableWriter
+  vtkTreeReader
+  vtkTreeWriter
+  vtkUnstructuredGridReader
+  vtkUnstructuredGridWriter)
 
-vtk_module_library(vtkIOLegacy ${Module_SRCS})
+vtk_module_add_module(VTK::IOLegacy
+  CLASSES ${classes})
