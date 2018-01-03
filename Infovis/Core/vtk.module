@@ -1,0 +1,21 @@
+NAME
+  VTK::InfovisCore
+LIBRARY_NAME
+  vtkInfovisCore
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOInfovis
+  VTK::InfovisLayout
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
