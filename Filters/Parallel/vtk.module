@@ -1,0 +1,39 @@
+NAME
+  VTK::FiltersParallel
+LIBRARY_NAME
+  vtkFiltersParallel
+IMPLEMENTABLE
+KIT
+  VTK::Parallel
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+  VTK::FiltersExtraction
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::FiltersModeling
+  VTK::FiltersSources
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::IOLegacy
+  VTK::ParallelCore
+  VTK::RenderingCore
+TEST_DEPENDS
+  VTK::FiltersFlowPaths
+  VTK::FiltersParallelGeometry
+  VTK::FiltersParallelImaging
+  VTK::FiltersParallelMPI
+  VTK::IOLegacy
+  VTK::IOParallelExodus
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::ParallelMPI
+  VTK::RenderingOpenGL2
+  VTK::RenderingParallel
+  VTK::TestingCore
+  VTK::TestingRendering
