@@ -1,0 +1,17 @@
+NAME
+  VTK::FiltersParallelStatistics
+LIBRARY_NAME
+  vtkFiltersParallelStatistics
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::FiltersStatistics
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::ParallelCore
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::ParallelMPI
+  VTK::TestingCore
