@@ -1,29 +1,30 @@
-SET(Module_SRCS
-  vtkAbstractParticleWriter.cxx
-  vtkArrayReader.cxx
-  vtkArrayWriter.cxx
-  vtkASCIITextCodec.cxx
-  vtkBase64InputStream.cxx
-  vtkBase64OutputStream.cxx
-  vtkBase64Utilities.cxx
-  vtkDataCompressor.cxx
-  vtkDelimitedTextWriter.cxx
-  vtkGlobFileNames.cxx
-  vtkInputStream.cxx
-  vtkJavaScriptDataWriter.cxx
-  vtkLZ4DataCompressor.cxx
-  vtkOutputStream.cxx
-  vtkSortFileNames.cxx
-  vtkTextCodec.cxx
-  vtkTextCodecFactory.cxx
-  vtkUTF16TextCodec.cxx
-  vtkUTF8TextCodec.cxx
-  vtkAbstractPolyDataReader.cxx
-  vtkWriter.cxx
-  vtkZLibDataCompressor.cxx
-  vtkArrayDataReader.cxx
-  vtkArrayDataWriter.cxx
-  vtkLZMADataCompressor.cxx
-  vtkNumberToString.cxx
-  )
-vtk_module_library(vtkIOCore ${Module_SRCS})
+set(classes
+  vtkAbstractParticleWriter
+  vtkAbstractPolyDataReader
+  vtkArrayDataReader
+  vtkArrayDataWriter
+  vtkArrayReader
+  vtkArrayWriter
+  vtkASCIITextCodec
+  vtkBase64InputStream
+  vtkBase64OutputStream
+  vtkBase64Utilities
+  vtkDataCompressor
+  vtkDelimitedTextWriter
+  vtkGlobFileNames
+  vtkInputStream
+  vtkJavaScriptDataWriter
+  vtkLZ4DataCompressor
+  vtkLZMADataCompressor
+  vtkNumberToString
+  vtkOutputStream
+  vtkSortFileNames
+  vtkTextCodec
+  vtkTextCodecFactory
+  vtkUTF16TextCodec
+  vtkUTF8TextCodec
+  vtkWriter
+  vtkZLibDataCompressor)
+
+vtk_module_add_module(VTK::IOCore
+  CLASSES ${classes})

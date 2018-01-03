@@ -1,0 +1,22 @@
+NAME
+  VTK::IOCore
+LIBRARY_NAME
+  vtkIOCore
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::doubleconversion
+  VTK::lz4
+  VTK::lzma
+  VTK::utf8
+  VTK::vtksys
+  VTK::zlib
+TEST_DEPENDS
+  VTK::TestingCore
