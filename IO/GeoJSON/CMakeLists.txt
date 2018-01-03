@@ -1,7 +1,7 @@
-set(Module_SRCS
-  vtkGeoJSONFeature.cxx
-  vtkGeoJSONReader.cxx
-  vtkGeoJSONWriter.cxx
-  )
+set(classes
+  vtkGeoJSONFeature
+  vtkGeoJSONReader
+  vtkGeoJSONWriter)
 
-vtk_module_library(vtkIOGeoJSON ${Module_SRCS})
+vtk_module_add_module(VTK::IOGeoJSON
+  CLASSES ${classes})
