@@ -47,8 +47,8 @@ if(BUILD_TESTING)
     set(vtk-example IOExamples)
     set(TestDumpXMLFile_ARGS "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}")
     set(TestParticleReader_ARGS
-      "${VTK_TEST_DATA_DIR}/Data/golf.csv"
-      ${VTK_TEST_OUTPUT_DIR}/TestParticleReader.vtp)
+      "${_vtk_build_TEST_DATA_DIRECTORY}/Data/golf.csv"
+      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/TestParticleReader.vtp)
     vtk_add_test_cxx(${vtk-example}CxxTests tests
       NO_DATA NO_VALID NO_OUTPUT
       TestParticleReader.cxx

@@ -35,10 +35,10 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
     ######## Regression Testing ########
     set(vtk-example MedicalExamples)
-    set(TestMedical1_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
-    set(TestMedical2_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
-    set(TestMedical3_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
-    set(TestMedical4_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
+    set(TestMedical1_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
+    set(TestMedical2_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
+    set(TestMedical3_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
+    set(TestMedical4_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
     vtk_add_test_cxx(${vtk-example}CxxTests tests
       TestMedical1.cxx
       TestMedical2.cxx

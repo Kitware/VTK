@@ -16,8 +16,8 @@ function(vtk_add_svg_test)
     # Convert svg to png
     add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
-        "-DSVGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}.svg"
-        "-DPNGFILE=${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        "-DSVGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
+        "-DPNGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         "-DCONVERTER=${VTK_WKHTMLTOIMAGE_EXECUTABLE}"
         -DREMOVESVG=1
         -P "${vtkTestingSVG_SOURCE_DIR}/RasterizeSVG.cmake"
@@ -25,7 +25,7 @@ function(vtk_add_svg_test)
     set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
       PROPERTIES
         DEPENDS "${vtk-module}Cxx-${TName}"
-        REQUIRED_FILES "${VTK_TEST_OUTPUT_DIR}/${TName}.svg"
+        REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
         LABELS "${${vtk-module}_TEST_LABELS}"
     )
 
@@ -40,16 +40,16 @@ function(vtk_add_svg_test)
     ExternalData_add_test(VTKData
       NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
-        -D "${VTK_TEST_DATA_DIR}"
-        -T "${VTK_TEST_OUTPUT_DIR}"
+        -D "${_vtk_build_TEST_DATA_DIRECTORY}"
+        -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
         -E "${_error_threshold}"
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"
-        --test-file "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        --test-file "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
     )
     set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
       PROPERTIES
         DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
-        REQUIRED_FILES "${VTK_TEST_OUTPUT_DIR}/${TName}-raster.png"
+        REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
         LABELS "${${vtk-module}_TEST_LABELS}"
         )
   endforeach()

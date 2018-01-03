@@ -34,7 +34,7 @@ if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)
    ######## Regression Testing ########
    set(vtk-example ImageProcessingExamples)
-   set(TestImageSlicing_ARGS ${VTK_TEST_DATA_DIR}/Data/headsq/quarter)
+   set(TestImageSlicing_ARGS ${_vtk_build_TEST_DATA_DIRECTORY}/Data/headsq/quarter)
    set(TestImageBenchmark_ARGS
        "--threads" "2" "--filter" "resize:kernelsize=4")
    vtk_add_test_cxx(${vtk-example}CxxTests tests

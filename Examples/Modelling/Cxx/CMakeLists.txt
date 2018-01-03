@@ -31,11 +31,11 @@ if(BUILD_TESTING)
     set(TestFinance_ARGS "DATA{${VTK_TEST_INPUT_DIR}/financial.txt}")
     set(TestDelaunay3D_ARGS
       "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
-      ${VTK_TEST_OUTPUT_DIR}/Delaunay3D.vtu
+      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/Delaunay3D.vtu
       )
     set(TestDelaunay3DAlpha_ARGS
       .5 "DATA{${VTK_TEST_INPUT_DIR}/cow.vtp}"
-      ${VTK_TEST_OUTPUT_DIR}/Delaunay3DAlpha.vtu
+      ${_vtk_build_TEST_OUTPUT_DIRECTORY}/Delaunay3DAlpha.vtu
       )
     vtk_add_test_cxx(${vtk-example}CxxTests data_tests
       TestFinance.cxx
