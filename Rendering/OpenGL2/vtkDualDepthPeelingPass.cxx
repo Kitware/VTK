@@ -395,32 +395,33 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
 {
   const std::string rayInit =
     "  // Transform zStart and zEnd to texture_coordinates\n"
-    "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *\n"
+    "  mat4 NDCToTextureCoords = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix[0] *\n"
     "    in_inverseModelViewMatrix * in_inverseProjectionMatrix;\n"
     "  \n"
     "  // Start point\n"
     "  vec4 startPoint = WindowToNDC(gl_FragCoord.x, gl_FragCoord.y, zStart);\n"
     "  startPoint = NDCToTextureCoords * startPoint;\n"
     "  startPoint /= startPoint.w;\n"
-    "  \n"
-    "  // startPoint could be located outside of the bounding box (bbox), this\n"
-    "  // is the case in:\n"
-    "  // 1. PeelVolumesOutside: Areas external to any geometry.\n"
-    "  // 2. PeelVolumetricGeometry: Areas where the volume is contained within\n"
-    "  // translucent geometry but the containing geometry lies outside of the bbox\n"
-    "  // (startPoint is either in-front or behind the bbox depending on the viewpoint).\n"
-    "\n"
-    "  // Given that startPoint could be located either in-front, inside or behind the\n"
-    "  // bbox (the ray exit is unknown hence it is not possible to use clamp() directly),\n"
-    "  // the clamp is divided in these three zones:\n"
-    "  // a. In-front: clamp to ip_textureCoords (bbox's texture coord).\n"
-    "  // b. Inside: use startPoint directly as it is peeling within the bbox.\n"
-    "  // c. Behind: discard by returning vec4(0.f).\n"
+
+    // startPoint could be located outside of the bounding box (bbox), this
+    // is the case in:
+    // 1. PeelVolumesOutside: Areas external to any geometry.
+    // 2. PeelVolumetricGeometry: Areas where the volume is contained within
+    // translucent geometry but the containing geometry lies outside of the bbox
+    // (startPoint is either in-front or behind the bbox depending on the viewpoint).
+    //
+    // Given that startPoint could be located either in-front, inside or behind the\n"
+    // bbox (the ray exit is unknown hence it is not possible to use clamp() directly),\n"
+    // the clamp is divided in these three zones:\n"
+    // a. In-front: clamp to ip_textureCoords (bbox's texture coord).\n"
+    // b. Inside: use startPoint directly as it is peeling within the bbox.\n"
+    // c. Behind: discard by returning vec4(0.f).\n"
+
     "\n"
     "  // Initialize g_dataPos as if startPoint lies Inside (b.)\n"
     "  g_dataPos = startPoint.xyz;\n"
-    "  bool isInsideBBox = !(any(greaterThan(startPoint.xyz, in_texMax)) ||\n"
-    "    any(lessThan(startPoint.xyz, in_texMin)));\n"
+    "  bool isInsideBBox = !(any(greaterThan(startPoint.xyz, in_texMax[0])) ||\n"
+    "    any(lessThan(startPoint.xyz, in_texMin[0])));\n"
     "  if (!isInsideBBox)\n"
     "  {\n"
     "    vec3 distStartTexCoord = ip_textureCoords.xyz - startPoint.xyz;\n"
@@ -602,23 +603,27 @@ bool vtkDualDepthPeelingPass::PreReplaceVolumetricShaderValues(
             "  bool onlyBack = frontStartDepth == backStartDepth &&\n"
             "                  frontEndDepth == backEndDepth;\n"
             "\n"
-            "  // In the last peel, innerDepths may be (-1, -1) for most of the\n"
-            "  // fragments. Casting a ray from [outerDepths.x, 1.0] would result\n"
-            "  // in accumulating areas that have already been accounted for in\n"
-            "  // former volume peels.  In this case frontEndDepth should be the\n"
-            "  // outer max instead. Because of this, the back castRay() is also\n"
-            "  // skipped.\n"
+
+            // In the last peel, innerDepths may be (-1, -1) for most of the
+            // fragments. Casting a ray from [outerDepths.x, 1.0] would result
+            // in accumulating areas that have already been accounted for in
+            // former volume peels.  In this case frontEndDepth should be the
+            // outer max instead. Because of this, the back castRay() is also
+            // skipped.
+
             "  bool noInnerDepths = innerDepths.x == -1.0;\n"
             "  if (noInnerDepths)\n"
             "  {\n"
             "    frontEndDepth = outerDepths.y;\n"
             "  }\n"
             "\n"
-            "  // Peel passes set -1 in pixels that contain only opaque geometry,\n"
-            "  // so the opaque depth is fetched in order to z-composite volumes\n"
-            "  // with opaque goemetry. To do this, the end point of front is clamped\n"
-            "  // to opaque-depth and back ray-cast is skipped altogether since it\n"
-            "  // would be covered by opaque geometry anyway.\n"
+
+            // Peel passes set -1 in pixels that contain only opaque geometry,
+            // so the opaque depth is fetched in order to z-composite volumes
+            // with opaque goemetry. To do this, the end point of front is clamped
+            // to opaque-depth and back ray-cast is skipped altogether since it
+            // would be covered by opaque geometry anyway.
+
             "  float oDepth = texture2D(opaqueDepthTex, pixelCoord * in_inverseWindowSize).x;\n"
             "  bool endBehindOpaque = frontEndDepth >= oDepth;\n"
             "  float clampedFrontEnd = frontEndDepth;\n"

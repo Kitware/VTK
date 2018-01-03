@@ -48,13 +48,13 @@ float g_currentT;
 float g_terminatePointMax;
 vec4 g_scalar;
 
-uniform vec4 in_volume_scale;
-uniform vec4 in_volume_bias;
+uniform vec4 in_volume_scale[1];
+uniform vec4 in_volume_bias[1];
 
 out vec4 fragOutput0;
 
 // Volume dataset
-uniform sampler3D in_volume;
+uniform sampler3D in_volume[1];
 uniform int in_noOfComponents;
 uniform int in_independentComponents;
 
@@ -67,23 +67,23 @@ uniform sampler2D in_depthSampler;
 uniform vec3 in_cameraPos;
 
 // view and model matrices
-uniform mat4 in_volumeMatrix;
-uniform mat4 in_inverseVolumeMatrix;
+uniform mat4 in_volumeMatrix[1];
+uniform mat4 in_inverseVolumeMatrix[1];
 uniform mat4 in_projectionMatrix;
 uniform mat4 in_inverseProjectionMatrix;
 uniform mat4 in_modelViewMatrix;
 uniform mat4 in_inverseModelViewMatrix;
-uniform mat4 in_textureDatasetMatrix;
-uniform mat4 in_inverseTextureDatasetMatrix;
+uniform mat4 in_textureDatasetMatrix[1];
+uniform mat4 in_inverseTextureDatasetMatrix[1];
 varying mat4 ip_inverseTextureDataAdjusted;
 uniform vec3 in_texMin;
 uniform vec3 in_texMax;
-uniform mat4 in_textureToEye;
+uniform mat4 in_textureToEye[1];
 
 // Ray step size
-uniform vec3 in_cellStep;
+uniform vec3 in_cellStep[1];
 uniform vec2 in_scalarsRange[4];
-uniform vec3 in_cellSpacing;
+uniform vec3 in_cellSpacing[1];
 
 // Sample distance
 uniform float in_sampleDistance;
@@ -131,10 +131,10 @@ mat4 textureToObjMat;
 
 //VTK::GradientCache::Dec
 
-uniform sampler2D in_opacityTransferFunc;
+uniform sampler2D in_opacityTransferFunc_0[1];
 float computeOpacity(vec4 scalar)
 {
-  return texture2D(in_opacityTransferFunc, vec2(scalar.w, 0)).r;
+  return texture2D(in_opacityTransferFunc_0[0], vec2(scalar.w, 0)).r;
 }
 
 // c is short for component
@@ -143,16 +143,16 @@ vec4 computeGradient(int c)
   // Approximate Nabla(F) derivatives with central differences.
   vec3 g1; // F_front
   vec3 g2; // F_back
-  g1.x = texture3D(in_volume, vec3(g_dataPos + g_xvec))[c];
-  g1.y = texture3D(in_volume, vec3(g_dataPos + g_yvec))[c];
-  g1.z = texture3D(in_volume, vec3(g_dataPos + g_zvec))[c];
-  g2.x = texture3D(in_volume, vec3(g_dataPos - g_xvec))[c];
-  g2.y = texture3D(in_volume, vec3(g_dataPos - g_yvec))[c];
-  g2.z = texture3D(in_volume, vec3(g_dataPos - g_zvec))[c];
+  g1.x = texture3D(in_volume[0], vec3(g_dataPos + g_xvec))[c];
+  g1.y = texture3D(in_volume[0], vec3(g_dataPos + g_yvec))[c];
+  g1.z = texture3D(in_volume[0], vec3(g_dataPos + g_zvec))[c];
+  g2.x = texture3D(in_volume[0], vec3(g_dataPos - g_xvec))[c];
+  g2.y = texture3D(in_volume[0], vec3(g_dataPos - g_yvec))[c];
+  g2.z = texture3D(in_volume[0], vec3(g_dataPos - g_zvec))[c];
 
   // Apply scale and bias to the fetched values.
-  g1 = g1 * in_volume_scale[c] + in_volume_bias[c];
-  g2 = g2 * in_volume_scale[c] + in_volume_bias[c];
+  g1 = g1 * in_volume_scale[0][c] + in_volume_bias[0][c];
+  g2 = g2 * in_volume_scale[0][c] + in_volume_bias[0][c];
 
   // Central differences: (F_front - F_back) / 2h
   // This version of computeGradient() is only used for lighting
@@ -163,7 +163,7 @@ vec4 computeGradient(int c)
 
 
 
-uniform sampler2D in_colorTransferFunc;
+uniform sampler2D in_colorTransferFunc_0[1];
 vec3 computeRayDirection()
 {
   return normalize(ip_vertexPos.xyz - g_eyePosObj.xyz);
@@ -248,7 +248,7 @@ void initializeRayCast()
   g_dataPos = ip_textureCoords.xyz;
 
   // Eye position in dataset space
-  g_eyePosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));
+  g_eyePosObj = (in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0));
   if (g_eyePosObj.w != 0.0)
   {
     g_eyePosObj.x /= g_eyePosObj.w;
@@ -289,7 +289,7 @@ void initializeRayCast()
   // Flag to deternmine if voxel should be considered for the rendering
   g_skip = false;
   // Light position in dataset space
-  g_lightPosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));
+  g_lightPosObj = (in_inverseVolumeMatrix[0] * vec4(in_cameraPos, 1.0));
   if (g_lightPosObj.w != 0.0)
   {
     g_lightPosObj.x /= g_lightPosObj.w;
@@ -300,9 +300,9 @@ void initializeRayCast()
   g_ldir = normalize(g_lightPosObj.xyz - ip_vertexPos);
   g_vdir = normalize(g_eyePosObj.xyz - ip_vertexPos);
   g_h = normalize(g_ldir + g_vdir);
-  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);
-  g_yvec = vec3(0.0, in_cellStep[1], 0.0);
-  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);
+  g_xvec = vec3(in_cellStep[0].x, 0.0, 0.0);
+  g_yvec = vec3(0.0, in_cellStep[0].y, 0.0);
+  g_zvec = vec3(0.0, 0.0, in_cellStep[0].z);
 
   l_updateDepth = true;
   l_opaqueFragPos = vec3(0.0);
@@ -338,7 +338,7 @@ void initializeRayCast()
   // From normalized device coordinates to eye coordinates.
   // in_projectionMatrix is inversed because of way VT
   // From eye coordinates to texture coordinates
-  terminatePoint = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix *
+  terminatePoint = ip_inverseTextureDataAdjusted * in_inverseVolumeMatrix[0] *
     in_inverseModelViewMatrix * in_inverseProjectionMatrix * terminatePoint;
   terminatePoint /= terminatePoint.w;
 
@@ -379,8 +379,8 @@ vec4 castRay(const float zStart, const float zEnd)
 
     if (!g_skip)
     {
-      vec4 scalar = texture3D(in_volume, g_dataPos);
-      scalar.r = scalar.r * in_volume_scale.r + in_volume_bias.r;
+      vec4 scalar = texture3D(in_volume[0], g_dataPos);
+      scalar.r = scalar.r * in_volume_scale[0].r + in_volume_bias[0].r;
       scalar = vec4(scalar.r, scalar.r, scalar.r, scalar.r);
       g_scalar = scalar;
       g_srcColor = vec4(0.0);
@@ -431,7 +431,7 @@ void finalizeRayCast()
   else
   {
     gl_FragData[0] =
-      texture2D(in_colorTransferFunc, vec2(l_opaqueFragPos.z, 0.0)).xyzw;
+      texture2D(in_colorTransferFunc_0[0], vec2(l_opaqueFragPos.z, 0.0)).xyzw;
   }
 
   //VTK::DepthPass::Exit

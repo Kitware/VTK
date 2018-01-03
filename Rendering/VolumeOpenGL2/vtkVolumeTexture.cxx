@@ -7,10 +7,10 @@
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
-#include "vtkOpenGLGPUVolumeRayCastMapper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkTextureObject.h"
+#include "vtkVolumeProperty.h"
 #include "vtkVolumeTexture.h"
 #include "vtk_glew.h"
 
@@ -25,15 +25,23 @@ vtkVolumeTexture::vtkVolumeTexture()
 {
   this->Partitions[0] = this->Partitions[1] = this->Partitions[2] = 1;
 
-  this->ScalarRange[0][0] = this->ScalarRange[0][1] = 0.0;
-  this->ScalarRange[1][0] = this->ScalarRange[1][1] = 0.0;
-  this->ScalarRange[2][0] = this->ScalarRange[2][1] = 0.0;
-  this->ScalarRange[3][0] = this->ScalarRange[3][1] = 0.0;
+  this->ScalarRange[0][0] = this->ScalarRange[0][1] = 0.f;
+  this->ScalarRange[1][0] = this->ScalarRange[1][1] = 0.f;
+  this->ScalarRange[2][0] = this->ScalarRange[2][1] = 0.f;
+  this->ScalarRange[3][0] = this->ScalarRange[3][1] = 0.f;
 
   this->Scale[0] = 1.0f; this->Bias[0] = 0.0f;
   this->Scale[1] = 1.0f; this->Bias[1] = 0.0f;
   this->Scale[2] = 1.0f; this->Bias[2] = 0.0f;
   this->Scale[3] = 1.0f; this->Bias[3] = 0.0f;
+
+  this->CellToPointMatrix->Identity();
+  this->AdjustedTexMin[0] = this->AdjustedTexMin[1] =
+    this->AdjustedTexMin[2] = 0.0f;
+  this->AdjustedTexMin[3] = 1.0f;
+  this->AdjustedTexMax[0] = this->AdjustedTexMax[1] =
+    this->AdjustedTexMax[2] = 1.0f;
+  this->AdjustedTexMax[3] = 1.0f;
 }
 
 //-----------------------------------------------------------------------------
@@ -46,23 +54,12 @@ vtkVolumeTexture::~vtkVolumeTexture()
 vtkStandardNewMacro(vtkVolumeTexture);
 
 //-----------------------------------------------------------------------------
-void vtkVolumeTexture::SetMapper(vtkOpenGLGPUVolumeRayCastMapper* mapper)
-{
-  if (mapper == nullptr)
-  {
-    vtkErrorMacro("Invalid mapper!");
-    return;
-  }
-
-  this->Mapper = mapper;
-}
-
-//-----------------------------------------------------------------------------
 bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
-  vtkDataArray* scalars, int const interpolation)
+  vtkDataArray* scalars, int const isCell, int const interpolation)
 {
   this->ClearBlocks();
   this->Scalars = scalars;
+  this->IsCellData = isCell;
   this->InterpolationType = interpolation;
   data->GetExtent(this->FullExtent.GetData());
 
@@ -74,7 +71,7 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   }
   else // Single block
   {
-    if (this->Mapper->CellFlag == 1)
+    if (this->IsCellData == 1)
     {
       this->AdjustExtentForCell(this->FullExtent);
     }
@@ -87,7 +84,7 @@ bool vtkVolumeTexture::LoadVolume(vtkRenderer* ren, vtkImageData* data,
   // Get default formats from vtkTextureObject
   if(!this->Texture)
   {
-    this->Texture = vtkTextureObject::New();
+    this->Texture = vtkSmartPointer<vtkTextureObject>::New();
     this->Texture->SetContext(vtkOpenGLRenderWindow::SafeDownCast(
       ren->GetRenderWindow()));
   }
@@ -133,14 +130,14 @@ void vtkVolumeTexture::SetInterpolation(int const interpolation)
 //-----------------------------------------------------------------------------
 vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
 {
+  this->CurrentBlockIdx++;
   // All blocks were already rendered
   if (this->SortedVolumeBlocks.size() <= this->CurrentBlockIdx)
   {
     this->CurrentBlockIdx = 0;
     return nullptr;
   }
-
-  VolumeBlock* block = this->SortedVolumeBlocks.at(this->CurrentBlockIdx);
+  VolumeBlock* block = this->SortedVolumeBlocks[this->CurrentBlockIdx];
 
   // Load current block
   if (this->StreamBlocks)
@@ -148,8 +145,13 @@ vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetNextBlock()
       this->LoadTexture(this->InterpolationType, block);
   }
 
-  this->CurrentBlockIdx++;
   return block;
+}
+
+//-----------------------------------------------------------------------------
+vtkVolumeTexture::VolumeBlock* vtkVolumeTexture::GetCurrentBlock()
+{
+  return this->SortedVolumeBlocks[this->CurrentBlockIdx];
 }
 
 //-----------------------------------------------------------------------------
@@ -180,7 +182,10 @@ void vtkVolumeTexture::CreateBlocks(unsigned int const format,
       ext[2] * this->FullSizeAdjusted[0] + ext[0];
 
     this->ImageDataBlockMap[imData] = block;
+    this->ComputeBounds(block);
+    this->UpdateTextureToDataMatrix(block);
   }
+  this->ComputeCellToPointMatrix(this->FullExtent.GetData());
 
   // Format texture
   this->Texture->SetFormat(format);
@@ -368,7 +373,6 @@ void vtkVolumeTexture::ReleaseGraphicsResources(vtkWindow* win)
   if (this->Texture)
   {
     this->Texture->ReleaseGraphicsResources(win);
-    this->Texture->Delete();
     this->Texture = nullptr;
   }
 }
@@ -427,7 +431,7 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const & part)
 
         // Adjust extents depending on the data representation (cell or point) and
         // compute texture size.
-        if (this->Mapper->CellFlag == 1)
+        if (this->IsCellData == 1)
         {
           this->AdjustExtentForCell(ext);
         }
@@ -445,7 +449,7 @@ void vtkVolumeTexture::SplitVolume(vtkImageData* imageData, Size3 const & part)
 
 //-----------------------------------------------------------------------------
 void vtkVolumeTexture::GetScaleAndBias(const int scalarType,
-                                       double* scalarRange,
+                                       float* scalarRange,
                                        float& scale,
                                        float& bias)
 {
@@ -518,19 +522,19 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
         switch(noOfComponents)
         {
           case 1:
-            internalFormat = GL_R16F;
+            internalFormat = GL_R32F;
             format = GL_RED;
             break;
           case 2:
-            internalFormat = GL_RG16F;
+            internalFormat = GL_RG32F;
             format = GL_RG;
             break;
           case 3:
-            internalFormat = GL_RGB16F;
+            internalFormat = GL_RGB32F;
             format = GL_RGB;
             break;
           case 4:
-            internalFormat = GL_RGBA16F;
+            internalFormat = GL_RGBA32F;
             format = GL_RGBA;
             break;
         }
@@ -578,7 +582,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
         case 1:
           if (supportsFloat)
           {
-            internalFormat = GL_R16F;
+            internalFormat = GL_R32F;
           }
           else
           {
@@ -615,7 +619,7 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
     double* range = this->Scalars->GetFiniteRange(n);
     for (int i = 0; i < 2; ++i)
     {
-      this->ScalarRange[n][i] = range[i];
+      this->ScalarRange[n][i] = static_cast<float>(range[i]);
     }
   }
 
@@ -627,13 +631,23 @@ void vtkVolumeTexture::SelectTextureFormat(unsigned int& format,
   // bias = c - a * scale
   // For unsigned/float types c is zero.
   int const components = vtkMath::Min(noOfComponents, 4);
-  this->Scale[0] = this->Scale[1] = this->Scale[2] = this->Scale[3] = 1.0;
-  this->Bias[0] = Bias[1] = Bias[2] = Bias[3] = 0.0;
   for (int n = 0; n < components; n++)
   {
   this->GetScaleAndBias(scalarType, this->ScalarRange[n],
                         this->Scale[n], this->Bias[n]);
   }
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeTexture::UpdateVolume(vtkVolumeProperty* property)
+{
+  if (property->GetMTime() > this->UpdateTime.GetMTime())
+  {
+    int const newInterp = property->GetInterpolationType();
+    this->UpdateInterpolationType(newInterp);
+  }
+
+  this->UpdateTime.Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -674,6 +688,10 @@ void vtkVolumeTexture::SortBlocksBackToFront(vtkRenderer *ren,
       this->SortedVolumeBlocks.push_back(
         this->ImageDataBlockMap[this->ImageDataBlocks[i]]);
     }
+
+    // Load the first block
+    auto firstBlock = this->SortedVolumeBlocks.at(0);
+    this->LoadTexture(this->InterpolationType, firstBlock);
   }
 }
 
@@ -761,4 +779,162 @@ bool vtkVolumeTexture::SafeLoadTexture(vtkTextureObject* texture, int const widt
   }
 
   return true;
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
+{
+  vtkImageData* input = block->ImageData;
+  double spacing[3];
+  input->GetSpacing(spacing); ///TODO could be causing inf issue on streaming
+  input->GetExtent(block->Extents);
+
+  double origin[3];
+  input->GetOrigin(origin);
+
+  int swapBounds[3];
+  swapBounds[0] = (spacing[0] < 0);
+  swapBounds[1] = (spacing[1] < 0);
+  swapBounds[2] = (spacing[2] < 0);
+
+  // Loaded data represents points
+  if (!this->IsCellData)
+  {
+    // If spacing is negative, we may have to rethink the equation
+    // between real point and texture coordinate...
+    block->LoadedBounds[0] = origin[0] +
+      static_cast<double>(block->Extents[0 + swapBounds[0]]) *
+      spacing[0];
+    block->LoadedBounds[2] = origin[1] +
+      static_cast<double>(block->Extents[2 + swapBounds[1]]) *
+      spacing[1];
+    block->LoadedBounds[4] = origin[2] +
+      static_cast<double>(block->Extents[4 + swapBounds[2]]) *
+      spacing[2];
+    block->LoadedBounds[1] = origin[0] +
+      static_cast<double>(block->Extents[1 - swapBounds[0]]) *
+      spacing[0];
+    block->LoadedBounds[3] = origin[1] +
+      static_cast<double>(block->Extents[3 - swapBounds[1]]) *
+      spacing[1];
+    block->LoadedBounds[5] = origin[2] +
+      static_cast<double>(block->Extents[5 - swapBounds[2]]) *
+      spacing[2];
+  }
+  // Loaded extents represent cells
+  else
+  {
+    int i = 0;
+    while (i < 3)
+    {
+      block->LoadedBounds[2 * i + swapBounds[i]] = origin[i] +
+        (static_cast<double>(block->Extents[2 * i])) *
+        spacing[i];
+
+      block->LoadedBounds[2 * i + 1 - swapBounds[i]] = origin[i] +
+        (static_cast<double>(block->Extents[2 * i + 1]) + 1.0) *
+        spacing[i];
+
+      i++;
+    }
+  }
+
+  // Update sampling distance
+  block->DatasetStepSize[0] = 1.0 / (block->LoadedBounds[1] - block->LoadedBounds[0]);
+  block->DatasetStepSize[1] = 1.0 / (block->LoadedBounds[3] - block->LoadedBounds[2]);
+  block->DatasetStepSize[2] = 1.0 / (block->LoadedBounds[5] - block->LoadedBounds[4]);
+
+  // Cell step/scale are adjusted per block.
+  // Step should be dependent on the bounds and not on the texture size
+  // since we can have a non-uniform voxel size / spacing / aspect ratio.
+  block->CellStep[0] =
+    (1.f / static_cast<float>(block->Extents[1] - block->Extents[0]));
+  block->CellStep[1] =
+    (1.f / static_cast<float>(block->Extents[3] - block->Extents[2]));
+  block->CellStep[2] =
+    (1.f / static_cast<float>(block->Extents[5] - block->Extents[4]));
+
+  auto bounds = block->LoadedBounds;
+  block->CellScale[0] = (bounds[1] - bounds[0]) * 0.5;
+  block->CellScale[1] = (bounds[3] - bounds[2]) * 0.5;
+  block->CellScale[2] = (bounds[5] - bounds[4]) * 0.5;
+
+  this->CellSpacing[0] = static_cast<float>(spacing[0]);
+  this->CellSpacing[1] = static_cast<float>(spacing[1]);
+  this->CellSpacing[2] = static_cast<float>(spacing[2]);
+}
+
+//----------------------------------------------------------------------------
+void vtkVolumeTexture::UpdateTextureToDataMatrix(VolumeBlock* block)
+{
+  auto stepSize = block->DatasetStepSize;
+  auto matrix = block->TextureToDataset.GetPointer();
+  matrix->Identity();
+
+  // Scale diag
+  matrix->SetElement(0, 0, (1.0 / stepSize[0]));
+  matrix->SetElement(1, 1, (1.0 / stepSize[1]));
+  matrix->SetElement(2, 2, (1.0 / stepSize[2]));
+  matrix->SetElement(3, 3, 1.0);
+
+  // Translation vec
+  auto bounds = block->LoadedBounds;
+  matrix->SetElement(0, 3, bounds[0]);
+  matrix->SetElement(1, 3, bounds[2]);
+  matrix->SetElement(2, 3, bounds[4]);
+
+  auto matrixInv = block->TextureToDatasetInv.GetPointer();
+  matrixInv->DeepCopy(matrix);
+  matrixInv->Invert();
+}
+
+//-----------------------------------------------------------------------------
+void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
+{
+  this->CellToPointMatrix->Identity();
+  this->AdjustedTexMin[0] = this->AdjustedTexMin[1] = this->AdjustedTexMin[2] = 0.0f;
+  this->AdjustedTexMin[3] = 1.0f;
+  this->AdjustedTexMax[0] = this->AdjustedTexMax[1] = this->AdjustedTexMax[2] = 1.0f;
+  this->AdjustedTexMax[3] = 1.0f;
+
+  if (!this->IsCellData) // point data
+  {
+    // Extents are one minus the number of elements
+    // so we have to add 1 to it to account for
+    // number of elements in any cell or point image
+    // data.
+    float delta[3];
+    delta[0] = extents[1] - extents[0] + 1;
+    delta[1] = extents[3] - extents[2] + 1;
+    delta[2] = extents[5] - extents[4] + 1;
+
+    float min[3];
+    min[0] = 0.5f / delta[0];
+    min[1] = 0.5f / delta[1];
+    min[2] = 0.5f / delta[2];
+
+    float range[3]; // max - min
+    range[0] = (delta[0] - 0.5f) / delta[0] - min[0];
+    range[1] = (delta[1] - 0.5f) / delta[1] - min[1];
+    range[2] = (delta[2] - 0.5f) / delta[2] - min[2];
+
+    this->CellToPointMatrix->SetElement(0, 0, range[0]); // Scale diag
+    this->CellToPointMatrix->SetElement(1, 1, range[1]);
+    this->CellToPointMatrix->SetElement(2, 2, range[2]);
+    this->CellToPointMatrix->SetElement(0, 3, min[0]);   // t vector
+    this->CellToPointMatrix->SetElement(1, 3, min[1]);
+    this->CellToPointMatrix->SetElement(2, 3, min[2]);
+
+    // Adjust limit coordinates for texture access.
+    float const zeros[4] = {0.0f, 0.0f, 0.0f, 1.0f}; // GL tex min
+    float const ones[4]  = {1.0f, 1.0f, 1.0f, 1.0f}; // GL tex max
+    this->CellToPointMatrix->MultiplyPoint(zeros, this->AdjustedTexMin);
+    this->CellToPointMatrix->MultiplyPoint(ones, this->AdjustedTexMax);
+  }
+}
+
+//----------------------------------------------------------------------------
+vtkDataArray* vtkVolumeTexture::GetLoadedScalars()
+{
+  return this->Scalars;
 }

@@ -12,28 +12,75 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+/**
+ * @class vtkOpenGLGPUVolumeRayCastMapper
+ * @brief OpenGL implementation of volume rendering through ray-casting.
+ *
+ * @section multi Multiple Inputs
+
+ * When multiple inputs are rendered simultaneously, it is possible to
+ * composite overlapping areas correctly. Inputs are connected directly to
+ * the mapper and their parameters (transfer functions, transformations, etc.)
+ * are specified through standard vtkVolume instances. These vtkVolume
+ * instances are to be registered in a special vtkProp3D, vtkMultiVolume.
+ *
+ * Structures related to a particular active input are stored in a helper
+ * class (vtkVolumeInputHelper) and helper structures are kept in a
+ * port-referenced map (VolumeInputMap). The order of the inputs in the
+ * map is important as it defines the order in which parameters are
+ * bound to uniform variables (transformation matrices, bias, scale and every
+ * other required rendering parameter).
+ *
+ * A separate code path is used when rendering multiple-inputs in order to
+ * facilitate the co-existance of these two modes (single/multiple), due to
+ * current feature incompatibilities with multiple inputs (e.g. texture-streaming,
+ * cropping, etc.).
+ *
+ * @note A limited set of the mapper features are currently supported for
+ * multiple inputs:
+ *
+ * - Blending
+ *   - Composite (front-to-back)
+ *
+ * - Transfer functions (defined separately for per input)
+ *   - 1D color
+ *   - 1D scalar opacity
+ *   - 1D gradient magnitude opacity
+ *   - 2D scalar-gradient magnitude
+ *
+ * - Point and cell data
+ *   - With the limitation that all of the inputs are assumed to share the same
+ *     name/id.
+ *
+ * @sa vtkGPUVolumeRayCastMapper vtkVolumeInputHelper vtkVolumeTexture
+ * vtkMultiVolume
+ *
+ */
 
 #ifndef vtkOpenGLGPUVolumeRayCastMapper_h
 #define vtkOpenGLGPUVolumeRayCastMapper_h
+#include <map>                               // For methods
 
-// VTK includes
 #include "vtkNew.h"                          // For vtkNew
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkShader.h"                       // For methods
+#include "vtkSmartPointer.h"                 // For smartptr
 
-// STL includes
-#include <map>                               // For shader replacements
 
-// Forward declarations
 class vtkGenericOpenGLResourceFreeCallback;
 class vtkImplicitFunction;
 class vtkOpenGLCamera;
+class vtkOpenGLTransferFunctions2D;
+class vtkOpenGLVolumeGradientOpacityTables;
+class vtkOpenGLVolumeOpacityTables;
+class vtkOpenGLVolumeRGBTables;
 class vtkShaderProgram;
 class vtkTextureObject;
+class vtkVolume;
+class vtkVolumeInputHelper;
 class vtkVolumeTexture;
 
-//----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
   public vtkGPUVolumeRayCastMapper
 {
@@ -51,14 +98,14 @@ public:
 
   // Description:
   // Low level API to enable access to depth texture in
-  // RenderToTexture mode. It will return either NULL if
+  // RenderToTexture mode. It will return either nullptr if
   // RenderToImage was never turned on or texture captured
   // the last time RenderToImage was on.
   vtkTextureObject* GetDepthTexture();
 
   // Description:
   // Low level API to enable access to color texture in
-  // RenderToTexture mode. It will return either NULL if
+  // RenderToTexture mode. It will return either nullptr if
   // RenderToImage was never turned on or texture captured
   // the last time RenderToImage was on.
   vtkTextureObject* GetColorTexture();
@@ -161,7 +208,7 @@ protected:
 
   // Description:
   // Build vertex and fragment shader for the volume rendering
-  void BuildShader(vtkRenderer* ren, vtkVolume* vol, int noOfCmponents);
+  void BuildShader(vtkRenderer* ren);
 
   // TODO Take these out as these are no longer needed
   // Methods called by the AMR Volume Mapper.
@@ -187,11 +234,8 @@ protected:
   // Description:
   // Method that performs the actual rendering given a volume and a shader
   void DoGPURender(vtkRenderer* ren,
-                   vtkVolume* vol,
                    vtkOpenGLCamera* cam,
-                   vtkShaderProgram* shaderProgram,
-                   int noOfComponents,
-                   int independentComponents);
+                   vtkShaderProgram* shaderProgram);
 
   // Description:
   // Update the reduction factor of the render viewport (this->ReductionFactor)
@@ -265,7 +309,7 @@ protected:
   /**
    *  Update parameters from RenderPass
    */
-  void SetShaderParametersRenderPass(vtkVolume* vol);
+  void SetShaderParametersRenderPass();
 
   /**
    *  Caches the vtkOpenGLRenderPass::RenderPasses() information.
@@ -282,12 +326,16 @@ protected:
   std::map<const vtkShader::ReplacementSpec, vtkShader::ReplacementValue>
     UserShaderReplacements;
 
+public:
+  using VolumeInput = vtkVolumeInputHelper;
+  using VolumeInputMap = std::map<int, vtkVolumeInputHelper>;
+  VolumeInputMap AssembledInputs;
+
 private:
   class vtkInternal;
   vtkInternal* Impl;
 
   friend class vtkVolumeTexture;
-  vtkVolumeTexture* VolumeTexture;
 
   vtkImplicitFunction* NoiseGenerator;
   int NoiseTextureSize[2];

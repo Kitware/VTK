@@ -15,6 +15,7 @@
 
 #ifndef vtkOpenGLVolumeRGBTable_h
 #define vtkOpenGLVolumeRGBTable_h
+#ifndef __VTK_WRAP__
 
 #include <vtkObjectFactory.h>
 #include <vtkColorTransferFunction.h>
@@ -210,15 +211,14 @@ private:
     = delete;
 };
 
-vtkStandardNewMacro(vtkOpenGLVolumeRGBTable);
-
-
 ////////////////////////////////////////////////////////////////////////////////
-class vtkOpenGLVolumeRGBTables
+class vtkOpenGLVolumeRGBTables : public vtkObject
 {
 public:
+  static vtkOpenGLVolumeRGBTables* New();
+
   //--------------------------------------------------------------------------
-  vtkOpenGLVolumeRGBTables(unsigned int numberOfTables)
+  void Create(unsigned int numberOfTables)
   {
     this->Tables.reserve(static_cast<size_t>(numberOfTables));
 
@@ -267,15 +267,19 @@ public:
     }
   }
 
+protected:
+  vtkOpenGLVolumeRGBTables() = default;
+
 private:
   std::vector<vtkOpenGLVolumeRGBTable*> Tables;
 
-  vtkOpenGLVolumeRGBTables() = delete;
+  vtkOpenGLVolumeRGBTables(
+    const vtkOpenGLVolumeRGBTables &other) = delete;
 
-  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other) = delete;
-
-  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other) = delete;
+  vtkOpenGLVolumeRGBTables &operator=(
+    const vtkOpenGLVolumeRGBTables &other) = delete;
 };
 
+#endif
 #endif // vtkOpenGLVolumeRGBTable_h
 // VTK-HeaderTest-Exclude: vtkOpenGLVolumeRGBTable.h

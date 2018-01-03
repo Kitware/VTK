@@ -15,6 +15,7 @@
 
 #ifndef vtkOpenGLTransferFunction2D_h
 #define vtkOpenGLTransferFunction2D_h
+#ifndef __VTK_WRAP__
 
 #include <vtkDataArray.h>
 #include <vtkImageData.h>
@@ -192,13 +193,11 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkOpenGLTransferFunction2D(const vtkOpenGLTransferFunction2D&)
-    = delete;
-  vtkOpenGLTransferFunction2D& operator=(const vtkOpenGLTransferFunction2D&)
-    = delete;
+  vtkOpenGLTransferFunction2D(
+    const vtkOpenGLTransferFunction2D&) = delete;
+  vtkOpenGLTransferFunction2D& operator=(
+    const vtkOpenGLTransferFunction2D&) = delete;
 };
-
-vtkStandardNewMacro(vtkOpenGLTransferFunction2D);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -212,11 +211,13 @@ vtkStandardNewMacro(vtkOpenGLTransferFunction2D);
  *
  *  \sa vtkOpenGLVolumeRGBTables
  */
-class vtkOpenGLTransferFunctions2D
+class vtkOpenGLTransferFunctions2D : public vtkObject
 {
 public:
+  static vtkOpenGLTransferFunctions2D* New();
+
   //--------------------------------------------------------------------------
-  vtkOpenGLTransferFunctions2D(unsigned int numberOfTables)
+  void Create(unsigned int numberOfTables)
   {
     this->Tables.reserve(static_cast<size_t>(numberOfTables));
 
@@ -262,16 +263,18 @@ public:
       this->Tables[i]->ReleaseGraphicsResources(window);
     }
   }
+protected:
+  vtkOpenGLTransferFunctions2D() = default;
 
 private:
-  vtkOpenGLTransferFunctions2D() = delete;
-  vtkOpenGLTransferFunctions2D(const vtkOpenGLTransferFunctions2D& other)
-    = delete;
-  vtkOpenGLTransferFunctions2D& operator=(const vtkOpenGLTransferFunctions2D& other)
-    = delete;
+  vtkOpenGLTransferFunctions2D(
+    const vtkOpenGLTransferFunctions2D& other) = delete;
+  vtkOpenGLTransferFunctions2D& operator=(
+    const vtkOpenGLTransferFunctions2D& other) = delete;
 
   std::vector<vtkOpenGLTransferFunction2D*> Tables;
 };
 
+#endif
 #endif // vtkOpenGLTransferFunction2D_h
 // VTK-HeaderTest-Exclude: vtkOpenGLTransferFunction2D.h

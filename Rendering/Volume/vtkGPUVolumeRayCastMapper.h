@@ -19,20 +19,26 @@
  * vtkGPUVolumeRayCastMapper is a volume mapper that performs ray casting on
  * the GPU using fragment programs.
  *
-*/
-
+ * This mapper supports connections in multiple ports of input 0 (port 0 being
+ * the only required connection). It is up to the concrete implementation
+ * whether additional inputs will be used during rendering. This class maintains
+ * a list of the currently active input ports (Ports) as well as a list of the
+ * ports that have been disconnected (RemovedPorts). RemovedPorts is used the
+ * the concrete implementation to clean up internal structures.
+ *
+ */
 #ifndef vtkGPUVolumeRayCastMapper_h
 #define vtkGPUVolumeRayCastMapper_h
+#include <unordered_map>              // For std::unordered_map
+#include <vector>                     // For std::vector
 
 #include <vtkRenderingVolumeModule.h> // For export macro
-
 #include "vtkVolumeMapper.h"
+
 
 class vtkContourValues;
 class vtkRenderWindow;
 class vtkVolumeProperty;
-
-//class vtkKWAMRVolumeMapper; // friend class.
 
 class VTKRENDERINGVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 {
@@ -393,13 +399,82 @@ public:
   vtkGetMacro(GradientOpacityRangeType, int);
   //@}
 
+  vtkImageData* GetInput() override
+  {
+    return this->GetInput(0);
+  };
+
+  //@{
+  /**
+   * Add/Remove input connections. Active and removed ports are cached in
+   * Ports and RemovedPorts respectively.
+   */
+  void RemoveInputConnection(int port, vtkAlgorithmOutput* input) override;
+  void RemoveInputConnection(int port, int idx) override;
+  void SetInputConnection(int port, vtkAlgorithmOutput* input) override;
+  void SetInputConnection(vtkAlgorithmOutput* input) override
+  {
+    this->SetInputConnection(0, input);
+  }
+  //@}
+
+  /**
+   * Number of currently active ports.
+   */
+  int GetInputCount();
+
+  vtkImageData* GetTransformedInput(const int port = 0);
+
 protected:
   vtkGPUVolumeRayCastMapper();
   ~vtkGPUVolumeRayCastMapper() override;
 
-  // Check to see that the render will be OK
-  int ValidateRender( vtkRenderer *, vtkVolume * );
+  /**
+   * Handle inputs. This mapper provides an interface to support multiple
+   * inputs but it is up to the OpenGL implementation use them during rendering.
+   * Currently, only VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper makes use
+   * of these inputs.
+   *
+   * \sa vtkOpenGLGPUVolumeRayCastMapper vtkMultiVolume
+   */
+  int FillInputPortInformation(int port, vtkInformation* info) override;
 
+  /**
+   * A transformation is applied (translation) to the input.  The resulting
+   * data is stored in TransformedInputs. Takes as an argumet the port of an
+   * input connection.
+   *
+   * ///TODO Elaborate on why this is an issue, texture coords (?)
+   * @TODO: This is the workaround to deal with GPUVolumeRayCastMapper
+   * not able to handle extents starting from non zero values.
+   * There is not a easy fix in the GPU volume ray cast mapper hence
+   * this fix has been introduced.
+   */
+  void TransformInput(const int port);
+
+  //@{
+  /**
+   * This method is used by the Render() method to validate everything before
+   * attempting to render. This method returns 0 if something is not right -
+   * such as missing input, a null renderer or a null volume, no scalars, etc.
+   * In some cases it will produce a vtkErrorMacro message, and in others
+   * (for example, in the case of cropping planes that define a region with
+   * a volume or 0 or less) it will fail silently. If everything is OK, it will
+   * return with a value of 1.
+   */
+  int ValidateRender( vtkRenderer *, vtkVolume * );
+  int ValidateInputs();
+  int ValidateInput(vtkVolumeProperty* property, const int port);
+  //@}
+
+  //@{
+  /**
+   * Shallow-copy the inputs into a transform-adjusted clone.
+   * \sa vtkGPUVolumeRayCastMapper::TransformInput
+   */
+  void CloneInputs();
+  void CloneInput(vtkImageData* input, const int port);
+  //@}
 
   // Special version of render called during the creation
   // of a canonical view.
@@ -420,6 +495,7 @@ protected:
 
   virtual void PostRender(vtkRenderer *ren,
                           int numberOfScalarComponents)=0;
+  vtkImageData* GetInput(const int port) override;
 
   /**
    * Called by the AMR Volume Mapper.
@@ -427,6 +503,13 @@ protected:
    * cell data (1).
    */
   void SetCellFlag(int cellFlag);
+  double* GetBounds() VTK_SIZEHINT(6) override
+    { return Superclass::GetBounds(); }
+  void GetBounds(double bounds[6]) override
+    { Superclass::GetBounds(bounds); }
+  double* GetBounds(const int port) VTK_SIZEHINT(6) override;
+
+  void RemovePortInternal(const int port);
 
   int LockSampleDistanceToInputSpacing;
   int    AutoAdjustSampleDistances;
@@ -503,23 +586,25 @@ protected:
    */
   virtual void ClipCroppingRegionPlanes();
 
+  using DataMap = std::unordered_map<int, vtkImageData*>;
+  void SetTransformedInput(vtkImageData*);
+  vtkImageData* FindData(int port, DataMap& container);
+
   double         ClippedCroppingRegionPlanes[6];
 
   vtkIdType MaxMemoryInBytes;
   float MaxMemoryFraction;
 
   bool           ReportProgress;
-
-  vtkImageData * TransformedInput;
-
-  vtkGetObjectMacro(TransformedInput, vtkImageData);
-  void SetTransformedInput(vtkImageData*);
+  std::vector<int> Ports;
+  std::vector<int> RemovedPorts;
+  DataMap TransformedInputs;
 
   /**
    * This is needed only to check if the input data has been changed since the last
    * Render() call.
    */
-  vtkImageData* LastInput;
+  DataMap LastInputs;
 
 private:
   vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) = delete;

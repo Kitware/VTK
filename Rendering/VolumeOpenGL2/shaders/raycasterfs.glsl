@@ -47,9 +47,6 @@ bool g_skip;
 float g_currentT;
 float g_terminatePointMax;
 
-uniform vec4 in_volume_scale;
-uniform vec4 in_volume_bias;
-
 //VTK::Output::Dec
 
 //VTK::Base::Dec
@@ -67,6 +64,8 @@ uniform vec4 in_volume_bias;
 //VTK::CompositeMask::Dec
 
 //VTK::GradientCache::Dec
+
+//VTK::Transfer2D::Dec
 
 //VTK::ComputeOpacity::Dec
 
