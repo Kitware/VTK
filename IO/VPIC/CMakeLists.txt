@@ -1,5 +1,5 @@
-set(Module_SRCS
-  vtkVPICReader.cxx
-  )
+set(classes
+  vtkVPICReader)
 
-vtk_module_library(vtkIOVPIC ${Module_SRCS})
+vtk_module_add_module(VTK::IOVPIC
+  CLASSES ${classes})
