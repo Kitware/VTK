@@ -1,0 +1,31 @@
+NAME
+  VTK::FiltersHyperTree
+LIBRARY_NAME
+  vtkFiltersHyperTree
+DESCRIPTION
+  Hypertree filters and algorithms
+KIT
+  VTK::Filters
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonMisc
+  VTK::FiltersCore
+  VTK::FiltersGeneral
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::ImagingHybrid
+  VTK::InteractionStyle
+  VTK::RenderingAnnotation
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
