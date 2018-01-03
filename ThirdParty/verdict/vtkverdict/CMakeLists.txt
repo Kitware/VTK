@@ -1,11 +1,15 @@
 # Copyright (c) 2003,2006 Sandia National Laboratories <cubit@sandia.gov>
 cmake_minimum_required(VERSION 2.8.2)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW) # CMake 3.0
-endif()
-if(POLICY CMP0053)
-  cmake_policy(SET CMP0053 NEW) # CMake 3.1
-endif()
+
+foreach(p
+    CMP0025 # CMake 3.0
+    CMP0042 # CMake 3.0, MACOSX_RPATH is enabled by default.
+    CMP0053 # CMake 3.1
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
 
 project(verdict)
 
