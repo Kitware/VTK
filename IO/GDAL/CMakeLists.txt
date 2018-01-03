@@ -1,10 +1,12 @@
-find_package(GDAL REQUIRED)
-mark_as_advanced(GDAL_INCLUDE_DIR GDAL_LIBRARY)
+vtk_module_find_package(PACKAGE GDAL)
 
-set(GDAL_SRCS vtkGDAL.cxx vtkGDALVectorReader.cxx vtkGDALRasterReader.cxx)
+set(classes
+  vtkGDAL
+  vtkGDALVectorReader
+  vtkGDALRasterReader)
 
-include_directories(${GDAL_INCLUDE_DIRS})
-
-vtk_module_library(vtkIOGDAL ${GDAL_SRCS})
-
-vtk_module_link_libraries(vtkIOGDAL LINK_PRIVATE ${GDAL_LIBRARY})
+vtk_module_add_module(VTK::IOGDAL
+  CLASSES ${classes})
+vtk_module_link(VTK::IOGDAL
+  PRIVATE
+    GDAL::GDAL)
