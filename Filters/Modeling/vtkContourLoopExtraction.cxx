@@ -86,7 +86,7 @@ namespace {
                          vtkIdType start, LoopPointType &sortedPoints,
                          char *visited, vtkDataArray *scalars, double range[2])
   {
-    vtkIdType last=0, numInserted=0;
+    vtkIdType last=start, numInserted=0;
     double t = 0.0;
     bool terminated=false;
     unsigned short ncells;

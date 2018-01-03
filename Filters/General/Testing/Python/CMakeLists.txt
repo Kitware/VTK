@@ -7,6 +7,8 @@ vtk_add_test_python(
   TestClipOutline.py
   TestCurvatures.py
   TestDeformPointSet.py
+  TestDiscreteFlyingEdges2D.py
+  TestDiscreteFlyingEdges3D.py
   TestDiscreteMarchingCubes.py
   TestDiscreteMarchingCubesAdjacentScalars.py
   TestGraphLayoutFilter.py

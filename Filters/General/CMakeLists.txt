@@ -28,6 +28,8 @@ set(Module_SRCS
   vtkDeformPointSet.cxx
   vtkDensifyPolyData.cxx
   vtkDicer.cxx
+  vtkDiscreteFlyingEdges2D.cxx
+  vtkDiscreteFlyingEdges3D.cxx
   vtkDiscreteMarchingCubes.cxx
   vtkEdgePoints.cxx
   vtkExtractSelectedFrustum.cxx

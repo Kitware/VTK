@@ -54,7 +54,8 @@
  * @sa
  * vtkCookieCutter vtkFlyingEdges2D vtkMarchingSquares vtkFeatureEdges
  * vtkConnectivityFilter vtkPolyDataConnectivityFilter
-*/
+ * vtkDiscreteFlyingEdges2D
+ */
 
 #ifndef vtkContourLoopExtraction_h
 #define vtkContourLoopExtraction_h

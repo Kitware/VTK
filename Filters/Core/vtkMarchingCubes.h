@@ -26,8 +26,22 @@
  * This filter is specialized to volumes. If you are interested in
  * contouring other types of data, use the general vtkContourFilter. If you
  * want to contour an image (i.e., a volume slice), use vtkMarchingSquares.
+ *
  * @sa
- * vtkContourFilter vtkSliceCubes vtkMarchingSquares vtkDividingCubes
+ * Much faster implementations for isocontouring are available. In
+ * particular, vtkFlyingEdges3D and vtkFlyingEdges2D are much faster
+ * and if built with the right options, multithreaded, and scale well
+ * with additional processors.
+ *
+ * @sa
+ * If you are interested in extracting surfaces from label maps,
+ * consider using vtkDiscreteFlyingEdges3D, vtkDiscreteFlyingEdges2D, or
+ * vtkDiscreteMarchingCubes.
+ *
+ * @sa
+ * vtkFlyingEdges3D vtkFlyingEdges2D vtkSynchronizedTemplates3D
+ * vtkSynchronizedTemplates2D vtkContourFilter vtkSliceCubes
+ * vtkMarchingSquares vtkDividingCubes vtkDiscreteMarchingCubes
 */
 
 #ifndef vtkMarchingCubes_h

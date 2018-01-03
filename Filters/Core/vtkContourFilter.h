@@ -40,8 +40,9 @@
  * normals.
  *
  * @sa
- * vtkMarchingContourFilter vtkMarchingCubes vtkSliceCubes
- * vtkMarchingSquares vtkImageMarchingCubes
+ * vtkFlyingEdges3D vtkFlyingEdges2D vtkDiscreteFlyingEdges3D
+ * vtkDiscreteFlyingEdges2D vtkMarchingContourFilter vtkMarchingCubes
+ * vtkSliceCubes vtkMarchingSquares vtkImageMarchingCubes
 */
 
 #ifndef vtkContourFilter_h
@@ -294,5 +295,3 @@ inline void vtkContourFilter::GenerateValues(int numContours, double
 
 
 #endif
-
-
