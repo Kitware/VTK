@@ -1,0 +1,49 @@
+NAME
+  VTK::RenderingOSPRay
+LIBRARY_NAME
+  vtkRenderingOSPRay
+IMPLEMENTS
+  VTK::RenderingVolume
+DEPENDS
+  VTK::CommonDataModel
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::RenderingSceneGraph
+  VTK::RenderingVolume
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOXML
+  VTK::RenderingVolumeAMR
+  VTK::jsoncpp
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::CommonColor
+  VTK::CommonSystem
+  VTK::FiltersAMR
+  VTK::FiltersCore
+  VTK::FiltersExtraction
+  VTK::FiltersHybrid
+  VTK::FiltersModeling
+  VTK::FiltersSources
+  VTK::FiltersTexture
+  VTK::IOGeometry
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::ImagingGeneral
+  VTK::ImagingHybrid
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::InteractionStyle
+  #VTK::ParallelMPI
+  VTK::RenderingAnnotation
+  VTK::RenderingFreeType
+  #VTK::RenderingParallel
+  VTK::RenderingVolume
+  VTK::RenderingVolumeAMR
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering

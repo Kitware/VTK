@@ -1,40 +1,49 @@
-find_package(OSPRay REQUIRED)
+set(classes
+  vtkOSPRayActorNode
+  vtkOSPRayAMRVolumeMapperNode
+  vtkOSPRayCameraNode
+  vtkOSPRayCompositePolyDataMapper2Node
+  vtkOSPRayLightNode
+  vtkOSPRayMaterialHelpers
+  vtkOSPRayMaterialLibrary
+  vtkOSPRayPass
+  vtkOSPRayPolyDataMapperNode
+  vtkOSPRayVolumeCache
+  vtkOSPRayRendererNode
+  vtkOSPRayTetrahedraMapperNode
+  vtkOSPRayViewNodeFactory
+  vtkOSPRayVolumeMapper
+  vtkOSPRayVolumeMapperNode
+  vtkOSPRayVolumeNode
+  vtkOSPRayWindowNode)
 
-set(Module_SRCS
-  vtkOSPRayActorNode.cxx
-  vtkOSPRayAMRVolumeMapperNode.cxx
-  vtkOSPRayVolumeNode.cxx
-  vtkOSPRayCameraNode.cxx
-  vtkOSPRayCompositePolyDataMapper2Node.cxx
-  vtkOSPRayLightNode.cxx
-  vtkOSPRayMaterialHelpers.cxx
-  vtkOSPRayMaterialLibrary.cxx
-  vtkOSPRayPass.cxx
-  vtkOSPRayPolyDataMapperNode.cxx
-  vtkOSPRayVolumeCache.cxx
-  vtkOSPRayVolumeMapper.cxx
-  vtkOSPRayVolumeMapperNode.cxx
-  vtkOSPRayTetrahedraMapperNode.cxx
-  vtkOSPRayRendererNode.cxx
-  vtkOSPRayViewNodeFactory.cxx
-  vtkOSPRayWindowNode.cxx
-  )
+vtk_object_factory_declare(
+  BASE vtkOSPRayVolumeInterface
+  OVERRIDE vtkOSPRayVolumeMapper)
 
-include(vtkObjectFactory)
-vtk_add_override(vtkOSPRayVolumeInterface vtkOSPRayVolumeMapper)
-vtk_object_factory_configure("${vtk_module_overrides}")
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGOSPRAY_EXPORT")
 
-vtk_module_library(vtkRenderingOSPRay ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingOSPRay
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 
-target_link_libraries(${vtk-module} LINK_PUBLIC ${OSPRAY_LIBRARIES})
-target_include_directories(${vtk-module} PUBLIC ${OSPRAY_INCLUDE_DIRS})
+# TODO: Send patches upstream to export targets from ospray.
+find_package(ospray REQUIRED)
+vtk_module_link(VTK::RenderingOSPRay
+  PUBLIC
+    ${OSPRAY_LIBRARIES})
+vtk_module_include(VTK::RenderingOSPRay
+  PUBLIC
+    ${OSPRAY_INCLUDE_DIRS})
 
+# TODO: FindOSPRay should do this.
 # OSPRay_Core uses MMTime which is in it's own special library.
-if(WIN32)
-  target_link_libraries(${vtk-module} LINK_PRIVATE Winmm)
-endif()
-
-include(vtkOpenGL)
-vtk_opengl_link(${vtk-module})
+if (WIN32)
+  vtk_module_link(VTK::RenderingOSPRay
+    PRIVATE
+      Winmm)
+endif ()
