@@ -42,6 +42,10 @@ public:
   vtkOpenGLHelper();
   ~vtkOpenGLHelper();
   void ReleaseGraphicsResources(vtkWindow *win);
+
+ private:
+  vtkOpenGLHelper(const vtkOpenGLHelper&) = delete;
+  vtkOpenGLHelper& operator=(const vtkOpenGLHelper&) = delete;
 };
 
 #endif // vtkOpenGLHelper_h

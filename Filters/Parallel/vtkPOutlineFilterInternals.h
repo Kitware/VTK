@@ -54,6 +54,8 @@ public:
   void SetIsCornerSource(bool value);
 
 private:
+  vtkPOutlineFilterInternals(const vtkPOutlineFilterInternals&) = delete;
+  vtkPOutlineFilterInternals& operator=(const vtkPOutlineFilterInternals&) = delete;
 
   int RequestData(vtkOverlappingAMR* amr, vtkPolyData* output);
   int RequestData(vtkUniformGridAMR* amr, vtkPolyData* output);
