@@ -1,0 +1,20 @@
+NAME
+  VTK::IOParallelExodus
+LIBRARY_NAME
+  vtkIOParallelExodus
+KIT
+  VTK::Parallel
+IMPLEMENTS
+  VTK::IOExodus
+DEPENDS
+  VTK::CommonCore
+  VTK::IOExodus
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersCore
+  VTK::ParallelCore
+  VTK::exodusII
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingRendering
