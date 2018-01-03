@@ -1,0 +1,28 @@
+NAME
+  VTK::RenderingLabel
+LIBRARY_NAME
+  vtkRenderingLabel
+KIT
+  VTK::Rendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+  VTK::RenderingFreeType
+PRIVATE_DEPENDS
+  VTK::CommonMath
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::FiltersGeneral
+  VTK::octree
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::FiltersSources
+  VTK::IOXML
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
