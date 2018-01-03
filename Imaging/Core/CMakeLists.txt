@@ -1,48 +1,46 @@
-set(Module_SRCS
-  vtkExtractVOI.cxx
-  vtkImageAppendComponents.cxx
-  vtkImageBlend.cxx
-  vtkImageCacheFilter.cxx
-  vtkImageCast.cxx
-  vtkImageChangeInformation.cxx
-  vtkImageClip.cxx
-  vtkImageConstantPad.cxx
-  vtkImageDataStreamer.cxx
-  vtkImageDecomposeFilter.cxx
-  vtkImageDifference.cxx
-  vtkImageExtractComponents.cxx
-  vtkImageFlip.cxx
-  vtkImageIterateFilter.cxx
-  vtkImageMagnify.cxx
-  vtkImageMapToColors.cxx
-  vtkImageMask.cxx
-  vtkImageMirrorPad.cxx
-  vtkImagePadFilter.cxx
-  vtkImagePermute.cxx
-  vtkImagePointDataIterator.cxx
-  vtkImagePointIterator.cxx
-  vtkImageResample.cxx
-  vtkImageReslice.cxx
-  vtkImageResliceToColors.cxx
-  vtkImageShiftScale.cxx
-  vtkImageShrink3D.cxx
-  vtkImageStencilIterator.cxx
-  vtkImageThreshold.cxx
-  vtkImageTranslateExtent.cxx
-  vtkImageWrapPad.cxx
-  vtkRTAnalyticSource.cxx
-  vtkImageResize.cxx
-  vtkImageBSplineCoefficients.cxx
+set(classes
+  vtkAbstractImageInterpolator
+  vtkExtractVOI
+  vtkImageAppendComponents
+  vtkImageBlend
+  vtkImageBSplineCoefficients
+  vtkImageBSplineInternals
+  vtkImageBSplineInterpolator
+  vtkImageCacheFilter
+  vtkImageCast
+  vtkImageChangeInformation
+  vtkImageClip
+  vtkImageConstantPad
+  vtkImageDataStreamer
+  vtkImageDecomposeFilter
+  vtkImageDifference
+  vtkImageExtractComponents
+  vtkImageFlip
+  vtkImageInterpolator
+  vtkImageIterateFilter
+  vtkImageMagnify
+  vtkImageMapToColors
+  vtkImageMask
+  vtkImageMirrorPad
+  vtkImagePadFilter
+  vtkImagePermute
+  vtkImagePointDataIterator
+  vtkImagePointIterator
+  vtkImageResample
+  vtkImageResize
+  vtkImageReslice
+  vtkImageResliceToColors
+  vtkImageShiftScale
+  vtkImageShrink3D
+  vtkImageSincInterpolator
+  vtkImageStencilAlgorithm
+  vtkImageStencilData
+  vtkImageStencilIterator
+  vtkImageStencilSource # Needed by vtkImageStencilData
+  vtkImageThreshold
+  vtkImageTranslateExtent
+  vtkImageWrapPad
+  vtkRTAnalyticSource)
 
-  vtkImageStencilData.cxx
-  vtkImageStencilAlgorithm.cxx
-  vtkAbstractImageInterpolator.cxx
-  vtkImageBSplineInternals.cxx
-  vtkImageBSplineInterpolator.cxx
-  vtkImageSincInterpolator.cxx
-  vtkImageInterpolator.cxx
-
-  vtkImageStencilSource.cxx # Needed by vtkImageStencilData
-  )
-
-vtk_module_library(vtkImagingCore ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingCore
+  CLASSES ${classes})
