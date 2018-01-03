@@ -1,18 +1,18 @@
-set(Module_SRCS
-  vtkBooleanTexture.cxx
-  vtkCheckerboardSplatter.cxx
-  vtkFastSplatter.cxx
-  vtkGaussianSplatter.cxx
-  vtkImageCursor3D.cxx
-  vtkImageRectilinearWipe.cxx
-  vtkImageToPoints.cxx
-  vtkPointLoad.cxx
-  vtkSampleFunction.cxx
-  vtkShepardMethod.cxx
-  vtkSliceCubes.cxx
-  vtkSurfaceReconstructionFilter.cxx
-  vtkTriangularTexture.cxx
-  vtkVoxelModeller.cxx
-  )
+set(classes
+  vtkBooleanTexture
+  vtkCheckerboardSplatter
+  vtkFastSplatter
+  vtkGaussianSplatter
+  vtkImageCursor3D
+  vtkImageRectilinearWipe
+  vtkImageToPoints
+  vtkPointLoad
+  vtkSampleFunction
+  vtkShepardMethod
+  vtkSliceCubes
+  vtkSurfaceReconstructionFilter
+  vtkTriangularTexture
+  vtkVoxelModeller)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingHybrid
+  CLASSES ${classes})
