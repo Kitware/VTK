@@ -1,53 +1,54 @@
-include(vtkObjectFactory)
-
-set(Module_SRCS
-  vtkMultiBlockVolumeMapper.cxx
-  vtkOpenGLGPUVolumeRayCastMapper.cxx
-  vtkOpenGLProjectedTetrahedraMapper.cxx
-  vtkOpenGLRayCastImageDisplayHelper.cxx
-  vtkSmartVolumeMapper.cxx
-  vtkVolumeTexture.cxx
-  vtkVolumeInputHelper.cxx
-  vtkOpenGLVolumeRGBTable.cxx
-  vtkOpenGLVolumeOpacityTable.cxx
-  vtkOpenGLVolumeGradientOpacityTable.cxx
-  vtkOpenGLTransferFunction2D.cxx
-  vtkOpenGLUniforms.cxx
-  )
+set(classes
+  vtkMultiBlockVolumeMapper
+  vtkOpenGLGPUVolumeRayCastMapper
+  vtkOpenGLProjectedTetrahedraMapper
+  vtkOpenGLRayCastImageDisplayHelper
+  vtkOpenGLTransferFunction2D
+  vtkOpenGLUniforms
+  vtkOpenGLVolumeGradientOpacityTable
+  vtkOpenGLVolumeOpacityTable
+  vtkOpenGLVolumeRGBTable
+  vtkSmartVolumeMapper
+  vtkVolumeInputHelper
+  vtkVolumeTexture)
 
 set(shader_files
   shaders/raycasterfs.glsl
   shaders/raycastervs.glsl
   shaders/vtkglProjectedTetrahedraVS.glsl
-  shaders/vtkglProjectedTetrahedraFS.glsl
-  )
+  shaders/vtkglProjectedTetrahedraFS.glsl)
 
-unset(shader_h_files)
-foreach(file ${shader_files})
+set(sources)
+set(headers)
+foreach (shader_file IN LISTS shader_files)
   vtk_encode_string(
-    INPUT         "${file}"
+    INPUT         "${shader_file}"
     EXPORT_SYMBOL "VTKRENDERINGVOLUMEOPENGL2_EXPORT"
     EXPORT_HEADER "vtkRenderingVolumeOpenGL2Module.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
-  list(APPEND Module_SRCS ${source})
-endforeach()
+  list(APPEND sources ${source})
+  list(APPEND header ${header})
+endforeach ()
 
 # Now for the object factory.
 set(opengl_overrides
   GPUVolumeRayCastMapper
   ProjectedTetrahedraMapper
-  RayCastImageDisplayHelper
-  )
+  RayCastImageDisplayHelper)
 
-foreach(_override ${opengl_overrides})
-  vtk_add_override(vtk${_override} vtkOpenGL${_override})
-endforeach()
-vtk_object_factory_configure("${vtk_module_overrides}")
+foreach (opengl_override IN LISTS opengl_overrides)
+  vtk_object_factory_declare(
+    BASE "vtk${opengl_override}"
+    OVERRIDE "vtkOpenGL${opengl_override}")
+endforeach ()
 
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGVOLUMEOPENGL2_EXPORT")
 
-vtk_module_library(vtkRenderingVolumeOpenGL2 ${Module_SRCS})
-include(vtkOpenGL)
-vtk_opengl_link(vtkRenderingVolumeOpenGL2)
+vtk_module_add_module(VTK::RenderingVolumeOpenGL2
+  CLASSES ${classes}
+  SOURCES ${sources} ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})
