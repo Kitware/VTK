@@ -2,11 +2,11 @@ NAME
   VTK::IOParallel
 LIBRARY_NAME
   vtkIOParallel
+IMPLEMENTABLE
 KIT
   VTK::Parallel
 GROUPS
   StandAlone
-IMPLEMENTABLE
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel

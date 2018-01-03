@@ -1,5 +1,3 @@
-include(vtkMPI)
-
 vtk_add_test_cxx(vtkRenderingParallelCxxTests tests
   PrmMagnify.cxx
   )
@@ -15,26 +13,26 @@ set(all_tests
   ${tests}
   ${no_data_tests}
   )
-vtk_test_mpi_executable(vtkRenderingParallelCxxTests-MPI all_tests)
+vtk_test_cxx_executable(vtkRenderingParallelCxxTests-MPI all_tests)
 
 if (PYTHON_EXECUTABLE)
   vtk_module_test_executable(
     vtkRenderingParallel-TestClientServerRendering TestClientServerRendering.cxx)
 
-  ExternalData_add_test(VTKData
+  ExternalData_add_test(${_vtk_build_TEST_DATA_TARGET}
     NAME vtkRenderingParallel-TestClientServerRendering
     COMMAND ${PYTHON_EXECUTABLE}
-      ${VTK_CMAKE_DIR}/vtkTestDriver.py
+      ${VTK_SOURCE_DIR}/CMake/vtkTestDriver.py
       --process
         $<TARGET_FILE:vtkRenderingParallel-TestClientServerRendering>
         --port 12367
         --server
-      -D ${VTK_TEST_DATA_DIR}
+      -D ${_vtk_build_TEST_DATA_DIRECTORY}
         --process
         $<TARGET_FILE:vtkRenderingParallel-TestClientServerRendering>
         --port 12367
-        -D ${VTK_TEST_DATA_DIR}
-        -T ${VTK_TEST_OUTPUT_DIR}
-        -V "DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline/TestClientServerRendering.png,:}"
+        -D ${_vtk_build_TEST_DATA_DIRECTORY}
+        -T ${_vtk_build_TEST_OUTPUT_DIRECTORY}
+        -V "DATA{../Data/Baseline/TestClientServerRendering.png,:}"
   )
 endif()
