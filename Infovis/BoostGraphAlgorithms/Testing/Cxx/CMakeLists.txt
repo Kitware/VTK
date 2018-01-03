@@ -1,6 +1,3 @@
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-
 vtk_add_test_cxx(vtkInfovisBoostGraphAlgorithmsCxxTests tests
   # BoostArrayLogWeighting.cxx    # todo (unsatisfied deps)
   BoostArrayRandomSparseArraySource.cxx,NO_VALID
@@ -13,3 +10,8 @@ vtk_add_test_cxx(vtkInfovisBoostGraphAlgorithmsCxxTests tests
   TestBoostSplitTableField.cxx,NO_VALID
   )
 vtk_test_cxx_executable(vtkInfovisBoostGraphAlgorithmsCxxTests tests)
+
+find_package(Boost REQUIRED QUIET)
+target_link_libraries(vtkInfovisBoostGraphAlgorithmsCxxTests
+  PRIVATE
+    Boost::boost)

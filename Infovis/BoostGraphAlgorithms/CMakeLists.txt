@@ -1,22 +1,29 @@
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
+set(classes
+  vtkBoostBetweennessClustering
+  vtkBoostBiconnectedComponents
+  vtkBoostBrandesCentrality
+  vtkBoostBreadthFirstSearch
+  vtkBoostBreadthFirstSearchTree
+  vtkBoostConnectedComponents
+  vtkBoostDividedEdgeBundling
+  vtkBoostExtractLargestComponent
+  vtkBoostKruskalMinimumSpanningTree
+  vtkBoostLogWeighting
+  vtkBoostPrimMinimumSpanningTree
+  vtkBoostRandomSparseArraySource
+  vtkBoostSplitTableField)
 
-set(Module_SRCS
-  vtkBoostBetweennessClustering.cxx
-  vtkBoostBiconnectedComponents.cxx
-  vtkBoostBrandesCentrality.cxx
-  vtkBoostBreadthFirstSearch.cxx
-  vtkBoostBreadthFirstSearchTree.cxx
-  vtkBoostConnectedComponents.cxx
-  vtkBoostDividedEdgeBundling.cxx
-  vtkBoostExtractLargestComponent.cxx
-  vtkBoostKruskalMinimumSpanningTree.cxx
-  vtkBoostLogWeighting.cxx
-  vtkBoostPrimMinimumSpanningTree.cxx
-  vtkBoostRandomSparseArraySource.cxx
-  vtkBoostSplitTableField.cxx
+set(headers
+  vtkBoostGraphAdapter.h)
 
-  vtkBoostGraphAdapter.h
-  )
+vtk_module_add_module(VTK::InfovisBoostGraphAlgorithms
+  CLASSES ${classes}
+  HEADERS ${headers})
 
-vtk_module_library(vtkInfovisBoostGraphAlgorithms ${Module_SRCS})
+vtk_module_find_package(
+  PACKAGE Boost
+  FORWARD_VERSION_REQ EXACT
+  VERSION_VAR         "@Boost_MAJOR_VERSION@.@Boost_MINOR_VERSION@.@Boost_SUBMINOR_VERSION@")
+vtk_module_link(VTK::InfovisBoostGraphAlgorithms
+  PUBLIC
+    Boost::boost)

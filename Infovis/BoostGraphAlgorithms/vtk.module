@@ -1,0 +1,20 @@
+NAME
+  VTK::InfovisBoostGraphAlgorithms
+LIBRARY_NAME
+  vtkInfovisBoostGraphAlgorithms
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::FiltersExtraction
+  VTK::InfovisCore
+TEST_DEPENDS
+  VTK::ChartsCore
+  VTK::CommonSystem
+  VTK::InteractionStyle
+  VTK::IOInfovis
+  VTK::RenderingContextOpenGL2
+  VTK::TestingRendering
+  VTK::ViewsContext2D
+  VTK::ViewsInfovis
