@@ -56,7 +56,7 @@ struct lengthCheckFunctor
 };
 
 
-//accumlates the length of all arrays used with this functor
+//accumulates the length of all arrays used with this functor
 struct storeLengthFunctor
 {
   vtkIdType length;

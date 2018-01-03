@@ -97,7 +97,7 @@ public:
    * The representation takes this selection and converts it into
    * a selection on its data by calling ConvertSelection,
    * then calls UpdateSelection with the converted selection.
-   * Subclasses should not overrride this method, but should instead
+   * Subclasses should not override this method, but should instead
    * override ConvertSelection.
    * The optional third argument specifies whether the selection should be
    * added to the previous selection on this representation.
@@ -112,7 +112,7 @@ public:
    * creation of annotations). The representation takes the annotations
    * and converts them into a selection on its data by calling ConvertAnnotations,
    * then calls UpdateAnnotations with the converted selection.
-   * Subclasses should not overrride this method, but should instead
+   * Subclasses should not override this method, but should instead
    * override ConvertSelection.
    * The optional third argument specifies whether the selection should be
    * added to the previous selection on this representation.
@@ -133,7 +133,7 @@ public:
 
   /**
    * Updates the selection in the selection link and fires a selection
-   * change event. Subclasses should not overrride this method,
+   * change event. Subclasses should not override this method,
    * but should instead override ConvertSelection.
    * The optional second argument specifies whether the selection should be
    * added to the previous selection on this representation.
@@ -144,7 +144,7 @@ public:
 
   /**
    * Updates the selection in the selection link and fires a selection
-   * change event. Subclasses should not overrride this method,
+   * change event. Subclasses should not override this method,
    * but should instead override ConvertSelection.
    * The optional second argument specifies whether the selection should be
    * added to the previous selection on this representation.

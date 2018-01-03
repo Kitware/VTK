@@ -191,7 +191,7 @@ public:
 
   /**
    * Clears out the current function. A newly created vtkPiecewiseFunction
-   * is alreay initialized, so there is no need to call this method which
+   * is already initialized, so there is no need to call this method which
    * in turn simply calls RemoveAllPoints()
    */
   void Initialize() override;

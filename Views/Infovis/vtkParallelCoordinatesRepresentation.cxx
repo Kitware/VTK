@@ -1491,7 +1491,7 @@ void vtkParallelCoordinatesRepresentation::LassoSelect(int brushClass,
   vtkSmartPointer<vtkBivariateLinearTableThreshold> threshold = nullptr;//vtkSmartPointer<vtkBivariateLinearTableThreshold>::New();
   vtkSmartPointer<vtkIdTypeArray> allIds = vtkSmartPointer<vtkIdTypeArray>::New();
 
-  // for every point in the brush, compute a line in XY space.  A point in XY space satifies
+  // for every point in the brush, compute a line in XY space.  A point in XY space satisfies
   // the threshold if it is contained WITHIN all such lines.
   vtkSmartPointer<vtkPoints> posPoints = vtkSmartPointer<vtkPoints>::New();
   for (int i=0; i<brushPoints->GetNumberOfPoints()-1; i++)

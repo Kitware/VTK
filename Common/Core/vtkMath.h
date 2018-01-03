@@ -157,7 +157,7 @@ public:
   static T Min(const T & a, const T & b);
 
   /**
-   * Returns the maximum of the two arugments provided.
+   * Returns the maximum of the two arguments provided.
    */
   template<class T>
   static T Max(const T & a, const T & b);

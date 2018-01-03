@@ -172,7 +172,7 @@ endforeach()
 
 if (NOT VTK_BUILD_ALL_MODULES_FOR_TESTS)
   # If VTK_BUILD_ALL_MODULES_FOR_TESTS is OFF, it implies that we didn't add any
-  # test modules to the dependecy graph. We now add the test modules for all
+  # test modules to the dependency graph. We now add the test modules for all
   # enabled modules if all the test dependencies are already satisfied
   # (BUG #13297).
   foreach(vtk-module IN LISTS VTK_MODULES_ENABLED)

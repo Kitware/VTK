@@ -327,7 +327,7 @@ int vtkInformationQuadratureSchemeDefinitionVectorKey::SaveState(
     {
       continue;
     }
-    // Nest XML representaion.
+    // Nest XML representation.
     vtkXMLDataElement *e=vtkXMLDataElement::New();
     def->SaveState(e);
     root->AddNestedElement(e);

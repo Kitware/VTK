@@ -3,7 +3,7 @@ Introduction:
 
 This directory demonstrates how to organize a local source repository
 where local VTK classes can be compiled and wrapped into
-C++/Java/Python libraries without interferring with the main VTK
+C++/Java/Python libraries without interfering with the main VTK
 source dir.
 
 It might be good thing to sort local classes into different 'package'

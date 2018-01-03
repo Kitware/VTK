@@ -22,7 +22,7 @@
  * exploratory, fast workflow. It produces output polygons that result from
  * cutting the icnput dataset with the specified plane.
  *
- * This algorithm is fast because is is threaded, and may build (in a
+ * This algorithm is fast because it is threaded, and may build (in a
  * preprocessing step) a spatial search structure that accelerates the plane
  * cuts. The search structure, which is typically a sphere tree, is used to
  * quickly cull candidate cells. Also unlike vtkCutter, the vtkPlane implicit

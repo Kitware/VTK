@@ -51,7 +51,7 @@
  *
  * Both of the above methods will produce the same molecule, two
  * hydrogens connected with a 1.0 Angstrom single bond, aligned to the
- * z-axis. The second example also demostrates the use of VTK's
+ * z-axis. The second example also demonstrates the use of VTK's
  * vtkVector class, which is fully supported by the Chemistry kit.
  *
  * The vtkMolecule object is intended to be used with the

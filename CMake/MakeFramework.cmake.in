@@ -15,7 +15,7 @@ endif()
 # Ensure a framework path is set
 if (NOT EXISTS "@CMAKE_FRAMEWORK_INSTALL_PREFIX@")
   message(FATAL_ERROR
-          "Please specifiy a CMAKE_FRAMEWORK_INSTALL_PREFIX.")
+          "Please specify a CMAKE_FRAMEWORK_INSTALL_PREFIX.")
 endif()
 
 # Glob all input libs

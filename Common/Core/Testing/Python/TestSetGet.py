@@ -389,7 +389,7 @@ def CheckPythonVersion(ver):
     Check the Python version.
 
     :param: ver - the minimum required version number as hexadecimal.
-    :return: True if if the Python version is greater than or equal to ver.
+    :return: True if the Python version is greater than or equal to ver.
     '''
     if sys.hexversion < ver:
         return False

@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
   // Read in the XML file into a tree.
   // This creates a tree with string columns for every attribute
   // present in the file, plus the special arrays named .tagname
-  // (containing the XML tag name) and .chardata (containg the
+  // (containing the XML tag name) and .chardata (containing the
   // character data within the tag).
   vtkXMLTreeReader* reader = vtkXMLTreeReader::New();
   reader->SetFileName(filename);

@@ -214,7 +214,7 @@ int TestErrorsAndWarnings()
   array->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   array->AddObserver(vtkCommand::WarningEvent, errorObserver);
 
-  // ERROR: Not implmented
+  // ERROR: Not implemented
   array->SetVoidArray(nullptr, 1, 1);
   if (errorObserver->GetError())
   {
@@ -228,7 +228,7 @@ int TestErrorsAndWarnings()
   }
   errorObserver->Clear();
 
-  // ERROR: Not implmented
+  // ERROR: Not implemented
   array->NewIterator();
   if (errorObserver->GetError())
   {

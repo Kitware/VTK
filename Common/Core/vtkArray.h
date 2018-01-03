@@ -101,7 +101,7 @@ public:
   /**
    * Resizes the array to the given extents (number of dimensions and
    * size of each dimension).  Note that concrete implementations of
-   * vtkArray may place constraints on the the extents that they will
+   * vtkArray may place constraints on the extents that they will
    * store, so you cannot assume that GetExtents() will always return
    * the same value passed to Resize().
 

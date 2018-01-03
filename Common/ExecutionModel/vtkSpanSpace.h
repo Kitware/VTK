@@ -61,7 +61,7 @@ public:
   //@}
 
   //----------------------------------------------------------------------
-  // The following methods are specific to the creationg and configuration of
+  // The following methods are specific to the creation and configuration of
   // vtkSpanSpace.
 
   //@{

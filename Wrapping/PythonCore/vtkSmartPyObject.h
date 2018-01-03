@@ -90,7 +90,7 @@ public:
    */
   PyObject *GetPointer() const;
   /**
-   * Returns the internal pointer to a PyObject and incrments its reference
+   * Returns the internal pointer to a PyObject and increments its reference
    * count
    */
   PyObject* GetAndIncreaseReferenceCount();

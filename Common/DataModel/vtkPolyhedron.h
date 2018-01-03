@@ -247,7 +247,7 @@ protected:
   vtkQuad        *Quad;
   vtkPolygon     *Polygon;
   vtkTetra       *Tetra;
-  vtkIdTypeArray *GlobalFaces; //these are numbered in gloabl id space
+  vtkIdTypeArray *GlobalFaces; //these are numbered in global id space
   vtkIdTypeArray *FaceLocations;
 
   // vtkCell has the data members Points (x,y,z coordinates) and PointIds

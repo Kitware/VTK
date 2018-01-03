@@ -52,7 +52,7 @@ int TestGenericCell(int , char *[])
       // Those on the corner points indeed define the parametric center
       // The dof node (center mid points) by definition have the same parametric center
       // and taking into account the center point only add a 0 vector to the sum
-      // therefore we do not need to differenciate corner from the rest in this sum:
+      // therefore we do not need to differentiate corner from the rest in this sum:
       for(int j=0; j<numPts; ++j)
       {
         double *point = pcoords + 3*j;

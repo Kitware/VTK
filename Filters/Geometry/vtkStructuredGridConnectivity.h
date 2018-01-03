@@ -205,7 +205,7 @@ protected:
   //@}
 
   /**
-   * Fills the the ghost array for the nodes
+   * Fills the ghost array for the nodes
    */
   void FillNodesGhostArray(
       const int gridID, const int dataDescription,

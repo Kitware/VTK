@@ -27,7 +27,7 @@ std::string  vtkTestingInteractor::TempDirectory;
 std::string  vtkTestingInteractor::DataDirectory;
 
 //----------------------------------------------------------------------------------
-// Start normally starts an event loop. This interator uses vtkTesting
+// Start normally starts an event loop. This iterator uses vtkTesting
 // to grab the render window and compare the results to a baseline image
 void vtkTestingInteractor::Start()
 {

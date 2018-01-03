@@ -11,7 +11,7 @@ import vtk.*;
 // Then we define our class.
 public class Cone {
 
-  // In the static contructor we load in the native code.
+  // In the static constructor we load in the native code.
   // The libraries must be in your path to work.
   static {
     System.loadLibrary("vtkCommonJava");

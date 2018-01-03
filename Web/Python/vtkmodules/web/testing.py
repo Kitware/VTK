@@ -8,7 +8,7 @@ r"""
     This test harness will notice when the test script has finished
     running and will notify the service to stop.  At this point, the
     test results will be checked in the main thread which ran the
-    service, and in the case of failure an exeception will be raised
+    service, and in the case of failure an exception will be raised
     to notify CTest of the failure.
 
     Test scripts need to follow some simple rules in order to work
@@ -572,7 +572,7 @@ def instantiate_test_subclass(pathToScript, **kwargs) :
     This function takes the fully qualified path to a test file, along with
     any needed keyword arguments, then dynamically loads the file as a module
     and finds the test class defined inside of it via inspection.  It then
-    uses the keywork arguments to instantiate the test class and return the
+    uses the keyword arguments to instantiate the test class and return the
     instance.
 
         pathToScript: Fully qualified path to python file containing defined

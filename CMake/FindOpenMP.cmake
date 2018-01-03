@@ -224,7 +224,7 @@ if(CMAKE_C_COMPILER_LOADED)
   endforeach()
 
   set(OpenMP_C_FLAGS "${OpenMP_C_FLAGS_INTERNAL}"
-    CACHE STRING "C compiler flags for OpenMP parallization")
+    CACHE STRING "C compiler flags for OpenMP parallelization")
 
   list(APPEND _OPENMP_REQUIRED_VARS OpenMP_C_FLAGS)
   unset(OpenMP_C_FLAG_CANDIDATES)
@@ -273,7 +273,7 @@ if(CMAKE_CXX_COMPILER_LOADED)
   endforeach()
 
   set(OpenMP_CXX_FLAGS "${OpenMP_CXX_FLAGS_INTERNAL}"
-    CACHE STRING "C++ compiler flags for OpenMP parallization")
+    CACHE STRING "C++ compiler flags for OpenMP parallelization")
 
   list(APPEND _OPENMP_REQUIRED_VARS OpenMP_CXX_FLAGS)
   unset(OpenMP_CXX_FLAG_CANDIDATES)
@@ -322,7 +322,7 @@ if(CMAKE_Fortran_COMPILER_LOADED)
   endforeach()
 
   set(OpenMP_Fortran_FLAGS "${OpenMP_Fortran_FLAGS_INTERNAL}"
-    CACHE STRING "Fortran compiler flags for OpenMP parallization")
+    CACHE STRING "Fortran compiler flags for OpenMP parallelization")
 
   list(APPEND _OPENMP_REQUIRED_VARS OpenMP_Fortran_FLAGS)
   unset(OpenMP_Fortran_FLAG_CANDIDATES)

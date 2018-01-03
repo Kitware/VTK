@@ -94,17 +94,17 @@
  * vtkMappedUnstructuredGrid with a specified implementation, cell iterator,
  * and export declaration. They are:
  * - vtkMakeMappedUnstructuredGrid(_className, _impl)
- *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implemenation
+ *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implementation
  *     that is named _className.
  * - vtkMakeMappedUnstructuredGridWithIter(_className, _impl, _cIter)
- *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implemenation
+ *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implementation
  *     and _cIter vtkCellIterator that is named _className.
  * - vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl)
- *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implemenation
+ *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implementation
  *     that is named _className. _exportDecl is used to decorate the class
  *     declaration.
  * - vtkMakeExportedMappedUnstructuredGridWithIter(_className, _impl, _cIter, _exportDecl)
- *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implemenation
+ *   - Create a subclass of vtkMappedUnstructuredGrid using _impl implementation
  *     and _cIter vtkCellIterator that is named _className. _exportDecl is used
  *     to decorate the class declaration.
  *

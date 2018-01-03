@@ -26,7 +26,7 @@ CvtkSDIDoc::CvtkSDIDoc()
 {
   this->pvtkDataSetReader  = NULL;
 
-  // Create the the objects used to form the visualisation.
+  // Create the objects used to form the visualisation.
   this->pvtkDataSetMapper  = vtkDataSetMapper::New();
   this->pvtkActor      = vtkActor::New();
   this->pvtkActor2D    = vtkActor2D::New();
@@ -130,7 +130,7 @@ void CvtkSDIDoc::OnCloseDocument()
   // delete data
   if (this->pvtkDataSetReader)  this->pvtkDataSetReader->Delete();
 
-  // Delete the the objects used to form the visualisation.
+  // Delete the objects used to form the visualisation.
   if (this->pvtkDataSetMapper)  this->pvtkDataSetMapper->Delete();
   if (this->pvtkActor)      this->pvtkActor->Delete();
   if (this->pvtkActor2D)      this->pvtkActor2D->Delete();

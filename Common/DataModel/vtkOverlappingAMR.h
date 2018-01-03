@@ -149,7 +149,7 @@ public:
 
   /**
    * Return a pointer to Children of a block.  The first entry is the number
-   * of children the block has followed by its childern ids in level+1.
+   * of children the block has followed by its children ids in level+1.
    * If none exits it returns nullptr.
    */
   unsigned int *GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);

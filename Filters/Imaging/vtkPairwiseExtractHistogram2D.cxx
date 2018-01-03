@@ -151,7 +151,7 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
       this->Implementation->ColumnPairs.push_back(colpair);
       this->Implementation->ColumnUsesCustomExtents[colpair.first.c_str()] = false;
 
-      // compute the range of the the new columns, and update the internals
+      // compute the range of the new columns, and update the internals
       double r[2] = {0,0};
       if (i == 0)
       {

@@ -164,7 +164,7 @@ void vtkSphereComputeBoundingSphere(T *pts, vtkIdType numPts, T sphere[4],
 #define VTK_ASSIGN_SPHERE(_x,_y) {_x[0]=_y[0];_x[1]=_y[1];_x[2]=_y[2];_x[3]=_y[3];}
 // An approximation to the bounding sphere of a set of spheres. The algorithm
 // creates an iniitial approximation from two spheres that are expected to be
-// the farthest apart (taking into accout their radius). A second pass may
+// the farthest apart (taking into account their radius). A second pass may
 // grow the bounding sphere if the remaining spheres are not contained within
 // it. The hints[2] array indicates two spheres that are expected to be the
 // farthest apart.

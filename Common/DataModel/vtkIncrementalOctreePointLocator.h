@@ -358,7 +358,7 @@ private:
                                         const double point[3], double * dist2 );
 
   /**
-   * This function may not be directly called. Please use the follwing two ones:
+   * This function may not be directly called. Please use the following two ones:
    * FindClosestPointInSphereWithTolerance() for point insertion and
    * FindClosestPointInSphereWithoutTolerance() for point location. Arguments
    * refDist2 and the initialization of minDist2 determine which version is used.

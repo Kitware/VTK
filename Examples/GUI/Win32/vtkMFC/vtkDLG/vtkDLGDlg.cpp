@@ -55,10 +55,10 @@ CvtkDLGDlg::CvtkDLGDlg(CWnd* pParent /*=NULL*/)
   // set data reader to null
   this->pvtkDataSetReader = NULL;
 
-  // Create the the renderer, window and interactor objects.
+  // Create the renderer, window and interactor objects.
   this->pvtkRenderer    = vtkRenderer::New();
 
-  // Create the the objects used to form the visualisation.
+  // Create the objects used to form the visualisation.
   this->pvtkDataSetMapper  = vtkDataSetMapper::New();
   this->pvtkActor      = vtkActor::New();
   this->pvtkActor2D    = vtkActor2D::New();
@@ -232,10 +232,10 @@ void CvtkDLGDlg::OnDestroy()
   // delete data
   if (this->pvtkDataSetReader)  this->pvtkDataSetReader->Delete();
 
-  // Delete the the renderer, window and interactor objects.
+  // Delete the renderer, window and interactor objects.
   if (this->pvtkRenderer)      this->pvtkRenderer->Delete();
 
-  // Delete the the objects used to form the visualisation.
+  // Delete the objects used to form the visualisation.
   if (this->pvtkDataSetMapper)  this->pvtkDataSetMapper->Delete();
   if (this->pvtkActor)      this->pvtkActor->Delete();
   if (this->pvtkActor2D)      this->pvtkActor2D->Delete();

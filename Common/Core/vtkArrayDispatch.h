@@ -50,7 +50,7 @@
  *   that use those arrays.
  * - ValueType restriction: If both SoA and AoS arrays need to be supported,
  *   but only certain ValueTypes are expected, the dispatcher can restrict
- *   itself to only use arrays that match this critera.
+ *   itself to only use arrays that match this criteria.
  * - Application-wide array restrictions: If a VTK application uses only a few
  *   arraytype / valuetype combinations, certain dispatchers will eliminate
  *   paths using unsupported arrays at compile time.

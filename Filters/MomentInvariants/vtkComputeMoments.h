@@ -61,7 +61,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * vtkComputeMoments is a filter that computes moments for 2D or 3D datasets
  * (field) that contain scalars, vectors or matrices in their pointdata. The
- * moments are evaluated at the the points in grid. The output contains
+ * moments are evaluated at the points in grid. The output contains
  * scalar fields at the points of grid. Each scalar field corresponds to a
  * different component of the moment tensor up to Order. The respective
  * indices that identify each scalar field are stored in their respective

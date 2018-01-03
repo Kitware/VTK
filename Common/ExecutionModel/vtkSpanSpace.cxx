@@ -412,7 +412,7 @@ vtkCell *vtkSpanSpace::GetNextCell(vtkIdType& cellId, vtkIdList* &cellPts,
 
 //-----------------------------------------------------------------------------
 // Return the number of cell batches. Here we are going to consider a batch the
-// number of span space buckets included in the current span rectange. Note that
+// number of span space buckets included in the current span rectangle. Note that
 // InitTraversal() must have been called, which populates the span rectangle.
 vtkIdType vtkSpanSpace::GetNumberOfCellBatches()
 {

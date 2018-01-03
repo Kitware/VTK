@@ -672,7 +672,7 @@ double  vtkAmoebaMinimizer::TryAmoeba(double  sum[],
               numerically significant improvement has been found recently.
               Even if it returns 0, you can keep calling this function,
               since it may be contracting with no improvement, but will
-              eventually shrink small enough to get an improvment.
+              eventually shrink small enough to get an improvement.
 @METHOD     :
 @GLOBALS    :
 @CALLS      :

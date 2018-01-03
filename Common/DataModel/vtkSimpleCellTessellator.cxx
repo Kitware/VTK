@@ -53,7 +53,7 @@ static int TRIANGLE_EDGES_TABLE[3][2] = {{0, 1}, {1, 2}, {2, 0}};
 // The last case is only a sentinel to avoid stepping out of table
 // If we consider edge 3 the first edge, 4 the second and 5 the last one
 // 'Index' can be computed by the decimal evaluation of the binary representing
-// which is is split ex: 3 and 5 are split is noted:
+// which is split ex: 3 and 5 are split is noted:
 // {1, 0, 1} = 1*2^0 + 0*2^1 + 1*2^2 = 5
 // [case][triangle][vertex]
 static signed char vtkTessellatorTriangleCases[9][4][3] = {

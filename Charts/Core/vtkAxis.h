@@ -156,7 +156,7 @@ public:
 
   //@{
   /**
-   * Get the vtkTextProperty that governs how the axis lables are displayed.
+   * Get the vtkTextProperty that governs how the axis labels are displayed.
    * Note that the alignment properties are not used.
    */
   vtkGetObjectMacro(LabelProperties, vtkTextProperty);

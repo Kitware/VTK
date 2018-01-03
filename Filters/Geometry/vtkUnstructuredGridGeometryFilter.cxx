@@ -506,7 +506,7 @@ public:
             }
             else
             {
-              // If the face is already from another cell. The the first
+              // If the face is already from another cell. The first
               // corner point with smallest id will match.
 
               // The other corner points

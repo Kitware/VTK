@@ -122,7 +122,7 @@ public:
    * This request flag indicates whether the requester can handle more
    * data than requested for the given port.  Right now it is used in
    * vtkImageData.  Image filters can return more data than requested.
-   * The the consumer cannot handle this (i.e. DataSetToDataSetFitler)
+   * The consumer cannot handle this (i.e. DataSetToDataSetfilter)
    * the image will crop itself.  This functionality used to be in
    * ImageToStructuredPoints.
    */

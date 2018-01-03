@@ -286,7 +286,7 @@ protected:
 
   vtkGenericAttributeCollection *Attributes;
 
-  //Main helper class to tesselate a higher order cell into linear ones.
+  //Main helper class to tessellate a higher order cell into linear ones.
   vtkGenericCellTessellator *Tessellator;
 
   double Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds

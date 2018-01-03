@@ -100,7 +100,7 @@ public:
    * Add another quaternion to the list of quaternions to be interpolated.
    * Note that using the same time t value more than once replaces the
    * previous quaternion at t. At least one quaternions must be added to
-   * define an interpolation functios.
+   * define an interpolation functions.
    */
   void AddQuaternion(double t, const vtkQuaterniond& q);
   void AddQuaternion(double t, double q[4]);

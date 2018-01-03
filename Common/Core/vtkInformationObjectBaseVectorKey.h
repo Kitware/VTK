@@ -43,7 +43,7 @@ public:
    * Providing "requiredClass" name one can insure that only
    * objects of type "requiredClass" are stored in vectors
    * associated with the instance of this key type created.
-   * These should be string literals as they are not coppied.
+   * These should be string literals as they are not copied.
    */
   vtkInformationObjectBaseVectorKey(const char* name,
                                     const char* location,

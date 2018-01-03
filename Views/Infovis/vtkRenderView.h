@@ -185,7 +185,7 @@ public:
   //@{
   /**
    * Set the display size of the icon (which may be different from the icon
-   * size). By default, if this value is not set, the the IconSize is used.
+   * size). By default, if this value is not set, the IconSize is used.
    */
   vtkSetVector2Macro(DisplaySize, int);
   int* GetDisplaySize();

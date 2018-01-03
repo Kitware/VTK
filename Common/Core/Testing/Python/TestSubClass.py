@@ -63,7 +63,7 @@ class TestSubclass(Testing.vtkTest):
         self.assertEqual(id(o.GetExtraObject()), id(extra))
 
     def testCallUnboundMethods(self):
-        """Test calling an unbound method in an overridded method"""
+        """Test calling an unbound method in an overridden method"""
         o = vtkCustomObject()
         a = vtk.vtkIntArray()
         o.SetExtraObject(a)

@@ -553,7 +553,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
   // Declare some variables for later
   unsigned short bondOrder;
   float bondLength;
-  // Since the input cylinder is oriented along the the z axis, the
+  // Since the input cylinder is oriented along the z axis, the
   // scale vector should be [radius, radius, bondLength]
   vtkVector3f scale;
   // Current cylinder's selection id

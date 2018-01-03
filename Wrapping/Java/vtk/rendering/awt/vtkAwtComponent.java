@@ -90,7 +90,7 @@ public class vtkAwtComponent extends vtkAbstractComponent<Canvas> {
     if (!this.renderWindow.GetClassName().equals("vtkXOpenGLRenderWindow")) {
       this.renderWindow = null;
     } else {
-      System.out.println("The renderwindow has been kept arount to prevent a crash");
+      System.out.println("The renderwindow has been kept around to prevent a crash");
     }
     this.lock.unlock();
     vtkObject.JAVA_OBJECT_MANAGER.gc(false);

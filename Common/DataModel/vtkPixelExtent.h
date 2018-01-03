@@ -108,7 +108,7 @@ public:
 
   //@{
   /**
-   * Return non-zero if this extent conatins the other.
+   * Return non-zero if this extent contains the other.
    */
   int Contains(const vtkPixelExtent &other) const;
   int Contains(int i, int j) const;

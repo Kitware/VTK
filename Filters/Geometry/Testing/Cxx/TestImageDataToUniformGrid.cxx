@@ -145,7 +145,7 @@ int TestImageDataToUniformGrid( int, char* [] )
   rc += TestSingleGridBlanking(false, false, 5200);
 
   rc += TestSingleGridBlanking(true, true, 2400);
-  // note that this and the the second call to TestSingleGridBlanking
+  // note that this and the second call to TestSingleGridBlanking
   // are opposites so they should add up to 8000 cells.
   rc += TestSingleGridBlanking(false, true, 2800);
 

@@ -545,13 +545,13 @@ public:
   /**
    * Copy information instance. Arrays use information objects
    * in a variety of ways. It is important to have flexibility in
-   * this regard because certain keys should not be coppied, while
+   * this regard because certain keys should not be copied, while
    * others must be.
 
    * NOTE: Subclasses must always call their superclass's CopyInformation
    * method, so that all classes in the hierarchy get a chance to remove
-   * keys they do not wish to be coppied. The subclass will not need to
-   * explicilty copy the keys as it's handled here.
+   * keys they do not wish to be copied. The subclass will not need to
+   * explicitly copy the keys as it's handled here.
    */
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
 

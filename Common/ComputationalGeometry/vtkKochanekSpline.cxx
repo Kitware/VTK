@@ -20,7 +20,7 @@
 vtkStandardNewMacro(vtkKochanekSpline);
 
 //----------------------------------------------------------------------------
-// Construct a KochanekSpline wth the following defaults:
+// Construct a KochanekSpline with the following defaults:
 // DefaultBias = 0,
 // DefaultTension = 0,
 // DefaultContinuity = 0.

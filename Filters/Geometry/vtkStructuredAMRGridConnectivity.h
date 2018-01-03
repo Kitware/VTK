@@ -552,7 +552,7 @@ protected:
                             // grids in the hierarchy can only differ by one
                             // level.
 
-  // AMRHierarchy stores the the set of grid Ids in [0,N] for each level
+  // AMRHierarchy stores the set of grid Ids in [0,N] for each level
   std::map< int, std::set<int> > AMRHierarchy;
 
   // For each grid, [0,N] store the grid extents,level, and list of neighbors

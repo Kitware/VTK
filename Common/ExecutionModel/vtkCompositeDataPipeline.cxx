@@ -441,7 +441,7 @@ vtkDataObject* vtkCompositeDataPipeline::ExecuteSimpleAlgorithmForBlock(
     return nullptr;
   }
 
-  // There must be a bug somehwere. If this Remove()
+  // There must be a bug somewhere. If this Remove()
   // is not called, the following Set() has the effect
   // of removing (!) the key.
   if (inInfo)

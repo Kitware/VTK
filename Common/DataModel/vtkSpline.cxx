@@ -18,7 +18,7 @@
 
 
 //----------------------------------------------------------------------------
-// Construct a spline wth the folloing defaults:
+// Construct a spline with the following defaults:
 // ClampValueOff
 vtkSpline::vtkSpline ()
 {

@@ -987,7 +987,7 @@ void vtkQuadricClustering::EndAppend()
 
   this->EndAppendVertexGeometry(input, output);
 
-  // Tell the data is is up to date
+  // Tell the data it is up to date
   // (in case the user calls this method directly).
   output->DataHasBeenGenerated();
 

@@ -89,7 +89,7 @@ public:
 
   //@{
   /**
-   * Get the value of the tuple at the index specifed. Does bounds
+   * Get the value of the tuple at the index specified. Does bounds
    * checking, similar to the at(i) method of C++ STL containers, but
    * only when the code is compiled in debug mode.
    */

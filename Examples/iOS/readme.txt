@@ -31,7 +31,7 @@ try building an iOS application that uses the framework.
 
 * likely need to update a couple setting in the project to find the vtk fraework
 * and its header files. You may also get unresolved link errors related to the
-* c++ standard libaries. I have had to change the stdlib settings in XCode away
+* c++ standard libraries. I have had to change the stdlib settings in XCode away
 * from the compiler default to explicitly select a std c++ library
 
 * If you built VTK to run on the actual device, make sure you have all
