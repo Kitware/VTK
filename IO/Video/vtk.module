@@ -1,0 +1,15 @@
+NAME
+  VTK::IOVideo
+LIBRARY_NAME
+  vtkIOVideo
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::vtksys
