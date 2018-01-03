@@ -1,0 +1,17 @@
+NAME
+  VTK::TestingRendering
+LIBRARY_NAME
+  vtkTestingRendering
+GROUPS
+  Rendering
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  VTK::TestingCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonSystem
+  VTK::IOImage
+  VTK::ImagingCore
+  VTK::vtksys
