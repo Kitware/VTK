@@ -1,0 +1,20 @@
+NAME
+  VTK::IOSQL
+LIBRARY_NAME
+  vtkIOSQL
+IMPLEMENTABLE
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::IOCore
+PRIVATE_DEPENDS
+  VTK::sqlite
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::IOLegacy
+  VTK::TestingCore
+  VTK::TestingIOSQL

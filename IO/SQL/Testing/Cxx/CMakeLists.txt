@@ -10,7 +10,7 @@ vtk_test_cxx_executable(vtkIOSQLCxxTests tests)
 # Run these serial to avoid intermittent test failures on machines
 # that do parallel testing
 foreach(test IN LISTS tests)
-  set_tests_properties(vtkIOSQLCxx-${test}
+  set_tests_properties(VTK::IOSQLCxx-${test}
     PROPERTIES
       RUN_SERIAL 1)
 endforeach()
