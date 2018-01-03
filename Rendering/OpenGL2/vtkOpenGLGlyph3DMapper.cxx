@@ -23,6 +23,7 @@
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkHardwareSelector.h"
 #include "vtkMath.h"
+#include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLGlyph3DHelper.h"
 #include "vtkProperty.h"
@@ -127,7 +128,7 @@ public:
 class vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray
 {
 public:
-  std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
+  std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>  Entries;
   vtkTimeStamp BuildTime;
   vtkOpenGLGlyph3DMapperSubArray()
   {
@@ -138,10 +139,10 @@ public:
   };
   void ClearEntries()
   {
-    std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
+    std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter = this->Entries.begin();
     for (;miter != this->Entries.end(); ++miter)
     {
-      delete miter->second;
+      delete *miter;
     }
     this->Entries.clear();
   }
@@ -406,8 +407,8 @@ void vtkOpenGLGlyph3DMapper::Render(
     subarray->ClearEntries();
     for (size_t cc = 0; cc < numberOfSources; cc++)
     {
-      subarray->Entries.insert(std::make_pair(cc,
-        new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry()));
+      subarray->Entries.push_back(
+        new vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry());
     }
     numberOfSourcesChanged = true;
   }
@@ -637,9 +638,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     }
   }
 
-  double arrayVals[16];
-  vtkTransform *trans = vtkTransform::New();
-  vtkTransform *normalTrans = vtkTransform::New();
   vtkDataArray* indexArray = this->GetSourceIndexArray(dataset);
   vtkDataArray* scaleArray = this->GetScaleArray(dataset);
   vtkDataArray* selectionArray = this->GetSelectionIdArray(dataset);
@@ -702,6 +700,19 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   // loop over every point and fill structures
   int index = 0;
   vtkDataObjectTree *sourceTableTree = this->GetSourceTableTree();
+
+  // cache sources to improve performances
+  std::vector<vtkDataObject*> sourceCache(numEntries);
+  for (vtkIdType i = 0; i < numEntries; i++)
+  {
+    sourceCache[i] = this->UseSourceTableTree
+        ? getChildDataObject(sourceTableTree, i)
+        : this->GetSource(i);
+  }
+
+  double trans[16];
+  double normalTrans[9];
+
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
   {
     if (!(inPtId % 10000))
@@ -729,9 +740,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     }
 
     // source can be null.
-    vtkDataObject *source = this->UseSourceTableTree
-        ? getChildDataObject(sourceTableTree, index)
-        : this->GetSource(index);
+    vtkDataObject *source = sourceCache[index];
 
     // Make sure we're not indexing into empty glyph
     if (source)
@@ -794,27 +803,39 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       scalez *= this->ScaleFactor;
 
       // Now begin copying/transforming glyph
-      trans->Identity();
-      normalTrans->Identity();
+      vtkMatrix4x4::Identity(trans);
+      vtkMatrix3x3::Identity(normalTrans);
 
       // translate Source to Input point
       double x[3];
       dataset->GetPoint(inPtId, x);
-      trans->Translate(x[0], x[1], x[2]);
+      trans[3] = x[0];
+      trans[7] = x[1];
+      trans[11] = x[2];
 
       if (orientArray)
       {
         double orientation[4];
         orientArray->GetTuple(inPtId, orientation);
+
+        double rotMatrix[3][3];
+        vtkQuaterniond quaternion;
+
         switch (this->OrientationMode)
         {
         case ROTATION:
-          trans->RotateZ(orientation[2]);
-          trans->RotateX(orientation[0]);
-          trans->RotateY(orientation[1]);
-          normalTrans->RotateZ(orientation[2]);
-          normalTrans->RotateX(orientation[0]);
-          normalTrans->RotateY(orientation[1]);
+          {
+            double angle = vtkMath::RadiansFromDegrees(orientation[2]);
+            vtkQuaterniond qz(cos(0.5*angle), 0.0, 0.0, sin(0.5*angle));
+
+            angle = vtkMath::RadiansFromDegrees(orientation[0]);
+            vtkQuaterniond qx(cos(0.5*angle), sin(0.5*angle), 0.0, 0.0);
+
+            angle = vtkMath::RadiansFromDegrees(orientation[1]);
+            vtkQuaterniond qy(cos(0.5*angle), 0.0, sin(0.5*angle), 0.0);
+
+            quaternion = qz*qx*qy;
+          }
           break;
 
         case DIRECTION:
@@ -822,8 +843,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
           {
             if (orientation[0] < 0) //just flip x if we need to
             {
-              trans->RotateWXYZ(180.0, 0, 1, 0);
-              normalTrans->RotateWXYZ(180.0, 0, 1, 0);
+              quaternion.Set(0.0, 0.0, 1.0, 0.0);
             }
           }
           else
@@ -833,18 +853,30 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
             vNew[0] = (orientation[0] + vMag) / 2.0;
             vNew[1] = orientation[1] / 2.0;
             vNew[2] = orientation[2] / 2.0;
-            trans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
-            normalTrans->RotateWXYZ(180.0, vNew[0], vNew[1], vNew[2]);
+
+            double f = 1.0/sqrt(vNew[0]*vNew[0]+vNew[1]*vNew[1]+vNew[2]*vNew[2]);
+            vNew[0] *= f;
+            vNew[1] *= f;
+            vNew[2] *= f;
+
+            quaternion.Set(0.0, vNew[0], vNew[1], vNew[2]);
           }
           break;
 
         case QUATERNION:
-          vtkQuaterniond quaternion(orientation);
-          double axis[3];
-          double angle = vtkMath::DegreesFromRadians(quaternion.GetRotationAngleAndAxis(axis));
-          trans->RotateWXYZ(angle, axis);
-          normalTrans->RotateWXYZ(angle, axis);
+          quaternion.Set(orientation);
           break;
+        }
+
+        quaternion.ToMatrix3x3(rotMatrix);
+
+        for (int i = 0; i < 3; i++)
+        {
+          for (int j = 0; j < 3; j++)
+          {
+            trans[4*i+j] = rotMatrix[i][j];
+            normalTrans[3*i+j] = rotMatrix[j][i]; // transpose
+          }
         }
       }
 
@@ -887,25 +919,35 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         {
           scalez = 1.0e-10;
         }
-        trans->Scale(scalex, scaley, scalez);
-        normalTrans->Scale(scalex, scaley, scalez);
+
+        for (int i = 0; i < 3; i++)
+        {
+          // inverse of normal matrix is directly computed with inverse scale
+          trans[4*i] *= scalex;
+          normalTrans[i] /= scalex;
+          trans[4*i+1] *= scaley;
+          normalTrans[i+3] /= scaley;
+          trans[4*i+2] *= scalez;
+          normalTrans[i+6] /= scalez;
+        }
       }
 
-      vtkMatrix4x4::DeepCopy(arrayVals, trans->GetMatrix());
+      float* matrices = &entry->Matrices[entry->NumberOfPoints*16];
+      float* normalMatrices = &entry->NormalMatrices[entry->NumberOfPoints*9];
+
       for (int i = 0; i < 4; i++)
       {
         for (int j = 0; j < 4; j++)
         {
-          entry->Matrices[entry->NumberOfPoints*16+i*4+j] = arrayVals[j*4+i];
+          matrices[i*4+j] = trans[j*4+i];
         }
       }
-      normalTrans->Inverse();
-      vtkMatrix4x4::DeepCopy(arrayVals, normalTrans->GetMatrix());
+
       for (int i = 0; i < 3; i++)
       {
         for (int j = 0; j < 3; j++)
         {
-          entry->NormalMatrices[entry->NumberOfPoints*9+i*3+j] = arrayVals[i*4+j];
+          normalMatrices[i*3+j] = normalTrans[i*3+j];
         }
       }
       entry->NumberOfPoints++;
@@ -913,8 +955,6 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
   }
 
   subarray->BuildTime.Modified();
-  trans->Delete();
-  normalTrans->Delete();
 }
 
 
@@ -928,11 +968,11 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
     std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
     for (;miter != this->GlyphValues->Entries.end(); ++miter)
     {
-      std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
+      std::vector<vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
       for (;miter2 != miter->second->Entries.end(); ++miter2)
       {
-        vtkOpenGLGlyph3DMapperEntry::MapperMap::iterator miter3 = miter2->second->Mappers.begin();
-        for (; miter3 != miter2->second->Mappers.end(); ++miter3)
+        vtkOpenGLGlyph3DMapperEntry::MapperMap::iterator miter3 = (*miter2)->Mappers.begin();
+        for (; miter3 != (*miter2)->Mappers.end(); ++miter3)
         {
           miter3->second->ReleaseGraphicsResources(window);
         }
