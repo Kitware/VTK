@@ -1,8 +1,5 @@
-include(vtkMPI)
+set(classes
+  vtkPNetCDFPOPReader)
 
-set(Module_SRCS
-  vtkPNetCDFPOPReader.cxx
-  )
-
-vtk_module_library(vtkIOParallelNetCDF ${Module_SRCS})
-vtk_mpi_link(vtkIOParallelNetCDF)
+vtk_module_add_module(VTK::IOParallelNetCDF
+  CLASSES ${classes})
