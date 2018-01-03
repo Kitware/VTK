@@ -1,9 +1,0 @@
-vtk_module(vtkIOTRUCHAS
-  DEPENDS
-    vtkCommonExecutionModel
-  PRIVATE_DEPENDS
-    vtkhdf5
-  TEST_DEPENDS
-    vtkTestingCore
-    vtkTestingRendering
-  )
