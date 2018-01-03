@@ -812,7 +812,7 @@ void vtkScatterPlotMatrix::SetInput(vtkTable *table)
 {
   if(table && table->GetNumberOfRows() == 0)
   {
-    // do nothing if the table is emtpy
+    // do nothing if the table is empty
     return;
   }
 

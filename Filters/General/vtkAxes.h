@@ -54,7 +54,7 @@ public:
 
   //@{
   /**
-   * If Symmetric is on, the the axis continue to negative values.
+   * If Symmetric is on, the axis continue to negative values.
    */
   vtkSetMacro(Symmetric,vtkTypeBool);
   vtkGetMacro(Symmetric,vtkTypeBool);

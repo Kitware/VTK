@@ -134,7 +134,7 @@ public:
 
   /**
    * Compute a list of the Ids of all regions that
-   * intersect the given cell.  If you alrady
+   * intersect the given cell.  If you already
    * know the region that the cell centroid lies in, provide
    * that as the last argument to make the computation quicker.
    * Returns the number of regions the cell intersects.

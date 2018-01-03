@@ -130,7 +130,7 @@ static Slot* LookupSlot(HashTableArray *array, ThreadIdType threadId,
   size_t mask = array->Size - 1u;
   Slot *slot = nullptr;
 
-  // since load factor is maintained bellow 0.5, this loop should hit an
+  // since load factor is maintained below 0.5, this loop should hit an
   // empty slot if the queried slot does not exist in this array
   for (size_t idx = hash & mask; ; idx = (idx + 1) & mask) // linear probing
   {

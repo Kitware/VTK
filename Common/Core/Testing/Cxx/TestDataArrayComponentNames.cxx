@@ -19,7 +19,7 @@ int TestDataArrayComponentNames(int,char *[])
   if ( array->GetComponentName(-1) != nullptr || array->GetComponentName(3) != nullptr )
   {
     cerr
-      << " Unable to return nullptr when asking for a component name outside the the valid range";
+      << " Unable to return nullptr when asking for a component name outside the valid range";
     array->Delete();
     return 1;
   }

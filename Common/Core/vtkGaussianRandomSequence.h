@@ -36,7 +36,7 @@ public:
 
   /**
    * Convenient method to return a value given the mean and standard deviation
-   * of the Gaussian distribution from the the Gaussian distribution of mean=0
+   * of the Gaussian distribution from the Gaussian distribution of mean=0
    * and standard deviation=1.0. There is an initial implementation that can
    * be overridden by a subclass.
    */

@@ -36,7 +36,7 @@
 // array calculator to fix these?
 
 // ISSUE: the initial value of the Attribute weights is one, this is generally
-// not useful, ussually set around .1, but I did this because the the
+// not useful, usually set around .1, but I did this because the
 // toggling on and off sets it to 1 and 0
 
 #include "vtkQuadricDecimation.h"
@@ -750,7 +750,7 @@ void vtkQuadricDecimation::UpdateEdgeData(vtkIdType pt0Id, vtkIdType pt1Id)
   // Reset the endpoints for these edges to reflect the new point from the
   // collapsed edge.
   // Add these new edges to the edge table.
-  // Remove the the changed edges from the priority queue.
+  // Remove the changed edges from the priority queue.
   for (i = 0; i < changedEdges->GetNumberOfIds(); i++)
   {
     edge[0] = this->EndPoint1List->GetId(changedEdges->GetId(i));

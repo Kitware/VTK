@@ -670,7 +670,7 @@ double *vtkBridgeCell::GetParametricCoords()
   return this->Cell->GetParametricCoords();
 }
 
-// For the internals of the tesselation algorithm (the hash table in particular)
+// For the internals of the tessellation algorithm (the hash table in particular)
 // Is the face `faceId' of the current cell on a exterior boundary of the
 // dataset or not?
 // \pre 3d: GetDimension()==3

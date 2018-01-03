@@ -125,7 +125,7 @@ int TestHigherOrderCell(int , char *[])
     const int numEdges = linCell->GetNumberOfEdges();
     const int numFaces = linCell->GetNumberOfFaces();
     const int dim      = linCell->GetCellDimension();
-    // First check consistancy across cell of higher dimension:
+    // First check consistency across cell of higher dimension:
     // Technically doing the loop from 1 to depth will be redundant when doing the
     // CompareHigherOrderCell on the quadratic cell since we will compare the exactly
     // same cell...

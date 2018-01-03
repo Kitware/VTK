@@ -666,7 +666,7 @@ int vtkWrapPython_WrapOneClass(
   vtkWrapPython_GenerateMethods(
     fp, classname, data, finfo, hinfo, is_vtkobject, 0);
 
-  /* output the class initilization function for VTK objects */
+  /* output the class initialization function for VTK objects */
   if (is_vtkobject)
   {
     vtkWrapPython_GenerateObjectType(
@@ -675,7 +675,7 @@ int vtkWrapPython_WrapOneClass(
       fp, classname, data, hinfo, class_has_new);
   }
 
-  /* output the class initilization function for special objects */
+  /* output the class initialization function for special objects */
   else
   {
     vtkWrapPython_GenerateSpecialType(

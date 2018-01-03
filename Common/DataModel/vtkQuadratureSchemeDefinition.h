@@ -74,7 +74,7 @@ public:
 
   /**
    * Release all allocated resources and set the
-   * object to an unitialized state.
+   * object to an uninitialized state.
    */
   void Clear();
 

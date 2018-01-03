@@ -547,7 +547,7 @@ void vtkTanglegramItem::ReorderTreeAtVertex(vtkIdType parent, vtkTree *tree)
 {
   // Set up a priority queue to reorganize the vertices.  This queue sorts all
   // the children of parent based on their "score".  This score roughly
-  // correponds to where the children should be positioned within the
+  // corresponds to where the children should be positioned within the
   // dendrogram to minimize crossings.  See the comments within
   // GetPositionScoreForVertex() for more info.
   std::priority_queue<vtkDendrogramItem::WeightedVertex,

@@ -395,7 +395,7 @@ public:
 
   //--------------------------------------------------------------------------
   // Methods that apply to any array (not just scalars).
-  // I am starting to experiment with generalizing imaging fitlers
+  // I am starting to experiment with generalizing imaging filters
   // to operate on more than just scalars.
 
   //@{

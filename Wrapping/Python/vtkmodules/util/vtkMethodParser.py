@@ -219,7 +219,7 @@ class VtkPrintMethodParser:
                     pass
                 else:
                     self.toggle_meths.append (method[0]+"On")
-            else: # see it it is get_set or get or a state method
+            else: # see if it is get_set or get or a state method
                 found = 0
                 # checking if it is a state func.
                 # figure out the long names from the dir_state_meths

@@ -48,7 +48,7 @@
 
 vtkStandardNewMacro(vtkTimerLog);
 
-// initialze the class variables
+// initialize the class variables
 int vtkTimerLog::Logging = 1;
 int vtkTimerLog::Indent = 0;
 int vtkTimerLog::MaxEntries = 100;

@@ -467,7 +467,7 @@ bool vtkVASPTessellationReader::ReadTimeStep(std::istream &in,
   voronoi->SetPoints(tessPoints);
   voronoi->Allocate(nAtoms);
 
-  // Cell attributes for the voronoi tesselation:
+  // Cell attributes for the voronoi tessellation:
   vtkNew<vtkUnsignedShortArray> tessAtomicNumbers;
   tessAtomicNumbers->SetName("Atomic Numbers");
   tessAtomicNumbers->Allocate(nAtoms);

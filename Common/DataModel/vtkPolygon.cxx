@@ -604,7 +604,7 @@ int vtkPolygon::ParameterizePolygon(double *p0, double *p10, double& l10,
     return 0;
   }
 
-  //  Now evalute all polygon points to determine min/max parametric
+  //  Now evaluate all polygon points to determine min/max parametric
   //  coordinate values.
   //
   // first vertex has (s,t) = (0,0)

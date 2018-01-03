@@ -24,7 +24,7 @@
  *
  * vtkMappedDataArrayNewInstanceMacro is used by subclasses to implement
  * NewInstanceInternal such that a non-mapped vtkDataArray is returned by
- * NewInstance(). This prevents the mapped array type from propogating
+ * NewInstance(). This prevents the mapped array type from propagating
  * through the pipeline.
  *
  * @attention

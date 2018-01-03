@@ -35,7 +35,7 @@ CvtkSDIView::CvtkSDIView()
 {
   this->pvtkMFCWindow     = NULL;
 
-  // Create the the renderer, window and interactor objects.
+  // Create the renderer, window and interactor objects.
   this->pvtkRenderer    = vtkRenderer::New();
 }
 
@@ -110,7 +110,7 @@ int CvtkSDIView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CvtkSDIView::OnDestroy()
 {
-  // Delete the the renderer, window and interactor objects.
+  // Delete the renderer, window and interactor objects.
   if (this->pvtkRenderer)      this->pvtkRenderer->Delete();
 
   // destroy base

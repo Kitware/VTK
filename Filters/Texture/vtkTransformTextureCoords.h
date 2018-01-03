@@ -19,7 +19,7 @@
  * vtkTransformTextureCoords is a filter that operates on texture
  * coordinates. It ingests any type of dataset, and outputs a dataset of the
  * same type. The filter lets you scale, translate, and rotate texture
- * coordinates. For example, by using the the Scale ivar, you can shift
+ * coordinates. For example, by using the Scale ivar, you can shift
  * texture coordinates that range from (0->1) to range from (0->10) (useful
  * for repeated patterns).
  *

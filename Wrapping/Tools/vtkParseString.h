@@ -227,7 +227,7 @@ typedef struct _StringCache
 void vtkParse_InitStringCache(StringCache *cache);
 
 /**
- * Alocate a new string from the cache.
+ * Allocate a new string from the cache.
  * A total of n+1 bytes will be allocated, to leave room for null.
  */
 char *vtkParse_NewString(StringCache *cache, size_t n);

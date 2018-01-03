@@ -226,7 +226,7 @@ public:
 
   //@{
   /**
-   * The text property to use for labelling points/vertices.
+   * The text property to use for labeling points/vertices.
    */
   virtual void SetPointTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(PointTextProperty, vtkTextProperty);
@@ -234,7 +234,7 @@ public:
 
   //@{
   /**
-   * The text property to use for labelling edges/cells.
+   * The text property to use for labeling edges/cells.
    */
   virtual void SetCellTextProperty(vtkTextProperty* tprop);
   vtkGetObjectMacro(CellTextProperty, vtkTextProperty);
@@ -242,7 +242,7 @@ public:
 
   //@{
   /**
-   * The color to use for labelling graph vertices.
+   * The color to use for labeling graph vertices.
    * This is deprecated. Use GetPointTextProperty()->SetColor() instead.
    */
   virtual void SetVertexLabelColor(double r, double g, double b);
@@ -257,7 +257,7 @@ public:
 
   //@{
   /**
-   * The color to use for labelling graph edges.
+   * The color to use for labeling graph edges.
    * This is deprecated. Use GetCellTextProperty()->SetColor() instead.
    */
   virtual void SetEdgeLabelColor(double r, double g, double b);

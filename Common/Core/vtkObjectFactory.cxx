@@ -378,7 +378,7 @@ void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Factory description: " << this->GetDescription() << endl;
   int num = this->GetNumberOfOverrides();
-  os << indent << "Factory overides " << num << " classes:" << endl;
+  os << indent << "Factory overrides " << num << " classes:" << endl;
   indent = indent.GetNextIndent();
   for(int i =0; i < num; i++)
   {

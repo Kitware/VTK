@@ -211,7 +211,7 @@ public:
   int Reference;  //signed char
   int ToSplit;  //signed char
   vtkIdType PtId;
-  vtkIdType CellId; //CellId the edge refer to at a step in tesselation
+  vtkIdType CellId; //CellId the edge refer to at a step in tessellation
 
   EdgeEntry()
   {

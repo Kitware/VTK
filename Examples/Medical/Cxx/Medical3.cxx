@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 
   // An isosurface, or contour value of 500 is known to correspond to
   // the skin of the patient. Once generated, a vtkPolyDataNormals
-  // filter is is used to create normals for smooth surface shading
+  // filter is used to create normals for smooth surface shading
   // during rendering.  The triangle stripper is used to create triangle
   // strips from the isosurface; these render much faster on may
   // systems.
@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
 
   // An isosurface, or contour value of 1150 is known to correspond to
   // the skin of the patient. Once generated, a vtkPolyDataNormals
-  // filter is is used to create normals for smooth surface shading
+  // filter is used to create normals for smooth surface shading
   // during rendering.  The triangle stripper is used to create triangle
   // strips from the isosurface; these render much faster on may
   // systems.

@@ -436,7 +436,7 @@ public:
                           vtkPoints *points, vtkCellArray* cellArray,
                           vtkPointData *pd, vtkCellData* cd);
 #endif
-  // For the internals of the tesselation algorithm (the hash table in particular)
+  // For the internals of the tessellation algorithm (the hash table in particular)
   int IsFaceOnBoundary(vtkIdType faceId) override;
   int IsOnBoundary() override;
   //@}

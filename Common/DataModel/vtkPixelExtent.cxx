@@ -199,7 +199,7 @@ void vtkPixelExtent::Subtract(
     return;
   }
 
-  // split left and bellow this cells
+  // split left and below this cells
   I.CellToNode();
 
   deque<vtkPixelExtent> tmpA0;

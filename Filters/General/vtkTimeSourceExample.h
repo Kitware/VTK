@@ -63,7 +63,7 @@ public:
   //@{
   /**
    * When off (the default) this produces a single cell data set.
-   * When on the the number of cells (in the Y direction) grows
+   * When on the number of cells (in the Y direction) grows
    * and shrinks over time along a hat function.
    */
   vtkSetClampMacro(Growing, int, 0, 1);

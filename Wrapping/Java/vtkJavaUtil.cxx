@@ -531,7 +531,7 @@ JNIEXPORT jstring vtkJavaMakeJavaString(JNIEnv *env, const char *in)
   }
 }
 
-//**jcp this is the callback inteface stub for Java. no user parms are passed
+//**jcp this is the callback interface stub for Java. no user parms are passed
 //since the callback must be a method of a class. We make the rash assumption
 //that the <this> pointer will anchor any required other elements for the
 //called functions. - edited by km

@@ -43,7 +43,7 @@ function(vtk_add_java_wrapping module_name module_srcs module_hdrs)
   vtk_target_export(${module_name}Java)
   set_property(TARGET ${module_name}Java APPEND
     PROPERTY INCLUDE_DIRECTORIES ${_java_include_dirs})
-  # Force JavaClasses to build in the right order by adding a depenency.
+  # Force JavaClasses to build in the right order by adding a dependency.
   add_dependencies(${module_name}JavaJavaClasses ${module_name}Java)
   if(${module_name}_IMPLEMENTS)
     set_property(TARGET ${module_name}Java PROPERTY COMPILE_DEFINITIONS

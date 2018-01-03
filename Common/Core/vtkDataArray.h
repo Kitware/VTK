@@ -405,7 +405,7 @@ public:
   }
 
   /**
-   * The the range of the data array values will be returned in the provided
+   * The range of the data array values will be returned in the provided
    * range array argument. If the data array has multiple components, then
    * this will return the range of only the first component (component zero).
    * The range is computend and then cached, and will not be re-computed on
@@ -460,7 +460,7 @@ public:
   }
 
   /**
-   * The the range of the data array values will be returned in the provided
+   * The range of the data array values will be returned in the provided
    * range array argument. If the data array has multiple components, then
    * this will return the range of only the first component (component zero).
    * The range is computend and then cached, and will not be re-computed on
@@ -545,7 +545,7 @@ public:
    * in a variety of ways. It is important to have flexibility in
    * this regard because certain keys should not be copied, while
    * others must be. NOTE: Up to the implmenter to make sure that
-   * keys not inteneded to be coppied are excluded here.
+   * keys not intended to be copied are excluded here.
    */
   int CopyInformation(vtkInformation *infoFrom, int deep=1) override;
 

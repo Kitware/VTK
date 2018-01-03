@@ -1168,7 +1168,7 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
         0, this->CategoryLegendValues);
       this->CategoryLegendValues->Modified();
 
-      // these distinct values become the the input to our categorical legend
+      // these distinct values become the input to our categorical legend
       this->CategoryLegend->SetValues(this->CategoryLegendValues);
       this->CategoryLegend->SetTitle(this->Table->GetColumn(column)->GetName());
       this->CategoryLegend->SetVisible(true);

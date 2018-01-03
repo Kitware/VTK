@@ -19,7 +19,7 @@
  * vtkIdFilter is a filter to that generates scalars or field data
  * using cell and point ids. That is, the point attribute data scalars
  * or field data are generated from the point ids, and the cell
- * attribute data scalars or field data are generated from the the
+ * attribute data scalars or field data are generated from the
  * cell ids.
  *
  * Typically this filter is used with vtkLabeledDataMapper (and possibly

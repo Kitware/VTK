@@ -145,7 +145,7 @@ public:
 
   //@{
   /**
-   * Programatic access to events.  Indexed from 0 to num-1.
+   * Programmatic access to events.  Indexed from 0 to num-1.
    */
   static int GetNumberOfEvents();
   static int GetEventIndent(int i);

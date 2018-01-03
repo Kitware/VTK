@@ -13,7 +13,7 @@
 if(MPIEXEC)
   set(VTK_MPIRUN_EXE ${MPIEXEC} CACHE FILEPATH "The full path to mpirun command" FORCE)
   set(VTK_MPI_PRENUMPROC_FLAGS ${MPIEXEC_PREFLAGS} CACHE STRING
-    "These flags will be directly before the number of processess flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
+    "These flags will be directly before the number of processes flag (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)
   if(NOT ${MPI_NUMPROC_FLAG})
     set(VTK_MPI_NUMPROC_FLAG "-np" CACHE STRING
       "Flag used by mpi to specify the number of processes, the next option will be the number of processes. (see ${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt for more info.)" FORCE)

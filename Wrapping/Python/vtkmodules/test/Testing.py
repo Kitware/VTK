@@ -144,7 +144,7 @@ class vtkTest(unittest.TestCase):
 
     def _testBoolean(self, obj, excluded_methods=[]):
         """Checks the Boolean methods by setting the value on and off
-        and making sure that the GetMethod returns the the set value.
+        and making sure that the GetMethod returns the set value.
         This effectively calls _testParse internally. """
         self._blackbox.testBoolean(obj, excluded_methods)
 

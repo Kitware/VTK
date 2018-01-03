@@ -45,7 +45,7 @@ public:
 
   /**
    * Set the memory buffer that this vtkBuffer object will manage. @a array
-   * is a pointer to the buffer data and @a size is the size of the bufffer (in
+   * is a pointer to the buffer data and @a size is the size of the buffer (in
    * number of elements). If @a save is true, the buffer will not be freed when
    * this vtkBuffer object is deleted or resize -- otherwise, @a deleteMethod
    * is a function that will be called to free the buffer

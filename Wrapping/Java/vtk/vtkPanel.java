@@ -69,7 +69,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     if(!rw.GetClassName().equals("vtkXOpenGLRenderWindow")) {
       rw = null;
     } else {
-      System.out.println("The renderwindow has been kept arount to prevent a crash");
+      System.out.println("The renderwindow has been kept around to prevent a crash");
     }
   }
 

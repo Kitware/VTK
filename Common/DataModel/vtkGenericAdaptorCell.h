@@ -527,7 +527,7 @@ public:
                           vtkPointData *pd, vtkCellData* cd,
                           vtkUnsignedCharArray *types);
 
-  // The following methods are for the internals of the tesselation algorithm
+  // The following methods are for the internals of the tessellation algorithm
   // (the hash table in particular)
 
   /**

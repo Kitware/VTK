@@ -92,7 +92,7 @@
 
 // If the isnan or isinf function does not exist, then our next attempt is to
 // use comparisons to determine if the number is not finite.  Although these
-// comparisons should be valid, some systems raise execeptions anyway (possibly
+// comparisons should be valid, some systems raise exceptions anyway (possibly
 // because exceptions for really bad operations like division by 0 are on).
 // This flag will instruct vtkMath not to make these comparisons.  (The next
 // fallback is to do IEEE-754 bit comparisons.)

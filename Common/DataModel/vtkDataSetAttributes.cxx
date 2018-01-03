@@ -86,7 +86,7 @@ vtkDataSetAttributes::vtkDataSetAttributes()
 
   //Global IDs should not be interpolated because they are labels, not "numbers"
   //Global IDs should not be copied either, unless doing so preserves meaning.
-  //Passing through is ussually OK because it is 1:1.
+  //Passing through is usually OK because it is 1:1.
   this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] = 0;
   this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] = 0;
 
@@ -1937,7 +1937,7 @@ void vtkDataSetAttributes::FieldList::UnionFieldList(vtkDataSetAttributes* dsa)
     this->NumberOfTuples += aa->GetNumberOfTuples();
   }
 
-  // unlike Intersection, with Union the the total number of fields may change,
+  // unlike Intersection, with Union the total number of fields may change,
   // so we have to be careful with that.
   std::vector<int> dsaIndices;
   dsaIndices.resize(this->NumberOfFields, -1);

@@ -45,7 +45,7 @@ class SliceOrder(object):
     si = vtk.vtkTransform()
     si.SetMatrix([1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1])
 
-    # is is a reserved word in Python so use iss
+    # 'is' is a reserved word in Python so use 'iss'
     iss = vtk.vtkTransform()
     iss.SetMatrix([1, 0, 0, 0, 0, 0, -1, 0, 0, -1, 0, 0, 0, 0, 0, 1])
 

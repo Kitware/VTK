@@ -149,7 +149,7 @@ public:
   //@{
   /**
    * Set the color for all cells were part of the original geometry.
-   * If the the input data already has color cell scalars, then those
+   * If the input data already has color cell scalars, then those
    * values will be used and parameter will be ignored.  The default color
    * is red.  Requires SetScalarModeToColors.
    */
@@ -275,7 +275,7 @@ protected:
    * fills those lines.  The input lines must be single-segment lines,
    * not polylines.  The input lines do not have to be in order.
    * Only lines from firstLine to will be used.  Specify the normal
-   * of the clip plane, which will be opposite the the normals
+   * of the clip plane, which will be opposite the normals
    * of the polys that will be produced.  If outCD has scalars, then color
    * scalars will be added for each poly that is created.
    */

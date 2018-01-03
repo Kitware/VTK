@@ -304,7 +304,7 @@ public:
    */
   void CloseStream();
 
-  // Descrition:
+  // Description:
   // Implements deep copy
   void DeepCopy(vtkDataObject *src) override;
 

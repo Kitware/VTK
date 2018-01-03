@@ -42,7 +42,7 @@ command:
 
   $ mvn install
 
-The default local Maven repostiory is in `~/.m2/repository`.
+The default local Maven repository is in `~/.m2/repository`.
 
 # ----------------------------------------------------------------------------
 # Local Deploy - SNAPSHOT

@@ -129,7 +129,7 @@ template<typename T> int TestCell(const VTKCellType cellType,
   int status = 0;;
   std::cout << "Testing " << aCell->GetClassName() << std::endl;
 
-  std::cout << "  Testing Print of an unitialized cell...";
+  std::cout << "  Testing Print of an uninitialized cell...";
   std::ostringstream cellPrint;
   aCell->Print(cellPrint);
   std::cout << "PASSED" << std::endl;

@@ -606,7 +606,7 @@ void vtkPlanesIntersection::SetPlaneEquations()
   }
 }
 
-// Compute region vertices if not set explicity ********************
+// Compute region vertices if not set explicitly ********************
 
 void vtkPlanesIntersection::ComputeRegionVertices()
 {

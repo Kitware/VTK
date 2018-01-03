@@ -88,7 +88,7 @@ public:
 
   /**
    * Set whether the given output port releases data when it is
-   * consumed.  Returns 1 if the the value changes and 0 otherwise.
+   * consumed.  Returns 1 if the value changes and 0 otherwise.
    */
   virtual int SetReleaseDataFlag(int port, int n);
 

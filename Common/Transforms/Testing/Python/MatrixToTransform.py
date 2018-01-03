@@ -3,7 +3,7 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# This example demonstrates how to use a matrix in place of a transfrom
+# This example demonstrates how to use a matrix in place of a transform
 # via vtkMatrixToLinearTransform and vtkMatrixToHomogeneousTransform.
 # create a rendering window
 renWin = vtk.vtkRenderWindow()

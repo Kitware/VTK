@@ -115,7 +115,7 @@ public:
   /**
    * Set the number of branching divisions in each binning direction. Each
    * level of the tree is subdivided by this factor. The Divisions[i] must be
-   * >= 1. Note: if Automatic subdivision is specified, the the Divisions are
+   * >= 1. Note: if Automatic subdivision is specified, the Divisions are
    * set by the filter.
    */
   vtkSetVector3Macro(Divisions,int);

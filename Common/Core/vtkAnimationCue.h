@@ -115,7 +115,7 @@ public:
    * Triggers a Tick event if currenttime >= StartTime and
    * currenttime <= EndTime.
    * Whenever the state of the cue changes,
-   * either StartEvent or EndEvent is triggerred depending upon
+   * either StartEvent or EndEvent is triggered depending upon
    * whether the cue entered Active state or quit active state respectively.
    * The current time is relative to the start of the container Scene
    * (when in Relative time mode) or is normalized

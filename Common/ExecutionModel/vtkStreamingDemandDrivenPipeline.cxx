@@ -584,7 +584,7 @@ vtkStreamingDemandDrivenPipeline
     // Initialize input extent to whole extent if it is not
     // already initialized.
     // This may be overwritten by the default code below as
-    // well as what that an algorith may do.
+    // well as what that an algorithm may do.
     for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
     {
       // Loop over all connections on this input port.

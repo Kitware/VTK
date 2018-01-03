@@ -21,7 +21,7 @@
 
 int TestMatrix3x3(int,char *[])
 {
-  // Instantiate a vtkMatrix3x3 and test out the funtions.
+  // Instantiate a vtkMatrix3x3 and test out the functions.
   vtkNew<vtkMatrix3x3> matrix;
   cout << "Testing vtkMatrix3x3..." << endl;
   if (!matrix->IsIdentity())
