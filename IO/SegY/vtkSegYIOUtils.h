@@ -15,7 +15,6 @@
 
 #ifndef vtkSegYIOUtils_h
 #define vtkSegYIOUtils_h
-#ifndef __VTK_WRAP__
 
 #include <fstream>
 
@@ -47,6 +46,5 @@ private:
   }
 };
 
-#endif
 #endif // vtkSegYIOUtils_h
 // VTK-HeaderTest-Exclude: vtkSegYIOUtils.h

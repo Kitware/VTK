@@ -15,7 +15,6 @@
 
 #ifndef vtkSegYTraceReader_h
 #define vtkSegYTraceReader_h
-#ifndef __VTK_WRAP__
 
 #include <fstream>
 #include <vector>
@@ -66,6 +65,5 @@ public:
   int GetTraceSize(int numSamples, int formatCode);
 };
 
-#endif
 #endif // vtkSegYTraceReader_h
 // VTK-HeaderTest-Exclude: vtkSegYTraceReader.h
