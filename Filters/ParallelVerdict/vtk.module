@@ -1,0 +1,15 @@
+NAME
+  VTK::FiltersParallelVerdict
+LIBRARY_NAME
+  vtkFiltersParallelVerdict
+KIT
+  VTK::Parallel
+GROUPS
+  MPI
+DEPENDS
+  VTK::FiltersVerdict
+  VTK::ParallelCore
+TEST_DEPENDS
+  VTK::IOLegacy
+  VTK::ParallelMPI
+  VTK::TestingCore

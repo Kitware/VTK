@@ -1,5 +1,5 @@
-set(Module_SRCS
-  vtkPCellSizeFilter.cxx
-  )
+set(classes
+  vtkPCellSizeFilter)
 
-vtk_module_library(vtkFiltersParallelVerdict ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersParallelVerdict
+  CLASSES ${classes})
