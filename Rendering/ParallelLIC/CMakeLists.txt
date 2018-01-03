@@ -1,59 +1,60 @@
-include(vtkObjectFactory)
+set(classes
+  vtkMPIPixelTT
+  vtkParallelTimer
+  vtkPLineIntegralConvolution2D
+  vtkPPainterCommunicator
+  vtkPPixelTransfer
+  vtkPSurfaceLICComposite
+  vtkPSurfaceLICInterface)
 
-set(Module_SRCS
-  vtkMPIPixelTT.cxx
-  vtkParallelTimer.cxx
-  vtkPPixelTransfer.cxx
-  vtkPLineIntegralConvolution2D.cxx
-  vtkPPainterCommunicator.cxx
-  vtkPSurfaceLICComposite.cxx
-  vtkPSurfaceLICInterface.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingParallelLICObjectFactory.cxx
-  )
+vtk_object_factory_declare(
+  BASE vtkSurfaceLICInterface
+  OVERRIDE vtkPSurfaceLICInterface)
+vtk_object_factory_declare(
+  BASE vtkLineIntegralConvolution2D
+  OVERRIDE vtkPLineIntegralConvolution2D)
+vtk_object_factory_declare(
+  BASE vtkSurfaceLICComposite
+  OVERRIDE vtkPSurfaceLICComposite)
 
-option(
-  VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER
-  "enable parallel timers for the surface lic painter"
-  OFF
-  )
-mark_as_advanced(VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
-option(
-  VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER
-  "enable parallel timers for the 2d line integral convolution"
-  OFF
-  )
-mark_as_advanced(VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
-if (VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
-  add_definitions("-DvtkSurfaceLICPainterTIME")
-endif()
-if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
-  add_definitions("-DvtkLineIntegralConvolution2DTIME")
-endif()
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGPARALLELLIC_EXPORT")
 
-vtk_add_override(vtkSurfaceLICInterface vtkPSurfaceLICInterface)
 set(shader_files
-  vtkPSurfaceLICComposite_CompFS.glsl
-  )
+  vtkPSurfaceLICComposite_CompFS.glsl)
 
-unset(shader_h_files)
-foreach(file ${shader_files})
+set(sources)
+set(headers)
+foreach(shader_file IN LISTS shader_files)
   vtk_encode_string(
-    INPUT         "${file}"
+    INPUT         "${shader_file}"
     EXPORT_SYMBOL "VTKRENDERINGPARALLELLIC_EXPORT"
     EXPORT_HEADER "vtkRenderingParallelLICModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source)
-  list(APPEND Module_SRCS ${source})
+  list(APPEND sources ${source})
+  list(APPEND headers ${header})
 endforeach()
 
-vtk_add_override(vtkLineIntegralConvolution2D vtkPLineIntegralConvolution2D)
-vtk_add_override(vtkSurfaceLICComposite vtkPSurfaceLICComposite)
-vtk_object_factory_configure("${vtk_module_overrides}")
+vtk_module_add_module(VTK::RenderingParallelLIC
+  CLASSES ${classes}
+  SOURCES ${sources} ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${headers} ${vtk_object_factory_header})
 
-include(vtkMPI)
+option(VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER "enable parallel timers for the surface lic painter" OFF)
+mark_as_advanced(VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
+option(VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER "enable parallel timers for the 2d line integral convolution" OFF)
+mark_as_advanced(VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
-include(vtkOpenGL)
-vtk_opengl_link(${vtk-module})
-
-vtk_mpi_link(${vtk-module})
+if (VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
+  vtk_module_definitions(VTK::RenderingParallelLIC
+    PRIVATE
+      vtkSurfaceLICPainterTIME)
+endif()
+if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
+  vtk_module_definitions(VTK::RenderingParallelLIC
+    PRIVATE
+      vtkLineIntegralConvolution2DTIME)
+endif()
