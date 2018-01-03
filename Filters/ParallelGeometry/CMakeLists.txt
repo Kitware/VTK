@@ -1,18 +1,24 @@
-include(vtkObjectFactory)
+vtk_object_factory_declare(
+  BASE      vtkConnectivityFilter
+  OVERRIDE  vtkPConnectivityFilter)
+vtk_object_factory_declare(
+  BASE      vtkUnstructuredGridGhostCellsGenerator
+  OVERRIDE  vtkPUnstructuredGridGhostCellsGenerator)
 
-set(Module_SRCS
-  vtkPConnectivityFilter.cxx
-  vtkPDataSetGhostGenerator.cxx
-  vtkPStructuredGridConnectivity.cxx
-  vtkPStructuredGridGhostDataGenerator.cxx
-  vtkPUniformGridGhostDataGenerator.cxx
-  vtkPUnstructuredGridGhostCellsGenerator.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKFILTERSPARALLELGEOMETRY_EXPORT")
 
-# Now to generate our object factory.
-vtk_add_override(vtkUnstructuredGridGhostCellsGenerator vtkPUnstructuredGridGhostCellsGenerator)
-vtk_add_override(vtkConnectivityFilter vtkPConnectivityFilter)
-vtk_object_factory_configure("${vtk_module_overrides}")
+set(classes
+  vtkPConnectivityFilter
+  vtkPDataSetGhostGenerator
+  vtkPStructuredGridConnectivity
+  vtkPStructuredGridGhostDataGenerator
+  vtkPUniformGridGhostDataGenerator
+  vtkPUnstructuredGridGhostCellsGenerator)
 
-vtk_module_library(vtkFiltersParallelGeometry ${Module_SRCS})
+vtk_module_add_module(VTK::FiltersParallelGeometry
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
