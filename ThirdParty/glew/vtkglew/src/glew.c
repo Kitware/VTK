@@ -111,26 +111,21 @@ void* dlGetProcAddress (const GLubyte* name)
 #endif /* __sgi || __sun || GLEW_APPLE_GLX */
 
 #if defined(GLEW_OSMESA)
-#include <dlfcn.h>
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef GLAPI
+#define GLAPI extern
+#endif
 
+#ifndef GLAPIENTRY
+#define GLAPIENTRY
+#endif
+
+#ifndef APIENTRY
+#define APIENTRY GLAPIENTRY
+#endif
+#include <GL/osmesa.h>
 void* dlGetProcAddressMesa (const GLubyte* name)
 {
-  static void* h = NULL;
-  static void* gpa;
-
-  if (h == NULL)
-  {
-    if ((h = dlopen(NULL, RTLD_LAZY | RTLD_LOCAL)) == NULL)
-      return NULL;
-    gpa = dlsym(h, "OSMesaGetProcAddress");
-  }
-
-  if (gpa != NULL)
-    return ((void*(*)(const GLubyte*))gpa)(name);
-  else
-    return dlsym(h, (const char*)name);
+  return OSMesaGetProcAddress(name);
 }
 #endif /* GLEW_OSMESA */
 
