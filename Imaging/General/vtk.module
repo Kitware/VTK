@@ -1,0 +1,16 @@
+NAME
+  VTK::ImagingGeneral
+LIBRARY_NAME
+  vtkImagingGeneral
+KIT
+  VTK::Imaging
+GROUPS
+  Imaging
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::ImagingSources

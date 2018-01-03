@@ -1,28 +1,28 @@
-set(Module_SRCS
-  vtkImageAnisotropicDiffusion2D.cxx
-  vtkImageAnisotropicDiffusion3D.cxx
-  vtkImageCheckerboard.cxx
-  vtkImageCityBlockDistance.cxx
-  vtkImageConvolve.cxx
-  vtkImageCorrelation.cxx
-  vtkImageEuclideanDistance.cxx
-  vtkImageEuclideanToPolar.cxx
-  vtkImageGaussianSmooth.cxx
-  vtkImageGradient.cxx
-  vtkImageGradientMagnitude.cxx
-  vtkImageHybridMedian2D.cxx
-  vtkImageLaplacian.cxx
-  vtkImageMedian3D.cxx
-  vtkImageNormalize.cxx
-  vtkImageRange3D.cxx
-  vtkImageSeparableConvolution.cxx
-  vtkImageSobel2D.cxx
-  vtkImageSobel3D.cxx
-  vtkImageSpatialAlgorithm.cxx
-  vtkImageVariance3D.cxx
-  vtkSimpleImageFilterExample.cxx
-  vtkImageSlab.cxx
-  vtkImageSlabReslice.cxx
-  )
+set(classes
+  vtkImageAnisotropicDiffusion2D
+  vtkImageAnisotropicDiffusion3D
+  vtkImageCheckerboard
+  vtkImageCityBlockDistance
+  vtkImageConvolve
+  vtkImageCorrelation
+  vtkImageEuclideanDistance
+  vtkImageEuclideanToPolar
+  vtkImageGaussianSmooth
+  vtkImageGradient
+  vtkImageGradientMagnitude
+  vtkImageHybridMedian2D
+  vtkImageLaplacian
+  vtkImageMedian3D
+  vtkImageNormalize
+  vtkImageRange3D
+  vtkImageSeparableConvolution
+  vtkImageSobel2D
+  vtkImageSobel3D
+  vtkImageSpatialAlgorithm
+  vtkImageVariance3D
+  vtkSimpleImageFilterExample
+  vtkImageSlab
+  vtkImageSlabReslice)
 
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::ImagingGeneral
+  CLASSES ${classes})
