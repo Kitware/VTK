@@ -17,7 +17,7 @@ vtk_add_test_cxx(vtkFiltersAMRCxxTests tests
 vtk_test_cxx_executable(vtkFiltersAMRCxxTests tests)
 
 foreach(test IN LISTS cxx_tests)
-  set_tests_properties(vtkFiltersAMRCxx-${test}
+  set_tests_properties(VTK::FiltersAMRCxx-${test}
     PROPERTIES
       FAIL_REGULAR_EXPRESSION "Error"
   )
