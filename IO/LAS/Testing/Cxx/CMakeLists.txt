@@ -1,3 +1,4 @@
+# TODO: Simplify this with some argument passing.
 set(VTK_LAS_READER_TESTS)
 function(add_vtk_las_reader_test test_input elevation)
   get_filename_component(VTK_LAS_READER_POSTFIX ${test_input} NAME_WE)

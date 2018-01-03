@@ -1,9 +1,19 @@
-find_package(libLAS REQUIRED)
-mark_as_advanced(libLAS_INCLUDE_DIR libLAS_LIBRARY)
+vtk_module_find_package(PACKAGE libLAS)
 
-set(LASReader_SRCS vtkLASReader.cxx)
+set(classes
+  vtkLASReader)
 
-include_directories(${libLAS_INCLUDE_DIRS})
+vtk_module_add_module(VTK::IOLAS
+  CLASSES ${classes})
 
-vtk_module_library(vtkIOLAS ${LASReader_SRCS})
-vtk_module_link_libraries(vtkIOLAS LINK_PRIVATE ${libLAS_LIBRARIES})
+vtk_module_link(VTK::IOLAS
+  PRIVATE
+    # XXX(liblas-1.8.2): Use these when the minimum version is 1.8.2+.
+    # Currently, the imported target names vary based on the platform. In
+    # addition, the include interface is not set up properly. See
+    # https://github.com/libLAS/libLAS/pull/153.
+    # las las_c
+    ${libLAS_LIBRARIES})
+vtk_module_include(VTK::IOLAS
+  PRIVATE
+    ${libLAS_INCLUDE_DIRS})

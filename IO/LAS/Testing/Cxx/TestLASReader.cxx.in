@@ -37,10 +37,7 @@
 
 int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
 {
-  //const char* fileName = "Data/tp_manual_20160907131754_flt.las";
-  //const char* fileName = "Data/test_buildings.las";
   const char* fileName = "Data/@VTK_LAS_READER_TEST_INPUT@";
-  //const char* fileName = "Data/test_3.las";
   const char* path = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName);
   vtkNew<vtkLASReader> reader;
   //Select source file
