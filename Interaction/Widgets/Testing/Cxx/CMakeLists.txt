@@ -133,7 +133,7 @@ vtk_test_cxx_executable(vtkInteractionWidgetsCxxTests all_tests
 if(NOT VTK_TEST_TIMEOUT_TerrainPolylineEditor)
   set(VTK_TEST_TIMEOUT_TerrainPolylineEditor 90)
 endif()
-set_tests_properties(vtkInteractionWidgetsCxx-TerrainPolylineEditor
+set_tests_properties(VTK::InteractionWidgetsCxx-TerrainPolylineEditor
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TerrainPolylineEditor})
 
 if(NOT VTK_OPENGL_HAS_OSMESA)
@@ -141,7 +141,7 @@ if(NOT VTK_OPENGL_HAS_OSMESA)
   if(NOT VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget)
     set(VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget 60)
   endif()
-  set_tests_properties(vtkInteractionWidgetsCxx-TestPickingManagerSeedWidget
+  set_tests_properties(VTK::InteractionWidgetsCxx-TestPickingManagerSeedWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPickingManagerSeedWidget})
 endif()
 
@@ -150,6 +150,6 @@ endif()
 if(NOT VTK_TEST_TIMEOUT_TestSphereHandleWidget)
   set(VTK_TEST_TIMEOUT_TestSphereHandleWidget 300)
 endif()
-set_tests_properties(vtkInteractionWidgetsCxx-TestSphereHandleWidget
+set_tests_properties(VTK::InteractionWidgetsCxx-TestSphereHandleWidget
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestSphereHandleWidget}
                RUN_SERIAL ON)
