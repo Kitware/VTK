@@ -1,0 +1,17 @@
+NAME
+  VTK::ViewsGeovis
+LIBRARY_NAME
+  vtkViewsGeovis
+CONDITION
+  NOT VTK_LEGACY_REMOVE
+GROUPS
+  Views
+DEPENDS
+  VTK::ViewsInfovis
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::GeovisCore
+  VTK::InfovisLayout
+  VTK::InteractionStyle
+  VTK::RenderingCore
+  VTK::ViewsCore
