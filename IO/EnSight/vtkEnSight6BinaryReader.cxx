@@ -961,7 +961,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
             compositeOutput, this->NumberOfGeometryParts)->GetNumberOfPoints();
         }
 
-        // Here I am assuming that we are skiping over data
+        // Here I am assuming that we are skipping over data
         // we do not need to read.
         //scalarsRead = new float[numPts];
         //this->ReadFloatArray(scalarsRead, numPts);
@@ -983,7 +983,7 @@ int vtkEnSight6BinaryReader::ReadScalarsPerNode(
         numPts = this->GetDataSetFromBlock(
           compositeOutput, realId)->GetNumberOfPoints();
 
-        // Here I am assuming that we are skiping over data
+        // Here I am assuming that we are skipping over data
         // we do not need to read.
         //scalarsRead = new float[numPts];
         //this->ReadFloatArray(scalarsRead, numPts);

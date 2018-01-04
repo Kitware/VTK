@@ -70,7 +70,7 @@ public:
   //@{
   /**
    * The input coordinate system.
-   * RECTANGULAR is x,y,z meters relative the the earth center.
+   * RECTANGULAR is x,y,z meters relative the earth center.
    * SPHERICAL is longitude,latitude,altitude.
    */
   vtkSetMacro(InputCoordinateSystem, int);
@@ -84,7 +84,7 @@ public:
   //@{
   /**
    * The desired output coordinate system.
-   * RECTANGULAR is x,y,z meters relative the the earth center.
+   * RECTANGULAR is x,y,z meters relative the earth center.
    * SPHERICAL is longitude,latitude,altitude.
    */
   vtkSetMacro(OutputCoordinateSystem, int);

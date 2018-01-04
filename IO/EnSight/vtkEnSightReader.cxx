@@ -821,7 +821,7 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
       }
       else
       {
-        vtkErrorMacro("Unknow type, faulty line was:" << line );
+        vtkErrorMacro("Unknown type, faulty line was:" << line );
       }
       this->AddVariableFileName(subLine);
       this->NumberOfVariables++;
@@ -1237,7 +1237,7 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
     this->TimeSets->AddItem(timeValues);
     timeValues->Delete();
 
-    // The follwing line MUST *NOT* be modified as it enables the loop
+    // The following line MUST *NOT* be modified as it enables the loop
     // "while ( lineReadResult != 0 && strncmp(line, "FILE", 4) != 0 )".
     // It also enables the check of redundant time-step values.
     lineRead = this->ReadNextDataLine(line);

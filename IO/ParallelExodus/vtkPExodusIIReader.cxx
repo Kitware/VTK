@@ -400,7 +400,7 @@ int vtkPExodusIIReader::RequestData(
   int reader_idx;
 
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
-  // get the ouptut
+  // get the output
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(
     outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 

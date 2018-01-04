@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageFourierCenter fitler.
+// Construct an instance of vtkImageFourierCenter filter.
 vtkImageFourierCenter::vtkImageFourierCenter()
 {
 }

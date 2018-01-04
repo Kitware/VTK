@@ -19,7 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
   -------------------------------------------------------------------------*/
 /**
  * @class   vtkBoostPrimMinimumSpanningTree
- * @brief   Contructs a minimum spanning
+ * @brief   Constructs a minimum spanning
  *    tree from a graph, start node, and the weighting array
  *
  *

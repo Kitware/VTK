@@ -143,7 +143,7 @@ public:
   /**
    * Set/Get the video levels for composite/SVideo: the valid ranges are:
    * Contrast [0.0,2.0]
-   * Brighness [0.0,255.0]
+   * Brightness [0.0,255.0]
    * Hue [-0.5,0.5]
    * Saturation [0.0,2.0]
    */

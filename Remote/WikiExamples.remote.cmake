@@ -4,7 +4,7 @@
 # To run tests for this module
 # ctest -L WikiExamples
 
-# If the environement var WikiExamplesTag exists, use it
+# If the environment var WikiExamplesTag exists, use it
 if (NOT DEFINED ENV{WikiExamplesTag})
   # December 10, 2017 More new examples
   set(GIT_TAG 9273daae2ab723d0e598aacd3038adf840d70b7a)

@@ -2108,7 +2108,7 @@ void vtkMFIXReader::GetVariableAtTimestep(int vari , int tstep,
   // This routine opens and closes the file for each request.
   // Maybe keep all SPX files open, and just perform relative
   // moves to get to the correct location in the file
-  // get filename that vaiable # vari is located in
+  // get filename that variable # vari is located in
   // assumptions : there are <10 solid phases,
   // <10 scalars and <10 ReactionRates (need to change this)
 

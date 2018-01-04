@@ -67,7 +67,7 @@ public:
    * same this as the data objects modification time. It is the mod
    * time of the object when it was placed into the Qt model adapter.
    * You can use this mtime as part of the checking to see whether
-   * you need to update the the adapter by call SetVTKDataObject again. :)
+   * you need to update the adapter by call SetVTKDataObject again. :)
    */
   vtkMTimeType GetVTKDataObjectMTime() const;
 

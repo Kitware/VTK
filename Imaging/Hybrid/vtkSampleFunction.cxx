@@ -45,7 +45,7 @@ public:
   double     Spacing[3];
   double     CapValue;
 
-  // Contructor
+  // Constructor
   vtkSampleFunctionAlgorithm();
 
   // Interface between VTK and templated functions

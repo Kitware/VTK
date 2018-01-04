@@ -27,7 +27,7 @@
  * PLOT3D files consist of a grid file (also known as XYZ file), an
  * optional solution file (also known as a Q file), and an optional function
  * file that contains user created data (currently unsupported). The Q file
- * contains solution  information as follows: the four parameters free stream
+ * contains solution information as follows: the four parameters free stream
  * mach number (Fsmach), angle of attack (Alpha), Reynolds number (Re), and
  * total integration time (Time). This information is stored in an array
  * called Properties in the FieldData of each output (tuple 0: fsmach, tuple 1:

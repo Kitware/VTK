@@ -50,7 +50,7 @@ POSSIBILITY OF SUCH DAMAGES.
  * @brief   A writer for MNI tag point files.
  *
  * The MNI .tag file format is used to store tag points, for use in
- * either registration or labelling of data volumes.  This file
+ * either registration or labeling of data volumes.  This file
  * format was developed at the McConnell Brain Imaging Centre at
  * the Montreal Neurological Institute and is used by their software.
  * Tag points can be stored for either one volume or two volumes,

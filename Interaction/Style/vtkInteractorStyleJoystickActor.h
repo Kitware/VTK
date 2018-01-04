@@ -20,7 +20,7 @@
  * with (rotate, zoom, etc.) separate objects in the scene independent of
  * each other.  The position of the mouse relative to the center of the
  * object determines the speed of the object's motion.  The mouse's velocity
- * detemines the acceleration of the object's motion, so the object will
+ * determines the acceleration of the object's motion, so the object will
  * continue moving even when the mouse is not moving.
  * For a 3-button mouse, the left button is for rotation, the right button
  * for zooming, the middle button for panning, and ctrl + left button for

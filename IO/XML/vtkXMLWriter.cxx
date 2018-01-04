@@ -74,7 +74,7 @@
 
 
 //*****************************************************************************
-// Friend class to enable access for  template functions to the protected
+// Friend class to enable access for template functions to the protected
 // writer methods.
 class vtkXMLWriterHelper
 {
@@ -343,7 +343,7 @@ static int vtkXMLWriterWriteBinaryDataBlocks(
 
   size_t index = 0; // index in string array.
   int result = 1;
-  vtkIdType stringOffset = 0; // num of chars of string written in pervious block.
+  vtkIdType stringOffset = 0; // num of chars of string written in previous block.
     // this is required since a string may not fit completely in a block.
 
   while (result && index < numStrings) // write one block at a time.

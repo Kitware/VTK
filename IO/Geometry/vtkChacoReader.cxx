@@ -984,7 +984,7 @@ double *x, double *y, double *z)
 //----------------------------------------------------------------------------
 int vtkChacoReader::InputGraph1()
 {
-  /* Read first line  of input (= nvtxs, narcs, option). */
+  /* Read first line of input (= nvtxs, narcs, option). */
   /* The (decimal) digits of the option variable mean: 1's digit not zero => input
      edge weights 10's digit not zero => input vertex weights 100's digit not zero
      => include vertex numbers */

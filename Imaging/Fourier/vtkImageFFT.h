@@ -16,7 +16,7 @@
  * @class   vtkImageFFT
  * @brief    Fast Fourier Transform.
  *
- * vtkImageFFT implements a  fast Fourier transform.  The input
+ * vtkImageFFT implements a fast Fourier transform.  The input
  * can have real or complex data in any components and data types, but
  * the output is always complex doubles with real values in component0, and
  * imaginary values in component1.  The filter is fastest for images that

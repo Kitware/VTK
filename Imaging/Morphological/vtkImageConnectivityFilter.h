@@ -199,7 +199,7 @@ public:
   /**
    * Set which regions to output from this filter.
    * This can be all the regions, just the seeded regions, or the largest
-   * region (which will the the largest seeded region, if there are seeds).
+   * region (which will be the largest seeded region, if there are seeds).
    * The default is to output all the seeded regions, if there are seeds,
    * or to output all the regions, if there are no seeds.
    */

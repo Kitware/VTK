@@ -189,7 +189,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
   for (int i = 0; i < 5; i++)
   {
 
-    // read .vtu file from the the command line
+    // read .vtu file from the command line
     vtkSmartPointer<vtkXMLUnstructuredGridReader> mesh_reader =
       vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
     mesh_reader->SetFileName(inputFile);
@@ -238,7 +238,7 @@ int TestContinuousScatterPlot(int argc, char* argv[])
       { // writing to file
         printf("\n\n/**************************************/");
         printf("\n/********Test Unsuccessful*************/");
-        printf("\nInput  Data: %s", (std::string(inputFile).substr(6, 49)).c_str());
+        printf("\nInput Data: %s", (std::string(inputFile).substr(6, 49)).c_str());
         printf("\nCS Plot test case %d x %d \n", ResX[cmpIndex], ResY[cmpIndex]);
         printf("\nString to compare: %s", dataToCompare[cmpIndex].c_str());
         printf("\nOutput String     : %s", outputString.c_str());

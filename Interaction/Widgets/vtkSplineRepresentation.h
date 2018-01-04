@@ -55,7 +55,7 @@ public:
    * Grab the polydata (including points) that defines the spline.  The
    * polydata consists of points and line segments numbering Resolution + 1
    * and Resolution, respectively. Points are guaranteed to be up-to-date when
-   * either the InteractionEvent or  EndInteraction events are invoked. The
+   * either the InteractionEvent or EndInteraction events are invoked. The
    * user provides the vtkPolyData and the points and polyline are added to it.
    */
   void GetPolyData(vtkPolyData *pd) override;

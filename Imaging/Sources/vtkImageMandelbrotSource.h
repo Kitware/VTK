@@ -63,7 +63,7 @@ public:
 
   //@{
   /**
-   * Set the projection from  the 4D space (4 parameters / 2 imaginary numbers)
+   * Set the projection from the 4D space (4 parameters / 2 imaginary numbers)
    * to the axes of the 3D Volume.
    * 0=C_Real, 1=C_Imaginary, 2=X_Real, 4=X_Imaginary
    */

@@ -281,7 +281,7 @@ void vtkEnzoReaderBlock::GetLevelBasedIds
   if ( this->ParentId != 0 )
   {
     // the parent is not the root and therefore we need to exploit the level-
-    // based Ids of the parent, of which the shifted verson is multiplied by
+    // based Ids of the parent, of which the shifted version is multiplied by
     // the refinement ratio
 
     vtkEnzoReaderBlock & parent = blocks[ this->ParentId ];
@@ -641,7 +641,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   // do not forget to provide a name for the array
   this->DataArray->SetName( atribute );
 
-// This close statements cause a crash!
+// These close statements cause a crash!
 //  H5Tclose( dataType );
 //  H5Tclose( tRawType );
 //  H5Tclose( spaceIdx );
@@ -961,7 +961,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
   int   wasFound = 0;       // any block with particles was found?
   int   blkIndex = 0;       // index of the block with fewest cells
                             // (either with or without particles)
-  int   numCells = INT_MAX; // number of cells of  a block
+  int   numCells = INT_MAX; // number of cells of a block
   int   numbBlks = static_cast < int > ( this->Blocks.size() );
 
   for ( int i = 1; i < numbBlks; i ++ )

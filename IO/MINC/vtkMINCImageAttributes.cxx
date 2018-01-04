@@ -1534,7 +1534,7 @@ void vtkMINCImageAttributes::ShallowCopy(vtkMINCImageAttributes *source)
   vtkIdType nvar = varnames->GetNumberOfValues();
   for (vtkIdType ivar = 0; ivar <= nvar; ivar++)
   {
-    // set varname to emtpy last time around to get global attributes
+    // set varname to empty last time around to get global attributes
     const char *varname = MI_EMPTY_STRING;
     if (ivar < nvar)
     {

@@ -53,7 +53,7 @@ public:
   /**
    * This method sets the number of iterations which also affects the
    * input neighborhood needed to compute one output pixel.  Each iteration
-   * requires an extra pixel layer on the neighborhood.  This is only relavent
+   * requires an extra pixel layer on the neighborhood.  This is only relevant
    * when you are trying to stream or are requesting a sub extent of the "wholeExtent".
    */
   void SetNumberOfIterations(int num);

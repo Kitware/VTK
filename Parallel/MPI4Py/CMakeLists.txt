@@ -14,7 +14,7 @@ if(VTK_USE_SYSTEM_MPI4PY)
       OUTPUT_STRIP_TRAILING_WHITESPACE
       )
     set(MPI4PY_INCLUDE_DIR "${mpi4py_include_dir}"
-      CACHE PATH "Path the the MPI4Py include directory")
+      CACHE PATH "Path of the MPI4Py include directory")
     mark_as_advanced(MPI4PY_INCLUDE_DIR)
   endif()
 else()

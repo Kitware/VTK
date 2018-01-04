@@ -81,7 +81,7 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Get the info object
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-    // Get the ouptut
+    // Get the output
     vtkPolyData* output = vtkPolyData::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 

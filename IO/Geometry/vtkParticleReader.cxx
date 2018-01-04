@@ -426,7 +426,7 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
    // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -504,7 +504,7 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
    // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -690,7 +690,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   }
   delete [] data;
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -873,7 +873,7 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   }
   delete [] data;
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 

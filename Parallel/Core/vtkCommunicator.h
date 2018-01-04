@@ -16,7 +16,7 @@
  * @class   vtkCommunicator
  * @brief   Used to send/receive messages in a multiprocess environment.
  *
- * This is an abstact class which contains functionality for sending
+ * This is an abstract class which contains functionality for sending
  * and receiving inter-process messages. It contains methods for marshaling
  * an object into a string (currently used by the MPI communicator but
  * not the shared memory communicator).

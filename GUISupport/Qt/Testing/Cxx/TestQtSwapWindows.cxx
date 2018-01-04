@@ -13,7 +13,7 @@ int TestQtSwapWindows(int argc, char* argv[])
   QApplication app(argc, argv);
 
   // Set up frame with two horizontally stacked panels,
-  // Each containg a QVTKOpenGLWidget
+  // Each containing a QVTKOpenGLWidget
   QWidget frame;
   QHBoxLayout *layout = new QHBoxLayout(&frame);
 

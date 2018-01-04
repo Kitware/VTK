@@ -31,7 +31,7 @@
 vtkStandardNewMacro(vtkOpenGLImageGradient);
 
 //-----------------------------------------------------------------------------
-// Construct an instance of vtkOpenGLImageGradient fitler.
+// Construct an instance of vtkOpenGLImageGradient filter.
 vtkOpenGLImageGradient::vtkOpenGLImageGradient()
 {
   // for GPU we do not want threading
@@ -109,7 +109,7 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
 
   inPtr = inArray->GetVoidPointer(0);
 
-  // The ouptut scalar type must be double to store proper gradients.
+  // The output scalar type must be double to store proper gradients.
   if(outData[0]->GetScalarType() != VTK_DOUBLE)
   {
     vtkErrorMacro("Execute: output ScalarType is "

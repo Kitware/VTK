@@ -19,7 +19,7 @@ PURPOSE.  See the above copyright notice for more information.
   -------------------------------------------------------------------------*/
 /**
  * @class   vtkBoostKruskalMinimumSpanningTree
- * @brief   Contructs a minimum spanning
+ * @brief   Constructs a minimum spanning
  *    tree from a graph and the weighting array
  *
  *

@@ -850,7 +850,7 @@ int vtkNIFTIImageReader::RequestInformation(
   // flip-factor as there is in the quaternion representation.
   //
   // Let S be the matrix stored in the NIFTI header, and let M be our
-  // desired coordinate tranformation from VTK data coordinates X,Y,Z
+  // desired coordinate transformation from VTK data coordinates X,Y,Z
   // to NIFTI data coordinates x,y,z (see discussion above for more
   // information).  Let's consider the cases where the determinant
   // is positive, or negative.

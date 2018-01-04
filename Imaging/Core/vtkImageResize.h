@@ -20,7 +20,7 @@
  * antialiasing.  The resizing is done with a 5-lobe Lanczos-windowed sinc
  * filter that is bandlimited to the output sampling frequency in order to
  * avoid aliasing when the image size is reduced.  This filter utilizes a
- * O(n) algorithm to provide good effiency even though the filtering kernel
+ * O(n) algorithm to provide good efficiency even though the filtering kernel
  * is large.  The sinc interpolator can be turned off if nearest-neighbor
  * interpolation is required, or it can be replaced with a different
  * vtkImageInterpolator object.

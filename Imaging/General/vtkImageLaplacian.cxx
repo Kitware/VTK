@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageLaplacian fitler.
+// Construct an instance of vtkImageLaplacian filter.
 vtkImageLaplacian::vtkImageLaplacian()
 {
   this->Dimensionality = 2;

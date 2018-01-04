@@ -2623,7 +2623,7 @@ void vtkOpenGLContextDevice2D::DrawPlusMarkersGL2PS(
 
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawSquareMarkersGL2PS(
-    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+    bool /*highlight*/, float *points, int n, unsigned char *colors, int nc_comps)
 {
   unsigned char oldColor[4];
   this->Brush->GetColor(oldColor);
@@ -2681,7 +2681,7 @@ void vtkOpenGLContextDevice2D::DrawSquareMarkersGL2PS(
 
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawCircleMarkersGL2PS(
-    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+    bool /*highlight*/, float *points, int n, unsigned char *colors, int nc_comps)
 {
   float radius = this->GetPen()->GetWidth() * 0.475;
 
@@ -2726,7 +2726,7 @@ void vtkOpenGLContextDevice2D::DrawCircleMarkersGL2PS(
 
 //------------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawDiamondMarkersGL2PS(
-    bool /*hilight*/, float *points, int n, unsigned char *colors, int nc_comps)
+    bool /*highlight*/, float *points, int n, unsigned char *colors, int nc_comps)
 {
   unsigned char oldColor[4];
   this->Brush->GetColor(oldColor);

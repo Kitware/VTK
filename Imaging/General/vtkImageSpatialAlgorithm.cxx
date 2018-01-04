@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImageSpatialAlgorithm);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageSpatialAlgorithm fitler.
+// Construct an instance of vtkImageSpatialAlgorithm filter.
 vtkImageSpatialAlgorithm::vtkImageSpatialAlgorithm()
 {
   this->KernelSize[0] = this->KernelSize[1] = this->KernelSize[2] = 1;

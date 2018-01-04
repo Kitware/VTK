@@ -117,7 +117,7 @@ public:
   int GetNumberOfCellArrays(void);
 
   /**
-   * Get the name of the  cell array with the given index in
+   * Get the name of the cell array with the given index in
    * the input.
    */
   const char* GetCellArrayName(int index);

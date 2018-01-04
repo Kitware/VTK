@@ -91,7 +91,7 @@ vtkGeoImageNode* vtkGeoImageNode::GetParent()
 // We have to get a power of 2 for dimensions of the image.  VTK
 // resamples every time a tile is selected anr changed otherwise.
 //
-// We have two choises for dealing with images.
+// We have two choices for dealing with images.
 //
 // 1: Treat pixels like cell data.
 //   This makes subsampling easy.  Simply use vtkImageShrink3D.

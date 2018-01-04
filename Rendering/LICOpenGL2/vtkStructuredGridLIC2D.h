@@ -99,7 +99,7 @@ public:
 
   //@{
   /**
-   * The the magnification factor. Default is 1
+   * The magnification factor. Default is 1
    */
   vtkSetClampMacro(Magnification, int, 1, VTK_INT_MAX);
   vtkGetMacro(Magnification, int);

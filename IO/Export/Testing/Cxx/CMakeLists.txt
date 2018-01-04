@@ -102,7 +102,7 @@ set(TestGL2PSExporterVolumeRasterError 50)
 
 include(vtkTestingGL2PS)
 vtk_add_pdf_test_cxx(${PDFTests})
-# text allignment and rotation with TextAsPath off is not
+# text alignment and rotation with TextAsPath off is not
 # yet implemented for the OpenGL2 backend.
 vtk_add_gl2ps_test_cxx(${GL2PSTests})
 # test postscript and pdf

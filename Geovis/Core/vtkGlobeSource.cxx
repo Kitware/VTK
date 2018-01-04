@@ -148,7 +148,7 @@ int vtkGlobeSource::RequestData(
       * this->Radius / 3600.0;
   }
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 

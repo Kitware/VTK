@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageNonMaximumSuppression fitler.
+// Construct an instance of vtkImageNonMaximumSuppression filter.
 vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
   this->Dimensionality= 2;

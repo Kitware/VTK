@@ -17,7 +17,7 @@
  * @brief   edge preserving smoothing.
  *
  *
- * vtkImageAnisotropicDiffusion3D  diffuses an volume iteratively.
+ * vtkImageAnisotropicDiffusion3D diffuses an volume iteratively.
  * The neighborhood of the diffusion is determined by the instance
  * flags. if "Faces" is on, the 6 voxels adjoined by faces are included
  * in the neighborhood.  If "Edges" is on the 12 edge connected voxels
@@ -54,9 +54,9 @@ public:
 
 
   /**
-   * This method sets the number of interations which also affects the
+   * This method sets the number of iterations which also affects the
    * input neighborhood needed to compute one output pixel.  Each iterations
-   * requires an extra pixel layer on the neighborhood.  This is only relavent
+   * requires an extra pixel layer on the neighborhood.  This is only relevant
    * when you are trying to stream or are requesting a sub extent of the "wholeExtent".
    */
   void SetNumberOfIterations(int num);

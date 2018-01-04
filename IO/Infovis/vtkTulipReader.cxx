@@ -364,7 +364,7 @@ int vtkTulipReader::RequestData(
       // int : This type is used to store integers on elements.
       // size : This type is used to store the size of elements.
       //   The size is defined with a sequence of three double.
-      //   "(width,heigth,depth)"
+      //   "(width,height,depth)"
       // string : This is used to store text on elements.
 
       if (type == "string")

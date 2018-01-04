@@ -234,7 +234,7 @@ public:
   /**
    * Get the handle properties (the little ball on the sphere is the
    * handle). The properties of the handle when selected and unselected
-   * can be  manipulated.
+   * can be manipulated.
    */
   vtkGetObjectMacro(HandleProperty,vtkProperty);
   vtkGetObjectMacro(SelectedHandleProperty,vtkProperty);

@@ -18,7 +18,7 @@
 
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageDecomposeFilter fitler.
+// Construct an instance of vtkImageDecomposeFilter filter.
 vtkImageDecomposeFilter::vtkImageDecomposeFilter()
 {
   this->Dimensionality = 3;

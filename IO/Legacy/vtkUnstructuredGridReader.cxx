@@ -185,7 +185,7 @@ int vtkUnstructuredGridReader::RequestData(
           return 1;
         }
 
-        // the number of ints to read befor we get to the piece.
+        // the number of ints to read before we get to the piece.
         skip1 = piece * ncells / numPieces;
         // the number of ints to read as part of piece.
         read2 = ((piece+1) * ncells / numPieces) - skip1;
@@ -228,7 +228,7 @@ int vtkUnstructuredGridReader::RequestData(
           this->CloseVTKFile ();
           return 1;
         }
-        // the number of ints to read befor we get to the piece.
+        // the number of ints to read before we get to the piece.
         skip1 = piece * ncells / numPieces;
         // the number of ints to read as part of piece.
         read2 = ((piece+1) * ncells / numPieces) - skip1;

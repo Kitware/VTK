@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageSobel3D);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageSobel3D fitler.
+// Construct an instance of vtkImageSobel3D filter.
 vtkImageSobel3D::vtkImageSobel3D()
 {
   this->KernelSize[0] = 3;

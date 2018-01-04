@@ -105,7 +105,7 @@ void vtkSphereWidget2::SelectAction(vtkAbstractWidget *w)
   if ( interactionState == vtkSphereRepresentation::OnSphere ||
        self->Interactor->GetShiftKey() || self->Interactor->GetControlKey() )
   {
-    // If  translation is disabled, do it
+    // If translation is disabled, do it
     if ( self->TranslationEnabled )
     {
       reinterpret_cast<vtkSphereRepresentation*>(self->WidgetRep)->
@@ -180,7 +180,7 @@ void vtkSphereWidget2::ScaleAction(vtkAbstractWidget *w)
   // We are in a static method, cast to ourself
   vtkSphereWidget2 *self = reinterpret_cast<vtkSphereWidget2*>(w);
 
-  // If  scaling is disabled, get out of here
+  // If scaling is disabled, get out of here
   if ( ! self->ScalingEnabled )
   {
     return;

@@ -28,7 +28,7 @@
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageGradient fitler.
+// Construct an instance of vtkImageGradient filter.
 vtkImageGradient::vtkImageGradient()
 {
   this->HandleBoundaries = 1;
@@ -312,7 +312,7 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*,
   vtkImageData* input = inData[0][0];
   vtkImageData* output = outData[0];
 
-  // The ouptut scalar type must be double to store proper gradients.
+  // The output scalar type must be double to store proper gradients.
   if(output->GetScalarType() != VTK_DOUBLE)
   {
     vtkErrorMacro("Execute: output ScalarType is "

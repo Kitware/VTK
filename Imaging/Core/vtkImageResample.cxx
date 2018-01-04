@@ -193,7 +193,7 @@ int vtkImageResample::RequestInformation(
     ext[axis*2] = wholeMin;
     ext[axis*2+1] = wholeMax;
 
-    // just in case  the input spacing has changed.
+    // just in case the input spacing has changed.
     if (this->OutputSpacing[axis] != 0.0)
     {
       // Cause MagnificationFactor to recompute.

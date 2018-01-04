@@ -16,7 +16,7 @@
  * @class   vtkImageTranslateExtent
  * @brief   Changes extent, nothing else.
  *
- * vtkImageTranslateExtent  shift the whole extent, but does not
+ * vtkImageTranslateExtent shift the whole extent, but does not
  * change the data.
 */
 

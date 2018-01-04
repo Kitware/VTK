@@ -34,7 +34,7 @@ struct vtkCallbackPair
 };
 
 
-// The map tracks the correspondance between widget events and callbacks
+// The map tracks the correspondence between widget events and callbacks
 class vtkCallbackMap : public std::map<unsigned long, vtkCallbackPair>
 {
 public:

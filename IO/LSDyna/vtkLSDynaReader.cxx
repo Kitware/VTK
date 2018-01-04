@@ -130,7 +130,7 @@ vtkStandardNewMacro(vtkLSDynaReader);
 #define LS_ARRAYNAME_DOMINANT_GROUP     "DominantGroup"
 #define LS_ARRAYNAME_SPECIES_MASS_FMT   "SpeciesMass%02d"
 
-// Possible material  options
+// Possible material options
 #define LS_MDLOPT_NONE 0
 #define LS_MDLOPT_POINT 1
 #define LS_MDLOPT_CELL 2

@@ -50,7 +50,7 @@ For further visualization, it also produces two output fields that encode the ra
 The second input, i.e. the grid, steers the resolution of the balls. It is helpful if its extent is a multiple of the first input's. Then, the circles are centered nicely.
 The spheres/circles are good for 2D visualizations, because they can be laid over a visualization of the field.
 The balls are good for 3D volume rendering or steering of the seeding of visualization elements.
-The 2D visualzation is decribed in
+The 2D visualzation is described in
 
 *Bujack, R., Hotz, I., Scheuermann, G., & Hitzer, E. (2015). Moment invariants for 2D flow fields via normalization in detail. IEEE transactions on visualization and computer graphics, 21(8), 916-929*
 

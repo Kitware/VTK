@@ -22,7 +22,7 @@
 vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageConvolve fitler.
+// Construct an instance of vtkImageConvolve filter.
 // By default zero values are eroded.
 vtkImageConvolve::vtkImageConvolve()
 {

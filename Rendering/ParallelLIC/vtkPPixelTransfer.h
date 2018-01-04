@@ -219,7 +219,7 @@ public:
 
   /**
    * Set/Get the source extent. This is the extent of the
-   * array that data will be coppied from.
+   * array that data will be copied from.
    */
   void SetSourceWholeExtent(vtkPixelExtent &srcExt)
   { this->SrcWholeExt=srcExt; }
@@ -232,7 +232,7 @@ public:
 
   /**
    * Set/Get the source extent. This is the subset extent in the
-   * array that data will be coppied from.
+   * array that data will be copied from.
    */
   void SetSourceExtent(vtkPixelExtent &srcExt)
   { this->SrcExt=srcExt; }

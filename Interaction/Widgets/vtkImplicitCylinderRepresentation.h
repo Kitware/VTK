@@ -168,7 +168,7 @@ public:
   //@{
   /**
    * Turn on/off tubing of the wire outline of the cylinder
-   * intersecton (against the bounding box). The tube thickens the
+   * intersection (against the bounding box). The tube thickens the
    * line by wrapping with a vtkTubeFilter.
    */
   vtkSetMacro(Tubing,int);

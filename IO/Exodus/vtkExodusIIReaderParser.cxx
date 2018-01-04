@@ -295,7 +295,7 @@ void vtkExodusIIReaderParser::FinishedParsing()
   }
 
   //// * If <material-assignments /> are not present use
-  //// <material-specification /> to construct material assignemnts.
+  //// <material-specification /> to construct material assignments.
   if (this->BlockID_To_MaterialName.empty())
   {
     std::map<int, vtkIdType>::iterator iterII;

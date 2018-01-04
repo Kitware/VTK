@@ -107,7 +107,7 @@ int TestPolyPlane( int argc, char *argv[] )
 
   delete [] fname;
 
-  // Resample (left incase, we want to subsample, supersample)
+  // Resample (left in case, we want to subsample, supersample)
 
   vtkSmartPointer<vtkImageResample>  resample =
     vtkSmartPointer<vtkImageResample>::New();

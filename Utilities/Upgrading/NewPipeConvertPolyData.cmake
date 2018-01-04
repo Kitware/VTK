@@ -1,4 +1,4 @@
-# This file  attempts to  convert an  old pipeline filter  to a  new pipeline
+# This file attempts to convert an old pipeline filter to a new pipeline
 # filter. Run it with a  -DCLASS=classname it will use that class name
 # for processing
 

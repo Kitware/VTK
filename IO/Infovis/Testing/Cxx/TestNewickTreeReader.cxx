@@ -48,7 +48,7 @@ int TestNewickTreeReader(int argc, char* argv[])
 
 
   //reading from a string
-  cout << "reading from a  string"<< endl;
+  cout << "reading from a string"<< endl;
   char inputStr[] =  "(((A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F:0.6,G:0.7)H:0.8,I:0.9);";
 
   vtkSmartPointer<vtkNewickTreeReader> reader2 =

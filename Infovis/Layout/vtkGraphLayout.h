@@ -26,7 +26,7 @@
  * using the SetLayoutStrategy() function.  The layout strategies do the
  * actual work.
  *
- * .SECION Thanks
+ * .SECTION Thanks
  * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
  * layout capabilities.
 */

@@ -61,7 +61,7 @@ protected:
 
   // Update extent of PolyData is specified in pieces.
   // Since all DataObjects should be able to set UpdateExent as pieces,
-  // just copy output->UpdateExtent  all Inputs.
+  // just copy output->UpdateExtent all Inputs.
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) override;
 

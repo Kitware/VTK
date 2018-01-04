@@ -24,7 +24,7 @@
  *
  * Assigns points to the vertices of a graph randomly within a bounded range.
  *
- * .SECION Thanks
+ * .SECTION Thanks
  * Thanks to Brian Wylie from Sandia National Laboratories for adding incremental
  * layout capabilities.
 */

@@ -25,7 +25,7 @@ vtkStandardNewMacro(vtkImageSlabReslice);
 //----------------------------------------------------------------------------
 vtkImageSlabReslice::vtkImageSlabReslice()
 {
-  // Input is 3D, ouptut is a 2D projection within the slab.
+  // Input is 3D, output is a 2D projection within the slab.
   this->OutputDimensionality = 2;
 
   // Number of sample points along the blendDirection to the resliced

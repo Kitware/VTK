@@ -236,7 +236,7 @@ public:
 
   //the min and max id allow the parts to be sorted in the collection
   //based on the points they need to allow for subsections of the global point
-  //array to be sent to only  parts that use it
+  //array to be sent to only parts that use it
   vtkIdType minId() const { return MinId; }
   vtkIdType maxId() const { return MaxId; }
 protected:

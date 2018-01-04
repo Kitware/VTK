@@ -246,7 +246,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -315,7 +315,7 @@ RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
   }
 
-  // setup the ReadBBox, IF we're limiting the read to specifed ReadBounds
+  // setup the ReadBBox, IF we're limiting the read to specified ReadBounds
   if (this->LimitReadToBounds)
   {
     this->ReadBBox.Reset();

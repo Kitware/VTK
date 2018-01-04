@@ -21,7 +21,7 @@
  * then each pixel can be shifted by one pixel. Threshold is the allowable
  * error for each pixel.
  *
- * This is not a symetric filter and the difference computed is not symetric
+ * This is not a symmetric filter and the difference computed is not symmetric
  * when AllowShift is on. Specifically in that case a pixel in SetImage input
  * will be compared to the matching pixel in the input as well as to the
  * input's eight connected neighbors. BUT... the opposite is not true. So for

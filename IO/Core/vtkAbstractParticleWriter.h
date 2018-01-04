@@ -51,7 +51,7 @@ public:
   //@{
   /**
    * Before writing the current data out, set the TimeValue (optional)
-   * The TimeValue is a float/double value that corresonds to the real
+   * The TimeValue is a float/double value that corresponds to the real
    * time of the data, it may not be regular, whereas the TimeSteps
    * are simple increments.
    */

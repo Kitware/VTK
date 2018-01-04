@@ -66,7 +66,7 @@
  * \endverbatim
  *
  * This reader leverages vtkMultiBlockPLOT3DReader to do the actual
- * reading so you may want to refer to the documenation of
+ * reading so you may want to refer to the documentation of
  * vtkMultiBlockPLOT3DReader about the details of some of these
  * parameters including the function numbers for derived value
  * calculation.

@@ -315,7 +315,7 @@ void vtkXMLCompositeDataReader::ReadXMLData()
     this->Internal->HasUpdateRestriction = false;
   }
 
-  // All process create the  entire tree structure however, only each one only
+  // All processes create the entire tree structure however, but each one only
   // reads the datasets assigned to it.
   unsigned int dataSetIndex=0;
   this->ReadComposite(this->GetPrimaryElement(), composite, filePath.c_str(), dataSetIndex);
