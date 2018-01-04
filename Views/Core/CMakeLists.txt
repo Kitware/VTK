@@ -1,10 +1,11 @@
-set(Module_SRCS
-  vtkConvertSelectionDomain.cxx
-  vtkDataRepresentation.cxx
-  vtkEmptyRepresentation.cxx
-  vtkRenderViewBase.cxx
-  vtkView.cxx
-  vtkViewTheme.cxx
+set(classes
+  vtkConvertSelectionDomain
+  vtkDataRepresentation
+  vtkEmptyRepresentation
+  vtkRenderViewBase
+  vtkView
+  vtkViewTheme
   )
 
-vtk_module_library(vtkViewsCore ${Module_SRCS})
+vtk_module_add_module(VTK::ViewsCore
+  CLASSES ${classes})
