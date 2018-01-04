@@ -1,0 +1,2 @@
+# Suppress all interceptors in libgdal
+called_from_lib:libgdal

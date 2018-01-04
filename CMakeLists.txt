@@ -99,6 +99,11 @@ if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
 endif()
 
+# Configure the dynamic analysis utility
+if(BUILD_TESTING)
+  add_subdirectory(Utilities/DynamicAnalysis)
+endif()
+
 # Configure the CTestCustom.cmake file now that everything is done.
 set(memcheck_excluded_tests "  # These tests do not run any VTK code\n")
 foreach(vtk-module ${VTK_MODULES_ALL})
