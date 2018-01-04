@@ -28,6 +28,7 @@
 #include "vtkWeakPointer.h"
 #include "vtkWindows.h"
 
+#include <cstring>
 #include <sstream>
 #include <map>
 #include <vector>
@@ -921,8 +922,19 @@ PyTypeObject *vtkPythonUtil::FindSpecialTypeObject(const char *name)
 }
 
 //--------------------------------------------------------------------
-bool vtkPythonUtil::ImportModule(const char *name, PyObject *globals)
+bool vtkPythonUtil::ImportModule(const char *fullname, PyObject *globals)
 {
+  // strip all but the final part of the path
+  const char *name = std::strrchr(fullname, '.');
+  if (name == nullptr)
+  {
+    name = fullname;
+  }
+  else if (name[0] == '.')
+  {
+    name++;
+  }
+
   // check whether the module is already loaded
   if (vtkPythonMap)
   {
@@ -933,15 +945,23 @@ bool vtkPythonUtil::ImportModule(const char *name, PyObject *globals)
     }
   }
 
-  // try relative import (const-cast is needed for Python 2.x only)
-  PyObject *m = PyImport_ImportModuleLevel(const_cast<char *>(name), globals,
-                                           nullptr, nullptr, 1);
+  PyObject *m = nullptr;
+
+  if (fullname == name || (fullname[0] == '.' && &fullname[1] == name))
+  {
+    // try relative import (const-cast is needed for Python 2.x only)
+    m = PyImport_ImportModuleLevel(const_cast<char *>(name), globals,
+                                   nullptr, nullptr, 1);
+    if (!m)
+    {
+      PyErr_Clear();
+    }
+  }
 
   if (!m)
   {
-    // clear error and retry with absolute import
-    PyErr_Clear();
-    m = PyImport_ImportModule(name);
+    // try absolute import
+    m = PyImport_ImportModule(fullname);
   }
 
   if (!m)
