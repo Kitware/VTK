@@ -41,6 +41,7 @@ class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
 class vtkOpenGLVertexBufferObjectGroup;
 class vtkPoints;
+class vtkTexture;
 class vtkTextureObject;
 class vtkTransform;
 
@@ -256,6 +257,15 @@ public:
     int fieldAssociation,
     int componentno = -1) override;
 
+  // This method will Map the specified data array for use as
+  // a texture coordinate for texture tname. The actual
+  // attribute will be named tname_coord so as to not
+  // conflict with the texture sampler definition which will
+  // be tname.
+  void MapDataArrayToMultiTextureAttribute(
+    const char *tname,
+    const char* dataArrayName, int fieldAssociation, int componentno = -1) override;
+
   /**
    * Remove a vertex attribute mapping.
    */
@@ -271,6 +281,16 @@ protected:
   ~vtkOpenGLPolyDataMapper() override;
 
   vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
+
+  void MapDataArray(
+    const char* vertexAttributeName,
+    const char* dataArrayName,
+    const char *texturename,
+    int fieldAssociation,
+    int componentno);
+
+  // what coordinate shoudl be used for this texture
+  std::string GetTextureCoordinateName(const char *tname);
 
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on
@@ -430,7 +450,7 @@ protected:
   //  ColorInternalTexture
   //  Actors texture
   //  Properties textures
-  virtual std::vector<vtkTexture *> GetTextures(vtkActor *actor);
+  virtual std::vector<std::pair<vtkTexture *, std::string> > GetTextures(vtkActor *actor);
 
   // do we have textures coordinates that require special handling
   virtual bool HaveTCoords(vtkPolyData *poly);
@@ -512,6 +532,7 @@ protected:
       std::string DataArrayName;
       int FieldAssociation;
       int ComponentNumber;
+      std::string TextureName;
   };
   std::map<std::string,ExtraAttributeValue> ExtraAttributes;
 

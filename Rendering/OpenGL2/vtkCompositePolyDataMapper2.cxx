@@ -838,7 +838,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
     "vertexMC", poly->GetPoints()->GetData(), VTK_FLOAT);
   this->VBOs->AppendDataArray("normalMC", n, VTK_FLOAT);
   this->VBOs->AppendDataArray("scalarColor", c, VTK_UNSIGNED_CHAR);
-  this->VBOs->AppendDataArray("tcoordMC", tcoords, VTK_FLOAT);
+  this->VBOs->AppendDataArray("tcoord", tcoords, VTK_FLOAT);
 
   // now create the IBOs
   vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(

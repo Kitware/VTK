@@ -25,20 +25,7 @@
 #include <cstdlib>
 #include <sstream>
 
-#include <map>
 #include <vtksys/SystemTools.hxx>
-
-class vtkPropertyInternals
-{
-public:
-  // key==texture unit, value==texture
-  typedef std::map<int, vtkSmartPointer<vtkTexture> > MapOfTextures;
-  MapOfTextures Textures;
-
-  // key==texture name, value==texture-unit.
-  typedef std::map<std::string, int> MapOfTextureNames;
-  MapOfTextureNames TextureNames;
-};
 
 vtkCxxSetObjectMacro(vtkProperty, Information, vtkInformation);
 
@@ -98,7 +85,6 @@ vtkProperty::vtkProperty()
 
   this->Shading = 0;
   this->MaterialName = nullptr;
-  this->Internals = new vtkPropertyInternals;
 
   this->Information = vtkInformation::New();
   this->Information->Register(this);
@@ -108,8 +94,8 @@ vtkProperty::vtkProperty()
 //----------------------------------------------------------------------------
 vtkProperty::~vtkProperty()
 {
+  this->RemoveAllTextures();
   this->SetMaterialName(nullptr);
-  delete this->Internals;
 
   this->SetInformation(nullptr);
 }
@@ -147,11 +133,10 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetShading(p->GetShading());
 
     this->RemoveAllTextures();
-    vtkPropertyInternals::MapOfTextures::iterator iter =
-      p->Internals->Textures.begin();
-    for (;iter != p->Internals->Textures.end(); ++iter)
+    auto iter = p->Textures.begin();
+    for (;iter != p->Textures.end(); ++iter)
     {
-      this->Internals->Textures[iter->first] = iter->second;
+      this->Textures[iter->first] = iter->second;
     }
     // TODO: need to pass shader variables.
   }
@@ -252,149 +237,86 @@ void vtkProperty::GetColor(double &r, double &g, double &b)
 //----------------------------------------------------------------------------
 void vtkProperty::SetTexture(const char* name, vtkTexture* tex)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(std::string(name));
-  if (iter != this->Internals->TextureNames.end())
+  auto iter =
+    this->Textures.find(std::string(name));
+  if (iter != this->Textures.end())
   {
+    // same value?
+    if (iter->second == tex)
+    {
+      return;
+    }
     vtkWarningMacro("Texture with name " << name
       << " exists. It will be replaced.");
+    iter->second->UnRegister(this);
   }
 
-  // Locate a free texture unit.
-  int texture_unit = -1;
-  for (int cc=0; ; cc++)
-  {
-    if (this->Internals->Textures.find(cc) == this->Internals->Textures.end())
-    {
-      texture_unit = cc;
-      break;
-    }
-  }
-
-  this->Internals->TextureNames[name] = texture_unit;
-  this->SetTexture(texture_unit, tex);
+  tex->Register(this);
+  this->Textures[name] = tex;
 }
 
 //----------------------------------------------------------------------------
 vtkTexture* vtkProperty::GetTexture(const char* name)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(std::string(name));
-  if (iter == this->Internals->TextureNames.end())
+  auto iter =
+    this->Textures.find(std::string(name));
+  if (iter == this->Textures.end())
   {
     return nullptr;
   }
 
-  return this->GetTexture(iter->second);
+  return iter->second;
+}
+
+#ifndef VTK_LEGACY_REMOVE
+//----------------------------------------------------------------------------
+void vtkProperty::SetTexture(int, vtkTexture*)
+{
+  VTK_LEGACY_BODY(vtkProperty::SetTexture, "VTK 8.2");
 }
 
 //----------------------------------------------------------------------------
-void vtkProperty::SetTexture(int unit, vtkTexture* tex)
+vtkTexture* vtkProperty::GetTexture(int)
 {
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.find(unit);
-  if (iter != this->Internals->Textures.end())
-  {
-    vtkWarningMacro("Replacing texture previously assigned to unit " << unit);
-  }
-  this->Internals->Textures[unit] = tex;
-}
-
-//----------------------------------------------------------------------------
-vtkTexture* vtkProperty::GetTexture(int unit)
-{
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.find(unit);
-  if (iter != this->Internals->Textures.end())
-  {
-    return iter->second;
-  }
-  vtkErrorMacro("No texture assigned to texture unit " << unit << " exists.");
+  VTK_LEGACY_BODY(vtkProperty::GetTexture, "VTK 8.2");
   return nullptr;
 }
 
 //----------------------------------------------------------------------------
+void vtkProperty::RemoveTexture(int)
+{
+  VTK_LEGACY_BODY(vtkProperty::RemoveTexture, "VTK 8.2");
+}
+
+#endif
+
+//----------------------------------------------------------------------------
 int vtkProperty::GetNumberOfTextures()
 {
-  return static_cast<int>(this->Internals->Textures.size());
+  return static_cast<int>(this->Textures.size());
 }
 
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveTexture(const char* name)
 {
-  vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(std::string(name));
-  if (iter != this->Internals->TextureNames.end())
+  auto iter =
+    this->Textures.find(std::string(name));
+  if (iter != this->Textures.end())
   {
-    this->RemoveTexture(iter->second);
-    this->Internals->TextureNames.erase(iter);
-  }
-}
-
-//----------------------------------------------------------------------------
-void vtkProperty::RemoveTexture(int unit)
-{
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.find(unit);
-  if (iter != this->Internals->Textures.end())
-  {
-    this->Internals->Textures.erase(unit);
+    iter->second->UnRegister(this);
+    this->Textures.erase(iter);
   }
 }
 
 //----------------------------------------------------------------------------
 void vtkProperty::RemoveAllTextures()
 {
-  this->Internals->TextureNames.clear();
-  this->Internals->Textures.clear();
-}
-
-//----------------------------------------------------------------------------
-vtkTexture* vtkProperty::GetTextureAtIndex(int index)
-{
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.begin();
-  for (int id = 0; iter != this->Internals->Textures.end(); ++iter, ++id)
+  while (this->Textures.size())
   {
-    if (id == index)
-    {
-      return iter->second;
-    }
+    auto iter = this->Textures.begin();
+    iter->second->UnRegister(this);
+    this->Textures.erase(iter);
   }
-
-  vtkErrorMacro("No texture at index " << index );
-  return nullptr;
-}
-
-//----------------------------------------------------------------------------
-int vtkProperty::GetTextureUnitAtIndex(int index)
-{
-  vtkPropertyInternals::MapOfTextures::iterator iter =
-    this->Internals->Textures.begin();
-  for (int id = 0; iter != this->Internals->Textures.end(); ++iter, ++id)
-  {
-    if (id == index)
-    {
-      return iter->first;
-    }
-  }
-
-  vtkErrorMacro("No texture at index " << index );
-  return -1;
-}
-
-//----------------------------------------------------------------------------
-int vtkProperty::GetTextureUnit(const char* name)
-{
-  vtkPropertyInternals::MapOfTextureNames::iterator iter =
-    this->Internals->TextureNames.find(name);
-  if (iter != this->Internals->TextureNames.end())
-  {
-    return iter->second;
-  }
-
-  vtkErrorMacro("No texture with name " << name);
-  return -1;
 }
 
 //----------------------------------------------------------------------------

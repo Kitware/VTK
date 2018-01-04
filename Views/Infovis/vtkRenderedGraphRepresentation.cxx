@@ -74,6 +74,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
+#include "vtkTexture.h"
 #include "vtkTexturedActor2D.h"
 #include "vtkTransformCoordinateSystems.h"
 #include "vtkTreeLayoutStrategy.h"

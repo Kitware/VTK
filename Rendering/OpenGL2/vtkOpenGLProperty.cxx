@@ -64,15 +64,15 @@ void vtkOpenGLProperty::Render(vtkActor *anActor, vtkRenderer *ren)
 bool vtkOpenGLProperty::RenderTextures(vtkActor*, vtkRenderer* ren)
 {
   // render any textures.
-  int numTextures = this->GetNumberOfTextures();
-  for (int t = 0; t < numTextures; t++)
+  auto textures = this->GetAllTextures();
+  for (auto ti : textures)
   {
-    this->GetTextureAtIndex(t)->Render(ren);
+    ti.second->Render(ren);
   }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 
-  return (numTextures > 0);
+  return (textures.size() > 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,12 +86,11 @@ void vtkOpenGLProperty::PostRender(vtkActor *actor, vtkRenderer *renderer)
     glDisable(GL_CULL_FACE);
   }
 
-
   // deactivate any textures.
-  int numTextures = this->GetNumberOfTextures();
-  for (int t = 0; t < numTextures; t++)
+  auto textures = this->GetAllTextures();
+  for (auto ti : textures)
   {
-    this->GetTextureAtIndex(t)->PostRender(renderer);
+    ti.second->PostRender(renderer);
   }
 
   this->Superclass::PostRender(actor, renderer);
@@ -109,13 +108,10 @@ void vtkOpenGLProperty::BackfaceRender(vtkActor *vtkNotUsed(anActor), vtkRendere
 void vtkOpenGLProperty::ReleaseGraphicsResources(vtkWindow *win)
 {
   // release any textures.
-  int numTextures = this->GetNumberOfTextures();
-  if (numTextures > 0)
+  auto textures = this->GetAllTextures();
+  for (auto ti : textures)
   {
-    for (int i = 0; i < numTextures; i++)
-    {
-      this->GetTextureAtIndex(i)->ReleaseGraphicsResources(win);
-    }
+    ti.second->ReleaseGraphicsResources(win);
   }
 
   this->Superclass::ReleaseGraphicsResources(win);

@@ -88,7 +88,7 @@ int TestTStripsNormalsColorsTCoords(int argc, char *argv[])
   polyData->Delete();
 
   vtkActor *actor = vtkActor::New();
-  actor->GetProperty()->SetTexture("texture",texture);
+  actor->GetProperty()->SetTexture("mytexture",texture);
   texture->Delete();
   actor->SetMapper(mapper);
   mapper->Delete();

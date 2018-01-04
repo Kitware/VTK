@@ -36,6 +36,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTriangleFilter.h"
 #include "vtkXMLPolyDataWriter.h"

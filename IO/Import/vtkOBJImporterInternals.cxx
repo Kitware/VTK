@@ -20,6 +20,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
+#include "vtkTexture.h"
 #include "vtksys/SystemTools.hxx"
 #include "vtkTransform.h"
 
