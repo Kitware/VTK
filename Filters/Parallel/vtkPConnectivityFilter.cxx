@@ -66,10 +66,27 @@ int vtkPConnectivityFilter::RequestData(
   int numRanks = controller->GetNumberOfProcesses();
   int myRank = controller->GetLocalProcessId();
 
+  // Get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  if (!inInfo)
+  {
+    return 0;
+  }
+  vtkPointSet* input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+  // Check how many ranks have data. If it is only one, running the superclass
+  // RequestData is sufficient as no global data exchange and RegionId
+  // relabeling is needed. It is worth checking to avoid issuing an
+  // unnecessary warning when a dataset resides entirely on one process.
+  int hasCells = input->GetNumberOfCells() > 0 ? 1 : 0;
+  int ranksWithCells = 0;
+  controller->AllReduce(&hasCells, &ranksWithCells, 1, vtkCommunicator::SUM_OP);
+
   // Compute local connectivity. If we are running in parallel, we need the full
   // connectivity first, and will handle the extraction mode later.
   int success = 1;
-  if (numRanks > 1)
+  if (numRanks > 1 && ranksWithCells > 1)
   {
     int saveScalarConnectivity = this->ScalarConnectivity;
     int saveExtractionMode = this->ExtractionMode;
@@ -96,7 +113,7 @@ int vtkPConnectivityFilter::RequestData(
   // Get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  // Get the input and output
+  // Get the output
   vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -104,21 +121,22 @@ int vtkPConnectivityFilter::RequestData(
   // points, we say that we have ghost points so other ranks can proceed.
   bool hasGhostPoints = output->GetNumberOfPoints() == 0 ||
     (output->GetNumberOfPoints() > 0 && output->GetPointGhostArray());
-  success *= hasGhostPoints ? 1 : 0;
 
-  // Check that all ranks succeeded in local connectivity connection and
+  // Check that all ranks succeeded in local connectivity and
   // have ghost cells.
   int globalSuccess = 0;
   controller->AllReduce(&success, &globalSuccess, 1, vtkCommunicator::MIN_OP);
 
   if (!globalSuccess)
   {
-    if (!hasGhostPoints)
-    {
-      vtkErrorMacro("At least one ghost level is required to run this filter in "
-        "parallel, but no ghost cells are available.");
-    }
+    vtkErrorMacro("An error occurred on at least one process.");
     return 0;
+  }
+
+  if (!hasGhostPoints)
+  {
+    vtkWarningMacro("At least one ghost level is required to run this filter in "
+      "parallel, but no ghost cells are available. Results may not be correct.");
   }
 
   // Exchange number of regions. We assume the RegionIDs are contiguous.
@@ -150,7 +168,7 @@ int vtkPConnectivityFilter::RequestData(
     vtkSmartPointer<vtkIdTypeArray>::New();
   for (vtkIdType i = 0; i < output->GetNumberOfPoints(); ++i)
   {
-    if (pointGhostArray->GetTypedComponent(i, 0) &
+    if (pointGhostArray && pointGhostArray->GetTypedComponent(i, 0) &
         vtkDataSetAttributes::DUPLICATEPOINT)
     {
       ghostPoints->InsertNextTuple(i, outputPoints->GetData());
@@ -231,7 +249,7 @@ int vtkPConnectivityFilter::RequestData(
 
         vtkIdType localId = localPointLocator->FindClosestPoint(x);
         // Skip local ghost points as we do not need ghost-ghost links.
-        if (pointGhostArray->GetTypedComponent(localId, 0) &
+        if (pointGhostArray && pointGhostArray->GetTypedComponent(localId, 0) &
             vtkDataSetAttributes::DUPLICATEPOINT)
         {
           continue;
