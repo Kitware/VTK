@@ -44,7 +44,6 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   VTK_CREATE(vtkTesting, testHelper);
   testHelper->AddArguments(argc,const_cast<const char **>(argv));
   string dataRoot = testHelper->GetDataRoot();
-//  string file = dataRoot + "/Data/treetest.xml";
   string file = dataRoot + "/Data/Infovis/XML/vtkclasses.xml";
 
   VTK_CREATE(vtkXMLTreeReader, reader);
