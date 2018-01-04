@@ -1,0 +1,19 @@
+NAME
+  VTK::InteractionStyle
+LIBRARY_NAME
+  vtkInteractionStyle
+KIT
+  VTK::Interaction
+GROUPS
+  Rendering
+IMPLEMENTS
+  VTK::RenderingCore
+DEPENDS
+  VTK::CommonDataModel
+  VTK::RenderingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonMath
+  VTK::CommonTransforms
+  VTK::FiltersExtraction
+  VTK::FiltersSources

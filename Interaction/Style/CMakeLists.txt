@@ -1,36 +1,39 @@
-include(vtkObjectFactory)
+set(classes
+  vtkInteractorStyleDrawPolygon
+  vtkInteractorStyleFlight
+  vtkInteractorStyleImage
+  vtkInteractorStyleJoystickActor
+  vtkInteractorStyleJoystickCamera
+  vtkInteractorStyleMultiTouchCamera
+  vtkInteractorStyleRubberBand2D
+  vtkInteractorStyleRubberBand3D
+  vtkInteractorStyleRubberBandPick
+  vtkInteractorStyleRubberBandZoom
+  vtkInteractorStyleTerrain
+  vtkInteractorStyleTrackball
+  vtkInteractorStyleTrackballActor
+  vtkInteractorStyleTrackballCamera
+  vtkInteractorStyleUnicam
+  vtkInteractorStyleUser
 
-set(Module_SRCS
-  vtkInteractorStyleDrawPolygon.cxx
-  vtkInteractorStyleFlight.cxx
-  vtkInteractorStyleImage.cxx
-  vtkInteractorStyleJoystickActor.cxx
-  vtkInteractorStyleJoystickCamera.cxx
-  vtkInteractorStyleMultiTouchCamera.cxx
-  vtkInteractorStyleRubberBand2D.cxx
-  vtkInteractorStyleRubberBand3D.cxx
-  vtkInteractorStyleRubberBandPick.cxx
-  vtkInteractorStyleRubberBandZoom.cxx
-  vtkInteractorStyleTerrain.cxx
-  vtkInteractorStyleTrackballActor.cxx
-  vtkInteractorStyleTrackballCamera.cxx
-  vtkInteractorStyleTrackball.cxx
-  vtkInteractorStyleUnicam.cxx
-  vtkInteractorStyleUser.cxx
+  vtkInteractorStyleSwitch
+  vtkParallelCoordinatesInteractorStyle)
 
-  vtkInteractorStyleSwitch.cxx
-  vtkParallelCoordinatesInteractorStyle.cxx
-
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
-
-# Now to generate our object factory.
-set(vtk_module_overrides "vtkInteractorStyleSwitchBase")
 if (ANDROID OR APPLE_IOS)
-  set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleMultiTouchCamera")
-else()
-  set(vtk_module_vtkInteractorStyleSwitchBase_override "vtkInteractorStyleSwitch")
-endif()
-vtk_object_factory_configure("${vtk_module_overrides}")
+  set(style_override "vtkInteractorStyleMultiTouchCamera")
+else ()
+  set(style_override "vtkInteractorStyleSwitch")
+endif ()
+vtk_object_factory_declare(
+  BASE vtkInteractorStyleSwitchBase
+  OVERRIDE "${style_override}")
 
-vtk_module_library(vtkInteractionStyle ${Module_SRCS})
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKINTERACTIONSTYLE_EXPORT")
+
+vtk_module_add_module(VTK::InteractionStyle
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
