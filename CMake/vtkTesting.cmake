@@ -22,7 +22,3 @@ include(CTest)
 
 # Provide an option for tests requiring "large" input data
 option(VTK_USE_LARGE_DATA "Enable tests requiring \"large\" data" OFF)
-
-if(BUILD_TESTING)
-  include(vtkLegacyData)
-endif()
