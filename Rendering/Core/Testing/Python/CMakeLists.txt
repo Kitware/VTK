@@ -46,6 +46,7 @@ vtk_add_test_python(
   cells.py,NO_RT
 #  TestScalarMaterialMode.py
   pickCompositeData.py,NO_RT
+  pickCompositeData2.py,NO_RT
   ${glsl_tests}
   )
 
