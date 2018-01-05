@@ -1,0 +1,8 @@
+This module is based on the OpenTURNS library, which is LGPL licensed.
+There are some dependencies of OpenTURNS under the GPL license, namely:
+ * the optional hmat library, under GPL but with an explicit exception for its use within OpenTURNS. This dependency can be deactivated as no part of OpenTURNS used by the VTK module depends on hmat. By the way, the authors of hmat are in the exact same department as the authors of OpenTURNS coming from Airbus
+ * the poissoninv set of functions for the efficient computation of the Poisson quantile function. This dependency is mandatory and is used within OpenTURNS with a written exception to the GPL license from the author
+ * the KolmogorovSmirnovDist set of functions for the efficient computation of the exact Kolmogorov-Smirnov distribution. This dependency is mandatory and is used within OpenTURNS with a written exception to the GPL license from the author.
+
+Due to these dependencies, we have to include the text of the GPL license into our source tree, but there is no problem to use them in a LGPL context as far as this use is done only through the OpenTURNS interface, which is the case of this module.
+This module (and VTK) cannot be considered to be under the GPL license when using OpenTURNS through the API, since it is an LGPL library which has solved the issue of merging GPL and LGPL code. Thanks to the authors of these dependencies, they are NOT under GPL when used by OpenTURNS!
