@@ -425,6 +425,8 @@ public:
 
   vtkImageData* GetTransformedInput(const int port = 0);
 
+  double* GetBoundsFromPort(const int port) VTK_SIZEHINT(6);
+
 protected:
   vtkGPUVolumeRayCastMapper();
   ~vtkGPUVolumeRayCastMapper() override;
@@ -503,12 +505,6 @@ protected:
    * cell data (1).
    */
   void SetCellFlag(int cellFlag);
-  double* GetBounds() VTK_SIZEHINT(6) override
-    { return Superclass::GetBounds(); }
-  void GetBounds(double bounds[6]) override
-    { Superclass::GetBounds(bounds); }
-  double* GetBounds(const int port) VTK_SIZEHINT(6) override;
-
   void RemovePortInternal(const int port);
 
   int LockSampleDistanceToInputSpacing;

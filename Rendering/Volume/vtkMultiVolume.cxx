@@ -108,7 +108,15 @@ double* vtkMultiVolume::GetBounds()
     // Transform to world coordinates (ensure the matrix is
     // up-to-date).
     const int port = item.first;
-    double* bnd = this->Mapper->GetBounds(port);
+    auto mapper = vtkGPUVolumeRayCastMapper::SafeDownCast(this->Mapper);
+    if (!mapper)
+    {
+      vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
+        " vtkGPUVolumeRayCastMapper.")
+      return this->Bounds;
+    }
+    double* bnd = mapper->GetBoundsFromPort(port);
+
     vtkVolume* vol = item.second;
     vol->ComputeMatrix();
     auto rBoundsWorld = this->ComputeAABounds(bnd, vol->GetMatrix());
@@ -213,9 +221,16 @@ std::array<double, 6> vtkMultiVolume::ComputeAABounds(double bounds[6],
   return boundsWorld;
 }
 
-bool vtkMultiVolume::VolumesChanged() const
+bool vtkMultiVolume::VolumesChanged()
 {
   auto mapper = vtkGPUVolumeRayCastMapper::SafeDownCast(this->Mapper);
+  if (!mapper)
+  {
+    vtkErrorMacro(<< "vtkMultiVolume is currently only supported by"
+      " vtkGPUVolumeRayCastMapper.")
+    return false;
+  }
+
   for (auto& item : this->Volumes)
   {
     auto vol = item.second;

@@ -798,7 +798,7 @@ void vtkGPUVolumeRayCastMapper::RemovePortInternal(const int port)
   this->Modified();
 }
 
-double* vtkGPUVolumeRayCastMapper::GetBounds(const int port)
+double* vtkGPUVolumeRayCastMapper::GetBoundsFromPort(const int port)
 {
   this->CloneInputs();
 

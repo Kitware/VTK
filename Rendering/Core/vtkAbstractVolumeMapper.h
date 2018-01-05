@@ -57,9 +57,6 @@ public:
   double *GetBounds() VTK_SIZEHINT(6) override;
   void GetBounds(double bounds[6]) override
     { this->vtkAbstractMapper3D::GetBounds(bounds); };
-
-  virtual double* GetBounds(const int /* port */)
-    { return this->GetBounds(); };
   //@}
 
   //@{
