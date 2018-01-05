@@ -259,6 +259,9 @@ public:
   vtkSetMacro(AnimateModeShapes, int);
   vtkGetMacro(AnimateModeShapes, int);
 
+  vtkSetMacro(IgnoreFileTime, bool);
+  vtkGetMacro(IgnoreFileTime, bool);
+
   vtkDataArray* FindDisplacementVectors( int timeStep );
 
   const struct ex_init_params* GetModelParams() const
@@ -824,6 +827,8 @@ protected:
   float DisplacementMagnitude;
   int HasModeShapes;
   int AnimateModeShapes;
+
+  bool IgnoreFileTime;
 
   /** Should the reader output only points used by elements in the output mesh,
     * or all the points. Outputting all the points is much faster since the
