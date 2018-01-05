@@ -151,13 +151,15 @@ public:
   static int CeilLog2(vtkTypeUInt64 x);
 
   /**
-   * Returns the minimum of the two arguments provided.
+   * Returns the minimum of the two arguments provided. If either
+   * argument is NaN, the first argument will always be returned.
    */
   template<class T>
   static T Min(const T & a, const T & b);
 
   /**
-   * Returns the maximum of the two arguments provided.
+   * Returns the maximum of the two arguments provided. If either
+   * argument is NaN, the first argument will always be returned.
    */
   template<class T>
   static T Max(const T & a, const T & b);
@@ -1297,14 +1299,14 @@ inline int vtkMath::Ceil(double x)
 template<class T>
 inline T vtkMath::Min(const T & a, const T & b)
 {
-  return (a < b ? a : b);
+  return (b <= a ? b : a);
 }
 
 //----------------------------------------------------------------------------
 template<class T>
 inline T vtkMath::Max(const T & a, const T & b)
 {
-  return (a > b ? a : b);
+  return (b > a ? b : a);
 }
 
 //----------------------------------------------------------------------------
