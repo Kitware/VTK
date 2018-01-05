@@ -162,7 +162,7 @@ double* vtkMultiVolume::GetBounds()
   this->Matrix->SetElement(2, 3, minPoint[2]);
 
   // Compute bbox dimensions (world)
-  auto scale = std::move(maxPoint - minPoint);
+  auto scale = maxPoint - minPoint;
 
   // T_texToBbox = T_scaling
   TexToBBox->Identity();
@@ -172,8 +172,8 @@ double* vtkMultiVolume::GetBounds()
 
   // Transform bounds back to data-coords (range [0, scale]). Data-coords
   // is what the mapper expects.
-  auto minPointData = std::move(minPoint - minPoint);
-  auto maxPointData = std::move(maxPoint - minPoint);
+  auto minPointData = minPoint - minPoint;
+  auto maxPointData = maxPoint - minPoint;
   this->DataBounds[0] = minPointData[0];
   this->DataBounds[2] = minPointData[1];
   this->DataBounds[4] = minPointData[2];
@@ -204,7 +204,7 @@ std::array<double, 6> vtkMultiVolume::ComputeAABounds(double bounds[6],
   pointsDataCoords.push_back(std::move(minPoint + Point(0., dim[1],0., 0.)));
   pointsDataCoords.push_back(std::move(minPoint + Point(0., 0., dim[2], 0.)));
   pointsDataCoords.push_back(std::move(minPoint + Point(dim[0], 0.,dim[2], 0.)));
-  pointsDataCoords.push_back(std::move(Point(bounds[1], bounds[3], bounds[5], 0.)));
+  pointsDataCoords.push_back(Point(bounds[1], bounds[3], bounds[5], 0.));
   pointsDataCoords.push_back(std::move(minPoint + Point(0., dim[1], dim[2], 0.)));
 
   // Transform all points from data to world coordinates
