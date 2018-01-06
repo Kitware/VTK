@@ -15,7 +15,6 @@ set(Module_SRCS
   vtkX3D.cxx
   vtkX3DExporter.cxx
   vtkX3DExporterFIWriter.cxx
-  #vtkX3DExporterJavaHelper.cxx Needs JNI
   vtkX3DExporterWriter.cxx
   vtkX3DExporterXMLWriter.cxx
   )
