@@ -1,0 +1,10 @@
+NAME
+  VTK::Java
+LIBRARY_NAME
+  vtkJava
+DEPENDS
+  VTK::CommonCore
+TEST_DEPENDS
+  VTK::RenderingOpenGL2
+  VTK::TestingRendering
+EXCLUDE_WRAP
