@@ -86,14 +86,14 @@ public:
    * is displayed, the user is asked if they want to keep getting
    * messages.
    */
-  vtkBooleanMacro(PromptUser,int);
-  vtkSetMacro(PromptUser, int);
+  vtkBooleanMacro(PromptUser,vtkTypeBool);
+  vtkSetMacro(PromptUser, vtkTypeBool);
   //@}
 
 protected:
   vtkOutputWindow();
   ~vtkOutputWindow() override;
-  int PromptUser;
+  vtkTypeBool PromptUser;
 private:
   static vtkOutputWindow* Instance;
 private:

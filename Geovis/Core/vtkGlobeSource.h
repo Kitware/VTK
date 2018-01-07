@@ -118,9 +118,9 @@ public:
    * except at the poles. This can be useful for generating a wireframe
    * sphere with natural latitude and longitude lines.
    */
-  vtkSetMacro(QuadrilateralTessellation,int);
-  vtkGetMacro(QuadrilateralTessellation,int);
-  vtkBooleanMacro(QuadrilateralTessellation,int);
+  vtkSetMacro(QuadrilateralTessellation,vtkTypeBool);
+  vtkGetMacro(QuadrilateralTessellation,vtkTypeBool);
+  vtkBooleanMacro(QuadrilateralTessellation,vtkTypeBool);
   //@}
 
   /**
@@ -174,7 +174,7 @@ protected:
   double StartLatitude;
   double EndLatitude;
 
-  int QuadrilateralTessellation;
+  vtkTypeBool QuadrilateralTessellation;
 
 private:
   vtkGlobeSource(const vtkGlobeSource&) = delete;

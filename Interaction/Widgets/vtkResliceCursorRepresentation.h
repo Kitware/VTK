@@ -76,9 +76,9 @@ public:
   /**
    * Show the resliced image ?
    */
-  vtkSetMacro( ShowReslicedImage, int );
-  vtkGetMacro( ShowReslicedImage, int );
-  vtkBooleanMacro( ShowReslicedImage, int );
+  vtkSetMacro( ShowReslicedImage, vtkTypeBool );
+  vtkGetMacro( ShowReslicedImage, vtkTypeBool );
+  vtkBooleanMacro( ShowReslicedImage, vtkTypeBool );
   //@}
 
   //@{
@@ -202,9 +202,9 @@ public:
    * Render as a 2D image, or render as a plane with a texture in physical
    * space.
    */
-  vtkSetMacro( UseImageActor, int );
-  vtkGetMacro( UseImageActor, int );
-  vtkBooleanMacro( UseImageActor, int );
+  vtkSetMacro( UseImageActor, vtkTypeBool );
+  vtkGetMacro( UseImageActor, vtkTypeBool );
+  vtkBooleanMacro( UseImageActor, vtkTypeBool );
   //@}
 
   //@{
@@ -308,7 +308,7 @@ protected:
   vtkImageAlgorithm       * Reslice;
   vtkPlaneSource          * PlaneSource;
   vtkTypeBool                       RestrictPlaneToVolume;
-  int                       ShowReslicedImage;
+  vtkTypeBool                       ShowReslicedImage;
   vtkTextProperty         * ThicknessTextProperty;
   vtkTextMapper           * ThicknessTextMapper;
   vtkActor2D              * ThicknessTextActor;
@@ -327,7 +327,7 @@ protected:
   double                    InitialWindow;
   double                    InitialLevel;
   double                    LastEventPosition[2];
-  int                       UseImageActor;
+  vtkTypeBool                       UseImageActor;
   char                      TextBuff[VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF];
   vtkTypeBool                       DisplayText;
 

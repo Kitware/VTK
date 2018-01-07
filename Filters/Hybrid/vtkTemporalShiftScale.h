@@ -84,9 +84,9 @@ public:
    * initial time - a source with T{5..6} repeated periodicaly will have output
    * time {5..6..7..8} etc.
    */
-  vtkSetMacro(Periodic, int);
-  vtkGetMacro(Periodic, int);
-  vtkBooleanMacro(Periodic, int);
+  vtkSetMacro(Periodic, vtkTypeBool);
+  vtkGetMacro(Periodic, vtkTypeBool);
+  vtkBooleanMacro(Periodic, vtkTypeBool);
   //@}
 
   //@{
@@ -99,9 +99,9 @@ public:
    * the data is assumed to be literal and output is of the form 0,1,2,3...N,0,1,2,3...
    * By default this flag is ON
    */
-  vtkSetMacro(PeriodicEndCorrection, int);
-  vtkGetMacro(PeriodicEndCorrection, int);
-  vtkBooleanMacro(PeriodicEndCorrection, int);
+  vtkSetMacro(PeriodicEndCorrection, vtkTypeBool);
+  vtkGetMacro(PeriodicEndCorrection, vtkTypeBool);
+  vtkBooleanMacro(PeriodicEndCorrection, vtkTypeBool);
   //@}
 
   //@{
@@ -121,8 +121,8 @@ protected:
   double PreShift;
   double PostShift;
   double Scale;
-  int    Periodic;
-  int    PeriodicEndCorrection;
+  vtkTypeBool    Periodic;
+  vtkTypeBool    PeriodicEndCorrection;
   double MaximumNumberOfPeriods;
   //
   double InRange[2];

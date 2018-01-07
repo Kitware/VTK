@@ -581,9 +581,9 @@ public:
    * instance variable to indicate that all variables are
    * defined in all blocks.
    */
-  vtkSetMacro(AllVariablesDefinedInAllBlocks, int);
-  vtkBooleanMacro(AllVariablesDefinedInAllBlocks, int);
-  int GetAllVariablesDefinedInAllBlocks() const {
+  vtkSetMacro(AllVariablesDefinedInAllBlocks, vtkTypeBool);
+  vtkBooleanMacro(AllVariablesDefinedInAllBlocks, vtkTypeBool);
+  vtkTypeBool GetAllVariablesDefinedInAllBlocks() const {
     return this->AllVariablesDefinedInAllBlocks;}
   //@}
 
@@ -834,7 +834,7 @@ private:
   int *MapToOriginalNodeVariableNames;     // (G) NumberOfNodeVariables
 
   int *ElementVariableTruthTable;  // (G) NumBlocks*OrigNumberOfElementVariables
-  int AllVariablesDefinedInAllBlocks;
+  vtkTypeBool AllVariablesDefinedInAllBlocks;
 
 private:
   vtkModelMetadata(const vtkModelMetadata&) = delete;

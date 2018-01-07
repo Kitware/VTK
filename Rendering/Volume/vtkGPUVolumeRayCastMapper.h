@@ -54,9 +54,9 @@ public:
    * prop (controlled by the desired update rate and any culling in
    * use).
    */
-  vtkSetClampMacro( AutoAdjustSampleDistances, int, 0, 1 );
-  vtkGetMacro( AutoAdjustSampleDistances, int );
-  vtkBooleanMacro( AutoAdjustSampleDistances, int );
+  vtkSetClampMacro( AutoAdjustSampleDistances, vtkTypeBool, 0, 1 );
+  vtkGetMacro( AutoAdjustSampleDistances, vtkTypeBool );
+  vtkBooleanMacro( AutoAdjustSampleDistances, vtkTypeBool );
   //@}
 
   //@{
@@ -65,9 +65,9 @@ public:
    * voxels is 8, the sample distance will be roughly 1/200 the average voxel
    * size. The distance will grow proportionally to numVoxels^(1/3). Off by default.
    */
-  vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
-  vtkGetMacro( LockSampleDistanceToInputSpacing, int );
-  vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
+  vtkSetClampMacro( LockSampleDistanceToInputSpacing, vtkTypeBool, 0, 1 );
+  vtkGetMacro( LockSampleDistanceToInputSpacing, vtkTypeBool );
+  vtkBooleanMacro( LockSampleDistanceToInputSpacing, vtkTypeBool );
   //@}
 
   //@{
@@ -76,9 +76,9 @@ public:
    * perturbed slightly using a noise-texture to get rid of wood-grain
    * effect.
    */
-  vtkSetClampMacro( UseJittering, int, 0, 1 );
-  vtkGetMacro( UseJittering, int );
-  vtkBooleanMacro( UseJittering, int );
+  vtkSetClampMacro( UseJittering, vtkTypeBool, 0, 1 );
+  vtkGetMacro( UseJittering, vtkTypeBool );
+  vtkBooleanMacro( UseJittering, vtkTypeBool );
   //@}
 
   //@{
@@ -90,9 +90,9 @@ public:
    * reasonable contour values to be set which can be set by calling
    * GetDepthPassContourValues() method and using vtkControurValues API.
    */
-  vtkSetClampMacro( UseDepthPass, int, 0, 1 );
-  vtkGetMacro( UseDepthPass, int );
-  vtkBooleanMacro( UseDepthPass, int );
+  vtkSetClampMacro( UseDepthPass, vtkTypeBool, 0, 1 );
+  vtkGetMacro( UseDepthPass, vtkTypeBool );
+  vtkBooleanMacro( UseDepthPass, vtkTypeBool );
   //@}
 
   /**
@@ -283,9 +283,9 @@ public:
 
    * \sa GetDepthImage(), GetColorImage()
    */
-  vtkSetMacro(RenderToImage, int);
-  vtkGetMacro(RenderToImage, int);
-  vtkBooleanMacro(RenderToImage, int);
+  vtkSetMacro(RenderToImage, vtkTypeBool);
+  vtkGetMacro(RenderToImage, vtkTypeBool);
+  vtkBooleanMacro(RenderToImage, vtkTypeBool);
   //@}
 
   //@{
@@ -313,9 +313,9 @@ public:
    * By default, this is set to 0 (off).
    * \sa SetRenderToImage(), GetDepthImage()
    */
-  vtkSetMacro(ClampDepthToBackface, int);
-  vtkGetMacro(ClampDepthToBackface, int);
-  vtkBooleanMacro(ClampDepthToBackface, int);
+  vtkSetMacro(ClampDepthToBackface, vtkTypeBool);
+  vtkGetMacro(ClampDepthToBackface, vtkTypeBool);
+  vtkBooleanMacro(ClampDepthToBackface, vtkTypeBool);
   //@}
 
   /**
@@ -511,27 +511,27 @@ protected:
 
   void RemovePortInternal(const int port);
 
-  int LockSampleDistanceToInputSpacing;
-  int    AutoAdjustSampleDistances;
+  vtkTypeBool LockSampleDistanceToInputSpacing;
+  vtkTypeBool    AutoAdjustSampleDistances;
   float  ImageSampleDistance;
   float  MinimumImageSampleDistance;
   float  MaximumImageSampleDistance;
 
   // Render to texture mode flag
-  int RenderToImage;
+  vtkTypeBool RenderToImage;
 
   // Depth image scalar type
   int DepthImageScalarType;
 
   // Clamp depth values to the depth of the face at which the ray
   // exits the volume
-  int ClampDepthToBackface;
+  vtkTypeBool ClampDepthToBackface;
 
   // Enable / disable stochastic jittering
-  int UseJittering;
+  vtkTypeBool UseJittering;
 
   // Enable / disable two pass rendering
-  int UseDepthPass;
+  vtkTypeBool UseDepthPass;
   vtkContourValues* DepthPassContourValues;
 
   // The distance between sample points along the ray
@@ -553,16 +553,16 @@ protected:
    * Set the mapper in AMR Mode or not. Initial value is false.
    * Called only by the vtkKWAMRVolumeMapper
    */
-  vtkSetClampMacro(AMRMode,int,0,1);
-  vtkGetMacro(AMRMode,int);
-  vtkBooleanMacro(AMRMode,int);
+  vtkSetClampMacro(AMRMode,vtkTypeBool,0,1);
+  vtkGetMacro(AMRMode,vtkTypeBool);
+  vtkBooleanMacro(AMRMode,vtkTypeBool);
   //@}
 
   vtkImageData * MaskInput;
   float          MaskBlendFactor;
   int            MaskType;
 
-  int AMRMode;
+  vtkTypeBool AMRMode;
 
   // Transfer function range type
   int ColorRangeType;

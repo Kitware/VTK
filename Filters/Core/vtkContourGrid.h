@@ -96,9 +96,9 @@ public:
    * processed by filters that modify topology or geometry, it may be
    * wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -112,27 +112,27 @@ public:
    * ComputeGradients is not used so these methods don't affect
    * anything (VTK 6.0).
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars,vtkTypeBool);
+  vtkGetMacro(ComputeScalars,vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable the use of a scalar tree to accelerate contour extraction.
    */
-  vtkSetMacro(UseScalarTree,int);
-  vtkGetMacro(UseScalarTree,int);
-  vtkBooleanMacro(UseScalarTree,int);
+  vtkSetMacro(UseScalarTree,vtkTypeBool);
+  vtkGetMacro(UseScalarTree,vtkTypeBool);
+  vtkBooleanMacro(UseScalarTree,vtkTypeBool);
   //@}
 
   //@{
@@ -161,9 +161,9 @@ public:
    * will be 3D poygons, which might be nice to look at but hard
    * to compute with downstream.
    */
-  vtkSetMacro(GenerateTriangles,int);
-  vtkGetMacro(GenerateTriangles,int);
-  vtkBooleanMacro(GenerateTriangles,int);
+  vtkSetMacro(GenerateTriangles,vtkTypeBool);
+  vtkGetMacro(GenerateTriangles,vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles,vtkTypeBool);
   //@}
 
   /**
@@ -190,14 +190,14 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
-  int GenerateTriangles;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
+  vtkTypeBool ComputeScalars;
+  vtkTypeBool GenerateTriangles;
 
   vtkIncrementalPointLocator *Locator;
 
-  int UseScalarTree;
+  vtkTypeBool UseScalarTree;
   vtkScalarTree *ScalarTree;
 
   int OutputPointsPrecision;

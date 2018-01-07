@@ -176,9 +176,9 @@ public:
    * them as the default output spacing, origin and extent
    * (default: On).
    */
-  vtkSetMacro(TransformInputSampling, int);
-  vtkBooleanMacro(TransformInputSampling, int);
-  vtkGetMacro(TransformInputSampling, int);
+  vtkSetMacro(TransformInputSampling, vtkTypeBool);
+  vtkBooleanMacro(TransformInputSampling, vtkTypeBool);
+  vtkGetMacro(TransformInputSampling, vtkTypeBool);
   //@}
 
   //@{
@@ -187,18 +187,18 @@ public:
    * output will be large enough to ensure that none of the
    * data will be cropped (default: Off).
    */
-  vtkSetMacro(AutoCropOutput, int);
-  vtkBooleanMacro(AutoCropOutput, int);
-  vtkGetMacro(AutoCropOutput, int);
+  vtkSetMacro(AutoCropOutput, vtkTypeBool);
+  vtkBooleanMacro(AutoCropOutput, vtkTypeBool);
+  vtkGetMacro(AutoCropOutput, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on wrap-pad feature (default: Off).
    */
-  vtkSetMacro(Wrap, int);
-  vtkGetMacro(Wrap, int);
-  vtkBooleanMacro(Wrap, int);
+  vtkSetMacro(Wrap, vtkTypeBool);
+  vtkGetMacro(Wrap, vtkTypeBool);
+  vtkBooleanMacro(Wrap, vtkTypeBool);
   //@}
 
   //@{
@@ -206,9 +206,9 @@ public:
    * Turn on mirror-pad feature (default: Off).
    * This will override the wrap-pad.
    */
-  vtkSetMacro(Mirror, int);
-  vtkGetMacro(Mirror, int);
-  vtkBooleanMacro(Mirror, int);
+  vtkSetMacro(Mirror, vtkTypeBool);
+  vtkGetMacro(Mirror, vtkTypeBool);
+  vtkBooleanMacro(Mirror, vtkTypeBool);
   //@}
 
   //@{
@@ -222,9 +222,9 @@ public:
    * the edges of the input.
    * This has no effect if Mirror or Wrap are on.
    */
-  vtkSetMacro(Border, int);
-  vtkGetMacro(Border, int);
-  vtkBooleanMacro(Border, int);
+  vtkSetMacro(Border, vtkTypeBool);
+  vtkGetMacro(Border, vtkTypeBool);
+  vtkBooleanMacro(Border, vtkTypeBool);
   //@}
 
   //@{
@@ -286,9 +286,9 @@ public:
    * weigh the first and last slices by half when doing sum and mean.
    * It is off by default.
    */
-  vtkSetMacro(SlabTrapezoidIntegration, int);
-  vtkBooleanMacro(SlabTrapezoidIntegration, int);
-  vtkGetMacro(SlabTrapezoidIntegration, int);
+  vtkSetMacro(SlabTrapezoidIntegration, vtkTypeBool);
+  vtkBooleanMacro(SlabTrapezoidIntegration, vtkTypeBool);
+  vtkGetMacro(SlabTrapezoidIntegration, vtkTypeBool);
   //@}
 
   //@{
@@ -310,9 +310,9 @@ public:
    * Turn on and off optimizations (default on, they should only be
    * turned off for testing purposes).
    */
-  vtkSetMacro(Optimization, int);
-  vtkGetMacro(Optimization, int);
-  vtkBooleanMacro(Optimization, int);
+  vtkSetMacro(Optimization, vtkTypeBool);
+  vtkGetMacro(Optimization, vtkTypeBool);
+  vtkBooleanMacro(Optimization, vtkTypeBool);
   //@}
 
   //@{
@@ -469,9 +469,9 @@ public:
    * Generate an output stencil that defines which pixels were
    * interpolated and which pixels were out-of-bounds of the input.
    */
-  vtkSetMacro(GenerateStencilOutput, int);
-  vtkGetMacro(GenerateStencilOutput, int);
-  vtkBooleanMacro(GenerateStencilOutput, int);
+  vtkSetMacro(GenerateStencilOutput, vtkTypeBool);
+  vtkGetMacro(GenerateStencilOutput, vtkTypeBool);
+  vtkBooleanMacro(GenerateStencilOutput, vtkTypeBool);
   //@}
 
   //@{
@@ -494,14 +494,14 @@ protected:
   vtkAbstractTransform *ResliceTransform;
   vtkAbstractImageInterpolator *Interpolator;
   vtkImageData *InformationInput;
-  int Wrap;
-  int Mirror;
-  int Border;
+  vtkTypeBool Wrap;
+  vtkTypeBool Mirror;
+  vtkTypeBool Border;
   int InterpolationMode;
-  int Optimization;
+  vtkTypeBool Optimization;
   int SlabMode;
   int SlabNumberOfSlices;
-  int SlabTrapezoidIntegration;
+  vtkTypeBool SlabTrapezoidIntegration;
   double SlabSliceSpacingFraction;
   double ScalarShift;
   double ScalarScale;
@@ -511,14 +511,14 @@ protected:
   int OutputExtent[6];
   int OutputScalarType;
   int OutputDimensionality;
-  int TransformInputSampling;
-  int AutoCropOutput;
+  vtkTypeBool TransformInputSampling;
+  vtkTypeBool AutoCropOutput;
   int HitInputExtent;
   int UsePermuteExecute;
   int ComputeOutputSpacing;
   int ComputeOutputOrigin;
   int ComputeOutputExtent;
-  int GenerateStencilOutput;
+  vtkTypeBool GenerateStencilOutput;
 
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;

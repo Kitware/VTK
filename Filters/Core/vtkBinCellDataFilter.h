@@ -63,7 +63,7 @@ public:
   void SetNumberOfBins(int numBins);
   int GetNumberOfBins();
   void GenerateValues(int numBins, double range[2]);
-  void GenerateValues(vtkTypeBool numBins, double rangeStart, double rangeEnd);
+  void GenerateValues(int numBins, double rangeStart, double rangeEnd);
   //@}
 
   //@{

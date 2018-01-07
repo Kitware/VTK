@@ -80,9 +80,9 @@ public:
    * the data is categorical, then the resultant data will be determined by
    * a nearest neighbor interpolation scheme.
    */
-  vtkSetMacro(CategoricalData,int);
-  vtkGetMacro(CategoricalData,int);
-  vtkBooleanMacro(CategoricalData,int);
+  vtkSetMacro(CategoricalData,vtkTypeBool);
+  vtkGetMacro(CategoricalData,vtkTypeBool);
+  vtkBooleanMacro(CategoricalData,vtkTypeBool);
   //@}
 
   //@{
@@ -96,9 +96,9 @@ public:
    * m of n is requested for update by the user, then only n of m needs to
    * be requested of the source.
    */
-  vtkSetMacro(SpatialMatch, int);
-  vtkGetMacro(SpatialMatch, int);
-  vtkBooleanMacro(SpatialMatch, int);
+  vtkSetMacro(SpatialMatch, vtkTypeBool);
+  vtkGetMacro(SpatialMatch, vtkTypeBool);
+  vtkBooleanMacro(SpatialMatch, vtkTypeBool);
   //@}
 
   //@{
@@ -124,18 +124,18 @@ public:
    * Shallow copy the input cell data arrays to the output.
    * Off by default.
    */
-  vtkSetMacro(PassCellArrays, int);
-  vtkBooleanMacro(PassCellArrays, int);
-  vtkGetMacro(PassCellArrays, int);
+  vtkSetMacro(PassCellArrays, vtkTypeBool);
+  vtkBooleanMacro(PassCellArrays, vtkTypeBool);
+  vtkGetMacro(PassCellArrays, vtkTypeBool);
   //@}
   //@{
   /**
    * Shallow copy the input point data arrays to the output
    * Off by default.
    */
-  vtkSetMacro(PassPointArrays, int);
-  vtkBooleanMacro(PassPointArrays, int);
-  vtkGetMacro(PassPointArrays, int);
+  vtkSetMacro(PassPointArrays, vtkTypeBool);
+  vtkBooleanMacro(PassPointArrays, vtkTypeBool);
+  vtkGetMacro(PassPointArrays, vtkTypeBool);
   //@}
 
 
@@ -144,9 +144,9 @@ public:
    * Set whether to pass the field-data arrays from the Input i.e. the input
    * providing the geometry to the output. On by default.
    */
-  vtkSetMacro(PassFieldArrays, int);
-  vtkBooleanMacro(PassFieldArrays, int);
-  vtkGetMacro(PassFieldArrays, int);
+  vtkSetMacro(PassFieldArrays, vtkTypeBool);
+  vtkBooleanMacro(PassFieldArrays, vtkTypeBool);
+  vtkGetMacro(PassFieldArrays, vtkTypeBool);
   //@}
 
   //@{
@@ -174,13 +174,13 @@ protected:
   vtkProbeFilter();
   ~vtkProbeFilter() override;
 
-  int CategoricalData;
+  vtkTypeBool CategoricalData;
 
-  int PassCellArrays;
-  int PassPointArrays;
-  int PassFieldArrays;
+  vtkTypeBool PassCellArrays;
+  vtkTypeBool PassPointArrays;
+  vtkTypeBool PassFieldArrays;
 
-  int SpatialMatch;
+  vtkTypeBool SpatialMatch;
 
   double Tolerance;
   bool ComputeTolerance;

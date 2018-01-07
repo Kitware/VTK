@@ -135,15 +135,15 @@ public:
    * This can be used to snap the plane to the axes if it is originally
    * not aligned.
    */
-  void SetNormalToXAxis(int);
-  vtkGetMacro(NormalToXAxis,int);
-  vtkBooleanMacro(NormalToXAxis,int);
-  void SetNormalToYAxis(int);
-  vtkGetMacro(NormalToYAxis,int);
-  vtkBooleanMacro(NormalToYAxis,int);
-  void SetNormalToZAxis(int);
-  vtkGetMacro(NormalToZAxis,int);
-  vtkBooleanMacro(NormalToZAxis,int);
+  void SetNormalToXAxis(vtkTypeBool);
+  vtkGetMacro(NormalToXAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToXAxis,vtkTypeBool);
+  void SetNormalToYAxis(vtkTypeBool);
+  vtkGetMacro(NormalToYAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToYAxis,vtkTypeBool);
+  void SetNormalToZAxis(vtkTypeBool);
+  vtkGetMacro(NormalToZAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToZAxis,vtkTypeBool);
   //@}
 
   //@{
@@ -151,9 +151,9 @@ public:
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
    */
-  vtkSetMacro(Tubing,int);
-  vtkGetMacro(Tubing,int);
-  vtkBooleanMacro(Tubing,int);
+  vtkSetMacro(Tubing,vtkTypeBool);
+  vtkGetMacro(Tubing,vtkTypeBool);
+  vtkBooleanMacro(Tubing,vtkTypeBool);
   //@}
 
   //@{
@@ -163,9 +163,9 @@ public:
    * plane interferes with the cut surface it produces producing
    * z-buffer artifacts.)
    */
-  void SetDrawPlane(int plane);
-  vtkGetMacro(DrawPlane,int);
-  vtkBooleanMacro(DrawPlane,int);
+  void SetDrawPlane(vtkTypeBool plane);
+  vtkGetMacro(DrawPlane,vtkTypeBool);
+  vtkBooleanMacro(DrawPlane,vtkTypeBool);
   //@}
 
   //@{
@@ -173,27 +173,27 @@ public:
    * Turn on/off the ability to translate the bounding box by grabbing it
    * with the left mouse button.
    */
-  vtkSetMacro(OutlineTranslation,int);
-  vtkGetMacro(OutlineTranslation,int);
-  vtkBooleanMacro(OutlineTranslation,int);
+  vtkSetMacro(OutlineTranslation,vtkTypeBool);
+  vtkGetMacro(OutlineTranslation,vtkTypeBool);
+  vtkBooleanMacro(OutlineTranslation,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the ability to move the widget outside of the input's bound
    */
-  vtkSetMacro(OutsideBounds,int);
-  vtkGetMacro(OutsideBounds,int);
-  vtkBooleanMacro(OutsideBounds,int);
+  vtkSetMacro(OutsideBounds,vtkTypeBool);
+  vtkGetMacro(OutsideBounds,vtkTypeBool);
+  vtkBooleanMacro(OutsideBounds,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the ability to scale with the mouse
    */
-  vtkSetMacro(ScaleEnabled,int);
-  vtkGetMacro(ScaleEnabled,int);
-  vtkBooleanMacro(ScaleEnabled,int);
+  vtkSetMacro(ScaleEnabled,vtkTypeBool);
+  vtkGetMacro(ScaleEnabled,vtkTypeBool);
+  vtkBooleanMacro(ScaleEnabled,vtkTypeBool);
   //@}
 
   //@{
@@ -201,9 +201,9 @@ public:
    * Turn on/off the ability to translate the origin (sphere)
    * with the left mouse button.
    */
-  vtkSetMacro(OriginTranslation,int);
-  vtkGetMacro(OriginTranslation,int);
-  vtkBooleanMacro(OriginTranslation,int);
+  vtkSetMacro(OriginTranslation,vtkTypeBool);
+  vtkGetMacro(OriginTranslation,vtkTypeBool);
+  vtkBooleanMacro(OriginTranslation,vtkTypeBool);
   //@}
 
   //@{
@@ -311,9 +311,9 @@ protected:
   void OnMouseMove();
 
   // Controlling ivars
-  int NormalToXAxis;
-  int NormalToYAxis;
-  int NormalToZAxis;
+  vtkTypeBool NormalToXAxis;
+  vtkTypeBool NormalToYAxis;
+  vtkTypeBool NormalToZAxis;
   void UpdateRepresentation();
 
   // The actual plane which is being manipulated
@@ -325,15 +325,15 @@ protected:
   vtkPolyDataMapper *OutlineMapper;
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
-  int OutlineTranslation; //whether the outline can be moved
-  int ScaleEnabled; //whether the widget can be scaled
-  int OutsideBounds; //whether the widget can be moved outside input's bounds
+  vtkTypeBool OutlineTranslation; //whether the outline can be moved
+  vtkTypeBool ScaleEnabled; //whether the widget can be scaled
+  vtkTypeBool OutsideBounds; //whether the widget can be moved outside input's bounds
 
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
-  int               DrawPlane;
+  vtkTypeBool               DrawPlane;
   virtual void HighlightPlane(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
@@ -341,7 +341,7 @@ protected:
   vtkTubeFilter     *EdgesTuber;
   vtkPolyDataMapper *EdgesMapper;
   vtkActor          *EdgesActor;
-  int               Tubing; //control whether tubing is on
+  vtkTypeBool               Tubing; //control whether tubing is on
 
   // Control final length of the arrow:
   double DiagonalRatio;
@@ -371,7 +371,7 @@ protected:
   vtkSphereSource   *Sphere;
   vtkPolyDataMapper *SphereMapper;
   vtkActor          *SphereActor;
-  int OriginTranslation; //whether the origin (sphere) can be moved
+  vtkTypeBool OriginTranslation; //whether the origin (sphere) can be moved
 
   // Do the picking
   vtkCellPicker *Picker;

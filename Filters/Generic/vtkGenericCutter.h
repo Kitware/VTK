@@ -136,9 +136,9 @@ public:
    * interpolated from the implicit function values, and not the input scalar
    * data.
    */
-  vtkSetMacro(GenerateCutScalars,int);
-  vtkGetMacro(GenerateCutScalars,int);
-  vtkBooleanMacro(GenerateCutScalars,int);
+  vtkSetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars,vtkTypeBool);
   //@}
 
   //@{
@@ -171,7 +171,7 @@ protected:
   vtkImplicitFunction *CutFunction;
   vtkIncrementalPointLocator *Locator;
   vtkContourValues    *ContourValues;
-  int                 GenerateCutScalars;
+  vtkTypeBool                 GenerateCutScalars;
 
   // Used internal by vtkGenericAdaptorCell::Contour()
   vtkPointData *InternalPD;

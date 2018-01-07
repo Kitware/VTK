@@ -58,9 +58,9 @@ public:
    * processed by filters that modify topology or geometry, it may be
    * wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -72,18 +72,18 @@ public:
    * will be processed by filters that modify topology or geometry, it
    * may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars,vtkTypeBool);
+  vtkGetMacro(ComputeScalars,vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
   //@}
 
   /**
@@ -152,9 +152,9 @@ public:
   * If this is enabled (by default), the output will be triangles
   * otherwise, the output will be the intersection polygons
   */
-  vtkSetMacro(GenerateTriangles,int);
-  vtkGetMacro(GenerateTriangles,int);
-  vtkBooleanMacro(GenerateTriangles,int);
+  vtkSetMacro(GenerateTriangles,vtkTypeBool);
+  vtkGetMacro(GenerateTriangles,vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles,vtkTypeBool);
  //@}
 
   /**
@@ -168,10 +168,10 @@ protected:
   vtkRectilinearSynchronizedTemplates();
   ~vtkRectilinearSynchronizedTemplates() override;
 
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
-  int GenerateTriangles;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
+  vtkTypeBool ComputeScalars;
+  vtkTypeBool GenerateTriangles;
 
   vtkContourValues *ContourValues;
 

@@ -127,9 +127,9 @@ public:
   /**
    * Turn on/off scaling of glyph with eigenvalues.
    */
-  vtkSetMacro(Scaling,int);
-  vtkGetMacro(Scaling,int);
-  vtkBooleanMacro(Scaling,int);
+  vtkSetMacro(Scaling,vtkTypeBool);
+  vtkGetMacro(Scaling,vtkTypeBool);
+  vtkBooleanMacro(Scaling,vtkTypeBool);
   //@}
 
   //@{
@@ -145,18 +145,18 @@ public:
   /**
    * Turn on/off drawing three glyphs
    */
-  vtkSetMacro(ThreeGlyphs,int);
-  vtkGetMacro(ThreeGlyphs,int);
-  vtkBooleanMacro(ThreeGlyphs,int);
+  vtkSetMacro(ThreeGlyphs,vtkTypeBool);
+  vtkGetMacro(ThreeGlyphs,vtkTypeBool);
+  vtkBooleanMacro(ThreeGlyphs,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off drawing a mirror of each glyph
    */
-  vtkSetMacro(Symmetric,int);
-  vtkGetMacro(Symmetric,int);
-  vtkBooleanMacro(Symmetric,int);
+  vtkSetMacro(Symmetric,vtkTypeBool);
+  vtkGetMacro(Symmetric,vtkTypeBool);
+  vtkBooleanMacro(Symmetric,vtkTypeBool);
   //@}
 
   //@{
@@ -172,9 +172,9 @@ public:
   /**
    * Turn on/off extraction of eigenvalues from tensor.
    */
-  vtkSetMacro(ExtractEigenvalues,int);
-  vtkBooleanMacro(ExtractEigenvalues,int);
-  vtkGetMacro(ExtractEigenvalues,int);
+  vtkSetMacro(ExtractEigenvalues,vtkTypeBool);
+  vtkBooleanMacro(ExtractEigenvalues,vtkTypeBool);
+  vtkGetMacro(ExtractEigenvalues,vtkTypeBool);
   //@}
 
   //@{
@@ -183,9 +183,9 @@ public:
    * eigenvalues. If false, or input scalar data not present, then the
    * scalars from the source object are passed through the filter.
    */
-  vtkSetMacro(ColorGlyphs,int);
-  vtkGetMacro(ColorGlyphs,int);
-  vtkBooleanMacro(ColorGlyphs,int);
+  vtkSetMacro(ColorGlyphs,vtkTypeBool);
+  vtkGetMacro(ColorGlyphs,vtkTypeBool);
+  vtkBooleanMacro(ColorGlyphs,vtkTypeBool);
   //@}
 
   enum
@@ -219,9 +219,9 @@ public:
    * MaxScaleFactor is used to control the maximum scale factor. (This is
    * useful to prevent uncontrolled scaling near singularities.)
    */
-  vtkSetMacro(ClampScaling,int);
-  vtkGetMacro(ClampScaling,int);
-  vtkBooleanMacro(ClampScaling,int);
+  vtkSetMacro(ClampScaling,vtkTypeBool);
+  vtkGetMacro(ClampScaling,vtkTypeBool);
+  vtkBooleanMacro(ClampScaling,vtkTypeBool);
   //@}
 
   //@{
@@ -243,15 +243,15 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
-  int Scaling; // Determine whether scaling of geometry is performed
+  vtkTypeBool Scaling; // Determine whether scaling of geometry is performed
   double ScaleFactor; // Scale factor to use to scale geometry
-  int ExtractEigenvalues; // Boolean controls eigenfunction extraction
-  int ColorGlyphs; // Boolean controls coloring with input scalar data
+  vtkTypeBool ExtractEigenvalues; // Boolean controls eigenfunction extraction
+  vtkTypeBool ColorGlyphs; // Boolean controls coloring with input scalar data
   int ColorMode; // The coloring mode to use for the glyphs.
-  int ClampScaling; // Boolean controls whether scaling is clamped.
+  vtkTypeBool ClampScaling; // Boolean controls whether scaling is clamped.
   double MaxScaleFactor; // Maximum scale factor (ScaleFactor*eigenvalue)
-  int ThreeGlyphs; // Boolean controls drawing 1 or 3 glyphs
-  int Symmetric; // Boolean controls drawing a "mirror" of each glyph
+  vtkTypeBool ThreeGlyphs; // Boolean controls drawing 1 or 3 glyphs
+  vtkTypeBool Symmetric; // Boolean controls drawing a "mirror" of each glyph
   double Length; // Distance, in x, from the origin to the end of the glyph
 private:
   vtkTensorGlyph(const vtkTensorGlyph&) = delete;

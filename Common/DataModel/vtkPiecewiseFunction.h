@@ -158,9 +158,9 @@ public:
    * specified and returns the value at the highest point for a request
    * above all points specified. On is the default.
    */
-  vtkSetMacro( Clamping, int );
-  vtkGetMacro( Clamping, int );
-  vtkBooleanMacro( Clamping, int );
+  vtkSetMacro( Clamping, vtkTypeBool );
+  vtkGetMacro( Clamping, vtkTypeBool );
+  vtkBooleanMacro( Clamping, vtkTypeBool );
   //@}
 
   /**
@@ -209,9 +209,9 @@ public:
    * Toggle whether to allow duplicate scalar values in the piecewise
    * function (off by default).
    */
-  vtkSetMacro(AllowDuplicateScalars, int);
-  vtkGetMacro(AllowDuplicateScalars, int);
-  vtkBooleanMacro(AllowDuplicateScalars, int);
+  vtkSetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkGetMacro(AllowDuplicateScalars, vtkTypeBool);
+  vtkBooleanMacro(AllowDuplicateScalars, vtkTypeBool);
   //@}
 
   /**
@@ -243,7 +243,7 @@ protected:
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
   //        highest value above defined points
-  int   Clamping;
+  vtkTypeBool   Clamping;
 
   // Array of points ((X,Y) pairs)
   double *Function;
@@ -251,7 +251,7 @@ protected:
   // Min and max range of function point locations
   double Range[2];
 
-  int AllowDuplicateScalars;
+  vtkTypeBool AllowDuplicateScalars;
 
   bool UseLogScale;
 

@@ -132,9 +132,9 @@ public:
   * This only applies if the input grid is a vtkUnstructuredGrid or a
   * vtkPolyData.
   */
-  vtkGetMacro(FasterApproximation, int);
-  vtkSetMacro(FasterApproximation, int);
-  vtkBooleanMacro(FasterApproximation, int);
+  vtkGetMacro(FasterApproximation, vtkTypeBool);
+  vtkSetMacro(FasterApproximation, vtkTypeBool);
+  vtkBooleanMacro(FasterApproximation, vtkTypeBool);
  //@}
 
   //@{
@@ -143,9 +143,9 @@ public:
    * will be ResultArrayName and will be the same type as the input
    * array. The default is on.
    */
-  vtkSetMacro(ComputeGradient, int);
-  vtkGetMacro(ComputeGradient, int);
-  vtkBooleanMacro(ComputeGradient, int);
+  vtkSetMacro(ComputeGradient, vtkTypeBool);
+  vtkGetMacro(ComputeGradient, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradient, vtkTypeBool);
   //@}
 
   //@{
@@ -155,9 +155,9 @@ public:
    * array.  The input array must have 3 components in order to
    * compute this. The default is off.
    */
-  vtkSetMacro(ComputeDivergence, int);
-  vtkGetMacro(ComputeDivergence, int);
-  vtkBooleanMacro(ComputeDivergence, int);
+  vtkSetMacro(ComputeDivergence, vtkTypeBool);
+  vtkGetMacro(ComputeDivergence, vtkTypeBool);
+  vtkBooleanMacro(ComputeDivergence, vtkTypeBool);
   //@}
 
   //@{
@@ -167,9 +167,9 @@ public:
    * array.  The input array must have 3 components in order to
    * compute this. The default is off.
    */
-  vtkSetMacro(ComputeVorticity, int);
-  vtkGetMacro(ComputeVorticity, int);
-  vtkBooleanMacro(ComputeVorticity, int);
+  vtkSetMacro(ComputeVorticity, vtkTypeBool);
+  vtkGetMacro(ComputeVorticity, vtkTypeBool);
+  vtkBooleanMacro(ComputeVorticity, vtkTypeBool);
   //@}
 
   //@{
@@ -180,9 +180,9 @@ public:
    * compute this.  Note that Q-citerion is a balance of the rate
    * of vorticity and the rate of strain. The default is off.
    */
-  vtkSetMacro(ComputeQCriterion, int);
-  vtkGetMacro(ComputeQCriterion, int);
-  vtkBooleanMacro(ComputeQCriterion, int);
+  vtkSetMacro(ComputeQCriterion, vtkTypeBool);
+  vtkGetMacro(ComputeQCriterion, vtkTypeBool);
+  vtkBooleanMacro(ComputeQCriterion, vtkTypeBool);
   //@}
 
   //@{
@@ -274,34 +274,34 @@ protected:
    * This only applies if the input grid is a vtkUnstructuredGrid or a
    * vtkPolyData.
    */
-  int FasterApproximation;
+  vtkTypeBool FasterApproximation;
 
   /**
    * Flag to indicate that the gradient of the input vector is to
    * be computed. By default ComputeDivergence is on.
    */
-  int ComputeGradient;
+  vtkTypeBool ComputeGradient;
 
   /**
    * Flag to indicate that the divergence of the input vector is to
    * be computed.  The input array to be processed must have
    * 3 components.  By default ComputeDivergence is off.
    */
-  int ComputeDivergence;
+  vtkTypeBool ComputeDivergence;
 
   /**
    * Flag to indicate that the Q-criterion of the input vector is to
    * be computed.  The input array to be processed must have
    * 3 components.  By default ComputeQCriterion is off.
    */
-  int ComputeQCriterion;
+  vtkTypeBool ComputeQCriterion;
 
   /**
    * Flag to indicate that vorticity/curl of the input vector is to
    * be computed.  The input array to be processed must have
    * 3 components.  By default ComputeVorticity is off.
    */
-  int ComputeVorticity;
+  vtkTypeBool ComputeVorticity;
 
   /**
    * Option to specify what cells to include in the gradient computation.

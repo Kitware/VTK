@@ -210,9 +210,9 @@ public:
    * Set the default Normalize() flag for those methods setting a default
    * Normalize value (e.g., SetScalarComponents).
    */
-  vtkSetMacro(DefaultNormalize,int);
-  vtkGetMacro(DefaultNormalize,int);
-  vtkBooleanMacro(DefaultNormalize,int);
+  vtkSetMacro(DefaultNormalize,vtkTypeBool);
+  vtkGetMacro(DefaultNormalize,vtkTypeBool);
+  vtkBooleanMacro(DefaultNormalize,vtkTypeBool);
   //@}
 
   // Helper functions, made public to support other classes
@@ -296,7 +296,7 @@ protected:
   vtkIdType TCoordComponentRange[3][2]; //the range of the components to use
   int TCoordNormalize[3]; //flags control normalization
 
-  int DefaultNormalize;
+  vtkTypeBool DefaultNormalize;
 
   void ConstructScalars(int num, vtkFieldData *fd, vtkDataSetAttributes *attr,
                         vtkIdType componentRange[4][2], char *arrays[4],

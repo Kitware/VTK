@@ -160,9 +160,9 @@ public:
   /**
    * Whether or not to display using curves
    */
-  vtkSetMacro(UseCurves,int);
-  vtkGetMacro(UseCurves,int);
-  vtkBooleanMacro(UseCurves,int);
+  vtkSetMacro(UseCurves,vtkTypeBool);
+  vtkGetMacro(UseCurves,vtkTypeBool);
+  vtkBooleanMacro(UseCurves,vtkTypeBool);
   //@}
 
   //@{
@@ -370,7 +370,7 @@ protected:
   double YMax;
 
   int CurveResolution;
-  int UseCurves;
+  vtkTypeBool UseCurves;
   double AngleBrushThreshold;
   double FunctionBrushThreshold;
   double SwapThreshold;

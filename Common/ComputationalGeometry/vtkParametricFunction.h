@@ -152,27 +152,27 @@ public:
   /**
    * Set/Get the flag which joins the first triangle strip to the last one.
    */
-  vtkSetClampMacro(JoinU,int,0,1);
-  vtkGetMacro(JoinU,int);
-  vtkBooleanMacro(JoinU,int);
+  vtkSetClampMacro(JoinU,vtkTypeBool,0,1);
+  vtkGetMacro(JoinU,vtkTypeBool);
+  vtkBooleanMacro(JoinU,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the flag which joins the ends of the triangle strips.
    */
-  vtkSetClampMacro(JoinV, int, 0, 1);
-  vtkGetMacro(JoinV, int);
-  vtkBooleanMacro(JoinV, int);
+  vtkSetClampMacro(JoinV, vtkTypeBool, 0, 1);
+  vtkGetMacro(JoinV, vtkTypeBool);
+  vtkBooleanMacro(JoinV, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the flag which joins the ends of the triangle strips.
    */
-  vtkSetClampMacro(JoinW, int, 0, 1);
-  vtkGetMacro(JoinW, int);
-  vtkBooleanMacro(JoinW, int);
+  vtkSetClampMacro(JoinW, vtkTypeBool, 0, 1);
+  vtkGetMacro(JoinW, vtkTypeBool);
+  vtkBooleanMacro(JoinW, vtkTypeBool);
   //@}
 
   //@{
@@ -182,9 +182,9 @@ public:
    * JoinU must also be set if this is set.
    * Used when building some non-orientable surfaces.
    */
-  vtkSetClampMacro(TwistU,int,0,1);
-  vtkGetMacro(TwistU,int);
-  vtkBooleanMacro(TwistU,int);
+  vtkSetClampMacro(TwistU,vtkTypeBool,0,1);
+  vtkGetMacro(TwistU,vtkTypeBool);
+  vtkBooleanMacro(TwistU,vtkTypeBool);
   //@}
 
   //@{
@@ -194,9 +194,9 @@ public:
    * JoinV must also be set if this is set.
    * Used when building some non-orientable surfaces.
    */
-  vtkSetClampMacro(TwistV, int, 0, 1);
-  vtkGetMacro(TwistV, int);
-  vtkBooleanMacro(TwistV, int);
+  vtkSetClampMacro(TwistV, vtkTypeBool, 0, 1);
+  vtkGetMacro(TwistV, vtkTypeBool);
+  vtkBooleanMacro(TwistV, vtkTypeBool);
   //@}
 
   //@{
@@ -206,9 +206,9 @@ public:
    * JoinW must also be set if this is set.
    * Used when building some non-orientable surfaces.
    */
-  vtkSetClampMacro(TwistW, int, 0, 1);
-  vtkGetMacro(TwistW, int);
-  vtkBooleanMacro(TwistW, int);
+  vtkSetClampMacro(TwistW, vtkTypeBool, 0, 1);
+  vtkGetMacro(TwistW, vtkTypeBool);
+  vtkBooleanMacro(TwistW, vtkTypeBool);
   //@}
 
   //@{
@@ -221,9 +221,9 @@ public:
    * ordering is anti-clockwise. Default is true (i.e. clockwise
    * ordering).
    */
-  vtkSetClampMacro(ClockwiseOrdering,int,0,1);
-  vtkGetMacro(ClockwiseOrdering,int);
-  vtkBooleanMacro(ClockwiseOrdering,int);
+  vtkSetClampMacro(ClockwiseOrdering,vtkTypeBool,0,1);
+  vtkGetMacro(ClockwiseOrdering,vtkTypeBool);
+  vtkBooleanMacro(ClockwiseOrdering,vtkTypeBool);
   //@}
 
   //@{
@@ -232,9 +232,9 @@ public:
    * from the parametric function (i.e., whether the Evaluate() method
    * returns valid derivatives).
    */
-  vtkSetClampMacro(DerivativesAvailable,int,0,1);
-  vtkGetMacro(DerivativesAvailable,int);
-  vtkBooleanMacro(DerivativesAvailable,int);
+  vtkSetClampMacro(DerivativesAvailable,vtkTypeBool,0,1);
+  vtkGetMacro(DerivativesAvailable,vtkTypeBool);
+  vtkBooleanMacro(DerivativesAvailable,vtkTypeBool);
   //@}
 
 protected:
@@ -249,17 +249,17 @@ protected:
   double MinimumW;
   double MaximumW;
 
-  int JoinU;
-  int JoinV;
-  int JoinW;
+  vtkTypeBool JoinU;
+  vtkTypeBool JoinV;
+  vtkTypeBool JoinW;
 
-  int TwistU;
-  int TwistV;
-  int TwistW;
+  vtkTypeBool TwistU;
+  vtkTypeBool TwistV;
+  vtkTypeBool TwistW;
 
-  int ClockwiseOrdering;
+  vtkTypeBool ClockwiseOrdering;
 
-  int DerivativesAvailable;
+  vtkTypeBool DerivativesAvailable;
 
 private:
   vtkParametricFunction(const vtkParametricFunction&) = delete;

@@ -207,15 +207,15 @@ public:
    * This can be used to snap the plane to the axes if it is originally
    * not aligned.
    */
-  vtkSetMacro(NormalToXAxis,int);
-  vtkGetMacro(NormalToXAxis,int);
-  vtkBooleanMacro(NormalToXAxis,int);
-  vtkSetMacro(NormalToYAxis,int);
-  vtkGetMacro(NormalToYAxis,int);
-  vtkBooleanMacro(NormalToYAxis,int);
-  vtkSetMacro(NormalToZAxis,int);
-  vtkGetMacro(NormalToZAxis,int);
-  vtkBooleanMacro(NormalToZAxis,int);
+  vtkSetMacro(NormalToXAxis,vtkTypeBool);
+  vtkGetMacro(NormalToXAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToXAxis,vtkTypeBool);
+  vtkSetMacro(NormalToYAxis,vtkTypeBool);
+  vtkGetMacro(NormalToYAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToYAxis,vtkTypeBool);
+  vtkSetMacro(NormalToZAxis,vtkTypeBool);
+  vtkGetMacro(NormalToZAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToZAxis,vtkTypeBool);
   //@}
 
   /**
@@ -308,9 +308,9 @@ protected:
   void OnEndPinch();
 
   // controlling ivars
-  int NormalToXAxis;
-  int NormalToYAxis;
-  int NormalToZAxis;
+  vtkTypeBool NormalToXAxis;
+  vtkTypeBool NormalToYAxis;
+  vtkTypeBool NormalToZAxis;
   int Representation;
   void SelectRepresentation();
 

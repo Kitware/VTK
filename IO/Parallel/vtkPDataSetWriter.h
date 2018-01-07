@@ -92,9 +92,9 @@ public:
    * names in the meta data pvtk file are relative to this directory.
    * This should make moving the whole lot to another directory, an easier task.
    */
-  vtkSetMacro(UseRelativeFileNames, int);
-  vtkGetMacro(UseRelativeFileNames, int);
-  vtkBooleanMacro(UseRelativeFileNames, int);
+  vtkSetMacro(UseRelativeFileNames, vtkTypeBool);
+  vtkGetMacro(UseRelativeFileNames, vtkTypeBool);
+  vtkBooleanMacro(UseRelativeFileNames, vtkTypeBool);
   //@}
 
   //@{
@@ -130,7 +130,7 @@ protected:
   int NumberOfPieces;
   int GhostLevel;
 
-  int UseRelativeFileNames;
+  vtkTypeBool UseRelativeFileNames;
 
   char *FilePattern;
 

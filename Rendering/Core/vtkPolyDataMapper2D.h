@@ -75,9 +75,9 @@ public:
   /**
    * Turn on/off flag to control whether scalar data is used to color objects.
    */
-  vtkSetMacro(ScalarVisibility, int);
-  vtkGetMacro(ScalarVisibility, int);
-  vtkBooleanMacro(ScalarVisibility, int);
+  vtkSetMacro(ScalarVisibility, vtkTypeBool);
+  vtkGetMacro(ScalarVisibility, vtkTypeBool);
+  vtkBooleanMacro(ScalarVisibility, vtkTypeBool);
   //@}
 
   //@{
@@ -115,9 +115,9 @@ public:
    * mappers/actors will probably wish to force the mapper to use the
    * LookupTable unchanged.
    */
-  vtkSetMacro(UseLookupTableScalarRange, int);
-  vtkGetMacro(UseLookupTableScalarRange, int);
-  vtkBooleanMacro(UseLookupTableScalarRange, int);
+  vtkSetMacro(UseLookupTableScalarRange, vtkTypeBool);
+  vtkGetMacro(UseLookupTableScalarRange, vtkTypeBool);
+  vtkBooleanMacro(UseLookupTableScalarRange, vtkTypeBool);
   //@}
 
   //@{
@@ -223,10 +223,10 @@ protected:
   vtkUnsignedCharArray *Colors;
 
   vtkScalarsToColors *LookupTable;
-  int ScalarVisibility;
+  vtkTypeBool ScalarVisibility;
   vtkTimeStamp BuildTime;
   double ScalarRange[2];
-  int UseLookupTableScalarRange;
+  vtkTypeBool UseLookupTableScalarRange;
   int ColorMode;
   int ScalarMode;
 

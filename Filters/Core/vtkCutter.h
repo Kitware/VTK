@@ -148,9 +148,9 @@ public:
    * interpolated from the implicit function values, and not the input scalar
    * data.
    */
-  vtkSetMacro(GenerateCutScalars,int);
-  vtkGetMacro(GenerateCutScalars,int);
-  vtkBooleanMacro(GenerateCutScalars,int);
+  vtkSetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkGetMacro(GenerateCutScalars,vtkTypeBool);
+  vtkBooleanMacro(GenerateCutScalars,vtkTypeBool);
   //@}
 
  //@{
@@ -161,9 +161,9 @@ public:
   * will be 3D poygons, which might be nice to look at but hard
   * to compute with downstream.
   */
-  vtkSetMacro(GenerateTriangles,int);
-  vtkGetMacro(GenerateTriangles,int);
-  vtkBooleanMacro(GenerateTriangles,int);
+  vtkSetMacro(GenerateTriangles,vtkTypeBool);
+  vtkGetMacro(GenerateTriangles,vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles,vtkTypeBool);
  //@}
 
   //@{
@@ -238,7 +238,7 @@ protected:
   void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
   void RectilinearGridCutter(vtkDataSet *, vtkPolyData *);
   vtkImplicitFunction *CutFunction;
-  int GenerateTriangles;
+  vtkTypeBool GenerateTriangles;
 
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
   vtkSynchronizedTemplatesCutter3D *SynchronizedTemplatesCutter3D;
@@ -248,7 +248,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
   int SortBy;
   vtkContourValues *ContourValues;
-  int GenerateCutScalars;
+  vtkTypeBool GenerateCutScalars;
   int OutputPointsPrecision;
 private:
   vtkCutter(const vtkCutter&) = delete;

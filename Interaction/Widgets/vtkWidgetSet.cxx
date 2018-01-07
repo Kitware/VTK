@@ -35,7 +35,7 @@ vtkWidgetSet::~vtkWidgetSet()
 }
 
 //----------------------------------------------------------------------
-void vtkWidgetSet::SetEnabled(int enabling)
+void vtkWidgetSet::SetEnabled(vtkTypeBool enabling)
 {
   for (WidgetIteratorType it  = this->Widget.begin();
                           it != this->Widget.end()  ; ++it)

@@ -180,9 +180,9 @@ public:
    * that you turn on AutoDetectFormat and leave the other file format
    * related options untouched.
    */
-  vtkSetMacro(AutoDetectFormat, int);
-  vtkGetMacro(AutoDetectFormat, int);
-  vtkBooleanMacro(AutoDetectFormat, int);
+  vtkSetMacro(AutoDetectFormat, vtkTypeBool);
+  vtkGetMacro(AutoDetectFormat, vtkTypeBool);
+  vtkBooleanMacro(AutoDetectFormat, vtkTypeBool);
   //@}
 
   //@{
@@ -190,9 +190,9 @@ public:
    * Is the file to be read written in binary format (as opposed
    * to ascii).
    */
-  vtkSetMacro(BinaryFile, int);
-  vtkGetMacro(BinaryFile, int);
-  vtkBooleanMacro(BinaryFile, int);
+  vtkSetMacro(BinaryFile, vtkTypeBool);
+  vtkGetMacro(BinaryFile, vtkTypeBool);
+  vtkBooleanMacro(BinaryFile, vtkTypeBool);
   //@}
 
   //@{
@@ -202,9 +202,9 @@ public:
    * of grids (even if there is only 1). If reading such a file,
    * set this to true.
    */
-  vtkSetMacro(MultiGrid, int);
-  vtkGetMacro(MultiGrid, int);
-  vtkBooleanMacro(MultiGrid, int);
+  vtkSetMacro(MultiGrid, vtkTypeBool);
+  vtkGetMacro(MultiGrid, vtkTypeBool);
+  vtkBooleanMacro(MultiGrid, vtkTypeBool);
   //@}
 
   //@{
@@ -213,9 +213,9 @@ public:
    * Usually, files written by a fortran program will contain these
    * byte counts whereas the ones written by C/C++ won't.
    */
-  vtkSetMacro(HasByteCount, int);
-  vtkGetMacro(HasByteCount, int);
-  vtkBooleanMacro(HasByteCount, int);
+  vtkSetMacro(HasByteCount, vtkTypeBool);
+  vtkGetMacro(HasByteCount, vtkTypeBool);
+  vtkBooleanMacro(HasByteCount, vtkTypeBool);
   //@}
 
   //@{
@@ -224,9 +224,9 @@ public:
    * If there is iblanking arrays, these will be read and assigned
    * to the PointVisibility array of the output.
    */
-  vtkSetMacro(IBlanking, int);
-  vtkGetMacro(IBlanking, int);
-  vtkBooleanMacro(IBlanking, int);
+  vtkSetMacro(IBlanking, vtkTypeBool);
+  vtkGetMacro(IBlanking, vtkTypeBool);
+  vtkBooleanMacro(IBlanking, vtkTypeBool);
   //@}
 
   //@{
@@ -234,9 +234,9 @@ public:
    * If only two-dimensional data was written to the file,
    * turn this on.
    */
-  vtkSetMacro(TwoDimensionalGeometry, int);
-  vtkGetMacro(TwoDimensionalGeometry, int);
-  vtkBooleanMacro(TwoDimensionalGeometry, int);
+  vtkSetMacro(TwoDimensionalGeometry, vtkTypeBool);
+  vtkGetMacro(TwoDimensionalGeometry, vtkTypeBool);
+  vtkBooleanMacro(TwoDimensionalGeometry, vtkTypeBool);
   //@}
 
   //@{
@@ -245,9 +245,9 @@ public:
    * This only matters for binary files.
    * Default is single.
    */
-  vtkSetMacro(DoublePrecision, int);
-  vtkGetMacro(DoublePrecision, int);
-  vtkBooleanMacro(DoublePrecision, int);
+  vtkSetMacro(DoublePrecision, vtkTypeBool);
+  vtkGetMacro(DoublePrecision, vtkTypeBool);
+  vtkBooleanMacro(DoublePrecision, vtkTypeBool);
   //@}
 
   //@{
@@ -257,9 +257,9 @@ public:
    * if the file length is not the same as calculated from the header.
    * either the file is corrupt or the settings are wrong.
    */
-  vtkSetMacro(ForceRead, int);
-  vtkGetMacro(ForceRead, int);
-  vtkBooleanMacro(ForceRead, int);
+  vtkSetMacro(ForceRead, vtkTypeBool);
+  vtkGetMacro(ForceRead, vtkTypeBool);
+  vtkBooleanMacro(ForceRead, vtkTypeBool);
   //@}
 
   //@{
@@ -446,15 +446,15 @@ protected:
   char *QFileName;
   char *FunctionFileName;
 
-  int BinaryFile;
-  int HasByteCount;
-  int TwoDimensionalGeometry;
-  int MultiGrid;
-  int ForceRead;
+  vtkTypeBool BinaryFile;
+  vtkTypeBool HasByteCount;
+  vtkTypeBool TwoDimensionalGeometry;
+  vtkTypeBool MultiGrid;
+  vtkTypeBool ForceRead;
   int ByteOrder;
-  int IBlanking;
-  int DoublePrecision;
-  int AutoDetectFormat;
+  vtkTypeBool IBlanking;
+  vtkTypeBool DoublePrecision;
+  vtkTypeBool AutoDetectFormat;
 
   int ExecutedGhostLevels;
 

@@ -133,18 +133,18 @@ public:
    * scaling of the widget one face (axis) at a time (default through grabbing
    * one of the representation spherical handles).
    */
-  vtkSetMacro(TranslationEnabled,int);
-  vtkGetMacro(TranslationEnabled,int);
-  vtkBooleanMacro(TranslationEnabled,int);
-  vtkSetMacro(ScalingEnabled,int);
-  vtkGetMacro(ScalingEnabled,int);
-  vtkBooleanMacro(ScalingEnabled,int);
-  vtkSetMacro(RotationEnabled,int);
-  vtkGetMacro(RotationEnabled,int);
-  vtkBooleanMacro(RotationEnabled,int);
-  vtkSetMacro(MoveFacesEnabled,int);
-  vtkGetMacro(MoveFacesEnabled,int);
-  vtkBooleanMacro(MoveFacesEnabled,int);
+  vtkSetMacro(TranslationEnabled,vtkTypeBool);
+  vtkGetMacro(TranslationEnabled,vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
+  vtkSetMacro(ScalingEnabled,vtkTypeBool);
+  vtkGetMacro(ScalingEnabled,vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
+  vtkSetMacro(RotationEnabled,vtkTypeBool);
+  vtkGetMacro(RotationEnabled,vtkTypeBool);
+  vtkBooleanMacro(RotationEnabled,vtkTypeBool);
+  vtkSetMacro(MoveFacesEnabled,vtkTypeBool);
+  vtkGetMacro(MoveFacesEnabled,vtkTypeBool);
+  vtkBooleanMacro(MoveFacesEnabled,vtkTypeBool);
   //@}
 
   /**
@@ -169,10 +169,10 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
   // Control whether scaling, rotation, and translation are supported
-  int TranslationEnabled;
-  int ScalingEnabled;
-  int RotationEnabled;
-  int MoveFacesEnabled;
+  vtkTypeBool TranslationEnabled;
+  vtkTypeBool ScalingEnabled;
+  vtkTypeBool RotationEnabled;
+  vtkTypeBool MoveFacesEnabled;
 private:
   vtkBoxWidget2(const vtkBoxWidget2&) = delete;
   void operator=(const vtkBoxWidget2&) = delete;

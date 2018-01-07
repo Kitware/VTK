@@ -835,7 +835,7 @@ void vtkCamera::ApplyTransform(vtkTransform *t)
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetParallelProjection(int flag)
+void vtkCamera::SetParallelProjection(vtkTypeBool flag)
 {
   if ( this->ParallelProjection != flag )
   {
@@ -860,7 +860,7 @@ void vtkCamera::SetViewAngle(double angle)
 }
 
 //----------------------------------------------------------------------------
-void vtkCamera::SetUseHorizontalViewAngle(int flag)
+void vtkCamera::SetUseHorizontalViewAngle(vtkTypeBool flag)
 {
   if (flag == this->UseHorizontalViewAngle)
   {

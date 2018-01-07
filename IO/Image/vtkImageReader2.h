@@ -238,9 +238,9 @@ public:
   /**
    * Set/Get the byte swapping to explicitly swap the bytes of a file.
    */
-  vtkSetMacro(SwapBytes,int);
-  virtual int GetSwapBytes() {return this->SwapBytes;}
-  vtkBooleanMacro(SwapBytes,int);
+  vtkSetMacro(SwapBytes,vtkTypeBool);
+  virtual vtkTypeBool GetSwapBytes() {return this->SwapBytes;}
+  vtkBooleanMacro(SwapBytes,vtkTypeBool);
   //@}
 
   ifstream *GetFile() {return this->File;}
@@ -319,7 +319,7 @@ protected:
   ifstream *File;
   unsigned long DataIncrements[4];
   int DataExtent[6];
-  int SwapBytes;
+  vtkTypeBool SwapBytes;
 
   int FileDimensionality;
   unsigned long HeaderSize;

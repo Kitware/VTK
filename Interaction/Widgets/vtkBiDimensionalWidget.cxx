@@ -732,7 +732,7 @@ void vtkBiDimensionalWidget::EndBiDimensionalInteraction()
 }
 
 //----------------------------------------------------------------------
-void vtkBiDimensionalWidget::SetProcessEvents(int pe)
+void vtkBiDimensionalWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

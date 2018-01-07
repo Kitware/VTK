@@ -78,27 +78,27 @@ public:
   /**
    * Turn on/off writing the displacement file.
    */
-  vtkSetMacro(WriteDisplacement,int);
-  vtkGetMacro(WriteDisplacement,int);
-  vtkBooleanMacro(WriteDisplacement,int);
+  vtkSetMacro(WriteDisplacement,vtkTypeBool);
+  vtkGetMacro(WriteDisplacement,vtkTypeBool);
+  vtkBooleanMacro(WriteDisplacement,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off writing the scalar file.
    */
-  vtkSetMacro(WriteScalar,int);
-  vtkGetMacro(WriteScalar,int);
-  vtkBooleanMacro(WriteScalar,int);
+  vtkSetMacro(WriteScalar,vtkTypeBool);
+  vtkGetMacro(WriteScalar,vtkTypeBool);
+  vtkBooleanMacro(WriteScalar,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off writing the texture file.
    */
-  vtkSetMacro(WriteTexture,int);
-  vtkGetMacro(WriteTexture,int);
-  vtkBooleanMacro(WriteTexture,int);
+  vtkSetMacro(WriteTexture,vtkTypeBool);
+  vtkGetMacro(WriteTexture,vtkTypeBool);
+  vtkBooleanMacro(WriteTexture,vtkTypeBool);
   //@}
 
   //@{
@@ -119,9 +119,9 @@ protected:
   char *DisplacementFileName;
   char *ScalarFileName;
   char *TextureFileName;
-  int WriteDisplacement;
-  int WriteScalar;
-  int WriteTexture;
+  vtkTypeBool WriteDisplacement;
+  vtkTypeBool WriteScalar;
+  vtkTypeBool WriteTexture;
 
   void WriteGeometryFile(FILE *fp, int numPts);
   void WriteDisplacementFile(int numPts);

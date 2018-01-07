@@ -973,7 +973,7 @@ int vtkContourRepresentation::DeleteLastNode()
 }
 
 //----------------------------------------------------------------------
-void vtkContourRepresentation::SetClosedLoop( int val )
+void vtkContourRepresentation::SetClosedLoop( vtkTypeBool val )
 {
   if ( this->ClosedLoop != val )
   {
@@ -1428,7 +1428,7 @@ if (!this->RebuildLocator && !this->NeedToRender)
 }
 
 //----------------------------------------------------------------------
-void vtkContourRepresentation::SetShowSelectedNodes(int flag )
+void vtkContourRepresentation::SetShowSelectedNodes(vtkTypeBool flag )
 {
   if (this->ShowSelectedNodes != flag)
   {

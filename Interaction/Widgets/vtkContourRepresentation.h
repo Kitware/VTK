@@ -434,9 +434,9 @@ public:
    * Set / Get the ClosedLoop value. This ivar indicates whether the contour
    * forms a closed loop.
    */
-  void SetClosedLoop( int val );
-  vtkGetMacro( ClosedLoop, int );
-  vtkBooleanMacro( ClosedLoop, int );
+  void SetClosedLoop( vtkTypeBool val );
+  vtkGetMacro( ClosedLoop, vtkTypeBool );
+  vtkBooleanMacro( ClosedLoop, vtkTypeBool );
   //@}
 
   //@{
@@ -444,9 +444,9 @@ public:
    * A flag to indicate whether to show the Selected nodes
    * Default is to set it to false.
    */
-  virtual void SetShowSelectedNodes(int);
-  vtkGetMacro( ShowSelectedNodes, int );
-  vtkBooleanMacro( ShowSelectedNodes, int );
+  virtual void SetShowSelectedNodes(vtkTypeBool);
+  vtkGetMacro( ShowSelectedNodes, vtkTypeBool );
+  vtkBooleanMacro( ShowSelectedNodes, vtkTypeBool );
   //@}
 
   /**
@@ -476,10 +476,10 @@ protected:
   int ActiveNode;
 
   int CurrentOperation;
-  int ClosedLoop;
+  vtkTypeBool ClosedLoop;
 
   // A flag to indicate whether to show the Selected nodes
-  int                   ShowSelectedNodes;
+  vtkTypeBool                   ShowSelectedNodes;
 
   vtkContourRepresentationInternals *Internal;
 

@@ -106,7 +106,7 @@ vtkImageData *vtkImageActor::GetInput()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageActor::SetInterpolate(int i)
+void vtkImageActor::SetInterpolate(vtkTypeBool i)
 {
   if (this->Property)
   {
@@ -130,7 +130,7 @@ void vtkImageActor::SetInterpolate(int i)
 }
 
 //----------------------------------------------------------------------------
-int vtkImageActor::GetInterpolate()
+vtkTypeBool vtkImageActor::GetInterpolate()
 {
   if (this->Property &&
       this->Property->GetInterpolationType() != VTK_NEAREST_INTERPOLATION)

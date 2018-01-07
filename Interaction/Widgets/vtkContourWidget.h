@@ -196,9 +196,9 @@ public:
    * Set / Get the AllowNodePicking value. This ivar indicates whether the nodes
    * and points between nodes can be picked/un-picked by Ctrl+Click on the node.
    */
-  void SetAllowNodePicking(int );
-  vtkGetMacro( AllowNodePicking, int );
-  vtkBooleanMacro( AllowNodePicking, int );
+  void SetAllowNodePicking(vtkTypeBool );
+  vtkGetMacro( AllowNodePicking, vtkTypeBool );
+  vtkBooleanMacro( AllowNodePicking, vtkTypeBool );
   //@}
 
   //@{
@@ -209,9 +209,9 @@ public:
    * live-wire interpolator to see the shape of the contour that will be placed
    * as you move the mouse cursor.
    */
-  vtkSetMacro( FollowCursor, int );
-  vtkGetMacro( FollowCursor, int );
-  vtkBooleanMacro( FollowCursor, int );
+  vtkSetMacro( FollowCursor, vtkTypeBool );
+  vtkGetMacro( FollowCursor, vtkTypeBool );
+  vtkBooleanMacro( FollowCursor, vtkTypeBool );
   //@}
 
   //@{
@@ -225,9 +225,9 @@ public:
    * see the last active node as it is being added, set the opacity to 0
    * of the representation's active property.
    */
-  vtkSetMacro( ContinuousDraw, int );
-  vtkGetMacro( ContinuousDraw, int );
-  vtkBooleanMacro( ContinuousDraw, int );
+  vtkSetMacro( ContinuousDraw, vtkTypeBool );
+  vtkGetMacro( ContinuousDraw, vtkTypeBool );
+  vtkBooleanMacro( ContinuousDraw, vtkTypeBool );
   //@}
 
   /**
@@ -252,9 +252,9 @@ protected:
 
   int WidgetState;
   int CurrentHandle;
-  int AllowNodePicking;
-  int FollowCursor;
-  int ContinuousDraw;
+  vtkTypeBool AllowNodePicking;
+  vtkTypeBool FollowCursor;
+  vtkTypeBool ContinuousDraw;
   int ContinuousActive;
 
   // Callback interface to capture events when

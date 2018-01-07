@@ -208,31 +208,31 @@ public:
                                  int attribIndex, int status );
 
   /// Generate an array containing the block or set ID associated with each cell.
-  vtkGetMacro(GenerateObjectIdArray,int);
-  vtkSetMacro(GenerateObjectIdArray,int);
+  vtkGetMacro(GenerateObjectIdArray,vtkTypeBool);
+  vtkSetMacro(GenerateObjectIdArray,vtkTypeBool);
   static const char* GetObjectIdArrayName() { return "ObjectId"; }
 
-  vtkSetMacro(GenerateGlobalElementIdArray,int);
-  vtkGetMacro(GenerateGlobalElementIdArray,int);
+  vtkSetMacro(GenerateGlobalElementIdArray,vtkTypeBool);
+  vtkGetMacro(GenerateGlobalElementIdArray,vtkTypeBool);
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
 
-  vtkSetMacro(GenerateGlobalNodeIdArray,int);
-  vtkGetMacro(GenerateGlobalNodeIdArray,int);
+  vtkSetMacro(GenerateGlobalNodeIdArray,vtkTypeBool);
+  vtkGetMacro(GenerateGlobalNodeIdArray,vtkTypeBool);
   static const char* GetGlobalNodeIdArrayName() { return "GlobalNodeId"; }
 
-  vtkSetMacro(GenerateImplicitElementIdArray,int);
-  vtkGetMacro(GenerateImplicitElementIdArray,int);
+  vtkSetMacro(GenerateImplicitElementIdArray,vtkTypeBool);
+  vtkGetMacro(GenerateImplicitElementIdArray,vtkTypeBool);
   static const char* GetImplicitElementIdArrayName() { return "ImplicitElementId"; }
 
-  vtkSetMacro(GenerateImplicitNodeIdArray,int);
-  vtkGetMacro(GenerateImplicitNodeIdArray,int);
+  vtkSetMacro(GenerateImplicitNodeIdArray,vtkTypeBool);
+  vtkGetMacro(GenerateImplicitNodeIdArray,vtkTypeBool);
   static const char* GetImplicitNodeIdArrayName() { return "ImplicitNodeId"; }
 
   /** Should we generate an array defined over all cells
     * (whether they are members of blocks or sets) indicating the source file?
     */
-  vtkSetMacro(GenerateFileIdArray,int);
-  vtkGetMacro(GenerateFileIdArray,int);
+  vtkSetMacro(GenerateFileIdArray,vtkTypeBool);
+  vtkGetMacro(GenerateFileIdArray,vtkTypeBool);
   static const char* GetFileIdArrayName() { return "FileId"; }
 
   /// Set/get the number that identifies this file in a series of files (defaults to 0).
@@ -244,8 +244,8 @@ public:
   static const char *GetGlobalVariableNamesArrayName()
     { return "GlobalVariableNames"; }
 
-  virtual void SetApplyDisplacements( int d );
-  vtkGetMacro(ApplyDisplacements,int);
+  virtual void SetApplyDisplacements( vtkTypeBool d );
+  vtkGetMacro(ApplyDisplacements,vtkTypeBool);
 
   virtual void SetDisplacementMagnitude( double s );
   vtkGetMacro(DisplacementMagnitude,double);
@@ -804,13 +804,13 @@ protected:
     */
   double ModeShapeTime;
 
-  int GenerateObjectIdArray;
-  int GenerateGlobalIdArray;
-  int GenerateFileIdArray;
-  int GenerateGlobalElementIdArray;
-  int GenerateGlobalNodeIdArray;
-  int GenerateImplicitElementIdArray;
-  int GenerateImplicitNodeIdArray;
+  vtkTypeBool GenerateObjectIdArray;
+  vtkTypeBool GenerateGlobalIdArray;
+  vtkTypeBool GenerateFileIdArray;
+  vtkTypeBool GenerateGlobalElementIdArray;
+  vtkTypeBool GenerateGlobalNodeIdArray;
+  vtkTypeBool GenerateImplicitElementIdArray;
+  vtkTypeBool GenerateImplicitNodeIdArray;
 
   /** Defaults to 0. Set by vtkPExodusIIReader on each entry of ReaderList.
     * Used to generate the file ID array over all output cells.
@@ -823,10 +823,10 @@ protected:
   /// The size of the cache in MiB.
   double CacheSize;
 
-  int ApplyDisplacements;
+  vtkTypeBool ApplyDisplacements;
   float DisplacementMagnitude;
-  int HasModeShapes;
-  int AnimateModeShapes;
+  vtkTypeBool HasModeShapes;
+  vtkTypeBool AnimateModeShapes;
 
   bool IgnoreFileTime;
 

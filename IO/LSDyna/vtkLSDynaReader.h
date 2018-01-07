@@ -461,9 +461,9 @@ public:
    * undeflected?  By default, this is true but its value is ignored if the
    * nodal "Deflected Coordinates" array is not set to be loaded.
    */
-  void SetDeformedMesh(int);
-  vtkGetMacro(DeformedMesh,int);
-  vtkBooleanMacro(DeformedMesh,int);
+  void SetDeformedMesh(vtkTypeBool);
+  vtkGetMacro(DeformedMesh,vtkTypeBool);
+  vtkBooleanMacro(DeformedMesh,vtkTypeBool);
   //@}
 
   //@{
@@ -477,9 +477,9 @@ public:
    * denote <b>points</b> (not cells) as deleted; in that case, "Death"
    * will appear to be a point array.
    */
-  vtkSetMacro(RemoveDeletedCells,int);
-  vtkGetMacro(RemoveDeletedCells,int);
-  vtkBooleanMacro(RemoveDeletedCells,int);
+  vtkSetMacro(RemoveDeletedCells,vtkTypeBool);
+  vtkGetMacro(RemoveDeletedCells,vtkTypeBool);
+  vtkBooleanMacro(RemoveDeletedCells,vtkTypeBool);
   //@}
 
   //@{
@@ -487,9 +487,9 @@ public:
    * Instead of removing the cells that are dead, hide them by setting
    * the array as the ghost levels arrays
    */
-  vtkSetMacro(DeletedCellsAsGhostArray,int);
-  vtkGetMacro(DeletedCellsAsGhostArray,int);
-  vtkBooleanMacro(DeletedCellsAsGhostArray,int);
+  vtkSetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
+  vtkGetMacro(DeletedCellsAsGhostArray,vtkTypeBool);
+  vtkBooleanMacro(DeletedCellsAsGhostArray,vtkTypeBool);
   //@}
 
   //@{
@@ -535,15 +535,15 @@ protected:
    * Should deflected coordinates be used, or should the mesh remain
    * undeflected?  By default, this is true.
    */
-  int DeformedMesh;
+  vtkTypeBool DeformedMesh;
 
   //@{
   /**
    * Should cells marked as deleted be removed from the mesh?
    * By default, this is true.
    */
-  int RemoveDeletedCells;
-  int DeletedCellsAsGhostArray;
+  vtkTypeBool RemoveDeletedCells;
+  vtkTypeBool DeletedCellsAsGhostArray;
   //@}
 
   /**

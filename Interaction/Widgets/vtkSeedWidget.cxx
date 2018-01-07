@@ -333,7 +333,7 @@ void vtkSeedWidget::DeleteAction(vtkAbstractWidget *w)
 }
 
 //----------------------------------------------------------------------
-void vtkSeedWidget::SetProcessEvents(int pe)
+void vtkSeedWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

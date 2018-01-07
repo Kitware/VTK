@@ -256,9 +256,9 @@ public:
    * Make sure that the plane remains within the volume.
    * Default is On.
    */
-  vtkSetMacro(RestrictPlaneToVolume,int);
-  vtkGetMacro(RestrictPlaneToVolume,int);
-  vtkBooleanMacro(RestrictPlaneToVolume,int);
+  vtkSetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkGetMacro(RestrictPlaneToVolume,vtkTypeBool);
+  vtkBooleanMacro(RestrictPlaneToVolume,vtkTypeBool);
   //@}
 
   //@{
@@ -267,9 +267,9 @@ public:
    * applying the SetLookupTable method.
    * Default is Off.
    */
-  vtkSetMacro(UserControlledLookupTable,int);
-  vtkGetMacro(UserControlledLookupTable,int);
-  vtkBooleanMacro(UserControlledLookupTable,int);
+  vtkSetMacro(UserControlledLookupTable,vtkTypeBool);
+  vtkGetMacro(UserControlledLookupTable,vtkTypeBool);
+  vtkBooleanMacro(UserControlledLookupTable,vtkTypeBool);
   //@}
 
   //@{
@@ -279,9 +279,9 @@ public:
    * interpolation is set through the API. Set before setting the
    * vtkImageData input. Default is On.
    */
-  vtkSetMacro(TextureInterpolate,int);
-  vtkGetMacro(TextureInterpolate,int);
-  vtkBooleanMacro(TextureInterpolate,int);
+  vtkSetMacro(TextureInterpolate,vtkTypeBool);
+  vtkGetMacro(TextureInterpolate,vtkTypeBool);
+  vtkBooleanMacro(TextureInterpolate,vtkTypeBool);
   //@}
 
   //@{
@@ -289,9 +289,9 @@ public:
    * Control the visibility of the actual texture mapped reformatted plane.
    * in some cases you may only want the plane outline for example.
    */
-  virtual void SetTextureVisibility(int);
-  vtkGetMacro(TextureVisibility,int);
-  vtkBooleanMacro(TextureVisibility,int);
+  virtual void SetTextureVisibility(vtkTypeBool);
+  vtkGetMacro(TextureVisibility,vtkTypeBool);
+  vtkBooleanMacro(TextureVisibility,vtkTypeBool);
   //@}
 
   /**
@@ -386,9 +386,9 @@ public:
    * Enable/disable text display of window-level, image coordinates and
    * scalar values in a render window.
    */
-  vtkSetMacro(DisplayText,int);
-  vtkGetMacro(DisplayText,int);
-  vtkBooleanMacro(DisplayText,int);
+  vtkSetMacro(DisplayText,vtkTypeBool);
+  vtkGetMacro(DisplayText,vtkTypeBool);
+  vtkBooleanMacro(DisplayText,vtkTypeBool);
   //@}
 
   //@{
@@ -493,18 +493,18 @@ public:
    * is interpolated using vtkDataSetAttributes' InterpolatePoint method and
    * the reported coordinates are 3D spatial continuous.
    */
-  vtkSetMacro(UseContinuousCursor,int);
-  vtkGetMacro(UseContinuousCursor,int);
-  vtkBooleanMacro(UseContinuousCursor,int);
+  vtkSetMacro(UseContinuousCursor,vtkTypeBool);
+  vtkGetMacro(UseContinuousCursor,vtkTypeBool);
+  vtkBooleanMacro(UseContinuousCursor,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable/disable mouse interaction so the widget remains on display.
    */
-  void SetInteraction(int interact);
-  vtkGetMacro(Interaction,int);
-  vtkBooleanMacro(Interaction,int);
+  void SetInteraction(vtkTypeBool interact);
+  vtkGetMacro(Interaction,vtkTypeBool);
+  vtkBooleanMacro(Interaction,vtkTypeBool);
   //@}
 
   //@{
@@ -552,7 +552,7 @@ protected:
   vtkImagePlaneWidget();
   ~vtkImagePlaneWidget() override;
 
-  int TextureVisibility;
+  vtkTypeBool TextureVisibility;
 
   int LeftButtonAction;
   int MiddleButtonAction;
@@ -615,9 +615,9 @@ protected:
   virtual void StopWindowLevel();
 
   // controlling ivars
-  int    Interaction; // Is the widget responsive to mouse events
+  vtkTypeBool    Interaction; // Is the widget responsive to mouse events
   int    PlaneOrientation;
-  int    RestrictPlaneToVolume;
+  vtkTypeBool    RestrictPlaneToVolume;
   double OriginalWindow;
   double OriginalLevel;
   double CurrentWindow;
@@ -627,9 +627,9 @@ protected:
   int    StartWindowLevelPositionX;
   int    StartWindowLevelPositionY;
   int    ResliceInterpolate;
-  int    TextureInterpolate;
-  int    UserControlledLookupTable;
-  int    DisplayText;
+  vtkTypeBool    TextureInterpolate;
+  vtkTypeBool    UserControlledLookupTable;
+  vtkTypeBool    DisplayText;
 
   // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
@@ -693,7 +693,7 @@ protected:
   void               ActivateCursor(int);
   int                UpdateContinuousCursor(double *q);
   int                UpdateDiscreteCursor(double *q);
-  int                UseContinuousCursor;
+  vtkTypeBool                UseContinuousCursor;
 
   // The text to display W/L, image data
   vtkTextActor *TextActor;

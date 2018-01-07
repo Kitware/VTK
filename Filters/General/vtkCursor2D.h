@@ -80,18 +80,18 @@ public:
   /**
    * Turn on/off the wireframe bounding box.
    */
-  vtkSetMacro(Outline,int);
-  vtkGetMacro(Outline,int);
-  vtkBooleanMacro(Outline,int);
+  vtkSetMacro(Outline,vtkTypeBool);
+  vtkGetMacro(Outline,vtkTypeBool);
+  vtkBooleanMacro(Outline,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the wireframe axes.
    */
-  vtkSetMacro(Axes,int);
-  vtkGetMacro(Axes,int);
-  vtkBooleanMacro(Axes,int);
+  vtkSetMacro(Axes,vtkTypeBool);
+  vtkGetMacro(Axes,vtkTypeBool);
+  vtkBooleanMacro(Axes,vtkTypeBool);
   //@}
 
   //@{
@@ -107,9 +107,9 @@ public:
   /**
    * Turn on/off the point located at the cursor focus.
    */
-  vtkSetMacro(Point,int);
-  vtkGetMacro(Point,int);
-  vtkBooleanMacro(Point,int);
+  vtkSetMacro(Point,vtkTypeBool);
+  vtkGetMacro(Point,vtkTypeBool);
+  vtkBooleanMacro(Point,vtkTypeBool);
   //@}
 
   //@{
@@ -118,9 +118,9 @@ public:
    * cause the entire widget to translate along with the cursor.
    * By default, translation mode is off.
    */
-  vtkSetMacro(TranslationMode,int);
-  vtkGetMacro(TranslationMode,int);
-  vtkBooleanMacro(TranslationMode,int);
+  vtkSetMacro(TranslationMode,vtkTypeBool);
+  vtkGetMacro(TranslationMode,vtkTypeBool);
+  vtkBooleanMacro(TranslationMode,vtkTypeBool);
   //@}
 
   //@{
@@ -129,9 +129,9 @@ public:
    * specified bounds, the cursor will either be restrained against the
    * nearest "wall" (Wrap=off), or it will wrap around (Wrap=on).
    */
-  vtkSetMacro(Wrap,int);
-  vtkGetMacro(Wrap,int);
-  vtkBooleanMacro(Wrap,int);
+  vtkSetMacro(Wrap,vtkTypeBool);
+  vtkGetMacro(Wrap,vtkTypeBool);
+  vtkBooleanMacro(Wrap,vtkTypeBool);
   //@}
 
   //@{
@@ -150,12 +150,12 @@ protected:
 
   double ModelBounds[6];
   double FocalPoint[3];
-  int    Outline;
-  int    Axes;
-  int    Point;
+  vtkTypeBool    Outline;
+  vtkTypeBool    Axes;
+  vtkTypeBool    Point;
   double Radius;
-  int    TranslationMode;
-  int    Wrap;
+  vtkTypeBool    TranslationMode;
+  vtkTypeBool    Wrap;
 
 private:
   vtkCursor2D(const vtkCursor2D&) = delete;

@@ -118,9 +118,9 @@ public:
    * specified major tick spacing. If enabled, the distance between major ticks
    * is controlled by the RulerDistance ivar.
    */
-  vtkSetMacro(RulerMode,int);
-  vtkGetMacro(RulerMode,int);
-  vtkBooleanMacro(RulerMode,int);
+  vtkSetMacro(RulerMode,vtkTypeBool);
+  vtkGetMacro(RulerMode,vtkTypeBool);
+  vtkBooleanMacro(RulerMode,vtkTypeBool);
   //@}
 
   //@{
@@ -392,7 +392,7 @@ protected:
   char  *Title;
   double Range[2];
   double TitlePosition;
-  int    RulerMode;
+  vtkTypeBool    RulerMode;
   double RulerDistance;
   int   NumberOfLabels;
   char  *LabelFormat;

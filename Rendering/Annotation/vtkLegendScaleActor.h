@@ -90,18 +90,18 @@ public:
    * Set/Get the flags that control which of the four axes to display (top,
    * bottom, left and right). By default, all the axes are displayed.
    */
-  vtkSetMacro(RightAxisVisibility,int);
-  vtkGetMacro(RightAxisVisibility,int);
-  vtkBooleanMacro(RightAxisVisibility,int);
-  vtkSetMacro(TopAxisVisibility,int);
-  vtkGetMacro(TopAxisVisibility,int);
-  vtkBooleanMacro(TopAxisVisibility,int);
-  vtkSetMacro(LeftAxisVisibility,int);
-  vtkGetMacro(LeftAxisVisibility,int);
-  vtkBooleanMacro(LeftAxisVisibility,int);
-  vtkSetMacro(BottomAxisVisibility,int);
-  vtkGetMacro(BottomAxisVisibility,int);
-  vtkBooleanMacro(BottomAxisVisibility,int);
+  vtkSetMacro(RightAxisVisibility,vtkTypeBool);
+  vtkGetMacro(RightAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(RightAxisVisibility,vtkTypeBool);
+  vtkSetMacro(TopAxisVisibility,vtkTypeBool);
+  vtkGetMacro(TopAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(TopAxisVisibility,vtkTypeBool);
+  vtkSetMacro(LeftAxisVisibility,vtkTypeBool);
+  vtkGetMacro(LeftAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(LeftAxisVisibility,vtkTypeBool);
+  vtkSetMacro(BottomAxisVisibility,vtkTypeBool);
+  vtkGetMacro(BottomAxisVisibility,vtkTypeBool);
+  vtkBooleanMacro(BottomAxisVisibility,vtkTypeBool);
   //@}
 
   //@{
@@ -109,9 +109,9 @@ public:
    * Indicate whether the legend scale should be displayed or not.
    * The default is On.
    */
-  vtkSetMacro(LegendVisibility,int);
-  vtkGetMacro(LegendVisibility,int);
-  vtkBooleanMacro(LegendVisibility,int);
+  vtkSetMacro(LegendVisibility,vtkTypeBool);
+  vtkGetMacro(LegendVisibility,vtkTypeBool);
+  vtkBooleanMacro(LegendVisibility,vtkTypeBool);
   //@}
 
   //@{
@@ -228,13 +228,13 @@ protected:
   vtkAxisActor2D *BottomAxis;
 
   // Control the display of the axes
-  int RightAxisVisibility;
-  int TopAxisVisibility;
-  int LeftAxisVisibility;
-  int BottomAxisVisibility;
+  vtkTypeBool RightAxisVisibility;
+  vtkTypeBool TopAxisVisibility;
+  vtkTypeBool LeftAxisVisibility;
+  vtkTypeBool BottomAxisVisibility;
 
   // Support for the legend.
-  int                  LegendVisibility;
+  vtkTypeBool                  LegendVisibility;
   vtkPolyData         *Legend;
   vtkPoints           *LegendPoints;
   vtkPolyDataMapper2D *LegendMapper;

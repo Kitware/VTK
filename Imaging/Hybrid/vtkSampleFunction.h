@@ -132,9 +132,9 @@ public:
   /**
    * Turn on/off the computation of normals (normals are float values).
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -186,7 +186,7 @@ protected:
   vtkTypeBool Capping;
   double CapValue;
   vtkImplicitFunction *ImplicitFunction;
-  int ComputeNormals;
+  vtkTypeBool ComputeNormals;
   char *ScalarArrayName;
   char *NormalArrayName;
 

@@ -49,18 +49,18 @@ public:
   /**
    * Enable/disable the generation of point ids. Default is on.
    */
-  vtkSetMacro(PointIds,int);
-  vtkGetMacro(PointIds,int);
-  vtkBooleanMacro(PointIds,int);
+  vtkSetMacro(PointIds,vtkTypeBool);
+  vtkGetMacro(PointIds,vtkTypeBool);
+  vtkBooleanMacro(PointIds,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable/disable the generation of point ids. Default is on.
    */
-  vtkSetMacro(CellIds,int);
-  vtkGetMacro(CellIds,int);
-  vtkBooleanMacro(CellIds,int);
+  vtkSetMacro(CellIds,vtkTypeBool);
+  vtkGetMacro(CellIds,vtkTypeBool);
+  vtkBooleanMacro(CellIds,vtkTypeBool);
   //@}
 
   //@{
@@ -69,9 +69,9 @@ public:
    * or field data. If this flag is off, scalar data is generated.
    * Otherwise, field data is generated. Default is off.
    */
-  vtkSetMacro(FieldData,int);
-  vtkGetMacro(FieldData,int);
-  vtkBooleanMacro(FieldData,int);
+  vtkSetMacro(FieldData,vtkTypeBool);
+  vtkGetMacro(FieldData,vtkTypeBool);
+  vtkBooleanMacro(FieldData,vtkTypeBool);
   //@}
 
   //@{
@@ -89,9 +89,9 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int PointIds;
-  int CellIds;
-  int FieldData;
+  vtkTypeBool PointIds;
+  vtkTypeBool CellIds;
+  vtkTypeBool FieldData;
   char *IdsArrayName;
 
 private:

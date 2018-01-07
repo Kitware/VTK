@@ -134,9 +134,9 @@ public:
    * Depth buffer tests while rendering the contour).
    * Default is to set it to false.
    */
-  vtkSetMacro( AlwaysOnTop, int );
-  vtkGetMacro( AlwaysOnTop, int );
-  vtkBooleanMacro( AlwaysOnTop, int );
+  vtkSetMacro( AlwaysOnTop, vtkTypeBool );
+  vtkGetMacro( AlwaysOnTop, vtkTypeBool );
+  vtkBooleanMacro( AlwaysOnTop, vtkTypeBool );
   //@}
 
   /**
@@ -149,7 +149,7 @@ public:
    * A flag to indicate whether to show the Selected nodes
    * Default is to set it to false.
    */
-  void SetShowSelectedNodes(int) override;
+  void SetShowSelectedNodes(vtkTypeBool) override;
 
   /**
    * Return the bounds of the representation
@@ -210,7 +210,7 @@ protected:
   // widget is focused - maintain this distance during interaction.
   double InteractionOffset[2];
 
-  int AlwaysOnTop;
+  vtkTypeBool AlwaysOnTop;
 
   void BuildLines() override;
 

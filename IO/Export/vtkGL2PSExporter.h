@@ -198,9 +198,9 @@ public:
    * Turn on/off compression when generating PostScript or PDF
    * output. By default compression is on.
    */
-  vtkSetMacro(Compress, int);
-  vtkGetMacro(Compress, int);
-  vtkBooleanMacro(Compress, int);
+  vtkSetMacro(Compress, vtkTypeBool);
+  vtkGetMacro(Compress, vtkTypeBool);
+  vtkBooleanMacro(Compress, vtkTypeBool);
   //@}
 
   //@{
@@ -209,9 +209,9 @@ public:
    * is treated as white.  By default the background is drawn.
    * On the OpenGL2 backend, the background is always drawn.
    */
-  vtkSetMacro(DrawBackground, int);
-  vtkGetMacro(DrawBackground, int);
-  vtkBooleanMacro(DrawBackground, int);
+  vtkSetMacro(DrawBackground, vtkTypeBool);
+  vtkGetMacro(DrawBackground, vtkTypeBool);
+  vtkBooleanMacro(DrawBackground, vtkTypeBool);
   //@}
 
   //@{
@@ -221,9 +221,9 @@ public:
    * plot.  This results in an anti-aliasing like solution.  Defaults to
    * on.
    */
-  vtkSetMacro(SimpleLineOffset, int);
-  vtkGetMacro(SimpleLineOffset, int);
-  vtkBooleanMacro(SimpleLineOffset, int);
+  vtkSetMacro(SimpleLineOffset, vtkTypeBool);
+  vtkGetMacro(SimpleLineOffset, vtkTypeBool);
+  vtkBooleanMacro(SimpleLineOffset, vtkTypeBool);
   //@}
 
   //@{
@@ -231,9 +231,9 @@ public:
    * Turn on/off GL2PS messages sent to stderr (GL2PS_SILENT).  When
    * enabled GL2PS messages are suppressed.  Defaults to off.
    */
-  vtkSetMacro(Silent, int);
-  vtkGetMacro(Silent, int);
-  vtkBooleanMacro(Silent, int);
+  vtkSetMacro(Silent, vtkTypeBool);
+  vtkGetMacro(Silent, vtkTypeBool);
+  vtkBooleanMacro(Silent, vtkTypeBool);
   //@}
 
   //@{
@@ -243,9 +243,9 @@ public:
    * primitives leading to the minimum number of splits.  Defaults to
    * on.
    */
-  vtkSetMacro(BestRoot, int);
-  vtkGetMacro(BestRoot, int);
-  vtkBooleanMacro(BestRoot, int);
+  vtkSetMacro(BestRoot, vtkTypeBool);
+  vtkGetMacro(BestRoot, vtkTypeBool);
+  vtkBooleanMacro(BestRoot, vtkTypeBool);
   //@}
 
   //@{
@@ -255,9 +255,9 @@ public:
    * generated with the text strings.  If off text output is
    * suppressed.
    */
-  vtkSetMacro(Text, int);
-  vtkGetMacro(Text, int);
-  vtkBooleanMacro(Text, int);
+  vtkSetMacro(Text, vtkTypeBool);
+  vtkGetMacro(Text, vtkTypeBool);
+  vtkBooleanMacro(Text, vtkTypeBool);
   //@}
 
   //@{
@@ -265,9 +265,9 @@ public:
    * Turn on/off landscape orientation.  If off (default) the
    * orientation is set to portrait.
    */
-  vtkSetMacro(Landscape, int);
-  vtkGetMacro(Landscape, int);
-  vtkBooleanMacro(Landscape, int);
+  vtkSetMacro(Landscape, vtkTypeBool);
+  vtkGetMacro(Landscape, vtkTypeBool);
+  vtkBooleanMacro(Landscape, vtkTypeBool);
   //@}
 
   //@{
@@ -276,9 +276,9 @@ public:
    * shfill PostScript level 3 operator is used.  Read the GL2PS
    * documentation for more details.  Defaults to on.
    */
-  vtkSetMacro(PS3Shading, int);
-  vtkGetMacro(PS3Shading, int);
-  vtkBooleanMacro(PS3Shading, int);
+  vtkSetMacro(PS3Shading, vtkTypeBool);
+  vtkGetMacro(PS3Shading, vtkTypeBool);
+  vtkBooleanMacro(PS3Shading, vtkTypeBool);
   //@}
 
   //@{
@@ -287,9 +287,9 @@ public:
    * When enabled hidden polygons are removed.  This reduces file size
    * considerably.  Defaults to on.
    */
-  vtkSetMacro(OcclusionCull, int);
-  vtkGetMacro(OcclusionCull, int);
-  vtkBooleanMacro(OcclusionCull, int);
+  vtkSetMacro(OcclusionCull, vtkTypeBool);
+  vtkGetMacro(OcclusionCull, vtkTypeBool);
+  vtkBooleanMacro(OcclusionCull, vtkTypeBool);
   //@}
 
   //@{
@@ -301,9 +301,9 @@ public:
    * This option has no effect when the OpenGL2 backend is in use, as all
    * 3D props (excluding vtkTextActor3D) are rasterized into the background.
    */
-  vtkSetMacro(Write3DPropsAsRasterImage, int);
-  vtkGetMacro(Write3DPropsAsRasterImage, int);
-  vtkBooleanMacro(Write3DPropsAsRasterImage, int);
+  vtkSetMacro(Write3DPropsAsRasterImage, vtkTypeBool);
+  vtkGetMacro(Write3DPropsAsRasterImage, vtkTypeBool);
+  vtkBooleanMacro(Write3DPropsAsRasterImage, vtkTypeBool);
   //@}
 
   //@{
@@ -362,16 +362,16 @@ protected:
   int FileFormat;
   int BufferSize;
   int Sort;
-  int Compress;
-  int DrawBackground;
-  int SimpleLineOffset;
-  int Silent;
-  int BestRoot;
-  int Text;
-  int Landscape;
-  int PS3Shading;
-  int OcclusionCull;
-  int Write3DPropsAsRasterImage;
+  vtkTypeBool Compress;
+  vtkTypeBool DrawBackground;
+  vtkTypeBool SimpleLineOffset;
+  vtkTypeBool Silent;
+  vtkTypeBool BestRoot;
+  vtkTypeBool Text;
+  vtkTypeBool Landscape;
+  vtkTypeBool PS3Shading;
+  vtkTypeBool OcclusionCull;
+  vtkTypeBool Write3DPropsAsRasterImage;
   bool TextAsPath;
   float PointSizeFactor;
   float LineWidthFactor;

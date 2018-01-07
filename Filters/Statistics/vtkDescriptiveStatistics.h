@@ -71,9 +71,9 @@ public:
    * the population variance will be calculated.
    * The default is that the unbiased estimator will be used.
    */
-  vtkSetMacro(UnbiasedVariance,int);
-  vtkGetMacro(UnbiasedVariance,int);
-  vtkBooleanMacro(UnbiasedVariance,int);
+  vtkSetMacro(UnbiasedVariance,vtkTypeBool);
+  vtkGetMacro(UnbiasedVariance,vtkTypeBool);
+  vtkBooleanMacro(UnbiasedVariance,vtkTypeBool);
   //@}
 
   //@{
@@ -82,9 +82,9 @@ public:
    * the g1 skewness will be calculated.
    * The default is that the g1 skewness estimator will be used.
    */
-  vtkSetMacro(G1Skewness,int);
-  vtkGetMacro(G1Skewness,int);
-  vtkBooleanMacro(G1Skewness,int);
+  vtkSetMacro(G1Skewness,vtkTypeBool);
+  vtkGetMacro(G1Skewness,vtkTypeBool);
+  vtkBooleanMacro(G1Skewness,vtkTypeBool);
   //@}
 
   //@{
@@ -93,9 +93,9 @@ public:
    * the g2 kurtosis will be calculated.
    * The default is that the g2 kurtosis estimator will be used.
    */
-  vtkSetMacro(G2Kurtosis,int);
-  vtkGetMacro(G2Kurtosis,int);
-  vtkBooleanMacro(G2Kurtosis,int);
+  vtkSetMacro(G2Kurtosis,vtkTypeBool);
+  vtkGetMacro(G2Kurtosis,vtkTypeBool);
+  vtkBooleanMacro(G2Kurtosis,vtkTypeBool);
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * only have their magnitude reported.
    * The default is that signed deviations will be computed.
    */
-  vtkSetMacro(SignedDeviations,int);
-  vtkGetMacro(SignedDeviations,int);
-  vtkBooleanMacro(SignedDeviations,int);
+  vtkSetMacro(SignedDeviations,vtkTypeBool);
+  vtkGetMacro(SignedDeviations,vtkTypeBool);
+  vtkBooleanMacro(SignedDeviations,vtkTypeBool);
   //@}
 
   /**
@@ -161,10 +161,10 @@ protected:
                             vtkStringArray* rowNames,
                             AssessFunctor*& dfunc ) override;
 
-  int UnbiasedVariance;
-  int G1Skewness;
-  int G2Kurtosis;
-  int SignedDeviations;
+  vtkTypeBool UnbiasedVariance;
+  vtkTypeBool G1Skewness;
+  vtkTypeBool G2Kurtosis;
+  vtkTypeBool SignedDeviations;
 
 private:
   vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ) = delete;

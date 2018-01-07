@@ -60,7 +60,7 @@ vtkInteractorStyleSwitch::~vtkInteractorStyleSwitch()
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( int value )
+void vtkInteractorStyleSwitch::SetAutoAdjustCameraClippingRange( vtkTypeBool value )
 {
   if ( value == this->AutoAdjustCameraClippingRange )
   {

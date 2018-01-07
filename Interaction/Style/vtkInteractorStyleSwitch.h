@@ -61,7 +61,7 @@ public:
    * We must override this method in order to pass the setting down to
    * the underlying styles
    */
-  void SetAutoAdjustCameraClippingRange( int value ) override;
+  void SetAutoAdjustCameraClippingRange( vtkTypeBool value ) override;
 
   //@{
   /**

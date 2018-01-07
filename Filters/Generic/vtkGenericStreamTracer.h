@@ -325,9 +325,9 @@ public:
    * (necessary for generating proper streamribbons using the
    * vtkRibbonFilter.
    */
-  vtkSetMacro(ComputeVorticity, int);
-  vtkGetMacro(ComputeVorticity, int);
-  vtkBooleanMacro(ComputeVorticity, int);
+  vtkSetMacro(ComputeVorticity, vtkTypeBool);
+  vtkGetMacro(ComputeVorticity, vtkTypeBool);
+  vtkBooleanMacro(ComputeVorticity, vtkTypeBool);
   //@}
 
   //@{
@@ -449,7 +449,7 @@ protected:
   double MaximumError;
   vtkIdType MaximumNumberOfSteps;
 
-  int ComputeVorticity;
+  vtkTypeBool ComputeVorticity;
   double RotationScale;
 
   vtkGenericInterpolatedVelocityField* InterpolatorPrototype;

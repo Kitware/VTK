@@ -163,9 +163,9 @@ public:
    * Turn on/off the deletion of vertices on the boundary of a mesh. This
    * may limit the maximum reduction that may be achieved.
    */
-  vtkSetMacro(BoundaryVertexDeletion,int);
-  vtkGetMacro(BoundaryVertexDeletion,int);
-  vtkBooleanMacro(BoundaryVertexDeletion,int);
+  vtkSetMacro(BoundaryVertexDeletion,vtkTypeBool);
+  vtkGetMacro(BoundaryVertexDeletion,vtkTypeBool);
+  vtkBooleanMacro(BoundaryVertexDeletion,vtkTypeBool);
   //@}
 
   //@{
@@ -194,7 +194,7 @@ protected:
   double    Reduction;
   double    AbsoluteError;
   double    RelativeError;
-  int       BoundaryVertexDeletion; //Can we delete boundary vertices?
+  vtkTypeBool       BoundaryVertexDeletion; //Can we delete boundary vertices?
 
   //Used for convenience
   vtkPolyData    *Mesh;

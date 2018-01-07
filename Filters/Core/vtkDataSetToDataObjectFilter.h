@@ -67,45 +67,45 @@ public:
   /**
    * Turn on/off the conversion of dataset geometry to a data object.
    */
-  vtkSetMacro(Geometry,int);
-  vtkGetMacro(Geometry,int);
-  vtkBooleanMacro(Geometry,int);
+  vtkSetMacro(Geometry,vtkTypeBool);
+  vtkGetMacro(Geometry,vtkTypeBool);
+  vtkBooleanMacro(Geometry,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset topology to a data object.
    */
-  vtkSetMacro(Topology,int);
-  vtkGetMacro(Topology,int);
-  vtkBooleanMacro(Topology,int);
+  vtkSetMacro(Topology,vtkTypeBool);
+  vtkGetMacro(Topology,vtkTypeBool);
+  vtkBooleanMacro(Topology,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset field data to a data object.
    */
-  vtkSetMacro(FieldData,int);
-  vtkGetMacro(FieldData,int);
-  vtkBooleanMacro(FieldData,int);
+  vtkSetMacro(FieldData,vtkTypeBool);
+  vtkGetMacro(FieldData,vtkTypeBool);
+  vtkBooleanMacro(FieldData,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset point data to a data object.
    */
-  vtkSetMacro(PointData,int);
-  vtkGetMacro(PointData,int);
-  vtkBooleanMacro(PointData,int);
+  vtkSetMacro(PointData,vtkTypeBool);
+  vtkGetMacro(PointData,vtkTypeBool);
+  vtkBooleanMacro(PointData,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the conversion of dataset cell data to a data object.
    */
-  vtkSetMacro(CellData,int);
-  vtkGetMacro(CellData,int);
-  vtkBooleanMacro(CellData,int);
+  vtkSetMacro(CellData,vtkTypeBool);
+  vtkGetMacro(CellData,vtkTypeBool);
+  vtkBooleanMacro(CellData,vtkTypeBool);
   //@}
 
 protected:
@@ -119,11 +119,11 @@ protected:
 
   int FillInputPortInformation(int, vtkInformation*) override;
 
-  int Geometry;
-  int Topology;
-  int PointData;
-  int CellData;
-  int FieldData;
+  vtkTypeBool Geometry;
+  vtkTypeBool Topology;
+  vtkTypeBool PointData;
+  vtkTypeBool CellData;
+  vtkTypeBool FieldData;
 
 private:
   vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) = delete;

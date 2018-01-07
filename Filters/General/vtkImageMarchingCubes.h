@@ -76,9 +76,9 @@ public:
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars, int);
-  vtkGetMacro(ComputeScalars, int);
-  vtkBooleanMacro(ComputeScalars, int);
+  vtkSetMacro(ComputeScalars, vtkTypeBool);
+  vtkGetMacro(ComputeScalars, vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars, vtkTypeBool);
   //@}
 
   //@{
@@ -87,9 +87,9 @@ public:
    * in both time and storage. If the output data will be processed by filters
    * that modify topology or geometry, it may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeNormals, int);
-  vtkGetMacro(ComputeNormals, int);
-  vtkBooleanMacro(ComputeNormals, int);
+  vtkSetMacro(ComputeNormals, vtkTypeBool);
+  vtkGetMacro(ComputeNormals, vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals, vtkTypeBool);
   //@}
 
   //@{
@@ -100,15 +100,15 @@ public:
    * If the output data will be processed by filters that modify topology or
    * geometry, it may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeGradients, int);
-  vtkGetMacro(ComputeGradients, int);
-  vtkBooleanMacro(ComputeGradients, int);
+  vtkSetMacro(ComputeGradients, vtkTypeBool);
+  vtkGetMacro(ComputeGradients, vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients, vtkTypeBool);
   //@}
 
   // Should be protected, but the templated functions need these
-  int ComputeScalars;
-  int ComputeNormals;
-  int ComputeGradients;
+  vtkTypeBool ComputeScalars;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
   int NeedGradients;
 
   vtkCellArray *Triangles;

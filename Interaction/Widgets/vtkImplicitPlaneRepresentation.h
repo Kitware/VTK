@@ -106,15 +106,15 @@ public:
    * This can be used to snap the plane to the axes if it is originally
    * not aligned.
    */
-  void SetNormalToXAxis(int);
-  vtkGetMacro(NormalToXAxis,int);
-  vtkBooleanMacro(NormalToXAxis,int);
-  void SetNormalToYAxis(int);
-  vtkGetMacro(NormalToYAxis,int);
-  vtkBooleanMacro(NormalToYAxis,int);
-  void SetNormalToZAxis(int);
-  vtkGetMacro(NormalToZAxis,int);
-  vtkBooleanMacro(NormalToZAxis,int);
+  void SetNormalToXAxis(vtkTypeBool);
+  vtkGetMacro(NormalToXAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToXAxis,vtkTypeBool);
+  void SetNormalToYAxis(vtkTypeBool);
+  vtkGetMacro(NormalToYAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToYAxis,vtkTypeBool);
+  void SetNormalToZAxis(vtkTypeBool);
+  vtkGetMacro(NormalToZAxis,vtkTypeBool);
+  vtkBooleanMacro(NormalToZAxis,vtkTypeBool);
   //@}
 
   //@{
@@ -123,9 +123,9 @@ public:
    * LockNormalToCamera will cause the normal to follow the camera's
    * normal.
    */
-  virtual void SetLockNormalToCamera(int);
-  vtkGetMacro(LockNormalToCamera,int);
-  vtkBooleanMacro(LockNormalToCamera,int);
+  virtual void SetLockNormalToCamera(vtkTypeBool);
+  vtkGetMacro(LockNormalToCamera,vtkTypeBool);
+  vtkBooleanMacro(LockNormalToCamera,vtkTypeBool);
   //@}
 
   //@{
@@ -133,9 +133,9 @@ public:
    * Turn on/off tubing of the wire outline of the plane. The tube thickens
    * the line by wrapping with a vtkTubeFilter.
    */
-  vtkSetMacro(Tubing,int);
-  vtkGetMacro(Tubing,int);
-  vtkBooleanMacro(Tubing,int);
+  vtkSetMacro(Tubing,vtkTypeBool);
+  vtkGetMacro(Tubing,vtkTypeBool);
+  vtkBooleanMacro(Tubing,vtkTypeBool);
   //@}
 
   //@{
@@ -145,18 +145,18 @@ public:
    * plane interferes with the cut surface it produces producing
    * z-buffer artifacts.)
    */
-  void SetDrawPlane(int plane);
-  vtkGetMacro(DrawPlane,int);
-  vtkBooleanMacro(DrawPlane,int);
+  void SetDrawPlane(vtkTypeBool plane);
+  vtkGetMacro(DrawPlane,vtkTypeBool);
+  vtkBooleanMacro(DrawPlane,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable/disable the drawing of the outline.
    */
-  void SetDrawOutline(int plane);
-  vtkGetMacro(DrawOutline,int);
-  vtkBooleanMacro(DrawOutline,int);
+  void SetDrawOutline(vtkTypeBool plane);
+  vtkGetMacro(DrawOutline,vtkTypeBool);
+  vtkBooleanMacro(DrawOutline,vtkTypeBool);
   //@}
 
   //@{
@@ -164,9 +164,9 @@ public:
    * Turn on/off the ability to translate the bounding box by grabbing it
    * with the left mouse button.
    */
-  vtkSetMacro(OutlineTranslation,int);
-  vtkGetMacro(OutlineTranslation,int);
-  vtkBooleanMacro(OutlineTranslation,int);
+  vtkSetMacro(OutlineTranslation,vtkTypeBool);
+  vtkGetMacro(OutlineTranslation,vtkTypeBool);
+  vtkBooleanMacro(OutlineTranslation,vtkTypeBool);
   //@}
 
   //@{
@@ -174,9 +174,9 @@ public:
    * Turn on/off the ability to move the widget outside of the bounds
    * specified in the initial PlaceWidget() invocation.
    */
-  vtkSetMacro(OutsideBounds,int);
-  vtkGetMacro(OutsideBounds,int);
-  vtkBooleanMacro(OutsideBounds,int);
+  vtkSetMacro(OutsideBounds,vtkTypeBool);
+  vtkGetMacro(OutsideBounds,vtkTypeBool);
+  vtkBooleanMacro(OutsideBounds,vtkTypeBool);
   //@}
 
   //@{
@@ -198,18 +198,18 @@ public:
    * If off, the origin can be freely moved and the widget outline will change
    * accordingly.
    */
-  vtkSetMacro(ConstrainToWidgetBounds,int);
-  vtkGetMacro(ConstrainToWidgetBounds,int);
-  vtkBooleanMacro(ConstrainToWidgetBounds,int);
+  vtkSetMacro(ConstrainToWidgetBounds,vtkTypeBool);
+  vtkGetMacro(ConstrainToWidgetBounds,vtkTypeBool);
+  vtkBooleanMacro(ConstrainToWidgetBounds,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Turn on/off the ability to scale the widget with the mouse.
    */
-  vtkSetMacro(ScaleEnabled,int);
-  vtkGetMacro(ScaleEnabled,int);
-  vtkBooleanMacro(ScaleEnabled,int);
+  vtkSetMacro(ScaleEnabled,vtkTypeBool);
+  vtkGetMacro(ScaleEnabled,vtkTypeBool);
+  vtkBooleanMacro(ScaleEnabled,vtkTypeBool);
   //@}
 
   /**
@@ -417,12 +417,12 @@ protected:
   double StartEventOrientation[4];
 
   // Controlling ivars
-  int NormalToXAxis;
-  int NormalToYAxis;
-  int NormalToZAxis;
+  vtkTypeBool NormalToXAxis;
+  vtkTypeBool NormalToYAxis;
+  vtkTypeBool NormalToZAxis;
 
   // Locking normal to camera
-  int LockNormalToCamera;
+  vtkTypeBool LockNormalToCamera;
 
   // Controlling the push operation
   double BumpDistance;
@@ -436,19 +436,19 @@ protected:
   vtkPolyDataMapper *OutlineMapper;
   vtkActor          *OutlineActor;
   void HighlightOutline(int highlight);
-  int  OutlineTranslation; //whether the outline can be moved
-  int  ScaleEnabled; //whether the widget can be scaled
-  int  OutsideBounds; //whether the widget can be moved outside input's bounds
+  vtkTypeBool  OutlineTranslation; //whether the outline can be moved
+  vtkTypeBool  ScaleEnabled; //whether the widget can be scaled
+  vtkTypeBool  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  int ConstrainToWidgetBounds;
+  vtkTypeBool ConstrainToWidgetBounds;
 
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
   vtkPlaneSource    *PlaneSource;
   vtkPolyDataMapper *CutMapper;
   vtkActor          *CutActor;
-  int                DrawPlane;
-  int                DrawOutline;
+  vtkTypeBool                DrawPlane;
+  vtkTypeBool                DrawOutline;
   void HighlightPlane(int highlight);
 
   // Optional tubes are represented by extracting boundary edges and tubing
@@ -456,7 +456,7 @@ protected:
   vtkTubeFilter     *EdgesTuber;
   vtkPolyDataMapper *EdgesMapper;
   vtkActor          *EdgesActor;
-  int                Tubing; //control whether tubing is on
+  vtkTypeBool                Tubing; //control whether tubing is on
 
   // The + normal cone
   vtkConeSource     *ConeSource;

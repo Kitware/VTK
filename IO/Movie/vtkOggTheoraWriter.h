@@ -73,9 +73,9 @@ public:
   /**
    * Is the video to be encoded using 4:2:0 subsampling?
    */
-  vtkSetMacro(Subsampling, int);
-  vtkGetMacro(Subsampling, int);
-  vtkBooleanMacro(Subsampling, int);
+  vtkSetMacro(Subsampling, vtkTypeBool);
+  vtkGetMacro(Subsampling, vtkTypeBool);
+  vtkBooleanMacro(Subsampling, vtkTypeBool);
   //@}
 
 protected:
@@ -87,7 +87,7 @@ protected:
   int Initialized;
   int Quality;
   int Rate;
-  int Subsampling;
+  vtkTypeBool Subsampling;
 
 private:
   vtkOggTheoraWriter(const vtkOggTheoraWriter&) = delete;

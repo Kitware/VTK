@@ -78,9 +78,9 @@ public:
    * function (ExtractInside == 1) or outside of implicit function
    * (ExtractInside == 0).
    */
-  vtkSetMacro(ExtractInside,int);
-  vtkGetMacro(ExtractInside,int);
-  vtkBooleanMacro(ExtractInside,int);
+  vtkSetMacro(ExtractInside,vtkTypeBool);
+  vtkGetMacro(ExtractInside,vtkTypeBool);
+  vtkBooleanMacro(ExtractInside,vtkTypeBool);
   //@}
 
   //@{
@@ -88,9 +88,9 @@ public:
    * Boolean controls whether to extract cells that are partially inside.
    * By default, ExtractBoundaryCells is off.
    */
-  vtkSetMacro(ExtractBoundaryCells,int);
-  vtkGetMacro(ExtractBoundaryCells,int);
-  vtkBooleanMacro(ExtractBoundaryCells,int);
+  vtkSetMacro(ExtractBoundaryCells,vtkTypeBool);
+  vtkGetMacro(ExtractBoundaryCells,vtkTypeBool);
+  vtkBooleanMacro(ExtractBoundaryCells,vtkTypeBool);
   //@}
 
   //@{
@@ -98,9 +98,9 @@ public:
    * Boolean controls whether points are culled or simply passed through
    * to the output.
    */
-  vtkSetMacro(PassPoints,int);
-  vtkGetMacro(PassPoints,int);
-  vtkBooleanMacro(PassPoints,int);
+  vtkSetMacro(PassPoints,vtkTypeBool);
+  vtkGetMacro(PassPoints,vtkTypeBool);
+  vtkBooleanMacro(PassPoints,vtkTypeBool);
   //@}
 
 protected:
@@ -111,9 +111,9 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
   vtkImplicitFunction *ImplicitFunction;
-  int ExtractInside;
-  int ExtractBoundaryCells;
-  int PassPoints;
+  vtkTypeBool ExtractInside;
+  vtkTypeBool ExtractBoundaryCells;
+  vtkTypeBool PassPoints;
 
   vtkIdType InsertPointInMap(vtkIdType i, vtkPoints *inPts, vtkPoints *newPts, vtkIdType *pointMap);
 

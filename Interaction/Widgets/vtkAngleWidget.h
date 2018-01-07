@@ -131,7 +131,7 @@ public:
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) override;
+  void SetProcessEvents(vtkTypeBool) override;
 
   /**
    * Enum defining the state of the widget. By default the widget is in Start mode,

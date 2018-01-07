@@ -91,9 +91,9 @@ public:
    * Enable/disable the creation of a chair on this widget. If off,
    * chairs cannot be created.
    */
-  vtkSetMacro(EnableChairCreation,int);
-  vtkGetMacro(EnableChairCreation,int);
-  vtkBooleanMacro(EnableChairCreation,int);
+  vtkSetMacro(EnableChairCreation,vtkTypeBool);
+  vtkGetMacro(EnableChairCreation,vtkTypeBool);
+  vtkBooleanMacro(EnableChairCreation,vtkTypeBool);
   //@}
 
   /**
@@ -105,7 +105,7 @@ public:
    * Methods to change the whether the widget responds to interaction.
    * Overridden to pass the state to component widgets.
    */
-  void SetProcessEvents(int) override;
+  void SetProcessEvents(vtkTypeBool) override;
 
 protected:
   vtkParallelopipedWidget();
@@ -119,7 +119,7 @@ protected:
   static void OnLeftButtonUpCallback            (vtkAbstractWidget* );
 
   // Control whether chairs can be created
-  int EnableChairCreation;
+  vtkTypeBool EnableChairCreation;
 
   //@{
   void BeginTranslateAction ( vtkParallelopipedWidget *dispatcher);

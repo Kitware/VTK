@@ -55,9 +55,9 @@ public:
   /**
    * Set/Get whether the normal vector has to be flipped.
    */
-  vtkSetMacro(InverseNormal,int);
-  vtkGetMacro(InverseNormal,int);
-  vtkBooleanMacro(InverseNormal,int);
+  vtkSetMacro(InverseNormal,vtkTypeBool);
+  vtkGetMacro(InverseNormal,vtkTypeBool);
+  vtkBooleanMacro(InverseNormal,vtkTypeBool);
   //@}
 
   //@{
@@ -65,9 +65,9 @@ public:
    * If this flag is on, material order in reversed.
    * Otherwise, materials are sorted in ascending order depending on the given ordering array.
    */
-  vtkSetMacro(ReverseMaterialOrder,int);
-  vtkGetMacro(ReverseMaterialOrder,int);
-  vtkBooleanMacro(ReverseMaterialOrder,int);
+  vtkSetMacro(ReverseMaterialOrder,vtkTypeBool);
+  vtkGetMacro(ReverseMaterialOrder,vtkTypeBool);
+  vtkBooleanMacro(ReverseMaterialOrder,vtkTypeBool);
   //@}
 
   //@{
@@ -75,9 +75,9 @@ public:
    * Set/Get OnionPeel flag. if this flag is on, the normal vector of the first
    * material (which depends on material ordering) is used for all materials.
    */
-  vtkSetMacro(OnionPeel,int);
-  vtkGetMacro(OnionPeel,int);
-  vtkBooleanMacro(OnionPeel,int);
+  vtkSetMacro(OnionPeel,vtkTypeBool);
+  vtkGetMacro(OnionPeel,vtkTypeBool);
+  vtkBooleanMacro(OnionPeel,vtkTypeBool);
   //@}
 
   //@{
@@ -85,9 +85,9 @@ public:
    * Turns on/off AxisSymetric computation of 2D interfaces.
    * in axis symmetric mode, 2D meshes are understood as volumes of revolution.
    */
-  vtkSetMacro(AxisSymetric,int);
-  vtkGetMacro(AxisSymetric,int);
-  vtkBooleanMacro(AxisSymetric,int);
+  vtkSetMacro(AxisSymetric,vtkTypeBool);
+  vtkGetMacro(AxisSymetric,vtkTypeBool);
+  vtkBooleanMacro(AxisSymetric,vtkTypeBool);
   //@}
 
   //@{
@@ -96,18 +96,18 @@ public:
    * of the cutting plane from the origin.
    * in axis symmetric mode, 2D meshes are understood as volumes of revolution.
    */
-  vtkSetMacro(UseFractionAsDistance,int);
-  vtkGetMacro(UseFractionAsDistance,int);
-  vtkBooleanMacro(UseFractionAsDistance,int);
+  vtkSetMacro(UseFractionAsDistance,vtkTypeBool);
+  vtkGetMacro(UseFractionAsDistance,vtkTypeBool);
+  vtkBooleanMacro(UseFractionAsDistance,vtkTypeBool);
   //@}
 
   //@{
   /**
    * When FillMaterial is set to 1, the volume containing material is output and not only the interface surface.
    */
-  vtkSetMacro(FillMaterial,int);
-  vtkGetMacro(FillMaterial,int);
-  vtkBooleanMacro(FillMaterial,int);
+  vtkSetMacro(FillMaterial,vtkTypeBool);
+  vtkGetMacro(FillMaterial,vtkTypeBool);
+  vtkBooleanMacro(FillMaterial,vtkTypeBool);
   //@}
 
   //@{
@@ -206,12 +206,12 @@ protected:
   /**
    * Read-Write Properties
    */
-  int FillMaterial;
-  int InverseNormal;
-  int AxisSymetric;
-  int OnionPeel;
-  int ReverseMaterialOrder;
-  int UseFractionAsDistance;
+  vtkTypeBool FillMaterial;
+  vtkTypeBool InverseNormal;
+  vtkTypeBool AxisSymetric;
+  vtkTypeBool OnionPeel;
+  vtkTypeBool ReverseMaterialOrder;
+  vtkTypeBool UseFractionAsDistance;
   double VolumeFractionRange[2];
   //@}
 

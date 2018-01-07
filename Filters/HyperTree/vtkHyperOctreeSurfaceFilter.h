@@ -46,9 +46,9 @@ public:
    * on, points with different point attributes (e.g., normals) are merged,
    * which may cause rendering artifacts.
    */
-  vtkSetMacro(Merging,int);
-  vtkGetMacro(Merging,int);
-  vtkBooleanMacro(Merging,int);
+  vtkSetMacro(Merging,vtkTypeBool);
+  vtkGetMacro(Merging,vtkTypeBool);
+  vtkBooleanMacro(Merging,vtkTypeBool);
   //@}
 
   //@{
@@ -72,9 +72,9 @@ public:
    * cell. This is useful for cell picking. The default is off to conserve
    * memory.
    */
-  vtkSetMacro(PassThroughCellIds,int);
-  vtkGetMacro(PassThroughCellIds,int);
-  vtkBooleanMacro(PassThroughCellIds,int);
+  vtkSetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkGetMacro(PassThroughCellIds,vtkTypeBool);
+  vtkBooleanMacro(PassThroughCellIds,vtkTypeBool);
   //@}
 
 protected:
@@ -97,7 +97,7 @@ protected:
    */
   void CreateDefaultLocator();
 
-  int Merging;
+  vtkTypeBool Merging;
   vtkIncrementalPointLocator *Locator;
 
   // Variables used by generate recursively.
@@ -109,7 +109,7 @@ protected:
   vtkCellArray *OutCells;
   vtkCellData *OutputCD;
 
-  int PassThroughCellIds;
+  vtkTypeBool PassThroughCellIds;
   void RecordOrigCellId(vtkIdType destIndex, vtkIdType originalId);
   vtkIdTypeArray *OriginalCellIds;
 

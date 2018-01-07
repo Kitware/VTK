@@ -123,12 +123,12 @@ public:
    * Control the behavior of the widget (i.e., how it processes
    * events). Translation, and scaling can all be enabled and disabled.
    */
-  vtkSetMacro(TranslationEnabled,int);
-  vtkGetMacro(TranslationEnabled,int);
-  vtkBooleanMacro(TranslationEnabled,int);
-  vtkSetMacro(ScalingEnabled,int);
-  vtkGetMacro(ScalingEnabled,int);
-  vtkBooleanMacro(ScalingEnabled,int);
+  vtkSetMacro(TranslationEnabled,vtkTypeBool);
+  vtkGetMacro(TranslationEnabled,vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
+  vtkSetMacro(ScalingEnabled,vtkTypeBool);
+  vtkGetMacro(ScalingEnabled,vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
   //@}
 
   /**
@@ -153,8 +153,8 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
   // Control whether scaling and translation are supported
-  int TranslationEnabled;
-  int ScalingEnabled;
+  vtkTypeBool TranslationEnabled;
+  vtkTypeBool ScalingEnabled;
 
 private:
   vtkSphereWidget2(const vtkSphereWidget2&) = delete;

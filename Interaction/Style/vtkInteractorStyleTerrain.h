@@ -96,9 +96,9 @@ public:
   /**
    * Turn on/off the latitude/longitude lines.
    */
-  vtkSetMacro(LatLongLines,int);
-  vtkGetMacro(LatLongLines,int);
-  vtkBooleanMacro(LatLongLines,int);
+  vtkSetMacro(LatLongLines,vtkTypeBool);
+  vtkGetMacro(LatLongLines,vtkTypeBool);
+  vtkBooleanMacro(LatLongLines,vtkTypeBool);
   //@}
 
 protected:
@@ -106,7 +106,7 @@ protected:
   ~vtkInteractorStyleTerrain() override;
 
   // Internal helper attributes
-  int LatLongLines;
+  vtkTypeBool LatLongLines;
 
   vtkSphereSource *LatLongSphere;
   vtkPolyDataMapper *LatLongMapper;

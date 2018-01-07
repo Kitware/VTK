@@ -157,9 +157,9 @@ public:
    * the resliced plane, provided the new center will continue to lie within
    * the volume.
    */
-  vtkSetMacro( SliceScrollOnMouseWheel, int );
-  vtkGetMacro( SliceScrollOnMouseWheel, int );
-  vtkBooleanMacro( SliceScrollOnMouseWheel, int );
+  vtkSetMacro( SliceScrollOnMouseWheel, vtkTypeBool );
+  vtkGetMacro( SliceScrollOnMouseWheel, vtkTypeBool );
+  vtkBooleanMacro( SliceScrollOnMouseWheel, vtkTypeBool );
   //@}
 
   /**
@@ -192,7 +192,7 @@ protected:
   vtkBoundedPlanePointPlacer        * PointPlacer;
   int                                 ResliceMode;
   vtkResliceImageViewerMeasurements * Measurements;
-  int                                 SliceScrollOnMouseWheel;
+  vtkTypeBool                                 SliceScrollOnMouseWheel;
   vtkResliceImageViewerScrollCallback * ScrollCallback;
 
 private:

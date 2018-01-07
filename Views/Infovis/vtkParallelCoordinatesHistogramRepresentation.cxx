@@ -501,7 +501,7 @@ int vtkParallelCoordinatesHistogramRepresentation::SetRangeAtPosition(int positi
   return 0;
 }
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesHistogramRepresentation::SetUseHistograms(int use)
+void vtkParallelCoordinatesHistogramRepresentation::SetUseHistograms(vtkTypeBool use)
 {
   if (use && this->UseHistograms != use)
   {
@@ -515,7 +515,7 @@ void vtkParallelCoordinatesHistogramRepresentation::SetUseHistograms(int use)
   this->Modified();
 }
 //------------------------------------------------------------------------------
-void vtkParallelCoordinatesHistogramRepresentation::SetShowOutliers(int show)
+void vtkParallelCoordinatesHistogramRepresentation::SetShowOutliers(vtkTypeBool show)
 {
   if (show && this->ShowOutliers != show)
   {

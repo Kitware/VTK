@@ -101,9 +101,9 @@ public:
   /**
    * Enable/disable the placement of a border around the text.
    */
-  vtkSetMacro(Border,int);
-  vtkGetMacro(Border,int);
-  vtkBooleanMacro(Border,int);
+  vtkSetMacro(Border,vtkTypeBool);
+  vtkGetMacro(Border,vtkTypeBool);
+  vtkBooleanMacro(Border,vtkTypeBool);
   //@}
 
   //@{
@@ -111,18 +111,18 @@ public:
    * Enable/disable drawing a "line" from the caption to the
    * attachment point.
    */
-  vtkSetMacro(Leader,int);
-  vtkGetMacro(Leader,int);
-  vtkBooleanMacro(Leader,int);
+  vtkSetMacro(Leader,vtkTypeBool);
+  vtkGetMacro(Leader,vtkTypeBool);
+  vtkBooleanMacro(Leader,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Indicate whether the leader is 2D (no hidden line) or 3D (z-buffered).
    */
-  vtkSetMacro(ThreeDimensionalLeader,int);
-  vtkGetMacro(ThreeDimensionalLeader,int);
-  vtkBooleanMacro(ThreeDimensionalLeader,int);
+  vtkSetMacro(ThreeDimensionalLeader,vtkTypeBool);
+  vtkGetMacro(ThreeDimensionalLeader,vtkTypeBool);
+  vtkBooleanMacro(ThreeDimensionalLeader,vtkTypeBool);
   //@}
 
   //@{
@@ -197,9 +197,9 @@ public:
    * Enable/disable whether to attach the arrow only to the edge,
    * NOT the vertices of the caption border.
    */
-  vtkSetMacro(AttachEdgeOnly,int);
-  vtkGetMacro(AttachEdgeOnly,int);
-  vtkBooleanMacro(AttachEdgeOnly,int);
+  vtkSetMacro(AttachEdgeOnly,vtkTypeBool);
+  vtkGetMacro(AttachEdgeOnly,vtkTypeBool);
+  vtkBooleanMacro(AttachEdgeOnly,vtkTypeBool);
   //@}
 
   /**
@@ -233,14 +233,14 @@ protected:
 
   vtkCoordinate *AttachmentPointCoordinate;
 
-  int   Border;
-  int   Leader;
-  int   ThreeDimensionalLeader;
+  vtkTypeBool   Border;
+  vtkTypeBool   Leader;
+  vtkTypeBool   ThreeDimensionalLeader;
   double LeaderGlyphSize;
   int   MaximumLeaderGlyphSize;
 
   int   Padding;
-  int   AttachEdgeOnly;
+  vtkTypeBool   AttachEdgeOnly;
 
 
 private:

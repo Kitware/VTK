@@ -89,9 +89,9 @@ public:
    * only if they share points AND one of the cells scalar values falls in the
    * scalar range specified.
    */
-  vtkSetMacro(ScalarConnectivity,int);
-  vtkGetMacro(ScalarConnectivity,int);
-  vtkBooleanMacro(ScalarConnectivity,int);
+  vtkSetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkGetMacro(ScalarConnectivity,vtkTypeBool);
+  vtkBooleanMacro(ScalarConnectivity,vtkTypeBool);
   //@}
 
   //@{
@@ -104,9 +104,9 @@ public:
    * the user specified scalar range for the cell to qualify as being
    * connected.
    */
-  vtkSetMacro(FullScalarConnectivity,int);
-  vtkGetMacro(FullScalarConnectivity,int);
-  vtkBooleanMacro(FullScalarConnectivity,int);
+  vtkSetMacro(FullScalarConnectivity,vtkTypeBool);
+  vtkGetMacro(FullScalarConnectivity,vtkTypeBool);
+  vtkBooleanMacro(FullScalarConnectivity,vtkTypeBool);
   //@}
 
   //@{
@@ -188,9 +188,9 @@ public:
   /**
    * Turn on/off the coloring of connected regions.
    */
-  vtkSetMacro(ColorRegions,int);
-  vtkGetMacro(ColorRegions,int);
-  vtkBooleanMacro(ColorRegions,int);
+  vtkSetMacro(ColorRegions,vtkTypeBool);
+  vtkGetMacro(ColorRegions,vtkTypeBool);
+  vtkBooleanMacro(ColorRegions,vtkTypeBool);
   //@}
 
   //@{
@@ -198,9 +198,9 @@ public:
    * Mark visited point ids ? It may be useful to extract the visited point
    * ids for use by a downstream filter. Default is OFF.
    */
-  vtkSetMacro( MarkVisitedPointIds, int );
-  vtkGetMacro( MarkVisitedPointIds, int );
-  vtkBooleanMacro( MarkVisitedPointIds, int );
+  vtkSetMacro( MarkVisitedPointIds, vtkTypeBool );
+  vtkGetMacro( MarkVisitedPointIds, vtkTypeBool );
+  vtkBooleanMacro( MarkVisitedPointIds, vtkTypeBool );
   //@}
 
   //@{
@@ -228,7 +228,7 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
 
-  int ColorRegions; //boolean turns on/off scalar gen for separate regions
+  vtkTypeBool ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
   vtkIdList *Seeds; //id's of points or cells used to seed regions
   vtkIdList *SpecifiedRegionIds; //regions specified for extraction
@@ -236,8 +236,8 @@ protected:
 
   double ClosestPoint[3];
 
-  int ScalarConnectivity;
-  int FullScalarConnectivity;
+  vtkTypeBool ScalarConnectivity;
+  vtkTypeBool FullScalarConnectivity;
 
   // Does this cell qualify as being scalar connected ?
   int IsScalarConnected( vtkIdType cellId );
@@ -263,7 +263,7 @@ protected:
   vtkIdList *CellIds;
   vtkIdList *VisitedPointIds;
 
-  int MarkVisitedPointIds;
+  vtkTypeBool MarkVisitedPointIds;
   int OutputPointsPrecision;
 
 private:

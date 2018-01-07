@@ -335,7 +335,7 @@ int vtkTesting::LookForFile(const char* newFileName)
 }
 
 //-----------------------------------------------------------------------------
-void vtkTesting::SetFrontBuffer(int frontBuffer)
+void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
 {
   vtkWarningMacro("SetFrontBuffer method is deprecated and has no effet anymore.");
   this->FrontBuffer = frontBuffer;

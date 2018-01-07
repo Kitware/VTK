@@ -111,9 +111,9 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
      * whose parametric dimension is 2.
      * Note that texturing may fail in some cases.
      */
-    vtkBooleanMacro(GenerateTextureCoordinates, int);
-    vtkSetClampMacro(GenerateTextureCoordinates, int, 0, 1);
-    vtkGetMacro(GenerateTextureCoordinates, int);
+    vtkBooleanMacro(GenerateTextureCoordinates, vtkTypeBool);
+    vtkSetClampMacro(GenerateTextureCoordinates, vtkTypeBool, 0, 1);
+    vtkGetMacro(GenerateTextureCoordinates, vtkTypeBool);
     //@}
 
     //@{
@@ -123,9 +123,9 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
      * Note that this is only applicable to parametric surfaces
      * whose parametric dimension is 2.
      */
-    vtkBooleanMacro(GenerateNormals, int);
-    vtkSetClampMacro(GenerateNormals, int, 0, 1);
-    vtkGetMacro(GenerateNormals, int);
+    vtkBooleanMacro(GenerateNormals, vtkTypeBool);
+    vtkSetClampMacro(GenerateNormals, vtkTypeBool, 0, 1);
+    vtkGetMacro(GenerateNormals, vtkTypeBool);
     //@}
 
     /**
@@ -216,8 +216,8 @@ class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public
     int UResolution;
     int VResolution;
     int WResolution;
-    int GenerateTextureCoordinates;
-    int GenerateNormals;
+    vtkTypeBool GenerateTextureCoordinates;
+    vtkTypeBool GenerateNormals;
     int ScalarMode;
     int OutputPointsPrecision;
 

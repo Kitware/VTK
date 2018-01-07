@@ -245,9 +245,9 @@ public:
   /**
    * Show the distance between the points.
    */
-  vtkSetMacro( DistanceAnnotationVisibility, int );
-  vtkGetMacro( DistanceAnnotationVisibility, int );
-  vtkBooleanMacro( DistanceAnnotationVisibility, int );
+  vtkSetMacro( DistanceAnnotationVisibility, vtkTypeBool );
+  vtkGetMacro( DistanceAnnotationVisibility, vtkTypeBool );
+  vtkBooleanMacro( DistanceAnnotationVisibility, vtkTypeBool );
   //@}
 
   //@{
@@ -370,7 +370,7 @@ protected:
   int InitializedDisplayPosition;
 
   // Format for the label
-  int DistanceAnnotationVisibility;
+  vtkTypeBool DistanceAnnotationVisibility;
   char *DistanceAnnotationFormat;
 
   vtkFollower       *TextActor;

@@ -512,7 +512,7 @@ void vtkOrientationMarkerWidget::UpdateOutline()
 }
 
 //-------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::SetInteractive(int interact)
+void vtkOrientationMarkerWidget::SetInteractive(vtkTypeBool interact)
 {
   if (this->Interactor && this->Enabled)
   {

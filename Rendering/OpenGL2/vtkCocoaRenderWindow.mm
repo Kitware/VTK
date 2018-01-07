@@ -1216,7 +1216,7 @@ int *vtkCocoaRenderWindow::GetPosition()
 
 //----------------------------------------------------------------------------
 // Change the window to fill the entire screen.
-void vtkCocoaRenderWindow::SetFullScreen(int arg)
+void vtkCocoaRenderWindow::SetFullScreen(vtkTypeBool arg)
 {
   if (this->FullScreen == arg)
   {
@@ -1264,7 +1264,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
 //
-void vtkCocoaRenderWindow::SetStereoCapableWindow(int capable)
+void vtkCocoaRenderWindow::SetStereoCapableWindow(vtkTypeBool capable)
 {
   if (this->GetContextId() == nullptr)
   {

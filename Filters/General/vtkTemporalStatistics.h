@@ -72,9 +72,9 @@ public:
    * Turn on/off the computation of the average values over time.  On by
    * default.  The resulting array names have "_average" appended to them.
    */
-  vtkGetMacro(ComputeAverage, int);
-  vtkSetMacro(ComputeAverage, int);
-  vtkBooleanMacro(ComputeAverage, int);
+  vtkGetMacro(ComputeAverage, vtkTypeBool);
+  vtkSetMacro(ComputeAverage, vtkTypeBool);
+  vtkBooleanMacro(ComputeAverage, vtkTypeBool);
   //@}
 
   //@{
@@ -82,9 +82,9 @@ public:
    * Turn on/off the computation of the minimum values over time.  On by
    * default.  The resulting array names have "_minimum" appended to them.
    */
-  vtkGetMacro(ComputeMinimum, int);
-  vtkSetMacro(ComputeMinimum, int);
-  vtkBooleanMacro(ComputeMinimum, int);
+  vtkGetMacro(ComputeMinimum, vtkTypeBool);
+  vtkSetMacro(ComputeMinimum, vtkTypeBool);
+  vtkBooleanMacro(ComputeMinimum, vtkTypeBool);
   //@}
 
   //@{
@@ -92,27 +92,27 @@ public:
    * Turn on/off the computation of the maximum values over time.  On by
    * default.  The resulting array names have "_maximum" appended to them.
    */
-  vtkGetMacro(ComputeMaximum, int);
-  vtkSetMacro(ComputeMaximum, int);
-  vtkBooleanMacro(ComputeMaximum, int);
+  vtkGetMacro(ComputeMaximum, vtkTypeBool);
+  vtkSetMacro(ComputeMaximum, vtkTypeBool);
+  vtkBooleanMacro(ComputeMaximum, vtkTypeBool);
   //@}
 
   // Definition:
   // Turn on/off the computation of the standard deviation of the values over
   // time.  On by default.  The resulting array names have "_stddev" appended to
   // them.
-  vtkGetMacro(ComputeStandardDeviation, int);
-  vtkSetMacro(ComputeStandardDeviation, int);
-  vtkBooleanMacro(ComputeStandardDeviation, int);
+  vtkGetMacro(ComputeStandardDeviation, vtkTypeBool);
+  vtkSetMacro(ComputeStandardDeviation, vtkTypeBool);
+  vtkBooleanMacro(ComputeStandardDeviation, vtkTypeBool);
 
 protected:
   vtkTemporalStatistics();
   ~vtkTemporalStatistics() override;
 
-  int ComputeAverage;
-  int ComputeMaximum;
-  int ComputeMinimum;
-  int ComputeStandardDeviation;
+  vtkTypeBool ComputeAverage;
+  vtkTypeBool ComputeMaximum;
+  vtkTypeBool ComputeMinimum;
+  vtkTypeBool ComputeStandardDeviation;
 
   // Used when iterating the pipeline to keep track of which timestep we are on.
   int CurrentTimeIndex;

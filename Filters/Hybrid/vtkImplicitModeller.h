@@ -152,9 +152,9 @@ public:
    * by the fraction given by AdjustDistance. This means that the model
    * bounds is expanded in each of the x-y-z directions.
    */
-  vtkSetMacro(AdjustBounds,int);
-  vtkGetMacro(AdjustBounds,int);
-  vtkBooleanMacro(AdjustBounds,int);
+  vtkSetMacro(AdjustBounds,vtkTypeBool);
+  vtkGetMacro(AdjustBounds,vtkTypeBool);
+  vtkBooleanMacro(AdjustBounds,vtkTypeBool);
   //@}
 
   //@{
@@ -172,9 +172,9 @@ public:
    * The outer boundary of the structured point set can be assigned a
    * particular value. This can be used to close or "cap" all surfaces.
    */
-  vtkSetMacro(Capping,int);
-  vtkGetMacro(Capping,int);
-  vtkBooleanMacro(Capping,int);
+  vtkSetMacro(Capping,vtkTypeBool);
+  vtkGetMacro(Capping,vtkTypeBool);
+  vtkBooleanMacro(Capping,vtkTypeBool);
   //@}
 
   //@{
@@ -197,9 +197,9 @@ public:
    * the surface) and 255 (at the specified maximum distance)... assuming the
    * CapValue is not changed from 255.
    */
-  vtkSetMacro(ScaleToMaximumDistance, int);
-  vtkGetMacro(ScaleToMaximumDistance, int);
-  vtkBooleanMacro(ScaleToMaximumDistance,int);
+  vtkSetMacro(ScaleToMaximumDistance, vtkTypeBool);
+  vtkGetMacro(ScaleToMaximumDistance, vtkTypeBool);
+  vtkBooleanMacro(ScaleToMaximumDistance,vtkTypeBool);
   //@}
 
   //@{
@@ -305,15 +305,15 @@ protected:
   int SampleDimensions[3];
   double MaximumDistance;
   double ModelBounds[6];
-  int Capping;
+  vtkTypeBool Capping;
   double CapValue;
   int DataAppended;
-  int AdjustBounds;
+  vtkTypeBool AdjustBounds;
   double AdjustDistance;
   int ProcessMode;
   int LocatorMaxLevel;
   int OutputScalarType;
-  int ScaleToMaximumDistance;
+  vtkTypeBool ScaleToMaximumDistance;
 
   // flag to limit to one ComputeModelBounds per StartAppend
   int BoundsComputed;

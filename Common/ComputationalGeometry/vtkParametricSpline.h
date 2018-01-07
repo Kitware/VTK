@@ -115,9 +115,9 @@ public:
    * a continuous loop: the first and last points are the same, and
    * derivatives are continuous.
    */
-  vtkSetMacro(Closed,int);
-  vtkGetMacro(Closed,int);
-  vtkBooleanMacro(Closed,int);
+  vtkSetMacro(Closed,vtkTypeBool);
+  vtkGetMacro(Closed,vtkTypeBool);
+  vtkBooleanMacro(Closed,vtkTypeBool);
   //@}
 
   //@{
@@ -125,9 +125,9 @@ public:
    * Control whether the spline is parameterized by length or by point index.
    * Default is by length.
    */
-  vtkSetMacro(ParameterizeByLength,int);
-  vtkGetMacro(ParameterizeByLength,int);
-  vtkBooleanMacro(ParameterizeByLength,int);
+  vtkSetMacro(ParameterizeByLength,vtkTypeBool);
+  vtkGetMacro(ParameterizeByLength,vtkTypeBool);
+  vtkBooleanMacro(ParameterizeByLength,vtkTypeBool);
   //@}
 
   //@{
@@ -177,12 +177,12 @@ protected:
   vtkSpline *ZSpline;
 
   // Supplemental variables
-  int    Closed;
+  vtkTypeBool    Closed;
   int    LeftConstraint;
   int    RightConstraint;
   double LeftValue;
   double RightValue;
-  int    ParameterizeByLength;
+  vtkTypeBool    ParameterizeByLength;
 
   // Initializing the spline
   vtkMTimeType InitializeTime;

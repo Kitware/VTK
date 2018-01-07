@@ -103,9 +103,9 @@ public:
    * This default behavior is to preserve the behavior of an older version of
    * this filter, which would ignore this setting for certain inputs.
    */
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
+  vtkSetMacro(ComputeNormals,vtkTypeBool);
+  vtkGetMacro(ComputeNormals,vtkTypeBool);
+  vtkBooleanMacro(ComputeNormals,vtkTypeBool);
   //@}
 
   //@{
@@ -117,27 +117,27 @@ public:
    * will be processed by filters that modify topology or geometry, it
    * may be wise to turn Normals and Gradients off.
    */
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
+  vtkSetMacro(ComputeGradients,vtkTypeBool);
+  vtkGetMacro(ComputeGradients,vtkTypeBool);
+  vtkBooleanMacro(ComputeGradients,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Set/Get the computation of scalars.
    */
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
+  vtkSetMacro(ComputeScalars,vtkTypeBool);
+  vtkGetMacro(ComputeScalars,vtkTypeBool);
+  vtkBooleanMacro(ComputeScalars,vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable the use of a scalar tree to accelerate contour extraction.
    */
-  vtkSetMacro(UseScalarTree,int);
-  vtkGetMacro(UseScalarTree,int);
-  vtkBooleanMacro(UseScalarTree,int);
+  vtkSetMacro(UseScalarTree,vtkTypeBool);
+  vtkGetMacro(UseScalarTree,vtkTypeBool);
+  vtkBooleanMacro(UseScalarTree,vtkTypeBool);
   //@}
 
   //@{
@@ -181,9 +181,9 @@ public:
    * polygon will not be planar, which might be nice to look at but hard
    * to compute with downstream.
    */
-  vtkSetMacro(GenerateTriangles,int);
-  vtkGetMacro(GenerateTriangles,int);
-  vtkBooleanMacro(GenerateTriangles,int);
+  vtkSetMacro(GenerateTriangles,vtkTypeBool);
+  vtkGetMacro(GenerateTriangles,vtkTypeBool);
+  vtkBooleanMacro(GenerateTriangles,vtkTypeBool);
   //@}
 
   //@{
@@ -211,14 +211,14 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkContourValues *ContourValues;
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
+  vtkTypeBool ComputeNormals;
+  vtkTypeBool ComputeGradients;
+  vtkTypeBool ComputeScalars;
   vtkIncrementalPointLocator *Locator;
-  int UseScalarTree;
+  vtkTypeBool UseScalarTree;
   vtkScalarTree *ScalarTree;
   int OutputPointsPrecision;
-  int GenerateTriangles;
+  vtkTypeBool GenerateTriangles;
 
   vtkSynchronizedTemplates2D *SynchronizedTemplates2D;
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;

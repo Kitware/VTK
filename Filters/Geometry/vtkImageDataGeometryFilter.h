@@ -67,9 +67,9 @@ public:
    * values less than the specified threshold.
    * Currently this functionality is only implemented for 2D imagedata
    */
-  vtkSetMacro(ThresholdCells,int);
-  vtkGetMacro(ThresholdCells,int);
-  vtkBooleanMacro(ThresholdCells,int);
+  vtkSetMacro(ThresholdCells,vtkTypeBool);
+  vtkGetMacro(ThresholdCells,vtkTypeBool);
+  vtkBooleanMacro(ThresholdCells,vtkTypeBool);
   //@}
 
   //@{
@@ -88,9 +88,9 @@ public:
    * when extracting cells from 2D imagedata
    * Currently this functionality is only implemented for 2D imagedata
    */
-  vtkSetMacro(OutputTriangles,int);
-  vtkGetMacro(OutputTriangles,int);
-  vtkBooleanMacro(OutputTriangles,int);
+  vtkSetMacro(OutputTriangles,vtkTypeBool);
+  vtkGetMacro(OutputTriangles,vtkTypeBool);
+  vtkBooleanMacro(OutputTriangles,vtkTypeBool);
   //@}
 
 protected:
@@ -101,9 +101,9 @@ protected:
   int FillInputPortInformation(int port, vtkInformation *info) override;
 
   int    Extent[6];
-  int    ThresholdCells;
+  vtkTypeBool    ThresholdCells;
   double ThresholdValue;
-  int    OutputTriangles;
+  vtkTypeBool    OutputTriangles;
 
 private:
   vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) = delete;

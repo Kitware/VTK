@@ -201,9 +201,9 @@ public:
    * specification will be violated, but reading and writing will be
    * fast.  The default is to do the encoding.
    */
-  vtkSetMacro(EncodeAppendedData, int);
-  vtkGetMacro(EncodeAppendedData, int);
-  vtkBooleanMacro(EncodeAppendedData, int);
+  vtkSetMacro(EncodeAppendedData, vtkTypeBool);
+  vtkGetMacro(EncodeAppendedData, vtkTypeBool);
+  vtkBooleanMacro(EncodeAppendedData, vtkTypeBool);
   //@}
 
   //@{
@@ -290,7 +290,7 @@ protected:
   int DataMode;
 
   // Whether to base64-encode the appended data section.
-  int EncodeAppendedData;
+  vtkTypeBool EncodeAppendedData;
 
   // The stream position at which appended data starts.
   vtkTypeInt64 AppendedDataPosition;

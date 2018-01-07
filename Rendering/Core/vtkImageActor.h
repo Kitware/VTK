@@ -66,9 +66,9 @@ public:
    * Turn on/off linear interpolation of the image when rendering.
    * More options are available in the Property of the image actor.
    */
-  virtual void SetInterpolate(int);
-  virtual int GetInterpolate();
-  vtkBooleanMacro(Interpolate,int);
+  virtual void SetInterpolate(vtkTypeBool);
+  virtual vtkTypeBool GetInterpolate();
+  vtkBooleanMacro(Interpolate,vtkTypeBool);
   //@}
 
   //@{

@@ -95,9 +95,9 @@ public:
    * If enabled, this will flip the sense of inside and outside the implicit
    * function (i.e., a rotation around the r-s-t=0.5 axis).
    */
-  vtkSetMacro(FlipTexture,int);
-  vtkGetMacro(FlipTexture,int);
-  vtkBooleanMacro(FlipTexture,int);
+  vtkSetMacro(FlipTexture,vtkTypeBool);
+  vtkGetMacro(FlipTexture,vtkTypeBool);
+  vtkBooleanMacro(FlipTexture,vtkTypeBool);
   //@}
 
 protected:
@@ -109,7 +109,7 @@ protected:
   vtkImplicitFunction *RFunction;
   vtkImplicitFunction *SFunction;
   vtkImplicitFunction *TFunction;
-  int FlipTexture;
+  vtkTypeBool FlipTexture;
 private:
   vtkImplicitTextureCoords(const vtkImplicitTextureCoords&) = delete;
   void operator=(const vtkImplicitTextureCoords&) = delete;

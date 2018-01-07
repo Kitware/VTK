@@ -186,9 +186,9 @@ public:
    * last node color. If off, values outside the range are mapped to
    * black.
    */
-  vtkSetClampMacro( Clamping, int, 0, 1 );
-  vtkGetMacro( Clamping, int );
-  vtkBooleanMacro( Clamping, int );
+  vtkSetClampMacro( Clamping, vtkTypeBool, 0, 1 );
+  vtkGetMacro( Clamping, vtkTypeBool );
+  vtkBooleanMacro( Clamping, vtkTypeBool );
   //@}
 
   //@{
@@ -337,7 +337,7 @@ protected:
    * One  = clamp to the lowest value below defined points and
    * highest value above defined points
    */
-  int Clamping;
+  vtkTypeBool Clamping;
 
   /**
    * The color space in which interpolation is performed.

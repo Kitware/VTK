@@ -1550,83 +1550,83 @@ int vtkDataSetAttributes::GetCopyAttribute (int index, int ctype)
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyScalars(int i, int ctype)
+void vtkDataSetAttributes::SetCopyScalars(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(SCALARS, i, ctype);
 }
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyScalars(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyScalars(int ctype)
 {
   return this->GetCopyAttribute(SCALARS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyVectors(int i, int ctype)
+void vtkDataSetAttributes::SetCopyVectors(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(VECTORS, i, ctype);
 }
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyVectors(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyVectors(int ctype)
 {
   return this->GetCopyAttribute(VECTORS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyNormals(int i, int ctype)
+void vtkDataSetAttributes::SetCopyNormals(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(NORMALS, i, ctype);
 }
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyNormals(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyNormals(int ctype)
 {
   return this->GetCopyAttribute(NORMALS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyTCoords(int i, int ctype)
+void vtkDataSetAttributes::SetCopyTCoords(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(TCOORDS, i, ctype);
 }
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyTCoords(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyTCoords(int ctype)
 {
   return this->GetCopyAttribute(TCOORDS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyTensors(int i, int ctype)
+void vtkDataSetAttributes::SetCopyTensors(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(TENSORS, i, ctype);
 }
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyTensors(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyTensors(int ctype)
 {
   return this->GetCopyAttribute(TENSORS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyGlobalIds(int i, int ctype)
+void vtkDataSetAttributes::SetCopyGlobalIds(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(GLOBALIDS, i, ctype);
 }
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyGlobalIds(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyGlobalIds(int ctype)
 {
   return this->GetCopyAttribute(GLOBALIDS, ctype);
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::SetCopyPedigreeIds(int i, int ctype)
+void vtkDataSetAttributes::SetCopyPedigreeIds(vtkTypeBool i, int ctype)
 {
   this->SetCopyAttribute(PEDIGREEIDS, i, ctype);
 }
 
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
+vtkTypeBool vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 {
   return this->GetCopyAttribute(PEDIGREEIDS, ctype);
 }

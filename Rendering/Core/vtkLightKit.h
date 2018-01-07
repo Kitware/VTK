@@ -219,9 +219,9 @@ public:
    * the apparent intensity of lights based on their perceptual brightnesses.
    * By default, MaintainLuminance is off.
    */
-  vtkBooleanMacro(MaintainLuminance, int);
-  vtkGetMacro(MaintainLuminance, int);
-  vtkSetMacro(MaintainLuminance, int);
+  vtkBooleanMacro(MaintainLuminance, vtkTypeBool);
+  vtkGetMacro(MaintainLuminance, vtkTypeBool);
+  vtkSetMacro(MaintainLuminance, vtkTypeBool);
   //@}
 
   /**
@@ -362,7 +362,7 @@ protected:
   double HeadLightWarmth;
   double HeadLightColor[3];
 
-  int MaintainLuminance;
+  vtkTypeBool MaintainLuminance;
 
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
 

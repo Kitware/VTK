@@ -160,9 +160,9 @@ public:
    * invocation, and includes the effect of the PlaceFactor which is used
    * to gram/shrink the bounding box.
    */
-  vtkSetMacro(ClampToBounds,int);
-  vtkGetMacro(ClampToBounds,int);
-  vtkBooleanMacro(ClampToBounds,int);
+  vtkSetMacro(ClampToBounds,vtkTypeBool);
+  vtkGetMacro(ClampToBounds,vtkTypeBool);
+  vtkBooleanMacro(ClampToBounds,vtkTypeBool);
   //@}
 
   /**
@@ -267,7 +267,7 @@ protected:
   void Scale(double *p1, double *p2, int X, int Y);
 
   // Initial bounds
-  int   ClampToBounds;
+  vtkTypeBool   ClampToBounds;
   void  ClampPosition(double x[3]);
   int   InBounds(double x[3]);
 

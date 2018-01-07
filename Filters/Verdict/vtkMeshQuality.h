@@ -113,9 +113,9 @@ public:
    * aggregate quality average of the entire mesh, recorded in the
    * FieldData).
    */
-  vtkSetMacro(SaveCellQuality,int);
-  vtkGetMacro(SaveCellQuality,int);
-  vtkBooleanMacro(SaveCellQuality,int);
+  vtkSetMacro(SaveCellQuality,vtkTypeBool);
+  vtkGetMacro(SaveCellQuality,vtkTypeBool);
+  vtkBooleanMacro(SaveCellQuality,vtkTypeBool);
   //@}
 
   //@{
@@ -837,9 +837,9 @@ public:
    * This allows average cell quality of a mesh to be
    * calculated without requiring per-cell storage.
    */
-  virtual void SetRatio( int r ) { this->SetSaveCellQuality( r ); }
-  int GetRatio() { return this->GetSaveCellQuality(); }
-  vtkBooleanMacro(Ratio,int);
+  virtual void SetRatio( vtkTypeBool r ) { this->SetSaveCellQuality( r ); }
+  vtkTypeBool GetRatio() { return this->GetSaveCellQuality(); }
+  vtkBooleanMacro(Ratio,vtkTypeBool);
 
   //@{
   /**
@@ -859,7 +859,7 @@ public:
    * mode is off, since it does not make a lot of sense for
    * meshes with non-tetrahedral cells.
    */
-  virtual void SetVolume( int cv )
+  virtual void SetVolume( vtkTypeBool cv )
   {
     if ( ! ((cv != 0) ^ (this->Volume != 0)) )
     {
@@ -872,11 +872,11 @@ public:
       this->CompatibilityModeOn();
     }
   }
-  int GetVolume()
+  vtkTypeBool GetVolume()
   {
     return this->Volume;
   }
-  vtkBooleanMacro(Volume,int);
+  vtkBooleanMacro(Volume,vtkTypeBool);
   //@}
 
   //@{
@@ -907,7 +907,7 @@ public:
    * diving off of the Combinatorial Coding Cliff into
    * Certain Insanity.
    */
-  virtual void SetCompatibilityMode( int cm )
+  virtual void SetCompatibilityMode( vtkTypeBool cm )
   {
     if ( !((cm != 0) ^ (this->CompatibilityMode != 0)) )
     {
@@ -921,8 +921,8 @@ public:
       this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
     }
   }
-  vtkGetMacro(CompatibilityMode,int);
-  vtkBooleanMacro(CompatibilityMode,int);
+  vtkGetMacro(CompatibilityMode,vtkTypeBool);
+  vtkBooleanMacro(CompatibilityMode,vtkTypeBool);
   //@}
 
 protected:
@@ -936,14 +936,14 @@ protected:
    */
   static int GetCurrentTriangleNormal( double point[3], double normal[3] );
 
-  int SaveCellQuality;
+  vtkTypeBool SaveCellQuality;
   int TriangleQualityMeasure;
   int QuadQualityMeasure;
   int TetQualityMeasure;
   int HexQualityMeasure;
 
-  int CompatibilityMode;
-  int Volume;
+  vtkTypeBool CompatibilityMode;
+  vtkTypeBool Volume;
 
   vtkDataArray* CellNormals;
   static double CurrentTriNormal[3];

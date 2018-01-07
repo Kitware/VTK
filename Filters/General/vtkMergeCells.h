@@ -124,9 +124,9 @@ public:
    * than MergeDuplicatePointsOff().
    */
 
-  vtkSetMacro(MergeDuplicatePoints, int);
-  vtkGetMacro(MergeDuplicatePoints, int);
-  vtkBooleanMacro(MergeDuplicatePoints, int);
+  vtkSetMacro(MergeDuplicatePoints, vtkTypeBool);
+  vtkGetMacro(MergeDuplicatePoints, vtkTypeBool);
+  vtkBooleanMacro(MergeDuplicatePoints, vtkTypeBool);
 
   /**
    * We need to know the number of different data sets that will
@@ -190,7 +190,7 @@ private:
   void* GlobalCellIdArray;
 
   float PointMergeTolerance;
-  int MergeDuplicatePoints;
+  vtkTypeBool MergeDuplicatePoints;
 
   char InputIsUGrid;
   char InputIsPointSet;

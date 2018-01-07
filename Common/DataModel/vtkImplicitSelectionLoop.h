@@ -98,9 +98,9 @@ public:
    * computed from the accumulated cross product of the edges. You can also
    * specify the normal to use.
    */
-  vtkSetMacro(AutomaticNormalGeneration,int);
-  vtkGetMacro(AutomaticNormalGeneration,int);
-  vtkBooleanMacro(AutomaticNormalGeneration,int);
+  vtkSetMacro(AutomaticNormalGeneration,vtkTypeBool);
+  vtkGetMacro(AutomaticNormalGeneration,vtkTypeBool);
+  vtkBooleanMacro(AutomaticNormalGeneration,vtkTypeBool);
   //@}
 
   //@{
@@ -123,7 +123,7 @@ protected:
 
   vtkPoints *Loop;
   double Normal[3];
-  int AutomaticNormalGeneration;
+  vtkTypeBool AutomaticNormalGeneration;
 
 private:
   void Initialize();

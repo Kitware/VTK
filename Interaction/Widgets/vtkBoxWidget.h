@@ -129,9 +129,9 @@ public:
    * box. When on, the normals point into the hexahedron.  InsideOut
    * is off by default.
    */
-  vtkSetMacro(InsideOut,int);
-  vtkGetMacro(InsideOut,int);
-  vtkBooleanMacro(InsideOut,int);
+  vtkSetMacro(InsideOut,vtkTypeBool);
+  vtkGetMacro(InsideOut,vtkTypeBool);
+  vtkBooleanMacro(InsideOut,vtkTypeBool);
   //@}
 
   /**
@@ -230,15 +230,15 @@ public:
    * Control the behavior of the widget. Translation, rotation, and
    * scaling can all be enabled and disabled.
    */
-  vtkSetMacro(TranslationEnabled,int);
-  vtkGetMacro(TranslationEnabled,int);
-  vtkBooleanMacro(TranslationEnabled,int);
-  vtkSetMacro(ScalingEnabled,int);
-  vtkGetMacro(ScalingEnabled,int);
-  vtkBooleanMacro(ScalingEnabled,int);
-  vtkSetMacro(RotationEnabled,int);
-  vtkGetMacro(RotationEnabled,int);
-  vtkBooleanMacro(RotationEnabled,int);
+  vtkSetMacro(TranslationEnabled,vtkTypeBool);
+  vtkGetMacro(TranslationEnabled,vtkTypeBool);
+  vtkBooleanMacro(TranslationEnabled,vtkTypeBool);
+  vtkSetMacro(ScalingEnabled,vtkTypeBool);
+  vtkGetMacro(ScalingEnabled,vtkTypeBool);
+  vtkBooleanMacro(ScalingEnabled,vtkTypeBool);
+  vtkSetMacro(RotationEnabled,vtkTypeBool);
+  vtkGetMacro(RotationEnabled,vtkTypeBool);
+  vtkBooleanMacro(RotationEnabled,vtkTypeBool);
   //@}
 
 protected:
@@ -342,15 +342,15 @@ protected:
   void CreateDefaultProperties();
 
   // Control the orientation of the normals
-  int InsideOut;
+  vtkTypeBool InsideOut;
   int OutlineFaceWires;
   int OutlineCursorWires;
   void GenerateOutline();
 
   // Control whether scaling, rotation, and translation are supported
-  int TranslationEnabled;
-  int ScalingEnabled;
-  int RotationEnabled;
+  vtkTypeBool TranslationEnabled;
+  vtkTypeBool ScalingEnabled;
+  vtkTypeBool RotationEnabled;
 
 private:
   vtkBoxWidget(const vtkBoxWidget&) = delete;

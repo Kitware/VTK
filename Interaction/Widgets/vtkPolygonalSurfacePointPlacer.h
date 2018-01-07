@@ -157,9 +157,9 @@ public:
    * drawing contours along the edges of a surface mesh.
    * OFF by default.
    */
-  vtkSetMacro( SnapToClosestPoint, int );
-  vtkGetMacro( SnapToClosestPoint, int );
-  vtkBooleanMacro( SnapToClosestPoint, int );
+  vtkSetMacro( SnapToClosestPoint, vtkTypeBool );
+  vtkGetMacro( SnapToClosestPoint, vtkTypeBool );
+  vtkBooleanMacro( SnapToClosestPoint, vtkTypeBool );
   //@}
 
   //@{
@@ -180,7 +180,7 @@ protected:
   vtkPolyDataCollection                   *Polys;
   vtkPolygonalSurfacePointPlacerInternals *Internals;
   double                                   DistanceOffset;
-  int                                      SnapToClosestPoint;
+  vtkTypeBool                                      SnapToClosestPoint;
 
 private:
   vtkPolygonalSurfacePointPlacer(const vtkPolygonalSurfacePointPlacer&) = delete;

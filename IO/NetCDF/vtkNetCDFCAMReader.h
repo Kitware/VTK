@@ -88,16 +88,16 @@ public:
    * midpoint layer variables ( which have dimension 'lev') or for
    * interface layer variables (which have dimension 'ilev').
    */
-  vtkBooleanMacro(SingleMidpointLayer, int);
-  vtkSetMacro(SingleMidpointLayer, int);
-  vtkGetMacro(SingleMidpointLayer, int);
+  vtkBooleanMacro(SingleMidpointLayer, vtkTypeBool);
+  vtkSetMacro(SingleMidpointLayer, vtkTypeBool);
+  vtkGetMacro(SingleMidpointLayer, vtkTypeBool);
   vtkSetMacro(MidpointLayerIndex, int);
   vtkGetMacro(MidpointLayerIndex, int);
   vtkGetVector2Macro(MidpointLayersRange, int);
 
-  vtkBooleanMacro(SingleInterfaceLayer, int);
-  vtkSetMacro(SingleInterfaceLayer, int);
-  vtkGetMacro(SingleInterfaceLayer, int);
+  vtkBooleanMacro(SingleInterfaceLayer, vtkTypeBool);
+  vtkSetMacro(SingleInterfaceLayer, vtkTypeBool);
+  vtkGetMacro(SingleInterfaceLayer, vtkTypeBool);
   vtkSetMacro(InterfaceLayerIndex, int);
   vtkGetMacro(InterfaceLayerIndex, int);
   vtkGetVector2Macro(InterfaceLayersRange, int);
@@ -172,11 +172,11 @@ private:
   vtkDataArraySelection* PointDataArraySelection;
   vtkCallbackCommand* SelectionObserver;
 
-  int SingleMidpointLayer;
+  vtkTypeBool SingleMidpointLayer;
   int MidpointLayerIndex;
   int MidpointLayersRange[2];
 
-  int SingleInterfaceLayer;
+  vtkTypeBool SingleInterfaceLayer;
   int InterfaceLayerIndex;
   int InterfaceLayersRange[2];
 

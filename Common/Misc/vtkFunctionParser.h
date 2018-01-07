@@ -302,9 +302,9 @@ public:
    * numbers) will be replaced by ReplacementValue. Otherwise an
    * error will be reported
    */
-  vtkSetMacro(ReplaceInvalidValues,int);
-  vtkGetMacro(ReplaceInvalidValues,int);
-  vtkBooleanMacro(ReplaceInvalidValues,int);
+  vtkSetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkGetMacro(ReplaceInvalidValues,vtkTypeBool);
+  vtkBooleanMacro(ReplaceInvalidValues,vtkTypeBool);
   vtkSetMacro(ReplacementValue,double);
   vtkGetMacro(ReplacementValue,double);
   //@}
@@ -395,7 +395,7 @@ protected:
   vtkTimeStamp EvaluateMTime;
   vtkTimeStamp CheckMTime;
 
-  int ReplaceInvalidValues;
+  vtkTypeBool ReplaceInvalidValues;
   double ReplacementValue;
 
   int   ParseErrorPositon;

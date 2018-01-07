@@ -76,9 +76,9 @@ public:
   /**
    * Enable disable thick mode. Default is to enable it.
    */
-  vtkSetMacro( ThickMode, int );
-  vtkGetMacro( ThickMode, int );
-  vtkBooleanMacro( ThickMode, int );
+  vtkSetMacro( ThickMode, vtkTypeBool );
+  vtkGetMacro( ThickMode, vtkTypeBool );
+  vtkBooleanMacro( ThickMode, vtkTypeBool );
   //@}
 
   /**
@@ -172,7 +172,7 @@ protected:
   virtual void BuildCursorGeometryWithHole();
   virtual void ComputeAxes();
 
-  int           ThickMode;
+  vtkTypeBool           ThickMode;
   int           Hole;
   double        HoleWidth;
   double        HoleWidthInPixels;

@@ -482,7 +482,7 @@ void vtkParallelopipedWidget::SetCursor(int state)
 }
 
 //----------------------------------------------------------------------------
-void vtkParallelopipedWidget::SetProcessEvents(int pe)
+void vtkParallelopipedWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
   for (int i=0; i<8; i++)

@@ -69,9 +69,9 @@ public:
    * before the mapping occurs. If turned off, FillValue is used to initialize
    * any unmapped array indices. Default is off.
    */
-  vtkSetMacro(PassArray, int);
-  vtkGetMacro(PassArray, int);
-  vtkBooleanMacro(PassArray, int);
+  vtkSetMacro(PassArray, vtkTypeBool);
+  vtkGetMacro(PassArray, vtkTypeBool);
+  vtkBooleanMacro(PassArray, vtkTypeBool);
   //@}
 
   //@{
@@ -155,7 +155,7 @@ protected:
   int OutputArrayType;
   int FieldType;
   int MapType;
-  int PassArray;
+  vtkTypeBool PassArray;
   double FillValue;
 
   // PIMPL idiom to hide map implementation.

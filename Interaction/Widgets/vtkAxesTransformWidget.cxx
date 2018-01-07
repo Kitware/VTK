@@ -225,7 +225,7 @@ void vtkAxesTransformWidget::CreateDefaultRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkAxesTransformWidget::SetProcessEvents(int pe)
+void vtkAxesTransformWidget::SetProcessEvents(vtkTypeBool pe)
 {
   this->Superclass::SetProcessEvents(pe);
 

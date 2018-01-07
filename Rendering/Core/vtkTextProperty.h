@@ -88,9 +88,9 @@ public:
   /**
    * Enable/disable text frame.
    */
-  vtkSetMacro(Frame, int);
-  vtkGetMacro(Frame, int);
-  vtkBooleanMacro(Frame, int);
+  vtkSetMacro(Frame, vtkTypeBool);
+  vtkGetMacro(Frame, vtkTypeBool);
+  vtkBooleanMacro(Frame, vtkTypeBool);
   //@}
 
   //@{
@@ -143,27 +143,27 @@ public:
   /**
    * Enable/disable text bolding.
    */
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
-  vtkBooleanMacro(Bold, int);
+  vtkSetMacro(Bold, vtkTypeBool);
+  vtkGetMacro(Bold, vtkTypeBool);
+  vtkBooleanMacro(Bold, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable/disable text italic.
    */
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
-  vtkBooleanMacro(Italic, int);
+  vtkSetMacro(Italic, vtkTypeBool);
+  vtkGetMacro(Italic, vtkTypeBool);
+  vtkBooleanMacro(Italic, vtkTypeBool);
   //@}
 
   //@{
   /**
    * Enable/disable text shadow.
    */
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
-  vtkBooleanMacro(Shadow, int);
+  vtkSetMacro(Shadow, vtkTypeBool);
+  vtkGetMacro(Shadow, vtkTypeBool);
+  vtkBooleanMacro(Shadow, vtkTypeBool);
   //@}
 
   //@{
@@ -219,9 +219,9 @@ public:
    * the baseline. This option can be used to get centered labels. It does not
    * work well if the string changes as the string position will move around.
    */
-  vtkSetMacro(UseTightBoundingBox, int);
-  vtkGetMacro(UseTightBoundingBox, int);
-  vtkBooleanMacro(UseTightBoundingBox, int);
+  vtkSetMacro(UseTightBoundingBox, vtkTypeBool);
+  vtkGetMacro(UseTightBoundingBox, vtkTypeBool);
+  vtkBooleanMacro(UseTightBoundingBox, vtkTypeBool);
   //@}
 
   //@{
@@ -262,19 +262,19 @@ protected:
   double Opacity;
   double BackgroundColor[3];
   double BackgroundOpacity;
-  int    Frame;
+  vtkTypeBool    Frame;
   double FrameColor[3];
   int    FrameWidth;
   char* FontFamilyAsString;
   char* FontFile;
   int   FontSize;
-  int   Bold;
-  int   Italic;
-  int   Shadow;
+  vtkTypeBool   Bold;
+  vtkTypeBool   Italic;
+  vtkTypeBool   Shadow;
   int   ShadowOffset[2];
   int   Justification;
   int   VerticalJustification;
-  int   UseTightBoundingBox;
+  vtkTypeBool   UseTightBoundingBox;
   double Orientation;
   double LineOffset;
   double LineSpacing;

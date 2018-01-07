@@ -133,9 +133,9 @@ public:
    * of divisions specified by the user is always used (as long as it is valid).
    * The default is On
    */
-  vtkSetMacro(AutoAdjustNumberOfDivisions,int);
-  vtkGetMacro(AutoAdjustNumberOfDivisions,int);
-  vtkBooleanMacro(AutoAdjustNumberOfDivisions,int);
+  vtkSetMacro(AutoAdjustNumberOfDivisions,vtkTypeBool);
+  vtkGetMacro(AutoAdjustNumberOfDivisions,vtkTypeBool);
+  vtkBooleanMacro(AutoAdjustNumberOfDivisions,vtkTypeBool);
   //@}
 
   //@{
@@ -164,9 +164,9 @@ public:
    * when the append methods (StartAppend(), Append(), EndAppend()) are being
    * called directly.
    */
-  vtkSetMacro(UseInputPoints, int);
-  vtkGetMacro(UseInputPoints, int);
-  vtkBooleanMacro(UseInputPoints, int);
+  vtkSetMacro(UseInputPoints, vtkTypeBool);
+  vtkGetMacro(UseInputPoints, vtkTypeBool);
+  vtkBooleanMacro(UseInputPoints, vtkTypeBool);
   //@}
 
   //@{
@@ -176,9 +176,9 @@ public:
    * the quadrics (position of points), but not the mesh.  Which features to
    * use can be controlled by the filter "FeatureEdges".
    */
-  vtkSetMacro(UseFeatureEdges, int);
-  vtkGetMacro(UseFeatureEdges, int);
-  vtkBooleanMacro(UseFeatureEdges, int);
+  vtkSetMacro(UseFeatureEdges, vtkTypeBool);
+  vtkGetMacro(UseFeatureEdges, vtkTypeBool);
+  vtkBooleanMacro(UseFeatureEdges, vtkTypeBool);
   vtkFeatureEdges *GetFeatureEdges() {return this->FeatureEdges;}
   //@}
 
@@ -190,9 +190,9 @@ public:
    * / feature edges.  They influence the quadrics (position of points), but
    * not the mesh.
    */
-  vtkSetMacro(UseFeaturePoints, int);
-  vtkGetMacro(UseFeaturePoints, int);
-  vtkBooleanMacro(UseFeaturePoints, int);
+  vtkSetMacro(UseFeaturePoints, vtkTypeBool);
+  vtkGetMacro(UseFeaturePoints, vtkTypeBool);
+  vtkBooleanMacro(UseFeaturePoints, vtkTypeBool);
   //@}
 
   //@{
@@ -211,9 +211,9 @@ public:
    * the flag is off the filter operates faster, but the surface may not be
    * as well behaved.
    */
-  vtkSetMacro(UseInternalTriangles, int);
-  vtkGetMacro(UseInternalTriangles, int);
-  vtkBooleanMacro(UseInternalTriangles, int);
+  vtkSetMacro(UseInternalTriangles, vtkTypeBool);
+  vtkGetMacro(UseInternalTriangles, vtkTypeBool);
+  vtkBooleanMacro(UseInternalTriangles, vtkTypeBool);
   //@}
 
   //@{
@@ -238,9 +238,9 @@ public:
    * of output cells (no averaging).  This is off by default, and does
    * not work when append is being called explicitly (non-pipeline usage).
    */
-  vtkSetMacro(CopyCellData, int);
-  vtkGetMacro(CopyCellData, int);
-  vtkBooleanMacro(CopyCellData, int);
+  vtkSetMacro(CopyCellData, vtkTypeBool);
+  vtkGetMacro(CopyCellData, vtkTypeBool);
+  vtkBooleanMacro(CopyCellData, vtkTypeBool);
   //@}
 
   //@{
@@ -250,9 +250,9 @@ public:
    * in some cases can reduce the number of cells produced by an order of
    * magnitude. By default, this flag is true.
    */
-  vtkSetMacro(PreventDuplicateCells,int);
-  vtkGetMacro(PreventDuplicateCells,int);
-  vtkBooleanMacro(PreventDuplicateCells,int);
+  vtkSetMacro(PreventDuplicateCells,vtkTypeBool);
+  vtkGetMacro(PreventDuplicateCells,vtkTypeBool);
+  vtkBooleanMacro(PreventDuplicateCells,vtkTypeBool);
   //@}
 
 protected:
@@ -333,7 +333,7 @@ protected:
    * input points with the lowest error.
    */
   void EndAppendUsingPoints(vtkPolyData *input, vtkPolyData *output);
-  int UseInputPoints;
+  vtkTypeBool UseInputPoints;
   //@}
 
   /**
@@ -344,16 +344,16 @@ protected:
 
   // Unfinished option to handle boundary edges differently.
   void AppendFeatureQuadrics(vtkPolyData *pd, vtkPolyData *output);
-  int UseFeatureEdges;
-  int UseFeaturePoints;
-  int UseInternalTriangles;
+  vtkTypeBool UseFeatureEdges;
+  vtkTypeBool UseFeaturePoints;
+  vtkTypeBool UseInternalTriangles;
 
   int NumberOfXDivisions;
   int NumberOfYDivisions;
   int NumberOfZDivisions;
 
   // Set this to eliminate duplicate cells
-  int PreventDuplicateCells;
+  vtkTypeBool PreventDuplicateCells;
   vtkQuadricClusteringCellSet *CellSet; //PIMPLd stl set for tracking inserted cells
   vtkIdType NumberOfBins;
 
@@ -368,7 +368,7 @@ protected:
 
   double DivisionOrigin[3];
   double DivisionSpacing[3];
-  int   AutoAdjustNumberOfDivisions;
+  vtkTypeBool   AutoAdjustNumberOfDivisions;
 
   double Bounds[6];
   double XBinSize;
@@ -403,7 +403,7 @@ protected:
   vtkPoints *FeaturePoints;
   double FeaturePointsAngle;
 
-  int CopyCellData;
+  vtkTypeBool CopyCellData;
   int InCellCount;
   int OutCellCount;
 

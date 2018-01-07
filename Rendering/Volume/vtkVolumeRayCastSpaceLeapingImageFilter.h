@@ -65,18 +65,18 @@ public:
   /**
    * Compute gradient opacity ?
    */
-  vtkSetMacro( ComputeGradientOpacity, int );
-  vtkGetMacro( ComputeGradientOpacity, int );
-  vtkBooleanMacro( ComputeGradientOpacity, int );
+  vtkSetMacro( ComputeGradientOpacity, vtkTypeBool );
+  vtkGetMacro( ComputeGradientOpacity, vtkTypeBool );
+  vtkBooleanMacro( ComputeGradientOpacity, vtkTypeBool );
   //@}
 
   //@{
   /**
    * Compute the min max structure ?.
    */
-  vtkSetMacro( ComputeMinMax, int );
-  vtkGetMacro( ComputeMinMax, int );
-  vtkBooleanMacro( ComputeMinMax, int );
+  vtkSetMacro( ComputeMinMax, vtkTypeBool );
+  vtkGetMacro( ComputeMinMax, vtkTypeBool );
+  vtkBooleanMacro( ComputeMinMax, vtkTypeBool );
   //@}
 
   //@{
@@ -84,9 +84,9 @@ public:
    * Update the gradient opacity flags. (The scalar opacity flags are always
    * updated upon execution of this filter.)
    */
-  vtkSetMacro( UpdateGradientOpacityFlags, int );
-  vtkGetMacro( UpdateGradientOpacityFlags, int );
-  vtkBooleanMacro( UpdateGradientOpacityFlags, int );
+  vtkSetMacro( UpdateGradientOpacityFlags, vtkTypeBool );
+  vtkGetMacro( UpdateGradientOpacityFlags, vtkTypeBool );
+  vtkBooleanMacro( UpdateGradientOpacityFlags, vtkTypeBool );
   //@}
 
   /**
@@ -204,9 +204,9 @@ protected:
   float             TableShift[4];
   float             TableScale[4];
   int               TableSize[4];
-  int               ComputeGradientOpacity;
-  int               ComputeMinMax;
-  int               UpdateGradientOpacityFlags;
+  vtkTypeBool               ComputeGradientOpacity;
+  vtkTypeBool               ComputeMinMax;
+  vtkTypeBool               UpdateGradientOpacityFlags;
   unsigned short *  MinNonZeroScalarIndex;
   unsigned char  *  MinNonZeroGradientMagnitudeIndex;
   unsigned char  ** GradientMagnitude;

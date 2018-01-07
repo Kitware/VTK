@@ -3773,7 +3773,7 @@ int vtkLSDynaReader::ReadPartSizes()
 }
 
 //-----------------------------------------------------------------------------
-void vtkLSDynaReader::SetDeformedMesh(int deformed)
+void vtkLSDynaReader::SetDeformedMesh(vtkTypeBool deformed)
 {
   if (this->DeformedMesh != deformed)
   {

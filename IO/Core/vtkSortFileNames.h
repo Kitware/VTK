@@ -55,9 +55,9 @@ public:
    * numbered series will be placed into different groups.  This is
    * off by default.
    */
-  vtkSetMacro(Grouping, int);
-  vtkGetMacro(Grouping, int);
-  vtkBooleanMacro(Grouping, int);
+  vtkSetMacro(Grouping, vtkTypeBool);
+  vtkGetMacro(Grouping, vtkTypeBool);
+  vtkBooleanMacro(Grouping, vtkTypeBool);
   //@}
 
   //@{
@@ -69,9 +69,9 @@ public:
    * ["file10.dat" "file8.dat", "file9.dat"].
    * NumericSort is off by default.
    */
-  vtkSetMacro(NumericSort, int);
-  vtkGetMacro(NumericSort, int);
-  vtkBooleanMacro(NumericSort, int);
+  vtkSetMacro(NumericSort, vtkTypeBool);
+  vtkGetMacro(NumericSort, vtkTypeBool);
+  vtkBooleanMacro(NumericSort, vtkTypeBool);
   //@}
 
   //@{
@@ -79,9 +79,9 @@ public:
    * Ignore case when sorting.  This flag is honored by both
    * the sorting and the grouping. This is off by default.
    */
-  vtkSetMacro(IgnoreCase, int);
-  vtkGetMacro(IgnoreCase, int);
-  vtkBooleanMacro(IgnoreCase, int);
+  vtkSetMacro(IgnoreCase, vtkTypeBool);
+  vtkGetMacro(IgnoreCase, vtkTypeBool);
+  vtkBooleanMacro(IgnoreCase, vtkTypeBool);
   //@}
 
   //@{
@@ -90,9 +90,9 @@ public:
    * is a directory rather than a file will not be included in
    * the output.  This is off by default.
    */
-  vtkSetMacro(SkipDirectories, int);
-  vtkGetMacro(SkipDirectories, int);
-  vtkBooleanMacro(SkipDirectories, int);
+  vtkSetMacro(SkipDirectories, vtkTypeBool);
+  vtkGetMacro(SkipDirectories, vtkTypeBool);
+  vtkBooleanMacro(SkipDirectories, vtkTypeBool);
   //@}
 
   //@{
@@ -135,10 +135,10 @@ protected:
   vtkSortFileNames();
   ~vtkSortFileNames() override;
 
-  int NumericSort;
-  int IgnoreCase;
-  int Grouping;
-  int SkipDirectories;
+  vtkTypeBool NumericSort;
+  vtkTypeBool IgnoreCase;
+  vtkTypeBool Grouping;
+  vtkTypeBool SkipDirectories;
 
   vtkTimeStamp UpdateTime;
 

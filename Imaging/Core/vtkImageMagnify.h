@@ -50,9 +50,9 @@ public:
    * Turn interpolation on and off (pixel replication is used when off).
    * Initially, interpolation is off.
    */
-  vtkSetMacro(Interpolate,int);
-  vtkGetMacro(Interpolate,int);
-  vtkBooleanMacro(Interpolate,int);
+  vtkSetMacro(Interpolate,vtkTypeBool);
+  vtkGetMacro(Interpolate,vtkTypeBool);
+  vtkBooleanMacro(Interpolate,vtkTypeBool);
   //@}
 
 protected:
@@ -60,7 +60,7 @@ protected:
   ~vtkImageMagnify() override {}
 
   int MagnificationFactors[3];
-  int Interpolate;
+  vtkTypeBool Interpolate;
   int RequestUpdateExtent(vtkInformation *,
                                   vtkInformationVector **,
                                   vtkInformationVector *) override;

@@ -58,26 +58,26 @@ public:
    * You can changed "Shift" to get around this.
    * vtkImageGaussianSmooth or vtkImageMean with strides.
    */
-  void SetAveraging(int);
-  int GetAveraging() {return this->GetMean();};
-  vtkBooleanMacro(Averaging,int);
+  void SetAveraging(vtkTypeBool);
+  vtkTypeBool GetAveraging() {return this->GetMean();};
+  vtkBooleanMacro(Averaging,vtkTypeBool);
   //@}
 
-  void SetMean(int);
-  vtkGetMacro(Mean,int);
-  vtkBooleanMacro(Mean,int);
+  void SetMean(vtkTypeBool);
+  vtkGetMacro(Mean,vtkTypeBool);
+  vtkBooleanMacro(Mean,vtkTypeBool);
 
-  void SetMinimum(int);
-  vtkGetMacro(Minimum,int);
-  vtkBooleanMacro(Minimum,int);
+  void SetMinimum(vtkTypeBool);
+  vtkGetMacro(Minimum,vtkTypeBool);
+  vtkBooleanMacro(Minimum,vtkTypeBool);
 
-  void SetMaximum(int);
-  vtkGetMacro(Maximum,int);
-  vtkBooleanMacro(Maximum,int);
+  void SetMaximum(vtkTypeBool);
+  vtkGetMacro(Maximum,vtkTypeBool);
+  vtkBooleanMacro(Maximum,vtkTypeBool);
 
-  void SetMedian(int);
-  vtkGetMacro(Median,int);
-  vtkBooleanMacro(Median,int);
+  void SetMedian(vtkTypeBool);
+  vtkGetMacro(Median,vtkTypeBool);
+  vtkBooleanMacro(Median,vtkTypeBool);
 
 protected:
   vtkImageShrink3D();
@@ -86,9 +86,9 @@ protected:
   int ShrinkFactors[3];
   int Shift[3];
   int Mean;
-  int Minimum;
-  int Maximum;
-  int Median;
+  vtkTypeBool Minimum;
+  vtkTypeBool Maximum;
+  vtkTypeBool Median;
 
   int RequestInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;
   int RequestUpdateExtent (vtkInformation *, vtkInformationVector **, vtkInformationVector *) override;

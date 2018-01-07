@@ -89,9 +89,9 @@ public:
   /**
    * Also perform window level ?
    */
-  vtkSetMacro( ManageWindowLevel, int );
-  vtkGetMacro( ManageWindowLevel, int );
-  vtkBooleanMacro( ManageWindowLevel, int );
+  vtkSetMacro( ManageWindowLevel, vtkTypeBool );
+  vtkGetMacro( ManageWindowLevel, vtkTypeBool );
+  vtkBooleanMacro( ManageWindowLevel, vtkTypeBool );
   //@}
 
   /**
@@ -142,7 +142,7 @@ protected:
 
   // Keep track whether key modifier key is pressed
   int ModifierActive;
-  int ManageWindowLevel;
+  vtkTypeBool ManageWindowLevel;
 
 private:
   vtkResliceCursorWidget(const vtkResliceCursorWidget&) = delete;

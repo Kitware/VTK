@@ -74,9 +74,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell vertex points should
    * be output.
    */
-  vtkGetMacro(GenerateVertexPoints,int);
-  vtkSetMacro(GenerateVertexPoints,int);
-  vtkBooleanMacro(GenerateVertexPoints,int);
+  vtkGetMacro(GenerateVertexPoints,vtkTypeBool);
+  vtkSetMacro(GenerateVertexPoints,vtkTypeBool);
+  vtkBooleanMacro(GenerateVertexPoints,vtkTypeBool);
   //@}
 
   //@{
@@ -84,9 +84,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell edges should
    * be sampled to produce output points. The default is true.
    */
-  vtkGetMacro(GenerateEdgePoints,int);
-  vtkSetMacro(GenerateEdgePoints,int);
-  vtkBooleanMacro(GenerateEdgePoints,int);
+  vtkGetMacro(GenerateEdgePoints,vtkTypeBool);
+  vtkSetMacro(GenerateEdgePoints,vtkTypeBool);
+  vtkBooleanMacro(GenerateEdgePoints,vtkTypeBool);
   //@}
 
   //@{
@@ -94,9 +94,9 @@ public:
    * Specify/retrieve a boolean flag indicating whether cell interiors should
    * be sampled to produce output points. The default is true.
    */
-  vtkGetMacro(GenerateInteriorPoints,int);
-  vtkSetMacro(GenerateInteriorPoints,int);
-  vtkBooleanMacro(GenerateInteriorPoints,int);
+  vtkGetMacro(GenerateInteriorPoints,vtkTypeBool);
+  vtkSetMacro(GenerateInteriorPoints,vtkTypeBool);
+  vtkBooleanMacro(GenerateInteriorPoints,vtkTypeBool);
   //@}
 
   //@{
@@ -107,9 +107,9 @@ public:
    * Recall that VTK only renders vertices and not points.
    * The default is true.
    */
-  vtkGetMacro(GenerateVertices,int);
-  vtkSetMacro(GenerateVertices,int);
-  vtkBooleanMacro(GenerateVertices,int);
+  vtkGetMacro(GenerateVertices,vtkTypeBool);
+  vtkSetMacro(GenerateVertices,vtkTypeBool);
+  vtkBooleanMacro(GenerateVertices,vtkTypeBool);
   //@}
 
 protected:
@@ -121,10 +121,10 @@ protected:
   double Distance;
   double Distance2;
 
-  int GenerateVertexPoints;
-  int GenerateEdgePoints;
-  int GenerateInteriorPoints;
-  int GenerateVertices;
+  vtkTypeBool GenerateVertexPoints;
+  vtkTypeBool GenerateEdgePoints;
+  vtkTypeBool GenerateInteriorPoints;
+  vtkTypeBool GenerateVertices;
 
   void SampleEdge(vtkPoints *pts, double x0[3], double x1[3]);
   void SampleTriangle(vtkPoints *newPts, vtkPoints *inPts,

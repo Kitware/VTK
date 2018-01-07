@@ -84,9 +84,9 @@ public:
    * If on, the second output will be the first input mesh split by the
    * intersection with the second input mesh. Defaults to on.
    */
-  vtkGetMacro(SplitFirstOutput, int);
-  vtkSetMacro(SplitFirstOutput, int);
-  vtkBooleanMacro(SplitFirstOutput, int);
+  vtkGetMacro(SplitFirstOutput, vtkTypeBool);
+  vtkSetMacro(SplitFirstOutput, vtkTypeBool);
+  vtkBooleanMacro(SplitFirstOutput, vtkTypeBool);
   //@}
 
   //@{
@@ -94,9 +94,9 @@ public:
    * If on, the third output will be the second input mesh split by the
    * intersection with the first input mesh. Defaults to on.
    */
-  vtkGetMacro(SplitSecondOutput, int);
-  vtkSetMacro(SplitSecondOutput, int);
-  vtkBooleanMacro(SplitSecondOutput, int);
+  vtkGetMacro(SplitSecondOutput, vtkTypeBool);
+  vtkSetMacro(SplitSecondOutput, vtkTypeBool);
+  vtkBooleanMacro(SplitSecondOutput, vtkTypeBool);
   //@}
 
   //@{
@@ -104,18 +104,18 @@ public:
    * If on, the output split surfaces will contain information about which
    * points are on the intersection of the two inputs. Default: ON
    */
-  vtkGetMacro(ComputeIntersectionPointArray, int);
-  vtkSetMacro(ComputeIntersectionPointArray, int);
-  vtkBooleanMacro(ComputeIntersectionPointArray, int);
+  vtkGetMacro(ComputeIntersectionPointArray, vtkTypeBool);
+  vtkSetMacro(ComputeIntersectionPointArray, vtkTypeBool);
+  vtkBooleanMacro(ComputeIntersectionPointArray, vtkTypeBool);
   //@}
 
   //@{
   /**
    * If on, the normals of the input will be checked. Default: OFF
    */
-  vtkGetMacro(CheckInput, int);
-  vtkSetMacro(CheckInput, int);
-  vtkBooleanMacro(CheckInput, int);
+  vtkGetMacro(CheckInput, vtkTypeBool);
+  vtkSetMacro(CheckInput, vtkTypeBool);
+  vtkBooleanMacro(CheckInput, vtkTypeBool);
   //@}
 
   //@{
@@ -123,9 +123,9 @@ public:
    * If on, the output remeshed surfaces will be checked for bad cells and
    * free edges. Default: ON
    */
-  vtkGetMacro(CheckMesh, int);
-  vtkSetMacro(CheckMesh, int);
-  vtkBooleanMacro(CheckMesh, int);
+  vtkGetMacro(CheckMesh, vtkTypeBool);
+  vtkSetMacro(CheckMesh, vtkTypeBool);
+  vtkBooleanMacro(CheckMesh, vtkTypeBool);
   //@}
 
   //@{
@@ -199,11 +199,11 @@ private:
 
   int NumberOfIntersectionPoints;
   int NumberOfIntersectionLines;
-  int SplitFirstOutput;
-  int SplitSecondOutput;
-  int ComputeIntersectionPointArray;
-  int CheckMesh;
-  int CheckInput;
+  vtkTypeBool SplitFirstOutput;
+  vtkTypeBool SplitSecondOutput;
+  vtkTypeBool ComputeIntersectionPointArray;
+  vtkTypeBool CheckMesh;
+  vtkTypeBool CheckInput;
   int Status;
   double Tolerance;
   double RelativeSubtriangleArea;

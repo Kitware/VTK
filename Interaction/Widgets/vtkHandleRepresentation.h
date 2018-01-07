@@ -96,9 +96,9 @@ public:
    * moves close to it (i.e., the widget becomes active). By default,
    * ActiveRepresentation is off and the representation is always visible.
    */
-  vtkSetMacro(ActiveRepresentation,int);
-  vtkGetMacro(ActiveRepresentation,int);
-  vtkBooleanMacro(ActiveRepresentation,int);
+  vtkSetMacro(ActiveRepresentation,vtkTypeBool);
+  vtkGetMacro(ActiveRepresentation,vtkTypeBool);
+  vtkBooleanMacro(ActiveRepresentation,vtkTypeBool);
   //@}
 
   // Enums define the state of the representation relative to the mouse pointer
@@ -126,9 +126,9 @@ public:
    * constrained in some way (along an axis, etc.) Widgets can use this
    * to control the resulting motion.
    */
-  vtkSetMacro(Constrained,int);
-  vtkGetMacro(Constrained,int);
-  vtkBooleanMacro(Constrained,int);
+  vtkSetMacro(Constrained,vtkTypeBool);
+  vtkGetMacro(Constrained,vtkTypeBool);
+  vtkBooleanMacro(Constrained,vtkTypeBool);
   //@}
 
   /**
@@ -173,8 +173,8 @@ protected:
   ~vtkHandleRepresentation() override;
 
   int Tolerance;
-  int ActiveRepresentation;
-  int Constrained;
+  vtkTypeBool ActiveRepresentation;
+  vtkTypeBool Constrained;
 
   // Two vtkCoordinates are available to subclasses, one in display
   // coordinates and the other in world coordinates. These facilitate

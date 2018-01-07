@@ -112,9 +112,9 @@ public:
    * widget responds to the shift modifier to constrain the handle along the
    * axis closest aligned with the motion vector.
    */
-  vtkSetMacro( EnableAxisConstraint, int );
-  vtkGetMacro( EnableAxisConstraint, int );
-  vtkBooleanMacro( EnableAxisConstraint, int );
+  vtkSetMacro( EnableAxisConstraint, vtkTypeBool );
+  vtkGetMacro( EnableAxisConstraint, vtkTypeBool );
+  vtkBooleanMacro( EnableAxisConstraint, vtkTypeBool );
   //@}
 
   //@{
@@ -131,9 +131,9 @@ public:
    * Allow resizing of handles ? By default the right mouse button scales
    * the handle size.
    */
-  vtkSetMacro( AllowHandleResize, int );
-  vtkGetMacro( AllowHandleResize, int );
-  vtkBooleanMacro( AllowHandleResize, int );
+  vtkSetMacro( AllowHandleResize, vtkTypeBool );
+  vtkGetMacro( AllowHandleResize, vtkTypeBool );
+  vtkBooleanMacro( AllowHandleResize, vtkTypeBool );
   //@}
 
   //@{
@@ -164,11 +164,11 @@ protected:
   void SetCursor(int state) override;
 
   int WidgetState;
-  int EnableAxisConstraint;
+  vtkTypeBool EnableAxisConstraint;
   vtkTypeBool EnableTranslation;
 
   // Allow resizing of handles.
-  int AllowHandleResize;
+  vtkTypeBool AllowHandleResize;
 
 private:
   vtkHandleWidget(const vtkHandleWidget&) = delete;

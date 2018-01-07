@@ -91,7 +91,7 @@ void vtkWindowLevelLookupTable::Build()
 // been adjusting the table values by hand)
 // This is a little ugly ... it might be best to remove
 // SetInverseVideo altogether and just use a negative Window.
-void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
+void vtkWindowLevelLookupTable::SetInverseVideo(vtkTypeBool iv)
 {
   if (this->InverseVideo == iv)
   {
