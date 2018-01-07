@@ -25,7 +25,7 @@
 ## projects.
 
 ## .SECTION See Also
-## http://www.vtk.org http://public.kitware.com/Dart/HTML/Index.shtml
+## http://www.vtk.org https://www.cdash.org/
 ## http://www.vtk.org/contribute.php#coding-standards
 
 import sys
@@ -43,10 +43,10 @@ else:
 exec(compile(open(os.path.join(selfpath, 'WindowsMangleList.py')).read(),
      os.path.join(selfpath, 'WindowsMangleList.py'), 'exec'))
 
-## If tested from dart, make sure to fix all the output strings
-test_from_dart = 0
-if "DART_TEST_FROM_DART" in os.environ:
-    test_from_dart = 1
+## If tested from ctest, make sure to fix all the output strings
+test_from_ctest = False
+if "DASHBOARD_TEST_FROM_CTEST" in os.environ:
+    test_from_ctest = True
 
 ## For backward compatibility
 def StringEndsWith(str1, str2):
@@ -83,7 +83,7 @@ class TestVTKFiles:
         self.Export = export
     def Print(self, text=""):
         rtext = text
-        if test_from_dart:
+        if test_from_ctest:
             rtext = rtext.replace("<", "&lt;")
             rtext = rtext.replace(">", "&gt;")
         print(rtext)
