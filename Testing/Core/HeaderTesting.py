@@ -128,10 +128,18 @@ class TestVTKFiles:
 
     def CheckExclude(self):
         prefix = '// VTK-HeaderTest-Exclude:'
+        prefix_c = '/* VTK-HeaderTest-Exclude:'
+        suffix_c = ' */'
         exclude = 0
         for l in self.FileLines:
             if l.startswith(prefix):
                 e = l[len(prefix):].strip()
+                if e == os.path.basename(self.FileName):
+                    exclude += 1
+                else:
+                    self.Error("Wrong exclusion: "+l.rstrip())
+            elif l.startswith(prefix_c) and l.rstrip().endswith(suffix_c):
+                e = l[len(prefix_c):-len(suffix_c)].strip()
                 if e == os.path.basename(self.FileName):
                     exclude += 1
                 else:
