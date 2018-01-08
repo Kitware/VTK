@@ -48,7 +48,7 @@ unsigned long Directory::GetNumberOfFiles() const
 const char* Directory::GetFile(unsigned long dindex) const
 {
   if (dindex >= this->Internal->Files.size()) {
-    return 0;
+    return KWSYS_NULLPTR;
   }
   return this->Internal->Files[dindex].c_str();
 }
@@ -118,8 +118,8 @@ bool Directory::Load(const std::string& name)
   struct _wfinddata_t data; // data of current file
 
   // Now put them into the file array
-  srchHandle =
-    _wfindfirst_func((wchar_t*)Encoding::ToWide(buf).c_str(), &data);
+  srchHandle = _wfindfirst_func(
+    (wchar_t*)Encoding::ToWindowsExtendedPath(buf).c_str(), &data);
   delete[] buf;
 
   if (srchHandle == -1) {

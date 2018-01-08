@@ -265,6 +265,12 @@ int main()
 #ifdef TEST_KWSYS_CXX_HAS_UTIMENSAT
 #include <fcntl.h>
 #include <sys/stat.h>
+#if defined(__APPLE__)
+#include <AvailabilityMacros.h>
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 101300
+#error "utimensat not available on macOS < 10.13"
+#endif
+#endif
 int main()
 {
   struct timespec times[2] = { { 0, UTIME_OMIT }, { 0, UTIME_NOW } };
@@ -275,7 +281,7 @@ int main()
 #ifdef TEST_KWSYS_CXX_HAS_BACKTRACE
 #if defined(__PATHSCALE__) || defined(__PATHCC__) ||                          \
   (defined(__LSB_VERSION__) && (__LSB_VERSION__ < 41))
-backtrace doesnt work with this compiler or os
+backtrace does not work with this compiler or os
 #endif
 #if (defined(__GNUC__) || defined(__PGI)) && !defined(_GNU_SOURCE)
 #define _GNU_SOURCE
