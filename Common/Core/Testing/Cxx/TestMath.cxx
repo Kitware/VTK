@@ -398,6 +398,14 @@ int TestMath(int,char *[])
     return 1;
   }
 
+  // If a NaN is passed, the first argument must be returned:
+  if (!std::isnan(vtkMath::Min(std::nan(""), 0.)) ||
+      std::isnan(vtkMath::Min(0., std::nan(""))))
+  {
+    vtkGenericWarningMacro("Min() does not properly handle NaN inputs.");
+    return 1;
+  }
+
   // test Max
   if (iMax != vtkMath::Max(iMin, iMax))
   {
@@ -408,6 +416,14 @@ int TestMath(int,char *[])
   if (dMax != vtkMath::Max(dMin, dMax))
   {
     vtkGenericWarningMacro("Max(" << dMin << ", " << dMax << " != " << dMax);
+    return 1;
+  }
+
+  // If a NaN is passed, the first argument must be returned:
+  if (!std::isnan(vtkMath::Max(std::nan(""), 0.)) ||
+      std::isnan(vtkMath::Max(0., std::nan(""))))
+  {
+    vtkGenericWarningMacro("Max() does not properly handle NaN inputs.");
     return 1;
   }
 
