@@ -28,7 +28,7 @@
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
-// Construct an instance of vtkImageMedian3D fitler.
+// Construct an instance of vtkImageMedian3D filter.
 vtkImageMedian3D::vtkImageMedian3D()
 {
   this->NumberOfElements = 0;

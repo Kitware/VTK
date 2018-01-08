@@ -1197,7 +1197,7 @@ static void cleanup_name (char *name)
       strcpy (&tmp[1], name);
     }
 
-    /* Replace all illegal charaters in name with underscores */
+    /* Replace all illegal characters in name with underscores */
     for (i = 0; tmp[i] != '\0'; i++)
     {
       if (!isalnum(tmp[i]))

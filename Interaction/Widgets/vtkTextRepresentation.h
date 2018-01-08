@@ -117,7 +117,7 @@ public:
 
   //@{
   /**
-   * Set the text position, by overiding the same function of
+   * Set the text position, by overriding the same function of
    * vtkBorderRepresentation so that the Modified() will be called.
    */
   void SetPosition(double x, double y) override;

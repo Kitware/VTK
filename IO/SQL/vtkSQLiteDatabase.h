@@ -33,7 +33,7 @@
  *
  * If you want to open a database that stays in memory and never gets
  * written to disk, pass in the URL 'sqlite://:memory:'; otherwise,
- * specifiy the file path by passing the URL 'sqlite://<file_path>'.
+ * specify the file path by passing the URL 'sqlite://<file_path>'.
  *
  * @par Thanks:
  * Thanks to Andrew Wilson and Philippe Pebay from Sandia National

@@ -121,7 +121,7 @@ public:
    * Get an entry (RGBA) in one of the pre-integration tables.  The tables
    * are built when Initialize is called.
    */
-  float *GetTableEntry(double scalar_front, double scalar_back, double lenth,
+  float *GetTableEntry(double scalar_front, double scalar_back, double length,
                        int component = 0);
 
   /**

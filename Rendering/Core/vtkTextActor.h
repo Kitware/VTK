@@ -100,7 +100,7 @@ public:
   //@{
   /**
    * Set how text should be scaled.  If set to
-   * vtkTextActor::TEXT_SCALE_MODE_NONE, the the font size will be fixed by the
+   * vtkTextActor::TEXT_SCALE_MODE_NONE, the font size will be fixed by the
    * size given in TextProperty.  If set to vtkTextActor::TEXT_SCALE_MODE_PROP,
    * the text will be scaled to fit exactly in the prop as specified by the
    * position 1 & 2 coordinates.  If set to

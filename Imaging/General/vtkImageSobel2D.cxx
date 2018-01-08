@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageSobel2D fitler.
+// Construct an instance of vtkImageSobel2D filter.
 vtkImageSobel2D::vtkImageSobel2D()
 {
   this->KernelSize[0] = 3;

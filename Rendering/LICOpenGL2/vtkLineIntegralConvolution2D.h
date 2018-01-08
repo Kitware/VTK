@@ -120,7 +120,7 @@ public:
 
   //@{
   /**
-   * Set/Get the rendering context. A reference is not explicity held,
+   * Set/Get the rendering context. A reference is not explicitly held,
    * thus reference to the context must be held externally.
    */
   void SetContext(vtkOpenGLRenderWindow *context);
@@ -251,7 +251,7 @@ public:
    * This class performs LIC in the normalized image space. Hence, by default
    * it transforms the input vectors to the normalized image space (using the
    * GridSpacings and input vector field dimensions). Set this to 0 to disable
-   * tranformation if the vectors are already transformed.
+   * transformation if the vectors are already transformed.
    */
   void SetTransformVectors(int val);
   vtkGetMacro(TransformVectors, int);
@@ -285,7 +285,7 @@ public:
   //@{
   /**
    * The MaskThreshold controls blanking of the LIC texture. For fragments with
-   * |V|<threhold the LIC fragment is not rendered. The default value is 0.0.
+   * |V|<threshold the LIC fragment is not rendered. The default value is 0.0.
 
    * For surface LIC MaskThreshold units are in the original vector space. For image LIC
    * be aware that while the vector field is transformed to image space while the mask

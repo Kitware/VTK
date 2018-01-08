@@ -581,7 +581,7 @@ void vtkVolumeOutlineSource::GenerateLines(
             }
           }
 
-          // Whether we need a line depends on the the value of bitCheck.
+          // Whether we need a line depends on the value of bitCheck.
           // Values 0000, 0011, 0110, 1100, 1001, 1111 don't need lines.
           // Build a bitfield to check our bitfield values against, each
           // set bit in this new bitfield corresponds to a non-edge case.

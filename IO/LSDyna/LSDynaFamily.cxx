@@ -141,7 +141,7 @@ struct LSDynaFamily::BufferingInfo
     vtkIdType numWordsToRead;
     vtkIdType loopTimes;
     vtkIdType leftOver;
-    const vtkIdType size; //deafult buffer size
+    const vtkIdType size; //default buffer size
 private:
   LSDynaFamily::BufferingInfo& operator=( const LSDynaFamily::BufferingInfo & );
 };

@@ -250,7 +250,7 @@ protected:
   /// A pointer to the next word in Chunk that will be returned when the
   /// reader requests a word.
   vtkIdType ChunkWord;
-  // How much of the the allocated space is filled with valid data (assert
+  // How much of the allocated space is filled with valid data (assert
   // ChunkValid <= ChunkAlloc).
   vtkIdType ChunkValid;
   /// The allocated size (in words) of Chunk.

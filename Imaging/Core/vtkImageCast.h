@@ -23,7 +23,7 @@
  *
  * @warning
  * As vtkImageCast only casts values without rescaling them, its use is not
- * recommented. vtkImageShiftScale is the recommented way to change the type
+ * recommended. vtkImageShiftScale is the recommended way to change the type
  * of an image data.
  *
  * @sa

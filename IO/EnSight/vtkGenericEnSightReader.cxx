@@ -971,7 +971,7 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
     case vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT:
       return this->GetNumberOfComplexVectorsPerElement();
     default:
-      vtkWarningMacro("unknow variable type");
+      vtkWarningMacro("unknown variable type");
       return -1;
   }
 }

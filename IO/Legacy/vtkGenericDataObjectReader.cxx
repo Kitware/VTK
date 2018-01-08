@@ -73,7 +73,7 @@ void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* 
   reader->SetReadAllFields(this->GetReadAllFields());
   reader->Update();
 
-  // copy the header from  the reader.
+  // copy the header from the reader.
   this->SetHeader(reader->GetHeader());
 
   // Can we use the old output?

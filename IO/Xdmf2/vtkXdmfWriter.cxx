@@ -1233,7 +1233,7 @@ int vtkXdmfWriter::WriteArrays(vtkFieldData* fd, xdmf2::XdmfGrid *grid, int asso
       }
       else if (da->GetNumberOfComponents() == 6)
       {
-        // TODO: convert VTK 9 components symetric tensors to 6 components
+        // TODO: convert VTK 9 components symmetric tensors to 6 components
         attr->SetAttributeType(XDMF_ATTRIBUTE_TYPE_TENSOR);
       }
     }

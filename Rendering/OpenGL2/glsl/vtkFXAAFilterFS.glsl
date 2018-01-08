@@ -257,7 +257,7 @@ int nvidiaEndpointSearch(vec2 posC, float lumC, float lumHC, float lengthSign,
    * bool shadeIfNearP = lumCLessThanAve != lumPLessThanAve;                  *
    *                                                                          *
    * If shadeIfNearN is true, N is changing contrast relative to C. The same  *
-   * is true for P. Thus, the change in the average contrast of the the       *
+   * is true for P. Thus, the change in the average contrast of the           *
    * endpoint relative to lumAveHC must be opposite to the change in contrast *
    * from C to lumAveHC.                                                      *
    *                                                                          *

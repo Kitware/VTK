@@ -129,7 +129,7 @@ protected:
   ~vtkGeoInteractorStyle() override;
 
   // To avoid a warning.
-  // We should really inherit directy from vtkInteractorStyle
+  // We should really inherit directly from vtkInteractorStyle
   void Dolly(double) override;
 
   void OnTimer() override;

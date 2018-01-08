@@ -27,7 +27,7 @@
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageGradientMagnitude fitler.
+// Construct an instance of vtkImageGradientMagnitude filter.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
   this->SetNumberOfInputPorts(1);

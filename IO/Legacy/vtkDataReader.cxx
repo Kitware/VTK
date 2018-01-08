@@ -73,7 +73,7 @@ vtkStandardNewMacro(vtkDataReader);
 vtkCxxSetObjectMacro(vtkDataReader, InputArray, vtkCharArray);
 
 // this undef is required on the hp. vtkMutexLock ends up including
-// /usr/inclue/dce/cma_ux.h which has the gall to #define read as cma_read
+// /usr/include/dce/cma_ux.h which has the gall to #define read as cma_read
 
 #ifdef read
 #undef read
@@ -1441,7 +1441,7 @@ int vtkReadASCIIData(vtkDataReader *self, T *data, vtkIdType numTuples, vtkIdTyp
   return 1;
 }
 
-// Decription:
+// Description:
 // Read data array. Return pointer to array object if successful read;
 // otherwise return nullptr. Note: this method instantiates a reference counted
 // object with initial count of one; proper protocol is for you to assign

@@ -138,7 +138,7 @@ private:
 
   // Description:
   // Used when reading node-sets.
-  // Creates a new dataset with points with given ids extracted from  the input
+  // Creates a new dataset with points with given ids extracted from the input
   // dataset.
   vtkDataSet* ExtractPoints(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 
@@ -156,7 +156,7 @@ private:
 
   // Description:
   // Used when reading edge-sets.
-  // Creates a new dataset with egdes selected by the set, extracting them from
+  // Creates a new dataset with edges selected by the set, extracting them from
   // the input dataset.
   vtkDataSet* ExtractEdges(xdmf2::XdmfSet* xmfSet, vtkDataSet* dataSet);
 };

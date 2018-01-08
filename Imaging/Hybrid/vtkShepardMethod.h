@@ -110,7 +110,7 @@ public:
 
   //@{
   /**
-   * Retrieve the i-j-k dimensions on which to interpolate the  input points.
+   * Retrieve the i-j-k dimensions on which to interpolate the input points.
    */
   vtkGetVectorMacro(SampleDimensions,int,3);
   //@}

@@ -193,7 +193,7 @@ int vtkPLSDynaReader::ReadTopology()
     return 1;
   }
 
-  //finalize the topology on each process, each process will  remove
+  //finalize the topology on each process, each process will remove
   //any part that it doesn't have a cell for.
   this->Parts->FinalizeTopology();
 

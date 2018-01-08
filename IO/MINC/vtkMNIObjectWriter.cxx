@@ -948,7 +948,7 @@ void vtkMNIObjectWriter::WriteData()
 
   if (nverts != 0)
   {
-    vtkErrorMacro("Unable to write vertexes.");
+    vtkErrorMacro("Unable to write vertices.");
     return;
   }
 

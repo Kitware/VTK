@@ -56,7 +56,7 @@ public:
   /** Determine if the buffer object is ready to be used. */
   bool IsReady() const { return this->Dirty == false; }
 
-  /** Generate the the opengl buffer for this Handle */
+  /** Generate the opengl buffer for this Handle */
   bool GenerateBuffer(ObjectType type);
 
   /**

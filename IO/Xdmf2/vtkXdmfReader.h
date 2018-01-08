@@ -216,7 +216,7 @@ protected:
   // caches. These are passed on to the actual vtkXdmfArraySelection instances
   // used by the active vtkXdmfDomain in RequestInformation().
   // Note that these are only used until the first domain is setup, once that
-  // happens, the information set in these is passed to the domain and  these
+  // happens, the information set in these is passed to the domain and these
   // are cleared an no longer used, until the active domain becomes invalid
   // again.
   vtkXdmfArraySelection* PointArraysCache;

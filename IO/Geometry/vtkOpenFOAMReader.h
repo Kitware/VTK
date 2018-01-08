@@ -93,7 +93,7 @@ public:
   { this->SetSelectionArrayStatus(this->CellDataArraySelection, name, status); }
 
   /**
-   * Get the name of the  cell array with the given index in
+   * Get the name of the cell array with the given index in
    * the input.
    */
   const char *GetCellArrayName(int index)
@@ -124,7 +124,7 @@ public:
     name, status); }
 
   /**
-   * Get the name of the  point array with the given index in
+   * Get the name of the point array with the given index in
    * the input.
    */
   const char *GetPointArrayName(int index)
@@ -157,7 +157,7 @@ public:
     status); }
 
   /**
-   * Get the name of the  Lagrangian array with the given index in
+   * Get the name of the Lagrangian array with the given index in
    * the input.
    */
   const char* GetLagrangianArrayName(int index)

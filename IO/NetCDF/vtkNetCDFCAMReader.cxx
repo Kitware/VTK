@@ -44,7 +44,7 @@ namespace
   bool IsCellInverted(double points[4][3])
   {
     // We test the normal 3 points at a time. Not all grids are well-behaved
-    // i.e. consistenly use 0 or 360. We've had grid where 3 points on the left
+    // i.e. consistently use 0 or 360. We've had grid where 3 points on the left
     // side, and just 1 on the right. Just checking the first 3 points (which is
     // what ComputeNormal() does, we may (and do) miss a few cells.
     // See BUG #0014897.

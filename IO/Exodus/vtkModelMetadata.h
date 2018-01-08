@@ -212,7 +212,7 @@ public:
 
   /**
    * Set or get a pointer to a list of the number of nodes in the
-   * elements of  each block.
+   * elements of each block.
    * We use your pointers, and free the memory when the object is freed.
    */
   void SetBlockNodesPerElement(int *);
@@ -369,7 +369,7 @@ public:
   int *GetSideSetIds() const {return this->SideSetIds;}
 
   /**
-   * Set or get a pointer to a list of the number of sides  in each side set.
+   * Set or get a pointer to a list of the number of sides in each side set.
    * We use your pointer, and free the memory when the object is freed.
    */
   int SetSideSetSize(int *sizes);
@@ -602,7 +602,7 @@ public:
    * each grid variable, and a list of the index into the list of
    * original variable names where the original name of the first
    * component of a grid variable may be found.  The names of subsequent
-   * components would immediately follow the name of the the first
+   * components would immediately follow the name of the first
    * component.
    */
   int GetOriginalNumberOfElementVariables() const {

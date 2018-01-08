@@ -675,7 +675,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     // check ensures that when we are reading multiple timesteps, we don't end
     // up appending to existing cell arrays infinitely. An earlier version of
     // the fix assumed that vtkXMLUnstructuredDataReader read only 1 piece at a
-    // time, which was incorrect (and hence  BUG #12690).
+    // time, which was incorrect (and hence BUG #12690).
     curSize = outCells->GetData()->GetNumberOfTuples();
   }
 

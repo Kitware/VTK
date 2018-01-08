@@ -326,7 +326,7 @@ public:
 
   //@{
   /**
-   * These methods correspond to the the Exit, User and Pick
+   * These methods correspond to the Exit, User and Pick
    * callbacks. They allow for the Style to invoke them.
    */
   virtual void ExitCallback();

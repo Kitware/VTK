@@ -40,7 +40,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Convenience method to reset all fields to an emptry string/value
+   * Convenience method to reset all fields to an empty string/value
    */
   virtual void Clear();
 

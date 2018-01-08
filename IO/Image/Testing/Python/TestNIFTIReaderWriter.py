@@ -119,7 +119,7 @@ def TestReadWriteRead(infile, outfile):
     writer = vtk.vtkNIFTIImageWriter()
     writer.SetInputConnection(reader.GetOutputPort())
     writer.SetFileName(outpath)
-    # copy most information directoy from the header
+    # copy most information directory from the header
     writer.SetNIFTIHeader(reader.GetNIFTIHeader())
     # this information will override the reader's header
     writer.SetQFac(reader.GetQFac())

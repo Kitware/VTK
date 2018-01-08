@@ -16,7 +16,7 @@
 // be used to constrain handle widgets to the centers of cells. Thus it
 // may be used by any of the widgets that use the handles (distance, angle
 // etc).
-//   Here we demonstrates constraining  the distance widget to the centers
+//   Here we demonstrate constraining the distance widget to the centers
 // of various cells.
 //
 #include <vtkSmartPointer.h>

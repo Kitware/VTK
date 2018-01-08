@@ -19,7 +19,7 @@
 -------------------------------------------------------------------------*/
 /**
  * @class   vtkBoostBreadthFirstSearchTree
- * @brief   Contructs a BFS tree from a graph
+ * @brief   Constructs a BFS tree from a graph
  *
  *
  *

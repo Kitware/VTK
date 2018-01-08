@@ -78,7 +78,7 @@
 #endif
 
 // this undef is required on the hp. vtkMutexLock ends up including
-// /usr/inclue/dce/cma_ux.h which has the gall to #define write as cma_write
+// /usr/include/dce/cma_ux.h which has the gall to #define write as cma_write
 
 #ifdef write
 # undef write

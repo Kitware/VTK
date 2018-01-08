@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion3D);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageAnisotropicDiffusion3D fitler.
+// Construct an instance of vtkImageAnisotropicDiffusion3D filter.
 vtkImageAnisotropicDiffusion3D::vtkImageAnisotropicDiffusion3D()
 {
   this->HandleBoundaries = 1;

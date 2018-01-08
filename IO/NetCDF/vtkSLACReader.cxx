@@ -946,7 +946,7 @@ int vtkSLACReader::RequestData(vtkInformation *request,
       else // midpoints requested, but not in file
       {
         //   spit out warning and ignore the midpoint read request.
-        vtkWarningMacro(<< "Midpoints requested, but not present in the mesh file.  Igoring the request.");
+        vtkWarningMacro(<< "Midpoints requested, but not present in the mesh file.  Ignoring the request.");
       }
     }
 

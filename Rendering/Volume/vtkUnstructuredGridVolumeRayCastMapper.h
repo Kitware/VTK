@@ -77,7 +77,7 @@ public:
 
   //@{
   /**
-   * If AutoAdjustSampleDistances is on, the the ImageSampleDistance
+   * If AutoAdjustSampleDistances is on, the ImageSampleDistance
    * will be varied to achieve the allocated render time of this
    * prop (controlled by the desired update rate and any culling in
    * use).

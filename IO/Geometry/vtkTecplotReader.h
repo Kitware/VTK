@@ -20,7 +20,7 @@
 * LLNL-CODE-400124
 * All rights reserved.
 *
-* This file was adapted from the ASCII Tecplot reader of VisIt. For  details,
+* This file was adapted from the ASCII Tecplot reader of VisIt. For details,
 * see https://visit.llnl.gov/.  The full copyright notice is contained in the
 * file COPYRIGHT located at the root of the VisIt distribution or at
 * http://www.llnl.gov/visit/copyright.html.
@@ -39,7 +39,7 @@
  *  physical properties.
  *
  *  Tecplot treats 3D coordinates (only one or two coordinates might be
- *  explicitly specified in a file) as varaibles too, whose names (e.g.,
+ *  explicitly specified in a file) as variables too, whose names (e.g.,
  *  'X' / 'x' / 'I', 'Y' / 'y' / 'J', 'Z' / 'z' / 'K') are provided in the
  *  variables list (the 'VARIABLES' section). These names are then followed
  *  in the list by those of other traditional variables or attributes (node-
@@ -49,8 +49,8 @@
  *  specific values of the aforementioned variables (including 3D coordinates),
  *  in the same order as indicated by the variable-names list, through either
  *  POINT-packing (i.e., tuple-based storage) or BLOCK-packing (component-based
- *  storage). In particular, the first / description line of  each zone tells
- *  the type of all the  constituent cells as the connectivity / topology
+ *  storage). In particular, the first / description line of each zone tells
+ *  the type of all the constituent cells as the connectivity / topology
  *  information. In other words, the entire dataset is made up of multiple zones
  *  (blocks), of which each maintains a set of cells of the same type ('BRICK',
  *  'TRIANGLE', 'QUADRILATERAL', 'TETRAHEDRON', and 'POINT' in Tecplot terms).

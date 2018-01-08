@@ -159,7 +159,7 @@ public:
    * Reads the FORMAT part of the case file to determine whether this is an
    * EnSight6 or EnSightGold data set.  Returns an identifier listed in
    * the FileTypes enum or -1 if an error occurred or the file could not
-   * be indentified as any EnSight type.
+   * be identified as any EnSight type.
    */
   int DetermineEnSightVersion(int quiet=0);
 

@@ -736,7 +736,7 @@ int vtkMNITagPointReader::RequestData(
   vtkInformation *outInfo1 = outputVector->GetInformationObject(0);
   vtkInformation *outInfo2 = outputVector->GetInformationObject(1);
 
-  // get the ouptut
+  // get the output
   vtkPolyData *output1 = vtkPolyData::SafeDownCast(
     outInfo1->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output2 = vtkPolyData::SafeDownCast(

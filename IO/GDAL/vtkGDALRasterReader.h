@@ -67,7 +67,7 @@ public:
 
   //@{
   /**
-   * Get raster width and heigth
+   * Get raster width and height
    */
   vtkGetVector2Macro(RasterDimensions, int);
   //@}

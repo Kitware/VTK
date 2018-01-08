@@ -72,7 +72,7 @@ public:
   /**
    * Specify the desired part to extract. The part number must range between
    * [0,NumberOfParts-1]. If the value is =(-1), then all parts will be
-   * extracted. If the value is <(-1), then no parts will be  extracted but
+   * extracted. If the value is <(-1), then no parts will be extracted but
    * the part colors will be updated.
    */
   vtkSetMacro(PartNumber,int);

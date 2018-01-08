@@ -178,7 +178,7 @@ public:
 
   //@{
   /**
-   * Set the the type of sorting algorithm to order primitives from
+   * Set the type of sorting algorithm to order primitives from
    * back to front.  Successive algorithms are more memory
    * intensive.  Simple is the default but BSP is perhaps the best.
    */

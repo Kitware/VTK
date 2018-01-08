@@ -106,7 +106,7 @@ public:
 
   //@{
   /**
-   * Specify the format to use for labelling the angle. Note that an empty
+   * Specify the format to use for labeling the angle. Note that an empty
    * string results in no label, or a format string without a "%" character
    * will not print the angle value.
    */

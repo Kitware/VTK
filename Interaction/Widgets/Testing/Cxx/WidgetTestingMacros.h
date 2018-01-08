@@ -135,7 +135,7 @@
   }
 
 /// test a vector variable on the object by setting it to a the values x, y, z
-/// passed in using Set, and  testing it via the Get
+/// passed in using Set, and testing it via the Get
 #define TEST_SET_GET_VECTOR3_DOUBLE( object, variable, x, y, z )    \
   {                                                                 \
     object->Set##variable( x, y, z );                               \
@@ -149,7 +149,7 @@
 
 
 /// test a vector variable on the object by setting it to a the values x, y
-/// passed in using Set, and  testing it via the Get
+/// passed in using Set, and testing it via the Get
 #define TEST_SET_GET_VECTOR2( object, variable, x, y )    \
   {                                                                 \
     object->Set##variable( x, y );                               \
@@ -179,7 +179,7 @@
     TEST_SET_GET_VECTOR2(object, variable, max + epsilon, max + epsilon); \
   }
 
-/// test an double  vector2 variable on the object over the range, calls test set get in
+/// test a double vector2 variable on the object over the range, calls test set get in
 /// with min - epsilon, min, min + epsilon, (min+max)/2, max - epsilon, max,
 /// max + epsilon, where first and last test should report errors. For now all
 /// three elements are set to the same thing each time.

@@ -114,7 +114,7 @@ struct Writer::InitContext
   }
 };
 
-// Dafault communicator is invalid
+// Default communicator is invalid
 MPI_Comm Writer::InitContext::GlobalComm = MPI_COMM_NULL;
 int Writer::InitContext::RefCount = 0;
 

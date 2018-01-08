@@ -249,7 +249,7 @@ public:
     }
   };
 
-  // Accumlate scalar values as appropriate
+  // Accumulate scalar values as appropriate
   void SetScalar(vtkIdType ptId, double pd[3], double x[3], TScalars *sPtr)
   {
     double dist2 = (this->*Sample)(ptId,x,pd);

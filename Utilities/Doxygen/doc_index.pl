@@ -373,7 +373,7 @@ foreach my $word (@words) {
         }
     }
 
-    # Browse each similar word. It it already exists in the index then group
+    # Browse each similar word. If it already exists in the index then group
     # the current word with it and remove the word from the index.
 
     foreach $similar (@similars) {

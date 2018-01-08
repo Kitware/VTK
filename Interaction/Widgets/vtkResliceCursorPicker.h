@@ -16,7 +16,7 @@
  * @class   vtkResliceCursorPicker
  * @brief   ray-cast cell picker for the reslice cursor
  *
- * This class is is used by the vtkResliceCursorWidget to pick reslice axes
+ * This class is used by the vtkResliceCursorWidget to pick reslice axes
  * drawn by a vtkResliceCursorActor. The class returns the axes picked if
  * any, whether one has picked the center. It takes as input an instance
  * of vtkResliceCursorPolyDataAlgorithm. This is all done internally by
@@ -78,7 +78,7 @@ public:
 
   /**
    * Overloaded pick method that returns the picked coordinates of the current
-   * resliced  plane in world coordinates when given a display position
+   * resliced plane in world coordinates when given a display position
    */
   void Pick(
     double displayPos[2], double world[3], vtkRenderer *ren );

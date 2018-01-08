@@ -106,7 +106,7 @@ vtkCGMWriter::~vtkCGMWriter()
 //
 
 // The initial size of the element list.  When it fills up, we will just
-// make it bigger.  Starting  with a larger number reduces the frequency of
+// make it bigger.  Starting with a larger number reduces the frequency of
 // the list growing, but increases the memory needed for small pictures
 //
 
@@ -184,7 +184,7 @@ typedef struct cgmImageStruct {
   // the next three are used for maintaining the element list
   long int bytestoend; // number of bytes to end of the element list
   long int listlen; // the total length of the element list
-  unsigned char * curelemlist; // where we curently are in the list
+  unsigned char * curelemlist; // where we currently are in the list
 } cgmImage;
 
 typedef cgmImage* cgmImagePtr;
@@ -1021,7 +1021,7 @@ static int cgmAddElem(cgmImagePtr im, unsigned char *es, int octet_count)
 
 static int cgmCgmHeader(cgmImagePtr im)
 {
-/* add the cgm header to the imagepointer's  element list
+/* add the cgm header to the imagepointer's element list
  * do it all in a string than call cgmAddElem on it
  * For internal cgm functions only, do not call!
  */
@@ -1374,7 +1374,7 @@ static int cgmCgmNewPic(cgmImagePtr im, int sticky)
 /* The CGM standard allows multiple images in a single file.  This function
  * will close the current picture, then open a new one.
  * if sticky is 0 then all attributes will be reset to the defaults
- * if sticky is 1 then all attributes will be inherited from the prevous
+ * if sticky is 1 then all attributes will be inherited from the previous
  * picture.
  * if sticky is 2 all attributes except the color table will be inherited
  * from the previous picture
@@ -1392,7 +1392,7 @@ static int cgmCgmNewPic(cgmImagePtr im, int sticky)
 #endif
 
 static int cgmImageCgm(cgmImagePtr im, FILE *out)
-/* Gej: Write the image to  file *out, which must be open already
+/* Gej: Write the image to file *out, which must be open already
  * does not close the file */
 {
   cgmImageSetOutput(im, out);
@@ -1473,7 +1473,7 @@ static int cgmSetLineWidth(cgmImagePtr im, int lnwidth)
  * sets the line width.  with an image of height X with line width 1
  * the displayed width will be 1/X%.  as an example, if you image is
  * x=5, y=10, and you set line width = 1, and draw a vertical line, the
- * resulting line will  cover 20% of horizontal area.
+ * resulting line will cover 20% of horizontal area.
  */
   unsigned char *es, *esp;
   int octet_count;
@@ -2174,7 +2174,7 @@ static int cgmSetTextFont(cgmImagePtr im, int font)
 static int cgmSetTextColor(cgmImagePtr im, int color)
 {
 /* Attribute: Text Colour ; Elem Class 5; Elem ID 14
- * set the forground color of text
+ * set the foreground color of text
  */
   unsigned char *es, *esp;
   int octet_count;
@@ -2478,7 +2478,7 @@ static int cgmSetMarkerSize(cgmImagePtr im, int msize)
  * sets the marker size.  with an image of height X with marker size 1
  * the displayed size will be 1/X%.  as an example, if you image is
  * x=5, y=10, and you set marker size = 1, and draw a marker, the
- * resulting marker will  cover 20% of horizontal area.
+ * resulting marker will cover 20% of horizontal area.
  */
   unsigned char *es, *esp;
   int octet_count;
@@ -2985,7 +2985,7 @@ static int cgmImageColorAllocate(cgmImagePtr im, int r, int g, int b)
   {
     return -1;
   }
-  /* GEJ: w we have successfully alocated it in the color table
+  /* GEJ: w we have successfully allocated it in the color table
    * so let's put it in the CGM as well.
    */
   if (cgmImageAddColor(im, ct, ct) == -1 )
@@ -3627,7 +3627,7 @@ static int cgmPolygon(cgmImagePtr im, cgmPointPtr p, int n)
 /* Graphic Primitive: Polygon; Elem Class 4; Elem ID 7
  *
  * cgmPointPtr is defined in cgm.h, basically, it is two arrays of integers
- * p[m].x and p[m].y  containing the x and y values respectively.  n
+ * p[m].x and p[m].y containing the x and y values respectively.  n
  * is the number of points in this array (not the index of the last point,
  * which is n-1).  n must be at least 3 (otherwise
  * you really don't have much of a polygon, it is closer to a line.)
@@ -4029,7 +4029,7 @@ static int cgmText(cgmImagePtr im, int x, int y, const char *ts)
  * is the number of octets of string data, or 255 which signifies a long
  * string.  if it is 255 then the next 16 bits indicate the length of the
  * string.  the first bit (bit15) is 0 if this is the last part of the
- * string and 1 if another part follows it.  the next 15 bits  are in the
+ * string and 1 if another part follows it.  the next 15 bits are in the
  * range 0..32767 and are the number of octets of string info following.
  * so the length stored in the command header is the whole enchelada.
  */

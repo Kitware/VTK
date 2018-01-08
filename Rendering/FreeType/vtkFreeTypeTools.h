@@ -482,7 +482,7 @@ private:
 
   /**
    * Internal helper method called by RenderString.
-   * metaData is passed through the the character renderer and caches properties
+   * metaData is passed through the character renderer and caches properties
    * about data (e.g. range, dimensions, increments, etc).
    */
   template <typename StringType, typename DataType>

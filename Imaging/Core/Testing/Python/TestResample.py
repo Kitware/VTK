@@ -3,7 +3,7 @@ import vtk
 from vtk.util.misc import vtkGetDataRoot
 VTK_DATA_ROOT = vtkGetDataRoot()
 
-# Doubles the The number of images (x dimension).
+# Doubles the number of images (x dimension).
 # Image pipeline
 reader = vtk.vtkImageReader()
 reader.ReleaseDataFlagOff()

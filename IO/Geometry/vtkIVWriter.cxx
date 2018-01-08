@@ -217,7 +217,7 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
     fprintf(fp,"\t}\n");
   }
 
-  fprintf(fp,"}\n"); // close the  Shape
+  fprintf(fp,"}\n"); // close the Shape
 
 }
 

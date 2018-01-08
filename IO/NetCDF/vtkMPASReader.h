@@ -196,7 +196,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
   //@{
   /**
-   * Convenience functon for setting/querying [GS]etDimensionCurrentIndex
+   * Convenience function for setting/querying [GS]etDimensionCurrentIndex
    * for the dimension returned by GetVerticalDimension.
    */
   void SetVerticalLevel(int level);
@@ -302,7 +302,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int PointOffset;
   int PointsPerCell;
   int CurrentExtraPoint;  // current extra point
-  int CurrentExtraCell;   // current extra  cell
+  int CurrentExtraCell;   // current extra cell
   double* PointX;      // x coord of point
   double* PointY;      // y coord of point
   double* PointZ;      // z coord of point

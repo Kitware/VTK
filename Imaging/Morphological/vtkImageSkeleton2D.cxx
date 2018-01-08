@@ -25,7 +25,7 @@
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
-// Construct an instance of vtkImageSkeleton2D fitler.
+// Construct an instance of vtkImageSkeleton2D filter.
 vtkImageSkeleton2D::vtkImageSkeleton2D()
 {
   this->Prune = 0;
