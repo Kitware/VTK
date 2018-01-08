@@ -16,7 +16,6 @@
  * @class   vtkSynchronizedTemplates3D
  * @brief   generate isosurface from structured points
  *
- *
  * vtkSynchronizedTemplates3D is a 3D implementation of the synchronized
  * template algorithm. Note that vtkContourFilter will automatically
  * use this class when appropriate.
@@ -25,7 +24,8 @@
  * This filter is specialized to 3D images (aka volumes).
  *
  * @sa
- * vtkContourFilter vtkSynchronizedTemplates2D
+ * vtkContourFilter vtkFlyingEdges3D vtkMarchingCubes
+ * vtkSynchronizedTemplates2D vtkDiscreteFlyingEdges3D
 */
 
 #ifndef vtkSynchronizedTemplates3D_h
@@ -200,4 +200,3 @@ extern int VTKFILTERSCORE_EXPORT VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[];
 extern int VTKFILTERSCORE_EXPORT VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2[];
 
 #endif
-

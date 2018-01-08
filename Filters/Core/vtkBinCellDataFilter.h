@@ -36,21 +36,26 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
-class vtkCellLocator;
+class vtkAbstractCellLocator;
 
 class VTKFILTERSCORE_EXPORT vtkBinCellDataFilter : public vtkDataSetAlgorithm
 {
 public:
   typedef vtkContourValues vtkBinValues;
 
-  vtkTypeMacro(vtkBinCellDataFilter,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
-
   /**
    * Construct object with initial range (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX) and
    * a single bin.
    */
   static vtkBinCellDataFilter *New();
+
+  //@{
+  /**
+   * Standard methods for type and printing.
+   */
+  vtkTypeMacro(vtkBinCellDataFilter,vtkDataSetAlgorithm);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+  //@}
 
   //@{
   /**
@@ -169,10 +174,10 @@ public:
   //@{
   /**
    * Set/Get a spatial locator for speeding the search process. By
-   * default an instance of vtkCellLocator is used.
+   * default an instance of vtkStaticCellLocator is used.
    */
-  virtual void SetCellLocator(vtkCellLocator *cellLocator);
-  vtkGetObjectMacro(CellLocator,vtkCellLocator);
+  virtual void SetCellLocator(vtkAbstractCellLocator *cellLocator);
+  vtkGetObjectMacro(CellLocator,vtkAbstractCellLocator);
   //@}
 
 protected:
@@ -188,7 +193,8 @@ protected:
   int CellOverlapMethod;
 
   vtkBinValues *BinValues;
-  vtkCellLocator *CellLocator;
+  vtkAbstractCellLocator *CellLocator;
+  virtual void CreateDefaultLocator();
 
   int RequestData(vtkInformation *, vtkInformationVector **,
                   vtkInformationVector *) override;
@@ -196,8 +202,6 @@ protected:
                          vtkInformationVector *) override;
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *) override;
-
-  virtual void CreateDefaultLocator();
 
   char* NumberOfNonzeroBinsArrayName;
 

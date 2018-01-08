@@ -2,6 +2,7 @@ vtk_add_test_python(
   Disk.py
   OSCone.py
   TestButtonSource.py
+  TestStaticCellLocatorLineIntersection.py
   TestRegularPolygonSource.py
   coneResolution.py
   glyph2D.py

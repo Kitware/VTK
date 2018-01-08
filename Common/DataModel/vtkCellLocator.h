@@ -71,8 +71,9 @@ public:
 
   /**
    * Return intersection point (if any) AND the cell which was intersected by
-   * the finite line. The cell is returned as a cell id and as a generic cell.
-   * For other IntersectWithLine signatures, see vtkAbstractCellLocator
+   * the finite line. The cell is returned as a cell id and as a generic
+   * cell.  For other IntersectWithLine signatures, see
+   * vtkAbstractCellLocator.  Note this is currently not thread-safe.
    */
   int IntersectWithLine(double a0[3], double a1[3], double tol,
                         double& t, double x[3], double pcoords[3],
@@ -109,8 +110,8 @@ public:
    * for loop.  If a closest point is found, "cell" contains the points and
    * ptIds for the cell "cellId" upon exit.  If a closest point is found,
    * inside returns the return value of the EvaluatePosition call to the
-   * closest cell; inside(=1) or outside(=0).
-   * For other FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator
+   * closest cell; inside(=1) or outside(=0). For other
+   * FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator.
    */
   vtkIdType FindClosestPointWithinRadius(
     double x[3], double radius, double closestPoint[3],
@@ -220,5 +221,3 @@ private:
 };
 
 #endif
-
-

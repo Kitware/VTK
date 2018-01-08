@@ -80,6 +80,7 @@ struct vtkCellBinner
   double hX, hY, hZ;
   double fX, fY, fZ, bX, bY, bZ;
   vtkIdType xD, yD, zD, xyD;
+  double binTol;
 
   // Construction
   vtkCellBinner(vtkStaticCellLocator *loc, vtkIdType numCells, int numBins)
@@ -94,6 +95,10 @@ struct vtkCellBinner
     // Allocate data. Note that these arrays are deleted elsewhere
     this->CellBounds = new double [numCells*6];
     this->Counts = new vtkIdType [numCells+1]; //one extra holds total count
+
+    // This is done to cause non-thread safe initialization to occur due to
+    // side effects from GetCellBounds().
+    this->DataSet->GetCellBounds(0,this->CellBounds);
 
     // Setup internal data members for more efficient processing.
     this->hX = this->H[0] = loc->H[0];
@@ -112,6 +117,8 @@ struct vtkCellBinner
     this->yD = this->Divisions[1];
     this->zD = this->Divisions[2];
     this->xyD = this->Divisions[0] * this->Divisions[1];
+    this->binTol = 0.01 * sqrt( this->hX*this->hX + this->hY*this->hY +
+                                 this->hZ*this->hZ );
   }
 
   ~vtkCellBinner()
@@ -224,8 +231,6 @@ struct vtkCellProcessor
   int BatchSize;
   int NumBatches;
   vtkIdType xD, xyD;
-  unsigned char *CellHasBeenVisited; //intersection operations
-  unsigned char QueryNumber;
 
   vtkCellProcessor(vtkCellBinner *cb) : Binner(cb)
   {
@@ -241,24 +246,9 @@ struct vtkCellProcessor
 
     xD = cb->xD; //for speeding up computation
     xyD = cb->xyD;
-
-    this->CellHasBeenVisited = nullptr;
-    this->QueryNumber = 0;
   }
 
-  virtual ~vtkCellProcessor()
-  {
-    delete [] this->CellHasBeenVisited;
-    this->CellHasBeenVisited = nullptr;
-  }
-
-  void ClearCellHasBeenVisited()
-  {
-    if (this->CellHasBeenVisited && this->DataSet)
-    {
-      memset(this->CellHasBeenVisited, 0, this->DataSet->GetNumberOfCells());
-    }
-  }
+  virtual ~vtkCellProcessor() {}
 
   // Satisfy cell locator API
   virtual vtkIdType FindCell(double pos[3], vtkGenericCell *cell,
@@ -321,11 +311,11 @@ struct CellProcessor : public vtkCellProcessor
     binBounds[5] = binBounds[4] + h[2];
   }
 
-  int IsInBinBounds(double binBounds[6], double x[3], double tol = 0.0)
+  int IsInBinBounds(double binBounds[6], double x[3], double binTol = 0.0)
   {
-    if ( binBounds[0]-tol <= x[0] && x[0] <= binBounds[1]+tol &&
-         binBounds[2]-tol <= x[1] && x[1] <= binBounds[3]+tol &&
-         binBounds[4]-tol <= x[2] && x[2] <= binBounds[5]+tol )
+    if ( (binBounds[0]-binTol) <= x[0] && x[0] <= (binBounds[1]+binTol) &&
+         (binBounds[2]-binTol) <= x[1] && x[1] <= (binBounds[3]+binTol) &&
+         (binBounds[4]-binTol) <= x[2] && x[2] <= (binBounds[5]+binTol) )
     {
       return 1;
     }
@@ -566,224 +556,169 @@ FindCellsWithinBounds(double *bbox, vtkIdList *cells)
 }
 
 //-----------------------------------------------------------------------------
-// This code is adapted from vtkCellLocator which has been tested over the
-// years.  Why mess with success? If I was to rewrite the algorithm I'd use a
-// deterministic approach to identify the bins, in order, that the line
-// intersects.
+// This code traverses the cell locator by following the intersection ray. As
+// each bin is intersected, the cells contained in the bin are
+// intersected. The cell with the smallest parametric coordinate t is
+// returned (assuming 0<=t<=1). Otherwise no intersection is returned. See
+// for reference: A Fast Voxel Traversal Algorithm for Ray Tracing by John
+// Amanatides & Andrew Woo. Also see the code repository which inspired some
+// of this code:
+// https://github.com/francisengelmann/fast_voxel_traversal/blob/master/main.cpp.
 template <typename T> int CellProcessor<T>::
 IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double x[3],
                   double pcoords[3], int &subId, vtkIdType &cellId,
                   vtkGenericCell *cell)
 {
-  double origin[3];
-  double direction1[3];
-  double direction2[3];
-  double direction3[3];
-  double hitPosition[3];
-  double hitCellBoundsPosition[3];
-  double result;
-  int *ndivs=this->Binner->Divisions;
-  double binBounds[6];
-  double *bounds=this->Binner->Bounds, bounds2[6];
-  int i, loop;
-  vtkIdType bestCellId=(-1), cId;
-  int idx;
-  double tMax, dist[3];
-  int npos[3];
-  int pos[3];
-  int bestDir;
-  double stopDist, currDist;
-  double deltaT, pDistance, minPDistance=1.0e38;
-  double length, maxLength=0.0;
-  T numCellsInBin;
-  vtkIdType numDivisions=0, prod=ndivs[0]*ndivs[1];
+  double *bounds = this->Binner->Bounds;
+  int *ndivs = this->Binner->Divisions;
+  vtkIdType prod=ndivs[0]*ndivs[1];
+  double *h = this->Binner->H;
+  T i, numCellsInBin;
+  unsigned char *cellHasBeenVisited = nullptr;
+  double rayDir[3];
+  vtkMath::Subtract(a1,a0,rayDir);
+  double curPos[3], curT, tMin=VTK_FLOAT_MAX;
+  int ijk[3];
+  vtkIdType idx, cId, bestCellId=(-1);
+  double hitCellBoundsPosition[3], tHitCell;
+  double step[3], next[3], tMax[3], tDelta[3];
+  double binBounds[6], binTol=this->Binner->binTol;
 
-  // convert the line into i,j,k coordinates
-  tMax = 0.0;
-  for (i=0; i < 3; i++)
+  // Make sure the bounding box of the locator is hir.
+  if ( vtkBox::IntersectBox(bounds, a0, rayDir, curPos, curT) )
   {
-    direction1[i] = a1[i] - a0[i];
-    length = bounds[2*i+1] - bounds[2*i];
-    if ( length > maxLength )
-    {
-      maxLength = length;
-    }
-    if ( ndivs[i] > numDivisions )
-    {
-      numDivisions = ndivs[i];
-    }
-    origin[i] = (a0[i] - bounds[2*i]) / length;
-    direction2[i] = direction1[i]/length;
+    // Initialize intersection query array if necessary. This is done
+    // locally to ensure thread safety.
+    cellHasBeenVisited = new unsigned char [ this->NumCells ];
+    memset(cellHasBeenVisited, 0, this->NumCells);
 
-    bounds2[2*i]   = 0.0;
-    bounds2[2*i+1] = 1.0;
-    tMax += direction2[i]*direction2[i];
-  }
+    // Get the i-j-k point of intersection and bin index. This is
+    // clamped to the boundary of the locator.
+    this->Binner->GetBinIndices(curPos, ijk);
+    idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*prod;
 
-  tMax = sqrt(tMax);
+    // Set up some traversal parameters for traversing through bins
+    step[0] = (rayDir[0] >= 0.0) ? 1.0 : -1.0;
+    step[1] = (rayDir[1] >= 0.0) ? 1.0 : -1.0;
+    step[2] = (rayDir[2] >= 0.0) ? 1.0 : -1.0;
 
-  // create a parametric range around the tolerance
-  deltaT = tol/maxLength;
+    // If the ray is going in the negative direction, then the next voxel boundary
+    // is on the "-" direction so we stay in the current voxel.
+    next[0] = bounds[0] + h[0]*(rayDir[0] >= 0.0 ? (ijk[0] + step[0]) : ijk[0]);
+    next[1] = bounds[2] + h[1]*(rayDir[1] >= 0.0 ? (ijk[1] + step[1]) : ijk[1]);
+    next[2] = bounds[4] + h[2]*(rayDir[2] >= 0.0 ? (ijk[2] + step[2]) : ijk[2]);
 
-  stopDist = tMax*numDivisions;
-  for (i = 0; i < 3; i++)
-  {
-    direction3[i] = direction2[i]/tMax;
-  }
+    tMax[0] = (rayDir[0] != 0.0 ) ? (next[0] - curPos[0])/rayDir[0] : VTK_FLOAT_MAX;
+    tMax[1] = (rayDir[1] != 0.0 ) ? (next[1] - curPos[1])/rayDir[1] : VTK_FLOAT_MAX;
+    tMax[2] = (rayDir[2] != 0.0 ) ? (next[2] - curPos[2])/rayDir[2] : VTK_FLOAT_MAX;
 
-  if (vtkBox::IntersectBox(bounds2, origin, direction2, hitPosition, result))
-  {
-    // start walking through the bins
-    bestCellId = -1;
+    tDelta[0] = (rayDir[0] != 0.0) ? (h[0]/rayDir[0])*step[0] : VTK_FLOAT_MAX;
+    tDelta[1] = (rayDir[1] != 0.0) ? (h[1]/rayDir[1])*step[1] : VTK_FLOAT_MAX;
+    tDelta[2] = (rayDir[2] != 0.0) ? (h[2]/rayDir[2])*step[2] : VTK_FLOAT_MAX;
 
-    // Initialize intersection query array if necessary
-    if ( this->CellHasBeenVisited == nullptr )
-    {
-      this->CellHasBeenVisited = new unsigned char [ this->NumCells ];
-    }
-
-    // Clear the array that indicates whether we have visited this cell.
-    // The array is only cleared when the query number rolls over.  This
-    // saves a number of calls to memset.
-    this->QueryNumber++;
-    if (this->QueryNumber == 0)
-    {
-      this->ClearCellHasBeenVisited();
-      this->QueryNumber++;    // can't use 0 as a marker
-    }
-
-    // set up curr and stop dist
-    currDist = 0;
-    for (i = 0; i < 3; i++)
-    {
-      currDist += (hitPosition[i] - origin[i])*(hitPosition[i] - origin[i]);
-    }
-    currDist = sqrt(currDist)*numDivisions;
-
-    // add one offset due to the problems around zero
-    for (loop = 0; loop <3; loop++)
-    {
-      hitPosition[loop] = hitPosition[loop]*numDivisions + 1.0;
-      pos[loop] = static_cast<int>(hitPosition[loop]);
-      // Adjust right boundary condition: if we intersect from the top, right,
-      // or back; then pos must be adjusted to a valid bin index
-      if (pos[loop] > numDivisions)
-      {
-        pos[loop] = numDivisions;
-      }
-    }
-
-    idx = pos[0] - 1 + (pos[1] - 1)*ndivs[0] + (pos[2] - 1)*prod;
-
-    while ((bestCellId < 0) && (pos[0] > 0) && (pos[1] > 0) && (pos[2] > 0) &&
-      (pos[0] <= ndivs[0]) && (pos[1] <= ndivs[1]) && (pos[2] <= ndivs[2]) &&
-      (currDist < stopDist))
+    // Start walking through the bins, find the best cell of
+    // intersection. Note that the ray may not penetrate all of the way
+    // through the locator so may terminate when (t > 1.0).
+    for ( bestCellId = (-1); bestCellId < 0; )
     {
       if ( (numCellsInBin=this->GetNumberOfIds(idx)) > 0 ) //there are some cell here
       {
         const CellFragments<T> *cellIds = this->GetIds(idx);
-        this->ComputeBinBounds(pos[0]-1,pos[1]-1,pos[2]-1, binBounds);
-        for (tMax = VTK_DOUBLE_MAX, cellId=0; cellId < numCellsInBin; cellId++)
+        this->ComputeBinBounds(ijk[0],ijk[1],ijk[2], binBounds);
+        for (i=0; i < numCellsInBin; i++)
         {
-          cId = cellIds[cellId].CellId;
-          if (this->CellHasBeenVisited[cId] != this->QueryNumber)
+          cId = cellIds[i].CellId;
+          if (cellHasBeenVisited[cId] == 0)
           {
-            this->CellHasBeenVisited[cId] = this->QueryNumber;
-            int hitCellBounds = 0;
+            cellHasBeenVisited[cId] = 1;
 
             // check whether we intersect the cell bounds
-            hitCellBounds = vtkBox::IntersectBox(this->CellBounds+(6*cId),
-                                                 a0, direction1,
-                                                 hitCellBoundsPosition, result);
+            int hitCellBounds = vtkBox::IntersectBox(this->CellBounds+(6*cId),
+                                                     a0, rayDir,
+                                                     hitCellBoundsPosition, tHitCell);
 
             if (hitCellBounds)
             {
               // now, do the expensive GetCell call and the expensive
               // intersect with line call
               this->DataSet->GetCell(cId, cell);
-              if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId) )
+              if ( cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, subId) && t < tMin )
               {
-                if ( ! this->IsInBinBounds(binBounds, x, tol) )
+                // Make sure that intersection occurs within this bin or else spurious cell
+                // intersections can occur behind this bin which are not the correct answer.
+                if ( ! this->IsInBinBounds(binBounds, x, binTol) )
                 {
-                  this->CellHasBeenVisited[cId] = 0; //mark the cell non-visited
+                  cellHasBeenVisited[cId] = 0; //mark the cell non-visited
                 }
                 else
                 {
-                  if ( t < (tMax+deltaT) ) //it might be close
-                  {
-                    pDistance = cell->GetParametricDistance(pcoords);
-                    if ( pDistance < minPDistance ||
-                         (pDistance == minPDistance && t < tMax) )
-                    {
-                      tMax = t;
-                      minPDistance = pDistance;
-                      bestCellId = cId;
-                    }
-                  } //intersection point is in current bin
-                } //if within current parametric range
+                  tMin = t;
+                  bestCellId = cId;
+                }
               } // if intersection
             } // if (hitCellBounds)
-          } // if (!this->CellHasBeenVisited[cId])
+          } // if (!cellHasBeenVisited[cId])
+        }// over all cells in bin
+      }// if cells in bin
+
+      // Exit before end of ray, saves a few cycles
+      if ( bestCellId >= 0 )
+      {
+        break;
+      }
+
+      // Advance to next voxel
+      if (tMax[0] < tMax[1])
+      {
+        if (tMax[0] < tMax[2])
+        {
+          ijk[0] += static_cast<int>(step[0]);
+          tMax[0] += tDelta[0];
+          curT = tMax[0];
+        }
+        else
+        {
+          ijk[2] += static_cast<int>(step[2]);
+          tMax[2] += tDelta[2];
+          curT = tMax[2];
+        }
+      }
+      else
+      {
+        if (tMax[1] < tMax[2])
+        {
+          ijk[1] += static_cast<int>(step[1]);
+          tMax[1] += tDelta[1];
+          curT = tMax[1];
+        }
+        else
+        {
+          ijk[2] += static_cast<int>(step[2]);
+          tMax[2] += tDelta[2];
+          curT = tMax[2];
         }
       }
 
-      // move to the next bin
-      tMax = VTK_DOUBLE_MAX;
-      bestDir = 0;
-      for (loop = 0; loop < 3; loop++)
+      if ( curT > 1.0 ||
+           ijk[0] < 0 || ijk[0] >= ndivs[0] ||
+           ijk[1] < 0 || ijk[1] >= ndivs[1] ||
+           ijk[2] < 0 || ijk[2] >= ndivs[2] )
       {
-        if (direction3[loop] > 0)
-        {
-          npos[loop] = pos[loop] + 1;
-          dist[loop] = (1.0 - hitPosition[loop] + pos[loop])/direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = 1.0/direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
-        if (direction3[loop] < 0)
-        {
-          npos[loop] = pos[loop] - 1;
-          dist[loop] = (pos[loop] - hitPosition[loop])/direction3[loop];
-          if (dist[loop] == 0)
-          {
-            dist[loop] = -0.01/direction3[loop];
-          }
-          if (dist[loop] < 0)
-          {
-            dist[loop] = 0;
-          }
-          if (dist[loop] < tMax)
-          {
-            bestDir = loop;
-            tMax = dist[loop];
-          }
-        }
+        break;
       }
-      // update our position
-      for (loop = 0; loop < 3; loop++)
+      else
       {
-        hitPosition[loop] += dist[bestDir]*direction3[loop];
+        idx = ijk[0] + ijk[1]*ndivs[0] + ijk[2]*prod;
       }
-      currDist += dist[bestDir];
-      // now make the move, find the smallest distance
-      // only cross one boundary at a time
-      pos[bestDir] = npos[bestDir];
 
-      idx = pos[0] - 1 + (pos[1]-1)*numDivisions +
-        (pos[2]-1)*prod;
-    }
+    }// for looking for valid intersected cell
   } // if (vtkBox::IntersectBox(...))
 
+  // Clean up and get out
+  delete [] cellHasBeenVisited;
+
+  // If a cell has been intersected, recover the information and return.
+  // This information could be cached....
   if (bestCellId >= 0)
   {
     this->DataSet->GetCell(bestCellId, cell);
@@ -808,8 +743,6 @@ vtkStaticCellLocator::vtkStaticCellLocator()
   this->Binner = nullptr;
   this->Processor = nullptr;
 
-  this->CellHasBeenVisited = nullptr;
-
   this->NumberOfCellsPerNode = 10;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 100;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
@@ -817,11 +750,9 @@ vtkStaticCellLocator::vtkStaticCellLocator()
   {
     this->Bounds[i] = 0;
   }
+
   this->MaxNumberOfBuckets = VTK_INT_MAX;
   this->LargeIds = false;
-
-  this->CellHasBeenVisited = nullptr;
-  this->QueryNumber = 0;
 }
 
 //-----------------------------------------------------------------------------

@@ -49,6 +49,10 @@
  * degenerate triangles (i.e., zero-area triangles).
  *
  * @warning
+ * If you are interested in extracting segmented regions from a label mask,
+ * consider using vtkDiscreteFlyingEdges#D.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.

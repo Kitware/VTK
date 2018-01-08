@@ -12,19 +12,20 @@ set(Module_SRCS
   vtkLinearExtrusionFilter.cxx
   vtkLinearSubdivisionFilter.cxx
   vtkLoopSubdivisionFilter.cxx
+  vtkOutlineFilter.cxx
   vtkPolyDataPointSampler.cxx
   vtkProjectedTexture.cxx
   vtkQuadRotationalExtrusionFilter.cxx
   vtkRibbonFilter.cxx
   vtkRotationalExtrusionFilter.cxx
   vtkRuledSurfaceFilter.cxx
+  vtkSectorSource.cxx
   vtkSelectEnclosedPoints.cxx
   vtkSelectPolyData.cxx
   vtkSpherePuzzleArrows.cxx
   vtkSpherePuzzle.cxx
   vtkSubdivideTetra.cxx
-  vtkOutlineFilter.cxx
-  vtkSectorSource.cxx
+  vtkTrimmedExtrusionFilter.cxx
   vtkVolumeOfRevolutionFilter.cxx
   )
 

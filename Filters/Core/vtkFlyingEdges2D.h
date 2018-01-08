@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkFlyingEdges2D
- * @brief   generate isoline(s) from a structured points set
+ * @brief   generate isoline(s) from a structured points (image) dataset
  *
  * vtkFlyingEdges2D is a reference implementation of the 2D version of the
  * flying edges algorithm. It is designed to be highly scalable (i.e.,
@@ -47,13 +47,17 @@
  * degenerate line segments (i.e., zero-length line segments).
  *
  * @warning
+ * If you are interested in extracting segmented regions from a label mask,
+ * consider using vtkDiscreteFlyingEdges2D.
+ *
+ * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
  * non-sequential type (set in the CMake variable
  * VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
  *
  * @sa
- * vtkContourFilter vtkFlyingEdges3D vtkSynchronizedTemplates2D
- * vtkMarchingSquares
+ * vtkFlyingEdges3D vtkContourFilter vtkSynchronizedTemplates2D
+ * vtkMarchingSquares vtkDiscreteFlyingEdges2D
 */
 
 #ifndef vtkFlyingEdges2D_h

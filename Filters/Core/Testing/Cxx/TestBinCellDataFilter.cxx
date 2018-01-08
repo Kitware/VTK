@@ -15,6 +15,7 @@
 // This tests the vtkBinCellDataFilter class.
 
 #include <vtkBinCellDataFilter.h>
+#include <vtkCellLocator.h>
 #include <vtkCellData.h>
 #include <vtkCellIterator.h>
 #include <vtkCleanPolyData.h>
@@ -121,9 +122,12 @@ int TestBinCellDataFilter(int, char*[])
   vtkSmartPointer<vtkUnstructuredGrid> inputGrid =
     ConstructDelaunay3DSphere(numberOfInputPoints, seq, true);
 
+  vtkNew<vtkCellLocator> locator;
+
   vtkNew<vtkBinCellDataFilter> binDataFilter;
   binDataFilter->SetInputData(inputGrid);
   binDataFilter->SetSourceData(sourceGrid);
+  binDataFilter->SetCellLocator(locator);
   binDataFilter->SetComputeTolerance(false);
   binDataFilter->GenerateValues(3, .2, .8);
   binDataFilter->Update();
