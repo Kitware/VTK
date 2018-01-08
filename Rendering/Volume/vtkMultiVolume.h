@@ -161,7 +161,7 @@ protected:
    * Checks for changes in the registered vtkVolume instances which could
    * required the bounding-box to be recomputed.
    */
-  bool VolumesChanged() const;
+  bool VolumesChanged();
 
   /**
    * For a box defined by bounds in coordinate system X, compute its

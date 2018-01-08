@@ -56,7 +56,7 @@ namespace {
   const std::string ArrayBaseName(const std::string& arrayName)
   {
     const std::string base = arrayName.substr(0, arrayName.length() - 3);
-    return std::move(base);
+    return base;
   }
 }
 

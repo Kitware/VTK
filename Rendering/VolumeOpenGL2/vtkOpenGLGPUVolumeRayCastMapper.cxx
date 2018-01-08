@@ -3613,14 +3613,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::BindTransformations(
   const int numInputs = static_cast<int>(this->Parent->AssembledInputs.size());
   const int numVolumes = this->MultiVolume ? numInputs + 1 : numInputs;
 
-  this->VolMatVec.reserve(numVolumes * 16);
-  this->InvMatVec.reserve(numVolumes * 16);
-  this->TexMatVec.reserve(numVolumes * 16);
-  this->InvTexMatVec.reserve(numVolumes * 16);
-  this->TexEyeMatVec.reserve(numVolumes * 16);
-  this->CellToPointVec.reserve(numVolumes * 16);
-  this->TexMinVec.reserve(numVolumes * 3);
-  this->TexMaxVec.reserve(numVolumes * 3);
+  this->VolMatVec.resize(numVolumes * 16, 0);
+  this->InvMatVec.resize(numVolumes * 16, 0);
+  this->TexMatVec.resize(numVolumes * 16, 0);
+  this->InvTexMatVec.resize(numVolumes * 16, 0);
+  this->TexEyeMatVec.resize(numVolumes * 16, 0);
+  this->CellToPointVec.resize(numVolumes * 16, 0);
+  this->TexMinVec.resize(numVolumes * 3, 0);
+  this->TexMaxVec.resize(numVolumes * 3, 0);
 
   vtkNew<vtkMatrix4x4> dataToWorld, texToDataMat, texToViewMat, cellToPointMat;
   float defaultTexMin[3] = { 0.f, 0.f, 0.f };
@@ -3718,11 +3718,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetVolumeShaderParameters(
 
   // Bind other properties (per-input)
   const int numInputs = static_cast<int>(this->Parent->AssembledInputs.size());
-  this->ScaleVec.reserve(numInputs * 4);
-  this->BiasVec.reserve(numInputs * 4);
-  this->StepVec.reserve(numInputs * 3);
-  this->SpacingVec.reserve(numInputs * 3);
-  this->RangeVec.reserve(numInputs * 8);
+  this->ScaleVec.resize(numInputs * 4, 0);
+  this->BiasVec.resize(numInputs * 4, 0);
+  this->StepVec.resize(numInputs * 3, 0);
+  this->SpacingVec.resize(numInputs * 3, 0);
+  this->RangeVec.resize(numInputs * 8, 0);
 
   int index = 0;
   for (auto& input : this->Parent->AssembledInputs)
