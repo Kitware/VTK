@@ -34,13 +34,13 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLToTableReader :
 public:
   static vtkPostgreSQLToTableReader *New();
   vtkTypeMacro(vtkPostgreSQLToTableReader,vtkDatabaseToTableReader);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
 protected:
    vtkPostgreSQLToTableReader();
   ~vtkPostgreSQLToTableReader();
   int RequestData(vtkInformation *, vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) override;
 private:
   vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&) = delete;
   void operator=(const vtkPostgreSQLToTableReader&) = delete;
