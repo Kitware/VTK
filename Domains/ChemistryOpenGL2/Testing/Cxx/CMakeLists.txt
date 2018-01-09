@@ -12,6 +12,6 @@ vtk_test_cxx_executable(vtkDomainsChemistryOpenGL2CxxTests tests
 if(NOT VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows)
   set(VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows 360)
 endif()
-set_tests_properties(vtkDomainsChemistryOpenGL2Cxx-TestPDBBallAndStickShadows
+set_tests_properties(VTK::DomainsChemistryOpenGL2Cxx-TestPDBBallAndStickShadows
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPDBBallAndStickShadows}
                RUN_SERIAL ON)
