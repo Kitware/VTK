@@ -1,3 +1,4 @@
+# TODO: Simplify this with some argument passing.
 set(VTK_PDAL_READER_TESTS)
 function(add_vtk_pdal_reader_test test_input elevation)
   get_filename_component(VTK_PDAL_READER_POSTFIX ${test_input} NAME_WE)
