@@ -35,7 +35,7 @@ public:
   static SystemFontRenderTest *New();
   vtkTypeMacro(SystemFontRenderTest, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) override;
 };
 
 //----------------------------------------------------------------------------
