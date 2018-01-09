@@ -75,12 +75,16 @@ static int testRobustEncoding()
   // test that the conversion functions handle invalid
   // unicode correctly/gracefully
 
+  // we manipulate the format flags of stdout, remember
+  // the original state here to restore before return
+  std::ios::fmtflags const& flags = std::cout.flags();
+
   int ret = 0;
   char cstr[] = { (char)-1, 0 };
   // this conversion could fail
   std::wstring wstr = kwsys::Encoding::ToWide(cstr);
 
-  wstr = kwsys::Encoding::ToWide(NULL);
+  wstr = kwsys::Encoding::ToWide(KWSYS_NULLPTR);
   if (wstr != L"") {
     const wchar_t* wcstr = wstr.c_str();
     std::cout << "ToWide(NULL) returned";
@@ -108,7 +112,7 @@ static int testRobustEncoding()
   std::string win_str = kwsys::Encoding::ToNarrow(cwstr);
 #endif
 
-  std::string str = kwsys::Encoding::ToNarrow(NULL);
+  std::string str = kwsys::Encoding::ToNarrow(KWSYS_NULLPTR);
   if (str != "") {
     std::cout << "ToNarrow(NULL) returned " << str << std::endl;
     ret++;
@@ -120,6 +124,7 @@ static int testRobustEncoding()
     ret++;
   }
 
+  std::cout.flags(flags);
   return ret;
 }
 

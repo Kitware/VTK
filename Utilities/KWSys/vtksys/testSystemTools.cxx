@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdlib.h> /* free */
 #include <string.h> /* strcmp */
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #include <io.h> /* _umask (MSVC) / umask (Borland) */
@@ -51,7 +52,7 @@ static const char* toUnixPaths[][2] = {
   { "\\\\usr\\local\\bin\\passwd", "//usr/local/bin/passwd" },
   { "\\\\usr\\lo cal\\bin\\pa sswd", "//usr/lo cal/bin/pa sswd" },
   { "\\\\usr\\lo\\ cal\\bin\\pa\\ sswd", "//usr/lo\\ cal/bin/pa\\ sswd" },
-  { 0, 0 }
+  { KWSYS_NULLPTR, KWSYS_NULLPTR }
 };
 
 static bool CheckConvertToUnixSlashes(std::string const& input,
@@ -67,10 +68,11 @@ static bool CheckConvertToUnixSlashes(std::string const& input,
   return true;
 }
 
-static const char* checkEscapeChars[][4] = { { "1 foo 2 bar 2", "12", "\\",
-                                               "\\1 foo \\2 bar \\2" },
-                                             { " {} ", "{}", "#", " #{#} " },
-                                             { 0, 0, 0, 0 } };
+static const char* checkEscapeChars[][4] = {
+  { "1 foo 2 bar 2", "12", "\\", "\\1 foo \\2 bar \\2" },
+  { " {} ", "{}", "#", " #{#} " },
+  { KWSYS_NULLPTR, KWSYS_NULLPTR, KWSYS_NULLPTR, KWSYS_NULLPTR }
+};
 
 static bool CheckEscapeChars(std::string const& input,
                              const char* chars_to_escape, char escape_char,
@@ -158,7 +160,7 @@ static bool CheckFileOperations()
     res = false;
   }
   // calling with 0 pointer should return false
-  if (kwsys::SystemTools::MakeDirectory(0)) {
+  if (kwsys::SystemTools::MakeDirectory(KWSYS_NULLPTR)) {
     std::cerr << "Problem with MakeDirectory(0)" << std::endl;
     res = false;
   }
@@ -216,11 +218,11 @@ static bool CheckFileOperations()
   }
 
   // calling with 0 pointer should return false
-  if (kwsys::SystemTools::FileExists(0)) {
+  if (kwsys::SystemTools::FileExists(KWSYS_NULLPTR)) {
     std::cerr << "Problem with FileExists(0)" << std::endl;
     res = false;
   }
-  if (kwsys::SystemTools::FileExists(0, true)) {
+  if (kwsys::SystemTools::FileExists(KWSYS_NULLPTR, true)) {
     std::cerr << "Problem with FileExists(0) as file" << std::endl;
     res = false;
   }
@@ -253,22 +255,22 @@ static bool CheckFileOperations()
   }
   // should work, was created as new file before
   if (!kwsys::SystemTools::FileExists(testNewFile)) {
-    std::cerr << "Problem with FileExists for: " << testNewDir << std::endl;
+    std::cerr << "Problem with FileExists for: " << testNewFile << std::endl;
     res = false;
   }
   if (!kwsys::SystemTools::FileExists(testNewFile.c_str())) {
-    std::cerr << "Problem with FileExists as C string for: " << testNewDir
+    std::cerr << "Problem with FileExists as C string for: " << testNewFile
               << std::endl;
     res = false;
   }
   if (!kwsys::SystemTools::FileExists(testNewFile, true)) {
-    std::cerr << "Problem with FileExists as file for: " << testNewDir
+    std::cerr << "Problem with FileExists as file for: " << testNewFile
               << std::endl;
     res = false;
   }
   if (!kwsys::SystemTools::FileExists(testNewFile.c_str(), true)) {
     std::cerr << "Problem with FileExists as C string and file for: "
-              << testNewDir << std::endl;
+              << testNewFile << std::endl;
     res = false;
   }
 
@@ -284,7 +286,7 @@ static bool CheckFileOperations()
   }
   // should work, was created as new file before
   if (!kwsys::SystemTools::PathExists(testNewFile)) {
-    std::cerr << "Problem with PathExists for: " << testNewDir << std::endl;
+    std::cerr << "Problem with PathExists for: " << testNewFile << std::endl;
     res = false;
   }
 
@@ -535,15 +537,14 @@ static bool CheckStringOperations()
   }
   delete[] cres;
 
-  char* cres2 = new char[strlen("Mary Had A Little Lamb.") + 1];
-  strcpy(cres2, "Mary Had A Little Lamb.");
+  char* cres2 = strdup("Mary Had A Little Lamb.");
   kwsys::SystemTools::ReplaceChars(cres2, "aeiou", 'X');
   if (strcmp(cres2, "MXry HXd A LXttlX LXmb.")) {
     std::cerr << "Problem with ReplaceChars "
               << "\"Mary Had A Little Lamb.\"" << std::endl;
     res = false;
   }
-  delete[] cres2;
+  free(cres2);
 
   if (!kwsys::SystemTools::StringStartsWith("Mary Had A Little Lamb.",
                                             "Mary ")) {
@@ -813,6 +814,39 @@ static bool CheckFind()
   return res;
 }
 
+static bool CheckIsSubDirectory()
+{
+  bool res = true;
+
+  if (kwsys::SystemTools::IsSubDirectory("/foo", "/") == false) {
+    std::cerr << "Problem with IsSubDirectory (root - unix): " << std::endl;
+    res = false;
+  }
+  if (kwsys::SystemTools::IsSubDirectory("c:/foo", "c:/") == false) {
+    std::cerr << "Problem with IsSubDirectory (root - dos): " << std::endl;
+    res = false;
+  }
+  if (kwsys::SystemTools::IsSubDirectory("/foo/bar", "/foo") == false) {
+    std::cerr << "Problem with IsSubDirectory (deep): " << std::endl;
+    res = false;
+  }
+  if (kwsys::SystemTools::IsSubDirectory("/foo", "/foo") == true) {
+    std::cerr << "Problem with IsSubDirectory (identity): " << std::endl;
+    res = false;
+  }
+  if (kwsys::SystemTools::IsSubDirectory("/fooo", "/foo") == true) {
+    std::cerr << "Problem with IsSubDirectory (substring): " << std::endl;
+    res = false;
+  }
+  if (kwsys::SystemTools::IsSubDirectory("/foo/", "/foo") == true) {
+    std::cerr << "Problem with IsSubDirectory (prepended slash): "
+              << std::endl;
+    res = false;
+  }
+
+  return res;
+}
+
 static bool CheckGetLineFromStream()
 {
   const std::string fileWithFiveCharsOnFirstLine(TEST_SYSTEMTOOLS_SOURCE_DIR
@@ -896,6 +930,8 @@ int testSystemTools(int, char* [])
   res &= CheckGetPath();
 
   res &= CheckFind();
+
+  res &= CheckIsSubDirectory();
 
   res &= CheckGetLineFromStream();
 
