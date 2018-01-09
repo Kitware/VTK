@@ -24,6 +24,10 @@
 #include <vtk_glew.h>
 // GLUT includes
 #if defined(__APPLE__)
+# include <AvailabilityMacros.h>
+#if MAC_OS_X_VERSION_MIN_REQUIRED > 1009
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 # include <GLUT/glut.h> // Include GLUT API.
 #else
 # if defined(_WIN32)
