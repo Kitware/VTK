@@ -192,8 +192,8 @@ protected:
    * an odd situation for data management since arrays will be allocated with
    * junk data and scheduled to be filled, but they cannot be safely assigned
    * to a VTK object until the data contained in them is valid, e.g. through
-   * a call to vtkUnstructuredGrid::SetPoints or similar.  Similary,
-   * they cannot have their reference cound safely decremented until after
+   * a call to vtkUnstructuredGrid::SetPoints or similar.  Similarly,
+   * they cannot have their reference could safely decremented until after
    * they have been assigned to a vtk object.  To work around this, a generic
    * action queue is created to hold a list of arbitrary functions that need
    * to be called in a particular order after the reads have been
