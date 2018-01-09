@@ -74,6 +74,13 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkRenderWindowInteractor;
 
+/**
+ * A unit test may return this value to tell ctest to skip the test. This can
+ * be used to abort a test when an unsupported runtime configuration is
+ * detected.
+ */
+const int VTK_SKIP_RETURN_CODE = 125;
+
 class VTKTESTINGRENDERING_EXPORT vtkTesting : public vtkObject
 {
 public:
