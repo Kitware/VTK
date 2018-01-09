@@ -75,3 +75,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtView.h

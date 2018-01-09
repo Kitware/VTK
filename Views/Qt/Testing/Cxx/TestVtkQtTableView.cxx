@@ -25,15 +25,16 @@
 #include "vtkTable.h"
 #include "vtkSmartPointer.h"
 
-#include "QTestApp.h"
 #include <QWidget>
+#include <QApplication>
+#include <QTimer>
 
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestVtkQtTableView(int argc, char* argv[])
 {
-  QTestApp app(argc, argv);
+  QApplication app(argc, argv);
 
   // Create a sphere and create a vtkTable from its point data (normal vectors)
   VTK_CREATE(vtkSphereSource, sphereSource);
@@ -51,7 +52,7 @@ int TestVtkQtTableView(int argc, char* argv[])
   tableView->GetWidget()->show();
 
   // Start the Qt event loop to run the application
-  int status = app.exec();
-  return status;
+  QTimer::singleShot(500, &app, SLOT(quit()));
+  return app.exec();
 }
 
