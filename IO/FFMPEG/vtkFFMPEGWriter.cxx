@@ -208,8 +208,14 @@ int vtkFFMPEGWriterInternal::Start()
   }
 
   //to do playback at actual recorded rate, this will need more work see also below
+#if LIBAVFORMAT_VERSION_MAJOR < 55 || \
+  (LIBAVFORMAT_VERSION_MAJOR == 55 && LIBAVCODEC_VERSION_MINOR < 20)
   c->time_base.den = this->FrameRate;
   c->time_base.num = 1;
+#else
+  this->avStream->time_base.den = this->FrameRate;
+  this->avStream->time_base.num = 1;
+#endif
   //about one full frame per second
   c->gop_size = this->FrameRate;
 
