@@ -1,0 +1,19 @@
+NAME
+  VTK::RenderingQt
+LIBRARY_NAME
+  vtkRenderingQt
+GROUPS
+  Qt
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::RenderingCore
+  VTK::RenderingLabel
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::FiltersTexture
+  VTK::GUISupportQt
+TEST_DEPENDS
+  VTK::TestingCore
