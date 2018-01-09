@@ -35,7 +35,7 @@ class VTKFILTERSREEBGRAPH_EXPORT vtkReebGraphSimplificationFilter :
 public:
   static vtkReebGraphSimplificationFilter* New();
   vtkTypeMacro(vtkReebGraphSimplificationFilter, vtkDirectedGraphAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -62,11 +62,11 @@ protected:
 
   vtkReebGraphSimplificationMetric *SimplificationMetric;
 
-  int FillInputPortInformation(int portNumber, vtkInformation *);
-  int FillOutputPortInformation(int, vtkInformation *);
+  int FillInputPortInformation(int portNumber, vtkInformation *) override;
+  int FillOutputPortInformation(int, vtkInformation *) override;
 
   int RequestData(vtkInformation *request,
-    vtkInformationVector **inputVector, vtkInformationVector *outputVector);
+    vtkInformationVector **inputVector, vtkInformationVector *outputVector) override;
 
 private:
   vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&) = delete;

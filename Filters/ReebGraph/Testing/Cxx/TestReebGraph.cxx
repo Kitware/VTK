@@ -4257,7 +4257,7 @@ class AreaSimplificationMetric : public vtkReebGraphSimplificationMetric{
     static AreaSimplificationMetric* New();
     double ComputeMetric(vtkDataSet *mesh, vtkDataArray *scalarField,
       vtkIdType startCriticalPoint, vtkAbstractArray *vertexList,
-      vtkIdType endCriticalPoint);
+      vtkIdType endCriticalPoint) override;
 };
 
 vtkStandardNewMacro(AreaSimplificationMetric);
