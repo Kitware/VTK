@@ -52,3 +52,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtTimePointUtility.h

@@ -212,4 +212,4 @@ private:
 
 #endif // (QT_EDITION & QT_MODULE_SQL)
 #endif // vtkQtSQLDatabase_h
-
+// VTK-HeaderTest-Exclude: vtkQtSQLDatabase.h

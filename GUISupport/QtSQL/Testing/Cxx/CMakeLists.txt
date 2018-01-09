@@ -1,4 +1,4 @@
-include(vtkQt)
+include(../../../../CMake/vtkQt.cmake)
 
 vtk_add_test_cxx(vtkGUISupportQtSQLCxxTests tests
   NO_VALID
