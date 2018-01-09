@@ -50,6 +50,6 @@ vtk_test_cxx_executable(vtkDomainsChemistryCxxTests tests
 if(NOT VTK_TEST_TIMEOUT_TestPDBBallAndStick)
   set(VTK_TEST_TIMEOUT_TestPDBBallAndStick 360)
 endif()
-set_tests_properties(vtkDomainsChemistryCxx-TestPDBBallAndStick
+set_tests_properties(VTK::DomainsChemistryCxx-TestPDBBallAndStick
     PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestPDBBallAndStick}
                RUN_SERIAL ON)
