@@ -1,0 +1,15 @@
+NAME
+  VTK::ViewsContext2D
+LIBRARY_NAME
+  vtkViewsContext2D
+KIT
+  VTK::Views
+GROUPS
+  Rendering
+  Views
+DEPENDS
+  VTK::CommonCore
+  VTK::RenderingCore
+  VTK::ViewsCore
+PRIVATE_DEPENDS
+  VTK::RenderingContext2D
