@@ -211,7 +211,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         outGrids[step]->GetBounds(bounds);
         for (int i=0;i<6;i++)
         {
-          if (abs(bounds[i]-correctBounds[ghostLevel-1][myRank][i]) > .001)
+          if (std::abs(bounds[i]-correctBounds[ghostLevel-1][myRank][i]) > .001)
           {
           cerr << "Wrong bounds for " << ghostLevel << " ghost levels!\n";
           ret = EXIT_FAILURE;
