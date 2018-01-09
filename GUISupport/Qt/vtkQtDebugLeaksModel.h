@@ -96,3 +96,4 @@ protected slots:
 
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtDebugLeaksModel.h

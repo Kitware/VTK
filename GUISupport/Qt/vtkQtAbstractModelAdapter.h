@@ -154,3 +154,4 @@ protected:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtAbstractModelAdapter.h

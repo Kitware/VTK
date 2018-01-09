@@ -87,3 +87,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkQtDebugLeaksView.h

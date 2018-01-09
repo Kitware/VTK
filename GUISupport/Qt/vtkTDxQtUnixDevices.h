@@ -65,3 +65,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTDxQtUnixDevices.h
