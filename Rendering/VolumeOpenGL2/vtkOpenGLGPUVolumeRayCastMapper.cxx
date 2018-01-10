@@ -4009,10 +4009,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
     return;
   }
 
-//  prog->SetFileNamePrefixForDebugging("/home/alvaro/testShaders/ov/ov");
-//  this->Impl->ShaderCache->ReleaseCurrentShader();
-//  this->Impl->ShaderCache->ReadyShaderProgram(prog);
-
   this->SetShaderParametersRenderPass();
   if (!this->Impl->MultiVolume)
   {
