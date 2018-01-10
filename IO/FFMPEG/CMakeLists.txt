@@ -1,12 +1,15 @@
-find_package(FFMPEG 2.3.3 REQUIRED
+vtk_module_find_package(
+  PACKAGE FFMPEG
+  VERSION 2.3.3
+  FORWARD_VERSION_REQ MINOR
   COMPONENTS
     avformat
     avcodec
     avutil
     swscale)
 
-set(Module_SRCS
-  vtkFFMPEGWriter.cxx)
+set(classes
+  vtkFFMPEGWriter)
 
 set_source_files_properties(vtkFFMPEGWriter.cxx
   PROPERTIES
@@ -14,21 +17,15 @@ set_source_files_properties(vtkFFMPEGWriter.cxx
 
 # vtkFFMPEGVideoSource requires ffmpeg 3.1 or later.
 if (NOT FFMPEG_VERSION VERSION_LESS "3.1")
-  list(APPEND Module_SRCS
-    vtkFFMPEGVideoSource.cxx)
+  list(APPEND classes
+    vtkFFMPEGVideoSource)
 endif ()
 
-set(ffmpeg_libs
-  ${FFMPEG_avformat_LIBRARIES}
-  ${FFMPEG_avcodec_LIBRARIES}
-  ${FFMPEG_avutil_LIBRARIES}
-  ${FFMPEG_swscale_LIBRARIES})
-
-vtk_module_library(vtkIOFFMPEG
-  ${Module_SRCS})
-target_include_directories(vtkIOFFMPEG
+vtk_module_add_module(VTK::IOFFMPEG
+  CLASSES ${classes})
+vtk_module_link(VTK::IOFFMPEG
   PRIVATE
-    ${FFMPEG_INCLUDE_DIRS})
-target_link_libraries(vtkIOFFMPEG
-  PRIVATE
-    ${ffmpeg_libs})
+    FFMPEG::avformat
+    FFMPEG::avcodec
+    FFMPEG::avutil
+    FFMPEG::swscale)
