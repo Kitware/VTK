@@ -29,9 +29,8 @@
 #include "vtkDomainsChemistryModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
 
-#include <vector>
-#include <fstream>
-#include <iostream>
+#include <vector>   // for std::vector
+#include <istream>  // for std::istream
 
 class vtkMolecule;
 
