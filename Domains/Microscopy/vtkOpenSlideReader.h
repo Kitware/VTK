@@ -45,14 +45,14 @@ public:
   /**
    * Is the given file supported ?
    */
-  int CanReadFile(const char* fname);
+  int CanReadFile(const char* fname) override;
 
   /**
    * Get the file extensions for this format.
    * Returns a string with a space separated list of extensions in
    * the format .extension
    */
-  virtual const char* GetFileExtensions()
+  const char* GetFileExtensions() override
   {
       return ".ndpi .svs"; // TODO: Get exaustive list of formats
   }
@@ -61,7 +61,7 @@ public:
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
-  virtual const char* GetDescriptiveName()
+  const char* GetDescriptiveName() override
   {
       return "Openslide::WholeSlideImage";
   }
@@ -70,8 +70,8 @@ protected:
   ~vtkOpenSlideReader();
   //@}
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
+  void ExecuteInformation() override;
+  void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo) override;
 private:
   openslide_t *openslide_handle;
 
