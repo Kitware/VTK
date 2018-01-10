@@ -4,6 +4,7 @@ vtk_add_test_cxx(vtkFiltersParallelCxxTests testsStd
   TestAngularPeriodicFilter.cxx
   )
 
+set(vtkFiltersParallelCxxTests-MPI_NUMPROCS 2)
 vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI tests
   TESTING_DATA
   DistributedData.cxx
