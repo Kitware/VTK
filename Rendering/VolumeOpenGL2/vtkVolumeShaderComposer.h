@@ -1151,7 +1151,6 @@ namespace vtkvolume
     if (noOfComponents > 1 && independentComponents)
     {
       // Multiple independent components
-      std::string shaderStr;
       toString <<
         "float computeOpacity(vec4 scalar, int component)\n"
         "{\n";
