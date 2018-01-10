@@ -43,7 +43,7 @@ RegularExpression::RegularExpression(const RegularExpression& rxp)
   int ind;
   this->progsize = rxp.progsize;            // Copy regular expression size
   this->program = new char[this->progsize]; // Allocate storage
-  for (ind = this->progsize; ind-- != 0;)   // Copy regular expresion
+  for (ind = this->progsize; ind-- != 0;)   // Copy regular expression
     this->program[ind] = rxp.program[ind];
   // Copy pointers into last successful "find" operation
   this->regmatch = rxp.regmatch;
@@ -76,7 +76,7 @@ RegularExpression& RegularExpression::operator=(const RegularExpression& rxp)
   this->progsize = rxp.progsize; // Copy regular expression size
   delete[] this->program;
   this->program = new char[this->progsize]; // Allocate storage
-  for (ind = this->progsize; ind-- != 0;)   // Copy regular expresion
+  for (ind = this->progsize; ind-- != 0;)   // Copy regular expression
     this->program[ind] = rxp.program[ind];
   // Copy pointers into last successful "find" operation
   this->regmatch = rxp.regmatch;
@@ -128,8 +128,8 @@ bool RegularExpression::deep_equal(const RegularExpression& rxp) const
           this->regmatch.end() == rxp.regmatch.end());
 }
 
-// The remaining code in this file is derived from the  regular expression code
-// whose  copyright statement appears  below.  It has been  changed to work
+// The remaining code in this file is derived from the regular expression code
+// whose copyright statement appears below.  It has been changed to work
 // with the class concepts of C++ and COOL.
 
 /*

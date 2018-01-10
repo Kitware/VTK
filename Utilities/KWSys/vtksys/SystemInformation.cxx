@@ -1653,7 +1653,7 @@ int SystemInformationImplementation::GetFullyQualifiedDomainName(
   // any number of interfaces on this system we look for the
   // first of these that contains the name returned by gethostname
   // and is longer. failing that we return gethostname and indicate
-  // with a failure code. Return of a failure code is not necessarilly
+  // with a failure code. Return of a failure code is not necessarily
   // an indication of an error. for instance gethostname may return
   // the fully qualified domain name, or there may not be one if the
   // system lives on a private network such as in the case of a cluster
