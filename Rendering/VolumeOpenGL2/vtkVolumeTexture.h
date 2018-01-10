@@ -293,7 +293,6 @@ private:
   std::vector<Size3> TextureSizes;
   Size6 FullExtent;
   Size3 FullSize;
-  Size3 FullSizeAdjusted; /* Cell Adjusted */
   Size3 Partitions;
 
   vtkDataArray* Scalars;
