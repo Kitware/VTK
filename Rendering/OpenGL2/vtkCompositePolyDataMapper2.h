@@ -125,6 +125,18 @@ public:
    */
   void Render(vtkRenderer *ren, vtkActor *act) override;
 
+  //@{
+  /**
+   * Call SetInputArrayToProcess on helpers.
+   */
+  using vtkAlgorithm::SetInputArrayToProcess;
+  void SetInputArrayToProcess(
+    int idx, int port, int connection, int fieldAssociation, const char* name) override;
+  void SetInputArrayToProcess(
+    int idx, int port, int connection, int fieldAssociation, int fieldAttributeType) override;
+  void SetInputArrayToProcess(int idx, vtkInformation* info) override;
+  //@}
+
   /**
    * Accessor to the ordered list of PolyData that we end last drew.
    */
@@ -153,6 +165,13 @@ protected:
    * Need to loop over the hierarchy to compute bounds
    */
   void ComputeBounds() override;
+
+  /**
+   * This method is called before RenderPiece is called on helpers.
+   * One can override it to initialize the helpers.
+   */
+  virtual void InitializeHelpersBeforeRendering(vtkRenderer *vtkNotUsed(ren),
+    vtkActor *vtkNotUsed(act)) {}
 
   /**
    * Time stamp for computation of bounds.
