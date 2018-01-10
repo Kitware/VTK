@@ -81,13 +81,13 @@ std::string Glob::PatternToRegex(const std::string& pattern,
     int c = *i;
     if (c == '*') {
       // A '*' (not between brackets) matches any string.
-      // We modify this to not match slashes since the orignal glob
+      // We modify this to not match slashes since the original glob
       // pattern documentation was meant for matching file name
       // components separated by slashes.
       regex += "[^/]*";
     } else if (c == '?') {
       // A '?' (not between brackets) matches any single character.
-      // We modify this to not match slashes since the orignal glob
+      // We modify this to not match slashes since the original glob
       // pattern documentation was meant for matching file name
       // components separated by slashes.
       regex += "[^/]";

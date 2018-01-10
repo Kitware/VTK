@@ -107,7 +107,8 @@ extern char** environ;
 
 // getpwnam doesn't exist on Windows and Cray Xt3/Catamount
 // same for TIOCGWINSZ
-#if defined(_WIN32) || defined(__LIBCATAMOUNT__)
+#if defined(_WIN32) || defined(__LIBCATAMOUNT__) ||                           \
+  (defined(HAVE_GETPWNAM) && HAVE_GETPWNAM == 0)
 #undef HAVE_GETPWNAM
 #undef HAVE_TTY_INFO
 #else
@@ -1072,7 +1073,7 @@ bool SystemTools::WriteRegistryValue(const std::string&, const std::string&,
 //      HKEY_LOCAL_MACHINE\SOFTWARE\Python\PythonCore\2.1\InstallPath
 //      =>  will delete the data of the "default" value of the key
 //      HKEY_LOCAL_MACHINE\SOFTWARE\Scriptics\Tcl\8.4;Root
-//      =>  will delete  the data of the "Root" value of the key
+//      =>  will delete the data of the "Root" value of the key
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 bool SystemTools::DeleteRegistryValue(const std::string& key, KeyWOW64 view)
