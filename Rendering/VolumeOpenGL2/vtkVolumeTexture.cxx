@@ -162,11 +162,6 @@ void vtkVolumeTexture::CreateBlocks(unsigned int const format,
   this->FullSize[0] = this->FullExtent[1] - this->FullExtent[0] + 1;
   this->FullSize[1] = this->FullExtent[3] - this->FullExtent[2] + 1;
   this->FullSize[2] = this->FullExtent[5] - this->FullExtent[4] + 1;
-  // Cell adjusted size. Offset is 1 if current data array is cell data (see
-  // vtkAbstractMapper::GetAbstractScalars)
-  this->FullSizeAdjusted[0] = this->FullSize[0];
-  this->FullSizeAdjusted[1] = this->FullSize[1];
-  this->FullSizeAdjusted[2] = this->FullSize[2];
 
   size_t const numBlocks = this->ImageDataBlocks.size();
   for (size_t i = 0; i < numBlocks; i++)
@@ -178,8 +173,8 @@ void vtkVolumeTexture::CreateBlocks(unsigned int const format,
 
     // Compute tuple index (array aligned in x -> Y -> Z)
     // index = z0 * Dx * Dy + y0 * Dx + x0
-    block->TupleIndex = ext[4] * this->FullSizeAdjusted[0] * this->FullSizeAdjusted[1] +
-      ext[2] * this->FullSizeAdjusted[0] + ext[0];
+    block->TupleIndex = ext[4] * this->FullSize[0] * this->FullSize[1] +
+      ext[2] * this->FullSize[0] + ext[0];
 
     this->ImageDataBlockMap[imData] = block;
     this->ComputeBounds(block);
@@ -246,13 +241,13 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     bool const useXStride = blockSize[0] != this->FullSize[0];
     if (useXStride)
     {
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, this->FullSizeAdjusted[0]);
+      glPixelStorei(GL_UNPACK_ROW_LENGTH, this->FullSize[0]);
     }
 
     bool const useYStride = blockSize[1] != this->FullSize[1];
     if (useYStride)
     {
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSizeAdjusted[1]);
+      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, this->FullSize[1]);
     }
 
     // Account for component offset
@@ -317,7 +312,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
     sliceArray->SetNumberOfTuples(blockSize[0] * blockSize[1]);
 
     int k = 0;
-    vtkIdType const kInc = this->FullSizeAdjusted[0] * this->FullSizeAdjusted[1];
+    vtkIdType const kInc = this->FullSize[0] * this->FullSize[1];
     vtkIdType kOffset = tupleIdx;
 
     float* tupPtr = new float[noOfComponents];
@@ -343,7 +338,7 @@ bool vtkVolumeTexture::LoadTexture(int const interpolation, VolumeBlock* volBloc
         }
 
         ++j;
-        jOffset += this->FullSizeAdjusted[0];
+        jOffset += this->FullSize[0];
         jDestOffset += blockSize[0];
       }
 
