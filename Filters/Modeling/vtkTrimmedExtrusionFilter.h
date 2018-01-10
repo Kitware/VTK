@@ -38,8 +38,8 @@
  *
  * @warning
  * The extrusion direction is assumed to define an infinite line. The
- * intersection with the trim surface may be in the + or - direction along
- * the line, however only the first intersection is taken.
+ * intersection with the trim surface is along a ray from the - to +
+ * direction, however only the first intersection is taken.
  *
  * @warning
  * Some polygonal objects have no free edges (e.g., sphere). When swept, this
@@ -196,7 +196,7 @@ public:
 
 protected:
   vtkTrimmedExtrusionFilter();
-  ~vtkTrimmedExtrusionFilter();
+  ~vtkTrimmedExtrusionFilter() override;
 
   int Capping;
   double ExtrusionDirection[3];
