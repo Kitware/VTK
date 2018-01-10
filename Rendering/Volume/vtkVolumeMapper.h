@@ -121,7 +121,7 @@ public:
    * blend mode. Only scalar values between this range will be averaged during
    * ray casting. This can be useful when volume rendering CT datasets where the
    * areas occupied by air would deviate the final rendering. By default, the
-   * range is set to (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX).
+   * range is set to (VTK_FLOAT_MIN, VTK_FLOAT_MAX).
    * \sa SetBlendModeToAverageIntensity()
    */
   vtkSetVector2Macro(AverageIPScalarRange, double);
