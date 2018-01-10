@@ -68,6 +68,7 @@ vtkLagrangianParticleTracker::vtkLagrangianParticleTracker()
   this->MinimumReductionFactor = 1.1;
 
   this->UseParticlePathsRenderingThreshold = false;
+  this->GeneratePolyVertexInteractionOutput = false;
   this->ParticlePathsRenderingPointsThreshold = 100;
 
   this->CreateOutOfDomainParticle = false;
@@ -633,12 +634,26 @@ bool vtkLagrangianParticleTracker::FinalizeOutputs(
         vtkErrorMacro(<< "Cannot recover interaction output, something went wrong");
         return false;
       }
-      this->InsertPolyVertexCell(pdBlock);
+      if (this->GeneratePolyVertexInteractionOutput)
+      {
+        this->InsertPolyVertexCell(pdBlock);
+      }
+      else
+      {
+        this->InsertVertexCells(pdBlock);
+      }
     }
   }
   else if (pd)
   {
-    this->InsertPolyVertexCell(pd);
+    if (this->GeneratePolyVertexInteractionOutput)
+    {
+      this->InsertPolyVertexCell(pd);
+    }
+    else
+    {
+      this->InsertVertexCells(pd);
+    }
   }
 
   // Enable model post processing
@@ -656,14 +671,32 @@ bool vtkLagrangianParticleTracker::FinalizeOutputs(
 void vtkLagrangianParticleTracker::InsertPolyVertexCell(vtkPolyData* polydata)
 {
   // Insert a vertex cell for each point
-  int nPoint = polydata->GetNumberOfPoints();
+  vtkIdType nPoint = polydata->GetNumberOfPoints();
   if (nPoint > 0)
   {
     vtkNew<vtkCellArray> polyVertex;
     polyVertex->Allocate(polyVertex->EstimateSize(1, nPoint));
     polyVertex->InsertNextCell(nPoint);
-    for (int i = 0; i<nPoint; i++)
+    for (vtkIdType i = 0; i < nPoint; i++)
     {
+      polyVertex->InsertCellPoint(i);
+    }
+    polydata->SetVerts(polyVertex);
+  }
+}
+
+//---------------------------------------------------------------------------
+void vtkLagrangianParticleTracker::InsertVertexCells(vtkPolyData* polydata)
+{
+  // Insert a vertex cell for each point
+  vtkIdType nPoint = polydata->GetNumberOfPoints();
+  if (nPoint > 0)
+  {
+    vtkNew<vtkCellArray> polyVertex;
+    polyVertex->Allocate(polyVertex->EstimateSize(1, nPoint));
+    for (vtkIdType i = 0; i < nPoint; i++)
+    {
+      polyVertex->InsertNextCell(1);
       polyVertex->InsertCellPoint(i);
     }
     polydata->SetVerts(polyVertex);
@@ -1007,7 +1040,8 @@ int vtkLagrangianParticleTracker::Integrate(vtkLagrangianParticle* particle,
       vtkInitialValueProblemSolver::OUT_OF_DOMAIN && stagnating;
 
     // Simpler Adaptive Step Reintegration code
-    if (this->AdaptiveStepReintegration)
+    if (this->AdaptiveStepReintegration &&
+        this->IntegrationModel->CheckAdaptiveStepReintegration(particle))
     {
       double stepLengthCurr2 = vtkMath::Distance2BetweenPoints(
         particle->GetPosition(), particle->GetNextPosition());

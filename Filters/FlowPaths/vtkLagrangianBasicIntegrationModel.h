@@ -245,10 +245,22 @@ public:
   virtual void InitializeParticle(vtkLagrangianParticle* vtkNotUsed(particle)){}
 
   /**
-   * Empty method to be reimplemented if necessary in inherited classes.
+   * Method to be reimplemented if needed in inherited classes.
+   * Allows a inherited class to check if adaptive step reintegration
+   * should be done or not, this method is called just before
+   * potentially performing adaptative step reintegration,
+   * the current particle is passed as an argument.
+   * This method always returns true in this basis class.
+   */
+  virtual bool CheckAdaptiveStepReintegration(
+    vtkLagrangianParticle* vtkNotUsed(particle)){return true;}
+
+  /**
+   * Method to be reimplemented if needed in inherited classes.
    * Allows a inherited class to check if a particle
    * should be terminated only based on particle parameters.
-   * This method return true if the particle must be terminated, false otherwise.
+   * This method should return true if the particle must be terminated, false otherwise.
+   * It always returns false in this basis class.
    */
   virtual bool CheckFreeFlightTermination(
     vtkLagrangianParticle* vtkNotUsed(particle)){return false;}
