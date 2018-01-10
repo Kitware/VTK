@@ -38,7 +38,7 @@ private:
   vtkSegYIOUtils();
   bool checkIfBigEndian()
   {
-    ushort a = 0x1234;
+    unsigned short a = 0x1234;
     if (*((unsigned char*)&a) == 0x12)
       return true;
     return false;
