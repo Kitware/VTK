@@ -146,6 +146,13 @@ protected:
    */
   int UpdateGeometry() override;
 
+  /**
+   * Check and return the textured background for the current state
+   * If monocular or stereo left eye, check BackgroundTexture
+   * If stereo right eye, check RightBackgroundTexture
+   */
+  vtkTexture* GetCurrentTexturedBackground();
+
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
