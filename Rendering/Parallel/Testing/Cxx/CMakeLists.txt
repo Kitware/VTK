@@ -5,6 +5,7 @@ vtk_add_test_cxx(vtkRenderingParallelCxxTests tests
   )
 vtk_test_cxx_executable(vtkRenderingParallelCxxTests tests)
 
+set(vtkRenderingParallelCxxTests-MPI_NUMPROCS 2)
 vtk_add_test_mpi(vtkRenderingParallelCxxTests-MPI tests
   TestSimplePCompositeZPass.cxx,TESTING_DATA
   TestParallelRendering.cxx,TESTING_DATA
