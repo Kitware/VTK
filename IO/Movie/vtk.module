@@ -1,0 +1,19 @@
+NAME
+  VTK::IOMovie
+LIBRARY_NAME
+  vtkIOMovie
+KIT
+  VTK::IO
+GROUPS
+  StandAlone
+DEPENDS
+  VTK::CommonExecutionModel
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonMisc
+  VTK::CommonSystem
+TEST_DEPENDS
+  VTK::ImagingCore
+  VTK::ImagingSources
+  VTK::TestingCore
