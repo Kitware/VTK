@@ -77,14 +77,14 @@
 #ifndef vtkGL2PSExporter_h
 #define vtkGL2PSExporter_h
 
-#include "vtkIOExportModule.h" // For export macro
+#include "vtkIOExportGL2PSModule.h" // For export macro
 #include "vtkExporter.h"
 
 #include "vtkNew.h" // For vtkNew
 
 class vtkPropCollection;
 
-class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
+class VTKIOEXPORTGL2PS_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
   static vtkGL2PSExporter *New();

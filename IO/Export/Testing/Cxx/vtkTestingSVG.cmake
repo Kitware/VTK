@@ -14,7 +14,7 @@ function(vtk_add_svg_test)
     get_filename_component(TName ${testsrc} NAME_WE)
 
     # Convert svg to png
-    add_test(NAME ${vtk-module}Cxx-${TName}-RasterizePNG
+    add_test(NAME ${_vtk_build_test}Cxx-${TName}-RasterizePNG
       COMMAND ${CMAKE_COMMAND}
         "-DSVGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
         "-DPNGFILE=${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
@@ -22,11 +22,11 @@ function(vtk_add_svg_test)
         -DREMOVESVG=1
         -P "${vtkTestingSVG_SOURCE_DIR}/RasterizeSVG.cmake"
     )
-    set_tests_properties("${vtk-module}Cxx-${TName}-RasterizePNG"
+    set_tests_properties("${_vtk_build_test}Cxx-${TName}-RasterizePNG"
       PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}"
+        DEPENDS "vtkIOExportCxx-${TName}"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}.svg"
-        LABELS "${${vtk-module}_TEST_LABELS}"
+        LABELS "${vtkIOExport_TEST_LABELS}"
     )
 
     get_filename_component(TName ${test} NAME_WE)
@@ -38,7 +38,7 @@ function(vtk_add_svg_test)
 
     # Image diff rasterized png produced from SVG with baseline
     ExternalData_add_test(VTKData
-      NAME ${vtk-module}Cxx-${TName}-VerifyRasterizedPNG
+      NAME ${_vtk_build_test}Cxx-${TName}-VerifyRasterizedPNG
       COMMAND "vtkRenderingGL2PSOpenGL2CxxTests" PNGCompare
         -D "${_vtk_build_TEST_DATA_DIRECTORY}"
         -T "${_vtk_build_TEST_OUTPUT_DIRECTORY}"
@@ -46,11 +46,11 @@ function(vtk_add_svg_test)
         -V "DATA{../Data/Baseline/${TName}-rasterRef.png,:}"
         --test-file "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
     )
-    set_tests_properties("${vtk-module}Cxx-${TName}-VerifyRasterizedPNG"
+    set_tests_properties("vtkIOExportCxx-${TName}-VerifyRasterizedPNG"
       PROPERTIES
-        DEPENDS "${vtk-module}Cxx-${TName}-RasterizePNG"
+        DEPENDS "vtkIOExportCxx-${TName}-RasterizePNG"
         REQUIRED_FILES "${_vtk_build_TEST_OUTPUT_DIRECTORY}/${TName}-raster.png"
-        LABELS "${${vtk-module}_TEST_LABELS}"
+        LABELS "${_vtk_build_test_labels}"
         )
   endforeach()
 endfunction()
