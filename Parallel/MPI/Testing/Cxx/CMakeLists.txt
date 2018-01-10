@@ -9,14 +9,18 @@ vtk_add_test_mpi(vtkParallelMPICxxTests-MPI no_data_tests
   MPIController.cxx
   PDirectory.cxx
   PSystemTools.cxx
+  )
+
+set(vtkParallelMPICxxTests-MPI_NUMPROCS 2)
+vtk_add_test_mpi(vtkParallelMPICxxTests-MPI 2_proc_tests
   TestNonBlockingCommunication.cxx
   TestProcess.cxx
-  ${extra_opengl_tests}
   )
 
 set(all_tests
   ${tests}
   ${no_data_tests}
+  ${2_proc_tests}
   )
 vtk_test_mpi_executable(vtkParallelMPICxxTests-MPI all_tests
   ExerciseMultiProcessController.cxx
