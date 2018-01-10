@@ -42,8 +42,7 @@ public:
    * rendering each prop.
    */
   void BeginRenderProp() override;
-  void EndRenderProp() override
-    { this->vtkHardwareSelector::EndRenderProp(); }
+  void EndRenderProp() override;
 
   /**
    * Called by any vtkMapper or vtkProp subclass to render a composite-index.
@@ -64,6 +63,7 @@ public:
 
   // we need to initialize the depth buffer
   void BeginSelection() override;
+  void EndSelection() override;
 
 protected:
   vtkOpenGLHardwareSelector();
@@ -72,7 +72,7 @@ protected:
   void PreCapturePass(int pass) override;
   void PostCapturePass(int pass) override;
 
-  // Called internally before and after each prop is rendered
+  // Called internally before each prop is rendered
   // for device specific configuration/preparation etc.
   void BeginRenderProp(vtkRenderWindow *) override;
   void EndRenderProp(vtkRenderWindow *) override;

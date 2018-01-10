@@ -226,7 +226,6 @@ void vtkHardwareSelector::BeginSelection()
   this->MaxAttributeId = 0;
   this->Renderer->Clear();
   this->Renderer->SetSelector(this);
-  this->Renderer->PreserveDepthBufferOn();
   this->Internals->HitProps.clear();
   this->Internals->Props.clear();
   this->ReleasePixBuffers();
@@ -237,7 +236,6 @@ void vtkHardwareSelector::EndSelection()
 {
   this->Internals->HitProps.clear();
   this->Renderer->SetSelector(nullptr);
-  this->Renderer->PreserveDepthBufferOff();
 }
 
 //----------------------------------------------------------------------------
@@ -372,9 +370,6 @@ void vtkHardwareSelector::BeginRenderProp()
   // device specific prep
   vtkRenderWindow *renWin = this->Renderer->GetRenderWindow();
   this->BeginRenderProp(renWin);
-
-  //cout << "In BeginRenderProp" << endl;
-  //glFinish();
 }
 
 //----------------------------------------------------------------------------
