@@ -1,0 +1,18 @@
+NAME
+  VTK::IOMySQL
+LIBRARY_NAME
+  vtkIOMySQL
+KIT
+  VTK::IO
+IMPLEMENTS
+  VTK::IOSQL
+DEPENDS
+  VTK::IOSQL
+PRIVATE_DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::TestingIOSQL
