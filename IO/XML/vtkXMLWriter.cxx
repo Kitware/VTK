@@ -2372,18 +2372,14 @@ void vtkXMLWriter::WriteArrayInline(
   }
   // Close the header
   os << ">\n";
-  // Write recognized information keys associated with this array.
-  vtkInformation *info=a->GetInformation();
-  vtkInformationQuadratureSchemeDefinitionVectorKey *key=vtkQuadratureSchemeDefinition::DICTIONARY();
-  if (info->Has(key))
-  {
-    vtkXMLDataElement *eKey=vtkXMLDataElement::New();
-    key->SaveState(info,eKey);
-    eKey->PrintXML(os,indent);
-    eKey->Delete();
-  }
   // Write the inline data.
   this->WriteInlineData(a, indent.GetNextIndent());
+  // Write information keys associated with this array.
+  vtkInformation *info = a->GetInformation();
+  if (info && info->GetNumberOfKeys() > 0)
+  {
+    this->WriteInformation(info, indent);
+  }
   // Close tag.
   this->WriteArrayFooter(os, indent, a, 0);
 }
