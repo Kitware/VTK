@@ -68,8 +68,10 @@ $<$<BOOL:$<TARGET_PROPERTY:${TARGET},INCLUDE_DIRECTORIES>>:
         PROPERTY "_vtk_${target_basename}_kit_modules")
       message("depends for ${TARGET}: ${kit_modules}")
       foreach (depend IN LISTS kit_modules)
-        list(APPEND hierarchy_depend
-          "${depend}Hierarchy")
+        if(TARGET "${depend}Hierarchy")
+          list(APPEND hierarchy_depend
+            "${depend}Hierarchy")
+        endif()
       endforeach ()
     else ()
       set(hierarchy_depend "${target_basename}Hierarchy")
