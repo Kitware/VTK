@@ -17,7 +17,7 @@
 #ensure we link against our dependencies
 include(module.cmake)
 
-vtk_module_dep_includes(vtkm)
+vtk_module_dep_includes(vtkVTKm)
 list(APPEND CMAKE_MODULE_PATH "${VTK_SOURCE_DIR}/ThirdParty/vtkm/vtk-m/CMake")
 
 if(VTKm_ENABLE_TBB)
@@ -231,7 +231,7 @@ else()
   set_property(TARGET vtkAcceleratorsVTKm PROPERTY JOB_POOL_COMPILE vtkm_pool)
 endif()
 
-target_link_libraries(vtkAcceleratorsVTKm PRIVATE ${VTKm_LIBRARIES})
+target_link_libraries(vtkAcceleratorsVTKm PRIVATE vtkm_cont ${VTKm_LIBRARIES})
 target_include_directories(vtkAcceleratorsVTKm PRIVATE ${VTKm_INCLUDE_DIRS})
 
 if (MSVC)
