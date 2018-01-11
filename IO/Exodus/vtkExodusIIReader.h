@@ -803,12 +803,7 @@ protected:
   vtkGetObjectMacro(Metadata,vtkExodusIIReaderPrivate);
 
   /**
-   * Returns true if XMLFileName has already been set. Otherwise, look for the XML
-   * metadata file in the same directory as the data file(s) using the following
-   * possible file names:
-   * DATA_FILE_NAME.xml
-   * DATA_FILE_NAME.dart
-   * artifact.dta
+   * Returns true if the file given by XMLFileName exists.
    * Return true if found, false otherwise
    */
   bool FindXMLFile();

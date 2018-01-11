@@ -6402,29 +6402,6 @@ bool vtkExodusIIReader::FindXMLFile()
     {
       if ( this->FileName )
       {
-        vtkStdString baseName( vtksys::SystemTools::GetFilenameWithoutExtension( this->FileName ) );
-        vtkStdString xmlExt( baseName + ".xml" );
-        if ( vtksys::SystemTools::FileExists( xmlExt ) )
-        {
-          this->SetXMLFileName( xmlExt.c_str() );
-          return true;
-        }
-
-        vtkStdString dartExt( baseName + ".dart" );
-        if ( vtksys::SystemTools::FileExists( dartExt ) )
-        {
-          this->SetXMLFileName( dartExt.c_str() );
-          return true;
-        }
-
-        vtkStdString baseDir( vtksys::SystemTools::GetFilenamePath( this->FileName ) );
-        vtkStdString artifact( baseDir + "/artifact.dta" );
-        if ( vtksys::SystemTools::FileExists( artifact ) )
-        {
-          this->SetXMLFileName( artifact.c_str() );
-          return true;
-        }
-
         // Catch the case where filename was non-nullptr but didn't exist.
         this->SetXMLFileName( nullptr );
       }
