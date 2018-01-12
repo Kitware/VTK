@@ -190,6 +190,19 @@ void vtkRenderWindow::SetDesiredUpdateRate(double rate)
   }
 }
 
+//----------------------------------------------------------------------------
+void vtkRenderWindow::SetStereoType(int stereoType)
+{
+  if (this->StereoType == stereoType)
+  {
+    return;
+  }
+
+  this->StereoType = stereoType;
+  this->InvokeEvent(vtkCommand::WindowStereoTypeChangedEvent);
+
+  this->Modified();
+}
 
 //----------------------------------------------------------------------------
 //
