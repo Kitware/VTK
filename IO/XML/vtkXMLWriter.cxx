@@ -2230,7 +2230,6 @@ int vtkXMLWriter::WriteAsciiData(vtkAbstractArray* a, vtkIndent indent)
   {
     vtkArrayIteratorTemplateMacro(
       ret = vtkXMLWriteAsciiData(os, static_cast<VTK_TT*>(iter), indent));
-    // Why isn't vtkBitArray handled?
   default:
     ret = 0;
     break;
