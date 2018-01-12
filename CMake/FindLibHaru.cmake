@@ -19,9 +19,13 @@
 
 find_path(LIBHARU_INCLUDE_DIR hpdf.h)
 
-find_library(LIBHARU_LIBRARY NAMES hpdf hpdfs)
+find_library(LIBHARU_LIBRARY_RELEASE NAMES hpdf hpdfs libhpdf libhpdfs)
+find_library(LIBHARU_LIBRARY_DEBUG NAMES hpdfd hpdfsd libhpdfd libhpdfsd)
 
-# handle the QUIETLY and REQUIRED arguments and set FONTCONFIG_FOUND to TRUE if
+include(SelectLibraryConfigurations)
+select_library_configurations(LIBHARU)
+
+# handle the QUIETLY and REQUIRED arguments and set LIBHARU_FOUND to TRUE if
 # all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LibHaru DEFAULT_MSG
