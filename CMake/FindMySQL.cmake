@@ -28,6 +28,7 @@ FIND_PATH(MYSQL_INCLUDE_DIRECTORIES mysql.h
   "C:/MySQL/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
+  PATH_SUFFIXES mysql
   DOC "Specify the directory containing mysql.h."
 )
 
