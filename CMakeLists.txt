@@ -170,7 +170,7 @@ set(_vtk_module_group_default_StandAlone "WANT")
 set(_vtk_module_group_default_Rendering "WANT")
 
 include(vtkModule)
-vtk_module_find_modules(vtk_common_module_files
+set(vtk_source_directories
   "${CMAKE_CURRENT_SOURCE_DIR}/Accelerators"
   "${CMAKE_CURRENT_SOURCE_DIR}/Charts"
   "${CMAKE_CURRENT_SOURCE_DIR}/Common"
@@ -190,6 +190,8 @@ vtk_module_find_modules(vtk_common_module_files
   "${CMAKE_CURRENT_SOURCE_DIR}/Views"
   "${CMAKE_CURRENT_SOURCE_DIR}/Web"
   "${CMAKE_CURRENT_SOURCE_DIR}/Wrapping")
+vtk_module_find_modules(vtk_module_files ${vtk_source_directories})
+vtk_module_find_kits(vtk_kit_files ${vtk_source_directories})
 vtk_module_scan(
   MODULE_FILES        ${vtk_module_files}
   KIT_FILES           ${vtk_kit_files}
