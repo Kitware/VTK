@@ -1503,6 +1503,8 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   // Free the id-type conversion buffer if it was allocated.
   delete [] this->Int32IdTypeBuffer;
   this->Int32IdTypeBuffer = nullptr;
+  // The swap and ID buffers are shared. Guard against double frees:
+  this->ByteSwapBuffer = nullptr;
 #endif
   return ret;
 }
