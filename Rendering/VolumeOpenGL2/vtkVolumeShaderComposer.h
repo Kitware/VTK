@@ -1634,22 +1634,36 @@ namespace vtkvolume
     {
       shaderStr += std::string("\
         \n#if NUMBER_OF_CONTOURS\
+        \n    int maxComp = 0;");
+
+      std::string compParamStr = "";
+      if (noOfComponents > 1 && independentComponents)
+      {
+        shaderStr += std::string("\
+          \n    for (int i = 1; i < in_noOfComponents; ++i)\
+          \n    {\
+          \n      if (in_componentWeight[i] > in_componentWeight[maxComp])\
+          \n        maxComp = i;\
+          \n    }");
+        compParamStr = ", maxComp";
+      }
+      shaderStr += std::string("\
         \n    if (g_currentT == 0)\
         \n    {\
-        \n      l_initialIndex = findIsoSurfaceIndex(scalar.r, l_normValues);\
+        \n      l_initialIndex = findIsoSurfaceIndex(scalar[maxComp], l_normValues);\
         \n    }\
         \n    else\
         \n    {\
         \n      float s;\
         \n      bool shade = false;\
         \n      l_initialIndex = clamp(l_initialIndex, 0, NUMBER_OF_CONTOURS);\
-        \n      if (scalar.r < l_normValues[l_initialIndex])\
+        \n      if (scalar[maxComp] < l_normValues[l_initialIndex])\
         \n      {\
         \n        s = l_normValues[l_initialIndex];\
         \n        l_initialIndex--;\
         \n        shade = true;\
         \n      }\
-        \n      if (scalar.r > l_normValues[l_initialIndex+1])\
+        \n      if (scalar[maxComp] > l_normValues[l_initialIndex+1])\
         \n      {\
         \n        s = l_normValues[l_initialIndex+1];\
         \n        l_initialIndex++;\
@@ -1658,8 +1672,8 @@ namespace vtkvolume
         \n      if (shade == true)\
         \n      {\
         \n        vec4 vs = vec4(s);\
-        \n        g_srcColor.a = computeOpacity(vs);\
-        \n        g_srcColor = computeColor(vs, g_srcColor.a);\
+        \n        g_srcColor.a = computeOpacity(vs "+compParamStr+");\
+        \n        g_srcColor = computeColor(vs, g_srcColor.a "+compParamStr+");\
         \n        g_srcColor.rgb *= g_srcColor.a;\
         \n        g_fragColor = (1.0f - g_fragColor.a) * g_srcColor + g_fragColor;\
         \n      }\
@@ -1761,15 +1775,15 @@ namespace vtkvolume
          }
       }
     }
-     else
-     {
-        shaderStr += std::string();
-     }
+    else
+    {
+      shaderStr += std::string();
+    }
 
-      shaderStr += std::string("\
-        \n      }"
-      );
-      return shaderStr;
+    shaderStr += std::string("\
+      \n      }"
+    );
+    return shaderStr;
   }
 
   //--------------------------------------------------------------------------
