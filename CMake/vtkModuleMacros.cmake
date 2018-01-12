@@ -905,18 +905,6 @@ macro(vtk_module_third_party _pkg)
       set(vtk${_lower}_LIBRARIES "${${_upper_pkg_name}_LIBRARIES}")
     endif()
 
-    #a workaround for bad FindHDF5 behavior in which deb or opt can
-    #end up empty. cmake >= 2.8.12.2 makes this unnecessary
-    string(REGEX MATCH "debug;.*optimized;.*"
-           _remove_deb_opt "${vtk${_lower}_LIBRARIES}")
-    if (_remove_deb_opt)
-      set(_tmp ${vtk${_lower}_LIBRARIES})
-      list(REMOVE_ITEM _tmp "debug")
-      list(REMOVE_ITEM _tmp "optimized")
-      list(REMOVE_DUPLICATES _tmp)
-      set(vtk${_lower}_LIBRARIES ${_tmp})
-    endif()
-
     set(vtk${_lower}_INCLUDE_DIRS "")
   else()
     if(_nolibs)
