@@ -25,8 +25,11 @@
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
 
+#include <algorithm>
+#include <cassert>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 #include "vtkXMLUtilities.h"
 
@@ -428,6 +431,11 @@ size_t vtkXMLDataParser::GetWordTypeSize(int wordType)
     vtkTemplateMacro(
       size = vtkXMLDataParserGetWordTypeSize(static_cast<VTK_TT*>(nullptr))
       );
+
+    case VTK_BIT:
+      size = 1;
+      break;
+
     default:
       { vtkWarningMacro("Unsupported data type: " << wordType); } break;
   }
@@ -1068,6 +1076,62 @@ static signed char* vtkXMLParseAsciiData(istream& is,
 }
 
 //----------------------------------------------------------------------------
+static unsigned char* vtkXMLParseAsciiBitData(istream& is, int* length)
+{
+  size_t arrayCapacity = 64; // capacity in bytes
+  unsigned char *array = new unsigned char[arrayCapacity];
+  std::fill(array, array + arrayCapacity, static_cast<unsigned char>(0));
+
+  size_t fullBytesRead = 0;
+  unsigned char currentBitInByte = 0;
+  unsigned char *currentByte = array;
+
+  int value;
+  while (is >> value)
+  {
+    // Realloc array buffer if needed:
+    if (fullBytesRead == arrayCapacity)
+    {
+      assert("sanity check" && currentBitInByte == 0);
+      size_t newSize = arrayCapacity * 2;
+      unsigned char *tmp = new unsigned char[newSize];
+      std::copy(array, array + arrayCapacity, tmp);
+      std::fill(tmp + arrayCapacity, tmp + newSize,
+                static_cast<unsigned char>(0));
+
+      delete [] array;
+      array = tmp;
+      currentByte = array + fullBytesRead;
+      arrayCapacity = newSize;
+    }
+
+    // Set the current bit:
+    assert("sanity check" && currentBitInByte < 8);
+    if (value != 0)
+    { // Mimic the storage mechanism used by vtkBitArray
+      *currentByte = *currentByte | (0x80 >> currentBitInByte);
+    }
+
+    // Update bookkeeping:
+    if (++currentBitInByte == 8)
+    {
+      ++currentByte;
+      ++fullBytesRead;
+      currentBitInByte = 0;
+    }
+  }
+
+  if (length)
+  {
+    // We fudge the 'word size' to 1 byte for bit arrays (since it's integral)
+    // so return the length in bytes here:
+    *length = static_cast<int>(fullBytesRead + (currentBitInByte != 0 ? 1 : 0));
+  }
+
+  return array;
+}
+
+//----------------------------------------------------------------------------
 int vtkXMLDataParser::ParseAsciiData(int wordType)
 {
   istream& is = *(this->Stream);
@@ -1089,6 +1153,10 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
     vtkTemplateMacro(
       buffer = vtkXMLParseAsciiData(is, &length, static_cast<VTK_TT*>(nullptr), 1)
       );
+
+    case VTK_BIT:
+      buffer = vtkXMLParseAsciiBitData(is, &length);
+      break;
   }
 
   // Read terminated from failure.  Clear the fail bit so another read
