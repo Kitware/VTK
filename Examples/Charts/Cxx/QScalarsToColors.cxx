@@ -31,9 +31,10 @@
 #include "vtkTimerLog.h"
 
 #include <QApplication>
-#include <QWidget>
-#include <QMainWindow>
 #include <QHBoxLayout>
+#include <QMainWindow>
+#include <QSurfaceFormat>
+#include <QWidget>
 
 
 //----------------------------------------------------------------------------
@@ -46,7 +47,7 @@ int main( int argc, char * argv [] )
   QApplication app(argc, argv);
 
   // QVTK set up and initialization
-  QVTKOpenGLWidget qvtkWidget(nullptr);
+  QVTKOpenGLWidget qvtkWidget;
 
   vtkNew<vtkGenericOpenGLRenderWindow> renderWindow;
   qvtkWidget.SetRenderWindow(renderWindow);

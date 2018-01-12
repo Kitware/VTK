@@ -53,9 +53,17 @@ int TestQVTKOpenGLWidgetWithMSAA(int argc, char* argv[])
   actor->SetMapper(mapper);
   ren->AddActor(actor);
 
-  vtktesting->SetRenderWindow(window);
   widget.show();
-  app.processEvents();
+
+  // Make sure that the widget context is valid before making OpenGL calls.
+  // This should only take up to 4 calls to processEvents(). If this test keeps
+  // timing out, consider that the widget initialization is broken.
+  while (!widget.isValid())
+  {
+    app.processEvents();
+  }
+
+  vtktesting->SetRenderWindow(window);
 
   int retVal = vtktesting->RegressionTest(10);
   switch (retVal)
