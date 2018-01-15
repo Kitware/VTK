@@ -1,24 +1,6 @@
-if(VTK_MPI_MAX_NUMPROCS GREATER 1 AND VTK_USE_LARGE_DATA)
+set(vtkIOParallelXdmf3CxxTests-MPI_NUMPROCS 2)
+vtk_add_test_cxx(vtkIOParallelXdmf3CxxTests tests
+  TestXdmf3Parallel.cxx,NO_VALID
+  )
 
-  include(vtkMPI)
-
-  set(Xdmf3MPITests TestXdmf3Parallel)
-
-  foreach(test ${Xdmf3MPITests})
-
-    vtk_module_test_executable(vtkIOParallelXdmf3Cxx-${test} ${test}.cxx)
-    ExternalData_Expand_Arguments(VTKData _
-      "DATA{${VTK_TEST_INPUT_DIR}/XDMF/Iron/,REGEX:.*}"
-      )
-    ExternalData_add_test(VTKData
-      NAME vtkIOParallelXdmf3Cxx-${test}
-      COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
-      $<TARGET_FILE:vtkIOParallelXdmf3Cxx-${test}>
-      -D ${VTK_TEST_DATA_DIR}
-      -T ${VTK_TEST_OUTPUT_DIR}
-#      -V DATA{../Data/Baseline/${test}.png,:}
-      ${VTK_MPI_POSTFLAGS})
-    vtk_mpi_link(vtkIOParallelXdmf3Cxx-${test})
-  endforeach()
-
-endif()
+vtk_test_cxx_executable(vtkIOParallelXdmf3CxxTests tests)
