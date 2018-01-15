@@ -120,9 +120,7 @@ if(WIN32)
 endif()
 check_type_size("long long"    SIZEOF_LONG_LONG)
 
-include (${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
 include (CheckIncludeFile)
-check_include_file(malloc.h XDMF_HAVE_MALLOC_H)
 
 # System to Build
 string(REGEX REPLACE "-" "_" XDMF_SYSTEM ${CMAKE_SYSTEM_NAME})
@@ -132,22 +130,11 @@ set(ARCH_TO_BUILD ${XDMF_SYSTEM} CACHE INTERNAL "Host Arcitecture : Linux IRIXN3
 #
 add_definitions(-D${ARCH_TO_BUILD})
 
-include (CheckTypeSize)
-
 #TODO: why aren't we getting these from Ice?
-check_type_size(char XDMF_SIZEOF_CHAR)
 check_type_size(double XDMF_SIZEOF_DOUBLE)
 check_type_size(float XDMF_SIZEOF_FLOAT)
 check_type_size(int XDMF_SIZEOF_INT)
 check_type_size(long XDMF_SIZEOF_LONG)
-check_type_size(short XDMF_SIZEOF_SHORT)
-
-include (CheckFunctionExists)
-if(WIN32)
-  check_type_size(__int64        SIZEOF___INT64)
-endif()
-check_type_size("long long"    SIZEOF_LONG_LONG)
-check_function_exists(strtoll HAVE_STRTOLL)
 
 # Don't Really Need to check these ...
 set(XDMF_VOID_VALID 1)
@@ -196,12 +183,6 @@ endif()
 
 include(${xdmf2_SOURCE_DIR}/CMake/CheckFor64BitStreams.cmake)
 check_for_64bit_streams(XDMF_HAVE_64BIT_STREAMS)
-
-# Find include files
-find_path(XDMF_HAVE_FCNTL fcntl.h /usr/include /usr/include/sys)
-find_path(XDMF_HAVE_NETINET in.h /usr/include/netinet /usr/include /usr/include/sys)
-find_path(XDMF_HAVE_MMAN mman.h /usr/include/sys /usr/include)
-mark_as_advanced(XDMF_HAVE_FCNTL XDMF_HAVE_NETINET XDMF_HAVE_MMAN)
 
 # Save out config to let other projects use xdmf
 configure_file(${xdmf2_SOURCE_DIR}/libsrc/XdmfConfig.h.in
