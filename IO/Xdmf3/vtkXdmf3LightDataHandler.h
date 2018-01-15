@@ -30,7 +30,8 @@
 
 #include "vtkIOXdmf3Module.h" // For export macro
 #include <set>
-#include "XdmfItem.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(core/XdmfItem.hpp)
 #include "vtkType.h"
 
 class vtkXdmf3SILBuilder;

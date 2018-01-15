@@ -16,7 +16,8 @@
 
 #include "vtkXdmf3ArrayKeeper.h"
 
-#include "XdmfArray.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(core/XdmfArray.hpp)
 
 //------------------------------------------------------------------------------
 vtkXdmf3ArrayKeeper::vtkXdmf3ArrayKeeper()

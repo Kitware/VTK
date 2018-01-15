@@ -1,0 +1,21 @@
+NAME
+  VTK::IOXdmf3
+LIBRARY_NAME
+  vtkIOXdmf3
+IMPLEMENTABLE
+KIT
+  VTK::Parallel
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonExecutionModel
+  VTK::xdmf3
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::FiltersExtraction
+  VTK::ParallelCore
+  VTK::vtksys
+TEST_DEPENDS
+  VTK::FiltersGeneral
+  VTK::TestingCore
+  VTK::TestingRendering

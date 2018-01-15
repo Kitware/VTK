@@ -29,11 +29,12 @@
 #include "vtkStructuredGrid.h"
 #include "vtkXdmf3DataSet.h"
 
-#include "XdmfDomain.hpp"
-#include "XdmfGridCollection.hpp"
-#include "XdmfGridCollectionType.hpp"
-#include "XdmfHeavyDataWriter.hpp"
-#include "XdmfWriter.hpp"
+#include "vtk_xdmf3.h"
+#include VTKXDMF3_HEADER(XdmfDomain.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollection.hpp)
+#include VTKXDMF3_HEADER(XdmfGridCollectionType.hpp)
+#include VTKXDMF3_HEADER(core/XdmfHeavyDataWriter.hpp)
+#include VTKXDMF3_HEADER(core/XdmfWriter.hpp)
 #include <stack>
 #include <string>
 
