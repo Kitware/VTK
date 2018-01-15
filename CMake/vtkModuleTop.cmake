@@ -553,3 +553,12 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
             DESTINATION ${VTK_INSTALL_PACKAGE_DIR})
   endif()
 endif()
+
+get_property(vtk_requirements GLOBAL
+  PROPERTY vtk_required_python_modules)
+if (vtk_requirements)
+  list(REMOVE_DUPLICATES vtk_requirements)
+  string(REPLACE ";" "\n" vtk_requirements "${vtk_requirements}")
+  file(WRITE "${CMAKE_BINARY_DIR}/requirements.txt"
+    "${vtk_requirements}\n")
+endif ()

@@ -8,7 +8,6 @@ vtk_module(vtkWebPython
     VTKWEB
   DEPENDS
     vtkCommonCore
-    wslink
   PRIVATE_DEPENDS
     vtkFiltersGeometry
     vtkWebCore
