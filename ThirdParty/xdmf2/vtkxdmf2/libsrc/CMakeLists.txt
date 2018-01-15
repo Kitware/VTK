@@ -11,44 +11,44 @@ set( XdmfFormatSource
   XdmfArray
   XdmfDOM
   XdmfDataDesc
-  XdmfExpression
-  XdmfValues
-  XdmfValuesXML
-  XdmfValuesHDF
-  XdmfValuesBinary
-  XdmfHeavyData
-  XdmfHDF
-  XdmfHDFSupport
-  XdmfLightData
-  XdmfInformation
   XdmfDataItem
   XdmfDataStructure
   XdmfDataTransform
   XdmfElement
+  XdmfExpression
+  XdmfHDF
+  XdmfHDFSupport
+  XdmfHeavyData
+  XdmfInformation
+  XdmfLightData
   XdmfObject
+  XdmfValues
+  XdmfValuesBinary
+  XdmfValuesHDF
+  XdmfValuesXML
   )
 
 set( XdmfExtraSource
-  XdmfExprLex
-  XdmfExprYacc
+  XdmfExprLex.cxx
+  XdmfExprYacc.cxx
   )
 
 set( XdmfModelSource
-  XdmfRoot
-  XdmfDomain
   XdmfAttribute
-  XdmfGrid
-  XdmfTopology
-  XdmfTime
-  XdmfRegion
-  XdmfSet
-  XdmfMap
-  XdmfGeometry
-  XdmfH5Driver
+  XdmfDomain
   XdmfDsm
   XdmfDsmBuffer
   XdmfDsmComm
   XdmfDsmMsg
+  XdmfGeometry
+  XdmfGrid
+  XdmfH5Driver
+  XdmfMap
+  XdmfRegion
+  XdmfRoot
+  XdmfSet
+  XdmfTime
+  XdmfTopology
   )
 
 set(CSHARP_SOURCES
@@ -125,7 +125,11 @@ include (CheckIncludeFile)
 # System to Build
 string(REGEX REPLACE "-" "_" XDMF_SYSTEM ${CMAKE_SYSTEM_NAME})
 
+if (FALSE) # XXX(kitware): hide cache variables
 set(ARCH_TO_BUILD ${XDMF_SYSTEM} CACHE INTERNAL "Host Arcitecture : Linux IRIXN32 IRIX64 AIX CYGWIN")
+else ()
+set(ARCH_TO_BUILD ${XDMF_SYSTEM})
+endif ()
 # Allow the user to customize their build with some local options
 #
 add_definitions(-D${ARCH_TO_BUILD})
@@ -199,9 +203,13 @@ set(XdmfSources ${XdmfFormatSource} ${XdmfExtraSource} ${XdmfModelSource})
 #optional portions of xdmf
 
 #mySQL
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_MYSQL
   "Build Support for MySQL DataItems" OFF)
 mark_as_advanced(XDMF_USE_MYSQL)
+else ()
+set(XDMF_USE_MYSQL OFF)
+endif ()
 if(XDMF_USE_MYSQL)
     find_path(MYSQL_INCLUDE_PATH
         mysql.h
@@ -221,7 +229,11 @@ if(XDMF_USE_MYSQL)
 endif()
 
 # gzip compression
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_GZIP "Build GZip Compression" OFF)
+else ()
+set(XDMF_USE_GZIP OFF)
+endif ()
 mark_as_advanced(XDMF_USE_GZIP)
 if(XDMF_USE_GZIP)
   set(XdmfSources ${XdmfSources} ${XdmfGzipSource})
@@ -229,8 +241,12 @@ if(XDMF_USE_GZIP)
 endif()
 
 # bz2lib compression
+if (FALSE) # XXX(kitware): hardcode settings
 option(XDMF_USE_BZIP2 "Use bzip2" OFF)
 mark_as_advanced(XDMF_USE_BZIP2)
+else ()
+set(XDMF_USE_BZIP2 OFF)
+endif ()
 if(XDMF_USE_BZIP2)
   find_package(BZip2)
   set(XDMF_BZIP2_LIBRARIES ${BZIP2_LIBRARIES})
@@ -252,8 +268,21 @@ else()
   set(LIBTYPE STATIC)
 endif()
 
+if (FALSE)
 #finally make the target that builds the xdmf library itself
 add_library(vtkxdmf2 ${LIBTYPE} ${XdmfSources})
+else ()
+vtk_module_add_module(VTK::xdmf2
+  CLASSES ${XdmfFormatSource}
+          ${XdmfModelSource}
+  SOURCES ${XdmfExtraSource}
+  HEADERS Xdmf.h
+          "${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.h"
+  HEADERS_SUBDIR "vtkxdmf2/libsrc")
+set_target_properties(xdmf2
+  PROPERTIES
+    DEFINE_SYMBOL Xdmf_EXPORTS)
+endif ()
 
 #setup dependencies for the optional parts of library
 if(XDMF_USE_MYSQL)
@@ -262,6 +291,7 @@ if(XDMF_USE_MYSQL)
     target_link_libraries(Xdmf ${MYSQL_CLIENT_LIBRARY} )
 endif()
 
+if (FALSE) # XXX(kitware): VTK handles linking and installation.
 target_link_libraries(vtkxdmf2
   ${XDMF_LIBXML2_LIBRARIES}
   ${XDMF_HDF5_LIBRARIES}
@@ -288,3 +318,4 @@ if(XDMF_INSTALL_EXPORT_NAME AND NOT XDMF_INSTALL_NO_LIBRARIES)
     LIBRARY DESTINATION ${XDMF_INSTALL_LIB_DIR} COMPONENT Runtime
     ARCHIVE DESTINATION ${XDMF_INSTALL_LIB_DIR} COMPONENT Development)
 endif()
+endif ()
