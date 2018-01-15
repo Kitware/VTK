@@ -43,7 +43,8 @@
 #include <deque>
 #include <cassert>
 
-#include <libxml/tree.h>
+#include "vtk_libxml2.h"
+#include VTKLIBXML2_HEADER(tree.h)
 
 #ifdef VTK_USE_64BIT_IDS
 typedef XdmfInt64 vtkXdmfIdType;

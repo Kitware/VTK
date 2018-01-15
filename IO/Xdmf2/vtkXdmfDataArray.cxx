@@ -35,7 +35,8 @@
 #include "vtkShortArray.h"
 #include "vtkUnsignedShortArray.h"
 
-#include <XdmfArray.h>
+#include "vtk_xdmf2.h"
+#include VTKXDMF2_HEADER(XdmfArray.h)
 
 using namespace xdmf2;
 

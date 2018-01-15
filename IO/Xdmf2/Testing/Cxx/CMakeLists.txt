@@ -1,6 +1,5 @@
-ExternalData_Expand_Arguments(VTKData _
-  "DATA{${VTK_TEST_INPUT_DIR}/XDMF/,REGEX:.*}"
-  )
+vtk_module_test_data(
+  Data/XDMF/,REGEX:.*)
 
 vtk_add_test_cxx(vtkIOXdmf2CxxTests tests
   TestTemporalXdmfReaderWriter.cxx,NO_VALID

@@ -19,8 +19,9 @@
 #ifndef __VTK_WRAP__
 #ifndef VTK_WRAPPING_CXX
 
-#include "XdmfDataItem.h"
-#include "XdmfGrid.h" //won't compile without it
+#include "vtk_xdmf2.h"
+#include VTKXDMF2_HEADER(XdmfDataItem.h)
+#include VTKXDMF2_HEADER(XdmfGrid.h) //won't compile without it
 #include "vtkIOXdmf2Module.h" // For export macro
 
 class vtkAlgorithm;

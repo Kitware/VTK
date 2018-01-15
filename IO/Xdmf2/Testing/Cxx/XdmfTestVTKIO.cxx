@@ -251,53 +251,6 @@ int XdmfTestVTKIO (int ac, char *av[])
     return VTK_ERROR;
   }
 
-#if 0
-  if (!vtkTestUtilities::GetDataRoot(ac,av))
-  {
-      cerr << "NO DATA ROOT" << endl;
-      return 0;
-  }
-
-  //TEST SET 3
-  char* fname =
-   vtkTestUtilities::ExpandDataFileName(
-    ac, av, "Data/RectGrid2.vtk");
-  if (DoFilesExist(fname, nullptr, false))
-  {
-    vtkDataSetReader *dsr = vtkDataSetReader::New();
-    dsr->SetFileName(fname);
-    dsr->Update();
-    fail = TestXDMFConversion(dsr->GetOutput(), "xdmfIOtest_DSR_1");
-    dsr->Delete();
-    delete[] fname;
-    if (fail)
-    {
-      cerr << "Failed DataSetReader Test 1" << endl;
-      return VTK_ERROR;
-    }
-
-    dsr = vtkDataSetReader::New();
-    fname =
-     vtkTestUtilities::ExpandDataFileName(
-      ac, av, "Data/uGridEx.vtk");
-    dsr->SetFileName(fname);
-    dsr->Update();
-    fail = TestXDMFConversion(dsr->GetOutput(), "xdmfIOtest_DSR_2");
-    dsr->Delete();
-    delete[] fname;
-    if (fail)
-    {
-      cerr << "Failed DataSetReader Test 2" << endl;
-      return VTK_ERROR;
-    }
-  }
-  else
-  {
-    delete[] fname;
-  }
-
-#endif
-
   //ETC.
   return 0;
 }

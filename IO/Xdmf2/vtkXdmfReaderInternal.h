@@ -34,22 +34,23 @@
 #include "vtkMutableDirectedGraph.h"
 #include "vtkSILBuilder.h"
 
-#include "XdmfArray.h"
-#include "XdmfAttribute.h"
-#include "XdmfDOM.h"
+#include "vtk_xdmf2.h"
+#include VTKXDMF2_HEADER(XdmfArray.h)
+#include VTKXDMF2_HEADER(XdmfAttribute.h)
+#include VTKXDMF2_HEADER(XdmfDOM.h)
 //?
-#include "XdmfDataDesc.h"
+#include VTKXDMF2_HEADER(XdmfDataDesc.h)
 //?
-#include "XdmfDataItem.h"
-#include "XdmfGrid.h"
+#include VTKXDMF2_HEADER(XdmfDataItem.h)
+#include VTKXDMF2_HEADER(XdmfGrid.h)
 //?
-#include "XdmfTopology.h"
+#include VTKXDMF2_HEADER(XdmfTopology.h)
 //?
-#include "XdmfGeometry.h"
+#include VTKXDMF2_HEADER(XdmfGeometry.h)
 //?
-#include "XdmfTime.h"
+#include VTKXDMF2_HEADER(XdmfTime.h)
 //?
-#include "XdmfSet.h"
+#include VTKXDMF2_HEADER(XdmfSet.h)
 
 #include <string>
 #include <vector>
