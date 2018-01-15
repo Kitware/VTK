@@ -114,13 +114,14 @@ set( XdmfMySQLSource
 
 
 ## system introspection - isn't this what Ice is for???
-include (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+include (CheckTypeSize)
 if(WIN32)
   check_type_size(__int64        SIZEOF___INT64)
 endif()
 check_type_size("long long"    SIZEOF_LONG_LONG)
 
 include (${CMAKE_ROOT}/Modules/CheckIncludeFile.cmake)
+include (CheckIncludeFile)
 check_include_file(malloc.h XDMF_HAVE_MALLOC_H)
 
 # System to Build
@@ -131,7 +132,7 @@ set(ARCH_TO_BUILD ${XDMF_SYSTEM} CACHE INTERNAL "Host Arcitecture : Linux IRIXN3
 #
 add_definitions(-D${ARCH_TO_BUILD})
 
-include (${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
+include (CheckTypeSize)
 
 #TODO: why aren't we getting these from Ice?
 check_type_size(char XDMF_SIZEOF_CHAR)
@@ -141,7 +142,7 @@ check_type_size(int XDMF_SIZEOF_INT)
 check_type_size(long XDMF_SIZEOF_LONG)
 check_type_size(short XDMF_SIZEOF_SHORT)
 
-include (${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
+include (CheckFunctionExists)
 if(WIN32)
   check_type_size(__int64        SIZEOF___INT64)
 endif()
