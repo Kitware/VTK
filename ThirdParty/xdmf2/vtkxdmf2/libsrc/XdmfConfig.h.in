@@ -153,9 +153,4 @@
 #endif
 #endif
 
-#cmakedefine Xdmf_EXPORTS
-#ifndef Xdmf_EXPORTS
-# define Xdmf_EXPORTS
-#endif
-
 #endif /* __XdmfConfig_h */
