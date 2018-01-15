@@ -145,6 +145,19 @@ public:
   void FindPointsWithinRadius(double R, const double x[3],
                               vtkIdList *result) override;
 
+  /**
+   * Intersect the points contained in the locator with the line defined by
+   * (a0,a1). Return the point within the tolerance tol that is closest to a0
+   * (tol measured in the world coordinate system). If an intersection occurs
+   * (i.e., the method returns nonzero), then the parametric location along
+   * the line t, the closest position along the line lineX, and the coordinates
+   * of the picked ptId is returned in ptX. (This method is thread safe after
+   * the locator is built.)
+   */
+  int IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
+                        double lineX[3], double ptX[3], vtkIdType &ptId);
+
+
   //@{
   /**
    * See vtkLocator and vtkAbstractPointLocator interface documentation.

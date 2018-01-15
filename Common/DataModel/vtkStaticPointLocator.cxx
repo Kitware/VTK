@@ -21,8 +21,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkSMPTools.h"
 #include "vtkBoundingBox.h"
+#include "vtkBox.h"
+#include "vtkLine.h"
+#include "vtkSMPTools.h"
 
 #include <vector>
 
@@ -482,6 +484,8 @@ public:
                                          double inputDataLength, double& dist2);
   void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
   void FindPointsWithinRadius(double R, const double x[3], vtkIdList *result);
+  int IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
+                        double lineX[3], double ptX[3], vtkIdType &ptId);
   void GenerateRepresentation(int vtkNotUsed(level), vtkPolyData *pd);
 
   // Internal methods
@@ -1092,6 +1096,195 @@ FindPointsWithinRadius(double R, const double x[3], vtkIdList *result)
 }
 
 //-----------------------------------------------------------------------------
+// Find the point within tol of the finite line, and closest to the starting
+// point of the line (i.e., min parametric coordinate t).
+//
+// Note that we have to traverse more than just the buckets (aka bins)
+// containing the line since the closest point could be in a neighboring
+// bin. To keep the code simple here's the straightforward approach used in
+// the code below. Imagine tracing a sphere of radius tol along the finite
+// line, and processing all bins (and of course the points in the bins) which
+// intersect the sphere. We use a typical ray tracing approach (see
+// vtkStaticCellLocator for references) and update the current voxels/bins at
+// boundaries, including intersecting the sphere with neighboring bins. Since
+// this simple approach may visit bins multiple times, we keep an array that
+// marks whether the bin has been visited previously and skip it if we have.
+template <typename TIds> int BucketList<TIds>::
+IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
+                  double lineX[3], double ptX[3], vtkIdType &ptId)
+{
+  double *bounds = this->Bounds;
+  int *ndivs = this->Divisions;
+  vtkIdType prod=ndivs[0]*ndivs[1];
+  double *h = this->H;
+  TIds ii, numPtsInBin;
+  double x[3], xl[3], rayDir[3], xmin[3], xmax[3];
+  vtkMath::Subtract(a1,a0,rayDir);
+  double curPos[3], curT, tHit, tMin=VTK_FLOAT_MAX;
+  int i, j, k, enterExitCount;
+  int ijk[3], ijkMin[3], ijkMax[3];
+  vtkIdType idx, pId, bestPtId=(-1);
+  double step[3], next[3], tMax[3], tDelta[3];
+  double tol2 = tol*tol;
+  unsigned char *bucketHasBeenVisited = nullptr;
+
+  // Make sure the bounding box of the locator is hit
+  if ( vtkBox::IntersectBox(bounds, a0, rayDir, curPos, curT) )
+  {
+    // Initialize intersection query array if necessary. This is done
+    // locally to ensure thread safety.
+    bucketHasBeenVisited = new unsigned char [ this->NumBuckets ];
+    memset(bucketHasBeenVisited, 0, this->NumBuckets);
+
+    // Get the i-j-k point of intersection and bin index. This is
+    // clamped to the boundary of the locator.
+    this->GetBucketIndices(curPos, ijk);
+
+    // Set up some parameters for traversing through bins
+    step[0] = (rayDir[0] >= 0.0) ? 1.0 : -1.0;
+    step[1] = (rayDir[1] >= 0.0) ? 1.0 : -1.0;
+    step[2] = (rayDir[2] >= 0.0) ? 1.0 : -1.0;
+
+    // If the ray is going in the negative direction, then the next voxel boundary
+    // is on the "-" direction so we stay in the current voxel.
+    next[0] = bounds[0] + h[0]*(rayDir[0] >= 0.0 ? (ijk[0] + step[0]) : ijk[0]);
+    next[1] = bounds[2] + h[1]*(rayDir[1] >= 0.0 ? (ijk[1] + step[1]) : ijk[1]);
+    next[2] = bounds[4] + h[2]*(rayDir[2] >= 0.0 ? (ijk[2] + step[2]) : ijk[2]);
+
+    tMax[0] = (rayDir[0] != 0.0 ) ? (next[0] - curPos[0])/rayDir[0] : VTK_FLOAT_MAX;
+    tMax[1] = (rayDir[1] != 0.0 ) ? (next[1] - curPos[1])/rayDir[1] : VTK_FLOAT_MAX;
+    tMax[2] = (rayDir[2] != 0.0 ) ? (next[2] - curPos[2])/rayDir[2] : VTK_FLOAT_MAX;
+
+    tDelta[0] = (rayDir[0] != 0.0) ? (h[0]/rayDir[0])*step[0] : VTK_FLOAT_MAX;
+    tDelta[1] = (rayDir[1] != 0.0) ? (h[1]/rayDir[1])*step[1] : VTK_FLOAT_MAX;
+    tDelta[2] = (rayDir[2] != 0.0) ? (h[2]/rayDir[2])*step[2] : VTK_FLOAT_MAX;
+
+    // Process current position including the bins in the sphere
+    // footprint. Note there is a rare pathological case where the footprint
+    // on voxel exit must also be considered.
+    for ( bestPtId=(-1), enterExitCount=0; bestPtId < 0 || enterExitCount < 2; )
+    {
+      // Get the "footprint" of bins containing the sphere defined by the
+      // current position and a radius of tol.
+      xmin[0] = curPos[0] - tol;
+      xmin[1] = curPos[1] - tol;
+      xmin[2] = curPos[2] - tol;
+      xmax[0] = curPos[0] + tol;
+      xmax[1] = curPos[1] + tol;
+      xmax[2] = curPos[2] + tol;
+      this->GetBucketIndices(xmin,ijkMin);
+      this->GetBucketIndices(xmax,ijkMax);
+
+      // Start walking through the bins, find the best point of
+      // intersection. Note that the ray may not penetrate all of the way
+      // through the locator so may terminate when (t > 1.0).
+      for (k=ijkMin[2]; k <= ijkMax[2]; ++k)
+      {
+        for (j=ijkMin[1]; j <= ijkMax[1]; ++j)
+        {
+          for (i=ijkMin[0]; i <= ijkMax[0]; ++i)
+          {
+            // Current bin index
+            idx = i + j*ndivs[0] + k*prod;
+
+            if ( !bucketHasBeenVisited[idx] )
+            {
+              bucketHasBeenVisited[idx] = 1;
+              if ( (numPtsInBin=this->GetNumberOfIds(idx)) > 0 ) //there are some points here
+                {
+                const LocatorTuple<TIds> *ptIds = this->GetIds(idx);
+                for (ii=0; ii < numPtsInBin; ii++)
+                {
+                  pId = ptIds[ii].PtId;
+                  this->DataSet->GetPoint(pId, x);
+                  if ( vtkLine::DistanceToLine(x, a0, a1, tHit, xl) <= tol2 && t < tMin )
+                  {
+                    tMin = t;
+                    bestPtId = pId;
+                  }// point is within tolerance and closer
+                }// over all points in bin
+              }// if points in bin
+            }//bucket not visited
+          }//i bins
+        }//j bins
+      }//k bins
+
+      // Make sure to evaluate exit footprint as well. Must evaluate entrance
+      // and exit of current voxel.
+      if ( bestPtId >= 0 )
+      {
+        enterExitCount++;
+      }
+
+      // Advance to next voxel / bin
+      if (tMax[0] < tMax[1])
+      {
+        if (tMax[0] < tMax[2])
+        {
+          ijk[0] += static_cast<int>(step[0]);
+          tMax[0] += tDelta[0];
+          curT = tMax[0];
+        }
+        else
+        {
+          ijk[2] += static_cast<int>(step[2]);
+          tMax[2] += tDelta[2];
+          curT = tMax[2];
+        }
+      }
+      else
+      {
+        if (tMax[1] < tMax[2])
+        {
+          ijk[1] += static_cast<int>(step[1]);
+          tMax[1] += tDelta[1];
+          curT = tMax[1];
+        }
+        else
+        {
+          ijk[2] += static_cast<int>(step[2]);
+          tMax[2] += tDelta[2];
+          curT = tMax[2];
+        }
+      }
+
+      // Check exit conditions
+      if ( curT > 1.0 ||
+           ijk[0] < 0 || ijk[0] >= ndivs[0] ||
+           ijk[1] < 0 || ijk[1] >= ndivs[1] ||
+           ijk[2] < 0 || ijk[2] >= ndivs[2] )
+      {
+        break;
+      }
+      else
+      {
+        curPos[0] = a0[0] + curT*rayDir[0];
+        curPos[1] = a0[1] + curT*rayDir[1];
+        curPos[2] = a0[2] + curT*rayDir[2];
+      }
+
+    }// for looking for valid intersected point
+  } // if (vtkBox::IntersectBox(...))
+
+  // Clean up and get out
+  delete [] bucketHasBeenVisited;
+
+  // If a point has been intersected, recover the information and return.
+  // This information could be cached....
+  if (bestPtId >= 0)
+  {
+    // update the return information
+    ptId = bestPtId;
+    this->DataSet->GetPoint(ptId, ptX);
+    vtkLine::DistanceToLine(ptX, a0, a1, t, lineX);
+
+    return 1;
+  }
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
 // only those buckets outside of level radiuses of ijk are returned
 template <typename TIds> void BucketList<TIds>::
@@ -1544,6 +1737,33 @@ FindPointsWithinRadius(double R, const double x[3], vtkIdList *result)
   {
     return static_cast<BucketList<int>*>(this->Buckets)->
       FindPointsWithinRadius(R,x,result);
+  }
+}
+
+//-----------------------------------------------------------------------------
+// This method traverses the locator along the defined ray, finding the
+// closest point to a0 when projected onto the line (a0,a1) (i.e., min
+// parametric coordinate t) and within the tolerance tol (measured in the
+// world coordinate system).
+int vtkStaticPointLocator::
+IntersectWithLine(double a0[3], double a1[3], double tol, double& t,
+                  double lineX[3], double ptX[3], vtkIdType &ptId)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  if ( !this->Buckets )
+  {
+    return 0;
+  }
+
+  if ( this->LargeIds )
+  {
+    return static_cast<BucketList<vtkIdType>*>(this->Buckets)->
+      IntersectWithLine(a0,a1,tol,t,lineX,ptX,ptId);
+  }
+  else
+  {
+    return static_cast<BucketList<int>*>(this->Buckets)->
+      IntersectWithLine(a0,a1,tol,t,lineX,ptX,ptId);
   }
 }
 
