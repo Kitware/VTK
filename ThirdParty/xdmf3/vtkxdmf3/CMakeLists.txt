@@ -86,8 +86,8 @@ if(XDMF_BUILD_DOCUMENTATION)
 endif()
 
 # Wrapper Setup
-#option(XDMF_WRAP_PYTHON OFF)
-#option(XDMF_WRAP_JAVA OFF)
+option(XDMF_WRAP_PYTHON OFF)
+option(XDMF_WRAP_JAVA OFF)
 
 #check for TIFF
 find_package(TIFF)

@@ -49,7 +49,6 @@ class XdmfVisitor;
 #include <vector>
 #include "XdmfSharedPtr.hpp"
 
-
 // Macro that allows children XdmfItems to be attached to a parent XdmfItem.
 // -- For Header File
 #define XDMF_CHILDREN(ParentClass, ChildClass, ChildName, SearchName)         \
@@ -290,7 +289,6 @@ public :
  * can be visited and traversed by an XdmfVisitor and have its
  * contents written to an Xdmf file.
  */
-
 class XDMFCORE_EXPORT XdmfItem : public Loki::BaseVisitable<void> {
 
 public:
