@@ -43,7 +43,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTemporalInterpolatedVelocityField.h"
 #include "vtkOutputWindow.h"
 #include "vtkAbstractParticleWriter.h"
-#include "vtkToolkits.h" // For VTK_USE_MPI
 #include <cassert>
 
 #ifdef _WIN32
@@ -1360,12 +1359,6 @@ void vtkTemporalStreamTracer::AddParticleToMPISendList(ParticleInformation &info
       << this->CurrentTimeSteps[0] << "-" << this->CurrentTimeSteps[1] << ") got "
       << info.CurrentPosition.x[3]);
   }
-#ifdef VTK_USE_MPI
-  if (this->MPISendList.capacity()<(this->MPISendList.size()+1)) {
-    this->MPISendList.reserve(static_cast<int>(this->MPISendList.size()*1.5));
-  }
-  this->MPISendList.push_back(info);
-#endif
 }
 //---------------------------------------------------------------------------
 /*
