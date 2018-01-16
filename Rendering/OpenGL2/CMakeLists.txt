@@ -42,6 +42,7 @@ set(Module_SRCS
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLIndexBufferObject.cxx
+  vtkOpenGLInstanceCulling.cxx
   vtkOpenGLLabeledContourMapper.cxx
   vtkOpenGLLight.cxx
   vtkOpenGLPointGaussianMapper.cxx

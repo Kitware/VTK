@@ -21,8 +21,12 @@
 #ifndef vtkOpenGLGlyph3DHelper_h
 #define vtkOpenGLGlyph3DHelper_h
 
-#include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkNew.h" // For vtkNew
+#include "vtkOpenGLBufferObject.h" // For vtkOpenGLBufferObject
+#include "vtkOpenGLHelper.h" // For vtkOpenGLHelper
+#include "vtkOpenGLInstanceCulling.h" // For vtkOpenGLInstanceCulling
 #include "vtkOpenGLPolyDataMapper.h"
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 
 class vtkBitArray;
 
@@ -40,7 +44,11 @@ public:
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
-      vtkMTimeType pointMTime);
+      vtkMTimeType pointMTime, bool culling);
+
+  void SetLODs(std::vector<std::pair<float, float> >& lods);
+
+  void SetLODColoring(bool val);
 
   /**
    * Release any graphics resources that are being consumed by this mapper.
@@ -51,13 +59,13 @@ public:
 
 protected:
   vtkOpenGLGlyph3DHelper();
-  ~vtkOpenGLGlyph3DHelper() override;
+  ~vtkOpenGLGlyph3DHelper() override = default;
 
   // special opengl 32 version that uses instances
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices,
-      vtkMTimeType pointMTime);
+      vtkMTimeType pointMTime, bool culling);
 
   /**
    * Create the basic shaders before replacement
@@ -93,14 +101,18 @@ protected:
   void SetMapperShaderParameters(
     vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) override;
 
+  void BuildCullingShaders(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts, bool withNormals);
+
   bool UsingInstancing;
 
-  vtkOpenGLBufferObject *NormalMatrixBuffer;
-  vtkOpenGLBufferObject *MatrixBuffer;
-  vtkOpenGLBufferObject *ColorBuffer;
+  vtkNew<vtkOpenGLBufferObject> NormalMatrixBuffer;
+  vtkNew<vtkOpenGLBufferObject> MatrixBuffer;
+  vtkNew<vtkOpenGLBufferObject> ColorBuffer;
   vtkTimeStamp InstanceBuffersBuildTime;
   vtkTimeStamp InstanceBuffersLoadTime;
 
+  std::vector<std::pair<float, float> > LODs;
+  vtkNew<vtkOpenGLInstanceCulling> InstanceCulling;
 
 private:
   vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&) = delete;

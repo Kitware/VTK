@@ -24,9 +24,12 @@
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLInstanceCulling.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLResourceFreeCallback.h"
@@ -34,12 +37,17 @@
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
+#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
 #include "vtkTransform.h"
+#include "vtkTransformFeedback.h"
 
 #include "vtkGlyph3DVS.h"
+
+#include <algorithm>
+#include <numeric>
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
@@ -47,24 +55,9 @@ vtkStandardNewMacro(vtkOpenGLGlyph3DHelper)
 //-----------------------------------------------------------------------------
 vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 {
-  this->NormalMatrixBuffer = vtkOpenGLBufferObject::New();
-  this->MatrixBuffer = vtkOpenGLBufferObject::New();
-  this->ColorBuffer = vtkOpenGLBufferObject::New();
   this->UsingInstancing = false;
   this->PopulateSelectionSettings = 0;
 }
-
-//-----------------------------------------------------------------------------
-vtkOpenGLGlyph3DHelper::~vtkOpenGLGlyph3DHelper()
-{
-  this->NormalMatrixBuffer->Delete();
-  this->NormalMatrixBuffer = nullptr;
-  this->MatrixBuffer->Delete();
-  this->MatrixBuffer = nullptr;
-  this->ColorBuffer->Delete();
-  this->ColorBuffer = nullptr;
-}
-
 
 // ---------------------------------------------------------------------------
 // Description:
@@ -239,7 +232,7 @@ void vtkOpenGLGlyph3DHelper::ReplaceShaderClip(
     int numClipPlanes = this->GetNumberOfClippingPlanes();
     if (numClipPlanes > 6)
     {
-      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      vtkErrorMacro("OpenGL has a limit of 6 clipping planes");
       numClipPlanes = 6;
     }
 
@@ -281,7 +274,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   std::vector<float> &matrices,
   std::vector<float> &normalMatrices,
   std::vector<vtkIdType> &pickIds,
-  vtkMTimeType pointMTime)
+  vtkMTimeType pointMTime,
+  bool culling)
 {
   this->ResourceCallback->RegisterGraphicsResources(
     static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
@@ -300,8 +294,15 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   if (!selector && !ren->GetRenderWindow()->GetIsPicking()
       && GLEW_ARB_instanced_arrays)
   {
-    this->GlyphRenderInstances(ren, actor, numPts,
-      colors, matrices, normalMatrices, pointMTime);
+    // if there is no triangle, culling is useless.
+    // GLEW_ARB_gpu_shader5 is needed by the culling shader.
+    if (this->CurrentInput->GetNumberOfPolys() <= 0 || !GLEW_ARB_gpu_shader5 || !GLEW_ARB_enhanced_layouts)
+    {
+      culling = false;
+    }
+
+    this->GlyphRenderInstances(ren, actor, numPts, colors,
+      matrices, normalMatrices, pointMTime, culling);
     return;
   }
 
@@ -394,18 +395,20 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<unsigned char> &colors, std::vector<float> &matrices,
     std::vector<float> &normalMatrices,
-    vtkMTimeType pointMTime)
+    vtkMTimeType pointMTime, bool culling)
 {
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);
   int representation = actor->GetProperty()->GetRepresentation();
+
+  bool withNormals = (this->VBOs->GetNumberOfComponents("normalMC") == 3);
 
   // update the VBOs if needed
   if (pointMTime > this->InstanceBuffersBuildTime.GetMTime())
   {
     this->MatrixBuffer->Upload(matrices, vtkOpenGLBufferObject::ArrayBuffer);
 
-    if (this->VBOs->GetNumberOfComponents("normalMC") == 3)
+    if (withNormals)
     {
       this->NormalMatrixBuffer->Upload(
         normalMatrices, vtkOpenGLBufferObject::ArrayBuffer);
@@ -423,75 +426,176 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     this->DrawingEdgesOrVertices = (i > PrimitiveTriStrips ? true : false);
     if (this->Primitives[i].IBO->IndexCount)
     {
-      this->UpdateShaders(this->Primitives[i], ren, actor);
-      if (!this->Primitives[i].Program)
-      {
-        return;
-      }
       GLenum mode = this->GetOpenGLMode(representation, i);
 
-
-      // do the superclass and then reset a couple values
-      if ((this->InstanceBuffersBuildTime > this->InstanceBuffersLoadTime ||
-          this->Primitives[i].ShaderSourceTime > this->InstanceBuffersLoadTime))
+      // culling
+      if (culling)
       {
+        this->BuildCullingShaders(ren, actor, numPts, withNormals);
+        if (!this->InstanceCulling->GetHelper().Program)
+        {
+          return;
+        }
+
+        this->InstanceCulling->RunCullingShaders(numPts, this->MatrixBuffer, this->ColorBuffer, this->NormalMatrixBuffer);
+
+        // draw each LOD
+
+        this->UpdateShaders(this->Primitives[i], ren, actor);
+        if (!this->Primitives[i].Program)
+        {
+          return;
+        }
+
+        size_t stride = (withNormals ? 29 : 20) * sizeof(float);
+
         this->Primitives[i].VAO->Bind();
-        this->MatrixBuffer->Bind();
-        if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
-          this->Primitives[i].Program, this->MatrixBuffer,
-            "GCMCMatrix", 0, 16*sizeof(float), VTK_FLOAT, 4, false, 1))
-        {
-          vtkErrorMacro(<< "Error setting 'GCMCMatrix' in shader VAO.");
-        }
-        this->MatrixBuffer->Release();
 
-        if (this->VBOs->GetNumberOfComponents("normalMC") == 3 &&
-            this->LastLightComplexity[this->LastBoundBO] > 0)
+        for (vtkIdType j=0; j<this->InstanceCulling->GetNumberOfLOD(); j++)
         {
-          this->NormalMatrixBuffer->Bind();
-          if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
-                this->Primitives[i].Program, this->NormalMatrixBuffer,
-                "glyphNormalMatrix", 0, 9*sizeof(float), VTK_FLOAT, 3, false, 1))
+          if (this->InstanceCulling->GetLOD(j).NumberOfInstances == 0) continue;
+
+          // add VBO of current instance in VAO
+          if (!this->Primitives[i].VAO->AddAttributeArray(
+                this->Primitives[i].Program, this->InstanceCulling->GetLOD(j).PositionVBO,
+                "vertexMC", 0, 4 * sizeof(float), VTK_FLOAT, 4, false))
           {
-            vtkErrorMacro(<< "Error setting 'glyphNormalMatrix' in shader VAO.");
+            vtkErrorMacro("Error setting 'vertexMC' in shader VAO.");
           }
-          this->NormalMatrixBuffer->Release();
-        }
 
-        if (this->Primitives[i].Program->IsAttributeUsed("glyphColor"))
-        {
-          this->ColorBuffer->Bind();
+          if (withNormals)
+          {
+            if (!this->Primitives[i].VAO->AddAttributeArray(
+                  this->Primitives[i].Program, this->InstanceCulling->GetLOD(j).NormalVBO,
+                  "normalMC", 0, 3 * sizeof(float), VTK_FLOAT, 3, false))
+            {
+              vtkErrorMacro("Error setting 'normalMC' in shader VAO.");
+            }
+          }
+
+          // add instances attributes based on transform feedback buffers
           if (!this->Primitives[i].VAO->AddAttributeArrayWithDivisor(
-                this->Primitives[i].Program, this->ColorBuffer,
-                "glyphColor", 0, 4*sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
+                this->Primitives[i].Program, this->InstanceCulling->GetLODBuffer(j),
+                "glyphColor", 16 * sizeof(float), stride, VTK_FLOAT, 4, false, 1, false))
           {
-            vtkErrorMacro(<< "Error setting 'diffuse color' in shader VAO.");
+            vtkErrorMacro("Error setting 'diffuse color' in shader VAO.");
           }
-          this->ColorBuffer->Release();
-        }
-        this->InstanceBuffersLoadTime.Modified();
-      }
 
-      this->Primitives[i].IBO->Bind();
+          if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+              this->Primitives[i].Program, this->InstanceCulling->GetLODBuffer(j),
+                "GCMCMatrix", 0, stride, VTK_FLOAT, 4, false, 1, 4 * sizeof(float)))
+          {
+            vtkErrorMacro("Error setting 'GCMCMatrix' in shader VAO.");
+          }
+
+          if (withNormals)
+          {
+            if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+                  this->Primitives[i].Program, this->InstanceCulling->GetLODBuffer(j),
+                  "glyphNormalMatrix", 20 * sizeof(float), stride, VTK_FLOAT, 3, false, 1, 3 * sizeof(float)))
+            {
+              vtkErrorMacro("Error setting 'glyphNormalMatrix' in shader VAO.");
+            }
+          }
+
+          if (this->InstanceCulling->GetLOD(j).IBO->IndexCount > 0)
+          {
+            this->InstanceCulling->GetLOD(j).IBO->Bind();
 
 #if GL_ES_VERSION_3_0 == 1
-      glDrawElementsInstanced(mode,
-        static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
-        GL_UNSIGNED_INT,
-        nullptr,
-        numPts);
+            glDrawElementsInstanced(mode,
+              static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
+              GL_UNSIGNED_INT,
+              nullptr,
+              this->InstanceCulling->GetLOD(j).NumberOfInstances);
 #else
-      if (GLEW_ARB_instanced_arrays)
+            glDrawElementsInstancedARB(mode,
+              static_cast<GLsizei>(this->InstanceCulling->GetLOD(j).IBO->IndexCount),
+              GL_UNSIGNED_INT,
+              nullptr,
+              this->InstanceCulling->GetLOD(j).NumberOfInstances);
+#endif
+            this->InstanceCulling->GetLOD(j).IBO->Release();
+          }
+          else
+          {
+#if GL_ES_VERSION_3_0 == 1
+            glDrawArraysInstanced(GL_POINTS, 0, 1,
+              this->InstanceCulling->GetLOD(j).NumberOfInstances);
+#else
+            glDrawArraysInstancedARB(GL_POINTS, 0, 1,
+              this->InstanceCulling->GetLOD(j).NumberOfInstances);
+#endif
+          }
+        }
+      }
+      else
       {
+        this->UpdateShaders(this->Primitives[i], ren, actor);
+        if (!this->Primitives[i].Program)
+        {
+          return;
+        }
+
+        // do the superclass and then reset a couple values
+        if ((this->InstanceBuffersBuildTime > this->InstanceBuffersLoadTime ||
+              this->Primitives[i].ShaderSourceTime > this->InstanceBuffersLoadTime))
+        {
+          this->Primitives[i].VAO->Bind();
+
+          this->MatrixBuffer->Bind();
+          if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+            this->Primitives[i].Program, this->MatrixBuffer,
+              "GCMCMatrix", 0, 16 * sizeof(float), VTK_FLOAT, 4, false, 1, 4 * sizeof(float)))
+          {
+            vtkErrorMacro("Error setting 'GCMCMatrix' in shader VAO.");
+          }
+          this->MatrixBuffer->Release();
+
+          if (withNormals)
+          {
+            this->NormalMatrixBuffer->Bind();
+            if (!this->Primitives[i].VAO->AddAttributeMatrixWithDivisor(
+                  this->Primitives[i].Program, this->NormalMatrixBuffer,
+                  "glyphNormalMatrix", 0, 9 * sizeof(float), VTK_FLOAT, 3, false, 1, 3 * sizeof(float)))
+            {
+              vtkErrorMacro("Error setting 'glyphNormalMatrix' in shader VAO.");
+            }
+            this->NormalMatrixBuffer->Release();
+          }
+
+          if (this->Primitives[i].Program->IsAttributeUsed("glyphColor"))
+          {
+            this->ColorBuffer->Bind();
+            if (!this->Primitives[i].VAO->AddAttributeArrayWithDivisor(
+                  this->Primitives[i].Program, this->ColorBuffer,
+                  "glyphColor", 0, 4 * sizeof(unsigned char), VTK_UNSIGNED_CHAR, 4, true, 1, false))
+            {
+              vtkErrorMacro("Error setting 'diffuse color' in shader VAO.");
+            }
+            this->ColorBuffer->Release();
+          }
+          this->InstanceBuffersLoadTime.Modified();
+        }
+
+        this->Primitives[i].IBO->Bind();
+
+#if GL_ES_VERSION_3_0 == 1
+        glDrawElementsInstanced(mode,
+          static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
+          GL_UNSIGNED_INT,
+          nullptr,
+          numPts);
+#else
         glDrawElementsInstancedARB(mode,
           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount),
           GL_UNSIGNED_INT,
           nullptr,
           numPts);
-      }
 #endif
 
-      this->Primitives[i].IBO->Release();
+        this->Primitives[i].IBO->Release();
+      }
     }
   }
 
@@ -500,7 +604,50 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::BuildCullingShaders(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts, bool withNormals)
+{
+  vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(ren->GetRenderWindow());
+
+  if (!this->InstanceCulling->GetHelper().Program)
+  {
+    this->InstanceCulling->InitLOD(this->CurrentInput);
+
+    for (auto& lod : this->LODs)
+    {
+      this->InstanceCulling->AddLOD(lod.first, lod.second);
+    }
+  }
+
+  this->InstanceCulling->BuildCullingShaders(renWin->GetShaderCache(), numPts, withNormals);
+
+  if (this->InstanceCulling->GetHelper().Program)
+  {
+    this->SetCameraShaderParameters(this->InstanceCulling->GetHelper(), ren, actor);
+
+    double* bounds = this->CurrentInput->GetBounds();
+    float BBoxSize[4] = { static_cast<float>(bounds[3] - bounds[0]),
+                          static_cast<float>(bounds[4] - bounds[1]),
+                          static_cast<float>(bounds[5] - bounds[2]),
+                          0.f };
+
+    this->InstanceCulling->GetHelper().Program->SetUniform4f("BBoxSize", BBoxSize);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLGlyph3DHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::SetLODs(std::vector<std::pair<float, float> >& lods)
+{
+  this->LODs = lods;
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGlyph3DHelper::SetLODColoring(bool val)
+{
+  this->InstanceCulling->SetColorLOD(val);
 }
