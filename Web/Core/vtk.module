@@ -1,0 +1,25 @@
+NAME
+  VTK::WebCore
+LIBRARY_NAME
+  vtkWebCore
+GROUPS
+  Web
+DEPENDS
+  VTK::CommonCore
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::IOCore
+  VTK::IOImage
+  VTK::ParallelCore
+  VTK::Python
+  VTK::RenderingCore
+  VTK::WebGLExporter
+  VTK::vtksys
+TEST_LABELS
+  VTK::Web
+TEST_DEPENDS
+  VTK::ImagingSources
+  VTK::TestingCore
