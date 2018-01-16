@@ -25,6 +25,7 @@
 
 #ifndef vtkMPI4PyCommunicator_h
 #define vtkMPI4PyCommunicator_h
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_PYTHON__)
 
 #include "vtkPython.h" // For PyObject*; must be first
 
@@ -58,4 +59,5 @@ private:
   void operator=(const vtkMPI4PyCommunicator&) = delete;
 };
 
+#endif
 #endif
