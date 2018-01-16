@@ -18,7 +18,6 @@
 =========================================================================
 '''
 
-import tempfile
 import os
 import vtk
 import vtk.test.Testing
