@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkAxisExtended
- * @brief   octree-based spatial search object to quickly locate cells
+ * @brief   extended axis tick positioning
  *
  * This implements the optimization based tick position calculating algorithm in the paper "An Extension of Wilkinson's Algorithm
  * for Positioning Tick Labels on Axes" by Junstin Talbot, Sharon Lin and Pat Hanrahan
