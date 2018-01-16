@@ -1,0 +1,19 @@
+NAME
+  VTK::WebGLExporter
+LIBRARY_NAME
+  vtkWebGLExporter
+GROUPS
+  Web
+DEPENDS
+  VTK::CommonCore
+  VTK::IOExport
+PRIVATE_DEPENDS
+  VTK::CommonDataModel
+  VTK::CommonMath
+  VTK::FiltersCore
+  VTK::FiltersGeometry
+  VTK::IOCore
+  VTK::InteractionWidgets
+  VTK::RenderingAnnotation
+  VTK::RenderingCore
+  VTK::vtksys
