@@ -52,4 +52,4 @@ struct vtkTkImageViewerWidget
 };
 
 #endif
-
+// VTK-HeaderTest-Exclude: vtkTkImageViewerWidget.h

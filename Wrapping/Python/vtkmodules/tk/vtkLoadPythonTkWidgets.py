@@ -10,7 +10,7 @@ def vtkLoadPythonTkWidgets(interp):
     """
     X = vtkVersion.GetVTKMajorVersion()
     Y = vtkVersion.GetVTKMinorVersion()
-    modname = 'vtkRenderingPythonTkWidgets'
+    modname = 'vtkRenderingTk'
     name = '%s-%d.%d' % (modname,X,Y)
     pkgname = modname.lower().capitalize()
 

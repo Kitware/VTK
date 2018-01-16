@@ -26,3 +26,4 @@
 #include <tk.h>
 
 #endif
+// VTK-HeaderTest-Exclude: vtkTk.h
