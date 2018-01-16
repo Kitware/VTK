@@ -1,0 +1,26 @@
+NAME
+  VTK::UtilitiesBenchmarks
+LIBRARY_NAME
+  vtkUtilitiesBenchmarks
+DEPENDS
+  VTK::CommonComputationalGeometry
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonSystem
+  VTK::CommonTransforms
+  VTK::DomainsChemistry
+  VTK::FiltersCore
+  VTK::FiltersSources
+  VTK::ImagingCore
+  VTK::RenderingContextOpenGL2
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolume
+  VTK::RenderingVolumeOpenGL2
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::ChartsCore
+  VTK::IOCore
+  VTK::RenderingContext2D
+  VTK::ViewsContext2D
+EXCLUDE_WRAP

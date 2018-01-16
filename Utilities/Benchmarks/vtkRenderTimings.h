@@ -20,6 +20,7 @@
  * Define the classes we use for running timing benchmarks
  */
 
+#include "vtkUtilitiesBenchmarksModule.h"
 #include "vtkTimerLog.h"
 #include <vtksys/CommandLineArguments.hxx>
 #include <map>
@@ -28,7 +29,7 @@ class vtkRTTestResult;
 class vtkRTTestSequence;
 class vtkRenderTimings;
 
-class vtkRTTest
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTest
 {
 public:
   // what is the name of this test
@@ -76,7 +77,7 @@ protected:
   int RenderWidth, RenderHeight;
 };
 
-class vtkRTTestResult
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTestResult
 {
 public:
   std::map<std::string,double> Results;
@@ -93,7 +94,7 @@ public:
   }
 };
 
-class vtkRTTestSequence
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRTTestSequence
 {
 public:
   virtual void Run();
@@ -137,7 +138,7 @@ protected:
 
 // a class to run a bunch of timing tests and
 // report the results
-class vtkRenderTimings
+class VTKUTILITIESBENCHMARKS_EXPORT vtkRenderTimings
 {
 public:
   vtkRenderTimings();
@@ -185,3 +186,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkRenderTimings.h

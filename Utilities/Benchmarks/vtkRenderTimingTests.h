@@ -247,7 +247,6 @@ class glyphTest : public vtkRTTest
 };
 
 
-#ifdef HAVE_CHEMISTRY
 /*=========================================================================
 Define a test for molecules
 =========================================================================*/
@@ -256,8 +255,6 @@ Define a test for molecules
 #include "vtkBoxMuellerRandomSequence.h"
 #include "vtkPointLocator.h"
 #include "vtkMath.h"
-
-VTK_MODULE_INIT(vtkDomainsChemistryOpenGL2);
 
 class moleculeTest : public vtkRTTest
 {
@@ -385,7 +382,6 @@ class moleculeTest : public vtkRTTest
   protected:
     bool AtomsOnly;
 };
-#endif
 
 /*=========================================================================
 Define a test for volume rendering
@@ -743,3 +739,4 @@ class manyActorTest : public vtkRTTest
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkRenderTimingTests.h
