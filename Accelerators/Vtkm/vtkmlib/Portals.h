@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_Portals_h
 #define vtkmlib_Portals_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
@@ -216,5 +215,4 @@ extern template class VTKACCELERATORSVTKM_TEMPLATE_EXPORT
 #endif // defined vtkmlib_Portals_cxx
 
 #include "Portals.hxx"
-#endif
 #endif // vtkmlib_Portals_h

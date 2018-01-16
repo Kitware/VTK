@@ -14,7 +14,6 @@
 =========================================================================*/
 #ifndef vtkmlib_ImageDataConverter_h
 #define vtkmlib_ImageDataConverter_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 
@@ -45,5 +44,4 @@ bool Convert(const vtkm::cont::DataSet& voutput, int extents[6], vtkImageData* o
              vtkDataSet* input);
 
 }
-#endif
 #endif // vtkmlib_ImageDataConverter_h

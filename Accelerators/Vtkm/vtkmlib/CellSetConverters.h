@@ -16,7 +16,6 @@
 
 #ifndef vtkmlib_CellSetConverters_h
 #define vtkmlib_CellSetConverters_h
-#ifndef __VTK_WRAP__
 
 #include "vtkAcceleratorsVTKmModule.h"
 #include "vtkmConfig.h" //required for general vtkm setup
@@ -49,5 +48,4 @@ bool Convert(const vtkm::cont::DynamicCellSet& toConvert,
              vtkIdTypeArray* locations = nullptr);
 }
 
-#endif
 #endif // vtkmlib_CellSetConverters_h

@@ -1,0 +1,31 @@
+NAME
+  VTK::AcceleratorsVTKm
+LIBRARY_NAME
+  vtkAcceleratorsVTKm
+DESCRIPTION
+  VTKm filters and algorithms
+CONDITION
+  NOT CMAKE_VERSION VERSION_LESS "3.9.0"
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::FiltersGeneral
+  VTK::FiltersGeometry
+  VTK::ImagingCore
+  VTK::vtkm
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::IOImage
+  VTK::IOLegacy
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::ImagingHybrid
+  VTK::ImagingSources
+  VTK::InteractionStyle
+  VTK::RenderingFreeType
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::TestingCore
+  VTK::TestingRendering
