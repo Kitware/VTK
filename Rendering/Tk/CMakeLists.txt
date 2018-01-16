@@ -34,7 +34,6 @@ if(TK_FOUND)
     VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
     set(TCL_TK_VERSIOND "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
     set(try_paths ${try_paths}
-         "${VTK_SOURCE_DIR}/ThirdParty/TclTk/internals/tk${TCL_TK_VERSIOND}"
          "${TK_INCLUDE_PATH}/../win"
          "${TK_INCLUDE_PATH}/../macosx")
     find_path(
