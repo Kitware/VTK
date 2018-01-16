@@ -1,5 +1,5 @@
-set(module_SRCS
-  DatabaseSchemaWith2Tables.cxx
-  )
+set(classes
+  DatabaseSchemaWith2Tables)
 
-vtk_module_library(vtkTestingIOSQL ${module_SRCS})
+vtk_module_add_module(VTK::TestingIOSQL
+  CLASSES ${classes})
