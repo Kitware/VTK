@@ -1,80 +1,70 @@
-if(NOT VTK_SOURCE_DIR)
-  cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
-  project(vtkRenderingOpenVR)
-  find_package(VTK REQUIRED)
-endif()
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${VTK_CMAKE_DIR}")
-if(NOT VTK_SOURCE_DIR)
-  include(vtkExternalModuleMacros)
-endif()
+vtk_module_find_package(PACKAGE OpenVR)
 
-find_package(OpenVR REQUIRED)
-
-set(Module_SRCS
-  vtkOpenVRCamera.cxx
-  vtkOpenVRControlsHelper.cxx
-  vtkOpenVRDefaultOverlay.cxx
-  vtkOpenVRFollower.cxx
-  vtkOpenVRHardwarePicker.cxx
-  vtkOpenVRInteractorStyle.cxx
-  vtkOpenVRMenuRepresentation.cxx
-  vtkOpenVRMenuWidget.cxx
-  vtkOpenVRModel.cxx
-  vtkOpenVROverlay.cxx
-  vtkOpenVRPanelRepresentation.cxx
-  vtkOpenVRPanelWidget.cxx
-  vtkOpenVRPropPicker.cxx
-  vtkOpenVRRenderer.cxx
-  vtkOpenVRRenderWindow.cxx
-  vtkOpenVRRenderWindowInteractor.cxx
-  )
+set(classes
+  vtkAvatarHead
+  vtkAvatarLeftHand
+  vtkAvatarRightHand
+  vtkOpenVRCamera
+  vtkOpenVRControlsHelper
+  vtkOpenVRDefaultOverlay
+  vtkOpenVRFollower
+  vtkOpenVRHardwarePicker
+  vtkOpenVRInteractorStyle
+  vtkOpenVRMenuRepresentation
+  vtkOpenVRMenuWidget
+  vtkOpenVRModel
+  vtkOpenVROverlay
+  vtkOpenVRPanelRepresentation
+  vtkOpenVRPanelWidget
+  vtkOpenVRPropPicker
+  vtkOpenVRRenderWindow
+  vtkOpenVRRenderWindowInteractor
+  vtkOpenVRRenderer)
 
 vtk_encode_string(
   INPUT         "OpenVRDashboard.jpg"
-  HEADER_OUTPUT header
-  SOURCE_OUTPUT source
+  HEADER_OUTPUT dashboard_header
+  SOURCE_OUTPUT dashboard_source
   BINARY)
-list(APPEND Module_SRCS ${source})
 
-# Avatar's dependency on vtkIOXML keeps it out of OpenGL2 module
-list(APPEND Module_SRCS
-  vtkOpenGLAvatar.cxx
-  )
+set(geometry_sources)
+set(geometry_headers)
 
 # Generates headers with char arrays that contain the model file contents.
 set(geometry_files
   data/vtkAvatarHead.vtp
-  data/vtkAvatarLeftHand.vtp
-  data/vtkAvatarRightHand.vtp
-  data/vtkAvatarTorso.vtp
   data/vtkAvatarLeftForeArm.vtp
-  data/vtkAvatarRightForeArm.vtp
+  data/vtkAvatarLeftHand.vtp
   data/vtkAvatarLeftUpperArm.vtp
+  data/vtkAvatarRightForeArm.vtp
+  data/vtkAvatarRightHand.vtp
   data/vtkAvatarRightUpperArm.vtp
-  )
-unset(geometry_h_files)
-foreach(file ${geometry_files})
+  data/vtkAvatarTorso.vtp)
+foreach (geometry_file IN LISTS geometry_files)
   vtk_encode_string(
-    INPUT         "${file}"
+    INPUT         "${geometry_file}"
     EXPORT_SYMBOL "VTKRENDERINGOPENVR_EXPORT"
     EXPORT_HEADER "vtkRenderingOpenVRModule.h"
     HEADER_OUTPUT header
     SOURCE_OUTPUT source
     BINARY
     NUL_TERMINATE)
-  list(APPEND Module_SRCS ${source})
-endforeach()
+  list(APPEND sources "${source}")
+  list(APPEND headers "${source}")
+endforeach ()
 
-vtk_add_override(vtkAvatar vtkOpenGLAvatar)
-vtk_object_factory_configure("${vtk_module_overrides}")
+vtk_object_factory_declare(
+  BASE      vtkAvatar
+  OVERRIDE  vtkOpenGLAvatar)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGOPENVR_EXPORT")
 
-list(APPEND Module_SRCS
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx)
-
-list(APPEND ${vtk-module}_SYSTEM_INCLUDE_DIRS ${OPENVR_INCLUDE_DIRS})
-
-vtk_module_library(${vtk-module} ${Module_SRCS})
-vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${OPENVR_LIBRARY})
-
-include(vtkOpenGL)
-vtk_opengl_link(${vtk-module})
+vtk_module_add_module(VTK::RenderingOpenVR
+  CLASSES ${classes}
+  SOURCES "${dashboard_source}" "${vtk_object_factory_source}" ${geometry_sources}
+  PRIVATE_HEADERS "${dashboard_header}" "${vtk_object_factory_header}" ${geometry_headers})
+vtk_module_link(VTK::RenderingOpenVR
+  PUBLIC
+    OpenVR::OpenVR)

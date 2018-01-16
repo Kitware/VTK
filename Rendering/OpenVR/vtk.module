@@ -1,0 +1,30 @@
+NAME
+  VTK::RenderingOpenVR
+LIBRARY_NAME
+  vtkRenderingOpenVR
+IMPLEMENTS
+  VTK::RenderingCore
+DEPENDS
+  VTK::CommonCore
+  VTK::IOImage
+  VTK::IOXMLParser
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingOpenGL2
+  VTK::RenderingVolumeOpenGL2
+  VTK::vtksys
+PRIVATE_DEPENDS
+  VTK::CommonSystem
+  VTK::FiltersSources
+  VTK::IOXML
+  VTK::ImagingSources
+  VTK::glew
+  VTK::opengl
+TEST_DEPENDS
+  VTK::CommonSystem
+  VTK::IOPLY
+  VTK::IOXML
+  VTK::InteractionWidgets
+  VTK::RenderingVolume
+  VTK::TestingCore
+  VTK::TestingRendering
