@@ -19,11 +19,11 @@
 #include <octree/octree_iterator.h>
 #include <octree/octree.h>
 
-#include <octree/octree_node.cxx>
-#include <octree/octree_path.cxx>
-#include <octree/octree_cursor.cxx>
-#include <octree/octree_iterator.cxx>
-#include <octree/octree.cxx>
+#include <octree/octree_node.txx>
+#include <octree/octree_path.txx>
+#include <octree/octree_cursor.txx>
+#include <octree/octree_iterator.txx>
+#include <octree/octree.txx>
 
 #undef __octree_interior
 

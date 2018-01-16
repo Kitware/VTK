@@ -15,8 +15,3 @@ set(classes
 
 vtk_module_add_module(VTK::RenderingLabel
   CLASSES ${classes})
-
-# TODO: need to convert octree to module.
-target_include_directories(vtkRenderingLabel
-  PRIVATE
-    ${VTK_SOURCE_DIR}/Utilities) # octree
