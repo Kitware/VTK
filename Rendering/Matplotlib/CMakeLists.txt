@@ -1,16 +1,18 @@
-include(vtkObjectFactory)
+set(classes
+  vtkMatplotlibMathTextUtilities)
 
-set(Module_SRCS
-  vtkMatplotlibMathTextUtilities.cxx
-  ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
-  )
+vtk_object_factory_declare(
+  BASE      vtkMathTextUtilities
+  OVERRIDE  vtkMatplotlibMathTextUtilities)
+vtk_object_factory_configure(
+  SOURCE_FILE vtk_object_factory_source
+  HEADER_FILE vtk_object_factory_header
+  EXPORT_MACRO "VTKRENDERINGMATPLOTLIB_EXPORT")
 
-# Override some rendering classes. Create object factory:
-list(APPEND vtk_module_overrides "vtkMathTextUtilities")
-set(vtk_module_vtkMathTextUtilities_override "vtkMatplotlibMathTextUtilities")
-vtk_object_factory_configure("${vtk_module_overrides}")
-
-vtk_module_library(${vtk-module} ${Module_SRCS})
+vtk_module_add_module(VTK::RenderingMatplotlib
+  CLASSES ${classes}
+  SOURCES ${vtk_object_factory_source}
+  PRIVATE_HEADERS ${vtk_object_factory_header})
 
 set_property(GLOBAL APPEND
   PROPERTY
