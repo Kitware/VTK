@@ -1,0 +1,10 @@
+NAME
+  VTK::TestingGenericBridge
+LIBRARY_NAME
+  vtkTestingGenericBridge
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+PRIVATE_DEPENDS
+  VTK::CommonMisc
+EXCLUDE_WRAP
