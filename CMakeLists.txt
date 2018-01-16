@@ -269,6 +269,12 @@ endif ()
 set(vtk_cmake_build_dir
   "${CMAKE_CURRENT_BINARY_DIR}/lib/cmake/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
 
+if (TARGET "VTK::vtkm")
+  set(vtk_has_vtkm ON)
+else ()
+  set(vtk_has_vtkm OFF)
+endif ()
+
 configure_file(
   "${vtk_cmake_dir}/vtk-config.cmake.in"
   "${vtk_cmake_build_dir}/vtk-config.cmake"
