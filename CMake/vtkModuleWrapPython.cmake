@@ -627,3 +627,175 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
     endif ()
   endif ()
 endfunction ()
+
+#[==[.md
+## Python packages
+
+Some modules may have associated Python code. This function should be used to
+install them.
+
+```
+vtk_module_add_python_package(<module>
+  PACKAGE <package>
+  FILES <files>...
+  [MODULE_DESTINATION <destination>]
+  [COMPONENT <component>])
+```
+
+The `<module>` argument must match the associated VTK module that the package
+is with. Each package is independent and should be installed separately. That
+is, `package` and `package.subpackage` should each get their own call to this
+function.
+
+  * `PACKAGE`: (Required) The package installed by this call. Currently,
+    subpackages must have their own call to this function.
+  * `FILES`: (Required) File paths should be relative to the source directory
+    of the calling `CMakeLists.txt`. Upward paths are not supported (nor are
+    checked for). Absolute paths are assumed to be in the build tree and their
+    relative path is computed relative to the current binary directory.
+  * `MODULE_DESTINATION`: Modules will be placed in this location in the
+    build tree. The install tree should remove `$<CONFIGURATION>` bits, but it
+    currently does not. See `vtk_module_python_default_destination` for the
+    default value.
+  * `COMPONENT`: Defaults to `python`. All install rules created by this
+    function will use this installation component.
+
+A `<module>-<package>` target is created which ensures that all Python modules
+have been copied to the correct location in the build tree.
+
+### TODO items
+
+  - [ ] Support a tree of modules with a single call.
+  - [ ] Support freezing the Python package. This should create a header and
+    the associated target should provide an interface for including this
+    header. The target should then be exported and the header installed
+    properly.
+#]==]
+function (vtk_module_add_python_package name)
+  if (NOT name STREQUAL _vtk_build_module)
+    message(FATAL_ERROR
+      "Python modules must match their module names.")
+  endif ()
+
+  cmake_parse_arguments(_vtk_add_python_package
+    ""
+    "PACKAGE;MODULE_DESTINATION;COMPONENT"
+    "FILES"
+    ${ARGN})
+
+  if (_vtk_add_python_package_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_add_python_package: "
+      "${_vtk_add_python_package_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  if (NOT _vtk_add_python_package_PACKAGE)
+    message(FATAL_ERROR
+      "The `PACKAGE` argument is required.")
+  endif ()
+  string(REPLACE "." "/" _vtk_add_python_package_path "${_vtk_add_python_package_PACKAGE}")
+
+  if (NOT _vtk_add_python_package_FILES)
+    message(FATAL_ERROR
+      "The `FILES` argument is required.")
+  endif ()
+
+  if (NOT DEFINED _vtk_add_python_package_MODULE_DESTINATION)
+    vtk_module_python_default_destination(_vtk_add_python_package_MODULE_DESTINATION)
+  endif ()
+
+  if (NOT DEFINED _vtk_add_python_package_COMPONENT)
+    set(_vtk_add_python_package_COMPONENT "python")
+  endif ()
+
+  set(_vtk_add_python_package_file_outputs)
+  foreach (_vtk_add_python_package_file IN LISTS _vtk_add_python_package_FILES)
+    if (IS_ABSOLUTE "${_vtk_add_python_package_file}")
+      file(RELATIVE_PATH _vtk_add_python_package_name
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        "${_vtk_add_python_package_name}")
+    else ()
+      set(_vtk_add_python_package_name
+        "${_vtk_add_python_package_file}")
+      set(_vtk_add_python_package_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/${_vtk_add_python_package_file}")
+    endif ()
+
+    set(_vtk_add_python_package_file_output
+      "${CMAKE_BINARY_DIR}/${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_name}")
+    add_custom_command(
+      OUTPUT  "${_vtk_add_python_package_file_output}"
+      DEPENDS "${_vtk_add_python_package_file}"
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+              "${_vtk_add_python_package_file}"
+              "${_vtk_add_python_package_file_output}"
+      COMMENT "Copying ${_vtk_add_python_package_name} to the binary directory")
+    list(APPEND _vtk_add_python_package_file_outputs
+      "${_vtk_add_python_package_file_output}")
+
+    install(
+      FILES       "${_vtk_add_python_package_name}"
+      DESTINATION "${_vtk_add_python_package_MODULE_DESTINATION}/${_vtk_add_python_package_path}"
+      COMPONENT   "${_vtk_add_python_package_COMPONENT}")
+  endforeach ()
+
+  get_property(_vtk_add_python_package_module GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+  add_custom_target("${_vtk_add_python_package_module}-${_vtk_add_python_package_PACKAGE}" ALL
+    DEPENDS
+      ${_vtk_add_python_package_file_outputs})
+endfunction ()
+
+#[==[.md
+## Pure Python modules
+
+If a VTK module is a Python package, this function should be used instead of
+`vtk_module_add_module`.
+
+```
+vtk_module_add_python_module(<name>
+  PACKAGES <packages>...)
+```
+
+  * `PACKAGES`: (Required) The list of packages installed by this VTK module.
+    These must have been created by the `vtk_module_add_python_package`
+    function.
+#]==]
+function (vtk_module_add_python_module name)
+  if (NOT name STREQUAL _vtk_build_module)
+    message(FATAL_ERROR
+      "Python modules must match their module names.")
+  endif ()
+
+  cmake_parse_arguments(_vtk_add_python_module
+    ""
+    ""
+    "PACKAGES"
+    ${ARGN})
+
+  if (_vtk_add_python_module_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_add_python_module: "
+      "${_vtk_add_python_module_UNPARSED_ARGUMENTS}")
+  endif ()
+
+  get_property(_vtk_add_python_module_depends GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_depends")
+  get_property(_vtk_add_python_module_target_name GLOBAL
+    PROPERTY "_vtk_module_${_vtk_build_module}_target_name")
+  add_library("${_vtk_add_python_module_target_name}" INTERFACE)
+  target_link_libraries("${_vtk_add_python_module_target_name}"
+    INTERFACE
+      ${_vtk_add_python_module_depends})
+  foreach (_vtk_add_python_module_package IN LISTS _vtk_add_python_module_PACKAGES)
+    add_dependencies("${_vtk_add_python_module_target_name}"
+      "${_vtk_build_module}-${_vtk_add_python_module_package}")
+  endforeach ()
+  if (NOT _vtk_build_module STREQUAL _vtk_add_python_module_target_name)
+    add_library("${_vtk_build_module}" ALIAS
+      "${_vtk_add_python_module_target_name}")
+  endif ()
+
+  _vtk_module_apply_properties("${_vtk_add_python_module_target_name}")
+  _vtk_module_install("${_vtk_add_python_module_target_name}")
+endfunction ()
