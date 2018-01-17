@@ -40,6 +40,7 @@ else ()
   add_example(Medical/Cxx)
   add_example(Modelling/Cxx)
   add_example(MultiBlock/Cxx)
+  add_example(ParallelProcessing/Generic/Cxx)
 endif ()
 
 if (FALSE)
@@ -68,10 +69,6 @@ else()
       add_subdirectory(Tutorial/Step6/Cxx)
       add_subdirectory(VolumeRendering/Cxx)
     endif ()
-
-    if(vtkParallelMPI_LOADED AND vtkRenderingParallel_LOADED)
-      add_subdirectory(ParallelProcessing/Generic)
-    endif()
 
     # This may have been already built as part of the VTK build.
     # If so we cannot create the target "vtkLocalExample" because
