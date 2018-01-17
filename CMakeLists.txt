@@ -378,6 +378,11 @@ vtk_module_export_find_packages(
   FILE_NAME         "VTK-vtk-module-find-packages.cmake"
   MODULES           ${vtk_modules})
 
+configure_file(
+  "${vtk_cmake_dir}/CTestCustom.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
+  @ONLY)
+
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)
 endif()
