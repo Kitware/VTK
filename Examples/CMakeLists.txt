@@ -28,6 +28,7 @@ elseif (APPLE_IOS)
 else ()
   add_example(AMR/Cxx)
   add_example(Annotation/Cxx/LabeledMesh)
+  add_example(Charts/Cxx)
 endif ()
 
 if (FALSE)
@@ -86,10 +87,6 @@ else()
      add_subdirectory(Infovis/Cxx)
    endif ()
 
-   if (vtkChartsCore_LOADED)
-    add_subdirectory(Charts/Cxx)
-   endif()
-#
 #  IF(VTK_USE_INFOVIS)
 #    IF(VTK_USE_N_WAY_ARRAYS)
 #      add_subdirectory(Array/Cxx)

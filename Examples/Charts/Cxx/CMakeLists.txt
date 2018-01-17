@@ -1,43 +1,81 @@
-PROJECT (Charts)
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+project(Charts)
 
-IF(NOT VTK_BINARY_DIR)
-FIND_PACKAGE(VTK REQUIRED)
-IF(NOT vtkChartsCore_LOADED)
-  MESSAGE(FATAL_ERROR "Example ${PROJECT_NAME} requires vtkChartsCore module.")
-ENDIF()
-INCLUDE(${VTK_USE_FILE})
-ENDIF()
+find_package(VTK
+  COMPONENTS
+    ChartsCore
+  OPTIONAL_COMPONENTS
+    CommonSystem
+    GUISupportQt
+    InfovisCore
+    RenderingOpenGL2
+    ViewsInfovis
+    ViewsContext2D
+    ViewsQt)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-IF(vtkViewsInfovis_LOADED AND vtkViewsContext2D_LOADED)
-  ADD_EXECUTABLE(GraphItem GraphItem.cxx vtkGraphItem.cxx)
-  set_property(TARGET GraphItem APPEND
-    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
-  set_property(TARGET GraphItem APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
-  TARGET_LINK_LIBRARIES(GraphItem ${VTK_LIBRARIES})
-ENDIF()
+if (TARGET VTK::InfovisCore AND TARGET VTK::ViewsInfovis AND TARGET VTK::ViewsContext2D)
+  add_executable(GraphItem
+    GraphItem.cxx
+    vtkGraphItem.cxx
+    vtkGraphItem.h)
+  target_link_libraries(GraphItem
+    PRIVATE
+      VTK::ChartsCore
+      VTK::InfovisCore
+      VTK::ViewsInfovis
+      VTK::ViewsContext2D)
+  vtk_module_autoinit(
+    TARGETS GraphItem
+    MODULES VTK::ChartsCore
+            VTK::InfovisCore
+            VTK::ViewsInfovis
+            VTK::ViewsContext2D)
+endif ()
 
-IF(vtkViewsContext2D_LOADED)
-  ADD_EXECUTABLE(PiecewiseItem PiecewiseItem.cxx)
-  set_property(TARGET PiecewiseItem APPEND
-    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
-  set_property(TARGET PiecewiseItem APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
-  TARGET_LINK_LIBRARIES(PiecewiseItem ${VTK_LIBRARIES})
-ENDIF()
+if (TARGET VTK::ViewsContext2D)
+  add_executable(PiecewiseItem
+    PiecewiseItem.cxx)
+  target_link_libraries(PiecewiseItem
+    PRIVATE
+      VTK::ChartsCore
+      VTK::ViewsContext2D)
+  vtk_module_autoinit(
+    TARGETS PiecewiseItem
+    MODULES VTK::ChartsCore
+            VTK::ViewsContext2D)
+endif ()
 
-IF(vtkGUISupportQt_LOADED)
-  ADD_EXECUTABLE(QChartTable QChartTable.cxx)
-  set_property(TARGET QChartTable APPEND
-    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
-  set_property(TARGET QChartTable APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
-  TARGET_LINK_LIBRARIES(QChartTable ${VTK_LIBRARIES})
+if (TARGET VTK::CommonSystem AND TARGET VTK::GUISupportQt AND TARGET VTK::ViewsContext2D AND TARGET VTK::ViewsQt)
+  add_executable(QChartTable
+    QChartTable.cxx)
+  target_link_libraries(QChartTable
+    PRIVATE
+      VTK::ChartsCore
+      VTK::CommonSystem
+      VTK::GUISupportQt
+      VTK::ViewsContext2D
+      VTK::ViewsQt)
 
-  ADD_EXECUTABLE(QScalarsToColors QScalarsToColors.cxx)
-  set_property(TARGET QScalarsToColors APPEND
-    PROPERTY COMPILE_DEFINITIONS "${VTK_DEFINITIONS}")
-  set_property(TARGET QScalarsToColors APPEND
-    PROPERTY INCLUDE_DIRECTORIES ${VTK_INCLUDE_DIRS})
-  TARGET_LINK_LIBRARIES(QScalarsToColors ${VTK_LIBRARIES})
-ENDIF()
+  add_executable(QScalarsToColors
+    QScalarsToColors.cxx)
+  target_link_libraries(QScalarsToColors
+    PRIVATE
+      VTK::ChartsCore
+      VTK::CommonSystem
+      VTK::GUISupportQt
+      VTK::ViewsContext2D
+      VTK::ViewsQt)
+
+  vtk_module_autoinit(
+    TARGETS QChartTable
+            QScalarsToColors
+    MODULES VTK::ChartsCore
+            VTK::CommonSystem
+            VTK::GUISupportQt
+            VTK::ViewsContext2D
+            VTK::ViewsQt)
+endif ()
