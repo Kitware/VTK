@@ -23,8 +23,8 @@
  !!! license.
 =========================================================================*/
 
-#include <QApplication>
-#include <QSurfaceFormat>
+#include <QtWidgets/QApplication>
+#include <QtGui/QSurfaceFormat>
 
 #include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkImageViewer.h"

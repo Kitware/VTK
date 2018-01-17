@@ -1,49 +1,49 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
-foreach(p
-    CMP0071 # 3.10: Let AUTOMOC and AUTOUIC process GENERATED files
-    )
-  if(POLICY ${p})
-    cmake_policy(SET ${p} NEW)
-  endif()
-endforeach()
-
 project(QtVTKRenderWindows)
 
-find_package(VTK COMPONENTS
-  vtkCommonCore
-  vtkFiltersSources
-  vtkGUISupportQt
-  vtkIOImage
-  vtkInteractionImage
-)
-include(${VTK_USE_FILE})
+find_package(VTK
+  COMPONENTS
+    CommonCore
+    GUISupportQt
+    IOImage
+    ImagingColor
+    ImagingGeneral
+    InteractionImage
+    InteractionStyle
+    InteractionWidgets)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-
-if("${VTK_QT_VERSION}" STREQUAL "")
-  message(FATAL_ERROR "VTK was not built with Qt")
-endif()
+find_package(Qt5 COMPONENTS Widgets)
+if (NOT TARGET Qt5::Widgets)
+  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
 # Set your files and resources here
-set( Srcs QtVTKRenderWindowsApp.cxx QtVTKRenderWindows.cxx)
+set(Srcs
+  QtVTKRenderWindowsApp.cxx
+  QtVTKRenderWindows.cxx)
 
-set( Hdrs QtVTKRenderWindows.h )
+set(Hdrs
+  QtVTKRenderWindows.h)
 
-set( MOC_Hdrs QtVTKRenderWindows.h )
-
-set( UIs QtVTKRenderWindows.ui )
-
-include_directories(
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+set(UIs
+  QtVTKRenderWindows.ui)
 
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
-
-find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
-qt5_wrap_ui(UI_Srcs ${UIs})
+set(CMAKE_AUTOUIC ON)
 
 # CMAKE_AUTOMOC in ON so the MocHdrs will be automatically wrapped.
-add_executable(QtVTKRenderWindows ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs})
-target_link_libraries(QtVTKRenderWindows Qt5::Core Qt5::Gui Qt5::Widgets)
-target_link_libraries(QtVTKRenderWindows ${VTK_LIBRARIES})
+add_executable(QtVTKRenderWindows
+  ${Srcs} ${Hdrs} ${UIs})
+target_link_libraries(QtVTKRenderWindows
+  PRIVATE
+    ${VTK_LIBRARIES}
+    Qt5::Widgets)
+vtk_module_autoinit(
+  TARGETS QtVTKRenderWindows
+  MODULES ${VTK_LIBRARIES})

@@ -1,24 +1,32 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
-
 project(QtImageViewer)
 
-find_package(VTK COMPONENTS
-  vtkGUISupportQt
-  vtkIOImage
-  vtkInteractionImage
-  vtkRenderingOpenGL2
-  vtkTestingCore
-)
-include(${VTK_USE_FILE})
+find_package(VTK
+  COMPONENTS
+    GUISupportQt
+    IOImage
+    InteractionImage
+    RenderingOpenGL2
+    TestingCore)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-if("${VTK_QT_VERSION}" STREQUAL "")
-  message(FATAL_ERROR "VTK was not built with Qt")
-endif()
+find_package(Qt5 COMPONENTS Widgets)
+if (NOT TARGET Qt5::Widgets)
+  message("Skipping example: ${Qt5_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-set( Srcs main.cxx )
+set(Srcs main.cxx)
 
-find_package(Qt5 COMPONENTS Core REQUIRED QUIET)
-
-add_executable(qtimageviewer ${Srcs})
-target_link_libraries(qtimageviewer Qt5::Core Qt5::Gui Qt5::Widgets)
-target_link_libraries(qtimageviewer ${VTK_LIBRARIES})
+add_executable(qtimageviewer
+  ${Srcs})
+target_link_libraries(qtimageviewer
+  PRIVATE
+    ${VTK_LIBRARIES}
+    Qt5::Widgets)
+vtk_module_autoinit(
+  TARGETS qtimageviewer
+  MODULES ${VTK_LIBRARIES})
