@@ -8,6 +8,10 @@ if(VTK_REQUIRE_LARGE_FILE_SUPPORT)
     -D_FILE_OFFSET_BITS=64)
 endif()
 
+# FIXME: MetaIO only exports symbols properly on Windows.
+unset(CMAKE_CXX_VISIBILITY_PRESET)
+unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
+
 vtk_module_third_party_internal(
   LICENSE_FILES "vtkmetaio/License.txt"
   VERSION       "master"

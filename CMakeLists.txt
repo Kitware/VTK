@@ -69,6 +69,8 @@ include(vtkCompilerDynamicAnalysisFlags)
 option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 #-----------------------------------------------------------------------------
 # Add the Remote Subdirectory

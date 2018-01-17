@@ -1,3 +1,7 @@
+# FIXME: jsoncpp only exports symbols properly on Windows.
+unset(CMAKE_CXX_VISIBILITY_PRESET)
+unset(CMAKE_VISIBILITY_INLINES_HIDDEN)
+
 vtk_module_third_party(
   INTERNAL
     LICENSE_FILES "vtkjsoncpp/LICENSE"
