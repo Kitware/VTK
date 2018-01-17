@@ -43,7 +43,7 @@ To build VTK and these examples follow the steps below.
 
 If you want OpenGL ES 3.0 support make sure to change the setting of
 OPENGL_ES_VERSION to 3.0. Volume Rendering requires ES 3.0. Make sure to turn on
-BUILD_EXAMPLES
+VTK_BUILD_EXAMPLES
 
 * configure and generate as usual
 

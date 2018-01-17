@@ -38,7 +38,7 @@ path/to/VTK-iOS-build> ccmake -DVTK_IOS_BUILD=ON /path/to/VTK -G Ninja
 ```
 In `ccmake`, set the following options:
 ```
-BUILD_EXAMPLES = OFF
+VTK_BUILD_EXAMPLES = OFF
 BUILD_TESTING = OFF
 CMAKE_BUILD_TYPE = Release
 IOS_DEVICE_ARCHITECTURES = arm64;armv7

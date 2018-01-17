@@ -1,14 +1,27 @@
-cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(VTKExamples)
 
-PROJECT(VTKExamples)
-include_regular_expression("^.*$")
-
-if(NOT VTK_BINARY_DIR)
-  find_package(VTK REQUIRED)
-else()
-  set(VTK_DIR ${VTK_BINARY_DIR})
-  find_package(VTK REQUIRED)
-endif()
+if (VTK_BINARY_DIR)
+  function (add_example dir)
+    add_test(
+      NAME    "VTKExample-${dir}"
+      COMMAND "${CMAKE_CTEST_COMMAND}"
+              --build-generator
+                "${CMAKE_GENERATOR}"
+              --build-and-test
+                "${CMAKE_CURRENT_SOURCE_DIR}/${dir}"
+                "${CMAKE_CURRENT_BINARY_DIR}/${dir}"
+              --build-options
+                "-DBUILD_TESTING=ON"
+                "-DVTK_DIR=${vtk_cmake_build_dir}"
+              --test-command
+                "${CMAKE_CTEST_COMMAND}"
+                  -C $<CONFIGURATION>)
+  endfunction ()
+else ()
+  macro (add_example dir)
+    add_subdirectory("${dir}")
+  endmacro ()
+endif ()
 
 if (ANDROID)
   add_subdirectory(Android)

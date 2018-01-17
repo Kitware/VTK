@@ -66,7 +66,7 @@ include(vtkCompilerDynamicAnalysisFlags)
 
 #-----------------------------------------------------------------------------
 # Do we want examples built?
-option(BUILD_EXAMPLES "Build VTK examples." OFF)
+option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
 
 set(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
@@ -383,12 +383,13 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/CTestCustom.cmake"
   @ONLY)
 
+option(VTK_BUILD_EXAMPLES "Build VTK examples." OFF)
+if (VTK_BUILD_EXAMPLES)
+  add_subdirectory(Examples)
+endif ()
+
 if(BUILD_TESTING)
   add_subdirectory(Testing/Install)
-endif()
-
-if(BUILD_EXAMPLES)
-  add_subdirectory(Examples)
 endif()
 
 # The doxygen documentation needs to be aware of all modules.
