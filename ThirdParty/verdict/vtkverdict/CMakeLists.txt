@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 2.8.2)
 
 foreach(p
+    CMP0022 # CMake 3.0, Define link interface - required by android_mk export
     CMP0025 # CMake 3.0
     CMP0042 # CMake 3.0, MACOSX_RPATH is enabled by default.
     CMP0053 # CMake 3.1
