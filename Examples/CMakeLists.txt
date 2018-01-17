@@ -36,6 +36,7 @@ else ()
   add_example(GUI/Qt/SimpleView)
   add_example(IO/Cxx)
   add_example(ImageProcessing/Cxx)
+  add_example(Infovis/Cxx)
 endif ()
 
 if (FALSE)
@@ -83,10 +84,6 @@ else()
 
 
    add_subdirectory(Build/vtkMy)
-
-   if (NOT VTK_RENDERING_BACKEND STREQUAL "None")
-     add_subdirectory(Infovis/Cxx)
-   endif ()
 
 #  IF(VTK_USE_INFOVIS)
 #    IF(VTK_USE_N_WAY_ARRAYS)
