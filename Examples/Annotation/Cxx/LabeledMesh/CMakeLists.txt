@@ -1,18 +1,22 @@
 cmake_minimum_required(VERSION 3.3...3.12 FATAL_ERROR)
+project(LabeledMesh)
 
+find_package(VTK
+  COMPONENTS
+    FiltersGeneral
+    FiltersSources
+    RenderingCore
+    RenderingLabel)
+if (NOT VTK_FOUND)
+  message("Skipping example: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif ()
 
-PROJECT (LabeledMesh)
-
-find_package(VTK REQUIRED)
-vtk_module_config(VTK
-  vtkCommonCore
-  vtkCommonDataModel
-  vtkFiltersSources
-  vtkInteractionStyle
-  vtkRenderingLabel
-  vtkRenderingOpenGL2
-)
-include(${VTK_USE_FILE})
-
-add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${PROJECT_NAME}.cxx)
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
+add_executable(LabeledMesh MACOSX_BUNDLE
+  LabeledMesh.cxx)
+target_link_libraries(LabeledMesh
+  PRIVATE
+    ${VTK_LIBRARIES})
+vtk_module_autoinit(
+  TARGETS LabeledMesh
+  MODULES ${VTK_LIBRARIES})
