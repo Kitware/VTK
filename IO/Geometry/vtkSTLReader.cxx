@@ -31,7 +31,7 @@
 
 #include <algorithm>
 #include <cctype>
-#include <stdexcept>
+#include <cstdlib>
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
@@ -344,148 +344,304 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 }
 
 //------------------------------------------------------------------------------
+
+// Local Functions
+namespace
+{
+inline std::string stlParseEof(std::string expected)
+{
+  return "Premature EOF while reading '" + expected + "'";
+}
+
+
+inline std::string stlParseExpected(std::string expected, std::string found)
+{
+  return "Parse error. Expecting '" + expected + "' found '" + found + "'";
+}
+
+
+// Get three space-delimited floats from string.
+bool stlReadVertex(char* buf, float vertCoord[3])
+{
+  char* begptr = buf;
+  char* endptr = nullptr;
+
+  for (int i = 0; i < 3; ++i)
+  {
+    errno = 0;
+    vertCoord[i] = std::strtof(begptr, &endptr);
+    if (errno || (begptr == endptr))
+    {
+      return false;
+    }
+
+    begptr = endptr;
+  }
+
+  return true;
+}
+
+} // end of anonymous namespace
+
+
+// https://en.wikipedia.org/wiki/STL_%28file_format%29#ASCII_STL
+//
+// Format
+//
+// solid [name]
+//
+// * where name is an optional string.
+// * The file continues with any number of triangles,
+//   each represented as follows:
+//
+// [color ...]
+// facet normal ni nj nk
+//     outer loop
+//         vertex v1x v1y v1z
+//         vertex v2x v2y v2z
+//         vertex v3x v3y v3z
+//     endloop
+// endfacet
+//
+// * where each n or v is a floating-point number.
+// * The file concludes with
+//
+// endsolid [name]
+
 bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
                                 vtkCellArray *newPolys, vtkFloatArray *scalars)
 {
   vtkDebugMacro(<< "Reading ASCII STL file");
 
-  char line[256];
-  float x[3];
-  int currentSolid = 0;
+  char line[256];         // line buffer
+  float vertCoord[3];     // scratch space when parsing "vertex %f %f %f"
+  vtkIdType pts[3];       // point ids for building triangles
+  int vertOff = 0;
 
-  // header: solid ...
-  if (!fgets(line, 255, fp))
-  {
-    vtkErrorMacro("STLReader error reading file: " << this->FileName
-                   << " Premature EOF while reading header at line 0.");
-    return false;
-  }
+  int solidId = -1;
+  int lineNum = 0;
 
-  int done = !fgets(line, 255, fp); // facet normal
-  int lineCount = 2;
-  if (strstr(line, "COLOR") || strstr(line, "color"))
+  enum StlAsciiScanState
   {
-      // was actually "color ..."
-      // get and discard next line, which should be "facet normal"
-      done = !fgets(line, 255, fp);
-      lineCount++;
-  }
+    scanSolid = 0,
+    scanFacet,
+    scanLoop,
+    scanVerts,
+    scanEndLoop,
+    scanEndFacet,
+    scanEndSolid
+  };
 
-  try
+  std::string errorMessage;
+
+  for (StlAsciiScanState state = scanSolid; errorMessage.empty(); /*nil*/)
   {
-    // Go into loop, reading facet normal and vertices
-    while (!done)
+    char *cmd = fgets(line, 255, fp);
+
+    if (!cmd)
     {
-      vtkIdType pts[3];
+      // fgets() failed (eg EOF).
+      // If scanning for the next "solid" this is a valid way to exit,
+      // but is an error if scanning for the initial "solid" or any other token
 
-      if (!fgets(line, 255, fp))
+      switch (state)
       {
-        throw std::runtime_error("unable to read STL outer loop.");
-      }
-      lineCount++;
-
-      if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-      {
-        throw std::runtime_error("unable to read STL vertex.");
-      }
-      lineCount++;
-      pts[0] = newPts->InsertNextPoint(x);
-
-      if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-      {
-        throw std::runtime_error("unable to read STL vertex.");
-      }
-      lineCount++;
-      pts[1] = newPts->InsertNextPoint(x);
-
-      if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-      {
-        throw std::runtime_error("unable to read STL vertex.");
-      }
-      lineCount++;
-      pts[2] = newPts->InsertNextPoint(x);
-
-      if (!fgets(line, 255, fp)) // endloop
-      {
-        throw std::runtime_error("unable to read STL endloop.");
-      }
-      lineCount++;
-
-      if (!fgets(line, 255, fp)) // endfacet
-      {
-        throw std::runtime_error("unable to read STL endfacet.");
-      }
-      lineCount++;
-
-      newPolys->InsertNextCell(3, pts);
-      if (scalars)
-      {
-        scalars->InsertNextValue(currentSolid);
-      }
-
-      if ((newPolys->GetNumberOfCells() % 5000) == 0)
-      {
-        this->UpdateProgress((newPolys->GetNumberOfCells()%50000) / 50000.0);
-      }
-
-      done = (fscanf(fp, "%255s", line) == EOF);
-      if (!strcmp(line, "ENDSOLID") || !strcmp(line, "endsolid"))
-      {
-        currentSolid++;
-        if (!fgets(line, 255, fp) && !feof(fp))
+        case scanSolid:
         {
-          throw std::runtime_error("unable to read STL endsolid.");
+          // Emit error if EOF encountered without having read anything
+          if (solidId < 0) errorMessage = stlParseEof("solid");
+          break;
+        }
+        case scanFacet:    { errorMessage = stlParseEof("facet"); break; }
+        case scanLoop:     { errorMessage = stlParseEof("outer loop"); break; }
+        case scanVerts:    { errorMessage = stlParseEof("vertex"); break; }
+        case scanEndLoop:  { errorMessage = stlParseEof("endloop"); break; }
+        case scanEndFacet: { errorMessage = stlParseEof("endfacet"); break; }
+        case scanEndSolid: { errorMessage = stlParseEof("endsolid"); break; }
+      }
+
+      // Terminate the parsing loop
+      break;
+    }
+
+    // Cue to the first non-space.
+    while (isspace(*cmd))
+    {
+      ++cmd;
+    }
+
+    // An empty line - try again
+    if (!*cmd)
+    {
+      // Increment line-number, but not while still in the header
+      if (lineNum) ++lineNum;
+      continue;
+    }
+
+    // Ensure consistent case on the first token and separate from
+    // subsequent arguments
+
+    char *arg = cmd;
+    while (*arg && !isspace(*arg))
+    {
+      *arg = tolower(*arg);
+      ++arg;
+    }
+
+    // Terminate first token (cmd)
+    if (*arg)
+    {
+      *arg = '\0';
+      ++arg;
+
+      while (isspace(*arg))
+      {
+        ++arg;
+      }
+    }
+
+    ++lineNum;
+
+    // Handle all expected parsed elements
+    switch (state)
+    {
+      case scanSolid:
+      {
+        if (!strcmp(cmd, "solid"))
+        {
+          ++solidId;
+          state = scanFacet;  // Next state
+        }
+        else
+        {
+          errorMessage = stlParseExpected("solid", cmd);
+        }
+        break;
+      }
+      case scanFacet:
+      {
+        if (!strcmp(cmd, "color"))
+        {
+          // Optional 'color' entry (after solid) - continue looking for 'facet'
+          continue;
         }
 
-        done = feof(fp);
-        while (!strstr(line, "SOLID") && !strstr(line, "solid") && !done)
+        if (!strcmp(cmd, "facet"))
         {
-          if (!fgets(line, 255, fp))
+          state = scanLoop;  // Next state
+        }
+        else if (!strcmp(cmd, "endsolid"))
+        {
+          // Finished with 'endsolid' - find next solid
+          state = scanSolid;
+        }
+        else
+        {
+          errorMessage = stlParseExpected("facet", cmd);
+        }
+        break;
+      }
+      case scanLoop:
+      {
+        if (!strcmp(cmd, "outer"))  // More pedantic => && !strcmp(arg, "loop")
+        {
+          state = scanVerts;  // Next state
+        }
+        else
+        {
+          errorMessage = stlParseExpected("outer loop", cmd);
+        }
+        break;
+      }
+      case scanVerts:
+      {
+        if (!strcmp(cmd, "vertex"))
+        {
+          if (stlReadVertex(arg, vertCoord))
           {
-            // if fgets() returns an error, it may be due to the fact that the EOF
-            // is reached(BUG #13101) hence we test again.
-            done = feof(fp);
-            if (!done)
+            pts[vertOff] = newPts->InsertNextPoint(vertCoord);
+            ++vertOff;  // Next vertex
+
+            if (vertOff >= 3)
             {
-              throw std::runtime_error("unable to read STL solid.");
+              // Finished this triangle.
+              vertOff = 0;
+              state = scanEndLoop;  // Next state
+
+              // Save as cell
+              newPolys->InsertNextCell(3, pts);
+              if (scalars)
+              {
+                scalars->InsertNextValue(solidId);
+              }
+
+              if ((newPolys->GetNumberOfCells() % 5000) == 0)
+              {
+                this->UpdateProgress((newPolys->GetNumberOfCells()%50000) / 50000.0);
+              }
             }
           }
-          lineCount++;
-          done = feof(fp);
+          else
+          {
+            errorMessage = "Parse error reading STL vertex";
+          }
         }
-
-        // get facet, but could also have color
-        done = (fscanf(fp, "%255s", line)==EOF);
-        if (!strcmp(line, "COLOR") || !strcmp(line, "color"))
+        else
         {
-          done = !fgets(line, 255, fp); // skip color field
-          lineCount++;
+          errorMessage = stlParseExpected("vertex", cmd);
         }
-
-        if (!done)
-        {
-          done = !fgets(line, 255, fp); // facet ...
-          lineCount++;
-        }
+        break;
       }
-      else if (!done)
+      case scanEndLoop:
       {
-        // was 'endfacet'
-        // get and discard next line, which should be "facet normal"
-        done = !fgets(line, 255, fp);
-        lineCount++;
+        if (!strcmp(cmd, "endloop"))
+        {
+          state = scanEndFacet;  // Next state
+        }
+        else
+        {
+          errorMessage = stlParseExpected("endloop", cmd);
+        }
+        break;
+      }
+      case scanEndFacet:
+      {
+        if (!strcmp(cmd, "endfacet"))
+        {
+          state = scanFacet;  // Next facet, or endsolid
+        }
+        else
+        {
+          errorMessage = stlParseExpected("endfacet", cmd);
+        }
+        break;
+      }
+      case scanEndSolid:
+      {
+        if (!strcmp(cmd, "endsolid"))
+        {
+          state = scanSolid;  // Start over again
+        }
+        else
+        {
+          errorMessage = stlParseExpected("endsolid", cmd);
+        }
+        break;
       }
     }
   }
-  catch (const std::runtime_error &e)
+
+  if (!errorMessage.empty())
   {
-    vtkErrorMacro("STLReader: error while reading file " <<
-      this->FileName << " at line " << lineCount << ": " << e.what());
+    vtkErrorMacro("STLReader: error while reading file "
+                  << this->FileName << " at line " << lineNum << ": "
+                  << errorMessage);
     return false;
   }
 
   return true;
 }
+
 
 //------------------------------------------------------------------------------
 int vtkSTLReader::GetSTLFileType(const char *filename)
