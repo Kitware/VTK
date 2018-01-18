@@ -143,7 +143,7 @@ std::string vtkOBJImporter::GetOutputDescription(int idx)
       << mtl->amb[0] << ", " << mtl->amb[1] << ", " << mtl->amb[2] << ")"
       << " specular color ("
       << mtl->spec[0] << ", " << mtl->spec[1] << ", " << mtl->spec[2] << ")"
-      << " specular power " << mtl->shiny
+      << " specular power " << mtl->specularPower
       << " opacity " << mtl->trans;
   }
   else
@@ -255,7 +255,7 @@ std::string vtkOBJPolyDataProcessor::GetTextureFilename( int idx )
 {
   vtkOBJImportedMaterial* mtl = this->GetMaterial(idx);
 
-  if (mtl && strlen(mtl->texture_filename))
+  if (mtl && mtl->texture_filename.size())
   {
     std::vector<std::string> path_and_filename(2);
     path_and_filename[0] = this->TexturePath;
@@ -442,7 +442,7 @@ int vtkOBJPolyDataProcessor::RequestData(
   // -- work through the file line by line, assigning into the above 7 structures as appropriate --
   { // (make a local scope section to emphasise that the variables below are only used here)
 
-  const int MAX_LINE = 4096;
+  const int MAX_LINE = 100000;
   char rawLine[MAX_LINE];
   float xyz[3];
 
@@ -759,6 +759,10 @@ int vtkOBJPolyDataProcessor::RequestData(
           (
             <<"Error reading file near line " << lineNr
             << " while processing the 'f' command"
+            << " nVerts= " << nVerts
+            << " nTCoords= " << nTCoords
+            << " nNormals= " << nNormals
+            << pLine
             );
         everything_ok = false;
       }

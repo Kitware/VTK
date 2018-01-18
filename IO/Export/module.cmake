@@ -26,6 +26,7 @@ vtk_module(vtkIOExport
     vtkCommonCore
     vtkIOCore
     vtkIOImage
+    vtkIOXML
     vtkRenderingContext2D
     vtkRenderingCore
     vtkRenderingFreeType

@@ -42,6 +42,7 @@ endif()
 vtk_add_test_cxx(vtkIOExportCxxTests tests
   X3DTest.cxx,NO_DATA,NO_VALID
   TestOBJExporter.cxx,NO_DATA,NO_VALID
+  TestSingleVTPExporter.cxx,NO_DATA,NO_VALID
   ${GL2PSTests} ${GL2PSTestsPDF} ${PDFTests} ${SVGTests}
   TestRIBExporter.cxx,NO_VALID
   UnitTestRIB.cxx,NO_DATA,NO_VALID

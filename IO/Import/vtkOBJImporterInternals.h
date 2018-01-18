@@ -22,34 +22,22 @@
 #include <map>
 #include "vtkActor.h"
 
-const int OBJ_FILENAME_LENGTH = 8192;
-const int MATERIAL_NAME_SIZE  = 8192;
-
 struct vtkOBJImportedMaterial
 {
-  char name[MATERIAL_NAME_SIZE]; // use std::array<char,N> when got {gcc4.7+,vs2012+}
-  char texture_filename[OBJ_FILENAME_LENGTH];
+  std::string name;
+  std::string texture_filename;
   double amb[3];
   double diff[3];
   double spec[3];
+  double map_Kd_scale[3];
+  double map_Kd_offset[3];
+  int illum;
   double reflect;
   double refract;
   double trans;
-  double shiny;
+  double specularPower;
   double glossy;
   double refract_index;
-  double get_amb_coeff()
-  {
-    return sqrt( amb[0]*amb[0]+amb[1]*amb[1]+amb[2]*amb[2] );
-  }
-  double get_diff_coeff()
-  {
-    return sqrt( diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2] );
-  }
-  double get_spec_coeff()
-  {
-    return sqrt( spec[0]*spec[0]+spec[1]*spec[1]+spec[2]*spec[2] );
-  }
   const char *GetClassName() {return "vtkOBJImportedMaterial";}
   vtkOBJImportedMaterial();
 };
