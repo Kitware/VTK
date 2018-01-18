@@ -16,6 +16,7 @@
 #include <vtkIntArray.h>
 #include <vtkMutableDirectedGraph.h>
 #include <vtkNew.h>
+#include <vtkPermuteOptions.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
 #include <vtkRandomGraphSource.h>
@@ -393,82 +394,38 @@ struct GetReaderDataObjectType<vtkUniformGrid>
   using Type = vtkImageData;
 };
 
-//------------------------------------------------------------------------------
-// Writer configuration functor for testing various format options.
-struct WriterConfig
+class WriterConfig : public vtkPermuteOptions<vtkXMLDataSetWriter>
 {
-  int ByteOrder;      // vtkXMLWriter::BigEndian, LittleEndian
-  int HeaderType;     // vtkXMLWriter::UInt32, UInt64
-  int IdType;         // vtkXMLWriter::Int32, Int64
-  int CompressorType; // vtkXMLWriter::NONE, ZLIB, LZ4
-  int DataMode;       // vtkXMLWriter::Ascii, Binary, Appended
-
+public:
   WriterConfig()
-    : ByteOrder(vtkXMLWriter::BigEndian)
-    , HeaderType(vtkXMLWriter::UInt32)
-    , IdType(vtkXMLWriter::Int32)
-    , CompressorType(vtkXMLWriter::NONE)
-    , DataMode(vtkXMLWriter::Ascii)
   {
-  }
+    this->AddOptionValues("ByteOrder",
+                          &vtkXMLDataObjectWriter::SetByteOrder,
+                          "BigEndian", vtkXMLWriter::BigEndian,
+                          "LittleEndian", vtkXMLWriter::LittleEndian);
+    this->AddOptionValues("HeaderType",
+                          &vtkXMLDataObjectWriter::SetHeaderType,
+                          "32Bit", vtkXMLWriter::UInt32,
+                          "64Bit", vtkXMLWriter::UInt64);
+    this->AddOptionValues("CompressorType",
+                          &vtkXMLDataObjectWriter::SetCompressorType,
+                          "NONE", vtkXMLWriter::NONE,
+                          "ZLIB", vtkXMLWriter::ZLIB,
+                          "LZ4", vtkXMLWriter::LZ4);
+    this->AddOptionValues("DataMode", &vtkXMLDataObjectWriter::SetDataMode,
+                          "Ascii", vtkXMLWriter::Ascii,
+                          "Binary", vtkXMLWriter::Binary,
+                          "Appended", vtkXMLWriter::Appended);
 
-  void operator()(vtkXMLDataSetWriter *writer) const
-  {
-    writer->SetByteOrder(this->ByteOrder);
-    writer->SetHeaderType(this->HeaderType);
-    writer->SetIdType(this->IdType);
-    writer->SetCompressorType(this->CompressorType);
-    writer->SetDataMode(this->DataMode);
-  }
+    // Calling vtkXMLWriter::SetIdType throws an Error while requesting 64 bit
+    // ids if this option isn't set:
+    this->AddOptionValue("IdType", &vtkXMLDataObjectWriter::SetIdType,
+                         "32Bit", vtkXMLWriter::Int32);
+#ifdef VTK_USE_64BIT_IDS
+    this->AddOptionValue("IdType", &vtkXMLDataObjectWriter::SetIdType,
+                          "64Bit", vtkXMLWriter::Int64);
+#endif
 
-  std::string GetConfigAsString() const
-  {
-    std::ostringstream out;
-    out << "ByteOrder-"
-        << (this->ByteOrder == vtkXMLWriter::BigEndian ? "BigEndian"
-                                                       : "LittleEndian")
-        << "."
-
-        << "HeaderType-"
-        << (this->HeaderType == vtkXMLWriter::UInt32 ? "UInt32" : "UInt64")
-        << "."
-
-        << "IdType-"
-        << (this->IdType == vtkXMLWriter::Int32 ? "Int32" : "Int64")
-        << "."
-
-        << "CompressorType-";
-    switch (this->CompressorType)
-    {
-      default:
-      case vtkXMLWriter::NONE:
-        out << "NONE";
-        break;
-      case vtkXMLWriter::ZLIB:
-        out << "ZLIB";
-        break;
-      case vtkXMLWriter::LZ4:
-        out << "LZ4";
-        break;
-    }
-    out << "."
-
-        << "DataMode-";
-    switch (this->DataMode)
-    {
-      default:
-      case vtkXMLWriter::Ascii:
-        out << "Ascii";
-        break;
-      case vtkXMLWriter::Binary:
-        out << "Binary";
-        break;
-      case vtkXMLWriter::Appended:
-        out << "Appended";
-        break;
-    }
-
-    return out.str();
   }
 };
 
@@ -485,13 +442,12 @@ bool TestDataObjectXMLSerialization(const WriterConfig& writerConfig)
   std::ostringstream filename;
   filename << TestingData->GetTempDirectory() << "/"
            << output_data->GetClassName()
-           << "-" << writerConfig.GetConfigAsString();
+           << "-" << writerConfig.GetCurrentPermutationName();
 
-  vtkXMLDataSetWriter* const writer =
-    vtkXMLDataSetWriter::New();
+  vtkXMLDataSetWriter* const writer = vtkXMLDataSetWriter::New();
   writer->SetInputData(output_data);
   writer->SetFileName(filename.str().c_str());
-  writerConfig(writer);
+  writerConfig.ApplyCurrentPermutation(writer);
   writer->Write();
   writer->Delete();
 
@@ -527,84 +483,35 @@ bool TestDataObjectXMLSerialization(const WriterConfig& writerConfig)
 template <typename WriterDataObjectT>
 bool TestWriterPermutations()
 {
-
-
   bool result = true;
   WriterConfig config;
-  for (int byteOrder = 0; byteOrder < 2; ++byteOrder)
-  {
-    config.ByteOrder = byteOrder == 0 ? vtkXMLWriter::BigEndian
-                                      : vtkXMLWriter::LittleEndian;
-    for (int headerType = 0; headerType < 2; ++headerType)
-    {
-      config.HeaderType = headerType == 0 ? vtkXMLWriter::UInt32
-                                          : vtkXMLWriter::UInt64;
-  // Calling vtkXMLWriter::SetIdType throws an Error if this option isn't set:
-#ifdef VTK_USE_64BIT_IDS
-      for (int idType = 0; idType < 2; ++idType)
-      {
-        config.IdType = idType == 0 ? vtkXMLWriter::Int32
-                                    : vtkXMLWriter::Int64;
-#endif
-        for (int compType = 0; compType < 3; ++compType)
-        {
-          switch (compType)
-          {
-            default:
-            case 0:
-              config.CompressorType = vtkXMLWriter::NONE;
-              break;
-            case 1:
-              config.CompressorType = vtkXMLWriter::ZLIB;
-              break;
-            case 2:
-              config.CompressorType = vtkXMLWriter::LZ4;
-              break;
-          }
-          for (int dataMode = 0; dataMode < 3; ++dataMode)
-          {
-            switch (dataMode)
-            {
-              default:
-              case 0:
-                config.DataMode = vtkXMLWriter::Ascii;
-                break;
-              case 1:
-                config.DataMode = vtkXMLWriter::Binary;
-                break;
-              case 2:
-                config.DataMode = vtkXMLWriter::Appended;
-                break;
-            }
-            std::string testName;
-            {
-              vtkNew<WriterDataObjectT> dummy;
-              std::ostringstream tmp;
-              tmp << dummy->GetClassName()
-                  << " [" << config.GetConfigAsString() << "]";
-              testName = tmp.str();
-            }
 
-            std::cerr << "Testing: " << testName << "..." << std::endl;
-            if (!TestDataObjectXMLSerialization<WriterDataObjectT>(config))
-            {
-              std::cerr << "Failed.\n\n";
-              result = false;
-            }
-          }
-        } // end compType
-      // Calling vtkXMLWriter::SetIdType throws an Error if this option isn't set:
-#ifdef VTK_USE_64BIT_IDS
-      } // end idType
-#endif
-    } // end headerType
-  } // end byteOrder
+  config.InitPermutations();
+  while (!config.IsDoneWithPermutations())
+  {
+    { // Some progress/debugging output:
+      std::string testName;
+      vtkNew<WriterDataObjectT> dummy;
+      std::ostringstream tmp;
+      tmp << dummy->GetClassName()
+          << " [" << config.GetCurrentPermutationName() << "]";
+      testName = tmp.str();
+      std::cerr << "Testing: " << testName << "..." << std::endl;
+    }
+
+    if (!TestDataObjectXMLSerialization<WriterDataObjectT>(config))
+    {
+      std::cerr << "Failed.\n\n";
+      result = false;
+    }
+
+    config.GoToNextPermutation();
+  }
 
   return result;
 }
 
 } // end anon namespace
-
 
 int TestDataObjectXMLIO(int argc, char *argv[])
 {
