@@ -7,6 +7,7 @@ vtk_module(vtkRenderingFreeTypeFontConfig
     vtkViewsContext2D
     vtkRenderingContextOpenGL2
   EXCLUDE_FROM_WRAPPING
+  EXCLUDE_FROM_PYTHON_WRAPPING
   KIT
     vtkRendering
   DEPENDS
