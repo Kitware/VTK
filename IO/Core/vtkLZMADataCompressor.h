@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkLZ4DataCompressor.h
+  Module:    vtkLZMADataCompressor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,25 +13,32 @@
 
 =========================================================================*/
 /**
- * @class   vtkLZ4DataCompressor
- * @brief   Data compression using LZ4.
+ * @class   vtkLZMADataCompressor
+ * @brief   Data compression using LZMA Utils.
  *
- * vtkLZ4DataCompressor provides a concrete vtkDataCompressor class
- * using LZ4 for compressing and uncompressing data.
+ * vtkLZMADataCompressor provides a concrete vtkDataCompressor class
+ * using LZMA for compressing and uncompressing data.
+ *
+ * @par Thanks:
+ * This vtkDataCompressor contributed by Quincy Wofford (qwofford@lanl.gov)
+ * and John Patchett (patchett@lanl.gov), Los Alamos National Laboratory
+ * (2017)
+ *
 */
 
-#ifndef vtkLZ4DataCompressor_h
-#define vtkLZ4DataCompressor_h
+#ifndef vtkLZMADataCompressor_h
+#define vtkLZMADataCompressor_h
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkDataCompressor.h"
 
-class VTKIOCORE_EXPORT vtkLZ4DataCompressor : public vtkDataCompressor
+
+class VTKIOCORE_EXPORT vtkLZMADataCompressor : public vtkDataCompressor
 {
 public:
-  vtkTypeMacro(vtkLZ4DataCompressor,vtkDataCompressor);
+  vtkTypeMacro(vtkLZMADataCompressor,vtkDataCompressor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  static vtkLZ4DataCompressor* New();
+  static vtkLZMADataCompressor* New();
 
   /**
    *  Get the maximum space that may be needed to store data of the
@@ -43,22 +50,18 @@ public:
   /**
    *  Get/Set the compression level.
    */
-  // Compression level getter required by vtkDataCompressor.
-  int GetCompressionLevel() override;
 
-  // Compression level setter required by vtkDataCompresor.
+  // Compression level setter required by vtkDataCompressor.
   void SetCompressionLevel(int compressionLevel) override;
 
-  // Direct setting of AccelerationLevel allows more direct
-  // control over LZ4 compressor
-  vtkSetClampMacro(AccelerationLevel, int, 1, VTK_INT_MAX);
-  vtkGetMacro(AccelerationLevel, int);
+  // Compression level getter required by vtkDataCompressor.
+  int  GetCompressionLevel() override;
 
 protected:
-  vtkLZ4DataCompressor();
-  ~vtkLZ4DataCompressor() override;
+  vtkLZMADataCompressor();
+  ~vtkLZMADataCompressor() override;
 
-  int AccelerationLevel;
+  int CompressionLevel;
 
   // Compression method required by vtkDataCompressor.
   size_t CompressBuffer(unsigned char const* uncompressedData,
@@ -71,8 +74,8 @@ protected:
                           unsigned char* uncompressedData,
                           size_t uncompressedSize) override;
 private:
-  vtkLZ4DataCompressor(const vtkLZ4DataCompressor&) = delete;
-  void operator=(const vtkLZ4DataCompressor&) = delete;
+  vtkLZMADataCompressor(const vtkLZMADataCompressor&) = delete;
+  void operator=(const vtkLZMADataCompressor&) = delete;
 };
 
 #endif

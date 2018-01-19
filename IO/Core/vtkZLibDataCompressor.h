@@ -43,10 +43,13 @@ public:
 
   //@{
   /**
-   * Get/Set the compression level.
+   *  Get/Set the compression level.
    */
-  vtkSetClampMacro(CompressionLevel, int, 0, 9);
-  vtkGetMacro(CompressionLevel, int);
+  // Compression level getter required by vtkDataCompressor.
+  int GetCompressionLevel() override;
+
+  // Compression level setter required by vtkDataCompresor.
+  void SetCompressionLevel(int compressionLevel) override;
   //@}
 
 protected:

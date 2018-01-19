@@ -85,6 +85,28 @@ vtkLZ4DataCompressor::UncompressBuffer(unsigned char const* compressedData,
   }
   return static_cast<size_t>(us);
 }
+//----------------------------------------------------------------------------
+int vtkLZ4DataCompressor::GetCompressionLevel()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel " << (10-this->AccelerationLevel) );
+  return 10-this->AccelerationLevel;
+}
+//----------------------------------------------------------------------------
+void vtkLZ4DataCompressor::SetCompressionLevel(int compressionLevel)
+{
+  int min=1;
+  int max=9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to " << compressionLevel );
+  // In order to make an intuitive interface for vtkDataCompressor objects
+  // we accept compressionLevel values 1..9. 1 is fastest, 9 is slowest
+  // 1 is worst compression, 9 is best compression. LZ4 accleration works inversely, with no upper bound.
+  // Note: LZ4 Acceleration set/get exists in header file, with no upper bound.
+  if (this->AccelerationLevel != (10-(compressionLevel<min?min:(compressionLevel>max?max:compressionLevel))) )
+  {
+    this->AccelerationLevel = 10-(compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    this->Modified();
+  }
+}
 
 //----------------------------------------------------------------------------
 size_t

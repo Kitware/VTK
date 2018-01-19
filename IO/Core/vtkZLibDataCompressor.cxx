@@ -88,6 +88,24 @@ vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
 
   return static_cast<size_t>(us);
 }
+//----------------------------------------------------------------------------
+int vtkZLibDataCompressor::GetCompressionLevel()
+{
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning CompressionLevel " << this->CompressionLevel );
+  return this->CompressionLevel;
+}
+//----------------------------------------------------------------------------
+void vtkZLibDataCompressor::SetCompressionLevel(int compressionLevel)
+{
+  int min=1;
+  int max=9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to " << compressionLevel );
+  if (this->CompressionLevel != (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel)))
+  {
+    this->CompressionLevel = (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    this->Modified();
+  }
+}
 
 //----------------------------------------------------------------------------
 size_t

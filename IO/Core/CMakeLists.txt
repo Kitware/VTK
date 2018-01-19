@@ -23,6 +23,7 @@ SET(Module_SRCS
   vtkZLibDataCompressor.cxx
   vtkArrayDataReader.cxx
   vtkArrayDataWriter.cxx
+  vtkLZMADataCompressor.cxx
   )
 
 vtk_module_library(vtkIOCore ${Module_SRCS})

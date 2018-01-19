@@ -38,6 +38,7 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLZ4DataCompressor.h"
+#include "vtkLZMADataCompressor.h"
 #include "vtkNew.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
@@ -530,6 +531,7 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
       this->Compressor->Delete();
     }
     this->Compressor = vtkZLibDataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
     this->Modified();
   }
   else if (compressorType == LZ4)
@@ -539,6 +541,17 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
       this->Compressor->Delete();
     }
     this->Compressor = vtkLZ4DataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
+    this->Modified();
+  }
+  else if (compressorType == LZMA)
+  {
+    if (this->Compressor &&
+        !this->Compressor->IsTypeOf("vtkLZMADataCompressor")) {
+      this->Compressor->Delete();
+    }
+    this->Compressor = vtkLZMADataCompressor::New();
+    this->Compressor->SetCompressionLevel(this->CompressionLevel);
     this->Modified();
   }
   else
@@ -546,7 +559,22 @@ void vtkXMLWriter::SetCompressorType(int compressorType)
     vtkWarningMacro("Invalid compressorType:" << compressorType);
   }
 }
-
+//----------------------------------------------------------------------------
+void vtkXMLWriter::SetCompressionLevel(int compressionLevel)
+{
+  int min = 1;
+  int max = 9;
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << "CompressionLevel  to " << compressionLevel );
+  if (this->CompressionLevel != (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel)))
+  {
+    this->CompressionLevel = (compressionLevel<min?min:(compressionLevel>max?max:compressionLevel));
+    if (this->Compressor)
+    {
+      this->Compressor->SetCompressionLevel(compressionLevel);
+    }
+    this->Modified();
+  }
+}
 //----------------------------------------------------------------------------
 void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
