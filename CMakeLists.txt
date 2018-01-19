@@ -83,6 +83,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.3 FATAL_ERROR)
 FOREACH(p
+    CMP0022 # CMake 2.8, Define link interface - required by android_mk export
     CMP0025 # CMake 3.0, Compiler id for Apple Clang is now AppleClang.
     CMP0042 # CMake 3.0, MACOSX_RPATH is enabled by default.
     CMP0048 # CMake 3.0, Let the project command manage version variables.
