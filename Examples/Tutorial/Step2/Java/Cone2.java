@@ -13,7 +13,7 @@
 // Show how to add an observer to the Cone example
 //
 
-// we import the vtk wrapped classes forst
+// we import the vtk wrapped classes first
 import vtk.*;
 
 // then we define our class
@@ -66,7 +66,7 @@ public class Cone2 {
     renWin.SetSize( 300, 300 );
 
     //
-    // now we loop over 360 degreeees and render the cone each time
+    // now we loop over 360 degrees and render the cone each time
     //
     int i;
     for (i = 0; i < 360; ++i)
