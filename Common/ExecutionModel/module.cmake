@@ -9,6 +9,7 @@ vtk_module(vtkCommonExecutionModel
     vtkFiltersSources
     vtkIOCore
     vtkIOLegacy
+    vtkIOXML
   KIT
     vtkCommon
   DEPENDS
