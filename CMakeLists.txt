@@ -30,10 +30,6 @@ include(vtkThirdParty)
 include(vtkThreads)
 include(vtkWrapSettings)
 
-# Setup compiler flags for dynamic analysis
-# Should be included after vtkTesting
-include(vtkCompilerDynamicAnalysisFlags)
-
 include(vtkModuleMacros)
 
 #-----------------------------------------------------------------------------
@@ -101,6 +97,11 @@ endif()
 # scripts. Hence the name vtkTclTest2Py
 if(BUILD_TESTING AND VTK_WRAP_PYTHON)
   add_subdirectory(Utilities/vtkTclTest2Py)
+endif()
+
+# Configure the dynamic analysis utility
+if(BUILD_TESTING)
+  add_subdirectory(Utilities/DynamicAnalysis)
 endif()
 
 # Configure the CTestCustom.cmake file now that everything is done.
