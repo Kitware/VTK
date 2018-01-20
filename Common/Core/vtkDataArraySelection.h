@@ -97,16 +97,24 @@ public:
    */
   int GetEnabledArrayIndex(const char* name);
 
-  //@{
   /**
    * Get whether the array at the given index is enabled.
+   */
+  int GetArraySetting(int index);
+
+  /**
+   * Get whether the array is enabled/disable using its name.
    */
   int GetArraySetting(const char* name)
   {
     return this->GetArraySetting(this->GetArrayIndex(name));
   }
-  int GetArraySetting(int index);
-  //@}
+
+  /**
+   * Set array setting given the name. If the array doesn't exist, it will be
+   * added.
+   */
+  void SetArraySetting(const char* name, int status);
 
   /**
    * Remove all array entries.
