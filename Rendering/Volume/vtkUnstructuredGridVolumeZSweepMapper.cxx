@@ -1554,7 +1554,7 @@ class vtkSpan
 public:
   // Initialize the span from the left abcissa x0 and the right absissa x1 and
   // from 1/W, the projected values and the z coordinate in view space at
-  // thoses points. Set the current state to the left point.
+  // those points. Set the current state to the left point.
   void Init(int x0,
             double invW0,
             double pValues0[VTK_VALUES_SIZE], // projected values

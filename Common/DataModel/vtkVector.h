@@ -329,7 +329,7 @@ public:
 
   //@{
   /**
-   * Set the x, y, z and w components of a 3D vector in homogeneous coodinates.
+   * Set the x, y, z and w components of a 3D vector in homogeneous coordinates.
    */
   void Set(const T& x, const T& y, const T& z, const T& w)
   {

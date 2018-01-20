@@ -292,7 +292,7 @@ public:
     unsigned int const depth, int const numComps, int const dataType);
 
   /**
-   * This is used to download raw data from the texture into a pixel bufer. The
+   * This is used to download raw data from the texture into a pixel buffer. The
    * pixel buffer API can then be used to download the pixel buffer data to CPU
    * arrays. The caller takes on the responsibility of deleting the returns
    * vtkPixelBufferObject once it done with it.

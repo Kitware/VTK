@@ -171,7 +171,7 @@ Meaning that:
     the script stores the related documentation part in the
     '../../../VTK-doxygen' directory (more precisely in the
     '../../../VTK-doxygen/doc_version.dox' file). The VTK logo is
-    incorporated by using the --logo option. The script searchs for
+    incorporated by using the --logo option. The script searches for
     the VTK version in the '../../Common/vtkVersion.h'. Use --help to
     check how to override these default values.
 

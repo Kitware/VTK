@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Python examples script that uses the R calculator filter to find the
-# maxiumum spanning tree of a random input graph by inverting the edge
+# maximum spanning tree of a random input graph by inverting the edge
 # weights of the graph in R.  The MST algorithm then finds the maximum
 # spanning tree instead of the minimum spanning tree.
 

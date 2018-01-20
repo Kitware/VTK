@@ -146,7 +146,7 @@ int vtkMCubesReader::RequestData(
       return 0;
     }
 
-    // do swapping if necc
+    // do swapping if necessary
     if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
     {
       vtkByteSwap::Swap4BERange(fbounds,6);
@@ -170,12 +170,12 @@ int vtkMCubesReader::RequestData(
   else // read data to get bounds
   {
     fseek (fp, this->HeaderSize, 0);
-    // cannot use vtkMath uninitialze bounds for this computation
+    // cannot use vtkMath uninitialize bounds for this computation
     bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = VTK_DOUBLE_MIN;
     for (i=0; fread(&point, sizeof(pointType), 1, fp); i++)
     {
-      // swap bytes if necc
+      // swap bytes if necessary
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
       {
         vtkByteSwap::Swap4BERange((float *) (&point),6);
@@ -238,7 +238,7 @@ int vtkMCubesReader::RequestData(
                        << " (" << numTris << "), point/normal " << j);
       }
 
-      // swap bytes if necc
+      // swap bytes if necessary
       if (byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN)
       {
         vtkByteSwap::Swap4BERange((float *) (&point),6);

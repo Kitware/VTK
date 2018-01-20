@@ -184,7 +184,7 @@ int TestGPURayCastMultiVolumeAddRemove(int argc, char* argv[])
   mapper->SetUseJittering(0);
   overlappingVol->SetMapper(mapper);
 
-  // Paramters that are global to all of the inputs are currently
+  // Parameters that are global to all of the inputs are currently
   // set through the vtkVolumeProperty corresponding to the required
   // input port (port 0)
   vol->GetProperty()->SetInterpolationType(VTK_LINEAR_INTERPOLATION);

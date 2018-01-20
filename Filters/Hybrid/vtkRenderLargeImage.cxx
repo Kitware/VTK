@@ -299,7 +299,7 @@ void vtkRenderLargeImage::RequestData(
       }
       rowSize = colEnd - colStart + 1;
 
-      // get the output pointer and do arith on it if necc
+      // get the output pointer and do arith on it if necessary
       outPtr =
         (unsigned char *)data->GetScalarPointer(inExtent[0],inExtent[2],0);
       outPtr = outPtr + (x*size[0] - inExtent[0])*inIncr[0] +

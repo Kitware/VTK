@@ -336,7 +336,7 @@ void vtkOpenVRInteractorStyle::StartPositionProp(vtkEventDataDevice3D *edata)
   this->InteractionState[static_cast<int>(edata->GetDevice())] = VTKIS_POSITION_PROP;
   this->InteractionProps[static_cast<int>(edata->GetDevice())] = this->InteractionProp;
 
-  //Don't start action if a controller is already positionning the prop
+  //Don't start action if a controller is already positioning the prop
   int rc = static_cast<int>(vtkEventDataDevice::RightController);
   int lc = static_cast<int>(vtkEventDataDevice::LeftController);
   if (this->InteractionProps[rc] == this->InteractionProps[lc])

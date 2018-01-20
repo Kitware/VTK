@@ -141,7 +141,7 @@ void vtkRTTestSequence::Run()
     chart->GetAxis(vtkAxis::LEFT)->LogScaleOn();
     chart->GetAxis(vtkAxis::BOTTOM)->SetTitle(this->Test->GetSecondSummaryResultName());
     chart->GetAxis(vtkAxis::BOTTOM)->LogScaleOn();
-    results->SetNumberOfRows(100);  // have to initialze this or it fails
+    results->SetNumberOfRows(100);  // have to initialize this or it fails
     }
 
   double remainingTime = this->TargetTime;
@@ -343,7 +343,7 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
   this->Arguments.AddArgument("-se", argT::SPACE_ARGUMENT, &this->SequenceEnd,
     "Specify an ending index for test sequences. Even if there is time remaining "
     "a test sequence will not go beyond this value. You can combine this option "
-    "with -ss to run just one iteration of a sequece. For example you can "
+    "with -ss to run just one iteration of a sequence. For example you can "
     "use -ss 6 -se 6 to only run the 6th sequence. A value of 0 means that "
     "there is no limit (the time limit will still stop the tests).");
   this->Arguments.AddBooleanArgument("-list", &this->ListTests,

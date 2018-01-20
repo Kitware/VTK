@@ -5,7 +5,7 @@
 # 2) do not use string substitution except in variable names
 #    eg. obj${i} GetOutput is okay
 #        obj12 GetOutputAs${i} is not okay.
-# 3) do not use expr within expr. As such it is typically superflous.
+# 3) do not use expr within expr. As such it is typically superfluous.
 # 4) event handler procedures in Python take 2 arguments, hence,
 #    define the Tcl event handlers with 2 default arguments.
 # 5) define procedures before using them or setting them on VTK objects

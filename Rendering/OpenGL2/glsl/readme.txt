@@ -30,7 +30,7 @@ your fragment shader) is
 
 //VTK::Output::Dec
 
-which VTK uses to map shader outputs to the framebufer.
+which VTK uses to map shader outputs to the framebuffer.
 
 All vertex shaders should name their outputs with a postfix of VSOutput All
 geometry shaders should name their outputs with a postfix of GSOutput All
