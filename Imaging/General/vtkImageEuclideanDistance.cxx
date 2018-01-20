@@ -611,7 +611,7 @@ int vtkImageEuclideanDistance::IterativeRequestData(
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)
   {
-    vtkErrorMacro(<< "Execute: Output must be be type double.");
+    vtkErrorMacro(<< "Execute: Output must be type double.");
     return 1;
   }
 

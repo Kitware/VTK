@@ -96,7 +96,7 @@ int vtkImageBSplineCoefficients::RequestData(
   if (outData->GetScalarType() != VTK_FLOAT &&
       outData->GetScalarType() != VTK_DOUBLE)
   {
-    vtkErrorMacro(<< "Execute: output data must be be type float or double.");
+    vtkErrorMacro(<< "Execute: output data must be type float or double.");
     return 0;
   }
 
