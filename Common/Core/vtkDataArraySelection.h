@@ -161,6 +161,14 @@ public:
    */
   void CopySelections(vtkDataArraySelection* selections);
 
+  /**
+   * Update `this` to include values from `other`. For arrays that don't
+   * exist in `this` but exist in `other`, they will get added to `this` with
+   * the same array setting as in `other`. Array settings for arrays already in
+   * `this` are left unchanged.
+   */
+  void Union(vtkDataArraySelection* other);
+
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection() override;

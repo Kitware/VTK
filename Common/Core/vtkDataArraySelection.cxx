@@ -31,13 +31,13 @@ public:
 
   ArraysType::iterator Find(const char* name)
   {
-    if (name)
-    {
-      const std::string sname(name);
-      return std::find_if(this->Arrays.begin(), this->Arrays.end(),
-        [&](const std::pair<std::string, bool>& item) -> bool { return (item.first == sname); });
-    }
-    return this->Arrays.end();
+    return name != nullptr ? this->Find(std::string(name)) : this->Arrays.end();
+  }
+
+  ArraysType::iterator Find(const std::string& name)
+  {
+    return std::find_if(this->Arrays.begin(), this->Arrays.end(),
+      [&](const std::pair<std::string, bool>& item) -> bool { return (item.first == name); });
   }
 };
 
@@ -121,7 +121,7 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 int vtkDataArraySelection::ArrayExists(const char* name)
 {
   // Check if there is a specific entry for this array.
-  return this->Internal->Find(name) != this->Internal->Arrays.end();
+  return this->Internal->Find(name) != this->Internal->Arrays.end() ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------
@@ -366,4 +366,27 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
   vtkDebugMacro("Copying arrays and settings from " << selections << ".");
   this->Internal->Arrays = selections->Internal->Arrays;
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArraySelection::Union(vtkDataArraySelection* other)
+{
+  auto& internal = *this->Internal;
+  const auto& ointernal = *other->Internal;
+
+  bool modified = false;
+  for (const auto& apair : ointernal.Arrays)
+  {
+    auto iter = internal.Find(apair.first);
+    if (iter == internal.Arrays.end())
+    {
+      internal.Arrays.push_back(apair);
+      modified = true;
+    }
+  }
+
+  if (modified)
+  {
+    this->Modified();
+  }
 }

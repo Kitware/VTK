@@ -103,6 +103,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestDataArray.cxx
   TestDataArrayComponentNames.cxx
   TestDataArrayIterators.cxx
+  TestDataArraySelection.cxx
   TestGarbageCollector.cxx
   TestGenericDataArrayAPI.cxx
   TestInformationKeyLookup.cxx
