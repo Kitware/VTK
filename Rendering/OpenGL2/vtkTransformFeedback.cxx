@@ -228,7 +228,6 @@ void vtkTransformFeedback::ReleaseGraphicsResources()
 {
   if (this->Buffers.size() > 0)
   {
-    std::vector<GLuint> tbo;
     for (auto v : this->Buffers)
     {
       v->ReleaseGraphicsResources();
