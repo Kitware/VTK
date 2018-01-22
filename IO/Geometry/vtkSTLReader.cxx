@@ -348,13 +348,13 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 // Local Functions
 namespace
 {
-inline std::string stlParseEof(std::string expected)
+inline std::string stlParseEof(const std::string& expected)
 {
   return "Premature EOF while reading '" + expected + "'";
 }
 
 
-inline std::string stlParseExpected(std::string expected, std::string found)
+inline std::string stlParseExpected(const std::string& expected, const std::string& found)
 {
   return "Parse error. Expecting '" + expected + "' found '" + found + "'";
 }
@@ -368,9 +368,11 @@ bool stlReadVertex(char* buf, float vertCoord[3])
 
   for (int i = 0; i < 3; ++i)
   {
-    errno = 0;
-    vertCoord[i] = std::strtof(begptr, &endptr);
-    if (errno || (begptr == endptr))
+    // We really should use: vertCoord[i] = std::strtof(begptr, &endptr);
+    // instead of strtod below but Apple Clang 9.0.0.9000039 doesn't
+    // recognize strtof as part of the C++11 standard
+    vertCoord[i] = static_cast<float>(std::strtod(begptr, &endptr));
+    if (begptr == endptr)
     {
       return false;
     }
@@ -434,7 +436,7 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
 
   std::string errorMessage;
 
-  for (StlAsciiScanState state = scanSolid; errorMessage.empty(); /*nil*/)
+  for (StlAsciiScanState state = scanSolid; errorMessage.empty() == true; /*nil*/)
   {
     char *cmd = fgets(line, 255, fp);
 
