@@ -128,7 +128,7 @@ private:
    * check if indices are within bounds
    * @param indices: vector of indices that identify the component of the tensor
    */
-  void validate(std::vector<size_t> indices)
+  void validate(const std::vector<size_t>& indices)
   {
     if (indices.size() > m_rank)
     {
@@ -178,7 +178,7 @@ private:
    * @param j: index that is contracted
    * @param k: index that is contracted
    */
-  inline void setContractionInfo(std::vector<size_t> parentInfo, size_t i, size_t j)
+  inline void setContractionInfo(const std::vector<size_t>& parentInfo, size_t i, size_t j)
   {
     m_contractionInfo = parentInfo;
     m_contractionInfo.push_back(i);
@@ -192,7 +192,7 @@ private:
    * contraction
    * @param i: index of the eigenvector
    */
-  inline void setContractionInfo(std::vector<size_t> parentInfo, size_t i)
+  inline void setContractionInfo(const std::vector<size_t>& parentInfo, size_t i)
   {
     m_contractionInfo = parentInfo;
     m_contractionInfo.push_back(i);
@@ -205,7 +205,7 @@ private:
    * @param productInfo2: product information of the tensor that produces the new tensor through
    * multiplication
    */
-  inline void setProductInfo(std::vector<size_t> productInfo1, std::vector<size_t> productInfo2)
+  inline void setProductInfo(const std::vector<size_t>& productInfo1, const std::vector<size_t>& productInfo2)
   {
     m_productInfo = productInfo1;
     m_productInfo.insert(m_productInfo.end(), productInfo2.begin(), productInfo2.end());
@@ -216,7 +216,7 @@ private:
    * parent
    * @param parentInfo: product information of the tensor that produces the new tensor
    */
-  inline void setProductInfo(std::vector<size_t> parentInfo) { m_productInfo = parentInfo; }
+  inline void setProductInfo(const std::vector<size_t>& parentInfo) { m_productInfo = parentInfo; }
 
 public:
   /**
@@ -298,7 +298,7 @@ public:
    * @param indices: vector of tensor indices that identify an entry
    * @return the place in the flat c++ std vector
    */
-  inline size_t getIndex(std::vector<size_t> indices)
+  inline size_t getIndex(const std::vector<size_t>& indices)
   {
     validate(indices);
     size_t index = 0;
@@ -463,7 +463,7 @@ public:
   /**
    * Get data entry for given tensor indices
    */
-  inline double get(std::vector<size_t> indices) { return m_data.at(getIndex(indices)); }
+  inline double get(const std::vector<size_t>& indices) { return m_data.at(getIndex(indices)); }
 
   /**
    * Get data entry for given flat c++ vector index
@@ -473,7 +473,7 @@ public:
   /**
    * Set data entry for given tensor indices
    */
-  inline void set(std::vector<size_t> indices, double value)
+  inline void set(const std::vector<size_t>& indices, double value)
   {
     m_data.at(getIndex(indices)) = value;
   }
@@ -486,7 +486,7 @@ public:
   /**
    * Set the whole data vector
    */
-  inline void set(std::vector<double> data) { m_data = data; }
+  inline void set(const std::vector<double>& data) { m_data = data; }
 
   /**
    * This function produces a tensor contraction of the last two indices
