@@ -33,7 +33,7 @@ class VTKIOMYSQL_EXPORT vtkTableToMySQLWriter : public vtkTableToDatabaseWriter
 public:
   static vtkTableToMySQLWriter *New();
   vtkTypeMacro(vtkTableToMySQLWriter,vtkTableToDatabaseWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,9 +46,9 @@ public:
 protected:
    vtkTableToMySQLWriter();
   ~vtkTableToMySQLWriter();
-  void WriteData();
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkTable *Input;
 

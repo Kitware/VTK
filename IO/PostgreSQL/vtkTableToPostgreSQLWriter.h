@@ -33,7 +33,7 @@ class VTKIOPOSTGRESQL_EXPORT vtkTableToPostgreSQLWriter : public vtkTableToDatab
 public:
   static vtkTableToPostgreSQLWriter *New();
   vtkTypeMacro(vtkTableToPostgreSQLWriter,vtkTableToDatabaseWriter);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   //@{
   /**
@@ -46,9 +46,9 @@ public:
 protected:
    vtkTableToPostgreSQLWriter();
   ~vtkTableToPostgreSQLWriter();
-  void WriteData();
+  void WriteData() override;
 
-  virtual int FillInputPortInformation(int port, vtkInformation *info);
+  int FillInputPortInformation(int port, vtkInformation *info) override;
 
   vtkTable *Input;
 

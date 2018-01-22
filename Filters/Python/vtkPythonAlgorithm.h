@@ -39,6 +39,7 @@
 
 #ifndef vtkPythonAlgorithm_h
 #define vtkPythonAlgorithm_h
+#if !defined(__VTK_WRAP__) || defined(__VTK_WRAP_HIERARCHY__) || defined(__VTK_WRAP_PYTHON__)
 
 #include "vtkPython.h" // Must be first
 
@@ -94,4 +95,5 @@ private:
   PyObject* Object;
 };
 
+#endif
 #endif

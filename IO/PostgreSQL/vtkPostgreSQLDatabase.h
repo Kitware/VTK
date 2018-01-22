@@ -62,7 +62,7 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLDatabase : public vtkSQLDatabase
 
 public:
   vtkTypeMacro(vtkPostgreSQLDatabase, vtkSQLDatabase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkPostgreSQLDatabase *New();
 
   /**
@@ -70,32 +70,32 @@ public:
    * filename before calling this function.  Returns true if the
    * database was opened successfully; false otherwise.
    */
-  bool Open( const char* password = 0 );
+  bool Open( const char* password = 0 ) override;
 
   /**
    * Close the connection to the database.
    */
-  void Close();
+  void Close() override;
 
   /**
    * Return whether the database has an open connection
    */
-  bool IsOpen();
+  bool IsOpen() override;
 
   /**
    * Return an empty query on this database.
    */
-  vtkSQLQuery* GetQueryInstance();
+  vtkSQLQuery* GetQueryInstance() override;
 
   /**
    * Did the last operation generate an error
    */
-  virtual bool HasError();
+  virtual bool HasError() override;
 
   /**
    * Get the last error text from the database
    */
-  const char* GetLastErrorText();
+  const char* GetLastErrorText() override;
 
   //@{
   /**
@@ -166,22 +166,22 @@ public:
    * have not been set. The URL will be of the form
    * <code>'psql://'[username[':'password]'@']hostname[':'port]'/'database</code> .
    */
-  virtual vtkStdString GetURL();
+  vtkStdString GetURL() override;
 
   /**
    * Get the list of tables from the database
    */
-  vtkStringArray* GetTables();
+  vtkStringArray* GetTables() override;
 
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord( const char* table );
+  vtkStringArray* GetRecord( const char* table ) override;
 
   /**
    * Return whether a feature is supported by the database.
    */
-  bool IsSupported( int feature );
+  bool IsSupported( int feature ) override;
 
   /**
    * Return a list of databases on the server.
@@ -206,15 +206,15 @@ public:
    * NB: this method implements the PostgreSQL-specific syntax:
    * <column name> <column type> <column attributes>
    */
-  virtual vtkStdString GetColumnSpecification(
-    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle );
+  vtkStdString GetColumnSpecification(
+    vtkSQLDatabaseSchema* schema, int tblHandle, int colHandle ) override;
 
   /**
    * Overridden to determine connection parameters given the URL.
    * This is called by CreateFromURL() to initialize the instance.
    * Look at CreateFromURL() for details about the URL format.
    */
-  virtual bool ParseURL(const char* url);
+  bool ParseURL(const char* url) override;
 
 protected:
   vtkPostgreSQLDatabase();

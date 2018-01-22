@@ -51,7 +51,7 @@ class VTKIOMYSQL_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
 
 public:
   vtkTypeMacro(vtkMySQLDatabase, vtkSQLDatabase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkMySQLDatabase *New();
 
   /**
@@ -59,47 +59,47 @@ public:
    * filename before calling this function.  Returns true if the
    * database was opened successfully; false otherwise.
    */
-  bool Open( const char* password = 0 );
+  bool Open( const char* password = 0 ) override;
 
   /**
    * Close the connection to the database.
    */
-  void Close();
+  void Close() override;
 
   /**
    * Return whether the database has an open connection
    */
-  bool IsOpen();
+  bool IsOpen() override;
 
   /**
    * Return an empty query on this database.
    */
-  vtkSQLQuery* GetQueryInstance();
+  vtkSQLQuery* GetQueryInstance() override;
 
   /**
    * Get the list of tables from the database
    */
-  vtkStringArray* GetTables();
+  vtkStringArray* GetTables() override;
 
   /**
    * Get the list of fields for a particular table
    */
-  vtkStringArray* GetRecord(const char *table);
+  vtkStringArray* GetRecord(const char *table) override;
 
   /**
    * Return whether a feature is supported by the database.
    */
-  bool IsSupported(int feature);
+  bool IsSupported(int feature) override;
 
   /**
    * Did the last operation generate an error
    */
-  bool HasError();
+  bool HasError() override;
 
   /**
    * Get the last error text from the database
    */
-  const char* GetLastErrorText();
+  const char* GetLastErrorText() override;
 
   //@{
   /**
@@ -164,7 +164,7 @@ public:
   /**
    * Get the URL of the database.
    */
-  virtual vtkStdString GetURL();
+  vtkStdString GetURL() override;
 
   /**
    * Return the SQL string with the syntax of the preamble following a
@@ -172,7 +172,7 @@ public:
    * NB: this method implements the MySQL-specific IF NOT EXISTS syntax,
    * used when b = false.
    */
-  virtual vtkStdString GetTablePreamble( bool b ) { return b ? vtkStdString() :"IF NOT EXISTS "; }
+  vtkStdString GetTablePreamble( bool b ) override { return b ? vtkStdString() :"IF NOT EXISTS "; }
 
   /**
    * Return the SQL string with the syntax to create a column inside a
@@ -185,9 +185,9 @@ public:
    * into INT NOT nullptr AUTO_INCREMENT. Therefore, one should not pass
    * NOT nullptr as an attribute of a column whose type is SERIAL.
    */
-  virtual vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
-                                               int tblHandle,
-                                               int colHandle );
+  vtkStdString GetColumnSpecification( vtkSQLDatabaseSchema* schema,
+                                       int tblHandle,
+                                       int colHandle ) override;
 
   /**
    * Return the SQL string with the syntax to create an index inside a
@@ -199,10 +199,10 @@ public:
    * NB2: since MySQL supports INDEX creation within a CREATE TABLE statement,
    * skipped is always returned false.
    */
-  virtual vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
-                                              int tblHandle,
-                                              int idxHandle,
-                                              bool& skipped );
+  vtkStdString GetIndexSpecification( vtkSQLDatabaseSchema* schema,
+                                      int tblHandle,
+                                      int idxHandle,
+                                      bool& skipped ) override;
 
   /**
    * Create a new database, optionally dropping any existing database of the same name.
@@ -221,7 +221,7 @@ public:
    * This is called by CreateFromURL() to initialize the instance.
    * Look at CreateFromURL() for details about the URL format.
    */
-  virtual bool ParseURL(const char* url);
+  bool ParseURL(const char* url) override;
 
 protected:
   vtkMySQLDatabase();

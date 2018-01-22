@@ -52,6 +52,8 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskDataParser : public vtkXMLParser
 {
  public:
   vtkTypeMacro(vtkBlueObeliskDataParser, vtkXMLParser);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
+
   static vtkBlueObeliskDataParser * New();
 
   /**

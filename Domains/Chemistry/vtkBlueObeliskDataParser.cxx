@@ -65,6 +65,12 @@ vtkBlueObeliskDataParser::~vtkBlueObeliskDataParser()
 }
 
 //----------------------------------------------------------------------------
+void vtkBlueObeliskDataParser::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::SetTarget(vtkBlueObeliskData *bodr)
 {
   vtkSetObjectBodyMacro(Target, vtkBlueObeliskData, bodr);

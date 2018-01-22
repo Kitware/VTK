@@ -51,7 +51,7 @@ class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLQuery : public vtkSQLQuery
 {
 public:
   static vtkPostgreSQLQuery* New();
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) override;
   vtkTypeMacro(vtkPostgreSQLQuery, vtkSQLQuery);
 
   /**
@@ -59,56 +59,56 @@ public:
    * before any field name or data access functions
    * are used.
    */
-  bool Execute();
+  bool Execute() override;
 
   /**
    * The number of fields in the query result.
    */
-  int GetNumberOfFields();
+  int GetNumberOfFields() override;
 
   /**
    * Return the name of the specified query field.
    */
-  const char* GetFieldName( int i );
+  const char* GetFieldName( int i ) override;
 
   /**
    * Return the type of the field, using the constants defined in vtkType.h.
    */
-  int GetFieldType( int i );
+  int GetFieldType( int i ) override;
 
   /**
    * Advance row, return false if past end.
    */
-  bool NextRow();
+  bool NextRow() override;
 
   /**
    * Return true if there is an error on the current query.
    */
-  bool HasError();
+  bool HasError() override;
 
   //@{
   /**
    * Begin, abort (roll back), or commit a transaction.
    */
-  bool BeginTransaction();
-  bool RollbackTransaction();
-  bool CommitTransaction();
+  bool BeginTransaction() override;
+  bool RollbackTransaction() override;
+  bool CommitTransaction() override;
   //@}
 
   /**
    * Return data in current row, field c
    */
-  vtkVariant DataValue( vtkIdType c );
+  vtkVariant DataValue( vtkIdType c ) override;
 
   /**
    * Get the last error text from the query
    */
-  const char* GetLastErrorText();
+  const char* GetLastErrorText() override;
 
   /**
    * Escape a string for inclusion into an SQL query
    */
-  virtual vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true );
+  vtkStdString EscapeString( vtkStdString s, bool addSurroundingQuotes = true ) override;
 
   /**
    * Unlike some databases, Postgres can tell you right away how many

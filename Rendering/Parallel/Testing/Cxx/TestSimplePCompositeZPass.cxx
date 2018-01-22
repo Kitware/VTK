@@ -473,7 +473,7 @@ int TestSimplePCompositeZPass(int argc, char *argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires 2 processes" << endl;
+      cout << "TestSimplePCompositeZPass test requires 2 processes" << endl;
     }
     contr->Delete();
     return retVal;
