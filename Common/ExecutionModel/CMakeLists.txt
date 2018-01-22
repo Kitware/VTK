@@ -13,6 +13,7 @@ set(classes
   vtkDirectedGraphAlgorithm
   vtkEnsembleSource
   vtkExecutive
+  vtkExplicitStructuredGridAlgorithm
   vtkExtentRCBPartitioner
   vtkExtentSplitter
   vtkExtentTranslator
@@ -62,6 +63,7 @@ set(classes
   vtkUniformGridPartitioner
   vtkUnstructuredGridAlgorithm
   vtkUnstructuredGridBaseAlgorithm
+
   # New AMR classes
   vtkNonOverlappingAMRAlgorithm
   vtkOverlappingAMRAlgorithm
