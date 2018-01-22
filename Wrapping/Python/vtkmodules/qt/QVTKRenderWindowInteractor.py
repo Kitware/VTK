@@ -42,8 +42,8 @@ Changes by Fabian Wenzel, Jan. 2016
 
 # Check whether a specific PyQt implementation was chosen
 try:
-    import vtk.qt
-    PyQtImpl = vtk.qt.PyQtImpl
+    import vtkmodules.qt
+    PyQtImpl = vtkmodules.qt.PyQtImpl
 except ImportError:
     pass
 
@@ -51,10 +51,12 @@ except ImportError:
 # class was chosen, can be set to "QGLWidget"
 QVTKRWIBase = "QWidget"
 try:
-    import vtk.qt
-    QVTKRWIBase = vtk.qt.QVTKRWIBase
+    import vtkmodules.qt
+    QVTKRWIBase = vtkmodules.qt.QVTKRWIBase
 except ImportError:
     pass
+
+from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
 
 if PyQtImpl is None:
     # Autodetect the PyQt implementation to use
@@ -237,7 +239,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         if rw: # user-supplied render window
             self._RenderWindow = rw
         else:
-            self._RenderWindow = vtk.vtkRenderWindow()
+            self._RenderWindow = vtkRenderWindow()
 
         WId = self.winId()
 
@@ -273,7 +275,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
         try:
             self._Iren = kw['iren']
         except KeyError:
-            self._Iren = vtk.vtkGenericRenderWindowInteractor()
+            self._Iren = vtkGenericRenderWindowInteractor()
             self._Iren.SetRenderWindow(self._RenderWindow)
 
         # do all the necessary qt setup
@@ -356,7 +358,7 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
     def resizeEvent(self, ev):
         w = self.width()
         h = self.height()
-        vtk.vtkRenderWindow.SetSize(self._RenderWindow, w, h)
+        vtkRenderWindow.SetSize(self._RenderWindow, w, h)
         self._Iren.SetSize(w, h)
         self._Iren.ConfigureEvent()
         self.update()
@@ -479,6 +481,9 @@ class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 def QVTKRenderWidgetConeExample():
     """A simple example that uses the QVTKRenderWindowInteractor class."""
 
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # every QT app needs an app
     app = QApplication(['QVTKRenderWindowInteractor'])
 
@@ -489,16 +494,16 @@ def QVTKRenderWidgetConeExample():
     # if you don't want the 'q' key to exit comment this.
     widget.AddObserver("ExitEvent", lambda o, e, a=app: a.quit())
 
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(8)
 
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
 
-    coneActor = vtk.vtkActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)

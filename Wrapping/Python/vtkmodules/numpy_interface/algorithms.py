@@ -245,7 +245,7 @@ def bitwise_or(array1, array2):
 def make_point_mask_from_NaNs(dataset, array):
     """This method will create a ghost array corresponding to an
     input with NaN values. For each NaN value, the output array will
-    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENPOINT.
+    have a corresponding value of vtkmodules.vtkCommonDataModel.vtkDataSetAttributes.HIDDENPOINT.
     These values are also combined with any ghost values that the
     dataset may have."""
     from ..vtkCommonDataModel import vtkDataSetAttributes
@@ -255,7 +255,7 @@ def make_point_mask_from_NaNs(dataset, array):
 def make_cell_mask_from_NaNs(dataset, array):
     """This method will create a ghost array corresponding to an
     input with NaN values. For each NaN value, the output array will
-    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENCELL.
+    have a corresponding value of vtkmodules.vtkCommonDataModel.vtkDataSetAttributes.HIDDENCELL.
     These values are also combined with any ghost values that the
     dataset may have."""
     from ..vtkCommonDataModel import vtkDataSetAttributes
@@ -265,7 +265,7 @@ def make_cell_mask_from_NaNs(dataset, array):
 def make_mask_from_NaNs(array, ghost_array=dsa.NoneArray, is_cell=False):
     """This method will create a ghost array corresponding to an
     input with NaN values. For each NaN value, the output array will
-    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENPOINT or
+    have a corresponding value of vtkmodules.vtkCommonDataModel.vtkDataSetAttributes.HIDDENPOINT or
     HIDDENCELL is the is_cell argument is true. If an input ghost_array
     is passed, the array is bitwise_or'ed with it, simply adding
     the new ghost values to it."""
@@ -292,7 +292,7 @@ def sum(array, axis=None, controller=None):
     defined. To disable parallel summing when running in parallel, pass
     a dummy controller as follows:
 
-    sum(array, controller=vtk.vtkDummyController()).
+    sum(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class SumImpl:
         def op(self):
@@ -332,7 +332,7 @@ def max(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    max(array, controller=vtk.vtkDummyController()).
+    max(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class MaxImpl:
         def op(self):
@@ -370,7 +370,7 @@ def min(array, axis=None, controller=None):
     when a controller argument is passed or the global controller is defined.
     To disable parallel summing when running in parallel, pass a dummy controller as follows:
 
-    min(array, controller=vtk.vtkDummyController()).
+    min(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class MinImpl:
         def op(self):
@@ -543,7 +543,7 @@ def sum_per_block(array, axis=None, controller=None):
     defined. To disable parallel summing when running in parallel, pass
     a dummy controller as follows:
 
-    sum_per_block(array, controller=vtk.vtkDummyController()).
+    sum_per_block(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class SumPerBlockImpl:
         def op(self):
@@ -605,7 +605,7 @@ def mean_per_block(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    mean(array, controller=vtk.vtkDummyController()).
+    mean(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     if axis is None or axis == 0:
         return sum_per_block(array, axis, controller) / count_per_block(array, axis, controller)
@@ -627,7 +627,7 @@ def max_per_block(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    max_per_block(array, controller=vtk.vtkDummyController()).
+    max_per_block(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class MaxPerBlockImpl:
         def op(self):
@@ -660,7 +660,7 @@ def min_per_block(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    min_per_block(array, controller=vtk.vtkDummyController()).
+    min_per_block(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     class MinPerBlockImpl:
         def op(self):
@@ -755,7 +755,7 @@ def mean(array, axis=None, controller=None, size=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    mean(array, controller=vtk.vtkDummyController()).
+    mean(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
 
     if axis is None or axis == 0:
@@ -782,7 +782,7 @@ def var(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a
     dummy controller as follows:
 
-    var(array, controller=vtk.vtkDummyController()).
+    var(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
 
     if axis is None or axis == 0:
@@ -810,7 +810,7 @@ def std(array, axis=None, controller=None):
     is defined. To disable parallel summing when running in parallel, pass a dummy
     controller as follows:
 
-    std(array, controller=vtk.vtkDummyController()).
+    std(array, controller=vtkmodules.vtkParallelCore.vtkDummyController()).
     """
     return sqrt(var(array, axis, controller))
 

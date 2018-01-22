@@ -1,8 +1,8 @@
-from vtk.vtkCommonDataModel import vtkDataObject
-from vtk.vtkCommonExecutionModel import vtkAlgorithm
-from vtk.vtkCommonExecutionModel import vtkDemandDrivenPipeline
-from vtk.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
-from vtk.vtkFiltersPython import vtkPythonAlgorithm
+from vtkmodules.vtkCommonDataModel import vtkDataObject
+from vtkmodules.vtkCommonExecutionModel import vtkAlgorithm
+from vtkmodules.vtkCommonExecutionModel import vtkDemandDrivenPipeline
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
+from vtkmodules.vtkFiltersPython import vtkPythonAlgorithm
 
 class VTKAlgorithm(object):
     """This is a superclass which can be derived to implement
@@ -116,14 +116,14 @@ class VTKPythonAlgorithmBase(vtkPythonAlgorithm):
             f = h5py.File("foo.h5", 'r')
             dims = f['RTData'].shape[::-1]
             info = outInfo.GetInformationObject(0)
-            info.Set(vtk.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT(),
+            info.Set(vtkmodules.vtkCommonExecutionModel.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT(),
                 (0, dims[0]-1, 0, dims[1]-1, 0, dims[2]-1), 6)
             return 1
 
         def RequestData(self, request, inInfo, outInfo):
             f = h5py.File("foo.h5", 'r')
             data = f['RTData'][:]
-            output = dsa.WrapDataObject(vtk.vtkImageData.GetData(outInfo))
+            output = dsa.WrapDataObject(vtkmodules.vtkCommonDataModel.vtkImageData.GetData(outInfo))
             output.SetDimensions(data.shape)
             output.PointData.append(data.flatten(), 'RTData')
             output.PointData.SetActiveScalars('RTData')
@@ -131,7 +131,7 @@ class VTKPythonAlgorithmBase(vtkPythonAlgorithm):
 
     alg = HDF5Source()
 
-    cf = vtk.vtkContourFilter()
+    cf = vtkmodules.vtkFiltersCore.vtkContourFilter()
     cf.SetInputConnection(alg.GetOutputPort())
     cf.Update()
     """

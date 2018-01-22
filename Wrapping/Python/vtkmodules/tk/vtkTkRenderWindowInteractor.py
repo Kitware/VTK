@@ -11,7 +11,7 @@ Created by Prabhu Ramachandran, April 2002
 
 from __future__ import absolute_import
 import math, os, sys
-import vtk
+from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
 
 if sys.hexversion < 0x03000000:
     # for Python2
@@ -57,7 +57,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
         try: # check to see if a render window was specified
             renderWindow = kw['rw']
         except KeyError:
-            renderWindow = vtk.vtkRenderWindow()
+            renderWindow = vtkRenderWindow()
 
         try:  # was a stereo rendering context requested?
             if kw['stereo']:
@@ -76,7 +76,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
         kw['rw'] = renderWindow.GetAddressAsString("vtkRenderWindow")
         tkinter.Widget.__init__(self, master, 'vtkTkRenderWidget', cnf, kw)
 
-        self._Iren = vtk.vtkGenericRenderWindowInteractor()
+        self._Iren = vtkGenericRenderWindowInteractor()
         self._Iren.SetRenderWindow(self._RenderWindow)
 
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
@@ -355,7 +355,7 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 
     def GetRenderWindow(self):
         addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
-        return vtk.vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
+        return vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
 
     def Render(self):
         self._RenderWindow.Render()
@@ -365,6 +365,10 @@ class vtkTkRenderWindowInteractor(tkinter.Widget):
 def vtkRenderWindowInteractorConeExample():
     """Like it says, just a simple example
     """
+
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # create root window
     root = tkinter.Tk()
 
@@ -377,16 +381,16 @@ def vtkRenderWindowInteractorConeExample():
 
     pane.AddObserver("ExitEvent", lambda o,e,q=quit: q())
 
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     pane.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(8)
 
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
 
-    coneActor = vtk.vtkActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)

@@ -5,7 +5,7 @@ Example usage:
     import sys
     import PyQt5
     from PyQt5.QtWidgets import QApplication
-    from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+    from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
     app = QApplication(sys.argv)
 

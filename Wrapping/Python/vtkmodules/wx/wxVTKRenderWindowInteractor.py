@@ -36,7 +36,7 @@ Behaviour:
 # import usual libraries
 import math, os, sys
 import wx
-import vtk
+from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor, vtkRenderWindow
 
 # a few configuration items, see what works best on your system
 
@@ -180,8 +180,8 @@ class wxVTKRenderWindowInteractor(baseClass):
                                style=style)
 
         # create the RenderWindow and initialize it
-        self._Iren = vtk.vtkGenericRenderWindowInteractor()
-        self._Iren.SetRenderWindow( vtk.vtkRenderWindow() )
+        self._Iren = vtkGenericRenderWindowInteractor()
+        self._Iren.SetRenderWindow( vtkRenderWindow() )
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
         self._Iren.GetRenderWindow().AddObserver('CursorChangedEvent',
@@ -659,6 +659,10 @@ class wxVTKRenderWindowInteractor(baseClass):
 def wxVTKRenderWindowInteractorConeExample():
     """Like it says, just a simple example
     """
+
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # every wx app needs an app
     app = wx.App(False)
 
@@ -682,16 +686,16 @@ def wxVTKRenderWindowInteractorConeExample():
 
     widget.AddObserver("ExitEvent", lambda o,e,f=frame: f.Close())
 
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(8)
 
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
 
-    coneActor = vtk.vtkActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)

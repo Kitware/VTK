@@ -1,4 +1,4 @@
-from vtk.util import vtkMethodParser
+from vtkmodules.util import vtkMethodParser
 
 
 class Tester:

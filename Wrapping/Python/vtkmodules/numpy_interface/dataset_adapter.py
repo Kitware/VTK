@@ -3,11 +3,11 @@ to VTK datasets and arrays. This is best described with some examples.
 
 To normalize a VTK array:
 
-import vtk
-import vtk.numpy_interface.dataset_adapter as dsa
-import vtk.numpy_interface.algorithms as algs
+from vtkmodules.vtkImagingCore vtkRTAnalyticSource
+import vtkmodules.numpy_interface.dataset_adapter as dsa
+import vtkmodules.numpy_interface.algorithms as algs
 
-rt = vtk.vtkRTAnalyticSource()
+rt = vtkRTAnalyticSource()
 rt.Update()
 image = dsa.WrapDataObject(rt.GetOutput())
 rtdata = image.PointData['RTData']
@@ -48,7 +48,8 @@ algorithms module.
 This module also provides an API to access composite datasets.
 For example:
 
-mb = vtk.vtkMultiBlockDataSet()
+from vtkmodules.vtkCommonDataModel import vtkMultiBlockDataSet
+mb = vtkMultiBlockDataSet()
 mb.SetBlock(0, image.VTKObject)
 mb.SetBlock(1e, image.VTKObject)
 cds = dsa.WrapDataObject(mb)
