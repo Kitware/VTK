@@ -97,16 +97,24 @@ public:
    */
   int GetEnabledArrayIndex(const char* name);
 
-  //@{
   /**
    * Get whether the array at the given index is enabled.
+   */
+  int GetArraySetting(int index);
+
+  /**
+   * Get whether the array is enabled/disable using its name.
    */
   int GetArraySetting(const char* name)
   {
     return this->GetArraySetting(this->GetArrayIndex(name));
   }
-  int GetArraySetting(int index);
-  //@}
+
+  /**
+   * Set array setting given the name. If the array doesn't exist, it will be
+   * added.
+   */
+  void SetArraySetting(const char* name, int status);
 
   /**
    * Remove all array entries.
@@ -152,6 +160,14 @@ public:
    * Copy the selections from the given vtkDataArraySelection instance.
    */
   void CopySelections(vtkDataArraySelection* selections);
+
+  /**
+   * Update `this` to include values from `other`. For arrays that don't
+   * exist in `this` but exist in `other`, they will get added to `this` with
+   * the same array setting as in `other`. Array settings for arrays already in
+   * `this` are left unchanged.
+   */
+  void Union(vtkDataArraySelection* other);
 
 protected:
   vtkDataArraySelection();
