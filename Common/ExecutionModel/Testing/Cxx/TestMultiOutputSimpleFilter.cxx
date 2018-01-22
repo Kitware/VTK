@@ -34,7 +34,7 @@ protected:
     this->SetNumberOfOutputPorts(2);
   }
 
-  int FillInputPortInformation(int port, vtkInformation* info) override
+  int FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info) override
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     return 1;
@@ -66,7 +66,7 @@ protected:
     return success;
   }
 
-  int RequestData(vtkInformation* request, vtkInformationVector** inputVector,
+  int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override
   {
     vtkDataSet* input = vtkDataSet::GetData(inputVector[0], 0);
