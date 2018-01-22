@@ -1,36 +1,32 @@
+if (FALSE) # XXX(kitware): VTK handles CMake minimum versions.
 cmake_minimum_required(VERSION 2.4.4)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
+endif ()
 
 project(zlib C)
 
-set(VERSION "1.2.8")
+set(VERSION "1.2.11")
 
 if (FALSE) # XXX(kitware): remove these options from the cache.
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
 endif ()
 
+if (FALSE) # XXX(kitware): VTK handles installation.
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
 set(INSTALL_INC_DIR "${CMAKE_INSTALL_PREFIX}/include" CACHE PATH "Installation directory for headers")
 set(INSTALL_MAN_DIR "${CMAKE_INSTALL_PREFIX}/share/man" CACHE PATH "Installation directory for manual pages")
 set(INSTALL_PKGCONFIG_DIR "${CMAKE_INSTALL_PREFIX}/share/pkgconfig" CACHE PATH "Installation directory for pkgconfig (.pc) files")
-
-# XXX(kitware): mark the above variables as advanced.
-mark_as_advanced(INSTALL_BIN_DIR INSTALL_LIB_DIR INSTALL_INC_DIR INSTALL_MAN_DIR INSTALL_PKGCONFIG_DIR)
-
-# XXX(kitware): override the installation directory.
-set(INSTALL_INC_DIR "${VTK_INSTALL_INCLUDE_DIR}/vtkzlib")
+endif ()
 
 include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
+if (FALSE) # XXX(kitware): VTK handles testing.
 enable_testing()
-
-check_include_file(sys/types.h HAVE_SYS_TYPES_H)
-check_include_file(stdint.h    HAVE_STDINT_H)
-check_include_file(stddef.h    HAVE_STDDEF_H)
+endif ()
 
 #
 # Check to see if we have large file support
@@ -39,15 +35,6 @@ set(CMAKE_REQUIRED_DEFINITIONS -D_LARGEFILE64_SOURCE=1)
 # We add these other definitions here because CheckTypeSize.cmake
 # in CMake 2.4.x does not automatically do so and we want
 # compatibility with CMake 2.4.x.
-if(HAVE_SYS_TYPES_H)
-    list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_SYS_TYPES_H)
-endif()
-if(HAVE_STDINT_H)
-    list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_STDINT_H)
-endif()
-if(HAVE_STDDEF_H)
-    list(APPEND CMAKE_REQUIRED_DEFINITIONS -DHAVE_STDDEF_H)
-endif()
 check_type_size(off64_t OFF64_T)
 if(HAVE_OFF64_T)
    add_definitions(-D_LARGEFILE64_SOURCE=1)
@@ -55,20 +42,12 @@ endif()
 set(CMAKE_REQUIRED_DEFINITIONS) # clear variable
 
 #
-# Check for fseeko
-#
-check_function_exists(fseeko HAVE_FSEEKO)
-if(NOT HAVE_FSEEKO)
-    add_definitions(-DNO_FSEEKO)
-endif()
-
-#
 # Check for unistd.h
 #
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
 if(MSVC)
-    if (FALSE) # XXX(kitware): vtk doesn't use the "d" suffix
+    if (FALSE) # XXX(kitware): VTK handles debug suffixes.
     set(CMAKE_DEBUG_POSTFIX "d")
     endif ()
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
@@ -98,7 +77,9 @@ configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein
 endif ()
 configure_file(	${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein
 		${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+if (FALSE) # XXX(kitware): the pkgconfig file isn't necessary.
+include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+endif ()
 
 
 #============================================================================
@@ -139,15 +120,15 @@ set(ZLIB_SRCS
 )
 
 # XXX(kitware): create the third-party library for VTK
-vtk_add_library(vtkzlib ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+vtk_add_library(vtkzlib ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 set_target_properties(vtkzlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-    install(FILES
-        ${ZLIB_PUBLIC_HDRS}
-        DESTINATION "${INSTALL_INC_DIR}"
-        COMPONENT Development)
-endif ()
+  install(FILES
+    ${ZLIB_PUBLIC_HDRS}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkzlib"
+    COMPONENT Development)
+endif()
 
 if (FALSE) # XXX(kitware): skip all the original build/install commands
 
