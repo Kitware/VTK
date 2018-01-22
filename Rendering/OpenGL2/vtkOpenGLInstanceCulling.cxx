@@ -380,11 +380,13 @@ void vtkOpenGLInstanceCulling::RunCullingShaders(vtkIdType numInstances,
   }
 
   // draw instances points
+#ifndef GL_ES_VERSION_3_0
   for (size_t j = 0; j < this->LODList.size(); j++)
   {
     glBeginQueryIndexed(GL_PRIMITIVES_GENERATED, static_cast<GLuint>(j),
       static_cast<GLuint>(this->LODList[j].Query));
   }
+#endif
 
   this->CullingHelper.Program->GetTransformFeedback()->BindBuffer(false);
 
@@ -392,12 +394,14 @@ void vtkOpenGLInstanceCulling::RunCullingShaders(vtkIdType numInstances,
 
   this->CullingHelper.Program->GetTransformFeedback()->ReadBuffer(-1);
 
+#ifndef GL_ES_VERSION_3_0
   for (size_t j = 0; j < this->LODList.size(); j++)
   {
     glEndQueryIndexed(GL_PRIMITIVES_GENERATED, static_cast<GLuint>(j));
     glGetQueryObjectiv(this->LODList[j].Query, GL_QUERY_RESULT,
       &this->LODList[j].NumberOfInstances);
   }
+#endif
 }
 
 //------------------------------------------------------------------------------

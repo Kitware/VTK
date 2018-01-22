@@ -995,6 +995,7 @@ void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 //---------------------------------------------------------------------------
 vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
 {
+#ifndef GL_ES_VERSION_3_0
   if (!GLEW_ARB_gpu_shader5 || !GLEW_ARB_enhanced_layouts)
   {
     return 0;
@@ -1003,6 +1004,9 @@ vtkIdType vtkOpenGLGlyph3DMapper::GetMaxNumberOfLOD()
   GLint streams;
   glGetIntegerv(GL_MAX_VERTEX_STREAMS, &streams);
   return static_cast<vtkIdType>(streams) - 1;
+#else
+  return 0;
+#endif
 }
 
 //---------------------------------------------------------------------------
