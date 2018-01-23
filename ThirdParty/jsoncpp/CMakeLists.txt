@@ -1,9 +1,5 @@
-vtk_module_third_party(JsonCpp
-  VERSION 0.7.0)
-if (WIN32 AND VTK_USE_SYSTEM_JSONCPP)
-  option(VTK_SYSTEM_JSONCPP_SHARED "System-installed JsonCpp package is a shared library" OFF)
-  mark_as_advanced(VTK_SYSTEM_JSONCPP_SHARED)
-endif()
+include(CMakeDependentOption)
+cmake_dependent_option(VTK_SYSTEM_JSONCPP_SHARED "Whether the system jsoncpp is shared or not" ON VTK_USE_SYSTEM_JSONCPP "${BUILD_SHARED_LIBS}")
 
 if (VTK_USE_SYSTEM_JSONCPP)
   if (EXISTS "${JsonCpp_INCLUDE_DIR}/json/json_forwards.h")
@@ -22,3 +18,6 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
     DESTINATION "${VTK_INSTALL_INCLUDE_DIR}"
     COMPONENT   Development)
 endif ()
+
+vtk_module_third_party(JsonCpp
+  VERSION 0.7.0)
