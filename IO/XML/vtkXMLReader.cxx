@@ -33,6 +33,7 @@
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLZ4DataCompressor.h"
+#include "vtkLZMADataCompressor.h"
 #include "vtkObjectFactory.h"
 #include "vtkQuadratureSchemeDefinition.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -420,6 +421,10 @@ void vtkXMLReader::SetupCompressor(const char* type)
     else if (strcmp(type, "vtkLZ4DataCompressor") == 0)
     {
       compressor = vtkLZ4DataCompressor::New();
+    }
+    else if (strcmp(type, "vtkLZMADataCompressor") == 0)
+    {
+      compressor = vtkLZMADataCompressor::New();
     }
   }
 

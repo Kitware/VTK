@@ -12,6 +12,7 @@ vtk_module(vtkIOCore
     vtkCommonDataModel
     vtkCommonMisc
     vtklz4
+    vtklzma
     vtksys
     vtkutf8
     vtkzlib

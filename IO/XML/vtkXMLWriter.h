@@ -20,6 +20,11 @@
  * functionality needed to write VTK XML file formats.  Concrete
  * subclasses provide actual writer implementations calling upon this
  * functionality.
+ *
+ * @par Thanks
+ * CompressionLevel getters/setters exposed by Quincy Wofford
+ * (qwofford@lanl.gov) and John Patchett (patchett@lanl.gov),
+ * Los Alamos National Laboratory (2017)
 */
 
 #ifndef vtkXMLWriter_h
@@ -147,7 +152,8 @@ public:
   {
     NONE,
     ZLIB,
-    LZ4
+    LZ4,
+    LZMA
   };
 
   //@{
@@ -167,6 +173,13 @@ public:
   {
     this->SetCompressorType(ZLIB);
   }
+  void SetCompressorTypeToLZMA()
+  {
+    this->SetCompressorType(LZMA);
+  }
+
+  void SetCompressionLevel(int compressorLevel);
+  vtkGetMacro(CompressionLevel, int);
   //@}
 
   //@{
@@ -323,6 +336,9 @@ protected:
   size_t CompressionBlockNumber;
   vtkXMLDataHeader* CompressionHeader;
   vtkTypeInt64 CompressionHeaderPosition;
+  // Compression Level for vtkDataCompressor objects
+  // 1 (worst compression, fastest) ... 9 (best compression, slowest)
+  int CompressionLevel = 5;
 
   // The output stream used to write binary and appended data.  May
   // transparently encode the data.

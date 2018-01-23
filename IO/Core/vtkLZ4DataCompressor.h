@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkZLibDataCompressor.h
+  Module:    vtkLZ4DataCompressor.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,10 +12,13 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkLZ4DataCompressor - Data compression using zlib.
-// .SECTION Description
-// vtkLZ4DataCompressor provides a concrete vtkDataCompressor class
-// using LZ4 for compressing and uncompressing data.
+/**
+ * @class   vtkLZ4DataCompressor
+ * @brief   Data compression using LZ4.
+ *
+ * vtkLZ4DataCompressor provides a concrete vtkDataCompressor class
+ * using LZ4 for compressing and uncompressing data.
+*/
 
 #ifndef vtkLZ4DataCompressor_h
 #define vtkLZ4DataCompressor_h
@@ -30,15 +33,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkLZ4DataCompressor* New();
 
-  // Description:
-  // Get the maximum space that may be needed to store data of the
-  // given uncompressed size after compression.  This is the minimum
-  // size of the output buffer that can be passed to the four-argument
-  // Compress method.
+  /**
+   *  Get the maximum space that may be needed to store data of the
+   *  given uncompressed size after compression.  This is the minimum
+   *  size of the output buffer that can be passed to the four-argument
+   *  Compress method.
+   */
   size_t GetMaximumCompressionSpace(size_t size) override;
+  /**
+   *  Get/Set the compression level.
+   */
+  // Compression level getter required by vtkDataCompressor.
+  int GetCompressionLevel() override;
 
-  // Description:
-  // Get/Set the compression level.
+  // Compression level setter required by vtkDataCompresor.
+  void SetCompressionLevel(int compressionLevel) override;
+
+  // Direct setting of AccelerationLevel allows more direct
+  // control over LZ4 compressor
   vtkSetClampMacro(AccelerationLevel, int, 1, VTK_INT_MAX);
   vtkGetMacro(AccelerationLevel, int);
 
