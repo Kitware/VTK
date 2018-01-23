@@ -10,6 +10,7 @@ readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libjpeg-turbo.git"
 readonly tag="for/vtk-old"
 readonly paths="
+.gitattributes
 CMakeLists.vtk.txt
 
 j*.c
