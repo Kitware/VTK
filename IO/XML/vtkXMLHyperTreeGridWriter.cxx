@@ -19,19 +19,15 @@
 
 #include "vtkXMLHyperTreeGridWriter.h"
 
-#include "vtkObjectFactory.h"
-#include "vtkInformation.h"
-#include "vtkDoubleArray.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
 #include "vtkCharArray.h"
-#include "vtkStringArray.h"
-#include "vtkPointData.h"
-#include "vtkHyperTreeGrid.h"
-#include "vtkHyperTreeCursor.h"
+#include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
-
-#include "mpi.h"
+#include "vtkHyperTreeGrid.h"
+#include "vtkHyperTreeGridCursor.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInformation.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 
 vtkStandardNewMacro(vtkXMLHyperTreeGridWriter);
 
@@ -130,21 +126,27 @@ int vtkXMLHyperTreeGridWriter::StartPrimElement(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
+void vtkXMLHyperTreeGridWriter::WritePrimaryElementAttributes
+  (ostream &os, vtkIndent indent)
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
   vtkHyperTreeGrid* input = this->GetInput();
 
   this->WriteScalarAttribute("Dimension", (int) input->GetDimension());
   this->WriteScalarAttribute("BranchFactor", (int) input->GetBranchFactor());
-  this->WriteScalarAttribute("TransposedRootIndexing", (bool)input->GetTransposedRootIndexing());
+  this->WriteScalarAttribute("TransposedRootIndexing",
+                             (bool)input->GetTransposedRootIndexing());
   this->WriteVectorAttribute("GridSize", 3, (int*) input->GetGridSize());
 
-  // vtkHyperTreeGrid does not yet store origin and scale but calculate as place holder
+  // vtkHyperTreeGrid does not yet store origin and scale but
+  // calculate as place holder
   double gridOrigin[3], gridScale[3];
-  vtkDoubleArray* xcoord = vtkDoubleArray::SafeDownCast(input->GetXCoordinates());
-  vtkDoubleArray* ycoord = vtkDoubleArray::SafeDownCast(input->GetYCoordinates());
-  vtkDoubleArray* zcoord = vtkDoubleArray::SafeDownCast(input->GetZCoordinates());
+  vtkDoubleArray* xcoord =
+    vtkDoubleArray::SafeDownCast(input->GetXCoordinates());
+  vtkDoubleArray* ycoord =
+    vtkDoubleArray::SafeDownCast(input->GetYCoordinates());
+  vtkDoubleArray* zcoord =
+    vtkDoubleArray::SafeDownCast(input->GetZCoordinates());
 
   gridOrigin[0] = xcoord->GetValue(0);
   gridOrigin[1] = ycoord->GetValue(0);
@@ -166,11 +168,14 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
   os << indent << "<" << "Coordinates" << ">\n";
   os.flush();
 
-  this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(), "XCoordinates",
+  this->WriteArrayInline(input->GetXCoordinates(), indent.GetNextIndent(),
+                         "XCoordinates",
                          input->GetXCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetYCoordinates(), indent.GetNextIndent(), "YCoordinates",
+  this->WriteArrayInline(input->GetYCoordinates(), indent.GetNextIndent(),
+                         "YCoordinates",
                          input->GetYCoordinates()->GetNumberOfValues());
-  this->WriteArrayInline(input->GetZCoordinates(), indent.GetNextIndent(), "ZCoordinates",
+  this->WriteArrayInline(input->GetZCoordinates(), indent.GetNextIndent(),
+                         "ZCoordinates",
                          input->GetZCoordinates()->GetNumberOfValues());
 
   os << indent << "</" << "Coordinates" << ">\n";
@@ -180,44 +185,48 @@ void vtkXMLHyperTreeGridWriter::WriteGridCoordinates(vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
 {
-  int myProc;
-  MPI_Comm_rank(MPI_COMM_WORLD, &myProc);
-
   vtkHyperTreeGrid* input = this->GetInput();
   int numberOfTrees = input->GetNumberOfTrees();
-  vtkIdTypeArray* treeIds = input->GetMaterialMaskIndex();
-
-  vtkIdType maxLevels = 0;
-  for (int t = 0; t < numberOfTrees; t++) {
-    vtkIdType level = input->GetNumberOfLevels(treeIds->GetValue(t));
-    if (level > maxLevels) {
-      maxLevels = level;
-    }
-  }
+  vtkIdType maxLevels = input->GetNumberOfLevels();
 
   ostream& os = *(this->Stream);
   os << indent << "<" << "Topology" << ">\n";
   os.flush();
 
   // All trees contained on this processor
-  this->WriteArrayInline(treeIds, indent.GetNextIndent(), "MaterialMaskIndex", numberOfTrees);
+  vtkIdTypeArray* treeIds = input->GetMaterialMaskIndex();
+  if (treeIds)
+  {
+    this->WriteArrayInline(treeIds, indent.GetNextIndent(),
+                           "MaterialMaskIndex", numberOfTrees);
+  }
 
   // Collect description by processing depth first and writing breadth first
-  vtkStdString descByLevel[maxLevels];
-  for (int t = 0; t < numberOfTrees; t++) {
-    vtkIdType index = treeIds->GetValue(t);
-    vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor superCursor;
-    input->InitializeSuperCursor(&superCursor, index);
-    BuildDescriptor(&superCursor, 0, descByLevel);
+  std::string descByLevel[maxLevels];
+  vtkIdType inIndex;
+  vtkHyperTreeGrid::vtkHyperTreeGridIterator it;
+  input->InitializeTreeIterator( it );
+  while ( it.GetNextTree( inIndex ) )
+  {
+    // Initialize new grid cursor at root of current input tree
+    vtkHyperTreeGridCursor* inCursor = input->NewGridCursor( inIndex );
+    // Recursively compute descriptor for this tree, appending any
+    // entries for each of the levels in descByLevel.
+    this->BuildDescriptor(inCursor, 0, descByLevel );
+    // Clean up
+    inCursor->Delete();
   }
 
   // Build the CharArray from the level descriptors
-  vtkCharArray* descriptor = vtkCharArray::New();
+  vtkNew<vtkCharArray> descriptor;
 
-  vtkStdString::const_iterator dit;
-  for (int l = 0; l < maxLevels; l++) {
-    for (dit = descByLevel[l].begin(); dit != descByLevel[l].end(); ++dit) {
-      switch (*dit) {
+  std::string::const_iterator dit;
+  for (int l = 0; l < maxLevels; l++)
+  {
+    for (dit = descByLevel[l].begin(); dit != descByLevel[l].end(); ++dit)
+    {
+      switch (*dit)
+      {
         case 'R':    //  Refined cell
           descriptor->InsertNextValue('R');
           break;
@@ -231,7 +240,6 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
                         << *dit
                         << " in string "
                         << descByLevel[l]);
-          descriptor->Delete();
           return 0;
       }
     }
@@ -247,29 +255,36 @@ int vtkXMLHyperTreeGridWriter::WriteDescriptor(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLHyperTreeGridWriter::BuildDescriptor(
-  void *sc, int level, vtkStdString* descriptor)
+void vtkXMLHyperTreeGridWriter::BuildDescriptor
+( vtkHyperTreeGridCursor* inCursor,
+  int level,
+  std::string* descriptor)
 {
-  vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor* superCursor =
-    static_cast<vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor*>(sc);
+  // Retrieve input grid
+  vtkHyperTreeGrid* input = inCursor->GetGrid();
 
-  vtkHyperTreeGrid::vtkHyperTreeSimpleCursor* cursor =
-    superCursor->GetCursor(0);
-
-  vtkHyperTreeGrid* input = this->GetInput();
-
-  if ( cursor->IsLeaf() ) {
-    descriptor[level] += '.';
-  }
-  else {
+  if ( ! inCursor->IsLeaf() )
+  {
     descriptor[level] += 'R';
 
+    // If input cursor is not a leaf, recurse to all children
     int numChildren = input->GetNumberOfChildren();
-    for (int child = 0; child < numChildren; ++child) {
-      vtkHyperTreeGrid::vtkHyperTreeGridSuperCursor newSuperCursor;
-      input->InitializeSuperCursorChild(superCursor, &newSuperCursor, child);
-      BuildDescriptor(&newSuperCursor, level+1, descriptor);
-    }
+    for ( int child = 0; child < numChildren; ++ child )
+    {
+      // Create child cursor from parent in input grid
+      vtkHyperTreeGridCursor* childCursor = inCursor->Clone();
+      childCursor->ToChild( child );
+
+      // Recurse
+      this->BuildDescriptor( childCursor, level+1, descriptor );
+
+      // Clean up
+      childCursor->Delete();
+    } // child
+  }
+  else
+  {
+    descriptor[level] += '.';
   }
 }
 

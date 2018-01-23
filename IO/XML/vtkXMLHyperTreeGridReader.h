@@ -17,10 +17,8 @@
  * @brief   Read VTK XML HyperTreeGrid files.
  *
  * vtkXMLHyperTreeGridReader reads the VTK XML HyperTreeGrid file
- * format.  One rectilinear grid file can be read to produce one
- * output.  Streaming is supported.  The standard extension for this
- * reader's file format is "vto".  This reader is also used to read a
- * single piece of the parallel file format.
+ * format. The standard extension for this
+ * reader's file format is "vtg".
  *
 */
 
@@ -30,19 +28,17 @@
 #include "vtkIOXMLModule.h" // For export macro
 #include "vtkXMLDataReader.h"
 
-class vtkHyperTreeGrid;
+class vtkCharArray;
 class vtkHyperTree;
 class vtkHyperTreeCursor;
-class vtkCharArray;
+class vtkHyperTreeGrid;
 class vtkIdTypeArray;
-
-using namespace std;
 
 class VTKIOXML_EXPORT vtkXMLHyperTreeGridReader : public vtkXMLDataReader
 {
 public:
   vtkTypeMacro(vtkXMLHyperTreeGridReader,vtkXMLDataReader);
-  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
+  void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkXMLHyperTreeGridReader *New();
 
   //@{
@@ -55,29 +51,29 @@ public:
 
 protected:
   vtkXMLHyperTreeGridReader();
-  ~vtkXMLHyperTreeGridReader() VTK_OVERRIDE;
+  ~vtkXMLHyperTreeGridReader() override;
 
-  const char* GetDataSetName() VTK_OVERRIDE;
+  const char* GetDataSetName() override;
 
   // Setup the output with no data available.  Used in error cases.
-  void SetupEmptyOutput() VTK_OVERRIDE;
+  void SetupEmptyOutput() override;
 
   // Declare that this reader produces HyperTreeGrids
-  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) override;
 
   //These defer to the HyperTreeGrid output.
-  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
-  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() override;
+  vtkIdType GetNumberOfCells() override;
 
   // Overridden here to do allocation.
   int ReadArrayForPoints(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray) VTK_OVERRIDE;
+                                 vtkAbstractArray* outArray) override;
   int ReadArrayForCells(vtkXMLDataElement* da,
-                                 vtkAbstractArray* outArray) VTK_OVERRIDE;
+                                 vtkAbstractArray* outArray) override;
 
   // The most important stuff is here.
   // Read the rest of the file and create the HyperTreeGrid.
-  void ReadXMLData() VTK_OVERRIDE;
+  void ReadXMLData() override;
 
   // Read the coordinates describing the grid
   void ReadCoordinates(vtkXMLDataElement *elem);
@@ -96,8 +92,8 @@ protected:
                           vtkIdType* cellsOnProcessor);
 
 private:
-  vtkXMLHyperTreeGridReader(const vtkXMLHyperTreeGridReader&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkXMLHyperTreeGridReader&) VTK_DELETE_FUNCTION;
+  vtkXMLHyperTreeGridReader(const vtkXMLHyperTreeGridReader&) = delete;
+  void operator=(const vtkXMLHyperTreeGridReader&) = delete;
 };
 
 #endif
