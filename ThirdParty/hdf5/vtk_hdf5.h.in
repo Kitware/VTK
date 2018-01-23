@@ -15,13 +15,20 @@
 #ifndef vtk_hdf5_h
 #define vtk_hdf5_h
 
-/* Use the zlib library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_HDF5
 #ifdef VTK_USE_SYSTEM_HDF5
-#cmakedefine H5_BUILT_AS_DYNAMIC_LIB @H5_BUILT_AS_DYNAMIC_LIB@
+#cmakedefine H5_BUILT_AS_DYNAMIC_LIB
 # include <hdf5.h>
+# include <hdf5_hl.h>
 #else
+#cmakedefine BUILD_SHARED_LIBS
+# ifdef BUILD_SHARED_LIBS
+#  ifndef H5_BUILT_AS_DYNAMIC_LIB
+#   define H5_BUILT_AS_DYNAMIC_LIB
+#  endif
+# endif
 # include <vtkhdf5/src/hdf5.h>
+# include <vtkhdf5/hl/src/hdf5_hl.h>
 #endif
 
 #endif
