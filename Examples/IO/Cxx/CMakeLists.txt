@@ -3,14 +3,31 @@ cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
 
 PROJECT (IO)
 
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+if (vtkIOExport_LOADED AND vtkIOImport_LOADED)
+vtk_module_config(VTK
   vtkCommonCore
   vtkIOLegacy
   vtkIOXML
   vtkIOGeometry
   vtkTestingRendering
+  vtkInteractionStyle
+  vtkIOImport
+  vtkIOExport
   vtksys
 )
+else()
+vtk_module_config(VTK
+  vtkCommonCore
+  vtkIOLegacy
+  vtkIOXML
+  vtkIOGeometry
+  vtkTestingRendering
+  vtkInteractionStyle
+  vtkIOImport
+  vtksys
+)
+endif()
 include(${VTK_USE_FILE})
 
 add_executable(DumpXMLFile MACOSX_BUNDLE DumpXMLFile.cxx)
@@ -18,6 +35,11 @@ target_link_libraries(DumpXMLFile ${VTK_LIBRARIES})
 
 add_executable(ParticleReader MACOSX_BUNDLE ParticleReader.cxx)
 target_link_libraries(ParticleReader ${VTK_LIBRARIES})
+
+if (vtkIOExport_LOADED AND vtkIOImport_LOADED)
+  add_executable(objtovtp objtovtp.cxx)
+  target_link_libraries(objtovtp ${VTK_LIBRARIES})
+endif()
 
 if(BUILD_TESTING)
   if(vtkTestingRendering_LOADED)

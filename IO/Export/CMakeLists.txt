@@ -12,6 +12,7 @@ set(Module_SRCS
   vtkRIBProperty.cxx
   vtkSVGContextDevice2D.cxx
   vtkSVGExporter.cxx
+  vtkSingleVTPExporter.cxx
   vtkVRMLExporter.cxx
   vtkX3D.cxx
   vtkX3DExporter.cxx
