@@ -1449,7 +1449,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   {
     // Create a dispatcher that also handles vtkBitArray:
     using vtkArrayDispatch::Arrays;
-    using XMLArrays = typename vtkTypeList::Append<Arrays, vtkBitArray>::Result;
+    using XMLArrays = vtkTypeList::Append<Arrays, vtkBitArray>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;
 
     WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize,
