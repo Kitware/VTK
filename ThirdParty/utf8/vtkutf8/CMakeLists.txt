@@ -1,8 +1,12 @@
-if (NOT VTK_NO_INSTALL_DEVELOPMENT)
-  install(
-    FILES       "${CMAKE_CURRENT_SOURCE_DIR}/utf8.h"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkutf8")
-  install(
-    DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/utf8"
-    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkutf8")
-endif ()
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    "utf8.h"
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkutf8"
+    COMPONENT Development)
+  install(FILES
+    "utf8/checked.h"
+    "utf8/core.h"
+    "utf8/unchecked.h"
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkutf8/utf8"
+    COMPONENT Development)
+endif()
