@@ -70,6 +70,8 @@ int TestVBOPLYMapper(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   // vtkNew<vtkPolyDataNormals> norms;
   // norms->SetInputConnection(reader->GetOutputPort());
   // norms->Update();

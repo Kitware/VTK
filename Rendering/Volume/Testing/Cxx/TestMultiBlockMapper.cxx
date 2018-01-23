@@ -50,6 +50,8 @@ int TestMultiBlockMapper(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   vtkNew<vtkMultiBlockVolumeMapper> mapper;
   mapper->SetInputConnection(reader->GetOutputPort());
   mapper->SelectScalarArray("MetaImage");

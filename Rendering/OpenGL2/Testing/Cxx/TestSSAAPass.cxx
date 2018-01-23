@@ -79,6 +79,8 @@ int TestSSAAPass(int argc, char* argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   mapper->SetInputConnection(reader->GetOutputPort());
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
   actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);

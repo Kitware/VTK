@@ -58,6 +58,8 @@ int TestGPURayCastClippingPolyData(int argc, char *argv[])
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
+  delete [] volumeFile;
+
   /// Outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());

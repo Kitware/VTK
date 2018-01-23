@@ -48,6 +48,8 @@ int TestSetZBuffer(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   mapper->SetInputConnection(reader->GetOutputPort());
   actor->SetMapper(mapper);
   actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);

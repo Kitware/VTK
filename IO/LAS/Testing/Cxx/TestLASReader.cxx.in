@@ -49,6 +49,8 @@ int TestLASReader_@VTK_LAS_READER_POSTFIX@(int argc, char **argv)
   //Read the output
   reader->Update();
 
+  delete [] path;
+
   vtkSmartPointer<vtkPolyData> outputData = reader->GetOutput();
 
   bool useClassification = false;

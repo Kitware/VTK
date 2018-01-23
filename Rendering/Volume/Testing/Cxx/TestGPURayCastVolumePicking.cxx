@@ -140,6 +140,8 @@ int TestGPURayCastVolumePicking(int argc, char *argv[])
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
 
+  delete [] volumeFile;
+
   vtkNew<vtkImageChangeInformation> changeInformation;
   changeInformation->SetInputConnection(reader->GetOutputPort());
   changeInformation->SetOutputSpacing(1, 2, 3);

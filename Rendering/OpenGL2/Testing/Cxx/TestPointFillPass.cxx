@@ -54,6 +54,8 @@ int TestPointFillPass(int argc, char* argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   mapper->SetInputConnection(reader->GetOutputPort());
 
   // create three dragons

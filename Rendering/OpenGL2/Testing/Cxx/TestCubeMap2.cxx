@@ -56,6 +56,8 @@ int TestCubeMap2(int argc, char *argv[])
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
 
+  delete [] fileName;
+
   vtkNew<vtkPolyDataNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
 
@@ -83,13 +85,15 @@ int TestCubeMap2(int argc, char *argv[])
 
   for (int i = 0; i < 6; i++)
   {
+    const char * fName =
+      vtkTestUtilities::ExpandDataFileName(argc, argv, fpath[i]);
     vtkNew<vtkJPEGReader> imgReader;
-    imgReader->SetFileName(
-      vtkTestUtilities::ExpandDataFileName(argc, argv, fpath[i]));
+    imgReader->SetFileName(fName);
     vtkNew<vtkImageFlip> flip;
     flip->SetInputConnection(imgReader->GetOutputPort());
     flip->SetFilteredAxis(1); // flip y axis
     texture->SetInputConnection(i, flip->GetOutputPort(0));
+    delete [] fName;
   }
 
   vtkNew<vtkOpenGLPolyDataMapper> mapper;

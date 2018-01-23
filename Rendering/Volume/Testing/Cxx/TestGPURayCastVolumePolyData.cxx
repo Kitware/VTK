@@ -53,6 +53,8 @@ int TestGPURayCastVolumePolyData(int argc, char *argv[])
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
+  delete [] volumeFile;
+
   // Add outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
   outlineFilter->SetInputConnection(reader->GetOutputPort());

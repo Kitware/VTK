@@ -51,6 +51,8 @@ int TestGPURayCastVolumeLightKit(int argc, char *argv[])
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
+  delete [] volumeFile;
+
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
   volumeMapper->SetAutoAdjustSampleDistances(0);

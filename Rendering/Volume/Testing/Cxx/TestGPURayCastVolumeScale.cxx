@@ -52,6 +52,8 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
 
+  delete [] volumeFile;
+
   vtkSmartPointer<vtkImageChangeInformation> changeInformation =
     vtkSmartPointer<vtkImageChangeInformation>::New();
   changeInformation->SetInputConnection(reader->GetOutputPort());

@@ -60,6 +60,8 @@ int TestValuePass(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   cerr << reader->GetOutput()->GetBounds()[0] << ", "
        << reader->GetOutput()->GetBounds()[1] << endl;
 
