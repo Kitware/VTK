@@ -9,7 +9,9 @@ Created by David Gobbi, Nov 1999
 
 from __future__ import absolute_import
 import math, os, sys
-import vtk
+from vtkmodules.vtkCommonExecutionModel import vtkStreamingDemandDrivenPipeline
+from vtkmodules.vtkInteractionImage import vtkImageViewer
+from vtkmodules.vtkRenderingCore import vtkActor2D, vtkTextMapper
 
 if sys.hexversion < 0x03000000:
     # for Python2
@@ -53,7 +55,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         try: # use specified vtkImageViewer
             imageViewer = kw['iv']
         except KeyError: # or create one if none specified
-            imageViewer = vtk.vtkImageViewer()
+            imageViewer = vtkImageViewer()
 
         doubleBuffer = 0
         try:
@@ -85,7 +87,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         # as an attribute but instead have to get it from the tk-side
         if attr == '_ImageViewer':
             addr = self.tk.call(self._w, 'GetImageViewer')[5:]
-            return vtk.vtkImageViewer('_%s_vtkImageViewer_p' % addr)
+            return vtkImageViewer('_%s_vtkImageViewer_p' % addr)
         raise AttributeError(self.__class__.__name__ +
               " has no attribute named " + attr)
 
@@ -99,7 +101,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
         imager = self._ImageViewer.GetRenderer()
 
         # stuff for window level text.
-        mapper = vtk.vtkTextMapper()
+        mapper = vtkTextMapper()
         mapper.SetInput("none")
         t_prop = mapper.GetTextProperty()
         t_prop.SetFontFamilyToTimes()
@@ -109,7 +111,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 
         self._LevelMapper = mapper
 
-        actor = vtk.vtkActor2D()
+        actor = vtkActor2D()
         actor.SetMapper(mapper)
         actor.SetLayerNumber(1)
         actor.GetPositionCoordinate().SetValue(4,22)
@@ -119,7 +121,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 
         self._LevelActor = actor
 
-        mapper = vtk.vtkTextMapper()
+        mapper = vtkTextMapper()
         mapper.SetInput("none")
         t_prop = mapper.GetTextProperty()
         t_prop.SetFontFamilyToTimes()
@@ -129,7 +131,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 
         self._WindowMapper = mapper
 
-        actor = vtk.vtkActor2D()
+        actor = vtkActor2D()
         actor.SetMapper(mapper)
         actor.SetLayerNumber(1)
         actor.GetPositionCoordinate().SetValue(4,4)
@@ -260,7 +262,7 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 
         input.UpdateInformation()
         info = input.GetOutputInformation(0)
-        ext = info.Get(vtk.vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
+        ext = info.Get(vtkStreamingDemandDrivenPipeline.WHOLE_EXTENT())
         ext[4] = z
         ext[5] = z
         input.Update(0, 1, 0, ext)
@@ -310,7 +312,9 @@ class vtkTkImageViewerWidget(tkinter.Widget):
 #-----------------------------------------------------------------------------
 # an example of how to use this widget
 if __name__ == "__main__":
-    canvas = vtk.vtkImageCanvasSource2D()
+    from vtkmodules.vtkImagingSources import vtkImageCanvasSource2D
+
+    canvas = vtkImageCanvasSource2D()
     canvas.SetNumberOfScalarComponents(3)
     canvas.SetScalarType(3)
     canvas.SetExtent(0,511,0,511,0,0)

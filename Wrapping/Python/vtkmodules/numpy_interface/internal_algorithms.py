@@ -1,8 +1,11 @@
 from __future__ import absolute_import
 from . import dataset_adapter as dsa
 import numpy
-from vtk.util import numpy_support
-import vtk
+from vtkmodules.util import numpy_support
+from vtkmodules.vtkCommonDataModel import vtkImageData
+from vtkmodules.vtkFiltersCore import vtkCellDataToPointData, vtkPolyDataNormals
+from vtkmodules.vtkFiltersGeneral import vtkCellDerivatives
+from vtkmodules.vtkFiltersVerdict import vtkCellSizeFilter, vtkCellQuality, vtkMatrixMathFilter
 
 def _cell_derivatives (narray, dataset, attribute_type, filter):
     if not dataset :
@@ -56,7 +59,7 @@ def _cell_derivatives (narray, dataset, attribute_type, filter):
        if attribute_type == 'scalars' : ds2.GetCellData().SetScalars(varray)
        else : ds2.GetCellData().SetVectors(varray)
 
-       c2p = vtk.vtkCellDataToPointData()
+       c2p = vtkCellDataToPointData()
        c2p.SetInputData(ds2)
        c2p.Update()
 
@@ -71,7 +74,7 @@ def _cell_derivatives (narray, dataset, attribute_type, filter):
     if dsa.ArrayAssociation.POINT == narray.Association :
        # Since the data is associated with cell and the query is on points
        # we have to convert to point data before returning
-       c2p = vtk.vtkCellDataToPointData()
+       c2p = vtkCellDataToPointData()
        c2p.SetInputConnection(filter.GetOutputPort())
        c2p.Update()
        return c2p.GetOutput().GetPointData()
@@ -90,7 +93,7 @@ def _cell_quality (dataset, quality) :
     ds.UnRegister(None)
     ds.CopyStructure(dataset.VTKObject)
 
-    filter = vtk.vtkCellQuality()
+    filter = vtkCellQuality()
     filter.SetInputData(ds)
 
     if   "area"         == quality : filter.SetQualityMeasureToArea()
@@ -138,14 +141,14 @@ def _matrix_math_filter (narray, operation) :
     ncols = narray.shape[1] * narray.shape[2]
     narray = narray.reshape(nrows, ncols)
 
-    ds = vtk.vtkImageData()
+    ds = vtkImageData()
     ds.SetDimensions(nrows, 1, 1)
 
     varray = numpy_support.numpy_to_vtk(narray)
     varray.SetName('tensors')
     ds.GetPointData().SetTensors(varray)
 
-    filter = vtk.vtkMatrixMathFilter()
+    filter = vtkMatrixMathFilter()
 
     if   operation == 'Determinant'  : filter.SetOperationToDeterminant()
     elif operation == 'Inverse'      : filter.SetOperationToInverse()
@@ -226,7 +229,7 @@ def curl (narray, dataset=None):
        raise RuntimeError('Curl only works with an array of 3D vectors.' +
                           'Input shape ' + str(narray.shape))
 
-    cd = vtk.vtkCellDerivatives()
+    cd = vtkCellDerivatives()
     cd.SetVectorModeToComputeVorticity()
 
     res = _cell_derivatives(narray, dataset, 'vectors', cd)
@@ -310,7 +313,7 @@ def gradient(narray, dataset=None):
        raise RuntimeError('Gradient only works with scalars (1 component) and vectors (3 component)' +
                           ' Input shape ' + str(narray.shape))
 
-    cd = vtk.vtkCellDerivatives()
+    cd = vtkCellDerivatives()
     if ncomp == 1 : attribute_type = 'scalars'
     else : attribute_type = 'vectors'
 
@@ -420,7 +423,7 @@ def strain (narray, dataset=None) :
        raise RuntimeError('strain only works with an array of 3D vectors' +
                           'Input shape ' + str(narray.shape))
 
-    cd = vtk.vtkCellDerivatives()
+    cd = vtkCellDerivatives()
     cd.SetTensorModeToComputeStrain()
 
     res = _cell_derivatives(narray, dataset, 'vectors', cd)
@@ -450,7 +453,7 @@ def surface_normal (dataset) :
     ds.UnRegister(None)
     ds.CopyStructure(dataset.VTKObject)
 
-    filter = vtk.vtkPolyDataNormals()
+    filter = vtkPolyDataNormals()
     filter.SetInputData(ds)
     filter.ComputeCellNormalsOn()
     filter.ComputePointNormalsOff()
@@ -497,7 +500,7 @@ def volume (dataset) :
     ds.UnRegister(None)
     ds.CopyStructure(dataset.VTKObject)
 
-    filter = vtk.vtkCellSizeFilter()
+    filter = vtkCellSizeFilter()
     filter.SetInputData(ds)
     filter.ComputeVertexCountOff()
     filter.ComputeLengthOff()
@@ -526,7 +529,7 @@ def vertex_normal (dataset) :
     ds.UnRegister(None)
     ds.CopyStructure(dataset.VTKObject)
 
-    filter = vtk.vtkPolyDataNormals()
+    filter = vtkPolyDataNormals()
     filter.SetInputData(ds)
     filter.ComputeCellNormalsOff()
     filter.ComputePointNormalsOn()

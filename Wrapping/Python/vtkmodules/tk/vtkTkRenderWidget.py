@@ -44,7 +44,7 @@ i.e. set to some initial value.  Don't forget that 'None' means
 
 from __future__ import absolute_import
 import math, os, sys
-import vtk
+from vtkmodules.vtkRenderingCore import vtkCellPicker, vtkProperty, vtkRenderWindow
 
 if sys.hexversion < 0x03000000:
     # for Python2
@@ -88,7 +88,7 @@ class vtkTkRenderWidget(tkinter.Widget):
         try: # check to see if a render window was specified
             renderWindow = kw['rw']
         except KeyError:
-            renderWindow = vtk.vtkRenderWindow()
+            renderWindow = vtkRenderWindow()
 
         try:  # was a stereo rendering context requested?
             if kw['stereo']:
@@ -115,9 +115,9 @@ class vtkTkRenderWidget(tkinter.Widget):
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
 
-        self._Picker = vtk.vtkCellPicker()
+        self._Picker = vtkCellPicker()
         self._PickedAssembly = None
-        self._PickedProperty = vtk.vtkProperty()
+        self._PickedProperty = vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
 
@@ -209,7 +209,7 @@ class vtkTkRenderWidget(tkinter.Widget):
 
     def GetRenderWindow(self):
         addr = self.tk.call(self._w, 'GetRenderWindow')[5:]
-        return vtk.vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
+        return vtkRenderWindow('_%s_vtkRenderWindow_p' % addr)
 
     def GetPicker(self):
         return self._Picker
@@ -442,22 +442,26 @@ class vtkTkRenderWidget(tkinter.Widget):
 def vtkRenderWidgetConeExample():
     """Like it says, just a simple example
     """
+
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # create root window
     root = tkinter.Tk()
 
     # create vtkTkRenderWidget
     pane = vtkTkRenderWidget(root,width=300,height=300)
 
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     pane.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(8)
 
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
 
-    coneActor = vtk.vtkActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)

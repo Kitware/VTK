@@ -8,17 +8,19 @@ def calldata_type(type):
     for python function used as observer callback.
     For example:
 
-    import vtk
+    import vtkmodules.util.calldata_type
+    import vtkmodules.util.vtkConstants
+    import vtkmodules.vtkCommonCore import vtkCommand, vtkLookupTable
 
-    @vtk.calldata_type(vtk.VTK_STRING)
+    @calldata_type(vtkConstants.VTK_STRING)
     def onError(caller, event, calldata):
         print("caller: %s - event: %s - msg: %s" % (caller.GetClassName(), event, calldata))
 
-    lt = vtk.vtkLookupTable()
-    lt.AddObserver(vtk.vtkCommand.ErrorEvent, onError)
+    lt = vtkLookupTable()
+    lt.AddObserver(vtkCommand.ErrorEvent, onError)
     lt.SetTableRange(2,1)
     """
-    from vtk import vtkCommonCore
+    from vtkmodules import vtkCommonCore
     supported_call_data_types = ['string0', vtkCommonCore.VTK_STRING,
             vtkCommonCore.VTK_OBJECT, vtkCommonCore.VTK_INT,
             vtkCommonCore.VTK_LONG, vtkCommonCore.VTK_DOUBLE, vtkCommonCore.VTK_FLOAT]

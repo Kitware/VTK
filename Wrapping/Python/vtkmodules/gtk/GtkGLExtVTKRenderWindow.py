@@ -27,7 +27,7 @@ pygtk.require('2.0')
 import gtk
 import gtk.gtkgl
 from gtk import gdk
-import vtk
+from vtkmodules.vtkRenderingCore import vtkActor, vtkCellPicker, vtkProperty, vtkRenderWindow
 
 
 class GtkGLExtVTKRenderWindowBase(gtk.gtkgl.DrawingArea):
@@ -43,7 +43,7 @@ class GtkGLExtVTKRenderWindowBase(gtk.gtkgl.DrawingArea):
         gtk.gtkgl.DrawingArea.__init__(self)
         self.set_double_buffered(gtk.FALSE)
 
-        self._RenderWindow = vtk.vtkRenderWindow()
+        self._RenderWindow = vtkRenderWindow()
         # private attributes
         self.__Created = 0
 
@@ -188,9 +188,9 @@ class GtkGLExtVTKRenderWindow(GtkGLExtVTKRenderWindowBase):
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
 
-        self._Picker = vtk.vtkCellPicker()
+        self._Picker = vtkCellPicker()
         self._PickedAssembly = None
-        self._PickedProperty = vtk.vtkProperty()
+        self._PickedProperty = vtkProperty()
         self._PickedProperty.SetColor(1, 0, 0)
         self._PrePickedProperty = None
 
@@ -496,6 +496,9 @@ class GtkGLExtVTKRenderWindow(GtkGLExtVTKRenderWindowBase):
 
 
 def main():
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # The main window
     window = gtk.Window()
     window.set_title("A GtkGLExtVTKRenderWindow Demo!")
@@ -518,15 +521,15 @@ def main():
     window.set_size_request(400, 400)
 
     # The VTK stuff.
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(80)
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
-    #coneActor = vtk.vtkLODActor()
-    coneActor = vtk.vtkActor()
+    #coneActor = vtkLODActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
     coneActor.GetProperty().SetColor(0.5, 0.5, 1.0)
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     vtkgtk.GetRenderWindow().AddRenderer(ren)
     ren.AddActor(coneActor)
 

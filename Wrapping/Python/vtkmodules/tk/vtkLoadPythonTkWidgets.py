@@ -1,5 +1,5 @@
 import sys, os
-from vtk.vtkCommonCore import vtkVersion
+from vtkmodules.vtkCommonCore import vtkVersion
 
 def vtkLoadPythonTkWidgets(interp):
     """vtkLoadPythonTkWidgets(interp) -- load vtk-tk widget extensions

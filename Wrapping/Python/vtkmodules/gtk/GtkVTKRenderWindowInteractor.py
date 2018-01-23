@@ -27,7 +27,7 @@ Bugs:
 """
 
 import gtk, GDK, gtkgl
-import vtk
+from vtkmodules.vtkRenderingCore import vtkGenericRenderWindowInteractor
 import math
 
 
@@ -45,13 +45,13 @@ class GtkVTKRenderWindowInteractor(gtkgl.GtkGLArea):
         l.insert(0, self)
         l.insert(1, attr)
         apply(gtkgl.GtkGLArea.__init__, l)
-        self._RenderWindow = vtk.vtkRenderWindow()
+        self._RenderWindow = vtkRenderWindow()
 
         # private attributes
         self.__Created = 0
         self._ActiveButton = 0
 
-        self._Iren = vtk.vtkGenericRenderWindowInteractor()
+        self._Iren = vtkGenericRenderWindowInteractor()
         self._Iren.SetRenderWindow(self._RenderWindow)
 
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
@@ -246,6 +246,9 @@ class GtkVTKRenderWindowInteractor(gtkgl.GtkGLArea):
 
 
 def main():
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # The main window
     window = gtk.GtkWindow(gtk.WINDOW_TOPLEVEL)
     window.set_title("A GtkVTKRenderWindow Demo!")
@@ -270,15 +273,15 @@ def main():
     gvtk.AddObserver("ExitEvent", lambda o,e,x=None: x)
 
     # The VTK stuff.
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(80)
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
-    #coneActor = vtk.vtkLODActor()
-    coneActor = vtk.vtkActor()
+    #coneActor = vtkLODActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
     coneActor.GetProperty().SetColor(0.5, 0.5, 1.0)
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     gvtk.GetRenderWindow().AddRenderer(ren)
     ren.AddActor(coneActor)
 

@@ -68,7 +68,11 @@ from __future__ import absolute_import
 import sys, os, time
 import os.path
 import unittest, getopt
-import vtk
+from vtkmodules.vtkCommonCore import vtkCommand, vtkDebugLeaks
+from vtkmodules.vtkCommonSystem import vtkTimerLog
+from vtkmodules.vtkIOImage import vtkPNGReader, vtkPNGWriter
+from vtkmodules.vtkImagingCore import vtkImageDifference, vtkImageShiftScale
+from vtkmodules.vtkRenderingCore import vtkWindowToImageFilter
 from . import BlackBox
 
 # location of the VTK data files.  Set via command line args or
@@ -124,7 +128,7 @@ class vtkTest(unittest.TestCase):
 
     # Due to what seems to be a bug in python some objects leak.
     # Avoid the exit-with-error in vtkDebugLeaks.
-    dl = vtk.vtkDebugLeaks()
+    dl = vtkDebugLeaks()
     dl.SetExitError(0)
     dl = None
 
@@ -213,22 +217,22 @@ class vtkTest(unittest.TestCase):
         def onMovement(caller, eventId):
             events.append((time.time() - startTime, eventId, caller.GetEventPosition()))
 
-        interactor.AddObserver(vtk.vtkCommand.KeyPressEvent, onKeyPress)
-        interactor.AddObserver(vtk.vtkCommand.LeftButtonPressEvent, onButton)
-        interactor.AddObserver(vtk.vtkCommand.LeftButtonReleaseEvent, onButton)
-        interactor.AddObserver(vtk.vtkCommand.MouseMoveEvent, onMovement)
+        interactor.AddObserver(vtkCommand.KeyPressEvent, onKeyPress)
+        interactor.AddObserver(vtkCommand.LeftButtonPressEvent, onButton)
+        interactor.AddObserver(vtkCommand.LeftButtonReleaseEvent, onButton)
+        interactor.AddObserver(vtkCommand.MouseMoveEvent, onMovement)
         interactor.Start()
         rw = interactor.GetRenderWindow()
         baseline = 'baselineFilename'
         if 'filename' in kwargs:
             # Render an image and save it to the given filename
-            w2if = vtk.vtkWindowToImageFilter()
+            w2if = vtkWindowToImageFilter()
             w2if.ReadFrontBufferOff()
             w2if.SetInput(rw)
             w2if.Update()
             baselineWithPath = kwargs['filename']
             baseline = os.path.split(baselineWithPath)[-1]
-            pngw = vtk.vtkPNGWriter()
+            pngw = vtkPNGWriter()
             pngw.SetFileName(baselineWithPath)
             pngw.SetInputConnection(w2if.GetOutputPort())
             try:
@@ -311,7 +315,7 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
 
     if not os.path.isfile(img_fname):
         # generate the image
-        pngw = vtk.vtkPNGWriter()
+        pngw = vtkPNGWriter()
         pngw.SetFileName(_getTempImagePath(img_fname))
         pngw.SetInputConnection(src_img.GetOutputPort())
         pngw.Write()
@@ -320,11 +324,11 @@ def compareImageWithSavedImage(src_img, img_fname, threshold=10):
         sys.tracebacklimit = 0
         raise RuntimeError(msg)
 
-    pngr = vtk.vtkPNGReader()
+    pngr = vtkPNGReader()
     pngr.SetFileName(img_fname)
     pngr.Update()
 
-    idiff = vtk.vtkImageDifference()
+    idiff = vtkImageDifference()
     idiff.SetInputConnection(src_img.GetOutputPort())
     idiff.SetImageConnection(pngr.GetOutputPort())
     idiff.Update()
@@ -388,7 +392,7 @@ def compareImage(renwin, img_fname, threshold=10):
     if _NO_IMAGE:
         return
 
-    w2if = vtk.vtkWindowToImageFilter()
+    w2if = vtkWindowToImageFilter()
     w2if.ReadFrontBufferOff()
     w2if.SetInput(renwin)
     w2if.Update()
@@ -441,12 +445,12 @@ def _handleFailedImage(idiff, pngr, img_fname):
     f_base, f_ext = os.path.splitext(img_fname)
 
     # write the difference image gamma adjusted for the dashboard.
-    gamma = vtk.vtkImageShiftScale()
+    gamma = vtkImageShiftScale()
     gamma.SetInputConnection(idiff.GetOutputPort())
     gamma.SetShift(0)
     gamma.SetScale(10)
 
-    pngw = vtk.vtkPNGWriter()
+    pngw = vtkPNGWriter()
     pngw.SetFileName(_getTempImagePath(f_base + ".diff.png"))
     pngw.SetInputConnection(gamma.GetOutputPort())
     pngw.Write()
@@ -474,7 +478,7 @@ def main(cases):
 
     processCmdLine()
 
-    timer = vtk.vtkTimerLog()
+    timer = vtkTimerLog()
     s_time = timer.GetCPUTime()
     s_wall_time = time.time()
 
@@ -666,7 +670,8 @@ if __name__ == "__main__":
     ######################################################################
     # A Trivial test case to illustrate how this module works.
     class SampleTest(vtkTest):
-        obj = vtk.vtkActor()
+        from vtkmodules.vtkRenderingCore import vtkActor
+        obj = vtkActor()
         def testParse(self):
             "Test if class is parseable"
             self._testParse(self.obj)

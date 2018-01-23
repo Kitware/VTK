@@ -78,7 +78,7 @@ __Handle:              Handle to the window containing the vtkRenderWindow
 # import usual libraries
 import math, os, sys
 import wx
-import vtk
+from vtkmodules.vtkRenderingCore import vtkCellPicker, vtkProperty, vtkRenderWindow
 
 # a few configuration items, see what works best on your system
 
@@ -122,9 +122,9 @@ class wxVTKRenderWindow(baseClass):
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
 
-        self._Picker = vtk.vtkCellPicker()
+        self._Picker = vtkCellPicker()
         self._PickedActor = None
-        self._PickedProperty = vtk.vtkProperty()
+        self._PickedProperty = vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
 
@@ -199,7 +199,7 @@ class wxVTKRenderWindow(baseClass):
                                style=style)
 
         # create the RenderWindow and initialize it
-        self._RenderWindow = vtk.vtkRenderWindow()
+        self._RenderWindow = vtkRenderWindow()
         self._RenderWindow.SetSize(size.width, size.height)
 
         if stereo:
@@ -737,6 +737,10 @@ class wxVTKRenderWindow(baseClass):
 def wxVTKRenderWindowConeExample():
     """Like it says, just a simple example.
     """
+
+    from vtkmodules.vtkFiltersSources import vtkConeSource
+    from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
+
     # every wx app needs an app
     app = wx.App(False)
 
@@ -744,16 +748,16 @@ def wxVTKRenderWindowConeExample():
     frame = wx.Frame(None, -1, "wxVTKRenderWindow", size=(400,400))
     widget = wxVTKRenderWindow(frame, -1)
 
-    ren = vtk.vtkRenderer()
+    ren = vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtk.vtkConeSource()
+    cone = vtkConeSource()
     cone.SetResolution(8)
 
-    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper = vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
 
-    coneActor = vtk.vtkActor()
+    coneActor = vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)

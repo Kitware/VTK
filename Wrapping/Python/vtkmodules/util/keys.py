@@ -1,27 +1,27 @@
 """
 Utility module to make it easier to create new keys.
 """
-from vtk.vtkCommonCore import vtkInformationDataObjectKey as DataaObjectKey
-from vtk.vtkCommonCore import vtkInformationDoubleKey as DoubleKey
-from vtk.vtkCommonCore import vtkInformationDoubleVectorKey as DoubleVectorKey
-from vtk.vtkCommonCore import vtkInformationIdTypeKey as IdTypeKey
-from vtk.vtkCommonCore import vtkInformationInformationKey as InformationKey
-from vtk.vtkCommonCore import vtkInformationInformationVectorKey as InformationVectorKey
-from vtk.vtkCommonCore import vtkInformationIntegerKey as IntegerKey
-from vtk.vtkCommonCore import vtkInformationIntegerVectorKey as IntegerVectorKey
-from vtk.vtkCommonCore import vtkInformationKeyVectorKey as KeyVectorKey
-from vtk.vtkCommonCore import vtkInformationObjectBaseKey as ObjectBaseKey
-from vtk.vtkCommonCore import vtkInformationObjectBaseVectorKey as ObjectBaseVectorKey
-from vtk.vtkCommonCore import vtkInformationRequestKey as RequestKey
-from vtk.vtkCommonCore import vtkInformationStringKey as StringKey
-from vtk.vtkCommonCore import vtkInformationStringVectorKey as StringVectorKey
-from vtk.vtkCommonCore import vtkInformationUnsignedLongKey as UnsignedLongKey
-from vtk.vtkCommonCore import vtkInformationVariantKey as VariantKey
-from vtk.vtkCommonCore import vtkInformationVariantVectorKey as VariantVectorKey
-from vtk.vtkCommonExecutionModel import vtkInformationDataObjectMetaDataKey as DataObjectMetaDataKey
-from vtk.vtkCommonExecutionModel import vtkInformationExecutivePortKey as ExecutivePortKey
-from vtk.vtkCommonExecutionModel import vtkInformationExecutivePortVectorKey as ExecutivePortVectorKey
-from vtk.vtkCommonExecutionModel import vtkInformationIntegerRequestKey as IntegerRequestKey
+from vtkmodules.vtkCommonCore import vtkInformationDataObjectKey as DataaObjectKey
+from vtkmodules.vtkCommonCore import vtkInformationDoubleKey as DoubleKey
+from vtkmodules.vtkCommonCore import vtkInformationDoubleVectorKey as DoubleVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationIdTypeKey as IdTypeKey
+from vtkmodules.vtkCommonCore import vtkInformationInformationKey as InformationKey
+from vtkmodules.vtkCommonCore import vtkInformationInformationVectorKey as InformationVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationIntegerKey as IntegerKey
+from vtkmodules.vtkCommonCore import vtkInformationIntegerVectorKey as IntegerVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationKeyVectorKey as KeyVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationObjectBaseKey as ObjectBaseKey
+from vtkmodules.vtkCommonCore import vtkInformationObjectBaseVectorKey as ObjectBaseVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationRequestKey as RequestKey
+from vtkmodules.vtkCommonCore import vtkInformationStringKey as StringKey
+from vtkmodules.vtkCommonCore import vtkInformationStringVectorKey as StringVectorKey
+from vtkmodules.vtkCommonCore import vtkInformationUnsignedLongKey as UnsignedLongKey
+from vtkmodules.vtkCommonCore import vtkInformationVariantKey as VariantKey
+from vtkmodules.vtkCommonCore import vtkInformationVariantVectorKey as VariantVectorKey
+from vtkmodules.vtkCommonExecutionModel import vtkInformationDataObjectMetaDataKey as DataObjectMetaDataKey
+from vtkmodules.vtkCommonExecutionModel import vtkInformationExecutivePortKey as ExecutivePortKey
+from vtkmodules.vtkCommonExecutionModel import vtkInformationExecutivePortVectorKey as ExecutivePortVectorKey
+from vtkmodules.vtkCommonExecutionModel import vtkInformationIntegerRequestKey as IntegerRequestKey
 
 def MakeKey(key_type, name, location, *args):
     """Given a key type, make a new key of given name
