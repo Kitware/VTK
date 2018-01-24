@@ -70,7 +70,7 @@ void obj_set_material_defaults(vtkOBJImportedMaterial* mtl)
 // check if the texture file referenced exists
 // some files references png when they ship with jpg
 // so check for that as well
-void checkTextureMapFile(vtkOBJImportedMaterial *current_mtl, std::string texturePath)
+void checkTextureMapFile(vtkOBJImportedMaterial *current_mtl, std::string &texturePath)
 {
   // try texture as specified
   bool bFileExistsNoPath    = vtksys::SystemTools::FileExists(current_mtl->texture_filename);
@@ -190,7 +190,7 @@ bool tokenGetVector(size_t &t, std::vector<Token> &tokens,
 
 bool tokenGetTexture(size_t &t, std::vector<Token> &tokens,
   vtkOBJImportedMaterial *current_mtl,
-  std::string texturePath)
+  std::string &texturePath)
 {
   // parse the next tokens looking for
   // texture options must all be on one line
@@ -249,7 +249,7 @@ bool tokenGetTexture(size_t &t, std::vector<Token> &tokens,
 }
 }
 
-#include "mtlsyntax.c"
+#include "mtlsyntax.cxx"
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
   std::string Filename, int& result_code)
 {
