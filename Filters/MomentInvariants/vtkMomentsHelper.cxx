@@ -63,6 +63,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkImageTranslateExtent.h"
 #include "vtkMomentsTensor.h"
+#include "vtkNew.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkQuad.h"
@@ -541,12 +542,11 @@ double vtkMomentsHelper::translationFactorAnalytic(double radius,
       else
       {
         double center[3] = { 0.0, 0.0, 0.0 };
-        vtkImageData* stencil = vtkImageData::New();
+        vtkNew<vtkImageData> stencil;
         stencil->SetDimensions(25, 25, 1);
         stencil->SetSpacing(2. * radius / 25, 2. * radius / 25, 1);
         stencil->SetOrigin(center);
         return (translationFactor(radius, p, q, r, stencil));
-        stencil->Delete();
       }
     }
     else
@@ -595,7 +595,7 @@ double vtkMomentsHelper::translationFactorAnalytic(double radius,
       else
       {
         double center[3] = { 0.0, 0.0, 0.0 };
-        vtkImageData* stencil = vtkImageData::New();
+        vtkNew<vtkImageData> stencil;
         stencil->SetDimensions(25, 25, 25);
         stencil->SetSpacing(2. * radius / 25, 2. * radius / 25, 2. * radius / 25);
         stencil->SetOrigin(center);
