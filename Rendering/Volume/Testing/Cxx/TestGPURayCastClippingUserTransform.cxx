@@ -102,6 +102,9 @@ static void UpdateFrontClippingPlane(vtkPlane* frontClippingPlane,
   // Set the normal and origin of the front clipping plane
   frontClippingPlane->SetNormal(frontNormal);
   frontClippingPlane->SetOrigin(frontOrigin);
+
+  delete [] frontNormal;
+  delete [] frontOrigin;
 }
 
 
@@ -121,6 +124,9 @@ static void UpdateRearClippingPlane(vtkPlane* rearClippingPlane, double* normal,
   // Set the normal and origin of the rear clipping plane
   rearClippingPlane->SetNormal(rearNormal);
   rearClippingPlane->SetOrigin(rearOrigin);
+
+  delete [] rearNormal;
+  delete [] rearOrigin;
 }
 
 

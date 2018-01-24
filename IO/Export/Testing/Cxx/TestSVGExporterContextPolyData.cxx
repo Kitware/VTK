@@ -53,6 +53,8 @@ vtkSmartPointer<vtkXMLPolyDataReader> ReadUVCDATPolyData(int argc, char* argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   return reader;
 }
 

@@ -48,6 +48,8 @@ int TestUserShader(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   vtkNew<vtkTriangleMeshPointNormals> norms;
   norms->SetInputConnection(reader->GetOutputPort());
   norms->Update();

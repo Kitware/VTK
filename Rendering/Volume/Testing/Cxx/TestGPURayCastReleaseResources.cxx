@@ -51,6 +51,8 @@ int TestGPURayCastReleaseResources(int argc, char *argv[])
   reader->Update();
   volumeMapper->SetInputConnection(reader->GetOutputPort());
 
+  delete [] volumeFile;
+
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
 

@@ -61,6 +61,8 @@ int TestShadowMapBakerPass(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   mapper->SetInputConnection(reader->GetOutputPort());
   //mapper->SetInputConnection(norms->GetOutputPort());
   actor->SetMapper(mapper);

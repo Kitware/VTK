@@ -47,6 +47,8 @@ int TestCoincident(int argc, char *argv[])
   reader->SetFileName(fileName);
   reader->Update();
 
+  delete [] fileName;
+
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
 
   // render points then lines then surface

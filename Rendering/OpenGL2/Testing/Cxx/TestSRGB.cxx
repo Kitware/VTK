@@ -37,9 +37,12 @@ int TestSRGB(int argc, char *argv[])
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.Get());
 
+  const char * fileName =
+     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/skybox/posz.jpg");
   vtkNew<vtkJPEGReader> imgReader;
-  imgReader->SetFileName(
-     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/skybox/posz.jpg"));
+  imgReader->SetFileName(fileName);
+
+  delete [] fileName;
 
   vtkNew<vtkPlaneSource> plane;
 
