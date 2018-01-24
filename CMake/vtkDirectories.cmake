@@ -9,6 +9,7 @@ vtk_set_with_default(VTK_INSTALL_DOC_DIR "share/doc/${vtk_subdir}")
 vtk_set_with_default(VTK_INSTALL_PACKAGE_DIR "${VTK_INSTALL_LIBRARY_DIR}/cmake/${vtk_subdir}")
 vtk_set_with_default(VTK_INSTALL_DOXYGEN_DIR "${VTK_INSTALL_DOC_DIR}/doxygen")
 vtk_set_with_default(VTK_INSTALL_EXPORT_NAME "VTKTargets")
+vtk_set_with_default(VTK_INSTALL_NDK_MODULES_DIR "share/${vtk_subdir}/ndk-modules")
 
 # Set up our directory structure for output libraries and binaries
 vtk_set_with_default(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${VTK_BINARY_DIR}/bin")
