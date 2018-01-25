@@ -4,9 +4,9 @@ set -e
 set -x
 shopt -s dotglob
 
-readonly name="xz"
-readonly ownership="lzma Upstream <kwrobot@kitware.com>"
-readonly subtree="ThirdParty/lzma/vtklzma"
+readonly name="lzma"
+readonly ownership="$name Upstream <kwrobot@kitware.com>"
+readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
 readonly tag="for/vtk-old"
 
