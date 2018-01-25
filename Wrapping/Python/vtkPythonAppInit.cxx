@@ -30,8 +30,6 @@
 #include <sys/stat.h>
 
 #include <string>
-#include <vtksys/SystemTools.hxx>
-#include <vtksys/SystemInformation.hxx>
 
 #ifdef VTK_COMPILED_USING_MPI
 class vtkMPICleanup {

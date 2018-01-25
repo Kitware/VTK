@@ -16,6 +16,9 @@
 #include "vtkRenderTimings.h"
 //#include "vtkNew.h"
 
+#include <vtksys/SystemInformation.hxx>
+#include <vtksys/RegularExpression.hxx>
+
 #include "vtkAxis.h"
 #include "vtkChartLegend.h"
 #include "vtkChartXY.h"

@@ -21,8 +21,6 @@
  */
 
 #include "vtkTimerLog.h"
-#include <vtksys/SystemInformation.hxx>
-#include <vtksys/RegularExpression.hxx>
 #include <vtksys/CommandLineArguments.hxx>
 #include <map>
 
