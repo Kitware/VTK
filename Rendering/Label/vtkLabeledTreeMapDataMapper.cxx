@@ -653,13 +653,19 @@ int vtkLabeledTreeMapDataMapper::ConvertToDC(float *binfo, float *newBinfo)
 void vtkLabeledTreeMapDataMapper::SetFontSizeRange(int maxSize, int minSize,
                                                    int delta)
 {
-  int nLevels = (maxSize - minSize) / delta;
-  int i, s;
-  if (nLevels < 0)
+  if (maxSize < minSize)
   {
     vtkErrorMacro(<<"maxSize is smaller than minSize");
     return;
   }
+  if (delta < 1)
+  {
+    vtkErrorMacro(<<"delta must be positive");
+    return;
+  }
+
+  int nLevels = (maxSize - minSize) / delta;
+  int i, s;
 
   if ((maxSize - (nLevels * delta)) > minSize)
   {

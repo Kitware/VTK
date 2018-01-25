@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on macOS with cppcheck 1.81.
+// at least on macOS with cppcheck 1.82.
 
 // To run:
 // cd /path/to/VTK/
@@ -87,13 +87,13 @@ uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 knownConditionTrueFalse:IO/Exodus/vtkExodusIIReader.cxx
 knownConditionTrueFalse:IO/Geometry/Testing/Cxx/TestIncrementalOctreePointLocator.cxx
 
-// false positive: <http://trac.cppcheck.net/ticket/7889>
-knownConditionTrueFalse:IO/Parallel/vtkMultiBlockPLOT3DReader.cxx
-knownConditionTrueFalse:Parallel/MPI/Testing/Cxx/ExerciseMultiProcessController.cxx
+// false positive: <https://trac.cppcheck.net/ticket/8346>
+syntaxError:Accelerators/Vtkm/vtkmlib/Portals.hxx:120,error,syntax error
+syntaxError:Common/Math/vtkQuaternion.txx:134,error,syntax error
+syntaxError:Rendering/OpenGL2/vtkOpenGLVertexBufferObject.cxx:179,error,syntax error
 
-// false positive: <http://trac.cppcheck.net/ticket/7896>
-unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
-unassignedVariable:Rendering/Core/vtkCamera.cxx
+// false positive: <https://trac.cppcheck.net/ticket/8367>
+CastIntegerToAddressAtReturn:Common/ExecutionModel/vtkAlgorithm.h
 
 // Not worth fixing, but not actually false positives.
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
