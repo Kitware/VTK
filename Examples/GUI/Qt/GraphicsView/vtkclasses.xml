@@ -658,10 +658,6 @@
             </class>
             <class id="vtkGradientFilter" library="Graphics">
             </class>
-            <class id="vtkHyperOctreeDepth" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeLimiter" library="Graphics">
-            </class>
             <class id="vtkIdFilter" library="Graphics">
             </class>
             <class id="vtkImplicitTextureCoords" library="Graphics">
@@ -761,12 +757,6 @@
             <class id="vtkLevelIdScalars" library="Graphics">
                <class id="vtkHierarchicalDataLevelFilter" library="Graphics">
                </class>
-            </class>
-         </class>
-         <class id="vtkHyperOctreeAlgorithm" library="Filtering">
-            <class id="vtkHyperOctreeFractalSource" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeSampleFunction" library="Graphics">
             </class>
          </class>
          <class id="vtkImageAlgorithm" library="Filtering">
@@ -927,8 +917,6 @@
                </class>
                <class id="vtkImageWeightedSum" library="Imaging">
                </class>
-            </class>
-            <class id="vtkHyperOctreeToUniformGridFilter" library="Graphics">
             </class>
             <class id="vtkTimeSourceExample" library="Graphics">
             </class>
@@ -1237,14 +1225,6 @@
             <class id="vtkHedgeHog" library="Graphics">
             </class>
             <class id="vtkHull" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeContourFilter" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeCutter" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeDualGridContourFilter" library="Graphics">
-            </class>
-            <class id="vtkHyperOctreeSurfaceFilter" library="Graphics">
             </class>
             <class id="vtkHyperStreamline" library="Graphics">
             </class>
@@ -1640,8 +1620,6 @@
             </class>
             <class id="vtkClipDataSet" library="Graphics">
             </class>
-            <class id="vtkClipHyperOctree" library="Graphics">
-            </class>
             <class id="vtkClipVolume" library="Graphics">
             </class>
             <class id="vtkConnectivityFilter" library="Graphics">
@@ -1783,8 +1761,6 @@
                </class>
             </class>
             <class id="vtkXMLDataReader" library="IO">
-               <class id="vtkXMLHyperOctreeReader" library="IO">
-               </class>
                <class id="vtkXMLStructuredDataReader" library="IO">
                   <class id="vtkXMLImageDataReader" library="IO">
                   </class>
@@ -1831,8 +1807,6 @@
                </class>
             </class>
             <class id="vtkXMLDataSetWriter" library="IO">
-            </class>
-            <class id="vtkXMLHyperOctreeWriter" library="IO">
             </class>
             <class id="vtkXMLPDataWriter" library="IO">
                <class id="vtkXMLPDataSetWriter" library="IO">
@@ -1976,8 +1950,6 @@
             </class>
          </class>
          <class id="vtkDataSet" library="Filtering">
-            <class id="vtkHyperOctree" library="Filtering">
-            </class>
             <class id="vtkImageData" library="Filtering">
                <class id="vtkStructuredPoints" library="Filtering">
                </class>
@@ -2071,12 +2043,6 @@
          </class>
       </class>
       <class id="vtkGraphEdge" library="Filtering">
-      </class>
-      <class id="vtkHyperOctreeCursor" library="Filtering">
-      </class>
-      <class id="vtkHyperOctreePointsGrabber" library="Filtering">
-         <class id="vtkHyperOctreeClipCutPointsGrabber" library="Graphics">
-         </class>
       </class>
       <class id="vtkInEdgeIterator" library="Filtering">
       </class>

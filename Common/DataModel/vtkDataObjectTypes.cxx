@@ -28,9 +28,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include  "vtkHierarchicalBoxDataSet.h"
 #include  "vtkOverlappingAMR.h"
 #include  "vtkNonOverlappingAMR.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include  "vtkHyperOctree.h"
-#endif // LEGACY remove
 #include  "vtkHyperTreeGrid.h"
 #include  "vtkImageData.h"
 #include  "vtkMultiBlockDataSet.h"
@@ -215,12 +212,6 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(const char* type)
   {
     return vtkNonOverlappingAMR::New();
   }
-#if !defined(VTK_LEGACY_REMOVE)
-  else if(strcmp(type, "vtkHyperOctree") == 0)
-  {
-    return vtkHyperOctree::New();
-  }
-#endif // LEGACY remove
   else if(strcmp(type, "vtkHyperTreeGrid") == 0)
   {
     return vtkHyperTreeGrid::New();
