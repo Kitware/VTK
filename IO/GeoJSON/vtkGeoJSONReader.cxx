@@ -231,16 +231,19 @@ GeoJSONReaderInternal::CanParseFile(const char *filename, Json::Value &root)
     return VTK_ERROR;
   }
 
-  Json::Reader reader;
+  Json::CharReaderBuilder builder;
+  builder["collectComments"] = false;
+
+  std::string formattedErrors;
 
   //parse the entire geoJSON data into the Json::Value root
-  bool parsedSuccess = reader.parse(file, root, false);
+  bool parsedSuccess = parseFromStream(builder, file, &root, &formattedErrors);
 
   if ( ! parsedSuccess )
   {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormattedErrorMessages());
+                           << formattedErrors);
     return VTK_ERROR;
   }
 
@@ -257,16 +260,21 @@ GeoJSONReaderInternal::CanParseString(char *input, Json::Value &root)
     return VTK_ERROR;
   }
 
-  Json::Reader reader;
+  Json::CharReaderBuilder builder;
+  builder["collectComments"] = false;
+
+  std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+
+  std::string formattedErrors;
 
   //parse the entire geoJSON data into the Json::Value root
-  bool parsedSuccess = reader.parse(input, root, false);
+  bool parsedSuccess = reader->parse(input, input + strlen(input), &root, &formattedErrors);
 
   if ( ! parsedSuccess )
   {
     // Report failures and their locations in the document
     vtkGenericWarningMacro(<<"Failed to parse JSON" << endl
-                           << reader.getFormattedErrorMessages());
+                           << formattedErrors);
     return VTK_ERROR;
   }
 
@@ -325,8 +333,16 @@ void vtkGeoJSONReader::GeoJSONReaderInternal::ParseFeatureProperties(
   if (serializedPropertiesArrayName)
   {
     property.Name = serializedPropertiesArrayName;
-    Json::FastWriter writer;
-    std::string propString = writer.write(propertiesNode);
+
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "None";
+    builder["indentation"] = "";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    std::stringstream stream;
+    writer->write(propertiesNode, &stream);
+    std::string propString = stream.str();
+
     if (!propString.empty() && *propString.rbegin() == '\n')
     {
       propString.resize(propString.size() - 1);

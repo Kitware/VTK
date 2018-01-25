@@ -365,14 +365,19 @@ int vtkPlot3DMetaReader::RequestInformation(
 
   ifstream file(this->FileName);
 
+  Json::CharReaderBuilder rbuilder;
+  rbuilder["collectComments"] = true;
+
   Json::Value root;
-  Json::Reader reader;
-  bool parsingSuccessful = reader.parse(file, root);
+  std::string formattedErrorMessages;
+
+  bool parsingSuccessful = Json::parseFromStream(rbuilder, file, &root, &formattedErrorMessages);
+
   if (!parsingSuccessful)
   {
     // report to the user the failure and their locations in the document.
     vtkErrorMacro("Failed to parse configuration\n"
-                  << reader.getFormattedErrorMessages().c_str());
+                  << formattedErrorMessages);
     return 0;
   }
 

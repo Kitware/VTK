@@ -40,8 +40,12 @@ namespace
 {
   vtkOStreamWrapper& operator<<(vtkOStreamWrapper& os, const Json::Value& root)
   {
-    Json::StyledStreamWriter writer;
-    writer.write(os,root);
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "All";
+    builder["indentation"] = "  ";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    writer->write(root, &os.GetOStream());
     return os;
   }
 }
@@ -618,6 +622,11 @@ void vtkGeoJSONFeature::PrintSelf(ostream &os, vtkIndent indent)
     Superclass::PrintSelf(os, indent);
     os << indent << "vtkGeoJSONFeature" << std::endl;
     os << indent << "Root: ";
-    Json::StyledStreamWriter writer;
-    writer.write(os,this->featureRoot);
+
+    Json::StreamWriterBuilder builder;
+    builder["commentStyle"] = "All";
+    builder["indentation"] = "  ";
+    std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
+
+    writer->write(this->featureRoot, &os);
 }
