@@ -8,17 +8,18 @@ readonly name="lz4"
 readonly ownership="lz4 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/lz4.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-old"
 
 readonly paths="
-lib/LICENSE
-lib/README.md
-lib/*.h
 lib/*.c
-README.md
-CMakeLists.txt
+lib/*.h
 
 .gitattributes
+lib/LICENSE
+lib/README.md
+README.md
+README.kitware.md
+CMakeLists.txt
 "
 
 extract_source () {
