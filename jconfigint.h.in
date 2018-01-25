@@ -1,0 +1,17 @@
+/* libjpeg-turbo build number */
+#cmakedefine BUILD "@BUILD@"
+
+/* Compiler's inline keyword */
+#cmakedefine inline
+
+/* How to obtain function inlining. */
+#cmakedefine INLINE @INLINE@
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME "@PACKAGE_NAME@"
+
+/* Version number of package */
+#cmakedefine VERSION "@VERSION@"
+
+/* The size of `size_t', as computed by sizeof. */
+#cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
