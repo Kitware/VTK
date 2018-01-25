@@ -16,12 +16,12 @@
 
 //-----------------------------------------------------------------------------
 void vtkFlashReaderInternal::GetBlockAttribute(
-    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+    const char *attribute, int blockIdx, vtkDataSet *pDataSet )
 {
  // this function must be called by GetBlock( ... )
  this->ReadMetaData();
 
- if ( atribute == nullptr || blockIdx < 0  ||
+ if ( attribute == nullptr || blockIdx < 0  ||
       pDataSet == nullptr || blockIdx >= this->NumberOfBlocks )
  {
 //   vtkDebugMacro( "Data attribute name or vtkDataSet nullptr, or " <<
@@ -30,7 +30,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
  }
  // remove the prefix ("mesh_blockandlevel/" or "mesh_blockandproc/") to get
  // the actual attribute name
- std::string  tempName = atribute;
+ std::string  tempName = attribute;
  size_t          slashPos = tempName.find( '/' );
  std::string  attrName = tempName.substr ( slashPos + 1 );
  hid_t           dataIndx = H5Dopen
@@ -97,7 +97,7 @@ void vtkFlashReaderInternal::GetBlockAttribute(
                        stridVec, countVec,       nullptr );
 
  vtkDoubleArray   * dataAray = vtkDoubleArray::New();
- dataAray->SetName( atribute );
+ dataAray->SetName( attribute );
  dataAray->SetNumberOfTuples( numTupls );
  double           * arrayPtr = static_cast < double * >
                                (  dataAray->GetPointer( 0 )  );

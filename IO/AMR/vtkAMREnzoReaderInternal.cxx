@@ -391,13 +391,13 @@ void vtkEnzoReaderInternal::ReleaseDataArray()
 
 //------------------------------------------------------------------------------
 int vtkEnzoReaderInternal::GetBlockAttribute(
-    const char *atribute, int blockIdx, vtkDataSet *pDataSet )
+    const char *attribute, int blockIdx, vtkDataSet *pDataSet )
 {
 
   // this function must be called by GetBlock( ... )
   this->ReadMetaData();
 
-  if ( atribute == nullptr || blockIdx < 0  ||
+  if ( attribute == nullptr || blockIdx < 0  ||
        pDataSet == nullptr || blockIdx >= this->NumberOfBlocks )
   {
     return 0;
@@ -412,7 +412,7 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
   // contain it as a block attribute, whereas others without particles just
   // do not contain this block attribute.
   int   succeded = 0;
-  if (  this->LoadAttribute( atribute, blockIdx ) &&
+  if (  this->LoadAttribute( attribute, blockIdx ) &&
         ( pDataSet->GetNumberOfCells() ==
           this->DataArray->GetNumberOfTuples() )
      )
@@ -426,13 +426,13 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
 }
 
 //------------------------------------------------------------------------------
-int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
+int vtkEnzoReaderInternal::LoadAttribute( const char *attribute, int blockIdx )
 {
   // TODO: implement this
   // called by GetBlockAttribute( ... ) or GetParticlesAttribute()
   this->ReadMetaData();
 
-  if ( atribute == nullptr || blockIdx < 0  ||
+  if ( attribute == nullptr || blockIdx < 0  ||
        blockIdx >= this->NumberOfBlocks )
   {
     return 0;
@@ -481,7 +481,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   H5Eget_auto( &erorFunc, &pContext );
   H5Eset_auto( nullptr, nullptr );
 
-  hid_t        attrIndx = H5Dopen( rootIndx, atribute );
+  hid_t        attrIndx = H5Dopen( rootIndx, attribute );
 
   H5Eset_auto( erorFunc, pContext );
   pContext = nullptr;
@@ -490,7 +490,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
   if ( attrIndx < 0 )
   {
     vtkGenericWarningMacro(
-     "Attribute (" << atribute << ") data does not exist in file "
+     "Attribute (" << attribute << ") data does not exist in file "
      << blckFile.c_str() );
     H5Gclose( rootIndx );
     H5Fclose( fileIndx );
@@ -639,7 +639,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
 
 
   // do not forget to provide a name for the array
-  this->DataArray->SetName( atribute );
+  this->DataArray->SetName( attribute );
 
 // These close statements cause a crash!
 //  H5Tclose( dataType );
