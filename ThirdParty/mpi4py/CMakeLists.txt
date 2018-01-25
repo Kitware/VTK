@@ -44,4 +44,8 @@ if (NOT VTK_USE_SYSTEM_MPI4PY)
   vtk_third_party_warning_suppress(VTKMPI4PY C)
 
   add_subdirectory(vtkmpi4py)
+else ()
+  set_property(GLOBAL APPEND
+    PROPERTY
+      vtk_required_python_modules "mpi4py>=2.0.0")
 endif ()
