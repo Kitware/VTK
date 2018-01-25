@@ -102,8 +102,8 @@ public:
    *  vtkDataCompressors should take a value between 1 and 9
    *  where 1 is fastest compression, and 9 is best compression.
    */
-  virtual void SetCompressionLevel(int compressionLevel);
-  virtual int GetCompressionLevel();
+  virtual void SetCompressionLevel(int compressionLevel) = 0;
+  virtual int GetCompressionLevel() = 0;
 
 protected:
   vtkDataCompressor();
