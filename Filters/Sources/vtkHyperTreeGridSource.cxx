@@ -336,6 +336,9 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   {
     return 0;
   }
+
+  output->Initialize();
+
   vtkPointData* outData = output->GetPointData();
 
   this->LevelBitsIndexCnt.clear();
