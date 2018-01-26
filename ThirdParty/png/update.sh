@@ -8,28 +8,25 @@ readonly name="png"
 readonly ownership="Libpng Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/png.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-old"
 readonly paths="
 .gitattributes
-CMakeLists.txt
-vtkpngConfig.h.in
-vtk_png_mangle.h
+CMakeLists.vtk.txt
 
-ANNOUNCE
+scripts/dfn.awk
+scripts/options.awk
+scripts/pnglibconf.dfa
+scripts/pnglibconf.mak
+pngusr.dfa
+
 CHANGES
-KNOWNBUG
 LICENSE
 README
 README.kitware.md
-TODO
-Y2KINFO
 
 png.c
-pngconf.h
 pngerror.c
-pnggccrd.c
 pngget.c
-png.h
 pngmem.c
 pngpread.c
 pngread.c
@@ -37,17 +34,30 @@ pngrio.c
 pngrtran.c
 pngrutil.c
 pngset.c
-pngtest.c
 pngtrans.c
-pngvcrd.c
 pngwio.c
 pngwrite.c
 pngwtran.c
 pngwutil.c
+
+png.h
+pngconf.h
+pngdebug.h
+pnginfo.h
+pngpriv.h
+pngstruct.h
+vtk_png_mangle.h
+vtkpngConfig.h.in
 "
 
 extract_source () {
     git_archive
+    pushd "$extractdir/$name-reduced"
+    CPPFLAGS="-I${BASH_SOURCE%/*}/../zlib/vtkzlib" make -f scripts/pnglibconf.mak
+    sed -i -e '/PNG_ZLIB_VERNUM/s/0x.*/0/' pnglibconf.h
+    rm -rvf scripts pngusr.dfa pnglibconf.dfn pnglibconf.pre
+    mv -v CMakeLists.vtk.txt CMakeLists.txt
+    popd
 }
 
 . "${BASH_SOURCE%/*}/../update-common.sh"

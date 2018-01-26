@@ -359,7 +359,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(
   // update the info now that we have defined the filters
   png_read_update_info(png_ptr, info_ptr);
 
-  int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+  size_t rowbytes = png_get_rowbytes(png_ptr, info_ptr);
   unsigned char *tempImage = new unsigned char [rowbytes*height];
   png_bytep *row_pointers = new png_bytep [height];
   for (ui = 0; ui < height; ++ui)
