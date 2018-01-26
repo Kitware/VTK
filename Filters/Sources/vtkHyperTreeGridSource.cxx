@@ -687,6 +687,10 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   std::ostringstream descriptor;
   std::ostringstream mask;
 
+  // Reset parsed level containers:
+  this->LevelDescriptors.clear();
+  this->LevelMaterialMasks.clear();
+
   for ( size_t i = 0; i < descLen; ++ i )
   {
     char c = this->Descriptor[i];
@@ -830,10 +834,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   }
 
   // Create vector of counters as long as tree depth
-  for ( unsigned int i = 0; i < nLevels; ++ i )
-  {
-    this->LevelCounters.push_back( 0 );
-  }
+  this->LevelCounters.clear();
+  this->LevelCounters.resize(nLevels, 0);
 
   this->LevelBitsIndex.clear();
   this->LevelBitsIndex.push_back( 0 );
