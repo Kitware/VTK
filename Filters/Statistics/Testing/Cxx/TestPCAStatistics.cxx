@@ -470,14 +470,26 @@ int TestEigen()
     std::cout << "Eigenvector " << i << " : ";
     double* evec = new double[eigenvectors->GetNumberOfComponents()];
     eigenvectors->GetTuple(i, evec);
+    int iamax = 0;
+    double vamax = fabs(eigenvectorsGroundTruth[i][0]);
+    for(vtkIdType j = 1; j < eigenvectors->GetNumberOfComponents(); j++)
+    {
+      double tmp = fabs(eigenvectorsGroundTruth[i][j]);
+      if (tmp > vamax)
+      {
+        iamax = j;
+        vamax = tmp;
+      }
+    }
+    double factor = (vamax == eigenvectorsGroundTruth[i][iamax]) ? +1 : -1;
     for(vtkIdType j = 0; j < eigenvectors->GetNumberOfComponents(); j++)
     {
       std::cout << evec[j] << " ";
       vtkSmartPointer<vtkDoubleArray> eigenvectorSingle =
         vtkSmartPointer<vtkDoubleArray>::New();
       pcaStatistics->GetEigenvector(i, eigenvectorSingle);
-      if(!fuzzyCompare(eigenvectorsGroundTruth[i][j], evec[j]) ||
-         !fuzzyCompare(eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)) )
+      if(!fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], evec[j]) ||
+         !fuzzyCompare(factor * eigenvectorsGroundTruth[i][j], eigenvectorSingle->GetValue(j)) )
       {
          std::cerr << "Eigenvectors do not match!" << std::endl;
          return EXIT_FAILURE;
