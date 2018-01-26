@@ -142,7 +142,6 @@ int TestHyperTreeGridBinaryClipPlanes(int argc, char* argv[])
   actor3->SetPosition( -2.5, 0., 0. );
 
   // Camera
-  double bd[6];
   vtkNew<vtkCamera> camera;
   camera->SetClippingRange( 1., 100. );
   camera->SetViewUp( 0., 1., 0. );
