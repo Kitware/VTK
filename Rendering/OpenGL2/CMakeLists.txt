@@ -311,7 +311,7 @@ if (APPLE_IOS)
   vtk_module_link_libraries(${vtk-module} LINK_PUBLIC "-framework UIKit")
 endif()
 
-if (NOT ANDROID AND NOT APPLE_IOS)
+if (NOT ANDROID AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   VTK_ADD_EXECUTABLE(vtkProbeOpenGLVersion vtkProbeOpenGLVersion.cxx)
   target_link_libraries(vtkProbeOpenGLVersion ${vtk-module})
 endif()
