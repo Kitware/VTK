@@ -47,11 +47,4 @@ set(Module_SRCS
   vtkXMLWriter.cxx
   )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkXMLHyperOctreeReader.cxx
-    vtkXMLHyperOctreeWriter.cxx
-  )
-endif()
-
 vtk_module_library(vtkIOXML ${Module_SRCS})

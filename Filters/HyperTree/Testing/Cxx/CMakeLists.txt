@@ -1,13 +1,4 @@
 set(test_sources
-  # All things HyperOctree-related have been deprecated, so these now emit lots
-  # of warnings:
-  #TestClipHyperOctree.cxx
-  #TestHyperOctreeContourFilter.cxx
-  #TestHyperOctreeCutter.cxx
-  #TestHyperOctreeDual.cxx
-  #TestHyperOctreeSurfaceFilter.cxx
-  #TestHyperOctreeToUniformGrid.cxx
-
   TestHyperTreeGridBinary2D.cxx
   TestHyperTreeGridBinary2DAxisClipBox.cxx
   TestHyperTreeGridBinary2DAxisClipEllipse.cxx
@@ -72,11 +63,6 @@ set(test_sources
   TestHyperTreeGridTernarySphereMaterial.cxx
   TestHyperTreeGridTernarySphereMaterialReflections.cxx
   )
-
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND test_sources
-  )
-endif()
 
 vtk_add_test_cxx(vtkFiltersHyperTreeCxxTests tests ${test_sources})
 

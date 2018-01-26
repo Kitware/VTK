@@ -15,9 +15,6 @@
 #include "vtkXMLGenericDataObjectReader.h"
 
 #include "vtkHierarchicalBoxDataSet.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkHyperOctree.h"
-#endif // LEGACY remove
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -31,9 +28,6 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLFileReadTester.h"
-#if !defined(VTK_LEGACY_REMOVE)
-#include "vtkXMLHyperOctreeReader.h"
-#endif // LEGACY remove
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPImageDataReader.h"
@@ -97,10 +91,6 @@ int vtkXMLGenericDataObjectReader::ReadOutputType(const char *name,
       if (fileDataType.compare("vtkNonOverlappingAMR") == 0)
       {
         return VTK_NON_OVERLAPPING_AMR;
-      }
-      if(fileDataType.compare("HyperOctree")==0)
-      {
-        return VTK_HYPER_OCTREE;
       }
       if(fileDataType.compare("ImageData")==0)
       {
@@ -196,15 +186,6 @@ int vtkXMLGenericDataObjectReader::RequestDataObject(
       this->Reader = vtkXMLUniformGridAMRReader::New();
       output = vtkNonOverlappingAMR::New();
       break;
-    case VTK_HYPER_OCTREE:
-#if !defined(VTK_LEGACY_REMOVE)
-      this->Reader=vtkXMLHyperOctreeReader::New();
-      output=vtkHyperOctree::New();
-      break;
-#else // LEGACY remove
-      vtkErrorMacro("vtkHyperOctree has been deprecated.");
-      return 0;
-#endif // LEGACY remove
     case VTK_IMAGE_DATA:
       if(parallel)
       {
@@ -382,15 +363,6 @@ vtkXMLGenericDataObjectReader::GetHierarchicalBoxDataSetOutput()
 {
   return vtkHierarchicalBoxDataSet::SafeDownCast(this->GetOutput());
 }
-
-
-#if !defined(VTK_LEGACY_REMOVE)
-// ---------------------------------------------------------------------------
-vtkHyperOctree *vtkXMLGenericDataObjectReader::GetHyperOctreeOutput()
-{
-  return vtkHyperOctree::SafeDownCast(this->GetOutput());
-}
-#endif // LEGACY remove
 
 // ---------------------------------------------------------------------------
 vtkImageData *vtkXMLGenericDataObjectReader::GetImageDataOutput()

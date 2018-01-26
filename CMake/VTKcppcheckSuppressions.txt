@@ -99,7 +99,6 @@ CastIntegerToAddressAtReturn:Common/ExecutionModel/vtkAlgorithm.h
 duplicateExpression:Common/Math/Testing/Cxx/TestPolynomialSolversUnivariate.cxx
 knownConditionTrueFalse:Common/Core/Testing/Cxx/UnitTestMath.cxx
 knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
-knownConditionTrueFalse:IO/XML/Testing/Cxx/TestHyperOctreeIO.cxx
 knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
 knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLRenderWindow.cxx
 knownConditionTrueFalse:Rendering/OpenGL2/vtkOpenGLShaderCache.cxx

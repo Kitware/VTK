@@ -37,10 +37,4 @@ set(Module_SRCS
   vtkDiagonalMatrixSource.cxx
   )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkHyperOctreeFractalSource.cxx
-  )
-endif()
-
 vtk_module_library(vtkFiltersSources ${Module_SRCS})

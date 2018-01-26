@@ -221,14 +221,6 @@ set(Module_SRCS
   vtkUniformGridAMRDataIterator.cxx
   )
 
-if (NOT VTK_LEGACY_REMOVE)
-  list(APPEND Module_SRCS
-    vtkHyperOctree.cxx
-    vtkHyperOctreeCursor.cxx
-    vtkHyperOctreePointsGrabber.cxx
-  )
-endif()
-
 set(${vtk-module}_HDRS
   vtkAngularPeriodicDataArray.h
   vtkArrayListTemplate.h

@@ -376,8 +376,6 @@
     </node>
     <node id="vtkHierarchicalBoxDataSetAlgorithm">
     </node>
-    <node id="vtkHyperOctreeAlgorithm">
-    </node>
     <node id="vtkImageAlgorithm">
     </node>
     <node id="vtkImageInPlaceFilter">
@@ -574,8 +572,6 @@
     </node>
     <node id="vtkDataSet">
     </node>
-    <node id="vtkHyperOctree">
-    </node>
     <node id="vtkImageData">
     </node>
     <node id="vtkStructuredPoints">
@@ -663,10 +659,6 @@
     <node id="vtkViewDependentErrorMetric">
     </node>
     <node id="vtkGraphEdge">
-    </node>
-    <node id="vtkHyperOctreeCursor">
-    </node>
-    <node id="vtkHyperOctreePointsGrabber">
     </node>
     <node id="vtkInEdgeIterator">
     </node>
@@ -1296,8 +1288,6 @@
     </node>
     <node id="vtkXMLDataReader">
     </node>
-    <node id="vtkXMLHyperOctreeReader">
-    </node>
     <node id="vtkXMLStructuredDataReader">
     </node>
     <node id="vtkXMLImageDataReader">
@@ -1339,8 +1329,6 @@
     <node id="vtkXMLMultiBlockDataWriter">
     </node>
     <node id="vtkXMLDataSetWriter">
-    </node>
-    <node id="vtkXMLHyperOctreeWriter">
     </node>
     <node id="vtkXMLPDataWriter">
     </node>
@@ -1624,10 +1612,6 @@
     </node>
     <node id="vtkGradientFilter">
     </node>
-    <node id="vtkHyperOctreeDepth">
-    </node>
-    <node id="vtkHyperOctreeLimiter">
-    </node>
     <node id="vtkIdFilter">
     </node>
     <node id="vtkImplicitTextureCoords">
@@ -1689,12 +1673,6 @@
     <node id="vtkLevelIdScalars">
     </node>
     <node id="vtkHierarchicalDataLevelFilter">
-    </node>
-    <node id="vtkHyperOctreeFractalSource">
-    </node>
-    <node id="vtkHyperOctreeSampleFunction">
-    </node>
-    <node id="vtkHyperOctreeToUniformGridFilter">
     </node>
     <node id="vtkTimeSourceExample">
     </node>
@@ -1817,14 +1795,6 @@
     <node id="vtkHedgeHog">
     </node>
     <node id="vtkHull">
-    </node>
-    <node id="vtkHyperOctreeContourFilter">
-    </node>
-    <node id="vtkHyperOctreeCutter">
-    </node>
-    <node id="vtkHyperOctreeDualGridContourFilter">
-    </node>
-    <node id="vtkHyperOctreeSurfaceFilter">
     </node>
     <node id="vtkHyperStreamline">
     </node>
@@ -1998,8 +1968,6 @@
     </node>
     <node id="vtkClipDataSet">
     </node>
-    <node id="vtkClipHyperOctree">
-    </node>
     <node id="vtkClipVolume">
     </node>
     <node id="vtkConnectivityFilter">
@@ -2029,8 +1997,6 @@
     <node id="vtkThreshold">
     </node>
     <node id="vtkUnstructuredGridGeometryFilter">
-    </node>
-    <node id="vtkHyperOctreeClipCutPointsGrabber">
     </node>
     <node id="vtkOBBTree">
     </node>
