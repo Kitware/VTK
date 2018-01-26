@@ -824,14 +824,8 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     this->LevelMaterialMasks.push_back( mask.str() );
   }
-
-  // Reset maximum depth if fewer levels are described
   unsigned int nLevels =
     static_cast<unsigned int>( this->LevelDescriptors.size() );
-  if ( nLevels < this->MaximumLevel )
-  {
-    this->MaximumLevel = nLevels;
-  }
 
   // Create vector of counters as long as tree depth
   this->LevelCounters.clear();
@@ -1055,12 +1049,6 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
   ++ nCurrentLevel;
 
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
-
-  // Reset maximum depth if fewer levels are described
-  if ( nCurrentLevel < this->MaximumLevel )
-  {
-    this->MaximumLevel = nCurrentLevel;
-  }
 
   // Create vector of counters as long as tree depth
   for ( unsigned int i = 0; i < nCurrentLevel; ++ i )
