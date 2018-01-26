@@ -623,6 +623,9 @@ SET_TARGET_PROPERTIES(H5detect
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5detect "ws2_32.lib")
 ENDIF ()
+IF (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  SET_PROPERTY(TARGET H5detect PROPERTY LINK_FLAGS "-O0")
+ENDIF ()
 
 ADD_CUSTOM_COMMAND (
     OUTPUT ${HDF5_BINARY_DIR}/H5Tinit.c
@@ -637,6 +640,9 @@ SET_TARGET_PROPERTIES(H5make_libsettings
     OUTPUT_NAME "vtkH5make_libsettings") # XXX(vtk): change the binary name
 IF (WIN32)
   TARGET_LINK_LIBRARIES (H5make_libsettings "ws2_32.lib")
+ENDIF ()
+IF (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  SET_PROPERTY(TARGET H5make_libsettings PROPERTY LINK_FLAGS "-O0")
 ENDIF ()
 
 add_custom_command (
