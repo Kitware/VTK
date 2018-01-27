@@ -17,11 +17,17 @@
  * @brief   OpenGL rendering window
  *
  * vtkEGLRenderWindow is a concrete implementation of the abstract class
- * vtkRenderWindow. This class creates a window on Android platform and for client API OpenGL ES and
- * an offscreen pbuffer for OpenGL.
+ * vtkRenderWindow. This class creates a window on Android platform and
+ * for client API OpenGL ES and an offscreen pbuffer for OpenGL.
  * vtkOpenGLRenderer interfaces to the OpenGL graphics library.
- * Application programmers should normally use vtkRenderWindow instead of the OpenGL specific version.
-*/
+ * Application programmers should normally use vtkRenderWindow instead of
+ * the OpenGL specific version.
+ *
+ * If the VTK_DEFAULT_EGL_DEVICE_INDEX environment variable is present at
+ * the time of construction, it's value will be used to initialize the
+ * DeviceIndex, falling back to the VTK_DEFAULT_EGL_DEVICE_INDEX
+ * preprocessor definition otherwise.
+ */
 
 #ifndef vtkEGLRenderWindow_h
 #define vtkEGLRenderWindow_h
