@@ -26,11 +26,15 @@
  * 1994.).
  *
  * @warning
- * Currently only triangles are processed. Use vtkTriangleFilter to
- * convert any strips or polygons to triangles.
+ * Currently only triangles are processed. Use vtkTriangleFilter to convert
+ * any strips or polygons to triangles. If multiple closed objects are
+ * defined consider using vtkMultiObjectMassProperties. Alternatively,
+ * vtkPolyDataConnectivityFilter can be used to extract connected regions
+ * (i.e., objects) one at a time, and then each object can be processed by
+ * this filter.
  *
  * @sa
- * vtkTriangleFilter
+ * vtkTriangleFilter vtkMultiObjectMassProperties
 */
 
 #ifndef vtkMassProperties_h
@@ -130,5 +134,3 @@ private:
 };
 
 #endif
-
-

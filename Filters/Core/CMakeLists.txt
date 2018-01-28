@@ -44,6 +44,7 @@ set(Module_SRCS
   vtkMergeDataObjectFilter.cxx
   vtkMergeFields.cxx
   vtkMergeFilter.cxx
+  vtkMultiObjectMassProperties.cxx
   vtkPlaneCutter.cxx
   vtkPointDataToCellData.cxx
   vtkPolyDataConnectivityFilter.cxx
