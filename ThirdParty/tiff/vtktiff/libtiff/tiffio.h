@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: tiffio.h,v 1.94 2017-01-11 19:02:49 erouault Exp $ */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -208,7 +208,7 @@ struct _TIFFRGBAImage {
 	uint16 orientation;                     /* image orientation */
 	uint16 req_orientation;                 /* requested orientation */
 	uint16 photometric;                     /* image photometric interp */
-	uint16* redcmap;                        /* colormap pallete */
+	uint16* redcmap;                        /* colormap palette */
 	uint16* greencmap;
 	uint16* bluecmap;
 	/* get image data routine */
@@ -225,7 +225,7 @@ struct _TIFFRGBAImage {
 	TIFFYCbCrToRGB* ycbcr;                  /* YCbCr conversion state */
 	TIFFCIELabToRGB* cielab;                /* CIE L*a*b conversion state */
 
-	uint8* UaToAa;                          /* Unassociated alpha to associated alpha convertion LUT */
+	uint8* UaToAa;                          /* Unassociated alpha to associated alpha conversion LUT */
 	uint8* Bitdepth16To8;                   /* LUT for conversion from 16bit to 8bit values */
 
 	int row_offset;
@@ -280,30 +280,31 @@ typedef int (*TIFFMapFileProc)(thandle_t, void** base, toff_t* size);
 typedef void (*TIFFUnmapFileProc)(thandle_t, void* base, toff_t size);
 typedef void (*TIFFExtendProc)(TIFF*);
 
-extern const char* TIFFGetVersion(void);
+vtktiff_EXPORT const char* TIFFGetVersion(void);
 
-extern const TIFFCodec* TIFFFindCODEC(uint16);
-extern TIFFCodec* TIFFRegisterCODEC(uint16, const char*, TIFFInitMethod);
-extern void TIFFUnRegisterCODEC(TIFFCodec*);
-extern int TIFFIsCODECConfigured(uint16);
-extern TIFFCodec* TIFFGetConfiguredCODECs(void);
+vtktiff_EXPORT const TIFFCodec* TIFFFindCODEC(uint16);
+vtktiff_EXPORT TIFFCodec* TIFFRegisterCODEC(uint16, const char*, TIFFInitMethod);
+vtktiff_EXPORT void TIFFUnRegisterCODEC(TIFFCodec*);
+vtktiff_EXPORT int TIFFIsCODECConfigured(uint16);
+vtktiff_EXPORT TIFFCodec* TIFFGetConfiguredCODECs(void);
 
 /*
  * Auxiliary functions.
  */
 
-extern void* _TIFFmalloc(tmsize_t s);
-extern void* _TIFFrealloc(void* p, tmsize_t s);
-extern void _TIFFmemset(void* p, int v, tmsize_t c);
-extern void _TIFFmemcpy(void* d, const void* s, tmsize_t c);
-extern int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c);
-extern void _TIFFfree(void* p);
+vtktiff_EXPORT void* _TIFFmalloc(tmsize_t s);
+vtktiff_EXPORT void* _TIFFcalloc(tmsize_t nmemb, tmsize_t siz);
+vtktiff_EXPORT void* _TIFFrealloc(void* p, tmsize_t s);
+vtktiff_EXPORT void _TIFFmemset(void* p, int v, tmsize_t c);
+vtktiff_EXPORT void _TIFFmemcpy(void* d, const void* s, tmsize_t c);
+vtktiff_EXPORT int _TIFFmemcmp(const void* p1, const void* p2, tmsize_t c);
+vtktiff_EXPORT void _TIFFfree(void* p);
 
 /*
 ** Stuff, related to tag handling and creating custom tags.
 */
-extern int TIFFGetTagListCount( TIFF * );
-extern uint32 TIFFGetTagListEntry( TIFF *, int tag_index );
+vtktiff_EXPORT int TIFFGetTagListCount( TIFF * );
+vtktiff_EXPORT uint32 TIFFGetTagListEntry( TIFF *, int tag_index );
     
 #define TIFF_ANY       TIFF_NOTYPE     /* for field descriptor searching */
 #define TIFF_VARIABLE  -1              /* marker for variable length tags */
@@ -315,16 +316,16 @@ extern uint32 TIFFGetTagListEntry( TIFF *, int tag_index );
 typedef struct _TIFFField TIFFField;
 typedef struct _TIFFFieldArray TIFFFieldArray;
 
-extern const TIFFField* TIFFFindField(TIFF *, uint32, TIFFDataType);
-extern const TIFFField* TIFFFieldWithTag(TIFF*, uint32);
-extern const TIFFField* TIFFFieldWithName(TIFF*, const char *);
+vtktiff_EXPORT const TIFFField* TIFFFindField(TIFF *, uint32, TIFFDataType);
+vtktiff_EXPORT const TIFFField* TIFFFieldWithTag(TIFF*, uint32);
+vtktiff_EXPORT const TIFFField* TIFFFieldWithName(TIFF*, const char *);
 
-extern uint32 TIFFFieldTag(const TIFFField*);
-extern const char* TIFFFieldName(const TIFFField*);
-extern TIFFDataType TIFFFieldDataType(const TIFFField*);
-extern int TIFFFieldPassCount(const TIFFField*);
-extern int TIFFFieldReadCount(const TIFFField*);
-extern int TIFFFieldWriteCount(const TIFFField*);
+vtktiff_EXPORT uint32 TIFFFieldTag(const TIFFField*);
+vtktiff_EXPORT const char* TIFFFieldName(const TIFFField*);
+vtktiff_EXPORT TIFFDataType TIFFFieldDataType(const TIFFField*);
+vtktiff_EXPORT int TIFFFieldPassCount(const TIFFField*);
+vtktiff_EXPORT int TIFFFieldReadCount(const TIFFField*);
+vtktiff_EXPORT int TIFFFieldWriteCount(const TIFFField*);
 
 typedef int (*TIFFVSetMethod)(TIFF*, uint32, va_list);
 typedef int (*TIFFVGetMethod)(TIFF*, uint32, va_list);
@@ -336,190 +337,192 @@ typedef struct {
     TIFFPrintMethod printdir; /* directory print routine */
 } TIFFTagMethods;
 
-extern  TIFFTagMethods *TIFFAccessTagMethods(TIFF *);
-extern  void *TIFFGetClientInfo(TIFF *, const char *);
-extern  void TIFFSetClientInfo(TIFF *, void *, const char *);
+vtktiff_EXPORT  TIFFTagMethods *TIFFAccessTagMethods(TIFF *);
+vtktiff_EXPORT  void *TIFFGetClientInfo(TIFF *, const char *);
+vtktiff_EXPORT  void TIFFSetClientInfo(TIFF *, void *, const char *);
 
-extern void TIFFCleanup(TIFF* tif);
-extern void TIFFClose(TIFF* tif);
-extern int TIFFFlush(TIFF* tif);
-extern int TIFFFlushData(TIFF* tif);
-extern int TIFFGetField(TIFF* tif, uint32 tag, ...);
-extern int TIFFVGetField(TIFF* tif, uint32 tag, va_list ap);
-extern int TIFFGetFieldDefaulted(TIFF* tif, uint32 tag, ...);
-extern int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap);
-extern int TIFFReadDirectory(TIFF* tif);
-extern int TIFFReadCustomDirectory(TIFF* tif, toff_t diroff, const TIFFFieldArray* infoarray);
-extern int TIFFReadEXIFDirectory(TIFF* tif, toff_t diroff);
-extern uint64 TIFFScanlineSize64(TIFF* tif);
-extern tmsize_t TIFFScanlineSize(TIFF* tif);
-extern uint64 TIFFRasterScanlineSize64(TIFF* tif);
-extern tmsize_t TIFFRasterScanlineSize(TIFF* tif);
-extern uint64 TIFFStripSize64(TIFF* tif);
-extern tmsize_t TIFFStripSize(TIFF* tif);
-extern uint64 TIFFRawStripSize64(TIFF* tif, uint32 strip);
-extern tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip);
-extern uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows);
-extern tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows);
-extern uint64 TIFFTileRowSize64(TIFF* tif);
-extern tmsize_t TIFFTileRowSize(TIFF* tif);
-extern uint64 TIFFTileSize64(TIFF* tif);
-extern tmsize_t TIFFTileSize(TIFF* tif);
-extern uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows);
-extern tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows);
-extern uint32 TIFFDefaultStripSize(TIFF* tif, uint32 request);
-extern void TIFFDefaultTileSize(TIFF*, uint32*, uint32*);
-extern int TIFFFileno(TIFF*);
-extern int TIFFSetFileno(TIFF*, int);
-extern thandle_t TIFFClientdata(TIFF*);
-extern thandle_t TIFFSetClientdata(TIFF*, thandle_t);
-extern int TIFFGetMode(TIFF*);
-extern int TIFFSetMode(TIFF*, int);
-extern int TIFFIsTiled(TIFF*);
-extern int TIFFIsByteSwapped(TIFF*);
-extern int TIFFIsUpSampled(TIFF*);
-extern int TIFFIsMSB2LSB(TIFF*);
-extern int TIFFIsBigEndian(TIFF*);
-extern TIFFReadWriteProc TIFFGetReadProc(TIFF*);
-extern TIFFReadWriteProc TIFFGetWriteProc(TIFF*);
-extern TIFFSeekProc TIFFGetSeekProc(TIFF*);                                                          
-extern TIFFCloseProc TIFFGetCloseProc(TIFF*);
-extern TIFFSizeProc TIFFGetSizeProc(TIFF*);
-extern TIFFMapFileProc TIFFGetMapFileProc(TIFF*);
-extern TIFFUnmapFileProc TIFFGetUnmapFileProc(TIFF*);
-extern uint32 TIFFCurrentRow(TIFF*);
-extern uint16 TIFFCurrentDirectory(TIFF*);
-extern uint16 TIFFNumberOfDirectories(TIFF*);
-extern uint64 TIFFCurrentDirOffset(TIFF*);
-extern uint32 TIFFCurrentStrip(TIFF*);
-extern uint32 TIFFCurrentTile(TIFF* tif);
-extern int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size);
-extern int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size);  
-extern int TIFFSetupStrips(TIFF *);
-extern int TIFFWriteCheck(TIFF*, int, const char *);
-extern void TIFFFreeDirectory(TIFF*);
-extern int TIFFCreateDirectory(TIFF*);
-extern int TIFFCreateCustomDirectory(TIFF*,const TIFFFieldArray*);
-extern int TIFFCreateEXIFDirectory(TIFF*);
-extern int TIFFLastDirectory(TIFF*);
-extern int TIFFSetDirectory(TIFF*, uint16);
-extern int TIFFSetSubDirectory(TIFF*, uint64);
-extern int TIFFUnlinkDirectory(TIFF*, uint16);
-extern int TIFFSetField(TIFF*, uint32, ...);
-extern int TIFFVSetField(TIFF*, uint32, va_list);
-extern int TIFFUnsetField(TIFF*, uint32);
-extern int TIFFWriteDirectory(TIFF *);
-extern int TIFFWriteCustomDirectory(TIFF *, uint64 *);
-extern int TIFFCheckpointDirectory(TIFF *);
-extern int TIFFRewriteDirectory(TIFF *);
+vtktiff_EXPORT void TIFFCleanup(TIFF* tif);
+vtktiff_EXPORT void TIFFClose(TIFF* tif);
+vtktiff_EXPORT int TIFFFlush(TIFF* tif);
+vtktiff_EXPORT int TIFFFlushData(TIFF* tif);
+vtktiff_EXPORT int TIFFGetField(TIFF* tif, uint32 tag, ...);
+vtktiff_EXPORT int TIFFVGetField(TIFF* tif, uint32 tag, va_list ap);
+vtktiff_EXPORT int TIFFGetFieldDefaulted(TIFF* tif, uint32 tag, ...);
+vtktiff_EXPORT int TIFFVGetFieldDefaulted(TIFF* tif, uint32 tag, va_list ap);
+vtktiff_EXPORT int TIFFReadDirectory(TIFF* tif);
+vtktiff_EXPORT int TIFFReadCustomDirectory(TIFF* tif, toff_t diroff, const TIFFFieldArray* infoarray);
+vtktiff_EXPORT int TIFFReadEXIFDirectory(TIFF* tif, toff_t diroff);
+vtktiff_EXPORT uint64 TIFFScanlineSize64(TIFF* tif);
+vtktiff_EXPORT tmsize_t TIFFScanlineSize(TIFF* tif);
+vtktiff_EXPORT uint64 TIFFRasterScanlineSize64(TIFF* tif);
+vtktiff_EXPORT tmsize_t TIFFRasterScanlineSize(TIFF* tif);
+vtktiff_EXPORT uint64 TIFFStripSize64(TIFF* tif);
+vtktiff_EXPORT tmsize_t TIFFStripSize(TIFF* tif);
+vtktiff_EXPORT uint64 TIFFRawStripSize64(TIFF* tif, uint32 strip);
+vtktiff_EXPORT tmsize_t TIFFRawStripSize(TIFF* tif, uint32 strip);
+vtktiff_EXPORT uint64 TIFFVStripSize64(TIFF* tif, uint32 nrows);
+vtktiff_EXPORT tmsize_t TIFFVStripSize(TIFF* tif, uint32 nrows);
+vtktiff_EXPORT uint64 TIFFTileRowSize64(TIFF* tif);
+vtktiff_EXPORT tmsize_t TIFFTileRowSize(TIFF* tif);
+vtktiff_EXPORT uint64 TIFFTileSize64(TIFF* tif);
+vtktiff_EXPORT tmsize_t TIFFTileSize(TIFF* tif);
+vtktiff_EXPORT uint64 TIFFVTileSize64(TIFF* tif, uint32 nrows);
+vtktiff_EXPORT tmsize_t TIFFVTileSize(TIFF* tif, uint32 nrows);
+vtktiff_EXPORT uint32 TIFFDefaultStripSize(TIFF* tif, uint32 request);
+vtktiff_EXPORT void TIFFDefaultTileSize(TIFF*, uint32*, uint32*);
+vtktiff_EXPORT int TIFFFileno(TIFF*);
+vtktiff_EXPORT int TIFFSetFileno(TIFF*, int);
+vtktiff_EXPORT thandle_t TIFFClientdata(TIFF*);
+vtktiff_EXPORT thandle_t TIFFSetClientdata(TIFF*, thandle_t);
+vtktiff_EXPORT int TIFFGetMode(TIFF*);
+vtktiff_EXPORT int TIFFSetMode(TIFF*, int);
+vtktiff_EXPORT int TIFFIsTiled(TIFF*);
+vtktiff_EXPORT int TIFFIsByteSwapped(TIFF*);
+vtktiff_EXPORT int TIFFIsUpSampled(TIFF*);
+vtktiff_EXPORT int TIFFIsMSB2LSB(TIFF*);
+vtktiff_EXPORT int TIFFIsBigEndian(TIFF*);
+vtktiff_EXPORT TIFFReadWriteProc TIFFGetReadProc(TIFF*);
+vtktiff_EXPORT TIFFReadWriteProc TIFFGetWriteProc(TIFF*);
+vtktiff_EXPORT TIFFSeekProc TIFFGetSeekProc(TIFF*);                                                          
+vtktiff_EXPORT TIFFCloseProc TIFFGetCloseProc(TIFF*);
+vtktiff_EXPORT TIFFSizeProc TIFFGetSizeProc(TIFF*);
+vtktiff_EXPORT TIFFMapFileProc TIFFGetMapFileProc(TIFF*);
+vtktiff_EXPORT TIFFUnmapFileProc TIFFGetUnmapFileProc(TIFF*);
+vtktiff_EXPORT uint32 TIFFCurrentRow(TIFF*);
+vtktiff_EXPORT uint16 TIFFCurrentDirectory(TIFF*);
+vtktiff_EXPORT uint16 TIFFNumberOfDirectories(TIFF*);
+vtktiff_EXPORT uint64 TIFFCurrentDirOffset(TIFF*);
+vtktiff_EXPORT uint32 TIFFCurrentStrip(TIFF*);
+vtktiff_EXPORT uint32 TIFFCurrentTile(TIFF* tif);
+vtktiff_EXPORT int TIFFReadBufferSetup(TIFF* tif, void* bp, tmsize_t size);
+vtktiff_EXPORT int TIFFWriteBufferSetup(TIFF* tif, void* bp, tmsize_t size);  
+vtktiff_EXPORT int TIFFSetupStrips(TIFF *);
+vtktiff_EXPORT int TIFFWriteCheck(TIFF*, int, const char *);
+vtktiff_EXPORT void TIFFFreeDirectory(TIFF*);
+vtktiff_EXPORT int TIFFCreateDirectory(TIFF*);
+vtktiff_EXPORT int TIFFCreateCustomDirectory(TIFF*,const TIFFFieldArray*);
+vtktiff_EXPORT int TIFFCreateEXIFDirectory(TIFF*);
+vtktiff_EXPORT int TIFFLastDirectory(TIFF*);
+vtktiff_EXPORT int TIFFSetDirectory(TIFF*, uint16);
+vtktiff_EXPORT int TIFFSetSubDirectory(TIFF*, uint64);
+vtktiff_EXPORT int TIFFUnlinkDirectory(TIFF*, uint16);
+vtktiff_EXPORT int TIFFSetField(TIFF*, uint32, ...);
+vtktiff_EXPORT int TIFFVSetField(TIFF*, uint32, va_list);
+vtktiff_EXPORT int TIFFUnsetField(TIFF*, uint32);
+vtktiff_EXPORT int TIFFWriteDirectory(TIFF *);
+vtktiff_EXPORT int TIFFWriteCustomDirectory(TIFF *, uint64 *);
+vtktiff_EXPORT int TIFFCheckpointDirectory(TIFF *);
+vtktiff_EXPORT int TIFFRewriteDirectory(TIFF *);
 
 #if defined(c_plusplus) || defined(__cplusplus)
-extern void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
-extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
-extern int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
-extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
-extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*,
+vtktiff_EXPORT void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
+vtktiff_EXPORT int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
+vtktiff_EXPORT int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample = 0);
+vtktiff_EXPORT int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
+vtktiff_EXPORT int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*,
     int = ORIENTATION_BOTLEFT, int = 0);
 #else
-extern void TIFFPrintDirectory(TIFF*, FILE*, long);
-extern int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
-extern int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
-extern int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
-extern int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
+vtktiff_EXPORT void TIFFPrintDirectory(TIFF*, FILE*, long);
+vtktiff_EXPORT int TIFFReadScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
+vtktiff_EXPORT int TIFFWriteScanline(TIFF* tif, void* buf, uint32 row, uint16 sample);
+vtktiff_EXPORT int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
+vtktiff_EXPORT int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*, int, int);
 #endif
 
-extern int TIFFReadRGBAStrip(TIFF*, uint32, uint32 * );
-extern int TIFFReadRGBATile(TIFF*, uint32, uint32, uint32 * );
-extern int TIFFRGBAImageOK(TIFF*, char [1024]);
-extern int TIFFRGBAImageBegin(TIFFRGBAImage*, TIFF*, int, char [1024]);
-extern int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
-extern void TIFFRGBAImageEnd(TIFFRGBAImage*);
-extern TIFF* TIFFOpen(const char*, const char*);
+vtktiff_EXPORT int TIFFReadRGBAStrip(TIFF*, uint32, uint32 * );
+vtktiff_EXPORT int TIFFReadRGBATile(TIFF*, uint32, uint32, uint32 * );
+vtktiff_EXPORT int TIFFReadRGBAStripExt(TIFF*, uint32, uint32 *, int stop_on_error );
+vtktiff_EXPORT int TIFFReadRGBATileExt(TIFF*, uint32, uint32, uint32 *, int stop_on_error );
+vtktiff_EXPORT int TIFFRGBAImageOK(TIFF*, char [1024]);
+vtktiff_EXPORT int TIFFRGBAImageBegin(TIFFRGBAImage*, TIFF*, int, char [1024]);
+vtktiff_EXPORT int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
+vtktiff_EXPORT void TIFFRGBAImageEnd(TIFFRGBAImage*);
+vtktiff_EXPORT TIFF* TIFFOpen(const char*, const char*);
 # ifdef __WIN32__
-extern TIFF* TIFFOpenW(const wchar_t*, const char*);
+vtktiff_EXPORT TIFF* TIFFOpenW(const wchar_t*, const char*);
 # endif /* __WIN32__ */
-extern TIFF* TIFFFdOpen(int, const char*, const char*);
-extern TIFF* TIFFClientOpen(const char*, const char*,
+vtktiff_EXPORT TIFF* TIFFFdOpen(int, const char*, const char*);
+vtktiff_EXPORT TIFF* TIFFClientOpen(const char*, const char*,
 	    thandle_t,
 	    TIFFReadWriteProc, TIFFReadWriteProc,
 	    TIFFSeekProc, TIFFCloseProc,
 	    TIFFSizeProc,
 	    TIFFMapFileProc, TIFFUnmapFileProc);
-extern const char* TIFFFileName(TIFF*);
-extern const char* TIFFSetFileName(TIFF*, const char *);
-extern void TIFFError(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
-extern void TIFFErrorExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
-extern void TIFFWarning(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
-extern void TIFFWarningExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
-extern TIFFErrorHandler TIFFSetErrorHandler(TIFFErrorHandler);
-extern TIFFErrorHandlerExt TIFFSetErrorHandlerExt(TIFFErrorHandlerExt);
-extern TIFFErrorHandler TIFFSetWarningHandler(TIFFErrorHandler);
-extern TIFFErrorHandlerExt TIFFSetWarningHandlerExt(TIFFErrorHandlerExt);
-extern TIFFExtendProc TIFFSetTagExtender(TIFFExtendProc);
-extern uint32 TIFFComputeTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
-extern int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
-extern uint32 TIFFNumberOfTiles(TIFF*);
-extern tmsize_t TIFFReadTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);  
-extern tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);
-extern uint32 TIFFComputeStrip(TIFF*, uint32, uint16);
-extern uint32 TIFFNumberOfStrips(TIFF*);
-extern tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);
-extern tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);  
-extern tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
-extern tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
-extern tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);
-extern tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);  
-extern tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
-extern tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
-extern int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
-extern void TIFFSetWriteOffset(TIFF* tif, toff_t off);
-extern void TIFFSwabShort(uint16*);
-extern void TIFFSwabLong(uint32*);
-extern void TIFFSwabLong8(uint64*);
-extern void TIFFSwabFloat(float*);
-extern void TIFFSwabDouble(double*);
-extern void TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
-extern void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);
-extern void TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
-extern void TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
-extern void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
-extern void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
-extern void TIFFReverseBits(uint8* cp, tmsize_t n);
-extern const unsigned char* TIFFGetBitRevTable(int);
+vtktiff_EXPORT const char* TIFFFileName(TIFF*);
+vtktiff_EXPORT const char* TIFFSetFileName(TIFF*, const char *);
+vtktiff_EXPORT void TIFFError(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
+vtktiff_EXPORT void TIFFErrorExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
+vtktiff_EXPORT void TIFFWarning(const char*, const char*, ...) __attribute__((__format__ (__printf__,2,3)));
+vtktiff_EXPORT void TIFFWarningExt(thandle_t, const char*, const char*, ...) __attribute__((__format__ (__printf__,3,4)));
+vtktiff_EXPORT TIFFErrorHandler TIFFSetErrorHandler(TIFFErrorHandler);
+vtktiff_EXPORT TIFFErrorHandlerExt TIFFSetErrorHandlerExt(TIFFErrorHandlerExt);
+vtktiff_EXPORT TIFFErrorHandler TIFFSetWarningHandler(TIFFErrorHandler);
+vtktiff_EXPORT TIFFErrorHandlerExt TIFFSetWarningHandlerExt(TIFFErrorHandlerExt);
+vtktiff_EXPORT TIFFExtendProc TIFFSetTagExtender(TIFFExtendProc);
+vtktiff_EXPORT uint32 TIFFComputeTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
+vtktiff_EXPORT int TIFFCheckTile(TIFF* tif, uint32 x, uint32 y, uint32 z, uint16 s);
+vtktiff_EXPORT uint32 TIFFNumberOfTiles(TIFF*);
+vtktiff_EXPORT tmsize_t TIFFReadTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);  
+vtktiff_EXPORT tmsize_t TIFFWriteTile(TIFF* tif, void* buf, uint32 x, uint32 y, uint32 z, uint16 s);
+vtktiff_EXPORT uint32 TIFFComputeStrip(TIFF*, uint32, uint16);
+vtktiff_EXPORT uint32 TIFFNumberOfStrips(TIFF*);
+vtktiff_EXPORT tmsize_t TIFFReadEncodedStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);
+vtktiff_EXPORT tmsize_t TIFFReadRawStrip(TIFF* tif, uint32 strip, void* buf, tmsize_t size);  
+vtktiff_EXPORT tmsize_t TIFFReadEncodedTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
+vtktiff_EXPORT tmsize_t TIFFReadRawTile(TIFF* tif, uint32 tile, void* buf, tmsize_t size);  
+vtktiff_EXPORT tmsize_t TIFFWriteEncodedStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);
+vtktiff_EXPORT tmsize_t TIFFWriteRawStrip(TIFF* tif, uint32 strip, void* data, tmsize_t cc);  
+vtktiff_EXPORT tmsize_t TIFFWriteEncodedTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
+vtktiff_EXPORT tmsize_t TIFFWriteRawTile(TIFF* tif, uint32 tile, void* data, tmsize_t cc);  
+vtktiff_EXPORT int TIFFDataWidth(TIFFDataType);    /* table of tag datatype widths */
+vtktiff_EXPORT void TIFFSetWriteOffset(TIFF* tif, toff_t off);
+vtktiff_EXPORT void TIFFSwabShort(uint16*);
+vtktiff_EXPORT void TIFFSwabLong(uint32*);
+vtktiff_EXPORT void TIFFSwabLong8(uint64*);
+vtktiff_EXPORT void TIFFSwabFloat(float*);
+vtktiff_EXPORT void TIFFSwabDouble(double*);
+vtktiff_EXPORT void TIFFSwabArrayOfShort(uint16* wp, tmsize_t n);
+vtktiff_EXPORT void TIFFSwabArrayOfTriples(uint8* tp, tmsize_t n);
+vtktiff_EXPORT void TIFFSwabArrayOfLong(uint32* lp, tmsize_t n);
+vtktiff_EXPORT void TIFFSwabArrayOfLong8(uint64* lp, tmsize_t n);
+vtktiff_EXPORT void TIFFSwabArrayOfFloat(float* fp, tmsize_t n);
+vtktiff_EXPORT void TIFFSwabArrayOfDouble(double* dp, tmsize_t n);
+vtktiff_EXPORT void TIFFReverseBits(uint8* cp, tmsize_t n);
+vtktiff_EXPORT const unsigned char* TIFFGetBitRevTable(int);
 
 #ifdef LOGLUV_PUBLIC
 #define U_NEU		0.210526316
 #define V_NEU		0.473684211
 #define UVSCALE		410.
-extern double LogL16toY(int);
-extern double LogL10toY(int);
-extern void XYZtoRGB24(float*, uint8*);
-extern int uv_decode(double*, double*, int);
-extern void LogLuv24toXYZ(uint32, float*);
-extern void LogLuv32toXYZ(uint32, float*);
+vtktiff_EXPORT double LogL16toY(int);
+vtktiff_EXPORT double LogL10toY(int);
+vtktiff_EXPORT void XYZtoRGB24(float*, uint8*);
+vtktiff_EXPORT int uv_decode(double*, double*, int);
+vtktiff_EXPORT void LogLuv24toXYZ(uint32, float*);
+vtktiff_EXPORT void LogLuv32toXYZ(uint32, float*);
 #if defined(c_plusplus) || defined(__cplusplus)
-extern int LogL16fromY(double, int = SGILOGENCODE_NODITHER);
-extern int LogL10fromY(double, int = SGILOGENCODE_NODITHER);
-extern int uv_encode(double, double, int = SGILOGENCODE_NODITHER);
-extern uint32 LogLuv24fromXYZ(float*, int = SGILOGENCODE_NODITHER);
-extern uint32 LogLuv32fromXYZ(float*, int = SGILOGENCODE_NODITHER);
+vtktiff_EXPORT int LogL16fromY(double, int = SGILOGENCODE_NODITHER);
+vtktiff_EXPORT int LogL10fromY(double, int = SGILOGENCODE_NODITHER);
+vtktiff_EXPORT int uv_encode(double, double, int = SGILOGENCODE_NODITHER);
+vtktiff_EXPORT uint32 LogLuv24fromXYZ(float*, int = SGILOGENCODE_NODITHER);
+vtktiff_EXPORT uint32 LogLuv32fromXYZ(float*, int = SGILOGENCODE_NODITHER);
 #else
-extern int LogL16fromY(double, int);
-extern int LogL10fromY(double, int);
-extern int uv_encode(double, double, int);
-extern uint32 LogLuv24fromXYZ(float*, int);
-extern uint32 LogLuv32fromXYZ(float*, int);
+vtktiff_EXPORT int LogL16fromY(double, int);
+vtktiff_EXPORT int LogL10fromY(double, int);
+vtktiff_EXPORT int uv_encode(double, double, int);
+vtktiff_EXPORT uint32 LogLuv24fromXYZ(float*, int);
+vtktiff_EXPORT uint32 LogLuv32fromXYZ(float*, int);
 #endif
 #endif /* LOGLUV_PUBLIC */
 
-extern int TIFFCIELabToRGBInit(TIFFCIELabToRGB*, const TIFFDisplay *, float*);
-extern void TIFFCIELabToXYZ(TIFFCIELabToRGB *, uint32, int32, int32,
+vtktiff_EXPORT int TIFFCIELabToRGBInit(TIFFCIELabToRGB*, const TIFFDisplay *, float*);
+vtktiff_EXPORT void TIFFCIELabToXYZ(TIFFCIELabToRGB *, uint32, int32, int32,
     float *, float *, float *);
-extern void TIFFXYZToRGB(TIFFCIELabToRGB *, float, float, float,
+vtktiff_EXPORT void TIFFXYZToRGB(TIFFCIELabToRGB *, float, float, float,
     uint32 *, uint32 *, uint32 *);
 
-extern int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
-extern void TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32,
+vtktiff_EXPORT int TIFFYCbCrToRGBInit(TIFFYCbCrToRGB*, float*, float*);
+vtktiff_EXPORT void TIFFYCbCrtoRGB(TIFFYCbCrToRGB *, uint32, int32, int32,
     uint32 *, uint32 *, uint32 *);
 
 /****************************************************************************
@@ -539,7 +542,7 @@ typedef	struct {
 	char	*field_name;		/* ASCII name */
 } TIFFFieldInfo;
 
-extern int TIFFMergeFieldInfo(TIFF*, const TIFFFieldInfo[], uint32);
+vtktiff_EXPORT int TIFFMergeFieldInfo(TIFF*, const TIFFFieldInfo[], uint32);
         
 #if defined(c_plusplus) || defined(__cplusplus)
 }
