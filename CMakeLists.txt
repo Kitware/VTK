@@ -36,7 +36,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vtkpngConfig.h")
 
 vtk_add_library(vtkpng ${sources} ${headers})
-target_link_libraries(vtkpng PRIVATE vtkzlib)
+target_link_libraries(vtkpng PRIVATE ${vtkzlib_LIBRARIES})
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES
     ${headers}
