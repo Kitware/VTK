@@ -297,7 +297,7 @@ function(vtk_add_test_cxx exename _tests)
 
     ExternalData_add_test(${externaldata_target}
       NAME    ${prefix}Cxx-${vtk_test_prefix}${test_name}
-      COMMAND $<TARGET_FILE:${exename}>
+      COMMAND ${exename}
               ${test_file}
               ${args}
               ${${prefix}_ARGS}
