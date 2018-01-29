@@ -437,7 +437,7 @@ void vtkCamera::ComputeOffAxisProjectionFrustum()
 {
   this->ComputeWorldToScreenMatrix();
 
-  // \NOTE: Varibles names reflect naming convention used in
+  // \NOTE: Variable names reflect naming convention used in
   // "High Resolution Virtual Reality", in Proc.
   // SIGGRAPH '92, Computer Graphics, pages 195-202, 1992.
 

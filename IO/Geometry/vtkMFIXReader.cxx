@@ -1400,7 +1400,7 @@ void vtkMFIXReader::ReadRestartFile()
   this->Flag->Resize(this->IJKMaximum2);
   this->GetBlockOfInts(in, this->Flag,this->IJKMaximum2);
 
-  // DimensionIs varibles (not needed by ani_mfix)
+  // DimensionIs variables (not needed by ani_mfix)
   this->TempI->Resize(this->DimensionIs);
   this->TempD->Resize(this->DimensionIs);
 
