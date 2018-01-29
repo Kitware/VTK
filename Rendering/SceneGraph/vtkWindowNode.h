@@ -59,7 +59,7 @@ public:
     { return this->ColorBuffer; }
 
   /**
-   * Get the most recent zbufer buffer
+   * Get the most recent zbuffer buffer
    */
   virtual vtkFloatArray *GetZBuffer()
     { return this->ZBuffer; }

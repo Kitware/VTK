@@ -473,7 +473,7 @@ public:
   }
 
   // Description:
-  // Remove input/output bufers used for computing the LIC.
+  // Remove input/output buffers used for computing the LIC.
   void DettachLICBuffers(vtkOpenGLFramebufferObject *vtkNotUsed(fbo))
   {
     vtkOpenGLStaticCheckErrorMacro("failed at glDrawBuffers");

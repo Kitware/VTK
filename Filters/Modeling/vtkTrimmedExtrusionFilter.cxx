@@ -403,7 +403,7 @@ GetNeighborCount(vtkPolyData *input, vtkIdType inCellId,
 
 
 //----------------------------------------------------------------------------
-// Somehwat modified from vtkLinearExtrusionFilter
+// Somewhat modified from vtkLinearExtrusionFilter
 void vtkTrimmedExtrusionFilter::
 ExtrudeEdges(vtkPolyData *input, vtkPolyData *output,
              vtkIdType numPts, vtkIdType numCells)

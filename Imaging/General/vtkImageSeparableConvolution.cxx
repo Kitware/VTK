@@ -366,7 +366,7 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   // this filter expects that the output be floats.
   if (outData->GetScalarType() != VTK_FLOAT)
   {
-    vtkErrorMacro(<< "Execute: Output must be be type float.");
+    vtkErrorMacro(<< "Execute: Output must be type float.");
     return 1;
   }
 

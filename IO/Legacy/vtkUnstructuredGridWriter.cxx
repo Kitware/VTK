@@ -123,7 +123,7 @@ void vtkUnstructuredGridWriter::WriteData()
     }
     else
     {
-      // swap the bytes if necc
+      // swap the bytes if necessary
       vtkByteSwap::SwapWrite4BERange(types,ncells,fp);
     }
     *fp << "\n";

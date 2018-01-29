@@ -2191,7 +2191,7 @@ int vtkDataWriter::WriteCells(ostream *fp, vtkCellArray *cells, const char *labe
   }
   else
   {
-    // swap the bytes if necc
+    // swap the bytes if necessary
     // currently writing vtkIdType as int
     vtkIdType *tempArray = cells->GetPointer();
     int arraySize = cells->GetNumberOfConnectivityEntries();

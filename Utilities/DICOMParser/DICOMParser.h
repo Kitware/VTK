@@ -208,7 +208,7 @@ class DICOM_EXPORT DICOMParser
   void InitTypeMap();
 
   //
-  // Flags for byte swaping header values and
+  // Flags for byte swapping header values and
   // image data.
   //
   bool ByteSwap;

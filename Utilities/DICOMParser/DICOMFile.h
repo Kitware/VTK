@@ -236,7 +236,7 @@ class DICOM_EXPORT DICOMFile
   dicom_stream::ifstream InputStream;
 
   //
-  // Flag for swaping bytes.
+  // Flag for swapping bytes.
   //
   bool PlatformIsBigEndian;
 

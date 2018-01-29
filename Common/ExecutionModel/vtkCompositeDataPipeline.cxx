@@ -946,7 +946,7 @@ int vtkCompositeDataPipeline::CheckCompositeData(
         vtkCompositeDataSet::SafeDownCast(this->GetInputData(compositePort, 0, inInfoVec)),
         compositePort, outInfoVec->GetNumberOfInformationObjects());
 
-      // For each port, assgin the created output object back to the output information
+      // For each port, assign the created output object back to the output information
       for (int port = 0; port < outInfoVec->GetNumberOfInformationObjects(); ++port)
       {
         vtkInformation* outInfo = outInfoVec->GetInformationObject(port);

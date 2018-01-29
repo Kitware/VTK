@@ -216,7 +216,7 @@ public:
   //@{
   /**
    * If EndPointsRemovable is false, the two end points will not
-   * be be removed. True by default.
+   * be removed. True by default.
    */
   vtkSetMacro(EndPointsRemovable, bool);
   vtkGetMacro(EndPointsRemovable, bool);
