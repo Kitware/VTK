@@ -13,7 +13,7 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 
@@ -31,76 +31,76 @@
  * \brief       Options for encoding/decoding Stream Header and Stream Footer
  */
 typedef struct {
-    /**
-     * \brief       Stream Flags format version
-     *
-     * To prevent API and ABI breakages if new features are needed in
-     * Stream Header or Stream Footer, a version number is used to
-     * indicate which fields in this structure are in use. For now,
-     * version must always be zero. With non-zero version, the
-     * lzma_stream_header_encode() and lzma_stream_footer_encode()
-     * will return LZMA_OPTIONS_ERROR.
-     *
-     * lzma_stream_header_decode() and lzma_stream_footer_decode()
-     * will always set this to the lowest value that supports all the
-     * features indicated by the Stream Flags field. The application
-     * must check that the version number set by the decoding functions
-     * is supported by the application. Otherwise it is possible that
-     * the application will decode the Stream incorrectly.
-     */
-    uint32_t version;
+	/**
+	 * \brief       Stream Flags format version
+	 *
+	 * To prevent API and ABI breakages if new features are needed in
+	 * Stream Header or Stream Footer, a version number is used to
+	 * indicate which fields in this structure are in use. For now,
+	 * version must always be zero. With non-zero version, the
+	 * lzma_stream_header_encode() and lzma_stream_footer_encode()
+	 * will return LZMA_OPTIONS_ERROR.
+	 *
+	 * lzma_stream_header_decode() and lzma_stream_footer_decode()
+	 * will always set this to the lowest value that supports all the
+	 * features indicated by the Stream Flags field. The application
+	 * must check that the version number set by the decoding functions
+	 * is supported by the application. Otherwise it is possible that
+	 * the application will decode the Stream incorrectly.
+	 */
+	uint32_t version;
 
-    /**
-     * \brief       Backward Size
-     *
-     * Backward Size must be a multiple of four bytes. In this Stream
-     * format version, Backward Size is the size of the Index field.
-     *
-     * Backward Size isn't actually part of the Stream Flags field, but
-     * it is convenient to include in this structure anyway. Backward
-     * Size is present only in the Stream Footer. There is no need to
-     * initialize backward_size when encoding Stream Header.
-     *
-     * lzma_stream_header_decode() always sets backward_size to
-     * LZMA_VLI_UNKNOWN so that it is convenient to use
-     * lzma_stream_flags_compare() when both Stream Header and Stream
-     * Footer have been decoded.
-     */
-    lzma_vli backward_size;
-#    define LZMA_BACKWARD_SIZE_MIN 4
-#    define LZMA_BACKWARD_SIZE_MAX (LZMA_VLI_C(1) << 34)
+	/**
+	 * \brief       Backward Size
+	 *
+	 * Backward Size must be a multiple of four bytes. In this Stream
+	 * format version, Backward Size is the size of the Index field.
+	 *
+	 * Backward Size isn't actually part of the Stream Flags field, but
+	 * it is convenient to include in this structure anyway. Backward
+	 * Size is present only in the Stream Footer. There is no need to
+	 * initialize backward_size when encoding Stream Header.
+	 *
+	 * lzma_stream_header_decode() always sets backward_size to
+	 * LZMA_VLI_UNKNOWN so that it is convenient to use
+	 * lzma_stream_flags_compare() when both Stream Header and Stream
+	 * Footer have been decoded.
+	 */
+	lzma_vli backward_size;
+#	define LZMA_BACKWARD_SIZE_MIN 4
+#	define LZMA_BACKWARD_SIZE_MAX (LZMA_VLI_C(1) << 34)
 
-    /**
-     * \brief       Check ID
-     *
-     * This indicates the type of the integrity check calculated from
-     * uncompressed data.
-     */
-    lzma_check check;
+	/**
+	 * \brief       Check ID
+	 *
+	 * This indicates the type of the integrity check calculated from
+	 * uncompressed data.
+	 */
+	lzma_check check;
 
-    /*
-     * Reserved space to allow possible future extensions without
-     * breaking the ABI. You should not touch these, because the
-     * names of these variables may change.
-     *
-     * (We will never be able to use all of these since Stream Flags
-     * is just two bytes plus Backward Size of four bytes. But it's
-     * nice to have the proper types when they are needed.)
-     */
-    lzma_reserved_enum reserved_enum1;
-    lzma_reserved_enum reserved_enum2;
-    lzma_reserved_enum reserved_enum3;
-    lzma_reserved_enum reserved_enum4;
-    lzma_bool reserved_bool1;
-    lzma_bool reserved_bool2;
-    lzma_bool reserved_bool3;
-    lzma_bool reserved_bool4;
-    lzma_bool reserved_bool5;
-    lzma_bool reserved_bool6;
-    lzma_bool reserved_bool7;
-    lzma_bool reserved_bool8;
-    uint32_t reserved_int1;
-    uint32_t reserved_int2;
+	/*
+	 * Reserved space to allow possible future extensions without
+	 * breaking the ABI. You should not touch these, because the
+	 * names of these variables may change.
+	 *
+	 * (We will never be able to use all of these since Stream Flags
+	 * is just two bytes plus Backward Size of four bytes. But it's
+	 * nice to have the proper types when they are needed.)
+	 */
+	lzma_reserved_enum reserved_enum1;
+	lzma_reserved_enum reserved_enum2;
+	lzma_reserved_enum reserved_enum3;
+	lzma_reserved_enum reserved_enum4;
+	lzma_bool reserved_bool1;
+	lzma_bool reserved_bool2;
+	lzma_bool reserved_bool3;
+	lzma_bool reserved_bool4;
+	lzma_bool reserved_bool5;
+	lzma_bool reserved_bool6;
+	lzma_bool reserved_bool7;
+	lzma_bool reserved_bool8;
+	uint32_t reserved_int1;
+	uint32_t reserved_int2;
 
 } lzma_stream_flags;
 
@@ -120,8 +120,8 @@ typedef struct {
  *              - LZMA_PROG_ERROR: Invalid options.
  */
 extern LZMA_API(lzma_ret) lzma_stream_header_encode(
-        const lzma_stream_flags *options, uint8_t *out)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		const lzma_stream_flags *options, uint8_t *out)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -137,8 +137,8 @@ extern LZMA_API(lzma_ret) lzma_stream_header_encode(
  *              - LZMA_PROG_ERROR: Invalid options.
  */
 extern LZMA_API(lzma_ret) lzma_stream_footer_encode(
-        const lzma_stream_flags *options, uint8_t *out)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		const lzma_stream_flags *options, uint8_t *out)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -172,8 +172,8 @@ extern LZMA_API(lzma_ret) lzma_stream_footer_encode(
  *              when decoding non-first Stream.
  */
 extern LZMA_API(lzma_ret) lzma_stream_header_decode(
-        lzma_stream_flags *options, const uint8_t *in)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream_flags *options, const uint8_t *in)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -199,8 +199,8 @@ extern LZMA_API(lzma_ret) lzma_stream_header_decode(
  *              uses LZMA_DATA_ERROR in this situation.
  */
 extern LZMA_API(lzma_ret) lzma_stream_footer_decode(
-        lzma_stream_flags *options, const uint8_t *in)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream_flags *options, const uint8_t *in)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -219,5 +219,5 @@ extern LZMA_API(lzma_ret) lzma_stream_footer_decode(
  *                backward_size.
  */
 extern LZMA_API(lzma_ret) lzma_stream_flags_compare(
-        const lzma_stream_flags *a, const lzma_stream_flags *b)
-        lzma_nothrow lzma_attr_pure;
+		const lzma_stream_flags *a, const lzma_stream_flags *b)
+		lzma_nothrow lzma_attr_pure;

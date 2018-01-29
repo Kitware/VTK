@@ -31,8 +31,8 @@
 
 
 extern lzma_ret lzma_lzma2_encoder_init(
-        lzma_next_coder *next, const lzma_allocator *allocator,
-        const lzma_filter_info *filters);
+		lzma_next_coder *next, const lzma_allocator *allocator,
+		const lzma_filter_info *filters);
 
 extern uint64_t lzma_lzma2_encoder_memusage(const void *options);
 

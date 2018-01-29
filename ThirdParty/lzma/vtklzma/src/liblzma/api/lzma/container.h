@@ -13,7 +13,7 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 
@@ -64,123 +64,123 @@
  * \brief       Multithreading options
  */
 typedef struct {
-    /**
-     * \brief       Flags
-     *
-     * Set this to zero if no flags are wanted.
-     *
-     * No flags are currently supported.
-     */
-    uint32_t flags;
+	/**
+	 * \brief       Flags
+	 *
+	 * Set this to zero if no flags are wanted.
+	 *
+	 * No flags are currently supported.
+	 */
+	uint32_t flags;
 
-    /**
-     * \brief       Number of worker threads to use
-     */
-    uint32_t threads;
+	/**
+	 * \brief       Number of worker threads to use
+	 */
+	uint32_t threads;
 
-    /**
-     * \brief       Maximum uncompressed size of a Block
-     *
-     * The encoder will start a new .xz Block every block_size bytes.
-     * Using LZMA_FULL_FLUSH or LZMA_FULL_BARRIER with lzma_code()
-     * the caller may tell liblzma to start a new Block earlier.
-     *
-     * With LZMA2, a recommended block size is 2-4 times the LZMA2
-     * dictionary size. With very small dictionaries, it is recommended
-     * to use at least 1 MiB block size for good compression ratio, even
-     * if this is more than four times the dictionary size. Note that
-     * these are only recommendations for typical use cases; feel free
-     * to use other values. Just keep in mind that using a block size
-     * less than the LZMA2 dictionary size is waste of RAM.
-     *
-     * Set this to 0 to let liblzma choose the block size depending
-     * on the compression options. For LZMA2 it will be 3*dict_size
-     * or 1 MiB, whichever is more.
-     *
-     * For each thread, about 3 * block_size bytes of memory will be
-     * allocated. This may change in later liblzma versions. If so,
-     * the memory usage will probably be reduced, not increased.
-     */
-    uint64_t block_size;
+	/**
+	 * \brief       Maximum uncompressed size of a Block
+	 *
+	 * The encoder will start a new .xz Block every block_size bytes.
+	 * Using LZMA_FULL_FLUSH or LZMA_FULL_BARRIER with lzma_code()
+	 * the caller may tell liblzma to start a new Block earlier.
+	 *
+	 * With LZMA2, a recommended block size is 2-4 times the LZMA2
+	 * dictionary size. With very small dictionaries, it is recommended
+	 * to use at least 1 MiB block size for good compression ratio, even
+	 * if this is more than four times the dictionary size. Note that
+	 * these are only recommendations for typical use cases; feel free
+	 * to use other values. Just keep in mind that using a block size
+	 * less than the LZMA2 dictionary size is waste of RAM.
+	 *
+	 * Set this to 0 to let liblzma choose the block size depending
+	 * on the compression options. For LZMA2 it will be 3*dict_size
+	 * or 1 MiB, whichever is more.
+	 *
+	 * For each thread, about 3 * block_size bytes of memory will be
+	 * allocated. This may change in later liblzma versions. If so,
+	 * the memory usage will probably be reduced, not increased.
+	 */
+	uint64_t block_size;
 
-    /**
-     * \brief       Timeout to allow lzma_code() to return early
-     *
-     * Multithreading can make liblzma to consume input and produce
-     * output in a very bursty way: it may first read a lot of input
-     * to fill internal buffers, then no input or output occurs for
-     * a while.
-     *
-     * In single-threaded mode, lzma_code() won't return until it has
-     * either consumed all the input or filled the output buffer. If
-     * this is done in multithreaded mode, it may cause a call
-     * lzma_code() to take even tens of seconds, which isn't acceptable
-     * in all applications.
-     *
-     * To avoid very long blocking times in lzma_code(), a timeout
-     * (in milliseconds) may be set here. If lzma_code() would block
-     * longer than this number of milliseconds, it will return with
-     * LZMA_OK. Reasonable values are 100 ms or more. The xz command
-     * line tool uses 300 ms.
-     *
-     * If long blocking times are fine for you, set timeout to a special
-     * value of 0, which will disable the timeout mechanism and will make
-     * lzma_code() block until all the input is consumed or the output
-     * buffer has been filled.
-     *
-     * \note        Even with a timeout, lzma_code() might sometimes take
-     *              somewhat long time to return. No timing guarantees
-     *              are made.
-     */
-    uint32_t timeout;
+	/**
+	 * \brief       Timeout to allow lzma_code() to return early
+	 *
+	 * Multithreading can make liblzma to consume input and produce
+	 * output in a very bursty way: it may first read a lot of input
+	 * to fill internal buffers, then no input or output occurs for
+	 * a while.
+	 *
+	 * In single-threaded mode, lzma_code() won't return until it has
+	 * either consumed all the input or filled the output buffer. If
+	 * this is done in multithreaded mode, it may cause a call
+	 * lzma_code() to take even tens of seconds, which isn't acceptable
+	 * in all applications.
+	 *
+	 * To avoid very long blocking times in lzma_code(), a timeout
+	 * (in milliseconds) may be set here. If lzma_code() would block
+	 * longer than this number of milliseconds, it will return with
+	 * LZMA_OK. Reasonable values are 100 ms or more. The xz command
+	 * line tool uses 300 ms.
+	 *
+	 * If long blocking times are fine for you, set timeout to a special
+	 * value of 0, which will disable the timeout mechanism and will make
+	 * lzma_code() block until all the input is consumed or the output
+	 * buffer has been filled.
+	 *
+	 * \note        Even with a timeout, lzma_code() might sometimes take
+	 *              somewhat long time to return. No timing guarantees
+	 *              are made.
+	 */
+	uint32_t timeout;
 
-    /**
-     * \brief       Compression preset (level and possible flags)
-     *
-     * The preset is set just like with lzma_easy_encoder().
-     * The preset is ignored if filters below is non-NULL.
-     */
-    uint32_t preset;
+	/**
+	 * \brief       Compression preset (level and possible flags)
+	 *
+	 * The preset is set just like with lzma_easy_encoder().
+	 * The preset is ignored if filters below is non-NULL.
+	 */
+	uint32_t preset;
 
-    /**
-     * \brief       Filter chain (alternative to a preset)
-     *
-     * If this is NULL, the preset above is used. Otherwise the preset
-     * is ignored and the filter chain specified here is used.
-     */
-    const lzma_filter *filters;
+	/**
+	 * \brief       Filter chain (alternative to a preset)
+	 *
+	 * If this is NULL, the preset above is used. Otherwise the preset
+	 * is ignored and the filter chain specified here is used.
+	 */
+	const lzma_filter *filters;
 
-    /**
-     * \brief       Integrity check type
-     *
-     * See check.h for available checks. The xz command line tool
-     * defaults to LZMA_CHECK_CRC64, which is a good choice if you
-     * are unsure.
-     */
-    lzma_check check;
+	/**
+	 * \brief       Integrity check type
+	 *
+	 * See check.h for available checks. The xz command line tool
+	 * defaults to LZMA_CHECK_CRC64, which is a good choice if you
+	 * are unsure.
+	 */
+	lzma_check check;
 
-    /*
-     * Reserved space to allow possible future extensions without
-     * breaking the ABI. You should not touch these, because the names
-     * of these variables may change. These are and will never be used
-     * with the currently supported options, so it is safe to leave these
-     * uninitialized.
-     */
-    lzma_reserved_enum reserved_enum1;
-    lzma_reserved_enum reserved_enum2;
-    lzma_reserved_enum reserved_enum3;
-    uint32_t reserved_int1;
-    uint32_t reserved_int2;
-    uint32_t reserved_int3;
-    uint32_t reserved_int4;
-    uint64_t reserved_int5;
-    uint64_t reserved_int6;
-    uint64_t reserved_int7;
-    uint64_t reserved_int8;
-    void *reserved_ptr1;
-    void *reserved_ptr2;
-    void *reserved_ptr3;
-    void *reserved_ptr4;
+	/*
+	 * Reserved space to allow possible future extensions without
+	 * breaking the ABI. You should not touch these, because the names
+	 * of these variables may change. These are and will never be used
+	 * with the currently supported options, so it is safe to leave these
+	 * uninitialized.
+	 */
+	lzma_reserved_enum reserved_enum1;
+	lzma_reserved_enum reserved_enum2;
+	lzma_reserved_enum reserved_enum3;
+	uint32_t reserved_int1;
+	uint32_t reserved_int2;
+	uint32_t reserved_int3;
+	uint32_t reserved_int4;
+	uint64_t reserved_int5;
+	uint64_t reserved_int6;
+	uint64_t reserved_int7;
+	uint64_t reserved_int8;
+	void *reserved_ptr1;
+	void *reserved_ptr2;
+	void *reserved_ptr3;
+	void *reserved_ptr4;
 
 } lzma_mt;
 
@@ -197,7 +197,7 @@ typedef struct {
  *              due to unsupported preset, UINT64_MAX is returned.
  */
 extern LZMA_API(uint64_t) lzma_easy_encoder_memusage(uint32_t preset)
-        lzma_nothrow lzma_attr_pure;
+		lzma_nothrow lzma_attr_pure;
 
 
 /**
@@ -213,7 +213,7 @@ extern LZMA_API(uint64_t) lzma_easy_encoder_memusage(uint32_t preset)
  *              is returned.
  */
 extern LZMA_API(uint64_t) lzma_easy_decoder_memusage(uint32_t preset)
-        lzma_nothrow lzma_attr_pure;
+		lzma_nothrow lzma_attr_pure;
 
 
 /**
@@ -256,8 +256,8 @@ extern LZMA_API(uint64_t) lzma_easy_decoder_memusage(uint32_t preset)
  * there may be compression levels or flags that don't support LZMA_SYNC_FLUSH.
  */
 extern LZMA_API(lzma_ret) lzma_easy_encoder(
-        lzma_stream *strm, uint32_t preset, lzma_check check)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, uint32_t preset, lzma_check check)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -289,10 +289,10 @@ extern LZMA_API(lzma_ret) lzma_easy_encoder(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_easy_buffer_encode(
-        uint32_t preset, lzma_check check,
-        const lzma_allocator *allocator,
-        const uint8_t *in, size_t in_size,
-        uint8_t *out, size_t *out_pos, size_t out_size) lzma_nothrow;
+		uint32_t preset, lzma_check check,
+		const lzma_allocator *allocator,
+		const uint8_t *in, size_t in_size,
+		uint8_t *out, size_t *out_pos, size_t out_size) lzma_nothrow;
 
 
 /**
@@ -312,8 +312,8 @@ extern LZMA_API(lzma_ret) lzma_easy_buffer_encode(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_stream_encoder(lzma_stream *strm,
-        const lzma_filter *filters, lzma_check check)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		const lzma_filter *filters, lzma_check check)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -332,7 +332,7 @@ extern LZMA_API(lzma_ret) lzma_stream_encoder(lzma_stream *strm,
  *              unsupported preset or filter chain, UINT64_MAX is returned.
  */
 extern LZMA_API(uint64_t) lzma_stream_encoder_mt_memusage(
-        const lzma_mt *options) lzma_nothrow lzma_attr_pure;
+		const lzma_mt *options) lzma_nothrow lzma_attr_pure;
 
 
 /**
@@ -355,8 +355,8 @@ extern LZMA_API(uint64_t) lzma_stream_encoder_mt_memusage(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_stream_encoder_mt(
-        lzma_stream *strm, const lzma_mt *options)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, const lzma_mt *options)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -380,8 +380,8 @@ extern LZMA_API(lzma_ret) lzma_stream_encoder_mt(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_alone_encoder(
-        lzma_stream *strm, const lzma_options_lzma *options)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, const lzma_options_lzma *options)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -407,7 +407,7 @@ extern LZMA_API(lzma_ret) lzma_alone_encoder(
  *              calculate the maximum expansion of multi-call encoding.
  */
 extern LZMA_API(size_t) lzma_stream_buffer_bound(size_t uncompressed_size)
-        lzma_nothrow;
+		lzma_nothrow;
 
 
 /**
@@ -437,11 +437,11 @@ extern LZMA_API(size_t) lzma_stream_buffer_bound(size_t uncompressed_size)
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_stream_buffer_encode(
-        lzma_filter *filters, lzma_check check,
-        const lzma_allocator *allocator,
-        const uint8_t *in, size_t in_size,
-        uint8_t *out, size_t *out_pos, size_t out_size)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_filter *filters, lzma_check check,
+		const lzma_allocator *allocator,
+		const uint8_t *in, size_t in_size,
+		uint8_t *out, size_t *out_pos, size_t out_size)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /************
@@ -531,8 +531,8 @@ extern LZMA_API(lzma_ret) lzma_stream_buffer_encode(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_stream_decoder(
-        lzma_stream *strm, uint64_t memlimit, uint32_t flags)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, uint64_t memlimit, uint32_t flags)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -553,8 +553,8 @@ extern LZMA_API(lzma_ret) lzma_stream_decoder(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_auto_decoder(
-        lzma_stream *strm, uint64_t memlimit, uint32_t flags)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, uint64_t memlimit, uint32_t flags)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -569,8 +569,8 @@ extern LZMA_API(lzma_ret) lzma_auto_decoder(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_alone_decoder(
-        lzma_stream *strm, uint64_t memlimit)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_stream *strm, uint64_t memlimit)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -612,8 +612,8 @@ extern LZMA_API(lzma_ret) lzma_alone_decoder(
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_stream_buffer_decode(
-        uint64_t *memlimit, uint32_t flags,
-        const lzma_allocator *allocator,
-        const uint8_t *in, size_t *in_pos, size_t in_size,
-        uint8_t *out, size_t *out_pos, size_t out_size)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		uint64_t *memlimit, uint32_t flags,
+		const lzma_allocator *allocator,
+		const uint8_t *in, size_t *in_pos, size_t in_size,
+		uint8_t *out, size_t *out_pos, size_t out_size)
+		lzma_nothrow lzma_attr_warn_unused_result;

@@ -15,47 +15,47 @@
 
 /// Output buffer for a single thread
 typedef struct {
-    /// Pointer to the output buffer of lzma_outq.buf_size_max bytes
-    uint8_t *buf;
+	/// Pointer to the output buffer of lzma_outq.buf_size_max bytes
+	uint8_t *buf;
 
-    /// Amount of data written to buf
-    size_t size;
+	/// Amount of data written to buf
+	size_t size;
 
-    /// Additional size information
-    lzma_vli unpadded_size;
-    lzma_vli uncompressed_size;
+	/// Additional size information
+	lzma_vli unpadded_size;
+	lzma_vli uncompressed_size;
 
-    /// True when no more data will be written into this buffer.
-    ///
-    /// \note       This is read by another thread and thus access
-    ///             to this variable needs a mutex.
-    bool finished;
+	/// True when no more data will be written into this buffer.
+	///
+	/// \note       This is read by another thread and thus access
+	///             to this variable needs a mutex.
+	bool finished;
 
 } lzma_outbuf;
 
 
 typedef struct {
-    /// Array of buffers that are used cyclically.
-    lzma_outbuf *bufs;
+	/// Array of buffers that are used cyclically.
+	lzma_outbuf *bufs;
 
-    /// Memory allocated for all the buffers
-    uint8_t *bufs_mem;
+	/// Memory allocated for all the buffers
+	uint8_t *bufs_mem;
 
-    /// Amount of buffer space available in each buffer
-    size_t buf_size_max;
+	/// Amount of buffer space available in each buffer
+	size_t buf_size_max;
 
-    /// Number of buffers allocated
-    uint32_t bufs_allocated;
+	/// Number of buffers allocated
+	uint32_t bufs_allocated;
 
-    /// Position in the bufs array. The next buffer to be taken
-    /// into use is bufs[bufs_pos].
-    uint32_t bufs_pos;
+	/// Position in the bufs array. The next buffer to be taken
+	/// into use is bufs[bufs_pos].
+	uint32_t bufs_pos;
 
-    /// Number of buffers in use
-    uint32_t bufs_used;
+	/// Number of buffers in use
+	uint32_t bufs_used;
 
-    /// Position in the buffer in lzma_outq_read()
-    size_t read_pos;
+	/// Position in the buffer in lzma_outq_read()
+	size_t read_pos;
 
 } lzma_outq;
 
@@ -88,8 +88,8 @@ extern uint64_t lzma_outq_memusage(uint64_t buf_size_max, uint32_t threads);
 ///             - LZMA_MEM_ERROR
 ///
 extern lzma_ret lzma_outq_init(
-        lzma_outq *outq, const lzma_allocator *allocator,
-        uint64_t buf_size_max, uint32_t threads);
+		lzma_outq *outq, const lzma_allocator *allocator,
+		uint64_t buf_size_max, uint32_t threads);
 
 
 /// \brief      Free the memory associated with the output queue
@@ -132,9 +132,9 @@ extern bool lzma_outq_is_readable(const lzma_outq *outq);
 ///             to this function needs to be protected with a mutex.
 ///
 extern lzma_ret lzma_outq_read(lzma_outq *restrict outq,
-        uint8_t *restrict out, size_t *restrict out_pos,
-        size_t out_size, lzma_vli *restrict unpadded_size,
-        lzma_vli *restrict uncompressed_size);
+		uint8_t *restrict out, size_t *restrict out_pos,
+		size_t out_size, lzma_vli *restrict unpadded_size,
+		lzma_vli *restrict uncompressed_size);
 
 
 /// \brief      Test if there is at least one buffer free
@@ -144,7 +144,7 @@ extern lzma_ret lzma_outq_read(lzma_outq *restrict outq,
 static inline bool
 lzma_outq_has_buf(const lzma_outq *outq)
 {
-    return outq->bufs_used < outq->bufs_allocated;
+	return outq->bufs_used < outq->bufs_allocated;
 }
 
 
@@ -152,5 +152,5 @@ lzma_outq_has_buf(const lzma_outq *outq)
 static inline bool
 lzma_outq_is_empty(const lzma_outq *outq)
 {
-    return outq->bufs_used == 0;
+	return outq->bufs_used == 0;
 }
