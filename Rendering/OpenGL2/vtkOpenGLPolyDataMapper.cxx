@@ -1600,7 +1600,7 @@ bool vtkOpenGLPolyDataMapper::DrawingTubesOrSpheres(
   vtkProperty*prop=actor->GetProperty();
 
   return (prop->GetRenderPointsAsSpheres() && mode == GL_POINTS) ||
-     (prop->GetRenderLinesAsTubes() && mode == GL_LINES);
+     (prop->GetRenderLinesAsTubes() && mode == GL_LINES && prop->GetLineWidth() > 1.0);
 }
 
 bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *actor)
@@ -1613,6 +1613,7 @@ bool vtkOpenGLPolyDataMapper::DrawingSpheres(vtkOpenGLHelper &cellBO, vtkActor *
 bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper &cellBO, vtkActor *actor)
 {
   return (actor->GetProperty()->GetRenderLinesAsTubes() &&
+    actor->GetProperty()->GetLineWidth() > 1.0 &&
     this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(),
       cellBO.PrimitiveType) == GL_LINES);
 }
