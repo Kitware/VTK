@@ -14,15 +14,15 @@
 
 
 typedef struct {
-    /// We need to keep the filters array available in case
-    /// LZMA_FULL_FLUSH is used.
-    lzma_filter filters[LZMA_FILTERS_MAX + 1];
+	/// We need to keep the filters array available in case
+	/// LZMA_FULL_FLUSH is used.
+	lzma_filter filters[LZMA_FILTERS_MAX + 1];
 
-    /// Options for LZMA2
-    lzma_options_lzma opt_lzma;
+	/// Options for LZMA2
+	lzma_options_lzma opt_lzma;
 
-    // Options for more filters can be added later, so this struct
-    // is not ready to be put into the public API.
+	// Options for more filters can be added later, so this struct
+	// is not ready to be put into the public API.
 
 } lzma_options_easy;
 

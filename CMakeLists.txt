@@ -2,12 +2,6 @@
 # Los Alamos National Laboratory (2017).
 # Thanks to Lasse Collin for integration help
 
-# Note: In general, liblzma checks for the presense of absense
-#       of an environment variable to make build decisions, NOT
-#       the value assigned to that definition.
-
-cmake_minimum_required(VERSION 3.2)
-
 project(LZMA VERSION 5.2.3 LANGUAGES C)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "LZMA compression library")
 
@@ -17,35 +11,21 @@ IF(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
   SET(GNU_COMPATIBLE_COMPILER 1)
 ENDIF()
 
-if(GNU_COMPATIBLE_COMPILER)
-  if(UNIX AND BUILD_LIBS)
-    add_definitions(-fPIC)
-  endif()
-endif()
-
 include(TestBigEndian)
 include(CheckIncludeFile)
 include(CheckTypeSize)
 include(ProcessorCount)
 
 test_big_endian(WORDS_BIGENDIAN)
-set(HAVE_BSWAP_16 1)
-set(HAVE_BSWAP_32 1)
-set(HAVE_BSWAP_64 1)
 
-# Only set if true! leave undef if false
-# See Note at start of this file
-check_include_file("strings.h" HAVE_STRINGS_H_)
-if(HAVE_STRINGS_H_)
-  set(HAVE_STRINGS_H 1)
-endif()
-
-# Only set if true! leave undef if false
-# See Note at start of this file
-check_include_file("byteswap.h" HAVE_BYTESWAP_H_)
-if(HAVE_BYTESWAP_H_)
-  set(HAVE_BYTESWAP_H)
-endif()
+check_include_file("strings.h" HAVE_STRINGS_H)
+check_include_file("byteswap.h" HAVE_BYTESWAP_H)
+check_include_file("sys/endian.h" HAVE_SYS_ENDIAN_H)
+if (HAVE_BYTESWAP_H)
+  check_symbol_exists(HAVE_BSWAP_16 "byteswap.h" bswap_16)
+  check_symbol_exists(HAVE_BSWAP_32 "byteswap.h" bswap_32)
+  check_symbol_exists(HAVE_BSWAP_64 "byteswap.h" bswap_64)
+endif ()
 
 check_include_file("stdint.h" HAVE_STDINT_H)
 check_include_file("inttypes.h" HAVE_INTTYPES_H)
@@ -99,8 +79,6 @@ set(HAVE_DECODER_SPARC 1)
 set(HAVE_DECODER_X86 1)
 set(HAVE_DECODERS 1)
 
-set(HAVE_DLFCN_H 1)
-
 set(HAVE_ENCODER_ARM 1)
 set(HAVE_ENCODER_ARMTHUMB 1)
 set(HAVE_ENCODER_DELTA 1)
@@ -144,7 +122,7 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/config.h")
 add_definitions(-DHAVE_CONFIG_H)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}
+include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api
@@ -157,163 +135,167 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple
   ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta
   ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common
-  ${CMAKE_CURRENT_SOURCE_DIR}/windows
-)
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common)
 
+set(sources
+  src/common/tuklib_cpucores.c
+  src/common/tuklib_physmem.c
+  src/liblzma/check/check.c
+  src/liblzma/check/crc32_fast.c
+  src/liblzma/check/crc32_table.c
+  src/liblzma/check/crc64_fast.c
+  src/liblzma/check/crc64_table.c
+  src/liblzma/check/sha256.c
+  src/liblzma/common/alone_decoder.c
+  src/liblzma/common/alone_encoder.c
+  src/liblzma/common/auto_decoder.c
+  src/liblzma/common/block_buffer_decoder.c
+  src/liblzma/common/block_buffer_encoder.c
+  src/liblzma/common/block_decoder.c
+  src/liblzma/common/block_encoder.c
+  src/liblzma/common/block_header_decoder.c
+  src/liblzma/common/block_header_encoder.c
+  src/liblzma/common/block_util.c
+  src/liblzma/common/common.c
+  src/liblzma/common/easy_buffer_encoder.c
+  src/liblzma/common/easy_decoder_memusage.c
+  src/liblzma/common/easy_encoder.c
+  src/liblzma/common/easy_encoder_memusage.c
+  src/liblzma/common/easy_preset.c
+  src/liblzma/common/filter_buffer_decoder.c
+  src/liblzma/common/filter_buffer_encoder.c
+  src/liblzma/common/filter_common.c
+  src/liblzma/common/filter_decoder.c
+  src/liblzma/common/filter_encoder.c
+  src/liblzma/common/filter_flags_decoder.c
+  src/liblzma/common/filter_flags_encoder.c
+  src/liblzma/common/hardware_cputhreads.c
+  src/liblzma/common/hardware_physmem.c
+  src/liblzma/common/index.c
+  src/liblzma/common/index_decoder.c
+  src/liblzma/common/index_encoder.c
+  src/liblzma/common/index_hash.c
+  src/liblzma/common/outqueue.c
+  src/liblzma/common/stream_buffer_decoder.c
+  src/liblzma/common/stream_buffer_encoder.c
+  src/liblzma/common/stream_decoder.c
+  src/liblzma/common/stream_encoder.c
+  src/liblzma/common/stream_encoder_mt.c
+  src/liblzma/common/stream_flags_common.c
+  src/liblzma/common/stream_flags_decoder.c
+  src/liblzma/common/stream_flags_encoder.c
+  src/liblzma/common/vli_decoder.c
+  src/liblzma/common/vli_encoder.c
+  src/liblzma/common/vli_size.c
+  src/liblzma/delta/delta_common.c
+  src/liblzma/delta/delta_decoder.c
+  src/liblzma/delta/delta_encoder.c
+  src/liblzma/lzma/fastpos_table.c
+  src/liblzma/lzma/lzma2_decoder.c
+  src/liblzma/lzma/lzma2_encoder.c
+  src/liblzma/lzma/lzma_decoder.c
+  src/liblzma/lzma/lzma_encoder.c
+  src/liblzma/lzma/lzma_encoder_optimum_fast.c
+  src/liblzma/lzma/lzma_encoder_optimum_normal.c
+  src/liblzma/lzma/lzma_encoder_presets.c
+  src/liblzma/lz/lz_decoder.c
+  src/liblzma/lz/lz_encoder.c
+  src/liblzma/lz/lz_encoder_mf.c
+  src/liblzma/rangecoder/price_table.c
+  src/liblzma/simple/arm.c
+  src/liblzma/simple/armthumb.c
+  src/liblzma/simple/ia64.c
+  src/liblzma/simple/powerpc.c
+  src/liblzma/simple/simple_coder.c
+  src/liblzma/simple/simple_decoder.c
+  src/liblzma/simple/simple_encoder.c
+  src/liblzma/simple/sparc.c
+  src/liblzma/simple/x86.c)
 
-set(LZMA_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_cpucores.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_physmem.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/check.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc32_fast.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc32_table.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc64_fast.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc64_table.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/sha256.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/alone_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/alone_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/auto_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_buffer_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_buffer_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_header_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_header_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_util.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_buffer_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_decoder_memusage.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_encoder_memusage.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_preset.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_buffer_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_buffer_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_flags_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_flags_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/hardware_cputhreads.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/hardware_physmem.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index_hash.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/outqueue.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_buffer_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_buffer_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_encoder_mt.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_flags_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_flags_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_flags_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/vli_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/vli_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/vli_size.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/fastpos_table.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma2_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma2_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder_optimum_fast.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder_optimum_normal.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder_presets.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_encoder_mf.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder/price_table.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/arm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/armthumb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/ia64.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/powerpc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_coder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_decoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_encoder.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/sparc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/x86.c
-)
-set(LZMA_HDRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/mythread.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/sysdefs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_cpucores.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_integer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/tuklib_physmem.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/base.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/bcj.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/block.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/check.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/container.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/delta.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/filter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/hardware.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/index.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/index_hash.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/lzma12.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/stream_flags.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/version.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/lzma/vli.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/check.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc32_table_be.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc32_table_le.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc64_table_be.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc64_table_le.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/check/crc_macros.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/alone_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_buffer_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/block_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/easy_preset.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/filter_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/index_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/memcmplen.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/outqueue.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/common/stream_flags_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/delta/delta_private.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/fastpos.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma2_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma2_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lzma/lzma_encoder_private.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_encoder_hash.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/lz/lz_encoder_hash_table.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder/price.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder/range_common.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder/range_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/rangecoder/range_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_coder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_decoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_encoder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/simple/simple_private.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/windows/config.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/vtklzma_mangle.h
-)
-vtk_add_library(vtklzma ${LZMA_HDRS} ${LZMA_SRCS})
-set_target_properties(vtklzma PROPERTIES DEFINE_SYMBOL LZMA_DLL)
+set(private_headers
+  src/common/mythread.h
+  src/common/sysdefs.h
+  src/common/tuklib_common.h
+  src/common/tuklib_config.h
+  src/common/tuklib_cpucores.h
+  src/common/tuklib_integer.h
+  src/common/tuklib_physmem.h
+  src/liblzma/check/check.h
+  src/liblzma/check/crc32_table_be.h
+  src/liblzma/check/crc32_table_le.h
+  src/liblzma/check/crc64_table_be.h
+  src/liblzma/check/crc64_table_le.h
+  src/liblzma/check/crc_macros.h
+  src/liblzma/common/alone_decoder.h
+  src/liblzma/common/block_buffer_encoder.h
+  src/liblzma/common/block_decoder.h
+  src/liblzma/common/block_encoder.h
+  src/liblzma/common/common.h
+  src/liblzma/common/easy_preset.h
+  src/liblzma/common/filter_common.h
+  src/liblzma/common/filter_decoder.h
+  src/liblzma/common/filter_encoder.h
+  src/liblzma/common/index.h
+  src/liblzma/common/index_encoder.h
+  src/liblzma/common/memcmplen.h
+  src/liblzma/common/outqueue.h
+  src/liblzma/common/stream_decoder.h
+  src/liblzma/common/stream_flags_common.h
+  src/liblzma/delta/delta_common.h
+  src/liblzma/delta/delta_decoder.h
+  src/liblzma/delta/delta_encoder.h
+  src/liblzma/delta/delta_private.h
+  src/liblzma/lzma/fastpos.h
+  src/liblzma/lzma/lzma2_decoder.h
+  src/liblzma/lzma/lzma2_encoder.h
+  src/liblzma/lzma/lzma_common.h
+  src/liblzma/lzma/lzma_decoder.h
+  src/liblzma/lzma/lzma_encoder.h
+  src/liblzma/lzma/lzma_encoder_private.h
+  src/liblzma/lz/lz_decoder.h
+  src/liblzma/lz/lz_encoder.h
+  src/liblzma/lz/lz_encoder_hash.h
+  src/liblzma/lz/lz_encoder_hash_table.h
+  src/liblzma/rangecoder/price.h
+  src/liblzma/rangecoder/range_common.h
+  src/liblzma/rangecoder/range_decoder.h
+  src/liblzma/rangecoder/range_encoder.h
+  src/liblzma/simple/simple_coder.h
+  src/liblzma/simple/simple_decoder.h
+  src/liblzma/simple/simple_encoder.h
+  src/liblzma/simple/simple_private.h)
 
-# Export lib files from dll files if using MSVC
-if (MSVC)
-    set_target_properties(vtklzma PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS true)
+set(headers
+  src/liblzma/api/lzma.h
+  src/liblzma/api/lzma/base.h
+  src/liblzma/api/lzma/bcj.h
+  src/liblzma/api/lzma/block.h
+  src/liblzma/api/lzma/check.h
+  src/liblzma/api/lzma/container.h
+  src/liblzma/api/lzma/delta.h
+  src/liblzma/api/lzma/filter.h
+  src/liblzma/api/lzma/hardware.h
+  src/liblzma/api/lzma/index.h
+  src/liblzma/api/lzma/index_hash.h
+  src/liblzma/api/lzma/lzma12.h
+  src/liblzma/api/lzma/stream_flags.h
+  src/liblzma/api/lzma/version.h
+  src/liblzma/api/lzma/vli.h
+  src/liblzma/api/vtk_lzma_mangle.h)
+
+vtk_add_library(vtklzma
+  ${sources}
+  ${headers}
+  ${private_headers})
+set_target_properties(vtklzma
+  PROPERTIES
+    C_STANDARD 99
+    DEFINE_SYMBOL DLL_EXPORT
+    POSITION_INDEPENDENT_CODE 1)
+
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(
+    DIRECTORY   "src/liblzma/api/"
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtklzma/src/liblzma/api/"
+    COMPONENT   Development)
 endif ()
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/liblzma/api/
-        DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtklzma)

@@ -38,10 +38,10 @@
 /// This constant is in this file because it is needed in both
 /// block_encoder.c and block_buffer_encoder.c.
 #define COMPRESSED_SIZE_MAX ((LZMA_VLI_MAX - LZMA_BLOCK_HEADER_SIZE_MAX \
-        - LZMA_CHECK_SIZE_MAX) & ~LZMA_VLI_C(3))
+		- LZMA_CHECK_SIZE_MAX) & ~LZMA_VLI_C(3))
 
 
 extern lzma_ret lzma_block_encoder_init(lzma_next_coder *next,
-        const lzma_allocator *allocator, lzma_block *block);
+		const lzma_allocator *allocator, lzma_block *block);
 
 #endif

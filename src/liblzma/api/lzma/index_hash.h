@@ -16,7 +16,7 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 /**
@@ -37,16 +37,16 @@ typedef struct lzma_index_hash_s lzma_index_hash;
  * pointer than the index_hash that was given as an argument.
  */
 extern LZMA_API(lzma_index_hash *) lzma_index_hash_init(
-        lzma_index_hash *index_hash, const lzma_allocator *allocator)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_index_hash *index_hash, const lzma_allocator *allocator)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
  * \brief       Deallocate lzma_index_hash structure
  */
 extern LZMA_API(void) lzma_index_hash_end(
-        lzma_index_hash *index_hash, const lzma_allocator *allocator)
-        lzma_nothrow;
+		lzma_index_hash *index_hash, const lzma_allocator *allocator)
+		lzma_nothrow;
 
 
 /**
@@ -63,8 +63,8 @@ extern LZMA_API(void) lzma_index_hash_end(
  *                used when lzma_index_hash_decode() has already been used.
  */
 extern LZMA_API(lzma_ret) lzma_index_hash_append(lzma_index_hash *index_hash,
-        lzma_vli unpadded_size, lzma_vli uncompressed_size)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		lzma_vli unpadded_size, lzma_vli uncompressed_size)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -93,8 +93,8 @@ extern LZMA_API(lzma_ret) lzma_index_hash_append(lzma_index_hash *index_hash,
  *              - LZMA_PROG_ERROR
  */
 extern LZMA_API(lzma_ret) lzma_index_hash_decode(lzma_index_hash *index_hash,
-        const uint8_t *in, size_t *in_pos, size_t in_size)
-        lzma_nothrow lzma_attr_warn_unused_result;
+		const uint8_t *in, size_t *in_pos, size_t in_size)
+		lzma_nothrow lzma_attr_warn_unused_result;
 
 
 /**
@@ -103,5 +103,5 @@ extern LZMA_API(lzma_ret) lzma_index_hash_decode(lzma_index_hash *index_hash,
  * This is needed to verify the Backward Size field in the Stream Footer.
  */
 extern LZMA_API(lzma_vli) lzma_index_hash_size(
-        const lzma_index_hash *index_hash)
-        lzma_nothrow lzma_attr_pure;
+		const lzma_index_hash *index_hash)
+		lzma_nothrow lzma_attr_pure;

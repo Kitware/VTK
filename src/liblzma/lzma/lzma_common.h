@@ -32,9 +32,9 @@
 static inline bool
 is_lclppb_valid(const lzma_options_lzma *options)
 {
-    return options->lc <= LZMA_LCLP_MAX && options->lp <= LZMA_LCLP_MAX
-            && options->lc + options->lp <= LZMA_LCLP_MAX
-            && options->pb <= LZMA_PB_MAX;
+	return options->lc <= LZMA_LCLP_MAX && options->lp <= LZMA_LCLP_MAX
+			&& options->lc + options->lp <= LZMA_LCLP_MAX
+			&& options->pb <= LZMA_PB_MAX;
 }
 
 
@@ -54,18 +54,18 @@ is_lclppb_valid(const lzma_options_lzma *options)
 /// The event names are in from STATE_oldest_older_previous. REP means
 /// either short or long repeated match, and NONLIT means any non-literal.
 typedef enum {
-    STATE_LIT_LIT,
-    STATE_MATCH_LIT_LIT,
-    STATE_REP_LIT_LIT,
-    STATE_SHORTREP_LIT_LIT,
-    STATE_MATCH_LIT,
-    STATE_REP_LIT,
-    STATE_SHORTREP_LIT,
-    STATE_LIT_MATCH,
-    STATE_LIT_LONGREP,
-    STATE_LIT_SHORTREP,
-    STATE_NONLIT_MATCH,
-    STATE_NONLIT_REP,
+	STATE_LIT_LIT,
+	STATE_MATCH_LIT_LIT,
+	STATE_REP_LIT_LIT,
+	STATE_SHORTREP_LIT_LIT,
+	STATE_MATCH_LIT,
+	STATE_REP_LIT,
+	STATE_SHORTREP_LIT,
+	STATE_LIT_MATCH,
+	STATE_LIT_LONGREP,
+	STATE_LIT_SHORTREP,
+	STATE_NONLIT_MATCH,
+	STATE_NONLIT_REP,
 } lzma_lzma_state;
 
 
@@ -78,27 +78,27 @@ typedef enum {
 
 /// Indicate that the latest state was a literal.
 #define update_literal(state) \
-    state = ((state) <= STATE_SHORTREP_LIT_LIT \
-            ? STATE_LIT_LIT \
-            : ((state) <= STATE_LIT_SHORTREP \
-                ? (state) - 3 \
-                : (state) - 6))
+	state = ((state) <= STATE_SHORTREP_LIT_LIT \
+			? STATE_LIT_LIT \
+			: ((state) <= STATE_LIT_SHORTREP \
+				? (state) - 3 \
+				: (state) - 6))
 
 /// Indicate that the latest state was a match.
 #define update_match(state) \
-    state = ((state) < LIT_STATES ? STATE_LIT_MATCH : STATE_NONLIT_MATCH)
+	state = ((state) < LIT_STATES ? STATE_LIT_MATCH : STATE_NONLIT_MATCH)
 
 /// Indicate that the latest state was a long repeated match.
 #define update_long_rep(state) \
-    state = ((state) < LIT_STATES ? STATE_LIT_LONGREP : STATE_NONLIT_REP)
+	state = ((state) < LIT_STATES ? STATE_LIT_LONGREP : STATE_NONLIT_REP)
 
 /// Indicate that the latest state was a short match.
 #define update_short_rep(state) \
-    state = ((state) < LIT_STATES ? STATE_LIT_SHORTREP : STATE_NONLIT_REP)
+	state = ((state) < LIT_STATES ? STATE_LIT_SHORTREP : STATE_NONLIT_REP)
 
 /// Test if the previous state was a literal.
 #define is_literal_state(state) \
-    ((state) < LIT_STATES)
+	((state) < LIT_STATES)
 
 
 /////////////
@@ -122,22 +122,22 @@ typedef enum {
 ///     byte; and
 ///   - the highest literal_context_bits bits of the previous byte.
 #define literal_subcoder(probs, lc, lp_mask, pos, prev_byte) \
-    ((probs)[(((pos) & lp_mask) << lc) + ((prev_byte) >> (8 - lc))])
+	((probs)[(((pos) & lp_mask) << lc) + ((prev_byte) >> (8 - lc))])
 
 
 static inline void
 literal_init(probability (*probs)[LITERAL_CODER_SIZE],
-        uint32_t lc, uint32_t lp)
+		uint32_t lc, uint32_t lp)
 {
-    assert(lc + lp <= LZMA_LCLP_MAX);
+	assert(lc + lp <= LZMA_LCLP_MAX);
 
-    const uint32_t coders = 1U << (lc + lp);
+	const uint32_t coders = 1U << (lc + lp);
 
-    for (uint32_t i = 0; i < coders; ++i)
-        for (uint32_t j = 0; j < LITERAL_CODER_SIZE; ++j)
-            bit_reset(probs[i][j]);
+	for (uint32_t i = 0; i < coders; ++i)
+		for (uint32_t j = 0; j < LITERAL_CODER_SIZE; ++j)
+			bit_reset(probs[i][j]);
 
-    return;
+	return;
 }
 
 
@@ -179,9 +179,9 @@ literal_init(probability (*probs)[LITERAL_CODER_SIZE],
 
 // Macro to get the index of the appropriate probability array.
 #define get_dist_state(len) \
-    ((len) < DIST_STATES + MATCH_LEN_MIN \
-        ? (len) - MATCH_LEN_MIN \
-        : DIST_STATES - 1)
+	((len) < DIST_STATES + MATCH_LEN_MIN \
+		? (len) - MATCH_LEN_MIN \
+		: DIST_STATES - 1)
 
 // The highest two bits of a match distance (distance slot) are encoded
 // using six bits. See fastpos.h for more explanation.

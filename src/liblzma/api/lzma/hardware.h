@@ -30,7 +30,7 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 

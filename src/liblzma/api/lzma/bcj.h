@@ -13,41 +13,41 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 
 /* Filter IDs for lzma_filter.id */
 
 #define LZMA_FILTER_X86         LZMA_VLI_C(0x04)
-    /**<
-     * Filter for x86 binaries
-     */
+	/**<
+	 * Filter for x86 binaries
+	 */
 
 #define LZMA_FILTER_POWERPC     LZMA_VLI_C(0x05)
-    /**<
-     * Filter for Big endian PowerPC binaries
-     */
+	/**<
+	 * Filter for Big endian PowerPC binaries
+	 */
 
 #define LZMA_FILTER_IA64        LZMA_VLI_C(0x06)
-    /**<
-     * Filter for IA-64 (Itanium) binaries.
-     */
+	/**<
+	 * Filter for IA-64 (Itanium) binaries.
+	 */
 
 #define LZMA_FILTER_ARM         LZMA_VLI_C(0x07)
-    /**<
-     * Filter for ARM binaries.
-     */
+	/**<
+	 * Filter for ARM binaries.
+	 */
 
 #define LZMA_FILTER_ARMTHUMB    LZMA_VLI_C(0x08)
-    /**<
-     * Filter for ARM-Thumb binaries.
-     */
+	/**<
+	 * Filter for ARM-Thumb binaries.
+	 */
 
 #define LZMA_FILTER_SPARC       LZMA_VLI_C(0x09)
-    /**<
-     * Filter for SPARC binaries.
-     */
+	/**<
+	 * Filter for SPARC binaries.
+	 */
 
 
 /**
@@ -71,20 +71,20 @@
  *              LZMA_SYNC_FLUSH predictably.
  */
 typedef struct {
-    /**
-     * \brief       Start offset for conversions
-     *
-     * This setting is useful only when the same filter is used
-     * _separately_ for multiple sections of the same executable file,
-     * and the sections contain cross-section branch/call/jump
-     * instructions. In that case it is beneficial to set the start
-     * offset of the non-first sections so that the relative addresses
-     * of the cross-section branch/call/jump instructions will use the
-     * same absolute addresses as in the first section.
-     *
-     * When the pointer to options is NULL, the default value (zero)
-     * is used.
-     */
-    uint32_t start_offset;
+	/**
+	 * \brief       Start offset for conversions
+	 *
+	 * This setting is useful only when the same filter is used
+	 * _separately_ for multiple sections of the same executable file,
+	 * and the sections contain cross-section branch/call/jump
+	 * instructions. In that case it is beneficial to set the start
+	 * offset of the non-first sections so that the relative addresses
+	 * of the cross-section branch/call/jump instructions will use the
+	 * same absolute addresses as in the first section.
+	 *
+	 * When the pointer to options is NULL, the default value (zero)
+	 * is used.
+	 */
+	uint32_t start_offset;
 
 } lzma_options_bcj;
