@@ -23,6 +23,7 @@
 # LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
 # OF THIS SOFTWARE.
 
+if (FALSE) # XXX(kitware): VTK handles CMake versions.
 cmake_minimum_required(VERSION 2.8.9)
 
 # Default policy is from 2.8.9
@@ -41,7 +42,9 @@ endif(POLICY CMP0053)
 if (POLICY CMP0054)
   cmake_policy(SET CMP0054 NEW)
 endif(POLICY CMP0054)
+endif ()
 
+if (FALSE) # XXX(kitware): just hard-code the version number.
 # Read version information from configure.ac.
 FILE(READ "${CMAKE_CURRENT_SOURCE_DIR}/configure.ac" configure)
 STRING(REGEX REPLACE ";" "\\\\;" configure "${configure}")
@@ -64,6 +67,13 @@ set(SO_REVISION "${LIBTIFF_REVISION}")
 
 message(STATUS "Building tiff version ${LIBTIFF_MAJOR_VERSION}.${LIBTIFF_MINOR_VERSION}.${LIBTIFF_MICRO_VERSION}${LIBTIFF_ALPHA_VERSION}")
 message(STATUS "libtiff library version ${SO_MAJOR}.${SO_MINOR}.${SO_REVISION}")
+else ()
+# Just copy from configure.ac rather than extracting it.
+set(LIBTIFF_MAJOR_VERSION 4)
+set(LIBTIFF_MINOR_VERSION 0)
+set(LIBTIFF_MICRO_VERSION 9)
+set(LIBTIFF_ALPHA_VERSION)
+endif ()
 
 # XXX(kitware): build tiff using as how vtk is being built
 if(FALSE)
@@ -96,7 +106,7 @@ include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
 include(CheckIncludeFile)
 include(CheckTypeSize)
-include(CheckFunctionExists)
+include(CheckSymbolExists)
 enable_testing()
 
 macro(current_date var)
@@ -126,10 +136,7 @@ set(EXTRA_DIST
   libtiff-4.pc.in)
 
 
-if(TRUE)# XXX(kitware): make cache variables stack variables
-  set(extra-warnings OFF)
-  set(fatal-warnings OFF)
-else()
+if(FALSE)# XXX(kitware): Hardcode settings.
 # These are annoyingly verbose, produce false positives or don't work
 # nicely with all supported compiler versions, so are disabled unless
 # explicitly enabled.
@@ -137,6 +144,9 @@ option(extra-warnings "Enable extra compiler warnings" OFF)
 
 # This will cause the compiler to fail when an error occurs.
 option(fatal-warnings "Compiler warnings are errors" OFF)
+else()
+set(extra-warnings OFF)
+set(fatal-warnings OFF)
 endif()
 
 # Check if the compiler supports each of the following additional
@@ -165,20 +175,19 @@ if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
     list(APPEND test_flags
          -Werror)
   endif()
-# XXX(kitware): don't add to VTK's MSVC warning level
-# elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-#   set(test_flags)
-#   if(extra-warnings)
-#     list(APPEND test_flags
-#          /W4)
-#   else()
-#     list(APPEND test_flags
-#          /W3)
-#   endif()
-#   if (fatal-warnings)
-#     list(APPEND test_flags
-#          /WX)
-#   endif()
+elseif(CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND FALSE) # XXX(kitware): don't add to VTK's MSVC warning level
+  set(test_flags)
+  if(extra-warnings)
+    list(APPEND test_flags
+         /W4)
+  else()
+    list(APPEND test_flags
+         /W3)
+  endif()
+  if (fatal-warnings)
+    list(APPEND test_flags
+         /WX)
+  endif()
 endif()
 
 foreach(flag ${test_flags})
@@ -190,16 +199,17 @@ foreach(flag ${test_flags})
   endif (${test_c_flag})
 endforeach(flag ${test_flags})
 
-# XXX(kitware): vtk does postfixes elsewhere.
-if (FALSE)
+if (FALSE) # XXX(kitware): vtk does postfixes elsewhere.
 if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
 endif ()
 
-# XXX(kitware): make cache variables stack variables
+if (FALSE) # XXX(kitware): hardcode settings
+option(ld-version-script "Enable linker version script" ON)
+else ()
 set(ld-version-script ON)
-#option(ld-version-script "Enable linker version script" ON)
+endif ()
 # Check if LD supports linker scripts.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/conftest.map" "VERS_1 {
         global: sym;
@@ -210,40 +220,31 @@ VERS_2 {
 } VERS_1;
 ")
 set(CMAKE_REQUIRED_FLAGS_SAVE ${CMAKE_REQUIRED_FLAGS})
-set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Werror -Wl,--version-script=\"${CMAKE_CURRENT_BINARY_DIR}/conftest.map\"")
+set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
 check_c_source_compiles("int main(void){return 0;}" HAVE_LD_VERSION_SCRIPT)
 set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS_SAVE})
 file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
-if (ld-version-script AND HAVE_LD_VERSION_SCRIPT)
+if (ld-version-script AND HAVE_LD_VERSION_SCRIPT AND NOT CMAKE_GENERATOR MATCHES "Xcode")
   set(HAVE_LD_VERSION_SCRIPT TRUE)
 else()
   set(HAVE_LD_VERSION_SCRIPT FALSE)
 endif()
 
-# XXX(kitware): drop the flag for Xcode.
-if (CMAKE_GENERATOR MATCHES "Xcode" AND HAVE_LD_VERSION_SCRIPT)
-  message(STATUS "tiff: ignoring support for -Wl,--version-script=")
-  set(HAVE_LD_VERSION_SCRIPT FALSE)
-endif ()
-
 # Find libm, if available
+if (FALSE) # XXX(kitware): unnecessary.
 find_library(M_LIBRARY m)
-# XXX(kitware): drop the flag for Xcode.
-mark_as_advanced(M_LIBRARY)
+endif ()
 
 check_include_file(assert.h    HAVE_ASSERT_H)
 check_include_file(dlfcn.h     HAVE_DLFCN_H)
 check_include_file(fcntl.h     HAVE_FCNTL_H)
 check_include_file(inttypes.h  HAVE_INTTYPES_H)
 check_include_file(io.h        HAVE_IO_H)
-check_include_file(limits.h    HAVE_LIMITS_H)
-check_include_file(malloc.h    HAVE_MALLOC_H)
-check_include_file(memory.h    HAVE_MEMORY_H)
 check_include_file(search.h    HAVE_SEARCH_H)
-check_include_file(stdint.h    HAVE_STDINT_H)
+#check_include_file(stdint.h    HAVE_STDINT_H)
 check_include_file(string.h    HAVE_STRING_H)
-check_include_file(strings.h   HAVE_STRINGS_H)
-check_include_file(sys/time.h  HAVE_SYS_TIME_H)
+#check_include_file(strings.h   HAVE_STRINGS_H)
+#check_include_file(sys/time.h  HAVE_SYS_TIME_H)
 check_include_file(sys/types.h HAVE_SYS_TYPES_H)
 check_include_file(unistd.h    HAVE_UNISTD_H)
 
@@ -294,8 +295,6 @@ int main(void){
 
 # Check type sizes
 # NOTE: Could be replaced with C99 <stdint.h>
-check_type_size("signed short" SIZEOF_SIGNED_SHORT)
-check_type_size("unsigned short" SIZEOF_UNSIGNED_SHORT)
 check_type_size("signed int" SIZEOF_SIGNED_INT)
 check_type_size("unsigned int" SIZEOF_UNSIGNED_INT)
 check_type_size("signed long" SIZEOF_SIGNED_LONG)
@@ -411,86 +410,38 @@ endif()
 #              TIFF_SSIZE_T TIFF_SSIZE_FORMAT
 #              TIFF_PTRDIFF_T TIFF_PTRDIFF_FORMAT)
 
-# Nonstandard int types
-check_type_size(INT8 int8)
-set(HAVE_INT8 ${INT8})
-check_type_size(INT16 int16)
-set(HAVE_INT16 ${INT16})
-check_type_size(INT32 int32)
-set(HAVE_INT32 ${INT32})
-
-# Check functions
-set(CMAKE_REQUIRED_LIBRARIES_SAVE ${CMAKE_REQUIRED_LIBRARIES})
-set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${M_LIBRARY})
-check_function_exists(floor HAVE_FLOOR)
-check_function_exists(pow   HAVE_POW)
-check_function_exists(sqrt  HAVE_SQRT)
-set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVE})
-
-check_function_exists(isascii    HAVE_ISASCII)
-check_function_exists(memmove    HAVE_MEMMOVE)
-check_function_exists(memset     HAVE_MEMSET)
-check_function_exists(mmap       HAVE_MMAP)
-check_function_exists(setmode    HAVE_SETMODE)
-check_function_exists(strcasecmp HAVE_STRCASECMP)
-check_function_exists(strchr     HAVE_STRCHR)
-check_function_exists(strrchr    HAVE_STRRCHR)
-check_function_exists(strstr     HAVE_STRSTR)
-check_function_exists(strtol     HAVE_STRTOL)
-check_function_exists(strtol     HAVE_STRTOUL)
-check_function_exists(strtoull   HAVE_STRTOULL)
-check_function_exists(getopt     HAVE_GETOPT)
-check_function_exists(lfind      HAVE_LFIND)
-
-# May be inlined, so check it compiles:
-check_c_source_compiles("
-#include <stdio.h>
-int main(void) {
-  char buf[10];
-  snprintf(buf, 10, \"Test %d\", 1);
-  return 0;
-}"
-  HAVE_SNPRINTF)
+check_symbol_exists(mmap "sys/mman.h" HAVE_MMAP)
+#check_symbol_exists(setmode "unistd.h" HAVE_SETMODE)
+check_symbol_exists(snprintf "stdio.h" HAVE_SNPRINTF)
+check_symbol_exists(strcasecmp "strings.h" HAVE_STRCASECMP)
+#check_symbol_exists(strtol "stdlib.h" HAVE_STRTOUL)
+#check_symbol_exists(getopt "unistd.h" HAVE_GETOPT)
+#check_symbol_exists(lfind "search.h" HAVE_LFIND)
 
 if(NOT HAVE_SNPRINTF)
   add_definitions(-DNEED_LIBPORT)
 endif()
 
 # CPU bit order
-set(fillorder FILLORDER_MSB2LSB)
+set(HOST_FILLORDER FILLORDER_MSB2LSB)
 if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "i.*86.*" OR
    CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "amd64.*" OR
    CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64.*")
-  set(fillorder FILLORDER_LSB2MSB)
+  set(HOST_FILLORDER FILLORDER_LSB2MSB)
 endif()
-set(HOST_FILLORDER ${fillorder} CACHE STRING "Native CPU bit order")
-mark_as_advanced(HOST_FILLORDER)
 
 # CPU endianness
 include(TestBigEndian)
-test_big_endian(bigendian)
-if (bigendian)
-  set(bigendian ON)
-else()
-  set(bigendian OFF)
-endif()
-set(HOST_BIG_ENDIAN ${bigendian} CACHE STRING "Native CPU bit order")
-mark_as_advanced(HOST_BIG_ENDIAN)
-if (HOST_BIG_ENDIAN)
-  set(HOST_BIG_ENDIAN 1)
-else()
-  set(HOST_BIG_ENDIAN 0)
-endif()
+test_big_endian(HOST_BIG_ENDIAN)
 
 # IEEE floating point
-set(HAVE_IEEEFP 1 CACHE STRING "IEEE floating point is available")
-mark_as_advanced(HAVE_IEEEFP)
+set(HAVE_IEEEFP 1)
 
-report_values(CMAKE_HOST_SYSTEM_PROCESSOR HOST_FILLORDER
-              HOST_BIG_ENDIAN HAVE_IEEEFP)
+#report_values(CMAKE_HOST_SYSTEM_PROCESSOR HOST_FILLORDER
+#              HOST_BIG_ENDIAN HAVE_IEEEFP)
 
 # Large file support
-if (UNIX)
+if (UNIX OR MINGW)
   # This might not catch every possibility catered for by
   # AC_SYS_LARGEFILE.
   add_definitions(-D_FILE_OFFSET_BITS=64)
@@ -502,16 +453,7 @@ set(LIBTIFF_DOCDIR "${CMAKE_INSTALL_FULL_DOCDIR}")
 
 # Options to enable and disable internal codecs
 
-if(TRUE)# XXX(kitware): make cache variables stack variables
-  set(CCITT_SUPPORT ON)
-  set(PACKBITS_SUPPORT ON)
-  set(LZW_SUPPORT ON)
-  set(THUNDER_SUPPORT ON)
-  set(NEXT_SUPPORT ON)
-  set(LOGLUV_SUPPORT ON)
-  set(MDI_SUPPORT ON)
-else()
-
+if (FALSE) # XXX(kitware): hardcode settings
 option(ccitt "support for CCITT Group 3 & 4 algorithms" ON)
 set(CCITT_SUPPORT ${ccitt})
 
@@ -533,22 +475,19 @@ set(LOGLUV_SUPPORT ${logluv})
 # Option for Microsoft Document Imaging
 option(mdi "support for Microsoft Document Imaging" ON)
 set(MDI_SUPPORT ${mdi})
-
+else ()
+set(CCITT_SUPPORT ON)
+set(PACKBITS_SUPPORT ON)
+set(LZW_SUPPORT ON)
+set(THUNDER_SUPPORT ON)
+set(NEXT_SUPPORT ON)
+set(LOGLUV_SUPPORT ON)
+set(MDI_SUPPORT ON)
 endif()
 
-
-# XXX(kitware): defer finding jpeg and zlib to vtk/thirdparty
-#
-set(zlib OFF) #explicitly turn off to override existing cached variables
-set(jpeg OFF)
-set(CMAKE_INSTALL_FULL_INCLUDEDIR "${VTK_INSTALL_INCLUDE_DIR}/vtktiff")
-set(ZLIB_FOUND TRUE)
-set(JPEG_FOUND TRUE)
-set(ZLIB_LIBRARIES ${vtkzlib_LIBRARIES})
-set(JPEG_LIBRARIES ${vtkjpeg_LIBRARIES})
-
 # ZLIB
-# option(zlib "use zlib (required for Deflate compression)" OFF)
+if (FALSE) # XXX(kitware): hardcode settings
+option(zlib "use zlib (required for Deflate compression)" ON)
 if (zlib)
   find_package(ZLIB)
 endif()
@@ -557,23 +496,27 @@ if(ZLIB_FOUND)
   set(ZLIB_SUPPORT 1)
 endif()
 set(ZIP_SUPPORT ${ZLIB_SUPPORT})
+else ()
+set(ZIP_SUPPORT 1)
+endif ()
 # Option for Pixar log-format algorithm
 
 # Pixar log format
-# XXX(kitware): make cache variables stack variables
-set(pixarlog ON)
-#option(pixarlog "support for Pixar log-format algorithm (requires Zlib)" ON)
+if (FALSE) # XXX(kitware): hardcode settings
+option(pixarlog "support for Pixar log-format algorithm (requires Zlib)" ON)
 set(PIXARLOG_SUPPORT FALSE)
 if (ZLIB_SUPPORT)
   if(pixarlog)
     set(PIXARLOG_SUPPORT TRUE)
   endif()
 endif()
+else ()
+set(PIXARLOG_SUPPORT 1)
+endif ()
 
 # JPEG
-# XXX(kitware): make cache variables stack variables
-set(jpeg OFF)
-#option(jpeg "use libjpeg (required for JPEG compression)" OFF)
+if (FALSE) # XXX(kitware): hardcode settings
+option(jpeg "use libjpeg (required for JPEG compression)" ON)
 if (jpeg)
   find_package(JPEG)
 endif()
@@ -581,21 +524,25 @@ set(JPEG_SUPPORT FALSE)
 if(JPEG_FOUND)
   set(JPEG_SUPPORT TRUE)
 endif()
+else ()
+set(JPEG_SUPPORT 1)
+endif ()
 
-# XXX(kitware): make cache variables stack variables
-set(old-jpeg OFF)
-#option(old-jpeg "support for Old JPEG compression (read-only)" OFF)
+if (FALSE) # XXX(kitware): hardcode settings
+option(old-jpeg "support for Old JPEG compression (read-only)" ON)
 set(OJPEG_SUPPORT FALSE)
 if (JPEG_SUPPORT)
   if (old-jpeg)
     set(OJPEG_SUPPORT TRUE)
   endif()
 endif()
+else ()
+set(OJPEG_SUPPORT 0)
+endif ()
 
 # JBIG-KIT
-# XXX(kitware): make cache variables stack variables
-set(jbig OFF)
-#option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" OFF)
+if (FALSE) # XXX(kitware): hardcode settings
+option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" ON)
 if (jbig)
   set(JBIG_FOUND 0)
   find_path(JBIG_INCLUDE_DIR jbig.h)
@@ -621,10 +568,13 @@ set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${JBIG_LIBRARY})
 check_function_exists(jbg_newlen HAVE_JBG_NEWLEN)
 set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVE})
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES_SAVE})
+else ()
+set(JBIG_SUPPORT 0)
+endif ()
 
 # liblzma2
-#XXX(kitware): make cache variables stack variables
-#option(lzma "use liblzma (required for LZMA2 compression)" OFF)
+if (FALSE) # XXX(kitware): hardcode settings
+option(lzma "use liblzma (required for LZMA2 compression)" ON)
 if (lzma)
   find_package(LibLZMA)
 endif()
@@ -632,17 +582,16 @@ set(LZMA_SUPPORT 0)
 if(LIBLZMA_FOUND)
   set(LZMA_SUPPORT 1)
 endif()
+else ()
+set(LZMA_SUPPORT 0)
+endif ()
 
 # 8/12-bit jpeg mode
-# XXX(kitware): make cache variables stack variables
-set(jpeg12 OFF)
-set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND)
-set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND)
-#option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate 12-bit libjpeg build)" OFF)
-#set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
-#set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
-
-
+if (FALSE) # XXX(kitware): hardcode settings
+option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate
+12-bit libjpeg build)" ON)
+set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
+set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
 set(JPEG12_FOUND FALSE)
 if (JPEG12_INCLUDE_DIR AND JPEG12_LIBRARY)
   set(JPEG12_LIBRARIES ${JPEG12_LIBRARY})
@@ -652,32 +601,38 @@ if (JPEG12_FOUND)
   set(JPEG_DUAL_MODE_8_12 1)
   set(LIBJPEG_12_PATH "${JPEG12_INCLUDE_DIR}/jpeglib.h")
 endif()
+else ()
+set(JPEG_DUAL_MODE_8_12 0)
+endif ()
 
 # C++ support
-# XXX(kitware): make cache variables stack variables
-set(cxx ON)
-#option(cxx "Enable C++ stream API building (requires C++ compiler)" ON)
+if (FALSE) # XXX(kitware): hardcode settings
+option(cxx "Enable C++ stream API building (requires C++ compiler)" ON)
 set(CXX_SUPPORT FALSE)
 if (cxx)
   enable_language(CXX)
   set(CXX_SUPPORT TRUE)
 endif()
+else ()
+set(CXX_SUPPORT 0)
+endif ()
 
-# XXX(kitware): These options are never actually used, so disable them
+if (FALSE) # XXX(kitware): hide unused options.
 # OpenGL and GLUT
-# find_package(OpenGL)
-# find_package(GLUT)
-# set(HAVE_OPENGL FALSE)
-# if(OPENGL_FOUND AND OPENGL_GLU_FOUND AND GLUT_FOUND)
-#   set(HAVE_OPENGL TRUE)
-# endif()
-# # Purely to satisfy the generated headers:
-# check_include_file(GL/gl.h HAVE_GL_GL_H)
-# check_include_file(GL/glu.h HAVE_GL_GLU_H)
-# check_include_file(GL/glut.h HAVE_GL_GLUT_H)
-# check_include_file(GLUT/glut.h HAVE_GLUT_GLUT_H)
-# check_include_file(OpenGL/gl.h HAVE_OPENGL_GL_H)
-# check_include_file(OpenGL/glu.h HAVE_OPENGL_GLU_H)
+find_package(OpenGL)
+find_package(GLUT)
+set(HAVE_OPENGL FALSE)
+if(OPENGL_FOUND AND OPENGL_GLU_FOUND AND GLUT_FOUND)
+  set(HAVE_OPENGL TRUE)
+endif()
+# Purely to satisfy the generated headers:
+check_include_file(GL/gl.h HAVE_GL_GL_H)
+check_include_file(GL/glu.h HAVE_GL_GLU_H)
+check_include_file(GL/glut.h HAVE_GL_GLUT_H)
+check_include_file(GLUT/glut.h HAVE_GLUT_GLUT_H)
+check_include_file(OpenGL/gl.h HAVE_OPENGL_GL_H)
+check_include_file(OpenGL/glu.h HAVE_OPENGL_GLU_H)
+endif ()
 
 # Win32 IO
 set(win32_io FALSE)
@@ -685,35 +640,12 @@ if(WIN32)
   set(win32_io TRUE)
 endif()
 
-# XXX(kitware): make cache variables stack variables
 set(USE_WIN32_FILEIO ${win32_io})
-#set(USE_WIN32_FILEIO ${win32_io} CACHE BOOL "Use win32 IO system (Microsoft Windows only)")
-if (USE_WIN32_FILEIO)
-  set(USE_WIN32_FILEIO TRUE)
-else()
-  set(USE_WIN32_FILEIO FALSE)
-endif()
 
 # Orthogonal features
 
 # Strip chopping
-if(TRUE)# XXX(kitware): make cache variables stack variables
-  set(STRIPCHOP_DEFAULT TRUE)
-  set(TIFF_DEFAULT_STRIP_SIZE 8192)
-  set(STRIP_SIZE_DEFAULT "${TIFF_DEFAULT_STRIP_SIZE}")
-
-  set(DEFER_STRILE_LOAD OFF)
-
-  set(CHUNKY_STRIP_READ_SUPPORT OFF)
-
-  # SUBIFD support
-  set(SUBIFD_SUPPORT 1)
-
-  set(DEFAULT_EXTRASAMPLE_AS_ALPHA 1)
-
-  set(CHECK_JPEG_YCBCR_SUBSAMPLING 1)
-
-else()
+if (FALSE) # XXX(kitware): hardcode settings
 option(strip-chopping "strip chopping (whether or not to convert single-strip uncompressed images to mutiple strips of specified size to reduce memory usage)" ON)
 set(TIFF_DEFAULT_STRIP_SIZE 8192 CACHE STRING "default size of the strip in bytes (when strip chopping is enabled)")
 
@@ -748,8 +680,22 @@ option(check-ycbcr-subsampling "enable picking up YCbCr subsampling info from th
 if (check-ycbcr-subsampling)
   set(CHECK_JPEG_YCBCR_SUBSAMPLING 1)
 endif()
+else ()
+set(TIFF_DEFAULT_STRIP_SIZE 8192)
+set(STRIP_SIZE_DEFAULT "${TIFF_DEFAULT_STRIP_SIZE}")
 
-endif()
+set(DEFER_STRILE_LOAD OFF)
+
+set(CHUNKY_STRIP_READ_SUPPORT OFF)
+
+# SUBIFD support
+set(SUBIFD_SUPPORT 1)
+
+set(DEFAULT_EXTRASAMPLE_AS_ALPHA 1)
+
+set(CHECK_JPEG_YCBCR_SUBSAMPLING 1)
+endif ()
+
 if (FALSE) # XXX(kitware): no need for a pkg-config file
 # Generate pkg-config file
 set(prefix "${CMAKE_INSTALL_PREFIX}")
@@ -762,6 +708,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libtiff-4.pc
         DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
 endif ()
 
+if (FALSE) # XXX(kitware): dependencies handled by VTK.
 # Includes used by libtiff (and tests)
 if(ZLIB_INCLUDE_DIRS)
   list(APPEND TIFF_INCLUDES ${ZLIB_INCLUDE_DIRS})
@@ -799,6 +746,7 @@ endif()
 if(LIBLZMA_LIBRARIES)
   list(APPEND TIFF_LIBRARY_DEPS ${LIBLZMA_LIBRARIES})
 endif()
+endif ()
 
 #report_values(TIFF_INCLUDES TIFF_LIBRARY_DEPS)
 
@@ -816,38 +764,39 @@ endif ()
 
 #message(STATUS "EXTRA_DIST: ${EXTRA_DIST}")
 
-# XXX(kitware): disabling noisy configures
-# message(STATUS "")
-# message(STATUS "Libtiff is now configured for ${host}")
-# message(STATUS "")
-# message(STATUS "  Installation directory:             ${prefix}")
-# message(STATUS "  Documentation directory:            ${LIBTIFF_DOCDIR}")
-# message(STATUS "  C compiler:                         ${CMAKE_C_COMPILER}")
-# message(STATUS "  C++ compiler:                       ${CMAKE_CXX_COMPILER}")
-# message(STATUS "  Build shared libraries:             ${BUILD_SHARED_LIBS}")
-# message(STATUS "  Enable linker symbol versioning:    ${HAVE_LD_VERSION_SCRIPT}")
-# message(STATUS "  Support Microsoft Document Imaging: ${mdi}")
-# message(STATUS "  Use win32 IO:                       ${USE_WIN32_FILEIO}")
-# message(STATUS "")
-# message(STATUS " Support for internal codecs:")
-# message(STATUS "  CCITT Group 3 & 4 algorithms:       ${ccitt}")
-# message(STATUS "  Macintosh PackBits algorithm:       ${packbits}")
-# message(STATUS "  LZW algorithm:                      ${lzw}")
-# message(STATUS "  ThunderScan 4-bit RLE algorithm:    ${thunder}")
-# message(STATUS "  NeXT 2-bit RLE algorithm:           ${next}")
-# message(STATUS "  LogLuv high dynamic range encoding: ${logluv}")
-# message(STATUS "")
-# message(STATUS " Support for external codecs:")
-# message(STATUS "  ZLIB support:                       ${zlib} (requested) ${ZLIB_FOUND} (availability)")
-# message(STATUS "  Pixar log-format algorithm:         ${pixarlog} (requested) ${PIXARLOG_SUPPORT} (availability)")
-# message(STATUS "  JPEG support:                       ${jpeg} (requested) ${JPEG_FOUND} (availability)")
-# message(STATUS "  Old JPEG support:                   ${old-jpeg} (requested) ${JPEG_FOUND} (availability)")
-# message(STATUS "  JPEG 8/12 bit dual mode:            ${jpeg12} (requested) ${JPEG12_FOUND} (availability)")
-# message(STATUS "  ISO JBIG support:                   ${jbig} (requested) ${JBIG_FOUND} (availability)")
-# message(STATUS "  LZMA2 support:                      ${lzma} (requested) ${LIBLZMA_FOUND} (availability)")
-# message(STATUS "")
-# message(STATUS "  C++ support:                        ${cxx} (requested) ${CXX_SUPPORT} (availability)")
-# message(STATUS "")
-# # message(STATUS "  X Athena Widgets support:           ${HAVE_XAW}")
-# message(STATUS "  OpenGL support:                     ${HAVE_OPENGL}")
-# message(STATUS "")
+if (FALSE) # XXX(kitware): hide messages.
+message(STATUS "")
+message(STATUS "Libtiff is now configured for ${host}")
+message(STATUS "")
+message(STATUS "  Installation directory:             ${prefix}")
+message(STATUS "  Documentation directory:            ${LIBTIFF_DOCDIR}")
+message(STATUS "  C compiler:                         ${CMAKE_C_COMPILER}")
+message(STATUS "  C++ compiler:                       ${CMAKE_CXX_COMPILER}")
+message(STATUS "  Build shared libraries:             ${BUILD_SHARED_LIBS}")
+message(STATUS "  Enable linker symbol versioning:    ${HAVE_LD_VERSION_SCRIPT}")
+message(STATUS "  Support Microsoft Document Imaging: ${mdi}")
+message(STATUS "  Use win32 IO:                       ${USE_WIN32_FILEIO}")
+message(STATUS "")
+message(STATUS " Support for internal codecs:")
+message(STATUS "  CCITT Group 3 & 4 algorithms:       ${ccitt}")
+message(STATUS "  Macintosh PackBits algorithm:       ${packbits}")
+message(STATUS "  LZW algorithm:                      ${lzw}")
+message(STATUS "  ThunderScan 4-bit RLE algorithm:    ${thunder}")
+message(STATUS "  NeXT 2-bit RLE algorithm:           ${next}")
+message(STATUS "  LogLuv high dynamic range encoding: ${logluv}")
+message(STATUS "")
+message(STATUS " Support for external codecs:")
+message(STATUS "  ZLIB support:                       ${zlib} (requested) ${ZLIB_FOUND} (availability)")
+message(STATUS "  Pixar log-format algorithm:         ${pixarlog} (requested) ${PIXARLOG_SUPPORT} (availability)")
+message(STATUS "  JPEG support:                       ${jpeg} (requested) ${JPEG_FOUND} (availability)")
+message(STATUS "  Old JPEG support:                   ${old-jpeg} (requested) ${JPEG_FOUND} (availability)")
+message(STATUS "  JPEG 8/12 bit dual mode:            ${jpeg12} (requested) ${JPEG12_FOUND} (availability)")
+message(STATUS "  ISO JBIG support:                   ${jbig} (requested) ${JBIG_FOUND} (availability)")
+message(STATUS "  LZMA2 support:                      ${lzma} (requested) ${LIBLZMA_FOUND} (availability)")
+message(STATUS "")
+message(STATUS "  C++ support:                        ${cxx} (requested) ${CXX_SUPPORT} (availability)")
+message(STATUS "")
+# message(STATUS "  X Athena Widgets support:           ${HAVE_XAW}")
+message(STATUS "  OpenGL support:                     ${HAVE_OPENGL}")
+message(STATUS "")
+endif ()

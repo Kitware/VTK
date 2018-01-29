@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: tif_fax3.c,v 1.81 2017-06-18 10:31:50 erouault Exp $ */
 
 /*
  * Copyright (c) 1990-1997 Sam Leffler
@@ -329,34 +329,64 @@ Fax3Decode2D(TIFF* tif, uint8* buf, tmsize_t occ, uint16 s)
 #if SIZEOF_UNSIGNED_LONG == 8
 # define FILL(n, cp)							    \
     switch (n) {							    \
-    case 15:(cp)[14] = 0xff; case 14:(cp)[13] = 0xff; case 13: (cp)[12] = 0xff;\
-    case 12:(cp)[11] = 0xff; case 11:(cp)[10] = 0xff; case 10: (cp)[9] = 0xff;\
-    case  9: (cp)[8] = 0xff; case  8: (cp)[7] = 0xff; case  7: (cp)[6] = 0xff;\
-    case  6: (cp)[5] = 0xff; case  5: (cp)[4] = 0xff; case  4: (cp)[3] = 0xff;\
-    case  3: (cp)[2] = 0xff; case  2: (cp)[1] = 0xff;			      \
-    case  1: (cp)[0] = 0xff; (cp) += (n); case 0:  ;			      \
+    case 15:(cp)[14] = 0xff; /*-fallthrough*/ \
+    case 14:(cp)[13] = 0xff; /*-fallthrough*/ \
+    case 13:(cp)[12] = 0xff; /*-fallthrough*/ \
+    case 12:(cp)[11] = 0xff; /*-fallthrough*/ \
+    case 11:(cp)[10] = 0xff; /*-fallthrough*/ \
+    case 10: (cp)[9] = 0xff; /*-fallthrough*/ \
+    case  9: (cp)[8] = 0xff; /*-fallthrough*/ \
+    case  8: (cp)[7] = 0xff; /*-fallthrough*/ \
+    case  7: (cp)[6] = 0xff; /*-fallthrough*/ \
+    case  6: (cp)[5] = 0xff; /*-fallthrough*/ \
+    case  5: (cp)[4] = 0xff; /*-fallthrough*/ \
+    case  4: (cp)[3] = 0xff; /*-fallthrough*/ \
+    case  3: (cp)[2] = 0xff; /*-fallthrough*/ \
+    case  2: (cp)[1] = 0xff; /*-fallthrough*/ \
+    case  1: (cp)[0] = 0xff; (cp) += (n); /*-fallthrough*/ \
+    case 0:  ;			      \
     }
 # define ZERO(n, cp)							\
     switch (n) {							\
-    case 15:(cp)[14] = 0; case 14:(cp)[13] = 0; case 13: (cp)[12] = 0;	\
-    case 12:(cp)[11] = 0; case 11:(cp)[10] = 0; case 10: (cp)[9] = 0;	\
-    case  9: (cp)[8] = 0; case  8: (cp)[7] = 0; case  7: (cp)[6] = 0;	\
-    case  6: (cp)[5] = 0; case  5: (cp)[4] = 0; case  4: (cp)[3] = 0;	\
-    case  3: (cp)[2] = 0; case  2: (cp)[1] = 0;				\
-    case  1: (cp)[0] = 0; (cp) += (n); case 0:  ;			\
+    case 15:(cp)[14] = 0; /*-fallthrough*/ \
+    case 14:(cp)[13] = 0; /*-fallthrough*/ \
+    case 13:(cp)[12] = 0; /*-fallthrough*/ \
+    case 12:(cp)[11] = 0; /*-fallthrough*/ \
+    case 11:(cp)[10] = 0; /*-fallthrough*/ \
+    case 10: (cp)[9] = 0; /*-fallthrough*/ \
+    case  9: (cp)[8] = 0; /*-fallthrough*/ \
+    case  8: (cp)[7] = 0; /*-fallthrough*/ \
+    case  7: (cp)[6] = 0; /*-fallthrough*/ \
+    case  6: (cp)[5] = 0; /*-fallthrough*/ \
+    case  5: (cp)[4] = 0; /*-fallthrough*/ \
+    case  4: (cp)[3] = 0; /*-fallthrough*/ \
+    case  3: (cp)[2] = 0; /*-fallthrough*/ \
+    case  2: (cp)[1] = 0; /*-fallthrough*/ \
+    case  1: (cp)[0] = 0; (cp) += (n); /*-fallthrough*/ \
+    case 0:  ;			\
     }
 #else
 # define FILL(n, cp)							    \
     switch (n) {							    \
-    case 7: (cp)[6] = 0xff; case 6: (cp)[5] = 0xff; case 5: (cp)[4] = 0xff; \
-    case 4: (cp)[3] = 0xff; case 3: (cp)[2] = 0xff; case 2: (cp)[1] = 0xff; \
-    case 1: (cp)[0] = 0xff; (cp) += (n); case 0:  ;			    \
+    case 7: (cp)[6] = 0xff; /*-fallthrough*/ \
+    case 6: (cp)[5] = 0xff; /*-fallthrough*/ \
+    case 5: (cp)[4] = 0xff; /*-fallthrough*/ \
+    case 4: (cp)[3] = 0xff; /*-fallthrough*/ \
+    case 3: (cp)[2] = 0xff; /*-fallthrough*/ \
+    case 2: (cp)[1] = 0xff; /*-fallthrough*/ \
+    case 1: (cp)[0] = 0xff; (cp) += (n);  /*-fallthrough*/ \
+    case 0:  ;			    \
     }
 # define ZERO(n, cp)							\
     switch (n) {							\
-    case 7: (cp)[6] = 0; case 6: (cp)[5] = 0; case 5: (cp)[4] = 0;	\
-    case 4: (cp)[3] = 0; case 3: (cp)[2] = 0; case 2: (cp)[1] = 0;	\
-    case 1: (cp)[0] = 0; (cp) += (n); case 0:  ;			\
+    case 7: (cp)[6] = 0; /*-fallthrough*/ \
+    case 6: (cp)[5] = 0; /*-fallthrough*/ \
+    case 5: (cp)[4] = 0; /*-fallthrough*/ \
+    case 4: (cp)[3] = 0; /*-fallthrough*/ \
+    case 3: (cp)[2] = 0; /*-fallthrough*/ \
+    case 2: (cp)[1] = 0; /*-fallthrough*/ \
+    case 1: (cp)[0] = 0; (cp) += (n); /*-fallthrough*/ \
+    case 0:  ;			\
     }
 #endif
 
@@ -644,7 +674,8 @@ putspan(TIFF* tif, int32 span, const tableentry* tab)
 
 	while (span >= 2624) {
 		const tableentry* te = &tab[63 + (2560>>6)];
-		code = te->code, length = te->length;
+		code = te->code;
+		length = te->length;
 #ifdef FAX3_DEBUG
 		DEBUG_PRINT("MakeUp", te->runlen);
 #endif
@@ -654,14 +685,16 @@ putspan(TIFF* tif, int32 span, const tableentry* tab)
 	if (span >= 64) {
 		const tableentry* te = &tab[63 + (span>>6)];
 		assert(te->runlen == 64*(span>>6));
-		code = te->code, length = te->length;
+		code = te->code;
+		length = te->length;
 #ifdef FAX3_DEBUG
 		DEBUG_PRINT("MakeUp", te->runlen);
 #endif
 		_PutBits(tif, code, length);
 		span -= te->runlen;
 	}
-	code = tab[span].code, length = tab[span].length;
+	code = tab[span].code;
+	length = tab[span].length;
 #ifdef FAX3_DEBUG
 	DEBUG_PRINT("  Term", tab[span].runlen);
 #endif
@@ -697,14 +730,16 @@ Fax3PutEOL(TIFF* tif)
 				align = sp->bit + (8 - align);
 			else
 				align = sp->bit - align;
-			code = 0;
 			tparm=align; 
 			_PutBits(tif, 0, tparm);
 		}
 	}
-	code = EOL, length = 12;
-	if (is2DEncoding(sp))
-		code = (code<<1) | (sp->tag == G3_1D), length++;
+	code = EOL;
+	length = 12;
+	if (is2DEncoding(sp)) {
+		code = (code<<1) | (sp->tag == G3_1D);
+		length++;
+	}
 	_PutBits(tif, code, length);
 
 	sp->data = data;
@@ -815,7 +850,7 @@ find0span(unsigned char* bp, int32 bs, int32 be)
 	/*
 	 * Check partial byte on lhs.
 	 */
-	if (bits > 0 && (n = (bs & 7))) {
+	if (bits > 0 && (n = (bs & 7)) != 0) {
 		span = zeroruns[(*bp << n) & 0xff];
 		if (span > 8-n)		/* table value too generous */
 			span = 8-n;
@@ -835,12 +870,14 @@ find0span(unsigned char* bp, int32 bs, int32 be)
 		while (!isAligned(bp, long)) {
 			if (*bp != 0x00)
 				return (span + zeroruns[*bp]);
-			span += 8, bits -= 8;
+			span += 8;
+			bits -= 8;
 			bp++;
 		}
 		lp = (long*) bp;
 		while ((bits >= (int32)(8 * sizeof(long))) && (0 == *lp)) {
-			span += 8*sizeof (long), bits -= 8*sizeof (long);
+			span += 8*sizeof (long);
+			bits -= 8*sizeof (long);
 			lp++;
 		}
 		bp = (unsigned char*) lp;
@@ -851,7 +888,8 @@ find0span(unsigned char* bp, int32 bs, int32 be)
 	while (bits >= 8) {
 		if (*bp != 0x00)	/* end of run */
 			return (span + zeroruns[*bp]);
-		span += 8, bits -= 8;
+		span += 8;
+		bits -= 8;
 		bp++;
 	}
 	/*
@@ -874,7 +912,7 @@ find1span(unsigned char* bp, int32 bs, int32 be)
 	/*
 	 * Check partial byte on lhs.
 	 */
-	if (bits > 0 && (n = (bs & 7))) {
+	if (bits > 0 && (n = (bs & 7)) != 0) {
 		span = oneruns[(*bp << n) & 0xff];
 		if (span > 8-n)		/* table value too generous */
 			span = 8-n;
@@ -894,12 +932,14 @@ find1span(unsigned char* bp, int32 bs, int32 be)
 		while (!isAligned(bp, long)) {
 			if (*bp != 0xff)
 				return (span + oneruns[*bp]);
-			span += 8, bits -= 8;
+			span += 8;
+			bits -= 8;
 			bp++;
 		}
 		lp = (long*) bp;
 		while ((bits >= (int32)(8 * sizeof(long))) && (~0 == *lp)) {
-			span += 8*sizeof (long), bits -= 8*sizeof (long);
+			span += 8*sizeof (long);
+			bits -= 8*sizeof (long);
 			lp++;
 		}
 		bp = (unsigned char*) lp;
@@ -910,7 +950,8 @@ find1span(unsigned char* bp, int32 bs, int32 be)
 	while (bits >= 8) {
 		if (*bp != 0xff)	/* end of run */
 			return (span + oneruns[*bp]);
-		span += 8, bits -= 8;
+		span += 8;
+		bits -= 8;
 		bp++;
 	}
 	/*
@@ -1002,7 +1043,11 @@ Fax3Encode2DRow(TIFF* tif, unsigned char* bp, unsigned char* rp, uint32 bits)
 	for (;;) {
 		b2 = finddiff2(rp, b1, bits, PIXEL(rp,b1));
 		if (b2 >= a1) {
-			int32 d = b1 - a1;
+			/* Naive computation triggers -fsanitize=undefined,unsigned-integer-overflow */
+			/* although it is correct unless the difference between both is < 31 bit */
+			/* int32 d = b1 - a1; */
+			int32 d = (b1 >= a1 && b1 - a1 <= 3U) ? (int32)(b1 - a1):
+			          (b1 < a1 && a1 - b1 <= 3U) ? -(int32)(a1 - b1) : 0x7FFFFFFF;
 			if (!(-3 <= d && d <= 3)) {	/* horizontal mode */
 				a2 = finddiff2(bp, a1, bits, PIXEL(bp,a1));
 				putcode(tif, &horizcode);
@@ -1088,14 +1133,16 @@ Fax3PostEncode(TIFF* tif)
 static void
 Fax3Close(TIFF* tif)
 {
-	if ((Fax3State(tif)->mode & FAXMODE_NORTC) == 0) {
+	if ((Fax3State(tif)->mode & FAXMODE_NORTC) == 0 && tif->tif_rawcp) {
 		Fax3CodecState* sp = EncoderState(tif);
 		unsigned int code = EOL;
 		unsigned int length = 12;
 		int i;
 
-		if (is2DEncoding(sp))
-			code = (code<<1) | (sp->tag == G3_1D), length++;
+		if (is2DEncoding(sp)) {
+			code = (code<<1) | (sp->tag == G3_1D);
+			length++;
+		}
 		for (i = 0; i < 6; i++)
 			Fax3PutBits(tif, code, length);
 		Fax3FlushBits(tif, sp);
@@ -1182,7 +1229,7 @@ Fax3VSetField(TIFF* tif, uint32 tag, va_list ap)
 		return (*sp->vsetparent)(tif, tag, ap);
 	}
 	
-	if ((fip = TIFFFieldWithTag(tif, tag)))
+	if ((fip = TIFFFieldWithTag(tif, tag)) != NULL)
 		TIFFSetFieldBit(tif, fip->field_bit);
 	else
 		return 0;
@@ -1241,10 +1288,14 @@ Fax3PrintDir(TIFF* tif, FILE* fd, long flags)
 		} else {
 
 			fprintf(fd, "  Group 3 Options:");
-			if (sp->groupoptions & GROUP3OPT_2DENCODING)
-				fprintf(fd, "%s2-d encoding", sep), sep = "+";
-			if (sp->groupoptions & GROUP3OPT_FILLBITS)
-				fprintf(fd, "%sEOL padding", sep), sep = "+";
+			if (sp->groupoptions & GROUP3OPT_2DENCODING) {
+				fprintf(fd, "%s2-d encoding", sep);
+				sep = "+";
+			}
+			if (sp->groupoptions & GROUP3OPT_FILLBITS) {
+				fprintf(fd, "%sEOL padding", sep);
+				sep = "+";
+			}
 			if (sp->groupoptions & GROUP3OPT_UNCOMPRESSED)
 				fprintf(fd, "%suncompressed data", sep);
 		}
@@ -1304,6 +1355,7 @@ InitCCITTFax3(TIFF* tif)
 		    "No space for state block");
 		return (0);
 	}
+	_TIFFmemset(tif->tif_data, 0, sizeof (Fax3CodecState));
 
 	sp = Fax3State(tif);
         sp->rw_mode = tif->tif_mode;

@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: tif_swab.c,v 1.15 2017-06-08 16:39:50 erouault Exp $ */
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -31,11 +31,11 @@
  */
 #include "tiffiop.h"
 
-/* XXX(kitware): Mangle symbols in here to have "vtk_" prefixes. */
+#define DISABLE_CHECK_TIFFSWABMACROS
 
-#ifndef vtk_TIFFSwabShort
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabShort)
 void
-vtk_TIFFSwabShort(uint16* wp)
+TIFFSwabShort(uint16* wp)
 {
 	register unsigned char* cp = (unsigned char*) wp;
 	unsigned char t;
@@ -44,9 +44,9 @@ vtk_TIFFSwabShort(uint16* wp)
 }
 #endif
 
-#ifndef vtk_TIFFSwabLong
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong)
 void
-vtk_TIFFSwabLong(uint32* lp)
+TIFFSwabLong(uint32* lp)
 {
 	register unsigned char* cp = (unsigned char*) lp;
 	unsigned char t;
@@ -56,9 +56,9 @@ vtk_TIFFSwabLong(uint32* lp)
 }
 #endif
 
-#ifndef vtk_TIFFSwabLong8
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabLong8)
 void
-vtk_TIFFSwabLong8(uint64* lp)
+TIFFSwabLong8(uint64* lp)
 {
 	register unsigned char* cp = (unsigned char*) lp;
 	unsigned char t;
@@ -70,9 +70,9 @@ vtk_TIFFSwabLong8(uint64* lp)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfShort
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfShort)
 void
-vtk_TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
+TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 {
 	register unsigned char* cp;
 	register unsigned char t;
@@ -86,9 +86,9 @@ vtk_TIFFSwabArrayOfShort(register uint16* wp, tmsize_t n)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfTriples
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfTriples)
 void
-vtk_TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
+TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 {
 	unsigned char* cp;
 	unsigned char t;
@@ -102,9 +102,9 @@ vtk_TIFFSwabArrayOfTriples(register uint8* tp, tmsize_t n)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfLong
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong)
 void
-vtk_TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
+TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 {
 	register unsigned char *cp;
 	register unsigned char t;
@@ -119,9 +119,9 @@ vtk_TIFFSwabArrayOfLong(register uint32* lp, tmsize_t n)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfLong8
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfLong8)
 void
-vtk_TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
+TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 {
 	register unsigned char *cp;
 	register unsigned char t;
@@ -138,9 +138,9 @@ vtk_TIFFSwabArrayOfLong8(register uint64* lp, tmsize_t n)
 }
 #endif
 
-#ifndef vtk_TIFFSwabFloat
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabFloat)
 void
-vtk_TIFFSwabFloat(float* fp)
+TIFFSwabFloat(float* fp)
 {
 	register unsigned char* cp = (unsigned char*) fp;
 	unsigned char t;
@@ -150,9 +150,9 @@ vtk_TIFFSwabFloat(float* fp)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfFloat
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfFloat)
 void
-vtk_TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
+TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
 {
 	register unsigned char *cp;
 	register unsigned char t;
@@ -167,9 +167,9 @@ vtk_TIFFSwabArrayOfFloat(register float* fp, tmsize_t n)
 }
 #endif
 
-#ifndef vtk_TIFFSwabDouble
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabDouble)
 void
-vtk_TIFFSwabDouble(double *dp)
+TIFFSwabDouble(double *dp)
 {
 	register unsigned char* cp = (unsigned char*) dp;
 	unsigned char t;
@@ -181,9 +181,9 @@ vtk_TIFFSwabDouble(double *dp)
 }
 #endif
 
-#ifndef vtk_TIFFSwabArrayOfDouble
+#if defined(DISABLE_CHECK_TIFFSWABMACROS) || !defined(TIFFSwabArrayOfDouble)
 void
-vtk_TIFFSwabArrayOfDouble(double* dp, tmsize_t n)
+TIFFSwabArrayOfDouble(double* dp, tmsize_t n)
 {
 	register unsigned char *cp;
 	register unsigned char t;
@@ -279,13 +279,13 @@ static const unsigned char TIFFNoBitRevTable[256] = {
 };
 
 const unsigned char*
-vtk_TIFFGetBitRevTable(int reversed)
+TIFFGetBitRevTable(int reversed)
 {
 	return (reversed ? TIFFBitRevTable : TIFFNoBitRevTable);
 }
 
 void
-vtk_TIFFReverseBits(uint8* cp, tmsize_t n)  
+TIFFReverseBits(uint8* cp, tmsize_t n)  
 {
 	for (; n > 8; n -= 8) {
 		cp[0] = TIFFBitRevTable[cp[0]];
@@ -298,8 +298,10 @@ vtk_TIFFReverseBits(uint8* cp, tmsize_t n)
 		cp[7] = TIFFBitRevTable[cp[7]];
 		cp += 8;
 	}
-	while (n-- > 0)
-		*cp = TIFFBitRevTable[*cp], cp++;
+	while (n-- > 0) {
+		*cp = TIFFBitRevTable[*cp];
+		cp++;
+	}
 }
 
 /* vim: set ts=8 sts=8 sw=8 noet: */

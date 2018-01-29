@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: tif_tile.c,v 1.24 2015-06-07 22:35:40 bfriesen Exp $ */
 
 /*
  * Copyright (c) 1991-1997 Sam Leffler
