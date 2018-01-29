@@ -450,7 +450,7 @@ public:
 
   /**
    * the number of transforms that were pre-concatenated (note that
-   * whenever Iverse() is called, the pre-concatenated and
+   * whenever Inverse() is called, the pre-concatenated and
    * post-concatenated transforms are switched)
    */
   int GetNumberOfPreTransforms() { return this->NumberOfPreTransforms; }

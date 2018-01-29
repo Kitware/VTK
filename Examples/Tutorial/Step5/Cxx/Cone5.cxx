@@ -46,7 +46,7 @@ int main()
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
   // between the source and the mapper.)  We create an instance of
   // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
-  // connect the output of the cone souece to the input of this mapper.
+  // connect the output of the cone source to the input of this mapper.
   //
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection( cone->GetOutputPort() );
@@ -112,10 +112,10 @@ int main()
   iren->Start();
 
   //
-  // Final note: recall that an observers can watch for particular events and
+  // Final note: recall that observers can watch for particular events and
   // take appropriate action. Pressing "u" in the render window causes the
   // vtkRenderWindowInteractor to invoke a UserEvent. This can be caught to
-  // popup a GUI, etc. So the Tcl Cone5.tcl example for an idea of how this
+  // popup a GUI, etc. See the Tcl Cone5.tcl example for an idea of how this
   // works.
 
   //

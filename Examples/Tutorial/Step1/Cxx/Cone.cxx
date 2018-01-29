@@ -45,7 +45,7 @@ int main()
   // (Intermediate filters such as vtkShrinkPolyData could be inserted in
   // between the source and the mapper.)  We create an instance of
   // vtkPolyDataMapper to map the polygonal data into graphics primitives. We
-  // connect the output of the cone souece to the input of this mapper.
+  // connect the output of the cone source to the input of this mapper.
   //
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
   coneMapper->SetInputConnection( cone->GetOutputPort() );
