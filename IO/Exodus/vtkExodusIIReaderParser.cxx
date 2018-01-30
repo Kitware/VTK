@@ -189,26 +189,29 @@ void vtkExodusIIReaderParser::StartElement( const char* tagName, const char** at
   else if ( tName == "material" )
   {
     const char* material = this->GetValue("name",attrs);
-    const char* spec = this->GetValue("specification",attrs);
-    const char* desc = this->GetValue("description",attrs);
-    std::string node_name;
-    if (material && desc)
+    if (material)
     {
-      node_name = desc;
-    }
-    else
-    {
-      node_name = material;
-    }
-    if (material && spec)
-    {
-      node_name += " : ";
-      node_name += spec;
-    }
+      const char* spec = this->GetValue("specification",attrs);
+      const char* desc = this->GetValue("description",attrs);
+      std::string node_name;
+      if (desc)
+      {
+        node_name = desc;
+      }
+      else
+      {
+        node_name = material;
+      }
+      if (spec)
+      {
+        node_name += " : ";
+        node_name += spec;
+      }
 
-    vtkIdType vertex = this->AddVertexToSIL(node_name.c_str());
-    this->AddChildEdgeToSIL(this->MaterialsVertex, vertex);
-    this->MaterialName_To_VertexID[material] = vertex;
+      vtkIdType vertex = this->AddVertexToSIL(node_name.c_str());
+      this->AddChildEdgeToSIL(this->MaterialsVertex, vertex);
+      this->MaterialName_To_VertexID[material] = vertex;
+    }
   }
 }
 

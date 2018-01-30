@@ -137,9 +137,6 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
   int transposedRootIndexing;
   int gridSize[3];
 
-  double gridOrigin[3];
-  double gridScale[3];
-
   // Read the attributes of the hyper tree grid
   if (!ePrimary->GetScalarAttribute("Dimension", dimension))
   {
@@ -164,6 +161,10 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
     gridSize[2] = 1;
   }
 
+#if 0
+  double gridOrigin[3];
+  double gridScale[3];
+
   // If the origin and scale are uniform can use this instead of coordinates
   // Currently not implemented in vtkHyperTreeGrid but this is a place holder
   if (ePrimary->GetVectorAttribute("GridOrigin", 3, gridOrigin) != 3)
@@ -179,6 +180,7 @@ void vtkXMLHyperTreeGridReader::ReadXMLData()
     gridScale[1] = 1;
     gridScale[2] = 1;
   }
+#endif
 
   // Define the hypertree grid
   vtkHyperTreeGrid *output = vtkHyperTreeGrid::SafeDownCast(

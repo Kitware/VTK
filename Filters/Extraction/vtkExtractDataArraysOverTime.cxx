@@ -200,6 +200,12 @@ public:
     assert(mboutput);
 
     mboutput->Initialize();
+
+    // for now, let's not use blocknames. Seems like they are not consistent
+    // across ranks currently. that makes it harder to merge blocks using
+    // names in vtkPExtractDataArraysOverTime.
+    (void)input;
+#if 0
     auto mbinput = vtkCompositeDataSet::SafeDownCast(input);
 
     // build a datastructure to make block-name lookup fast.
@@ -218,6 +224,7 @@ public:
       }
       iter->Delete();
     }
+#endif
 
     unsigned int cc = 0;
     for (auto& item : this->OutputGrids)
@@ -262,12 +269,14 @@ public:
         // for now, let's not use blocknames. Seems like they are not consistent
         // across ranks currently. that makes it harder to merge blocks using
         // names in vtkPExtractDataArraysOverTime.
-        // auto iter = block_names.find(key.CompositeID);
-        // if (iter != block_names.end())
-        //{
-        //  stream << " block=" << iter->second;
-        //}
-        // else
+#if 0
+        auto iter = block_names.find(key.CompositeID);
+        if (iter != block_names.end())
+        {
+          stream << " block=" << iter->second;
+        }
+        else
+#endif
         {
           stream << " block=" << key.CompositeID;
         }

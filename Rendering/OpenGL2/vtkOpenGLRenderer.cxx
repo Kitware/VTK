@@ -715,8 +715,8 @@ void vtkOpenGLRenderer::DevicePickRender()
   this->RenderWindow->MakeCurrent();
   vtkOpenGLClearErrorMacro();
 
-  vtkOpenGLState *ostate = this->GetState();
 #if GL_ES_VERSION_3_0 != 1
+  vtkOpenGLState *ostate = this->GetState();
   bool msaaWasEnabled = false;
   if (this->RenderWindow->GetMultiSamples() > 0 && ostate->GetEnumState(GL_MULTISAMPLE))
   {

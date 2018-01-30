@@ -1090,7 +1090,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL)
     {
-      OSPTexture2D glDepthTex=nullptr;
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       int viewportX, viewportY;
@@ -1125,7 +1124,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       cameraDir.z -= cameraPos[2];
       cameraDir = ospray::opengl::normalize(cameraDir);
 
-      glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
+      OSPTexture2D glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,
          (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
          this->GetZBuffer(), ODepthBuffer, viewportWidth, viewportHeight);

@@ -214,6 +214,7 @@ namespace vtkosp {
     }
     float *mdata = new float[width*indexArray.size()];
     int *idata = (int*)mdata;
+    static_assert(sizeof(float) == sizeof(int), "int and float must be same size");
     for (size_t i = 0; i < indexArray.size(); i++)
     {
       mdata[i*width+0] = static_cast<float>(vertices[indexArray[i]].x);

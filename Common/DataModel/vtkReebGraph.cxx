@@ -2670,9 +2670,6 @@ void vtkReebGraph::Implementation::SimplifyLabels(const vtkIdType nodeId,
                                                   vtkReebLabelTag onlyLabel,
                                                   bool goDown, bool goUp)
 {
-  static int nactivation=0;
-  ++nactivation;
-
   int A,L,Lnext;
   vtkReebLabel *l;
   vtkReebNode *n = this->GetNode(nodeId);

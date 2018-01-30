@@ -550,8 +550,6 @@ protected:
 private:
   vtkProperty(const vtkProperty&) = delete;
   void operator=(const vtkProperty&) = delete;
-
-  vtkPropertyInternals* Internals;
 };
 
 //@{
