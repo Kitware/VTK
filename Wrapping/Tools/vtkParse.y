@@ -4915,6 +4915,8 @@ void output_function()
       (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
   {
+    vtkParse_FreeValue(currentFunction->Parameters[0]);
+    free(currentFunction->Parameters);
     currentFunction->NumberOfParameters = 0;
   }
 
