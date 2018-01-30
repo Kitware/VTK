@@ -6,7 +6,6 @@ vtk_module(vtkFiltersParallelStatistics
     vtkParallel
   DEPENDS
     vtkFiltersStatistics
-    vtkalglib
   PRIVATE_DEPENDS
     vtkCommonCore
     vtkCommonDataModel

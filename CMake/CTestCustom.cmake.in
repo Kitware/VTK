@@ -289,9 +289,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "Utilities/vtkmetaio.*warning: conversion to '.*' from '.*' may alter its value"
   "Uitilties/vtkmetaio/.*warning: .* set but not used"
   # gcc -Wsign-conversion
-  "Utilities/vtkalglib.*warning: conversion to .* from .* may change the sign of the result"
-  "Uitilties/vtkalglib/.*warning: .* set but not used"
-  # gcc -Wsign-conversion
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may change the sign of the result"
   # gcc -Wconversion
   "Utilities/ftgl/src/.*warning: conversion to .* from .* may alter its value"

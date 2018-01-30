@@ -1,6 +1,7 @@
 # Converted projects
 
   * [diy2](diy2/update.sh)
+  * [eigen](eigen/update.sh)
   * [expat](expat/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
   * [kwiml](../Utilities/KWIML/update.sh)
