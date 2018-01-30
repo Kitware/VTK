@@ -21,8 +21,9 @@
 #endif
 
 /* Use the eigen library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_EIGEN
-#ifdef VTK_USE_SYSTEM_EIGEN
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtkeigen
+
+#if VTK_MODULE_USE_EXTERNAL_vtkeigen
 # define VTK_EIGEN(x) <Eigen/x>
 #else
 # define VTK_EIGEN(x) <vtkeigen/eigen/x>
