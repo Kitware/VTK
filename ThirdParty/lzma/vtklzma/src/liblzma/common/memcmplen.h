@@ -16,7 +16,7 @@
 #include "common.h"
 
 #ifdef HAVE_IMMINTRIN_H
-#    include <immintrin.h>
+#	include <immintrin.h>
 #endif
 
 
@@ -41,134 +41,134 @@
 ///             initialized too to keep Valgrind quiet.
 static inline uint32_t lzma_attribute((__always_inline__))
 lzma_memcmplen(const uint8_t *buf1, const uint8_t *buf2,
-        uint32_t len, uint32_t limit)
+		uint32_t len, uint32_t limit)
 {
-    assert(len <= limit);
-    assert(limit <= UINT32_MAX / 2);
+	assert(len <= limit);
+	assert(limit <= UINT32_MAX / 2);
 
 #if defined(TUKLIB_FAST_UNALIGNED_ACCESS) \
-        && ((TUKLIB_GNUC_REQ(3, 4) && defined(__x86_64__)) \
-            || (defined(__INTEL_COMPILER) && defined(__x86_64__)) \
-            || (defined(__INTEL_COMPILER) && defined(_M_X64)) \
-            || (defined(_MSC_VER) && defined(_M_X64)))
-    // NOTE: This will use 64-bit unaligned access which
-    // TUKLIB_FAST_UNALIGNED_ACCESS wasn't meant to permit, but
-    // it's convenient here at least as long as it's x86-64 only.
-    //
-    // I keep this x86-64 only for now since that's where I know this
-    // to be a good method. This may be fine on other 64-bit CPUs too.
-    // On big endian one should use xor instead of subtraction and switch
-    // to __builtin_clzll().
+		&& ((TUKLIB_GNUC_REQ(3, 4) && defined(__x86_64__)) \
+			|| (defined(__INTEL_COMPILER) && defined(__x86_64__)) \
+			|| (defined(__INTEL_COMPILER) && defined(_M_X64)) \
+			|| (defined(_MSC_VER) && defined(_M_X64)))
+	// NOTE: This will use 64-bit unaligned access which
+	// TUKLIB_FAST_UNALIGNED_ACCESS wasn't meant to permit, but
+	// it's convenient here at least as long as it's x86-64 only.
+	//
+	// I keep this x86-64 only for now since that's where I know this
+	// to be a good method. This may be fine on other 64-bit CPUs too.
+	// On big endian one should use xor instead of subtraction and switch
+	// to __builtin_clzll().
 #define LZMA_MEMCMPLEN_EXTRA 8
-    while (len < limit) {
-        const uint64_t x = *(const uint64_t *)(buf1 + len)
-                - *(const uint64_t *)(buf2 + len);
-        if (x != 0) {
-#    if defined(_M_X64) // MSVC or Intel C compiler on Windows
-            unsigned long tmp;
-            _BitScanForward64(&tmp, x);
-            len += (uint32_t)tmp >> 3;
-#    else // GCC, clang, or Intel C compiler
-            len += (uint32_t)__builtin_ctzll(x) >> 3;
-#    endif
-            return my_min(len, limit);
-        }
+	while (len < limit) {
+		const uint64_t x = *(const uint64_t *)(buf1 + len)
+				- *(const uint64_t *)(buf2 + len);
+		if (x != 0) {
+#	if defined(_M_X64) // MSVC or Intel C compiler on Windows
+			unsigned long tmp;
+			_BitScanForward64(&tmp, x);
+			len += (uint32_t)tmp >> 3;
+#	else // GCC, clang, or Intel C compiler
+			len += (uint32_t)__builtin_ctzll(x) >> 3;
+#	endif
+			return my_min(len, limit);
+		}
 
-        len += 8;
-    }
+		len += 8;
+	}
 
-    return limit;
+	return limit;
 
 #elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) \
-        && defined(HAVE__MM_MOVEMASK_EPI8) \
-        && ((defined(__GNUC__) && defined(__SSE2_MATH__)) \
-            || (defined(__INTEL_COMPILER) && defined(__SSE2__)) \
-            || (defined(_MSC_VER) && defined(_M_IX86_FP) \
-                && _M_IX86_FP >= 2))
-    // NOTE: Like above, this will use 128-bit unaligned access which
-    // TUKLIB_FAST_UNALIGNED_ACCESS wasn't meant to permit.
-    //
-    // SSE2 version for 32-bit and 64-bit x86. On x86-64 the above
-    // version is sometimes significantly faster and sometimes
-    // slightly slower than this SSE2 version, so this SSE2
-    // version isn't used on x86-64.
-#    define LZMA_MEMCMPLEN_EXTRA 16
-    while (len < limit) {
-        const uint32_t x = 0xFFFF ^ _mm_movemask_epi8(_mm_cmpeq_epi8(
-            _mm_loadu_si128((const __m128i *)(buf1 + len)),
-            _mm_loadu_si128((const __m128i *)(buf2 + len))));
+		&& defined(HAVE__MM_MOVEMASK_EPI8) \
+		&& ((defined(__GNUC__) && defined(__SSE2_MATH__)) \
+			|| (defined(__INTEL_COMPILER) && defined(__SSE2__)) \
+			|| (defined(_MSC_VER) && defined(_M_IX86_FP) \
+				&& _M_IX86_FP >= 2))
+	// NOTE: Like above, this will use 128-bit unaligned access which
+	// TUKLIB_FAST_UNALIGNED_ACCESS wasn't meant to permit.
+	//
+	// SSE2 version for 32-bit and 64-bit x86. On x86-64 the above
+	// version is sometimes significantly faster and sometimes
+	// slightly slower than this SSE2 version, so this SSE2
+	// version isn't used on x86-64.
+#	define LZMA_MEMCMPLEN_EXTRA 16
+	while (len < limit) {
+		const uint32_t x = 0xFFFF ^ _mm_movemask_epi8(_mm_cmpeq_epi8(
+			_mm_loadu_si128((const __m128i *)(buf1 + len)),
+			_mm_loadu_si128((const __m128i *)(buf2 + len))));
 
-        if (x != 0) {
-#    if defined(__INTEL_COMPILER)
-            len += _bit_scan_forward(x);
-#    elif defined(_MSC_VER)
-            unsigned long tmp;
-            _BitScanForward(&tmp, x);
-            len += tmp;
-#    else
-            len += __builtin_ctz(x);
-#    endif
-            return my_min(len, limit);
-        }
+		if (x != 0) {
+#	if defined(__INTEL_COMPILER)
+			len += _bit_scan_forward(x);
+#	elif defined(_MSC_VER)
+			unsigned long tmp;
+			_BitScanForward(&tmp, x);
+			len += tmp;
+#	else
+			len += __builtin_ctz(x);
+#	endif
+			return my_min(len, limit);
+		}
 
-        len += 16;
-    }
+		len += 16;
+	}
 
-    return limit;
+	return limit;
 
 #elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && !defined(WORDS_BIGENDIAN)
-    // Generic 32-bit little endian method
-#    define LZMA_MEMCMPLEN_EXTRA 4
-    while (len < limit) {
-        uint32_t x = *(const uint32_t *)(buf1 + len)
-                - *(const uint32_t *)(buf2 + len);
-        if (x != 0) {
-            if ((x & 0xFFFF) == 0) {
-                len += 2;
-                x >>= 16;
-            }
+	// Generic 32-bit little endian method
+#	define LZMA_MEMCMPLEN_EXTRA 4
+	while (len < limit) {
+		uint32_t x = *(const uint32_t *)(buf1 + len)
+				- *(const uint32_t *)(buf2 + len);
+		if (x != 0) {
+			if ((x & 0xFFFF) == 0) {
+				len += 2;
+				x >>= 16;
+			}
 
-            if ((x & 0xFF) == 0)
-                ++len;
+			if ((x & 0xFF) == 0)
+				++len;
 
-            return my_min(len, limit);
-        }
+			return my_min(len, limit);
+		}
 
-        len += 4;
-    }
+		len += 4;
+	}
 
-    return limit;
+	return limit;
 
 #elif defined(TUKLIB_FAST_UNALIGNED_ACCESS) && defined(WORDS_BIGENDIAN)
-    // Generic 32-bit big endian method
-#    define LZMA_MEMCMPLEN_EXTRA 4
-    while (len < limit) {
-        uint32_t x = *(const uint32_t *)(buf1 + len)
-                ^ *(const uint32_t *)(buf2 + len);
-        if (x != 0) {
-            if ((x & 0xFFFF0000) == 0) {
-                len += 2;
-                x <<= 16;
-            }
+	// Generic 32-bit big endian method
+#	define LZMA_MEMCMPLEN_EXTRA 4
+	while (len < limit) {
+		uint32_t x = *(const uint32_t *)(buf1 + len)
+				^ *(const uint32_t *)(buf2 + len);
+		if (x != 0) {
+			if ((x & 0xFFFF0000) == 0) {
+				len += 2;
+				x <<= 16;
+			}
 
-            if ((x & 0xFF000000) == 0)
-                ++len;
+			if ((x & 0xFF000000) == 0)
+				++len;
 
-            return my_min(len, limit);
-        }
+			return my_min(len, limit);
+		}
 
-        len += 4;
-    }
+		len += 4;
+	}
 
-    return limit;
+	return limit;
 
 #else
-    // Simple portable version that doesn't use unaligned access.
-#    define LZMA_MEMCMPLEN_EXTRA 0
-    while (len < limit && buf1[len] == buf2[len])
-        ++len;
+	// Simple portable version that doesn't use unaligned access.
+#	define LZMA_MEMCMPLEN_EXTRA 0
+	while (len < limit && buf1[len] == buf2[len])
+		++len;
 
-    return len;
+	return len;
 #endif
 }
 

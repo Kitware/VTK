@@ -1,19 +1,19 @@
-#!/usr/bin/env
+#!/usr/bin/env bash
 
 set -e
 set -x
 shopt -s dotglob
 
-readonly name="xz"
-readonly ownership="lzma Upstream <kwrobot@kitware.com>"
-readonly subtree="ThirdParty/lzma/vtklzma"
+readonly name="lzma"
+readonly ownership="$name Upstream <kwrobot@kitware.com>"
+readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/xz.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-old"
 
 readonly paths="
 CMakeLists.txt
 config.h.in
-src/liblzma/api/vtklzma_mangle.h
+src/liblzma/api/vtk_lzma_mangle.h
 .gitattributes
 src/common/tuklib_cpucores.c
 src/common/tuklib_physmem.c
@@ -154,7 +154,6 @@ src/liblzma/simple/simple_coder.h
 src/liblzma/simple/simple_decoder.h
 src/liblzma/simple/simple_encoder.h
 src/liblzma/simple/simple_private.h
-windows/config.h
 "
 
 extract_source () {

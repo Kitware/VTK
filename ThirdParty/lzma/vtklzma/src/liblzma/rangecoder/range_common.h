@@ -15,7 +15,7 @@
 #define LZMA_RANGE_COMMON_H
 
 #ifdef HAVE_CONFIG_H
-#    include "common.h"
+#	include "common.h"
 #endif
 
 
@@ -37,13 +37,13 @@
 
 // Resets the probability so that both 0 and 1 have probability of 50 %
 #define bit_reset(prob) \
-    prob = RC_BIT_MODEL_TOTAL >> 1
+	prob = RC_BIT_MODEL_TOTAL >> 1
 
 // This does the same for a complete bit tree.
 // (A tree represented as an array.)
 #define bittree_reset(probs, bit_levels) \
-    for (uint32_t bt_i = 0; bt_i < (1 << (bit_levels)); ++bt_i) \
-        bit_reset((probs)[bt_i])
+	for (uint32_t bt_i = 0; bt_i < (1 << (bit_levels)); ++bt_i) \
+		bit_reset((probs)[bt_i])
 
 
 //////////////////////

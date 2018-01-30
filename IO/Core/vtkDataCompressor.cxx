@@ -42,18 +42,6 @@ vtkDataCompressor::Compress(unsigned char const* uncompressedData,
   return this->CompressBuffer(uncompressedData, uncompressedSize,
                               compressedData, compressionSpace);
 }
-//----------------------------------------------------------------------------
-void
-vtkDataCompressor::SetCompressionLevel(int compressionLevel)
-{
-  return this->SetCompressionLevel(compressionLevel);
-}
-//----------------------------------------------------------------------------
-int
-vtkDataCompressor::GetCompressionLevel()
-{
-  return this->GetCompressionLevel();
-}
 
 //----------------------------------------------------------------------------
 size_t

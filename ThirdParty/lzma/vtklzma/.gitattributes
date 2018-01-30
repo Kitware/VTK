@@ -1,14 +1,1 @@
-#
-*
-
-#
-*.c
-*.h
-
-#
-*.odt
-*.png
-#
-*.sln
-*.suo
-*.vcxproj*
+* -whitespace

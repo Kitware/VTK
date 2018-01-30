@@ -18,5 +18,5 @@
 extern LZMA_API(uint32_t)
 lzma_cputhreads(void)
 {
-    return tuklib_cpucores();
+	return tuklib_cpucores();
 }

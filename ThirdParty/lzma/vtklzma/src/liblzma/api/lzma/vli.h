@@ -24,7 +24,7 @@
  */
 
 #ifndef LZMA_H_INTERNAL
-#    error Never include this file directly. Use <lzma.h> instead.
+#	error Never include this file directly. Use <lzma.h> instead.
 #endif
 
 
@@ -73,7 +73,7 @@ typedef uint64_t lzma_vli;
  *              indicates unknown value.
  */
 #define lzma_vli_is_valid(vli) \
-    ((vli) <= LZMA_VLI_MAX || (vli) == LZMA_VLI_UNKNOWN)
+	((vli) <= LZMA_VLI_MAX || (vli) == LZMA_VLI_UNKNOWN)
 
 
 /**
@@ -113,7 +113,7 @@ typedef uint64_t lzma_vli;
  *              - LZMA_PROG_ERROR: Arguments are not sane.
  */
 extern LZMA_API(lzma_ret) lzma_vli_encode(lzma_vli vli, size_t *vli_pos,
-        uint8_t *out, size_t *out_pos, size_t out_size) lzma_nothrow;
+		uint8_t *out, size_t *out_pos, size_t out_size) lzma_nothrow;
 
 
 /**
@@ -152,8 +152,8 @@ extern LZMA_API(lzma_ret) lzma_vli_encode(lzma_vli vli, size_t *vli_pos,
  *              - LZMA_PROG_ERROR: Arguments are not sane.
  */
 extern LZMA_API(lzma_ret) lzma_vli_decode(lzma_vli *vli, size_t *vli_pos,
-        const uint8_t *in, size_t *in_pos, size_t in_size)
-        lzma_nothrow;
+		const uint8_t *in, size_t *in_pos, size_t in_size)
+		lzma_nothrow;
 
 
 /**
@@ -163,4 +163,4 @@ extern LZMA_API(lzma_ret) lzma_vli_decode(lzma_vli *vli, size_t *vli_pos,
  *              zero is returned.
  */
 extern LZMA_API(uint32_t) lzma_vli_size(lzma_vli vli)
-        lzma_nothrow lzma_attr_pure;
+		lzma_nothrow lzma_attr_pure;

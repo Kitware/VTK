@@ -76,14 +76,14 @@
 // slightly faster, but sometimes it is a lot slower.
 
 #ifdef HAVE_SMALL
-#    define get_dist_slot(dist) \
-        ((dist) <= 4 ? (dist) : get_dist_slot_2(dist))
+#	define get_dist_slot(dist) \
+		((dist) <= 4 ? (dist) : get_dist_slot_2(dist))
 
 static inline uint32_t
 get_dist_slot_2(uint32_t dist)
 {
-    const uint32_t i = bsr32(dist);
-    return (i + i) + ((dist >> (i - 1)) & 1);
+	const uint32_t i = bsr32(dist);
+	return (i + i) + ((dist >> (i - 1)) & 1);
 }
 
 
@@ -95,28 +95,28 @@ extern const uint8_t lzma_fastpos[1 << FASTPOS_BITS];
 
 
 #define fastpos_shift(extra, n) \
-    ((extra) + (n) * (FASTPOS_BITS - 1))
+	((extra) + (n) * (FASTPOS_BITS - 1))
 
 #define fastpos_limit(extra, n) \
-    (UINT32_C(1) << (FASTPOS_BITS + fastpos_shift(extra, n)))
+	(UINT32_C(1) << (FASTPOS_BITS + fastpos_shift(extra, n)))
 
 #define fastpos_result(dist, extra, n) \
-    lzma_fastpos[(dist) >> fastpos_shift(extra, n)] \
-            + 2 * fastpos_shift(extra, n)
+	lzma_fastpos[(dist) >> fastpos_shift(extra, n)] \
+			+ 2 * fastpos_shift(extra, n)
 
 
 static inline uint32_t
 get_dist_slot(uint32_t dist)
 {
-    // If it is small enough, we can pick the result directly from
-    // the precalculated table.
-    if (dist < fastpos_limit(0, 0))
-        return lzma_fastpos[dist];
+	// If it is small enough, we can pick the result directly from
+	// the precalculated table.
+	if (dist < fastpos_limit(0, 0))
+		return lzma_fastpos[dist];
 
-    if (dist < fastpos_limit(0, 1))
-        return fastpos_result(dist, 0, 1);
+	if (dist < fastpos_limit(0, 1))
+		return fastpos_result(dist, 0, 1);
 
-    return fastpos_result(dist, 0, 2);
+	return fastpos_result(dist, 0, 2);
 }
 
 
@@ -124,15 +124,15 @@ get_dist_slot(uint32_t dist)
 static inline uint32_t
 get_dist_slot_2(uint32_t dist)
 {
-    assert(dist >= FULL_DISTANCES);
+	assert(dist >= FULL_DISTANCES);
 
-    if (dist < fastpos_limit(FULL_DISTANCES_BITS - 1, 0))
-        return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 0);
+	if (dist < fastpos_limit(FULL_DISTANCES_BITS - 1, 0))
+		return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 0);
 
-    if (dist < fastpos_limit(FULL_DISTANCES_BITS - 1, 1))
-        return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 1);
+	if (dist < fastpos_limit(FULL_DISTANCES_BITS - 1, 1))
+		return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 1);
 
-    return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 2);
+	return fastpos_result(dist, FULL_DISTANCES_BITS - 1, 2);
 }
 #endif
 
