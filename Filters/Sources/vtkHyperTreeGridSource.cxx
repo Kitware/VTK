@@ -336,6 +336,9 @@ int vtkHyperTreeGridSource::RequestData( vtkInformation*,
   {
     return 0;
   }
+
+  output->Initialize();
+
   vtkPointData* outData = output->GetPointData();
 
   this->LevelBitsIndexCnt.clear();
@@ -684,6 +687,10 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   std::ostringstream descriptor;
   std::ostringstream mask;
 
+  // Reset parsed level containers:
+  this->LevelDescriptors.clear();
+  this->LevelMaterialMasks.clear();
+
   for ( size_t i = 0; i < descLen; ++ i )
   {
     char c = this->Descriptor[i];
@@ -817,20 +824,12 @@ int vtkHyperTreeGridSource::InitializeFromStringDescriptor()
   {
     this->LevelMaterialMasks.push_back( mask.str() );
   }
-
-  // Reset maximum depth if fewer levels are described
   unsigned int nLevels =
     static_cast<unsigned int>( this->LevelDescriptors.size() );
-  if ( nLevels < this->MaximumLevel )
-  {
-    this->MaximumLevel = nLevels;
-  }
 
   // Create vector of counters as long as tree depth
-  for ( unsigned int i = 0; i < nLevels; ++ i )
-  {
-    this->LevelCounters.push_back( 0 );
-  }
+  this->LevelCounters.clear();
+  this->LevelCounters.resize(nLevels, 0);
 
   this->LevelBitsIndex.clear();
   this->LevelBitsIndex.push_back( 0 );
@@ -1050,12 +1049,6 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
   ++ nCurrentLevel;
 
   this->LevelBitsIndexCnt = this->LevelBitsIndex;
-
-  // Reset maximum depth if fewer levels are described
-  if ( nCurrentLevel < this->MaximumLevel )
-  {
-    this->MaximumLevel = nCurrentLevel;
-  }
 
   // Create vector of counters as long as tree depth
   for ( unsigned int i = 0; i < nCurrentLevel; ++ i )
