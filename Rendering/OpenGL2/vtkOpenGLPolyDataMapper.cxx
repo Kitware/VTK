@@ -2161,7 +2161,7 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
     {
       vtkMatrix4x4* mcwc;
       vtkMatrix3x3* anorms;
-      ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc,anorms);
+      static_cast<vtkOpenGLActor *>(actor)->GetKeyMatrices(mcwc,anorms);
       vtkMatrix4x4::Multiply4x4(this->VBOShiftScale, mcwc, this->TempMatrix4);
       vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
       program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);

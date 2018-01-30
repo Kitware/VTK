@@ -35,6 +35,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestShadowMapPass.cxx
   TestSimpleMotionBlur.cxx
   TestSobelGradientMagnitudePass.cxx
+  TestSphereMap.cxx
   TestSpherePoints.cxx
   TestSphereVertex.cxx
   TestUserShader.cxx

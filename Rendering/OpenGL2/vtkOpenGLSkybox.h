@@ -27,12 +27,9 @@
 #include "vtkSkybox.h"
 #include "vtkNew.h" // for ivars
 
+class vtkOpenGLActor;
 class vtkOpenGLPolyDataMapper;
-
-class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
-class vtkMatrix4x4;
-class vtkMatrix3x3;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLSkybox : public vtkSkybox
 {
@@ -46,18 +43,14 @@ public:
    */
   void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
-  void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
-
 protected:
   vtkOpenGLSkybox();
   ~vtkOpenGLSkybox() override;
 
-  vtkMatrix4x4 *MCWCMatrix;
-  vtkMatrix3x3 *NormalMatrix;
-  vtkTransform *NormalTransform;
-  vtkTimeStamp KeyMatrixTime;
+  int LastProjection;
 
   vtkNew<vtkOpenGLPolyDataMapper> CubeMapper;
+  vtkNew<vtkOpenGLActor> OpenGLActor;
 
 private:
   vtkOpenGLSkybox(const vtkOpenGLSkybox&) = delete;

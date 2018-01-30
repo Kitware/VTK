@@ -15,12 +15,8 @@
 #include "vtkOpenGLSkybox.h"
 
 #include "vtkCamera.h"
-
-
-#include "vtkMapper.h"
-#include "vtkMatrix3x3.h"
-#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLActor.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkPoints.h"
@@ -28,7 +24,6 @@
 #include "vtkProperty.h"
 #include "vtkOpenGLError.h"
 #include "vtkRenderWindow.h"
-#include "vtkTransform.h"
 
 #include <cmath>
 
@@ -37,10 +32,6 @@ vtkStandardNewMacro(vtkOpenGLSkybox);
 
 vtkOpenGLSkybox::vtkOpenGLSkybox()
 {
-  this->MCWCMatrix = vtkMatrix4x4::New();
-  this->NormalMatrix = vtkMatrix3x3::New();
-  this->NormalTransform = vtkTransform::New();
-
   vtkNew<vtkPolyData> poly;
   vtkNew<vtkPoints> pts;
   pts->SetNumberOfPoints(4);
@@ -60,6 +51,8 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   // this->CubeMapper->SetInputConnection(this->Cube->GetOutputPort(0));
   this->CubeMapper->SetInputData(poly);
   this->SetMapper(this->CubeMapper);
+  this->OpenGLActor->SetMapper(this->CubeMapper);
+
   this->CubeMapper->AddShaderReplacement(
     vtkShader::Vertex,
     "//VTK::PositionVC::Dec", // replace
@@ -76,27 +69,17 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
     "  TexCoords.xyz = normalize(inverse(MCDCMatrix) * gl_Position).xyz;\n",
     false // only do it once
     );
-  // Replace VTK fragment shader
-  this->CubeMapper->SetFragmentShaderCode(
-    "//VTK::System::Dec\n"  // always start with this line
-    "//VTK::Output::Dec\n"  // always have this line in your FS
-    "varying vec3 TexCoords;\n"
-    "uniform samplerCube texture_0;\n" // texture_0 is the first texture
-    "void main () {\n"
-    "  gl_FragData[0] = texture(texture_0, TexCoords);\n"
-    "}\n"
-    );
+
+  this->LastProjection = -1;
 
   this->GetProperty()->SetDiffuse(0.0);
   this->GetProperty()->SetAmbient(1.0);
   this->GetProperty()->SetSpecular(0.0);
+  this->OpenGLActor->SetProperty(this->GetProperty());
 }
 
 vtkOpenGLSkybox::~vtkOpenGLSkybox()
 {
-  this->MCWCMatrix->Delete();
-  this->NormalMatrix->Delete();
-  this->NormalTransform->Delete();
 }
 
 
@@ -105,13 +88,46 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
   vtkOpenGLClearErrorMacro();
 
-  this->SetPosition(ren->GetActiveCamera()->GetPosition());
+  if (this->LastProjection != this->Projection)
+  {
+    if (this->Projection == vtkSkybox::Cube)
+    {
+      // Replace VTK fragment shader
+      this->CubeMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "varying vec3 TexCoords;\n"
+        "uniform samplerCube texture_0;\n" // texture_0 is the first texture
+        "void main () {\n"
+        "  gl_FragData[0] = texture(texture_0, TexCoords);\n"
+        "}\n"
+        );
+    }
+    if (this->Projection == vtkSkybox::Sphere)
+    {
+      // Replace VTK fragment shader
+      this->CubeMapper->SetFragmentShaderCode(
+        "//VTK::System::Dec\n"  // always start with this line
+        "//VTK::Output::Dec\n"  // always have this line in your FS
+        "varying vec3 TexCoords;\n"
+        "uniform sampler2D texture_0;\n" // texture_0 is the first texture
+        "void main () {\n"
+        "  float phix = length(vec2(TexCoords.x, TexCoords.z));\n"
+        "  gl_FragData[0] = texture(texture_0, vec2(0.5*atan(TexCoords.z, TexCoords.x)/3.1415927 + 0.5, atan(TexCoords.y,phix)/3.1415927 + 0.5));\n"
+        "}\n"
+        );
+    }
+    this->CubeMapper->Modified();
+    this->LastProjection = this->Projection;
+  }
+
+  this->OpenGLActor->SetPosition(ren->GetActiveCamera()->GetPosition());
 
   // get opacity
   glDepthMask(GL_TRUE);
 
   // send a render to the mapper; update pipeline
-  mapper->Render(ren, this);
+  mapper->Render(ren, this->OpenGLActor);
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -120,37 +136,4 @@ void vtkOpenGLSkybox::Render(vtkRenderer *ren, vtkMapper *mapper)
 void vtkOpenGLSkybox::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-}
-
-void vtkOpenGLSkybox::GetKeyMatrices(vtkMatrix4x4 *&mcwc, vtkMatrix3x3 *&normMat)
-{
-  // has the Skybox changed?
-  if (this->GetMTime() > this->KeyMatrixTime)
-  {
-    this->ComputeMatrix();
-    this->MCWCMatrix->DeepCopy(this->Matrix);
-    this->MCWCMatrix->Transpose();
-
-    if (this->GetIsIdentity())
-    {
-      this->NormalMatrix->Identity();
-    }
-    else
-    {
-      this->NormalTransform->SetMatrix(this->Matrix);
-      vtkMatrix4x4 *mat4 = this->NormalTransform->GetMatrix();
-      for(int i = 0; i < 3; ++i)
-      {
-        for (int j = 0; j < 3; ++j)
-        {
-          this->NormalMatrix->SetElement(i, j, mat4->GetElement(i, j));
-        }
-      }
-    }
-    this->NormalMatrix->Invert();
-    this->KeyMatrixTime.Modified();
-  }
-
-  mcwc = this->MCWCMatrix;
-  normMat = this->NormalMatrix;
 }

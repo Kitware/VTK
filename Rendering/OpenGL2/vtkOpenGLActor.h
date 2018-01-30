@@ -43,7 +43,7 @@ public:
    */
   void Render(vtkRenderer *ren, vtkMapper *mapper) override;
 
-  void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
+  virtual void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
   /**
    * If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted

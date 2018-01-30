@@ -39,9 +39,21 @@ public:
   using Superclass::GetBounds;
   double *GetBounds() override;
 
+  enum Projection
+  {
+    Cube,
+    Sphere,
+  };
+  vtkGetMacro(Projection, int);
+  vtkSetMacro(Projection, int);
+  void SetProjectionToCube() { this->SetProjection(vtkSkybox::Cube); }
+  void SetProjectionToSphere() {this->SetProjection(vtkSkybox::Sphere); }
+
 protected:
   vtkSkybox();
   ~vtkSkybox() override;
+
+  int Projection;
 
 private:
   vtkSkybox(const vtkSkybox&) = delete;
