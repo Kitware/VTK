@@ -1,0 +1,85 @@
+	    SUMMARY OF THE HDF5 CONFIGURATION
+	    =================================
+
+General Information:
+-------------------
+                   HDF5 Version: @H5_VERSION@
+                  Configured on: @CONFIG_DATE@
+                  Configured by: @CONFIG_USER@
+                    Host system: @host_cpu@-@host_vendor@-@host_os@
+              Uname information: @UNAME_INFO@
+                       Byte sex: @BYTESEX@
+             Installation point: @prefix@
+
+Compiling Options:
+------------------
+                     Build Mode: @BUILD_MODE@
+              Debugging Symbols: @SYMBOLS@
+                        Asserts: @ASSERTS@
+                      Profiling: @PROFILING@
+             Optimization Level: @OPTIMIZATION@
+
+Linking Options:
+----------------
+                      Libraries: @STATIC_SHARED@
+  Statically Linked Executables: @LT_STATIC_EXEC@
+                        LDFLAGS: @LDFLAGS@
+                     H5_LDFLAGS: @H5_LDFLAGS@
+                     AM_LDFLAGS: @AM_LDFLAGS@
+                Extra libraries: @LIBS@
+                       Archiver: @AR@
+                         Ranlib: @RANLIB@
+
+Languages:
+----------
+                              C: yes
+                     C Compiler: @CC_VERSION@
+                       CPPFLAGS: @CPPFLAGS@
+                    H5_CPPFLAGS: @H5_CPPFLAGS@
+                    AM_CPPFLAGS: @AM_CPPFLAGS@
+                        C Flags: @CFLAGS@
+                     H5 C Flags: @H5_CFLAGS@
+                     AM C Flags: @AM_CFLAGS@
+               Shared C Library: @enable_shared@
+               Static C Library: @enable_static@
+
+
+                        Fortran: @HDF_FORTRAN@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               Fortran Compiler: @FC_VERSION@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@                  Fortran Flags: @FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               H5 Fortran Flags: @H5_FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@               AM Fortran Flags: @AM_FCFLAGS@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@         Shared Fortran Library: @H5_FORTRAN_SHARED@
+@BUILD_FORTRAN_CONDITIONAL_TRUE@         Static Fortran Library: @enable_static@
+
+                            C++: @HDF_CXX@
+@BUILD_CXX_CONDITIONAL_TRUE@                   C++ Compiler: @CXX_VERSION@
+@BUILD_CXX_CONDITIONAL_TRUE@                      C++ Flags: @CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   H5 C++ Flags: @H5_CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@                   AM C++ Flags: @AM_CXXFLAGS@
+@BUILD_CXX_CONDITIONAL_TRUE@             Shared C++ Library: @enable_shared@
+@BUILD_CXX_CONDITIONAL_TRUE@             Static C++ Library: @enable_static@
+
+                           Java: @HDF_JAVA@
+@BUILD_JAVA_CONDITIONAL_TRUE@                  Java Compiler: @JAVA_VERSION@
+
+
+Features:
+---------
+                  Parallel HDF5: @PARALLEL@
+             High-level library: @HDF5_HL@
+                   Threadsafety: @THREADSAFE@
+            Default API mapping: @DEFAULT_API_VERSION@
+ With deprecated public symbols: @DEPRECATED_SYMBOLS@
+         I/O filters (external): @EXTERNAL_FILTERS@
+                            MPE: @MPE@
+                     Direct VFD: @DIRECT_VFD@
+                        dmalloc: @HAVE_DMALLOC@
+ Packages w/ extra debug output: @INTERNAL_DEBUG_OUTPUT@
+                    API tracing: @TRACE_API@
+           Using memory checker: @USINGMEMCHECKER@
+Memory allocation sanity checks: @MEMORYALLOCSANITYCHECK@
+            Metadata trace file: @METADATATRACEFILE@
+         Function stack tracing: @CODESTACK@
+      Strict file format checks: @STRICT_FORMAT_CHECKS@
+   Optimization instrumentation: @INSTRUMENT_LIBRARY@

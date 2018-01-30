@@ -1,0 +1,44 @@
+# Copyright by The HDF Group.
+# Copyright by the Board of Trustees of the University of Illinois.
+# All rights reserved.
+#
+# This file is part of HDF5.  The full HDF5 copyright notice, including
+# terms governing use, modification, and redistribution, is contained in
+# the COPYING file, which can be found at the root of the source code
+# distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.
+# If you do not have access to either file, you may request a copy from
+# help@hdfgroup.org.
+#
+
+# This file is used to generate the headers that is needed for detecting
+# overflows between types at run-time
+#
+# The bin/make_overflow script reads in this file and creates the appropriate
+# file in the src/ directory when the generated header is out of date with
+# respect to this file.
+#
+# Blank lines and lines beginning with '#' are ignored
+#
+# The format of this file is as follows:
+#  <type>, <SIGNED|UNSIGNED>;
+#
+# Where <type> is a valid C type (like 'int8_t', 'hssize_t', etc. and whether
+#       the type is signed or unsigned follows.
+#
+# Programmer: Quincey Koziol
+# Creation Date: 2009/04/09
+
+unsigned, UNSIGNED;
+int, SIGNED;
+int64_t, SIGNED;
+uint8_t, UNSIGNED;
+uint16_t, UNSIGNED;
+uint32_t, UNSIGNED;
+uint64_t, UNSIGNED;
+ptrdiff_t, SIGNED;
+size_t, UNSIGNED;
+ssize_t, SIGNED;
+haddr_t, UNSIGNED;
+hsize_t, UNSIGNED;
+hssize_t, SIGNED;
+h5_stat_size_t, UNSIGNED;
