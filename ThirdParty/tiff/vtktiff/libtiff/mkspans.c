@@ -1,4 +1,4 @@
-/* $Id$ */
+/* $Id: mkspans.c,v 1.4 2010-03-10 18:56:48 bfriesen Exp $ */
 
 /*
  * Copyright (c) 1991-1997 Sam Leffler

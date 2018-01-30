@@ -1,58 +1,118 @@
-PROJECT(VTKJPEG)
+set(sources
+  jcapimin.c
+  jcapistd.c
+  jccoefct.c
+  jccolor.c
+  jcdctmgr.c
+  jchuff.c
+  jcinit.c
+  jcmainct.c
+  jcmarker.c
+  jcmaster.c
+  jcomapi.c
+  jcparam.c
+  jcphuff.c
+  jcprepct.c
+  jcsample.c
+  jctrans.c
+  jdapimin.c
+  jdapistd.c
+  jdatadst.c
+  jdatasrc.c
+  jdcoefct.c
+  jdcolor.c
+  jddctmgr.c
+  jdhuff.c
+  jdinput.c
+  jdmainct.c
+  jdmarker.c
+  jdmaster.c
+  jdmerge.c
+  jdphuff.c
+  jdpostct.c
+  jdsample.c
+  jdtrans.c
+  jerror.c
+  jfdctflt.c
+  jfdctfst.c
+  jfdctint.c
+  jidctflt.c
+  jidctfst.c
+  jidctint.c
+  jidctred.c
+  jmemmgr.c
+  jmemnobs.c
+  jquant1.c
+  jquant2.c
+  jutils.c
 
-INCLUDE_REGULAR_EXPRESSION("^(jchuff|jconfig|jdct|jdhuff|jerror|jinclude|jmemsys|jmorecfg|jpegint|jpeglib|jversion|jpeg|vtk).*$")
+  jaricom.c
+  jcarith.c
+  jdarith.c
+  jsimd_none.c)
 
-INCLUDE_DIRECTORIES(${VTKJPEG_SOURCE_DIR})
+include(CheckSymbolExists)
+check_symbol_exists("memset" "string.h" HAVE_MEMSET)
+check_symbol_exists("memcpy" "string.h" HAVE_MEMCPY)
+if (NOT HAVE_MEMSET OR NOT HAVE_MEMCPY)
+  set(NEED_BSD_STRINGS 1)
+endif ()
 
-# memmgr back ends: compile only one of these into a working library
-# (For now, let's use the mode that requires the image fit into memory.
-# This is the recommended mode for Win32 anyway.)
-SET(systemdependent_SRCS jmemnobs.c)
+include(CheckIncludeFile)
+check_include_file("stddef.h" HAVE_STDDEF_H)
+check_include_file("stdlib.h" HAVE_STDLIB_H)
 
-# library object files common to compression and decompression
-SET(common_SRCS
-jcomapi.c jutils.c jerror.c jmemmgr.c
-)
+# VTK already assumes these exist.
+set(HAVE_UNSIGNED_CHAR 1)
+set(HAVE_UNSIGNED_SHORT 1)
 
-# compression library object files
-SET(compression_SRCS
-jcapimin.c jcapistd.c jctrans.c jcparam.c jdatadst.c jcinit.c
-jcmaster.c jcmarker.c jcmainct.c jcprepct.c jccoefct.c jccolor.c
-jcsample.c jchuff.c jcphuff.c jcdctmgr.c jfdctfst.c jfdctflt.c
-jfdctint.c
-)
+set(JPEG_LIB_VERSION 80)
+set(LIBJPEG_TURBO_VERSION "1.5.3")
+set(LIBJPEG_TURBO_VERSION_NUMBER "1005003")
+set(MEM_SRCDST_SUPPORTED 1)
+set(C_ARITH_CODING_SUPPORTED 1)
+set(D_ARITH_CODING_SUPPORTED 1)
+set(NEED_SYS_TYPES_H 1)
 
-# decompression library object files
-SET(decompression_SRCS
-jdapimin.c jdapistd.c jdtrans.c jdatasrc.c jdmaster.c
-jdinput.c jdmarker.c jdhuff.c jdphuff.c jdmainct.c jdcoefct.c
-jdpostct.c jddctmgr.c jidctfst.c jidctflt.c jidctint.c jidctred.c
-jdsample.c jdcolor.c jquant1.c jquant2.c jdmerge.c
-)
+if (WIN32)
+  set(header_input_dir "/win")
+else ()
+  set(header_input_dir "/")
+endif ()
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}${header_input_dir}/jconfig.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
 
-IF (WIN32)
-  IF (BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DJPEGDLL)
-  ELSE ()
-    SET(JPEGSTATIC 1)
-  ENDIF ()
-ENDIF ()
+set(headers
+  jerror.h
+  jmorecfg.h
+  jpeglib.h
+  vtk_jpeg_mangle.h
+  "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
 
+include(CheckTypeSize)
+check_type_size("size_t" SIZEOF_SIZE_T)
+set(VERSION "1.5.3")
+# TODO: See `configure.ac` for `ljt_cv_inline` for this part.
+set(INLINE "inline")
+set(PACKAGE_NAME "vtkjpeg")
+string(TIMESTAMP BUILD "%Y%m%d")
 
-CONFIGURE_FILE(${VTKJPEG_SOURCE_DIR}/jpegDllConfig.h.in
-               ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h)
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}${header_input_dir}/jconfigint.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
 
-VTK_ADD_LIBRARY(vtkjpeg ${systemdependent_SRCS} ${common_SRCS} ${compression_SRCS} ${decompression_SRCS})
+set(private_headers
+  "${CMAKE_CURRENT_BINARY_DIR}/jconfigint.h")
 
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL(FILES
-    ${VTKJPEG_BINARY_DIR}/jpegDllConfig.h
-    ${VTKJPEG_SOURCE_DIR}/jpeglib.h
-    ${VTKJPEG_SOURCE_DIR}/vtk_jpeg_mangle.h
-    ${VTKJPEG_SOURCE_DIR}/jconfig.h
-    ${VTKJPEG_SOURCE_DIR}/jmorecfg.h
-    ${VTKJPEG_SOURCE_DIR}/jerror.h
-    DESTINATION ${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg
+vtk_add_library(vtkjpeg ${sources} ${headers} ${private_headers})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${headers}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg"
     COMPONENT Development)
-ENDIF()
+endif()
+target_include_directories(vtkjpeg
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>")

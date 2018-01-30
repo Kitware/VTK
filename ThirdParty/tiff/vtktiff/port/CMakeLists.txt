@@ -28,33 +28,30 @@ set(port_optional_SOURCES
   getopt.c
   lfind.c
   strcasecmp.c
-  strtoul.c
-  strtoull.c)
+  strtoul.c)
 
 set(port_USED_FILES ${port_SOURCES} ${port_HEADERS})
 
-if(NOT HAVE_GETOPT)
+# XXX(kitware): Some are only required for tools, so skip them.
+if(NOT HAVE_GETOPT AND FALSE)
   list(APPEND port_USED_FILES getopt.c)
 endif()
-if(NOT HAVE_LFIND)
+if(NOT HAVE_LFIND AND FALSE)
   list(APPEND port_USED_FILES lfind.c)
-endif()
+endif ()
 if(MSVC AND NOT HAVE_SNPRINTF)
   list(APPEND port_USED_FILES snprintf.c)
 endif()
-if(NOT HAVE_STRCASECMP)
+if(NOT HAVE_STRCASECMP AND FALSE)
   list(APPEND port_USED_FILES strcasecmp.c)
 endif()
-if(NOT HAVE_STRTOUL)
+if(NOT HAVE_STRTOUL AND FALSE)
   list(APPEND port_USED_FILES strtoul.c)
 endif()
-if(NOT HAVE_STRTOULL)
-  list(APPEND port_USED_FILES strtoull.c)
-endif()
 
-if(FALSE) # XXX(kitware): Not building tools, don't need the port library
+if (FALSE) # XXX(kitware): Not building tools for VTK; skip the library.
 add_library(port STATIC ${port_USED_FILES})
-endif()
+endif ()
 
 foreach(file ${port_USED_FILES})
   list(APPEND tiff_port_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")

@@ -1,9 +1,13 @@
 /*
  * jctrans.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1995-1998, Thomas G. Lane.
- * This file is part of the Independent JPEG Group's software.
- * For conditions of distribution and use, see the accompanying README file.
+ * Modified 2000-2009 by Guido Vollbeding.
+ * It was modified by The libjpeg-turbo Project to include only code relevant
+ * to libjpeg-turbo.
+ * For conditions of distribution and use, see the accompanying README.ijg
+ * file.
  *
  * This file contains library routines for transcoding compression,
  * that is, writing raw DCT coefficient arrays to an output JPEG file.
@@ -17,9 +21,9 @@
 
 /* Forward declarations */
 LOCAL(void) transencode_master_selection
-        JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
+        (j_compress_ptr cinfo, jvirt_barray_ptr *coef_arrays);
 LOCAL(void) transencode_coef_controller
-        JPP((j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays));
+        (j_compress_ptr cinfo, jvirt_barray_ptr *coef_arrays);
 
 
 /*
@@ -35,7 +39,7 @@ LOCAL(void) transencode_coef_controller
  */
 
 GLOBAL(void)
-jpeg_write_coefficients (j_compress_ptr cinfo, jvirt_barray_ptr * coef_arrays)
+jpeg_write_coefficients (j_compress_ptr cinfo, jvirt_barray_ptr *coef_arrays)
 {
   if (cinfo->global_state != CSTATE_START)
     ERREXIT1(cinfo, JERR_BAD_STATE, cinfo->global_state);
@@ -63,7 +67,7 @@ GLOBAL(void)
 jpeg_copy_critical_parameters (j_decompress_ptr srcinfo,
                                j_compress_ptr dstinfo)
 {
-  JQUANT_TBL ** qtblptr;
+  JQUANT_TBL **qtblptr;
   jpeg_component_info *incomp, *outcomp;
   JQUANT_TBL *c_quant, *slot_quant;
   int tblno, ci, coefi;
@@ -76,6 +80,12 @@ jpeg_copy_critical_parameters (j_decompress_ptr srcinfo,
   dstinfo->image_height = srcinfo->image_height;
   dstinfo->input_components = srcinfo->num_components;
   dstinfo->in_color_space = srcinfo->jpeg_color_space;
+#if JPEG_LIB_VERSION >= 70
+  dstinfo->jpeg_width = srcinfo->output_width;
+  dstinfo->jpeg_height = srcinfo->output_height;
+  dstinfo->min_DCT_h_scaled_size = srcinfo->min_DCT_h_scaled_size;
+  dstinfo->min_DCT_v_scaled_size = srcinfo->min_DCT_v_scaled_size;
+#endif
   /* Initialize all parameters to default values */
   jpeg_set_defaults(dstinfo);
   /* jpeg_set_defaults may choose wrong colorspace, eg YCbCr if input is RGB.
@@ -92,7 +102,7 @@ jpeg_copy_critical_parameters (j_decompress_ptr srcinfo,
         *qtblptr = jpeg_alloc_quant_table((j_common_ptr) dstinfo);
       MEMCOPY((*qtblptr)->quantval,
               srcinfo->quant_tbl_ptrs[tblno]->quantval,
-              SIZEOF((*qtblptr)->quantval));
+              sizeof((*qtblptr)->quantval));
       (*qtblptr)->sent_table = FALSE;
     }
   }
@@ -156,7 +166,7 @@ jpeg_copy_critical_parameters (j_decompress_ptr srcinfo,
 
 LOCAL(void)
 transencode_master_selection (j_compress_ptr cinfo,
-                              jvirt_barray_ptr * coef_arrays)
+                              jvirt_barray_ptr *coef_arrays)
 {
   /* Although we don't actually use input_components for transcoding,
    * jcmaster.c's initial_setup will complain if input_components is 0.
@@ -167,7 +177,11 @@ transencode_master_selection (j_compress_ptr cinfo,
 
   /* Entropy encoding: either Huffman or arithmetic coding. */
   if (cinfo->arith_code) {
+#ifdef C_ARITH_CODING_SUPPORTED
+    jinit_arith_encoder(cinfo);
+#else
     ERREXIT(cinfo, JERR_ARITH_NOTIMPL);
+#endif
   } else {
     if (cinfo->progressive_mode) {
 #ifdef C_PROGRESSIVE_SUPPORTED
@@ -214,13 +228,13 @@ typedef struct {
   int MCU_rows_per_iMCU_row;    /* number of such rows needed */
 
   /* Virtual block array for each component. */
-  jvirt_barray_ptr * whole_image;
+  jvirt_barray_ptr *whole_image;
 
   /* Workspace for constructing dummy blocks at right/bottom edges. */
   JBLOCKROW dummy_buffer[C_MAX_BLOCKS_IN_MCU];
 } my_coef_controller;
 
-typedef my_coef_controller * my_coef_ptr;
+typedef my_coef_controller *my_coef_ptr;
 
 
 LOCAL(void)
@@ -287,8 +301,6 @@ compress_output (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
   JBLOCKROW MCU_buffer[C_MAX_BLOCKS_IN_MCU];
   JBLOCKROW buffer_ptr;
   jpeg_component_info *compptr;
-
-  input_buf = 0;
 
   /* Align the virtual buffers for the components used in this scan. */
   for (ci = 0; ci < cinfo->comps_in_scan; ci++) {
@@ -363,7 +375,7 @@ compress_output (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
 
 LOCAL(void)
 transencode_coef_controller (j_compress_ptr cinfo,
-                             jvirt_barray_ptr * coef_arrays)
+                             jvirt_barray_ptr *coef_arrays)
 {
   my_coef_ptr coef;
   JBLOCKROW buffer;
@@ -371,7 +383,7 @@ transencode_coef_controller (j_compress_ptr cinfo,
 
   coef = (my_coef_ptr)
     (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-                                SIZEOF(my_coef_controller));
+                                sizeof(my_coef_controller));
   cinfo->coef = (struct jpeg_c_coef_controller *) coef;
   coef->pub.start_pass = start_pass_coef;
   coef->pub.compress_data = compress_output;
@@ -382,8 +394,8 @@ transencode_coef_controller (j_compress_ptr cinfo,
   /* Allocate and pre-zero space for dummy DCT blocks. */
   buffer = (JBLOCKROW)
     (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-                                C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
-  jzero_far((void FAR *) buffer, C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+                                C_MAX_BLOCKS_IN_MCU * sizeof(JBLOCK));
+  jzero_far((void *) buffer, C_MAX_BLOCKS_IN_MCU * sizeof(JBLOCK));
   for (i = 0; i < C_MAX_BLOCKS_IN_MCU; i++) {
     coef->dummy_buffer[i] = buffer + i;
   }

@@ -1,9 +1,12 @@
 /*
  * jccoefct.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1994-1997, Thomas G. Lane.
- * This file is part of the Independent JPEG Group's software.
- * For conditions of distribution and use, see the accompanying README file.
+ * It was modified by The libjpeg-turbo Project to include only code and
+ * information relevant to libjpeg-turbo.
+ * For conditions of distribution and use, see the accompanying README.ijg
+ * file.
  *
  * This file contains the coefficient buffer controller for compression.
  * This controller is the top level of the JPEG compressor proper.
@@ -42,11 +45,8 @@ typedef struct {
   /* For single-pass compression, it's sufficient to buffer just one MCU
    * (although this may prove a bit slow in practice).  We allocate a
    * workspace of C_MAX_BLOCKS_IN_MCU coefficient blocks, and reuse it for each
-   * MCU constructed and sent.  (On 80x86, the workspace is FAR even though
-   * it's not really very big; this is to keep the module interfaces unchanged
-   * when a large coefficient buffer is necessary.)
-   * In multi-pass modes, this array points to the current MCU's blocks
-   * within the virtual arrays.
+   * MCU constructed and sent.  In multi-pass modes, this array points to the
+   * current MCU's blocks within the virtual arrays.
    */
   JBLOCKROW MCU_buffer[C_MAX_BLOCKS_IN_MCU];
 
@@ -54,17 +54,17 @@ typedef struct {
   jvirt_barray_ptr whole_image[MAX_COMPONENTS];
 } my_coef_controller;
 
-typedef my_coef_controller * my_coef_ptr;
+typedef my_coef_controller *my_coef_ptr;
 
 
 /* Forward declarations */
 METHODDEF(boolean) compress_data
-    JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
+        (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 #ifdef FULL_COEF_BUFFER_SUPPORTED
 METHODDEF(boolean) compress_first_pass
-    JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
+        (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 METHODDEF(boolean) compress_output
-    JPP((j_compress_ptr cinfo, JSAMPIMAGE input_buf));
+        (j_compress_ptr cinfo, JSAMPIMAGE input_buf);
 #endif
 
 
@@ -180,16 +180,16 @@ compress_data (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
                                          ypos, xpos, (JDIMENSION) blockcnt);
             if (blockcnt < compptr->MCU_width) {
               /* Create some dummy blocks at the right edge of the image. */
-              jzero_far((void FAR *) coef->MCU_buffer[blkn + blockcnt],
-                        (compptr->MCU_width - blockcnt) * SIZEOF(JBLOCK));
+              jzero_far((void *) coef->MCU_buffer[blkn + blockcnt],
+                        (compptr->MCU_width - blockcnt) * sizeof(JBLOCK));
               for (bi = blockcnt; bi < compptr->MCU_width; bi++) {
                 coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn+bi-1][0][0];
               }
             }
           } else {
             /* Create a row of dummy blocks at the bottom of the image. */
-            jzero_far((void FAR *) coef->MCU_buffer[blkn],
-                      compptr->MCU_width * SIZEOF(JBLOCK));
+            jzero_far((void *) coef->MCU_buffer[blkn],
+                      compptr->MCU_width * sizeof(JBLOCK));
             for (bi = 0; bi < compptr->MCU_width; bi++) {
               coef->MCU_buffer[blkn+bi][0][0] = coef->MCU_buffer[blkn-1][0][0];
             }
@@ -286,7 +286,7 @@ compress_first_pass (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
       if (ndummy > 0) {
         /* Create dummy blocks at the right edge of the image. */
         thisblockrow += blocks_across; /* => first dummy block */
-        jzero_far((void FAR *) thisblockrow, ndummy * SIZEOF(JBLOCK));
+        jzero_far((void *) thisblockrow, ndummy * sizeof(JBLOCK));
         lastDC = thisblockrow[-1][0];
         for (bi = 0; bi < ndummy; bi++) {
           thisblockrow[bi][0] = lastDC;
@@ -305,8 +305,8 @@ compress_first_pass (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
            block_row++) {
         thisblockrow = buffer[block_row];
         lastblockrow = buffer[block_row-1];
-        jzero_far((void FAR *) thisblockrow,
-                  (size_t) (blocks_across * SIZEOF(JBLOCK)));
+        jzero_far((void *) thisblockrow,
+                  (size_t) (blocks_across * sizeof(JBLOCK)));
         for (MCUindex = 0; MCUindex < MCUs_across; MCUindex++) {
           lastDC = lastblockrow[h_samp_factor-1][0];
           for (bi = 0; bi < h_samp_factor; bi++) {
@@ -348,7 +348,6 @@ compress_output (j_compress_ptr cinfo, JSAMPIMAGE input_buf)
   JBLOCKROW buffer_ptr;
   jpeg_component_info *compptr;
 
-  input_buf = 0;
   /* Align the virtual buffers for the components used in this scan.
    * NB: during first pass, this is safe only because the buffers will
    * already be aligned properly, so jmemmgr.c won't need to do any I/O.
@@ -409,7 +408,7 @@ jinit_c_coef_controller (j_compress_ptr cinfo, boolean need_full_buffer)
 
   coef = (my_coef_ptr)
     (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-                                SIZEOF(my_coef_controller));
+                                sizeof(my_coef_controller));
   cinfo->coef = (struct jpeg_c_coef_controller *) coef;
   coef->pub.start_pass = start_pass_coef;
 
@@ -441,7 +440,7 @@ jinit_c_coef_controller (j_compress_ptr cinfo, boolean need_full_buffer)
 
     buffer = (JBLOCKROW)
       (*cinfo->mem->alloc_large) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-                                  C_MAX_BLOCKS_IN_MCU * SIZEOF(JBLOCK));
+                                  C_MAX_BLOCKS_IN_MCU * sizeof(JBLOCK));
     for (i = 0; i < C_MAX_BLOCKS_IN_MCU; i++) {
       coef->MCU_buffer[i] = buffer + i;
     }

@@ -1,9 +1,12 @@
 /*
  * jdpostct.c
  *
+ * This file was part of the Independent JPEG Group's software:
  * Copyright (C) 1994-1996, Thomas G. Lane.
- * This file is part of the Independent JPEG Group's software.
- * For conditions of distribution and use, see the accompanying README file.
+ * It was modified by The libjpeg-turbo Project to include only code relevant
+ * to libjpeg-turbo.
+ * For conditions of distribution and use, see the accompanying README.ijg
+ * file.
  *
  * This file contains the decompression postprocessing controller.
  * This controller manages the upsampling, color conversion, and color
@@ -39,29 +42,26 @@ typedef struct {
   JDIMENSION next_row;          /* index of next row to fill/empty in strip */
 } my_post_controller;
 
-typedef my_post_controller * my_post_ptr;
+typedef my_post_controller *my_post_ptr;
 
 
 /* Forward declarations */
 METHODDEF(void) post_process_1pass
-        JPP((j_decompress_ptr cinfo,
-             JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-             JDIMENSION in_row_groups_avail,
-             JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-             JDIMENSION out_rows_avail));
+        (j_decompress_ptr cinfo, JSAMPIMAGE input_buf,
+         JDIMENSION *in_row_group_ctr, JDIMENSION in_row_groups_avail,
+         JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
+         JDIMENSION out_rows_avail);
 #ifdef QUANT_2PASS_SUPPORTED
 METHODDEF(void) post_process_prepass
-        JPP((j_decompress_ptr cinfo,
-             JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-             JDIMENSION in_row_groups_avail,
-             JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-             JDIMENSION out_rows_avail));
+        (j_decompress_ptr cinfo, JSAMPIMAGE input_buf,
+         JDIMENSION *in_row_group_ctr, JDIMENSION in_row_groups_avail,
+         JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
+         JDIMENSION out_rows_avail);
 METHODDEF(void) post_process_2pass
-        JPP((j_decompress_ptr cinfo,
-             JSAMPIMAGE input_buf, JDIMENSION *in_row_group_ctr,
-             JDIMENSION in_row_groups_avail,
-             JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
-             JDIMENSION out_rows_avail));
+        (j_decompress_ptr cinfo, JSAMPIMAGE input_buf,
+         JDIMENSION *in_row_group_ctr, JDIMENSION in_row_groups_avail,
+         JSAMPARRAY output_buf, JDIMENSION *out_row_ctr,
+         JDIMENSION out_rows_avail);
 #endif
 
 
@@ -163,8 +163,6 @@ post_process_prepass (j_decompress_ptr cinfo,
 {
   my_post_ptr post = (my_post_ptr) cinfo->post;
   JDIMENSION old_next_row, num_rows;
-  output_buf = 0;
-  out_rows_avail = 0;
 
   /* Reposition virtual buffer if at start of strip. */
   if (post->next_row == 0) {
@@ -210,9 +208,6 @@ post_process_2pass (j_decompress_ptr cinfo,
   my_post_ptr post = (my_post_ptr) cinfo->post;
   JDIMENSION num_rows, max_rows;
 
-  input_buf = 0;
-  in_row_group_ctr = 0;
-  in_row_groups_avail = 0;
   /* Reposition virtual buffer if at start of strip. */
   if (post->next_row == 0) {
     post->buffer = (*cinfo->mem->access_virt_sarray)
@@ -258,7 +253,7 @@ jinit_d_post_controller (j_decompress_ptr cinfo, boolean need_full_buffer)
 
   post = (my_post_ptr)
     (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_IMAGE,
-                                SIZEOF(my_post_controller));
+                                sizeof(my_post_controller));
   cinfo->post = (struct jpeg_d_post_controller *) post;
   post->pub.start_pass = start_pass_dpost;
   post->whole_image = NULL;     /* flag for no virtual arrays */

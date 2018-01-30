@@ -45,7 +45,6 @@ set(tiff_HEADERS
   tiff.h
   tiffio.h
   tiffvers.h
-  # XXX(kitware): install mangling header
   vtk_tiff_mangle.h)
 
 set(tiff_noinst_HEADERS
@@ -98,60 +97,83 @@ set(tiff_SOURCES
   tif_write.c
   tif_zip.c)
 
-if (BUILD_SHARED_LIBS)
-  set(tiff_DEFS
-    libtiff.def)
-endif ()
+set(tiffxx_HEADERS
+  tiffio.hxx)
+
+set(tiffxx_SOURCES
+  tif_stream.cxx)
 
 if(WIN32_IO)
   extra_dist(tif_unix.c)
   list(APPEND tiff_SOURCES tif_win32.c)
-  add_definitions(-DUSE_WIN32_FILEIO)
 else()
   extra_dist(tif_win32.c)
   list(APPEND tiff_SOURCES tif_unix.c)
 endif()
 
+if (FALSE) # XXX(kitware): Use VTK's module system.
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
                     ${CMAKE_CURRENT_BINARY_DIR}
                     ${TIFF_INCLUDES})
 
-if (FALSE) # XXX(kitware): mangle library name
 add_library(tiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
-            ${tiff_port_SOURCES} ${tiff_DEFS})
+            ${tiff_port_SOURCES} libtiff.def)
 target_link_libraries(tiff ${TIFF_LIBRARY_DEPS})
 set_target_properties(tiff PROPERTIES SOVERSION ${SO_COMPATVERSION})
-endif ()
-
-vtk_add_library(vtktiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
-            ${tiff_port_SOURCES} ${tiff_DEFS})
-target_link_libraries(vtktiff ${TIFF_LIBRARY_DEPS})
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
     # encoded into their final filename.  We disable this on Cygwin because
     # it causes cygz-${TIFF_FULL_VERSION}.dll to be created when cygz.dll
     # seems to be the default.
-    if (FALSE) # XXX(kitware): mangle library name
     set_target_properties(tiff PROPERTIES VERSION ${SO_VERSION})
-    endif ()
 endif()
+else ()
+vtk_add_library(vtktiff ${tiff_SOURCES} ${tiff_port_SOURCES} ${tiff_DEFS} ${tiff_HEADERS} ${nodest_tiff_HEADERS})
+target_link_libraries(vtktiff PRIVATE ${vtkjpeg_LIBRARIES} ${vtkzlib_LIBRARIES})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${tiff_HEADERS}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtktiff/libtiff"
+    COMPONENT Development)
+endif()
+endif ()
 if(HAVE_LD_VERSION_SCRIPT)
-  if (FALSE) # XXX(kitware): mangle library name
-  set_target_properties(tiff PROPERTIES LINK_FLAGS
-                        "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
-  endif ()
   set_target_properties(vtktiff PROPERTIES LINK_FLAGS
-                        "-Wl,--version-script=\"${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map\"")
+                        "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiff.map")
 endif()
 
-if (FALSE) # XXX(kitware): mangle library name
+if (FALSE) # XXX(kitware): VTK handles installation.
 install(TARGETS tiff
         RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
-endif ()
 
-if (NOT VTK_INSTALL_NO_DEVELOPMENT) # XXX(kitware): install headers when VTK does
 install(FILES ${tiff_HEADERS} ${nodist_tiff_HEADERS}
         DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 endif ()
+
+if(cxx)
+  add_library(tiffxx ${tiffxx_SOURCES} ${tiffxx_HEADERS})
+  target_link_libraries(tiffxx tiff)
+  set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})
+  if(NOT CYGWIN)
+    # This property causes shared libraries on Linux to have the full version
+    # encoded into their final filename.  We disable this on Cygwin because
+    # it causes cygz-${TIFF_FULL_VERSION}.dll to be created when cygz.dll
+    # seems to be the default.
+    set_target_properties(tiffxx PROPERTIES VERSION ${SO_VERSION})
+  endif()
+  if(HAVE_LD_VERSION_SCRIPT)
+    set_target_properties(tiffxx PROPERTIES LINK_FLAGS
+                          "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtiffxx.map")
+  endif()
+
+  install(TARGETS tiffxx
+          RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+          LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR})
+
+  install(FILES ${tiffxx_HEADERS}
+          DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+
+endif()
