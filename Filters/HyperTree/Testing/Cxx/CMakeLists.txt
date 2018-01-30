@@ -22,10 +22,11 @@ set(test_sources
   TestHyperTreeGridBinary2DVector.cxx
   TestHyperTreeGridBinary2DVectorAxisReflectionXCenter.cxx
   TestHyperTreeGridBinary2DVectorAxisReflectionYCenter.cxx
-  TestHyperTreeGridBinaryEllipseMaterial.cxx
-  TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridBinary3DContour.cxx
   TestHyperTreeGridBinary3DGeometry.cxx
+  TestHyperTreeGridBinaryClipPlanes.cxx
+  TestHyperTreeGridBinaryEllipseMaterial.cxx
+  TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DMaterial.cxx
   TestHyperTreeGridTernary2DMaterialBits.cxx

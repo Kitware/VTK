@@ -34,15 +34,15 @@ static const unsigned int VonNeumannCursors3D[] = { 0, 1, 2, 4, 5, 6 };
 static const unsigned int VonNeumannOrientations3D[]  = { 2, 1, 0, 0, 1, 2 };
 static const unsigned int VonNeumannOffsets3D[]  = { 0, 0, 0, 1, 1, 1 };
 static const unsigned int EdgeIndices[3][2][4] = {
-  {
+{
     { 3,11,7,8 }, { 1,10,5,9 }
-  },
-  {
+},
+{
     { 0,9,4,8 }, { 2,10,6,11 }
-  },
-  {
+},
+{
     { 0,1,2,3 }, { 4,5,6,7 }
-  }
+}
 };
 
 vtkStandardNewMacro(vtkHyperTreeGridGeometry);
@@ -380,32 +380,31 @@ void vtkHyperTreeGridGeometry::RecursivelyProcessTree( vtkHyperTreeGridCursor* c
 //----------------------------------------------------------------------------
 void vtkHyperTreeGridGeometry::ProcessLeaf1D( vtkHyperTreeGridCursor* cursor )
 {
+   // Cell at cursor center is a leaf, retrieve its global index
+  vtkIdType inId = cursor->GetGlobalNodeIndex();
+  if ( inId < 0 )
+  {
+    return;
+  }
+
   // In 1D the geometry is composed of edges, create storage for endpoint IDs
-  vtkIdType id[2];
+  vtkIdType ids[2];
 
   // First endpoint is at origin of cursor
-  double* origin = cursor->GetOrigin();
-  id[0] = this->Points->InsertNextPoint( origin );
+   double* origin = cursor->GetOrigin();
+   ids[0] = this->Points->InsertNextPoint( origin );
 
-  // Second endpoint is at origin of cursor plus its length
-  double pt[3];
-  memcpy( pt, origin, 3 * sizeof( double ) );
-  switch ( this->Orientation )
-  {
-    case 3: // 1 + 2
-      pt[2] += cursor->GetSize()[2];
-      break;
-    case 5: // 1 + 4
-      pt[1] += cursor->GetSize()[1];
-      break;
-    case 6: // 2 + 4
-      pt[0] += cursor->GetSize()[0];
-      break;
-  } // switch
-  id[1] = this->Points->InsertNextPoint( pt );
+   // Move to end of of cursor along orientation axis for second endpoint
+   double pt[3];
+   memcpy( pt, origin, 3 * sizeof( double ) );
+   pt[this->Orientation] += cursor->GetSize()[this->Orientation];
+   ids[1] = this->Points->InsertNextPoint( pt );
 
-  // Insert edge into 1D geometry
-  this->Cells->InsertNextCell( 2, id );
+   // Insert next edge
+   vtkIdType outId = this->Cells->InsertNextCell( 2, ids );
+
+   // Copy edge data from that of the cell from which it comes
+   this->OutData->CopyData( this->InData, inId, outId );
 }
 
 //----------------------------------------------------------------------------
