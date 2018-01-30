@@ -2706,6 +2706,7 @@ mem_initializer_list:
 
 mem_initializer:
     id_expression ignored_parentheses opt_ellipsis
+  | id_expression ignored_braces opt_ellipsis
 
 /*
  * Parameters
