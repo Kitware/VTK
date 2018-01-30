@@ -208,7 +208,7 @@ vtkUniformGrid* GetGhostedGrid(
     }
   } // END for all dimensions
 
-  // STEP 3: Construt ghosted grid
+  // STEP 3: Construct ghosted grid
   vtkUniformGrid *grid = vtkUniformGrid::New();
   grid->Initialize();
   grid->SetOrigin( origin );

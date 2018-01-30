@@ -74,7 +74,7 @@
  * operates on triangle meshes and assumes only a single, closed, properly
  * oriented surface is represented. vtkMultiObjectMassProperties performs
  * additional topological and connectivity operations to identify separate
- * objects, and confirms that they are manifold. It also accomodates
+ * objects, and confirms that they are manifold. It also accommodates
  * inconsistent ordering.
  *
  * @warning

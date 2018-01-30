@@ -729,7 +729,7 @@ void vtkWindBladeReader::ReadDataVariables(istream& inStr)
 //
 // Open the first data file and verify that the data is where is should be
 // Each data block is enclosed by two ints which record the number of bytes
-// Save the file offset for each varible
+// Save the file offset for each variable
 //
 //----------------------------------------------------------------------------
 bool vtkWindBladeReader::FindVariableOffsets()

@@ -315,7 +315,7 @@ int vtkAVSucdReader::RequestInformation(
       vtkDebugMacro( << "TFL = " << trueFileLength
                      << "\tCFL = " << calculatedFileLength << endl);
 
-      // We tried. Count our trys.
+      // We tried. Count our tries.
       attempts++;
 
       if(trueFileLength == calculatedFileLength)

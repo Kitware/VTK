@@ -17,7 +17,7 @@
  * @brief   interpreter for interactive shells.
  *
  * vtkPythonInteractiveInterpreter provides an interpreter that can be used in
- * interactive shells. It mimicks the behaviour of the interactive
+ * interactive shells. It mimics the behaviour of the interactive
  * console (much like the default Python shell) providing the "read-eval-print"
  * loops. It also handles incomplete statements correctly. It uses "code"
  * module provided by Python standard library to achieve this.

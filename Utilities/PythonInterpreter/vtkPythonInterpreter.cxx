@@ -276,7 +276,7 @@ void vtkPythonInterpreter::Finalize()
   {
     NotifyInterpreters(vtkCommand::ExitEvent);
     vtkPythonScopeGilEnsurer gilEnsurer(false, true);
-    // Py_Finalize will take care of relasing gil
+    // Py_Finalize will take care of releasing gil
     Py_Finalize();
   }
 }
@@ -404,7 +404,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   return res;
 #else
 
-  // process command line argments to remove unhandled args.
+  // process command line arguments to remove unhandled args.
   std::vector<char*> newargv;
   for (int i=0; i < argc; ++i)
   {

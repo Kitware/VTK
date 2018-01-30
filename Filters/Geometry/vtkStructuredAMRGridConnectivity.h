@@ -175,7 +175,7 @@ protected:
       const int gridIdx, int fromLevel, int toLevel, int ext[6]);
 
   /**
-   * Gets the refined extent fro the grid with the given grid index.
+   * Gets the refined extent for the grid with the given grid index.
    */
   void GetRefinedExtent(
       const int gridIdx, int fromLevel, int toLevel, int ext[6]);

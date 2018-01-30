@@ -155,7 +155,7 @@ public:
 
   //@{
   /**
-   * Determines the chunk size fro streaming.  This filter will act like a
+   * Determines the chunk size for streaming.  This filter will act like a
    * collector: ask for many input pieces, but generate one output.  Limit is
    * in KBytes
    */
