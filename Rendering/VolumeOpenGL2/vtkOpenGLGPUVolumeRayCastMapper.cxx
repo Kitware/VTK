@@ -3345,7 +3345,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateInputs(vtkRenderer* ren
         this->Partitions[2]);
 
       ///TODO Currently, only input arrays with the same name/id/mode can be
-      // (accross input objects) can be rendered. This could be addressed by
+      // (across input objects) can be rendered. This could be addressed by
       // overriding the mapper's settings with array settings defined in the
       // vtkMultiVolume instance.
       vtkDataArray* scalars = this->Parent->GetScalars(input, this->Parent->ScalarMode,

@@ -14,7 +14,7 @@
 =========================================================================*/
 /**
  * @class   vtkDepthPeelingPass
- * @brief   Implement Depth Peeling for use within a frambuffer pass
+ * @brief   Implement Depth Peeling for use within a framebuffer pass
  *
  * Note that this implementation is used as a fallback for drivers that
  * don't support floating point textures. Most renderings will use the subclass
@@ -38,7 +38,7 @@
  * This implementation makes use of textures and is suitable for ES3
  * For ES3 it must be embedded within a pass that makes use of framebuffers
  * so that the required OpaqueZTexture and OpaqueRGBATexture can be
- * passed from the outer frambuffer pass. For OpenGL ES3 be aware the
+ * passed from the outer framebuffer pass. For OpenGL ES3 be aware the
  * occlusion ratio test is not supported. The maximum number of peels
  * is used instead so set it to a reasonable value. For many scenes
  * a value of 4 or 5 will work well.

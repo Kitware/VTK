@@ -7,5 +7,5 @@ set(Module_SRCS
   vtkXdmfWriter.cxx
   )
 
-#set(${vtk-module}_NO_HeaderTest 1) # TODO: helper classes and reenable
+#set(${vtk-module}_NO_HeaderTest 1) # TODO: helper classes and re-enable
 vtk_module_library(vtkIOXdmf2 ${Module_SRCS})

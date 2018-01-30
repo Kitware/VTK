@@ -87,7 +87,7 @@ protected:
   ~vtkXMLPTableReader() override;
 
   /**
-   * Return hte type of the dataset being read
+   * Return the type of the dataset being read
    */
   const char* GetDataSetName() override;
 

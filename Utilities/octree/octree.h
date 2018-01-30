@@ -27,7 +27,7 @@
   * the integers in the vector will all be in \f$\{0,\ldots,2^d-1\}\f$.
   *
   * The octree_cursor class provides a free-form way to visit nodes in the octree;
-  * it does not behave like an interator that guarantees each node will be visited once.
+  * it does not behave like an iterator that guarantees each node will be visited once.
   * Instead, it provides a way to move up, down, and across the tree from any location.
   * This makes it useful for local queries that do not need to traverse the entire tree.
   *

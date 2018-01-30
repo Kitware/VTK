@@ -458,7 +458,7 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet *dobj, xdmf2::XdmfG
   {
     //fine for vtkMultiBlockDataSet
     //vtkHierarchicalBoxDataSet would be better served by a different xdmf tree type
-    //vtkTemporalDataSet is internal to the VTK pipeline so I am ingnoring it
+    //vtkTemporalDataSet is internal to the VTK pipeline so I am ignoring it
     grid->SetGridType(XDMF_GRID_TREE);
   }
 

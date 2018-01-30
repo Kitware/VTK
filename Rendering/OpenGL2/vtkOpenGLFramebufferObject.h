@@ -339,7 +339,7 @@ public:
   /**
    * Convenience method to populate a framebuffer with
    * attachments created as well. Returns true if a
-   * complete valid Frambuffer was created
+   * complete valid Framebuffer was created
    */
   bool PopulateFramebuffer(int width, int height);
   bool PopulateFramebuffer(

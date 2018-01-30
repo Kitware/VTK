@@ -286,7 +286,7 @@ int vtkMultiObjectMassProperties::RequestData(
   output->GetFieldData()->AddArray(this->ObjectValidity);
   unsigned char *valid;
 
-  // All polygons intially assumed oriented properly
+  // All polygons initially assumed oriented properly
   unsigned char *orient = new unsigned char [numPolys];
   std::fill_n(orient, numPolys, 1);
 
