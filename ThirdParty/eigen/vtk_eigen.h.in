@@ -15,6 +15,11 @@
 #ifndef vtk_eigen_h
 #define vtk_eigen_h
 
+// VTK should only be using MPL2 Eigen code.
+#ifndef EIGEN_MPL2_ONLY
+#define EIGEN_MPL2_ONLY
+#endif
+
 /* Use the eigen library configured for VTK.  */
 #cmakedefine VTK_USE_SYSTEM_EIGEN
 #ifdef VTK_USE_SYSTEM_EIGEN
