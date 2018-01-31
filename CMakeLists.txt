@@ -290,8 +290,13 @@ vtk_add_library(vtklzma
 set_target_properties(vtklzma
   PROPERTIES
     C_STANDARD 99
-    DEFINE_SYMBOL DLL_EXPORT
     POSITION_INDEPENDENT_CODE 1)
+
+if (BUILD_SHARED_LIBS)
+  set_target_properties(vtklzma
+    PROPERTIES
+      DEFINE_SYMBOL DLL_EXPORT)
+endif ()
 
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(
