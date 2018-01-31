@@ -118,4 +118,6 @@
 #define PHOTOSHOP_SUPPORT
 #define IPTC_SUPPORT
 
+#cmakedefine01 TIFF_SHARED_LIBS
+
 #endif /* _TIFFCONF_ */
