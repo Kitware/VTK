@@ -71,21 +71,21 @@ void vtkWebGLDataSet::SetIndexes(short* i, int size)
 
 void vtkWebGLDataSet::SetNormals(float* n)
 {
-  if (this->normals) delete[] this->normals;
+  delete[] this->normals;
   this->normals = n;
   this->hasChanged = true;
 }
 
 void vtkWebGLDataSet::SetColors(unsigned char* c)
 {
-  if (this->colors) delete[] this->colors;
+  delete[] this->colors;
   this->colors = c;
   this->hasChanged = true;
 }
 
 void vtkWebGLDataSet::SetPoints(float* p, int size)
 {
-  if (this->points) delete[] this->points;
+  delete[] this->points;
   this->points = p;
   this->NumberOfPoints = size;
   this->webGLType = wLINES;
@@ -94,7 +94,7 @@ void vtkWebGLDataSet::SetPoints(float* p, int size)
 
 void vtkWebGLDataSet::SetTCoords(float *t)
 {
-  if (this->tcoords) delete[] this->tcoords;
+  delete[] this->tcoords;
   this->tcoords = t;
   this->hasChanged = true;
 }

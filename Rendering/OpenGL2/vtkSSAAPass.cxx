@@ -69,10 +69,8 @@ vtkSSAAPass::~vtkSSAAPass()
   {
     this->Pass2->Delete();
   }
-  if (this->SSAAProgram !=nullptr)
-  {
-    delete this->SSAAProgram;
-  }
+
+  delete this->SSAAProgram;
 }
 
 // ----------------------------------------------------------------------------

@@ -170,7 +170,7 @@ void vtkWebGLPolyData::SetMesh(float* _vertices, int _numberOfVertices, int* _in
     delete[] _index;
     delete[] _normals;
     delete[] _colors;
-    if (_tcoords) delete[] _tcoords;
+    delete[] _tcoords;
   }
 }
 

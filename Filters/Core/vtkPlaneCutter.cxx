@@ -171,10 +171,8 @@ struct CuttingFunctor
       (*dataIter).Locator->Delete();
       ++dataIter;
     }
-    if (this->InOutPoints != nullptr)
-    {
-      delete this->InOutPoints;
-    }
+
+    delete this->InOutPoints;
   }
 
   void Initialize()
