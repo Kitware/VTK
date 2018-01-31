@@ -62,7 +62,7 @@ namespace
 
   private:
     vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) = delete;
-    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) = delete;
+    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) = delete;
 
     vtkUnicodeString& OutputString;
     unsigned int StringPosition;

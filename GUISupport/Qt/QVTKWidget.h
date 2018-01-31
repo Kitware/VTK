@@ -282,10 +282,8 @@ protected:
 
 
 private:
-  //! unimplemented operator=
-  QVTKWidget const& operator=(QVTKWidget const&);
-  //! unimplemented copy
-  QVTKWidget(const QVTKWidget&);
+  QVTKWidget & operator=(QVTKWidget const&) = delete;
+  QVTKWidget(const QVTKWidget&) = delete;
 
   unsigned long renderEventCallbackObserverId;
 

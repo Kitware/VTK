@@ -132,10 +132,8 @@ private:
 
   QVTKInteractorInternal* Internal;
 
-  // unimplemented copy
-  QVTKInteractor(const QVTKInteractor&);
-  // unimplemented operator=
-  void operator=(const QVTKInteractor&);
+  QVTKInteractor(const QVTKInteractor&) = delete;
+  void operator=(const QVTKInteractor&) = delete;
 
 };
 

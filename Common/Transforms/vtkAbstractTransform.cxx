@@ -379,7 +379,7 @@ public:
 protected:
   vtkSimpleTransform() {};
   vtkSimpleTransform(const vtkSimpleTransform&);
-  void operator=(const vtkSimpleTransform&);
+  vtkSimpleTransform& operator=(const vtkSimpleTransform&);
 };
 
 

@@ -179,7 +179,7 @@ public:
   /**
    * Copy the value of one variant into another.
    */
-  const vtkVariant & operator= (const vtkVariant & other);
+  vtkVariant & operator= (const vtkVariant & other);
 
   /**
    * Get whether the variant value is valid.

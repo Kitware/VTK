@@ -81,7 +81,7 @@ public:
 
   private:
     OutputIterator(const OutputIterator&) = delete;
-    const OutputIterator& operator=(const OutputIterator&) = delete;
+    OutputIterator& operator=(const OutputIterator&) = delete;
   };
 
   /**

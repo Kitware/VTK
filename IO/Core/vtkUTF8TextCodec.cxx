@@ -56,7 +56,7 @@ namespace
 
   private:
     testIterator(const testIterator&) = delete;
-    const testIterator& operator=(const testIterator&) = delete;
+    testIterator& operator=(const testIterator&) = delete;
   };
 
 

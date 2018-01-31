@@ -172,10 +172,8 @@ protected:
   vtkSmartPointer<vtkEventQtSlotConnect> mConnect;
 
 private:
-  //! unimplemented operator=
-  QVTKWidget2 const& operator=(QVTKWidget2 const&);
-  //! unimplemented copy
-  QVTKWidget2(const QVTKWidget2&);
+  QVTKWidget2 & operator=(QVTKWidget2 const&) = delete;
+  QVTKWidget2(const QVTKWidget2&) = delete;
 
 };
 

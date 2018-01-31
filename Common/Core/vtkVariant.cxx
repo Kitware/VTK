@@ -336,7 +336,7 @@ vtkVariant::vtkVariant(const vtkVariant &s2, unsigned int type)
   this->Valid = valid;
 }
 
-const vtkVariant & vtkVariant::operator= (const vtkVariant & other)
+vtkVariant & vtkVariant::operator= (const vtkVariant & other)
 {
   // Short circuit if assigning to self:
   if (this == &other)
