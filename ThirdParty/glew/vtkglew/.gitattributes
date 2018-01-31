@@ -1,0 +1,11 @@
+*              text eol=lf
+*.png          binary
+*.pdf          binary
+build/*/*      text eol=crlf
+CMakeLists.txt text eol=lf
+build/cmake/*  text eol=lf
+
+* -whitespace
+
+src/glew.c        hooks-max-size=1572864
+include/GL/glew.h hooks-max-size=1572864

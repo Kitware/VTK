@@ -15,51 +15,32 @@
 #ifndef vtk_glew_h
 #define vtk_glew_h
 
+/* Use the glew library configured for VTK. */
+#cmakedefine VTK_USE_SYSTEM_GLEW
+
 #define GLEW_NO_GLU
+#define VTK_OPENGL_ES_VERSION 30
 
-#cmakedefine VTK_BUILD_SHARED_LIBS
-
-#ifdef WIN32
-#  ifndef VTK_BUILD_SHARED_LIBS
-#    define GLEW_STATIC
-#  endif
-#endif
-
+/* Mobile device support. */
+#cmakedefine VTK_MODULE_vtkglew_ANDROID
 
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif
 
-#define VTK_OPENGL_ES_VERSION 30
-
-#cmakedefine ANDROID
-
-#ifdef ANDROID
-#  include <GLES3/gl3.h>
+#ifdef VTK_MODULE_vtkglew_ANDROID
+# include <GLES3/gl3.h>
+#elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+# include <OpenGLES/ES3/gl.h>
+#elif defined(VTK_USE_SYSTEM_GLEW)
+# include <GL/glew.h>
+# ifdef _WIN32
+#  include <GL/wglew.h>
+# endif
 #else
-# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
-#   include <OpenGLES/ES3/gl.h>
-# else
-/* Use the glew library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_GLEW
-//#cmakedefine VTK_USE_X
-#  ifdef VTK_USE_SYSTEM_GLEW
-#    include <GL/glew.h>
-#    ifdef WIN32
-#      include <GL/wglew.h>
-#    endif
-//#    ifdef VTK_USE_X
-//#      include <GL/glxew.h>
-//#    endif
-#  else
-#    include <vtkglew/include/GL/glew.h>
-#    ifdef WIN32
-#      include <vtkglew/include/GL/wglew.h>
-#    endif
-//#    ifdef VTK_USE_X
-//#      include <vtkglew/include/GL/glxew.h>
-//#    endif
-#  endif
+# include <vtkglew/include/GL/glew.h>
+# ifdef _WIN32
+#  include <vtkglew/include/GL/wglew.h>
 # endif
 #endif
 
@@ -78,7 +59,6 @@
         glDrawElements(mode, *(counts + eCount), \
           type, (GLvoid *)(indicies[eCount])); \
         }
-
 #endif
 
 /*** deal with some GLES 3.0 specific issues ***/
