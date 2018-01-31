@@ -27,7 +27,7 @@ endif()
 target_compile_definitions(vtklz4
   PRIVATE
     "LZ4_VERSION=\"1.8.0\"")
-if (WIN32)
+if (WIN32 AND BUILD_SHARED_LIBS)
   target_compile_definitions(vtklz4
     PRIVATE
       LZ4_DLL_EXPORT=1
