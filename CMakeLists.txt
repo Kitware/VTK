@@ -406,13 +406,21 @@ if(EIGEN_TEST_NO_EXPLICIT_VECTORIZATION)
   message(STATUS "Disabling vectorization in tests/examples")
 endif()
 
+if (FALSE) # XXX(kitware): hardcoding settings.
 option(EIGEN_TEST_NO_EXPLICIT_ALIGNMENT "Disable explicit alignment (hence vectorization) in tests/examples" OFF)
+else ()
+set(EIGEN_TEST_NO_EXPLICIT_ALIGNMENT OFF)
+endif ()
 if(EIGEN_TEST_NO_EXPLICIT_ALIGNMENT)
   add_definitions(-DEIGEN_DONT_ALIGN=1)
   message(STATUS "Disabling alignment in tests/examples")
 endif()
 
+if (FALSE) # XXX(kitware): hardcoding settings.
 option(EIGEN_TEST_NO_EXCEPTIONS "Disables C++ exceptions" OFF)
+else ()
+set(EIGEN_TEST_NO_EXCEPTIONS OFF)
+endif ()
 if(EIGEN_TEST_NO_EXCEPTIONS)
   ei_add_cxx_compiler_flag("-fno-exceptions")
   message(STATUS "Disabling exceptions in tests/examples")
@@ -432,6 +440,7 @@ endif ()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
+if (FALSE) # XXX(kitware): VTK handles installation.
 # Backward compatibility support for EIGEN_INCLUDE_INSTALL_DIR
 if(EIGEN_INCLUDE_INSTALL_DIR)
   message(WARNING "EIGEN_INCLUDE_INSTALL_DIR is deprecated. Use INCLUDE_INSTALL_DIR instead.")
@@ -454,6 +463,7 @@ set(PKGCONFIG_INSTALL_DIR
     "${CMAKE_INSTALL_DATADIR}/pkgconfig"
     CACHE PATH "The directory relative to CMAKE_PREFIX_PATH where eigen3.pc is installed"
     )
+endif ()
 
 
 # similar to set_target_properties but append the property instead of overwriting it
@@ -665,7 +675,7 @@ add_custom_target ( uninstall
 else ()
 if (NOT VTK_NO_INSTALL_DEVELOPMENT)
   install(
-    DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Eigen/"
+    DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/eigen/"
     DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkeigen/eigen"
     PATTERN "*.txt" EXCLUDE)
 endif ()
