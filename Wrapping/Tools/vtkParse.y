@@ -2706,6 +2706,7 @@ mem_initializer_list:
 
 mem_initializer:
     id_expression ignored_parentheses opt_ellipsis
+  | id_expression ignored_braces opt_ellipsis
 
 /*
  * Parameters
@@ -4915,6 +4916,8 @@ void output_function()
       (currentFunction->Parameters[0]->Type & VTK_PARSE_UNQUALIFIED_TYPE) ==
       VTK_PARSE_VOID)
   {
+    vtkParse_FreeValue(currentFunction->Parameters[0]);
+    free(currentFunction->Parameters);
     currentFunction->NumberOfParameters = 0;
   }
 
