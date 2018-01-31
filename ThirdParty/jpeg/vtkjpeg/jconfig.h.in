@@ -65,3 +65,5 @@
 #ifndef __CHAR_UNSIGNED__
 #cmakedefine __CHAR_UNSIGNED__
 #endif
+
+#cmakedefine01 JPEG_SHARED_LIBS

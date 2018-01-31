@@ -80,6 +80,12 @@ else ()
   set(header_input_dir "/")
 endif ()
 
+if (BUILD_SHARED_LIBS)
+  set(JPEG_SHARED_LIBS 1)
+else ()
+  set(JPEG_SHARED_LIBS 0)
+endif ()
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}${header_input_dir}/jconfig.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/jconfig.h")
