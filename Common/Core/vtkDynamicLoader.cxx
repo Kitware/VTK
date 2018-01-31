@@ -38,11 +38,10 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle lib)
 }
 
 // ----------------------------------------------------------------------------
-//vtkSymbolPointer
-void*
+vtkSymbolPointer
 vtkDynamicLoader::GetSymbolAddress(vtkLibHandle lib, const char* sym)
 {
-  return (void *)(vtksys::DynamicLoader::GetSymbolAddress(lib, sym));
+  return vtksys::DynamicLoader::GetSymbolAddress(lib, sym);
 }
 
 // ----------------------------------------------------------------------------

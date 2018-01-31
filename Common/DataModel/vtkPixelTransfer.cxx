@@ -23,7 +23,7 @@ int vtkPixelTransfer::Blit(
             destWholeExt,
             destExt,
             nSrcComps,
-            (VTK_TT*)srcData,
+            static_cast<VTK_TT*>(srcData),
             nDestComps,
             destType,
             destData));
