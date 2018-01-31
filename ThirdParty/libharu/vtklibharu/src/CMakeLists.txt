@@ -71,48 +71,45 @@ set(
 # =======================================================================
 # create static and shared haru library
 # =======================================================================
-# KITWARE_LIBHARU_CHANGE Let VTK handle install:
-if(FALSE)
-  if(LIBHPDF_STATIC)
-    add_library(${LIBHPDF_NAME_STATIC} STATIC ${LIBHPDF_SRCS})
-    target_link_libraries(${LIBHPDF_NAME_STATIC} ${ADDITIONAL_LIBRARIES})
-    install(
-      TARGETS ${LIBHPDF_NAME_STATIC}
-      ARCHIVE DESTINATION lib
-      LIBRARY DESTINATION lib
-      RUNTIME DESTINATION bin
-    )
-    if(WIN32 AND NOT CYGWIN)
-      foreach(addlib ${ADDITIONAL_LIBRARIES})
-        install(FILES ${addlib} DESTINATION lib)
-      endforeach(addlib)
-    endif(WIN32 AND NOT CYGWIN)
-  endif(LIBHPDF_STATIC)
-  if(LIBHPDF_SHARED)
-    add_library(${LIBHPDF_NAME} SHARED ${LIBHPDF_SRCS})
-    target_link_libraries(${LIBHPDF_NAME} ${ADDITIONAL_LIBRARIES})
-    if(WIN32 AND NOT CYGWIN)
-      set_target_properties(${LIBHPDF_NAME} PROPERTIES DEFINE_SYMBOL HPDF_DLL_MAKE)
-    endif(WIN32 AND NOT CYGWIN)
-    install(
-      TARGETS ${LIBHPDF_NAME}
-      ARCHIVE DESTINATION lib
-      LIBRARY DESTINATION lib
-      RUNTIME DESTINATION bin
-    )
-  endif(LIBHPDF_SHARED)
-else()
-  # Shared/static are mutually exclusive in the VTK build:
-  if(LIBHPDF_SHARED)
-    vtk_add_library(${LIBHPDF_NAME} ${LIBHPDF_SRCS})
-    target_link_libraries(${LIBHPDF_NAME} LINK_PRIVATE ${ADDITIONAL_LIBRARIES})
-    if(WIN32 AND NOT CYGWIN)
-      set_target_properties(${LIBHPDF_NAME} PROPERTIES DEFINE_SYMBOL HPDF_DLL_MAKE)
-    endif(WIN32 AND NOT CYGWIN)
-  elseif(LIBHPDF_STATIC)
-    vtk_add_library(${LIBHPDF_NAME_STATIC} ${LIBHPDF_SRCS})
-    target_link_libraries(${LIBHPDF_NAME_STATIC} LINK_PRIVATE ${ADDITIONAL_LIBRARIES})
-  else()
-    message(FATAL_ERROR "Neither STATIC nor SHARED specified for libharu.")
-  endif()
-endif()
+if (FALSE) # XXX(kitware): Use VTK's module system
+if(LIBHPDF_STATIC)
+  add_library(${LIBHPDF_NAME_STATIC} STATIC ${LIBHPDF_SRCS})
+  target_link_libraries(${LIBHPDF_NAME_STATIC} ${ADDITIONAL_LIBRARIES})
+  install(
+    TARGETS ${LIBHPDF_NAME_STATIC}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+  )
+  if(WIN32 AND NOT CYGWIN)
+		foreach(addlib ${ADDITIONAL_LIBRARIES})
+			install(FILES ${addlib} DESTINATION lib)
+		endforeach(addlib)
+  endif(WIN32 AND NOT CYGWIN)
+endif(LIBHPDF_STATIC)
+if(LIBHPDF_SHARED)
+  add_library(${LIBHPDF_NAME} SHARED ${LIBHPDF_SRCS})
+  target_link_libraries(${LIBHPDF_NAME} ${ADDITIONAL_LIBRARIES})
+  if(WIN32 AND NOT CYGWIN)
+  	set_target_properties(${LIBHPDF_NAME} PROPERTIES DEFINE_SYMBOL HPDF_DLL_MAKE)
+  endif(WIN32 AND NOT CYGWIN)
+  install(
+    TARGETS ${LIBHPDF_NAME}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+  )
+endif(LIBHPDF_SHARED)
+else ()
+  vtk_add_library(vtklibharu ${LIBHPDF_SRCS})
+  target_link_libraries(vtklibharu PRIVATE ${vtkzlib_LIBRARIES} ${vtkpng_LIBRARIES})
+  if (WIN32)
+    set_target_properties(vtklibharu
+      PROPERTIES
+        DEFINE_SYMBOL HPDF_DLL_MAKE)
+  endif ()
+  target_include_directories(vtklibharu
+    PUBLIC
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>")
+endif ()

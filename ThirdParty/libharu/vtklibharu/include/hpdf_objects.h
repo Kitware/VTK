@@ -80,8 +80,6 @@ extern "C" {
  *  3       reserved
  *  4       shadow-object
  *  5-8     reserved
- * KITWARE_LIBHARU_CHANGE Modified this next line to make commit checks happy.
- * It had some unsupported UTF-8 characters (looked like garbage?)
  *  9-32    object-id
  *
  *  the real Object-ID is described "obj_id & 0x00FFFFFF"
