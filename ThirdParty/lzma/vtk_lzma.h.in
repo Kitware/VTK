@@ -15,6 +15,11 @@
 #ifndef vtk_lzma_h
 #define vtk_lzma_h
 
+#cmakedefine01 LZMA_BUILT_AS_DYNAMIC_LIB
+#if !LZMA_BUILT_AS_DYNAMIC_LIB
+#define LZMA_API_STATIC
+#endif
+
 #cmakedefine VTK_USE_SYSTEM_LZMA
 #ifdef VTK_USE_SYSTEM_LZMA
 # include <lzma.h>
