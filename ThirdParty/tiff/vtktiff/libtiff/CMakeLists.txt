@@ -26,6 +26,13 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tif_config.h.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/tif_config.h
                @ONLY)
+
+if (BUILD_SHARED_LIBS)
+  set(TIFF_SHARED_LIBS 1)
+else ()
+  set(TIFF_SHARED_LIBS 0)
+endif ()
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/tiffconf.h.cmake.in
                ${CMAKE_CURRENT_BINARY_DIR}/tiffconf.h
                @ONLY)
