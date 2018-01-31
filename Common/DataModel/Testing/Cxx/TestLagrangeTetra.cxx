@@ -52,7 +52,7 @@
 
 #include <cassert>
 
-#include <math.h>
+#include <cmath>
 
 namespace
 {

@@ -31,7 +31,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkTrimmedExtrusionFilter);
 vtkCxxSetObjectMacro(vtkTrimmedExtrusionFilter,Locator,vtkAbstractCellLocator);

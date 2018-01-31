@@ -39,7 +39,7 @@
 #ifdef _MSC_VER
 #include <stddef.h>
 #else
-#include <stdint.h>
+#include <cstdint>
 #endif
 
 //--------------------------------------------------------------------

@@ -35,7 +35,7 @@
 #include "vtkDataArray.h"
 #include "vtkPythonCommand.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <sstream>
 
 // This will be set to the python type struct for vtkObjectBase
