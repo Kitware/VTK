@@ -1,6 +1,7 @@
 # This file is copyrighted under the BSD-license for buildsystem files of KDE
 # copyright 2010, Patrick Spendrin <ps_ml@gmx.de>
 
+if (FALSE) # XXX(kitware): Force build settings.
 project(expat)
 
 cmake_minimum_required(VERSION 2.6)
@@ -10,7 +11,6 @@ set(PACKAGE_VERSION "2.2.5")
 set(PACKAGE_STRING "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME "${PACKAGE_NAME}")
 
-if (FALSE) # XXX(kitware): Force build settings.
 if(WINCE)
     set(BUILD_tools_default OFF)
 else()
@@ -40,6 +40,7 @@ set(BUILD_examples OFF)
 set(BUILD_tests OFF)
 set(BUILD_shared ${BUILD_SHARED_LIBS})
 set(BUILD_doc OFF)
+set(USE_libbsd OFF)
 set(INSTALL OFF)
 endif ()
 
@@ -160,27 +161,26 @@ expat_install(TARGETS expat RUNTIME DESTINATION bin
                       LIBRARY DESTINATION lib
                       ARCHIVE DESTINATION lib)
 else ()
-vtk_add_library(vtkexpat ${expat_SRCS})
-
 set(expat_headers
     lib/expat.h
     lib/expat_external.h
     lib/vtk_expat_mangle.h)
 
-foreach (expat_header IN LISTS expat_headers)
-    get_filename_component(expat_header_name "${expat_header}" NAME)
-    configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/${expat_header}"
-        "${CMAKE_CURRENT_BINARY_DIR}/${expat_header_name}"
-        COPYONLY)
-endforeach ()
-
-if (NOT VTK_INSTALL_NO_DEVELOPMENT)
-    install(
-        FILES       ${expat_headers}
-        DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkexpat"
-        COMPONENT   Development)
+if (NOT BUILD_SHARED_LIBS)
+  set(XML_STATIC 1)
 endif ()
+
+vtk_add_library(vtkexpat ${expat_SRCS} ${expat_headers})
+if (NOT VTK_INSTALL_NO_DEVELOPMENT)
+  install(FILES
+    ${expat_headers}
+    DESTINATION "${VTK_INSTALL_INCLUDE_DIR}/vtkexpat/lib"
+    COMPONENT Development)
+endif()
+target_compile_definitions(vtkexpat
+  PRIVATE
+    # Support XML files >2GB.
+    XML_LARGE_SIZE)
 endif ()
 
 if (FALSE) # XXX(kitware): Do not install a .pc file.
