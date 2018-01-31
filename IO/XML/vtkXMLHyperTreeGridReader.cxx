@@ -420,7 +420,7 @@ void vtkXMLHyperTreeGridReader::ReadTopology(vtkXMLDataElement *elem)
   }
 
   // Initialize the hyper tree grid with empty hypertrees from file
-  output->Initialize();
+  //output->Initialize();
   output->SetMaterialMaskIndex(id);
   output->GenerateTrees();
 

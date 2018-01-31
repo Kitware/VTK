@@ -2243,11 +2243,15 @@ void vtkHyperTreeGrid::SubdivideLeaf( vtkHyperTreeCursor* leaf, vtkIdType id )
 //-----------------------------------------------------------------------------
 void vtkHyperTreeGrid::Initialize()
 {
+  vtkDataObject::Initialize();
   // Delete existing trees
   this->DeleteTrees();
 
   // Reset dual mesh
   this->ResetDual();
+
+  this->CellData->Initialize();
+  this->PointData->Initialize();
 }
 
 //-----------------------------------------------------------------------------
