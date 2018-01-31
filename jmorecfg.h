@@ -210,18 +210,18 @@ typedef unsigned int JDIMENSION;
 /* a function referenced thru EXTERNs: */
 #define GLOBAL(type)            type
 /* a reference to a GLOBAL function: */
-#ifdef vtkjpeg_EXPORTS
 #ifdef _WIN32
+#if JPEG_SHARED_LIBS
+#ifdef vtkjpeg_EXPORTS
 #define EXTERN(type)            __declspec(dllexport) type
 #else
-#define EXTERN(type)            extern type
-#endif
-#else
-#ifdef _WIN32
 #define EXTERN(type)            __declspec(dllimport) type
+#endif
+#else
+#define EXTERN(type)            type
+#endif
 #else
 #define EXTERN(type)            extern type
-#endif
 #endif
 
 
