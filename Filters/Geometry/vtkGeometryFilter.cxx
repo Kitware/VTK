@@ -222,11 +222,11 @@ int vtkGeometryFilter::RequestData(
   {
     for(cellId=0; cellId < numCells; cellId++)
     {
-        if ( this->CellClipping && (cellId < this->CellMinimum ||
-                                    cellId > this->CellMaximum) )
-        {
-        cellVis[cellId] = 0;
-        }
+      if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                  cellId > this->CellMaximum) )
+      {
+      cellVis[cellId] = 0;
+      }
       else
       {
         input->GetCell(cellId,cell);
@@ -553,11 +553,11 @@ void vtkGeometryFilter::PolyDataExecute(vtkDataSet *dataSetInput,
     visible = 1;
     if ( !allVisible )
     {
-        if ( this->CellClipping && (cellId < this->CellMinimum ||
-                                    cellId > this->CellMaximum) )
-        {
+      if ( this->CellClipping && (cellId < this->CellMinimum ||
+                                  cellId > this->CellMaximum) )
+      {
         visible = 0;
-        }
+      }
       else
       {
         for (i=0; i < npts; i++)

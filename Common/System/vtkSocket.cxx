@@ -303,15 +303,13 @@ int vtkSocket::SelectSocket(int socketdescriptor, unsigned long msec)
     // time out
     return 0;
   }
-  else
-  if (res == vtkSocketErrorReturnMacro)
+  else if (res == vtkSocketErrorReturnMacro)
   {
     // error in the call
     vtkSocketErrorMacro(vtkErrnoMacro, "Socket error in call to select.");
     return -1;
   }
-  else
-  if (!FD_ISSET(socketdescriptor, &rset))
+  else if (!FD_ISSET(socketdescriptor, &rset))
   {
      vtkErrorMacro("Socket error in select. Descriptor not selected.");
      return -1;
@@ -375,8 +373,7 @@ int vtkSocket::SelectSockets(const int* sockets_to_select, int size,
     // time out
     return 0;
   }
-  else
-  if (res == vtkSocketErrorReturnMacro)
+  else if (res == vtkSocketErrorReturnMacro)
   {
     // error in the call
     vtkSocketGenericErrorMacro("Socket error in call to select.");
@@ -465,8 +462,7 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
           vtkErrnoMacro, "Socket error in call to getsockopt.");
         return -1;
       }
-      else
-      if (pendingErr)
+      else if (pendingErr)
       {
         vtkSocketErrorMacro(
           pendingErr, "Socket error pending from call to connect.");
@@ -474,8 +470,7 @@ int vtkSocket::Connect(int socketdescriptor, const char* hostName, int port)
       }
     }
   }
-  else
-  if (iErr == vtkSocketErrorReturnMacro)
+  else if (iErr == vtkSocketErrorReturnMacro)
   {
     vtkSocketErrorMacro(
       vtkErrnoMacro, "Socket error in call to connect.");

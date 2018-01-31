@@ -126,10 +126,10 @@ bool vtkSQLiteQuery::SetQuery(const char *newQuery)
     this->Query = cp1;
     do { *cp1++ = *cp2++; } while ( --n );
   }
-   else
-   {
+  else
+  {
     this->Query = nullptr;
-   }
+  }
 
   // If we get to this point the query has changed.  We need to
   // finalize the already-prepared statement if one exists and then

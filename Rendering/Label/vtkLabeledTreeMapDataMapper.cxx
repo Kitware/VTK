@@ -751,7 +751,7 @@ int vtkLabeledTreeMapDataMapper::AnalyseLabel(char * string, int level,
     // See if the text will not even fit in the box
     if (sizes[!oDir] < this->FontHeights[trueLevel])
     {
-    // Text will not fit
+      // Text will not fit
       return 1;
     }
 

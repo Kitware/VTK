@@ -349,15 +349,15 @@ void vtkFinitePlaneRepresentation::WidgetInteraction(double e[2])
   {
     this->MovePoint2(prevPickPoint, pickPoint);
   }
-   else if (this->InteractionState == vtkFinitePlaneRepresentation::Rotating)
-   {
+  else if (this->InteractionState == vtkFinitePlaneRepresentation::Rotating)
+  {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(e[0], e[1], prevPickPoint, pickPoint, vpn);
-   }
-   else if (this->InteractionState == vtkFinitePlaneRepresentation::Pushing)
-   {
+  }
+  else if (this->InteractionState == vtkFinitePlaneRepresentation::Pushing)
+  {
     this->Push(prevPickPoint, pickPoint);
-   }
+  }
 
   // Store the start position
   this->LastEventPosition[0] = e[0];

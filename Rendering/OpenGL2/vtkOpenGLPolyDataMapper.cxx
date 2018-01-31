@@ -3280,7 +3280,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
         }
         this->Primitives[PrimitiveTriStrips].IBO->CreateStripIndexBuffer(prims[3], true);
       }
-    else // SURFACE
+      else // SURFACE
       {
         this->Primitives[PrimitiveTris].IBO->CreateTriangleIndexBuffer(prims[2], poly->GetPoints());
         this->Primitives[PrimitiveTriStrips].IBO->CreateStripIndexBuffer(prims[3], false);

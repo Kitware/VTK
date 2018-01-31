@@ -1443,8 +1443,7 @@ void vtkTableBasedClipperVolumeFromVolume::
         {
           id = centroidStart - 1 - ce.ptIds[k];
         }
-        else
-        if ( ce.ptIds[k] >= numPrevPts )
+        else if ( ce.ptIds[k] >= numPrevPts )
         {
           id = numUsed + ( ce.ptIds[k] - numPrevPts );
         }
@@ -1842,8 +1841,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
       this->InsideOut = !(this->InsideOut);
     }
   }
-  else
-  if ( gridType == VTK_POLY_DATA )
+  else if ( gridType == VTK_POLY_DATA )
   {
     this->ClipPolyData( cpyInput, clipAray, isoValue, outputUG );
     if (clippedOutputUG)
@@ -1854,8 +1852,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
       this->InsideOut = !(this->InsideOut);
     }
   }
-  else
-  if ( gridType == VTK_RECTILINEAR_GRID )
+  else if ( gridType == VTK_RECTILINEAR_GRID )
   {
     this->ClipRectilinearGridData( cpyInput, clipAray,
                                    isoValue, outputUG );
@@ -1867,8 +1864,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
       this->InsideOut = !(this->InsideOut);
     }
   }
-  else
-  if ( gridType == VTK_STRUCTURED_GRID )
+  else if ( gridType == VTK_STRUCTURED_GRID )
   {
     this->ClipStructuredGridData( cpyInput, clipAray,
                                   isoValue, outputUG );
@@ -1880,8 +1876,7 @@ int vtkTableBasedClipDataSet::RequestData( vtkInformation * vtkNotUsed( request 
       this->InsideOut = !(this->InsideOut);
     }
   }
-  else
-  if ( gridType == VTK_UNSTRUCTURED_GRID )
+  else if ( gridType == VTK_UNSTRUCTURED_GRID )
   {
     this->ClipUnstructuredGridData( cpyInput, clipAray,
                                     isoValue, outputUG );
@@ -2535,8 +2530,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
                           (  theCellK + shiftLUT[2][ pntIndex ]  ) * pzStride
                       );
         }
-        else
-        if ( pntIndex >= EA && pntIndex <= EL )
+        else if ( pntIndex >= EA && pntIndex <= EL )
         {
           int pt1Index = vtkTableBasedClipperTriangulationTables::
                          HexVerticesFromEdges[ pntIndex - EA ][0];
@@ -2592,8 +2586,7 @@ void vtkTableBasedClipDataSet::ClipRectilinearGridData( vtkDataSet * inputGrd,
           // point-locator based detection of duplicate points.
           shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
         }
-        else
-        if ( pntIndex >= N0 && pntIndex <= N3 )
+        else if ( pntIndex >= N0 && pntIndex <= N3 )
         {
           shapeIds[p] = intrpIds[ pntIndex - N0 ];
         }
@@ -2884,8 +2877,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
                           (  theCellK + shiftLUT[2][ pntIndex ]  ) * pzStride
                       );
         }
-        else
-        if ( pntIndex >= EA && pntIndex <= EL )
+        else if ( pntIndex >= EA && pntIndex <= EL )
         {
           int  pt1Index = vtkTableBasedClipperTriangulationTables::
                           HexVerticesFromEdges[ pntIndex - EA ][0];
@@ -2916,8 +2908,7 @@ void vtkTableBasedClipDataSet::ClipStructuredGridData( vtkDataSet * inputGrd,
 
           shapeIds[p] = visItVFV->AddPoint( pntIndx1, pntIndx2, p1Weight );
         }
-        else
-        if ( pntIndex >= N0 && pntIndex <= N3 )
+        else if ( pntIndex >= N0 && pntIndex <= N3 )
         {
           shapeIds[p] = intrpIds[ pntIndex - N0 ];
         }

@@ -292,9 +292,72 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
     return nullptr;
   }
   else if ( this->ColorMode == VTK_COLOR_MODE_UNIFORM_COLOR ||
-    this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR ||
-    this->ColorMode == VTK_COLOR_MODE_UNIFORM_CELL_COLOR )
+            this->ColorMode == VTK_COLOR_MODE_UNIFORM_POINT_COLOR ||
+            this->ColorMode == VTK_COLOR_MODE_UNIFORM_CELL_COLOR )
+  {
+    vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    colors->SetNumberOfComponents(this->EnableAlpha ? 4 : 3);
+    colors->SetNumberOfTuples(num);
+    c = colors->WritePointer(0, this->EnableAlpha ? 4 * num : 3 * num);
+    if (this->EnableAlpha)
     {
+      for (i = 0; i < num; i++)
+      {
+        *c++ = this->Color[0];
+        *c++ = this->Color[1];
+        *c++ = this->Color[2];
+        *c++ = this->Alpha;
+      }
+    }
+    else
+    {
+      for (i = 0; i < num; i++)
+      {
+        *c++ = this->Color[0];
+        *c++ = this->Color[1];
+        *c++ = this->Color[2];
+      }
+    }
+    return colors;
+  }
+  else // we will color based on data
+  {
+    vtkDataArray* da;
+    vtkUnsignedCharArray* rgbArray;
+
+    if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == nullptr ||
+      this->Component >= (numComp = da->GetNumberOfComponents()))
+    {
+      return nullptr;
+    }
+    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
+    { // have unsigned char array of three components, copy it
+      return rgbArray;
+    }
+    else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
+    {
+      if (this->EnableAlpha)
+      {
+        return rgbArray;
+      }
+
+      // have unsigned char array of four components (RGBA), copy it without the `A`.
+      vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      colors->SetNumberOfComponents(3);
+      colors->SetNumberOfTuples(num);
+      c = colors->WritePointer(0, 3 * num);
+      const unsigned char* rgba = rgbArray->GetPointer(0);
+      for (i = 0; i < num; i++)
+      {
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        rgba++;
+      }
+      return colors;
+    }
+    else if (this->LookupTable != nullptr)
+    { // use the data array mapped through lookup table
       vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
       colors->SetNumberOfComponents(this->EnableAlpha ? 4 : 3);
       colors->SetNumberOfTuples(num);
@@ -303,95 +366,32 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkPLYWriter::GetColors(
       {
         for (i = 0; i < num; i++)
         {
-          *c++ = this->Color[0];
-          *c++ = this->Color[1];
-          *c++ = this->Color[2];
-          *c++ = this->Alpha;
+          double* tuple = da->GetTuple(i);
+          const unsigned char* rgba = this->LookupTable->MapValue(tuple[this->Component]);
+          *c++ = rgba[0];
+          *c++ = rgba[1];
+          *c++ = rgba[2];
+          *c++ = rgba[3];
         }
       }
       else
       {
         for (i = 0; i < num; i++)
         {
-          *c++ = this->Color[0];
-          *c++ = this->Color[1];
-          *c++ = this->Color[2];
+          double* tuple = da->GetTuple(i);
+          const unsigned char* rgb = this->LookupTable->MapValue(tuple[this->Component]);
+          *c++ = rgb[0];
+          *c++ = rgb[1];
+          *c++ = rgb[2];
         }
       }
       return colors;
     }
-    else // we will color based on data
+    else // no lookup table
     {
-      vtkDataArray* da;
-      vtkUnsignedCharArray* rgbArray;
-
-      if (!this->ArrayName || (da = dsa->GetArray(this->ArrayName)) == nullptr ||
-        this->Component >= (numComp = da->GetNumberOfComponents()))
-      {
-        return nullptr;
-      }
-      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 3)
-      { // have unsigned char array of three components, copy it
-        return rgbArray;
-      }
-      else if ((rgbArray = vtkArrayDownCast<vtkUnsignedCharArray>(da)) != nullptr && numComp == 4)
-      {
-        if (this->EnableAlpha)
-        {
-          return rgbArray;
-        }
-
-        // have unsigned char array of four components (RGBA), copy it without the `A`.
-        vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-        colors->SetNumberOfComponents(3);
-        colors->SetNumberOfTuples(num);
-        c = colors->WritePointer(0, 3 * num);
-        const unsigned char* rgba = rgbArray->GetPointer(0);
-        for (i = 0; i < num; i++)
-        {
-          *c++ = *rgba++;
-          *c++ = *rgba++;
-          *c++ = *rgba++;
-          rgba++;
-        }
-        return colors;
-      }
-      else if (this->LookupTable != nullptr)
-      { // use the data array mapped through lookup table
-        vtkSmartPointer<vtkUnsignedCharArray> colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
-        colors->SetNumberOfComponents(this->EnableAlpha ? 4 : 3);
-        colors->SetNumberOfTuples(num);
-        c = colors->WritePointer(0, this->EnableAlpha ? 4 * num : 3 * num);
-        if (this->EnableAlpha)
-        {
-          for (i = 0; i < num; i++)
-          {
-            double* tuple = da->GetTuple(i);
-            const unsigned char* rgba = this->LookupTable->MapValue(tuple[this->Component]);
-            *c++ = rgba[0];
-            *c++ = rgba[1];
-            *c++ = rgba[2];
-            *c++ = rgba[3];
-          }
-        }
-        else
-        {
-          for (i = 0; i < num; i++)
-          {
-            double* tuple = da->GetTuple(i);
-            const unsigned char* rgb = this->LookupTable->MapValue(tuple[this->Component]);
-            *c++ = rgb[0];
-            *c++ = rgb[1];
-            *c++ = rgb[2];
-          }
-        }
-        return colors;
-      }
-      else // no lookup table
-      {
-        return nullptr;
-      }
+      return nullptr;
     }
+  }
 }
 
 const float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa)

@@ -508,23 +508,19 @@ void vtkFlashReaderInternal::ReadIntegerScalars( hid_t fileIndx )
     {
       this->SimulationParameters.NumberOfXDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nyb", 3 ) == 0  )
+    else if (  strncmp( is[i].Name, "nyb", 3 ) == 0  )
     {
       this->SimulationParameters.NumberOfYDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nzb", 3 ) == 0  )
+    else if (  strncmp( is[i].Name, "nzb", 3 ) == 0  )
     {
       this->SimulationParameters.NumberOfZDivisions = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "globalnumblocks", 15 ) == 0  )
+    else if (  strncmp( is[i].Name, "globalnumblocks", 15 ) == 0  )
     {
       this->SimulationParameters.NumberOfBlocks = is[i].Value;
     }
-    else
-    if (  strncmp( is[i].Name, "nstep", 5 ) == 0  )
+    else if (  strncmp( is[i].Name, "nstep", 5 ) == 0  )
     {
       this->SimulationParameters.NumberOfTimeSteps = is[i].Value;
     }
@@ -940,8 +936,7 @@ void vtkFlashReaderInternal::ReadBlockBounds()
     delete[] bbox_array;
     bbox_array = nullptr;
   }
-  else
-  if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
+  else if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
   {
     if (  static_cast<int> ( bbox_ndims   ) != 3 ||
           static_cast<int> ( bbox_dims[0] ) != this->NumberOfBlocks  ||
@@ -1058,15 +1053,13 @@ void vtkFlashReaderInternal::ReadBlockCenters()
         this->Blocks[b].Center[1] = 0.0;
         this->Blocks[b].Center[2] = 0.0;
       }
-      else
-      if ( this->NumberOfDimensions == 2 )
+      else if ( this->NumberOfDimensions == 2 )
       {
         this->Blocks[b].Center[0] = coords[0];
         this->Blocks[b].Center[1] = coords[1];
         this->Blocks[b].Center[2] = 0.0;
       }
-      else
-      if ( this->NumberOfDimensions == 3 )
+      else if ( this->NumberOfDimensions == 3 )
       {
         this->Blocks[b].Center[0] = coords[0];
         this->Blocks[b].Center[1] = coords[1];
@@ -1079,8 +1072,7 @@ void vtkFlashReaderInternal::ReadBlockCenters()
     delete [] coordinates_array;
     coordinates_array = nullptr;
   }
-  else
-  if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
+  else if ( this->FileFormatVersion == FLASH_READER_FLASH3_FFV9 )
   {
     if (  static_cast<int> ( coordinates_ndims   ) != 2 ||
           static_cast<int> ( coordinates_dims[0] ) != this->NumberOfBlocks ||
@@ -1412,8 +1404,7 @@ void vtkFlashReaderInternal::ReadParticleAttributes()
         this->ParticleAttributeNames.push_back( member_name );
         this->ParticleAttributeNamesToIds[ nice_name ] = index;
       }
-      else
-      if (  H5Tequal( member_type, H5T_NATIVE_INT ) > 0  )
+      else if (  H5Tequal( member_type, H5T_NATIVE_INT ) > 0  )
       {
         this->ParticleAttributeTypes.push_back( H5T_NATIVE_INT );
         this->ParticleAttributeNames.push_back( member_name );

@@ -821,9 +821,9 @@ vtkLabeledDataMapper::SetFieldDataName(const char *arrayName)
     this->FieldDataName = new char[strlen(arrayName)+1];
     strcpy(this->FieldDataName,arrayName);
   }
-   else
-   {
+  else
+  {
     this->FieldDataName = nullptr;
-   }
+  }
   this->Modified();
 }

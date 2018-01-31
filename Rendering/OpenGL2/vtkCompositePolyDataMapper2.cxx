@@ -892,8 +892,8 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
       vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
         this->IndexArray[3], prims[3], voffset, true);
     }
-   else // SURFACE
-   {
+    else // SURFACE
+    {
       vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
         this->IndexArray[2],
         prims[2],
@@ -901,7 +901,7 @@ void vtkCompositeMapperHelper2::AppendOneBufferObject(
         voffset);
       vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
         this->IndexArray[3], prims[3], voffset, false);
-   }
+    }
   }
 
   // when drawing edges also build the edge IBOs

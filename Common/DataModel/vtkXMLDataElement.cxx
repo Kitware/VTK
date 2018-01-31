@@ -160,10 +160,10 @@ void vtkXMLDataElement::SetName(const char* _arg)
     this->Name = cp1;
     do { *cp1++ = *cp2++; } while ( --n );
   }
-   else
-   {
+  else
+  {
     this->Name = nullptr;
-   }
+  }
   this->Modified();
 }
 

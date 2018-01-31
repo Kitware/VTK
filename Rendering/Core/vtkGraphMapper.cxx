@@ -611,18 +611,18 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
- if ( this->CircleGlyph )
- {
+  if ( this->CircleGlyph )
+  {
     os << indent << "CircleGlyph: (" << this->CircleGlyph << ")\n";
- }
+  }
   else
   {
     os << indent << "CircleGlyph: (none)\n";
   }
- if ( this->CircleOutlineGlyph )
- {
+  if ( this->CircleOutlineGlyph )
+  {
     os << indent << "CircleOutlineGlyph: (" << this->CircleOutlineGlyph << ")\n";
- }
+  }
   else
   {
     os << indent << "CircleOutlineGlyph: (none)\n";
@@ -635,18 +635,18 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "EdgeMapper: (none)\n";
   }
- if ( this->VertexMapper )
- {
+  if ( this->VertexMapper )
+  {
     os << indent << "VertexMapper: (" << this->VertexMapper << ")\n";
- }
+  }
   else
   {
     os << indent << "VertexMapper: (none)\n";
   }
- if ( this->OutlineMapper )
- {
+  if ( this->OutlineMapper )
+  {
     os << indent << "OutlineMapper: (" << this->OutlineMapper << ")\n";
- }
+  }
   else
   {
     os << indent << "OutlineMapper: (none)\n";
@@ -659,18 +659,18 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << indent << "EdgeActor: (none)\n";
   }
- if ( this->VertexActor )
- {
+  if ( this->VertexActor )
+  {
     os << indent << "VertexActor: (" << this->VertexActor << ")\n";
- }
+  }
   else
   {
     os << indent << "VertexActor: (none)\n";
   }
- if ( this->OutlineActor )
- {
+  if ( this->OutlineActor )
+  {
     os << indent << "OutlineActor: (" << this->OutlineActor << ")\n";
- }
+  }
   else
   {
     os << indent << "OutlineActor: (none)\n";

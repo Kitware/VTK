@@ -262,8 +262,7 @@ double vtkStreamTracer::ConvertToLength(
   {
     retVal = interval;
   }
-  else
-  if ( unit == CELL_LENGTH_UNIT )
+  else if ( unit == CELL_LENGTH_UNIT )
   {
     retVal = interval * cellLength;
   }

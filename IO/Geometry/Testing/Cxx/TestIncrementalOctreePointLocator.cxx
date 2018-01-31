@@ -239,8 +239,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
           if ( inserted ) ptIdList->InsertNextId( i );
         }
       }
-      else
-      if ( m == 1 )   // vtkIncrementalOctreePointLocator::InsertNextPoint()
+      else if ( m == 1 )   // vtkIncrementalOctreePointLocator::InsertNextPoint()
       {
         for ( i = 0; i < numbPnts; i ++ )
         {
@@ -504,13 +503,13 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
     // -----------------------------------------------------------------------
     // verify the result in brute force mode
     for (  j = 0;  ( j < nLocPnts ) && ( retValue == 0 );  j ++  )
-    for (  i = 0;  ( i < numbPnts ) && ( retValue == 0 );  i ++  )
-    {
-      if ( i == resltIds[j] ) continue;     // just the selected closest point
-      tmpDist2 = vtkMath::Distance2BetweenPoints
-                 (  pLocPnts + ( j << 1 ) + j,  pDataPts + ( i << 1 ) + i  );
-      if ( tmpDist2 + INC_OCT_PNT_LOC_TESTS_ZERO < minDist2[j] ) retValue = 1;
-    }
+      for (  i = 0;  ( i < numbPnts ) && ( retValue == 0 );  i ++  )
+      {
+        if ( i == resltIds[j] ) continue;     // just the selected closest point
+        tmpDist2 = vtkMath::Distance2BetweenPoints
+                   (  pLocPnts + ( j << 1 ) + j,  pDataPts + ( i << 1 ) + i  );
+        if ( tmpDist2 + INC_OCT_PNT_LOC_TESTS_ZERO < minDist2[j] ) retValue = 1;
+      }
     // ---------------------------------------------------------------------//
     #else
     // -----------------------------------------------------------------------
@@ -672,11 +671,11 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       resltIds[ j     ] = octLocat->FindClosestPointWithinRadius
                                     ( fTempRad * 0.5, pLocPnts + j, tmpDist2 );
       if ( minDist2[i] <= INC_OCT_PNT_LOC_TESTS_ZERO )
-      resltIds[ j + 1 ] = octLocat->FindClosestPointWithinRadius
-                                    ( fTempRad * 1.0, pLocPnts + j, tmpDist2 );
+        resltIds[ j + 1 ] = octLocat->FindClosestPointWithinRadius
+                                      ( fTempRad * 1.0, pLocPnts + j, tmpDist2 );
       else  // for non-zero cases, use the original squared radius for accuracy
-      resltIds[ j + 1 ] = octLocat->FindClosestPointWithinSquaredRadius
-                                    ( minDist2[i],    pLocPnts + j, tmpDist2 );
+        resltIds[ j + 1 ] = octLocat->FindClosestPointWithinSquaredRadius
+                                      ( minDist2[i],    pLocPnts + j, tmpDist2 );
       resltIds[ j + 2 ] = octLocat->FindClosestPointWithinRadius
                                     ( fTempRad * 1.5, pLocPnts + j, tmpDist2 );
 

@@ -843,17 +843,17 @@ int vtkOBJPolyDataProcessor::RequestData(
         lineElems       = active->lineElems;
         normal_polys    = active->normal_polys;
       }
-    else /** This material name already exists; switch back to it! */
-    {
-      vtkOBJImportedPolyDataWithMaterial* known_mtl = mtlName_to_Actor[mtl_name];
-      vtkDebugMacro("switching to append faces with pre-existing material named "
-                    << known_mtl->materialName);
-      polys           = known_mtl->polys; // Update pointers reading file further
-      tcoord_polys    = known_mtl->tcoord_polys;
-      pointElems      = known_mtl->pointElems;
-      lineElems       = known_mtl->lineElems;
-      normal_polys    = known_mtl->normal_polys;
-    }
+      else /** This material name already exists; switch back to it! */
+      {
+        vtkOBJImportedPolyDataWithMaterial* known_mtl = mtlName_to_Actor[mtl_name];
+        vtkDebugMacro("switching to append faces with pre-existing material named "
+                      << known_mtl->materialName);
+        polys           = known_mtl->polys; // Update pointers reading file further
+        tcoord_polys    = known_mtl->tcoord_polys;
+        pointElems      = known_mtl->pointElems;
+        lineElems       = known_mtl->lineElems;
+        normal_polys    = known_mtl->normal_polys;
+      }
     }
     else
     {

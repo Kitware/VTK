@@ -427,10 +427,10 @@ void vtkDICOMImageReader::SetDirectoryName(const char* dn)
     this->DirectoryName = new char[strlen(dn)+1];
     strcpy(this->DirectoryName,dn);
   }
-   else
-   {
+  else
+  {
     this->DirectoryName = nullptr;
-   }
+  }
   this->Modified();
 }
 

@@ -96,8 +96,7 @@ int TestTriangle(int,char *[])
       cerr << "Squared error tolerance: 0.00000001" << endl;
       return EXIT_FAILURE;
     }
-    else
-    if ( !inside && i > 16 )
+    else if ( !inside && i > 16 )
     {
       cerr << "ERROR:  point #" << i << ", an inside-point, considered to be outside the triangle!!!" << endl;
       cerr << "Squared error tolerance: 0.00000001" << endl;

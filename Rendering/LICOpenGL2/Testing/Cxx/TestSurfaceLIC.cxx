@@ -173,8 +173,7 @@ int TestSurfaceLIC(int argc, char* argv[])
     reader->Delete();
     surface->Delete();
   }
-  else
-  if (ext == ".vtp")
+  else if (ext == ".vtp")
   {
     vtkXMLPolyDataReader* reader = vtkXMLPolyDataReader::New();
     reader->SetFileName(filename.c_str());
@@ -182,8 +181,7 @@ int TestSurfaceLIC(int argc, char* argv[])
     dataObj = reader->GetOutputDataObject(0);
     reader->Delete();
   }
-  else
-  if (ext == ".vtm")
+  else if (ext == ".vtm")
   {
     vtkXMLMultiBlockDataReader* reader = vtkXMLMultiBlockDataReader::New();
     reader->SetFileName(filename.c_str());

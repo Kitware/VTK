@@ -286,7 +286,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
         }
         break;
       case 1:
-      if ( this->ComputeLength )
+        if ( this->ComputeLength )
         {
           cell->Triangulate(1, cellPtIds, cellPoints);
           value = this->IntegrateGeneral1DCell(input, cellPtIds);
@@ -298,7 +298,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
         }
         break;
       case 2:
-      if ( this->ComputeArea )
+        if ( this->ComputeArea )
         {
           cell->Triangulate(1, cellPtIds, cellPoints);
           value = this->IntegrateGeneral2DCell(inputPS, cellPtIds);

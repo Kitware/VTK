@@ -854,10 +854,10 @@ void vtkImageTracerWidget::OnRightButtonDown()
     }
     else if ( this->State == vtkImageTracerWidget::Inserting )
     {
-        if ( static_cast<vtkActor*>(path->GetFirstNode()->GetViewProp()) == this->LineActor )
-        {
+      if ( static_cast<vtkActor*>(path->GetFirstNode()->GetViewProp()) == this->LineActor )
+      {
         this->HighlightLine(1);
-        }
+      }
       else
       {
         found = 0;

@@ -268,11 +268,11 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
           maxDist = dist;
         }
       }//if can move point
-        else
-        {
-          newPtsCoords += 3;
-        }
-        ++vertsPtr;
+      else
+      {
+        newPtsCoords += 3;
+      }
+      ++vertsPtr;
     }//for all points
   }//for not converged or within iteration count
 

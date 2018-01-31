@@ -79,10 +79,10 @@ void vtkPTSReader::SetFileName(const char *filename)
       *cp1++ = *cp2++;
     } while ( --n );
   }
-   else
-   {
+  else
+  {
     this->FileName = nullptr;
-   }
+  }
   this->Modified();
 }
 

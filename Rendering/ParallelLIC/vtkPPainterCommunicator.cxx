@@ -312,8 +312,7 @@ void vtkPPainterCommunicator::SubsetCommunicator(
       // is needed
       this->Internals->SetCommunicator(MPI_COMM_NULL);
     }
-    else
-    if (nActive==worldSize)
+    else if (nActive==worldSize)
     {
       // all ranks are active
       // use the default communicator.

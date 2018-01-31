@@ -323,8 +323,7 @@ void vtkIncrementalOctreePointLocator::GenerateRepresentation
     {
       nodesList.push_back( pTempNode );
     }
-    else
-    if ( !pTempNode->IsLeaf() )
+    else if ( !pTempNode->IsLeaf() )
     {
       for ( int i = 0; i < 8; i ++ )
       {
@@ -648,8 +647,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint
     {
       initialPt[0] = minBounds[0] + this->FudgeFactor;
     }
-    else
-    if ( initialPt[0] >= maxBounds[0] )
+    else if ( initialPt[0] >= maxBounds[0] )
     {
       initialPt[0] = maxBounds[0] - this->FudgeFactor;
     }
@@ -658,8 +656,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint
     {
       initialPt[1] = minBounds[1] + this->FudgeFactor;
     }
-    else
-    if ( initialPt[1] >= maxBounds[1] )
+    else if ( initialPt[1] >= maxBounds[1] )
     {
       initialPt[1] = maxBounds[1] - this->FudgeFactor;
     }
@@ -668,8 +665,7 @@ vtkIdType vtkIncrementalOctreePointLocator::FindClosestPoint
     {
       initialPt[2] = minBounds[2] + this->FudgeFactor;
     }
-    else
-    if ( initialPt[2] >= maxBounds[2] )
+    else if ( initialPt[2] >= maxBounds[2] )
     {
       initialPt[2] = maxBounds[2] - this->FudgeFactor;
     }
@@ -741,14 +737,12 @@ void vtkIncrementalOctreePointLocator::FindPointsWithinSquaredRadius
       outMinDst2 += tempValue0 * tempValue0;
       maximDist2 += tempValue1 * tempValue1;
     }
-    else
-    if ( tempValue1 < 0.0 )
+    else if ( tempValue1 < 0.0 )
     {
       outMinDst2 += tempValue1 * tempValue1;
       maximDist2 += tempValue0 * tempValue0;
     }
-    else
-    if ( tempValue1 > tempValue0 )
+    else if ( tempValue1 > tempValue0 )
     {
       maximDist2 += tempValue1 * tempValue1;
     }
@@ -997,9 +991,8 @@ void vtkIncrementalOctreePointLocator::FindClosestNPoints
         }
       }
     }
-    else
-    if (  pThisNode->GetDistance2ToBoundary( x, this->OctreeRootNode, 1 )
-        < maxiDist2  )
+    else if (  pThisNode->GetDistance2ToBoundary( x, this->OctreeRootNode, 1 )
+             < maxiDist2  )
     {
       // This is a leaf node AND its data bounding box is close enough for us
       // to process the points inside the node. Note that the success of the

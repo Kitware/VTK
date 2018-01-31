@@ -491,11 +491,11 @@ void vtkDelimitedTextReader::SetInputString(const char *in, int len)
     this->InputString[len] = 0;
     this->InputStringLength = len;
   }
-   else
-   {
+  else
+  {
     this->InputString = nullptr;
     this->InputStringLength = 0;
-   }
+  }
 
   this->Modified();
 }
