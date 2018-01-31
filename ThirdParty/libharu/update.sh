@@ -8,7 +8,7 @@ readonly name="libharu"
 readonly ownership="Libharu Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libharu.git"
-readonly tag="for/vtk"
+readonly tag="for/vtk-old"
 readonly paths="
 .gitattributes
 CMakeLists.txt
