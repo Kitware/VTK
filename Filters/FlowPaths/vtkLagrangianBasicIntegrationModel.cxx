@@ -252,7 +252,7 @@ bool vtkLagrangianBilinearQuadIntersection::RayIntersection(const vtkVector3d& r
   double rz = r.GetZ();
 
   this->AxesSwapping = 0;
-  while (((qx == qz) && (qz == 0)) || ((qy == qz) && (qz == 0)))
+  while (qz == 0.0 && this->AxesSwapping < 3)
   {
     this->AxesSwapping++;
     double tmp;
