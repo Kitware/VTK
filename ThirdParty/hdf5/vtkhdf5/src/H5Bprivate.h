@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -34,7 +32,7 @@
 /* Private headers needed by this file */
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Fprivate.h"		/* File access				*/
-#include "H5RCprivate.h"	/* Reference counted object functions	*/
+#include "H5UCprivate.h"	/* Reference counted object functions	*/
 
 /**************************/
 /* Library Private Macros */
@@ -100,6 +98,7 @@ typedef struct H5B_shared_t {
     size_t              sizeof_len;     /* Size of file lengths (in bytes)   */
     uint8_t	        *page;	        /* Disk page */
     size_t              *nkey;          /* Offsets of each native key in native key buffer */
+    void                *udata;         /* 'Local' info for a B-tree         */
 } H5B_shared_t;
 
 /*
@@ -113,7 +112,7 @@ typedef struct H5B_shared_t {
 typedef struct H5B_class_t {
     H5B_subid_t id;					/*id as found in file*/
     size_t	sizeof_nkey;			/*size of native (memory) key*/
-    H5RC_t *    (*get_shared)(const H5F_t*, const void*);    /*shared info for node */
+    H5UC_t *    (*get_shared)(const H5F_t*, const void*);    /*shared info for node */
     herr_t	(*new_node)(H5F_t*, hid_t, H5B_ins_t, void*, void*, void*, haddr_t*);
     int         (*cmp2)(void*, void*, void*);	    /*compare 2 keys */
     int         (*cmp3)(void*, void*, void*);	    /*compare 3 keys */

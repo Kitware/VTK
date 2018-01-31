@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -31,10 +29,7 @@
 /* Module Setup */
 /****************/
 
-#define H5R_PACKAGE		/*suppress error about including H5Rpkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5R__init_deprec_interface
+#include "H5Rmodule.h"          /* This source code file is part of the H5R module */
 
 
 /***********/
@@ -46,6 +41,7 @@
 #include "H5Gprivate.h"		/* Groups				*/
 #include "H5Oprivate.h"		/* Object headers		  	*/
 #include "H5Rpkg.h"		/* References				*/
+#include "H5Ppublic.h"          /* for using H5P_DATASET_ACCESS_DEFAULT */
 
 
 /****************/
@@ -82,51 +78,6 @@
 /* Local Variables */
 /*******************/
 
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5R__init_deprec_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5R__init_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5R_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5R__init_deprec_interface(void)
-{
-    FUNC_ENTER_STATIC_NOERR
-
-    FUNC_LEAVE_NOAPI(H5R_init())
-} /* H5R__init_deprec_interface() */
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5R__term_deprec_interface -- Terminate interface
-USAGE
-    herr_t H5R__term_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Terminates interface.  (Just resets H5_interface_initialize_g
-    currently).
-
---------------------------------------------------------------------------*/
-herr_t
-H5R__term_deprec_interface(void)
-{
-    FUNC_ENTER_PACKAGE_NOERR
-
-    /* Mark closed */
-    H5_interface_initialize_g = 0;
-
-    FUNC_LEAVE_NOAPI(0)
-} /* H5R__term_deprec_interface() */
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
@@ -172,7 +123,7 @@ H5Rget_obj_type1(hid_t id, H5R_type_t ref_type, const void *ref)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5G_UNKNOWN, "invalid reference pointer")
 
     /* Get the object information */
-    if(H5R_get_obj_type(loc.oloc->file, H5AC_ind_dxpl_id, ref_type, ref, &obj_type) < 0)
+    if(H5R_get_obj_type(loc.oloc->file, H5AC_ind_read_dxpl_id, ref_type, ref, &obj_type) < 0)
 	HGOTO_ERROR(H5E_REFERENCE, H5E_CANTINIT, H5G_UNKNOWN, "unable to determine object type")
 
     /* Set return value */
@@ -181,6 +132,58 @@ H5Rget_obj_type1(hid_t id, H5R_type_t ref_type, const void *ref)
 done:
     FUNC_LEAVE_API(ret_value)
 }   /* end H5Rget_obj_type1() */
+
+
+/*--------------------------------------------------------------------------
+ NAME
+    H5Rdereference1
+ PURPOSE
+    Opens the HDF5 object referenced.
+ USAGE
+    hid_t H5Rdereference1(ref)
+        hid_t id;       IN: Dataset reference object is in or location ID of
+                            object that the dataset is located within.
+        H5R_type_t ref_type;    IN: Type of reference to create
+        void *ref;      IN: Reference to open.
+
+ RETURNS
+    Valid ID on success, Negative on failure
+ DESCRIPTION
+    Given a reference to some object, open that object and return an ID for
+    that object.
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+hid_t
+H5Rdereference1(hid_t obj_id, H5R_type_t ref_type, const void *_ref)
+{
+    H5G_loc_t loc;      /* Group location */
+    H5F_t *file = NULL; /* File object */
+    hid_t ret_value;
+
+    FUNC_ENTER_API(FAIL)
+    H5TRACE3("i", "iRt*x", obj_id, ref_type, _ref);
+
+    /* Check args */
+    if(H5G_loc(obj_id, &loc) < 0)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+    if(ref_type <= H5R_BADTYPE || ref_type >= H5R_MAXTYPE)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid reference type")
+    if(_ref == NULL)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid reference pointer")
+
+    /* Get the file pointer from the entry */
+    file = loc.oloc->file;
+
+    /* Create reference */
+    if((ret_value = H5R_dereference(file, H5P_DATASET_ACCESS_DEFAULT, H5AC_ind_read_dxpl_id, ref_type, _ref, TRUE)) < 0)
+        HGOTO_ERROR(H5E_REFERENCE, H5E_CANTINIT, FAIL, "unable dereference object")
+
+done:
+    FUNC_LEAVE_API(ret_value)
+}   /* end H5Rdereference1() */
 
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -32,6 +30,14 @@
 #define H5CHECK
 #endif  /* _H5private_H */
 
+/* When this header is included from a private HDF5 header, don't make calls to H5open() */
+#undef H5OPEN
+#ifndef _H5private_H
+#define H5OPEN        H5open(),
+#else   /* _H5private_H */
+#define H5OPEN
+#endif  /* _H5private_H */
+
 /*
  * These are the bits that can be passed to the `flags' argument of
  * H5Fcreate() and H5Fopen(). Use the bit-wise OR operator (|) to combine
@@ -40,18 +46,34 @@
  * which are compatible with the library to which the application is linked.
  * We're assuming that these constants are used rather early in the hdf5
  * session.
- *
  */
-#define H5F_ACC_RDONLY	(H5CHECK 0x0000u)	/*absence of rdwr => rd-only */
-#define H5F_ACC_RDWR	(H5CHECK 0x0001u)	/*open for read and write    */
-#define H5F_ACC_TRUNC	(H5CHECK 0x0002u)	/*overwrite existing files   */
-#define H5F_ACC_EXCL	(H5CHECK 0x0004u)	/*fail if file already exists*/
-#define H5F_ACC_DEBUG	(H5CHECK 0x0008u)	/*print debug info	     */
-#define H5F_ACC_CREAT	(H5CHECK 0x0010u)	/*create non-existing files  */
+#define H5F_ACC_RDONLY	(H5CHECK H5OPEN 0x0000u)	/*absence of rdwr => rd-only */
+#define H5F_ACC_RDWR	(H5CHECK H5OPEN 0x0001u)	/*open for read and write    */
+#define H5F_ACC_TRUNC	(H5CHECK H5OPEN 0x0002u)	/*overwrite existing files   */
+#define H5F_ACC_EXCL	(H5CHECK H5OPEN 0x0004u)	/*fail if file already exists*/
+/* NOTE: 0x0008u was H5F_ACC_DEBUG, now deprecated */
+#define H5F_ACC_CREAT	(H5CHECK H5OPEN 0x0010u)	/*create non-existing files  */
+#define H5F_ACC_SWMR_WRITE	(H5CHECK 0x0020u) /*indicate that this file is
+                                                 * open for writing in a
+                                                 * single-writer/multi-reader (SWMR)
+                                                 * scenario.  Note that the
+                                                 * process(es) opening the file
+                                                 * for reading must open the file
+                                                 * with RDONLY access, and use
+                                                 * the special "SWMR_READ" access
+                                                 * flag. */
+#define H5F_ACC_SWMR_READ	(H5CHECK 0x0040u) /*indicate that this file is
+                                                 * open for reading in a
+                                                 * single-writer/multi-reader (SWMR)
+                                                 * scenario.  Note that the
+                                                 * process(es) opening the file
+                                                 * for SWMR reading must also
+                                                 * open the file with the RDONLY
+                                                 * flag.  */
 
 /* Value passed to H5Pset_elink_acc_flags to cause flags to be taken from the
  * parent file. */
-#define H5F_ACC_DEFAULT (H5CHECK 0xffffu)	/*ignore setting on lapl     */
+#define H5F_ACC_DEFAULT (H5CHECK H5OPEN 0xffffu)	/*ignore setting on lapl     */
 
 /* Flags for H5Fget_obj_count() & H5Fget_obj_ids() calls */
 #define H5F_OBJ_FILE	(0x0001u)       /* File objects */
@@ -100,14 +122,23 @@ typedef enum H5F_close_degree_t {
 } H5F_close_degree_t;
 
 /* Current "global" information about file */
-/* (just size info currently) */
-typedef struct H5F_info_t {
-    hsize_t		super_ext_size;	/* Superblock extension size */
+typedef struct H5F_info2_t {
     struct {
+	unsigned	version;	/* Superblock version # */
+	hsize_t		super_size;	/* Superblock size */
+	hsize_t		super_ext_size;	/* Superblock extension size */
+    } super;
+    struct {
+	unsigned	version;	/* Version # of file free space management */
+	hsize_t		meta_size;	/* Free space manager metadata size */
+	hsize_t		tot_space;	/* Amount of free space in the file */
+    } free;
+    struct {
+	unsigned	version;	/* Version # of shared object header info */
 	hsize_t		hdr_size;       /* Shared object header message header size */
 	H5_ih_info_t	msgs_info;      /* Shared object header message index & heap size */
     } sohm;
-} H5F_info_t;
+} H5F_info2_t;
 
 /*
  * Types of allocation requests. The values larger than H5FD_MEM_DEFAULT
@@ -136,15 +167,51 @@ typedef enum H5F_mem_t {
     H5FD_MEM_NTYPES             /* Sentinel value - must be last */
 } H5F_mem_t;
 
+/* Free space section information */
+typedef struct H5F_sect_info_t {
+    haddr_t             addr;   /* Address of free space section */
+    hsize_t             size;   /* Size of free space section */
+} H5F_sect_info_t;
+
 /* Library's file format versions */
 typedef enum H5F_libver_t {
     H5F_LIBVER_EARLIEST,        /* Use the earliest possible format for storing objects */
     H5F_LIBVER_LATEST           /* Use the latest possible format available for storing objects*/
 } H5F_libver_t;
 
-/* Define file format version for 1.8 to prepare for 1.10 release.  
- * (Not used anywhere now)*/
-#define H5F_LIBVER_18 H5F_LIBVER_LATEST
+/* File space handling strategy */
+typedef enum H5F_fspace_strategy_t {
+    H5F_FSPACE_STRATEGY_FSM_AGGR = 0,   /* Mechanisms: free-space managers, aggregators, and virtual file drivers */
+                                        /* This is the library default when not set */
+    H5F_FSPACE_STRATEGY_PAGE = 1,   /* Mechanisms: free-space managers with embedded paged aggregation and virtual file drivers */
+    H5F_FSPACE_STRATEGY_AGGR = 2,   /* Mechanisms: aggregators and virtual file drivers */
+    H5F_FSPACE_STRATEGY_NONE = 3,   /* Mechanisms: virtual file drivers */
+    H5F_FSPACE_STRATEGY_NTYPES      /* must be last */
+} H5F_fspace_strategy_t;
+
+/* Deprecated: File space handling strategy for release 1.10.0 */
+/* They are mapped to H5F_fspace_strategy_t as defined above from release 1.10.1 onwards */
+typedef enum H5F_file_space_type_t {
+    H5F_FILE_SPACE_DEFAULT = 0,     /* Default (or current) free space strategy setting */
+    H5F_FILE_SPACE_ALL_PERSIST = 1, /* Persistent free space managers, aggregators, virtual file driver */
+    H5F_FILE_SPACE_ALL = 2,	    /* Non-persistent free space managers, aggregators, virtual file driver */
+				    /* This is the library default */
+    H5F_FILE_SPACE_AGGR_VFD = 3,    /* Aggregators, Virtual file driver */
+    H5F_FILE_SPACE_VFD = 4,	    /* Virtual file driver */
+    H5F_FILE_SPACE_NTYPES	    /* must be last */
+} H5F_file_space_type_t;
+
+/* Data structure to report the collection of read retries for metadata items with checksum */
+/* Used by public routine H5Fget_metadata_read_retry_info() */
+#define H5F_NUM_METADATA_READ_RETRY_TYPES	21
+typedef struct H5F_retry_info_t {
+    unsigned nbins;
+    uint32_t *retries[H5F_NUM_METADATA_READ_RETRY_TYPES];
+} H5F_retry_info_t;
+
+/* Callback for H5Pset_object_flush_cb() in a file access property list */
+typedef herr_t (*H5F_flush_cb_t)(hid_t object_id, void *udata);
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,12 +249,54 @@ H5_DLL herr_t H5Fget_mdc_size(hid_t file_id,
                               int * cur_num_entries_ptr);
 H5_DLL herr_t H5Freset_mdc_hit_rate_stats(hid_t file_id);
 H5_DLL ssize_t H5Fget_name(hid_t obj_id, char *name, size_t size);
-H5_DLL herr_t H5Fget_info(hid_t obj_id, H5F_info_t *bh_info);
+H5_DLL herr_t H5Fget_info2(hid_t obj_id, H5F_info2_t *finfo);
+H5_DLL herr_t H5Fget_metadata_read_retry_info(hid_t file_id, H5F_retry_info_t *info);
+H5_DLL herr_t H5Fstart_swmr_write(hid_t file_id);
+H5_DLL ssize_t H5Fget_free_sections(hid_t file_id, H5F_mem_t type,
+    size_t nsects, H5F_sect_info_t *sect_info/*out*/);
 H5_DLL herr_t H5Fclear_elink_file_cache(hid_t file_id);
+H5_DLL herr_t H5Fset_latest_format(hid_t file_id, hbool_t latest_format);
+H5_DLL herr_t H5Fstart_mdc_logging(hid_t file_id);
+H5_DLL herr_t H5Fstop_mdc_logging(hid_t file_id);
+H5_DLL herr_t H5Fget_mdc_logging_status(hid_t file_id,
+                                        /*OUT*/ hbool_t *is_enabled,
+                                        /*OUT*/ hbool_t *is_currently_logging);
+H5_DLL herr_t H5Fformat_convert(hid_t fid);
+H5_DLL herr_t H5Freset_page_buffering_stats(hid_t file_id);
+H5_DLL herr_t H5Fget_page_buffering_stats(hid_t file_id, unsigned accesses[2],
+    unsigned hits[2], unsigned misses[2], unsigned evictions[2], unsigned bypasses[2]);
+H5_DLL herr_t H5Fget_mdc_image_info(hid_t file_id, haddr_t *image_addr, hsize_t *image_size);
+
 #ifdef H5_HAVE_PARALLEL
 H5_DLL herr_t H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag);
 H5_DLL herr_t H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag);
 #endif /* H5_HAVE_PARALLEL */
+
+/* Symbols defined for compatibility with previous versions of the HDF5 API.
+ *
+ * Use of these symbols is deprecated.
+ */
+#ifndef H5_NO_DEPRECATED_SYMBOLS
+
+/* Macros */
+#define H5F_ACC_DEBUG	(H5CHECK H5OPEN 0x0000u)	/*print debug info (deprecated)*/
+
+/* Typedefs */
+
+/* Current "global" information about file */
+typedef struct H5F_info1_t {
+    hsize_t		super_ext_size;	/* Superblock extension size */
+    struct {
+	hsize_t		hdr_size;       /* Shared object header message header size */
+	H5_ih_info_t	msgs_info;      /* Shared object header message index & heap size */
+    } sohm;
+} H5F_info1_t;
+
+
+/* Function prototypes */
+H5_DLL herr_t H5Fget_info1(hid_t obj_id, H5F_info1_t *finfo);
+
+#endif /* H5_NO_DEPRECATED_SYMBOLS */
 
 #ifdef __cplusplus
 }

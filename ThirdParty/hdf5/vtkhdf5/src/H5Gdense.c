@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -29,7 +27,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 /***********/
 /* Headers */
@@ -322,8 +320,9 @@ HDfprintf(stderr, "%s: fheap_id_len = %Zu\n", FUNC, fheap_id_len);
     HDmemset(&bt2_cparam, 0, sizeof(bt2_cparam));
     bt2_cparam.cls = H5G_BT2_NAME;
     bt2_cparam.node_size = (size_t)H5G_NAME_BT2_NODE_SIZE;
+    H5_CHECK_OVERFLOW(fheap_id_len, /* From: */ hsize_t, /* To: */ uint32_t);
     bt2_cparam.rrec_size = 4 +          /* Name's hash value */
-            fheap_id_len;               /* Fractal heap ID */
+            (uint32_t)fheap_id_len;     /* Fractal heap ID */
     bt2_cparam.split_percent = H5G_NAME_BT2_SPLIT_PERC;
     bt2_cparam.merge_percent = H5G_NAME_BT2_MERGE_PERC;
     if(NULL == (bt2_name = H5B2_create(f, dxpl_id, &bt2_cparam, NULL)))
@@ -342,8 +341,9 @@ HDfprintf(stderr, "%s: linfo->name_bt2_addr = %a\n", FUNC, linfo->name_bt2_addr)
         HDmemset(&bt2_cparam, 0, sizeof(bt2_cparam));
         bt2_cparam.cls = H5G_BT2_CORDER;
         bt2_cparam.node_size = (size_t)H5G_CORDER_BT2_NODE_SIZE;
-        bt2_cparam.rrec_size = 8 +      /* Creation order value */
-                fheap_id_len;           /* Fractal heap ID */
+        H5_CHECK_OVERFLOW(fheap_id_len, /* From: */ hsize_t, /* To: */ uint32_t);
+        bt2_cparam.rrec_size = 8 +              /* Creation order value */
+                (uint32_t)fheap_id_len;         /* Fractal heap ID */
         bt2_cparam.split_percent = H5G_CORDER_BT2_SPLIT_PERC;
         bt2_cparam.merge_percent = H5G_CORDER_BT2_MERGE_PERC;
         if(NULL == (bt2_corder = H5B2_create(f, dxpl_id, &bt2_cparam, NULL)))
@@ -540,7 +540,7 @@ H5G__dense_lookup(H5F_t *f, hid_t dxpl_id, const H5O_linfo_t *linfo,
     H5G_bt2_ud_common_t udata;          /* User data for v2 B-tree link lookup */
     H5HF_t *fheap = NULL;               /* Fractal heap handle */
     H5B2_t *bt2_name = NULL;            /* v2 B-tree handle for name index */
-    htri_t ret_value;                   /* Return value */
+    htri_t ret_value = FAIL;            /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -599,7 +599,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_lookup_by_idx_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5G_dense_lookup_by_idx_fh_cb(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
 {
     H5G_fh_ud_lbi_t *udata = (H5G_fh_ud_lbi_t *)_udata;       /* User data for fractal heap 'op' callback */
     H5O_link_t *tmp_lnk = NULL;         /* Temporary pointer to link */
@@ -889,7 +889,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_iterate_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5G_dense_iterate_fh_cb(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
 {
     H5G_fh_ud_it_t *udata = (H5G_fh_ud_it_t *)_udata;       /* User data for fractal heap 'op' callback */
     herr_t ret_value = SUCCEED;   /* Return value */
@@ -991,7 +991,7 @@ H5G__dense_iterate(H5F_t *f, hid_t dxpl_id, const H5O_linfo_t *linfo,
     H5G_link_table_t ltable = {0, NULL};      /* Table of links */
     H5B2_t *bt2 = NULL;                 /* v2 B-tree handle for index */
     haddr_t bt2_addr;                   /* Address of v2 B-tree to use for lookup */
-    herr_t ret_value;                   /* Return value */
+    herr_t ret_value = FAIL;            /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1101,7 +1101,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_get_name_by_idx_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5G_dense_get_name_by_idx_fh_cb(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
 {
     H5G_fh_ud_gnbi_t *udata = (H5G_fh_ud_gnbi_t *)_udata;       /* User data for fractal heap 'op' callback */
     H5O_link_t *lnk;            /* Pointer to link created from heap object */
@@ -1197,7 +1197,7 @@ H5G__dense_get_name_by_idx(H5F_t *f, hid_t dxpl_id, H5O_linfo_t *linfo,
     H5G_link_table_t ltable = {0, NULL};      /* Table of links */
     H5B2_t *bt2 = NULL;         /* v2 B-tree handle for index */
     haddr_t bt2_addr;           /* Address of v2 B-tree to use for lookup */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -1308,7 +1308,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_remove_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5G_dense_remove_fh_cb(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
 {
     H5G_fh_ud_rm_t *udata = (H5G_fh_ud_rm_t *)_udata;       /* User data for fractal heap 'op' callback */
     H5O_link_t *lnk = NULL;             /* Pointer to link created from heap object */
@@ -1485,7 +1485,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_dense_remove_by_idx_fh_cb(const void *obj, size_t UNUSED obj_len, void *_udata)
+H5G_dense_remove_by_idx_fh_cb(const void *obj, size_t H5_ATTR_UNUSED obj_len, void *_udata)
 {
     H5G_fh_ud_rmbi_t *udata = (H5G_fh_ud_rmbi_t *)_udata;       /* User data for fractal heap 'op' callback */
     herr_t ret_value = SUCCEED; /* Return value */
@@ -1836,8 +1836,8 @@ H5G_obj_t
 H5G__dense_get_type_by_idx(H5F_t *f, hid_t dxpl_id, H5O_linfo_t *linfo,
     hsize_t idx)
 {
-    H5G_link_table_t ltable = {0, NULL};         /* Table of links */
-    H5G_obj_t ret_value;        /* Return value */
+    H5G_link_table_t ltable = {0, NULL};        /* Table of links */
+    H5G_obj_t ret_value = H5G_UNKNOWN;          /* Return value */
 
     FUNC_ENTER_PACKAGE
 

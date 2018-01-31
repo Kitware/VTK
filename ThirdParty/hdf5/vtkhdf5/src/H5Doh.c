@@ -5,20 +5,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /****************/
 /* Module Setup */
 /****************/
 
-#define H5D_PACKAGE		/*suppress error about including H5Dpkg	  */
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#include "H5Dmodule.h"          /* This source code file is part of the H5D module */
+#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
 
 
 /***********/
@@ -53,9 +51,9 @@ static hid_t H5O__dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id,
 static void *H5O__dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc,
     hid_t dxpl_id);
 static H5O_loc_t *H5O__dset_get_oloc(hid_t obj_id);
-static herr_t H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
+static herr_t H5O__dset_bh_info(const H5O_loc_t *loc, hid_t dxpl_id, H5O_t *oh,
     H5_ih_info_t *bh_info);
-static herr_t H5O__dset_flush(H5G_loc_t *obj_loc, hid_t dxpl_id);
+static herr_t H5O__dset_flush(void *_obj_ptr, hid_t dxpl_id);
 
 
 /*********************/
@@ -108,7 +106,7 @@ H5FL_DEFINE(H5D_copy_file_ud_t);
 static void *
 H5O__dset_get_copy_file_udata(void)
 {
-    void *ret_value;       /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -223,10 +221,10 @@ done:
 static hid_t
 H5O__dset_open(const H5G_loc_t *obj_loc, hid_t lapl_id, hid_t dxpl_id, hbool_t app_ref)
 {
-    H5D_t       *dset = NULL;           /* Dataset opened */
-    htri_t  isdapl;                 /* lapl_id is a dapl */
-    hid_t   dapl_id;                /* dapl to use to open this dataset */
-    hid_t	ret_value;              /* Return value */
+    H5D_t  *dset = NULL;                /* Dataset opened */
+    htri_t  isdapl;                     /* lapl_id is a dapl */
+    hid_t   dapl_id;                    /* dapl to use to open this dataset */
+    hid_t   ret_value = H5I_INVALID_HID;        /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -279,7 +277,7 @@ H5O__dset_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
 {
     H5D_obj_create_t *crt_info = (H5D_obj_create_t *)_crt_info; /* Dataset creation parameters */
     H5D_t *dset = NULL;         /* New dataset created */
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -327,7 +325,7 @@ static H5O_loc_t *
 H5O__dset_get_oloc(hid_t obj_id)
 {
     H5D_t       *dset;                  /* Dataset opened */
-    H5O_loc_t	*ret_value;             /* Return value */
+    H5O_loc_t	*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
 
@@ -356,20 +354,14 @@ done:
  * Programmer:  Vailin Choi
  *              July 11, 2007
  *
- * Modification:Raymond Lu
- *              5 February, 2010
- *              I added the call to H5O_msg_reset after H5D_chunk_bh_info 
- *              to free the PLINE. 
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
+H5O__dset_bh_info(const H5O_loc_t *loc, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
 {
     H5O_layout_t        layout;         	/* Data storage layout message */
-    H5O_pline_t         pline;                  /* I/O pipeline message */
     H5O_efl_t           efl;			/* External File List message */
     hbool_t             layout_read = FALSE;    /* Whether the layout message was read */
-    hbool_t             pline_read = FALSE;     /* Whether the I/O pipeline message was read */
     hbool_t             efl_read = FALSE;       /* Whether the external file list message was read */
     htri_t		exists;                 /* Flag if header message of interest exists */
     herr_t      	ret_value = SUCCEED;    /* Return value */
@@ -377,30 +369,33 @@ H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
     FUNC_ENTER_STATIC
 
     /* Sanity check */
-    HDassert(f);
+    HDassert(loc);
+    HDassert(loc->file);
+    HDassert(H5F_addr_defined(loc->addr));
     HDassert(oh);
     HDassert(bh_info);
 
     /* Get the layout message from the object header */
-    if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_LAYOUT_ID, &layout))
+    if(NULL == H5O_msg_read_oh(loc->file, dxpl_id, oh, H5O_LAYOUT_ID, &layout))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't find layout message")
     layout_read = TRUE;
 
     /* Check for chunked dataset storage */
     if(layout.type == H5D_CHUNKED && H5D__chunk_is_space_alloc(&layout.storage)) {
-        /* Check for I/O pipeline message */
-        if((exists = H5O_msg_exists_oh(oh, H5O_PLINE_ID)) < 0)
-            HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to read object header")
-        else if(exists) {
-            if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_PLINE_ID, &pline))
-                HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't find I/O pipeline message")
-            pline_read = TRUE;
-        } /* end else if */
-        else
-            HDmemset(&pline, 0, sizeof(pline));
-
-        if(H5D__chunk_bh_info(f, dxpl_id, &layout, &pline, &(bh_info->index_size)) < 0)
+        /* Get size of chunk index */
+        if(H5D__chunk_bh_info(loc, dxpl_id, oh, &layout, &(bh_info->index_size)) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't determine chunked dataset btree info")
+    } /* end if */
+    else if(layout.type == H5D_VIRTUAL
+            && (layout.storage.u.virt.serial_list_hobjid.addr != HADDR_UNDEF)) {
+        size_t virtual_heap_size;
+
+        /* Get size of global heap object for virtual dataset */
+        if(H5HG_get_obj_size(loc->file, dxpl_id, &(layout.storage.u.virt.serial_list_hobjid), &virtual_heap_size) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get global heap size for virtual dataset mapping")
+
+        /* Return heap size */
+        bh_info->heap_size = (hsize_t)virtual_heap_size;
     } /* end if */
 
     /* Check for External File List message in the object header */
@@ -412,12 +407,12 @@ H5O__dset_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         HDmemset(&efl, 0, sizeof(efl));
 
 	/* Get External File List message from the object header */
-	if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_EFL_ID, &efl))
+	if(NULL == H5O_msg_read_oh(loc->file, dxpl_id, oh, H5O_EFL_ID, &efl))
 	    HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't find EFL message")
         efl_read = TRUE;
 
 	/* Get size of local heap for EFL message's file list */
-	if(H5D__efl_bh_info(f, dxpl_id, &efl, &(bh_info->heap_size)) < 0)
+	if(H5D__efl_bh_info(loc->file, dxpl_id, &efl, &(bh_info->heap_size)) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "can't determine EFL heap info")
     } /* end if */
 
@@ -425,8 +420,6 @@ done:
     /* Free messages, if they've been read in */
     if(layout_read && H5O_msg_reset(H5O_LAYOUT_ID, &layout) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTRESET, FAIL, "unable to reset data storage layout message")
-    if(pline_read && H5O_msg_reset(H5O_PLINE_ID, &pline) < 0)
-        HDONE_ERROR(H5E_DATASET, H5E_CANTRESET, FAIL, "unable to reset I/O pipeline message")
     if(efl_read && H5O_msg_reset(H5O_EFL_ID, &efl) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTRESET, FAIL, "unable to reset external file list message")
 
@@ -448,34 +441,27 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__dset_flush(H5G_loc_t *obj_loc, hid_t dxpl_id)
+H5O__dset_flush(void *_obj_ptr, hid_t dxpl_id)
 {
-    H5D_t       *dset = NULL;          /* Dataset opened */
-    H5O_type_t 	obj_type;              /* Type of object at location */
-    herr_t      ret_value = SUCCEED;    /* Return value */
+    H5D_t *dset = (H5D_t *)_obj_ptr;	/* Pointer to dataset object */
+    H5O_type_t obj_type;              	/* Type of object at location */
+    herr_t ret_value = SUCCEED;   	/* Return value */
 
     FUNC_ENTER_STATIC
 
-    HDassert(obj_loc);
-    HDassert(obj_loc->oloc);
+    HDassert(dset);
+    HDassert(&dset->oloc);
 
     /* Check that the object found is the correct type */
-    if(H5O_obj_type(obj_loc->oloc, &obj_type, dxpl_id) < 0)
+    if(H5O_obj_type(&dset->oloc, &obj_type, dxpl_id) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get object type")
-
     if(obj_type != H5O_TYPE_DATASET)
         HGOTO_ERROR(H5E_DATASET, H5E_BADTYPE, FAIL, "not a dataset")
 
-    /* Open the dataset */
-    if(NULL == (dset = H5D_open(obj_loc, H5P_DATASET_ACCESS_DEFAULT, dxpl_id)))
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to open dataset")
-    
     if(H5D__flush_real(dset, dxpl_id) < 0)
-	HDONE_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to flush cached dataset info")
+        HDONE_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to flush cached dataset info")
 
 done:
-    if(dset && H5D_close(dset) < 0)
-	HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__dset_flush() */
 

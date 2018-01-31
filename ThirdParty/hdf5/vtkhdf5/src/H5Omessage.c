@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+
 
 /***********/
 /* Headers */
@@ -73,10 +72,10 @@ typedef struct {
 /* Local Prototypes */
 /********************/
 
-static herr_t H5O_msg_reset_real(const H5O_msg_class_t *type, void *native);
-static herr_t H5O_msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
+static herr_t H5O__msg_reset_real(const H5O_msg_class_t *type, void *native);
+static herr_t H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
     unsigned sequence, unsigned *oh_modified, void *_udata/*in,out*/);
-static herr_t H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
+static herr_t H5O__copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
     const H5O_msg_class_t *type, const void *mesg, unsigned mesg_flags,
     unsigned update_flags);
 
@@ -224,7 +223,7 @@ H5O_msg_append_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *t
         HGOTO_ERROR(H5E_OHDR, H5E_NOSPACE, FAIL, "unable to create new message")
 
     /* Copy the information for the message */
-    if(H5O_copy_mesg(f, dxpl_id, oh, idx, type, mesg, mesg_flags, update_flags) < 0)
+    if(H5O__copy_mesg(f, dxpl_id, oh, idx, type, mesg, mesg_flags, update_flags) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTCOPY, FAIL, "unable to write message")
 #ifdef H5O_DEBUG
 H5O_assert(oh);
@@ -318,7 +317,7 @@ H5O_msg_write_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned type_id,
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_TAG(dxpl_id, oh->cache_info.addr, FAIL)
 
     /* check args */
     HDassert(f);
@@ -335,7 +334,7 @@ H5O_msg_write_oh(H5F_t *f, hid_t dxpl_id, H5O_t *oh, unsigned type_id,
         HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to write object header message")
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_msg_write_oh() */
 
 
@@ -426,7 +425,7 @@ H5O_msg_write_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, const H5O_msg_class_t *ty
     } /* end if */
 
     /* Copy the information for the message */
-    if(H5O_copy_mesg(f, dxpl_id, oh, idx, type, mesg, mesg_flags, update_flags) < 0)
+    if(H5O__copy_mesg(f, dxpl_id, oh, idx, type, mesg, mesg_flags, update_flags) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, FAIL, "unable to write message")
 #ifdef H5O_DEBUG
 H5O_assert(oh);
@@ -465,9 +464,9 @@ H5O_msg_read(const H5O_loc_t *loc, unsigned type_id, void *mesg,
     hid_t dxpl_id)
 {
     H5O_t *oh = NULL;                   /* Object header to use */
-    void *ret_value;                    /* Return value */
+    void *ret_value = NULL;             /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_NOAPI_TAG(dxpl_id, loc->addr, NULL)
 
     /* check args */
     HDassert(loc);
@@ -476,7 +475,7 @@ H5O_msg_read(const H5O_loc_t *loc, unsigned type_id, void *mesg,
     HDassert(type_id < NELMTS(H5O_msg_class_g));
 
     /* Get the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to protect object header")
 
     /* Call the "real" read routine */
@@ -487,7 +486,7 @@ done:
     if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, NULL, "unable to release object header")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, NULL)
 } /* end H5O_msg_read() */
 
 
@@ -586,7 +585,7 @@ H5O_msg_reset(unsigned type_id, void *native)
     HDassert(type);
 
     /* Call the "real" reset routine */
-    if(H5O_msg_reset_real(type, native) < 0)
+    if(H5O__msg_reset_real(type, native) < 0)
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTRESET, FAIL, "unable to reset object header")
 
 done:
@@ -595,7 +594,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_msg_reset_real
+ * Function:	H5O__msg_reset_real
  *
  * Purpose:	Some message data structures have internal fields that
  *		need to be freed.  This function does that if appropriate
@@ -610,11 +609,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_msg_reset_real(const H5O_msg_class_t *type, void *native)
+H5O__msg_reset_real(const H5O_msg_class_t *type, void *native)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(type);
@@ -630,7 +629,7 @@ H5O_msg_reset_real(const H5O_msg_class_t *type, void *native)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_msg_reset_real() */
+} /* end H5O__msg_reset_real() */
 
 
 /*-------------------------------------------------------------------------
@@ -652,7 +651,7 @@ void *
 H5O_msg_free(unsigned type_id, void *mesg)
 {
     const H5O_msg_class_t *type;            /* Actual H5O class type for the ID */
-    void * ret_value;                   /* Return value */
+    void *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -719,7 +718,7 @@ H5O_msg_free_real(const H5O_msg_class_t *type, void *msg_native)
     HDassert(type);
 
     if(msg_native) {
-        H5O_msg_reset_real(type, msg_native);
+        H5O__msg_reset_real(type, msg_native);
         if(NULL != (type->free))
             (type->free)(msg_native);
         else
@@ -749,7 +748,7 @@ void *
 H5O_msg_copy(unsigned type_id, const void *mesg, void *dst)
 {
     const H5O_msg_class_t *type;            /* Actual H5O class type for the ID */
-    void	*ret_value;             /* Return value */
+    void *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -789,7 +788,7 @@ H5O_msg_count(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
     H5O_t *oh = NULL;           /* Object header to operate on */
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
     unsigned msg_count;         /* Message count */
-    int	ret_value;              /* Return value */
+    int	ret_value = FAIL;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -802,12 +801,12 @@ H5O_msg_count(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
     HDassert(type);
 
     /* Load the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Count the messages of the correct type */
     msg_count = H5O_msg_count_real(oh, type);
-    H5_ASSIGN_OVERFLOW(ret_value, msg_count, unsigned, int);
+    H5_CHECKED_ASSIGN(ret_value, int, msg_count, unsigned);
 
 done:
     if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
@@ -836,7 +835,7 @@ unsigned
 H5O_msg_count_real(const H5O_t *oh, const H5O_msg_class_t *type)
 {
     unsigned u;                 /* Local index variable */
-    unsigned ret_value;         /* Return value */
+    unsigned ret_value = 0;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -875,16 +874,16 @@ htri_t
 H5O_msg_exists(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
 {
     H5O_t	*oh = NULL;             /* Object header for location */
-    htri_t      ret_value;              /* Return value */
+    htri_t      ret_value = FAIL;       /* Return value */
 
-    FUNC_ENTER_NOAPI(FAIL)
+    FUNC_ENTER_NOAPI_TAG(dxpl_id, loc->addr, FAIL)
 
     HDassert(loc);
     HDassert(loc->file);
     HDassert(type_id < NELMTS(H5O_msg_class_g));
 
     /* Load the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Call the "real" exists routine */
@@ -895,7 +894,7 @@ done:
     if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
 	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_msg_exists() */
 
 
@@ -966,8 +965,8 @@ H5O_msg_remove(const H5O_loc_t *loc, unsigned type_id, int sequence, hbool_t adj
     hid_t dxpl_id)
 {
     H5O_t *oh = NULL;                   /* Pointer to actual object header */
-    const H5O_msg_class_t *type;            /* Actual H5O class type for the ID */
-    herr_t      ret_value;              /* Return value */
+    const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
+    herr_t ret_value = FAIL;            /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1018,8 +1017,8 @@ H5O_msg_remove_op(const H5O_loc_t *loc, unsigned type_id, int sequence,
     H5O_operator_t op, void *op_data, hbool_t adj_link, hid_t dxpl_id)
 {
     H5O_t *oh = NULL;                   /* Pointer to actual object header */
-    const H5O_msg_class_t *type;            /* Actual H5O class type for the ID */
-    herr_t      ret_value;              /* Return value */
+    const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
+    herr_t ret_value = FAIL;            /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1049,7 +1048,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_msg_remove_cb
+ * Function:	H5O__msg_remove_cb
  *
  * Purpose:	Object header iterator callback routine to remove messages
  *              of a particular type that match a particular sequence number,
@@ -1061,21 +1060,17 @@ done:
  *		koziol@ncsa.uiuc.edu
  *		Sep  6 2005
  *
- * Modifications:
- *	Vailin Choi; Sept 2011
- *	Indicate that the object header is modified and might possibly need
- *	to condense messages in the object header 
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
+H5O__msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
     unsigned *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_rm_t *udata = (H5O_iter_rm_t *)_udata;   /* Operator user data */
     htri_t try_remove = FALSE;         /* Whether to try removing a message */
     herr_t ret_value = H5_ITER_CONT;   /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(mesg);
@@ -1103,7 +1098,7 @@ H5O_msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
         if(H5O_release_mesg(udata->f, udata->dxpl_id, oh, mesg, udata->adj_link) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, H5_ITER_ERROR, "unable to release message")
 
-        /* Indicate that the object header was modified & might need to condense messages in object header */
+        /* Indicate that the object header was modified */
         *oh_modified = H5O_MODIFY_CONDENSE;
 
         /* Break out now, if we've found the correct message */
@@ -1113,7 +1108,7 @@ H5O_msg_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_msg_remove_cb() */
+} /* end H5O__msg_remove_cb() */
 
 
 /*-------------------------------------------------------------------------
@@ -1164,7 +1159,7 @@ H5O_msg_remove_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type,
 
     /* Iterate over the messages, deleting appropriate one(s) */
     op.op_type = H5O_MESG_OP_LIB;
-    op.u.lib_op = H5O_msg_remove_cb;
+    op.u.lib_op = H5O__msg_remove_cb;
     if(H5O_msg_iterate_real(f, oh, type, &op, &udata, dxpl_id) < 0)
         HGOTO_ERROR(H5E_OHDR, H5E_NOTFOUND, FAIL, "error iterating over messages")
 
@@ -1214,7 +1209,7 @@ H5O_msg_iterate(const H5O_loc_t *loc, unsigned type_id,
 {
     H5O_t *oh = NULL;               /* Pointer to actual object header */
     const H5O_msg_class_t *type;    /* Actual H5O class type for the ID */
-    herr_t ret_value;               /* Return value */
+    herr_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1228,7 +1223,7 @@ H5O_msg_iterate(const H5O_loc_t *loc, unsigned type_id,
     HDassert(op);
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Call the "real" iterate routine */
@@ -1272,12 +1267,6 @@ done:
  *      C. Negative causes the iterator to immediately return that value,
  *          indicating failure.
  *
- * Modifications:
- *	Vailin Choi; September 2011
- *	Change "oh_modified" from boolean to unsigned so as to know:
- *	1) object header is just modified
- *	2) object header is modified and possibly need to condense messages there
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1287,7 +1276,7 @@ H5O_msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type,
     H5O_mesg_t         *idx_msg;        /* Pointer to current message */
     unsigned		idx;            /* Absolute index of current message in all messages */
     unsigned		sequence;       /* Relative index of current message for messages of type */
-    unsigned		oh_modified = 0;    /* Whether the callback modified the object header */
+    unsigned 		oh_modified = 0;    	/* Whether the callback modified the object header */
     herr_t              ret_value = H5_ITER_CONT;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
@@ -1327,15 +1316,14 @@ H5O_msg_iterate_real(H5F_t *f, H5O_t *oh, const H5O_msg_class_t *type,
 done:
     /* Check if object message was modified */
     if(oh_modified) {
-        /* Try to condense object header info if the flag indicates so */
+        /* Try to condense object header info */
         /* (Since this routine is used to remove messages from an
          *  object header, the header will be condensed after each
          *  message removal)
          */
-	if(oh_modified & H5O_MODIFY_CONDENSE) {
+	if(oh_modified & H5O_MODIFY_CONDENSE)
 	    if(H5O_condense_header(f, oh, dxpl_id) < 0)
 		HDONE_ERROR(H5E_OHDR, H5E_CANTPACK, FAIL, "can't pack object header")
-	}
 
         /* Mark object header as changed */
         if(H5O_touch_oh(f, dxpl_id, oh, FALSE) < 0)
@@ -1369,7 +1357,7 @@ H5O_msg_raw_size(const H5F_t *f, unsigned type_id, hbool_t disable_shared,
     const void *mesg)
 {
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
-    size_t ret_value;                   /* Return value */
+    size_t ret_value = 0;               /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -1414,7 +1402,7 @@ H5O_msg_size_f(const H5F_t *f, hid_t ocpl_id, unsigned type_id,
     const H5O_msg_class_t *type; /* Actual H5O class type for the ID */
     H5P_genplist_t *ocpl;       /* Object Creation Property list */
     uint8_t oh_flags;           /* Object header status flags */
-    size_t ret_value;           /* Return value */
+    size_t ret_value = 0;       /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -1476,7 +1464,7 @@ H5O_msg_size_oh(const H5F_t *f, const H5O_t *oh, unsigned type_id,
     const void *mesg, size_t extra_raw)
 {
     const H5O_msg_class_t *type; /* Actual H5O class type for the ID */
-    size_t ret_value;           /* Return value */
+    size_t ret_value = 0;       /* Return value */
 
     FUNC_ENTER_NOAPI(0)
 
@@ -1527,7 +1515,7 @@ htri_t
 H5O_msg_can_share(unsigned type_id, const void *mesg)
 {
     const H5O_msg_class_t *type;    /* Actual H5O class type for the ID */
-    htri_t ret_value;
+    htri_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1574,7 +1562,7 @@ htri_t
 H5O_msg_can_share_in_ohdr(unsigned type_id)
 {
     const H5O_msg_class_t *type;    /* Actual H5O class type for the ID */
-    htri_t ret_value;
+    htri_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1612,7 +1600,7 @@ htri_t
 H5O_msg_is_shared(unsigned type_id, const void *mesg)
 {
     const H5O_msg_class_t *type;    /* Actual H5O class type for the ID */
-    htri_t ret_value;
+    htri_t ret_value = FAIL;        /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -1826,8 +1814,8 @@ H5O_msg_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned type_id,
     const unsigned char *buf)
 {
     const H5O_msg_class_t   *type;      /* Actual H5O class type for the ID */
-    void *ret_value;                    /* Return value */
     unsigned ioflags = 0;               /* Flags for decode routine */
+    void *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -1869,7 +1857,7 @@ H5O_msg_copy_file(const H5O_msg_class_t *type, H5F_t *file_src,
     void *native_src, H5F_t *file_dst, hbool_t *recompute_size,
     unsigned *mesg_flags, H5O_copy_t *cpy_info, void *udata, hid_t dxpl_id)
 {
-    void        *ret_value;
+    void *ret_value = NULL;             /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -1960,7 +1948,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_copy_mesg
+ * Function:	H5O__copy_mesg
  *
  * Purpose:	Make a copy of the native object for an object header's
  *              native message info
@@ -1973,7 +1961,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
+H5O__copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
     const H5O_msg_class_t *type, const void *mesg, unsigned mesg_flags,
     unsigned update_flags)
 {
@@ -1982,7 +1970,7 @@ H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
     hbool_t chk_dirtied = FALSE;                /* Flag for unprotecting chunk */
     herr_t      ret_value = SUCCEED;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* check args */
     HDassert(f);
@@ -1996,7 +1984,7 @@ H5O_copy_mesg(H5F_t *f, hid_t dxpl_id, H5O_t *oh, size_t idx,
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header chunk")
 
     /* Reset existing native information for the header's message */
-    H5O_msg_reset_real(type, idx_msg->native);
+    H5O__msg_reset_real(type, idx_msg->native);
 
     /* Copy the native object for the message */
     if(NULL == (idx_msg->native = (type->copy)(mesg, idx_msg->native)))
@@ -2025,7 +2013,7 @@ done:
         HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_copy_mesg() */
+} /* end H5O__copy_mesg() */
 
 
 /*-------------------------------------------------------------------------
@@ -2057,7 +2045,7 @@ H5O_msg_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned type_id,
     const H5O_msg_class_t   *type;      /* Actual H5O class type for the ID */
     herr_t ret_value = SUCCEED;                    /* Return value */
 
-    FUNC_ENTER_NOAPI(NULL)
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* check args */
     HDassert(f);
@@ -2265,28 +2253,24 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5O_msg_chunkno
+ * Function:	H5O_msg_get_flags
  *
- * Purpose:	Queries the object header chunk index for a message.
+ * Purpose:	Queries a message's message flags in the object header
  *
- * Return:	Success:	>=0 value indicating the chunk number for
- *                              the message
- *		Failure:	<0
+ * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
- *		Apr 22 2010
+ * Programmer:	Vailin; Jan 2013
  *
  *-------------------------------------------------------------------------
  */
-int
-H5O_msg_get_chunkno(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
+herr_t
+H5O_msg_get_flags(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id, uint8_t *flags)
 {
     H5O_t *oh = NULL;                   /* Object header to use */
     const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
     H5O_mesg_t *idx_msg;                /* Pointer to message to modify */
     unsigned idx;                       /* Index of message to modify */
-    int ret_value;                      /* Return value */
+    herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -2299,140 +2283,23 @@ H5O_msg_get_chunkno(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
     HDassert(type);
 
     /* Get the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
 
     /* Locate message of correct type */
     for(idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, idx_msg++)
-	if(type == idx_msg->type)
+        if(type == idx_msg->type)
             break;
+
     if(idx == oh->nmesgs)
         HGOTO_ERROR(H5E_OHDR, H5E_NOTFOUND, FAIL, "message type not found")
 
     /* Set return value */
-    H5_ASSIGN_OVERFLOW(ret_value, idx_msg->chunkno, unsigned, int);
+    *flags = idx_msg->flags;
 
 done:
     if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_msg_get_chunkno() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5O_msg_lock
- *
- * Purpose:	Locks a message into a particular chunk, preventing it from
- *              being moved into another chunk.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
- *		Apr 22 2010
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5O_msg_lock(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
-{
-    H5O_t *oh = NULL;                   /* Object header to use */
-    const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
-    H5O_mesg_t *idx_msg;                /* Pointer to message to modify */
-    unsigned idx;                       /* Index of message to modify */
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* check args */
-    HDassert(loc);
-    HDassert(loc->file);
-    HDassert(H5F_addr_defined(loc->addr));
-    HDassert(type_id < NELMTS(H5O_msg_class_g));
-    type = H5O_msg_class_g[type_id];    /* map the type ID to the actual type object */
-    HDassert(type);
-
-    /* Get the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
-
-    /* Locate message of correct type */
-    for(idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, idx_msg++)
-	if(type == idx_msg->type)
-            break;
-    if(idx == oh->nmesgs)
-        HGOTO_ERROR(H5E_OHDR, H5E_NOTFOUND, FAIL, "message type not found")
-
-    /* Fail if the message is already locked */
-    if(idx_msg->locked)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTLOCK, FAIL, "message already locked")
-
-    /* Make the message locked */
-    idx_msg->locked = TRUE;
-
-done:
-    if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_msg_lock() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5O_msg_unlock
- *
- * Purpose:	Unlocks a message, allowing it to be moved into another chunk.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		koziol@hdfgroup.org
- *		Apr 22 2010
- *
- *-------------------------------------------------------------------------
- */
-herr_t
-H5O_msg_unlock(const H5O_loc_t *loc, unsigned type_id, hid_t dxpl_id)
-{
-    H5O_t *oh = NULL;                   /* Object header to use */
-    const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
-    H5O_mesg_t *idx_msg;                /* Pointer to message to modify */
-    unsigned idx;                       /* Index of message to modify */
-    herr_t ret_value = SUCCEED;         /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
-
-    /* check args */
-    HDassert(loc);
-    HDassert(loc->file);
-    HDassert(H5F_addr_defined(loc->addr));
-    HDassert(type_id < NELMTS(H5O_msg_class_g));
-    type = H5O_msg_class_g[type_id];    /* map the type ID to the actual type object */
-    HDassert(type);
-
-    /* Get the object header */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to protect object header")
-
-    /* Locate message of correct type */
-    for(idx = 0, idx_msg = &oh->mesg[0]; idx < oh->nmesgs; idx++, idx_msg++)
-	if(type == idx_msg->type)
-            break;
-    if(idx == oh->nmesgs)
-        HGOTO_ERROR(H5E_OHDR, H5E_NOTFOUND, FAIL, "message type not found")
-
-    /* Fail if the message is not locked */
-    if(!idx_msg->locked)
-	HGOTO_ERROR(H5E_OHDR, H5E_CANTUNLOCK, FAIL, "message not locked")
-
-    /* Make the message unlocked */
-    idx_msg->locked = FALSE;
-
-done:
-    if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5O_msg_unlock() */
-
+} /* end H5O_msg_get_flags() */

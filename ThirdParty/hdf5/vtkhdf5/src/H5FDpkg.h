@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5FD package.  Source files outside the H5FD package should
  *		include H5FDprivate.h instead.
  */
-#ifndef H5FD_PACKAGE
+#if !(defined H5FD_FRIEND || defined H5FD_MODULE)
 #error "Do not include this file outside the H5FD package!"
 #endif
 
@@ -52,15 +50,14 @@
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL herr_t H5FD_init(void);
 H5_DLL haddr_t H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type,
     hsize_t size, haddr_t *align_addr, hsize_t *align_size);
 H5_DLL herr_t H5FD_free_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type,
     haddr_t addr, hsize_t size);
 
-
-/* Testing routines */
+/* Testing functions */
 #ifdef H5FD_TESTING
+H5_DLL hbool_t H5FD_supports_swmr_test(const char *vfd_name);
 #endif /* H5FD_TESTING */
 
 #endif /* _H5FDpkg_H */

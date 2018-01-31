@@ -5,23 +5,21 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol <koziol@ncsa.uiuc.edu>
- *		Tuesday, May  2, 2006
+ * Programmer:  Quincey Koziol <koziol@hdfgroup.org>
+ *              Tuesday, May  2, 2006
  *
- * Purpose:	This file contains declarations which are visible only within
- *		the H5FS package.  Source files outside the H5FS package should
- *		include H5FSprivate.h instead.
+ * Purpose:     This file contains declarations which are visible only within
+ *              the H5FS package.  Source files outside the H5FS package should
+ *              include H5FSprivate.h instead.
  */
-#ifndef H5FS_PACKAGE
+#if !(defined H5FS_FRIEND || defined H5FS_MODULE)
 #error "Do not include this file outside the H5FS package!"
 #endif
 
@@ -38,11 +36,11 @@
 /* #define H5FS_DEBUG_ASSERT */
 
 /* Get package's private header */
-#include "H5FSprivate.h"	/* File free space                      */
+#include "H5FSprivate.h"    /* File free space                      */
 
 /* Other private headers needed by this file */
-#include "H5ACprivate.h"	/* Metadata cache			*/
-#include "H5SLprivate.h"	/* Skip lists				*/
+#include "H5ACprivate.h"    /* Metadata cache                       */
+#include "H5SLprivate.h"    /* Skip lists                           */
 
 /**************************/
 /* Package Private Macros */
@@ -65,18 +63,18 @@
                                                                               \
     /* Free space header specific fields */                                   \
     + 1 /* Client ID */                                                       \
-    + H5F_SIZEOF_SIZE(f) /* Total free space tracked */                       \
-    + H5F_SIZEOF_SIZE(f) /* Total # of sections tracked */                    \
-    + H5F_SIZEOF_SIZE(f) /* # of serializable sections tracked */             \
-    + H5F_SIZEOF_SIZE(f) /* # of ghost sections tracked */                    \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* Total free space tracked */                       \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* Total # of sections tracked */                    \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* # of serializable sections tracked */             \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* # of ghost sections tracked */                    \
     + 2 /* Number of section classes */                                       \
     + 2 /* Shrink percent */                                                  \
     + 2 /* Expand percent */                                                  \
     + 2 /* Size of address space for sections (log2 of value) */              \
-    + H5F_SIZEOF_SIZE(f) /* Max. size of section to track */                  \
-    + H5F_SIZEOF_ADDR(f) /* Address of serialized free space sections */      \
-    + H5F_SIZEOF_SIZE(f) /* Size of serialized free space sections used */    \
-    + H5F_SIZEOF_SIZE(f) /* Allocated size of serialized free space sections */ \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* Max. size of section to track */                  \
+    + (unsigned)H5F_SIZEOF_ADDR(f) /* Address of serialized free space sections */      \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* Size of serialized free space sections used */    \
+    + (unsigned)H5F_SIZEOF_SIZE(f) /* Allocated size of serialized free space sections */ \
     )
 
 /* Size of the free space serialized sections on disk */
@@ -85,7 +83,7 @@
     H5FS_METADATA_PREFIX_SIZE                                                 \
                                                                               \
     /* Free space serialized sections specific fields */                      \
-    + H5F_SIZEOF_ADDR(f) /* Address of free space header for these sections */ \
+    + (unsigned)H5F_SIZEOF_ADDR(f) /* Address of free space header for these sections */ \
     )
 
 
@@ -96,7 +94,7 @@
 /* Callback info for loading a free space header into the cache */
 typedef struct H5FS_hdr_cache_ud_t {
     H5F_t *f;                  /* File that free space header is within */
-    size_t nclasses;                            /* Number of section classes */
+    uint16_t nclasses;                            /* Number of section classes */
     const H5FS_section_class_t **classes;       /* Array of section class info */
     void *cls_init_udata;                       /* Pointer to class init user data */
     haddr_t addr;              /* Address of header */
@@ -163,7 +161,7 @@ struct H5FS_t {
 
     /* Creation parameters */
     H5FS_client_t client;       /* Type of user of this free space manager    */
-    unsigned nclasses;          /* Number of section classes handled          */
+    uint16_t nclasses;         /* Number of section classes handled          */
     unsigned shrink_percent;    /* Percent of "normal" serialized size to shrink serialized space at */
     unsigned expand_percent;    /* Percent of "normal" serialized size to expand serialized space at */
     unsigned max_sect_addr;     /* Size of address space free sections are within (log2 of actual value) */
@@ -179,13 +177,16 @@ struct H5FS_t {
     haddr_t addr;               /* Address of free space header on disk       */
     size_t hdr_size;            /* Size of free space header on disk          */
     H5FS_sinfo_t *sinfo;        /* Section information                        */
+    hbool_t swmr_write;         /* Flag indicating the file is opened with SWMR-write access */
     unsigned sinfo_lock_count;  /* # of times the section info has been locked */
     hbool_t sinfo_protected;    /* Whether the section info was protected when locked */
     hbool_t sinfo_modified;     /* Whether the section info has been modified while locked */
-    H5AC_protect_t sinfo_accmode; /* Access mode for protecting the section info */
+    unsigned sinfo_accmode;     /* Access mode for protecting the section info */
+                                /* must be either H5C__NO_FLAGS_SET (i.e r/w)  */
+				/* or H5AC__READ_ONLY_FLAG (i.e. r/o).         */
     size_t max_cls_serial_size; /* Max. additional size of serialized form of section */
-    hsize_t    threshold;      	/* Threshold for alignment              */
     hsize_t    alignment;      	/* Alignment                            */
+    hsize_t    align_thres;     /* Threshold for alignment              */
 
 
 /* Memory data structures (not stored directly) */
@@ -196,12 +197,6 @@ struct H5FS_t {
 /*****************************/
 /* Package Private Variables */
 /*****************************/
-
-/* H5FS header inherits cache-like properties from H5AC */
-H5_DLLVAR const H5AC_class_t H5AC_FSPACE_HDR[1];
-
-/* H5FS section info inherits cache-like properties from H5AC */
-H5_DLLVAR const H5AC_class_t H5AC_FSPACE_SINFO[1];
 
 /* Declare a free list to manage the H5FS_node_t struct */
 H5FL_EXTERN(H5FS_node_t);
@@ -220,8 +215,14 @@ H5FL_EXTERN(H5FS_t);
 /* Package Private Prototypes */
 /******************************/
 
+/* Generic routines */
+H5_DLL herr_t H5FS__create_flush_depend(H5AC_info_t *parent_entry,
+    H5AC_info_t *child_entry);
+H5_DLL herr_t H5FS__destroy_flush_depend(H5AC_info_t *parent_entry,
+    H5AC_info_t *child_entry);
+
 /* Free space manager header routines */
-H5_DLL H5FS_t *H5FS_new(const H5F_t *f, size_t nclasses,
+H5_DLL H5FS_t *H5FS__new(const H5F_t *f, uint16_t nclasses,
     const H5FS_section_class_t *classes[], void *cls_init_udata);
 H5_DLL herr_t H5FS_incr(H5FS_t *fspace);
 H5_DLL herr_t H5FS_decr(H5FS_t *fspace);
@@ -231,13 +232,13 @@ H5_DLL herr_t H5FS_dirty(H5FS_t *fspace);
 H5_DLL H5FS_sinfo_t *H5FS_sinfo_new(H5F_t *f, H5FS_t *fspace);
 
 /* Routines for destroying structures */
-H5_DLL herr_t H5FS_hdr_dest(H5FS_t *hdr);
+H5_DLL herr_t H5FS__hdr_dest(H5FS_t *hdr);
 H5_DLL herr_t H5FS_sinfo_dest(H5FS_sinfo_t *sinfo);
 
 /* Sanity check routines */
 #ifdef H5FS_DEBUG
-H5_DLL herr_t H5FS_assert(const H5FS_t *fspace);
-H5_DLL herr_t H5FS_sect_assert(const H5FS_t *fspace);
+H5_DLL herr_t H5FS_assert(const H5FS_t *fspace, hid_t dxpl_id);
+H5_DLL herr_t H5FS_sect_assert(const H5FS_t *fspace, hid_t dxpl_id);
 #endif /* H5FS_DEBUG */
 
 /* Testing routines */

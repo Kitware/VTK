@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -30,7 +28,7 @@
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
 
 
 /***********/
@@ -313,7 +311,7 @@ H5O_shared_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned *ioflags,
 {
     H5O_shared_t sh_mesg;       /* Shared message info */
     unsigned version;           /* Shared message version */
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -477,7 +475,7 @@ H5O_set_shared(H5O_shared_t *dst, const H5O_shared_t *src)
 size_t
 H5O_shared_size(const H5F_t *f, const H5O_shared_t *sh_mesg)
 {
-    size_t ret_value;           /* Return value */
+    size_t ret_value = 0;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -589,8 +587,8 @@ done:
 herr_t
 H5O_shared_copy_file(H5F_t *file_src, H5F_t *file_dst,
     const H5O_msg_class_t *mesg_type, const void *_native_src, void *_native_dst,
-    hbool_t UNUSED *recompute_size, unsigned *mesg_flags, H5O_copy_t *cpy_info,
-    void UNUSED *udata, hid_t dxpl_id)
+    hbool_t H5_ATTR_UNUSED *recompute_size, unsigned *mesg_flags, H5O_copy_t *cpy_info,
+    void H5_ATTR_UNUSED *udata, hid_t dxpl_id)
 {
     const H5O_shared_t  *shared_src = (const H5O_shared_t *)_native_src; /* Alias to shared info in native source */
     H5O_shared_t        *shared_dst = (H5O_shared_t *)_native_dst; /* Alias to shared info in native destination message */
@@ -618,8 +616,14 @@ H5O_shared_copy_file(H5F_t *file_src, H5F_t *file_dst,
      */
     if(shared_src->type != H5O_SHARE_TYPE_COMMITTED) {
         /* Simulate trying to share new message in the destination file. */
+        /* Set copied metadata tag */
+        H5_BEGIN_TAG(dxpl_id, H5AC__COPIED_TAG, FAIL);
+
         if(H5SM_try_share(file_dst, dxpl_id, NULL, H5SM_DEFER, mesg_type->id, _native_dst, mesg_flags) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to determine if message should be shared")
+            HGOTO_ERROR_TAG(H5E_OHDR, H5E_WRITEERROR, FAIL, "unable to determine if message should be shared")
+
+        /* Reset metadata tag */
+        H5_END_TAG(FAIL);
     } /* end if */
     else {
         /* Mark the message as committed - as it will be committed in post copy

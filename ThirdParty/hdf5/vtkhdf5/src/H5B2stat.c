@@ -5,18 +5,16 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+/* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
  *              Monday, March  6, 2006
  *
- * Purpose:	v2 B-tree metadata statistics functions.
+ * Purpose:     v2 B-tree metadata statistics functions.
  *
  */
 
@@ -24,15 +22,15 @@
 /* Module Setup */
 /****************/
 
-#define H5B2_PACKAGE		/*suppress error about including H5B2pkg  */
+#include "H5B2module.h"         /* This source code file is part of the H5B2 module */
 
 
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5B2pkg.h"		/* v2 B-trees				*/
-#include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5private.h"      /* Generic Functions                        */
+#include "H5B2pkg.h"        /* v2 B-trees                               */
+#include "H5Eprivate.h"     /* Error handling                           */
 
 
 /****************/
@@ -71,14 +69,13 @@
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2_stat_info
+ * Function:    H5B2_stat_info
  *
- * Purpose:	Retrieve metadata statistics for a v2 B-tree
+ * Purpose:     Retrieve metadata statistics for a v2 B-tree
  *
- * Return:	Success:	non-negative
- *		Failure:	negative
+ * Return:      SUCCEED (Can't fail)
  *
- * Programmer:	Quincey Koziol
+ * Programmer:  Quincey Koziol
  *              Monday, March  6, 2006
  *
  *-------------------------------------------------------------------------
@@ -105,7 +102,7 @@ H5B2_stat_info(H5B2_t *bt2, H5B2_stat_t *info)
  * Purpose:     Iterate over all the records in the B-tree, collecting
  *              storage info.
  *
- * Return:      non-negative on success, negative on error
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:  Vailin Choi
  *              June 19 2007
@@ -115,7 +112,7 @@ H5B2_stat_info(H5B2_t *bt2, H5B2_stat_t *info)
 herr_t
 H5B2_size(H5B2_t *bt2, hid_t dxpl_id, hsize_t *btree_size)
 {
-    H5B2_hdr_t	*hdr;                   /* Pointer to the B-tree header */
+    H5B2_hdr_t  *hdr;                   /* Pointer to the B-tree header */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
@@ -140,7 +137,7 @@ H5B2_size(H5B2_t *bt2, hid_t dxpl_id, hsize_t *btree_size)
             *btree_size += hdr->node_size;
         else
             /* Iterate through nodes */
-            if(H5B2_node_size(hdr, dxpl_id, hdr->depth, &hdr->root, btree_size) < 0)
+            if(H5B2__node_size(hdr, dxpl_id, hdr->depth, &hdr->root, hdr, btree_size) < 0)
                 HGOTO_ERROR(H5E_BTREE, H5E_CANTLIST, FAIL, "node iteration failed")
     } /* end if */
 

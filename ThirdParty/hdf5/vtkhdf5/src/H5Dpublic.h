@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -30,9 +28,12 @@
 /*****************/
 
 /* Macros used to "unset" chunk cache configuration parameters */
-#define H5D_CHUNK_CACHE_NSLOTS_DEFAULT     ((size_t) -1)
+#define H5D_CHUNK_CACHE_NSLOTS_DEFAULT      ((size_t) -1)
 #define H5D_CHUNK_CACHE_NBYTES_DEFAULT      ((size_t) -1)
-#define H5D_CHUNK_CACHE_W0_DEFAULT          -1.
+#define H5D_CHUNK_CACHE_W0_DEFAULT          (-1.0f)
+
+/* Bit flags for the H5Pset_chunk_opts() and H5Pget_chunk_opts() */
+#define H5D_CHUNK_DONT_FILTER_PARTIAL_CHUNKS      (0x0002u)
 
 /* Property names for H5LTDdirect_chunk_write */   
 #define H5D_XFER_DIRECT_CHUNK_WRITE_FLAG_NAME	        "direct_chunk_flag"
@@ -51,12 +52,19 @@ typedef enum H5D_layout_t {
     H5D_COMPACT		= 0,	/*raw data is very small		     */
     H5D_CONTIGUOUS	= 1,	/*the default				     */
     H5D_CHUNKED		= 2,	/*slow and fancy			     */
-    H5D_NLAYOUTS	= 3	/*this one must be last!		     */
+    H5D_VIRTUAL         = 3,    /*actual data is stored in other datasets     */
+    H5D_NLAYOUTS	= 4	/*this one must be last!		     */
 } H5D_layout_t;
 
 /* Types of chunk index data structures */
 typedef enum H5D_chunk_index_t {
-    H5D_CHUNK_BTREE	= 0	/* v1 B-tree index			     */
+    H5D_CHUNK_IDX_BTREE	= 0,    /* v1 B-tree index (default)                */
+    H5D_CHUNK_IDX_SINGLE = 1,   /* Single Chunk index (cur dims[]=max dims[]=chunk dims[]; filtered & non-filtered) */
+    H5D_CHUNK_IDX_NONE = 2,     /* Implicit: No Index (H5D_ALLOC_TIME_EARLY, non-filtered, fixed dims) */
+    H5D_CHUNK_IDX_FARRAY = 3,   /* Fixed array (for 0 unlimited dims)       */
+    H5D_CHUNK_IDX_EARRAY = 4,   /* Extensible array (for 1 unlimited dim)   */
+    H5D_CHUNK_IDX_BT2 = 5,      /* v2 B-tree index (for >1 unlimited dims)  */
+    H5D_CHUNK_IDX_NTYPES        /* This one must be last!                   */
 } H5D_chunk_index_t;
 
 /* Values for the space allocation time property */
@@ -91,6 +99,16 @@ typedef enum H5D_fill_value_t {
     H5D_FILL_VALUE_DEFAULT      =1,
     H5D_FILL_VALUE_USER_DEFINED =2
 } H5D_fill_value_t;
+
+/* Values for VDS bounds option */
+typedef enum H5D_vds_view_t {
+    H5D_VDS_ERROR               = -1,
+    H5D_VDS_FIRST_MISSING       = 0,
+    H5D_VDS_LAST_AVAILABLE      = 1
+} H5D_vds_view_t;
+
+/* Callback for H5Pset_append_flush() in a dataset access property list */
+typedef herr_t (*H5D_append_cb_t)(hid_t dataset_id, hsize_t *cur_dims, void *op_data);
 
 /********************/
 /* Public Variables */
@@ -140,11 +158,17 @@ H5_DLL herr_t H5Dvlen_get_buf_size(hid_t dataset_id, hid_t type_id, hid_t space_
 H5_DLL herr_t H5Dfill(const void *fill, hid_t fill_type, void *buf,
         hid_t buf_type, hid_t space);
 H5_DLL herr_t H5Dset_extent(hid_t dset_id, const hsize_t size[]);
+H5_DLL herr_t H5Dflush(hid_t dset_id);
+H5_DLL herr_t H5Drefresh(hid_t dset_id);
 H5_DLL herr_t H5Dscatter(H5D_scatter_func_t op, void *op_data, hid_t type_id,
     hid_t dst_space_id, void *dst_buf);
 H5_DLL herr_t H5Dgather(hid_t src_space_id, const void *src_buf, hid_t type_id,
     size_t dst_buf_size, void *dst_buf, H5D_gather_func_t op, void *op_data);
 H5_DLL herr_t H5Ddebug(hid_t dset_id);
+
+/* Internal API routines */
+H5_DLL herr_t H5Dformat_convert(hid_t dset_id);
+H5_DLL herr_t H5Dget_chunk_index_type(hid_t did, H5D_chunk_index_t *idx_type);
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.
  *
@@ -153,6 +177,7 @@ H5_DLL herr_t H5Ddebug(hid_t dset_id);
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
 /* Macros */
+#define H5D_CHUNK_BTREE H5D_CHUNK_IDX_BTREE
 
 
 /* Typedefs */

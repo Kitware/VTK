@@ -5,20 +5,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /****************/
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg 	  */
-#define H5SM_PACKAGE		/*suppress error about including H5SMpkg	  */
+#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
+#include "H5SMmodule.h"         /* This source code file is part of the H5SM module */
 
 
 /***********/
@@ -45,12 +43,11 @@
 /********************/
 
 /* v2 B-tree callbacks */
-static void *H5SM_bt2_crt_context(void *udata);
-static herr_t H5SM_bt2_dst_context(void *ctx);
-static herr_t H5SM_bt2_store(void *native, const void *udata);
-static herr_t H5SM_bt2_debug(FILE *stream, const H5F_t *f, hid_t dxpl_id,
-    int indent, int fwidth, const void *record, const void *_udata);
-static void *H5SM_bt2_crt_dbg_context(H5F_t *f, hid_t dxpl_id, haddr_t addr);
+static void *H5SM__bt2_crt_context(void *udata);
+static herr_t H5SM__bt2_dst_context(void *ctx);
+static herr_t H5SM__bt2_store(void *native, const void *udata);
+static herr_t H5SM__bt2_debug(FILE *stream, int indent, int fwidth,
+    const void *record, const void *_udata);
 
 
 /*****************************/
@@ -61,15 +58,13 @@ const H5B2_class_t H5SM_INDEX[1]={{   /* B-tree class information */
     H5B2_SOHM_INDEX_ID,               /* Type of B-tree */
     "H5B2_SOHM_INDEX_ID",             /* Name of B-tree class */
     sizeof(H5SM_sohm_t),              /* Size of native record */
-    H5SM_bt2_crt_context,             /* Create client callback context */
-    H5SM_bt2_dst_context,             /* Destroy client callback context */
-    H5SM_bt2_store,                   /* Record storage callback */
-    H5SM_message_compare,             /* Record comparison callback */
-    H5SM_message_encode,              /* Record encoding callback */
-    H5SM_message_decode,              /* Record decoding callback */
-    H5SM_bt2_debug,                   /* Record debugging callback */
-    H5SM_bt2_crt_dbg_context,	      /* Create debugging context */
-    H5SM_bt2_dst_context 	      /* Destroy debugging context */
+    H5SM__bt2_crt_context,            /* Create client callback context */
+    H5SM__bt2_dst_context,            /* Destroy client callback context */
+    H5SM__bt2_store,                  /* Record storage callback */
+    H5SM__message_compare,            /* Record comparison callback */
+    H5SM__message_encode,             /* Record encoding callback */
+    H5SM__message_decode,             /* Record decoding callback */
+    H5SM__bt2_debug                   /* Record debugging callback */
 }};
 
 
@@ -83,7 +78,7 @@ H5FL_DEFINE_STATIC(H5SM_bt2_ctx_t);
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_crt_context
+ * Function:	H5SM__bt2_crt_context
  *
  * Purpose:	Create client callback context
  *
@@ -96,13 +91,13 @@ H5FL_DEFINE_STATIC(H5SM_bt2_ctx_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5SM_bt2_crt_context(void *_f)
+H5SM__bt2_crt_context(void *_f)
 {
     H5F_t *f = (H5F_t *)_f;     /* User data for building callback context */
     H5SM_bt2_ctx_t *ctx;        /* Callback context structure */
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_STATIC
 
     /* Sanity check */
     HDassert(f);
@@ -119,11 +114,11 @@ H5SM_bt2_crt_context(void *_f)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5SM_bt2_crt_context() */
+} /* H5SM__bt2_crt_context() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_dst_context
+ * Function:	H5SM__bt2_dst_context
  *
  * Purpose:	Destroy client callback context
  *
@@ -136,11 +131,11 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM_bt2_dst_context(void *_ctx)
+H5SM__bt2_dst_context(void *_ctx)
 {
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -149,11 +144,11 @@ H5SM_bt2_dst_context(void *_ctx)
     ctx = H5FL_FREE(H5SM_bt2_ctx_t, ctx);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5SM_bt2_dst_context() */
+} /* H5SM__bt2_dst_context() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_store
+ * Function:	H5SM__bt2_store
  *
  * Purpose:	Store a H5SM_sohm_t SOHM message in the B-tree.  The message
  *              comes in UDATA as a H5SM_mesg_key_t* and is copied to
@@ -168,21 +163,21 @@ H5SM_bt2_dst_context(void *_ctx)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM_bt2_store(void *native, const void *udata)
+H5SM__bt2_store(void *native, const void *udata)
 {
     const H5SM_mesg_key_t *key = (const H5SM_mesg_key_t *)udata;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     /* Copy the source message to the B-tree */
     *(H5SM_sohm_t *)native = key->message;
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SM_bt2_store */
+} /* end H5SM__bt2_store */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_debug
+ * Function:	H5SM__bt2_debug
  *
  * Purpose:	Print debugging information for a H5SM_sohm_t.
  *
@@ -195,12 +190,12 @@ H5SM_bt2_store(void *native, const void *udata)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5SM_bt2_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED dxpl_id,
-    int indent, int fwidth, const void *record, const void UNUSED *_udata)
+H5SM__bt2_debug(FILE *stream, int indent, int fwidth,
+    const void *record, const void H5_ATTR_UNUSED *_udata)
 {
     const H5SM_sohm_t *sohm = (const H5SM_sohm_t *)record;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     if(sohm->location == H5SM_IN_HEAP)
         HDfprintf(stream, "%*s%-*s {%a, %lo, %Hx}\n", indent, "", fwidth,
@@ -214,46 +209,7 @@ H5SM_bt2_debug(FILE *stream, const H5F_t UNUSED *f, hid_t UNUSED dxpl_id,
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SM_bt2_debug */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5SM_bt2_crt_dbg_context
- *
- * Purpose:	Create context for debugging callback
- *
- * Return:	Success:	non-NULL
- *		Failure:	NULL
- *
- * Programmer:	Quincey Koziol
- *              Tuesday, December 1, 2009
- *
- *-------------------------------------------------------------------------
- */
-static void *
-H5SM_bt2_crt_dbg_context(H5F_t *f, hid_t UNUSED dxpl_id, haddr_t UNUSED addr)
-{
-    H5SM_bt2_ctx_t *ctx;        /* Callback context structure */
-    void *ret_value;            /* Return value */
-
-    FUNC_ENTER_NOAPI_NOINIT
-
-    /* Sanity check */
-    HDassert(f);
-
-    /* Allocate callback context */
-    if(NULL == (ctx = H5FL_MALLOC(H5SM_bt2_ctx_t)))
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "can't allocate callback context")
-
-    /* Determine the size of addresses & lengths in the file */
-    ctx->sizeof_addr = H5F_SIZEOF_ADDR(f);
-
-    /* Set return value */
-    ret_value = ctx;
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5SM_bt2_crt_dbg_context() */
+} /* end H5SM__bt2_debug */
 
 
 /*-------------------------------------------------------------------------

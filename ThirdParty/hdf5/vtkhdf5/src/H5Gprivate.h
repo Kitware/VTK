@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -37,22 +35,17 @@
 #include "H5RSprivate.h"        /* Reference-counted strings            */
 
 /*
- * Define this to enable debugging.
- */
-#ifdef NDEBUG
-#  undef H5G_DEBUG
-#endif
-
-/*
  * The disk size for a symbol table entry...
  */
 #define H5G_SIZEOF_SCRATCH      16
-#define H5G_SIZEOF_ENTRY(F)                                                   \
-   (H5F_SIZEOF_SIZE(F) +        /*offset of name into heap              */    \
-    H5F_SIZEOF_ADDR(F) +        /*address of object header              */    \
+#define H5G_SIZEOF_ENTRY(sizeof_addr, sizeof_size)                            \
+   ((sizeof_size) +             /*offset of name into heap              */    \
+    (sizeof_addr) +             /*address of object header              */    \
     4 +                         /*entry type                            */    \
     4 +				/*reserved				*/    \
     H5G_SIZEOF_SCRATCH)         /*scratch pad space                     */
+#define H5G_SIZEOF_ENTRY_FILE(F)                                              \
+    H5G_SIZEOF_ENTRY(H5F_SIZEOF_ADDR(F), H5F_SIZEOF_SIZE(F))
 
 /* ========= Group Creation properties ============ */
 
@@ -99,11 +92,11 @@
                                                 }
 
 /* If the module using this macro is allowed access to the private variables, access them directly */
-#ifdef H5G_PACKAGE
+#ifdef H5G_MODULE
 #define H5G_MOUNTED(G)              ((G)->shared->mounted)
-#else /* H5G_PACKAGE */
+#else /* H5G_MODULE */
 #define H5G_MOUNTED(G)              (H5G_mounted(G))
-#endif /* H5G_PACKAGE */
+#endif /* H5G_MODULE */
 
 /*
  * During name lookups (see H5G_traverse()) we sometimes want information about
@@ -278,6 +271,7 @@ H5_DLL H5RS_str_t *H5G_build_fullpath_refstr_str(H5RS_str_t *path_r, const char 
  * These functions operate on group "locations"
  */
 H5_DLL herr_t H5G_loc(hid_t loc_id, H5G_loc_t *loc);
+H5_DLL herr_t H5G_loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth);
 H5_DLL herr_t H5G_loc_find(const H5G_loc_t *loc, const char *name,
     H5G_loc_t *obj_loc/*out*/, hid_t lapl_id, hid_t dxpl_id);
 H5_DLL herr_t H5G_loc_find_by_idx(H5G_loc_t *loc, const char *group_name,

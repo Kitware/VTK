@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -34,17 +32,17 @@
 #define H5T_ELEM_BUF_SIZE       256
 
 /* If the module using this macro is allowed access to the private variables, access them directly */
-#ifdef H5T_PACKAGE
+#ifdef H5T_MODULE
 #define H5T_GET_SIZE(T)                 ((T)->shared->size)
 #define H5T_GET_SHARED(T)               ((T)->shared)
 #define H5T_GET_MEMBER_OFFSET(T, I)     ((T)->u.compnd.memb[I].offset)
 #define H5T_GET_MEMBER_SIZE(T, I)       ((T)->u.compnd.memb[I].shared->size)
-#else /* H5T_PACKAGE */
+#else /* H5T_MODULE */
 #define H5T_GET_SIZE(T)                 (H5T_get_size(T))
 #define H5T_GET_SHARED(T)               (H5T_get_shared(T))
 #define H5T_GET_MEMBER_OFFSET(T, I)     (H5T_get_member_offset((T), (I)))
 #define H5T_GET_MEMBER_SIZE(T, I)       (H5T_get_member_size((T), (I)))
-#endif /* H5T_PACKAGE */
+#endif /* H5T_MODULE */
 
 /* Forward references of package typedefs (declared in H5Tpkg.h) */
 typedef struct H5T_t H5T_t;
@@ -104,7 +102,6 @@ struct H5O_t;
 H5_DLLVAR H5T_order_t H5T_native_order_g;
 
 /* Private functions */
-H5_DLL herr_t H5TN_init_interface(void);
 H5_DLL herr_t H5T_init(void);
 H5_DLL H5T_t *H5T_copy(H5T_t *old_dt, H5T_copy_t method);
 H5_DLL herr_t H5T_lock(H5T_t *dt, hbool_t immutable);
@@ -114,11 +111,14 @@ H5_DLL H5T_class_t H5T_get_class(const H5T_t *dt, htri_t internal);
 H5_DLL htri_t H5T_detect_class(const H5T_t *dt, H5T_class_t cls, hbool_t from_api);
 H5_DLL size_t H5T_get_size(const H5T_t *dt);
 H5_DLL int    H5T_cmp(const H5T_t *dt1, const H5T_t *dt2, hbool_t superset);
+H5_DLL herr_t H5T_encode(H5T_t *obj, unsigned char *buf, size_t *nalloc);
+H5_DLL H5T_t *H5T_decode(const unsigned char *buf);
 H5_DLL herr_t H5T_debug(const H5T_t *dt, FILE * stream);
 H5_DLL struct H5O_loc_t *H5T_oloc(H5T_t *dt);
 H5_DLL H5G_name_t *H5T_nameof(H5T_t *dt);
 H5_DLL htri_t H5T_is_immutable(const H5T_t *dt);
 H5_DLL htri_t H5T_is_named(const H5T_t *dt);
+H5_DLL herr_t H5T_convert_committed_datatype(H5T_t *dt, H5F_t *f);
 H5_DLL htri_t H5T_is_relocatable(const H5T_t *dt);
 H5_DLL H5T_path_t *H5T_path_find(const H5T_t *src, const H5T_t *dst,
     const char *name, H5T_conv_t func, hid_t dxpl_id, hbool_t is_api);
@@ -136,6 +136,7 @@ H5_DLL htri_t H5T_is_sensible(const H5T_t *dt);
 H5_DLL uint32_t H5T_hash(H5F_t * file, const H5T_t *dt);
 H5_DLL herr_t H5T_set_latest_version(H5T_t *dt);
 H5_DLL herr_t H5T_patch_file(H5T_t *dt, H5F_t *f);
+H5_DLL herr_t H5T_patch_vlen_file(H5T_t *dt, H5F_t *f);
 H5_DLL htri_t H5T_is_variable_str(const H5T_t *dt);
 
 /* Reference specific functions */

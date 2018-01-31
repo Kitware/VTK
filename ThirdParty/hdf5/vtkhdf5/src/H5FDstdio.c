@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Robb Matzke <matzke@llnl.gov>
@@ -24,12 +22,18 @@
  *          and is not intended for production use!
  */
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 
 #include "hdf5.h"
+
+#ifdef H5_HAVE_FLOCK
+/* Needed for lock type definitions (e.g., LOCK_EX) */
+#include <sys/file.h>
+#endif /* H5_HAVE_FLOCK */
 
 #ifdef H5_HAVE_UNISTD_H
 #include <unistd.h>
@@ -43,17 +47,7 @@
 #include <windows.h>
 #include <io.h>
 
-/* This is not defined in the Windows header files */
-#ifndef F_OK
-#define F_OK 00
-#endif
-
-#endif
-
-#ifdef MAX
-#undef MAX
-#endif /* MAX */
-#define MAX(X,Y)  ((X)>(Y)?(X):(Y))
+#endif /* H5_HAVE_WIN32_API */
 
 /* The driver identification number, initialized at runtime */
 static hid_t H5FD_STDIO_g = 0;
@@ -97,11 +91,7 @@ typedef struct H5FD_stdio_t {
      * Windows code further below.
      */
     dev_t           device;     /* file device number   */
-#ifdef H5_VMS
-    ino_t           inode[3];   /* file i-node number   */
-#else
     ino_t           inode;      /* file i-node number   */
-#endif /* H5_VMS */
 #else
     /* Files in windows are uniquely identified by the volume serial
      * number and the file index (both low and high parts).
@@ -128,35 +118,21 @@ typedef struct H5FD_stdio_t {
 /* Use similar structure as in H5private.h by defining Windows stuff first. */
 #ifdef H5_HAVE_WIN32_API
 #ifndef H5_HAVE_MINGW
+    #define file_fseek      _fseeki64
     #define file_offset_t   __int64
     #define file_ftruncate  _chsize_s   /* Supported in VS 2005 or newer */
-#if (_MSC_VER > 1310)
-    #define file_fseek      _fseeki64
     #define file_ftell      _ftelli64
-#else
-    #define file_fseek      fseek
-    #define file_ftell      ftell
-#endif
 #endif /* H5_HAVE_MINGW */
 #endif /* H5_HAVE_WIN32_API */
 
-/* Use file_xxx to indicate these are local macros, avoiding confusing 
- * with the global HD_xxx macros. 
- * Assume fseeko, which is POSIX standard, is always supported; 
- * but prefer to use fseeko64 if supported. 
+/* If these functions weren't re-defined for Windows, give them
+ * more platform-independent names.
  */
 #ifndef file_fseek
-    #ifdef H5_HAVE_FSEEKO64
-        #define file_fseek      fseeko64
-        #define file_offset_t   off64_t
-        #define file_ftruncate  ftruncate64
-        #define file_ftell      ftello64
-    #else
-        #define file_fseek      fseeko
-        #define file_offset_t   off_t
-        #define file_ftruncate  ftruncate
-        #define file_ftell      ftello
-    #endif /* H5_HAVE_FSEEKO64 */
+    #define file_fseek      fseeko
+    #define file_offset_t   off_t
+    #define file_ftruncate  ftruncate
+    #define file_ftell      ftello
 #endif /* file_fseek */
 
 /* These macros check for overflow of various quantities.  These macros
@@ -181,6 +157,7 @@ typedef struct H5FD_stdio_t {
     HADDR_UNDEF==(A)+(Z) || (file_offset_t)((A)+(Z))<(file_offset_t)(A))
 
 /* Prototypes */
+static herr_t H5FD_stdio_term(void);
 static H5FD_t *H5FD_stdio_open(const char *name, unsigned flags,
                  hid_t fapl_id, haddr_t maxaddr);
 static herr_t H5FD_stdio_close(H5FD_t *lf);
@@ -189,19 +166,22 @@ static herr_t H5FD_stdio_query(const H5FD_t *_f1, unsigned long *flags);
 static haddr_t H5FD_stdio_alloc(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, hsize_t size);
 static haddr_t H5FD_stdio_get_eoa(const H5FD_t *_file, H5FD_mem_t type);
 static herr_t H5FD_stdio_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t addr);
-static haddr_t H5FD_stdio_get_eof(const H5FD_t *_file);
+static haddr_t H5FD_stdio_get_eof(const H5FD_t *_file, H5FD_mem_t type);
 static herr_t  H5FD_stdio_get_handle(H5FD_t *_file, hid_t fapl, void** file_handle);
 static herr_t H5FD_stdio_read(H5FD_t *lf, H5FD_mem_t type, hid_t fapl_id, haddr_t addr,
                 size_t size, void *buf);
 static herr_t H5FD_stdio_write(H5FD_t *lf, H5FD_mem_t type, hid_t fapl_id, haddr_t addr,
                 size_t size, const void *buf);
-static herr_t H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, unsigned closing);
+static herr_t H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
 static herr_t H5FD_stdio_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
+static herr_t H5FD_stdio_lock(H5FD_t *_file, hbool_t rw);
+static herr_t H5FD_stdio_unlock(H5FD_t *_file);
 
 static const H5FD_class_t H5FD_stdio_g = {
     "stdio",                    /* name         */
     MAXADDR,                    /* maxaddr      */
     H5F_CLOSE_WEAK,             /* fc_degree    */
+    H5FD_stdio_term,            /* terminate    */
     NULL,                       /* sb_size      */
     NULL,                       /* sb_encode    */
     NULL,                       /* sb_decode    */
@@ -227,8 +207,8 @@ static const H5FD_class_t H5FD_stdio_g = {
     H5FD_stdio_write,           /* write        */
     H5FD_stdio_flush,           /* flush        */
     H5FD_stdio_truncate,        /* truncate     */
-    NULL,                       /* lock         */
-    NULL,                       /* unlock       */
+    H5FD_stdio_lock,            /* lock         */
+    H5FD_stdio_unlock,          /* unlock       */
     H5FD_FLMAP_DICHOTOMY	/* fl_map       */
 };
 
@@ -265,20 +245,20 @@ H5FD_stdio_init(void)
  *
  * Purpose:  Shut down the VFD
  *
- * Returns:     None
+ * Returns:     Non-negative on success or negative on failure
  *
  * Programmer:  Quincey Koziol
  *              Friday, Jan 30, 2004
  *
  *---------------------------------------------------------------------------
  */
-void
+static herr_t
 H5FD_stdio_term(void)
 {
     /* Reset VFL ID */
     H5FD_STDIO_g = 0;
 
-    return;
+    return 0;
 } /* end H5FD_stdio_term() */
 
 
@@ -338,7 +318,7 @@ H5Pset_fapl_stdio(hid_t fapl_id)
  *-------------------------------------------------------------------------
  */
 static H5FD_t *
-H5FD_stdio_open( const char *name, unsigned flags, hid_t fapl_id,
+H5FD_stdio_open( const char *name, unsigned flags, hid_t /*UNUSED*/ fapl_id,
     haddr_t maxaddr)
 {
     FILE                *f = NULL;
@@ -453,16 +433,10 @@ H5FD_stdio_open( const char *name, unsigned flags, hid_t fapl_id,
         H5Epush_ret(func, H5E_ERR_CLS, H5E_FILE, H5E_BADFILE, "unable to fstat file", NULL)
     } /* end if */
     file->device = sb.st_dev;
-#ifdef H5_VMS
-    file->inode[0] = sb.st_ino[0];
-    file->inode[1] = sb.st_ino[1];
-    file->inode[2] = sb.st_ino[2];
-#else /* H5_VMS */
     file->inode = sb.st_ino;
-#endif /* H5_VMS */
 #endif /* H5_HAVE_WIN32_API */
 
-    return (H5FD_t*)file;
+    return((H5FD_t*)file);
 } /* end H5FD_stdio_open() */
 
 
@@ -545,13 +519,8 @@ H5FD_stdio_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
     if(memcmp(&(f1->device),&(f2->device),sizeof(dev_t)) < 0) return -1;
     if(memcmp(&(f1->device),&(f2->device),sizeof(dev_t)) > 0) return 1;
 #endif /* H5_DEV_T_IS_SCALAR */
-#ifdef H5_VMS
-    if(memcmp(&(f1->inode), &(f2->inode), 3 * sizeof(ino_t)) < 0) return -1;
-    if(memcmp(&(f1->inode), &(f2->inode), 3 * sizeof(ino_t)) > 0) return 1;
-#else /* H5_VMS */
     if(f1->inode < f2->inode) return -1;
     if(f1->inode > f2->inode) return 1;
-#endif /* H5_VMS */
 #endif /* H5_HAVE_WIN32_API */
 
     return 0;
@@ -574,12 +543,16 @@ H5FD_stdio_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_query(const H5FD_t *_f, unsigned long *flags /* out */)
+H5FD_stdio_query(const H5FD_t *_f, unsigned long /*OUT*/ *flags)
 {
     /* Quiet the compiler */
     _f=_f;
 
-    /* Set the VFL feature flags that this driver supports */
+    /* Set the VFL feature flags that this driver supports.
+     *
+     * Note that this VFD does not support SWMR due to the unpredictable
+     * nature of the buffering layer.
+     */
     if(flags) {
         *flags = 0;
         *flags|=H5FD_FEAT_AGGREGATE_METADATA; /* OK to aggregate metadata allocations */
@@ -625,13 +598,6 @@ H5FD_stdio_alloc(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxp
 
     /* Compute the address for the block to allocate */
     addr = file->eoa;
-
-    /* Check if we need to align this block */
-    if(size >= file->pub.threshold) {
-        /* Check for an already aligned block */
-        if((addr % file->pub.alignment) != 0)
-            addr = ((addr / file->pub.alignment) + 1) * file->pub.alignment;
-    } /* end if */
 
     file->eoa = addr + size;
 
@@ -722,14 +688,20 @@ H5FD_stdio_set_eoa(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, haddr_t addr)
  *-------------------------------------------------------------------------
  */
 static haddr_t
-H5FD_stdio_get_eof(const H5FD_t *_file)
+H5FD_stdio_get_eof(const H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type)
 {
     const H5FD_stdio_t  *file = (const H5FD_stdio_t *)_file;
+
+    /* Quiet the compiler */
+    type = type;
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
 
-    return MAX(file->eof, file->eoa);
+    /* Quiet the compiler */
+    type = type;
+
+    return(file->eof);
 } /* end H5FD_stdio_get_eof() */
 
 
@@ -746,7 +718,7 @@ H5FD_stdio_get_eof(const H5FD_t *_file)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_get_handle(H5FD_t *_file, hid_t fapl, void** file_handle)
+H5FD_stdio_get_handle(H5FD_t *_file, hid_t /*UNUSED*/ fapl, void **file_handle)
 {
     H5FD_stdio_t       *file = (H5FD_stdio_t *)_file;
     static const char  *func = "H5FD_stdio_get_handle";  /* Function Name for error reporting */
@@ -784,8 +756,8 @@ H5FD_stdio_get_handle(H5FD_t *_file, hid_t fapl, void** file_handle)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
-    void *buf/*out*/)
+H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_id,
+    haddr_t addr, size_t size, void /*OUT*/ *buf)
 {
     H5FD_stdio_t    *file = (H5FD_stdio_t*)_file;
     static const char *func = "H5FD_stdio_read";  /* Function Name for error reporting */
@@ -802,8 +774,6 @@ H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, siz
         H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
     if (REGION_OVERFLOW(addr, size))
         H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
-    if((addr + size) > file->eoa)
-        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
 
     /* Check easy cases */
     if (0 == size)
@@ -891,8 +861,8 @@ H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, siz
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr,
-    size_t size, const void *buf)
+H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_id,
+    haddr_t addr, size_t size, const void *buf)
 {
     H5FD_stdio_t    *file = (H5FD_stdio_t*)_file;
     static const char *func = "H5FD_stdio_write";  /* Function Name for error reporting */
@@ -908,8 +878,6 @@ H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr,
     if (HADDR_UNDEF == addr)
         H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
     if (REGION_OVERFLOW(addr, size))
-        H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
-    if (addr+size > file->eoa)
         H5Epush_ret (func, H5E_ERR_CLS, H5E_IO, H5E_OVERFLOW, "file address overflowed", -1)
 
     /* Seek to the correct file position. */
@@ -983,7 +951,7 @@ H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr,
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, unsigned closing)
+H5FD_stdio_flush(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t closing)
 {
     H5FD_stdio_t  *file = (H5FD_stdio_t*)_file;
     static const char *func = "H5FD_stdio_flush";  /* Function Name for error reporting */
@@ -1028,7 +996,8 @@ H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, unsigned closing)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
+H5FD_stdio_truncate(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id,
+    hbool_t /*UNUSED*/ closing)
 {
     H5FD_stdio_t  *file = (H5FD_stdio_t*)_file;
     static const char *func = "H5FD_stdio_truncate";  /* Function Name for error reporting */
@@ -1099,6 +1068,99 @@ H5FD_stdio_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing)
 
     return 0;
 } /* end H5FD_stdio_truncate() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5FD_stdio_lock
+ *
+ * Purpose:     Lock a file via flock
+ *              NOTE: This function is a no-op if flock() is not present.
+ *
+ * Errors:
+ *    IO    FCNTL    flock failed.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Vailin Choi; March 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD_stdio_lock(H5FD_t *_file, hbool_t rw)
+{
+#ifdef H5_HAVE_FLOCK
+    H5FD_stdio_t  *file = (H5FD_stdio_t*)_file;     /* VFD file struct                      */
+    int lock_flags;                                 /* file locking flags                   */
+    static const char *func = "H5FD_stdio_lock";  	/* Function Name for error reporting    */
+
+    /* Clear the error stack */
+    H5Eclear2(H5E_DEFAULT);
+
+    assert(file);
+
+    /* Set exclusive or shared lock based on rw status */
+    lock_flags = rw ? LOCK_EX : LOCK_SH;
+
+    /* Place a non-blocking lock on the file */
+    if(flock(file->fd, lock_flags | LOCK_NB) < 0) {
+        if(ENOSYS == errno)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_FCNTL, "file locking disabled on this file system (use HDF5_USE_FILE_LOCKING environment variable to override)", -1)
+        else
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_FCNTL, "file lock failed", -1)
+    } /* end if */
+
+    /* Flush the stream */
+    if(fflush(file->fp) < 0)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "fflush failed", -1)
+
+#endif /* H5_HAVE_FLOCK */
+
+    return 0;
+} /* end H5FD_stdio_lock() */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5F_stdio_unlock
+ *
+ * Purpose:     Unlock a file via flock
+ *              NOTE: This function is a no-op if flock() is not present.
+ *
+ * Errors:
+ *    IO    FCNTL    flock failed.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Vailin Choi; March 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5FD_stdio_unlock(H5FD_t *_file)
+{
+#ifdef H5_HAVE_FLOCK
+    H5FD_stdio_t  *file = (H5FD_stdio_t*)_file;         /* VFD file struct                      */
+    static const char *func = "H5FD_stdio_unlock";  	/* Function Name for error reporting    */
+
+    /* Clear the error stack */
+    H5Eclear2(H5E_DEFAULT);
+
+    assert(file);
+
+    /* Flush the stream */
+    if(fflush(file->fp) < 0)
+        H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_WRITEERROR, "fflush failed", -1)
+
+    /* Place a non-blocking lock on the file */
+    if(flock(file->fd, LOCK_UN) < 0) {
+        if(ENOSYS == errno)
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_FCNTL, "file locking disabled on this file system (use HDF5_USE_FILE_LOCKING environment variable to override)", -1)
+        else
+            H5Epush_ret(func, H5E_ERR_CLS, H5E_IO, H5E_FCNTL, "file unlock failed", -1)
+    } /* end if */
+
+#endif /* H5_HAVE_FLOCK */
+
+    return 0;
+} /* end H5FD_stdio_unlock() */
 
 
 #ifdef _H5private_H

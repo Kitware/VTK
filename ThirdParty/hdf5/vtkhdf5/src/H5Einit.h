@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Generated automatically by bin/make_err -- do not edit */
@@ -24,20 +22,10 @@
 /* Major error codes */
 /*********************/
 
-assert(H5E_DATASET_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Dataset"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_DATASET_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_FUNC_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Function entry/exit"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_FUNC_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_STORAGE_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Data storage"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_STORAGE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_FILE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "File accessibilty"))==NULL)
@@ -89,60 +77,30 @@ if((msg = H5E_create_msg(cls, H5E_MAJOR, "Resource unavailable"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_RESOURCE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_PLIST_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Property lists"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_PLIST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_LINK_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Links"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_LINK_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_DATATYPE_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Datatype"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_DATATYPE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_RS_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Reference Counted Strings"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_RS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_FARRAY_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Fixed Array"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_FARRAY_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_HEAP_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Heap"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_HEAP_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_OHDR_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Object header"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_OHDR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_ATOM_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Object atom"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_ATOM_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_ATTR_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Attribute"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_ATTR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_NONE_MAJOR_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "No error"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_NONE_MAJOR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_IO_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Low-level I/O"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_IO_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_SLIST_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Skip Lists"))==NULL)
-    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_SLIST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_EFL_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "External file list"))==NULL)
@@ -154,25 +112,80 @@ if((msg = H5E_create_msg(cls, H5E_MAJOR, "Ternary Search Trees"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_TST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_PAGEBUF_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Page Buffering"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_PAGEBUF_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_FSPACE_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Free Space Manager"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_FSPACE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_DATASET_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Dataset"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_DATASET_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_STORAGE_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Data storage"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_STORAGE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_LINK_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Links"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_LINK_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_PLIST_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Property lists"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_PLIST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_DATATYPE_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Datatype"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_DATATYPE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_OHDR_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Object header"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_OHDR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_ATOM_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Object atom"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_ATOM_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_NONE_MAJOR_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "No error"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_NONE_MAJOR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_SLIST_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Skip Lists"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_SLIST_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_ARGS_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Invalid arguments to routine"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_ARGS_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_ERROR_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Error API"))==NULL)
+assert(H5E_EARRAY_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Extensible Array"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_ERROR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+if((H5E_EARRAY_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_PLINE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Data filters"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_PLINE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
-assert(H5E_FSPACE_g==(-1));
-if((msg = H5E_create_msg(cls, H5E_MAJOR, "Free Space Manager"))==NULL)
+assert(H5E_ERROR_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MAJOR, "Error API"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
-if((H5E_FSPACE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+if((H5E_ERROR_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_CACHE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MAJOR, "Object cache"))==NULL)
@@ -564,10 +577,20 @@ if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to flush data from cache"))==NU
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTFLUSH_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTUNSERIALIZE_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark metadata as unserialized"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTUNSERIALIZE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_CANTSERIALIZE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to serialize data from cache"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTSERIALIZE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTTAG_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to tag metadata in the cache"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTTAG_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_CANTLOAD_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to load metadata into cache"))==NULL)
@@ -619,10 +642,30 @@ if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark a pinned entry as dirty
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTMARKDIRTY_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTMARKCLEAN_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark a pinned entry as clean"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTMARKCLEAN_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTMARKUNSERIALIZED_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark an entry as unserialized"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTMARKUNSERIALIZED_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTMARKSERIALIZED_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark an entry as serialized"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTMARKSERIALIZED_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_CANTDIRTY_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark metadata as dirty"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTDIRTY_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTCLEAN_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to mark metadata as clean"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTCLEAN_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 assert(H5E_CANTEXPUNGE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to expunge a metadata cache entry"))==NULL)
@@ -633,6 +676,36 @@ assert(H5E_CANTRESIZE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to resize a metadata cache entry"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTRESIZE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTDEPEND_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to create a flush dependency"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTDEPEND_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTUNDEPEND_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to destroy a flush dependency"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTUNDEPEND_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTNOTIFY_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to notify object about action"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTNOTIFY_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_LOGFAIL_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Failure in the cache logging framework"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_LOGFAIL_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTCORK_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to cork an object"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTCORK_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTUNCORK_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Unable to uncork an object"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTUNCORK_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Link related errors */
@@ -709,6 +782,11 @@ assert(H5E_CANTCOMPARE_g==(-1));
 if((msg = H5E_create_msg(cls, H5E_MINOR, "Can't compare objects"))==NULL)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
 if((H5E_CANTCOMPARE_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
+assert(H5E_CANTAPPEND_g==(-1));
+if((msg = H5E_create_msg(cls, H5E_MINOR, "Can't append object"))==NULL)
+    HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "error message initialization failed")
+if((H5E_CANTAPPEND_g = H5I_register(H5I_ERROR_MSG, msg, FALSE))<0)
     HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error message")
 
 /* Argument errors */

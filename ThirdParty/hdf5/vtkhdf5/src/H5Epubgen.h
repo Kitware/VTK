@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Generated automatically by bin/make_err -- do not edit */
@@ -20,13 +18,15 @@
 #ifndef _H5Epubgen_H
 #define _H5Epubgen_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*********************/
 /* Major error codes */
 /*********************/
 
-#define H5E_DATASET          (H5OPEN H5E_DATASET_g)
 #define H5E_FUNC             (H5OPEN H5E_FUNC_g)
-#define H5E_STORAGE          (H5OPEN H5E_STORAGE_g)
 #define H5E_FILE             (H5OPEN H5E_FILE_g)
 #define H5E_SOHM             (H5OPEN H5E_SOHM_g)
 #define H5E_SYM              (H5OPEN H5E_SYM_g)
@@ -37,27 +37,30 @@
 #define H5E_REFERENCE        (H5OPEN H5E_REFERENCE_g)
 #define H5E_DATASPACE        (H5OPEN H5E_DATASPACE_g)
 #define H5E_RESOURCE         (H5OPEN H5E_RESOURCE_g)
-#define H5E_PLIST            (H5OPEN H5E_PLIST_g)
-#define H5E_LINK             (H5OPEN H5E_LINK_g)
-#define H5E_DATATYPE         (H5OPEN H5E_DATATYPE_g)
 #define H5E_RS               (H5OPEN H5E_RS_g)
+#define H5E_FARRAY           (H5OPEN H5E_FARRAY_g)
 #define H5E_HEAP             (H5OPEN H5E_HEAP_g)
-#define H5E_OHDR             (H5OPEN H5E_OHDR_g)
-#define H5E_ATOM             (H5OPEN H5E_ATOM_g)
 #define H5E_ATTR             (H5OPEN H5E_ATTR_g)
-#define H5E_NONE_MAJOR       (H5OPEN H5E_NONE_MAJOR_g)
 #define H5E_IO               (H5OPEN H5E_IO_g)
-#define H5E_SLIST            (H5OPEN H5E_SLIST_g)
 #define H5E_EFL              (H5OPEN H5E_EFL_g)
 #define H5E_TST              (H5OPEN H5E_TST_g)
-#define H5E_ARGS             (H5OPEN H5E_ARGS_g)
-#define H5E_ERROR            (H5OPEN H5E_ERROR_g)
-#define H5E_PLINE            (H5OPEN H5E_PLINE_g)
+#define H5E_PAGEBUF          (H5OPEN H5E_PAGEBUF_g)
 #define H5E_FSPACE           (H5OPEN H5E_FSPACE_g)
+#define H5E_DATASET          (H5OPEN H5E_DATASET_g)
+#define H5E_STORAGE          (H5OPEN H5E_STORAGE_g)
+#define H5E_LINK             (H5OPEN H5E_LINK_g)
+#define H5E_PLIST            (H5OPEN H5E_PLIST_g)
+#define H5E_DATATYPE         (H5OPEN H5E_DATATYPE_g)
+#define H5E_OHDR             (H5OPEN H5E_OHDR_g)
+#define H5E_ATOM             (H5OPEN H5E_ATOM_g)
+#define H5E_NONE_MAJOR       (H5OPEN H5E_NONE_MAJOR_g)
+#define H5E_SLIST            (H5OPEN H5E_SLIST_g)
+#define H5E_ARGS             (H5OPEN H5E_ARGS_g)
+#define H5E_EARRAY           (H5OPEN H5E_EARRAY_g)
+#define H5E_PLINE            (H5OPEN H5E_PLINE_g)
+#define H5E_ERROR            (H5OPEN H5E_ERROR_g)
 #define H5E_CACHE            (H5OPEN H5E_CACHE_g)
-H5_DLLVAR hid_t H5E_DATASET_g;       /* Dataset */
 H5_DLLVAR hid_t H5E_FUNC_g;          /* Function entry/exit */
-H5_DLLVAR hid_t H5E_STORAGE_g;       /* Data storage */
 H5_DLLVAR hid_t H5E_FILE_g;          /* File accessibilty */
 H5_DLLVAR hid_t H5E_SOHM_g;          /* Shared Object Header Messages */
 H5_DLLVAR hid_t H5E_SYM_g;           /* Symbol table */
@@ -68,23 +71,28 @@ H5_DLLVAR hid_t H5E_BTREE_g;         /* B-Tree node */
 H5_DLLVAR hid_t H5E_REFERENCE_g;     /* References */
 H5_DLLVAR hid_t H5E_DATASPACE_g;     /* Dataspace */
 H5_DLLVAR hid_t H5E_RESOURCE_g;      /* Resource unavailable */
-H5_DLLVAR hid_t H5E_PLIST_g;         /* Property lists */
-H5_DLLVAR hid_t H5E_LINK_g;          /* Links */
-H5_DLLVAR hid_t H5E_DATATYPE_g;      /* Datatype */
 H5_DLLVAR hid_t H5E_RS_g;            /* Reference Counted Strings */
+H5_DLLVAR hid_t H5E_FARRAY_g;        /* Fixed Array */
 H5_DLLVAR hid_t H5E_HEAP_g;          /* Heap */
-H5_DLLVAR hid_t H5E_OHDR_g;          /* Object header */
-H5_DLLVAR hid_t H5E_ATOM_g;          /* Object atom */
 H5_DLLVAR hid_t H5E_ATTR_g;          /* Attribute */
-H5_DLLVAR hid_t H5E_NONE_MAJOR_g;    /* No error */
 H5_DLLVAR hid_t H5E_IO_g;            /* Low-level I/O */
-H5_DLLVAR hid_t H5E_SLIST_g;         /* Skip Lists */
 H5_DLLVAR hid_t H5E_EFL_g;           /* External file list */
 H5_DLLVAR hid_t H5E_TST_g;           /* Ternary Search Trees */
-H5_DLLVAR hid_t H5E_ARGS_g;          /* Invalid arguments to routine */
-H5_DLLVAR hid_t H5E_ERROR_g;         /* Error API */
-H5_DLLVAR hid_t H5E_PLINE_g;         /* Data filters */
+H5_DLLVAR hid_t H5E_PAGEBUF_g;       /* Page Buffering */
 H5_DLLVAR hid_t H5E_FSPACE_g;        /* Free Space Manager */
+H5_DLLVAR hid_t H5E_DATASET_g;       /* Dataset */
+H5_DLLVAR hid_t H5E_STORAGE_g;       /* Data storage */
+H5_DLLVAR hid_t H5E_LINK_g;          /* Links */
+H5_DLLVAR hid_t H5E_PLIST_g;         /* Property lists */
+H5_DLLVAR hid_t H5E_DATATYPE_g;      /* Datatype */
+H5_DLLVAR hid_t H5E_OHDR_g;          /* Object header */
+H5_DLLVAR hid_t H5E_ATOM_g;          /* Object atom */
+H5_DLLVAR hid_t H5E_NONE_MAJOR_g;    /* No error */
+H5_DLLVAR hid_t H5E_SLIST_g;         /* Skip Lists */
+H5_DLLVAR hid_t H5E_ARGS_g;          /* Invalid arguments to routine */
+H5_DLLVAR hid_t H5E_EARRAY_g;        /* Extensible Array */
+H5_DLLVAR hid_t H5E_PLINE_g;         /* Data filters */
+H5_DLLVAR hid_t H5E_ERROR_g;         /* Error API */
 H5_DLLVAR hid_t H5E_CACHE_g;         /* Object cache */
 
 /*********************/
@@ -259,7 +267,9 @@ H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
 
 /* Cache related errors */
 #define H5E_CANTFLUSH        (H5OPEN H5E_CANTFLUSH_g)
+#define H5E_CANTUNSERIALIZE  (H5OPEN H5E_CANTUNSERIALIZE_g)
 #define H5E_CANTSERIALIZE    (H5OPEN H5E_CANTSERIALIZE_g)
+#define H5E_CANTTAG          (H5OPEN H5E_CANTTAG_g)
 #define H5E_CANTLOAD         (H5OPEN H5E_CANTLOAD_g)
 #define H5E_PROTECT          (H5OPEN H5E_PROTECT_g)
 #define H5E_NOTCACHED        (H5OPEN H5E_NOTCACHED_g)
@@ -270,11 +280,23 @@ H5_DLLVAR hid_t H5E_NOIDS_g;         /* Out of IDs for group */
 #define H5E_CANTPIN          (H5OPEN H5E_CANTPIN_g)
 #define H5E_CANTUNPIN        (H5OPEN H5E_CANTUNPIN_g)
 #define H5E_CANTMARKDIRTY    (H5OPEN H5E_CANTMARKDIRTY_g)
+#define H5E_CANTMARKCLEAN    (H5OPEN H5E_CANTMARKCLEAN_g)
+#define H5E_CANTMARKUNSERIALIZED (H5OPEN H5E_CANTMARKUNSERIALIZED_g)
+#define H5E_CANTMARKSERIALIZED (H5OPEN H5E_CANTMARKSERIALIZED_g)
 #define H5E_CANTDIRTY        (H5OPEN H5E_CANTDIRTY_g)
+#define H5E_CANTCLEAN        (H5OPEN H5E_CANTCLEAN_g)
 #define H5E_CANTEXPUNGE      (H5OPEN H5E_CANTEXPUNGE_g)
 #define H5E_CANTRESIZE       (H5OPEN H5E_CANTRESIZE_g)
+#define H5E_CANTDEPEND       (H5OPEN H5E_CANTDEPEND_g)
+#define H5E_CANTUNDEPEND     (H5OPEN H5E_CANTUNDEPEND_g)
+#define H5E_CANTNOTIFY       (H5OPEN H5E_CANTNOTIFY_g)
+#define H5E_LOGFAIL          (H5OPEN H5E_LOGFAIL_g)
+#define H5E_CANTCORK         (H5OPEN H5E_CANTCORK_g)
+#define H5E_CANTUNCORK       (H5OPEN H5E_CANTUNCORK_g)
 H5_DLLVAR hid_t H5E_CANTFLUSH_g;     /* Unable to flush data from cache */
+H5_DLLVAR hid_t H5E_CANTUNSERIALIZE_g; /* Unable to mark metadata as unserialized */
 H5_DLLVAR hid_t H5E_CANTSERIALIZE_g; /* Unable to serialize data from cache */
+H5_DLLVAR hid_t H5E_CANTTAG_g;       /* Unable to tag metadata in the cache */
 H5_DLLVAR hid_t H5E_CANTLOAD_g;      /* Unable to load metadata into cache */
 H5_DLLVAR hid_t H5E_PROTECT_g;       /* Protected metadata error */
 H5_DLLVAR hid_t H5E_NOTCACHED_g;     /* Metadata not currently cached */
@@ -285,9 +307,19 @@ H5_DLLVAR hid_t H5E_CANTUNPROTECT_g; /* Unable to unprotect metadata */
 H5_DLLVAR hid_t H5E_CANTPIN_g;       /* Unable to pin cache entry */
 H5_DLLVAR hid_t H5E_CANTUNPIN_g;     /* Unable to un-pin cache entry */
 H5_DLLVAR hid_t H5E_CANTMARKDIRTY_g; /* Unable to mark a pinned entry as dirty */
+H5_DLLVAR hid_t H5E_CANTMARKCLEAN_g; /* Unable to mark a pinned entry as clean */
+H5_DLLVAR hid_t H5E_CANTMARKUNSERIALIZED_g; /* Unable to mark an entry as unserialized */
+H5_DLLVAR hid_t H5E_CANTMARKSERIALIZED_g; /* Unable to mark an entry as serialized */
 H5_DLLVAR hid_t H5E_CANTDIRTY_g;     /* Unable to mark metadata as dirty */
+H5_DLLVAR hid_t H5E_CANTCLEAN_g;     /* Unable to mark metadata as clean */
 H5_DLLVAR hid_t H5E_CANTEXPUNGE_g;   /* Unable to expunge a metadata cache entry */
 H5_DLLVAR hid_t H5E_CANTRESIZE_g;    /* Unable to resize a metadata cache entry */
+H5_DLLVAR hid_t H5E_CANTDEPEND_g;    /* Unable to create a flush dependency */
+H5_DLLVAR hid_t H5E_CANTUNDEPEND_g;  /* Unable to destroy a flush dependency */
+H5_DLLVAR hid_t H5E_CANTNOTIFY_g;    /* Unable to notify object about action */
+H5_DLLVAR hid_t H5E_LOGFAIL_g;       /* Failure in the cache logging framework */
+H5_DLLVAR hid_t H5E_CANTCORK_g;      /* Unable to cork an object */
+H5_DLLVAR hid_t H5E_CANTUNCORK_g;    /* Unable to uncork an object */
 
 /* Link related errors */
 #define H5E_TRAVERSE         (H5OPEN H5E_TRAVERSE_g)
@@ -316,12 +348,14 @@ H5_DLLVAR hid_t H5E_CANTRECV_g;      /* Can't receive data */
 #define H5E_CANTNEXT         (H5OPEN H5E_CANTNEXT_g)
 #define H5E_BADSELECT        (H5OPEN H5E_BADSELECT_g)
 #define H5E_CANTCOMPARE      (H5OPEN H5E_CANTCOMPARE_g)
+#define H5E_CANTAPPEND       (H5OPEN H5E_CANTAPPEND_g)
 H5_DLLVAR hid_t H5E_CANTCLIP_g;      /* Can't clip hyperslab region */
 H5_DLLVAR hid_t H5E_CANTCOUNT_g;     /* Can't count elements */
 H5_DLLVAR hid_t H5E_CANTSELECT_g;    /* Can't select hyperslab */
 H5_DLLVAR hid_t H5E_CANTNEXT_g;      /* Can't move to next iterator location */
 H5_DLLVAR hid_t H5E_BADSELECT_g;     /* Invalid selection */
 H5_DLLVAR hid_t H5E_CANTCOMPARE_g;   /* Can't compare objects */
+H5_DLLVAR hid_t H5E_CANTAPPEND_g;    /* Can't append object */
 
 /* Argument errors */
 #define H5E_UNINITIALIZED    (H5OPEN H5E_UNINITIALIZED_g)
@@ -364,5 +398,9 @@ H5_DLLVAR hid_t H5E_CANTREMOVE_g;    /* Unable to remove object */
 #define H5E_BADSIZE          (H5OPEN H5E_BADSIZE_g)
 H5_DLLVAR hid_t H5E_CANTCONVERT_g;   /* Can't convert datatypes */
 H5_DLLVAR hid_t H5E_BADSIZE_g;       /* Bad size for object */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* H5Epubgen_H */

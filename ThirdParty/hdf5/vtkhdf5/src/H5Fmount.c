@@ -5,18 +5,13 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5F_init_mount_interface
+#include "H5Fmodule.h"          /* This source code file is part of the H5F module */
 
 
 /* Packages needed by this file... */
@@ -34,28 +29,6 @@ static herr_t H5F_mount(H5G_loc_t *loc, const char *name, H5F_t *child,
     hid_t plist_id, hid_t dxpl_id);
 static herr_t H5F_unmount(H5G_loc_t *loc, const char *name, hid_t dxpl_id);
 static void H5F_mount_count_ids_recurse(H5F_t *f, unsigned *nopen_files, unsigned *nopen_objs);
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5F_init_mount_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5F_init_mount_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5F_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5F_init_mount_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5F_init())
-} /* H5F_init_mount_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -94,7 +67,7 @@ H5F_close_mounts(H5F_t *f)
             HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEOBJ, FAIL, "can't close child group")
 
             /* Close the child file */
-            if(H5F_try_close(f->shared->mtab.child[u].file) < 0)
+            if(H5F_try_close(f->shared->mtab.child[u].file, NULL) < 0)
                 HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "can't close child file")
 
             /* Eliminate the mount point from the table */
@@ -128,7 +101,7 @@ done:
  */
 static herr_t
 H5F_mount(H5G_loc_t *loc, const char *name, H5F_t *child,
-	  hid_t UNUSED plist_id, hid_t dxpl_id)
+	  hid_t H5_ATTR_UNUSED plist_id, hid_t dxpl_id)
 {
     H5G_t	*mount_point = NULL;	/*mount point group		*/
     H5F_t	*ancestor = NULL;	/*ancestor files		*/
@@ -411,7 +384,7 @@ H5F_unmount(H5G_loc_t *loc, const char *name, hid_t dxpl_id)
 
     /* Detach child file from parent & see if it should close */
     child->parent = NULL;
-    if(H5F_try_close(child) < 0)
+    if(H5F_try_close(child, NULL) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "unable to close unmounted file")
 
 done:
@@ -439,7 +412,7 @@ done:
 hbool_t
 H5F_is_mount(const H5F_t *file)
 {
-    hbool_t ret_value;   /* Return value */
+    hbool_t ret_value = FALSE;          /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -491,7 +464,7 @@ H5Fmount(hid_t loc_id, const char *name, hid_t child_id, hid_t plist_id)
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not property list")
 
     /* Do the mount */
-    if(H5F_mount(&loc, name, child, plist_id, H5AC_dxpl_id) < 0)
+    if(H5F_mount(&loc, name, child, plist_id, H5AC_ind_read_dxpl_id) < 0)
 	HGOTO_ERROR(H5E_FILE, H5E_MOUNT, FAIL, "unable to mount file")
 
 done:
@@ -534,7 +507,7 @@ H5Funmount(hid_t loc_id, const char *name)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
 
     /* Unmount */
-    if (H5F_unmount(&loc, name, H5AC_dxpl_id) < 0)
+    if (H5F_unmount(&loc, name, H5AC_ind_read_dxpl_id) < 0)
 	HGOTO_ERROR(H5E_FILE, H5E_MOUNT, FAIL, "unable to unmount file")
 
 done:
@@ -639,7 +612,7 @@ H5F_mount_count_ids(H5F_t *f, unsigned *nopen_files, unsigned *nopen_objs)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5F_flush_mounts_recurse(H5F_t *f, hid_t dxpl_id)
+H5F_flush_mounts_recurse(H5F_t *f, hid_t meta_dxpl_id, hid_t raw_dxpl_id)
 {
     unsigned	nerrors = 0;            /* Errors from recursive flushes */
     unsigned    u;                      /* Index variable */
@@ -652,11 +625,11 @@ H5F_flush_mounts_recurse(H5F_t *f, hid_t dxpl_id)
 
     /* Flush all child files, not stopping for errors */
     for(u = 0; u < f->shared->mtab.nmounts; u++)
-        if(H5F_flush_mounts_recurse(f->shared->mtab.child[u].file, dxpl_id) < 0)
+        if(H5F_flush_mounts_recurse(f->shared->mtab.child[u].file, meta_dxpl_id, raw_dxpl_id) < 0)
             nerrors++;
 
     /* Call the "real" flush routine, for this file */
-    if(H5F_flush(f, dxpl_id, FALSE) < 0)
+    if(H5F__flush(f, meta_dxpl_id, raw_dxpl_id, FALSE) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush file's cached information")
 
     /* Check flush errors for children - errors are already on the stack */
@@ -681,7 +654,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5F_flush_mounts(H5F_t *f, hid_t dxpl_id)
+H5F_flush_mounts(H5F_t *f, hid_t meta_dxpl_id, hid_t raw_dxpl_id)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -695,7 +668,7 @@ H5F_flush_mounts(H5F_t *f, hid_t dxpl_id)
         f = f->parent;
 
     /* Flush the mounted file hierarchy */
-    if(H5F_flush_mounts_recurse(f, dxpl_id) < 0)
+    if(H5F_flush_mounts_recurse(f, meta_dxpl_id, raw_dxpl_id) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTFLUSH, FAIL, "unable to flush mounted file hierarchy")
 
 done:

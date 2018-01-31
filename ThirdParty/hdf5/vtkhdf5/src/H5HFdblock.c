@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5HF_PACKAGE		/*suppress error about including H5HFpkg  */
+#include "H5HFmodule.h"         /* This source code file is part of the H5HF module */
+
 
 /***********/
 /* Headers */
@@ -131,7 +130,7 @@ H5HF_man_dblock_create(hid_t dxpl_id, H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblo
         dblock->block_off = par_iblock->block_off;
         dblock->block_off += hdr->man_dtable.row_block_off[par_row];
         dblock->block_off += hdr->man_dtable.row_block_size[par_row] * (par_entry % hdr->man_dtable.cparam.width);
-        H5_ASSIGN_OVERFLOW(/* To: */ dblock->size, /* From: */ hdr->man_dtable.row_block_size[par_row], /* From: */ hsize_t, /* To: */ size_t);
+        H5_CHECKED_ASSIGN(dblock->size, size_t, hdr->man_dtable.row_block_size[par_row], hsize_t);
     } /* end if */
     else {
         /* Must be the root direct block */
@@ -139,16 +138,16 @@ H5HF_man_dblock_create(hid_t dxpl_id, H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblo
         dblock->size = hdr->man_dtable.cparam.start_block_size;
     } /* end else */
     dblock->file_size = 0;
-    dblock->blk_off_size = H5HF_SIZEOF_OFFSET_LEN(dblock->size);
     free_space = dblock->size - H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr);
 
     /* Allocate buffer for block */
 /* XXX: Change to using free-list factories */
     if((dblock->blk = H5FL_BLK_MALLOC(direct_block, dblock->size)) == NULL)
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
-#ifdef H5_CLEAR_MEMORY
-HDmemset(dblock->blk, 0, dblock->size);
-#endif /* H5_CLEAR_MEMORY */
+    HDmemset(dblock->blk, 0, dblock->size);
+
+    dblock->write_buf = NULL;
+    dblock->write_size = 0;
 
     /* Allocate [temporary] space for the direct block on disk */
     if(H5F_USE_TMP_SPACE(hdr->f)) {
@@ -162,6 +161,7 @@ HDmemset(dblock->blk, 0, dblock->size);
 
     /* Attach to parent indirect block, if there is one */
     dblock->parent = par_iblock;
+    dblock->fd_parent = par_iblock;
     if(dblock->parent)
         if(H5HF_man_iblock_attach(dblock->parent, par_entry, dblock_addr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTATTACH, FAIL, "can't attach direct block to parent indirect block")
@@ -308,9 +308,13 @@ H5HF_man_dblock_destroy(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_direct_t *dblock,
         } /* end if */
     } /* end else */
 
-    /* Indicate that the indirect block should be deleted & file space freed */
+    /* Indicate that the indirect block should be deleted */
     dblock->file_size = dblock_size;
-    cache_flags |= H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG;
+    cache_flags |= H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG;
+
+    /* If the dblock is in real file space, also tell the cache to free its file space */
+    if (!H5F_IS_TMP_ADDR(hdr->f, dblock_addr))
+        cache_flags |= H5AC__FREE_FILE_SPACE_FLAG;
 
 done:
     /* Unprotect the indirect block, with appropriate flags */
@@ -360,7 +364,7 @@ H5HF_man_dblock_new(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t request,
     } /* end else */
 
     /* Adjust the size of block needed to fulfill request, with overhead */
-    if((min_dblock_size - request) < H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
+    if(min_dblock_size < H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr) + request)
         min_dblock_size *= 2;
 
     /* Check if this is the first block in the heap */
@@ -397,7 +401,7 @@ H5HF_man_dblock_new(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t request,
         if(H5HF_man_iter_curr(&hdr->next_block, &next_row, NULL, &next_entry, &iblock) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "unable to retrieve current block iterator location")
         HDassert(next_row < iblock->nrows);
-        H5_ASSIGN_OVERFLOW(/* To: */ next_size, /* From: */ hdr->man_dtable.row_block_size[next_row], /* From: */ hsize_t, /* To: */ size_t);
+        H5_CHECKED_ASSIGN(next_size, size_t, hdr->man_dtable.row_block_size[next_row], hsize_t);
 
         /* Check for skipping over blocks */
         if(min_dblock_size > next_size) {
@@ -436,11 +440,11 @@ done:
 H5HF_direct_t *
 H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
     size_t dblock_size, H5HF_indirect_t *par_iblock, unsigned par_entry,
-    H5AC_protect_t rw)
+    unsigned flags)
 {
     H5HF_direct_t *dblock;      /* Direct block from cache */
     H5HF_dblock_cache_ud_t udata;	/* parent and other infor for deserializing direct block */
-    H5HF_direct_t *ret_value;   /* Return value */
+    H5HF_direct_t *ret_value = NULL;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -450,6 +454,9 @@ H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
     HDassert(hdr);
     HDassert(H5F_addr_defined(dblock_addr));
     HDassert(dblock_size > 0);
+
+    /* only H5AC__READ_ONLY_FLAG may appear in flags */
+    HDassert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
 
     /* Set up parent info */
     udata.par_info.hdr = hdr;
@@ -484,8 +491,12 @@ H5HF_man_dblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t dblock_addr,
         udata.filter_mask = 0;
     } /* end else */
 
+    /* Reset compression context info */
+    udata.decompressed = FALSE;
+    udata.dblk = NULL;
+
     /* Protect the direct block */
-    if(NULL == (dblock = (H5HF_direct_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, &udata, rw)))
+    if(NULL == (dblock = (H5HF_direct_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FHEAP_DBLOCK, dblock_addr, &udata, flags)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap direct block")
 
     /* Set the return value */
@@ -512,7 +523,7 @@ done:
 herr_t
 H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
     H5HF_indirect_t **ret_iblock, unsigned *ret_entry, hbool_t *ret_did_protect,
-    H5AC_protect_t rw)
+    unsigned flags)
 {
     haddr_t iblock_addr;            /* Indirect block's address */
     H5HF_indirect_t *iblock;        /* Pointer to indirect block */
@@ -531,6 +542,9 @@ H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
     HDassert(ret_iblock);
     HDassert(ret_did_protect);
 
+    /* only H5AC__READ_ONLY_FLAG may appear in flags */
+    HDassert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
+
     /* Look up row & column for object */
     if(H5HF_dtable_lookup(&hdr->man_dtable, obj_off, &row, &col) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPUTE, FAIL, "can't compute row & column of object")
@@ -539,7 +553,7 @@ H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
     iblock_addr = hdr->man_dtable.table_addr;
 
     /* Lock root indirect block */
-    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, hdr->man_dtable.curr_root_rows, NULL, 0, FALSE, rw, &did_protect)))
+    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, hdr->man_dtable.curr_root_rows, NULL, 0, FALSE, flags, &did_protect)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block")
 
     /* Check for indirect block row */
@@ -569,7 +583,7 @@ H5HF_man_dblock_locate(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t obj_off,
         } /* end if */
 
         /* Lock child indirect block */
-        if(NULL == (new_iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, iblock, entry, FALSE, rw, &new_did_protect)))
+        if(NULL == (new_iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, iblock, entry, FALSE, flags, &new_did_protect)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block")
 
         /* Release the current indirect block */

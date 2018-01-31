@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -27,20 +25,30 @@
 /****************/
 /* Module Setup */
 /****************/
-#define H5P_PACKAGE		/*suppress error about including H5Ppkg	  */
+
+#include "H5Pmodule.h"          /* This source code file is part of the H5P module */
+
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5Gprivate.h"         /* Groups                               */
 #include "H5Iprivate.h"		/* IDs			  		*/
+#include "H5Oprivate.h"		/* Object headers		  	*/
 #include "H5Ppkg.h"		/* Property lists		  	*/
 
 
 /****************/
 /* Local Macros */
 /****************/
+
+/* ========= Group Creation properties ============ */
+#define H5G_CRT_GROUP_INFO_ENC    H5P__gcrt_group_info_enc
+#define H5G_CRT_GROUP_INFO_DEC    H5P__gcrt_group_info_dec
+#define H5G_CRT_LINK_INFO_ENC     H5P__gcrt_link_info_enc
+#define H5G_CRT_LINK_INFO_DEC     H5P__gcrt_link_info_dec
 
 
 /******************/
@@ -60,6 +68,12 @@
 /* Property class callbacks */
 static herr_t H5P__gcrt_reg_prop(H5P_genclass_t *pclass);
 
+/* Property callbacks */
+static herr_t H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__gcrt_group_info_dec(const void **_pp, void *value);
+static herr_t H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__gcrt_link_info_dec(const void **_pp, void *value);
+
 
 /*********************/
 /* Package Variables */
@@ -69,10 +83,13 @@ static herr_t H5P__gcrt_reg_prop(H5P_genclass_t *pclass);
 const H5P_libclass_t H5P_CLS_GCRT[1] = {{
     "group create",		/* Class name for debugging     */
     H5P_TYPE_GROUP_CREATE,      /* Class type                   */
-    &H5P_CLS_OBJECT_CREATE_g,	/* Parent class ID              */
-    &H5P_CLS_GROUP_CREATE_g,	/* Pointer to class ID          */
-    &H5P_LST_GROUP_CREATE_g,	/* Pointer to default property list ID */
+
+    &H5P_CLS_OBJECT_CREATE_g,	/* Parent class                 */
+    &H5P_CLS_GROUP_CREATE_g,	/* Pointer to class             */
+    &H5P_CLS_GROUP_CREATE_ID_g,	/* Pointer to class ID          */
+    &H5P_LST_GROUP_CREATE_ID_g,	/* Pointer to default property list ID */
     H5P__gcrt_reg_prop,		/* Default property registration routine */
+
     NULL,		        /* Class creation callback      */
     NULL,		        /* Class creation callback info */
     NULL,			/* Class copy callback          */
@@ -91,6 +108,10 @@ const H5P_libclass_t H5P_CLS_GCRT[1] = {{
 /* Local Variables */
 /*******************/
 
+/* Property value defaults */
+static const H5O_ginfo_t H5G_def_ginfo_g = H5G_CRT_GROUP_INFO_DEF;     /* Default group info settings */
+static const H5O_linfo_t H5G_def_linfo_g = H5G_CRT_LINK_INFO_DEF;      /* Default link info settings */
+
 
 
 /*-------------------------------------------------------------------------
@@ -107,18 +128,20 @@ const H5P_libclass_t H5P_CLS_GCRT[1] = {{
 static herr_t
 H5P__gcrt_reg_prop(H5P_genclass_t *pclass)
 {
-    H5O_ginfo_t ginfo = H5G_CRT_GROUP_INFO_DEF;     /* Default group info settings */
-    H5O_linfo_t linfo = H5G_CRT_LINK_INFO_DEF;      /* Default link info settings */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Register group info property */
-    if(H5P_register_real(pclass, H5G_CRT_GROUP_INFO_NAME, H5G_CRT_GROUP_INFO_SIZE, &ginfo, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+    if(H5P_register_real(pclass, H5G_CRT_GROUP_INFO_NAME, H5G_CRT_GROUP_INFO_SIZE, &H5G_def_ginfo_g, 
+            NULL, NULL, NULL, H5G_CRT_GROUP_INFO_ENC, H5G_CRT_GROUP_INFO_DEC,
+            NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
     /* Register link info property */
-    if(H5P_register_real(pclass, H5G_CRT_LINK_INFO_NAME, H5G_CRT_LINK_INFO_SIZE, &linfo, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+    if(H5P_register_real(pclass, H5G_CRT_LINK_INFO_NAME, H5G_CRT_LINK_INFO_SIZE, &H5G_def_linfo_g, 
+            NULL, NULL, NULL, H5G_CRT_LINK_INFO_ENC, H5G_CRT_LINK_INFO_DEC,
+            NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 done:
@@ -156,7 +179,7 @@ H5Pset_local_heap_size_hint(hid_t plist_id, size_t size_hint)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get group info")
 
     /* Update field */
-    H5_ASSIGN_OVERFLOW(ginfo.lheap_size_hint, size_hint, size_t, uint32_t);
+    H5_CHECKED_ASSIGN(ginfo.lheap_size_hint, uint32_t, size_hint, size_t);
 
     /* Set value */
     if(H5P_set(plist, H5G_CRT_GROUP_INFO_NAME, &ginfo) < 0)
@@ -505,4 +528,179 @@ H5Pget_link_creation_order(hid_t plist_id, unsigned *crt_order_flags /*out*/)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_link_creation_order() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__gcrt_group_info_enc
+ *
+ * Purpose:        Callback routine which is called whenever the group
+ *                 property in the dataset access property list is
+ *                 encoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Mohamad Chaarawi
+ *                 Monday, October 10, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t 
+H5P__gcrt_group_info_enc(const void *value, void **_pp, size_t *size)
+{
+    const H5O_ginfo_t *ginfo = (const H5O_ginfo_t *)value; /* Create local aliases for values */
+    uint8_t **pp = (uint8_t **)_pp;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    if(NULL != *pp) {
+        UINT32ENCODE(*pp, ginfo->lheap_size_hint)
+        UINT16ENCODE(*pp, ginfo->max_compact)
+        UINT16ENCODE(*pp, ginfo->min_dense)
+        UINT16ENCODE(*pp, ginfo->est_num_entries)
+        UINT16ENCODE(*pp, ginfo->est_name_len)      
+    } /* end if */
+
+    *size += sizeof(uint16_t) * 4 + sizeof(uint32_t);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__gcrt_group_info_enc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__gcrt_group_info_dec
+ *
+ * Purpose:        Callback routine which is called whenever the group info
+ *                 property in the dataset access property list is
+ *                 decoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Mohamad Chaarawi
+ *                 Monday, October 10, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t 
+H5P__gcrt_group_info_dec(const void **_pp, void *_value)
+{
+    H5O_ginfo_t *ginfo = (H5O_ginfo_t *)_value;     /* Group info settings */
+    const uint8_t **pp = (const uint8_t **)_pp;
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Set property to default value */
+    HDmemset(ginfo, 0, sizeof(H5O_ginfo_t));
+    *ginfo = H5G_def_ginfo_g;
+
+    UINT32DECODE(*pp, ginfo->lheap_size_hint)
+    UINT16DECODE(*pp, ginfo->max_compact)
+    UINT16DECODE(*pp, ginfo->min_dense)
+    UINT16DECODE(*pp, ginfo->est_num_entries)
+    UINT16DECODE(*pp, ginfo->est_name_len)      
+
+    /* Update fields */
+    if(ginfo->max_compact != H5G_CRT_GINFO_MAX_COMPACT || 
+            ginfo->min_dense != H5G_CRT_GINFO_MIN_DENSE)
+        ginfo->store_link_phase_change = TRUE;
+    else
+        ginfo->store_link_phase_change = FALSE;
+
+    if(ginfo->est_num_entries != H5G_CRT_GINFO_EST_NUM_ENTRIES || 
+            ginfo->est_name_len != H5G_CRT_GINFO_EST_NAME_LEN)
+        ginfo->store_est_entry_info = TRUE;
+    else
+        ginfo->store_est_entry_info = FALSE;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5P__gcrt_group_info_dec() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__gcrt_link_info_enc
+ *
+ * Purpose:        Callback routine which is called whenever the link
+ *                 property in the dataset access property list is
+ *                 encoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Mohamad Chaarawi
+ *                 Monday, October 10, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t 
+H5P__gcrt_link_info_enc(const void *value, void **_pp, size_t *size)
+{
+    const H5O_linfo_t *linfo = (const H5O_linfo_t *)value; /* Create local aliases for values */
+    uint8_t **pp = (uint8_t **)_pp;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    if(NULL != *pp) {
+        unsigned crt_order_flags = 0;
+
+        crt_order_flags |= linfo->track_corder ? H5P_CRT_ORDER_TRACKED : 0;
+        crt_order_flags |= linfo->index_corder ? H5P_CRT_ORDER_INDEXED : 0;
+
+        /* Encode the size of unsigned*/
+        *(*pp)++ = (uint8_t)sizeof(unsigned);
+
+        /* Encode the value */
+        H5_ENCODE_UNSIGNED(*pp, crt_order_flags)
+    } /* end if */
+
+    *size += (1 + sizeof(unsigned));
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__gcrt_link_info_enc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__gcrt_link_info_dec
+ *
+ * Purpose:        Callback routine which is called whenever the link info
+ *                 property in the dataset access property list is
+ *                 decoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Mohamad Chaarawi
+ *                 Monday, October 10, 2011
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t 
+H5P__gcrt_link_info_dec(const void **_pp, void *_value)
+{
+    H5O_linfo_t *linfo = (H5O_linfo_t *)_value;  /* Link info settings */
+    const uint8_t **pp = (const uint8_t **)_pp;
+    unsigned crt_order_flags;
+    unsigned enc_size;
+    herr_t ret_value = SUCCEED;                 /* Return value */
+
+    FUNC_ENTER_STATIC
+
+    enc_size = *(*pp)++;
+    if(enc_size != sizeof(unsigned))
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded")
+
+    /* Set property to default value */
+    HDmemset(linfo, 0, sizeof(H5O_linfo_t));
+    *linfo = H5G_def_linfo_g;
+
+    H5_DECODE_UNSIGNED(*pp, crt_order_flags)
+
+    /* Update fields */
+    linfo->track_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_TRACKED) ? TRUE : FALSE);
+    linfo->index_corder = (hbool_t)((crt_order_flags & H5P_CRT_ORDER_INDEXED) ? TRUE : FALSE);
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5P__gcrt_link_info_dec() */
 

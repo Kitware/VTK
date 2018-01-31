@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -122,7 +120,7 @@ H5_DLL herr_t H5TS_mutex_lock(H5TS_mutex_t *mutex);
 H5_DLL herr_t H5TS_mutex_unlock(H5TS_mutex_t *mutex);
 H5_DLL herr_t H5TS_cancel_count_inc(void);
 H5_DLL herr_t H5TS_cancel_count_dec(void);
-H5_DLL H5TS_thread_t H5TS_create_thread(void * func, H5TS_attr_t * attr, void *udata);
+H5_DLL H5TS_thread_t H5TS_create_thread(void *(*func)(void *), H5TS_attr_t * attr, void *udata);
 
 #if defined c_plusplus || defined __cplusplus
 }

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5HF_PACKAGE		/*suppress error about including H5HFpkg  */
+#include "H5HFmodule.h"         /* This source code file is part of the H5HF module */
+
 
 /***********/
 /* Headers */
@@ -213,7 +212,7 @@ H5HF_iblock_unpin(H5HF_indirect_t *iblock)
             } /* end if */
 
             /* Indicate that the root indirect block is unpinned */
-            iblock->hdr->root_iblock_flags &= ~(H5HF_ROOT_IBLOCK_PINNED);
+            iblock->hdr->root_iblock_flags &= (unsigned)(~(H5HF_ROOT_IBLOCK_PINNED));
         } /* end if */
     } /* end else */
 
@@ -314,7 +313,7 @@ H5HF_iblock_decr(H5HF_indirect_t *iblock)
             /* Detach from parent indirect block */
             if(iblock->parent) {
                 /* Detach from parent indirect block */
-                if(H5HF_man_iblock_detach(iblock->parent, H5AC_dxpl_id, iblock->par_entry) < 0)
+                if(H5HF_man_iblock_detach(iblock->parent, H5AC_ind_read_dxpl_id, iblock->par_entry) < 0)
                     HGOTO_ERROR(H5E_HEAP, H5E_CANTATTACH, FAIL, "can't detach from parent indirect block")
                 iblock->parent = NULL;
                 iblock->par_entry = 0;
@@ -330,8 +329,15 @@ H5HF_iblock_decr(H5HF_indirect_t *iblock)
 
 	/* Check for expunging the indirect block from the metadata cache */
 	if(expunge_iblock) {
-            /* Evict the indirect block from the metadata cache */
-            if(H5AC_expunge_entry(hdr->f, H5AC_dxpl_id, H5AC_FHEAP_IBLOCK, iblock_addr, H5AC__FREE_FILE_SPACE_FLAG) < 0)
+            unsigned cache_flags = H5AC__NO_FLAGS_SET;
+
+            /* if the indirect block is in real file space, tell 
+             * the cache to free its file space.
+             */
+            if (!H5F_IS_TMP_ADDR(hdr->f, iblock_addr))
+                cache_flags |= H5AC__FREE_FILE_SPACE_FLAG;
+
+            if(H5AC_expunge_entry(hdr->f, H5AC_ind_read_dxpl_id, H5AC_FHEAP_IBLOCK, iblock_addr, cache_flags) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTREMOVE, FAIL, "unable to remove indirect block from cache")
         } /* end if */
     } /* end if */
@@ -424,7 +430,7 @@ H5HF_man_iblock_root_create(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_si
     /* Move current direct block (used as root) into new indirect block */
 
     /* Lock new indirect block */
-    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, NULL, 0, FALSE, H5AC_WRITE, &did_protect)))
+    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, NULL, 0, FALSE, H5AC__NO_FLAGS_SET, &did_protect)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block")
 
     /* Check if there's already a direct block as root) */
@@ -433,12 +439,22 @@ H5HF_man_iblock_root_create(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_si
         H5HF_direct_t *dblock;          /* Pointer to direct block to query */
 
         /* Lock first (root) direct block */
-        if(NULL == (dblock = H5HF_man_dblock_protect(hdr, dxpl_id, hdr->man_dtable.table_addr, hdr->man_dtable.cparam.start_block_size, NULL, 0, H5AC_WRITE)))
+        if(NULL == (dblock = H5HF_man_dblock_protect(hdr, dxpl_id, hdr->man_dtable.table_addr, hdr->man_dtable.cparam.start_block_size, NULL, 0, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block")
 
         /* Attach direct block to new root indirect block */
         dblock->parent = iblock;
+        dblock->fd_parent = iblock;
         dblock->par_entry = 0;
+
+	/* destroy flush dependency between direct block and header */
+	if(H5AC_destroy_flush_dependency(dblock->hdr, dblock) < 0)
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
+
+	/* create flush dependency between direct block and new root indirect block */
+	if(H5AC_create_flush_dependency(dblock->parent, dblock) < 0)
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
+
         if(H5HF_man_iblock_attach(iblock, 0, hdr->man_dtable.table_addr) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTATTACH, FAIL, "can't attach root direct block to parent indirect block")
 
@@ -609,7 +625,7 @@ H5HF_man_iblock_root_double(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_si
 
     /* Move object in cache, if it actually was relocated */
     if(H5F_addr_ne(iblock->addr, new_addr)) {
-        if(H5AC_move_entry(hdr->f, H5AC_FHEAP_IBLOCK, iblock->addr, new_addr) < 0)
+        if(H5AC_move_entry(hdr->f, H5AC_FHEAP_IBLOCK, iblock->addr, new_addr, dxpl_id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTMOVE, FAIL, "unable to move fractal heap root indirect block")
         iblock->addr = new_addr;
     } /* end if */
@@ -628,7 +644,7 @@ H5HF_man_iblock_root_double(H5HF_hdr_t *hdr, hid_t dxpl_id, size_t min_dblock_si
     /* Initialize new direct block entries in rows added */
     acc_dblock_free = 0;
     for(u = (old_nrows * hdr->man_dtable.cparam.width); u < (iblock->nrows * hdr->man_dtable.cparam.width); u++) {
-        unsigned row = u / hdr->man_dtable.cparam.width;        /* Row for current entry */
+        unsigned row = (unsigned)(u / hdr->man_dtable.cparam.width);        /* Row for current entry */
 
         iblock->ents[u].addr = HADDR_UNDEF;
         acc_dblock_free += hdr->man_dtable.row_tot_dblock_free[row];
@@ -730,7 +746,7 @@ H5HF_man_iblock_root_halve(H5HF_indirect_t *iblock, hid_t dxpl_id)
     max_child_row = iblock->max_child / hdr->man_dtable.cparam.width;
 
     /* Compute new # of rows in root indirect block */
-    new_nrows = 1 << (1 + H5VM_log2_gen((uint64_t)max_child_row));
+    new_nrows = (unsigned)1 << (1 + H5VM_log2_gen((uint64_t)max_child_row));
 
     /* Check if the indirect block is NOT currently allocated in temp. file space */
     /* (temp. file space does not need to be freed) */
@@ -778,7 +794,7 @@ H5HF_man_iblock_root_halve(H5HF_indirect_t *iblock, hid_t dxpl_id)
 
     /* Move object in cache, if it actually was relocated */
     if(H5F_addr_ne(iblock->addr, new_addr)) {
-        if(H5AC_move_entry(hdr->f, H5AC_FHEAP_IBLOCK, iblock->addr, new_addr) < 0)
+        if(H5AC_move_entry(hdr->f, H5AC_FHEAP_IBLOCK, iblock->addr, new_addr, dxpl_id) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTSPLIT, FAIL, "unable to move fractal heap root indirect block")
         iblock->addr = new_addr;
     } /* end if */
@@ -866,7 +882,7 @@ H5HF_man_iblock_root_revert(H5HF_indirect_t *root_iblock, hid_t dxpl_id)
     dblock_size = hdr->man_dtable.cparam.start_block_size;
 
     /* Get pointer to last direct block */
-    if(NULL == (dblock = H5HF_man_dblock_protect(hdr, dxpl_id, dblock_addr, dblock_size, root_iblock, 0, H5AC_WRITE)))
+    if(NULL == (dblock = H5HF_man_dblock_protect(hdr, dxpl_id, dblock_addr, dblock_size, root_iblock, 0, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block")
     HDassert(dblock->parent == root_iblock);
     HDassert(dblock->par_entry == 0);
@@ -883,6 +899,19 @@ H5HF_man_iblock_root_revert(H5HF_indirect_t *root_iblock, hid_t dxpl_id)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTATTACH, FAIL, "can't detach direct block from parent indirect block")
     dblock->parent = NULL;
     dblock->par_entry = 0;
+
+    /* destroy flush dependency between old root iblock and new root direct block*/
+    if(H5AC_destroy_flush_dependency(dblock->fd_parent, dblock) < 0)
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTUNDEPEND, FAIL, \
+                    "unable to destroy flush dependency")
+
+
+    /* create flush dependency between header and new root direct block */
+    if(H5AC_create_flush_dependency(dblock->hdr, dblock) < 0)
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEPEND, FAIL, \
+                    "unable to create flush dependency")
+
+    dblock->fd_parent = NULL;
 
     /* Point root at direct block */
     hdr->man_dtable.curr_root_rows = 0;
@@ -1078,6 +1107,12 @@ H5HF_man_iblock_create(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_indirect_t *par_iblo
 
     /* Attach to parent indirect block, if there is one */
     iblock->parent = par_iblock;
+    iblock->fd_parent = par_iblock; /* this copy of the parent pointer is */
+				    /* needed by the notify callback so   */
+				    /* that it can take down flush        */
+				    /* dependencies on eviction even if   */
+				    /* the parent pointer has been nulled */
+				    /* out.		JRM -- 5/18/14    */
     iblock->par_entry = par_entry;
     if(iblock->parent) {
         /* Attach new block to parent */
@@ -1127,12 +1162,12 @@ done:
 H5HF_indirect_t *
 H5HF_man_iblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t iblock_addr,
     unsigned iblock_nrows, H5HF_indirect_t *par_iblock, unsigned par_entry,
-    hbool_t must_protect, H5AC_protect_t rw, hbool_t *did_protect)
+    hbool_t must_protect, unsigned flags, hbool_t *did_protect)
 {
     H5HF_parent_t par_info;             /* Parent info for loading block */
     H5HF_indirect_t *iblock = NULL;     /* Indirect block from cache */
     hbool_t should_protect = FALSE;     /* Whether we should protect the indirect block or not */
-    H5HF_indirect_t *ret_value;         /* Return value */
+    H5HF_indirect_t *ret_value = NULL;  /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -1143,6 +1178,9 @@ H5HF_man_iblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t iblock_addr,
     HDassert(H5F_addr_defined(iblock_addr));
     HDassert(iblock_nrows > 0);
     HDassert(did_protect);
+
+    /* only H5AC__READ_ONLY_FLAG may appear in flags */
+    HDassert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
 
     /* Check if we are allowed to use existing pinned iblock pointer */
     if(!must_protect) {
@@ -1203,7 +1241,7 @@ H5HF_man_iblock_protect(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t iblock_addr,
         cache_udata.nrows = &iblock_nrows;
 
         /* Protect the indirect block */
-        if(NULL == (iblock = (H5HF_indirect_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FHEAP_IBLOCK, iblock_addr, &cache_udata, rw)))
+        if(NULL == (iblock = (H5HF_indirect_t *)H5AC_protect(hdr->f, dxpl_id, H5AC_FHEAP_IBLOCK, iblock_addr, &cache_udata, flags)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap indirect block")
 
         /* Set the indirect block's address */
@@ -1280,7 +1318,7 @@ H5HF_man_iblock_unprotect(H5HF_indirect_t *iblock, hid_t dxpl_id,
             } /* end if */
 
             /* Indicate that the root indirect block is unprotected */
-            iblock->hdr->root_iblock_flags &= ~(H5HF_ROOT_IBLOCK_PROTECTED);
+            iblock->hdr->root_iblock_flags &= (unsigned)(~(H5HF_ROOT_IBLOCK_PROTECTED));
         } /* end if */
 
         /* Unprotect the indirect block */
@@ -1547,7 +1585,7 @@ H5HF_man_iblock_delete(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t iblock_addr,
     HDassert(iblock_nrows > 0);
 
     /* Lock indirect block */
-    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, iblock_nrows, par_iblock, par_entry, TRUE, H5AC_WRITE, &did_protect)))
+    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, iblock_nrows, par_iblock, par_entry, TRUE, H5AC__NO_FLAGS_SET, &did_protect)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block")
     HDassert(iblock->nchildren > 0);
     HDassert(did_protect == TRUE);
@@ -1605,8 +1643,14 @@ H5HF_man_iblock_delete(H5HF_hdr_t *hdr, hid_t dxpl_id, haddr_t iblock_addr,
 }
 #endif /* NDEBUG */
 
-    /* Indicate that the indirect block should be deleted & file space freed */
-    cache_flags |= H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG | H5AC__FREE_FILE_SPACE_FLAG;
+    /* Indicate that the indirect block should be deleted  */
+    cache_flags |= H5AC__DIRTIED_FLAG | H5AC__DELETED_FLAG;
+
+    /* If the indirect block is in real file space, tell
+     * the cache to free its file space as well.
+     */
+    if (!H5F_IS_TMP_ADDR(hdr->f, iblock_addr))
+        cache_flags |= H5AC__FREE_FILE_SPACE_FLAG;
 
 done:
     /* Unprotect the indirect block, with appropriate flags */
@@ -1648,7 +1692,7 @@ H5HF_man_iblock_size(H5F_t *f, hid_t dxpl_id, H5HF_hdr_t *hdr, haddr_t iblock_ad
     HDassert(heap_size);
 
     /* Protect the indirect block */
-    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, par_iblock, par_entry, FALSE, H5AC_READ, &did_protect)))
+    if(NULL == (iblock = H5HF_man_iblock_protect(hdr, dxpl_id, iblock_addr, nrows, par_iblock, par_entry, FALSE, H5AC__READ_ONLY_FLAG, &did_protect)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load fractal heap indirect block")
 
     /* Accumulate size of this indirect block */

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5B package.  Source files outside the H5B package should
  *		include H5Bprivate.h instead.
  */
-#ifndef H5B_PACKAGE
+#if !(defined H5B_FRIEND || defined H5B_MODULE)
 #error "Do not include this file outside the H5B package!"
 #endif
 
@@ -42,6 +40,7 @@
 
 /* Get the native key at a given index */
 #define H5B_NKEY(b, shared, idx)  ((b)->native + (shared)->nkey[(idx)])
+#define LEVEL_BITS	8 	/* # of bits for node level: 1 byte */
 
 
 /****************************/
@@ -52,7 +51,7 @@
 typedef struct H5B_t {
     H5AC_info_t        cache_info;     /* Information for H5AC cache functions */
                                         /* _must_ be first field in structure */
-    H5RC_t		*rc_shared;	/*ref-counted shared info	     */
+    H5UC_t		*rc_shared;	/*ref-counted shared info	     */
     unsigned		level;		/*node level			     */
     unsigned		nchildren;	/*number of child pointers	     */
     haddr_t		left;		/*address of left sibling	     */
@@ -65,15 +64,12 @@ typedef struct H5B_t {
 typedef struct H5B_cache_ud_t {
     H5F_t *f;                           /* File that B-tree node is within   */
     const struct H5B_class_t *type;     /* Type of tree			     */
-    H5RC_t *rc_shared;                  /* Ref-counted shared info	     */
+    H5UC_t *rc_shared;                  /* Ref-counted shared info	     */
 } H5B_cache_ud_t;
 
 /*****************************/
 /* Package Private Variables */
 /*****************************/
-
-/* H5B header inherits cache-like properties from H5AC */
-H5_DLLVAR const H5AC_class_t H5AC_BT[1];
 
 /* Declare a free list to manage the haddr_t sequence information */
 H5FL_SEQ_EXTERN(haddr_t);
@@ -88,9 +84,9 @@ H5FL_EXTERN(H5B_t);
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL herr_t H5B_node_dest(H5B_t *bt);
+H5_DLL herr_t H5B__node_dest(H5B_t *bt);
 #ifdef H5B_DEBUG
-herr_t H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type,
+herr_t H5B__assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type,
 			 void *udata);
 #endif
 

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5I package.  Source files outside the H5I package should
  *		include H5Iprivate.h instead.
  */
-#ifndef H5I_PACKAGE
+#if !(defined H5I_FRIEND || defined H5I_MODULE)
 #error "Do not include this file outside the H5I package!"
 #endif
 
@@ -44,7 +42,7 @@
  * field sizes and masks are calculated from TYPE_BITS.
  */
 #define TYPE_BITS	7
-#define TYPE_MASK	((1<<TYPE_BITS)-1)
+#define TYPE_MASK	(((hid_t)1 << TYPE_BITS) - 1)
 
 #define H5I_MAX_NUM_TYPES TYPE_MASK
 
@@ -52,11 +50,11 @@
  * Number of bits to use for the Atom index in each atom (assumes 8-bit
  * bytes). We don't use the sign bit.
  */
-#define ID_BITS		((sizeof(hid_t)*8)-(TYPE_BITS+1))
-#define ID_MASK		((1<<ID_BITS)-1)
+#define ID_BITS		((sizeof(hid_t) * 8) - (TYPE_BITS + 1))
+#define ID_MASK		(((hid_t)1 << ID_BITS) - 1)
 
 /* Map an atom to an ID type number */
-#define H5I_TYPE(a)	((H5I_type_t)(((hid_t)(a)>>ID_BITS) & TYPE_MASK))
+#define H5I_TYPE(a)	((H5I_type_t)(((hid_t)(a) >> ID_BITS) & TYPE_MASK))
 
 
 /****************************/

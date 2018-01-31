@@ -5,21 +5,19 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5B2cache.c
- *			Jan 31 2005
- *			Quincey Koziol <koziol@ncsa.uiuc.edu>
+ * Created:     H5B2cache.c
+ *              Jan 31 2005
+ *              Quincey Koziol <koziol@hdfgroup.org>
  *
- * Purpose:		Implement v2 B-tree metadata cache methods.
+ * Purpose:     Implement v2 B-tree metadata cache methods.
  *
  *-------------------------------------------------------------------------
  */
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5B2_PACKAGE		/*suppress error about including H5B2pkg  */
+#include "H5B2module.h"         /* This source code file is part of the H5B2 module */
 
 
 /***********/
@@ -37,7 +35,6 @@
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5B2pkg.h"		/* v2 B-trees				*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
-#include "H5MFprivate.h"	/* File memory management		*/
 #include "H5WBprivate.h"        /* Wrapped Buffers                      */
 
 
@@ -49,9 +46,6 @@
 #define H5B2_HDR_VERSION 0              /* Header */
 #define H5B2_INT_VERSION 0              /* Internal node */
 #define H5B2_LEAF_VERSION 0             /* Leaf node */
-
-/* Size of stack buffer for serialized headers */
-#define H5B2_HDR_BUF_SIZE               128
 
 
 /******************/
@@ -69,22 +63,35 @@
 /********************/
 
 /* Metadata cache callbacks */
-static H5B2_hdr_t *H5B2__cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *udata);
-static herr_t H5B2__cache_hdr_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B2_hdr_t *hdr, unsigned UNUSED * flags_ptr);
-static herr_t H5B2__cache_hdr_dest(H5F_t *f, H5B2_hdr_t *hdr);
-static herr_t H5B2__cache_hdr_clear(H5F_t *f, H5B2_hdr_t *hdr, hbool_t destroy);
-static herr_t H5B2__cache_hdr_size(const H5F_t *f, const H5B2_hdr_t *hdr, size_t *size_ptr);
-static H5B2_internal_t *H5B2__cache_internal_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *udata);
-static herr_t H5B2__cache_internal_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B2_internal_t *i, unsigned UNUSED * flags_ptr);
-static herr_t H5B2__cache_internal_dest(H5F_t *f, H5B2_internal_t *internal);
-static herr_t H5B2__cache_internal_clear(H5F_t *f, H5B2_internal_t *i, hbool_t destroy);
-static herr_t H5B2__cache_internal_size(const H5F_t *f, const H5B2_internal_t *i, size_t *size_ptr);
-static H5B2_leaf_t *H5B2__cache_leaf_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *udata);
-static herr_t H5B2__cache_leaf_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B2_leaf_t *l, unsigned UNUSED * flags_ptr);
-static herr_t H5B2__cache_leaf_dest(H5F_t *f, H5B2_leaf_t *leaf);
-static herr_t H5B2__cache_leaf_clear(H5F_t *f, H5B2_leaf_t *l, hbool_t destroy);
-static herr_t H5B2__cache_leaf_size(const H5F_t *f, const H5B2_leaf_t *l, size_t *size_ptr);
+static herr_t H5B2__cache_hdr_get_initial_load_size(void *udata, size_t *image_len);
+static htri_t H5B2__cache_hdr_verify_chksum(const void *image_ptr, size_t len, void *udata);
+static void *H5B2__cache_hdr_deserialize(const void *image, size_t len,
+    void *udata, hbool_t *dirty);
+static herr_t H5B2__cache_hdr_image_len(const void *thing, size_t *image_len);
+static herr_t H5B2__cache_hdr_serialize(const H5F_t *f, void *image, size_t len,
+    void *thing);
+static herr_t H5B2__cache_hdr_notify(H5AC_notify_action_t action, void *thing);
+static herr_t H5B2__cache_hdr_free_icr(void *thing);
 
+static herr_t H5B2__cache_int_get_initial_load_size(void *udata, size_t *image_len);
+static htri_t H5B2__cache_int_verify_chksum(const void *image_ptr, size_t len, void *udata);
+static void *H5B2__cache_int_deserialize(const void *image, size_t len,
+    void *udata, hbool_t *dirty);
+static herr_t H5B2__cache_int_image_len(const void *thing, size_t *image_len);
+static herr_t H5B2__cache_int_serialize(const H5F_t *f, void *image, size_t len,
+    void *thing);
+static herr_t H5B2__cache_int_notify(H5AC_notify_action_t action, void *thing);
+static herr_t H5B2__cache_int_free_icr(void *thing);
+
+static herr_t H5B2__cache_leaf_get_initial_load_size(void *udata, size_t *image_len);
+static htri_t H5B2__cache_leaf_verify_chksum(const void *image_ptr, size_t len, void *udata);
+static void *H5B2__cache_leaf_deserialize(const void *image, size_t len,
+    void *udata, hbool_t *dirty);
+static herr_t H5B2__cache_leaf_image_len(const void *thing, size_t *image_len);
+static herr_t H5B2__cache_leaf_serialize(const H5F_t *f, void *image, size_t len,
+    void *thing);
+static herr_t H5B2__cache_leaf_notify(H5AC_notify_action_t action, void *thing);
+static herr_t H5B2__cache_leaf_free_icr(void *thing);
 
 /*********************/
 /* Package Variables */
@@ -92,32 +99,56 @@ static herr_t H5B2__cache_leaf_size(const H5F_t *f, const H5B2_leaf_t *l, size_t
 
 /* H5B2 inherits cache-like properties from H5AC */
 const H5AC_class_t H5AC_BT2_HDR[1] = {{
-    H5AC_BT2_HDR_ID,
-    (H5AC_load_func_t)H5B2__cache_hdr_load,
-    (H5AC_flush_func_t)H5B2__cache_hdr_flush,
-    (H5AC_dest_func_t)H5B2__cache_hdr_dest,
-    (H5AC_clear_func_t)H5B2__cache_hdr_clear,
-    (H5AC_size_func_t)H5B2__cache_hdr_size,
+    H5AC_BT2_HDR_ID,                    /* Metadata client ID */
+    "v2 B-tree header",                 /* Metadata client name (for debugging) */
+    H5FD_MEM_BTREE,                     /* File space memory type for client */
+    H5AC__CLASS_NO_FLAGS_SET,           /* Client class behavior flags */
+    H5B2__cache_hdr_get_initial_load_size, /* 'get_initial_load_size' callback */
+    NULL,				/* 'get_final_load_size' callback */
+    H5B2__cache_hdr_verify_chksum,      /* 'verify_chksum' callback */
+    H5B2__cache_hdr_deserialize,        /* 'deserialize' callback */
+    H5B2__cache_hdr_image_len,          /* 'image_len' callback */
+    NULL,                               /* 'pre_serialize' callback */
+    H5B2__cache_hdr_serialize,          /* 'serialize' callback */
+    H5B2__cache_hdr_notify, 		/* 'notify' callback */
+    H5B2__cache_hdr_free_icr,           /* 'free_icr' callback */
+    NULL,				/* 'fsf_size' callback */
 }};
 
 /* H5B2 inherits cache-like properties from H5AC */
 const H5AC_class_t H5AC_BT2_INT[1] = {{
-    H5AC_BT2_INT_ID,
-    (H5AC_load_func_t)H5B2__cache_internal_load,
-    (H5AC_flush_func_t)H5B2__cache_internal_flush,
-    (H5AC_dest_func_t)H5B2__cache_internal_dest,
-    (H5AC_clear_func_t)H5B2__cache_internal_clear,
-    (H5AC_size_func_t)H5B2__cache_internal_size,
+    H5AC_BT2_INT_ID,                    /* Metadata client ID */
+    "v2 B-tree internal node",          /* Metadata client name (for debugging) */
+    H5FD_MEM_BTREE,                     /* File space memory type for client */
+    H5AC__CLASS_NO_FLAGS_SET,           /* Client class behavior flags */
+    H5B2__cache_int_get_initial_load_size, /* 'get_initial_load_size' callback */
+    NULL,				/* 'get_final_load_size' callback */
+    H5B2__cache_int_verify_chksum,	/* 'verify_chksum' callback */
+    H5B2__cache_int_deserialize,        /* 'deserialize' callback */
+    H5B2__cache_int_image_len,          /* 'image_len' callback */
+    NULL,                               /* 'pre_serialize' callback */
+    H5B2__cache_int_serialize,          /* 'serialize' callback */
+    H5B2__cache_int_notify,		/* 'notify' callback */
+    H5B2__cache_int_free_icr,           /* 'free_icr' callback */
+    NULL,				/* 'fsf_size' callback */
 }};
 
 /* H5B2 inherits cache-like properties from H5AC */
 const H5AC_class_t H5AC_BT2_LEAF[1] = {{
-    H5AC_BT2_LEAF_ID,
-    (H5AC_load_func_t)H5B2__cache_leaf_load,
-    (H5AC_flush_func_t)H5B2__cache_leaf_flush,
-    (H5AC_dest_func_t)H5B2__cache_leaf_dest,
-    (H5AC_clear_func_t)H5B2__cache_leaf_clear,
-    (H5AC_size_func_t)H5B2__cache_leaf_size,
+    H5AC_BT2_LEAF_ID,                   /* Metadata client ID */
+    "v2 B-tree leaf node",              /* Metadata client name (for debugging) */
+    H5FD_MEM_BTREE,                     /* File space memory type for client */
+    H5AC__CLASS_NO_FLAGS_SET,           /* Client class behavior flags */
+    H5B2__cache_leaf_get_initial_load_size, /* 'get_initial_load_size' callback */
+    NULL,				/* 'get_final_load_size' callback */
+    H5B2__cache_leaf_verify_chksum,	/* 'verify_chksum' callback */
+    H5B2__cache_leaf_deserialize,       /* 'deserialize' callback */
+    H5B2__cache_leaf_image_len,         /* 'image_len' callback */
+    NULL,                               /* 'pre_serialize' callback */
+    H5B2__cache_leaf_serialize,         /* 'serialize' callback */
+    H5B2__cache_leaf_notify,		/* 'notify' callback */
+    H5B2__cache_leaf_free_icr,          /* 'free_icr' callback */
+    NULL,				/* 'fsf_size' callback */
 }};
 
 
@@ -133,7 +164,75 @@ const H5AC_class_t H5AC_BT2_LEAF[1] = {{
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_hdr_load
+ * Function:    H5B2__cache_hdr_get_initial_load_size
+ *
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 18, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_hdr_get_initial_load_size(void *_udata, size_t *image_len)
+{
+    H5B2_hdr_cache_ud_t *udata = (H5B2_hdr_cache_ud_t *)_udata; /* User data for callback */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(udata);
+    HDassert(udata->f);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = H5B2_HEADER_SIZE_FILE(udata->f);
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_hdr_get_initial_load_size() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_hdr_verify_chksum
+ *
+ * Purpose:     Verify the computed checksum of the data structure is the
+ *              same as the stored chksum.
+ *
+ * Return:      Success:        TRUE/FALSE
+ *              Failure:        Negative
+ *
+ * Programmer:	Vailin Choi; Aug 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+static htri_t
+H5B2__cache_hdr_verify_chksum(const void *_image, size_t len, void H5_ATTR_UNUSED *_udata)
+{
+    const uint8_t *image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
+    uint32_t stored_chksum;     /* Stored metadata checksum value */
+    uint32_t computed_chksum;   /* Computed metadata checksum value */
+    htri_t ret_value = TRUE;	/* Return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(image);
+
+    /* Get stored and computed checksums */
+    H5F_get_checksums(image, len, &stored_chksum, &computed_chksum);
+
+    if(stored_chksum != computed_chksum)
+	ret_value = FALSE;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5B2__cache_hdr_verify_chksum() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_hdr_deserialize
  *
  * Purpose:	Loads a B-tree header from the disk.
  *
@@ -146,8 +245,9 @@ const H5AC_class_t H5AC_BT2_LEAF[1] = {{
  *
  *-------------------------------------------------------------------------
  */
-static H5B2_hdr_t *
-H5B2__cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
+static void *
+H5B2__cache_hdr_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
+    void *_udata, hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5B2_hdr_t		*hdr = NULL;    /* B-tree header */
     H5B2_hdr_cache_ud_t *udata = (H5B2_hdr_cache_ud_t *)_udata;
@@ -155,109 +255,115 @@ H5B2__cache_hdr_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     H5B2_subid_t        id;		/* ID of B-tree class, as found in file */
     uint16_t            depth;          /* Depth of B-tree */
     uint32_t            stored_chksum;  /* Stored metadata checksum value */
-    uint32_t            computed_chksum; /* Computed metadata checksum value */
-    H5WB_t              *wb = NULL;     /* Wrapped buffer for header data */
-    uint8_t             hdr_buf[H5B2_HDR_BUF_SIZE]; /* Buffer for header */
-    uint8_t		*buf;           /* Pointer to header buffer */
-    const uint8_t	*p;             /* Pointer into raw data buffer */
-    H5B2_hdr_t		*ret_value;     /* Return value */
+    const uint8_t	*image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
+    H5B2_hdr_t		*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Check arguments */
-    HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(udata);
 
     /* Allocate new B-tree header and reset cache info */
-    if(NULL == (hdr = H5B2_hdr_alloc(udata->f)))
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, NULL, "allocation failed for B-tree header")
-
-    /* Wrap the local buffer for serialized header info */
-    if(NULL == (wb = H5WB_wrap(hdr_buf, sizeof(hdr_buf))))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, NULL, "can't wrap buffer")
-
-    /* Get a pointer to a buffer that's large enough for header */
-    if(NULL == (buf = (uint8_t *)H5WB_actual(wb, hdr->hdr_size)))
-        HGOTO_ERROR(H5E_BTREE, H5E_NOSPACE, NULL, "can't get actual buffer")
-
-    /* Read header from disk */
-    if(H5F_block_read(f, H5FD_MEM_BTREE, addr, hdr->hdr_size, dxpl_id, buf) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_READERROR, NULL, "can't read B-tree header")
-
-    /* Get temporary pointer to serialized header */
-    p = buf;
+    if(NULL == (hdr = H5B2__hdr_alloc(udata->f)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, NULL, "allocation failed for B-tree header")
 
     /* Magic number */
-    if(HDmemcmp(p, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC))
+    if(HDmemcmp(image, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC))
 	HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "wrong B-tree header signature")
-    p += H5_SIZEOF_MAGIC;
+    image += H5_SIZEOF_MAGIC;
 
     /* Version */
-    if(*p++ != H5B2_HDR_VERSION)
+    if(*image++ != H5B2_HDR_VERSION)
 	HGOTO_ERROR(H5E_BTREE, H5E_BADRANGE, NULL, "wrong B-tree header version")
 
     /* B-tree class */
-    id = (H5B2_subid_t)*p++;
+    id = (H5B2_subid_t)*image++;
     if(id >= H5B2_NUM_BTREE_ID)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADTYPE, NULL, "incorrect B-tree type")
+        HGOTO_ERROR(H5E_BTREE, H5E_BADTYPE, NULL, "incorrect B-tree type")
 
     /* Node size (in bytes) */
-    UINT32DECODE(p, cparam.node_size);
+    UINT32DECODE(image, cparam.node_size);
 
     /* Raw key size (in bytes) */
-    UINT16DECODE(p, cparam.rrec_size);
+    UINT16DECODE(image, cparam.rrec_size);
 
     /* Depth of tree */
-    UINT16DECODE(p, depth);
+    UINT16DECODE(image, depth);
 
     /* Split & merge %s */
-    cparam.split_percent = *p++;
-    cparam.merge_percent = *p++;
+    cparam.split_percent = *image++;
+    cparam.merge_percent = *image++;
 
     /* Root node pointer */
-    H5F_addr_decode(udata->f, (const uint8_t **)&p, &(hdr->root.addr));
-    UINT16DECODE(p, hdr->root.node_nrec);
-    H5F_DECODE_LENGTH(udata->f, p, hdr->root.all_nrec);
+    H5F_addr_decode(udata->f, (const uint8_t **)&image, &(hdr->root.addr));
+    UINT16DECODE(image, hdr->root.node_nrec);
+    H5F_DECODE_LENGTH(udata->f, image, hdr->root.all_nrec);
+
+    /* checksum verification already done in verify_chksum cb */
 
     /* Metadata checksum */
-    UINT32DECODE(p, stored_chksum);
+    UINT32DECODE(image, stored_chksum);
 
     /* Sanity check */
-    HDassert((size_t)(p - (const uint8_t *)buf) == hdr->hdr_size);
-
-    /* Compute checksum on entire header */
-    computed_chksum = H5_checksum_metadata(buf, (hdr->hdr_size - H5B2_SIZEOF_CHKSUM), 0);
-
-    /* Verify checksum */
-    if(stored_chksum != computed_chksum)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "incorrect metadata checksum for v2 B-tree header")
+    HDassert((size_t)(image - (const uint8_t *)_image) == hdr->hdr_size);
 
     /* Initialize B-tree header info */
     cparam.cls = H5B2_client_class_g[id];
-    if(H5B2_hdr_init(hdr, &cparam, udata->ctx_udata, depth) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, NULL, "can't initialize B-tree header info")
+    if(H5B2__hdr_init(hdr, &cparam, udata->ctx_udata, depth) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, NULL, "can't initialize B-tree header info")
 
     /* Set the B-tree header's address */
-    hdr->addr = addr;
+    hdr->addr = udata->addr;
+
+    /* Sanity check */
+    HDassert((size_t)(image - (const uint8_t *)_image) <= len);
 
     /* Set return value */
     ret_value = hdr;
 
 done:
-    /* Release resources */
-    if(wb && H5WB_unwrap(wb) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CLOSEERROR, NULL, "can't close wrapped buffer")
     if(!ret_value && hdr)
-        if(H5B2_hdr_free(hdr) < 0)
+        if(H5B2__hdr_free(hdr) < 0)
             HDONE_ERROR(H5E_BTREE, H5E_CANTRELEASE, NULL, "can't release v2 B-tree header")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_hdr_load() */ /*lint !e818 Can't make udata a pointer to const */
+} /* end H5B2__cache_hdr_deserialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_hdr_flush
+ * Function:    H5B2__cache_hdr_image_len
+ *
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 20, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_hdr_image_len(const void *_thing, size_t *image_len)
+{
+    const H5B2_hdr_t *hdr = (const H5B2_hdr_t *)_thing;      /* Pointer to the B-tree header */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(hdr);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = hdr->hdr_size;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_hdr_image_len() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_hdr_serialize
  *
  * Purpose:	Flushes a dirty B-tree header to disk.
  *
@@ -270,157 +376,81 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_hdr_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr,
-    H5B2_hdr_t *hdr, unsigned UNUSED * flags_ptr)
+H5B2__cache_hdr_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED len,
+    void *_thing)
 {
-    H5WB_t      *wb = NULL;             /* Wrapped buffer for header data */
-    uint8_t     hdr_buf[H5B2_HDR_BUF_SIZE]; /* Buffer for header */
-    herr_t      ret_value = SUCCEED;    /* Return value */
+    H5B2_hdr_t *hdr = (H5B2_hdr_t *)_thing;     /* Pointer to the B-tree header */
+    uint8_t *image = (uint8_t *)_image;         /* Pointer into raw data buffer */
+    uint32_t metadata_chksum;                   /* Computed metadata checksum value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_STATIC_NOERR
 
     /* check arguments */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(hdr);
 
-    if(hdr->cache_info.is_dirty) {
-        uint8_t	*buf;           /* Pointer to header buffer */
-        uint8_t *p;             /* Pointer into raw data buffer */
-        uint32_t metadata_chksum; /* Computed metadata checksum value */
+    /* Magic number */
+    HDmemcpy(image, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    image += H5_SIZEOF_MAGIC;
 
-        /* Set the B-tree header's file context for this operation */
-        hdr->f = f;
+    /* Version # */
+    *image++ = H5B2_HDR_VERSION;
 
-        /* Wrap the local buffer for serialized header info */
-        if(NULL == (wb = H5WB_wrap(hdr_buf, sizeof(hdr_buf))))
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "can't wrap buffer")
+    /* B-tree type */
+    *image++ = hdr->cls->id;
 
-        /* Get a pointer to a buffer that's large enough for header */
-        if(NULL == (buf = (uint8_t *)H5WB_actual(wb, hdr->hdr_size)))
-            HGOTO_ERROR(H5E_BTREE, H5E_NOSPACE, FAIL, "can't get actual buffer")
+    /* Node size (in bytes) */
+    UINT32ENCODE(image, hdr->node_size);
 
-        /* Get temporary pointer to serialized header */
-        p = buf;
+    /* Raw key size (in bytes) */
+    UINT16ENCODE(image, hdr->rrec_size);
 
-        /* Magic number */
-        HDmemcpy(p, H5B2_HDR_MAGIC, (size_t)H5_SIZEOF_MAGIC);
-        p += H5_SIZEOF_MAGIC;
+    /* Depth of tree */
+    UINT16ENCODE(image, hdr->depth);
 
-        /* Version # */
-        *p++ = H5B2_HDR_VERSION;
+    /* Split & merge %s */
+    H5_CHECK_OVERFLOW(hdr->split_percent, /* From: */ unsigned, /* To: */ uint8_t);
+    *image++ = (uint8_t)hdr->split_percent;
+    H5_CHECK_OVERFLOW(hdr->merge_percent, /* From: */ unsigned, /* To: */ uint8_t);
+    *image++ = (uint8_t)hdr->merge_percent;
 
-        /* B-tree type */
-        *p++ = hdr->cls->id;
+    /* Root node pointer */
+    H5F_addr_encode(f, &image, hdr->root.addr);
+    UINT16ENCODE(image, hdr->root.node_nrec);
+    H5F_ENCODE_LENGTH(f, image, hdr->root.all_nrec);
 
-        /* Node size (in bytes) */
-        UINT32ENCODE(p, hdr->node_size);
+    /* Compute metadata checksum */
+    metadata_chksum = H5_checksum_metadata(_image, (hdr->hdr_size - H5B2_SIZEOF_CHKSUM), 0);
 
-        /* Raw key size (in bytes) */
-        UINT16ENCODE(p, hdr->rrec_size);
+    /* Metadata checksum */
+    UINT32ENCODE(image, metadata_chksum);
 
-        /* Depth of tree */
-        UINT16ENCODE(p, hdr->depth);
+    /* Sanity check */
+    HDassert((size_t)(image - (uint8_t *)_image) == len);
 
-        /* Split & merge %s */
-        H5_CHECK_OVERFLOW(hdr->split_percent, /* From: */ unsigned, /* To: */ uint8_t);
-        *p++ = (uint8_t)hdr->split_percent;
-        H5_CHECK_OVERFLOW(hdr->merge_percent, /* From: */ unsigned, /* To: */ uint8_t);
-        *p++ = (uint8_t)hdr->merge_percent;
-
-        /* Root node pointer */
-        H5F_addr_encode(f, &p, hdr->root.addr);
-        UINT16ENCODE(p, hdr->root.node_nrec);
-        H5F_ENCODE_LENGTH(f, p, hdr->root.all_nrec);
-
-        /* Compute metadata checksum */
-        metadata_chksum = H5_checksum_metadata(buf, (hdr->hdr_size - H5B2_SIZEOF_CHKSUM), 0);
-
-        /* Metadata checksum */
-        UINT32ENCODE(p, metadata_chksum);
-
-	/* Write the B-tree header. */
-        HDassert((size_t)(p - buf) == hdr->hdr_size);
-	if(H5F_block_write(f, H5FD_MEM_BTREE, addr, hdr->hdr_size, dxpl_id, buf) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFLUSH, FAIL, "unable to save B-tree header to disk")
-
-	hdr->cache_info.is_dirty = FALSE;
-    } /* end if */
-
-    if(destroy)
-        if(H5B2__cache_hdr_dest(f, hdr) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree header")
-
-done:
-    /* Release resources */
-    if(wb && H5WB_unwrap(wb) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CLOSEERROR, FAIL, "can't close wrapped buffer")
-
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2__cache_hdr_flush() */
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* H5B2__cache_hdr_serialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_hdr_dest
+ * Function:    H5B2__cache_hdr_notify
  *
- * Purpose:	Destroys a B-tree header in memory.
+ * Purpose:     Handle cache action notifications
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 1 2005
+ * Programmer:  Neil Fortner
+ *              nfortne2@hdfgroup.org
+ *              Apr 24 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_hdr_dest(H5F_t *f, H5B2_hdr_t *hdr)
+H5B2__cache_hdr_notify(H5AC_notify_action_t action, void *_thing)
 {
-    herr_t ret_value = SUCCEED;     /* Return value */
-
-    FUNC_ENTER_STATIC
-
-    /* Check arguments */
-    HDassert(hdr);
-    HDassert(hdr->rc == 0);
-
-    /* If we're going to free the space on disk, the address must be valid */
-    HDassert(!hdr->cache_info.free_file_space_on_destroy || H5F_addr_defined(hdr->cache_info.addr));
-
-    /* Check for freeing file space for B-tree header */
-    if(hdr->cache_info.free_file_space_on_destroy) {
-        /* Release the space on disk */
-        /* (XXX: Nasty usage of internal DXPL value! -QAK) */
-        if(H5MF_xfree(f, H5FD_MEM_BTREE, H5AC_dxpl_id, hdr->cache_info.addr, (hsize_t)hdr->hdr_size) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to free v2 B-tree header")
-    } /* end if */
-
-    /* Release B-tree header info */
-    if(H5B2_hdr_free(hdr) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to free v2 B-tree header info")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_hdr_dest() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5B2__cache_hdr_clear
- *
- * Purpose:	Mark a B-tree header in memory as non-dirty.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb  1 2005
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5B2__cache_hdr_clear(H5F_t *f, H5B2_hdr_t *hdr, hbool_t destroy)
-{
-    herr_t ret_value = SUCCEED;         /* Return value */
+    H5B2_hdr_t 	*hdr = (H5B2_hdr_t *)_thing;
+    herr_t 	ret_value = SUCCEED;
 
     FUNC_ENTER_STATIC
 
@@ -429,53 +459,178 @@ H5B2__cache_hdr_clear(H5F_t *f, H5B2_hdr_t *hdr, hbool_t destroy)
      */
     HDassert(hdr);
 
-    /* Reset the dirty flag.  */
-    hdr->cache_info.is_dirty = FALSE;
+    /* Check if the file was opened with SWMR-write access */
+    if(hdr->swmr_write) {
+        switch(action) {
+            case H5AC_NOTIFY_ACTION_AFTER_INSERT:
+	    case H5AC_NOTIFY_ACTION_AFTER_LOAD:
+		/* do nothing */
+                break;
 
-    if(destroy)
-        if(H5B2__cache_hdr_dest(f, hdr) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree header")
+	    case H5AC_NOTIFY_ACTION_AFTER_FLUSH:
+                /* Increment the shadow epoch, forcing new modifications to
+                 * internal and leaf nodes to create new shadow copies */
+                hdr->shadow_epoch++;
+                break;
+
+            case H5AC_NOTIFY_ACTION_ENTRY_DIRTIED:
+            case H5AC_NOTIFY_ACTION_ENTRY_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_DIRTIED:
+            case H5AC_NOTIFY_ACTION_CHILD_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_UNSERIALIZED:
+            case H5AC_NOTIFY_ACTION_CHILD_SERIALIZED:
+		/* do nothing */
+                break;
+
+	    case H5AC_NOTIFY_ACTION_BEFORE_EVICT:
+                /* If hdr->parent != NULL, hdr->parent is used to destroy
+                 * the flush dependency before the header is evicted.
+                 */
+                if(hdr->parent) {
+                    /* Sanity check */
+                    HDassert(hdr->top_proxy);
+
+		    /* Destroy flush dependency on object header proxy */
+		    if(H5AC_proxy_entry_remove_child((H5AC_proxy_entry_t *)hdr->parent, (void *)hdr->top_proxy) < 0)
+                        HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency between v2 B-tree and proxy")
+                    hdr->parent = NULL;
+		} /* end if */
+
+                /* Detach from 'top' proxy for extensible array */
+                if(hdr->top_proxy) {
+                    if(H5AC_proxy_entry_remove_child(hdr->top_proxy, hdr) < 0)
+                        HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency between header and v2 B-tree 'top' proxy")
+                    /* Don't reset hdr->top_proxy here, it's destroyed when the header is freed -QAK */
+                } /* end if */
+		break;
+
+            default:
+#ifdef NDEBUG
+                HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, FAIL, "unknown action from metadata cache")
+#else /* NDEBUG */
+                HDassert(0 && "Unknown action?!?");
+#endif /* NDEBUG */
+        } /* end switch */
+    } /* end if */
+    else
+        HDassert(NULL == hdr->parent);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_hdr_clear() */
+} /* end H5B2__cache_hdr_notify() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_hdr_size
+ * Function:	H5B2__cache_hdr_free_icr
  *
- * Purpose:	Compute the size in bytes of a B-tree header
- *		on disk, and return it in *size_ptr.  On failure,
- *		the value of *size_ptr is undefined.
+ * Purpose:	Destroy/release an "in core representation" of a data
+ *              structure
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 1 2005
+ * Programmer:	Mike McGreevy
+ *              mcgreevy@hdfgroup.org
+ *              June 18, 2008
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_hdr_size(const H5F_t UNUSED *f, const H5B2_hdr_t *hdr, size_t *size_ptr)
+H5B2__cache_hdr_free_icr(void *thing)
 {
-    FUNC_ENTER_STATIC_NOERR
+    herr_t ret_value = SUCCEED;     /* Return value */
 
-    /* check arguments */
-    HDassert(f);
-    HDassert(size_ptr);
+    FUNC_ENTER_STATIC
 
-    /* Set size value */
-    *size_ptr = hdr->hdr_size;
+    /* Check arguments */
+    HDassert(thing);
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5B2__cache_hdr_size() */
+    /* Destroy v2 B-tree header */
+    if(H5B2__hdr_free((H5B2_hdr_t *)thing) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to free v2 B-tree header")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5B2__cache_hdr_free_icr() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_internal_load
+ * Function:    H5B2__cache_int_get_initial_load_size
  *
- * Purpose:	Loads a B-tree internal node from the disk.
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 18, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_int_get_initial_load_size(void *_udata, size_t *image_len)
+{
+    H5B2_internal_cache_ud_t *udata = (H5B2_internal_cache_ud_t *)_udata; /* User data for callback */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(udata);
+    HDassert(udata->hdr);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = udata->hdr->node_size;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_int_get_initial_load_size() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_int_verify_chksum
+ *
+ * Purpose:     Verify the computed checksum of the data structure is the
+ *              same as the stored chksum.
+ *
+ * Return:      Success:        TRUE/FALSE
+ *              Failure:        Negative
+ *
+ * Programmer:	Vailin Choi; Aug 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+static htri_t
+H5B2__cache_int_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, void *_udata)
+{
+    const uint8_t *image = (const uint8_t *)_image;       			/* Pointer into raw data buffer */
+    H5B2_internal_cache_ud_t *udata = (H5B2_internal_cache_ud_t *)_udata;     	/* Pointer to user data */
+    size_t chk_size;       	/* Exact size of the node with checksum at the end */
+    uint32_t stored_chksum;     /* Stored metadata checksum value */
+    uint32_t computed_chksum;   /* Computed metadata checksum value */
+    htri_t ret_value = TRUE;	/* Return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(image);
+    HDassert(udata);
+
+    /* Internal node prefix header + records + child pointer triplets: size with checksum at the end */
+    chk_size = H5B2_INT_PREFIX_SIZE + (udata->nrec * udata->hdr->rrec_size) + ((size_t)(udata->nrec + 1) * H5B2_INT_POINTER_SIZE(udata->hdr, udata->depth));
+
+    /* Get stored and computed checksums */
+    H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum);
+
+    if(stored_chksum != computed_chksum)
+	ret_value = FALSE;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5B2__cache_int_verify_chksum() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_int_deserialize
+ *
+ * Purpose:	Deserialize a B-tree internal node from the disk.
  *
  * Return:	Success:	Pointer to a new B-tree internal node.
  *              Failure:        NULL
@@ -486,59 +641,50 @@ H5B2__cache_hdr_size(const H5F_t UNUSED *f, const H5B2_hdr_t *hdr, size_t *size_
  *
  *-------------------------------------------------------------------------
  */
-static H5B2_internal_t *
-H5B2__cache_internal_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
+static void *
+H5B2__cache_int_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
+    void *_udata, hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5B2_internal_cache_ud_t *udata = (H5B2_internal_cache_ud_t *)_udata;     /* Pointer to user data */
     H5B2_internal_t	*internal = NULL;       /* Internal node read */
-    const uint8_t	*p;             /* Pointer into raw data buffer */
+    const uint8_t	*image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
     uint8_t		*native;        /* Pointer to native record info */
     H5B2_node_ptr_t	*int_node_ptr;  /* Pointer to node pointer info */
     uint32_t            stored_chksum;  /* Stored metadata checksum value */
-    uint32_t            computed_chksum; /* Computed metadata checksum value */
     unsigned		u;              /* Local index variable */
-    H5B2_internal_t	*ret_value;     /* Return value */
+    H5B2_internal_t	*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Check arguments */
-    HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(udata);
 
     /* Allocate new internal node and reset cache info */
-    if(NULL == (internal = H5FL_MALLOC(H5B2_internal_t)))
+    if(NULL == (internal = H5FL_CALLOC(H5B2_internal_t)))
 	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-    HDmemset(&internal->cache_info, 0, sizeof(H5AC_info_t));
-
-    /* Set the B-tree header's file context for this operation */
-    udata->hdr->f = f;
 
     /* Increment ref. count on B-tree header */
-    if(H5B2_hdr_incr(udata->hdr) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, NULL, "can't increment ref. count on B-tree header")
+    if(H5B2__hdr_incr(udata->hdr) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, NULL, "can't increment ref. count on B-tree header")
 
     /* Share B-tree information */
     internal->hdr = udata->hdr;
-
-    /* Read header from disk */
-    if(H5F_block_read(f, H5FD_MEM_BTREE, addr, udata->hdr->node_size, dxpl_id, udata->hdr->page) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_READERROR, NULL, "can't read B-tree internal node")
-
-    p = udata->hdr->page;
+    internal->parent = udata->parent;
+    internal->shadow_epoch = udata->hdr->shadow_epoch;
 
     /* Magic number */
-    if(HDmemcmp(p, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC))
+    if(HDmemcmp(image, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC))
         HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "wrong B-tree internal node signature")
-    p += H5_SIZEOF_MAGIC;
+    image += H5_SIZEOF_MAGIC;
 
     /* Version */
-    if(*p++ != H5B2_INT_VERSION)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADRANGE, NULL, "wrong B-tree internal node version")
+    if(*image++ != H5B2_INT_VERSION)
+        HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "wrong B-tree internal node version")
 
     /* B-tree type */
-    if(*p++ != (uint8_t)udata->hdr->cls->id)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADTYPE, NULL, "incorrect B-tree type")
+    if(*image++ != (uint8_t)udata->hdr->cls->id)
+        HGOTO_ERROR(H5E_BTREE, H5E_BADTYPE, NULL, "incorrect B-tree type")
 
     /* Allocate space for the native keys in memory */
     if(NULL == (internal->int_native = (uint8_t *)H5FL_FAC_MALLOC(udata->hdr->node_info[udata->depth].nat_rec_fac)))
@@ -556,11 +702,11 @@ H5B2__cache_internal_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     native = internal->int_native;
     for(u = 0; u < internal->nrec; u++) {
         /* Decode record */
-        if((udata->hdr->cls->decode)(p, native, udata->hdr->cb_ctx) < 0)
+        if((udata->hdr->cls->decode)(image, native, udata->hdr->cb_ctx) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTDECODE, NULL, "unable to decode B-tree record")
 
         /* Move to next record */
-        p += udata->hdr->rrec_size;
+        image += udata->hdr->rrec_size;
         native += udata->hdr->cls->nrec_size;
     } /* end for */
 
@@ -568,10 +714,10 @@ H5B2__cache_internal_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
     int_node_ptr = internal->node_ptrs;
     for(u = 0; u < (unsigned)(internal->nrec + 1); u++) {
         /* Decode node pointer */
-        H5F_addr_decode(udata->f, (const uint8_t **)&p, &(int_node_ptr->addr));
-        UINT64DECODE_VAR(p, int_node_ptr->node_nrec, udata->hdr->max_nrec_size);
+        H5F_addr_decode(udata->f, (const uint8_t **)&image, &(int_node_ptr->addr));
+        UINT64DECODE_VAR(image, int_node_ptr->node_nrec, udata->hdr->max_nrec_size);
         if(udata->depth > 1)
-            UINT64DECODE_VAR(p, int_node_ptr->all_nrec, udata->hdr->node_info[udata->depth - 1].cum_max_nrec_size)
+            UINT64DECODE_VAR(image, int_node_ptr->all_nrec, udata->hdr->node_info[udata->depth - 1].cum_max_nrec_size)
         else
             int_node_ptr->all_nrec = int_node_ptr->node_nrec;
 
@@ -579,35 +725,62 @@ H5B2__cache_internal_load(H5F_t *f, hid_t dxpl_id, haddr_t addr, void *_udata)
         int_node_ptr++;
     } /* end for */
 
-    /* Compute checksum on internal node */
-    computed_chksum = H5_checksum_metadata(udata->hdr->page, (size_t)(p - (const uint8_t *)udata->hdr->page), 0);
+    /* checksum verification already done in verify_chksum cb */
 
     /* Metadata checksum */
-    UINT32DECODE(p, stored_chksum);
+    UINT32DECODE(image, stored_chksum);
 
     /* Sanity check parsing */
-    HDassert((size_t)(p - (const uint8_t *)udata->hdr->page) <= udata->hdr->node_size);
-
-    /* Verify checksum */
-    if(stored_chksum != computed_chksum)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "incorrect metadata checksum for v2 internal node")
+    HDassert((size_t)(image - (const uint8_t *)_image) <= len);
 
     /* Set return value */
     ret_value = internal;
 
 done:
     if(!ret_value && internal)
-        if(H5B2_internal_free(internal) < 0)
+        if(H5B2__internal_free(internal) < 0)
             HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, NULL, "unable to destroy B-tree internal node")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2__cache_internal_load() */ /*lint !e818 Can't make udata a pointer to const */
+} /* H5B2__cache_int_deserialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_internal_flush
+ * Function:    H5B2__cache_int_image_len
  *
- * Purpose:	Flushes a dirty B-tree internal node to disk.
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 20, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_int_image_len(const void *_thing, size_t *image_len)
+{
+    const H5B2_internal_t *internal = (const H5B2_internal_t *)_thing;      /* Pointer to the B-tree internal node */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(internal);
+    HDassert(internal->hdr);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = internal->hdr->node_size;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_int_image_len() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_int_serialize
+ *
+ * Purpose:	Serializes a B-tree internal node for writing to disk.
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -618,207 +791,266 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_internal_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B2_internal_t *internal, unsigned UNUSED * flags_ptr)
+H5B2__cache_int_serialize(const H5F_t *f, void *_image, size_t H5_ATTR_UNUSED len,
+    void *_thing)
 {
+    H5B2_internal_t *internal = (H5B2_internal_t *)_thing;      /* Pointer to the B-tree internal node */
+    uint8_t *image = (uint8_t *)_image; /* Pointer into raw data buffer */
+    uint8_t *native;        /* Pointer to native record info */
+    H5B2_node_ptr_t *int_node_ptr;      /* Pointer to node pointer info */
+    uint32_t metadata_chksum; /* Computed metadata checksum value */
+    unsigned u;             /* Local index variable */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* check arguments */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(internal);
     HDassert(internal->hdr);
 
-    if(internal->cache_info.is_dirty) {
-        uint8_t *p;             /* Pointer into raw data buffer */
-        uint8_t *native;        /* Pointer to native record info */
-        H5B2_node_ptr_t *int_node_ptr;      /* Pointer to node pointer info */
-        uint32_t metadata_chksum; /* Computed metadata checksum value */
-        unsigned u;             /* Local index variable */
+    /* Magic number */
+    HDmemcpy(image, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    image += H5_SIZEOF_MAGIC;
 
-        /* Set the B-tree header's file context for this operation */
-        internal->hdr->f = f;
+    /* Version # */
+    *image++ = H5B2_INT_VERSION;
 
-        p = internal->hdr->page;
+    /* B-tree type */
+    *image++ = internal->hdr->cls->id;
+    HDassert((size_t)(image - (uint8_t *)_image) == (H5B2_INT_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
 
-        /* Magic number */
-        HDmemcpy(p, H5B2_INT_MAGIC, (size_t)H5_SIZEOF_MAGIC);
-        p += H5_SIZEOF_MAGIC;
+    /* Serialize records for internal node */
+    native = internal->int_native;
+    for(u = 0; u < internal->nrec; u++) {
+        /* Encode record */
+        if((internal->hdr->cls->encode)(image, native, internal->hdr->cb_ctx) < 0)
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTENCODE, FAIL, "unable to encode B-tree record")
 
-        /* Version # */
-        *p++ = H5B2_INT_VERSION;
+        /* Move to next record */
+        image += internal->hdr->rrec_size;
+        native += internal->hdr->cls->nrec_size;
+    } /* end for */
 
-        /* B-tree type */
-        *p++ = internal->hdr->cls->id;
-        HDassert((size_t)(p - internal->hdr->page) == (H5B2_INT_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
+    /* Serialize node pointers for internal node */
+    int_node_ptr = internal->node_ptrs;
+    for(u = 0; u < (unsigned)(internal->nrec + 1); u++) {
+        /* Encode node pointer */
+        H5F_addr_encode(f, &image, int_node_ptr->addr);
+        UINT64ENCODE_VAR(image, int_node_ptr->node_nrec, internal->hdr->max_nrec_size);
+        if(internal->depth > 1)
+            UINT64ENCODE_VAR(image, int_node_ptr->all_nrec, internal->hdr->node_info[internal->depth - 1].cum_max_nrec_size);
 
-        /* Serialize records for internal node */
-        native = internal->int_native;
-        for(u = 0; u < internal->nrec; u++) {
-            /* Encode record */
-            if((internal->hdr->cls->encode)(p, native, internal->hdr->cb_ctx) < 0)
-                HGOTO_ERROR(H5E_BTREE, H5E_CANTENCODE, FAIL, "unable to encode B-tree record")
+        /* Move to next node pointer */
+        int_node_ptr++;
+    } /* end for */
 
-            /* Move to next record */
-            p += internal->hdr->rrec_size;
-            native += internal->hdr->cls->nrec_size;
-        } /* end for */
+    /* Compute metadata checksum */
+    metadata_chksum = H5_checksum_metadata(_image, (size_t)(image - (uint8_t *)_image), 0);
 
-        /* Serialize node pointers for internal node */
-        int_node_ptr = internal->node_ptrs;
-        for(u = 0; u < (unsigned)(internal->nrec + 1); u++) {
-            /* Encode node pointer */
-            H5F_addr_encode(f, &p, int_node_ptr->addr);
-            UINT64ENCODE_VAR(p, int_node_ptr->node_nrec, internal->hdr->max_nrec_size);
-            if(internal->depth > 1)
-                UINT64ENCODE_VAR(p, int_node_ptr->all_nrec, internal->hdr->node_info[internal->depth - 1].cum_max_nrec_size);
+    /* Metadata checksum */
+    UINT32ENCODE(image, metadata_chksum);
 
-            /* Move to next node pointer */
-            int_node_ptr++;
-        } /* end for */
+    /* Sanity check */
+    HDassert((size_t)(image - (uint8_t *)_image) <= len);
 
-        /* Compute metadata checksum */
-        metadata_chksum = H5_checksum_metadata(internal->hdr->page, (size_t)(p - internal->hdr->page), 0);
-
-        /* Metadata checksum */
-        UINT32ENCODE(p, metadata_chksum);
-
-	/* Write the B-tree internal node */
-        HDassert((size_t)(p - internal->hdr->page) <= internal->hdr->node_size);
-	if(H5F_block_write(f, H5FD_MEM_BTREE, addr, internal->hdr->node_size, dxpl_id, internal->hdr->page) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFLUSH, FAIL, "unable to save B-tree internal node to disk")
-
-	internal->cache_info.is_dirty = FALSE;
-    } /* end if */
-
-    if(destroy)
-        if(H5B2__cache_internal_dest(f, internal) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree internal node")
+    /* Clear rest of internal node */
+    HDmemset(image, 0, len - (size_t)(image - (uint8_t *)_image));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2__cache_internal_flush() */
+} /* H5B2__cache_int_serialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_internal_dest
+ * Function:    H5B2__cache_int_notify
  *
- * Purpose:	Destroys a B-tree internal node in memory.
+ * Purpose:     Handle cache action notifications
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 2 2005
+ * Programmer:  Neil Fortner
+ *              nfortne2@hdfgroup.org
+ *              Apr 25 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_internal_dest(H5F_t *f, H5B2_internal_t *internal)
+H5B2__cache_int_notify(H5AC_notify_action_t action, void *_thing)
 {
-    herr_t ret_value = SUCCEED;     /* Return value */
+    H5B2_internal_t 	*internal = (H5B2_internal_t *)_thing;
+    herr_t   		ret_value = SUCCEED;
 
-    FUNC_ENTER_STATIC
-
-    /* Check arguments */
-    HDassert(f);
-    HDassert(internal);
-    HDassert(internal->hdr);
-
-    /* If we're going to free the space on disk, the address must be valid */
-    HDassert(!internal->cache_info.free_file_space_on_destroy || H5F_addr_defined(internal->cache_info.addr));
-
-    /* Check for freeing file space for B-tree internal node */
-    if(internal->cache_info.free_file_space_on_destroy) {
-        /* Release the space on disk */
-        /* (XXX: Nasty usage of internal DXPL value! -QAK) */
-        if(H5MF_xfree(f, H5FD_MEM_BTREE, H5AC_dxpl_id, internal->cache_info.addr, (hsize_t)internal->hdr->node_size) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to free v2 B-tree internal node")
-    } /* end if */
-
-    /* Release v2 b-tree internal node */
-    if(H5B2_internal_free(internal) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to release v2 B-tree internal node")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_internal_dest() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5B2__cache_internal_clear
- *
- * Purpose:	Mark a B-tree internal node in memory as non-dirty.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb  2 2005
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5B2__cache_internal_clear(H5F_t *f, H5B2_internal_t *internal, hbool_t destroy)
-{
-    herr_t ret_value = SUCCEED;
-
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
      */
     HDassert(internal);
+    HDassert(internal->hdr);
 
-    /* Reset the dirty flag.  */
-    internal->cache_info.is_dirty = FALSE;
+    /* Check if the file was opened with SWMR-write access */
+    if(internal->hdr->swmr_write) {
+        switch(action) {
+            case H5AC_NOTIFY_ACTION_AFTER_INSERT:
+	    case H5AC_NOTIFY_ACTION_AFTER_LOAD:
+                /* Create flush dependency on parent */
+                if(H5B2__create_flush_depend((H5AC_info_t *)internal->parent, (H5AC_info_t *)internal) < 0)
+                    HGOTO_ERROR(H5E_BTREE, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
+                break;
 
-    if(destroy)
-        if(H5B2__cache_internal_dest(f, internal) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree internal node")
+	    case H5AC_NOTIFY_ACTION_AFTER_FLUSH:
+            case H5AC_NOTIFY_ACTION_ENTRY_DIRTIED:
+            case H5AC_NOTIFY_ACTION_ENTRY_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_DIRTIED:
+            case H5AC_NOTIFY_ACTION_CHILD_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_UNSERIALIZED:
+            case H5AC_NOTIFY_ACTION_CHILD_SERIALIZED:
+		/* do nothing */
+		break;
+
+            case H5AC_NOTIFY_ACTION_BEFORE_EVICT:
+		/* Destroy flush dependency on parent */
+		if(H5B2__destroy_flush_depend((H5AC_info_t *)internal->parent, (H5AC_info_t *)internal) < 0)
+		    HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
+
+                /* Detach from 'top' proxy for v2 B-tree */
+                if(internal->top_proxy) {
+                    if(H5AC_proxy_entry_remove_child(internal->top_proxy, internal) < 0)
+                        HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency between internal node and v2 B-tree 'top' proxy")
+                    internal->top_proxy = NULL;
+                } /* end if */
+                break;
+
+            default:
+#ifdef NDEBUG
+                HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, FAIL, "unknown action from metadata cache")
+#else /* NDEBUG */
+                HDassert(0 && "Unknown action?!?");
+#endif /* NDEBUG */
+        } /* end switch */
+    } /* end if */
+    else
+        HDassert(NULL == internal->top_proxy);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_internal_clear() */
+} /* end H5B2__cache_int_notify() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_internal_size
+ * Function:	H5B2__cache_int_free_icr
  *
- * Purpose:	Compute the size in bytes of a B-tree internal node
- *		on disk, and return it in *size_ptr.  On failure,
- *		the value of *size_ptr is undefined.
+ * Purpose:	Destroy/release an "in core representation" of a data
+ *              structure
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 2 2005
+ * Programmer:	Mike McGreevy
+ *              mcgreevy@hdfgroup.org
+ *              June 18, 2008
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_internal_size(const H5F_t UNUSED *f, const H5B2_internal_t *internal, size_t *size_ptr)
+H5B2__cache_int_free_icr(void *_thing)
 {
-    FUNC_ENTER_STATIC_NOERR
+    H5B2_internal_t *internal = (H5B2_internal_t *)_thing;
+    herr_t ret_value = SUCCEED;     /* Return value */
 
-    /* check arguments */
+    FUNC_ENTER_STATIC
+
+    /* Check arguments */
     HDassert(internal);
-    HDassert(internal->hdr);
-    HDassert(size_ptr);
 
-    /* Set size value */
-    *size_ptr = internal->hdr->node_size;
+    /* Release v2 B-tree internal node */
+    if(H5B2__internal_free(internal) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to release v2 B-tree internal node")
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5B2__cache_internal_size() */
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5B2__cache_int_free_icr() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_leaf_load
+ * Function:    H5B2__cache_leaf_get_initial_load_size
  *
- * Purpose:	Loads a B-tree leaf from the disk.
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 18, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_leaf_get_initial_load_size(void *_udata, size_t *image_len)
+{
+    H5B2_leaf_cache_ud_t *udata = (H5B2_leaf_cache_ud_t *)_udata; /* User data for callback */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(udata);
+    HDassert(udata->hdr);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = udata->hdr->node_size;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_leaf_get_initial_load_size() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_leaf_verify_chksum
+ *
+ * Purpose:     Verify the computed checksum of the data structure is the
+ *              same as the stored chksum.
+ *
+ * Return:      Success:        TRUE/FALSE
+ *              Failure:        Negative
+ *
+ * Programmer:	Vailin Choi; Aug 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+static htri_t
+H5B2__cache_leaf_verify_chksum(const void *_image, size_t H5_ATTR_UNUSED len, void *_udata)
+{
+    const uint8_t *image = (const uint8_t *)_image;       			/* Pointer into raw data buffer */
+    H5B2_internal_cache_ud_t *udata = (H5B2_internal_cache_ud_t *)_udata;     	/* Pointer to user data */
+    size_t chk_size;       	/* Exact size of the node with checksum at the end */
+    uint32_t stored_chksum;     /* Stored metadata checksum value */
+    uint32_t computed_chksum;   /* Computed metadata checksum value */
+    htri_t ret_value = TRUE;	/* Return value */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(image);
+    HDassert(udata);
+
+    /* Leaf node prefix header + records: size with checksum at the end */
+    chk_size = H5B2_LEAF_PREFIX_SIZE + (udata->nrec * udata->hdr->rrec_size);
+
+    /* Get stored and computed checksums */
+    H5F_get_checksums(image, chk_size, &stored_chksum, &computed_chksum);
+
+    if(stored_chksum != computed_chksum)
+	ret_value = FALSE;
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5B2__cache_leaf_verify_chksum() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_leaf_deserialize
+ *
+ * Purpose:	Deserialize a B-tree leaf from the disk.
  *
  * Return:	Success:	Pointer to a new B-tree leaf node.
  *		Failure:	NULL
@@ -829,62 +1061,53 @@ H5B2__cache_internal_size(const H5F_t UNUSED *f, const H5B2_internal_t *internal
  *
  *-------------------------------------------------------------------------
  */
-static H5B2_leaf_t *
-H5B2__cache_leaf_load(H5F_t UNUSED *f, hid_t dxpl_id, haddr_t addr, void *_udata)
+static void *
+H5B2__cache_leaf_deserialize(const void *_image, size_t H5_ATTR_UNUSED len,
+    void *_udata, hbool_t H5_ATTR_UNUSED *dirty)
 {
     H5B2_leaf_cache_ud_t *udata = (H5B2_leaf_cache_ud_t *)_udata;
     H5B2_leaf_t		*leaf = NULL;   /* Pointer to lead node loaded */
-    const uint8_t	*p;             /* Pointer into raw data buffer */
+    const uint8_t	*image = (const uint8_t *)_image;       /* Pointer into raw data buffer */
     uint8_t		*native;        /* Pointer to native keys */
     uint32_t            stored_chksum;  /* Stored metadata checksum value */
-    uint32_t            computed_chksum; /* Computed metadata checksum value */
     unsigned		u;              /* Local index variable */
-    H5B2_leaf_t		*ret_value;     /* Return value */
+    H5B2_leaf_t		*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Check arguments */
-    HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(udata);
 
     /* Allocate new leaf node and reset cache info */
-    if(NULL == (leaf = H5FL_MALLOC(H5B2_leaf_t)))
-	HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
-    HDmemset(&leaf->cache_info, 0, sizeof(H5AC_info_t));
-
-    /* Set the B-tree header's file context for this operation */
-    udata->hdr->f = udata->f;
+    if(NULL == (leaf = H5FL_CALLOC(H5B2_leaf_t)))
+	HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, NULL, "memory allocation failed")
 
     /* Increment ref. count on B-tree header */
-    if(H5B2_hdr_incr(udata->hdr) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, NULL, "can't increment ref. count on B-tree header")
+    if(H5B2__hdr_incr(udata->hdr) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, NULL, "can't increment ref. count on B-tree header")
 
     /* Share B-tree header information */
     leaf->hdr = udata->hdr;
-
-    /* Read header from disk */
-    if(H5F_block_read(udata->f, H5FD_MEM_BTREE, addr, udata->hdr->node_size, dxpl_id, udata->hdr->page) < 0)
-	HGOTO_ERROR(H5E_BTREE, H5E_READERROR, NULL, "can't read B-tree leaf node")
-
-    p = udata->hdr->page;
+    leaf->parent = udata->parent;
+    leaf->shadow_epoch = udata->hdr->shadow_epoch;
 
     /* Magic number */
-    if(HDmemcmp(p, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC))
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTLOAD, NULL, "wrong B-tree leaf node signature")
-    p += H5_SIZEOF_MAGIC;
+    if(HDmemcmp(image, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC))
+	HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "wrong B-tree leaf node signature")
+    image += H5_SIZEOF_MAGIC;
 
     /* Version */
-    if(*p++ != H5B2_LEAF_VERSION)
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTLOAD, NULL, "wrong B-tree leaf node version")
+    if(*image++ != H5B2_LEAF_VERSION)
+	HGOTO_ERROR(H5E_BTREE, H5E_BADRANGE, NULL, "wrong B-tree leaf node version")
 
     /* B-tree type */
-    if(*p++ != (uint8_t)udata->hdr->cls->id)
-	HGOTO_ERROR(H5E_BTREE, H5E_CANTLOAD, NULL, "incorrect B-tree type")
+    if(*image++ != (uint8_t)udata->hdr->cls->id)
+        HGOTO_ERROR(H5E_BTREE, H5E_BADTYPE, NULL, "incorrect B-tree type")
 
     /* Allocate space for the native keys in memory */
     if(NULL == (leaf->leaf_native = (uint8_t *)H5FL_FAC_MALLOC(udata->hdr->node_info[0].nat_rec_fac)))
-	HGOTO_ERROR(H5E_BTREE, H5E_NOSPACE, NULL, "memory allocation failed for B-tree leaf native keys")
+	HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, NULL, "memory allocation failed for B-tree leaf native keys")
 
     /* Set the number of records in the leaf */
     leaf->nrec = udata->nrec;
@@ -893,43 +1116,73 @@ H5B2__cache_leaf_load(H5F_t UNUSED *f, hid_t dxpl_id, haddr_t addr, void *_udata
     native = leaf->leaf_native;
     for(u = 0; u < leaf->nrec; u++) {
         /* Decode record */
-        if((udata->hdr->cls->decode)(p, native, udata->hdr->cb_ctx) < 0)
+        if((udata->hdr->cls->decode)(image, native, udata->hdr->cb_ctx) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_CANTENCODE, NULL, "unable to decode B-tree record")
 
         /* Move to next record */
-        p += udata->hdr->rrec_size;
+        image += udata->hdr->rrec_size;
         native += udata->hdr->cls->nrec_size;
     } /* end for */
 
-    /* Compute checksum on internal node */
-    computed_chksum = H5_checksum_metadata(udata->hdr->page, (size_t)(p - (const uint8_t *)udata->hdr->page), 0);
+    /* checksum verification already done in verify_chksum cb */
 
     /* Metadata checksum */
-    UINT32DECODE(p, stored_chksum);
+    UINT32DECODE(image, stored_chksum);
 
     /* Sanity check parsing */
-    HDassert((size_t)(p - (const uint8_t *)udata->hdr->page) <= udata->hdr->node_size);
+    HDassert((size_t)(image - (const uint8_t *)_image) <= udata->hdr->node_size);
 
-    /* Verify checksum */
-    if(stored_chksum != computed_chksum)
-	HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, NULL, "incorrect metadata checksum for v2 leaf node")
+    /* Sanity check */
+    HDassert((size_t)(image - (const uint8_t *)_image) <= len);
 
     /* Set return value */
     ret_value = leaf;
 
 done:
     if(!ret_value && leaf)
-        if(H5B2_leaf_free(leaf) < 0)
+        if(H5B2__leaf_free(leaf) < 0)
             HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, NULL, "unable to destroy B-tree leaf node")
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2__cache_leaf_load() */ /*lint !e818 Can't make udata a pointer to const */
+} /* H5B2__cache_leaf_deserialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_leaf_flush
+ * Function:    H5B2__cache_leaf_image_len
  *
- * Purpose:	Flushes a dirty B-tree leaf node to disk.
+ * Purpose:     Compute the size of the data structure on disk.
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Quincey Koziol
+ *              koziol@hdfgroup.org
+ *              May 20, 2010
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5B2__cache_leaf_image_len(const void *_thing, size_t *image_len)
+{
+    const H5B2_leaf_t *leaf = (const H5B2_leaf_t *)_thing;      /* Pointer to the B-tree leaf node  */
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Check arguments */
+    HDassert(leaf);
+    HDassert(leaf->hdr);
+    HDassert(image_len);
+
+    /* Set the image length size */
+    *image_len = leaf->hdr->node_size;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5B2__cache_leaf_image_len() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5B2__cache_leaf_serialize
+ *
+ * Purpose:	Serializes a B-tree leaf node for writing to disk.
  *
  * Return:	Non-negative on success/Negative on failure
  *
@@ -940,185 +1193,170 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_leaf_flush(H5F_t *f, hid_t dxpl_id, hbool_t destroy, haddr_t addr, H5B2_leaf_t *leaf, unsigned UNUSED * flags_ptr)
+H5B2__cache_leaf_serialize(const H5F_t H5_ATTR_UNUSED *f, void *_image, size_t H5_ATTR_UNUSED len,
+    void *_thing)
 {
-    herr_t      ret_value = SUCCEED;    /* Return value */
+    H5B2_leaf_t *leaf = (H5B2_leaf_t *)_thing;      /* Pointer to the B-tree leaf node  */
+    uint8_t *image = (uint8_t *)_image;         /* Pointer into raw data buffer */
+    uint8_t *native;            /* Pointer to native keys */
+    uint32_t metadata_chksum;   /* Computed metadata checksum value */
+    unsigned u;                 /* Local index variable */
+    herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* check arguments */
     HDassert(f);
-    HDassert(H5F_addr_defined(addr));
+    HDassert(image);
     HDassert(leaf);
     HDassert(leaf->hdr);
 
-    if(leaf->cache_info.is_dirty) {
-        uint8_t *p;             /* Pointer into raw data buffer */
-        uint8_t *native;        /* Pointer to native keys */
-        uint32_t metadata_chksum; /* Computed metadata checksum value */
-        unsigned u;             /* Local index variable */
+    /* magic number */
+    HDmemcpy(image, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC);
+    image += H5_SIZEOF_MAGIC;
 
-        /* Set the B-tree header's file context for this operation */
-        leaf->hdr->f = f;
+    /* version # */
+    *image++ = H5B2_LEAF_VERSION;
 
-        p = leaf->hdr->page;
+    /* B-tree type */
+    *image++ = leaf->hdr->cls->id;
+    HDassert((size_t)(image - (uint8_t *)_image) == (H5B2_LEAF_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
 
-        /* magic number */
-        HDmemcpy(p, H5B2_LEAF_MAGIC, (size_t)H5_SIZEOF_MAGIC);
-        p += H5_SIZEOF_MAGIC;
+    /* Serialize records for leaf node */
+    native = leaf->leaf_native;
+    for(u = 0; u < leaf->nrec; u++) {
+        /* Encode record */
+        if((leaf->hdr->cls->encode)(image, native, leaf->hdr->cb_ctx) < 0)
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTENCODE, FAIL, "unable to encode B-tree record")
 
-        /* version # */
-        *p++ = H5B2_LEAF_VERSION;
+        /* Move to next record */
+        image += leaf->hdr->rrec_size;
+        native += leaf->hdr->cls->nrec_size;
+    } /* end for */
 
-        /* b-tree type */
-        *p++ = leaf->hdr->cls->id;
-        HDassert((size_t)(p - leaf->hdr->page) == (H5B2_LEAF_PREFIX_SIZE - H5B2_SIZEOF_CHKSUM));
+    /* Compute metadata checksum */
+    metadata_chksum = H5_checksum_metadata(_image, (size_t)((const uint8_t *)image - (const uint8_t *)_image), 0);
 
-        /* Serialize records for leaf node */
-        native = leaf->leaf_native;
-        for(u = 0; u < leaf->nrec; u++) {
-            /* Encode record */
-            if((leaf->hdr->cls->encode)(p, native, leaf->hdr->cb_ctx) < 0)
-                HGOTO_ERROR(H5E_BTREE, H5E_CANTENCODE, FAIL, "unable to encode B-tree record")
+    /* Metadata checksum */
+    UINT32ENCODE(image, metadata_chksum);
 
-            /* Move to next record */
-            p += leaf->hdr->rrec_size;
-            native += leaf->hdr->cls->nrec_size;
-        } /* end for */
+    /* Sanity check */
+    HDassert((size_t)(image - (uint8_t *)_image) <= len);
 
-        /* Compute metadata checksum */
-        metadata_chksum = H5_checksum_metadata(leaf->hdr->page, (size_t)(p - leaf->hdr->page), 0);
-
-        /* Metadata checksum */
-        UINT32ENCODE(p, metadata_chksum);
-
-	/* Write the B-tree leaf node */
-        HDassert((size_t)(p - leaf->hdr->page) <= leaf->hdr->node_size);
-	if(H5F_block_write(f, H5FD_MEM_BTREE, addr, leaf->hdr->node_size, dxpl_id, leaf->hdr->page) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFLUSH, FAIL, "unable to save B-tree leaf node to disk")
-
-	leaf->cache_info.is_dirty = FALSE;
-    } /* end if */
-
-    if(destroy)
-        if(H5B2__cache_leaf_dest(f, leaf) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree leaf node")
+    /* Clear rest of leaf node */
+    HDmemset(image, 0, len - (size_t)(image - (uint8_t *)_image));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5B2__cache_leaf_flush() */
+} /* H5B2__cache_leaf_serialize() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_leaf_dest
+ * Function:    H5B2__cache_leaf_notify
  *
- * Purpose:	Destroys a B-tree leaf node in memory.
+ * Purpose:     Handle cache action notifications
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 2 2005
+ * Programmer:  Neil Fortner
+ *              nfortne2@hdfgroup.org
+ *              Apr 25 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_leaf_dest(H5F_t *f, H5B2_leaf_t *leaf)
+H5B2__cache_leaf_notify(H5AC_notify_action_t action, void *_thing)
 {
-    herr_t ret_value = SUCCEED;     /* Return value */
+    H5B2_leaf_t 	*leaf = (H5B2_leaf_t *)_thing;
+    herr_t              ret_value = SUCCEED;
 
-    FUNC_ENTER_STATIC
-
-    /* Check arguments */
-    HDassert(f);
-    HDassert(leaf);
-    HDassert(leaf->hdr);
-
-    /* If we're going to free the space on disk, the address must be valid */
-    HDassert(!leaf->cache_info.free_file_space_on_destroy || H5F_addr_defined(leaf->cache_info.addr));
-
-    /* Check for freeing file space for B-tree leaf node */
-    if(leaf->cache_info.free_file_space_on_destroy) {
-        /* Release the space on disk */
-        /* (XXX: Nasty usage of internal DXPL value! -QAK) */
-        if(H5MF_xfree(f, H5FD_MEM_BTREE, H5AC_dxpl_id, leaf->cache_info.addr, (hsize_t)leaf->hdr->node_size) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to free v2 B-tree leaf node")
-    } /* end if */
-
-    /* Destroy v2 b-tree leaf node */
-    if(H5B2_leaf_free(leaf) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree leaf node")
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_leaf_dest() */
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5B2__cache_leaf_clear
- *
- * Purpose:	Mark a B-tree leaf node in memory as non-dirty.
- *
- * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb  2 2005
- *
- *-------------------------------------------------------------------------
- */
-static herr_t
-H5B2__cache_leaf_clear(H5F_t *f, H5B2_leaf_t *leaf, hbool_t destroy)
-{
-    herr_t ret_value = SUCCEED;
-
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_NOAPI_NOINIT
 
     /*
      * Check arguments.
      */
     HDassert(leaf);
+    HDassert(leaf->hdr);
 
-    /* Reset the dirty flag.  */
-    leaf->cache_info.is_dirty = FALSE;
+    /* Check if the file was opened with SWMR-write access */
+    if(leaf->hdr->swmr_write) {
+        switch(action) {
+            case H5AC_NOTIFY_ACTION_AFTER_INSERT:
+	    case H5AC_NOTIFY_ACTION_AFTER_LOAD:
+                /* Create flush dependency on parent */
+                if(H5B2__create_flush_depend((H5AC_info_t *)leaf->parent, (H5AC_info_t *)leaf) < 0)
+                    HGOTO_ERROR(H5E_BTREE, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
+                break;
 
-    if(destroy)
-        if(H5B2__cache_leaf_dest(f, leaf) < 0)
-	    HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree leaf node")
+	    case H5AC_NOTIFY_ACTION_AFTER_FLUSH:
+            case H5AC_NOTIFY_ACTION_ENTRY_DIRTIED:
+            case H5AC_NOTIFY_ACTION_ENTRY_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_DIRTIED:
+            case H5AC_NOTIFY_ACTION_CHILD_CLEANED:
+            case H5AC_NOTIFY_ACTION_CHILD_UNSERIALIZED:
+            case H5AC_NOTIFY_ACTION_CHILD_SERIALIZED:
+                /* do nothing */
+                break;
+
+            case H5AC_NOTIFY_ACTION_BEFORE_EVICT:
+		/* Destroy flush dependency on parent */
+                if(H5B2__destroy_flush_depend((H5AC_info_t *)leaf->parent, (H5AC_info_t *)leaf) < 0)
+                    HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
+
+                /* Detach from 'top' proxy for v2 B-tree */
+                if(leaf->top_proxy) {
+                    if(H5AC_proxy_entry_remove_child(leaf->top_proxy, leaf) < 0)
+                        HGOTO_ERROR(H5E_BTREE, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency between leaf node and v2 B-tree 'top' proxy")
+                    leaf->top_proxy = NULL;
+                } /* end if */
+                break;
+
+            default:
+#ifdef NDEBUG
+                HGOTO_ERROR(H5E_BTREE, H5E_BADVALUE, FAIL, "unknown action from metadata cache")
+#else /* NDEBUG */
+                HDassert(0 && "Unknown action?!?");
+#endif /* NDEBUG */
+        } /* end switch */
+    } /* end if */
+    else
+        HDassert(NULL == leaf->top_proxy);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B2__cache_leaf_clear() */
+} /* end H5B2__cache_leaf_notify() */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B2__cache_leaf_size
+ * Function:	H5B2__cache_leaf_free_icr
  *
- * Purpose:	Compute the size in bytes of a B-tree leaf node
- *		on disk, and return it in *size_ptr.  On failure,
- *		the value of *size_ptr is undefined.
+ * Purpose:	Destroy/release an "in core representation" of a data
+ *              structure
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		koziol@ncsa.uiuc.edu
- *		Feb 2 2005
+ * Programmer:	Mike McGreevy
+ *              mcgreevy@hdfgroup.org
+ *              June 18, 2008
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5B2__cache_leaf_size(const H5F_t UNUSED *f, const H5B2_leaf_t *leaf, size_t *size_ptr)
+H5B2__cache_leaf_free_icr(void *_thing)
 {
-    FUNC_ENTER_STATIC_NOERR
+    H5B2_leaf_t *leaf = (H5B2_leaf_t *)_thing;
+    herr_t ret_value = SUCCEED;     /* Return value */
 
-    /* check arguments */
+    FUNC_ENTER_STATIC
+
+    /* Check arguments */
     HDassert(leaf);
-    HDassert(leaf->hdr);
-    HDassert(size_ptr);
 
-    /* Set size value */
-    *size_ptr = leaf->hdr->node_size;
+    /* Destroy v2 B-tree leaf node */
+    if(H5B2__leaf_free(leaf) < 0)
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to destroy B-tree leaf node")
 
-    FUNC_LEAVE_NOAPI(SUCCEED)
-} /* H5B2__cache_leaf_size() */
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* H5B2__cache_leaf_free_icr() */
 

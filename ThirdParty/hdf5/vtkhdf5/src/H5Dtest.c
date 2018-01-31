@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
@@ -23,7 +21,7 @@
 /* Module Setup */
 /****************/
 
-#define H5D_PACKAGE		/*suppress error about including H5Dpkg	  */
+#include "H5Dmodule.h"          /* This source code file is part of the H5D module */
 #define H5D_TESTING		/*suppress warning about H5D testing funcs*/
 
 
@@ -140,6 +138,88 @@ H5D__layout_contig_size_test(hid_t did, hsize_t *size)
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 }   /* H5D__layout_contig_size_test() */
+
+
+/*--------------------------------------------------------------------------
+ NAME
+    H5D__layout_type_test
+ PURPOSE
+    Determine the storage layout type for a dataset
+ USAGE
+    herr_t H5D__layout_type_test(did, layout_type)
+        hid_t did;              IN: Dataset to query
+        H5D_layout_t *layout_type;      OUT: Pointer to location to place layout info
+ RETURNS
+    Non-negative on success, negative on failure
+ DESCRIPTION
+    Checks the layout type for a dataset.
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+    DO NOT USE THIS FUNCTION FOR ANYTHING EXCEPT TESTING
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+herr_t
+H5D__layout_type_test(hid_t did, H5D_layout_t *layout_type)
+{
+    H5D_t	*dset;          /* Pointer to dataset to query */
+    herr_t ret_value = SUCCEED;   /* return value */
+
+    FUNC_ENTER_PACKAGE
+
+    HDassert(layout_type);
+
+    /* Check args */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+
+    if(layout_type)
+        *layout_type = dset->shared->layout.type;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+}   /* H5D__layout_type_test() */
+
+
+/*--------------------------------------------------------------------------
+ NAME
+    H5D__layout_idx_type_test
+ PURPOSE
+    Determine the storage layout index type for a dataset's layout information
+ USAGE
+    herr_t H5D__layout_idx_type_test(did, idx_type)
+        hid_t did;              IN: Dataset to query
+        H5D_chunk_index_t *idx_type;      OUT: Pointer to location to place index type info
+ RETURNS
+    Non-negative on success, negative on failure
+ DESCRIPTION
+    Checks the index type of the storage layout information for a dataset.
+ GLOBAL VARIABLES
+ COMMENTS, BUGS, ASSUMPTIONS
+    DO NOT USE THIS FUNCTION FOR ANYTHING EXCEPT TESTING
+ EXAMPLES
+ REVISION LOG
+--------------------------------------------------------------------------*/
+herr_t
+H5D__layout_idx_type_test(hid_t did, H5D_chunk_index_t *idx_type)
+{
+    H5D_t	*dset;          /* Pointer to dataset to query */
+    herr_t ret_value = SUCCEED;   /* return value */
+
+    FUNC_ENTER_PACKAGE
+
+    /* Check args */
+    if(NULL == (dset = (H5D_t *)H5I_object_verify(did, H5I_DATASET)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a dataset")
+    if(dset->shared->layout.type != H5D_CHUNKED)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "dataset is not chunked")
+
+    if(idx_type)
+        *idx_type = dset->shared->layout.u.chunk.idx_type;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+}   /* H5D__layout_idx_type_test() */
 
 
 /*--------------------------------------------------------------------------

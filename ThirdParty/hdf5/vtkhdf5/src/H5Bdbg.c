@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5B_PACKAGE		/*suppress error about including H5Bpkg	  */
+#include "H5Bmodule.h"          /* This source code file is part of the H5B module */
 
 
 /***********/
@@ -59,7 +57,7 @@ H5B_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int f
 	  const H5B_class_t *type, void *udata)
 {
     H5B_t	*bt = NULL;
-    H5RC_t	*rc_shared;             /* Ref-counted shared info */
+    H5UC_t	*rc_shared;             /* Ref-counted shared info */
     H5B_shared_t *shared;               /* Pointer to shared B-tree info */
     H5B_cache_ud_t cache_udata;         /* User-data for metadata cache callback */
     unsigned	u;                      /* Local index variable */
@@ -77,10 +75,13 @@ H5B_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int f
     HDassert(fwidth >= 0);
     HDassert(type);
 
+    /* Currently does not support SWMR access */
+    HDassert(!(H5F_INTENT(f) & H5F_ACC_SWMR_WRITE));
+
     /* Get shared info for B-tree */
     if(NULL == (rc_shared = (type->get_shared)(f, udata)))
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "can't retrieve B-tree's shared ref. count object")
-    shared = (H5B_shared_t *)H5RC_GET_OBJ(rc_shared);
+    shared = (H5B_shared_t *)H5UC_GET_OBJ(rc_shared);
     HDassert(shared);
 
     /*
@@ -89,7 +90,7 @@ H5B_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int f
     cache_udata.f = f;
     cache_udata.type = type;
     cache_udata.rc_shared = rc_shared;
-    if(NULL == (bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, addr, &cache_udata, H5AC_READ)))
+    if(NULL == (bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, addr, &cache_udata, H5AC__READ_ONLY_FLAG)))
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to load B-tree node")
 
     /*
@@ -156,7 +157,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5B_assert
+ * Function:	H5B__assert
  *
  * Purpose:	Verifies that the tree is structured correctly.
  *
@@ -171,10 +172,10 @@ done:
  */
 #ifdef H5B_DEBUG
 herr_t
-H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void *udata)
+H5B__assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void *udata)
 {
     H5B_t	*bt = NULL;
-    H5RC_t	*rc_shared;             /* Ref-counted shared info */
+    H5UC_t	*rc_shared;             /* Ref-counted shared info */
     H5B_shared_t *shared;               /* Pointer to shared B-tree info */
     H5B_cache_ud_t cache_udata;         /* User-data for metadata cache callback */
     int	        ncell, cmp;
@@ -189,7 +190,7 @@ H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void 
 	struct child_t	       *next;
     } *head = NULL, *tail = NULL, *prev = NULL, *cur = NULL, *tmp = NULL;
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_PACKAGE
 
     if(0 == ncalls++) {
 	if(H5DEBUG(B))
@@ -199,16 +200,16 @@ H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void 
     /* Get shared info for B-tree */
     if(NULL == (rc_shared = (type->get_shared)(f, udata)))
 	HGOTO_ERROR(H5E_BTREE, H5E_CANTGET, FAIL, "can't retrieve B-tree's shared ref. count object")
-    shared = (H5B_shared_t *)H5RC_GET_OBJ(rc_shared);
+    shared = (H5B_shared_t *)H5UC_GET_OBJ(rc_shared);
     HDassert(shared);
 
     /* Initialize the queue */
     cache_udata.f = f;
     cache_udata.type = type;
     cache_udata.rc_shared = rc_shared;
-    bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, addr, &cache_udata, H5AC_READ);
+    bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, addr, &cache_udata, H5AC__READ_ONLY_FLAG);
     HDassert(bt);
-    shared = (H5B_shared_t *)H5RC_GET_OBJ(bt->rc_shared);
+    shared = (H5B_shared_t *)H5UC_GET_OBJ(bt->rc_shared);
     HDassert(shared);
     cur = (struct child_t *)H5MM_calloc(sizeof(struct child_t));
     HDassert(cur);
@@ -227,7 +228,7 @@ H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void 
      * test.
      */
     for(ncell = 0; cur; ncell++) {
-	bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, cur->addr, &cache_udata, H5AC_READ);
+	bt = (H5B_t *)H5AC_protect(f, dxpl_id, H5AC_BT, cur->addr, &cache_udata, H5AC__READ_ONLY_FLAG);
 	HDassert(bt);
 
 	/* Check node header */
@@ -285,6 +286,6 @@ H5B_assert(H5F_t *f, hid_t dxpl_id, haddr_t addr, const H5B_class_t *type, void 
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5B_assert() */
+} /* end H5B__assert() */
 #endif /* H5B_DEBUG */
 

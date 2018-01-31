@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -52,45 +50,50 @@
  * The library's property list classes
  */
 
-#define H5P_ROOT		   	(H5OPEN H5P_CLS_ROOT_g)
-#define H5P_OBJECT_CREATE 		(H5OPEN H5P_CLS_OBJECT_CREATE_g)
-#define H5P_FILE_CREATE 		(H5OPEN H5P_CLS_FILE_CREATE_g)
-#define H5P_FILE_ACCESS 		(H5OPEN H5P_CLS_FILE_ACCESS_g)
-#define H5P_DATASET_CREATE     		(H5OPEN H5P_CLS_DATASET_CREATE_g)
-#define H5P_DATASET_ACCESS     		(H5OPEN H5P_CLS_DATASET_ACCESS_g)
-#define H5P_DATASET_XFER       		(H5OPEN H5P_CLS_DATASET_XFER_g)
-#define H5P_FILE_MOUNT       		(H5OPEN H5P_CLS_FILE_MOUNT_g)
-#define H5P_GROUP_CREATE 		(H5OPEN H5P_CLS_GROUP_CREATE_g)
-#define H5P_GROUP_ACCESS 		(H5OPEN H5P_CLS_GROUP_ACCESS_g)
-#define H5P_DATATYPE_CREATE 		(H5OPEN H5P_CLS_DATATYPE_CREATE_g)
-#define H5P_DATATYPE_ACCESS 		(H5OPEN H5P_CLS_DATATYPE_ACCESS_g)
-#define H5P_STRING_CREATE 		(H5OPEN H5P_CLS_STRING_CREATE_g)
-#define H5P_ATTRIBUTE_CREATE 		(H5OPEN H5P_CLS_ATTRIBUTE_CREATE_g)
-#define H5P_OBJECT_COPY	 		(H5OPEN H5P_CLS_OBJECT_COPY_g)
-#define H5P_LINK_CREATE 		(H5OPEN H5P_CLS_LINK_CREATE_g)
-#define H5P_LINK_ACCESS 		(H5OPEN H5P_CLS_LINK_ACCESS_g)
+#define H5P_ROOT		   	(H5OPEN H5P_CLS_ROOT_ID_g)
+#define H5P_OBJECT_CREATE 		(H5OPEN H5P_CLS_OBJECT_CREATE_ID_g)
+#define H5P_FILE_CREATE 		(H5OPEN H5P_CLS_FILE_CREATE_ID_g)
+#define H5P_FILE_ACCESS 		(H5OPEN H5P_CLS_FILE_ACCESS_ID_g)
+#define H5P_DATASET_CREATE     		(H5OPEN H5P_CLS_DATASET_CREATE_ID_g)
+#define H5P_DATASET_ACCESS     		(H5OPEN H5P_CLS_DATASET_ACCESS_ID_g)
+#define H5P_DATASET_XFER       		(H5OPEN H5P_CLS_DATASET_XFER_ID_g)
+#define H5P_FILE_MOUNT       		(H5OPEN H5P_CLS_FILE_MOUNT_ID_g)
+#define H5P_GROUP_CREATE 		(H5OPEN H5P_CLS_GROUP_CREATE_ID_g)
+#define H5P_GROUP_ACCESS 		(H5OPEN H5P_CLS_GROUP_ACCESS_ID_g)
+#define H5P_DATATYPE_CREATE 		(H5OPEN H5P_CLS_DATATYPE_CREATE_ID_g)
+#define H5P_DATATYPE_ACCESS 		(H5OPEN H5P_CLS_DATATYPE_ACCESS_ID_g)
+#define H5P_STRING_CREATE 		(H5OPEN H5P_CLS_STRING_CREATE_ID_g)
+#define H5P_ATTRIBUTE_CREATE 		(H5OPEN H5P_CLS_ATTRIBUTE_CREATE_ID_g)
+#define H5P_ATTRIBUTE_ACCESS 		(H5OPEN H5P_CLS_ATTRIBUTE_ACCESS_ID_g)
+#define H5P_OBJECT_COPY	 		(H5OPEN H5P_CLS_OBJECT_COPY_ID_g)
+#define H5P_LINK_CREATE 		(H5OPEN H5P_CLS_LINK_CREATE_ID_g)
+#define H5P_LINK_ACCESS 		(H5OPEN H5P_CLS_LINK_ACCESS_ID_g)
 
 /*
  * The library's default property lists
  */
-#define H5P_FILE_CREATE_DEFAULT		(H5OPEN H5P_LST_FILE_CREATE_g)
-#define H5P_FILE_ACCESS_DEFAULT 	(H5OPEN H5P_LST_FILE_ACCESS_g)
-#define H5P_DATASET_CREATE_DEFAULT  	(H5OPEN H5P_LST_DATASET_CREATE_g)
-#define H5P_DATASET_ACCESS_DEFAULT  	(H5OPEN H5P_LST_DATASET_ACCESS_g)
-#define H5P_DATASET_XFER_DEFAULT   	(H5OPEN H5P_LST_DATASET_XFER_g)
-#define H5P_FILE_MOUNT_DEFAULT       	(H5OPEN H5P_LST_FILE_MOUNT_g)
-#define H5P_GROUP_CREATE_DEFAULT	(H5OPEN H5P_LST_GROUP_CREATE_g)
-#define H5P_GROUP_ACCESS_DEFAULT 	(H5OPEN H5P_LST_GROUP_ACCESS_g)
-#define H5P_DATATYPE_CREATE_DEFAULT	(H5OPEN H5P_LST_DATATYPE_CREATE_g)
-#define H5P_DATATYPE_ACCESS_DEFAULT 	(H5OPEN H5P_LST_DATATYPE_ACCESS_g)
-#define H5P_ATTRIBUTE_CREATE_DEFAULT	(H5OPEN H5P_LST_ATTRIBUTE_CREATE_g)
-#define H5P_OBJECT_COPY_DEFAULT		(H5OPEN H5P_LST_OBJECT_COPY_g)
-#define H5P_LINK_CREATE_DEFAULT		(H5OPEN H5P_LST_LINK_CREATE_g)
-#define H5P_LINK_ACCESS_DEFAULT		(H5OPEN H5P_LST_LINK_ACCESS_g)
+#define H5P_FILE_CREATE_DEFAULT		(H5OPEN H5P_LST_FILE_CREATE_ID_g)
+#define H5P_FILE_ACCESS_DEFAULT 	(H5OPEN H5P_LST_FILE_ACCESS_ID_g)
+#define H5P_DATASET_CREATE_DEFAULT  	(H5OPEN H5P_LST_DATASET_CREATE_ID_g)
+#define H5P_DATASET_ACCESS_DEFAULT  	(H5OPEN H5P_LST_DATASET_ACCESS_ID_g)
+#define H5P_DATASET_XFER_DEFAULT   	(H5OPEN H5P_LST_DATASET_XFER_ID_g)
+#define H5P_FILE_MOUNT_DEFAULT       	(H5OPEN H5P_LST_FILE_MOUNT_ID_g)
+#define H5P_GROUP_CREATE_DEFAULT	(H5OPEN H5P_LST_GROUP_CREATE_ID_g)
+#define H5P_GROUP_ACCESS_DEFAULT 	(H5OPEN H5P_LST_GROUP_ACCESS_ID_g)
+#define H5P_DATATYPE_CREATE_DEFAULT	(H5OPEN H5P_LST_DATATYPE_CREATE_ID_g)
+#define H5P_DATATYPE_ACCESS_DEFAULT 	(H5OPEN H5P_LST_DATATYPE_ACCESS_ID_g)
+#define H5P_ATTRIBUTE_CREATE_DEFAULT	(H5OPEN H5P_LST_ATTRIBUTE_CREATE_ID_g)
+#define H5P_ATTRIBUTE_ACCESS_DEFAULT	(H5OPEN H5P_LST_ATTRIBUTE_ACCESS_ID_g)
+#define H5P_OBJECT_COPY_DEFAULT		(H5OPEN H5P_LST_OBJECT_COPY_ID_g)
+#define H5P_LINK_CREATE_DEFAULT		(H5OPEN H5P_LST_LINK_CREATE_ID_g)
+#define H5P_LINK_ACCESS_DEFAULT		(H5OPEN H5P_LST_LINK_ACCESS_ID_g)
 
 /* Common creation order flags (for links in groups and attributes on objects) */
 #define H5P_CRT_ORDER_TRACKED           0x0001
 #define H5P_CRT_ORDER_INDEXED           0x0002
+
+/* Default value for all property list classes */
+#define H5P_DEFAULT     (hid_t)0
 
 #ifdef __cplusplus
 extern "C" {
@@ -113,6 +116,8 @@ typedef herr_t (*H5P_prp_cb2_t)(hid_t prop_id, const char *name, size_t size, vo
 typedef H5P_prp_cb1_t H5P_prp_create_func_t;
 typedef H5P_prp_cb2_t H5P_prp_set_func_t;
 typedef H5P_prp_cb2_t H5P_prp_get_func_t;
+typedef herr_t (*H5P_prp_encode_func_t)(const void *value, void **buf, size_t *size);
+typedef herr_t (*H5P_prp_decode_func_t)(const void **buf, void *value);
 typedef H5P_prp_cb2_t H5P_prp_delete_func_t;
 typedef H5P_prp_cb1_t H5P_prp_copy_func_t;
 typedef int (*H5P_prp_compare_func_t)(const void *value1, const void *value2, size_t size);
@@ -170,40 +175,42 @@ typedef enum H5D_mpio_no_collective_cause_t {
 
 /* Property list class IDs */
 /* (Internal to library, do not use!  Use macros above) */
-H5_DLLVAR hid_t H5P_CLS_ROOT_g;
-H5_DLLVAR hid_t H5P_CLS_OBJECT_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_FILE_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_FILE_ACCESS_g;
-H5_DLLVAR hid_t H5P_CLS_DATASET_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_DATASET_ACCESS_g;
-H5_DLLVAR hid_t H5P_CLS_DATASET_XFER_g;
-H5_DLLVAR hid_t H5P_CLS_FILE_MOUNT_g;
-H5_DLLVAR hid_t H5P_CLS_GROUP_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_GROUP_ACCESS_g;
-H5_DLLVAR hid_t H5P_CLS_DATATYPE_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_DATATYPE_ACCESS_g;
-H5_DLLVAR hid_t H5P_CLS_STRING_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_ATTRIBUTE_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_OBJECT_COPY_g;
-H5_DLLVAR hid_t H5P_CLS_LINK_CREATE_g;
-H5_DLLVAR hid_t H5P_CLS_LINK_ACCESS_g;
+H5_DLLVAR hid_t H5P_CLS_ROOT_ID_g;
+H5_DLLVAR hid_t H5P_CLS_OBJECT_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_FILE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_FILE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_CLS_DATASET_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_DATASET_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_CLS_DATASET_XFER_ID_g;
+H5_DLLVAR hid_t H5P_CLS_FILE_MOUNT_ID_g;
+H5_DLLVAR hid_t H5P_CLS_GROUP_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_GROUP_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_CLS_DATATYPE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_DATATYPE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_CLS_STRING_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_ATTRIBUTE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_ATTRIBUTE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_CLS_OBJECT_COPY_ID_g;
+H5_DLLVAR hid_t H5P_CLS_LINK_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_CLS_LINK_ACCESS_ID_g;
 
 /* Default roperty list IDs */
 /* (Internal to library, do not use!  Use macros above) */
-H5_DLLVAR hid_t H5P_LST_FILE_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_FILE_ACCESS_g;
-H5_DLLVAR hid_t H5P_LST_DATASET_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_DATASET_ACCESS_g;
-H5_DLLVAR hid_t H5P_LST_DATASET_XFER_g;
-H5_DLLVAR hid_t H5P_LST_FILE_MOUNT_g;
-H5_DLLVAR hid_t H5P_LST_GROUP_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_GROUP_ACCESS_g;
-H5_DLLVAR hid_t H5P_LST_DATATYPE_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_DATATYPE_ACCESS_g;
-H5_DLLVAR hid_t H5P_LST_ATTRIBUTE_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_OBJECT_COPY_g;
-H5_DLLVAR hid_t H5P_LST_LINK_CREATE_g;
-H5_DLLVAR hid_t H5P_LST_LINK_ACCESS_g;
+H5_DLLVAR hid_t H5P_LST_FILE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_FILE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_LST_DATASET_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_DATASET_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_LST_DATASET_XFER_ID_g;
+H5_DLLVAR hid_t H5P_LST_FILE_MOUNT_ID_g;
+H5_DLLVAR hid_t H5P_LST_GROUP_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_GROUP_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_LST_DATATYPE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_DATATYPE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_LST_ATTRIBUTE_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_ATTRIBUTE_ACCESS_ID_g;
+H5_DLLVAR hid_t H5P_LST_OBJECT_COPY_ID_g;
+H5_DLLVAR hid_t H5P_LST_LINK_CREATE_ID_g;
+H5_DLLVAR hid_t H5P_LST_LINK_ACCESS_ID_g;
 
 /*********************/
 /* Public Prototypes */
@@ -225,8 +232,10 @@ H5_DLL herr_t H5Pinsert2(hid_t plist_id, const char *name, size_t size,
     void *value, H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
     H5P_prp_delete_func_t prp_delete, H5P_prp_copy_func_t prp_copy,
     H5P_prp_compare_func_t prp_cmp, H5P_prp_close_func_t prp_close);
-H5_DLL herr_t H5Pset(hid_t plist_id, const char *name, void *value);
+H5_DLL herr_t H5Pset(hid_t plist_id, const char *name, const void *value);
 H5_DLL htri_t H5Pexist(hid_t plist_id, const char *name);
+H5_DLL herr_t H5Pencode(hid_t plist_id, void *buf, size_t *nalloc);
+H5_DLL hid_t  H5Pdecode(const void *buf);
 H5_DLL herr_t H5Pget_size(hid_t id, const char *name, size_t *size);
 H5_DLL herr_t H5Pget_nprops(hid_t id, size_t *nprops);
 H5_DLL hid_t H5Pget_class(hid_t plist_id);
@@ -273,9 +282,6 @@ H5_DLL herr_t H5Pset_deflate(hid_t plist_id, unsigned aggression);
 H5_DLL herr_t H5Pset_fletcher32(hid_t plist_id);
 
 /* File creation property list (FCPL) routines */
-H5_DLL herr_t H5Pget_version(hid_t plist_id, unsigned *boot/*out*/,
-         unsigned *freelist/*out*/, unsigned *stab/*out*/,
-         unsigned *shhdr/*out*/);
 H5_DLL herr_t H5Pset_userblock(hid_t plist_id, hsize_t size);
 H5_DLL herr_t H5Pget_userblock(hid_t plist_id, hsize_t *size);
 H5_DLL herr_t H5Pset_sizes(hid_t plist_id, size_t sizeof_addr,
@@ -292,6 +298,10 @@ H5_DLL herr_t H5Pset_shared_mesg_index(hid_t plist_id, unsigned index_num, unsig
 H5_DLL herr_t H5Pget_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned *mesg_type_flags, unsigned *min_mesg_size);
 H5_DLL herr_t H5Pset_shared_mesg_phase_change(hid_t plist_id, unsigned max_list, unsigned min_btree);
 H5_DLL herr_t H5Pget_shared_mesg_phase_change(hid_t plist_id, unsigned *max_list, unsigned *min_btree);
+H5_DLL herr_t H5Pset_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t strategy, hbool_t persist, hsize_t threshold);
+H5_DLL herr_t H5Pget_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t *strategy, hbool_t *persist, hsize_t *threshold);
+H5_DLL herr_t H5Pset_file_space_page_size(hid_t plist_id, hsize_t fsp_size);
+H5_DLL herr_t H5Pget_file_space_page_size(hid_t plist_id, hsize_t *fsp_size);
 
 /* File access property list (FAPL) routines */
 H5_DLL herr_t H5Pset_alignment(hid_t fapl_id, hsize_t threshold,
@@ -301,7 +311,7 @@ H5_DLL herr_t H5Pget_alignment(hid_t fapl_id, hsize_t *threshold/*out*/,
 H5_DLL herr_t H5Pset_driver(hid_t plist_id, hid_t driver_id,
         const void *driver_info);
 H5_DLL hid_t H5Pget_driver(hid_t plist_id);
-H5_DLL void *H5Pget_driver_info(hid_t plist_id);
+H5_DLL const void *H5Pget_driver_info(hid_t plist_id);
 H5_DLL herr_t H5Pset_family_offset(hid_t fapl_id, hsize_t offset);
 H5_DLL herr_t H5Pget_family_offset(hid_t fapl_id, hsize_t *offset);
 H5_DLL herr_t H5Pset_multi_type(hid_t fapl_id, H5FD_mem_t type);
@@ -339,17 +349,45 @@ H5_DLL herr_t H5Pset_file_image_callbacks(hid_t fapl_id,
        H5FD_file_image_callbacks_t *callbacks_ptr);
 H5_DLL herr_t H5Pget_file_image_callbacks(hid_t fapl_id,
        H5FD_file_image_callbacks_t *callbacks_ptr);
-
 H5_DLL herr_t H5Pset_core_write_tracking(hid_t fapl_id, hbool_t is_enabled, size_t page_size);
 H5_DLL herr_t H5Pget_core_write_tracking(hid_t fapl_id, hbool_t *is_enabled, size_t *page_size);
+H5_DLL herr_t H5Pset_metadata_read_attempts(hid_t plist_id, unsigned attempts);
+H5_DLL herr_t H5Pget_metadata_read_attempts(hid_t plist_id, unsigned *attempts);
+H5_DLL herr_t H5Pset_object_flush_cb(hid_t plist_id, H5F_flush_cb_t func, void *udata);
+H5_DLL herr_t H5Pget_object_flush_cb(hid_t plist_id, H5F_flush_cb_t *func, void **udata);
+H5_DLL herr_t H5Pset_mdc_log_options(hid_t plist_id, hbool_t is_enabled, const char *location, hbool_t start_on_access);
+H5_DLL herr_t H5Pget_mdc_log_options(hid_t plist_id, hbool_t *is_enabled, char *location, size_t *location_size, hbool_t *start_on_access);
+H5_DLL herr_t H5Pset_evict_on_close(hid_t fapl_id, hbool_t evict_on_close);
+H5_DLL herr_t H5Pget_evict_on_close(hid_t fapl_id, hbool_t *evict_on_close);
+#ifdef H5_HAVE_PARALLEL
+H5_DLL herr_t H5Pset_all_coll_metadata_ops(hid_t plist_id, hbool_t is_collective);
+H5_DLL herr_t H5Pget_all_coll_metadata_ops(hid_t plist_id, hbool_t *is_collective);
+H5_DLL herr_t H5Pset_coll_metadata_write(hid_t plist_id, hbool_t is_collective);
+H5_DLL herr_t H5Pget_coll_metadata_write(hid_t plist_id, hbool_t *is_collective);
+#endif /* H5_HAVE_PARALLEL */
+H5_DLL herr_t H5Pset_mdc_image_config(hid_t plist_id, H5AC_cache_image_config_t *config_ptr);
+H5_DLL herr_t H5Pget_mdc_image_config(hid_t plist_id, H5AC_cache_image_config_t *config_ptr /*out*/);
+H5_DLL herr_t H5Pset_page_buffer_size(hid_t plist_id, size_t buf_size, unsigned min_meta_per, unsigned min_raw_per);
+H5_DLL herr_t H5Pget_page_buffer_size(hid_t plist_id, size_t *buf_size, unsigned *min_meta_per, unsigned *min_raw_per);
 
 /* Dataset creation property list (DCPL) routines */
 H5_DLL herr_t H5Pset_layout(hid_t plist_id, H5D_layout_t layout);
 H5_DLL H5D_layout_t H5Pget_layout(hid_t plist_id);
 H5_DLL herr_t H5Pset_chunk(hid_t plist_id, int ndims, const hsize_t dim[/*ndims*/]);
 H5_DLL int H5Pget_chunk(hid_t plist_id, int max_ndims, hsize_t dim[]/*out*/);
+H5_DLL herr_t H5Pset_virtual(hid_t dcpl_id, hid_t vspace_id,
+    const char *src_file_name, const char *src_dset_name, hid_t src_space_id);
+H5_DLL herr_t H5Pget_virtual_count(hid_t dcpl_id, size_t *count/*out*/);
+H5_DLL hid_t H5Pget_virtual_vspace(hid_t dcpl_id, size_t index);
+H5_DLL hid_t H5Pget_virtual_srcspace(hid_t dcpl_id, size_t index);
+H5_DLL ssize_t H5Pget_virtual_filename(hid_t dcpl_id, size_t index,
+    char *name/*out*/, size_t size);
+H5_DLL ssize_t H5Pget_virtual_dsetname(hid_t dcpl_id, size_t index,
+    char *name/*out*/, size_t size);
 H5_DLL herr_t H5Pset_external(hid_t plist_id, const char *name, off_t offset,
           hsize_t size);
+H5_DLL herr_t H5Pset_chunk_opts(hid_t plist_id, unsigned opts);
+H5_DLL herr_t H5Pget_chunk_opts(hid_t plist_id, unsigned *opts);
 H5_DLL int H5Pget_external_count(hid_t plist_id);
 H5_DLL herr_t H5Pget_external(hid_t plist_id, unsigned idx, size_t name_size,
           char *name/*out*/, off_t *offset/*out*/,
@@ -378,6 +416,16 @@ H5_DLL herr_t H5Pget_chunk_cache(hid_t dapl_id,
        size_t *rdcc_nslots/*out*/,
        size_t *rdcc_nbytes/*out*/,
        double *rdcc_w0/*out*/);
+H5_DLL herr_t H5Pset_virtual_view(hid_t plist_id, H5D_vds_view_t view);
+H5_DLL herr_t H5Pget_virtual_view(hid_t plist_id, H5D_vds_view_t *view);
+H5_DLL herr_t H5Pset_virtual_printf_gap(hid_t plist_id, hsize_t gap_size);
+H5_DLL herr_t H5Pget_virtual_printf_gap(hid_t plist_id, hsize_t *gap_size);
+H5_DLL herr_t H5Pset_append_flush(hid_t plist_id, unsigned ndims,
+    const hsize_t boundary[], H5D_append_cb_t func, void *udata);
+H5_DLL herr_t H5Pget_append_flush(hid_t plist_id, unsigned dims,
+    hsize_t boundary[], H5D_append_cb_t *func, void **udata);
+H5_DLL herr_t H5Pset_efile_prefix(hid_t dapl_id, const char* prefix);
+H5_DLL ssize_t H5Pget_efile_prefix(hid_t dapl_id, char* prefix /*out*/, size_t size);
 
 /* Dataset xfer property list (DXPL) routines */
 H5_DLL herr_t H5Pset_data_transform(hid_t plist_id, const char* expression);
@@ -485,7 +533,11 @@ H5_DLL H5Z_filter_t H5Pget_filter1(hid_t plist_id, unsigned filter,
 H5_DLL herr_t H5Pget_filter_by_id1(hid_t plist_id, H5Z_filter_t id,
     unsigned int *flags/*out*/, size_t *cd_nelmts/*out*/,
     unsigned cd_values[]/*out*/, size_t namelen, char name[]/*out*/);
-
+H5_DLL herr_t H5Pget_version(hid_t plist_id, unsigned *boot/*out*/,
+         unsigned *freelist/*out*/, unsigned *stab/*out*/,
+         unsigned *shhdr/*out*/);
+H5_DLL herr_t H5Pset_file_space(hid_t plist_id, H5F_file_space_type_t strategy, hsize_t threshold);
+H5_DLL herr_t H5Pget_file_space(hid_t plist_id, H5F_file_space_type_t *strategy, hsize_t *threshold);
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
 #ifdef __cplusplus

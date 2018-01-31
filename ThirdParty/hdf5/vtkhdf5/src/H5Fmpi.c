@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
+#include "H5Fmodule.h"          /* This source code file is part of the H5F module */
 
 
 /***********/
@@ -77,6 +75,35 @@
 
 
 #ifdef H5_HAVE_PARALLEL
+
+/*-------------------------------------------------------------------------
+ * Function:    H5F_get_mpi_handle
+ *
+ * Purpose:     Retrieves MPI File handle.
+ *
+ * Return:      Success:        The size (positive)
+ *              Failure:        Negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F_get_mpi_handle(const H5F_t *f, MPI_File **f_handle)
+{
+    herr_t ret_value = SUCCEED;
+    hid_t fapl = -1;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    assert(f && f->shared);
+
+    /* Dispatch to driver */
+    if ((ret_value = H5FD_get_vfd_handle(f->shared->lf, fapl, (void **)f_handle)) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get mpi file handle")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_get_mpi_handle() */
+
 
 /*-------------------------------------------------------------------------
  * Function:	H5F_mpi_get_rank
@@ -208,8 +235,8 @@ H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a file ID")
 
     /* Check VFD */
-    if(!IS_H5FD_MPIO(file))
-        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, must use MPI-I/O driver")
+    if(!H5F_HAS_FEATURE(file, H5FD_FEAT_HAS_MPI))
+        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, does not support MPI atomicity mode")
 
     /* set atomicity value */
     if (H5FD_set_mpio_atomicity (file->shared->lf, flag) < 0)
@@ -248,8 +275,8 @@ H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a file ID")
 
     /* Check VFD */
-    if(!IS_H5FD_MPIO(file))
-        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, must use MPI-I/O driver")
+    if(!H5F_HAS_FEATURE(file, H5FD_FEAT_HAS_MPI))
+        HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "incorrect VFL driver, does not support MPI atomicity mode")
 
     /* get atomicity value */
     if (H5FD_get_mpio_atomicity (file->shared->lf, flag) < 0)
@@ -258,5 +285,100 @@ H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag)
 done:
     FUNC_LEAVE_API(ret_value)
 }
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5F_mpi_retrieve_comm
+ *
+ * Purpose:	Retrieves an MPI communicator from the file the location ID 
+ *              is in. If the loc_id is invalid, the fapl_id is used to 
+ *              retrieve the communicator.
+ *
+ * Return:	Success:	Non-negative
+ *
+ * 		Failure:	Negative
+ *
+ * Programmer:	Mohamad Chaarawi
+ *		Feb 14, 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F_mpi_retrieve_comm(hid_t loc_id, hid_t acspl_id, MPI_Comm *mpi_comm)
+{
+    herr_t    ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    HDassert(mpi_comm);
+    *mpi_comm = MPI_COMM_NULL;
+
+    /* if the loc_id is valid, then get the comm from the file
+       attached to the loc_id */
+    if(H5I_INVALID_HID != loc_id) {
+        H5G_loc_t loc;
+        H5F_t *f = NULL;
+
+        /* retrieve the file structure */
+        if(H5G_loc(loc_id, &loc) < 0)
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a location")
+        f = loc.oloc->file;
+        HDassert(f);
+
+        /* check if MPIO driver is used */
+        if(H5F_HAS_FEATURE(f, H5FD_FEAT_HAS_MPI)) {
+            /* retrieve the file communicator */
+            if(MPI_COMM_NULL == (*mpi_comm = H5F_mpi_get_comm(f)))
+                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get MPI communicator")
+        }
+    }
+    /* otherwise, this if from H5Fopen or H5Fcreate and has to be collective */
+    else {
+        H5P_genplist_t *plist;      /* Property list pointer */
+
+        HDassert(H5P_isa_class(acspl_id, H5P_FILE_ACCESS));
+
+        if(NULL == (plist = H5P_object_verify(acspl_id, H5P_FILE_ACCESS)))
+            HGOTO_ERROR(H5E_PLIST, H5E_BADTYPE, FAIL, "not a file access list")
+
+        if(H5FD_MPIO == H5P_peek_driver(plist)) {
+            const H5FD_mpio_fapl_t *fa; /* MPIO fapl info */
+
+            if(NULL == (fa = (const H5FD_mpio_fapl_t *)H5P_peek_driver_info(plist)))
+                HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "bad VFL driver info")
+
+            *mpi_comm = fa->comm;
+        }
+    }
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_mpi_retrieve_comm */
+
+/*-------------------------------------------------------------------------
+ * Function:    H5F_get_mpi_info
+ *
+ * Purpose:     Retrieves MPI File info.
+ *
+ * Return:      Success:        The size (positive)
+ *              Failure:        Negative
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5F_get_mpi_info(const H5F_t *f, MPI_Info **f_info)
+{
+    herr_t ret_value = SUCCEED;
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    HDassert(f && f->shared);
+
+    /* Dispatch to driver */
+    if ((ret_value = H5FD_get_mpi_info(f->shared->lf, (void **)f_info)) < 0)
+        HGOTO_ERROR(H5E_FILE, H5E_CANTGET, FAIL, "can't get mpi file info")
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5F_get_mpi_info() */
 #endif /* H5_HAVE_PARALLEL */
 

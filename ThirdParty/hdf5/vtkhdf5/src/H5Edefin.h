@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Generated automatically by bin/make_err -- do not edit */
@@ -21,9 +19,7 @@
 #define _H5Edefin_H
 
 /* Major error IDs */
-hid_t H5E_DATASET_g        = FAIL;      /* Dataset */
 hid_t H5E_FUNC_g           = FAIL;      /* Function entry/exit */
-hid_t H5E_STORAGE_g        = FAIL;      /* Data storage */
 hid_t H5E_FILE_g           = FAIL;      /* File accessibilty */
 hid_t H5E_SOHM_g           = FAIL;      /* Shared Object Header Messages */
 hid_t H5E_SYM_g            = FAIL;      /* Symbol table */
@@ -34,23 +30,28 @@ hid_t H5E_BTREE_g          = FAIL;      /* B-Tree node */
 hid_t H5E_REFERENCE_g      = FAIL;      /* References */
 hid_t H5E_DATASPACE_g      = FAIL;      /* Dataspace */
 hid_t H5E_RESOURCE_g       = FAIL;      /* Resource unavailable */
-hid_t H5E_PLIST_g          = FAIL;      /* Property lists */
-hid_t H5E_LINK_g           = FAIL;      /* Links */
-hid_t H5E_DATATYPE_g       = FAIL;      /* Datatype */
 hid_t H5E_RS_g             = FAIL;      /* Reference Counted Strings */
+hid_t H5E_FARRAY_g         = FAIL;      /* Fixed Array */
 hid_t H5E_HEAP_g           = FAIL;      /* Heap */
-hid_t H5E_OHDR_g           = FAIL;      /* Object header */
-hid_t H5E_ATOM_g           = FAIL;      /* Object atom */
 hid_t H5E_ATTR_g           = FAIL;      /* Attribute */
-hid_t H5E_NONE_MAJOR_g     = FAIL;      /* No error */
 hid_t H5E_IO_g             = FAIL;      /* Low-level I/O */
-hid_t H5E_SLIST_g          = FAIL;      /* Skip Lists */
 hid_t H5E_EFL_g            = FAIL;      /* External file list */
 hid_t H5E_TST_g            = FAIL;      /* Ternary Search Trees */
-hid_t H5E_ARGS_g           = FAIL;      /* Invalid arguments to routine */
-hid_t H5E_ERROR_g          = FAIL;      /* Error API */
-hid_t H5E_PLINE_g          = FAIL;      /* Data filters */
+hid_t H5E_PAGEBUF_g        = FAIL;      /* Page Buffering */
 hid_t H5E_FSPACE_g         = FAIL;      /* Free Space Manager */
+hid_t H5E_DATASET_g        = FAIL;      /* Dataset */
+hid_t H5E_STORAGE_g        = FAIL;      /* Data storage */
+hid_t H5E_LINK_g           = FAIL;      /* Links */
+hid_t H5E_PLIST_g          = FAIL;      /* Property lists */
+hid_t H5E_DATATYPE_g       = FAIL;      /* Datatype */
+hid_t H5E_OHDR_g           = FAIL;      /* Object header */
+hid_t H5E_ATOM_g           = FAIL;      /* Object atom */
+hid_t H5E_NONE_MAJOR_g     = FAIL;      /* No error */
+hid_t H5E_SLIST_g          = FAIL;      /* Skip Lists */
+hid_t H5E_ARGS_g           = FAIL;      /* Invalid arguments to routine */
+hid_t H5E_EARRAY_g         = FAIL;      /* Extensible Array */
+hid_t H5E_PLINE_g          = FAIL;      /* Data filters */
+hid_t H5E_ERROR_g          = FAIL;      /* Error API */
 hid_t H5E_CACHE_g          = FAIL;      /* Object cache */
 
 /* Minor error IDs */
@@ -154,7 +155,9 @@ hid_t H5E_NOIDS_g          = FAIL;      /* Out of IDs for group */
 
 /* Cache related errors */
 hid_t H5E_CANTFLUSH_g      = FAIL;      /* Unable to flush data from cache */
+hid_t H5E_CANTUNSERIALIZE_g = FAIL;      /* Unable to mark metadata as unserialized */
 hid_t H5E_CANTSERIALIZE_g  = FAIL;      /* Unable to serialize data from cache */
+hid_t H5E_CANTTAG_g        = FAIL;      /* Unable to tag metadata in the cache */
 hid_t H5E_CANTLOAD_g       = FAIL;      /* Unable to load metadata into cache */
 hid_t H5E_PROTECT_g        = FAIL;      /* Protected metadata error */
 hid_t H5E_NOTCACHED_g      = FAIL;      /* Metadata not currently cached */
@@ -165,9 +168,19 @@ hid_t H5E_CANTUNPROTECT_g  = FAIL;      /* Unable to unprotect metadata */
 hid_t H5E_CANTPIN_g        = FAIL;      /* Unable to pin cache entry */
 hid_t H5E_CANTUNPIN_g      = FAIL;      /* Unable to un-pin cache entry */
 hid_t H5E_CANTMARKDIRTY_g  = FAIL;      /* Unable to mark a pinned entry as dirty */
+hid_t H5E_CANTMARKCLEAN_g  = FAIL;      /* Unable to mark a pinned entry as clean */
+hid_t H5E_CANTMARKUNSERIALIZED_g = FAIL;      /* Unable to mark an entry as unserialized */
+hid_t H5E_CANTMARKSERIALIZED_g = FAIL;      /* Unable to mark an entry as serialized */
 hid_t H5E_CANTDIRTY_g      = FAIL;      /* Unable to mark metadata as dirty */
+hid_t H5E_CANTCLEAN_g      = FAIL;      /* Unable to mark metadata as clean */
 hid_t H5E_CANTEXPUNGE_g    = FAIL;      /* Unable to expunge a metadata cache entry */
 hid_t H5E_CANTRESIZE_g     = FAIL;      /* Unable to resize a metadata cache entry */
+hid_t H5E_CANTDEPEND_g     = FAIL;      /* Unable to create a flush dependency */
+hid_t H5E_CANTUNDEPEND_g   = FAIL;      /* Unable to destroy a flush dependency */
+hid_t H5E_CANTNOTIFY_g     = FAIL;      /* Unable to notify object about action */
+hid_t H5E_LOGFAIL_g        = FAIL;      /* Failure in the cache logging framework */
+hid_t H5E_CANTCORK_g       = FAIL;      /* Unable to cork an object */
+hid_t H5E_CANTUNCORK_g     = FAIL;      /* Unable to uncork an object */
 
 /* Link related errors */
 hid_t H5E_TRAVERSE_g       = FAIL;      /* Link traversal failure */
@@ -188,6 +201,7 @@ hid_t H5E_CANTSELECT_g     = FAIL;      /* Can't select hyperslab */
 hid_t H5E_CANTNEXT_g       = FAIL;      /* Can't move to next iterator location */
 hid_t H5E_BADSELECT_g      = FAIL;      /* Invalid selection */
 hid_t H5E_CANTCOMPARE_g    = FAIL;      /* Can't compare objects */
+hid_t H5E_CANTAPPEND_g     = FAIL;      /* Can't append object */
 
 /* Argument errors */
 hid_t H5E_UNINITIALIZED_g  = FAIL;      /* Information is uinitialized */

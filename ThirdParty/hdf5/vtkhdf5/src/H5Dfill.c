@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5D_PACKAGE		/*suppress error about including H5Dpkg	  */
+#include "H5Dmodule.h"          /* This source code file is part of the H5D module */
+
 
 /***********/
 /* Headers */
@@ -87,6 +86,9 @@ H5FL_BLK_DEFINE_STATIC(non_zero_fill);
 /* Declare the free list to manage blocks of zero fill-value data */
 H5FL_BLK_DEFINE_STATIC(zero_fill);
 
+/* Declare extern free list to manage the H5S_sel_iter_t struct */
+H5FL_EXTERN(H5S_sel_iter_t);
+
 
 /*--------------------------------------------------------------------------
  NAME
@@ -133,7 +135,7 @@ H5Dfill(const void *fill, hid_t fill_type_id, void *buf, hid_t buf_type_id, hid_
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, 0, "not a datatype")
 
     /* Fill the selection in the memory buffer */
-    if(H5D__fill(fill, fill_type, buf, buf_type, space, H5AC_dxpl_id) < 0)
+    if(H5D__fill(fill, fill_type, buf, buf_type, space, H5AC_noio_dxpl_id) < 0)
         HGOTO_ERROR(H5E_DATASET, H5E_CANTENCODE, FAIL, "filling selection failed")
 
 done:
@@ -171,8 +173,10 @@ done:
 --------------------------------------------------------------------------*/
 herr_t
 H5D__fill(const void *fill, const H5T_t *fill_type, void *buf,
-    const H5T_t *buf_type, const H5S_t *space, hid_t dxpl_id)
+          const H5T_t *buf_type, const H5S_t *space, hid_t dxpl_id)
 {
+    H5S_sel_iter_t *mem_iter = NULL; /* Memory selection iteration info */
+    hbool_t mem_iter_init = FALSE; /* Whether the memory selection iterator has been initialized */
     H5WB_t  *elem_wb = NULL;    /* Wrapped buffer for element data */
     uint8_t elem_buf[H5T_ELEM_BUF_SIZE]; /* Buffer for element data */
     H5WB_t  *bkg_elem_wb = NULL;     /* Wrapped buffer for background data */
@@ -245,7 +249,6 @@ H5D__fill(const void *fill, const H5T_t *fill_type, void *buf,
         if(TRUE == H5T_detect_class(fill_type, H5T_VLEN, FALSE)) {
             H5D_dxpl_cache_t _dxpl_cache;       /* Data transfer property cache buffer */
             H5D_dxpl_cache_t *dxpl_cache = &_dxpl_cache;   /* Data transfer property cache */
-            H5S_sel_iter_t mem_iter;            /* Memory selection iteration info */
             hssize_t nelmts;                    /* Number of data elements */
 
             /* Get the number of elements in the selection */
@@ -272,19 +275,18 @@ H5D__fill(const void *fill, const H5T_t *fill_type, void *buf,
             if(H5D__get_dxpl_cache(dxpl_id, &dxpl_cache) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't fill dxpl cache")
 
+            /* Allocate the chunk selection iterator */
+            if(NULL == (mem_iter = H5FL_MALLOC(H5S_sel_iter_t)))
+                HGOTO_ERROR(H5E_DATASET, H5E_CANTALLOC, FAIL, "can't allocate memory selection iterator")
+
             /* Create a selection iterator for scattering the elements to memory buffer */
-            if(H5S_select_iter_init(&mem_iter, space, dst_type_size) < 0)
+            if(H5S_select_iter_init(mem_iter, space, dst_type_size) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize memory selection information")
+            mem_iter_init = TRUE;
 
             /* Scatter the data into memory */
-            if(H5D__scatter_mem(tmp_buf, space, &mem_iter, (size_t)nelmts, dxpl_cache, buf/*out*/) < 0) {
-                H5S_SELECT_ITER_RELEASE(&mem_iter);
+            if(H5D__scatter_mem(tmp_buf, space, mem_iter, (size_t)nelmts, dxpl_cache, buf/*out*/) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_READERROR, FAIL, "scatter failed")
-            } /* end if */
-
-            /* Release the selection iterator */
-            if(H5S_SELECT_ITER_RELEASE(&mem_iter) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't release selection iterator")
         } /* end if */
         else {
             const uint8_t *fill_buf;          /* Buffer to use for writing fill values */
@@ -334,6 +336,10 @@ H5D__fill(const void *fill, const H5T_t *fill_type, void *buf,
     } /* end else */
 
 done:
+    if(mem_iter_init && H5S_SELECT_ITER_RELEASE(mem_iter) < 0)
+        HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't release selection iterator")
+    if(mem_iter)
+        mem_iter = H5FL_FREE(H5S_sel_iter_t, mem_iter);
     if(src_id != (-1) && H5I_dec_ref(src_id) < 0)
         HDONE_ERROR(H5E_DATASET, H5E_CANTFREE, FAIL, "Can't decrement temporary datatype ID")
     if(dst_id != (-1) && H5I_dec_ref(dst_id) < 0)
@@ -564,7 +570,7 @@ done:
  */
 herr_t
 H5D__fill_refill_vl(H5D_fill_buf_info_t *fb_info, size_t nelmts, hid_t dxpl_id)
-{
+{    
     herr_t	ret_value = SUCCEED;	/* Return value */
     void * buf = NULL;              /* Temporary fill buffer */
 

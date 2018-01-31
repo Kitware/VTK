@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5HF_PACKAGE		/*suppress error about including H5HFpkg  */
+#include "H5HFmodule.h"         /* This source code file is part of the H5HF module */
+
 
 /***********/
 /* Headers */
@@ -121,7 +120,7 @@ H5HF_space_start(H5HF_hdr_t *hdr, hid_t dxpl_id, hbool_t may_create)
     if(H5F_addr_defined(hdr->fs_addr)) {
         /* Open an existing free space structure for the heap */
         if(NULL == (hdr->fspace = H5FS_open(hdr->f, dxpl_id, hdr->fs_addr,
-                NELMTS(classes), classes, hdr, H5HF_FSPACE_THRHD_DEF, H5HF_FSPACE_ALIGN_DEF)))
+                NELMTS(classes), classes, hdr, (hsize_t)H5HF_FSPACE_THRHD_DEF, (hsize_t)H5HF_FSPACE_ALIGN_DEF)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't initialize free space info")
     } /* end if */
     else {
@@ -138,7 +137,7 @@ H5HF_space_start(H5HF_hdr_t *hdr, hid_t dxpl_id, hbool_t may_create)
 
             /* Create the free space structure for the heap */
             if(NULL == (hdr->fspace = H5FS_create(hdr->f, dxpl_id, &hdr->fs_addr,
-                    &fs_create, NELMTS(classes), classes, hdr, H5HF_FSPACE_THRHD_DEF, H5HF_FSPACE_ALIGN_DEF)))
+                    &fs_create, NELMTS(classes), classes, hdr, (hsize_t)H5HF_FSPACE_THRHD_DEF, (hsize_t)H5HF_FSPACE_ALIGN_DEF)))
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't initialize free space info")
             HDassert(H5F_addr_defined(hdr->fs_addr));
         } /* end if */
@@ -216,7 +215,7 @@ htri_t
 H5HF_space_find(H5HF_hdr_t *hdr, hid_t dxpl_id, hsize_t request, H5HF_free_section_t **node)
 {
     htri_t node_found = FALSE;  /* Whether an existing free list node was found */
-    htri_t ret_value;           /* Return value */
+    htri_t ret_value = FAIL;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -262,7 +261,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5HF_space_revert_root_cb(H5FS_section_info_t *_sect, void UNUSED *_udata)
+H5HF_space_revert_root_cb(H5FS_section_info_t *_sect, void H5_ATTR_UNUSED *_udata)
 {
     H5HF_free_section_t *sect = (H5HF_free_section_t *)_sect;       /* Section to dump info */
     herr_t      ret_value = SUCCEED;    /* Return value */
@@ -613,7 +612,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_space_sect_change_class(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *sect, unsigned new_class)
+H5HF_space_sect_change_class(H5HF_hdr_t *hdr, hid_t dxpl_id, H5HF_free_section_t *sect, uint16_t new_class)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 

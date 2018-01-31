@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -27,7 +25,9 @@
 /****************/
 /* Module Setup */
 /****************/
-#define H5P_PACKAGE		/*suppress error about including H5Ppkg	  */
+
+#include "H5Pmodule.h"          /* This source code file is part of the H5P module */
+
 
 /***********/
 /* Headers */
@@ -65,10 +65,13 @@
 const H5P_libclass_t H5P_CLS_ACRT[1] = {{
     "attribute create",		/* Class name for debugging     */
     H5P_TYPE_ATTRIBUTE_CREATE,  /* Class type                   */
-    &H5P_CLS_STRING_CREATE_g,	/* Parent class ID              */
-    &H5P_CLS_ATTRIBUTE_CREATE_g, /* Pointer to class ID          */
-    &H5P_LST_ATTRIBUTE_CREATE_g, /* Pointer to default property list ID */
+
+    &H5P_CLS_STRING_CREATE_g,	/* Parent class                 */
+    &H5P_CLS_ATTRIBUTE_CREATE_g, /* Pointer to class            */
+    &H5P_CLS_ATTRIBUTE_CREATE_ID_g, /* Pointer to class ID          */
+    &H5P_LST_ATTRIBUTE_CREATE_ID_g, /* Pointer to default property list ID */
     NULL,			/* Default property registration routine */
+
     NULL,		        /* Class creation callback      */
     NULL,		        /* Class creation callback info */
     NULL,			/* Class copy callback          */

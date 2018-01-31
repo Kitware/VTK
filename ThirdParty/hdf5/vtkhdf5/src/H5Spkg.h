@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5S package.  Source files outside the H5S package should
  *		include H5Sprivate.h instead.
  */
-#ifndef H5S_PACKAGE
+#if !(defined H5S_FRIEND || defined H5S_MODULE)
 #error "Do not include this file outside the H5S package!"
 #endif
 
@@ -33,6 +31,13 @@
 /* Flags to indicate special dataspace features are active */
 #define H5S_VALID_MAX	0x01
 #define H5S_VALID_PERM	0x02
+
+/* Flags for serialization of selections */
+#define H5S_SELECT_FLAG_UNLIM   0x01
+#define H5S_SELECT_FLAG_BITS    (H5S_SELECT_FLAG_UNLIM)
+
+/* Length of stack-allocated sequences for "project intersect" routines */
+#define H5S_PROJECT_INTERSECT_NSEQS 256
 
 
 /* Initial version of the dataspace information */
@@ -47,6 +52,10 @@
 /* The latest version of the format.  Look through the 'encode'
  *      and 'size' callbacks for places to change when updating this. */
 #define H5O_SDSPACE_VERSION_LATEST H5O_SDSPACE_VERSION_2
+
+/* Maximum dimension size (highest value that is not a special value e.g.
+ * H5S_UNLIMITED) */
+#define H5S_MAX_SIZE            ((hsize_t)(hssize_t)(-2))
 
 
 /*
@@ -113,6 +122,8 @@ typedef struct {
          * are only used for re-gurgitating the original values used to set the
          * hyperslab to the application when it queries the hyperslab selection
          * information. */
+    int unlim_dim;                              /* Dimension where selection is unlimited, or -1 if none */
+    hsize_t num_elem_non_unlim;                 /* # of elements in a "slice" excluding the unlimited dimension */
     H5S_hyper_span_info_t *span_lst; /* List of hyperslab span information */
 } H5S_hyper_sel_t;
 
@@ -130,13 +141,19 @@ typedef htri_t (*H5S_sel_is_valid_func_t)(const H5S_t *space);
 /* Method to determine number of bytes required to store current selection */
 typedef hssize_t (*H5S_sel_serial_size_func_t)(const H5S_t *space);
 /* Method to store current selection in "serialized" form (a byte sequence suitable for storing on disk) */
-typedef herr_t (*H5S_sel_serialize_func_t)(const H5S_t *space, uint8_t *buf);
-/* Method to store create selection from "serialized" form (a byte sequence suitable for storing on disk) */
-typedef herr_t (*H5S_sel_deserialize_func_t)(H5S_t *space, const uint8_t *buf);
+typedef herr_t (*H5S_sel_serialize_func_t)(const H5S_t *space, uint8_t **p);
+/* Method to create selection from "serialized" form (a byte sequence suitable for storing on disk) */
+typedef herr_t (*H5S_sel_deserialize_func_t)(H5S_t *space, uint32_t version, uint8_t flags,
+    const uint8_t **p);
 /* Method to determine smallest n-D bounding box containing the current selection */
 typedef herr_t (*H5S_sel_bounds_func_t)(const H5S_t *space, hsize_t *start, hsize_t *end);
 /* Method to determine linear offset of initial element in selection within dataspace */
 typedef herr_t (*H5S_sel_offset_func_t)(const H5S_t *space, hsize_t *offset);
+/* Method to get unlimited dimension of selection (or -1 for none) */
+typedef int (*H5S_sel_unlim_dim_func_t)(const H5S_t *space);
+/* Method to get the number of elements in a slice through the unlimited dimension */
+typedef herr_t (*H5S_sel_num_elem_non_unlim_func_t)(const H5S_t *space,
+    hsize_t *num_elem_non_unlim);
 /* Method to determine if current selection is contiguous */
 typedef htri_t (*H5S_sel_is_contiguous_func_t)(const H5S_t *space);
 /* Method to determine if current selection is a single block */
@@ -166,6 +183,8 @@ typedef struct {
     H5S_sel_deserialize_func_t deserialize;     /* Method to store create selection from "serialized" form (a byte sequence suitable for storing on disk) */
     H5S_sel_bounds_func_t bounds;               /* Method to determine to smallest n-D bounding box containing the current selection */
     H5S_sel_offset_func_t offset;               /* Method to determine linear offset of initial element in selection within dataspace */
+    H5S_sel_unlim_dim_func_t unlim_dim;              /* Method to get unlimited dimension of selection (or -1 for none) */
+    H5S_sel_num_elem_non_unlim_func_t num_elem_non_unlim; /* Method to get the number of elements in a slice through the unlimited dimension */
     H5S_sel_is_contiguous_func_t is_contiguous; /* Method to determine if current selection is contiguous */
     H5S_sel_is_single_func_t is_single;         /* Method to determine if current selection is a single block */
     H5S_sel_is_regular_func_t is_regular;       /* Method to determine if current selection is "regular" */
@@ -245,10 +264,14 @@ H5_DLLVAR const H5S_select_class_t H5S_sel_point[1];
 
 /* Extent functions */
 H5_DLL herr_t H5S_extent_release(H5S_extent_t *extent);
-H5_DLL herr_t H5S_extent_copy(H5S_extent_t *dst, const H5S_extent_t *src,
+H5_DLL herr_t H5S_extent_copy_real(H5S_extent_t *dst, const H5S_extent_t *src,
     hbool_t copy_max);
 
 /* Operations on selections */
+H5_DLL herr_t H5S__hyper_project_intersection(const H5S_t *src_space,
+    const H5S_t *dst_space, const H5S_t *src_intersect_space,
+    H5S_t *proj_space);
+H5_DLL herr_t H5S__hyper_subtract(H5S_t *space, H5S_t *subtract_space);
 
 /* Testing functions */
 #ifdef H5S_TESTING

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -66,7 +64,7 @@ H5_DLL herr_t H5SM_reconstitute(H5O_shared_t *sh_mesg, H5F_t *f,
     unsigned msg_type_id, H5O_fheap_id_t heap_id);
 H5_DLL herr_t H5SM_get_refcount(H5F_t *f, hid_t dxpl_id, unsigned type_id,
     const H5O_shared_t *sh_mesg, hsize_t *ref_count);
-H5_DLL herr_t H5SM_ih_size(H5F_t *f, hid_t dxpl_id, H5F_info_t *bh_info);
+H5_DLL herr_t H5SM_ih_size(H5F_t *f, hid_t dxpl_id, hsize_t *hdr_size, H5_ih_info_t *ih_info);
 
 
 /* Debugging routines */
@@ -74,7 +72,7 @@ H5_DLL herr_t H5SM_table_debug(H5F_t *f, hid_t dxpl_id, haddr_t table_addr,
     FILE *stream, int indent, int fwidth, unsigned table_vers,
     unsigned num_indexes);
 H5_DLL herr_t H5SM_list_debug(H5F_t *f, hid_t dxpl_id, haddr_t list_addr,
-    FILE *stream, int indent, int fwidth, unsigned list_vers, size_t num_messages);
+    FILE *stream, int indent, int fwidth, haddr_t table_addr);
 
 #endif /*_H5SMprivate_H*/
 

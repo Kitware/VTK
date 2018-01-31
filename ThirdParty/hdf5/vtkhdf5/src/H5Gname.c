@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -166,7 +164,7 @@ H5G_normalize(const char *name)
     char *norm;         /* Pointer to the normalized string */
     size_t	s,d;    /* Positions within the strings */
     unsigned    last_slash;     /* Flag to indicate last character was a slash */
-    char *ret_value;    /* Return value */
+    char *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -297,7 +295,7 @@ H5G_build_fullpath(const char *prefix, const char *name)
     size_t path_len;            /* Length of the path */
     size_t name_len;            /* Length of the name */
     unsigned need_sep;          /* Flag to indicate if separator is needed */
-    H5RS_str_t *ret_value;      /* Return value */
+    H5RS_str_t *ret_value = NULL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -325,7 +323,7 @@ H5G_build_fullpath(const char *prefix, const char *name)
     /* Build full path */
     HDstrncpy(full_path, prefix, orig_path_len + 1);
     if(need_sep)
-        HDstrncat(full_path, "/", 1);
+        HDstrncat(full_path, "/", (size_t)1);
     HDstrncat(full_path, name, name_len);
 
     /* Create reference counted string for path */
@@ -354,7 +352,7 @@ H5RS_str_t *
 H5G_build_fullpath_refstr_str(H5RS_str_t *prefix_r, const char *name)
 {
     const char *prefix;         /* Pointer to raw string for path */
-    H5RS_str_t *ret_value;
+    H5RS_str_t *ret_value = NULL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -565,7 +563,7 @@ H5G_get_name(const H5G_loc_t *loc, char *name/*out*/, size_t size,
     hbool_t *cached, hid_t lapl_id, hid_t dxpl_id)
 {
     ssize_t len = 0;            /* Length of object's name */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -1292,7 +1290,7 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
     H5G_loc_t root_loc;         /* Root group's location */
     hbool_t found_obj = FALSE;  /* If we found the object */
     herr_t status;              /* Status from iteration */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     /* Portably clear udata struct (before FUNC_ENTER) */
     HDmemset(&udata, 0, sizeof(udata));
@@ -1331,7 +1329,7 @@ H5G_get_name_by_addr(hid_t file, hid_t lapl_id, hid_t dxpl_id, const H5O_loc_t *
         /* If there's a buffer provided, copy into it, up to the limit of its size */
         if(name) {
             /* Copy the initial path separator */
-            HDstrncpy(name, "/", 2);
+            HDstrncpy(name, "/", (size_t)2);
 
             /* Append the rest of the path */
             /* (less one character, for the initial path separator) */
@@ -1349,4 +1347,3 @@ done:
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G_get_name_by_addr() */
-

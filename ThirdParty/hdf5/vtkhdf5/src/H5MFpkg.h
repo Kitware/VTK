@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5MF package.  Source files outside the H5MF package should
  *		include H5MFprivate.h instead.
  */
-#ifndef H5MF_PACKAGE
+#if !(defined H5MF_FRIEND || defined H5MF_MODULE)
 #error "Do not include this file outside the H5MF package!"
 #endif
 
@@ -51,9 +49,38 @@
 /* Define this to dump free space tracker contents after they've been modified */
 /* #define H5MF_ALLOC_DEBUG_DUMP */
 
-/* Free space section types for file */
+/* Free-space section types for file */
 /* (values stored in free space data structures in file) */
-#define H5MF_FSPACE_SECT_SIMPLE         0       /* Section is a range of actual bytes in file */
+#define H5MF_FSPACE_SECT_SIMPLE     0   /* For non-paged aggregation: section is a range of actual bytes in file */
+#define H5MF_FSPACE_SECT_SMALL      1   /* For paged aggregation: "small" meta/raw data section which is < fsp_size) */
+#define H5MF_FSPACE_SECT_LARGE      2   /* For paged aggregation: "large" Section which is >= fsp_size) */
+
+/* For non-paged aggregation: map allocation request type to tracked free-space type */
+/* F -- pointer to H5F_t; T -- H5FD_mem_t */
+#define H5MF_ALLOC_TO_FS_AGGR_TYPE(F, T)                  \
+        ((H5FD_MEM_DEFAULT == (F)->shared->fs_type_map[T]) ? (T) : (F)->shared->fs_type_map[T])
+
+/* Get section class type based on size */
+#define H5MF_SECT_CLASS_TYPE(F, S)                          \
+        ((H5F_PAGED_AGGR(F)) ?                              \
+         ((S >= (F)->shared->fs_page_size) ? H5MF_FSPACE_SECT_LARGE : H5MF_FSPACE_SECT_SMALL) : H5MF_FSPACE_SECT_SIMPLE)
+
+/* Get section class cls */
+#define H5MF_SECT_CLS_TYPE(F, S)                            \
+        ((H5F_PAGED_AGGR(F)) ?                              \
+         ((S >= (F)->shared->fs_page_size) ?                \
+          H5MF_FSPACE_SECT_CLS_LARGE : H5MF_FSPACE_SECT_CLS_SMALL) : H5MF_FSPACE_SECT_CLS_SIMPLE)
+
+/* Calculate the mis-aligned fragment */
+#define H5MF_EOA_MISALIGN(F, E, A, FR)                                  \
+{                                                                       \
+    hsize_t m;                                                          \
+                                                                        \
+    if(H5F_addr_gt((E), 0) && ((m) = ((E) + H5F_BASE_ADDR(F)) % (A)))   \
+        (FR) = (A) - m;                                                 \
+    else                                                                \
+        (FR) = 0;                                                       \
+}
 
 
 /****************************/
@@ -129,6 +156,15 @@ typedef struct H5MF_sect_ud_t {
     H5F_blk_aggr_t *aggr;       /* Aggregator block to operate on */
 } H5MF_sect_ud_t;
 
+/* Information about the current free-space manager to use */
+typedef struct H5MF_fs_t {
+    H5F_fs_state_t *fs_state;
+    haddr_t *fs_addr;
+    H5FS_t **fs_man;
+    hsize_t     align_thres;	/* Threshold for alignment              */
+    hsize_t     alignment;      /* Alignment                            */
+} H5MF_fs_t;
+
 
 /*****************************/
 /* Package Private Variables */
@@ -136,6 +172,8 @@ typedef struct H5MF_sect_ud_t {
 
 /* H5MF single section inherits serializable properties from H5FS_section_class_t */
 H5_DLLVAR H5FS_section_class_t H5MF_FSPACE_SECT_CLS_SIMPLE[1];
+H5_DLLVAR H5FS_section_class_t H5MF_FSPACE_SECT_CLS_SMALL[1];
+H5_DLLVAR H5FS_section_class_t H5MF_FSPACE_SECT_CLS_LARGE[1];
 
 
 /******************************/
@@ -143,23 +181,24 @@ H5_DLLVAR H5FS_section_class_t H5MF_FSPACE_SECT_CLS_SIMPLE[1];
 /******************************/
 
 /* Allocator routines */
-H5_DLL herr_t H5MF_alloc_open(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type);
-H5_DLL herr_t H5MF_alloc_start(H5F_t *f, hid_t dxpl_id, H5FD_mem_t type);
+H5_DLL herr_t H5MF_open_fstype(H5F_t *f, hid_t dxpl_id, H5F_mem_page_t type);
+H5_DLL herr_t H5MF_start_fstype(H5F_t *f, hid_t dxpl_id, H5F_mem_page_t type);
+
+H5_DLL htri_t H5MF_find_sect(H5F_t *f, H5FD_mem_t alloc_type, hid_t dxpl_id, hsize_t size, H5FS_t *fspace, haddr_t *addr);
+H5_DLL herr_t H5MF_add_sect(H5F_t *f, H5FD_mem_t alloc_type, hid_t dxpl_id, H5FS_t *fspace, H5MF_free_section_t *node);
+
 H5_DLL herr_t H5MF_sects_dump(H5F_t *f, hid_t dxpl_id, FILE *stream);
 
-/* 'simple' section routines */
-H5_DLL H5MF_free_section_t *H5MF_sect_simple_new(haddr_t sect_off,
+H5_DLL void H5MF_alloc_to_fs_type(H5F_t *f, H5FD_mem_t alloc_type, hsize_t size, H5F_mem_page_t *fs_type);
+
+/* 'simple/small/large' section routines */
+H5_DLL H5MF_free_section_t *H5MF_sect_new(unsigned ctype, haddr_t sect_off,
     hsize_t sect_size);
-H5_DLL htri_t H5MF_sect_simple_can_shrink(const H5FS_section_info_t *_sect,
-    void *udata);
-H5_DLL herr_t H5MF_sect_simple_shrink(H5FS_section_info_t **_sect,
-    void *udata);
-H5_DLL herr_t H5MF_sect_simple_free(H5FS_section_info_t *sect);
+H5_DLL herr_t H5MF_sect_free(H5FS_section_info_t *sect);
+
 
 /* Block aggregator routines */
-H5_DLL haddr_t H5MF_aggr_alloc(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr,
-    H5F_blk_aggr_t *other_aggr, H5FD_mem_t type, hsize_t size);
-H5_DLL htri_t H5MF_aggr_try_extend(H5F_t *f, H5F_blk_aggr_t *aggr,
+H5_DLL htri_t H5MF_aggr_try_extend(H5F_t *f, hid_t dxpl_id, H5F_blk_aggr_t *aggr,
     H5FD_mem_t type, haddr_t abs_blk_end, hsize_t extra_requested);
 H5_DLL htri_t H5MF_aggr_can_absorb(const H5F_t *f, const H5F_blk_aggr_t *aggr,
     const H5MF_free_section_t *sect, H5MF_shrink_type_t *shrink);

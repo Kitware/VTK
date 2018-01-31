@@ -5,15 +5,13 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define H5Z_PACKAGE		/*suppress error about including H5Zpkg	  */
+#include "H5Zmodule.h"          /* This source code file is part of the H5Z module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -77,7 +75,7 @@ H5Z_class2_t H5Z_SZIP[1] = {{
  *-------------------------------------------------------------------------
  */
 static htri_t
-H5Z_can_apply_szip(hid_t UNUSED dcpl_id, hid_t type_id, hid_t UNUSED space_id)
+H5Z_can_apply_szip(hid_t H5_ATTR_UNUSED dcpl_id, hid_t type_id, hid_t H5_ATTR_UNUSED space_id)
 {
     const H5T_t	*type;                  /* Datatype */
     unsigned dtype_size;                /* Datatype's size (in bits) */
@@ -225,7 +223,7 @@ H5Z_set_local_szip(hid_t dcpl_id, hid_t type_id, hid_t space_id)
     } /* end else */
 
     /* Assign the final value to the scanline */
-    H5_ASSIGN_OVERFLOW(cd_values[H5Z_SZIP_PARM_PPS],scanline,hsize_t,unsigned);
+    H5_CHECKED_ASSIGN(cd_values[H5Z_SZIP_PARM_PPS], unsigned, scanline, hsize_t);
 
     /* Get datatype's endianness order */
     if((dtype_order = H5T_get_order(type)) == H5T_ORDER_ERROR)
@@ -298,13 +296,13 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
 
     /* Check arguments */
     if (cd_nelmts!=4)
-	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid deflate aggression level")
+	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid number of filter parameters")
 
     /* Copy the filter parameters into the szip parameter block */
-    H5_ASSIGN_OVERFLOW(sz_param.options_mask,cd_values[H5Z_SZIP_PARM_MASK],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.bits_per_pixel,cd_values[H5Z_SZIP_PARM_BPP],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.pixels_per_block,cd_values[H5Z_SZIP_PARM_PPB],unsigned,int);
-    H5_ASSIGN_OVERFLOW(sz_param.pixels_per_scanline,cd_values[H5Z_SZIP_PARM_PPS],unsigned,int);
+    H5_CHECKED_ASSIGN(sz_param.options_mask, int, cd_values[H5Z_SZIP_PARM_MASK], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.bits_per_pixel, int, cd_values[H5Z_SZIP_PARM_BPP], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.pixels_per_block, int, cd_values[H5Z_SZIP_PARM_PPB], unsigned);
+    H5_CHECKED_ASSIGN(sz_param.pixels_per_scanline, int, cd_values[H5Z_SZIP_PARM_PPS], unsigned);
 
     /* Input; uncompress */
     if (flags & H5Z_FLAG_REVERSE) {
@@ -314,7 +312,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         /* Get the size of the uncompressed buffer */
         newbuf = *buf;
         UINT32DECODE(newbuf,stored_nalloc);
-        H5_ASSIGN_OVERFLOW(nalloc,stored_nalloc,uint32_t,size_t);
+        H5_CHECKED_ASSIGN(nalloc, size_t, stored_nalloc, uint32_t);
 
         /* Allocate space for the uncompressed buffer */
         if(NULL==(outbuf = H5MM_malloc(nalloc)))
@@ -333,7 +331,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         *buf = outbuf;
         outbuf = NULL;
         *buf_size = nalloc;
-        ret_value = nalloc;
+        ret_value = size_out;
     }
     /* Output; compress */
     else {
@@ -359,7 +357,7 @@ H5Z_filter_szip (unsigned flags, size_t cd_nelmts, const unsigned cd_values[],
         /* Set return values */
         *buf = outbuf;
         outbuf = NULL;
-        *buf_size = size_out+4;
+        *buf_size = nbytes+4;
         ret_value = size_out+4;
     }
 

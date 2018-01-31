@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-----------------------------------------------------------------------------
@@ -37,7 +35,6 @@
 
 /* Flags for ID class */
 #define H5I_CLASS_IS_APPLICATION        0x01
-#define H5I_CLASS_REUSE_IDS             0x02
 
 
 /****************************/
@@ -67,9 +64,10 @@ typedef struct H5I_class_t {
 /* Library-private Function Prototypes */
 /***************************************/
 H5_DLL herr_t H5I_register_type(const H5I_class_t *cls);
-H5_DLL int H5I_nmembers(H5I_type_t type);
+H5_DLL int64_t H5I_nmembers(H5I_type_t type);
 H5_DLL herr_t H5I_clear_type(H5I_type_t type, hbool_t force, hbool_t app_ref);
 H5_DLL hid_t H5I_register(H5I_type_t type, const void *object, hbool_t app_ref);
+H5_DLL herr_t H5I_register_with_id(H5I_type_t type, const void *object, hbool_t app_ref, hid_t id);
 H5_DLL void *H5I_subst(hid_t id, const void *new_object);
 H5_DLL void *H5I_object(hid_t id);
 H5_DLL void *H5I_object_verify(hid_t id, H5I_type_t id_type);

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *              the H5A package.  Source files outside the H5A package should
  *              include H5Aprivate.h instead.
  */
-#ifndef H5A_PACKAGE
+#if !(defined H5A_FRIEND || defined H5A_MODULE)
 #error "Do not include this file outside the H5A package!"
 #endif
 
@@ -184,21 +182,27 @@ H5_DLLVAR const H5B2_class_t H5A_BT2_CORDER[1];
 /******************************/
 
 /* Function prototypes for H5A package scope */
-H5_DLL herr_t H5A_init(void);
-H5_DLL herr_t H5A__term_deprec_interface(void);
-H5_DLL hid_t H5A_create(const H5G_loc_t *loc, const char *name,
+H5_DLL H5A_t *H5A_create(const H5G_loc_t *loc, const char *name,
     const H5T_t *type, const H5S_t *space, hid_t acpl_id, hid_t dxpl_id);
-H5_DLL H5A_t * H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name,
+H5_DLL H5A_t *H5A_open_by_name(const H5G_loc_t *loc, const char *obj_name,
     const char *attr_name, hid_t lapl_id, hid_t dxpl_id);
 H5_DLL H5A_t *H5A_open_by_idx(const H5G_loc_t *loc, const char *obj_name,
     H5_index_t idx_type, H5_iter_order_t order, hsize_t n, hid_t lapl_id, hid_t dxpl_id);
-H5_DLL ssize_t H5A_get_name(H5A_t *attr, size_t buf_size, char *buf);
+H5_DLL herr_t H5A__open_common(const H5G_loc_t *loc, H5A_t *attr);
 H5_DLL H5A_t *H5A_copy(H5A_t *new_attr, const H5A_t *old_attr);
-H5_DLL herr_t H5A_get_info(const H5A_t *attr, H5A_info_t *ainfo);
+H5_DLL herr_t H5A__get_info(const H5A_t *attr, H5A_info_t *ainfo);
+H5_DLL hid_t H5A_get_create_plist(H5A_t* attr);
 H5_DLL herr_t H5A_free(H5A_t *attr);
 H5_DLL herr_t H5A_close(H5A_t *attr);
 H5_DLL htri_t H5A_get_ainfo(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5O_ainfo_t *ainfo);
 H5_DLL herr_t H5A_set_version(const H5F_t *f, H5A_t *attr);
+H5_DLL herr_t H5A_rename_by_name(H5G_loc_t loc, const char *obj_name, const char *old_attr_name,
+    const char *new_attr_name, hid_t lapl_id, hid_t dxpl_id);
+H5_DLL htri_t H5A_exists_by_name(H5G_loc_t loc, const char *obj_name, const char *attr_name,
+    hid_t lapl_id, hid_t dxpl_id);
+H5_DLL herr_t H5A__write(H5A_t *attr, const H5T_t *mem_type, const void *buf, hid_t dxpl_id);
+H5_DLL herr_t H5A__read(const H5A_t *attr, const H5T_t *mem_type, void *buf, hid_t dxpl_id);
+H5_DLL ssize_t H5A__get_name(H5A_t *attr, size_t buf_size, char *buf);
 
 /* Attribute "dense" storage routines */
 H5_DLL herr_t H5A_dense_create(H5F_t *f, hid_t dxpl_id, H5O_ainfo_t *ainfo);
@@ -214,14 +218,14 @@ H5_DLL herr_t H5A_dense_iterate(H5F_t *f, hid_t dxpl_id, hid_t loc_id,
     const H5O_ainfo_t *ainfo, H5_index_t idx_type, H5_iter_order_t order,
     hsize_t skip, hsize_t *last_attr, const H5A_attr_iter_op_t *attr_op,
     void *op_data);
-H5_DLL herr_t H5A_dense_remove(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
-    const char *name);
-H5_DLL herr_t H5A_dense_remove_by_idx(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
-    H5_index_t idx_type, H5_iter_order_t order, hsize_t n);
+H5_DLL herr_t H5A_dense_remove(H5F_t *f, hid_t dxpl_id,
+    const H5O_ainfo_t *ainfo, const char *name);
+H5_DLL herr_t H5A_dense_remove_by_idx(H5F_t *f, hid_t dxpl_id,
+    const H5O_ainfo_t *ainfo, H5_index_t idx_type, H5_iter_order_t order,
+    hsize_t n);
 H5_DLL htri_t H5A_dense_exists(H5F_t *f, hid_t dxpl_id, const H5O_ainfo_t *ainfo,
     const char *name);
 H5_DLL herr_t H5A_dense_delete(H5F_t *f, hid_t dxpl_id, H5O_ainfo_t *ainfo);
-
 
 /* Attribute table operations */
 H5_DLL herr_t H5A_compact_build_table(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
@@ -260,7 +264,6 @@ H5_DLL herr_t H5A_attr_post_copy_file(const H5O_loc_t *src_oloc, const H5A_t *me
     H5O_loc_t *dst_oloc, const H5A_t *mesg_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
 H5_DLL herr_t H5A_dense_post_copy_file_all(const H5O_loc_t *src_oloc, const H5O_ainfo_t * ainfo_src,
     H5O_loc_t *dst_oloc, H5O_ainfo_t *ainfo_dst, hid_t dxpl_id, H5O_copy_t *cpy_info);
-
 
 /* Testing functions */
 #ifdef H5A_TESTING

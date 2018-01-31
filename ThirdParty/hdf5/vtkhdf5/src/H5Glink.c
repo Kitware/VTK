@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -159,7 +157,7 @@ H5G_link_cmp_name_dec(const void *lnk1, const void *lnk2)
 static int
 H5G_link_cmp_corder_inc(const void *lnk1, const void *lnk2)
 {
-    int ret_value;              /* Return value */
+    int ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -194,7 +192,7 @@ H5G_link_cmp_corder_inc(const void *lnk1, const void *lnk2)
 static int
 H5G_link_cmp_corder_dec(const void *lnk1, const void *lnk2)
 {
-    int ret_value;              /* Return value */
+    int ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -467,7 +465,7 @@ H5G__link_iterate_table(const H5G_link_table_t *ltable, hsize_t skip,
         *last_lnk += skip;
 
     /* Iterate over link messages */
-    H5_ASSIGN_OVERFLOW(/* To: */ u, /* From: */ skip, /* From: */ hsize_t, /* To: */ size_t)
+    H5_CHECKED_ASSIGN(u, size_t, skip, hsize_t)
     for(; u < ltable->nlinks && !ret_value; u++) {
         /* Make the callback */
         ret_value = (op)(&(ltable->lnks[u]), op_data);

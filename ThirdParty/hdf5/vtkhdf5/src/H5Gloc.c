@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -259,7 +257,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5G__loc_copy
+ * Function:	H5G_loc_copy
  *
  * Purpose:	Copy over information for a location
  *
@@ -271,11 +269,11 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth)
+H5G_loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_PACKAGE
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Check args. */
     HDassert(dst);
@@ -289,7 +287,7 @@ H5G__loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth)
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5G__loc_copy() */
+} /* end H5G_loc_copy() */
 
 
 /*-------------------------------------------------------------------------
@@ -371,8 +369,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_find_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char *name,
-    const H5O_link_t UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
+H5G_loc_find_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char *name,
+    const H5O_link_t H5_ATTR_UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_fnd_t *udata = (H5G_loc_fnd_t *)_udata;   /* User data passed in */
@@ -388,7 +386,7 @@ H5G_loc_find_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char *name,
     /* (Group traversal callbacks are responsible for either taking ownership
      *  of the group location for the object, or freeing it. - QAK)
      */
-    H5G__loc_copy(udata->loc, obj_loc, H5_COPY_SHALLOW);
+    H5G_loc_copy(udata->loc, obj_loc, H5_COPY_SHALLOW);
     *own_loc = H5G_OWN_OBJ_LOC;
 
 done:
@@ -448,8 +446,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_find_by_idx_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char UNUSED *name,
-    const H5O_link_t UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
+H5G_loc_find_by_idx_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char H5_ATTR_UNUSED *name,
+    const H5O_link_t H5_ATTR_UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_fbi_t *udata = (H5G_loc_fbi_t *)_udata;   /* User data passed in */
@@ -607,8 +605,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_exists_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char UNUSED *name,
-    const H5O_link_t UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
+H5G_loc_exists_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char H5_ATTR_UNUSED *name,
+    const H5O_link_t H5_ATTR_UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_exists_t *udata = (H5G_loc_exists_t *)_udata;   /* User data passed in */
@@ -649,7 +647,7 @@ htri_t
 H5G_loc_exists(const H5G_loc_t *loc, const char *name, hid_t lapl_id, hid_t dxpl_id)
 {
     H5G_loc_exists_t udata;     /* User data for traversal callback */
-    htri_t ret_value;           /* Return value */
+    htri_t ret_value = FAIL;    /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -685,7 +683,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_info_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char UNUSED *name, const H5O_link_t UNUSED *lnk,
+H5G_loc_info_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char H5_ATTR_UNUSED *name, const H5O_link_t H5_ATTR_UNUSED *lnk,
     H5G_loc_t *obj_loc, void *_udata/*in,out*/, H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_info_t *udata = (H5G_loc_info_t *)_udata;   /* User data passed in */
@@ -764,7 +762,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_set_comment_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char UNUSED *name, const H5O_link_t UNUSED *lnk,
+H5G_loc_set_comment_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char H5_ATTR_UNUSED *name, const H5O_link_t H5_ATTR_UNUSED *lnk,
     H5G_loc_t *obj_loc, void *_udata/*in,out*/, H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_sc_t *udata = (H5G_loc_sc_t *)_udata;   /* User data passed in */
@@ -856,7 +854,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_loc_get_comment_cb(H5G_loc_t UNUSED *grp_loc/*in*/, const char UNUSED *name, const H5O_link_t UNUSED *lnk,
+H5G_loc_get_comment_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc/*in*/, const char H5_ATTR_UNUSED *name, const H5O_link_t H5_ATTR_UNUSED *lnk,
     H5G_loc_t *obj_loc, void *_udata/*in,out*/, H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_loc_gc_t *udata = (H5G_loc_gc_t *)_udata;   /* User data passed in */
@@ -913,7 +911,7 @@ H5G_loc_get_comment(H5G_loc_t *loc, const char *name, char *comment/*out*/,
     size_t bufsize, hid_t lapl_id, hid_t dxpl_id)
 {
     H5G_loc_gc_t udata;         /* User data for traversal callback */
-    ssize_t ret_value;          /* Return value */
+    ssize_t ret_value = -1;     /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 

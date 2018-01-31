@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -19,7 +17,7 @@
  *			Jan  3 2008
  *			Quincey Koziol <koziol@hdfgroup.org>
  *
- * Purpose:		Space allocation routines for the file.
+ * Purpose:		Space allocation routines for the file driver code.
  *
  *-------------------------------------------------------------------------
  */
@@ -28,10 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5FD_PACKAGE		/*suppress error about including H5FDpkg  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5FD_space_init_interface
+#include "H5FDmodule.h"         /* This source code file is part of the H5FD module */
 
 
 /***********/
@@ -86,28 +81,6 @@ H5FL_DEFINE(H5FD_free_t);
 
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5FD_space_init_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5FD_space_init_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5FD_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5FD_space_init_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5FD_init())
-} /* H5FD_space_init_interface() */
-
-
 /*-------------------------------------------------------------------------
  * Function:    H5FD_extend
  *
@@ -124,12 +97,12 @@ H5FD_space_init_interface(void)
  *-------------------------------------------------------------------------
  */
 static haddr_t
-H5FD_extend(H5FD_t *file, H5FD_mem_t type, hbool_t new_block, hsize_t size, haddr_t *frag_addr, hsize_t *frag_size)
+H5FD_extend(H5FD_t *file, H5FD_mem_t type, hsize_t size)
 {
     hsize_t orig_size = size;   /* Original allocation size */
     haddr_t eoa;                /* Address of end-of-allocated space */
     hsize_t extra;        	/* Extra space to allocate, to align request */
-    haddr_t ret_value;          /* Return value */
+    haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -142,39 +115,17 @@ H5FD_extend(H5FD_t *file, H5FD_mem_t type, hbool_t new_block, hsize_t size, hadd
     /* Get current end-of-allocated space address */
     eoa = file->cls->get_eoa(file, type);
 
-    /* Compute extra space to allocate, if this is a new block and should be aligned */
-    extra = 0;
-    if(new_block && file->alignment > 1 && orig_size >= file->threshold) {
-        hsize_t mis_align;              /* Amount EOA is misaligned */
-
-        /* Check for EOA already aligned */
-        if((mis_align = (eoa % file->alignment)) > 0) {
-            extra = file->alignment - mis_align;
-	    if(frag_addr)
-                *frag_addr = eoa - file->base_addr;     /* adjust for file's base address */
-	    if(frag_size)
-                *frag_size = extra;
-	} /* end if */
-    } /* end if */
-
-    /* Add in extra allocation amount */
-    size += extra;
-
     /* Check for overflow when extending */
     if(H5F_addr_overflow(eoa, size) || (eoa + size) > file->maxaddr)
         HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "file allocation request failed")
 
-    /* Set the [possibly aligned] address to return */
-    ret_value = eoa + extra;
+    /* Set the [NOT aligned] address to return */
+    ret_value = eoa;
 
     /* Extend the end-of-allocated space address */
     eoa += size;
     if(file->cls->set_eoa(file, type, eoa) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "file allocation request failed")
-
-    /* Post-condition sanity check */
-    if(new_block && file->alignment && orig_size >= file->threshold)
-	HDassert(!(ret_value % file->alignment));
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -185,6 +136,8 @@ done:
  * Function:    H5FD_alloc_real
  *
  * Purpose:     Allocate space in the file with the VFD
+ *              Note: the handling of alignment is moved up from each driver to
+ *              this routine.
  *
  * Return:      Success:    The format address of the new file memory.
  *              Failure:    The undefined address HADDR_UNDEF
@@ -195,9 +148,15 @@ done:
  *-------------------------------------------------------------------------
  */
 haddr_t
-H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, hsize_t size, haddr_t *frag_addr, hsize_t *frag_size)
+H5FD_alloc_real(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, hsize_t size, 
+    haddr_t *frag_addr, hsize_t *frag_size)
 {
-    haddr_t     ret_value;              /* Return value */
+    hsize_t orig_size = size;   /* Original allocation size */
+    haddr_t eoa;                /* Address of end-of-allocated space */
+    hsize_t extra;              /* Extra space to allocate, to align request */
+    unsigned long flags = 0;    /* Driver feature flags */
+    hbool_t use_alloc_size;     /* Just pass alloc size to the driver */
+    haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI(HADDR_UNDEF)
 #ifdef H5FD_ALLOC_DEBUG
@@ -210,15 +169,52 @@ HDfprintf(stderr, "%s: type = %u, size = %Hu\n", FUNC, (unsigned)type, size);
     HDassert(type >= H5FD_MEM_DEFAULT && type < H5FD_MEM_NTYPES);
     HDassert(size > 0);
 
+    /* Check for query driver and call it */
+    if(file->cls->query)
+        (file->cls->query)(file, &flags);
+
+    /* Check for the driver feature flag */
+    use_alloc_size = flags & H5FD_FEAT_USE_ALLOC_SIZE;
+
+    /* Get current end-of-allocated space address */
+    eoa = file->cls->get_eoa(file, type);
+
+    /* Compute extra space to allocate, if this should be aligned */
+    extra = 0;
+    if(!file->paged_aggr && file->alignment > 1 && orig_size >= file->threshold) {
+        hsize_t mis_align;              /* Amount EOA is misaligned */
+
+        /* Check for EOA already aligned */
+        if((mis_align = (eoa % file->alignment)) > 0) {
+            extra = file->alignment - mis_align;
+            if(frag_addr)
+                *frag_addr = eoa - file->base_addr;     /* adjust for file's base address */
+            if(frag_size)
+                *frag_size = extra;
+        } /* end if */
+    } /* end if */
+
     /* Dispatch to driver `alloc' callback or extend the end-of-address marker */
+    /* For the multi/split driver: the size passed down to the alloc callback is the original size from H5FD_alloc() */
+    /* For all other drivers: the size passed down to the alloc callback is the size + [possibly] alignment size */
     if(file->cls->alloc) {
-        if((ret_value = (file->cls->alloc)(file, type, dxpl_id, size)) == HADDR_UNDEF)
+        ret_value = (file->cls->alloc)(file, type, dxpl_id, use_alloc_size ? size : size + extra);
+        if(!H5F_addr_defined(ret_value))
             HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "driver allocation request failed")
     } /* end if */
     else {
-        if((ret_value = H5FD_extend(file, type, TRUE, size, frag_addr, frag_size)) == HADDR_UNDEF)
+        ret_value = H5FD_extend(file, type, size + extra);
+        if(!H5F_addr_defined(ret_value))
             HGOTO_ERROR(H5E_VFL, H5E_NOSPACE, HADDR_UNDEF, "driver eoa update request failed")
     } /* end else */
+
+    /* Set the [possibly aligned] address to return */
+    if(!use_alloc_size)
+        ret_value += extra;
+
+    /* Post-condition sanity check */
+    if(!file->paged_aggr && file->alignment > 1 && orig_size >= file->threshold)
+        HDassert(!(ret_value % file->alignment));
 
     /* Convert absolute file offset to relative address */
     ret_value -= file->base_addr;
@@ -253,7 +249,7 @@ haddr_t
 H5FD_alloc(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, hsize_t size,
     haddr_t *frag_addr, hsize_t *frag_size)
 {
-    haddr_t     ret_value;              /* Return value */
+    haddr_t ret_value = HADDR_UNDEF;    /* Return value */
 
     FUNC_ENTER_NOAPI(HADDR_UNDEF)
 
@@ -268,9 +264,9 @@ H5FD_alloc(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, hsize_t size,
     if(!H5F_addr_defined(ret_value))
         HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, HADDR_UNDEF, "real 'alloc' request failed")
 
-    /* Mark superblock dirty in cache, so change to EOA will get encoded */
-    if(H5F_super_dirty(f) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, HADDR_UNDEF, "unable to mark superblock as dirty")
+    /* Mark EOA info dirty in cache, so change will get encoded */
+    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, HADDR_UNDEF, "unable to mark EOA info as dirty")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -375,8 +371,8 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, haddr_t addr,
-    hsize_t size)
+H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f,
+    haddr_t addr, hsize_t size)
 {
     herr_t      ret_value = SUCCEED;       /* Return value */
 
@@ -392,9 +388,9 @@ H5FD_free(H5FD_t *file, hid_t dxpl_id, H5FD_mem_t type, H5F_t *f, haddr_t addr,
     if(H5FD_free_real(file, dxpl_id, type, addr, size) < 0)
         HGOTO_ERROR(H5E_VFL, H5E_CANTFREE, FAIL, "real 'free' request failed")
 
-    /* Mark superblock dirty in cache, so change to EOA will get encoded */
-    if(H5F_super_dirty(f) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark superblock as dirty")
+    /* Mark EOA info dirty in cache, so change will get encoded */
+    if(H5F_eoa_dirty(f, dxpl_id) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark EOA info as dirty")
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -420,8 +416,8 @@ done:
  *-------------------------------------------------------------------------
  */
 htri_t
-H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end,
-    hsize_t extra_requested)
+H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, hid_t dxpl_id,
+    haddr_t blk_end, hsize_t extra_requested)
 {
     haddr_t eoa;                /* End of allocated space in file */
     htri_t ret_value = FALSE;   /* Return value */
@@ -445,12 +441,12 @@ H5FD_try_extend(H5FD_t *file, H5FD_mem_t type, H5F_t *f, haddr_t blk_end,
     /* Check if the block is exactly at the end of the file */
     if(H5F_addr_eq(blk_end, eoa)) {
         /* Extend the object by extending the underlying file */
-        if(HADDR_UNDEF == H5FD_extend(file, type, FALSE, extra_requested, NULL, NULL))
+        if(HADDR_UNDEF == H5FD_extend(file, type, extra_requested))
             HGOTO_ERROR(H5E_VFL, H5E_CANTEXTEND, FAIL, "driver extend request failed")
 
-        /* Mark superblock dirty in cache, so change to EOA will get encoded */
-        if(H5F_super_dirty(f) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark superblock as dirty")
+        /* Mark EOA info dirty in cache, so change will get encoded */
+        if(H5F_eoa_dirty(f, dxpl_id) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTMARKDIRTY, FAIL, "unable to mark EOA info as dirty")
 
         /* Indicate success */
         HGOTO_DONE(TRUE)

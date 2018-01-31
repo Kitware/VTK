@@ -5,17 +5,15 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define H5A_PACKAGE             /*prevent warning from including H5Apkg   */
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
-#define H5S_PACKAGE	        /*suppress error about including H5Spkg	  */
+#define H5A_FRIEND		/*suppress error about including H5Apkg   */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+#define H5S_FRIEND	        /*suppress error about including H5Spkg	  */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -122,14 +120,17 @@ H5FL_EXTERN(H5S_extent_t);
     function using malloc() and is returned to the caller.
 --------------------------------------------------------------------------*/
 static void *
-H5O_attr_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned UNUSED mesg_flags,
+H5O_attr_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
     unsigned *ioflags, const uint8_t *p)
 {
     H5A_t		*attr = NULL;
     H5S_extent_t	*extent;	/*extent dimensionality information  */
     size_t		name_len;   	/*attribute name length */
+    size_t		dt_size;   	/* Datatype size */
+    hssize_t		sds_size;   	/* Signed Dataspace size */
+    hsize_t		ds_size;   	/* Dataspace size */
     unsigned            flags = 0;      /* Attribute flags */
-    H5A_t		*ret_value;     /* Return value */
+    H5A_t		*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -199,7 +200,7 @@ H5O_attr_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned UNUSED mesg_fl
 
     /* Decode attribute's dataspace extent */
     if((extent = (H5S_extent_t *)(H5O_MSG_SDSPACE->decode)(f, dxpl_id, open_oh,
-        ((flags & H5O_ATTR_FLAG_SPACE_SHARED) ? H5O_MSG_FLAG_SHARED : 0), ioflags, p)) == NULL)
+            ((flags & H5O_ATTR_FLAG_SPACE_SHARED) ? H5O_MSG_FLAG_SHARED : 0), ioflags, p)) == NULL)
         HGOTO_ERROR(H5E_ATTR, H5E_CANTDECODE, NULL, "can't decode attribute dataspace")
 
     /* Copy the extent information to the dataspace */
@@ -217,8 +218,19 @@ H5O_attr_decode(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned UNUSED mesg_fl
     else
         p += attr->shared->ds_size;
 
+    /* Get the datatype's size */
+    if(0 == (dt_size = H5T_get_size(attr->shared->dt)))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, NULL, "unable to get datatype size")
+
+    /* Get the datatype & dataspace sizes */
+    if(0 == (dt_size = H5T_get_size(attr->shared->dt)))
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, NULL, "unable to get datatype size")
+    if((sds_size = H5S_GET_EXTENT_NPOINTS(attr->shared->ds)) < 0)
+        HGOTO_ERROR(H5E_ATTR, H5E_CANTGET, NULL, "unable to get dataspace size")
+    ds_size = (hsize_t)sds_size;
+
     /* Compute the size of the data */
-    H5_ASSIGN_OVERFLOW(attr->shared->data_size, H5S_GET_EXTENT_NPOINTS(attr->shared->ds) * H5T_get_size(attr->shared->dt), hsize_t, size_t);
+    H5_CHECKED_ASSIGN(attr->shared->data_size, size_t, ds_size * (hsize_t)dt_size, hsize_t);
 
     /* Go get the data */
     if(attr->shared->data_size) {
@@ -380,7 +392,7 @@ done:
 static void *
 H5O_attr_copy(const void *_src, void *_dst)
 {
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;            /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -413,7 +425,7 @@ done:
     portion of the message).  It doesn't take into account alignment.
 --------------------------------------------------------------------------*/
 static size_t
-H5O_attr_size(const H5F_t UNUSED *f, const void *_mesg)
+H5O_attr_size(const H5F_t H5_ATTR_UNUSED *f, const void *_mesg)
 {
     const H5A_t         *attr = (const H5A_t *)_mesg;
     size_t		name_len;
@@ -478,7 +490,7 @@ H5O_attr_size(const H5F_t UNUSED *f, const void *_mesg)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O_attr_reset(void UNUSED *_mesg)
+H5O_attr_reset(void H5_ATTR_UNUSED *_mesg)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -495,10 +507,6 @@ H5O_attr_reset(void UNUSED *_mesg)
  *
  * Programmer:	Quincey Koziol
  *              Thursday, November 18, 2004
- *
- * Modification:Raymond Lu
- *              4 June 2008
- *              Let this function call H5A_close in turn.
  *
  *-------------------------------------------------------------------------
  */
@@ -614,8 +622,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_attr_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
-    hbool_t *deleted, const H5O_copy_t *cpy_info, void UNUSED *udata)
+H5O_attr_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSED *native_src,
+    hbool_t *deleted, const H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -648,11 +656,11 @@ H5O_attr_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_attr_copy_file(H5F_t *file_src, const H5O_msg_class_t UNUSED *mesg_type,
+H5O_attr_copy_file(H5F_t *file_src, const H5O_msg_class_t H5_ATTR_UNUSED *mesg_type,
     void *native_src, H5F_t *file_dst, hbool_t *recompute_size,
-    H5O_copy_t *cpy_info, void UNUSED *udata, hid_t dxpl_id)
+    H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata, hid_t dxpl_id)
 {
-    void        *ret_value;             /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 

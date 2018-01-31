@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -139,7 +137,7 @@ done:
  REVISION LOG
 --------------------------------------------------------------------------*/
 H5RS_str_t *
-H5RS_wrap(const char *s)
+H5RS_wrap(char *s)
 {
     H5RS_str_t *ret_value;   /* Return value */
 
@@ -150,7 +148,7 @@ H5RS_wrap(const char *s)
         HGOTO_ERROR(H5E_RS, H5E_NOSPACE, NULL, "memory allocation failed")
 
     /* Set the internal fields */
-    ret_value->s = (char *)s;      /* (Cast away const OK - QAK) */
+    ret_value->s = s;
     ret_value->wrapped = 1;
     ret_value->n = 1;
 

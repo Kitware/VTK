@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* TERNARY SEARCH TREE ALGS
@@ -22,6 +20,10 @@ Bentley and Robert Sedgewick in the April, 1998, Dr. Dobb's Journal.
 #include "H5Eprivate.h"		/* Error handling		  	*/
 #include "H5FLprivate.h"	/* Free lists                           */
 #include "H5STprivate.h"        /* Ternary search trees                 */
+
+#ifdef H5ST_DEBUG
+static herr_t H5ST__dump_internal(H5ST_ptr_t p);
+#endif /* H5ST_DEBUG */
 
 /* Declare a free list to manage the H5ST_node_t struct */
 H5FL_DEFINE_STATIC(H5ST_node_t);
@@ -719,7 +721,7 @@ done:
 
 /*--------------------------------------------------------------------------
  NAME
-    H5ST_dump_internal
+    H5ST__dump_internal
  PURPOSE
     Dump all the nodes of a TST
  USAGE
@@ -735,30 +737,30 @@ done:
  EXAMPLES
  REVISION LOG
 --------------------------------------------------------------------------*/
-herr_t
-H5ST_dump_internal(H5ST_ptr_t p)
+static herr_t
+H5ST__dump_internal(H5ST_ptr_t p)
 {
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_STATIC_NOERR
 
     if(p) {
-        printf("p=%p\n", p);
-        printf("\tp->up=%p\n", p->up);
-        printf("\tp->parent=%p\n", p->parent);
-        printf("\tp->lokid=%p\n", p->lokid);
-        printf("\tp->hikid=%p\n", p->hikid);
-        printf("\tp->eqkid=%p\n", p->eqkid);
+        printf("p=%p\n", (void *)p);
+        printf("\tp->up=%p\n", (void *)p->up);
+        printf("\tp->parent=%p\n", (void *)p->parent);
+        printf("\tp->lokid=%p\n", (void *)p->lokid);
+        printf("\tp->hikid=%p\n", (void *)p->hikid);
+        printf("\tp->eqkid=%p\n", (void *)p->eqkid);
         printf("\tp->splitchar=%c\n", p->splitchar);
 
-        H5ST_dump_internal(p->lokid);
+        H5ST__dump_internal(p->lokid);
         if(p->splitchar)
-            H5ST_dump_internal(p->eqkid);
+            H5ST__dump_internal(p->eqkid);
         else
             printf("%s\n", (char *)p->eqkid);
-        H5ST_dump_internal(p->hikid);
+        H5ST__dump_internal(p->hikid);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5ST_dump_internal() */
+} /* end H5ST__dump_internal() */
 
 
 /*--------------------------------------------------------------------------
@@ -785,7 +787,7 @@ H5ST_dump(H5ST_tree_t *tree)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Dump the tree */
-    H5ST_dump_internal(tree->root);
+    H5ST__dump_internal(tree->root);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5ST_dump() */

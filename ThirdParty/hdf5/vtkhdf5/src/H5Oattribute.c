@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,8 +26,9 @@
 /* Module Setup */
 /****************/
 
-#define H5A_PACKAGE		/*suppress error about including H5Apkg	  */
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#define H5A_FRIEND		/*suppress error about including H5Apkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+
 
 /***********/
 /* Headers */
@@ -40,8 +39,8 @@
 #include "H5MMprivate.h"	/* Memory management			*/
 #include "H5Opkg.h"             /* Object headers			*/
 #include "H5SMprivate.h"	/* Shared Object Header Messages	*/
-#include "H5Iprivate.h"		/* IDs			  		*/
-#include "H5Fprivate.h"		/* File 			        */
+#include "H5Iprivate.h"         /* IDs                                  */
+#include "H5Fprivate.h"         /* File                                 */
 
 
 /****************/
@@ -166,15 +165,11 @@ static htri_t H5O_attr_find_opened_attr(const H5O_loc_t *loc, H5A_t **attr,
  *		koziol@hdfgroup.org
  *		Dec  4 2006
  *
- * Modifications:
- *      Vailin Choi; Sept 2011
- *      Indicate that the object header is modified and might possibly need
- *      to condense messages in the object header
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O_attr_to_dense_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_cvt_t *udata = (H5O_iter_cvt_t *)_udata;   /* Operator user data */
     H5A_t *attr = (H5A_t *)mesg->native;        /* Pointer to attribute to insert */
@@ -416,15 +411,11 @@ done:
  *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
- * Modifications:
- *	Vailin Choi; September 2011
- *      Change oh_modified from boolean to unsigned
- *      (See H5Oprivate.h for possible flags)
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O_attr_open_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
-    unsigned UNUSED *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_opn_t *udata = (H5O_iter_opn_t *)_udata;   /* Operator user data */
     herr_t ret_value = H5_ITER_CONT;   /* Return value */
@@ -482,16 +473,16 @@ H5O_attr_open_by_name(const H5O_loc_t *loc, const char *name, hid_t dxpl_id)
     H5A_t *exist_attr = NULL;           /* Existing opened attribute object */
     H5A_t *opened_attr = NULL;          /* Newly opened attribute object */
     htri_t found_open_attr = FALSE;     /* Whether opened object is found */
-    H5A_t *ret_value;                   /* Return value */
+    H5A_t *ret_value = NULL;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, NULL)
 
     /* Check arguments */
     HDassert(loc);
     HDassert(name);
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, NULL, "unable to load object header")
 
     /* Check for attribute info stored */
@@ -558,7 +549,7 @@ done:
         if(H5A_close(opened_attr) < 0)
             HDONE_ERROR(H5E_ATTR, H5E_CANTCLOSEOBJ, NULL, "can't close attribute")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, NULL)
 } /* end H5O_attr_open_by_name() */
 
 
@@ -624,7 +615,7 @@ H5O_attr_open_by_idx(const H5O_loc_t *loc, H5_index_t idx_type,
     H5A_t *exist_attr = NULL;           /* Existing opened attribute object */
     H5A_t *opened_attr = NULL;          /* Newly opened attribute object */
     htri_t found_open_attr = FALSE;     /* Whether opened object is found */
-    H5A_t *ret_value;                   /* Return value */
+    H5A_t *ret_value = NULL;            /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -640,7 +631,7 @@ H5O_attr_open_by_idx(const H5O_loc_t *loc, H5_index_t idx_type,
         HGOTO_ERROR(H5E_ATTR, H5E_BADITER, NULL, "can't locate attribute")
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, NULL, "unable to load object header")
 
     /* Find out whether it has already been opened.  If it has, close the object
@@ -854,16 +845,11 @@ done:
  *              4 June 2008
  *              Took out the data copying part because the attribute data
  *              is shared between attribute handle and object header.
- *
- * Modifications:
- *      Vailin Choi; Sept 2011
- *      Indicate that the object header is modified but does not need to
- *	condense messages in the object header
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O_attr_write_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_wrt_t *udata = (H5O_iter_wrt_t *)_udata;   /* Operator user data */
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that message is in */
@@ -1018,15 +1004,11 @@ done:
  *		koziol@hdfgroup.org
  *		Dec  5 2006
  *
- * Modifications:
- *      Vailin Choi; September 2011
- *      Change "oh_modified" from boolean to unsigned
- *      (See H5Oprivate.h for possible flags)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_attr_rename_chk_cb(H5O_t UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned UNUSED *oh_modified, void *_udata/*in,out*/)
+H5O_attr_rename_chk_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
+    unsigned H5_ATTR_UNUSED sequence, unsigned H5_ATTR_UNUSED *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_ren_t *udata = (H5O_iter_ren_t *)_udata;   /* Operator user data */
     herr_t ret_value = H5_ITER_CONT;   /* Return value */
@@ -1068,15 +1050,11 @@ H5O_attr_rename_chk_cb(H5O_t UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
  *		koziol@hdfgroup.org
  *		Dec  5 2006
  *
- * Modifications:
- *      Vailin Choi; Sept 2011
- *      Indicate that the object header is modified and might possibly need
- *      to condense messages in the object header
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O_attr_rename_mod_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_ren_t *udata = (H5O_iter_ren_t *)_udata;   /* Operator user data */
     H5O_chunk_proxy_t *chk_proxy = NULL;        /* Chunk that message is in */
@@ -1204,7 +1182,7 @@ H5O_attr_rename(const H5O_loc_t *loc, hid_t dxpl_id, const char *old_name,
     H5O_ainfo_t ainfo;                  /* Attribute information for object */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, FAIL)
 
     /* Check arguments */
     HDassert(loc);
@@ -1269,7 +1247,7 @@ done:
     if(oh && H5O_unpin(oh) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTUNPIN, FAIL, "unable to unpin object header")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_rename */
 
 
@@ -1293,9 +1271,9 @@ H5O_attr_iterate_real(hid_t loc_id, const H5O_loc_t *loc, hid_t dxpl_id,
     H5O_t *oh = NULL;                   /* Pointer to actual object header */
     H5O_ainfo_t ainfo;                  /* Attribute information for object */
     H5A_attr_table_t atable = {0, NULL};        /* Table of attributes */
-    herr_t ret_value;                   /* Return value */
+    herr_t ret_value = FAIL;            /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, FAIL)
 
     /* Check arguments */
     HDassert(loc);
@@ -1304,7 +1282,7 @@ H5O_attr_iterate_real(hid_t loc_id, const H5O_loc_t *loc, hid_t dxpl_id,
     HDassert(attr_op);
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
@@ -1356,7 +1334,7 @@ done:
     if(atable.attrs && H5A_attr_release_table(&atable) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, FAIL, "unable to release attribute table")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_iterate_real() */
 
 
@@ -1378,7 +1356,7 @@ H5O_attr_iterate(hid_t loc_id, hid_t dxpl_id,
     hsize_t *last_attr, const H5A_attr_iter_op_t *attr_op, void *op_data)
 {
     H5G_loc_t loc;	        /* Object location */
-    herr_t ret_value;           /* Return value */
+    herr_t ret_value = FAIL;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -1534,15 +1512,11 @@ done:
  *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
- * Modifications:
- *      Vailin Choi; Sept 2011
- *      Indicate that the object header is modified and might possibly need
- *      to condense messages in the object header
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O_attr_remove_cb(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED sequence, unsigned *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_rm_t *udata = (H5O_iter_rm_t *)_udata;   /* Operator user data */
     herr_t ret_value = H5_ITER_CONT;    /* Return value */
@@ -1595,7 +1569,7 @@ H5O_attr_remove(const H5O_loc_t *loc, const char *name, hid_t dxpl_id)
     htri_t ainfo_exists = FALSE;        /* Whether the attribute info exists in the file */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, FAIL)
 
     /* Check arguments */
     HDassert(loc);
@@ -1653,7 +1627,7 @@ done:
     if(oh && H5O_unpin(oh) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTUNPIN, FAIL, "unable to unpin object header")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_remove() */
 
 
@@ -1680,7 +1654,7 @@ H5O_attr_remove_by_idx(const H5O_loc_t *loc, H5_index_t idx_type,
     H5A_attr_table_t atable = {0, NULL};        /* Table of attributes */
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, FAIL)
 
     /* Check arguments */
     HDassert(loc);
@@ -1747,7 +1721,7 @@ done:
     if(atable.attrs && H5A_attr_release_table(&atable) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTFREE, FAIL, "unable to release attribute table")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_remove_by_idx() */
 
 
@@ -1768,7 +1742,7 @@ H5O_attr_count_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hsize_t *nattrs)
 {
     herr_t ret_value = SUCCEED;         /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, oh->cache_info.addr, FAIL)
 
     /* Check arguments */
     HDassert(f);
@@ -1801,7 +1775,7 @@ H5O_attr_count_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, hsize_t *nattrs)
     } /* end else */
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_count_real */
 
 
@@ -1817,15 +1791,11 @@ done:
  *		koziol@hdfgroup.org
  *		Dec 11 2006
  *
- * Modifications:
- *      Vailin Choi; September 2011
- *      Change "oh_modified" from boolean to unsigned
- *      (See H5Oprivate.h for possible flags)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_attr_exists_cb(H5O_t UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
-    unsigned UNUSED sequence, unsigned UNUSED *oh_modified, void *_udata/*in,out*/)
+H5O_attr_exists_cb(H5O_t H5_ATTR_UNUSED *oh, H5O_mesg_t *mesg/*in,out*/,
+    unsigned H5_ATTR_UNUSED sequence, unsigned H5_ATTR_UNUSED *oh_modified, void *_udata/*in,out*/)
 {
     H5O_iter_rm_t *udata = (H5O_iter_rm_t *)_udata;   /* Operator user data */
     herr_t ret_value = H5_ITER_CONT;    /* Return value */
@@ -1866,16 +1836,16 @@ H5O_attr_exists(const H5O_loc_t *loc, const char *name, hid_t dxpl_id)
 {
     H5O_t *oh = NULL;           /* Pointer to actual object header */
     H5O_ainfo_t ainfo;          /* Attribute information for object */
-    htri_t ret_value;           /* Return value */
+    htri_t ret_value = FAIL;    /* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, loc->addr, FAIL)
 
     /* Check arguments */
     HDassert(loc);
     HDassert(name);
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Check for attribute info stored */
@@ -1916,7 +1886,7 @@ done:
     if(oh && H5O_unprotect(loc, dxpl_id, oh, H5AC__NO_FLAGS_SET) < 0)
         HDONE_ERROR(H5E_ATTR, H5E_CANTUNPROTECT, FAIL, "unable to release object header")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_attr_exists */
 
 
@@ -2021,7 +1991,7 @@ H5O_attr_count(const H5O_loc_t *loc, hid_t dxpl_id)
 {
     H5O_t *oh = NULL;           /* Pointer to actual object header */
     hsize_t nattrs;             /* Number of attributes */
-    int ret_value;              /* Return value */
+    int ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -2029,7 +1999,7 @@ H5O_attr_count(const H5O_loc_t *loc, hid_t dxpl_id)
     HDassert(loc);
 
     /* Protect the object header to iterate over */
-    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_ATTR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* Retrieve # of attributes on object */

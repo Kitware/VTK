@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *              only within the H5G package. Source files outside the
  *              H5G package should include H5Gprivate.h instead.
  */
-#ifndef H5G_PACKAGE
+#if !(defined H5G_FRIEND || defined H5G_MODULE)
 #error "Do not include this file outside the H5G package!"
 #endif
 
@@ -55,7 +53,7 @@
     + 2         /* Number of symbols */                                       \
                                                                               \
     /* Entries */                                                             \
-    + ((2 * H5F_SYM_LEAF_K(f)) * H5G_SIZEOF_ENTRY(f))                         \
+    + ((2 * H5F_SYM_LEAF_K(f)) * (unsigned)H5G_SIZEOF_ENTRY_FILE(f))                    \
     )
 
 
@@ -312,9 +310,6 @@ typedef struct H5G_copy_file_ud_t {
  */
 H5_DLLVAR H5B_class_t H5B_SNODE[1];
 
-/* The cache subclass */
-H5_DLLVAR const H5AC_class_t H5AC_SNODE[1];
-
 /* The v2 B-tree class for indexing 'name' field on links */
 H5_DLLVAR const H5B2_class_t H5G_BT2_NAME[1];
 
@@ -351,8 +346,6 @@ H5_DLL herr_t H5G__traverse_special(const H5G_loc_t *grp_loc,
 /*
  * Utility functions
  */
-H5_DLL herr_t H5G__init(void);
-H5_DLL herr_t H5G__term_deprec_interface(void);
 H5_DLL const char *H5G__component(const char *name, size_t *size_p);
 
 /*
@@ -518,7 +511,6 @@ H5_DLL herr_t H5G__name_init(H5G_name_t *name, const char *path);
 /*
  * These functions operate on group "locations"
  */
-H5_DLL herr_t H5G__loc_copy(H5G_loc_t *dst, const H5G_loc_t *src, H5_copy_depth_t depth);
 H5_DLL herr_t H5G__loc_insert(H5G_loc_t *grp_loc, const char *name,
     H5G_loc_t *obj_loc, H5O_type_t obj_type, const void *crt_info, hid_t dxpl_id);
 

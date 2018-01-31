@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -22,10 +20,7 @@
 /* Module Setup */
 /****************/
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_commit_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 /***********/
@@ -83,28 +78,6 @@ static H5T_t *H5T_open_oid(const H5G_loc_t *loc, hid_t dxpl_id);
 
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_commit_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_commit_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_commit_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_commit_interface() */
-
-
 /*-------------------------------------------------------------------------
  * Function:	H5Tcommit2
  *
@@ -124,6 +97,7 @@ H5Tcommit2(hid_t loc_id, const char *name, hid_t type_id, hid_t lcpl_id,
 {
     H5G_loc_t	loc;                    /* Location to create datatype */
     H5T_t	*type;                  /* Datatype for ID */
+    hid_t       dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */ 
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -151,15 +125,12 @@ H5Tcommit2(hid_t loc_id, const char *name, hid_t type_id, hid_t lcpl_id,
         if(TRUE != H5P_isa_class(tcpl_id, H5P_DATATYPE_CREATE))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not datatype creation property list")
 
-    /* Get correct property list */
-    if(H5P_DEFAULT == tapl_id)
-        tapl_id = H5P_DATATYPE_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(tapl_id, H5P_DATATYPE_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not datatype access property list")
+    /* Verify access property list and get correct dxpl */
+    if(H5P_verify_apl_and_dxpl(&tapl_id, H5P_CLS_TACC, &dxpl_id, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
 
     /* Commit the type */
-    if(H5T__commit_named(&loc, name, type, lcpl_id, tcpl_id, tapl_id, H5AC_dxpl_id) < 0)
+    if(H5T__commit_named(&loc, name, type, lcpl_id, tcpl_id, tapl_id, dxpl_id) < 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to commit datatype")
 
 done:
@@ -184,10 +155,10 @@ herr_t
 H5T__commit_named(const H5G_loc_t *loc, const char *name, H5T_t *dt,
     hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id, hid_t dxpl_id)
 {
-    H5O_obj_create_t ocrt_info;             /* Information for object creation */
-    H5T_obj_create_t tcrt_info;             /* Information for named datatype creation */
-    H5T_state_t old_state = H5T_STATE_TRANSIENT;        /* The state of the datatype before H5T__commit. */
-    herr_t      ret_value = SUCCEED;        /* Return value */
+    H5O_obj_create_t ocrt_info;         /* Information for object creation */
+    H5T_obj_create_t tcrt_info;         /* Information for named datatype creation */
+    H5T_state_t old_state;              /* The state of the datatype before H5T__commit. */
+    herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -230,7 +201,7 @@ done:
                 HDONE_ERROR(H5E_DATASET, H5E_CANTRELEASE, FAIL, "can't remove dataset from list of open objects")
 
             /* Close the datatype object */
-	    if(H5O_close(&(dt->oloc)) < 0)
+	    if(H5O_close(&(dt->oloc), NULL) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CLOSEERROR, FAIL, "unable to release object header")
 
             /* Remove the datatype's object header from the file */
@@ -273,6 +244,7 @@ H5Tcommit_anon(hid_t loc_id, hid_t type_id, hid_t tcpl_id, hid_t tapl_id)
 {
     H5G_loc_t	loc;                    /* Group location for location */
     H5T_t	*type = NULL;           /* Datatype created */
+    hid_t       dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -291,15 +263,12 @@ H5Tcommit_anon(hid_t loc_id, hid_t type_id, hid_t tcpl_id, hid_t tapl_id)
         if(TRUE != H5P_isa_class(tcpl_id, H5P_DATATYPE_CREATE))
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not datatype creation property list")
 
-    /* Get correct property list */
-    if(H5P_DEFAULT == tapl_id)
-        tapl_id = H5P_DATATYPE_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(tapl_id, H5P_DATATYPE_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not datatype access property list")
+    /* Verify access property list and get correct dxpl */
+    if(H5P_verify_apl_and_dxpl(&tapl_id, H5P_CLS_TACC, &dxpl_id, loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
 
     /* Commit the type */
-    if(H5T__commit(loc.oloc->file, type, tcpl_id, H5AC_dxpl_id) < 0)
+    if(H5T__commit(loc.oloc->file, type, tcpl_id, dxpl_id) < 0)
 	HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to commit datatype")
 
     /* Release the datatype's object header */
@@ -311,7 +280,7 @@ H5Tcommit_anon(hid_t loc_id, hid_t type_id, hid_t tcpl_id, hid_t tapl_id)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "unable to get object location of committed datatype")
 
         /* Decrement refcount on committed datatype's object header in memory */
-        if(H5O_dec_rc_by_loc(oloc, H5AC_dxpl_id) < 0)
+        if(H5O_dec_rc_by_loc(oloc, dxpl_id) < 0)
            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
     } /* end if */
 
@@ -380,7 +349,7 @@ H5T__commit(H5F_t *file, H5T_t *type, hid_t tcpl_id, hid_t dxpl_id)
     loc_init = TRUE;
 
     /* Set the latest format, if requested */
-    if(H5F_USE_LATEST_FORMAT(file))
+    if(H5F_USE_LATEST_FLAGS(file, H5F_LATEST_DATATYPE))
         if(H5T_set_latest_version(type) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "can't set latest version of datatype")
 
@@ -430,7 +399,7 @@ done:
         if((type->shared->state == H5T_STATE_TRANSIENT || type->shared->state == H5T_STATE_RDONLY) && (type->sh_loc.type == H5O_SHARE_TYPE_COMMITTED)) {
             if(H5O_dec_rc_by_loc(&(type->oloc), dxpl_id) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
-	    if(H5O_close(&(type->oloc)) < 0)
+	    if(H5O_close(&(type->oloc), NULL) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CLOSEERROR, FAIL, "unable to release object header")
             if(H5O_delete(file, dxpl_id, type->sh_loc.u.loc.oh_addr) < 0)
                 HDONE_ERROR(H5E_DATATYPE, H5E_CANTDELETE, FAIL, "unable to delete object header")
@@ -518,7 +487,7 @@ H5T_committed(const H5T_t *type)
 int
 H5T_link(const H5T_t *type, int adjust, hid_t dxpl_id)
 {
-    int ret_value;      /* Return value */
+    int ret_value = -1;         /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -558,7 +527,7 @@ H5Topen2(hid_t loc_id, const char *name, hid_t tapl_id)
     H5O_type_t   obj_type;              /* Type of object at location */
     H5G_loc_t    type_loc;              /* Group object for datatype */
     hbool_t      obj_found = FALSE;     /* Object at 'name' found */
-    hid_t        dxpl_id = H5AC_dxpl_id; /* dxpl to use to open datatype */
+    hid_t        dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl to use to open datatype */
     hid_t        ret_value = FAIL;      /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -570,12 +539,9 @@ H5Topen2(hid_t loc_id, const char *name, hid_t tapl_id)
     if(!name || !*name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
 
-    /* Get correct property list */
-    if(H5P_DEFAULT == tapl_id)
-        tapl_id = H5P_DATATYPE_ACCESS_DEFAULT;
-    else
-        if(TRUE != H5P_isa_class(tapl_id, H5P_DATATYPE_ACCESS))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not datatype access property list")
+    /* Verify access property list and get correct dxpl */
+    if(H5P_verify_apl_and_dxpl(&tapl_id, H5P_CLS_TACC, &dxpl_id, loc_id, FALSE) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
 
     /* Set up datatype location to fill in */
     type_loc.oloc = &oloc;
@@ -651,7 +617,7 @@ H5Tget_create_plist(hid_t dtype_id)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
 
     /* Copy the default datatype creation property list */
-    if(NULL == (tcpl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_DATATYPE_CREATE_g)))
+    if(NULL == (tcpl_plist = (H5P_genplist_t *)H5I_object(H5P_LST_DATATYPE_CREATE_ID_g)))
          HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get default creation property list")
     if((new_tcpl_id = H5P_copy_plist(tcpl_plist, TRUE)) < 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "unable to copy the creation property list")
@@ -669,7 +635,7 @@ H5Tget_create_plist(hid_t dtype_id)
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "can't get property list")
 
         /* Retrieve any object creation properties */
-        if(H5O_get_create_plist(&type->oloc, H5AC_ind_dxpl_id, new_plist) < 0)
+        if(H5O_get_create_plist(&type->oloc, H5AC_ind_read_dxpl_id, new_plist) < 0)
             HGOTO_ERROR(H5E_DATATYPE, H5E_CANTGET, FAIL, "can't get object creation info")
     } /* end if */
 
@@ -705,7 +671,7 @@ H5T_open(const H5G_loc_t *loc, hid_t dxpl_id)
 {
     H5T_shared_t   *shared_fo = NULL;
     H5T_t          *dt = NULL;
-    H5T_t          *ret_value;
+    H5T_t          *ret_value = NULL;   /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -821,7 +787,7 @@ static H5T_t *
 H5T_open_oid(const H5G_loc_t *loc, hid_t dxpl_id)
 {
     H5T_t *dt = NULL;          /* Datatype from the file */
-    H5T_t *ret_value;          /* Return value */
+    H5T_t *ret_value = NULL;   /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -855,7 +821,7 @@ H5T_open_oid(const H5G_loc_t *loc, hid_t dxpl_id)
 done:
     if(ret_value == NULL)
         if(dt == NULL)
-            H5O_close(loc->oloc);
+            H5O_close(loc->oloc, NULL);
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5T_open_oid() */

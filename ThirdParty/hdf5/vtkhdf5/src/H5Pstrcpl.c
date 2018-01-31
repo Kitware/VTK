@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -27,13 +25,16 @@
 /****************/
 /* Module Setup */
 /****************/
-#define H5P_PACKAGE		/*suppress error about including H5Ppkg	  */
+
+#include "H5Pmodule.h"          /* This source code file is part of the H5P module */
+
 
 /***********/
 /* Headers */
 /***********/
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Eprivate.h"		/* Error handling		  	*/
+#include "H5Fprivate.h"		/* Files */
 #include "H5Iprivate.h"		/* IDs			  		*/
 #include "H5Ppkg.h"		/* Property lists		  	*/
 
@@ -46,6 +47,8 @@
 /* Definitions for character set encoding property */
 #define H5P_STRCRT_CHAR_ENCODING_SIZE  sizeof(H5T_cset_t)
 #define H5P_STRCRT_CHAR_ENCODING_DEF   H5F_DEFAULT_CSET
+#define H5P_STRCRT_CHAR_ENCODING_ENC   H5P__strcrt_char_encoding_enc
+#define H5P_STRCRT_CHAR_ENCODING_DEC   H5P__strcrt_char_encoding_dec
 
 
 /******************/
@@ -65,6 +68,10 @@
 /* Property class callbacks */
 static herr_t H5P__strcrt_reg_prop(H5P_genclass_t *pclass);
 
+/* encode & decode callbacks */
+static herr_t H5P__strcrt_char_encoding_enc(const void *value, void **_pp, size_t *size);
+static herr_t H5P__strcrt_char_encoding_dec(const void **_pp, void *value);
+
 
 /*********************/
 /* Package Variables */
@@ -74,10 +81,13 @@ static herr_t H5P__strcrt_reg_prop(H5P_genclass_t *pclass);
 const H5P_libclass_t H5P_CLS_STRCRT[1] = {{
     "string create",		/* Class name for debugging     */
     H5P_TYPE_STRING_CREATE,     /* Class type                   */
-    &H5P_CLS_ROOT_g,		/* Parent class ID              */
-    &H5P_CLS_STRING_CREATE_g,	/* Pointer to class ID          */
+
+    &H5P_CLS_ROOT_g,		/* Parent class                 */
+    &H5P_CLS_STRING_CREATE_g,	/* Pointer to class             */
+    &H5P_CLS_STRING_CREATE_ID_g,	/* Pointer to class ID          */
     NULL,			/* Pointer to default property list ID */
     H5P__strcrt_reg_prop,	/* Default property registration routine */
+
     NULL,		        /* Class creation callback      */
     NULL,		        /* Class creation callback info */
     NULL,			/* Class copy callback          */
@@ -96,6 +106,9 @@ const H5P_libclass_t H5P_CLS_STRCRT[1] = {{
 /* Local Variables */
 /*******************/
 
+/* Property value defaults */
+static const H5T_cset_t H5P_def_char_encoding_g = H5P_STRCRT_CHAR_ENCODING_DEF;  /* Default character set encoding */
+
 
 
 /*-------------------------------------------------------------------------
@@ -112,13 +125,14 @@ const H5P_libclass_t H5P_CLS_STRCRT[1] = {{
 static herr_t
 H5P__strcrt_reg_prop(H5P_genclass_t *pclass)
 {
-    H5T_cset_t char_encoding = H5P_STRCRT_CHAR_ENCODING_DEF;  /* Default character set encoding */
     herr_t ret_value = SUCCEED;         /* Return value */
 
     FUNC_ENTER_STATIC
 
     /* Register character encoding */
-    if(H5P_register_real(pclass, H5P_STRCRT_CHAR_ENCODING_NAME, H5P_STRCRT_CHAR_ENCODING_SIZE, &char_encoding, NULL, NULL, NULL, NULL, NULL, NULL, NULL) < 0)
+    if(H5P_register_real(pclass, H5P_STRCRT_CHAR_ENCODING_NAME, H5P_STRCRT_CHAR_ENCODING_SIZE, &H5P_def_char_encoding_g, 
+            NULL, NULL, NULL, H5P_STRCRT_CHAR_ENCODING_ENC, H5P_STRCRT_CHAR_ENCODING_DEC,
+            NULL, NULL, NULL, NULL) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
 
 done:
@@ -195,4 +209,77 @@ H5Pget_char_encoding(hid_t plist_id, H5T_cset_t *encoding /*out*/)
 done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Pget_char_encoding() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__strcrt_char_encoding_enc
+ *
+ * Purpose:        Callback routine which is called whenever the character
+ *                 set encoding property in the string create property list
+ *                 is encoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Quincey Koziol
+ *                 Friday, August 31, 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__strcrt_char_encoding_enc(const void *value, void **_pp, size_t *size)
+{
+    const H5T_cset_t *encoding = (const H5T_cset_t *)value; /* Create local alias for values */
+    uint8_t **pp = (uint8_t **)_pp;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity check */
+    HDassert(encoding);
+    HDassert(size);
+
+    if(NULL != *pp)
+        /* Encode character set encoding */
+        *(*pp)++ = (uint8_t)*encoding;
+
+    /* Size of character set encoding */
+    (*size)++;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__strcrt_char_encoding_enc() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:       H5P__strcrt_char_encoding_dec
+ *
+ * Purpose:        Callback routine which is called whenever the character
+ *                 set encoding property in the string create property list
+ *                 is decoded.
+ *
+ * Return:	   Success:	Non-negative
+ *		   Failure:	Negative
+ *
+ * Programmer:     Quincey Koziol
+ *                 Friday, August 31, 2012
+ *
+ *-------------------------------------------------------------------------
+ */
+static herr_t
+H5P__strcrt_char_encoding_dec(const void **_pp, void *_value)
+{
+    H5T_cset_t *encoding = (H5T_cset_t *)_value;            /* Character set encoding */
+    const uint8_t **pp = (const uint8_t **)_pp;
+
+    FUNC_ENTER_STATIC_NOERR
+
+    /* Sanity checks */
+    HDassert(pp);
+    HDassert(*pp);
+    HDassert(encoding);
+
+    /* Decode character set encoding */
+    *encoding = (H5T_cset_t)*(*pp)++;
+
+    FUNC_LEAVE_NOAPI(SUCCEED)
+} /* end H5P__strcrt_char_encoding_dec() */
 

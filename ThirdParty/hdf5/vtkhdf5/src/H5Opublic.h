@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -182,6 +180,11 @@ H5_DLL herr_t H5Ovisit_by_name(hid_t loc_id, const char *obj_name,
     H5_index_t idx_type, H5_iter_order_t order, H5O_iterate_t op,
     void *op_data, hid_t lapl_id);
 H5_DLL herr_t H5Oclose(hid_t object_id);
+H5_DLL herr_t H5Oflush(hid_t obj_id);
+H5_DLL herr_t H5Orefresh(hid_t oid);
+H5_DLL herr_t H5Odisable_mdc_flushes(hid_t object_id);
+H5_DLL herr_t H5Oenable_mdc_flushes(hid_t object_id);
+H5_DLL herr_t H5Oare_mdc_flushes_disabled(hid_t object_id, hbool_t *are_disabled);
 
 /* Symbols defined for compatibility with previous versions of the HDF5 API.
  *
@@ -193,7 +196,7 @@ H5_DLL herr_t H5Oclose(hid_t object_id);
 
 /* Typedefs */
 
-/* A struct that's part of the H5G_stat_t routine (deprecated) */
+/* A struct that's part of the H5G_stat_t structure (deprecated) */
 typedef struct H5O_stat_t {
     hsize_t size;               /* Total size of object header in file */
     hsize_t free;               /* Free space within object header */

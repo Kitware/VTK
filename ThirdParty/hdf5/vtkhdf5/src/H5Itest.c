@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@hdfgoup.org>
@@ -23,7 +21,7 @@
 /* Module Setup */
 /****************/
 
-#define H5I_PACKAGE		/*suppress error about including H5Ipkg	  */
+#include "H5Imodule.h"          /* This source code file is part of the H5I module */
 #define H5I_TESTING		/*suppress warning about H5I testing funcs*/
 
 
@@ -80,7 +78,7 @@ ssize_t
 H5I_get_name_test(hid_t id, char *name/*out*/, size_t size, hbool_t *cached)
 {
     H5G_loc_t     loc;          /* Object location */
-    ssize_t       ret_value;    /* Return value */
+    ssize_t       ret_value = -1;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -89,7 +87,7 @@ H5I_get_name_test(hid_t id, char *name/*out*/, size_t size, hbool_t *cached)
 	HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, FAIL, "can't retrieve object location")
 
     /* Call internal group routine to retrieve object's name */
-    if((ret_value = H5G_get_name(&loc, name, size, cached, H5P_DEFAULT, H5AC_ind_dxpl_id)) < 0)
+    if((ret_value = H5G_get_name(&loc, name, size, cached, H5P_DEFAULT, H5AC_ind_read_dxpl_id)) < 0)
 	HGOTO_ERROR(H5E_ATOM, H5E_CANTGET, FAIL, "can't retrieve object name")
 
 done:

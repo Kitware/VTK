@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,8 @@
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+
 
 /***********/
 /* Headers */
@@ -247,8 +246,8 @@ H5O_assert(const H5O_t *oh)
 herr_t
 H5O_debug_id(unsigned type_id, H5F_t *f, hid_t dxpl_id, const void *mesg, FILE *stream, int indent, int fwidth)
 {
-    const H5O_msg_class_t *type;            /* Actual H5O class type for the ID */
-    herr_t      ret_value;       /* Return value */
+    const H5O_msg_class_t *type;        /* Actual H5O class type for the ID */
+    herr_t      ret_value = FAIL;       /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -454,20 +453,23 @@ H5O_debug_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, haddr_t addr, FILE *stream, i
 	if(oh->mesg[i].flags) {
             hbool_t flag_printed = FALSE;
 
-            if(oh->mesg[i].flags & H5O_MSG_FLAG_SHARED) {
-                HDfprintf(stream, "<S");
-                flag_printed = TRUE;
-            } /* end if */
+            /* Sanity check that all flags in format are covered below */
+            HDcompile_assert(H5O_MSG_FLAG_BITS == (H5O_MSG_FLAG_CONSTANT|H5O_MSG_FLAG_SHARED|H5O_MSG_FLAG_DONTSHARE|H5O_MSG_FLAG_FAIL_IF_UNKNOWN_AND_OPEN_FOR_WRITE|H5O_MSG_FLAG_MARK_IF_UNKNOWN|H5O_MSG_FLAG_WAS_UNKNOWN|H5O_MSG_FLAG_SHAREABLE|H5O_MSG_FLAG_FAIL_IF_UNKNOWN_ALWAYS));
+
             if(oh->mesg[i].flags & H5O_MSG_FLAG_CONSTANT) {
                 HDfprintf(stream, "%sC", (flag_printed ? ", " : "<"));
+                flag_printed = TRUE;
+            } /* end if */
+            if(oh->mesg[i].flags & H5O_MSG_FLAG_SHARED) {
+                HDfprintf(stream, "%sS", (flag_printed ? ", " : "<"));
                 flag_printed = TRUE;
             } /* end if */
             if(oh->mesg[i].flags & H5O_MSG_FLAG_DONTSHARE) {
                 HDfprintf(stream, "%sDS", (flag_printed ? ", " : "<"));
                 flag_printed = TRUE;
             } /* end if */
-            if(oh->mesg[i].flags & H5O_MSG_FLAG_FAIL_IF_UNKNOWN) {
-                HDfprintf(stream, "%sFIU", (flag_printed ? ", " : "<"));
+            if(oh->mesg[i].flags & H5O_MSG_FLAG_FAIL_IF_UNKNOWN_AND_OPEN_FOR_WRITE) {
+                HDfprintf(stream, "%sFIUW", (flag_printed ? ", " : "<"));
                 flag_printed = TRUE;
             } /* end if */
             if(oh->mesg[i].flags & H5O_MSG_FLAG_MARK_IF_UNKNOWN) {
@@ -477,6 +479,14 @@ H5O_debug_real(H5F_t *f, hid_t dxpl_id, H5O_t *oh, haddr_t addr, FILE *stream, i
             if(oh->mesg[i].flags & H5O_MSG_FLAG_WAS_UNKNOWN) {
                 HDassert(oh->mesg[i].flags & H5O_MSG_FLAG_MARK_IF_UNKNOWN);
                 HDfprintf(stream, "%sWU", (flag_printed ? ", " : "<"));
+                flag_printed = TRUE;
+            } /* end if */
+            if(oh->mesg[i].flags & H5O_MSG_FLAG_SHAREABLE) {
+                HDfprintf(stream, "%sSA", (flag_printed ? ", " : "<"));
+                flag_printed = TRUE;
+            } /* end if */
+            if(oh->mesg[i].flags & H5O_MSG_FLAG_FAIL_IF_UNKNOWN_ALWAYS) {
+                HDfprintf(stream, "%sFIUA", (flag_printed ? ", " : "<"));
                 flag_printed = TRUE;
             } /* end if */
             if(!flag_printed)
@@ -566,7 +576,7 @@ H5O_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE *stream, int indent, int f
     loc.addr = addr;
     loc.holding_file = FALSE;
 
-    if(NULL == (oh = H5O_protect(&loc, dxpl_id, H5AC_READ)))
+    if(NULL == (oh = H5O_protect(&loc, dxpl_id, H5AC__READ_ONLY_FLAG, FALSE)))
 	HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header")
 
     /* debug */

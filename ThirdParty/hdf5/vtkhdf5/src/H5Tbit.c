@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -19,7 +17,7 @@
  *		the bytes are in little-endian order.
  */
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 #include "H5private.h"		/*generic functions			  */
@@ -46,9 +44,9 @@ void
 H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
     size_t src_offset, size_t size)
 {
-    unsigned	shift;
-    unsigned mask_lo, mask_hi;
-    unsigned	s_idx, d_idx;
+    size_t  shift;
+    size_t  mask_lo, mask_hi;
+    size_t  s_idx, d_idx;
 
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -78,11 +76,11 @@ H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
      *           dst[d_idx+1]      dst[d_idx]
      */
     while(src_offset && size > 0) {
-	unsigned nbits = MIN3(size, 8 - dst_offset, 8 - src_offset);
-	unsigned mask = ((unsigned)1 << nbits) - 1;
+	size_t nbits = MIN3(size, 8 - dst_offset, 8 - src_offset);
+	size_t mask = ((size_t)1 << nbits) - 1;
 
 	dst[d_idx] &= (uint8_t)~(mask << dst_offset);
-	dst[d_idx] |= (uint8_t)(((src[s_idx] >> src_offset) & (uint8_t)mask) << dst_offset);
+	dst[d_idx] = (uint8_t)(dst[d_idx] | (((src[s_idx] >> src_offset) & (uint8_t)mask) << dst_offset));
 
 	src_offset += nbits;
 	if(src_offset >= 8) {
@@ -121,7 +119,7 @@ H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
      * to line up with the destination.
      */
     shift = dst_offset;
-    mask_lo = ((unsigned)1 << (8 - shift)) - 1;
+    mask_lo = ((size_t)1 << (8 - shift)) - 1;
     mask_hi = (~mask_lo) & 0xff;
 
     for(/*void*/; size > 8; size -= 8, d_idx++, s_idx++) {
@@ -137,11 +135,11 @@ H5T__bit_copy(uint8_t *dst, size_t dst_offset, const uint8_t *src,
 
     /* Finish up */
     while(size > 0) {
-	unsigned nbits = (unsigned)MIN3 (size, 8 - dst_offset, 8 - src_offset);
-	unsigned mask = ((unsigned)1 << nbits) - 1;
+	size_t nbits = (size_t)MIN3 (size, 8 - dst_offset, 8 - src_offset);
+	size_t mask = ((size_t)1 << nbits) - 1;
 
 	dst[d_idx] &= (uint8_t)(~(mask << dst_offset));
-	dst[d_idx] |= (uint8_t)(((src[s_idx] >> src_offset) & (uint8_t)mask) << dst_offset);
+	dst[d_idx] = (uint8_t)(dst[d_idx] | (((src[s_idx] >> src_offset) & (uint8_t)mask) << dst_offset));
 
 	src_offset += nbits;
 	if(src_offset >= 8) {
@@ -261,7 +259,7 @@ H5T__bit_get_d(uint8_t *buf, size_t offset, size_t size)
 {
     uint64_t	val = 0;
     size_t	i, hs;
-    uint64_t	ret_value;      /* Return value */
+    uint64_t	ret_value = 0;  /* Return value */
 
     FUNC_ENTER_PACKAGE_NOERR
 
@@ -376,9 +374,11 @@ H5T__bit_set(uint8_t *buf, size_t offset, size_t size, hbool_t value)
 	unsigned mask = ((unsigned)1 << nbits) - 1;
 
 	if(value)
-	    buf[idx++] |= (uint8_t)(mask << offset);
+	    buf[idx] = (uint8_t)(buf[idx] | (mask << offset));
 	else
-	    buf[idx++] &= (uint8_t)(~(mask << offset));
+	    buf[idx] &= (uint8_t)(~(mask << offset));
+
+	idx++;
 	size -= nbits;
     } /* end if */
 
@@ -512,22 +512,19 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5T__bit_inc
+ * Function:    H5T__bit_inc
  *
- * Purpose:	Increment part of a bit field by adding 1.  The bit field
+ * Purpose:     Increment part of a bit field by adding 1.  The bit field
  *              starts with bit position START and is SIZE bits long.
  *
- * Return:	Success:        The carry-out value.  One if overflows,
- *                              zero otherwise.
- *
- *		Failure:	Negative
+ * Return:      The carry-out value.  TRUE if overflows, FALSE otherwise.
  *
  * Programmer:	Robb Matzke
  *              Friday, June 26, 1998
  *
  *-------------------------------------------------------------------------
  */
-htri_t
+hbool_t
 H5T__bit_inc(uint8_t *buf, size_t start, size_t size)
 {
     size_t	idx = start / 8;
@@ -543,38 +540,38 @@ H5T__bit_inc(uint8_t *buf, size_t start, size_t size)
 
     /* The first partial byte */
     if(start) {
-	if(size + start < 8)
+        if(size + start < 8)
             mask = ((unsigned)1 << size) - 1;
-	else
+        else
             mask = ((unsigned)1 << (8 - start)) - 1;
-	acc = ((unsigned)buf[idx] >> start) & mask;
-	acc++;
-	carry = acc & ((unsigned)1 << MIN(size, 8 - start));
-	buf[idx] &= (uint8_t)(~(mask << start));
-	buf[idx] |= (uint8_t)((acc & mask) << start);
-	size -= MIN(size, 8 - start);
-	start = 0;
-	idx++;
+        acc = ((unsigned)buf[idx] >> start) & mask;
+        acc++;
+        carry = acc & ((unsigned)1 << MIN(size, 8 - start));
+        buf[idx] &= (uint8_t)(~(mask << start));
+        buf[idx] = (uint8_t)(buf[idx] | ((acc & mask) << start));
+        size -= MIN(size, 8 - start);
+        start = 0;
+        idx++;
     } /* end if */
 
     /* The middle */
     while(carry && size >= 8) {
-	acc = buf[idx];
-	acc++;
-	carry = acc & 0x100;
-	buf[idx] = acc & 0xff;
-	idx++;
-	size -= 8;
+        acc = buf[idx];
+        acc++;
+        carry = acc & 0x100;
+        buf[idx] = acc & 0xff;
+        idx++;
+        size -= 8;
     } /* end while */
 
     /* The last bits */
     if(carry && size > 0) {
-	mask = ((unsigned)1 << size) - 1;
-	acc = buf[idx] & mask;
-	acc++;
-	carry = acc & ((unsigned)1 << size);
-	buf[idx] &= (uint8_t)(~mask);
-	buf[idx] |= (uint8_t)(acc & mask);
+        mask = ((unsigned)1 << size) - 1;
+        acc = buf[idx] & mask;
+        acc++;
+        carry = acc & ((unsigned)1 << size);
+        buf[idx] &= (uint8_t)(~mask);
+        buf[idx] |= (uint8_t)(acc & mask);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(carry ? TRUE : FALSE)
@@ -584,20 +581,18 @@ H5T__bit_inc(uint8_t *buf, size_t start, size_t size)
 /*-------------------------------------------------------------------------
  * Function:	H5T__bit_dec
  *
- * Purpose:	decrement part of a bit field by substracting 1.  The bit
+ * Purpose:     Decrement part of a bit field by substracting 1.  The bit
  *              field starts with bit position START and is SIZE bits long.
  *
- * Return:	Success:        The "borrow-in" value. It's one if underflows,
- *                              zero otherwise.
+ * Return:      The "borrow-in" value. It's TRUE if underflows, FALSE
+ *              otherwise.
  *
- *		Failure:	Negative
- *
- * Programmer:	Raymond Lu
+ * Programmer:  Raymond Lu
  *              March 17, 2004
  *
  *-------------------------------------------------------------------------
  */
-htri_t
+hbool_t
 H5T__bit_dec(uint8_t *buf, size_t start, size_t size)
 {
     size_t	idx = start / 8;

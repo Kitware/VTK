@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -26,7 +24,7 @@
  *-------------------------------------------------------------------------
  */
 
-#define H5F_PACKAGE             /*suppress error about including H5Fpkg   */
+#include "H5Fmodule.h"          /* This source code file is part of the H5F module */
 
 
 /* Packages needed by this file... */
@@ -35,7 +33,6 @@
 #include "H5Fpkg.h"             /* File access                          */
 #include "H5MMprivate.h"        /* Memory management                    */
 #include "H5Pprivate.h"         /* Property lists                       */
-
 
 /* Special values for the "tag" field below */
 #define H5F_EFC_TAG_DEFAULT     -1
@@ -93,7 +90,7 @@ H5F_efc_t *
 H5F_efc_create(unsigned max_nfiles)
 {
     H5F_efc_t   *efc = NULL;            /* EFC object */
-    H5F_efc_t   *ret_value;             /* Return value */
+    H5F_efc_t   *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -163,8 +160,7 @@ H5F_efc_open(H5F_t *parent, const char *name, unsigned flags, hid_t fcpl_id,
      * support this so clients do not have to make 2 different calls depending
      * on the state of the efc. */
     if(!efc) {
-        if(NULL == (ret_value = H5F_open(name, flags, fcpl_id, fapl_id,
-                dxpl_id)))
+        if(NULL == (ret_value = H5F_open(name, flags, fcpl_id, fapl_id, dxpl_id)))
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, NULL, "can't open file")
 
         /* Increment the number of open objects to prevent the file from being
@@ -236,8 +232,7 @@ H5F_efc_open(H5F_t *parent, const char *name, unsigned flags, hid_t fcpl_id,
             } /* end if */
             else {
                 /* Cannot cache file, just open file and return */
-                if(NULL == (ret_value = H5F_open(name, flags, fcpl_id, fapl_id,
-                        dxpl_id)))
+                if(NULL == (ret_value = H5F_open(name, flags, fcpl_id, fapl_id, dxpl_id)))
                     HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, NULL, "can't open file")
 
                 /* Increment the number of open objects to prevent the file from
@@ -258,8 +253,7 @@ H5F_efc_open(H5F_t *parent, const char *name, unsigned flags, hid_t fcpl_id,
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
 
         /* Open the file */
-        if(NULL == (ent->file = H5F_open(name, flags, fcpl_id, fapl_id,
-                dxpl_id)))
+        if(NULL == (ent->file = H5F_open(name, flags, fcpl_id, fapl_id, dxpl_id)))
             HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, NULL, "can't open file")
         open_file = TRUE;
 
@@ -305,7 +299,7 @@ done:
         if(ent) {
             if(open_file) {
                 ent->file->nopen_objs--;
-                if(H5F_try_close(ent->file) < 0)
+                if(H5F_try_close(ent->file, NULL) < 0)
                     HDONE_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, NULL, "can't close external file")
             } /* end if */
             ent->name = (char *)H5MM_xfree(ent->name);
@@ -354,7 +348,7 @@ H5F_efc_close(H5F_t *parent, H5F_t *file)
      * on the state of the efc. */
     if(!efc) {
         file->nopen_objs--;
-        if(H5F_try_close(file) < 0)
+        if(H5F_try_close(file, NULL) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "can't close external file")
 
         HGOTO_DONE(SUCCEED)
@@ -368,7 +362,7 @@ H5F_efc_close(H5F_t *parent, H5F_t *file)
     for(ent = efc->LRU_head; ent && ent->file != file; ent = ent->LRU_next);
     if(!ent) {
         file->nopen_objs--;
-        if(H5F_try_close(file) < 0)
+        if(H5F_try_close(file, NULL) < 0)
             HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "can't close external file")
     } /* end if */
     else
@@ -576,7 +570,7 @@ H5F_efc_remove_ent(H5F_efc_t *efc, H5F_efc_ent_t *ent)
      * However we must still manipulate the nopen_objs field to prevent the file
      * from being closed out from under us. */
     ent->file->nopen_objs--;
-    if(H5F_try_close(ent->file) < 0)
+    if(H5F_try_close(ent->file, NULL) < 0)
         HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "can't close external file")
     ent->file = NULL;
 

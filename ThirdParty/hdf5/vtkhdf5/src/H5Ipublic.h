@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -36,8 +34,8 @@
 typedef enum H5I_type_t {
     H5I_UNINIT		= (-2), /*uninitialized type			    */
     H5I_BADID		= (-1),	/*invalid Type				    */
-    H5I_FILE		= 1,	/*type ID for File objects		    */
-    H5I_GROUP,		        /*type ID for Group objects		    */
+    H5I_FILE            = 1,  	/*type ID for File objects      	    */
+    H5I_GROUP,	                /*type ID for Group objects     	    */
     H5I_DATATYPE,	        /*type ID for Datatype objects		    */
     H5I_DATASPACE,	        /*type ID for Dataspace objects		    */
     H5I_DATASET,	        /*type ID for Dataset objects		    */
@@ -53,8 +51,8 @@ typedef enum H5I_type_t {
 } H5I_type_t;
 
 /* Type of atoms to return to users */
-typedef int hid_t;
-#define H5_SIZEOF_HID_T         H5_SIZEOF_INT
+typedef int64_t hid_t;
+#define H5_SIZEOF_HID_T         H5_SIZEOF_INT64_T
 
 /* An invalid object ID. This is also negative for error return. */
 #define H5I_INVALID_HID         (-1)

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -47,11 +45,11 @@
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline void *
+static H5_INLINE void *
 H5O_SHARED_DECODE(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, unsigned mesg_flags,
     unsigned *ioflags, const uint8_t *p)
 {
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -107,7 +105,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline herr_t
+static H5_INLINE herr_t
 H5O_SHARED_ENCODE(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg)
 {
     const H5O_shared_t *sh_mesg = (const H5O_shared_t *)_mesg;     /* Pointer to shared message portion of actual message */
@@ -162,11 +160,11 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline size_t
+static H5_INLINE size_t
 H5O_SHARED_SIZE(const H5F_t *f, hbool_t disable_shared, const void *_mesg)
 {
     const H5O_shared_t *sh_mesg = (const H5O_shared_t *)_mesg;     /* Pointer to shared message portion of actual message */
-    size_t ret_value;           /* Return value */
+    size_t ret_value = 0;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -215,7 +213,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline herr_t
+static H5_INLINE herr_t
 H5O_SHARED_DELETE(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
 {
     H5O_shared_t *sh_mesg = (H5O_shared_t *)_mesg;     /* Pointer to shared message portion of actual message */
@@ -267,7 +265,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline herr_t
+static H5_INLINE herr_t
 H5O_SHARED_LINK(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
 {
     H5O_shared_t *sh_mesg = (H5O_shared_t *)_mesg;     /* Pointer to shared message portion of actual message */
@@ -318,13 +316,13 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline void *
+static H5_INLINE void *
 H5O_SHARED_COPY_FILE(H5F_t *file_src, void *_native_src, H5F_t *file_dst,
     hbool_t *recompute_size, unsigned *mesg_flags, H5O_copy_t *cpy_info,
     void *udata, hid_t dxpl_id)
 {
     void *dst_mesg = NULL;      /* Destination message */
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -382,7 +380,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline herr_t
+static H5_INLINE herr_t
 H5O_SHARED_POST_COPY_FILE(const H5O_loc_t *oloc_src, const void *mesg_src,
     H5O_loc_t *oloc_dst, void *mesg_dst, unsigned *mesg_flags, hid_t dxpl_id,
     H5O_copy_t *cpy_info)
@@ -453,7 +451,7 @@ done:
  *
  *-------------------------------------------------------------------------
  */
-static H5_inline herr_t
+static H5_INLINE herr_t
 H5O_SHARED_DEBUG(H5F_t *f, hid_t dxpl_id, const void *_mesg, FILE *stream,
     int indent, int fwidth)
 {

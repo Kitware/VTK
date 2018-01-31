@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -28,7 +26,7 @@
 /* Module Setup */
 /****************/
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
 
 
 /***********/
@@ -119,8 +117,8 @@ static herr_t H5G_traverse_real(const H5G_loc_t *loc, const char *name,
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5G_traverse_slink_cb(H5G_loc_t UNUSED *grp_loc, const char UNUSED *name,
-    const H5O_link_t UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
+H5G_traverse_slink_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc, const char H5_ATTR_UNUSED *name,
+    const H5O_link_t H5_ATTR_UNUSED *lnk, H5G_loc_t *obj_loc, void *_udata/*in,out*/,
     H5G_own_loc_t *own_loc/*out*/)
 {
     H5G_trav_slink_t *udata = (H5G_trav_slink_t *)_udata;   /* User data passed in */
@@ -201,7 +199,7 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
     grp_loc_copy.path = &grp_path_copy;
     grp_loc_copy.oloc = &grp_oloc_copy;
     H5G_loc_reset(&grp_loc_copy);
-    if(H5G__loc_copy(&grp_loc_copy, grp_loc, H5_COPY_DEEP) < 0)
+    if(H5G_loc_copy(&grp_loc_copy, grp_loc, H5_COPY_DEEP) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTCOPY, FAIL, "unable to copy object location")
 
     /* Create a group ID to pass to the user-defined callback */
@@ -263,7 +261,7 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
     H5G_loc_free(obj_loc);
 
     /* Copy new object's location information */
-    H5G__loc_copy(obj_loc, &new_loc, H5_COPY_DEEP);
+    H5G_loc_copy(obj_loc, &new_loc, H5_COPY_DEEP);
 
     /* Hold the file open until we free this object header (otherwise the
      * object location will be invalidated when the file closes).
@@ -276,7 +274,7 @@ H5G_traverse_ud(const H5G_loc_t *grp_loc/*in,out*/, const H5O_link_t *lnk,
      */
     if(H5I_dec_ref(cb_return) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "unable to close atom from UD callback")
-    cb_return = (-1);
+    cb_return = (hid_t)(-1);
 
 done:
     /* Close location given to callback. */
@@ -344,7 +342,7 @@ H5G_traverse_slink(const H5G_loc_t *grp_loc, const H5O_link_t *lnk,
     /* ("tracking the names properly" means to ignore the effects of the
      *  link traversal on the object's & group's paths - QAK)
      */
-    H5G__loc_copy(&tmp_grp_loc, grp_loc, H5_COPY_DEEP);
+    H5G_loc_copy(&tmp_grp_loc, grp_loc, H5_COPY_DEEP);
     tmp_grp_loc_set = TRUE;
 
     /* Hold the object's group hier. path to restore later */
@@ -544,7 +542,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 #endif /* H5_USING_MEMCHECKER */
 
     /* Deep copy of the starting location to group location */
-    if(H5G__loc_copy(&grp_loc, &loc, H5_COPY_DEEP) < 0)
+    if(H5G_loc_copy(&grp_loc, &loc, H5_COPY_DEEP) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to copy location")
     group_copy = TRUE;
 
@@ -727,7 +725,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
                     HGOTO_ERROR(H5E_SYM, H5E_CANTDEC, FAIL, "unable to decrement refcount on newly created object")
 
                 /* Close new group */
-                if(H5O_close(obj_loc.oloc) < 0)
+                if(H5O_close(obj_loc.oloc, NULL) < 0)
                     HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to close")
 
                 /* If the parent group was holding the file open, the
@@ -761,7 +759,7 @@ H5G_traverse_real(const H5G_loc_t *_loc, const char *name, unsigned target,
 
         /* Transfer "ownership" of the object's information to the group object */
         H5G_loc_free(&grp_loc);
-        H5G__loc_copy(&grp_loc, &obj_loc, H5_COPY_SHALLOW);
+        H5G_loc_copy(&grp_loc, &obj_loc, H5_COPY_SHALLOW);
         H5G_loc_reset(&obj_loc);
         obj_loc_valid = FALSE;
 
@@ -856,9 +854,20 @@ H5G_traverse(const H5G_loc_t *loc, const char *name, unsigned target, H5G_traver
             HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get number of links")
     } /* end else */
 
+    /* Set up invalid tag. This is a precautionary step only. Setting an invalid
+       tag here will ensure that no metadata accessed while doing the traversal
+       is given an improper tag, unless another one is specifically set up 
+       first. This will ensure we're not accidentally tagging something we 
+       shouldn't be during the traversal. Note that for best tagging assertion 
+       coverage, setting H5C_DO_TAGGING_SANITY_CHECKS is advised. */
+    H5_BEGIN_TAG(dxpl_id, H5AC__INVALID_TAG, FAIL);
+
     /* Go perform "real" traversal */
     if(H5G_traverse_real(loc, name, target, &nlinks, op, op_data, lapl_id, dxpl_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "internal path traversal failed")
+        HGOTO_ERROR_TAG(H5E_SYM, H5E_NOTFOUND, FAIL, "internal path traversal failed")
+
+    /* Reset tag after traversal */
+    H5_END_TAG(FAIL);
 
 done:
    FUNC_LEAVE_NOAPI(ret_value)

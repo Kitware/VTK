@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -33,7 +31,8 @@
 /* Module Setup */
 /****************/
 
-#define H5HF_PACKAGE		/*suppress error about including H5HFpkg  */
+#include "H5HFmodule.h"         /* This source code file is part of the H5HF module */
+
 
 /***********/
 /* Headers */
@@ -67,6 +66,9 @@
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+hbool_t H5_PKG_INIT_VAR = FALSE;
 
 
 /*****************************/
@@ -153,7 +155,7 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
     H5HF_t *fh = NULL;          /* Pointer to new fractal heap */
     H5HF_hdr_t *hdr = NULL;     /* The fractal heap header information */
     haddr_t fh_addr;            /* Heap header address */
-    H5HF_t *ret_value;          /* Return value */
+    H5HF_t *ret_value = NULL;   /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -172,7 +174,7 @@ H5HF_create(H5F_t *f, hid_t dxpl_id, const H5HF_create_t *cparam)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "memory allocation failed for fractal heap info")
 
     /* Lock the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC_WRITE)))
+    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap header")
 
     /* Point fractal heap wrapper at header and bump it's ref count */
@@ -220,7 +222,7 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
 {
     H5HF_t *fh = NULL;          /* Pointer to new fractal heap */
     H5HF_hdr_t *hdr = NULL;     /* The fractal heap header information */
-    H5HF_t *ret_value;          /* Return value */
+    H5HF_t *ret_value = NULL;   /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -231,7 +233,7 @@ H5HF_open(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Load the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC_READ)))
+    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, NULL, "unable to protect fractal heap header")
 
     /* Check for pending heap deletion */
@@ -439,14 +441,8 @@ H5HF_get_obj_len(H5HF_t *fh, hid_t dxpl_id, const void *_id, size_t *obj_len_p)
 
     /* Check type of object in heap */
     if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
-        /* Skip over the flag byte */
-        id++;
-
-        /* Skip over object offset */
-        id += fh->hdr->heap_off_size;
-
-        /* Retrieve the entry length */
-        UINT64DECODE_VAR(id, *obj_len_p, fh->hdr->heap_len_size);
+        if(H5HF_man_get_obj_len(fh->hdr, id, obj_len_p) < 0)
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'managed' object's length")
     } /* end if */
     else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
         if(H5HF_huge_get_obj_len(fh->hdr, dxpl_id, id, obj_len_p) < 0)
@@ -464,6 +460,68 @@ HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
 done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF_get_obj_len() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5HF_get_obj_off
+ *
+ * Purpose:	Get the offset of an entry in a fractal heap
+ *
+ * Return:	SUCCEED/FAIL
+ *
+ * Programmer:	Quincey Koziol
+ *		koziol@hdfgroup.org
+ *		Aug 20 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+herr_t
+H5HF_get_obj_off(H5HF_t *fh, hid_t dxpl_id, const void *_id, hsize_t *obj_off_p)
+{
+    const uint8_t *id = (const uint8_t *)_id;   /* Object ID */
+    uint8_t id_flags;                   /* Heap ID flag bits */
+    herr_t ret_value = SUCCEED;         /* Return value */
+
+    FUNC_ENTER_NOAPI(FAIL)
+
+    /*
+     * Check arguments.
+     */
+    HDassert(fh);
+    HDassert(id);
+    HDassert(obj_off_p);
+
+    /* Get the ID flags */
+    id_flags = *id;
+
+    /* Check for correct heap ID version */
+    if((id_flags & H5HF_ID_VERS_MASK) != H5HF_ID_VERS_CURR)
+        HGOTO_ERROR(H5E_HEAP, H5E_VERSION, FAIL, "incorrect heap ID version")
+
+    /* Set the shared heap header's file context for this operation */
+    fh->hdr->f = fh->f;
+
+    /* Check type of object in heap */
+    if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_MAN) {
+        H5HF__man_get_obj_off(fh->hdr, id, obj_off_p);
+    } /* end if */
+    else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_HUGE) {
+        /* Huge objects are located directly in the file */
+        if(H5HF__huge_get_obj_off(fh->hdr, dxpl_id, id, obj_off_p) < 0)
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't get 'huge' object's offset")
+    } /* end if */
+    else if((id_flags & H5HF_ID_TYPE_MASK) == H5HF_ID_TYPE_TINY) {
+        /* Tiny objects are not stored in the heap */
+        *obj_off_p = (hsize_t)0;
+    } /* end if */
+    else {
+HDfprintf(stderr, "%s: Heap ID type not supported yet!\n", FUNC);
+HGOTO_ERROR(H5E_HEAP, H5E_UNSUPPORTED, FAIL, "heap ID type not supported yet")
+    } /* end else */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5HF_get_obj_off() */
 
 
 /*-------------------------------------------------------------------------
@@ -557,7 +615,7 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5HF_write(H5HF_t *fh, hid_t dxpl_id, void *_id, hbool_t UNUSED *id_changed,
+H5HF_write(H5HF_t *fh, hid_t dxpl_id, void *_id, hbool_t H5_ATTR_UNUSED *id_changed,
     const void *obj)
 {
     uint8_t *id = (uint8_t *)_id;       /* Object ID */
@@ -816,6 +874,9 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
     } /* end if */
 
     /* Decrement the reference count on the heap header */
+    /* (don't put in H5HF_hdr_fuse_decr() as the heap header may be evicted
+     *  immediately -QAK)
+     */
     if(H5HF_hdr_decr(fh->hdr) < 0)
         HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't decrement reference count on shared heap header")
 
@@ -824,7 +885,7 @@ H5HF_close(H5HF_t *fh, hid_t dxpl_id)
         H5HF_hdr_t *hdr;            /* Another pointer to fractal heap header */
 
         /* Lock the heap header into memory */
-        if(NULL == (hdr = H5HF_hdr_protect(fh->f, dxpl_id, heap_addr, H5AC_WRITE)))
+        if(NULL == (hdr = H5HF_hdr_protect(fh->f, dxpl_id, heap_addr, H5AC__NO_FLAGS_SET)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
         /* Delete heap, starting with header (unprotects header) */
@@ -868,7 +929,7 @@ H5HF_delete(H5F_t *f, hid_t dxpl_id, haddr_t fh_addr)
     HDassert(H5F_addr_defined(fh_addr));
 
     /* Lock the heap header into memory */
-    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC_WRITE)))
+    if(NULL == (hdr = H5HF_hdr_protect(f, dxpl_id, fh_addr, H5AC__NO_FLAGS_SET)))
         HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap header")
 
     /* Check for files using shared heap header */

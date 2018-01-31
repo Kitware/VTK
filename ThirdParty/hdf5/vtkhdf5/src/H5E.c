@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -45,10 +43,7 @@
 /* Module Setup */
 /****************/
 
-#define H5E_PACKAGE		/*suppress error about including H5Epkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5E_init_interface
+#include "H5Emodule.h"          /* This source code file is part of the H5E module */
 
 
 /***********/
@@ -83,6 +78,7 @@
 /* Local Prototypes */
 /********************/
 /* Static function declarations */
+static herr_t H5E_set_default_auto(H5E_t *stk);
 static H5E_cls_t *H5E_register_class(const char *cls_name, const char *lib_name,
                                 const char *version);
 static herr_t  H5E_unregister_class(H5E_cls_t *cls);
@@ -99,6 +95,9 @@ static ssize_t H5E_get_num(const H5E_t *err_stack);
 /*********************/
 /* Package Variables */
 /*********************/
+
+/* Package initialization variable */
+hbool_t H5_PKG_INIT_VAR = FALSE;
 
 
 /*****************************/
@@ -144,8 +143,7 @@ static const H5I_class_t H5I_ERRSTK_CLS[1] = {{
 }};
 
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_init
  *
@@ -172,8 +170,135 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_init() */
 
+
+/*--------------------------------------------------------------------------
+ * Function:    H5E__init_package
+ *
+ * Purpose:     Initialize interface-specific information
+ *
+ * Return:      Non-negative on success/Negative on failure
+ *
+ * Programmer:  Raymond Lu
+ *              Friday, July 11, 2003
+ *
+ *--------------------------------------------------------------------------
+ */
+herr_t
+H5E__init_package(void)
+{
+    H5E_cls_t   *cls;           /* Pointer to error class */
+    H5E_msg_t   *msg;           /* Pointer to new error message */
+    char lib_vers[128];         /* Buffer to constructu library version within */
+    herr_t ret_value = SUCCEED; /* Return value */
 
+    FUNC_ENTER_PACKAGE
 
+    /* Initialize the atom group for the error class IDs */
+    if(H5I_register_type(H5I_ERRCLS_CLS) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
+
+    /* Initialize the atom group for the major error IDs */
+    if(H5I_register_type(H5I_ERRMSG_CLS) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
+
+    /* Initialize the atom group for the error stacks */
+    if(H5I_register_type(H5I_ERRSTK_CLS) < 0)
+        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
+
+#ifndef H5_HAVE_THREADSAFE
+    H5E_stack_g[0].nused = 0;
+    H5E_set_default_auto(H5E_stack_g);
+#endif /* H5_HAVE_THREADSAFE */
+
+    /* Allocate the HDF5 error class */
+    HDassert(H5E_ERR_CLS_g == (-1));
+    HDsnprintf(lib_vers, sizeof(lib_vers), "%u.%u.%u%s", H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE, (HDstrlen(H5_VERS_SUBRELEASE) > 0 ? "-"H5_VERS_SUBRELEASE : ""));
+    if(NULL == (cls = H5E_register_class(H5E_CLS_NAME, H5E_CLS_LIB_NAME, lib_vers)))
+        HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "class initialization failed")
+    if((H5E_ERR_CLS_g = H5I_register(H5I_ERROR_CLASS, cls, FALSE)) < 0)
+        HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error class")
+
+    /* Include the automatically generated error code initialization */
+    #include "H5Einit.h"
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5E__init_package() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:	H5E_term_package
+ *
+ * Purpose:	Terminates the H5E interface
+ *
+ * Return:	Success:	Positive if anything is done that might
+ *				affect other interfaces; zero otherwise.
+ *
+ * 		Failure:	Negative.
+ *
+ * Programmer:	Raymond Lu
+ *	        Tuesday, July 22, 2003
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+H5E_term_package(void)
+{
+    int	n = 0;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    if(H5_PKG_INIT_VAR) {
+        int64_t ncls, nmsg, nstk;
+
+        /* Check if there are any open error stacks, classes or messages */
+        ncls = H5I_nmembers(H5I_ERROR_CLASS);
+        nmsg = H5I_nmembers(H5I_ERROR_MSG);
+        nstk = H5I_nmembers(H5I_ERROR_STACK);
+
+        if((ncls + nmsg + nstk) > 0) {
+            /* Clear any outstanding error stacks */
+            if(nstk > 0)
+	        (void)H5I_clear_type(H5I_ERROR_STACK, FALSE, FALSE);
+
+            /* Clear all the error classes */
+	    if(ncls > 0) {
+	        (void)H5I_clear_type(H5I_ERROR_CLASS, FALSE, FALSE);
+
+                /* Reset the HDF5 error class, if its been closed */
+                if(H5I_nmembers(H5I_ERROR_CLASS) == 0)
+                    H5E_ERR_CLS_g = -1;
+            } /* end if */
+
+            /* Clear all the error messages */
+	    if(nmsg > 0) {
+	        (void)H5I_clear_type(H5I_ERROR_MSG, FALSE, FALSE);
+
+                /* Reset the HDF5 error messages, if they've been closed */
+                if(H5I_nmembers(H5I_ERROR_MSG) == 0) {
+                    /* Include the automatically generated error code termination */
+                    #include "H5Eterm.h"
+                } /* end if */
+            } /* end if */
+
+            n++; /*H5I*/
+	} /* end if */
+        else {
+	    /* Destroy the error class, message, and stack id groups */
+	    n += (H5I_dec_type_ref(H5I_ERROR_STACK) > 0);
+	    n += (H5I_dec_type_ref(H5I_ERROR_CLASS) > 0);
+	    n += (H5I_dec_type_ref(H5I_ERROR_MSG) > 0);
+
+	    /* Mark closed */
+            if(0 == n)
+                H5_PKG_INIT_VAR = FALSE;
+	} /* end else */
+    } /* end if */
+
+    FUNC_LEAVE_NOAPI(n)
+} /* end H5E_term_package() */
+
+
 /*--------------------------------------------------------------------------
  * Function:    H5E_set_default_auto
  *
@@ -211,140 +336,7 @@ H5E_set_default_auto(H5E_t *stk)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5E_set_default_auto() */
 
-
-
-/*--------------------------------------------------------------------------
- * Function:    H5E_init_interface
- *
- * Purpose:     Initialize interface-specific information
- *
- * Return:      Non-negative on success/Negative on failure
- *
- * Programmer:  Raymond Lu
- *              Friday, July 11, 2003
- *
- *--------------------------------------------------------------------------
- */
-static herr_t
-H5E_init_interface(void)
-{
-    H5E_cls_t   *cls;           /* Pointer to error class */
-    H5E_msg_t   *msg;           /* Pointer to new error message */
-    char lib_vers[128];         /* Buffer to constructu library version within */
-    herr_t      ret_value = SUCCEED;   /* Return value */
-
-    FUNC_ENTER_NOAPI_NOINIT
-
-    /* Initialize the atom group for the error class IDs */
-    if(H5I_register_type(H5I_ERRCLS_CLS) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
-
-    /* Initialize the atom group for the major error IDs */
-    if(H5I_register_type(H5I_ERRMSG_CLS) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
-
-    /* Initialize the atom group for the error stacks */
-    if(H5I_register_type(H5I_ERRSTK_CLS) < 0)
-        HGOTO_ERROR(H5E_ATOM, H5E_CANTINIT, FAIL, "unable to initialize ID group")
-
-#ifndef H5_HAVE_THREADSAFE
-    H5E_stack_g[0].nused = 0;
-    H5E_set_default_auto(H5E_stack_g);
-#endif /* H5_HAVE_THREADSAFE */
-
-    /* Allocate the HDF5 error class */
-    HDassert(H5E_ERR_CLS_g == (-1));
-    HDsnprintf(lib_vers, sizeof(lib_vers), "%u.%u.%u%s", H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE, (HDstrlen(H5_VERS_SUBRELEASE) > 0 ? "-"H5_VERS_SUBRELEASE : ""));
-    if(NULL == (cls = H5E_register_class(H5E_CLS_NAME, H5E_CLS_LIB_NAME, lib_vers)))
-        HGOTO_ERROR(H5E_ERROR, H5E_CANTINIT, FAIL, "class initialization failed")
-    if((H5E_ERR_CLS_g = H5I_register(H5I_ERROR_CLASS, cls, FALSE)) < 0)
-        HGOTO_ERROR(H5E_ERROR, H5E_CANTREGISTER, FAIL, "can't register error class")
-
-    /* Include the automatically generated error code initialization */
-    #include "H5Einit.h"
-
-done:
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5E_init_interface() */
-
-
-
-/*-------------------------------------------------------------------------
- * Function:	H5E_term_interface
- *
- * Purpose:	Terminates the H5E interface
- *
- * Return:	Success:	Positive if anything is done that might
- *				affect other interfaces; zero otherwise.
- *
- * 		Failure:	Negative.
- *
- * Programmer:	Raymond Lu
- *	        Tuesday, July 22, 2003
- *
- *-------------------------------------------------------------------------
- */
-int
-H5E_term_interface(void)
-{
-    int	n = 0;
-
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    if(H5_interface_initialize_g) {
-        int ncls, nmsg, nstk;
-
-        /* Check if there are any open error stacks, classes or messages */
-        ncls = H5I_nmembers(H5I_ERROR_CLASS);
-        nmsg = H5I_nmembers(H5I_ERROR_MSG);
-        nstk = H5I_nmembers(H5I_ERROR_STACK);
-
-        n = ncls + nmsg + nstk;
-        if(n > 0) {
-            /* Clear any outstanding error stacks */
-            if(nstk > 0)
-	        H5I_clear_type(H5I_ERROR_STACK, FALSE, FALSE);
-
-            /* Clear all the error classes */
-	    if(ncls > 0) {
-	        H5I_clear_type(H5I_ERROR_CLASS, FALSE, FALSE);
-
-                /* Reset the HDF5 error class, if its been closed */
-                if(H5I_nmembers(H5I_ERROR_CLASS) == 0)
-                    H5E_ERR_CLS_g = -1;
-            } /* end if */
-
-            /* Clear all the error messages */
-	    if(nmsg > 0) {
-	        H5I_clear_type(H5I_ERROR_MSG, FALSE, FALSE);
-
-                /* Reset the HDF5 error messages, if they've been closed */
-                if(H5I_nmembers(H5I_ERROR_MSG) == 0) {
-                    /* Include the automatically generated error code termination */
-                    #include "H5Eterm.h"
-                } /* end if */
-            } /* end if */
-	} /* end if */
-        else {
-            /* Close deprecated interface */
-            n += H5E__term_deprec_interface();
-
-	    /* Destroy the error class, message, and stack id groups */
-	    H5I_dec_type_ref(H5I_ERROR_STACK);
-	    H5I_dec_type_ref(H5I_ERROR_CLASS);
-	    H5I_dec_type_ref(H5I_ERROR_MSG);
-
-	    /* Mark closed */
-	    H5_interface_initialize_g = 0;
-	    n = 1; /*H5I*/
-	} /* end else */
-    } /* end if */
-
-    FUNC_LEAVE_NOAPI(n)
-} /* end H5E_term_interface() */
-
-
-
+
 #ifdef H5_HAVE_THREADSAFE
 /*-------------------------------------------------------------------------
  * Function:	H5E_get_stack
@@ -364,7 +356,7 @@ H5E_term_interface(void)
 H5E_t *
 H5E_get_stack(void)
 {
-    H5E_t *estack;
+    H5E_t *estack = NULL;
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -373,9 +365,13 @@ H5E_get_stack(void)
     if(!estack) {
         /* No associated value with current thread - create one */
 #ifdef H5_HAVE_WIN_THREADS
-        estack = (H5E_t *)LocalAlloc(LPTR, sizeof(H5E_t)); /* Win32 has to use LocalAlloc to match the LocalFree in DllMain */
+        /* Win32 has to use LocalAlloc to match the LocalFree in DllMain */
+        estack = (H5E_t *)LocalAlloc(LPTR, sizeof(H5E_t)); 
 #else
-        estack = (H5E_t *)H5FL_MALLOC(H5E_t);
+        /* Use HDmalloc here since this has to match the HDfree in the
+         * destructor and we want to avoid the codestack there.
+         */
+        estack = (H5E_t *)HDmalloc(sizeof(H5E_t));
 #endif /* H5_HAVE_WIN_THREADS */
         HDassert(estack);
 
@@ -395,8 +391,7 @@ H5E_get_stack(void)
 } /* end H5E_get_stack() */
 #endif  /* H5_HAVE_THREADSAFE */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_free_class
  *
@@ -426,8 +421,7 @@ H5E_free_class(H5E_cls_t *cls)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5E_free_class() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eregister_class
  *
@@ -465,8 +459,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eregister_class() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_register_class
  *
@@ -482,8 +475,8 @@ done:
 static H5E_cls_t *
 H5E_register_class(const char *cls_name, const char *lib_name, const char *version)
 {
-    H5E_cls_t   *cls = NULL; /* Pointer to error class */
-    H5E_cls_t   *ret_value;  /* Return value */
+    H5E_cls_t   *cls = NULL;            /* Pointer to error class */
+    H5E_cls_t   *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -515,8 +508,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_register_class() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eunregister_class
  *
@@ -552,8 +544,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eunregister_class() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_unregister_class
  *
@@ -588,8 +579,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_unregister_class() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_class_name
  *
@@ -624,8 +614,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eget_class_name() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_get_class_name
  *
@@ -642,7 +631,7 @@ done:
 static ssize_t
 H5E_get_class_name(const H5E_cls_t *cls, char *name, size_t size)
 {
-    ssize_t       len;          /* Length of error class's name */
+    ssize_t       len = 0;          /* Length of error class's name */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -663,8 +652,7 @@ H5E_get_class_name(const H5E_cls_t *cls, char *name, size_t size)
     FUNC_LEAVE_NOAPI(len)
 } /* end H5E_get_class_name() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:    H5E_close_msg_cb
  *
@@ -702,8 +690,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_close_msg_cb() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eclose_msg
  *
@@ -736,8 +723,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eclose_msg() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_close_msg
  *
@@ -766,8 +752,7 @@ H5E_close_msg(H5E_msg_t *err)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5E_close_msg() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Ecreate_msg
  *
@@ -827,8 +812,8 @@ done:
 static H5E_msg_t *
 H5E_create_msg(H5E_cls_t *cls, H5E_type_t msg_type, const char *msg_str)
 {
-    H5E_msg_t   *msg = NULL;    /* Pointer to new error message */
-    H5E_msg_t   *ret_value;     /* Return value */
+    H5E_msg_t   *msg = NULL;            /* Pointer to new error message */
+    H5E_msg_t   *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -858,8 +843,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_create_msg() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_msg
  *
@@ -894,8 +878,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eget_msg() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Ecreate_stack
  *
@@ -932,8 +915,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Ecreate_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_current_stack
  *
@@ -969,8 +951,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eget_current_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_get_current_stack
  *
@@ -986,10 +967,10 @@ done:
 static H5E_t *
 H5E_get_current_stack(void)
 {
-    H5E_t	*current_stack; /* Pointer to the current error stack */
-    H5E_t	*estack_copy=NULL;   /* Pointer to new error stack to return */
-    unsigned    u;              /* Local index variable */
-    H5E_t      *ret_value;   /* Return value */
+    H5E_t	*current_stack;         /* Pointer to the current error stack */
+    H5E_t	*estack_copy = NULL;    /* Pointer to new error stack to return */
+    unsigned    u;                      /* Local index variable */
+    H5E_t      *ret_value = NULL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -1047,8 +1028,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_get_current_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eset_current_stack
  *
@@ -1096,8 +1076,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eset_current_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_set_current_stack
  *
@@ -1161,8 +1140,7 @@ done:
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5E_set_current_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eclose_stack
  *
@@ -1200,8 +1178,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eclose_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_close_stack
  *
@@ -1231,8 +1208,7 @@ H5E_close_stack(H5E_t *estack)
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5E_close_stack() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_num
  *
@@ -1277,8 +1253,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eget_num() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5E_get_num
  *
@@ -1301,8 +1276,7 @@ H5E_get_num(const H5E_t *estack)
     FUNC_LEAVE_NOAPI((ssize_t)estack->nused)
 } /* end H5E_get_num() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Epop
  *
@@ -1351,8 +1325,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Epop() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Epush2
  *
@@ -1424,17 +1397,7 @@ H5Epush2(hid_t err_stack, const char *file, const char *func, unsigned line,
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
 
     /* If the description doesn't fit into the initial buffer size, allocate more space and try again */
-    while((desc_len = HDvsnprintf(tmp, (size_t)tmp_len, fmt, ap))
-#ifdef H5_VSNPRINTF_WORKS
-            >
-#else /* H5_VSNPRINTF_WORKS */
-            >=
-#endif /* H5_VSNPRINTF_WORKS */
-            (tmp_len - 1)
-#ifndef H5_VSNPRINTF_WORKS
-            || (desc_len < 0)
-#endif /* H5_VSNPRINTF_WORKS */
-            ) {
+    while((desc_len = HDvsnprintf(tmp, (size_t)tmp_len, fmt, ap)) > (tmp_len - 1)) {
         /* shutdown & restart the va_list */
         va_end(ap);
         va_start(ap, fmt);
@@ -1443,11 +1406,7 @@ H5Epush2(hid_t err_stack, const char *file, const char *func, unsigned line,
         H5MM_xfree(tmp);
 
         /* Allocate a description of the appropriate length */
-#ifdef H5_VSNPRINTF_WORKS
         tmp_len = desc_len + 1;
-#else /* H5_VSNPRINTF_WORKS */
-        tmp_len = 2 * tmp_len;
-#endif /* H5_VSNPRINTF_WORKS */
         if(NULL == (tmp = H5MM_malloc((size_t)tmp_len)))
             HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
     } /* end while */
@@ -1460,14 +1419,21 @@ H5Epush2(hid_t err_stack, const char *file, const char *func, unsigned line,
 done:
     if(va_started)
         va_end(ap);
+#ifdef H5_HAVE_VASPRINTF
+    /* Memory was allocated with HDvasprintf so it needs to be freed
+     * with HDfree
+     */
+    if(tmp)
+        HDfree(tmp);
+#else /* H5_HAVE_VASPRINTF */
     if(tmp)
         H5MM_xfree(tmp);
+#endif /* H5_HAVE_VASPRINTF */
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Epush2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eclear2
  *
@@ -1509,8 +1475,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eclear2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eprint2
  *
@@ -1557,8 +1522,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eprint2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Ewalk2
  *
@@ -1606,8 +1570,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Ewalk2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eget_auto2
  *
@@ -1663,8 +1626,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eget_auto2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eset_auto2
  *
@@ -1733,8 +1695,7 @@ done:
     FUNC_LEAVE_API(ret_value)
 } /* end H5Eset_auto2() */
 
-
-
+
 /*-------------------------------------------------------------------------
  * Function:	H5Eauto_is_v2
  *

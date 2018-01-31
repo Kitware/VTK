@@ -5,20 +5,23 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg   */
-#define H5L_PACKAGE		/*suppress error about including H5Lpkg   */
+/****************/
+/* Module Setup */
+/****************/
 
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5L_init_extern_interface
+#define H5G_FRIEND		/*suppress error about including H5Gpkg   */
+#include "H5Lmodule.h"          /* This source code file is part of the H5L module */
 
+
+/***********/
+/* Headers */
+/***********/
 #include "H5private.h"          /* Generic Functions                    */
 #include "H5ACprivate.h"        /* Metadata cache                       */
 #include "H5Eprivate.h"         /* Error handling                       */
@@ -29,13 +32,52 @@
 #include "H5Opublic.h"          /* File objects                         */
 #include "H5Pprivate.h"         /* Property lists                       */
 
-static hid_t H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
-    const void *udata, size_t UNUSED udata_size, hid_t lapl_id);
-static ssize_t H5L_extern_query(const char UNUSED * link_name, const void *udata,
+
+/****************/
+/* Local Macros */
+/****************/
+
+/* Version of external link format */
+#define H5L_EXT_VERSION         0
+
+/* Valid flags for external links */
+#define H5L_EXT_FLAGS_ALL       0
+
+/* Size of local link name buffer for traversing external links */
+#define H5L_EXT_TRAVERSE_BUF_SIZE       256
+
+
+/******************/
+/* Local Typedefs */
+/******************/
+
+
+/********************/
+/* Local Prototypes */
+/********************/
+
+static hid_t H5L_extern_traverse(const char H5_ATTR_UNUSED *link_name, hid_t cur_group,
+    const void *udata, size_t H5_ATTR_UNUSED udata_size, hid_t lapl_id);
+static ssize_t H5L_extern_query(const char H5_ATTR_UNUSED * link_name, const void *udata,
     size_t udata_size, void * buf /*out*/, size_t buf_size);
 
+
+/*********************/
+/* Package Variables */
+/*********************/
+
+
+/*****************************/
+/* Library Private Variables */
+/*****************************/
+
+
+/*******************/
+/* Local Variables */
+/*******************/
+
 /* Default External Link link class */
-const H5L_class_t H5L_EXTERN_LINK_CLASS[1] = {{
+static const H5L_class_t H5L_EXTERN_LINK_CLASS[1] = {{
     H5L_LINK_CLASS_T_VERS,      /* H5L_class_t version            */
     H5L_TYPE_EXTERNAL,		/* Link type id number            */
     "external",                 /* Link name for debugging        */
@@ -47,40 +89,8 @@ const H5L_class_t H5L_EXTERN_LINK_CLASS[1] = {{
     H5L_extern_query            /* Query callback                 */
 }};
 
-/* Version of external link format */
-#define H5L_EXT_VERSION         0
-
-/* Valid flags for external links */
-#define H5L_EXT_FLAGS_ALL       0
-
-/* Size of local link name buffer for traversing external links */
-#define H5L_EXT_TRAVERSE_BUF_SIZE       256
 
 
-/*--------------------------------------------------------------------------
-NAME
-   H5L_init_extern_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5L_init_extern_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5L_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5L_init_extern_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5L_init())
-} /* H5L_init_extern_interface() */
-
-
-
 /*--------------------------------------------------------------------------
  * Function: H5L_getenv_prefix_name --
  *
@@ -125,8 +135,6 @@ H5L_getenv_prefix_name(char **env_prefix/*in,out*/)
  *
  * Programmer:	Vailin Choi, April 2, 2008
  *
- * Modification: Raymond Lu, 14 Jan. 2009
- *           Added support for OpenVMS pathname
 --------------------------------------------------------------------------*/
 static herr_t
 H5L_build_name(char *prefix, char *file_name, char **full_name/*out*/)
@@ -182,14 +190,14 @@ done:
  *		Otherwise, the file access property retrieved from H5Pget_elink_fapl()
  *		is used to H5F_open() the target file.
  *
- *              Vailin Choi; Nov 2010
- *              Free memory pointed to by tmp_env_prefix for HDF5_EXT_PREFIX case.
+ *		Vailin Choi; Nov 2010
+ *		Free memory pointed to by tmp_env_prefix for HDF5_EXT_PREFIX case.
  *
  *-------------------------------------------------------------------------
  */
 static hid_t
-H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
-    const void *_udata, size_t UNUSED udata_size, hid_t lapl_id)
+H5L_extern_traverse(const char H5_ATTR_UNUSED *link_name, hid_t cur_group,
+    const void *_udata, size_t H5_ATTR_UNUSED udata_size, hid_t lapl_id)
 {
     H5P_genplist_t *plist;              /* Property list pointer */
     char       *my_prefix;              /* Library's copy of the prefix */
@@ -212,7 +220,8 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     char        *actual_file_name = NULL; /* Parent file's actual name */
     H5P_genplist_t  *fa_plist;          /* File access property list pointer */
     H5F_close_degree_t 	fc_degree = H5F_CLOSE_WEAK;  /* File close degree for target file */
-    hid_t       ret_value;              /* Return value */
+    hid_t       dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */
+    hid_t ret_value = H5I_INVALID_HID;  /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
@@ -235,6 +244,10 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     if(NULL == (plist = H5P_object_verify(lapl_id, H5P_LINK_ACCESS)))
         HGOTO_ERROR(H5E_ATOM, H5E_BADATOM, FAIL, "can't find object for ID")
 
+    /* Verify access property list and get correct dxpl */
+    if(H5P_verify_apl_and_dxpl(&lapl_id, H5P_CLS_LACC, &dxpl_id, cur_group, FALSE) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
+
     /* Get the fapl_id set for lapl_id if any */
     if(H5P_get(plist, H5L_ACS_ELINK_FAPL_NAME, &fapl_id) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get fapl for links")
@@ -256,7 +269,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 	HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't get parent's file access property list")
 
     /* Get callback_info */
-    if(H5P_get(plist, H5L_ACS_ELINK_CB_NAME, &cb_info)<0)
+    if(H5P_get(plist, H5L_ACS_ELINK_CB_NAME, &cb_info) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get elink callback info")
 
     /* Get file access property list */
@@ -272,7 +285,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         parent_file_name = H5F_OPEN_NAME(loc.oloc->file);
 
         /* Query length of parent group name */
-        if((group_name_len = H5G_get_name(&loc, NULL, (size_t) 0, NULL, lapl_id, H5AC_ind_dxpl_id)) < 0)
+        if((group_name_len = H5G_get_name(&loc, NULL, (size_t) 0, NULL, lapl_id, dxpl_id)) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve length of group name")
 
         /* Account for null terminator */
@@ -281,13 +294,13 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         /* Check if we need to allocate larger buffer */
         if((size_t)group_name_len > sizeof(local_group_name)) {
             if(NULL == (parent_group_name = (char *)H5MM_malloc((size_t)group_name_len)))
-                HGOTO_ERROR(H5E_LINK, H5E_CANTALLOC, FAIL, "can't allocate buffer to hold group name, group_name_len = %Zu", group_name_len)
+                HGOTO_ERROR(H5E_LINK, H5E_CANTALLOC, FAIL, "can't allocate buffer to hold group name, group_name_len = %zd", group_name_len)
         } /* end if */
         else
             parent_group_name = local_group_name;
 
         /* Get parent group name */
-        if(H5G_get_name(&loc, parent_group_name, (size_t) group_name_len, NULL, lapl_id, H5AC_ind_dxpl_id) < 0)
+        if(H5G_get_name(&loc, parent_group_name, (size_t) group_name_len, NULL, lapl_id, dxpl_id) < 0)
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "unable to retrieve group name")
 
         /* Make callback */
@@ -308,7 +321,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
      */
 
     /* Simplify intent flags for open calls */
-    intent = ((intent & H5F_ACC_RDWR) ? H5F_ACC_RDWR : H5F_ACC_RDONLY);
+    intent &= (H5F_ACC_RDWR | H5F_ACC_SWMR_WRITE | H5F_ACC_SWMR_READ);
 
     /* Copy the file name to use */
     if(NULL == (temp_file_name = H5MM_strdup(file_name)))
@@ -318,7 +331,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     /* target file_name is an absolute pathname: see RM for detailed description */
     if(H5_CHECK_ABSOLUTE(file_name) || H5_CHECK_ABS_PATH(file_name)) {
         /* Try opening file */
-        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id))) {
             char *ptr;
 
             H5E_clear_stack(NULL);
@@ -337,7 +350,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
     } /* end if */
     else if(H5_CHECK_ABS_DRIVE(file_name)) {
         /* Try opening file */
-        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id))) {
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id))) {
 
             H5E_clear_stack(NULL);
 
@@ -367,7 +380,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
                         HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
 		    } /* end if */
 
-                    ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id);
+                    ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id);
                     full_name = (char *)H5MM_xfree(full_name);
                     if(ext_file != NULL)
                         break;
@@ -380,12 +393,12 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
     /* try searching from property list */
     if(ext_file == NULL) {
-        if(H5P_get(plist, H5L_ACS_ELINK_PREFIX_NAME, &my_prefix) < 0)
+        if(H5P_peek(plist, H5L_ACS_ELINK_PREFIX_NAME, &my_prefix) < 0)
             HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get external link prefix")
         if(my_prefix) {
             if(H5L_build_name(my_prefix, temp_file_name, &full_name/*out*/) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
-            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id)))
                 H5E_clear_stack(NULL);
             full_name = (char *)H5MM_xfree(full_name);
         } /* end if */
@@ -398,7 +411,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         if(NULL != (extpath = H5F_EXTPATH(loc.oloc->file))) {
             if(H5L_build_name(extpath, temp_file_name, &full_name/*out*/) < 0)
                 HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
-            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+            if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id)))
                 H5E_clear_stack(NULL);
             full_name = (char *)H5MM_xfree(full_name);
         } /* end if */
@@ -406,7 +419,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
 
     /* try the relative file_name stored in temp_file_name */
     if(ext_file == NULL) {
-        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, temp_file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, temp_file_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id)))
             H5E_clear_stack(NULL);
     } /* end if */
 
@@ -433,7 +446,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
             HGOTO_ERROR(H5E_LINK, H5E_CANTGET, FAIL, "can't prepend prefix to filename")
 
         /* Try opening with the resolved name */
-        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, H5AC_dxpl_id)))
+        if(NULL == (ext_file = H5F_efc_open(loc.oloc->file, full_name, intent, H5P_FILE_CREATE_DEFAULT, fapl_id, dxpl_id)))
             HGOTO_ERROR(H5E_LINK, H5E_CANTOPENFILE, FAIL, "unable to open external file, external link file name = '%s', temp_file_name = '%s'", file_name, temp_file_name)
         full_name = (char *)H5MM_xfree(full_name);
     } /* end if */
@@ -444,7 +457,7 @@ H5L_extern_traverse(const char UNUSED *link_name, hid_t cur_group,
         HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "unable to create location for file")
 
     /* Open the object referenced in the external file */
-    if((ext_obj = H5O_open_name(&root_loc, obj_name, lapl_id, FALSE)) < 0)
+    if((ext_obj = H5O_open_name(&root_loc, obj_name, lapl_id, dxpl_id, FALSE)) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open object")
 
     /* Set return value */
@@ -490,7 +503,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static ssize_t
-H5L_extern_query(const char UNUSED * link_name, const void *_udata, size_t udata_size,
+H5L_extern_query(const char H5_ATTR_UNUSED * link_name, const void *_udata, size_t udata_size,
     void *buf /*out*/, size_t buf_size)
 {
     const uint8_t *udata = (const uint8_t *)_udata;      /* Pointer to external link buffer */
@@ -553,6 +566,7 @@ H5Lcreate_external(const char *file_name, const char *obj_name,
     size_t      file_name_len;          /* Length of file name string */
     size_t      norm_obj_name_len;      /* Length of normalized object name string */
     uint8_t    *p;                      /* Pointer into external link buffer */
+    hid_t       dxpl_id = H5AC_ind_read_dxpl_id; /* dxpl used by library */ 
     herr_t      ret_value = SUCCEED;    /* Return value */
 
     FUNC_ENTER_API(FAIL)
@@ -587,8 +601,12 @@ H5Lcreate_external(const char *file_name, const char *obj_name,
     p += file_name_len;
     HDstrncpy((char *)p, norm_obj_name, buf_size - (file_name_len + 1));       /* External link's object */
 
+    /* Verify access property list and get correct dxpl */
+    if(H5P_verify_apl_and_dxpl(&lapl_id, H5P_CLS_LACC, &dxpl_id, link_loc_id, TRUE) < 0)
+        HGOTO_ERROR(H5E_LINK, H5E_CANTSET, FAIL, "can't set access and transfer property lists")
+
     /* Create an external link */
-    if(H5L_create_ud(&link_loc, link_name, ext_link_buf, buf_size, H5L_TYPE_EXTERNAL, lcpl_id, lapl_id, H5AC_dxpl_id) < 0)
+    if(H5L_create_ud(&link_loc, link_name, ext_link_buf, buf_size, H5L_TYPE_EXTERNAL, lcpl_id, lapl_id, dxpl_id) < 0)
         HGOTO_ERROR(H5E_LINK, H5E_CANTINIT, FAIL, "unable to create link")
 
 done:

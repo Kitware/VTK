@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -24,8 +22,9 @@
  *-------------------------------------------------------------------------
  */
 
-#define H5A_PACKAGE		/*suppress error about including H5Apkg	  */
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
+#define H5A_FRIEND		/*suppress error about including H5Apkg	  */
+#include "H5Omodule.h"          /* This source code file is part of the H5O module */
+
 
 #include "H5private.h"		/* Generic Functions			*/
 #include "H5Apkg.h"             /* Attributes				*/
@@ -105,12 +104,12 @@ H5FL_DEFINE_STATIC(H5O_ainfo_t);
  *-------------------------------------------------------------------------
  */
 static void *
-H5O_ainfo_decode(H5F_t *f, hid_t UNUSED dxpl_id, H5O_t UNUSED *open_oh,
-    unsigned UNUSED mesg_flags, unsigned UNUSED *ioflags, const uint8_t *p)
+H5O_ainfo_decode(H5F_t *f, hid_t H5_ATTR_UNUSED dxpl_id, H5O_t H5_ATTR_UNUSED *open_oh,
+    unsigned H5_ATTR_UNUSED mesg_flags, unsigned H5_ATTR_UNUSED *ioflags, const uint8_t *p)
 {
     H5O_ainfo_t	*ainfo = NULL;  /* Attribute info */
     unsigned char flags;        /* Flags for encoding attribute info */
-    void        *ret_value;     /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -179,7 +178,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_encode(H5F_t *f, hbool_t UNUSED disable_shared, uint8_t *p, const void *_mesg)
+H5O_ainfo_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
 {
     const H5O_ainfo_t   *ainfo = (const H5O_ainfo_t *)_mesg;
     unsigned char       flags;          /* Flags for encoding attribute info */
@@ -239,7 +238,7 @@ H5O_ainfo_copy(const void *_mesg, void *_dest)
 {
     const H5O_ainfo_t   *ainfo = (const H5O_ainfo_t *)_mesg;
     H5O_ainfo_t         *dest = (H5O_ainfo_t *) _dest;
-    void                *ret_value;     /* Return value */
+    void                *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -276,10 +275,10 @@ done:
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O_ainfo_size(const H5F_t *f, hbool_t UNUSED disable_shared, const void *_mesg)
+H5O_ainfo_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void *_mesg)
 {
     const H5O_ainfo_t   *ainfo = (const H5O_ainfo_t *)_mesg;
-    size_t ret_value;   /* Return value */
+    size_t ret_value = 0;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -323,7 +322,9 @@ H5O_ainfo_free(void *mesg)
 /*-------------------------------------------------------------------------
  * Function:    H5O_ainfo_delete
  *
- * Purpose:     Free file space referenced by message
+ * Purpose:     Free file space referenced by message.  Note that open_oh
+ *              *must* be non-NULL - this means that calls to
+ *              H5O_msg_delete must include an oh if the type is ainfo.
  *
  * Return:      Non-negative on success/Negative on failure
  *
@@ -333,7 +334,7 @@ H5O_ainfo_free(void *mesg)
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
+H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t *open_oh, void *_mesg)
 {
     H5O_ainfo_t *ainfo = (H5O_ainfo_t *)_mesg;
     herr_t ret_value = SUCCEED;   /* Return value */
@@ -343,11 +344,14 @@ H5O_ainfo_delete(H5F_t *f, hid_t dxpl_id, H5O_t UNUSED *open_oh, void *_mesg)
     /* check args */
     HDassert(f);
     HDassert(ainfo);
+    HDassert(open_oh);
 
     /* If the object is using "dense" attribute storage, delete it */
-    if(H5F_addr_defined(ainfo->fheap_addr))
+    if(H5F_addr_defined(ainfo->fheap_addr)) {
+        /* Delete the attribute */
         if(H5A_dense_delete(f, dxpl_id, ainfo) < 0)
             HGOTO_ERROR(H5E_OHDR, H5E_CANTFREE, FAIL, "unable to free dense attribute storage")
+    } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -369,8 +373,8 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
-    hbool_t *deleted, const H5O_copy_t *cpy_info, void UNUSED *udata)
+H5O_ainfo_pre_copy_file(H5F_t H5_ATTR_UNUSED *file_src, const void H5_ATTR_UNUSED *native_src,
+    hbool_t *deleted, const H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata)
 {
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
@@ -403,12 +407,12 @@ H5O_ainfo_pre_copy_file(H5F_t UNUSED *file_src, const void UNUSED *native_src,
  */
 static void *
 H5O_ainfo_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
-    hbool_t UNUSED *recompute_size, unsigned UNUSED *mesg_flags,
-    H5O_copy_t *cpy_info, void UNUSED *udata, hid_t dxpl_id)
+    hbool_t H5_ATTR_UNUSED *recompute_size, unsigned H5_ATTR_UNUSED *mesg_flags,
+    H5O_copy_t *cpy_info, void H5_ATTR_UNUSED *udata, hid_t dxpl_id)
 {
     H5O_ainfo_t *ainfo_src = (H5O_ainfo_t *)mesg_src;
     H5O_ainfo_t *ainfo_dst = NULL;
-    void        *ret_value;             /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -427,10 +431,16 @@ H5O_ainfo_copy_file(H5F_t *file_src, void *mesg_src, H5F_t *file_dst,
     *ainfo_dst = *ainfo_src;
 
     if(H5F_addr_defined(ainfo_src->fheap_addr)) {
-        /* copy dense attribute */
+        /* Prepare to copy dense attributes - actual copy in post_copy */
+
+        /* Set copied metadata tag */
+        H5_BEGIN_TAG(dxpl_id, H5AC__COPIED_TAG, NULL);
 
         if(H5A_dense_create(file_dst, dxpl_id, ainfo_dst) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTINIT, NULL, "unable to create dense storage for attributes")
+            HGOTO_ERROR_TAG(H5E_OHDR, H5E_CANTINIT, NULL, "unable to create dense storage for attributes")
+
+        /* Reset metadata tag */
+        H5_END_TAG(NULL);
     } /* end if */
 
     /* Set return value */
@@ -463,7 +473,7 @@ done:
  */
 static herr_t
 H5O_ainfo_post_copy_file(const H5O_loc_t *src_oloc, const void *mesg_src,
-    H5O_loc_t *dst_oloc, void *mesg_dst, unsigned UNUSED *mesg_flags,
+    H5O_loc_t *dst_oloc, void *mesg_dst, unsigned H5_ATTR_UNUSED *mesg_flags,
     hid_t dxpl_id, H5O_copy_t *cpy_info)
 {
     const H5O_ainfo_t *ainfo_src = (const H5O_ainfo_t *)mesg_src;
@@ -498,7 +508,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_ainfo_debug(H5F_t UNUSED *f, hid_t UNUSED dxpl_id, const void *_mesg, FILE * stream,
+H5O_ainfo_debug(H5F_t H5_ATTR_UNUSED *f, hid_t H5_ATTR_UNUSED dxpl_id, const void *_mesg, FILE * stream,
 	       int indent, int fwidth)
 {
     const H5O_ainfo_t       *ainfo = (const H5O_ainfo_t *) _mesg;

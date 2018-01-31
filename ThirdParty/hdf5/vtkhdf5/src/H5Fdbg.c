@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
@@ -19,8 +17,8 @@
  * Purpose:	File object debugging functions.
  */
 
-#define H5F_PACKAGE		/*suppress error about including H5Fpkg	  */
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg   */
+#include "H5Fmodule.h"          /* This source code file is part of the H5F module */
+#define H5G_FRIEND		/*suppress error about including H5Gpkg   */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -104,6 +102,8 @@ H5F_debug(H5F_t *f, FILE *stream, int indent, int fwidth)
 	      "Symbol table leaf node 1/2 rank:", f->shared->sblock->sym_leaf_k);
     HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
 	      "Symbol table internal node 1/2 rank:", f->shared->sblock->btree_k[H5B_SNODE_ID]);
+    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+	      "Indexed storage internal node 1/2 rank:", f->shared->sblock->btree_k[H5B_CHUNK_ID]);
     HDfprintf(stream, "%*s%-*s 0x%02x\n", indent, "", fwidth,
 	      "File status flags:", (unsigned)(f->shared->sblock->status_flags));
     HDfprintf(stream, "%*s%-*s %a (rel)\n", indent, "", fwidth,

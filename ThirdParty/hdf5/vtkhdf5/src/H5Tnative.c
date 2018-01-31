@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,10 +16,7 @@
  *      a "native" datatype for the H5T interface.
  */
 
-#define H5T_PACKAGE		/*suppress error about including H5Tpkg	  */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5T_init_native_interface
+#include "H5Tmodule.h"          /* This source code file is part of the H5T module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -43,27 +38,6 @@ static H5T_t* H5T_get_native_bitfield(size_t prec, H5T_direction_t direction,
 static herr_t H5T_cmp_offset(size_t *comp_size, size_t *offset, size_t elem_size,
                          size_t nelems, size_t align, size_t *struct_align);
 
-
-/*--------------------------------------------------------------------------
-NAME
-   H5T_init_native_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5T_init_native_interface()
-
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5T_init_iterface currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5T_init_native_interface(void)
-{
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
-
-    FUNC_LEAVE_NOAPI(H5T_init())
-} /* H5T_init_native_interface() */
 
 
 /*-------------------------------------------------------------------------
@@ -168,7 +142,7 @@ H5T_get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_alig
     int         snmemb;             /* Number of members in compound & enum types */
     unsigned    nmemb = 0;          /* Number of members in compound & enum types */
     unsigned    u;                  /* Local index variable */
-    H5T_t       *ret_value;         /* Return value */
+    H5T_t       *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -276,7 +250,7 @@ H5T_get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_alig
 
                 if((snmemb = H5T_get_nmembers(dtype)) <= 0)
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "compound data type doesn't have any member")
-                H5_ASSIGN_OVERFLOW(nmemb, snmemb, int, unsigned);
+                H5_CHECKED_ASSIGN(nmemb, unsigned, snmemb, int);
 
                 if(NULL == (memb_list   = (H5T_t **)H5MM_calloc(nmemb * sizeof(H5T_t *))))
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot allocate memory")
@@ -382,13 +356,13 @@ H5T_get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_alig
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "unable to create enum type")
 
                 /* Find the conversion function */
-                if(NULL == (tpath = H5T_path_find(super_type, nat_super_type, NULL, NULL, H5P_DEFAULT, FALSE)))
+                if(NULL == (tpath = H5T_path_find(super_type, nat_super_type, NULL, NULL, H5AC_noio_dxpl_id, FALSE)))
                     HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, NULL, "unable to convert between src and dst data types")
 
                 /* Retrieve member info and insert members into new enum type */
                 if((snmemb = H5T_get_nmembers(dtype)) <= 0)
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "enumerate data type doesn't have any member")
-                H5_ASSIGN_OVERFLOW(nmemb, snmemb, int, unsigned);
+                H5_CHECKED_ASSIGN(nmemb, unsigned, snmemb, int);
                 for(u = 0; u < nmemb; u++) {
                     if(NULL == (memb_name = H5T__get_member_name(dtype, u)))
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member name")
@@ -396,7 +370,7 @@ H5T_get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_alig
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member value")
                     HDmemcpy(memb_value, tmp_memb_value, H5T_get_size(super_type));
 
-                    if(H5T_convert(tpath, super_type_id, nat_super_type_id, (size_t)1, (size_t)0, (size_t)0, memb_value, NULL, H5P_DEFAULT) < 0)
+                    if(H5T_convert(tpath, super_type_id, nat_super_type_id, (size_t)1, (size_t)0, (size_t)0, memb_value, NULL, H5AC_noio_dxpl_id) < 0)
                         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get member value")
 
                     if(H5T__enum_insert(new_type, memb_name, memb_value) < 0)
@@ -429,7 +403,7 @@ H5T_get_native_type(H5T_t *dtype, H5T_direction_t direction, size_t *struct_alig
                 /* Retrieve dimension information for array data type */
                 if((sarray_rank = H5T__get_array_ndims(dtype)) <= 0)
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot get dimension rank")
-                H5_ASSIGN_OVERFLOW(array_rank, sarray_rank, int, unsigned);
+                H5_CHECKED_ASSIGN(array_rank, unsigned, sarray_rank, int);
                 if(NULL == (dims = (hsize_t*)H5MM_malloc(array_rank * sizeof(hsize_t))))
                     HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "cannot allocate memory")
                 if(H5T__get_array_dims(dtype, dims) < 0)
@@ -571,7 +545,7 @@ H5T_get_native_integer(size_t prec, H5T_sign_t sign, H5T_direction_t direction,
         H5T_NATIVE_INT_MATCH_LLONG,
         H5T_NATIVE_INT_MATCH_UNKNOWN
     } match = H5T_NATIVE_INT_MATCH_UNKNOWN;
-    H5T_t       *ret_value;     /* Return value */
+    H5T_t       *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -711,7 +685,7 @@ H5T_get_native_float(size_t size, H5T_direction_t direction, size_t *struct_alig
 #endif
         H5T_NATIVE_FLOAT_MATCH_UNKNOWN
     } match=H5T_NATIVE_FLOAT_MATCH_UNKNOWN;
-    H5T_t       *ret_value;     /* Return value */
+    H5T_t       *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -829,7 +803,7 @@ H5T_get_native_bitfield(size_t prec, H5T_direction_t direction, size_t *struct_a
     hid_t       tid=(-1);       /* Datatype ID of appropriate native datatype */
     size_t      align=0;        /* Alignment necessary for native datatype */
     size_t      native_size=0;  /* Datatype size of the native type */
-    H5T_t       *ret_value;     /* Return value */
+    H5T_t       *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 

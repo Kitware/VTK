@@ -5,20 +5,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /****************/
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg	  */
-#define H5G_PACKAGE		/*suppress error about including H5Gpkg	  */
+#include "H5Gmodule.h"          /* This source code file is part of the H5G module */
+#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
 
 
 /***********/
@@ -53,7 +51,7 @@ static hid_t H5O_group_open(const H5G_loc_t *obj_loc, hid_t lapl_id,
 static void *H5O_group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc,
     hid_t dxpl_id);
 static H5O_loc_t *H5O_group_get_oloc(hid_t obj_id);
-static herr_t H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh,
+static herr_t H5O_group_bh_info(const H5O_loc_t *loc, hid_t dxpl_id, H5O_t *oh,
     H5_ih_info_t *bh_info);
 
 
@@ -107,7 +105,7 @@ H5FL_DEFINE(H5G_copy_file_ud_t);
 static void *
 H5O_group_get_copy_file_udata(void)
 {
-    void *ret_value;       /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -177,7 +175,7 @@ H5O_group_isa(struct H5O_t *oh)
 {
     htri_t	stab_exists;            /* Whether the 'stab' message is in the object header */
     htri_t	linfo_exists;           /* Whether the 'linfo' message is in the object header */
-    htri_t	ret_value;              /* Return value */
+    htri_t	ret_value = FAIL;       /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -210,10 +208,10 @@ done:
  *-------------------------------------------------------------------------
  */
 static hid_t
-H5O_group_open(const H5G_loc_t *obj_loc, hid_t UNUSED lapl_id, hid_t dxpl_id, hbool_t app_ref)
+H5O_group_open(const H5G_loc_t *obj_loc, hid_t H5_ATTR_UNUSED lapl_id, hid_t dxpl_id, hbool_t app_ref)
 {
     H5G_t       *grp = NULL;            /* Group opened */
-    hid_t	ret_value;              /* Return value */
+    hid_t	ret_value = H5I_INVALID_HID;    /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -254,7 +252,7 @@ H5O_group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc, hid_t dxpl_id)
 {
     H5G_obj_create_t *crt_info = (H5G_obj_create_t *)_crt_info; /* Group creation parameters */
     H5G_t *grp = NULL;          /* New group created */
-    void *ret_value;            /* Return value */
+    void *ret_value = NULL;     /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -302,7 +300,7 @@ static H5O_loc_t *
 H5O_group_get_oloc(hid_t obj_id)
 {
     H5G_t       *grp;                   /* Group opened */
-    H5O_loc_t	*ret_value;             /* Return value */
+    H5O_loc_t	*ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -333,7 +331,7 @@ done:
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
+H5O_group_bh_info(const H5O_loc_t *loc, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
 {
     htri_t	exists;                 /* Flag if header message of interest exists */
     H5HF_t      *fheap = NULL;          /* Fractal heap handle */
@@ -341,10 +339,12 @@ H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
     H5B2_t      *bt2_corder = NULL;     /* v2 B-tree handle for creation order index */
     herr_t      ret_value = SUCCEED;  	/* Return value */
 
-    FUNC_ENTER_NOAPI_NOINIT
+    FUNC_ENTER_NOAPI_NOINIT_TAG(dxpl_id, oh->cache_info.addr, FAIL)
 
     /* Sanity check */
-    HDassert(f);
+    HDassert(loc);
+    HDassert(loc->file);
+    HDassert(H5F_addr_defined(loc->addr));
     HDassert(oh);
     HDassert(bh_info);
 
@@ -355,13 +355,13 @@ H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         H5O_linfo_t linfo;          	/* Link info message */
 
         /* Get "new style" group info */
-        if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_LINFO_ID, &linfo))
+        if(NULL == H5O_msg_read_oh(loc->file, dxpl_id, oh, H5O_LINFO_ID, &linfo))
 	    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't read LINFO message")
 
         /* Check if name index available */
         if(H5F_addr_defined(linfo.name_bt2_addr)) {
             /* Open the name index v2 B-tree */
-            if(NULL == (bt2_name = H5B2_open(f, dxpl_id, linfo.name_bt2_addr, NULL)))
+            if(NULL == (bt2_name = H5B2_open(loc->file, dxpl_id, linfo.name_bt2_addr, NULL)))
                 HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for name index")
 
             /* Get name index B-tree size */
@@ -372,7 +372,7 @@ H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         /* Check if creation order index available */
 	if(H5F_addr_defined(linfo.corder_bt2_addr)) {
             /* Open the creation order index v2 B-tree */
-            if(NULL == (bt2_corder = H5B2_open(f, dxpl_id, linfo.corder_bt2_addr, NULL)))
+            if(NULL == (bt2_corder = H5B2_open(loc->file, dxpl_id, linfo.corder_bt2_addr, NULL)))
                 HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for creation order index")
 
             /* Get creation order index B-tree size */
@@ -383,7 +383,7 @@ H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         /* Get fractal heap size, if available */
         if(H5F_addr_defined(linfo.fheap_addr)) {
             /* Open the fractal heap for links */
-            if(NULL == (fheap = H5HF_open(f, dxpl_id, linfo.fheap_addr)))
+            if(NULL == (fheap = H5HF_open(loc->file, dxpl_id, linfo.fheap_addr)))
                 HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open fractal heap")
 
             /* Get heap storage size */
@@ -395,11 +395,11 @@ H5O_group_bh_info(H5F_t *f, hid_t dxpl_id, H5O_t *oh, H5_ih_info_t *bh_info)
         H5O_stab_t          stab;       	/* Info about symbol table */
 
         /* Must be "old style" group, get symbol table message */
-        if(NULL == H5O_msg_read_oh(f, dxpl_id, oh, H5O_STAB_ID, &stab))
+        if(NULL == H5O_msg_read_oh(loc->file, dxpl_id, oh, H5O_STAB_ID, &stab))
 	    HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't find LINFO nor STAB messages")
 
         /* Get symbol table size info */
-        if(H5G__stab_bh_size(f, dxpl_id, &stab, bh_info) < 0)
+        if(H5G__stab_bh_size(loc->file, dxpl_id, &stab, bh_info) < 0)
             HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve symbol table size info")
     } /* end else */
 
@@ -412,6 +412,6 @@ done:
     if(bt2_corder && H5B2_close(bt2_corder, dxpl_id) < 0)
         HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for creation order index")
 
-    FUNC_LEAVE_NOAPI(ret_value)
+    FUNC_LEAVE_NOAPI_TAG(ret_value, FAIL)
 } /* end H5O_group_bh_info() */
 

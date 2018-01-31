@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -32,11 +30,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"    /* Generic Functions      */
-#include "H5Fprivate.h"    /* File access        */
-#include "H5MMprivate.h"  /* Memory management      */
-#include "H5Eprivate.h"
-
+#include "H5private.h"        /* Generic Functions            */
+#include "H5Eprivate.h"        /* Error handling              */
+#include "H5Fprivate.h"        /* File access                */
+#include "H5MMprivate.h"    /* Memory management            */
 
 
 /****************/
@@ -72,6 +69,9 @@
 /*******************/
 /* Local Variables */
 /*******************/
+
+/* Track whether tzset routine was called */
+static hbool_t H5_ntzset = FALSE;
 
 
 /*-------------------------------------------------------------------------
@@ -170,7 +170,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                 s = rest;
             } /* end if */
             else if ('*'==*s) {
-                fwidth = va_arg (ap, int);
+                fwidth = va_arg(ap, int);
                 if(fwidth < 0) {
                     leftjust = 1;
                     fwidth = -fwidth;
@@ -267,23 +267,22 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                 len += HDsnprintf(format_templ + len, (sizeof(format_templ) - (size_t)(len + 1)), "%s", modifier);
             HDsnprintf(format_templ + len, (sizeof(format_templ) - (size_t)(len + 1)), "%c", conv);
 
-
             /* Conversion */
             switch (conv) {
                 case 'd':
                 case 'i':
                     if(!HDstrcmp(modifier, "h")) {
-                        short x = (short)va_arg (ap, int);
-                        n = fprintf (stream, format_templ, x);
+                        short x = (short)va_arg(ap, int);
+                        n = fprintf(stream, format_templ, x);
                     } else if(!*modifier) {
-                        int x = va_arg (ap, int);
-                        n = fprintf (stream, format_templ, x);
-                    } else if(!HDstrcmp (modifier, "l")) {
-                        long x = va_arg (ap, long);
-                        n = fprintf (stream, format_templ, x);
+                        int x = va_arg(ap, int);
+                        n = fprintf(stream, format_templ, x);
+                    } else if(!HDstrcmp(modifier, "l")) {
+                        long x = va_arg(ap, long);
+                        n = fprintf(stream, format_templ, x);
                     } else {
                         int64_t x = va_arg(ap, int64_t);
-                        n = fprintf (stream, format_templ, x);
+                        n = fprintf(stream, format_templ, x);
                     }
                     break;
 
@@ -292,13 +291,13 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                 case 'x':
                 case 'X':
                     if(!HDstrcmp(modifier, "h")) {
-                        unsigned short x = (unsigned short)va_arg (ap, unsigned int);
+                        unsigned short x = (unsigned short)va_arg(ap, unsigned int);
                         n = fprintf(stream, format_templ, x);
                     } else if(!*modifier) {
-                        unsigned int x = va_arg (ap, unsigned int); /*lint !e732 Loss of sign not really occuring */
+                        unsigned int x = va_arg(ap, unsigned int); /*lint !e732 Loss of sign not really occuring */
                         n = fprintf(stream, format_templ, x);
                     } else if(!HDstrcmp(modifier, "l")) {
-                        unsigned long x = va_arg (ap, unsigned long); /*lint !e732 Loss of sign not really occuring */
+                        unsigned long x = va_arg(ap, unsigned long); /*lint !e732 Loss of sign not really occuring */
                         n = fprintf(stream, format_templ, x);
                     } else {
                         uint64_t x = va_arg(ap, uint64_t); /*lint !e732 Loss of sign not really occuring */
@@ -313,7 +312,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                 case 'G':
                     if(!HDstrcmp(modifier, "h")) {
                         float x = (float)va_arg(ap, double);
-                        n = fprintf(stream, format_templ, x);
+                        n = fprintf(stream, format_templ, (double)x);
                     } else if(!*modifier || !HDstrcmp(modifier, "l")) {
                         double x = va_arg(ap, double);
                         n = fprintf(stream, format_templ, x);
@@ -334,7 +333,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
 
                 case 'a':
                     {
-                        haddr_t x = va_arg (ap, haddr_t); /*lint !e732 Loss of sign not really occuring */
+                        haddr_t x = va_arg(ap, haddr_t); /*lint !e732 Loss of sign not really occuring */
 
                         if(H5F_addr_defined(x)) {
                             len = 0;
@@ -403,7 +402,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
                         htri_t tri_var = va_arg(ap, htri_t);
 
                         if(tri_var > 0)
-                            fprintf (stream, "TRUE");
+                            fprintf(stream, "TRUE");
                         else if(!tri_var)
                             fprintf(stream, "FALSE");
                         else
@@ -473,6 +472,7 @@ HDfprintf(FILE *stream, const char *fmt, ...)
  *
  *-------------------------------------------------------------------------
  */
+#ifndef HDstrtoll
 int64_t
 HDstrtoll(const char *s, const char **rest, int base)
 {
@@ -548,7 +548,7 @@ HDstrtoll(const char *s, const char **rest, int base)
         *rest = s;
     return acc;
 } /* end HDstrtoll() */
-
+#endif
 
 /*-------------------------------------------------------------------------
  * Function:  HDrand/HDsrand
@@ -582,46 +582,156 @@ void HDsrand(unsigned int seed)
 {
     g_seed = seed;
 }
-#endif
+#endif /* H5_HAVE_RAND_R */
 
 
+
 /*-------------------------------------------------------------------------
- * Function:  HDremove_all
+ * Function:    Pflock
  *
- * Purpose:  Wrapper function for remove on VMS systems
+ * Purpose:     Wrapper function for POSIX systems where flock(2) is not
+ *              available.
  *
- *     This function deletes all versions of a file
- *
- * Return:  Success:        0;
- *
- *    Failure:  -1
- *
- * Programmer:  Elena Pourmal
- *              March 22, 2006
+ * Return:      Success:    0
+ *              Failure:    -1
  *
  *-------------------------------------------------------------------------
  */
-#ifdef H5_VMS
+/* NOTE: Compile this all the time on POSIX systems, even when flock(2) is
+ *       present so that it's less likely to become dead code.
+ */
+#ifdef H5_HAVE_FCNTL
 int
-HDremove_all(const char *fname)
-{
-    int ret_value = -1;
-    size_t fname_len;
-    char *_fname;
+Pflock(int fd, int operation) {
 
-    fname_len = HDstrlen(fname) + 3;    /* to accomodate ";*" and null terminator */
-    _fname = (char *)H5MM_malloc(fname_len);
-    if(_fname) {
-        HDsnprintf(_fname, fname_len, "%s;*", fname);
-        /* Do not use HDremove; function becomes recursive (see H5private.h file)*/
-        remove(_fname);
-        H5MM_xfree(_fname);
-        ret_value = 0;
-    }
-    return ret_value;
-}
+    struct flock    flk;
+
+    /* Set the lock type */
+    if(operation & LOCK_UN)
+        flk.l_type = F_UNLCK;
+    else if(operation & LOCK_SH)
+        flk.l_type = F_RDLCK;
+    else
+        flk.l_type = F_WRLCK;
+
+    /* Set the other flock struct values */
+    flk.l_whence = SEEK_SET;
+    flk.l_start = 0;
+    flk.l_len = 0;              /* to EOF */
+    flk.l_pid = 0;              /* not used with set */
+
+    /* Lock or unlock */
+    if(HDfcntl(fd, F_SETLK, flk) < 0)
+        return -1;
+
+    return 0;
+
+} /* end Pflock() */
+#endif /* H5_HAVE_FCNTL */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    Nflock
+ *
+ * Purpose:     Wrapper function for systems where no file locking is
+ *              available.
+ *
+ * Return:      Failure:    -1 (always fails)
+ *
+ *-------------------------------------------------------------------------
+ */
+int H5_ATTR_CONST
+Nflock(int H5_ATTR_UNUSED fd, int H5_ATTR_UNUSED operation) {
+    /* just fail */
+    return -1;
+} /* end Nflock() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_make_time
+ *
+ * Purpose:    Portability routine to abstract converting a 'tm' struct into
+ *        a time_t value.
+ *
+ * Note:    This is a little problematic because mktime() operates on
+ *        local times.  We convert to local time and then figure out the
+ *        adjustment based on the local time zone and daylight savings
+ *        setting.
+ *
+ * Return:    Success:  The value of timezone
+ *        Failure:  -1
+ *
+ * Programmer:  Quincey Koziol
+ *              November 18, 2015
+ *
+ *-------------------------------------------------------------------------
+ */
+time_t
+H5_make_time(struct tm *tm)
+{
+    time_t the_time;    /* The converted time */
+#if defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900)  /* VS 2015 */
+    /* In gcc and in Visual Studio prior to VS 2015 'timezone' is a global
+     * variable declared in time.h. That variable was deprecated and in
+     * VS 2015 is removed, with _get_timezone replacing it.
+     */
+    long timezone = 0;
+#endif /* defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) */
+    time_t ret_value;   /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    /* Sanity check */
+    HDassert(tm);
+
+    /* Initialize timezone information */
+    if(!H5_ntzset) {
+        HDtzset();
+        H5_ntzset = TRUE;
+    } /* end if */
+
+    /* Perform base conversion */
+    if((time_t)-1 == (the_time = HDmktime(tm)))
+        HGOTO_ERROR(H5E_INTERNAL, H5E_CANTCONVERT, FAIL, "badly formatted modification time message")
+
+    /* Adjust for timezones */
+#if defined(H5_HAVE_TM_GMTOFF)
+    /* BSD-like systems */
+    the_time += tm->tm_gmtoff;
+#elif defined(H5_HAVE_TIMEZONE)
+#if defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900)  /* VS 2015 */
+    /* In gcc and in Visual Studio prior to VS 2015 'timezone' is a global
+     * variable declared in time.h. That variable was deprecated and in
+     * VS 2015 is removed, with _get_timezone replacing it.
+     */
+    _get_timezone(&timezone);
+#endif /* defined(H5_HAVE_VISUAL_STUDIO) && (_MSC_VER >= 1900) */
+
+    the_time -= timezone - (tm->tm_isdst ? 3600 : 0);
+#else
+    /*
+     * The catch-all.  If we can't convert a character string universal
+     * coordinated time to a time_t value reliably then we can't decode the
+     * modification time message. This really isn't as bad as it sounds -- the
+     * only way a user can get the modification time is from our internal
+     * query routines, which can gracefully recover.
+     */
+    HGOTO_ERROR(H5E_INTERNAL, H5E_UNSUPPORTED, FAIL, "unable to obtain local timezone information")
 #endif
 
+    /* Set return value */
+    ret_value = the_time;
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5_make_time() */
+
+#ifdef H5_HAVE_WIN32_API
+
+/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosecond units */
+#define _W32_FT_OFFSET (116444736000000000ULL)
+
+
 /*-------------------------------------------------------------------------
  * Function:  Wgettimeofday
  *
@@ -643,14 +753,9 @@ HDremove_all(const char *fname)
  *
  *-------------------------------------------------------------------------
  */
-#ifdef H5_HAVE_VISUAL_STUDIO
-
-/* Offset between 1/1/1601 and 1/1/1970 in 100 nanosecond units */
-#define _W32_FT_OFFSET (116444736000000000ULL)
-
 int
 Wgettimeofday(struct timeval *tv, struct timezone *tz)
- {
+{
   union {
     unsigned long long ns100; /*time since 1 Jan 1601 in 100ns units */
     FILETIME ft;
@@ -676,7 +781,42 @@ Wgettimeofday(struct timeval *tv, struct timezone *tz)
   /* Always return 0 as per Open Group Base Specifications Issue 6.
      Do not set errno on error.  */
   return 0;
-}
+} /* end Wgettimeofday() */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    Wsetenv
+ *
+ * Purpose:     Wrapper function for setenv on Windows systems.
+ *              Interestingly, getenv *is* available in the Windows
+ *              POSIX layer, just not setenv.
+ *
+ * Return:      Success:    0
+ *              Failure:    non-zero error code
+ *
+ * Programmer:  Dana Robinson
+ *              February 2016
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+Wsetenv(const char *name, const char *value, int overwrite)
+{
+    size_t bufsize;
+    errno_t err;
+
+    /* If we're not overwriting, check if the environment variable exists.
+     * If it does (i.e.: the required buffer size to store the variable's
+     * value is non-zero), then return an error code.
+     */
+    if(!overwrite) {
+        err = getenv_s(&bufsize, NULL, 0, name);
+        if (err || bufsize)
+            return (int)err;
+    } /* end if */
+
+    return (int)_putenv_s(name, value);
+} /* end Wsetenv() */
 
 #ifdef H5_HAVE_WINSOCK2_H
 #pragma comment(lib, "advapi32.lib")
@@ -698,62 +838,171 @@ Wgetlogin()
         return NULL;
 }
 
-int HDsnprintf(char* str, size_t size, const char* format, ...)
+int c99_snprintf(char* str, size_t size, const char* format, ...)
 {
     int count;
     va_list ap;
 
     va_start(ap, format);
-    count = HDvsnprintf(str, size, format, ap);
+    count = c99_vsnprintf(str, size, format, ap);
     va_end(ap);
 
     return count;
 }
 
-int HDvsnprintf(char* str, size_t size, const char* format, va_list ap)
+int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
 {
     int count = -1;
 
     if (size != 0)
-    {
-#if (_MSC_VER > 1310)
-    count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
-#else
-    /* Visual Studio 2003 7.1 does not define vsnprintf_s */
-    size_t c = size - 1;
-    count = _vsnprintf(str, c, format, ap);
-#endif
-    }
+        count = _vsnprintf_s(str, size, _TRUNCATE, format, ap);
     if (count == -1)
         count = _vscprintf(format, ap);
 
     return count;
 }
 
-#endif
+
+/*-------------------------------------------------------------------------
+ * Function:    Wflock
+ *
+ * Purpose:     Wrapper function for flock on Windows systems
+ *
+ * Return:      Success:    0
+ *              Failure:    -1
+ *
+ *-------------------------------------------------------------------------
+ */
+int
+Wflock(int H5_ATTR_UNUSED fd, int H5_ATTR_UNUSED operation) {
+
+/* This is a no-op while we implement a Win32 VFD */
+#if 0
+int
+Wflock(int fd, int operation) {
+
+    HANDLE          hFile;
+    DWORD           dwFlags = LOCKFILE_FAIL_IMMEDIATELY;
+    DWORD           dwReserved = 0;
+                    /* MAXDWORD for entire file */
+    DWORD           nNumberOfBytesToLockLow = MAXDWORD;
+    DWORD           nNumberOfBytesToLockHigh = MAXDWORD;
+                    /* Must initialize OVERLAPPED struct */
+    OVERLAPPED      overlapped = {0};
+
+    /* Get Windows HANDLE */
+    hFile = _get_osfhandle(fd);
+
+    /* Convert to Windows flags */
+    if(operation & LOCK_EX)
+        dwFlags |= LOCKFILE_EXCLUSIVE_LOCK;
+
+    /* Lock or unlock */
+    if(operation & LOCK_UN)
+        if(0 == UnlockFileEx(hFile, dwReserved, nNumberOfBytesToLockLow,
+                            nNumberOfBytesToLockHigh, &overlapped))
+            return -1;
+    else
+        if(0 == LockFileEx(hFile, dwFlags, dwReserved, nNumberOfBytesToLockLow,
+                            nNumberOfBytesToLockHigh, &overlapped))
+            return -1;
+#endif /* 0 */
+    return 0;
+} /* end Wflock() */
+
+
+ /*--------------------------------------------------------------------------
+  * Function:    Wnanosleep
+  *
+  * Purpose:     Sleep for a given # of nanoseconds (Windows version)
+  *
+  * Return:      SUCCEED/FAIL
+  *
+  * Programmer:  Dana Robinson
+  *              Fall 2016
+  *--------------------------------------------------------------------------
+  */
+int
+Wnanosleep(const struct timespec *req, struct timespec *rem)
+{
+    /* XXX: Currently just a placeholder */
+    return 0;
+
+} /* end Wnanosleep() */
 
 
 /*-------------------------------------------------------------------------
- * Function: H5_build_extpath
+ * Function:    Wllround, Wllroundf, Wlround, Wlroundf, Wround, Wroundf
  *
- * Purpose:  To build the path for later searching of target file for external
- *    link.  This path can be either:
+ * Purpose:     Wrapper function for round functions for use with VS2012
+ *              and earlier.
+ *
+ * Return:      The rounded value that was passed in.
+ *
+ * Programmer:  Dana Robinson
+ *              December 2016
+ *
+ *-------------------------------------------------------------------------
+ */
+long long
+Wllround(double arg)
+{
+    return (long long)(arg < 0.0 ? HDceil(arg - 0.5) : HDfloor(arg + 0.5));
+}
+
+long long
+Wllroundf(float arg)
+{
+    return (long long)(arg < 0.0F ? HDceil(arg - 0.5F) : HDfloor(arg + 0.5F));
+}
+
+long
+Wlround(double arg)
+{
+    return (long)(arg < 0.0 ? HDceil(arg - 0.5) : HDfloor(arg + 0.5));
+}
+
+long
+Wlroundf(float arg)
+{
+    return (long)(arg < 0.0F ? HDceil(arg - 0.5F) : HDfloor(arg + 0.5F));
+}
+
+double
+Wround(double arg)
+{
+    return arg < 0.0 ? HDceil(arg - 0.5) : HDfloor(arg + 0.5);
+}
+
+float
+Wroundf(float arg)
+{
+    return arg < 0.0F ? HDceil(arg - 0.5F) : HDfloor(arg + 0.5F);
+}
+
+#endif /* H5_HAVE_WIN32_API */
+
+
+/*-------------------------------------------------------------------------
+ * Function:    H5_build_extpath
+ *
+ * Purpose:     To build the path for later searching of target file for external
+ *              links and external files.  This path can be either:
  *                  1. The absolute path of NAME
  *                      or
  *                  2. The current working directory + relative path of NAME
  *
- * Return:  Success:        0
- *    Failure:  -1
+ * Return:      SUCCEED/FAIL
  *
  * Programmer:  Vailin Choi
- *    April 2, 2008
+ *              April 2, 2008
  *
  *-------------------------------------------------------------------------
  */
 #define MAX_PATH_LEN     1024
 
 herr_t
-H5_build_extpath(const char *name, char **extpath/*out*/)
+H5_build_extpath(const char *name, char **extpath /*out*/)
 {
     char        *full_path = NULL;      /* Pointer to the full path, as built or passed in */
     char        *cwdpath = NULL;        /* Pointer to the current working directory path */
@@ -772,8 +1021,6 @@ H5_build_extpath(const char *name, char **extpath/*out*/)
     /*
      * Unix: name[0] is a "/"
      * Windows: name[0-2] is "<drive letter>:\" or "<drive-letter>:/"
-     * OpenVMS: <disk name>$<partition>:[path]<file name>
-     *     i.g. SYS$SYSUSERS:[LU.HDF5.SRC]H5system.c
      */
     if(H5_CHECK_ABSOLUTE(name)) {
         if(NULL == (full_path = (char *)H5MM_strdup(name)))
@@ -794,7 +1041,6 @@ H5_build_extpath(const char *name, char **extpath/*out*/)
          * Windows: name[0-1] is "<drive-letter>:"
          *   Get current working directory on the drive specified in NAME
          * Unix: does not apply
-         * OpenVMS: does not apply
          */
         if(H5_CHECK_ABS_DRIVE(name)) {
             drive = name[0] - 'A' + 1;
@@ -805,14 +1051,13 @@ H5_build_extpath(const char *name, char **extpath/*out*/)
         * Windows: name[0] is a '/' or '\'
         *  Get current drive
         * Unix: does not apply
-        * OpenVMS: does not apply
         */
         else if(H5_CHECK_ABS_PATH(name) && (0 != (drive = HDgetdrive()))) {
             HDsnprintf(cwdpath, MAX_PATH_LEN, "%c:%c", (drive + 'A' - 1), name[0]);
             retcwd = cwdpath;
             HDstrncpy(new_name, &name[1], name_len);
         }
-        /* totally relative for Unix, Windows, and OpenVMS: get current working directory  */
+        /* totally relative for Unix and Windows: get current working directory  */
         else {
             retcwd = HDgetcwd(cwdpath, MAX_PATH_LEN);
             HDstrncpy(new_name, name, name_len);
@@ -831,26 +1076,9 @@ H5_build_extpath(const char *name, char **extpath/*out*/)
                 HGOTO_ERROR(H5E_INTERNAL, H5E_NOSPACE, FAIL, "memory allocation failed")
 
             HDstrncpy(full_path, cwdpath, cwdlen + 1);
-#ifdef H5_VMS
-            /* If the file name contains relative path, cut off the beginning bracket.  Also cut off the
-             * ending bracket of CWDPATH to combine the full path name. i.g.
-             *     cwdpath = SYS$SYSUSERS:[LU.HDF5.TEST]
-             *     new_name = [.tmp]extlinks.h5
-             *     full_path = SYS$SYSUSERS:[LU.HDF5.TEST.tmp]extlinks.h5
-             */
-            if(new_name[0] == '[') {
-                char *tmp = new_name;
-
-                full_path[cwdlen - 1] = '\0';
-                HDstrncat(full_path, ++tmp, HDstrlen(tmp));
-            } /* end if */
-            else
-                HDstrncat(full_path, new_name, HDstrlen(new_name));
-#else
             if(!H5_CHECK_DELIMITER(cwdpath[cwdlen - 1]))
                 HDstrncat(full_path, H5_DIR_SEPS, HDstrlen(H5_DIR_SEPS));
             HDstrncat(full_path, new_name, HDstrlen(new_name));
-#endif
         } /* end if */
     } /* end else */
 
@@ -872,5 +1100,140 @@ done:
         H5MM_xfree(new_name);
 
     FUNC_LEAVE_NOAPI(ret_value)
-} /* H5_build_extpath() */
+} /* end H5_build_extpath() */
+
+
+/*--------------------------------------------------------------------------
+ * Function:    H5_combine_path
+ *
+ * Purpose:     If path2 is relative, interpret path2 as relative to path1
+ *              and store the result in full_name. Otherwise store path2
+ *              in full_name.
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Steffen Kiess
+ *              June 22, 2015
+ *--------------------------------------------------------------------------
+ */
+herr_t
+H5_combine_path(const char* path1, const char* path2, char **full_name /*out*/)
+{
+    size_t      path1_len;            /* length of path1 */
+    size_t      path2_len;            /* length of path2 */
+    herr_t      ret_value = SUCCEED;  /* Return value */
+
+    FUNC_ENTER_NOAPI_NOINIT
+
+    HDassert(path1);
+    HDassert(path2);
+
+    path1_len = HDstrlen(path1);
+    path2_len = HDstrlen(path2);
+
+    if(*path1 == '\0' || H5_CHECK_ABSOLUTE(path2)) {
+
+        /* If path1 is empty or path2 is absolute, simply use path2 */
+        if(NULL == (*full_name = (char *)H5MM_strdup(path2)))
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+
+    } /* end if */
+    else if(H5_CHECK_ABS_PATH(path2)) {
+
+        /* On windows path2 is a path absolute name */
+        if (H5_CHECK_ABSOLUTE(path1) || H5_CHECK_ABS_DRIVE(path1)) {
+            /* path1 is absolute or drive absolute and path2 is path absolute.
+             * Use the drive letter of path1 + path2
+             */
+            if(NULL == (*full_name = (char *)H5MM_malloc(path2_len + 3)))
+                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate path2 buffer")
+            HDsnprintf(*full_name, (path2_len + 3), "%c:%s", path1[0], path2);
+        } /* end if */
+        else {
+            /* On windows path2 is path absolute name ("\foo\bar"),
+             * path1 does not have a drive letter (i.e. is "a\b" or "\a\b").
+             * Use path2.
+             */
+            if(NULL == (*full_name = (char *)H5MM_strdup(path2)))
+                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+        } /* end else */
+
+    } /* end else if */
+    else {
+
+        /* Relative path2:
+         * Allocate a buffer to hold path1 + path2 + possibly the delimiter
+         *      + terminating null byte
+         */
+        if(NULL == (*full_name = (char *)H5MM_malloc(path1_len + path2_len + 2)))
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate filename buffer")
+
+        /* Compose the full file name */
+        HDsnprintf(*full_name, (path1_len + path2_len + 2), "%s%s%s", path1,
+                   (H5_CHECK_DELIMITER(path1[path1_len - 1]) ? "" : H5_DIR_SEPS), path2);
+    } /* end else */
+
+done:
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5_combine_path() */
+
+
+/*--------------------------------------------------------------------------
+ * Function:    H5_nanosleep
+ *
+ * Purpose:     Sleep for a given # of nanoseconds
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Quincey Koziol
+ *              October 01, 2016
+ *--------------------------------------------------------------------------
+ */
+void
+H5_nanosleep(uint64_t nanosec)
+{
+    struct timespec sleeptime;  /* Struct to hold time to sleep */
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+    /* Set up time to sleep */
+    sleeptime.tv_sec = 0;
+    sleeptime.tv_nsec = (long)nanosec;
+
+    HDnanosleep(&sleeptime, NULL);
+
+    FUNC_LEAVE_NOAPI_VOID
+} /* end H5_nanosleep() */
+
+
+/*--------------------------------------------------------------------------
+ * Function:    H5_get_time
+ *
+ * Purpose:     Get the current time, as the time of seconds after the UNIX epoch
+ *
+ * Return:      SUCCEED/FAIL
+ *
+ * Programmer:  Quincey Koziol
+ *              October 05, 2016
+ *--------------------------------------------------------------------------
+ */
+double
+H5_get_time(void)
+{
+#ifdef H5_HAVE_GETTIMEOFDAY
+    struct timeval curr_time;
+#endif /* H5_HAVE_GETTIMEOFDAY */
+    double ret_value = (double)0.0f;
+
+    FUNC_ENTER_NOAPI_NOINIT_NOERR
+
+#ifdef H5_HAVE_GETTIMEOFDAY
+    HDgettimeofday(&curr_time, NULL);
+
+    ret_value = (double)curr_time.tv_sec + ((double)curr_time.tv_usec / (double)1000000.0f);
+#endif /* H5_HAVE_GETTIMEOFDAY */
+
+    FUNC_LEAVE_NOAPI(ret_value)
+} /* end H5_get_time() */
+
 

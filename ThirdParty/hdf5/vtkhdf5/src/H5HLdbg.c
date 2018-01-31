@@ -5,62 +5,55 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol <koziol@ncsa.uiuc.edu>
+/* Programmer:  Quincey Koziol <koziol@hdfgroup.org>
  *              Wednesday, July 9, 2003
  *
- * Purpose:	Local Heap object debugging functions.
+ * Purpose:     Local Heap object debugging functions.
  */
-#define H5HL_PACKAGE		/* Suppress error about including H5HLpkg */
 
+/****************/
+/* Module Setup */
+/****************/
 
-#include "H5private.h"		/* Generic Functions			*/
-#include "H5Eprivate.h"		/* Error handling		        */
-#include "H5HLpkg.h"		/* Local heaps				*/
-#include "H5Iprivate.h"		/* ID Functions		                */
-#include "H5MMprivate.h"	/* Memory management			*/
+#include "H5HLmodule.h"         /* This source code file is part of the H5HL module */
+
+/***********/
+/* Headers */
+/***********/
+
+#include "H5private.h"      /* Generic Functions            */
+#include "H5Eprivate.h"     /* Error handling               */
+#include "H5HLpkg.h"        /* Local heaps                  */
+#include "H5MMprivate.h"    /* Memory management            */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5HL_debug
+ * Function:    H5HL_debug
  *
- * Purpose:	Prints debugging information about a heap.
+ * Purpose:     Prints debugging information about a heap.
  *
- * Return:	Non-negative on success/Negative on failure
+ * Return:      SUCCEED/FAIL
  *
- * Programmer:	Robb Matzke
- *		matzke@llnl.gov
- *		Aug  1 1997
- *
- * Modifications:
- *		Robb Matzke, 1999-07-28
- *		The ADDR argument is passed by value.
- *
- *              John Mainzer, 6/17/05
- *              Modified the function to use the new dirtied parameter of
- *              of H5AC_unprotect() instead of modifying the is_dirty
- *              field of the cache info.
+ * Programmer:  Robb Matzke
+ *              Aug  1 1997
  *
  *-------------------------------------------------------------------------
  */
-herr_t
-H5HL_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent, int fwidth)
-{
+BEGIN_FUNC(PRIV, ERR,
+herr_t, SUCCEED, FAIL,
+H5HL_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent, int fwidth))
+
     H5HL_t		*h = NULL;
     int			free_block;
     H5HL_free_t		*freelist;
     uint8_t		*marker = NULL;
     size_t		amount_free = 0;
-    herr_t              ret_value = SUCCEED;       /* Return value */
-
-    FUNC_ENTER_NOAPI(FAIL)
 
     /* check arguments */
     HDassert(f);
@@ -69,18 +62,18 @@ H5HL_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent, int
     HDassert(indent >= 0);
     HDassert(fwidth >= 0);
 
-    if(NULL == (h = (H5HL_t *)H5HL_protect(f, dxpl_id, addr, H5AC_READ)))
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTLOAD, FAIL, "unable to load heap")
+    if(NULL == (h = (H5HL_t *)H5HL_protect(f, dxpl_id, addr, H5AC__READ_ONLY_FLAG)))
+        H5E_THROW(H5E_CANTPROTECT, "unable to load/protect local heap");
 
     HDfprintf(stream, "%*sLocal Heap...\n", indent, "");
     HDfprintf(stream, "%*s%-*s %lu\n", indent, "", fwidth,
 	    "Header size (in bytes):",
 	    (unsigned long)h->prfx_size);
     HDfprintf(stream, "%*s%-*s %a\n", indent, "", fwidth,
-	      "Address of heap data:",
-	      h->dblk_addr);
+              "Address of heap data:",
+              h->dblk_addr);
     HDfprintf(stream, "%*s%-*s %Zu\n", indent, "", fwidth,
-	    "Data bytes allocated for heap:",
+            "Data bytes allocated for heap:",
             h->dblk_size);
 
     /*
@@ -88,7 +81,7 @@ H5HL_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent, int
      * the heap and that no two free blocks point to the same region of
      * the heap.  */
     if(NULL == (marker = (uint8_t *)H5MM_calloc(h->dblk_size)))
-	HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "memory allocation failed")
+        H5E_THROW(H5E_CANTALLOC, "memory allocation failed");
 
     HDfprintf(stream, "%*sFree Blocks (offset, size):\n", indent, "");
     for(free_block = 0, freelist = h->freelist; freelist; freelist = freelist->next, free_block++) {
@@ -126,11 +119,11 @@ H5HL_debug(H5F_t *f, hid_t dxpl_id, haddr_t addr, FILE * stream, int indent, int
      */
     H5_buffer_dump(stream, indent, h->dblk_image, marker, (size_t)0, h->dblk_size);
 
-done:
-    if(h && H5HL_unprotect(h) < 0)
-	HDONE_ERROR(H5E_OHDR, H5E_PROTECT, FAIL, "unable to release object header")
-    H5MM_xfree(marker);
+CATCH
+    if(h && FAIL == H5HL_unprotect(h))
+        H5E_THROW(H5E_CANTUNPROTECT, "unable to release/unprotect local heap");
 
-    FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5HL_debug() */
+    if(marker && NULL != (marker = (uint8_t *)H5MM_xfree(marker)))
+        H5E_THROW(H5E_CANTFREE, "can't free marker buffer");
 
+END_FUNC(PRIV) /* end H5HL_debug() */

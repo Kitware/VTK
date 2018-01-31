@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -29,7 +27,7 @@
  *-------------------------------------------------------------------------
  */
 
-#define H5MP_PACKAGE		/*suppress error about including H5MPpkg  */
+#include "H5MPmodule.h"         /* This source code file is part of the H5MP module */
 
 /* Private headers */
 #include "H5private.h"		/* Generic Functions			*/
@@ -63,6 +61,9 @@
 /* Package Variable Definitions */
 /********************************/
 
+/* Package initialization variable */
+hbool_t H5_PKG_INIT_VAR = FALSE;
+
 
 /********************/
 /* Static Variables */
@@ -90,7 +91,7 @@ H5MP_pool_t *
 H5MP_create(size_t page_size, unsigned flags)
 {
     H5MP_pool_t *mp = NULL;             /* New memory pool header */
-    H5MP_pool_t *ret_value;             /* Return value */
+    H5MP_pool_t *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
@@ -141,7 +142,7 @@ H5MP_new_page(H5MP_pool_t *mp, size_t page_size)
 {
     H5MP_page_t *new_page;              /* New page created */
     H5MP_page_blk_t *first_blk;         /* Pointer to first block in page */
-    H5MP_page_t *ret_value;             /* Return value */
+    H5MP_page_t *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI_NOINIT
 
@@ -212,7 +213,7 @@ H5MP_malloc (H5MP_pool_t *mp, size_t request)
     H5MP_page_t *alloc_page = NULL; /* Page to allocate space from */
     H5MP_page_blk_t *alloc_free;    /* Pointer to free space in page */
     size_t needed;                  /* Size requested, plus block header and alignment */
-    void *ret_value;                /* Return value */
+    void *ret_value = NULL;         /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 

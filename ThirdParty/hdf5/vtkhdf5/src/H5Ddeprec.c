@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*-------------------------------------------------------------------------
@@ -31,10 +29,7 @@
 /* Module Setup */
 /****************/
 
-#define H5D_PACKAGE		/*suppress error about including H5Dpkg   */
-
-/* Interface initialization */
-#define H5_INTERFACE_INIT_FUNC	H5D__init_deprec_interface
+#include "H5Dmodule.h"          /* This source code file is part of the H5D module */
 
 
 /***********/
@@ -84,51 +79,6 @@ static herr_t H5D__extend(H5D_t *dataset, const hsize_t *size, hid_t dxpl_id);
 /* Local Variables */
 /*******************/
 
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5D__init_deprec_interface -- Initialize interface-specific information
-USAGE
-    herr_t H5D__init_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Initializes any interface-specific data or routines.  (Just calls
-    H5D_init() currently).
-
---------------------------------------------------------------------------*/
-static herr_t
-H5D__init_deprec_interface(void)
-{
-    FUNC_ENTER_STATIC_NOERR
-
-    FUNC_LEAVE_NOAPI(H5D_init())
-} /* H5D__init_deprec_interface() */
-
-
-/*--------------------------------------------------------------------------
-NAME
-   H5D__term_deprec_interface -- Terminate interface
-USAGE
-    herr_t H5D__term_deprec_interface()
-RETURNS
-    Non-negative on success/Negative on failure
-DESCRIPTION
-    Terminates interface.  (Just resets H5_interface_initialize_g
-    currently).
-
---------------------------------------------------------------------------*/
-herr_t
-H5D__term_deprec_interface(void)
-{
-    FUNC_ENTER_PACKAGE_NOERR
-
-    /* Mark closed */
-    H5_interface_initialize_g = 0;
-
-    FUNC_LEAVE_NOAPI(0)
-} /* H5D__term_deprec_interface() */
 
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
@@ -189,7 +139,7 @@ H5Dcreate1(hid_t loc_id, const char *name, hid_t type_id, hid_t space_id,
             HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not dataset create property list ID")
 
     /* Build and open the new dataset */
-    if(NULL == (dset = H5D__create_named(&loc, name, type_id, space, H5P_LINK_CREATE_DEFAULT, dcpl_id, H5P_DATASET_ACCESS_DEFAULT, H5AC_dxpl_id)))
+    if(NULL == (dset = H5D__create_named(&loc, name, type_id, space, H5P_LINK_CREATE_DEFAULT, dcpl_id, H5P_DATASET_ACCESS_DEFAULT, H5AC_ind_read_dxpl_id)))
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to create dataset")
 
     /* Register the new dataset to get an ID for it */
@@ -226,15 +176,8 @@ hid_t
 H5Dopen1(hid_t loc_id, const char *name)
 {
     H5D_t       *dset = NULL;
-    H5G_loc_t	 loc;		        /* Object location of group */
-    H5G_loc_t	 dset_loc;		/* Object location of dataset */
-    H5G_name_t   path;            	/* Dataset group hier. path */
-    H5O_loc_t    oloc;            	/* Dataset object location */
-    H5O_type_t   obj_type;              /* Type of object at location */
-    hbool_t      loc_found = FALSE;     /* Location at 'name' found */
-    hid_t        dapl_id = H5P_DATASET_ACCESS_DEFAULT; /* dapl to use to open dataset */
-    hid_t        dxpl_id = H5AC_dxpl_id;    /* dxpl to use to open datset */
-    hid_t        ret_value;
+    H5G_loc_t   loc;                    /* Object location of group */
+    hid_t       ret_value;
 
     FUNC_ENTER_API(FAIL)
     H5TRACE2("i", "i*s", loc_id, name);
@@ -245,41 +188,18 @@ H5Dopen1(hid_t loc_id, const char *name)
     if(!name || !*name)
         HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
 
-    /* Set up dataset location to fill in */
-    dset_loc.oloc = &oloc;
-    dset_loc.path = &path;
-    H5G_loc_reset(&dset_loc);
-
-    /* Find the dataset object */
-    if(H5G_loc_find(&loc, name, &dset_loc, H5P_DEFAULT, dxpl_id) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_NOTFOUND, FAIL, "not found")
-    loc_found = TRUE;
-
-    /* Check that the object found is the correct type */
-    if(H5O_obj_type(&oloc, &obj_type, dxpl_id) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get object type")
-    if(obj_type != H5O_TYPE_DATASET)
-        HGOTO_ERROR(H5E_DATASET, H5E_BADTYPE, FAIL, "not a dataset")
-
     /* Open the dataset */
-    if(NULL == (dset = H5D_open(&dset_loc, dapl_id, dxpl_id)))
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "can't open dataset")
+    if(NULL == (dset = H5D__open_name(&loc, name, H5P_DATASET_ACCESS_DEFAULT, H5AC_ind_read_dxpl_id)))
+        HGOTO_ERROR(H5E_DATASET, H5E_CANTOPENOBJ, FAIL, "unable to open dataset")
 
     /* Register an atom for the dataset */
     if((ret_value = H5I_register(H5I_DATASET, dset, TRUE)) < 0)
         HGOTO_ERROR(H5E_ATOM, H5E_CANTREGISTER, FAIL, "can't register dataset atom")
 
 done:
-    if(ret_value < 0) {
-        if(dset != NULL) {
-            if(H5D_close(dset) < 0)
-                HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
-        } /* end if */
-        else {
-            if(loc_found && H5G_loc_free(&dset_loc) < 0)
-                HDONE_ERROR(H5E_SYM, H5E_CANTRELEASE, FAIL, "can't free location")
-        } /* end else */
-    } /* end if */
+    if(ret_value < 0)
+        if(dset && H5D_close(dset) < 0)
+            HDONE_ERROR(H5E_DATASET, H5E_CLOSEERROR, FAIL, "unable to release dataset")
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Dopen1() */
@@ -317,7 +237,7 @@ H5Dextend(hid_t dset_id, const hsize_t size[])
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no size specified")
 
     /* Increase size */
-    if(H5D__extend(dset, size, H5AC_dxpl_id) < 0)
+    if(H5D__extend(dset, size, H5AC_ind_read_dxpl_id) < 0)
 	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to extend dataset")
 
 done:
@@ -341,9 +261,7 @@ static herr_t
 H5D__extend(H5D_t *dataset, const hsize_t *size, hid_t dxpl_id)
 {
     htri_t changed;                     /* Flag to indicate that the dataspace was successfully extended */
-    H5S_t *space;                       /* Dataset's dataspace */
-    int     rank;                       /* Dataspace # of dimensions */
-    hsize_t curr_dims[H5O_LAYOUT_NDIMS];/* Current dimension sizes */
+    hsize_t old_dims[H5S_MAX_RANK];     /* Current (i.e. old, if changed) dimension sizes */
     H5O_fill_t *fill;                   /* Dataset's fill value */
     herr_t ret_value = SUCCEED;         /* Return value */
 
@@ -364,31 +282,90 @@ H5D__extend(H5D_t *dataset, const hsize_t *size, hid_t dxpl_id)
      */
 
     /* Retrieve the current dimensions */
-    space = dataset->shared->space;
-    if((rank = H5S_get_simple_extent_dims(space, curr_dims, NULL)) < 0)
-        HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get dataset dimensions")
+    HDcompile_assert(sizeof(old_dims) == sizeof(dataset->shared->curr_dims));
+    HDmemcpy(old_dims, dataset->shared->curr_dims, H5S_MAX_RANK * sizeof(old_dims[0]));
 
     /* Increase the size of the data space */
-    if((changed = H5S_extend(space, size)) < 0)
-	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to increase size of data space")
+    if((changed = H5S_extend(dataset->shared->space, size)) < 0)
+	HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to increase size of dataspace")
 
     /* Updated the dataset's info if the dataspace was successfully extended */
     if(changed) {
+        /* Get the extended dimension sizes */
+        /* (Need to retrieve this here, since the 'size' dimensions could
+         *  extend one dimension but be smaller in a different dimension,
+         *  and the dataspace's extent is the larger of the current and
+         *  'size' dimension values. - QAK)
+         */
+        if(H5S_get_simple_extent_dims(dataset->shared->space, dataset->shared->curr_dims, NULL) < 0)
+            HGOTO_ERROR(H5E_DATASET, H5E_CANTGET, FAIL, "can't get dataset dimensions")
+
         /* Update the index values for the cached chunks for this dataset */
         if(H5D_CHUNKED == dataset->shared->layout.type) {
+            hbool_t update_chunks = FALSE;  /* Flag to indicate chunk cache update is needed */
+
+            /* Check if we need to track & update scaled dimension information */
+            if(dataset->shared->ndims > 1) {
+                unsigned u;         /* Local indicate variable */
+
+                /* Update scaled chunk information */
+                for(u = 0; u < dataset->shared->ndims; u++) {
+                    hsize_t scaled;             /* Scaled value */
+
+                    /* Compute the scaled dimension size value */
+                    scaled = size[u] / dataset->shared->layout.u.chunk.dim[u];
+
+                    /* Check if scaled dimension size changed */
+                    if(scaled != dataset->shared->cache.chunk.scaled_dims[u]) {
+                        hsize_t scaled_power2up;      /* New size value, rounded to next power of 2 */
+
+                        /* Update the scaled dimension size value for the current dimension */
+                        dataset->shared->cache.chunk.scaled_dims[u] = scaled;
+
+                        /* Check if algorithm for computing hash values will change */
+                        if((scaled > dataset->shared->cache.chunk.nslots &&
+                                    dataset->shared->cache.chunk.scaled_dims[u] <= dataset->shared->cache.chunk.nslots)
+                                || (scaled <= dataset->shared->cache.chunk.nslots &&
+                                    dataset->shared->cache.chunk.scaled_dims[u] > dataset->shared->cache.chunk.nslots))
+                            update_chunks = TRUE;
+
+                        /* Check if the number of bits required to encode the scaled size value changed */
+                        if(dataset->shared->cache.chunk.scaled_power2up[u] != (scaled_power2up = H5VM_power2up(scaled))) {
+                            /* Update the 'power2up' & 'encode_bits' values for the current dimension */
+                            dataset->shared->cache.chunk.scaled_power2up[u] = scaled_power2up;
+                            dataset->shared->cache.chunk.scaled_encode_bits[u] = H5VM_log2_gen(scaled_power2up);
+
+                            /* Indicate that the chunk cache indices should be updated */
+                            update_chunks = TRUE;
+                        } /* end if */
+                    } /* end if */
+                } /* end for */
+            } /* end if */
+
+            /* Update general information for chunks */
             if(H5D__chunk_set_info(dataset) < 0)
                 HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to update # of chunks")
-            if(H5D__chunk_update_cache(dataset, dxpl_id) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to update cached chunk indices")
+
+            /* Check for updating chunk cache indices */
+            if(update_chunks) {
+                /* Update the chunk cache indices */
+                if(H5D__chunk_update_cache(dataset, dxpl_id) < 0)
+                    HGOTO_ERROR(H5E_DATASET, H5E_WRITEERROR, FAIL, "unable to update cached chunk indices")
+            } /* end if */
         } /* end if */
 
 	/* Allocate space for the new parts of the dataset, if appropriate */
         fill = &dataset->shared->dcpl_cache.fill;
-        if(fill->alloc_time == H5D_ALLOC_TIME_EARLY)
-            if(H5D__alloc_storage(dataset, dxpl_id, H5D_ALLOC_EXTEND, FALSE,
-                    curr_dims) < 0)
-                HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize dataset with fill value")
+        if(fill->alloc_time == H5D_ALLOC_TIME_EARLY) {
+            H5D_io_info_t io_info;
 
+            io_info.dset = dataset;
+            io_info.raw_dxpl_id = H5AC_rawdata_dxpl_id;
+            io_info.md_dxpl_id = dxpl_id;
+
+            if(H5D__alloc_storage(&io_info, H5D_ALLOC_EXTEND, FALSE, old_dims) < 0)
+                HGOTO_ERROR(H5E_DATASET, H5E_CANTINIT, FAIL, "unable to initialize dataset with fill value")
+        }
         /* Mark the dataspace as dirty, for later writing to the file */
         if(H5D__mark(dataset, dxpl_id, H5D_MARK_SPACE) < 0)
             HGOTO_ERROR(H5E_DATASET, H5E_CANTSET, FAIL, "unable to mark dataspace as dirty")

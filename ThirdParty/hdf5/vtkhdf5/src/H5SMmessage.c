@@ -5,20 +5,18 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /****************/
 /* Module Setup */
 /****************/
 
-#define H5O_PACKAGE		/*suppress error about including H5Opkg 	  */
-#define H5SM_PACKAGE		/*suppress error about including H5SMpkg	  */
+#define H5O_FRIEND		/*suppress error about including H5Opkg	  */
+#include "H5SMmodule.h"         /* This source code file is part of the H5SM module */
 
 
 /***********/
@@ -74,7 +72,7 @@ static herr_t H5SM_compare_iter_op(H5O_t *oh, H5O_mesg_t *mesg, unsigned sequenc
 /*-------------------------------------------------------------------------
  * Function:	H5SM_compare_cb
  *
- * Purpose:	Callback for H5HF_op, used in H5SM_message_compare below.
+ * Purpose:	Callback for H5HF_op, used in H5SM__message_compare below.
  *              Determines whether the search key passed in in _UDATA is
  *              equal to OBJ or not.
  *
@@ -121,15 +119,11 @@ H5SM_compare_cb(const void *obj, size_t obj_len, void *_udata)
  * Programmer:	James Laird
  *              Wednesday, February 7, 2007
  *
- * Modifications:
- *      Vailin Choi; September 2011
- *      Change "oh_modified" from boolean to unsigned
- *      (See H5Oprivate.h for possible flags)
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5SM_compare_iter_op(H5O_t *oh, H5O_mesg_t *mesg/*in,out*/, unsigned sequence,
-    unsigned UNUSED *oh_modified, void *_udata/*in,out*/)
+    unsigned H5_ATTR_UNUSED *oh_modified, void *_udata/*in,out*/)
 {
     H5SM_compare_udata_t *udata = (H5SM_compare_udata_t *) _udata;
     herr_t ret_value = H5_ITER_CONT;
@@ -174,7 +168,7 @@ done:
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_message_compare
+ * Function:	H5SM__message_compare
  *
  * Purpose:	Determine whether the search key rec1 represents a shared
  *              message that is equal to rec2 or not, and if not, whether
@@ -190,13 +184,13 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5SM_message_compare(const void *rec1, const void *rec2)
+H5SM__message_compare(const void *rec1, const void *rec2, int *result)
 {
     const H5SM_mesg_key_t *key = (const H5SM_mesg_key_t *) rec1;
     const H5SM_sohm_t *mesg = (const H5SM_sohm_t *) rec2;
-    herr_t ret_value = 0;
+    herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE
 
     /* If the key has an fheap ID, we're looking for a message that's
      * already in the index; if the fheap ID matches, we've found the message
@@ -205,28 +199,31 @@ H5SM_message_compare(const void *rec1, const void *rec2)
      * message in the index, we've found the message.
      */
     if(mesg->location == H5SM_IN_HEAP && key->message.location == H5SM_IN_HEAP) {
-        if(key->message.u.heap_loc.fheap_id.val == mesg->u.heap_loc.fheap_id.val)
-            HGOTO_DONE(0);
+        if(key->message.u.heap_loc.fheap_id.val == mesg->u.heap_loc.fheap_id.val) {
+            *result = 0;
+            HGOTO_DONE(SUCCEED);
+        }
     } /* end if */
     else if(mesg->location == H5SM_IN_OH && key->message.location == H5SM_IN_OH) {
         if(key->message.u.mesg_loc.oh_addr == mesg->u.mesg_loc.oh_addr &&
-                key->message.u.mesg_loc.index == mesg->u.mesg_loc.index &&
-                key->message.msg_type_id == mesg->msg_type_id)
-            HGOTO_DONE(0);
+           key->message.u.mesg_loc.index == mesg->u.mesg_loc.index &&
+           key->message.msg_type_id == mesg->msg_type_id) {
+            *result = 0;
+            HGOTO_DONE(SUCCEED);
+        }
     } /* end if */
 
     /* Compare hash values */
     if(key->message.hash > mesg->hash)
-        ret_value = 1;
+        *result = 1;
     else if(key->message.hash < mesg->hash)
-        ret_value = -1;
+        *result = -1;
     /* If the hash values match, make sure the messages are really the same */
     else {
         /* Hash values match; compare the encoded message with the one in
          * the index.
          */
         H5SM_compare_udata_t udata;
-        herr_t status;
 
         HDassert(key->message.hash == mesg->hash);
         HDassert(key->encoding_size > 0 && key->encoding);
@@ -239,8 +236,8 @@ H5SM_message_compare(const void *rec1, const void *rec2)
          */
         if(mesg->location == H5SM_IN_HEAP) {
             /* Call heap op routine with comparison callback */
-            status = H5HF_op(key->fheap, key->dxpl_id, &(mesg->u.heap_loc.fheap_id), H5SM_compare_cb, &udata);
-            HDassert(status >= 0);
+            if(H5HF_op(key->fheap, key->dxpl_id, &(mesg->u.heap_loc.fheap_id), H5SM_compare_cb, &udata) < 0)
+                HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
         } /* end if */
         else {
             H5O_loc_t oloc;             /* Object owning the message */
@@ -251,8 +248,8 @@ H5SM_message_compare(const void *rec1, const void *rec2)
             HDassert(mesg->location == H5SM_IN_OH);
 
             /* Reset the object location */
-            status = H5O_loc_reset(&oloc);
-            HDassert(status >= 0);
+            if(H5O_loc_reset(&oloc) < 0)
+                HGOTO_ERROR(H5E_SYM, H5E_CANTRESET, FAIL, "unable to initialize target location")
 
             /* Set up object location */
             oloc.file = key->file;
@@ -264,20 +261,20 @@ H5SM_message_compare(const void *rec1, const void *rec2)
             /* Locate the right message and compare with it */
             op.op_type = H5O_MESG_OP_LIB;
             op.u.lib_op = H5SM_compare_iter_op;
-            status = H5O_msg_iterate(&oloc, mesg->msg_type_id, &op, &udata, key->dxpl_id);
-            HDassert(status >= 0);
+            if(H5O_msg_iterate(&oloc, mesg->msg_type_id, &op, &udata, key->dxpl_id) < 0)
+                HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "error iterating over links")
         } /* end else */
 
-        ret_value = udata.ret;
+        *result = udata.ret;
     } /* end if */
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
-} /* end H5SM_message_compare */
+} /* end H5SM__message_compare */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_message_encode
+ * Function:	H5SM__message_encode
  *
  * Purpose:	Serialize a H5SM_sohm_t struct into a buffer RAW.
  *
@@ -290,12 +287,12 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5SM_message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
+H5SM__message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
 {
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
     const H5SM_sohm_t *message = (const H5SM_sohm_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
     HDassert(ctx);
@@ -317,11 +314,11 @@ H5SM_message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SM_message_encode */
+} /* end H5SM__message_encode */
 
 
 /*-------------------------------------------------------------------------
- * Function:	H5SM_message_decode
+ * Function:	H5SM__message_decode
  *
  * Purpose:	Read an encoded SOHM message from RAW into an H5SM_sohm_t struct.
  *
@@ -334,12 +331,12 @@ H5SM_message_encode(uint8_t *raw, const void *_nrecord, void *_ctx)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5SM_message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
+H5SM__message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
 {
     H5SM_bt2_ctx_t *ctx = (H5SM_bt2_ctx_t *)_ctx;       /* Callback context structure */
     H5SM_sohm_t *message = (H5SM_sohm_t *)_nrecord;
 
-    FUNC_ENTER_NOAPI_NOINIT_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     message->location = (H5SM_storage_loc_t)*raw++;
     UINT32DECODE(raw, message->hash);
@@ -358,5 +355,5 @@ H5SM_message_decode(const uint8_t *raw, void *_nrecord, void *_ctx)
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
-} /* end H5SM_message_decode */
+} /* end H5SM__message_decode */
 

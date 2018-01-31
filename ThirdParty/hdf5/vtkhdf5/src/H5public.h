@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -18,8 +16,6 @@
  */
 #ifndef _H5public_H
 #define _H5public_H
-
-#include "vtk_libhdf5_mangle.h"
 
 /* Include files for public use... */
 /*
@@ -31,6 +27,9 @@
  * prevent repeated include.
  */
 #include "H5pubconf.h"		/*from configure                             */
+
+/* XXX(kitware): Mangle all HDF5 symbols */
+#include "vtk_hdf5_mangle.h"
 
 /* API Version macro wrapper definitions */
 #include "H5version.h"
@@ -95,11 +94,11 @@ extern "C" {
 
 /* Version numbers */
 #define H5_VERS_MAJOR	1	/* For major interface/format changes  	     */
-#define H5_VERS_MINOR	8	/* For minor interface/format changes  	     */
-#define H5_VERS_RELEASE	13	/* For tweaks, bug-fixes, or development     */
+#define H5_VERS_MINOR	10	/* For minor interface/format changes  	     */
+#define H5_VERS_RELEASE	1	/* For tweaks, bug-fixes, or development     */
 #define H5_VERS_SUBRELEASE ""	/* For pre-releases like snap0       */
 				/* Empty string for real releases.           */
-#define H5_VERS_INFO    "HDF5 library version: 1.8.13"      /* Full version string */
+#define H5_VERS_INFO    "HDF5 library version: 1.10.1"      /* Full version string */
 
 #define H5check()	H5check_version(H5_VERS_MAJOR,H5_VERS_MINOR,	      \
 				        H5_VERS_RELEASE)
@@ -143,7 +142,20 @@ typedef int herr_t;
  * 	    printf("error determining whether data type is committed\n");
  *	}
  */
-typedef unsigned int hbool_t;
+#ifdef H5_HAVE_STDBOOL_H
+  #include <stdbool.h>
+#else /* H5_HAVE_STDBOOL_H */
+  #ifndef __cplusplus
+    #if defined(H5_SIZEOF_BOOL) && (H5_SIZEOF_BOOL != 0)
+      #define bool    _Bool
+    #else
+      #define bool    unsigned int
+    #endif
+    #define true    1
+    #define false   0
+  #endif /* __cplusplus */
+#endif /* H5_HAVE_STDBOOL_H */
+typedef bool hbool_t;
 typedef int htri_t;
 
 /* Define the ssize_t type if it not is defined */
@@ -151,9 +163,6 @@ typedef int htri_t;
 /* Undefine this size, we will re-define it in one of the sections below */
 #undef H5_SIZEOF_SSIZE_T
 #if H5_SIZEOF_SIZE_T==H5_SIZEOF_INT
-#ifdef WIN32
-#undef ssize_t
-#endif
 typedef int ssize_t;
 #       define H5_SIZEOF_SSIZE_T H5_SIZEOF_INT
 #elif H5_SIZEOF_SIZE_T==H5_SIZEOF_LONG
@@ -181,32 +190,26 @@ H5_GCC_DIAG_ON(long-long)
 #else
 #   error "nothing appropriate for hsize_t"
 #endif
+#define HSIZE_UNDEF             ((hsize_t)(hssize_t)(-1))
 
 /*
  * File addresses have their own types.
  */
-#if H5_SIZEOF_INT64_T>=8
-    typedef uint64_t                haddr_t;
-#   define HADDR_UNDEF              ((haddr_t)(int64_t)(-1))
-#   define H5_SIZEOF_HADDR_T        H5_SIZEOF_INT64_T
-#   ifdef H5_HAVE_PARALLEL
-#       define HADDR_AS_MPI_TYPE    MPI_LONG_LONG_INT
-#   endif  /* H5_HAVE_PARALLEL */
-#elif H5_SIZEOF_INT>=8
+#if H5_SIZEOF_INT >= 8
     typedef unsigned                haddr_t;
 #   define HADDR_UNDEF              ((haddr_t)(-1))
 #   define H5_SIZEOF_HADDR_T        H5_SIZEOF_INT
 #   ifdef H5_HAVE_PARALLEL
 #       define HADDR_AS_MPI_TYPE    MPI_UNSIGNED
 #   endif  /* H5_HAVE_PARALLEL */
-#elif H5_SIZEOF_LONG>=8
+#elif H5_SIZEOF_LONG >= 8
     typedef unsigned long           haddr_t;
 #   define HADDR_UNDEF              ((haddr_t)(long)(-1))
 #   define H5_SIZEOF_HADDR_T        H5_SIZEOF_LONG
 #   ifdef H5_HAVE_PARALLEL
 #       define HADDR_AS_MPI_TYPE    MPI_UNSIGNED_LONG
 #   endif  /* H5_HAVE_PARALLEL */
-#elif H5_SIZEOF_LONG_LONG>=8
+#elif H5_SIZEOF_LONG_LONG >= 8
     typedef unsigned long long      haddr_t;
 #   define HADDR_UNDEF              ((haddr_t)(long long)(-1))
 #   define H5_SIZEOF_HADDR_T        H5_SIZEOF_LONG_LONG
@@ -216,11 +219,11 @@ H5_GCC_DIAG_ON(long-long)
 #else
 #   error "nothing appropriate for haddr_t"
 #endif
-#if H5_SIZEOF_HADDR_T ==H5_SIZEOF_INT
+#if H5_SIZEOF_HADDR_T == H5_SIZEOF_INT
 #   define H5_PRINTF_HADDR_FMT  "%u"
-#elif H5_SIZEOF_HADDR_T ==H5_SIZEOF_LONG
+#elif H5_SIZEOF_HADDR_T == H5_SIZEOF_LONG
 #   define H5_PRINTF_HADDR_FMT  "%lu"
-#elif H5_SIZEOF_HADDR_T ==H5_SIZEOF_LONG_LONG
+#elif H5_SIZEOF_HADDR_T == H5_SIZEOF_LONG_LONG
 #   define H5_PRINTF_HADDR_FMT  "%" H5_PRINTF_LL_WIDTH "u"
 #else
 #   error "nothing appropriate for H5_PRINTF_HADDR_FMT"
@@ -287,9 +290,6 @@ H5_GCC_DIAG_ON(long-long)
 #   error "nothing appropriate for uint64_t"
 #endif
 
-/* Default value for all property list classes */
-#define H5P_DEFAULT     0
-
 /* Common iteration orders */
 typedef enum {
     H5_ITER_UNKNOWN = -1,       /* Unknown order */
@@ -339,10 +339,14 @@ H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum,
 				unsigned *relnum);
 H5_DLL herr_t H5check_version(unsigned majnum, unsigned minnum,
 			       unsigned relnum);
+H5_DLL herr_t H5is_library_threadsafe(hbool_t *is_ts);
 H5_DLL herr_t H5free_memory(void *mem);
+H5_DLL void *H5allocate_memory(size_t size, hbool_t clear);
+H5_DLL void *H5resize_memory(void *mem, size_t size);
 
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif /* _H5public_H */
+ 
 

@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -22,7 +20,7 @@
  *		I didn't make them portable.
  */
 
-#define H5S_PACKAGE		/*suppress error about including H5Spkg	  */
+#include "H5Smodule.h"          /* This source code file is part of the H5S module */
 
 
 #include "H5private.h"		/* Generic Functions			*/
@@ -94,13 +92,13 @@ H5S_mpio_all_type(const H5S_t *space, size_t elmt_size,
     /* Just treat the entire extent as a block of bytes */
     if((snelmts = (hssize_t)H5S_GET_EXTENT_NPOINTS(space)) < 0)
 	HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "src dataspace has invalid selection")
-    H5_ASSIGN_OVERFLOW(nelmts, snelmts, hssize_t, hsize_t);
+    H5_CHECKED_ASSIGN(nelmts, hsize_t, snelmts, hssize_t);
 
     total_bytes = (hsize_t)elmt_size * nelmts;
 
     /* fill in the return values */
     *new_type = MPI_BYTE;
-    H5_ASSIGN_OVERFLOW(*count, total_bytes, hsize_t, int);
+    H5_CHECKED_ASSIGN(*count, int, total_bytes, hsize_t);
     *is_derived_type = FALSE;
 
 done:
@@ -168,18 +166,23 @@ H5S_mpio_create_point_datatype (size_t elmt_size, hsize_t num_points,
     if(MPI_SUCCESS != (mpi_code = MPI_Type_contiguous((int)elmt_size, MPI_BYTE, &elmt_type)))
         HMPI_GOTO_ERROR(FAIL, "MPI_Type_contiguous failed", mpi_code)
     elmt_type_created = TRUE;
-    
+
+#if MPI_VERSION >= 3
+    /* Create an MPI datatype for the whole point selection */
+    if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hindexed_block((int)num_points, 1, disp, elmt_type, new_type)))
+        HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_indexed_block failed", mpi_code)
+#else
     /* Allocate block sizes for MPI datatype call */
     if(NULL == (blocks = (int *)H5MM_malloc(sizeof(int) * num_points)))
         HGOTO_ERROR(H5E_DATASPACE, H5E_CANTALLOC, FAIL, "can't allocate array of blocks")
 
-    /* Would be nice to have Create_Hindexed_block to avoid this array of all ones */
     for(u = 0; u < num_points; u++)
         blocks[u] = 1;
 
     /* Create an MPI datatype for the whole point selection */
     if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hindexed((int)num_points, blocks, disp, elmt_type, new_type)))
         HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_indexed_block failed", mpi_code)
+#endif
 
     /* Commit MPI datatype for later use */
     if(MPI_SUCCESS != (mpi_code = MPI_Type_commit(new_type)))
@@ -357,8 +360,6 @@ H5S_mpio_permute_type(const H5S_t *space, size_t elmt_size, hsize_t **permute,
     MPI_Aint *disp = NULL;      /* Datatype displacement for each point*/
     H5S_sel_iter_t sel_iter;    /* Selection iteration info */
     hbool_t sel_iter_init = FALSE;      /* Selection iteration info has been initialized */
-    hsize_t off[H5D_IO_VECTOR_SIZE];    /* Array to store sequence offsets */
-    size_t len[H5D_IO_VECTOR_SIZE];     /* Array to store sequence lengths */
     hssize_t snum_points;       /* Signed number of elements in selection */
     hsize_t num_points;         /* Number of points in the selection */
     size_t max_elem;            /* Maximum number of elements allowed in sequences */
@@ -385,7 +386,7 @@ H5S_mpio_permute_type(const H5S_t *space, size_t elmt_size, hsize_t **permute,
     sel_iter_init = TRUE;	/* Selection iteration info has been initialized */
 
     /* Set the number of elements to iterate over */
-    H5_ASSIGN_OVERFLOW(max_elem, num_points, hsize_t, size_t);
+    H5_CHECKED_ASSIGN(max_elem, size_t, num_points, hsize_t);
 
     /* Loop, while elements left in selection */
     u = 0;
@@ -502,9 +503,9 @@ H5S_mpio_hyper_type(const H5S_t *space, size_t elmt_size,
     hsize_t		max_xtent[H5S_MAX_RANK];
     H5S_hyper_dim_t	*diminfo;		/* [rank] */
     unsigned		rank;
-    int			block_length[3];
-    MPI_Datatype	inner_type, outer_type, old_types[3];
-    MPI_Aint            extent_len, displacement[3];
+    MPI_Datatype	inner_type, outer_type;
+    MPI_Aint            extent_len, start_disp, new_extent;
+    MPI_Aint            lb; /* Needed as an argument for MPI_Type_get_extent */
     unsigned		u;			/* Local index variable */
     int			i;			/* Local index variable */
     int                 mpi_code;               /* MPI return code */
@@ -671,42 +672,30 @@ H5S_mpio_hyper_type(const H5S_t *space, size_t elmt_size,
         *  Then build the dimension type as (start, vector type, xtent).
         ****************************************/
         /* calculate start and extent values of this dimension */
-	displacement[1] = d[i].start * offset[i] * elmt_size;
-        displacement[2] = (MPI_Aint)elmt_size * max_xtent[i];
-        if(MPI_SUCCESS != (mpi_code = MPI_Type_extent(outer_type, &extent_len)))
-            HMPI_GOTO_ERROR(FAIL, "MPI_Type_extent failed", mpi_code)
+	start_disp = d[i].start * offset[i] * elmt_size;
+        new_extent = (MPI_Aint)elmt_size * max_xtent[i];
+        if(MPI_SUCCESS != (mpi_code = MPI_Type_get_extent(outer_type, &lb, &extent_len)))
+            HMPI_GOTO_ERROR(FAIL, "MPI_Type_get_extent failed", mpi_code)
 
         /*************************************************
         *  Restructure this datatype ("outer_type")
         *  so that it still starts at 0, but its extent
         *  is the full extent in this dimension.
         *************************************************/
-        if(displacement[1] > 0 || (int)extent_len < displacement[2]) {
+        if(start_disp > 0 || extent_len < new_extent) {
+            MPI_Datatype interm_type;
+            int block_len = 1;
 
-            block_length[0] = 1;
-            block_length[1] = 1;
-            block_length[2] = 1;
+            HDassert(0 == lb);
 
-            displacement[0] = 0;
-
-            old_types[0] = MPI_LB;
-            old_types[1] = outer_type;
-            old_types[2] = MPI_UB;
-#ifdef H5S_DEBUG
-  if(H5DEBUG(S))
-    HDfprintf(H5DEBUG(S), "%s: i=%d Extending struct type\n"
-        "***displacements: %ld, %ld, %ld\n",
-        FUNC, i, (long)displacement[0], (long)displacement[1], (long)displacement[2]);
-#endif
-
-            mpi_code = MPI_Type_struct(3,               /* count */
-                                       block_length,    /* blocklengths */
-                                       displacement,    /* displacements */
-                                       old_types,       /* old types */
-                                       &inner_type);    /* new type */
-
+            mpi_code = MPI_Type_create_hindexed(1, &block_len, &start_disp, outer_type, &interm_type);
             MPI_Type_free(&outer_type);
-    	    if(mpi_code != MPI_SUCCESS)
+            if(mpi_code != MPI_SUCCESS)
+                HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_hindexed failed", mpi_code)
+
+            mpi_code = MPI_Type_create_resized(interm_type, lb, new_extent, &inner_type);
+            MPI_Type_free(&interm_type);
+            if(mpi_code != MPI_SUCCESS)
                 HMPI_GOTO_ERROR(FAIL, "couldn't resize MPI vector type", mpi_code)
         } /* end if */
         else
@@ -886,8 +875,8 @@ H5S_obtain_datatype(const hsize_t *down, H5S_hyper_span_t *span,
             outercount++;
         } /* end while */
 
-        if(MPI_SUCCESS != (mpi_code = MPI_Type_hindexed((int)outercount, blocklen, disp, *elmt_type, span_type)))
-              HMPI_GOTO_ERROR(FAIL, "MPI_Type_hindexed failed", mpi_code)
+        if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hindexed((int)outercount, blocklen, disp, *elmt_type, span_type)))
+              HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_hindexed failed", mpi_code)
         span_type_valid = TRUE;
     } /* end if */
     else {
@@ -937,9 +926,9 @@ H5S_obtain_datatype(const hsize_t *down, H5S_hyper_span_t *span,
             /* Build the MPI datatype for this node */
             stride = (*down) * elmt_size;
             H5_CHECK_OVERFLOW(tspan->nelem, hsize_t, int)
-            if(MPI_SUCCESS != (mpi_code = MPI_Type_hvector((int)tspan->nelem, 1, stride, down_type, &inner_type[outercount]))) {
+            if(MPI_SUCCESS != (mpi_code = MPI_Type_create_hvector((int)tspan->nelem, 1, stride, down_type, &inner_type[outercount]))) {
                 MPI_Type_free(&down_type);
-                HMPI_GOTO_ERROR(FAIL, "MPI_Type_hvector failed", mpi_code)
+                HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_hvector failed", mpi_code)
             } /* end if */
 
             /* Release MPI datatype for next dimension down */
@@ -952,8 +941,8 @@ H5S_obtain_datatype(const hsize_t *down, H5S_hyper_span_t *span,
 
         /* building the whole vector datatype */
         H5_CHECK_OVERFLOW(outercount, size_t, int)
-        if(MPI_SUCCESS != (mpi_code = MPI_Type_struct((int)outercount, blocklen, disp, inner_type, span_type)))
-            HMPI_GOTO_ERROR(FAIL, "MPI_Type_struct failed", mpi_code)
+        if(MPI_SUCCESS != (mpi_code = MPI_Type_create_struct((int)outercount, blocklen, disp, inner_type, span_type)))
+            HMPI_GOTO_ERROR(FAIL, "MPI_Type_create_struct failed", mpi_code)
         span_type_valid = TRUE;
 
         /* Release inner node types */

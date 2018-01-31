@@ -5,12 +5,10 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
@@ -21,7 +19,7 @@
  *		the H5T package.  Source files outside the H5T package should
  *		include H5Tprivate.h instead.
  */
-#ifndef H5T_PACKAGE
+#if !(defined H5T_FRIEND || defined H5T_MODULE)
 #error "Do not include this file outside the H5T package!"
 #endif
 
@@ -111,59 +109,10 @@
                                                 /* (_not_ setting H5T_VISIT_SIMPLE and setting either H5T_VISIT_COMPLEX_FIRST or H5T_VISIT_COMPLEX_LAST will mean visiting all nodes _except_ "simple" "leafs" in the "tree" */
 
 
-/* Define an internal macro for converting between floating number(float and double) and floating number.
- * All Cray compilers don't support denormalized floating values generating exception(?). */
-#if H5_CONVERT_DENORMAL_FLOAT
-#define H5T_CONV_INTERNAL_FP_FP           1
-#endif /*H5_CONVERT_DENORMAL_FLOAT*/
-
-/* Define an internal macro for converting between floating number(float and double) and long double.
- * All Cray compilers don't support denormalized floating values generating exception(?).  NEC doesn't
- * support long double. */
-#if H5_SIZEOF_LONG_DOUBLE && H5_CONVERT_DENORMAL_FLOAT
-#define H5T_CONV_INTERNAL_FP_LDOUBLE      1
-#endif /*H5_SIZEOF_LONG_DOUBLE && H5_CONVERT_DENORMAL_FLOAT*/
-
-/* Define an internal macro for converting all integers to long double.  SGI compilers give some
- * incorrect conversions. */
-#if (H5_WANT_DATA_ACCURACY && H5_INTEGER_TO_LDOUBLE_ACCURATE) || (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_INTEGER_LDOUBLE         1
-#endif
-
-/* Define an internal macro for converting unsigned long to float.
- * Pathscale compiler on Sandia's Linux machine has some problem.
- * 64-bit Solaris does different rounding. */
-#if (H5_WANT_DATA_ACCURACY && H5_ULONG_TO_FLOAT_ACCURATE && H5_ULONG_TO_FP_BOTTOM_BIT_ACCURATE) || \
-    (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_ULONG_FLT         1
-#endif
-
-/* Define an internal macro for converting unsigned (long) long to double.
- * 64-bit Solaris does different rounding. */
-#if (H5_WANT_DATA_ACCURACY && H5_ULONG_TO_FP_BOTTOM_BIT_ACCURATE) || (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_ULONG_DBL         1
-#endif
-
-/* Define an internal macro for converting unsigned long to long double.  SGI compilers give some
- * incorrect conversions. 64-bit Solaris does different rounding. */
-#if (H5_WANT_DATA_ACCURACY && H5_INTEGER_TO_LDOUBLE_ACCURATE && H5_ULONG_TO_FP_BOTTOM_BIT_ACCURATE) || \
-    (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_ULONG_LDOUBLE       1
-#endif
-
 /* Define an internal macro for converting long long to long double.  Mac OS 10.4 gives some
  * incorrect conversions. */
-#if (H5_WANT_DATA_ACCURACY && H5_INTEGER_TO_LDOUBLE_ACCURATE && defined(H5_LLONG_TO_LDOUBLE_CORRECT)) || \
-    (!H5_WANT_DATA_ACCURACY)
+#if (H5_WANT_DATA_ACCURACY && defined(H5_LLONG_TO_LDOUBLE_CORRECT)) || (!H5_WANT_DATA_ACCURACY)
 #define H5T_CONV_INTERNAL_LLONG_LDOUBLE       1
-#endif
-
-/* Define an internal macro for converting unsigned long long to floating numbers.  SGI compilers give
- * some incorect conversion.  64-bit Solaris does different rounding.   Windows Visual Studio 6 does
- * not support unsigned long long. */
-#if (H5_WANT_DATA_ACCURACY && H5_ULLONG_TO_FP_CAST_WORKS && H5_ULONG_TO_FP_BOTTOM_BIT_ACCURATE) || \
-    (!H5_WANT_DATA_ACCURACY && H5_ULLONG_TO_FP_CAST_WORKS)
-#define H5T_CONV_INTERNAL_ULLONG_FP         1
 #endif
 
 /* Define an internal macro for converting unsigned long long to long double.  SGI compilers give
@@ -171,58 +120,23 @@
  * not support unsigned long long.  For FreeBSD(sleipnir), the last 2 bytes of mantissa are lost when
  * compiler tries to do the conversion.  For Cygwin, compiler doesn't do rounding correctly.
  * Mac OS 10.4 gives some incorrect result. */
-#if (H5_WANT_DATA_ACCURACY && H5_ULLONG_TO_FP_CAST_WORKS && H5_ULONG_TO_FP_BOTTOM_BIT_ACCURATE && \
-    defined(H5_ULLONG_TO_LDOUBLE_PRECISION) && defined(H5_LLONG_TO_LDOUBLE_CORRECT)) || (!H5_WANT_DATA_ACCURACY && \
-    H5_ULLONG_TO_FP_CAST_WORKS)
+#if (H5_WANT_DATA_ACCURACY && defined(H5_LLONG_TO_LDOUBLE_CORRECT)) || (!H5_WANT_DATA_ACCURACY)
 #define H5T_CONV_INTERNAL_ULLONG_LDOUBLE         1
-#endif
-
-/* Define an internal macro for converting long double to all integers.  SGI compilers give some incorrect
- * conversions.  HP-UX 11.00 compiler generates floating exception. */
-#if (H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_ACCURATE && H5_LDOUBLE_TO_INTEGER_WORKS) || \
-    (!H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_WORKS)
-#define H5T_CONV_INTERNAL_LDOUBLE_INTEGER         1
-#endif
-
-/* Define an internal macro for converting long double to unsigned int.  SGI compilers give some incorrect
- * conversions.  HP-UX 11.00 compiler generates floating exception.  Some Intel compilers on some Linux
- * give incorrect values. */
-#if (H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_ACCURATE && H5_LDOUBLE_TO_UINT_ACCURATE && \
-    H5_LDOUBLE_TO_INTEGER_WORKS) || (!H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_WORKS)
-#define H5T_CONV_INTERNAL_LDOUBLE_UINT         1
-#endif
-
-/* Define an internal macro for converting floating numbers to long long.  The hard conversion on Windows
- * .NET 2003 has a bug and gives wrong exception value. */
-#if (H5_WANT_DATA_ACCURACY && !defined(H5_HW_FP_TO_LLONG_NOT_WORKS)) || (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_FP_LLONG         1
 #endif
 
 /* Define an internal macro for converting long double to long long.  SGI compilers give some incorrect
  * conversions. Mac OS 10.4 gives incorrect conversions. HP-UX 11.00 compiler generates floating exception.
  * The hard conversion on Windows .NET 2003 has a bug and gives wrong exception value. */
-#if (H5_WANT_DATA_ACCURACY && !defined(H5_HW_FP_TO_LLONG_NOT_WORKS) && H5_LDOUBLE_TO_INTEGER_ACCURATE && \
-    H5_LDOUBLE_TO_INTEGER_WORKS && defined(H5_LDOUBLE_TO_LLONG_ACCURATE)) || \
-    (!H5_WANT_DATA_ACCURACY && !defined(H5_HW_FP_TO_LLONG_NOT_WORKS) && H5_LDOUBLE_TO_INTEGER_WORKS)
-#define H5T_CONV_INTERNAL_LDOUBLE_LLONG         1
-#endif
-
-/* Define an internal macro for converting floating numbers to unsigned long long.  PGI compiler does
- * roundup when the source fraction part is greater than 0.5.  HP-UX compilers set the maximal number
- * for unsigned long long as 0x7fffffffffffffff during conversion. */
-#if (H5_WANT_DATA_ACCURACY && H5_FP_TO_ULLONG_ACCURATE && defined(H5_FP_TO_ULLONG_RIGHT_MAXIMUM)) || \
+#if (H5_WANT_DATA_ACCURACY && defined(H5_LDOUBLE_TO_LLONG_ACCURATE)) || \
     (!H5_WANT_DATA_ACCURACY)
-#define H5T_CONV_INTERNAL_FP_ULLONG         1
-#else
-#define H5T_CONV_INTERNAL_FP_ULLONG         0
+#define H5T_CONV_INTERNAL_LDOUBLE_LLONG         1
 #endif
 
 /* Define an internal macro for converting long double to unsigned long long.  SGI compilers give some
  * incorrect conversions.  Mac OS 10.4 gives incorrect conversions. HP-UX 11.00 compiler generates
  * floating exception. */
-#if (H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_ACCURATE && H5_LDOUBLE_TO_INTEGER_WORKS && \
-    H5_FP_TO_ULLONG_ACCURATE && defined(H5_FP_TO_ULLONG_RIGHT_MAXIMUM) && defined(H5_LDOUBLE_TO_LLONG_ACCURATE)) || \
-    (!H5_WANT_DATA_ACCURACY && H5_LDOUBLE_TO_INTEGER_WORKS)
+#if (H5_WANT_DATA_ACCURACY && defined(H5_LDOUBLE_TO_LLONG_ACCURATE)) || \
+    (!H5_WANT_DATA_ACCURACY)
 #define H5T_CONV_INTERNAL_LDOUBLE_ULLONG         1
 #else
 #define H5T_CONV_INTERNAL_LDOUBLE_ULLONG         0
@@ -508,7 +422,7 @@ H5FL_EXTERN(H5T_t);
 H5FL_EXTERN(H5T_shared_t);
 
 /* Common functions */
-H5_DLL herr_t H5T__term_deprec_interface(void);
+H5_DLL herr_t H5T__init_native(void);
 H5_DLL H5T_t *H5T__create(H5T_class_t type, size_t size);
 H5_DLL herr_t H5T__commit(H5F_t *file, H5T_t *type, hid_t tcpl_id, hid_t dxpl_id);
 H5_DLL herr_t H5T__commit_named(const H5G_loc_t *loc, const char *name,
@@ -1372,8 +1286,8 @@ H5_DLL void H5T__bit_set_d(uint8_t *buf, size_t offset, size_t size,
 			   uint64_t val);
 H5_DLL ssize_t H5T__bit_find(uint8_t *buf, size_t offset, size_t size,
 			     H5T_sdir_t direction, hbool_t value);
-H5_DLL htri_t H5T__bit_inc(uint8_t *buf, size_t start, size_t size);
-H5_DLL htri_t H5T__bit_dec(uint8_t *buf, size_t start, size_t size);
+H5_DLL hbool_t H5T__bit_inc(uint8_t *buf, size_t start, size_t size);
+H5_DLL hbool_t H5T__bit_dec(uint8_t *buf, size_t start, size_t size);
 H5_DLL void H5T__bit_neg(uint8_t *buf, size_t start, size_t size);
 
 /* VL functions */

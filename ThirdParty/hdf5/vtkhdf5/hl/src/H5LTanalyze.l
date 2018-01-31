@@ -5,13 +5,17 @@
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
- * the files COPYING and Copyright.html.  COPYING can be found at the root   *
- * of the source code distribution tree; Copyright.html can be found at the  *
- * root level of an installed copy of the electronic HDF5 document set and   *
- * is linked from the top-level documents page.  It can also be found at     *
- * http://hdfgroup.org/HDF5/doc/Copyright.html.  If you do not have          *
- * access to either file, you may request a copy from help@hdfgroup.org.     *
+ * the COPYING file, which can be found at the root of the source code       *
+ * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * If you do not have access to either file, you may request a copy from     *
+ * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+/* NOTE!
+ *
+ * If you make any changes to H5LTanalyze.l, please run bin/genparser to
+ * recreate the output files.
+ */
 
 %{
 #include <stdlib.h>
@@ -19,10 +23,16 @@
 #include <hdf5.h>
 #include "H5LTparse.h"
 
+/* Turn off suggest const attribute warning in gcc */
+#if __GNUC__ >= 4 && __GNUC_MINOR__ >=2 
+#pragma GCC diagnostic ignored "-Wsuggest-attribute=const"
+#endif 
+
 int my_yyinput(char *, int);
 #undef YY_INPUT
 #define YY_INPUT(b, r, ms) (r=my_yyinput(b, ms))
 #define token(x)        (int)x
+#define hid(x)          (hid_t)x
 
 #ifdef  YY_BUF_SIZE
 #undef  YY_BUF_SIZE
@@ -71,43 +81,43 @@ hbool_t        first_quote = 1;
 
 %%
 
-H5T_STD_I8BE     {return token(H5T_STD_I8BE_TOKEN);}
-H5T_STD_I8LE     {return token(H5T_STD_I8LE_TOKEN);}
-H5T_STD_I16BE    {return token(H5T_STD_I16BE_TOKEN);}
-H5T_STD_I16LE    {return token(H5T_STD_I16LE_TOKEN);}
-H5T_STD_I32BE    {return token(H5T_STD_I32BE_TOKEN);}
-H5T_STD_I32LE    {return token(H5T_STD_I32LE_TOKEN);}
-H5T_STD_I64BE    {return token(H5T_STD_I64BE_TOKEN);}
-H5T_STD_I64LE    {return token(H5T_STD_I64LE_TOKEN);}
+H5T_STD_I8BE     {return hid(H5T_STD_I8BE_TOKEN);}
+H5T_STD_I8LE     {return hid(H5T_STD_I8LE_TOKEN);}
+H5T_STD_I16BE    {return hid(H5T_STD_I16BE_TOKEN);}
+H5T_STD_I16LE    {return hid(H5T_STD_I16LE_TOKEN);}
+H5T_STD_I32BE    {return hid(H5T_STD_I32BE_TOKEN);}
+H5T_STD_I32LE    {return hid(H5T_STD_I32LE_TOKEN);}
+H5T_STD_I64BE    {return hid(H5T_STD_I64BE_TOKEN);}
+H5T_STD_I64LE    {return hid(H5T_STD_I64LE_TOKEN);}
 
-H5T_STD_U8BE     {return token(H5T_STD_U8BE_TOKEN);}
-H5T_STD_U8LE     {return token(H5T_STD_U8LE_TOKEN);}
-H5T_STD_U16BE    {return token(H5T_STD_U16BE_TOKEN);}
-H5T_STD_U16LE    {return token(H5T_STD_U16LE_TOKEN);}
-H5T_STD_U32BE    {return token(H5T_STD_U32BE_TOKEN);}
-H5T_STD_U32LE    {return token(H5T_STD_U32LE_TOKEN);}
-H5T_STD_U64BE    {return token(H5T_STD_U64BE_TOKEN);}
-H5T_STD_U64LE    {return token(H5T_STD_U64LE_TOKEN);}
+H5T_STD_U8BE     {return hid(H5T_STD_U8BE_TOKEN);}
+H5T_STD_U8LE     {return hid(H5T_STD_U8LE_TOKEN);}
+H5T_STD_U16BE    {return hid(H5T_STD_U16BE_TOKEN);}
+H5T_STD_U16LE    {return hid(H5T_STD_U16LE_TOKEN);}
+H5T_STD_U32BE    {return hid(H5T_STD_U32BE_TOKEN);}
+H5T_STD_U32LE    {return hid(H5T_STD_U32LE_TOKEN);}
+H5T_STD_U64BE    {return hid(H5T_STD_U64BE_TOKEN);}
+H5T_STD_U64LE    {return hid(H5T_STD_U64LE_TOKEN);}
 
-H5T_NATIVE_CHAR  {return token(H5T_NATIVE_CHAR_TOKEN);}
-H5T_NATIVE_SCHAR {return token(H5T_NATIVE_SCHAR_TOKEN);}
-H5T_NATIVE_UCHAR {return token(H5T_NATIVE_UCHAR_TOKEN);}
-H5T_NATIVE_SHORT {return token(H5T_NATIVE_SHORT_TOKEN);}
-H5T_NATIVE_USHORT  {return token(H5T_NATIVE_USHORT_TOKEN);}
-H5T_NATIVE_INT   {return token(H5T_NATIVE_INT_TOKEN);}
-H5T_NATIVE_UINT  {return token(H5T_NATIVE_UINT_TOKEN);}
-H5T_NATIVE_LONG  {return token(H5T_NATIVE_LONG_TOKEN);}
-H5T_NATIVE_ULONG {return token(H5T_NATIVE_ULONG_TOKEN);}
-H5T_NATIVE_LLONG   {return token(H5T_NATIVE_LLONG_TOKEN);}
-H5T_NATIVE_ULLONG  {return token(H5T_NATIVE_ULLONG_TOKEN);}
+H5T_NATIVE_CHAR  {return hid(H5T_NATIVE_CHAR_TOKEN);}
+H5T_NATIVE_SCHAR {return hid(H5T_NATIVE_SCHAR_TOKEN);}
+H5T_NATIVE_UCHAR {return hid(H5T_NATIVE_UCHAR_TOKEN);}
+H5T_NATIVE_SHORT {return hid(H5T_NATIVE_SHORT_TOKEN);}
+H5T_NATIVE_USHORT  {return hid(H5T_NATIVE_USHORT_TOKEN);}
+H5T_NATIVE_INT   {return hid(H5T_NATIVE_INT_TOKEN);}
+H5T_NATIVE_UINT  {return hid(H5T_NATIVE_UINT_TOKEN);}
+H5T_NATIVE_LONG  {return hid(H5T_NATIVE_LONG_TOKEN);}
+H5T_NATIVE_ULONG {return hid(H5T_NATIVE_ULONG_TOKEN);}
+H5T_NATIVE_LLONG   {return hid(H5T_NATIVE_LLONG_TOKEN);}
+H5T_NATIVE_ULLONG  {return hid(H5T_NATIVE_ULLONG_TOKEN);}
 
-H5T_IEEE_F32BE   {return token(H5T_IEEE_F32BE_TOKEN);}
-H5T_IEEE_F32LE   {return token(H5T_IEEE_F32LE_TOKEN);}
-H5T_IEEE_F64BE   {return token(H5T_IEEE_F64BE_TOKEN);}
-H5T_IEEE_F64LE   {return token(H5T_IEEE_F64LE_TOKEN);}
-H5T_NATIVE_FLOAT   {return token(H5T_NATIVE_FLOAT_TOKEN);}
-H5T_NATIVE_DOUBLE  {return token(H5T_NATIVE_DOUBLE_TOKEN);}
-H5T_NATIVE_LDOUBLE {return token(H5T_NATIVE_LDOUBLE_TOKEN);}
+H5T_IEEE_F32BE   {return hid(H5T_IEEE_F32BE_TOKEN);}
+H5T_IEEE_F32LE   {return hid(H5T_IEEE_F32LE_TOKEN);}
+H5T_IEEE_F64BE   {return hid(H5T_IEEE_F64BE_TOKEN);}
+H5T_IEEE_F64LE   {return hid(H5T_IEEE_F64LE_TOKEN);}
+H5T_NATIVE_FLOAT   {return hid(H5T_NATIVE_FLOAT_TOKEN);}
+H5T_NATIVE_DOUBLE  {return hid(H5T_NATIVE_DOUBLE_TOKEN);}
+H5T_NATIVE_LDOUBLE {return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
 
 H5T_STRING       {return token(H5T_STRING_TOKEN);}
 STRSIZE          {return token(STRSIZE_TOKEN);}
