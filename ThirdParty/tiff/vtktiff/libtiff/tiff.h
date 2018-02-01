@@ -31,10 +31,14 @@
 #include "tiffconf.h"
 
 #ifdef _WIN32
+#if TIFF_SHARED_LIBS
 #ifdef vtktiff_EXPORTS
 #define vtktiff_EXPORT __declspec(dllexport)
 #else
 #define vtktiff_EXPORT __declspec(dllimport)
+#endif
+#else
+#define vtktiff_EXPORT
 #endif
 #else
 #define vtktiff_EXPORT extern

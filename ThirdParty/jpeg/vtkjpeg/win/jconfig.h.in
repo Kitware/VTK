@@ -8,6 +8,8 @@
 #cmakedefine D_ARITH_CODING_SUPPORTED
 #cmakedefine MEM_SRCDST_SUPPORTED
 
+#cmakedefine01 JPEG_SHARED_LIBS
+
 /*
  * Define BITS_IN_JSAMPLE as either
  *   8   for 8-bit sample values (the usual setting)
