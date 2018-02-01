@@ -1,6 +1,6 @@
 /*============================================================================
   Kitware Information Macro Library
-  Copyright 2010-2017 Kitware, Inc.
+  Copyright 2010-2018 Kitware, Inc.
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without
@@ -1007,7 +1007,7 @@ An includer may test the following macros after inclusion:
 # pragma warning (disable:4310) /* cast truncates constant value */
 #endif
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && !defined(__BORLANDC__)
 #define KWIML_INT_private_STATIC_CAST(t,v) static_cast<t>(v)
 #else
 #define KWIML_INT_private_STATIC_CAST(t,v) (t)(v)

@@ -14,9 +14,13 @@
 
 #ifdef __cplusplus
 # define LANG "C++ "
-# define STATIC_CAST(t,v) static_cast<t>(v)
 #else
 # define LANG "C "
+#endif
+
+#if defined(__cplusplus) && !defined(__BORLANDC__)
+# define STATIC_CAST(t,v) static_cast<t>(v)
+#else
 # define STATIC_CAST(t,v) (t)(v)
 #endif
 
