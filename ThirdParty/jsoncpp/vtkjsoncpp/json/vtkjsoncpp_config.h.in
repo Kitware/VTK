@@ -1,0 +1,6 @@
+#ifndef VTKJSONCPP_CONFIG_H
+#define VTKJSONCPP_CONFIG_H
+
+#cmakedefine JSON_DLL
+
+#endif
