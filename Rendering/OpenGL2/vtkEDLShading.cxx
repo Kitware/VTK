@@ -647,11 +647,15 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   // IMPORTANT : so that depth information is propagated
   glDisable(GL_SCISSOR_TEST);
 
-  this->EDLHighShadeTexture->CopyToFrameBuffer( 0,  0,
-      this->W - 1 - 2 * this->ExtraPixels,
-      this->H - 1 - 2 * this->ExtraPixels, 0, 0,
-      this->Width, this->Height,
-      prog, this->EDLComposeProgram.VAO );
+  int blitSize[2] = { this->W - 1 - 2 * this->ExtraPixels,
+                      this->H - 1 - 2 * this->ExtraPixels };
+
+  this->EDLHighShadeTexture->CopyToFrameBuffer(
+      this->ExtraPixels,  this->ExtraPixels,
+      blitSize[0], blitSize[1],
+      this->Origin[0], this->Origin[1],
+      this->Origin[0] + blitSize[0], this->Origin[1] + blitSize[1],
+      prog, this->EDLComposeProgram.VAO);
 
   //  FREE ALL
   //

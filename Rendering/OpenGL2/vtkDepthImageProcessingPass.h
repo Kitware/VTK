@@ -101,6 +101,7 @@ public:
    */
   void ReadWindowSize(const vtkRenderState* s);
 
+  int    Origin[2];   // Viewport origin
   int    Width;       // parent window width
   int    Height;      // parent window height
   int    W;           // this width
