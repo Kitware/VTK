@@ -631,10 +631,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   this->ProjectionColorTexture->Activate();
   prog->SetUniformi("s2_C", this->ProjectionColorTexture->GetTextureUnit());
 
-  //  initial depth texture
-  this->ProjectionDepthTexture->Activate();
-  prog->SetUniformi("s2_Z", this->ProjectionDepthTexture->GetTextureUnit());
-
   //  DRAW CONTEXT - prepare blitting
   //
   // Prepare blitting
@@ -669,7 +665,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   }
   this->EDLHighShadeTexture->Deactivate();
   this->ProjectionColorTexture->Deactivate();
-  this->ProjectionDepthTexture->Deactivate();
 
   return true;
 }
