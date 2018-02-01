@@ -496,7 +496,7 @@ void vtkComputeMoments::Compute(size_t radiusIndex,
       double center[3];
       grid->GetPoint(ptId, center);
       if (!vtkMomentsHelper::isCloseToEdge(
-            this->Dimension, ptId, this->Radii.at(radiusIndex), field) &&
+            this->Dimension, ptId, this->Radii.at(radiusIndex), grid) &&
         vtkMomentsHelper::CenterStencil(
           center, field, stencil, this->NumberOfIntegrationSteps, this->NameOfPointData))
       {
