@@ -21,7 +21,7 @@
 # include <expat.h>
 #else
 #cmakedefine XML_STATIC
-# include <vtkexpat/expat.h>
+# include <vtkexpat/lib/expat.h>
 #endif
 
 #endif
