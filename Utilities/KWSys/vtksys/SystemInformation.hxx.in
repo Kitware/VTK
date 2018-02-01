@@ -103,7 +103,7 @@ public:
   // Retrieve id of the current running process
   LongLong GetProcessId();
 
-  // Retrieve memory information in megabyte.
+  // Retrieve memory information in MiB.
   size_t GetTotalVirtualMemory();
   size_t GetAvailableVirtualMemory();
   size_t GetTotalPhysicalMemory();

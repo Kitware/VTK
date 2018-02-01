@@ -28,7 +28,7 @@
 #include <string.h>
 namespace KWSYS_NAMESPACE {
 #if defined(_WIN32) || defined(__APPLE__) || defined(__CYGWIN__)
-// On Windows and apple, no difference between lower and upper case
+// On Windows and Apple, no difference between lower and upper case
 #define KWSYS_GLOB_CASE_INDEPENDENT
 #endif
 
@@ -201,7 +201,7 @@ bool Glob::RecurseDirectory(std::string::size_type start,
     }
 
 #if defined(KWSYS_GLOB_CASE_INDEPENDENT)
-    // On Windows and apple, no difference between lower and upper case
+    // On Windows and Apple, no difference between lower and upper case
     fname = kwsys::SystemTools::LowerCase(fname);
 #endif
 

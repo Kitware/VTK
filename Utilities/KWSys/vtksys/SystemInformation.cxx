@@ -340,7 +340,7 @@ public:
 
   bool DoesCPUSupportCPUID();
 
-  // Retrieve memory information in megabyte.
+  // Retrieve memory information in MiB.
   size_t GetTotalVirtualMemory();
   size_t GetAvailableVirtualMemory();
   size_t GetTotalPhysicalMemory();
@@ -348,7 +348,7 @@ public:
 
   LongLong GetProcessId();
 
-  // Retrieve memory information in kib
+  // Retrieve memory information in KiB.
   LongLong GetHostMemoryTotal();
   LongLong GetHostMemoryAvailable(const char* envVarName);
   LongLong GetHostMemoryUsed();
@@ -736,7 +736,7 @@ bool SystemInformation::DoesCPUSupportCPUID()
   return this->Implementation->DoesCPUSupportCPUID();
 }
 
-// Retrieve memory information in megabyte.
+// Retrieve memory information in MiB.
 size_t SystemInformation::GetTotalVirtualMemory()
 {
   return this->Implementation->GetTotalVirtualMemory();
