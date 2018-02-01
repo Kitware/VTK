@@ -6,6 +6,7 @@ set(Module_SRCS
   vtkCookieCutter.cxx
   vtkDijkstraGraphGeodesicPath.cxx
   vtkDijkstraImageGeodesicPath.cxx
+  vtkFitToHeightMapFilter.cxx
   vtkFillHolesFilter.cxx
   vtkGeodesicPath.cxx
   vtkGraphGeodesicPath.cxx

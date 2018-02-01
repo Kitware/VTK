@@ -11,6 +11,7 @@ vtk_add_test_python(
   TestCookieCutter.py
   TestCookieCutter2.py
   TestCookieCutter3.py
+  TestFitToHeightMapFilter.py
   TestImageMarchingCubes.py
   TestRibbonAndTube.py
   TestRuledSurface.py
