@@ -322,13 +322,14 @@ bool vtkPWindBladeReader::FindVariableOffsets()
   char native[7] = "native";
   MPICall(MPI_File_set_view(this->PInternal->FilePtr, 0, MPI_BYTE, MPI_BYTE, native, MPI_INFO_NULL));
   MPICall(MPI_File_read_all(this->PInternal->FilePtr, &byteCount, 1, MPI_INT, &status));
+  MPI_Offset offset;
+  MPICall(MPI_File_get_position(this->PInternal->FilePtr, &offset));
+  MPICall(MPI_File_close(&this->PInternal->FilePtr));
 
   this->BlockSize = byteCount / BYTES_PER_DATA;
 
   for (int var = 0; var < this->NumberOfFileVariables; var++)
   {
-    MPI_Offset offset;
-    MPICall(MPI_File_get_position(this->PInternal->FilePtr, &offset));
     this->VariableOffset[var] = offset;
 
     // Skip over the SCALAR or VECTOR components for this variable
@@ -338,13 +339,9 @@ bool vtkPWindBladeReader::FindVariableOffsets()
       numberOfComponents = DIMENSION;
     }
 
-    for (int comp = 0; comp < numberOfComponents; comp++)
-    {
-      // Skip data plus two integer byte counts
-      MPICall(MPI_File_seek(this->PInternal->FilePtr, (byteCount+(2 * sizeof(int))), MPI_SEEK_CUR));
-    }
+    // Skip data plus two integer byte counts, for each component.
+    offset += numberOfComponents * (byteCount + (2 * sizeof(int)));
   }
-  MPICall(MPI_File_close(&this->PInternal->FilePtr));
 
   return true;
 }
