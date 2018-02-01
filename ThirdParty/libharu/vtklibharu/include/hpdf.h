@@ -17,7 +17,6 @@
 #ifndef _HPDF_H
 #define _HPDF_H
 
-/* KITWARE_LIBHARU_CHANGE Include the symbol name mangler: */
 #include "vtk_haru_mangle.h"
 
 #include "hpdf_config.h"
