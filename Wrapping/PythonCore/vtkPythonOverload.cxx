@@ -47,7 +47,8 @@ enum vtkPythonArgPenalties
 class vtkPythonOverloadHelper
 {
 public:
-  vtkPythonOverloadHelper() : m_format(nullptr), m_classname(nullptr), m_penalty(0) {}
+  vtkPythonOverloadHelper() :
+    m_format(nullptr), m_classname(nullptr), m_penalty(0), m_optional(false) {}
   void initialize(bool selfIsClass, const char *format);
   bool next(const char **format, const char **classname);
   bool optional() { return m_optional; }
@@ -61,7 +62,6 @@ private:
   const char *m_classname;
   int m_penalty;
   bool m_optional;
-  PyCFunction m_meth;
 };
 
 // Construct the object with a penalty of VTK_PYTHON_EXACT_MATCH
