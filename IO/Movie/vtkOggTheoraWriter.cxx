@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
 
-#include "vtk_oggtheora.h"
+#include "vtk_theora.h"
 
 #include <ctime>
 
