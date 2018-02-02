@@ -25,3 +25,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkSQLiteDatabaseInternals.h
