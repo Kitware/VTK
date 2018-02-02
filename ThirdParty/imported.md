@@ -3,6 +3,7 @@
   * [diy2](diy2/update.sh)
   * [eigen](eigen/update.sh)
   * [expat](expat/update.sh)
+  * [gl2ps](gl2ps/update.sh)
   * [glew](glew/update.sh)
   * [jpeg](jpeg/update.sh)
   * [jsoncpp](jsoncpp/update.sh)
