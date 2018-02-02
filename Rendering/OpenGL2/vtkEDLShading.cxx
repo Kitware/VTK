@@ -631,10 +631,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   this->ProjectionColorTexture->Activate();
   prog->SetUniformi("s2_C", this->ProjectionColorTexture->GetTextureUnit());
 
-  //  initial depth texture
-  this->ProjectionDepthTexture->Activate();
-  prog->SetUniformi("s2_Z", this->ProjectionDepthTexture->GetTextureUnit());
-
   //  DRAW CONTEXT - prepare blitting
   //
   // Prepare blitting
@@ -651,11 +647,15 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   // IMPORTANT : so that depth information is propagated
   glDisable(GL_SCISSOR_TEST);
 
-  this->EDLHighShadeTexture->CopyToFrameBuffer( 0,  0,
-      this->W - 1 - 2 * this->ExtraPixels,
-      this->H - 1 - 2 * this->ExtraPixels, 0, 0,
-      this->Width, this->Height,
-      prog, this->EDLComposeProgram.VAO );
+  int blitSize[2] = { this->W - 1 - 2 * this->ExtraPixels,
+                      this->H - 1 - 2 * this->ExtraPixels };
+
+  this->EDLHighShadeTexture->CopyToFrameBuffer(
+      this->ExtraPixels,  this->ExtraPixels,
+      blitSize[0], blitSize[1],
+      this->Origin[0], this->Origin[1],
+      this->Origin[0] + blitSize[0], this->Origin[1] + blitSize[1],
+      prog, this->EDLComposeProgram.VAO);
 
   //  FREE ALL
   //
@@ -669,7 +669,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   }
   this->EDLHighShadeTexture->Deactivate();
   this->ProjectionColorTexture->Deactivate();
-  this->ProjectionDepthTexture->Deactivate();
 
   return true;
 }
@@ -748,10 +747,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     // 5. EDL SHADING PASS - FULL RESOLUTION
     //
 #if EDL_HIGH_RESOLUTION_ON
+    annotate("Start vtkEDLShading::ShadeHigh");
     if(! this->EDLShadeHigh(s2,renWin) )
     {
       this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
     }
+    annotate("End vtkEDLShading::ShadeHigh");
 #endif // EDL_HIGH_RESOLUTION_ON
 
     //////////////////////////////////////////////////////
@@ -759,13 +760,17 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     // 6. EDL SHADING PASS - LOW RESOLUTION + blur pass
     //
 #if EDL_LOW_RESOLUTION_ON
+    annotate("Start vtkEDLShading::ShadeLow");
     if(! this->EDLShadeLow(s2, renWin) )
     {
       this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
     }
+    annotate("End vtkEDLShading::ShadeLow");
     if (this->EDLIsFiltered)
     {
+      annotate("Start vtkEDLShading::BlurLow");
       this->EDLBlurLow(s2, renWin);
+      annotate("End vtkEDLShading::BlurLow");
     }
 #endif // EDL_LOW_RESOLUTION_ON
 
@@ -779,10 +784,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     }
     this->ProjectionFBO->RestorePreviousBindingsAndBuffers();
 
+    annotate("Start vtkEDLShading::Compose");
     if( ! this->EDLCompose(s, renWin))
     {
       return;
     }
+    annotate("End vtkEDLShading::Compose");
   }
   else
   {
