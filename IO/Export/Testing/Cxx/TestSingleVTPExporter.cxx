@@ -94,7 +94,7 @@ int TestSingleVTPExporter(int argc, char *argv[])
   if (noDataSize >= correctSize)
   {
     std::cerr << "Error: file should contain data for a visible actor"
-      "and not for a hidden one." << std::endl;
+      " and not for a hidden one." << std::endl;
     return EXIT_FAILURE;
   }
 
