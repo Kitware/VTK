@@ -155,7 +155,7 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
     // can safely ignore it since a default is already set above.
     try
     {
-      this->DeviceIndex = std::stoi(EGLDefaultDeviceIndexEnv);
+      this->DeviceIndex = atoi(EGLDefaultDeviceIndexEnv);
     }
     catch(const std::out_of_range&)
     {
