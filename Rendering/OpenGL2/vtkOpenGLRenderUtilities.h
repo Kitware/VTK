@@ -110,6 +110,16 @@ public:
   static void DrawFullScreenQuad();
   //@}
 
+  /**
+  * Pass a debugging mark to the render engine to assist development via tools
+  * like apitrace. This calls glDebugMessageInsert to insert the event string
+  * into the OpenGL command stream.
+  *
+  * Note that this method only works when glDebugMessageInsert is bound, which
+  * it may not be on certain platforms.
+  */
+  static void MarkDebugEvent(const std::string &event);
+
 protected:
   vtkOpenGLRenderUtilities();
   ~vtkOpenGLRenderUtilities() override;

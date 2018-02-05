@@ -43,6 +43,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkPropCollection.h"
@@ -71,17 +72,12 @@ namespace
 void annotate(const std::string &str)
 {
 #ifdef ANNOTATE_STREAM
-  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
-  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
-                       GL_DEBUG_SEVERITY_NOTIFICATION,
-                       0, str.size(), str.c_str());
-  vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderUtilities::MarkDebugEvent(str);
 #else // ANNOTATE_STREAM
   (void)str;
 #endif // ANNOTATE_STREAM
 }
 }
-
 
 vtkStandardNewMacro(vtkEDLShading);
 
@@ -708,10 +704,12 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     //  FBOs
     //
+    annotate("Start vtkEDLShading Initialization");
     this->EDLInitializeFramebuffers(s2);
     //  Shaders
     //
     this->EDLInitializeShaders(renWin);
+    annotate("End vtkEDLShading Initialization");
 
     if (this->EDLShadeProgram.Program == nullptr ||
         this->EDLComposeProgram.Program == nullptr ||

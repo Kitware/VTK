@@ -17,6 +17,7 @@
 
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
+#include "vtkOpenGLError.h"
 #include "vtkOpenGLVertexArrayObject.h"
 #include "vtkShaderProgram.h"
 
@@ -191,4 +192,20 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
 void vtkOpenGLRenderUtilities::DrawFullScreenQuad()
 {
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderUtilities::MarkDebugEvent(const std::string &event)
+{
+  static bool hasDebugging = (glDebugMessageInsert != nullptr);
+  if (!hasDebugging)
+  {
+    return;
+  }
+
+  vtkOpenGLStaticCheckErrorMacro("Error before glDebugMessageInsert.")
+  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
+                       GL_DEBUG_SEVERITY_NOTIFICATION,
+                       0, static_cast<GLsizei>(event.size()), event.c_str());
+  vtkOpenGLClearErrorMacro();
 }

@@ -19,6 +19,7 @@
 #include "vtkRenderState.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderUtilities.h"
 #include "vtkMatrix4x4.h"
 #include "vtkCamera.h"
 #include "vtkOpenGLFramebufferObject.h"
@@ -223,7 +224,9 @@ void vtkCameraPass::Render(const vtkRenderState *s)
 
   if(this->DelegatePass!=nullptr)
   {
+    vtkOpenGLRenderUtilities::MarkDebugEvent("Start vtkCameraPass delegate");
     this->DelegatePass->Render(s);
+    vtkOpenGLRenderUtilities::MarkDebugEvent("End vtkCameraPass delegate");
     this->NumberOfRenderedProps+=
       this->DelegatePass->GetNumberOfRenderedProps();
   }

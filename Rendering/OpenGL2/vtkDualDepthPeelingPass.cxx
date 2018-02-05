@@ -76,11 +76,7 @@ namespace
 void annotate(const std::string &str)
 {
 #ifdef ANNOTATE_STREAM
-  vtkOpenGLStaticCheckErrorMacro("Error before glDebug.")
-  glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER,
-                       GL_DEBUG_SEVERITY_NOTIFICATION,
-                       0, str.size(), str.c_str());
-  vtkOpenGLClearErrorMacro();
+  vtkOpenGLRenderUtilities::MarkDebugEvent(str);
 #else // ANNOTATE_STREAM
   (void)str;
 #endif // ANNOTATE_STREAM
