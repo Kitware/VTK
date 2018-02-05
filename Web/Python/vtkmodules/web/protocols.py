@@ -334,7 +334,22 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
             if not self.trackingViews[vId]["enabled"]:
                 return
 
-            reply = self.stillRender({ "view": realViewId, "mtime": self.trackingViews[vId]["mtime"] })
+            if "originalSize" not in self.trackingViews[vId]:
+                view = self.getView(realViewId)
+                if 'GetSize' in view:
+                    self.trackingViews[vId]["originalSize"] = list(view.GetSize());
+                else:
+                    self.trackingViews[vId]["originalSize"] = list(view.ViewSize);
+
+            if "ratio" not in self.trackingViews[vId]:
+                self.trackingViews[vId]["ratio"] = 1
+
+            ratio = self.trackingViews[vId]["ratio"]
+            mtime = self.trackingViews[vId]["mtime"]
+            quality = self.trackingViews[vId]["quality"]
+            size = [int(s * ratio) for s in self.trackingViews[vId]["originalSize"]]
+
+            reply = self.stillRender({ "view": realViewId, "mtime": mtime, "quality": quality, "size": size })
             stale = reply["stale"]
             if reply["image"]:
                 # depending on whether the app has encoding enabled:
@@ -403,7 +418,7 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
         return { 'result': 'success' }
 
     @exportRpc("viewport.image.push.quality")
-    def setViewQuality(self, viewId, quality):
+    def setViewQuality(self, viewId, quality, ratio = 1):
         sView = self.getView(viewId)
         if not sView:
             return { 'error': 'Unable to get view with id %s' % viewId }
@@ -417,6 +432,33 @@ class vtkWebPublishImageDelivery(vtkWebProtocol):
             return { 'error': 'Unable to find subscription for view %s' % realViewId }
 
         observerInfo['quality'] = quality
+        observerInfo['ratio'] = ratio
+
+        # Update image size right now!
+        if "originalSize" in self.trackingViews[viewId]:
+            size = [int(s * ratio) for s in self.trackingViews[viewId]["originalSize"]]
+            if 'SetSize' in sView:
+                sView.SetSize(size)
+            else:
+                sView.ViewSize = size
+
+        return { 'result': 'success' }
+
+    @exportRpc("viewport.image.push.original.size")
+    def setViewSize(self, viewId, width, height):
+        sView = self.getView(viewId)
+        if not sView:
+            return { 'error': 'Unable to get view with id %s' % viewId }
+
+        realViewId = sView.GetGlobalIDAsString()
+        observerInfo = None
+        if realViewId in self.trackingViews:
+            observerInfo = self.trackingViews[realViewId]
+
+        if not observerInfo:
+            return { 'error': 'Unable to find subscription for view %s' % realViewId }
+
+        observerInfo['originalSize'] = [width, height]
 
         return { 'result': 'success' }
 
