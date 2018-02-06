@@ -16,6 +16,7 @@
 
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
+#include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
@@ -490,6 +491,35 @@ int vtkXMLReader::ReadXMLInformation()
       this->ReadError = 1;
     }
 
+    if (this->FieldDataElement) // read the field data information
+    {
+      for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements(); i++)
+      {
+        vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
+        const char* name = eNested->GetAttribute("Name");
+        if (name && strncmp(name, "TimeValue", 9) == 0)
+        {
+          vtkAbstractArray* array = this->CreateArray(eNested);
+          array->SetNumberOfTuples(1);
+          if (!this->ReadArrayValues(eNested, 0, array, 0, 1))
+          {
+            this->DataError = 1;
+          }
+          vtkDataArray* da = vtkDataArray::SafeDownCast(array);
+          if (da)
+          {
+            double val = da->GetComponent(0, 0);
+            vtkInformation* info = this->GetCurrentOutputInformation();
+            info->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), &val, 1);
+            double range[2] = {val, val};
+            info->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(), range, 2);
+          }
+          array->Delete();
+        }
+      }
+    }
+
+
     // Close the input stream to prevent resource leaks.
     this->CloseStream();
 
@@ -510,30 +540,32 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
     int outputPort =
       request->Get( vtkDemandDrivenPipeline::FROM_OUTPUT_PORT() );
     outputPort = outputPort >= 0 ? outputPort : 0;
-    this->SetupOutputInformation
-      (outputVector->GetInformationObject(outputPort) );
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    this->SetupOutputInformation(outInfo);
 
-    // this->NumberOfTimeSteps has been set during the
-    // this->ReadXMLInformation()
-    int numTimesteps = this->GetNumberOfTimeSteps();
-    this->TimeStepRange[0] = 0;
-    this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps-1 : 0);
-    if (numTimesteps != 0)
+    if (!outInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_RANGE()))
     {
-      std::vector<double> timeSteps(numTimesteps);
-      for (int i = 0; i < numTimesteps; i++)
+      // this->NumberOfTimeSteps has been set during the
+      // this->ReadXMLInformation()
+      int numTimesteps = this->GetNumberOfTimeSteps();
+      this->TimeStepRange[0] = 0;
+      this->TimeStepRange[1] = (numTimesteps > 0 ? numTimesteps-1 : 0);
+      if (numTimesteps != 0)
       {
-        timeSteps[i] = i;
+        std::vector<double> timeSteps(numTimesteps);
+        for (int i = 0; i < numTimesteps; i++)
+        {
+          timeSteps[i] = i;
+        }
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
+                     &timeSteps[0],
+                     numTimesteps);
+        double timeRange[2];
+        timeRange[0] = timeSteps[0];
+        timeRange[1] = timeSteps[numTimesteps-1];
+        outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
+                     timeRange, 2);
       }
-      vtkInformation* outInfo = outputVector->GetInformationObject(0);
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
-                   &timeSteps[0],
-                   numTimesteps);
-      double timeRange[2];
-      timeRange[0] = timeSteps[0];
-      timeRange[1] = timeSteps[numTimesteps-1];
-      outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_RANGE(),
-                   timeRange, 2);
     }
   }
   else
