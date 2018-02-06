@@ -561,6 +561,8 @@
 #define HPDF_TextAnnot_SetIcon vtklibharu_HPDF_TextAnnot_SetIcon
 #define HPDF_TextAnnot_SetOpened vtklibharu_HPDF_TextAnnot_SetOpened
 #define HPDF_TextMarkupAnnot_SetQuadPoints vtklibharu_HPDF_TextMarkupAnnot_SetQuadPoints
+#define HPDF_TIFFFaxBlackCodes vtklibharu_HPDF_TIFFFaxBlackCodes
+#define HPDF_TIFFFaxWhiteCodes vtklibharu_HPDF_TIFFFaxWhiteCodes
 #define HPDF_ToBox vtklibharu_HPDF_ToBox
 #define HPDF_ToPoint vtklibharu_HPDF_ToPoint
 #define HPDF_ToRect vtklibharu_HPDF_ToRect

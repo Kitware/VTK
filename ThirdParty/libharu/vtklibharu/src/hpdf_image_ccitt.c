@@ -21,7 +21,6 @@
 #include <memory.h>
 #include <assert.h>
 
-#define	G3CODES
 #include "t4.h"
 
 typedef unsigned int uint32;
@@ -578,11 +577,11 @@ HPDF_Fax3Encode2DRow(struct _HPDF_CCITT_Data *pData, unsigned char* bp, unsigned
 				a2 = finddiff2(bp, a1, bits, PIXEL(bp,a1));
 				putcode(pData, &horizcode);
 				if (a0+a1 == 0 || PIXEL(bp, a0) == 0) {
-					putspan(pData, a1-a0, TIFFFaxWhiteCodes);
-					putspan(pData, a2-a1, TIFFFaxBlackCodes);
+					putspan(pData, a1-a0, HPDF_TIFFFaxWhiteCodes);
+					putspan(pData, a2-a1, HPDF_TIFFFaxBlackCodes);
 				} else {
-					putspan(pData, a1-a0, TIFFFaxBlackCodes);
-					putspan(pData, a2-a1, TIFFFaxWhiteCodes);
+					putspan(pData, a1-a0, HPDF_TIFFFaxBlackCodes);
+					putspan(pData, a2-a1, HPDF_TIFFFaxWhiteCodes);
 				}
 				a0 = a2;
 			} else {			/* vertical mode */
