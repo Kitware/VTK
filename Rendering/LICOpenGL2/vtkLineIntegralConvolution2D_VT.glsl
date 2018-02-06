@@ -16,7 +16,7 @@
 //=========================================================================
 
 // move vector field to normalized image space
-// pre-procesing for vtkLineIntegralConvolution2D
+// pre-processing for vtkLineIntegralConvolution2D
 
 // the output of this shader
 //VTK::Output::Dec

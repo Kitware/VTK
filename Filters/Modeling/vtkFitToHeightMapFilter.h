@@ -73,7 +73,7 @@ class VTKFILTERSMODELING_EXPORT vtkFitToHeightMapFilter : public vtkPolyDataAlgo
 public:
   //@{
   /**
-   * Standard methods for contruction, type and printing.
+   * Standard methods for construction, type and printing.
    */
   static vtkFitToHeightMapFilter *New();
   vtkTypeMacro(vtkFitToHeightMapFilter,vtkPolyDataAlgorithm);

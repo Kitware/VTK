@@ -411,18 +411,18 @@ int vtkEnzoReaderInternal::GetBlockAttribute(
   // blocks with particles (e.g., the reference one with the fewest cells)
   // contain it as a block attribute, whereas others without particles just
   // do not contain this block attribute.
-  int   succeded = 0;
+  int   succeeded = 0;
   if (  this->LoadAttribute( attribute, blockIdx ) &&
         ( pDataSet->GetNumberOfCells() ==
           this->DataArray->GetNumberOfTuples() )
      )
   {
-    succeded = 1;
+    succeeded = 1;
     pDataSet->GetCellData()->AddArray( this->DataArray );
     this->ReleaseDataArray();
   }
 
-  return succeded;
+  return succeeded;
 }
 
 //------------------------------------------------------------------------------

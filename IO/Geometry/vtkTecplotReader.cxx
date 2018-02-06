@@ -887,7 +887,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
   float * arrayPtr = nullptr;
   vtkFloatArray * theArray = nullptr;
   std::vector< vtkFloatArray * > zoneData;
-  vtkDataSetAttributes * attribut[2] = { nodeData, cellData };
+  vtkDataSetAttributes * attribute[2] = { nodeData, cellData };
 
   zoneData.clear();
 
@@ -968,7 +968,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
   {
     if ( !anyCoord[v] && selected[v] )
     {
-      attribut[ this->CellBased[v] ]->AddArray( zoneData[zArrayId] );
+      attribute[ this->CellBased[v] ]->AddArray( zoneData[zArrayId] );
     }
 
     zArrayId += int(    !(  !( anyCoord[v] + selected[v] )  )    );
@@ -984,7 +984,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone( int numNodes, int numCells
     }
   }
   zoneData.clear();
-  attribut[0] = attribut[1] = nullptr;
+  attribute[0] = attribute[1] = nullptr;
 
   delete [] anyCoord;
   delete [] selected;
