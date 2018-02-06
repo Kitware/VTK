@@ -614,6 +614,7 @@ if (cxx)
   set(CXX_SUPPORT TRUE)
 endif()
 else ()
+set(cxx 0)
 set(CXX_SUPPORT 0)
 endif ()
 

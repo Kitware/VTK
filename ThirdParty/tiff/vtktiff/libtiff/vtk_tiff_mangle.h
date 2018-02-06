@@ -44,6 +44,8 @@
 #define TIFFError vtktiff_TIFFError
 #define TIFFErrorExt vtktiff_TIFFErrorExt
 #define _TIFFFax3fillruns vtktiff__TIFFFax3fillruns
+#define TIFFFaxBlackCodes vtktiff_TIFFFaxBlackCodes
+#define TIFFFaxWhiteCodes vtktiff_TIFFFaxWhiteCodes
 #define TIFFFdOpen vtktiff_TIFFFdOpen
 #define TIFFFieldDataType vtktiff_TIFFFieldDataType
 #define TIFFFieldName vtktiff_TIFFFieldName
