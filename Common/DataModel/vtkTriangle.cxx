@@ -1289,7 +1289,7 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
     int index = 0;
     for (int i=1;i<3;i++)
     {
-      if (std::abs( normal[index] ) > std::abs( normal[i] ))
+      if (std::abs( normal[index] ) < std::abs( normal[i] ))
       {
         index = i;
       }
@@ -1297,10 +1297,16 @@ int vtkTriangle::TrianglesIntersect(double p1[3], double q1[3], double r1[3],
 
     if (index == 0)
     {
-      return CoplanarTrianglesIntersect(&p1[1], &q1[1], &r1[1],
-                                        &p2[1], &q2[1], &r2[1]);
+      double p1_[2] = { p1[1], p1[2] };
+      double q1_[2] = { q1[1], q1[2] };
+      double r1_[2] = { r1[1], r1[2] };
+      double p2_[2] = { p2[1], p2[2] };
+      double q2_[2] = { q2[1], q2[2] };
+      double r2_[2] = { r2[1], r2[2] };
+
+      return CoplanarTrianglesIntersect(p1_, q1_, r1_, p2_, q2_, r2_);
     }
-    if (index == 1)
+    else if (index == 1)
     {
       double p1_[2] = { p1[0], p1[2] };
       double q1_[2] = { q1[0], q1[2] };
