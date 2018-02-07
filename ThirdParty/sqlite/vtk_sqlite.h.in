@@ -16,9 +16,9 @@
 #define vtk_sqlite_h
 
 /* Use the sqlite library configured for VTK.  */
-#cmakedefine VTK_USE_SYSTEM_SQLITE
+#cmakedefine01 VTK_MODULE_USE_EXTERNAL_vtksqlite
 
-#ifdef VTK_USE_SYSTEM_SQLITE
+#if VTK_MODULE_USE_EXTERNAL_vtksqlite
 # include <sqlite3.h>
 #else
 # include <vtksqlite/sqlite3.h>
