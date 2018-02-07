@@ -1,0 +1,4 @@
+* -whitespace
+
+libdispatch/u8.c             hooks-max-size=2097152
+libdispatch/utf8proc_data.c  hooks-max-size=2097152
